@@ -1,0 +1,21 @@
+{
+    "schemaVersion": 1,
+    "id": "teslamaps",
+    "version": "${version}",
+    "name": "TeslaMaps",
+    "description": "Dungeon map overlay for Hypixel Skyblock - ported from IllegalMap",
+    "authors": ["Tesla"],
+    "contact": {},
+    "license": "MIT",
+    "environment": "client",
+    "entrypoints": {
+        "client": ["com.teslamaps.TeslaMaps"]
+    },
+    "mixins": ["teslamaps.mixins.json"],
+    "depends": {
+        "fabricloader": ">=${loader_version}",
+        "minecraft": "~${minecraft_version}",
+        "java": ">=21",
+        "fabric-api": "*"
+    }
+}
