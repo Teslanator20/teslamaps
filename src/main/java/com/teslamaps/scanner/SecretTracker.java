@@ -1,0 +1,175 @@
+package com.teslamaps.scanner;
+
+import com.teslamaps.TeslaMaps;
+import com.teslamaps.dungeon.DungeonManager;
+import com.teslamaps.map.DungeonRoom;
+import com.teslamaps.utils.ScoreboardUtils;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
+
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Tracks secrets by monitoring the action bar and scoreboard.
+ * Action bar shows "X/Y Secrets" format.
+ * Scoreboard shows "Secrets Found: X" format.
+ */
+public class SecretTracker {
+    private static int dungeonSecretsFound = 0;
+    private static int lastKnownFound = -1;  // -1 means not initialized yet
+    private static int tickCounter = 0;
+
+    // Pattern to match "X/Y Secrets" in action bar (found/total)
+    private static final Pattern ACTION_BAR_PATTERN = Pattern.compile("(\\d+)/(\\d+) Secrets");
+
+    // Pattern to match "Secrets Found: X" on scoreboard
+    private static final Pattern SCOREBOARD_PATTERN = Pattern.compile("Secrets Found: (\\d+)");
+
+    /**
+     * Called every tick to check scoreboard for secrets.
+     */
+    public static void tick() {
+        if (!DungeonManager.isInDungeon()) return;
+
+        tickCounter++;
+        // Check scoreboard every 10 ticks
+        if (tickCounter % 10 != 0) return;
+
+        checkScoreboard();
+    }
+
+    /**
+     * Check scoreboard for "Secrets Found: X" line.
+     */
+    private static void checkScoreboard() {
+        List<String> lines = ScoreboardUtils.getScoreboardLines();
+        for (String line : lines) {
+            String clean = ScoreboardUtils.cleanLine(line);
+            Matcher matcher = SCOREBOARD_PATTERN.matcher(clean);
+            if (matcher.find()) {
+                try {
+                    int found = Integer.parseInt(matcher.group(1));
+                    processSecretUpdate(found);
+                } catch (NumberFormatException e) {
+                    // Ignore
+                }
+                break;
+            }
+        }
+    }
+
+    /**
+     * Called when an action bar (overlay) message is received.
+     * Parses "X/Y Secrets" format from action bar.
+     */
+    public static void onActionBarMessage(Text message) {
+        if (!DungeonManager.isInDungeon()) return;
+
+        String text = message.getString();
+
+        // Debug: log action bar messages occasionally
+        if (tickCounter % 100 == 0) {
+            TeslaMaps.LOGGER.info("[SecretTracker] Action bar: {}", text);
+        }
+
+        Matcher matcher = ACTION_BAR_PATTERN.matcher(text);
+        if (matcher.find()) {
+            try {
+                int found = Integer.parseInt(matcher.group(1));
+                int total = Integer.parseInt(matcher.group(2));
+
+                TeslaMaps.LOGGER.debug("[SecretTracker] Action bar secrets: {}/{}", found, total);
+                processSecretUpdate(found);
+            } catch (NumberFormatException e) {
+                // Ignore parsing errors
+            }
+        }
+    }
+
+    /**
+     * Process a secret count update - attribute increases to current room.
+     */
+    private static void processSecretUpdate(int newFound) {
+        // First observation - just initialize without treating as gain
+        if (lastKnownFound < 0) {
+            lastKnownFound = newFound;
+            dungeonSecretsFound = newFound;
+            TeslaMaps.LOGGER.info("[SecretTracker] Initialized with dungeon total: {}", newFound);
+            return;
+        }
+
+        if (newFound > lastKnownFound) {
+            int secretsGained = newFound - lastKnownFound;
+            lastKnownFound = newFound;
+            dungeonSecretsFound = newFound;
+
+            // Attribute to current room
+            DungeonRoom currentRoom = getCurrentPlayerRoom();
+            if (currentRoom != null && currentRoom.getSecrets() > 0) {
+                int current = Math.max(0, currentRoom.getFoundSecrets());
+                int newRoomFound = Math.min(current + secretsGained, currentRoom.getSecrets());
+                currentRoom.setFoundSecrets(newRoomFound);
+                TeslaMaps.LOGGER.info("[SecretTracker] Secret found in '{}': {}/{} (dungeon total: {})",
+                        currentRoom.getName(), newRoomFound, currentRoom.getSecrets(), newFound);
+            } else {
+                TeslaMaps.LOGGER.info("[SecretTracker] Secret found but no valid room (total: {})", newFound);
+            }
+        } else if (newFound != lastKnownFound) {
+            // Total changed (reset or missed something)
+            lastKnownFound = newFound;
+            dungeonSecretsFound = newFound;
+        }
+    }
+
+    /**
+     * Get the room the player is currently standing in.
+     */
+    private static DungeonRoom getCurrentPlayerRoom() {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.player == null) return null;
+
+        double x = mc.player.getX();
+        double z = mc.player.getZ();
+
+        // Convert world coordinates to grid coordinates
+        // Dungeon starts at -200,-200 with 32-block cells
+        int gridX = (int) Math.floor((x + 200) / 32.0);
+        int gridZ = (int) Math.floor((z + 200) / 32.0);
+
+        // Clamp to valid grid range (0-5)
+        gridX = Math.max(0, Math.min(5, gridX));
+        gridZ = Math.max(0, Math.min(5, gridZ));
+
+        return DungeonManager.getRoomAt(gridX, gridZ);
+    }
+
+    /**
+     * Called when a room's checkmark state changes to GREEN.
+     * This confirms all secrets in the room are found.
+     */
+    public static void onRoomCompleted(DungeonRoom room) {
+        if (room != null && room.getSecrets() > 0) {
+            room.setFoundSecrets(room.getSecrets());
+            TeslaMaps.LOGGER.info("[SecretTracker] Room '{}' completed - all {} secrets found",
+                    room.getName(), room.getSecrets());
+        }
+    }
+
+    /**
+     * Get current dungeon-wide secrets found.
+     */
+    public static int getDungeonSecretsFound() {
+        return dungeonSecretsFound;
+    }
+
+    /**
+     * Reset tracker state (called when leaving dungeon).
+     */
+    public static void reset() {
+        dungeonSecretsFound = 0;
+        lastKnownFound = -1;  // -1 means not initialized
+        tickCounter = 0;
+    }
+}

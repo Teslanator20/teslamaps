@@ -1,0 +1,22 @@
+{
+    "required": true,
+    "package": "com.teslamaps.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "client": [
+        "InGameHudMixin",
+        "ClientBrandMixin",
+        "WorldRendererMixin",
+        "EntityMixin",
+        "PlayerTabOverlayAccessor",
+        "MapStateAccessor",
+        "ChatMixin",
+        "BlindnessMixin",
+        "NoFireMixin",
+        "NoArrowsMixin",
+        "NoExplosionsMixin",
+        "NoStuckArrowsMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}
