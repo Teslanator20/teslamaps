@@ -18,6 +18,9 @@ public class EntityMixin {
      */
     @Inject(method = "isGlowing", at = @At("HEAD"), cancellable = true)
     private void injectIsGlowing(CallbackInfoReturnable<Boolean> cir) {
+        // Only apply glow if the config option is enabled
+        if (!com.teslamaps.config.TeslaMapsConfig.get().showGlow) return;
+
         Entity self = (Entity) (Object) this;
         if (StarredMobESP.shouldGlow(self)) {
             cir.setReturnValue(true);

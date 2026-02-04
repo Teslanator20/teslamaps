@@ -200,8 +200,8 @@ public class MapScanner {
                         TeslaMaps.LOGGER.info("[MapScanner] Room '{}' has {} failed checkmark pixels -> FAILED",
                                 room.getName(), failedCount);
                     }
-                } else if (greenCount >= 25 && !isAdjacentToEntrance(room)) {
-                    // Green needs threshold AND must not be adjacent to Entrance (to avoid bleed)
+                } else if (greenCount >= (isAdjacentToEntrance(room) ? 29 : 25)) {
+                    // Green needs slightly higher threshold if adjacent to Entrance (to avoid bleed)
                     bestState = CheckmarkState.GREEN;
                     if (shouldLog) {
                         TeslaMaps.LOGGER.info("[MapScanner] Room '{}' has {} green checkmark pixels -> GREEN",
@@ -393,21 +393,23 @@ public class MapScanner {
                 }
 
                 // Hypixel uses these decoration types for dungeon map:
-                // - minecraft:player (green) = local player
+                // - minecraft:frame = local player (self)
                 // - minecraft:blue_marker = other party members
-                // - minecraft:frame = also other party members
+                // - minecraft:player = sometimes used for players
                 if (typeId.contains("player") || typeId.contains("blue_marker") || typeId.contains("frame")) {
                     // x and z are bytes in range -128 to 127, representing map coordinates
                     // They need to be converted to 0-128 range for our map
                     int mapX = (decoration.x() + 128) / 2;  // Convert from -128..128 to 0..128
                     int mapZ = (decoration.z() + 128) / 2;
 
-                    // "player" type (green marker) = local player, blue_marker/frame = others
-                    int isLocal = typeId.equals("minecraft:player") ? 1 : 0;
+                    // "frame" type = local player (self), others = party members
+                    int isLocal = typeId.equals("minecraft:frame") ? 1 : 0;
 
                     mapPlayerPositions.add(new int[]{mapX, mapZ, (int)decoration.rotation(), isLocal});
 
-                    TeslaMaps.LOGGER.info("[MapScanner] Player at map[{},{}] type={} isLocal={}", mapX, mapZ, typeId, isLocal);
+                    if (debugLogCounter % 100 == 0) {
+                        TeslaMaps.LOGGER.info("[MapScanner] Player at map[{},{}] type={} isLocal={}", mapX, mapZ, typeId, isLocal);
+                    }
                 }
             }
 
@@ -524,6 +526,14 @@ public class MapScanner {
                 }
             }
         }
+    }
+
+    /**
+     * Convert map coordinates to world coordinates (public version).
+     * Dungeon starts at approximately (-200, -200) and uses 32-block rooms.
+     */
+    public static double[] mapToWorldPosition(int mapX, int mapY) {
+        return mapToWorldPosition(mapX, mapY, false);
     }
 
     /**

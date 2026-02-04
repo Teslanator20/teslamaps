@@ -29,8 +29,16 @@ public class TeslaMapsConfig {
 
     // ===== ROOM INFO =====
     public boolean showRoomNames = true;
+    public boolean hideEntranceBloodFairyNames = false; // Don't render names for entrance, blood, fairy rooms
+    public boolean showNamesOnlyForPuzzles = false;     // Only show room names for puzzle rooms
     public boolean showSecretCount = true;
+    public boolean hideOneSecretCount = false;          // Don't show secret count if room has only 1 secret
+    public boolean showCrypts = true;           // Show crypts found below map
+    public boolean showTotalCrypts = false;     // Show total crypts (from rooms.json) next to crypts found
     public boolean hideSecretsWhenDone = true;  // Hide secret count when room is green
+    public boolean showMimicStatus = true;      // Show mimic status (checkmark/cross) below map
+    public boolean showDungeonScore = true;     // Show estimated dungeon score below map
+    public boolean assumePaulMayor = false;    // Always add +10 Paul bonus to score
     public float roomNameScale = 1.0f;          // Scale of room name text (0.5 - 2.0)
 
     // ===== CHECKMARKS =====
@@ -57,13 +65,22 @@ public class TeslaMapsConfig {
     public boolean shadowAssassinESP = true;    // Highlight invisible shadow assassins
     public boolean dungeonBatESP = true;        // Highlight invisible bats (secrets)
     public boolean dungeonBatTracers = true;    // Draw tracers to dungeon bats
+    public boolean invisibleArmorStandESP = false; // Highlight invisible armor stands (decorations like skulls)
     public boolean witherKeyESP = true;         // Highlight wither/blood keys
     public boolean keyTracers = true;           // Draw tracers to wither/blood keys
     public boolean lividFinder = true;          // Highlight the correct Livid in F5/M5
     public boolean lividTracer = true;          // Draw tracer to correct Livid
+    public boolean lividDeathMessage = true;    // Send "/pc Livid Dead!" when Livid dies
     public boolean doorESP = true;              // Highlight wither/blood doors through walls
     public boolean doorTracers = true;          // Draw tracers to wither/blood doors
+    public boolean doorColorBasedOnKey = false; // Color doors red if key not picked up, green if picked up
     public boolean onlyShowNextDoor = true;     // Only show tracer/ESP for the nearest door
+    public boolean mimicChestESP = true;        // Highlight trapped chests (potential mimic)
+    public boolean mimicChestTracers = true;    // Draw tracers to trapped chests
+    public boolean mimicDeadMessage = true;     // Send "/pc Mimic Dead!" when mimic dies
+    public boolean showGlow = true;             // Show glow effect on entities
+    public boolean filledESP = false;           // Fill entire entity hitbox instead of just outlines
+    public float espAlpha = 0.4f;               // Transparency for filled ESP (0.0 = invisible, 1.0 = solid)
 
     // ===== ESP: OTHER =====
     public boolean pestESP = true;              // Highlight pests in garden (invisible silverfish)
@@ -84,6 +101,13 @@ public class TeslaMapsConfig {
     public boolean noExplosions = false;     // Hide explosion particles
     public boolean noArrows = false;         // Hide arrow entities
     public boolean noStuckArrows = false;    // Hide arrows stuck in entities
+    public boolean noWaterOverlay = false;   // Hide water overlay on screen
+    public boolean noVignette = false;       // Disable vignette (darkness around screen edges)
+    public boolean noDeathAnimation = false; // Hide death animation from entities dying
+    public boolean hideInventoryEffects = false; // Hide potion effects in inventory
+    public boolean noLightning = false;      // Remove lightning bolts
+    public boolean noBlockBreaking = false;  // Remove block breaking particles
+    public boolean noFallingBlocks = false;  // Hide falling block entities
 
     // ===== SLAYER =====
     public boolean slayerHUD = true;           // Show slayer boss health/phase overlay
@@ -109,8 +133,49 @@ public class TeslaMapsConfig {
     public boolean autoGFSTNT = true;           // Refill superboom TNT
     public boolean autoGFSDraft = true;         // Auto get draft on puzzle fail
 
+    // ===== PUZZLE SOLVERS =====
+    public boolean solveBlaze = true;              // Show which blaze to hit
+    public boolean blazeDoneMessage = true;        // Send "/pc Blaze Done!" when last blaze killed
+    public boolean solveThreeWeirdos = true;       // Highlight correct chest in Three Weirdos
+    public boolean solveTicTacToe = true;          // Show best move in Tic Tac Toe
+    public boolean solveCreeperBeams = true;       // Show solution for Creeper Beams
+
+    // ===== TERMINALS =====
+    public boolean solveStartsWithTerminal = true; // Auto-click correct item in "What starts with" terminal
+    public boolean solveSelectAllTerminal = true;  // Auto-click all items in "Select all the [color]" terminal
+    public boolean solveClickInOrderTerminal = true; // Auto-click panes in order 1-14
+    public boolean solveCorrectPanesTerminal = true; // Auto-click incorrect panes to fix them
+    public boolean solveMelodyTerminal = true;     // Auto-click melody sequence (Click the button on time!)
+    public boolean solveRubixTerminal = true;      // Auto-solve rubix cube (Change all to same color!)
+    public int terminalClickDelay = 100;           // Delay in ms before first click (prevent too fast)
+    public int terminalClickInterval = 50;         // Delay in ms between subsequent clicks
+    public int melodyTerminalClickDelay = 150;     // Delay for melody terminal click (separate because timing is critical)
+
+    // ===== CUSTOM TERMINAL GUI =====
+    public boolean customTerminalGui = false;      // Enable custom terminal GUI overlay (replaces container screen)
+    public boolean terminalClickAnywhere = false;  // Click anywhere to solve - redirects all clicks to correct slot
+    public float terminalGuiSize = 1.0f;           // Size multiplier for custom terminal GUI (0.5 - 3.0)
+    public float terminalGuiGap = 5.0f;            // Gap between slots in pixels (0 - 15)
+    public int terminalGuiRoundness = 9;           // Corner roundness for slots (0 - 15)
+    public boolean terminalGuiShowNumbers = true;  // Show numbers in Click in Order terminal
+    public String terminalGuiBackgroundColor = "CC404040";  // Background color for custom GUI
+    public String terminalGuiOrderColor1 = "55FF55";        // First item to click (green)
+    public String terminalGuiOrderColor2 = "44DD44";        // Second item to click (darker green)
+    public String terminalGuiOrderColor3 = "339933";        // Third item to click (darkest green)
+    public String terminalGuiPanesColor = "55FF55";         // Incorrect panes to click (green)
+    public String terminalGuiStartsWithColor = "00AAAA";    // Starts with item highlight (cyan)
+    public String terminalGuiSelectColor = "00AAAA";        // Select all item highlight (cyan)
+    public String terminalGuiRubixColor1 = "00AAAA";        // Rubix 1 click (cyan)
+    public String terminalGuiRubixColor2 = "008888";        // Rubix 2 clicks (darker cyan)
+    public String terminalGuiMelodyColor = "AA00AA";        // Melody current note (purple)
+
     // ===== DEBUG =====
     public boolean debugMode = false;
+
+    // ===== PROFILE VIEWER =====
+    public String hypixelApiKey = "";
+    public List<String> recentPlayers = new ArrayList<>();
+    public int pvCacheDurationSeconds = 300;  // 5 minute cache
 
     // ===== COLORS (hex format: "AARRGGBB" or "RRGGBB") =====
     // Room colors
@@ -141,6 +206,17 @@ public class TeslaMapsConfig {
     public String colorCheckGreen = "55FF55";        // Green checkmark
     public String colorCheckFailed = "FF5555";       // Failed/red X
 
+    // ESP colors
+    public String colorESPStarred = "FFFF00";        // Starred mobs (yellow)
+    public String colorESPFel = "FF0000";            // Fels (red)
+    public String colorESPSniper = "55FFFF";         // Snipers (light blue/cyan)
+    public String colorESPShadowAssassin = "AA00AA"; // Shadow Assassins (purple)
+    public String colorESPBat = "AAAAAA";            // Dungeon bats (gray)
+    public String colorESPWitherKey = "000000";      // Wither key (black)
+    public String colorESPBloodKey = "FF0000";       // Blood key (red)
+    public String colorESPWitherDoor = "000000";     // Wither door (black)
+    public String colorESPBloodDoor = "FF0000";      // Blood door (red)
+
     public static TeslaMapsConfig get() {
         return instance;
     }
@@ -167,6 +243,9 @@ public class TeslaMapsConfig {
                 // Ensure lists are never null (Gson might not initialize them)
                 if (instance.customESPMobs == null) {
                     instance.customESPMobs = new ArrayList<>();
+                }
+                if (instance.recentPlayers == null) {
+                    instance.recentPlayers = new ArrayList<>();
                 }
                 TeslaMaps.LOGGER.info("Config loaded from {}", CONFIG_PATH);
             } else {

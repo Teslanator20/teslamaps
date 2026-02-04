@@ -83,6 +83,38 @@ public class StarredMobESP {
     // Track dungeon bat positions for tracers
     private static final List<Vec3d> dungeonBatPositions = new ArrayList<>();
 
+    // Track invisible armor stand positions for ESP
+    private static final List<Box> invisibleArmorStandBoxes = new ArrayList<>();
+    private static final int INVISIBLE_ARMOR_STAND_COLOR = 0xFF00FFFF; // Cyan
+
+    // Track key pickup state for door coloring
+    private static boolean witherKeyPickedUp = false;
+    private static boolean bloodKeyPickedUp = false;
+
+    /**
+     * Reset key pickup tracking when leaving dungeon.
+     */
+    public static void reset() {
+        witherKeyPickedUp = false;
+        bloodKeyPickedUp = false;
+    }
+
+    /**
+     * Called when a wither door is opened - reset wither key state.
+     */
+    public static void onWitherDoorOpened() {
+        witherKeyPickedUp = false;
+        TeslaMaps.LOGGER.info("[KeyESP] Wither door opened, key state reset");
+    }
+
+    /**
+     * Called when a blood door is opened - reset blood key state.
+     */
+    public static void onBloodDoorOpened() {
+        bloodKeyPickedUp = false;
+        TeslaMaps.LOGGER.info("[KeyESP] Blood door opened, key state reset");
+    }
+
     // Store key entities for 3D box rendering
     private static final List<Entity> witherKeyEntities = new ArrayList<>();
     private static final List<Entity> bloodKeyEntities = new ArrayList<>();
@@ -151,6 +183,7 @@ public class StarredMobESP {
         // Reset ground notification and set cooldown
         witherKeyOnGroundNotified = false;
         witherKeyPickupTime = System.currentTimeMillis();
+        witherKeyPickedUp = true;
     }
 
     /**
@@ -172,6 +205,7 @@ public class StarredMobESP {
         // Reset ground notification and set cooldown
         bloodKeyOnGroundNotified = false;
         bloodKeyPickupTime = System.currentTimeMillis();
+        bloodKeyPickedUp = true;
     }
 
     /**
@@ -252,6 +286,7 @@ public class StarredMobESP {
         bloodDoorBoxes.clear();
         pestPositions.clear();
         dungeonBatPositions.clear();
+        invisibleArmorStandBoxes.clear();
 
         // Scan for wither keys and blood keys by entity name (like OdinClient does)
         if (inDungeon && TeslaMapsConfig.get().witherKeyESP) {
@@ -359,6 +394,19 @@ public class StarredMobESP {
         if (checkedCount > 0 && System.currentTimeMillis() % 5000 < 50) {
             TeslaMaps.LOGGER.info("[StarredMobESP] Checked {} entities, highlighted {}, inDungeon={}, customMobs={}",
                     checkedCount, highlightedEntities.size(), inDungeon, hasCustomMobs);
+        }
+
+        // Scan for invisible armor stands (skull decorations) in dungeon
+        if (inDungeon && TeslaMapsConfig.get().invisibleArmorStandESP) {
+            for (Entity entity : mc.world.getEntities()) {
+                if (entity instanceof ArmorStandEntity && entity.isInvisible()) {
+                    ArmorStandEntity armorStand = (ArmorStandEntity) entity;
+                    // Only highlight armor stands without passengers (decorations, not mob name tags)
+                    if (!armorStand.hasPassengers()) {
+                        invisibleArmorStandBoxes.add(armorStand.getBoundingBox());
+                    }
+                }
+            }
         }
 
         // Debug: log all nearby entities (for finding fels in dungeons and pests outside)
@@ -519,36 +567,40 @@ public class StarredMobESP {
      * Doors have air/passage on both sides perpendicular to the door.
      */
     private static boolean isValidDoor(MinecraftClient mc, BlockPos pos, boolean xAligned) {
-        // Check for air blocks on both sides of the door (the passage)
-        // For X-aligned doors, check X+1 and X-1
-        // For Z-aligned doors, check Z+1 and Z-1
+        // Only check doors in dungeon area (negative coordinates)
+        // Chambers and boss rooms are in positive coords and have decorative red terracotta
+        if (pos.getX() > 0 || pos.getZ() > 0) {
+            return false;
+        }
 
+        // Check for air blocks on both sides of the door (the passage)
         Block airCheck1, airCheck2;
         if (xAligned) {
             // Door runs along Z, check X direction for passage
-            airCheck1 = mc.world.getBlockState(pos.add(3, 0, 0)).getBlock();
-            airCheck2 = mc.world.getBlockState(pos.add(-3, 0, 0)).getBlock();
+            airCheck1 = mc.world.getBlockState(pos.add(4, 0, 0)).getBlock();
+            airCheck2 = mc.world.getBlockState(pos.add(-4, 0, 0)).getBlock();
         } else {
             // Door runs along X, check Z direction for passage
-            airCheck1 = mc.world.getBlockState(pos.add(0, 0, 3)).getBlock();
-            airCheck2 = mc.world.getBlockState(pos.add(0, 0, -3)).getBlock();
+            airCheck1 = mc.world.getBlockState(pos.add(0, 0, 4)).getBlock();
+            airCheck2 = mc.world.getBlockState(pos.add(0, 0, -4)).getBlock();
         }
 
-        // At least one side should have air (passage) - doors lead somewhere
-        boolean hasPassage = airCheck1 == Blocks.AIR || airCheck2 == Blocks.AIR;
+        // BOTH sides should have air (passage) - doors connect two rooms
+        boolean hasPassage = airCheck1 == Blocks.AIR && airCheck2 == Blocks.AIR;
+        if (!hasPassage) return false;
 
-        // Also check that there are multiple door blocks vertically (doors are tall)
+        // Check that there are multiple door blocks vertically (doors are at least 3 tall)
         int verticalCount = 0;
         Block targetBlock = mc.world.getBlockState(pos).getBlock();
-        for (int dy = -2; dy <= 2; dy++) {
+        for (int dy = -2; dy <= 3; dy++) {
             Block check = mc.world.getBlockState(pos.add(0, dy, 0)).getBlock();
             if (check == targetBlock) {
                 verticalCount++;
             }
         }
 
-        // Valid door: has passage AND has at least 2 blocks vertically
-        return hasPassage && verticalCount >= 2;
+        // Valid door: has passage on both sides AND has at least 3 blocks vertically
+        return verticalCount >= 3;
     }
 
     /**
@@ -875,9 +927,11 @@ public class StarredMobESP {
     }
 
     /**
-     * Get the highlight color for an entity.
+     * Get the highlight color for an entity (uses config colors).
      */
     public static int getHighlightColor(Entity entity) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+
         // Dropped items get yellow
         if (entity instanceof ItemEntity) {
             return DROPPED_ITEM_COLOR;
@@ -885,19 +939,19 @@ public class StarredMobESP {
 
         String name = entity.getName().getString();
 
-        // Fels get magenta color
+        // Fels get configured color
         if (name.equals("Dinnerbone")) {
-            return FEL_COLOR;
+            return TeslaMapsConfig.parseColor(config.colorESPFel);
         }
 
-        // Snipers get orange-yellow color
+        // Snipers get configured color (light blue by default)
         if (hasSniperArmorStand(entity)) {
-            return SNIPER_COLOR;
+            return TeslaMapsConfig.parseColor(config.colorESPSniper);
         }
 
-        // Dungeon bats get orange color (in dungeon)
+        // Dungeon bats get configured color (in dungeon)
         if (name.equals("Bat") && DungeonManager.isInDungeon()) {
-            return DUNGEON_BAT_COLOR;
+            return TeslaMapsConfig.parseColor(config.colorESPBat);
         }
 
         // Pests/critters get green color (invisible Silverfish or Bat outside dungeon)
@@ -905,9 +959,9 @@ public class StarredMobESP {
             return PEST_COLOR;
         }
 
-        // Shadow Assassins get purple color
+        // Shadow Assassins get configured color
         if (name.equals("Shadow Assassin") && entity.isInvisible()) {
-            return SHADOW_ASSASSIN_COLOR;
+            return TeslaMapsConfig.parseColor(config.colorESPShadowAssassin);
         }
 
         // Custom ESP mobs get cyan color
@@ -917,10 +971,10 @@ public class StarredMobESP {
 
         if (entity instanceof PlayerEntity) {
             if (name.equals("Lost Adventurer")) return 0xFFFEE15C; // Yellow
-            if (name.equals("Shadow Assassin")) return 0xFF5B2CB2; // Purple
+            if (name.equals("Shadow Assassin")) return TeslaMapsConfig.parseColor(config.colorESPShadowAssassin);
             if (name.equals("Diamond Guy")) return 0xFF57C2F7; // Light blue
         }
-        return STARRED_COLOR;
+        return TeslaMapsConfig.parseColor(config.colorESPStarred);
     }
 
     /**
@@ -1012,10 +1066,27 @@ public class StarredMobESP {
 
                 Box box = allDoors.get(i);
                 boolean isWither = isWitherDoor.get(i);
-                int boxColor = isWither ? 0xFF333333 : 0xFFCC0000;
-                int tracerColor = isWither ? TRACER_DOOR : 0xFFFF0000;
 
-                ESPRenderer.drawBoxOutline(matrices, box, boxColor, 3.0f, cameraPos);
+                // Door color based on key state (if enabled)
+                int boxColor, tracerColor;
+                if (TeslaMapsConfig.get().doorColorBasedOnKey) {
+                    boolean keyPickedUp = isWither ? witherKeyPickedUp : bloodKeyPickedUp;
+                    if (keyPickedUp) {
+                        // Green if key picked up
+                        boxColor = 0xFF00FF00;
+                        tracerColor = 0xFF55FF55;
+                    } else {
+                        // Red if key not picked up
+                        boxColor = 0xFFFF0000;
+                        tracerColor = 0xFFFF5555;
+                    }
+                } else {
+                    // Default colors
+                    boxColor = isWither ? 0xFF333333 : 0xFFCC0000;
+                    tracerColor = isWither ? TRACER_DOOR : 0xFFFF0000;
+                }
+
+                ESPRenderer.drawESPBox(matrices, box, boxColor, cameraPos);
                 if (drawDoorTracers) {
                     Vec3d doorCenter = box.getCenter();
                     ESPRenderer.drawTracerFromCamera(matrices, doorCenter, tracerColor, cameraPos);
@@ -1032,7 +1103,7 @@ public class StarredMobESP {
                 if (!keyEntity.isAlive()) continue;
                 // Use entity's bounding box directly
                 Box keyBox = keyEntity.getBoundingBox();
-                ESPRenderer.drawBoxOutline(matrices, keyBox, 0xFF000000, 3.0f, cameraPos);  // Black box
+                ESPRenderer.drawESPBox(matrices, keyBox, 0xFF000000, cameraPos);  // Black box
                 if (drawKeyTracers) {
                     Vec3d keyCenter = keyBox.getCenter();
                     ESPRenderer.drawTracerFromCamera(matrices, keyCenter, TRACER_WITHER_KEY, cameraPos);
@@ -1043,11 +1114,45 @@ public class StarredMobESP {
             for (Entity keyEntity : bloodKeyEntities) {
                 if (!keyEntity.isAlive()) continue;
                 Box keyBox = keyEntity.getBoundingBox();
-                ESPRenderer.drawBoxOutline(matrices, keyBox, 0xFFCC0000, 3.0f, cameraPos);  // Red box
+                ESPRenderer.drawESPBox(matrices, keyBox, 0xFFCC0000, cameraPos);  // Red box
                 if (drawKeyTracers) {
                     Vec3d keyCenter = keyBox.getCenter();
                     ESPRenderer.drawTracerFromCamera(matrices, keyCenter, TRACER_BLOOD_KEY, cameraPos);
                 }
+            }
+        }
+
+        // Render boxes for all highlighted entities (if filled ESP is enabled)
+        if (TeslaMapsConfig.get().filledESP) {
+            MinecraftClient mc = MinecraftClient.getInstance();
+            if (mc.world == null) return;
+
+            // Render boxes for all glowing entities
+            for (Map.Entry<Entity, Integer> entry : glowingEntities.entrySet()) {
+                Entity entity = entry.getKey();
+                if (!entity.isAlive()) continue;
+
+                int color = entry.getValue();
+                Box entityBox = entity.getBoundingBox();
+                ESPRenderer.drawFilledBox(matrices, entityBox, color, cameraPos,
+                        (VertexConsumerProvider.Immediate) provider);
+            }
+
+            // Render boxes for slayer entities
+            for (Entity entity : mc.world.getEntities()) {
+                if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
+                    int color = SlayerHUD.getGlowColor(entity);
+                    Box entityBox = entity.getBoundingBox();
+                    ESPRenderer.drawFilledBox(matrices, entityBox, color, cameraPos,
+                            (VertexConsumerProvider.Immediate) provider);
+                }
+            }
+        }
+
+        // Invisible armor stand ESP - render cyan boxes
+        if (TeslaMapsConfig.get().invisibleArmorStandESP) {
+            for (Box armorStandBox : invisibleArmorStandBoxes) {
+                ESPRenderer.drawBoxOutline(matrices, armorStandBox, INVISIBLE_ARMOR_STAND_COLOR, 2.0f, cameraPos);
             }
         }
 
