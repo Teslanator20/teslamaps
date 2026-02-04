@@ -6,10 +6,12 @@ import net.minecraft.scoreboard.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ScoreboardUtils {
     private static final Pattern COLOR_CODE_PATTERN = Pattern.compile("\u00A7[0-9a-fk-or]", Pattern.CASE_INSENSITIVE);
+    private static final Pattern CLEARED_PATTERN = Pattern.compile("Cleared:\\s*(\\d+)%");
 
     public static List<String> getScoreboardLines() {
         List<String> lines = new ArrayList<>();
@@ -54,5 +56,24 @@ public class ScoreboardUtils {
         if (objective == null) return "";
 
         return objective.getDisplayName().getString();
+    }
+
+    /**
+     * Get dungeon clear percentage from scoreboard.
+     * @return clear percentage (0.0 - 1.0), or 0 if not found
+     */
+    public static double getClearPercentage() {
+        for (String line : getScoreboardLines()) {
+            String clean = cleanLine(line);
+            Matcher matcher = CLEARED_PATTERN.matcher(clean);
+            if (matcher.find()) {
+                try {
+                    return Double.parseDouble(matcher.group(1)) / 100.0;
+                } catch (NumberFormatException e) {
+                    return 0;
+                }
+            }
+        }
+        return 0;
     }
 }

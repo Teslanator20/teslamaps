@@ -138,22 +138,31 @@ public class ESPRenderer {
     }
 
     /**
-     * Draw a tracer from player eye position to target.
-     * Uses Apollo's approach: start 2 blocks in front of the player's eyes
-     * to prevent first-person z-fighting/glitching.
+     * Draw a tracer from camera position to target.
+     * Uses the actual camera position for perfect center alignment.
      */
     public static void drawTracerFromCamera(MatrixStack matrices, Vec3d target, int color, Vec3d cameraPos,
                                              VertexConsumerProvider.Immediate bufferSource) {
         MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null) return;
+        if (mc.player == null || mc.gameRenderer == null || mc.gameRenderer.getCamera() == null) return;
 
-        // Get player eye position
-        Vec3d playerEye = mc.player.getEyePos();
+        // Get camera look direction from yaw/pitch
+        var camera = mc.gameRenderer.getCamera();
+        float yaw = camera.getYaw();
+        float pitch = camera.getPitch();
 
-        // Get rotation vector and offset start position 2 blocks in front of eyes (Apollo's approach)
-        float partialTicks = mc.getRenderTickCounter().getTickProgress(true);
-        Vec3d rotationVec = mc.player.getRotationVec(partialTicks);
-        Vec3d tracerStart = playerEye.add(rotationVec.multiply(2.0));
+        // Convert to direction vector
+        double yawRad = Math.toRadians(-yaw);
+        double pitchRad = Math.toRadians(-pitch);
+        double cosP = Math.cos(pitchRad);
+        Vec3d lookDir = new Vec3d(
+            Math.sin(yawRad) * cosP,
+            Math.sin(pitchRad),
+            Math.cos(yawRad) * cosP
+        );
+
+        // Start 0.5 blocks in front of camera to avoid z-fighting
+        Vec3d tracerStart = cameraPos.add(lookDir.multiply(0.5));
 
         drawTracer(matrices, tracerStart, target, color, cameraPos, bufferSource);
     }
@@ -180,7 +189,111 @@ public class ESPRenderer {
         drawTracer(matrices, start, end, color, cameraPos, bufferSource);
     }
 
+    /**
+     * Draw a filled box that renders through walls.
+     * Uses WORLD coordinates - camera offset is handled by matrix translation.
+     */
+    public static void drawFilledBox(MatrixStack matrices, Box box, int color, Vec3d cameraPos,
+                                       VertexConsumerProvider.Immediate bufferSource) {
+        float r = ((color >> 16) & 0xFF) / 255f;
+        float g = ((color >> 8) & 0xFF) / 255f;
+        float b = (color & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f;
+        if (a == 0) a = com.teslamaps.config.TeslaMapsConfig.get().espAlpha; // Use config transparency
+
+        // World coordinates
+        float minX = (float) box.minX;
+        float minY = (float) box.minY;
+        float minZ = (float) box.minZ;
+        float maxX = (float) box.maxX;
+        float maxY = (float) box.maxY;
+        float maxZ = (float) box.maxZ;
+
+        matrices.push();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+
+        MatrixStack.Entry pose = matrices.peek();
+        VertexConsumer buffer = bufferSource.getBuffer(TeslaRenderLayers.FILLED_ESP);
+
+        // Draw 6 faces as quads
+        renderFilledBox(pose, buffer, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, a);
+
+        bufferSource.draw(TeslaRenderLayers.FILLED_ESP);
+        matrices.pop();
+    }
+
+    /**
+     * Render a filled box (6 quads).
+     */
+    private static void renderFilledBox(MatrixStack.Entry pose, VertexConsumer buffer,
+                                         float minX, float minY, float minZ,
+                                         float maxX, float maxY, float maxZ,
+                                         float r, float g, float b, float a) {
+        // Bottom face (Y-)
+        buffer.vertex(pose, minX, minY, minZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, minY, minZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, minY, maxZ).color(r, g, b, a);
+        buffer.vertex(pose, minX, minY, maxZ).color(r, g, b, a);
+
+        // Top face (Y+)
+        buffer.vertex(pose, minX, maxY, minZ).color(r, g, b, a);
+        buffer.vertex(pose, minX, maxY, maxZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, maxY, maxZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, maxY, minZ).color(r, g, b, a);
+
+        // North face (Z-)
+        buffer.vertex(pose, minX, minY, minZ).color(r, g, b, a);
+        buffer.vertex(pose, minX, maxY, minZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, maxY, minZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, minY, minZ).color(r, g, b, a);
+
+        // South face (Z+)
+        buffer.vertex(pose, minX, minY, maxZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, minY, maxZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, maxY, maxZ).color(r, g, b, a);
+        buffer.vertex(pose, minX, maxY, maxZ).color(r, g, b, a);
+
+        // West face (X-)
+        buffer.vertex(pose, minX, minY, minZ).color(r, g, b, a);
+        buffer.vertex(pose, minX, minY, maxZ).color(r, g, b, a);
+        buffer.vertex(pose, minX, maxY, maxZ).color(r, g, b, a);
+        buffer.vertex(pose, minX, maxY, minZ).color(r, g, b, a);
+
+        // East face (X+)
+        buffer.vertex(pose, maxX, minY, minZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, maxY, minZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, maxY, maxZ).color(r, g, b, a);
+        buffer.vertex(pose, maxX, minY, maxZ).color(r, g, b, a);
+    }
+
+    /**
+     * Draw ESP box (filled or outline based on config).
+     * Automatically chooses between filled and outline mode.
+     */
+    public static void drawESPBox(MatrixStack matrices, Box box, int color, Vec3d cameraPos,
+                                    VertexConsumerProvider.Immediate bufferSource) {
+        if (com.teslamaps.config.TeslaMapsConfig.get().filledESP) {
+            drawFilledBox(matrices, box, color, cameraPos, bufferSource);
+        } else {
+            drawBoxOutline(matrices, box, color, 3.0f, cameraPos, bufferSource);
+        }
+    }
+
+    // Legacy wrapper
     public static void drawFilledBox(MatrixStack matrices, Box box, int color, Vec3d cameraPos) {
-        drawBoxOutline(matrices, box, color, 2.0f, cameraPos);
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.getBufferBuilders() == null) return;
+        VertexConsumerProvider.Immediate bufferSource = mc.getBufferBuilders().getEntityVertexConsumers();
+        drawFilledBox(matrices, box, color, cameraPos, bufferSource);
+    }
+
+    /**
+     * Draw ESP box with automatic config check (legacy wrapper).
+     */
+    public static void drawESPBox(MatrixStack matrices, Box box, int color, Vec3d cameraPos) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.getBufferBuilders() == null) return;
+        VertexConsumerProvider.Immediate bufferSource = mc.getBufferBuilders().getEntityVertexConsumers();
+        drawESPBox(matrices, box, color, cameraPos, bufferSource);
     }
 }

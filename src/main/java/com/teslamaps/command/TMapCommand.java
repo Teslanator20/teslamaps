@@ -30,7 +30,8 @@ import net.minecraft.text.Text;
 import net.minecraft.block.Block;
 import net.minecraft.util.math.BlockPos;
 import com.teslamaps.utils.TabListUtils;
-import com.teslamaps.scanner.CryptScanner;
+import com.teslamaps.profileviewer.api.HypixelApi;
+import com.teslamaps.profileviewer.screen.ProfileViewerScreen;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -334,7 +335,7 @@ public class TMapCommand {
                 .then(ClientCommandManager.literal("crypts")
                         .executes(context -> {
                             int cryptsFound = TabListUtils.getCryptsFound();
-                            int totalCrypts = CryptScanner.getCryptCount();
+                            int totalCrypts = DungeonManager.getTotalCrypts();
                             context.getSource().sendFeedback(Text.literal("=== Crypts Info ==="));
                             if (cryptsFound >= 0) {
                                 context.getSource().sendFeedback(Text.literal("Crypts: " + cryptsFound + "/" + totalCrypts + " (5 for S+)"));
@@ -346,18 +347,19 @@ public class TMapCommand {
                             } else {
                                 context.getSource().sendFeedback(Text.literal("Total crypts in dungeon: " + totalCrypts));
                             }
+                            // Show breakdown by room
+                            java.util.Set<DungeonRoom> shown = new java.util.HashSet<>();
+                            for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
+                                if (!shown.contains(room) && room.getCrypts() > 0) {
+                                    context.getSource().sendFeedback(Text.literal("  " + room.getName() + ": " + room.getCrypts()));
+                                    shown.add(room);
+                                }
+                            }
                             return 1;
-                        })
-                        .then(ClientCommandManager.literal("scan")
-                                .executes(context -> {
-                                    context.getSource().sendFeedback(Text.literal("Scanning for crypts..."));
-                                    CryptScanner.forceScan();
-                                    context.getSource().sendFeedback(Text.literal("Found " + CryptScanner.getCryptCount() + " crypts"));
-                                    return 1;
-                                })))
+                        }))
                 .then(ClientCommandManager.literal("secrets")
                         .executes(context -> {
-                            int secretsFound = TabListUtils.getSecretsFound();
+                            double secretsPercent = TabListUtils.getSecretsPercentage();
                             int totalSecrets = 0;
                             for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
                                 if (room.getSecrets() > 0) {
@@ -365,10 +367,9 @@ public class TMapCommand {
                                 }
                             }
                             context.getSource().sendFeedback(Text.literal("=== Secrets Info ==="));
-                            if (secretsFound >= 0) {
-                                context.getSource().sendFeedback(Text.literal("Secrets found: " + secretsFound + "/" + totalSecrets));
-                                double percent = totalSecrets > 0 ? (secretsFound * 100.0 / totalSecrets) : 0;
-                                context.getSource().sendFeedback(Text.literal(String.format("Progress: %.1f%%", percent)));
+                            if (secretsPercent >= 0) {
+                                context.getSource().sendFeedback(Text.literal(String.format("Secrets found: %.1f%%", secretsPercent)));
+                                context.getSource().sendFeedback(Text.literal("Total secrets in map: " + totalSecrets));
                             } else {
                                 context.getSource().sendFeedback(Text.literal("Total secrets in map: " + totalSecrets));
                                 context.getSource().sendFeedback(Text.literal("Found count: Not in dungeon"));
@@ -389,10 +390,12 @@ public class TMapCommand {
 
                             context.getSource().sendFeedback(Text.literal("=== Block Scan at " + px + ", " + py + ", " + pz + " ==="));
 
-                            // Count blocks in 5x5x5 area around player
+                            // Count blocks in area around player
                             Map<String, Integer> blockCounts = new HashMap<>();
                             int radius = 3;
 
+                            // Count smooth stone slabs specifically
+                            int smoothSlabCount = 0;
                             for (int x = px - radius; x <= px + radius; x++) {
                                 for (int y = py - radius; y <= py + radius; y++) {
                                     for (int z = pz - radius; z <= pz + radius; z++) {
@@ -400,6 +403,9 @@ public class TMapCommand {
                                         Block block = mc.world.getBlockState(pos).getBlock();
                                         String name = block.getName().getString();
                                         blockCounts.merge(name, 1, Integer::sum);
+                                        if (name.contains("Smooth Stone Slab")) {
+                                            smoothSlabCount++;
+                                        }
                                     }
                                 }
                             }
@@ -412,23 +418,31 @@ public class TMapCommand {
                                     .forEach(e -> context.getSource().sendFeedback(
                                             Text.literal("  " + e.getValue() + "x " + e.getKey())));
 
-                            // Also log to console with positions for unique blocks
-                            com.teslamaps.TeslaMaps.LOGGER.info("[CryptScan] === Detailed block positions ===");
-                            for (int x = px - radius; x <= px + radius; x++) {
-                                for (int y = py - radius; y <= py + radius; y++) {
-                                    for (int z = pz - radius; z <= pz + radius; z++) {
-                                        BlockPos pos = new BlockPos(x, y, z);
-                                        Block block = mc.world.getBlockState(pos).getBlock();
-                                        String name = block.getName().getString();
-                                        // Log interesting blocks (not air, stone, etc)
-                                        if (!name.equals("Air") && !name.equals("Stone") && !name.equals("Cobblestone")) {
-                                            com.teslamaps.TeslaMaps.LOGGER.info("[CryptScan] {} at {},{},{} (rel: {},{},{})",
-                                                    name, x, y, z, x - px, y - py, z - pz);
-                                        }
-                                    }
-                                }
-                            }
+                            context.getSource().sendFeedback(Text.literal("Smooth slabs in area: " + smoothSlabCount + " (need 10+ for crypt)"));
 
+                            // Check if standing on a block that could be a crypt
+                            BlockPos below = new BlockPos(px, py - 1, pz);
+                            Block blockBelow = mc.world.getBlockState(below).getBlock();
+                            context.getSource().sendFeedback(Text.literal("Standing on: " + blockBelow.getName().getString()));
+
+                            return 1;
+                        }))
+        );
+
+        // Register /pv command for Profile Viewer
+        dispatcher.register(ClientCommandManager.literal("pv")
+                .executes(context -> {
+                    // No player specified - view own profile
+                    MinecraftClient mc = MinecraftClient.getInstance();
+                    if (mc.player != null) {
+                        ProfileViewerScreen.open(mc.player.getName().getString());
+                    }
+                    return 1;
+                })
+                .then(ClientCommandManager.argument("player", StringArgumentType.greedyString())
+                        .executes(context -> {
+                            String playerName = StringArgumentType.getString(context, "player");
+                            ProfileViewerScreen.open(playerName);
                             return 1;
                         }))
         );

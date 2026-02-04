@@ -5,6 +5,7 @@
     "client": [
         "InGameHudMixin",
         "ClientBrandMixin",
+        "ClientPlayerInteractionManagerMixin",
         "WorldRendererMixin",
         "EntityMixin",
         "PlayerTabOverlayAccessor",
@@ -14,7 +15,10 @@
         "NoFireMixin",
         "NoArrowsMixin",
         "NoExplosionsMixin",
-        "NoStuckArrowsMixin"
+        "NoStuckArrowsMixin",
+        "HandledScreenAccessor",
+        "HandledScreenClickMixin",
+        "GenericContainerScreenMixin"
     ],
     "injectors": {
         "defaultRequire": 1

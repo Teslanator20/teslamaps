@@ -143,4 +143,33 @@ public class DungeonRoom {
     public RoomData getRoomData() {
         return roomData;
     }
+
+    public int getCrypts() {
+        return roomData != null ? roomData.getCrypts() : 0;
+    }
+
+    /**
+     * Check if this room has been identified (matched to a known room in database).
+     */
+    public boolean isIdentified() {
+        return roomData != null;
+    }
+
+    /**
+     * Convert room-relative coordinates to actual world coordinates.
+     * Uses the room's primary component for conversion.
+     */
+    public net.minecraft.util.math.BlockPos relativeToActual(net.minecraft.util.math.BlockPos relative) {
+        int[] primary = getPrimaryComponent();
+        return com.teslamaps.scanner.ComponentGrid.relativeToActual(primary[0], primary[1], relative);
+    }
+
+    /**
+     * Convert actual world coordinates to room-relative coordinates.
+     * Uses the room's primary component for conversion.
+     */
+    public net.minecraft.util.math.BlockPos actualToRelative(net.minecraft.util.math.BlockPos actual) {
+        int[] primary = getPrimaryComponent();
+        return com.teslamaps.scanner.ComponentGrid.actualToRelative(primary[0], primary[1], actual);
+    }
 }

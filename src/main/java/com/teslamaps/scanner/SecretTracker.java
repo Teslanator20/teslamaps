@@ -63,25 +63,40 @@ public class SecretTracker {
     /**
      * Called when an action bar (overlay) message is received.
      * Parses "X/Y Secrets" format from action bar.
+     * The action bar shows CURRENT ROOM's secrets, not dungeon-wide!
      */
     public static void onActionBarMessage(Text message) {
         if (!DungeonManager.isInDungeon()) return;
 
         String text = message.getString();
 
+        // Strip color codes (§X where X is any character) before parsing
+        String cleanText = text.replaceAll("§.", "");
+
         // Debug: log action bar messages occasionally
         if (tickCounter % 100 == 0) {
-            TeslaMaps.LOGGER.info("[SecretTracker] Action bar: {}", text);
+            TeslaMaps.LOGGER.info("[SecretTracker] Action bar: {} -> {}", text, cleanText);
         }
 
-        Matcher matcher = ACTION_BAR_PATTERN.matcher(text);
+        Matcher matcher = ACTION_BAR_PATTERN.matcher(cleanText);
         if (matcher.find()) {
             try {
-                int found = Integer.parseInt(matcher.group(1));
-                int total = Integer.parseInt(matcher.group(2));
+                int roomFound = Integer.parseInt(matcher.group(1));
+                int roomTotal = Integer.parseInt(matcher.group(2));
 
-                TeslaMaps.LOGGER.debug("[SecretTracker] Action bar secrets: {}/{}", found, total);
-                processSecretUpdate(found);
+                // Action bar shows CURRENT ROOM's secrets, set it directly
+                DungeonRoom currentRoom = getCurrentPlayerRoom();
+                if (currentRoom != null) {
+                    // Only update if the total matches (sanity check)
+                    if (currentRoom.getSecrets() == roomTotal || currentRoom.getSecrets() == 0) {
+                        int oldFound = currentRoom.getFoundSecrets();
+                        if (oldFound != roomFound) {
+                            currentRoom.setFoundSecrets(roomFound);
+                            TeslaMaps.LOGGER.debug("[SecretTracker] Room '{}' secrets: {}/{} (was {})",
+                                    currentRoom.getName(), roomFound, roomTotal, oldFound);
+                        }
+                    }
+                }
             } catch (NumberFormatException e) {
                 // Ignore parsing errors
             }

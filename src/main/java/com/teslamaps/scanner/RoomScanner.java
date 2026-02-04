@@ -163,6 +163,9 @@ public class RoomScanner {
         if (roomData != null) {
             // Check if an adjacent cell already has a room with the same name
             // This handles multi-component rooms (2x2, 1x4, L-shapes, etc.)
+            TeslaMaps.LOGGER.info("[ScanDebug] [{},{}] Looking for adjacent room named '{}'",
+                    gridX, gridZ, roomData.getName());
+
             DungeonRoom existingRoom = findAdjacentRoomWithName(gridX, gridZ, roomData.getName());
 
             if (existingRoom != null) {
@@ -170,16 +173,29 @@ public class RoomScanner {
                 existingRoom.addComponent(gridX, gridZ);
                 DungeonManager.getGrid().setRoom(gridX, gridZ, existingRoom);
 
-                TeslaMaps.LOGGER.info("Added component [{},{}] to room '{}'",
-                        gridX, gridZ, roomData.getName());
+                TeslaMaps.LOGGER.info("[ScanDebug] [{},{}] Added to existing room '{}' (now {} components)",
+                        gridX, gridZ, roomData.getName(), existingRoom.getComponents().size());
             } else {
+                // Debug: log what's in adjacent cells
+                int[][] offsets = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+                String[] dirs = {"West", "East", "North", "South"};
+                for (int i = 0; i < offsets.length; i++) {
+                    int adjX = gridX + offsets[i][0];
+                    int adjZ = gridZ + offsets[i][1];
+                    DungeonRoom adj = DungeonManager.getGrid().getRoom(adjX, adjZ);
+                    if (adj != null) {
+                        TeslaMaps.LOGGER.info("[ScanDebug] [{},{}] {} neighbor [{},{}] has room '{}' (expected '{}')",
+                                gridX, gridZ, dirs[i], adjX, adjZ, adj.getName(), roomData.getName());
+                    }
+                }
+
                 // Create new room
                 DungeonRoom room = new DungeonRoom(gridX, gridZ);
                 room.loadFromRoomData(roomData);
                 DungeonManager.addRoom(room);
 
-                TeslaMaps.LOGGER.info("Found room '{}' at grid [{},{}] core={}",
-                        roomData.getName(), gridX, gridZ, coreHash);
+                TeslaMaps.LOGGER.info("[ScanDebug] [{},{}] Created NEW room '{}' core={}",
+                        gridX, gridZ, roomData.getName(), coreHash);
             }
 
             return true;
@@ -204,14 +220,22 @@ public class RoomScanner {
      */
     private static DungeonRoom findAdjacentRoomWithName(int gridX, int gridZ, String roomName) {
         int[][] orthogonalOffsets = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        String[] dirNames = {"West", "East", "North", "South"};
 
         // Check direct grid neighbors (orthogonal only)
-        for (int[] offset : orthogonalOffsets) {
+        for (int i = 0; i < orthogonalOffsets.length; i++) {
+            int[] offset = orthogonalOffsets[i];
             int adjX = gridX + offset[0];
             int adjZ = gridZ + offset[1];
 
             DungeonRoom adjacent = DungeonManager.getGrid().getRoom(adjX, adjZ);
+            TeslaMaps.LOGGER.info("[FindAdj] [{},{}] Checking {} neighbor [{},{}]: {}",
+                    gridX, gridZ, dirNames[i], adjX, adjZ,
+                    adjacent == null ? "null" : ("'" + adjacent.getName() + "'"));
+
             if (adjacent != null && roomName.equals(adjacent.getName())) {
+                TeslaMaps.LOGGER.info("[FindAdj] [{},{}] Found match at [{},{}]!",
+                        gridX, gridZ, adjX, adjZ);
                 return adjacent;
             }
         }
@@ -240,12 +264,31 @@ public class RoomScanner {
     public static void mergeDisconnectedRooms() {
         java.util.Map<String, java.util.List<DungeonRoom>> roomsByName = new java.util.HashMap<>();
 
+        // Debug: Log all rooms before merging
+        TeslaMaps.LOGGER.info("[MergeDebug] Starting merge. All rooms:");
+        for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
+            StringBuilder comps = new StringBuilder();
+            for (int[] comp : room.getComponents()) {
+                comps.append("[").append(comp[0]).append(",").append(comp[1]).append("] ");
+            }
+            TeslaMaps.LOGGER.info("[MergeDebug]   Room '{}' type={} components: {}",
+                    room.getName(), room.getType(), comps.toString().trim());
+        }
+
         // Group rooms by name
         for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
             String name = room.getName();
             if (name == null || name.equals("Unknown")) continue;
 
             roomsByName.computeIfAbsent(name, k -> new java.util.ArrayList<>()).add(room);
+        }
+
+        // Debug: Log rooms grouped by name
+        for (java.util.Map.Entry<String, java.util.List<DungeonRoom>> entry : roomsByName.entrySet()) {
+            if (entry.getValue().size() > 1) {
+                TeslaMaps.LOGGER.info("[MergeDebug] Multiple '{}' rooms found: {} instances",
+                        entry.getKey(), entry.getValue().size());
+            }
         }
 
         int[][] orthogonalOffsets = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};

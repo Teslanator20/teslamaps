@@ -59,6 +59,9 @@ public class LividSolver {
     // Track if we've announced the Livid this fight
     private static boolean hasAnnounced = false;
 
+    // Track if we've announced Livid death
+    private static boolean hasAnnouncedDeath = false;
+
     // Pending announcement (delayed due to blindness)
     private static boolean pendingAnnouncement = false;
     private static int announcementDelay = 0;
@@ -164,6 +167,12 @@ public class LividSolver {
                 doAnnouncement();
                 pendingAnnouncement = false;
             }
+        }
+
+        // Check if correct Livid has died
+        if (correctLividEntity != null && !correctLividEntity.isAlive() && !hasAnnouncedDeath) {
+            hasAnnouncedDeath = true;
+            announceLividDeath(mc);
         }
 
         // Find correct Livid
@@ -278,6 +287,18 @@ public class LividSolver {
     }
 
     /**
+     * Announce Livid death to party chat.
+     */
+    private static void announceLividDeath(MinecraftClient mc) {
+        if (mc.player == null) return;
+        if (!TeslaMapsConfig.get().lividDeathMessage) return;
+
+        // Send party chat message
+        mc.player.networkHandler.sendChatCommand("pc Livid Dead!");
+        TeslaMaps.LOGGER.info("[LividSolver] Announced Livid death to party");
+    }
+
+    /**
      * Reset state (called on world change, leaving dungeon, etc.).
      */
     public static void reset() {
@@ -286,6 +307,7 @@ public class LividSolver {
         correctLividEntity = null;
         wrongLivids.clear();
         hasAnnounced = false;
+        hasAnnouncedDeath = false;
         pendingAnnouncement = false;
         announcementDelay = 0;
     }
@@ -421,7 +443,7 @@ public class LividSolver {
 
         if (correctLividEntity != null && correctLividEntity.isAlive()) {
             Box lividBox = correctLividEntity.getBoundingBox();
-            ESPRenderer.drawBoxOutline(matrices, lividBox, LIVID_COLOR, 3.0f, cameraPos);
+            ESPRenderer.drawESPBox(matrices, lividBox, LIVID_COLOR, cameraPos);
             if (TeslaMapsConfig.get().lividTracer) {
                 Vec3d lividCenter = lividBox.getCenter();
                 ESPRenderer.drawTracerFromCamera(matrices, lividCenter, TRACER_LIVID, cameraPos);
