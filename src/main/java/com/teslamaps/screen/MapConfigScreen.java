@@ -159,16 +159,26 @@ public class MapConfigScreen extends Screen {
 
         // ===== SOLVERS =====
         List<SettingsEntry> solvers = new ArrayList<>();
+        solvers.add(new LabelEntry(contentX, "Dungeon Puzzles"));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Solver", () -> config.solveBlaze, v -> config.solveBlaze = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v));
+        solvers.add(new LabelEntry(contentX, "Experiments (DONT USE YET)"));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Chronomatron (Memory Sequence)", () -> config.solveChronomatron, v -> config.solveChronomatron = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Superpairs (Matching Pairs)", () -> config.solveSuperpairs, v -> config.solveSuperpairs = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Ultrasequencer (Number Sequence)", () -> config.solveUltrasequencer, v -> config.solveUltrasequencer = v));
+        solvers.add(new LabelEntry(contentX, "Experiment Timing"));
+        solvers.add(new SliderEntry(contentX, contentWidth, "Initial Delay (ms)", 0f, 500f,
+                () -> (float) config.experimentClickDelay, v -> config.experimentClickDelay = v.intValue()));
+        solvers.add(new SliderEntry(contentX, contentWidth, "Click Interval (ms)", 0f, 300f,
+                () -> (float) config.experimentClickInterval, v -> config.experimentClickInterval = v.intValue()));
         categories.put("Solvers", solvers);
 
         // ===== TERMINALS =====
         List<SettingsEntry> terminals = new ArrayList<>();
-        terminals.add(new LabelEntry(contentX, "Terminal Solvers"));
+        terminals.add(new LabelEntry(contentX, "Terminal Solvers (DONT USE YET)"));
         terminals.add(new ToggleEntry(contentX, contentWidth, "Starts With (What starts with: 'X'?)", () -> config.solveStartsWithTerminal, v -> config.solveStartsWithTerminal = v));
         terminals.add(new ToggleEntry(contentX, contentWidth, "Select All (Select all the [COLOR])", () -> config.solveSelectAllTerminal, v -> config.solveSelectAllTerminal = v));
         terminals.add(new ToggleEntry(contentX, contentWidth, "Click in Order (1-14 panes)", () -> config.solveClickInOrderTerminal, v -> config.solveClickInOrderTerminal = v));
@@ -188,15 +198,20 @@ public class MapConfigScreen extends Screen {
         terminals.add(new LabelEntry(contentX, "Timing"));
         terminals.add(new SliderEntry(contentX, contentWidth, "Initial Delay (ms)", 0f, 500f,
                 () -> (float) config.terminalClickDelay, v -> config.terminalClickDelay = v.intValue()));
-        terminals.add(new SliderEntry(contentX, contentWidth, "Click Interval (ms)", 0f, 250f,
+        terminals.add(new SliderEntry(contentX, contentWidth, "Click Interval (ms)", 0f, 300f,
                 () -> (float) config.terminalClickInterval, v -> config.terminalClickInterval = v.intValue()));
+        terminals.add(new SliderEntry(contentX, contentWidth, "Click Randomization (ms)", 0f, 150f,
+                () -> (float) config.terminalClickRandomization, v -> config.terminalClickRandomization = v.intValue()));
+        terminals.add(new SliderEntry(contentX, contentWidth, "Break Threshold (ms)", 0f, 1000f,
+                () -> (float) config.terminalBreakThreshold, v -> config.terminalBreakThreshold = v.intValue()));
         terminals.add(new SliderEntry(contentX, contentWidth, "Melody Click Delay (ms)", 0f, 500f,
                 () -> (float) config.melodyTerminalClickDelay, v -> config.melodyTerminalClickDelay = v.intValue()));
         terminals.add(new LabelEntry(contentX, "Info"));
         terminals.add(new LabelEntry(contentX, "• All solvers work in practice (/term)"));
         terminals.add(new LabelEntry(contentX, "• Initial: delay before 1st click"));
         terminals.add(new LabelEntry(contentX, "• Interval: delay between clicks"));
-        terminals.add(new LabelEntry(contentX, "• ±10ms randomness added automatically"));
+        terminals.add(new LabelEntry(contentX, "• Randomization: 0 to X ms added"));
+        terminals.add(new LabelEntry(contentX, "• Break: reset if stuck (0=disable)"));
         categories.put("Terminals", terminals);
 
         // ===== SOUNDS =====
