@@ -14,6 +14,9 @@ import com.teslamaps.dungeon.puzzle.MelodyTerminal;
 import com.teslamaps.dungeon.puzzle.RubixTerminal;
 import com.teslamaps.dungeon.puzzle.ThreeWeirdos;
 import com.teslamaps.dungeon.puzzle.TicTacToe;
+import com.teslamaps.dungeon.puzzle.ChronomatronSolver;
+import com.teslamaps.dungeon.puzzle.SuperpairsSolver;
+import com.teslamaps.dungeon.puzzle.UltrasequencerSolver;
 import com.teslamaps.esp.StarredMobESP;
 import com.teslamaps.features.AutoGFS;
 import com.teslamaps.features.LividSolver;
@@ -127,6 +130,10 @@ public class TeslaMaps implements ClientModInitializer {
                 CorrectPanesTerminal.tick();
                 MelodyTerminal.tick();
                 RubixTerminal.tick();
+                // Experiment solvers (Superpairs table)
+                ChronomatronSolver.tick();
+                SuperpairsSolver.tick();
+                UltrasequencerSolver.tick();
             }
         });
     }

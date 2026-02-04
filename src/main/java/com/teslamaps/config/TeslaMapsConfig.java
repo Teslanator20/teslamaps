@@ -140,6 +140,13 @@ public class TeslaMapsConfig {
     public boolean solveTicTacToe = true;          // Show best move in Tic Tac Toe
     public boolean solveCreeperBeams = true;       // Show solution for Creeper Beams
 
+    // ===== EXPERIMENT SOLVERS (Superpairs Table) =====
+    public boolean solveChronomatron = true;       // Auto-solve Chronomatron (memory sequence)
+    public boolean solveSuperpairs = true;         // Auto-solve Superpairs (matching pairs)
+    public boolean solveUltrasequencer = true;     // Auto-solve Ultrasequencer (numbered sequence)
+    public int experimentClickDelay = 300;         // Delay in ms before first click in experiments
+    public int experimentClickInterval = 150;      // Delay in ms between clicks in experiments
+
     // ===== TERMINALS =====
     public boolean solveStartsWithTerminal = true; // Auto-click correct item in "What starts with" terminal
     public boolean solveSelectAllTerminal = true;  // Auto-click all items in "Select all the [color]" terminal
@@ -147,8 +154,10 @@ public class TeslaMapsConfig {
     public boolean solveCorrectPanesTerminal = true; // Auto-click incorrect panes to fix them
     public boolean solveMelodyTerminal = true;     // Auto-click melody sequence (Click the button on time!)
     public boolean solveRubixTerminal = true;      // Auto-solve rubix cube (Change all to same color!)
-    public int terminalClickDelay = 100;           // Delay in ms before first click (prevent too fast)
-    public int terminalClickInterval = 50;         // Delay in ms between subsequent clicks
+    public int terminalClickDelay = 300;           // Delay in ms before first click (300-500 recommended)
+    public int terminalClickInterval = 150;        // Delay in ms between subsequent clicks (100-200 recommended)
+    public int terminalClickRandomization = 70;    // Random variance added to click delays (0-150ms, higher = more human-like)
+    public int terminalBreakThreshold = 500;       // Reset stuck state if no progress for this many ms (0 to disable)
     public int melodyTerminalClickDelay = 150;     // Delay for melody terminal click (separate because timing is critical)
 
     // ===== CUSTOM TERMINAL GUI =====

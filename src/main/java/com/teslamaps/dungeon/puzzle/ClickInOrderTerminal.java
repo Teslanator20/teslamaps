@@ -29,6 +29,7 @@ public class ClickInOrderTerminal {
     private static long lastClickTime = 0;
     private static long lastScanTime = 0;
     private static boolean initialScanDone = false;
+    private static boolean isClicked = false; // Track if we're waiting for a click to register
     private static int lastDebugTick = 0;
 
     public static void tick() {
@@ -97,21 +98,34 @@ public class ClickInOrderTerminal {
 
         // Re-scan for red panes every 100ms (in case some clicks didn't register)
         if (currentTime - lastScanTime >= 100) {
+            int prevSize = orderedSlots.size();
             findAllNumberedSlots(screen);
             lastScanTime = currentTime;
+            // Reset isClicked if slot count changed (click was registered)
+            if (orderedSlots.size() != prevSize) {
+                isClicked = false;
+            }
         }
 
         // Auto-click red panes in order by stack size
         // Skip auto-clicking if using custom GUI with click anywhere
         boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
 
-        if (!solved && !orderedSlots.isEmpty() && !usingClickAnywhere) {
+        // Break threshold: reset isClicked if stuck for too long
+        int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
+        if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
+            TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Break threshold reached, resetting click state");
+            isClicked = false;
+        }
+
+        if (!solved && !orderedSlots.isEmpty() && !usingClickAnywhere && !isClicked) {
             long timeSinceOpen = currentTime - terminalOpenTime;
             long timeSinceLastClick = currentTime - lastClickTime;
 
-            // Use configured delays with ±10ms randomization for human-like behavior
-            int randomInitialDelay = TeslaMapsConfig.get().terminalClickDelay + ThreadLocalRandom.current().nextInt(-10, 11);
-            int randomInterval = TeslaMapsConfig.get().terminalClickInterval + ThreadLocalRandom.current().nextInt(-10, 11);
+            // Use configured delays with randomization for human-like behavior (0 to configured max)
+            int randomization = TeslaMapsConfig.get().terminalClickRandomization;
+            int randomInitialDelay = TeslaMapsConfig.get().terminalClickDelay + ThreadLocalRandom.current().nextInt(randomization + 1);
+            int randomInterval = TeslaMapsConfig.get().terminalClickInterval + ThreadLocalRandom.current().nextInt(randomization + 1);
 
             // Initial delay before first click
             if (nextNumberToClick == 1 && timeSinceOpen >= randomInitialDelay) {
@@ -224,6 +238,7 @@ public class ClickInOrderTerminal {
 
         nextNumberToClick = number + 1;
         lastClickTime = System.currentTimeMillis();
+        isClicked = true; // Mark that we're waiting for click to register
 
         TeslaMaps.LOGGER.info("[ClickInOrderTerminal] ===== CLICK SENT =====");
     }
@@ -245,6 +260,7 @@ public class ClickInOrderTerminal {
         nextNumberToClick = 1;
         solved = false;
         initialScanDone = false;
+        isClicked = false;
         terminalOpenTime = 0;
         lastClickTime = 0;
         lastScanTime = 0;
