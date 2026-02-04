@@ -42,6 +42,7 @@ public class RubixTerminal {
     private static long lastClickTime = 0;
     private static long lastScanTime = 0;
     private static boolean initialScanDone = false;
+    private static boolean isClicked = false;
     private static int lastDebugTick = 0;
 
     public static void tick() {
@@ -113,21 +114,35 @@ public class RubixTerminal {
 
         // Scan for slots needing clicks every 200ms
         if (currentTime - lastScanTime >= 200) {
+            int prevQueueSize = clickQueue.size();
+            int prevIndex = clickQueueIndex;
             scanAndBuildClickQueue(screen);
             lastScanTime = currentTime;
+            // Reset isClicked if queue changed (slot colors changed)
+            if (clickQueue.size() != prevQueueSize || clickQueueIndex != prevIndex) {
+                isClicked = false;
+            }
         }
 
         // Auto-click from the queue
         // Skip auto-clicking if using custom GUI with click anywhere
         boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
 
-        if (!solved && clickQueueIndex < clickQueue.size() && !usingClickAnywhere) {
+        // Break threshold: reset isClicked if stuck for too long
+        int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
+        if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
+            TeslaMaps.LOGGER.info("[RubixTerminal] Break threshold reached, resetting click state");
+            isClicked = false;
+        }
+
+        if (!solved && clickQueueIndex < clickQueue.size() && !usingClickAnywhere && !isClicked) {
             long timeSinceOpen = currentTime - terminalOpenTime;
             long timeSinceLastClick = currentTime - lastClickTime;
 
-            // Use configured delays with ±10ms randomization for human-like behavior
-            int randomInitialDelay = TeslaMapsConfig.get().terminalClickDelay + ThreadLocalRandom.current().nextInt(-10, 11);
-            int randomInterval = TeslaMapsConfig.get().terminalClickInterval + ThreadLocalRandom.current().nextInt(-10, 11);
+            // Use configured delays with randomization for human-like behavior (0 to configured max)
+            int randomization = TeslaMapsConfig.get().terminalClickRandomization;
+            int randomInitialDelay = TeslaMapsConfig.get().terminalClickDelay + ThreadLocalRandom.current().nextInt(randomization + 1);
+            int randomInterval = TeslaMapsConfig.get().terminalClickInterval + ThreadLocalRandom.current().nextInt(randomization + 1);
 
             // Initial delay before first click
             if (clickQueueIndex == 0 && timeSinceOpen >= randomInitialDelay) {
@@ -359,6 +374,7 @@ public class RubixTerminal {
 
         clickQueueIndex++;
         lastClickTime = System.currentTimeMillis();
+        isClicked = true;
     }
 
     /**
@@ -406,6 +422,7 @@ public class RubixTerminal {
         clickQueueIndex = 0;
         solved = false;
         initialScanDone = false;
+        isClicked = false;
         terminalOpenTime = 0;
         lastClickTime = 0;
         lastScanTime = 0;

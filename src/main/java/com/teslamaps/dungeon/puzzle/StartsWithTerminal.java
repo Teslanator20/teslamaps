@@ -30,6 +30,7 @@ public class StartsWithTerminal {
     private static long terminalOpenTime = 0;
     private static long lastClickTime = 0;
     private static boolean slotsFound = false;
+    private static boolean isClicked = false;
     private static int lastDebugTick = 0;
 
     public static void tick() {
@@ -107,14 +108,23 @@ public class StartsWithTerminal {
         // Auto-click all matching slots one by one
         boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
 
-        if (!solved && slotsFound && !correctSlots.isEmpty() && !usingClickAnywhere) {
-            long currentTime = System.currentTimeMillis();
+        long currentTime = System.currentTimeMillis();
+
+        // Break threshold: reset isClicked if stuck for too long
+        int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
+        if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
+            TeslaMaps.LOGGER.info("[StartsWithTerminal] Break threshold reached, resetting click state");
+            isClicked = false;
+        }
+
+        if (!solved && slotsFound && !correctSlots.isEmpty() && !usingClickAnywhere && !isClicked) {
             long timeSinceOpen = currentTime - terminalOpenTime;
             long timeSinceLastClick = currentTime - lastClickTime;
 
-            // Use configured delays with ±10ms randomization for human-like behavior
-            int randomInitialDelay = TeslaMapsConfig.get().terminalClickDelay + ThreadLocalRandom.current().nextInt(-10, 11);
-            int randomInterval = TeslaMapsConfig.get().terminalClickInterval + ThreadLocalRandom.current().nextInt(-10, 11);
+            // Use configured delays with randomization for human-like behavior (0 to configured max)
+            int randomization = TeslaMapsConfig.get().terminalClickRandomization;
+            int randomInitialDelay = TeslaMapsConfig.get().terminalClickDelay + ThreadLocalRandom.current().nextInt(randomization + 1);
+            int randomInterval = TeslaMapsConfig.get().terminalClickInterval + ThreadLocalRandom.current().nextInt(randomization + 1);
 
             // Initial delay before first click
             if (clickedSlots.isEmpty() && timeSinceOpen >= randomInitialDelay) {
@@ -138,6 +148,7 @@ public class StartsWithTerminal {
                         clickedSlots.clear();
                         solved = false;
                         slotsFound = false;
+                        isClicked = false;
                         targetLetter = null;
                     }
                 }
@@ -246,6 +257,7 @@ public class StartsWithTerminal {
 
         clickedSlots.add(slotToClick);
         lastClickTime = System.currentTimeMillis();
+        isClicked = true;
 
         TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== CLICK SENT =====");
         TeslaMaps.LOGGER.info("[StartsWithTerminal] Progress: {}/{} items clicked", clickedSlots.size(), correctSlots.size());
@@ -304,6 +316,7 @@ public class StartsWithTerminal {
         clickedSlots.clear();
         solved = false;
         slotsFound = false;
+        isClicked = false;
         terminalOpenTime = 0;
         lastClickTime = 0;
         lastDebugTick = 0;
