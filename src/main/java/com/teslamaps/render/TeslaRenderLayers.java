@@ -24,6 +24,17 @@ public class TeslaRenderLayers {
     );
 
     /**
+     * Filled quads that render through walls (ESP).
+     */
+    public static final RenderLayer FILLED_ESP = RenderLayer.of(
+            "teslamaps_filled_esp",
+            786432,
+            TeslaRenderPipelines.FILLED_ESP,
+            RenderLayer.MultiPhaseParameters.builder()
+                    .build(false)
+    );
+
+    /**
      * Initialize render layers.
      */
     public static void init() {

@@ -72,10 +72,16 @@ public class MapConfigScreen extends Screen {
         // Rooms
         map.add(new LabelEntry(contentX, "Rooms"));
         map.add(new ToggleEntry(contentX, contentWidth, "Show Room Names", () -> config.showRoomNames, v -> config.showRoomNames = v));
+        map.add(new ToggleEntry(contentX, contentWidth, "Hide Entrance/Blood/Fairy Names", () -> config.hideEntranceBloodFairyNames, v -> config.hideEntranceBloodFairyNames = v));
+        map.add(new ToggleEntry(contentX, contentWidth, "Show Names Only for Puzzles", () -> config.showNamesOnlyForPuzzles, v -> config.showNamesOnlyForPuzzles = v));
         map.add(new SliderEntry(contentX, contentWidth, "Room Name Scale", 0.5f, 2.0f,
                 () -> config.roomNameScale, v -> config.roomNameScale = v));
         map.add(new ToggleEntry(contentX, contentWidth, "Show Secrets", () -> config.showSecretCount, v -> config.showSecretCount = v));
+        map.add(new ToggleEntry(contentX, contentWidth, "Hide 1 Secret Count", () -> config.hideOneSecretCount, v -> config.hideOneSecretCount = v));
+        map.add(new ToggleEntry(contentX, contentWidth, "Show Crypts", () -> config.showCrypts, v -> config.showCrypts = v));
+        map.add(new ToggleEntry(contentX, contentWidth, "Show Total Crypts", () -> config.showTotalCrypts, v -> config.showTotalCrypts = v));
         map.add(new ToggleEntry(contentX, contentWidth, "Hide When Done", () -> config.hideSecretsWhenDone, v -> config.hideSecretsWhenDone = v));
+        map.add(new ToggleEntry(contentX, contentWidth, "Assume Paul Mayor", () -> config.assumePaulMayor, v -> config.assumePaulMayor = v));
         // Checkmarks
         map.add(new LabelEntry(contentX, "Checkmarks"));
         map.add(new ToggleEntry(contentX, contentWidth, "Show Checkmarks", () -> config.showCheckmarks, v -> config.showCheckmarks = v));
@@ -96,6 +102,11 @@ public class MapConfigScreen extends Screen {
 
         // ===== ESP =====
         List<SettingsEntry> esp = new ArrayList<>();
+        esp.add(new LabelEntry(contentX, "ESP Rendering"));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Show Glow", () -> config.showGlow, v -> config.showGlow = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Filled ESP (vs Outline)", () -> config.filledESP, v -> config.filledESP = v));
+        esp.add(new SliderEntry(contentX, contentWidth, "ESP Transparency", 0.0f, 1.0f,
+                () -> config.espAlpha, v -> config.espAlpha = v));
         esp.add(new LabelEntry(contentX, "Dungeon ESP"));
         esp.add(new ToggleEntry(contentX, contentWidth, "Starred Mob ESP", () -> config.starredMobESP, v -> config.starredMobESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Fel ESP", () -> config.felESP, v -> config.felESP = v));
@@ -109,9 +120,12 @@ public class MapConfigScreen extends Screen {
         esp.add(new ToggleEntry(contentX, contentWidth, "Key Tracers", () -> config.keyTracers, v -> config.keyTracers = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Door ESP", () -> config.doorESP, v -> config.doorESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Door Tracers", () -> config.doorTracers, v -> config.doorTracers = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Door Color Based on Key", () -> config.doorColorBasedOnKey, v -> config.doorColorBasedOnKey = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Only Show Next Door", () -> config.onlyShowNextDoor, v -> config.onlyShowNextDoor = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Livid Finder", () -> config.lividFinder, v -> config.lividFinder = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Livid Tracer", () -> config.lividTracer, v -> config.lividTracer = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Mimic Chest ESP", () -> config.mimicChestESP, v -> config.mimicChestESP = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Mimic Chest Tracers", () -> config.mimicChestTracers, v -> config.mimicChestTracers = v));
         esp.add(new LabelEntry(contentX, "Other ESP"));
         esp.add(new ToggleEntry(contentX, contentWidth, "Pest ESP (Garden)", () -> config.pestESP, v -> config.pestESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Pest Tracers", () -> config.pestTracers, v -> config.pestTracers = v));
@@ -121,9 +135,16 @@ public class MapConfigScreen extends Screen {
         // ===== RENDER =====
         List<SettingsEntry> render = new ArrayList<>();
         render.add(new ToggleEntry(contentX, contentWidth, "No Fire Overlay", () -> config.noFire, v -> config.noFire = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "No Water Overlay", () -> config.noWaterOverlay, v -> config.noWaterOverlay = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "No Vignette", () -> config.noVignette, v -> config.noVignette = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Blindness", () -> config.noBlind, v -> config.noBlind = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Nausea", () -> config.noNausea, v -> config.noNausea = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "No Death Animation", () -> config.noDeathAnimation, v -> config.noDeathAnimation = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "Hide Inventory Effects", () -> config.hideInventoryEffects, v -> config.hideInventoryEffects = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "No Lightning", () -> config.noLightning, v -> config.noLightning = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Explosions", () -> config.noExplosions, v -> config.noExplosions = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "No Block Breaking", () -> config.noBlockBreaking, v -> config.noBlockBreaking = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "No Falling Blocks", () -> config.noFallingBlocks, v -> config.noFallingBlocks = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Arrows", () -> config.noArrows, v -> config.noArrows = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Stuck Arrows", () -> config.noStuckArrows, v -> config.noStuckArrows = v));
         categories.put("Render", render);
@@ -135,6 +156,48 @@ public class MapConfigScreen extends Screen {
         slayer.add(new ToggleEntry(contentX, contentWidth, "Boss ESP", () -> config.slayerBossESP, v -> config.slayerBossESP = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Miniboss ESP", () -> config.slayerMinibossESP, v -> config.slayerMinibossESP = v));
         categories.put("Slayer", slayer);
+
+        // ===== SOLVERS =====
+        List<SettingsEntry> solvers = new ArrayList<>();
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Solver", () -> config.solveBlaze, v -> config.solveBlaze = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v));
+        categories.put("Solvers", solvers);
+
+        // ===== TERMINALS =====
+        List<SettingsEntry> terminals = new ArrayList<>();
+        terminals.add(new LabelEntry(contentX, "Terminal Solvers"));
+        terminals.add(new ToggleEntry(contentX, contentWidth, "Starts With (What starts with: 'X'?)", () -> config.solveStartsWithTerminal, v -> config.solveStartsWithTerminal = v));
+        terminals.add(new ToggleEntry(contentX, contentWidth, "Select All (Select all the [COLOR])", () -> config.solveSelectAllTerminal, v -> config.solveSelectAllTerminal = v));
+        terminals.add(new ToggleEntry(contentX, contentWidth, "Click in Order (1-14 panes)", () -> config.solveClickInOrderTerminal, v -> config.solveClickInOrderTerminal = v));
+        terminals.add(new ToggleEntry(contentX, contentWidth, "Correct Panes (Fix red panes)", () -> config.solveCorrectPanesTerminal, v -> config.solveCorrectPanesTerminal = v));
+        terminals.add(new ToggleEntry(contentX, contentWidth, "Melody (Click button on time!)", () -> config.solveMelodyTerminal, v -> config.solveMelodyTerminal = v));
+        terminals.add(new ToggleEntry(contentX, contentWidth, "Rubix (Change all to same color!)", () -> config.solveRubixTerminal, v -> config.solveRubixTerminal = v));
+        terminals.add(new LabelEntry(contentX, "Custom GUI"));
+        terminals.add(new ToggleEntry(contentX, contentWidth, "Custom Terminal GUI", () -> config.customTerminalGui, v -> config.customTerminalGui = v));
+        terminals.add(new ToggleEntry(contentX, contentWidth, "Click Anywhere to Solve", () -> config.terminalClickAnywhere, v -> config.terminalClickAnywhere = v));
+        terminals.add(new SliderEntry(contentX, contentWidth, "GUI Size", 0.5f, 3.0f,
+                () -> config.terminalGuiSize, v -> config.terminalGuiSize = v));
+        terminals.add(new SliderEntry(contentX, contentWidth, "GUI Gap", 0f, 15f,
+                () -> config.terminalGuiGap, v -> config.terminalGuiGap = v));
+        terminals.add(new SliderEntry(contentX, contentWidth, "GUI Roundness", 0f, 15f,
+                () -> (float) config.terminalGuiRoundness, v -> config.terminalGuiRoundness = v.intValue()));
+        terminals.add(new ToggleEntry(contentX, contentWidth, "Show Numbers (Click in Order)", () -> config.terminalGuiShowNumbers, v -> config.terminalGuiShowNumbers = v));
+        terminals.add(new LabelEntry(contentX, "Timing"));
+        terminals.add(new SliderEntry(contentX, contentWidth, "Initial Delay (ms)", 0f, 500f,
+                () -> (float) config.terminalClickDelay, v -> config.terminalClickDelay = v.intValue()));
+        terminals.add(new SliderEntry(contentX, contentWidth, "Click Interval (ms)", 0f, 250f,
+                () -> (float) config.terminalClickInterval, v -> config.terminalClickInterval = v.intValue()));
+        terminals.add(new SliderEntry(contentX, contentWidth, "Melody Click Delay (ms)", 0f, 500f,
+                () -> (float) config.melodyTerminalClickDelay, v -> config.melodyTerminalClickDelay = v.intValue()));
+        terminals.add(new LabelEntry(contentX, "Info"));
+        terminals.add(new LabelEntry(contentX, "• All solvers work in practice (/term)"));
+        terminals.add(new LabelEntry(contentX, "• Initial: delay before 1st click"));
+        terminals.add(new LabelEntry(contentX, "• Interval: delay between clicks"));
+        terminals.add(new LabelEntry(contentX, "• ±10ms randomness added automatically"));
+        categories.put("Terminals", terminals);
 
         // ===== SOUNDS =====
         List<SettingsEntry> sounds = new ArrayList<>();
@@ -178,6 +241,27 @@ public class MapConfigScreen extends Screen {
         colors.add(new ColorEntry(contentX, contentWidth, "White Check", () -> config.colorCheckWhite, v -> config.colorCheckWhite = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Green Check", () -> config.colorCheckGreen, v -> config.colorCheckGreen = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Failed Check", () -> config.colorCheckFailed, v -> config.colorCheckFailed = v));
+        colors.add(new LabelEntry(contentX, "ESP Colors"));
+        colors.add(new ColorEntry(contentX, contentWidth, "Starred Mobs", () -> config.colorESPStarred, v -> config.colorESPStarred = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Fels", () -> config.colorESPFel, v -> config.colorESPFel = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Snipers", () -> config.colorESPSniper, v -> config.colorESPSniper = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Shadow Assassins", () -> config.colorESPShadowAssassin, v -> config.colorESPShadowAssassin = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Dungeon Bats", () -> config.colorESPBat, v -> config.colorESPBat = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Wither Key", () -> config.colorESPWitherKey, v -> config.colorESPWitherKey = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Blood Key", () -> config.colorESPBloodKey, v -> config.colorESPBloodKey = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Wither Door", () -> config.colorESPWitherDoor, v -> config.colorESPWitherDoor = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Blood Door", () -> config.colorESPBloodDoor, v -> config.colorESPBloodDoor = v));
+        colors.add(new LabelEntry(contentX, "Terminal GUI Colors"));
+        colors.add(new ColorEntry(contentX, contentWidth, "GUI Background", () -> config.terminalGuiBackgroundColor, v -> config.terminalGuiBackgroundColor = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Order Color 1", () -> config.terminalGuiOrderColor1, v -> config.terminalGuiOrderColor1 = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Order Color 2", () -> config.terminalGuiOrderColor2, v -> config.terminalGuiOrderColor2 = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Order Color 3", () -> config.terminalGuiOrderColor3, v -> config.terminalGuiOrderColor3 = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Panes Color", () -> config.terminalGuiPanesColor, v -> config.terminalGuiPanesColor = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Starts With Color", () -> config.terminalGuiStartsWithColor, v -> config.terminalGuiStartsWithColor = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Select All Color", () -> config.terminalGuiSelectColor, v -> config.terminalGuiSelectColor = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Rubix Color 1", () -> config.terminalGuiRubixColor1, v -> config.terminalGuiRubixColor1 = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Rubix Color 2", () -> config.terminalGuiRubixColor2, v -> config.terminalGuiRubixColor2 = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Melody Color", () -> config.terminalGuiMelodyColor, v -> config.terminalGuiMelodyColor = v));
         categories.put("Colors", colors);
 
         // ===== AUTO GFS =====
@@ -500,8 +584,8 @@ public class MapConfigScreen extends Screen {
             int swatchY = y + 5;
             int color = TeslaMapsConfig.parseColor(getter.get());
 
-            // Toggle expansion on swatch click
-            if (clicked && mouseX >= swatchX - 10 && mouseX < swatchX + 22 && mouseY >= y && mouseY < y + ROW_HEIGHT) {
+            // Toggle expansion on entire row click (not just swatch)
+            if (clicked && hovered) {
                 if (isExpanded) {
                     expandedColorEntry = null;
                 } else {

@@ -140,6 +140,9 @@ public class DungeonManager {
 
         TeslaMaps.LOGGER.info("Entered dungeon: {}", currentFloor);
 
+        // Reset score tracker
+        DungeonScore.onDungeonStart();
+
         // Trigger initial scan of entire dungeon area
         RoomScanner.triggerFullScan();
     }
@@ -150,7 +153,9 @@ public class DungeonManager {
         PlayerTracker.reset();
         MapScanner.reset();
         SecretTracker.reset();
+        MimicDetector.reset();
         PlayerHeadRenderer.clearCache();
+        com.teslamaps.esp.StarredMobESP.reset();
 
         TeslaMaps.LOGGER.info("Exited dungeon");
     }
@@ -160,6 +165,10 @@ public class DungeonManager {
         return currentState == DungeonState.IN_DUNGEON ||
                 currentState == DungeonState.BOSS_FIGHT ||
                 currentState == DungeonState.STARTING;
+    }
+
+    public static boolean isInBoss() {
+        return currentState == DungeonState.BOSS_FIGHT;
     }
 
     public static DungeonState getCurrentState() {
@@ -187,5 +196,20 @@ public class DungeonManager {
 
     public static DungeonRoom getRoomAt(int gridX, int gridZ) {
         return grid.getRoom(gridX, gridZ);
+    }
+
+    /**
+     * Get total crypts in the dungeon based on identified rooms.
+     */
+    public static int getTotalCrypts() {
+        int total = 0;
+        java.util.Set<DungeonRoom> counted = new java.util.HashSet<>();
+        for (DungeonRoom room : grid.getAllRooms()) {
+            if (!counted.contains(room) && room.getCrypts() > 0) {
+                total += room.getCrypts();
+                counted.add(room);
+            }
+        }
+        return total;
     }
 }

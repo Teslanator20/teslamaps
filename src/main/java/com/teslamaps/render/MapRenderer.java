@@ -1,14 +1,16 @@
 package com.teslamaps.render;
 
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.dungeon.DungeonFloor;
 import com.teslamaps.dungeon.DungeonManager;
+import com.teslamaps.dungeon.DungeonScore;
+import com.teslamaps.dungeon.MimicDetector;
 import com.teslamaps.map.CheckmarkState;
 import com.teslamaps.map.DoorType;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.map.RoomType;
 import com.teslamaps.player.PlayerTracker;
 import com.teslamaps.scanner.ComponentGrid;
-import com.teslamaps.scanner.CryptScanner;
 import com.teslamaps.scanner.DoorScanner;
 import com.teslamaps.scanner.MapScanner;
 import com.teslamaps.utils.TabListUtils;
@@ -48,7 +50,10 @@ public class MapRenderer {
         int baseY = config.mapY;
         float scale = config.mapScale;
 
-        Collection<DungeonRoom> rooms = DungeonManager.getGrid().getAllRooms();
+        // Filter out Unknown rooms (boss room outside dungeon bounds)
+        Collection<DungeonRoom> rooms = DungeonManager.getGrid().getAllRooms().stream()
+                .filter(r -> r.getType() != RoomType.UNKNOWN && !"Unknown".equals(r.getName()))
+                .toList();
 
         // Calculate actual dungeon bounds from rooms
         calculateDungeonBounds(rooms);
@@ -59,8 +64,8 @@ public class MapRenderer {
         int mapWidth = (int)((MAP_PADDING * 2 + gridWidth * CELL_SIZE) * scale);
         int mapHeight = (int)((MAP_PADDING * 2 + gridHeight * CELL_SIZE) * scale);
 
-        // Add space for info text below map
-        int infoHeight = 24; // Space for secrets/crypts text
+        // Add space for info text below map (2 lines: secrets/crypts, mimic/score)
+        int infoHeight = 36; // Space for 2 lines of text
         int totalHeight = mapHeight + infoHeight;
 
         // Draw background (including info area)
@@ -80,10 +85,10 @@ public class MapRenderer {
             }
         }
 
-        // Third pass: Draw room names on top
+        // Third pass: Draw room names on top (only for identified rooms)
         drawnRooms.clear();
         for (DungeonRoom room : rooms) {
-            if (!drawnRooms.contains(room)) {
+            if (!drawnRooms.contains(room) && room.isIdentified()) {
                 drawRoomName(context, room, baseX, baseY, scale);
                 drawnRooms.add(room);
             }
@@ -136,35 +141,132 @@ public class MapRenderer {
     }
 
     /**
-     * Draw info text (secrets, crypts) below the map.
+     * Draw info text (secrets, crypts, mimic, score) below the map.
      */
     private static void drawInfoText(DrawContext context, MinecraftClient mc, int x, int y, int width) {
         var textRenderer = mc.textRenderer;
+        TeslaMapsConfig config = TeslaMapsConfig.get();
 
-        // Get secrets found from tab list
-        int secretsFound = TabListUtils.getSecretsFound();
-        String secretsText = secretsFound >= 0
-                ? "Secrets: " + secretsFound + "/" + totalSecrets
-                : "Secrets: ?/" + totalSecrets;
+        // LINE 1: Secrets (found/needed/total) and Crypts
+        double secretsPercent = TabListUtils.getSecretsPercentage();
 
-        // Get crypts from tab list and scanner
-        int cryptsFound = TabListUtils.getCryptsFound();
-        int totalCrypts = CryptScanner.getCryptCount();
-        String cryptsText;
-        if (cryptsFound >= 0) {
-            cryptsText = "Crypts: " + cryptsFound + "/" + totalCrypts;
-        } else {
-            cryptsText = "Crypts: ?/" + totalCrypts;
+        // Get actual found secrets count from tab list (more accurate than calculating from percentage)
+        int foundSecretsOverall = TabListUtils.getSecretsFound();
+        if (foundSecretsOverall < 0) {
+            // Fallback to percentage calculation if count not available
+            foundSecretsOverall = (int) Math.round(totalSecrets * secretsPercent / 100.0);
         }
 
-        // Draw secrets on left, crypts on right
-        int secretsColor = (secretsFound >= totalSecrets && totalSecrets > 0) ? 0xFF55FF55 : 0xFFFFFFFF;
-        int cryptsColor = (cryptsFound >= 5) ? 0xFF55FF55 : 0xFFFFFFFF; // 5 crypts is usually the target
+        // Get ACTUAL needed secrets percentage for 300 score (accounting for bonuses)
+        int crypts = TabListUtils.getCryptsFound();
+        if (crypts < 0) crypts = 0;
+        double neededSecretsPercent = DungeonScore.getNeededSecretsPercentFor300(crypts);
+        int neededSecretsOverall = (int) Math.ceil(totalSecrets * neededSecretsPercent / 100.0);
 
-        context.drawTextWithShadow(textRenderer, secretsText, x + 4, y + 4, secretsColor);
+        // Calculate remaining secrets needed (show 0 if already have enough)
+        int remainingSecrets = Math.max(0, neededSecretsOverall - foundSecretsOverall);
 
-        int cryptsWidth = textRenderer.getWidth(cryptsText);
-        context.drawTextWithShadow(textRenderer, cryptsText, x + width - cryptsWidth - 4, y + 4, cryptsColor);
+        String secretsText = secretsPercent >= 0
+                ? String.format("Secrets: %d/%d/%d", foundSecretsOverall, remainingSecrets, totalSecrets)
+                : "Secrets: ?/?/" + totalSecrets;
+
+        int secretsColor = (remainingSecrets == 0) ? 0xFF55FF55 : 0xFFFFFFFF;
+        context.drawTextWithShadow(textRenderer, secretsText, x + 4, y + 2, secretsColor);
+
+        if (config.showCrypts) {
+            int cryptsFound = TabListUtils.getCryptsFound();
+            String cryptsText;
+
+            if (cryptsFound >= 0) {
+                if (config.showTotalCrypts) {
+                    int totalCrypts = DungeonManager.getTotalCrypts();
+                    cryptsText = "Crypts: " + cryptsFound + "/" + totalCrypts;
+                } else {
+                    cryptsText = "Crypts: " + cryptsFound;
+                }
+            } else {
+                if (config.showTotalCrypts) {
+                    int totalCrypts = DungeonManager.getTotalCrypts();
+                    cryptsText = "Crypts: ?/" + totalCrypts;
+                } else {
+                    cryptsText = "Crypts: ?";
+                }
+            }
+
+            int cryptsColor;
+            if (cryptsFound >= 5) {
+                cryptsColor = 0xFF55FF55;
+            } else if (cryptsFound == 4) {
+                cryptsColor = 0xFFFF8800;
+            } else {
+                cryptsColor = 0xFFFF5555;
+            }
+
+            int cryptsWidth = textRenderer.getWidth(cryptsText);
+            context.drawTextWithShadow(textRenderer, cryptsText, x + width - cryptsWidth - 4, y + 2, cryptsColor);
+        }
+
+        // LINE 2: Mimic and Score
+        int line2Y = y + 12;
+
+        if (config.showMimicStatus) {
+            boolean mimicKilled = MimicDetector.isMimicKilled();
+            boolean mimicFound = !MimicDetector.getMimicRooms().isEmpty();
+
+            String mimicText;
+            int mimicColor;
+
+            if (mimicKilled) {
+                mimicText = "Mimic: \u2714";
+                mimicColor = 0xFF55FF55;
+            } else if (mimicFound) {
+                mimicText = "Mimic: \u2718";
+                mimicColor = 0xFFFF5555;
+            } else {
+                mimicText = "Mimic: ?";
+                mimicColor = 0xFFAAAAAA;
+            }
+
+            context.drawTextWithShadow(textRenderer, mimicText, x + 4, line2Y, mimicColor);
+        }
+
+        if (config.showDungeonScore) {
+            int score = DungeonScore.calculateScore();
+            String scoreText = "Score: " + score;
+
+            int scoreColor;
+            if (score >= 300) {
+                scoreColor = 0xFF55FF55; // Green
+            } else if (score >= 270) {
+                scoreColor = 0xFFFFFF55; // Yellow
+            } else if (score >= 230) {
+                scoreColor = 0xFFFF8C00; // Orange
+            } else {
+                scoreColor = 0xFFFFFFFF;
+            }
+
+            int scoreWidth = textRenderer.getWidth(scoreText);
+            context.drawTextWithShadow(textRenderer, scoreText, x + width - scoreWidth - 4, line2Y, scoreColor);
+        }
+    }
+
+    /**
+     * Get required secret percentage for display (0-100 scale).
+     */
+    private static int getRequiredSecretPercentForDisplay() {
+        DungeonFloor floor = DungeonManager.getCurrentFloor();
+        if (floor.isMaster()) return 100;
+
+        return switch (floor) {
+            case F1 -> 30;
+            case F2 -> 40;
+            case F3 -> 50;
+            case F4 -> 60;
+            case F5 -> 70;
+            case F6 -> 85;
+            case F7 -> 100;
+            default -> 100;
+        };
     }
 
     private static void drawBackground(DrawContext context, int baseX, int baseY, int width, int height) {
@@ -299,21 +401,24 @@ public class MapRenderer {
 
             context.fill(pixelX, pixelY, pixelX + pixelW, pixelY + pixelH, color);
 
-            // Draw secret count in corner (format: found/max or just max if unknown)
-            boolean hideSecrets = TeslaMapsConfig.get().hideSecretsWhenDone && room.getCheckmarkState() == CheckmarkState.GREEN;
-            if (TeslaMapsConfig.get().showSecretCount && room.getSecrets() > 0 && !hideSecrets) {
+            // Draw secret count in corner (format: found/total in room)
+            TeslaMapsConfig config = TeslaMapsConfig.get();
+            boolean hideSecrets = config.hideSecretsWhenDone && room.getCheckmarkState() == CheckmarkState.GREEN;
+            boolean hideOneSecret = config.hideOneSecretCount && room.getSecrets() == 1;
+            if (config.showSecretCount && room.getSecrets() > 0 && !hideSecrets && !hideOneSecret) {
                 String secretText;
                 int foundSecrets = room.getFoundSecrets();
                 int maxSecrets = room.getSecrets();
+
                 if (foundSecrets >= 0) {
-                    // Show found/max format
+                    // Show found/total format for individual room
                     secretText = foundSecrets + "/" + maxSecrets;
                 } else {
-                    // Unknown found count, just show max
+                    // Unknown found count, just show total
                     secretText = String.valueOf(maxSecrets);
                 }
                 context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer,
-                        secretText, pixelX + 2, pixelY + 2, TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorSecretCount));
+                        secretText, pixelX + 2, pixelY + 2, getTextColor(room));
             }
 
             // Checkmarks are shown via text color now:
@@ -372,19 +477,22 @@ public class MapRenderer {
             int pixelX = gridToPixelX(primary[0], baseX, scale);
             int pixelY = gridToPixelY(primary[1], baseY, scale);
 
-            // Draw secret count (format: found/max or just max if unknown)
-            boolean hideSecretsIrregular = TeslaMapsConfig.get().hideSecretsWhenDone && room.getCheckmarkState() == CheckmarkState.GREEN;
-            if (TeslaMapsConfig.get().showSecretCount && room.getSecrets() > 0 && !hideSecretsIrregular) {
+            // Draw secret count (format: found/total in room)
+            TeslaMapsConfig configIrregular = TeslaMapsConfig.get();
+            boolean hideSecretsIrregular = configIrregular.hideSecretsWhenDone && room.getCheckmarkState() == CheckmarkState.GREEN;
+            boolean hideOneSecretIrregular = configIrregular.hideOneSecretCount && room.getSecrets() == 1;
+            if (configIrregular.showSecretCount && room.getSecrets() > 0 && !hideSecretsIrregular && !hideOneSecretIrregular) {
                 String secretText;
                 int foundSecrets = room.getFoundSecrets();
                 int maxSecrets = room.getSecrets();
+
                 if (foundSecrets >= 0) {
                     secretText = foundSecrets + "/" + maxSecrets;
                 } else {
                     secretText = String.valueOf(maxSecrets);
                 }
                 context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer,
-                        secretText, pixelX + 2, pixelY + 2, TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorSecretCount));
+                        secretText, pixelX + 2, pixelY + 2, getTextColor(room));
             }
 
             // Checkmarks shown via text color - no need to draw symbol
@@ -402,8 +510,23 @@ public class MapRenderer {
      * Draw room name - always shown, with full names and line wrapping
      */
     private static void drawRoomName(DrawContext context, DungeonRoom room, int baseX, int baseY, float scale) {
-        if (!TeslaMapsConfig.get().showRoomNames) return;
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!config.showRoomNames) return;
         if (room.getName() == null) return;
+
+        // Filter based on room type
+        if (config.showNamesOnlyForPuzzles && room.getType() != com.teslamaps.map.RoomType.PUZZLE) {
+            return; // Only show puzzle room names
+        }
+
+        if (config.hideEntranceBloodFairyNames) {
+            var type = room.getType();
+            if (type == com.teslamaps.map.RoomType.ENTRANCE ||
+                type == com.teslamaps.map.RoomType.BLOOD ||
+                type == com.teslamaps.map.RoomType.FAIRY) {
+                return; // Hide entrance/blood/fairy names
+            }
+        }
 
         // Calculate bounding box of room
         int roomMinGX = Integer.MAX_VALUE, roomMinGZ = Integer.MAX_VALUE;
@@ -419,14 +542,12 @@ public class MapRenderer {
         int width = roomMaxGX - roomMinGX + 1;
         int height = roomMaxGZ - roomMinGZ + 1;
 
-        // Calculate center of the room (in grid coordinates)
-        double centerGridX = roomMinGX + (width - 1) / 2.0;
-        double centerGridZ = roomMinGZ + (height - 1) / 2.0;
+        int centerX, centerY;
 
-        // For L-shaped rooms (3 components, not rectangular), adjust center to be in the 2x1 part
+        // For L-shaped rooms (3 components, not rectangular), center on the 2x1 part
         int componentCount = room.getComponents().size();
         if (componentCount == 3 && componentCount != width * height) {
-            // Count components in each row and column
+            // Count components in each row and column to find the 2x1 part
             int topRowCount = 0, bottomRowCount = 0;
             int leftColCount = 0, rightColCount = 0;
             for (int[] comp : room.getComponents()) {
@@ -436,24 +557,42 @@ public class MapRenderer {
                 if (comp[0] == roomMaxGX) rightColCount++;
             }
 
-            // Adjust Z axis based on which row has more components (the 2x1 part)
-            if (topRowCount > bottomRowCount) {
-                centerGridZ = roomMinGZ;  // Center in top row
-            } else if (bottomRowCount > topRowCount) {
-                centerGridZ = roomMaxGZ;  // Center in bottom row
+            // Determine the bounds of just the 2x1 part
+            int partMinGX = roomMinGX, partMaxGX = roomMaxGX;
+            int partMinGZ = roomMinGZ, partMaxGZ = roomMaxGZ;
+
+            // If top row has 2 and bottom has 1, use top row
+            if (topRowCount == 2 && bottomRowCount == 1) {
+                partMaxGZ = roomMinGZ;  // Just the top row
+            } else if (bottomRowCount == 2 && topRowCount == 1) {
+                partMinGZ = roomMaxGZ;  // Just the bottom row
             }
 
-            // Adjust X axis based on which column has more components (the 2x1 part)
-            if (leftColCount > rightColCount) {
-                centerGridX = roomMinGX;  // Center in left column
-            } else if (rightColCount > leftColCount) {
-                centerGridX = roomMaxGX;  // Center in right column
+            // If left column has 2 and right has 1, use left column
+            if (leftColCount == 2 && rightColCount == 1) {
+                partMaxGX = roomMinGX;  // Just the left column
+            } else if (rightColCount == 2 && leftColCount == 1) {
+                partMinGX = roomMaxGX;  // Just the right column
             }
+
+            // Calculate center of the 2x1 part
+            int minPixelX = gridToPixelX(partMinGX, baseX, scale);
+            int maxPixelX = gridToPixelX(partMaxGX, baseX, scale) + (int)(ROOM_SIZE * scale);
+            int minPixelY = gridToPixelY(partMinGZ, baseY, scale);
+            int maxPixelY = gridToPixelY(partMaxGZ, baseY, scale) + (int)(ROOM_SIZE * scale);
+
+            centerX = (minPixelX + maxPixelX) / 2;
+            centerY = (minPixelY + maxPixelY) / 2;
+        } else {
+            // For rectangular rooms, center on the full bounding box
+            int minPixelX = gridToPixelX(roomMinGX, baseX, scale);
+            int maxPixelX = gridToPixelX(roomMaxGX, baseX, scale) + (int)(ROOM_SIZE * scale);
+            int minPixelY = gridToPixelY(roomMinGZ, baseY, scale);
+            int maxPixelY = gridToPixelY(roomMaxGZ, baseY, scale) + (int)(ROOM_SIZE * scale);
+
+            centerX = (minPixelX + maxPixelX) / 2;
+            centerY = (minPixelY + maxPixelY) / 2;
         }
-
-        // Convert grid center to pixel coordinates (accounting for dynamic offset)
-        int centerX = gridToPixelX((int)centerGridX, baseX, scale) + (int)(ROOM_SIZE / 2.0 * scale);
-        int centerY = gridToPixelY((int)centerGridZ, baseY, scale) + (int)(ROOM_SIZE / 2.0 * scale);
 
         // Get full display name
         String displayName = getDisplayName(room);
@@ -573,6 +712,11 @@ public class MapRenderer {
         RoomType type = room.getType();
         if (type == null) type = RoomType.UNKNOWN;
 
+        // Check if this is the mimic room (show in red if mimic not killed)
+        if (MimicDetector.isMimicRoom(room) && !MimicDetector.isMimicKilled()) {
+            return 0xFFFF0000; // Bright red for mimic room
+        }
+
         // Special room types ALWAYS show their color
         return switch (type) {
             case ENTRANCE -> TeslaMapsConfig.parseColor(config.colorEntrance);
@@ -624,142 +768,107 @@ public class MapRenderer {
 
     /**
      * Draw player markers:
-     * 1. Always render local player from mc.player (faster, no map needed)
-     * 2. For other players, use entity position if available, otherwise map decoration
-     * 3. Show direction with arrow indicator
+     * 1. Always render local player from mc.player (reliable)
+     * 2. Render other players from map positions with stored UUIDs
      */
     private static void drawPlayerMarker(DrawContext context, MinecraftClient mc, int baseX, int baseY, float scale) {
         if (mc.world == null || mc.player == null) return;
 
-        // Apply head scale from config
-        int headSize = (int)(8 * scale * TeslaMapsConfig.get().playerHeadScale);
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int headSize = (int)(8 * scale * config.playerHeadScale);
 
-        // 1. Render local player directly from mc.player (if enabled)
-        if (TeslaMapsConfig.get().showSelfMarker) {
+        // 1. Always render local player from mc.player (most reliable)
+        if (config.showSelfMarker) {
+            String selfName = config.showPlayerNames ? mc.player.getName().getString() : null;
             renderPlayerHead(context, mc, baseX, baseY, scale, headSize,
                     mc.player.getX(), mc.player.getZ(), mc.player.getYaw(),
-                    mc.player.getUuid(),
-                    0x00000000, // No border for self (transparent)
-                    null, // no name for self
-                    true);
+                    mc.player.getUuid(), 0x00000000, selfName, true);
         }
 
-        // 2. Render other players from map decorations (if enabled)
-        if (!TeslaMapsConfig.get().showOtherPlayers) return;
-        PlayerTracker.DungeonPlayer[] orderedPlayers = PlayerTracker.getPlayersOrdered();
-        List<int[]> mapDecorations = MapScanner.getMapPlayerPositions();
-        int playerIndex = 1; // Start at 1 (0 is local player)
+        // 2. Render other players from map positions
+        if (!config.showOtherPlayers) return;
 
-        // Calculate local player's approximate map position to skip their marker
-        double[] localRenderPos = null;
-        int[] localGridPos = ComponentGrid.worldToGrid(mc.player.getX(), mc.player.getZ());
-        if (localGridPos != null) {
-            int[] worldCenter = ComponentGrid.gridToWorld(localGridPos[0], localGridPos[1]);
-            double roomOffsetX = (mc.player.getX() - worldCenter[0] + ComponentGrid.HALF_ROOM_SIZE) / ComponentGrid.ROOM_SIZE;
-            double roomOffsetZ = (mc.player.getZ() - worldCenter[1] + ComponentGrid.HALF_ROOM_SIZE) / ComponentGrid.ROOM_SIZE;
-            double localMapX = localGridPos[0] * (MapScanner.mapRoomSize + MapScanner.mapGapSize) + roomOffsetX * MapScanner.mapRoomSize + MapScanner.mapCornerX;
-            double localMapZ = localGridPos[1] * (MapScanner.mapRoomSize + MapScanner.mapGapSize) + roomOffsetZ * MapScanner.mapRoomSize + MapScanner.mapCornerY;
-            localRenderPos = new double[]{localMapX, localMapZ};
-        }
+        List<int[]> mapPositions = MapScanner.getMapPlayerPositions();
+        PlayerTracker.DungeonPlayer[] players = PlayerTracker.getPlayersOrdered();
+        int playerIdx = 1; // Start at 1, index 0 is self
 
-        // Find which decoration is closest to local player and skip it
-        int closestIndex = -1;
-        double closestDist = Double.MAX_VALUE;
-        if (localRenderPos != null) {
-            for (int i = 0; i < mapDecorations.size(); i++) {
-                int[] pos = mapDecorations.get(i);
-                double dist = Math.abs(pos[0] - localRenderPos[0]) + Math.abs(pos[1] - localRenderPos[1]);
-                if (dist < closestDist) {
-                    closestDist = dist;
-                    closestIndex = i;
-                }
-            }
-        }
+        for (int[] pos : mapPositions) {
+            int mapX = pos[0];
+            int mapZ = pos[1];
+            int rotation = pos[2];
+            int isLocal = pos[3];
 
-        for (int i = 0; i < mapDecorations.size(); i++) {
-            int[] mapPos = mapDecorations.get(i);
+            // Skip local player marker (already rendered above)
+            if (isLocal == 1) continue;
 
-            // Skip the decoration closest to local player (that's us)
-            if (i == closestIndex && closestDist < 20) continue;
-
-            // Find the corresponding DungeonPlayer for this map decoration (if available)
+            // Find next alive player in the ordered list
             PlayerTracker.DungeonPlayer dungeonPlayer = null;
-            if (orderedPlayers != null) {
-                while (playerIndex < orderedPlayers.length) {
-                    PlayerTracker.DungeonPlayer candidate = orderedPlayers[playerIndex];
-                    if (candidate != null && candidate.isAlive()) {
-                        dungeonPlayer = candidate;
-                        playerIndex++;
-                        break;
-                    }
-                    playerIndex++;
-                }
+            while (playerIdx < players.length) {
+                dungeonPlayer = players[playerIdx];
+                playerIdx++;
+                if (dungeonPlayer != null && dungeonPlayer.isAlive()) break;
+                dungeonPlayer = null;
             }
 
-            double x, z;
-            float rotation;
-            java.util.UUID uuid = null;
-            String name = null;
-            // Try to get player info from DungeonPlayer
-            if (dungeonPlayer != null) {
-                uuid = dungeonPlayer.getUuid();
-                name = TeslaMapsConfig.get().showPlayerNames ? dungeonPlayer.getName() : null;
-            }
+            // Get UUID (may be null if player was never close enough)
+            java.util.UUID uuid = dungeonPlayer != null ? dungeonPlayer.getUuid() : null;
+            String name = (dungeonPlayer != null && config.showPlayerNames) ? dungeonPlayer.getName() : null;
 
-            // Try to get player entity for accurate position (only if UUID available)
-            net.minecraft.entity.player.PlayerEntity playerEntity = null;
-            if (uuid != null) {
-                playerEntity = mc.world.getPlayerByUuid(uuid);
-            }
+            // Try to get player entity for accurate position
+            net.minecraft.entity.player.PlayerEntity playerEntity = uuid != null ? mc.world.getPlayerByUuid(uuid) : null;
 
             if (playerEntity != null) {
-                // Use entity position (smooth, accurate)
-                x = playerEntity.getX();
-                z = playerEntity.getZ();
-                rotation = playerEntity.getYaw();
+                // Player is loaded - use entity position (more accurate)
+                renderPlayerHead(context, mc, baseX, baseY, scale, headSize,
+                        playerEntity.getX(), playerEntity.getZ(), playerEntity.getYaw(),
+                        uuid, 0x00000000, name, false);
             } else {
-                // Fall back to map decoration position (works for far players)
-                // Convert map coords directly to render position
-                double[] renderPos = MapScanner.mapToRenderPosition(mapPos[0], mapPos[1], ROOM_SIZE, DOOR_SIZE);
-                x = renderPos[0];
-                z = renderPos[1];
-                rotation = mapPos[2] * 22.5f - 180;
+                // Player not loaded - use map decoration position
+                double[] renderPos = MapScanner.mapToRenderPosition(mapX, mapZ, ROOM_SIZE, DOOR_SIZE);
+                int pixelX = baseX + (int)(renderPos[0] * scale);
+                int pixelY = baseY + (int)(renderPos[1] * scale);
+                float yaw = rotation * 22.5f;
 
-                // Render directly at map position instead of converting through world coords
-                int pixelX = baseX + (int)((MAP_PADDING + x) * scale);
-                int pixelY = baseY + (int)((MAP_PADDING + z) * scale);
-
-                int halfSize = headSize / 2;
-
-                // Draw head (use default skin if no UUID)
-                if (TeslaMapsConfig.get().rotatePlayerHeads) {
-                    PlayerHeadRenderer.drawPlayerHeadRotated(context, pixelX - halfSize, pixelY - halfSize, headSize, uuid, rotation);
-                } else {
-                    PlayerHeadRenderer.drawPlayerHead(context, pixelX - halfSize, pixelY - halfSize, headSize, uuid);
-                }
-
-                // Draw player name
-                if (name != null) {
-                    var textRenderer = mc.textRenderer;
-                    int textWidth = textRenderer.getWidth(name);
-                    float textScale = 0.5f;
-                    var matrices = context.getMatrices();
-                    matrices.pushMatrix();
-                    matrices.translate(pixelX, pixelY + halfSize + 3);
-                    matrices.scale(textScale, textScale);
-                    context.drawTextWithShadow(textRenderer, name, -textWidth / 2, 0, 0xFFFFFFFF);
-                    matrices.popMatrix();
-                }
-
-                continue; // Already rendered, skip the renderPlayerHead call
+                renderPlayerHeadAtPixel(context, pixelX, pixelY, headSize, yaw, uuid, name, false);
             }
+        }
+    }
 
-            renderPlayerHead(context, mc, baseX, baseY, scale, headSize,
-                    x, z, rotation,
-                    uuid,
-                    0x00000000, // No border
-                    name,
-                    false);
+    /**
+     * Render player head at a direct pixel position (for map-based positions).
+     */
+    private static void renderPlayerHeadAtPixel(DrawContext context, int pixelX, int pixelY, int headSize, float yaw,
+                                                 java.util.UUID uuid, String name, boolean isLocal) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int halfSize = headSize / 2;
+
+        // Draw head
+        if (config.useHeadsInsteadOfMarkers && uuid != null) {
+            if (config.rotatePlayerHeads) {
+                PlayerHeadRenderer.drawPlayerHeadRotated(context, pixelX - halfSize, pixelY - halfSize, headSize, uuid, yaw);
+            } else {
+                PlayerHeadRenderer.drawPlayerHead(context, pixelX - halfSize, pixelY - halfSize, headSize, uuid);
+            }
+        } else {
+            // Fallback: colored square
+            int color = isLocal ? 0xFF55FF55 : 0xFF55FFFF;
+            context.fill(pixelX - halfSize, pixelY - halfSize, pixelX + halfSize, pixelY + halfSize, color);
+
+            // Direction indicator
+            if (config.rotatePlayerHeads) {
+                double rad = Math.toRadians(yaw - 180);
+                int len = headSize;
+                int dx = (int)(Math.sin(rad) * len);
+                int dy = -(int)(Math.cos(rad) * len);
+                context.fill(pixelX + dx - 1, pixelY + dy - 1, pixelX + dx + 1, pixelY + dy + 1, color);
+            }
+        }
+
+        // Draw name
+        if (name != null && config.showPlayerNames) {
+            var textRenderer = MinecraftClient.getInstance().textRenderer;
+            int textWidth = textRenderer.getWidth(name);
+            context.drawTextWithShadow(textRenderer, name, pixelX - textWidth / 2, pixelY + halfSize + 2, 0xFFFFFFFF);
         }
     }
 

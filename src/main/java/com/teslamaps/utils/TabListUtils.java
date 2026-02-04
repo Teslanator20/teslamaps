@@ -10,12 +10,25 @@ import java.util.regex.Pattern;
 
 /**
  * Utilities for parsing the tab list (player list) in dungeons.
+ * Based on Skyblocker's implementation.
  */
 public class TabListUtils {
-    // Pattern to match "Secrets Found: X" in tab
-    private static final Pattern SECRETS_FOUND_PATTERN = Pattern.compile("Secrets Found:\\s*(\\d+)");
-    // Pattern to match "Crypts: X" in tab
+    // Secrets Found: 40.5% (percentage, not count!)
+    private static final Pattern SECRETS_PERCENT_PATTERN = Pattern.compile("Secrets Found:\\s*(\\d+\\.?\\d*)%");
+    // Secrets Found: X (actual count)
+    private static final Pattern SECRETS_COUNT_PATTERN = Pattern.compile("Secrets Found:\\s*(\\d+)(?!%)");
+    // Crypts: X
     private static final Pattern CRYPTS_PATTERN = Pattern.compile("Crypts:\\s*(\\d+)");
+    // Completed Rooms: X
+    private static final Pattern COMPLETED_ROOMS_PATTERN = Pattern.compile("Completed Rooms:\\s*(\\d+)");
+    // Deaths: X
+    private static final Pattern DEATHS_PATTERN = Pattern.compile("Deaths:\\s*(\\d+)");
+    // Puzzles: (X)
+    private static final Pattern PUZZLE_COUNT_PATTERN = Pattern.compile("Puzzles:\\s*\\((\\d+)\\)");
+    // Puzzle state: [✔] or [✖] or [✦]
+    private static final Pattern PUZZLE_STATE_PATTERN = Pattern.compile(".+?(?=:):\\s*\\[([✔✖✦])]");
+
+    private static int debugCounter = 0;
 
     /**
      * Get all lines from the tab list.
@@ -36,13 +49,32 @@ public class TabListUtils {
     }
 
     /**
-     * Get the number of secrets found from tab list.
-     * @return secrets found, or -1 if not found
+     * Get the secrets found PERCENTAGE from tab list.
+     * @return secrets percentage (0-100), or -1 if not found
+     */
+    public static double getSecretsPercentage() {
+        for (String line : getTabListLines()) {
+            String clean = line.replaceAll("§.", "");
+            Matcher matcher = SECRETS_PERCENT_PATTERN.matcher(clean);
+            if (matcher.find()) {
+                try {
+                    return Double.parseDouble(matcher.group(1));
+                } catch (NumberFormatException e) {
+                    return -1;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Get the actual number of secrets found from tab list.
+     * @return secrets found count, or -1 if not found
      */
     public static int getSecretsFound() {
         for (String line : getTabListLines()) {
             String clean = line.replaceAll("§.", "");
-            Matcher matcher = SECRETS_FOUND_PATTERN.matcher(clean);
+            Matcher matcher = SECRETS_COUNT_PATTERN.matcher(clean);
             if (matcher.find()) {
                 try {
                     return Integer.parseInt(matcher.group(1));
@@ -71,5 +103,83 @@ public class TabListUtils {
             }
         }
         return -1;
+    }
+
+    /**
+     * Get the number of completed rooms from tab list.
+     * @return completed rooms, or -1 if not found
+     */
+    public static int getCompletedRooms() {
+        for (String line : getTabListLines()) {
+            String clean = line.replaceAll("§.", "");
+            Matcher matcher = COMPLETED_ROOMS_PATTERN.matcher(clean);
+            if (matcher.find()) {
+                try {
+                    return Integer.parseInt(matcher.group(1));
+                } catch (NumberFormatException e) {
+                    return -1;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Get the number of deaths from tab list.
+     * @return deaths, or -1 if not found
+     */
+    public static int getDeaths() {
+        for (String line : getTabListLines()) {
+            String clean = line.replaceAll("§.", "");
+            Matcher matcher = DEATHS_PATTERN.matcher(clean);
+            if (matcher.find()) {
+                try {
+                    return Integer.parseInt(matcher.group(1));
+                } catch (NumberFormatException e) {
+                    return -1;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Get the puzzle count from tab list.
+     * @return puzzle count, or 0 if not found
+     */
+    public static int getPuzzleCount() {
+        for (String line : getTabListLines()) {
+            String clean = line.replaceAll("§.", "");
+            Matcher matcher = PUZZLE_COUNT_PATTERN.matcher(clean);
+            if (matcher.find()) {
+                try {
+                    return Integer.parseInt(matcher.group(1));
+                } catch (NumberFormatException e) {
+                    return 0;
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Get the number of failed puzzles (✖) from tab list.
+     * Note: [✦] (not started) does NOT count as failed.
+     * @return failed puzzle count
+     */
+    public static int getIncompletePuzzles() {
+        int failed = 0;
+        for (String line : getTabListLines()) {
+            String clean = line.replaceAll("§.", "");
+            Matcher matcher = PUZZLE_STATE_PATTERN.matcher(clean);
+            if (matcher.find()) {
+                String state = matcher.group(1);
+                // Only count [✖] as failed, not [✦] (not started)
+                if (state.equals("✖")) {
+                    failed++;
+                }
+            }
+        }
+        return failed;
     }
 }
