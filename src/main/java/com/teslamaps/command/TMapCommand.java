@@ -32,9 +32,13 @@ import net.minecraft.util.math.BlockPos;
 import com.teslamaps.utils.TabListUtils;
 import com.teslamaps.profileviewer.api.HypixelApi;
 import com.teslamaps.profileviewer.screen.ProfileViewerScreen;
+import com.teslamaps.dungeon.termsim.PanesSimulator;
+import com.teslamaps.dungeon.termsim.NumbersSimulator;
+import com.teslamaps.dungeon.termsim.RubixSimulator;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class TMapCommand {
 
@@ -443,6 +447,55 @@ public class TMapCommand {
                         .executes(context -> {
                             String playerName = StringArgumentType.getString(context, "player");
                             ProfileViewerScreen.open(playerName);
+                            return 1;
+                        }))
+        );
+
+        // Register /termsim command for Terminal Simulator
+        dispatcher.register(ClientCommandManager.literal("termsim")
+                .executes(context -> {
+                    // Open random terminal simulator
+                    MinecraftClient mc = MinecraftClient.getInstance();
+                    Random rand = new Random();
+                    int choice = rand.nextInt(3);
+                    mc.send(() -> {
+                        switch (choice) {
+                            case 0 -> mc.setScreen(new PanesSimulator());
+                            case 1 -> mc.setScreen(new NumbersSimulator());
+                            case 2 -> mc.setScreen(new RubixSimulator());
+                        }
+                    });
+                    context.getSource().sendFeedback(Text.literal("Opening random terminal simulator..."));
+                    return 1;
+                })
+                .then(ClientCommandManager.literal("panes")
+                        .executes(context -> {
+                            MinecraftClient mc = MinecraftClient.getInstance();
+                            mc.send(() -> mc.setScreen(new PanesSimulator()));
+                            context.getSource().sendFeedback(Text.literal("Opening Correct all the panes! simulator..."));
+                            return 1;
+                        }))
+                .then(ClientCommandManager.literal("numbers")
+                        .executes(context -> {
+                            MinecraftClient mc = MinecraftClient.getInstance();
+                            mc.send(() -> mc.setScreen(new NumbersSimulator()));
+                            context.getSource().sendFeedback(Text.literal("Opening Click in order! simulator..."));
+                            return 1;
+                        }))
+                .then(ClientCommandManager.literal("rubix")
+                        .executes(context -> {
+                            MinecraftClient mc = MinecraftClient.getInstance();
+                            mc.send(() -> mc.setScreen(new RubixSimulator()));
+                            context.getSource().sendFeedback(Text.literal("Opening Change all to same color! simulator..."));
+                            return 1;
+                        }))
+                .then(ClientCommandManager.literal("help")
+                        .executes(context -> {
+                            context.getSource().sendFeedback(Text.literal("=== Terminal Simulator ==="));
+                            context.getSource().sendFeedback(Text.literal("/termsim - Open random terminal"));
+                            context.getSource().sendFeedback(Text.literal("/termsim panes - Correct all the panes!"));
+                            context.getSource().sendFeedback(Text.literal("/termsim numbers - Click in order!"));
+                            context.getSource().sendFeedback(Text.literal("/termsim rubix - Change all to same color!"));
                             return 1;
                         }))
         );

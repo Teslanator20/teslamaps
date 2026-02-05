@@ -414,6 +414,61 @@ public class RubixTerminal {
         }
     }
 
+    /**
+     * Event-driven slot update handler.
+     * Called by TerminalManager when a slot update packet is received.
+     */
+    public static void onSlotUpdate(int slotIndex, ItemStack stack) {
+        if (!TeslaMapsConfig.get().solveRubixTerminal) return;
+
+        // Only care about the 3x3 grid slots
+        int[] gridSlots = {12, 13, 14, 21, 22, 23, 30, 31, 32};
+        boolean isGridSlot = false;
+        for (int gs : gridSlots) {
+            if (gs == slotIndex) {
+                isGridSlot = true;
+                break;
+            }
+        }
+        if (!isGridSlot) return;
+
+        // Color changed - a click was registered
+        isClicked = false;
+        TeslaMaps.LOGGER.info("[RubixTerminal] Slot {} color changed, ready for next click", slotIndex);
+    }
+
+    /**
+     * Validate if a click is allowed on this slot.
+     * For Rubix terminal: validate slot is in solution AND button matches direction.
+     * - If clicks needed < 3: must use RIGHT click (backward cycle)
+     * - If clicks needed >= 3: must use LEFT click (forward cycle)
+     */
+    public static boolean canClick(int slotIndex, int button) {
+        if (!initialScanDone || solved || clickQueueIndex >= clickQueue.size()) return true;
+
+        // Find if this slot is in the remaining queue
+        ClickAction nextAction = clickQueue.get(clickQueueIndex);
+
+        // Must click the current slot in queue
+        if (slotIndex != nextAction.slot) {
+            TeslaMaps.LOGGER.info("[RubixTerminal] Blocked click on slot {} - next should be {}", slotIndex, nextAction.slot);
+            return false;
+        }
+
+        // Validate button direction
+        // button 0 = left click (forward), button 1 = right click (backward)
+        boolean shouldRightClick = nextAction.rightClick;
+        boolean isRightClick = (button == 1);
+
+        if (shouldRightClick != isRightClick) {
+            TeslaMaps.LOGGER.info("[RubixTerminal] Blocked {} click on slot {} - should use {} click",
+                isRightClick ? "right" : "left", slotIndex, shouldRightClick ? "right" : "left");
+            return false;
+        }
+
+        return true;
+    }
+
     public static void reset() {
         if (initialScanDone) {
             TeslaMaps.LOGGER.info("[RubixTerminal] Resetting");

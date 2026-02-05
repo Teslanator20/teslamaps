@@ -277,6 +277,52 @@ public class MelodyTerminal {
         return purplePosition;
     }
 
+    /**
+     * Event-driven slot update handler.
+     * Called by TerminalManager when a slot update packet is received.
+     */
+    public static void onSlotUpdate(int slotIndex, net.minecraft.item.ItemStack stack) {
+        if (!TeslaMapsConfig.get().solveMelodyTerminal) return;
+
+        // Check if a terracotta changed (lane progressed)
+        for (int i = 0; i < TERRACOTTA_SLOTS.length; i++) {
+            if (slotIndex == TERRACOTTA_SLOTS[i]) {
+                // If terracotta is no longer lime, lane progressed
+                if (stack.getItem() != Items.LIME_TERRACOTTA && i == currentLane) {
+                    currentLane++;
+                    laneProgressTime = System.currentTimeMillis();
+                    lastGreenPosition = -1;
+                    purplePosition = -1;
+                    TeslaMaps.LOGGER.info("[MelodyTerminal] Lane {} completed via event!", i + 1);
+
+                    if (currentLane >= 4) {
+                        solved = true;
+                        TeslaMaps.LOGGER.info("[MelodyTerminal] All lanes complete!");
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    /**
+     * Validate if a click is allowed on this slot.
+     * For Melody terminal: only allow clicks on terracotta positions (16, 25, 34, 43).
+     */
+    public static boolean canClick(int slotIndex, int button) {
+        if (!initialScanDone || solved) return true;
+
+        // Only allow clicks on the current lane's terracotta
+        if (currentLane < 4 && slotIndex == TERRACOTTA_SLOTS[currentLane]) {
+            return true;
+        }
+
+        // Block clicks on wrong positions
+        TeslaMaps.LOGGER.info("[MelodyTerminal] Blocked click on slot {} - should click terracotta at {}",
+            slotIndex, currentLane < 4 ? TERRACOTTA_SLOTS[currentLane] : "N/A");
+        return false;
+    }
+
     public static void reset() {
         if (initialScanDone) {
             TeslaMaps.LOGGER.info("[MelodyTerminal] Resetting");

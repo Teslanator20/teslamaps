@@ -251,6 +251,59 @@ public class ClickInOrderTerminal {
         return orderedSlots.get(0); // First red pane in order
     }
 
+    /**
+     * Event-driven slot update handler.
+     * Called by TerminalManager when a slot update packet is received.
+     */
+    public static void onSlotUpdate(int slotIndex, ItemStack stack) {
+        if (!TeslaMapsConfig.get().solveClickInOrderTerminal) return;
+        if (slotIndex >= 54) return; // Ignore player inventory
+
+        // If a red pane turned green, remove it from our tracking
+        if (slotToNumber.containsKey(slotIndex)) {
+            if (stack.getItem() != Items.RED_STAINED_GLASS_PANE) {
+                // Pane is no longer red - click was registered!
+                int number = slotToNumber.remove(slotIndex);
+                orderedSlots.remove(Integer.valueOf(slotIndex));
+                isClicked = false; // Ready for next click
+                TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Slot {} (pane #{}) turned green!", slotIndex, number);
+            }
+        }
+        // If a new red pane appeared, add it
+        else if (stack.getItem() == Items.RED_STAINED_GLASS_PANE) {
+            int number = stack.getCount();
+            if (number >= 1 && number <= 14) {
+                slotToNumber.put(slotIndex, number);
+                // Insert in correct position
+                int insertIdx = 0;
+                for (int i = 0; i < orderedSlots.size(); i++) {
+                    if (slotToNumber.get(orderedSlots.get(i)) > number) {
+                        break;
+                    }
+                    insertIdx = i + 1;
+                }
+                orderedSlots.add(insertIdx, slotIndex);
+                TeslaMaps.LOGGER.info("[ClickInOrderTerminal] New red pane #{} at slot {}", number, slotIndex);
+            }
+        }
+    }
+
+    /**
+     * Validate if a click is allowed on this slot.
+     * For Numbers terminal: only allow clicking the FIRST item in sequence.
+     */
+    public static boolean canClick(int slotIndex, int button) {
+        if (!initialScanDone || solved || orderedSlots.isEmpty()) return true;
+
+        // Only allow clicking the first slot in order
+        int nextSlot = orderedSlots.get(0);
+        if (slotIndex != nextSlot) {
+            TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Blocked click on slot {} - next should be {}", slotIndex, nextSlot);
+            return false;
+        }
+        return true;
+    }
+
     public static void reset() {
         if (!slotToNumber.isEmpty()) {
             TeslaMaps.LOGGER.info("[ClickInOrderTerminal] DEBUG: Resetting");

@@ -18,7 +18,8 @@
         "NoStuckArrowsMixin",
         "HandledScreenAccessor",
         "HandledScreenClickMixin",
-        "GenericContainerScreenMixin"
+        "GenericContainerScreenMixin",
+        "ClientPlayNetworkHandlerMixin"
     ],
     "injectors": {
         "defaultRequire": 1

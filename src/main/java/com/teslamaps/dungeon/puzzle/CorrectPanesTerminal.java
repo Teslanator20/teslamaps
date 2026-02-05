@@ -243,6 +243,54 @@ public class CorrectPanesTerminal {
         lastClickTime = System.currentTimeMillis();
     }
 
+    /**
+     * Event-driven slot update handler.
+     * Called by TerminalManager when a slot update packet is received.
+     */
+    public static void onSlotUpdate(int slotIndex, net.minecraft.item.ItemStack stack) {
+        if (!TeslaMapsConfig.get().solveCorrectPanesTerminal) return;
+        if (slotIndex >= 54) return; // Ignore player inventory
+
+        // Skip edge columns
+        int column = slotIndex % 9;
+        if (column == 0 || column == 1 || column == 7 || column == 8) return;
+
+        // If a red/orange pane turned green, remove from incorrect list
+        if (incorrectSlots.contains(slotIndex)) {
+            if (stack.getItem() != Items.RED_STAINED_GLASS_PANE &&
+                stack.getItem() != Items.ORANGE_STAINED_GLASS_PANE) {
+                incorrectSlots.remove(Integer.valueOf(slotIndex));
+                isClicked = false;
+                TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Slot {} corrected!", slotIndex);
+            }
+        }
+        // If a new incorrect pane appeared
+        else if (stack.getItem() == Items.RED_STAINED_GLASS_PANE ||
+                 stack.getItem() == Items.ORANGE_STAINED_GLASS_PANE) {
+            if (!clickedSlots.contains(slotIndex)) {
+                incorrectSlots.add(slotIndex);
+                TeslaMaps.LOGGER.info("[CorrectPanesTerminal] New incorrect pane at slot {}", slotIndex);
+            }
+        }
+    }
+
+    /**
+     * Validate if a click is allowed on this slot.
+     * For Panes terminal: allow clicking any incorrect pane.
+     */
+    public static boolean canClick(int slotIndex, int button) {
+        if (!initialScanDone || solved) return true;
+
+        // Allow clicking any slot that's in the incorrect list
+        if (incorrectSlots.contains(slotIndex)) {
+            return true;
+        }
+
+        // Block clicks on already-correct panes
+        TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Blocked click on slot {} - not an incorrect pane", slotIndex);
+        return false;
+    }
+
     public static void reset() {
         if (!incorrectSlots.isEmpty()) {
             TeslaMaps.LOGGER.info("[CorrectPanesTerminal] DEBUG: Resetting");
