@@ -134,6 +134,39 @@ public class MapConfigScreen extends Screen {
 
         // ===== RENDER =====
         List<SettingsEntry> render = new ArrayList<>();
+        render.add(new ButtonEntry(contentX, contentWidth, "Toggle All Render Options", () -> {
+            // Check if most are enabled (more than half)
+            int enabled = 0;
+            if (config.noFire) enabled++;
+            if (config.noWaterOverlay) enabled++;
+            if (config.noVignette) enabled++;
+            if (config.noBlind) enabled++;
+            if (config.noNausea) enabled++;
+            if (config.noDeathAnimation) enabled++;
+            if (config.hideInventoryEffects) enabled++;
+            if (config.noLightning) enabled++;
+            if (config.noExplosions) enabled++;
+            if (config.noBlockBreaking) enabled++;
+            if (config.noFallingBlocks) enabled++;
+            if (config.noArrows) enabled++;
+            if (config.noStuckArrows) enabled++;
+            // If more than half enabled, disable all; otherwise enable all
+            boolean newValue = enabled <= 6;
+            config.noFire = newValue;
+            config.noWaterOverlay = newValue;
+            config.noVignette = newValue;
+            config.noBlind = newValue;
+            config.noNausea = newValue;
+            config.noDeathAnimation = newValue;
+            config.hideInventoryEffects = newValue;
+            config.noLightning = newValue;
+            config.noExplosions = newValue;
+            config.noBlockBreaking = newValue;
+            config.noFallingBlocks = newValue;
+            config.noArrows = newValue;
+            config.noStuckArrows = newValue;
+            TeslaMapsConfig.save();
+        }));
         render.add(new ToggleEntry(contentX, contentWidth, "No Fire Overlay", () -> config.noFire, v -> config.noFire = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Water Overlay", () -> config.noWaterOverlay, v -> config.noWaterOverlay = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Vignette", () -> config.noVignette, v -> config.noVignette = v));

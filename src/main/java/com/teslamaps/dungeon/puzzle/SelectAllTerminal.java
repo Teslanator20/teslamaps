@@ -359,6 +359,44 @@ public class SelectAllTerminal {
         return new HashSet<>(clickedSlots);
     }
 
+    /**
+     * Event-driven slot update handler.
+     * Called by TerminalManager when a slot update packet is received.
+     */
+    public static void onSlotUpdate(int slotIndex, net.minecraft.item.ItemStack stack) {
+        if (!TeslaMapsConfig.get().solveSelectAllTerminal) return;
+        if (slotIndex >= 54) return; // Ignore player inventory
+
+        // If an item we clicked got enchant glint (was clicked), mark as done
+        if (clickedSlots.contains(slotIndex)) {
+            if (stack.hasGlint()) {
+                isClicked = false; // Click was registered
+                TeslaMaps.LOGGER.info("[SelectAllTerminal] Slot {} click confirmed (has glint)", slotIndex);
+            }
+        }
+    }
+
+    /**
+     * Validate if a click is allowed on this slot.
+     * For SelectAllTerminal: allow clicking any correct slot that hasn't been clicked.
+     */
+    public static boolean canClick(int slotIndex, int button) {
+        if (!slotsFound || solved) return true;
+
+        // Allow clicking any correct slot that hasn't been clicked yet
+        if (correctSlots.contains(slotIndex) && !clickedSlots.contains(slotIndex)) {
+            return true;
+        }
+
+        // Block clicks on wrong items or already-clicked items
+        if (correctSlots.contains(slotIndex)) {
+            TeslaMaps.LOGGER.info("[SelectAllTerminal] Blocked click on slot {} - already clicked", slotIndex);
+        } else {
+            TeslaMaps.LOGGER.info("[SelectAllTerminal] Blocked click on slot {} - not a matching color", slotIndex);
+        }
+        return false;
+    }
+
     public static void reset() {
         if (targetColor != null) {
             TeslaMaps.LOGGER.info("[SelectAllTerminal] DEBUG: Resetting (was tracking color '{}')", targetColor);
