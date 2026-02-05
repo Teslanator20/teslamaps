@@ -9,7 +9,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 /**
- * ESP Renderer - copied exactly from Odin's approach.
+ * ESP Renderer.
  * Key: push matrix, translate by -camera, use WORLD coordinates, endBatch.
  */
 public class ESPRenderer {
@@ -42,30 +42,30 @@ public class ESPRenderer {
                 minX, minY, minZ, maxX, maxY, maxZ);
         }
 
-        // Push and translate by -camera (like Odin does)
+        // Push and translate by -camera 
         matrices.push();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
         MatrixStack.Entry pose = matrices.peek();
         VertexConsumer buffer = bufferSource.getBuffer(TeslaRenderLayers.LINES_ESP);
 
-        // Draw 12 edges using Odin's renderLineBox pattern
+        // Draw 12 edges
         renderLineBox(pose, buffer, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, a);
 
-        // End batch for this render layer (like Odin does)
+        // End batch for this render layer 
         bufferSource.draw(TeslaRenderLayers.LINES_ESP);
 
         matrices.pop();
     }
 
     /**
-     * Render a line box - copied from Odin's PrimitiveRenderer.renderLineBox
+     * Render a line box
      */
     private static void renderLineBox(MatrixStack.Entry pose, VertexConsumer buffer,
                                        float minX, float minY, float minZ,
                                        float maxX, float maxY, float maxZ,
                                        float r, float g, float b, float a) {
-        // Edge indices from Odin
+        // Edge indices
         int[] edges = {
             0, 1,  1, 5,  5, 4,  4, 0,
             3, 2,  2, 6,  6, 7,  7, 3,

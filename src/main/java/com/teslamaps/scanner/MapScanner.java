@@ -22,12 +22,11 @@ import java.util.Map;
 /**
  * Scans the dungeon map item in the player's inventory to detect checkmarks and room exploration.
  * Also extracts player marker positions from the map.
- * Based on IllegalMap's scanHotbarMap method and Skyblocker's DungeonMapUtils.
  */
 public class MapScanner {
     private static int tickCounter = 0;
 
-    // Map color values for checkmarks (from Skyblocker's DungeonMapUtils)
+    // Map color values for checkmarks
     // These are packed color IDs from MapColor
     private static final byte COLOR_GREEN_CHECKMARK = 30;  // MapColor.PLANT.getPackedId(MapColor.Brightness.HIGH)
     private static final byte COLOR_WHITE_CHECKMARK = 34;  // MapColor.SNOW.getPackedId(MapColor.Brightness.HIGH)
@@ -42,7 +41,7 @@ public class MapScanner {
     // Each entry: [mapX, mapZ, rotation, isLocalPlayer (1=local, 0=other)]
     private static final List<int[]> mapPlayerPositions = new ArrayList<>();
 
-    // Door colors on the dungeon map (from Skyblocker)
+    // Door colors on the dungeon map
     private static final byte COLOR_WITHER_DOOR = 119;  // Black door
     private static final byte COLOR_BLOOD_DOOR = 18;    // Red door (same as failed checkmark)
 
@@ -112,7 +111,7 @@ public class MapScanner {
         // Log once per scan cycle for debugging (reduced frequency)
         boolean shouldLog = (debugLogCounter++ % 500 == 0);
 
-        // Scan each room position on the map (using Skyblocker's algorithm)
+        // Scan each room position on the map
         for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
             if (room.getComponents().isEmpty()) continue;
 
@@ -424,7 +423,7 @@ public class MapScanner {
 
     /**
      * Scan the dungeon map for wither and blood doors.
-     * Based on Skyblocker's door detection method.
+     * Detect door positions from map colors.
      * Color 119 = wither door (black), Color 18 = blood door (red)
      */
     private static void scanDoorsFromMap(MapState mapState) {

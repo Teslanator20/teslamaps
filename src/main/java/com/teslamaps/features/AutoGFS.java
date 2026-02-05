@@ -11,7 +11,7 @@ import net.minecraft.registry.Registries;
 /**
  * Auto Get From Sack (GFS) feature.
  * Automatically refills items from sacks using /gfs command.
- * Based on OdinClient's AutoGFS.
+ * Automatically refills sacks when entering dungeons.
  */
 public class AutoGFS {
     private static int tickCounter = 0;

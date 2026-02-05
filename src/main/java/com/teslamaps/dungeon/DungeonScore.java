@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Dungeon score calculator - ported directly from Skyblocker's DungeonScore.java
+ * Dungeon score calculator.
  */
 public class DungeonScore {
     // Scoreboard patterns
@@ -232,7 +232,7 @@ public class DungeonScore {
     }
 
     private static int getDeathScorePenalty() {
-        // Assume Spirit Pet on first death (like Skyblocker with API check)
+        // Assume Spirit Pet on first death (assuming Spirit Pet on first death)
         if (deathCount == 0) return 0;
         return 1 + (deathCount - 1) * 2;  // First death: -1, subsequent: -2 each
     }
@@ -247,7 +247,7 @@ public class DungeonScore {
         for (int index = 0; index < puzzleCount; index++) {
             Matcher puzzleMatcher = regexAt(48 + index, PUZZLES_PATTERN);
             if (puzzleMatcher == null) break;
-            // EXACT COPY from Skyblocker: Both ✖ (failed) and ✦ (not started) count as incomplete
+            // Both ✖ (failed) and ✦ (not started) count as incomplete
             if (puzzleMatcher.group("state").matches("[✖✦]")) incompletePuzzles++;
         }
         return incompletePuzzles * 10;
@@ -277,7 +277,7 @@ public class DungeonScore {
     }
 
     /**
-     * Get tab list entry at index and match against pattern (like Skyblocker's PlayerListManager.regexAt)
+     * Get tab list entry at index and match against pattern 
      */
     private static Matcher regexAt(int index, Pattern pattern) {
         String str = strAt(index);

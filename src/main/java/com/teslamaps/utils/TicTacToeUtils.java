@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 /**
  * TicTacToe AI solver using alpha-beta pruning.
- * Copied from Skyblocker's TicTacToeUtils.
+ * Tic Tac Toe AI using alpha-beta pruning.
  */
 public class TicTacToeUtils {
 

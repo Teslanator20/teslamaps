@@ -22,13 +22,13 @@ import java.util.*;
 
 /**
  * TicTacToe puzzle solver - shows the best move.
- * Based on Skyblocker's approach using room-relative coordinates.
+ * Tic Tac Toe puzzle solver - shows optimal move.
  */
 public class TicTacToe {
     private static Box nextBestMoveBox = null;
     private static DungeonRoom currentRoom = null;
 
-    // Room-relative coordinates for the tic-tac-toe board (from Skyblocker)
+    // Room-relative coordinates for the tic-tac-toe board 
     // Y: 72=row0, 71=row1, 70=row2
     // Z: 17=col0, 16=col1, 15=col2
     // X: 8 (constant)
@@ -142,7 +142,7 @@ public class TicTacToe {
                 // Convert board indices back to world position
                 int relY = 72 - bestMove.row();
                 int relZ = 17 - bestMove.column();
-                int relX = 8; // X is constant in relative space (like Skyblocker)
+                int relX = 8; // X is constant in relative space 
 
                 worldPos = relativeToWorld(cornerX, cornerZ, rotation, relX, relY, relZ);
             }
@@ -164,7 +164,7 @@ public class TicTacToe {
     }
 
     /**
-     * Rotate coordinates by given degrees (Devonian's formula).
+     * Rotate coordinates by given degrees by degree.
      * 0° -> (x, z), 90° -> (z, -x), 180° -> (-x, -z), 270° -> (-z, x)
      */
     private static int[] rotatePos(int x, int z, int degree) {

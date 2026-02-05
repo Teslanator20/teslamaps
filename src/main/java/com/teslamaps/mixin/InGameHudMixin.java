@@ -1,7 +1,10 @@
 package com.teslamaps.mixin;
 
+import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.scanner.SecretTracker;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,5 +22,15 @@ public class InGameHudMixin {
     @Inject(method = "setOverlayMessage", at = @At("HEAD"))
     private void onSetOverlayMessage(Text message, boolean tinted, CallbackInfo ci) {
         SecretTracker.onActionBarMessage(message);
+    }
+
+    /**
+     * Hide status effect icons on HUD (top right corner).
+     */
+    @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"), cancellable = true)
+    private void hideStatusEffects(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+        if (TeslaMapsConfig.get().noEffects) {
+            ci.cancel();
+        }
     }
 }

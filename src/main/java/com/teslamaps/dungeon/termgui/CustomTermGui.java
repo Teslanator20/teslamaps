@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * Base class for custom terminal GUI rendering.
- * Ports the OdinFabric TermGui system to use Minecraft's standard rendering APIs.
+ * Base class for terminal GUI overlays.
  */
 public abstract class CustomTermGui {
     protected final Map<Integer, Box> itemIndexMap = new HashMap<>();

@@ -31,19 +31,43 @@ public class QuizSolver {
     private static final TriviaOption[] triviaOptions = new TriviaOption[3];
 
     // Relative positions for answer stands (A, B, C)
-    private static final BlockPos[] RELATIVE_POSITIONS = {
-        new BlockPos(20, 70, 6),  // A
-        new BlockPos(15, 70, 9),  // B
-        new BlockPos(10, 70, 6)   // C
+    private static final int[][] TYPE_BLOCKS = {
+        {20, 6},  // ⓐ
+        {15, 9},  // ⓑ
+        {10, 6}   // ⓒ
     };
 
     private record TriviaOption(BlockPos worldPos, boolean isCorrect) {}
+
+    private static int cornerX, cornerZ, rotation;
+    private static DungeonRoom quizRoom = null;
 
     static {
         loadAnswers();
         for (int i = 0; i < 3; i++) {
             triviaOptions[i] = new TriviaOption(null, false);
         }
+    }
+
+    /**
+     * Rotate coordinates by degree
+     */
+    private static int[] rotatePos(int x, int z, int degree) {
+        return switch (degree % 360) {
+            case 0 -> new int[]{x, z};
+            case 90 -> new int[]{z, -x};
+            case 180 -> new int[]{-x, -z};
+            case 270 -> new int[]{-z, x};
+            default -> new int[]{x, z};
+        };
+    }
+
+    /**
+     * Convert component coords to world coords
+     */
+    private static int[] fromComp(int x, int z) {
+        int[] rotated = rotatePos(x, z, (360 - rotation) % 360);
+        return new int[]{rotated[0] + cornerX, rotated[1] + cornerZ};
     }
 
     private static void loadAnswers() {
@@ -80,22 +104,29 @@ public class QuizSolver {
 
         // Check for answer options (ⓐ, ⓑ, ⓒ)
         String trimmed = message.trim();
-        if (currentAnswers != null) {
-            if (trimmed.startsWith("ⓐ") || trimmed.startsWith("ⓑ") || trimmed.startsWith("ⓒ")) {
-                for (String answer : currentAnswers) {
-                    if (trimmed.endsWith(answer)) {
-                        int index = switch (trimmed.charAt(0)) {
-                            case 'ⓐ' -> 0;
-                            case 'ⓑ' -> 1;
-                            case 'ⓒ' -> 2;
-                            default -> -1;
-                        };
-                        if (index >= 0) {
-                            triviaOptions[index] = new TriviaOption(triviaOptions[index].worldPos, true);
-                            TeslaMaps.LOGGER.info("[QuizSolver] Correct answer: {} (option {})", answer, (char)('A' + index));
-                        }
-                        break;
-                    }
+
+        // Detect answer option lines
+        int optionIndex = -1;
+        if (trimmed.contains("ⓐ")) optionIndex = 0;
+        else if (trimmed.contains("ⓑ")) optionIndex = 1;
+        else if (trimmed.contains("ⓒ")) optionIndex = 2;
+
+        if (optionIndex >= 0 && currentAnswers != null) {
+            // Extract the answer text after the circle letter
+            String answerText = trimmed;
+            int circleIdx = Math.max(trimmed.indexOf("ⓐ"), Math.max(trimmed.indexOf("ⓑ"), trimmed.indexOf("ⓒ")));
+            if (circleIdx >= 0 && circleIdx + 1 < trimmed.length()) {
+                answerText = trimmed.substring(circleIdx + 1).trim();
+            }
+
+            TeslaMaps.LOGGER.info("[QuizSolver] Option {} text: '{}', looking for: {}",
+                (char)('A' + optionIndex), answerText, currentAnswers);
+
+            for (String answer : currentAnswers) {
+                if (answerText.contains(answer) || answer.contains(answerText)) {
+                    triviaOptions[optionIndex] = new TriviaOption(triviaOptions[optionIndex].worldPos, true);
+                    TeslaMaps.LOGGER.info("[QuizSolver] Correct answer found: {} (option {})", answer, (char)('A' + optionIndex));
+                    break;
                 }
             }
         }
@@ -129,36 +160,39 @@ public class QuizSolver {
             return;
         }
 
-        // Check if we're in Quiz room and update positions
-        DungeonRoom room = DungeonManager.getCurrentRoom();
-        if (room == null || room.getName() == null || !room.getName().equals("Quiz")) {
+        // Find Quiz room from dungeon grid if we don't have it yet
+        if (quizRoom == null && DungeonManager.getGrid() != null) {
+            for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
+                if (room != null && "Quiz".equals(room.getName())) {
+                    quizRoom = room;
+                    TeslaMaps.LOGGER.info("[QuizSolver] Found Quiz room in dungeon");
+                    break;
+                }
+            }
+        }
+
+        if (quizRoom == null) {
+            // Quiz room not discovered yet
             return;
         }
 
-        BlockPos corner = room.getCorner();
-        if (corner == null) return;
-        int rotation = room.getRotation();
+        rotation = quizRoom.getRotation();
+        if (rotation < 0) {
+            // Room rotation not detected yet
+            return;
+        }
+
+        cornerX = quizRoom.getCornerX();
+        cornerZ = quizRoom.getCornerZ();
 
         // Update world positions for answer stands
         for (int i = 0; i < 3; i++) {
-            BlockPos worldPos = transformPos(RELATIVE_POSITIONS[i], corner, rotation);
-            triviaOptions[i] = new TriviaOption(worldPos, triviaOptions[i].isCorrect);
+            int[] worldPos = fromComp(TYPE_BLOCKS[i][0], TYPE_BLOCKS[i][1]);
+            triviaOptions[i] = new TriviaOption(
+                new BlockPos(worldPos[0], 70, worldPos[1]),
+                triviaOptions[i].isCorrect
+            );
         }
-    }
-
-    private static BlockPos transformPos(BlockPos relative, BlockPos corner, int rotation) {
-        int x = relative.getX();
-        int z = relative.getZ();
-
-        int rx, rz;
-        switch (rotation) {
-            case 1 -> { rx = 30 - z; rz = x; }
-            case 2 -> { rx = 30 - x; rz = 30 - z; }
-            case 3 -> { rx = z; rz = 30 - x; }
-            default -> { rx = x; rz = z; }
-        }
-
-        return new BlockPos(corner.getX() + rx, relative.getY(), corner.getZ() + rz);
     }
 
     public static void render(MatrixStack matrices, Vec3d cameraPos) {
@@ -167,8 +201,13 @@ public class QuizSolver {
 
         int color = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorQuiz);
 
-        for (TriviaOption option : triviaOptions) {
-            if (!option.isCorrect || option.worldPos == null) continue;
+        for (int i = 0; i < triviaOptions.length; i++) {
+            TriviaOption option = triviaOptions[i];
+            if (!option.isCorrect) continue;
+            if (option.worldPos == null) {
+                TeslaMaps.LOGGER.warn("[QuizSolver] Option {} is correct but has no world position!", (char)('A' + i));
+                continue;
+            }
 
             BlockPos pos = option.worldPos.down(); // Render on ground
             Box box = new Box(
@@ -186,6 +225,7 @@ public class QuizSolver {
 
     public static void reset() {
         currentAnswers = null;
+        quizRoom = null;
         for (int i = 0; i < 3; i++) {
             triviaOptions[i] = new TriviaOption(null, false);
         }

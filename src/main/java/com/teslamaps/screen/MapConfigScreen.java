@@ -144,6 +144,7 @@ public class MapConfigScreen extends Screen {
             if (config.noNausea) enabled++;
             if (config.noDeathAnimation) enabled++;
             if (config.hideInventoryEffects) enabled++;
+            if (config.noEffects) enabled++;
             if (config.noLightning) enabled++;
             if (config.noExplosions) enabled++;
             if (config.noBlockBreaking) enabled++;
@@ -151,7 +152,7 @@ public class MapConfigScreen extends Screen {
             if (config.noArrows) enabled++;
             if (config.noStuckArrows) enabled++;
             // If more than half enabled, disable all; otherwise enable all
-            boolean newValue = enabled <= 6;
+            boolean newValue = enabled <= 7;
             config.noFire = newValue;
             config.noWaterOverlay = newValue;
             config.noVignette = newValue;
@@ -159,6 +160,7 @@ public class MapConfigScreen extends Screen {
             config.noNausea = newValue;
             config.noDeathAnimation = newValue;
             config.hideInventoryEffects = newValue;
+            config.noEffects = newValue;
             config.noLightning = newValue;
             config.noExplosions = newValue;
             config.noBlockBreaking = newValue;
@@ -174,6 +176,7 @@ public class MapConfigScreen extends Screen {
         render.add(new ToggleEntry(contentX, contentWidth, "No Nausea", () -> config.noNausea, v -> config.noNausea = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Death Animation", () -> config.noDeathAnimation, v -> config.noDeathAnimation = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Hide Inventory Effects", () -> config.hideInventoryEffects, v -> config.hideInventoryEffects = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "No Effects (HUD)", () -> config.noEffects, v -> config.noEffects = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Lightning", () -> config.noLightning, v -> config.noLightning = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Explosions", () -> config.noExplosions, v -> config.noExplosions = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Block Breaking", () -> config.noBlockBreaking, v -> config.noBlockBreaking = v));
@@ -202,17 +205,21 @@ public class MapConfigScreen extends Screen {
         // ===== SOLVERS =====
         List<SettingsEntry> solvers = new ArrayList<>();
         solvers.add(new LabelEntry(contentX, "Dungeon Puzzles"));
-        solvers.add(new ToggleEntry(contentX, contentWidth, "Toggle All Puzzles", () -> config.solveBlaze && config.solveThreeWeirdos && config.solveTicTacToe && config.solveCreeperBeams && config.solveBoulder && config.solveQuiz && config.solveTPMaze && config.solveWaterBoard && config.solveSimonSays && config.solveArrowAlign, v -> {
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Toggle All Puzzles", () -> config.solveBlaze && config.blazeDoneMessage && config.solveThreeWeirdos && config.solveTicTacToe && config.solveCreeperBeams && config.creeperBeamsTracers && config.solveBoulder && config.showAllBoulderClicks && config.solveQuiz && config.quizBeacon && config.solveTPMaze && config.solveWaterBoard && config.waterBoardOptimized && config.waterBoardTracers, v -> {
             config.solveBlaze = v;
+            config.blazeDoneMessage = v;
             config.solveThreeWeirdos = v;
             config.solveTicTacToe = v;
             config.solveCreeperBeams = v;
+            config.creeperBeamsTracers = v;
             config.solveBoulder = v;
+            config.showAllBoulderClicks = v;
             config.solveQuiz = v;
+            config.quizBeacon = v;
             config.solveTPMaze = v;
             config.solveWaterBoard = v;
-            config.solveSimonSays = v;
-            config.solveArrowAlign = v;
+            config.waterBoardOptimized = v;
+            config.waterBoardTracers = v;
         }));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Solver", () -> config.solveBlaze, v -> config.solveBlaze = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v));
@@ -361,11 +368,7 @@ public class MapConfigScreen extends Screen {
         waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Essence", () -> config.secretWaypointEssence, v -> config.secretWaypointEssence = v));
         waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Redstone Key", () -> config.secretWaypointRedstoneKey, v -> config.secretWaypointRedstoneKey = v));
         waypoints.add(new LabelEntry(contentX, "Display Options"));
-        waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Tracers", () -> config.secretWaypointTracers, v -> config.secretWaypointTracers = v));
         waypoints.add(new ToggleEntry(contentX, contentWidth, "Hide When Collected", () -> config.secretWaypointHideCollected, v -> config.secretWaypointHideCollected = v));
-        waypoints.add(new LabelEntry(contentX, "Sound"));
-        waypoints.add(new ToggleEntry(contentX, contentWidth, "Secret Sound", () -> config.secretSound, v -> config.secretSound = v));
-        waypoints.add(new SliderEntry(contentX, contentWidth, "Secret Volume", 0.0f, 4.0f, () -> config.secretSoundVolume, v -> config.secretSoundVolume = v));
         categories.put("Waypoints", waypoints);
 
         // ===== LEAP OVERLAY =====

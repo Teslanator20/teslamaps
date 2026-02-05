@@ -22,7 +22,8 @@
         "ClientPlayNetworkHandlerMixin",
         "ChestAutoCloseMixin",
         "BlockUpdateMixin",
-        "FullbrightMixin"
+        "FullbrightMixin",
+        "InventoryEffectsMixin"
     ],
     "injectors": {
         "defaultRequire": 1

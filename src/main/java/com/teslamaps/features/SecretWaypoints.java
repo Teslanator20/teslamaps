@@ -31,18 +31,18 @@ import java.util.*;
 
 /**
  * Secret Waypoints feature - renders 3D waypoints at known secret locations.
- * Copied from Devonian mod's implementation.
+ * Renders 3D waypoints at known secret locations.
  */
 public class SecretWaypoints {
     private static final Gson GSON = new Gson();
 
-    // Devonian constants (from Coordinates.kt)
+    // Dungeon coordinate constants
     private static final int CORNER_START_X = -200;
     private static final int CORNER_START_Z = -200;
     private static final int HALF_ROOM_SIZE = 15;  // dungeonRoomSize / 2 = 31 / 2 = 15
     private static final int HALF_COMBINED_SIZE = 16;  // (31 + 1) / 2 = 16
 
-    // Room corner offsets (from DungeonRoom.kt roomOffset)
+    // Room corner offsets for rotation detection
     private static final int[][] ROOM_OFFSETS = {
         {-HALF_ROOM_SIZE, -HALF_ROOM_SIZE},  // Index 0 = 0° rotation
         {HALF_ROOM_SIZE, -HALF_ROOM_SIZE},   // Index 1 = 90° rotation
@@ -305,7 +305,7 @@ public class SecretWaypoints {
     }
 
     /**
-     * Add secrets for a room - matches Devonian's addSecretsForRoom exactly.
+     * Add secrets for a room
      * Returns map of waypoint type -> list of [x, y, z] world coordinates.
      */
     private static Map<WaypointType, List<int[]>> addSecretsForRoom(DungeonRoom room, ClientWorld world) {
@@ -315,7 +315,7 @@ public class SecretWaypoints {
         RoomWaypoints waypointData = getWaypointsData(roomId);
         if (waypointData == null) return null;
 
-        // Find rotation (matches Devonian's findRotation)
+        // Find rotation 
         int[] rotationAndCorner = findRotation(room, world);
         if (rotationAndCorner == null) return null;
 
@@ -345,7 +345,7 @@ public class SecretWaypoints {
     }
 
     /**
-     * Find rotation by scanning for blue terracotta - matches Devonian's findRotation exactly.
+     * Find rotation by scanning for blue terracotta
      * Returns [rotation, cornerX, cornerZ] or null if not found.
      */
     private static int[] findRotation(DungeonRoom room, ClientWorld world) {
@@ -354,10 +354,10 @@ public class SecretWaypoints {
 
         if (components.isEmpty()) return null;
 
-        // Sort components like Devonian: by cx then cz
+        // Sort components as needed: by cx then cz
         List<int[]> sortedComps = new ArrayList<>(components);
         sortedComps.sort((a, b) -> {
-            int cxA = a[0] * 2;  // Convert TeslaMaps grid to Devonian component index
+            int cxA = a[0] * 2;  // Convert grid to component index
             int cxB = b[0] * 2;
             int czA = a[1] * 2;
             int czB = b[1] * 2;
@@ -365,14 +365,14 @@ public class SecretWaypoints {
             return Integer.compare(czA, czB);
         });
 
-        // Build possible corners list (like Devonian's possibleCorners)
+        // Build possible corners list (for rotation detection)
         List<int[]> possibleCorners = new ArrayList<>();  // [idx, compIndex, worldX, worldZ]
         for (int compIdx = 0; compIdx < sortedComps.size(); compIdx++) {
             int[] comp = sortedComps.get(compIdx);
-            // Convert TeslaMaps grid (0-5) to Devonian component (0,2,4,6,8,10)
+            // Convert grid (0-5) to component (0,2,4,6,8,10)
             int cx = comp[0] * 2;
             int cz = comp[1] * 2;
-            // Get component world center (Devonian's toWorld)
+            // Get component world center for world coordinates
             int wx = CORNER_START_X + HALF_ROOM_SIZE + HALF_COMBINED_SIZE * cx;
             int wz = CORNER_START_Z + HALF_ROOM_SIZE + HALF_COMBINED_SIZE * cz;
 
@@ -393,7 +393,7 @@ public class SecretWaypoints {
         }
         if (height <= 0) return null;
 
-        // For 1x4 rooms, filter corners like Devonian
+        // For 1x4 rooms, filter corners as needed
         if ("1x4".equals(shape) && sortedComps.size() >= 2) {
             boolean isHorz = sortedComps.get(0)[1] == sortedComps.get(1)[1];  // Same Z = horizontal
             int lastIdx = sortedComps.size() - 1;
@@ -448,7 +448,7 @@ public class SecretWaypoints {
     }
 
     /**
-     * Get highest Y at position - matches Devonian's getHighestY.
+     * Get highest Y at position
      */
     private static int getHighestY(ClientWorld world, int x, int z) {
         for (int y = 256; y >= 0; y--) {
@@ -460,7 +460,7 @@ public class SecretWaypoints {
     }
 
     /**
-     * Convert component coords to world coords - matches Devonian's fromComp.
+     * Convert component coords to world coords
      */
     private static int[] fromComp(int x, int z, int rotation, int cornerX, int cornerZ) {
         int[] rotated = rotatePos(x, z, (360 - rotation) % 360);
@@ -468,7 +468,7 @@ public class SecretWaypoints {
     }
 
     /**
-     * Rotate position - matches Devonian's rotatePos.
+     * Rotate position
      */
     private static int[] rotatePos(int x, int z, int degree) {
         return switch (degree) {

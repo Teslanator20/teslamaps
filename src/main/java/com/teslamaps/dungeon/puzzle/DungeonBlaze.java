@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * Blaze puzzle solver - highlights which blaze to kill.
- * Adapted from Skyblocker's DungeonBlaze.java
+ * Blaze puzzle solver - shows kill order.
  */
 public class DungeonBlaze {
     private static ArmorStandEntity highestBlaze = null;

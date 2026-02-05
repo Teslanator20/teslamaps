@@ -296,7 +296,7 @@ public class StarredMobESP {
         dungeonBatPositions.clear();
         invisibleArmorStandBoxes.clear();
 
-        // Scan for wither keys and blood keys by entity name (like OdinClient does)
+        // Scan for wither keys and blood keys by entity name 
         if (inDungeon && TeslaMapsConfig.get().witherKeyESP) {
             for (Entity entity : mc.world.getEntities()) {
                 String entityName = entity.getName().getString();

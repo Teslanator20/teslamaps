@@ -9,7 +9,6 @@ import net.minecraft.client.render.VertexFormats;
 
 /**
  * Custom render pipelines for ESP rendering through walls.
- * Based on Odin's CustomRenderPipelines.
  */
 public class TeslaRenderPipelines {
 
