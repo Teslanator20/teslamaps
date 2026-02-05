@@ -50,75 +50,62 @@ public class DungeonManager {
         }
 
         List<String> scoreboard = ScoreboardUtils.getScoreboardLines();
-        String title = ScoreboardUtils.getScoreboardTitle();
 
-        // Check scoreboard title for dungeon indicators
-        String titleUpper = title.toUpperCase();
-        boolean isDungeonTitle = titleUpper.contains("DUNGEON") ||
-                titleUpper.contains("CATACOMBS") ||
-                titleUpper.contains("THE CATAC");  // Sometimes shows as "The Catac..."
-
-        // Also check scoreboard lines for dungeon indicators
+        // Strictly check for "The Catacombs" in scoreboard lines
+        boolean hasCatacombs = false;
         boolean hasCleared = false;
-        for (String line : scoreboard) {
-            String clean = ScoreboardUtils.cleanLine(line).toLowerCase();
-            if (clean.contains("cleared:") || clean.contains("the catacombs")) {
-                hasCleared = true;
-                break;
-            }
-        }
+        boolean hasStarting = false;
+        boolean hasBoss = false;
 
-        // If in dungeon area AND (has dungeon title OR has cleared line), we're in dungeon
-        boolean inDungeonArea = SkyblockUtils.isInDungeonArea();
-        if (!isDungeonTitle && !hasCleared && !inDungeonArea) {
-            return DungeonState.NOT_IN_DUNGEON;
-        }
-
-        // If we're in dungeon area with cleared line, definitely in dungeon
-        if (inDungeonArea && hasCleared) {
-            // Continue to parse for more details
-        } else if (!isDungeonTitle && !hasCleared && !inDungeonArea) {
-            // Only return NOT_IN_DUNGEON if we're also not in dungeon coordinate area
-            return DungeonState.NOT_IN_DUNGEON;
-        }
-
-        // Parse scoreboard for more details
         for (String line : scoreboard) {
             String clean = ScoreboardUtils.cleanLine(line);
+            String cleanLower = clean.toLowerCase();
 
-            // Detect floor from scoreboard
-            Matcher floorMatcher = CATACOMBS_PATTERN.matcher(clean);
-            if (floorMatcher.find()) {
-                currentFloor = DungeonFloor.fromString(floorMatcher.group(1));
+            // Check for "The Catacombs" - the definitive dungeon indicator
+            if (cleanLower.contains("the catacombs")) {
+                hasCatacombs = true;
+
+                // Try to detect floor from this line
+                Matcher floorMatcher = CATACOMBS_PATTERN.matcher(clean);
+                if (floorMatcher.find()) {
+                    currentFloor = DungeonFloor.fromString(floorMatcher.group(1));
+                }
+            }
+
+            // Check for "Cleared:" which indicates active dungeon
+            if (cleanLower.contains("cleared:")) {
+                hasCleared = true;
+            }
+
+            // Check for "Starting in" which indicates lobby/starting
+            if (cleanLower.contains("starting in")) {
+                hasStarting = true;
             }
 
             // Check for boss fight indicators
             if (clean.contains("Boss") && clean.contains("\u2764")) { // Heart emoji
-                return DungeonState.BOSS_FIGHT;
-            }
-
-            // Check for "Cleared:" which indicates active dungeon
-            if (clean.contains("Cleared:")) {
-                return DungeonState.IN_DUNGEON;
-            }
-
-            // Check for "Starting in" which indicates lobby
-            if (clean.contains("Starting in")) {
-                return DungeonState.STARTING;
+                hasBoss = true;
             }
         }
 
-        // If we have a dungeon title but no specific state, assume we're in dungeon
-        if (isDungeonTitle) {
+        // Only consider in dungeon if "The Catacombs" is on the scoreboard
+        if (!hasCatacombs) {
+            return DungeonState.NOT_IN_DUNGEON;
+        }
+
+        // Determine specific state
+        if (hasBoss) {
+            return DungeonState.BOSS_FIGHT;
+        }
+        if (hasCleared) {
             return DungeonState.IN_DUNGEON;
         }
-
-        // If we're in dungeon coordinate area but no "Cleared:" line yet, we're in starting room
-        if (inDungeonArea) {
+        if (hasStarting) {
             return DungeonState.STARTING;
         }
 
-        return DungeonState.NOT_IN_DUNGEON;
+        // Has "The Catacombs" but no specific state - assume in dungeon
+        return DungeonState.IN_DUNGEON;
     }
 
     private static void onStateChange(DungeonState oldState, DungeonState newState) {
