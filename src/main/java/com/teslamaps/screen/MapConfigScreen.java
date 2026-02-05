@@ -180,7 +180,16 @@ public class MapConfigScreen extends Screen {
         render.add(new ToggleEntry(contentX, contentWidth, "No Falling Blocks", () -> config.noFallingBlocks, v -> config.noFallingBlocks = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Arrows", () -> config.noArrows, v -> config.noArrows = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Stuck Arrows", () -> config.noStuckArrows, v -> config.noStuckArrows = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "Fullbright", () -> config.fullbright, v -> config.fullbright = v));
         categories.put("Render", render);
+
+        // ===== CHEST OPTIONS =====
+        List<SettingsEntry> chest = new ArrayList<>();
+        chest.add(new ToggleEntry(contentX, contentWidth, "Auto Close Chests", () -> config.autoCloseChests, v -> config.autoCloseChests = v));
+        chest.add(new SliderEntry(contentX, contentWidth, "Auto Close Delay (ticks)", 0, 20, () -> (float) config.autoCloseDelay, v -> config.autoCloseDelay = v.intValue()));
+        chest.add(new SliderEntry(contentX, contentWidth, "Randomization (ticks)", 0, 10, () -> (float) config.autoCloseRandomization, v -> config.autoCloseRandomization = v.intValue()));
+        chest.add(new ToggleEntry(contentX, contentWidth, "Close Chest On Input", () -> config.closeChestOnInput, v -> config.closeChestOnInput = v));
+        categories.put("Chest", chest);
 
         // ===== SLAYER =====
         List<SettingsEntry> slayer = new ArrayList<>();
@@ -193,74 +202,78 @@ public class MapConfigScreen extends Screen {
         // ===== SOLVERS =====
         List<SettingsEntry> solvers = new ArrayList<>();
         solvers.add(new LabelEntry(contentX, "Dungeon Puzzles"));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Toggle All Puzzles", () -> config.solveBlaze && config.solveThreeWeirdos && config.solveTicTacToe && config.solveCreeperBeams && config.solveBoulder && config.solveQuiz && config.solveTPMaze && config.solveWaterBoard && config.solveSimonSays && config.solveArrowAlign, v -> {
+            config.solveBlaze = v;
+            config.solveThreeWeirdos = v;
+            config.solveTicTacToe = v;
+            config.solveCreeperBeams = v;
+            config.solveBoulder = v;
+            config.solveQuiz = v;
+            config.solveTPMaze = v;
+            config.solveWaterBoard = v;
+            config.solveSimonSays = v;
+            config.solveArrowAlign = v;
+        }));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Solver", () -> config.solveBlaze, v -> config.solveBlaze = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v));
-        solvers.add(new LabelEntry(contentX, "Experiments (DONT USE YET)"));
-        solvers.add(new ToggleEntry(contentX, contentWidth, "Chronomatron (Memory Sequence)", () -> config.solveChronomatron, v -> config.solveChronomatron = v));
-        solvers.add(new ToggleEntry(contentX, contentWidth, "Superpairs (Matching Pairs)", () -> config.solveSuperpairs, v -> config.solveSuperpairs = v));
-        solvers.add(new ToggleEntry(contentX, contentWidth, "Ultrasequencer (Number Sequence)", () -> config.solveUltrasequencer, v -> config.solveUltrasequencer = v));
-        solvers.add(new LabelEntry(contentX, "Experiment Timing"));
-        solvers.add(new SliderEntry(contentX, contentWidth, "Initial Delay (ms)", 0f, 500f,
-                () -> (float) config.experimentClickDelay, v -> config.experimentClickDelay = v.intValue()));
-        solvers.add(new SliderEntry(contentX, contentWidth, "Click Interval (ms)", 0f, 300f,
-                () -> (float) config.experimentClickInterval, v -> config.experimentClickInterval = v.intValue()));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Creeper Beams Tracers", () -> config.creeperBeamsTracers, v -> config.creeperBeamsTracers = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Boulder Solver", () -> config.solveBoulder, v -> config.solveBoulder = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Show All Boulder Clicks", () -> config.showAllBoulderClicks, v -> config.showAllBoulderClicks = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Quiz (Trivia) Solver", () -> config.solveQuiz, v -> config.solveQuiz = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Quiz Beacon Beam", () -> config.quizBeacon, v -> config.quizBeacon = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Teleport Maze Solver", () -> config.solveTPMaze, v -> config.solveTPMaze = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Solver", () -> config.solveWaterBoard, v -> config.solveWaterBoard = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Optimized", () -> config.waterBoardOptimized, v -> config.waterBoardOptimized = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Tracers", () -> config.waterBoardTracers, v -> config.waterBoardTracers = v));
+        solvers.add(new LabelEntry(contentX, "F7/M7 Solvers"));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Simon Says Solver", () -> config.solveSimonSays, v -> config.solveSimonSays = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v));
+        solvers.add(new LabelEntry(contentX, "Boss Timers"));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Terracotta Timer (F6/M6)", () -> config.terracottaTimer, v -> config.terracottaTimer = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Spirit Bear Timer (F4/M4)", () -> config.spiritBearTimer, v -> config.spiritBearTimer = v));
+        // DISABLED - Auto experiment features commented out
+        // solvers.add(new LabelEntry(contentX, "Experiments (DONT USE YET)"));
+        // solvers.add(new ToggleEntry(contentX, contentWidth, "Chronomatron (Memory Sequence)", () -> config.solveChronomatron, v -> config.solveChronomatron = v));
+        // solvers.add(new ToggleEntry(contentX, contentWidth, "Superpairs (Matching Pairs)", () -> config.solveSuperpairs, v -> config.solveSuperpairs = v));
+        // solvers.add(new ToggleEntry(contentX, contentWidth, "Ultrasequencer (Number Sequence)", () -> config.solveUltrasequencer, v -> config.solveUltrasequencer = v));
+        // solvers.add(new LabelEntry(contentX, "Experiment Timing"));
+        // solvers.add(new SliderEntry(contentX, contentWidth, "Initial Delay (ms)", 0f, 500f,
+        //         () -> (float) config.experimentClickDelay, v -> config.experimentClickDelay = v.intValue()));
+        // solvers.add(new SliderEntry(contentX, contentWidth, "Click Interval (ms)", 0f, 300f,
+        //         () -> (float) config.experimentClickInterval, v -> config.experimentClickInterval = v.intValue()));
         categories.put("Solvers", solvers);
 
         // ===== TERMINALS =====
         List<SettingsEntry> terminals = new ArrayList<>();
-        terminals.add(new LabelEntry(contentX, "Terminal Solvers (DONT USE YET)"));
-        terminals.add(new ToggleEntry(contentX, contentWidth, "Starts With (What starts with: 'X'?)", () -> config.solveStartsWithTerminal, v -> config.solveStartsWithTerminal = v));
-        terminals.add(new ToggleEntry(contentX, contentWidth, "Select All (Select all the [COLOR])", () -> config.solveSelectAllTerminal, v -> config.solveSelectAllTerminal = v));
-        terminals.add(new ToggleEntry(contentX, contentWidth, "Click in Order (1-14 panes)", () -> config.solveClickInOrderTerminal, v -> config.solveClickInOrderTerminal = v));
-        terminals.add(new ToggleEntry(contentX, contentWidth, "Correct Panes (Fix red panes)", () -> config.solveCorrectPanesTerminal, v -> config.solveCorrectPanesTerminal = v));
-        terminals.add(new ToggleEntry(contentX, contentWidth, "Melody (Click button on time!)", () -> config.solveMelodyTerminal, v -> config.solveMelodyTerminal = v));
-        terminals.add(new ToggleEntry(contentX, contentWidth, "Rubix (Change all to same color!)", () -> config.solveRubixTerminal, v -> config.solveRubixTerminal = v));
-        terminals.add(new LabelEntry(contentX, "Custom GUI"));
-        terminals.add(new ToggleEntry(contentX, contentWidth, "Custom Terminal GUI", () -> config.customTerminalGui, v -> config.customTerminalGui = v));
-        terminals.add(new ToggleEntry(contentX, contentWidth, "Click Anywhere to Solve", () -> config.terminalClickAnywhere, v -> config.terminalClickAnywhere = v));
-        terminals.add(new SliderEntry(contentX, contentWidth, "GUI Size", 0.5f, 3.0f,
-                () -> config.terminalGuiSize, v -> config.terminalGuiSize = v));
-        terminals.add(new SliderEntry(contentX, contentWidth, "GUI Gap", 0f, 15f,
-                () -> config.terminalGuiGap, v -> config.terminalGuiGap = v));
-        terminals.add(new SliderEntry(contentX, contentWidth, "GUI Roundness", 0f, 15f,
-                () -> (float) config.terminalGuiRoundness, v -> config.terminalGuiRoundness = v.intValue()));
-        terminals.add(new ToggleEntry(contentX, contentWidth, "Show Numbers (Click in Order)", () -> config.terminalGuiShowNumbers, v -> config.terminalGuiShowNumbers = v));
-        terminals.add(new LabelEntry(contentX, "Timing"));
-        terminals.add(new SliderEntry(contentX, contentWidth, "Initial Delay (ms)", 0f, 500f,
-                () -> (float) config.terminalClickDelay, v -> config.terminalClickDelay = v.intValue()));
-        terminals.add(new SliderEntry(contentX, contentWidth, "Click Interval (ms)", 0f, 300f,
-                () -> (float) config.terminalClickInterval, v -> config.terminalClickInterval = v.intValue()));
-        terminals.add(new SliderEntry(contentX, contentWidth, "Click Randomization (ms)", 0f, 150f,
-                () -> (float) config.terminalClickRandomization, v -> config.terminalClickRandomization = v.intValue()));
-        terminals.add(new SliderEntry(contentX, contentWidth, "Break Threshold (ms)", 0f, 1000f,
-                () -> (float) config.terminalBreakThreshold, v -> config.terminalBreakThreshold = v.intValue()));
-        terminals.add(new SliderEntry(contentX, contentWidth, "Melody Click Delay (ms)", 0f, 500f,
-                () -> (float) config.melodyTerminalClickDelay, v -> config.melodyTerminalClickDelay = v.intValue()));
-        terminals.add(new LabelEntry(contentX, "Info"));
-        terminals.add(new LabelEntry(contentX, "• All solvers work in practice (/term)"));
-        terminals.add(new LabelEntry(contentX, "• Initial: delay before 1st click"));
-        terminals.add(new LabelEntry(contentX, "• Interval: delay between clicks"));
-        terminals.add(new LabelEntry(contentX, "• Randomization: 0 to X ms added"));
-        terminals.add(new LabelEntry(contentX, "• Break: reset if stuck (0=disable)"));
+        terminals.add(new LabelEntry(contentX, "Coming soon..."));
         categories.put("Terminals", terminals);
 
         // ===== SOUNDS =====
         List<SettingsEntry> sounds = new ArrayList<>();
         sounds.add(new LabelEntry(contentX, "Key Pickup"));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Enable Pickup Sound", () -> config.keyPickupSoundEnabled, v -> config.keyPickupSoundEnabled = v));
         sounds.add(new SliderEntry(contentX, contentWidth, "Pickup Volume", 0f, 20f,
                 () -> config.keyPickupVolume, v -> config.keyPickupVolume = v));
         sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Pickup Sound",
                 new String[]{"LEVEL_UP", "BLAZE_DEATH", "GHAST_SHOOT", "WITHER_SPAWN", "ENDER_DRAGON_GROWL", "NOTE_PLING"},
                 () -> config.keyPickupSound, v -> config.keyPickupSound = v));
-        sounds.add(new LabelEntry(contentX, "Key On Ground"));
-        sounds.add(new SliderEntry(contentX, contentWidth, "Ground Volume", 0f, 20f,
+        sounds.add(new LabelEntry(contentX, "Key Spawn (On Ground)"));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Enable Spawn Sound", () -> config.keyOnGroundSoundEnabled, v -> config.keyOnGroundSoundEnabled = v));
+        sounds.add(new SliderEntry(contentX, contentWidth, "Spawn Volume", 0f, 20f,
                 () -> config.keyOnGroundVolume, v -> config.keyOnGroundVolume = v));
-        sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Ground Sound",
+        sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Spawn Sound",
                 new String[]{"NOTE_CHIME", "NOTE_PLING", "EXPERIENCE_ORB", "ANVIL_LAND"},
                 () -> config.keyOnGroundSound, v -> config.keyOnGroundSound = v));
+        sounds.add(new LabelEntry(contentX, "Secret Found"));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Enable Secret Sound", () -> config.secretSound, v -> config.secretSound = v));
+        sounds.add(new SliderEntry(contentX, contentWidth, "Secret Volume", 0f, 20f,
+                () -> config.secretSoundVolume, v -> config.secretSoundVolume = v));
+        sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Secret Sound Type",
+                new String[]{"LEVEL_UP", "NOTE_PLING", "EXPERIENCE_ORB", "AMETHYST_CHIME"},
+                () -> config.secretSoundType, v -> config.secretSoundType = v));
         categories.put("Sounds", sounds);
 
         // ===== COLORS (merged) =====
@@ -310,6 +323,12 @@ public class MapConfigScreen extends Screen {
         colors.add(new ColorEntry(contentX, contentWidth, "Rubix Color 1", () -> config.terminalGuiRubixColor1, v -> config.terminalGuiRubixColor1 = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Rubix Color 2", () -> config.terminalGuiRubixColor2, v -> config.terminalGuiRubixColor2 = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Melody Color", () -> config.terminalGuiMelodyColor, v -> config.terminalGuiMelodyColor = v));
+        colors.add(new LabelEntry(contentX, "Secret Waypoint Colors"));
+        colors.add(new ColorEntry(contentX, contentWidth, "Chest", () -> config.colorSecretChest, v -> config.colorSecretChest = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Item", () -> config.colorSecretItem, v -> config.colorSecretItem = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Bat", () -> config.colorSecretBat, v -> config.colorSecretBat = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Essence", () -> config.colorSecretEssence, v -> config.colorSecretEssence = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Redstone", () -> config.colorSecretRedstone, v -> config.colorSecretRedstone = v));
         categories.put("Colors", colors);
 
         // ===== AUTO GFS =====
@@ -327,7 +346,35 @@ public class MapConfigScreen extends Screen {
         autoGFS.add(new ToggleEntry(contentX, contentWidth, "Superboom TNT", () -> config.autoGFSTNT, v -> config.autoGFSTNT = v));
         autoGFS.add(new LabelEntry(contentX, "Special"));
         autoGFS.add(new ToggleEntry(contentX, contentWidth, "Auto Draft on Puzzle Fail", () -> config.autoGFSDraft, v -> config.autoGFSDraft = v));
+        autoGFS.add(new LabelEntry(contentX, "Auto Wish"));
+        autoGFS.add(new ToggleEntry(contentX, contentWidth, "Auto Wish (Healer Ult)", () -> config.autoWish, v -> config.autoWish = v));
+        autoGFS.add(new LabelEntry(contentX, "• Triggers: Maxor, Goldor, Sadan"));
         categories.put("Auto GFS", autoGFS);
+
+        // ===== SECRET WAYPOINTS =====
+        List<SettingsEntry> waypoints = new ArrayList<>();
+        waypoints.add(new ToggleEntry(contentX, contentWidth, "Enable Secret Waypoints", () -> config.secretWaypoints, v -> config.secretWaypoints = v));
+        waypoints.add(new LabelEntry(contentX, "Secret Types"));
+        waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Chests", () -> config.secretWaypointChests, v -> config.secretWaypointChests = v));
+        waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Items", () -> config.secretWaypointItems, v -> config.secretWaypointItems = v));
+        waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Bats", () -> config.secretWaypointBats, v -> config.secretWaypointBats = v));
+        waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Essence", () -> config.secretWaypointEssence, v -> config.secretWaypointEssence = v));
+        waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Redstone Key", () -> config.secretWaypointRedstoneKey, v -> config.secretWaypointRedstoneKey = v));
+        waypoints.add(new LabelEntry(contentX, "Display Options"));
+        waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Tracers", () -> config.secretWaypointTracers, v -> config.secretWaypointTracers = v));
+        waypoints.add(new ToggleEntry(contentX, contentWidth, "Hide When Collected", () -> config.secretWaypointHideCollected, v -> config.secretWaypointHideCollected = v));
+        waypoints.add(new LabelEntry(contentX, "Sound"));
+        waypoints.add(new ToggleEntry(contentX, contentWidth, "Secret Sound", () -> config.secretSound, v -> config.secretSound = v));
+        waypoints.add(new SliderEntry(contentX, contentWidth, "Secret Volume", 0.0f, 4.0f, () -> config.secretSoundVolume, v -> config.secretSoundVolume = v));
+        categories.put("Waypoints", waypoints);
+
+        // ===== LEAP OVERLAY =====
+        List<SettingsEntry> leap = new ArrayList<>();
+        leap.add(new ToggleEntry(contentX, contentWidth, "Enable Leap Overlay", () -> config.leapOverlay, v -> config.leapOverlay = v));
+        leap.add(new LabelEntry(contentX, "• Custom 2x2 grid leap menu"));
+        leap.add(new LabelEntry(contentX, "• Shows player face, name, and class"));
+        leap.add(new LabelEntry(contentX, "• Click quadrant to leap"));
+        categories.put("Leap", leap);
 
         // ===== ADVANCED =====
         List<SettingsEntry> advanced = new ArrayList<>();

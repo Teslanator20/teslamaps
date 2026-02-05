@@ -433,6 +433,7 @@ public class TMapCommand {
                         }))
         );
 
+        /* DISABLED - Profile Viewer
         // Register /pv command for Profile Viewer
         dispatcher.register(ClientCommandManager.literal("pv")
                 .executes(context -> {
@@ -450,7 +451,9 @@ public class TMapCommand {
                             return 1;
                         }))
         );
+        */
 
+        /* DISABLED - Terminal Simulator
         // Register /termsim command for Terminal Simulator
         dispatcher.register(ClientCommandManager.literal("termsim")
                 .executes(context -> {
@@ -499,5 +502,6 @@ public class TMapCommand {
                             return 1;
                         }))
         );
+        */
     }
 }

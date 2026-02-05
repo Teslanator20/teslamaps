@@ -15,17 +15,23 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.map.MapState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * TicTacToe puzzle solver - shows the best move.
- * Uses frame positions to auto-detect puzzle orientation.
+ * Based on Skyblocker's approach using room-relative coordinates.
  */
 public class TicTacToe {
     private static Box nextBestMoveBox = null;
     private static DungeonRoom currentRoom = null;
+
+    // Room-relative coordinates for the tic-tac-toe board (from Skyblocker)
+    // Y: 72=row0, 71=row1, 70=row2
+    // Z: 17=col0, 16=col1, 15=col2
+    // X: 8 (constant)
 
     public static void tick() {
         if (!DungeonManager.isInDungeon() || !TeslaMapsConfig.get().solveTicTacToe) {
@@ -65,28 +71,16 @@ public class TicTacToe {
             currentRoom = DungeonManager.getRoomAt(gridPos[0], gridPos[1]);
             if (currentRoom == null) return;
 
-            // Build board from frames - try to detect which coordinates map to which rows/cols
-            char[][] board = new char[3][3];
-            BoardMapping mapping = null;
+            // Get room corner and rotation
+            int cornerX = currentRoom.getCornerX();
+            int cornerZ = currentRoom.getCornerZ();
+            int rotation = currentRoom.getRotation();
+            if (rotation < 0) return; // Rotation not detected yet
 
+            // Collect all frame positions and their map colors
+            Map<BlockPos, Character> frameData = new HashMap<>();
             for (ItemFrameEntity frame : itemFrames) {
-                BlockPos framePos = frame.getBlockPos();
-                BlockPos relative = currentRoom.actualToRelative(framePos);
-
-                if (mapping == null) {
-                    // Auto-detect mapping from first frame position
-                    mapping = detectMapping(relative);
-                    TeslaMaps.LOGGER.info("[TicTacToe] Detected mapping from frame at relative {}: {}", relative, mapping);
-                }
-
-                // Get board position using detected mapping
-                int[] boardPos = mapping.getPosition(relative);
-                if (boardPos == null) continue;
-
-                int row = boardPos[0];
-                int col = boardPos[1];
-
-                // Get map state and read pixel color
+                BlockPos pos = frame.getBlockPos();
                 ItemStack stack = frame.getHeldItemStack();
                 MapState mapState = FilledMapItem.getMapState(stack, mc.world);
                 if (mapState == null) continue;
@@ -95,24 +89,73 @@ public class TicTacToe {
                 if (colors != null && colors.length > 8256) {
                     int middleColor = colors[8256] & 0xFF;
                     if (middleColor == 114) {
-                        board[row][col] = 'X';
+                        frameData.put(pos, 'X');
                     } else if (middleColor == 33) {
-                        board[row][col] = 'O';
+                        frameData.put(pos, 'O');
                     }
                 }
             }
 
-            if (mapping == null) return;
+            if (frameData.isEmpty()) return;
+
+            // Convert world positions to room-relative and build board
+            char[][] board = new char[3][3];
+            Map<String, BlockPos> boardToWorld = new HashMap<>();
+
+            for (Map.Entry<BlockPos, Character> entry : frameData.entrySet()) {
+                BlockPos worldPos = entry.getKey();
+                char symbol = entry.getValue();
+
+                // Convert to room-relative coordinates
+                int[] relative = worldToRelative(cornerX, cornerZ, rotation, worldPos);
+
+                int relX = relative[0];
+                int relY = relative[1];
+                int relZ = relative[2];
+
+                // Map relative coords to board indices
+                // Y: 72=row0, 71=row1, 70=row2
+                int row = 72 - relY;
+                // Z: 17=col0, 16=col1, 15=col2
+                int col = 17 - relZ;
+
+                TeslaMaps.LOGGER.debug("[TicTacToe] Frame {} at world {} -> relative ({},{},{}) -> row={}, col={}",
+                    symbol, worldPos, relX, relY, relZ, row, col);
+
+                if (row < 0 || row > 2 || col < 0 || col > 2) continue;
+
+                board[row][col] = symbol;
+                boardToWorld.put(row + "," + col, worldPos);
+            }
 
             // Calculate best move
             TicTacToeUtils.BoardIndex bestMove = TicTacToeUtils.getBestMove(board);
 
-            // Convert to world position
-            BlockPos relativePos = mapping.getWorldPos(bestMove.row(), bestMove.column());
-            BlockPos worldPos = currentRoom.relativeToActual(relativePos);
+            // Get world position for best move
+            String key = bestMove.row() + "," + bestMove.column();
+            BlockPos existingPos = boardToWorld.get(key);
 
-            nextBestMoveBox = new Box(worldPos);
-            TeslaMaps.LOGGER.info("[TicTacToe] Best move: [{},{}] -> world {}", bestMove.row(), bestMove.column(), worldPos);
+            BlockPos worldPos;
+            if (existingPos != null) {
+                worldPos = existingPos;
+            } else {
+                // Convert board indices back to world position
+                int relY = 72 - bestMove.row();
+                int relZ = 17 - bestMove.column();
+                int relX = 8; // X is constant in relative space (like Skyblocker)
+
+                worldPos = relativeToWorld(cornerX, cornerZ, rotation, relX, relY, relZ);
+            }
+
+            // Offset 0.5 blocks away from player (opposite of item frame facing direction)
+            Direction facing = itemFrames.get(0).getHorizontalFacing();
+            double offsetX = -facing.getOffsetX() * 0.5;
+            double offsetZ = -facing.getOffsetZ() * 0.5;
+
+            nextBestMoveBox = new Box(
+                worldPos.getX() + offsetX, worldPos.getY(), worldPos.getZ() + offsetZ,
+                worldPos.getX() + 1 + offsetX, worldPos.getY() + 1, worldPos.getZ() + 1 + offsetZ
+            );
 
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[TicTacToe] Error", e);
@@ -121,31 +164,39 @@ public class TicTacToe {
     }
 
     /**
-     * Auto-detect which wall the puzzle is on based on frame coordinates.
+     * Rotate coordinates by given degrees (Devonian's formula).
+     * 0° -> (x, z), 90° -> (z, -x), 180° -> (-x, -z), 270° -> (-z, x)
      */
-    private static BoardMapping detectMapping(BlockPos relative) {
-        int x = relative.getX();
-        int y = relative.getY();
-        int z = relative.getZ();
-
-        // Try each orientation and return the first one where this position is valid
-        BoardMapping[] mappings = {
-            new NorthMapping(),
-            new EastMapping(),
-            new SouthMapping(),
-            new WestMapping()
+    private static int[] rotatePos(int x, int z, int degree) {
+        return switch (degree % 360) {
+            case 0 -> new int[]{x, z};
+            case 90 -> new int[]{z, -x};
+            case 180 -> new int[]{-x, -z};
+            case 270 -> new int[]{-z, x};
+            default -> new int[]{x, z};
         };
+    }
 
-        for (BoardMapping mapping : mappings) {
-            int[] pos = mapping.getPosition(relative);
-            if (pos != null) {
-                return mapping;
-            }
-        }
+    /**
+     * Convert world position to room-relative coordinates.
+     */
+    private static int[] worldToRelative(int cornerX, int cornerZ, int rotation, BlockPos worldPos) {
+        // Get offset from corner
+        int dx = worldPos.getX() - cornerX;
+        int dz = worldPos.getZ() - cornerZ;
 
-        // Default to North if nothing matched
-        TeslaMaps.LOGGER.warn("[TicTacToe] No mapping matched for {}, defaulting to North", relative);
-        return new NorthMapping();
+        // Rotate by rotation degrees to get relative coords
+        int[] rotated = rotatePos(dx, dz, rotation);
+        return new int[]{rotated[0], worldPos.getY(), rotated[1]};
+    }
+
+    /**
+     * Convert room-relative coordinates to world position.
+     */
+    private static BlockPos relativeToWorld(int cornerX, int cornerZ, int rotation, int relX, int relY, int relZ) {
+        // Rotate by (360 - rotation) to convert back to world
+        int[] rotated = rotatePos(relX, relZ, (360 - rotation) % 360);
+        return new BlockPos(cornerX + rotated[0], relY, cornerZ + rotated[1]);
     }
 
     public static void render(MatrixStack matrices, Vec3d cameraPos) {
@@ -154,8 +205,18 @@ public class TicTacToe {
         }
 
         try {
-            ESPRenderer.drawFilledBox(matrices, nextBestMoveBox, 0x8000FF00, cameraPos);
-            ESPRenderer.drawBoxOutline(matrices, nextBestMoveBox, 0xFF00FF00, 5.0f, cameraPos);
+            double centerX = (nextBestMoveBox.minX + nextBestMoveBox.maxX) / 2;
+            double centerY = (nextBestMoveBox.minY + nextBestMoveBox.maxY) / 2;
+            double centerZ = (nextBestMoveBox.minZ + nextBestMoveBox.maxZ) / 2;
+
+            // Small button-sized box
+            Box buttonBox = new Box(
+                centerX - 0.2, centerY - 0.15, centerZ - 0.1,
+                centerX + 0.2, centerY + 0.15, centerZ + 0.1
+            );
+
+            ESPRenderer.drawFilledBox(matrices, buttonBox, 0x8000FF00, cameraPos);
+            ESPRenderer.drawBoxOutline(matrices, buttonBox, 0xFF00FF00, 3.0f, cameraPos);
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[TicTacToe] Error rendering", e);
         }
@@ -164,111 +225,5 @@ public class TicTacToe {
     public static void reset() {
         nextBestMoveBox = null;
         currentRoom = null;
-    }
-
-    // Coordinate mapping interface
-    private interface BoardMapping {
-        int[] getPosition(BlockPos relative);  // Returns [row, col] or null
-        BlockPos getWorldPos(int row, int col);  // Returns relative position for board position
-    }
-
-    // North wall (Z near 0) - X=8, Z=17/16/15
-    private static class NorthMapping implements BoardMapping {
-        public int[] getPosition(BlockPos rel) {
-            int row = switch (rel.getY()) {
-                case 72 -> 0;
-                case 71 -> 1;
-                case 70 -> 2;
-                default -> -1;
-            };
-            int col = switch (rel.getZ()) {
-                case 17 -> 0;
-                case 16 -> 1;
-                case 15 -> 2;
-                default -> -1;
-            };
-            return (row != -1 && col != -1) ? new int[]{row, col} : null;
-        }
-
-        public BlockPos getWorldPos(int row, int col) {
-            return new BlockPos(8, 72 - row, 17 - col);
-        }
-
-        public String toString() { return "North"; }
-    }
-
-    // South wall - Z=22, X=17/16/15 (or similar range)
-    private static class SouthMapping implements BoardMapping {
-        public int[] getPosition(BlockPos rel) {
-            int row = switch (rel.getY()) {
-                case 72 -> 0;
-                case 71 -> 1;
-                case 70 -> 2;
-                default -> -1;
-            };
-            int col = switch (rel.getX()) {
-                case 17 -> 0;
-                case 16 -> 1;
-                case 15 -> 2;
-                default -> -1;
-            };
-            return (row != -1 && col != -1 && rel.getZ() == 22) ? new int[]{row, col} : null;
-        }
-
-        public BlockPos getWorldPos(int row, int col) {
-            return new BlockPos(17 - col, 72 - row, 22);
-        }
-
-        public String toString() { return "South"; }
-    }
-
-    // East wall (X near 31) - Z=8, X=14/15/16
-    private static class EastMapping implements BoardMapping {
-        public int[] getPosition(BlockPos rel) {
-            int row = switch (rel.getY()) {
-                case 72 -> 0;
-                case 71 -> 1;
-                case 70 -> 2;
-                default -> -1;
-            };
-            int col = switch (rel.getX()) {
-                case 14 -> 0;
-                case 15 -> 1;
-                case 16 -> 2;
-                default -> -1;
-            };
-            return (row != -1 && col != -1) ? new int[]{row, col} : null;
-        }
-
-        public BlockPos getWorldPos(int row, int col) {
-            return new BlockPos(14 + col, 72 - row, 8);
-        }
-
-        public String toString() { return "East"; }
-    }
-
-    // West wall (X near 0) - Z=23, X=17/16/15
-    private static class WestMapping implements BoardMapping {
-        public int[] getPosition(BlockPos rel) {
-            int row = switch (rel.getY()) {
-                case 72 -> 0;
-                case 71 -> 1;
-                case 70 -> 2;
-                default -> -1;
-            };
-            int col = switch (rel.getX()) {
-                case 17 -> 0;
-                case 16 -> 1;
-                case 15 -> 2;
-                default -> -1;
-            };
-            return (row != -1 && col != -1) ? new int[]{row, col} : null;
-        }
-
-        public BlockPos getWorldPos(int row, int col) {
-            return new BlockPos(17 - col, 72 - row, 23);
-        }
-
-        public String toString() { return "West"; }
     }
 }

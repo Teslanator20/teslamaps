@@ -35,7 +35,7 @@ public class DoorScanner {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.world == null) return;
 
-        TeslaMaps.LOGGER.info("Scanning doors...");
+        TeslaMaps.LOGGER.debug("Scanning doors...");
 
         // Scan all 60 possible door positions (11x11 grid minus corners and room positions)
         // Door positions: one coordinate is odd (1,3,5,7,9), other is even (0,2,4,6,8,10)
@@ -50,7 +50,7 @@ public class DoorScanner {
             }
         }
 
-        TeslaMaps.LOGGER.info("Door scan complete. Found {} doors", doors.size());
+        TeslaMaps.LOGGER.debug("Door scan complete. Found {} doors", doors.size());
     }
 
     /**
@@ -111,7 +111,7 @@ public class DoorScanner {
 
         if (doorType != DoorType.NONE) {
             doors.put(key, doorType);
-            TeslaMaps.LOGGER.info("Found {} door between [{},{}] and [{},{}] at world [{},{}] roof={}",
+            TeslaMaps.LOGGER.debug("Found {} door between [{},{}] and [{},{}] at world [{},{}] roof={}",
                     doorType, room1X, room1Z, room2X, room2Z, worldX, worldZ, roofHeight);
         }
     }

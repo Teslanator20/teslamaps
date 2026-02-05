@@ -13,6 +13,9 @@ public class DungeonRoom {
     private String shape;
     private CheckmarkState checkmarkState = CheckmarkState.UNEXPLORED;
     private boolean explored = false;
+    private int rotation = -1;  // Room rotation: 0, 90, 180, 270 degrees (-1 = not detected)
+    private int cornerX = 0;    // Corner X (blue terracotta position)
+    private int cornerZ = 0;    // Corner Z (blue terracotta position)
 
     // Grid components this room occupies (for multi-component rooms like L-shapes)
     private final List<int[]> components = new ArrayList<>();
@@ -171,5 +174,59 @@ public class DungeonRoom {
     public net.minecraft.util.math.BlockPos actualToRelative(net.minecraft.util.math.BlockPos actual) {
         int[] primary = getPrimaryComponent();
         return com.teslamaps.scanner.ComponentGrid.actualToRelative(primary[0], primary[1], actual);
+    }
+
+    /**
+     * Get the room corner as a BlockPos (for puzzle solvers).
+     * Returns the world position of the room's northwest corner at Y=0.
+     */
+    public net.minecraft.util.math.BlockPos getCorner() {
+        int[] primary = getPrimaryComponent();
+        int[] corner = com.teslamaps.scanner.ComponentGrid.gridToWorldCorner(primary[0], primary[1]);
+        return new net.minecraft.util.math.BlockPos(corner[0], 0, corner[1]);
+    }
+
+    /**
+     * Get the room rotation in degrees (0, 90, 180, 270).
+     * -1 means rotation has not been detected yet.
+     */
+    public int getRotation() {
+        return rotation;
+    }
+
+    /**
+     * Set the room rotation in degrees (0, 90, 180, 270).
+     */
+    public void setRotation(int rotation) {
+        this.rotation = rotation;
+    }
+
+    /**
+     * Check if rotation has been detected.
+     */
+    public boolean hasRotation() {
+        return rotation >= 0;
+    }
+
+    /**
+     * Set the corner position (blue terracotta location).
+     */
+    public void setCorner(int x, int z) {
+        this.cornerX = x;
+        this.cornerZ = z;
+    }
+
+    /**
+     * Get the corner X coordinate.
+     */
+    public int getCornerX() {
+        return cornerX;
+    }
+
+    /**
+     * Get the corner Z coordinate.
+     */
+    public int getCornerZ() {
+        return cornerZ;
     }
 }

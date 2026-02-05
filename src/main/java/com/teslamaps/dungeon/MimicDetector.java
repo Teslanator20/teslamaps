@@ -38,6 +38,7 @@ public class MimicDetector {
 
     private static int scanTickCounter = 0;
     private static boolean fullScanComplete = false;
+    private static boolean loggedNoMimic = false;  // Prevent log spam
 
     /**
      * Reset state when entering a new dungeon.
@@ -50,6 +51,7 @@ public class MimicDetector {
         mimicOpenTime = 0L;
         scanTickCounter = 0;
         fullScanComplete = false;
+        loggedNoMimic = false;
     }
 
     /**
@@ -60,7 +62,8 @@ public class MimicDetector {
 
         // Only scan for mimics on F6, F7, M6, M7 (floors that have mimics)
         if (!DungeonScore.floorHasMimics()) {
-            if (scanTickCounter == 0) {
+            if (!loggedNoMimic) {
+                loggedNoMimic = true;
                 TeslaMaps.LOGGER.info("[MimicDetector] Floor does not have mimics, detection disabled");
             }
             return;

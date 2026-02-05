@@ -3,9 +3,8 @@ package com.teslamaps.dungeon.puzzle;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
-import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
-import com.teslamaps.scanner.ComponentGrid;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -21,15 +20,25 @@ import java.util.regex.Pattern;
 
 /**
  * Three Weirdos puzzle solver - highlights the correct chest.
- * Adapted from Skyblocker's ThreeWeirdos.java
+ * Uses same pattern matching as Skyblocker - highlights the NPC who says specific phrases.
  */
 public class ThreeWeirdos {
-    private static final Pattern PATTERN = Pattern.compile("^\\[NPC] ([A-Z][a-z]+): (?:The reward is(?: not in my chest!|n't in any of our chests\\.)|My chest (?:doesn't have the reward\\. We are all telling the truth\\.|has the reward and I'm telling the truth!)|At least one of them is lying, and the reward is not in [A-Z][a-z]+'s chest!|Both of them are telling the truth\\. Also, [A-Z][a-z]+ has the reward in their chest!)$");
+
+    // Skyblocker's exact pattern - matches the NPC who has the correct chest
+    private static final Pattern PATTERN = Pattern.compile(
+        "^\\[NPC] ([A-Z][a-z]+): (?:" +
+        "The reward is(?: not in my chest!|n't in any of our chests\\.)|" +
+        "My chest (?:doesn't have the reward\\. We are all telling the truth\\.|has the reward and I'm telling the truth!)|" +
+        "At least one of them is lying, and the reward is not in [A-Z][a-z]+'s chest!|" +
+        "Both of them are telling the truth\\. Also, [A-Z][a-z]+ has the reward in their chest!" +
+        ")$"
+    );
 
     private static BlockPos correctChestPos = null;
     private static Box correctChestBox = null;
-    private static DungeonRoom currentRoom = null;
+    private static String targetNpcName = null;
     private static boolean disabled = false;
+    private static long lastSearchTime = 0;
 
     public static void tick() {
         if (!DungeonManager.isInDungeon()) {
@@ -46,6 +55,15 @@ public class ThreeWeirdos {
             return;
         }
 
+        // If we know the target NPC but haven't found the chest yet, search periodically
+        if (targetNpcName != null && correctChestPos == null) {
+            long now = System.currentTimeMillis();
+            if (now - lastSearchTime > 500) {
+                lastSearchTime = now;
+                findNpcAndChest(targetNpcName);
+            }
+        }
+
         // Update chest box if we have a position
         if (correctChestPos != null) {
             correctChestBox = new Box(correctChestPos);
@@ -58,134 +76,118 @@ public class ThreeWeirdos {
         }
 
         try {
-            // Green filled box + outline for correct chest
-            ESPRenderer.drawFilledBox(matrices, correctChestBox, 0x8000FF00, cameraPos); // Semi-transparent green
-            ESPRenderer.drawBoxOutline(matrices, correctChestBox, 0xFF00FF00, 5.0f, cameraPos); // Bright green outline
-
-            // Draw tracer to chest
+            ESPRenderer.drawFilledBox(matrices, correctChestBox, 0x8000FF00, cameraPos);
+            ESPRenderer.drawBoxOutline(matrices, correctChestBox, 0xFF00FF00, 5.0f, cameraPos);
             Vec3d chestCenter = correctChestBox.getCenter();
-            ESPRenderer.drawTracerFromCamera(matrices, chestCenter, 0xFF00FF00, cameraPos); // Green tracer
+            ESPRenderer.drawTracerFromCamera(matrices, chestCenter, 0xFF00FF00, cameraPos);
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[ThreeWeirdos] Error rendering solution", e);
         }
     }
 
     /**
-     * Handle chat messages to find the correct chest.
+     * Handle chat messages to find the correct NPC.
+     * Uses Skyblocker's pattern matching approach.
      */
     public static void onChatMessage(String message) {
-        if (!DungeonManager.isInDungeon() || !TeslaMapsConfig.get().solveThreeWeirdos) {
+        if (!DungeonManager.isInDungeon() || !TeslaMapsConfig.get().solveThreeWeirdos || disabled) {
             return;
         }
 
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.world == null || mc.player == null) return;
 
-        // Strip formatting and match pattern
         String stripped = Formatting.strip(message);
         if (stripped == null) return;
 
+        // Use regex pattern to match - same as Skyblocker
         Matcher matcher = PATTERN.matcher(stripped);
-        if (!matcher.matches()) return;
-
-        String npcName = matcher.group(1);
-        TeslaMaps.LOGGER.info("[ThreeWeirdos] Detected NPC message from: {}", npcName);
-
-        // Find the Three Weirdos room
-        currentRoom = findThreeWeirdosRoom();
-        if (currentRoom == null) {
-            TeslaMaps.LOGGER.warn("[ThreeWeirdos] Could not find Three Weirdos room!");
+        if (!matcher.matches()) {
             return;
         }
 
-        // Check all three NPC positions
-        checkForNPC(npcName, new BlockPos(13, 69, 24));
-        checkForNPC(npcName, new BlockPos(15, 69, 25));
-        checkForNPC(npcName, new BlockPos(17, 69, 24));
+        // Extract NPC name from regex group
+        String npcName = matcher.group(1);
+        TeslaMaps.LOGGER.info("[ThreeWeirdos] Pattern matched! Message: {}", stripped);
+
+        TeslaMaps.LOGGER.info("[ThreeWeirdos] NPC='{}', message='{}'", npcName, stripped);
+
+        // Use Skyblocker's approach: match specific patterns and highlight that NPC's chest
+        // The pattern matching already validated this is a correct phrase
+        // The NPC who says these specific phrases has the correct chest
+        targetNpcName = npcName;
+        TeslaMaps.LOGGER.info("[ThreeWeirdos] Pattern matched! NPC '{}' has the correct chest", targetNpcName);
+        findNpcAndChest(targetNpcName);
     }
 
     /**
-     * Check if an NPC exists at the given room-relative position and matches the name.
+     * Find NPC by name and locate the chest next to them.
+     * Uses OdinFabric's approach - find the armor stand entity, then find closest chest.
      */
-    private static void checkForNPC(String name, BlockPos relativePos) {
+    private static void findNpcAndChest(String npcName) {
         MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || currentRoom == null) return;
+        if (mc.world == null || mc.player == null) return;
 
-        // Convert relative position to world position
-        BlockPos worldPos = currentRoom.relativeToActual(relativePos);
+        // Search for the NPC entity by name (like OdinFabric does)
+        ArmorStandEntity targetNpc = null;
+        for (var entity : mc.world.getEntities()) {
+            if (entity instanceof ArmorStandEntity armorStand) {
+                String name = Formatting.strip(armorStand.getName().getString());
+                if (name != null && name.equals(npcName)) {
+                    targetNpc = armorStand;
+                    break;
+                }
+            }
+        }
 
-        // Search for armor stand at this position
-        Box searchBox = new Box(worldPos).expand(1);
-        List<ArmorStandEntity> armorStands = mc.world.getEntitiesByClass(
-                ArmorStandEntity.class,
-                searchBox,
-                entity -> entity.getName().getString().equals(name)
+        if (targetNpc == null) {
+            TeslaMaps.LOGGER.debug("[ThreeWeirdos] NPC '{}' not found", npcName);
+            return;
+        }
+
+        // Get NPC position (floor to block pos)
+        BlockPos npcBlockPos = new BlockPos(
+            (int) Math.floor(targetNpc.getX()),
+            69, // NPCs are always at Y=69 in this puzzle
+            (int) Math.floor(targetNpc.getZ())
         );
 
-        if (!armorStands.isEmpty()) {
-            // Found the NPC - chest is 1 block to the east (+X)
-            BlockPos relativeChestPos = relativePos.add(1, 0, 0);
-            correctChestPos = currentRoom.relativeToActual(relativeChestPos);
+        TeslaMaps.LOGGER.info("[ThreeWeirdos] Found NPC '{}' at entity pos ({}, {}, {}), block pos {}",
+            npcName, targetNpc.getX(), targetNpc.getY(), targetNpc.getZ(), npcBlockPos);
 
-            TeslaMaps.LOGGER.info("[ThreeWeirdos] Found NPC '{}' at relative {} (world: {})",
-                name, relativePos, worldPos);
-            TeslaMaps.LOGGER.info("[ThreeWeirdos] Chest at relative {} (world: {})",
-                relativeChestPos, correctChestPos);
+        // Find the CLOSEST chest to the NPC within 3 blocks
+        BlockPos closestChest = null;
+        double closestDist = Double.MAX_VALUE;
 
-            // Update armor stand name to be green
-            for (ArmorStandEntity stand : armorStands) {
-                stand.setCustomName(Text.literal(name).formatted(Formatting.GREEN));
-                stand.setCustomNameVisible(true);
-            }
-        }
-    }
-
-    /**
-     * Find the Three Weirdos room based on player position or nearby rooms.
-     */
-    private static DungeonRoom findThreeWeirdosRoom() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null) return null;
-
-        double playerX = mc.player.getX();
-        double playerZ = mc.player.getZ();
-        int[] gridPos = ComponentGrid.worldToGrid(playerX, playerZ);
-        if (gridPos == null) return null;
-
-        // Check current room
-        DungeonRoom room = DungeonManager.getRoomAt(gridPos[0], gridPos[1]);
-        if (room != null && room.isIdentified()) {
-            String roomName = room.getName().toLowerCase();
-            if (roomName.contains("three") || roomName.contains("weirdos") || roomName.contains("chests")) {
-                TeslaMaps.LOGGER.info("[ThreeWeirdos] Found room: {} at grid [{},{}]",
-                    room.getName(), gridPos[0], gridPos[1]);
-                return room;
-            }
-        }
-
-        // Check adjacent rooms in case player is at edge
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
-                int checkX = gridPos[0] + dx;
-                int checkZ = gridPos[1] + dz;
-                DungeonRoom adjacentRoom = DungeonManager.getRoomAt(checkX, checkZ);
-                if (adjacentRoom != null && adjacentRoom.isIdentified()) {
-                    String roomName = adjacentRoom.getName().toLowerCase();
-                    if (roomName.contains("three") || roomName.contains("weirdos") || roomName.contains("chests")) {
-                        return adjacentRoom;
+        for (int dx = -3; dx <= 3; dx++) {
+            for (int dz = -3; dz <= 3; dz++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    BlockPos checkPos = npcBlockPos.add(dx, dy, dz);
+                    if (mc.world.getBlockState(checkPos).getBlock() == Blocks.CHEST) {
+                        double dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                        TeslaMaps.LOGGER.info("[ThreeWeirdos] Found chest at {} distance {}", checkPos, dist);
+                        if (dist < closestDist) {
+                            closestDist = dist;
+                            closestChest = checkPos;
+                        }
                     }
                 }
             }
         }
 
-        return null;
+        if (closestChest != null) {
+            correctChestPos = closestChest;
+            TeslaMaps.LOGGER.info("[ThreeWeirdos] Selected closest chest at {} (distance {})", correctChestPos, closestDist);
+
+            // Color the NPC name green
+            targetNpc.setCustomName(Text.literal(npcName).formatted(Formatting.GREEN));
+            targetNpc.setCustomNameVisible(true);
+        } else {
+            TeslaMaps.LOGGER.warn("[ThreeWeirdos] No chest found near NPC '{}'", npcName);
+        }
     }
 
-    /**
-     * Disable solver when any chest is clicked.
-     */
     public static void onChestClick(BlockPos pos) {
-        // Disable solver when any chest in the puzzle is clicked
         if (correctChestPos != null) {
             disabled = true;
             TeslaMaps.LOGGER.info("[ThreeWeirdos] Chest clicked, solver disabled");
@@ -195,7 +197,8 @@ public class ThreeWeirdos {
     public static void reset() {
         correctChestPos = null;
         correctChestBox = null;
-        currentRoom = null;
+        targetNpcName = null;
         disabled = false;
+        lastSearchTime = 0;
     }
 }

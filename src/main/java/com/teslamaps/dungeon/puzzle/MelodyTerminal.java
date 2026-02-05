@@ -40,8 +40,15 @@ public class MelodyTerminal {
     private static long laneProgressTime = 0; // Time when lane progressed
 
     public static void tick() {
+        // DISABLED - Auto terminal feature commented out
+        if (true) {
+            reset();
+            return;
+        }
+
         MinecraftClient mc = MinecraftClient.getInstance();
 
+        /* DISABLED
         if (!TeslaMapsConfig.get().solveMelodyTerminal) {
             if (initialScanDone) {
                 TeslaMaps.LOGGER.info("[MelodyTerminal] Feature disabled, resetting");
@@ -49,6 +56,7 @@ public class MelodyTerminal {
             reset();
             return;
         }
+        */
 
         if (mc.player == null || mc.world == null) {
             reset();

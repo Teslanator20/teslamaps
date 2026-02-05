@@ -17,9 +17,21 @@ import com.teslamaps.dungeon.puzzle.TicTacToe;
 import com.teslamaps.dungeon.puzzle.ChronomatronSolver;
 import com.teslamaps.dungeon.puzzle.SuperpairsSolver;
 import com.teslamaps.dungeon.puzzle.UltrasequencerSolver;
+import com.teslamaps.dungeon.puzzle.BoulderSolver;
+import com.teslamaps.dungeon.puzzle.QuizSolver;
+import com.teslamaps.dungeon.puzzle.TPMazeSolver;
+import com.teslamaps.dungeon.puzzle.CreeperBeamsSolver;
+import com.teslamaps.dungeon.puzzle.SimonSaysSolver;
+import com.teslamaps.dungeon.puzzle.ArrowAlignSolver;
+import com.teslamaps.dungeon.puzzle.TerracottaTimer;
+import com.teslamaps.dungeon.puzzle.SpiritBearTimer;
+import com.teslamaps.dungeon.puzzle.WaterBoardSolver;
 import com.teslamaps.esp.StarredMobESP;
 import com.teslamaps.features.AutoGFS;
+import com.teslamaps.features.AutoWish;
 import com.teslamaps.features.LividSolver;
+import com.teslamaps.features.SecretClicker;
+import com.teslamaps.features.SecretWaypoints;
 import com.teslamaps.player.PlayerTracker;
 import com.teslamaps.render.MapRenderer;
 import com.teslamaps.render.TeslaRenderLayers;
@@ -70,6 +82,8 @@ public class TeslaMaps implements ClientModInitializer {
         HudRenderCallback.EVENT.register(SlayerHUD::render);
         // HUD indicators removed - using 3D tracers instead
         HudRenderCallback.EVENT.register(LividSolver::renderHUD);
+        HudRenderCallback.EVENT.register(SpiritBearTimer::render);
+        HudRenderCallback.EVENT.register(WaterBoardSolver::renderHud);
 
         // Initialize starred mob ESP
         StarredMobESP.init();
@@ -100,6 +114,17 @@ public class TeslaMaps implements ClientModInitializer {
                 DungeonBlaze.render(context.matrices(), cameraPos);
                 ThreeWeirdos.render(context.matrices(), cameraPos);
                 TicTacToe.render(context.matrices(), cameraPos);
+                BoulderSolver.render(context.matrices(), cameraPos);
+                QuizSolver.render(context.matrices(), cameraPos);
+                TPMazeSolver.render(context.matrices(), cameraPos);
+                CreeperBeamsSolver.render(context.matrices(), cameraPos);
+                SimonSaysSolver.render(context.matrices(), cameraPos);
+                ArrowAlignSolver.render(context.matrices(), cameraPos);
+                TerracottaTimer.render(context.matrices(), cameraPos);
+                WaterBoardSolver.render(context.matrices(), cameraPos);
+
+                // Render secret waypoints
+                SecretWaypoints.render(context.matrices(), cameraPos);
 
                 // Render mimic trapped chest ESP (only on F6, F7, M6, M7)
                 if (DungeonManager.isInDungeon() && !MimicDetector.isMimicKilled() && com.teslamaps.dungeon.DungeonScore.floorHasMimics()) {
@@ -119,6 +144,8 @@ public class TeslaMaps implements ClientModInitializer {
                 SecretTracker.tick();
                 SlayerHUD.tick();
                 AutoGFS.tick();
+                AutoWish.tick();
+                SecretClicker.tick();
                 LividSolver.tick();
                 MimicDetector.tick();
                 DungeonBlaze.tick();
@@ -134,6 +161,17 @@ public class TeslaMaps implements ClientModInitializer {
                 ChronomatronSolver.tick();
                 SuperpairsSolver.tick();
                 UltrasequencerSolver.tick();
+                // New puzzle solvers
+                BoulderSolver.tick();
+                QuizSolver.tick();
+                TPMazeSolver.tick();
+                CreeperBeamsSolver.tick();
+                SimonSaysSolver.tick();
+                ArrowAlignSolver.tick();
+                TerracottaTimer.tick();
+                SpiritBearTimer.tick();
+                WaterBoardSolver.tick();
+                SecretWaypoints.tick();
             }
         });
     }

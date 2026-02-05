@@ -33,15 +33,22 @@ public class ClickInOrderTerminal {
     private static int lastDebugTick = 0;
 
     public static void tick() {
+        // DISABLED - Auto terminal feature commented out
+        if (true) {
+            reset();
+            return;
+        }
+
         MinecraftClient mc = MinecraftClient.getInstance();
 
+        /* DISABLED
         if (!TeslaMapsConfig.get().solveClickInOrderTerminal) {
             if (!slotToNumber.isEmpty()) {
-                TeslaMaps.LOGGER.info("[ClickInOrderTerminal] DEBUG: Feature disabled, resetting");
             }
             reset();
             return;
         }
+        */
 
         if (mc.player == null || mc.world == null) {
             reset();
@@ -51,7 +58,6 @@ public class ClickInOrderTerminal {
         // Check if we're looking at a container screen
         if (!(mc.currentScreen instanceof GenericContainerScreen)) {
             if (!slotToNumber.isEmpty()) {
-                TeslaMaps.LOGGER.info("[ClickInOrderTerminal] DEBUG: Screen closed, resetting");
             }
             reset();
             return;
@@ -66,7 +72,6 @@ public class ClickInOrderTerminal {
         // Debug: Log container title once per second
         int currentTick = mc.player.age;
         if (currentTick - lastDebugTick > 20) {
-            TeslaMaps.LOGGER.info("[ClickInOrderTerminal] DEBUG: Container title: '{}'", titleStr);
             lastDebugTick = currentTick;
         }
 
@@ -78,7 +83,6 @@ public class ClickInOrderTerminal {
         if (!cleanTitle.equals("Click in order!")) {
             // Not our terminal
             if (!slotToNumber.isEmpty()) {
-                TeslaMaps.LOGGER.info("[ClickInOrderTerminal] DEBUG: Title doesn't match, resetting");
             }
             return;
         }
@@ -163,7 +167,6 @@ public class ClickInOrderTerminal {
     private static void findAllNumberedSlots(GenericContainerScreen screen) {
         GenericContainerScreenHandler handler = screen.getScreenHandler();
 
-        TeslaMaps.LOGGER.info("[ClickInOrderTerminal] DEBUG: Scanning {} slots for RED panes", handler.slots.size());
 
         slotToNumber.clear();
         orderedSlots.clear();
@@ -183,7 +186,6 @@ public class ClickInOrderTerminal {
                 if (number >= 1 && number <= 14) {
                     slotToNumber.put(slot.id, number);
                     redFound++;
-                    TeslaMaps.LOGGER.info("[ClickInOrderTerminal] DEBUG: Slot {} - RED PANE Number {}", slot.id, number);
                 }
             }
         }
@@ -306,7 +308,6 @@ public class ClickInOrderTerminal {
 
     public static void reset() {
         if (!slotToNumber.isEmpty()) {
-            TeslaMaps.LOGGER.info("[ClickInOrderTerminal] DEBUG: Resetting");
         }
         slotToNumber.clear();
         orderedSlots.clear();

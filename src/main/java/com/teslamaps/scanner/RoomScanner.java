@@ -7,7 +7,10 @@ import com.teslamaps.database.RoomDatabase;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.map.RoomType;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -54,7 +57,7 @@ public class RoomScanner {
     public static void triggerFullScan() {
         fullScanRequested = true;
         scannedPositions.clear();
-        TeslaMaps.LOGGER.info("Full dungeon scan requested");
+        TeslaMaps.LOGGER.debug("Full dungeon scan requested");
     }
 
     /**
@@ -64,7 +67,7 @@ public class RoomScanner {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.world == null) return;
 
-        TeslaMaps.LOGGER.info("Performing full dungeon scan...");
+        TeslaMaps.LOGGER.debug("Performing full dungeon scan...");
 
         int roomsFound = 0;
 
@@ -83,7 +86,7 @@ public class RoomScanner {
         // After scanning rooms, scan for doors
         DoorScanner.scanAllDoors();
 
-        TeslaMaps.LOGGER.info("Full scan complete. Found {} rooms", roomsFound);
+        TeslaMaps.LOGGER.debug("Full scan complete. Found {} rooms", roomsFound);
     }
 
     /**
@@ -163,7 +166,7 @@ public class RoomScanner {
         if (roomData != null) {
             // Check if an adjacent cell already has a room with the same name
             // This handles multi-component rooms (2x2, 1x4, L-shapes, etc.)
-            TeslaMaps.LOGGER.info("[ScanDebug] [{},{}] Looking for adjacent room named '{}'",
+            TeslaMaps.LOGGER.debug("[ScanDebug] [{},{}] Looking for adjacent room named '{}'",
                     gridX, gridZ, roomData.getName());
 
             DungeonRoom existingRoom = findAdjacentRoomWithName(gridX, gridZ, roomData.getName());
@@ -173,7 +176,10 @@ public class RoomScanner {
                 existingRoom.addComponent(gridX, gridZ);
                 DungeonManager.getGrid().setRoom(gridX, gridZ, existingRoom);
 
-                TeslaMaps.LOGGER.info("[ScanDebug] [{},{}] Added to existing room '{}' (now {} components)",
+                // Try to detect rotation if not already detected
+                detectAndSetRotation(existingRoom);
+
+                TeslaMaps.LOGGER.debug("[ScanDebug] [{},{}] Added to existing room '{}' (now {} components)",
                         gridX, gridZ, roomData.getName(), existingRoom.getComponents().size());
             } else {
                 // Debug: log what's in adjacent cells
@@ -184,7 +190,7 @@ public class RoomScanner {
                     int adjZ = gridZ + offsets[i][1];
                     DungeonRoom adj = DungeonManager.getGrid().getRoom(adjX, adjZ);
                     if (adj != null) {
-                        TeslaMaps.LOGGER.info("[ScanDebug] [{},{}] {} neighbor [{},{}] has room '{}' (expected '{}')",
+                        TeslaMaps.LOGGER.debug("[ScanDebug] [{},{}] {} neighbor [{},{}] has room '{}' (expected '{}')",
                                 gridX, gridZ, dirs[i], adjX, adjZ, adj.getName(), roomData.getName());
                     }
                 }
@@ -194,14 +200,17 @@ public class RoomScanner {
                 room.loadFromRoomData(roomData);
                 DungeonManager.addRoom(room);
 
-                TeslaMaps.LOGGER.info("[ScanDebug] [{},{}] Created NEW room '{}' core={}",
-                        gridX, gridZ, roomData.getName(), coreHash);
+                // Detect rotation for the new room
+                detectAndSetRotation(room);
+
+                TeslaMaps.LOGGER.debug("[ScanDebug] [{},{}] Created NEW room '{}' core={} rotation={}",
+                        gridX, gridZ, roomData.getName(), coreHash, room.getRotation());
             }
 
             return true;
         } else {
             // Unknown room - create placeholder
-            TeslaMaps.LOGGER.info("Unknown room at grid [{},{}] core={} (roof={})",
+            TeslaMaps.LOGGER.debug("Unknown room at grid [{},{}] core={} (roof={})",
                     gridX, gridZ, coreHash, roofHeight);
 
             // Still create a placeholder room so we show something on the map
@@ -229,12 +238,12 @@ public class RoomScanner {
             int adjZ = gridZ + offset[1];
 
             DungeonRoom adjacent = DungeonManager.getGrid().getRoom(adjX, adjZ);
-            TeslaMaps.LOGGER.info("[FindAdj] [{},{}] Checking {} neighbor [{},{}]: {}",
+            TeslaMaps.LOGGER.debug("[FindAdj] [{},{}] Checking {} neighbor [{},{}]: {}",
                     gridX, gridZ, dirNames[i], adjX, adjZ,
                     adjacent == null ? "null" : ("'" + adjacent.getName() + "'"));
 
             if (adjacent != null && roomName.equals(adjacent.getName())) {
-                TeslaMaps.LOGGER.info("[FindAdj] [{},{}] Found match at [{},{}]!",
+                TeslaMaps.LOGGER.debug("[FindAdj] [{},{}] Found match at [{},{}]!",
                         gridX, gridZ, adjX, adjZ);
                 return adjacent;
             }
@@ -265,13 +274,13 @@ public class RoomScanner {
         java.util.Map<String, java.util.List<DungeonRoom>> roomsByName = new java.util.HashMap<>();
 
         // Debug: Log all rooms before merging
-        TeslaMaps.LOGGER.info("[MergeDebug] Starting merge. All rooms:");
+        TeslaMaps.LOGGER.debug("[MergeDebug] Starting merge. All rooms:");
         for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
             StringBuilder comps = new StringBuilder();
             for (int[] comp : room.getComponents()) {
                 comps.append("[").append(comp[0]).append(",").append(comp[1]).append("] ");
             }
-            TeslaMaps.LOGGER.info("[MergeDebug]   Room '{}' type={} components: {}",
+            TeslaMaps.LOGGER.debug("[MergeDebug]   Room '{}' type={} components: {}",
                     room.getName(), room.getType(), comps.toString().trim());
         }
 
@@ -286,7 +295,7 @@ public class RoomScanner {
         // Debug: Log rooms grouped by name
         for (java.util.Map.Entry<String, java.util.List<DungeonRoom>> entry : roomsByName.entrySet()) {
             if (entry.getValue().size() > 1) {
-                TeslaMaps.LOGGER.info("[MergeDebug] Multiple '{}' rooms found: {} instances",
+                TeslaMaps.LOGGER.debug("[MergeDebug] Multiple '{}' rooms found: {} instances",
                         entry.getKey(), entry.getValue().size());
             }
         }
@@ -330,7 +339,7 @@ public class RoomScanner {
                             }
                             rooms.remove(j);
                             merged = true;
-                            TeslaMaps.LOGGER.info("Merged adjacent room '{}' components", roomA.getName());
+                            TeslaMaps.LOGGER.debug("Merged adjacent room '{}' components", roomA.getName());
                             break outer;
                         }
                     }
@@ -362,7 +371,7 @@ public class RoomScanner {
      * Force trigger a scan (for debug purposes)
      */
     public static void forceScan() {
-        TeslaMaps.LOGGER.info("Force scan triggered");
+        TeslaMaps.LOGGER.debug("Force scan triggered");
         scannedPositions.clear();
         performFullScan();
     }
@@ -375,5 +384,100 @@ public class RoomScanner {
         fullScanRequested = false;
         tickCounter = 0;
         DoorScanner.reset();
+    }
+
+    /**
+     * Detect room rotation by finding the blue terracotta corner block.
+     * Devonian uses this approach - the terracotta is at specific corner positions.
+     *
+     * @param room The room to detect rotation for
+     * @return The rotation in degrees (0, 90, 180, 270) or -1 if not detected
+     */
+    public static int detectRotation(DungeonRoom room) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.world == null || room == null) return -1;
+
+        int halfRoomSize = 15; // Half of 31 (room size without door)
+
+        // For multi-component rooms, find the bounding box
+        int minGridX = Integer.MAX_VALUE, minGridZ = Integer.MAX_VALUE;
+        int maxGridX = Integer.MIN_VALUE, maxGridZ = Integer.MIN_VALUE;
+
+        for (int[] comp : room.getComponents()) {
+            minGridX = Math.min(minGridX, comp[0]);
+            minGridZ = Math.min(minGridZ, comp[1]);
+            maxGridX = Math.max(maxGridX, comp[0]);
+            maxGridZ = Math.max(maxGridZ, comp[1]);
+        }
+
+        // Check all components for the blue terracotta corner marker
+        for (int[] comp : room.getComponents()) {
+            int[] center = ComponentGrid.gridToWorld(comp[0], comp[1]);
+            int centerX = center[0];
+            int centerZ = center[1];
+
+            // Get roof height for this component
+            int roofHeight = getHighestBlock(mc.world, centerX, centerZ);
+            if (roofHeight == 0) continue;
+
+            // Corner offsets relative to room center (matching Devonian's roomOffset)
+            int[][] cornerOffsets = {
+                {-halfRoomSize, -halfRoomSize},  // rotation 0
+                {halfRoomSize, -halfRoomSize},   // rotation 90
+                {halfRoomSize, halfRoomSize},    // rotation 180
+                {-halfRoomSize, halfRoomSize}    // rotation 270
+            };
+
+            // Check each corner for blue terracotta at multiple Y levels
+            for (int i = 0; i < cornerOffsets.length; i++) {
+                int checkX = centerX + cornerOffsets[i][0];
+                int checkZ = centerZ + cornerOffsets[i][1];
+
+                // Check at roof height and common floor heights
+                for (int checkY : new int[]{roofHeight, roofHeight - 1, roofHeight - 2, roofHeight + 1,
+                                            68, 69, 70, 71, 72, 11, 12, 66, 67}) {
+                    if (checkY <= 0) continue;
+
+                    BlockPos pos = new BlockPos(checkX, checkY, checkZ);
+                    Block block = mc.world.getBlockState(pos).getBlock();
+
+                    if (block == Blocks.BLUE_TERRACOTTA) {
+                        // Corner index: 0=NW, 1=NE, 2=SE, 3=SW relative to component center
+                        // rotation = index * 90, matching Devonian's approach
+                        int rotation = i * 90;
+                        TeslaMaps.LOGGER.debug("Detected rotation {} for room '{}' (blue terracotta at corner {}, pos [{},{},{}])",
+                                rotation, room.getName(), i, checkX, checkY, checkZ);
+
+                        // Store the blue terracotta position as corner (this is Devonian's approach)
+                        room.setCorner(checkX, checkZ);
+
+                        // Debug: also log what corner position would be for bounding box
+                        int[] minCornerWorld = ComponentGrid.gridToWorld(minGridX, minGridZ);
+                        TeslaMaps.LOGGER.debug("  Room bounding box NW corner would be at [{},{}]",
+                                minCornerWorld[0] - halfRoomSize, minCornerWorld[1] - halfRoomSize);
+
+                        return rotation;
+                    }
+                }
+            }
+        }
+
+        // Fallback: compute corner from bounding box minimum
+        TeslaMaps.LOGGER.debug("Could not detect blue terracotta for room '{}', using bounding box corner", room.getName());
+
+        int[] minCorner = ComponentGrid.gridToWorld(minGridX, minGridZ);
+        room.setCorner(minCorner[0] - halfRoomSize, minCorner[1] - halfRoomSize);
+        return 0;
+    }
+
+    /**
+     * Detect and set rotation for a room.
+     */
+    public static void detectAndSetRotation(DungeonRoom room) {
+        if (room == null) return;
+        if (room.hasRotation()) return; // Already detected
+
+        int rotation = detectRotation(room);
+        room.setRotation(rotation);
     }
 }

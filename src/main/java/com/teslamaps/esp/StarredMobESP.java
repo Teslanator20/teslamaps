@@ -172,8 +172,10 @@ public class StarredMobESP {
         if (mc.player == null) return;
 
         // Play configurable sound with configurable volume (can exceed 1.0!)
-        float volume = TeslaMapsConfig.get().keyPickupVolume;
-        LoudSound.play(getPickupSound(), volume, 1.5f);
+        if (TeslaMapsConfig.get().keyPickupSoundEnabled) {
+            float volume = TeslaMapsConfig.get().keyPickupVolume;
+            LoudSound.play(getPickupSound(), volume, 1.5f);
+        }
 
         // Show title
         mc.inGameHud.setTitle(Text.literal("WITHER KEY").formatted(Formatting.DARK_GRAY, Formatting.BOLD));
@@ -194,8 +196,10 @@ public class StarredMobESP {
         if (mc.player == null) return;
 
         // Play configurable sound with configurable volume (can exceed 1.0!)
-        float volume = TeslaMapsConfig.get().keyPickupVolume;
-        LoudSound.play(getPickupSound(), volume, 1.2f);
+        if (TeslaMapsConfig.get().keyPickupSoundEnabled) {
+            float volume = TeslaMapsConfig.get().keyPickupVolume;
+            LoudSound.play(getPickupSound(), volume, 1.2f);
+        }
 
         // Show title
         mc.inGameHud.setTitle(Text.literal("BLOOD KEY").formatted(Formatting.DARK_RED, Formatting.BOLD));
@@ -216,8 +220,10 @@ public class StarredMobESP {
         if (mc.player == null) return;
 
         // Play configurable sound with configurable volume (can exceed 1.0!)
-        float volume = TeslaMapsConfig.get().keyOnGroundVolume;
-        LoudSound.play(getOnGroundSound(), volume, 1.0f);
+        if (TeslaMapsConfig.get().keyOnGroundSoundEnabled) {
+            float volume = TeslaMapsConfig.get().keyOnGroundVolume;
+            LoudSound.play(getOnGroundSound(), volume, 1.0f);
+        }
 
         // Show title
         mc.inGameHud.setTitle(Text.literal("WITHER KEY").formatted(Formatting.DARK_GRAY, Formatting.BOLD));
@@ -233,8 +239,10 @@ public class StarredMobESP {
         if (mc.player == null) return;
 
         // Play configurable sound with configurable volume (can exceed 1.0!)
-        float volume = TeslaMapsConfig.get().keyOnGroundVolume;
-        LoudSound.play(getOnGroundSound(), volume, 0.8f);
+        if (TeslaMapsConfig.get().keyOnGroundSoundEnabled) {
+            float volume = TeslaMapsConfig.get().keyOnGroundVolume;
+            LoudSound.play(getOnGroundSound(), volume, 0.8f);
+        }
 
         // Show title
         mc.inGameHud.setTitle(Text.literal("BLOOD KEY").formatted(Formatting.DARK_RED, Formatting.BOLD));
@@ -409,8 +417,8 @@ public class StarredMobESP {
             }
         }
 
-        // Debug: log all nearby entities (for finding fels in dungeons and pests outside)
-        debugLogNearbyEntities(mc);
+        // Debug: log all nearby entities (disabled - was spamming logs)
+        // debugLogNearbyEntities(mc);
     }
 
     private static long lastFelDebugTime = 0;
@@ -761,10 +769,6 @@ public class StarredMobESP {
         String lowerName = entityName.toLowerCase();
         for (String pattern : customMobs) {
             if (lowerName.contains(pattern.toLowerCase())) {
-                // Debug match
-                if (System.currentTimeMillis() % 5000 < 50) {
-                    TeslaMaps.LOGGER.info("[CustomESP] MATCH! '{}' contains pattern '{}'", entityName, pattern);
-                }
                 return true;
             }
         }
@@ -786,17 +790,6 @@ public class StarredMobESP {
         Box searchBox = entity.getBoundingBox().expand(1, 4, 1);
         List<ArmorStandEntity> armorStands = mc.world.getEntitiesByClass(
                 ArmorStandEntity.class, searchBox, as -> true);
-
-        // Debug: log armor stands found for this entity
-        if (!armorStands.isEmpty() && System.currentTimeMillis() % 5000 < 50) {
-            TeslaMaps.LOGGER.info("[CustomESP Debug] Entity '{}' has {} armor stands nearby. Custom list: {}",
-                    entity.getName().getString(), armorStands.size(), customMobs);
-            for (ArmorStandEntity as : armorStands) {
-                String asName = as.getName().getString();
-                String asCustom = as.getCustomName() != null ? as.getCustomName().getString() : "null";
-                TeslaMaps.LOGGER.info("[CustomESP Debug]   ArmorStand: name='{}', customName='{}'", asName, asCustom);
-            }
-        }
 
         for (ArmorStandEntity armorStand : armorStands) {
             // Check both getName and getCustomName
@@ -996,8 +989,6 @@ public class StarredMobESP {
         return bloodKeyPositions;
     }
 
-    private static int renderDebugCounter = 0;
-
     /**
      * Render world elements like door boxes, key boxes, and tracers.
      * Called from WorldRenderEvents.
@@ -1022,15 +1013,6 @@ public class StarredMobESP {
             for (Vec3d batPos : dungeonBatPositions) {
                 ESPRenderer.drawTracerFromCamera(matrices, batPos, DUNGEON_BAT_COLOR, cameraPos);
             }
-        }
-
-        // Debug: log every 100 frames
-        renderDebugCounter++;
-        if (renderDebugCounter % 100 == 0) {
-            TeslaMaps.LOGGER.info("[ESP Render] Keys: wither={}, blood={}, livid={}, doors: wither={}, blood={}",
-                    witherKeyEntities.size(), bloodKeyEntities.size(),
-                    LividSolver.getCorrectLivid() != null ? "found" : "null",
-                    witherDoorBoxes.size(), bloodDoorBoxes.size());
         }
 
         // Door ESP - boxes and tracers using ESPRenderer

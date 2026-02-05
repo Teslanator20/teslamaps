@@ -1,15 +1,22 @@
 package com.teslamaps.mixin;
 
+import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonScore;
 import com.teslamaps.dungeon.MimicDetector;
 import com.teslamaps.dungeon.puzzle.ThreeWeirdos;
+import com.teslamaps.dungeon.puzzle.QuizSolver;
+import com.teslamaps.dungeon.puzzle.SimonSaysSolver;
 import com.teslamaps.esp.StarredMobESP;
 import com.teslamaps.features.AutoGFS;
+import com.teslamaps.features.AutoWish;
 import com.teslamaps.features.LividSolver;
 import com.teslamaps.slayer.SlayerHUD;
+import com.teslamaps.utils.LoudSound;
 import net.minecraft.client.gui.hud.ChatHud;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -39,6 +46,11 @@ public class ChatMixin {
             }
         }
 
+        // Check for secret found - multiple patterns
+        if (text.contains("found a secret") || text.contains("FOUND A SECRET")) {
+            onSecretFound();
+        }
+
         // Pass all messages to AutoGFS for dungeon start/puzzle fail detection
         AutoGFS.onChatMessage(text);
 
@@ -53,5 +65,37 @@ public class ChatMixin {
 
         // Pass to ThreeWeirdos for NPC message detection
         ThreeWeirdos.onChatMessage(text);
+
+        // Pass to AutoWish for boss trigger detection
+        AutoWish.onChatMessage(text);
+
+        // Pass to QuizSolver for trivia answer detection
+        QuizSolver.onChatMessage(text);
+
+        // Pass to SimonSaysSolver for phase detection
+        SimonSaysSolver.onChatMessage(text);
+    }
+
+    @Unique
+    private static void onSecretFound() {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!config.secretSound) {
+            return;
+        }
+
+        com.teslamaps.TeslaMaps.LOGGER.info("[SecretSound] Playing secret sound: {} at volume {}",
+            config.secretSoundType, config.secretSoundVolume);
+        LoudSound.play(getSecretSound(), config.secretSoundVolume, 1.0f);
+    }
+
+    @Unique
+    private static net.minecraft.sound.SoundEvent getSecretSound() {
+        String sound = TeslaMapsConfig.get().secretSoundType;
+        return switch (sound) {
+            case "NOTE_PLING" -> SoundEvents.BLOCK_NOTE_BLOCK_PLING.value();
+            case "EXPERIENCE_ORB" -> SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP;
+            case "AMETHYST_CHIME" -> SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME;
+            default -> SoundEvents.ENTITY_PLAYER_LEVELUP; // LEVEL_UP
+        };
     }
 }

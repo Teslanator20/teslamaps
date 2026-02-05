@@ -1,135 +1,127 @@
 package com.teslamaps.utils;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+
 /**
- * TicTacToe AI solver using minimax algorithm.
- * Adapted from Skyblocker's TicTacToeUtils.
+ * TicTacToe AI solver using alpha-beta pruning.
+ * Copied from Skyblocker's TicTacToeUtils.
  */
 public class TicTacToeUtils {
 
-    /**
-     * Represents a position on the board.
-     */
     public record BoardIndex(int row, int column) {}
 
-    /**
-     * Get the best move for the current board state.
-     * Returns the optimal move for 'O' (player).
-     */
     public static BoardIndex getBestMove(char[][] board) {
-        int bestScore = Integer.MIN_VALUE;
-        BoardIndex bestMove = new BoardIndex(0, 0);
+        Map<BoardIndex, Integer> moves = new HashMap<>();
 
+        for (int row = 0; row < board.length; row++) {
+            for (int column = 0; column < board[row].length; column++) {
+                // Simulate the move as O if the square is empty to determine a solution
+                if (board[row][column] != '\0') continue;
+                board[row][column] = 'O';
+                int score = alphabeta(board, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, false);
+                board[row][column] = '\0';
+
+                moves.put(new BoardIndex(row, column), score);
+            }
+        }
+
+        if (moves.isEmpty()) {
+            return new BoardIndex(0, 0);
+        }
+
+        return Collections.max(moves.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
+    }
+
+    private static boolean hasMovesAvailable(char[][] board) {
+        return Arrays.stream(board).flatMap(row -> Stream.of(row[0], row[1], row[2])).anyMatch(c -> c == '\0');
+    }
+
+    private static int getScore(char[][] board) {
+        // Check if X or O has won horizontally
         for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                if (board[row][col] == '\0') {
-                    board[row][col] = 'O';
-                    int score = minimax(board, 0, false);
-                    board[row][col] = '\0';
-
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestMove = new BoardIndex(row, col);
-                    }
+            if (board[row][0] == board[row][1] && board[row][0] == board[row][2]) {
+                switch (board[row][0]) {
+                    case 'X': return -10;
+                    case 'O': return 10;
                 }
             }
         }
 
-        return bestMove;
+        // Check if X or O has won vertically
+        for (int column = 0; column < 3; column++) {
+            if (board[0][column] == board[1][column] && board[0][column] == board[2][column]) {
+                switch (board[0][column]) {
+                    case 'X': return -10;
+                    case 'O': return 10;
+                }
+            }
+        }
+
+        // Check if X or O has won diagonally
+        // Top left to bottom right
+        if (board[0][0] == board[1][1] && board[0][0] == board[2][2]) {
+            switch (board[0][0]) {
+                case 'X': return -10;
+                case 'O': return 10;
+            }
+        }
+
+        // Top right to bottom left
+        if (board[0][2] == board[1][1] && board[0][2] == board[2][0]) {
+            switch (board[0][2]) {
+                case 'X': return -10;
+                case 'O': return 10;
+            }
+        }
+
+        return 0;
     }
 
-    /**
-     * Minimax algorithm to find optimal move.
-     * @param board Current board state
-     * @param depth Current depth in game tree
-     * @param isMaximizing True if maximizing player (O), false if minimizing (X)
-     * @return Score of the board state
-     */
-    private static int minimax(char[][] board, int depth, boolean isMaximizing) {
-        char winner = checkWinner(board);
+    private static int alphabeta(char[][] board, int alpha, int beta, int depth, boolean maximizePlayer) {
+        int score = getScore(board);
 
-        if (winner == 'O') return 10 - depth;
-        if (winner == 'X') return depth - 10;
-        if (isBoardFull(board)) return 0;
+        if (score == 10 || score == -10) return score;
+        if (!hasMovesAvailable(board)) return 0;
 
-        if (isMaximizing) {
+        if (maximizePlayer) {
             int bestScore = Integer.MIN_VALUE;
+
             for (int row = 0; row < 3; row++) {
-                for (int col = 0; col < 3; col++) {
-                    if (board[row][col] == '\0') {
-                        board[row][col] = 'O';
-                        int score = minimax(board, depth + 1, false);
-                        board[row][col] = '\0';
-                        bestScore = Math.max(score, bestScore);
+                for (int column = 0; column < 3; column++) {
+                    if (board[row][column] == '\0') {
+                        board[row][column] = 'O';
+                        bestScore = Math.max(bestScore, alphabeta(board, alpha, beta, depth + 1, false));
+                        board[row][column] = '\0';
+                        alpha = Math.max(alpha, bestScore);
+
+                        if (beta <= alpha) break; // Pruning
                     }
                 }
             }
-            return bestScore;
+
+            return bestScore - depth;
         } else {
             int bestScore = Integer.MAX_VALUE;
+
             for (int row = 0; row < 3; row++) {
-                for (int col = 0; col < 3; col++) {
-                    if (board[row][col] == '\0') {
-                        board[row][col] = 'X';
-                        int score = minimax(board, depth + 1, true);
-                        board[row][col] = '\0';
-                        bestScore = Math.min(score, bestScore);
+                for (int column = 0; column < 3; column++) {
+                    if (board[row][column] == '\0') {
+                        board[row][column] = 'X';
+                        bestScore = Math.min(bestScore, alphabeta(board, alpha, beta, depth + 1, true));
+                        board[row][column] = '\0';
+                        beta = Math.min(beta, bestScore);
+
+                        if (beta <= alpha) break; // Pruning
                     }
                 }
             }
-            return bestScore;
-        }
-    }
 
-    /**
-     * Check if there's a winner on the board.
-     * @return 'X', 'O', or '\0' if no winner
-     */
-    private static char checkWinner(char[][] board) {
-        // Check rows
-        for (int row = 0; row < 3; row++) {
-            if (board[row][0] != '\0' &&
-                board[row][0] == board[row][1] &&
-                board[row][1] == board[row][2]) {
-                return board[row][0];
-            }
+            return bestScore + depth;
         }
-
-        // Check columns
-        for (int col = 0; col < 3; col++) {
-            if (board[0][col] != '\0' &&
-                board[0][col] == board[1][col] &&
-                board[1][col] == board[2][col]) {
-                return board[0][col];
-            }
-        }
-
-        // Check diagonals
-        if (board[0][0] != '\0' &&
-            board[0][0] == board[1][1] &&
-            board[1][1] == board[2][2]) {
-            return board[0][0];
-        }
-
-        if (board[0][2] != '\0' &&
-            board[0][2] == board[1][1] &&
-            board[1][1] == board[2][0]) {
-            return board[0][2];
-        }
-
-        return '\0';
-    }
-
-    /**
-     * Check if the board is completely filled.
-     */
-    private static boolean isBoardFull(char[][] board) {
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                if (board[row][col] == '\0') {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 }

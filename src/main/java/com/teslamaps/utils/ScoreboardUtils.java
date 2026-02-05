@@ -1,7 +1,9 @@
 package com.teslamaps.utils;
 
+import com.teslamaps.TeslaMaps;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.scoreboard.*;
+import net.minecraft.scoreboard.ScoreHolder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,19 +26,27 @@ public class ScoreboardUtils {
 
         if (objective == null) return lines;
 
-        Collection<ScoreboardEntry> entries = scoreboard.getScoreboardEntries(objective);
+        // Get all known score holders and filter to those with scores for sidebar objective
+        for (ScoreHolder scoreHolder : scoreboard.getKnownScoreHolders()) {
+            // Check if this score holder has scores for the sidebar objective
+            var scoresMap = scoreboard.getScoreHolderObjectives(scoreHolder);
+            if (!scoresMap.containsKey(objective)) continue;
 
-        for (ScoreboardEntry entry : entries) {
-            String name = entry.owner();
-            // Get display name if available through team
-            Team team = scoreboard.getScoreHolderTeam(name);
+            // Get team prefix/suffix for display text
+            Team team = scoreboard.getScoreHolderTeam(scoreHolder.getNameForScoreboard());
             if (team != null) {
                 String prefix = team.getPrefix().getString();
                 String suffix = team.getSuffix().getString();
-                name = prefix + name + suffix;
+                String line = prefix + suffix;
+                if (!line.trim().isEmpty()) {
+                    lines.add(line);
+                }
             }
-            lines.add(name);
         }
+
+        // Add objective title and reverse to get correct order
+        lines.add(objective.getDisplayName().getString());
+        java.util.Collections.reverse(lines);
 
         return lines;
     }

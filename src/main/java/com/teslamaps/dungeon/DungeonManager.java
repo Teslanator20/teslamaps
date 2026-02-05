@@ -51,7 +51,7 @@ public class DungeonManager {
 
         List<String> scoreboard = ScoreboardUtils.getScoreboardLines();
 
-        // Strictly check for "The Catacombs" in scoreboard lines
+        // Strictly check for "Catacombs" in scoreboard lines
         boolean hasCatacombs = false;
         boolean hasCleared = false;
         boolean hasStarting = false;
@@ -61,8 +61,9 @@ public class DungeonManager {
             String clean = ScoreboardUtils.cleanLine(line);
             String cleanLower = clean.toLowerCase();
 
-            // Check for "The Catacombs" - the definitive dungeon indicator
-            if (cleanLower.contains("the catacombs")) {
+            // Check for "Catacombs" - the definitive dungeon indicator
+            // Can appear as "The Catacombs (F2)" or just "Catacombs"
+            if (cleanLower.contains("catacombs")) {
                 hasCatacombs = true;
 
                 // Try to detect floor from this line
@@ -143,6 +144,7 @@ public class DungeonManager {
         MimicDetector.reset();
         PlayerHeadRenderer.clearCache();
         com.teslamaps.esp.StarredMobESP.reset();
+        com.teslamaps.features.SecretWaypoints.reset();
 
         TeslaMaps.LOGGER.info("Exited dungeon");
     }
@@ -164,6 +166,18 @@ public class DungeonManager {
 
     public static DungeonFloor getCurrentFloor() {
         return currentFloor;
+    }
+
+    public static String getFloorName() {
+        return currentFloor != null ? currentFloor.name() : "";
+    }
+
+    public static DungeonRoom getCurrentRoom() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.player == null || grid == null) return null;
+        int[] gridPos = ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ());
+        if (gridPos == null) return null;
+        return grid.getRoom(gridPos[0], gridPos[1]);
     }
 
     public static ComponentGrid getGrid() {

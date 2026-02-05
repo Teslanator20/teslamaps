@@ -89,10 +89,15 @@ public class TeslaMapsConfig {
     public List<String> customESPMobs = new ArrayList<>();  // Custom mob names to highlight
 
     // ===== SOUNDS =====
+    public boolean keyPickupSoundEnabled = true;  // Enable sound when key is picked up
     public float keyPickupVolume = 1.0f;         // Volume multiplier for key sounds (0.0 - 4.0)
     public String keyPickupSound = "WITHER_SPAWN";   // Sound to play: LEVEL_UP, BLAZE_DEATH, GHAST_SHOOT, WITHER_SPAWN, ENDER_DRAGON_GROWL, NOTE_PLING
+    public boolean keyOnGroundSoundEnabled = true; // Enable sound when key spawns on ground
     public float keyOnGroundVolume = 1.0f;       // Volume for key on ground notification
     public String keyOnGroundSound = "NOTE_CHIME"; // Sound for key on ground: NOTE_CHIME, NOTE_PLING, EXPERIENCE_ORB, ANVIL_LAND
+    public boolean secretSound = false;          // Play sound when a secret is found
+    public float secretSoundVolume = 1.75f;      // Volume for secret found sound (0.0 - 4.0)
+    public String secretSoundType = "NOTE_PLING";  // Sound type: LEVEL_UP, NOTE_PLING, EXPERIENCE_ORB, AMETHYST_CHIME
 
     // ===== RENDER OPTIONS =====
     public boolean noFire = true;            // Hide fire overlay on screen
@@ -108,6 +113,13 @@ public class TeslaMapsConfig {
     public boolean noLightning = true;       // Remove lightning bolts
     public boolean noBlockBreaking = true;   // Remove block breaking particles
     public boolean noFallingBlocks = true;   // Hide falling block entities
+    public boolean fullbright = true;        // Maximum brightness (see in the dark)
+
+    // ===== CHEST OPTIONS =====
+    public boolean autoCloseChests = false;       // Automatically close chests after opening
+    public int autoCloseDelay = 7;                // Delay in ticks before auto-closing (0-20)
+    public int autoCloseRandomization = 3;        // Random ticks added to delay (0-10)
+    public boolean closeChestOnInput = false;     // Close chest when any key is pressed
 
     // ===== SLAYER =====
     public boolean slayerHUD = false;          // Show slayer boss health/phase overlay
@@ -133,32 +145,77 @@ public class TeslaMapsConfig {
     public boolean autoGFSTNT = true;           // Refill superboom TNT
     public boolean autoGFSDraft = true;         // Auto get draft on puzzle fail
 
+    // ===== AUTO WISH =====
+    public boolean autoWish = true;             // Auto use healer wish at key boss moments
+
+    // ===== SECRET CLICKER =====
+    // DISABLED in code - these fields exist for compilation but feature is disabled
+    public boolean secretClicker = false;       // Auto-click secrets when looking at them [DISABLED]
+    public boolean secretClickerLevers = true;  // Click levers [DISABLED]
+    public boolean secretClickerButtons = true; // Click buttons [DISABLED]
+    public boolean secretClickerSkulls = true;  // Click skulls [DISABLED]
+    public boolean secretClickerChests = true;  // Click regular chests [DISABLED]
+    public boolean secretClickerTrappedChests = false; // Click trapped chests (mimic risk!) [DISABLED]
+    public int secretClickerDelay = 200;        // Delay between clicks in ms [DISABLED]
+    public int secretClickerRandomization = 50; // Random delay added (0 to this value) [DISABLED]
+
     // ===== PUZZLE SOLVERS =====
-    public boolean solveBlaze = false;             // Show which blaze to hit
-    public boolean blazeDoneMessage = false;       // Send "/pc Blaze Done!" when last blaze killed
-    public boolean solveThreeWeirdos = false;      // Highlight correct chest in Three Weirdos
-    public boolean solveTicTacToe = false;         // Show best move in Tic Tac Toe
-    public boolean solveCreeperBeams = false;      // Show solution for Creeper Beams
+    public boolean solveBlaze = true;              // Show which blaze to hit
+    public boolean blazeDoneMessage = true;        // Send "/pc Blaze Done!" when last blaze killed
+    public boolean solveThreeWeirdos = true;       // Highlight correct chest in Three Weirdos
+    public boolean solveTicTacToe = true;          // Show best move in Tic Tac Toe
+    public boolean solveCreeperBeams = true;       // Show solution for Creeper Beams
+    public boolean creeperBeamsTracers = true;     // Draw lines between lantern pairs
+    public boolean solveBoulder = true;            // Show solution for Boulder puzzle
+    public boolean showAllBoulderClicks = true;    // Show all clicks vs just next one
+    public boolean solveQuiz = true;               // Highlight correct answer in Quiz (Trivia)
+    public boolean quizBeacon = true;              // Draw beacon beam on correct answer
+    public boolean solveTPMaze = true;             // Highlight correct portals in Teleport Maze
+    public boolean solveWaterBoard = true;          // Show solution for Water Board puzzle
+    public boolean waterBoardOptimized = true;      // Use optimized (faster) solutions
+    public boolean waterBoardTracers = true;        // Draw tracers to next lever
+
+    // ===== F7/M7 SOLVERS =====
+    public boolean solveSimonSays = true;          // Show button sequence for Simon Says
+    public boolean solveArrowAlign = true;         // Show clicks needed for Arrow Align
+
+    // ===== BOSS TIMERS =====
+    public boolean terracottaTimer = true;         // Show spawn timers for F6/M6 terracotta
+    public boolean spiritBearTimer = true;         // Show spawn timer for F4/M4 spirit bear
+
+    // ===== PUZZLE COLORS =====
+    public String colorBoulder = "55FF55";           // Boulder click highlight (green)
+    public String colorQuiz = "55FF55";              // Quiz correct answer (green)
+    public String colorTPMazeOne = "55FF55";         // TP Maze single correct (green)
+    public String colorTPMazeMultiple = "FFFF55";    // TP Maze multiple correct (yellow)
+    public String colorTPMazeVisited = "FF5555";     // TP Maze visited (red)
+    public String colorSimonSaysFirst = "8055FF55";  // Simon Says first (green, semi-transparent)
+    public String colorSimonSaysSecond = "80FFAA00"; // Simon Says second (gold, semi-transparent)
+    public String colorSimonSaysThird = "80FF5555";  // Simon Says third+ (red, semi-transparent)
+    public String colorWaterFirst = "FF55FF55";       // Water Board first lever (green)
+    public String colorWaterSecond = "FFFFAA00";      // Water Board second lever (gold)
 
     // ===== EXPERIMENT SOLVERS (Superpairs Table) =====
-    public boolean solveChronomatron = false;      // Auto-solve Chronomatron (memory sequence)
-    public boolean solveSuperpairs = false;        // Auto-solve Superpairs (matching pairs)
-    public boolean solveUltrasequencer = false;    // Auto-solve Ultrasequencer (numbered sequence)
-    public int experimentClickDelay = 300;         // Delay in ms before first click in experiments
-    public int experimentClickInterval = 150;      // Delay in ms between clicks in experiments
+    // DISABLED in code - these fields exist for compilation but features are disabled in solver classes
+    public boolean solveChronomatron = false;      // Auto-solve Chronomatron (memory sequence) [DISABLED]
+    public boolean solveSuperpairs = false;        // Auto-solve Superpairs (matching pairs) [DISABLED]
+    public boolean solveUltrasequencer = false;    // Auto-solve Ultrasequencer (numbered sequence) [DISABLED]
+    public int experimentClickDelay = 300;         // Delay in ms before first click in experiments [DISABLED]
+    public int experimentClickInterval = 150;      // Delay in ms between clicks in experiments [DISABLED]
 
     // ===== TERMINALS =====
-    public boolean solveStartsWithTerminal = false; // Auto-click correct item in "What starts with" terminal
-    public boolean solveSelectAllTerminal = false;  // Auto-click all items in "Select all the [color]" terminal
-    public boolean solveClickInOrderTerminal = false; // Auto-click panes in order 1-14
-    public boolean solveCorrectPanesTerminal = false; // Auto-click incorrect panes to fix them
-    public boolean solveMelodyTerminal = false;    // Auto-click melody sequence (Click the button on time!)
-    public boolean solveRubixTerminal = false;     // Auto-solve rubix cube (Change all to same color!)
-    public int terminalClickDelay = 200;           // Delay in ms before first click (200-500 recommended)
-    public int terminalClickInterval = 171;        // Delay in ms between subsequent clicks (100-200 recommended)
-    public int terminalClickRandomization = 70;    // Random variance added to click delays (0-150ms, higher = more human-like)
-    public int terminalBreakThreshold = 500;       // Reset stuck state if no progress for this many ms (0 to disable)
-    public int melodyTerminalClickDelay = 25;      // Delay for melody terminal click (separate because timing is critical)
+    // DISABLED in code - these fields exist for compilation but features are disabled in solver classes
+    public boolean solveStartsWithTerminal = false; // Auto-click correct item in "What starts with" terminal [DISABLED]
+    public boolean solveSelectAllTerminal = false;  // Auto-click all items in "Select all the [color]" terminal [DISABLED]
+    public boolean solveClickInOrderTerminal = false; // Auto-click panes in order 1-14 [DISABLED]
+    public boolean solveCorrectPanesTerminal = false; // Auto-click incorrect panes to fix them [DISABLED]
+    public boolean solveMelodyTerminal = false;    // Auto-click melody sequence (Click the button on time!) [DISABLED]
+    public boolean solveRubixTerminal = false;     // Auto-solve rubix cube (Change all to same color!) [DISABLED]
+    public int terminalClickDelay = 200;           // Delay in ms before first click (200-500 recommended) [DISABLED]
+    public int terminalClickInterval = 171;        // Delay in ms between subsequent clicks (100-200 recommended) [DISABLED]
+    public int terminalClickRandomization = 70;    // Random variance added to click delays (0-150ms, higher = more human-like) [DISABLED]
+    public int terminalBreakThreshold = 500;       // Reset stuck state if no progress for this many ms (0 to disable) [DISABLED]
+    public int melodyTerminalClickDelay = 25;      // Delay for melody terminal click (separate because timing is critical) [DISABLED]
 
     // ===== CUSTOM TERMINAL GUI =====
     public boolean customTerminalGui = false;      // Enable custom terminal GUI overlay (replaces container screen)
@@ -178,6 +235,29 @@ public class TeslaMapsConfig {
     public String terminalGuiRubixColor2 = "008888";        // Rubix 2 clicks (darker cyan)
     public String terminalGuiMelodyColor = "AA00AA";        // Melody current note (purple)
 
+    // ===== SECRET WAYPOINTS =====
+    public boolean secretWaypoints = true;            // Master toggle for secret waypoints
+    public boolean secretWaypointChests = true;       // Show chest secrets
+    public boolean secretWaypointItems = true;        // Show item secrets
+    public boolean secretWaypointBats = true;         // Show bat secrets
+    public boolean secretWaypointEssence = true;      // Show essence secrets
+    public boolean secretWaypointRedstoneKey = true;  // Show redstone key secrets
+    public boolean secretWaypointTracers = false;     // Draw tracers to waypoints
+    public boolean secretWaypointHideCollected = true; // Hide waypoints when secret is collected
+
+    // Secret waypoint colors
+    public String colorSecretChest = "55FF55";        // Chest (green)
+    public String colorSecretItem = "55FFFF";         // Item (cyan)
+    public String colorSecretBat = "AAAAAA";          // Bat (gray)
+    public String colorSecretEssence = "AA00AA";      // Essence (purple)
+    public String colorSecretRedstone = "FF5555";     // Redstone (red)
+
+    // ===== LEAP OVERLAY =====
+    public boolean leapOverlay = false;               // Enhanced Spirit Leap menu
+    public boolean leapShowClass = true;              // Show player class icon
+    public boolean leapShowDistance = true;           // Show distance to player
+    public boolean leapSortByDistance = false;        // Sort players by distance
+
     // ===== DEBUG =====
     public boolean debugMode = false;
 
@@ -195,6 +275,7 @@ public class TeslaMapsConfig {
     public String colorBlood = "CC0000";             // Blood room
     public String colorTrap = "FF8800";              // Trap room
     public String colorPuzzle = "6600AA";            // Puzzle room
+    public String colorPuzzleUnexplored = "3D1866"; // Unexplored puzzle room (grayed purple)
     public String colorFairy = "FF66CC";             // Fairy room
     public String colorMiniboss = "FFDD00";          // Miniboss/Yellow room
 

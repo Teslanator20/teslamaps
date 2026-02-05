@@ -52,8 +52,15 @@ public class UltrasequencerSolver {
     private static boolean isClicked = false;
 
     public static void tick() {
+        // DISABLED - Auto experiment feature commented out
+        if (true) {
+            reset();
+            return;
+        }
+
         MinecraftClient mc = MinecraftClient.getInstance();
 
+        /* DISABLED
         if (!TeslaMapsConfig.get().solveUltrasequencer) {
             if (initialScanDone) {
                 TeslaMaps.LOGGER.info("[Ultrasequencer] Feature disabled, resetting");
@@ -61,6 +68,7 @@ public class UltrasequencerSolver {
             reset();
             return;
         }
+        */
 
         if (mc.player == null || mc.world == null) {
             reset();
