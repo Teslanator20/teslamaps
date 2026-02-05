@@ -2,7 +2,6 @@ package com.teslamaps.screen;
 
 /**
  * Dark theme color palette for the GUI.
- * Ported from TeslaAddons.
  */
 public class AppleColors {
     // Background colors (dark theme)

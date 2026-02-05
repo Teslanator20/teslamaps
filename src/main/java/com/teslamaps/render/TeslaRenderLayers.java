@@ -7,7 +7,7 @@ import java.util.OptionalDouble;
 
 /**
  * Custom render layers for ESP rendering through walls.
- * Based on Odin's CustomRenderLayer.
+ * Custom render layers for ESP rendering.
  */
 public class TeslaRenderLayers {
 

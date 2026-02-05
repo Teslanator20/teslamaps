@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 /**
  * Tracks all players in the dungeon for map display.
- * Based on Skyblocker's DungeonPlayerManager - uses vanilla tab list ordering.
+ * Uses vanilla tab list ordering.
  */
 public class PlayerTracker {
     /**
@@ -82,7 +82,7 @@ public class PlayerTracker {
     }
 
     /**
-     * Update players from tab list - matches Skyblocker's approach.
+     * Update players from tab list.
      */
     private static void updatePlayers() {
         for (int i = 0; i < 5; i++) {
@@ -195,7 +195,6 @@ public class PlayerTracker {
 
     /**
      * Inner class representing a dungeon player.
-     * Matches Skyblocker's DungeonPlayer structure.
      */
     public static class DungeonPlayer {
         private @Nullable UUID uuid;
@@ -209,7 +208,7 @@ public class PlayerTracker {
             this.name = name;
             update(dungeonClass);
 
-            // Pre-fetch game profile for smooth skin rendering (like Skyblocker)
+            // Pre-fetch game profile for smooth skin rendering
             if (uuid != null) {
                 CompletableFuture.runAsync(() -> {
                     try {
@@ -227,7 +226,7 @@ public class PlayerTracker {
             MinecraftClient mc = MinecraftClient.getInstance();
             if (mc.world == null) return null;
 
-            // Search through all entities for rendering (like Skyblocker)
+            // Search through all entities
             for (var entity : mc.world.getEntities()) {
                 if (entity instanceof PlayerEntity player) {
                     if (player.getGameProfile().name().equals(name)) {

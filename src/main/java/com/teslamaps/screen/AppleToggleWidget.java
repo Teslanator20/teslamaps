@@ -11,8 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * A clean toggle switch widget with smooth rendering.
- * Ported from TeslaAddons with label support.
+ * A clean toggle switch widget with smooth rendering and label support.
  */
 public class AppleToggleWidget extends ButtonWidget {
     private static final int TOGGLE_WIDTH = 40;

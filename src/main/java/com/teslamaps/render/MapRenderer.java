@@ -973,7 +973,7 @@ public class MapRenderer {
     }
 
     /**
-     * Get color for dungeon class (Skyblocker-style colors).
+     * Get color for dungeon class for each class.
      */
     private static int getDungeonClassColor(String dungeonClass) {
         if (dungeonClass == null) return 0xFF5555FF;

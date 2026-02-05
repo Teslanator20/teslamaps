@@ -3,7 +3,7 @@
     "id": "teslamaps",
     "version": "${version}",
     "name": "TeslaMaps",
-    "description": "Dungeon map overlay for Hypixel Skyblock - ported from IllegalMap",
+    "description": "Dungeon map overlay and utilities for Hypixel Skyblock",
     "authors": ["Tesla"],
     "contact": {},
     "license": "MIT",

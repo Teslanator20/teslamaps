@@ -110,6 +110,7 @@ public class TeslaMapsConfig {
     public boolean noVignette = true;        // Disable vignette (darkness around screen edges)
     public boolean noDeathAnimation = true;  // Hide death animation from entities dying
     public boolean hideInventoryEffects = true;  // Hide potion effects in inventory
+    public boolean noEffects = true;              // Hide status effect icons on HUD (top right)
     public boolean noLightning = true;       // Remove lightning bolts
     public boolean noBlockBreaking = true;   // Remove block breaking particles
     public boolean noFallingBlocks = true;   // Hide falling block entities
@@ -176,12 +177,12 @@ public class TeslaMapsConfig {
     public boolean waterBoardTracers = true;        // Draw tracers to next lever
 
     // ===== F7/M7 SOLVERS =====
-    public boolean solveSimonSays = true;          // Show button sequence for Simon Says
-    public boolean solveArrowAlign = true;         // Show clicks needed for Arrow Align
+    public boolean solveSimonSays = false;         // Show button sequence for Simon Says
+    public boolean solveArrowAlign = false;        // Show clicks needed for Arrow Align
 
     // ===== BOSS TIMERS =====
-    public boolean terracottaTimer = true;         // Show spawn timers for F6/M6 terracotta
-    public boolean spiritBearTimer = true;         // Show spawn timer for F4/M4 spirit bear
+    public boolean terracottaTimer = false;        // Show spawn timers for F6/M6 terracotta
+    public boolean spiritBearTimer = false;        // Show spawn timer for F4/M4 spirit bear
 
     // ===== PUZZLE COLORS =====
     public String colorBoulder = "55FF55";           // Boulder click highlight (green)

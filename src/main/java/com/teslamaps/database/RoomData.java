@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Room definition from rooms.json database.
- * Matches IllegalMap's format exactly.
+
  */
 public class RoomData {
     private String name;

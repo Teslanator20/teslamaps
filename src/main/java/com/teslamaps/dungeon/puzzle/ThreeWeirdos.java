@@ -20,11 +20,11 @@ import java.util.regex.Pattern;
 
 /**
  * Three Weirdos puzzle solver - highlights the correct chest.
- * Uses same pattern matching as Skyblocker - highlights the NPC who says specific phrases.
+ * Three Weirdos puzzle solver - highlights the correct NPC.
  */
 public class ThreeWeirdos {
 
-    // Skyblocker's exact pattern - matches the NPC who has the correct chest
+    // Pattern that matches the NPC with the correct chest
     private static final Pattern PATTERN = Pattern.compile(
         "^\\[NPC] ([A-Z][a-z]+): (?:" +
         "The reward is(?: not in my chest!|n't in any of our chests\\.)|" +
@@ -87,7 +87,7 @@ public class ThreeWeirdos {
 
     /**
      * Handle chat messages to find the correct NPC.
-     * Uses Skyblocker's pattern matching approach.
+     * Matches specific NPC dialogue patterns.
      */
     public static void onChatMessage(String message) {
         if (!DungeonManager.isInDungeon() || !TeslaMapsConfig.get().solveThreeWeirdos || disabled) {
@@ -100,7 +100,7 @@ public class ThreeWeirdos {
         String stripped = Formatting.strip(message);
         if (stripped == null) return;
 
-        // Use regex pattern to match - same as Skyblocker
+        // Use regex pattern to match dialogue
         Matcher matcher = PATTERN.matcher(stripped);
         if (!matcher.matches()) {
             return;
@@ -112,7 +112,7 @@ public class ThreeWeirdos {
 
         TeslaMaps.LOGGER.info("[ThreeWeirdos] NPC='{}', message='{}'", npcName, stripped);
 
-        // Use Skyblocker's approach: match specific patterns and highlight that NPC's chest
+        // Match dialogue patterns and highlight the correct chest
         // The pattern matching already validated this is a correct phrase
         // The NPC who says these specific phrases has the correct chest
         targetNpcName = npcName;
@@ -122,13 +122,13 @@ public class ThreeWeirdos {
 
     /**
      * Find NPC by name and locate the chest next to them.
-     * Uses OdinFabric's approach - find the armor stand entity, then find closest chest.
+     * Find the armor stand entity, then find closest chest.
      */
     private static void findNpcAndChest(String npcName) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.world == null || mc.player == null) return;
 
-        // Search for the NPC entity by name (like OdinFabric does)
+        // Search for the NPC entity by name 
         ArmorStandEntity targetNpc = null;
         for (var entity : mc.world.getEntities()) {
             if (entity instanceof ArmorStandEntity armorStand) {

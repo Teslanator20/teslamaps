@@ -23,13 +23,13 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 /**
- * Water Board Solver - Copied from Devonian's approach.
+ * Water Board Solver - Shows lever timing for one-flow solutions.
  */
 public class WaterBoardSolver {
 
     private static JsonObject SOLUTIONS;
 
-    // From Devonian: block positions to check for variant detection
+    // Block positions to check for variant detection
     private static final int[] TOP_LEFT_BLOCK = {16, 26};
     private static final int[] TOP_RIGHT_BLOCK = {14, 26};
     // Wool positions for door detection (purple wool at Y=57)
@@ -42,7 +42,7 @@ public class WaterBoardSolver {
         Blocks.RED_WOOL      // door 4
     };
 
-    // Lever positions from Devonian
+    // Lever positions
     public enum LeverType {
         QUARTZ("quartz", Blocks.QUARTZ_BLOCK, 20, 61, 20),
         GOLD("gold", Blocks.GOLD_BLOCK, 20, 61, 15),
@@ -151,7 +151,7 @@ public class WaterBoardSolver {
     }
 
     /**
-     * Devonian's rotatePos: rotates coordinates by degree
+     * Rotate coordinates: rotates coordinates by degree
      */
     private static int[] rotatePos(int x, int z, int degree) {
         return switch (degree % 360) {
@@ -164,7 +164,7 @@ public class WaterBoardSolver {
     }
 
     /**
-     * Devonian's fromComp: converts relative component coords to world coords
+     * Convert to world coords: converts relative component coords to world coords
      */
     private static int[] fromComp(int x, int z) {
         if (rotation < 0) return null;
@@ -204,7 +204,7 @@ public class WaterBoardSolver {
         TeslaMaps.LOGGER.info("[WaterBoardSolver] Top blocks at Y={}: left={} at ({},{}), right={} at ({},{})",
             currentY, leftBlock, topLeft[0], topLeft[1], rightBlock, topRight[0], topRight[1]);
 
-        // If blocks are air or stone, try offset position (like Devonian does)
+        // If blocks are air or stone, try offset position 
         if (leftBlock == Blocks.AIR || leftBlock == Blocks.STONE) {
             int[] newPos = fromComp(TOP_LEFT_BLOCK[0], TOP_LEFT_BLOCK[1] + 1);
             if (newPos != null) {
@@ -218,7 +218,7 @@ public class WaterBoardSolver {
             }
         }
 
-        // Determine variant (0-3, matching Devonian's numbering)
+        // Determine variant (0-3)
         if (leftBlock == Blocks.GOLD_BLOCK && rightBlock == Blocks.TERRACOTTA) {
             variant = 0;
         } else if (leftBlock == Blocks.EMERALD_BLOCK && rightBlock == Blocks.QUARTZ_BLOCK) {
@@ -234,7 +234,7 @@ public class WaterBoardSolver {
 
     private static void detectSubvariant(MinecraftClient mc) {
         // Check wool blocks to determine which doors are closed
-        // Keep retrying until we find 3 doors (like Devonian does)
+        // Keep retrying until we find 3 doors 
         StringBuilder sb = new StringBuilder();
 
         for (int idx = 0; idx < WOOL_ORDER.length; idx++) {
@@ -263,7 +263,7 @@ public class WaterBoardSolver {
     private static void loadSolution() {
         if (SOLUTIONS == null || variant < 0 || subvariant == null) return;
 
-        // Devonian uses variant 0-3, our watertimes.json uses 1-4
+        // Variant 0-3 maps to watertimes.json uses 1-4
         String variantKey = String.valueOf(variant + 1);
 
         TeslaMaps.LOGGER.info("[WaterBoardSolver] Looking up solution for variant={} doors={}", variantKey, subvariant);

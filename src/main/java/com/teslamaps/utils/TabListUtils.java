@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 /**
  * Utilities for parsing the tab list (player list) in dungeons.
- * Based on Skyblocker's implementation.
+ * Utilities for parsing tab list entries.
  */
 public class TabListUtils {
     // Secrets Found: 40.5% (percentage, not count!)

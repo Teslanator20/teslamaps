@@ -118,7 +118,7 @@ public class DoorScanner {
 
     /**
      * Detect the type of door at a position.
-     * Based on IllegalMap's detection: check block at y=69 for special doors,
+     * Check block at y=69 for special doors,
      * and roof height < 85 for normal passable doors.
      *
      * Improved: check multiple blocks around the door position to confirm.

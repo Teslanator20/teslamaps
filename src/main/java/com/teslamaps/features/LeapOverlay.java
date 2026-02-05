@@ -18,12 +18,12 @@ import java.util.*;
 
 /**
  * Enhanced Spirit Leap overlay - renders a custom 2x2 grid with player info.
- * Inspired by OdinFabric's leap menu.
+ * Spirit Leap menu overlay with class icons and sorting.
  */
 public class LeapOverlay {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
 
-    // Class color mappings (matching Odin colors)
+    // Class color mappings 
     private static final Map<String, Integer> CLASS_COLORS = new HashMap<>();
     private static final Map<String, String> CLASS_LETTERS = new HashMap<>();
     private static final Map<String, Integer> CLASS_DEFAULT_QUADRANT = new HashMap<>();
@@ -278,7 +278,7 @@ public class LeapOverlay {
     }
 
     /**
-     * Scan the leap menu for players and sort using Odin's algorithm.
+     * Scan the leap menu for players and sort by class.
      */
     private static void scanLeapPlayers(GenericContainerScreen screen) {
         // Clear array
@@ -307,15 +307,15 @@ public class LeapOverlay {
             allPlayers.add(new LeapPlayer(itemName, dungeonClass, isDead, slot.id));
         }
 
-        // Apply Odin sorting algorithm
-        odinSort(allPlayers);
+        // Apply sorting algorithm
+        sortPlayersByClass(allPlayers);
     }
 
     /**
-     * Odin's sorting algorithm - place players in their default quadrant by class,
-     * with overflow going to empty slots.
+     * Sort players into quadrants by class.
+     * Places players in their default quadrant, with overflow going to empty slots.
      */
-    private static void odinSort(List<LeapPlayer> players) {
+    private static void sortPlayersByClass(List<LeapPlayer> players) {
         // Sort by priority (lower = processed first)
         players.sort((a, b) -> {
             int prioA = CLASS_PRIORITY.getOrDefault(a.dungeonClass, 99);

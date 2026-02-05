@@ -349,7 +349,7 @@ public class RoomScanner {
     }
 
     /**
-     * Get the highest non-air, non-gold block at a position (matches IllegalMap's getHighestBlock)
+     * Get the highest non-air, non-gold block at a position 
      */
     private static int getHighestBlock(net.minecraft.world.World world, int x, int z) {
         for (int y = 255; y > 0; y--) {
@@ -388,7 +388,7 @@ public class RoomScanner {
 
     /**
      * Detect room rotation by finding the blue terracotta corner block.
-     * Devonian uses this approach - the terracotta is at specific corner positions.
+     * The terracotta is at specific corner positions.
      *
      * @param room The room to detect rotation for
      * @return The rotation in degrees (0, 90, 180, 270) or -1 if not detected
@@ -420,7 +420,7 @@ public class RoomScanner {
             int roofHeight = getHighestBlock(mc.world, centerX, centerZ);
             if (roofHeight == 0) continue;
 
-            // Corner offsets relative to room center (matching Devonian's roomOffset)
+            // Corner offsets relative to room center 
             int[][] cornerOffsets = {
                 {-halfRoomSize, -halfRoomSize},  // rotation 0
                 {halfRoomSize, -halfRoomSize},   // rotation 90
@@ -443,12 +443,12 @@ public class RoomScanner {
 
                     if (block == Blocks.BLUE_TERRACOTTA) {
                         // Corner index: 0=NW, 1=NE, 2=SE, 3=SW relative to component center
-                        // rotation = index * 90, matching Devonian's approach
+                        // rotation = index * 90
                         int rotation = i * 90;
                         TeslaMaps.LOGGER.debug("Detected rotation {} for room '{}' (blue terracotta at corner {}, pos [{},{},{}])",
                                 rotation, room.getName(), i, checkX, checkY, checkZ);
 
-                        // Store the blue terracotta position as corner (this is Devonian's approach)
+                        // Store the blue terracotta position as corner 
                         room.setCorner(checkX, checkZ);
 
                         // Debug: also log what corner position would be for bounding box
