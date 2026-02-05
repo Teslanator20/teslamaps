@@ -1,6 +1,7 @@
 package com.teslamaps.mixin;
 
 import com.teslamaps.dungeon.termgui.TerminalGuiManager;
+import com.teslamaps.features.LeapOverlay;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,7 +26,14 @@ public class HandledScreenClickMixin {
         double mouseY = click.y();
         int button = click.button();
 
+        // Check terminal GUI first
         if (TerminalGuiManager.handleMouseClick(mouseX, mouseY, button)) {
+            cir.setReturnValue(true);
+            return;
+        }
+
+        // Check leap overlay
+        if (LeapOverlay.handleClick(mouseX, mouseY, button)) {
             cir.setReturnValue(true);
         }
     }

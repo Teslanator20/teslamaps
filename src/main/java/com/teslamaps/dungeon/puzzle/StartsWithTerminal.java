@@ -34,18 +34,26 @@ public class StartsWithTerminal {
     private static int lastDebugTick = 0;
 
     public static void tick() {
+        // DISABLED - Auto terminal feature commented out
+        // To re-enable: uncomment solveStartsWithTerminal in TeslaMapsConfig and replace 'true' with config check
+        if (true) {
+            reset();
+            return;
+        }
+
         // Note: We don't check DungeonManager.isInDungeon() because practice mode (/term) doesn't register as dungeon
         // If a terminal GUI is open, we're either in a dungeon or practice mode - both are valid
 
         MinecraftClient mc = MinecraftClient.getInstance();
 
+        /* DISABLED
         if (!TeslaMapsConfig.get().solveStartsWithTerminal) {
             if (targetLetter != null) {
-                TeslaMaps.LOGGER.info("[StartsWithTerminal] DEBUG: Feature disabled, resetting");
             }
             reset();
             return;
         }
+        */
 
         if (mc.player == null || mc.world == null) {
             reset();
@@ -55,7 +63,6 @@ public class StartsWithTerminal {
         // Check if we're looking at a container screen
         if (!(mc.currentScreen instanceof GenericContainerScreen)) {
             if (targetLetter != null) {
-                TeslaMaps.LOGGER.info("[StartsWithTerminal] DEBUG: Screen closed or not container, resetting");
             }
             reset();
             return;
@@ -70,7 +77,6 @@ public class StartsWithTerminal {
         // Debug: Log container title once per second
         int currentTick = mc.player.age;
         if (currentTick - lastDebugTick > 20) {
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] DEBUG: Container title: '{}'", titleStr);
             lastDebugTick = currentTick;
         }
 
@@ -79,7 +85,6 @@ public class StartsWithTerminal {
         if (!matcher.find()) {
             // Not our terminal
             if (targetLetter != null) {
-                TeslaMaps.LOGGER.info("[StartsWithTerminal] DEBUG: Title doesn't match pattern, resetting");
             }
             return;
         }
@@ -162,7 +167,6 @@ public class StartsWithTerminal {
     private static void findAllCorrectSlots(GenericContainerScreen screen) {
         GenericContainerScreenHandler handler = screen.getScreenHandler();
 
-        TeslaMaps.LOGGER.info("[StartsWithTerminal] DEBUG: Scanning {} slots in container", handler.slots.size());
 
         // Scan all slots in the container
         int scannedItems = 0;
@@ -194,8 +198,6 @@ public class StartsWithTerminal {
                 }
 
                 char firstChar = strippedName.charAt(0);
-                TeslaMaps.LOGGER.info("[StartsWithTerminal] DEBUG: Slot {} - '{}' starts with '{}'",
-                    slot.id, strippedName, firstChar);
 
                 // Check if name starts with target letter (case insensitive)
                 if (Character.toUpperCase(firstChar) == targetLetter) {
@@ -347,7 +349,6 @@ public class StartsWithTerminal {
 
     public static void reset() {
         if (targetLetter != null) {
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] DEBUG: Resetting (was tracking letter '{}')", targetLetter);
         }
         targetLetter = null;
         correctSlots.clear();

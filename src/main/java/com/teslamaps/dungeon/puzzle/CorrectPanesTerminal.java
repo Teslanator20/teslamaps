@@ -30,15 +30,22 @@ public class CorrectPanesTerminal {
     private static int lastDebugTick = 0;
 
     public static void tick() {
+        // DISABLED - Auto terminal feature commented out
+        if (true) {
+            reset();
+            return;
+        }
+
         MinecraftClient mc = MinecraftClient.getInstance();
 
+        /* DISABLED
         if (!TeslaMapsConfig.get().solveCorrectPanesTerminal) {
             if (!incorrectSlots.isEmpty()) {
-                TeslaMaps.LOGGER.info("[CorrectPanesTerminal] DEBUG: Feature disabled, resetting");
             }
             reset();
             return;
         }
+        */
 
         if (mc.player == null || mc.world == null) {
             reset();
@@ -48,7 +55,6 @@ public class CorrectPanesTerminal {
         // Check if we're looking at a container screen
         if (!(mc.currentScreen instanceof GenericContainerScreen)) {
             if (!incorrectSlots.isEmpty()) {
-                TeslaMaps.LOGGER.info("[CorrectPanesTerminal] DEBUG: Screen closed, resetting");
             }
             reset();
             return;
@@ -63,7 +69,6 @@ public class CorrectPanesTerminal {
         // Debug: Log container title once per second
         int currentTick = mc.player.age;
         if (currentTick - lastDebugTick > 20) {
-            TeslaMaps.LOGGER.info("[CorrectPanesTerminal] DEBUG: Container title: '{}'", titleStr);
             lastDebugTick = currentTick;
         }
 
@@ -71,7 +76,6 @@ public class CorrectPanesTerminal {
         if (!titleStr.equals("Correct all the panes!")) {
             // Not our terminal
             if (!incorrectSlots.isEmpty()) {
-                TeslaMaps.LOGGER.info("[CorrectPanesTerminal] DEBUG: Title doesn't match, resetting");
             }
             return;
         }
@@ -293,7 +297,6 @@ public class CorrectPanesTerminal {
 
     public static void reset() {
         if (!incorrectSlots.isEmpty()) {
-            TeslaMaps.LOGGER.info("[CorrectPanesTerminal] DEBUG: Resetting");
         }
         incorrectSlots.clear();
         clickedSlots.clear();

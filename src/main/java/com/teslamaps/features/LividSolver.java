@@ -179,8 +179,6 @@ public class LividSolver {
         findCorrectLivid(mc);
     }
 
-    private static int debugCounter = 0;
-
     /**
      * Find the correct Livid by checking wool block color.
      */
@@ -188,21 +186,8 @@ public class LividSolver {
         // Check wool block at indicator position
         Block woolBlock = mc.world.getBlockState(WOOL_LOCATION).getBlock();
 
-        // Debug logging every 100 ticks
-        debugCounter++;
-        if (debugCounter % 100 == 0) {
-            TeslaMaps.LOGGER.info("[LividSolver] Debug: Floor5={}, woolBlock={} at {}, currentLivid={}, correctEntity={}",
-                    isFloor5(), woolBlock.getName().getString(), WOOL_LOCATION,
-                    currentLivid != null ? currentLivid.entityName : "null",
-                    correctLividEntity != null ? correctLividEntity.getName().getString() : "null");
-        }
-
         Livid detectedLivid = Livid.fromWool(woolBlock);
         if (detectedLivid == null) {
-            // Not a colored wool block yet - debug log what we found
-            if (debugCounter % 100 == 0) {
-                TeslaMaps.LOGGER.info("[LividSolver] No livid type detected from wool: {}", woolBlock.getName().getString());
-            }
             return;
         }
 

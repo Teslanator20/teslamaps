@@ -83,7 +83,7 @@ public class MapScanner {
         MapState mapState = findDungeonMapState(mc);
         if (mapState == null) {
             if (debugLogCounter++ % 100 == 0) {
-                TeslaMaps.LOGGER.info("[MapScanner] No map found in hotbar");
+                TeslaMaps.LOGGER.debug("[MapScanner] No map found in hotbar");
             }
             return;
         }
@@ -109,8 +109,8 @@ public class MapScanner {
             return;
         }
 
-        // Log once per scan cycle for debugging
-        boolean shouldLog = (debugLogCounter++ % 50 == 0);
+        // Log once per scan cycle for debugging (reduced frequency)
+        boolean shouldLog = (debugLogCounter++ % 500 == 0);
 
         // Scan each room position on the map (using Skyblocker's algorithm)
         for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
@@ -191,20 +191,20 @@ public class MapScanner {
                 if (whiteCount >= 3) {
                     bestState = CheckmarkState.WHITE;
                     if (shouldLog) {
-                        TeslaMaps.LOGGER.info("[MapScanner] Room '{}' has {} white checkmark pixels -> WHITE",
+                        TeslaMaps.LOGGER.debug("[MapScanner] Room '{}' has {} white checkmark pixels -> WHITE",
                                 room.getName(), whiteCount);
                     }
                 } else if (failedCount >= 3) {
                     bestState = CheckmarkState.FAILED;
                     if (shouldLog) {
-                        TeslaMaps.LOGGER.info("[MapScanner] Room '{}' has {} failed checkmark pixels -> FAILED",
+                        TeslaMaps.LOGGER.debug("[MapScanner] Room '{}' has {} failed checkmark pixels -> FAILED",
                                 room.getName(), failedCount);
                     }
                 } else if (greenCount >= (isAdjacentToEntrance(room) ? 29 : 25)) {
                     // Green needs slightly higher threshold if adjacent to Entrance (to avoid bleed)
                     bestState = CheckmarkState.GREEN;
                     if (shouldLog) {
-                        TeslaMaps.LOGGER.info("[MapScanner] Room '{}' has {} green checkmark pixels -> GREEN",
+                        TeslaMaps.LOGGER.debug("[MapScanner] Room '{}' has {} green checkmark pixels -> GREEN",
                                 room.getName(), greenCount);
                     }
                 } else if (shouldLog) {
@@ -213,7 +213,7 @@ public class MapScanner {
                     int topX = mapCornerX + (mapRoomSize + mapGapSize) * comp[0];
                     int topY = mapCornerY + (mapRoomSize + mapGapSize) * comp[1];
                     String status = room.isExplored() ? "explored" : "unexplored(" + exploredPixelCount + "px)";
-                    TeslaMaps.LOGGER.info("[MapScanner] Room '{}' [{}] {} g={} w={} f={} | all: {}",
+                    TeslaMaps.LOGGER.debug("[MapScanner] Room '{}' [{}] {} g={} w={} f={} | all: {}",
                             room.getName(), comp[0] + "," + comp[1], status,
                             greenCount, whiteCount, failedCount, allColorCounts);
                 }
@@ -250,7 +250,7 @@ public class MapScanner {
                 }
                 // Reset counting scans since exploration (room just became explored)
                 roomExplorationScanCount.put(roomKey, 0);
-                TeslaMaps.LOGGER.info("[MapScanner] Room '{}' [{}] marked as explored by map (pixels={})",
+                TeslaMaps.LOGGER.debug("[MapScanner] Room '{}' [{}] marked as explored by map (pixels={})",
                         room.getName(), room.getPrimaryComponent()[0] + "," + room.getPrimaryComponent()[1], exploredPixelCount);
             }
 
@@ -274,7 +274,7 @@ public class MapScanner {
                 if (wasAlreadyExplored && scansSinceExplored >= 2) {
                     CheckmarkState oldState = room.getCheckmarkState();
                     room.setCheckmarkState(bestState);
-                    TeslaMaps.LOGGER.info("[MapScanner] Room '{}' [{}] checkmark updated: {} -> {} (after {} scans)",
+                    TeslaMaps.LOGGER.debug("[MapScanner] Room '{}' [{}] checkmark updated: {} -> {} (after {} scans)",
                             room.getName(), room.getPrimaryComponent()[0] + "," + room.getPrimaryComponent()[1],
                             oldState, bestState, scansSinceExplored);
 
@@ -283,7 +283,7 @@ public class MapScanner {
                         SecretTracker.onRoomCompleted(room);
                     }
                 } else if (shouldLog && bestState != CheckmarkState.UNEXPLORED) {
-                    TeslaMaps.LOGGER.info("[MapScanner] Room '{}' detected state {} but waiting (explored={}, scans={}/2)",
+                    TeslaMaps.LOGGER.debug("[MapScanner] Room '{}' detected state {} but waiting (explored={}, scans={}/2)",
                             room.getName(), bestState, wasAlreadyExplored, scansSinceExplored);
                 }
             }
@@ -375,7 +375,7 @@ public class MapScanner {
             Iterable<MapDecoration> decorations = mapState.getDecorations();
             if (decorations == null) {
                 if (debugLogCounter % 100 == 0) {
-                    TeslaMaps.LOGGER.info("[MapScanner] No decorations on map");
+                    TeslaMaps.LOGGER.debug("[MapScanner] No decorations on map");
                 }
                 return;
             }
@@ -388,7 +388,7 @@ public class MapScanner {
 
                 // Log all decorations for debugging
                 if (debugLogCounter % 100 == 0) {
-                    TeslaMaps.LOGGER.info("[MapScanner] Decoration: type={} x={} z={} rot={}",
+                    TeslaMaps.LOGGER.debug("[MapScanner] Decoration: type={} x={} z={} rot={}",
                             typeId, decoration.x(), decoration.z(), decoration.rotation());
                 }
 
@@ -408,13 +408,13 @@ public class MapScanner {
                     mapPlayerPositions.add(new int[]{mapX, mapZ, (int)decoration.rotation(), isLocal});
 
                     if (debugLogCounter % 100 == 0) {
-                        TeslaMaps.LOGGER.info("[MapScanner] Player at map[{},{}] type={} isLocal={}", mapX, mapZ, typeId, isLocal);
+                        TeslaMaps.LOGGER.debug("[MapScanner] Player at map[{},{}] type={} isLocal={}", mapX, mapZ, typeId, isLocal);
                     }
                 }
             }
 
             if (debugLogCounter % 100 == 0) {
-                TeslaMaps.LOGGER.info("[MapScanner] Total decorations: {}, player positions: {}",
+                TeslaMaps.LOGGER.debug("[MapScanner] Total decorations: {}, player positions: {}",
                         decorationCount, mapPlayerPositions.size());
             }
         } catch (Exception e) {
@@ -456,7 +456,7 @@ public class MapScanner {
                 }
             }
             if (!doorColorCounts.isEmpty()) {
-                TeslaMaps.LOGGER.info("[MapScanner] Door color scan - potential door colors on map: {}", doorColorCounts);
+                TeslaMaps.LOGGER.debug("[MapScanner] Door color scan - potential door colors on map: {}", doorColorCounts);
             }
         }
 
@@ -470,7 +470,7 @@ public class MapScanner {
 
                 int color = colors[idx] & 0xFF;
                 if (shouldDebug && color != 0) {
-                    TeslaMaps.LOGGER.info("[MapScanner] Vertical gap at ({},{}) color={}", mapX, mapY, color);
+                    TeslaMaps.LOGGER.debug("[MapScanner] Vertical gap at ({},{}) color={}", mapX, mapY, color);
                 }
                 if (color == COLOR_WITHER_DOOR || color == COLOR_BLOOD_DOOR) {
                     // Convert map position to world position
@@ -486,7 +486,7 @@ public class MapScanner {
                         } else {
                             bloodDoorBoxes.add(box);
                         }
-                        TeslaMaps.LOGGER.info("[MapScanner] Found {} door at map({},{}) -> world({},{})",
+                        TeslaMaps.LOGGER.debug("[MapScanner] Found {} door at map({},{}) -> world({},{})",
                             color == COLOR_WITHER_DOOR ? "WITHER" : "BLOOD",
                             mapX, mapY, worldPos[0], worldPos[1]);
                     }
@@ -503,7 +503,7 @@ public class MapScanner {
 
                 int color = colors[idx] & 0xFF;
                 if (shouldDebug && color != 0) {
-                    TeslaMaps.LOGGER.info("[MapScanner] Horizontal gap at ({},{}) color={}", mapX, mapY, color);
+                    TeslaMaps.LOGGER.debug("[MapScanner] Horizontal gap at ({},{}) color={}", mapX, mapY, color);
                 }
                 if (color == COLOR_WITHER_DOOR || color == COLOR_BLOOD_DOOR) {
                     // Convert map position to world position
@@ -519,7 +519,7 @@ public class MapScanner {
                         } else {
                             bloodDoorBoxes.add(box);
                         }
-                        TeslaMaps.LOGGER.info("[MapScanner] Found {} door at map({},{}) -> world({},{})",
+                        TeslaMaps.LOGGER.debug("[MapScanner] Found {} door at map({},{}) -> world({},{})",
                             color == COLOR_WITHER_DOOR ? "WITHER" : "BLOOD",
                             mapX, mapY, worldPos[0], worldPos[1]);
                     }
@@ -699,13 +699,13 @@ public class MapScanner {
                 int cellSize = mapRoomSize + mapGapSize;
                 mapCornerX = entranceX - entranceGrid[0] * cellSize;
                 mapCornerY = entranceY - entranceGrid[1] * cellSize;
-                TeslaMaps.LOGGER.info("[MapScanner] Detected map params: corner=({},{}), roomSize={}, entranceAt=({},{}), grid=[{},{}]",
+                TeslaMaps.LOGGER.debug("[MapScanner] Detected map params: corner=({},{}), roomSize={}, entranceAt=({},{}), grid=[{},{}]",
                         mapCornerX, mapCornerY, mapRoomSize, entranceX, entranceY, entranceGrid[0], entranceGrid[1]);
             } else {
                 // No entrance room detected in grid yet, use the found position as corner
                 mapCornerX = entranceX;
                 mapCornerY = entranceY;
-                TeslaMaps.LOGGER.info("[MapScanner] Detected entrance at ({},{}) roomSize={}, waiting for grid",
+                TeslaMaps.LOGGER.debug("[MapScanner] Detected entrance at ({},{}) roomSize={}, waiting for grid",
                         entranceX, entranceY, mapRoomSize);
                 return; // Don't mark as detected yet
             }

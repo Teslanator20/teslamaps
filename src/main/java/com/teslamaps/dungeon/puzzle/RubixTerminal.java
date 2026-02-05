@@ -43,18 +43,24 @@ public class RubixTerminal {
     private static long lastScanTime = 0;
     private static boolean initialScanDone = false;
     private static boolean isClicked = false;
-    private static int lastDebugTick = 0;
 
     public static void tick() {
+        // DISABLED - Auto terminal feature commented out
+        if (true) {
+            reset();
+            return;
+        }
+
         MinecraftClient mc = MinecraftClient.getInstance();
 
+        /* DISABLED
         if (!TeslaMapsConfig.get().solveRubixTerminal) {
             if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[RubixTerminal] DEBUG: Feature disabled, resetting");
             }
             reset();
             return;
         }
+        */
 
         if (mc.player == null || mc.world == null) {
             reset();
@@ -64,7 +70,6 @@ public class RubixTerminal {
         // Check if we're looking at a container screen
         if (!(mc.currentScreen instanceof GenericContainerScreen)) {
             if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[RubixTerminal] DEBUG: Screen closed, resetting");
             }
             reset();
             return;
@@ -79,24 +84,11 @@ public class RubixTerminal {
         if (cleanTitle == null) cleanTitle = titleStr;
 
         // Debug: Log container title once per second
-        int currentTick = mc.player.age;
-        if (currentTick - lastDebugTick > 20) {
-            TeslaMaps.LOGGER.info("[RubixTerminal] DEBUG: Container title: '{}'", cleanTitle);
-            lastDebugTick = currentTick;
-        }
-
         // Check if this is the rubix terminal
-        TeslaMaps.LOGGER.info("[RubixTerminal] DEBUG: Checking title match. cleanTitle='{}', equals={}",
-            cleanTitle, cleanTitle.equals("Change all to same color!"));
-
         if (!cleanTitle.equals("Change all to same color!")) {
-            if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[RubixTerminal] DEBUG: Title doesn't match, resetting");
-            }
             return;
         }
 
-        TeslaMaps.LOGGER.info("[RubixTerminal] DEBUG: Title matched! initialScanDone={}", initialScanDone);
 
         // Initialize on first detection
         if (!initialScanDone) {
@@ -481,6 +473,5 @@ public class RubixTerminal {
         terminalOpenTime = 0;
         lastClickTime = 0;
         lastScanTime = 0;
-        lastDebugTick = 0;
     }
 }

@@ -296,4 +296,71 @@ public class ESPRenderer {
         VertexConsumerProvider.Immediate bufferSource = mc.getBufferBuilders().getEntityVertexConsumers();
         drawESPBox(matrices, box, color, cameraPos, bufferSource);
     }
+
+    /**
+     * Draw text in the world at a specific position.
+     */
+    public static void drawText(MatrixStack matrices, String text, Vec3d pos, float scale, Vec3d cameraPos) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.textRenderer == null || mc.gameRenderer == null || mc.gameRenderer.getCamera() == null) return;
+
+        VertexConsumerProvider.Immediate immediate = mc.getBufferBuilders().getEntityVertexConsumers();
+
+        matrices.push();
+
+        // Translate to world position relative to camera
+        matrices.translate(
+            pos.x - cameraPos.x,
+            pos.y - cameraPos.y,
+            pos.z - cameraPos.z
+        );
+
+        // Rotate to face camera (billboard)
+        matrices.multiply(mc.gameRenderer.getCamera().getRotation());
+
+        // Scale (negative to flip text right-side up when facing camera)
+        float scaleFactor = scale * 0.025f;
+        matrices.scale(-scaleFactor, -scaleFactor, scaleFactor);
+
+        float textWidth = mc.textRenderer.getWidth(text);
+
+        // Draw text using the standard draw method with SEE_THROUGH layer
+        mc.textRenderer.draw(
+            text,
+            -textWidth / 2f,
+            0f,
+            0xFFFFFFFF, // white color
+            true, // shadow
+            matrices.peek().getPositionMatrix(),
+            immediate,
+            net.minecraft.client.font.TextRenderer.TextLayerType.SEE_THROUGH,
+            0, // no background
+            15728880 // full brightness
+        );
+
+        // Flush to render the text
+        immediate.draw();
+
+        matrices.pop();
+    }
+
+    /**
+     * Draw a beacon beam at a specific position.
+     */
+    public static void drawBeaconBeam(MatrixStack matrices, net.minecraft.util.math.BlockPos pos, int color, Vec3d cameraPos) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.world == null) return;
+
+        float r = ((color >> 16) & 0xFF) / 255f;
+        float g = ((color >> 8) & 0xFF) / 255f;
+        float b = (color & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f;
+        if (a == 0) a = 0.5f;
+
+        // Draw a simple vertical line as beacon beam
+        Vec3d bottom = new Vec3d(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        Vec3d top = new Vec3d(pos.getX() + 0.5, pos.getY() + 256, pos.getZ() + 0.5);
+
+        drawLine(matrices, bottom, top, color, 2.0f, cameraPos);
+    }
 }

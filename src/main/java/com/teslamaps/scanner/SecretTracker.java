@@ -75,7 +75,7 @@ public class SecretTracker {
 
         // Debug: log action bar messages occasionally
         if (tickCounter % 100 == 0) {
-            TeslaMaps.LOGGER.info("[SecretTracker] Action bar: {} -> {}", text, cleanText);
+            TeslaMaps.LOGGER.debug("[SecretTracker] Action bar: {} -> {}", text, cleanText);
         }
 
         Matcher matcher = ACTION_BAR_PATTERN.matcher(cleanText);
@@ -111,7 +111,7 @@ public class SecretTracker {
         if (lastKnownFound < 0) {
             lastKnownFound = newFound;
             dungeonSecretsFound = newFound;
-            TeslaMaps.LOGGER.info("[SecretTracker] Initialized with dungeon total: {}", newFound);
+            TeslaMaps.LOGGER.debug("[SecretTracker] Initialized with dungeon total: {}", newFound);
             return;
         }
 
@@ -126,10 +126,10 @@ public class SecretTracker {
                 int current = Math.max(0, currentRoom.getFoundSecrets());
                 int newRoomFound = Math.min(current + secretsGained, currentRoom.getSecrets());
                 currentRoom.setFoundSecrets(newRoomFound);
-                TeslaMaps.LOGGER.info("[SecretTracker] Secret found in '{}': {}/{} (dungeon total: {})",
+                TeslaMaps.LOGGER.debug("[SecretTracker] Secret found in '{}': {}/{} (dungeon total: {})",
                         currentRoom.getName(), newRoomFound, currentRoom.getSecrets(), newFound);
             } else {
-                TeslaMaps.LOGGER.info("[SecretTracker] Secret found but no valid room (total: {})", newFound);
+                TeslaMaps.LOGGER.debug("[SecretTracker] Secret found but no valid room (total: {})", newFound);
             }
         } else if (newFound != lastKnownFound) {
             // Total changed (reset or missed something)
@@ -167,7 +167,7 @@ public class SecretTracker {
     public static void onRoomCompleted(DungeonRoom room) {
         if (room != null && room.getSecrets() > 0) {
             room.setFoundSecrets(room.getSecrets());
-            TeslaMaps.LOGGER.info("[SecretTracker] Room '{}' completed - all {} secrets found",
+            TeslaMaps.LOGGER.debug("[SecretTracker] Room '{}' completed - all {} secrets found",
                     room.getName(), room.getSecrets());
         }
     }

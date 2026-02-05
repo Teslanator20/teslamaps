@@ -37,15 +37,22 @@ public class SelectAllTerminal {
     private static int lastDebugTick = 0;
 
     public static void tick() {
+        // DISABLED - Auto terminal feature commented out
+        if (true) {
+            reset();
+            return;
+        }
+
         MinecraftClient mc = MinecraftClient.getInstance();
 
+        /* DISABLED
         if (!TeslaMapsConfig.get().solveSelectAllTerminal) {
             if (targetColor != null) {
-                TeslaMaps.LOGGER.info("[SelectAllTerminal] DEBUG: Feature disabled, resetting");
             }
             reset();
             return;
         }
+        */
 
         if (mc.player == null || mc.world == null) {
             reset();
@@ -55,7 +62,6 @@ public class SelectAllTerminal {
         // Check if we're looking at a container screen
         if (!(mc.currentScreen instanceof GenericContainerScreen)) {
             if (targetColor != null) {
-                TeslaMaps.LOGGER.info("[SelectAllTerminal] DEBUG: Screen closed, resetting");
             }
             reset();
             return;
@@ -70,7 +76,6 @@ public class SelectAllTerminal {
         // Debug: Log container title once per second
         int currentTick = mc.player.age;
         if (currentTick - lastDebugTick > 20) {
-            TeslaMaps.LOGGER.info("[SelectAllTerminal] DEBUG: Container title: '{}'", titleStr);
             lastDebugTick = currentTick;
         }
 
@@ -79,7 +84,6 @@ public class SelectAllTerminal {
         if (!matcher.find()) {
             // Not our terminal
             if (targetColor != null) {
-                TeslaMaps.LOGGER.info("[SelectAllTerminal] DEBUG: Title doesn't match, resetting");
             }
             return;
         }
@@ -162,7 +166,6 @@ public class SelectAllTerminal {
     private static void findAllCorrectSlots(GenericContainerScreen screen) {
         GenericContainerScreenHandler handler = screen.getScreenHandler();
 
-        TeslaMaps.LOGGER.info("[SelectAllTerminal] DEBUG: Scanning {} slots", handler.slots.size());
 
         int scannedItems = 0;
 
@@ -192,7 +195,6 @@ public class SelectAllTerminal {
                     continue;
                 }
 
-                TeslaMaps.LOGGER.info("[SelectAllTerminal] DEBUG: Slot {} - '{}'", slot.id, strippedName);
 
                 // Check if this item matches the target color
                 if (matchesColor(strippedName, targetColor)) {
@@ -399,7 +401,6 @@ public class SelectAllTerminal {
 
     public static void reset() {
         if (targetColor != null) {
-            TeslaMaps.LOGGER.info("[SelectAllTerminal] DEBUG: Resetting (was tracking color '{}')", targetColor);
         }
         targetColor = null;
         correctSlots.clear();

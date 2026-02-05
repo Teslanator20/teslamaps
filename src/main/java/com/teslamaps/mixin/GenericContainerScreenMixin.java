@@ -1,6 +1,7 @@
 package com.teslamaps.mixin;
 
 import com.teslamaps.dungeon.termgui.TerminalGuiManager;
+import com.teslamaps.features.LeapOverlay;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -30,6 +31,11 @@ public abstract class GenericContainerScreenMixin extends HandledScreen<GenericC
         if (TerminalGuiManager.shouldRenderCustomGui()) {
             TerminalGuiManager.render(context);
         }
+
+        // Render leap overlay
+        if (LeapOverlay.shouldRender()) {
+            LeapOverlay.render(context, mouseX, mouseY);
+        }
     }
 
     /**
@@ -39,6 +45,11 @@ public abstract class GenericContainerScreenMixin extends HandledScreen<GenericC
     private void onDrawBackground(DrawContext context, float delta, int mouseX, int mouseY, CallbackInfo ci) {
         if (TerminalGuiManager.shouldRenderCustomGui()) {
             // Cancel drawing the default container background
+            ci.cancel();
+            return;
+        }
+        if (LeapOverlay.shouldRender()) {
+            // Cancel drawing the default container background for leap overlay
             ci.cancel();
         }
     }

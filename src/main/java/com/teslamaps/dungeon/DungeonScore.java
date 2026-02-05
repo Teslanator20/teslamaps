@@ -88,7 +88,7 @@ public class DungeonScore {
         floorDetectionPending = true;
         floorDetectionTime = System.currentTimeMillis() + 3000;
 
-        TeslaMaps.LOGGER.info("[DungeonScore] Dungeon started, will detect floor in 3 seconds");
+        // Logging disabled
     }
 
     private static int debugCounter = 0;
@@ -105,12 +105,9 @@ public class DungeonScore {
                 floorRequirement = FloorRequirement.valueOf(currentFloor);
             } catch (IllegalArgumentException e) {
                 floorRequirement = FloorRequirement.F1;
-                TeslaMaps.LOGGER.warn("[DungeonScore] Unknown floor '{}', defaulting to F1", currentFloor);
             }
             floorHasMimics = MIMIC_FLOORS_PATTERN.matcher(currentFloor).matches();
             if (currentFloor.equals("E")) isCurrentFloorEntrance = true;
-            TeslaMaps.LOGGER.info("[DungeonScore] Started: floor={} requirement={} mimics={} puzzles={}",
-                    currentFloor, floorRequirement, floorHasMimics, puzzleCount);
         }
 
         int timeScore = calculateTimeScore();
@@ -127,24 +124,8 @@ public class DungeonScore {
             score = timeScore + exploreScore + skillScore + bonusScore;
         }
 
-        // Debug every 100 ticks
+        // Debug logging disabled to reduce spam
         debugCounter++;
-        if (debugCounter % 100 == 0) {
-            int completedRooms = getCompletedRooms();
-            int extraRooms = getExtraCompletedRooms();
-            int totalRooms = getTotalRooms();
-            double secretsPct = getSecretsPercentage();
-            int crypts = getCrypts();
-            double clearPct = getClearPercentage();
-            int puzzlePenalty = getPuzzlePenalty();
-            int deathPenalty = getDeathScorePenalty();
-            TeslaMaps.LOGGER.info("[DungeonScore] SCORE BREAKDOWN: time={} explore={} skill={} bonus={} => TOTAL={}",
-                    timeScore, exploreScore, skillScore, bonusScore, score);
-            TeslaMaps.LOGGER.info("[DungeonScore] DATA: rooms={}/{} (+{} extra) | clear={}% | secrets={}% | crypts={} | deaths={} (penalty={}) | puzzles={} (penalty={})",
-                    completedRooms, totalRooms, extraRooms, (int)(clearPct*100), secretsPct, crypts, deathCount, deathPenalty, puzzleCount, puzzlePenalty);
-            TeslaMaps.LOGGER.info("[DungeonScore] FLOOR: {} | requirement={}% secrets | timeLimit={}s | elapsed={}s",
-                    currentFloor, floorRequirement.percentage, floorRequirement.timeLimit, (System.currentTimeMillis() - startingTime) / 1000);
-        }
 
         // Score milestone messages
         if (!sent270 && !sent300 && score >= 270 && score < 300) {
@@ -218,13 +199,8 @@ public class DungeonScore {
     }
 
     private static int getCompletedRooms() {
-        String line = strAt(43);
         Matcher matcher = regexAt(43, COMPLETED_ROOMS_PATTERN);
-        int result = matcher != null ? Integer.parseInt(matcher.group("rooms")) : 0;
-        if (debugCounter % 100 == 0 && line != null) {
-            TeslaMaps.LOGGER.info("[DungeonScore] Tab[43] = '{}' -> completedRooms={}", line, result);
-        }
-        return result;
+        return matcher != null ? Integer.parseInt(matcher.group("rooms")) : 0;
     }
 
     /**
@@ -249,15 +225,8 @@ public class DungeonScore {
             String clean = ScoreboardUtils.cleanLine(line);
             Matcher matcher = CLEARED_PATTERN.matcher(clean);
             if (matcher.matches()) {
-                double clearPct = Double.parseDouble(matcher.group("cleared")) / 100.0;
-                if (debugCounter % 100 == 0) {
-                    TeslaMaps.LOGGER.info("[DungeonScore] Scoreboard: '{}' -> clearPct={}%", clean, (int)(clearPct * 100));
-                }
-                return clearPct;
+                return Double.parseDouble(matcher.group("cleared")) / 100.0;
             }
-        }
-        if (debugCounter % 100 == 0) {
-            TeslaMaps.LOGGER.warn("[DungeonScore] Could not find clear percentage in scoreboard!");
         }
         return 0;
     }
@@ -285,42 +254,26 @@ public class DungeonScore {
     }
 
     private static double getSecretsPercentage() {
-        String line = strAt(44);
         Matcher matcher = regexAt(44, SECRETS_PATTERN);
-        double result = matcher != null ? Double.parseDouble(matcher.group("secper")) : 0;
-        if (debugCounter % 100 == 0 && line != null) {
-            TeslaMaps.LOGGER.info("[DungeonScore] Tab[44] = '{}' -> secrets={}%", line, result);
-        }
-        return result;
+        return matcher != null ? Double.parseDouble(matcher.group("secper")) : 0;
     }
 
     private static int getCrypts() {
-        String line33 = strAt(33);
-        String line32 = strAt(32);
         Matcher matcher = regexAt(33, CRYPTS_PATTERN);
         if (matcher == null) matcher = regexAt(32, CRYPTS_PATTERN);
-        int result = matcher != null ? Integer.parseInt(matcher.group("crypts")) : 0;
-        if (debugCounter % 100 == 0) {
-            TeslaMaps.LOGGER.info("[DungeonScore] Tab[32] = '{}' | Tab[33] = '{}' -> crypts={}", line32, line33, result);
-        }
-        return result;
+        return matcher != null ? Integer.parseInt(matcher.group("crypts")) : 0;
     }
 
     private static void setCurrentFloor() {
-        TeslaMaps.LOGGER.info("[DungeonScore] === FLOOR DETECTION START ===");
         for (String line : ScoreboardUtils.getScoreboardLines()) {
             String clean = ScoreboardUtils.cleanLine(line);
-            TeslaMaps.LOGGER.info("[DungeonScore] Scoreboard line: '{}'", clean);
             Matcher matcher = FLOOR_PATTERN.matcher(clean);
             if (matcher.matches()) {
                 currentFloor = matcher.group("floor");
-                TeslaMaps.LOGGER.info("[DungeonScore] Detected floor: {} from line: '{}'", currentFloor, clean);
                 return;
             }
         }
         currentFloor = "F1";
-        TeslaMaps.LOGGER.warn("[DungeonScore] Floor pattern doesn't match any scoreboard line, defaulting to F1");
-        TeslaMaps.LOGGER.warn("[DungeonScore] Pattern used: {}", FLOOR_PATTERN.pattern());
     }
 
     /**
@@ -337,8 +290,6 @@ public class DungeonScore {
         return m;
     }
 
-    private static int strAtDebugCounter = 0;
-
     /**
      * Get tab list string at index (sorted like vanilla tab display)
      */
@@ -350,9 +301,7 @@ public class DungeonScore {
         if (tabListComparator == null) {
             try {
                 tabListComparator = PlayerTabOverlayAccessor.getOrdering();
-                TeslaMaps.LOGGER.info("[DungeonScore] Got tab list comparator: {}", tabListComparator != null ? "OK" : "NULL");
             } catch (Exception e) {
-                TeslaMaps.LOGGER.error("[DungeonScore] Failed to get tab list comparator!", e);
                 return null;
             }
         }
@@ -362,20 +311,6 @@ public class DungeonScore {
                 .stream()
                 .sorted(tabListComparator)
                 .toList();
-
-        // Debug: show what's at key indices every 500 calls
-        strAtDebugCounter++;
-        if (strAtDebugCounter % 500 == 0) {
-            TeslaMaps.LOGGER.info("[DungeonScore] Tab list size: {}", playerList.size());
-            int[] keyIndices = {32, 33, 43, 44, 47, 48};
-            for (int i : keyIndices) {
-                if (i < playerList.size()) {
-                    var t = playerList.get(i).getDisplayName();
-                    String s = t != null ? t.getString().trim() : "(null)";
-                    TeslaMaps.LOGGER.info("[DungeonScore] Sorted Tab[{}]: '{}'", i, s);
-                }
-            }
-        }
 
         if (playerList.size() <= index) return null;
 
@@ -397,7 +332,6 @@ public class DungeonScore {
             Matcher matcher = DEATHS_PATTERN.matcher(message);
             if (matcher.matches()) {
                 deathCount++;
-                TeslaMaps.LOGGER.info("[DungeonScore] Death detected, count: {}", deathCount);
             }
         }
 
@@ -405,9 +339,8 @@ public class DungeonScore {
         if (message.equals("[BOSS] The Watcher: You have proven yourself. You may pass.")) {
             new Thread(() -> {
                 try {
-                    Thread.sleep(5500); // 5.5 seconds delay like Skyblocker (20 * 5 + 10 ticks = 110 ticks = 5.5s)
+                    Thread.sleep(5500);
                     bloodRoomCompleted = true;
-                    TeslaMaps.LOGGER.info("[DungeonScore] Blood room completed");
                 } catch (InterruptedException ignored) {}
             }).start();
         }
@@ -415,13 +348,11 @@ public class DungeonScore {
         // Mimic detection
         if (floorHasMimics && MIMIC_PATTERN.matcher(message).matches()) {
             mimicKilled = true;
-            TeslaMaps.LOGGER.info("[DungeonScore] Mimic killed via chat");
         }
 
         // Prince detection
         if (PRINCE_PATTERN.matcher(message).matches() || message.equals(PRINCE_KILL_MESSAGE)) {
             princeKilled = true;
-            TeslaMaps.LOGGER.info("[DungeonScore] Prince killed");
         }
     }
 

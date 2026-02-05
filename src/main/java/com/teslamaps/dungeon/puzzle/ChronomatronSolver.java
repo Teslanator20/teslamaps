@@ -62,8 +62,15 @@ public class ChronomatronSolver {
     private static Map<Integer, Boolean> previousGlintState = new HashMap<>();
 
     public static void tick() {
+        // DISABLED - Auto experiment feature commented out
+        if (true) {
+            reset();
+            return;
+        }
+
         MinecraftClient mc = MinecraftClient.getInstance();
 
+        /* DISABLED
         if (!TeslaMapsConfig.get().solveChronomatron) {
             if (initialScanDone) {
                 TeslaMaps.LOGGER.info("[Chronomatron] Feature disabled, resetting");
@@ -71,6 +78,7 @@ public class ChronomatronSolver {
             reset();
             return;
         }
+        */
 
         if (mc.player == null || mc.world == null) {
             reset();

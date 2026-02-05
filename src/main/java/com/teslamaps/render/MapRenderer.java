@@ -722,7 +722,12 @@ public class MapRenderer {
             case ENTRANCE -> TeslaMapsConfig.parseColor(config.colorEntrance);
             case BLOOD -> TeslaMapsConfig.parseColor(config.colorBlood);
             case TRAP -> TeslaMapsConfig.parseColor(config.colorTrap);
-            case PUZZLE -> TeslaMapsConfig.parseColor(config.colorPuzzle);
+            case PUZZLE -> {
+                if (room.getCheckmarkState() == CheckmarkState.UNEXPLORED) {
+                    yield TeslaMapsConfig.parseColor(config.colorPuzzleUnexplored);
+                }
+                yield TeslaMapsConfig.parseColor(config.colorPuzzle);
+            }
             case FAIRY -> TeslaMapsConfig.parseColor(config.colorFairy);
             case YELLOW -> TeslaMapsConfig.parseColor(config.colorMiniboss);
             default -> {

@@ -19,7 +19,10 @@
         "HandledScreenAccessor",
         "HandledScreenClickMixin",
         "GenericContainerScreenMixin",
-        "ClientPlayNetworkHandlerMixin"
+        "ClientPlayNetworkHandlerMixin",
+        "ChestAutoCloseMixin",
+        "BlockUpdateMixin",
+        "FullbrightMixin"
     ],
     "injectors": {
         "defaultRequire": 1

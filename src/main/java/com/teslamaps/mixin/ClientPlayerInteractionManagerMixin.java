@@ -1,8 +1,9 @@
 package com.teslamaps.mixin;
 
 import com.teslamaps.dungeon.puzzle.ThreeWeirdos;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import com.teslamaps.dungeon.puzzle.WaterBoardSolver;
+import com.teslamaps.features.SecretWaypoints;
+import net.minecraft.block.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.util.ActionResult;
@@ -23,10 +24,29 @@ public class ClientPlayerInteractionManagerMixin {
 
         BlockPos pos = hitResult.getBlockPos();
         BlockState state = mc.world.getBlockState(pos);
+        Block block = state.getBlock();
 
-        // Detect chest clicks
+        // Detect chest clicks (secret)
         if (state.isOf(Blocks.CHEST) || state.isOf(Blocks.TRAPPED_CHEST)) {
             ThreeWeirdos.onChestClick(pos);
+            SecretWaypoints.onChestOpened(pos);
+            SecretWaypoints.onSecretInteract("chest");
+        }
+
+        // Detect lever clicks (secret)
+        if (state.isOf(Blocks.LEVER)) {
+            WaterBoardSolver.onLeverClick(pos);
+            SecretWaypoints.onSecretInteract("lever");
+        }
+
+        // Detect button clicks (secret)
+        if (block instanceof ButtonBlock) {
+            SecretWaypoints.onSecretInteract("button");
+        }
+
+        // Detect skull/head clicks (secret - wither essence)
+        if (block instanceof SkullBlock || block instanceof WallSkullBlock) {
+            SecretWaypoints.onSecretInteract("skull");
         }
     }
 }

@@ -44,8 +44,15 @@ public class SuperpairsSolver {
     private static int maxSlot = 44;
 
     public static void tick() {
+        // DISABLED - Auto experiment feature commented out
+        if (true) {
+            reset();
+            return;
+        }
+
         MinecraftClient mc = MinecraftClient.getInstance();
 
+        /* DISABLED
         if (!TeslaMapsConfig.get().solveSuperpairs) {
             if (initialScanDone) {
                 TeslaMaps.LOGGER.info("[Superpairs] Feature disabled, resetting");
@@ -53,6 +60,7 @@ public class SuperpairsSolver {
             reset();
             return;
         }
+        */
 
         if (mc.player == null || mc.world == null) {
             reset();
