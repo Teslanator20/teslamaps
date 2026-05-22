@@ -361,7 +361,7 @@ public class StarredMobESP {
         }
 
         // Pest ESP debug logging
-        if (System.currentTimeMillis() % 5000 < 50 && TeslaMapsConfig.get().pestESP && SkyblockUtils.isInGarden()) {
+        if (System.currentTimeMillis() % 5000 < 50 && pestESP) {
             TeslaMaps.LOGGER.info("[PestESP] pestESP enabled, in Garden, pestPositions will be tracked from invisible entities");
         }
 
@@ -384,13 +384,13 @@ public class StarredMobESP {
 
             // Track pest positions from the actual invisible entity (not armor stand) for better range
             // Pests are invisible Silverfish or Bat entities in the Garden
-            if (entity.isInvisible() && !inDungeon && TeslaMapsConfig.get().pestESP && SkyblockUtils.isInGarden()) {
+            if (entity.isInvisible() && !inDungeon && pestESP) {
                 if (entityName.equals("Silverfish") || entityName.equals("Bat")) {
                     pestPositions.add(new Vec3d(entity.getX(), entity.getY(), entity.getZ()));
                 }
             }
 
-            if (shouldHighlight(entity, inDungeon)) {
+            if (shouldHighlight(entity, inDungeon, pestESP)) {
                 int color = getHighlightColor(entity);
                 highlightedEntities.add(new EntityHighlight(entity, color));
                 // Add to glowing map for mixin to use (convert ARGB to RGB for team color)
@@ -657,15 +657,17 @@ public class StarredMobESP {
      * Check if an entity should be highlighted (legacy method for external calls).
      */
     public static boolean shouldHighlight(Entity entity) {
-        return shouldHighlight(entity, DungeonManager.isInDungeon());
+        return shouldHighlight(entity, DungeonManager.isInDungeon(),
+                TeslaMapsConfig.get().pestESP && SkyblockUtils.isInGarden());
     }
 
     /**
      * Check if an entity should be highlighted.
      * @param entity The entity to check
      * @param inDungeon Whether we're currently in a dungeon
+     * @param pestESP Whether pest ESP is active (pre-cached to avoid repeated scoreboard parsing)
      */
-    public static boolean shouldHighlight(Entity entity, boolean inDungeon) {
+    public static boolean shouldHighlight(Entity entity, boolean inDungeon, boolean pestESP) {
         // Dropped item ESP - works everywhere
         if (entity instanceof ItemEntity && TeslaMapsConfig.get().droppedItemESP) {
             return true;
@@ -699,7 +701,7 @@ public class StarredMobESP {
 
         // Special case: Pests/critters are invisible Silverfish or Bats (only in Garden)
         // Check them BEFORE the invisible filter - no name tag check needed for better range
-        if (entity.isInvisible() && TeslaMapsConfig.get().pestESP && SkyblockUtils.isInGarden()) {
+        if (entity.isInvisible() && pestESP) {
             // Silverfish = pests (Cricket, etc.), Bat = critters (Firefly, etc.)
             if (entityName.equals("Silverfish") || entityName.equals("Bat")) {
                 return true;

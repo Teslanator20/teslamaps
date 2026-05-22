@@ -11,6 +11,9 @@ import com.teslamaps.scanner.SecretTracker;
 import com.teslamaps.utils.ScoreboardUtils;
 import com.teslamaps.utils.SkyblockUtils;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +24,9 @@ public class DungeonManager {
     private static final ComponentGrid grid = new ComponentGrid();
     private static long dungeonStartTime = 0;
     private static int tickCounter = 0;
+
+    // Track world instance to detect dungeon-to-dungeon transitions
+    private static ClientWorld lastWorld = null;
 
     private static final Pattern FLOOR_PATTERN = Pattern.compile("([FM])(\\d+)");
     private static final Pattern CATACOMBS_PATTERN = Pattern.compile("The Catacombs \\(([FM]\\d+)\\)");
@@ -35,7 +41,30 @@ public class DungeonManager {
     }
 
     private static void updateDungeonState() {
+        // Detect world instance change while in dungeon (handles dungeon-to-dungeon transitions)
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.world != lastWorld) {
+            if (lastWorld != null && isInDungeon()) {
+                TeslaMaps.LOGGER.info("World instance changed while in dungeon, forcing map reset");
+                onDungeonExit();
+                currentState = DungeonState.NOT_IN_DUNGEON;
+            }
+            lastWorld = mc.world;
+        }
+
+        DungeonFloor previousFloor = currentFloor;
         DungeonState newState = detectCurrentState();
+
+        // Detect floor change while already in dungeon (e.g., F2 -> F3 without world change)
+        if (isInDungeon() && previousFloor != DungeonFloor.UNKNOWN
+                && currentFloor != previousFloor && currentFloor != DungeonFloor.UNKNOWN) {
+            TeslaMaps.LOGGER.info("Floor changed while in dungeon ({} -> {}), forcing map reset",
+                    previousFloor, currentFloor);
+            onDungeonExit();
+            currentState = DungeonState.NOT_IN_DUNGEON;
+            // Re-detect since we just reset
+            newState = detectCurrentState();
+        }
 
         if (newState != currentState) {
             DungeonState oldState = currentState;
