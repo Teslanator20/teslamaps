@@ -95,7 +95,7 @@ public class TeslaMaps implements ClientModInitializer {
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             MinecraftClient mc = MinecraftClient.getInstance();
             if (context.consumers() != null && mc.gameRenderer != null && mc.gameRenderer.getCamera() != null) {
-                Vec3d cameraPos = mc.gameRenderer.getCamera().getPos();
+                Vec3d cameraPos = mc.gameRenderer.getCamera().getCameraPos();
                 Vec3d playerEyePos = cameraPos;
                 StarredMobESP.renderWorldElements(
                         context.matrices(),
