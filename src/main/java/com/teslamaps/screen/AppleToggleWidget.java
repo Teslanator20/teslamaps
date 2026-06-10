@@ -25,7 +25,7 @@ public class AppleToggleWidget extends ButtonWidget {
 
     public AppleToggleWidget(int x, int y, int width, int height, String label,
                              Supplier<Boolean> getter, Consumer<Boolean> setter) {
-        super(x, y, width, height, Text.literal(label), button -> {
+        super(x, y, width, height, net.minecraft.text.Text.literal(label), button -> {
             // Toggle the value when clicked
             boolean newValue = !getter.get();
             setter.accept(newValue);
@@ -37,7 +37,7 @@ public class AppleToggleWidget extends ButtonWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    protected void drawIcon(DrawContext context, int mouseX, int mouseY, float delta) {
         MinecraftClient mc = MinecraftClient.getInstance();
         boolean hovered = isHovered();
         boolean value = getter.get();
