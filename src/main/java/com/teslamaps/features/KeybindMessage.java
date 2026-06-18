@@ -1,45 +1,42 @@
 package com.teslamaps.features;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
- * Registers a keybind that sends a configurable chat message / command.
- * The key is bound in Minecraft's Controls menu; the message is set via /tmap msg &lt;text&gt;.
+ * Unlimited custom hotkeys that send configurable chat messages. Keys are polled directly via
+ * GLFW (configured in teslamaps' own GUI, /tmap msg) rather than vanilla key mappings.
  */
 public class KeybindMessage {
-    private static KeyMapping key;
-
-    public static void register() {
-        key = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                "key.teslamaps.send_message",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_UNKNOWN,          // unbound by default
-                KeyMapping.Category.MISC
-        ));
-    }
-
-    public static KeyMapping getKey() {
-        return key;
-    }
+    private static final Set<Integer> heldKeys = new HashSet<>();
 
     public static void tick() {
-        if (key == null) return;
         Minecraft mc = Minecraft.getInstance();
-        while (key.consumeClick()) {
-            if (mc.player == null || mc.getConnection() == null) continue;
-            String msg = TeslaMapsConfig.get().keybindChatMessage;
-            if (msg == null || msg.isBlank()) continue;
+        if (mc.player == null || mc.getConnection() == null || mc.getWindow() == null) return;
+        // Don't fire while any screen is open (typing in chat / the config GUI).
+        if (mc.screen != null) { heldKeys.clear(); return; }
 
-            if (msg.startsWith("/")) {
-                mc.getConnection().sendCommand(msg.substring(1));
-            } else {
-                mc.getConnection().sendChat(msg);
-            }
+        long handle = mc.getWindow().handle();
+        for (TeslaMapsConfig.Keybind kb : TeslaMapsConfig.get().keybinds) {
+            if (kb.key < 0 || kb.message == null || kb.message.isBlank()) continue;
+            boolean down = GLFW.glfwGetKey(handle, kb.key) == GLFW.GLFW_PRESS;
+            boolean wasDown = heldKeys.contains(kb.key);
+            if (down && !wasDown) send(kb.message);   // edge: just pressed
+            if (down) heldKeys.add(kb.key); else heldKeys.remove(kb.key);
+        }
+    }
+
+    private static void send(String message) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getConnection() == null) return;
+        if (message.startsWith("/")) {
+            mc.getConnection().sendCommand(message.substring(1));
+        } else {
+            mc.getConnection().sendChat(message);
         }
     }
 }

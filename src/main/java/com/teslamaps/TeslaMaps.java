@@ -83,8 +83,7 @@ public class TeslaMaps implements ClientModInitializer {
         // Register /tmap command
         ClientCommandRegistrationCallback.EVENT.register(TMapCommand::register);
 
-        // Register keybind that sends a configurable chat message (/tmap msg <text>)
-        KeybindMessage.register();
+        // Keybind messages are polled in the tick loop (configured via /tmap msg GUI)
 
         // Register HUD elements (26.1.2: HudRenderCallback -> HudElementRegistry)
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "map"), MapRenderer::render);

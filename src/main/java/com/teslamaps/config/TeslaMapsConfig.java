@@ -141,9 +141,18 @@ public class TeslaMapsConfig {
     // ===== CHAT =====
     public boolean chatCopyEnabled = true;       // Right-click a chat line to copy its text
 
-    // ===== KEYBIND MESSAGE =====
-    // Message sent when the "Send Chat Message" keybind is pressed. Set via /tmap msg <text>.
-    // Leading "/" is sent as a command, otherwise as normal chat.
+    // ===== KEYBIND MESSAGES =====
+    // Unlimited custom hotkeys -> chat messages, all configured in the GUI (/tmap msg).
+    // Each entry binds a GLFW key code to a message; leading "/" sends it as a command.
+    public static class Keybind {
+        public int key = -1;          // GLFW key code, -1 = unbound
+        public String message = "";
+        public Keybind() {}
+        public Keybind(int key, String message) { this.key = key; this.message = message; }
+    }
+    public List<Keybind> keybinds = new ArrayList<>();
+
+    // Legacy single keybind (migrated into the list on first GUI open).
     public String keybindChatMessage = "";
 
     // ===== RENDER OPTIONS =====

@@ -1,94 +1,128 @@
 package com.teslamaps.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.KeybindMessage;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.options.controls.KeyBindsScreen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.List;
 
 /**
- * A small polished screen to configure the keybind chat message (the message sent by the
- * "Send Chat Message" keybind). Opened with /tmap msg.
+ * Manage unlimited hotkey -> chat-message bindings, entirely in-GUI (keys captured here, not in
+ * vanilla controls). Opened with /tmap msg.
  */
 public class KeybindMessageScreen extends Screen {
-    private static final int PANEL_W = 320;
-    private static final int PANEL_H = 190;
-    private static final int PAD = 24;
+    private static final int PANEL_W = 400, PANEL_H = 270;
+    private static final int ROW_H = 26, VISIBLE = 6, KEY_W = 92;
 
-    private EditBox messageBox;
-    private int panelX, panelY;
+    private int panelX, panelY, listX, listY, listW;
+    private int scroll = 0;
+    private int listening = -1; // index of the keybind currently waiting for a key press
 
-    public KeybindMessageScreen() {
-        super(Component.literal("Keybind Message"));
-    }
+    public KeybindMessageScreen() { super(Component.literal("Keybind Messages")); }
+
+    private List<TeslaMapsConfig.Keybind> binds() { return TeslaMapsConfig.get().keybinds; }
 
     @Override
     protected void init() {
-        panelX = (this.width - PANEL_W) / 2;
-        panelY = (this.height - PANEL_H) / 2;
-
-        int inputX = panelX + PAD;
-        int inputW = PANEL_W - PAD * 2;
-        int inputY = panelY + 74;
-
-        messageBox = new EditBox(this.font, inputX + 7, inputY + 9, inputW - 14, 12, Component.literal("Message"));
-        messageBox.setMaxLength(256);
-        messageBox.setBordered(false);
-        messageBox.setHint(Component.literal("e.g. /pc gg  ·  good luck!"));
-        messageBox.setValue(TeslaMapsConfig.get().keybindChatMessage);
-        addRenderableWidget(messageBox);
-        setInitialFocus(messageBox);
-
-        // Rebind button on the keybind row
-        addRenderableWidget(Button.builder(Component.literal("Rebind"), b -> {
-            save();
-            this.minecraft.setScreen(new KeyBindsScreen(this, this.minecraft.options));
-        }).bounds(panelX + PANEL_W - PAD - 76, panelY + 120, 76, 18).build());
-
-        // Done
-        addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose())
-                .bounds(panelX + PANEL_W / 2 - 60, panelY + PANEL_H - 30, 120, 20).build());
+        // One-time migration of the old single message into the list.
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (binds().isEmpty() && c.keybindChatMessage != null && !c.keybindChatMessage.isBlank()) {
+            binds().add(new TeslaMapsConfig.Keybind(-1, c.keybindChatMessage));
+            c.keybindChatMessage = "";
+        }
+        panelX = (width - PANEL_W) / 2;
+        panelY = (height - PANEL_H) / 2;
+        listX = panelX + 16;
+        listY = panelY + 50;
+        listW = PANEL_W - 32;
+        rebuild();
     }
 
-    private void save() {
-        if (messageBox != null) {
-            TeslaMapsConfig.get().keybindChatMessage = messageBox.getValue();
-            TeslaMapsConfig.save();
+    private void rebuild() {
+        clearWidgets();
+        List<TeslaMapsConfig.Keybind> b = binds();
+        scroll = Math.max(0, Math.min(scroll, Math.max(0, b.size() - VISIBLE)));
+
+        for (int row = 0; row < VISIBLE; row++) {
+            final int idx = scroll + row;
+            if (idx >= b.size()) break;
+            TeslaMapsConfig.Keybind kb = b.get(idx);
+            int ry = listY + row * ROW_H;
+
+            String label = listening == idx ? "press..." : keyName(kb.key);
+            addRenderableWidget(Button.builder(Component.literal(label), btn -> { listening = idx; rebuild(); })
+                    .bounds(listX, ry, KEY_W, 20).build());
+
+            EditBox box = new EditBox(this.font, listX + KEY_W + 6, ry, listW - KEY_W - 6 - 24, 20, Component.literal("Message"));
+            box.setMaxLength(256);
+            box.setHint(Component.literal("/pc gg  ·  good luck"));
+            box.setValue(kb.message == null ? "" : kb.message);
+            box.setResponder(v -> kb.message = v);
+            addRenderableWidget(box);
+
+            addRenderableWidget(Button.builder(Component.literal("x"), btn -> { b.remove(idx); listening = -1; rebuild(); })
+                    .bounds(listX + listW - 20, ry, 20, 20).build());
         }
+
+        addRenderableWidget(Button.builder(Component.literal("+ Add Hotkey"), btn -> {
+            b.add(new TeslaMapsConfig.Keybind(-1, ""));
+            scroll = Math.max(0, b.size() - VISIBLE);
+            rebuild();
+        }).bounds(panelX + 16, panelY + PANEL_H - 52, 130, 20).build());
+
+        addRenderableWidget(Button.builder(Component.literal("Done"), btn -> onClose())
+                .bounds(panelX + PANEL_W - 16 - 100, panelY + PANEL_H - 28, 100, 20).build());
+    }
+
+    private String keyName(int key) {
+        if (key < 0) return "Unbound";
+        return InputConstants.Type.KEYSYM.getOrCreate(key).getDisplayName().getString();
+    }
+
+    @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (listening >= 0) {
+            if (event.key() != GLFW.GLFW_KEY_ESCAPE && listening < binds().size()) {
+                binds().get(listening).key = event.key();
+            }
+            listening = -1; // ESC just cancels
+            rebuild();
+            return true;
+        }
+        return super.keyPressed(event);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mx, double my, double sx, double sy) {
+        if (binds().size() > VISIBLE) {
+            scroll = Math.max(0, Math.min(binds().size() - VISIBLE, scroll - (int) Math.signum(sy)));
+            rebuild();
+            return true;
+        }
+        return super.mouseScrolled(mx, my, sx, sy);
     }
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        ctx.fill(0, 0, this.width, this.height, 0xC0000000);
-
-        // card (shadow + body + accent bar)
-        roundRect(ctx, panelX + 3, panelY + 4, PANEL_W, PANEL_H, 10, AppleColors.CARD_SHADOW);
+        ctx.fill(0, 0, width, height, 0xC0000000);
         roundRect(ctx, panelX, panelY, PANEL_W, PANEL_H, 10, AppleColors.CARD_BACKGROUND);
         ctx.fill(panelX + 10, panelY, panelX + PANEL_W - 10, panelY + 3, AppleColors.ACCENT_BLUE);
 
-        // header
-        ctx.text(this.font, "§b⌨ §fKeybind → Chat Message", panelX + PAD, panelY + 16, AppleColors.TEXT_PRIMARY);
-        ctx.text(this.font, "Press your key in-game to send this message.", panelX + PAD, panelY + 30, AppleColors.TEXT_SECONDARY);
+        ctx.text(this.font, "§b⌨ §fHotkeys → Chat Messages", panelX + 16, panelY + 16, AppleColors.TEXT_PRIMARY);
+        ctx.text(this.font, "Click a key button, press a key, type a message. / = command.", panelX + 16, panelY + 30, AppleColors.TEXT_SECONDARY);
 
-        // input field
-        int inputX = panelX + PAD, inputW = PANEL_W - PAD * 2, inputY = panelY + 74;
-        ctx.text(this.font, "MESSAGE", panelX + PAD, panelY + 58, AppleColors.TEXT_TERTIARY);
-        roundRect(ctx, inputX, inputY, inputW, 30, 6, AppleColors.INPUT_BACKGROUND);
-        outline(ctx, inputX, inputY, inputW, 30, messageBox != null && messageBox.isFocused()
-                ? AppleColors.INPUT_FOCUSED : AppleColors.INPUT_BORDER);
-
-        ctx.text(this.font, "§7Start with §f/§7 to send as a command", panelX + PAD, panelY + 110, AppleColors.TEXT_TERTIARY);
-
-        // keybind row
-        KeyMapping key = KeybindMessage.getKey();
-        boolean unbound = key == null || key.isUnbound();
-        String keyText = unbound ? "§cUnbound" : "§f" + key.getTranslatedKeyMessage().getString();
-        ctx.text(this.font, "§7Key:", panelX + PAD, panelY + 124, AppleColors.TEXT_SECONDARY);
-        ctx.text(this.font, keyText, panelX + PAD + this.font.width("Key:  "), panelY + 124, AppleColors.TEXT_PRIMARY);
+        if (binds().isEmpty()) {
+            ctx.text(this.font, "§7No hotkeys yet — click \"+ Add Hotkey\".", panelX + 16, panelY + 56, AppleColors.TEXT_TERTIARY);
+        }
+        if (binds().size() > VISIBLE) {
+            ctx.text(this.font, "§8" + binds().size() + " total · scroll", panelX + PANEL_W - 110, panelY + PANEL_H - 48, AppleColors.TEXT_TERTIARY);
+        }
 
         super.extractRenderState(ctx, mouseX, mouseY, delta);
     }
@@ -103,21 +137,12 @@ public class KeybindMessageScreen extends Screen {
         ctx.fill(x + w - r, y + h - r, x + w - 1, y + h - 1, color);
     }
 
-    private void outline(GuiGraphicsExtractor ctx, int x, int y, int w, int h, int color) {
-        ctx.fill(x, y, x + w, y + 1, color);
-        ctx.fill(x, y + h - 1, x + w, y + h, color);
-        ctx.fill(x, y, x + 1, y + h, color);
-        ctx.fill(x + w - 1, y, x + w, y + h, color);
-    }
-
     @Override
     public void onClose() {
-        save();
+        TeslaMapsConfig.save();
         super.onClose();
     }
 
     @Override
-    public boolean isPauseScreen() {
-        return false;
-    }
+    public boolean isPauseScreen() { return false; }
 }
