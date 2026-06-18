@@ -112,11 +112,16 @@ public class Splits {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §7Splits:"));
-        long prev = startTime;
-        for (Split split : active) {
+        int n = active.size();
+        long firstTime = active.get(0).time;
+        if (firstTime == 0L) return;
+        long latest = active.get(n - 1).time != 0L ? active.get(n - 1).time : System.currentTimeMillis();
+        for (int i = 0; i < n; i++) {
+            Split split = active.get(i);
             if (split.time == 0L) continue;
-            mc.player.sendSystemMessage(Component.literal(split.name + " §7- §f" + formatTime(split.time - prev)));
-            prev = split.time;
+            long t = (i == n - 1) ? (latest - firstTime)
+                    : ((active.get(i + 1).time != 0L ? active.get(i + 1).time : latest) - split.time);
+            mc.player.sendSystemMessage(Component.literal(split.name + " §7- §f" + formatTime(t)));
         }
     }
 
@@ -136,21 +141,26 @@ public class Splits {
         pose.scale(config.splitsScale, config.splitsScale);
 
         long now = System.currentTimeMillis();
-        long prev = startTime;              // segment start = previous split's time
-        boolean runningShown = false;
+        int n = active.size();
+        long firstTime = active.get(0).time;
+        long latest = active.get(n - 1).time != 0L ? active.get(n - 1).time : now;
+
         int y = 0;
-        for (Split split : active) {
+        for (int i = 0; i < n; i++) {
+            Split split = active.get(i);
             String timeStr;
-            if (split.time != 0L) {
-                // reached: freeze this segment's duration
-                timeStr = formatTime(split.time - prev);
-                prev = split.time;
-            } else if (!runningShown && !finished) {
-                // current segment counts up from the previous split (starts at 0)
-                timeStr = "§7" + formatTime(now - prev);
-                runningShown = true;
+            if (i == n - 1) {
+                // Total row = total run time (first split -> last)
+                timeStr = firstTime == 0L ? "§8-" : formatTime(latest - firstTime);
+            } else if (split.time == 0L) {
+                timeStr = "§8-";                                     // this phase not started yet
             } else {
-                timeStr = "§8-";
+                Split next = active.get(i + 1);
+                if (next.time != 0L) {
+                    timeStr = formatTime(next.time - split.time);     // frozen: this phase's duration
+                } else {
+                    timeStr = "§7" + formatTime(now - split.time);    // current phase, counting from 0
+                }
             }
             context.text(mc.font, split.name, 0, y, 0xFFFFFFFF);
             context.text(mc.font, timeStr, nameCol, y, 0xFFFFFFFF);
