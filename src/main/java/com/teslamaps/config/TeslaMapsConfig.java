@@ -123,6 +123,12 @@ public class TeslaMapsConfig {
     public int bloodCampY = 80;                   // Move Timer HUD position Y
     public float bloodCampScale = 1.0f;           // Move Timer HUD scale
 
+    // ===== HIDE PLAYERS =====
+    public boolean hidePlayers = false;           // Hide nearby players
+    public boolean hidePlayersOnlyDungeon = true; // Only hide while in a dungeon
+    public boolean hidePlayersAll = false;        // Hide all players regardless of distance
+    public float hidePlayersDistance = 3.0f;      // Hide players within this many blocks
+
     // ===== CHAT =====
     public boolean chatCopyEnabled = true;       // Right-click a chat line to copy its text
 
