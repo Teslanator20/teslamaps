@@ -136,6 +136,54 @@ public class DungeonWaypoints {
         }
     }
 
+    /** Prints diagnostics for the current room so a failing room can be reported. */
+    public static void debug() {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.player == null) return;
+        java.util.function.Consumer<String> msg = s ->
+                mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§b[WP] §f" + s));
+
+        if (!DungeonManager.isInDungeon()) { msg.accept("§cNot in a dungeon."); return; }
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null) { msg.accept("§cNo current room detected."); return; }
+
+        String name = room.getName();
+        int clayX = room.getCornerX(), clayZ = room.getCornerZ();
+        int rot = deriveRotation(room);
+        String rotName = switch (rot) { case 0 -> "SOUTH"; case 1 -> "NORTH"; case 2 -> "WEST"; case 3 -> "EAST"; default -> "§cUNKNOWN(-1)"; };
+        List<Waypoint> list = byRoom.get(name);
+
+        msg.accept("Room: §e\"" + name + "\"§f | clayPos(corner): §e" + clayX + "," + clayZ + "§f | rotDeg: §e" + room.getRotation() + "§f | derived: §e" + rotName);
+        msg.accept("Waypoints in file for this name: " + (list == null ? "§cNONE (name not a key in your file)" : "§a" + list.size()));
+
+        StringBuilder comps = new StringBuilder();
+        for (int[] c : room.getComponents()) {
+            int[] corner = ComponentGrid.gridToWorldCorner(c[0], c[1]);
+            comps.append("[grid ").append(c[0]).append(",").append(c[1]).append(" center ")
+                    .append(corner[0] + ComponentGrid.HALF_ROOM_SIZE).append(",").append(corner[1] + ComponentGrid.HALF_ROOM_SIZE).append("] ");
+        }
+        msg.accept("Components: §7" + comps);
+
+        // Player position -> relative coords (rotateToNorth(world - clay)); compare to your file values
+        net.minecraft.core.BlockPos p = mc.player.blockPosition();
+        if (rot >= 0) {
+            double[] rel = rotateToNorth(rot, p.getX() - clayX, p.getZ() - clayZ);
+            msg.accept("You stand at world §e" + p.getX() + "," + p.getY() + "," + p.getZ()
+                    + "§f -> relative §e" + (int) rel[0] + "," + p.getY() + "," + (int) rel[1]
+                    + "§7 (this is what would be stored for a waypoint here)");
+        }
+    }
+
+    /** Inverse of rotateAroundNorth (Odin rotateToNorth) on x/z. */
+    private static double[] rotateToNorth(int rotation, double x, double z) {
+        return switch (rotation) {
+            case 1 -> new double[]{-x, -z};  // NORTH
+            case 2 -> new double[]{z, -x};   // WEST
+            case 3 -> new double[]{-z, x};   // EAST
+            default -> new double[]{x, z};   // SOUTH
+        };
+    }
+
     /** Odin rotateAroundNorth on the relative x/z. */
     private static double[] rotateAroundNorth(int rotation, double x, double z) {
         return switch (rotation) {

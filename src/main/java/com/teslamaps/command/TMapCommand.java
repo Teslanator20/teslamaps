@@ -122,7 +122,12 @@ public class TMapCommand {
                             com.teslamaps.dungeon.DungeonWaypoints.load();
                             context.getSource().sendFeedback(Component.literal("Reloaded dungeon waypoints from config/teslamaps/dungeon_waypoints.json"));
                             return 1;
-                        }))
+                        })
+                        .then(ClientCommands.literal("debug")
+                                .executes(context -> {
+                                    com.teslamaps.dungeon.DungeonWaypoints.debug();
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("scan")
                         .executes(context -> {
                             context.getSource().sendFeedback(Component.literal("Forcing dungeon scan..."));
