@@ -19,6 +19,7 @@
         "HandledScreenAccessor",
         "HandledScreenClickMixin",
         "GenericContainerScreenMixin",
+        "ContainerOverlayMixin",
         "ClientPlayNetworkHandlerMixin",
         "ChestAutoCloseMixin",
         "BlockUpdateMixin",

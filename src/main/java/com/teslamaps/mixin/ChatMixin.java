@@ -23,8 +23,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ChatComponent.class)
 public class ChatMixin {
-    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"))
-    private void onChatMessage(Component message, CallbackInfo ci) {
+    // 26.1.2: addMessage(Component) split into addServer/Client/PlayerSystemMessage; they all
+    // funnel through this private addMessage overload, which catches every chat message.
+    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V", at = @At("HEAD"))
+    private void onChatMessage(Component message, net.minecraft.network.chat.MessageSignature signature, net.minecraft.client.multiplayer.chat.GuiMessageSource source, net.minecraft.client.multiplayer.chat.GuiMessageTag tag, CallbackInfo ci) {
         String text = message.getString();
         if (text.contains("SLAYER QUEST COMPLETE")) {
             SlayerHUD.onSlayerComplete();

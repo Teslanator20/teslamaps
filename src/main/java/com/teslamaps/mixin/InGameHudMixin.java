@@ -1,10 +1,7 @@
 package com.teslamaps.mixin;
 
-import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.scanner.SecretTracker;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,13 +21,7 @@ public class InGameHudMixin {
         SecretTracker.onActionBarMessage(message);
     }
 
-    /**
-     * Hide status effect icons on HUD (top right corner).
-     */
-    @Inject(method = "renderEffects", at = @At("HEAD"), cancellable = true)
-    private void hideStatusEffects(GuiGraphicsExtractor context, DeltaTracker tickCounter, CallbackInfo ci) {
-        if (TeslaMapsConfig.get().noEffects) {
-            ci.cancel();
-        }
-    }
+    // NOTE: the "noEffects" HUD-effect hider (old Gui.renderEffects @Inject) was removed:
+    // 26.1.2 no longer renders status effects in Gui. To restore it, hook the new status-effect
+    // HudElement or remove it via HudElementRegistry instead.
 }

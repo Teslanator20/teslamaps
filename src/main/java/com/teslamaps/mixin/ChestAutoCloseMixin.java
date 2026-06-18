@@ -103,7 +103,7 @@ public abstract class ChestAutoCloseMixin {
     /**
      * Handle auto-close and close-on-input in render tick using GLFW polling.
      */
-    @Inject(method = "render", at = @At("HEAD"))
+    @Inject(method = "extractRenderState", at = @At("HEAD"))
     private void onRenderTick(net.minecraft.client.gui.GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (!isChestScreen()) return;
         if (hasScheduledClose) return;
