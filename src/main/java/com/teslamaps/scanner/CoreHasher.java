@@ -1,14 +1,13 @@
 package com.teslamaps.scanner;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Calculates core hash signatures for room identification.
@@ -502,14 +501,14 @@ public class CoreHasher {
      * @param centerZ Z coordinate of room center
      * @return The core hash value
      */
-    public static int calculateCore(World world, int centerX, int centerZ) {
+    public static int calculateCore(Level world, int centerX, int centerZ) {
         StringBuilder blockIds = new StringBuilder();
 
         // Scan from y=140 down to y=12, matching IllegalMap
         for (int y = 140; y >= 12; y--) {
             BlockPos pos = new BlockPos(centerX, y, centerZ);
             Block block = world.getBlockState(pos).getBlock();
-            String blockName = Registries.BLOCK.getId(block).toString();
+            String blockName = BuiltInRegistries.BLOCK.getKey(block).toString();
 
             // Blacklisted blocks count as air (0)
             if (BLACKLISTED_BLOCKS.contains(blockName)) {
@@ -540,16 +539,16 @@ public class CoreHasher {
     /**
      * Check if a position is loaded and valid for scanning.
      */
-    public static boolean isPositionLoaded(World world, int x, int z) {
-        return world.isChunkLoaded(x >> 4, z >> 4);
+    public static boolean isPositionLoaded(Level world, int x, int z) {
+        return world.hasChunk(x >> 4, z >> 4);
     }
 
     /**
      * Scan and identify a room at the given grid position.
      */
     public static int scanRoomCore(int gridX, int gridZ) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return 0;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return 0;
 
         // Get room center coordinates
         int[] center = ComponentGrid.gridToWorld(gridX, gridZ);
@@ -557,10 +556,10 @@ public class CoreHasher {
         int centerZ = center[1];
 
         // Check if the chunk is loaded
-        if (!isPositionLoaded(mc.world, centerX, centerZ)) {
+        if (!isPositionLoaded(mc.level, centerX, centerZ)) {
             return 0;
         }
 
-        return calculateCore(mc.world, centerX, centerZ);
+        return calculateCore(mc.level, centerX, centerZ);
     }
 }

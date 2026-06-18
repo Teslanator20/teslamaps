@@ -12,19 +12,19 @@ import com.teslamaps.features.AutoWish;
 import com.teslamaps.features.LividSolver;
 import com.teslamaps.slayer.SlayerHUD;
 import com.teslamaps.utils.LoudSound;
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ChatHud.class)
+@Mixin(ChatComponent.class)
 public class ChatMixin {
-    @Inject(method = "addMessage(Lnet/minecraft/text/Text;)V", at = @At("HEAD"))
-    private void onChatMessage(Text message, CallbackInfo ci) {
+    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"))
+    private void onChatMessage(Component message, CallbackInfo ci) {
         String text = message.getString();
         if (text.contains("SLAYER QUEST COMPLETE")) {
             SlayerHUD.onSlayerComplete();
@@ -40,9 +40,9 @@ public class ChatMixin {
             StarredMobESP.onBloodDoorOpened();
         } else if (text.equals("That chest is locked!")) {
             // Play anvil sound for locked chest
-            net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
             if (mc.player != null) {
-                mc.player.playSound(net.minecraft.sound.SoundEvents.BLOCK_ANVIL_LAND, 1.0f, 1.0f);
+                mc.player.playSound(net.minecraft.sounds.SoundEvents.ANVIL_LAND, 1.0f, 1.0f);
             }
         }
 
@@ -89,13 +89,13 @@ public class ChatMixin {
     }
 
     @Unique
-    private static net.minecraft.sound.SoundEvent getSecretSound() {
+    private static net.minecraft.sounds.SoundEvent getSecretSound() {
         String sound = TeslaMapsConfig.get().secretSoundType;
         return switch (sound) {
-            case "NOTE_PLING" -> SoundEvents.BLOCK_NOTE_BLOCK_PLING.value();
-            case "EXPERIENCE_ORB" -> SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP;
-            case "AMETHYST_CHIME" -> SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME;
-            default -> SoundEvents.ENTITY_PLAYER_LEVELUP; // LEVEL_UP
+            case "NOTE_PLING" -> SoundEvents.NOTE_BLOCK_PLING.value();
+            case "EXPERIENCE_ORB" -> SoundEvents.EXPERIENCE_ORB_PICKUP;
+            case "AMETHYST_CHIME" -> SoundEvents.AMETHYST_BLOCK_CHIME;
+            default -> SoundEvents.PLAYER_LEVELUP; // LEVEL_UP
         };
     }
 }

@@ -5,23 +5,22 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.player.PlayerTracker;
 import com.teslamaps.player.PlayerTracker.DungeonPlayer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.Formatting;
-
 import java.util.*;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Enhanced Spirit Leap overlay - renders a custom 2x2 grid with player info.
  * Spirit Leap menu overlay with class icons and sorting.
  */
 public class LeapOverlay {
-    private static final MinecraftClient mc = MinecraftClient.getInstance();
+    private static final Minecraft mc = Minecraft.getInstance();
 
     // Class color mappings 
     private static final Map<String, Integer> CLASS_COLORS = new HashMap<>();
@@ -75,11 +74,11 @@ public class LeapOverlay {
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().leapOverlay) return false;
         if (!DungeonManager.isInDungeon()) return false;
-        if (mc.currentScreen == null) return false;
+        if (mc.screen == null) return false;
 
-        if (mc.currentScreen instanceof GenericContainerScreen containerScreen) {
+        if (mc.screen instanceof ContainerScreen containerScreen) {
             String title = containerScreen.getTitle().getString();
-            String cleanTitle = Formatting.strip(title);
+            String cleanTitle = ChatFormatting.stripFormatting(title);
             return "Spirit Leap".equals(cleanTitle);
         }
         return false;
@@ -88,13 +87,13 @@ public class LeapOverlay {
     /**
      * Render the custom leap menu overlay.
      */
-    public static void render(DrawContext context, int mouseX, int mouseY) {
+    public static void render(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         if (!shouldRender()) {
             menuOpen = false;
             return;
         }
 
-        GenericContainerScreen screen = (GenericContainerScreen) mc.currentScreen;
+        ContainerScreen screen = (ContainerScreen) mc.screen;
         if (screen == null) return;
 
         // Scan for players if menu just opened or periodically
@@ -115,9 +114,9 @@ public class LeapOverlay {
         }
         if (!hasPlayers) return;
 
-        TextRenderer textRenderer = mc.textRenderer;
-        int screenWidth = mc.getWindow().getScaledWidth();
-        int screenHeight = mc.getWindow().getScaledHeight();
+        Font textRenderer = mc.font;
+        int screenWidth = mc.getWindow().getGuiScaledWidth();
+        int screenHeight = mc.getWindow().getGuiScaledHeight();
 
         // Scale based on screen size (smaller on smaller screens)
         float scale = Math.min(screenWidth / 400f, screenHeight / 250f);
@@ -158,7 +157,7 @@ public class LeapOverlay {
     /**
      * Render a single player box.
      */
-    private static void renderPlayerBox(DrawContext context, TextRenderer textRenderer,
+    private static void renderPlayerBox(GuiGraphicsExtractor context, Font textRenderer,
                                          LeapPlayer player, int x, int y, int width, int height,
                                          boolean hovered, float scale) {
         // Get class color
@@ -191,23 +190,23 @@ public class LeapOverlay {
 
         // Draw class letter centered
         String letter = CLASS_LETTERS.getOrDefault(player.dungeonClass, "?");
-        int letterX = iconX + (iconSize - textRenderer.getWidth(letter)) / 2;
+        int letterX = iconX + (iconSize - textRenderer.width(letter)) / 2;
         int letterY = iconY + (iconSize - 8) / 2;
-        context.drawText(textRenderer, letter, letterX, letterY, 0xFFFFFFFF, true);
+        context.text(textRenderer, letter, letterX, letterY, 0xFFFFFFFF, true);
 
         // Draw player name
         int textX = iconX + iconSize + (int)(6 * scale);
         int nameY = y + (int)(8 * scale);
         int nameColor = player.isDead ? 0xFFFF5555 : 0xFFFFFFFF;
-        context.drawText(textRenderer, player.name, textX, nameY, nameColor, true);
+        context.text(textRenderer, player.name, textX, nameY, nameColor, true);
 
         // Draw class name (or DEAD)
         int classY = y + (int)(20 * scale);
         if (player.isDead) {
-            context.drawText(textRenderer, "DEAD", textX, classY, 0xFFFF0000, true);
+            context.text(textRenderer, "DEAD", textX, classY, 0xFFFF0000, true);
         } else {
             String classText = player.dungeonClass != null ? player.dungeonClass : "Unknown";
-            context.drawText(textRenderer, classText, textX, classY, classColor, true);
+            context.text(textRenderer, classText, textX, classY, classColor, true);
         }
     }
 
@@ -220,11 +219,11 @@ public class LeapOverlay {
         if (!shouldRender()) return false;
         if (button != 0) return false; // Only left click
 
-        GenericContainerScreen screen = (GenericContainerScreen) mc.currentScreen;
+        ContainerScreen screen = (ContainerScreen) mc.screen;
         if (screen == null) return false;
 
-        int screenWidth = mc.getWindow().getScaledWidth();
-        int screenHeight = mc.getWindow().getScaledHeight();
+        int screenWidth = mc.getWindow().getGuiScaledWidth();
+        int screenHeight = mc.getWindow().getGuiScaledHeight();
         int halfWidth = screenWidth / 2;
         int halfHeight = screenHeight / 2;
 
@@ -257,18 +256,18 @@ public class LeapOverlay {
     /**
      * Find and click the slot for the given player name.
      */
-    private static void leapToPlayer(GenericContainerScreen screen, String playerName) {
-        var handler = screen.getScreenHandler();
+    private static void leapToPlayer(ContainerScreen screen, String playerName) {
+        var handler = screen.getMenu();
 
         for (Slot slot : handler.slots) {
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
 
-            String itemName = Formatting.strip(stack.getName().getString());
+            String itemName = ChatFormatting.stripFormatting(stack.getHoverName().getString());
             if (itemName != null && itemName.equals(playerName)) {
-                if (mc.interactionManager != null && mc.player != null) {
-                    mc.interactionManager.clickSlot(handler.syncId, slot.id, 0,
-                        net.minecraft.screen.slot.SlotActionType.PICKUP, mc.player);
+                if (mc.gameMode != null && mc.player != null) {
+                    mc.gameMode.handleContainerInput(handler.containerId, slot.index, 0,
+                        net.minecraft.world.inventory.ContainerInput.PICKUP, mc.player);
                     TeslaMaps.LOGGER.info("[LeapOverlay] Leaping to {}", playerName);
                 }
                 return;
@@ -280,11 +279,11 @@ public class LeapOverlay {
     /**
      * Scan the leap menu for players and sort by class.
      */
-    private static void scanLeapPlayers(GenericContainerScreen screen) {
+    private static void scanLeapPlayers(ContainerScreen screen) {
         // Clear array
         Arrays.fill(leapPlayers, null);
 
-        var handler = screen.getScreenHandler();
+        var handler = screen.getMenu();
         List<DungeonPlayer> dungeonPlayers = PlayerTracker.getPlayers();
         Map<String, DungeonPlayer> playerMap = new HashMap<>();
         for (DungeonPlayer dp : dungeonPlayers) {
@@ -294,17 +293,17 @@ public class LeapOverlay {
         // Collect all players from slots
         List<LeapPlayer> allPlayers = new ArrayList<>();
         for (Slot slot : handler.slots) {
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
 
-            String itemName = Formatting.strip(stack.getName().getString());
+            String itemName = ChatFormatting.stripFormatting(stack.getHoverName().getString());
             if (itemName == null || itemName.isEmpty()) continue;
 
             DungeonPlayer dp = playerMap.get(itemName);
             String dungeonClass = dp != null ? dp.getDungeonClass() : null;
             boolean isDead = dp != null && !dp.isAlive();
 
-            allPlayers.add(new LeapPlayer(itemName, dungeonClass, isDead, slot.id));
+            allPlayers.add(new LeapPlayer(itemName, dungeonClass, isDead, slot.index));
         }
 
         // Apply sorting algorithm

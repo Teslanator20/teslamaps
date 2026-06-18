@@ -162,7 +162,7 @@ public class DungeonRoom {
      * Convert room-relative coordinates to actual world coordinates.
      * Uses the room's primary component for conversion.
      */
-    public net.minecraft.util.math.BlockPos relativeToActual(net.minecraft.util.math.BlockPos relative) {
+    public net.minecraft.core.BlockPos relativeToActual(net.minecraft.core.BlockPos relative) {
         int[] primary = getPrimaryComponent();
         return com.teslamaps.scanner.ComponentGrid.relativeToActual(primary[0], primary[1], relative);
     }
@@ -171,7 +171,7 @@ public class DungeonRoom {
      * Convert actual world coordinates to room-relative coordinates.
      * Uses the room's primary component for conversion.
      */
-    public net.minecraft.util.math.BlockPos actualToRelative(net.minecraft.util.math.BlockPos actual) {
+    public net.minecraft.core.BlockPos actualToRelative(net.minecraft.core.BlockPos actual) {
         int[] primary = getPrimaryComponent();
         return com.teslamaps.scanner.ComponentGrid.actualToRelative(primary[0], primary[1], actual);
     }
@@ -180,10 +180,10 @@ public class DungeonRoom {
      * Get the room corner as a BlockPos (for puzzle solvers).
      * Returns the world position of the room's northwest corner at Y=0.
      */
-    public net.minecraft.util.math.BlockPos getCorner() {
+    public net.minecraft.core.BlockPos getCorner() {
         int[] primary = getPrimaryComponent();
         int[] corner = com.teslamaps.scanner.ComponentGrid.gridToWorldCorner(primary[0], primary[1]);
-        return new net.minecraft.util.math.BlockPos(corner[0], 0, corner[1]);
+        return new net.minecraft.core.BlockPos(corner[0], 0, corner[1]);
     }
 
     /**

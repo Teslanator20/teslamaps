@@ -3,11 +3,6 @@ package com.teslamaps.player;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.mixin.PlayerTabOverlayAccessor;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -19,6 +14,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * Tracks all players in the dungeon for map display.
@@ -45,7 +45,7 @@ public class PlayerTracker {
     /**
      * Cached player list sorted by vanilla ordering.
      */
-    private static List<PlayerListEntry> playerList = new ArrayList<>();
+    private static List<PlayerInfo> playerList = new ArrayList<>();
 
     public static void reset() {
         Arrays.fill(players, null);
@@ -65,18 +65,18 @@ public class PlayerTracker {
      * Update the cached player list using vanilla's tab list ordering.
      */
     private static void updatePlayerList() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        ClientPlayNetworkHandler networkHandler = mc.getNetworkHandler();
+        Minecraft mc = Minecraft.getInstance();
+        ClientPacketListener networkHandler = mc.getConnection();
 
         if (networkHandler != null) {
             try {
-                playerList = networkHandler.getPlayerList()
+                playerList = networkHandler.getOnlinePlayers()
                         .stream()
                         .sorted(PlayerTabOverlayAccessor.getOrdering())
                         .toList();
             } catch (Exception e) {
                 // Fallback if accessor fails
-                playerList = new ArrayList<>(networkHandler.getPlayerList());
+                playerList = new ArrayList<>(networkHandler.getOnlinePlayers());
             }
         }
     }
@@ -133,7 +133,7 @@ public class PlayerTracker {
             return null;
         }
 
-        Text txt = playerList.get(idx).getDisplayName();
+        Component txt = playerList.get(idx).getTabListDisplayName();
         if (txt == null) {
             return null;
         }
@@ -152,7 +152,7 @@ public class PlayerTracker {
         if (!matcher.find()) return;
 
         String name = matcher.group("name");
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if ("You".equals(name) && mc.player != null) {
             name = mc.player.getName().getString();
         }
@@ -213,9 +213,9 @@ public class PlayerTracker {
                 CompletableFuture.runAsync(() -> {
                     try {
                         // Trigger skin loading by looking up the player in tab list
-                        var handler = MinecraftClient.getInstance().getNetworkHandler();
+                        var handler = Minecraft.getInstance().getConnection();
                         if (handler != null) {
-                            handler.getPlayerListEntry(uuid);
+                            handler.getPlayerInfo(uuid);
                         }
                     } catch (Exception ignored) {}
                 }, Executors.newVirtualThreadPerTaskExecutor());
@@ -223,14 +223,14 @@ public class PlayerTracker {
         }
 
         private static @Nullable UUID findPlayerUuid(String name) {
-            MinecraftClient mc = MinecraftClient.getInstance();
-            if (mc.world == null) return null;
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.level == null) return null;
 
             // Search through all entities
-            for (var entity : mc.world.getEntities()) {
-                if (entity instanceof PlayerEntity player) {
+            for (var entity : mc.level.entitiesForRendering()) {
+                if (entity instanceof Player player) {
                     if (player.getGameProfile().name().equals(name)) {
-                        return player.getUuid();
+                        return player.getUUID();
                     }
                 }
             }

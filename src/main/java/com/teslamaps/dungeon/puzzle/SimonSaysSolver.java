@@ -1,22 +1,21 @@
 package com.teslamaps.dungeon.puzzle;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Simon Says Solver for F7/M7 Phase 3.
@@ -59,12 +58,12 @@ public class SimonSaysSolver {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
 
         // Check if player is near Simon Says device
-        BlockPos playerPos = mc.player.getBlockPos();
-        if (playerPos.getSquaredDistance(110, 121, 91) > 400) {
+        BlockPos playerPos = mc.player.blockPosition();
+        if (playerPos.distToLowCornerSqr(110, 121, 91) > 400) {
             return;
         }
 
@@ -79,7 +78,7 @@ public class SimonSaysSolver {
                 // Check if grid has enough buttons (pattern reset)
                 int buttonCount = 0;
                 for (BlockPos pos : GRID) {
-                    if (mc.world.getBlockState(pos).getBlock() == Blocks.STONE_BUTTON) {
+                    if (mc.level.getBlockState(pos).getBlock() == Blocks.STONE_BUTTON) {
                         buttonCount++;
                     }
                 }
@@ -96,13 +95,13 @@ public class SimonSaysSolver {
         if (!TeslaMapsConfig.get().solveSimonSays) return;
         if (!DungeonManager.isInDungeon() || !DungeonManager.isInBoss()) return;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
 
         // Start button pressed - reset sequence
         if (pos.equals(START_BUTTON)) {
             if (newState.getBlock() == Blocks.STONE_BUTTON &&
-                newState.contains(Properties.POWERED) && newState.get(Properties.POWERED)) {
+                newState.hasProperty(BlockStateProperties.POWERED) && newState.getValue(BlockStateProperties.POWERED)) {
                 clickSequence.clear();
                 clickIndex = 0;
                 firstPhase = true;
@@ -117,7 +116,7 @@ public class SimonSaysSolver {
             if (oldState.getBlock() == Blocks.SEA_LANTERN && newState.getBlock() == Blocks.OBSIDIAN) {
                 // Lantern turned off - add to sequence
                 if (!clickSequence.contains(pos)) {
-                    clickSequence.add(pos.toImmutable());
+                    clickSequence.add(pos.immutable());
                     lastLanternTick = 0;
                     TeslaMaps.LOGGER.info("[SimonSays] Added to sequence: {} (total: {})", pos, clickSequence.size());
 
@@ -140,7 +139,7 @@ public class SimonSaysSolver {
         // Check for button press (x=110)
         if (pos.getX() == 110 && pos.getY() >= 120 && pos.getY() <= 123 && pos.getZ() >= 92 && pos.getZ() <= 95) {
             if (oldState.getBlock() == Blocks.STONE_BUTTON &&
-                newState.contains(Properties.POWERED) && newState.get(Properties.POWERED)) {
+                newState.hasProperty(BlockStateProperties.POWERED) && newState.getValue(BlockStateProperties.POWERED)) {
                 // Button pressed - advance click index
                 BlockPos lanternPos = pos.east(); // x+1 is the lantern position
                 int index = clickSequence.indexOf(lanternPos);
@@ -167,7 +166,7 @@ public class SimonSaysSolver {
         }
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().solveSimonSays) return;
         if (clickSequence.isEmpty() || clickIndex >= clickSequence.size()) return;
 
@@ -187,7 +186,7 @@ public class SimonSaysSolver {
             };
 
             // Draw box around button
-            Box box = new Box(
+            AABB box = new AABB(
                 buttonPos.getX() + 0.05, buttonPos.getY() + 0.37, buttonPos.getZ() + 0.3,
                 buttonPos.getX() - 0.15, buttonPos.getY() + 0.63, buttonPos.getZ() + 0.7
             );

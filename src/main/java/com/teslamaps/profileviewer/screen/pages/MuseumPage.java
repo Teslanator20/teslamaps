@@ -7,11 +7,11 @@ import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import com.teslamaps.profileviewer.screen.ProfileViewerScreen;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Museum page showing donated items and museum value.
@@ -60,26 +60,26 @@ public class MuseumPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         int padding = 15;
         int contentX = x + padding;
 
         int lineY = y + padding;
 
-        ctx.drawTextWithShadow(tr, "Museum", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Museum", contentX, lineY, TEXT_GREEN);
         lineY += 20;
 
         if (loading) {
-            ctx.drawTextWithShadow(tr, "Loading museum data...", contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, "Loading museum data...", contentX, lineY, TEXT_GRAY);
             return;
         }
 
         if (museumData == null || museumData.has("error")) {
             String error = museumData != null && museumData.has("error") ?
                     museumData.get("error").getAsString() : "Failed to load museum data";
-            ctx.drawTextWithShadow(tr, error, contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, error, contentX, lineY, TEXT_GRAY);
             return;
         }
 
@@ -90,21 +90,21 @@ public class MuseumPage extends ProfileViewerPage {
         JsonObject members = museumData.has("members") ?
                 museumData.getAsJsonObject("members") : null;
         if (members == null) {
-            ctx.drawTextWithShadow(tr, "No museum data for this profile", contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, "No museum data for this profile", contentX, lineY, TEXT_GRAY);
             return;
         }
 
         JsonObject memberMuseum = members.has(profile.getOwnerUuid()) ?
                 members.getAsJsonObject(profile.getOwnerUuid()) : null;
         if (memberMuseum == null) {
-            ctx.drawTextWithShadow(tr, "No museum data for this player", contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, "No museum data for this player", contentX, lineY, TEXT_GRAY);
             return;
         }
 
         // Museum value
         if (memberMuseum.has("value")) {
             long value = memberMuseum.get("value").getAsLong();
-            ctx.drawTextWithShadow(tr, "Museum Value: " + formatCoins(value), contentX, lineY, TEXT_GOLD);
+            ctx.text(tr, "Museum Value: " + formatCoins(value), contentX, lineY, TEXT_GOLD);
             lineY += 16;
         }
 
@@ -112,13 +112,13 @@ public class MuseumPage extends ProfileViewerPage {
         if (memberMuseum.has("items")) {
             JsonObject items = memberMuseum.getAsJsonObject("items");
             int itemCount = items.size();
-            ctx.drawTextWithShadow(tr, "Items Donated: " + itemCount, contentX, lineY, TEXT_WHITE);
+            ctx.text(tr, "Items Donated: " + itemCount, contentX, lineY, TEXT_WHITE);
             lineY += 16;
         }
 
         // Special items donated
         lineY += 8;
-        ctx.drawTextWithShadow(tr, "Special Items", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Special Items", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         if (memberMuseum.has("special")) {
@@ -126,11 +126,11 @@ public class MuseumPage extends ProfileViewerPage {
             int count = 0;
             for (var entry : special.entrySet()) {
                 if (count >= 15) {
-                    ctx.drawTextWithShadow(tr, "... and more", contentX, lineY, TEXT_GRAY);
+                    ctx.text(tr, "... and more", contentX, lineY, TEXT_GRAY);
                     break;
                 }
                 String itemName = formatItemName(entry.getKey());
-                ctx.drawTextWithShadow(tr, "- " + itemName, contentX, lineY, TEXT_WHITE);
+                ctx.text(tr, "- " + itemName, contentX, lineY, TEXT_WHITE);
                 lineY += 12;
                 count++;
             }
@@ -138,7 +138,7 @@ public class MuseumPage extends ProfileViewerPage {
 
         // Armor sets
         lineY += 8;
-        ctx.drawTextWithShadow(tr, "Armor Sets", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Armor Sets", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         if (memberMuseum.has("armor")) {
@@ -146,11 +146,11 @@ public class MuseumPage extends ProfileViewerPage {
             int count = 0;
             for (var entry : armor.entrySet()) {
                 if (count >= 10) {
-                    ctx.drawTextWithShadow(tr, "... and more", contentX, lineY, TEXT_GRAY);
+                    ctx.text(tr, "... and more", contentX, lineY, TEXT_GRAY);
                     break;
                 }
                 String setName = formatItemName(entry.getKey());
-                ctx.drawTextWithShadow(tr, "- " + setName, contentX, lineY, TEXT_WHITE);
+                ctx.text(tr, "- " + setName, contentX, lineY, TEXT_WHITE);
                 lineY += 12;
                 count++;
             }

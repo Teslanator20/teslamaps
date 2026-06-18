@@ -1,5 +1,6 @@
 package com.teslamaps;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.command.TMapCommand;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.database.RoomDatabase;
@@ -43,14 +44,14 @@ import com.teslamaps.slayer.SlayerHUD;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,13 +78,13 @@ public class TeslaMaps implements ClientModInitializer {
         // Register /tmap command
         ClientCommandRegistrationCallback.EVENT.register(TMapCommand::register);
 
-        // Register HUD render callback
-        HudRenderCallback.EVENT.register(MapRenderer::render);
-        HudRenderCallback.EVENT.register(SlayerHUD::render);
+        // Register HUD elements (26.1.2: HudRenderCallback -> HudElementRegistry)
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "map"), MapRenderer::render);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "slayer"), SlayerHUD::render);
         // HUD indicators removed - using 3D tracers instead
-        HudRenderCallback.EVENT.register(LividSolver::renderHUD);
-        HudRenderCallback.EVENT.register(SpiritBearTimer::render);
-        HudRenderCallback.EVENT.register(WaterBoardSolver::renderHud);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "livid"), LividSolver::renderHUD);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "spiritbear"), SpiritBearTimer::render);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "waterboard"), WaterBoardSolver::renderHud);
 
         // Initialize starred mob ESP
         StarredMobESP.init();
@@ -92,50 +93,51 @@ public class TeslaMaps implements ClientModInitializer {
         AutoGFS.init();
 
         // Register world render event for 3D tracers/beacons
-        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
-            MinecraftClient mc = MinecraftClient.getInstance();
-            if (context.consumers() != null && mc.gameRenderer != null && mc.gameRenderer.getCamera() != null) {
-                Vec3d cameraPos = mc.gameRenderer.getCamera().getCameraPos();
-                Vec3d playerEyePos = cameraPos;
+        // 26.1.2: WorldRenderEvents.AFTER_ENTITIES -> LevelRenderEvents.AFTER_TRANSLUCENT_FEATURES
+        LevelRenderEvents.AFTER_TRANSLUCENT_FEATURES.register(context -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.gameRenderer != null && mc.gameRenderer.getMainCamera() != null) {
+                Vec3 cameraPos = mc.gameRenderer.getMainCamera().position();
+                Vec3 playerEyePos = cameraPos;
                 StarredMobESP.renderWorldElements(
-                        context.matrices(),
-                        context.consumers(),
+                        context.poseStack(),
+                        context.bufferSource(),
                         cameraPos,
                         playerEyePos
                 );
                 LividSolver.renderWorld(
-                        context.matrices(),
-                        context.consumers(),
+                        context.poseStack(),
+                        context.bufferSource(),
                         cameraPos,
                         playerEyePos
                 );
 
                 // Render puzzle solvers
-                DungeonBlaze.render(context.matrices(), cameraPos);
-                ThreeWeirdos.render(context.matrices(), cameraPos);
-                TicTacToe.render(context.matrices(), cameraPos);
-                BoulderSolver.render(context.matrices(), cameraPos);
-                QuizSolver.render(context.matrices(), cameraPos);
-                TPMazeSolver.render(context.matrices(), cameraPos);
-                CreeperBeamsSolver.render(context.matrices(), cameraPos);
-                SimonSaysSolver.render(context.matrices(), cameraPos);
-                ArrowAlignSolver.render(context.matrices(), cameraPos);
-                TerracottaTimer.render(context.matrices(), cameraPos);
-                WaterBoardSolver.render(context.matrices(), cameraPos);
+                DungeonBlaze.render(context.poseStack(), cameraPos);
+                ThreeWeirdos.render(context.poseStack(), cameraPos);
+                TicTacToe.render(context.poseStack(), cameraPos);
+                BoulderSolver.render(context.poseStack(), cameraPos);
+                QuizSolver.render(context.poseStack(), cameraPos);
+                TPMazeSolver.render(context.poseStack(), cameraPos);
+                CreeperBeamsSolver.render(context.poseStack(), cameraPos);
+                SimonSaysSolver.render(context.poseStack(), cameraPos);
+                ArrowAlignSolver.render(context.poseStack(), cameraPos);
+                TerracottaTimer.render(context.poseStack(), cameraPos);
+                WaterBoardSolver.render(context.poseStack(), cameraPos);
 
                 // Render secret waypoints
-                SecretWaypoints.render(context.matrices(), cameraPos);
+                SecretWaypoints.render(context.poseStack(), cameraPos);
 
                 // Render mimic trapped chest ESP (only on F6, F7, M6, M7)
                 if (DungeonManager.isInDungeon() && !MimicDetector.isMimicKilled() && com.teslamaps.dungeon.DungeonScore.floorHasMimics()) {
-                    renderMimicChestESP(context.matrices(), cameraPos);
+                    renderMimicChestESP(context.poseStack(), cameraPos);
                 }
             }
         });
 
         // Register tick event for dungeon detection and scanning
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player != null && client.world != null) {
+            if (client.player != null && client.level != null) {
                 DungeonManager.tick();
                 RoomScanner.tick();
                 PlayerTracker.tick();
@@ -183,7 +185,7 @@ public class TeslaMaps implements ClientModInitializer {
     /**
      * Render ESP for trapped chests (only in actual mimic room).
      */
-    private static void renderMimicChestESP(MatrixStack matrices, Vec3d cameraPos) {
+    private static void renderMimicChestESP(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().mimicChestESP) return;
 
         // Only render chests in the actual mimic room(s)
@@ -202,14 +204,14 @@ public class TeslaMaps implements ClientModInitializer {
             if (room == null || !mimicRooms.contains(room)) continue;
 
             // Create box around the chest block
-            Box chestBox = new Box(pos.getX(), pos.getY(), pos.getZ(),
+            AABB chestBox = new AABB(pos.getX(), pos.getY(), pos.getZ(),
                     pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
 
             ESPRenderer.drawESPBox(matrices, chestBox, boxColor, cameraPos);
 
             // Draw tracer to chest
             if (TeslaMapsConfig.get().mimicChestTracers) {
-                Vec3d chestCenter = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+                Vec3 chestCenter = new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
                 ESPRenderer.drawTracerFromCamera(matrices, chestCenter, tracerColor, cameraPos);
             }
         }

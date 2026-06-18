@@ -4,14 +4,13 @@ import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.mixin.PlayerTabOverlayAccessor;
 import com.teslamaps.utils.ScoreboardUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.text.Text;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.network.chat.Component;
 
 /**
  * Dungeon score calculator.
@@ -54,7 +53,7 @@ public class DungeonScore {
     private static int score = 0;
 
     // Tab list sorting
-    private static Comparator<PlayerListEntry> tabListComparator = null;
+    private static Comparator<PlayerInfo> tabListComparator = null;
 
     // Floor detection delay
     private static boolean floorDetectionPending = false;
@@ -140,7 +139,7 @@ public class DungeonScore {
     }
 
     private static void sendScoreMessage(int milestone) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
         long elapsed = (System.currentTimeMillis() - startingTime) / 1000;
@@ -148,12 +147,11 @@ public class DungeonScore {
         int seconds = (int) (elapsed % 60);
         String timeStr = String.format("%02d:%02d", minutes, seconds);
 
-        mc.player.sendMessage(
-            Text.literal("[")
-                .append(Text.literal("TeslaMaps").styled(style -> style.withColor(0x55FF55)))
-                .append(Text.literal("] "))
-                .append(Text.literal(milestone + " Score reached @ " + timeStr).styled(style -> style.withColor(0xFFFFFF))),
-            false
+        mc.player.sendSystemMessage(
+            Component.literal("[")
+                .append(Component.literal("TeslaMaps").withStyle(style -> style.withColor(0x55FF55)))
+                .append(Component.literal("] "))
+                .append(Component.literal(milestone + " Score reached @ " + timeStr).withStyle(style -> style.withColor(0xFFFFFF)))
         );
     }
 
@@ -294,8 +292,8 @@ public class DungeonScore {
      * Get tab list string at index (sorted like vanilla tab display)
      */
     private static String strAt(int index) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.getNetworkHandler() == null) return null;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getConnection() == null) return null;
 
         // Get the comparator used by the vanilla tab overlay
         if (tabListComparator == null) {
@@ -307,14 +305,14 @@ public class DungeonScore {
         }
 
         // Sort entries like vanilla tab list display
-        List<PlayerListEntry> playerList = mc.getNetworkHandler().getPlayerList()
+        List<PlayerInfo> playerList = mc.getConnection().getOnlinePlayers()
                 .stream()
                 .sorted(tabListComparator)
                 .toList();
 
         if (playerList.size() <= index) return null;
 
-        var txt = playerList.get(index).getDisplayName();
+        var txt = playerList.get(index).getTabListDisplayName();
         if (txt == null) return null;
 
         String str = txt.getString().trim();

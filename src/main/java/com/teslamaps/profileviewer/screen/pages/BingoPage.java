@@ -7,14 +7,13 @@ import com.teslamaps.profileviewer.api.HypixelApi;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import com.teslamaps.profileviewer.screen.ProfileViewerScreen;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-
 import java.util.HashSet;
 import java.util.Set;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Bingo page showing bingo card progress.
@@ -56,26 +55,26 @@ public class BingoPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         int padding = 15;
         int contentX = x + padding;
 
         int lineY = y + padding;
 
-        ctx.drawTextWithShadow(tr, "Bingo Card", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Bingo Card", contentX, lineY, TEXT_GREEN);
         lineY += 20;
 
         if (loading) {
-            ctx.drawTextWithShadow(tr, "Loading bingo data...", contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, "Loading bingo data...", contentX, lineY, TEXT_GRAY);
             return;
         }
 
         if (bingoData == null || bingoData.has("error")) {
             String error = bingoData != null && bingoData.has("error") ?
                     bingoData.get("error").getAsString() : "Failed to load bingo data";
-            ctx.drawTextWithShadow(tr, error, contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, error, contentX, lineY, TEXT_GRAY);
             return;
         }
 
@@ -116,13 +115,13 @@ public class BingoPage extends ProfileViewerPage {
 
                 // Goal number
                 String num = String.valueOf(goalIndex + 1);
-                int numX = cellX + (CELL_SIZE - 2 - tr.getWidth(num)) / 2;
+                int numX = cellX + (CELL_SIZE - 2 - tr.width(num)) / 2;
                 int numY = cellY + (CELL_SIZE - 2 - 8) / 2;
-                ctx.drawTextWithShadow(tr, num, numX, numY, completed ? TEXT_GREEN : TEXT_GRAY);
+                ctx.text(tr, num, numX, numY, completed ? TEXT_GREEN : TEXT_GRAY);
 
                 // Checkmark for completed
                 if (completed) {
-                    ctx.drawTextWithShadow(tr, "✓", cellX + 2, cellY + 2, TEXT_GREEN);
+                    ctx.text(tr, "✓", cellX + 2, cellY + 2, TEXT_GREEN);
                 }
             }
         }
@@ -132,13 +131,13 @@ public class BingoPage extends ProfileViewerPage {
         int completedCount = completedGoals.size();
         int totalGoals = GRID_SIZE * GRID_SIZE;
 
-        ctx.drawTextWithShadow(tr, "Completed: " + completedCount + "/" + totalGoals,
+        ctx.text(tr, "Completed: " + completedCount + "/" + totalGoals,
                 contentX, statsY, TEXT_WHITE);
 
         // Check for bingo (5 in a row)
         int bingos = countBingos(completedGoals);
         if (bingos > 0) {
-            ctx.drawTextWithShadow(tr, "Bingos: " + bingos, contentX + 150, statsY, TEXT_GOLD);
+            ctx.text(tr, "Bingos: " + bingos, contentX + 150, statsY, TEXT_GOLD);
         }
     }
 

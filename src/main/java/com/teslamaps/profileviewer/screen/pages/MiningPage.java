@@ -3,11 +3,11 @@ package com.teslamaps.profileviewer.screen.pages;
 import com.google.gson.JsonObject;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Mining page showing HOTM (Heart of the Mountain), powder, and commissions.
@@ -34,12 +34,12 @@ public class MiningPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
 
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         JsonObject memberData = profile.getMemberData();
         int padding = 15;
         int contentX = x + padding;
@@ -49,18 +49,18 @@ public class MiningPage extends ProfileViewerPage {
         // === HOTM Level ===
         JsonObject mining = getNestedObject(memberData, "mining_core");
         if (mining == null) {
-            ctx.drawTextWithShadow(tr, "No mining data available", contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, "No mining data available", contentX, lineY, TEXT_GRAY);
             return;
         }
 
-        ctx.drawTextWithShadow(tr, "Heart of the Mountain", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Heart of the Mountain", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         // HOTM Experience and Level
         double hotmXp = mining.has("experience") ? mining.get("experience").getAsDouble() : 0;
         int hotmLevel = calculateHotmLevel(hotmXp);
 
-        ctx.drawTextWithShadow(tr, "Level: " + hotmLevel, contentX, lineY, TEXT_AQUA);
+        ctx.text(tr, "Level: " + hotmLevel, contentX, lineY, TEXT_AQUA);
         lineY += 12;
 
         // Progress bar
@@ -69,20 +69,20 @@ public class MiningPage extends ProfileViewerPage {
         lineY += 20;
 
         // === Powder ===
-        ctx.drawTextWithShadow(tr, "Powder", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Powder", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         // Mithril Powder
         int mithrilPowder = mining.has("powder_mithril") ? mining.get("powder_mithril").getAsInt() : 0;
         int mithrilSpent = mining.has("powder_spent_mithril") ? mining.get("powder_spent_mithril").getAsInt() : 0;
-        ctx.drawTextWithShadow(tr, "Mithril: " + formatNumber(mithrilPowder) + " (+" + formatNumber(mithrilSpent) + " spent)",
+        ctx.text(tr, "Mithril: " + formatNumber(mithrilPowder) + " (+" + formatNumber(mithrilSpent) + " spent)",
                 contentX, lineY, MITHRIL_COLOR);
         lineY += 12;
 
         // Gemstone Powder
         int gemstonePowder = mining.has("powder_gemstone") ? mining.get("powder_gemstone").getAsInt() : 0;
         int gemstoneSpent = mining.has("powder_spent_gemstone") ? mining.get("powder_spent_gemstone").getAsInt() : 0;
-        ctx.drawTextWithShadow(tr, "Gemstone: " + formatNumber(gemstonePowder) + " (+" + formatNumber(gemstoneSpent) + " spent)",
+        ctx.text(tr, "Gemstone: " + formatNumber(gemstonePowder) + " (+" + formatNumber(gemstoneSpent) + " spent)",
                 contentX, lineY, GEMSTONE_COLOR);
         lineY += 12;
 
@@ -90,7 +90,7 @@ public class MiningPage extends ProfileViewerPage {
         if (mining.has("powder_glacite")) {
             int glacitePowder = mining.get("powder_glacite").getAsInt();
             int glaciteSpent = mining.has("powder_spent_glacite") ? mining.get("powder_spent_glacite").getAsInt() : 0;
-            ctx.drawTextWithShadow(tr, "Glacite: " + formatNumber(glacitePowder) + " (+" + formatNumber(glaciteSpent) + " spent)",
+            ctx.text(tr, "Glacite: " + formatNumber(glacitePowder) + " (+" + formatNumber(glaciteSpent) + " spent)",
                     contentX, lineY, GLACITE_COLOR);
             lineY += 12;
         }
@@ -98,18 +98,18 @@ public class MiningPage extends ProfileViewerPage {
         lineY += 8;
 
         // === Commissions ===
-        ctx.drawTextWithShadow(tr, "Commissions", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Commissions", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         if (mining.has("commissions_milestone")) {
             int milestone = mining.get("commissions_milestone").getAsInt();
-            ctx.drawTextWithShadow(tr, "Milestone: " + milestone, contentX, lineY, TEXT_WHITE);
+            ctx.text(tr, "Milestone: " + milestone, contentX, lineY, TEXT_WHITE);
             lineY += 12;
         }
 
         // === Crystal Nucleus ===
         lineY += 8;
-        ctx.drawTextWithShadow(tr, "Crystal Nucleus", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Crystal Nucleus", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject crystals = mining.has("crystals") ? mining.getAsJsonObject("crystals") : null;
@@ -130,7 +130,7 @@ public class MiningPage extends ProfileViewerPage {
                         default -> "[Not Found]";
                     };
 
-                    ctx.drawTextWithShadow(tr, displayNames[i] + " " + stateDisplay + " (" + total + " placed)",
+                    ctx.text(tr, displayNames[i] + " " + stateDisplay + " (" + total + " placed)",
                             contentX, lineY, colors[i]);
                     lineY += 12;
                 }

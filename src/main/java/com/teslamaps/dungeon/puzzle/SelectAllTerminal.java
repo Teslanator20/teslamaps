@@ -2,15 +2,6 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +9,14 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * F7 Terminal Solver - "Select all the [COLOR] items!"
@@ -43,7 +42,7 @@ public class SelectAllTerminal {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         /* DISABLED
         if (!TeslaMapsConfig.get().solveSelectAllTerminal) {
@@ -54,27 +53,27 @@ public class SelectAllTerminal {
         }
         */
 
-        if (mc.player == null || mc.world == null) {
+        if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
         // Check if we're looking at a container screen
-        if (!(mc.currentScreen instanceof GenericContainerScreen)) {
+        if (!(mc.screen instanceof ContainerScreen)) {
             if (targetColor != null) {
             }
             reset();
             return;
         }
 
-        GenericContainerScreen screen = (GenericContainerScreen) mc.currentScreen;
+        ContainerScreen screen = (ContainerScreen) mc.screen;
 
         // Get screen title
-        Text title = screen.getTitle();
+        Component title = screen.getTitle();
         String titleStr = title.getString();
 
         // Debug: Log container title once per second
-        int currentTick = mc.player.age;
+        int currentTick = mc.player.tickCount;
         if (currentTick - lastDebugTick > 20) {
             lastDebugTick = currentTick;
         }
@@ -163,8 +162,8 @@ public class SelectAllTerminal {
     /**
      * Find ALL slots that contain items of the target color.
      */
-    private static void findAllCorrectSlots(GenericContainerScreen screen) {
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+    private static void findAllCorrectSlots(ContainerScreen screen) {
+        ChestMenu handler = screen.getMenu();
 
 
         int scannedItems = 0;
@@ -179,18 +178,18 @@ public class SelectAllTerminal {
                 Slot slot = handler.slots.get(slotId);
 
                 // Skip player inventory slots (slots 0-53 are container, 54+ are player inv)
-                if (slot.id >= 54) continue;
+                if (slot.index >= 54) continue;
 
-                ItemStack stack = slot.getStack();
+                ItemStack stack = slot.getItem();
                 if (stack.isEmpty()) continue;
 
                 scannedItems++;
 
                 // Get item display name
-                String itemName = stack.getName().getString();
+                String itemName = stack.getHoverName().getString();
 
                 // Strip formatting codes
-                String strippedName = Formatting.strip(itemName);
+                String strippedName = ChatFormatting.stripFormatting(itemName);
                 if (strippedName == null || strippedName.isEmpty()) {
                     continue;
                 }
@@ -198,10 +197,10 @@ public class SelectAllTerminal {
 
                 // Check if this item matches the target color
                 if (matchesColor(strippedName, targetColor)) {
-                    correctSlots.add(slot.id);
+                    correctSlots.add(slot.index);
                     TeslaMaps.LOGGER.info("[SelectAllTerminal] ===== FOUND MATCHING ITEM =====");
                     TeslaMaps.LOGGER.info("[SelectAllTerminal] Item: '{}'", strippedName);
-                    TeslaMaps.LOGGER.info("[SelectAllTerminal] Slot: {}", slot.id);
+                    TeslaMaps.LOGGER.info("[SelectAllTerminal] Slot: {}", slot.index);
                 }
             }
         }
@@ -275,7 +274,7 @@ public class SelectAllTerminal {
     /**
      * Perform the next auto-click on an unclicked slot.
      */
-    private static void performNextClick(MinecraftClient mc, GenericContainerScreen screen) {
+    private static void performNextClick(Minecraft mc, ContainerScreen screen) {
         if (mc.player == null) {
             TeslaMaps.LOGGER.warn("[SelectAllTerminal] DEBUG: Cannot click - player is null");
             return;
@@ -295,17 +294,17 @@ public class SelectAllTerminal {
             return;
         }
 
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
 
         TeslaMaps.LOGGER.info("[SelectAllTerminal] ===== PERFORMING AUTO-CLICK =====");
         TeslaMaps.LOGGER.info("[SelectAllTerminal] Clicking slot {} ({}/{})", slotToClick, clickedSlots.size() + 1, correctSlots.size());
 
         // Click the slot (left click = button 0)
-        mc.interactionManager.clickSlot(
-            handler.syncId,
+        mc.gameMode.handleContainerInput(
+            handler.containerId,
             slotToClick,
             0,  // Left click
-            SlotActionType.PICKUP,
+            ContainerInput.PICKUP,
             mc.player
         );
 
@@ -365,13 +364,13 @@ public class SelectAllTerminal {
      * Event-driven slot update handler.
      * Called by TerminalManager when a slot update packet is received.
      */
-    public static void onSlotUpdate(int slotIndex, net.minecraft.item.ItemStack stack) {
+    public static void onSlotUpdate(int slotIndex, net.minecraft.world.item.ItemStack stack) {
         if (!TeslaMapsConfig.get().solveSelectAllTerminal) return;
         if (slotIndex >= 54) return; // Ignore player inventory
 
         // If an item we clicked got enchant glint (was clicked), mark as done
         if (clickedSlots.contains(slotIndex)) {
-            if (stack.hasGlint()) {
+            if (stack.hasFoil()) {
                 isClicked = false; // Click was registered
                 TeslaMaps.LOGGER.info("[SelectAllTerminal] Slot {} click confirmed (has glint)", slotIndex);
             }

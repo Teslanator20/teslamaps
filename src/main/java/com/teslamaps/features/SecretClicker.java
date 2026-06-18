@@ -5,12 +5,18 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.scanner.ComponentGrid;
-import net.minecraft.block.*;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.LeverBlock;
+import net.minecraft.world.level.block.SkullBlock;
+import net.minecraft.world.level.block.TrappedChestBlock;
+import net.minecraft.world.level.block.WallSkullBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -43,9 +49,9 @@ public class SecretClicker {
         if (!DungeonManager.isInDungeon()) return;
         if (DungeonManager.isInBoss()) return;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) return;
-        if (mc.currentScreen != null) return; // Don't click while in a GUI
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
+        if (mc.screen != null) return; // Don't click while in a GUI
 
         // Check delay
         long currentTime = System.currentTimeMillis();
@@ -56,12 +62,12 @@ public class SecretClicker {
         if (currentTime - lastClickTime < totalDelay) return;
 
         // Check if looking at a block
-        HitResult hitResult = mc.crosshairTarget;
+        HitResult hitResult = mc.hitResult;
         if (hitResult == null || hitResult.getType() != HitResult.Type.BLOCK) return;
 
         BlockHitResult blockHit = (BlockHitResult) hitResult;
         BlockPos pos = blockHit.getBlockPos();
-        BlockState state = mc.world.getBlockState(pos);
+        BlockState state = mc.level.getBlockState(pos);
 
         // Clean up old clicked positions (older than 1 second)
         clickedPositions.entrySet().removeIf(entry -> currentTime - entry.getValue() > 1000);
@@ -84,10 +90,10 @@ public class SecretClicker {
         }
 
         // Perform the click (right click)
-        if (mc.interactionManager != null) {
-            mc.interactionManager.interactBlock(
+        if (mc.gameMode != null) {
+            mc.gameMode.useItemOn(
                 mc.player,
-                mc.player.getActiveHand(),
+                mc.player.getUsedItemHand(),
                 blockHit
             );
 

@@ -2,19 +2,18 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Experiment Solver - Chronomatron (Superpairs table)
@@ -68,7 +67,7 @@ public class ChronomatronSolver {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         /* DISABLED
         if (!TeslaMapsConfig.get().solveChronomatron) {
@@ -80,12 +79,12 @@ public class ChronomatronSolver {
         }
         */
 
-        if (mc.player == null || mc.world == null) {
+        if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
-        if (!(mc.currentScreen instanceof GenericContainerScreen screen)) {
+        if (!(mc.screen instanceof ContainerScreen screen)) {
             if (initialScanDone) {
                 TeslaMaps.LOGGER.info("[Chronomatron] Screen closed, resetting");
             }
@@ -93,9 +92,9 @@ public class ChronomatronSolver {
             return;
         }
 
-        Text title = screen.getTitle();
+        Component title = screen.getTitle();
         String titleStr = title.getString();
-        String cleanTitle = Formatting.strip(titleStr);
+        String cleanTitle = ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
         // Check if this is Chronomatron
@@ -124,7 +123,7 @@ public class ChronomatronSolver {
         }
 
         long currentTime = System.currentTimeMillis();
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
 
         // Scan for slot changes every tick
         if (currentTime - lastScanTime >= 50) {
@@ -168,14 +167,14 @@ public class ChronomatronSolver {
     /**
      * Process slot changes to detect glint (flashing items) and timer state.
      */
-    private static void processSlotChanges(GenericContainerScreenHandler handler) {
+    private static void processSlotChanges(ChestMenu handler) {
         // Determine valid slot range based on layout
         int minSlot = isSingleRow ? 17 : 10;
         int maxSlot = isSingleRow ? 25 : 34;
 
         // Check instruction slot (49) for timer/state changes
-        ItemStack instructionStack = handler.getSlot(49).getStack();
-        String instructionName = instructionStack.getName().getString();
+        ItemStack instructionStack = handler.getSlot(49).getItem();
+        String instructionName = instructionStack.getHoverName().getString();
 
         switch (state) {
             case REMEMBER -> {
@@ -184,10 +183,10 @@ public class ChronomatronSolver {
                     Slot slot = handler.getSlot(slotId);
                     if (slot == null) continue;
 
-                    ItemStack stack = slot.getStack();
+                    ItemStack stack = slot.getItem();
                     if (stack.isEmpty()) continue;
 
-                    boolean hasGlint = stack.hasGlint();
+                    boolean hasGlint = stack.hasFoil();
                     Boolean prevGlint = previousGlintState.get(slotId);
 
                     // Item just started glowing
@@ -248,7 +247,7 @@ public class ChronomatronSolver {
     /**
      * Click the next item in the sequence.
      */
-    private static void performNextClick(MinecraftClient mc, GenericContainerScreenHandler handler) {
+    private static void performNextClick(Minecraft mc, ChestMenu handler) {
         if (mc.player == null || chronomatronCurrentOrdinal >= chronomatronSlots.size()) return;
 
         Item targetItem = chronomatronSlots.get(chronomatronCurrentOrdinal);
@@ -262,7 +261,7 @@ public class ChronomatronSolver {
             Slot slot = handler.getSlot(slotId);
             if (slot == null) continue;
 
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
             // Check if this slot matches the target
@@ -286,11 +285,11 @@ public class ChronomatronSolver {
         TeslaMaps.LOGGER.info("[Chronomatron] Clicking slot {} for item {} ({}/{})",
             slotToClick, targetItem, chronomatronCurrentOrdinal + 1, chronomatronSlots.size());
 
-        mc.interactionManager.clickSlot(
-            handler.syncId,
+        mc.gameMode.handleContainerInput(
+            handler.containerId,
             slotToClick,
             0,
-            SlotActionType.PICKUP,
+            ContainerInput.PICKUP,
             mc.player
         );
 
@@ -313,10 +312,10 @@ public class ChronomatronSolver {
             return -1;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (!(mc.currentScreen instanceof GenericContainerScreen screen)) return -1;
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof ContainerScreen screen)) return -1;
 
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
         Item targetItem = chronomatronSlots.get(chronomatronCurrentOrdinal);
 
         int minSlot = isSingleRow ? 17 : 10;
@@ -326,7 +325,7 @@ public class ChronomatronSolver {
             Slot slot = handler.getSlot(slotId);
             if (slot == null) continue;
 
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
             if (stack.getItem() == targetItem) return slotId;

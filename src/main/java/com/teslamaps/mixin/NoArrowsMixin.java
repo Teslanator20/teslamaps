@@ -2,8 +2,8 @@ package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.esp.StarredMobESP;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,7 +21,7 @@ public class NoArrowsMixin {
         Entity self = (Entity) (Object) this;
 
         // Hide arrows
-        if (TeslaMapsConfig.get().noArrows && self instanceof PersistentProjectileEntity) {
+        if (TeslaMapsConfig.get().noArrows && self instanceof AbstractArrow) {
             cir.setReturnValue(true);
             return;
         }

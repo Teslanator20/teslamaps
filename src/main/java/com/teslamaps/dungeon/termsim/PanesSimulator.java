@@ -1,7 +1,7 @@
 package com.teslamaps.dungeon.termsim;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Simulator for "Correct all the panes!" terminal.

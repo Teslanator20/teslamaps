@@ -2,17 +2,16 @@ package com.teslamaps.dungeon.termgui;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.puzzle.ClickInOrderTerminal;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.slot.Slot;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Custom GUI for the "Click in order!" terminal (Numbers).
@@ -28,9 +27,9 @@ public class NumbersTermGui extends CustomTermGui {
     }
 
     @Override
-    public void renderTerminal(DrawContext context, int slotCount) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (!(mc.currentScreen instanceof GenericContainerScreen screen)) return;
+    public void renderTerminal(GuiGraphicsExtractor context, int slotCount) {
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof ContainerScreen screen)) return;
 
         renderBackground(context, slotCount, 7, 2);
 
@@ -38,17 +37,17 @@ public class NumbersTermGui extends CustomTermGui {
         Map<Integer, Integer> slotToNumber = new HashMap<>();
         List<Integer> orderedSlots = new ArrayList<>();
 
-        for (Slot slot : screen.getScreenHandler().slots) {
-            if (slot.id >= slotCount) continue; // Skip player inventory
+        for (Slot slot : screen.getMenu().slots) {
+            if (slot.index >= slotCount) continue; // Skip player inventory
 
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
             // Red panes have the order number as stack size
             if (stack.getItem() == Items.RED_STAINED_GLASS_PANE) {
                 int number = stack.getCount();
                 if (number >= 1 && number <= 14) {
-                    slotToNumber.put(slot.id, number);
+                    slotToNumber.put(slot.index, number);
                 }
             }
         }

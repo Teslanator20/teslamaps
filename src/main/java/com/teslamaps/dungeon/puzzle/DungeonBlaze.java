@@ -1,29 +1,28 @@
 package com.teslamaps.dungeon.puzzle;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.render.ESPRenderer;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Blaze puzzle solver - highlights which blaze to kill.
  * Blaze puzzle solver - shows kill order.
  */
 public class DungeonBlaze {
-    private static ArmorStandEntity highestBlaze = null;
-    private static ArmorStandEntity lowestBlaze = null;
-    private static ArmorStandEntity nextHighestBlaze = null;
-    private static ArmorStandEntity nextLowestBlaze = null;
+    private static ArmorStand highestBlaze = null;
+    private static ArmorStand lowestBlaze = null;
+    private static ArmorStand nextHighestBlaze = null;
+    private static ArmorStand nextLowestBlaze = null;
 
     private static boolean blazeDoneMessageSent = false;
     private static int previousBlazeCount = 0;
@@ -34,13 +33,13 @@ public class DungeonBlaze {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || mc.player == null) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) {
             reset();
             return;
         }
 
-        List<ObjectIntPair<ArmorStandEntity>> blazes = getBlazesInWorld();
+        List<ObjectIntPair<ArmorStand>> blazes = getBlazesInWorld();
         sortBlazes(blazes);
         updateBlazeEntities(blazes);
 
@@ -58,7 +57,7 @@ public class DungeonBlaze {
         previousBlazeCount = blazes.size();
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().solveBlaze || !DungeonManager.isInDungeon()) {
             return;
         }
@@ -79,20 +78,20 @@ public class DungeonBlaze {
         }
     }
 
-    private static List<ObjectIntPair<ArmorStandEntity>> getBlazesInWorld() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        List<ObjectIntPair<ArmorStandEntity>> blazes = new ArrayList<>();
+    private static List<ObjectIntPair<ArmorStand>> getBlazesInWorld() {
+        Minecraft mc = Minecraft.getInstance();
+        List<ObjectIntPair<ArmorStand>> blazes = new ArrayList<>();
 
-        if (mc.world == null || mc.player == null) return blazes;
+        if (mc.level == null || mc.player == null) return blazes;
 
-        Box searchBox = mc.player.getBoundingBox().expand(500);
-        List<ArmorStandEntity> armorStands = mc.world.getEntitiesByClass(
-                ArmorStandEntity.class,
+        AABB searchBox = mc.player.getBoundingBox().inflate(500);
+        List<ArmorStand> armorStands = mc.level.getEntitiesOfClass(
+                ArmorStand.class,
                 searchBox,
-                entity -> !entity.hasPassengers()
+                entity -> !entity.isVehicle()
         );
 
-        for (ArmorStandEntity blaze : armorStands) {
+        for (ArmorStand blaze : armorStands) {
             String blazeName = blaze.getName().getString();
             if (blazeName.contains("Blaze") && blazeName.contains("/")) {
                 try {
@@ -107,11 +106,11 @@ public class DungeonBlaze {
         return blazes;
     }
 
-    private static void sortBlazes(List<ObjectIntPair<ArmorStandEntity>> blazes) {
+    private static void sortBlazes(List<ObjectIntPair<ArmorStand>> blazes) {
         blazes.sort(Comparator.comparingInt(ObjectIntPair::rightInt));
     }
 
-    private static void updateBlazeEntities(List<ObjectIntPair<ArmorStandEntity>> blazes) {
+    private static void updateBlazeEntities(List<ObjectIntPair<ArmorStand>> blazes) {
         if (!blazes.isEmpty()) {
             lowestBlaze = blazes.get(0).left();
             int highestIndex = blazes.size() - 1;
@@ -123,19 +122,19 @@ public class DungeonBlaze {
         }
     }
 
-    private static void renderBlazeOutline(MatrixStack matrices, ArmorStandEntity blaze, ArmorStandEntity nextBlaze, Vec3d cameraPos) {
+    private static void renderBlazeOutline(PoseStack matrices, ArmorStand blaze, ArmorStand nextBlaze, Vec3 cameraPos) {
         // Green box for target blaze
-        Box blazeBox = blaze.getBoundingBox().expand(0.3, 0.9, 0.3).offset(0, -1.1, 0);
+        AABB blazeBox = blaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
         ESPRenderer.drawBoxOutline(matrices, blazeBox, 0xFF00FF00, 5.0f, cameraPos); // Green
 
         if (nextBlaze != null && nextBlaze.isAlive() && nextBlaze != blaze) {
             // White box for next blaze
-            Box nextBlazeBox = nextBlaze.getBoundingBox().expand(0.3, 0.9, 0.3).offset(0, -1.1, 0);
+            AABB nextBlazeBox = nextBlaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
             ESPRenderer.drawBoxOutline(matrices, nextBlazeBox, 0xFFFFFFFF, 5.0f, cameraPos); // White
 
             // Line connecting them
-            Vec3d blazeCenter = blazeBox.getCenter();
-            Vec3d nextBlazeCenter = nextBlazeBox.getCenter();
+            Vec3 blazeCenter = blazeBox.getCenter();
+            Vec3 nextBlazeCenter = nextBlazeBox.getCenter();
             ESPRenderer.drawLine(matrices, blazeCenter, nextBlazeCenter, 0xFFFFFFFF, 1.0f, cameraPos);
         }
     }
@@ -150,10 +149,10 @@ public class DungeonBlaze {
     }
 
     private static void sendBlazeDoneMessage() {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        mc.player.networkHandler.sendChatCommand("pc Blaze Done!");
+        mc.player.connection.sendCommand("pc Blaze Done!");
         TeslaMaps.LOGGER.info("[DungeonBlaze] Sent Blaze Done message to party");
     }
 

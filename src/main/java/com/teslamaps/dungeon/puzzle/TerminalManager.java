@@ -2,11 +2,11 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Central manager for terminal solving.
@@ -33,14 +33,14 @@ public class TerminalManager {
      * This is the event-driven entry point - no polling needed!
      */
     public static void onSlotUpdate(int syncId, int slotIndex, ItemStack stack) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.currentScreen == null || !(mc.currentScreen instanceof GenericContainerScreen)) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen == null || !(mc.screen instanceof ContainerScreen)) {
             currentTerminal = TerminalType.NONE;
             return;
         }
 
-        GenericContainerScreen screen = (GenericContainerScreen) mc.currentScreen;
-        int screenSyncId = screen.getScreenHandler().syncId;
+        ContainerScreen screen = (ContainerScreen) mc.screen;
+        int screenSyncId = screen.getMenu().containerId;
 
         // Only process updates for the current screen
         if (syncId != screenSyncId) {
@@ -86,10 +86,10 @@ public class TerminalManager {
     /**
      * Detect which terminal type is currently open based on screen title.
      */
-    private static TerminalType detectTerminalType(GenericContainerScreen screen) {
-        Text title = screen.getTitle();
+    private static TerminalType detectTerminalType(ContainerScreen screen) {
+        Component title = screen.getTitle();
         String titleStr = title.getString();
-        String cleanTitle = Formatting.strip(titleStr);
+        String cleanTitle = ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
         if (cleanTitle.equals("Click in order!")) {

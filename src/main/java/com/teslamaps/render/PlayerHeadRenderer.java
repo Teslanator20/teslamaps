@@ -1,43 +1,42 @@
 package com.teslamaps.render;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.PlayerSkinDrawer;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.util.DefaultSkinHelper;
-import net.minecraft.entity.player.SkinTextures;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.world.entity.player.PlayerSkin;
 
 /**
  * Utility for rendering player heads on the dungeon map.
  * Uses caching for smooth, lag-free rendering.
  */
 public class PlayerHeadRenderer {
-    private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
+    private static final Minecraft CLIENT = Minecraft.getInstance();
 
     // Cache skins by UUID to avoid repeated lookups
-    private static final Map<UUID, SkinTextures> skinCache = new HashMap<>();
+    private static final Map<UUID, PlayerSkin> skinCache = new HashMap<>();
     private static long lastCacheCleanup = 0;
     private static final long CACHE_CLEANUP_INTERVAL = 30000; // 30 seconds
 
     /**
      * Draw a player head at the specified position.
      */
-    public static void drawPlayerHead(DrawContext context, int x, int y, int size, UUID uuid) {
-        SkinTextures skin = getSkinTextures(uuid);
-        PlayerSkinDrawer.draw(context, skin, x, y, size);
+    public static void drawPlayerHead(GuiGraphicsExtractor context, int x, int y, int size, UUID uuid) {
+        PlayerSkin skin = getSkinTextures(uuid);
+        PlayerFaceExtractor.extractRenderState(context, skin, x, y, size);
     }
 
     /**
      * Draw a player head rotated by the given angle (degrees).
      */
-    public static void drawPlayerHeadRotated(DrawContext context, int x, int y, int size, UUID uuid, float rotationDegrees) {
-        SkinTextures skin = getSkinTextures(uuid);
+    public static void drawPlayerHeadRotated(GuiGraphicsExtractor context, int x, int y, int size, UUID uuid, float rotationDegrees) {
+        PlayerSkin skin = getSkinTextures(uuid);
 
-        var matrices = context.getMatrices();
+        var matrices = context.pose();
         matrices.pushMatrix();
 
         // Translate to center of head, rotate around Z axis (in radians), translate back
@@ -45,7 +44,7 @@ public class PlayerHeadRenderer {
         matrices.rotate((float) Math.toRadians(rotationDegrees));
         matrices.translate(-size / 2f, -size / 2f);
 
-        PlayerSkinDrawer.draw(context, skin, 0, 0, size);
+        PlayerFaceExtractor.extractRenderState(context, skin, 0, 0, size);
 
         matrices.popMatrix();
     }
@@ -53,9 +52,9 @@ public class PlayerHeadRenderer {
     /**
      * Get skin textures for a UUID with caching.
      */
-    private static SkinTextures getSkinTextures(UUID uuid) {
+    private static PlayerSkin getSkinTextures(UUID uuid) {
         if (uuid == null) {
-            return DefaultSkinHelper.getSkinTextures(UUID.randomUUID());
+            return DefaultPlayerSkin.get(UUID.randomUUID());
         }
 
         // Periodically clean old cache entries
@@ -66,13 +65,13 @@ public class PlayerHeadRenderer {
         }
 
         // Check cache first
-        SkinTextures cached = skinCache.get(uuid);
+        PlayerSkin cached = skinCache.get(uuid);
         if (cached != null) {
             return cached;
         }
 
         // Look up the skin
-        SkinTextures skin = lookupSkin(uuid);
+        PlayerSkin skin = lookupSkin(uuid);
         skinCache.put(uuid, skin);
         return skin;
     }
@@ -80,24 +79,24 @@ public class PlayerHeadRenderer {
     /**
      * Look up skin textures for a UUID (no caching).
      */
-    private static SkinTextures lookupSkin(UUID uuid) {
+    private static PlayerSkin lookupSkin(UUID uuid) {
         // Try to get from player list (works for local player and others)
-        if (CLIENT.getNetworkHandler() != null) {
-            PlayerListEntry entry = CLIENT.getNetworkHandler().getPlayerListEntry(uuid);
+        if (CLIENT.getConnection() != null) {
+            PlayerInfo entry = CLIENT.getConnection().getPlayerInfo(uuid);
             if (entry != null) {
-                return entry.getSkinTextures();
+                return entry.getSkin();
             }
 
             // Search player list by UUID
-            for (PlayerListEntry e : CLIENT.getNetworkHandler().getPlayerList()) {
+            for (PlayerInfo e : CLIENT.getConnection().getOnlinePlayers()) {
                 if (e.getProfile() != null && e.getProfile().id().equals(uuid)) {
-                    return e.getSkinTextures();
+                    return e.getSkin();
                 }
             }
         }
 
         // Fallback to default skin based on UUID
-        return DefaultSkinHelper.getSkinTextures(uuid);
+        return DefaultPlayerSkin.get(uuid);
     }
 
     /**

@@ -1,11 +1,10 @@
 package com.teslamaps.dungeon.termsim;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Simulator for "Click in order!" terminal.

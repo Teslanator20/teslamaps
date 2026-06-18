@@ -3,18 +3,17 @@ package com.teslamaps.dungeon.puzzle;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * F7 Terminal Solver - "What starts with: 'X'?"
@@ -44,7 +43,7 @@ public class StartsWithTerminal {
         // Note: We don't check DungeonManager.isInDungeon() because practice mode (/term) doesn't register as dungeon
         // If a terminal GUI is open, we're either in a dungeon or practice mode - both are valid
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         /* DISABLED
         if (!TeslaMapsConfig.get().solveStartsWithTerminal) {
@@ -55,27 +54,27 @@ public class StartsWithTerminal {
         }
         */
 
-        if (mc.player == null || mc.world == null) {
+        if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
         // Check if we're looking at a container screen
-        if (!(mc.currentScreen instanceof GenericContainerScreen)) {
+        if (!(mc.screen instanceof ContainerScreen)) {
             if (targetLetter != null) {
             }
             reset();
             return;
         }
 
-        GenericContainerScreen screen = (GenericContainerScreen) mc.currentScreen;
+        ContainerScreen screen = (ContainerScreen) mc.screen;
 
         // Get screen title
-        Text title = screen.getTitle();
+        Component title = screen.getTitle();
         String titleStr = title.getString();
 
         // Debug: Log container title once per second
-        int currentTick = mc.player.age;
+        int currentTick = mc.player.tickCount;
         if (currentTick - lastDebugTick > 20) {
             lastDebugTick = currentTick;
         }
@@ -164,8 +163,8 @@ public class StartsWithTerminal {
     /**
      * Find ALL slots that contain items starting with the target letter.
      */
-    private static void findAllCorrectSlots(GenericContainerScreen screen) {
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+    private static void findAllCorrectSlots(ContainerScreen screen) {
+        ChestMenu handler = screen.getMenu();
 
 
         // Scan all slots in the container
@@ -181,18 +180,18 @@ public class StartsWithTerminal {
                 Slot slot = handler.slots.get(slotId);
 
                 // Skip player inventory slots (slots 0-53 are container, 54+ are player inv)
-                if (slot.id >= 54) continue;
+                if (slot.index >= 54) continue;
 
-                ItemStack stack = slot.getStack();
+                ItemStack stack = slot.getItem();
                 if (stack.isEmpty()) continue;
 
                 scannedItems++;
 
                 // Get item display name
-                String itemName = stack.getName().getString();
+                String itemName = stack.getHoverName().getString();
 
                 // Strip formatting codes
-                String strippedName = Formatting.strip(itemName);
+                String strippedName = ChatFormatting.stripFormatting(itemName);
                 if (strippedName == null || strippedName.isEmpty()) {
                     continue;
                 }
@@ -201,10 +200,10 @@ public class StartsWithTerminal {
 
                 // Check if name starts with target letter (case insensitive)
                 if (Character.toUpperCase(firstChar) == targetLetter) {
-                    correctSlots.add(slot.id);
+                    correctSlots.add(slot.index);
                     TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== FOUND MATCHING ITEM =====");
                     TeslaMaps.LOGGER.info("[StartsWithTerminal] Item: '{}'", strippedName);
-                    TeslaMaps.LOGGER.info("[StartsWithTerminal] Slot: {}", slot.id);
+                    TeslaMaps.LOGGER.info("[StartsWithTerminal] Slot: {}", slot.index);
                 }
             }
         }
@@ -222,7 +221,7 @@ public class StartsWithTerminal {
     /**
      * Perform the next auto-click on an unclicked slot.
      */
-    private static void performNextClick(MinecraftClient mc, GenericContainerScreen screen) {
+    private static void performNextClick(Minecraft mc, ContainerScreen screen) {
         if (mc.player == null) {
             TeslaMaps.LOGGER.warn("[StartsWithTerminal] DEBUG: Cannot click - player is null");
             return;
@@ -242,18 +241,18 @@ public class StartsWithTerminal {
             return;
         }
 
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
 
         TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== PERFORMING AUTO-CLICK =====");
         TeslaMaps.LOGGER.info("[StartsWithTerminal] Clicking slot {} ({}/{})", slotToClick, clickedSlots.size() + 1, correctSlots.size());
-        TeslaMaps.LOGGER.info("[StartsWithTerminal] Handler syncId: {}", handler.syncId);
+        TeslaMaps.LOGGER.info("[StartsWithTerminal] Handler syncId: {}", handler.containerId);
 
         // Click the correct slot (left click = button 0)
-        mc.interactionManager.clickSlot(
-            handler.syncId,
+        mc.gameMode.handleContainerInput(
+            handler.containerId,
             slotToClick,
             0,  // Left click
-            SlotActionType.PICKUP,
+            ContainerInput.PICKUP,
             mc.player
         );
 
@@ -313,13 +312,13 @@ public class StartsWithTerminal {
      * Event-driven slot update handler.
      * Called by TerminalManager when a slot update packet is received.
      */
-    public static void onSlotUpdate(int slotIndex, net.minecraft.item.ItemStack stack) {
+    public static void onSlotUpdate(int slotIndex, net.minecraft.world.item.ItemStack stack) {
         if (!TeslaMapsConfig.get().solveStartsWithTerminal) return;
         if (slotIndex >= 54) return; // Ignore player inventory
 
         // If an item we clicked got enchant glint (was clicked), mark as done
         if (clickedSlots.contains(slotIndex)) {
-            if (stack.hasGlint()) {
+            if (stack.hasFoil()) {
                 isClicked = false; // Click was registered
                 TeslaMaps.LOGGER.info("[StartsWithTerminal] Slot {} click confirmed (has glint)", slotIndex);
             }

@@ -1,19 +1,15 @@
 package com.teslamaps.screen;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
-
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
 
 /**
  * A clean toggle switch widget with smooth rendering and label support.
  */
-public class AppleToggleWidget extends ButtonWidget {
+public class AppleToggleWidget extends Button {
     private static final int TOGGLE_WIDTH = 40;
     private static final int TOGGLE_HEIGHT = 20;
     private static final float ANIMATION_SPEED = 0.15f;
@@ -25,11 +21,11 @@ public class AppleToggleWidget extends ButtonWidget {
 
     public AppleToggleWidget(int x, int y, int width, int height, String label,
                              Supplier<Boolean> getter, Consumer<Boolean> setter) {
-        super(x, y, width, height, net.minecraft.text.Text.literal(label), button -> {
+        super(x, y, width, height, net.minecraft.network.chat.Component.literal(label), button -> {
             // Toggle the value when clicked
             boolean newValue = !getter.get();
             setter.accept(newValue);
-        }, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
+        }, Button.DEFAULT_NARRATION);
         this.label = label;
         this.getter = getter;
         this.setter = setter;
@@ -37,8 +33,8 @@ public class AppleToggleWidget extends ButtonWidget {
     }
 
     @Override
-    protected void drawIcon(DrawContext context, int mouseX, int mouseY, float delta) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+    protected void extractContents(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        Minecraft mc = Minecraft.getInstance();
         boolean hovered = isHovered();
         boolean value = getter.get();
 
@@ -58,7 +54,7 @@ public class AppleToggleWidget extends ButtonWidget {
         context.fill(getX(), getY() + height - 1, getX() + width, getY() + height, AppleColors.SEPARATOR);
 
         // Label
-        context.drawTextWithShadow(mc.textRenderer, label, getX() + 12, getY() + (height - 8) / 2, AppleColors.TEXT_PRIMARY);
+        context.text(mc.font, label, getX() + 12, getY() + (height - 8) / 2, AppleColors.TEXT_PRIMARY);
 
         // Toggle switch on the right
         int toggleX = getX() + width - TOGGLE_WIDTH - 12;
@@ -87,7 +83,7 @@ public class AppleToggleWidget extends ButtonWidget {
     /**
      * Draw a pill shape (rounded rectangle)
      */
-    private void drawPill(DrawContext context, int x, int y, int w, int h, int color) {
+    private void drawPill(GuiGraphicsExtractor context, int x, int y, int w, int h, int color) {
         int radius = h / 2;
 
         // Draw center rectangle
@@ -103,7 +99,7 @@ public class AppleToggleWidget extends ButtonWidget {
     /**
      * Draw a circle
      */
-    private void drawCircle(DrawContext context, int x, int y, int diameter, int color) {
+    private void drawCircle(GuiGraphicsExtractor context, int x, int y, int diameter, int color) {
         int radius = diameter / 2;
         int centerX = x + radius;
         int centerY = y + radius;
@@ -131,7 +127,7 @@ public class AppleToggleWidget extends ButtonWidget {
     /**
      * Draw a half circle (for pill caps)
      */
-    private void drawHalfCircle(DrawContext context, int centerX, int centerY, int radius, int color, boolean left) {
+    private void drawHalfCircle(GuiGraphicsExtractor context, int centerX, int centerY, int radius, int color, boolean left) {
         for (int dy = -radius; dy <= radius; dy++) {
             double rowWidth = Math.sqrt(radius * radius - dy * dy);
             int intWidth = (int) rowWidth;

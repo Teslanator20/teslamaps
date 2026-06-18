@@ -2,10 +2,6 @@ package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,18 +13,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
 
 /**
  * Mixin to handle auto-close chests and close-on-input features.
  * Uses GLFW polling for input detection (1.21.10 compatible).
  */
-@Mixin(HandledScreen.class)
+@Mixin(AbstractContainerScreen.class)
 public abstract class ChestAutoCloseMixin {
 
-    @Shadow protected int backgroundWidth;
-    @Shadow protected int backgroundHeight;
-    @Shadow protected int x;
-    @Shadow protected int y;
+    @Shadow protected int imageWidth;
+    @Shadow protected int imageHeight;
+    @Shadow protected int leftPos;
+    @Shadow protected int topPos;
 
     @Unique
     private static final int[] KEYS_TO_CHECK = {
@@ -60,7 +60,7 @@ public abstract class ChestAutoCloseMixin {
 
     @Unique
     private boolean isChestScreen() {
-        if (!(((Object) this) instanceof GenericContainerScreen screen)) {
+        if (!(((Object) this) instanceof ContainerScreen screen)) {
             return false;
         }
 
@@ -70,7 +70,7 @@ public abstract class ChestAutoCloseMixin {
         }
 
         // Only chests with no title (empty or just "Chest")
-        Text title = screen.getTitle();
+        Component title = screen.getTitle();
         if (title == null) {
             return true;
         }
@@ -104,15 +104,15 @@ public abstract class ChestAutoCloseMixin {
      * Handle auto-close and close-on-input in render tick using GLFW polling.
      */
     @Inject(method = "render", at = @At("HEAD"))
-    private void onRenderTick(net.minecraft.client.gui.DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    private void onRenderTick(net.minecraft.client.gui.GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (!isChestScreen()) return;
         if (hasScheduledClose) return;
 
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.getWindow() == null) return;
 
-        long windowHandle = mc.getWindow().getHandle();
+        long windowHandle = mc.getWindow().handle();
 
         // Initialize on first render (calculate random offset and capture initial key state)
         if (!initialized) {
@@ -130,7 +130,7 @@ public abstract class ChestAutoCloseMixin {
             int totalDelay = config.autoCloseDelay + randomCloseOffset;
             if (ticksSinceOpen >= totalDelay) {
                 hasScheduledClose = true;
-                ((HandledScreen<?>) (Object) this).close();
+                ((AbstractContainerScreen<?>) (Object) this).onClose();
                 return;
             }
         }
@@ -142,7 +142,7 @@ public abstract class ChestAutoCloseMixin {
             // Close if any new key was pressed (wasn't pressed in previous frame)
             if (hasNewKeyPress(currentKeys, previouslyPressedKeys)) {
                 hasScheduledClose = true;
-                ((HandledScreen<?>) (Object) this).close();
+                ((AbstractContainerScreen<?>) (Object) this).onClose();
                 return;
             }
 

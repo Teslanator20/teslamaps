@@ -5,19 +5,17 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.CheckmarkState;
 import com.teslamaps.map.DungeonRoom;
-import net.minecraft.block.MapColor;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.MapIdComponent;
-import net.minecraft.item.FilledMapItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.map.MapDecoration;
-import net.minecraft.item.map.MapState;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.MapItem;
+import net.minecraft.world.level.saveddata.maps.MapDecoration;
+import net.minecraft.world.level.saveddata.maps.MapId;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 /**
  * Scans the dungeon map item in the player's inventory to detect checkmarks and room exploration.
@@ -75,11 +73,11 @@ public class MapScanner {
     }
 
     private static void scanDungeonMap() {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
         // Find the map item in the player's inventory
-        MapState mapState = findDungeonMapState(mc);
+        MapItemSavedData mapState = findDungeonMapState(mc);
         if (mapState == null) {
             if (debugLogCounter++ % 100 == 0) {
                 TeslaMaps.LOGGER.debug("[MapScanner] No map found in hotbar");
@@ -331,14 +329,14 @@ public class MapScanner {
         return CheckmarkState.NONE;
     }
 
-    private static MapState findDungeonMapState(MinecraftClient mc) {
+    private static MapItemSavedData findDungeonMapState(Minecraft mc) {
         // Check hotbar slots for a map
         for (int i = 0; i < 9; i++) {
-            ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.getItem() instanceof FilledMapItem) {
-                MapIdComponent mapId = stack.get(DataComponentTypes.MAP_ID);
+            ItemStack stack = mc.player.getInventory().getItem(i);
+            if (stack.getItem() instanceof MapItem) {
+                MapId mapId = stack.get(DataComponents.MAP_ID);
                 if (mapId != null) {
-                    MapState state = FilledMapItem.getMapState(mapId, mc.world);
+                    MapItemSavedData state = MapItem.getSavedData(mapId, mc.level);
                     if (state != null) {
                         return state;
                     }
@@ -347,11 +345,11 @@ public class MapScanner {
         }
 
         // Also check off-hand
-        ItemStack offhand = mc.player.getOffHandStack();
-        if (offhand.getItem() instanceof FilledMapItem) {
-            MapIdComponent mapId = offhand.get(DataComponentTypes.MAP_ID);
+        ItemStack offhand = mc.player.getOffhandItem();
+        if (offhand.getItem() instanceof MapItem) {
+            MapId mapId = offhand.get(DataComponents.MAP_ID);
             if (mapId != null) {
-                MapState state = FilledMapItem.getMapState(mapId, mc.world);
+                MapItemSavedData state = MapItem.getSavedData(mapId, mc.level);
                 if (state != null) {
                     return state;
                 }
@@ -365,7 +363,7 @@ public class MapScanner {
      * Extract player positions from map decorations.
      * Player icons on the dungeon map show where all party members are.
      */
-    private static void extractPlayerPositions(MapState mapState) {
+    private static void extractPlayerPositions(MapItemSavedData mapState) {
         mapPlayerPositions.clear();
 
         // MapState has decorations which include player markers
@@ -383,12 +381,12 @@ public class MapScanner {
             for (MapDecoration decoration : decorations) {
                 decorationCount++;
                 // Get the decoration type's registry ID
-                String typeId = decoration.type().getIdAsString();
+                String typeId = decoration.type().getRegisteredName();
 
                 // Log all decorations for debugging
                 if (debugLogCounter % 100 == 0) {
                     TeslaMaps.LOGGER.debug("[MapScanner] Decoration: type={} x={} z={} rot={}",
-                            typeId, decoration.x(), decoration.z(), decoration.rotation());
+                            typeId, decoration.x(), decoration.y(), decoration.rot());
                 }
 
                 // Hypixel uses these decoration types for dungeon map:
@@ -399,12 +397,12 @@ public class MapScanner {
                     // x and z are bytes in range -128 to 127, representing map coordinates
                     // They need to be converted to 0-128 range for our map
                     int mapX = (decoration.x() + 128) / 2;  // Convert from -128..128 to 0..128
-                    int mapZ = (decoration.z() + 128) / 2;
+                    int mapZ = (decoration.y() + 128) / 2;
 
                     // "frame" type = local player (self), others = party members
                     int isLocal = typeId.equals("minecraft:frame") ? 1 : 0;
 
-                    mapPlayerPositions.add(new int[]{mapX, mapZ, (int)decoration.rotation(), isLocal});
+                    mapPlayerPositions.add(new int[]{mapX, mapZ, (int)decoration.rot(), isLocal});
 
                     if (debugLogCounter % 100 == 0) {
                         TeslaMaps.LOGGER.debug("[MapScanner] Player at map[{},{}] type={} isLocal={}", mapX, mapZ, typeId, isLocal);
@@ -426,7 +424,7 @@ public class MapScanner {
      * Detect door positions from map colors.
      * Color 119 = wither door (black), Color 18 = blood door (red)
      */
-    private static void scanDoorsFromMap(MapState mapState) {
+    private static void scanDoorsFromMap(MapItemSavedData mapState) {
         witherDoorBoxes.clear();
         bloodDoorBoxes.clear();
 

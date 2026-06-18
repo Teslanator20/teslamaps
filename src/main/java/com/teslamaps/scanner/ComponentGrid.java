@@ -111,9 +111,9 @@ public class ComponentGrid {
      * Convert room-relative coordinates to actual world coordinates.
      * Room-relative coords have (0,0,0) at room corner.
      */
-    public static net.minecraft.util.math.BlockPos relativeToActual(int gridX, int gridZ, net.minecraft.util.math.BlockPos relative) {
+    public static net.minecraft.core.BlockPos relativeToActual(int gridX, int gridZ, net.minecraft.core.BlockPos relative) {
         int[] corner = gridToWorldCorner(gridX, gridZ);
-        return new net.minecraft.util.math.BlockPos(
+        return new net.minecraft.core.BlockPos(
                 corner[0] + relative.getX(),
                 relative.getY(),
                 corner[1] + relative.getZ()
@@ -123,9 +123,9 @@ public class ComponentGrid {
     /**
      * Convert actual world coordinates to room-relative coordinates.
      */
-    public static net.minecraft.util.math.BlockPos actualToRelative(int gridX, int gridZ, net.minecraft.util.math.BlockPos actual) {
+    public static net.minecraft.core.BlockPos actualToRelative(int gridX, int gridZ, net.minecraft.core.BlockPos actual) {
         int[] corner = gridToWorldCorner(gridX, gridZ);
-        return new net.minecraft.util.math.BlockPos(
+        return new net.minecraft.core.BlockPos(
                 actual.getX() - corner[0],
                 actual.getY(),
                 actual.getZ() - corner[1]

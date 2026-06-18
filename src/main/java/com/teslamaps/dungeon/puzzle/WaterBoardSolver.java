@@ -3,24 +3,23 @@ package com.teslamaps.dungeon.puzzle;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Water Board Solver - Shows lever timing for one-flow solutions.
@@ -112,8 +111,8 @@ public class WaterBoardSolver {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
 
         // Check if we're in Water Board room
         DungeonRoom room = DungeonManager.getCurrentRoom();
@@ -173,7 +172,7 @@ public class WaterBoardSolver {
         return new int[]{rotated[0] + cornerX, rotated[1] + cornerZ};
     }
 
-    private static void detectVariant(MinecraftClient mc) {
+    private static void detectVariant(Minecraft mc) {
         if (rotation < 0) {
             TeslaMaps.LOGGER.warn("[WaterBoardSolver] No rotation detected yet");
             return;
@@ -183,7 +182,7 @@ public class WaterBoardSolver {
         int currentY = 77;
         int[] lanternPos = fromComp(15, 27);
         if (lanternPos != null) {
-            Block lanternBlock = mc.world.getBlockState(new BlockPos(lanternPos[0], currentY, lanternPos[1])).getBlock();
+            Block lanternBlock = mc.level.getBlockState(new BlockPos(lanternPos[0], currentY, lanternPos[1])).getBlock();
             if (lanternBlock != Blocks.SEA_LANTERN) {
                 currentY = 78;
             }
@@ -198,8 +197,8 @@ public class WaterBoardSolver {
             return;
         }
 
-        Block leftBlock = mc.world.getBlockState(new BlockPos(topLeft[0], currentY, topLeft[1])).getBlock();
-        Block rightBlock = mc.world.getBlockState(new BlockPos(topRight[0], currentY, topRight[1])).getBlock();
+        Block leftBlock = mc.level.getBlockState(new BlockPos(topLeft[0], currentY, topLeft[1])).getBlock();
+        Block rightBlock = mc.level.getBlockState(new BlockPos(topRight[0], currentY, topRight[1])).getBlock();
 
         TeslaMaps.LOGGER.info("[WaterBoardSolver] Top blocks at Y={}: left={} at ({},{}), right={} at ({},{})",
             currentY, leftBlock, topLeft[0], topLeft[1], rightBlock, topRight[0], topRight[1]);
@@ -208,13 +207,13 @@ public class WaterBoardSolver {
         if (leftBlock == Blocks.AIR || leftBlock == Blocks.STONE) {
             int[] newPos = fromComp(TOP_LEFT_BLOCK[0], TOP_LEFT_BLOCK[1] + 1);
             if (newPos != null) {
-                leftBlock = mc.world.getBlockState(new BlockPos(newPos[0], currentY, newPos[1])).getBlock();
+                leftBlock = mc.level.getBlockState(new BlockPos(newPos[0], currentY, newPos[1])).getBlock();
             }
         }
         if (rightBlock == Blocks.AIR || rightBlock == Blocks.STONE) {
             int[] newPos = fromComp(TOP_RIGHT_BLOCK[0], TOP_RIGHT_BLOCK[1] + 1);
             if (newPos != null) {
-                rightBlock = mc.world.getBlockState(new BlockPos(newPos[0], currentY, newPos[1])).getBlock();
+                rightBlock = mc.level.getBlockState(new BlockPos(newPos[0], currentY, newPos[1])).getBlock();
             }
         }
 
@@ -232,7 +231,7 @@ public class WaterBoardSolver {
         TeslaMaps.LOGGER.info("[WaterBoardSolver] Detected variant: {} (left={}, right={})", variant, leftBlock, rightBlock);
     }
 
-    private static void detectSubvariant(MinecraftClient mc) {
+    private static void detectSubvariant(Minecraft mc) {
         // Check wool blocks to determine which doors are closed
         // Keep retrying until we find 3 doors 
         StringBuilder sb = new StringBuilder();
@@ -242,7 +241,7 @@ public class WaterBoardSolver {
             int[] pos = fromComp(PURPLE_WOOL[0], PURPLE_WOOL[1] - idx);
             if (pos == null) continue;
 
-            Block block = mc.world.getBlockState(new BlockPos(pos[0], 57, pos[1])).getBlock();
+            Block block = mc.level.getBlockState(new BlockPos(pos[0], 57, pos[1])).getBlock();
 
             if (block == woolType) {
                 sb.append(idx);
@@ -323,7 +322,7 @@ public class WaterBoardSolver {
         }
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().solveWaterBoard || solution == null) return;
 
         long now = System.currentTimeMillis();
@@ -351,14 +350,14 @@ public class WaterBoardSolver {
 
         if (!remaining.isEmpty() && TeslaMapsConfig.get().waterBoardTracers) {
             LeverTime first = remaining.get(0);
-            Vec3d firstCenter = Vec3d.ofCenter(first.pos);
+            Vec3 firstCenter = Vec3.atCenterOf(first.pos);
             ESPRenderer.drawTracerFromCamera(matrices, firstCenter, colorFirst, cameraPos);
-            ESPRenderer.drawBoxOutline(matrices, new Box(first.pos), colorFirst, 3f, cameraPos);
+            ESPRenderer.drawBoxOutline(matrices, new AABB(first.pos), colorFirst, 3f, cameraPos);
 
             if (remaining.size() > 1) {
                 LeverTime second = remaining.get(1);
                 if (!second.pos.equals(first.pos)) {
-                    Vec3d secondCenter = Vec3d.ofCenter(second.pos);
+                    Vec3 secondCenter = Vec3.atCenterOf(second.pos);
                     ESPRenderer.drawLine(matrices, firstCenter, secondCenter, colorSecond, 2f, cameraPos);
                 }
             }
@@ -385,17 +384,17 @@ public class WaterBoardSolver {
                     text = remainingMillis <= 0 ? "\u00A7a\u00A7lCLICK!" : String.format("\u00A7e%.1fs", remainingMillis / 1000.0);
                 }
 
-                Vec3d textPos = Vec3d.ofCenter(leverPos).add(0, i * 0.5 + 1.5, 0);
+                Vec3 textPos = Vec3.atCenterOf(leverPos).add(0, i * 0.5 + 1.5, 0);
                 ESPRenderer.drawText(matrices, text, textPos, 1.5f, cameraPos);
             }
         }
     }
 
-    public static void renderHud(DrawContext context, RenderTickCounter tickCounter) {
+    public static void renderHud(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         if (!TeslaMapsConfig.get().solveWaterBoard || solution == null) return;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.textRenderer == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.font == null) return;
 
         long now = System.currentTimeMillis();
 
@@ -417,14 +416,14 @@ public class WaterBoardSolver {
             return Double.compare(a.time, b.time);
         });
 
-        int screenWidth = mc.getWindow().getScaledWidth();
+        int screenWidth = mc.getWindow().getGuiScaledWidth();
         int baseX = screenWidth / 2 - 60;
         int baseY = 10;
         int lineHeight = 12;
         int height = Math.min(remaining.size(), 8) * lineHeight + 20;
 
         context.fill(baseX - 4, baseY - 4, baseX + 124, baseY + height, 0xAA000000);
-        context.drawTextWithShadow(mc.textRenderer, "Water Board (v" + (variant+1) + " " + subvariant + ")", baseX, baseY, 0xFF55FFFF);
+        context.text(mc.font, "Water Board (v" + (variant+1) + " " + subvariant + ")", baseX, baseY, 0xFF55FFFF);
         baseY += lineHeight + 2;
 
         int count = 0;
@@ -454,7 +453,7 @@ public class WaterBoardSolver {
                 }
             }
 
-            context.drawTextWithShadow(mc.textRenderer, text, baseX, baseY + count * lineHeight, color);
+            context.text(mc.font, text, baseX, baseY + count * lineHeight, color);
             count++;
         }
     }

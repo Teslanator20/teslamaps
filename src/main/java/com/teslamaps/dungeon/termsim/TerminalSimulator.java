@@ -1,16 +1,15 @@
 package com.teslamaps.dungeon.termsim;
 
 import com.teslamaps.TeslaMaps;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Random;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Base class for terminal simulators.
@@ -34,7 +33,7 @@ public abstract class TerminalSimulator extends Screen {
     private boolean wasRightMouseDown = false;
 
     public TerminalSimulator(String title, int rows, int cols) {
-        super(Text.literal(title));
+        super(Component.literal(title));
         this.rows = rows;
         this.cols = cols;
         this.slots = new ItemStack[rows * cols];
@@ -54,17 +53,17 @@ public abstract class TerminalSimulator extends Screen {
         // Reset button
         int btnX = (width - 100) / 2;
         int btnY = height / 2 + (rows * SLOT_SIZE) / 2 + 20;
-        addDrawableChild(ButtonWidget.builder(Text.literal("Reset"), button -> {
+        addRenderableWidget(Button.builder(Component.literal("Reset"), button -> {
             initializeTerminal();
             openTime = System.currentTimeMillis();
             clickCount = 0;
             solved = false;
-        }).dimensions(btnX, btnY, 100, 20).build());
+        }).bounds(btnX, btnY, 100, 20).build());
 
         // Close button
-        addDrawableChild(ButtonWidget.builder(Text.literal("Close"), button -> {
-            close();
-        }).dimensions(btnX, btnY + 25, 100, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Close"), button -> {
+            onClose();
+        }).bounds(btnX, btnY + 25, 100, 20).build());
     }
 
     /**
@@ -84,7 +83,7 @@ public abstract class TerminalSimulator extends Screen {
     protected abstract boolean checkSolved();
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         // Handle mouse clicks using GLFW polling (1.21.10 compatible)
         handleMouseInput(mouseX, mouseY);
 
@@ -92,7 +91,7 @@ public abstract class TerminalSimulator extends Screen {
         context.fill(0, 0, width, height, 0xC0101010);
 
         // Title
-        context.drawCenteredTextWithShadow(textRenderer, title, width / 2, 20, 0xFFFFFF);
+        context.centeredText(font, title, width / 2, 20, 0xFFFFFF);
 
         // Grid background
         int gridWidth = cols * SLOT_SIZE;
@@ -120,13 +119,13 @@ public abstract class TerminalSimulator extends Screen {
                 // Render item
                 ItemStack stack = slots[slotIndex];
                 if (!stack.isEmpty()) {
-                    context.drawItem(stack, x + 1, y + 1);
+                    context.item(stack, x + 1, y + 1);
                     // Draw item count manually if > 1
                     if (stack.getCount() > 1) {
                         String countStr = String.valueOf(stack.getCount());
-                        int textX = x + SLOT_SIZE - 2 - textRenderer.getWidth(countStr);
+                        int textX = x + SLOT_SIZE - 2 - font.width(countStr);
                         int textY = y + SLOT_SIZE - 10;
-                        context.drawTextWithShadow(textRenderer, countStr, textX, textY, 0xFFFFFF);
+                        context.text(font, countStr, textX, textY, 0xFFFFFF);
                     }
                 }
             }
@@ -136,23 +135,23 @@ public abstract class TerminalSimulator extends Screen {
         long elapsed = System.currentTimeMillis() - openTime;
         String timeStr = String.format("Time: %.2fs", elapsed / 1000.0);
         String clickStr = "Clicks: " + clickCount;
-        context.drawTextWithShadow(textRenderer, timeStr, startX, startY + gridHeight + GRID_PADDING + 5, 0xAAAAAA);
-        context.drawTextWithShadow(textRenderer, clickStr, startX, startY + gridHeight + GRID_PADDING + 17, 0xAAAAAA);
+        context.text(font, timeStr, startX, startY + gridHeight + GRID_PADDING + 5, 0xAAAAAA);
+        context.text(font, clickStr, startX, startY + gridHeight + GRID_PADDING + 17, 0xAAAAAA);
 
         if (solved) {
-            context.drawCenteredTextWithShadow(textRenderer, "SOLVED!", width / 2, startY - 25, 0x55FF55);
+            context.centeredText(font, "SOLVED!", width / 2, startY - 25, 0x55FF55);
         }
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
     /**
      * Handle mouse input using GLFW polling (1.21.10 compatible approach).
      */
     private void handleMouseInput(int mouseX, int mouseY) {
-        if (client == null) return;
+        if (minecraft == null) return;
 
-        long windowHandle = client.getWindow().getHandle();
+        long windowHandle = minecraft.getWindow().handle();
         boolean isLeftDown = GLFW.glfwGetMouseButton(windowHandle, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean isRightDown = GLFW.glfwGetMouseButton(windowHandle, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
 
@@ -205,7 +204,7 @@ public abstract class TerminalSimulator extends Screen {
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 

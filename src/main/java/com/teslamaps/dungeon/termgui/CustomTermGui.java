@@ -1,12 +1,11 @@
 package com.teslamaps.dungeon.termgui;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 
 /**
  * Base class for custom terminal GUI rendering.
@@ -24,18 +23,18 @@ public abstract class CustomTermGui {
     /**
      * Render the terminal GUI with the given number of slots.
      */
-    public abstract void renderTerminal(DrawContext context, int slotCount);
+    public abstract void renderTerminal(GuiGraphicsExtractor context, int slotCount);
 
     /**
      * Main render method called every frame when terminal is open.
      */
-    public void render(DrawContext context) {
+    public void render(GuiGraphicsExtractor context) {
         setCurrentGui(this);
         itemIndexMap.clear();
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.currentScreen instanceof GenericContainerScreen screen) {
-            int slotCount = screen.getScreenHandler().slots.size() - 36; // Subtract player inventory
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen instanceof ContainerScreen screen) {
+            int slotCount = screen.getMenu().slots.size() - 36; // Subtract player inventory
             renderTerminal(context, slotCount);
         }
     }
@@ -47,14 +46,14 @@ public abstract class CustomTermGui {
     public boolean handleClick(double mouseX, double mouseY, int button) {
         Integer hoveredSlot = getHoveredSlot(mouseX, mouseY);
         if (hoveredSlot != null) {
-            MinecraftClient mc = MinecraftClient.getInstance();
-            if (mc.currentScreen instanceof GenericContainerScreen screen && mc.player != null) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.screen instanceof ContainerScreen screen && mc.player != null) {
                 // Perform the click on the slot
-                mc.interactionManager.clickSlot(
-                    screen.getScreenHandler().syncId,
+                mc.gameMode.handleContainerInput(
+                    screen.getMenu().containerId,
                     hoveredSlot,
                     button,
-                    net.minecraft.screen.slot.SlotActionType.PICKUP,
+                    net.minecraft.world.inventory.ContainerInput.PICKUP,
                     mc.player
                 );
                 return true;
@@ -80,14 +79,14 @@ public abstract class CustomTermGui {
     /**
      * Render the background box for the terminal.
      */
-    protected void renderBackground(DrawContext context, int slotCount, int slotWidth, int rowOffset) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+    protected void renderBackground(GuiGraphicsExtractor context, int slotCount, int slotWidth, int rowOffset) {
+        Minecraft mc = Minecraft.getInstance();
         float slotSize = 55f * TeslaMapsConfig.get().terminalGuiSize;
         float gap = TeslaMapsConfig.get().terminalGuiGap;
         float totalSlotSpace = slotSize + gap;
 
-        int windowWidth = mc.getWindow().getScaledWidth();
-        int windowHeight = mc.getWindow().getScaledHeight();
+        int windowWidth = mc.getWindow().getGuiScaledWidth();
+        int windowHeight = mc.getWindow().getGuiScaledHeight();
 
         float backgroundStartX = windowWidth / 2f - (slotWidth / 2f) * totalSlotSpace - 7.5f;
         float backgroundStartY = windowHeight / 2f + ((-rowOffset + 0.5f) * totalSlotSpace) - 7.5f;
@@ -104,14 +103,14 @@ public abstract class CustomTermGui {
      * Render a single slot at the given index with the specified color.
      * Returns the x, y coordinates of the rendered slot.
      */
-    protected float[] renderSlot(DrawContext context, int index, int color) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+    protected float[] renderSlot(GuiGraphicsExtractor context, int index, int color) {
+        Minecraft mc = Minecraft.getInstance();
         float slotSize = 55f * TeslaMapsConfig.get().terminalGuiSize;
         float gap = TeslaMapsConfig.get().terminalGuiGap;
         float totalSlotSpace = slotSize + gap;
 
-        int windowWidth = mc.getWindow().getScaledWidth();
-        int windowHeight = mc.getWindow().getScaledHeight();
+        int windowWidth = mc.getWindow().getGuiScaledWidth();
+        int windowHeight = mc.getWindow().getGuiScaledHeight();
 
         float x = (index % 9 - 4) * totalSlotSpace + windowWidth / 2f - slotSize / 2;
         float y = (index / 9 - 2) * totalSlotSpace + windowHeight / 2f - slotSize / 2;
@@ -127,9 +126,9 @@ public abstract class CustomTermGui {
     /**
      * Draw text centered on the slot.
      */
-    protected void drawTextCentered(DrawContext context, String text, float x, float y, float slotSize, int color) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        int textWidth = mc.textRenderer.getWidth(text);
+    protected void drawTextCentered(GuiGraphicsExtractor context, String text, float x, float y, float slotSize, int color) {
+        Minecraft mc = Minecraft.getInstance();
+        int textWidth = mc.font.width(text);
         float scale = TeslaMapsConfig.get().terminalGuiSize;
         float fontSize = 30f * scale;
 
@@ -137,14 +136,14 @@ public abstract class CustomTermGui {
         float textX = x + (slotSize - textWidth) / 2f;
         float textY = y + (slotSize - 8) / 2f; // 8 is approximate text height
 
-        context.drawText(mc.textRenderer, text, (int) textX, (int) textY, color, true);
+        context.text(mc.font, text, (int) textX, (int) textY, color, true);
     }
 
     /**
      * Draw a rounded rectangle (simplified - just draws a regular rect for now).
      * Full rounded rect would require custom rendering.
      */
-    protected void drawRoundedRect(DrawContext context, int x, int y, int width, int height, int color, int roundness) {
+    protected void drawRoundedRect(GuiGraphicsExtractor context, int x, int y, int width, int height, int color, int roundness) {
         // For now, just draw a filled rect
         // TODO: Implement proper rounded corners if needed
         context.fill(x, y, x + width, y + height, color);

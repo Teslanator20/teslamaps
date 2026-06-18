@@ -2,9 +2,9 @@ package com.teslamaps.profileviewer.screen;
 
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Base class for profile viewer pages.
@@ -29,7 +29,7 @@ public abstract class ProfileViewerPage {
      * @param mouseY Mouse Y position
      * @param delta Partial tick
      */
-    public abstract void render(DrawContext ctx, int x, int y, int width, int height,
+    public abstract void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                                 int mouseX, int mouseY, float delta);
 
     /**
@@ -85,7 +85,7 @@ public abstract class ProfileViewerPage {
     /**
      * Draw a progress bar.
      */
-    protected void drawProgressBar(DrawContext ctx, int x, int y, int width, int height,
+    protected void drawProgressBar(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                                    double progress, int bgColor, int fgColor) {
         // Background
         ctx.fill(x, y, x + width, y + height, bgColor);
@@ -101,7 +101,7 @@ public abstract class ProfileViewerPage {
     /**
      * Draw a border around a rectangle.
      */
-    protected void drawBorder(DrawContext ctx, int x, int y, int width, int height, int color) {
+    protected void drawBorder(GuiGraphicsExtractor ctx, int x, int y, int width, int height, int color) {
         ctx.fill(x, y, x + width, y + 1, color);                    // Top
         ctx.fill(x, y + height - 1, x + width, y + height, color);  // Bottom
         ctx.fill(x, y, x + 1, y + height, color);                    // Left

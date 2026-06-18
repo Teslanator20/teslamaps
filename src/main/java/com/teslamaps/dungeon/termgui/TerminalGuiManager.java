@@ -2,12 +2,12 @@ package com.teslamaps.dungeon.termgui;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.puzzle.*;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ContainerInput;
 
 /**
  * Manager for custom terminal GUI rendering.
@@ -23,8 +23,8 @@ public class TerminalGuiManager {
     public static boolean shouldRenderCustomGui() {
         if (!TeslaMapsConfig.get().customTerminalGui) return false;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (!(mc.currentScreen instanceof GenericContainerScreen)) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof ContainerScreen)) return false;
 
         return getTerminalType() != TerminalType.NONE;
     }
@@ -32,7 +32,7 @@ public class TerminalGuiManager {
     /**
      * Render the custom terminal GUI overlay.
      */
-    public static void render(DrawContext context) {
+    public static void render(GuiGraphicsExtractor context) {
         if (!shouldRenderCustomGui()) return;
 
         TerminalType type = getTerminalType();
@@ -65,8 +65,8 @@ public class TerminalGuiManager {
             com.teslamaps.TeslaMaps.LOGGER.info("[TerminalGUI] Click anywhere mode - Terminal: {}, Next slot: {}", type, nextSlot);
 
             if (nextSlot != -1) {
-                MinecraftClient mc = MinecraftClient.getInstance();
-                if (mc.currentScreen instanceof GenericContainerScreen screen && mc.player != null) {
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.screen instanceof ContainerScreen screen && mc.player != null) {
                     // Most terminals need left-click, only Rubix uses right-click for backwards direction
                     // For now, use the button from getNextCorrectSlot (Rubix will return slots that need right-click)
                     // But we need to detect if Rubix wants right-click based on the click queue
@@ -88,11 +88,11 @@ public class TerminalGuiManager {
 
                     com.teslamaps.TeslaMaps.LOGGER.info("[TerminalGUI] Clicking slot {} with button {}", nextSlot, buttonToUse);
                     // Click the correct slot regardless of where user clicked
-                    mc.interactionManager.clickSlot(
-                        screen.getScreenHandler().syncId,
+                    mc.gameMode.handleContainerInput(
+                        screen.getMenu().containerId,
                         nextSlot,
                         buttonToUse,
-                        SlotActionType.PICKUP,
+                        ContainerInput.PICKUP,
                         mc.player
                     );
 
@@ -174,7 +174,7 @@ public class TerminalGuiManager {
         String title = getScreenTitle();
         if (title == null) return TerminalType.NONE;
 
-        String cleanTitle = Formatting.strip(title);
+        String cleanTitle = ChatFormatting.stripFormatting(title);
         if (cleanTitle == null) return TerminalType.NONE;
 
         if (cleanTitle.equals("Click in order!")) {
@@ -220,9 +220,9 @@ public class TerminalGuiManager {
      * Get the title of the current screen.
      */
     private static String getScreenTitle() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.currentScreen instanceof GenericContainerScreen screen) {
-            Text title = screen.getTitle();
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen instanceof ContainerScreen screen) {
+            Component title = screen.getTitle();
             return title != null ? title.getString() : null;
         }
         return null;

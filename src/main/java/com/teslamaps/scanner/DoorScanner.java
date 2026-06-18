@@ -4,14 +4,13 @@ import com.teslamaps.TeslaMaps;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DoorType;
 import com.teslamaps.map.DungeonRoom;
-import net.minecraft.block.Block;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Scans for doors between dungeon rooms.
@@ -32,8 +31,8 @@ public class DoorScanner {
      * Scan all door positions in the dungeon.
      */
     public static void scanAllDoors() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
 
         TeslaMaps.LOGGER.debug("Scanning doors...");
 
@@ -46,7 +45,7 @@ public class DoorScanner {
                     continue;
                 }
 
-                scanDoorPosition(mc.world, gx, gz);
+                scanDoorPosition(mc.level, gx, gz);
             }
         }
 
@@ -56,7 +55,7 @@ public class DoorScanner {
     /**
      * Scan a single door position on the 11x11 grid.
      */
-    private static void scanDoorPosition(World world, int gx, int gz) {
+    private static void scanDoorPosition(Level world, int gx, int gz) {
         // Convert 11x11 grid position to world coordinates
         // Each cell is 16 blocks (halfCombinedSize = 16)
         int worldX = ComponentGrid.DUNGEON_MIN_X + ComponentGrid.HALF_ROOM_SIZE + gx * 16;
@@ -123,7 +122,7 @@ public class DoorScanner {
      *
      * Improved: check multiple blocks around the door position to confirm.
      */
-    private static DoorType detectDoorType(World world, int x, int z, int roofHeight) {
+    private static DoorType detectDoorType(Level world, int x, int z, int roofHeight) {
         // Must have valid roof height (position is loaded and has blocks)
         if (roofHeight <= 0) {
             return DoorType.NONE;
@@ -137,7 +136,7 @@ public class DoorScanner {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 Block block = world.getBlockState(new BlockPos(x + dx, 69, z + dz)).getBlock();
-                String blockName = Registries.BLOCK.getId(block).toString();
+                String blockName = BuiltInRegistries.BLOCK.getKey(block).toString();
 
                 // Entrance door: monster egg (infested stone)
                 if (blockName.contains("infested")) {
@@ -176,7 +175,7 @@ public class DoorScanner {
         if (roofHeight >= 68 && roofHeight <= 82) {
             // Additional check: make sure there's air at walking height
             Block walkBlock = world.getBlockState(new BlockPos(x, 70, z)).getBlock();
-            String walkBlockName = Registries.BLOCK.getId(walkBlock).toString();
+            String walkBlockName = BuiltInRegistries.BLOCK.getKey(walkBlock).toString();
             if (walkBlockName.contains("air")) {
                 return DoorType.NORMAL;
             }
@@ -189,10 +188,10 @@ public class DoorScanner {
     /**
      * Get the highest non-air block at a position.
      */
-    private static int getHighestBlock(World world, int x, int z) {
+    private static int getHighestBlock(Level world, int x, int z) {
         for (int y = 255; y > 0; y--) {
             Block block = world.getBlockState(new BlockPos(x, y, z)).getBlock();
-            String blockName = Registries.BLOCK.getId(block).toString();
+            String blockName = BuiltInRegistries.BLOCK.getKey(block).toString();
             if (blockName.equals("minecraft:air") ||
                 blockName.equals("minecraft:cave_air") ||
                 blockName.equals("minecraft:gold_block")) {

@@ -4,7 +4,7 @@ import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.player.PlayerTracker;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 /**
  * Auto Wish - Automatically uses healer ultimate ability at key moments in dungeons.
@@ -27,7 +27,7 @@ public class AutoWish {
         if (!TeslaMapsConfig.get().autoWish) return;
         if (!DungeonManager.isInDungeon()) return;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
         // Only trigger if player is Healer class
@@ -60,10 +60,10 @@ public class AutoWish {
      * Schedule dropping item (using wish) after a delay.
      */
     private static void scheduleWish(int delayTicks) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        scheduledDropTick = mc.player.age + delayTicks;
+        scheduledDropTick = mc.player.tickCount + delayTicks;
         dropAll = false; // Use normal drop, not drop all
     }
 
@@ -73,12 +73,12 @@ public class AutoWish {
     public static void tick() {
         if (!TeslaMapsConfig.get().autoWish) return;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        if (scheduledDropTick > 0 && mc.player.age >= scheduledDropTick) {
+        if (scheduledDropTick > 0 && mc.player.tickCount >= scheduledDropTick) {
             // Drop the item to trigger wish
-            mc.player.dropSelectedItem(dropAll);
+            mc.player.drop(dropAll);
             TeslaMaps.LOGGER.info("[AutoWish] Used wish!");
 
             scheduledDropTick = -1;
@@ -95,7 +95,7 @@ public class AutoWish {
      * Check if the local player is playing as Healer class.
      */
     private static boolean isHealer() {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
 
         String playerName = mc.player.getName().getString();

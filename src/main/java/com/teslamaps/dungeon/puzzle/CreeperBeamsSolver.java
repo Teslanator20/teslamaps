@@ -2,22 +2,21 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Creeper Beams Solver - Shows lantern pairs for the Creeper Beams puzzle.
@@ -74,8 +73,8 @@ public class CreeperBeamsSolver {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
 
         // Check if we're in Creeper Beams room
         DungeonRoom room = DungeonManager.getCurrentRoom();
@@ -100,8 +99,8 @@ public class CreeperBeamsSolver {
     }
 
     private static void scanLanterns(DungeonRoom room) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
 
         BlockPos corner = room.getCorner();
         if (corner == null) return;
@@ -129,8 +128,8 @@ public class CreeperBeamsSolver {
             BlockPos world2 = transformPos(rel2, corner, detectedRotation);
 
             // Only show if both are still sea lanterns
-            boolean isLantern1 = mc.world.getBlockState(world1).getBlock() == Blocks.SEA_LANTERN;
-            boolean isLantern2 = mc.world.getBlockState(world2).getBlock() == Blocks.SEA_LANTERN;
+            boolean isLantern1 = mc.level.getBlockState(world1).getBlock() == Blocks.SEA_LANTERN;
+            boolean isLantern2 = mc.level.getBlockState(world2).getBlock() == Blocks.SEA_LANTERN;
 
             if (isLantern1 && isLantern2) {
                 int color = PAIR_COLORS[colorIndex % PAIR_COLORS.length];
@@ -145,8 +144,8 @@ public class CreeperBeamsSolver {
      * Detect room rotation by checking which rotation gives the most sea lantern matches.
      */
     private static int detectRotation(BlockPos corner) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return -1;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return -1;
 
         int bestRotation = -1;
         int bestMatches = 0;
@@ -163,8 +162,8 @@ public class CreeperBeamsSolver {
                 BlockPos world1 = transformPos(rel1, corner, rotation);
                 BlockPos world2 = transformPos(rel2, corner, rotation);
 
-                if (mc.world.getBlockState(world1).getBlock() == Blocks.SEA_LANTERN) matches++;
-                if (mc.world.getBlockState(world2).getBlock() == Blocks.SEA_LANTERN) matches++;
+                if (mc.level.getBlockState(world1).getBlock() == Blocks.SEA_LANTERN) matches++;
+                if (mc.level.getBlockState(world2).getBlock() == Blocks.SEA_LANTERN) matches++;
             }
 
             if (matches > bestMatches) {
@@ -192,22 +191,22 @@ public class CreeperBeamsSolver {
         return new BlockPos(corner.getX() + rx, relative.getY(), corner.getZ() + rz);
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().solveCreeperBeams) return;
         if (currentPairs.isEmpty()) return;
 
         for (LanternPair pair : currentPairs) {
             // Draw boxes around both lanterns
-            Box box1 = new Box(pair.pos1);
-            Box box2 = new Box(pair.pos2);
+            AABB box1 = new AABB(pair.pos1);
+            AABB box2 = new AABB(pair.pos2);
 
             ESPRenderer.drawESPBox(matrices, box1, pair.color, cameraPos);
             ESPRenderer.drawESPBox(matrices, box2, pair.color, cameraPos);
 
             // Draw line connecting them if enabled
             if (TeslaMapsConfig.get().creeperBeamsTracers) {
-                Vec3d center1 = Vec3d.ofCenter(pair.pos1);
-                Vec3d center2 = Vec3d.ofCenter(pair.pos2);
+                Vec3 center1 = Vec3.atCenterOf(pair.pos1);
+                Vec3 center2 = Vec3.atCenterOf(pair.pos2);
                 ESPRenderer.drawLine(matrices, center1, center2, pair.color, 2f, cameraPos);
             }
         }

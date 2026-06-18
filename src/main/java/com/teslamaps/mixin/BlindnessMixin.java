@@ -1,11 +1,11 @@
 package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Holder;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,23 +19,23 @@ public class BlindnessMixin {
     /**
      * Override hasStatusEffect to hide blindness/darkness from render checks.
      */
-    @Inject(method = "hasStatusEffect", at = @At("HEAD"), cancellable = true)
-    private void onHasStatusEffect(RegistryEntry<StatusEffect> effect, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "hasEffect", at = @At("HEAD"), cancellable = true)
+    private void onHasStatusEffect(Holder<MobEffect> effect, CallbackInfoReturnable<Boolean> cir) {
         // Only apply to the local player
         LivingEntity self = (LivingEntity) (Object) this;
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || self != mc.player) return;
 
         // Check if this is blindness or darkness and noBlind is enabled
         if (TeslaMapsConfig.get().noBlind) {
-            if (effect == StatusEffects.BLINDNESS || effect == StatusEffects.DARKNESS) {
+            if (effect == MobEffects.BLINDNESS || effect == MobEffects.DARKNESS) {
                 cir.setReturnValue(false);
             }
         }
 
         // Check if this is nausea and noNausea is enabled
         if (TeslaMapsConfig.get().noNausea) {
-            if (effect == StatusEffects.NAUSEA) {
+            if (effect == MobEffects.NAUSEA) {
                 cir.setReturnValue(false);
             }
         }
@@ -44,17 +44,17 @@ public class BlindnessMixin {
     /**
      * Override getEffectFadeFactor to return 0 for nausea when noNausea is enabled.
      */
-    @Inject(method = "getEffectFadeFactor", at = @At("HEAD"), cancellable = true)
-    private void onGetEffectFadeFactor(RegistryEntry<StatusEffect> effect, float tickDelta, CallbackInfoReturnable<Float> cir) {
+    @Inject(method = "getEffectBlendFactor", at = @At("HEAD"), cancellable = true)
+    private void onGetEffectFadeFactor(Holder<MobEffect> effect, float tickDelta, CallbackInfoReturnable<Float> cir) {
         if (!TeslaMapsConfig.get().noNausea) return;
 
         // Only apply to the local player
         LivingEntity self = (LivingEntity) (Object) this;
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || self != mc.player) return;
 
         // Return 0 for nausea effect
-        if (effect == StatusEffects.NAUSEA) {
+        if (effect == MobEffects.NAUSEA) {
             cir.setReturnValue(0.0f);
         }
     }

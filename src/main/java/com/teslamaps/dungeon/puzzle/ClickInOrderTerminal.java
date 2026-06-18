@@ -2,17 +2,16 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * F7 Terminal Solver - "Click in order!"
@@ -39,7 +38,7 @@ public class ClickInOrderTerminal {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         /* DISABLED
         if (!TeslaMapsConfig.get().solveClickInOrderTerminal) {
@@ -50,34 +49,34 @@ public class ClickInOrderTerminal {
         }
         */
 
-        if (mc.player == null || mc.world == null) {
+        if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
         // Check if we're looking at a container screen
-        if (!(mc.currentScreen instanceof GenericContainerScreen)) {
+        if (!(mc.screen instanceof ContainerScreen)) {
             if (!slotToNumber.isEmpty()) {
             }
             reset();
             return;
         }
 
-        GenericContainerScreen screen = (GenericContainerScreen) mc.currentScreen;
+        ContainerScreen screen = (ContainerScreen) mc.screen;
 
         // Get screen title
-        Text title = screen.getTitle();
+        Component title = screen.getTitle();
         String titleStr = title.getString();
 
         // Debug: Log container title once per second
-        int currentTick = mc.player.age;
+        int currentTick = mc.player.tickCount;
         if (currentTick - lastDebugTick > 20) {
             lastDebugTick = currentTick;
         }
 
         // Check if this is the "click in order" terminal
         // Strip formatting first
-        String cleanTitle = net.minecraft.util.Formatting.strip(titleStr);
+        String cleanTitle = net.minecraft.ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
         if (!cleanTitle.equals("Click in order!")) {
@@ -164,8 +163,8 @@ public class ClickInOrderTerminal {
      * Find all RED glass panes and map them to their numbers (stack size).
      * Red panes turn green when clicked correctly.
      */
-    private static void findAllNumberedSlots(GenericContainerScreen screen) {
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+    private static void findAllNumberedSlots(ContainerScreen screen) {
+        ChestMenu handler = screen.getMenu();
 
 
         slotToNumber.clear();
@@ -175,16 +174,16 @@ public class ClickInOrderTerminal {
 
         for (Slot slot : handler.slots) {
             // Skip player inventory slots (slots 0-53 are container, 54+ are player inv)
-            if (slot.id >= 54) continue;
+            if (slot.index >= 54) continue;
 
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
             // Only look for RED glass panes (these are the ones to click)
             if (stack.getItem() == Items.RED_STAINED_GLASS_PANE) {
                 int number = stack.getCount(); // Stack size = order number
                 if (number >= 1 && number <= 14) {
-                    slotToNumber.put(slot.id, number);
+                    slotToNumber.put(slot.index, number);
                     redFound++;
                 }
             }
@@ -210,7 +209,7 @@ public class ClickInOrderTerminal {
     /**
      * Click the next red pane in order.
      */
-    private static void performNextClick(MinecraftClient mc, GenericContainerScreen screen) {
+    private static void performNextClick(Minecraft mc, ContainerScreen screen) {
         if (mc.player == null) {
             TeslaMaps.LOGGER.warn("[ClickInOrderTerminal] DEBUG: Cannot click - player is null");
             return;
@@ -224,17 +223,17 @@ public class ClickInOrderTerminal {
         // Click the first red pane (lowest number)
         int slotToClick = orderedSlots.get(0);
         int number = slotToNumber.get(slotToClick);
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
 
         TeslaMaps.LOGGER.info("[ClickInOrderTerminal] ===== PERFORMING AUTO-CLICK =====");
         TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Clicking pane #{} at slot {}", number, slotToClick);
 
         // Click the slot (left click = button 0)
-        mc.interactionManager.clickSlot(
-            handler.syncId,
+        mc.gameMode.handleContainerInput(
+            handler.containerId,
             slotToClick,
             0,  // Left click
-            SlotActionType.PICKUP,
+            ContainerInput.PICKUP,
             mc.player
         );
 

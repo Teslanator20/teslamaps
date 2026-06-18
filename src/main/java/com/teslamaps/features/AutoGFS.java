@@ -3,10 +3,9 @@ package com.teslamaps.features;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Auto Get From Sack (GFS) feature.
@@ -112,8 +111,8 @@ public class AutoGFS {
      * Refill items from sacks.
      */
     public static void refillItems() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.currentScreen != null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.screen != null) return;
 
         // Check location restrictions
         if (TeslaMapsConfig.get().autoGFSDungeonOnly && !DungeonManager.isInDungeon()) {
@@ -135,11 +134,11 @@ public class AutoGFS {
         int jerryCount = 0;
         int tntCount = 0;
 
-        for (int i = 0; i < mc.player.getInventory().size(); i++) {
-            ItemStack stack = mc.player.getInventory().getStack(i);
+        for (int i = 0; i < mc.player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = mc.player.getInventory().getItem(i);
             if (stack.isEmpty()) continue;
 
-            String itemId = Registries.ITEM.getId(stack.getItem()).toString();
+            String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
 
             // Check for ender pearls
             if (itemId.contains("ender_pearl")) {
@@ -148,7 +147,7 @@ public class AutoGFS {
             }
 
             // Check for inflatable jerry (by name since it's a custom item)
-            String name = stack.getName().getString().toLowerCase();
+            String name = stack.getHoverName().getString().toLowerCase();
             if (name.contains("inflatable jerry")) {
                 hasJerry = true;
                 jerryCount += stack.getCount();
@@ -184,12 +183,12 @@ public class AutoGFS {
      * Send a command to the server.
      */
     private static void sendCommand(String command) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
         // Use network handler to send command
-        if (mc.getNetworkHandler() != null) {
-            mc.getNetworkHandler().sendChatCommand(command);
+        if (mc.getConnection() != null) {
+            mc.getConnection().sendCommand(command);
             TeslaMaps.LOGGER.info("[AutoGFS] Sent command: /" + command);
         }
     }
