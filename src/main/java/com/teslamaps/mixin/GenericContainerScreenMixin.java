@@ -14,7 +14,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Mixin to render custom terminal GUI overlay on container screens.
+ * Hide the default container background when a custom terminal GUI / leap overlay is active.
+ *
+ * 26.1.2: only ContainerScreen declares the background method (now extractBackground); the
+ * "draw overlay on top" part lives in {@link ContainerOverlayMixin} on AbstractContainerScreen,
+ * because ContainerScreen no longer declares a top-level render method to inject into.
  */
 @Mixin(ContainerScreen.class)
 public abstract class GenericContainerScreenMixin extends AbstractContainerScreen<ChestMenu> {
@@ -24,25 +28,10 @@ public abstract class GenericContainerScreenMixin extends AbstractContainerScree
     }
 
     /**
-     * Inject at the end of render to draw custom terminal GUI overlay.
+     * Inject at the start of extractBackground to hide the background when custom GUI is active.
      */
-    @Inject(method = "render", at = @At("TAIL"))
-    private void onRender(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        if (TerminalGuiManager.shouldRenderCustomGui()) {
-            TerminalGuiManager.render(context);
-        }
-
-        // Render leap overlay
-        if (LeapOverlay.shouldRender()) {
-            LeapOverlay.render(context, mouseX, mouseY);
-        }
-    }
-
-    /**
-     * Inject at the start of drawBackground to hide the background when custom GUI is active.
-     */
-    @Inject(method = "renderBg", at = @At("HEAD"), cancellable = true)
-    private void onDrawBackground(GuiGraphicsExtractor context, float delta, int mouseX, int mouseY, CallbackInfo ci) {
+    @Inject(method = "extractBackground", at = @At("HEAD"), cancellable = true)
+    private void onDrawBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (TerminalGuiManager.shouldRenderCustomGui()) {
             // Cancel drawing the default container background
             ci.cancel();

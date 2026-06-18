@@ -6,16 +6,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Collection;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.EffectsInInventory;
-import net.minecraft.world.effect.MobEffectInstance;
 
 @Mixin(EffectsInInventory.class)
 public class InventoryEffectsMixin {
 
-    @Inject(method = "renderEffects", at = @At("HEAD"), cancellable = true)
-    private void hideStatusEffects(GuiGraphicsExtractor context, Collection<MobEffectInstance> effects, int x, int y, int width, int height, int mouseX, CallbackInfo ci) {
+    // 26.1.2: EffectsInInventory.renderEffects(...) -> extractRenderState(GuiGraphicsExtractor, int, int)
+    @Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
+    private void hideStatusEffects(GuiGraphicsExtractor context, int mouseX, int mouseY, CallbackInfo ci) {
         if (TeslaMapsConfig.get().hideInventoryEffects) {
             ci.cancel();
         }
