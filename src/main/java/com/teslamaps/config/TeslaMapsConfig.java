@@ -118,6 +118,7 @@ public class TeslaMapsConfig {
     public boolean bloodCampMoveMessage = true;   // Chat message with predicted move time
     public boolean bloodCampPartyMessage = false; // Send predicted move time to party chat
     public boolean bloodCampKillTitle = true;     // "Kill Mobs" title when the watcher moves
+    public boolean bloodCampHpBar = true;         // Show the Watcher's remaining HP/mob count
     public int bloodCampX = 10;                   // Move Timer HUD position X
     public int bloodCampY = 80;                   // Move Timer HUD position Y
     public float bloodCampScale = 1.0f;           // Move Timer HUD scale

@@ -1,11 +1,15 @@
 package com.teslamaps.dungeon;
 
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.mixin.BossHealthOverlayAccessor;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.LerpingBossEvent;
 import net.minecraft.network.chat.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -86,19 +90,48 @@ public class BloodCamp {
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        if (!config.bloodCampMoveTimer || !hasFinal) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        float remaining = Math.max(0, (finalTick - tickCounter)) * 0.05f;
-        String text = String.format("§cMove Timer: §f%.2fs", remaining);
+        List<String> lines = new ArrayList<>();
+        if (config.bloodCampMoveTimer && hasFinal) {
+            float remaining = Math.max(0, (finalTick - tickCounter)) * 0.05f;
+            lines.add(String.format("§cMove Timer: §f%.2fs", remaining));
+        }
+        if (config.bloodCampHpBar) {
+            String hp = getWatcherHpText();
+            if (hp != null) lines.add(hp);
+        }
+        if (lines.isEmpty()) return;
 
         var pose = context.pose();
         pose.pushMatrix();
         pose.translate(config.bloodCampX, config.bloodCampY);
         pose.scale(config.bloodCampScale, config.bloodCampScale);
-        context.text(mc.font, text, 0, 0, 0xFFFFFFFF);
+        int y = 0;
+        for (String line : lines) {
+            context.text(mc.font, line, 0, y, 0xFFFFFFFF);
+            y += 10;
+        }
         pose.popMatrix();
+    }
+
+    /** Reads the Watcher's boss bar (if present) and returns its remaining mob/HP count. */
+    private static String getWatcherHpText() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.gui == null) return null;
+        var events = ((BossHealthOverlayAccessor) mc.gui.getBossOverlay()).teslamaps$getEvents();
+        if (events == null || events.isEmpty()) return null;
+        for (LerpingBossEvent ev : events.values()) {
+            if (ev.getName() == null || !ev.getName().getString().equals("The Watcher")) continue;
+            float progress = ev.getProgress();
+            if (progress < 0.05f) return null;
+            int floor = DungeonManager.getCurrentFloor() != null ? DungeonManager.getCurrentFloor().getLevel() : 0;
+            int max = 12 + floor;
+            int cur = Math.round(max * progress);
+            return "§cThe Watcher: §f" + cur + "§7/§f" + max;
+        }
+        return null;
     }
 
     public static void reset() {
