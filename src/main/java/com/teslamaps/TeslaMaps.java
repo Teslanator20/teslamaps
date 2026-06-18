@@ -77,6 +77,9 @@ public class TeslaMaps implements ClientModInitializer {
         // Load room database
         RoomDatabase.getInstance().load();
 
+        // Load Odin-format dungeon waypoints
+        com.teslamaps.dungeon.DungeonWaypoints.load();
+
         // Register /tmap command
         ClientCommandRegistrationCallback.EVENT.register(TMapCommand::register);
 
@@ -138,6 +141,9 @@ public class TeslaMaps implements ClientModInitializer {
 
                 // Etherwarp guess box
                 com.teslamaps.features.Etherwarp.render(context.poseStack(), cameraPos);
+
+                // Odin-format dungeon waypoints
+                com.teslamaps.dungeon.DungeonWaypoints.render(context.poseStack(), cameraPos);
 
                 // Render mimic trapped chest ESP (only on F6, F7, M6, M7)
                 if (DungeonManager.isInDungeon() && !MimicDetector.isMimicKilled() && com.teslamaps.dungeon.DungeonScore.floorHasMimics()) {

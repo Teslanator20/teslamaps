@@ -123,6 +123,9 @@ public class TeslaMapsConfig {
     public int bloodCampY = 80;                   // Move Timer HUD position Y
     public float bloodCampScale = 1.0f;           // Move Timer HUD scale
 
+    // ===== DUNGEON WAYPOINTS =====
+    public boolean dungeonWaypoints = true;       // Render Odin-format dungeon waypoints from config/teslamaps/dungeon_waypoints.json
+
     // ===== ETHERWARP =====
     public boolean etherwarp = true;              // Show etherwarp guess box
     public boolean etherwarpShowFail = true;      // Show the box even when the guess failed
