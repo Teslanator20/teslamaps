@@ -141,6 +141,14 @@ public class TeslaMapsConfig {
     // ===== CHAT =====
     public boolean chatCopyEnabled = true;       // Right-click a chat line to copy its text
 
+    // ===== PARTY =====
+    public boolean pbOnJoin = true;               // Show a player's dungeon PBs when they join the party (needs API key)
+
+    // ===== AUTO REQUEUE =====
+    public boolean autoRequeue = false;           // Send /instancerequeue at the end of a dungeon
+    public boolean requeueOnPartyR = false;       // Requeue when a party member types "r"
+    public int requeueDelaySeconds = 2;           // Delay before requeuing
+
     // ===== KEYBIND MESSAGES =====
     // Unlimited custom hotkeys -> chat messages, all configured in the GUI (/tmap msg).
     // Each entry binds a GLFW key code to a message; leading "/" sends it as a command.

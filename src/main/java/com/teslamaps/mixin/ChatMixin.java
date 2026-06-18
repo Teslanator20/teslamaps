@@ -71,6 +71,12 @@ public class ChatMixin {
         // Pass to Blood Camp for watcher move prediction
         com.teslamaps.dungeon.BloodCamp.onChatMessage(text);
 
+        // Auto requeue (dungeon end / party "r")
+        com.teslamaps.dungeon.AutoRequeue.onChatMessage(text);
+
+        // Show PBs when a player joins the party
+        com.teslamaps.dungeon.PbOnJoin.onChatMessage(text);
+
         // Pass to ThreeWeirdos for NPC message detection
         ThreeWeirdos.onChatMessage(text);
 

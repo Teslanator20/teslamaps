@@ -167,6 +167,7 @@ public class TeslaMaps implements ClientModInitializer {
                 BearSpawnWarning.tick();
                 KeybindMessage.tick();
                 com.teslamaps.dungeon.BloodCamp.tick();
+                com.teslamaps.dungeon.AutoRequeue.tick();
                 LividSolver.tick();
                 MimicDetector.tick();
                 DungeonBlaze.tick();
