@@ -116,10 +116,9 @@ public class DungeonWaypoints {
         List<Waypoint> list = byRoom.get(room.getName());
         if (list == null || list.isEmpty()) return;
 
-        int rotation = deriveRotation(room); // 0=SOUTH 1=NORTH 2=WEST 3=EAST, -1=unknown
-        if (rotation < 0) return;
-        int clayX = room.getCornerX();
-        int clayZ = room.getCornerZ();
+        int[] clay = detectClay(room); // {clayX, clayZ, rotation}, or null if terracotta not found yet
+        if (clay == null) return;
+        int clayX = clay[0], clayZ = clay[1], rotation = clay[2];
 
         for (Waypoint wp : list) {
             double[] rot = rotateAroundNorth(rotation, wp.rx(), wp.rz());
@@ -148,12 +147,14 @@ public class DungeonWaypoints {
         if (room == null) { msg.accept("§cNo current room detected."); return; }
 
         String name = room.getName();
-        int clayX = room.getCornerX(), clayZ = room.getCornerZ();
-        int rot = deriveRotation(room);
-        String rotName = switch (rot) { case 0 -> "SOUTH"; case 1 -> "NORTH"; case 2 -> "WEST"; case 3 -> "EAST"; default -> "§cUNKNOWN(-1)"; };
+        int[] clay = detectClay(room); // scanned terracotta {x,z,rot}
+        int clayX = clay != null ? clay[0] : room.getCornerX();
+        int clayZ = clay != null ? clay[1] : room.getCornerZ();
+        int rot = clay != null ? clay[2] : -1;
+        String rotName = switch (rot) { case 0 -> "SOUTH"; case 1 -> "NORTH"; case 2 -> "WEST"; case 3 -> "EAST"; default -> "§cNO TERRACOTTA FOUND"; };
         List<Waypoint> list = byRoom.get(name);
 
-        msg.accept("Room: §e\"" + name + "\"§f | clayPos(corner): §e" + clayX + "," + clayZ + "§f | rotDeg: §e" + room.getRotation() + "§f | derived: §e" + rotName);
+        msg.accept("Room: §e\"" + name + "\"§f | scanned clayPos: §e" + clayX + "," + clayZ + "§f | rot: §e" + rotName + "§f | (teslamaps corner: §7" + room.getCornerX() + "," + room.getCornerZ() + "§f)");
         msg.accept("Waypoints in file for this name: " + (list == null ? "§cNONE (name not a key in your file)" : "§a" + list.size()));
 
         StringBuilder comps = new StringBuilder();
@@ -194,21 +195,45 @@ public class DungeonWaypoints {
         };
     }
 
-    // Rotations enum offsets (Odin): NORTH(15,15) SOUTH(-15,-15) WEST(15,-15) EAST(-15,15)
-    private static final int[][] ROT_OFFSETS = {{-15, -15}, {15, 15}, {15, -15}, {-15, 15}}; // SOUTH,NORTH,WEST,EAST
+    // Rotations enum offsets (Odin): SOUTH(-15,-15) NORTH(15,15) WEST(15,-15) EAST(-15,15), indexed by rotation code
+    private static final int[][] ROT_OFFSETS = {{-15, -15}, {15, 15}, {15, -15}, {-15, 15}}; // 0=SOUTH 1=NORTH 2=WEST 3=EAST
 
-    /** Determine Odin's rotation from which component-corner the terracotta (clayPos) sits at. */
-    private static int deriveRotation(DungeonRoom room) {
-        int clayX = room.getCornerX();
-        int clayZ = room.getCornerZ();
+    private static int[] cachedClay = null;     // {clayX, clayZ, rotation}
+    private static String cacheKey = "";
+
+    /** clayPos + rotation, cached per room. Re-scans each frame until the terracotta is found. */
+    static int[] detectClay(DungeonRoom room) {
+        List<int[]> comps = room.getComponents();
+        if (comps.isEmpty()) return null;
+        String key = room.getName() + "@" + comps.get(0)[0] + "," + comps.get(0)[1] + ":" + comps.size();
+        if (!key.equals(cacheKey)) { cacheKey = key; cachedClay = null; } // room changed -> invalidate
+        if (cachedClay == null) cachedClay = scanClay(room);
+        return cachedClay;
+    }
+
+    /**
+     * Finds the room's blue-terracotta marker (Odin's clayPos) by checking each component's four
+     * diagonal corners across a Y range. teslamaps' own corner is unreliable for multi-component
+     * rooms (it falls back to a geometric corner), so we scan for the real block to match Odin.
+     */
+    private static int[] scanClay(DungeonRoom room) {
+        net.minecraft.world.level.Level level = net.minecraft.client.Minecraft.getInstance().level;
+        if (level == null) return null;
         for (int[] comp : room.getComponents()) {
             int[] corner = ComponentGrid.gridToWorldCorner(comp[0], comp[1]);
-            int cx = corner[0] + ComponentGrid.HALF_ROOM_SIZE; // component center
+            int cx = corner[0] + ComponentGrid.HALF_ROOM_SIZE;
             int cz = corner[1] + ComponentGrid.HALF_ROOM_SIZE;
             for (int r = 0; r < ROT_OFFSETS.length; r++) {
-                if (clayX == cx + ROT_OFFSETS[r][0] && clayZ == cz + ROT_OFFSETS[r][1]) return r;
+                int bx = cx + ROT_OFFSETS[r][0];
+                int bz = cz + ROT_OFFSETS[r][1];
+                net.minecraft.core.BlockPos.MutableBlockPos m = new net.minecraft.core.BlockPos.MutableBlockPos();
+                for (int y = 150; y >= 11; y--) {
+                    if (level.getBlockState(m.set(bx, y, bz)).is(net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA)) {
+                        return new int[]{bx, bz, r};
+                    }
+                }
             }
         }
-        return -1;
+        return null;
     }
 }
