@@ -33,6 +33,8 @@ import com.teslamaps.features.AutoWish;
 import com.teslamaps.features.LividSolver;
 import com.teslamaps.features.SecretClicker;
 import com.teslamaps.features.SecretWaypoints;
+import com.teslamaps.features.BearSpawnWarning;
+import com.teslamaps.features.KeybindMessage;
 import com.teslamaps.player.PlayerTracker;
 import com.teslamaps.render.MapRenderer;
 import com.teslamaps.render.TeslaRenderLayers;
@@ -78,6 +80,9 @@ public class TeslaMaps implements ClientModInitializer {
         // Register /tmap command
         ClientCommandRegistrationCallback.EVENT.register(TMapCommand::register);
 
+        // Register keybind that sends a configurable chat message (/tmap msg <text>)
+        KeybindMessage.register();
+
         // Register HUD elements (26.1.2: HudRenderCallback -> HudElementRegistry)
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "map"), MapRenderer::render);
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "slayer"), SlayerHUD::render);
@@ -85,6 +90,9 @@ public class TeslaMaps implements ClientModInitializer {
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "livid"), LividSolver::renderHUD);
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "spiritbear"), SpiritBearTimer::render);
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "waterboard"), WaterBoardSolver::renderHud);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "bearspawn"), BearSpawnWarning::render);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "splits"), com.teslamaps.dungeon.Splits::render);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "bloodcamp"), com.teslamaps.dungeon.BloodCamp::render);
 
         // Initialize starred mob ESP
         StarredMobESP.init();
@@ -148,6 +156,9 @@ public class TeslaMaps implements ClientModInitializer {
                 AutoGFS.tick();
                 AutoWish.tick();
                 SecretClicker.tick();
+                BearSpawnWarning.tick();
+                KeybindMessage.tick();
+                com.teslamaps.dungeon.BloodCamp.tick();
                 LividSolver.tick();
                 MimicDetector.tick();
                 DungeonBlaze.tick();

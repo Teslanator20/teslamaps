@@ -281,6 +281,12 @@ public class MapConfigScreen extends Screen {
         sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Secret Sound Type",
                 new String[]{"LEVEL_UP", "NOTE_PLING", "EXPERIENCE_ORB", "AMETHYST_CHIME"},
                 () -> config.secretSoundType, v -> config.secretSoundType = v));
+        sounds.add(new LabelEntry(contentX, "Bear Spawn Warning (7, 77, 34)"));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Enable Alert", () -> config.bearSpawnWarning, v -> config.bearSpawnWarning = v));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Warden Sound", () -> config.bearSpawnWardenSound, v -> config.bearSpawnWardenSound = v));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Wither Sound", () -> config.bearSpawnWitherSound, v -> config.bearSpawnWitherSound = v));
+        sounds.add(new SliderEntry(contentX, contentWidth, "Alert Volume", 0f, 20f,
+                () -> config.bearSpawnVolume, v -> config.bearSpawnVolume = v));
         categories.put("Sounds", sounds);
 
         // ===== COLORS (merged) =====
@@ -381,6 +387,10 @@ public class MapConfigScreen extends Screen {
 
         // ===== ADVANCED =====
         List<SettingsEntry> advanced = new ArrayList<>();
+        advanced.add(new LabelEntry(contentX, "Dungeon Splits"));
+        advanced.add(new ToggleEntry(contentX, contentWidth, "Enable Splits HUD", () -> config.splitsEnabled, v -> config.splitsEnabled = v));
+        advanced.add(new LabelEntry(contentX, "• Drag/scale in HUD edit (/tmap gui)"));
+        advanced.add(new ToggleEntry(contentX, contentWidth, "Right-Click Copy Chat", () -> config.chatCopyEnabled, v -> config.chatCopyEnabled = v));
         advanced.add(new ToggleEntry(contentX, contentWidth, "Auto Scan", () -> config.autoScan, v -> config.autoScan = v));
         advanced.add(new ToggleEntry(contentX, contentWidth, "Debug Mode", () -> config.debugMode, v -> config.debugMode = v));
         categories.put("Advanced", advanced);

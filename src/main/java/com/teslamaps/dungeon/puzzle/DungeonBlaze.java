@@ -46,8 +46,10 @@ public class DungeonBlaze {
         // Check if blaze puzzle is complete (only 1 blaze left with 0 HP or no blazes)
         if (!blazeDoneMessageSent && TeslaMapsConfig.get().blazeDoneMessage) {
             if (blazes.isEmpty() || (blazes.size() == 1 && blazes.get(0).rightInt() == 0)) {
-                // Only send if we previously had blazes (avoid sending on first scan)
-                if (previousBlazeCount > 1) {
+                // Fire once we previously had at least one blaze. The old check (> 1) missed the
+                // common 1 -> 0 transition when the last blaze is killed (previousBlazeCount == 1),
+                // so the Done message usually never sent.
+                if (previousBlazeCount >= 1) {
                     sendBlazeDoneMessage();
                     blazeDoneMessageSent = true;
                 }

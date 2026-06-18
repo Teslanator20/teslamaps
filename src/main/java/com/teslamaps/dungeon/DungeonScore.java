@@ -325,6 +325,15 @@ public class DungeonScore {
     public static void onChatMessage(String message) {
         if (!dungeonStarted) return;
 
+        // Precise run-timer start. onDungeonEnter() sets startingTime when the scoreboard first
+        // shows the "Starting in" countdown (~5s before the run actually begins), which made the
+        // "300 Score reached @" time run ahead. Re-anchor t=0 to this message so it matches the
+        // real Hypixel dungeon timer (00:00).
+        if (message.equals("Starting in 1 second.")) {
+            startingTime = System.currentTimeMillis();
+            return;
+        }
+
         // Death detection
         if (message.length() > 1 && message.charAt(1) == '\u2620') {
             Matcher matcher = DEATHS_PATTERN.matcher(message);

@@ -172,6 +172,8 @@ public class DungeonManager {
         PlayerHeadRenderer.clearCache();
         com.teslamaps.esp.StarredMobESP.reset();
         com.teslamaps.features.SecretWaypoints.reset();
+        Splits.reset();
+        BloodCamp.reset();
 
         TeslaMaps.LOGGER.info("Exited dungeon");
     }

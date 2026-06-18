@@ -65,6 +65,12 @@ public class ChatMixin {
         // Pass to DungeonScore for death/watcher detection
         DungeonScore.onChatMessage(text);
 
+        // Pass to Splits for dungeon run split tracking
+        com.teslamaps.dungeon.Splits.onChatMessage(text);
+
+        // Pass to Blood Camp for watcher move prediction
+        com.teslamaps.dungeon.BloodCamp.onChatMessage(text);
+
         // Pass to ThreeWeirdos for NPC message detection
         ThreeWeirdos.onChatMessage(text);
 

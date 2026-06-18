@@ -98,6 +98,37 @@ public class TeslaMapsConfig {
     public boolean secretSound = false;          // Play sound when a secret is found
     public float secretSoundVolume = 1.75f;      // Volume for secret found sound (0.0 - 4.0)
     public String secretSoundType = "NOTE_PLING";  // Sound type: LEVEL_UP, NOTE_PLING, EXPERIENCE_ORB, AMETHYST_CHIME
+    // Bear Spawn Warning: watch block (7,77,34); when it turns into a sea lantern, flash "STOP!" + play sounds
+    public boolean bearSpawnWarning = true;      // Enable the bear spawn warning
+    public boolean bearSpawnWardenSound = true;  // Play warden emerge sound on alert
+    public boolean bearSpawnWitherSound = true;  // Play wither death sound on alert
+    public float bearSpawnVolume = 2.0f;         // Alert sound volume (0.0 - 20.0)
+    public int bearSpawnX = 150;                 // "STOP!" overlay position X (draggable in HUD edit)
+    public int bearSpawnY = 30;                  // "STOP!" overlay position Y
+    public float bearSpawnScale = 4.0f;          // "STOP!" overlay text scale (0.5 - 10.0)
+
+    // ===== SPLITS =====
+    public boolean splitsEnabled = true;         // Dungeon run splits HUD + chat output
+    public int splitsX = 5;                       // Splits HUD position X (draggable in HUD edit)
+    public int splitsY = 100;                     // Splits HUD position Y
+    public float splitsScale = 1.0f;              // Splits HUD scale (0.5 - 2.0)
+
+    // ===== BLOOD CAMP =====
+    public boolean bloodCampMoveTimer = true;     // Watcher move prediction timer HUD
+    public boolean bloodCampMoveMessage = true;   // Chat message with predicted move time
+    public boolean bloodCampPartyMessage = false; // Send predicted move time to party chat
+    public boolean bloodCampKillTitle = true;     // "Kill Mobs" title when the watcher moves
+    public int bloodCampX = 10;                   // Move Timer HUD position X
+    public int bloodCampY = 80;                   // Move Timer HUD position Y
+    public float bloodCampScale = 1.0f;           // Move Timer HUD scale
+
+    // ===== CHAT =====
+    public boolean chatCopyEnabled = true;       // Right-click a chat line to copy its text
+
+    // ===== KEYBIND MESSAGE =====
+    // Message sent when the "Send Chat Message" keybind is pressed. Set via /tmap msg <text>.
+    // Leading "/" is sent as a command, otherwise as normal chat.
+    public String keybindChatMessage = "";
 
     // ===== RENDER OPTIONS =====
     public boolean noFire = true;            // Hide fire overlay on screen
@@ -171,6 +202,7 @@ public class TeslaMapsConfig {
     public boolean showAllBoulderClicks = true;    // Show all clicks vs just next one
     public boolean solveQuiz = true;               // Highlight correct answer in Quiz (Trivia)
     public boolean quizBeacon = true;              // Draw beacon beam on correct answer
+    public boolean quizChatHighlight = true;       // Also announce the correct answer in chat
     public boolean solveTPMaze = true;             // Highlight correct portals in Teleport Maze
     public boolean solveWaterBoard = true;          // Show solution for Water Board puzzle
     public boolean waterBoardOptimized = true;      // Use optimized (faster) solutions

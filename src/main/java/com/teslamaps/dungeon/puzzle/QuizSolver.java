@@ -14,7 +14,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -121,9 +123,14 @@ public class QuizSolver {
                 (char)('A' + optionIndex), answerText, currentAnswers);
 
             for (String answer : currentAnswers) {
-                if (answerText.contains(answer) || answer.contains(answerText)) {
+                // Odin-style precise match: the option line ends with the answer text.
+                if (trimmed.endsWith(answer) || answerText.equalsIgnoreCase(answer)) {
+                    boolean alreadyCorrect = triviaOptions[optionIndex].isCorrect();
                     triviaOptions[optionIndex] = new TriviaOption(triviaOptions[optionIndex].worldPos, true);
                     TeslaMaps.LOGGER.info("[QuizSolver] Correct answer found: {} (option {})", answer, (char)('A' + optionIndex));
+                    if (!alreadyCorrect && TeslaMapsConfig.get().quizChatHighlight) {
+                        sendQuizHighlight(optionIndex, answerText);
+                    }
                     break;
                 }
             }
@@ -219,6 +226,13 @@ public class QuizSolver {
                 ESPRenderer.drawBeaconBeam(matrices, pos, color, cameraPos);
             }
         }
+    }
+
+    private static void sendQuizHighlight(int optionIndex, String answerText) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        String circle = switch (optionIndex) { case 0 -> "ⓐ"; case 1 -> "ⓑ"; default -> "ⓒ"; };
+        mc.player.sendSystemMessage(Component.literal("§b[Quiz] §aCorrect → §e" + circle + " §f" + answerText));
     }
 
     public static void reset() {

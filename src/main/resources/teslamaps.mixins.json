@@ -11,6 +11,8 @@
         "PlayerTabOverlayAccessor",
         "MapStateAccessor",
         "ChatMixin",
+        "ChatComponentAccessor",
+        "ChatScreenMixin",
         "BlindnessMixin",
         "NoFireMixin",
         "NoArrowsMixin",

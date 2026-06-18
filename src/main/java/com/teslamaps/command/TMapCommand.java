@@ -102,6 +102,21 @@ public class TMapCommand {
                                     "Debug mode " + (config.debugMode ? "enabled" : "disabled")));
                             return 1;
                         }))
+                .then(ClientCommands.literal("msg")
+                        .executes(context -> {
+                            // Open the keybind message GUI
+                            Minecraft.getInstance().schedule(() ->
+                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.KeybindMessageScreen()));
+                            return 1;
+                        })
+                        .then(ClientCommands.argument("message", StringArgumentType.greedyString())
+                                .executes(context -> {
+                                    String msg = StringArgumentType.getString(context, "message");
+                                    TeslaMapsConfig.get().keybindChatMessage = msg;
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal("Keybind message set to: " + msg));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("scan")
                         .executes(context -> {
                             context.getSource().sendFeedback(Component.literal("Forcing dungeon scan..."));

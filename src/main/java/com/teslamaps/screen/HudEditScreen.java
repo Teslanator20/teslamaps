@@ -1,6 +1,7 @@
 package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.features.BearSpawnWarning;
 import com.teslamaps.scanner.ComponentGrid;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -17,7 +18,13 @@ public class HudEditScreen extends Screen {
     private boolean wasMouseDown = false;
 
     // Which element is being dragged
-    private enum DragTarget { NONE, MAP, SLAYER_HUD }
+    private enum DragTarget { NONE, MAP, SLAYER_HUD, BEAR_SPAWN, SPLITS }
+
+    // Sample rows shown in the editor so Splits can be positioned outside a run
+    private static final String[] SPLITS_SAMPLE = {
+            "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
+    };
+    private static final String SPLITS_SAMPLE_TIME = "1:23.4";
     private DragTarget dragging = DragTarget.NONE;
     private int dragOffsetX = 0;
     private int dragOffsetY = 0;
@@ -65,6 +72,44 @@ public class HudEditScreen extends Screen {
                mouseY >= config.slayerHudY && mouseY <= config.slayerHudY + scaledHeight;
     }
 
+    private int bearSpawnWidth() {
+        return (int)(this.font.width(BearSpawnWarning.ALERT_TEXT) * TeslaMapsConfig.get().bearSpawnScale);
+    }
+
+    private int bearSpawnHeight() {
+        return (int)(this.font.lineHeight * TeslaMapsConfig.get().bearSpawnScale);
+    }
+
+    private boolean isMouseOverBearSpawn(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = bearSpawnWidth();
+        int h = bearSpawnHeight();
+        return mouseX >= config.bearSpawnX && mouseX <= config.bearSpawnX + w &&
+               mouseY >= config.bearSpawnY && mouseY <= config.bearSpawnY + h;
+    }
+
+    private int splitsNameCol() {
+        int nameCol = 0;
+        for (String s : SPLITS_SAMPLE) nameCol = Math.max(nameCol, this.font.width(s));
+        return nameCol + 6;
+    }
+
+    private int splitsWidth() {
+        return (int)((splitsNameCol() + this.font.width(SPLITS_SAMPLE_TIME)) * TeslaMapsConfig.get().splitsScale);
+    }
+
+    private int splitsHeight() {
+        return (int)(SPLITS_SAMPLE.length * 9 * TeslaMapsConfig.get().splitsScale);
+    }
+
+    private boolean isMouseOverSplits(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = splitsWidth();
+        int h = splitsHeight();
+        return mouseX >= config.splitsX && mouseX <= config.splitsX + w &&
+               mouseY >= config.splitsY && mouseY <= config.splitsY + h;
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
@@ -72,7 +117,15 @@ public class HudEditScreen extends Screen {
 
         // Handle mouse press - start dragging
         if (isMouseDown && !wasMouseDown) {
-            if (isMouseOverSlayerHud(mouseX, mouseY)) {
+            if (isMouseOverSplits(mouseX, mouseY)) {
+                dragging = DragTarget.SPLITS;
+                dragOffsetX = mouseX - config.splitsX;
+                dragOffsetY = mouseY - config.splitsY;
+            } else if (isMouseOverBearSpawn(mouseX, mouseY)) {
+                dragging = DragTarget.BEAR_SPAWN;
+                dragOffsetX = mouseX - config.bearSpawnX;
+                dragOffsetY = mouseY - config.bearSpawnY;
+            } else if (isMouseOverSlayerHud(mouseX, mouseY)) {
                 dragging = DragTarget.SLAYER_HUD;
                 dragOffsetX = mouseX - config.slayerHudX;
                 dragOffsetY = mouseY - config.slayerHudY;
@@ -103,6 +156,16 @@ public class HudEditScreen extends Screen {
             int newY = Math.max(0, Math.min(this.height - SLAYER_HEIGHT - 40, mouseY - dragOffsetY));
             config.slayerHudX = newX;
             config.slayerHudY = newY;
+        } else if (dragging == DragTarget.BEAR_SPAWN) {
+            int w = bearSpawnWidth();
+            int h = bearSpawnHeight();
+            config.bearSpawnX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.bearSpawnY = Math.max(0, Math.min(this.height - h - 40, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.SPLITS) {
+            int w = splitsWidth();
+            int h = splitsHeight();
+            config.splitsX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.splitsY = Math.max(0, Math.min(this.height - h - 40, mouseY - dragOffsetY));
         }
 
         // Dark background
@@ -113,6 +176,12 @@ public class HudEditScreen extends Screen {
 
         // Draw slayer HUD preview
         drawSlayerHudPreview(context, mouseX, mouseY);
+
+        // Draw bear spawn warning ("STOP!") preview
+        drawBearSpawnPreview(context, mouseX, mouseY);
+
+        // Draw splits preview
+        drawSplitsPreview(context, mouseX, mouseY);
 
         // Instructions
         String instructions = dragging != DragTarget.NONE ? "Release to place" : "Drag elements to move them | Scroll on map to resize";
@@ -222,6 +291,65 @@ public class HudEditScreen extends Screen {
         context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
     }
 
+    private void drawBearSpawnPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.bearSpawnX;
+        int y = config.bearSpawnY;
+        float scale = config.bearSpawnScale;
+
+        // The actual "STOP!" text
+        BearSpawnWarning.drawAlert(context, this.minecraft, x, y, scale);
+
+        int w = bearSpawnWidth();
+        int h = bearSpawnHeight();
+
+        // Border when hovering/dragging
+        boolean hovering = isMouseOverBearSpawn(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.BEAR_SPAWN) {
+            int borderColor = dragging == DragTarget.BEAR_SPAWN ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        // Label with scale info
+        String label = String.format("Bear Warning (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawSplitsPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.splitsX;
+        int y = config.splitsY;
+        float scale = config.splitsScale;
+        int nameCol = splitsNameCol();
+
+        var matrices = context.pose();
+        matrices.pushMatrix();
+        matrices.translate(x, y);
+        matrices.scale(scale, scale);
+        for (int i = 0; i < SPLITS_SAMPLE.length; i++) {
+            context.text(this.font, SPLITS_SAMPLE[i], 0, i * 9, 0xFFFFFFFF);
+            context.text(this.font, SPLITS_SAMPLE_TIME, nameCol, i * 9, 0xFFFFFFFF);
+        }
+        matrices.popMatrix();
+
+        int w = splitsWidth();
+        int h = splitsHeight();
+        boolean hovering = isMouseOverSplits(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.SPLITS) {
+            int borderColor = dragging == DragTarget.SPLITS ? 0xFF5865F2 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        String label = String.format("Splits (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
     private void drawRoundedRect(GuiGraphicsExtractor context, int x, int y, int width, int height, int radius, int color) {
         context.fill(x + radius, y, x + width - radius, y + height, color);
         context.fill(x, y + radius, x + radius, y + height - radius, color);
@@ -235,6 +363,28 @@ public class HudEditScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
+
+        // Scale splits when mouse is over it
+        if (isMouseOverSplits((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.splitsScale = Math.min(2.0f, config.splitsScale + 0.1f);
+            } else if (verticalAmount < 0) {
+                config.splitsScale = Math.max(0.5f, config.splitsScale - 0.1f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        // Scale bear spawn warning when mouse is over it
+        if (isMouseOverBearSpawn((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.bearSpawnScale = Math.min(10.0f, config.bearSpawnScale + 0.5f);
+            } else if (verticalAmount < 0) {
+                config.bearSpawnScale = Math.max(0.5f, config.bearSpawnScale - 0.5f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
 
         // Scale slayer HUD when mouse is over it
         if (isMouseOverSlayerHud((int) mouseX, (int) mouseY)) {
