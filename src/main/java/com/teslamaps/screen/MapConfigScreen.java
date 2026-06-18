@@ -400,6 +400,9 @@ public class MapConfigScreen extends Screen {
 
         // ===== ADVANCED =====
         List<SettingsEntry> advanced = new ArrayList<>();
+        advanced.add(new LabelEntry(contentX, "Hotkeys"));
+        advanced.add(new ButtonEntry(contentX, contentWidth, "Open Hotkeys (Keybind Messages)",
+                () -> minecraft.setScreen(new KeybindMessageScreen())));
         advanced.add(new LabelEntry(contentX, "Dungeon Splits"));
         advanced.add(new ToggleEntry(contentX, contentWidth, "Enable Splits HUD", () -> config.splitsEnabled, v -> config.splitsEnabled = v));
         advanced.add(new LabelEntry(contentX, "• Drag/scale in HUD edit (/tmap gui)"));

@@ -43,6 +43,25 @@ import java.util.Random;
 public class TMapCommand {
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext registryAccess) {
+        // /ping - show your latency
+        dispatcher.register(ClientCommands.literal("ping").executes(context -> {
+            Minecraft mc = Minecraft.getInstance();
+            int ping = -1;
+            if (mc.getConnection() != null && mc.player != null) {
+                var info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
+                if (info != null) ping = info.getLatency();
+            }
+            context.getSource().sendFeedback(Component.literal(ping >= 0 ? "§aPing: §f" + ping + "ms" : "§cPing unavailable"));
+            return 1;
+        }));
+
+        // /pd - party disband
+        dispatcher.register(ClientCommands.literal("pd").executes(context -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.getConnection() != null) mc.getConnection().sendCommand("p disband");
+            return 1;
+        }));
+
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
                     // Open config screen
