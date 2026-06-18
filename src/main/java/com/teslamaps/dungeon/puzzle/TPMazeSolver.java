@@ -1,20 +1,19 @@
 package com.teslamaps.dungeon.puzzle;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Teleport Maze Solver - Tracks visited portals and highlights correct ones.
@@ -40,7 +39,7 @@ public class TPMazeSolver {
     private static List<BlockPos> correctPortals = new ArrayList<>();
     private static Set<BlockPos> visitedPortals = new CopyOnWriteArraySet<>();
     private static String lastRoomName = "";
-    private static Vec3d lastPlayerPos = null;
+    private static Vec3 lastPlayerPos = null;
     private static long lastTeleportTime = 0;
     private static int detectedRotation = -1;
 
@@ -55,8 +54,8 @@ public class TPMazeSolver {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
 
         // Check if we're in Teleport Maze room
         DungeonRoom room = DungeonManager.getCurrentRoom();
@@ -75,12 +74,12 @@ public class TPMazeSolver {
         }
 
         // Track player position for teleport detection
-        Vec3d currentPos = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
+        Vec3 currentPos = new Vec3(mc.player.getX(), mc.player.getY(), mc.player.getZ());
         if (lastPlayerPos != null) {
             double distance = currentPos.distanceTo(lastPlayerPos);
             // Teleport detected (moved more than 3 blocks instantly)
             if (distance > 3 && distance < 50) {
-                onTeleport(currentPos, mc.player.getYaw(), mc.player.getPitch());
+                onTeleport(currentPos, mc.player.getYRot(), mc.player.getXRot());
             }
         }
         lastPlayerPos = currentPos;
@@ -119,8 +118,8 @@ public class TPMazeSolver {
      * Detect room rotation by checking which rotation has the most end portal frame matches.
      */
     private static int detectRotation(BlockPos corner) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return -1;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return -1;
 
         int bestRotation = -1;
         int bestMatches = 0;
@@ -130,7 +129,7 @@ public class TPMazeSolver {
 
             for (BlockPos rel : PORTAL_POSITIONS_RELATIVE) {
                 BlockPos worldPos = transformPos(rel, corner, rotation);
-                if (mc.world.getBlockState(worldPos).getBlock() == Blocks.END_PORTAL_FRAME) {
+                if (mc.level.getBlockState(worldPos).getBlock() == Blocks.END_PORTAL_FRAME) {
                     matches++;
                 }
             }
@@ -147,27 +146,27 @@ public class TPMazeSolver {
         return bestMatches >= 5 ? bestRotation : -1;
     }
 
-    private static void onTeleport(Vec3d pos, float yaw, float pitch) {
+    private static void onTeleport(Vec3 pos, float yaw, float pitch) {
         long now = System.currentTimeMillis();
         if (now - lastTeleportTime < 500) return; // Debounce
         lastTeleportTime = now;
 
         // Mark portals near current position as visited
         for (BlockPos portal : portalPositions) {
-            Box portalBox = new Box(portal).expand(1.5, 0, 1.5);
+            AABB portalBox = new AABB(portal).inflate(1.5, 0, 1.5);
             if (portalBox.contains(pos)) {
                 visitedPortals.add(portal);
             }
         }
 
         // Filter correct portals based on where player is looking after teleport
-        Vec3d lookDir = getVectorForRotation(pitch, yaw);
+        Vec3 lookDir = getVectorForRotation(pitch, yaw);
 
         correctPortals = new ArrayList<>(correctPortals.stream()
             .filter(p -> !visitedPortals.contains(p))
             .filter(p -> {
                 // Check if portal is in look direction
-                Box portalBox = new Box(p).expand(0.75, 2, 0.75);
+                AABB portalBox = new AABB(p).inflate(0.75, 2, 0.75);
                 return isLookingAt(pos, lookDir, portalBox, 32.0);
             })
             .toList());
@@ -183,17 +182,17 @@ public class TPMazeSolver {
             correctPortals.size(), visitedPortals.size());
     }
 
-    private static Vec3d getVectorForRotation(float pitch, float yaw) {
-        float f = MathHelper.cos(-yaw * 0.017453292F - (float)Math.PI);
-        float f1 = MathHelper.sin(-yaw * 0.017453292F - (float)Math.PI);
-        float f2 = -MathHelper.cos(-pitch * 0.017453292F);
-        float f3 = MathHelper.sin(-pitch * 0.017453292F);
-        return new Vec3d(f1 * f2, f3, f * f2);
+    private static Vec3 getVectorForRotation(float pitch, float yaw) {
+        float f = Mth.cos(-yaw * 0.017453292F - (float)Math.PI);
+        float f1 = Mth.sin(-yaw * 0.017453292F - (float)Math.PI);
+        float f2 = -Mth.cos(-pitch * 0.017453292F);
+        float f3 = Mth.sin(-pitch * 0.017453292F);
+        return new Vec3(f1 * f2, f3, f * f2);
     }
 
-    private static boolean isLookingAt(Vec3d pos, Vec3d dir, Box box, double maxDist) {
+    private static boolean isLookingAt(Vec3 pos, Vec3 dir, AABB box, double maxDist) {
         for (double d = 0; d < maxDist; d += 0.5) {
-            Vec3d point = pos.add(dir.multiply(d));
+            Vec3 point = pos.add(dir.scale(d));
             if (box.contains(point)) return true;
         }
         return false;
@@ -214,7 +213,7 @@ public class TPMazeSolver {
         return new BlockPos(corner.getX() + rx, relative.getY(), corner.getZ() + rz);
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().solveTPMaze) return;
         if (portalPositions.isEmpty()) return;
 
@@ -224,7 +223,7 @@ public class TPMazeSolver {
         int colorOther = 0x80FFFFFF; // Semi-transparent white for unvisited
 
         for (BlockPos portal : portalPositions) {
-            Box box = new Box(portal);
+            AABB box = new AABB(portal);
             int color;
 
             if (correctPortals.contains(portal)) {

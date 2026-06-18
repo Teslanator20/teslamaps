@@ -4,14 +4,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Trophy Fish page showing fish catches by tier.
@@ -55,39 +54,39 @@ public class TrophyFishPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
 
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         JsonObject memberData = profile.getMemberData();
         int padding = 15;
         int contentX = x + padding;
 
         int lineY = y + padding;
 
-        ctx.drawTextWithShadow(tr, "Trophy Fish", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Trophy Fish", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         // Get trophy fish data
         JsonObject trophyFish = getNestedObject(memberData, "trophy_fish");
         if (trophyFish == null) {
-            ctx.drawTextWithShadow(tr, "No trophy fish data found", contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, "No trophy fish data found", contentX, lineY, TEXT_GRAY);
             return;
         }
 
         // Total catches
         int totalCatches = trophyFish.has("total_caught") ? trophyFish.get("total_caught").getAsInt() : 0;
-        ctx.drawTextWithShadow(tr, "Total Caught: " + formatNumber(totalCatches), contentX, lineY, TEXT_WHITE);
+        ctx.text(tr, "Total Caught: " + formatNumber(totalCatches), contentX, lineY, TEXT_WHITE);
         lineY += 20;
 
         // Column headers
-        ctx.drawTextWithShadow(tr, "Fish", contentX, lineY, TEXT_GRAY);
-        ctx.drawTextWithShadow(tr, "Bronze", contentX + 140, lineY, BRONZE);
-        ctx.drawTextWithShadow(tr, "Silver", contentX + 190, lineY, SILVER);
-        ctx.drawTextWithShadow(tr, "Gold", contentX + 240, lineY, GOLD);
-        ctx.drawTextWithShadow(tr, "Diamond", contentX + 280, lineY, DIAMOND);
+        ctx.text(tr, "Fish", contentX, lineY, TEXT_GRAY);
+        ctx.text(tr, "Bronze", contentX + 140, lineY, BRONZE);
+        ctx.text(tr, "Silver", contentX + 190, lineY, SILVER);
+        ctx.text(tr, "Gold", contentX + 240, lineY, GOLD);
+        ctx.text(tr, "Diamond", contentX + 280, lineY, DIAMOND);
         lineY += 14;
 
         // Fish list
@@ -110,11 +109,11 @@ public class TrophyFishPage extends ProfileViewerPage {
             int total = bronze + silver + gold + diamond;
             int nameColor = total > 0 ? TEXT_WHITE : TEXT_GRAY;
 
-            ctx.drawTextWithShadow(tr, displayName, contentX, fishY, nameColor);
-            ctx.drawTextWithShadow(tr, String.valueOf(bronze), contentX + 140, fishY, bronze > 0 ? BRONZE : TEXT_GRAY);
-            ctx.drawTextWithShadow(tr, String.valueOf(silver), contentX + 190, fishY, silver > 0 ? SILVER : TEXT_GRAY);
-            ctx.drawTextWithShadow(tr, String.valueOf(gold), contentX + 240, fishY, gold > 0 ? GOLD : TEXT_GRAY);
-            ctx.drawTextWithShadow(tr, String.valueOf(diamond), contentX + 280, fishY, diamond > 0 ? DIAMOND : TEXT_GRAY);
+            ctx.text(tr, displayName, contentX, fishY, nameColor);
+            ctx.text(tr, String.valueOf(bronze), contentX + 140, fishY, bronze > 0 ? BRONZE : TEXT_GRAY);
+            ctx.text(tr, String.valueOf(silver), contentX + 190, fishY, silver > 0 ? SILVER : TEXT_GRAY);
+            ctx.text(tr, String.valueOf(gold), contentX + 240, fishY, gold > 0 ? GOLD : TEXT_GRAY);
+            ctx.text(tr, String.valueOf(diamond), contentX + 280, fishY, diamond > 0 ? DIAMOND : TEXT_GRAY);
         }
     }
 

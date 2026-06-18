@@ -2,10 +2,10 @@ package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.scanner.ComponentGrid;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -33,16 +33,16 @@ public class HudEditScreen extends Screen {
     private static final int SLAYER_HEIGHT = 46;
 
     public HudEditScreen(Screen parent) {
-        super(Text.literal("Edit HUD Positions"));
+        super(Component.literal("Edit HUD Positions"));
         this.parent = parent;
     }
 
     @Override
     protected void init() {
-        addDrawableChild(ButtonWidget.builder(
-                Text.literal("Done"),
-                button -> close()
-        ).dimensions(this.width / 2 - 50, this.height - 30, 100, 20).build());
+        addRenderableWidget(Button.builder(
+                Component.literal("Done"),
+                button -> onClose()
+        ).bounds(this.width / 2 - 50, this.height - 30, 100, 20).build());
     }
 
     private int getMapSize() {
@@ -66,8 +66,8 @@ public class HudEditScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(client.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         // Handle mouse press - start dragging
@@ -116,14 +116,14 @@ public class HudEditScreen extends Screen {
 
         // Instructions
         String instructions = dragging != DragTarget.NONE ? "Release to place" : "Drag elements to move them | Scroll on map to resize";
-        int textWidth = this.textRenderer.getWidth(instructions);
+        int textWidth = this.font.width(instructions);
         context.fill(this.width / 2 - textWidth / 2 - 8, 8, this.width / 2 + textWidth / 2 + 8, 26, 0xC0000000);
-        context.drawCenteredTextWithShadow(this.textRenderer, instructions, this.width / 2, 12, 0xFFE0E0E0);
+        context.centeredText(this.font, instructions, this.width / 2, 12, 0xFFE0E0E0);
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
-    private void drawMapPreview(DrawContext context, int mouseX, int mouseY) {
+    private void drawMapPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         float scale = config.mapScale;
         int mapSize = getMapSize();
@@ -156,10 +156,10 @@ public class HudEditScreen extends Screen {
         }
 
         // Label
-        context.drawTextWithShadow(this.textRenderer, "Map", mapX, mapY - 12, 0xFFFFFFFF);
+        context.text(this.font, "Map", mapX, mapY - 12, 0xFFFFFFFF);
     }
 
-    private void drawSlayerHudPreview(DrawContext context, int mouseX, int mouseY) {
+    private void drawSlayerHudPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int x = config.slayerHudX;
         int y = config.slayerHudY;
@@ -167,7 +167,7 @@ public class HudEditScreen extends Screen {
         int padding = 6;
 
         // Apply scaling
-        var matrices = context.getMatrices();
+        var matrices = context.pose();
         matrices.pushMatrix();
         matrices.translate(x, y);
         matrices.scale(scale, scale);
@@ -182,8 +182,8 @@ public class HudEditScreen extends Screen {
 
         // Boss name (centered)
         String bossName = "Inferno Demonlord IV";
-        int nameWidth = this.textRenderer.getWidth(bossName);
-        context.drawTextWithShadow(this.textRenderer, bossName, centerX - nameWidth / 2, currentY, 0xFFFF5555);
+        int nameWidth = this.font.width(bossName);
+        context.text(this.font, bossName, centerX - nameWidth / 2, currentY, 0xFFFF5555);
         currentY += 12;
 
         // Health bar
@@ -194,14 +194,14 @@ public class HudEditScreen extends Screen {
         drawRoundedRect(context, barX, currentY, (int)(barWidth * 0.7), barHeight, 2, 0xFF55FFFF);
 
         String hpText = "35M / 50M";
-        int hpWidth = this.textRenderer.getWidth(hpText);
-        context.drawTextWithShadow(this.textRenderer, hpText, centerX - hpWidth / 2, currentY + 2, 0xFFFFFFFF);
+        int hpWidth = this.font.width(hpText);
+        context.text(this.font, hpText, centerX - hpWidth / 2, currentY + 2, 0xFFFFFFFF);
         currentY += barHeight + 2;
 
         // Phase (centered)
         String phaseText = "CRYSTAL x2";
-        int phaseWidth = this.textRenderer.getWidth(phaseText);
-        context.drawTextWithShadow(this.textRenderer, phaseText, centerX - phaseWidth / 2, currentY, 0xFF55FFFF);
+        int phaseWidth = this.font.width(phaseText);
+        context.text(this.font, phaseText, centerX - phaseWidth / 2, currentY, 0xFF55FFFF);
 
         matrices.popMatrix();
 
@@ -219,10 +219,10 @@ public class HudEditScreen extends Screen {
 
         // Label with scale info
         String label = String.format("Slayer HUD (%.1fx)", scale);
-        context.drawTextWithShadow(this.textRenderer, label, x, y - 12, 0xFFFFFFFF);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
     }
 
-    private void drawRoundedRect(DrawContext context, int x, int y, int width, int height, int radius, int color) {
+    private void drawRoundedRect(GuiGraphicsExtractor context, int x, int y, int width, int height, int radius, int color) {
         context.fill(x + radius, y, x + width - radius, y + height, color);
         context.fill(x, y + radius, x + radius, y + height - radius, color);
         context.fill(x + width - radius, y + radius, x + width, y + height - radius, color);
@@ -261,17 +261,17 @@ public class HudEditScreen extends Screen {
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         TeslaMapsConfig.save();
         if (parent != null) {
-            client.setScreen(parent);
+            minecraft.setScreen(parent);
         } else {
-            super.close();
+            super.onClose();
         }
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 }

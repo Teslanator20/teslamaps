@@ -1,17 +1,16 @@
 package com.teslamaps.dungeon.puzzle;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Arrow Align Solver for F7/M7 Phase 3.
@@ -60,12 +59,12 @@ public class ArrowAlignSolver {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
 
         // Check if player is near the device
-        BlockPos playerPos = mc.player.getBlockPos();
-        if (playerPos.getSquaredDistance(CENTER_BLOCK) > 200) {
+        BlockPos playerPos = mc.player.blockPosition();
+        if (playerPos.distSqr(CENTER_BLOCK) > 200) {
             currentRotations = null;
             targetSolution = null;
             clicksNeeded.clear();
@@ -81,14 +80,14 @@ public class ArrowAlignSolver {
     }
 
     private static void scanFrames() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
 
         // Get all item frames with arrows
-        List<ItemFrameEntity> frames = new ArrayList<>();
-        for (Entity entity : mc.world.getEntities()) {
-            if (entity instanceof ItemFrameEntity frame) {
-                if (frame.getHeldItemStack().getItem() == Items.ARROW) {
+        List<ItemFrame> frames = new ArrayList<>();
+        for (Entity entity : mc.level.entitiesForRendering()) {
+            if (entity instanceof ItemFrame frame) {
+                if (frame.getItem().getItem() == Items.ARROW) {
                     frames.add(frame);
                 }
             }
@@ -118,8 +117,8 @@ public class ArrowAlignSolver {
             }
 
             // Find frame at this position
-            for (ItemFrameEntity frame : frames) {
-                if (frame.getBlockPos().equals(framePos)) {
+            for (ItemFrame frame : frames) {
+                if (frame.blockPosition().equals(framePos)) {
                     rotations[index] = frame.getRotation();
                     break;
                 }
@@ -161,7 +160,7 @@ public class ArrowAlignSolver {
     }
 
     private static BlockPos getFramePosition(int index) {
-        return FRAME_GRID_CORNER.add(0, index % 5, index / 5);
+        return FRAME_GRID_CORNER.offset(0, index % 5, index / 5);
     }
 
     public static void onFrameClick(int index) {
@@ -181,7 +180,7 @@ public class ArrowAlignSolver {
         }
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().solveArrowAlign) return;
         if (clicksNeeded.isEmpty()) return;
 
@@ -191,7 +190,7 @@ public class ArrowAlignSolver {
             if (clicks == 0) continue;
 
             BlockPos framePos = getFramePosition(index);
-            Vec3d textPos = Vec3d.ofCenter(framePos).add(0, 0.1, -0.3);
+            Vec3 textPos = Vec3.atCenterOf(framePos).add(0, 0.1, -0.3);
 
             char colorCode;
             if (clicks < 3) colorCode = 'a'; // Green

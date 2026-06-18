@@ -4,12 +4,11 @@ import com.teslamaps.TeslaMaps;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.utils.ScoreboardUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 
 /**
  * Tracks secrets by monitoring the action bar and scoreboard.
@@ -65,7 +64,7 @@ public class SecretTracker {
      * Parses "X/Y Secrets" format from action bar.
      * The action bar shows CURRENT ROOM's secrets, not dungeon-wide!
      */
-    public static void onActionBarMessage(Text message) {
+    public static void onActionBarMessage(Component message) {
         if (!DungeonManager.isInDungeon()) return;
 
         String text = message.getString();
@@ -142,7 +141,7 @@ public class SecretTracker {
      * Get the room the player is currently standing in.
      */
     private static DungeonRoom getCurrentPlayerRoom() {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return null;
 
         double x = mc.player.getX();

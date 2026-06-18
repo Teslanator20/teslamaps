@@ -2,18 +2,17 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Experiment Solver - Superpairs (Memory matching game)
@@ -50,7 +49,7 @@ public class SuperpairsSolver {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         /* DISABLED
         if (!TeslaMapsConfig.get().solveSuperpairs) {
@@ -62,12 +61,12 @@ public class SuperpairsSolver {
         }
         */
 
-        if (mc.player == null || mc.world == null) {
+        if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
-        if (!(mc.currentScreen instanceof GenericContainerScreen screen)) {
+        if (!(mc.screen instanceof ContainerScreen screen)) {
             if (initialScanDone) {
                 TeslaMaps.LOGGER.info("[Superpairs] Screen closed, resetting");
             }
@@ -75,9 +74,9 @@ public class SuperpairsSolver {
             return;
         }
 
-        Text title = screen.getTitle();
+        Component title = screen.getTitle();
         String titleStr = title.getString();
-        String cleanTitle = Formatting.strip(titleStr);
+        String cleanTitle = ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
         // Check if this is Superpairs
@@ -101,7 +100,7 @@ public class SuperpairsSolver {
         }
 
         long currentTime = System.currentTimeMillis();
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
 
         // Scan for revealed items every 100ms
         if (currentTime - lastScanTime >= 100) {
@@ -137,7 +136,7 @@ public class SuperpairsSolver {
     /**
      * Scan the container for revealed items (non-glass panes).
      */
-    private static void scanRevealedItems(GenericContainerScreenHandler handler) {
+    private static void scanRevealedItems(ChestMenu handler) {
         for (int slotId = minSlot; slotId <= maxSlot; slotId++) {
             // Skip already matched slots
             if (matchedSlots.contains(slotId)) continue;
@@ -145,7 +144,7 @@ public class SuperpairsSolver {
             Slot slot = handler.getSlot(slotId);
             if (slot == null) continue;
 
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
             // Skip glass panes (hidden items)
@@ -158,7 +157,7 @@ public class SuperpairsSolver {
             // This item is revealed - store it
             if (!revealedItems.containsKey(slotId)) {
                 revealedItems.put(slotId, stack.copy());
-                TeslaMaps.LOGGER.info("[Superpairs] Revealed item at slot {}: {}", slotId, stack.getName().getString());
+                TeslaMaps.LOGGER.info("[Superpairs] Revealed item at slot {}: {}", slotId, stack.getHoverName().getString());
 
                 // Check if this creates a match with another revealed item
                 for (Map.Entry<Integer, ItemStack> entry : revealedItems.entrySet()) {
@@ -166,7 +165,7 @@ public class SuperpairsSolver {
                     if (otherSlot == slotId) continue;
                     if (matchedSlots.contains(otherSlot)) continue;
 
-                    if (ItemStack.areItemsEqual(stack, entry.getValue())) {
+                    if (ItemStack.isSameItem(stack, entry.getValue())) {
                         TeslaMaps.LOGGER.info("[Superpairs] Found match: slots {} and {}", slotId, otherSlot);
                         matchedSlots.add(slotId);
                         matchedSlots.add(otherSlot);
@@ -180,7 +179,7 @@ public class SuperpairsSolver {
     /**
      * Find the next slot to click based on known pairs.
      */
-    private static int findNextSlotToClick(GenericContainerScreenHandler handler) {
+    private static int findNextSlotToClick(ChestMenu handler) {
         // First priority: If we have an item revealed (last click), find its match
         if (lastClickedSlot != -1 && !lastClickedItem.isEmpty()) {
             for (Map.Entry<Integer, ItemStack> entry : revealedItems.entrySet()) {
@@ -188,7 +187,7 @@ public class SuperpairsSolver {
                 if (slot == lastClickedSlot) continue;
                 if (matchedSlots.contains(slot)) continue;
 
-                if (ItemStack.areItemsEqual(lastClickedItem, entry.getValue())) {
+                if (ItemStack.isSameItem(lastClickedItem, entry.getValue())) {
                     return slot;
                 }
             }
@@ -202,7 +201,7 @@ public class SuperpairsSolver {
             // Check if this slot currently shows a hidden item (glass)
             Slot gameSlot1 = handler.getSlot(slot1);
             if (gameSlot1 == null) continue;
-            ItemStack currentStack1 = gameSlot1.getStack();
+            ItemStack currentStack1 = gameSlot1.getItem();
 
             // Skip if item is still revealed
             if (!isHiddenItem(currentStack1)) continue;
@@ -213,7 +212,7 @@ public class SuperpairsSolver {
                 if (slot2 <= slot1) continue; // Avoid duplicates
                 if (matchedSlots.contains(slot2)) continue;
 
-                if (ItemStack.areItemsEqual(entry1.getValue(), entry2.getValue())) {
+                if (ItemStack.isSameItem(entry1.getValue(), entry2.getValue())) {
                     // Found a known pair - click the first slot
                     return slot1;
                 }
@@ -232,16 +231,16 @@ public class SuperpairsSolver {
     /**
      * Perform a click on the given slot.
      */
-    private static void performClick(MinecraftClient mc, GenericContainerScreenHandler handler, int slotId) {
+    private static void performClick(Minecraft mc, ChestMenu handler, int slotId) {
         if (mc.player == null) return;
 
         TeslaMaps.LOGGER.info("[Superpairs] Clicking slot {}", slotId);
 
-        mc.interactionManager.clickSlot(
-            handler.syncId,
+        mc.gameMode.handleContainerInput(
+            handler.containerId,
             slotId,
             0,
-            SlotActionType.PICKUP,
+            ContainerInput.PICKUP,
             mc.player
         );
 
@@ -259,10 +258,10 @@ public class SuperpairsSolver {
     public static int getNextCorrectSlot() {
         if (!initialScanDone) return -1;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (!(mc.currentScreen instanceof GenericContainerScreen screen)) return -1;
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof ContainerScreen screen)) return -1;
 
-        return findNextSlotToClick(screen.getScreenHandler());
+        return findNextSlotToClick(screen.getMenu());
     }
 
     /**

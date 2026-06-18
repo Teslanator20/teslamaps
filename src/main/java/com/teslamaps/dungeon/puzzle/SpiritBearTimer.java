@@ -2,14 +2,13 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.util.math.BlockPos;
-
 import java.util.Set;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Spirit Bear Timer - Tracks F4/M4 boss spirit bear spawn progress.
@@ -107,11 +106,11 @@ public class SpiritBearTimer {
         }
     }
 
-    public static void render(DrawContext context, RenderTickCounter tickCounter) {
+    public static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         if (!TeslaMapsConfig.get().spiritBearTimer) return;
         if (lastFloor.isEmpty()) return;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
         int maxKills = lastFloor.contains("M4") ? 30 : 25;
@@ -129,11 +128,11 @@ public class SpiritBearTimer {
         }
 
         // Render at bottom center of screen
-        int screenWidth = mc.getWindow().getScaledWidth();
-        int x = (screenWidth - mc.textRenderer.getWidth(text)) / 2;
-        int y = mc.getWindow().getScaledHeight() - 50;
+        int screenWidth = mc.getWindow().getGuiScaledWidth();
+        int x = (screenWidth - mc.font.width(text)) / 2;
+        int y = mc.getWindow().getGuiScaledHeight() - 50;
 
-        context.drawTextWithShadow(mc.textRenderer, text, x, y, 0xFFFFFFFF);
+        context.text(mc.font, text, x, y, 0xFFFFFFFF);
     }
 
     public static void reset() {

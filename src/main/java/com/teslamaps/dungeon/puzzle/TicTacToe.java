@@ -1,5 +1,6 @@
 package com.teslamaps.dungeon.puzzle;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
@@ -7,25 +8,23 @@ import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.scanner.ComponentGrid;
 import com.teslamaps.utils.TicTacToeUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.item.FilledMapItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.map.MapState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.MapItem;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * TicTacToe puzzle solver - shows the best move.
  * Tic Tac Toe puzzle solver - shows optimal move.
  */
 public class TicTacToe {
-    private static Box nextBestMoveBox = null;
+    private static AABB nextBestMoveBox = null;
     private static DungeonRoom currentRoom = null;
 
     // Room-relative coordinates for the tic-tac-toe board 
@@ -39,21 +38,21 @@ public class TicTacToe {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || mc.player == null) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) {
             reset();
             return;
         }
 
         try {
             // Search for item frames with maps within 21 blocks
-            Box searchBox = mc.player.getBoundingBox().expand(21);
-            List<ItemFrameEntity> itemFrames = mc.world.getEntitiesByClass(
-                    ItemFrameEntity.class,
+            AABB searchBox = mc.player.getBoundingBox().inflate(21);
+            List<ItemFrame> itemFrames = mc.level.getEntitiesOfClass(
+                    ItemFrame.class,
                     searchBox,
                     frame -> {
-                        ItemStack stack = frame.getHeldItemStack();
-                        return !stack.isEmpty() && stack.getItem() instanceof FilledMapItem;
+                        ItemStack stack = frame.getItem();
+                        return !stack.isEmpty() && stack.getItem() instanceof MapItem;
                     }
             );
 
@@ -64,7 +63,7 @@ public class TicTacToe {
             }
 
             // Find room from first frame
-            BlockPos firstFramePos = itemFrames.get(0).getBlockPos();
+            BlockPos firstFramePos = itemFrames.get(0).blockPosition();
             int[] gridPos = ComponentGrid.worldToGrid(firstFramePos.getX(), firstFramePos.getZ());
             if (gridPos == null) return;
 
@@ -79,10 +78,10 @@ public class TicTacToe {
 
             // Collect all frame positions and their map colors
             Map<BlockPos, Character> frameData = new HashMap<>();
-            for (ItemFrameEntity frame : itemFrames) {
-                BlockPos pos = frame.getBlockPos();
-                ItemStack stack = frame.getHeldItemStack();
-                MapState mapState = FilledMapItem.getMapState(stack, mc.world);
+            for (ItemFrame frame : itemFrames) {
+                BlockPos pos = frame.blockPosition();
+                ItemStack stack = frame.getItem();
+                MapItemSavedData mapState = MapItem.getSavedData(stack, mc.level);
                 if (mapState == null) continue;
 
                 byte[] colors = mapState.colors;
@@ -148,11 +147,11 @@ public class TicTacToe {
             }
 
             // Offset 0.5 blocks away from player (opposite of item frame facing direction)
-            Direction facing = itemFrames.get(0).getHorizontalFacing();
-            double offsetX = -facing.getOffsetX() * 0.5;
-            double offsetZ = -facing.getOffsetZ() * 0.5;
+            Direction facing = itemFrames.get(0).getDirection();
+            double offsetX = -facing.getStepX() * 0.5;
+            double offsetZ = -facing.getStepZ() * 0.5;
 
-            nextBestMoveBox = new Box(
+            nextBestMoveBox = new AABB(
                 worldPos.getX() + offsetX, worldPos.getY(), worldPos.getZ() + offsetZ,
                 worldPos.getX() + 1 + offsetX, worldPos.getY() + 1, worldPos.getZ() + 1 + offsetZ
             );
@@ -199,7 +198,7 @@ public class TicTacToe {
         return new BlockPos(cornerX + rotated[0], relY, cornerZ + rotated[1]);
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().solveTicTacToe || nextBestMoveBox == null) {
             return;
         }
@@ -210,7 +209,7 @@ public class TicTacToe {
             double centerZ = (nextBestMoveBox.minZ + nextBestMoveBox.maxZ) / 2;
 
             // Small button-sized box
-            Box buttonBox = new Box(
+            AABB buttonBox = new AABB(
                 centerX - 0.2, centerY - 0.15, centerZ - 0.1,
                 centerX + 0.2, centerY + 0.15, centerZ + 0.1
             );

@@ -1,22 +1,21 @@
 package com.teslamaps.dungeon.puzzle;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Three Weirdos puzzle solver - highlights the correct chest.
@@ -35,7 +34,7 @@ public class ThreeWeirdos {
     );
 
     private static BlockPos correctChestPos = null;
-    private static Box correctChestBox = null;
+    private static AABB correctChestBox = null;
     private static String targetNpcName = null;
     private static boolean disabled = false;
     private static long lastSearchTime = 0;
@@ -49,8 +48,8 @@ public class ThreeWeirdos {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || mc.player == null) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) {
             reset();
             return;
         }
@@ -66,11 +65,11 @@ public class ThreeWeirdos {
 
         // Update chest box if we have a position
         if (correctChestPos != null) {
-            correctChestBox = new Box(correctChestPos);
+            correctChestBox = new AABB(correctChestPos);
         }
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().solveThreeWeirdos || correctChestBox == null || disabled) {
             return;
         }
@@ -78,7 +77,7 @@ public class ThreeWeirdos {
         try {
             ESPRenderer.drawFilledBox(matrices, correctChestBox, 0x8000FF00, cameraPos);
             ESPRenderer.drawBoxOutline(matrices, correctChestBox, 0xFF00FF00, 5.0f, cameraPos);
-            Vec3d chestCenter = correctChestBox.getCenter();
+            Vec3 chestCenter = correctChestBox.getCenter();
             ESPRenderer.drawTracerFromCamera(matrices, chestCenter, 0xFF00FF00, cameraPos);
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[ThreeWeirdos] Error rendering solution", e);
@@ -94,10 +93,10 @@ public class ThreeWeirdos {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || mc.player == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) return;
 
-        String stripped = Formatting.strip(message);
+        String stripped = ChatFormatting.stripFormatting(message);
         if (stripped == null) return;
 
         // Use regex pattern to match dialogue
@@ -125,14 +124,14 @@ public class ThreeWeirdos {
      * Find the armor stand entity, then find closest chest.
      */
     private static void findNpcAndChest(String npcName) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || mc.player == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) return;
 
         // Search for the NPC entity by name 
-        ArmorStandEntity targetNpc = null;
-        for (var entity : mc.world.getEntities()) {
-            if (entity instanceof ArmorStandEntity armorStand) {
-                String name = Formatting.strip(armorStand.getName().getString());
+        ArmorStand targetNpc = null;
+        for (var entity : mc.level.entitiesForRendering()) {
+            if (entity instanceof ArmorStand armorStand) {
+                String name = ChatFormatting.stripFormatting(armorStand.getName().getString());
                 if (name != null && name.equals(npcName)) {
                     targetNpc = armorStand;
                     break;
@@ -162,8 +161,8 @@ public class ThreeWeirdos {
         for (int dx = -3; dx <= 3; dx++) {
             for (int dz = -3; dz <= 3; dz++) {
                 for (int dy = -1; dy <= 1; dy++) {
-                    BlockPos checkPos = npcBlockPos.add(dx, dy, dz);
-                    if (mc.world.getBlockState(checkPos).getBlock() == Blocks.CHEST) {
+                    BlockPos checkPos = npcBlockPos.offset(dx, dy, dz);
+                    if (mc.level.getBlockState(checkPos).getBlock() == Blocks.CHEST) {
                         double dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
                         TeslaMaps.LOGGER.info("[ThreeWeirdos] Found chest at {} distance {}", checkPos, dist);
                         if (dist < closestDist) {
@@ -180,7 +179,7 @@ public class ThreeWeirdos {
             TeslaMaps.LOGGER.info("[ThreeWeirdos] Selected closest chest at {} (distance {})", correctChestPos, closestDist);
 
             // Color the NPC name green
-            targetNpc.setCustomName(Text.literal(npcName).formatted(Formatting.GREEN));
+            targetNpc.setCustomName(Component.literal(npcName).withStyle(ChatFormatting.GREEN));
             targetNpc.setCustomNameVisible(true);
         } else {
             TeslaMaps.LOGGER.warn("[ThreeWeirdos] No chest found near NPC '{}'", npcName);

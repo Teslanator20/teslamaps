@@ -1,20 +1,19 @@
 package com.teslamaps.utils;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ServerInfo;
-
 import java.util.List;
 import java.util.regex.Pattern;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ServerData;
 
 public class SkyblockUtils {
     private static final Pattern HYPIXEL_PATTERN = Pattern.compile(".*\\.hypixel\\.net", Pattern.CASE_INSENSITIVE);
 
     public static boolean isOnHypixel() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        ServerInfo serverInfo = mc.getCurrentServerEntry();
+        Minecraft mc = Minecraft.getInstance();
+        ServerData serverInfo = mc.getCurrentServer();
         if (serverInfo == null) return false;
 
-        String address = serverInfo.address.toLowerCase();
+        String address = serverInfo.ip.toLowerCase();
         return HYPIXEL_PATTERN.matcher(address).matches() || address.contains("hypixel");
     }
 
@@ -32,7 +31,7 @@ public class SkyblockUtils {
     }
 
     public static boolean isInDungeonArea() {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
 
         double x = mc.player.getX();

@@ -14,13 +14,13 @@ import com.teslamaps.scanner.ComponentGrid;
 import com.teslamaps.scanner.DoorScanner;
 import com.teslamaps.scanner.MapScanner;
 import com.teslamaps.utils.TabListUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * Renders the dungeon map overlay on the HUD.
@@ -37,9 +37,9 @@ public class MapRenderer {
     private static int minGridZ = 0, maxGridZ = 5;
     private static int totalSecrets = 0;
 
-    public static void render(DrawContext context, RenderTickCounter tickCounter) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) return;
+    public static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
         if (!TeslaMapsConfig.get().mapEnabled) return;
 
         // Only show in dungeon if option enabled
@@ -143,8 +143,8 @@ public class MapRenderer {
     /**
      * Draw info text (secrets, crypts, mimic, score) below the map.
      */
-    private static void drawInfoText(DrawContext context, MinecraftClient mc, int x, int y, int width) {
-        var textRenderer = mc.textRenderer;
+    private static void drawInfoText(GuiGraphicsExtractor context, Minecraft mc, int x, int y, int width) {
+        var textRenderer = mc.font;
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         // LINE 1: Secrets (found/needed/total) and Crypts
@@ -171,7 +171,7 @@ public class MapRenderer {
                 : "Secrets: ?/?/" + totalSecrets;
 
         int secretsColor = (remainingSecrets == 0) ? 0xFF55FF55 : 0xFFFFFFFF;
-        context.drawTextWithShadow(textRenderer, secretsText, x + 4, y + 2, secretsColor);
+        context.text(textRenderer, secretsText, x + 4, y + 2, secretsColor);
 
         if (config.showCrypts) {
             int cryptsFound = TabListUtils.getCryptsFound();
@@ -202,8 +202,8 @@ public class MapRenderer {
                 cryptsColor = 0xFFFF5555;
             }
 
-            int cryptsWidth = textRenderer.getWidth(cryptsText);
-            context.drawTextWithShadow(textRenderer, cryptsText, x + width - cryptsWidth - 4, y + 2, cryptsColor);
+            int cryptsWidth = textRenderer.width(cryptsText);
+            context.text(textRenderer, cryptsText, x + width - cryptsWidth - 4, y + 2, cryptsColor);
         }
 
         // LINE 2: Mimic and Score
@@ -227,7 +227,7 @@ public class MapRenderer {
                 mimicColor = 0xFFAAAAAA;
             }
 
-            context.drawTextWithShadow(textRenderer, mimicText, x + 4, line2Y, mimicColor);
+            context.text(textRenderer, mimicText, x + 4, line2Y, mimicColor);
         }
 
         if (config.showDungeonScore) {
@@ -245,8 +245,8 @@ public class MapRenderer {
                 scoreColor = 0xFFFFFFFF;
             }
 
-            int scoreWidth = textRenderer.getWidth(scoreText);
-            context.drawTextWithShadow(textRenderer, scoreText, x + width - scoreWidth - 4, line2Y, scoreColor);
+            int scoreWidth = textRenderer.width(scoreText);
+            context.text(textRenderer, scoreText, x + width - scoreWidth - 4, line2Y, scoreColor);
         }
     }
 
@@ -269,7 +269,7 @@ public class MapRenderer {
         };
     }
 
-    private static void drawBackground(DrawContext context, int baseX, int baseY, int width, int height) {
+    private static void drawBackground(GuiGraphicsExtractor context, int baseX, int baseY, int width, int height) {
         int bgColor = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorBackground);
         int borderColor = 0xFF333333; // Border is slightly lighter than background
         context.fill(baseX, baseY, baseX + width, baseY + height, bgColor);
@@ -297,7 +297,7 @@ public class MapRenderer {
     /**
      * Draw door connections between rooms - only where doors actually exist
      */
-    private static void drawRoomConnections(DrawContext context, Collection<DungeonRoom> rooms, int baseX, int baseY, float scale) {
+    private static void drawRoomConnections(GuiGraphicsExtractor context, Collection<DungeonRoom> rooms, int baseX, int baseY, float scale) {
         // Make doors wider - use 2x the door size for better visibility
         int doorThickness = (int)(DOOR_SIZE * scale * 2);
         if (doorThickness < 5) doorThickness = 5;
@@ -373,7 +373,7 @@ public class MapRenderer {
         };
     }
 
-    private static void drawRoom(DrawContext context, DungeonRoom room, int baseX, int baseY, float scale) {
+    private static void drawRoom(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
         int color = getRoomColor(room);
 
         // Calculate bounding box of all components to draw as one unified shape
@@ -417,7 +417,7 @@ public class MapRenderer {
                     // Unknown found count, just show total
                     secretText = String.valueOf(maxSecrets);
                 }
-                context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer,
+                context.text(Minecraft.getInstance().font,
                         secretText, pixelX + 2, pixelY + 2, getTextColor(room));
             }
 
@@ -491,7 +491,7 @@ public class MapRenderer {
                 } else {
                     secretText = String.valueOf(maxSecrets);
                 }
-                context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer,
+                context.text(Minecraft.getInstance().font,
                         secretText, pixelX + 2, pixelY + 2, getTextColor(room));
             }
 
@@ -509,7 +509,7 @@ public class MapRenderer {
     /**
      * Draw room name - always shown, with full names and line wrapping
      */
-    private static void drawRoomName(DrawContext context, DungeonRoom room, int baseX, int baseY, float scale) {
+    private static void drawRoomName(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.showRoomNames) return;
         if (room.getName() == null) return;
@@ -600,7 +600,7 @@ public class MapRenderer {
         // Use different colors based on room state
         int textColor = getTextColor(room);
 
-        var textRenderer = MinecraftClient.getInstance().textRenderer;
+        var textRenderer = Minecraft.getInstance().font;
 
         // Text scale (smaller text, with config multiplier)
         float textScale = 0.5f * TeslaMapsConfig.get().roomNameScale;
@@ -618,7 +618,7 @@ public class MapRenderer {
                 currentLine.append(word);
             } else {
                 String testLine = currentLine + " " + word;
-                if (textRenderer.getWidth(testLine) <= maxLineWidth) {
+                if (textRenderer.width(testLine) <= maxLineWidth) {
                     currentLine.append(" ").append(word);
                 } else {
                     lines.add(currentLine.toString());
@@ -631,21 +631,21 @@ public class MapRenderer {
         }
 
         // Draw each line centered with scaling
-        int lineHeight = (int)(textRenderer.fontHeight * textScale);
+        int lineHeight = (int)(textRenderer.lineHeight * textScale);
         int totalHeight = lines.size() * lineHeight;
         int startY = centerY - totalHeight / 2;
 
-        var matrices = context.getMatrices();
+        var matrices = context.pose();
 
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
-            int textWidth = textRenderer.getWidth(line);
+            int textWidth = textRenderer.width(line);
 
             matrices.pushMatrix();
             matrices.translate(centerX, startY + i * lineHeight);
             matrices.scale(textScale, textScale);
 
-            context.drawTextWithShadow(textRenderer, line, -textWidth / 2, 0, textColor);
+            context.text(textRenderer, line, -textWidth / 2, 0, textColor);
 
             matrices.popMatrix();
         }
@@ -740,7 +740,7 @@ public class MapRenderer {
         };
     }
 
-    private static void drawCheckmark(DrawContext context, int x, int y, int size, CheckmarkState state) {
+    private static void drawCheckmark(GuiGraphicsExtractor context, int x, int y, int size, CheckmarkState state) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         // Check if this checkmark type should be shown
@@ -756,7 +756,7 @@ public class MapRenderer {
         if (!symbol.isEmpty()) {
             int centerX = x + size / 2;
             int centerY = y + size / 2;
-            int textWidth = MinecraftClient.getInstance().textRenderer.getWidth(symbol);
+            int textWidth = Minecraft.getInstance().font.width(symbol);
 
             // Use config colors
             int color = switch (state) {
@@ -766,7 +766,7 @@ public class MapRenderer {
                 default -> 0xFFFFFFFF;
             };
 
-            context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer,
+            context.text(Minecraft.getInstance().font,
                     symbol, centerX - textWidth / 2, centerY - 4, color);
         }
     }
@@ -776,8 +776,8 @@ public class MapRenderer {
      * 1. Always render local player from mc.player (reliable)
      * 2. Render other players from map positions with stored UUIDs
      */
-    private static void drawPlayerMarker(DrawContext context, MinecraftClient mc, int baseX, int baseY, float scale) {
-        if (mc.world == null || mc.player == null) return;
+    private static void drawPlayerMarker(GuiGraphicsExtractor context, Minecraft mc, int baseX, int baseY, float scale) {
+        if (mc.level == null || mc.player == null) return;
 
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int headSize = (int)(8 * scale * config.playerHeadScale);
@@ -786,8 +786,8 @@ public class MapRenderer {
         if (config.showSelfMarker) {
             String selfName = config.showPlayerNames ? mc.player.getName().getString() : null;
             renderPlayerHead(context, mc, baseX, baseY, scale, headSize,
-                    mc.player.getX(), mc.player.getZ(), mc.player.getYaw(),
-                    mc.player.getUuid(), 0x00000000, selfName, true);
+                    mc.player.getX(), mc.player.getZ(), mc.player.getYRot(),
+                    mc.player.getUUID(), 0x00000000, selfName, true);
         }
 
         // 2. Render other players from map positions
@@ -820,12 +820,12 @@ public class MapRenderer {
             String name = (dungeonPlayer != null && config.showPlayerNames) ? dungeonPlayer.getName() : null;
 
             // Try to get player entity for accurate position
-            net.minecraft.entity.player.PlayerEntity playerEntity = uuid != null ? mc.world.getPlayerByUuid(uuid) : null;
+            net.minecraft.world.entity.player.Player playerEntity = uuid != null ? mc.level.getPlayerByUUID(uuid) : null;
 
             if (playerEntity != null) {
                 // Player is loaded - use entity position (more accurate)
                 renderPlayerHead(context, mc, baseX, baseY, scale, headSize,
-                        playerEntity.getX(), playerEntity.getZ(), playerEntity.getYaw(),
+                        playerEntity.getX(), playerEntity.getZ(), playerEntity.getYRot(),
                         uuid, 0x00000000, name, false);
             } else {
                 // Player not loaded - use map decoration position
@@ -842,7 +842,7 @@ public class MapRenderer {
     /**
      * Render player head at a direct pixel position (for map-based positions).
      */
-    private static void renderPlayerHeadAtPixel(DrawContext context, int pixelX, int pixelY, int headSize, float yaw,
+    private static void renderPlayerHeadAtPixel(GuiGraphicsExtractor context, int pixelX, int pixelY, int headSize, float yaw,
                                                  java.util.UUID uuid, String name, boolean isLocal) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int halfSize = headSize / 2;
@@ -871,16 +871,16 @@ public class MapRenderer {
 
         // Draw name
         if (name != null && config.showPlayerNames) {
-            var textRenderer = MinecraftClient.getInstance().textRenderer;
-            int textWidth = textRenderer.getWidth(name);
-            context.drawTextWithShadow(textRenderer, name, pixelX - textWidth / 2, pixelY + halfSize + 2, 0xFFFFFFFF);
+            var textRenderer = Minecraft.getInstance().font;
+            int textWidth = textRenderer.width(name);
+            context.text(textRenderer, name, pixelX - textWidth / 2, pixelY + halfSize + 2, 0xFFFFFFFF);
         }
     }
 
     /**
      * Render a single player head at the given world position with direction indicator.
      */
-    private static void renderPlayerHead(DrawContext context, MinecraftClient mc,
+    private static void renderPlayerHead(GuiGraphicsExtractor context, Minecraft mc,
                                           int baseX, int baseY, float scale, int headSize,
                                           double worldX, double worldZ, float yaw,
                                           java.util.UUID uuid, int borderColor, String name, boolean isLocal) {
@@ -960,14 +960,14 @@ public class MapRenderer {
 
         // Draw player name below head/marker
         if (name != null && TeslaMapsConfig.get().showPlayerNames) {
-            var textRenderer = mc.textRenderer;
-            int textWidth = textRenderer.getWidth(name);
+            var textRenderer = mc.font;
+            int textWidth = textRenderer.width(name);
             float textScale = 0.5f;
-            var matrices = context.getMatrices();
+            var matrices = context.pose();
             matrices.pushMatrix();
             matrices.translate(pixelX, pixelY + halfSize + 3);
             matrices.scale(textScale, textScale);
-            context.drawTextWithShadow(textRenderer, name, -textWidth / 2, 0, 0xFFFFFFFF);
+            context.text(textRenderer, name, -textWidth / 2, 0, 0xFFFFFFFF);
             matrices.popMatrix();
         }
     }
@@ -990,7 +990,7 @@ public class MapRenderer {
     /**
      * Draw a thick line between two points.
      */
-    private static void drawThickLine(DrawContext context, int x1, int y1, int x2, int y2, int thickness, int color) {
+    private static void drawThickLine(GuiGraphicsExtractor context, int x1, int y1, int x2, int y2, int thickness, int color) {
         // Use Bresenham-style approach with thickness
         int dx = Math.abs(x2 - x1);
         int dy = Math.abs(y2 - y1);
@@ -1017,7 +1017,7 @@ public class MapRenderer {
     /**
      * Draw a filled triangle using horizontal scan lines.
      */
-    private static void drawFilledTriangle(DrawContext context, int x1, int y1, int x2, int y2, int x3, int y3, int color) {
+    private static void drawFilledTriangle(GuiGraphicsExtractor context, int x1, int y1, int x2, int y2, int x3, int y3, int color) {
         // Sort vertices by Y coordinate
         if (y1 > y2) { int t = y1; y1 = y2; y2 = t; t = x1; x1 = x2; x2 = t; }
         if (y1 > y3) { int t = y1; y1 = y3; y3 = t; t = x1; x1 = x3; x3 = t; }

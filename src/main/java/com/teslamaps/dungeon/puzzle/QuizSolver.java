@@ -2,23 +2,21 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Quiz Solver - Highlights correct answer for Quiz (Trivia) puzzle.
@@ -195,7 +193,7 @@ public class QuizSolver {
         }
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().solveQuiz) return;
         if (currentAnswers == null) return;
 
@@ -209,8 +207,8 @@ public class QuizSolver {
                 continue;
             }
 
-            BlockPos pos = option.worldPos.down(); // Render on ground
-            Box box = new Box(
+            BlockPos pos = option.worldPos.below(); // Render on ground
+            AABB box = new AABB(
                 pos.getX(), pos.getY(), pos.getZ(),
                 pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1
             );

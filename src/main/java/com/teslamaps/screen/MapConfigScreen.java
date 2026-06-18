@@ -1,13 +1,7 @@
 package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.sound.SoundEvents;
 import com.teslamaps.utils.LoudSound;
-import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -16,6 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 
 public class MapConfigScreen extends Screen {
     private static final int ROW_HEIGHT = 26;
@@ -29,7 +29,7 @@ public class MapConfigScreen extends Screen {
     private String selectedCategory = "Map";
     private String searchQuery = "";
 
-    private TextFieldWidget searchField;
+    private EditBox searchField;
     private boolean wasMouseDown = false;
 
     // Inline color picker state
@@ -37,7 +37,7 @@ public class MapConfigScreen extends Screen {
     private float pickerHue = 0, pickerSat = 1, pickerBright = 1;
 
     public MapConfigScreen() {
-        super(Text.literal("TeslaMaps Settings"));
+        super(Component.literal("TeslaMaps Settings"));
     }
 
     @Override
@@ -45,14 +45,14 @@ public class MapConfigScreen extends Screen {
         buildCategories();
 
         int searchWidth = this.width - SIDEBAR_WIDTH - 50;
-        searchField = new TextFieldWidget(textRenderer, SIDEBAR_WIDTH + 20, 12, searchWidth, 16, Text.literal("Search"));
-        searchField.setPlaceholder(Text.literal("Search..."));
-        searchField.setChangedListener(query -> {
+        searchField = new EditBox(font, SIDEBAR_WIDTH + 20, 12, searchWidth, 16, Component.literal("Search"));
+        searchField.setHint(Component.literal("Search..."));
+        searchField.setResponder(query -> {
             searchQuery = query.toLowerCase();
             scrollOffset = 0;
             expandedColorEntry = null;
         });
-        addDrawableChild(searchField);
+        addRenderableWidget(searchField);
     }
 
     private void buildCategories() {
@@ -404,8 +404,8 @@ public class MapConfigScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(client.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean clicked = isMouseDown && !wasMouseDown; // Calculate BEFORE updating wasMouseDown
 
         // Handle category clicks
@@ -415,7 +415,7 @@ public class MapConfigScreen extends Screen {
                 if (mouseY >= catY && mouseY < catY + 22) {
                     selectedCategory = category;
                     searchQuery = "";
-                    searchField.setText("");
+                    searchField.setValue("");
                     scrollOffset = 0;
                     expandedColorEntry = null;
                     break;
@@ -428,8 +428,8 @@ public class MapConfigScreen extends Screen {
         int tmapBtnY = this.height - 35;
         if (clicked && mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= tmapBtnY && mouseY < tmapBtnY + 22) {
             // Send /tmap gui command when clicking this button
-            if (client.player != null) {
-                client.player.networkHandler.sendChatCommand("tmap gui");
+            if (minecraft.player != null) {
+                minecraft.player.connection.sendCommand("tmap gui");
             }
         }
 
@@ -437,7 +437,7 @@ public class MapConfigScreen extends Screen {
         int doneX = this.width - 70;
         int doneY = this.height - 30;
         if (clicked && mouseX >= doneX && mouseX < doneX + 60 && mouseY >= doneY && mouseY < doneY + 22) {
-            close();
+            onClose();
             wasMouseDown = isMouseDown;
             return;
         }
@@ -447,8 +447,8 @@ public class MapConfigScreen extends Screen {
 
         // Sidebar
         context.fill(0, 0, SIDEBAR_WIDTH, this.height, 0xFF2C2C2E);
-        context.drawTextWithShadow(textRenderer, "TeslaMaps", 10, 8, 0xFFFFFFFF);
-        context.drawTextWithShadow(textRenderer, "Categories", 10, 22, 0xFF30D158);
+        context.text(font, "TeslaMaps", 10, 8, 0xFFFFFFFF);
+        context.text(font, "Categories", 10, 22, 0xFF30D158);
 
         // Category buttons
         int catY = 50;
@@ -463,7 +463,7 @@ public class MapConfigScreen extends Screen {
             }
 
             int textColor = selected ? 0xFF30D158 : (hovered ? 0xFFFFFFFF : 0xFF8E8E93);
-            context.drawTextWithShadow(textRenderer, category, 12, catY + 7, textColor);
+            context.text(font, category, 12, catY + 7, textColor);
             catY += 24;
         }
 
@@ -471,7 +471,7 @@ public class MapConfigScreen extends Screen {
         boolean tmapHovered = mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= tmapBtnY && mouseY < tmapBtnY + 22;
         context.fill(8, tmapBtnY, SIDEBAR_WIDTH - 8, tmapBtnY + 22, tmapHovered ? 0xFF3A3A3C : 0xFF2C2C2E);
         drawBorder(context, 8, tmapBtnY, SIDEBAR_WIDTH - 16, 22, tmapHovered ? 0xFF30D158 : 0xFF48484A);
-        context.drawCenteredTextWithShadow(textRenderer, "/tmap gui", SIDEBAR_WIDTH / 2, tmapBtnY + 7, 0xFF8E8E93);
+        context.centeredText(font, "/tmap gui", SIDEBAR_WIDTH / 2, tmapBtnY + 7, 0xFF8E8E93);
 
         // Content area - define boundaries for clipping
         int contentTop = 50;
@@ -482,7 +482,7 @@ public class MapConfigScreen extends Screen {
         // Content header (above scroll area)
         String header = searchQuery.isEmpty() ? selectedCategory : "Search Results";
         context.fill(SIDEBAR_WIDTH, 30, this.width, contentTop, 0xFF1C1C1E); // Header background
-        context.drawTextWithShadow(textRenderer, header, SIDEBAR_WIDTH + 20, 35, 0xFFFFFFFF);
+        context.text(font, header, SIDEBAR_WIDTH + 20, 35, 0xFFFFFFFF);
 
         // Entries
         List<SettingsEntry> entries = getEntriesToShow();
@@ -527,11 +527,11 @@ public class MapConfigScreen extends Screen {
         boolean doneHovered = mouseX >= doneX && mouseX < doneX + 60 && mouseY >= doneY && mouseY < doneY + 22;
         context.fill(doneX, doneY, doneX + 60, doneY + 22, doneHovered ? 0xFF3A3A3C : 0xFF2C2C2E);
         drawBorder(context, doneX, doneY, 60, 22, doneHovered ? 0xFF30D158 : 0xFF48484A);
-        context.drawCenteredTextWithShadow(textRenderer, "Done", doneX + 30, doneY + 7, 0xFFFFFFFF);
+        context.centeredText(font, "Done", doneX + 30, doneY + 7, 0xFFFFFFFF);
 
         wasMouseDown = isMouseDown; // Update AFTER processing
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
     @Override
@@ -543,7 +543,7 @@ public class MapConfigScreen extends Screen {
         return super.mouseScrolled(mouseX, mouseY, h, v);
     }
 
-    private void drawBorder(DrawContext ctx, int x, int y, int w, int h, int color) {
+    private void drawBorder(GuiGraphicsExtractor ctx, int x, int y, int w, int h, int color) {
         ctx.fill(x, y, x + w, y + 1, color);
         ctx.fill(x, y + h - 1, x + w, y + h, color);
         ctx.fill(x, y, x + 1, y + h, color);
@@ -551,18 +551,18 @@ public class MapConfigScreen extends Screen {
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         TeslaMapsConfig.save();
-        super.close();
+        super.onClose();
     }
 
     @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {}
+    public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {}
 
     // Entry types
     private interface SettingsEntry {
         int getHeight();
-        void render(DrawContext ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown);
+        void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown);
         default boolean matchesSearch(String q) { return false; }
         default String getLabel() { return ""; }
     }
@@ -577,8 +577,8 @@ public class MapConfigScreen extends Screen {
         @Override public String getLabel() { return text; }
 
         @Override
-        public void render(DrawContext ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
-            ctx.drawTextWithShadow(screen.textRenderer, text, x, y + 8, 0xFF30D158);
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+            ctx.text(screen.font, text, x, y + 8, 0xFF30D158);
         }
     }
 
@@ -597,11 +597,11 @@ public class MapConfigScreen extends Screen {
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
 
         @Override
-        public void render(DrawContext ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
 
-            ctx.drawTextWithShadow(screen.textRenderer, label, x + 8, y + 9, 0xFFFFFFFF);
+            ctx.text(screen.font, label, x + 8, y + 9, 0xFFFFFFFF);
 
             int toggleX = x + width - 44;
             int toggleY = y + 5;
@@ -636,7 +636,7 @@ public class MapConfigScreen extends Screen {
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
 
         @Override
-        public void render(DrawContext ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             int btnX = x + 8;
             int btnY = y + 2;
             int btnW = width - 16;
@@ -647,7 +647,7 @@ public class MapConfigScreen extends Screen {
 
             ctx.fill(btnX, btnY, btnX + btnW, btnY + btnH, hovered ? 0xFF3A3A3C : 0xFF2C2C2E);
             drawBorder(ctx, btnX, btnY, btnW, btnH, hovered ? 0xFF5A5A5C : 0xFF48484A);
-            ctx.drawCenteredTextWithShadow(screen.textRenderer, label, btnX + btnW / 2, btnY + 7, 0xFFFFFFFF);
+            ctx.centeredText(screen.font, label, btnX + btnW / 2, btnY + 7, 0xFFFFFFFF);
         }
     }
 
@@ -670,12 +670,12 @@ public class MapConfigScreen extends Screen {
         }
 
         @Override
-        public void render(DrawContext ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean isExpanded = expandedColorEntry == this;
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
 
-            ctx.drawTextWithShadow(screen.textRenderer, label, x + 8, y + 9, 0xFFFFFFFF);
+            ctx.text(screen.font, label, x + 8, y + 9, 0xFFFFFFFF);
 
             // Color swatch
             int swatchX = x + width - 30;
@@ -701,7 +701,7 @@ public class MapConfigScreen extends Screen {
 
             // Hex preview
             String hex = "#" + getter.get().substring(0, Math.min(6, getter.get().length()));
-            ctx.drawTextWithShadow(screen.textRenderer, hex, swatchX - screen.textRenderer.getWidth(hex) - 6, y + 9, 0xFF8E8E93);
+            ctx.text(screen.font, hex, swatchX - screen.font.width(hex) - 6, y + 9, 0xFF8E8E93);
 
             // Inline color picker when expanded
             if (isExpanded) {
@@ -766,7 +766,7 @@ public class MapConfigScreen extends Screen {
 
                 // New hex value
                 String newHex = String.format("#%02X%02X%02X", newRgb[0], newRgb[1], newRgb[2]);
-                ctx.drawTextWithShadow(screen.textRenderer, newHex, previewX, pickerY + 30, 0xFFFFFFFF);
+                ctx.text(screen.font, newHex, previewX, pickerY + 30, 0xFFFFFFFF);
             }
         }
 
@@ -827,11 +827,11 @@ public class MapConfigScreen extends Screen {
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
 
         @Override
-        public void render(DrawContext ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
 
-            ctx.drawTextWithShadow(screen.textRenderer, label, x + 8, y + 9, 0xFFFFFFFF);
+            ctx.text(screen.font, label, x + 8, y + 9, 0xFFFFFFFF);
 
             // Slider track
             int sliderX = x + width - 120;
@@ -860,7 +860,7 @@ public class MapConfigScreen extends Screen {
 
             // Draw value
             String valueStr = String.format("%.1f", getter.get());
-            ctx.drawTextWithShadow(screen.textRenderer, valueStr, sliderX + sliderW + 8, y + 9, 0xFF8E8E93);
+            ctx.text(screen.font, valueStr, sliderX + sliderW + 8, y + 9, 0xFF8E8E93);
         }
     }
 
@@ -882,11 +882,11 @@ public class MapConfigScreen extends Screen {
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
 
         @Override
-        public void render(DrawContext ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
 
-            ctx.drawTextWithShadow(screen.textRenderer, label, x + 8, y + 9, 0xFFFFFFFF);
+            ctx.text(screen.font, label, x + 8, y + 9, 0xFFFFFFFF);
 
             // Dropdown button
             int btnX = x + width - 120;
@@ -907,8 +907,8 @@ public class MapConfigScreen extends Screen {
 
             // Show current value (truncated if needed)
             String display = currentValue.length() > 14 ? currentValue.substring(0, 12) + ".." : currentValue;
-            ctx.drawTextWithShadow(screen.textRenderer, display, btnX + 4, btnY + 5, 0xFFFFFFFF);
-            ctx.drawTextWithShadow(screen.textRenderer, expanded ? "▲" : "▼", btnX + btnW - 12, btnY + 5, 0xFF8E8E93);
+            ctx.text(screen.font, display, btnX + 4, btnY + 5, 0xFFFFFFFF);
+            ctx.text(screen.font, expanded ? "▲" : "▼", btnX + btnW - 12, btnY + 5, 0xFF8E8E93);
 
             // Draw options when expanded
             if (expanded) {
@@ -927,7 +927,7 @@ public class MapConfigScreen extends Screen {
                     drawBorder(ctx, btnX, optY, btnW, 18, 0xFF48484A);
 
                     String optDisplay = option.length() > 14 ? option.substring(0, 12) + ".." : option;
-                    ctx.drawTextWithShadow(screen.textRenderer, optDisplay, btnX + 4, optY + 5, 0xFFFFFFFF);
+                    ctx.text(screen.font, optDisplay, btnX + 4, optY + 5, 0xFFFFFFFF);
                     optY += 18;
                 }
             }
@@ -955,11 +955,11 @@ public class MapConfigScreen extends Screen {
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
 
         @Override
-        public void render(DrawContext ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
 
-            ctx.drawTextWithShadow(screen.textRenderer, label, x + 8, y + 9, 0xFFFFFFFF);
+            ctx.text(screen.font, label, x + 8, y + 9, 0xFFFFFFFF);
 
             // Dropdown button
             int btnX = x + width - 120;
@@ -980,8 +980,8 @@ public class MapConfigScreen extends Screen {
 
             // Show current value (truncated if needed)
             String display = currentValue.length() > 14 ? currentValue.substring(0, 12) + ".." : currentValue;
-            ctx.drawTextWithShadow(screen.textRenderer, display, btnX + 4, btnY + 5, 0xFFFFFFFF);
-            ctx.drawTextWithShadow(screen.textRenderer, expanded ? "▲" : "▼", btnX + btnW - 12, btnY + 5, 0xFF8E8E93);
+            ctx.text(screen.font, display, btnX + 4, btnY + 5, 0xFFFFFFFF);
+            ctx.text(screen.font, expanded ? "▲" : "▼", btnX + btnW - 12, btnY + 5, 0xFF8E8E93);
 
             // Draw options when expanded
             if (expanded) {
@@ -1002,26 +1002,26 @@ public class MapConfigScreen extends Screen {
                     drawBorder(ctx, btnX, optY, btnW, 18, 0xFF48484A);
 
                     String optDisplay = option.length() > 14 ? option.substring(0, 12) + ".." : option;
-                    ctx.drawTextWithShadow(screen.textRenderer, optDisplay, btnX + 4, optY + 5, 0xFFFFFFFF);
+                    ctx.text(screen.font, optDisplay, btnX + 4, optY + 5, 0xFFFFFFFF);
                     optY += 18;
                 }
             }
         }
 
         private void playPreviewSound(String soundName) {
-            MinecraftClient mc = MinecraftClient.getInstance();
+            Minecraft mc = Minecraft.getInstance();
             if (mc.player == null) return;
 
-            net.minecraft.sound.SoundEvent sound = switch (soundName) {
-                case "BLAZE_DEATH" -> SoundEvents.ENTITY_BLAZE_DEATH;
-                case "GHAST_SHOOT" -> SoundEvents.ENTITY_GHAST_SHOOT;
-                case "WITHER_SPAWN" -> SoundEvents.ENTITY_WITHER_SPAWN;
-                case "ENDER_DRAGON_GROWL" -> SoundEvents.ENTITY_ENDER_DRAGON_GROWL;
-                case "NOTE_PLING" -> SoundEvents.BLOCK_NOTE_BLOCK_PLING.value();
-                case "NOTE_CHIME" -> SoundEvents.BLOCK_NOTE_BLOCK_CHIME.value();
-                case "EXPERIENCE_ORB" -> SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP;
-                case "ANVIL_LAND" -> SoundEvents.BLOCK_ANVIL_LAND;
-                default -> SoundEvents.ENTITY_PLAYER_LEVELUP; // LEVEL_UP
+            net.minecraft.sounds.SoundEvent sound = switch (soundName) {
+                case "BLAZE_DEATH" -> SoundEvents.BLAZE_DEATH;
+                case "GHAST_SHOOT" -> SoundEvents.GHAST_SHOOT;
+                case "WITHER_SPAWN" -> SoundEvents.WITHER_SPAWN;
+                case "ENDER_DRAGON_GROWL" -> SoundEvents.ENDER_DRAGON_GROWL;
+                case "NOTE_PLING" -> SoundEvents.NOTE_BLOCK_PLING.value();
+                case "NOTE_CHIME" -> SoundEvents.NOTE_BLOCK_CHIME.value();
+                case "EXPERIENCE_ORB" -> SoundEvents.EXPERIENCE_ORB_PICKUP;
+                case "ANVIL_LAND" -> SoundEvents.ANVIL_LAND;
+                default -> SoundEvents.PLAYER_LEVELUP; // LEVEL_UP
             };
 
             // Play at volume 2.0 for preview so user can hear it

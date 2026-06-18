@@ -2,32 +2,28 @@ package com.teslamaps.features;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.LoudSound;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.passive.BatEntity;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.ambient.Bat;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Secret Waypoints feature - renders 3D waypoints at known secret locations.
@@ -158,8 +154,8 @@ public class SecretWaypoints {
         if (!DungeonManager.isInDungeon()) return;
         if (!loaded) return;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
 
         // Only check periodically to reduce lag
         long now = System.currentTimeMillis();
@@ -180,7 +176,7 @@ public class SecretWaypoints {
                 BlockPos worldPos = new BlockPos(pos[0], pos[1], pos[2]);
                 if (foundSecrets.contains(worldPos)) continue;
 
-                if (isSecretCollected(mc.world, worldPos, type)) {
+                if (isSecretCollected(mc.level, worldPos, type)) {
                     foundSecrets.add(worldPos);
                     TeslaMaps.LOGGER.debug("Secret collected: {} at {}", type.key, worldPos);
                 }
@@ -191,7 +187,7 @@ public class SecretWaypoints {
     /**
      * Check if a secret at the given position has been collected.
      */
-    private static boolean isSecretCollected(ClientWorld world, BlockPos pos, WaypointType type) {
+    private static boolean isSecretCollected(ClientLevel world, BlockPos pos, WaypointType type) {
         switch (type) {
             case CHEST -> {
                 // Track if player has opened a chest at this location
@@ -200,8 +196,8 @@ public class SecretWaypoints {
             }
             case BAT -> {
                 // Check if there are any bats within 1.5 blocks of the waypoint
-                Box searchBox = new Box(pos).expand(1.5);
-                var bats = world.getEntitiesByClass(BatEntity.class, searchBox, bat -> !bat.isRemoved());
+                AABB searchBox = new AABB(pos).inflate(1.5);
+                var bats = world.getEntitiesOfClass(Bat.class, searchBox, bat -> !bat.isRemoved());
                 // If no bats found near waypoint, it was killed
                 return bats.isEmpty();
             }
@@ -216,8 +212,8 @@ public class SecretWaypoints {
             }
             case ITEM -> {
                 // Item secrets drop items - check if item exists nearby
-                Box searchBox = new Box(pos).expand(1.0);
-                var items = world.getEntitiesByClass(ItemEntity.class, searchBox, item -> !item.isRemoved());
+                AABB searchBox = new AABB(pos).inflate(1.0);
+                var items = world.getEntitiesOfClass(ItemEntity.class, searchBox, item -> !item.isRemoved());
                 // Similar logic - only mark collected if we've been near and items are gone
                 return items.isEmpty() && hasBeenNearWaypoint(pos);
             }
@@ -238,17 +234,17 @@ public class SecretWaypoints {
     private static final Set<BlockPos> visitedWaypoints = new HashSet<>();
 
     private static boolean hasBeenNearWaypoint(BlockPos pos) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
 
         // Check if player is within 10 blocks
-        if (mc.player.getBlockPos().isWithinDistance(pos, 10)) {
+        if (mc.player.blockPosition().closerThan(pos, 10)) {
             visitedWaypoints.add(pos);
         }
         return visitedWaypoints.contains(pos);
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().secretWaypoints) return;
         if (!DungeonManager.isInDungeon()) return;
         if (!loaded) {
@@ -256,8 +252,8 @@ public class SecretWaypoints {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
 
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null || room.getRoomData() == null) return;
@@ -274,7 +270,7 @@ public class SecretWaypoints {
         // Get or compute cached waypoints for this room
         Map<WaypointType, List<int[]>> worldWaypoints = cachedWaypoints.get(roomId);
         if (worldWaypoints == null) {
-            worldWaypoints = addSecretsForRoom(room, mc.world);
+            worldWaypoints = addSecretsForRoom(room, mc.level);
             if (worldWaypoints != null) {
                 cachedWaypoints.put(roomId, worldWaypoints);
             }
@@ -293,11 +289,11 @@ public class SecretWaypoints {
                 BlockPos worldPos = new BlockPos(pos[0], pos[1], pos[2]);
                 if (foundSecrets.contains(worldPos)) continue;
 
-                Box box = new Box(worldPos);
+                AABB box = new AABB(worldPos);
                 ESPRenderer.drawBoxOutline(matrices, box, color, 2.0f, cameraPos);
 
                 if (TeslaMapsConfig.get().secretWaypointTracers) {
-                    Vec3d target = new Vec3d(worldPos.getX() + 0.5, worldPos.getY() + 0.5, worldPos.getZ() + 0.5);
+                    Vec3 target = new Vec3(worldPos.getX() + 0.5, worldPos.getY() + 0.5, worldPos.getZ() + 0.5);
                     ESPRenderer.drawTracerFromCamera(matrices, target, color, cameraPos);
                 }
             }
@@ -308,7 +304,7 @@ public class SecretWaypoints {
      * Add secrets for a room
      * Returns map of waypoint type -> list of [x, y, z] world coordinates.
      */
-    private static Map<WaypointType, List<int[]>> addSecretsForRoom(DungeonRoom room, ClientWorld world) {
+    private static Map<WaypointType, List<int[]>> addSecretsForRoom(DungeonRoom room, ClientLevel world) {
         Integer roomId = room.getRoomData() != null ? room.getRoomData().getRoomID() : null;
         if (roomId == null) return null;
 
@@ -348,7 +344,7 @@ public class SecretWaypoints {
      * Find rotation by scanning for blue terracotta
      * Returns [rotation, cornerX, cornerZ] or null if not found.
      */
-    private static int[] findRotation(DungeonRoom room, ClientWorld world) {
+    private static int[] findRotation(DungeonRoom room, ClientLevel world) {
         String shape = room.getShape();
         List<int[]> components = room.getComponents();
 
@@ -450,7 +446,7 @@ public class SecretWaypoints {
     /**
      * Get highest Y at position
      */
-    private static int getHighestY(ClientWorld world, int x, int z) {
+    private static int getHighestY(ClientLevel world, int x, int z) {
         for (int y = 256; y >= 0; y--) {
             var state = world.getBlockState(new BlockPos(x, y, z));
             if (state.isAir() || state.getBlock() == Blocks.GOLD_BLOCK) continue;
@@ -505,7 +501,7 @@ public class SecretWaypoints {
         // Find chest waypoints within 2 blocks of opened chest
         for (int[] pos : chestWaypoints) {
             BlockPos waypointPos = new BlockPos(pos[0], pos[1], pos[2]);
-            if (waypointPos.isWithinDistance(chestPos, 2.0)) {
+            if (waypointPos.closerThan(chestPos, 2.0)) {
                 foundSecrets.add(waypointPos);
                 TeslaMaps.LOGGER.debug("Chest secret collected at {}", waypointPos);
             }
@@ -531,18 +527,18 @@ public class SecretWaypoints {
 
         // Play sound based on config
         float volume = TeslaMapsConfig.get().secretSoundVolume;
-        net.minecraft.sound.SoundEvent sound = getSoundForType(TeslaMapsConfig.get().secretSoundType);
+        net.minecraft.sounds.SoundEvent sound = getSoundForType(TeslaMapsConfig.get().secretSoundType);
         LoudSound.play(sound, volume, 1.2f);
 
         TeslaMaps.LOGGER.debug("[SecretWaypoints] Secret interaction: {}", type);
     }
 
-    private static net.minecraft.sound.SoundEvent getSoundForType(String soundType) {
+    private static net.minecraft.sounds.SoundEvent getSoundForType(String soundType) {
         return switch (soundType) {
-            case "LEVEL_UP" -> SoundEvents.ENTITY_PLAYER_LEVELUP;
-            case "NOTE_PLING" -> SoundEvents.BLOCK_NOTE_BLOCK_PLING.value();
-            case "AMETHYST_CHIME" -> SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME;
-            default -> SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP;
+            case "LEVEL_UP" -> SoundEvents.PLAYER_LEVELUP;
+            case "NOTE_PLING" -> SoundEvents.NOTE_BLOCK_PLING.value();
+            case "AMETHYST_CHIME" -> SoundEvents.AMETHYST_BLOCK_CHIME;
+            default -> SoundEvents.EXPERIENCE_ORB_PICKUP;
         };
     }
 

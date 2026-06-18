@@ -1,32 +1,30 @@
 package com.teslamaps.features;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonFloor;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.dungeon.DungeonState;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.regex.Pattern;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Livid Solver for F5/M5 boss fight.
@@ -136,8 +134,8 @@ public class LividSolver {
      * Called each server tick.
      */
     public static void tick() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || mc.player == null) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) {
             reset();
             return;
         }
@@ -182,9 +180,9 @@ public class LividSolver {
     /**
      * Find the correct Livid by checking wool block color.
      */
-    private static void findCorrectLivid(MinecraftClient mc) {
+    private static void findCorrectLivid(Minecraft mc) {
         // Check wool block at indicator position
-        Block woolBlock = mc.world.getBlockState(WOOL_LOCATION).getBlock();
+        Block woolBlock = mc.level.getBlockState(WOOL_LOCATION).getBlock();
 
         Livid detectedLivid = Livid.fromWool(woolBlock);
         if (detectedLivid == null) {
@@ -199,9 +197,9 @@ public class LividSolver {
 
         // Find all Livid entities
         List<Entity> livids = new ArrayList<>();
-        for (Entity entity : mc.world.getEntities()) {
+        for (Entity entity : mc.level.entitiesForRendering()) {
             if (entity == mc.player) continue;
-            if (entity instanceof ArmorStandEntity) continue;
+            if (entity instanceof ArmorStand) continue;
 
             String name = entity.getName().getString();
             if (name.endsWith(" Livid") || name.equals("Livid")) {
@@ -235,9 +233,9 @@ public class LividSolver {
     /**
      * Schedule announcement (handles blindness delay).
      */
-    private static void scheduleAnnouncement(MinecraftClient mc) {
+    private static void scheduleAnnouncement(Minecraft mc) {
         // Check for blindness effect
-        var blindness = mc.player.getStatusEffect(StatusEffects.BLINDNESS);
+        var blindness = mc.player.getEffect(MobEffects.BLINDNESS);
         if (blindness != null && blindness.getDuration() > 20) {
             // Delay announcement until blindness wears off
             pendingAnnouncement = true;
@@ -256,30 +254,30 @@ public class LividSolver {
         if (hasAnnounced) return;
         hasAnnounced = true;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
         // Format: "Found Livid: §{colorCode}{name}"
         String coloredName = "§" + currentLivid.colorCode + currentLivid.entityName;
-        Text message = Text.literal("[TeslaMaps] ")
-                .formatted(Formatting.GOLD)
-                .append(Text.literal("Found Livid: ")
-                        .formatted(Formatting.WHITE))
-                .append(Text.literal(coloredName + " Livid"));
+        Component message = Component.literal("[TeslaMaps] ")
+                .withStyle(ChatFormatting.GOLD)
+                .append(Component.literal("Found Livid: ")
+                        .withStyle(ChatFormatting.WHITE))
+                .append(Component.literal(coloredName + " Livid"));
 
-        mc.player.sendMessage(message, false);
+        mc.player.sendSystemMessage(message);
         TeslaMaps.LOGGER.info("[LividSolver] Announced: Found {} Livid", currentLivid.entityName);
     }
 
     /**
      * Announce Livid death to party chat.
      */
-    private static void announceLividDeath(MinecraftClient mc) {
+    private static void announceLividDeath(Minecraft mc) {
         if (mc.player == null) return;
         if (!TeslaMapsConfig.get().lividDeathMessage) return;
 
         // Send party chat message
-        mc.player.networkHandler.sendChatCommand("pc Livid Dead!");
+        mc.player.connection.sendCommand("pc Livid Dead!");
         TeslaMaps.LOGGER.info("[LividSolver] Announced Livid death to party");
     }
 
@@ -317,10 +315,10 @@ public class LividSolver {
     /**
      * Check for Livid entities to detect if we're in Livid boss arena.
      */
-    private static void checkForLividArena(MinecraftClient mc) {
+    private static void checkForLividArena(Minecraft mc) {
         inLividArena = false;
-        for (Entity entity : mc.world.getEntities()) {
-            if (entity instanceof ArmorStandEntity) continue;
+        for (Entity entity : mc.level.entitiesForRendering()) {
+            if (entity instanceof ArmorStand) continue;
             String name = entity.getName().getString();
             if (name.endsWith(" Livid") || name.equals("Livid")) {
                 inLividArena = true;
@@ -375,51 +373,51 @@ public class LividSolver {
      * Check if player has blindness (for render checks).
      */
     public static boolean hasBlindness() {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
-        return mc.player.hasStatusEffect(StatusEffects.BLINDNESS);
+        return mc.player.hasEffect(MobEffects.BLINDNESS);
     }
 
     /**
      * Render HUD (invulnerability timer).
      */
-    public static void renderHUD(net.minecraft.client.gui.DrawContext context, net.minecraft.client.render.RenderTickCounter tickCounter) {
+    public static void renderHUD(net.minecraft.client.gui.GuiGraphicsExtractor context, net.minecraft.client.DeltaTracker tickCounter) {
         if (!TeslaMapsConfig.get().lividFinder) return;
         if (!isFloor5()) return;
         if (invulnTime <= 0) return;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
         // Color based on time remaining
         // > 260t (13s) = green, > 130t (6.5s) = yellow, else red
-        Formatting color;
+        ChatFormatting color;
         if (invulnTime > 260) {
-            color = Formatting.GREEN;
+            color = ChatFormatting.GREEN;
         } else if (invulnTime > 130) {
-            color = Formatting.YELLOW;
+            color = ChatFormatting.YELLOW;
         } else {
-            color = Formatting.RED;
+            color = ChatFormatting.RED;
         }
 
         String text = "Livid: " + invulnTime + "t";
-        Text displayText = Text.literal(text).formatted(color);
+        Component displayText = Component.literal(text).withStyle(color);
 
         // Position - top center of screen
-        int screenWidth = mc.getWindow().getScaledWidth();
-        int textWidth = mc.textRenderer.getWidth(text);
+        int screenWidth = mc.getWindow().getGuiScaledWidth();
+        int textWidth = mc.font.width(text);
         int x = (screenWidth - textWidth) / 2;
         int y = 10;
 
-        context.drawText(mc.textRenderer, displayText, x, y, 0xFFFFFFFF, true);
+        context.text(mc.font, displayText, x, y, 0xFFFFFFFF, true);
     }
 
     /**
      * Render world elements (ESP for correct Livid).
      * Only renders if blindness has worn off.
      */
-    public static void renderWorld(MatrixStack matrices, VertexConsumerProvider provider,
-                                   Vec3d cameraPos, Vec3d playerEyePos) {
+    public static void renderWorld(PoseStack matrices, MultiBufferSource provider,
+                                   Vec3 cameraPos, Vec3 playerEyePos) {
         if (!TeslaMapsConfig.get().lividFinder) return;
         if (!isFloor5()) return;
 
@@ -427,10 +425,10 @@ public class LividSolver {
         if (hasBlindness()) return;
 
         if (correctLividEntity != null && correctLividEntity.isAlive()) {
-            Box lividBox = correctLividEntity.getBoundingBox();
+            AABB lividBox = correctLividEntity.getBoundingBox();
             ESPRenderer.drawESPBox(matrices, lividBox, LIVID_COLOR, cameraPos);
             if (TeslaMapsConfig.get().lividTracer) {
-                Vec3d lividCenter = lividBox.getCenter();
+                Vec3 lividCenter = lividBox.getCenter();
                 ESPRenderer.drawTracerFromCamera(matrices, lividCenter, TRACER_LIVID, cameraPos);
             }
         }

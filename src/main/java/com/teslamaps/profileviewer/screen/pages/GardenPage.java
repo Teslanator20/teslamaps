@@ -7,11 +7,11 @@ import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import com.teslamaps.profileviewer.screen.ProfileViewerScreen;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Garden page showing crop milestones, visitor milestones, and plots.
@@ -71,27 +71,27 @@ public class GardenPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         int padding = 15;
         int contentX = x + padding;
         int col2X = x + width / 2;
 
         int lineY = y + padding;
 
-        ctx.drawTextWithShadow(tr, "Garden", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Garden", contentX, lineY, TEXT_GREEN);
         lineY += 20;
 
         if (loading) {
-            ctx.drawTextWithShadow(tr, "Loading garden data...", contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, "Loading garden data...", contentX, lineY, TEXT_GRAY);
             return;
         }
 
         if (gardenData == null || gardenData.has("error")) {
             String error = gardenData != null && gardenData.has("error") ?
                     gardenData.get("error").getAsString() : "Failed to load garden data";
-            ctx.drawTextWithShadow(tr, error, contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, error, contentX, lineY, TEXT_GRAY);
             return;
         }
 
@@ -99,12 +99,12 @@ public class GardenPage extends ProfileViewerPage {
         if (gardenData.has("garden_experience")) {
             long exp = gardenData.get("garden_experience").getAsLong();
             int level = calculateGardenLevel(exp);
-            ctx.drawTextWithShadow(tr, "Garden Level: " + level, contentX, lineY, TEXT_GOLD);
+            ctx.text(tr, "Garden Level: " + level, contentX, lineY, TEXT_GOLD);
             lineY += 20;
         }
 
         // === Crop Milestones ===
-        ctx.drawTextWithShadow(tr, "Crop Milestones", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Crop Milestones", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject cropMilestones = gardenData.has("resources_collected") ?
@@ -120,7 +120,7 @@ public class GardenPage extends ProfileViewerPage {
             }
 
             int milestone = calculateCropMilestone(collected);
-            ctx.drawTextWithShadow(tr, cropName + ": " + milestone, contentX, lineY,
+            ctx.text(tr, cropName + ": " + milestone, contentX, lineY,
                     milestone > 0 ? TEXT_WHITE : TEXT_GRAY);
             lineY += 12;
         }
@@ -137,14 +137,14 @@ public class GardenPage extends ProfileViewerPage {
             }
 
             int milestone = calculateCropMilestone(collected);
-            ctx.drawTextWithShadow(tr, cropName + ": " + milestone, col2X, lineY,
+            ctx.text(tr, cropName + ": " + milestone, col2X, lineY,
                     milestone > 0 ? TEXT_WHITE : TEXT_GRAY);
             lineY += 12;
         }
 
         // === Visitor Stats (right column) ===
         lineY = y + padding;
-        ctx.drawTextWithShadow(tr, "Visitors", col2X, lineY, TEXT_GREEN);
+        ctx.text(tr, "Visitors", col2X, lineY, TEXT_GREEN);
         lineY += 16;
 
         if (gardenData.has("commission_data")) {
@@ -158,14 +158,14 @@ public class GardenPage extends ProfileViewerPage {
                         totalVisits += entry.getValue().getAsInt();
                     }
                 }
-                ctx.drawTextWithShadow(tr, "Total Visits: " + formatNumber(totalVisits), col2X, lineY, TEXT_WHITE);
+                ctx.text(tr, "Total Visits: " + formatNumber(totalVisits), col2X, lineY, TEXT_WHITE);
                 lineY += 12;
             }
         }
 
         // Composter
         lineY += 8;
-        ctx.drawTextWithShadow(tr, "Composter", col2X, lineY, TEXT_GREEN);
+        ctx.text(tr, "Composter", col2X, lineY, TEXT_GREEN);
         lineY += 16;
 
         if (gardenData.has("composter_data")) {
@@ -173,13 +173,13 @@ public class GardenPage extends ProfileViewerPage {
 
             if (composter.has("organic_matter")) {
                 long organicMatter = composter.get("organic_matter").getAsLong();
-                ctx.drawTextWithShadow(tr, "Organic Matter: " + formatNumber(organicMatter), col2X, lineY, TEXT_WHITE);
+                ctx.text(tr, "Organic Matter: " + formatNumber(organicMatter), col2X, lineY, TEXT_WHITE);
                 lineY += 12;
             }
 
             if (composter.has("fuel_units")) {
                 long fuel = composter.get("fuel_units").getAsLong();
-                ctx.drawTextWithShadow(tr, "Fuel: " + formatNumber(fuel), col2X, lineY, TEXT_WHITE);
+                ctx.text(tr, "Fuel: " + formatNumber(fuel), col2X, lineY, TEXT_WHITE);
             }
         }
     }

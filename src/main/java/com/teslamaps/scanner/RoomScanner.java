@@ -7,13 +7,12 @@ import com.teslamaps.database.RoomDatabase;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.map.RoomType;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.BlockPos;
-
 import java.util.HashSet;
 import java.util.Set;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Scans dungeon rooms and identifies them using core hashes.
@@ -64,8 +63,8 @@ public class RoomScanner {
      * Scan the entire dungeon grid for rooms.
      */
     private static void performFullScan() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
 
         TeslaMaps.LOGGER.debug("Performing full dungeon scan...");
 
@@ -126,15 +125,15 @@ public class RoomScanner {
      * @return true if a room was found and identified
      */
     private static boolean scanPosition(int gridX, int gridZ) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return false;
 
         int[] center = ComponentGrid.gridToWorld(gridX, gridZ);
         int centerX = center[0];
         int centerZ = center[1];
 
         // Check if chunk is loaded
-        if (!CoreHasher.isPositionLoaded(mc.world, centerX, centerZ)) {
+        if (!CoreHasher.isPositionLoaded(mc.level, centerX, centerZ)) {
             return false;
         }
 
@@ -147,7 +146,7 @@ public class RoomScanner {
         }
 
         // First check if there's actually a room here (check roof height)
-        int roofHeight = getHighestBlock(mc.world, centerX, centerZ);
+        int roofHeight = getHighestBlock(mc.level, centerX, centerZ);
         if (roofHeight == 0) {
             // No blocks here - not a room
             return false;
@@ -351,10 +350,10 @@ public class RoomScanner {
     /**
      * Get the highest non-air, non-gold block at a position 
      */
-    private static int getHighestBlock(net.minecraft.world.World world, int x, int z) {
+    private static int getHighestBlock(net.minecraft.world.level.Level world, int x, int z) {
         for (int y = 255; y > 0; y--) {
-            net.minecraft.block.Block block = world.getBlockState(new net.minecraft.util.math.BlockPos(x, y, z)).getBlock();
-            String blockName = net.minecraft.registry.Registries.BLOCK.getId(block).toString();
+            net.minecraft.world.level.block.Block block = world.getBlockState(new net.minecraft.core.BlockPos(x, y, z)).getBlock();
+            String blockName = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(block).toString();
             // Ignore air variants and gold blocks (gold room has random gold on roof)
             if (blockName.equals("minecraft:air") ||
                 blockName.equals("minecraft:cave_air") ||
@@ -394,8 +393,8 @@ public class RoomScanner {
      * @return The rotation in degrees (0, 90, 180, 270) or -1 if not detected
      */
     public static int detectRotation(DungeonRoom room) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || room == null) return -1;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || room == null) return -1;
 
         int halfRoomSize = 15; // Half of 31 (room size without door)
 
@@ -417,7 +416,7 @@ public class RoomScanner {
             int centerZ = center[1];
 
             // Get roof height for this component
-            int roofHeight = getHighestBlock(mc.world, centerX, centerZ);
+            int roofHeight = getHighestBlock(mc.level, centerX, centerZ);
             if (roofHeight == 0) continue;
 
             // Corner offsets relative to room center 
@@ -439,7 +438,7 @@ public class RoomScanner {
                     if (checkY <= 0) continue;
 
                     BlockPos pos = new BlockPos(checkX, checkY, checkZ);
-                    Block block = mc.world.getBlockState(pos).getBlock();
+                    Block block = mc.level.getBlockState(pos).getBlock();
 
                     if (block == Blocks.BLUE_TERRACOTTA) {
                         // Corner index: 0=NW, 1=NE, 2=SE, 3=SW relative to component center

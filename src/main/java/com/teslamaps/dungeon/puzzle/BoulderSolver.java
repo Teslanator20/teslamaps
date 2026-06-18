@@ -1,19 +1,18 @@
 package com.teslamaps.dungeon.puzzle;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Boulder Solver - Shows solution for Boulder puzzle room.
@@ -51,8 +50,8 @@ public class BoulderSolver {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
 
         // Check if we're in Boulder room
         DungeonRoom room = DungeonManager.getCurrentRoom();
@@ -99,14 +98,14 @@ public class BoulderSolver {
         return new int[]{rotated[0] + cornerX, rotated[1] + cornerZ};
     }
 
-    private static void scanAndFindSolution(MinecraftClient mc, DungeonRoom room) {
+    private static void scanAndFindSolution(Minecraft mc, DungeonRoom room) {
         // Scan boulder grid to build grid pattern
         // Far left boulder at (24, 65, 24), width 3 blocks each
         StringBuilder pattern = new StringBuilder();
         for (int z = 0; z < 16; z += 3) {
             for (int x = 0; x < 19; x += 3) {
                 int[] pos = fromComp(24 - x, 24 - z);
-                boolean hasBoulder = !mc.world.getBlockState(new BlockPos(pos[0], 65, pos[1])).isAir();
+                boolean hasBoulder = !mc.level.getBlockState(new BlockPos(pos[0], 65, pos[1])).isAir();
                 pattern.append(hasBoulder ? "1" : "0");
             }
         }
@@ -133,7 +132,7 @@ public class BoulderSolver {
         TeslaMaps.LOGGER.info("[BoulderSolver] Found solution with {} clicks", currentSolution.size());
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().solveBoulder) return;
         if (currentSolution.isEmpty()) return;
 
@@ -144,7 +143,7 @@ public class BoulderSolver {
 
         for (int i = 0; i < count && i < currentSolution.size(); i++) {
             BoulderClick click = currentSolution.get(i);
-            Box box = new Box(
+            AABB box = new AABB(
                 click.renderPos.getX(), click.renderPos.getY(), click.renderPos.getZ(),
                 click.renderPos.getX() + 1, click.renderPos.getY() + 1, click.renderPos.getZ() + 1
             );

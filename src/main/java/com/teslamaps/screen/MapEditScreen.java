@@ -2,10 +2,10 @@ package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.scanner.ComponentGrid;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -25,17 +25,17 @@ public class MapEditScreen extends Screen {
     private static final int CELL_SIZE = ROOM_SIZE + DOOR_SIZE;
 
     public MapEditScreen(Screen parent) {
-        super(Text.literal("Edit Map Position"));
+        super(Component.literal("Edit Map Position"));
         this.parent = parent;
     }
 
     @Override
     protected void init() {
         // Done button at bottom center
-        addDrawableChild(ButtonWidget.builder(
-                Text.literal("Done"),
-                button -> close()
-        ).dimensions(this.width / 2 - 50, this.height - 30, 100, 20).build());
+        addRenderableWidget(Button.builder(
+                Component.literal("Done"),
+                button -> onClose()
+        ).bounds(this.width / 2 - 50, this.height - 30, 100, 20).build());
     }
 
     private int getMapSize() {
@@ -51,9 +51,9 @@ public class MapEditScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         // Check mouse button state using GLFW
-        boolean isMouseDown = GLFW.glfwGetMouseButton(client.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
 
         // Handle mouse press
         if (isMouseDown && !wasMouseDown) {
@@ -131,17 +131,17 @@ public class MapEditScreen extends Screen {
 
         // Instructions
         String instructions = dragging ? "Release to place" : "Drag the map to move it";
-        int textWidth = this.textRenderer.getWidth(instructions);
+        int textWidth = this.font.width(instructions);
         context.fill(this.width / 2 - textWidth / 2 - 8, 8, this.width / 2 + textWidth / 2 + 8, 26, 0xC0000000);
-        context.drawCenteredTextWithShadow(this.textRenderer, instructions, this.width / 2, 12, 0xFFE0E0E0);
+        context.centeredText(this.font, instructions, this.width / 2, 12, 0xFFE0E0E0);
 
         // Position info
         String posInfo = String.format("Position: %d, %d | Scale: %.1fx", config.mapX, config.mapY, config.mapScale);
-        int posWidth = this.textRenderer.getWidth(posInfo);
+        int posWidth = this.font.width(posInfo);
         context.fill(this.width / 2 - posWidth / 2 - 8, 30, this.width / 2 + posWidth / 2 + 8, 48, 0x80000000);
-        context.drawCenteredTextWithShadow(this.textRenderer, posInfo, this.width / 2, 34, 0xFF888888);
+        context.centeredText(this.font, posInfo, this.width / 2, 34, 0xFF888888);
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
     @Override
@@ -160,13 +160,13 @@ public class MapEditScreen extends Screen {
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         TeslaMapsConfig.save();
-        client.setScreen(parent);
+        minecraft.setScreen(parent);
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 }

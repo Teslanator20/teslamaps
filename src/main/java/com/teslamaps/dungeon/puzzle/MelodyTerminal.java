@@ -2,14 +2,14 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * F7 Terminal Solver - "Click the button on time!" (Melody)
@@ -46,7 +46,7 @@ public class MelodyTerminal {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         /* DISABLED
         if (!TeslaMapsConfig.get().solveMelodyTerminal) {
@@ -58,13 +58,13 @@ public class MelodyTerminal {
         }
         */
 
-        if (mc.player == null || mc.world == null) {
+        if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
         // Check if we're looking at a container screen
-        if (!(mc.currentScreen instanceof GenericContainerScreen)) {
+        if (!(mc.screen instanceof ContainerScreen)) {
             if (initialScanDone) {
                 TeslaMaps.LOGGER.info("[MelodyTerminal] Screen closed, resetting");
             }
@@ -72,16 +72,16 @@ public class MelodyTerminal {
             return;
         }
 
-        GenericContainerScreen screen = (GenericContainerScreen) mc.currentScreen;
+        ContainerScreen screen = (ContainerScreen) mc.screen;
 
         // Get screen title
-        Text title = screen.getTitle();
+        Component title = screen.getTitle();
         String titleStr = title.getString();
-        String cleanTitle = Formatting.strip(titleStr);
+        String cleanTitle = ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
         // Debug: Log container title once per second
-        int currentTick = mc.player.age;
+        int currentTick = mc.player.tickCount;
         if (currentTick - lastDebugTick > 20) {
             TeslaMaps.LOGGER.info("[MelodyTerminal] Container title: '{}'", cleanTitle);
             lastDebugTick = currentTick;
@@ -138,8 +138,8 @@ public class MelodyTerminal {
 
         // Detect lane progression by checking if current lane's terracotta is no longer lime
         if (currentLane < 4) { // Only check if we haven't finished all lanes
-            GenericContainerScreenHandler handler = screen.getScreenHandler();
-            ItemStack currentTerracotta = handler.getSlot(TERRACOTTA_SLOTS[currentLane]).getStack();
+            ChestMenu handler = screen.getMenu();
+            ItemStack currentTerracotta = handler.getSlot(TERRACOTTA_SLOTS[currentLane]).getItem();
 
             // If terracotta is no longer lime, we've progressed to next lane
             if (!currentTerracotta.isEmpty() && currentTerracotta.getItem() != Items.LIME_TERRACOTTA) {
@@ -162,10 +162,10 @@ public class MelodyTerminal {
     /**
      * Scan the current active lane for green pane and check magenta indicator column.
      */
-    private static void scanLane(GenericContainerScreen screen) {
+    private static void scanLane(ContainerScreen screen) {
         if (currentLane >= 4) return; // All lanes done
 
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
         int[] laneSlots = LANE_SLOTS[currentLane];
 
         lastGreenPosition = -1;
@@ -173,7 +173,7 @@ public class MelodyTerminal {
 
         // Check top row (slots 1-7) for magenta indicator
         for (int topSlot = 1; topSlot <= 7; topSlot++) {
-            ItemStack stack = handler.getSlot(topSlot).getStack();
+            ItemStack stack = handler.getSlot(topSlot).getItem();
 
             if (!stack.isEmpty()) {
                 String itemId = stack.getItem().toString();
@@ -198,7 +198,7 @@ public class MelodyTerminal {
         TeslaMaps.LOGGER.info("[MelodyTerminal] Scanning lane {} (slots {}-{})", currentLane + 1, laneSlots[0], laneSlots[6]);
         for (int i = 0; i < 7; i++) { // Only scan positions 0-6, skip 7 (terracotta) and 8 (edge)
             int slot = laneSlots[i];
-            ItemStack stack = handler.getSlot(slot).getStack();
+            ItemStack stack = handler.getSlot(slot).getItem();
 
             if (!stack.isEmpty()) {
                 TeslaMaps.LOGGER.info("[MelodyTerminal] Lane {} slot {} (pos {}): {}", currentLane + 1, slot, i, stack.getItem().toString());
@@ -224,24 +224,24 @@ public class MelodyTerminal {
     /**
      * Click the terracotta for the current lane.
      */
-    private static void clickTerracotta(MinecraftClient mc, GenericContainerScreen screen, int lane) {
+    private static void clickTerracotta(Minecraft mc, ContainerScreen screen, int lane) {
         if (mc.player == null) {
             TeslaMaps.LOGGER.warn("[MelodyTerminal] Cannot click - player is null");
             return;
         }
 
         int slotToClick = TERRACOTTA_SLOTS[lane];
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
 
         TeslaMaps.LOGGER.info("[MelodyTerminal] ===== CLICKING TERRACOTTA =====");
         TeslaMaps.LOGGER.info("[MelodyTerminal] Lane {} - Clicking slot {}", lane + 1, slotToClick);
 
         // Click the slot
-        mc.interactionManager.clickSlot(
-            handler.syncId,
+        mc.gameMode.handleContainerInput(
+            handler.containerId,
             slotToClick,
             0,  // Left click
-            SlotActionType.PICKUP,
+            ContainerInput.PICKUP,
             mc.player
         );
 
@@ -289,7 +289,7 @@ public class MelodyTerminal {
      * Event-driven slot update handler.
      * Called by TerminalManager when a slot update packet is received.
      */
-    public static void onSlotUpdate(int slotIndex, net.minecraft.item.ItemStack stack) {
+    public static void onSlotUpdate(int slotIndex, net.minecraft.world.item.ItemStack stack) {
         if (!TeslaMapsConfig.get().solveMelodyTerminal) return;
 
         // Check if a terracotta changed (lane progressed)

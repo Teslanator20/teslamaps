@@ -10,13 +10,11 @@ import com.teslamaps.scanner.RoomScanner;
 import com.teslamaps.scanner.SecretTracker;
 import com.teslamaps.utils.ScoreboardUtils;
 import com.teslamaps.utils.SkyblockUtils;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 
 public class DungeonManager {
     private static DungeonState currentState = DungeonState.NOT_IN_DUNGEON;
@@ -26,7 +24,7 @@ public class DungeonManager {
     private static int tickCounter = 0;
 
     // Track world instance to detect dungeon-to-dungeon transitions
-    private static ClientWorld lastWorld = null;
+    private static ClientLevel lastWorld = null;
 
     private static final Pattern FLOOR_PATTERN = Pattern.compile("([FM])(\\d+)");
     private static final Pattern CATACOMBS_PATTERN = Pattern.compile("The Catacombs \\(([FM]\\d+)\\)");
@@ -42,14 +40,14 @@ public class DungeonManager {
 
     private static void updateDungeonState() {
         // Detect world instance change while in dungeon (handles dungeon-to-dungeon transitions)
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world != lastWorld) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level != lastWorld) {
             if (lastWorld != null && isInDungeon()) {
                 TeslaMaps.LOGGER.info("World instance changed while in dungeon, forcing map reset");
                 onDungeonExit();
                 currentState = DungeonState.NOT_IN_DUNGEON;
             }
-            lastWorld = mc.world;
+            lastWorld = mc.level;
         }
 
         DungeonFloor previousFloor = currentFloor;
@@ -202,7 +200,7 @@ public class DungeonManager {
     }
 
     public static DungeonRoom getCurrentRoom() {
-        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.player == null || grid == null) return null;
         int[] gridPos = ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ());
         if (gridPos == null) return null;

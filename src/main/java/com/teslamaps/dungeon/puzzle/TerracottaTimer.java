@@ -1,17 +1,15 @@
 package com.teslamaps.dungeon.puzzle;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.render.ESPRenderer;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowerPotBlock;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.FlowerPotBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Terracotta Timer - Shows spawn timers for F6/M6 boss terracotta.
@@ -70,18 +68,18 @@ public class TerracottaTimer {
 
             // M6 = 12 seconds, F6 = 15 seconds
             float time = floor.contains("M6") ? 12f : 15f;
-            spawns.add(new TerracottaSpawn(pos.toImmutable(), time));
+            spawns.add(new TerracottaSpawn(pos.immutable(), time));
         }
     }
 
-    public static void render(MatrixStack matrices, Vec3d cameraPos) {
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().terracottaTimer) return;
         if (spawns.isEmpty()) return;
 
         for (TerracottaSpawn spawn : spawns) {
             String colorCode = getColorCode(spawn.timeRemaining);
             String text = String.format("§%s%.1fs", colorCode, spawn.timeRemaining);
-            Vec3d pos = Vec3d.ofCenter(spawn.pos);
+            Vec3 pos = Vec3.atCenterOf(spawn.pos);
             ESPRenderer.drawText(matrices, text, pos, 2f, cameraPos);
         }
     }

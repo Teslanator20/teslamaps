@@ -2,13 +2,12 @@ package com.teslamaps.profileviewer.screen.pages;
 
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-
 import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Collections page showing collection progress.
@@ -65,12 +64,12 @@ public class CollectionsPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
 
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         int padding = 15;
         int contentX = x + padding;
 
@@ -79,7 +78,7 @@ public class CollectionsPage extends ProfileViewerPage {
         int tabX = contentX;
         for (int i = 0; i < CATEGORIES.length; i++) {
             String cat = CATEGORIES[i];
-            int tabW = tr.getWidth(cat) + 16;
+            int tabW = tr.width(cat) + 16;
             boolean hovered = mouseX >= tabX && mouseX < tabX + tabW &&
                     mouseY >= tabY && mouseY < tabY + 18;
             boolean selected = i == selectedCategory;
@@ -89,7 +88,7 @@ public class CollectionsPage extends ProfileViewerPage {
             if (selected) {
                 ctx.fill(tabX, tabY + 16, tabX + tabW, tabY + 18, TEXT_GREEN);
             }
-            ctx.drawTextWithShadow(tr, cat, tabX + 8, tabY + 5, selected ? TEXT_WHITE : TEXT_GRAY);
+            ctx.text(tr, cat, tabX + 8, tabY + 5, selected ? TEXT_WHITE : TEXT_GRAY);
             tabX += tabW + 4;
         }
 
@@ -108,11 +107,11 @@ public class CollectionsPage extends ProfileViewerPage {
                 String displayName = formatCollectionName(item);
 
                 // Name
-                ctx.drawTextWithShadow(tr, displayName, contentX, itemY, amount > 0 ? TEXT_WHITE : TEXT_GRAY);
+                ctx.text(tr, displayName, contentX, itemY, amount > 0 ? TEXT_WHITE : TEXT_GRAY);
 
                 // Amount
                 String amountStr = formatNumber(amount);
-                ctx.drawTextWithShadow(tr, amountStr, contentX + 150, itemY, amount > 0 ? TEXT_GREEN : TEXT_GRAY);
+                ctx.text(tr, amountStr, contentX + 150, itemY, amount > 0 ? TEXT_GREEN : TEXT_GRAY);
 
                 // Progress bar (simplified - max tier at different amounts)
                 int barX = contentX + 220;
@@ -145,10 +144,10 @@ public class CollectionsPage extends ProfileViewerPage {
         int padding = 15;
         int tabY = 74 + padding; // Approximate
         int tabX = padding;
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
 
         for (int i = 0; i < CATEGORIES.length; i++) {
-            int tabW = tr.getWidth(CATEGORIES[i]) + 16;
+            int tabW = tr.width(CATEGORIES[i]) + 16;
             if (mouseX >= tabX && mouseX < tabX + tabW &&
                     mouseY >= tabY && mouseY < tabY + 18) {
                 selectedCategory = i;

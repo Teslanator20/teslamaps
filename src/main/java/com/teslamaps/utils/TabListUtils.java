@@ -1,12 +1,11 @@
 package com.teslamaps.utils;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
 
 /**
  * Utilities for parsing the tab list (player list) in dungeons.
@@ -35,13 +34,13 @@ public class TabListUtils {
      */
     public static List<String> getTabListLines() {
         List<String> lines = new ArrayList<>();
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
-        if (mc.getNetworkHandler() == null) return lines;
+        if (mc.getConnection() == null) return lines;
 
-        for (PlayerListEntry entry : mc.getNetworkHandler().getPlayerList()) {
-            if (entry.getDisplayName() != null) {
-                lines.add(entry.getDisplayName().getString());
+        for (PlayerInfo entry : mc.getConnection().getOnlinePlayers()) {
+            if (entry.getTabListDisplayName() != null) {
+                lines.add(entry.getTabListDisplayName().getString());
             }
         }
 

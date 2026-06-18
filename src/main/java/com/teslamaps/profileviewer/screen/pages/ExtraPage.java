@@ -3,11 +3,11 @@ package com.teslamaps.profileviewer.screen.pages;
 import com.google.gson.JsonObject;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Extra stats page showing kills, deaths, essence, and misc stats.
@@ -31,12 +31,12 @@ public class ExtraPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
 
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         JsonObject memberData = profile.getMemberData();
         int padding = 15;
         int contentX = x + padding;
@@ -45,7 +45,7 @@ public class ExtraPage extends ProfileViewerPage {
         int lineY = y + padding;
 
         // === Left Column: Combat Stats ===
-        ctx.drawTextWithShadow(tr, "Combat Stats", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Combat Stats", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         // Player stats
@@ -61,7 +61,7 @@ public class ExtraPage extends ProfileViewerPage {
                     }
                 }
             }
-            ctx.drawTextWithShadow(tr, "Total Kills: " + formatNumber(totalKills), contentX, lineY, TEXT_WHITE);
+            ctx.text(tr, "Total Kills: " + formatNumber(totalKills), contentX, lineY, TEXT_WHITE);
             lineY += 12;
 
             // Deaths
@@ -74,17 +74,17 @@ public class ExtraPage extends ProfileViewerPage {
                     }
                 }
             }
-            ctx.drawTextWithShadow(tr, "Total Deaths: " + formatNumber(totalDeaths), contentX, lineY, TEXT_WHITE);
+            ctx.text(tr, "Total Deaths: " + formatNumber(totalDeaths), contentX, lineY, TEXT_WHITE);
             lineY += 12;
 
             // K/D Ratio
             double kd = totalDeaths > 0 ? (double) totalKills / totalDeaths : totalKills;
-            ctx.drawTextWithShadow(tr, "K/D Ratio: " + String.format("%.2f", kd), contentX, lineY, TEXT_AQUA);
+            ctx.text(tr, "K/D Ratio: " + String.format("%.2f", kd), contentX, lineY, TEXT_AQUA);
             lineY += 20;
         }
 
         // === Essence ===
-        ctx.drawTextWithShadow(tr, "Essence", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Essence", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject currencies = getNestedObject(memberData, "currencies");
@@ -99,7 +99,7 @@ public class ExtraPage extends ProfileViewerPage {
                     JsonObject ess = essence.getAsJsonObject(essenceTypes[i]);
                     int amount = ess.has("current") ? ess.get("current").getAsInt() : 0;
                     if (amount > 0) {
-                        ctx.drawTextWithShadow(tr, essenceNames[i] + ": " + formatNumber(amount), contentX, lineY, essenceColors[i]);
+                        ctx.text(tr, essenceNames[i] + ": " + formatNumber(amount), contentX, lineY, essenceColors[i]);
                         lineY += 12;
                     }
                 }
@@ -108,7 +108,7 @@ public class ExtraPage extends ProfileViewerPage {
 
         // === Right Column: Misc Stats ===
         lineY = y + padding;
-        ctx.drawTextWithShadow(tr, "Miscellaneous", col2X, lineY, TEXT_GREEN);
+        ctx.text(tr, "Miscellaneous", col2X, lineY, TEXT_GREEN);
         lineY += 16;
 
         // First join
@@ -117,7 +117,7 @@ public class ExtraPage extends ProfileViewerPage {
             if (profileInfo.has("first_join")) {
                 long firstJoin = profileInfo.get("first_join").getAsLong();
                 String date = new java.text.SimpleDateFormat("MMM d, yyyy").format(new java.util.Date(firstJoin));
-                ctx.drawTextWithShadow(tr, "First Join: " + date, col2X, lineY, TEXT_WHITE);
+                ctx.text(tr, "First Join: " + date, col2X, lineY, TEXT_WHITE);
                 lineY += 12;
             }
         }
@@ -132,7 +132,7 @@ public class ExtraPage extends ProfileViewerPage {
                 }
             }
             if (itemsFished > 0) {
-                ctx.drawTextWithShadow(tr, "Items Fished: " + formatNumber(itemsFished), col2X, lineY, TEXT_AQUA);
+                ctx.text(tr, "Items Fished: " + formatNumber(itemsFished), col2X, lineY, TEXT_AQUA);
                 lineY += 12;
             }
 
@@ -141,16 +141,16 @@ public class ExtraPage extends ProfileViewerPage {
                 JsonObject auctions = playerStats.getAsJsonObject("auctions");
                 int sold = auctions.has("sold") ? auctions.get("sold").getAsInt() : 0;
                 long goldEarned = auctions.has("gold_earned") ? auctions.get("gold_earned").getAsLong() : 0;
-                ctx.drawTextWithShadow(tr, "Auctions Sold: " + formatNumber(sold), col2X, lineY, TEXT_WHITE);
+                ctx.text(tr, "Auctions Sold: " + formatNumber(sold), col2X, lineY, TEXT_WHITE);
                 lineY += 12;
-                ctx.drawTextWithShadow(tr, "Gold Earned: " + formatCoins(goldEarned), col2X, lineY, TEXT_GOLD);
+                ctx.text(tr, "Gold Earned: " + formatCoins(goldEarned), col2X, lineY, TEXT_GOLD);
                 lineY += 12;
             }
         }
 
         // Slayer stats summary
         lineY += 8;
-        ctx.drawTextWithShadow(tr, "Slayer Bosses Killed", col2X, lineY, TEXT_GREEN);
+        ctx.text(tr, "Slayer Bosses Killed", col2X, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject slayerBosses = getNestedObject(memberData, "slayer.slayer_bosses");
@@ -164,7 +164,7 @@ public class ExtraPage extends ProfileViewerPage {
                     JsonObject slayer = slayerBosses.getAsJsonObject(slayerTypes[i]);
                     int xp = slayer.has("xp") ? slayer.get("xp").getAsInt() : 0;
                     if (xp > 0) {
-                        ctx.drawTextWithShadow(tr, slayerNames[i] + ": " + formatNumber(xp) + " XP", col2X, lineY, slayerColors[i]);
+                        ctx.text(tr, slayerNames[i] + ": " + formatNumber(xp) + " XP", col2X, lineY, slayerColors[i]);
                         lineY += 12;
                     }
                 }

@@ -3,11 +3,11 @@ package com.teslamaps.profileviewer.screen.pages;
 import com.google.gson.JsonObject;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Crimson Isle page showing Kuudra, faction rep, and dojo stats.
@@ -33,12 +33,12 @@ public class CrimsonIslePage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
 
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         JsonObject memberData = profile.getMemberData();
         int padding = 15;
         int contentX = x + padding;
@@ -47,12 +47,12 @@ public class CrimsonIslePage extends ProfileViewerPage {
         int lineY = y + padding;
 
         // === Faction Reputation ===
-        ctx.drawTextWithShadow(tr, "Faction Reputation", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Faction Reputation", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject nether = getNestedObject(memberData, "nether_island_player_data");
         if (nether == null) {
-            ctx.drawTextWithShadow(tr, "No Crimson Isle data found", contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, "No Crimson Isle data found", contentX, lineY, TEXT_GRAY);
             return;
         }
 
@@ -60,21 +60,21 @@ public class CrimsonIslePage extends ProfileViewerPage {
         String selectedFaction = nether.has("selected_faction") ?
                 nether.get("selected_faction").getAsString() : "None";
         int factionColor = selectedFaction.equals("mages") ? MAGE_COLOR : BARBARIAN_COLOR;
-        ctx.drawTextWithShadow(tr, "Faction: " + capitalize(selectedFaction), contentX, lineY, factionColor);
+        ctx.text(tr, "Faction: " + capitalize(selectedFaction), contentX, lineY, factionColor);
         lineY += 14;
 
         // Mages reputation
         int magesRep = nether.has("mages_reputation") ? nether.get("mages_reputation").getAsInt() : 0;
-        ctx.drawTextWithShadow(tr, "Mages Rep: " + formatNumber(magesRep), contentX, lineY, MAGE_COLOR);
+        ctx.text(tr, "Mages Rep: " + formatNumber(magesRep), contentX, lineY, MAGE_COLOR);
         lineY += 12;
 
         // Barbarians reputation
         int barbRep = nether.has("barbarians_reputation") ? nether.get("barbarians_reputation").getAsInt() : 0;
-        ctx.drawTextWithShadow(tr, "Barbarian Rep: " + formatNumber(barbRep), contentX, lineY, BARBARIAN_COLOR);
+        ctx.text(tr, "Barbarian Rep: " + formatNumber(barbRep), contentX, lineY, BARBARIAN_COLOR);
         lineY += 20;
 
         // === Kuudra ===
-        ctx.drawTextWithShadow(tr, "Kuudra Completions", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Kuudra Completions", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject kuudra = getNestedObject(nether, "kuudra_completed_tiers");
@@ -85,7 +85,7 @@ public class CrimsonIslePage extends ProfileViewerPage {
 
             for (int i = 0; i < tiers.length; i++) {
                 int completions = kuudra.has(tiers[i]) ? kuudra.get(tiers[i]).getAsInt() : 0;
-                ctx.drawTextWithShadow(tr, tierNames[i] + ": " + completions, contentX, lineY,
+                ctx.text(tr, tierNames[i] + ": " + completions, contentX, lineY,
                         completions > 0 ? tierColors[i] : TEXT_GRAY);
                 lineY += 12;
             }
@@ -93,7 +93,7 @@ public class CrimsonIslePage extends ProfileViewerPage {
 
         // === Dojo (right column) ===
         lineY = y + padding;
-        ctx.drawTextWithShadow(tr, "Dojo", col2X, lineY, TEXT_GREEN);
+        ctx.text(tr, "Dojo", col2X, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject dojo = getNestedObject(nether, "dojo");
@@ -109,7 +109,7 @@ public class CrimsonIslePage extends ProfileViewerPage {
                 String rank = getDojoRank(points);
                 int rankColor = getDojoRankColor(rank);
 
-                ctx.drawTextWithShadow(tr, testNames[i] + ": " + points + " (" + rank + ")",
+                ctx.text(tr, testNames[i] + ": " + points + " (" + rank + ")",
                         col2X, lineY, rankColor);
                 lineY += 12;
             }
@@ -127,7 +127,7 @@ public class CrimsonIslePage extends ProfileViewerPage {
             }
             String belt = getDojoBelt(totalPoints);
             lineY += 8;
-            ctx.drawTextWithShadow(tr, "Belt: " + belt + " (" + totalPoints + " pts)", col2X, lineY, TEXT_GOLD);
+            ctx.text(tr, "Belt: " + belt + " (" + totalPoints + " pts)", col2X, lineY, TEXT_GOLD);
         }
     }
 

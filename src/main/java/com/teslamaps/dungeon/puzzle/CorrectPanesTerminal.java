@@ -2,17 +2,16 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * F7 Terminal Solver - "Correct all the panes!"
@@ -36,7 +35,7 @@ public class CorrectPanesTerminal {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         /* DISABLED
         if (!TeslaMapsConfig.get().solveCorrectPanesTerminal) {
@@ -47,27 +46,27 @@ public class CorrectPanesTerminal {
         }
         */
 
-        if (mc.player == null || mc.world == null) {
+        if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
         // Check if we're looking at a container screen
-        if (!(mc.currentScreen instanceof GenericContainerScreen)) {
+        if (!(mc.screen instanceof ContainerScreen)) {
             if (!incorrectSlots.isEmpty()) {
             }
             reset();
             return;
         }
 
-        GenericContainerScreen screen = (GenericContainerScreen) mc.currentScreen;
+        ContainerScreen screen = (ContainerScreen) mc.screen;
 
         // Get screen title
-        Text title = screen.getTitle();
+        Component title = screen.getTitle();
         String titleStr = title.getString();
 
         // Debug: Log container title once per second
-        int currentTick = mc.player.age;
+        int currentTick = mc.player.tickCount;
         if (currentTick - lastDebugTick > 20) {
             lastDebugTick = currentTick;
         }
@@ -155,20 +154,20 @@ public class CorrectPanesTerminal {
     /**
      * Find all incorrect (red/orange) panes that need to be clicked.
      */
-    private static void findIncorrectPanes(GenericContainerScreen screen) {
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+    private static void findIncorrectPanes(ContainerScreen screen) {
+        ChestMenu handler = screen.getMenu();
 
         List<Integer> newIncorrectSlots = new ArrayList<>();
 
         for (Slot slot : handler.slots) {
             // Skip player inventory slots (slots 0-53 are container, 54+ are player inv)
-            if (slot.id >= 54) continue;
+            if (slot.index >= 54) continue;
 
             // Skip slots at edges (columns 0, 1, 7, 8)
-            int column = slot.id % 9;
+            int column = slot.index % 9;
             if (column == 0 || column == 1 || column == 7 || column == 8) continue;
 
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
             // Check if it's a red or orange pane (incorrect)
@@ -176,8 +175,8 @@ public class CorrectPanesTerminal {
                 stack.getItem() == Items.ORANGE_STAINED_GLASS_PANE) {
 
                 // Only add if we haven't already clicked it
-                if (!clickedSlots.contains(slot.id)) {
-                    newIncorrectSlots.add(slot.id);
+                if (!clickedSlots.contains(slot.index)) {
+                    newIncorrectSlots.add(slot.index);
                 }
             }
         }
@@ -195,7 +194,7 @@ public class CorrectPanesTerminal {
     /**
      * Click the next incorrect pane.
      */
-    private static void performNextClick(MinecraftClient mc, GenericContainerScreen screen) {
+    private static void performNextClick(Minecraft mc, ContainerScreen screen) {
         if (mc.player == null) {
             TeslaMaps.LOGGER.warn("[CorrectPanesTerminal] DEBUG: Cannot click - player is null");
             return;
@@ -208,18 +207,18 @@ public class CorrectPanesTerminal {
 
         // Click the first unclicked incorrect pane
         int slotToClick = incorrectSlots.get(0);
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
 
         TeslaMaps.LOGGER.info("[CorrectPanesTerminal] ===== PERFORMING AUTO-CLICK =====");
         TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Clicking slot {} (clicked {} so far)",
             slotToClick, clickedSlots.size());
 
         // Click the slot (left click = button 0)
-        mc.interactionManager.clickSlot(
-            handler.syncId,
+        mc.gameMode.handleContainerInput(
+            handler.containerId,
             slotToClick,
             0,  // Left click
-            SlotActionType.PICKUP,
+            ContainerInput.PICKUP,
             mc.player
         );
 
@@ -251,7 +250,7 @@ public class CorrectPanesTerminal {
      * Event-driven slot update handler.
      * Called by TerminalManager when a slot update packet is received.
      */
-    public static void onSlotUpdate(int slotIndex, net.minecraft.item.ItemStack stack) {
+    public static void onSlotUpdate(int slotIndex, net.minecraft.world.item.ItemStack stack) {
         if (!TeslaMapsConfig.get().solveCorrectPanesTerminal) return;
         if (slotIndex >= 54) return; // Ignore player inventory
 

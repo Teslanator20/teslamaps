@@ -1,14 +1,14 @@
 package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 /**
  * A lightweight color picker popup with HSV selection.
@@ -31,13 +31,13 @@ public class ColorPickerWidget extends Screen {
     private float saturation = 1f;
     private float brightness = 1f;
 
-    private TextFieldWidget hexField;
+    private EditBox hexField;
     private boolean draggingPicker = false;
     private boolean draggingHue = false;
     private boolean wasMouseDown = false;
 
     public ColorPickerWidget(Screen parent, String initialColor, Consumer<String> onColorSelected) {
-        super(Text.literal("Color Picker"));
+        super(Component.literal("Color Picker"));
         this.parent = parent;
         this.onColorSelected = onColorSelected;
 
@@ -57,11 +57,11 @@ public class ColorPickerWidget extends Screen {
         popupY = (this.height - popupHeight) / 2;
 
         // Hex input field
-        hexField = new TextFieldWidget(textRenderer, popupX + PADDING, popupY + PICKER_SIZE + PADDING + 5, 80, 16, Text.literal("Hex"));
-        hexField.setText(getCurrentHex());
+        hexField = new EditBox(font, popupX + PADDING, popupY + PICKER_SIZE + PADDING + 5, 80, 16, Component.literal("Hex"));
+        hexField.setValue(getCurrentHex());
         hexField.setMaxLength(8);
-        hexField.setChangedListener(this::onHexChanged);
-        addDrawableChild(hexField);
+        hexField.setResponder(this::onHexChanged);
+        addRenderableWidget(hexField);
     }
 
     private void onHexChanged(String hex) {
@@ -83,8 +83,8 @@ public class ColorPickerWidget extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(client.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
 
         int pickerX = popupX + PADDING;
         int pickerY = popupY + 25;
@@ -103,13 +103,13 @@ public class ColorPickerWidget extends Screen {
             else if (mouseX >= popupX + popupWidth - 60 && mouseX < popupX + popupWidth - 10 &&
                      mouseY >= popupY + popupHeight - 28 && mouseY < popupY + popupHeight - 8) {
                 onColorSelected.accept(getCurrentHex());
-                close();
+                onClose();
                 return;
             }
             // Cancel button area
             else if (mouseX >= popupX + popupWidth - 120 && mouseX < popupX + popupWidth - 70 &&
                      mouseY >= popupY + popupHeight - 28 && mouseY < popupY + popupHeight - 8) {
-                close();
+                onClose();
                 return;
             }
         }
@@ -123,11 +123,11 @@ public class ColorPickerWidget extends Screen {
         if (draggingPicker) {
             saturation = Math.max(0, Math.min(1, (float)(mouseX - pickerX) / PICKER_SIZE));
             brightness = 1.0f - Math.max(0, Math.min(1, (float)(mouseY - pickerY) / PICKER_SIZE));
-            hexField.setText(getCurrentHex());
+            hexField.setValue(getCurrentHex());
         }
         if (draggingHue) {
             hue = Math.max(0, Math.min(1, (float)(mouseY - pickerY) / PICKER_SIZE));
-            hexField.setText(getCurrentHex());
+            hexField.setValue(getCurrentHex());
         }
 
         // Darken background
@@ -138,7 +138,7 @@ public class ColorPickerWidget extends Screen {
         context.fill(popupX, popupY, popupX + popupWidth, popupY + popupHeight, 0xFF2C2C2E);
 
         // Title
-        context.drawCenteredTextWithShadow(textRenderer, "Pick a Color", popupX + popupWidth / 2, popupY + 8, 0xFFFFFFFF);
+        context.centeredText(font, "Pick a Color", popupX + popupWidth / 2, popupY + 8, 0xFFFFFFFF);
 
         // Draw chunked saturation/brightness picker
         drawSatBrightPickerChunked(context, pickerX, pickerY);
@@ -170,10 +170,10 @@ public class ColorPickerWidget extends Screen {
         drawStyledButton(context, popupX + popupWidth - 120, popupY + popupHeight - 28, 45, 20, "Cancel", mouseX, mouseY);
         drawStyledButton(context, popupX + popupWidth - 60, popupY + popupHeight - 28, 50, 20, "Done", mouseX, mouseY);
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
-    private void drawSatBrightPickerChunked(DrawContext context, int x, int y) {
+    private void drawSatBrightPickerChunked(GuiGraphicsExtractor context, int x, int y) {
         for (int cy = 0; cy < PICKER_SIZE; cy += CHUNK_SIZE) {
             for (int cx = 0; cx < PICKER_SIZE; cx += CHUNK_SIZE) {
                 float sat = (cx + CHUNK_SIZE / 2f) / PICKER_SIZE;
@@ -185,7 +185,7 @@ public class ColorPickerWidget extends Screen {
         }
     }
 
-    private void drawHueSliderChunked(DrawContext context, int x, int y) {
+    private void drawHueSliderChunked(GuiGraphicsExtractor context, int x, int y) {
         for (int cy = 0; cy < PICKER_SIZE; cy += CHUNK_SIZE) {
             float h = (cy + CHUNK_SIZE / 2f) / PICKER_SIZE;
             int[] rgb = hsvToRgb(h, 1f, 1f);
@@ -194,17 +194,17 @@ public class ColorPickerWidget extends Screen {
         }
     }
 
-    private void drawStyledButton(DrawContext context, int x, int y, int w, int h, String text, int mouseX, int mouseY) {
+    private void drawStyledButton(GuiGraphicsExtractor context, int x, int y, int w, int h, String text, int mouseX, int mouseY) {
         boolean hovered = mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h;
         int bg = hovered ? 0xFF3A3A3C : 0xFF2C2C2E;
         int border = hovered ? 0xFF5A5A5C : 0xFF48484A;
 
         context.fill(x, y, x + w, y + h, bg);
         drawBorder(context, x, y, w, h, border);
-        context.drawCenteredTextWithShadow(textRenderer, text, x + w / 2, y + (h - 8) / 2, 0xFFFFFFFF);
+        context.centeredText(font, text, x + w / 2, y + (h - 8) / 2, 0xFFFFFFFF);
     }
 
-    private void drawBorder(DrawContext context, int x, int y, int w, int h, int color) {
+    private void drawBorder(GuiGraphicsExtractor context, int x, int y, int w, int h, int color) {
         context.fill(x, y, x + w, y + 1, color);
         context.fill(x, y + h - 1, x + w, y + h, color);
         context.fill(x, y, x + 1, y + h, color);
@@ -212,8 +212,8 @@ public class ColorPickerWidget extends Screen {
     }
 
     @Override
-    public void close() {
-        MinecraftClient.getInstance().setScreen(parent);
+    public void onClose() {
+        Minecraft.getInstance().setScreen(parent);
     }
 
     private static int[] hsvToRgb(float h, float s, float v) {

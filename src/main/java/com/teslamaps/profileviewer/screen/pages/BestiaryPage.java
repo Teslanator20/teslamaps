@@ -4,13 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-
 import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Bestiary page showing mob kill progress.
@@ -34,25 +33,25 @@ public class BestiaryPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
 
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         JsonObject memberData = profile.getMemberData();
         int padding = 15;
         int contentX = x + padding;
 
         int lineY = y + padding;
 
-        ctx.drawTextWithShadow(tr, "Bestiary", contentX, lineY, TEXT_GREEN);
+        ctx.text(tr, "Bestiary", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
         // Get bestiary data
         JsonObject bestiary = getNestedObject(memberData, "bestiary.kills");
         if (bestiary == null) {
-            ctx.drawTextWithShadow(tr, "No bestiary data found", contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, "No bestiary data found", contentX, lineY, TEXT_GRAY);
             return;
         }
 
@@ -62,7 +61,7 @@ public class BestiaryPage extends ProfileViewerPage {
             JsonObject milestone = bestiaryRoot.getAsJsonObject("milestone");
             int level = milestone.has("last_claimed_milestone") ?
                     milestone.get("last_claimed_milestone").getAsInt() : 0;
-            ctx.drawTextWithShadow(tr, "Milestone Level: " + level, contentX, lineY, TEXT_WHITE);
+            ctx.text(tr, "Milestone Level: " + level, contentX, lineY, TEXT_WHITE);
             lineY += 20;
         }
 
@@ -76,9 +75,9 @@ public class BestiaryPage extends ProfileViewerPage {
         mobs.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
         // Headers
-        ctx.drawTextWithShadow(tr, "Mob", contentX, lineY, TEXT_GRAY);
-        ctx.drawTextWithShadow(tr, "Kills", contentX + 200, lineY, TEXT_GRAY);
-        ctx.drawTextWithShadow(tr, "Tier", contentX + 280, lineY, TEXT_GRAY);
+        ctx.text(tr, "Mob", contentX, lineY, TEXT_GRAY);
+        ctx.text(tr, "Kills", contentX + 200, lineY, TEXT_GRAY);
+        ctx.text(tr, "Tier", contentX + 280, lineY, TEXT_GRAY);
         lineY += 14;
 
         // Mob list
@@ -98,9 +97,9 @@ public class BestiaryPage extends ProfileViewerPage {
             int tier = calculateBestiaryTier(kills);
 
             int color = kills > 0 ? TEXT_WHITE : TEXT_GRAY;
-            ctx.drawTextWithShadow(tr, mobName, contentX, mobY, color);
-            ctx.drawTextWithShadow(tr, formatNumber(kills), contentX + 200, mobY, color);
-            ctx.drawTextWithShadow(tr, String.valueOf(tier), contentX + 280, mobY,
+            ctx.text(tr, mobName, contentX, mobY, color);
+            ctx.text(tr, formatNumber(kills), contentX + 200, mobY, color);
+            ctx.text(tr, String.valueOf(tier), contentX + 280, mobY,
                     tier > 0 ? TEXT_GREEN : TEXT_GRAY);
 
             idx++;

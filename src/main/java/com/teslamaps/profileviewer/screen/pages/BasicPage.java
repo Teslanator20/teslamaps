@@ -3,13 +3,12 @@ package com.teslamaps.profileviewer.screen.pages;
 import com.teslamaps.profileviewer.data.SkillData;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-
 import java.util.Map;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Basic page showing skills overview and profile stats.
@@ -49,16 +48,16 @@ public class BasicPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) {
-            TextRenderer tr = MinecraftClient.getInstance().textRenderer;
-            ctx.drawTextWithShadow(tr, "No profile data", x + 10, y + 10, TEXT_WHITE);
+            Font tr = Minecraft.getInstance().font;
+            ctx.text(tr, "No profile data", x + 10, y + 10, TEXT_WHITE);
             return;
         }
 
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         int padding = 15;
         int contentX = x + padding;
         int contentWidth = width - padding * 2;
@@ -69,31 +68,31 @@ public class BasicPage extends ProfileViewerPage {
 
         // Skyblock Level
         double sbLevel = profile.getSkyblockLevel();
-        ctx.drawTextWithShadow(tr, "Skyblock Level", contentX, statsY, TEXT_WHITE);
-        ctx.drawTextWithShadow(tr, String.format("%.2f", sbLevel), contentX, statsY + 12, TEXT_AQUA);
+        ctx.text(tr, "Skyblock Level", contentX, statsY, TEXT_WHITE);
+        ctx.text(tr, String.format("%.2f", sbLevel), contentX, statsY + 12, TEXT_AQUA);
         statsY += 30;
 
         // Skill Average
         double skillAvg = profile.getSkillAverage();
-        ctx.drawTextWithShadow(tr, "Skill Average", contentX, statsY, TEXT_WHITE);
-        ctx.drawTextWithShadow(tr, String.format("%.2f", skillAvg), contentX, statsY + 12, TEXT_GREEN);
+        ctx.text(tr, "Skill Average", contentX, statsY, TEXT_WHITE);
+        ctx.text(tr, String.format("%.2f", skillAvg), contentX, statsY + 12, TEXT_GREEN);
         statsY += 30;
 
         // Coins
         double purse = profile.getCoinPurse();
         double bank = profile.getBankBalance();
-        ctx.drawTextWithShadow(tr, "Purse", contentX, statsY, TEXT_WHITE);
-        ctx.drawTextWithShadow(tr, formatCoins(purse), contentX, statsY + 12, TEXT_GOLD);
+        ctx.text(tr, "Purse", contentX, statsY, TEXT_WHITE);
+        ctx.text(tr, formatCoins(purse), contentX, statsY + 12, TEXT_GOLD);
         statsY += 30;
 
-        ctx.drawTextWithShadow(tr, "Bank", contentX, statsY, TEXT_WHITE);
-        ctx.drawTextWithShadow(tr, formatCoins(bank), contentX, statsY + 12, TEXT_GOLD);
+        ctx.text(tr, "Bank", contentX, statsY, TEXT_WHITE);
+        ctx.text(tr, formatCoins(bank), contentX, statsY + 12, TEXT_GOLD);
         statsY += 30;
 
         // Fairy Souls
         int fairySouls = profile.getFairySouls();
-        ctx.drawTextWithShadow(tr, "Fairy Souls", contentX, statsY, TEXT_WHITE);
-        ctx.drawTextWithShadow(tr, fairySouls + " / 242", contentX, statsY + 12,
+        ctx.text(tr, "Fairy Souls", contentX, statsY, TEXT_WHITE);
+        ctx.text(tr, fairySouls + " / 242", contentX, statsY + 12,
                 fairySouls >= 242 ? TEXT_GREEN : TEXT_GRAY);
         statsY += 30;
 
@@ -102,7 +101,7 @@ public class BasicPage extends ProfileViewerPage {
         int skillsWidth = contentWidth - leftColumnWidth - 40;
         int skillY = y + padding;
 
-        ctx.drawTextWithShadow(tr, "Skills", skillsX, skillY, TEXT_WHITE);
+        ctx.text(tr, "Skills", skillsX, skillY, TEXT_WHITE);
         skillY += 16;
 
         Map<String, SkillData> skills = profile.getSkills();
@@ -118,8 +117,8 @@ public class BasicPage extends ProfileViewerPage {
             int level = skill.getLevel();
             String levelStr = String.valueOf(level);
 
-            ctx.drawTextWithShadow(tr, skillName, skillsX, skillY, TEXT_WHITE);
-            ctx.drawTextWithShadow(tr, levelStr, skillsX + skillsWidth - tr.getWidth(levelStr), skillY, barColor);
+            ctx.text(tr, skillName, skillsX, skillY, TEXT_WHITE);
+            ctx.text(tr, levelStr, skillsX + skillsWidth - tr.width(levelStr), skillY, barColor);
 
             // Progress bar
             int barY = skillY + 11;
@@ -133,8 +132,8 @@ public class BasicPage extends ProfileViewerPage {
             if (mouseX >= skillsX && mouseX < skillsX + barWidth &&
                     mouseY >= skillY && mouseY < barY + barHeight) {
                 String xpText = skill.getFormattedProgress();
-                int xpX = skillsX + (barWidth - tr.getWidth(xpText)) / 2;
-                ctx.drawTextWithShadow(tr, xpText, xpX, barY - 1, TEXT_WHITE);
+                int xpX = skillsX + (barWidth - tr.width(xpText)) / 2;
+                ctx.text(tr, xpText, xpX, barY - 1, TEXT_WHITE);
             }
 
             skillY += 22;

@@ -2,9 +2,9 @@ package com.teslamaps.dungeon.termgui;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.puzzle.MelodyTerminal;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 
 /**
  * Custom GUI for the "Click the button on time!" terminal (Melody).
@@ -16,9 +16,9 @@ public class MelodyTermGui extends CustomTermGui {
     }
 
     @Override
-    public void renderTerminal(DrawContext context, int slotCount) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (!(mc.currentScreen instanceof GenericContainerScreen screen)) return;
+    public void renderTerminal(GuiGraphicsExtractor context, int slotCount) {
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof ContainerScreen screen)) return;
 
         renderBackground(context, 44, 7, 3);
 

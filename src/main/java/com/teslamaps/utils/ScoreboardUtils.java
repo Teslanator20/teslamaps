@@ -1,10 +1,12 @@
 package com.teslamaps.utils;
 
 import com.teslamaps.TeslaMaps;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.scoreboard.*;
-import net.minecraft.scoreboard.ScoreHolder;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.scores.DisplaySlot;
+import net.minecraft.world.scores.Objective;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.ScoreHolder;
+import net.minecraft.world.scores.Scoreboard;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -17,26 +19,26 @@ public class ScoreboardUtils {
 
     public static List<String> getScoreboardLines() {
         List<String> lines = new ArrayList<>();
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
-        if (mc.world == null) return lines;
+        if (mc.level == null) return lines;
 
-        Scoreboard scoreboard = mc.world.getScoreboard();
-        ScoreboardObjective objective = scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.SIDEBAR);
+        Scoreboard scoreboard = mc.level.getScoreboard();
+        Objective objective = scoreboard.getDisplayObjective(DisplaySlot.SIDEBAR);
 
         if (objective == null) return lines;
 
         // Get all known score holders and filter to those with scores for sidebar objective
-        for (ScoreHolder scoreHolder : scoreboard.getKnownScoreHolders()) {
+        for (ScoreHolder scoreHolder : scoreboard.getTrackedPlayers()) {
             // Check if this score holder has scores for the sidebar objective
-            var scoresMap = scoreboard.getScoreHolderObjectives(scoreHolder);
+            var scoresMap = scoreboard.listPlayerScores(scoreHolder);
             if (!scoresMap.containsKey(objective)) continue;
 
             // Get team prefix/suffix for display text
-            Team team = scoreboard.getScoreHolderTeam(scoreHolder.getNameForScoreboard());
+            PlayerTeam team = scoreboard.getPlayersTeam(scoreHolder.getScoreboardName());
             if (team != null) {
-                String prefix = team.getPrefix().getString();
-                String suffix = team.getSuffix().getString();
+                String prefix = team.getPlayerPrefix().getString();
+                String suffix = team.getPlayerSuffix().getString();
                 String line = prefix + suffix;
                 if (!line.trim().isEmpty()) {
                     lines.add(line);
@@ -57,11 +59,11 @@ public class ScoreboardUtils {
     }
 
     public static String getScoreboardTitle() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return "";
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return "";
 
-        Scoreboard scoreboard = mc.world.getScoreboard();
-        ScoreboardObjective objective = scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.SIDEBAR);
+        Scoreboard scoreboard = mc.level.getScoreboard();
+        Objective objective = scoreboard.getDisplayObjective(DisplaySlot.SIDEBAR);
 
         if (objective == null) return "";
 

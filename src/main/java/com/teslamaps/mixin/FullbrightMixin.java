@@ -1,8 +1,8 @@
 package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.client.renderer.Lightmap;
+import net.minecraft.world.level.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * Mixin for fullbright - makes everything fully lit.
  * Uses gamma override approach for 1.21.10 compatibility.
  */
-@Mixin(LightmapTextureManager.class)
+@Mixin(Lightmap.class)
 public class FullbrightMixin {
 
     /**

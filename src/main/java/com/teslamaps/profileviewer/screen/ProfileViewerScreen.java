@@ -6,15 +6,14 @@ import com.teslamaps.profileviewer.api.HypixelApi;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
 import com.teslamaps.profileviewer.screen.pages.*;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 /**
  * Main Profile Viewer screen with tabbed navigation.
@@ -57,7 +56,7 @@ public class ProfileViewerScreen extends Screen {
     private int scrollOffset = 0;
 
     public ProfileViewerScreen(String playerName) {
-        super(Text.literal("Profile Viewer - " + playerName));
+        super(Component.literal("Profile Viewer - " + playerName));
         this.targetPlayer = playerName;
     }
 
@@ -121,9 +120,9 @@ public class ProfileViewerScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
         // Mouse click detection
-        boolean isMouseDown = GLFW.glfwGetMouseButton(client.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean clicked = isMouseDown && !wasMouseDown;
 
         // Update loading animation
@@ -164,15 +163,15 @@ public class ProfileViewerScreen extends Screen {
 
         wasMouseDown = isMouseDown;
 
-        super.render(ctx, mouseX, mouseY, delta);
+        super.extractRenderState(ctx, mouseX, mouseY, delta);
     }
 
-    private void renderHeader(DrawContext ctx, int mouseX, int mouseY, boolean clicked) {
+    private void renderHeader(GuiGraphicsExtractor ctx, int mouseX, int mouseY, boolean clicked) {
         ctx.fill(0, 0, width, HEADER_HEIGHT, HEADER_COLOR);
 
         // Player name
         String displayName = profiles != null ? profiles.getDisplayName() : targetPlayer;
-        ctx.drawTextWithShadow(textRenderer, displayName, 10, 10, TEXT_COLOR);
+        ctx.text(font, displayName, 10, 10, TEXT_COLOR);
 
         // Profile selector (if loaded)
         if (profiles != null && profiles.isLoaded() && !profiles.getProfiles().isEmpty()) {
@@ -193,8 +192,8 @@ public class ProfileViewerScreen extends Screen {
 
                 ctx.fill(dropdownX, dropdownY, dropdownX + dropdownW, dropdownY + dropdownH,
                         hovered ? TAB_HOVER_COLOR : TAB_COLOR);
-                ctx.drawTextWithShadow(textRenderer, profileName, dropdownX + 4, dropdownY + 4, TEXT_COLOR);
-                ctx.drawTextWithShadow(textRenderer, profileDropdownOpen ? "^" : "v",
+                ctx.text(font, profileName, dropdownX + 4, dropdownY + 4, TEXT_COLOR);
+                ctx.text(font, profileDropdownOpen ? "^" : "v",
                         dropdownX + dropdownW - 12, dropdownY + 4, TEXT_GRAY);
             }
         }
@@ -203,13 +202,13 @@ public class ProfileViewerScreen extends Screen {
         if (profiles != null) {
             String status = profiles.getOnlineStatus();
             int statusColor = status.startsWith("Online") ? 0xFF55FF55 : TEXT_GRAY;
-            int statusX = width - textRenderer.getWidth(status) - 10;
-            ctx.drawTextWithShadow(textRenderer, status, statusX, 10, statusColor);
+            int statusX = width - font.width(status) - 10;
+            ctx.text(font, status, statusX, 10, statusColor);
 
             // Guild
             String guild = profiles.getGuildName();
             if (guild != null) {
-                ctx.drawTextWithShadow(textRenderer, "[" + guild + "]", statusX, 22, 0xFFAAAA00);
+                ctx.text(font, "[" + guild + "]", statusX, 22, 0xFFAAAA00);
             }
         }
 
@@ -218,12 +217,12 @@ public class ProfileViewerScreen extends Screen {
         int closeY = 10;
         boolean closeHovered = mouseX >= closeX && mouseX < closeX + 15 && mouseY >= closeY && mouseY < closeY + 15;
         if (clicked && closeHovered) {
-            close();
+            onClose();
         }
-        ctx.drawTextWithShadow(textRenderer, "X", closeX, closeY, closeHovered ? 0xFFFF5555 : TEXT_GRAY);
+        ctx.text(font, "X", closeX, closeY, closeHovered ? 0xFFFF5555 : TEXT_GRAY);
     }
 
-    private void renderTabs(DrawContext ctx, int mouseX, int mouseY, boolean clicked) {
+    private void renderTabs(GuiGraphicsExtractor ctx, int mouseX, int mouseY, boolean clicked) {
         int tabY = HEADER_HEIGHT;
         int tabX = 0;
         int tabWidth = Math.min(80, width / Math.max(1, pages.size()));
@@ -249,8 +248,8 @@ public class ProfileViewerScreen extends Screen {
 
             // Tab name
             String name = page.getTabName();
-            int textX = tabX + (tabWidth - textRenderer.getWidth(name)) / 2;
-            ctx.drawTextWithShadow(textRenderer, name, textX, tabY + 8, selected ? TEXT_COLOR : TEXT_GRAY);
+            int textX = tabX + (tabWidth - font.width(name)) / 2;
+            ctx.text(font, name, textX, tabY + 8, selected ? TEXT_COLOR : TEXT_GRAY);
 
             tabX += tabWidth;
         }
@@ -261,7 +260,7 @@ public class ProfileViewerScreen extends Screen {
         }
     }
 
-    private void renderProfileDropdown(DrawContext ctx, int mouseX, int mouseY, boolean clicked) {
+    private void renderProfileDropdown(GuiGraphicsExtractor ctx, int mouseX, int mouseY, boolean clicked) {
         int dropdownX = 10;
         int dropdownY = 44;
         int dropdownW = 100;
@@ -289,7 +288,7 @@ public class ProfileViewerScreen extends Screen {
 
             int bgColor = selected ? ACCENT_COLOR : (hovered ? TAB_HOVER_COLOR : TAB_COLOR);
             ctx.fill(dropdownX, y, dropdownX + dropdownW, y + 16, bgColor);
-            ctx.drawTextWithShadow(textRenderer, profileName, dropdownX + 4, y + 4,
+            ctx.text(font, profileName, dropdownX + 4, y + 4,
                     selected ? 0xFF000000 : TEXT_COLOR);
 
             if (hovered) clickedOutside = false;
@@ -309,31 +308,31 @@ public class ProfileViewerScreen extends Screen {
         }
     }
 
-    private void renderLoading(DrawContext ctx, int contentY, int contentHeight) {
+    private void renderLoading(GuiGraphicsExtractor ctx, int contentY, int contentHeight) {
         String dots = ".".repeat(loadingDots);
         String text = "Loading" + dots;
-        int textX = (width - textRenderer.getWidth(text)) / 2;
+        int textX = (width - font.width(text)) / 2;
         int textY = contentY + contentHeight / 2;
-        ctx.drawTextWithShadow(textRenderer, text, textX, textY, TEXT_COLOR);
+        ctx.text(font, text, textX, textY, TEXT_COLOR);
     }
 
-    private void renderError(DrawContext ctx, int contentY, int contentHeight, int mouseY, boolean clicked) {
+    private void renderError(GuiGraphicsExtractor ctx, int contentY, int contentHeight, int mouseY, boolean clicked) {
         // Error title
         String title = "Error";
-        int titleX = (width - textRenderer.getWidth(title)) / 2;
+        int titleX = (width - font.width(title)) / 2;
         int titleY = contentY + contentHeight / 2 - 20;
-        ctx.drawTextWithShadow(textRenderer, title, titleX, titleY, 0xFFFF5555);
+        ctx.text(font, title, titleX, titleY, 0xFFFF5555);
 
         // Error message
-        int msgX = (width - textRenderer.getWidth(error)) / 2;
+        int msgX = (width - font.width(error)) / 2;
         int msgY = contentY + contentHeight / 2;
-        ctx.drawTextWithShadow(textRenderer, error, msgX, msgY, TEXT_GRAY);
+        ctx.text(font, error, msgX, msgY, TEXT_GRAY);
 
         // Retry hint
         String hint = "Click to retry";
-        int hintX = (width - textRenderer.getWidth(hint)) / 2;
+        int hintX = (width - font.width(hint)) / 2;
         int hintY = contentY + contentHeight / 2 + 20;
-        ctx.drawTextWithShadow(textRenderer, hint, hintX, hintY, TEXT_GRAY);
+        ctx.text(font, hint, hintX, hintY, TEXT_GRAY);
 
         // Retry on click
         if (clicked && mouseY >= contentY && mouseY < contentY + contentHeight) {
@@ -353,12 +352,12 @@ public class ProfileViewerScreen extends Screen {
 
 
     @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         // Don't render default background
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 
@@ -366,7 +365,7 @@ public class ProfileViewerScreen extends Screen {
      * Open the profile viewer for a player.
      */
     public static void open(String playerName) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        mc.send(() -> mc.setScreen(new ProfileViewerScreen(playerName)));
+        Minecraft mc = Minecraft.getInstance();
+        mc.schedule(() -> mc.setScreen(new ProfileViewerScreen(playerName)));
     }
 }

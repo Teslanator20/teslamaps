@@ -3,15 +3,14 @@ package com.teslamaps.dungeon;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.scanner.ComponentGrid;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.mob.ZombieEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-
 import java.util.*;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Detects and tracks the Mimic in dungeons.
@@ -92,11 +91,11 @@ public class MimicDetector {
      * Also detects mimic death when armor stand shows "0❤".
      */
     private static void checkForMimicEntity() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
 
-        for (var entity : mc.world.getEntities()) {
-            if (entity instanceof net.minecraft.entity.decoration.ArmorStandEntity) {
+        for (var entity : mc.level.entitiesForRendering()) {
+            if (entity instanceof net.minecraft.world.entity.decoration.ArmorStand) {
                 String name = entity.getName().getString();
                 if (name.contains("Mimic")) {
                     // Check if mimic is dead (shows 0❤)
@@ -148,8 +147,8 @@ public class MimicDetector {
      * Scan for trapped chests by iterating through loaded chunks.
      */
     private static void scanForMimicRoom() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || mc.player == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) return;
 
         long startTime = System.currentTimeMillis();
         int chunksChecked = 0;
@@ -168,7 +167,7 @@ public class MimicDetector {
         for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
             for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
                 chunksChecked++;
-                var chunk = mc.world.getChunk(chunkX, chunkZ);
+                var chunk = mc.level.getChunk(chunkX, chunkZ);
                 if (chunk == null) continue;
 
                 // Check if chunk is actually loaded (has block entities)
@@ -182,7 +181,7 @@ public class MimicDetector {
                         continue;
                     }
 
-                    if (mc.world.getBlockState(pos).getBlock() == Blocks.TRAPPED_CHEST) {
+                    if (mc.level.getBlockState(pos).getBlock() == Blocks.TRAPPED_CHEST) {
                         trappedChestPositions.add(pos);
 
                         int[] gridPos = ComponentGrid.worldToGrid(pos.getX(), pos.getZ());
@@ -234,17 +233,17 @@ public class MimicDetector {
      * Check if the mimic entity is dead.
      */
     private static void checkMimicDead() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || mc.player == null || mimicChestPos == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null || mimicChestPos == null) return;
 
-        if (mc.player.squaredDistanceTo(mimicChestPos.getX(), mimicChestPos.getY(), mimicChestPos.getZ()) > 400) {
+        if (mc.player.distanceToSqr(mimicChestPos.getX(), mimicChestPos.getY(), mimicChestPos.getZ()) > 400) {
             return;
         }
 
         boolean mimicFound = false;
-        for (var entity : mc.world.getEntities()) {
-            if (entity instanceof ZombieEntity zombie && zombie.isBaby()) {
-                if (zombie.squaredDistanceTo(mimicChestPos.getX(), mimicChestPos.getY(), mimicChestPos.getZ()) < 100) {
+        for (var entity : mc.level.entitiesForRendering()) {
+            if (entity instanceof Zombie zombie && zombie.isBaby()) {
+                if (zombie.distanceToSqr(mimicChestPos.getX(), mimicChestPos.getY(), mimicChestPos.getZ()) < 100) {
                     mimicFound = true;
                     break;
                 }
@@ -293,21 +292,21 @@ public class MimicDetector {
      * Send mimic dead message to party chat.
      */
     private static void sendMimicDeadMessage() {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         if (!com.teslamaps.config.TeslaMapsConfig.get().mimicDeadMessage) return;
 
-        mc.player.networkHandler.sendChatCommand("pc Mimic Dead!");
+        mc.player.connection.sendCommand("pc Mimic Dead!");
         TeslaMaps.LOGGER.info("[MimicDetector] Announced Mimic death to party");
     }
 
     /**
      * Check if an entity is likely a mimic.
      */
-    public static boolean isMimic(ZombieEntity zombie) {
+    public static boolean isMimic(Zombie zombie) {
         if (!zombie.isBaby()) return false;
         for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
-            if (!zombie.getEquippedStack(slot).isEmpty()) {
+            if (!zombie.getItemBySlot(slot).isEmpty()) {
                 return false;
             }
         }
@@ -346,18 +345,18 @@ public class MimicDetector {
      * Send chat message when mimic room is found.
      */
     private static void sendMimicFoundMessage(String roomName) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        Text message = Text.literal("[TeslaMaps] ")
-                .formatted(Formatting.GOLD)
-                .append(Text.literal("Mimic found in ")
-                        .formatted(Formatting.YELLOW))
-                .append(Text.literal(roomName)
-                        .formatted(Formatting.RED, Formatting.BOLD))
-                .append(Text.literal("!")
-                        .formatted(Formatting.YELLOW));
+        Component message = Component.literal("[TeslaMaps] ")
+                .withStyle(ChatFormatting.GOLD)
+                .append(Component.literal("Mimic found in ")
+                        .withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal(roomName)
+                        .withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
+                .append(Component.literal("!")
+                        .withStyle(ChatFormatting.YELLOW));
 
-        mc.player.sendMessage(message, false);
+        mc.player.sendSystemMessage(message);
     }
 }

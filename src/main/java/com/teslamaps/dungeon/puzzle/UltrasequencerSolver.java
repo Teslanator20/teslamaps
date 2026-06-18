@@ -2,22 +2,21 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.block.Block;
-import net.minecraft.block.StainedGlassPaneBlock;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Formatting;
-
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
 
 /**
  * Experiment Solver - Ultrasequencer (Number sequence puzzle)
@@ -58,7 +57,7 @@ public class UltrasequencerSolver {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         /* DISABLED
         if (!TeslaMapsConfig.get().solveUltrasequencer) {
@@ -70,12 +69,12 @@ public class UltrasequencerSolver {
         }
         */
 
-        if (mc.player == null || mc.world == null) {
+        if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
-        if (!(mc.currentScreen instanceof GenericContainerScreen screen)) {
+        if (!(mc.screen instanceof ContainerScreen screen)) {
             if (initialScanDone) {
                 TeslaMaps.LOGGER.info("[Ultrasequencer] Screen closed, resetting");
             }
@@ -83,9 +82,9 @@ public class UltrasequencerSolver {
             return;
         }
 
-        Text title = screen.getTitle();
+        Component title = screen.getTitle();
         String titleStr = title.getString();
-        String cleanTitle = Formatting.strip(titleStr);
+        String cleanTitle = ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
         // Check if this is Ultrasequencer
@@ -109,7 +108,7 @@ public class UltrasequencerSolver {
         }
 
         long currentTime = System.currentTimeMillis();
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
 
         // Process state machine
         processStateMachine(handler);
@@ -153,9 +152,9 @@ public class UltrasequencerSolver {
     /**
      * Process state transitions based on container contents.
      */
-    private static void processStateMachine(GenericContainerScreenHandler handler) {
-        ItemStack instructionStack = handler.getSlot(49).getStack();
-        String instructionName = instructionStack.getName().getString();
+    private static void processStateMachine(ChestMenu handler) {
+        ItemStack instructionStack = handler.getSlot(49).getItem();
+        String instructionName = instructionStack.getHoverName().getString();
 
         switch (state) {
             case REMEMBER -> {
@@ -198,20 +197,20 @@ public class UltrasequencerSolver {
     /**
      * Scan container for numbered items (stack count = sequence number).
      */
-    private static void scanNumberedItems(GenericContainerScreenHandler handler) {
+    private static void scanNumberedItems(ChestMenu handler) {
         numberedSlots.clear();
 
         for (int slotId = MIN_PANE_SLOT; slotId <= MAX_PANE_SLOT; slotId++) {
             Slot slot = handler.getSlot(slotId);
             if (slot == null) continue;
 
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
             // Skip black glass panes (border)
             if (stack.getItem() == Items.BLACK_STAINED_GLASS_PANE) continue;
 
-            String name = stack.getName().getString();
+            String name = stack.getHoverName().getString();
             // Check if name is a number
             if (name.matches("\\d+")) {
                 int number = Integer.parseInt(name);
@@ -226,12 +225,12 @@ public class UltrasequencerSolver {
     /**
      * Check for glass pane color changes (indicates round transition).
      */
-    private static void checkPaneColorChange(GenericContainerScreenHandler handler) {
+    private static void checkPaneColorChange(ChestMenu handler) {
         for (int slotId = MIN_PANE_SLOT; slotId <= MAX_PANE_SLOT; slotId++) {
             Slot slot = handler.getSlot(slotId);
             if (slot == null) continue;
 
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
             // Check if it's a stained glass pane
@@ -272,16 +271,16 @@ public class UltrasequencerSolver {
     /**
      * Perform a click on the given slot.
      */
-    private static void performClick(MinecraftClient mc, GenericContainerScreenHandler handler, int slotId) {
+    private static void performClick(Minecraft mc, ChestMenu handler, int slotId) {
         if (mc.player == null) return;
 
         TeslaMaps.LOGGER.info("[Ultrasequencer] Clicking slot {} for number {}", slotId, nextNumber);
 
-        mc.interactionManager.clickSlot(
-            handler.syncId,
+        mc.gameMode.handleContainerInput(
+            handler.containerId,
             slotId,
             0,
-            SlotActionType.PICKUP,
+            ContainerInput.PICKUP,
             mc.player
         );
 

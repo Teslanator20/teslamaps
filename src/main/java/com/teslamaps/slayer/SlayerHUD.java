@@ -1,23 +1,22 @@
 package com.teslamaps.slayer;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Box;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.phys.AABB;
 
 /**
  * HUD overlay for slayer boss information.
@@ -106,15 +105,15 @@ public class SlayerHUD {
      * Called every tick to scan for slayer bosses.
      */
     public static void tick() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.world == null) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) {
             resetQuest();
             lastWorldName = null;
             return;
         }
 
         // Detect server/world switch and reset
-        String currentWorldName = mc.world.getRegistryKey().getValue().toString();
+        String currentWorldName = mc.level.dimension().identifier().toString();
         if (lastWorldName != null && !lastWorldName.equals(currentWorldName)) {
             resetQuest();
         }
@@ -133,14 +132,14 @@ public class SlayerHUD {
         double px = mc.player.getX();
         double py = mc.player.getY();
         double pz = mc.player.getZ();
-        Box searchBox = new Box(px - 30, py - 10, pz - 30, px + 30, py + 10, pz + 30);
+        AABB searchBox = new AABB(px - 30, py - 10, pz - 30, px + 30, py + 10, pz + 30);
 
         boolean foundBoss = false;
         currentPhaseType = null;
         phaseCount = 0;
         bossEntity = null;
 
-        for (ArmorStandEntity armorStand : mc.world.getEntitiesByClass(ArmorStandEntity.class, searchBox, as -> true)) {
+        for (ArmorStand armorStand : mc.level.getEntitiesOfClass(ArmorStand.class, searchBox, as -> true)) {
             String name = armorStand.getName().getString();
 
             // Check for Inferno Demonlord
@@ -280,10 +279,10 @@ public class SlayerHUD {
     /**
      * Find the actual boss entity near an armor stand.
      */
-    private static void findBossEntity(MinecraftClient mc, ArmorStandEntity armorStand) {
-        Box searchBox = armorStand.getBoundingBox().expand(2, 3, 2);
-        for (Entity entity : mc.world.getEntitiesByClass(Entity.class, searchBox, e -> !(e instanceof ArmorStandEntity))) {
-            if (entity instanceof MobEntity || entity.getName().getString().contains("Demonlord")) {
+    private static void findBossEntity(Minecraft mc, ArmorStand armorStand) {
+        AABB searchBox = armorStand.getBoundingBox().inflate(2, 3, 2);
+        for (Entity entity : mc.level.getEntitiesOfClass(Entity.class, searchBox, e -> !(e instanceof ArmorStand))) {
+            if (entity instanceof Mob || entity.getName().getString().contains("Demonlord")) {
                 bossEntity = entity;
                 break;
             }
@@ -293,10 +292,10 @@ public class SlayerHUD {
     /**
      * Find miniboss entities near armor stands.
      */
-    private static void findMinibossEntity(MinecraftClient mc, ArmorStandEntity armorStand, String type) {
-        Box searchBox = armorStand.getBoundingBox().expand(2, 3, 2);
-        for (Entity entity : mc.world.getEntitiesByClass(Entity.class, searchBox, e -> !(e instanceof ArmorStandEntity))) {
-            if (entity instanceof MobEntity) {
+    private static void findMinibossEntity(Minecraft mc, ArmorStand armorStand, String type) {
+        AABB searchBox = armorStand.getBoundingBox().inflate(2, 3, 2);
+        for (Entity entity : mc.level.getEntitiesOfClass(Entity.class, searchBox, e -> !(e instanceof ArmorStand))) {
+            if (entity instanceof Mob) {
                 minibossEntities.add(entity);
                 break;
             }
@@ -306,21 +305,21 @@ public class SlayerHUD {
     /**
      * Render the slayer HUD.
      */
-    public static void render(DrawContext context, RenderTickCounter tickCounter) {
+    public static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         if (!TeslaMapsConfig.get().slayerHUD) return;
         // Show HUD if boss is active OR if demons are active
         boolean demonsActiveCheck = (quaziiHP > 0 && !quaziiDead) || (typhoeusHP > 0 && !typhoeusDead);
         if (currentBossName == null && !demonsActiveCheck) return;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        TextRenderer textRenderer = mc.textRenderer;
+        Minecraft mc = Minecraft.getInstance();
+        Font textRenderer = mc.font;
 
         int x = TeslaMapsConfig.get().slayerHudX;
         int y = TeslaMapsConfig.get().slayerHudY;
         float scale = TeslaMapsConfig.get().slayerHudScale;
 
         // Apply scaling
-        var matrices = context.getMatrices();
+        var matrices = context.pose();
         matrices.pushMatrix();
         matrices.translate(x, y);
         matrices.scale(scale, scale);
@@ -358,8 +357,8 @@ public class SlayerHUD {
         // Boss section (only if boss is active AND demons are not active)
         if (showBossSection) {
             // Boss name (centered)
-            int nameWidth = textRenderer.getWidth(currentBossName);
-            context.drawText(textRenderer, currentBossName, centerX - nameWidth / 2, currentY, 0xFFFF5555, true);
+            int nameWidth = textRenderer.width(currentBossName);
+            context.text(textRenderer, currentBossName, centerX - nameWidth / 2, currentY, 0xFFFF5555, true);
             currentY += 12;
 
             // Health bar
@@ -377,16 +376,16 @@ public class SlayerHUD {
 
             // HP text on bar (centered)
             String hpText = formatHP(currentHP) + " / " + formatHP(phaseMaxHP);
-            int hpTextWidth = textRenderer.getWidth(hpText);
-            context.drawText(textRenderer, hpText, centerX - hpTextWidth / 2, currentY + 2, 0xFFFFFFFF, true);
+            int hpTextWidth = textRenderer.width(hpText);
+            context.text(textRenderer, hpText, centerX - hpTextWidth / 2, currentY + 2, 0xFFFFFFFF, true);
             currentY += barHeight + 2;
 
             // Phase type with count (centered, only if phase exists)
             if (currentPhaseType != null) {
                 int phaseColor = getPhaseColor(currentPhaseType);
                 String phaseText = currentPhaseType + " x" + phaseCount;
-                int phaseWidth = textRenderer.getWidth(phaseText);
-                context.drawText(textRenderer, phaseText, centerX - phaseWidth / 2, currentY, phaseColor, true);
+                int phaseWidth = textRenderer.width(phaseText);
+                context.text(textRenderer, phaseText, centerX - phaseWidth / 2, currentY, phaseColor, true);
                 currentY += 12;
             }
         }
@@ -411,7 +410,7 @@ public class SlayerHUD {
     /**
      * Draw a small health bar for minions (Quazii/Typhoeus).
      */
-    private static void drawMinionBar(DrawContext context, TextRenderer textRenderer,
+    private static void drawMinionBar(GuiGraphicsExtractor context, Font textRenderer,
             int x, int y, int width, int height, String name, double hp, double maxHp, int color) {
         double percent = Math.min(1.0, Math.max(0, hp / maxHp));
         int filledWidth = (int) (width * percent);
@@ -426,13 +425,13 @@ public class SlayerHUD {
 
         // Text: "Name: HP"
         String text = name + ": " + formatHP(hp);
-        context.drawText(textRenderer, text, x + 2, y, 0xFFFFFFFF, true);
+        context.text(textRenderer, text, x + 2, y, 0xFFFFFFFF, true);
     }
 
     /**
      * Draw a rectangle with rounded corners.
      */
-    private static void drawRoundedRect(DrawContext context, int x, int y, int width, int height, int radius, int color) {
+    private static void drawRoundedRect(GuiGraphicsExtractor context, int x, int y, int width, int height, int radius, int color) {
         // Main body
         context.fill(x + radius, y, x + width - radius, y + height, color);
         // Left and right strips
@@ -471,10 +470,10 @@ public class SlayerHUD {
         // Minibosses get type-based color
         if (minibossEntities.contains(entity)) {
             // Check which type by looking at nearby armor stands
-            MinecraftClient mc = MinecraftClient.getInstance();
-            if (mc.world != null) {
-                Box searchBox = entity.getBoundingBox().expand(1, 3, 1);
-                for (ArmorStandEntity as : mc.world.getEntitiesByClass(ArmorStandEntity.class, searchBox, a -> true)) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.level != null) {
+                AABB searchBox = entity.getBoundingBox().inflate(1, 3, 1);
+                for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, searchBox, a -> true)) {
                     String name = as.getName().getString();
                     if (name.contains("Burningsoul")) {
                         return 0xFF5555; // Red
@@ -566,7 +565,7 @@ public class SlayerHUD {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         long killTime = System.currentTimeMillis();
         long fightDuration = killTime - questStartTime;
         killTimes.add(fightDuration);
@@ -624,37 +623,37 @@ public class SlayerHUD {
     /**
      * Send kill statistics to chat.
      */
-    private static void sendKillMessage(MinecraftClient mc, long fightDuration) {
+    private static void sendKillMessage(Minecraft mc, long fightDuration) {
         if (mc.player == null) return;
 
         StringBuilder msg = new StringBuilder();
-        msg.append(Formatting.GOLD).append("[TeslaMaps] ").append(Formatting.GREEN).append("Boss killed! ");
-        msg.append(Formatting.GRAY).append("(#").append(totalKills).append(") ");
+        msg.append(ChatFormatting.GOLD).append("[TeslaMaps] ").append(ChatFormatting.GREEN).append("Boss killed! ");
+        msg.append(ChatFormatting.GRAY).append("(#").append(totalKills).append(") ");
 
         // Fight duration
-        msg.append(Formatting.WHITE).append("Time: ").append(Formatting.YELLOW).append(formatTime(fightDuration));
+        msg.append(ChatFormatting.WHITE).append("Time: ").append(ChatFormatting.YELLOW).append(formatTime(fightDuration));
 
         // Spawn time (if available)
         if (spawnTimes.size() > 0) {
             long lastSpawnTime = spawnTimes.get(spawnTimes.size() - 1);
-            msg.append(Formatting.WHITE).append(" | Spawn: ").append(Formatting.AQUA).append(formatTime(lastSpawnTime));
+            msg.append(ChatFormatting.WHITE).append(" | Spawn: ").append(ChatFormatting.AQUA).append(formatTime(lastSpawnTime));
         }
 
-        mc.player.sendMessage(Text.literal(msg.toString()), false);
+        mc.player.sendSystemMessage(Component.literal(msg.toString()));
 
         // Send averages if we have enough data
         if (killTimes.size() >= 2) {
             long avgKill = killTimes.stream().mapToLong(Long::longValue).sum() / killTimes.size();
             StringBuilder avgMsg = new StringBuilder();
-            avgMsg.append(Formatting.GOLD).append("[TeslaMaps] ").append(Formatting.GRAY).append("Avg (").append(totalKills).append(" kills): ");
-            avgMsg.append(Formatting.WHITE).append("Kill: ").append(Formatting.YELLOW).append(formatTime(avgKill));
+            avgMsg.append(ChatFormatting.GOLD).append("[TeslaMaps] ").append(ChatFormatting.GRAY).append("Avg (").append(totalKills).append(" kills): ");
+            avgMsg.append(ChatFormatting.WHITE).append("Kill: ").append(ChatFormatting.YELLOW).append(formatTime(avgKill));
 
             if (spawnTimes.size() >= 2) {
                 long avgSpawn = spawnTimes.stream().mapToLong(Long::longValue).sum() / spawnTimes.size();
-                avgMsg.append(Formatting.WHITE).append(" | Spawn: ").append(Formatting.AQUA).append(formatTime(avgSpawn));
+                avgMsg.append(ChatFormatting.WHITE).append(" | Spawn: ").append(ChatFormatting.AQUA).append(formatTime(avgSpawn));
             }
 
-            mc.player.sendMessage(Text.literal(avgMsg.toString()), false);
+            mc.player.sendSystemMessage(Component.literal(avgMsg.toString()));
         }
     }
 

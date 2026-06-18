@@ -5,11 +5,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Inventories page showing inventory, ender chest, and storage info.
@@ -35,12 +35,12 @@ public class InventoriesPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(DrawContext ctx, int x, int y, int width, int height,
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
 
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         JsonObject memberData = profile.getMemberData();
         int padding = 15;
         int contentX = x + padding;
@@ -51,8 +51,8 @@ public class InventoriesPage extends ProfileViewerPage {
         int tabX = contentX;
         for (int i = 0; i < TABS.length; i++) {
             int color = (i == selectedTab) ? TEXT_GREEN : TEXT_GRAY;
-            ctx.drawTextWithShadow(tr, TABS[i], tabX, lineY, color);
-            tabX += tr.getWidth(TABS[i]) + 15;
+            ctx.text(tr, TABS[i], tabX, lineY, color);
+            tabX += tr.width(TABS[i]) + 15;
         }
         lineY += 20;
 
@@ -66,113 +66,113 @@ public class InventoriesPage extends ProfileViewerPage {
         }
     }
 
-    private void renderInventory(DrawContext ctx, TextRenderer tr, JsonObject memberData,
+    private void renderInventory(GuiGraphicsExtractor ctx, Font tr, JsonObject memberData,
                                   int x, int lineY, int width) {
-        ctx.drawTextWithShadow(tr, "Player Inventory", x, lineY, TEXT_GREEN);
+        ctx.text(tr, "Player Inventory", x, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject inventory = getNestedObject(memberData, "inventory.inv_contents");
         if (inventory == null || !inventory.has("data")) {
-            ctx.drawTextWithShadow(tr, "No inventory data available", x, lineY, TEXT_GRAY);
-            ctx.drawTextWithShadow(tr, "(Inventory API may be disabled)", x, lineY + 12, TEXT_GRAY);
+            ctx.text(tr, "No inventory data available", x, lineY, TEXT_GRAY);
+            ctx.text(tr, "(Inventory API may be disabled)", x, lineY + 12, TEXT_GRAY);
             return;
         }
 
         // Show that inventory data exists
         String data = inventory.get("data").getAsString();
-        ctx.drawTextWithShadow(tr, "Inventory data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
+        ctx.text(tr, "Inventory data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
         lineY += 12;
 
         // Equipment
         lineY += 8;
-        ctx.drawTextWithShadow(tr, "Equipment", x, lineY, TEXT_GREEN);
+        ctx.text(tr, "Equipment", x, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject equipment = getNestedObject(memberData, "inventory.equipment_contents");
         if (equipment != null && equipment.has("data")) {
-            ctx.drawTextWithShadow(tr, "Equipment data available", x, lineY, TEXT_WHITE);
+            ctx.text(tr, "Equipment data available", x, lineY, TEXT_WHITE);
         } else {
-            ctx.drawTextWithShadow(tr, "No equipment data", x, lineY, TEXT_GRAY);
+            ctx.text(tr, "No equipment data", x, lineY, TEXT_GRAY);
         }
     }
 
-    private void renderEnderChest(DrawContext ctx, TextRenderer tr, JsonObject memberData,
+    private void renderEnderChest(GuiGraphicsExtractor ctx, Font tr, JsonObject memberData,
                                    int x, int lineY, int width) {
-        ctx.drawTextWithShadow(tr, "Ender Chest", x, lineY, TEXT_GREEN);
+        ctx.text(tr, "Ender Chest", x, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject enderChest = getNestedObject(memberData, "inventory.ender_chest_contents");
         if (enderChest == null || !enderChest.has("data")) {
-            ctx.drawTextWithShadow(tr, "No ender chest data available", x, lineY, TEXT_GRAY);
+            ctx.text(tr, "No ender chest data available", x, lineY, TEXT_GRAY);
             return;
         }
 
         String data = enderChest.get("data").getAsString();
-        ctx.drawTextWithShadow(tr, "Ender chest data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
+        ctx.text(tr, "Ender chest data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
     }
 
-    private void renderBackpacks(DrawContext ctx, TextRenderer tr, JsonObject memberData,
+    private void renderBackpacks(GuiGraphicsExtractor ctx, Font tr, JsonObject memberData,
                                   int x, int lineY, int width) {
-        ctx.drawTextWithShadow(tr, "Backpacks", x, lineY, TEXT_GREEN);
+        ctx.text(tr, "Backpacks", x, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject backpackContents = getNestedObject(memberData, "inventory.backpack_contents");
         if (backpackContents == null) {
-            ctx.drawTextWithShadow(tr, "No backpack data available", x, lineY, TEXT_GRAY);
+            ctx.text(tr, "No backpack data available", x, lineY, TEXT_GRAY);
             return;
         }
 
         int count = backpackContents.size();
-        ctx.drawTextWithShadow(tr, "Backpacks: " + count, x, lineY, TEXT_WHITE);
+        ctx.text(tr, "Backpacks: " + count, x, lineY, TEXT_WHITE);
         lineY += 14;
 
         int idx = 0;
         for (var entry : backpackContents.entrySet()) {
             if (idx >= 18) {
-                ctx.drawTextWithShadow(tr, "... and more", x, lineY, TEXT_GRAY);
+                ctx.text(tr, "... and more", x, lineY, TEXT_GRAY);
                 break;
             }
-            ctx.drawTextWithShadow(tr, "Backpack " + entry.getKey(), x, lineY, TEXT_WHITE);
+            ctx.text(tr, "Backpack " + entry.getKey(), x, lineY, TEXT_WHITE);
             lineY += 12;
             idx++;
         }
     }
 
-    private void renderWardrobe(DrawContext ctx, TextRenderer tr, JsonObject memberData,
+    private void renderWardrobe(GuiGraphicsExtractor ctx, Font tr, JsonObject memberData,
                                  int x, int lineY, int width) {
-        ctx.drawTextWithShadow(tr, "Wardrobe", x, lineY, TEXT_GREEN);
+        ctx.text(tr, "Wardrobe", x, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject wardrobe = getNestedObject(memberData, "inventory.wardrobe_contents");
         if (wardrobe == null || !wardrobe.has("data")) {
-            ctx.drawTextWithShadow(tr, "No wardrobe data available", x, lineY, TEXT_GRAY);
+            ctx.text(tr, "No wardrobe data available", x, lineY, TEXT_GRAY);
             return;
         }
 
         String data = wardrobe.get("data").getAsString();
-        ctx.drawTextWithShadow(tr, "Wardrobe data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
+        ctx.text(tr, "Wardrobe data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
         lineY += 14;
 
         // Wardrobe equipped slot
         if (memberData.has("wardrobe_equipped_slot")) {
             int equipped = memberData.get("wardrobe_equipped_slot").getAsInt();
-            ctx.drawTextWithShadow(tr, "Equipped slot: " + equipped, x, lineY, TEXT_GOLD);
+            ctx.text(tr, "Equipped slot: " + equipped, x, lineY, TEXT_GOLD);
         }
     }
 
-    private void renderAccessories(DrawContext ctx, TextRenderer tr, JsonObject memberData,
+    private void renderAccessories(GuiGraphicsExtractor ctx, Font tr, JsonObject memberData,
                                     int x, int lineY, int width) {
-        ctx.drawTextWithShadow(tr, "Accessory Bag", x, lineY, TEXT_GREEN);
+        ctx.text(tr, "Accessory Bag", x, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject talisman = getNestedObject(memberData, "inventory.bag_contents.talisman_bag");
         if (talisman == null || !talisman.has("data")) {
-            ctx.drawTextWithShadow(tr, "No accessory bag data available", x, lineY, TEXT_GRAY);
+            ctx.text(tr, "No accessory bag data available", x, lineY, TEXT_GRAY);
             return;
         }
 
         String data = talisman.get("data").getAsString();
-        ctx.drawTextWithShadow(tr, "Accessory bag data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
+        ctx.text(tr, "Accessory bag data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
         lineY += 14;
 
         // Accessory bag storage (unlocked slots)
@@ -180,13 +180,13 @@ public class InventoriesPage extends ProfileViewerPage {
             JsonObject storage = memberData.getAsJsonObject("accessory_bag_storage");
             if (storage.has("highest_magical_power")) {
                 int magicalPower = storage.get("highest_magical_power").getAsInt();
-                ctx.drawTextWithShadow(tr, "Highest Magical Power: " + formatNumber(magicalPower),
+                ctx.text(tr, "Highest Magical Power: " + formatNumber(magicalPower),
                         x, lineY, TEXT_PURPLE);
                 lineY += 12;
             }
             if (storage.has("bag_upgrades_purchased")) {
                 int upgrades = storage.get("bag_upgrades_purchased").getAsInt();
-                ctx.drawTextWithShadow(tr, "Bag Upgrades: " + upgrades, x, lineY, TEXT_WHITE);
+                ctx.text(tr, "Bag Upgrades: " + upgrades, x, lineY, TEXT_WHITE);
             }
         }
     }
@@ -197,12 +197,12 @@ public class InventoriesPage extends ProfileViewerPage {
         SkyblockProfile profile = getProfile();
         if (profile == null) return false;
 
-        TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+        Font tr = Minecraft.getInstance().font;
         int tabX = 15;
         int tabY = 15;
 
         for (int i = 0; i < TABS.length; i++) {
-            int tabWidth = tr.getWidth(TABS[i]);
+            int tabWidth = tr.width(TABS[i]);
             if (mouseX >= tabX && mouseX <= tabX + tabWidth &&
                     mouseY >= tabY && mouseY <= tabY + 12) {
                 selectedTab = i;

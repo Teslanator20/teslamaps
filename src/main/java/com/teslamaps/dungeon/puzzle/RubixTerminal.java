@@ -2,18 +2,16 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * F7 Terminal Solver - "Change all to same color!" (Rubix Cube)
@@ -51,7 +49,7 @@ public class RubixTerminal {
             return;
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         /* DISABLED
         if (!TeslaMapsConfig.get().solveRubixTerminal) {
@@ -62,25 +60,25 @@ public class RubixTerminal {
         }
         */
 
-        if (mc.player == null || mc.world == null) {
+        if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
         // Check if we're looking at a container screen
-        if (!(mc.currentScreen instanceof GenericContainerScreen)) {
+        if (!(mc.screen instanceof ContainerScreen)) {
             if (initialScanDone) {
             }
             reset();
             return;
         }
 
-        GenericContainerScreen screen = (GenericContainerScreen) mc.currentScreen;
+        ContainerScreen screen = (ContainerScreen) mc.screen;
 
         // Get screen title
-        Text title = screen.getTitle();
+        Component title = screen.getTitle();
         String titleStr = title.getString();
-        String cleanTitle = Formatting.strip(titleStr);
+        String cleanTitle = ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
         // Debug: Log container title once per second
@@ -169,8 +167,8 @@ public class RubixTerminal {
      * Calculates the best target color and optimal click directions.
      * Only builds queue if it's currently empty (don't rebuild while executing).
      */
-    private static void scanAndBuildClickQueue(GenericContainerScreen screen) {
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+    private static void scanAndBuildClickQueue(ContainerScreen screen) {
+        ChestMenu handler = screen.getMenu();
 
         // The 3x3 grid layout:
         // Top row: 12(left), 13(mid), 14(right)
@@ -181,7 +179,7 @@ public class RubixTerminal {
         // Read current colors
         Map<Integer, String> slotColors = new HashMap<>();
         for (int slot : gridSlots) {
-            ItemStack stack = handler.getSlot(slot).getStack();
+            ItemStack stack = handler.getSlot(slot).getItem();
             if (stack.isEmpty()) continue;
 
             String color = getPaneColor(stack);
@@ -337,7 +335,7 @@ public class RubixTerminal {
     /**
      * Perform the next click from the queue.
      */
-    private static void performNextClick(MinecraftClient mc, GenericContainerScreen screen) {
+    private static void performNextClick(Minecraft mc, ContainerScreen screen) {
         if (mc.player == null) {
             TeslaMaps.LOGGER.warn("[RubixTerminal] Cannot click - player is null");
             return;
@@ -349,18 +347,18 @@ public class RubixTerminal {
         }
 
         ClickAction action = clickQueue.get(clickQueueIndex);
-        GenericContainerScreenHandler handler = screen.getScreenHandler();
+        ChestMenu handler = screen.getMenu();
 
         TeslaMaps.LOGGER.info("[RubixTerminal] Clicking slot {} ({} {}/{})",
             action.slot, action.rightClick ? "RIGHT" : "LEFT",
             clickQueueIndex + 1, clickQueue.size());
 
         // Click the slot
-        mc.interactionManager.clickSlot(
-            handler.syncId,
+        mc.gameMode.handleContainerInput(
+            handler.containerId,
             action.slot,
             action.rightClick ? 1 : 0,  // 0 = left, 1 = right
-            SlotActionType.PICKUP,
+            ContainerInput.PICKUP,
             mc.player
         );
 

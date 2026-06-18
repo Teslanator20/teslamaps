@@ -1,13 +1,13 @@
 package com.teslamaps.utils;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.registry.Registries;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 
 /**
  * Utility to play sounds louder than vanilla allows.
@@ -23,23 +23,23 @@ public class LoudSound {
      * @param pitch  Pitch (1.0 = normal)
      */
     public static void play(SoundEvent sound, float volume, float pitch) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
         // Get the sound identifier from the registry
-        Identifier soundId = Registries.SOUND_EVENT.getId(sound);
+        Identifier soundId = BuiltInRegistries.SOUND_EVENT.getKey(sound);
         if (soundId == null) return;
 
         // Create a custom sound instance with overridden volume
-        SoundInstance instance = new PositionedSoundInstance(
+        SoundInstance instance = new SimpleSoundInstance(
                 soundId,
-                SoundCategory.MASTER,  // Use master category to bypass individual volume settings
+                SoundSource.MASTER,  // Use master category to bypass individual volume settings
                 volume,                 // This CAN exceed 1.0 with PositionedSoundInstance
                 pitch,
-                Random.create(),
+                RandomSource.create(),
                 false,                  // Not looping
                 0,                      // No attenuation delay
-                SoundInstance.AttenuationType.NONE,  // No distance attenuation = full volume everywhere
+                SoundInstance.Attenuation.NONE,  // No distance attenuation = full volume everywhere
                 mc.player.getX(),
                 mc.player.getY(),
                 mc.player.getZ(),
