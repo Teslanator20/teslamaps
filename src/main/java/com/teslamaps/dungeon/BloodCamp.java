@@ -48,18 +48,28 @@ public class BloodCamp {
         }
     }
 
+    private static void dbg(String s) {
+        if (!TeslaMapsConfig.get().debugMode) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§8[BloodDbg] " + s));
+    }
+
     public static void onChatMessage(String message) {
         if (!TeslaMapsConfig.get().bloodCampMoveTimer) return;
         TeslaMapsConfig config = TeslaMapsConfig.get();
+
+        if (message.contains("Watcher")) dbg("Watcher msg: \"" + message + "\"");
 
         if (MOVE_START.matcher(message).matches()) {
             startTimeMs = System.currentTimeMillis();
             startTick = tickCounter;
             hasStart = true;
+            dbg("MOVE_START matched (startTick=" + startTick + ")");
             return;
         }
 
-        if (!MOVE_PREDICT.matcher(message).matches() || !hasStart) return;
+        if (!MOVE_PREDICT.matcher(message).matches()) return;
+        if (!hasStart) { dbg("MOVE_PREDICT matched but no MOVE_START seen -> abort"); return; }
         hasStart = false;
 
         float moveTicks = (tickCounter - startTick) * 0.05f + 0.1f;
@@ -69,10 +79,11 @@ public class BloodCamp {
         else if (moveTicks >= 25 && moveTicks < 28) base = 30;
         else if (moveTicks >= 22 && moveTicks < 25) base = 27;
         else if (moveTicks >= 1 && moveTicks < 22) base = 24;
-        else return;
+        else { dbg("moveTicks=" + moveTicks + " outside [1,34) -> abort"); return; }
 
         float predictionTicks = base + ((float) Math.ceil((System.currentTimeMillis() - startTimeMs) / 1000f) - moveTicks) / 2f - 0.6f;
-        if (predictionTicks < 20 || predictionTicks > 40) return;
+        if (predictionTicks < 20 || predictionTicks > 40) { dbg("predictionTicks=" + predictionTicks + " out of [20,40] (moveTicks=" + moveTicks + ") -> abort"); return; }
+        dbg("PREDICT ok: moveTicks=" + moveTicks + " predictionTicks=" + predictionTicks);
 
         String secs = String.format("%.2f", predictionTicks * 0.05f);
         Minecraft mc = Minecraft.getInstance();

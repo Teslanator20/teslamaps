@@ -112,9 +112,11 @@ public class Splits {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §7Splits:"));
+        long prev = startTime;
         for (Split split : active) {
             if (split.time == 0L) continue;
-            mc.player.sendSystemMessage(Component.literal(split.name + " §7- §f" + formatTime(split.time - startTime)));
+            mc.player.sendSystemMessage(Component.literal(split.name + " §7- §f" + formatTime(split.time - prev)));
+            prev = split.time;
         }
     }
 
@@ -134,14 +136,18 @@ public class Splits {
         pose.scale(config.splitsScale, config.splitsScale);
 
         long now = System.currentTimeMillis();
+        long prev = startTime;              // segment start = previous split's time
         boolean runningShown = false;
         int y = 0;
         for (Split split : active) {
             String timeStr;
             if (split.time != 0L) {
-                timeStr = formatTime(split.time - startTime);
+                // reached: freeze this segment's duration
+                timeStr = formatTime(split.time - prev);
+                prev = split.time;
             } else if (!runningShown && !finished) {
-                timeStr = "§7" + formatTime(now - startTime);
+                // current segment counts up from the previous split (starts at 0)
+                timeStr = "§7" + formatTime(now - prev);
                 runningShown = true;
             } else {
                 timeStr = "§8-";
