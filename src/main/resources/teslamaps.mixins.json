@@ -15,6 +15,7 @@
         "ChatScreenMixin",
         "BossHealthOverlayAccessor",
         "EntityRenderDispatcherMixin",
+        "EtherwarpSoundMixin",
         "BlindnessMixin",
         "NoFireMixin",
         "NoArrowsMixin",

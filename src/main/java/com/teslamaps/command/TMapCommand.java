@@ -55,12 +55,16 @@ public class TMapCommand {
             return 1;
         }));
 
-        // /pd - party disband
-        dispatcher.register(ClientCommands.literal("pd").executes(context -> {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.getConnection() != null) mc.getConnection().sendCommand("p disband");
-            return 1;
-        }));
+        // Party command shortcuts
+        party(dispatcher, "pd", "disband", false);
+        party(dispatcher, "pw", "warp", false);
+        party(dispatcher, "pl", "leave", false);
+        party(dispatcher, "pk", "kick", true);
+        party(dispatcher, "pi", "invite", true);
+        party(dispatcher, "pp", "promote", true);
+        party(dispatcher, "ptr", "transfer", true);
+        party(dispatcher, "pa", "accept", true);
+        party(dispatcher, "pall", "kickoffline", false);
 
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
@@ -548,5 +552,22 @@ public class TMapCommand {
                         }))
         );
         */
+    }
+
+    private static void party(CommandDispatcher<FabricClientCommandSource> d, String alias, String sub, boolean needsName) {
+        com.mojang.brigadier.builder.LiteralArgumentBuilder<FabricClientCommandSource> lit = ClientCommands.literal(alias);
+        lit.executes(ctx -> { sendParty(sub); return 1; });
+        if (needsName) {
+            lit.then(ClientCommands.argument("name", StringArgumentType.word()).executes(ctx -> {
+                sendParty(sub + " " + StringArgumentType.getString(ctx, "name"));
+                return 1;
+            }));
+        }
+        d.register(lit);
+    }
+
+    private static void sendParty(String args) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getConnection() != null) mc.getConnection().sendCommand(("p " + args).trim());
     }
 }

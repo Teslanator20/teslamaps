@@ -131,6 +131,9 @@ public class TeslaMapsConfig {
     public boolean etherwarpShowFail = true;      // Show the box even when the guess failed
     public boolean etherwarpFilled = false;       // Filled box instead of outline
     public String colorEtherwarp = "FFAA00";      // Etherwarp guess box color (gold)
+    public boolean etherwarpCustomSound = false;  // Replace the etherwarp sound with a custom one
+    public String etherwarpSound = "EXPERIENCE_ORB"; // EXPERIENCE_ORB, NOTE_PLING, AMETHYST_CHIME, LEVEL_UP
+    public float etherwarpSoundVolume = 1.0f;     // Custom etherwarp sound volume (0.0 - 20.0)
 
     // ===== HIDE PLAYERS =====
     public boolean hidePlayers = false;           // Hide nearby players

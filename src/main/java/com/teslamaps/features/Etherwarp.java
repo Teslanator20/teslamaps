@@ -3,6 +3,9 @@ package com.teslamaps.features;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.render.ESPRenderer;
+import com.teslamaps.utils.LoudSound;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -35,6 +38,18 @@ public class Etherwarp {
         boolean isEther = tag.getInt("ethermerge").orElse(0) == 1
                 || "ETHERWARP_CONDUIT".equals(tag.getString("id").orElse(""));
         return isEther ? tag : null;
+    }
+
+    /** Plays the configured custom etherwarp sound (called when the default sound is cancelled). */
+    public static void playCustomSound() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        SoundEvent sound = switch (c.etherwarpSound) {
+            case "NOTE_PLING" -> SoundEvents.NOTE_BLOCK_PLING.value();
+            case "AMETHYST_CHIME" -> SoundEvents.AMETHYST_BLOCK_CHIME;
+            case "LEVEL_UP" -> SoundEvents.PLAYER_LEVELUP;
+            default -> SoundEvents.EXPERIENCE_ORB_PICKUP;
+        };
+        LoudSound.play(sound, c.etherwarpSoundVolume, 1.0f);
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {

@@ -298,6 +298,13 @@ public class MapConfigScreen extends Screen {
         sounds.add(new ToggleEntry(contentX, contentWidth, "Wither Sound", () -> config.bearSpawnWitherSound, v -> config.bearSpawnWitherSound = v));
         sounds.add(new SliderEntry(contentX, contentWidth, "Alert Volume", 0f, 20f,
                 () -> config.bearSpawnVolume, v -> config.bearSpawnVolume = v));
+        sounds.add(new LabelEntry(contentX, "Etherwarp"));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Custom Etherwarp Sound", () -> config.etherwarpCustomSound, v -> config.etherwarpCustomSound = v));
+        sounds.add(new SliderEntry(contentX, contentWidth, "Etherwarp Volume", 0f, 20f,
+                () -> config.etherwarpSoundVolume, v -> config.etherwarpSoundVolume = v));
+        sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Etherwarp Sound",
+                new String[]{"EXPERIENCE_ORB", "NOTE_PLING", "AMETHYST_CHIME", "LEVEL_UP"},
+                () -> config.etherwarpSound, v -> config.etherwarpSound = v));
         categories.put("Sounds", sounds);
 
         // ===== COLORS (merged) =====
