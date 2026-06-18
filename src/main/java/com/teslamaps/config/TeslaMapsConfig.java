@@ -123,6 +123,12 @@ public class TeslaMapsConfig {
     public int bloodCampY = 80;                   // Move Timer HUD position Y
     public float bloodCampScale = 1.0f;           // Move Timer HUD scale
 
+    // ===== ETHERWARP =====
+    public boolean etherwarp = true;              // Show etherwarp guess box
+    public boolean etherwarpShowFail = true;      // Show the box even when the guess failed
+    public boolean etherwarpFilled = false;       // Filled box instead of outline
+    public String colorEtherwarp = "FFAA00";      // Etherwarp guess box color (gold)
+
     // ===== HIDE PLAYERS =====
     public boolean hidePlayers = false;           // Hide nearby players
     public boolean hidePlayersOnlyDungeon = true; // Only hide while in a dungeon

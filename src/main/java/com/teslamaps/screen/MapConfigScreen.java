@@ -184,6 +184,10 @@ public class MapConfigScreen extends Screen {
         render.add(new ToggleEntry(contentX, contentWidth, "No Arrows", () -> config.noArrows, v -> config.noArrows = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Stuck Arrows", () -> config.noStuckArrows, v -> config.noStuckArrows = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Fullbright", () -> config.fullbright, v -> config.fullbright = v));
+        render.add(new LabelEntry(contentX, "Etherwarp"));
+        render.add(new ToggleEntry(contentX, contentWidth, "Etherwarp Guess Box", () -> config.etherwarp, v -> config.etherwarp = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "Show When Failed", () -> config.etherwarpShowFail, v -> config.etherwarpShowFail = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "Filled Box", () -> config.etherwarpFilled, v -> config.etherwarpFilled = v));
         render.add(new LabelEntry(contentX, "Hide Players"));
         render.add(new ToggleEntry(contentX, contentWidth, "Hide Players", () -> config.hidePlayers, v -> config.hidePlayers = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Only In Dungeon", () -> config.hidePlayersOnlyDungeon, v -> config.hidePlayersOnlyDungeon = v));

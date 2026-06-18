@@ -136,6 +136,9 @@ public class TeslaMaps implements ClientModInitializer {
                 // Render secret waypoints
                 SecretWaypoints.render(context.poseStack(), cameraPos);
 
+                // Etherwarp guess box
+                com.teslamaps.features.Etherwarp.render(context.poseStack(), cameraPos);
+
                 // Render mimic trapped chest ESP (only on F6, F7, M6, M7)
                 if (DungeonManager.isInDungeon() && !MimicDetector.isMimicKilled() && com.teslamaps.dungeon.DungeonScore.floorHasMimics()) {
                     renderMimicChestESP(context.poseStack(), cameraPos);
