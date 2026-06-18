@@ -412,6 +412,7 @@ public class MapConfigScreen extends Screen {
                 () -> minecraft.setScreen(new KeybindMessageScreen())));
         advanced.add(new LabelEntry(contentX, "Party"));
         advanced.add(new ToggleEntry(contentX, contentWidth, "PB on Join (needs API key)", () -> config.pbOnJoin, v -> config.pbOnJoin = v));
+        advanced.add(new ToggleEntry(contentX, contentWidth, "Party Chat Commands (!8ball etc)", () -> config.chatCommands, v -> config.chatCommands = v));
         advanced.add(new LabelEntry(contentX, "Auto Requeue"));
         advanced.add(new ToggleEntry(contentX, contentWidth, "Auto Requeue (dungeon end)", () -> config.autoRequeue, v -> config.autoRequeue = v));
         advanced.add(new ToggleEntry(contentX, contentWidth, "Requeue on Party \"r\"", () -> config.requeueOnPartyR, v -> config.requeueOnPartyR = v));

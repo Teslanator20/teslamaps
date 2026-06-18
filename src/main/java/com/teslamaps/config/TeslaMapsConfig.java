@@ -146,6 +146,7 @@ public class TeslaMapsConfig {
 
     // ===== PARTY =====
     public boolean pbOnJoin = true;               // Show a player's dungeon PBs when they join the party (needs API key)
+    public boolean chatCommands = true;           // Party chat commands (!8ball, !cf, !warp, !pt, !kick, ...)
 
     // ===== AUTO REQUEUE =====
     public boolean autoRequeue = false;           // Send /instancerequeue at the end of a dungeon

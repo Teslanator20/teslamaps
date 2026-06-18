@@ -77,6 +77,9 @@ public class ChatMixin {
         // Show PBs when a player joins the party
         com.teslamaps.dungeon.PbOnJoin.onChatMessage(text);
 
+        // Party chat commands (!8ball, !warp, !pt, ...)
+        com.teslamaps.features.ChatCommands.onChatMessage(text);
+
         // Pass to ThreeWeirdos for NPC message detection
         ThreeWeirdos.onChatMessage(text);
 

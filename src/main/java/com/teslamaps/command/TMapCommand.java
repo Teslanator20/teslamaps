@@ -57,14 +57,8 @@ public class TMapCommand {
 
         // Party command shortcuts
         party(dispatcher, "pd", "disband", false);
-        party(dispatcher, "pw", "warp", false);
-        party(dispatcher, "pl", "leave", false);
         party(dispatcher, "pk", "kick", true);
-        party(dispatcher, "pi", "invite", true);
-        party(dispatcher, "pp", "promote", true);
-        party(dispatcher, "ptr", "transfer", true);
-        party(dispatcher, "pa", "accept", true);
-        party(dispatcher, "pall", "kickoffline", false);
+        party(dispatcher, "pt", "transfer", true);
 
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
