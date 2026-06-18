@@ -50,7 +50,7 @@ public class ESPRenderer {
         VertexConsumer buffer = bufferSource.getBuffer(TeslaRenderLayers.LINES_ESP);
 
         // Draw 12 edges
-        renderLineBox(pose, buffer, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, a);
+        renderLineBox(pose, buffer, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, a, lineWidth);
 
         // End batch for this render layer 
         bufferSource.endBatch(TeslaRenderLayers.LINES_ESP);
@@ -64,7 +64,7 @@ public class ESPRenderer {
     private static void renderLineBox(PoseStack.Pose pose, VertexConsumer buffer,
                                        float minX, float minY, float minZ,
                                        float maxX, float maxY, float maxZ,
-                                       float r, float g, float b, float a) {
+                                       float r, float g, float b, float a, float lineWidth) {
         // Edge indices
         int[] edges = {
             0, 1,  1, 5,  5, 4,  4, 0,
@@ -99,8 +99,8 @@ public class ESPRenderer {
             float dy = y1 - y0;
             float dz = z1 - z0;
 
-            buffer.addVertex(pose, x0, y0, z0).setColor(r, g, b, a).setNormal(pose, dx, dy, dz);
-            buffer.addVertex(pose, x1, y1, z1).setColor(r, g, b, a).setNormal(pose, dx, dy, dz);
+            buffer.addVertex(pose, x0, y0, z0).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(lineWidth);
+            buffer.addVertex(pose, x1, y1, z1).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(lineWidth);
         }
     }
 
@@ -129,8 +129,8 @@ public class ESPRenderer {
         float dz = (float)(to.z - from.z);
 
         // Render line from player to target in WORLD coordinates
-        buffer.addVertex(pose, (float)from.x, (float)from.y, (float)from.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz);
-        buffer.addVertex(pose, (float)to.x, (float)to.y, (float)to.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz);
+        buffer.addVertex(pose, (float)from.x, (float)from.y, (float)from.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(2.0f);
+        buffer.addVertex(pose, (float)to.x, (float)to.y, (float)to.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(2.0f);
 
         bufferSource.endBatch(TeslaRenderLayers.LINES_ESP);
 
