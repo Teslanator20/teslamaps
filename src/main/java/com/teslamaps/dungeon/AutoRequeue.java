@@ -12,6 +12,7 @@ public class AutoRequeue {
 
     public static void onChatMessage(String msg) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        msg = msg.replaceAll("(?i)§[0-9A-FK-OR]", ""); // strip legacy color codes
 
         // Cancel a pending requeue if the party broke up / you got kicked.
         if (msg.contains("left the party") || msg.contains("has disbanded")

@@ -23,6 +23,7 @@ public class ChatCommands {
 
     public static void onChatMessage(String msg) {
         if (!TeslaMapsConfig.get().chatCommands) return;
+        msg = msg.replaceAll("(?i)§[0-9A-FK-OR]", ""); // Hypixel sends chat with legacy § codes
         if (!msg.startsWith("Party >")) return;
         int colon = msg.indexOf(": ");
         if (colon < 0) return;

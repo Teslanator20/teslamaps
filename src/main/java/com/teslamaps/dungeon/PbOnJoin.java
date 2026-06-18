@@ -22,6 +22,7 @@ public class PbOnJoin {
 
     public static void onChatMessage(String message) {
         if (!TeslaMapsConfig.get().pbOnJoin) return;
+        message = message.replaceAll("(?i)§[0-9A-FK-OR]", ""); // strip legacy color codes
         Matcher m = JOIN.matcher(message.trim());
         if (!m.find()) return;
         lookup(m.group(1));
