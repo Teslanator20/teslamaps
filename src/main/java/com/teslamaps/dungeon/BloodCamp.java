@@ -48,10 +48,20 @@ public class BloodCamp {
         }
     }
 
+    private static boolean inDbg = false;
+
     private static void dbg(String s) {
-        if (!TeslaMapsConfig.get().debugMode) return;
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§8[BloodDbg] " + s));
+        // Guard against recursion: our own debug message is re-routed through the chat mixin
+        // back into onChatMessage (and "Watcher msg: ..." contains "Watcher"), which would
+        // otherwise call dbg() again forever -> StackOverflow.
+        if (!TeslaMapsConfig.get().debugMode || inDbg) return;
+        inDbg = true;
+        try {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§8[BloodDbg] " + s));
+        } finally {
+            inDbg = false;
+        }
     }
 
     public static void onChatMessage(String message) {
