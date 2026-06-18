@@ -241,6 +241,7 @@ public class MapConfigScreen extends Screen {
         solvers.add(new ToggleEntry(contentX, contentWidth, "Show All Boulder Clicks", () -> config.showAllBoulderClicks, v -> config.showAllBoulderClicks = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Quiz (Trivia) Solver", () -> config.solveQuiz, v -> config.solveQuiz = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Quiz Beacon Beam", () -> config.quizBeacon, v -> config.quizBeacon = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Quiz Chat Highlight", () -> config.quizChatHighlight, v -> config.quizChatHighlight = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Teleport Maze Solver", () -> config.solveTPMaze, v -> config.solveTPMaze = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Solver", () -> config.solveWaterBoard, v -> config.solveWaterBoard = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Optimized", () -> config.waterBoardOptimized, v -> config.waterBoardOptimized = v));
@@ -335,6 +336,8 @@ public class MapConfigScreen extends Screen {
         colors.add(new ColorEntry(contentX, contentWidth, "Blood Key", () -> config.colorESPBloodKey, v -> config.colorESPBloodKey = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Wither Door", () -> config.colorESPWitherDoor, v -> config.colorESPWitherDoor = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Blood Door", () -> config.colorESPBloodDoor, v -> config.colorESPBloodDoor = v));
+        colors.add(new LabelEntry(contentX, "Etherwarp"));
+        colors.add(new ColorEntry(contentX, contentWidth, "Etherwarp Box", () -> config.colorEtherwarp, v -> config.colorEtherwarp = v));
         colors.add(new LabelEntry(contentX, "Terminal GUI Colors"));
         colors.add(new ColorEntry(contentX, contentWidth, "GUI Background", () -> config.terminalGuiBackgroundColor, v -> config.terminalGuiBackgroundColor = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Order Color 1", () -> config.terminalGuiOrderColor1, v -> config.terminalGuiOrderColor1 = v));
@@ -404,6 +407,23 @@ public class MapConfigScreen extends Screen {
         advanced.add(new ToggleEntry(contentX, contentWidth, "Auto Scan", () -> config.autoScan, v -> config.autoScan = v));
         advanced.add(new ToggleEntry(contentX, contentWidth, "Debug Mode", () -> config.debugMode, v -> config.debugMode = v));
         categories.put("Advanced", advanced);
+
+        // ===== BLOOD CAMP =====
+        List<SettingsEntry> bloodCamp = new ArrayList<>();
+        bloodCamp.add(new ToggleEntry(contentX, contentWidth, "Move Timer HUD", () -> config.bloodCampMoveTimer, v -> config.bloodCampMoveTimer = v));
+        bloodCamp.add(new ToggleEntry(contentX, contentWidth, "Move Message", () -> config.bloodCampMoveMessage, v -> config.bloodCampMoveMessage = v));
+        bloodCamp.add(new ToggleEntry(contentX, contentWidth, "Party Move Message", () -> config.bloodCampPartyMessage, v -> config.bloodCampPartyMessage = v));
+        bloodCamp.add(new ToggleEntry(contentX, contentWidth, "\"Kill Mobs\" Title", () -> config.bloodCampKillTitle, v -> config.bloodCampKillTitle = v));
+        bloodCamp.add(new ToggleEntry(contentX, contentWidth, "Watcher HP Bar", () -> config.bloodCampHpBar, v -> config.bloodCampHpBar = v));
+        bloodCamp.add(new LabelEntry(contentX, "• Drag/scale HUD in /tmap gui"));
+        categories.put("Blood Camp", bloodCamp);
+
+        // ===== WAYPOINTS =====
+        List<SettingsEntry> waypointsCat = new ArrayList<>();
+        waypointsCat.add(new ToggleEntry(contentX, contentWidth, "Dungeon Waypoints", () -> config.dungeonWaypoints, v -> config.dungeonWaypoints = v));
+        waypointsCat.add(new LabelEntry(contentX, "File: config/teslamaps/dungeon_waypoints.json"));
+        waypointsCat.add(new LabelEntry(contentX, "Odin format. Reload: /tmap waypoints"));
+        categories.put("Waypoints", waypointsCat);
     }
 
     private List<SettingsEntry> getEntriesToShow() {
