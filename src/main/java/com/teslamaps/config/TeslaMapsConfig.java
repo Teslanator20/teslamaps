@@ -39,6 +39,9 @@ public class TeslaMapsConfig {
     public boolean showMimicStatus = true;      // Show mimic status (checkmark/cross) below map
     public boolean showDungeonScore = true;     // Show estimated dungeon score below map
     public boolean assumePaulMayor = false;    // Always add +10 Paul bonus to score
+    public boolean announce300 = false;         // Announce "300 Score" in party chat (/pc)
+    public boolean announce270 = false;         // Announce "270 Score" in party chat (/pc)
+    public boolean cryptReminder = true;        // Warn at boss entry if fewer than 5 crypts were done
     public float roomNameScale = 1.0f;          // Scale of room name text (0.5 - 2.0)
 
     // ===== CHECKMARKS =====
@@ -78,6 +81,7 @@ public class TeslaMapsConfig {
     public boolean mimicChestESP = true;        // Highlight trapped chests (potential mimic)
     public boolean mimicChestTracers = false;   // Draw tracers to trapped chests
     public boolean mimicDeadMessage = true;     // Send "/pc Mimic Dead!" when mimic dies
+    public boolean princeDeadMessage = true;    // Send "/pc Prince Dead!" when a Prince is killed
     public boolean showGlow = true;             // Show glow effect on entities
     public boolean filledESP = false;           // Fill entire entity hitbox instead of just outlines
     public float espAlpha = 0.4f;               // Transparency for filled ESP (0.0 = invisible, 1.0 = solid)
@@ -97,7 +101,11 @@ public class TeslaMapsConfig {
     public String keyOnGroundSound = "NOTE_CHIME"; // Sound for key on ground: NOTE_CHIME, NOTE_PLING, EXPERIENCE_ORB, ANVIL_LAND
     public boolean secretSound = false;          // Play sound when a secret is found
     public float secretSoundVolume = 1.75f;      // Volume for secret found sound (0.0 - 4.0)
-    public String secretSoundType = "NOTE_PLING";  // Sound type: LEVEL_UP, NOTE_PLING, EXPERIENCE_ORB, AMETHYST_CHIME
+    public String secretSoundType = "NOTE_PLING";  // see SoundOptions.keys() for all options
+    public float secretSoundPitch = 1.0f;        // Pitch for secret found sound (0.5 - 2.0)
+    public boolean secretChime = false;          // Ascending chime per secret found in the room
+    public String secretChimeSound = "NOTE_CHIME"; // Chime sound (see SoundOptions.keys())
+    public float secretChimeVolume = 1.0f;       // Volume for the secret chime (0.0 - 4.0)
     // Bear Spawn Warning: watch block (7,77,34); when it turns into a sea lantern, flash "STOP!" + play sounds
     public boolean bearSpawnWarning = true;      // Enable the bear spawn warning
     public boolean bearSpawnWardenSound = true;  // Play warden emerge sound on alert
@@ -125,6 +133,9 @@ public class TeslaMapsConfig {
 
     // ===== DUNGEON WAYPOINTS =====
     public boolean dungeonWaypoints = true;       // Render Odin-format dungeon waypoints from config/teslamaps/dungeon_waypoints.json
+    public int waypointAddKey = -1;               // Keybind: add waypoint at looked-at block (-1 = unbound)
+    public int waypointRemoveKey = -1;            // Keybind: remove nearest waypoint in current room
+    public int waypointClearKey = -1;             // Keybind: clear all waypoints in current room
 
     // ===== ETHERWARP =====
     public boolean etherwarp = true;              // Show etherwarp guess box
@@ -132,8 +143,9 @@ public class TeslaMapsConfig {
     public boolean etherwarpFilled = false;       // Filled box instead of outline
     public String colorEtherwarp = "FFAA00";      // Etherwarp guess box color (gold)
     public boolean etherwarpCustomSound = false;  // Replace the etherwarp sound with a custom one
-    public String etherwarpSound = "EXPERIENCE_ORB"; // EXPERIENCE_ORB, NOTE_PLING, AMETHYST_CHIME, LEVEL_UP
+    public String etherwarpSound = "EXPERIENCE_ORB"; // see Etherwarp.soundKeys() for all options
     public float etherwarpSoundVolume = 1.0f;     // Custom etherwarp sound volume (0.0 - 20.0)
+    public float etherwarpSoundPitch = 1.0f;      // Custom etherwarp sound pitch (0.5 - 2.0)
 
     // ===== HIDE PLAYERS =====
     public boolean hidePlayers = false;           // Hide nearby players
@@ -166,6 +178,21 @@ public class TeslaMapsConfig {
 
     // Legacy single keybind (migrated into the list on first GUI open).
     public String keybindChatMessage = "";
+
+    // ===== COMMAND SHORTCUTS =====
+    // "/<alias> args" -> "<command> args", registered as client commands on join (/tmap shortcut GUI).
+    public static class Shortcut {
+        public String alias = "";     // typed without the leading slash, e.g. "pk"
+        public String command = "";   // expansion without leading slash, e.g. "party kick"
+        public Shortcut() {}
+        public Shortcut(String alias, String command) { this.alias = alias; this.command = command; }
+    }
+    // Defaults kept for fresh configs (absent JSON key keeps these; existing configs override).
+    public List<Shortcut> shortcuts = new ArrayList<>(List.of(
+            new Shortcut("pd", "party disband"),
+            new Shortcut("pk", "party kick"),
+            new Shortcut("pt", "party transfer")
+    ));
 
     // ===== RENDER OPTIONS =====
     public boolean noFire = true;            // Hide fire overlay on screen
@@ -239,7 +266,8 @@ public class TeslaMapsConfig {
     public boolean showAllBoulderClicks = true;    // Show all clicks vs just next one
     public boolean solveQuiz = true;               // Highlight correct answer in Quiz (Trivia)
     public boolean quizBeacon = true;              // Draw beacon beam on correct answer
-    public boolean quizChatHighlight = true;       // Also announce the correct answer in chat
+    public boolean quizChatHighlight = true;       // Recolor the correct answer line green in chat
+    public boolean quizHideWrongAnswers = false;   // Hide the two wrong answer lines from chat
     public boolean solveTPMaze = true;             // Highlight correct portals in Teleport Maze
     public boolean solveWaterBoard = true;          // Show solution for Water Board puzzle
     public boolean waterBoardOptimized = true;      // Use optimized (faster) solutions

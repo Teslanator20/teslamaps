@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.LoudSound;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.client.Minecraft;
@@ -40,16 +42,15 @@ public class Etherwarp {
         return isEther ? tag : null;
     }
 
+    /** Sound option keys for the config dropdown (shared list). */
+    public static String[] soundKeys() {
+        return com.teslamaps.utils.SoundOptions.keys();
+    }
+
     /** Plays the configured custom etherwarp sound (called when the default sound is cancelled). */
     public static void playCustomSound() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        SoundEvent sound = switch (c.etherwarpSound) {
-            case "NOTE_PLING" -> SoundEvents.NOTE_BLOCK_PLING.value();
-            case "AMETHYST_CHIME" -> SoundEvents.AMETHYST_BLOCK_CHIME;
-            case "LEVEL_UP" -> SoundEvents.PLAYER_LEVELUP;
-            default -> SoundEvents.EXPERIENCE_ORB_PICKUP;
-        };
-        LoudSound.play(sound, c.etherwarpSoundVolume, 1.0f);
+        LoudSound.play(com.teslamaps.utils.SoundOptions.resolve(c.etherwarpSound), c.etherwarpSoundVolume, c.etherwarpSoundPitch);
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
@@ -83,7 +84,10 @@ public class Etherwarp {
         LocalPlayer player = mc.player;
         if (player == null || position == null) return EtherPos.NONE;
 
-        double eyeHeight = player.isCrouching() ? 1.54 : 1.62;
+        // Use the sneak KEY (not the crouch pose) for eye height: Hypixel keys etherwarp off the
+        // sneak key, and the box only renders while sneaking, so the lowered 1.54 eye must apply
+        // even when the crouch pose hasn't fully engaged (otherwise the guess sits slightly off).
+        double eyeHeight = player.isShiftKeyDown() ? 1.54 : 1.62;
         Vec3 start = position.add(0, eyeHeight, 0);
         Vec3 look = player.getLookAngle();
         Vec3 end = look.multiply(distance, distance, distance).add(start);

@@ -50,7 +50,7 @@ public class ChatCommands {
             case "cf", "coinflip" -> pc(Math.random() < 0.5 ? "heads" : "tails");
             case "dice" -> pc(String.valueOf(1 + (int) (Math.random() * 6)));
             case "coords", "co" -> pc(coords());
-            case "ping" -> pc("Ping: " + ping() + "ms");
+            case "ping" -> PingMeter.requestToParty();
             case "fps" -> pc("FPS: " + mc.getFps());
             case "time" -> pc("Time: " + ZonedDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
             case "warp", "w" -> run("party warp");
@@ -59,21 +59,28 @@ public class ChatCommands {
             case "kick", "k" -> run("party kick " + (arg != null ? arg : sender));
             case "promote" -> run("party promote " + (arg != null ? arg : sender));
             case "demote" -> run("party demote " + (arg != null ? arg : sender));
-            case "help", "h" -> pc("Commands: 8ball cf dice coords ping fps time warp allinvite pt kick promote demote");
-            default -> { }
+            case "help", "h" -> pc("Commands: 8ball cf dice coords ping fps time warp allinvite pt kick promote demote f1-f7 m1-m7");
+            default -> {
+                // Floor queue: !f1-!f7 / !m1-!m7 -> joininstance (party leader queues the whole party)
+                String instance = floorInstance(c);
+                if (instance != null) run("joininstance " + instance);
+            }
         }
+    }
+
+    /** Maps a floor command like "f7" or "m4" to a joininstance argument, or null if it isn't one. */
+    private static String floorInstance(String c) {
+        if (c.length() != 2) return null;
+        char type = c.charAt(0);
+        char num = c.charAt(1);
+        if ((type != 'f' && type != 'm') || num < '1' || num > '7') return null;
+        String[] names = {"one", "two", "three", "four", "five", "six", "seven"};
+        return (type == 'm' ? "master_" : "") + "catacombs_floor_" + names[num - '1'];
     }
 
     private static String coords() {
         BlockPos p = Minecraft.getInstance().player.blockPosition();
         return "x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ();
-    }
-
-    private static int ping() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.getConnection() == null || mc.player == null) return -1;
-        var info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
-        return info != null ? info.getLatency() : -1;
     }
 
     private static void pc(String message) {

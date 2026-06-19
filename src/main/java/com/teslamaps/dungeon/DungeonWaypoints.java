@@ -40,6 +40,8 @@ public class DungeonWaypoints {
     private static final Path FILE = FabricLoader.getInstance().getConfigDir()
             .resolve("teslamaps").resolve("dungeon_waypoints.json");
 
+    private static final com.google.gson.Gson GSON = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
+
     public static void load() {
         byRoom.clear();
         if (!Files.exists(FILE)) {
@@ -175,6 +177,103 @@ public class DungeonWaypoints {
         }
     }
 
+    /** Add a waypoint at the block you're looking at (or under your feet) in the current room. */
+    public static String addAtTarget(int colorArgb, boolean filled) {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return "§cNo player.";
+        if (!DungeonManager.isInDungeon()) return "§cNot in a dungeon.";
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null || room.getName() == null) return "§cNo current room detected.";
+        int[] clay = detectClay(room);
+        if (clay == null) return "§cCouldn't find the room's blue-terracotta marker yet — move into the room.";
+
+        net.minecraft.core.BlockPos target = (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bhr)
+                ? bhr.getBlockPos() : mc.player.blockPosition().below();
+
+        double[] rel = rotateToNorth(clay[2], target.getX() - clay[0], target.getZ() - clay[1]);
+        byRoom.computeIfAbsent(room.getName(), k -> new ArrayList<>())
+                .add(new Waypoint(rel[0], target.getY(), rel[1], colorArgb, filled, true, 0, 0, 0, 1, 1, 1));
+        save();
+        int n = byRoom.get(room.getName()).size();
+        return "§aAdded waypoint #" + n + " in §e\"" + room.getName() + "\"§a @ "
+                + target.getX() + "," + target.getY() + "," + target.getZ();
+    }
+
+    /** Remove the waypoint nearest the player in the current room. */
+    public static String removeNearest() {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.player == null) return "§cNo player.";
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null || room.getName() == null) return "§cNo current room detected.";
+        List<Waypoint> list = byRoom.get(room.getName());
+        if (list == null || list.isEmpty()) return "§eNo waypoints in \"" + room.getName() + "\".";
+        int[] clay = detectClay(room);
+        if (clay == null) return "§cCouldn't find the room marker yet.";
+
+        double px = mc.player.getX(), py = mc.player.getY(), pz = mc.player.getZ();
+        int best = -1;
+        double bestD = Double.MAX_VALUE;
+        for (int i = 0; i < list.size(); i++) {
+            Waypoint wp = list.get(i);
+            double[] rot = rotateAroundNorth(clay[2], wp.rx(), wp.rz());
+            double dx = rot[0] + clay[0] + 0.5 - px, dy = wp.ry() + 0.5 - py, dz = rot[1] + clay[1] + 0.5 - pz;
+            double d = dx * dx + dy * dy + dz * dz;
+            if (d < bestD) { bestD = d; best = i; }
+        }
+        list.remove(best);
+        if (list.isEmpty()) byRoom.remove(room.getName());
+        save();
+        return "§aRemoved the nearest waypoint in \"" + room.getName() + "\" (" + list.size() + " left).";
+    }
+
+    /** Remove all waypoints for the current room. */
+    public static String clearRoom() {
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null || room.getName() == null) return "§cNo current room detected.";
+        List<Waypoint> removed = byRoom.remove(room.getName());
+        save();
+        return removed == null ? "§eNo waypoints to clear in \"" + room.getName() + "\"."
+                : "§aCleared " + removed.size() + " waypoint(s) in \"" + room.getName() + "\".";
+    }
+
+    /** Write byRoom back to the Odin-format JSON file (backs up the original once before first write). */
+    private static void save() {
+        try {
+            Path bak = FILE.resolveSibling("dungeon_waypoints.json.bak");
+            if (Files.exists(FILE) && !Files.exists(bak)) Files.copy(FILE, bak);
+
+            JsonObject root = new JsonObject();
+            for (Map.Entry<String, List<Waypoint>> e : byRoom.entrySet()) {
+                JsonArray arr = new JsonArray();
+                for (Waypoint wp : e.getValue()) {
+                    JsonObject o = new JsonObject();
+                    o.addProperty("x", wp.rx());
+                    o.addProperty("y", wp.ry());
+                    o.addProperty("z", wp.rz());
+                    o.addProperty("color", toHex(wp.colorArgb()));
+                    o.addProperty("filled", wp.filled());
+                    o.addProperty("depth", wp.depth());
+                    JsonObject ab = new JsonObject();
+                    ab.addProperty("minX", wp.minX()); ab.addProperty("minY", wp.minY()); ab.addProperty("minZ", wp.minZ());
+                    ab.addProperty("maxX", wp.maxX()); ab.addProperty("maxY", wp.maxY()); ab.addProperty("maxZ", wp.maxZ());
+                    o.add("aabb", ab);
+                    arr.add(o);
+                }
+                root.add(e.getKey(), arr);
+            }
+            Files.createDirectories(FILE.getParent());
+            Files.writeString(FILE, GSON.toJson(root));
+        } catch (Exception ex) {
+            TeslaMaps.LOGGER.error("[Waypoints] Failed to save", ex);
+        }
+    }
+
+    /** ARGB int -> Odin "#RRGGBBAA" (alpha last), round-trips with parseColor. */
+    private static String toHex(int argb) {
+        int a = (argb >>> 24) & 0xFF, r = (argb >> 16) & 0xFF, g = (argb >> 8) & 0xFF, b = argb & 0xFF;
+        return String.format("#%02X%02X%02X%02X", r, g, b, a);
+    }
+
     /** Inverse of rotateAroundNorth (Odin rotateToNorth) on x/z. */
     private static double[] rotateToNorth(int rotation, double x, double z) {
         return switch (rotation) {
@@ -200,6 +299,20 @@ public class DungeonWaypoints {
 
     private static int[] cachedClay = null;     // {clayX, clayZ, rotation}
     private static String cacheKey = "";
+
+    /** Public, uncached scan for a room's clayPos + rotation ({x, z, rot}), or null if not found yet. */
+    public static int[] scanClayPos(DungeonRoom room) {
+        return scanClay(room);
+    }
+
+    /**
+     * Odin's getRealCoords: rotate clayPos-relative x/z into world coords using a scanned clay {x,z,rot}.
+     * Mirrors {@code pos.rotateAroundNorth(rotation).offset(clayPos.x, 0, clayPos.z)}.
+     */
+    public static int[] relativeToWorld(int[] clay, int relX, int relZ) {
+        double[] rot = rotateAroundNorth(clay[2], relX, relZ);
+        return new int[]{(int) Math.round(rot[0]) + clay[0], (int) Math.round(rot[1]) + clay[1]};
+    }
 
     /** clayPos + rotation, cached per room. Re-scans each frame until the terracotta is found. */
     static int[] detectClay(DungeonRoom room) {

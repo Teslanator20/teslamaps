@@ -14,8 +14,10 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 public class TabListUtils {
     // Secrets Found: 40.5% (percentage, not count!)
     private static final Pattern SECRETS_PERCENT_PATTERN = Pattern.compile("Secrets Found:\\s*(\\d+\\.?\\d*)%");
-    // Secrets Found: X (actual count)
-    private static final Pattern SECRETS_COUNT_PATTERN = Pattern.compile("Secrets Found:\\s*(\\d+)(?!%)");
+    // Secrets Found: X (actual count). The (?![\d.%]) guard rejects percentage lines like
+    // "Secrets Found: 31.5%" / "31%" — otherwise the number BEFORE the dot/percent leaks in as a
+    // fake count (e.g. "31.5%" -> 31), which made the map show the percentage as the secret count.
+    private static final Pattern SECRETS_COUNT_PATTERN = Pattern.compile("Secrets Found:\\s*(\\d+)(?![\\d.%])");
     // Crypts: X
     private static final Pattern CRYPTS_PATTERN = Pattern.compile("Crypts:\\s*(\\d+)");
     // Completed Rooms: X

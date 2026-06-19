@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
+import com.teslamaps.dungeon.DungeonWaypoints;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
 import java.io.InputStream;
@@ -14,7 +15,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.AABB;
@@ -39,7 +39,7 @@ public class QuizSolver {
 
     private record TriviaOption(BlockPos worldPos, boolean isCorrect) {}
 
-    private static int cornerX, cornerZ, rotation;
+    private static int[] clay = null; // {clayX, clayZ, rotation} for the current Quiz room
     private static DungeonRoom quizRoom = null;
 
     static {
@@ -47,27 +47,6 @@ public class QuizSolver {
         for (int i = 0; i < 3; i++) {
             triviaOptions[i] = new TriviaOption(null, false);
         }
-    }
-
-    /**
-     * Rotate coordinates by degree
-     */
-    private static int[] rotatePos(int x, int z, int degree) {
-        return switch (degree % 360) {
-            case 0 -> new int[]{x, z};
-            case 90 -> new int[]{z, -x};
-            case 180 -> new int[]{-x, -z};
-            case 270 -> new int[]{-z, x};
-            default -> new int[]{x, z};
-        };
-    }
-
-    /**
-     * Convert component coords to world coords
-     */
-    private static int[] fromComp(int x, int z) {
-        int[] rotated = rotatePos(x, z, (360 - rotation) % 360);
-        return new int[]{rotated[0] + cornerX, rotated[1] + cornerZ};
     }
 
     private static void loadAnswers() {
@@ -125,12 +104,8 @@ public class QuizSolver {
             for (String answer : currentAnswers) {
                 // Odin-style precise match: the option line ends with the answer text.
                 if (trimmed.endsWith(answer) || answerText.equalsIgnoreCase(answer)) {
-                    boolean alreadyCorrect = triviaOptions[optionIndex].isCorrect();
                     triviaOptions[optionIndex] = new TriviaOption(triviaOptions[optionIndex].worldPos, true);
                     TeslaMaps.LOGGER.info("[QuizSolver] Correct answer found: {} (option {})", answer, (char)('A' + optionIndex));
-                    if (!alreadyCorrect && TeslaMapsConfig.get().quizChatHighlight) {
-                        sendQuizHighlight(optionIndex, answerText);
-                    }
                     break;
                 }
             }
@@ -181,18 +156,19 @@ public class QuizSolver {
             return;
         }
 
-        rotation = quizRoom.getRotation();
-        if (rotation < 0) {
-            // Room rotation not detected yet
-            return;
-        }
+        // Only resolve stand positions while actively in a quiz (avoids fighting the shared clay
+        // cache used by DungeonWaypoints when we're in a different room).
+        if (currentAnswers == null) return;
 
-        cornerX = quizRoom.getCornerX();
-        cornerZ = quizRoom.getCornerZ();
+        // Use the real BLUE_TERRACOTTA marker (clayPos) + Odin's rotateAroundNorth, exactly like
+        // DungeonWaypoints. The room corner/rotation differs from clayPos for some rotations, which
+        // made the box land on the wrong stand intermittently.
+        if (clay == null) clay = DungeonWaypoints.scanClayPos(quizRoom);
+        if (clay == null) return; // terracotta not loaded/scannable yet
 
         // Update world positions for answer stands
         for (int i = 0; i < 3; i++) {
-            int[] worldPos = fromComp(TYPE_BLOCKS[i][0], TYPE_BLOCKS[i][1]);
+            int[] worldPos = DungeonWaypoints.relativeToWorld(clay, TYPE_BLOCKS[i][0], TYPE_BLOCKS[i][1]);
             triviaOptions[i] = new TriviaOption(
                 new BlockPos(worldPos[0], 70, worldPos[1]),
                 triviaOptions[i].isCorrect
@@ -228,16 +204,53 @@ public class QuizSolver {
         }
     }
 
-    private static void sendQuizHighlight(int optionIndex, String answerText) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
-        String circle = switch (optionIndex) { case 0 -> "ⓐ"; case 1 -> "ⓑ"; default -> "ⓒ"; };
-        mc.player.sendSystemMessage(Component.literal("§b[Quiz] §aCorrect → §e" + circle + " §f" + answerText));
+    /** Classification of a chat line that is a quiz answer option. */
+    public enum QuizLine { NONE, CORRECT, WRONG }
+
+    /**
+     * Classify a chat line as a correct/wrong quiz option (or NONE if it isn't one,
+     * or the quiz isn't active). Used by ChatMixin to recolor / hide answers in place.
+     */
+    public static QuizLine classifyLine(String message) {
+        if (!TeslaMapsConfig.get().solveQuiz) return QuizLine.NONE;
+        if (currentAnswers == null) return QuizLine.NONE;
+
+        String trimmed = message.trim();
+        int circleIdx = -1;
+        if (trimmed.contains("ⓐ")) circleIdx = trimmed.indexOf("ⓐ");
+        else if (trimmed.contains("ⓑ")) circleIdx = trimmed.indexOf("ⓑ");
+        else if (trimmed.contains("ⓒ")) circleIdx = trimmed.indexOf("ⓒ");
+        if (circleIdx < 0) return QuizLine.NONE;
+
+        String answerText = (circleIdx + 1 < trimmed.length()) ? trimmed.substring(circleIdx + 1).trim() : "";
+        for (String answer : currentAnswers) {
+            if (trimmed.endsWith(answer) || answerText.equalsIgnoreCase(answer)) {
+                return QuizLine.CORRECT;
+            }
+        }
+        return QuizLine.WRONG;
+    }
+
+    /** True if this wrong-answer line should be hidden from chat. */
+    public static boolean shouldHide(String message) {
+        return TeslaMapsConfig.get().quizHideWrongAnswers && classifyLine(message) == QuizLine.WRONG;
+    }
+
+    /**
+     * If chat highlight is enabled and this line is the correct answer, return a
+     * recolored (green + bold) replacement Component. Otherwise return null (leave as-is).
+     */
+    public static Component highlightLine(Component message) {
+        if (!TeslaMapsConfig.get().quizChatHighlight) return null;
+        if (classifyLine(message.getString()) != QuizLine.CORRECT) return null;
+        String stripped = message.getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
+        return Component.literal("§a§l" + stripped);
     }
 
     public static void reset() {
         currentAnswers = null;
         quizRoom = null;
+        clay = null;
         for (int i = 0; i < 3; i++) {
             triviaOptions[i] = new TriviaOption(null, false);
         }

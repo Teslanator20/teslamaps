@@ -348,17 +348,23 @@ public class WaterBoardSolver {
             return Double.compare(a.time, b.time);
         });
 
-        if (!remaining.isEmpty() && TeslaMapsConfig.get().waterBoardTracers) {
+        if (!remaining.isEmpty()) {
             LeverTime first = remaining.get(0);
             Vec3 firstCenter = Vec3.atCenterOf(first.pos);
-            ESPRenderer.drawTracerFromCamera(matrices, firstCenter, colorFirst, cameraPos);
-            ESPRenderer.drawBoxOutline(matrices, new AABB(first.pos), colorFirst, 3f, cameraPos);
+            LeverTime second = remaining.size() > 1 ? remaining.get(1) : null;
+            boolean hasSecond = second != null && !second.pos.equals(first.pos);
 
-            if (remaining.size() > 1) {
-                LeverTime second = remaining.get(1);
-                if (!second.pos.equals(first.pos)) {
-                    Vec3 secondCenter = Vec3.atCenterOf(second.pos);
-                    ESPRenderer.drawLine(matrices, firstCenter, secondCenter, colorSecond, 2f, cameraPos);
+            // Always highlight the lever(s) to click next with a box (next = colorFirst, after = colorSecond).
+            ESPRenderer.drawBoxOutline(matrices, new AABB(first.pos), colorFirst, 3f, cameraPos);
+            if (hasSecond) {
+                ESPRenderer.drawBoxOutline(matrices, new AABB(second.pos), colorSecond, 2f, cameraPos);
+            }
+
+            // Tracer from crosshair + connector line only when tracers are enabled.
+            if (TeslaMapsConfig.get().waterBoardTracers) {
+                ESPRenderer.drawTracerFromCamera(matrices, firstCenter, colorFirst, cameraPos);
+                if (hasSecond) {
+                    ESPRenderer.drawLine(matrices, firstCenter, Vec3.atCenterOf(second.pos), colorSecond, 2f, cameraPos);
                 }
             }
         }

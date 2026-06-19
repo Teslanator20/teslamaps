@@ -525,21 +525,11 @@ public class SecretWaypoints {
         if (!TeslaMapsConfig.get().secretSound) return;
         if (!DungeonManager.isInDungeon()) return;
 
-        // Play sound based on config
-        float volume = TeslaMapsConfig.get().secretSoundVolume;
-        net.minecraft.sounds.SoundEvent sound = getSoundForType(TeslaMapsConfig.get().secretSoundType);
-        LoudSound.play(sound, volume, 1.2f);
+        // Play sound based on config (shared sound list)
+        LoudSound.play(com.teslamaps.utils.SoundOptions.resolve(TeslaMapsConfig.get().secretSoundType),
+                TeslaMapsConfig.get().secretSoundVolume, TeslaMapsConfig.get().secretSoundPitch);
 
         TeslaMaps.LOGGER.debug("[SecretWaypoints] Secret interaction: {}", type);
-    }
-
-    private static net.minecraft.sounds.SoundEvent getSoundForType(String soundType) {
-        return switch (soundType) {
-            case "LEVEL_UP" -> SoundEvents.PLAYER_LEVELUP;
-            case "NOTE_PLING" -> SoundEvents.NOTE_BLOCK_PLING.value();
-            case "AMETHYST_CHIME" -> SoundEvents.AMETHYST_BLOCK_CHIME;
-            default -> SoundEvents.EXPERIENCE_ORB_PICKUP;
-        };
     }
 
     private static boolean isTypeEnabled(WaypointType type) {

@@ -43,6 +43,8 @@ public class DungeonScore {
     private static boolean floorHasMimics = false;
     private static boolean mimicKilled = false;
     private static boolean princeKilled = false;
+    private static boolean princeDeadMessageSent = false;
+    private static boolean cryptReminderSent = false;
     private static boolean dungeonStarted = false;
     private static boolean bloodRoomCompleted = false;
     private static boolean sent270 = false;
@@ -66,6 +68,8 @@ public class DungeonScore {
         floorHasMimics = false;
         mimicKilled = false;
         princeKilled = false;
+        princeDeadMessageSent = false;
+        cryptReminderSent = false;
         dungeonStarted = false;
         bloodRoomCompleted = false;
         sent270 = false;
@@ -153,6 +157,13 @@ public class DungeonScore {
                 .append(Component.literal("] "))
                 .append(Component.literal(milestone + " Score reached @ " + timeStr).withStyle(style -> style.withColor(0xFFFFFF)))
         );
+
+        // Optionally announce the milestone in party chat
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        boolean announce = (milestone == 300 && config.announce300) || (milestone == 270 && config.announce270);
+        if (announce && mc.getConnection() != null) {
+            mc.getConnection().sendCommand("pc " + milestone + " Score reached @ " + timeStr);
+        }
     }
 
     private static int calculateSkillScore() {
@@ -352,6 +363,18 @@ public class DungeonScore {
             }).start();
         }
 
+        // Crypt reminder: 30s after blood camp starts (blood door opened), warn if short of 5 crypts.
+        if (!cryptReminderSent && TeslaMapsConfig.get().cryptReminder
+                && message.equals("The BLOOD DOOR has been opened!")) {
+            cryptReminderSent = true;
+            new Thread(() -> {
+                try {
+                    Thread.sleep(30000);
+                } catch (InterruptedException ignored) { return; }
+                Minecraft.getInstance().execute(DungeonScore::fireCryptReminder);
+            }).start();
+        }
+
         // Mimic detection
         if (floorHasMimics && MIMIC_PATTERN.matcher(message).matches()) {
             mimicKilled = true;
@@ -360,11 +383,33 @@ public class DungeonScore {
         // Prince detection
         if (PRINCE_PATTERN.matcher(message).matches() || message.equals(PRINCE_KILL_MESSAGE)) {
             princeKilled = true;
+            // Announce only on Hypixel's own message (not on someone else's "Prince Dead!" party
+            // chat, which PRINCE_PATTERN also matches) so we don't echo/loop.
+            if (!princeDeadMessageSent && message.equals(PRINCE_KILL_MESSAGE)
+                    && TeslaMapsConfig.get().princeDeadMessage) {
+                princeDeadMessageSent = true;
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.player != null && mc.getConnection() != null) {
+                    mc.getConnection().sendCommand("pc Prince Dead!");
+                }
+            }
         }
     }
 
     public static void onMimicKilled() {
         mimicKilled = true;
+    }
+
+    /** Fired ~30s into blood camp: warn (chat + sound) if fewer than 5 crypts were done. */
+    private static void fireCryptReminder() {
+        if (!DungeonManager.isInDungeon()) return;
+        int crypts = getCrypts();
+        if (crypts >= 5) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        mc.player.sendSystemMessage(Component.literal(
+                "§c§l⚠ Crypts: " + crypts + "/5 §r§7— need 5 for the full +5 bonus score!"));
+        mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.5f);
     }
 
     public static int getScore() {

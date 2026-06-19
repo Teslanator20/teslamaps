@@ -43,22 +43,14 @@ import java.util.Random;
 public class TMapCommand {
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext registryAccess) {
-        // /ping - show your latency
+        // /ping - measure real round-trip latency (tab latency is faked by Hypixel)
         dispatcher.register(ClientCommands.literal("ping").executes(context -> {
-            Minecraft mc = Minecraft.getInstance();
-            int ping = -1;
-            if (mc.getConnection() != null && mc.player != null) {
-                var info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
-                if (info != null) ping = info.getLatency();
-            }
-            context.getSource().sendFeedback(Component.literal(ping >= 0 ? "§aPing: §f" + ping + "ms" : "§cPing unavailable"));
+            com.teslamaps.features.PingMeter.request();
             return 1;
         }));
 
-        // Party command shortcuts
-        party(dispatcher, "pd", "disband", false);
-        party(dispatcher, "pk", "kick", true);
-        party(dispatcher, "pt", "transfer", true);
+        // Command shortcuts (config-driven, edited via /tmap shortcut; seeded with pd/pk/pt)
+        registerShortcuts(dispatcher);
 
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
@@ -119,9 +111,9 @@ public class TMapCommand {
                                     "Debug mode " + (config.debugMode ? "enabled" : "disabled")));
                             return 1;
                         }))
-                .then(ClientCommands.literal("msg")
+                .then(ClientCommands.literal("hotkeys")
                         .executes(context -> {
-                            // Open the keybind message GUI
+                            // Open the keybind/hotkeys GUI
                             Minecraft.getInstance().schedule(() ->
                                     Minecraft.getInstance().setScreen(new com.teslamaps.screen.KeybindMessageScreen()));
                             return 1;
@@ -134,6 +126,18 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal("Keybind message set to: " + msg));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("msg") // legacy alias for /tmap hotkeys
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() ->
+                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.KeybindMessageScreen()));
+                            return 1;
+                        }))
+                .then(ClientCommands.literal("shortcut")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() ->
+                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.ShortcutScreen()));
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("waypoints")
                         .executes(context -> {
                             com.teslamaps.dungeon.DungeonWaypoints.load();
@@ -143,6 +147,31 @@ public class TMapCommand {
                         .then(ClientCommands.literal("debug")
                                 .executes(context -> {
                                     com.teslamaps.dungeon.DungeonWaypoints.debug();
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("add")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            com.teslamaps.dungeon.DungeonWaypoints.addAtTarget(0xFF55FFFF, false)));
+                                    return 1;
+                                })
+                                .then(ClientCommands.argument("color", StringArgumentType.word())
+                                        .executes(context -> {
+                                            int color = parseHexColor(StringArgumentType.getString(context, "color"));
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    com.teslamaps.dungeon.DungeonWaypoints.addAtTarget(color, false)));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("remove")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            com.teslamaps.dungeon.DungeonWaypoints.removeNearest()));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            com.teslamaps.dungeon.DungeonWaypoints.clearRoom()));
                                     return 1;
                                 })))
                 .then(ClientCommands.literal("scan")
@@ -548,20 +577,43 @@ public class TMapCommand {
         */
     }
 
-    private static void party(CommandDispatcher<FabricClientCommandSource> d, String alias, String sub, boolean needsName) {
-        com.mojang.brigadier.builder.LiteralArgumentBuilder<FabricClientCommandSource> lit = ClientCommands.literal(alias);
-        lit.executes(ctx -> { sendParty(sub); return 1; });
-        if (needsName) {
-            lit.then(ClientCommands.argument("name", StringArgumentType.word()).executes(ctx -> {
-                sendParty(sub + " " + StringArgumentType.getString(ctx, "name"));
+    private static final java.util.Set<String> RESERVED_ALIASES = java.util.Set.of("tmap", "ping");
+
+    /** Register every configured shortcut as a client command: "/<alias> args" -> "<command> args". */
+    private static void registerShortcuts(CommandDispatcher<FabricClientCommandSource> d) {
+        for (TeslaMapsConfig.Shortcut sc : TeslaMapsConfig.get().shortcuts) {
+            if (sc.alias == null || sc.command == null) continue;
+            String alias = sc.alias.trim();
+            String command = sc.command.trim();
+            if (alias.isEmpty() || command.isEmpty() || RESERVED_ALIASES.contains(alias.toLowerCase())) continue;
+
+            com.mojang.brigadier.builder.LiteralArgumentBuilder<FabricClientCommandSource> lit = ClientCommands.literal(alias);
+            lit.executes(ctx -> { sendServer(command); return 1; });
+            lit.then(ClientCommands.argument("args", StringArgumentType.greedyString()).executes(ctx -> {
+                sendServer(command + " " + StringArgumentType.getString(ctx, "args"));
                 return 1;
             }));
+            d.register(lit);
         }
-        d.register(lit);
     }
 
-    private static void sendParty(String args) {
+    /** Parse "RRGGBB" or "RRGGBBAA" (optional leading #) to an ARGB int; defaults to opaque cyan. */
+    private static int parseHexColor(String hex) {
+        hex = hex.replace("#", "");
+        try {
+            long v = Long.parseLong(hex, 16);
+            if (hex.length() == 8) { // RRGGBBAA -> ARGB
+                int r = (int) ((v >> 24) & 0xFF), g = (int) ((v >> 16) & 0xFF), b = (int) ((v >> 8) & 0xFF), a = (int) (v & 0xFF);
+                return (a << 24) | (r << 16) | (g << 8) | b;
+            }
+            return 0xFF000000 | (int) (v & 0xFFFFFF);
+        } catch (NumberFormatException e) {
+            return 0xFF55FFFF;
+        }
+    }
+
+    private static void sendServer(String command) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.getConnection() != null) mc.getConnection().sendCommand(("p " + args).trim());
+        if (mc.getConnection() != null) mc.getConnection().sendCommand(command);
     }
 }

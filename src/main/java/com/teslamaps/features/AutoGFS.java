@@ -57,6 +57,10 @@ public class AutoGFS {
     public static void onChatMessage(String message) {
         if (!TeslaMapsConfig.get().autoGFS) return;
 
+        // Hypixel embeds § color codes inside these messages (e.g. "§r§e[NPC] §r§fMort§r§f: ..."),
+        // so the raw text never contains the clean substring — strip first (gotcha #1).
+        message = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
+
         // Check for dungeon start
         if (TeslaMapsConfig.get().autoGFSOnStart && !dungeonStartHandled) {
             if (message.contains(DUNGEON_START_MSG1) || message.contains(DUNGEON_START_MSG2)) {
@@ -81,12 +85,10 @@ public class AutoGFS {
      * Schedule a refill after a delay.
      */
     private static void scheduleRefill(int delayTicks) {
-        // Simple delayed execution using tick counter
-        final int targetTick = tickCounter + delayTicks;
         new Thread(() -> {
             try {
                 Thread.sleep(delayTicks * 50L); // 50ms per tick
-                refillItems();
+                Minecraft.getInstance().execute(AutoGFS::refillItems); // inventory/networking on main thread
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -100,7 +102,7 @@ public class AutoGFS {
         new Thread(() -> {
             try {
                 Thread.sleep(delayTicks * 50L);
-                sendCommand(command);
+                Minecraft.getInstance().execute(() -> sendCommand(command));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

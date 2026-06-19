@@ -1,5 +1,6 @@
 package com.teslamaps.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.LoudSound;
 import org.lwjgl.glfw.GLFW;
@@ -9,11 +10,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
@@ -36,8 +40,26 @@ public class MapConfigScreen extends Screen {
     private ColorEntry expandedColorEntry = null;
     private float pickerHue = 0, pickerSat = 1, pickerBright = 1;
 
+    // Keybind capture: the entry currently waiting for a key press (null = none)
+    private KeybindEntry listeningKeybindEntry = null;
+
     public MapConfigScreen() {
         super(Component.literal("TeslaMaps Settings"));
+    }
+
+    @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (listeningKeybindEntry != null) {
+            if (event.key() != GLFW.GLFW_KEY_ESCAPE) listeningKeybindEntry.setKey(event.key());
+            listeningKeybindEntry = null;
+            return true;
+        }
+        return super.keyPressed(event);
+    }
+
+    private static String keyName(int key) {
+        if (key < 0) return "Unbound";
+        return InputConstants.Type.KEYSYM.getOrCreate(key).getDisplayName().getString();
     }
 
     @Override
@@ -233,6 +255,8 @@ public class MapConfigScreen extends Screen {
         }));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Solver", () -> config.solveBlaze, v -> config.solveBlaze = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Mimic Dead Message", () -> config.mimicDeadMessage, v -> config.mimicDeadMessage = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Prince Dead Message", () -> config.princeDeadMessage, v -> config.princeDeadMessage = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v));
@@ -242,6 +266,7 @@ public class MapConfigScreen extends Screen {
         solvers.add(new ToggleEntry(contentX, contentWidth, "Quiz (Trivia) Solver", () -> config.solveQuiz, v -> config.solveQuiz = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Quiz Beacon Beam", () -> config.quizBeacon, v -> config.quizBeacon = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Quiz Chat Highlight", () -> config.quizChatHighlight, v -> config.quizChatHighlight = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Quiz Hide Wrong Answers", () -> config.quizHideWrongAnswers, v -> config.quizHideWrongAnswers = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Teleport Maze Solver", () -> config.solveTPMaze, v -> config.solveTPMaze = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Solver", () -> config.solveWaterBoard, v -> config.solveWaterBoard = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Optimized", () -> config.waterBoardOptimized, v -> config.waterBoardOptimized = v));
@@ -289,9 +314,17 @@ public class MapConfigScreen extends Screen {
         sounds.add(new ToggleEntry(contentX, contentWidth, "Enable Secret Sound", () -> config.secretSound, v -> config.secretSound = v));
         sounds.add(new SliderEntry(contentX, contentWidth, "Secret Volume", 0f, 20f,
                 () -> config.secretSoundVolume, v -> config.secretSoundVolume = v));
+        sounds.add(new SliderEntry(contentX, contentWidth, "Secret Pitch", 0.5f, 2.0f,
+                () -> config.secretSoundPitch, v -> config.secretSoundPitch = v));
         sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Secret Sound Type",
-                new String[]{"LEVEL_UP", "NOTE_PLING", "EXPERIENCE_ORB", "AMETHYST_CHIME"},
+                com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.secretSoundType, v -> config.secretSoundType = v));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Secret Chime (ascending)", () -> config.secretChime, v -> config.secretChime = v));
+        sounds.add(new SliderEntry(contentX, contentWidth, "Secret Chime Volume", 0f, 20f,
+                () -> config.secretChimeVolume, v -> config.secretChimeVolume = v));
+        sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Secret Chime Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.secretChimeSound, v -> config.secretChimeSound = v));
         sounds.add(new LabelEntry(contentX, "Bear Spawn Warning (7, 77, 34)"));
         sounds.add(new ToggleEntry(contentX, contentWidth, "Enable Alert", () -> config.bearSpawnWarning, v -> config.bearSpawnWarning = v));
         sounds.add(new ToggleEntry(contentX, contentWidth, "Warden Sound", () -> config.bearSpawnWardenSound, v -> config.bearSpawnWardenSound = v));
@@ -302,8 +335,10 @@ public class MapConfigScreen extends Screen {
         sounds.add(new ToggleEntry(contentX, contentWidth, "Custom Etherwarp Sound", () -> config.etherwarpCustomSound, v -> config.etherwarpCustomSound = v));
         sounds.add(new SliderEntry(contentX, contentWidth, "Etherwarp Volume", 0f, 20f,
                 () -> config.etherwarpSoundVolume, v -> config.etherwarpSoundVolume = v));
+        sounds.add(new SliderEntry(contentX, contentWidth, "Etherwarp Pitch", 0.5f, 2.0f,
+                () -> config.etherwarpSoundPitch, v -> config.etherwarpSoundPitch = v));
         sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Etherwarp Sound",
-                new String[]{"EXPERIENCE_ORB", "NOTE_PLING", "AMETHYST_CHIME", "LEVEL_UP"},
+                com.teslamaps.features.Etherwarp.soundKeys(),
                 () -> config.etherwarpSound, v -> config.etherwarpSound = v));
         categories.put("Sounds", sounds);
 
@@ -418,6 +453,10 @@ public class MapConfigScreen extends Screen {
         advanced.add(new ToggleEntry(contentX, contentWidth, "Requeue on Party \"r\"", () -> config.requeueOnPartyR, v -> config.requeueOnPartyR = v));
         advanced.add(new SliderEntry(contentX, contentWidth, "Requeue Delay (s)", 0f, 30f,
                 () -> (float) config.requeueDelaySeconds, v -> config.requeueDelaySeconds = Math.round(v)));
+        advanced.add(new LabelEntry(contentX, "Score Announce"));
+        advanced.add(new ToggleEntry(contentX, contentWidth, "Announce 300 (/pc)", () -> config.announce300, v -> config.announce300 = v));
+        advanced.add(new ToggleEntry(contentX, contentWidth, "Announce 270 (/pc)", () -> config.announce270, v -> config.announce270 = v));
+        advanced.add(new ToggleEntry(contentX, contentWidth, "Crypt Reminder (<5 at boss)", () -> config.cryptReminder, v -> config.cryptReminder = v));
         advanced.add(new LabelEntry(contentX, "Dungeon Splits"));
         advanced.add(new ToggleEntry(contentX, contentWidth, "Enable Splits HUD", () -> config.splitsEnabled, v -> config.splitsEnabled = v));
         advanced.add(new LabelEntry(contentX, "• Drag/scale in HUD edit (/tmap gui)"));
@@ -439,6 +478,10 @@ public class MapConfigScreen extends Screen {
         // ===== WAYPOINTS =====
         List<SettingsEntry> waypointsCat = new ArrayList<>();
         waypointsCat.add(new ToggleEntry(contentX, contentWidth, "Dungeon Waypoints", () -> config.dungeonWaypoints, v -> config.dungeonWaypoints = v));
+        waypointsCat.add(new LabelEntry(contentX, "Edit Keybinds"));
+        waypointsCat.add(new KeybindEntry(contentX, contentWidth, "Add (look at block)", () -> config.waypointAddKey, v -> config.waypointAddKey = v));
+        waypointsCat.add(new KeybindEntry(contentX, contentWidth, "Remove (nearest)", () -> config.waypointRemoveKey, v -> config.waypointRemoveKey = v));
+        waypointsCat.add(new KeybindEntry(contentX, contentWidth, "Clear (room)", () -> config.waypointClearKey, v -> config.waypointClearKey = v));
         waypointsCat.add(new LabelEntry(contentX, "File: config/teslamaps/dungeon_waypoints.json"));
         waypointsCat.add(new LabelEntry(contentX, "Odin format. Reload: /tmap waypoints"));
         categories.put("Waypoints", waypointsCat);
@@ -466,8 +509,8 @@ public class MapConfigScreen extends Screen {
         boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean clicked = isMouseDown && !wasMouseDown; // Calculate BEFORE updating wasMouseDown
 
-        // Handle category clicks
-        if (clicked && mouseX < SIDEBAR_WIDTH && mouseY >= 50 && mouseY < this.height - 45) {
+        // Handle category clicks (stop above the bottom buttons)
+        if (clicked && mouseX < SIDEBAR_WIDTH && mouseY >= 50 && mouseY < this.height - 92) {
             int catY = 50;
             for (String category : categories.keySet()) {
                 if (mouseY >= catY && mouseY < catY + 22) {
@@ -480,6 +523,22 @@ public class MapConfigScreen extends Screen {
                 }
                 catY += 24;
             }
+        }
+
+        // Handle /tmap shortcut button click (command shortcuts editor)
+        int shortcutBtnY = this.height - 89;
+        if (clicked && mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= shortcutBtnY && mouseY < shortcutBtnY + 22) {
+            minecraft.setScreen(new ShortcutScreen());
+            wasMouseDown = isMouseDown;
+            return;
+        }
+
+        // Handle /tmap hotkeys button click (keybind messages / hotkeys GUI)
+        int msgBtnY = this.height - 62;
+        if (clicked && mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= msgBtnY && mouseY < msgBtnY + 22) {
+            minecraft.setScreen(new KeybindMessageScreen());
+            wasMouseDown = isMouseDown;
+            return;
         }
 
         // Handle /tmap gui button click (at bottom of sidebar)
@@ -524,6 +583,18 @@ public class MapConfigScreen extends Screen {
             context.text(font, category, 12, catY + 7, textColor);
             catY += 24;
         }
+
+        // /tmap shortcut button (command shortcuts editor)
+        boolean shortcutHovered = mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= shortcutBtnY && mouseY < shortcutBtnY + 22;
+        context.fill(8, shortcutBtnY, SIDEBAR_WIDTH - 8, shortcutBtnY + 22, shortcutHovered ? 0xFF3A3A3C : 0xFF2C2C2E);
+        drawBorder(context, 8, shortcutBtnY, SIDEBAR_WIDTH - 16, 22, shortcutHovered ? 0xFF30D158 : 0xFF48484A);
+        context.centeredText(font, "/tmap shortcut", SIDEBAR_WIDTH / 2, shortcutBtnY + 7, 0xFF8E8E93);
+
+        // /tmap hotkeys button (keybind messages) above the /tmap gui button
+        boolean msgHovered = mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= msgBtnY && mouseY < msgBtnY + 22;
+        context.fill(8, msgBtnY, SIDEBAR_WIDTH - 8, msgBtnY + 22, msgHovered ? 0xFF3A3A3C : 0xFF2C2C2E);
+        drawBorder(context, 8, msgBtnY, SIDEBAR_WIDTH - 16, 22, msgHovered ? 0xFF30D158 : 0xFF48484A);
+        context.centeredText(font, "/tmap hotkeys", SIDEBAR_WIDTH / 2, msgBtnY + 7, 0xFF8E8E93);
 
         // /tmap gui button at bottom of sidebar
         boolean tmapHovered = mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= tmapBtnY && mouseY < tmapBtnY + 22;
@@ -706,6 +777,40 @@ public class MapConfigScreen extends Screen {
             ctx.fill(btnX, btnY, btnX + btnW, btnY + btnH, hovered ? 0xFF3A3A3C : 0xFF2C2C2E);
             drawBorder(ctx, btnX, btnY, btnW, btnH, hovered ? 0xFF5A5A5C : 0xFF48484A);
             ctx.centeredText(screen.font, label, btnX + btnW / 2, btnY + 7, 0xFFFFFFFF);
+        }
+    }
+
+    private class KeybindEntry implements SettingsEntry {
+        private final int x, width;
+        private final String label;
+        private final IntSupplier getter;
+        private final IntConsumer setter;
+
+        KeybindEntry(int x, int w, String label, IntSupplier getter, IntConsumer setter) {
+            this.x = x; this.width = w; this.label = label; this.getter = getter; this.setter = setter;
+        }
+
+        @Override public int getHeight() { return ROW_HEIGHT; }
+        @Override public String getLabel() { return label; }
+        @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
+
+        void setKey(int key) { setter.accept(key); TeslaMapsConfig.save(); }
+
+        @Override
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+            boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
+            if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
+            ctx.text(screen.font, label, x + 8, y + 9, 0xFFFFFFFF);
+
+            int btnW = 96, btnX = x + width - btnW - 4, btnY = y + 3, btnH = 20;
+            boolean btnHover = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
+            if (clicked && btnHover) screen.listeningKeybindEntry = this;
+
+            boolean listening = screen.listeningKeybindEntry == this;
+            String txt = listening ? "press a key..." : keyName(getter.getAsInt());
+            ctx.fill(btnX, btnY, btnX + btnW, btnY + btnH, (btnHover || listening) ? 0xFF3A3A3C : 0xFF2C2C2E);
+            drawBorder(ctx, btnX, btnY, btnW, btnH, listening ? 0xFF30D158 : 0xFF48484A);
+            ctx.centeredText(screen.font, txt, btnX + btnW / 2, btnY + 6, 0xFFE0E0E0);
         }
     }
 
@@ -993,7 +1098,8 @@ public class MapConfigScreen extends Screen {
     }
 
     /**
-     * Dropdown entry that plays the sound when an option is selected.
+     * Sound option row: shows the current sound and opens the full SoundPickerScreen on click
+     * (scrollable list + per-sound preview + Apply/Nevermind).
      */
     private class SoundDropdownEntry implements SettingsEntry {
         private final int x, width;
@@ -1001,14 +1107,13 @@ public class MapConfigScreen extends Screen {
         private final String[] options;
         private final Supplier<String> getter;
         private final Consumer<String> setter;
-        private boolean expanded = false;
 
         SoundDropdownEntry(int x, int w, String label, String[] options, Supplier<String> getter, Consumer<String> setter) {
             this.x = x; this.width = w; this.label = label;
             this.options = options; this.getter = getter; this.setter = setter;
         }
 
-        @Override public int getHeight() { return expanded ? ROW_HEIGHT + (options.length * 18) : ROW_HEIGHT; }
+        @Override public int getHeight() { return ROW_HEIGHT; }
         @Override public String getLabel() { return label; }
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
 
@@ -1016,74 +1121,21 @@ public class MapConfigScreen extends Screen {
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
-
             ctx.text(screen.font, label, x + 8, y + 9, 0xFFFFFFFF);
 
-            // Dropdown button
-            int btnX = x + width - 120;
-            int btnY = y + 4;
-            int btnW = 110;
-            int btnH = 18;
-
-            String currentValue = getter.get();
+            int btnX = x + width - 120, btnY = y + 4, btnW = 110, btnH = 18;
             boolean btnHovered = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
-
-            // Toggle expand on click
             if (clicked && btnHovered) {
-                expanded = !expanded;
+                Minecraft.getInstance().setScreen(new SoundPickerScreen(screen, label, options, getter.get(),
+                        v -> { setter.accept(v); TeslaMapsConfig.save(); }));
             }
 
             ctx.fill(btnX, btnY, btnX + btnW, btnY + btnH, btnHovered ? 0xFF3A3A3C : 0xFF2C2C2E);
-            drawBorder(ctx, btnX, btnY, btnW, btnH, expanded ? 0xFF30D158 : 0xFF48484A);
-
-            // Show current value (truncated if needed)
-            String display = currentValue.length() > 14 ? currentValue.substring(0, 12) + ".." : currentValue;
+            drawBorder(ctx, btnX, btnY, btnW, btnH, btnHovered ? 0xFF30D158 : 0xFF48484A);
+            String cur = getter.get();
+            String display = cur.length() > 14 ? cur.substring(0, 12) + ".." : cur;
             ctx.text(screen.font, display, btnX + 4, btnY + 5, 0xFFFFFFFF);
-            ctx.text(screen.font, expanded ? "▲" : "▼", btnX + btnW - 12, btnY + 5, 0xFF8E8E93);
-
-            // Draw options when expanded
-            if (expanded) {
-                int optY = y + ROW_HEIGHT;
-                for (String option : options) {
-                    boolean optHovered = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= optY && mouseY < optY + 18;
-
-                    if (clicked && optHovered) {
-                        setter.accept(option);
-                        TeslaMapsConfig.save();
-                        expanded = false;
-                        // Play the selected sound as preview
-                        playPreviewSound(option);
-                    }
-
-                    int bgColor = option.equals(currentValue) ? 0xFF30D158 : (optHovered ? 0xFF3A3A3C : 0xFF2C2C2E);
-                    ctx.fill(btnX, optY, btnX + btnW, optY + 18, bgColor);
-                    drawBorder(ctx, btnX, optY, btnW, 18, 0xFF48484A);
-
-                    String optDisplay = option.length() > 14 ? option.substring(0, 12) + ".." : option;
-                    ctx.text(screen.font, optDisplay, btnX + 4, optY + 5, 0xFFFFFFFF);
-                    optY += 18;
-                }
-            }
-        }
-
-        private void playPreviewSound(String soundName) {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player == null) return;
-
-            net.minecraft.sounds.SoundEvent sound = switch (soundName) {
-                case "BLAZE_DEATH" -> SoundEvents.BLAZE_DEATH;
-                case "GHAST_SHOOT" -> SoundEvents.GHAST_SHOOT;
-                case "WITHER_SPAWN" -> SoundEvents.WITHER_SPAWN;
-                case "ENDER_DRAGON_GROWL" -> SoundEvents.ENDER_DRAGON_GROWL;
-                case "NOTE_PLING" -> SoundEvents.NOTE_BLOCK_PLING.value();
-                case "NOTE_CHIME" -> SoundEvents.NOTE_BLOCK_CHIME.value();
-                case "EXPERIENCE_ORB" -> SoundEvents.EXPERIENCE_ORB_PICKUP;
-                case "ANVIL_LAND" -> SoundEvents.ANVIL_LAND;
-                default -> SoundEvents.PLAYER_LEVELUP; // LEVEL_UP
-            };
-
-            // Play at volume 2.0 for preview so user can hear it
-            LoudSound.play(sound, 2.0f, 1.0f);
+            ctx.text(screen.font, "⛭", btnX + btnW - 12, btnY + 5, 0xFF8E8E93);
         }
     }
 }

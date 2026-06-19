@@ -86,6 +86,12 @@ public class Splits {
     public static void onChatMessage(String message) {
         if (!TeslaMapsConfig.get().splitsEnabled) return;
 
+        // Hypixel sends these messages with embedded § color codes (e.g. "§r§c☠ §r§eDefeated …",
+        // colored Mort/Watcher lines). The split patterns are written for clean text, so strip first
+        // — otherwise the leading codes break the anchored MORT/TOTAL patterns, which in turn blanks
+        // the "Blood Open" and "Total" rows (both key off the first split's timestamp).
+        message = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
+
         if (message.equals("Starting in 1 second.")) {
             buildSplits();
             startTime = System.currentTimeMillis();
@@ -95,34 +101,34 @@ public class Splits {
 
         if (active.isEmpty() || finished) return;
 
-        for (Split split : active) {
+        int n = active.size();
+        for (int i = 0; i < n; i++) {
+            Split split = active.get(i);
             if (split.time != 0L) continue;
             if (split.pattern.matcher(message).matches()) {
                 split.time = System.currentTimeMillis();
-                if (split == active.get(active.size() - 1)) {
+
+                // A phase is only final once the NEXT split fires, so announce the previous one now.
+                if (i > 0) {
+                    Split prev = active.get(i - 1);
+                    if (prev.time != 0L) sendSplit(prev.name, split.time - prev.time);
+                }
+
+                // Last split = run defeated: announce the final phase (above) plus the overall total.
+                if (i == n - 1) {
                     finished = true;
-                    sendSplits();
+                    long firstTime = active.get(0).time;
+                    if (firstTime != 0L) sendSplit(split.name, split.time - firstTime);
                 }
                 break;
             }
         }
     }
 
-    private static void sendSplits() {
+    private static void sendSplit(String name, long durationMs) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §7Splits:"));
-        int n = active.size();
-        long firstTime = active.get(0).time;
-        if (firstTime == 0L) return;
-        long latest = active.get(n - 1).time != 0L ? active.get(n - 1).time : System.currentTimeMillis();
-        for (int i = 0; i < n; i++) {
-            Split split = active.get(i);
-            if (split.time == 0L) continue;
-            long t = (i == n - 1) ? (latest - firstTime)
-                    : ((active.get(i + 1).time != 0L ? active.get(i + 1).time : latest) - split.time);
-            mc.player.sendSystemMessage(Component.literal(split.name + " §7- §f" + formatTime(t)));
-        }
+        mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] " + name + " §7- §f" + formatTime(durationMs)));
     }
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
