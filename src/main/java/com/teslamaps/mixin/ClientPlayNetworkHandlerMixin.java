@@ -1,9 +1,11 @@
 package com.teslamaps.mixin;
 
+import com.teslamaps.dungeon.WitherDragons;
 import com.teslamaps.dungeon.puzzle.TerminalManager;
 import com.teslamaps.features.PingMeter;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.ping.ClientboundPongResponsePacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,5 +29,11 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handlePongResponse", at = @At("HEAD"))
     private void onPongResponse(ClientboundPongResponsePacket packet, CallbackInfo ci) {
         PingMeter.onPong(packet.time());
+    }
+
+    // M7 Wither Dragon spawn detection via the spawn FLAME particle.
+    @Inject(method = "handleParticleEvent", at = @At("HEAD"))
+    private void onParticle(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
+        WitherDragons.onParticlePacket(packet);
     }
 }

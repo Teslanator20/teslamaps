@@ -85,6 +85,9 @@ public class ChatMixin {
         // Pass to DungeonScore for death/watcher detection
         DungeonScore.onChatMessage(text);
 
+        // Pass to Wither Dragons for the M7 dragons phase
+        com.teslamaps.dungeon.WitherDragons.onChatMessage(text);
+
         // Pass to Splits for dungeon run split tracking
         com.teslamaps.dungeon.Splits.onChatMessage(text);
 

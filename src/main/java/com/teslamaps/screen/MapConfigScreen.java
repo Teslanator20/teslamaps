@@ -273,6 +273,12 @@ public class MapConfigScreen extends Screen {
         solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Tracers", () -> config.waterBoardTracers, v -> config.waterBoardTracers = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Ice Fill Solver", () -> config.solveIceFill, v -> config.solveIceFill = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v));
+        solvers.add(new LabelEntry(contentX, "M7 Wither Dragons"));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Wither Dragons", () -> config.witherDragons, v -> config.witherDragons = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Dragon Spawn Timer", () -> config.witherDragonTimer, v -> config.witherDragonTimer = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Dragon Spawn Boxes", () -> config.witherDragonBoxes, v -> config.witherDragonBoxes = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Dragon Spawn Title", () -> config.witherDragonTitle, v -> config.witherDragonTitle = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Dragon Spawn Messages", () -> config.witherDragonMsg, v -> config.witherDragonMsg = v));
         solvers.add(new LabelEntry(contentX, "F7/M7 Solvers"));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Simon Says Solver", () -> config.solveSimonSays, v -> config.solveSimonSays = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v));
@@ -511,6 +517,18 @@ public class MapConfigScreen extends Screen {
         waypointsCat.add(new LabelEntry(contentX, "File: config/teslamaps/dungeon_waypoints.json"));
         waypointsCat.add(new LabelEntry(contentX, "Odin format. Reload: /tmap waypoints"));
         categories.put("Waypoints", waypointsCat);
+
+        // ===== INVENTORY =====
+        List<SettingsEntry> inventory = new ArrayList<>();
+        inventory.add(new LabelEntry(contentX, "Rarity Backgrounds"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Enable Rarity Backgrounds", () -> config.rarityBackgrounds, v -> config.rarityBackgrounds = v));
+        inventory.add(new SliderEntry(contentX, contentWidth, "Opacity", 0f, 1f,
+                () -> config.rarityBgOpacity, v -> config.rarityBgOpacity = v));
+        inventory.add(new DropdownEntry(contentX, contentWidth, "Shape",
+                new String[]{"Square", "Circle"}, () -> config.rarityBgShape, v -> config.rarityBgShape = v));
+        inventory.add(new DropdownEntry(contentX, contentWidth, "Style",
+                new String[]{"Filled", "Outline"}, () -> config.rarityBgStyle, v -> config.rarityBgStyle = v));
+        categories.put("Inventory", inventory);
     }
 
     private List<SettingsEntry> getEntriesToShow() {

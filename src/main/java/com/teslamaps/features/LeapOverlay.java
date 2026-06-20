@@ -136,8 +136,9 @@ public class LeapOverlay {
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
 
-        // Dungeon map at the top-center (click it to leap to the nearest player).
-        if (TeslaMapsConfig.get().leapShowMap && DungeonManager.isInDungeon()) {
+        // Dungeon map at the top-center (click it to leap to the nearest player). Hidden in the
+        // boss room (no dungeon grid there) — the rest of the leap menu still works.
+        if (TeslaMapsConfig.get().leapShowMap && DungeonManager.isInDungeon() && !DungeonManager.isInBoss()) {
             float mapScale = TeslaMapsConfig.get().mapScale;
             int mw = MapRenderer.mapW();
             int mapBaseX = mw > 0 ? screenWidth / 2 - mw / 2 : screenWidth / 2 - 60;
@@ -291,7 +292,7 @@ public class LeapOverlay {
         if (screen == null) return false;
 
         // Click on the embedded map -> leap to the player whose marker is nearest the click.
-        if (TeslaMapsConfig.get().leapShowMap) {
+        if (TeslaMapsConfig.get().leapShowMap && !DungeonManager.isInBoss()) {
             int mx = MapRenderer.mapX(), my = MapRenderer.mapY(), mw = MapRenderer.mapW(), mh = MapRenderer.mapH();
             if (mw > 0 && mouseX >= mx && mouseX <= mx + mw && mouseY >= my && mouseY <= my + mh) {
                 String nearest = null;
@@ -344,6 +345,9 @@ public class LeapOverlay {
         var handler = screen.getMenu();
 
         for (Slot slot : handler.slots) {
+            // Only the leap GUI's own slots — not the player's inventory (skull items there are
+            // gear like Bonzo's Mask / Necron's Head, not leap targets).
+            if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
             ItemStack stack = slot.getItem();
             if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
 
@@ -377,6 +381,9 @@ public class LeapOverlay {
         // Collect all players from slots
         List<LeapPlayer> allPlayers = new ArrayList<>();
         for (Slot slot : handler.slots) {
+            // Skip the player's own inventory — its skull items (Bonzo's Mask, Necron's Head, …)
+            // are NOT leap targets and would show up as fake players.
+            if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
             ItemStack stack = slot.getItem();
             if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
 

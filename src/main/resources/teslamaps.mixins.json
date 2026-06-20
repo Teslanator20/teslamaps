@@ -25,6 +25,7 @@
         "HandledScreenClickMixin",
         "GenericContainerScreenMixin",
         "ContainerOverlayMixin",
+        "RarityBackgroundMixin",
         "ClientPlayNetworkHandlerMixin",
         "ChestAutoCloseMixin",
         "BlockUpdateMixin",

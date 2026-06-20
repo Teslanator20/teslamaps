@@ -133,6 +133,12 @@ public class TeslaMapsConfig {
     public float bloodCampScale = 1.0f;           // Move Timer HUD scale
 
     // ===== DUNGEON WAYPOINTS =====
+    // ===== RARITY BACKGROUNDS =====
+    public boolean rarityBackgrounds = false;     // Colored background behind items by rarity
+    public float rarityBgOpacity = 0.5f;          // 0.0 - 1.0
+    public String rarityBgShape = "Square";       // Square or Circle
+    public String rarityBgStyle = "Filled";       // Filled or Outline
+
     public boolean dungeonWaypoints = true;       // Render Odin-format dungeon waypoints from config/teslamaps/dungeon_waypoints.json
     public int waypointAddKey = -1;               // Keybind: add waypoint at looked-at block (-1 = unbound)
     public int waypointRemoveKey = -1;            // Keybind: remove nearest waypoint in current room
@@ -279,6 +285,11 @@ public class TeslaMapsConfig {
     public boolean solveIceFill = true;             // Show Ice Fill (F7) path solution
     public boolean iceFillOptimized = true;         // Use optimized (harder/faster) ice fill paths
     public String colorIceFill = "55FFFF";          // Ice Fill path color (aqua)
+    public boolean witherDragons = true;            // M7 Wither Dragons helper (master toggle)
+    public boolean witherDragonTimer = true;        // Spawn countdown timer at each dragon's spawn
+    public boolean witherDragonBoxes = true;        // Boxes around spawning/alive dragons
+    public boolean witherDragonTitle = true;        // Title when a dragon starts spawning
+    public boolean witherDragonMsg = true;          // Chat message when a dragon is spawning/spawned
 
     // ===== F7/M7 SOLVERS =====
     public boolean solveSimonSays = false;         // Show button sequence for Simon Says

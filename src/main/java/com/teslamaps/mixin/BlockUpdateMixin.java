@@ -33,5 +33,6 @@ public class BlockUpdateMixin {
         SimonSaysSolver.onBlockUpdate(pos, oldState, newState);
         TerracottaTimer.onBlockUpdate(pos, oldState, newState);
         SpiritBearTimer.onBlockUpdate(pos, oldState, newState);
+        com.teslamaps.dungeon.WitherDragons.onBlockUpdate(pos, oldState, newState);
     }
 }
