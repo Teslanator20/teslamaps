@@ -34,7 +34,8 @@ public class KeybindMessage {
 
         // Dungeon waypoint edit keybinds (configured in /tmap config -> Waypoints)
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        pollWp(handle, cfg.waypointAddKey, () -> wpResult(DungeonWaypoints.addAtTarget(0xFF55FFFF, false)));
+        pollWp(handle, cfg.waypointAddKey, () -> wpResult(DungeonWaypoints.addAtTarget(
+                TeslaMapsConfig.parseColor(cfg.waypointAddColor), cfg.waypointAddFilled, cfg.waypointAddThroughWalls)));
         pollWp(handle, cfg.waypointRemoveKey, () -> wpResult(DungeonWaypoints.removeNearest()));
         pollWp(handle, cfg.waypointClearKey, () -> wpResult(DungeonWaypoints.clearRoom()));
     }

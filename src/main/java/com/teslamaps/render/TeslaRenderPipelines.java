@@ -40,6 +40,26 @@ public class TeslaRenderPipelines {
                     .build()
     );
 
+    // LESS_THAN_OR_EQUAL = normal depth test (hidden behind walls); false = don't write depth.
+    private static final DepthStencilState DEPTH =
+            new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false);
+
+    /** Lines with normal depth test - hidden behind walls. */
+    public static final RenderPipeline LINES_DEPTH = RenderPipelines.register(
+            RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
+                    .withLocation("pipeline/teslamaps_lines_depth")
+                    .withDepthStencilState(DEPTH)
+                    .build()
+    );
+
+    /** Filled boxes with normal depth test - hidden behind walls. */
+    public static final RenderPipeline FILLED_DEPTH = RenderPipelines.register(
+            RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+                    .withLocation("pipeline/teslamaps_filled_depth")
+                    .withDepthStencilState(DEPTH)
+                    .build()
+    );
+
     /**
      * Initialize pipelines (called during mod init to ensure they're registered).
      */

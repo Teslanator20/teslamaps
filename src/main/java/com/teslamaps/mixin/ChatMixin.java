@@ -76,6 +76,9 @@ public class ChatMixin {
         // Pass to LividSolver for fight start detection
         LividSolver.onChatMessage(text);
 
+        // Leap announce ("You have teleported to X!")
+        com.teslamaps.features.LeapOverlay.onChatMessage(text);
+
         // Pass to MimicDetector for mimic dead detection from party chat
         MimicDetector.onChatMessage(text);
 

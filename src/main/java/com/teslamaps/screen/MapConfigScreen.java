@@ -271,6 +271,8 @@ public class MapConfigScreen extends Screen {
         solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Solver", () -> config.solveWaterBoard, v -> config.solveWaterBoard = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Optimized", () -> config.waterBoardOptimized, v -> config.waterBoardOptimized = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Water Board Tracers", () -> config.waterBoardTracers, v -> config.waterBoardTracers = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Ice Fill Solver", () -> config.solveIceFill, v -> config.solveIceFill = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v));
         solvers.add(new LabelEntry(contentX, "F7/M7 Solvers"));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Simon Says Solver", () -> config.solveSimonSays, v -> config.solveSimonSays = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v));
@@ -435,9 +437,28 @@ public class MapConfigScreen extends Screen {
         // ===== LEAP OVERLAY =====
         List<SettingsEntry> leap = new ArrayList<>();
         leap.add(new ToggleEntry(contentX, contentWidth, "Enable Leap Overlay", () -> config.leapOverlay, v -> config.leapOverlay = v));
-        leap.add(new LabelEntry(contentX, "• Custom 2x2 grid leap menu"));
-        leap.add(new LabelEntry(contentX, "• Shows player face, name, and class"));
-        leap.add(new LabelEntry(contentX, "• Click quadrant to leap"));
+        leap.add(new ToggleEntry(contentX, contentWidth, "Show Player Heads", () -> config.leapShowHeads, v -> config.leapShowHeads = v));
+        leap.add(new ToggleEntry(contentX, contentWidth, "Show Map (click to leap)", () -> config.leapShowMap, v -> config.leapShowMap = v));
+        leap.add(new ToggleEntry(contentX, contentWidth, "Leap Announce (/pc)", () -> config.leapAnnounce, v -> config.leapAnnounce = v));
+        leap.add(new DropdownEntry(contentX, contentWidth, "Sort Mode",
+                new String[]{"Odin", "Class A-Z", "Name A-Z", "Custom", "None"},
+                () -> config.leapSortMode, v -> config.leapSortMode = v));
+        leap.add(new ButtonEntry(contentX, contentWidth, "Edit Custom Order", () -> minecraft.setScreen(new LeapOrderScreen())));
+        leap.add(new DropdownEntry(contentX, contentWidth, "Keybind Mode",
+                new String[]{"Corners", "Class"}, () -> config.leapKeybindMode, v -> config.leapKeybindMode = v));
+        leap.add(new LabelEntry(contentX, "Corner Keybinds"));
+        leap.add(new KeybindEntry(contentX, contentWidth, "Top Left", () -> config.leapKeyTL, v -> config.leapKeyTL = v));
+        leap.add(new KeybindEntry(contentX, contentWidth, "Top Right", () -> config.leapKeyTR, v -> config.leapKeyTR = v));
+        leap.add(new KeybindEntry(contentX, contentWidth, "Bottom Left", () -> config.leapKeyBL, v -> config.leapKeyBL = v));
+        leap.add(new KeybindEntry(contentX, contentWidth, "Bottom Right", () -> config.leapKeyBR, v -> config.leapKeyBR = v));
+        leap.add(new LabelEntry(contentX, "Class Keybinds"));
+        leap.add(new KeybindEntry(contentX, contentWidth, "Archer", () -> config.leapKeyArcher, v -> config.leapKeyArcher = v));
+        leap.add(new KeybindEntry(contentX, contentWidth, "Berserk", () -> config.leapKeyBerserk, v -> config.leapKeyBerserk = v));
+        leap.add(new KeybindEntry(contentX, contentWidth, "Healer", () -> config.leapKeyHealer, v -> config.leapKeyHealer = v));
+        leap.add(new KeybindEntry(contentX, contentWidth, "Mage", () -> config.leapKeyMage, v -> config.leapKeyMage = v));
+        leap.add(new KeybindEntry(contentX, contentWidth, "Tank", () -> config.leapKeyTank, v -> config.leapKeyTank = v));
+        leap.add(new LabelEntry(contentX, "• Custom 2x2 grid leap menu (click quadrant)"));
+        leap.add(new LabelEntry(contentX, "• Works in Spirit Leap + Teleport to Player"));
         categories.put("Leap", leap);
 
         // ===== ADVANCED =====
@@ -457,6 +478,7 @@ public class MapConfigScreen extends Screen {
         advanced.add(new ToggleEntry(contentX, contentWidth, "Announce 300 (/pc)", () -> config.announce300, v -> config.announce300 = v));
         advanced.add(new ToggleEntry(contentX, contentWidth, "Announce 270 (/pc)", () -> config.announce270, v -> config.announce270 = v));
         advanced.add(new ToggleEntry(contentX, contentWidth, "Crypt Reminder (<5 at boss)", () -> config.cryptReminder, v -> config.cryptReminder = v));
+        advanced.add(new ToggleEntry(contentX, contentWidth, "Watcher Kill Alert (blood done)", () -> config.watcherKillAlert, v -> config.watcherKillAlert = v));
         advanced.add(new LabelEntry(contentX, "Dungeon Splits"));
         advanced.add(new ToggleEntry(contentX, contentWidth, "Enable Splits HUD", () -> config.splitsEnabled, v -> config.splitsEnabled = v));
         advanced.add(new LabelEntry(contentX, "• Drag/scale in HUD edit (/tmap gui)"));
@@ -478,6 +500,10 @@ public class MapConfigScreen extends Screen {
         // ===== WAYPOINTS =====
         List<SettingsEntry> waypointsCat = new ArrayList<>();
         waypointsCat.add(new ToggleEntry(contentX, contentWidth, "Dungeon Waypoints", () -> config.dungeonWaypoints, v -> config.dungeonWaypoints = v));
+        waypointsCat.add(new LabelEntry(contentX, "New Waypoint Style"));
+        waypointsCat.add(new ColorEntry(contentX, contentWidth, "Waypoint Color", () -> config.waypointAddColor, v -> config.waypointAddColor = v));
+        waypointsCat.add(new ToggleEntry(contentX, contentWidth, "Filled Box", () -> config.waypointAddFilled, v -> config.waypointAddFilled = v));
+        waypointsCat.add(new ToggleEntry(contentX, contentWidth, "Through Walls", () -> config.waypointAddThroughWalls, v -> config.waypointAddThroughWalls = v));
         waypointsCat.add(new LabelEntry(contentX, "Edit Keybinds"));
         waypointsCat.add(new KeybindEntry(contentX, contentWidth, "Add (look at block)", () -> config.waypointAddKey, v -> config.waypointAddKey = v));
         waypointsCat.add(new KeybindEntry(contentX, contentWidth, "Remove (nearest)", () -> config.waypointRemoveKey, v -> config.waypointRemoveKey = v));

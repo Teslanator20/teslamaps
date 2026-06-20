@@ -151,15 +151,18 @@ public class TMapCommand {
                                 }))
                         .then(ClientCommands.literal("add")
                                 .executes(context -> {
+                                    TeslaMapsConfig cfg = TeslaMapsConfig.get();
                                     context.getSource().sendFeedback(Component.literal(
-                                            com.teslamaps.dungeon.DungeonWaypoints.addAtTarget(0xFF55FFFF, false)));
+                                            com.teslamaps.dungeon.DungeonWaypoints.addAtTarget(
+                                                    TeslaMapsConfig.parseColor(cfg.waypointAddColor), cfg.waypointAddFilled, cfg.waypointAddThroughWalls)));
                                     return 1;
                                 })
                                 .then(ClientCommands.argument("color", StringArgumentType.word())
                                         .executes(context -> {
+                                            TeslaMapsConfig cfg = TeslaMapsConfig.get();
                                             int color = parseHexColor(StringArgumentType.getString(context, "color"));
                                             context.getSource().sendFeedback(Component.literal(
-                                                    com.teslamaps.dungeon.DungeonWaypoints.addAtTarget(color, false)));
+                                                    com.teslamaps.dungeon.DungeonWaypoints.addAtTarget(color, cfg.waypointAddFilled, cfg.waypointAddThroughWalls)));
                                             return 1;
                                         })))
                         .then(ClientCommands.literal("remove")

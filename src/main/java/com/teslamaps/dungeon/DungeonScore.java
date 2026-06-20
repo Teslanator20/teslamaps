@@ -361,6 +361,16 @@ public class DungeonScore {
                     bloodRoomCompleted = true;
                 } catch (InterruptedException ignored) {}
             }).start();
+
+            // Watcher kill alert: title + sound when blood is cleared.
+            if (TeslaMapsConfig.get().watcherKillAlert) {
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.player != null) {
+                    mc.gui.setTimes(0, 30, 5);
+                    mc.gui.setTitle(Component.literal("§c§lBLOOD DONE"));
+                    mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 2.0f);
+                }
+            }
         }
 
         // Crypt reminder: 30s after blood camp starts (blood door opened), warn if short of 5 crypts.

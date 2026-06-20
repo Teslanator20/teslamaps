@@ -134,6 +134,7 @@ public class TeslaMaps implements ClientModInitializer {
                 ArrowAlignSolver.render(context.poseStack(), cameraPos);
                 TerracottaTimer.render(context.poseStack(), cameraPos);
                 WaterBoardSolver.render(context.poseStack(), cameraPos);
+                com.teslamaps.dungeon.puzzle.IceFillSolver.render(context.poseStack(), cameraPos);
 
                 // Render secret waypoints
                 SecretWaypoints.render(context.poseStack(), cameraPos);
@@ -193,6 +194,7 @@ public class TeslaMaps implements ClientModInitializer {
                 TerracottaTimer.tick();
                 SpiritBearTimer.tick();
                 WaterBoardSolver.tick();
+                com.teslamaps.dungeon.puzzle.IceFillSolver.tick();
                 SecretWaypoints.tick();
             }
         });

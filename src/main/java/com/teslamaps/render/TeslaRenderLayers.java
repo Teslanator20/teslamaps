@@ -29,6 +29,22 @@ public class TeslaRenderLayers {
                     .createRenderSetup()
     );
 
+    /** Lines with normal depth test (hidden behind walls). */
+    public static final RenderType LINES_DEPTH = RenderType.create(
+            "teslamaps_lines_depth",
+            RenderSetup.builder(TeslaRenderPipelines.LINES_DEPTH)
+                    .bufferSize(1536)
+                    .createRenderSetup()
+    );
+
+    /** Filled quads with normal depth test (hidden behind walls). */
+    public static final RenderType FILLED_DEPTH = RenderType.create(
+            "teslamaps_filled_depth",
+            RenderSetup.builder(TeslaRenderPipelines.FILLED_DEPTH)
+                    .bufferSize(786432)
+                    .createRenderSetup()
+    );
+
     /**
      * Initialize render layers.
      */

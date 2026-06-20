@@ -14,6 +14,7 @@ import com.teslamaps.scanner.ComponentGrid;
 import com.teslamaps.scanner.DoorScanner;
 import com.teslamaps.scanner.MapScanner;
 import com.teslamaps.utils.TabListUtils;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -37,70 +38,70 @@ public class MapRenderer {
     private static int minGridZ = 0, maxGridZ = 5;
     private static int totalSecrets = 0;
 
+    // Last rendered map area + the player markers drawn (for the leap overlay hit-test).
+    private static int lastMapX, lastMapY, lastMapW, lastMapH;
+    public static int mapX() { return lastMapX; }
+    public static int mapY() { return lastMapY; }
+    public static int mapW() { return lastMapW; }
+    public static int mapH() { return lastMapH; }
+
+    public record PlayerMarker(int x, int y, String name, boolean self) {}
+    private static final List<PlayerMarker> playerMarkers = new ArrayList<>();
+    public static List<PlayerMarker> getPlayerMarkers() { return playerMarkers; }
+
     public static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
-        if (!TeslaMapsConfig.get().mapEnabled) return;
-
-        // Only show in dungeon if option enabled
         TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!config.mapEnabled) return;
         if (config.onlyShowInDungeon && !DungeonManager.isInDungeon()) return;
+        renderAt(context, config.mapX, config.mapY, config.mapScale, false);
+    }
 
-        int baseX = config.mapX;
-        int baseY = config.mapY;
-        float scale = config.mapScale;
+    /**
+     * Render the map at a specific position/scale. leapMode forces the background + player markers
+     * (so they're clickable) and skips the info text — used by the leap overlay.
+     */
+    public static void renderAt(GuiGraphicsExtractor context, int baseX, int baseY, float scale, boolean leapMode) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        playerMarkers.clear();
 
-        // Filter out Unknown rooms (boss room outside dungeon bounds)
         Collection<DungeonRoom> rooms = DungeonManager.getGrid().getAllRooms().stream()
                 .filter(r -> r.getType() != RoomType.UNKNOWN && !"Unknown".equals(r.getName()))
                 .toList();
-
-        // Calculate actual dungeon bounds from rooms
         calculateDungeonBounds(rooms);
 
-        // Calculate dynamic map size based on actual room extent
         int gridWidth = maxGridX - minGridX + 1;
         int gridHeight = maxGridZ - minGridZ + 1;
         int mapWidth = (int)((MAP_PADDING * 2 + gridWidth * CELL_SIZE) * scale);
         int mapHeight = (int)((MAP_PADDING * 2 + gridHeight * CELL_SIZE) * scale);
-
-        // Add space for info text below map (2 lines: secrets/crypts, mimic/score)
-        int infoHeight = 36; // Space for 2 lines of text
+        int infoHeight = leapMode ? 0 : 36;
         int totalHeight = mapHeight + infoHeight;
 
-        // Draw background (including info area)
-        if (config.showMapBackground) {
+        lastMapX = baseX; lastMapY = baseY; lastMapW = mapWidth; lastMapH = mapHeight;
+
+        if (config.showMapBackground || leapMode) {
             drawBackground(context, baseX, baseY, mapWidth, totalHeight);
         }
-
-        // First pass: Draw room connections (yellow lines between adjacent rooms)
         drawRoomConnections(context, rooms, baseX, baseY, scale);
 
-        // Second pass: Draw rooms
         Set<DungeonRoom> drawnRooms = new HashSet<>();
         for (DungeonRoom room : rooms) {
-            if (!drawnRooms.contains(room)) {
-                drawRoom(context, room, baseX, baseY, scale);
-                drawnRooms.add(room);
-            }
+            if (!drawnRooms.contains(room)) { drawRoom(context, room, baseX, baseY, scale); drawnRooms.add(room); }
         }
-
-        // Third pass: Draw room names on top (only for identified rooms)
         drawnRooms.clear();
         for (DungeonRoom room : rooms) {
-            if (!drawnRooms.contains(room) && room.isIdentified()) {
-                drawRoomName(context, room, baseX, baseY, scale);
-                drawnRooms.add(room);
-            }
+            if (!drawnRooms.contains(room) && room.isIdentified()) { drawRoomName(context, room, baseX, baseY, scale); drawnRooms.add(room); }
         }
 
-        // Draw player marker
-        if (config.showPlayerMarker) {
+        if (config.showPlayerMarker || leapMode) {
             drawPlayerMarker(context, mc, baseX, baseY, scale);
         }
-
-        // Draw info text (secrets, crypts) below the map
-        drawInfoText(context, mc, baseX, baseY + mapHeight + 2, mapWidth);
+        if (!leapMode) {
+            drawInfoText(context, mc, baseX, baseY + mapHeight + 2, mapWidth);
+        }
     }
 
     /**
@@ -787,7 +788,7 @@ public class MapRenderer {
             String selfName = config.showPlayerNames ? mc.player.getName().getString() : null;
             renderPlayerHead(context, mc, baseX, baseY, scale, headSize,
                     mc.player.getX(), mc.player.getZ(), mc.player.getYRot(),
-                    mc.player.getUUID(), 0x00000000, selfName, true);
+                    mc.player.getUUID(), 0x00000000, selfName, true, mc.player.getName().getString());
         }
 
         // 2. Render other players from map positions
@@ -822,11 +823,12 @@ public class MapRenderer {
             // Try to get player entity for accurate position
             net.minecraft.world.entity.player.Player playerEntity = uuid != null ? mc.level.getPlayerByUUID(uuid) : null;
 
+            String recordName = dungeonPlayer != null ? dungeonPlayer.getName() : null;
             if (playerEntity != null) {
                 // Player is loaded - use entity position (more accurate)
                 renderPlayerHead(context, mc, baseX, baseY, scale, headSize,
                         playerEntity.getX(), playerEntity.getZ(), playerEntity.getYRot(),
-                        uuid, 0x00000000, name, false);
+                        uuid, 0x00000000, name, false, recordName);
             } else {
                 // Player not loaded - use map decoration position
                 double[] renderPos = MapScanner.mapToRenderPosition(mapX, mapZ, ROOM_SIZE, DOOR_SIZE);
@@ -834,7 +836,7 @@ public class MapRenderer {
                 int pixelY = baseY + (int)(renderPos[1] * scale);
                 float yaw = rotation * 22.5f;
 
-                renderPlayerHeadAtPixel(context, pixelX, pixelY, headSize, yaw, uuid, name, false);
+                renderPlayerHeadAtPixel(context, pixelX, pixelY, headSize, yaw, uuid, name, false, recordName);
             }
         }
     }
@@ -843,7 +845,8 @@ public class MapRenderer {
      * Render player head at a direct pixel position (for map-based positions).
      */
     private static void renderPlayerHeadAtPixel(GuiGraphicsExtractor context, int pixelX, int pixelY, int headSize, float yaw,
-                                                 java.util.UUID uuid, String name, boolean isLocal) {
+                                                 java.util.UUID uuid, String name, boolean isLocal, String recordName) {
+        if (recordName != null) playerMarkers.add(new PlayerMarker(pixelX, pixelY, recordName, isLocal));
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int halfSize = headSize / 2;
 
@@ -883,7 +886,7 @@ public class MapRenderer {
     private static void renderPlayerHead(GuiGraphicsExtractor context, Minecraft mc,
                                           int baseX, int baseY, float scale, int headSize,
                                           double worldX, double worldZ, float yaw,
-                                          java.util.UUID uuid, int borderColor, String name, boolean isLocal) {
+                                          java.util.UUID uuid, int borderColor, String name, boolean isLocal, String recordName) {
         // Convert world position to map pixel position
         int[] gridPos = ComponentGrid.worldToGrid(worldX, worldZ);
         if (gridPos == null) return;
@@ -895,6 +898,8 @@ public class MapRenderer {
         // Use dynamic offset for pixel position
         int pixelX = gridToPixelX(gridPos[0], baseX, scale) + (int)(roomOffsetX * ROOM_SIZE * scale);
         int pixelY = gridToPixelY(gridPos[1], baseY, scale) + (int)(roomOffsetZ * ROOM_SIZE * scale);
+
+        if (recordName != null) playerMarkers.add(new PlayerMarker(pixelX, pixelY, recordName, isLocal));
 
         int halfSize = headSize / 2;
 

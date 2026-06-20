@@ -42,6 +42,7 @@ public class TeslaMapsConfig {
     public boolean announce300 = false;         // Announce "300 Score" in party chat (/pc)
     public boolean announce270 = false;         // Announce "270 Score" in party chat (/pc)
     public boolean cryptReminder = true;        // Warn at boss entry if fewer than 5 crypts were done
+    public boolean watcherKillAlert = true;     // Title + sound when the Watcher is cleared (blood done)
     public float roomNameScale = 1.0f;          // Scale of room name text (0.5 - 2.0)
 
     // ===== CHECKMARKS =====
@@ -136,6 +137,9 @@ public class TeslaMapsConfig {
     public int waypointAddKey = -1;               // Keybind: add waypoint at looked-at block (-1 = unbound)
     public int waypointRemoveKey = -1;            // Keybind: remove nearest waypoint in current room
     public int waypointClearKey = -1;             // Keybind: clear all waypoints in current room
+    public String waypointAddColor = "55FFFF";    // Color for waypoints added in-game
+    public boolean waypointAddFilled = false;     // Add filled boxes instead of outlines
+    public boolean waypointAddThroughWalls = true; // Render added waypoints through walls (depth off)
 
     // ===== ETHERWARP =====
     public boolean etherwarp = true;              // Show etherwarp guess box
@@ -272,6 +276,9 @@ public class TeslaMapsConfig {
     public boolean solveWaterBoard = true;          // Show solution for Water Board puzzle
     public boolean waterBoardOptimized = true;      // Use optimized (faster) solutions
     public boolean waterBoardTracers = true;        // Draw tracers to next lever
+    public boolean solveIceFill = true;             // Show Ice Fill (F7) path solution
+    public boolean iceFillOptimized = true;         // Use optimized (harder/faster) ice fill paths
+    public String colorIceFill = "55FFFF";          // Ice Fill path color (aqua)
 
     // ===== F7/M7 SOLVERS =====
     public boolean solveSimonSays = false;         // Show button sequence for Simon Says
@@ -352,6 +359,14 @@ public class TeslaMapsConfig {
 
     // ===== LEAP OVERLAY =====
     public boolean leapOverlay = false;               // Enhanced Spirit Leap menu
+    public boolean leapShowHeads = true;              // Show player heads/skins in the leap menu
+    public boolean leapAnnounce = false;              // Announce "/pc Leaped to X!" when you leap
+    public boolean leapShowMap = true;                // Show the dungeon map atop the leap menu (click to leap)
+    public String leapSortMode = "Odin";              // Odin, Class A-Z, Name A-Z, Custom, None
+    public List<String> leapCustomOrder = new ArrayList<>(); // player names (lowercase), for Custom sort
+    public String leapKeybindMode = "Corners";        // Corners (TL/TR/BL/BR) or Class (per-class)
+    public int leapKeyTL = -1, leapKeyTR = -1, leapKeyBL = -1, leapKeyBR = -1; // corner keybinds
+    public int leapKeyArcher = -1, leapKeyBerserk = -1, leapKeyHealer = -1, leapKeyMage = -1, leapKeyTank = -1; // class keybinds
     public boolean leapShowClass = true;              // Show player class icon
     public boolean leapShowDistance = true;           // Show distance to player
     public boolean leapSortByDistance = false;        // Sort players by distance

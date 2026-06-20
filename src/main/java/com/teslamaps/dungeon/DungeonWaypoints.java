@@ -37,6 +37,10 @@ public class DungeonWaypoints {
 
     private static final Map<String, List<Waypoint>> byRoom = new HashMap<>();
 
+    // Waypoints stored under this key are ABSOLUTE world coords (rx/ry/rz = world x/y/z), not
+    // room-relative — used when there's no room to anchor to (boss, outside dungeon, unknown room).
+    private static final String ABSOLUTE_KEY = "__absolute__";
+
     private static final Path FILE = FabricLoader.getInstance().getConfigDir()
             .resolve("teslamaps").resolve("dungeon_waypoints.json");
 
@@ -111,29 +115,35 @@ public class DungeonWaypoints {
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().dungeonWaypoints || byRoom.isEmpty()) return;
-        if (!DungeonManager.isInDungeon()) return;
 
+        // Absolute waypoints render everywhere (boss room, outside the dungeon, unmatched rooms).
+        List<Waypoint> abs = byRoom.get(ABSOLUTE_KEY);
+        if (abs != null) {
+            for (Waypoint wp : abs) drawWaypoint(matrices, cameraPos, wp, wp.rx(), wp.ry(), wp.rz());
+        }
+
+        // Room-relative waypoints, anchored to the current room's terracotta marker.
+        if (!DungeonManager.isInDungeon()) return;
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null) return;
         List<Waypoint> list = byRoom.get(room.getName());
         if (list == null || list.isEmpty()) return;
-
         int[] clay = detectClay(room); // {clayX, clayZ, rotation}, or null if terracotta not found yet
         if (clay == null) return;
-        int clayX = clay[0], clayZ = clay[1], rotation = clay[2];
 
         for (Waypoint wp : list) {
-            double[] rot = rotateAroundNorth(rotation, wp.rx(), wp.rz());
-            double wx = rot[0] + clayX;
-            double wz = rot[1] + clayZ;
-            double wy = wp.ry();
-            AABB box = new AABB(wx + wp.minX(), wy + wp.minY(), wz + wp.minZ(),
-                    wx + wp.maxX(), wy + wp.maxY(), wz + wp.maxZ());
-            if (wp.filled()) {
-                ESPRenderer.drawFilledBox(matrices, box, wp.colorArgb(), cameraPos);
-            } else {
-                ESPRenderer.drawBoxOutline(matrices, box, wp.colorArgb(), 2.0f, cameraPos);
-            }
+            double[] rot = rotateAroundNorth(clay[2], wp.rx(), wp.rz());
+            drawWaypoint(matrices, cameraPos, wp, rot[0] + clay[0], wp.ry(), rot[1] + clay[1]);
+        }
+    }
+
+    private static void drawWaypoint(PoseStack matrices, Vec3 cameraPos, Waypoint wp, double wx, double wy, double wz) {
+        AABB box = new AABB(wx + wp.minX(), wy + wp.minY(), wz + wp.minZ(),
+                wx + wp.maxX(), wy + wp.maxY(), wz + wp.maxZ());
+        if (wp.filled()) {
+            ESPRenderer.drawFilledBox(matrices, box, wp.colorArgb(), cameraPos, wp.depth());
+        } else {
+            ESPRenderer.drawBoxOutline(matrices, box, wp.colorArgb(), 2.0f, cameraPos, wp.depth());
         }
     }
 
@@ -177,63 +187,82 @@ public class DungeonWaypoints {
         }
     }
 
-    /** Add a waypoint at the block you're looking at (or under your feet) in the current room. */
-    public static String addAtTarget(int colorArgb, boolean filled) {
+    /**
+     * Add a waypoint at the block you're looking at (or under your feet). Stored room-relative when
+     * in a known room with a terracotta marker, otherwise as an ABSOLUTE world waypoint (boss room,
+     * outside the dungeon, or an unidentified room).
+     */
+    public static String addAtTarget(int colorArgb, boolean filled, boolean depth) {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return "§cNo player.";
-        if (!DungeonManager.isInDungeon()) return "§cNot in a dungeon.";
-        DungeonRoom room = DungeonManager.getCurrentRoom();
-        if (room == null || room.getName() == null) return "§cNo current room detected.";
-        int[] clay = detectClay(room);
-        if (clay == null) return "§cCouldn't find the room's blue-terracotta marker yet — move into the room.";
 
         net.minecraft.core.BlockPos target = (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bhr)
                 ? bhr.getBlockPos() : mc.player.blockPosition().below();
 
-        double[] rel = rotateToNorth(clay[2], target.getX() - clay[0], target.getZ() - clay[1]);
-        byRoom.computeIfAbsent(room.getName(), k -> new ArrayList<>())
-                .add(new Waypoint(rel[0], target.getY(), rel[1], colorArgb, filled, true, 0, 0, 0, 1, 1, 1));
+        DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
+        int[] clay = (room != null && room.getName() != null) ? detectClay(room) : null;
+
+        if (room != null && room.getName() != null && clay != null) {
+            double[] rel = rotateToNorth(clay[2], target.getX() - clay[0], target.getZ() - clay[1]);
+            byRoom.computeIfAbsent(room.getName(), k -> new ArrayList<>())
+                    .add(new Waypoint(rel[0], target.getY(), rel[1], colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
+            save();
+            return "§aAdded waypoint in §e\"" + room.getName() + "\"§a @ "
+                    + target.getX() + "," + target.getY() + "," + target.getZ();
+        }
+
+        // No room to anchor to -> absolute world waypoint.
+        byRoom.computeIfAbsent(ABSOLUTE_KEY, k -> new ArrayList<>())
+                .add(new Waypoint(target.getX(), target.getY(), target.getZ(), colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
         save();
-        int n = byRoom.get(room.getName()).size();
-        return "§aAdded waypoint #" + n + " in §e\"" + room.getName() + "\"§a @ "
-                + target.getX() + "," + target.getY() + "," + target.getZ();
+        return "§aAdded §babsolute§a waypoint @ " + target.getX() + "," + target.getY() + "," + target.getZ();
     }
 
-    /** Remove the waypoint nearest the player in the current room. */
+    /** Remove the waypoint nearest the player (in the current room, or absolute if no room). */
     public static String removeNearest() {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.player == null) return "§cNo player.";
-        DungeonRoom room = DungeonManager.getCurrentRoom();
-        if (room == null || room.getName() == null) return "§cNo current room detected.";
-        List<Waypoint> list = byRoom.get(room.getName());
-        if (list == null || list.isEmpty()) return "§eNo waypoints in \"" + room.getName() + "\".";
-        int[] clay = detectClay(room);
-        if (clay == null) return "§cCouldn't find the room marker yet.";
-
         double px = mc.player.getX(), py = mc.player.getY(), pz = mc.player.getZ();
+
+        DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
+        int[] clay = (room != null && room.getName() != null) ? detectClay(room) : null;
+
+        String key;
+        List<Waypoint> list;
+        int[] xf; // clay transform, or null for absolute
+        if (room != null && room.getName() != null && clay != null) {
+            key = room.getName(); list = byRoom.get(key); xf = clay;
+        } else {
+            key = ABSOLUTE_KEY; list = byRoom.get(key); xf = null;
+        }
+        if (list == null || list.isEmpty()) return "§eNo waypoints here.";
+
         int best = -1;
         double bestD = Double.MAX_VALUE;
         for (int i = 0; i < list.size(); i++) {
             Waypoint wp = list.get(i);
-            double[] rot = rotateAroundNorth(clay[2], wp.rx(), wp.rz());
-            double dx = rot[0] + clay[0] + 0.5 - px, dy = wp.ry() + 0.5 - py, dz = rot[1] + clay[1] + 0.5 - pz;
+            double wx, wz;
+            if (xf != null) { double[] rot = rotateAroundNorth(xf[2], wp.rx(), wp.rz()); wx = rot[0] + xf[0]; wz = rot[1] + xf[1]; }
+            else { wx = wp.rx(); wz = wp.rz(); }
+            double dx = wx + 0.5 - px, dy = wp.ry() + 0.5 - py, dz = wz + 0.5 - pz;
             double d = dx * dx + dy * dy + dz * dz;
             if (d < bestD) { bestD = d; best = i; }
         }
         list.remove(best);
-        if (list.isEmpty()) byRoom.remove(room.getName());
+        if (list.isEmpty()) byRoom.remove(key);
         save();
-        return "§aRemoved the nearest waypoint in \"" + room.getName() + "\" (" + list.size() + " left).";
+        return "§aRemoved the nearest waypoint (" + list.size() + " left).";
     }
 
-    /** Remove all waypoints for the current room. */
+    /** Remove all waypoints for the current room (or all absolute waypoints if no room). */
     public static String clearRoom() {
-        DungeonRoom room = DungeonManager.getCurrentRoom();
-        if (room == null || room.getName() == null) return "§cNo current room detected.";
-        List<Waypoint> removed = byRoom.remove(room.getName());
+        DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
+        String key = (room != null && room.getName() != null) ? room.getName() : ABSOLUTE_KEY;
+        List<Waypoint> removed = byRoom.remove(key);
         save();
-        return removed == null ? "§eNo waypoints to clear in \"" + room.getName() + "\"."
-                : "§aCleared " + removed.size() + " waypoint(s) in \"" + room.getName() + "\".";
+        String where = key.equals(ABSOLUTE_KEY) ? "absolute" : "\"" + key + "\"";
+        return removed == null ? "§eNo waypoints to clear (" + where + ")."
+                : "§aCleared " + removed.size() + " " + where + " waypoint(s).";
     }
 
     /** Write byRoom back to the Odin-format JSON file (backs up the original once before first write). */

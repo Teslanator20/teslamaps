@@ -16,6 +16,10 @@ public class ESPRenderer {
 
     private static int frameCounter = 0;
 
+    // When true, box draws use the depth-tested layers (hidden behind walls) instead of ESP.
+    // Render thread is single-threaded, so this is set right before a draw and reset after.
+    private static boolean depthTested = false;
+
     /**
      * Draw a box outline that renders through walls.
      * Uses WORLD coordinates - camera offset is handled by matrix translation.
@@ -47,13 +51,14 @@ public class ESPRenderer {
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
         PoseStack.Pose pose = matrices.last();
-        VertexConsumer buffer = bufferSource.getBuffer(TeslaRenderLayers.LINES_ESP);
+        var layer = depthTested ? TeslaRenderLayers.LINES_DEPTH : TeslaRenderLayers.LINES_ESP;
+        VertexConsumer buffer = bufferSource.getBuffer(layer);
 
         // Draw 12 edges
         renderLineBox(pose, buffer, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, a, lineWidth);
 
-        // End batch for this render layer 
-        bufferSource.endBatch(TeslaRenderLayers.LINES_ESP);
+        // End batch for this render layer
+        bufferSource.endBatch(layer);
 
         matrices.popPose();
     }
@@ -175,6 +180,20 @@ public class ESPRenderer {
         drawBoxOutline(matrices, box, color, lineWidth, cameraPos, bufferSource);
     }
 
+    /** Box outline with optional depth test: throughWalls=false hides it behind walls. */
+    public static void drawBoxOutline(PoseStack matrices, AABB box, int color, float lineWidth, Vec3 cameraPos, boolean throughWalls) {
+        depthTested = !throughWalls;
+        try { drawBoxOutline(matrices, box, color, lineWidth, cameraPos); }
+        finally { depthTested = false; }
+    }
+
+    /** Filled box with optional depth test: throughWalls=false hides it behind walls. */
+    public static void drawFilledBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos, boolean throughWalls) {
+        depthTested = !throughWalls;
+        try { drawFilledBox(matrices, box, color, cameraPos); }
+        finally { depthTested = false; }
+    }
+
     public static void drawTracerFromCamera(PoseStack matrices, Vec3 target, int color, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;
@@ -213,12 +232,13 @@ public class ESPRenderer {
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
         PoseStack.Pose pose = matrices.last();
-        VertexConsumer buffer = bufferSource.getBuffer(TeslaRenderLayers.FILLED_ESP);
+        var layer = depthTested ? TeslaRenderLayers.FILLED_DEPTH : TeslaRenderLayers.FILLED_ESP;
+        VertexConsumer buffer = bufferSource.getBuffer(layer);
 
         // Draw 6 faces as quads
         renderFilledBox(pose, buffer, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, a);
 
-        bufferSource.endBatch(TeslaRenderLayers.FILLED_ESP);
+        bufferSource.endBatch(layer);
         matrices.popPose();
     }
 
