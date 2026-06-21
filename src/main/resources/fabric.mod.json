@@ -6,7 +6,7 @@
     "description": "Dungeon map overlay and utilities for Hypixel Skyblock",
     "authors": ["Tesla"],
     "contact": {},
-    "license": "MIT",
+    "license": "GPL-3.0-or-later",
     "environment": "client",
     "entrypoints": {
         "client": ["com.teslamaps.TeslaMaps"]

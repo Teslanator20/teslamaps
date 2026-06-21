@@ -82,4 +82,9 @@ A Hypixel SkyBlock Dungeons mod for Minecraft **26.1.2** (Fabric, Java 25). — 
 Use `/tmap` (or `/tmap config`) to open the settings menu. Everything is searchable and grouped by category.
 
 ## License
-All Rights Reserved – see the LICENSE file.
+TeslaMaps is licensed under the **GNU General Public License v3.0** — see the `LICENSE` file.
+
+This project ports/adapts code from other open-source mods. Their notices and the
+reason the whole project is GPL v3 are documented in `NOTICE.md`:
+- **Odin** (https://github.com/odtheking/Odin) — BSD 3-Clause
+- **Devonian** (https://github.com/Synnerz/devonian) — GPL v3
