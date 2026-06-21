@@ -1,35 +1,53 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.Minecraft;
 
-/**
- * Auto requeue (ported from Odin's DungeonQueue): sends /instancerequeue after a dungeon ends,
- * or when a party member types "r". Cancels if you leave / get kicked from the party.
- */
 public class AutoRequeue {
     private static long requeueAt = 0L; // 0 = nothing scheduled
+    private static boolean downtimeHold = false; // set by !dt -> pause auto-requeue for the run
+    private static boolean blockNextRequeue = false; // a member left before run end -> skip the upcoming requeue
+
+    public static void setDowntimeHold(boolean hold) { downtimeHold = hold; if (hold) requeueAt = 0L; }
 
     public static void onChatMessage(String msg) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         msg = msg.replaceAll("(?i)§[0-9A-FK-OR]", ""); // strip legacy color codes
 
-        // Cancel a pending requeue if the party broke up / you got kicked.
-        if (msg.contains("left the party") || msg.contains("has disbanded")
-                || msg.contains("been removed from") || msg.contains("You were kicked")
-                || msg.contains("no longer allowed to access this instance")) {
-            requeueAt = 0L;
+        String low = msg.toLowerCase();
+        if (low.contains("left the party") || low.contains("disbanded")
+                || low.contains("removed from") || low.contains("kicked")
+                || low.contains("was removed") || low.contains("has been removed")
+                || low.contains("no longer allowed to access this instance")) {
+            if (requeueAt != 0L) requeueAt = 0L;
+            else blockNextRequeue = true;
             return;
         }
 
-        // Dungeon end -> requeue after the configured delay.
         if (c.autoRequeue && msg.contains("> EXTRA STATS <")) {
+            if (blockNextRequeue) { blockNextRequeue = false; return; } // a member left this run -> don't requeue
+            if (downtimeHold) return; // ChatCommands announces the reminders + clears the hold
             requeueAt = System.currentTimeMillis() + Math.max(0, c.requeueDelaySeconds) * 1000L;
             return;
         }
 
-        // A party member typed "r" -> requeue.
         if (c.requeueOnPartyR && isPartyR(msg)) {
+            blockNextRequeue = false;
             requeueAt = System.currentTimeMillis() + 500L;
         }
     }

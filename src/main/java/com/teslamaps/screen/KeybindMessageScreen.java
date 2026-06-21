@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -12,10 +27,6 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
-/**
- * Manage unlimited hotkey -> chat-message bindings, entirely in-GUI (keys captured here, not in
- * vanilla controls). Opened with /tmap msg.
- */
 public class KeybindMessageScreen extends Screen {
     private static final int PANEL_W = 400, PANEL_H = 270;
     private static final int ROW_H = 26, VISIBLE = 6, KEY_W = 92;
@@ -30,7 +41,6 @@ public class KeybindMessageScreen extends Screen {
 
     @Override
     protected void init() {
-        // One-time migration of the old single message into the list.
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (binds().isEmpty() && c.keybindChatMessage != null && !c.keybindChatMessage.isBlank()) {
             binds().add(new TeslaMapsConfig.Keybind(-1, c.keybindChatMessage));
@@ -114,7 +124,7 @@ public class KeybindMessageScreen extends Screen {
         roundRect(ctx, panelX, panelY, PANEL_W, PANEL_H, 10, AppleColors.CARD_BACKGROUND);
         ctx.fill(panelX + 10, panelY, panelX + PANEL_W - 10, panelY + 3, AppleColors.ACCENT_BLUE);
 
-        ctx.text(this.font, "§b⌨ §fHotkeys → Chat Messages", panelX + 16, panelY + 16, AppleColors.TEXT_PRIMARY);
+        ctx.text(this.font, "§b⌨ §fHotkeys  Chat Messages", panelX + 16, panelY + 16, AppleColors.TEXT_PRIMARY);
         ctx.text(this.font, "Click a key button, press a key, type a message. / = command.", panelX + 16, panelY + 30, AppleColors.TEXT_SECONDARY);
 
         if (binds().isEmpty()) {

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -11,10 +26,6 @@ import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Terracotta Timer - Shows spawn timers for F6/M6 boss terracotta.
- * Detects flower pot placement (marker for terracotta spawn).
- */
 public class TerracottaTimer {
 
     private static final CopyOnWriteArrayList<TerracottaSpawn> spawns = new CopyOnWriteArrayList<>();
@@ -32,14 +43,12 @@ public class TerracottaTimer {
             return;
         }
 
-        // Only active in F6/M6
         String floor = DungeonManager.getFloorName();
         if (floor == null || (!floor.contains("F6") && !floor.contains("M6"))) {
             spawns.clear();
             return;
         }
 
-        // Tick down timers
         Iterator<TerracottaSpawn> iter = spawns.iterator();
         while (iter.hasNext()) {
             TerracottaSpawn spawn = iter.next();
@@ -59,14 +68,11 @@ public class TerracottaTimer {
         String floor = DungeonManager.getFloorName();
         if (floor == null || (!floor.contains("F6") && !floor.contains("M6"))) return;
 
-        // Flower pot placed = terracotta spawn marker
         if (newState.getBlock() instanceof FlowerPotBlock) {
-            // Check if already tracking this position
             for (TerracottaSpawn spawn : spawns) {
                 if (spawn.pos.equals(pos)) return;
             }
 
-            // M6 = 12 seconds, F6 = 15 seconds
             float time = floor.contains("M6") ? 12f : 15f;
             spawns.add(new TerracottaSpawn(pos.immutable(), time));
         }

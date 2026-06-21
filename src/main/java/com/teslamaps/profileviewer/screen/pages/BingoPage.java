@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonArray;
@@ -15,9 +30,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Bingo page showing bingo card progress.
- */
 public class BingoPage extends ProfileViewerPage {
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
@@ -78,7 +90,6 @@ public class BingoPage extends ProfileViewerPage {
             return;
         }
 
-        // Get completed goals
         Set<Integer> completedGoals = new HashSet<>();
         if (bingoData.has("events")) {
             JsonArray events = bingoData.getAsJsonArray("events");
@@ -93,7 +104,6 @@ public class BingoPage extends ProfileViewerPage {
             }
         }
 
-        // Draw 5x5 bingo grid
         int gridX = contentX + (width - padding * 2 - CELL_SIZE * GRID_SIZE) / 2;
         int gridY = lineY;
 
@@ -105,28 +115,23 @@ public class BingoPage extends ProfileViewerPage {
 
                 boolean completed = completedGoals.contains(goalIndex);
 
-                // Cell background
                 int bgColor = completed ? 0xFF225522 : 0xFF333333;
                 ctx.fill(cellX, cellY, cellX + CELL_SIZE - 2, cellY + CELL_SIZE - 2, bgColor);
 
-                // Border
                 int borderColor = completed ? TEXT_GREEN : 0xFF555555;
                 drawBorder(ctx, cellX, cellY, CELL_SIZE - 2, CELL_SIZE - 2, borderColor);
 
-                // Goal number
                 String num = String.valueOf(goalIndex + 1);
                 int numX = cellX + (CELL_SIZE - 2 - tr.width(num)) / 2;
                 int numY = cellY + (CELL_SIZE - 2 - 8) / 2;
                 ctx.text(tr, num, numX, numY, completed ? TEXT_GREEN : TEXT_GRAY);
 
-                // Checkmark for completed
                 if (completed) {
-                    ctx.text(tr, "✓", cellX + 2, cellY + 2, TEXT_GREEN);
+                    ctx.text(tr, "", cellX + 2, cellY + 2, TEXT_GREEN);
                 }
             }
         }
 
-        // Stats below grid
         int statsY = gridY + GRID_SIZE * CELL_SIZE + 15;
         int completedCount = completedGoals.size();
         int totalGoals = GRID_SIZE * GRID_SIZE;
@@ -134,7 +139,6 @@ public class BingoPage extends ProfileViewerPage {
         ctx.text(tr, "Completed: " + completedCount + "/" + totalGoals,
                 contentX, statsY, TEXT_WHITE);
 
-        // Check for bingo (5 in a row)
         int bingos = countBingos(completedGoals);
         if (bingos > 0) {
             ctx.text(tr, "Bingos: " + bingos, contentX + 150, statsY, TEXT_GOLD);
@@ -144,7 +148,6 @@ public class BingoPage extends ProfileViewerPage {
     private int countBingos(Set<Integer> completed) {
         int count = 0;
 
-        // Check rows
         for (int row = 0; row < GRID_SIZE; row++) {
             boolean bingo = true;
             for (int col = 0; col < GRID_SIZE; col++) {
@@ -156,7 +159,6 @@ public class BingoPage extends ProfileViewerPage {
             if (bingo) count++;
         }
 
-        // Check columns
         for (int col = 0; col < GRID_SIZE; col++) {
             boolean bingo = true;
             for (int row = 0; row < GRID_SIZE; row++) {
@@ -168,7 +170,6 @@ public class BingoPage extends ProfileViewerPage {
             if (bingo) count++;
         }
 
-        // Check diagonals
         boolean diag1 = true, diag2 = true;
         for (int i = 0; i < GRID_SIZE; i++) {
             if (!completed.contains(i * GRID_SIZE + i)) diag1 = false;

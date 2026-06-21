@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -11,16 +26,9 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * F7 Terminal Solver - "Click the button on time!" (Melody)
- * 4 lanes, one active at a time (top to bottom).
- * Green pane moves across lane, click terracotta when green aligns with purple.
- */
 public class MelodyTerminal {
-    // Terracotta click slots (one per lane) - the lime terracotta at position 7 in each lane
     private static final int[] TERRACOTTA_SLOTS = {16, 25, 34, 43};
 
-    // Lanes: row 1 = slots 9-17, row 2 = slots 18-26, row 3 = slots 27-35, row 4 = slots 36-44
     private static final int[][] LANE_SLOTS = {
         {9, 10, 11, 12, 13, 14, 15, 16, 17},   // Lane 1
         {18, 19, 20, 21, 22, 23, 24, 25, 26},  // Lane 2
@@ -40,7 +48,6 @@ public class MelodyTerminal {
     private static long laneProgressTime = 0; // Time when lane progressed
 
     public static void tick() {
-        // DISABLED - Auto terminal feature commented out
         if (true) {
             reset();
             return;
@@ -48,22 +55,11 @@ public class MelodyTerminal {
 
         Minecraft mc = Minecraft.getInstance();
 
-        /* DISABLED
-        if (!TeslaMapsConfig.get().solveMelodyTerminal) {
-            if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[MelodyTerminal] Feature disabled, resetting");
-            }
-            reset();
-            return;
-        }
-        */
-
         if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
-        // Check if we're looking at a container screen
         if (!(mc.screen instanceof ContainerScreen)) {
             if (initialScanDone) {
                 TeslaMaps.LOGGER.info("[MelodyTerminal] Screen closed, resetting");
@@ -74,20 +70,17 @@ public class MelodyTerminal {
 
         ContainerScreen screen = (ContainerScreen) mc.screen;
 
-        // Get screen title
         Component title = screen.getTitle();
         String titleStr = title.getString();
         String cleanTitle = ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
-        // Debug: Log container title once per second
         int currentTick = mc.player.tickCount;
         if (currentTick - lastDebugTick > 20) {
             TeslaMaps.LOGGER.info("[MelodyTerminal] Container title: '{}'", cleanTitle);
             lastDebugTick = currentTick;
         }
 
-        // Check if this is the melody terminal
         if (!cleanTitle.equals("Click the button on time!")) {
             if (initialScanDone) {
                 TeslaMaps.LOGGER.info("[MelodyTerminal] Title doesn't match, resetting");
@@ -95,7 +88,6 @@ public class MelodyTerminal {
             return;
         }
 
-        // Initialize on first detection
         if (!initialScanDone) {
             solved = false;
             currentLane = 0;
@@ -110,38 +102,29 @@ public class MelodyTerminal {
 
         long currentTime = System.currentTimeMillis();
 
-        // Scan for green and purple panes every 100ms
-        // But wait 300ms after lane progression to give server time to update magenta
         long timeSinceProgression = currentTime - laneProgressTime;
         if (currentTime - lastScanTime >= 100 && (laneProgressTime == 0 || timeSinceProgression >= 300)) {
             scanLane(screen);
             lastScanTime = currentTime;
         }
 
-        // Auto-click when green aligns with purple
-        // Skip auto-clicking if using custom GUI with click anywhere
         boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
 
         if (!solved && lastGreenPosition != -1 && purplePosition != -1 && lastGreenPosition == purplePosition && !usingClickAnywhere) {
             long timeSinceLastClick = currentTime - lastClickTime;
 
-            // Use configured melody delay
             int melodyDelay = TeslaMapsConfig.get().melodyTerminalClickDelay;
             if (timeSinceLastClick > melodyDelay) {
                 clickTerracotta(mc, screen, currentLane);
                 lastClickTime = currentTime;
 
-                // Don't increment lane here - let it retry if the click didn't register
-                // The terminal will naturally progress when successful, and we'll detect the new active lane
             }
         }
 
-        // Detect lane progression by checking if current lane's terracotta is no longer lime
         if (currentLane < 4) { // Only check if we haven't finished all lanes
             ChestMenu handler = screen.getMenu();
             ItemStack currentTerracotta = handler.getSlot(TERRACOTTA_SLOTS[currentLane]).getItem();
 
-            // If terracotta is no longer lime, we've progressed to next lane
             if (!currentTerracotta.isEmpty() && currentTerracotta.getItem() != Items.LIME_TERRACOTTA) {
                 currentLane++;
                 laneProgressTime = currentTime; // Mark when we progressed
@@ -152,16 +135,12 @@ public class MelodyTerminal {
                     TeslaMaps.LOGGER.info("[MelodyTerminal] ===== ALL LANES COMPLETE =====");
                 }
 
-                // Reset positions for new lane
                 lastGreenPosition = -1;
                 purplePosition = -1;
             }
         }
     }
 
-    /**
-     * Scan the current active lane for green pane and check magenta indicator column.
-     */
     private static void scanLane(ContainerScreen screen) {
         if (currentLane >= 4) return; // All lanes done
 
@@ -171,7 +150,6 @@ public class MelodyTerminal {
         lastGreenPosition = -1;
         purplePosition = -1;
 
-        // Check top row (slots 1-7) for magenta indicator
         for (int topSlot = 1; topSlot <= 7; topSlot++) {
             ItemStack stack = handler.getSlot(topSlot).getItem();
 
@@ -194,7 +172,6 @@ public class MelodyTerminal {
             }
         }
 
-        // Scan the lane for green (lime) pane (skip position 7 which is the terracotta)
         TeslaMaps.LOGGER.info("[MelodyTerminal] Scanning lane {} (slots {}-{})", currentLane + 1, laneSlots[0], laneSlots[6]);
         for (int i = 0; i < 7; i++) { // Only scan positions 0-6, skip 7 (terracotta) and 8 (edge)
             int slot = laneSlots[i];
@@ -206,7 +183,6 @@ public class MelodyTerminal {
 
             if (stack.isEmpty()) continue;
 
-            // Green (lime) pane = moving indicator
             if (stack.getItem() == Items.LIME_STAINED_GLASS_PANE) {
                 lastGreenPosition = i;
                 TeslaMaps.LOGGER.info("[MelodyTerminal] ===== Lane {} - GREEN at position {} =====", currentLane + 1, i);
@@ -221,9 +197,6 @@ public class MelodyTerminal {
         }
     }
 
-    /**
-     * Click the terracotta for the current lane.
-     */
     private static void clickTerracotta(Minecraft mc, ContainerScreen screen, int lane) {
         if (mc.player == null) {
             TeslaMaps.LOGGER.warn("[MelodyTerminal] Cannot click - player is null");
@@ -236,7 +209,6 @@ public class MelodyTerminal {
         TeslaMaps.LOGGER.info("[MelodyTerminal] ===== CLICKING TERRACOTTA =====");
         TeslaMaps.LOGGER.info("[MelodyTerminal] Lane {} - Clicking slot {}", lane + 1, slotToClick);
 
-        // Click the slot
         mc.gameMode.handleContainerInput(
             handler.containerId,
             slotToClick,
@@ -245,18 +217,13 @@ public class MelodyTerminal {
             mc.player
         );
 
-        // Reset positions for next lane
         lastGreenPosition = -1;
         purplePosition = -1;
     }
 
-    /**
-     * For easy mode: returns the slot that should be clicked next, or -1 if none.
-     */
     public static int getNextCorrectSlot() {
         if (!initialScanDone || solved || currentLane >= 4) return -1;
 
-        // When green aligns with purple, click the terracotta
         if (lastGreenPosition != -1 && purplePosition != -1 && lastGreenPosition == purplePosition) {
             return TERRACOTTA_SLOTS[currentLane];
         }
@@ -264,38 +231,23 @@ public class MelodyTerminal {
         return -1;
     }
 
-    /**
-     * For custom GUI: get current lane (0-3).
-     */
     public static int getCurrentLane() {
         return currentLane;
     }
 
-    /**
-     * For custom GUI: get the last green position.
-     */
     public static int getLastGreenPosition() {
         return lastGreenPosition;
     }
 
-    /**
-     * For custom GUI: get the purple indicator position.
-     */
     public static int getPurplePosition() {
         return purplePosition;
     }
 
-    /**
-     * Event-driven slot update handler.
-     * Called by TerminalManager when a slot update packet is received.
-     */
     public static void onSlotUpdate(int slotIndex, net.minecraft.world.item.ItemStack stack) {
         if (!TeslaMapsConfig.get().solveMelodyTerminal) return;
 
-        // Check if a terracotta changed (lane progressed)
         for (int i = 0; i < TERRACOTTA_SLOTS.length; i++) {
             if (slotIndex == TERRACOTTA_SLOTS[i]) {
-                // If terracotta is no longer lime, lane progressed
                 if (stack.getItem() != Items.LIME_TERRACOTTA && i == currentLane) {
                     currentLane++;
                     laneProgressTime = System.currentTimeMillis();
@@ -313,19 +265,13 @@ public class MelodyTerminal {
         }
     }
 
-    /**
-     * Validate if a click is allowed on this slot.
-     * For Melody terminal: only allow clicks on terracotta positions (16, 25, 34, 43).
-     */
     public static boolean canClick(int slotIndex, int button) {
         if (!initialScanDone || solved) return true;
 
-        // Only allow clicks on the current lane's terracotta
         if (currentLane < 4 && slotIndex == TERRACOTTA_SLOTS[currentLane]) {
             return true;
         }
 
-        // Block clicks on wrong positions
         TeslaMaps.LOGGER.info("[MelodyTerminal] Blocked click on slot {} - should click terracotta at {}",
             slotIndex, currentLane < 4 ? TERRACOTTA_SLOTS[currentLane] : "N/A");
         return false;

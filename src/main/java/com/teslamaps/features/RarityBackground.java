@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -9,13 +24,8 @@ import net.minecraft.world.item.component.ItemLore;
 
 import java.util.List;
 
-/**
- * Draws a colored background behind items by their Skyblock rarity (read from the item's lore).
- * Configurable shape (square / circle), style (filled / outline) and opacity.
- */
 public class RarityBackground {
 
-    /** Draw the rarity background for a slot's item at (x, y) in slot-local coords (16x16). */
     public static void draw(GuiGraphicsExtractor ctx, int x, int y, ItemStack stack) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.rarityBackgrounds) return;
@@ -39,7 +49,6 @@ public class RarityBackground {
             return;
         }
 
-        // Circle (approximate, radius 8 around the slot center)
         double cx = x + 8.0, cy = y + 8.0, r = 8.0;
         for (int row = 0; row < s; row++) {
             double dy = y + row + 0.5 - cy;
@@ -55,14 +64,12 @@ public class RarityBackground {
         }
     }
 
-    /** Skyblock rarity color from the item's lore, or -1 if no rarity line found. */
     private static int rarityColor(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return -1;
         ItemLore lore = stack.get(DataComponents.LORE);
         if (lore == null) return -1;
         List<Component> lines = lore.lines();
-        // Rarity is normally the last line; scan the bottom few.
-        for (int i = lines.size() - 1; i >= 0 && i >= lines.size() - 4; i--) {
+        for (int i = lines.size() - 1; i >= 0; i--) {
             int c = matchRarity(lines.get(i).getString().replaceAll("(?i)§[0-9A-FK-OR]", "").toUpperCase());
             if (c != -1) return c;
         }

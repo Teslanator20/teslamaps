@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.slayer;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -18,30 +33,18 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.AABB;
 
-/**
- * HUD overlay for slayer boss information.
- * Shows health, phase type for Inferno Demonlord.
- * Also provides ESP for slayer minibosses and boss.
- */
 public class SlayerHUD {
-    // Pattern to match slayer boss names: "♨ ☠ Inferno Demonlord IV 47.7M❤" or with shield "♨ ☠ Inferno Demonlord IV ᛤ 150M❤"
-    private static final Pattern INFERNO_PATTERN = Pattern.compile("Inferno Demonlord (I{1,3}V?|IV|V)\\s*(ᛤ)?\\s*([\\d.]+)([kKmMbB]?)❤");
+    private static final Pattern INFERNO_PATTERN = Pattern.compile("Inferno Demonlord (I{1,3}V?|IV|V)\\s*(ᛤ)?\\s*([\\d.]+)([kKmMbB]?)");
 
-    // Pattern to match phase armor stands: "SPIRIT ♨2 04:14"
-    private static final Pattern PHASE_PATTERN = Pattern.compile("(SPIRIT|ASHEN|CRYSTAL|AURIC)\\s*♨(\\d+)");
+    private static final Pattern PHASE_PATTERN = Pattern.compile("(SPIRIT|ASHEN|CRYSTAL|AURIC)\\s*(\\d+)");
 
-    // Pattern to match miniboss demons
-    private static final Pattern MINIBOSS_PATTERN = Pattern.compile("♨\\s*(Burningsoul|Kindleheart)\\s*Demon\\s*([\\d.]+)([kKmMbB]?)❤");
+    private static final Pattern MINIBOSS_PATTERN = Pattern.compile("\\s*(Burningsoul|Kindleheart)\\s*Demon\\s*([\\d.]+)([kKmMbB]?)");
 
-    // Boss spawn demons use circled Unicode letters
-    // 🦴 ☠ ⓆⓊⒶⓏⒾⒾ 10M❤ and ☠ ☠ ⓉⓎⓅⒽⓄⒺⓊⓈ 7.4M❤
-    private static final Pattern QUAZII_PATTERN = Pattern.compile("ⓆⓊⒶⓏⒾⒾ\\s*([\\d.]+)([kKmMbB]?)❤");
-    private static final Pattern TYPHOEUS_PATTERN = Pattern.compile("ⓉⓎⓅⒽⓄⒺⓊⓈ\\s*([\\d.]+)([kKmMbB]?)❤");
+    private static final Pattern QUAZII_PATTERN = Pattern.compile("ⓆⓊⒶⓏⒾⒾ\\s*([\\d.]+)([kKmMbB]?)");
+    private static final Pattern TYPHOEUS_PATTERN = Pattern.compile("ⓉⓎⓅⒽⓄⒺⓊⓈ\\s*([\\d.]+)([kKmMbB]?)");
 
-    // Pattern to detect boss owner: "Spawned by: PlayerName" or similar
     private static final Pattern SPAWNED_BY_PATTERN = Pattern.compile("(?i)spawned\\s*by:?\\s*(\\w+)");
 
-    // Inferno Demonlord max HP by tier (regular phase)
     private static final double[] INFERNO_MAX_HP = {
         0,          // Tier 0 (unused)
         250_000,    // Tier I
@@ -51,7 +54,6 @@ public class SlayerHUD {
         200_000_000 // Tier V
     };
 
-    // Boss state
     private static String currentBossName = null;
     private static double currentHP = 0;
     private static double maxHP = 0;
@@ -61,16 +63,13 @@ public class SlayerHUD {
     private static long lastUpdateTime = 0;
     private static Entity bossEntity = null;  // The actual boss entity for ESP
 
-    // Phase state
     private static String currentPhaseType = null;  // SPIRIT, ASHEN, CRYSTAL, AURIC
     private static int phaseCount = 0;
 
-    // Miniboss tracking for ESP
     private static final Set<Entity> minibossEntities = new HashSet<>();
     private static String miniboss1Type = null;
     private static String miniboss2Type = null;
 
-    // Boss spawn demon health tracking (Quazii and Typhoeus)
     private static double quaziiHP = 0;
     private static double typhoeusHP = 0;
     private static long quaziiLastSeen = 0;
@@ -81,7 +80,6 @@ public class SlayerHUD {
     private static final double TYPHOEUS_MAX_HP = 10_000_000; // 10M
     private static final long MINION_TIMEOUT = 5000; // 5 seconds before hiding if not seen
 
-    // Kill timing tracking
     private static long questStartTime = 0;       // When the slayer quest FIRST started (persists through demon phases)
     private static long lastKillTime = 0;         // When the last boss was killed
     private static boolean questActive = false;   // Is a slayer quest currently active?
@@ -89,21 +87,15 @@ public class SlayerHUD {
     private static final List<Long> spawnTimes = new ArrayList<>();   // Time between kills
     private static int totalKills = 0;            // Total kills this session
 
-    // Boss ownership tracking
     private static String bossOwner = null;       // Who spawned this boss
     private static boolean isOwnBoss = false;     // Is this our boss?
 
-    // Dragging state
     private static boolean isDragging = false;
     private static int dragOffsetX = 0;
     private static int dragOffsetY = 0;
 
-    // Server switch detection
     private static String lastWorldName = null;
 
-    /**
-     * Called every tick to scan for slayer bosses.
-     */
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) {
@@ -112,23 +104,19 @@ public class SlayerHUD {
             return;
         }
 
-        // Detect server/world switch and reset
         String currentWorldName = mc.level.dimension().identifier().toString();
         if (lastWorldName != null && !lastWorldName.equals(currentWorldName)) {
             resetQuest();
         }
         lastWorldName = currentWorldName;
 
-        // Always scan for minibosses if ESP enabled
         minibossEntities.clear();
         miniboss1Type = null;
         miniboss2Type = null;
 
-        // Track if we found the minions this tick
         boolean foundQuazii = false;
         boolean foundTyphoeus = false;
 
-        // Scan for slayer boss armor stands nearby
         double px = mc.player.getX();
         double py = mc.player.getY();
         double pz = mc.player.getZ();
@@ -142,7 +130,6 @@ public class SlayerHUD {
         for (ArmorStand armorStand : mc.level.getEntitiesOfClass(ArmorStand.class, searchBox, as -> true)) {
             String name = armorStand.getName().getString();
 
-            // Check for Inferno Demonlord
             Matcher bossMatcher = INFERNO_PATTERN.matcher(name);
             if (bossMatcher.find()) {
                 String tierStr = bossMatcher.group(1);
@@ -154,10 +141,8 @@ public class SlayerHUD {
                 currentHP = parseHP(hpNum, hpSuffix);
                 hasShield = shield != null && !shield.isEmpty();
 
-                // Calculate max HP based on shield state
                 double baseMax = bossTier > 0 && bossTier < INFERNO_MAX_HP.length ? INFERNO_MAX_HP[bossTier] : 50_000_000;
                 if (hasShield) {
-                    // Shield phase has 3x HP (e.g., 150M for Tier IV)
                     maxHP = baseMax * 3;
                     phaseMaxHP = baseMax * 3;
                 } else {
@@ -169,32 +154,26 @@ public class SlayerHUD {
                 lastUpdateTime = System.currentTimeMillis();
                 foundBoss = true;
 
-                // If HP is 0, immediately hide boss visuals
                 if (currentHP <= 0) {
                     clearBossVisuals();
                     foundBoss = false;
                     continue;
                 }
 
-                // Track quest start time - only set ONCE when quest first starts
-                // This persists through demon phases until quest complete/fail
                 if (!questActive) {
                     questStartTime = System.currentTimeMillis();
                     questActive = true;
 
-                    // Calculate spawn time (time since last kill)
                     if (lastKillTime > 0) {
                         long spawnDelay = questStartTime - lastKillTime;
                         spawnTimes.add(spawnDelay);
                     }
                 }
 
-                // Find the actual boss entity near this armor stand for ESP
                 findBossEntity(mc, armorStand);
                 continue;
             }
 
-            // Check for phase type (SPIRIT, ASHEN, CRYSTAL, AURIC)
             Matcher phaseMatcher = PHASE_PATTERN.matcher(name);
             if (phaseMatcher.find()) {
                 currentPhaseType = phaseMatcher.group(1);
@@ -202,7 +181,6 @@ public class SlayerHUD {
                 continue;
             }
 
-            // Check for miniboss demons (Burningsoul, Kindleheart)
             Matcher minibossMatcher = MINIBOSS_PATTERN.matcher(name);
             if (minibossMatcher.find()) {
                 String type = minibossMatcher.group(1);
@@ -211,18 +189,15 @@ public class SlayerHUD {
                 } else if (miniboss2Type == null && !type.equals(miniboss1Type)) {
                     miniboss2Type = type;
                 }
-                // Find the actual miniboss entity for ESP
                 findMinibossEntity(mc, armorStand, type);
             }
 
-            // Check for Quazii
             Matcher quaziiMatcher = QUAZII_PATTERN.matcher(name);
             if (quaziiMatcher.find()) {
                 double hp = parseHP(quaziiMatcher.group(1), quaziiMatcher.group(2));
                 quaziiLastSeen = System.currentTimeMillis();
                 foundQuazii = true;
                 if (hp <= 0) {
-                    // Immediately hide when HP is 0
                     quaziiDead = true;
                     quaziiHP = 0;
                 } else {
@@ -230,14 +205,12 @@ public class SlayerHUD {
                 }
             }
 
-            // Check for Typhoeus
             Matcher typhoeusMatcher = TYPHOEUS_PATTERN.matcher(name);
             if (typhoeusMatcher.find()) {
                 double hp = parseHP(typhoeusMatcher.group(1), typhoeusMatcher.group(2));
                 typhoeusLastSeen = System.currentTimeMillis();
                 foundTyphoeus = true;
                 if (hp <= 0) {
-                    // Immediately hide when HP is 0
                     typhoeusDead = true;
                     typhoeusHP = 0;
                 } else {
@@ -245,28 +218,22 @@ public class SlayerHUD {
                 }
             }
 
-            // Check for "Spawned by" to determine boss owner
             Matcher spawnedByMatcher = SPAWNED_BY_PATTERN.matcher(name);
             if (spawnedByMatcher.find()) {
                 bossOwner = spawnedByMatcher.group(1);
-                // Check if this is our boss
                 String playerName = mc.player.getName().getString();
                 isOwnBoss = playerName.equalsIgnoreCase(bossOwner);
             }
         }
 
-        // If "only own boss" is enabled and this isn't our boss, hide HUD
         if (TeslaMapsConfig.get().slayerOnlyOwnBoss && bossOwner != null && !isOwnBoss) {
             currentBossName = null; // Hide HUD for other players' bosses
         }
 
-        // Clear boss visuals if not found for 10 seconds (boss might be spawning demons)
-        // This does NOT reset quest timing - that only happens on quest complete/fail
         if (!foundBoss && System.currentTimeMillis() - lastUpdateTime > 10000) {
             clearBossVisuals();
         }
 
-        // Handle Quazii/Typhoeus persistence - keep showing if seen recently and not dead
         long now = System.currentTimeMillis();
         if (!foundQuazii && !quaziiDead && now - quaziiLastSeen > MINION_TIMEOUT) {
             quaziiHP = 0; // Hide after timeout
@@ -276,9 +243,6 @@ public class SlayerHUD {
         }
     }
 
-    /**
-     * Find the actual boss entity near an armor stand.
-     */
     private static void findBossEntity(Minecraft mc, ArmorStand armorStand) {
         AABB searchBox = armorStand.getBoundingBox().inflate(2, 3, 2);
         for (Entity entity : mc.level.getEntitiesOfClass(Entity.class, searchBox, e -> !(e instanceof ArmorStand))) {
@@ -289,9 +253,6 @@ public class SlayerHUD {
         }
     }
 
-    /**
-     * Find miniboss entities near armor stands.
-     */
     private static void findMinibossEntity(Minecraft mc, ArmorStand armorStand, String type) {
         AABB searchBox = armorStand.getBoundingBox().inflate(2, 3, 2);
         for (Entity entity : mc.level.getEntitiesOfClass(Entity.class, searchBox, e -> !(e instanceof ArmorStand))) {
@@ -302,12 +263,8 @@ public class SlayerHUD {
         }
     }
 
-    /**
-     * Render the slayer HUD.
-     */
     public static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         if (!TeslaMapsConfig.get().slayerHUD) return;
-        // Show HUD if boss is active OR if demons are active
         boolean demonsActiveCheck = (quaziiHP > 0 && !quaziiDead) || (typhoeusHP > 0 && !typhoeusDead);
         if (currentBossName == null && !demonsActiveCheck) return;
 
@@ -318,7 +275,6 @@ public class SlayerHUD {
         int y = TeslaMapsConfig.get().slayerHudY;
         float scale = TeslaMapsConfig.get().slayerHudScale;
 
-        // Apply scaling
         var matrices = context.pose();
         matrices.pushMatrix();
         matrices.translate(x, y);
@@ -332,11 +288,9 @@ public class SlayerHUD {
         int barWidth = bgWidth - padding * 2;
         int barX = x + padding;
 
-        // Check if demons are active - if so, hide boss HP and only show demons
         boolean demonsActive = (quaziiHP > 0 && !quaziiDead) || (typhoeusHP > 0 && !typhoeusDead);
         boolean showBossSection = currentBossName != null && !demonsActive;
 
-        // Calculate content height based on what's visible
         int contentHeight = 0;
         if (showBossSection) {
             contentHeight += 10 + barHeight; // Boss name + main bar
@@ -348,39 +302,31 @@ public class SlayerHUD {
         }
         int bgHeight = contentHeight + padding * 2;
 
-        // Draw rounded background
         drawRoundedRect(context, x, y, bgWidth, bgHeight, 4, 0xDD000000);
 
         int centerX = x + bgWidth / 2;
         int currentY = y + padding;
 
-        // Boss section (only if boss is active AND demons are not active)
         if (showBossSection) {
-            // Boss name (centered)
             int nameWidth = textRenderer.width(currentBossName);
             context.text(textRenderer, currentBossName, centerX - nameWidth / 2, currentY, 0xFFFF5555, true);
             currentY += 12;
 
-            // Health bar
             double hpPercent = Math.min(1.0, Math.max(0, currentHP / phaseMaxHP));
             int filledWidth = (int) (barWidth * hpPercent);
 
-            // Bar background with slight rounding
             drawRoundedRect(context, barX, currentY, barWidth, barHeight, 2, 0xFF333333);
 
-            // Bar fill
             int barColor = getPhaseColor(currentPhaseType);
             if (filledWidth > 2) {
                 drawRoundedRect(context, barX, currentY, filledWidth, barHeight, 2, barColor);
             }
 
-            // HP text on bar (centered)
             String hpText = formatHP(currentHP) + " / " + formatHP(phaseMaxHP);
             int hpTextWidth = textRenderer.width(hpText);
             context.text(textRenderer, hpText, centerX - hpTextWidth / 2, currentY + 2, 0xFFFFFFFF, true);
             currentY += barHeight + 2;
 
-            // Phase type with count (centered, only if phase exists)
             if (currentPhaseType != null) {
                 int phaseColor = getPhaseColor(currentPhaseType);
                 String phaseText = currentPhaseType + " x" + phaseCount;
@@ -390,7 +336,6 @@ public class SlayerHUD {
             }
         }
 
-        // Quazii and Typhoeus health bars (only when demons are active)
         if (demonsActive) {
             if (quaziiHP > 0) {
                 drawMinionBar(context, textRenderer, barX, currentY, barWidth, smallBarHeight,
@@ -407,69 +352,46 @@ public class SlayerHUD {
         matrices.popMatrix();
     }
 
-    /**
-     * Draw a small health bar for minions (Quazii/Typhoeus).
-     */
     private static void drawMinionBar(GuiGraphicsExtractor context, Font textRenderer,
             int x, int y, int width, int height, String name, double hp, double maxHp, int color) {
         double percent = Math.min(1.0, Math.max(0, hp / maxHp));
         int filledWidth = (int) (width * percent);
 
-        // Background
         drawRoundedRect(context, x, y, width, height, 2, 0xFF333333);
 
-        // Fill
         if (filledWidth > 2) {
             drawRoundedRect(context, x, y, filledWidth, height, 2, color);
         }
 
-        // Text: "Name: HP"
         String text = name + ": " + formatHP(hp);
         context.text(textRenderer, text, x + 2, y, 0xFFFFFFFF, true);
     }
 
-    /**
-     * Draw a rectangle with rounded corners.
-     */
     private static void drawRoundedRect(GuiGraphicsExtractor context, int x, int y, int width, int height, int radius, int color) {
-        // Main body
         context.fill(x + radius, y, x + width - radius, y + height, color);
-        // Left and right strips
         context.fill(x, y + radius, x + radius, y + height - radius, color);
         context.fill(x + width - radius, y + radius, x + width, y + height - radius, color);
-        // Corners (simplified as small squares for performance)
         context.fill(x + 1, y + 1, x + radius, y + radius, color);
         context.fill(x + width - radius, y + 1, x + width - 1, y + radius, color);
         context.fill(x + 1, y + height - radius, x + radius, y + height - 1, color);
         context.fill(x + width - radius, y + height - radius, x + width - 1, y + height - 1, color);
     }
 
-    /**
-     * Check if entity should have slayer ESP glow.
-     */
     public static boolean shouldGlow(Entity entity) {
-        // Boss glow
         if (bossEntity != null && entity == bossEntity && TeslaMapsConfig.get().slayerBossESP) {
             return true;
         }
-        // Miniboss glow
         if (minibossEntities.contains(entity) && TeslaMapsConfig.get().slayerMinibossESP) {
             return true;
         }
         return false;
     }
 
-    /**
-     * Get glow color for slayer entities.
-     */
     public static int getGlowColor(Entity entity) {
-        // Boss gets phase-based color
         if (bossEntity != null && entity == bossEntity) {
             return getPhaseColor(currentPhaseType) & 0x00FFFFFF;
         }
-        // Minibosses get type-based color
         if (minibossEntities.contains(entity)) {
-            // Check which type by looking at nearby armor stands
             Minecraft mc = Minecraft.getInstance();
             if (mc.level != null) {
                 AABB searchBox = entity.getBoundingBox().inflate(1, 3, 1);
@@ -487,9 +409,6 @@ public class SlayerHUD {
         return 0xFFFFFF;
     }
 
-    /**
-     * Check if an armor stand name indicates a slayer miniboss.
-     */
     public static boolean isSlayerMiniboss(String name) {
         return name.contains("Burningsoul Demon") || name.contains("Kindleheart Demon");
     }
@@ -519,10 +438,6 @@ public class SlayerHUD {
         }
     }
 
-    /**
-     * Get color for phase type.
-     * Spirit = white, Ashen = gray, Crystal = light blue, Auric = gold
-     */
     public static int getPhaseColor(String phase) {
         if (phase == null) return 0xFFFFFFFF;
         return switch (phase) {
@@ -553,13 +468,9 @@ public class SlayerHUD {
         return String.format("%.0f", hp);
     }
 
-    /**
-     * Called when "SLAYER QUEST COMPLETE" chat message is received.
-     */
     public static void onSlayerComplete() {
         if (!questActive || questStartTime == 0) return;
 
-        // Only count kills if it's our boss (or if "only own boss" is disabled)
         if (TeslaMapsConfig.get().slayerOnlyOwnBoss && bossOwner != null && !isOwnBoss) {
             resetQuest();
             return;
@@ -572,25 +483,15 @@ public class SlayerHUD {
         lastKillTime = killTime;
         totalKills++;
 
-        // Send chat message with times
         sendKillMessage(mc, fightDuration);
 
-        // Reset quest state
         resetQuest();
     }
 
-    /**
-     * Called when "SLAYER QUEST FAILED" chat message is received.
-     * Just resets without counting stats.
-     */
     public static void onSlayerFailed() {
         resetQuest();
     }
 
-    /**
-     * Clear visual boss state (when boss disappears temporarily).
-     * Does NOT reset questActive/questStartTime - those persist until quest complete/fail.
-     */
     private static void clearBossVisuals() {
         currentBossName = null;
         currentHP = 0;
@@ -601,28 +502,20 @@ public class SlayerHUD {
         currentPhaseType = null;
         phaseCount = 0;
         bossEntity = null;
-        // Don't reset questActive, questStartTime, bossOwner, isOwnBoss!
     }
 
-    /**
-     * Full reset when quest completes or fails.
-     */
     private static void resetQuest() {
         clearBossVisuals();
         questActive = false;
         questStartTime = 0;
         bossOwner = null;
         isOwnBoss = false;
-        // Reset minions - quest is over
         quaziiHP = 0;
         typhoeusHP = 0;
         quaziiDead = false;
         typhoeusDead = false;
     }
 
-    /**
-     * Send kill statistics to chat.
-     */
     private static void sendKillMessage(Minecraft mc, long fightDuration) {
         if (mc.player == null) return;
 
@@ -630,10 +523,8 @@ public class SlayerHUD {
         msg.append(ChatFormatting.GOLD).append("[TeslaMaps] ").append(ChatFormatting.GREEN).append("Boss killed! ");
         msg.append(ChatFormatting.GRAY).append("(#").append(totalKills).append(") ");
 
-        // Fight duration
         msg.append(ChatFormatting.WHITE).append("Time: ").append(ChatFormatting.YELLOW).append(formatTime(fightDuration));
 
-        // Spawn time (if available)
         if (spawnTimes.size() > 0) {
             long lastSpawnTime = spawnTimes.get(spawnTimes.size() - 1);
             msg.append(ChatFormatting.WHITE).append(" | Spawn: ").append(ChatFormatting.AQUA).append(formatTime(lastSpawnTime));
@@ -641,7 +532,6 @@ public class SlayerHUD {
 
         mc.player.sendSystemMessage(Component.literal(msg.toString()));
 
-        // Send averages if we have enough data
         if (killTimes.size() >= 2) {
             long avgKill = killTimes.stream().mapToLong(Long::longValue).sum() / killTimes.size();
             StringBuilder avgMsg = new StringBuilder();
@@ -657,9 +547,6 @@ public class SlayerHUD {
         }
     }
 
-    /**
-     * Format milliseconds as MM:SS.s or SS.ss
-     */
     private static String formatTime(long ms) {
         long seconds = ms / 1000;
         long millis = (ms % 1000) / 100; // tenths of a second
@@ -673,7 +560,6 @@ public class SlayerHUD {
         }
     }
 
-    // Dragging support
     public static boolean handleMouseClick(double mouseX, double mouseY, int button) {
         if (!TeslaMapsConfig.get().slayerHUD || currentBossName == null) return false;
 

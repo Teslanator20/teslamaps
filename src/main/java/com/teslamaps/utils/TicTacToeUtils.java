@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.utils;
 
 import java.util.Arrays;
@@ -7,10 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-/**
- * TicTacToe AI solver using alpha-beta pruning.
- * Tic Tac Toe AI using alpha-beta pruning.
- */
 public class TicTacToeUtils {
 
     public record BoardIndex(int row, int column) {}
@@ -20,7 +31,6 @@ public class TicTacToeUtils {
 
         for (int row = 0; row < board.length; row++) {
             for (int column = 0; column < board[row].length; column++) {
-                // Simulate the move as O if the square is empty to determine a solution
                 if (board[row][column] != '\0') continue;
                 board[row][column] = 'O';
                 int score = alphabeta(board, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, false);
@@ -42,7 +52,6 @@ public class TicTacToeUtils {
     }
 
     private static int getScore(char[][] board) {
-        // Check if X or O has won horizontally
         for (int row = 0; row < 3; row++) {
             if (board[row][0] == board[row][1] && board[row][0] == board[row][2]) {
                 switch (board[row][0]) {
@@ -52,7 +61,6 @@ public class TicTacToeUtils {
             }
         }
 
-        // Check if X or O has won vertically
         for (int column = 0; column < 3; column++) {
             if (board[0][column] == board[1][column] && board[0][column] == board[2][column]) {
                 switch (board[0][column]) {
@@ -62,8 +70,6 @@ public class TicTacToeUtils {
             }
         }
 
-        // Check if X or O has won diagonally
-        // Top left to bottom right
         if (board[0][0] == board[1][1] && board[0][0] == board[2][2]) {
             switch (board[0][0]) {
                 case 'X': return -10;
@@ -71,7 +77,6 @@ public class TicTacToeUtils {
             }
         }
 
-        // Top right to bottom left
         if (board[0][2] == board[1][1] && board[0][2] == board[2][0]) {
             switch (board[0][2]) {
                 case 'X': return -10;

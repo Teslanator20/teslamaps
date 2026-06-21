@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -15,9 +30,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-/**
- * Right-click a chat line (while the chat is open) to copy its full message text to the clipboard.
- */
 @Mixin(ChatScreen.class)
 public class ChatScreenMixin {
 
@@ -38,8 +50,6 @@ public class ChatScreenMixin {
         int lineHeight = acc.teslamaps$getLineHeight();
         if (scale <= 0 || lineHeight <= 0) return;
 
-        // Chat is anchored at the bottom-left; lines stack upward. Convert the cursor's
-        // scaled-GUI Y into a line index (index 0 = newest/bottom line).
         int guiHeight = mc.getWindow().getGuiScaledHeight();
         double aboveBottom = (guiHeight - 40) - event.y();
         if (aboveBottom < 0) return;
@@ -47,11 +57,16 @@ public class ChatScreenMixin {
         int index = lineFromBottom + acc.teslamaps$getChatScrollbarPos();
         if (index < 0 || index >= lines.size()) return;
 
-        String text = lines.get(index).parent().content().getString();
-        if (text.isEmpty()) return;
+        String raw = lines.get(index).parent().content().getString();
+        if (raw.isEmpty()) return;
+
+        long handle = mc.getWindow().handle();
+        boolean keepColors = GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
+                || GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
+        String text = keepColors ? raw : raw.replaceAll("(?i)§[0-9A-FK-OR]", "");
 
         mc.keyboardHandler.setClipboard(text);
-        mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §7Copied: §f" + text));
+        mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §7Copied" + (keepColors ? " §8(with colors)§7" : "") + ": §f" + text));
         cir.setReturnValue(true); // consume the right-click
     }
 }

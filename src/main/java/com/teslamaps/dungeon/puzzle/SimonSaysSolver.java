@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,15 +32,10 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Simon Says Solver for F7/M7 Phase 3.
- * Tracks the button sequence and shows which buttons to click.
- */
 public class SimonSaysSolver {
 
     private static final BlockPos START_BUTTON = new BlockPos(110, 121, 91);
 
-    // Grid of button positions (4x4)
     private static final Set<BlockPos> GRID = Set.of(
         new BlockPos(110, 123, 92), new BlockPos(110, 123, 93), new BlockPos(110, 123, 94), new BlockPos(110, 123, 95),
         new BlockPos(110, 122, 92), new BlockPos(110, 122, 93), new BlockPos(110, 122, 94), new BlockPos(110, 122, 95),
@@ -35,6 +45,9 @@ public class SimonSaysSolver {
 
     private static final List<BlockPos> clickSequence = new ArrayList<>();
     private static int clickIndex = 0;
+
+    public static int getClicked() { return clickIndex; }
+    public static int getSequenceSize() { return clickSequence.size(); }
     private static boolean firstPhase = true;
     private static int lastLanternTick = -1;
     private static int startClickCount = 0;
@@ -51,7 +64,6 @@ public class SimonSaysSolver {
             return;
         }
 
-        // Only active in F7/M7 phase 3 (Goldor)
         String floor = DungeonManager.getFloorName();
         if (floor == null || (!floor.contains("F7") && !floor.contains("M7"))) {
             reset();
@@ -61,7 +73,6 @@ public class SimonSaysSolver {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
-        // Check if player is near Simon Says device
         BlockPos playerPos = mc.player.blockPosition();
         if (playerPos.distToLowCornerSqr(110, 121, 91) > 400) {
             return;
@@ -71,11 +82,9 @@ public class SimonSaysSolver {
         if (now - lastTickTime < 50) return;
         lastTickTime = now;
 
-        // Track lantern changes to sea lantern -> obsidian (sequence display)
         if (lastLanternTick >= 0) {
             lastLanternTick++;
             if (lastLanternTick > 10) {
-                // Check if grid has enough buttons (pattern reset)
                 int buttonCount = 0;
                 for (BlockPos pos : GRID) {
                     if (mc.level.getBlockState(pos).getBlock() == Blocks.STONE_BUTTON) {
@@ -98,7 +107,6 @@ public class SimonSaysSolver {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
-        // Start button pressed - reset sequence
         if (pos.equals(START_BUTTON)) {
             if (newState.getBlock() == Blocks.STONE_BUTTON &&
                 newState.hasProperty(BlockStateProperties.POWERED) && newState.getValue(BlockStateProperties.POWERED)) {
@@ -111,24 +119,19 @@ public class SimonSaysSolver {
             return;
         }
 
-        // Check for lantern display (x=111, behind the buttons)
         if (pos.getX() == 111 && pos.getY() >= 120 && pos.getY() <= 123 && pos.getZ() >= 92 && pos.getZ() <= 95) {
             if (oldState.getBlock() == Blocks.SEA_LANTERN && newState.getBlock() == Blocks.OBSIDIAN) {
-                // Lantern turned off - add to sequence
                 if (!clickSequence.contains(pos)) {
                     clickSequence.add(pos.immutable());
                     lastLanternTick = 0;
                     TeslaMaps.LOGGER.info("[SimonSays] Added to sequence: {} (total: {})", pos, clickSequence.size());
 
-                    // First phase correction
                     if (firstPhase) {
                         if (clickSequence.size() == 2) {
-                            // Reverse first two
                             BlockPos first = clickSequence.get(0);
                             clickSequence.set(0, clickSequence.get(1));
                             clickSequence.set(1, first);
                         } else if (clickSequence.size() == 3) {
-                            // Remove second-to-last
                             clickSequence.remove(1);
                         }
                     }
@@ -136,11 +139,9 @@ public class SimonSaysSolver {
             }
         }
 
-        // Check for button press (x=110)
         if (pos.getX() == 110 && pos.getY() >= 120 && pos.getY() <= 123 && pos.getZ() >= 92 && pos.getZ() <= 95) {
             if (oldState.getBlock() == Blocks.STONE_BUTTON &&
                 newState.hasProperty(BlockStateProperties.POWERED) && newState.getValue(BlockStateProperties.POWERED)) {
-                // Button pressed - advance click index
                 BlockPos lanternPos = pos.east(); // x+1 is the lantern position
                 int index = clickSequence.indexOf(lanternPos);
                 if (index >= 0) {
@@ -153,7 +154,6 @@ public class SimonSaysSolver {
                     }
                 }
             } else if (newState.isAir()) {
-                // Button removed (puzzle reset)
                 clickSequence.clear();
                 clickIndex = 0;
             }
@@ -176,7 +176,6 @@ public class SimonSaysSolver {
 
         for (int i = clickIndex; i < clickSequence.size(); i++) {
             BlockPos lanternPos = clickSequence.get(i);
-            // Button is at x-1 from lantern
             BlockPos buttonPos = lanternPos.west();
 
             int color = switch (i - clickIndex) {
@@ -185,7 +184,6 @@ public class SimonSaysSolver {
                 default -> thirdColor;
             };
 
-            // Draw box around button
             AABB box = new AABB(
                 buttonPos.getX() + 0.05, buttonPos.getY() + 0.37, buttonPos.getZ() + 0.3,
                 buttonPos.getX() - 0.15, buttonPos.getY() + 0.63, buttonPos.getZ() + 0.7

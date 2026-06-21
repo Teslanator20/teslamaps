@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -7,10 +22,6 @@ import net.minecraft.core.BlockPos;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Party chat commands (ported from Odin): a party member types e.g. !8ball / !cf / !warp / !pt
- * and the client responds in party chat or runs the matching /party command.
- */
 public class ChatCommands {
 
     private static final String[] EIGHT_BALL = {
@@ -21,9 +32,18 @@ public class ChatCommands {
             "My sources say no", "Outlook not so good", "Very doubtful"
     };
 
+    private static final java.util.Map<String, String> downtimeReasons = new java.util.LinkedHashMap<>();
+
     public static void onChatMessage(String msg) {
         if (!TeslaMapsConfig.get().chatCommands) return;
         msg = msg.replaceAll("(?i)§[0-9A-FK-OR]", ""); // Hypixel sends chat with legacy § codes
+
+        if (msg.contains("> EXTRA STATS <") && !downtimeReasons.isEmpty()) {
+            for (var e : downtimeReasons.entrySet()) pc("Downtime: " + e.getKey() + " - " + e.getValue());
+            downtimeReasons.clear();
+            com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(false);
+        }
+
         if (!msg.startsWith("Party >")) return;
         int colon = msg.indexOf(": ");
         if (colon < 0) return;
@@ -59,17 +79,34 @@ public class ChatCommands {
             case "kick", "k" -> run("party kick " + (arg != null ? arg : sender));
             case "promote" -> run("party promote " + (arg != null ? arg : sender));
             case "demote" -> run("party demote " + (arg != null ? arg : sender));
-            case "help", "h" -> pc("Commands: 8ball cf dice coords ping fps time warp allinvite pt kick promote demote f1-f7 m1-m7");
+            case "dt", "downtime" -> {
+                if (downtimeReasons.containsKey(sender)) { pc(sender + " already has a downtime reminder!"); break; }
+                String reason = command.contains(" ") ? command.substring(command.indexOf(' ') + 1).trim() : "No reason given";
+                downtimeReasons.put(sender, reason);
+                com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(true);
+                pc("Reminder set for end of run (" + sender + ") - auto-requeue paused");
+            }
+            case "undt", "undowntime" -> {
+                if (downtimeReasons.remove(sender) == null) { pc(sender + " has no downtime reminder set!"); break; }
+                if (downtimeReasons.isEmpty()) com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(false);
+                pc("Downtime reminder removed (" + sender + ")");
+            }
+            case "help", "h" -> pc("Commands: 8ball cf dice coords ping fps time warp allinvite pt kick promote demote dt undt f1-f7 m1-m7");
             default -> {
-                // Floor queue: !f1-!f7 / !m1-!m7 -> joininstance (party leader queues the whole party)
                 String instance = floorInstance(c);
                 if (instance != null) run("joininstance " + instance);
             }
         }
     }
 
-    /** Maps a floor command like "f7" or "m4" to a joininstance argument, or null if it isn't one. */
-    private static String floorInstance(String c) {
+    public static boolean queueFloor(String code) {
+        String instance = floorInstance(code);
+        if (instance == null) return false;
+        run("joininstance " + instance);
+        return true;
+    }
+
+    public static String floorInstance(String c) {
         if (c.length() != 2) return null;
         char type = c.charAt(0);
         char num = c.charAt(1);

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonObject;
@@ -9,9 +24,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Crimson Isle page showing Kuudra, faction rep, and dojo stats.
- */
 public class CrimsonIslePage extends ProfileViewerPage {
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
@@ -46,7 +58,6 @@ public class CrimsonIslePage extends ProfileViewerPage {
 
         int lineY = y + padding;
 
-        // === Faction Reputation ===
         ctx.text(tr, "Faction Reputation", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
@@ -56,24 +67,20 @@ public class CrimsonIslePage extends ProfileViewerPage {
             return;
         }
 
-        // Selected faction
         String selectedFaction = nether.has("selected_faction") ?
                 nether.get("selected_faction").getAsString() : "None";
         int factionColor = selectedFaction.equals("mages") ? MAGE_COLOR : BARBARIAN_COLOR;
         ctx.text(tr, "Faction: " + capitalize(selectedFaction), contentX, lineY, factionColor);
         lineY += 14;
 
-        // Mages reputation
         int magesRep = nether.has("mages_reputation") ? nether.get("mages_reputation").getAsInt() : 0;
         ctx.text(tr, "Mages Rep: " + formatNumber(magesRep), contentX, lineY, MAGE_COLOR);
         lineY += 12;
 
-        // Barbarians reputation
         int barbRep = nether.has("barbarians_reputation") ? nether.get("barbarians_reputation").getAsInt() : 0;
         ctx.text(tr, "Barbarian Rep: " + formatNumber(barbRep), contentX, lineY, BARBARIAN_COLOR);
         lineY += 20;
 
-        // === Kuudra ===
         ctx.text(tr, "Kuudra Completions", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
@@ -91,7 +98,6 @@ public class CrimsonIslePage extends ProfileViewerPage {
             }
         }
 
-        // === Dojo (right column) ===
         lineY = y + padding;
         ctx.text(tr, "Dojo", col2X, lineY, TEXT_GREEN);
         lineY += 16;
@@ -115,10 +121,8 @@ public class CrimsonIslePage extends ProfileViewerPage {
             }
         }
 
-        // Dojo belt
         if (nether.has("dojo")) {
             JsonObject dojoData = nether.getAsJsonObject("dojo");
-            // Calculate total points and belt
             int totalPoints = 0;
             for (var entry : dojoData.entrySet()) {
                 if (entry.getKey().startsWith("dojo_points_") && entry.getValue().isJsonPrimitive()) {

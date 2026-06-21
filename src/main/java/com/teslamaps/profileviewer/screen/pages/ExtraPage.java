@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonObject;
@@ -9,9 +24,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Extra stats page showing kills, deaths, essence, and misc stats.
- */
 public class ExtraPage extends ProfileViewerPage {
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
@@ -44,14 +56,11 @@ public class ExtraPage extends ProfileViewerPage {
 
         int lineY = y + padding;
 
-        // === Left Column: Combat Stats ===
         ctx.text(tr, "Combat Stats", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
-        // Player stats
         JsonObject playerStats = getNestedObject(memberData, "player_stats");
         if (playerStats != null) {
-            // Kills
             JsonObject kills = playerStats.has("kills") ? playerStats.getAsJsonObject("kills") : null;
             int totalKills = 0;
             if (kills != null) {
@@ -64,7 +73,6 @@ public class ExtraPage extends ProfileViewerPage {
             ctx.text(tr, "Total Kills: " + formatNumber(totalKills), contentX, lineY, TEXT_WHITE);
             lineY += 12;
 
-            // Deaths
             JsonObject deaths = playerStats.has("deaths") ? playerStats.getAsJsonObject("deaths") : null;
             int totalDeaths = 0;
             if (deaths != null) {
@@ -77,13 +85,11 @@ public class ExtraPage extends ProfileViewerPage {
             ctx.text(tr, "Total Deaths: " + formatNumber(totalDeaths), contentX, lineY, TEXT_WHITE);
             lineY += 12;
 
-            // K/D Ratio
             double kd = totalDeaths > 0 ? (double) totalKills / totalDeaths : totalKills;
             ctx.text(tr, "K/D Ratio: " + String.format("%.2f", kd), contentX, lineY, TEXT_AQUA);
             lineY += 20;
         }
 
-        // === Essence ===
         ctx.text(tr, "Essence", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
@@ -106,12 +112,10 @@ public class ExtraPage extends ProfileViewerPage {
             }
         }
 
-        // === Right Column: Misc Stats ===
         lineY = y + padding;
         ctx.text(tr, "Miscellaneous", col2X, lineY, TEXT_GREEN);
         lineY += 16;
 
-        // First join
         if (memberData.has("profile")) {
             JsonObject profileInfo = memberData.getAsJsonObject("profile");
             if (profileInfo.has("first_join")) {
@@ -122,7 +126,6 @@ public class ExtraPage extends ProfileViewerPage {
             }
         }
 
-        // Fishing stats
         if (playerStats != null) {
             int itemsFished = 0;
             if (playerStats.has("items_fished")) {
@@ -136,7 +139,6 @@ public class ExtraPage extends ProfileViewerPage {
                 lineY += 12;
             }
 
-            // Auctions
             if (playerStats.has("auctions")) {
                 JsonObject auctions = playerStats.getAsJsonObject("auctions");
                 int sold = auctions.has("sold") ? auctions.get("sold").getAsInt() : 0;
@@ -148,7 +150,6 @@ public class ExtraPage extends ProfileViewerPage {
             }
         }
 
-        // Slayer stats summary
         lineY += 8;
         ctx.text(tr, "Slayer Bosses Killed", col2X, lineY, TEXT_GREEN);
         lineY += 16;

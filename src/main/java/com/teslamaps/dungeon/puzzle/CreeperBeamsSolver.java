@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.google.gson.Gson;
@@ -18,13 +33,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Creeper Beams Solver - Shows lantern pairs for the Creeper Beams puzzle.
- * Scans for sea lanterns and matches pairs by trying all rotations.
- */
 public class CreeperBeamsSolver {
 
-    // Colors for different pairs
     private static final int[] PAIR_COLORS = {
         0xFFFFAA00, // Gold
         0xFF55FF55, // Green
@@ -62,6 +72,10 @@ public class CreeperBeamsSolver {
         }
     }
 
+    public static boolean isActive() {
+        return DungeonManager.isInDungeon() && "Creeper Beams".equals(lastRoomName);
+    }
+
     public static void tick() {
         if (!TeslaMapsConfig.get().solveCreeperBeams) {
             reset();
@@ -76,7 +90,6 @@ public class CreeperBeamsSolver {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
-        // Check if we're in Creeper Beams room
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null || room.getName() == null || !room.getName().equals("Creeper Beams")) {
             if (!lastRoomName.equals("")) {
@@ -85,7 +98,6 @@ public class CreeperBeamsSolver {
             return;
         }
 
-        // Rescan periodically
         long now = System.currentTimeMillis();
         if (now - lastScanTime < 500) return;
         lastScanTime = now;
@@ -105,7 +117,6 @@ public class CreeperBeamsSolver {
         BlockPos corner = room.getCorner();
         if (corner == null) return;
 
-        // If we haven't detected rotation yet, try all 4 rotations
         if (detectedRotation == -1) {
             detectedRotation = detectRotation(corner);
             if (detectedRotation == -1) {
@@ -127,7 +138,6 @@ public class CreeperBeamsSolver {
             BlockPos world1 = transformPos(rel1, corner, detectedRotation);
             BlockPos world2 = transformPos(rel2, corner, detectedRotation);
 
-            // Only show if both are still sea lanterns
             boolean isLantern1 = mc.level.getBlockState(world1).getBlock() == Blocks.SEA_LANTERN;
             boolean isLantern2 = mc.level.getBlockState(world2).getBlock() == Blocks.SEA_LANTERN;
 
@@ -140,9 +150,6 @@ public class CreeperBeamsSolver {
         }
     }
 
-    /**
-     * Detect room rotation by checking which rotation gives the most sea lantern matches.
-     */
     private static int detectRotation(BlockPos corner) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return -1;
@@ -172,7 +179,6 @@ public class CreeperBeamsSolver {
             }
         }
 
-        // Only return if we found a reasonable number of matches
         return bestMatches >= 4 ? bestRotation : -1;
     }
 
@@ -196,14 +202,12 @@ public class CreeperBeamsSolver {
         if (currentPairs.isEmpty()) return;
 
         for (LanternPair pair : currentPairs) {
-            // Draw boxes around both lanterns
             AABB box1 = new AABB(pair.pos1);
             AABB box2 = new AABB(pair.pos2);
 
             ESPRenderer.drawESPBox(matrices, box1, pair.color, cameraPos);
             ESPRenderer.drawESPBox(matrices, box2, pair.color, cameraPos);
 
-            // Draw line connecting them if enabled
             if (TeslaMapsConfig.get().creeperBeamsTracers) {
                 Vec3 center1 = Vec3.atCenterOf(pair.pos1);
                 Vec3 center2 = Vec3.atCenterOf(pair.pos2);

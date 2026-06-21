@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,22 +23,12 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * ESP Renderer.
- * Key: push matrix, translate by -camera, use WORLD coordinates, endBatch.
- */
 public class ESPRenderer {
 
     private static int frameCounter = 0;
 
-    // When true, box draws use the depth-tested layers (hidden behind walls) instead of ESP.
-    // Render thread is single-threaded, so this is set right before a draw and reset after.
     private static boolean depthTested = false;
 
-    /**
-     * Draw a box outline that renders through walls.
-     * Uses WORLD coordinates - camera offset is handled by matrix translation.
-     */
     public static void drawBoxOutline(PoseStack matrices, AABB box, int color, float lineWidth, Vec3 cameraPos,
                                        MultiBufferSource.BufferSource bufferSource) {
         float r = ((color >> 16) & 0xFF) / 255f;
@@ -32,7 +37,6 @@ public class ESPRenderer {
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = 1.0f;
 
-        // World coordinates - NOT camera relative
         float minX = (float) box.minX;
         float minY = (float) box.minY;
         float minZ = (float) box.minZ;
@@ -46,7 +50,6 @@ public class ESPRenderer {
                 minX, minY, minZ, maxX, maxY, maxZ);
         }
 
-        // Push and translate by -camera 
         matrices.pushPose();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
@@ -54,30 +57,23 @@ public class ESPRenderer {
         var layer = depthTested ? TeslaRenderLayers.LINES_DEPTH : TeslaRenderLayers.LINES_ESP;
         VertexConsumer buffer = bufferSource.getBuffer(layer);
 
-        // Draw 12 edges
         renderLineBox(pose, buffer, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, a, lineWidth);
 
-        // End batch for this render layer
         bufferSource.endBatch(layer);
 
         matrices.popPose();
     }
 
-    /**
-     * Render a line box
-     */
     private static void renderLineBox(PoseStack.Pose pose, VertexConsumer buffer,
                                        float minX, float minY, float minZ,
                                        float maxX, float maxY, float maxZ,
                                        float r, float g, float b, float a, float lineWidth) {
-        // Edge indices
         int[] edges = {
             0, 1,  1, 5,  5, 4,  4, 0,
             3, 2,  2, 6,  6, 7,  7, 3,
             0, 3,  1, 2,  5, 6,  4, 7
         };
 
-        // Corner positions
         float[] corners = {
             minX, minY, minZ,  // 0
             maxX, minY, minZ,  // 1
@@ -109,10 +105,6 @@ public class ESPRenderer {
         }
     }
 
-    /**
-     * Draw a tracer from player eye to target.
-     * Uses WORLD coordinates.
-     */
     public static void drawTracer(PoseStack matrices, Vec3 from, Vec3 to, int color, Vec3 cameraPos,
                                    MultiBufferSource.BufferSource bufferSource) {
         float r = ((color >> 16) & 0xFF) / 255f;
@@ -121,19 +113,16 @@ public class ESPRenderer {
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = 1.0f;
 
-        // Push and translate by -camera
         matrices.pushPose();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
         PoseStack.Pose pose = matrices.last();
         VertexConsumer buffer = bufferSource.getBuffer(TeslaRenderLayers.LINES_ESP);
 
-        // Direction vector
         float dx = (float)(to.x - from.x);
         float dy = (float)(to.y - from.y);
         float dz = (float)(to.z - from.z);
 
-        // Render line from player to target in WORLD coordinates
         buffer.addVertex(pose, (float)from.x, (float)from.y, (float)from.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(2.0f);
         buffer.addVertex(pose, (float)to.x, (float)to.y, (float)to.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(2.0f);
 
@@ -142,21 +131,15 @@ public class ESPRenderer {
         matrices.popPose();
     }
 
-    /**
-     * Draw a tracer from camera position to target.
-     * Uses the actual camera position for perfect center alignment.
-     */
     public static void drawTracerFromCamera(PoseStack matrices, Vec3 target, int color, Vec3 cameraPos,
                                              MultiBufferSource.BufferSource bufferSource) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.gameRenderer == null || mc.gameRenderer.getMainCamera() == null) return;
 
-        // Get camera look direction from yaw/pitch
         var camera = mc.gameRenderer.getMainCamera();
         float yaw = camera.yRot();
         float pitch = camera.xRot();
 
-        // Convert to direction vector
         double yawRad = Math.toRadians(-yaw);
         double pitchRad = Math.toRadians(-pitch);
         double cosP = Math.cos(pitchRad);
@@ -166,13 +149,11 @@ public class ESPRenderer {
             Math.cos(yawRad) * cosP
         );
 
-        // Start 0.5 blocks in front of camera to avoid z-fighting
         Vec3 tracerStart = cameraPos.add(lookDir.scale(0.5));
 
         drawTracer(matrices, tracerStart, target, color, cameraPos, bufferSource);
     }
 
-    // Legacy methods that need BufferSource - for compatibility
     public static void drawBoxOutline(PoseStack matrices, AABB box, int color, float lineWidth, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;
@@ -180,14 +161,12 @@ public class ESPRenderer {
         drawBoxOutline(matrices, box, color, lineWidth, cameraPos, bufferSource);
     }
 
-    /** Box outline with optional depth test: throughWalls=false hides it behind walls. */
     public static void drawBoxOutline(PoseStack matrices, AABB box, int color, float lineWidth, Vec3 cameraPos, boolean throughWalls) {
         depthTested = !throughWalls;
         try { drawBoxOutline(matrices, box, color, lineWidth, cameraPos); }
         finally { depthTested = false; }
     }
 
-    /** Filled box with optional depth test: throughWalls=false hides it behind walls. */
     public static void drawFilledBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos, boolean throughWalls) {
         depthTested = !throughWalls;
         try { drawFilledBox(matrices, box, color, cameraPos); }
@@ -208,10 +187,6 @@ public class ESPRenderer {
         drawTracer(matrices, start, end, color, cameraPos, bufferSource);
     }
 
-    /**
-     * Draw a filled box that renders through walls.
-     * Uses WORLD coordinates - camera offset is handled by matrix translation.
-     */
     public static void drawFilledBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos,
                                        MultiBufferSource.BufferSource bufferSource) {
         float r = ((color >> 16) & 0xFF) / 255f;
@@ -220,7 +195,6 @@ public class ESPRenderer {
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = com.teslamaps.config.TeslaMapsConfig.get().espAlpha; // Use config transparency
 
-        // World coordinates
         float minX = (float) box.minX;
         float minY = (float) box.minY;
         float minZ = (float) box.minZ;
@@ -235,61 +209,47 @@ public class ESPRenderer {
         var layer = depthTested ? TeslaRenderLayers.FILLED_DEPTH : TeslaRenderLayers.FILLED_ESP;
         VertexConsumer buffer = bufferSource.getBuffer(layer);
 
-        // Draw 6 faces as quads
         renderFilledBox(pose, buffer, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, a);
 
         bufferSource.endBatch(layer);
         matrices.popPose();
     }
 
-    /**
-     * Render a filled box (6 quads).
-     */
     private static void renderFilledBox(PoseStack.Pose pose, VertexConsumer buffer,
                                          float minX, float minY, float minZ,
                                          float maxX, float maxY, float maxZ,
                                          float r, float g, float b, float a) {
-        // Bottom face (Y-)
         buffer.addVertex(pose, minX, minY, minZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, minY, minZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, minY, maxZ).setColor(r, g, b, a);
         buffer.addVertex(pose, minX, minY, maxZ).setColor(r, g, b, a);
 
-        // Top face (Y+)
         buffer.addVertex(pose, minX, maxY, minZ).setColor(r, g, b, a);
         buffer.addVertex(pose, minX, maxY, maxZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, maxY, maxZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, maxY, minZ).setColor(r, g, b, a);
 
-        // North face (Z-)
         buffer.addVertex(pose, minX, minY, minZ).setColor(r, g, b, a);
         buffer.addVertex(pose, minX, maxY, minZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, maxY, minZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, minY, minZ).setColor(r, g, b, a);
 
-        // South face (Z+)
         buffer.addVertex(pose, minX, minY, maxZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, minY, maxZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, maxY, maxZ).setColor(r, g, b, a);
         buffer.addVertex(pose, minX, maxY, maxZ).setColor(r, g, b, a);
 
-        // West face (X-)
         buffer.addVertex(pose, minX, minY, minZ).setColor(r, g, b, a);
         buffer.addVertex(pose, minX, minY, maxZ).setColor(r, g, b, a);
         buffer.addVertex(pose, minX, maxY, maxZ).setColor(r, g, b, a);
         buffer.addVertex(pose, minX, maxY, minZ).setColor(r, g, b, a);
 
-        // East face (X+)
         buffer.addVertex(pose, maxX, minY, minZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, maxY, minZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, maxY, maxZ).setColor(r, g, b, a);
         buffer.addVertex(pose, maxX, minY, maxZ).setColor(r, g, b, a);
     }
 
-    /**
-     * Draw ESP box (filled or outline based on config).
-     * Automatically chooses between filled and outline mode.
-     */
     public static void drawESPBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos,
                                     MultiBufferSource.BufferSource bufferSource) {
         if (com.teslamaps.config.TeslaMapsConfig.get().filledESP) {
@@ -299,7 +259,6 @@ public class ESPRenderer {
         }
     }
 
-    // Legacy wrapper
     public static void drawFilledBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;
@@ -307,9 +266,6 @@ public class ESPRenderer {
         drawFilledBox(matrices, box, color, cameraPos, bufferSource);
     }
 
-    /**
-     * Draw ESP box with automatic config check (legacy wrapper).
-     */
     public static void drawESPBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;
@@ -317,9 +273,6 @@ public class ESPRenderer {
         drawESPBox(matrices, box, color, cameraPos, bufferSource);
     }
 
-    /**
-     * Draw text in the world at a specific position.
-     */
     public static void drawText(PoseStack matrices, String text, Vec3 pos, float scale, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.font == null || mc.gameRenderer == null || mc.gameRenderer.getMainCamera() == null) return;
@@ -328,45 +281,31 @@ public class ESPRenderer {
 
         matrices.pushPose();
 
-        // Translate to world position relative to camera
-        matrices.translate(
-            pos.x - cameraPos.x,
-            pos.y - cameraPos.y,
-            pos.z - cameraPos.z
-        );
-
-        // Rotate to face camera (billboard)
-        matrices.mulPose(mc.gameRenderer.getMainCamera().rotation());
-
-        // Scale (negative to flip text right-side up when facing camera)
+        var pose = matrices.last().pose();
         float scaleFactor = scale * 0.025f;
-        matrices.scale(-scaleFactor, -scaleFactor, scaleFactor);
+        pose.translate((float) (pos.x - cameraPos.x), (float) (pos.y - cameraPos.y), (float) (pos.z - cameraPos.z));
+        pose.rotate(mc.gameRenderer.getMainCamera().rotation());
+        pose.scale(scaleFactor, -scaleFactor, scaleFactor);
 
         float textWidth = mc.font.width(text);
 
-        // Draw text using the standard draw method with SEE_THROUGH layer
         mc.font.drawInBatch(
             text,
             -textWidth / 2f,
             0f,
-            0xFFFFFFFF, // white color
-            true, // shadow
-            matrices.last().pose(),
+            0xFFFFFFFF, // base color (white) — § codes in the string override
+            true,       // shadow
+            pose,
             immediate,
             net.minecraft.client.gui.Font.DisplayMode.SEE_THROUGH,
-            0, // no background
-            15728880 // full brightness
+            0,          // no background
+            15728880    // full brightness
         );
 
-        // Flush to render the text
-        immediate.endBatch();
-
+        immediate.endBatch(); // flush so the glyphs actually render this frame
         matrices.popPose();
     }
 
-    /**
-     * Draw a beacon beam at a specific position.
-     */
     public static void drawBeaconBeam(PoseStack matrices, net.minecraft.core.BlockPos pos, int color, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
@@ -377,7 +316,6 @@ public class ESPRenderer {
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = 0.5f;
 
-        // Draw a simple vertical line as beacon beam
         Vec3 bottom = new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         Vec3 top = new Vec3(pos.getX() + 0.5, pos.getY() + 256, pos.getZ() + 0.5);
 

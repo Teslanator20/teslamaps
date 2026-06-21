@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon;
 
 import com.teslamaps.TeslaMaps;
@@ -23,7 +38,6 @@ public class DungeonManager {
     private static long dungeonStartTime = 0;
     private static int tickCounter = 0;
 
-    // Track world instance to detect dungeon-to-dungeon transitions
     private static ClientLevel lastWorld = null;
 
     private static final Pattern FLOOR_PATTERN = Pattern.compile("([FM])(\\d+)");
@@ -32,14 +46,12 @@ public class DungeonManager {
     public static void tick() {
         tickCounter++;
 
-        // Check state every 20 ticks (1 second)
         if (tickCounter % 20 == 0) {
             updateDungeonState();
         }
     }
 
     private static void updateDungeonState() {
-        // Detect world instance change while in dungeon (handles dungeon-to-dungeon transitions)
         Minecraft mc = Minecraft.getInstance();
         if (mc.level != lastWorld) {
             if (lastWorld != null && isInDungeon()) {
@@ -53,14 +65,12 @@ public class DungeonManager {
         DungeonFloor previousFloor = currentFloor;
         DungeonState newState = detectCurrentState();
 
-        // Detect floor change while already in dungeon (e.g., F2 -> F3 without world change)
         if (isInDungeon() && previousFloor != DungeonFloor.UNKNOWN
                 && currentFloor != previousFloor && currentFloor != DungeonFloor.UNKNOWN) {
             TeslaMaps.LOGGER.info("Floor changed while in dungeon ({} -> {}), forcing map reset",
                     previousFloor, currentFloor);
             onDungeonExit();
             currentState = DungeonState.NOT_IN_DUNGEON;
-            // Re-detect since we just reset
             newState = detectCurrentState();
         }
 
@@ -78,7 +88,6 @@ public class DungeonManager {
 
         List<String> scoreboard = ScoreboardUtils.getScoreboardLines();
 
-        // Strictly check for "Catacombs" in scoreboard lines
         boolean hasCatacombs = false;
         boolean hasCleared = false;
         boolean hasStarting = false;
@@ -88,40 +97,32 @@ public class DungeonManager {
             String clean = ScoreboardUtils.cleanLine(line);
             String cleanLower = clean.toLowerCase();
 
-            // Check for "Catacombs" - the definitive dungeon indicator
-            // Can appear as "The Catacombs (F2)" or just "Catacombs"
             if (cleanLower.contains("catacombs")) {
                 hasCatacombs = true;
 
-                // Try to detect floor from this line
                 Matcher floorMatcher = CATACOMBS_PATTERN.matcher(clean);
                 if (floorMatcher.find()) {
                     currentFloor = DungeonFloor.fromString(floorMatcher.group(1));
                 }
             }
 
-            // Check for "Cleared:" which indicates active dungeon
             if (cleanLower.contains("cleared:")) {
                 hasCleared = true;
             }
 
-            // Check for "Starting in" which indicates lobby/starting
             if (cleanLower.contains("starting in")) {
                 hasStarting = true;
             }
 
-            // Check for boss fight indicators
             if (clean.contains("Boss") && clean.contains("\u2764")) { // Heart emoji
                 hasBoss = true;
             }
         }
 
-        // Only consider in dungeon if "The Catacombs" is on the scoreboard
         if (!hasCatacombs) {
             return DungeonState.NOT_IN_DUNGEON;
         }
 
-        // Determine specific state
         if (hasBoss) {
             return DungeonState.BOSS_FIGHT;
         }
@@ -132,19 +133,16 @@ public class DungeonManager {
             return DungeonState.STARTING;
         }
 
-        // Has "The Catacombs" but no specific state - assume in dungeon
         return DungeonState.IN_DUNGEON;
     }
 
     private static void onStateChange(DungeonState oldState, DungeonState newState) {
         TeslaMaps.LOGGER.info("Dungeon state changed: {} -> {}", oldState, newState);
 
-        // Entered dungeon (either STARTING or IN_DUNGEON from NOT_IN_DUNGEON)
         if (oldState == DungeonState.NOT_IN_DUNGEON &&
             (newState == DungeonState.IN_DUNGEON || newState == DungeonState.STARTING)) {
             onDungeonEnter();
         } else if (newState == DungeonState.NOT_IN_DUNGEON) {
-            // Left dungeon
             onDungeonExit();
         }
     }
@@ -155,10 +153,8 @@ public class DungeonManager {
 
         TeslaMaps.LOGGER.info("Entered dungeon: {}", currentFloor);
 
-        // Reset score tracker
         DungeonScore.onDungeonStart();
 
-        // Trigger initial scan of entire dungeon area
         RoomScanner.triggerFullScan();
     }
 
@@ -178,7 +174,6 @@ public class DungeonManager {
         TeslaMaps.LOGGER.info("Exited dungeon");
     }
 
-    // Public getters
     public static boolean isInDungeon() {
         return currentState == DungeonState.IN_DUNGEON ||
                 currentState == DungeonState.BOSS_FIGHT ||
@@ -217,7 +212,6 @@ public class DungeonManager {
         return dungeonStartTime;
     }
 
-    // Room management
     public static void addRoom(DungeonRoom room) {
         for (int[] component : room.getComponents()) {
             grid.setRoom(component[0], component[1], room);
@@ -228,9 +222,6 @@ public class DungeonManager {
         return grid.getRoom(gridX, gridZ);
     }
 
-    /**
-     * Get total crypts in the dungeon based on identified rooms.
-     */
     public static int getTotalCrypts() {
         int total = 0;
         java.util.Set<DungeonRoom> counted = new java.util.HashSet<>();

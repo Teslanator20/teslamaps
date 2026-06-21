@@ -1,0 +1,110 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
+package com.teslamaps.features;
+
+import com.mojang.authlib.properties.Property;
+import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.dungeon.DungeonManager;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
+
+import java.util.Collection;
+
+public class SoulweaverHider {
+
+    private static final String SOUL_WEAVER =
+            "eyJ0aW1lc3RhbXAiOjE1NTk1ODAzNjI1NTMsInByb2ZpbGVJZCI6ImU3NmYwZDlhZjc4MjQyYzM5NDY2ZDY3MjE3MzBmNDUzIiwicHJvZmlsZU5hbWUiOiJLbGxscmFoIiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yZjI0ZWQ2ODc1MzA0ZmE0YTFmMGM3ODViMmNiNmE2YTcyNTYzZTlmM2UyNGVhNTVlMTgxNzg0NTIxMTlhYTY2In19fQ==";
+    private static final String BLESSING =
+            "ewogICJ0aW1lc3RhbXAiIDogMTYzNTE0NTU0NzUxMiwKICAicHJvZmlsZUlkIiA6ICJmYzUwMjkzYTVkMGI0NzViYWYwNDJhNzIwMWJhMzBkMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJDVUNGTDE3IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2FiNDM2ZWRiN2I4MDVlMTMzZjdkMzQ4OWQ0NmNlMDYzNmY3ZTFjYjM3YjY3Njg5ZmFhMTJlNjk4ZGJiZDdjNjYiCiAgICB9CiAgfQp9";
+    private static final String REVIVE_STONE =
+            "ewogICJ0aW1lc3RhbXAiIDogMTcxOTg1MDM4MjMzNCwKICAicHJvZmlsZUlkIiA6ICIxZDlkYmE3NzdlMWE0NzVkOTQ1ZDYxNmZlYzNiNjhlMCIsCiAgInByb2ZpbGVOYW1lIiA6ICJGcmFzeWRpIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2I2YTc2Y2MyMmU3YzJhYjljNTQwZDEyNDRlYWRiYTU4MWY1ZGQ5ZTE4ZjlhZGFjZjA1MjgwYTViNDhiOGY2MTgiLAogICAgICAibWV0YWRhdGEiIDogewogICAgICAgICJtb2RlbCIgOiAic2xpbSIKICAgICAgfQogICAgfQogIH0KfQ==";
+    private static final String PREMIUM_FLESH =
+            "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWE3NWU4YjA0NGM3MjAxYTRiMmU4NTZiZTRmYzMxNmE1YWFlYzY2NTc2MTY5YmFiNTg3MmE4ODUzNGI4MDI1NiJ9fX0K";
+    private static final String ABILITY_ORB =
+            "ewogICJ0aW1lc3RhbXAiIDogMTYzODUyNDAzODE5OCwKICAicHJvZmlsZUlkIiA6ICIzOWEzOTMzZWE4MjU0OGU3ODQwNzQ1YzBjNGY3MjU2ZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJkZW1pbmVjcmFmdGVybG9sIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzVlZTRiYjQ4MjFkMGY1ZWQ4NjVjMjEwOTBhODBiNWVlN2Q1MjI2ODQ3NmVlMjVkMzg5NzEwZjdjYzlmMTEwZDYiCiAgICB9CiAgfQp9";
+    private static final String SUPPORT_ORB =
+            "ewogICJ0aW1lc3RhbXAiIDogMTYwNTM1NjUyNzQzOSwKICAicHJvZmlsZUlkIiA6ICJhYTZhNDA5NjU4YTk0MDIwYmU3OGQwN2JkMzVlNTg5MyIsCiAgInByb2ZpbGVOYW1lIiA6ICJiejE0IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzE1NzhiNGFmM2ZkZDkxNTFiODUwYjEzYzY3YzQ1ODAyMjRjN2Y2MDA1MjcxM2YyZDE1MWY3YzE1ZGMwZDdiMzQiCiAgICB9CiAgfQp9";
+    private static final String DAMAGE_ORB =
+            "ewogICJ0aW1lc3RhbXAiIDogMTYwNDY4NDIxNTAyMCwKICAicHJvZmlsZUlkIiA6ICI3NzI3ZDM1NjY5Zjk0MTUxODAyM2Q2MmM2ODE3NTkxOCIsCiAgInByb2ZpbGVOYW1lIiA6ICJsaWJyYXJ5ZnJlYWsiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWI4NmRhMmUyNDNjMDVkYzA4OThiMGNjNWQzZTY0ODc3MTczMTc3ZTBhMjM5NDQyNWNlYzEwMDI1OWNiNDUyNiIKICAgIH0KICB9Cn0=";
+    private static final String HEALER_FAIRY =
+            "ewogICJ0aW1lc3RhbXAiIDogMTcxOTQ2MzA5MTA0NywKICAicHJvZmlsZUlkIiA6ICIyNjRkYzBlYjVlZGI0ZmI3OTgxNWIyZGY1NGY0OTgyNCIsCiAgInByb2ZpbGVOYW1lIiA6ICJxdWludHVwbGV0IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzJlZWRjZmZjNmExMWEzODM0YTI4ODQ5Y2MzMTZhZjdhMjc1MmEzNzZkNTM2Y2Y4NDAzOWNmNzkxMDhiMTY3YWUiCiAgICB9CiAgfQp9";
+
+    public static boolean shouldHide(Entity entity) {
+        if (!DungeonManager.isInDungeon()) return false;
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+
+        if (entity instanceof ItemEntity item) {
+            ItemStack stack = item.getItem();
+            if (cfg.hideThrownBones && stack.getItem() == Items.BONE) return true;
+            String name = cleanName(stack.getHoverName().getString());
+            if (cfg.hideReviveStone && name.equals("Revive Stone")) return true;
+            if (cfg.hideJournalEntry && name.equals("Journal Entry")) return true;
+            return false;
+        }
+
+        if (!(entity instanceof ArmorStand stand)) return false;
+
+        String standName = cleanName(stand.getName().getString());
+        if (cfg.hideSuperboomTnt && standName.startsWith("Superboom TNT")) return true;
+        if (cfg.hideBlessing && standName.startsWith("Blessing of ")) return true;
+        if (cfg.hideReviveStone && standName.equals("Revive Stone")) return true;
+        if (cfg.hidePremiumFlesh && standName.equals("Premium Flesh")) return true;
+        if (cfg.hideHealerOrbs && (standName.startsWith("DAMAGE ")
+                || standName.startsWith("ABILITY DAMAGE ") || standName.startsWith("DEFENSE "))) return true;
+
+        ItemStack head = stand.getItemBySlot(EquipmentSlot.HEAD);
+        if (head.isEmpty()) return false;
+
+        if (cfg.hideSkeletonSkull && isSkeletonSkull(head)) return true;
+
+        if (head.getItem() != Items.PLAYER_HEAD) return false;
+        String tex = skullTexture(head);
+        if (tex == null) return false;
+
+        if (cfg.hideSoulweaverSkull && SOUL_WEAVER.equals(tex)) return true;
+        if (cfg.hideBlessing && BLESSING.equals(tex)) return true;
+        if (cfg.hideReviveStone && REVIVE_STONE.equals(tex)) return true;
+        if (cfg.hidePremiumFlesh && PREMIUM_FLESH.equals(tex)) return true;
+        if (cfg.hideHealerFairy && HEALER_FAIRY.equals(tex)) return true;
+        if (cfg.hideHealerOrbs && (ABILITY_ORB.equals(tex) || SUPPORT_ORB.equals(tex) || DAMAGE_ORB.equals(tex)))
+            return true;
+
+        return false;
+    }
+
+    private static boolean isSkeletonSkull(ItemStack head) {
+        if (head.getItem() == Items.SKELETON_SKULL || head.getItem() == Items.WITHER_SKELETON_SKULL) return true;
+        return cleanName(head.getHoverName().getString()).equals("Skeleton Skull");
+    }
+
+    private static String cleanName(String s) {
+        return s == null ? "" : s.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+    }
+
+    private static String skullTexture(ItemStack stack) {
+        ResolvableProfile rp = stack.get(DataComponents.PROFILE);
+        if (rp == null) return null;
+        Collection<Property> props = rp.partialProfile().properties().get("textures");
+        if (props.isEmpty()) return null;
+        return props.iterator().next().value();
+    }
+}

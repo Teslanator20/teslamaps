@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.api;
 
 import com.google.gson.JsonElement;
@@ -17,10 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * HTTP client for official Hypixel API.
- * Requires API key from config.
- */
 public class HypixelApi {
     private static final String HYPIXEL_API = "https://api.hypixel.net";
     private static final String MOJANG_API = "https://api.mojang.com";
@@ -31,7 +42,6 @@ public class HypixelApi {
 
     private static final ExecutorService executor = Executors.newFixedThreadPool(3);
 
-    // Simple in-memory cache
     private static final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
 
     private static class CacheEntry {
@@ -48,9 +58,6 @@ public class HypixelApi {
         }
     }
 
-    /**
-     * Convert player name to UUID via Mojang API.
-     */
     public static CompletableFuture<String> nameToUuid(String playerName) {
         return CompletableFuture.supplyAsync(() -> {
             String cacheKey = "uuid:" + playerName.toLowerCase();
@@ -75,7 +82,6 @@ public class HypixelApi {
 
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
 
-                // Cache UUID lookups for 1 hour
                 cache.put(cacheKey, new CacheEntry(json, 3600000));
 
                 return json.get("id").getAsString();
@@ -86,11 +92,6 @@ public class HypixelApi {
         }, executor);
     }
 
-    /**
-     * Get all Skyblock profiles for a player via Hypixel API.
-     * Returns transformed profile data compatible with the viewer.
-     * @param uuid Player UUID (not name)
-     */
     public static CompletableFuture<JsonObject> getProfiles(String uuid) {
         return CompletableFuture.supplyAsync(() -> {
             String cacheKey = "profiles:" + uuid;
@@ -132,7 +133,6 @@ public class HypixelApi {
 
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
 
-                // Check for API error
                 if (!json.has("success") || !json.get("success").getAsBoolean()) {
                     String cause = json.has("cause") ? json.get("cause").getAsString() : "Unknown error";
                     return createErrorResponse(cause);
@@ -142,10 +142,8 @@ public class HypixelApi {
                     return createErrorResponse("Player has no Skyblock profiles");
                 }
 
-                // Transform Hypixel format to our expected format
                 JsonObject transformed = transformHypixelProfiles(json, uuid);
 
-                // Cache the response
                 int cacheTtl = TeslaMapsConfig.get().pvCacheDurationSeconds * 1000;
                 cache.put(cacheKey, new CacheEntry(transformed, cacheTtl));
 
@@ -157,9 +155,6 @@ public class HypixelApi {
         }, executor);
     }
 
-    /**
-     * Transform Hypixel API response to our expected format.
-     */
     private static JsonObject transformHypixelProfiles(JsonObject hypixelResponse, String uuid) {
         JsonObject result = new JsonObject();
         JsonObject profiles = new JsonObject();
@@ -174,11 +169,9 @@ public class HypixelApi {
             String profileId = profile.get("profile_id").getAsString();
             String cuteName = profile.has("cute_name") ? profile.get("cute_name").getAsString() : "Unknown";
 
-            // Get member data for this player
             JsonObject members = profile.getAsJsonObject("members");
             JsonObject memberData = members.has(uuid) ? members.getAsJsonObject(uuid) : new JsonObject();
 
-            // Build profile object
             JsonObject profileObj = new JsonObject();
             profileObj.addProperty("profile_id", profileId);
             profileObj.addProperty("cute_name", cuteName);
@@ -193,9 +186,6 @@ public class HypixelApi {
         return result;
     }
 
-    /**
-     * Get museum data for a profile.
-     */
     public static CompletableFuture<JsonObject> getMuseum(String profileId) {
         return CompletableFuture.supplyAsync(() -> {
             String cacheKey = "museum:" + profileId;
@@ -228,7 +218,6 @@ public class HypixelApi {
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
 
                 if (json.has("success") && json.get("success").getAsBoolean()) {
-                    // Cache for 5 minutes
                     cache.put(cacheKey, new CacheEntry(json, 300000));
                     return json;
                 }
@@ -241,9 +230,6 @@ public class HypixelApi {
         }, executor);
     }
 
-    /**
-     * Get garden data for a profile.
-     */
     public static CompletableFuture<JsonObject> getGarden(String profileId) {
         return CompletableFuture.supplyAsync(() -> {
             String cacheKey = "garden:" + profileId;
@@ -276,7 +262,6 @@ public class HypixelApi {
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
 
                 if (json.has("success") && json.get("success").getAsBoolean()) {
-                    // Cache for 5 minutes
                     cache.put(cacheKey, new CacheEntry(json, 300000));
                     return json;
                 }
@@ -289,9 +274,6 @@ public class HypixelApi {
         }, executor);
     }
 
-    /**
-     * Get bingo data for a player.
-     */
     public static CompletableFuture<JsonObject> getBingo(String uuid) {
         return CompletableFuture.supplyAsync(() -> {
             String cacheKey = "bingo:" + uuid;
@@ -324,7 +306,6 @@ public class HypixelApi {
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
 
                 if (json.has("success") && json.get("success").getAsBoolean()) {
-                    // Cache for 5 minutes
                     cache.put(cacheKey, new CacheEntry(json, 300000));
                     return json;
                 }
@@ -344,16 +325,10 @@ public class HypixelApi {
         return error;
     }
 
-    /**
-     * Clear the cache.
-     */
     public static void clearCache() {
         cache.clear();
     }
 
-    /**
-     * Clear cache for a specific player.
-     */
     public static void clearCacheForPlayer(String playerName) {
         cache.entrySet().removeIf(e -> e.getKey().toLowerCase().contains(playerName.toLowerCase()));
     }

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.utils;
 
 import com.teslamaps.TeslaMaps;
@@ -28,13 +43,10 @@ public class ScoreboardUtils {
 
         if (objective == null) return lines;
 
-        // Get all known score holders and filter to those with scores for sidebar objective
         for (ScoreHolder scoreHolder : scoreboard.getTrackedPlayers()) {
-            // Check if this score holder has scores for the sidebar objective
             var scoresMap = scoreboard.listPlayerScores(scoreHolder);
             if (!scoresMap.containsKey(objective)) continue;
 
-            // Get team prefix/suffix for display text
             PlayerTeam team = scoreboard.getPlayersTeam(scoreHolder.getScoreboardName());
             if (team != null) {
                 String prefix = team.getPlayerPrefix().getString();
@@ -46,7 +58,6 @@ public class ScoreboardUtils {
             }
         }
 
-        // Add objective title and reverse to get correct order
         lines.add(objective.getDisplayName().getString());
         java.util.Collections.reverse(lines);
 
@@ -54,7 +65,6 @@ public class ScoreboardUtils {
     }
 
     public static String cleanLine(String line) {
-        // Remove color codes and special characters
         return COLOR_CODE_PATTERN.matcher(line).replaceAll("").trim();
     }
 
@@ -70,10 +80,6 @@ public class ScoreboardUtils {
         return objective.getDisplayName().getString();
     }
 
-    /**
-     * Get dungeon clear percentage from scoreboard.
-     * @return clear percentage (0.0 - 1.0), or 0 if not found
-     */
     public static double getClearPercentage() {
         for (String line : getScoreboardLines()) {
             String clean = cleanLine(line);

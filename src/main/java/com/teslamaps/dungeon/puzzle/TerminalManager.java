@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -8,10 +23,6 @@ import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * Central manager for terminal solving.
- * Coordinates event-driven updates and delegates to individual terminal solvers.
- */
 public class TerminalManager {
 
     public enum TerminalType {
@@ -28,10 +39,6 @@ public class TerminalManager {
     private static int currentSyncId = -1;
     private static long lastSlotUpdateTime = 0;
 
-    /**
-     * Called by mixin when a slot update packet is received.
-     * This is the event-driven entry point - no polling needed!
-     */
     public static void onSlotUpdate(int syncId, int slotIndex, ItemStack stack) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen == null || !(mc.screen instanceof ContainerScreen)) {
@@ -42,12 +49,10 @@ public class TerminalManager {
         ContainerScreen screen = (ContainerScreen) mc.screen;
         int screenSyncId = screen.getMenu().containerId;
 
-        // Only process updates for the current screen
         if (syncId != screenSyncId) {
             return;
         }
 
-        // Detect terminal type if not yet detected
         if (currentTerminal == TerminalType.NONE || currentSyncId != syncId) {
             currentTerminal = detectTerminalType(screen);
             currentSyncId = syncId;
@@ -58,7 +63,6 @@ public class TerminalManager {
 
         lastSlotUpdateTime = System.currentTimeMillis();
 
-        // Notify the appropriate terminal solver
         switch (currentTerminal) {
             case CLICK_IN_ORDER:
                 ClickInOrderTerminal.onSlotUpdate(slotIndex, stack);
@@ -83,9 +87,6 @@ public class TerminalManager {
         }
     }
 
-    /**
-     * Detect which terminal type is currently open based on screen title.
-     */
     private static TerminalType detectTerminalType(ContainerScreen screen) {
         Component title = screen.getTitle();
         String titleStr = title.getString();
@@ -109,39 +110,23 @@ public class TerminalManager {
         return TerminalType.NONE;
     }
 
-    /**
-     * Get the current terminal type.
-     */
     public static TerminalType getCurrentTerminal() {
         return currentTerminal;
     }
 
-    /**
-     * Check if we're currently in a terminal.
-     */
     public static boolean isInTerminal() {
         return currentTerminal != TerminalType.NONE;
     }
 
-    /**
-     * Get time since last slot update (for isClicked timeout).
-     */
     public static long getTimeSinceLastUpdate() {
         return System.currentTimeMillis() - lastSlotUpdateTime;
     }
 
-    /**
-     * Reset state when screen closes.
-     */
     public static void onScreenClose() {
         currentTerminal = TerminalType.NONE;
         currentSyncId = -1;
     }
 
-    /**
-     * Validate if a click is allowed on the given slot.
-     * Delegates to the appropriate terminal solver.
-     */
     public static boolean canClick(int slotIndex, int button) {
         switch (currentTerminal) {
             case CLICK_IN_ORDER:

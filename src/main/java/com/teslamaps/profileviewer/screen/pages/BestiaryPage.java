@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonElement;
@@ -11,9 +26,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Bestiary page showing mob kill progress.
- */
 public class BestiaryPage extends ProfileViewerPage {
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
@@ -48,14 +60,12 @@ public class BestiaryPage extends ProfileViewerPage {
         ctx.text(tr, "Bestiary", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
-        // Get bestiary data
         JsonObject bestiary = getNestedObject(memberData, "bestiary.kills");
         if (bestiary == null) {
             ctx.text(tr, "No bestiary data found", contentX, lineY, TEXT_GRAY);
             return;
         }
 
-        // Total milestone
         JsonObject bestiaryRoot = getNestedObject(memberData, "bestiary");
         if (bestiaryRoot != null && bestiaryRoot.has("milestone")) {
             JsonObject milestone = bestiaryRoot.getAsJsonObject("milestone");
@@ -65,7 +75,6 @@ public class BestiaryPage extends ProfileViewerPage {
             lineY += 20;
         }
 
-        // Collect and sort mobs by kills
         List<Map.Entry<String, Integer>> mobs = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : bestiary.entrySet()) {
             if (entry.getValue().isJsonPrimitive()) {
@@ -74,13 +83,11 @@ public class BestiaryPage extends ProfileViewerPage {
         }
         mobs.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
-        // Headers
         ctx.text(tr, "Mob", contentX, lineY, TEXT_GRAY);
         ctx.text(tr, "Kills", contentX + 200, lineY, TEXT_GRAY);
         ctx.text(tr, "Tier", contentX + 280, lineY, TEXT_GRAY);
         lineY += 14;
 
-        // Mob list
         int listStartY = lineY;
         int listHeight = height - (lineY - y) - padding;
         int idx = 0;
@@ -108,9 +115,7 @@ public class BestiaryPage extends ProfileViewerPage {
     }
 
     private String formatMobName(String id) {
-        // Convert API names to display names
         String name = id.replace("_", " ");
-        // Title case
         StringBuilder sb = new StringBuilder();
         for (String word : name.split(" ")) {
             if (!word.isEmpty()) {
@@ -119,7 +124,6 @@ public class BestiaryPage extends ProfileViewerPage {
                         .append(word.substring(1).toLowerCase());
             }
         }
-        // Truncate if too long
         if (sb.length() > 25) {
             return sb.substring(0, 22) + "...";
         }
@@ -127,7 +131,6 @@ public class BestiaryPage extends ProfileViewerPage {
     }
 
     private int calculateBestiaryTier(int kills) {
-        // Simplified tier calculation
         int[] tierThresholds = {10, 25, 75, 150, 250, 500, 1000, 2500, 5000, 10000};
         for (int i = tierThresholds.length - 1; i >= 0; i--) {
             if (kills >= tierThresholds[i]) return i + 1;

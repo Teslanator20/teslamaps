@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -19,18 +34,9 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * TicTacToe puzzle solver - shows the best move.
- * Tic Tac Toe puzzle solver - shows optimal move.
- */
 public class TicTacToe {
     private static AABB nextBestMoveBox = null;
     private static DungeonRoom currentRoom = null;
-
-    // Room-relative coordinates for the tic-tac-toe board 
-    // Y: 72=row0, 71=row1, 70=row2
-    // Z: 17=col0, 16=col1, 15=col2
-    // X: 8 (constant)
 
     public static void tick() {
         if (!DungeonManager.isInDungeon() || !TeslaMapsConfig.get().solveTicTacToe) {
@@ -45,7 +51,6 @@ public class TicTacToe {
         }
 
         try {
-            // Search for item frames with maps within 21 blocks
             AABB searchBox = mc.player.getBoundingBox().inflate(21);
             List<ItemFrame> itemFrames = mc.level.getEntitiesOfClass(
                     ItemFrame.class,
@@ -56,13 +61,11 @@ public class TicTacToe {
                     }
             );
 
-            // Need at least 1 frame to find the room, and odd number (but not 9) for player's turn
             if (itemFrames.isEmpty() || itemFrames.size() == 9 || (itemFrames.size() & 1) == 0) {
                 nextBestMoveBox = null;
                 return;
             }
 
-            // Find room from first frame
             BlockPos firstFramePos = itemFrames.get(0).blockPosition();
             int[] gridPos = ComponentGrid.worldToGrid(firstFramePos.getX(), firstFramePos.getZ());
             if (gridPos == null) return;
@@ -70,13 +73,11 @@ public class TicTacToe {
             currentRoom = DungeonManager.getRoomAt(gridPos[0], gridPos[1]);
             if (currentRoom == null) return;
 
-            // Get room corner and rotation
             int cornerX = currentRoom.getCornerX();
             int cornerZ = currentRoom.getCornerZ();
             int rotation = currentRoom.getRotation();
             if (rotation < 0) return; // Rotation not detected yet
 
-            // Collect all frame positions and their map colors
             Map<BlockPos, Character> frameData = new HashMap<>();
             for (ItemFrame frame : itemFrames) {
                 BlockPos pos = frame.blockPosition();
@@ -97,7 +98,6 @@ public class TicTacToe {
 
             if (frameData.isEmpty()) return;
 
-            // Convert world positions to room-relative and build board
             char[][] board = new char[3][3];
             Map<String, BlockPos> boardToWorld = new HashMap<>();
 
@@ -105,17 +105,13 @@ public class TicTacToe {
                 BlockPos worldPos = entry.getKey();
                 char symbol = entry.getValue();
 
-                // Convert to room-relative coordinates
                 int[] relative = worldToRelative(cornerX, cornerZ, rotation, worldPos);
 
                 int relX = relative[0];
                 int relY = relative[1];
                 int relZ = relative[2];
 
-                // Map relative coords to board indices
-                // Y: 72=row0, 71=row1, 70=row2
                 int row = 72 - relY;
-                // Z: 17=col0, 16=col1, 15=col2
                 int col = 17 - relZ;
 
                 TeslaMaps.LOGGER.debug("[TicTacToe] Frame {} at world {} -> relative ({},{},{}) -> row={}, col={}",
@@ -127,10 +123,8 @@ public class TicTacToe {
                 boardToWorld.put(row + "," + col, worldPos);
             }
 
-            // Calculate best move
             TicTacToeUtils.BoardIndex bestMove = TicTacToeUtils.getBestMove(board);
 
-            // Get world position for best move
             String key = bestMove.row() + "," + bestMove.column();
             BlockPos existingPos = boardToWorld.get(key);
 
@@ -138,7 +132,6 @@ public class TicTacToe {
             if (existingPos != null) {
                 worldPos = existingPos;
             } else {
-                // Convert board indices back to world position
                 int relY = 72 - bestMove.row();
                 int relZ = 17 - bestMove.column();
                 int relX = 8; // X is constant in relative space 
@@ -146,7 +139,6 @@ public class TicTacToe {
                 worldPos = relativeToWorld(cornerX, cornerZ, rotation, relX, relY, relZ);
             }
 
-            // Offset 0.5 blocks away from player (opposite of item frame facing direction)
             Direction facing = itemFrames.get(0).getDirection();
             double offsetX = -facing.getStepX() * 0.5;
             double offsetZ = -facing.getStepZ() * 0.5;
@@ -162,10 +154,6 @@ public class TicTacToe {
         }
     }
 
-    /**
-     * Rotate coordinates by given degrees by degree.
-     * 0° -> (x, z), 90° -> (z, -x), 180° -> (-x, -z), 270° -> (-z, x)
-     */
     private static int[] rotatePos(int x, int z, int degree) {
         return switch (degree % 360) {
             case 0 -> new int[]{x, z};
@@ -176,24 +164,15 @@ public class TicTacToe {
         };
     }
 
-    /**
-     * Convert world position to room-relative coordinates.
-     */
     private static int[] worldToRelative(int cornerX, int cornerZ, int rotation, BlockPos worldPos) {
-        // Get offset from corner
         int dx = worldPos.getX() - cornerX;
         int dz = worldPos.getZ() - cornerZ;
 
-        // Rotate by rotation degrees to get relative coords
         int[] rotated = rotatePos(dx, dz, rotation);
         return new int[]{rotated[0], worldPos.getY(), rotated[1]};
     }
 
-    /**
-     * Convert room-relative coordinates to world position.
-     */
     private static BlockPos relativeToWorld(int cornerX, int cornerZ, int rotation, int relX, int relY, int relZ) {
-        // Rotate by (360 - rotation) to convert back to world
         int[] rotated = rotatePos(relX, relZ, (360 - rotation) % 360);
         return new BlockPos(cornerX + rotated[0], relY, cornerZ + rotated[1]);
     }
@@ -208,7 +187,6 @@ public class TicTacToe {
             double centerY = (nextBestMoveBox.minY + nextBestMoveBox.maxY) / 2;
             double centerZ = (nextBestMoveBox.minZ + nextBestMoveBox.maxZ) / 2;
 
-            // Small button-sized box
             AABB buttonBox = new AABB(
                 centerX - 0.2, centerY - 0.15, centerZ - 0.1,
                 centerX + 0.2, centerY + 0.15, centerZ + 0.1

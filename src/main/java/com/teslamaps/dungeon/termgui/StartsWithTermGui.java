@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.termgui;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -8,10 +23,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 
-/**
- * Custom GUI for the "What starts with: '*'?" terminal.
- * Shows correct items in green, clicked items dimmed.
- */
 public class StartsWithTermGui extends CustomTermGui {
     @Override
     protected int[] getCurrentSolution() {
@@ -25,28 +36,22 @@ public class StartsWithTermGui extends CustomTermGui {
 
         renderBackground(context, slotCount, 9, 2);
 
-        // Get solution from solver
         List<Integer> correctSlots = StartsWithTerminal.getCorrectSlots();
         Set<Integer> clickedSlots = StartsWithTerminal.getClickedSlots();
         Character targetLetter = StartsWithTerminal.getTargetLetter();
 
-        // Highlight correct items
         for (int slot : correctSlots) {
             boolean isClicked = clickedSlots.contains(slot);
 
-            // Green for unclicked correct items, dimmed green for clicked
             int color;
             if (isClicked) {
-                // Dimmed green for already clicked items
                 color = 0x44555555;
             } else {
-                // Bright green for items to click
                 color = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().terminalGuiStartsWithColor);
             }
 
             float[] pos = renderSlot(context, slot, color);
 
-            // Draw the target letter on each correct item
             if (targetLetter != null && TeslaMapsConfig.get().terminalGuiShowNumbers) {
                 float slotSize = 55f * TeslaMapsConfig.get().terminalGuiSize;
                 String text = targetLetter.toString();

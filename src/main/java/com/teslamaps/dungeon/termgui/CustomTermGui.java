@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.termgui;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -7,27 +22,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 
-/**
- * Base class for custom terminal GUI rendering.
- * Base class for terminal GUI overlays.
- */
 public abstract class CustomTermGui {
     protected final Map<Integer, Box> itemIndexMap = new HashMap<>();
     private static CustomTermGui currentGui = null;
 
-    /**
-     * Get the current solution for the terminal (slot indices to click).
-     */
     protected abstract int[] getCurrentSolution();
 
-    /**
-     * Render the terminal GUI with the given number of slots.
-     */
     public abstract void renderTerminal(GuiGraphicsExtractor context, int slotCount);
 
-    /**
-     * Main render method called every frame when terminal is open.
-     */
     public void render(GuiGraphicsExtractor context) {
         setCurrentGui(this);
         itemIndexMap.clear();
@@ -39,16 +41,11 @@ public abstract class CustomTermGui {
         }
     }
 
-    /**
-     * Handle mouse click on the custom GUI.
-     * Returns true if the click was handled, false otherwise.
-     */
     public boolean handleClick(double mouseX, double mouseY, int button) {
         Integer hoveredSlot = getHoveredSlot(mouseX, mouseY);
         if (hoveredSlot != null) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.screen instanceof ContainerScreen screen && mc.player != null) {
-                // Perform the click on the slot
                 mc.gameMode.handleContainerInput(
                     screen.getMenu().containerId,
                     hoveredSlot,
@@ -62,9 +59,6 @@ public abstract class CustomTermGui {
         return false;
     }
 
-    /**
-     * Get the slot index under the mouse cursor, or null if none.
-     */
     private Integer getHoveredSlot(double mouseX, double mouseY) {
         for (Map.Entry<Integer, Box> entry : itemIndexMap.entrySet()) {
             Box box = entry.getValue();
@@ -76,9 +70,6 @@ public abstract class CustomTermGui {
         return null;
     }
 
-    /**
-     * Render the background box for the terminal.
-     */
     protected void renderBackground(GuiGraphicsExtractor context, int slotCount, int slotWidth, int rowOffset) {
         Minecraft mc = Minecraft.getInstance();
         float slotSize = 55f * TeslaMapsConfig.get().terminalGuiSize;
@@ -99,10 +90,6 @@ public abstract class CustomTermGui {
                        backgroundColor, 12);
     }
 
-    /**
-     * Render a single slot at the given index with the specified color.
-     * Returns the x, y coordinates of the rendered slot.
-     */
     protected float[] renderSlot(GuiGraphicsExtractor context, int index, int color) {
         Minecraft mc = Minecraft.getInstance();
         float slotSize = 55f * TeslaMapsConfig.get().terminalGuiSize;
@@ -123,29 +110,19 @@ public abstract class CustomTermGui {
         return new float[]{x, y};
     }
 
-    /**
-     * Draw text centered on the slot.
-     */
     protected void drawTextCentered(GuiGraphicsExtractor context, String text, float x, float y, float slotSize, int color) {
         Minecraft mc = Minecraft.getInstance();
         int textWidth = mc.font.width(text);
         float scale = TeslaMapsConfig.get().terminalGuiSize;
         float fontSize = 30f * scale;
 
-        // Simple centering - doesn't account for exact font metrics like NVG does
         float textX = x + (slotSize - textWidth) / 2f;
         float textY = y + (slotSize - 8) / 2f; // 8 is approximate text height
 
         context.text(mc.font, text, (int) textX, (int) textY, color, true);
     }
 
-    /**
-     * Draw a rounded rectangle (simplified - just draws a regular rect for now).
-     * Full rounded rect would require custom rendering.
-     */
     protected void drawRoundedRect(GuiGraphicsExtractor context, int x, int y, int width, int height, int color, int roundness) {
-        // For now, just draw a filled rect
-        // TODO: Implement proper rounded corners if needed
         context.fill(x, y, x + width, y + height, color);
     }
 
@@ -157,9 +134,6 @@ public abstract class CustomTermGui {
         return currentGui;
     }
 
-    /**
-     * Simple box for tracking slot positions.
-     */
     protected static class Box {
         public final float x, y, w, h;
 

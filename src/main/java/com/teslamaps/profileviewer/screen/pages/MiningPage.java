@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonObject;
@@ -9,9 +24,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Mining page showing HOTM (Heart of the Mountain), powder, and commissions.
- */
 public class MiningPage extends ProfileViewerPage {
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
@@ -46,7 +58,6 @@ public class MiningPage extends ProfileViewerPage {
 
         int lineY = y + padding;
 
-        // === HOTM Level ===
         JsonObject mining = getNestedObject(memberData, "mining_core");
         if (mining == null) {
             ctx.text(tr, "No mining data available", contentX, lineY, TEXT_GRAY);
@@ -56,37 +67,31 @@ public class MiningPage extends ProfileViewerPage {
         ctx.text(tr, "Heart of the Mountain", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
-        // HOTM Experience and Level
         double hotmXp = mining.has("experience") ? mining.get("experience").getAsDouble() : 0;
         int hotmLevel = calculateHotmLevel(hotmXp);
 
         ctx.text(tr, "Level: " + hotmLevel, contentX, lineY, TEXT_AQUA);
         lineY += 12;
 
-        // Progress bar
         double progress = getHotmProgress(hotmXp, hotmLevel);
         drawProgressBar(ctx, contentX, lineY, 200, 10, progress, BAR_BG, TEXT_AQUA);
         lineY += 20;
 
-        // === Powder ===
         ctx.text(tr, "Powder", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
-        // Mithril Powder
         int mithrilPowder = mining.has("powder_mithril") ? mining.get("powder_mithril").getAsInt() : 0;
         int mithrilSpent = mining.has("powder_spent_mithril") ? mining.get("powder_spent_mithril").getAsInt() : 0;
         ctx.text(tr, "Mithril: " + formatNumber(mithrilPowder) + " (+" + formatNumber(mithrilSpent) + " spent)",
                 contentX, lineY, MITHRIL_COLOR);
         lineY += 12;
 
-        // Gemstone Powder
         int gemstonePowder = mining.has("powder_gemstone") ? mining.get("powder_gemstone").getAsInt() : 0;
         int gemstoneSpent = mining.has("powder_spent_gemstone") ? mining.get("powder_spent_gemstone").getAsInt() : 0;
         ctx.text(tr, "Gemstone: " + formatNumber(gemstonePowder) + " (+" + formatNumber(gemstoneSpent) + " spent)",
                 contentX, lineY, GEMSTONE_COLOR);
         lineY += 12;
 
-        // Glacite Powder (if available)
         if (mining.has("powder_glacite")) {
             int glacitePowder = mining.get("powder_glacite").getAsInt();
             int glaciteSpent = mining.has("powder_spent_glacite") ? mining.get("powder_spent_glacite").getAsInt() : 0;
@@ -97,7 +102,6 @@ public class MiningPage extends ProfileViewerPage {
 
         lineY += 8;
 
-        // === Commissions ===
         ctx.text(tr, "Commissions", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
@@ -107,7 +111,6 @@ public class MiningPage extends ProfileViewerPage {
             lineY += 12;
         }
 
-        // === Crystal Nucleus ===
         lineY += 8;
         ctx.text(tr, "Crystal Nucleus", contentX, lineY, TEXT_GREEN);
         lineY += 16;

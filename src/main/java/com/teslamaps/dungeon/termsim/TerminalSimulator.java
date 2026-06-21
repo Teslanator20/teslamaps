@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.termsim;
 
 import com.teslamaps.TeslaMaps;
@@ -11,10 +26,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Base class for terminal simulators.
- * Allows practicing terminals without being in a dungeon.
- */
 public abstract class TerminalSimulator extends Screen {
     protected static final int SLOT_SIZE = 18;
     protected static final int GRID_PADDING = 8;
@@ -28,7 +39,6 @@ public abstract class TerminalSimulator extends Screen {
     protected boolean solved;
     protected Random random = new Random();
 
-    // Mouse state tracking
     private boolean wasLeftMouseDown = false;
     private boolean wasRightMouseDown = false;
 
@@ -50,7 +60,6 @@ public abstract class TerminalSimulator extends Screen {
         solved = false;
         initializeTerminal();
 
-        // Reset button
         int btnX = (width - 100) / 2;
         int btnY = height / 2 + (rows * SLOT_SIZE) / 2 + 20;
         addRenderableWidget(Button.builder(Component.literal("Reset"), button -> {
@@ -60,40 +69,25 @@ public abstract class TerminalSimulator extends Screen {
             solved = false;
         }).bounds(btnX, btnY, 100, 20).build());
 
-        // Close button
         addRenderableWidget(Button.builder(Component.literal("Close"), button -> {
             onClose();
         }).bounds(btnX, btnY + 25, 100, 20).build());
     }
 
-    /**
-     * Initialize the terminal with random state.
-     */
     protected abstract void initializeTerminal();
 
-    /**
-     * Handle a click on a slot.
-     * @return true if the click was valid
-     */
     protected abstract boolean onSlotClick(int slotIndex, int button);
 
-    /**
-     * Check if the terminal is solved.
-     */
     protected abstract boolean checkSolved();
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        // Handle mouse clicks using GLFW polling (1.21.10 compatible)
         handleMouseInput(mouseX, mouseY);
 
-        // Dark background
         context.fill(0, 0, width, height, 0xC0101010);
 
-        // Title
         context.centeredText(font, title, width / 2, 20, 0xFFFFFF);
 
-        // Grid background
         int gridWidth = cols * SLOT_SIZE;
         int gridHeight = rows * SLOT_SIZE;
         int startX = (width - gridWidth) / 2;
@@ -103,24 +97,20 @@ public abstract class TerminalSimulator extends Screen {
                 startX + gridWidth + GRID_PADDING, startY + gridHeight + GRID_PADDING,
                 0xFF2C2C2E);
 
-        // Render slots
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 int slotIndex = row * cols + col;
                 int x = startX + col * SLOT_SIZE;
                 int y = startY + row * SLOT_SIZE;
 
-                // Slot background
                 boolean hovered = mouseX >= x && mouseX < x + SLOT_SIZE &&
                         mouseY >= y && mouseY < y + SLOT_SIZE;
                 context.fill(x, y, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1,
                         hovered ? 0xFF4A4A4C : 0xFF3A3A3C);
 
-                // Render item
                 ItemStack stack = slots[slotIndex];
                 if (!stack.isEmpty()) {
                     context.item(stack, x + 1, y + 1);
-                    // Draw item count manually if > 1
                     if (stack.getCount() > 1) {
                         String countStr = String.valueOf(stack.getCount());
                         int textX = x + SLOT_SIZE - 2 - font.width(countStr);
@@ -131,7 +121,6 @@ public abstract class TerminalSimulator extends Screen {
             }
         }
 
-        // Stats
         long elapsed = System.currentTimeMillis() - openTime;
         String timeStr = String.format("Time: %.2fs", elapsed / 1000.0);
         String clickStr = "Clicks: " + clickCount;
@@ -145,9 +134,6 @@ public abstract class TerminalSimulator extends Screen {
         super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
-    /**
-     * Handle mouse input using GLFW polling (1.21.10 compatible approach).
-     */
     private void handleMouseInput(int mouseX, int mouseY) {
         if (minecraft == null) return;
 
@@ -155,12 +141,10 @@ public abstract class TerminalSimulator extends Screen {
         boolean isLeftDown = GLFW.glfwGetMouseButton(windowHandle, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean isRightDown = GLFW.glfwGetMouseButton(windowHandle, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
 
-        // Detect left click (press down)
         if (isLeftDown && !wasLeftMouseDown && !solved) {
             handleGridClick(mouseX, mouseY, 0);
         }
 
-        // Detect right click (press down)
         if (isRightDown && !wasRightMouseDown && !solved) {
             handleGridClick(mouseX, mouseY, 1);
         }
@@ -169,16 +153,12 @@ public abstract class TerminalSimulator extends Screen {
         wasRightMouseDown = isRightDown;
     }
 
-    /**
-     * Handle a click on the grid.
-     */
     private void handleGridClick(int mouseX, int mouseY, int button) {
         int gridWidth = cols * SLOT_SIZE;
         int gridHeight = rows * SLOT_SIZE;
         int startX = (width - gridWidth) / 2;
         int startY = (height - gridHeight) / 2 - 20;
 
-        // Check if click is within grid
         if (mouseX >= startX && mouseX < startX + gridWidth &&
                 mouseY >= startY && mouseY < startY + gridHeight) {
 
@@ -191,7 +171,6 @@ public abstract class TerminalSimulator extends Screen {
                     clickCount++;
                     lastClickTime = System.currentTimeMillis();
 
-                    // Check if solved
                     if (checkSolved()) {
                         solved = true;
                         long elapsed = System.currentTimeMillis() - openTime;
@@ -208,23 +187,14 @@ public abstract class TerminalSimulator extends Screen {
         return false;
     }
 
-    /**
-     * Get slot index from row/col.
-     */
     protected int getSlotIndex(int row, int col) {
         return row * cols + col;
     }
 
-    /**
-     * Get row from slot index.
-     */
     protected int getRow(int slotIndex) {
         return slotIndex / cols;
     }
 
-    /**
-     * Get column from slot index.
-     */
     protected int getCol(int slotIndex) {
         return slotIndex % cols;
     }

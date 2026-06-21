@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon;
 
 import com.google.gson.JsonArray;
@@ -22,14 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Loads Odin-format dungeon waypoint files (Map&lt;RoomName, List&lt;Waypoint&gt;&gt;) and renders them.
- *
- * Odin stores waypoints relative to the room's blue-terracotta block (clayPos), rotated into a
- * canonical orientation. teslamaps already detects the same room name and the same terracotta
- * corner, so we just re-apply Odin's exact rotateAroundNorth transform:
- *   world = rotateAroundNorth(rotation, relativeXZ) + clayPos   (y stays absolute).
- */
 public class DungeonWaypoints {
 
     public record Waypoint(double rx, double ry, double rz, int colorArgb, boolean filled, boolean depth,
@@ -37,8 +44,6 @@ public class DungeonWaypoints {
 
     private static final Map<String, List<Waypoint>> byRoom = new HashMap<>();
 
-    // Waypoints stored under this key are ABSOLUTE world coords (rx/ry/rz = world x/y/z), not
-    // room-relative — used when there's no room to anchor to (boss, outside dungeon, unknown room).
     private static final String ABSOLUTE_KEY = "__absolute__";
 
     private static final Path FILE = FabricLoader.getInstance().getConfigDir()
@@ -79,7 +84,6 @@ public class DungeonWaypoints {
             boolean filled = o.has("filled") && o.get("filled").getAsBoolean();
             boolean depth = !o.has("depth") || o.get("depth").getAsBoolean();
 
-            // AABB: current "minX..maxZ" or legacy obfuscated field names
             double[] b = readAabb(o.has("aabb") ? o.getAsJsonObject("aabb") : null);
             return new Waypoint(x, y, z, color, filled, depth, b[0], b[1], b[2], b[3], b[4], b[5]);
         } catch (Exception ex) {
@@ -98,7 +102,6 @@ public class DungeonWaypoints {
         return new double[]{0, 0, 0, 1, 1, 1};
     }
 
-    /** Parse "#RRGGBBAA" (Odin format, alpha last) to ARGB int. */
     private static int parseColor(String s) {
         s = s.replace("#", "");
         try {
@@ -116,13 +119,11 @@ public class DungeonWaypoints {
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().dungeonWaypoints || byRoom.isEmpty()) return;
 
-        // Absolute waypoints render everywhere (boss room, outside the dungeon, unmatched rooms).
         List<Waypoint> abs = byRoom.get(ABSOLUTE_KEY);
         if (abs != null) {
             for (Waypoint wp : abs) drawWaypoint(matrices, cameraPos, wp, wp.rx(), wp.ry(), wp.rz());
         }
 
-        // Room-relative waypoints, anchored to the current room's terracotta marker.
         if (!DungeonManager.isInDungeon()) return;
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null) return;
@@ -147,7 +148,6 @@ public class DungeonWaypoints {
         }
     }
 
-    /** Prints diagnostics for the current room so a failing room can be reported. */
     public static void debug() {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.player == null) return;
@@ -177,7 +177,6 @@ public class DungeonWaypoints {
         }
         msg.accept("Components: §7" + comps);
 
-        // Player position -> relative coords (rotateToNorth(world - clay)); compare to your file values
         net.minecraft.core.BlockPos p = mc.player.blockPosition();
         if (rot >= 0) {
             double[] rel = rotateToNorth(rot, p.getX() - clayX, p.getZ() - clayZ);
@@ -187,11 +186,6 @@ public class DungeonWaypoints {
         }
     }
 
-    /**
-     * Add a waypoint at the block you're looking at (or under your feet). Stored room-relative when
-     * in a known room with a terracotta marker, otherwise as an ABSOLUTE world waypoint (boss room,
-     * outside the dungeon, or an unidentified room).
-     */
     public static String addAtTarget(int colorArgb, boolean filled, boolean depth) {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return "§cNo player.";
@@ -211,14 +205,12 @@ public class DungeonWaypoints {
                     + target.getX() + "," + target.getY() + "," + target.getZ();
         }
 
-        // No room to anchor to -> absolute world waypoint.
         byRoom.computeIfAbsent(ABSOLUTE_KEY, k -> new ArrayList<>())
                 .add(new Waypoint(target.getX(), target.getY(), target.getZ(), colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
         save();
         return "§aAdded §babsolute§a waypoint @ " + target.getX() + "," + target.getY() + "," + target.getZ();
     }
 
-    /** Remove the waypoint nearest the player (in the current room, or absolute if no room). */
     public static String removeNearest() {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.player == null) return "§cNo player.";
@@ -254,7 +246,6 @@ public class DungeonWaypoints {
         return "§aRemoved the nearest waypoint (" + list.size() + " left).";
     }
 
-    /** Remove all waypoints for the current room (or all absolute waypoints if no room). */
     public static String clearRoom() {
         DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
         String key = (room != null && room.getName() != null) ? room.getName() : ABSOLUTE_KEY;
@@ -265,7 +256,6 @@ public class DungeonWaypoints {
                 : "§aCleared " + removed.size() + " " + where + " waypoint(s).";
     }
 
-    /** Write byRoom back to the Odin-format JSON file (backs up the original once before first write). */
     private static void save() {
         try {
             Path bak = FILE.resolveSibling("dungeon_waypoints.json.bak");
@@ -297,13 +287,11 @@ public class DungeonWaypoints {
         }
     }
 
-    /** ARGB int -> Odin "#RRGGBBAA" (alpha last), round-trips with parseColor. */
     private static String toHex(int argb) {
         int a = (argb >>> 24) & 0xFF, r = (argb >> 16) & 0xFF, g = (argb >> 8) & 0xFF, b = argb & 0xFF;
         return String.format("#%02X%02X%02X%02X", r, g, b, a);
     }
 
-    /** Inverse of rotateAroundNorth (Odin rotateToNorth) on x/z. */
     private static double[] rotateToNorth(int rotation, double x, double z) {
         return switch (rotation) {
             case 1 -> new double[]{-x, -z};  // NORTH
@@ -313,7 +301,6 @@ public class DungeonWaypoints {
         };
     }
 
-    /** Odin rotateAroundNorth on the relative x/z. */
     private static double[] rotateAroundNorth(int rotation, double x, double z) {
         return switch (rotation) {
             case 1 -> new double[]{-x, -z};  // NORTH
@@ -323,27 +310,20 @@ public class DungeonWaypoints {
         };
     }
 
-    // Rotations enum offsets (Odin): SOUTH(-15,-15) NORTH(15,15) WEST(15,-15) EAST(-15,15), indexed by rotation code
     private static final int[][] ROT_OFFSETS = {{-15, -15}, {15, 15}, {15, -15}, {-15, 15}}; // 0=SOUTH 1=NORTH 2=WEST 3=EAST
 
     private static int[] cachedClay = null;     // {clayX, clayZ, rotation}
     private static String cacheKey = "";
 
-    /** Public, uncached scan for a room's clayPos + rotation ({x, z, rot}), or null if not found yet. */
     public static int[] scanClayPos(DungeonRoom room) {
         return scanClay(room);
     }
 
-    /**
-     * Odin's getRealCoords: rotate clayPos-relative x/z into world coords using a scanned clay {x,z,rot}.
-     * Mirrors {@code pos.rotateAroundNorth(rotation).offset(clayPos.x, 0, clayPos.z)}.
-     */
     public static int[] relativeToWorld(int[] clay, int relX, int relZ) {
         double[] rot = rotateAroundNorth(clay[2], relX, relZ);
         return new int[]{(int) Math.round(rot[0]) + clay[0], (int) Math.round(rot[1]) + clay[1]};
     }
 
-    /** clayPos + rotation, cached per room. Re-scans each frame until the terracotta is found. */
     static int[] detectClay(DungeonRoom room) {
         List<int[]> comps = room.getComponents();
         if (comps.isEmpty()) return null;
@@ -353,29 +333,37 @@ public class DungeonWaypoints {
         return cachedClay;
     }
 
-    /**
-     * Finds the room's blue-terracotta marker (Odin's clayPos) by checking each component's four
-     * diagonal corners across a Y range. teslamaps' own corner is unreliable for multi-component
-     * rooms (it falls back to a geometric corner), so we scan for the real block to match Odin.
-     */
     private static int[] scanClay(DungeonRoom room) {
         net.minecraft.world.level.Level level = net.minecraft.client.Minecraft.getInstance().level;
         if (level == null) return null;
-        for (int[] comp : room.getComponents()) {
-            int[] corner = ComponentGrid.gridToWorldCorner(comp[0], comp[1]);
-            int cx = corner[0] + ComponentGrid.HALF_ROOM_SIZE;
-            int cz = corner[1] + ComponentGrid.HALF_ROOM_SIZE;
-            for (int r = 0; r < ROT_OFFSETS.length; r++) {
-                int bx = cx + ROT_OFFSETS[r][0];
-                int bz = cz + ROT_OFFSETS[r][1];
-                net.minecraft.core.BlockPos.MutableBlockPos m = new net.minecraft.core.BlockPos.MutableBlockPos();
+        List<int[]> comps = room.getComponents();
+        boolean multi = comps.size() > 1;
+        net.minecraft.core.BlockPos.MutableBlockPos m = new net.minecraft.core.BlockPos.MutableBlockPos();
+        for (int r : new int[]{1, 0, 2, 3}) {
+            for (int[] comp : comps) {
+                int[] corner = ComponentGrid.gridToWorldCorner(comp[0], comp[1]);
+                int bx = corner[0] + ComponentGrid.HALF_ROOM_SIZE + ROT_OFFSETS[r][0];
+                int bz = corner[1] + ComponentGrid.HALF_ROOM_SIZE + ROT_OFFSETS[r][1];
                 for (int y = 150; y >= 11; y--) {
-                    if (level.getBlockState(m.set(bx, y, bz)).is(net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA)) {
+                    if (level.getBlockState(m.set(bx, y, bz)).is(net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA)
+                            && (!multi || neighborsClear(level, bx, y, bz))) {
                         return new int[]{bx, bz, r};
                     }
                 }
             }
         }
         return null;
+    }
+
+    private static boolean neighborsClear(net.minecraft.world.level.Level level, int x, int y, int z) {
+        net.minecraft.core.BlockPos.MutableBlockPos m = new net.minecraft.core.BlockPos.MutableBlockPos();
+        int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] d : dirs) {
+            net.minecraft.world.level.block.Block b = level.getBlockState(m.set(x + d[0], y, z + d[1])).getBlock();
+            if (b != net.minecraft.world.level.block.Blocks.AIR && b != net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -14,22 +29,11 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Experiment Solver - Superpairs (Memory matching game)
- * Click items to reveal them, find matching pairs.
- *
- * Unlike Chronomatron, this doesn't have a remember phase - we learn items
- * as the player clicks them, then highlight matches.
- */
 public class SuperpairsSolver {
 
-    // Map of slot -> revealed item
     private static final Map<Integer, ItemStack> revealedItems = new HashMap<>();
-    // Set of slots that are already matched (found their pair)
     private static final Set<Integer> matchedSlots = new HashSet<>();
-    // The last clicked slot
     private static int lastClickedSlot = -1;
-    // The item from the last click (before it gets hidden again)
     private static ItemStack lastClickedItem = ItemStack.EMPTY;
 
     private static boolean initialScanDone = false;
@@ -38,28 +42,16 @@ public class SuperpairsSolver {
     private static long lastScanTime = 0;
     private static boolean isClicked = false;
 
-    // Valid slot range for Superpairs (varies by level)
     private static int minSlot = 9;
     private static int maxSlot = 44;
 
     public static void tick() {
-        // DISABLED - Auto experiment feature commented out
         if (true) {
             reset();
             return;
         }
 
         Minecraft mc = Minecraft.getInstance();
-
-        /* DISABLED
-        if (!TeslaMapsConfig.get().solveSuperpairs) {
-            if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[Superpairs] Feature disabled, resetting");
-            }
-            reset();
-            return;
-        }
-        */
 
         if (mc.player == null || mc.level == null) {
             reset();
@@ -79,12 +71,10 @@ public class SuperpairsSolver {
         String cleanTitle = ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
-        // Check if this is Superpairs
         if (!cleanTitle.matches("Superpairs \\(\\w+\\)")) {
             return;
         }
 
-        // Initialize on first detection
         if (!initialScanDone) {
             revealedItems.clear();
             matchedSlots.clear();
@@ -102,16 +92,13 @@ public class SuperpairsSolver {
         long currentTime = System.currentTimeMillis();
         ChestMenu handler = screen.getMenu();
 
-        // Scan for revealed items every 100ms
         if (currentTime - lastScanTime >= 100) {
             scanRevealedItems(handler);
             lastScanTime = currentTime;
         }
 
-        // Auto-click logic - find and click matching pairs
         boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
 
-        // Break threshold
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
             TeslaMaps.LOGGER.info("[Superpairs] Break threshold reached, resetting click state");
@@ -133,12 +120,8 @@ public class SuperpairsSolver {
         }
     }
 
-    /**
-     * Scan the container for revealed items (non-glass panes).
-     */
     private static void scanRevealedItems(ChestMenu handler) {
         for (int slotId = minSlot; slotId <= maxSlot; slotId++) {
-            // Skip already matched slots
             if (matchedSlots.contains(slotId)) continue;
 
             Slot slot = handler.getSlot(slotId);
@@ -147,19 +130,16 @@ public class SuperpairsSolver {
             ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
-            // Skip glass panes (hidden items)
             if (stack.getItem() == Items.CYAN_STAINED_GLASS ||
                 stack.getItem() == Items.BLACK_STAINED_GLASS_PANE ||
                 stack.getItem() == Items.AIR) {
                 continue;
             }
 
-            // This item is revealed - store it
             if (!revealedItems.containsKey(slotId)) {
                 revealedItems.put(slotId, stack.copy());
                 TeslaMaps.LOGGER.info("[Superpairs] Revealed item at slot {}: {}", slotId, stack.getHoverName().getString());
 
-                // Check if this creates a match with another revealed item
                 for (Map.Entry<Integer, ItemStack> entry : revealedItems.entrySet()) {
                     int otherSlot = entry.getKey();
                     if (otherSlot == slotId) continue;
@@ -176,11 +156,7 @@ public class SuperpairsSolver {
         }
     }
 
-    /**
-     * Find the next slot to click based on known pairs.
-     */
     private static int findNextSlotToClick(ChestMenu handler) {
-        // First priority: If we have an item revealed (last click), find its match
         if (lastClickedSlot != -1 && !lastClickedItem.isEmpty()) {
             for (Map.Entry<Integer, ItemStack> entry : revealedItems.entrySet()) {
                 int slot = entry.getKey();
@@ -193,27 +169,22 @@ public class SuperpairsSolver {
             }
         }
 
-        // Second priority: Find any known pair where we know both locations
         for (Map.Entry<Integer, ItemStack> entry1 : revealedItems.entrySet()) {
             int slot1 = entry1.getKey();
             if (matchedSlots.contains(slot1)) continue;
 
-            // Check if this slot currently shows a hidden item (glass)
             Slot gameSlot1 = handler.getSlot(slot1);
             if (gameSlot1 == null) continue;
             ItemStack currentStack1 = gameSlot1.getItem();
 
-            // Skip if item is still revealed
             if (!isHiddenItem(currentStack1)) continue;
 
-            // Look for a match
             for (Map.Entry<Integer, ItemStack> entry2 : revealedItems.entrySet()) {
                 int slot2 = entry2.getKey();
                 if (slot2 <= slot1) continue; // Avoid duplicates
                 if (matchedSlots.contains(slot2)) continue;
 
                 if (ItemStack.isSameItem(entry1.getValue(), entry2.getValue())) {
-                    // Found a known pair - click the first slot
                     return slot1;
                 }
             }
@@ -228,9 +199,6 @@ public class SuperpairsSolver {
                stack.getItem() == Items.BLACK_STAINED_GLASS_PANE;
     }
 
-    /**
-     * Perform a click on the given slot.
-     */
     private static void performClick(Minecraft mc, ChestMenu handler, int slotId) {
         if (mc.player == null) return;
 
@@ -252,9 +220,6 @@ public class SuperpairsSolver {
         isClicked = true;
     }
 
-    /**
-     * Get the next correct slot to click (for click-anywhere mode).
-     */
     public static int getNextCorrectSlot() {
         if (!initialScanDone) return -1;
 
@@ -264,32 +229,20 @@ public class SuperpairsSolver {
         return findNextSlotToClick(screen.getMenu());
     }
 
-    /**
-     * Mark that a slot was clicked (for click-anywhere mode tracking).
-     */
     public static void markSlotClicked(int slot) {
         lastClickedSlot = slot;
         ItemStack knownItem = revealedItems.get(slot);
         lastClickedItem = knownItem != null ? knownItem.copy() : ItemStack.EMPTY;
     }
 
-    /**
-     * Get all revealed items for display.
-     */
     public static Map<Integer, ItemStack> getRevealedItems() {
         return Collections.unmodifiableMap(revealedItems);
     }
 
-    /**
-     * Get matched slots for display.
-     */
     public static Set<Integer> getMatchedSlots() {
         return Collections.unmodifiableSet(matchedSlots);
     }
 
-    /**
-     * Check if solver is active.
-     */
     public static boolean isActive() {
         return initialScanDone;
     }

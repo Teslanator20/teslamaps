@@ -55,4 +55,7 @@ jar {
     from("LICENSE") {
         rename { "${it}_${project.archives_base_name}" }
     }
+    from("NOTICE.md") {
+        rename { "${it}_${project.archives_base_name}" }
+    }
 }

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon;
 
 import com.teslamaps.TeslaMaps;
@@ -12,31 +27,23 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 
-/**
- * Dungeon score calculator.
- */
 public class DungeonScore {
-    // Scoreboard patterns
     private static final Pattern CLEARED_PATTERN = Pattern.compile("Cleared: (?<cleared>\\d+)%.*");
     private static final Pattern FLOOR_PATTERN = Pattern.compile(".*Cata.*ombs.*\\((?<floor>[EFM]\\d+)\\)");
 
-    // Playerlist patterns
     private static final Pattern SECRETS_PATTERN = Pattern.compile("Secrets Found: (?<secper>\\d+\\.?\\d*)%");
     private static final Pattern PUZZLES_PATTERN = Pattern.compile(".+?(?=:): \\[(?<state>.)](?: \\(\\w*\\))?");
     private static final Pattern PUZZLE_COUNT_PATTERN = Pattern.compile("Puzzles: \\((?<count>\\d+)\\)");
     private static final Pattern CRYPTS_PATTERN = Pattern.compile("Crypts: (?<crypts>\\d+)");
     private static final Pattern COMPLETED_ROOMS_PATTERN = Pattern.compile(" *Completed Rooms: (?<rooms>\\d+)");
 
-    // Chat patterns
     private static final Pattern DEATHS_PATTERN = Pattern.compile(" \u2620 (?<whodied>\\S+) .*");
     private static final Pattern MIMIC_PATTERN = Pattern.compile(".*?(?:Mimic dead!?|Mimic Killed!|\\$SKYTILS-DUNGEON-SCORE-MIMIC\\$)$");
     private static final Pattern PRINCE_PATTERN = Pattern.compile(".*?(?:Prince dead!?|Prince Killed!)$");
     private static final String PRINCE_KILL_MESSAGE = "A Prince falls. +1 Bonus Score";
 
-    // Other patterns
     private static final Pattern MIMIC_FLOORS_PATTERN = Pattern.compile("[FM][67]");
 
-    // State
     private static FloorRequirement floorRequirement = FloorRequirement.NONE;
     private static String currentFloor = "";
     private static boolean isCurrentFloorEntrance = false;
@@ -54,10 +61,8 @@ public class DungeonScore {
     private static int deathCount = 0;
     private static int score = 0;
 
-    // Tab list sorting
     private static Comparator<PlayerInfo> tabListComparator = null;
 
-    // Floor detection delay
     private static boolean floorDetectionPending = false;
     private static long floorDetectionTime = 0L;
 
@@ -87,11 +92,9 @@ public class DungeonScore {
         dungeonStarted = true;
         startingTime = System.currentTimeMillis();
 
-        // Wait 3 seconds for scoreboard to update before detecting floor
         floorDetectionPending = true;
         floorDetectionTime = System.currentTimeMillis() + 3000;
 
-        // Logging disabled
     }
 
     private static int debugCounter = 0;
@@ -99,7 +102,6 @@ public class DungeonScore {
     public static int calculateScore() {
         if (!dungeonStarted) return 0;
 
-        // Check if we need to detect floor after delay
         if (floorDetectionPending && System.currentTimeMillis() >= floorDetectionTime) {
             floorDetectionPending = false;
             setCurrentFloor();
@@ -127,10 +129,8 @@ public class DungeonScore {
             score = timeScore + exploreScore + skillScore + bonusScore;
         }
 
-        // Debug logging disabled to reduce spam
         debugCounter++;
 
-        // Score milestone messages
         if (!sent270 && !sent300 && score >= 270 && score < 300) {
             sent270 = true;
             sendScoreMessage(270);
@@ -158,7 +158,6 @@ public class DungeonScore {
                 .append(Component.literal(milestone + " Score reached @ " + timeStr).withStyle(style -> style.withColor(0xFFFFFF)))
         );
 
-        // Optionally announce the milestone in party chat
         TeslaMapsConfig config = TeslaMapsConfig.get();
         boolean announce = (milestone == 300 && config.announce300) || (milestone == 270 && config.announce270);
         if (announce && mc.getConnection() != null) {
@@ -212,20 +211,13 @@ public class DungeonScore {
         return matcher != null ? Integer.parseInt(matcher.group("rooms")) : 0;
     }
 
-    /**
-     * Assumes boss and blood room are done from the start, then removes assumption as they actually complete.
-     * This prevents score jumps when entering boss or completing blood.
-     */
     private static int getExtraCompletedRooms() {
-        // Before blood room is done: assume both blood (1) and boss (1) are done = +2 rooms
         if (!bloodRoomCompleted) {
             return isCurrentFloorEntrance ? 1 : 2;
         }
-        // After blood done but before entering boss: still assume boss is done = +1 room
         if (!DungeonManager.isInBoss() && !isCurrentFloorEntrance) {
             return 1;
         }
-        // In boss room: both are actually done, no extra assumption needed
         return 0;
     }
 
@@ -241,7 +233,6 @@ public class DungeonScore {
     }
 
     private static int getDeathScorePenalty() {
-        // Assume Spirit Pet on first death (assuming Spirit Pet on first death)
         if (deathCount == 0) return 0;
         return 1 + (deathCount - 1) * 2;  // First death: -1, subsequent: -2 each
     }
@@ -256,8 +247,7 @@ public class DungeonScore {
         for (int index = 0; index < puzzleCount; index++) {
             Matcher puzzleMatcher = regexAt(48 + index, PUZZLES_PATTERN);
             if (puzzleMatcher == null) break;
-            // Both ✖ (failed) and ✦ (not started) count as incomplete
-            if (puzzleMatcher.group("state").matches("[✖✦]")) incompletePuzzles++;
+            if (puzzleMatcher.group("state").matches("[]")) incompletePuzzles++;
         }
         return incompletePuzzles * 10;
     }
@@ -285,9 +275,6 @@ public class DungeonScore {
         currentFloor = "F1";
     }
 
-    /**
-     * Get tab list entry at index and match against pattern 
-     */
     private static Matcher regexAt(int index, Pattern pattern) {
         String str = strAt(index);
         if (str == null) return null;
@@ -299,14 +286,10 @@ public class DungeonScore {
         return m;
     }
 
-    /**
-     * Get tab list string at index (sorted like vanilla tab display)
-     */
     private static String strAt(int index) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() == null) return null;
 
-        // Get the comparator used by the vanilla tab overlay
         if (tabListComparator == null) {
             try {
                 tabListComparator = PlayerTabOverlayAccessor.getOrdering();
@@ -315,7 +298,6 @@ public class DungeonScore {
             }
         }
 
-        // Sort entries like vanilla tab list display
         List<PlayerInfo> playerList = mc.getConnection().getOnlinePlayers()
                 .stream()
                 .sorted(tabListComparator)
@@ -332,20 +314,14 @@ public class DungeonScore {
         return str;
     }
 
-    // Chat message handlers
     public static void onChatMessage(String message) {
         if (!dungeonStarted) return;
 
-        // Precise run-timer start. onDungeonEnter() sets startingTime when the scoreboard first
-        // shows the "Starting in" countdown (~5s before the run actually begins), which made the
-        // "300 Score reached @" time run ahead. Re-anchor t=0 to this message so it matches the
-        // real Hypixel dungeon timer (00:00).
         if (message.equals("Starting in 1 second.")) {
             startingTime = System.currentTimeMillis();
             return;
         }
 
-        // Death detection
         if (message.length() > 1 && message.charAt(1) == '\u2620') {
             Matcher matcher = DEATHS_PATTERN.matcher(message);
             if (matcher.matches()) {
@@ -353,7 +329,6 @@ public class DungeonScore {
             }
         }
 
-        // Watcher complete
         if (message.equals("[BOSS] The Watcher: You have proven yourself. You may pass.")) {
             new Thread(() -> {
                 try {
@@ -362,7 +337,6 @@ public class DungeonScore {
                 } catch (InterruptedException ignored) {}
             }).start();
 
-            // Watcher kill alert: title + sound when blood is cleared.
             if (TeslaMapsConfig.get().watcherKillAlert) {
                 Minecraft mc = Minecraft.getInstance();
                 if (mc.player != null) {
@@ -373,7 +347,6 @@ public class DungeonScore {
             }
         }
 
-        // Crypt reminder: 30s after blood camp starts (blood door opened), warn if short of 5 crypts.
         if (!cryptReminderSent && TeslaMapsConfig.get().cryptReminder
                 && message.equals("The BLOOD DOOR has been opened!")) {
             cryptReminderSent = true;
@@ -385,16 +358,12 @@ public class DungeonScore {
             }).start();
         }
 
-        // Mimic detection
         if (floorHasMimics && MIMIC_PATTERN.matcher(message).matches()) {
             mimicKilled = true;
         }
 
-        // Prince detection
         if (PRINCE_PATTERN.matcher(message).matches() || message.equals(PRINCE_KILL_MESSAGE)) {
             princeKilled = true;
-            // Announce only on Hypixel's own message (not on someone else's "Prince Dead!" party
-            // chat, which PRINCE_PATTERN also matches) so we don't echo/loop.
             if (!princeDeadMessageSent && message.equals(PRINCE_KILL_MESSAGE)
                     && TeslaMapsConfig.get().princeDeadMessage) {
                 princeDeadMessageSent = true;
@@ -410,7 +379,6 @@ public class DungeonScore {
         mimicKilled = true;
     }
 
-    /** Fired ~30s into blood camp: warn (chat + sound) if fewer than 5 crypts were done. */
     private static void fireCryptReminder() {
         if (!DungeonManager.isInDungeon()) return;
         int crypts = getCrypts();
@@ -418,7 +386,7 @@ public class DungeonScore {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         mc.player.sendSystemMessage(Component.literal(
-                "§c§l⚠ Crypts: " + crypts + "/5 §r§7— need 5 for the full +5 bonus score!"));
+                "§c§l Crypts: " + crypts + "/5 §r§7— need 5 for the full +5 bonus score!"));
         mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.5f);
     }
 
@@ -434,32 +402,18 @@ public class DungeonScore {
         return mimicKilled;
     }
 
-    /**
-     * Get the secret percentage needed for 300 score (accounting for bonuses).
-     * Max score: Time (100) + Skill (100) + Explore (100) + Bonus (0-17) = 317
-     * For 300 with perfect time/skill: Explore + Bonus >= 100
-     * Explore = 60 (rooms) + secretsScore (0-40)
-     * So we need: secretsScore >= 40 - Bonus
-     */
     public static double getNeededSecretsPercentFor300(int cryptsFound) {
         if (!dungeonStarted) return 100.0;
 
-        // Calculate current bonuses
         int cryptsBonus = Math.clamp(cryptsFound, 0, 5);
         int mimicBonus = mimicKilled ? 2 : 0;
         int paulBonus = com.teslamaps.config.TeslaMapsConfig.get().assumePaulMayor ? 10 : 0;
-        // Prince bonus not tracked reliably yet, assume 0
         int totalBonus = cryptsBonus + mimicBonus + paulBonus;
 
-        // Secrets score needed for 300: max(0, 40 - totalBonus)
         int secretsScoreNeeded = Math.max(0, 40 - totalBonus);
 
-        // If no secrets needed (enough bonuses), return 0
         if (secretsScoreNeeded <= 0) return 0.0;
 
-        // Convert secrets score to percentage
-        // secretsScore = (40 * min(secrets%, required%) / required%)
-        // So: secrets% = (secretsScore / 40) * required%
         double neededPercent = (secretsScoreNeeded / 40.0) * floorRequirement.percentage;
 
         return Math.min(100.0, neededPercent);

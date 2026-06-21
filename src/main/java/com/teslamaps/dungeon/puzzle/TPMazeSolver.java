@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,13 +30,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Teleport Maze Solver - Tracks visited portals and highlights correct ones.
- * Detects rotation by scanning for end portal frames.
- */
 public class TPMazeSolver {
 
-    // Relative positions of end portal frames in the room (rotation 0)
     private static final BlockPos[] PORTAL_POSITIONS_RELATIVE = {
         new BlockPos(4, 69, 28), new BlockPos(4, 69, 22), new BlockPos(4, 69, 20),
         new BlockPos(4, 69, 14), new BlockPos(4, 69, 12), new BlockPos(4, 69, 6),
@@ -57,7 +67,6 @@ public class TPMazeSolver {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
-        // Check if we're in Teleport Maze room
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null || room.getName() == null || !room.getName().equals("Teleport Maze")) {
             if (!lastRoomName.equals("")) {
@@ -66,18 +75,15 @@ public class TPMazeSolver {
             return;
         }
 
-        // Initialize portal positions on room enter
         if (!lastRoomName.equals("Teleport Maze")) {
             lastRoomName = "Teleport Maze";
             detectedRotation = -1;
             initializePortals(room);
         }
 
-        // Track player position for teleport detection
         Vec3 currentPos = new Vec3(mc.player.getX(), mc.player.getY(), mc.player.getZ());
         if (lastPlayerPos != null) {
             double distance = currentPos.distanceTo(lastPlayerPos);
-            // Teleport detected (moved more than 3 blocks instantly)
             if (distance > 3 && distance < 50) {
                 onTeleport(currentPos, mc.player.getYRot(), mc.player.getXRot());
             }
@@ -93,7 +99,6 @@ public class TPMazeSolver {
         BlockPos corner = room.getCorner();
         if (corner == null) return;
 
-        // Detect rotation by checking which rotation gives most end portal frame matches
         detectedRotation = detectRotation(corner);
         if (detectedRotation == -1) {
             TeslaMaps.LOGGER.warn("[TPMazeSolver] Could not detect rotation, using 0");
@@ -107,16 +112,12 @@ public class TPMazeSolver {
             portalPositions.add(worldPos);
         }
 
-        // Initially all portals are potentially correct
         correctPortals.addAll(portalPositions);
 
         TeslaMaps.LOGGER.info("[TPMazeSolver] Initialized {} portals at corner {} with rotation {}",
             portalPositions.size(), corner, detectedRotation);
     }
 
-    /**
-     * Detect room rotation by checking which rotation has the most end portal frame matches.
-     */
     private static int detectRotation(BlockPos corner) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return -1;
@@ -142,7 +143,6 @@ public class TPMazeSolver {
             }
         }
 
-        // Need at least 5 matches to be confident
         return bestMatches >= 5 ? bestRotation : -1;
     }
 
@@ -151,7 +151,6 @@ public class TPMazeSolver {
         if (now - lastTeleportTime < 500) return; // Debounce
         lastTeleportTime = now;
 
-        // Mark portals near current position as visited
         for (BlockPos portal : portalPositions) {
             AABB portalBox = new AABB(portal).inflate(1.5, 0, 1.5);
             if (portalBox.contains(pos)) {
@@ -159,19 +158,16 @@ public class TPMazeSolver {
             }
         }
 
-        // Filter correct portals based on where player is looking after teleport
         Vec3 lookDir = getVectorForRotation(pitch, yaw);
 
         correctPortals = new ArrayList<>(correctPortals.stream()
             .filter(p -> !visitedPortals.contains(p))
             .filter(p -> {
-                // Check if portal is in look direction
                 AABB portalBox = new AABB(p).inflate(0.75, 2, 0.75);
                 return isLookingAt(pos, lookDir, portalBox, 32.0);
             })
             .toList());
 
-        // If no portals match, keep all non-visited
         if (correctPortals.isEmpty()) {
             correctPortals = new ArrayList<>(portalPositions.stream()
                 .filter(p -> !visitedPortals.contains(p))

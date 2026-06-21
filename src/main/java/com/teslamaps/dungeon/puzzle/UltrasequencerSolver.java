@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -18,30 +33,16 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 
-/**
- * Experiment Solver - Ultrasequencer (Number sequence puzzle)
- * Remember numbered items (1-14), then click them in order.
- *
- * State machine:
- * REMEMBER - Scan for numbered items while "Remember the pattern!" is shown
- * WAIT - Items memorized, waiting for timer to start
- * SHOW - Timer started, auto-click items in sequence 1, 2, 3...
- * END - Round complete (detected by glass pane color change)
- */
 public class UltrasequencerSolver {
 
-    // Valid pane slots (9-44 for Metaphysical level)
     private static final int MIN_PANE_SLOT = 9;
     private static final int MAX_PANE_SLOT = 44;
 
     private enum State { REMEMBER, WAIT, SHOW, END }
 
     private static State state = State.REMEMBER;
-    // Map of slot -> stack count (the number 1-14)
     private static final Map<Integer, Integer> numberedSlots = new HashMap<>();
-    // Next number to click
     private static int nextNumber = 1;
-    // Last known glass pane color (to detect round changes)
     private static DyeColor lastPaneColor = null;
 
     private static boolean initialScanDone = false;
@@ -51,23 +52,12 @@ public class UltrasequencerSolver {
     private static boolean isClicked = false;
 
     public static void tick() {
-        // DISABLED - Auto experiment feature commented out
         if (true) {
             reset();
             return;
         }
 
         Minecraft mc = Minecraft.getInstance();
-
-        /* DISABLED
-        if (!TeslaMapsConfig.get().solveUltrasequencer) {
-            if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[Ultrasequencer] Feature disabled, resetting");
-            }
-            reset();
-            return;
-        }
-        */
 
         if (mc.player == null || mc.level == null) {
             reset();
@@ -87,12 +77,10 @@ public class UltrasequencerSolver {
         String cleanTitle = ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
-        // Check if this is Ultrasequencer
         if (!cleanTitle.matches("Ultrasequencer \\(\\w+\\)")) {
             return;
         }
 
-        // Initialize on first detection
         if (!initialScanDone) {
             state = State.REMEMBER;
             numberedSlots.clear();
@@ -110,16 +98,12 @@ public class UltrasequencerSolver {
         long currentTime = System.currentTimeMillis();
         ChestMenu handler = screen.getMenu();
 
-        // Process state machine
         processStateMachine(handler);
 
-        // Check for pane color change (round transition)
         checkPaneColorChange(handler);
 
-        // Auto-click logic when in SHOW state
         boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
 
-        // Break threshold
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
             TeslaMaps.LOGGER.info("[Ultrasequencer] Break threshold reached, resetting click state");
@@ -149,9 +133,6 @@ public class UltrasequencerSolver {
         }
     }
 
-    /**
-     * Process state transitions based on container contents.
-     */
     private static void processStateMachine(ChestMenu handler) {
         ItemStack instructionStack = handler.getSlot(49).getItem();
         String instructionName = instructionStack.getHoverName().getString();
@@ -159,7 +140,6 @@ public class UltrasequencerSolver {
         switch (state) {
             case REMEMBER -> {
                 if (instructionName.equals("Remember the pattern!")) {
-                    // Scan for numbered items
                     scanNumberedItems(handler);
                     if (!numberedSlots.isEmpty()) {
                         TeslaMaps.LOGGER.info("[Ultrasequencer] Memorized {} numbered items", numberedSlots.size());
@@ -189,14 +169,10 @@ public class UltrasequencerSolver {
                 }
             }
             case SHOW -> {
-                // Stay in SHOW until color change detected
             }
         }
     }
 
-    /**
-     * Scan container for numbered items (stack count = sequence number).
-     */
     private static void scanNumberedItems(ChestMenu handler) {
         numberedSlots.clear();
 
@@ -207,11 +183,9 @@ public class UltrasequencerSolver {
             ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
-            // Skip black glass panes (border)
             if (stack.getItem() == Items.BLACK_STAINED_GLASS_PANE) continue;
 
             String name = stack.getHoverName().getString();
-            // Check if name is a number
             if (name.matches("\\d+")) {
                 int number = Integer.parseInt(name);
                 if (number >= 1 && number <= 14) {
@@ -222,9 +196,6 @@ public class UltrasequencerSolver {
         }
     }
 
-    /**
-     * Check for glass pane color changes (indicates round transition).
-     */
     private static void checkPaneColorChange(ChestMenu handler) {
         for (int slotId = MIN_PANE_SLOT; slotId <= MAX_PANE_SLOT; slotId++) {
             Slot slot = handler.getSlot(slotId);
@@ -233,16 +204,13 @@ public class UltrasequencerSolver {
             ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
-            // Check if it's a stained glass pane
             if (stack.getItem() instanceof BlockItem blockItem) {
                 Block block = blockItem.getBlock();
                 if (block instanceof StainedGlassPaneBlock glassPaneBlock) {
                     DyeColor color = glassPaneBlock.getColor();
 
-                    // Skip black (border)
                     if (color == DyeColor.BLACK) continue;
 
-                    // Color changed = round ended
                     if (lastPaneColor != null && lastPaneColor != color) {
                         TeslaMaps.LOGGER.info("[Ultrasequencer] Pane color changed from {} to {}, round ended",
                             lastPaneColor, color);
@@ -256,9 +224,6 @@ public class UltrasequencerSolver {
         }
     }
 
-    /**
-     * Find the slot containing the given number.
-     */
     private static int findSlotForNumber(int number) {
         for (Map.Entry<Integer, Integer> entry : numberedSlots.entrySet()) {
             if (entry.getValue() == number) {
@@ -268,9 +233,6 @@ public class UltrasequencerSolver {
         return -1;
     }
 
-    /**
-     * Perform a click on the given slot.
-     */
     private static void performClick(Minecraft mc, ChestMenu handler, int slotId) {
         if (mc.player == null) return;
 
@@ -288,24 +250,17 @@ public class UltrasequencerSolver {
         lastClickTime = System.currentTimeMillis();
         isClicked = true;
 
-        // Check if we clicked the last number
         if (nextNumber > numberedSlots.size()) {
             TeslaMaps.LOGGER.info("[Ultrasequencer] Sequence complete, entering END state");
             state = State.END;
         }
     }
 
-    /**
-     * Get the next correct slot to click (for click-anywhere mode).
-     */
     public static int getNextCorrectSlot() {
         if (!initialScanDone || state != State.SHOW) return -1;
         return findSlotForNumber(nextNumber);
     }
 
-    /**
-     * Mark that a slot was clicked (for click-anywhere mode tracking).
-     */
     public static void markSlotClicked(int slot) {
         Integer number = numberedSlots.get(slot);
         if (number != null && number == nextNumber) {
@@ -316,23 +271,14 @@ public class UltrasequencerSolver {
         }
     }
 
-    /**
-     * Get all numbered slots for display.
-     */
     public static Map<Integer, Integer> getNumberedSlots() {
         return Collections.unmodifiableMap(numberedSlots);
     }
 
-    /**
-     * Get the next number to click.
-     */
     public static int getNextNumber() {
         return nextNumber;
     }
 
-    /**
-     * Check if solver is active.
-     */
     public static boolean isActive() {
         return initialScanDone && state == State.SHOW;
     }

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.data;
 
 import com.google.gson.JsonElement;
@@ -7,26 +22,18 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Dungeon/Catacombs data for a profile.
- */
 public class DungeonData {
-    // Catacombs level
     private double catacombsXp = 0;
     private int catacombsLevel = 0;
     private double catacombsProgress = 0;
 
-    // Class levels (healer, mage, berserk, archer, tank)
     private final Map<String, ClassData> classes = new LinkedHashMap<>();
 
-    // Floor completions (normal and master)
     private final Map<String, FloorData> normalFloors = new LinkedHashMap<>();
     private final Map<String, FloorData> masterFloors = new LinkedHashMap<>();
 
-    // Total secrets
     private int secretsFound = 0;
 
-    // Dungeon XP table (cumulative)
     private static final double[] CATACOMBS_XP_TABLE = {
             0, 50, 125, 235, 395, 625, 955, 1425, 2095, 3045,
             4385, 6275, 8940, 12700, 17960, 25340, 35640, 50040, 70040, 97640,
@@ -36,17 +43,14 @@ public class DungeonData {
             569809640
     };
 
-    // Class display names
     private static final String[] CLASS_NAMES = {"healer", "mage", "berserk", "archer", "tank"};
     private static final String[] CLASS_DISPLAY = {"Healer", "Mage", "Berserk", "Archer", "Tank"};
 
     public DungeonData(JsonObject memberData) {
-        // Initialize classes
         for (int i = 0; i < CLASS_NAMES.length; i++) {
             classes.put(CLASS_NAMES[i], new ClassData(CLASS_DISPLAY[i], 0));
         }
 
-        // Initialize floors
         for (int i = 0; i <= 7; i++) {
             normalFloors.put(String.valueOf(i), new FloorData(i == 0 ? "Entrance" : "F" + i));
             if (i >= 1) {
@@ -62,25 +66,21 @@ public class DungeonData {
             if (!memberData.has("dungeons")) return;
             JsonObject dungeons = memberData.getAsJsonObject("dungeons");
 
-            // Parse dungeon types (catacombs)
             if (dungeons.has("dungeon_types")) {
                 JsonObject dungeonTypes = dungeons.getAsJsonObject("dungeon_types");
 
                 if (dungeonTypes.has("catacombs")) {
                     JsonObject catacombs = dungeonTypes.getAsJsonObject("catacombs");
 
-                    // Catacombs XP and level
                     if (catacombs.has("experience")) {
                         this.catacombsXp = catacombs.get("experience").getAsDouble();
                         calculateCatacombsLevel();
                     }
 
-                    // Floor completions
                     parseFloorCompletions(catacombs, normalFloors);
                     parseFloorTimes(catacombs, normalFloors);
                 }
 
-                // Master mode
                 if (dungeonTypes.has("master_catacombs")) {
                     JsonObject master = dungeonTypes.getAsJsonObject("master_catacombs");
                     parseFloorCompletions(master, masterFloors);
@@ -88,7 +88,6 @@ public class DungeonData {
                 }
             }
 
-            // Parse class levels
             if (dungeons.has("player_classes")) {
                 JsonObject playerClasses = dungeons.getAsJsonObject("player_classes");
                 for (String className : CLASS_NAMES) {
@@ -102,13 +101,11 @@ public class DungeonData {
                 }
             }
 
-            // Secrets found
             if (dungeons.has("secrets")) {
                 this.secretsFound = dungeons.get("secrets").getAsInt();
             }
 
         } catch (Exception e) {
-            // Ignore parse errors
         }
     }
 
@@ -121,7 +118,6 @@ public class DungeonData {
             }
         }
 
-        // Calculate progress
         if (catacombsLevel < CATACOMBS_XP_TABLE.length - 1) {
             double currentLevelXp = CATACOMBS_XP_TABLE[catacombsLevel];
             double nextLevelXp = CATACOMBS_XP_TABLE[catacombsLevel + 1];
@@ -154,7 +150,6 @@ public class DungeonData {
             }
         }
 
-        // Also check fastest_time_s and fastest_time_s_plus
         if (dungeonType.has("fastest_time_s")) {
             JsonObject sTimes = dungeonType.getAsJsonObject("fastest_time_s");
             for (Map.Entry<String, JsonElement> entry : sTimes.entrySet()) {
@@ -176,7 +171,6 @@ public class DungeonData {
         }
     }
 
-    // Getters
     public double getCatacombsXp() { return catacombsXp; }
     public int getCatacombsLevel() { return catacombsLevel; }
     public double getCatacombsProgress() { return catacombsProgress; }
@@ -185,9 +179,6 @@ public class DungeonData {
     public Map<String, FloorData> getMasterFloors() { return masterFloors; }
     public int getSecretsFound() { return secretsFound; }
 
-    /**
-     * Inner class for class data.
-     */
     public static class ClassData {
         private final String displayName;
         private double xp;
@@ -201,7 +192,6 @@ public class DungeonData {
 
         public void setXp(double xp) {
             this.xp = xp;
-            // Calculate level (uses same table as catacombs)
             for (int i = 0; i < CATACOMBS_XP_TABLE.length; i++) {
                 if (xp >= CATACOMBS_XP_TABLE[i]) {
                     level = i;
@@ -209,7 +199,6 @@ public class DungeonData {
                     break;
                 }
             }
-            // Calculate progress
             if (level < CATACOMBS_XP_TABLE.length - 1) {
                 double currentLevelXp = CATACOMBS_XP_TABLE[level];
                 double nextLevelXp = CATACOMBS_XP_TABLE[level + 1];
@@ -227,9 +216,6 @@ public class DungeonData {
         public double getProgress() { return progress; }
     }
 
-    /**
-     * Inner class for floor data.
-     */
     public static class FloorData {
         private final String displayName;
         private int completions = 0;
@@ -254,9 +240,6 @@ public class DungeonData {
         public long getFastestSPlusTime() { return fastestSPlusTime; }
         public void setFastestSPlusTime(long fastestSPlusTime) { this.fastestSPlusTime = fastestSPlusTime; }
 
-        /**
-         * Format time as MM:SS.
-         */
         public String formatTime(long ms) {
             if (ms == 0) return "-";
             long seconds = ms / 1000;

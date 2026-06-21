@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.player;
 
 import com.teslamaps.TeslaMaps;
@@ -20,31 +35,14 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
-/**
- * Tracks all players in the dungeon for map display.
- * Uses vanilla tab list ordering.
- */
 public class PlayerTracker {
-    /**
-     * Match a player entry in the dungeon tab list.
-     * Group 1: name
-     * Group 2: class (or literal "EMPTY" pre dungeon start)
-     * Group 3: level (or nothing, if pre dungeon start)
-     */
     public static final Pattern PLAYER_TAB_PATTERN = Pattern.compile(
             "\\[\\d+] (?:\\[[A-Za-z]+] )?(?<name>[A-Za-z0-9_]+) (?:.+ )?\\((?<class>\\S+) ?(?<level>[LXVI0]+)?\\)");
 
-    public static final Pattern PLAYER_GHOST_PATTERN = Pattern.compile(" ☠ (?<name>[A-Za-z0-9_]+) .+ became a ghost\\.");
+    public static final Pattern PLAYER_GHOST_PATTERN = Pattern.compile("  (?<name>[A-Za-z0-9_]+) .+ became a ghost\\.");
 
-    /**
-     * Ordered array of players - index matches map decoration order.
-     * Index 0 is the local player (self), indices 1-4 are other party members.
-     */
     private static final DungeonPlayer @Nullable [] players = new DungeonPlayer[5];
 
-    /**
-     * Cached player list sorted by vanilla ordering.
-     */
     private static List<PlayerInfo> playerList = new ArrayList<>();
 
     public static void reset() {
@@ -61,9 +59,6 @@ public class PlayerTracker {
         updatePlayers();
     }
 
-    /**
-     * Update the cached player list using vanilla's tab list ordering.
-     */
     private static void updatePlayerList() {
         Minecraft mc = Minecraft.getInstance();
         ClientPacketListener networkHandler = mc.getConnection();
@@ -75,15 +70,11 @@ public class PlayerTracker {
                         .sorted(PlayerTabOverlayAccessor.getOrdering())
                         .toList();
             } catch (Exception e) {
-                // Fallback if accessor fails
                 playerList = new ArrayList<>(networkHandler.getOnlinePlayers());
             }
         }
     }
 
-    /**
-     * Update players from tab list.
-     */
     private static void updatePlayers() {
         for (int i = 0; i < 5; i++) {
             Matcher matcher = getPlayerFromTab(i + 1);
@@ -105,12 +96,7 @@ public class PlayerTracker {
         }
     }
 
-    /**
-     * Get player info from tab list at a specific dungeon player index (1-5).
-     * Uses vanilla tab list ordering.
-     */
     public static @Nullable Matcher getPlayerFromTab(int index) {
-        // Tab list structure: players at positions 1, 5, 9, 13, 17 (every 4th slot starting at 1)
         int tabPosition = 1 + (index - 1) * 4;
 
         String str = strAt(tabPosition);
@@ -125,9 +111,6 @@ public class PlayerTracker {
         return m;
     }
 
-    /**
-     * Get the display name at some index of the player list as string.
-     */
     public static @Nullable String strAt(int idx) {
         if (playerList == null || playerList.size() <= idx) {
             return null;
@@ -144,9 +127,6 @@ public class PlayerTracker {
         return str;
     }
 
-    /**
-     * Handle ghost message - mark player as dead.
-     */
     public static void onGhostMessage(String message) {
         Matcher matcher = PLAYER_GHOST_PATTERN.matcher(message);
         if (!matcher.find()) return;
@@ -164,25 +144,16 @@ public class PlayerTracker {
         });
     }
 
-    /**
-     * Get the ordered player array. Index 0 is local player.
-     */
     public static DungeonPlayer @Nullable [] getPlayersOrdered() {
         return players;
     }
 
-    /**
-     * Get a player by name.
-     */
     public static Optional<DungeonPlayer> getPlayer(String name) {
         return Arrays.stream(players)
                 .filter(p -> p != null && p.getName().equals(name))
                 .findAny();
     }
 
-    /**
-     * Get all non-null players as a list.
-     */
     public static List<DungeonPlayer> getPlayers() {
         List<DungeonPlayer> list = new ArrayList<>();
         for (DungeonPlayer player : players) {
@@ -193,9 +164,6 @@ public class PlayerTracker {
         return list;
     }
 
-    /**
-     * Inner class representing a dungeon player.
-     */
     public static class DungeonPlayer {
         private @Nullable UUID uuid;
         private final String name;
@@ -208,11 +176,9 @@ public class PlayerTracker {
             this.name = name;
             update(dungeonClass);
 
-            // Pre-fetch game profile for smooth skin rendering
             if (uuid != null) {
                 CompletableFuture.runAsync(() -> {
                     try {
-                        // Trigger skin loading by looking up the player in tab list
                         var handler = Minecraft.getInstance().getConnection();
                         if (handler != null) {
                             handler.getPlayerInfo(uuid);
@@ -226,7 +192,6 @@ public class PlayerTracker {
             Minecraft mc = Minecraft.getInstance();
             if (mc.level == null) return null;
 
-            // Search through all entities
             for (var entity : mc.level.entitiesForRendering()) {
                 if (entity instanceof Player player) {
                     if (player.getGameProfile().name().equals(name)) {
@@ -238,7 +203,6 @@ public class PlayerTracker {
         }
 
         public void update(String dungeonClass) {
-            // Prevent tab list from overriding a recently ghosted player
             if ("EMPTY".equals(this.dungeonClass) && lastGhostTime + 2000 > System.currentTimeMillis()) {
                 return;
             }

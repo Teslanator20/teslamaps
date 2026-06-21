@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.termsim;
 
 import java.util.ArrayList;
@@ -6,10 +21,6 @@ import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Simulator for "Click in order!" terminal.
- * Click numbered red panes 1-14 in order.
- */
 public class NumbersSimulator extends TerminalSimulator {
     private int nextNumber = 1;
 
@@ -21,12 +32,10 @@ public class NumbersSimulator extends TerminalSimulator {
     protected void initializeTerminal() {
         nextNumber = 1;
 
-        // Fill with black panes
         for (int i = 0; i < slots.length; i++) {
             slots[i] = new ItemStack(Items.BLACK_STAINED_GLASS_PANE);
         }
 
-        // Place numbers 1-14 in random positions (avoiding edges)
         List<Integer> validSlots = new ArrayList<>();
         for (int row = 0; row < rows; row++) {
             for (int col = 1; col < cols - 1; col++) {
@@ -46,19 +55,16 @@ public class NumbersSimulator extends TerminalSimulator {
     protected boolean onSlotClick(int slotIndex, int button) {
         ItemStack stack = slots[slotIndex];
 
-        // Must be a red pane
         if (stack.getItem() != Items.RED_STAINED_GLASS_PANE) {
             return false;
         }
 
         int number = stack.getCount();
 
-        // Must click in order
         if (number != nextNumber) {
             return false;
         }
 
-        // Turn green
         slots[slotIndex] = new ItemStack(Items.LIME_STAINED_GLASS_PANE, number);
         nextNumber++;
 

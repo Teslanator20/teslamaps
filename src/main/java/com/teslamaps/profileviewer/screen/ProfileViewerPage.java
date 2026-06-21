@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen;
 
 import com.teslamaps.profileviewer.data.SkyblockProfile;
@@ -6,9 +21,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Base class for profile viewer pages.
- */
 public abstract class ProfileViewerPage {
     protected ProfileViewerScreen parent;
     protected SkyblockProfiles profiles;
@@ -18,89 +30,43 @@ public abstract class ProfileViewerPage {
         this.profiles = profiles;
     }
 
-    /**
-     * Render the page content.
-     * @param ctx Draw context
-     * @param x Left edge of content area
-     * @param y Top edge of content area
-     * @param width Content area width
-     * @param height Content area height
-     * @param mouseX Mouse X position
-     * @param mouseY Mouse Y position
-     * @param delta Partial tick
-     */
     public abstract void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                                 int mouseX, int mouseY, float delta);
 
-    /**
-     * Get the tab name for this page.
-     */
     public abstract String getTabName();
 
-    /**
-     * Get the tab icon for this page.
-     */
     public ItemStack getTabIcon() {
         return new ItemStack(Items.PAPER);
     }
 
-    /**
-     * Called when the page is selected.
-     */
     public void onSelected() {}
 
-    /**
-     * Called when mouse is clicked.
-     * @return true if the click was handled
-     */
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         return false;
     }
 
-    /**
-     * Called when mouse is scrolled.
-     * @return true if the scroll was handled
-     */
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         return false;
     }
 
-    /**
-     * Called when a key is pressed.
-     * @return true if the key was handled
-     */
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         return false;
     }
 
-    /**
-     * Get the current profile.
-     */
     protected SkyblockProfile getProfile() {
         return profiles != null ? profiles.getSelectedProfile() : null;
     }
 
-    // Utility methods for rendering
-
-    /**
-     * Draw a progress bar.
-     */
     protected void drawProgressBar(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                                    double progress, int bgColor, int fgColor) {
-        // Background
         ctx.fill(x, y, x + width, y + height, bgColor);
-        // Foreground (progress)
         int progressWidth = (int) (width * Math.min(1.0, Math.max(0.0, progress)));
         if (progressWidth > 0) {
             ctx.fill(x, y, x + progressWidth, y + height, fgColor);
         }
-        // Border
         drawBorder(ctx, x, y, width, height, 0xFF000000);
     }
 
-    /**
-     * Draw a border around a rectangle.
-     */
     protected void drawBorder(GuiGraphicsExtractor ctx, int x, int y, int width, int height, int color) {
         ctx.fill(x, y, x + width, y + 1, color);                    // Top
         ctx.fill(x, y + height - 1, x + width, y + height, color);  // Bottom
@@ -108,9 +74,6 @@ public abstract class ProfileViewerPage {
         ctx.fill(x + width - 1, y, x + width, y + height, color);    // Right
     }
 
-    /**
-     * Format a large number (e.g., 1.2M, 5.3K).
-     */
     protected String formatNumber(double num) {
         if (num >= 1_000_000_000) {
             return String.format("%.1fB", num / 1_000_000_000);
@@ -123,9 +86,6 @@ public abstract class ProfileViewerPage {
         }
     }
 
-    /**
-     * Format coins with comma separators.
-     */
     protected String formatCoins(double coins) {
         if (coins >= 1_000_000_000) {
             return String.format("%.2fB", coins / 1_000_000_000);

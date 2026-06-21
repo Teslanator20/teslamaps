@@ -1,8 +1,20 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.data;
 
-/**
- * Data for a single pet.
- */
 public class PetData {
     private final String type;
     private final String tier;  // COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC
@@ -13,7 +25,6 @@ public class PetData {
     private final int level;
     private final double progress;
 
-    // Pet XP table (per rarity offset)
     private static final int[] RARITY_OFFSET = {0, 0, 6, 11, 16, 20, 20};
     private static final double[] PET_XP_TABLE = {
             0, 100, 210, 330, 460, 605, 765, 940, 1130, 1340, 1570, 1820, 2095, 2395, 2725, 3085, 3485, 3925, 4415,
@@ -34,7 +45,6 @@ public class PetData {
         this.heldItem = heldItem;
         this.skin = skin;
 
-        // Calculate level
         int rarityIndex = getRarityOrdinal();
         int offset = rarityIndex < RARITY_OFFSET.length ? RARITY_OFFSET[rarityIndex] : 0;
         int maxLevel = 100;
@@ -51,7 +61,6 @@ public class PetData {
         }
         this.level = lvl;
 
-        // Calculate progress
         if (lvl < maxLevel && offset + lvl < PET_XP_TABLE.length) {
             double prevLevelXp = 0;
             for (int i = offset; i < offset + lvl - 1 && i < PET_XP_TABLE.length; i++) {
@@ -73,11 +82,7 @@ public class PetData {
     public int getLevel() { return level; }
     public double getProgress() { return progress; }
 
-    /**
-     * Get display name (formatted type).
-     */
     public String getDisplayName() {
-        // Convert GOLDEN_DRAGON to Golden Dragon
         String[] parts = type.split("_");
         StringBuilder sb = new StringBuilder();
         for (String part : parts) {
@@ -87,10 +92,6 @@ public class PetData {
         return sb.toString();
     }
 
-    /**
-     * Get rarity ordinal for sorting.
-     * COMMON=0, UNCOMMON=1, RARE=2, EPIC=3, LEGENDARY=4, MYTHIC=5
-     */
     public int getRarityOrdinal() {
         return switch (tier.toUpperCase()) {
             case "COMMON" -> 0;
@@ -103,9 +104,6 @@ public class PetData {
         };
     }
 
-    /**
-     * Get rarity color (ARGB).
-     */
     public int getRarityColor() {
         return switch (tier.toUpperCase()) {
             case "COMMON" -> 0xFFAAAAAA;

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonArray;
@@ -11,9 +26,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Inventories page showing inventory, ender chest, and storage info.
- */
 public class InventoriesPage extends ProfileViewerPage {
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
@@ -47,7 +59,6 @@ public class InventoriesPage extends ProfileViewerPage {
 
         int lineY = y + padding;
 
-        // Sub-tabs
         int tabX = contentX;
         for (int i = 0; i < TABS.length; i++) {
             int color = (i == selectedTab) ? TEXT_GREEN : TEXT_GRAY;
@@ -56,7 +67,6 @@ public class InventoriesPage extends ProfileViewerPage {
         }
         lineY += 20;
 
-        // Render selected inventory tab
         switch (selectedTab) {
             case 0 -> renderInventory(ctx, tr, memberData, contentX, lineY, width);
             case 1 -> renderEnderChest(ctx, tr, memberData, contentX, lineY, width);
@@ -78,12 +88,10 @@ public class InventoriesPage extends ProfileViewerPage {
             return;
         }
 
-        // Show that inventory data exists
         String data = inventory.get("data").getAsString();
         ctx.text(tr, "Inventory data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
         lineY += 12;
 
-        // Equipment
         lineY += 8;
         ctx.text(tr, "Equipment", x, lineY, TEXT_GREEN);
         lineY += 16;
@@ -153,7 +161,6 @@ public class InventoriesPage extends ProfileViewerPage {
         ctx.text(tr, "Wardrobe data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
         lineY += 14;
 
-        // Wardrobe equipped slot
         if (memberData.has("wardrobe_equipped_slot")) {
             int equipped = memberData.get("wardrobe_equipped_slot").getAsInt();
             ctx.text(tr, "Equipped slot: " + equipped, x, lineY, TEXT_GOLD);
@@ -175,7 +182,6 @@ public class InventoriesPage extends ProfileViewerPage {
         ctx.text(tr, "Accessory bag data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
         lineY += 14;
 
-        // Accessory bag storage (unlocked slots)
         if (memberData.has("accessory_bag_storage")) {
             JsonObject storage = memberData.getAsJsonObject("accessory_bag_storage");
             if (storage.has("highest_magical_power")) {
@@ -193,7 +199,6 @@ public class InventoriesPage extends ProfileViewerPage {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // Check if clicked on a sub-tab
         SkyblockProfile profile = getProfile();
         if (profile == null) return false;
 

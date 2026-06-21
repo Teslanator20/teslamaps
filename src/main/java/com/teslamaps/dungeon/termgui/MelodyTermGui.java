@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.termgui;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -6,9 +21,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 
-/**
- * Custom GUI for the "Click the button on time!" terminal (Melody).
- */
 public class MelodyTermGui extends CustomTermGui {
     @Override
     protected int[] getCurrentSolution() {
@@ -26,7 +38,6 @@ public class MelodyTermGui extends CustomTermGui {
         int lastGreenPos = MelodyTerminal.getLastGreenPosition();
         int purplePos = MelodyTerminal.getPurplePosition();
 
-        // Render 44 slots (top row of buttons + 4 lanes)
         for (int index = 0; index < 44; index++) {
             int column = index % 9;
             int row = index / 9;
@@ -34,29 +45,22 @@ public class MelodyTermGui extends CustomTermGui {
             int color;
 
             if (row == 0) {
-                // Top row - show PURPLE target indicator (where you need to click when green aligns)
                 if (purplePos != -1 && index == purplePos) {
-                    // Purple/magenta color for the target column
                     color = 0xFFFF00FF; // Bright magenta
                 } else {
                     continue; // Skip other top row slots
                 }
             } else if (column == 7 && row >= 1 && row <= 4) {
-                // Terracotta column (column 7, rows 1-4) - highlight the current lane
                 if (row - 1 == currentLane && purplePos != -1) {
                     color = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().terminalGuiMelodyColor);
                 } else {
                     color = 0x44888888; // Gray background for inactive lanes
                 }
             } else if (column >= 1 && column <= 6 && row >= 1 && row <= 4) {
-                // Button columns (1-6) - highlight where GREEN moving indicator is
-                // Calculate slot number of green indicator in current lane
                 int currentLaneRow = currentLane + 1; // Lane 0 = row 1, lane 1 = row 2, etc.
                 if (row == currentLaneRow && lastGreenPos != -1 && column == lastGreenPos) {
-                    // Green color for the moving indicator
                     color = 0xFF00FF00; // Bright green
                 } else if (row == currentLaneRow) {
-                    // Light gray background for active lane
                     color = 0x44888888;
                 } else {
                     continue; // Skip other lanes

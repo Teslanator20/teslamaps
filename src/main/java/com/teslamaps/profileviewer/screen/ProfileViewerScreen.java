@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen;
 
 import com.teslamaps.TeslaMaps;
@@ -15,11 +30,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-/**
- * Main Profile Viewer screen with tabbed navigation.
- */
 public class ProfileViewerScreen extends Screen {
-    // Colors
     private static final int BG_COLOR = 0xFF1A1A1A;
     private static final int HEADER_COLOR = 0xFF2A2A2A;
     private static final int TAB_COLOR = 0xFF333333;
@@ -29,11 +40,9 @@ public class ProfileViewerScreen extends Screen {
     private static final int TEXT_COLOR = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
 
-    // Layout
     private static final int TAB_HEIGHT = 24;
     private static final int HEADER_HEIGHT = 50;
 
-    // State
     private final String targetPlayer;
     private String targetUuid;
     private SkyblockProfiles profiles;
@@ -42,17 +51,13 @@ public class ProfileViewerScreen extends Screen {
     private int loadingDots = 0;
     private long lastDotUpdate = 0;
 
-    // Pages
     private final List<ProfileViewerPage> pages = new ArrayList<>();
     private int selectedPageIndex = 0;
 
-    // Profile dropdown
     private boolean profileDropdownOpen = false;
 
-    // Mouse state for click detection
     private boolean wasMouseDown = false;
 
-    // Scroll offset for pages
     private int scrollOffset = 0;
 
     public ProfileViewerScreen(String playerName) {
@@ -62,7 +67,6 @@ public class ProfileViewerScreen extends Screen {
 
     @Override
     protected void init() {
-        // Initialize all 14 pages
         pages.clear();
         pages.add(new BasicPage());
         pages.add(new DungeonPage());
@@ -79,7 +83,6 @@ public class ProfileViewerScreen extends Screen {
         pages.add(new RiftPage());
         pages.add(new GardenPage());
 
-        // Start loading
         loadProfile();
     }
 
@@ -87,7 +90,6 @@ public class ProfileViewerScreen extends Screen {
         loading = true;
         error = null;
 
-        // First get UUID from name
         HypixelApi.nameToUuid(targetPlayer).thenAccept(uuid -> {
             if (uuid == null) {
                 error = "Player not found: " + targetPlayer;
@@ -97,17 +99,14 @@ public class ProfileViewerScreen extends Screen {
 
             this.targetUuid = uuid;
 
-            // Create profiles container and load
             profiles = new SkyblockProfiles(uuid, targetPlayer);
             profiles.load().thenRun(() -> {
                 loading = false;
                 if (profiles.getError() != null) {
                     error = profiles.getError();
                 } else {
-                    // Add to recent players
                     SkyblockProfiles.addToRecentPlayers(targetPlayer);
 
-                    // Initialize pages with loaded data
                     for (ProfileViewerPage page : pages) {
                         page.init(this, profiles);
                     }
@@ -121,26 +120,20 @@ public class ProfileViewerScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        // Mouse click detection
         boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean clicked = isMouseDown && !wasMouseDown;
 
-        // Update loading animation
         if (loading && System.currentTimeMillis() - lastDotUpdate > 500) {
             loadingDots = (loadingDots + 1) % 4;
             lastDotUpdate = System.currentTimeMillis();
         }
 
-        // Background
         ctx.fill(0, 0, width, height, BG_COLOR);
 
-        // Header
         renderHeader(ctx, mouseX, mouseY, clicked);
 
-        // Tab bar
         renderTabs(ctx, mouseX, mouseY, clicked);
 
-        // Content area
         int contentY = HEADER_HEIGHT + TAB_HEIGHT;
         int contentHeight = height - contentY;
 
@@ -149,14 +142,12 @@ public class ProfileViewerScreen extends Screen {
         } else if (error != null) {
             renderError(ctx, contentY, contentHeight, mouseY, clicked);
         } else if (profiles != null && profiles.getSelectedProfile() != null) {
-            // Render current page
             if (selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
                 pages.get(selectedPageIndex).render(ctx, 0, contentY, width, contentHeight,
                         mouseX, mouseY, delta);
             }
         }
 
-        // Profile dropdown (rendered on top)
         if (profileDropdownOpen && profiles != null) {
             renderProfileDropdown(ctx, mouseX, mouseY, clicked);
         }
@@ -169,11 +160,9 @@ public class ProfileViewerScreen extends Screen {
     private void renderHeader(GuiGraphicsExtractor ctx, int mouseX, int mouseY, boolean clicked) {
         ctx.fill(0, 0, width, HEADER_HEIGHT, HEADER_COLOR);
 
-        // Player name
         String displayName = profiles != null ? profiles.getDisplayName() : targetPlayer;
         ctx.text(font, displayName, 10, 10, TEXT_COLOR);
 
-        // Profile selector (if loaded)
         if (profiles != null && profiles.isLoaded() && !profiles.getProfiles().isEmpty()) {
             SkyblockProfile selected = profiles.getSelectedProfile();
             if (selected != null) {
@@ -198,21 +187,18 @@ public class ProfileViewerScreen extends Screen {
             }
         }
 
-        // Status (if available)
         if (profiles != null) {
             String status = profiles.getOnlineStatus();
             int statusColor = status.startsWith("Online") ? 0xFF55FF55 : TEXT_GRAY;
             int statusX = width - font.width(status) - 10;
             ctx.text(font, status, statusX, 10, statusColor);
 
-            // Guild
             String guild = profiles.getGuildName();
             if (guild != null) {
                 ctx.text(font, "[" + guild + "]", statusX, 22, 0xFFAAAA00);
             }
         }
 
-        // Close button
         int closeX = width - 20;
         int closeY = 10;
         boolean closeHovered = mouseX >= closeX && mouseX < closeX + 15 && mouseY >= closeY && mouseY < closeY + 15;
@@ -241,12 +227,10 @@ public class ProfileViewerScreen extends Screen {
             int bgColor = selected ? TAB_SELECTED_COLOR : (hovered ? TAB_HOVER_COLOR : TAB_COLOR);
             ctx.fill(tabX, tabY, tabX + tabWidth, tabY + TAB_HEIGHT, bgColor);
 
-            // Bottom border for selected tab
             if (selected) {
                 ctx.fill(tabX, tabY + TAB_HEIGHT - 2, tabX + tabWidth, tabY + TAB_HEIGHT, ACCENT_COLOR);
             }
 
-            // Tab name
             String name = page.getTabName();
             int textX = tabX + (tabWidth - font.width(name)) / 2;
             ctx.text(font, name, textX, tabY + 8, selected ? TEXT_COLOR : TEXT_GRAY);
@@ -254,7 +238,6 @@ public class ProfileViewerScreen extends Screen {
             tabX += tabWidth;
         }
 
-        // Fill remaining space
         if (tabX < width) {
             ctx.fill(tabX, tabY, width, tabY + TAB_HEIGHT, TAB_COLOR);
         }
@@ -278,7 +261,6 @@ public class ProfileViewerScreen extends Screen {
                 SkyblockProfile profile = profiles.getProfiles().get(profileName);
                 profiles.setSelectedProfile(profile);
                 profileDropdownOpen = false;
-                // Reinitialize pages with new profile
                 for (ProfileViewerPage page : pages) {
                     page.init(this, profiles);
                 }
@@ -295,14 +277,12 @@ public class ProfileViewerScreen extends Screen {
             y += 16;
         }
 
-        // Check for click in dropdown header area
         int headerY = 28;
         if (mouseX >= dropdownX && mouseX < dropdownX + dropdownW &&
                 mouseY >= headerY && mouseY < headerY + 16) {
             clickedOutside = false;
         }
 
-        // Click outside closes dropdown
         if (clicked && clickedOutside) {
             profileDropdownOpen = false;
         }
@@ -317,24 +297,20 @@ public class ProfileViewerScreen extends Screen {
     }
 
     private void renderError(GuiGraphicsExtractor ctx, int contentY, int contentHeight, int mouseY, boolean clicked) {
-        // Error title
         String title = "Error";
         int titleX = (width - font.width(title)) / 2;
         int titleY = contentY + contentHeight / 2 - 20;
         ctx.text(font, title, titleX, titleY, 0xFFFF5555);
 
-        // Error message
         int msgX = (width - font.width(error)) / 2;
         int msgY = contentY + contentHeight / 2;
         ctx.text(font, error, msgX, msgY, TEXT_GRAY);
 
-        // Retry hint
         String hint = "Click to retry";
         int hintX = (width - font.width(hint)) / 2;
         int hintY = contentY + contentHeight / 2 + 20;
         ctx.text(font, hint, hintX, hintY, TEXT_GRAY);
 
-        // Retry on click
         if (clicked && mouseY >= contentY && mouseY < contentY + contentHeight) {
             loadProfile();
         }
@@ -350,10 +326,8 @@ public class ProfileViewerScreen extends Screen {
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
-
     @Override
     public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        // Don't render default background
     }
 
     @Override
@@ -361,9 +335,6 @@ public class ProfileViewerScreen extends Screen {
         return false;
     }
 
-    /**
-     * Open the profile viewer for a player.
-     */
     public static void open(String playerName) {
         Minecraft mc = Minecraft.getInstance();
         mc.schedule(() -> mc.setScreen(new ProfileViewerScreen(playerName)));

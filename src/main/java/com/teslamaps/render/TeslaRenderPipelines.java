@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.render;
 
 import com.mojang.blaze3d.pipeline.DepthStencilState;
@@ -5,24 +20,11 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.CompareOp;
 import net.minecraft.client.renderer.RenderPipelines;
 
-/**
- * Custom render pipelines for ESP rendering through walls.
- *
- * 26.1.2: the pipeline builder no longer exposes withBlend/withDepthWrite/withDepthTestFunction,
- * and the vanilla snippets are private. We build straight from the vanilla LINES / DEBUG_FILLED
- * snippets (exposed via the access widener) so the shaders, uniforms and vertex formats stay
- * correct, and only override the depth state to disable the depth test (ALWAYS_PASS, no write),
- * which is what makes the ESP render through walls.
- */
 public class TeslaRenderPipelines {
 
-    // ALWAYS_PASS = depth test always passes (renders through walls); false = don't write depth.
     private static final DepthStencilState NO_DEPTH =
-            new DepthStencilState(CompareOp.ALWAYS_PASS, false);
+            new DepthStencilState(CompareOp.ALWAYS_PASS, true);
 
-    /**
-     * Lines with depth test disabled - renders through walls.
-     */
     public static final RenderPipeline LINES_ESP = RenderPipelines.register(
             RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
                     .withLocation("pipeline/teslamaps_lines_esp")
@@ -30,9 +32,6 @@ public class TeslaRenderPipelines {
                     .build()
     );
 
-    /**
-     * Filled boxes with depth test disabled - renders through walls.
-     */
     public static final RenderPipeline FILLED_ESP = RenderPipelines.register(
             RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
                     .withLocation("pipeline/teslamaps_filled_esp")
@@ -40,11 +39,9 @@ public class TeslaRenderPipelines {
                     .build()
     );
 
-    // LESS_THAN_OR_EQUAL = normal depth test (hidden behind walls); false = don't write depth.
     private static final DepthStencilState DEPTH =
             new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false);
 
-    /** Lines with normal depth test - hidden behind walls. */
     public static final RenderPipeline LINES_DEPTH = RenderPipelines.register(
             RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
                     .withLocation("pipeline/teslamaps_lines_depth")
@@ -52,7 +49,6 @@ public class TeslaRenderPipelines {
                     .build()
     );
 
-    /** Filled boxes with normal depth test - hidden behind walls. */
     public static final RenderPipeline FILLED_DEPTH = RenderPipelines.register(
             RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
                     .withLocation("pipeline/teslamaps_filled_depth")
@@ -60,10 +56,6 @@ public class TeslaRenderPipelines {
                     .build()
     );
 
-    /**
-     * Initialize pipelines (called during mod init to ensure they're registered).
-     */
     public static void init() {
-        // Just accessing the fields is enough to trigger static initialization
     }
 }

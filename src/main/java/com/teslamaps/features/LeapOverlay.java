@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.features;
 
 import com.teslamaps.TeslaMaps;
@@ -20,42 +35,33 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Enhanced Spirit Leap overlay - renders a custom 2x2 grid with player info.
- * Spirit Leap menu overlay with class icons and sorting.
- */
 public class LeapOverlay {
     private static final Minecraft mc = Minecraft.getInstance();
 
-    // Class color mappings 
     private static final Map<String, Integer> CLASS_COLORS = new HashMap<>();
     private static final Map<String, String> CLASS_LETTERS = new HashMap<>();
     private static final Map<String, Integer> CLASS_DEFAULT_QUADRANT = new HashMap<>();
     private static final Map<String, Integer> CLASS_PRIORITY = new HashMap<>();
 
     static {
-        // Colors
         CLASS_COLORS.put("Archer", 0xFFFFAA00);     // Gold
         CLASS_COLORS.put("Berserk", 0xFFAA0000);    // Dark Red
         CLASS_COLORS.put("Healer", 0xFFFF55FF);     // Light Purple
         CLASS_COLORS.put("Mage", 0xFF55FFFF);       // Aqua
         CLASS_COLORS.put("Tank", 0xFF00AA00);       // Dark Green
 
-        // Letters
         CLASS_LETTERS.put("Archer", "A");
         CLASS_LETTERS.put("Berserk", "B");
         CLASS_LETTERS.put("Healer", "H");
         CLASS_LETTERS.put("Mage", "M");
         CLASS_LETTERS.put("Tank", "T");
 
-        // Default quadrants (0=top-left, 1=top-right, 2=bottom-left, 3=bottom-right)
         CLASS_DEFAULT_QUADRANT.put("Archer", 0);
         CLASS_DEFAULT_QUADRANT.put("Berserk", 1);
         CLASS_DEFAULT_QUADRANT.put("Healer", 2);
         CLASS_DEFAULT_QUADRANT.put("Mage", 3);
         CLASS_DEFAULT_QUADRANT.put("Tank", 3);
 
-        // Priority (lower = placed first)
         CLASS_PRIORITY.put("Berserk", 0);
         CLASS_PRIORITY.put("Tank", 1);
         CLASS_PRIORITY.put("Archer", 2);
@@ -63,19 +69,14 @@ public class LeapOverlay {
         CLASS_PRIORITY.put("Mage", 2);
     }
 
-    // Store players for current leap menu (4 quadrants)
     private static final LeapPlayer[] leapPlayers = new LeapPlayer[4];
     private static long lastScanTime = 0;
     private static boolean menuOpen = false;
 
-    // Quadrant layout - scaled sizes
     private static final int BASE_BOX_WIDTH = 100;
     private static final int BASE_BOX_HEIGHT = 50;
     private static final int BASE_GAP = 8;
 
-    /**
-     * Check if we should render the custom leap overlay.
-     */
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().leapOverlay) return false;
         if (!DungeonManager.isInDungeon()) return false;
@@ -90,19 +91,28 @@ public class LeapOverlay {
     }
 
     private static final Pattern LEAPED_PATTERN = Pattern.compile("You have teleported to (\\w{1,16})!");
+    private static final Pattern DOOR_OPENER_PATTERN = Pattern.compile("(\\w{1,16}) opened a WITHER door!");
 
-    /** Announce leaps to party chat (Odin "Leap Announce"). */
+    private static String lastDoorOpener = null;
+
+    public static String getLastDoorOpener() { return lastDoorOpener; }
+
     public static void onChatMessage(String message) {
-        if (!TeslaMapsConfig.get().leapAnnounce || !DungeonManager.isInDungeon()) return;
+        if (!DungeonManager.isInDungeon()) return;
+
+        Matcher door = DOOR_OPENER_PATTERN.matcher(message);
+        if (door.find()) {
+            lastDoorOpener = door.group(1);
+            TeslaMaps.LOGGER.info("[LeapOverlay] Last door opener: {}", lastDoorOpener);
+        }
+
+        if (!TeslaMapsConfig.get().leapAnnounce) return;
         Matcher m = LEAPED_PATTERN.matcher(message);
         if (m.find() && mc.getConnection() != null) {
             mc.getConnection().sendCommand("pc Leaped to " + m.group(1) + "!");
         }
     }
 
-    /**
-     * Render the custom leap menu overlay.
-     */
     public static void render(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         if (!shouldRender()) {
             menuOpen = false;
@@ -112,7 +122,6 @@ public class LeapOverlay {
         ContainerScreen screen = (ContainerScreen) mc.screen;
         if (screen == null) return;
 
-        // Scan for players if menu just opened or periodically
         long now = System.currentTimeMillis();
         if (!menuOpen || now - lastScanTime > 500) {
             scanLeapPlayers(screen);
@@ -122,7 +131,6 @@ public class LeapOverlay {
 
         pollKeybinds(screen);
 
-        // Check if any players
         boolean hasPlayers = false;
         for (LeapPlayer p : leapPlayers) {
             if (p != null) {
@@ -136,8 +144,6 @@ public class LeapOverlay {
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
 
-        // Dungeon map at the top-center (click it to leap to the nearest player). Hidden in the
-        // boss room (no dungeon grid there) — the rest of the leap menu still works.
         if (TeslaMapsConfig.get().leapShowMap && DungeonManager.isInDungeon() && !DungeonManager.isInBoss()) {
             float mapScale = TeslaMapsConfig.get().mapScale;
             int mw = MapRenderer.mapW();
@@ -145,7 +151,6 @@ public class LeapOverlay {
             MapRenderer.renderAt(context, mapBaseX, 6, mapScale, true);
         }
 
-        // Scale based on screen size (smaller on smaller screens)
         float scale = Math.min(screenWidth / 400f, screenHeight / 250f);
         scale = Math.max(0.5f, Math.min(scale, 1.5f)); // Clamp between 0.5 and 1.5
 
@@ -153,27 +158,22 @@ public class LeapOverlay {
         int boxHeight = (int) (BASE_BOX_HEIGHT * scale);
         int gap = (int) (BASE_GAP * scale);
 
-        // Calculate center position for 2x2 grid
         int totalWidth = boxWidth * 2 + gap;
         int totalHeight = boxHeight * 2 + gap;
         int startX = (screenWidth - totalWidth) / 2;
         int startY = (screenHeight - totalHeight) / 2;
 
-        // Render semi-transparent background
         context.fill(startX - 8, startY - 8, startX + totalWidth + 8, startY + totalHeight + 8, 0xC0000000);
 
-        // Render each player in their quadrant
         for (int i = 0; i < 4; i++) {
             LeapPlayer player = leapPlayers[i];
             if (player == null) continue;
 
-            // Calculate quadrant position (0=top-left, 1=top-right, 2=bottom-left, 3=bottom-right)
             int col = i % 2;
             int row = i / 2;
             int boxX = startX + col * (boxWidth + gap);
             int boxY = startY + row * (boxHeight + gap);
 
-            // Check if mouse is hovering
             boolean hovered = mouseX >= boxX && mouseX < boxX + boxWidth &&
                               mouseY >= boxY && mouseY < boxY + boxHeight;
 
@@ -181,25 +181,18 @@ public class LeapOverlay {
         }
     }
 
-    /**
-     * Render a single player box.
-     */
     private static void renderPlayerBox(GuiGraphicsExtractor context, Font textRenderer,
                                          LeapPlayer player, int x, int y, int width, int height,
                                          boolean hovered, float scale) {
-        // Get class color
         int classColor = CLASS_COLORS.getOrDefault(player.dungeonClass, 0xFFFFFFFF);
 
-        // Background color - lighter if hovered
         int bgColor = hovered ? 0xE0505050 : 0xC0303030;
         if (player.isDead) {
             bgColor = hovered ? 0xE0602020 : 0xC0401010;
         }
 
-        // Draw box background
         context.fill(x, y, x + width, y + height, bgColor);
 
-        // Draw colored border
         int borderColor = player.isDead ? 0xFFFF0000 : classColor;
         int borderWidth = Math.max(1, (int)(2 * scale));
         context.fill(x, y, x + width, y + borderWidth, borderColor); // Top
@@ -207,7 +200,6 @@ public class LeapOverlay {
         context.fill(x, y, x + borderWidth, y + height, borderColor); // Left
         context.fill(x + width - borderWidth, y, x + width, y + height, borderColor); // Right
 
-        // Draw the player head (Odin style), or a colored class-letter box as fallback.
         int iconSize = (int)(32 * scale);
         int iconX = x + (int)(4 * scale);
         int iconY = y + (height - iconSize) / 2;
@@ -222,13 +214,11 @@ public class LeapOverlay {
             context.text(textRenderer, letter, letterX, letterY, 0xFFFFFFFF, true);
         }
 
-        // Draw player name
         int textX = iconX + iconSize + (int)(6 * scale);
         int nameY = y + (int)(8 * scale);
         int nameColor = player.isDead ? 0xFFFF5555 : 0xFFFFFFFF;
         context.text(textRenderer, player.name, textX, nameY, nameColor, true);
 
-        // Draw class name (or DEAD)
         int classY = y + (int)(20 * scale);
         if (player.isDead) {
             context.text(textRenderer, "DEAD", textX, classY, 0xFFFF0000, true);
@@ -240,7 +230,6 @@ public class LeapOverlay {
 
     private static final Set<Integer> heldLeapKeys = new HashSet<>();
 
-    /** Poll the leap keybinds (Corners or Class mode) while the menu is open and leap on press. */
     private static void pollKeybinds(ContainerScreen screen) {
         if (mc.getWindow() == null) return;
         long handle = mc.getWindow().handle();
@@ -257,6 +246,15 @@ public class LeapOverlay {
             pollKey(handle, c.leapKeyBL, () -> leapToQuadrant(screen, 2));
             pollKey(handle, c.leapKeyBR, () -> leapToQuadrant(screen, 3));
         }
+        pollKey(handle, c.leapKeyLastDoor, () -> leapToLastDoorOpener(screen));
+    }
+
+    private static void leapToLastDoorOpener(ContainerScreen screen) {
+        if (lastDoorOpener == null) return;
+        for (LeapPlayer p : leapPlayers) {
+            if (p != null && !p.isDead && lastDoorOpener.equals(p.name)) { leapToPlayer(screen, p.name); return; }
+        }
+        TeslaMaps.LOGGER.info("[LeapOverlay] Last door opener '{}' not a leap target", lastDoorOpener);
     }
 
     private static void pollKey(long handle, int key, Runnable action) {
@@ -279,11 +277,6 @@ public class LeapOverlay {
         }
     }
 
-    /**
-     * Handle mouse click on the leap menu.
-     * Clicking anywhere in a screen quadrant selects that player.
-     * Returns true if click was handled.
-     */
     public static boolean handleClick(double mouseX, double mouseY, int button) {
         if (!shouldRender()) return false;
         if (button != 0) return false; // Only left click
@@ -291,17 +284,28 @@ public class LeapOverlay {
         ContainerScreen screen = (ContainerScreen) mc.screen;
         if (screen == null) return false;
 
-        // Click on the embedded map -> leap to the player whose marker is nearest the click.
         if (TeslaMapsConfig.get().leapShowMap && !DungeonManager.isInBoss()) {
             int mx = MapRenderer.mapX(), my = MapRenderer.mapY(), mw = MapRenderer.mapW(), mh = MapRenderer.mapH();
-            if (mw > 0 && mouseX >= mx && mouseX <= mx + mw && mouseY >= my && mouseY <= my + mh) {
+            boolean inMap = mw > 0 && mouseX >= mx && mouseX <= mx + mw && mouseY >= my && mouseY <= my + mh;
+            List<String> targets = leapTargetNames(screen);
+
+            if (TeslaMapsConfig.get().debugMode) {
+                StringBuilder mk = new StringBuilder();
+                for (MapRenderer.PlayerMarker m : MapRenderer.getPlayerMarkers())
+                    mk.append(m.self() ? "*" : "").append(m.name()).append("(").append(m.x()).append(",").append(m.y()).append(") ");
+                TeslaMaps.LOGGER.info("[LeapDbg] click {},{} | map {},{},{},{} inMap={} | markers: {}| targets: {}",
+                        (int) mouseX, (int) mouseY, mx, my, mw, mh, inMap, mk, targets);
+            }
+
+            if (inMap) {
                 String nearest = null;
                 double best = Double.MAX_VALUE;
                 for (MapRenderer.PlayerMarker m : MapRenderer.getPlayerMarkers()) {
-                    if (m.self()) continue;
+                    if (m.self() || m.name() == null || !targets.contains(m.name())) continue;
                     double d = (m.x() - mouseX) * (m.x() - mouseX) + (m.y() - mouseY) * (m.y() - mouseY);
                     if (d < best) { best = d; nearest = m.name(); }
                 }
+                if (nearest == null && targets.size() == 1) nearest = targets.get(0);
                 if (nearest != null) leapToPlayer(screen, nearest);
                 return true; // consume the click whether or not a player was found
             }
@@ -312,7 +316,6 @@ public class LeapOverlay {
         int halfWidth = screenWidth / 2;
         int halfHeight = screenHeight / 2;
 
-        // Determine which screen quadrant was clicked (full screen hitboxes)
         int quadrant;
         if (mouseX < halfWidth && mouseY < halfHeight) {
             quadrant = 0; // Top-left
@@ -338,15 +341,22 @@ public class LeapOverlay {
         return true;
     }
 
-    /**
-     * Find and click the slot for the given player name.
-     */
+    private static List<String> leapTargetNames(ContainerScreen screen) {
+        List<String> names = new ArrayList<>();
+        for (Slot slot : screen.getMenu().slots) {
+            if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+            ItemStack stack = slot.getItem();
+            if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
+            String n = ChatFormatting.stripFormatting(stack.getHoverName().getString());
+            if (n != null && !n.isEmpty() && !names.contains(n)) names.add(n);
+        }
+        return names;
+    }
+
     private static void leapToPlayer(ContainerScreen screen, String playerName) {
         var handler = screen.getMenu();
 
         for (Slot slot : handler.slots) {
-            // Only the leap GUI's own slots — not the player's inventory (skull items there are
-            // gear like Bonzo's Mask / Necron's Head, not leap targets).
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
             ItemStack stack = slot.getItem();
             if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
@@ -364,11 +374,7 @@ public class LeapOverlay {
         TeslaMaps.LOGGER.warn("[LeapOverlay] Could not find slot for player: {}", playerName);
     }
 
-    /**
-     * Scan the leap menu for players and sort by class.
-     */
     private static void scanLeapPlayers(ContainerScreen screen) {
-        // Clear array
         Arrays.fill(leapPlayers, null);
 
         var handler = screen.getMenu();
@@ -378,11 +384,8 @@ public class LeapOverlay {
             playerMap.put(dp.getName(), dp);
         }
 
-        // Collect all players from slots
         List<LeapPlayer> allPlayers = new ArrayList<>();
         for (Slot slot : handler.slots) {
-            // Skip the player's own inventory — its skull items (Bonzo's Mask, Necron's Head, …)
-            // are NOT leap targets and would show up as fake players.
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
             ItemStack stack = slot.getItem();
             if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
@@ -398,7 +401,6 @@ public class LeapOverlay {
             allPlayers.add(new LeapPlayer(itemName, dungeonClass, isDead, slot.index, uuid));
         }
 
-        // Apply the selected sorting mode
         sortPlayers(allPlayers);
     }
 
@@ -410,7 +412,6 @@ public class LeapOverlay {
         };
     }
 
-    /** Dispatch on the configured sort mode and fill the 4 quadrants. */
     private static void sortPlayers(List<LeapPlayer> players) {
         String mode = TeslaMapsConfig.get().leapSortMode;
         if ("Odin".equals(mode)) { odinSort(players); return; }
@@ -430,11 +431,7 @@ public class LeapOverlay {
         for (int i = 0; i < players.size() && i < 4; i++) leapPlayers[i] = players.get(i);
     }
 
-    /**
-     * Odin sorting: place players in their default class quadrant, overflow to empty slots.
-     */
     private static void odinSort(List<LeapPlayer> players) {
-        // Sort by priority (lower = processed first)
         players.sort((a, b) -> {
             int prioA = CLASS_PRIORITY.getOrDefault(a.dungeonClass, 99);
             int prioB = CLASS_PRIORITY.getOrDefault(b.dungeonClass, 99);
@@ -443,7 +440,6 @@ public class LeapOverlay {
 
         List<LeapPlayer> secondRound = new ArrayList<>();
 
-        // First pass: try to place each player in their default quadrant
         for (LeapPlayer player : players) {
             int defaultQuadrant = CLASS_DEFAULT_QUADRANT.getOrDefault(player.dungeonClass, 0);
             if (leapPlayers[defaultQuadrant] == null) {
@@ -453,7 +449,6 @@ public class LeapOverlay {
             }
         }
 
-        // Second pass: fill remaining empty quadrants
         for (LeapPlayer player : secondRound) {
             for (int i = 0; i < 4; i++) {
                 if (leapPlayers[i] == null) {
@@ -469,9 +464,6 @@ public class LeapOverlay {
         menuOpen = false;
     }
 
-    /**
-     * Data class for leap menu players.
-     */
     private static class LeapPlayer {
         final String name;
         final String dungeonClass;

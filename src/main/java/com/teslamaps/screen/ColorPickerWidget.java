@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -10,10 +25,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-/**
- * A lightweight color picker popup with HSV selection.
- * Uses chunked rendering for better performance.
- */
 public class ColorPickerWidget extends Screen {
     private static final int PICKER_SIZE = 128; // Power of 2 for better chunking
     private static final int HUE_WIDTH = 16;
@@ -26,7 +37,6 @@ public class ColorPickerWidget extends Screen {
     private int popupX, popupY;
     private int popupWidth, popupHeight;
 
-    // HSV values (0-1 range)
     private float hue = 0f;
     private float saturation = 1f;
     private float brightness = 1f;
@@ -41,7 +51,6 @@ public class ColorPickerWidget extends Screen {
         this.parent = parent;
         this.onColorSelected = onColorSelected;
 
-        // Parse initial color to HSV
         int color = TeslaMapsConfig.parseColor(initialColor);
         float[] hsv = rgbToHsv((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
         this.hue = hsv[0];
@@ -56,7 +65,6 @@ public class ColorPickerWidget extends Screen {
         popupX = (this.width - popupWidth) / 2;
         popupY = (this.height - popupHeight) / 2;
 
-        // Hex input field
         hexField = new EditBox(font, popupX + PADDING, popupY + PICKER_SIZE + PADDING + 5, 80, 16, Component.literal("Hex"));
         hexField.setValue(getCurrentHex());
         hexField.setMaxLength(8);
@@ -90,7 +98,6 @@ public class ColorPickerWidget extends Screen {
         int pickerY = popupY + 25;
         int hueX = pickerX + PICKER_SIZE + PADDING;
 
-        // Handle mouse
         if (isMouseDown && !wasMouseDown) {
             if (mouseX >= pickerX && mouseX < pickerX + PICKER_SIZE &&
                 mouseY >= pickerY && mouseY < pickerY + PICKER_SIZE) {
@@ -99,14 +106,12 @@ public class ColorPickerWidget extends Screen {
                        mouseY >= pickerY && mouseY < pickerY + PICKER_SIZE) {
                 draggingHue = true;
             }
-            // Done button area
             else if (mouseX >= popupX + popupWidth - 60 && mouseX < popupX + popupWidth - 10 &&
                      mouseY >= popupY + popupHeight - 28 && mouseY < popupY + popupHeight - 8) {
                 onColorSelected.accept(getCurrentHex());
                 onClose();
                 return;
             }
-            // Cancel button area
             else if (mouseX >= popupX + popupWidth - 120 && mouseX < popupX + popupWidth - 70 &&
                      mouseY >= popupY + popupHeight - 28 && mouseY < popupY + popupHeight - 8) {
                 onClose();
@@ -130,23 +135,17 @@ public class ColorPickerWidget extends Screen {
             hexField.setValue(getCurrentHex());
         }
 
-        // Darken background
         context.fill(0, 0, this.width, this.height, 0x80000000);
 
-        // Popup background
         context.fill(popupX - 1, popupY - 1, popupX + popupWidth + 1, popupY + popupHeight + 1, 0xFF000000);
         context.fill(popupX, popupY, popupX + popupWidth, popupY + popupHeight, 0xFF2C2C2E);
 
-        // Title
         context.centeredText(font, "Pick a Color", popupX + popupWidth / 2, popupY + 8, 0xFFFFFFFF);
 
-        // Draw chunked saturation/brightness picker
         drawSatBrightPickerChunked(context, pickerX, pickerY);
 
-        // Draw chunked hue slider
         drawHueSliderChunked(context, hueX, pickerY);
 
-        // Color preview
         int previewX = popupX + PADDING + 90;
         int previewY = popupY + PICKER_SIZE + PADDING + 5;
         int[] rgb = hsvToRgb(hue, saturation, brightness);
@@ -154,7 +153,6 @@ public class ColorPickerWidget extends Screen {
         context.fill(previewX, previewY, previewX + 30, previewY + 16, previewColor);
         drawBorder(context, previewX, previewY, 30, 16, 0xFF555555);
 
-        // Picker cursor
         int cursorX = pickerX + (int)(saturation * PICKER_SIZE);
         int cursorY = pickerY + (int)((1 - brightness) * PICKER_SIZE);
         context.fill(cursorX - 4, cursorY - 1, cursorX + 4, cursorY + 2, 0xFF000000);
@@ -162,11 +160,9 @@ public class ColorPickerWidget extends Screen {
         context.fill(cursorX - 3, cursorY, cursorX + 3, cursorY + 1, 0xFFFFFFFF);
         context.fill(cursorX, cursorY - 3, cursorX + 1, cursorY + 4, 0xFFFFFFFF);
 
-        // Hue cursor
         int hueCursorY = pickerY + (int)(hue * PICKER_SIZE);
         context.fill(hueX - 2, hueCursorY - 2, hueX + HUE_WIDTH + 2, hueCursorY + 3, 0xFFFFFFFF);
 
-        // Custom buttons
         drawStyledButton(context, popupX + popupWidth - 120, popupY + popupHeight - 28, 45, 20, "Cancel", mouseX, mouseY);
         drawStyledButton(context, popupX + popupWidth - 60, popupY + popupHeight - 28, 50, 20, "Done", mouseX, mouseY);
 

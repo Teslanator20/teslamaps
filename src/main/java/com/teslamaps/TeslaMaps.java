@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -47,6 +62,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -67,43 +83,36 @@ public class TeslaMaps implements ClientModInitializer {
     public void onInitializeClient() {
         instance = this;
 
-        // Load config
         TeslaMapsConfig.load();
 
-        // Initialize render pipelines (must be early)
         TeslaRenderPipelines.init();
         TeslaRenderLayers.init();
 
-        // Load room database
         RoomDatabase.getInstance().load();
 
-        // Load Odin-format dungeon waypoints
         com.teslamaps.dungeon.DungeonWaypoints.load();
 
-        // Register /tmap command
         ClientCommandRegistrationCallback.EVENT.register(TMapCommand::register);
 
-        // Keybind messages are polled in the tick loop (configured via /tmap msg GUI)
+        net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.MODIFY_COMMAND.register(TMapCommand::expandShortcut);
 
-        // Register HUD elements (26.1.2: HudRenderCallback -> HudElementRegistry)
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "map"), MapRenderer::render);
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "slayer"), SlayerHUD::render);
-        // HUD indicators removed - using 3D tracers instead
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "livid"), LividSolver::renderHUD);
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "spiritbear"), SpiritBearTimer::render);
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "waterboard"), WaterBoardSolver::renderHud);
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "bearspawn"), BearSpawnWarning::render);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "sprinting"), com.teslamaps.features.SprintingOverlay::render);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "dungeontimers"), com.teslamaps.features.DungeonTimers::render);
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "splits"), com.teslamaps.dungeon.Splits::render);
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "bloodcamp"), com.teslamaps.dungeon.BloodCamp::render);
 
-        // Initialize starred mob ESP
+        HudElementRegistry.replaceElement(VanillaHudElements.MOB_EFFECTS, original ->
+                (ctx, delta) -> { if (!TeslaMapsConfig.get().noEffects) original.extractRenderState(ctx, delta); });
+
         StarredMobESP.init();
 
-        // Initialize AutoGFS
         AutoGFS.init();
 
-        // Register world render event for 3D tracers/beacons
-        // 26.1.2: WorldRenderEvents.AFTER_ENTITIES -> LevelRenderEvents.AFTER_TRANSLUCENT_FEATURES
         LevelRenderEvents.AFTER_TRANSLUCENT_FEATURES.register(context -> {
             Minecraft mc = Minecraft.getInstance();
             if (mc.gameRenderer != null && mc.gameRenderer.getMainCamera() != null) {
@@ -122,7 +131,6 @@ public class TeslaMaps implements ClientModInitializer {
                         playerEyePos
                 );
 
-                // Render puzzle solvers
                 DungeonBlaze.render(context.poseStack(), cameraPos);
                 ThreeWeirdos.render(context.poseStack(), cameraPos);
                 TicTacToe.render(context.poseStack(), cameraPos);
@@ -136,24 +144,30 @@ public class TeslaMaps implements ClientModInitializer {
                 WaterBoardSolver.render(context.poseStack(), cameraPos);
                 com.teslamaps.dungeon.puzzle.IceFillSolver.render(context.poseStack(), cameraPos);
                 com.teslamaps.dungeon.WitherDragons.render(context.poseStack(), cameraPos);
+                com.teslamaps.features.DragonESP.render(context.poseStack(), cameraPos);
 
-                // Render secret waypoints
                 SecretWaypoints.render(context.poseStack(), cameraPos);
 
-                // Etherwarp guess box
+                com.teslamaps.features.SecretClickHighlight.render(context.poseStack(), cameraPos);
+
+                com.teslamaps.features.ColorPortal.render(context.poseStack(), cameraPos);
+
+                com.teslamaps.features.BlockOverlay.render(context.poseStack(), cameraPos);
+
+                com.teslamaps.features.ChatWaypoint.render(context.poseStack(), cameraPos);
+
                 com.teslamaps.features.Etherwarp.render(context.poseStack(), cameraPos);
 
-                // Odin-format dungeon waypoints
                 com.teslamaps.dungeon.DungeonWaypoints.render(context.poseStack(), cameraPos);
 
-                // Render mimic trapped chest ESP (only on F6, F7, M6, M7)
+                com.teslamaps.dungeon.BloodCamp.render(context.poseStack(), cameraPos);
+
                 if (DungeonManager.isInDungeon() && !MimicDetector.isMimicKilled() && com.teslamaps.dungeon.DungeonScore.floorHasMimics()) {
                     renderMimicChestESP(context.poseStack(), cameraPos);
                 }
             }
         });
 
-        // Register tick event for dungeon detection and scanning
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null && client.level != null) {
                 DungeonManager.tick();
@@ -165,6 +179,9 @@ public class TeslaMaps implements ClientModInitializer {
                 SlayerHUD.tick();
                 AutoGFS.tick();
                 AutoWish.tick();
+                com.teslamaps.features.LastBreathSound.tick();
+                com.teslamaps.features.TimerTriggers.tick();
+                com.teslamaps.features.ColorPortal.tick();
                 SecretClicker.tick();
                 BearSpawnWarning.tick();
                 KeybindMessage.tick();
@@ -181,11 +198,9 @@ public class TeslaMaps implements ClientModInitializer {
                 CorrectPanesTerminal.tick();
                 MelodyTerminal.tick();
                 RubixTerminal.tick();
-                // Experiment solvers (Superpairs table)
                 ChronomatronSolver.tick();
                 SuperpairsSolver.tick();
                 UltrasequencerSolver.tick();
-                // New puzzle solvers
                 BoulderSolver.tick();
                 QuizSolver.tick();
                 TPMazeSolver.tick();
@@ -206,13 +221,9 @@ public class TeslaMaps implements ClientModInitializer {
         return instance;
     }
 
-    /**
-     * Render ESP for trapped chests (only in actual mimic room).
-     */
     private static void renderMimicChestESP(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().mimicChestESP) return;
 
-        // Only render chests in the actual mimic room(s)
         var mimicRooms = MimicDetector.getMimicRooms();
         if (mimicRooms.isEmpty()) return;
 
@@ -220,20 +231,17 @@ public class TeslaMaps implements ClientModInitializer {
         int tracerColor = 0xFFFF6666;  // Light red
 
         for (BlockPos pos : MimicDetector.getTrappedChestPositions()) {
-            // Check if this chest is in a mimic room
             int[] gridPos = com.teslamaps.scanner.ComponentGrid.worldToGrid(pos.getX(), pos.getZ());
             if (gridPos == null) continue;
 
             var room = DungeonManager.getRoomAt(gridPos[0], gridPos[1]);
             if (room == null || !mimicRooms.contains(room)) continue;
 
-            // Create box around the chest block
             AABB chestBox = new AABB(pos.getX(), pos.getY(), pos.getZ(),
                     pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
 
             ESPRenderer.drawESPBox(matrices, chestBox, boxColor, cameraPos);
 
-            // Draw tracer to chest
             if (TeslaMapsConfig.get().mimicChestTracers) {
                 Vec3 chestCenter = new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
                 ESPRenderer.drawTracerFromCamera(matrices, chestCenter, tracerColor, cameraPos);

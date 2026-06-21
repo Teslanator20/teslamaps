@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -11,10 +26,6 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
 
-/**
- * Full-screen sound picker: scroll a list, click any entry to hear it, then Apply (keep) or
- * Nevermind (revert). Opened from the sound options in the config screen.
- */
 public class SoundPickerScreen extends Screen {
     private static final int PANEL_W = 320, PANEL_H = 300;
     private static final int ROW_H = 20, VISIBLE = 9;
@@ -80,7 +91,7 @@ public class SoundPickerScreen extends Screen {
         roundRect(ctx, panelX, panelY, PANEL_W, PANEL_H, AppleColors.CARD_BACKGROUND);
         ctx.fill(panelX + 10, panelY, panelX + PANEL_W - 10, panelY + 3, AppleColors.ACCENT_BLUE);
 
-        ctx.text(this.font, "§b♪ §f" + getTitle().getString(), panelX + 16, panelY + 16, AppleColors.TEXT_PRIMARY);
+        ctx.text(this.font, "§b §f" + getTitle().getString(), panelX + 16, panelY + 16, AppleColors.TEXT_PRIMARY);
         ctx.text(this.font, "§7Click a sound to preview · " + selected, panelX + 16, panelY + 30, AppleColors.TEXT_SECONDARY);
 
         int rowY = listY;

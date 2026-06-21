@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,17 +29,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Boulder Solver - Shows solution for Boulder puzzle room.
- * Scans boulder positions and looks up solution from database.
- */
 public class BoulderSolver {
 
     private static List<BoulderClick> currentSolution = new ArrayList<>();
 
     private record BoulderClick(BlockPos renderPos, BlockPos clickPos) {}
 
-    // Solutions map (grid pattern -> list of click positions)
     private static final Map<String, List<int[]>> BOULDER_SOLUTIONS = Map.of(
         "100101001000000010101001111101010101010101", new ArrayList<>(List.of(new int[]{21, 11}, new int[]{22, 21})),
         "010000010111101001010011100000101110000111", new ArrayList<>(List.of(new int[]{13, 12})),
@@ -53,7 +63,6 @@ public class BoulderSolver {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
-        // Check if we're in Boulder room
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null || room.getName() == null || !room.getName().equals("Boulder")) {
             if (inBoulder) {
@@ -77,9 +86,6 @@ public class BoulderSolver {
         }
     }
 
-    /**
-     * Rotate coordinates by degree
-     */
     private static int[] rotatePos(int x, int z, int degree) {
         return switch (degree % 360) {
             case 0 -> new int[]{x, z};
@@ -90,17 +96,12 @@ public class BoulderSolver {
         };
     }
 
-    /**
-     * Convert component coords to world coords
-     */
     private static int[] fromComp(int x, int z) {
         int[] rotated = rotatePos(x, z, (360 - rotation) % 360);
         return new int[]{rotated[0] + cornerX, rotated[1] + cornerZ};
     }
 
     private static void scanAndFindSolution(Minecraft mc, DungeonRoom room) {
-        // Scan boulder grid to build grid pattern
-        // Far left boulder at (24, 65, 24), width 3 blocks each
         StringBuilder pattern = new StringBuilder();
         for (int z = 0; z < 16; z += 3) {
             for (int x = 0; x < 19; x += 3) {
@@ -113,7 +114,6 @@ public class BoulderSolver {
         String patternStr = pattern.toString();
         TeslaMaps.LOGGER.info("[BoulderSolver] Scanned pattern: {} (rotation={})", patternStr, rotation);
 
-        // Look up solution 
         List<int[]> solution = BOULDER_SOLUTIONS.get(patternStr);
         if (solution == null) {
             TeslaMaps.LOGGER.warn("[BoulderSolver] No solution found for pattern");
@@ -138,7 +138,6 @@ public class BoulderSolver {
 
         int color = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorBoulder);
 
-        // Render all clicks if showAllBoulderClicks, otherwise just first
         int count = TeslaMapsConfig.get().showAllBoulderClicks ? currentSolution.size() : 1;
 
         for (int i = 0; i < count && i < currentSolution.size(); i++) {
@@ -152,7 +151,6 @@ public class BoulderSolver {
     }
 
     public static void onBlockInteract(BlockPos pos) {
-        // Remove clicked position from solution
         currentSolution.removeIf(click -> click.clickPos.equals(pos));
     }
 

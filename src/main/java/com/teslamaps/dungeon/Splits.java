@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon;
 
 import com.teslamaps.TeslaMaps;
@@ -11,12 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * Dungeon run splits (ported from Odin, lean version: live HUD + chat output, no persistent PBs).
- * Chat-regex driven: on "Starting in 1 second." the split list for the current floor is built,
- * each split's time is captured when its message appears, and the splits are printed to chat
- * once the run is defeated.
- */
 public class Splits {
 
     public static class Split {
@@ -33,11 +42,10 @@ public class Splits {
     private static long startTime = 0L;
     private static boolean finished = false;
 
-    // ---- common (all floors) ----
     private static final String MORT = "\\[NPC] Mort: Here, I found this map when I first entered the dungeon\\.|\\[NPC] Mort: Right-click the Orb for spells, and Left-click \\(or Drop\\) to use your Ultimate!";
     private static final String BLOOD_OPEN = "^\\[BOSS] The Watcher: (Congratulations, you made it through the Entrance\\.|Ah, you've finally arrived\\.|Ah, we meet again\\.\\.\\.|So you made it this far\\.\\.\\. interesting\\.|You've managed to scratch and claw your way here, eh\\?|I'm starting to get tired of seeing you around here\\.\\.\\.|Oh\\.\\. hello\\?|Things feel a little more roomy now, eh\\?)$|^The BLOOD DOOR has been opened!$";
     private static final String PORTAL_ENTRY = "\\[BOSS] The Watcher: You have proven yourself\\. You may pass\\.";
-    private static final String TOTAL = "^\\s*☠ Defeated (.+) in 0?([\\dhms ]+?)\\s*(\\(NEW RECORD!\\))?$";
+    private static final String TOTAL = "^\\s* Defeated (.+) in 0?([\\dhms ]+?)\\s*(\\(NEW RECORD!\\))?$";
 
     private static void buildSplits() {
         active.clear();
@@ -86,10 +94,6 @@ public class Splits {
     public static void onChatMessage(String message) {
         if (!TeslaMapsConfig.get().splitsEnabled) return;
 
-        // Hypixel sends these messages with embedded § color codes (e.g. "§r§c☠ §r§eDefeated …",
-        // colored Mort/Watcher lines). The split patterns are written for clean text, so strip first
-        // — otherwise the leading codes break the anchored MORT/TOTAL patterns, which in turn blanks
-        // the "Blood Open" and "Total" rows (both key off the first split's timestamp).
         message = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
 
         if (message.equals("Starting in 1 second.")) {
@@ -108,17 +112,16 @@ public class Splits {
             if (split.pattern.matcher(message).matches()) {
                 split.time = System.currentTimeMillis();
 
-                // A phase is only final once the NEXT split fires, so announce the previous one now.
                 if (i > 0) {
                     Split prev = active.get(i - 1);
                     if (prev.time != 0L) sendSplit(prev.name, split.time - prev.time);
                 }
 
-                // Last split = run defeated: announce the final phase (above) plus the overall total.
                 if (i == n - 1) {
                     finished = true;
                     long firstTime = active.get(0).time;
                     if (firstTime != 0L) sendSplit(split.name, split.time - firstTime);
+                    if (TeslaMapsConfig.get().splitsSendAllOnEnd) sendAllSplits();
                 }
                 break;
             }
@@ -126,9 +129,42 @@ public class Splits {
     }
 
     private static void sendSplit(String name, long durationMs) {
+        updatePb(name, durationMs);
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] " + name + " §7- §f" + formatTime(durationMs)));
+    }
+
+    private static void sendAllSplits() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        StringBuilder sb = new StringBuilder("§a[TeslaMaps] §6§lRun Splits");
+        for (int k = 1; k < active.size(); k++) {
+            Split prev = active.get(k - 1), cur = active.get(k);
+            if (prev.time != 0L && cur.time != 0L)
+                sb.append("\n  ").append(cur.name).append(" §7- §f").append(formatTime(cur.time - prev.time));
+        }
+        Split first = active.get(0), last = active.get(active.size() - 1);
+        if (first.time != 0L && last.time != 0L)
+            sb.append("\n  §eTotal §7- §f").append(formatTime(last.time - first.time));
+        mc.player.sendSystemMessage(Component.literal(sb.toString()));
+    }
+
+    private static String pbKey(String name) {
+        String floor = DungeonManager.getFloorName();
+        if (floor == null || floor.isEmpty()) floor = "?";
+        return floor + ":" + name.replaceAll("(?i)§[0-9A-FK-OR]", "");
+    }
+
+    private static void updatePb(String name, long durationMs) {
+        if (durationMs <= 0) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String key = pbKey(name);
+        Long pb = c.splitPbs.get(key);
+        if (pb == null || durationMs < pb) {
+            c.splitPbs.put(key, durationMs);
+            TeslaMapsConfig.save();
+        }
     }
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
@@ -151,36 +187,53 @@ public class Splits {
         long firstTime = active.get(0).time;
         long latest = active.get(n - 1).time != 0L ? active.get(n - 1).time : now;
 
+        boolean showPb = config.splitsShowPb;
+
         int y = 0;
         for (int i = 0; i < n; i++) {
             Split split = active.get(i);
             String timeStr;
+            long frozenMs = -1; // a finalized phase duration (used for the PB comparison); -1 = live/not started
             if (i == n - 1) {
-                // Total row = total run time (first split -> last)
-                timeStr = firstTime == 0L ? "§8-" : formatTime(latest - firstTime);
+                if (firstTime == 0L) {
+                    timeStr = "§8-";
+                } else {
+                    timeStr = formatTime(latest - firstTime);
+                    if (active.get(n - 1).time != 0L) frozenMs = latest - firstTime; // finalized total
+                }
             } else if (split.time == 0L) {
                 timeStr = "§8-";                                     // this phase not started yet
             } else {
                 Split next = active.get(i + 1);
                 if (next.time != 0L) {
-                    timeStr = formatTime(next.time - split.time);     // frozen: this phase's duration
+                    frozenMs = next.time - split.time;
+                    timeStr = formatTime(frozenMs);                   // frozen: this phase's duration
                 } else {
                     timeStr = "§7" + formatTime(now - split.time);    // current phase, counting from 0
                 }
             }
+
+            Long pb = showPb ? config.splitPbs.get(pbKey(split.name)) : null;
+            int timeColor = 0xFFFFFFFF;
+            if (frozenMs >= 0 && pb != null) timeColor = frozenMs <= pb ? 0xFF55FF55 : 0xFFFF5555; // green = beat PB
             context.text(mc.font, split.name, 0, y, 0xFFFFFFFF);
-            context.text(mc.font, timeStr, nameCol, y, 0xFFFFFFFF);
+            context.text(mc.font, timeStr, nameCol, y, timeColor);
+            if (pb != null) {
+                int px = nameCol + mc.font.width(timeStr) + 4;
+                context.text(mc.font, "§8(" + formatTime(pb) + ")", px, y, 0xFFFFFFFF);
+            }
             y += 9;
         }
         pose.popMatrix();
     }
 
-    /** Width of the rendered HUD (for the edit-screen hitbox). */
     public static int hudWidth() {
         Minecraft mc = Minecraft.getInstance();
         int nameCol = 0;
         for (Split split : active) nameCol = Math.max(nameCol, mc.font.width(split.name));
-        return nameCol + 6 + mc.font.width("00:00.0");
+        int w = nameCol + 6 + mc.font.width("00:00.0");
+        if (TeslaMapsConfig.get().splitsShowPb) w += 8 + mc.font.width("00:00.0");
+        return w;
     }
 
     public static int hudHeight() {

@@ -1,14 +1,24 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.termsim;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Simulator for "Change all to same color!" terminal.
- * Click panes to cycle colors. Left click = forward, Right click = backward.
- * Color cycle: RED -> ORANGE -> YELLOW -> GREEN -> BLUE -> RED
- */
 public class RubixSimulator extends TerminalSimulator {
     private static final Item[] COLOR_CYCLE = {
             Items.RED_STAINED_GLASS_PANE,
@@ -18,7 +28,6 @@ public class RubixSimulator extends TerminalSimulator {
             Items.BLUE_STAINED_GLASS_PANE
     };
 
-    // Grid positions (3x3 in center of 5x9)
     private static final int[] GRID_SLOTS = {12, 13, 14, 21, 22, 23, 30, 31, 32};
 
     public RubixSimulator() {
@@ -27,12 +36,10 @@ public class RubixSimulator extends TerminalSimulator {
 
     @Override
     protected void initializeTerminal() {
-        // Fill with black panes
         for (int i = 0; i < slots.length; i++) {
             slots[i] = new ItemStack(Items.BLACK_STAINED_GLASS_PANE);
         }
 
-        // Place random colors in 3x3 grid
         for (int slot : GRID_SLOTS) {
             int colorIdx = random.nextInt(COLOR_CYCLE.length);
             slots[slot] = new ItemStack(COLOR_CYCLE[colorIdx]);
@@ -41,7 +48,6 @@ public class RubixSimulator extends TerminalSimulator {
 
     @Override
     protected boolean onSlotClick(int slotIndex, int button) {
-        // Must be a grid slot
         boolean isGridSlot = false;
         for (int gs : GRID_SLOTS) {
             if (gs == slotIndex) {
@@ -55,13 +61,10 @@ public class RubixSimulator extends TerminalSimulator {
         int currentIdx = getColorIndex(stack.getItem());
         if (currentIdx == -1) return false;
 
-        // Left click (button 0) = forward, Right click (button 1) = backward
         int newIdx;
         if (button == 1) {
-            // Backward
             newIdx = (currentIdx - 1 + COLOR_CYCLE.length) % COLOR_CYCLE.length;
         } else {
-            // Forward
             newIdx = (currentIdx + 1) % COLOR_CYCLE.length;
         }
 
@@ -71,7 +74,6 @@ public class RubixSimulator extends TerminalSimulator {
 
     @Override
     protected boolean checkSolved() {
-        // All grid slots must be same color
         Item firstColor = null;
         for (int slot : GRID_SLOTS) {
             Item color = slots[slot].getItem();

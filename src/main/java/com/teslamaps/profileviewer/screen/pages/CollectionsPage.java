@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.teslamaps.profileviewer.data.SkyblockProfile;
@@ -9,21 +24,16 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Collections page showing collection progress.
- */
 public class CollectionsPage extends ProfileViewerPage {
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
     private static final int TEXT_GREEN = 0xFF55FF55;
     private static final int BAR_BG = 0xFF333333;
 
-    // Collection categories
     private static final String[] CATEGORIES = {"Farming", "Mining", "Combat", "Foraging", "Fishing", "Boss"};
     private int selectedCategory = 0;
     private int scrollOffset = 0;
 
-    // Collection items per category (simplified)
     private static final Map<String, String[]> COLLECTION_ITEMS = new LinkedHashMap<>();
     static {
         COLLECTION_ITEMS.put("Farming", new String[]{
@@ -73,7 +83,6 @@ public class CollectionsPage extends ProfileViewerPage {
         int padding = 15;
         int contentX = x + padding;
 
-        // Category tabs
         int tabY = y + padding;
         int tabX = contentX;
         for (int i = 0; i < CATEGORIES.length; i++) {
@@ -92,7 +101,6 @@ public class CollectionsPage extends ProfileViewerPage {
             tabX += tabW + 4;
         }
 
-        // Collections list
         int listY = tabY + 28;
         int listHeight = height - (listY - y) - padding;
         Map<String, Long> collections = profile.getCollections();
@@ -106,14 +114,11 @@ public class CollectionsPage extends ProfileViewerPage {
                 long amount = collections.getOrDefault(item, 0L);
                 String displayName = formatCollectionName(item);
 
-                // Name
                 ctx.text(tr, displayName, contentX, itemY, amount > 0 ? TEXT_WHITE : TEXT_GRAY);
 
-                // Amount
                 String amountStr = formatNumber(amount);
                 ctx.text(tr, amountStr, contentX + 150, itemY, amount > 0 ? TEXT_GREEN : TEXT_GRAY);
 
-                // Progress bar (simplified - max tier at different amounts)
                 int barX = contentX + 220;
                 int barW = 100;
                 double progress = Math.min(1.0, amount / 100000.0); // Simplified
@@ -124,10 +129,8 @@ public class CollectionsPage extends ProfileViewerPage {
     }
 
     private String formatCollectionName(String id) {
-        // Convert API names to display names
         String name = id.replace("_ITEM", "").replace("_COLLECTION", "")
                 .replace("_", " ").replace(":", " ");
-        // Title case
         StringBuilder sb = new StringBuilder();
         for (String word : name.split(" ")) {
             if (!word.isEmpty()) {

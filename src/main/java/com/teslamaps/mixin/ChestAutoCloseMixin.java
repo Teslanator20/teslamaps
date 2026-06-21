@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -18,10 +33,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.network.chat.Component;
 
-/**
- * Mixin to handle auto-close chests and close-on-input features.
- * Uses GLFW polling for input detection (1.21.10 compatible).
- */
 @Mixin(AbstractContainerScreen.class)
 public abstract class ChestAutoCloseMixin {
 
@@ -64,12 +75,10 @@ public abstract class ChestAutoCloseMixin {
             return false;
         }
 
-        // Only in dungeon
         if (!DungeonManager.isInDungeon()) {
             return false;
         }
 
-        // Only chests with no title (empty or just "Chest")
         Component title = screen.getTitle();
         if (title == null) {
             return true;
@@ -91,7 +100,6 @@ public abstract class ChestAutoCloseMixin {
 
     @Unique
     private boolean hasNewKeyPress(Set<Integer> currentKeys, Set<Integer> previousKeys) {
-        // Check if any key in currentKeys was NOT in previousKeys (new press)
         for (int key : currentKeys) {
             if (!previousKeys.contains(key)) {
                 return true;
@@ -100,9 +108,6 @@ public abstract class ChestAutoCloseMixin {
         return false;
     }
 
-    /**
-     * Handle auto-close and close-on-input in render tick using GLFW polling.
-     */
     @Inject(method = "extractRenderState", at = @At("HEAD"))
     private void onRenderTick(net.minecraft.client.gui.GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (!isChestScreen()) return;
@@ -114,17 +119,14 @@ public abstract class ChestAutoCloseMixin {
 
         long windowHandle = mc.getWindow().handle();
 
-        // Initialize on first render (calculate random offset and capture initial key state)
         if (!initialized) {
             initialized = true;
             if (config.autoCloseRandomization > 0) {
                 randomCloseOffset = random.nextInt(config.autoCloseRandomization + 1);
             }
-            // Capture currently pressed keys so we don't trigger on keys held when opening
             previouslyPressedKeys = getPressedKeys(windowHandle);
         }
 
-        // Auto-close chests after delay (with randomization)
         if (config.autoCloseChests) {
             ticksSinceOpen++;
             int totalDelay = config.autoCloseDelay + randomCloseOffset;
@@ -135,11 +137,9 @@ public abstract class ChestAutoCloseMixin {
             }
         }
 
-        // Close on any NEW key press (keys that weren't pressed before)
         if (config.closeChestOnInput) {
             Set<Integer> currentKeys = getPressedKeys(windowHandle);
 
-            // Close if any new key was pressed (wasn't pressed in previous frame)
             if (hasNewKeyPress(currentKeys, previouslyPressedKeys)) {
                 hasScheduledClose = true;
                 ((AbstractContainerScreen<?>) (Object) this).onClose();

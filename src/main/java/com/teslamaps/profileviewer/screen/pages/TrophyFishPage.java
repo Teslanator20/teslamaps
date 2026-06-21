@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonElement;
@@ -12,9 +27,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Trophy Fish page showing fish catches by tier.
- */
 public class TrophyFishPage extends ProfileViewerPage {
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
@@ -26,7 +38,6 @@ public class TrophyFishPage extends ProfileViewerPage {
 
     private int scrollOffset = 0;
 
-    // Trophy fish names
     private static final String[] TROPHY_FISH = {
             "sulphur_skitter", "obfuscated_fish_1", "steaming_hot_flounder", "gusher",
             "blobfish", "obfuscated_fish_2", "slugfish", "flyfish",
@@ -69,19 +80,16 @@ public class TrophyFishPage extends ProfileViewerPage {
         ctx.text(tr, "Trophy Fish", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
-        // Get trophy fish data
         JsonObject trophyFish = getNestedObject(memberData, "trophy_fish");
         if (trophyFish == null) {
             ctx.text(tr, "No trophy fish data found", contentX, lineY, TEXT_GRAY);
             return;
         }
 
-        // Total catches
         int totalCatches = trophyFish.has("total_caught") ? trophyFish.get("total_caught").getAsInt() : 0;
         ctx.text(tr, "Total Caught: " + formatNumber(totalCatches), contentX, lineY, TEXT_WHITE);
         lineY += 20;
 
-        // Column headers
         ctx.text(tr, "Fish", contentX, lineY, TEXT_GRAY);
         ctx.text(tr, "Bronze", contentX + 140, lineY, BRONZE);
         ctx.text(tr, "Silver", contentX + 190, lineY, SILVER);
@@ -89,7 +97,6 @@ public class TrophyFishPage extends ProfileViewerPage {
         ctx.text(tr, "Diamond", contentX + 280, lineY, DIAMOND);
         lineY += 14;
 
-        // Fish list
         int listStartY = lineY;
         int listHeight = height - (lineY - y) - padding;
 
@@ -100,7 +107,6 @@ public class TrophyFishPage extends ProfileViewerPage {
             String fishKey = TROPHY_FISH[i];
             String displayName = TROPHY_DISPLAY[i];
 
-            // Get counts for each tier
             int bronze = trophyFish.has(fishKey + "_bronze") ? trophyFish.get(fishKey + "_bronze").getAsInt() : 0;
             int silver = trophyFish.has(fishKey + "_silver") ? trophyFish.get(fishKey + "_silver").getAsInt() : 0;
             int gold = trophyFish.has(fishKey + "_gold") ? trophyFish.get(fishKey + "_gold").getAsInt() : 0;

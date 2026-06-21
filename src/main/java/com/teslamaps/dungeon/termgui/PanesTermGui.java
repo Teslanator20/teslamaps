@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.termgui;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -10,9 +25,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Custom GUI for the "Correct all the panes!" terminal.
- */
 public class PanesTermGui extends CustomTermGui {
     @Override
     protected int[] getCurrentSolution() {
@@ -26,7 +38,6 @@ public class PanesTermGui extends CustomTermGui {
 
         renderBackground(context, slotCount, 7, 2);
 
-        // Find all red panes (incorrect)
         List<Integer> redPanes = new ArrayList<>();
         for (Slot slot : screen.getMenu().slots) {
             if (slot.index >= slotCount) continue;
@@ -37,11 +48,9 @@ public class PanesTermGui extends CustomTermGui {
             }
         }
 
-        // Render all slots
         for (int index = 9; index < slotCount; index++) {
             if ((index % 9) == 0 || (index % 9) == 8) continue;
 
-            // Highlight red panes
             int color = redPanes.contains(index) ?
                        TeslaMapsConfig.parseColor(TeslaMapsConfig.get().terminalGuiPanesColor) :
                        0x00000000; // Transparent

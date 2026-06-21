@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -8,22 +23,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Mixin for Entity to handle no fire overlay option.
- * Intercepts isOnFire() to return false for the local player when noFire is enabled.
- */
 @Mixin(Entity.class)
 public class NoFireMixin {
     @Inject(method = "isOnFire", at = @At("HEAD"), cancellable = true)
     private void onIsOnFire(CallbackInfoReturnable<Boolean> cir) {
         if (!TeslaMapsConfig.get().noFire) return;
 
-        // Only apply to the local player
         Entity self = (Entity) (Object) this;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || self != mc.player) return;
 
-        // Return false to hide fire overlay
         cir.setReturnValue(false);
     }
 }

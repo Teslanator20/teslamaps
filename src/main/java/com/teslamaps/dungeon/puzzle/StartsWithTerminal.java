@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -15,10 +30,6 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * F7 Terminal Solver - "What starts with: 'X'?"
- * Auto-clicks the correct item when player clicks anywhere on screen.
- */
 public class StartsWithTerminal {
     private static final Pattern PATTERN = Pattern.compile("What starts with: '([A-Z])'\\?");
 
@@ -33,33 +44,18 @@ public class StartsWithTerminal {
     private static int lastDebugTick = 0;
 
     public static void tick() {
-        // DISABLED - Auto terminal feature commented out
-        // To re-enable: uncomment solveStartsWithTerminal in TeslaMapsConfig and replace 'true' with config check
         if (true) {
             reset();
             return;
         }
 
-        // Note: We don't check DungeonManager.isInDungeon() because practice mode (/term) doesn't register as dungeon
-        // If a terminal GUI is open, we're either in a dungeon or practice mode - both are valid
-
         Minecraft mc = Minecraft.getInstance();
-
-        /* DISABLED
-        if (!TeslaMapsConfig.get().solveStartsWithTerminal) {
-            if (targetLetter != null) {
-            }
-            reset();
-            return;
-        }
-        */
 
         if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
-        // Check if we're looking at a container screen
         if (!(mc.screen instanceof ContainerScreen)) {
             if (targetLetter != null) {
             }
@@ -69,29 +65,23 @@ public class StartsWithTerminal {
 
         ContainerScreen screen = (ContainerScreen) mc.screen;
 
-        // Get screen title
         Component title = screen.getTitle();
         String titleStr = title.getString();
 
-        // Debug: Log container title once per second
         int currentTick = mc.player.tickCount;
         if (currentTick - lastDebugTick > 20) {
             lastDebugTick = currentTick;
         }
 
-        // Check if this is the "starts with" terminal
         Matcher matcher = PATTERN.matcher(titleStr);
         if (!matcher.find()) {
-            // Not our terminal
             if (targetLetter != null) {
             }
             return;
         }
 
-        // Extract the target letter
         char letter = matcher.group(1).charAt(0);
 
-        // If this is a new terminal or different letter, reset and solve
         if (targetLetter == null || targetLetter != letter) {
             targetLetter = letter;
             solved = false;
@@ -104,17 +94,14 @@ public class StartsWithTerminal {
             TeslaMaps.LOGGER.info("[StartsWithTerminal] Target letter: {}", targetLetter);
             TeslaMaps.LOGGER.info("[StartsWithTerminal] Delay before first click: {}ms", TeslaMapsConfig.get().terminalClickDelay);
 
-            // Find ALL correct slots
             findAllCorrectSlots(screen);
             slotsFound = true;
         }
 
-        // Auto-click all matching slots one by one
         boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
 
         long currentTime = System.currentTimeMillis();
 
-        // Break threshold: reset isClicked if stuck for too long
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
             TeslaMaps.LOGGER.info("[StartsWithTerminal] Break threshold reached, resetting click state");
@@ -125,27 +112,22 @@ public class StartsWithTerminal {
             long timeSinceOpen = currentTime - terminalOpenTime;
             long timeSinceLastClick = currentTime - lastClickTime;
 
-            // Use configured delays with randomization for human-like behavior (0 to configured max)
             int randomization = TeslaMapsConfig.get().terminalClickRandomization;
             int randomInitialDelay = TeslaMapsConfig.get().terminalClickDelay + ThreadLocalRandom.current().nextInt(randomization + 1);
             int randomInterval = TeslaMapsConfig.get().terminalClickInterval + ThreadLocalRandom.current().nextInt(randomization + 1);
 
-            // Initial delay before first click
             if (clickedSlots.isEmpty() && timeSinceOpen >= randomInitialDelay) {
                 performNextClick(mc, screen);
             }
-            // Delay between subsequent clicks
             else if (!clickedSlots.isEmpty() && timeSinceLastClick >= randomInterval) {
                 if (clickedSlots.size() < correctSlots.size()) {
                     performNextClick(mc, screen);
                 } else {
-                    // All slots clicked
                     if (!solved) {
                         TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== ALL ITEMS CLICKED =====");
                     }
                     solved = true;
 
-                    // If container is still open after 2 seconds, restart
                     if (timeSinceLastClick > 2000) {
                         TeslaMaps.LOGGER.info("[StartsWithTerminal] Container still open after 2s, restarting...");
                         correctSlots.clear();
@@ -160,18 +142,11 @@ public class StartsWithTerminal {
         }
     }
 
-    /**
-     * Find ALL slots that contain items starting with the target letter.
-     */
     private static void findAllCorrectSlots(ContainerScreen screen) {
         ChestMenu handler = screen.getMenu();
 
-
-        // Scan all slots in the container
         int scannedItems = 0;
 
-        // Scan top-to-bottom (column by column) instead of left-to-right
-        // Chest is 9 columns wide, 6 rows tall
         for (int col = 0; col < 9; col++) {
             for (int row = 0; row < 6; row++) {
                 int slotId = row * 9 + col;
@@ -179,7 +154,6 @@ public class StartsWithTerminal {
 
                 Slot slot = handler.slots.get(slotId);
 
-                // Skip player inventory slots (slots 0-53 are container, 54+ are player inv)
                 if (slot.index >= 54) continue;
 
                 ItemStack stack = slot.getItem();
@@ -187,10 +161,8 @@ public class StartsWithTerminal {
 
                 scannedItems++;
 
-                // Get item display name
                 String itemName = stack.getHoverName().getString();
 
-                // Strip formatting codes
                 String strippedName = ChatFormatting.stripFormatting(itemName);
                 if (strippedName == null || strippedName.isEmpty()) {
                     continue;
@@ -198,7 +170,6 @@ public class StartsWithTerminal {
 
                 char firstChar = strippedName.charAt(0);
 
-                // Check if name starts with target letter (case insensitive)
                 if (Character.toUpperCase(firstChar) == targetLetter) {
                     correctSlots.add(slot.index);
                     TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== FOUND MATCHING ITEM =====");
@@ -218,16 +189,12 @@ public class StartsWithTerminal {
         }
     }
 
-    /**
-     * Perform the next auto-click on an unclicked slot.
-     */
     private static void performNextClick(Minecraft mc, ContainerScreen screen) {
         if (mc.player == null) {
             TeslaMaps.LOGGER.warn("[StartsWithTerminal] DEBUG: Cannot click - player is null");
             return;
         }
 
-        // Find next unclicked slot
         int slotToClick = -1;
         for (int slot : correctSlots) {
             if (!clickedSlots.contains(slot)) {
@@ -247,7 +214,6 @@ public class StartsWithTerminal {
         TeslaMaps.LOGGER.info("[StartsWithTerminal] Clicking slot {} ({}/{})", slotToClick, clickedSlots.size() + 1, correctSlots.size());
         TeslaMaps.LOGGER.info("[StartsWithTerminal] Handler syncId: {}", handler.containerId);
 
-        // Click the correct slot (left click = button 0)
         mc.gameMode.handleContainerInput(
             handler.containerId,
             slotToClick,
@@ -264,13 +230,9 @@ public class StartsWithTerminal {
         TeslaMaps.LOGGER.info("[StartsWithTerminal] Progress: {}/{} items clicked", clickedSlots.size(), correctSlots.size());
     }
 
-    /**
-     * For easy mode: returns the next slot to click, or -1 if none.
-     */
     public static int getNextCorrectSlot() {
         if (!slotsFound || solved || correctSlots.isEmpty()) return -1;
 
-        // Find next unclicked slot
         for (int slot : correctSlots) {
             if (!clickedSlots.contains(slot)) {
                 return slot;
@@ -279,44 +241,27 @@ public class StartsWithTerminal {
         return -1;
     }
 
-    /**
-     * For easy mode: mark a slot as clicked.
-     */
     public static void markSlotClicked(int slot) {
         clickedSlots.add(slot);
         lastClickTime = System.currentTimeMillis();
     }
 
-    /**
-     * For custom GUI: get all correct slots.
-     */
     public static java.util.List<Integer> getCorrectSlots() {
         return new java.util.ArrayList<>(correctSlots);
     }
 
-    /**
-     * For custom GUI: get the target letter.
-     */
     public static Character getTargetLetter() {
         return targetLetter;
     }
 
-    /**
-     * For custom GUI: get clicked slots.
-     */
     public static java.util.Set<Integer> getClickedSlots() {
         return new java.util.HashSet<>(clickedSlots);
     }
 
-    /**
-     * Event-driven slot update handler.
-     * Called by TerminalManager when a slot update packet is received.
-     */
     public static void onSlotUpdate(int slotIndex, net.minecraft.world.item.ItemStack stack) {
         if (!TeslaMapsConfig.get().solveStartsWithTerminal) return;
         if (slotIndex >= 54) return; // Ignore player inventory
 
-        // If an item we clicked got enchant glint (was clicked), mark as done
         if (clickedSlots.contains(slotIndex)) {
             if (stack.hasFoil()) {
                 isClicked = false; // Click was registered
@@ -325,19 +270,13 @@ public class StartsWithTerminal {
         }
     }
 
-    /**
-     * Validate if a click is allowed on this slot.
-     * For StartsWithTerminal: allow clicking any correct slot that hasn't been clicked.
-     */
     public static boolean canClick(int slotIndex, int button) {
         if (!slotsFound || solved) return true;
 
-        // Allow clicking any correct slot that hasn't been clicked yet
         if (correctSlots.contains(slotIndex) && !clickedSlots.contains(slotIndex)) {
             return true;
         }
 
-        // Block clicks on wrong items or already-clicked items
         if (correctSlots.contains(slotIndex)) {
             TeslaMaps.LOGGER.info("[StartsWithTerminal] Blocked click on slot {} - already clicked", slotIndex);
         } else {

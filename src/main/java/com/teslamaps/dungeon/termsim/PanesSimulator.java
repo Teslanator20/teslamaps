@@ -1,12 +1,23 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.termsim;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Simulator for "Correct all the panes!" terminal.
- * Click red panes to turn them green.
- */
 public class PanesSimulator extends TerminalSimulator {
 
     public PanesSimulator() {
@@ -15,16 +26,13 @@ public class PanesSimulator extends TerminalSimulator {
 
     @Override
     protected void initializeTerminal() {
-        // Fill with random red/green panes (edges are black)
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 int idx = getSlotIndex(row, col);
 
-                // Edge columns are black
                 if (col == 0 || col == 1 || col == 7 || col == 8) {
                     slots[idx] = new ItemStack(Items.BLACK_STAINED_GLASS_PANE);
                 } else {
-                    // Random red or green
                     boolean isRed = random.nextBoolean();
                     slots[idx] = new ItemStack(isRed ? Items.RED_STAINED_GLASS_PANE : Items.LIME_STAINED_GLASS_PANE);
                 }
@@ -36,14 +44,12 @@ public class PanesSimulator extends TerminalSimulator {
     protected boolean onSlotClick(int slotIndex, int button) {
         int col = getCol(slotIndex);
 
-        // Can't click edges
         if (col == 0 || col == 1 || col == 7 || col == 8) {
             return false;
         }
 
         ItemStack stack = slots[slotIndex];
 
-        // Toggle red <-> green
         if (stack.getItem() == Items.RED_STAINED_GLASS_PANE) {
             slots[slotIndex] = new ItemStack(Items.LIME_STAINED_GLASS_PANE);
             return true;
@@ -57,7 +63,6 @@ public class PanesSimulator extends TerminalSimulator {
 
     @Override
     protected boolean checkSolved() {
-        // All non-edge panes must be green
         for (int row = 0; row < rows; row++) {
             for (int col = 2; col < 7; col++) {
                 int idx = getSlotIndex(row, col);

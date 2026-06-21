@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,18 +27,11 @@ import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Arrow Align Solver for F7/M7 Phase 3.
- * Calculates how many clicks needed on each arrow frame to solve.
- */
 public class ArrowAlignSolver {
 
     private static final BlockPos FRAME_GRID_CORNER = new BlockPos(-2, 120, 75);
     private static final BlockPos CENTER_BLOCK = new BlockPos(0, 120, 77);
 
-    // Known solutions (9 possible patterns)
-    // -1 = empty frame (no arrow)
-    // 0-7 = rotation value
     private static final List<int[]> SOLUTIONS = List.of(
         new int[]{7, 7, -1, -1, -1, 1, -1, -1, -1, -1, 1, 3, 3, 3, 3, -1, -1, -1, -1, 1, -1, -1, -1, 7, 1},
         new int[]{-1, -1, 7, 7, 5, -1, 7, 1, -1, 5, -1, -1, -1, -1, -1, -1, 7, 5, -1, 1, -1, -1, 7, 7, 1},
@@ -62,7 +70,6 @@ public class ArrowAlignSolver {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
-        // Check if player is near the device
         BlockPos playerPos = mc.player.blockPosition();
         if (playerPos.distSqr(CENTER_BLOCK) > 200) {
             currentRotations = null;
@@ -71,7 +78,6 @@ public class ArrowAlignSolver {
             return;
         }
 
-        // Scan every 250ms
         long now = System.currentTimeMillis();
         if (now - lastScanTime < 250) return;
         lastScanTime = now;
@@ -83,7 +89,6 @@ public class ArrowAlignSolver {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
-        // Get all item frames with arrows
         List<ItemFrame> frames = new ArrayList<>();
         for (Entity entity : mc.level.entitiesForRendering()) {
             if (entity instanceof ItemFrame frame) {
@@ -100,7 +105,6 @@ public class ArrowAlignSolver {
             return;
         }
 
-        // Build current rotation array (5x5 grid = 25 slots)
         int[] rotations = new int[25];
         Arrays.fill(rotations, -1);
 
@@ -108,7 +112,6 @@ public class ArrowAlignSolver {
         for (int index = 0; index < 25; index++) {
             BlockPos framePos = getFramePosition(index);
 
-            // If recently clicked, use predicted rotation
             if (recentClicks.containsKey(index) && now - recentClicks.get(index) < 1000) {
                 if (currentRotations != null && currentRotations[index] != -1) {
                     rotations[index] = currentRotations[index];
@@ -116,7 +119,6 @@ public class ArrowAlignSolver {
                 }
             }
 
-            // Find frame at this position
             for (ItemFrame frame : frames) {
                 if (frame.blockPosition().equals(framePos)) {
                     rotations[index] = frame.getRotation();
@@ -127,7 +129,6 @@ public class ArrowAlignSolver {
 
         currentRotations = rotations;
 
-        // Find matching solution
         clicksNeeded.clear();
         for (int[] solution : SOLUTIONS) {
             boolean matches = true;
@@ -168,7 +169,6 @@ public class ArrowAlignSolver {
             currentRotations[index] = (currentRotations[index] + 1) % 8;
             recentClicks.put(index, System.currentTimeMillis());
 
-            // Recalculate clicks needed
             if (targetSolution != null && targetSolution[index] != -1) {
                 int clicks = calculateClicks(currentRotations[index], targetSolution[index]);
                 if (clicks == 0) {

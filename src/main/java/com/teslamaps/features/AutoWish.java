@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.features;
 
 import com.teslamaps.TeslaMaps;
@@ -6,23 +21,11 @@ import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.player.PlayerTracker;
 import net.minecraft.client.Minecraft;
 
-/**
- * Auto Wish - Automatically uses healer ultimate ability at key moments in dungeons.
- * Only works when playing as Healer class.
- *
- * Triggers on specific boss messages:
- * - Maxor enraged (F7/M7)
- * - Goldor factory destroyed (F7/M7)
- * - Sadan giants unleashed (F6/M6)
- */
 public class AutoWish {
 
     private static int scheduledDropTick = -1;
     private static boolean dropAll = false;
 
-    /**
-     * Called from ChatMixin when a chat message is received.
-     */
     public static void onChatMessage(String message) {
         if (!TeslaMapsConfig.get().autoWish) return;
         if (!DungeonManager.isInDungeon()) return;
@@ -30,22 +33,18 @@ public class AutoWish {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        // Only trigger if player is Healer class
         if (!isHealer()) {
             return;
         }
 
         int delay = -1;
 
-        // F7/M7 - Maxor enraged
         if (message.contains("Maxor is enraged!")) {
             delay = 1;
         }
-        // F7/M7 - Goldor factory destroyed
         else if (message.contains("[BOSS] Goldor: You have done it, you destroyed the factory")) {
             delay = 1;
         }
-        // F6/M6 - Sadan giants
         else if (message.contains("[BOSS] Sadan: My giants! Unleashed!")) {
             delay = 25;
         }
@@ -56,20 +55,17 @@ public class AutoWish {
         }
     }
 
-    /**
-     * Schedule dropping item (using wish) after a delay.
-     */
+    private static final java.util.Random RANDOM = new java.util.Random();
+
     private static void scheduleWish(int delayTicks) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        scheduledDropTick = mc.player.tickCount + delayTicks;
+        int jittered = Math.max(1, delayTicks + RANDOM.nextInt(21) - 10);
+        scheduledDropTick = mc.player.tickCount + jittered;
         dropAll = false; // Use normal drop, not drop all
     }
 
-    /**
-     * Called every tick to check if we should use wish.
-     */
     public static void tick() {
         if (!TeslaMapsConfig.get().autoWish) return;
 
@@ -77,7 +73,6 @@ public class AutoWish {
         if (mc.player == null) return;
 
         if (scheduledDropTick > 0 && mc.player.tickCount >= scheduledDropTick) {
-            // Drop the item to trigger wish
             mc.player.drop(dropAll);
             TeslaMaps.LOGGER.info("[AutoWish] Used wish!");
 
@@ -91,16 +86,12 @@ public class AutoWish {
         dropAll = false;
     }
 
-    /**
-     * Check if the local player is playing as Healer class.
-     */
     private static boolean isHealer() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
 
         String playerName = mc.player.getName().getString();
 
-        // Check PlayerTracker for our class
         for (PlayerTracker.DungeonPlayer dp : PlayerTracker.getPlayers()) {
             if (dp.getName().equals(playerName)) {
                 String dungeonClass = dp.getDungeonClass();

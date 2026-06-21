@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.google.gson.Gson;
@@ -20,17 +35,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Quiz Solver - Highlights correct answer for Quiz (Trivia) puzzle.
- * Listens to chat messages for questions and options.
- */
 public class QuizSolver {
 
     private static Map<String, List<String>> answers;
     private static List<String> currentAnswers = null;
     private static final TriviaOption[] triviaOptions = new TriviaOption[3];
 
-    // Relative positions for answer stands (A, B, C)
     private static final int[][] TYPE_BLOCKS = {
         {20, 6},  // ⓐ
         {15, 9},  // ⓑ
@@ -67,31 +77,26 @@ public class QuizSolver {
         if (!TeslaMapsConfig.get().solveQuiz) return;
         if (!DungeonManager.isInDungeon()) return;
 
-        // Check for puzzle complete
         if (message.startsWith("[STATUE] Oruo the Omniscient:") && message.endsWith("correctly!")) {
             if (message.contains("answered the final question")) {
                 reset();
                 return;
             }
             if (message.contains("answered Question #")) {
-                // Reset correct flags for next question
                 for (int i = 0; i < 3; i++) {
                     triviaOptions[i] = new TriviaOption(triviaOptions[i].worldPos, false);
                 }
             }
         }
 
-        // Check for answer options (ⓐ, ⓑ, ⓒ)
         String trimmed = message.trim();
 
-        // Detect answer option lines
         int optionIndex = -1;
         if (trimmed.contains("ⓐ")) optionIndex = 0;
         else if (trimmed.contains("ⓑ")) optionIndex = 1;
         else if (trimmed.contains("ⓒ")) optionIndex = 2;
 
         if (optionIndex >= 0 && currentAnswers != null) {
-            // Extract the answer text after the circle letter
             String answerText = trimmed;
             int circleIdx = Math.max(trimmed.indexOf("ⓐ"), Math.max(trimmed.indexOf("ⓑ"), trimmed.indexOf("ⓒ")));
             if (circleIdx >= 0 && circleIdx + 1 < trimmed.length()) {
@@ -102,7 +107,6 @@ public class QuizSolver {
                 (char)('A' + optionIndex), answerText, currentAnswers);
 
             for (String answer : currentAnswers) {
-                // Odin-style precise match: the option line ends with the answer text.
                 if (trimmed.endsWith(answer) || answerText.equalsIgnoreCase(answer)) {
                     triviaOptions[optionIndex] = new TriviaOption(triviaOptions[optionIndex].worldPos, true);
                     TeslaMaps.LOGGER.info("[QuizSolver] Correct answer found: {} (option {})", answer, (char)('A' + optionIndex));
@@ -111,7 +115,6 @@ public class QuizSolver {
             }
         }
 
-        // Check for dynamic SkyBlock year question
         if (trimmed.equals("What SkyBlock year is it?")) {
             long skyblockYear = ((System.currentTimeMillis() / 1000) - 1560276000) / 446400 + 1;
             currentAnswers = List.of("Year " + skyblockYear);
@@ -119,7 +122,6 @@ public class QuizSolver {
             return;
         }
 
-        // Check for questions in database
         for (Map.Entry<String, List<String>> entry : answers.entrySet()) {
             if (trimmed.contains(entry.getKey())) {
                 currentAnswers = entry.getValue();
@@ -140,7 +142,6 @@ public class QuizSolver {
             return;
         }
 
-        // Find Quiz room from dungeon grid if we don't have it yet
         if (quizRoom == null && DungeonManager.getGrid() != null) {
             for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
                 if (room != null && "Quiz".equals(room.getName())) {
@@ -152,21 +153,14 @@ public class QuizSolver {
         }
 
         if (quizRoom == null) {
-            // Quiz room not discovered yet
             return;
         }
 
-        // Only resolve stand positions while actively in a quiz (avoids fighting the shared clay
-        // cache used by DungeonWaypoints when we're in a different room).
         if (currentAnswers == null) return;
 
-        // Use the real BLUE_TERRACOTTA marker (clayPos) + Odin's rotateAroundNorth, exactly like
-        // DungeonWaypoints. The room corner/rotation differs from clayPos for some rotations, which
-        // made the box land on the wrong stand intermittently.
         if (clay == null) clay = DungeonWaypoints.scanClayPos(quizRoom);
         if (clay == null) return; // terracotta not loaded/scannable yet
 
-        // Update world positions for answer stands
         for (int i = 0; i < 3; i++) {
             int[] worldPos = DungeonWaypoints.relativeToWorld(clay, TYPE_BLOCKS[i][0], TYPE_BLOCKS[i][1]);
             triviaOptions[i] = new TriviaOption(
@@ -197,20 +191,16 @@ public class QuizSolver {
             );
             ESPRenderer.drawESPBox(matrices, box, color, cameraPos);
 
-            // Draw beacon beam
             if (TeslaMapsConfig.get().quizBeacon) {
                 ESPRenderer.drawBeaconBeam(matrices, pos, color, cameraPos);
             }
         }
     }
 
-    /** Classification of a chat line that is a quiz answer option. */
+    public static boolean isActive() { return currentAnswers != null; }
+
     public enum QuizLine { NONE, CORRECT, WRONG }
 
-    /**
-     * Classify a chat line as a correct/wrong quiz option (or NONE if it isn't one,
-     * or the quiz isn't active). Used by ChatMixin to recolor / hide answers in place.
-     */
     public static QuizLine classifyLine(String message) {
         if (!TeslaMapsConfig.get().solveQuiz) return QuizLine.NONE;
         if (currentAnswers == null) return QuizLine.NONE;
@@ -231,20 +221,15 @@ public class QuizSolver {
         return QuizLine.WRONG;
     }
 
-    /** True if this wrong-answer line should be hidden from chat. */
     public static boolean shouldHide(String message) {
         return TeslaMapsConfig.get().quizHideWrongAnswers && classifyLine(message) == QuizLine.WRONG;
     }
 
-    /**
-     * If chat highlight is enabled and this line is the correct answer, return a
-     * recolored (green + bold) replacement Component. Otherwise return null (leave as-is).
-     */
     public static Component highlightLine(Component message) {
         if (!TeslaMapsConfig.get().quizChatHighlight) return null;
         if (classifyLine(message.getString()) != QuizLine.CORRECT) return null;
         String stripped = message.getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
-        return Component.literal("§a§l" + stripped);
+        return Component.literal("§c§l" + stripped); // red + bold
     }
 
     public static void reset() {

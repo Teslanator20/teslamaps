@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -13,12 +28,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * F7 Terminal Solver - "Click in order!"
- * Auto-clicks glass panes numbered 1-14 in order based on stack size.
- */
 public class ClickInOrderTerminal {
-    // No pattern needed - we just check exact title match
 
     private static Map<Integer, Integer> slotToNumber = new HashMap<>(); // slot -> number
     private static List<Integer> orderedSlots = new ArrayList<>(); // slots in order 1-14
@@ -32,7 +42,6 @@ public class ClickInOrderTerminal {
     private static int lastDebugTick = 0;
 
     public static void tick() {
-        // DISABLED - Auto terminal feature commented out
         if (true) {
             reset();
             return;
@@ -40,21 +49,11 @@ public class ClickInOrderTerminal {
 
         Minecraft mc = Minecraft.getInstance();
 
-        /* DISABLED
-        if (!TeslaMapsConfig.get().solveClickInOrderTerminal) {
-            if (!slotToNumber.isEmpty()) {
-            }
-            reset();
-            return;
-        }
-        */
-
         if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
-        // Check if we're looking at a container screen
         if (!(mc.screen instanceof ContainerScreen)) {
             if (!slotToNumber.isEmpty()) {
             }
@@ -64,29 +63,23 @@ public class ClickInOrderTerminal {
 
         ContainerScreen screen = (ContainerScreen) mc.screen;
 
-        // Get screen title
         Component title = screen.getTitle();
         String titleStr = title.getString();
 
-        // Debug: Log container title once per second
         int currentTick = mc.player.tickCount;
         if (currentTick - lastDebugTick > 20) {
             lastDebugTick = currentTick;
         }
 
-        // Check if this is the "click in order" terminal
-        // Strip formatting first
         String cleanTitle = net.minecraft.ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
         if (!cleanTitle.equals("Click in order!")) {
-            // Not our terminal
             if (!slotToNumber.isEmpty()) {
             }
             return;
         }
 
-        // Initialize on first detection
         if (!initialScanDone) {
             solved = false;
             nextNumberToClick = 1;
@@ -99,22 +92,17 @@ public class ClickInOrderTerminal {
 
         long currentTime = System.currentTimeMillis();
 
-        // Re-scan for red panes every 100ms (in case some clicks didn't register)
         if (currentTime - lastScanTime >= 100) {
             int prevSize = orderedSlots.size();
             findAllNumberedSlots(screen);
             lastScanTime = currentTime;
-            // Reset isClicked if slot count changed (click was registered)
             if (orderedSlots.size() != prevSize) {
                 isClicked = false;
             }
         }
 
-        // Auto-click red panes in order by stack size
-        // Skip auto-clicking if using custom GUI with click anywhere
         boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
 
-        // Break threshold: reset isClicked if stuck for too long
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
             TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Break threshold reached, resetting click state");
@@ -125,21 +113,17 @@ public class ClickInOrderTerminal {
             long timeSinceOpen = currentTime - terminalOpenTime;
             long timeSinceLastClick = currentTime - lastClickTime;
 
-            // Use configured delays with randomization for human-like behavior (0 to configured max)
             int randomization = TeslaMapsConfig.get().terminalClickRandomization;
             int randomInitialDelay = TeslaMapsConfig.get().terminalClickDelay + ThreadLocalRandom.current().nextInt(randomization + 1);
             int randomInterval = TeslaMapsConfig.get().terminalClickInterval + ThreadLocalRandom.current().nextInt(randomization + 1);
 
-            // Initial delay before first click
             if (nextNumberToClick == 1 && timeSinceOpen >= randomInitialDelay) {
                 performNextClick(mc, screen);
             }
-            // Delay between subsequent clicks
             else if (nextNumberToClick > 1 && timeSinceLastClick >= randomInterval) {
                 performNextClick(mc, screen);
             }
         } else if (orderedSlots.isEmpty() && initialScanDone && nextNumberToClick > 1) {
-            // No more red panes found and we've clicked at least one
             long timeSinceLastClick = currentTime - lastClickTime;
 
             if (!solved) {
@@ -147,7 +131,6 @@ public class ClickInOrderTerminal {
                 TeslaMaps.LOGGER.info("[ClickInOrderTerminal] ===== ALL PANES TURNED GREEN =====");
             }
 
-            // If container still open after 1 second, restart
             if (timeSinceLastClick > 1000) {
                 TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Container still open after 1s, restarting...");
                 slotToNumber.clear();
@@ -159,13 +142,8 @@ public class ClickInOrderTerminal {
         }
     }
 
-    /**
-     * Find all RED glass panes and map them to their numbers (stack size).
-     * Red panes turn green when clicked correctly.
-     */
     private static void findAllNumberedSlots(ContainerScreen screen) {
         ChestMenu handler = screen.getMenu();
-
 
         slotToNumber.clear();
         orderedSlots.clear();
@@ -173,13 +151,11 @@ public class ClickInOrderTerminal {
         int redFound = 0;
 
         for (Slot slot : handler.slots) {
-            // Skip player inventory slots (slots 0-53 are container, 54+ are player inv)
             if (slot.index >= 54) continue;
 
             ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
-            // Only look for RED glass panes (these are the ones to click)
             if (stack.getItem() == Items.RED_STAINED_GLASS_PANE) {
                 int number = stack.getCount(); // Stack size = order number
                 if (number >= 1 && number <= 14) {
@@ -191,7 +167,6 @@ public class ClickInOrderTerminal {
 
         TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Found {} RED panes to click", redFound);
 
-        // Build ordered list (slots 1-14)
         for (int i = 1; i <= 14; i++) {
             for (Map.Entry<Integer, Integer> entry : slotToNumber.entrySet()) {
                 if (entry.getValue() == i) {
@@ -206,9 +181,6 @@ public class ClickInOrderTerminal {
         TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Click order: {}", orderedSlots);
     }
 
-    /**
-     * Click the next red pane in order.
-     */
     private static void performNextClick(Minecraft mc, ContainerScreen screen) {
         if (mc.player == null) {
             TeslaMaps.LOGGER.warn("[ClickInOrderTerminal] DEBUG: Cannot click - player is null");
@@ -220,7 +192,6 @@ public class ClickInOrderTerminal {
             return;
         }
 
-        // Click the first red pane (lowest number)
         int slotToClick = orderedSlots.get(0);
         int number = slotToNumber.get(slotToClick);
         ChestMenu handler = screen.getMenu();
@@ -228,7 +199,6 @@ public class ClickInOrderTerminal {
         TeslaMaps.LOGGER.info("[ClickInOrderTerminal] ===== PERFORMING AUTO-CLICK =====");
         TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Clicking pane #{} at slot {}", number, slotToClick);
 
-        // Click the slot (left click = button 0)
         mc.gameMode.handleContainerInput(
             handler.containerId,
             slotToClick,
@@ -244,38 +214,27 @@ public class ClickInOrderTerminal {
         TeslaMaps.LOGGER.info("[ClickInOrderTerminal] ===== CLICK SENT =====");
     }
 
-    /**
-     * For easy mode: returns the next slot to click, or -1 if none.
-     */
     public static int getNextCorrectSlot() {
         if (!initialScanDone || solved || orderedSlots.isEmpty()) return -1;
         return orderedSlots.get(0); // First red pane in order
     }
 
-    /**
-     * Event-driven slot update handler.
-     * Called by TerminalManager when a slot update packet is received.
-     */
     public static void onSlotUpdate(int slotIndex, ItemStack stack) {
         if (!TeslaMapsConfig.get().solveClickInOrderTerminal) return;
         if (slotIndex >= 54) return; // Ignore player inventory
 
-        // If a red pane turned green, remove it from our tracking
         if (slotToNumber.containsKey(slotIndex)) {
             if (stack.getItem() != Items.RED_STAINED_GLASS_PANE) {
-                // Pane is no longer red - click was registered!
                 int number = slotToNumber.remove(slotIndex);
                 orderedSlots.remove(Integer.valueOf(slotIndex));
                 isClicked = false; // Ready for next click
                 TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Slot {} (pane #{}) turned green!", slotIndex, number);
             }
         }
-        // If a new red pane appeared, add it
         else if (stack.getItem() == Items.RED_STAINED_GLASS_PANE) {
             int number = stack.getCount();
             if (number >= 1 && number <= 14) {
                 slotToNumber.put(slotIndex, number);
-                // Insert in correct position
                 int insertIdx = 0;
                 for (int i = 0; i < orderedSlots.size(); i++) {
                     if (slotToNumber.get(orderedSlots.get(i)) > number) {
@@ -289,14 +248,9 @@ public class ClickInOrderTerminal {
         }
     }
 
-    /**
-     * Validate if a click is allowed on this slot.
-     * For Numbers terminal: only allow clicking the FIRST item in sequence.
-     */
     public static boolean canClick(int slotIndex, int button) {
         if (!initialScanDone || solved || orderedSlots.isEmpty()) return true;
 
-        // Only allow clicking the first slot in order
         int nextSlot = orderedSlots.get(0);
         if (slotIndex != nextSlot) {
             TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Blocked click on slot {} - next should be {}", slotIndex, nextSlot);

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,15 +29,12 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Blaze puzzle solver - highlights which blaze to kill.
- * Blaze puzzle solver - shows kill order.
- */
 public class DungeonBlaze {
     private static ArmorStand highestBlaze = null;
     private static ArmorStand lowestBlaze = null;
     private static ArmorStand nextHighestBlaze = null;
     private static ArmorStand nextLowestBlaze = null;
+    private static final List<ArmorStand> allBlazes = new ArrayList<>(); // every blaze this tick (for red "wrong" boxes)
 
     private static boolean blazeDoneMessageSent = false;
     private static int previousBlazeCount = 0;
@@ -43,12 +55,8 @@ public class DungeonBlaze {
         sortBlazes(blazes);
         updateBlazeEntities(blazes);
 
-        // Check if blaze puzzle is complete (only 1 blaze left with 0 HP or no blazes)
         if (!blazeDoneMessageSent && TeslaMapsConfig.get().blazeDoneMessage) {
             if (blazes.isEmpty() || (blazes.size() == 1 && blazes.get(0).rightInt() == 0)) {
-                // Fire once we previously had at least one blaze. The old check (> 1) missed the
-                // common 1 -> 0 transition when the last blaze is killed (previousBlazeCount == 1),
-                // so the Done message usually never sent.
                 if (previousBlazeCount >= 1) {
                     sendBlazeDoneMessage();
                     blazeDoneMessageSent = true;
@@ -65,16 +73,20 @@ public class DungeonBlaze {
         }
 
         try {
+            ArmorStand target = null, next = null;
             if (highestBlaze != null && lowestBlaze != null && highestBlaze.isAlive() && lowestBlaze.isAlive()) {
-                // If highest blaze is below y=69, highlight it
-                if (highestBlaze.getY() < 69) {
-                    renderBlazeOutline(matrices, highestBlaze, nextHighestBlaze, cameraPos);
-                }
-                // If lowest blaze is above y=69, highlight it
-                if (lowestBlaze.getY() > 69) {
-                    renderBlazeOutline(matrices, lowestBlaze, nextLowestBlaze, cameraPos);
-                }
+                if (highestBlaze.getY() < 69) { target = highestBlaze; next = nextHighestBlaze; }
+                else if (lowestBlaze.getY() > 69) { target = lowestBlaze; next = nextLowestBlaze; }
             }
+
+            for (ArmorStand blaze : allBlazes) {
+                if (blaze == null || !blaze.isAlive() || blaze == target || blaze == next) continue;
+                AABB box = blaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
+                if (TeslaMapsConfig.get().modernBlazeSolver) ESPRenderer.drawFilledBox(matrices, box, 0x66FF0000, cameraPos);
+                ESPRenderer.drawBoxOutline(matrices, box, 0xFFFF0000, 4.0f, cameraPos); // Red = do NOT shoot
+            }
+
+            if (target != null) renderBlazeOutline(matrices, target, next, cameraPos);
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[DungeonBlaze] Error rendering", e);
         }
@@ -113,6 +125,8 @@ public class DungeonBlaze {
     }
 
     private static void updateBlazeEntities(List<ObjectIntPair<ArmorStand>> blazes) {
+        allBlazes.clear();
+        for (ObjectIntPair<ArmorStand> b : blazes) allBlazes.add(b.left());
         if (!blazes.isEmpty()) {
             lowestBlaze = blazes.get(0).left();
             int highestIndex = blazes.size() - 1;
@@ -125,16 +139,16 @@ public class DungeonBlaze {
     }
 
     private static void renderBlazeOutline(PoseStack matrices, ArmorStand blaze, ArmorStand nextBlaze, Vec3 cameraPos) {
-        // Green box for target blaze
+        boolean modern = TeslaMapsConfig.get().modernBlazeSolver;
         AABB blazeBox = blaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
+        if (modern) ESPRenderer.drawFilledBox(matrices, blazeBox, 0x6600FF00, cameraPos); // Green fill
         ESPRenderer.drawBoxOutline(matrices, blazeBox, 0xFF00FF00, 5.0f, cameraPos); // Green
 
         if (nextBlaze != null && nextBlaze.isAlive() && nextBlaze != blaze) {
-            // White box for next blaze
             AABB nextBlazeBox = nextBlaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
+            if (modern) ESPRenderer.drawFilledBox(matrices, nextBlazeBox, 0x66FFFFFF, cameraPos); // White fill
             ESPRenderer.drawBoxOutline(matrices, nextBlazeBox, 0xFFFFFFFF, 5.0f, cameraPos); // White
 
-            // Line connecting them
             Vec3 blazeCenter = blazeBox.getCenter();
             Vec3 nextBlazeCenter = nextBlazeBox.getCenter();
             ESPRenderer.drawLine(matrices, blazeCenter, nextBlazeCenter, 0xFFFFFFFF, 1.0f, cameraPos);
@@ -146,6 +160,7 @@ public class DungeonBlaze {
         lowestBlaze = null;
         nextHighestBlaze = null;
         nextLowestBlaze = null;
+        allBlazes.clear();
         blazeDoneMessageSent = false;
         previousBlazeCount = 0;
     }
@@ -160,5 +175,11 @@ public class DungeonBlaze {
 
     public static boolean isBlazeDone() {
         return blazeDoneMessageSent;
+    }
+
+    public static boolean shouldHideBlaze(net.minecraft.world.entity.Entity entity) {
+        if (!(entity instanceof net.minecraft.world.entity.monster.Blaze)) return false;
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        return cfg.solveBlaze && cfg.modernBlazeSolver && DungeonManager.isInDungeon();
     }
 }

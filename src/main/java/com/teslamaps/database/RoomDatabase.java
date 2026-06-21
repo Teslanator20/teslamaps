@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.database;
 
 import com.google.gson.Gson;
@@ -17,13 +32,9 @@ public class RoomDatabase {
     private static final RoomDatabase INSTANCE = new RoomDatabase();
     private static final Gson GSON = new Gson();
 
-    // Index core hash -> room data
     private final Map<Integer, RoomData> coreToRoom = new HashMap<>();
-    // Index room ID -> room data
     private final Map<Integer, RoomData> idToRoom = new HashMap<>();
-    // Index name -> room data
     private final Map<String, RoomData> nameToRoom = new HashMap<>();
-    // All rooms
     private final List<RoomData> allRooms = new ArrayList<>();
 
     private boolean loaded = false;
@@ -55,7 +66,6 @@ public class RoomDatabase {
                 idToRoom.put(room.getRoomID(), room);
                 nameToRoom.put(room.getName().toLowerCase(), room);
 
-                // Index by all core variations
                 if (room.getCores() != null) {
                     for (Integer core : room.getCores()) {
                         coreToRoom.put(core, room);

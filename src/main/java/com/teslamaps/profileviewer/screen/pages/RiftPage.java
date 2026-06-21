@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonObject;
@@ -9,9 +24,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Rift page showing Rift-specific progression.
- */
 public class RiftPage extends ProfileViewerPage {
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
@@ -47,14 +59,12 @@ public class RiftPage extends ProfileViewerPage {
         ctx.text(tr, "The Rift", contentX, lineY, TEXT_PURPLE);
         lineY += 20;
 
-        // Get rift data
         JsonObject rift = getNestedObject(memberData, "rift");
         if (rift == null) {
             ctx.text(tr, "No Rift data found", contentX, lineY, TEXT_GRAY);
             return;
         }
 
-        // === Motes ===
         ctx.text(tr, "Motes", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
@@ -72,7 +82,6 @@ public class RiftPage extends ProfileViewerPage {
             lineY += 20;
         }
 
-        // === Timecharms ===
         ctx.text(tr, "Timecharms", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
@@ -86,7 +95,6 @@ public class RiftPage extends ProfileViewerPage {
             lineY += 20;
         }
 
-        // === Enigma Souls ===
         ctx.text(tr, "Enigma Souls", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
@@ -100,16 +108,13 @@ public class RiftPage extends ProfileViewerPage {
         }
         lineY += 20;
 
-        // === Right column ===
         lineY = y + padding;
 
-        // Montezuma
         ctx.text(tr, "Montezuma", col2X, lineY, TEXT_GREEN);
         lineY += 16;
 
         JsonObject castle = getNestedObject(rift, "castle");
         if (castle != null) {
-            // Grubber stacks
             if (castle.has("grubber_stacks")) {
                 int stacks = castle.get("grubber_stacks").getAsInt();
                 ctx.text(tr, "Grubber Stacks: " + stacks, col2X, lineY, TEXT_WHITE);
@@ -122,7 +127,6 @@ public class RiftPage extends ProfileViewerPage {
 
         lineY += 8;
 
-        // Village Plaza
         ctx.text(tr, "Village Plaza", col2X, lineY, TEXT_GREEN);
         lineY += 16;
 
@@ -138,7 +142,6 @@ public class RiftPage extends ProfileViewerPage {
             }
         }
 
-        // Slayer
         lineY += 8;
         ctx.text(tr, "Rift Slayer", col2X, lineY, TEXT_GREEN);
         lineY += 16;

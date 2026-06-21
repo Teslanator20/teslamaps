@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -15,19 +30,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Experiment Solver - Chronomatron (Superpairs table)
- * Memory sequence puzzle - items pulse with glint in order, player must click them back.
- *
- * State machine:
- * REMEMBER - Watch items with glint to build sequence
- * WAIT - Sequence complete, waiting for timer to start
- * SHOW - Timer started, auto-click items in remembered order
- * END - Round complete, waiting for next round or experiment end
- */
 public class ChronomatronSolver {
 
-    // Terracotta to Glass mapping for color matching
     private static final Map<Item, Item> TERRACOTTA_TO_GLASS = Map.ofEntries(
         Map.entry(Items.RED_TERRACOTTA, Items.RED_STAINED_GLASS),
         Map.entry(Items.ORANGE_TERRACOTTA, Items.ORANGE_STAINED_GLASS),
@@ -57,27 +61,15 @@ public class ChronomatronSolver {
     private static boolean isClicked = false;
     private static int lastDebugTick = 0;
 
-    // Track previous slot states for glint detection
     private static Map<Integer, Boolean> previousGlintState = new HashMap<>();
 
     public static void tick() {
-        // DISABLED - Auto experiment feature commented out
         if (true) {
             reset();
             return;
         }
 
         Minecraft mc = Minecraft.getInstance();
-
-        /* DISABLED
-        if (!TeslaMapsConfig.get().solveChronomatron) {
-            if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[Chronomatron] Feature disabled, resetting");
-            }
-            reset();
-            return;
-        }
-        */
 
         if (mc.player == null || mc.level == null) {
             reset();
@@ -97,12 +89,10 @@ public class ChronomatronSolver {
         String cleanTitle = ChatFormatting.stripFormatting(titleStr);
         if (cleanTitle == null) cleanTitle = titleStr;
 
-        // Check if this is Chronomatron
         if (!cleanTitle.matches("Chronomatron \\(\\w+\\)")) {
             return;
         }
 
-        // Initialize on first detection
         if (!initialScanDone) {
             state = State.REMEMBER;
             chronomatronSlots.clear();
@@ -115,7 +105,6 @@ public class ChronomatronSolver {
             lastScanTime = 0;
             isClicked = false;
 
-            // Determine if single row based on level
             isSingleRow = cleanTitle.endsWith("(High)") || cleanTitle.endsWith("(Grand)") || cleanTitle.endsWith("(Supreme)");
 
             TeslaMaps.LOGGER.info("[Chronomatron] ===== DETECTED: {} (singleRow={}) =====", cleanTitle, isSingleRow);
@@ -125,16 +114,13 @@ public class ChronomatronSolver {
         long currentTime = System.currentTimeMillis();
         ChestMenu handler = screen.getMenu();
 
-        // Scan for slot changes every tick
         if (currentTime - lastScanTime >= 50) {
             processSlotChanges(handler);
             lastScanTime = currentTime;
         }
 
-        // Auto-click logic when in SHOW state
         boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
 
-        // Break threshold
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
             TeslaMaps.LOGGER.info("[Chronomatron] Break threshold reached, resetting click state");
@@ -164,21 +150,15 @@ public class ChronomatronSolver {
         }
     }
 
-    /**
-     * Process slot changes to detect glint (flashing items) and timer state.
-     */
     private static void processSlotChanges(ChestMenu handler) {
-        // Determine valid slot range based on layout
         int minSlot = isSingleRow ? 17 : 10;
         int maxSlot = isSingleRow ? 25 : 34;
 
-        // Check instruction slot (49) for timer/state changes
         ItemStack instructionStack = handler.getSlot(49).getItem();
         String instructionName = instructionStack.getHoverName().getString();
 
         switch (state) {
             case REMEMBER -> {
-                // Look for items with glint
                 for (int slotId = minSlot; slotId <= maxSlot; slotId++) {
                     Slot slot = handler.getSlot(slotId);
                     if (slot == null) continue;
@@ -189,10 +169,8 @@ public class ChronomatronSolver {
                     boolean hasGlint = stack.hasFoil();
                     Boolean prevGlint = previousGlintState.get(slotId);
 
-                    // Item just started glowing
                     if (hasGlint && (prevGlint == null || !prevGlint)) {
                         if (chronomatronCurrentSlot == 0) {
-                            // New item in sequence
                             if (chronomatronSlots.size() <= chronomatronChainLengthCount) {
                                 Item glassItem = TERRACOTTA_TO_GLASS.get(stack.getItem());
                                 if (glassItem != null) {
@@ -207,7 +185,6 @@ public class ChronomatronSolver {
                             chronomatronCurrentSlot = slotId;
                         }
                     }
-                    // Item stopped glowing
                     else if (!hasGlint && prevGlint != null && prevGlint && chronomatronCurrentSlot == slotId) {
                         chronomatronCurrentSlot = 0;
                     }
@@ -239,20 +216,15 @@ public class ChronomatronSolver {
                 }
             }
             case SHOW -> {
-                // Nothing special to do in SHOW state for scanning
             }
         }
     }
 
-    /**
-     * Click the next item in the sequence.
-     */
     private static void performNextClick(Minecraft mc, ChestMenu handler) {
         if (mc.player == null || chronomatronCurrentOrdinal >= chronomatronSlots.size()) return;
 
         Item targetItem = chronomatronSlots.get(chronomatronCurrentOrdinal);
 
-        // Find a slot with the target item (or its terracotta equivalent)
         int slotToClick = -1;
         int minSlot = isSingleRow ? 17 : 10;
         int maxSlot = isSingleRow ? 25 : 34;
@@ -264,12 +236,10 @@ public class ChronomatronSolver {
             ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
-            // Check if this slot matches the target
             if (stack.getItem() == targetItem) {
                 slotToClick = slotId;
                 break;
             }
-            // Check terracotta equivalent
             Item glassEquiv = TERRACOTTA_TO_GLASS.get(stack.getItem());
             if (glassEquiv == targetItem) {
                 slotToClick = slotId;
@@ -297,16 +267,12 @@ public class ChronomatronSolver {
         lastClickTime = System.currentTimeMillis();
         isClicked = true;
 
-        // Check if we finished the sequence
         if (chronomatronCurrentOrdinal >= chronomatronSlots.size()) {
             TeslaMaps.LOGGER.info("[Chronomatron] Sequence complete, entering END state");
             state = State.END;
         }
     }
 
-    /**
-     * Get the next correct slot to click (for click-anywhere mode).
-     */
     public static int getNextCorrectSlot() {
         if (!initialScanDone || state != State.SHOW || chronomatronCurrentOrdinal >= chronomatronSlots.size()) {
             return -1;
@@ -336,9 +302,6 @@ public class ChronomatronSolver {
         return -1;
     }
 
-    /**
-     * Mark that a slot was clicked (for click-anywhere mode tracking).
-     */
     public static void markSlotClicked(int slot) {
         if (state == State.SHOW && chronomatronCurrentOrdinal < chronomatronSlots.size()) {
             chronomatronCurrentOrdinal++;
@@ -348,23 +311,14 @@ public class ChronomatronSolver {
         }
     }
 
-    /**
-     * Get the current sequence for display purposes.
-     */
     public static List<Item> getSequence() {
         return Collections.unmodifiableList(chronomatronSlots);
     }
 
-    /**
-     * Get the current ordinal (next item index to click).
-     */
     public static int getCurrentOrdinal() {
         return chronomatronCurrentOrdinal;
     }
 
-    /**
-     * Check if solver is active.
-     */
     public static boolean isActive() {
         return initialScanDone && state == State.SHOW;
     }

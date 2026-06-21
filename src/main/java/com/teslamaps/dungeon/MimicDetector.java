@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon;
 
 import com.teslamaps.TeslaMaps;
@@ -12,21 +27,14 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.level.block.Blocks;
 
-/**
- * Detects and tracks the Mimic in dungeons.
- * The Mimic spawns from a trapped chest and is a baby zombie.
- */
 public class MimicDetector {
 
-    // Rooms that normally have trapped chests (not mimic)
-    // Key = room name, Value = expected trapped chest count
     private static final Map<String, Integer> EXPECTED_CHESTS = new HashMap<>();
     static {
         EXPECTED_CHESTS.put("Buttons", 1);
         EXPECTED_CHESTS.put("Slime", 1);
         EXPECTED_CHESTS.put("Dueces", 1);
         EXPECTED_CHESTS.put("Redstone Key", 1);
-        // Add more rooms here as you discover them
     }
 
     private static boolean mimicKilled = false;
@@ -39,9 +47,6 @@ public class MimicDetector {
     private static boolean fullScanComplete = false;
     private static boolean loggedNoMimic = false;  // Prevent log spam
 
-    /**
-     * Reset state when entering a new dungeon.
-     */
     public static void reset() {
         mimicKilled = false;
         mimicRooms.clear();
@@ -53,13 +58,9 @@ public class MimicDetector {
         loggedNoMimic = false;
     }
 
-    /**
-     * Called every tick to scan for mimic.
-     */
     public static void tick() {
         if (!DungeonManager.isInDungeon() || mimicKilled) return;
 
-        // Only scan for mimics on F6, F7, M6, M7 (floors that have mimics)
         if (!DungeonScore.floorHasMimics()) {
             if (!loggedNoMimic) {
                 loggedNoMimic = true;
@@ -70,26 +71,19 @@ public class MimicDetector {
 
         scanTickCounter++;
 
-        // Check for mimic entity every 20 ticks (1 second) - fast check
         if (scanTickCounter % 20 == 0) {
             checkForMimicEntity();
         }
 
-        // Scan for trapped chests every 100 ticks (5 seconds) until complete or mimic found
         if (scanTickCounter % 100 == 0 && !fullScanComplete && mimicRooms.isEmpty()) {
             scanForMimicRoom();
         }
 
-        // Check if mimic is dead
         if (mimicOpenTime > 0 && System.currentTimeMillis() - mimicOpenTime > 750) {
             checkMimicDead();
         }
     }
 
-    /**
-     * Check for Mimic entity (armor stand with "Mimic" in name).
-     * Also detects mimic death when armor stand shows "0❤".
-     */
     private static void checkForMimicEntity() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
@@ -98,14 +92,12 @@ public class MimicDetector {
             if (entity instanceof net.minecraft.world.entity.decoration.ArmorStand) {
                 String name = entity.getName().getString();
                 if (name.contains("Mimic")) {
-                    // Check if mimic is dead (shows 0❤)
-                    if (name.contains("0❤") && !mimicKilled) {
+                    if (name.contains("0") && !mimicKilled) {
                         TeslaMaps.LOGGER.info("[MimicDetector] Detected Mimic death via armor stand: {}", name);
                         setMimicKilled();
                         return;
                     }
 
-                    // Otherwise, track mimic room location
                     int[] gridPos = ComponentGrid.worldToGrid(entity.getX(), entity.getZ());
                     if (gridPos != null) {
                         DungeonRoom room = DungeonManager.getRoomAt(gridPos[0], gridPos[1]);
@@ -123,9 +115,6 @@ public class MimicDetector {
         }
     }
 
-    /**
-     * Called when a block changes - detect trapped chest opening.
-     */
     public static void onBlockChange(BlockPos pos, boolean wasTrappedChest, boolean isNowAir) {
         if (!DungeonManager.isInDungeon() || mimicKilled) return;
 
@@ -136,16 +125,10 @@ public class MimicDetector {
         }
     }
 
-    /**
-     * Get expected trapped chest count for a room.
-     */
     private static int getExpectedChestCount(String roomName) {
         return EXPECTED_CHESTS.getOrDefault(roomName, 0);
     }
 
-    /**
-     * Scan for trapped chests by iterating through loaded chunks.
-     */
     private static void scanForMimicRoom() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
@@ -154,11 +137,9 @@ public class MimicDetector {
         int chunksChecked = 0;
         int chunksLoaded = 0;
 
-        // Clear previous data for rescan
         trappedChestPositions.clear();
         Map<DungeonRoom, List<BlockPos>> chestsPerRoom = new HashMap<>();
 
-        // Dungeon chunks: -13,-13 to -1,-1
         int minChunkX = -200 >> 4;
         int maxChunkX = -10 >> 4;
         int minChunkZ = -200 >> 4;
@@ -170,7 +151,6 @@ public class MimicDetector {
                 var chunk = mc.level.getChunk(chunkX, chunkZ);
                 if (chunk == null) continue;
 
-                // Check if chunk is actually loaded (has block entities)
                 if (chunk.getBlockEntities().isEmpty()) continue;
                 chunksLoaded++;
 
@@ -198,13 +178,11 @@ public class MimicDetector {
 
         long elapsed = System.currentTimeMillis() - startTime;
 
-        // Check if we've loaded most chunks (consider scan complete if >80% loaded)
         int totalChunks = (maxChunkX - minChunkX + 1) * (maxChunkZ - minChunkZ + 1);
         if (chunksLoaded > totalChunks * 0.8) {
             fullScanComplete = true;
         }
 
-        // Find rooms with more trapped chests than expected
         mimicRooms.clear();
         for (var entry : chestsPerRoom.entrySet()) {
             DungeonRoom room = entry.getKey();
@@ -223,15 +201,11 @@ public class MimicDetector {
         TeslaMaps.LOGGER.info("[MimicDetector] Scan: {}/{} chunks loaded, {} trapped chests, {} potential mimic rooms, {}ms (complete: {})",
                 chunksLoaded, totalChunks, trappedChestPositions.size(), mimicRooms.size(), elapsed, fullScanComplete);
 
-        // Send message for each new mimic room found
         for (DungeonRoom room : mimicRooms) {
             sendMimicFoundMessage(room.getName());
         }
     }
 
-    /**
-     * Check if the mimic entity is dead.
-     */
     private static void checkMimicDead() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null || mimicChestPos == null) return;
@@ -255,9 +229,6 @@ public class MimicDetector {
         }
     }
 
-    /**
-     * Mark mimic as killed.
-     */
     private static void setMimicKilled() {
         if (mimicKilled) return;
         mimicKilled = true;
@@ -265,20 +236,14 @@ public class MimicDetector {
         trappedChestPositions.clear();
         TeslaMaps.LOGGER.info("[MimicDetector] Mimic killed!");
 
-        // Notify DungeonScore
         DungeonScore.onMimicKilled();
 
-        // Send party chat message
         sendMimicDeadMessage();
     }
 
-    /**
-     * Called when a chat message is received - check for mimic dead messages from other players.
-     */
     public static void onChatMessage(String message) {
         if (!DungeonManager.isInDungeon() || mimicKilled) return;
 
-        // Check for common mimic dead messages (case insensitive)
         String lower = message.toLowerCase();
         if (lower.contains("mimic") && (lower.contains("dead") || lower.contains("killed") || lower.contains("done"))) {
             TeslaMaps.LOGGER.info("[MimicDetector] Detected mimic dead message from chat: {}", message);
@@ -288,9 +253,6 @@ public class MimicDetector {
         }
     }
 
-    /**
-     * Send mimic dead message to party chat.
-     */
     private static void sendMimicDeadMessage() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
@@ -300,9 +262,6 @@ public class MimicDetector {
         TeslaMaps.LOGGER.info("[MimicDetector] Announced Mimic death to party");
     }
 
-    /**
-     * Check if an entity is likely a mimic.
-     */
     public static boolean isMimic(Zombie zombie) {
         if (!zombie.isBaby()) return false;
         for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
@@ -313,37 +272,22 @@ public class MimicDetector {
         return true;
     }
 
-    /**
-     * Get all potential mimic rooms.
-     */
     public static Set<DungeonRoom> getMimicRooms() {
         return mimicRooms;
     }
 
-    /**
-     * Check if mimic has been killed.
-     */
     public static boolean isMimicKilled() {
         return mimicKilled;
     }
 
-    /**
-     * Check if a room is a potential mimic room.
-     */
     public static boolean isMimicRoom(DungeonRoom room) {
         return mimicRooms.contains(room);
     }
 
-    /**
-     * Get all trapped chest positions for ESP rendering.
-     */
     public static List<BlockPos> getTrappedChestPositions() {
         return trappedChestPositions;
     }
 
-    /**
-     * Send chat message when mimic room is found.
-     */
     private static void sendMimicFoundMessage(String roomName) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;

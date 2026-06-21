@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.scanner;
 
 import com.teslamaps.map.DungeonRoom;
@@ -6,12 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Manages the 6x6 grid of dungeon room components.
- * Each grid cell can contain a room or be empty.
- */
 public class ComponentGrid {
-    // Dungeon constants
     public static final int DUNGEON_MIN_X = -200;
     public static final int DUNGEON_MAX_X = -10;
     public static final int DUNGEON_MIN_Z = -200;
@@ -24,7 +34,6 @@ public class ComponentGrid {
 
     public static final int GRID_SIZE = 6;       // 6x6 component grid
 
-    // Grid storage: gridX * 6 + gridZ -> Room
     private final Map<Integer, DungeonRoom> rooms = new HashMap<>();
 
     public void clear() {
@@ -43,7 +52,6 @@ public class ComponentGrid {
     }
 
     public Collection<DungeonRoom> getAllRooms() {
-        // Return unique rooms only (multi-component rooms are stored at multiple positions)
         return new java.util.HashSet<>(rooms.values());
     }
 
@@ -55,10 +63,6 @@ public class ComponentGrid {
         return gridX >= 0 && gridX < GRID_SIZE && gridZ >= 0 && gridZ < GRID_SIZE;
     }
 
-    /**
-     * Convert world coordinates to grid position.
-     * Returns [gridX, gridZ] or null if outside dungeon bounds.
-     */
     public static int[] worldToGrid(double worldX, double worldZ) {
         if (worldX < DUNGEON_MIN_X || worldX > DUNGEON_MAX_X ||
                 worldZ < DUNGEON_MIN_Z || worldZ > DUNGEON_MAX_Z) {
@@ -68,34 +72,24 @@ public class ComponentGrid {
         int gridX = (int) ((worldX - DUNGEON_MIN_X) / TOTAL_SIZE);
         int gridZ = (int) ((worldZ - DUNGEON_MIN_Z) / TOTAL_SIZE);
 
-        // Clamp to valid range
         gridX = Math.max(0, Math.min(GRID_SIZE - 1, gridX));
         gridZ = Math.max(0, Math.min(GRID_SIZE - 1, gridZ));
 
         return new int[]{gridX, gridZ};
     }
 
-    /**
-     * Convert grid position to world coordinates (room center).
-     */
     public static int[] gridToWorld(int gridX, int gridZ) {
         int worldX = DUNGEON_MIN_X + HALF_ROOM_SIZE + (gridX * TOTAL_SIZE);
         int worldZ = DUNGEON_MIN_Z + HALF_ROOM_SIZE + (gridZ * TOTAL_SIZE);
         return new int[]{worldX, worldZ};
     }
 
-    /**
-     * Convert grid position to room corner coordinates.
-     */
     public static int[] gridToWorldCorner(int gridX, int gridZ) {
         int worldX = DUNGEON_MIN_X + (gridX * TOTAL_SIZE);
         int worldZ = DUNGEON_MIN_Z + (gridZ * TOTAL_SIZE);
         return new int[]{worldX, worldZ};
     }
 
-    /**
-     * Get all 36 grid positions as world coordinates (room centers).
-     */
     public static int[][] getAllGridPositions() {
         int[][] positions = new int[GRID_SIZE * GRID_SIZE][2];
         int index = 0;
@@ -107,10 +101,6 @@ public class ComponentGrid {
         return positions;
     }
 
-    /**
-     * Convert room-relative coordinates to actual world coordinates.
-     * Room-relative coords have (0,0,0) at room corner.
-     */
     public static net.minecraft.core.BlockPos relativeToActual(int gridX, int gridZ, net.minecraft.core.BlockPos relative) {
         int[] corner = gridToWorldCorner(gridX, gridZ);
         return new net.minecraft.core.BlockPos(
@@ -120,9 +110,6 @@ public class ComponentGrid {
         );
     }
 
-    /**
-     * Convert actual world coordinates to room-relative coordinates.
-     */
     public static net.minecraft.core.BlockPos actualToRelative(int gridX, int gridZ, net.minecraft.core.BlockPos actual) {
         int[] corner = gridToWorldCorner(gridX, gridZ);
         return new net.minecraft.core.BlockPos(

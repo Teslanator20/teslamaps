@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.data;
 
 import com.google.gson.JsonArray;
@@ -7,9 +22,6 @@ import com.teslamaps.TeslaMaps;
 
 import java.util.*;
 
-/**
- * Data for a single Skyblock profile.
- */
 public class SkyblockProfile {
     private final String profileId;
     private final String cuteName;
@@ -17,13 +29,11 @@ public class SkyblockProfile {
     private final JsonObject memberData;
     private final String ownerUuid;
 
-    // Parsed data
     private final Map<String, SkillData> skills = new LinkedHashMap<>();
     private final DungeonData dungeonData;
     private final List<PetData> pets = new ArrayList<>();
     private final Map<String, Long> collections = new HashMap<>();
 
-    // Additional data loaded separately
     private JsonObject museumData;
     private JsonObject gardenData;
     private JsonObject skyCryptData;  // Full SkyCrypt profile data
@@ -43,7 +53,6 @@ public class SkyblockProfile {
     }
 
     private void parseSkills() {
-        // Skill names and their API keys
         String[][] skillKeys = {
                 {"farming", "Farming"},
                 {"mining", "Mining"},
@@ -66,7 +75,6 @@ public class SkyblockProfile {
             String displayName = skill[1];
 
             double xp = 0;
-            // Try new API path first (player_data.experience.SKILL_<name>)
             if (playerData != null && playerData.has("experience")) {
                 JsonObject exp = playerData.getAsJsonObject("experience");
                 String expKey = "SKILL_" + apiKey;
@@ -81,7 +89,6 @@ public class SkyblockProfile {
 
     private void parsePets() {
         try {
-            // Pets can be in pets_data.pets or player_data.pets
             JsonArray petsArray = null;
 
             if (memberData.has("pets_data")) {
@@ -107,7 +114,6 @@ public class SkyblockProfile {
                 pets.add(new PetData(type, tier, exp, active, heldItem, skin));
             }
 
-            // Sort by active first, then by rarity, then by level
             pets.sort((a, b) -> {
                 if (a.isActive() != b.isActive()) return a.isActive() ? -1 : 1;
                 if (a.getRarityOrdinal() != b.getRarityOrdinal())
@@ -132,7 +138,6 @@ public class SkyblockProfile {
         }
     }
 
-    // Getters
     public String getProfileId() { return profileId; }
     public String getCuteName() { return cuteName; }
     public JsonObject getFullProfileJson() { return fullProfileJson; }
@@ -153,14 +158,10 @@ public class SkyblockProfile {
     public JsonObject getSkyCryptData() { return skyCryptData; }
     public void setSkyCryptData(JsonObject skyCryptData) { this.skyCryptData = skyCryptData; }
 
-    /**
-     * Calculate skill average.
-     */
     public double getSkillAverage() {
         double total = 0;
         int count = 0;
         for (Map.Entry<String, SkillData> entry : skills.entrySet()) {
-            // Exclude runecrafting and social from average
             if (entry.getKey().equals("runecrafting") || entry.getKey().equals("social")) continue;
             total += entry.getValue().getLevel();
             count++;
@@ -168,9 +169,6 @@ public class SkyblockProfile {
         return count > 0 ? total / count : 0;
     }
 
-    /**
-     * Get coin purse amount.
-     */
     public double getCoinPurse() {
         try {
             if (memberData.has("currencies")) {
@@ -180,14 +178,10 @@ public class SkyblockProfile {
                 }
             }
         } catch (Exception e) {
-            // Ignore
         }
         return 0;
     }
 
-    /**
-     * Get bank balance.
-     */
     public double getBankBalance() {
         try {
             if (fullProfileJson.has("banking")) {
@@ -197,14 +191,10 @@ public class SkyblockProfile {
                 }
             }
         } catch (Exception e) {
-            // Ignore
         }
         return 0;
     }
 
-    /**
-     * Get fairy souls collected.
-     */
     public int getFairySouls() {
         try {
             if (memberData.has("fairy_soul")) {
@@ -214,26 +204,20 @@ public class SkyblockProfile {
                 }
             }
         } catch (Exception e) {
-            // Ignore
         }
         return 0;
     }
 
-    /**
-     * Get Skyblock level.
-     */
     public double getSkyblockLevel() {
         try {
             if (memberData.has("leveling")) {
                 JsonObject leveling = memberData.getAsJsonObject("leveling");
                 if (leveling.has("experience")) {
                     double xp = leveling.get("experience").getAsDouble();
-                    // SB Level = XP / 100
                     return xp / 100.0;
                 }
             }
         } catch (Exception e) {
-            // Ignore
         }
         return 0;
     }

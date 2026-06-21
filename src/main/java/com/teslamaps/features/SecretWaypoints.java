@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.features;
 
 import com.google.gson.Gson;
@@ -25,20 +40,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Secret Waypoints feature - renders 3D waypoints at known secret locations.
- * Renders 3D waypoints at known secret locations.
- */
 public class SecretWaypoints {
     private static final Gson GSON = new Gson();
 
-    // Dungeon coordinate constants
     private static final int CORNER_START_X = -200;
     private static final int CORNER_START_Z = -200;
     private static final int HALF_ROOM_SIZE = 15;  // dungeonRoomSize / 2 = 31 / 2 = 15
     private static final int HALF_COMBINED_SIZE = 16;  // (31 + 1) / 2 = 16
 
-    // Room corner offsets for rotation detection
     private static final int[][] ROOM_OFFSETS = {
         {-HALF_ROOM_SIZE, -HALF_ROOM_SIZE},  // Index 0 = 0° rotation
         {HALF_ROOM_SIZE, -HALF_ROOM_SIZE},   // Index 1 = 90° rotation
@@ -46,15 +55,12 @@ public class SecretWaypoints {
         {-HALF_ROOM_SIZE, HALF_ROOM_SIZE}    // Index 3 = 270° rotation
     };
 
-    // Waypoint data indexed by roomID
     private static RoomWaypoints[] waypointsData;
     private static boolean loaded = false;
 
-    // Per-room cached waypoints (already transformed to world coords)
     private static Map<Integer, Map<WaypointType, List<int[]>>> cachedWaypoints = new HashMap<>();
     private static int lastRoomId = -1;
 
-    // Track found secrets
     private static final Set<BlockPos> foundSecrets = new HashSet<>();
 
     public enum WaypointType {
@@ -143,7 +149,6 @@ public class SecretWaypoints {
         return waypointsData[roomId];
     }
 
-    // Track which waypoints we've already checked for collection
     private static final Set<BlockPos> checkedThisTick = new HashSet<>();
     private static long lastCheckTime = 0;
     private static final long CHECK_INTERVAL = 250; // Check every 250ms
@@ -157,7 +162,6 @@ public class SecretWaypoints {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
-        // Only check periodically to reduce lag
         long now = System.currentTimeMillis();
         if (now - lastCheckTime < CHECK_INTERVAL) return;
         lastCheckTime = now;
@@ -169,7 +173,6 @@ public class SecretWaypoints {
         Map<WaypointType, List<int[]>> worldWaypoints = cachedWaypoints.get(roomId);
         if (worldWaypoints == null) return;
 
-        // Check each waypoint type for collection
         for (Map.Entry<WaypointType, List<int[]>> entry : worldWaypoints.entrySet()) {
             WaypointType type = entry.getKey();
             for (int[] pos : entry.getValue()) {
@@ -184,42 +187,29 @@ public class SecretWaypoints {
         }
     }
 
-    /**
-     * Check if a secret at the given position has been collected.
-     */
     private static boolean isSecretCollected(ClientLevel world, BlockPos pos, WaypointType type) {
         switch (type) {
             case CHEST -> {
-                // Track if player has opened a chest at this location
-                // We mark chest as collected when player interacts with it (see onChestOpened)
                 return false; // Handled by onChestOpened() callback
             }
             case BAT -> {
-                // Check if there are any bats within 1.5 blocks of the waypoint
                 AABB searchBox = new AABB(pos).inflate(1.5);
                 var bats = world.getEntitiesOfClass(Bat.class, searchBox, bat -> !bat.isRemoved());
-                // If no bats found near waypoint, it was killed
                 return bats.isEmpty();
             }
             case ESSENCE -> {
-                // Essence becomes air when picked up
                 Block block = world.getBlockState(pos).getBlock();
                 if (block == Blocks.AIR || block == Blocks.CAVE_AIR) {
-                    // Only mark as collected if player has been near (to avoid false positives on load)
                     return hasBeenNearWaypoint(pos);
                 }
                 return false;
             }
             case ITEM -> {
-                // Item secrets drop items - check if item exists nearby
                 AABB searchBox = new AABB(pos).inflate(1.0);
                 var items = world.getEntitiesOfClass(ItemEntity.class, searchBox, item -> !item.isRemoved());
-                // Similar logic - only mark collected if we've been near and items are gone
                 return items.isEmpty() && hasBeenNearWaypoint(pos);
             }
             case REDSTONE -> {
-                // Redstone key secrets - check if lever/button was activated
-                // These are usually skulls or trapped chests, similar to chest logic
                 Block block = world.getBlockState(pos).getBlock();
                 if (block == Blocks.AIR || block == Blocks.CAVE_AIR) {
                     return true;
@@ -230,14 +220,12 @@ public class SecretWaypoints {
         return false;
     }
 
-    // Track positions player has been near (to avoid false positives on spawn)
     private static final Set<BlockPos> visitedWaypoints = new HashSet<>();
 
     private static boolean hasBeenNearWaypoint(BlockPos pos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
 
-        // Check if player is within 10 blocks
         if (mc.player.blockPosition().closerThan(pos, 10)) {
             visitedWaypoints.add(pos);
         }
@@ -260,14 +248,12 @@ public class SecretWaypoints {
 
         int roomId = room.getRoomData().getRoomID();
 
-        // Check for room change
         if (roomId != lastRoomId) {
             lastRoomId = roomId;
             foundSecrets.clear();
             visitedWaypoints.clear();
         }
 
-        // Get or compute cached waypoints for this room
         Map<WaypointType, List<int[]>> worldWaypoints = cachedWaypoints.get(roomId);
         if (worldWaypoints == null) {
             worldWaypoints = addSecretsForRoom(room, mc.level);
@@ -278,7 +264,6 @@ public class SecretWaypoints {
 
         if (worldWaypoints == null) return;
 
-        // Render waypoints
         for (Map.Entry<WaypointType, List<int[]>> entry : worldWaypoints.entrySet()) {
             WaypointType type = entry.getKey();
             if (!isTypeEnabled(type)) continue;
@@ -300,10 +285,6 @@ public class SecretWaypoints {
         }
     }
 
-    /**
-     * Add secrets for a room
-     * Returns map of waypoint type -> list of [x, y, z] world coordinates.
-     */
     private static Map<WaypointType, List<int[]>> addSecretsForRoom(DungeonRoom room, ClientLevel world) {
         Integer roomId = room.getRoomData() != null ? room.getRoomData().getRoomID() : null;
         if (roomId == null) return null;
@@ -311,7 +292,6 @@ public class SecretWaypoints {
         RoomWaypoints waypointData = getWaypointsData(roomId);
         if (waypointData == null) return null;
 
-        // Find rotation 
         int[] rotationAndCorner = findRotation(room, world);
         if (rotationAndCorner == null) return null;
 
@@ -319,14 +299,12 @@ public class SecretWaypoints {
         int cornerX = rotationAndCorner[1];
         int cornerZ = rotationAndCorner[2];
 
-        // Transform waypoints to world coordinates
         Map<WaypointType, List<int[]>> result = new EnumMap<>(WaypointType.class);
         for (Map.Entry<WaypointType, List<int[]>> entry : waypointData.waypoints.entrySet()) {
             WaypointType type = entry.getKey();
             List<int[]> worldPositions = new ArrayList<>();
 
             for (int[] pos : entry.getValue()) {
-                // fromComp: convert component coords to world coords
                 int[] worldXZ = fromComp(pos[0], pos[2], rotation, cornerX, cornerZ);
                 worldPositions.add(new int[]{worldXZ[0], pos[1], worldXZ[1]});
             }
@@ -340,17 +318,12 @@ public class SecretWaypoints {
         return result;
     }
 
-    /**
-     * Find rotation by scanning for blue terracotta
-     * Returns [rotation, cornerX, cornerZ] or null if not found.
-     */
     private static int[] findRotation(DungeonRoom room, ClientLevel world) {
         String shape = room.getShape();
         List<int[]> components = room.getComponents();
 
         if (components.isEmpty()) return null;
 
-        // Sort components as needed: by cx then cz
         List<int[]> sortedComps = new ArrayList<>(components);
         sortedComps.sort((a, b) -> {
             int cxA = a[0] * 2;  // Convert grid to component index
@@ -361,14 +334,11 @@ public class SecretWaypoints {
             return Integer.compare(czA, czB);
         });
 
-        // Build possible corners list (for rotation detection)
         List<int[]> possibleCorners = new ArrayList<>();  // [idx, compIndex, worldX, worldZ]
         for (int compIdx = 0; compIdx < sortedComps.size(); compIdx++) {
             int[] comp = sortedComps.get(compIdx);
-            // Convert grid (0-5) to component (0,2,4,6,8,10)
             int cx = comp[0] * 2;
             int cz = comp[1] * 2;
-            // Get component world center for world coordinates
             int wx = CORNER_START_X + HALF_ROOM_SIZE + HALF_COMBINED_SIZE * cx;
             int wz = CORNER_START_Z + HALF_ROOM_SIZE + HALF_COMBINED_SIZE * cz;
 
@@ -377,7 +347,6 @@ public class SecretWaypoints {
             }
         }
 
-        // Get roof height
         int height = 0;
         for (int[] comp : sortedComps) {
             int cx = comp[0] * 2;
@@ -389,7 +358,6 @@ public class SecretWaypoints {
         }
         if (height <= 0) return null;
 
-        // For 1x4 rooms, filter corners as needed
         if ("1x4".equals(shape) && sortedComps.size() >= 2) {
             boolean isHorz = sortedComps.get(0)[1] == sortedComps.get(1)[1];  // Same Z = horizontal
             int lastIdx = sortedComps.size() - 1;
@@ -398,7 +366,6 @@ public class SecretWaypoints {
                 int idx = corner[0];
                 int compIdx = corner[1];
 
-                // Only check first and last components
                 if (compIdx != 0 && compIdx != lastIdx) return true;
 
                 if (compIdx == 0) {
@@ -418,7 +385,6 @@ public class SecretWaypoints {
             });
         }
 
-        // Find blue terracotta
         for (int[] corner : possibleCorners) {
             int idx = corner[0];
             int x = corner[2];
@@ -429,7 +395,6 @@ public class SecretWaypoints {
             }
         }
 
-        // Fallback: use first component's corner 0
         if (!sortedComps.isEmpty()) {
             int[] comp = sortedComps.get(0);
             int cx = comp[0] * 2;
@@ -443,9 +408,6 @@ public class SecretWaypoints {
         return null;
     }
 
-    /**
-     * Get highest Y at position
-     */
     private static int getHighestY(ClientLevel world, int x, int z) {
         for (int y = 256; y >= 0; y--) {
             var state = world.getBlockState(new BlockPos(x, y, z));
@@ -455,17 +417,11 @@ public class SecretWaypoints {
         return -1;
     }
 
-    /**
-     * Convert component coords to world coords
-     */
     private static int[] fromComp(int x, int z, int rotation, int cornerX, int cornerZ) {
         int[] rotated = rotatePos(x, z, (360 - rotation) % 360);
         return new int[]{rotated[0] + cornerX, rotated[1] + cornerZ};
     }
 
-    /**
-     * Rotate position
-     */
     private static int[] rotatePos(int x, int z, int degree) {
         return switch (degree) {
             case 0 -> new int[]{x, z};
@@ -480,9 +436,6 @@ public class SecretWaypoints {
         foundSecrets.add(pos);
     }
 
-    /**
-     * Called when player opens a chest. Marks nearby chest waypoints as found.
-     */
     public static void onChestOpened(BlockPos chestPos) {
         if (!TeslaMapsConfig.get().secretWaypoints) return;
         if (!TeslaMapsConfig.get().secretWaypointHideCollected) return;
@@ -498,7 +451,6 @@ public class SecretWaypoints {
         List<int[]> chestWaypoints = worldWaypoints.get(WaypointType.CHEST);
         if (chestWaypoints == null) return;
 
-        // Find chest waypoints within 2 blocks of opened chest
         for (int[] pos : chestWaypoints) {
             BlockPos waypointPos = new BlockPos(pos[0], pos[1], pos[2]);
             if (waypointPos.closerThan(chestPos, 2.0)) {
@@ -516,16 +468,11 @@ public class SecretWaypoints {
         lastCheckTime = 0;
     }
 
-    /**
-     * Called when player interacts with a secret block (chest, lever, button, skull).
-     * Plays a sound notification.
-     */
     public static void onSecretInteract(String type) {
         if (!TeslaMapsConfig.get().secretWaypoints) return;
         if (!TeslaMapsConfig.get().secretSound) return;
         if (!DungeonManager.isInDungeon()) return;
 
-        // Play sound based on config (shared sound list)
         LoudSound.play(com.teslamaps.utils.SoundOptions.resolve(TeslaMapsConfig.get().secretSoundType),
                 TeslaMapsConfig.get().secretSoundVolume, TeslaMapsConfig.get().secretSoundPitch);
 

@@ -1,8 +1,20 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.data;
 
-/**
- * Data for a single skill.
- */
 public class SkillData {
     private final String displayName;
     private final double totalXp;
@@ -12,8 +24,6 @@ public class SkillData {
     private final double xpToNext;
     private final double progress;
 
-    // XP required for each level (cumulative)
-    // Standard skill caps at 60, some at 50
     private static final double[] SKILL_XP_TABLE = {
             0, 50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425,
             9925, 14925, 22425, 32425, 47425, 67425, 97425, 147425, 222425, 322425,
@@ -24,7 +34,6 @@ public class SkillData {
             111672425
     };
 
-    // Runecrafting/Social use different table
     private static final double[] RUNECRAFTING_XP_TABLE = {
             0, 50, 150, 275, 435, 635, 885, 1200, 1600, 2100,
             2725, 3510, 4510, 5760, 7325, 9325, 11825, 14950, 18950, 23950,
@@ -36,7 +45,6 @@ public class SkillData {
         this.totalXp = totalXp;
         this.apiKey = apiKey;
 
-        // Calculate level from XP
         double[] table = apiKey.equals("runecrafting") || apiKey.equals("social") ?
                 RUNECRAFTING_XP_TABLE : SKILL_XP_TABLE;
         int maxLevel = table.length - 1;
@@ -51,7 +59,6 @@ public class SkillData {
         }
         this.level = lvl;
 
-        // Calculate progress to next level
         if (lvl < maxLevel) {
             double currentLevelXp = table[lvl];
             double nextLevelXp = table[lvl + 1];
@@ -73,9 +80,6 @@ public class SkillData {
     public double getXpToNext() { return xpToNext; }
     public double getProgress() { return progress; }
 
-    /**
-     * Get formatted XP string (e.g., "1.2M / 5M").
-     */
     public String getFormattedProgress() {
         if (xpToNext == 0) return "MAX";
         return formatNumber(progressXp) + " / " + formatNumber(xpToNext);

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.utils;
 
 import java.util.ArrayList;
@@ -7,33 +22,17 @@ import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 
-/**
- * Utilities for parsing the tab list (player list) in dungeons.
- * Utilities for parsing tab list entries.
- */
 public class TabListUtils {
-    // Secrets Found: 40.5% (percentage, not count!)
     private static final Pattern SECRETS_PERCENT_PATTERN = Pattern.compile("Secrets Found:\\s*(\\d+\\.?\\d*)%");
-    // Secrets Found: X (actual count). The (?![\d.%]) guard rejects percentage lines like
-    // "Secrets Found: 31.5%" / "31%" — otherwise the number BEFORE the dot/percent leaks in as a
-    // fake count (e.g. "31.5%" -> 31), which made the map show the percentage as the secret count.
     private static final Pattern SECRETS_COUNT_PATTERN = Pattern.compile("Secrets Found:\\s*(\\d+)(?![\\d.%])");
-    // Crypts: X
     private static final Pattern CRYPTS_PATTERN = Pattern.compile("Crypts:\\s*(\\d+)");
-    // Completed Rooms: X
     private static final Pattern COMPLETED_ROOMS_PATTERN = Pattern.compile("Completed Rooms:\\s*(\\d+)");
-    // Deaths: X
     private static final Pattern DEATHS_PATTERN = Pattern.compile("Deaths:\\s*(\\d+)");
-    // Puzzles: (X)
     private static final Pattern PUZZLE_COUNT_PATTERN = Pattern.compile("Puzzles:\\s*\\((\\d+)\\)");
-    // Puzzle state: [✔] or [✖] or [✦]
-    private static final Pattern PUZZLE_STATE_PATTERN = Pattern.compile(".+?(?=:):\\s*\\[([✔✖✦])]");
+    private static final Pattern PUZZLE_STATE_PATTERN = Pattern.compile(".+?(?=:):\\s*\\[([])]");
 
     private static int debugCounter = 0;
 
-    /**
-     * Get all lines from the tab list.
-     */
     public static List<String> getTabListLines() {
         List<String> lines = new ArrayList<>();
         Minecraft mc = Minecraft.getInstance();
@@ -49,10 +48,6 @@ public class TabListUtils {
         return lines;
     }
 
-    /**
-     * Get the secrets found PERCENTAGE from tab list.
-     * @return secrets percentage (0-100), or -1 if not found
-     */
     public static double getSecretsPercentage() {
         for (String line : getTabListLines()) {
             String clean = line.replaceAll("§.", "");
@@ -68,10 +63,6 @@ public class TabListUtils {
         return -1;
     }
 
-    /**
-     * Get the actual number of secrets found from tab list.
-     * @return secrets found count, or -1 if not found
-     */
     public static int getSecretsFound() {
         for (String line : getTabListLines()) {
             String clean = line.replaceAll("§.", "");
@@ -87,10 +78,6 @@ public class TabListUtils {
         return -1;
     }
 
-    /**
-     * Get the number of crypts found from tab list.
-     * @return crypts found, or -1 if not found
-     */
     public static int getCryptsFound() {
         for (String line : getTabListLines()) {
             String clean = line.replaceAll("§.", "");
@@ -106,10 +93,6 @@ public class TabListUtils {
         return -1;
     }
 
-    /**
-     * Get the number of completed rooms from tab list.
-     * @return completed rooms, or -1 if not found
-     */
     public static int getCompletedRooms() {
         for (String line : getTabListLines()) {
             String clean = line.replaceAll("§.", "");
@@ -125,10 +108,6 @@ public class TabListUtils {
         return -1;
     }
 
-    /**
-     * Get the number of deaths from tab list.
-     * @return deaths, or -1 if not found
-     */
     public static int getDeaths() {
         for (String line : getTabListLines()) {
             String clean = line.replaceAll("§.", "");
@@ -144,10 +123,6 @@ public class TabListUtils {
         return -1;
     }
 
-    /**
-     * Get the puzzle count from tab list.
-     * @return puzzle count, or 0 if not found
-     */
     public static int getPuzzleCount() {
         for (String line : getTabListLines()) {
             String clean = line.replaceAll("§.", "");
@@ -163,11 +138,6 @@ public class TabListUtils {
         return 0;
     }
 
-    /**
-     * Get the number of failed puzzles (✖) from tab list.
-     * Note: [✦] (not started) does NOT count as failed.
-     * @return failed puzzle count
-     */
     public static int getIncompletePuzzles() {
         int failed = 0;
         for (String line : getTabListLines()) {
@@ -175,8 +145,7 @@ public class TabListUtils {
             Matcher matcher = PUZZLE_STATE_PATTERN.matcher(clean);
             if (matcher.find()) {
                 String state = matcher.group(1);
-                // Only count [✖] as failed, not [✦] (not started)
-                if (state.equals("✖")) {
+                if (state.equals("")) {
                     failed++;
                 }
             }

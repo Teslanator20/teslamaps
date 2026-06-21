@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.features;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -16,22 +31,56 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BaseRailBlock;
+import net.minecraft.world.level.block.BubbleColumnBlock;
+import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.CarpetBlock;
+import net.minecraft.world.level.block.ComparatorBlock;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.DryVegetationBlock;
+import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.FlowerPotBlock;
+import net.minecraft.world.level.block.LadderBlock;
+import net.minecraft.world.level.block.LeverBlock;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.MushroomBlock;
+import net.minecraft.world.level.block.NetherPortalBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.RedstoneTorchBlock;
+import net.minecraft.world.level.block.RepeaterBlock;
+import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.SeagrassBlock;
+import net.minecraft.world.level.block.SkullBlock;
+import net.minecraft.world.level.block.SmallDripleafBlock;
+import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.StemBlock;
+import net.minecraft.world.level.block.SugarCaneBlock;
+import net.minecraft.world.level.block.TallFlowerBlock;
+import net.minecraft.world.level.block.TallGrassBlock;
+import net.minecraft.world.level.block.TallSeagrassBlock;
+import net.minecraft.world.level.block.TorchBlock;
+import net.minecraft.world.level.block.TripWireBlock;
+import net.minecraft.world.level.block.TripWireHookBlock;
+import net.minecraft.world.level.block.VineBlock;
+import net.minecraft.world.level.block.WallSkullBlock;
+import net.minecraft.world.level.block.WebBlock;
+import net.minecraft.world.level.block.WoolCarpetBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Etherwarp guess box (ported from Odin's Etherwarp). Shows where the etherwarp will land
- * when sneaking while holding an etherwarp item. (Odin's actual teleport hack is single-player
- * only, so on Hypixel only the guess box matters — no packet manipulation here.)
- */
 public class Etherwarp {
 
     public record EtherPos(boolean succeeded, BlockPos pos) {
         static final EtherPos NONE = new EtherPos(false, null);
     }
 
-    /** @return the item's custom_data tag if it is an etherwarp item, else null. */
+    private static BlockPos lastDebugPos = null; // throttles [EtherDbg] logging to pos changes
+
     private static CompoundTag etherwarpData(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return null;
         CustomData data = stack.get(DataComponents.CUSTOM_DATA);
@@ -42,12 +91,10 @@ public class Etherwarp {
         return isEther ? tag : null;
     }
 
-    /** Sound option keys for the config dropdown (shared list). */
     public static String[] soundKeys() {
         return com.teslamaps.utils.SoundOptions.keys();
     }
 
-    /** Plays the configured custom etherwarp sound (called when the default sound is cancelled). */
     public static void playCustomSound() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         LoudSound.play(com.teslamaps.utils.SoundOptions.resolve(c.etherwarpSound), c.etherwarpSoundVolume, c.etherwarpSoundPitch);
@@ -68,6 +115,17 @@ public class Etherwarp {
         if (!ether.succeeded() && !config.etherwarpShowFail) return;
         if (ether.pos() == null) return;
 
+        if (config.debugMode && !ether.pos().equals(lastDebugPos)) {
+            lastDebugPos = ether.pos();
+            BlockState dbg = mc.level.getBlockState(ether.pos());
+            com.teslamaps.TeslaMaps.LOGGER.info("[EtherDbg] hit={} pos={} success={} eyeY={} blockTop={}",
+                    net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(dbg.getBlock()),
+                    ether.pos(), ether.succeeded(),
+                    String.format("%.2f", player.position().y + (player.isShiftKeyDown() ? 1.27 : 1.62)),
+                    dbg.getShape(mc.level, ether.pos()).isEmpty() ? "empty"
+                            : String.format("%.2f", dbg.getShape(mc.level, ether.pos()).max(net.minecraft.core.Direction.Axis.Y)));
+        }
+
         int color = ether.succeeded()
                 ? TeslaMapsConfig.parseColor(config.colorEtherwarp)
                 : 0xFFFF5555;
@@ -84,10 +142,7 @@ public class Etherwarp {
         LocalPlayer player = mc.player;
         if (player == null || position == null) return EtherPos.NONE;
 
-        // Use the sneak KEY (not the crouch pose) for eye height: Hypixel keys etherwarp off the
-        // sneak key, and the box only renders while sneaking, so the lowered 1.54 eye must apply
-        // even when the crouch pose hasn't fully engaged (otherwise the guess sits slightly off).
-        double eyeHeight = player.isShiftKeyDown() ? 1.54 : 1.62;
+        double eyeHeight = (player.isShiftKeyDown() ? 1.27 : 1.62) + TeslaMapsConfig.get().etherwarpEyeOffset;
         Vec3 start = position.add(0, eyeHeight, 0);
         Vec3 look = player.getLookAngle();
         Vec3 end = look.multiply(distance, distance, distance).add(start);
@@ -95,11 +150,24 @@ public class Etherwarp {
     }
 
     private static boolean passable(Level level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        return state.getCollisionShape(level, pos).isEmpty();
+        BlockState s = level.getBlockState(pos);
+        if (s.isAir()) return true;
+        Block b = s.getBlock();
+        return b instanceof ButtonBlock
+                || b instanceof SkullBlock || b instanceof WallSkullBlock || b instanceof LadderBlock
+                || b instanceof SaplingBlock || b instanceof FlowerBlock || b instanceof StemBlock
+                || b instanceof CropBlock || b instanceof BaseRailBlock || b instanceof SnowLayerBlock
+                || b instanceof BubbleColumnBlock || b instanceof TripWireBlock || b instanceof TripWireHookBlock
+                || b instanceof FireBlock || b instanceof TorchBlock || b instanceof FlowerPotBlock
+                || b instanceof TallFlowerBlock || b instanceof TallGrassBlock || b instanceof BushBlock
+                || b instanceof SeagrassBlock || b instanceof TallSeagrassBlock || b instanceof SugarCaneBlock
+                || b instanceof LiquidBlock || b instanceof VineBlock || b instanceof MushroomBlock
+                || b instanceof WebBlock || b instanceof DryVegetationBlock || b instanceof SmallDripleafBlock
+                || b instanceof LeverBlock || b instanceof NetherWartBlock || b instanceof NetherPortalBlock
+                || b instanceof RedStoneWireBlock || b instanceof ComparatorBlock || b instanceof RedstoneTorchBlock
+                || b instanceof RepeaterBlock;
     }
 
-    /** Voxel DDA raycast from start to end, returns the etherwarp landing spot. */
     private static EtherPos traverseVoxels(Vec3 start, Vec3 end) {
         Minecraft mc = Minecraft.getInstance();
         Level level = mc.level;
@@ -126,7 +194,6 @@ public class Etherwarp {
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         for (int i = 0; i < 1000; i++) {
             cursor.set(x, y, z);
-            // First non-passable (solid) block hit = the block you'd stand on.
             if (!passable(level, cursor)) {
                 boolean feet = passable(level, new BlockPos(x, y + 1, z));
                 boolean head = passable(level, new BlockPos(x, y + 2, z));

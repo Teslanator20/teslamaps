@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.esp;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -31,13 +46,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * ESP for starred mobs in dungeons.
- * Draws hitboxes through walls for mobs with a star (✯) in their name tag.
- *
- * Note: Due to Fabric API changes in 1.21, this uses the debug renderer approach
- * which draws boxes during entity rendering.
- */
 public class StarredMobESP {
     private static final int STARRED_COLOR = 0xFFF57738; // Orange
     private static final int CUSTOM_ESP_COLOR = 0xFF00FFFF; // Cyan
@@ -51,9 +59,6 @@ public class StarredMobESP {
     private static final int BLOOD_KEY_COLOR = 0xFFCC0000; // Red for blood keys
     private static final int LIVID_COLOR = 0xFF00FF00; // Green for the correct Livid
 
-    // Livid tracking is now handled by LividSolver
-
-    // Known pest/critter names in Hypixel Skyblock Garden
     private static final String[] PEST_NAMES = {
             "Cricket", "Mosquito", "Moth", "Fly", "Locust",
             "Rat", "Slug", "Earthworm", "Beetle", "Mite",
@@ -61,70 +66,50 @@ public class StarredMobESP {
     };
     private static final List<EntityHighlight> highlightedEntities = new ArrayList<>();
 
-    // WeakHashMap to track entities that should glow (automatically cleans up dead entities)
     private static final Map<Entity, Integer> glowingEntities = new WeakHashMap<>();
 
-    // Track wither key and blood key positions for tracers
     private static final List<Vec3> witherKeyPositions = new ArrayList<>();
     private static final List<Vec3> bloodKeyPositions = new ArrayList<>();
 
-    // Track door positions for Door ESP
     private static final List<Vec3> witherDoorPositions = new ArrayList<>();
     private static final List<Vec3> bloodDoorPositions = new ArrayList<>();
 
-    // Store door boxes for 3D rendering
     private static final List<AABB> witherDoorBoxes = new ArrayList<>();
     private static final List<AABB> bloodDoorBoxes = new ArrayList<>();
 
-    // Track pest positions for tracers (from armor stand names for longer range)
     private static final List<Vec3> pestPositions = new ArrayList<>();
 
-    // Track dungeon bat positions for tracers
     private static final List<Vec3> dungeonBatPositions = new ArrayList<>();
 
-    // Track invisible armor stand positions for ESP
     private static final List<AABB> invisibleArmorStandBoxes = new ArrayList<>();
     private static final int INVISIBLE_ARMOR_STAND_COLOR = 0xFF00FFFF; // Cyan
 
-    // Track key pickup state for door coloring
     private static boolean witherKeyPickedUp = false;
     private static boolean bloodKeyPickedUp = false;
 
-    /**
-     * Reset key pickup tracking when leaving dungeon.
-     */
     public static void reset() {
         witherKeyPickedUp = false;
         bloodKeyPickedUp = false;
     }
 
-    /**
-     * Called when a wither door is opened - reset wither key state.
-     */
     public static void onWitherDoorOpened() {
         witherKeyPickedUp = false;
         TeslaMaps.LOGGER.info("[KeyESP] Wither door opened, key state reset");
     }
 
-    /**
-     * Called when a blood door is opened - reset blood key state.
-     */
     public static void onBloodDoorOpened() {
         bloodKeyPickedUp = false;
         TeslaMaps.LOGGER.info("[KeyESP] Blood door opened, key state reset");
     }
 
-    // Store key entities for 3D box rendering
     private static final List<Entity> witherKeyEntities = new ArrayList<>();
     private static final List<Entity> bloodKeyEntities = new ArrayList<>();
 
-    // Tracer colors
     private static final int TRACER_WITHER_KEY = 0xFF00FFFF; // Cyan
     private static final int TRACER_BLOOD_KEY = 0xFFFF4444; // Red
     private static final int TRACER_LIVID = 0xFF00FF00; // Green
     private static final int TRACER_DOOR = 0xFFFFAA00; // Orange
 
-    // Track if we've already notified about keys on ground (to avoid spam)
     private static boolean witherKeyOnGroundNotified = false;
     private static boolean bloodKeyOnGroundNotified = false;
     private static long witherKeyPickupTime = 0;  // Cooldown after pickup
@@ -135,9 +120,6 @@ public class StarredMobESP {
         TeslaMaps.LOGGER.info("StarredMobESP initialized");
     }
 
-    /**
-     * Get the SoundEvent for key pickup based on config.
-     */
     private static net.minecraft.sounds.SoundEvent getPickupSound() {
         String sound = TeslaMapsConfig.get().keyPickupSound;
         return switch (sound) {
@@ -150,9 +132,6 @@ public class StarredMobESP {
         };
     }
 
-    /**
-     * Get the SoundEvent for key on ground based on config.
-     */
     private static net.minecraft.sounds.SoundEvent getOnGroundSound() {
         String sound = TeslaMapsConfig.get().keyOnGroundSound;
         return switch (sound) {
@@ -163,95 +142,70 @@ public class StarredMobESP {
         };
     }
 
-    /**
-     * Called when a wither key is picked up - plays sound and shows title.
-     */
     public static void onWitherKeyPickup() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        // Play configurable sound with configurable volume (can exceed 1.0!)
         if (TeslaMapsConfig.get().keyPickupSoundEnabled) {
             float volume = TeslaMapsConfig.get().keyPickupVolume;
             LoudSound.play(getPickupSound(), volume, 1.5f);
         }
 
-        // Show title
         mc.gui.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
         mc.gui.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.GRAY));
         mc.gui.setTimes(5, 30, 10); // fade in, stay, fade out
 
-        // Reset ground notification and set cooldown
         witherKeyOnGroundNotified = false;
         witherKeyPickupTime = System.currentTimeMillis();
         witherKeyPickedUp = true;
     }
 
-    /**
-     * Called when a blood key is picked up - plays sound and shows title.
-     */
     public static void onBloodKeyPickup() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        // Play configurable sound with configurable volume (can exceed 1.0!)
         if (TeslaMapsConfig.get().keyPickupSoundEnabled) {
             float volume = TeslaMapsConfig.get().keyPickupVolume;
             LoudSound.play(getPickupSound(), volume, 1.2f);
         }
 
-        // Show title
         mc.gui.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
         mc.gui.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.RED));
         mc.gui.setTimes(5, 30, 10); // fade in, stay, fade out
 
-        // Reset ground notification and set cooldown
         bloodKeyOnGroundNotified = false;
         bloodKeyPickupTime = System.currentTimeMillis();
         bloodKeyPickedUp = true;
     }
 
-    /**
-     * Called when a wither key is found on ground (detected by ESP).
-     */
     private static void onWitherKeyOnGround() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        // Play configurable sound with configurable volume (can exceed 1.0!)
         if (TeslaMapsConfig.get().keyOnGroundSoundEnabled) {
             float volume = TeslaMapsConfig.get().keyOnGroundVolume;
             LoudSound.play(getOnGroundSound(), volume, 1.0f);
         }
 
-        // Show title
         mc.gui.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
         mc.gui.setSubtitle(Component.literal("on ground!").withStyle(ChatFormatting.YELLOW));
         mc.gui.setTimes(5, 40, 10);
     }
 
-    /**
-     * Called when a blood key is found on ground (detected by ESP).
-     */
     private static void onBloodKeyOnGround() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        // Play configurable sound with configurable volume (can exceed 1.0!)
         if (TeslaMapsConfig.get().keyOnGroundSoundEnabled) {
             float volume = TeslaMapsConfig.get().keyOnGroundVolume;
             LoudSound.play(getOnGroundSound(), volume, 0.8f);
         }
 
-        // Show title
         mc.gui.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
         mc.gui.setSubtitle(Component.literal("on ground!").withStyle(ChatFormatting.YELLOW));
         mc.gui.setTimes(5, 40, 10);
     }
 
-    /**
-     * Called each tick to update the list of highlighted entities.
-     */
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
@@ -266,7 +220,6 @@ public class StarredMobESP {
         boolean droppedItemESP = TeslaMapsConfig.get().droppedItemESP;
         boolean pestESP = TeslaMapsConfig.get().pestESP && SkyblockUtils.isInGarden();
 
-        // If not in dungeon and no custom mobs and no dropped item ESP and no pest ESP, nothing to do
         if (!inDungeon && !hasCustomMobs && !droppedItemESP && !pestESP) {
             highlightedEntities.clear();
             glowingEntities.clear();
@@ -274,7 +227,6 @@ public class StarredMobESP {
             return;
         }
 
-        // If in dungeon but ESP disabled, nothing to do (custom ESP still works outside)
         if (inDungeon && !TeslaMapsConfig.get().starredMobESP) {
             highlightedEntities.clear();
             glowingEntities.clear();
@@ -295,12 +247,10 @@ public class StarredMobESP {
         dungeonBatPositions.clear();
         invisibleArmorStandBoxes.clear();
 
-        // Scan for wither keys and blood keys by entity name 
         if (inDungeon && TeslaMapsConfig.get().witherKeyESP) {
             for (Entity entity : mc.level.entitiesForRendering()) {
                 String entityName = entity.getName().getString();
 
-                // Check for Wither Key by name
                 if (entityName.equals("Wither Key") || entityName.contains("Wither Key")) {
                     witherKeyPositions.add(new Vec3(entity.getX(), entity.getY(), entity.getZ()));
                     witherKeyEntities.add(entity);
@@ -310,7 +260,6 @@ public class StarredMobESP {
                             entity.getClass().getSimpleName(), entity.getX(), entity.getY(), entity.getZ());
                     }
                 }
-                // Check for Blood Key by name
                 else if (entityName.equals("Blood Key") || entityName.contains("Blood Key")) {
                     bloodKeyPositions.add(new Vec3(entity.getX(), entity.getY(), entity.getZ()));
                     bloodKeyEntities.add(entity);
@@ -322,10 +271,8 @@ public class StarredMobESP {
                 }
             }
 
-            // Check for new keys on ground and notify (with cooldown after pickup)
             long now = System.currentTimeMillis();
             if (!witherKeyPositions.isEmpty() && !witherKeyOnGroundNotified) {
-                // Only notify if enough time has passed since last pickup
                 if (now - witherKeyPickupTime > PICKUP_COOLDOWN_MS) {
                     witherKeyOnGroundNotified = true;
                     onWitherKeyOnGround();
@@ -335,7 +282,6 @@ public class StarredMobESP {
             }
 
             if (!bloodKeyPositions.isEmpty() && !bloodKeyOnGroundNotified) {
-                // Only notify if enough time has passed since last pickup
                 if (now - bloodKeyPickupTime > PICKUP_COOLDOWN_MS) {
                     bloodKeyOnGroundNotified = true;
                     onBloodKeyOnGround();
@@ -345,8 +291,6 @@ public class StarredMobESP {
             }
         }
 
-        // Livid finder - now handled by LividSolver
-        // Add correct Livid to glowing entities for consistency
         if (inDungeon && TeslaMapsConfig.get().lividFinder) {
             Entity correctLividEntity = LividSolver.getCorrectLivid();
             if (correctLividEntity != null && !LividSolver.hasBlindness()) {
@@ -354,35 +298,27 @@ public class StarredMobESP {
             }
         }
 
-        // Door ESP - scan for wither and blood doors
         if (inDungeon && TeslaMapsConfig.get().doorESP) {
             scanDoorPositions();
         }
 
-        // Pest ESP debug logging
         if (System.currentTimeMillis() % 5000 < 50 && pestESP) {
             TeslaMaps.LOGGER.info("[PestESP] pestESP enabled, in Garden, pestPositions will be tracked from invisible entities");
         }
 
-        // Collect mobs to highlight
         int checkedCount = 0;
         for (Entity entity : mc.level.entitiesForRendering()) {
             checkedCount++;
-            // Skip all Livids when Livid finder is active - LividSolver handles them
             if (TeslaMapsConfig.get().lividFinder && isLivid(entity)) {
                 continue;
             }
 
             String entityName = entity.getName().getString();
 
-            // Track dungeon bat positions for tracers (in dungeon)
-            // Note: Dungeon bats are NOT invisible, they're just small
             if (entityName.equals("Bat") && inDungeon && TeslaMapsConfig.get().dungeonBatESP) {
                 dungeonBatPositions.add(new Vec3(entity.getX(), entity.getY(), entity.getZ()));
             }
 
-            // Track pest positions from the actual invisible entity (not armor stand) for better range
-            // Pests are invisible Silverfish or Bat entities in the Garden
             if (entity.isInvisible() && !inDungeon && pestESP) {
                 if (entityName.equals("Silverfish") || entityName.equals("Bat")) {
                     pestPositions.add(new Vec3(entity.getX(), entity.getY(), entity.getZ()));
@@ -392,23 +328,19 @@ public class StarredMobESP {
             if (shouldHighlight(entity, inDungeon, pestESP)) {
                 int color = getHighlightColor(entity);
                 highlightedEntities.add(new EntityHighlight(entity, color));
-                // Add to glowing map for mixin to use (convert ARGB to RGB for team color)
                 glowingEntities.put(entity, color & 0x00FFFFFF);
             }
         }
 
-        // Debug log every 5 seconds
         if (checkedCount > 0 && System.currentTimeMillis() % 5000 < 50) {
             TeslaMaps.LOGGER.info("[StarredMobESP] Checked {} entities, highlighted {}, inDungeon={}, customMobs={}",
                     checkedCount, highlightedEntities.size(), inDungeon, hasCustomMobs);
         }
 
-        // Scan for invisible armor stands (skull decorations) in dungeon
         if (inDungeon && TeslaMapsConfig.get().invisibleArmorStandESP) {
             for (Entity entity : mc.level.entitiesForRendering()) {
                 if (entity instanceof ArmorStand && entity.isInvisible()) {
                     ArmorStand armorStand = (ArmorStand) entity;
-                    // Only highlight armor stands without passengers (decorations, not mob name tags)
                     if (!armorStand.isVehicle()) {
                         invisibleArmorStandBoxes.add(armorStand.getBoundingBox());
                     }
@@ -416,20 +348,13 @@ public class StarredMobESP {
             }
         }
 
-        // Debug: log all nearby entities (disabled - was spamming logs)
-        // debugLogNearbyEntities(mc);
     }
 
     private static long lastFelDebugTime = 0;
 
-    /**
-     * Debug method to log nearby entities to help identify fels and pests.
-     * Logs every 3 seconds.
-     */
     private static void debugLogNearbyEntities(Minecraft mc) {
         if (mc.player == null || mc.level == null) return;
 
-        // Only log every 3 seconds
         long now = System.currentTimeMillis();
         if (now - lastFelDebugTime < 3000) return;
         lastFelDebugTime = now;
@@ -452,53 +377,30 @@ public class StarredMobESP {
             boolean invisible = entity.isInvisible();
             boolean isArmorStand = entity instanceof ArmorStand;
 
-            // Log ALL entities with full details
             TeslaMaps.LOGGER.info("[EntityDebug] class={}, name='{}', customName='{}', size={}x{}, invisible={}, armorStand={}, pos={},{},{}",
                     className, name, customName, String.format("%.2f", width), String.format("%.2f", height), invisible, isArmorStand,
                     String.format("%.1f", entity.getX()), String.format("%.1f", entity.getY()), String.format("%.1f", entity.getZ()));
         }
     }
 
-    /**
-     * Check if an entity is a Livid.
-     * Used to skip Livids in the regular ESP loop (LividSolver handles them separately).
-     */
     private static boolean isLivid(Entity entity) {
         if (entity instanceof ArmorStand) return false;
         String name = entity.getName().getString();
         return name.endsWith(" Livid") || name.equals("Livid");
     }
 
-    /**
-     * Scan for wither and blood doors by checking blocks directly in the world.
-     * Wither doors = coal blocks, Blood doors = red terracotta.
-     * Doors are located at specific positions between rooms (every 32 blocks).
-     *
-     * Door center positions are at the midpoint between rooms:
-     * Room centers are at: -184, -152, -120, -88, -56, -24 (offset by 16 from grid lines)
-     * Door positions between rooms: -168, -136, -104, -72, -40 (midpoints)
-     */
     private static void scanDoorPositions() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
 
-        // Door Y levels to check (doors span multiple Y levels)
         int[] doorYLevels = {68, 69, 70, 71};
 
-        // Scan range around player
         double px = mc.player.getX();
         double pz = mc.player.getZ();
         double scanRange = 80;
 
-        // Room grid: rooms are 31 blocks, doors are 1 block gap
-        // Grid starts at -200, cells are 32 blocks each
-        // Door positions are at cell boundaries: -200, -168, -136, -104, -72, -40, -8
-        // But actual door centers are in the 4-block gap between rooms
-
-        // Scan for doors at grid boundaries
         for (int gridX = 0; gridX < 6; gridX++) {
             for (int gridZ = 0; gridZ < 6; gridZ++) {
-                // Check door to the right (between gridX and gridX+1)
                 if (gridX < 5) {
                     int doorX = -200 + (gridX + 1) * 32 - 2; // Center of door gap
                     int roomCenterZ = -200 + gridZ * 32 + 16; // Center of room in Z
@@ -508,7 +410,6 @@ public class StarredMobESP {
                     }
                 }
 
-                // Check door below (between gridZ and gridZ+1)
                 if (gridZ < 5) {
                     int roomCenterX = -200 + gridX * 32 + 16; // Center of room in X
                     int doorZ = -200 + (gridZ + 1) * 32 - 2; // Center of door gap
@@ -520,7 +421,6 @@ public class StarredMobESP {
             }
         }
 
-        // Debug log
         if (System.currentTimeMillis() % 5000 < 50) {
             if (!witherDoorBoxes.isEmpty() || !bloodDoorBoxes.isEmpty()) {
                 TeslaMaps.LOGGER.info("[DoorESP] Found {} wither doors, {} blood doors",
@@ -529,14 +429,8 @@ public class StarredMobESP {
         }
     }
 
-    /**
-     * Check for a door at a specific position.
-     * @param xAligned true if door opens along X axis (wall runs along Z)
-     */
     private static void checkDoorAt(Minecraft mc, int x, int z, int[] yLevels, boolean xAligned) {
-        // Check multiple positions around the door center
         for (int dy : yLevels) {
-            // Check a few positions around the expected door location
             for (int offset = -2; offset <= 2; offset++) {
                 int checkX = xAligned ? x : x + offset;
                 int checkZ = xAligned ? z + offset : z;
@@ -545,7 +439,6 @@ public class StarredMobESP {
                 Block block = mc.level.getBlockState(pos).getBlock();
 
                 if (block == Blocks.COAL_BLOCK) {
-                    // Validate it's actually a door (has air nearby indicating passage)
                     if (isValidDoor(mc, pos, xAligned)) {
                         AABB doorBox = findDoorBox(mc, pos, true);
                         if (doorBox != null && !containsBox(witherDoorBoxes, doorBox)) {
@@ -555,7 +448,6 @@ public class StarredMobESP {
                         return; // Found door at this location
                     }
                 } else if (block == Blocks.RED_TERRACOTTA) {
-                    // Validate it's actually a door (has air nearby indicating passage)
                     if (isValidDoor(mc, pos, xAligned)) {
                         AABB doorBox = findDoorBox(mc, pos, false);
                         if (doorBox != null && !containsBox(bloodDoorBoxes, doorBox)) {
@@ -569,34 +461,23 @@ public class StarredMobESP {
         }
     }
 
-    /**
-     * Validate that a block is actually part of a door (not wall decoration).
-     * Doors have air/passage on both sides perpendicular to the door.
-     */
     private static boolean isValidDoor(Minecraft mc, BlockPos pos, boolean xAligned) {
-        // Only check doors in dungeon area (negative coordinates)
-        // Chambers and boss rooms are in positive coords and have decorative red terracotta
         if (pos.getX() > 0 || pos.getZ() > 0) {
             return false;
         }
 
-        // Check for air blocks on both sides of the door (the passage)
         Block airCheck1, airCheck2;
         if (xAligned) {
-            // Door runs along Z, check X direction for passage
             airCheck1 = mc.level.getBlockState(pos.offset(4, 0, 0)).getBlock();
             airCheck2 = mc.level.getBlockState(pos.offset(-4, 0, 0)).getBlock();
         } else {
-            // Door runs along X, check Z direction for passage
             airCheck1 = mc.level.getBlockState(pos.offset(0, 0, 4)).getBlock();
             airCheck2 = mc.level.getBlockState(pos.offset(0, 0, -4)).getBlock();
         }
 
-        // BOTH sides should have air (passage) - doors connect two rooms
         boolean hasPassage = airCheck1 == Blocks.AIR && airCheck2 == Blocks.AIR;
         if (!hasPassage) return false;
 
-        // Check that there are multiple door blocks vertically (doors are at least 3 tall)
         int verticalCount = 0;
         Block targetBlock = mc.level.getBlockState(pos).getBlock();
         for (int dy = -2; dy <= 3; dy++) {
@@ -606,22 +487,16 @@ public class StarredMobESP {
             }
         }
 
-        // Valid door: has passage on both sides AND has at least 3 blocks vertically
         return verticalCount >= 3;
     }
 
-    /**
-     * Find the full bounding box of a door starting from one block.
-     */
     private static AABB findDoorBox(Minecraft mc, BlockPos start, boolean isWitherDoor) {
         Block targetBlock = isWitherDoor ? Blocks.COAL_BLOCK : Blocks.RED_TERRACOTTA;
 
-        // Expand to find full door bounds
         int minX = start.getX(), maxX = start.getX();
         int minY = start.getY(), maxY = start.getY();
         int minZ = start.getZ(), maxZ = start.getZ();
 
-        // Expand in each direction (limit to reasonable door size)
         for (int i = 0; i < 5; i++) {
             if (mc.level.getBlockState(new BlockPos(minX - 1, start.getY(), start.getZ())).getBlock() == targetBlock) minX--;
             if (mc.level.getBlockState(new BlockPos(maxX + 1, start.getY(), start.getZ())).getBlock() == targetBlock) maxX++;
@@ -631,13 +506,11 @@ public class StarredMobESP {
             if (mc.level.getBlockState(new BlockPos(start.getX(), start.getY(), maxZ + 1)).getBlock() == targetBlock) maxZ++;
         }
 
-        // Make box slightly larger for visibility
         return new AABB(minX - 0.5, minY, minZ - 0.5, maxX + 1.5, maxY + 3, maxZ + 1.5);
     }
 
     private static boolean containsBox(List<AABB> boxes, AABB newBox) {
         for (AABB existing : boxes) {
-            // Check if centers are close (within 2 blocks)
             if (existing.getCenter().distanceToSqr(newBox.getCenter()) < 4) {
                 return true;
             }
@@ -645,37 +518,22 @@ public class StarredMobESP {
         return false;
     }
 
-    /**
-     * Get the list of entities that should be highlighted.
-     */
     public static List<EntityHighlight> getHighlightedEntities() {
         return highlightedEntities;
     }
 
-    /**
-     * Check if an entity should be highlighted (legacy method for external calls).
-     */
     public static boolean shouldHighlight(Entity entity) {
         return shouldHighlight(entity, DungeonManager.isInDungeon(),
                 TeslaMapsConfig.get().pestESP && SkyblockUtils.isInGarden());
     }
 
-    /**
-     * Check if an entity should be highlighted.
-     * @param entity The entity to check
-     * @param inDungeon Whether we're currently in a dungeon
-     * @param pestESP Whether pest ESP is active (pre-cached to avoid repeated scoreboard parsing)
-     */
     public static boolean shouldHighlight(Entity entity, boolean inDungeon, boolean pestESP) {
-        // Dropped item ESP - works everywhere
         if (entity instanceof ItemEntity && TeslaMapsConfig.get().droppedItemESP) {
             return true;
         }
 
         String entityName = entity.getName().getString();
 
-        // Special case: Fels (Dinnerbone entities) are invisible until you get close
-        // Check them BEFORE the invisible filter, with range limit
         if (entityName.equals("Dinnerbone") && inDungeon && TeslaMapsConfig.get().felESP) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player != null) {
@@ -687,27 +545,20 @@ public class StarredMobESP {
             }
         }
 
-        // Special case: Snipers - detected via armor stand name tags
         if (inDungeon && TeslaMapsConfig.get().sniperESP && hasSniperArmorStand(entity)) {
             return true;
         }
 
-        // Special case: Shadow Assassins are invisible until they teleport
-        // The entity itself is named "Shadow Assassin" and is invisible
         if (entityName.equals("Shadow Assassin") && entity.isInvisible() && inDungeon && TeslaMapsConfig.get().shadowAssassinESP) {
             return true;
         }
 
-        // Special case: Pests/critters are invisible Silverfish or Bats (only in Garden)
-        // Check them BEFORE the invisible filter - no name tag check needed for better range
         if (entity.isInvisible() && pestESP) {
-            // Silverfish = pests (Cricket, etc.), Bat = critters (Firefly, etc.)
             if (entityName.equals("Silverfish") || entityName.equals("Bat")) {
                 return true;
             }
         }
 
-        // Special case: Dungeon bats indicate secrets (they're NOT invisible, just small)
         if (entityName.equals("Bat") && inDungeon && TeslaMapsConfig.get().dungeonBatESP) {
             return true;
         }
@@ -715,13 +566,10 @@ public class StarredMobESP {
         if (entity.isInvisible()) return false;
         if (entity instanceof ArmorStand) return false;
 
-        // Custom ESP works everywhere (not just in dungeons)
-        // Check custom ESP list - direct name match
         if (matchesCustomESP(entityName)) {
             return true;
         }
 
-        // Also check custom name (some mobs have custom display names)
         if (entity.getCustomName() != null) {
             String customName = entity.getCustomName().getString();
             if (matchesCustomESP(customName)) {
@@ -729,30 +577,23 @@ public class StarredMobESP {
             }
         }
 
-        // Check custom ESP via armor stand name tags (Hypixel displays names this way)
         if (matchesCustomESPArmorStand(entity)) {
             return true;
         }
 
-        // The following checks only apply inside dungeons
         if (!inDungeon) {
             return false;
         }
 
-        // Fels are already checked at the top (before invisible filter)
-
-        // Check for miniboss player entities (hardcoded names)
         if (entity instanceof Player) {
             if (entityName.equals("Lost Adventurer") ||
                 entityName.equals("Shadow Assassin") ||
                 entityName.equals("Diamond Guy")) {
                 return true;
             }
-            // Also check if player-based mob is starred (e.g. Livid)
             return isStarred(entity);
         }
 
-        // Check for starred mobs
         if (entity instanceof Mob) {
             return isStarred(entity);
         }
@@ -760,9 +601,6 @@ public class StarredMobESP {
         return false;
     }
 
-    /**
-     * Check if entity name matches any custom ESP entry (case-insensitive, partial match).
-     */
     private static boolean matchesCustomESP(String entityName) {
         List<String> customMobs = TeslaMapsConfig.get().customESPMobs;
         if (customMobs == null || customMobs.isEmpty()) return false;
@@ -776,10 +614,6 @@ public class StarredMobESP {
         return false;
     }
 
-    /**
-     * Check if any nearby armor stand (name tag) matches custom ESP list.
-     * Hypixel displays mob names on armor stands above the mob.
-     */
     private static boolean matchesCustomESPArmorStand(Entity entity) {
         List<String> customMobs = TeslaMapsConfig.get().customESPMobs;
         if (customMobs == null || customMobs.isEmpty()) return false;
@@ -787,13 +621,11 @@ public class StarredMobESP {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return false;
 
-        // Look for armor stands near the entity (name tags) - expand search area
         AABB searchBox = entity.getBoundingBox().inflate(1, 4, 1);
         List<ArmorStand> armorStands = mc.level.getEntitiesOfClass(
                 ArmorStand.class, searchBox, as -> true);
 
         for (ArmorStand armorStand : armorStands) {
-            // Check both getName and getCustomName
             String name = armorStand.getName().getString();
             if (matchesCustomESP(name)) {
                 return true;
@@ -809,14 +641,10 @@ public class StarredMobESP {
         return false;
     }
 
-    /**
-     * Check if an entity has a Shadow Assassin armor stand nearby.
-     */
     private static boolean hasShadowAssassinArmorStand(Entity entity) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return false;
 
-        // Look for armor stands near the entity (name tags)
         AABB searchBox = entity.getBoundingBox().inflate(1, 4, 1);
         List<ArmorStand> armorStands = mc.level.getEntitiesOfClass(
                 ArmorStand.class, searchBox, as -> true);
@@ -837,15 +665,10 @@ public class StarredMobESP {
         return false;
     }
 
-    /**
-     * Check if an entity has a Sniper armor stand nearby.
-     * Snipers have name tags like "🦴 Sniper 100k❤"
-     */
     private static boolean hasSniperArmorStand(Entity entity) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return false;
 
-        // Look for armor stands near the entity (name tags)
         AABB searchBox = entity.getBoundingBox().inflate(1, 4, 1);
         List<ArmorStand> armorStands = mc.level.getEntitiesOfClass(
                 ArmorStand.class, searchBox, as -> true);
@@ -866,14 +689,10 @@ public class StarredMobESP {
         return false;
     }
 
-    /**
-     * Check if an entity is a pest by looking for nearby armor stands with pest names.
-     */
     private static boolean isPest(Entity entity) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return false;
 
-        // Look for armor stands near the entity (name tags)
         AABB searchBox = entity.getBoundingBox().inflate(1, 3, 1);
         List<ArmorStand> armorStands = mc.level.getEntitiesOfClass(
                 ArmorStand.class, searchBox, as -> true);
@@ -898,21 +717,17 @@ public class StarredMobESP {
         return false;
     }
 
-    /**
-     * Check if an entity is starred by looking for nearby armor stands with ✯.
-     */
     public static boolean isStarred(Entity entity) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return false;
 
-        // Look for armor stands near the entity
         AABB searchBox = entity.getBoundingBox().inflate(0, 2, 0);
         List<ArmorStand> armorStands = mc.level.getEntitiesOfClass(
                 ArmorStand.class, searchBox, as -> true);
 
         for (ArmorStand armorStand : armorStands) {
             String name = armorStand.getName().getString();
-            if (name.contains("✯")) {
+            if (name.contains("")) {
                 return true;
             }
         }
@@ -920,45 +735,35 @@ public class StarredMobESP {
         return false;
     }
 
-    /**
-     * Get the highlight color for an entity (uses config colors).
-     */
     public static int getHighlightColor(Entity entity) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
-        // Dropped items get yellow
         if (entity instanceof ItemEntity) {
             return DROPPED_ITEM_COLOR;
         }
 
         String name = entity.getName().getString();
 
-        // Fels get configured color
         if (name.equals("Dinnerbone")) {
             return TeslaMapsConfig.parseColor(config.colorESPFel);
         }
 
-        // Snipers get configured color (light blue by default)
         if (hasSniperArmorStand(entity)) {
             return TeslaMapsConfig.parseColor(config.colorESPSniper);
         }
 
-        // Dungeon bats get configured color (in dungeon)
         if (name.equals("Bat") && DungeonManager.isInDungeon()) {
             return TeslaMapsConfig.parseColor(config.colorESPBat);
         }
 
-        // Pests/critters get green color (invisible Silverfish or Bat outside dungeon)
         if (entity.isInvisible() && (name.equals("Silverfish") || name.equals("Bat"))) {
             return PEST_COLOR;
         }
 
-        // Shadow Assassins get configured color
         if (name.equals("Shadow Assassin") && entity.isInvisible()) {
             return TeslaMapsConfig.parseColor(config.colorESPShadowAssassin);
         }
 
-        // Custom ESP mobs get cyan color
         if (matchesCustomESP(name)) {
             return CUSTOM_ESP_COLOR;
         }
@@ -971,36 +776,21 @@ public class StarredMobESP {
         return TeslaMapsConfig.parseColor(config.colorESPStarred);
     }
 
-    /**
-     * Record to hold entity and its highlight color.
-     */
     public record EntityHighlight(Entity entity, int color) {}
 
-    /**
-     * Get wither key positions for tracer rendering.
-     */
     public static List<Vec3> getWitherKeyPositions() {
         return witherKeyPositions;
     }
 
-    /**
-     * Get blood key positions for tracer rendering.
-     */
     public static List<Vec3> getBloodKeyPositions() {
         return bloodKeyPositions;
     }
 
-    /**
-     * Render world elements like door boxes, key boxes, and tracers.
-     * Called from WorldRenderEvents.
-     * Uses ESPRenderer for immediate mode rendering through walls.
-     */
     public static void renderWorldElements(PoseStack matrices, MultiBufferSource provider,
                                            Vec3 cameraPos, Vec3 playerEyePos) {
         boolean inDungeon = DungeonManager.isInDungeon();
         boolean inGarden = SkyblockUtils.isInGarden();
 
-        // Render pest tracers in garden
         if (inGarden && TeslaMapsConfig.get().pestESP && TeslaMapsConfig.get().pestTracers) {
             for (Vec3 pestPos : pestPositions) {
                 ESPRenderer.drawTracerFromCamera(matrices, pestPos, PEST_COLOR, cameraPos);
@@ -1009,19 +799,16 @@ public class StarredMobESP {
 
         if (!inDungeon) return;
 
-        // Render dungeon bat tracers
         if (TeslaMapsConfig.get().dungeonBatESP && TeslaMapsConfig.get().dungeonBatTracers) {
             for (Vec3 batPos : dungeonBatPositions) {
                 ESPRenderer.drawTracerFromCamera(matrices, batPos, DUNGEON_BAT_COLOR, cameraPos);
             }
         }
 
-        // Door ESP - boxes and tracers using ESPRenderer
         if (TeslaMapsConfig.get().doorESP) {
             boolean drawDoorTracers = TeslaMapsConfig.get().doorTracers;
             boolean onlyNextDoor = TeslaMapsConfig.get().onlyShowNextDoor;
 
-            // Combine all doors and find nearest if needed
             List<AABB> allDoors = new ArrayList<>();
             List<Boolean> isWitherDoor = new ArrayList<>();
             allDoors.addAll(witherDoorBoxes);
@@ -1029,7 +816,6 @@ public class StarredMobESP {
             allDoors.addAll(bloodDoorBoxes);
             for (int i = 0; i < bloodDoorBoxes.size(); i++) isWitherDoor.add(false);
 
-            // Find nearest door if onlyNextDoor is enabled
             int nearestIdx = -1;
             if (onlyNextDoor && !allDoors.isEmpty()) {
                 double nearestDist = Double.MAX_VALUE;
@@ -1042,29 +828,23 @@ public class StarredMobESP {
                 }
             }
 
-            // Render doors
             for (int i = 0; i < allDoors.size(); i++) {
-                // Skip if not nearest door and onlyNextDoor is enabled
                 if (onlyNextDoor && nearestIdx != -1 && i != nearestIdx) continue;
 
                 AABB box = allDoors.get(i);
                 boolean isWither = isWitherDoor.get(i);
 
-                // Door color based on key state (if enabled)
                 int boxColor, tracerColor;
                 if (TeslaMapsConfig.get().doorColorBasedOnKey) {
                     boolean keyPickedUp = isWither ? witherKeyPickedUp : bloodKeyPickedUp;
                     if (keyPickedUp) {
-                        // Green if key picked up
                         boxColor = 0xFF00FF00;
                         tracerColor = 0xFF55FF55;
                     } else {
-                        // Red if key not picked up
                         boxColor = 0xFFFF0000;
                         tracerColor = 0xFFFF5555;
                     }
                 } else {
-                    // Default colors
                     boxColor = isWither ? 0xFF333333 : 0xFFCC0000;
                     tracerColor = isWither ? TRACER_DOOR : 0xFFFF0000;
                 }
@@ -1077,14 +857,11 @@ public class StarredMobESP {
             }
         }
 
-        // Key ESP - boxes and tracers using ESPRenderer
         if (TeslaMapsConfig.get().witherKeyESP) {
             boolean drawKeyTracers = TeslaMapsConfig.get().keyTracers;
 
-            // Wither keys - 3D box + tracer
             for (Entity keyEntity : witherKeyEntities) {
                 if (!keyEntity.isAlive()) continue;
-                // Use entity's bounding box directly
                 AABB keyBox = keyEntity.getBoundingBox();
                 ESPRenderer.drawESPBox(matrices, keyBox, 0xFF000000, cameraPos);  // Black box
                 if (drawKeyTracers) {
@@ -1093,7 +870,6 @@ public class StarredMobESP {
                 }
             }
 
-            // Blood keys - 3D box + tracer
             for (Entity keyEntity : bloodKeyEntities) {
                 if (!keyEntity.isAlive()) continue;
                 AABB keyBox = keyEntity.getBoundingBox();
@@ -1105,12 +881,10 @@ public class StarredMobESP {
             }
         }
 
-        // Render boxes for all highlighted entities (if filled ESP is enabled)
         if (TeslaMapsConfig.get().filledESP) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.level == null) return;
 
-            // Render boxes for all glowing entities
             for (Map.Entry<Entity, Integer> entry : glowingEntities.entrySet()) {
                 Entity entity = entry.getKey();
                 if (!entity.isAlive()) continue;
@@ -1121,7 +895,6 @@ public class StarredMobESP {
                         (MultiBufferSource.BufferSource) provider);
             }
 
-            // Render boxes for slayer entities
             for (Entity entity : mc.level.entitiesForRendering()) {
                 if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
                     int color = SlayerHUD.getGlowColor(entity);
@@ -1132,20 +905,27 @@ public class StarredMobESP {
             }
         }
 
-        // Invisible armor stand ESP - render cyan boxes
+        if (TeslaMapsConfig.get().starredTracerWhenFew) {
+            List<EntityHighlight> starred = new ArrayList<>();
+            for (EntityHighlight eh : highlightedEntities) {
+                if (eh.entity().isAlive() && isStarred(eh.entity())) starred.add(eh);
+            }
+            if (!starred.isEmpty() && starred.size() <= TeslaMapsConfig.get().starredTracerThreshold) {
+                for (EntityHighlight eh : starred) {
+                    ESPRenderer.drawTracerFromCamera(matrices, eh.entity().getBoundingBox().getCenter(),
+                            eh.color() | 0xFF000000, cameraPos);
+                }
+            }
+        }
+
         if (TeslaMapsConfig.get().invisibleArmorStandESP) {
             for (AABB armorStandBox : invisibleArmorStandBoxes) {
                 ESPRenderer.drawBoxOutline(matrices, armorStandBox, INVISIBLE_ARMOR_STAND_COLOR, 2.0f, cameraPos);
             }
         }
 
-        // Livid ESP is now handled by LividSolver.renderWorld()
     }
 
-    /**
-     * Render 2D HUD indicators pointing to wither and blood keys.
-     * Called from HudRenderCallback.
-     */
     public static void renderWitherKeyIndicators(net.minecraft.client.gui.GuiGraphicsExtractor context, net.minecraft.client.DeltaTracker tickCounter) {
         if (!TeslaMapsConfig.get().witherKeyESP) return;
         if (witherKeyPositions.isEmpty() && bloodKeyPositions.isEmpty()) return;
@@ -1158,19 +938,16 @@ public class StarredMobESP {
         int centerX = screenWidth / 2;
         int centerY = screenHeight / 2;
 
-        // Render wither key indicators (black/white)
         for (Vec3 keyPos : witherKeyPositions) {
             renderKeyIndicator(context, mc, keyPos, centerX, centerY, screenWidth, screenHeight,
                     0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF); // Black outer, white inner, white text
         }
 
-        // Render blood key indicators (dark red)
         for (Vec3 keyPos : bloodKeyPositions) {
             renderKeyIndicator(context, mc, keyPos, centerX, centerY, screenWidth, screenHeight,
                     0xFFCC0000, 0xFFFF4444, 0xFFFF4444); // Dark red outer, red inner, red text
         }
 
-        // Render livid indicator (green) if livid finder is enabled
         Entity correctLividEntity = LividSolver.getCorrectLivid();
         if (TeslaMapsConfig.get().lividFinder && correctLividEntity != null && correctLividEntity.isAlive() && !LividSolver.hasBlindness()) {
             Vec3 lividPos = new Vec3(correctLividEntity.getX(), correctLividEntity.getY(), correctLividEntity.getZ());
@@ -1179,80 +956,53 @@ public class StarredMobESP {
         }
     }
 
-    /**
-     * Helper to render a single key indicator.
-     */
     private static void renderKeyIndicator(net.minecraft.client.gui.GuiGraphicsExtractor context, Minecraft mc,
                                             Vec3 keyPos, int centerX, int centerY, int screenWidth, int screenHeight,
                                             int outerColor, int innerColor, int textColor) {
-        // Calculate direction from player to key
         double dx = keyPos.x - mc.player.getX();
         double dz = keyPos.z - mc.player.getZ();
         double distance = Math.sqrt(dx * dx + dz * dz);
 
-        // Get angle to key relative to player's yaw
         double angleToKey = Math.atan2(dz, dx) * (180 / Math.PI) - 90;
         double playerYaw = mc.player.getYRot();
         double relativeAngle = Math.toRadians(angleToKey - playerYaw);
 
-        // Calculate indicator position - close to crosshair
         int indicatorDist = 50;  // Fixed distance from crosshair
         int indicatorX = centerX + (int) (Math.sin(relativeAngle) * indicatorDist);
         int indicatorY = centerY - (int) (Math.cos(relativeAngle) * indicatorDist);
 
-        // Draw indicator square with colors - BIGGER size
         int size = 8;  // Bigger indicator
         context.fill(indicatorX - size, indicatorY - size, indicatorX + size, indicatorY + size, outerColor);
         context.fill(indicatorX - size + 2, indicatorY - size + 2, indicatorX + size - 2, indicatorY + size - 2, innerColor);
 
-        // Draw distance text - bigger
         String distText = String.format("%.0fm", distance);
         int textWidth = mc.font.width(distText);
         context.text(mc.font, distText, indicatorX - textWidth / 2, indicatorY + size + 2, textColor, true);
     }
 
-    /**
-     * Check if an entity should have the glow effect (through walls).
-     * Called from WorldRendererMixin.
-     */
     public static boolean shouldGlow(Entity entity) {
-        // Check regular ESP
         if (glowingEntities.containsKey(entity)) {
             return true;
         }
-        // Check Livid solver
         if (LividSolver.shouldGlow(entity)) {
             return true;
         }
-        // Check slayer ESP
         return SlayerHUD.shouldGlow(entity);
     }
 
-    /**
-     * Get the glow color for an entity.
-     * Called from EntityMixin.
-     * @return RGB color, or 0 if entity shouldn't glow
-     */
     public static int getGlowColor(Entity entity) {
-        // Check regular ESP first
         if (glowingEntities.containsKey(entity)) {
             return glowingEntities.get(entity);
         }
-        // Check Livid solver
         if (LividSolver.shouldGlow(entity)) {
             return LividSolver.getGlowColor(entity);
         }
-        // Check slayer ESP
         if (SlayerHUD.shouldGlow(entity)) {
             return SlayerHUD.getGlowColor(entity);
         }
         return 0;
     }
 
-    /**
-     * Check if an entity should be made invisible (wrong Livid).
-     * Called from mixin.
-     */
     public static boolean shouldBeInvisible(Entity entity) {
         return LividSolver.isWrongLivid(entity);
     }

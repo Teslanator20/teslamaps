@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.features;
 
 import com.teslamaps.TeslaMaps;
@@ -21,31 +36,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Secret Clicker - Automatically clicks secret blocks when looking at them.
- *
- * Secrets in dungeons include:
- * - Levers
- * - Buttons (stone/wood)
- * - Skulls (wither skulls)
- * - Chests (regular and trapped)
- */
 public class SecretClicker {
 
-    // Track clicked positions to avoid spam clicking the same block
     private static final Map<BlockPos, Long> clickedPositions = new HashMap<>();
     private static long lastClickTime = 0;
 
-    // Rooms to exclude (puzzles that shouldn't be auto-clicked)
     private static final String[] EXCLUDED_ROOMS = {"Water Board", "Three Weirdos"};
 
     public static void tick() {
-        // DISABLED - Feature commented out for now
         if (true) return;
 
-        /* DISABLED
-        if (!TeslaMapsConfig.get().secretClicker) return;
-        */
         if (!DungeonManager.isInDungeon()) return;
         if (DungeonManager.isInBoss()) return;
 
@@ -53,7 +53,6 @@ public class SecretClicker {
         if (mc.player == null || mc.level == null) return;
         if (mc.screen != null) return; // Don't click while in a GUI
 
-        // Check delay
         long currentTime = System.currentTimeMillis();
         int delay = TeslaMapsConfig.get().secretClickerDelay;
         int randomization = TeslaMapsConfig.get().secretClickerRandomization;
@@ -61,7 +60,6 @@ public class SecretClicker {
 
         if (currentTime - lastClickTime < totalDelay) return;
 
-        // Check if looking at a block
         HitResult hitResult = mc.hitResult;
         if (hitResult == null || hitResult.getType() != HitResult.Type.BLOCK) return;
 
@@ -69,16 +67,12 @@ public class SecretClicker {
         BlockPos pos = blockHit.getBlockPos();
         BlockState state = mc.level.getBlockState(pos);
 
-        // Clean up old clicked positions (older than 1 second)
         clickedPositions.entrySet().removeIf(entry -> currentTime - entry.getValue() > 1000);
 
-        // Check if already clicked recently
         if (clickedPositions.containsKey(pos)) return;
 
-        // Check if it's a secret block
         if (!isSecretBlock(state)) return;
 
-        // Check if we're in an excluded room (Water Board, Three Weirdos)
         int[] gridPos = ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ());
         if (gridPos != null) {
             DungeonRoom room = DungeonManager.getRoomAt(gridPos[0], gridPos[1]);
@@ -89,7 +83,6 @@ public class SecretClicker {
             }
         }
 
-        // Perform the click (right click)
         if (mc.gameMode != null) {
             mc.gameMode.useItemOn(
                 mc.player,
@@ -105,28 +98,21 @@ public class SecretClicker {
         }
     }
 
-    /**
-     * Check if a block is a secret block (lever, button, skull, chest).
-     */
     private static boolean isSecretBlock(BlockState state) {
         Block block = state.getBlock();
 
-        // Levers
         if (block instanceof LeverBlock) {
             return TeslaMapsConfig.get().secretClickerLevers;
         }
 
-        // Buttons
         if (block instanceof ButtonBlock) {
             return TeslaMapsConfig.get().secretClickerButtons;
         }
 
-        // Skulls (wither skulls are secrets)
         if (block instanceof SkullBlock || block instanceof WallSkullBlock) {
             return TeslaMapsConfig.get().secretClickerSkulls;
         }
 
-        // Chests
         if (block instanceof ChestBlock) {
             if (block instanceof TrappedChestBlock) {
                 return TeslaMapsConfig.get().secretClickerTrappedChests;

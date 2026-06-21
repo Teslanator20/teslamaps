@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -13,11 +28,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.util.regex.Pattern;
 
-/**
- * M7 Wither Dragons (ported from Odin) — STAGE 1: spawn detection (via the spawn FLAME particle),
- * a spawn countdown timer, spawn boxes, and spawn alerts. Death is detected when a dragon's statue
- * block breaks. (Entity health, ice-spray, priority and stack-aimer are later stages.)
- */
 public class WitherDragons {
 
     public enum State { SPAWNING, ALIVE, DEAD }
@@ -61,7 +71,6 @@ public class WitherDragons {
                 && f != null && f.getLevel() == 7 && dragonsPhase;
     }
 
-    /** Spawn FLAME particle (count 20, y=19, integer x/z in a dragon's range) -> that dragon is spawning. */
     public static void onParticlePacket(ClientboundLevelParticlesPacket p) {
         if (!active()) return;
         if (p.getCount() != 20 || p.getY() != 19.0 || p.getParticle().getType() != ParticleTypes.FLAME
@@ -102,13 +111,11 @@ public class WitherDragons {
 
     public static void onChatMessage(String message) {
         message = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
-        // The dragons phase begins once the Wither King appears (after Necron).
         if (WK_REGEX.matcher(message).find() || message.equals("[BOSS] Necron: All this, for nothing...")) {
             dragonsPhase = true;
         }
     }
 
-    /** A dragon's statue block breaking = that dragon died. */
     public static void onBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState) {
         if (!active() || !newState.isAir()) return;
         for (Dragon d : Dragon.values()) {

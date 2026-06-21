@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.command;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -43,18 +58,23 @@ import java.util.Random;
 public class TMapCommand {
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext registryAccess) {
-        // /ping - measure real round-trip latency (tab latency is faked by Hypixel)
         dispatcher.register(ClientCommands.literal("ping").executes(context -> {
             com.teslamaps.features.PingMeter.request();
             return 1;
         }));
 
-        // Command shortcuts (config-driven, edited via /tmap shortcut; seeded with pd/pk/pt)
-        registerShortcuts(dispatcher);
+        for (char type : new char[]{'f', 'm'}) {
+            for (int n = 1; n <= 7; n++) {
+                String code = "" + type + n;
+                dispatcher.register(ClientCommands.literal(code).executes(context -> {
+                    com.teslamaps.features.ChatCommands.queueFloor(code);
+                    return 1;
+                }));
+            }
+        }
 
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
-                    // Open config screen
                     Minecraft.getInstance().schedule(() -> {
                         Minecraft.getInstance().setScreen(new MapConfigScreen());
                     });
@@ -62,12 +82,29 @@ public class TMapCommand {
                 })
                 .then(ClientCommands.literal("gui")
                         .executes(context -> {
-                            // Open HUD edit screen
                             Minecraft.getInstance().schedule(() -> {
                                 Minecraft.getInstance().setScreen(new HudEditScreen(null));
                             });
                             return 1;
                         }))
+                .then(ClientCommands.literal("ep").executes(context -> {
+                    com.teslamaps.features.AutoGFS.gfsEnderPearls();
+                    return 1;
+                }))
+                .then(ClientCommands.literal("sb").executes(context -> {
+                    com.teslamaps.features.AutoGFS.gfsSuperboom();
+                    return 1;
+                }))
+                .then(ClientCommands.literal("etheroffset")
+                        .then(ClientCommands.argument("value", FloatArgumentType.floatArg(-0.5f, 0.5f))
+                                .executes(context -> {
+                                    float v = FloatArgumentType.getFloat(context, "value");
+                                    TeslaMapsConfig.get().etherwarpEyeOffset = v;
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§a[TeslaMaps] §7Etherwarp eye offset = §f" + String.format("%.3f", v)));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("toggle")
                         .executes(context -> {
                             TeslaMapsConfig config = TeslaMapsConfig.get();
@@ -113,7 +150,6 @@ public class TMapCommand {
                         }))
                 .then(ClientCommands.literal("hotkeys")
                         .executes(context -> {
-                            // Open the keybind/hotkeys GUI
                             Minecraft.getInstance().schedule(() ->
                                     Minecraft.getInstance().setScreen(new com.teslamaps.screen.KeybindMessageScreen()));
                             return 1;
@@ -195,14 +231,12 @@ public class TMapCommand {
                             int x = (int) mc.player.getX();
                             int z = (int) mc.player.getZ();
 
-                            // Get grid position
                             int[] gridPos = ComponentGrid.worldToGrid(x, z);
                             if (gridPos == null) {
                                 context.getSource().sendFeedback(Component.literal("Not in dungeon area"));
                                 return 0;
                             }
 
-                            // Get center of this grid cell
                             int[] center = ComponentGrid.gridToWorld(gridPos[0], gridPos[1]);
                             int core = CoreHasher.calculateCore(mc.level, center[0], center[1]);
 
@@ -210,7 +244,6 @@ public class TMapCommand {
                                     String.format("Grid: [%d,%d] Center: [%d,%d] Core: %d",
                                             gridPos[0], gridPos[1], center[0], center[1], core)));
 
-                            // Check if this core is in the database
                             var roomData = RoomDatabase.getInstance().findByCore(core);
                             if (roomData != null) {
                                 context.getSource().sendFeedback(Component.literal("Matched room: " + roomData.getName()));
@@ -247,7 +280,6 @@ public class TMapCommand {
                                 }
                             }
                             context.getSource().sendFeedback(Component.literal("Normal: " + normal + ", Wither: " + wither + ", Blood: " + blood + ", Entrance: " + entrance));
-                            // Force rescan doors
                             context.getSource().sendFeedback(Component.literal("Rescanning doors..."));
                             DoorScanner.scanAllDoors();
                             context.getSource().sendFeedback(Component.literal("After rescan: " + DoorScanner.getAllDoors().size() + " doors"));
@@ -272,7 +304,6 @@ public class TMapCommand {
                             Minecraft mc = Minecraft.getInstance();
                             context.getSource().sendFeedback(Component.literal("=== Map Item Debug ==="));
 
-                            // Check hotbar
                             for (int i = 0; i < 9; i++) {
                                 ItemStack stack = mc.player.getInventory().getItem(i);
                                 if (stack.getItem() instanceof MapItem) {
@@ -282,7 +313,6 @@ public class TMapCommand {
                                         MapItemSavedData state = MapItem.getSavedData(mapId, mc.level);
                                         if (state != null && state.colors != null) {
                                             context.getSource().sendFeedback(Component.literal("  MapState: colors length=" + state.colors.length));
-                                            // Sample some colors from the map
                                             byte c1 = state.colors[64 + 64*128]; // center
                                             byte c2 = state.colors[32 + 32*128]; // top-left area
                                             context.getSource().sendFeedback(Component.literal("  Sample colors: center=" + c1 + ", topleft=" + c2));
@@ -293,7 +323,6 @@ public class TMapCommand {
                                 }
                             }
 
-                            // Check offhand
                             ItemStack offhand = mc.player.getOffhandItem();
                             if (offhand.getItem() instanceof MapItem) {
                                 context.getSource().sendFeedback(Component.literal("Offhand: Map found"));
@@ -318,7 +347,6 @@ public class TMapCommand {
                                 String name = entity.getName().getString();
                                 String customName = entity.getCustomName() != null ? entity.getCustomName().getString() : "null";
 
-                                // Check if matches ESP
                                 boolean matchesESP = false;
                                 for (String pattern : TeslaMapsConfig.get().customESPMobs) {
                                     if (name.toLowerCase().contains(pattern.toLowerCase()) ||
@@ -328,7 +356,6 @@ public class TMapCommand {
                                     }
                                 }
 
-                                // Show raw characters
                                 StringBuilder hex = new StringBuilder();
                                 for (char c : name.toCharArray()) {
                                     if (c > 127) {
@@ -359,7 +386,6 @@ public class TMapCommand {
                                     String name = StringArgumentType.getString(context, "name");
                                     TeslaMapsConfig config = TeslaMapsConfig.get();
 
-                                    // Check if already exists (case-insensitive)
                                     boolean exists = config.customESPMobs.stream()
                                             .anyMatch(s -> s.equalsIgnoreCase(name));
 
@@ -378,7 +404,6 @@ public class TMapCommand {
                                     String name = StringArgumentType.getString(context, "name");
                                     TeslaMapsConfig config = TeslaMapsConfig.get();
 
-                                    // Remove case-insensitive
                                     boolean removed = config.customESPMobs.removeIf(s -> s.equalsIgnoreCase(name));
 
                                     if (removed) {
@@ -419,14 +444,13 @@ public class TMapCommand {
                             if (cryptsFound >= 0) {
                                 context.getSource().sendFeedback(Component.literal("Crypts: " + cryptsFound + "/" + totalCrypts + " (5 for S+)"));
                                 if (cryptsFound >= 5) {
-                                    context.getSource().sendFeedback(Component.literal("✓ Crypt bonus achieved!"));
+                                    context.getSource().sendFeedback(Component.literal(" Crypt bonus achieved!"));
                                 } else {
                                     context.getSource().sendFeedback(Component.literal("Need " + (5 - cryptsFound) + " more for bonus"));
                                 }
                             } else {
                                 context.getSource().sendFeedback(Component.literal("Total crypts in dungeon: " + totalCrypts));
                             }
-                            // Show breakdown by room
                             java.util.Set<DungeonRoom> shown = new java.util.HashSet<>();
                             for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
                                 if (!shown.contains(room) && room.getCrypts() > 0) {
@@ -469,11 +493,9 @@ public class TMapCommand {
 
                             context.getSource().sendFeedback(Component.literal("=== Block Scan at " + px + ", " + py + ", " + pz + " ==="));
 
-                            // Count blocks in area around player
                             Map<String, Integer> blockCounts = new HashMap<>();
                             int radius = 3;
 
-                            // Count smooth stone slabs specifically
                             int smoothSlabCount = 0;
                             for (int x = px - radius; x <= px + radius; x++) {
                                 for (int y = py - radius; y <= py + radius; y++) {
@@ -489,7 +511,6 @@ public class TMapCommand {
                                 }
                             }
 
-                            // Sort by count and show top blocks
                             blockCounts.entrySet().stream()
                                     .filter(e -> !e.getKey().equals("Air"))
                                     .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
@@ -499,7 +520,6 @@ public class TMapCommand {
 
                             context.getSource().sendFeedback(Component.literal("Smooth slabs in area: " + smoothSlabCount + " (need 10+ for crypt)"));
 
-                            // Check if standing on a block that could be a crypt
                             BlockPos below = new BlockPos(px, py - 1, pz);
                             Block blockBelow = mc.level.getBlockState(below).getBlock();
                             context.getSource().sendFeedback(Component.literal("Standing on: " + blockBelow.getName().getString()));
@@ -508,99 +528,27 @@ public class TMapCommand {
                         }))
         );
 
-        /* DISABLED - Profile Viewer
-        // Register /pv command for Profile Viewer
-        dispatcher.register(ClientCommands.literal("pv")
-                .executes(context -> {
-                    // No player specified - view own profile
-                    Minecraft mc = Minecraft.getInstance();
-                    if (mc.player != null) {
-                        ProfileViewerScreen.open(mc.player.getName().getString());
-                    }
-                    return 1;
-                })
-                .then(ClientCommands.argument("player", StringArgumentType.greedyString())
-                        .executes(context -> {
-                            String playerName = StringArgumentType.getString(context, "player");
-                            ProfileViewerScreen.open(playerName);
-                            return 1;
-                        }))
-        );
-        */
-
-        /* DISABLED - Terminal Simulator
-        // Register /termsim command for Terminal Simulator
-        dispatcher.register(ClientCommands.literal("termsim")
-                .executes(context -> {
-                    // Open random terminal simulator
-                    Minecraft mc = Minecraft.getInstance();
-                    Random rand = new Random();
-                    int choice = rand.nextInt(3);
-                    mc.send(() -> {
-                        switch (choice) {
-                            case 0 -> mc.setScreen(new PanesSimulator());
-                            case 1 -> mc.setScreen(new NumbersSimulator());
-                            case 2 -> mc.setScreen(new RubixSimulator());
-                        }
-                    });
-                    context.getSource().sendFeedback(Text.literal("Opening random terminal simulator..."));
-                    return 1;
-                })
-                .then(ClientCommands.literal("panes")
-                        .executes(context -> {
-                            Minecraft mc = Minecraft.getInstance();
-                            mc.send(() -> mc.setScreen(new PanesSimulator()));
-                            context.getSource().sendFeedback(Text.literal("Opening Correct all the panes! simulator..."));
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("numbers")
-                        .executes(context -> {
-                            Minecraft mc = Minecraft.getInstance();
-                            mc.send(() -> mc.setScreen(new NumbersSimulator()));
-                            context.getSource().sendFeedback(Text.literal("Opening Click in order! simulator..."));
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("rubix")
-                        .executes(context -> {
-                            Minecraft mc = Minecraft.getInstance();
-                            mc.send(() -> mc.setScreen(new RubixSimulator()));
-                            context.getSource().sendFeedback(Text.literal("Opening Change all to same color! simulator..."));
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("help")
-                        .executes(context -> {
-                            context.getSource().sendFeedback(Text.literal("=== Terminal Simulator ==="));
-                            context.getSource().sendFeedback(Text.literal("/termsim - Open random terminal"));
-                            context.getSource().sendFeedback(Text.literal("/termsim panes - Correct all the panes!"));
-                            context.getSource().sendFeedback(Text.literal("/termsim numbers - Click in order!"));
-                            context.getSource().sendFeedback(Text.literal("/termsim rubix - Change all to same color!"));
-                            return 1;
-                        }))
-        );
-        */
     }
 
     private static final java.util.Set<String> RESERVED_ALIASES = java.util.Set.of("tmap", "ping");
 
-    /** Register every configured shortcut as a client command: "/<alias> args" -> "<command> args". */
-    private static void registerShortcuts(CommandDispatcher<FabricClientCommandSource> d) {
+    public static String expandShortcut(String command) {
+        if (command == null || command.isEmpty()) return command;
+        int sp = command.indexOf(' ');
+        String alias = (sp < 0 ? command : command.substring(0, sp)).trim();
+        String args = sp < 0 ? "" : command.substring(sp + 1);
+        if (alias.isEmpty() || RESERVED_ALIASES.contains(alias.toLowerCase())) return command;
+
         for (TeslaMapsConfig.Shortcut sc : TeslaMapsConfig.get().shortcuts) {
             if (sc.alias == null || sc.command == null) continue;
-            String alias = sc.alias.trim();
-            String command = sc.command.trim();
-            if (alias.isEmpty() || command.isEmpty() || RESERVED_ALIASES.contains(alias.toLowerCase())) continue;
-
-            com.mojang.brigadier.builder.LiteralArgumentBuilder<FabricClientCommandSource> lit = ClientCommands.literal(alias);
-            lit.executes(ctx -> { sendServer(command); return 1; });
-            lit.then(ClientCommands.argument("args", StringArgumentType.greedyString()).executes(ctx -> {
-                sendServer(command + " " + StringArgumentType.getString(ctx, "args"));
-                return 1;
-            }));
-            d.register(lit);
+            if (!sc.alias.trim().equalsIgnoreCase(alias)) continue;
+            String expanded = sc.command.trim();
+            if (expanded.isEmpty()) continue;
+            return args.isEmpty() ? expanded : expanded + " " + args;
         }
+        return command;
     }
 
-    /** Parse "RRGGBB" or "RRGGBBAA" (optional leading #) to an ARGB int; defaults to opaque cyan. */
     private static int parseHexColor(String hex) {
         hex = hex.replace("#", "");
         try {

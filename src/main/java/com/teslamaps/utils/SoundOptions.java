@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.utils;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -7,11 +22,6 @@ import net.minecraft.sounds.SoundEvents;
 
 import java.util.LinkedHashMap;
 
-/**
- * Shared list of clean/cool sounds for configurable sound options (etherwarp, secret sound,
- * secret chime, …). Display key -> vanilla registry id; resolved via the registry so any sound
- * can be added by just listing its id.
- */
 public class SoundOptions {
     private static final LinkedHashMap<String, String> SOUNDS = new LinkedHashMap<>();
     static {
@@ -48,12 +58,10 @@ public class SoundOptions {
         SOUNDS.put("DOLPHIN",          "entity.dolphin.play");
     }
 
-    /** All option keys (for config dropdowns). */
     public static String[] keys() {
         return SOUNDS.keySet().toArray(new String[0]);
     }
 
-    /** Resolve a key to a SoundEvent (falls back to the orb pickup if unknown). */
     public static SoundEvent resolve(String key) {
         String id = SOUNDS.getOrDefault(key, "entity.experience_orb.pickup");
         SoundEvent sound = BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", id));

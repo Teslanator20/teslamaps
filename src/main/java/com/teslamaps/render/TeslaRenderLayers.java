@@ -1,17 +1,25 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.render;
 
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 
-/**
- * Custom render layers for ESP rendering through walls.
- * Custom render layers for ESP rendering.
- */
 public class TeslaRenderLayers {
 
-    /**
-     * Lines that render through walls (ESP).
-     */
     public static final RenderType LINES_ESP = RenderType.create(
             "teslamaps_lines_esp",
             RenderSetup.builder(TeslaRenderPipelines.LINES_ESP)
@@ -19,9 +27,6 @@ public class TeslaRenderLayers {
                     .createRenderSetup()
     );
 
-    /**
-     * Filled quads that render through walls (ESP).
-     */
     public static final RenderType FILLED_ESP = RenderType.create(
             "teslamaps_filled_esp",
             RenderSetup.builder(TeslaRenderPipelines.FILLED_ESP)
@@ -29,7 +34,6 @@ public class TeslaRenderLayers {
                     .createRenderSetup()
     );
 
-    /** Lines with normal depth test (hidden behind walls). */
     public static final RenderType LINES_DEPTH = RenderType.create(
             "teslamaps_lines_depth",
             RenderSetup.builder(TeslaRenderPipelines.LINES_DEPTH)
@@ -37,7 +41,6 @@ public class TeslaRenderLayers {
                     .createRenderSetup()
     );
 
-    /** Filled quads with normal depth test (hidden behind walls). */
     public static final RenderType FILLED_DEPTH = RenderType.create(
             "teslamaps_filled_depth",
             RenderSetup.builder(TeslaRenderPipelines.FILLED_DEPTH)
@@ -45,10 +48,6 @@ public class TeslaRenderLayers {
                     .createRenderSetup()
     );
 
-    /**
-     * Initialize render layers.
-     */
     public static void init() {
-        // Just accessing the fields triggers static initialization
     }
 }

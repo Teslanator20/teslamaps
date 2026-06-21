@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.google.gson.JsonElement;
@@ -21,17 +36,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Water Board Solver - Shows lever timing for one-flow solutions.
- */
 public class WaterBoardSolver {
 
     private static JsonObject SOLUTIONS;
 
-    // Block positions to check for variant detection
     private static final int[] TOP_LEFT_BLOCK = {16, 26};
     private static final int[] TOP_RIGHT_BLOCK = {14, 26};
-    // Wool positions for door detection (purple wool at Y=57)
     private static final int[] PURPLE_WOOL = {15, 19};
     private static final Block[] WOOL_ORDER = {
         Blocks.PURPLE_WOOL,  // door 0
@@ -41,7 +51,6 @@ public class WaterBoardSolver {
         Blocks.RED_WOOL      // door 4
     };
 
-    // Lever positions
     public enum LeverType {
         QUARTZ("quartz", Blocks.QUARTZ_BLOCK, 20, 61, 20),
         GOLD("gold", Blocks.GOLD_BLOCK, 20, 61, 15),
@@ -114,7 +123,6 @@ public class WaterBoardSolver {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
-        // Check if we're in Water Board room
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null || room.getName() == null || !room.getName().equals("Water Board")) {
             if (inWaterBoard) {
@@ -131,7 +139,6 @@ public class WaterBoardSolver {
             solution = null;
             waterStartMillis = 0;
 
-            // Get corner and rotation from room (blue terracotta position)
             rotation = room.getRotation();
             cornerX = room.getCornerX();
             cornerZ = room.getCornerZ();
@@ -139,19 +146,14 @@ public class WaterBoardSolver {
             TeslaMaps.LOGGER.info("[WaterBoardSolver] Entered Water Board room, rotation={}, corner=({},{})",
                 rotation, cornerX, cornerZ);
 
-            // Detect variant
             detectVariant(mc);
         }
 
-        // Detect subvariant (doors) once we have rotation
         if (variant >= 0 && subvariant == null && rotation >= 0) {
             detectSubvariant(mc);
         }
     }
 
-    /**
-     * Rotate coordinates: rotates coordinates by degree
-     */
     private static int[] rotatePos(int x, int z, int degree) {
         return switch (degree % 360) {
             case 0 -> new int[]{x, z};
@@ -162,12 +164,8 @@ public class WaterBoardSolver {
         };
     }
 
-    /**
-     * Convert to world coords: converts relative component coords to world coords
-     */
     private static int[] fromComp(int x, int z) {
         if (rotation < 0) return null;
-        // Rotate by 360 - rotation (inverse rotation)
         int[] rotated = rotatePos(x, z, (360 - rotation) % 360);
         return new int[]{rotated[0] + cornerX, rotated[1] + cornerZ};
     }
@@ -178,7 +176,6 @@ public class WaterBoardSolver {
             return;
         }
 
-        // Find Y level (77 or 78) by checking for sea lantern
         int currentY = 77;
         int[] lanternPos = fromComp(15, 27);
         if (lanternPos != null) {
@@ -188,7 +185,6 @@ public class WaterBoardSolver {
             }
         }
 
-        // Get top left and right blocks
         int[] topLeft = fromComp(TOP_LEFT_BLOCK[0], TOP_LEFT_BLOCK[1]);
         int[] topRight = fromComp(TOP_RIGHT_BLOCK[0], TOP_RIGHT_BLOCK[1]);
 
@@ -203,7 +199,6 @@ public class WaterBoardSolver {
         TeslaMaps.LOGGER.info("[WaterBoardSolver] Top blocks at Y={}: left={} at ({},{}), right={} at ({},{})",
             currentY, leftBlock, topLeft[0], topLeft[1], rightBlock, topRight[0], topRight[1]);
 
-        // If blocks are air or stone, try offset position 
         if (leftBlock == Blocks.AIR || leftBlock == Blocks.STONE) {
             int[] newPos = fromComp(TOP_LEFT_BLOCK[0], TOP_LEFT_BLOCK[1] + 1);
             if (newPos != null) {
@@ -217,7 +212,6 @@ public class WaterBoardSolver {
             }
         }
 
-        // Determine variant (0-3)
         if (leftBlock == Blocks.GOLD_BLOCK && rightBlock == Blocks.TERRACOTTA) {
             variant = 0;
         } else if (leftBlock == Blocks.EMERALD_BLOCK && rightBlock == Blocks.QUARTZ_BLOCK) {
@@ -232,8 +226,6 @@ public class WaterBoardSolver {
     }
 
     private static void detectSubvariant(Minecraft mc) {
-        // Check wool blocks to determine which doors are closed
-        // Keep retrying until we find 3 doors 
         StringBuilder sb = new StringBuilder();
 
         for (int idx = 0; idx < WOOL_ORDER.length; idx++) {
@@ -251,18 +243,15 @@ public class WaterBoardSolver {
         String detected = sb.toString();
 
         if (detected.length() == 3) {
-            // Successfully found all 3 doors
             subvariant = detected;
             TeslaMaps.LOGGER.info("[WaterBoardSolver] Detected subvariant (doors): '{}'", subvariant);
             loadSolution();
         }
-        // If we didn't find 3, subvariant stays null and we'll retry next tick
     }
 
     private static void loadSolution() {
         if (SOLUTIONS == null || variant < 0 || subvariant == null) return;
 
-        // Variant 0-3 maps to watertimes.json uses 1-4
         String variantKey = String.valueOf(variant + 1);
 
         TeslaMaps.LOGGER.info("[WaterBoardSolver] Looking up solution for variant={} doors={}", variantKey, subvariant);
@@ -279,7 +268,6 @@ public class WaterBoardSolver {
             return;
         }
 
-        // Parse solution
         solution = new EnumMap<>(LeverType.class);
         for (Map.Entry<String, JsonElement> entry : doorSolution.entrySet()) {
             LeverType leverType = LeverType.fromName(entry.getKey());
@@ -354,13 +342,11 @@ public class WaterBoardSolver {
             LeverTime second = remaining.size() > 1 ? remaining.get(1) : null;
             boolean hasSecond = second != null && !second.pos.equals(first.pos);
 
-            // Always highlight the lever(s) to click next with a box (next = colorFirst, after = colorSecond).
             ESPRenderer.drawBoxOutline(matrices, new AABB(first.pos), colorFirst, 3f, cameraPos);
             if (hasSecond) {
                 ESPRenderer.drawBoxOutline(matrices, new AABB(second.pos), colorSecond, 2f, cameraPos);
             }
 
-            // Tracer from crosshair + connector line only when tracers are enabled.
             if (TeslaMapsConfig.get().waterBoardTracers) {
                 ESPRenderer.drawTracerFromCamera(matrices, firstCenter, colorFirst, cameraPos);
                 if (hasSecond) {

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.termgui;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -9,17 +24,10 @@ import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.ContainerInput;
 
-/**
- * Manager for custom terminal GUI rendering.
- * Determines which custom GUI to show based on the open terminal.
- */
 public class TerminalGuiManager {
     private static CustomTermGui currentGui = null;
     private static String lastScreenTitle = "";
 
-    /**
-     * Check if we should render custom terminal GUI for the current screen.
-     */
     public static boolean shouldRenderCustomGui() {
         if (!TeslaMapsConfig.get().customTerminalGui) return false;
 
@@ -29,16 +37,12 @@ public class TerminalGuiManager {
         return getTerminalType() != TerminalType.NONE;
     }
 
-    /**
-     * Render the custom terminal GUI overlay.
-     */
     public static void render(GuiGraphicsExtractor context) {
         if (!shouldRenderCustomGui()) return;
 
         TerminalType type = getTerminalType();
         if (type == TerminalType.NONE) return;
 
-        // Create GUI instance if needed
         if (currentGui == null || !lastScreenTitle.equals(getScreenTitle())) {
             currentGui = createGuiForType(type);
             lastScreenTitle = getScreenTitle();
@@ -49,15 +53,10 @@ public class TerminalGuiManager {
         }
     }
 
-    /**
-     * Handle mouse click on custom terminal GUI.
-     * Returns true if the click was handled by the custom GUI.
-     */
     public static boolean handleMouseClick(double mouseX, double mouseY, int button) {
         if (!shouldRenderCustomGui()) return false;
         if (currentGui == null) return false;
 
-        // Click anywhere mode - redirect all clicks to the correct slot
         if (TeslaMapsConfig.get().terminalClickAnywhere) {
             TerminalType type = getTerminalType();
             int nextSlot = getNextCorrectSlot();
@@ -67,12 +66,8 @@ public class TerminalGuiManager {
             if (nextSlot != -1) {
                 Minecraft mc = Minecraft.getInstance();
                 if (mc.screen instanceof ContainerScreen screen && mc.player != null) {
-                    // Most terminals need left-click, only Rubix uses right-click for backwards direction
-                    // For now, use the button from getNextCorrectSlot (Rubix will return slots that need right-click)
-                    // But we need to detect if Rubix wants right-click based on the click queue
                     int buttonToUse = button;
 
-                    // For Rubix, check if this slot needs right-click
                     if (type == TerminalType.RUBIX) {
                         java.util.Map<Integer, Integer> clickMap = RubixTerminal.getClickMap();
                         Integer clicksNeeded = clickMap.get(nextSlot);
@@ -82,12 +77,10 @@ public class TerminalGuiManager {
                             buttonToUse = 0; // Left-click for positive (forward) clicks
                         }
                     } else {
-                        // All other terminals use left-click only
                         buttonToUse = 0;
                     }
 
                     com.teslamaps.TeslaMaps.LOGGER.info("[TerminalGUI] Clicking slot {} with button {}", nextSlot, buttonToUse);
-                    // Click the correct slot regardless of where user clicked
                     mc.gameMode.handleContainerInput(
                         screen.getMenu().containerId,
                         nextSlot,
@@ -96,26 +89,18 @@ public class TerminalGuiManager {
                         mc.player
                     );
 
-                    // Mark the slot as clicked in the solver so it moves to the next one
                     markSlotAsClicked(type, nextSlot);
                     com.teslamaps.TeslaMaps.LOGGER.info("[TerminalGUI] Marked slot {} as clicked for type {}", nextSlot, type);
                 }
             } else {
                 com.teslamaps.TeslaMaps.LOGGER.info("[TerminalGUI] No next slot available - solver may not be initialized yet");
             }
-            // IMPORTANT: Return true to block ALL clicks from going through
-            // This prevents clicking the wrong slots when click anywhere is enabled
             return true;
         }
 
-        // Normal mode - only handle clicks on highlighted slots
         return currentGui.handleClick(mouseX, mouseY, button);
     }
 
-    /**
-     * Get the next correct slot to click based on the current terminal type.
-     * Returns -1 if no slot to click.
-     */
     private static int getNextCorrectSlot() {
         TerminalType type = getTerminalType();
         switch (type) {
@@ -136,9 +121,6 @@ public class TerminalGuiManager {
         }
     }
 
-    /**
-     * Mark a slot as clicked in the solver so it moves to the next one.
-     */
     private static void markSlotAsClicked(TerminalType type, int slot) {
         switch (type) {
             case PANES:
@@ -153,23 +135,14 @@ public class TerminalGuiManager {
             case RUBIX:
                 RubixTerminal.markSlotClicked(slot);
                 break;
-            // NUMBERS (ClickInOrderTerminal) and MELODY don't need slot tracking
-            // - Numbers rescans for red panes each tick
-            // - Melody tracks lane progression automatically
         }
     }
 
-    /**
-     * Reset the GUI when terminal closes.
-     */
     public static void reset() {
         currentGui = null;
         lastScreenTitle = "";
     }
 
-    /**
-     * Get the type of terminal currently open.
-     */
     private static TerminalType getTerminalType() {
         String title = getScreenTitle();
         if (title == null) return TerminalType.NONE;
@@ -194,9 +167,6 @@ public class TerminalGuiManager {
         return TerminalType.NONE;
     }
 
-    /**
-     * Create a GUI instance for the given terminal type.
-     */
     private static CustomTermGui createGuiForType(TerminalType type) {
         switch (type) {
             case NUMBERS:
@@ -216,9 +186,6 @@ public class TerminalGuiManager {
         }
     }
 
-    /**
-     * Get the title of the current screen.
-     */
     private static String getScreenTitle() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen instanceof ContainerScreen screen) {
@@ -228,9 +195,6 @@ public class TerminalGuiManager {
         return null;
     }
 
-    /**
-     * Terminal types.
-     */
     private enum TerminalType {
         NONE,
         NUMBERS,      // Click in order!

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonElement;
@@ -13,9 +28,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * Garden page showing crop milestones, visitor milestones, and plots.
- */
 public class GardenPage extends ProfileViewerPage {
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
@@ -95,7 +107,6 @@ public class GardenPage extends ProfileViewerPage {
             return;
         }
 
-        // Garden level
         if (gardenData.has("garden_experience")) {
             long exp = gardenData.get("garden_experience").getAsLong();
             int level = calculateGardenLevel(exp);
@@ -103,7 +114,6 @@ public class GardenPage extends ProfileViewerPage {
             lineY += 20;
         }
 
-        // === Crop Milestones ===
         ctx.text(tr, "Crop Milestones", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
@@ -125,7 +135,6 @@ public class GardenPage extends ProfileViewerPage {
             lineY += 12;
         }
 
-        // Second column - remaining crops
         lineY = y + padding + 36;
         for (int i = 5; i < CROPS.length; i++) {
             String cropKey = CROPS[i];
@@ -142,7 +151,6 @@ public class GardenPage extends ProfileViewerPage {
             lineY += 12;
         }
 
-        // === Visitor Stats (right column) ===
         lineY = y + padding;
         ctx.text(tr, "Visitors", col2X, lineY, TEXT_GREEN);
         lineY += 16;
@@ -163,7 +171,6 @@ public class GardenPage extends ProfileViewerPage {
             }
         }
 
-        // Composter
         lineY += 8;
         ctx.text(tr, "Composter", col2X, lineY, TEXT_GREEN);
         lineY += 16;
@@ -185,7 +192,6 @@ public class GardenPage extends ProfileViewerPage {
     }
 
     private int calculateGardenLevel(long exp) {
-        // Simplified garden level calculation
         long[] thresholds = {0, 70, 100, 140, 240, 600, 1500, 2000, 2500, 3000,
                 10000, 10000, 10000, 10000, 10000};
         long total = 0;
@@ -197,7 +203,6 @@ public class GardenPage extends ProfileViewerPage {
     }
 
     private int calculateCropMilestone(long collected) {
-        // Simplified milestone calculation
         long[] thresholds = {100, 150, 250, 500, 1500, 5000, 15000, 50000, 150000, 500000};
         for (int i = thresholds.length - 1; i >= 0; i--) {
             if (collected >= thresholds[i]) return i + 1;

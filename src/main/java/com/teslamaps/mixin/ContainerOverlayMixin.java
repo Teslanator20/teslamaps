@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.mixin;
 
 import com.teslamaps.dungeon.termgui.TerminalGuiManager;
@@ -9,13 +24,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * Draw the custom terminal GUI / leap overlay on top of container screens.
- *
- * 26.1.2: split out of GenericContainerScreenMixin because the top-level render method
- * (Screen#render -> extractRenderState) is only declared on AbstractContainerScreen, not on
- * the concrete ContainerScreen.
- */
 @Mixin(AbstractContainerScreen.class)
 public abstract class ContainerOverlayMixin {
 
@@ -25,9 +33,16 @@ public abstract class ContainerOverlayMixin {
             TerminalGuiManager.render(context);
         }
 
-        // Render leap overlay
         if (LeapOverlay.shouldRender()) {
             LeapOverlay.render(context, mouseX, mouseY);
+        }
+
+        if (com.teslamaps.features.croesus.CroesusProfit.shouldRender()) {
+            com.teslamaps.features.croesus.CroesusProfit.render(context, mouseX, mouseY);
+        }
+
+        if (com.teslamaps.features.SlotHighlighter.shouldRender()) {
+            com.teslamaps.features.SlotHighlighter.render(context);
         }
     }
 }

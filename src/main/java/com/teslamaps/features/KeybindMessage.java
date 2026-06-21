@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -9,10 +24,6 @@ import org.lwjgl.glfw.GLFW;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Unlimited custom hotkeys that send configurable chat messages. Keys are polled directly via
- * GLFW (configured in teslamaps' own GUI, /tmap msg) rather than vanilla key mappings.
- */
 public class KeybindMessage {
     private static final Set<Integer> heldKeys = new HashSet<>();
     private static final Set<Integer> heldWp = new HashSet<>();
@@ -20,7 +31,6 @@ public class KeybindMessage {
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.getConnection() == null || mc.getWindow() == null) return;
-        // Don't fire while any screen is open (typing in chat / the config GUI).
         if (mc.screen != null) { heldKeys.clear(); heldWp.clear(); return; }
 
         long handle = mc.getWindow().handle();
@@ -32,7 +42,6 @@ public class KeybindMessage {
             if (down) heldKeys.add(kb.key); else heldKeys.remove(kb.key);
         }
 
-        // Dungeon waypoint edit keybinds (configured in /tmap config -> Waypoints)
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         pollWp(handle, cfg.waypointAddKey, () -> wpResult(DungeonWaypoints.addAtTarget(
                 TeslaMapsConfig.parseColor(cfg.waypointAddColor), cfg.waypointAddFilled, cfg.waypointAddThroughWalls)));

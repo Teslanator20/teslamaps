@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,13 +32,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Three Weirdos puzzle solver - highlights the correct chest.
- * Three Weirdos puzzle solver - highlights the correct NPC.
- */
 public class ThreeWeirdos {
 
-    // Pattern that matches the NPC with the correct chest
     private static final Pattern PATTERN = Pattern.compile(
         "^\\[NPC] ([A-Z][a-z]+): (?:" +
         "The reward is(?: not in my chest!|n't in any of our chests\\.)|" +
@@ -54,7 +64,6 @@ public class ThreeWeirdos {
             return;
         }
 
-        // If we know the target NPC but haven't found the chest yet, search periodically
         if (targetNpcName != null && correctChestPos == null) {
             long now = System.currentTimeMillis();
             if (now - lastSearchTime > 500) {
@@ -63,7 +72,6 @@ public class ThreeWeirdos {
             }
         }
 
-        // Update chest box if we have a position
         if (correctChestPos != null) {
             correctChestBox = new AABB(correctChestPos);
         }
@@ -84,10 +92,6 @@ public class ThreeWeirdos {
         }
     }
 
-    /**
-     * Handle chat messages to find the correct NPC.
-     * Matches specific NPC dialogue patterns.
-     */
     public static void onChatMessage(String message) {
         if (!DungeonManager.isInDungeon() || !TeslaMapsConfig.get().solveThreeWeirdos || disabled) {
             return;
@@ -99,35 +103,25 @@ public class ThreeWeirdos {
         String stripped = ChatFormatting.stripFormatting(message);
         if (stripped == null) return;
 
-        // Use regex pattern to match dialogue
         Matcher matcher = PATTERN.matcher(stripped);
         if (!matcher.matches()) {
             return;
         }
 
-        // Extract NPC name from regex group
         String npcName = matcher.group(1);
         TeslaMaps.LOGGER.info("[ThreeWeirdos] Pattern matched! Message: {}", stripped);
 
         TeslaMaps.LOGGER.info("[ThreeWeirdos] NPC='{}', message='{}'", npcName, stripped);
 
-        // Match dialogue patterns and highlight the correct chest
-        // The pattern matching already validated this is a correct phrase
-        // The NPC who says these specific phrases has the correct chest
         targetNpcName = npcName;
         TeslaMaps.LOGGER.info("[ThreeWeirdos] Pattern matched! NPC '{}' has the correct chest", targetNpcName);
         findNpcAndChest(targetNpcName);
     }
 
-    /**
-     * Find NPC by name and locate the chest next to them.
-     * Find the armor stand entity, then find closest chest.
-     */
     private static void findNpcAndChest(String npcName) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
 
-        // Search for the NPC entity by name 
         ArmorStand targetNpc = null;
         for (var entity : mc.level.entitiesForRendering()) {
             if (entity instanceof ArmorStand armorStand) {
@@ -144,7 +138,6 @@ public class ThreeWeirdos {
             return;
         }
 
-        // Get NPC position (floor to block pos)
         BlockPos npcBlockPos = new BlockPos(
             (int) Math.floor(targetNpc.getX()),
             69, // NPCs are always at Y=69 in this puzzle
@@ -154,7 +147,6 @@ public class ThreeWeirdos {
         TeslaMaps.LOGGER.info("[ThreeWeirdos] Found NPC '{}' at entity pos ({}, {}, {}), block pos {}",
             npcName, targetNpc.getX(), targetNpc.getY(), targetNpc.getZ(), npcBlockPos);
 
-        // Find the CLOSEST chest to the NPC within 3 blocks
         BlockPos closestChest = null;
         double closestDist = Double.MAX_VALUE;
 
@@ -178,7 +170,6 @@ public class ThreeWeirdos {
             correctChestPos = closestChest;
             TeslaMaps.LOGGER.info("[ThreeWeirdos] Selected closest chest at {} (distance {})", correctChestPos, closestDist);
 
-            // Color the NPC name green
             targetNpc.setCustomName(Component.literal(npcName).withStyle(ChatFormatting.GREEN));
             targetNpc.setCustomNameVisible(true);
         } else {

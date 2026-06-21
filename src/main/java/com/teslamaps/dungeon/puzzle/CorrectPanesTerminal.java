@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -13,10 +28,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/**
- * F7 Terminal Solver - "Correct all the panes!"
- * Auto-clicks red/incorrect panes to turn them green.
- */
 public class CorrectPanesTerminal {
     private static List<Integer> incorrectSlots = new ArrayList<>();
     private static Set<Integer> clickedSlots = new HashSet<>();
@@ -29,7 +40,6 @@ public class CorrectPanesTerminal {
     private static int lastDebugTick = 0;
 
     public static void tick() {
-        // DISABLED - Auto terminal feature commented out
         if (true) {
             reset();
             return;
@@ -37,21 +47,11 @@ public class CorrectPanesTerminal {
 
         Minecraft mc = Minecraft.getInstance();
 
-        /* DISABLED
-        if (!TeslaMapsConfig.get().solveCorrectPanesTerminal) {
-            if (!incorrectSlots.isEmpty()) {
-            }
-            reset();
-            return;
-        }
-        */
-
         if (mc.player == null || mc.level == null) {
             reset();
             return;
         }
 
-        // Check if we're looking at a container screen
         if (!(mc.screen instanceof ContainerScreen)) {
             if (!incorrectSlots.isEmpty()) {
             }
@@ -61,25 +61,20 @@ public class CorrectPanesTerminal {
 
         ContainerScreen screen = (ContainerScreen) mc.screen;
 
-        // Get screen title
         Component title = screen.getTitle();
         String titleStr = title.getString();
 
-        // Debug: Log container title once per second
         int currentTick = mc.player.tickCount;
         if (currentTick - lastDebugTick > 20) {
             lastDebugTick = currentTick;
         }
 
-        // Check if this is the "correct panes" terminal
         if (!titleStr.equals("Correct all the panes!")) {
-            // Not our terminal
             if (!incorrectSlots.isEmpty()) {
             }
             return;
         }
 
-        // If this is a new terminal, initialize
         if (!initialScanDone) {
             solved = false;
             clickedSlots.clear();
@@ -92,22 +87,17 @@ public class CorrectPanesTerminal {
 
         long currentTime = System.currentTimeMillis();
 
-        // Re-scan every 100ms to find incorrect panes (they change as we click)
         if (currentTime - lastScanTime >= 100) {
             int prevSize = incorrectSlots.size();
             findIncorrectPanes(screen);
             lastScanTime = currentTime;
-            // Reset isClicked if slot count changed (click was registered)
             if (incorrectSlots.size() != prevSize) {
                 isClicked = false;
             }
         }
 
-        // Auto-click incorrect panes one by one
-        // Skip auto-clicking if using custom GUI with click anywhere
         boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
 
-        // Break threshold: reset isClicked if stuck for too long
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
             TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Break threshold reached, resetting click state");
@@ -118,21 +108,17 @@ public class CorrectPanesTerminal {
             long timeSinceOpen = currentTime - terminalOpenTime;
             long timeSinceLastClick = currentTime - lastClickTime;
 
-            // Use configured delays with randomization for human-like behavior (0 to configured max)
             int randomization = TeslaMapsConfig.get().terminalClickRandomization;
             int randomInitialDelay = TeslaMapsConfig.get().terminalClickDelay + ThreadLocalRandom.current().nextInt(randomization + 1);
             int randomInterval = TeslaMapsConfig.get().terminalClickInterval + ThreadLocalRandom.current().nextInt(randomization + 1);
 
-            // Initial delay before first click
             if (clickedSlots.isEmpty() && timeSinceOpen >= randomInitialDelay) {
                 performNextClick(mc, screen);
             }
-            // Delay between subsequent clicks
             else if (!clickedSlots.isEmpty() && timeSinceLastClick >= randomInterval) {
                 performNextClick(mc, screen);
             }
         } else if (incorrectSlots.isEmpty() && initialScanDone && clickedSlots.size() > 0) {
-            // No more incorrect panes found after we've clicked some
             long timeSinceLastClick = currentTime - lastClickTime;
 
             if (!solved) {
@@ -140,7 +126,6 @@ public class CorrectPanesTerminal {
                 TeslaMaps.LOGGER.info("[CorrectPanesTerminal] ===== ALL PANES CORRECTED =====");
             }
 
-            // If container still open after 1 second, restart
             if (timeSinceLastClick > 1000) {
                 TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Container still open after 1s, restarting...");
                 incorrectSlots.clear();
@@ -151,37 +136,29 @@ public class CorrectPanesTerminal {
         }
     }
 
-    /**
-     * Find all incorrect (red/orange) panes that need to be clicked.
-     */
     private static void findIncorrectPanes(ContainerScreen screen) {
         ChestMenu handler = screen.getMenu();
 
         List<Integer> newIncorrectSlots = new ArrayList<>();
 
         for (Slot slot : handler.slots) {
-            // Skip player inventory slots (slots 0-53 are container, 54+ are player inv)
             if (slot.index >= 54) continue;
 
-            // Skip slots at edges (columns 0, 1, 7, 8)
             int column = slot.index % 9;
             if (column == 0 || column == 1 || column == 7 || column == 8) continue;
 
             ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
 
-            // Check if it's a red or orange pane (incorrect)
             if (stack.getItem() == Items.RED_STAINED_GLASS_PANE ||
                 stack.getItem() == Items.ORANGE_STAINED_GLASS_PANE) {
 
-                // Only add if we haven't already clicked it
                 if (!clickedSlots.contains(slot.index)) {
                     newIncorrectSlots.add(slot.index);
                 }
             }
         }
 
-        // Only log if the list changed
         if (!newIncorrectSlots.equals(incorrectSlots)) {
             incorrectSlots = newIncorrectSlots;
             if (!incorrectSlots.isEmpty()) {
@@ -191,9 +168,6 @@ public class CorrectPanesTerminal {
         }
     }
 
-    /**
-     * Click the next incorrect pane.
-     */
     private static void performNextClick(Minecraft mc, ContainerScreen screen) {
         if (mc.player == null) {
             TeslaMaps.LOGGER.warn("[CorrectPanesTerminal] DEBUG: Cannot click - player is null");
@@ -205,7 +179,6 @@ public class CorrectPanesTerminal {
             return;
         }
 
-        // Click the first unclicked incorrect pane
         int slotToClick = incorrectSlots.get(0);
         ChestMenu handler = screen.getMenu();
 
@@ -213,7 +186,6 @@ public class CorrectPanesTerminal {
         TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Clicking slot {} (clicked {} so far)",
             slotToClick, clickedSlots.size());
 
-        // Click the slot (left click = button 0)
         mc.gameMode.handleContainerInput(
             handler.containerId,
             slotToClick,
@@ -230,35 +202,23 @@ public class CorrectPanesTerminal {
         TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Total clicks: {}", clickedSlots.size());
     }
 
-    /**
-     * For easy mode: returns the next slot to click, or -1 if none.
-     */
     public static int getNextCorrectSlot() {
         if (!initialScanDone || solved || incorrectSlots.isEmpty()) return -1;
         return incorrectSlots.get(0); // First incorrect pane
     }
 
-    /**
-     * For easy mode: mark a slot as clicked.
-     */
     public static void markSlotClicked(int slot) {
         clickedSlots.add(slot);
         lastClickTime = System.currentTimeMillis();
     }
 
-    /**
-     * Event-driven slot update handler.
-     * Called by TerminalManager when a slot update packet is received.
-     */
     public static void onSlotUpdate(int slotIndex, net.minecraft.world.item.ItemStack stack) {
         if (!TeslaMapsConfig.get().solveCorrectPanesTerminal) return;
         if (slotIndex >= 54) return; // Ignore player inventory
 
-        // Skip edge columns
         int column = slotIndex % 9;
         if (column == 0 || column == 1 || column == 7 || column == 8) return;
 
-        // If a red/orange pane turned green, remove from incorrect list
         if (incorrectSlots.contains(slotIndex)) {
             if (stack.getItem() != Items.RED_STAINED_GLASS_PANE &&
                 stack.getItem() != Items.ORANGE_STAINED_GLASS_PANE) {
@@ -267,7 +227,6 @@ public class CorrectPanesTerminal {
                 TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Slot {} corrected!", slotIndex);
             }
         }
-        // If a new incorrect pane appeared
         else if (stack.getItem() == Items.RED_STAINED_GLASS_PANE ||
                  stack.getItem() == Items.ORANGE_STAINED_GLASS_PANE) {
             if (!clickedSlots.contains(slotIndex)) {
@@ -277,19 +236,13 @@ public class CorrectPanesTerminal {
         }
     }
 
-    /**
-     * Validate if a click is allowed on this slot.
-     * For Panes terminal: allow clicking any incorrect pane.
-     */
     public static boolean canClick(int slotIndex, int button) {
         if (!initialScanDone || solved) return true;
 
-        // Allow clicking any slot that's in the incorrect list
         if (incorrectSlots.contains(slotIndex)) {
             return true;
         }
 
-        // Block clicks on already-correct panes
         TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Blocked click on slot {} - not an incorrect pane", slotIndex);
         return false;
     }

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.profileviewer.data;
 
 import com.google.gson.JsonElement;
@@ -9,10 +24,6 @@ import com.teslamaps.profileviewer.api.HypixelApi;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Container for all Skyblock profiles of a player.
- * Uses Hypixel API for data.
- */
 public class SkyblockProfiles {
     private final String uuid;
     private final String playerName;
@@ -29,11 +40,7 @@ public class SkyblockProfiles {
         this.playerName = playerName;
     }
 
-    /**
-     * Load all profile data asynchronously via Hypixel API.
-     */
     public CompletableFuture<Void> load() {
-        // Hypixel API uses UUID
         return HypixelApi.getProfiles(uuid).thenAccept(response -> {
             if (response.has("error")) {
                 this.error = response.get("error").getAsString();
@@ -53,7 +60,6 @@ public class SkyblockProfiles {
                 return;
             }
 
-            // Parse each profile from transformed Hypixel format
             for (Map.Entry<String, JsonElement> entry : profilesObj.entrySet()) {
                 String cuteName = entry.getKey();
                 JsonObject profileData = entry.getValue().getAsJsonObject();
@@ -61,11 +67,9 @@ public class SkyblockProfiles {
                 String profileId = profileData.has("profile_id") ?
                         profileData.get("profile_id").getAsString() : cuteName;
 
-                // Get member data in "data" object
                 JsonObject memberData = profileData.has("data") ?
                         profileData.getAsJsonObject("data") : profileData;
 
-                // Also get raw data if available (contains full Hypixel profile)
                 JsonObject rawData = profileData.has("raw") ?
                         profileData.getAsJsonObject("raw") : memberData;
 
@@ -73,7 +77,6 @@ public class SkyblockProfiles {
                 profile.setSkyCryptData(profileData);  // Store full profile data
                 profiles.put(cuteName, profile);
 
-                // Select current profile
                 if (profileData.has("current") && profileData.get("current").getAsBoolean()) {
                     selectedProfile = profile;
                 }
@@ -92,17 +95,10 @@ public class SkyblockProfiles {
         });
     }
 
-    /**
-     * Load additional profile-specific data.
-     * Museum and Garden data can be loaded separately if needed.
-     */
     public CompletableFuture<Void> loadProfileData(SkyblockProfile profile) {
-        // Can optionally load museum/garden data here
-        // For now, return completed future
         return CompletableFuture.completedFuture(null);
     }
 
-    // Getters
     public String getUuid() { return uuid; }
     public String getPlayerName() { return playerName; }
     public Map<String, SkyblockProfile> getProfiles() { return profiles; }
@@ -111,39 +107,22 @@ public class SkyblockProfiles {
     public boolean isLoaded() { return loaded; }
     public String getError() { return error; }
 
-    /**
-     * Get player's display name.
-     */
     public String getDisplayName() {
         return playerName;
     }
 
-    /**
-     * Get player's current online status.
-     * Note: Requires separate player API call.
-     */
     public String getOnlineStatus() {
         return "Status unavailable";
     }
 
-    /**
-     * Get player's guild name.
-     * Note: Requires separate guild API call.
-     */
     public String getGuildName() {
         return null;
     }
 
-    /**
-     * Add to recent players list.
-     */
     public static void addToRecentPlayers(String playerName) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        // Remove if already in list
         config.recentPlayers.remove(playerName);
-        // Add to front
         config.recentPlayers.add(0, playerName);
-        // Keep only last 10
         while (config.recentPlayers.size() > 10) {
             config.recentPlayers.remove(config.recentPlayers.size() - 1);
         }

@@ -1,3 +1,18 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * This file references code from Odin
+ * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
+ * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
+ *
+ * See the LICENSE and NOTICE.md files in the project root for full terms.
+ */
 package com.teslamaps.features;
 
 import com.teslamaps.TeslaMaps;
@@ -7,21 +22,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * Auto Get From Sack (GFS) feature.
- * Automatically refills items from sacks using /gfs command.
- * Automatically refills sacks when entering dungeons.
- */
 public class AutoGFS {
     private static int tickCounter = 0;
     private static long lastRefillTime = 0;
     private static boolean dungeonStartHandled = false;
 
-    // Chat messages that indicate dungeon start
     private static final String DUNGEON_START_MSG1 = "[NPC] Mort: Here, I found this map when I first entered the dungeon.";
     private static final String DUNGEON_START_MSG2 = "[NPC] Mort: Right-click the Orb for spells, and Left-click (or Drop) to use your Ultimate!";
 
-    // Puzzle fail messages for auto draft
     private static final String PUZZLE_FAIL_PREFIX = "PUZZLE FAIL!";
     private static final String STATUE_FAIL_PREFIX = "[STATUE] Oruo the Omniscient:";
 
@@ -29,15 +37,11 @@ public class AutoGFS {
         TeslaMaps.LOGGER.info("AutoGFS initialized");
     }
 
-    /**
-     * Called every tick.
-     */
     public static void tick() {
         if (!TeslaMapsConfig.get().autoGFS) return;
 
         tickCounter++;
 
-        // Timer-based refill
         if (TeslaMapsConfig.get().autoGFSTimer) {
             int intervalTicks = TeslaMapsConfig.get().autoGFSInterval * 20;
             if (tickCounter % intervalTicks == 0) {
@@ -45,33 +49,24 @@ public class AutoGFS {
             }
         }
 
-        // Reset dungeon start handler when not in dungeon
         if (!DungeonManager.isInDungeon()) {
             dungeonStartHandled = false;
         }
     }
 
-    /**
-     * Called when a chat message is received.
-     */
     public static void onChatMessage(String message) {
         if (!TeslaMapsConfig.get().autoGFS) return;
 
-        // Hypixel embeds § color codes inside these messages (e.g. "§r§e[NPC] §r§fMort§r§f: ..."),
-        // so the raw text never contains the clean substring — strip first (gotcha #1).
         message = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
 
-        // Check for dungeon start
         if (TeslaMapsConfig.get().autoGFSOnStart && !dungeonStartHandled) {
             if (message.contains(DUNGEON_START_MSG1) || message.contains(DUNGEON_START_MSG2)) {
                 dungeonStartHandled = true;
                 TeslaMaps.LOGGER.info("[AutoGFS] Dungeon started, refilling items...");
-                // Delay refill slightly to avoid issues
                 scheduleRefill(20); // 1 second delay
             }
         }
 
-        // Check for puzzle fail (for auto draft)
         if (TeslaMapsConfig.get().autoGFSDraft) {
             if (message.contains(PUZZLE_FAIL_PREFIX) ||
                 (message.contains(STATUE_FAIL_PREFIX) && message.contains("chose the wrong answer"))) {
@@ -81,9 +76,6 @@ public class AutoGFS {
         }
     }
 
-    /**
-     * Schedule a refill after a delay.
-     */
     private static void scheduleRefill(int delayTicks) {
         new Thread(() -> {
             try {
@@ -95,9 +87,6 @@ public class AutoGFS {
         }).start();
     }
 
-    /**
-     * Schedule a command after a delay.
-     */
     private static void scheduleCommand(int delayTicks, String command) {
         new Thread(() -> {
             try {
@@ -109,26 +98,20 @@ public class AutoGFS {
         }).start();
     }
 
-    /**
-     * Refill items from sacks.
-     */
     public static void refillItems() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.screen != null) return;
 
-        // Check location restrictions
         if (TeslaMapsConfig.get().autoGFSDungeonOnly && !DungeonManager.isInDungeon()) {
             return;
         }
 
-        // Cooldown check (minimum 2 seconds between refills)
         long now = System.currentTimeMillis();
         if (now - lastRefillTime < 2000) return;
         lastRefillTime = now;
 
         TeslaMaps.LOGGER.info("[AutoGFS] Refilling items...");
 
-        // Check inventory for items and refill
         boolean hasPearls = false;
         boolean hasJerry = false;
         boolean hasTNT = false;
@@ -142,64 +125,74 @@ public class AutoGFS {
 
             String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
 
-            // Check for ender pearls
             if (itemId.contains("ender_pearl")) {
                 hasPearls = true;
                 pearlCount += stack.getCount();
             }
 
-            // Check for inflatable jerry (by name since it's a custom item)
             String name = stack.getHoverName().getString().toLowerCase();
             if (name.contains("inflatable jerry")) {
                 hasJerry = true;
                 jerryCount += stack.getCount();
             }
 
-            // Check for superboom TNT
             if (name.contains("superboom") || name.contains("super boom")) {
                 hasTNT = true;
                 tntCount += stack.getCount();
             }
         }
 
-        // Refill pearls if enabled and we have some (don't get if we have none - player might not want them)
         if (TeslaMapsConfig.get().autoGFSPearls && hasPearls && pearlCount < 16) {
             int needed = 16 - pearlCount;
             sendCommand("gfs ender_pearl " + needed);
         }
 
-        // Refill jerry if enabled and we have some
         if (TeslaMapsConfig.get().autoGFSJerry && hasJerry && jerryCount < 64) {
             int needed = 64 - jerryCount;
             sendCommand("gfs inflatable_jerry " + needed);
         }
 
-        // Refill TNT if enabled and we have some
         if (TeslaMapsConfig.get().autoGFSTNT && hasTNT && tntCount < 64) {
             int needed = 64 - tntCount;
             sendCommand("gfs superboom_tnt " + needed);
         }
     }
 
-    /**
-     * Send a command to the server.
-     */
     private static void sendCommand(String command) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        // Use network handler to send command
         if (mc.getConnection() != null) {
             mc.getConnection().sendCommand(command);
             TeslaMaps.LOGGER.info("[AutoGFS] Sent command: /" + command);
         }
     }
 
-    /**
-     * Force a manual refill (can be called from command or keybind).
-     */
     public static void forceRefill() {
         lastRefillTime = 0; // Reset cooldown
         refillItems();
+    }
+
+    public static void gfsEnderPearls() {
+        gfsTopUp("ender_pearl", 16, s -> BuiltInRegistries.ITEM.getKey(s.getItem()).toString().contains("ender_pearl"));
+    }
+
+    public static void gfsSuperboom() {
+        gfsTopUp("superboom_tnt", 64, s -> {
+            String n = s.getHoverName().getString().toLowerCase();
+            return n.contains("superboom") || n.contains("super boom");
+        });
+    }
+
+    private static void gfsTopUp(String gfsId, int max, java.util.function.Predicate<ItemStack> match) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        int count = 0;
+        for (int i = 0; i < mc.player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = mc.player.getInventory().getItem(i);
+            if (!stack.isEmpty() && match.test(stack)) count += stack.getCount();
+        }
+        int needed = max - count;
+        if (needed > 0) sendCommand("gfs " + gfsId + " " + needed);
     }
 }
