@@ -196,19 +196,38 @@ public class DungeonWaypoints {
         DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
         int[] clay = (room != null && room.getName() != null) ? detectClay(room) : null;
 
+        String coords = target.getX() + "," + target.getY() + "," + target.getZ();
+
         if (room != null && room.getName() != null && clay != null) {
             double[] rel = rotateToNorth(clay[2], target.getX() - clay[0], target.getZ() - clay[1]);
-            byRoom.computeIfAbsent(room.getName(), k -> new ArrayList<>())
-                    .add(new Waypoint(rel[0], target.getY(), rel[1], colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
+            List<Waypoint> list = byRoom.computeIfAbsent(room.getName(), k -> new ArrayList<>());
+            if (removeAt(list, room.getName(), rel[0], target.getY(), rel[1]))
+                return "§eRemoved waypoint in §e\"" + room.getName() + "\"§e @ " + coords;
+            list.add(new Waypoint(rel[0], target.getY(), rel[1], colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
             save();
-            return "§aAdded waypoint in §e\"" + room.getName() + "\"§a @ "
-                    + target.getX() + "," + target.getY() + "," + target.getZ();
+            return "§aAdded waypoint in §e\"" + room.getName() + "\"§a @ " + coords;
         }
 
-        byRoom.computeIfAbsent(ABSOLUTE_KEY, k -> new ArrayList<>())
-                .add(new Waypoint(target.getX(), target.getY(), target.getZ(), colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
+        List<Waypoint> list = byRoom.computeIfAbsent(ABSOLUTE_KEY, k -> new ArrayList<>());
+        if (removeAt(list, ABSOLUTE_KEY, target.getX(), target.getY(), target.getZ()))
+            return "§eRemoved §babsolute§e waypoint @ " + coords;
+        list.add(new Waypoint(target.getX(), target.getY(), target.getZ(), colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
         save();
-        return "§aAdded §babsolute§a waypoint @ " + target.getX() + "," + target.getY() + "," + target.getZ();
+        return "§aAdded §babsolute§a waypoint @ " + coords;
+    }
+
+    // removes a waypoint at the exact (rx,ry,rz); returns true if one was found and removed
+    private static boolean removeAt(List<Waypoint> list, String key, double rx, double ry, double rz) {
+        for (int i = 0; i < list.size(); i++) {
+            Waypoint wp = list.get(i);
+            if (Math.abs(wp.rx() - rx) < 0.001 && Math.abs(wp.ry() - ry) < 0.001 && Math.abs(wp.rz() - rz) < 0.001) {
+                list.remove(i);
+                if (list.isEmpty()) byRoom.remove(key);
+                save();
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String removeNearest() {

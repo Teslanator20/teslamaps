@@ -33,6 +33,15 @@ public class HandledScreenClickMixin {
         double mouseY = click.y();
         int button = click.button();
 
+        if (com.teslamaps.features.StorageOverlay.active()) {
+            if (com.teslamaps.features.StorageOverlay.handleClick(mouseX, mouseY, button)) cir.setReturnValue(true);
+            return;
+        }
+        if (com.teslamaps.features.StorageOverlay.handleEnableClick(mouseX, mouseY)) {
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.config.TeslaMapsConfig.get().blockWrongTerminalClicks
                 && com.teslamaps.dungeon.puzzle.TerminalManager.isInTerminal()) {
             net.minecraft.world.inventory.Slot hovered = ((HandledScreenAccessor) (Object) this).getFocusedSlot();
@@ -40,6 +49,16 @@ public class HandledScreenClickMixin {
                 cir.setReturnValue(true); // consume -> no packet sent
                 return;
             }
+        }
+
+        if (com.teslamaps.features.Searchbar.handleClick(mouseX, mouseY, button)) {
+            cir.setReturnValue(true);
+            return;
+        }
+
+        if (com.teslamaps.features.SlotLock.blockSlot(((HandledScreenAccessor) (Object) this).getFocusedSlot())) {
+            cir.setReturnValue(true);
+            return;
         }
 
         if (TerminalGuiManager.handleMouseClick(mouseX, mouseY, button)) {

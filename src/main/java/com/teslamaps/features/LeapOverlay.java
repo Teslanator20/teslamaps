@@ -20,8 +20,10 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.player.PlayerTracker;
 import com.teslamaps.player.PlayerTracker.DungeonPlayer;
+import com.teslamaps.mixin.BossHealthOverlayAccessor;
 import com.teslamaps.render.MapRenderer;
 import com.teslamaps.render.PlayerHeadRenderer;
+import net.minecraft.client.gui.components.LerpingBossEvent;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,6 +74,29 @@ public class LeapOverlay {
     private static final LeapPlayer[] leapPlayers = new LeapPlayer[4];
     private static long lastScanTime = 0;
     private static boolean menuOpen = false;
+
+    // boss bar names that mean we're in the boss room (Watcher excluded: that's the blood room)
+    private static final String[] BOSS_NAMES = {
+        "Bonzo", "Scarf", "Professor", "Thorn", "Livid", "Sadan", "Maxor", "Storm", "Goldor", "Necron"
+    };
+
+    // snapshot of the leap map drawn this frame (MapRenderer's shared state gets clobbered by the HUD map)
+    private static boolean leapMapShown = false;
+    private static int leapMapX, leapMapY, leapMapW, leapMapH;
+    private static final List<MapRenderer.PlayerMarker> leapMarkers = new ArrayList<>();
+
+    private static boolean inBossRoom() {
+        if (DungeonManager.isInBoss()) return true;
+        if (mc.gui == null) return false;
+        var events = ((BossHealthOverlayAccessor) mc.gui.getBossOverlay()).teslamaps$getEvents();
+        if (events == null) return false;
+        for (LerpingBossEvent ev : events.values()) {
+            if (ev.getName() == null) continue;
+            String n = ev.getName().getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
+            for (String b : BOSS_NAMES) if (n.contains(b)) return true;
+        }
+        return false;
+    }
 
     private static final int BASE_BOX_WIDTH = 100;
     private static final int BASE_BOX_HEIGHT = 50;
@@ -144,11 +169,17 @@ public class LeapOverlay {
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
 
-        if (TeslaMapsConfig.get().leapShowMap && DungeonManager.isInDungeon() && !DungeonManager.isInBoss()) {
+        leapMapShown = false;
+        if (TeslaMapsConfig.get().leapShowMap && DungeonManager.isInDungeon() && !inBossRoom()) {
             float mapScale = TeslaMapsConfig.get().mapScale;
             int mw = MapRenderer.mapW();
             int mapBaseX = mw > 0 ? screenWidth / 2 - mw / 2 : screenWidth / 2 - 60;
             MapRenderer.renderAt(context, mapBaseX, 6, mapScale, true);
+            // snapshot now — the HUD map (if it renders this frame) overwrites MapRenderer's shared state
+            leapMapX = MapRenderer.mapX(); leapMapY = MapRenderer.mapY();
+            leapMapW = MapRenderer.mapW(); leapMapH = MapRenderer.mapH();
+            leapMarkers.clear(); leapMarkers.addAll(MapRenderer.getPlayerMarkers());
+            leapMapShown = true;
         }
 
         float scale = Math.min(screenWidth / 400f, screenHeight / 250f);
@@ -284,14 +315,14 @@ public class LeapOverlay {
         ContainerScreen screen = (ContainerScreen) mc.screen;
         if (screen == null) return false;
 
-        if (TeslaMapsConfig.get().leapShowMap && !DungeonManager.isInBoss()) {
-            int mx = MapRenderer.mapX(), my = MapRenderer.mapY(), mw = MapRenderer.mapW(), mh = MapRenderer.mapH();
+        if (TeslaMapsConfig.get().leapShowMap && leapMapShown) {
+            int mx = leapMapX, my = leapMapY, mw = leapMapW, mh = leapMapH;
             boolean inMap = mw > 0 && mouseX >= mx && mouseX <= mx + mw && mouseY >= my && mouseY <= my + mh;
             List<String> targets = leapTargetNames(screen);
 
             if (TeslaMapsConfig.get().debugMode) {
                 StringBuilder mk = new StringBuilder();
-                for (MapRenderer.PlayerMarker m : MapRenderer.getPlayerMarkers())
+                for (MapRenderer.PlayerMarker m : leapMarkers)
                     mk.append(m.self() ? "*" : "").append(m.name()).append("(").append(m.x()).append(",").append(m.y()).append(") ");
                 TeslaMaps.LOGGER.info("[LeapDbg] click {},{} | map {},{},{},{} inMap={} | markers: {}| targets: {}",
                         (int) mouseX, (int) mouseY, mx, my, mw, mh, inMap, mk, targets);
@@ -300,7 +331,7 @@ public class LeapOverlay {
             if (inMap) {
                 String nearest = null;
                 double best = Double.MAX_VALUE;
-                for (MapRenderer.PlayerMarker m : MapRenderer.getPlayerMarkers()) {
+                for (MapRenderer.PlayerMarker m : leapMarkers) {
                     if (m.self() || m.name() == null || !targets.contains(m.name())) continue;
                     double d = (m.x() - mouseX) * (m.x() - mouseX) + (m.y() - mouseY) * (m.y() - mouseY);
                     if (d < best) { best = d; nearest = m.name(); }
@@ -462,6 +493,7 @@ public class LeapOverlay {
     public static void reset() {
         Arrays.fill(leapPlayers, null);
         menuOpen = false;
+        leapMapShown = false;
     }
 
     private static class LeapPlayer {

@@ -15,25 +15,18 @@
  */
 package com.teslamaps.mixin;
 
+import com.teslamaps.features.SlotLock;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractContainerScreen.class)
-public interface HandledScreenAccessor {
-    @Accessor("hoveredSlot")
-    Slot getFocusedSlot();
-
-    @Accessor("leftPos")
-    int getX();
-
-    @Accessor("topPos")
-    int getY();
-
-    @Accessor("imageWidth")
-    int getImageWidth();
-
-    @Accessor("imageHeight")
-    int getImageHeight();
+public abstract class SlotLockRenderMixin {
+    @Inject(method = "extractContents", at = @At("TAIL"))
+    private void teslamaps$slotLockRender(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        SlotLock.render(ctx);
+    }
 }

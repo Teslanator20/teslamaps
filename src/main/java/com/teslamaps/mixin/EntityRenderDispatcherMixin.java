@@ -35,7 +35,12 @@ public class EntityRenderDispatcherMixin {
         boolean dyingDragon = cfg.hideDyingDragons
                 && entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon
                 && dragon.getHealth() <= 0;
-        if (noLightning || noFalling || dyingDragon
+        boolean deadMob = cfg.hideDeadMobs
+                && entity instanceof net.minecraft.world.entity.LivingEntity le
+                && !(entity instanceof net.minecraft.world.entity.player.Player)
+                && !(entity instanceof net.minecraft.world.entity.decoration.ArmorStand)
+                && le.isDeadOrDying();
+        if (noLightning || noFalling || dyingDragon || deadMob
                 || com.teslamaps.features.HideCheapCoins.shouldHide(entity)
                 || HidePlayers.shouldHide(entity)
                 || com.teslamaps.features.SoulweaverHider.shouldHide(entity)

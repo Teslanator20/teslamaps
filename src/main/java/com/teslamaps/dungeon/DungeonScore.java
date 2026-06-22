@@ -247,7 +247,7 @@ public class DungeonScore {
         for (int index = 0; index < puzzleCount; index++) {
             Matcher puzzleMatcher = regexAt(48 + index, PUZZLES_PATTERN);
             if (puzzleMatcher == null) break;
-            if (puzzleMatcher.group("state").matches("[]")) incompletePuzzles++;
+            if (!puzzleMatcher.group("state").equals("✔")) incompletePuzzles++;
         }
         return incompletePuzzles * 10;
     }

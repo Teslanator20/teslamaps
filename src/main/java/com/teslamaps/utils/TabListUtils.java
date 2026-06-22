@@ -29,7 +29,7 @@ public class TabListUtils {
     private static final Pattern COMPLETED_ROOMS_PATTERN = Pattern.compile("Completed Rooms:\\s*(\\d+)");
     private static final Pattern DEATHS_PATTERN = Pattern.compile("Deaths:\\s*(\\d+)");
     private static final Pattern PUZZLE_COUNT_PATTERN = Pattern.compile("Puzzles:\\s*\\((\\d+)\\)");
-    private static final Pattern PUZZLE_STATE_PATTERN = Pattern.compile(".+?(?=:):\\s*\\[([])]");
+    private static final Pattern PUZZLE_STATE_PATTERN = Pattern.compile(".+?:\\s*\\[([✔✖✦])]");
 
     private static int debugCounter = 0;
 
@@ -145,7 +145,7 @@ public class TabListUtils {
             Matcher matcher = PUZZLE_STATE_PATTERN.matcher(clean);
             if (matcher.find()) {
                 String state = matcher.group(1);
-                if (state.equals("")) {
+                if (state.equals("✖") || state.equals("✦")) {
                     failed++;
                 }
             }

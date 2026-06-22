@@ -34,14 +34,14 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.AABB;
 
 public class SlayerHUD {
-    private static final Pattern INFERNO_PATTERN = Pattern.compile("Inferno Demonlord (I{1,3}V?|IV|V)\\s*(ᛤ)?\\s*([\\d.]+)([kKmMbB]?)");
+    private static final Pattern INFERNO_PATTERN = Pattern.compile("Inferno Demonlord (I{1,3}V?|IV|V)\\s*(ᛤ)?\\s*([\\d.]+)([kKmMbB]?)❤");
 
-    private static final Pattern PHASE_PATTERN = Pattern.compile("(SPIRIT|ASHEN|CRYSTAL|AURIC)\\s*(\\d+)");
+    private static final Pattern PHASE_PATTERN = Pattern.compile("(SPIRIT|ASHEN|CRYSTAL|AURIC)\\s*♨(\\d+)");
 
-    private static final Pattern MINIBOSS_PATTERN = Pattern.compile("\\s*(Burningsoul|Kindleheart)\\s*Demon\\s*([\\d.]+)([kKmMbB]?)");
+    private static final Pattern MINIBOSS_PATTERN = Pattern.compile("♨\\s*(Burningsoul|Kindleheart)\\s*Demon\\s*([\\d.]+)([kKmMbB]?)❤");
 
-    private static final Pattern QUAZII_PATTERN = Pattern.compile("ⓆⓊⒶⓏⒾⒾ\\s*([\\d.]+)([kKmMbB]?)");
-    private static final Pattern TYPHOEUS_PATTERN = Pattern.compile("ⓉⓎⓅⒽⓄⒺⓊⓈ\\s*([\\d.]+)([kKmMbB]?)");
+    private static final Pattern QUAZII_PATTERN = Pattern.compile("ⓆⓊⒶⓏⒾⒾ\\s*([\\d.]+)([kKmMbB]?)❤");
+    private static final Pattern TYPHOEUS_PATTERN = Pattern.compile("ⓉⓎⓅⒽⓄⒺⓊⓈ\\s*([\\d.]+)([kKmMbB]?)❤");
 
     private static final Pattern SPAWNED_BY_PATTERN = Pattern.compile("(?i)spawned\\s*by:?\\s*(\\w+)");
 

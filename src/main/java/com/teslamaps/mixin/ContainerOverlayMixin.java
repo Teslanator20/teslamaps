@@ -41,8 +41,26 @@ public abstract class ContainerOverlayMixin {
             com.teslamaps.features.croesus.CroesusProfit.render(context, mouseX, mouseY);
         }
 
+        if (com.teslamaps.features.ContainerValue.shouldRender()) {
+            com.teslamaps.features.ContainerValue.render(context, mouseX, mouseY);
+        }
+
         if (com.teslamaps.features.SlotHighlighter.shouldRender()) {
             com.teslamaps.features.SlotHighlighter.render(context);
+        }
+
+        if (com.teslamaps.features.Searchbar.shouldRender()) {
+            com.teslamaps.features.Searchbar.render(context);
+        }
+
+        com.teslamaps.features.BackpackPreview.renderOpenPageBorder(context);
+        com.teslamaps.features.BackpackPreview.render(context, mouseX, mouseY);
+        com.teslamaps.features.NoCursorReset.onRender();
+
+        if (com.teslamaps.features.StorageOverlay.active()) {
+            com.teslamaps.features.StorageOverlay.render(context, mouseX, mouseY);
+        } else {
+            com.teslamaps.features.StorageOverlay.renderEnableButton(context);
         }
     }
 }

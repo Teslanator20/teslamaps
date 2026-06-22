@@ -35,6 +35,7 @@ public class ChatFilter {
                 || t.contains("Profile ID:"))) return true;
         if (c.chatFilterPerkBuffs && (t.contains("buff changed!") || t.contains("New buff:")
                 || t.contains("disable this messaging by toggling"))) return true;
+        if (c.chatFilterMilestone && t.contains("Milestone") && t.contains("so far!")) return true;
 
         if (t.contains(": ")) return false;
 

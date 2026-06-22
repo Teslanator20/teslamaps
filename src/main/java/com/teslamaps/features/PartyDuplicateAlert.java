@@ -28,32 +28,39 @@ import java.util.Map;
 
 public class PartyDuplicateAlert {
 
+    private static final List<String> CLASSES = List.of("Archer", "Berserk", "Healer", "Mage", "Tank");
     private static boolean firedThisRun = false;
+    private static int retryTicks = 0;
 
     public static void onChatMessage(String message) {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.partyDuplicateAlert) return;
-
-        if (message.contains("Starting in 3 seconds") || message.contains("Dungeon starts in")) firedThisRun = false;
-
-        if (!firedThisRun && (message.contains("Starting in 1 second") || message.contains("Starting in 2 seconds"))) {
-            firedThisRun = true;
-            checkDuplicates();
+        if (!TeslaMapsConfig.get().partyDuplicateAlert) return;
+        if (message.contains("The Catacombs, Floor")) {
+            firedThisRun = false;
+            retryTicks = 200;
         }
+    }
+
+    public static void tick() {
+        if (retryTicks <= 0) return;
+        retryTicks--;
+        if (!firedThisRun && TeslaMapsConfig.get().partyDuplicateAlert) checkDuplicates();
     }
 
     private static void checkDuplicates() {
         Map<String, List<String>> byClass = new HashMap<>();
         for (PlayerTracker.DungeonPlayer p : PlayerTracker.getPlayers()) {
             String cls = p.getDungeonClass();
-            if (cls == null || cls.isEmpty() || "Unknown".equals(cls)) continue;
+            if (!CLASSES.contains(cls)) continue;
             byClass.computeIfAbsent(cls, k -> new ArrayList<>()).add(p.getName());
         }
+        if (byClass.isEmpty()) return;
 
         List<String> dupes = new ArrayList<>();
         for (Map.Entry<String, List<String>> e : byClass.entrySet()) {
             if (e.getValue().size() > 1) dupes.add(e.getKey() + ": " + String.join(", ", e.getValue()));
         }
+
+        firedThisRun = true;
         if (dupes.isEmpty()) return;
 
         Minecraft mc = Minecraft.getInstance();

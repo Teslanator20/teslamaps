@@ -15,25 +15,21 @@
  */
 package com.teslamaps.mixin;
 
+import com.teslamaps.features.ScrollableTooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractContainerScreen.class)
-public interface HandledScreenAccessor {
-    @Accessor("hoveredSlot")
-    Slot getFocusedSlot();
-
-    @Accessor("leftPos")
-    int getX();
-
-    @Accessor("topPos")
-    int getY();
-
-    @Accessor("imageWidth")
-    int getImageWidth();
-
-    @Accessor("imageHeight")
-    int getImageHeight();
+public class ContainerScrollMixin {
+    @Inject(method = "mouseScrolled", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$scrollTooltip(double mouseX, double mouseY, double scrollX, double scrollY, CallbackInfoReturnable<Boolean> cir) {
+        if (com.teslamaps.features.StorageOverlay.active()) {
+            if (com.teslamaps.features.StorageOverlay.mouseScrolled(scrollY)) cir.setReturnValue(true);
+            return;
+        }
+        if (ScrollableTooltip.onScroll(scrollY)) cir.setReturnValue(true);
+    }
 }

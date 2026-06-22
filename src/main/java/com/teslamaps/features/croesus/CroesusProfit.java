@@ -94,30 +94,53 @@ public class CroesusProfit {
     }
 
     private static void renderCroesusMenu(GuiGraphicsExtractor ctx, AbstractContainerScreen<?> cs, HandledScreenAccessor acc) {
-        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (!TeslaMapsConfig.get().croesusHighlightUnopened) return;
+        Minecraft mc = Minecraft.getInstance();
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
-            ItemStack item = slot.getItem();
-            if (item.isEmpty()) continue;
-            ItemLore lore = item.get(DataComponents.LORE);
-            if (lore == null) continue;
-            boolean isRun = false, done = false, kismetUsed = false;
-            for (Component cmp : lore.lines()) {
-                String l = strip(cmp.getString());
-                if (l.contains("Kismet Feather") && isStruck(cmp)) kismetUsed = true;
-                if (l.contains("Click to view chests!")) isRun = true;
-                if (l.contains("No more chests to open!")) done = true;
-            }
-            if (!isRun) continue;
+            int state = runState(slot.getItem());
+            if (state == 0) continue;
             int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
-            if (done) {
-                if (cfg.croesusHideOpened) ctx.fill(sx, sy, sx + 16, sy + 16, GRAY_COVER);
-            } else if (kismetUsed) {
-                ctx.fill(sx, sy, sx + 16, sy + 16, 0x80FFA500);                 // orange = kismet used
-            } else if (cfg.croesusHighlightUnopened) {
-                ctx.fill(sx, sy, sx + 16, sy + 16, 0x8055FF55);                 // green = openable
-            }
+            if (state == 1) ctx.fill(sx, sy, sx + 16, sy + 16, 0xFF44DD55);
+            else if (state == 3) ctx.fill(sx, sy, sx + 16, sy + 16, 0xFFDD4444);
+            if (kismetUsed(slot.getItem())) ctx.text(mc.font, "§a§l✔", sx + 9, sy + 1, 0xFF55FF55);
         }
+    }
+
+    private static int runState(ItemStack item) {
+        if (item.isEmpty()) return 0;
+        ItemLore lore = item.get(DataComponents.LORE);
+        if (lore == null) return 0;
+        boolean isRun = false, done = false, fresh = false;
+        for (Component cmp : lore.lines()) {
+            String l = strip(cmp.getString());
+            if (l.contains("Click to view chests!")) isRun = true;
+            if (l.contains("No more chests to open!")) done = true;
+            if (l.contains("No chests opened yet!")) fresh = true;
+        }
+        if (!isRun) return 0;
+        if (fresh) return 1;
+        if (done) return 2;
+        return 3;
+    }
+
+    private static boolean kismetUsed(ItemStack item) {
+        if (item.isEmpty()) return false;
+        ItemLore lore = item.get(DataComponents.LORE);
+        if (lore == null) return false;
+        for (Component cmp : lore.lines())
+            if (strip(cmp.getString()).contains("Kismet Feather") && isStruck(cmp)) return true;
+        return false;
+    }
+
+    public static boolean styleCroesusSlot(GuiGraphicsExtractor ctx, Slot slot) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (!cfg.croesusHighlightUnopened) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (!isCroesusMenu(strip(cs.getTitle().getString()))) return false;
+        if (slot.container instanceof net.minecraft.world.entity.player.Inventory) return false;
+        return runState(slot.getItem()) != 0;
     }
 
     private static void renderRunView(GuiGraphicsExtractor ctx, AbstractContainerScreen<?> cs, HandledScreenAccessor acc, Minecraft mc) {
@@ -168,14 +191,16 @@ public class CroesusProfit {
             lines.add("§f" + names.get(i) + ": " + col + fmt(r.profit()) + star + kismet);
         }
 
-        Slot hovered = acc.getFocusedSlot();
-        if (hovered != null) {
-            int hi = chestSlots.indexOf(hovered);
-            if (hi >= 0 && !results.get(hi).opened) {
-                lines.add("");
-                lines.add("§e" + names.get(hi) + " breakdown:");
-                lines.addAll(results.get(hi).breakdown);
-                lines.add("§7Cost: §c-" + fmt(results.get(hi).cost));
+        if (!cfg.croesusCompact) {
+            Slot hovered = acc.getFocusedSlot();
+            if (hovered != null) {
+                int hi = chestSlots.indexOf(hovered);
+                if (hi >= 0 && !results.get(hi).opened) {
+                    lines.add("");
+                    lines.add("§e" + names.get(hi) + " breakdown:");
+                    lines.addAll(results.get(hi).breakdown);
+                    lines.add("§7Cost: §c-" + fmt(results.get(hi).cost));
+                }
             }
         }
         drawPanel(ctx, mc, acc, lines);
@@ -195,8 +220,10 @@ public class CroesusProfit {
             Parsed r = parseLore(lore);
             List<String> lines = new ArrayList<>();
             lines.add("§6§l" + title.replace(" Chest", "") + " Chest");
-            lines.addAll(r.breakdown);
-            lines.add("§7Cost: §c-" + fmt(r.cost));
+            if (!TeslaMapsConfig.get().croesusCompact) {
+                lines.addAll(r.breakdown);
+                lines.add("§7Cost: §c-" + fmt(r.cost));
+            }
             String col = r.profit() >= 0 ? "§a+" : "§c";
             lines.add("§fProfit: " + col + fmt(r.profit()));
             drawPanel(ctx, mc, acc, lines);

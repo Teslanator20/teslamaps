@@ -15,25 +15,19 @@
  */
 package com.teslamaps.mixin;
 
+import com.teslamaps.features.croesus.CroesusProfit;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractContainerScreen.class)
-public interface HandledScreenAccessor {
-    @Accessor("hoveredSlot")
-    Slot getFocusedSlot();
-
-    @Accessor("leftPos")
-    int getX();
-
-    @Accessor("topPos")
-    int getY();
-
-    @Accessor("imageWidth")
-    int getImageWidth();
-
-    @Accessor("imageHeight")
-    int getImageHeight();
+public class CroesusSlotMixin {
+    @Inject(method = "extractSlot", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$croesusSlot(GuiGraphicsExtractor ctx, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
+        if (CroesusProfit.styleCroesusSlot(ctx, slot)) ci.cancel();
+    }
 }

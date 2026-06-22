@@ -37,6 +37,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MultiPlayerGameMode.class)
 public class ClientPlayerInteractionManagerMixin {
+    @Inject(method = "useItem", at = @At("HEAD"))
+    private void teslamaps$onUseItem(net.minecraft.world.entity.player.Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        com.teslamaps.features.CombatTimers.onUseItem(player.getItemInHand(hand));
+    }
+
     @Inject(method = "useItemOn", at = @At("HEAD"))
     private void onInteractBlock(net.minecraft.client.player.LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
         Minecraft mc = Minecraft.getInstance();
@@ -51,11 +56,6 @@ public class ClientPlayerInteractionManagerMixin {
             SecretWaypoints.onChestOpened(pos);
             SecretWaypoints.onSecretInteract("chest");
             com.teslamaps.features.SecretClickHighlight.onSecretClick(pos);
-        }
-
-        if (state.is(Blocks.SEA_LANTERN) && com.teslamaps.config.TeslaMapsConfig.get().creeperBeamsDing
-                && com.teslamaps.dungeon.puzzle.CreeperBeamsSolver.isActive() && mc.player != null) {
-            mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BELL.value(), 1.0f, 1.0f);
         }
 
         if (state.is(Blocks.LEVER)) {

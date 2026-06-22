@@ -727,7 +727,7 @@ public class StarredMobESP {
 
         for (ArmorStand armorStand : armorStands) {
             String name = armorStand.getName().getString();
-            if (name.contains("")) {
+            if (name.contains("✯")) {
                 return true;
             }
         }

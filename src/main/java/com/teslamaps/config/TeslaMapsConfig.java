@@ -35,8 +35,8 @@ public class TeslaMapsConfig {
 
     public boolean mapEnabled = true;
     public boolean onlyShowInDungeon = true;  // Only show map while in dungeon
-    public int mapX = 54;
-    public int mapY = 105;
+    public int mapX = 23;
+    public int mapY = 172;
     public float mapScale = 1.5f;
     public float mapOpacity = 0.8f;
     public boolean showMapBackground = true;
@@ -52,7 +52,7 @@ public class TeslaMapsConfig {
     public boolean showMimicStatus = true;      // Show mimic status (checkmark/cross) below map
     public boolean showDungeonScore = true;     // Show estimated dungeon score below map
     public boolean assumePaulMayor = false;    // Always add +10 Paul bonus to score
-    public boolean announce300 = false;         // Announce "300 Score" in party chat (/pc)
+    public boolean announce300 = true;         // Announce "300 Score" in party chat (/pc)
     public boolean announce270 = false;         // Announce "270 Score" in party chat (/pc)
     public boolean cryptReminder = true;        // Warn at boss entry if fewer than 5 crypts were done
     public boolean watcherKillAlert = true;     // Title + sound when the Watcher is cleared (blood done)
@@ -99,16 +99,16 @@ public class TeslaMapsConfig {
     public boolean pestESP = false;             // Highlight pests in garden (invisible silverfish)
     public boolean pestTracers = false;         // Draw tracers to pests
     public boolean droppedItemESP = true;       // Highlight all dropped items
-    public boolean hideSoulweaverSkull = false; // Hide the floating skull spawned by Soulweaver Gloves
-    public boolean hideSkeletonSkull = false;   // Hide the floating "Skeleton Skull" armor stands (bone shield / piling skulls)
-    public boolean hideThrownBones = false;     // Hide thrown/dropped Bone item entities in dungeons
-    public boolean hideSuperboomTnt = false;    // Hide Superboom TNT drops
-    public boolean hideBlessing = false;        // Hide Blessing drops
-    public boolean hideReviveStone = false;     // Hide Revive Stone drops
-    public boolean hidePremiumFlesh = false;    // Hide Premium Flesh drops
-    public boolean hideJournalEntry = false;    // Hide Journal Entry item drops
-    public boolean hideHealerOrbs = false;      // Hide healer DAMAGE/ABILITY/DEFENSE orbs
-    public boolean hideHealerFairy = false;     // Hide the healer fairy companion skull
+    public boolean hideSoulweaverSkull = true; // Hide the floating skull spawned by Soulweaver Gloves
+    public boolean hideSkeletonSkull = true;   // Hide the floating "Skeleton Skull" armor stands (bone shield / piling skulls)
+    public boolean hideThrownBones = true;     // Hide thrown/dropped Bone item entities in dungeons
+    public boolean hideSuperboomTnt = true;    // Hide Superboom TNT drops
+    public boolean hideBlessing = true;        // Hide Blessing drops
+    public boolean hideReviveStone = true;     // Hide Revive Stone drops
+    public boolean hidePremiumFlesh = true;    // Hide Premium Flesh drops
+    public boolean hideJournalEntry = true;    // Hide Journal Entry item drops
+    public boolean hideHealerOrbs = true;      // Hide healer DAMAGE/ABILITY/DEFENSE orbs
+    public boolean hideHealerFairy = true;     // Hide the healer fairy companion skull
     public List<String> customESPMobs = new ArrayList<>();  // Custom mob names to highlight
 
     public boolean keyPickupSoundEnabled = true;  // Enable sound when key is picked up
@@ -122,8 +122,8 @@ public class TeslaMapsConfig {
     public String secretSoundType = "NOTE_PLING";  // see SoundOptions.keys() for all options
     public float secretSoundPitch = 1.0f;        // Pitch for secret found sound (0.5 - 2.0)
     public boolean secretClickHighlight = true;  // Flash clicked secret blocks green (worked) / red (locked chest)
-    public boolean salvageHelper = false;        // Highlight cheap (<100k) dungeon-salvageable gear in the Salvage menu
-    public boolean sellableHighlighter = false;  // Highlight common junk to sell in Ophelia/Booster Cookie menus
+    public boolean salvageHelper = true;        // Highlight cheap (<100k) dungeon-salvageable gear in the Salvage menu
+    public boolean sellableHighlighter = true;  // Highlight common junk to sell in Ophelia/Booster Cookie menus
     public boolean secretChime = false;          // Ascending chime per secret found in the room
     public String secretChimeSound = "NOTE_CHIME"; // Chime sound (see SoundOptions.keys())
     public float secretChimeVolume = 1.0f;       // Volume for the secret chime (0.0 - 4.0)
@@ -131,11 +131,11 @@ public class TeslaMapsConfig {
     public boolean bearSpawnWardenSound = true;  // Play warden emerge sound on alert
     public boolean bearSpawnWitherSound = true;  // Play wither death sound on alert
     public float bearSpawnVolume = 2.0f;         // Alert sound volume (0.0 - 20.0)
-    public int bearSpawnX = 150;                 // "STOP!" overlay position X (draggable in HUD edit)
-    public int bearSpawnY = 30;                  // "STOP!" overlay position Y
-    public float bearSpawnScale = 4.0f;          // "STOP!" overlay text scale (0.5 - 10.0)
+    public int bearSpawnX = 598;                 // "STOP!" overlay position X (draggable in HUD edit)
+    public int bearSpawnY = 482;                  // "STOP!" overlay position Y
+    public float bearSpawnScale = 5.0f;          // "STOP!" overlay text scale (0.5 - 10.0)
 
-    public boolean sprintingOverlay = false;     // Show a "Sprinting / Not Sprinting" HUD indicator
+    public boolean sprintingOverlay = true;     // Show a "Sprinting / Not Sprinting" HUD indicator
     public int sprintingX = 10;                  // Sprinting overlay position X (draggable in HUD edit)
     public int sprintingY = 40;                  // Sprinting overlay position Y
     public float sprintingScale = 1.0f;          // Sprinting overlay text scale (0.5 - 10.0)
@@ -143,18 +143,18 @@ public class TeslaMapsConfig {
     public boolean splitsEnabled = true;         // Dungeon run splits HUD + chat output
     public boolean splitsShowPb = true;          // Show personal-best time per split (and color vs PB)
     public java.util.Map<String, Long> splitPbs = new java.util.HashMap<>(); // "floor:splitName" -> best duration ms
-    public int splitsX = 5;                       // Splits HUD position X (draggable in HUD edit)
-    public int splitsY = 100;                     // Splits HUD position Y
-    public float splitsScale = 1.0f;              // Splits HUD scale (0.5 - 2.0)
+    public int splitsX = 936;                       // Splits HUD position X (draggable in HUD edit)
+    public int splitsY = 59;                     // Splits HUD position Y
+    public float splitsScale = 1.7000002f;              // Splits HUD scale (0.5 - 2.0)
 
     public boolean bloodCampMoveTimer = true;     // Watcher move prediction timer HUD
     public boolean bloodCampMoveMessage = true;   // Chat message with predicted move time
     public boolean bloodCampPartyMessage = true; // Send predicted move time to party chat
     public boolean bloodCampKillTitle = true;     // "Kill Mobs" title when the watcher moves
     public boolean bloodCampHpBar = true;         // Show the Watcher's remaining HP/mob count
-    public int bloodCampX = 10;                   // Move Timer HUD position X
-    public int bloodCampY = 80;                   // Move Timer HUD position Y
-    public float bloodCampScale = 1.0f;           // Move Timer HUD scale
+    public int bloodCampX = 586;                   // Move Timer HUD position X
+    public int bloodCampY = 66;                   // Move Timer HUD position Y
+    public float bloodCampScale = 1.5000001f;           // Move Timer HUD scale
     public boolean bloodCampAssist = true;       // Master toggle for the spawn-box guess
     public String colorBloodSpawn = "FF5555";     // predicted spawn box (red)
     public String colorBloodPosition = "55FF55";  // current ping-adjusted position box (green)
@@ -182,7 +182,7 @@ public class TeslaMapsConfig {
     public String rarityBgStyle = "Filled";       // Filled or Outline
 
     public boolean dungeonWaypoints = true;       // Render Odin-format dungeon waypoints from config/teslamaps/dungeon_waypoints.json
-    public int waypointAddKey = -1;               // Keybind: add waypoint at looked-at block (-1 = unbound)
+    public int waypointAddKey = 78;               // Keybind: add waypoint at looked-at block (-1 = unbound)
     public int waypointRemoveKey = -1;            // Keybind: remove nearest waypoint in current room
     public int waypointClearKey = -1;             // Keybind: clear all waypoints in current room
     public String waypointAddColor = "55FFFF";    // Color for waypoints added in-game
@@ -192,7 +192,7 @@ public class TeslaMapsConfig {
     public boolean etherwarp = true;              // Show etherwarp guess box
     public boolean etherwarpShowFail = true;      // Show the box even when the guess failed
     public boolean etherwarpFilled = true;       // Filled box instead of outline
-    public float etherwarpEyeOffset = 0.0f;      // Fine-tune the ray's eye height (blocks) if the guess sits too high/low
+    public float etherwarpEyeOffset = -0.0f;      // Fine-tune the ray's eye height (blocks) if the guess sits too high/low
     public String colorEtherwarp = "00FF8C";      // Etherwarp guess box color (gold)
     public boolean etherwarpCustomSound = true;  // Replace the etherwarp sound with a custom one
     public String etherwarpSound = "NOTE_PLING"; // see Etherwarp.soundKeys() for all options
@@ -200,41 +200,44 @@ public class TeslaMapsConfig {
     public float etherwarpSoundPitch = 1.0f;      // Custom etherwarp sound pitch (0.5 - 2.0)
 
     public boolean hidePlayers = false;           // Hide nearby players
+    public boolean hideDeadMobs = true;          // Hide mobs playing their death animation
     public boolean hidePlayersOnlyDungeon = true; // Only hide while in a dungeon
     public boolean hidePlayersAll = false;        // Hide all players regardless of distance
     public float hidePlayersDistance = 3.0f;      // Hide players within this many blocks
 
-    public boolean croesusProfitOverlay = false; // Profit overlay in the Croesus run menu (prices via public bazaar/BIN, no API key)
+    public boolean croesusProfitOverlay = true; // Profit overlay in the Croesus run menu (prices via public bazaar/BIN, no API key)
     public boolean croesusHighlightBest = true;     // Green highlight on the most profitable chest
     public boolean croesusDimOthers = true;         // Gray out every chest that isn't the best one
-    public boolean croesusHideOpened = false;       // Gray out fully-opened runs in the Croesus menu
+    public boolean croesusHideOpened = true;       // Gray out fully-opened runs in the Croesus menu
     public boolean croesusHighlightUnopened = true; // Green-highlight runs with openable chests (orange = kismet used)
+    public boolean croesusCompact = false;          // Compact profit panel: only totals, no item breakdown
     public boolean croesusDebug = false;            // Log chest lore to latest.log (to calibrate the parser)
 
     public boolean chatCopyEnabled = true;       // Right-click a chat line to copy its text
 
     public boolean chatFilterEnabled = true;     // Master switch for the chat filter
-    public boolean chatFilterWatcher = false;    // Hide "[BOSS] The Watcher:" lines
-    public boolean chatFilterF4Boss = false;     // Hide F4/M4 boss taunt spam ("[BOSS] Thorn: ...")
-    public boolean chatFilterBlessings = false;  // Hide "DUNGEON BUFF! ... Blessing of ..." + blessing pickups
-    public boolean chatFilterEssence = false;    // Hide essence pickup spam ("ESSENCE! ...", "found a Wither Essence!")
-    public boolean chatFilterKeys = false;       // Hide "A Wither/Blood Key was picked up!" / "has obtained ... Key"
-    public boolean chatFilterDoors = false;      // Hide "<player> opened a WITHER/BLOOD door!"
-    public boolean chatFilterWish = false;       // Hide "<player>'s Wish healed you for ..."
-    public boolean chatFilterPickups = false;    // Hide all "... was picked up!" messages
-    public boolean chatFilterBlocksInWay = false; // Hide "There are blocks in the way!"
-    public boolean chatFilterUltReady = false;    // Hide "<ult> is ready to use! Press DROP to activate it!"
-    public boolean chatFilterAoeDamage = false;   // Hide "Your <ability> hit N enemies for X damage."
-    public boolean chatFilterGuildXp = false;     // Hide "You earned N GEXP from playing SkyBlock!"
-    public boolean chatFilterKillCombo = false;   // Hide "+N Kill Combo ..." lines
-    public boolean chatFilterStash = false;       // Hide "... items/materials stashed away!" + "CLICK HERE to pick them up!"
-    public boolean chatFilterServerMsgs = false;  // Hide "Sending to server...", "Warping...", "Queuing..."
-    public boolean chatFilterProfileInfo = false; // Hide "You are playing on profile: ..." + "Profile ID: ..."
-    public boolean chatFilterPerkBuffs = false;   // Hide HOTF/HOTM daily perk buffs (Lottery / Sky Mall "buff changed!")
-    public boolean chatFilterOruo = false;        // Hide "[STATUE] Oruo the Omniscient:" quiz flavor/question lines
-    public boolean chatFilterSacks = false;       // Hide "[Sacks] +N items. (Last 5s.)" sack pickup spam
+    public boolean chatFilterWatcher = true;    // Hide "[BOSS] The Watcher:" lines
+    public boolean chatFilterF4Boss = true;     // Hide F4/M4 boss taunt spam ("[BOSS] Thorn: ...")
+    public boolean chatFilterBlessings = true;  // Hide "DUNGEON BUFF! ... Blessing of ..." + blessing pickups
+    public boolean chatFilterEssence = true;    // Hide essence pickup spam ("ESSENCE! ...", "found a Wither Essence!")
+    public boolean chatFilterKeys = true;       // Hide "A Wither/Blood Key was picked up!" / "has obtained ... Key"
+    public boolean chatFilterDoors = true;      // Hide "<player> opened a WITHER/BLOOD door!"
+    public boolean chatFilterWish = true;       // Hide "<player>'s Wish healed you for ..."
+    public boolean chatFilterPickups = true;    // Hide all "... was picked up!" messages
+    public boolean chatFilterBlocksInWay = true; // Hide "There are blocks in the way!"
+    public boolean chatFilterUltReady = true;    // Hide "<ult> is ready to use! Press DROP to activate it!"
+    public boolean chatFilterAoeDamage = true;   // Hide "Your <ability> hit N enemies for X damage."
+    public boolean chatFilterGuildXp = true;     // Hide "You earned N GEXP from playing SkyBlock!"
+    public boolean chatFilterKillCombo = true;   // Hide "+N Kill Combo ..." lines
+    public boolean chatFilterStash = true;       // Hide "... items/materials stashed away!" + "CLICK HERE to pick them up!"
+    public boolean chatFilterServerMsgs = true;  // Hide "Sending to server...", "Warping...", "Queuing..."
+    public boolean chatFilterProfileInfo = true; // Hide "You are playing on profile: ..." + "Profile ID: ..."
+    public boolean chatFilterPerkBuffs = true;   // Hide HOTF/HOTM daily perk buffs (Lottery / Sky Mall "buff changed!")
+    public boolean chatFilterOruo = true;        // Hide "[STATUE] Oruo the Omniscient:" quiz flavor/question lines
+    public boolean chatFilterSacks = true;       // Hide "[Sacks] +N items. (Last 5s.)" sack pickup spam
     public boolean chatFilterEmpty = true;        // Hide blank/whitespace-only chat lines (leftover from filtered multi-line msgs)
-    public boolean chatFilterBonePlating = false; // Hide "Your bone plating reduced the damage ..." spam
+    public boolean chatFilterBonePlating = true; // Hide "Your bone plating reduced the damage ..." spam
+    public boolean chatFilterMilestone = false;   // Hide dungeon milestone spam ("Healer/Class Milestone ❹: ... so far!")
 
     public boolean infiniteChat = true;          // Keep full chat history (scroll back through everything)
     public int chatHistoryLimit = 16384;         // Hard cap so memory stays bounded (effectively infinite)
@@ -275,8 +278,8 @@ public class TeslaMapsConfig {
     public boolean noBlind = true;           // Remove blindness effect
     public boolean noNausea = true;          // Remove nausea effect
     public boolean noExplosions = true;      // Hide explosion particles
-    public boolean noExplosionSound = false; // Mute explosion sounds (TNT/creeper)
-    public boolean noCreeperHurtSound = false; // Mute creeper hurt sounds
+    public boolean noExplosionSound = true; // Mute explosion sounds (TNT/creeper)
+    public boolean noCreeperHurtSound = true; // Mute creeper hurt sounds
     public boolean noArrows = true;          // Hide arrow entities
     public boolean noStuckArrows = true;     // Hide arrows stuck in entities
     public boolean noWaterOverlay = true;    // Hide water overlay on screen
@@ -328,7 +331,7 @@ public class TeslaMapsConfig {
 
     public boolean solveBlaze = true;              // Show which blaze to hit
     public boolean blazeDoneMessage = true;        // Send "/pc Blaze Done!" when last blaze killed
-    public boolean modernBlazeSolver = false;      // Fill the solver boxes + hide the vanilla blaze mobs (cleaner look)
+    public boolean modernBlazeSolver = true;      // Fill the solver boxes + hide the vanilla blaze mobs (cleaner look)
     public boolean solveThreeWeirdos = true;       // Highlight correct chest in Three Weirdos
     public boolean solveTicTacToe = true;          // Show best move in Tic Tac Toe
     public boolean solveCreeperBeams = true;       // Show solution for Creeper Beams
@@ -341,48 +344,71 @@ public class TeslaMapsConfig {
     public boolean quizHideWrongAnswers = false;   // Hide the two wrong answer lines from chat
     public boolean solveTPMaze = true;             // Highlight correct portals in Teleport Maze
     public boolean blockWrongTerminalClicks = true; // Swallow clicks on wrong terminal slots (can't misclick-fail)
-    public boolean lastBreathSound = false;         // Rising charge sound while pulling a Last Breath
+    public boolean lastBreathSound = true;         // Rising charge sound while pulling a Last Breath
     public float lastBreathVolume = 1.0f;           // Last Breath sound volume (0-5)
     public int lastBreathThreshold = 9;             // Tick threshold to swap to the second sound (0 always, 21 never)
-    public boolean splitsSendAllOnEnd = false;      // Print a recap of all splits + total at run end
-    public boolean partyDuplicateAlert = false;     // Alert when the party has duplicate dungeon classes
+    public boolean splitsSendAllOnEnd = true;      // Print a recap of all splits + total at run end
+    public boolean partyDuplicateAlert = true;     // Alert when the party has duplicate dungeon classes
     public boolean partyDuplicateSound = true;      // Play a sound on the duplicate-class alert
-    public boolean partyDuplicateMessage = false;   // Announce duplicate classes to party chat
-    public boolean hideCheapCoins = false;          // Hide the spinning coin item entities from coin talismans
-    public boolean warpCooldown = false;            // 30s warp/re-queue cooldown timer after a floor starts
-    public boolean bonzoTimer = false;              // Bonzo's Mask immunity + cooldown timer
-    public boolean spiritMaskTimer = false;         // Spirit Mask immunity + cooldown timer
-    public boolean phoenixTimer = false;            // Phoenix Pet immunity + cooldown timer
-    public boolean purplePadTimer = false;          // F7 purple-pad countdown after Storm's call
-    public boolean deathTickTimer = false;          // Entrance death-tick (40-tick i-frame cycle) countdown
-    public boolean colorPortal = false;             // Recolor the blood portal by score (red/gold/green)
-    public boolean relicTimer = false;              // M7 relic spawn countdown after Necron's line
-    public boolean creeperBeamsDing = false;        // Ding when toggling a lantern in Creeper Beams
-    public int dungeonTimersX = 10;                 // Shared dungeon-timers HUD position X
-    public int dungeonTimersY = 80;                 // Shared dungeon-timers HUD position Y
+    public boolean partyDuplicateMessage = true;   // Announce duplicate classes to party chat
+    public boolean hideCheapCoins = true;          // Hide the spinning coin item entities from coin talismans
+    public boolean warpCooldown = true;            // 30s warp/re-queue cooldown timer after a floor starts
+    public boolean witherShieldTimer = false;       // Hyperion/wither-blade Wither Impact cooldown timer
+    public boolean tacticalInsertionTimer = false;  // 3s Tactical Insertion timer on right-click
+    public boolean bonzoTimer = true;              // Bonzo's Mask immunity + cooldown timer
+    public boolean spiritMaskTimer = true;         // Spirit Mask immunity + cooldown timer
+    public boolean phoenixTimer = true;            // Phoenix Pet immunity + cooldown timer
+    public boolean purplePadTimer = true;          // F7 purple-pad countdown after Storm's call
+    public boolean deathTickTimer = true;          // Entrance death-tick (40-tick i-frame cycle) countdown
+    public boolean colorPortal = true;             // Recolor the blood portal by score (red/gold/green)
+    public boolean highlightTeammates = false;      // ESP box around party members (through walls), colored by class
+    public boolean relicTimer = true;              // M7 relic spawn countdown after Necron's line
+    public boolean creeperBeamsDing = true;        // Ding when toggling a lantern in Creeper Beams
+    public int dungeonTimersX = 404;                 // Shared dungeon-timers HUD position X
+    public int dungeonTimersY = 60;                 // Shared dungeon-timers HUD position Y
     public float dungeonTimersScale = 1.0f;         // Shared dungeon-timers HUD scale
-    public boolean disableWorldLoadingScreen = false; // Skip the world loading / downloading-terrain screen
-    public boolean blockOverlay = false;            // Outline the block you're looking at
+    public boolean disableWorldLoadingScreen = true; // Skip the world loading / downloading-terrain screen
+    public boolean blockOverlay = true;            // Outline the block you're looking at
     public String blockOverlayColor = "FFFFFF";     // Block overlay outline colour
-    public boolean chatWaypoint = false;            // Render a waypoint beam from coords in chat
-    public boolean showSelectedPet = false;         // Highlight the spawned pet in the Pets menu
-    public boolean simonSaysProgress = false;       // Show Simon Says progress (X/Y) in the timer HUD
-    public boolean customHypeSound = false;         // Replace the wither-blade explosion sound
-    public boolean wardrobeKeybinds = false;        // Hotbar keys 1-9 switch wardrobe slots in the Wardrobe GUI
-    public boolean leapCounter = false;             // F7: count teammates standing at your spot
+    public boolean chatWaypoint = true;            // Render a waypoint beam from coords in chat
+    public boolean showSelectedPet = true;         // Highlight the spawned pet in the Pets menu
+    public boolean simonSaysProgress = true;       // Show Simon Says progress (X/Y) in the timer HUD
+    public boolean customHypeSound = true;         // Replace the wither-blade explosion sound
+    public String customHypeSoundType = "NOTE_IRON_XYLO"; // which sound replaces the wither-blade explosion
+    public boolean wardrobeKeybinds = true;        // Hotbar keys 1-9 switch wardrobe slots in the Wardrobe GUI
+    public boolean leapCounter = true;             // F7: count teammates standing at your spot
+    public boolean pageKeybinds = true;            // A/D click Previous/Next Page buttons in any GUI
+    public int[] wardrobeKeys = {-1, -1, -1, -1, -1, -1, -1, -1, -1}; // custom per-slot wardrobe keys (-1 = unbound)
+    public boolean signEnterKey = true;            // Enter confirms/closes a sign edit screen
+    public boolean noCursorReset = true;           // keep cursor position when navigating between GUIs
+    public boolean autoCopyScreenshot = true;      // copy taken screenshots to the system clipboard
+    public boolean searchbar = true;               // type to search/highlight items in any container
+    public boolean scrollableTooltip = true;       // scroll long item tooltips with the mouse wheel
+    public boolean estimatedValue = true;          // show estimated item value (bazaar) in tooltips
+    public boolean containerValue = false;          // show total container value + top 5 items in a side panel
+    public boolean backpackPreview = true;         // cache + show backpack/ender chest contents on hover (data in storage.json)
+    public boolean customStorageOverlay = true;    // replace the vanilla "Storage" menu with a custom all-in-one view
+    public boolean storageShowNames = false;         // show page/backpack name headers in the custom storage view
+    public boolean slotLock = true;                // lock inventory slots from being moved/dropped/sold
+    public int slotLockKey = 76;                    // keybind (over a slot) to toggle its lock
+    public String colorSlotLock = "#FF5555";        // locked slot outline color
+    public java.util.List<Integer> lockedSlots = new java.util.ArrayList<>(); // locked player-inventory slot indices
     public boolean solveWaterBoard = true;          // Show solution for Water Board puzzle
     public boolean waterBoardTracers = true;        // Draw tracers to next lever
     public boolean solveIceFill = true;             // Show Ice Fill (F7) path solution
     public boolean iceFillOptimized = true;         // Use optimized (harder/faster) ice fill paths
+    public boolean icePathSolver = true;            // Draw the silverfish path in the Ice Path puzzle
+    public boolean puzzleTimers = true;            // Report how long each puzzle took to solve
+    public java.util.Map<String, Double> puzzlePbs = new java.util.HashMap<>(); // per-puzzle personal bests (seconds)
     public String colorIceFill = "55FFFF";          // Ice Fill path color (aqua)
     public boolean witherDragons = true;            // M7 Wither Dragons helper (master toggle)
     public boolean witherDragonTimer = true;        // Spawn countdown timer at each dragon's spawn
     public boolean witherDragonBoxes = true;        // Boxes around spawning/alive dragons
     public boolean witherDragonTitle = true;        // Title when a dragon starts spawning
     public boolean witherDragonMsg = true;          // Chat message when a dragon is spawning/spawned
-    public boolean dragonBoxes = false;             // ESP box around each live wither dragon (by colour)
-    public boolean dragonHealth = false;            // Show each dragon's health % above it
-    public boolean hideDyingDragons = false;        // Hide a dragon once it's dying (health <= 0)
+    public boolean dragonBoxes = true;             // ESP box around each live wither dragon (by colour)
+    public boolean dragonHealth = true;            // Show each dragon's health % above it
+    public boolean hideDyingDragons = true;        // Hide a dragon once it's dying (health <= 0)
     public boolean witherHighlight = false;         // Highlight F7/M7 device-phase withers
     public boolean witherHighlightBox = true;       // Filled box (vs outline) for the wither highlight
     public String witherHighlightColor = "00FFFF";  // Wither highlight colour
@@ -463,7 +489,7 @@ public class TeslaMapsConfig {
     public String leapKeybindMode = "Corners";        // Corners (TL/TR/BL/BR) or Class (per-class)
     public int leapKeyTL = -1, leapKeyTR = -1, leapKeyBL = -1, leapKeyBR = -1; // corner keybinds
     public int leapKeyArcher = -1, leapKeyBerserk = -1, leapKeyHealer = -1, leapKeyMage = -1, leapKeyTank = -1; // class keybinds
-    public int leapKeyLastDoor = -1; // leap to the player who opened the most recent wither door
+    public int leapKeyLastDoor = 32; // leap to the player who opened the most recent wither door
 
     public boolean debugMode = false;
 
@@ -536,6 +562,12 @@ public class TeslaMapsConfig {
                 }
                 if (instance.splitPbs == null) {
                     instance.splitPbs = new java.util.HashMap<>();
+                }
+                if (instance.lockedSlots == null) {
+                    instance.lockedSlots = new java.util.ArrayList<>();
+                }
+                if (instance.puzzlePbs == null) {
+                    instance.puzzlePbs = new java.util.HashMap<>();
                 }
                 TeslaMaps.LOGGER.info("Config loaded from {}", CONFIG_PATH);
             } else {

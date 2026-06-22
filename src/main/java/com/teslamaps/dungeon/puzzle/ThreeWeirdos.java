@@ -43,11 +43,16 @@ public class ThreeWeirdos {
         ")$"
     );
 
+    private static final Pattern NPC_LINE = Pattern.compile("^\\[NPC] ([A-Z][a-z]+): ");
+
     private static BlockPos correctChestPos = null;
     private static AABB correctChestBox = null;
     private static String targetNpcName = null;
     private static boolean disabled = false;
     private static long lastSearchTime = 0;
+    private static final java.util.Set<BlockPos> clickedChests = new java.util.HashSet<>();
+    private static final java.util.Set<String> npcNames = new java.util.LinkedHashSet<>();
+    private static final java.util.Map<String, AABB> npcBoxes = new java.util.HashMap<>();
 
     public static void tick() {
         if (!DungeonManager.isInDungeon()) {
@@ -75,18 +80,43 @@ public class ThreeWeirdos {
         if (correctChestPos != null) {
             correctChestBox = new AABB(correctChestPos);
         }
+
+        if (!npcNames.isEmpty()) {
+            npcBoxes.clear();
+            for (var entity : mc.level.entitiesForRendering()) {
+                if (!(entity instanceof ArmorStand as)) continue;
+                String name = ChatFormatting.stripFormatting(as.getName().getString());
+                if (name != null && npcNames.contains(name)) {
+                    npcBoxes.put(name, new AABB(as.getX() - 0.4, as.getY(), as.getZ() - 0.4,
+                            as.getX() + 0.4, as.getY() + 2.0, as.getZ() + 0.4));
+                }
+            }
+        }
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (!TeslaMapsConfig.get().solveThreeWeirdos || correctChestBox == null || disabled) {
-            return;
-        }
+        if (!TeslaMapsConfig.get().solveThreeWeirdos) return;
 
         try {
-            ESPRenderer.drawFilledBox(matrices, correctChestBox, 0x8000FF00, cameraPos);
-            ESPRenderer.drawBoxOutline(matrices, correctChestBox, 0xFF00FF00, 5.0f, cameraPos);
-            Vec3 chestCenter = correctChestBox.getCenter();
-            ESPRenderer.drawTracerFromCamera(matrices, chestCenter, 0xFF00FF00, cameraPos);
+            for (var e : npcBoxes.entrySet()) {
+                boolean isTarget = e.getKey().equals(targetNpcName);
+                int fill = targetNpcName == null ? 0xFFFFFFFF : (isTarget ? 0xFF00FF00 : 0xFFFF0000);
+                int outline = targetNpcName == null ? 0xFFFFFFFF : (isTarget ? 0xFF00FF00 : 0xFFFF0000);
+                ESPRenderer.drawFilledBox(matrices, e.getValue(), fill, cameraPos, true);
+                ESPRenderer.drawBoxOutline(matrices, e.getValue(), outline, 3.0f, cameraPos, true);
+            }
+
+            for (BlockPos pos : clickedChests) {
+                AABB box = new AABB(pos);
+                ESPRenderer.drawFilledBox(matrices, box, 0xB0000000, cameraPos);
+                ESPRenderer.drawBoxOutline(matrices, box, 0xFF000000, 5.0f, cameraPos);
+            }
+
+            if (correctChestBox != null && !disabled && !clickedChests.contains(correctChestPos)) {
+                ESPRenderer.drawFilledBox(matrices, correctChestBox, 0x8000FF00, cameraPos);
+                ESPRenderer.drawBoxOutline(matrices, correctChestBox, 0xFF00FF00, 5.0f, cameraPos);
+                ESPRenderer.drawTracerFromCamera(matrices, correctChestBox.getCenter(), 0xFF00FF00, cameraPos);
+            }
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[ThreeWeirdos] Error rendering solution", e);
         }
@@ -102,6 +132,9 @@ public class ThreeWeirdos {
 
         String stripped = ChatFormatting.stripFormatting(message);
         if (stripped == null) return;
+
+        Matcher speaker = NPC_LINE.matcher(stripped);
+        if (speaker.find()) npcNames.add(speaker.group(1));
 
         Matcher matcher = PATTERN.matcher(stripped);
         if (!matcher.matches()) {
@@ -178,6 +211,8 @@ public class ThreeWeirdos {
     }
 
     public static void onChestClick(BlockPos pos) {
+        if (targetNpcName == null && correctChestPos == null) return;
+        clickedChests.add(pos.immutable());
         if (correctChestPos != null) {
             disabled = true;
             TeslaMaps.LOGGER.info("[ThreeWeirdos] Chest clicked, solver disabled");
@@ -190,5 +225,8 @@ public class ThreeWeirdos {
         targetNpcName = null;
         disabled = false;
         lastSearchTime = 0;
+        clickedChests.clear();
+        npcNames.clear();
+        npcBoxes.clear();
     }
 }

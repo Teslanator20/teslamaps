@@ -84,6 +84,7 @@ public class TeslaMaps implements ClientModInitializer {
         instance = this;
 
         TeslaMapsConfig.load();
+        com.teslamaps.features.StorageCache.load();
 
         TeslaRenderPipelines.init();
         TeslaRenderLayers.init();
@@ -143,8 +144,10 @@ public class TeslaMaps implements ClientModInitializer {
                 TerracottaTimer.render(context.poseStack(), cameraPos);
                 WaterBoardSolver.render(context.poseStack(), cameraPos);
                 com.teslamaps.dungeon.puzzle.IceFillSolver.render(context.poseStack(), cameraPos);
+                com.teslamaps.dungeon.puzzle.IcePathSolver.render(context.poseStack(), cameraPos);
                 com.teslamaps.dungeon.WitherDragons.render(context.poseStack(), cameraPos);
                 com.teslamaps.features.DragonESP.render(context.poseStack(), cameraPos);
+                com.teslamaps.features.HighlightTeammates.render(context.poseStack(), cameraPos);
 
                 SecretWaypoints.render(context.poseStack(), cameraPos);
 
@@ -189,6 +192,7 @@ public class TeslaMaps implements ClientModInitializer {
                 com.teslamaps.dungeon.AutoRequeue.tick();
                 LividSolver.tick();
                 MimicDetector.tick();
+                com.teslamaps.features.PartyDuplicateAlert.tick();
                 DungeonBlaze.tick();
                 ThreeWeirdos.tick();
                 TicTacToe.tick();
@@ -211,8 +215,13 @@ public class TeslaMaps implements ClientModInitializer {
                 SpiritBearTimer.tick();
                 WaterBoardSolver.tick();
                 com.teslamaps.dungeon.puzzle.IceFillSolver.tick();
+                com.teslamaps.dungeon.puzzle.IcePathSolver.tick();
+                com.teslamaps.dungeon.puzzle.PuzzleTimers.tick();
+                com.teslamaps.features.CombatTimers.tick();
+                com.teslamaps.features.BackpackPreview.tick();
                 com.teslamaps.dungeon.WitherDragons.tick();
                 SecretWaypoints.tick();
+                com.teslamaps.dungeon.Splits.tick();
             }
         });
     }

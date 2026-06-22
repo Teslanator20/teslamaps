@@ -41,11 +41,12 @@ public class Splits {
     private static final List<Split> active = new ArrayList<>();
     private static long startTime = 0L;
     private static boolean finished = false;
+    private static int pendingSend = 0; // ticks until end-of-run messages are sent (avoids interrupting Hypixel's run summary)
 
     private static final String MORT = "\\[NPC] Mort: Here, I found this map when I first entered the dungeon\\.|\\[NPC] Mort: Right-click the Orb for spells, and Left-click \\(or Drop\\) to use your Ultimate!";
     private static final String BLOOD_OPEN = "^\\[BOSS] The Watcher: (Congratulations, you made it through the Entrance\\.|Ah, you've finally arrived\\.|Ah, we meet again\\.\\.\\.|So you made it this far\\.\\.\\. interesting\\.|You've managed to scratch and claw your way here, eh\\?|I'm starting to get tired of seeing you around here\\.\\.\\.|Oh\\.\\. hello\\?|Things feel a little more roomy now, eh\\?)$|^The BLOOD DOOR has been opened!$";
     private static final String PORTAL_ENTRY = "\\[BOSS] The Watcher: You have proven yourself\\. You may pass\\.";
-    private static final String TOTAL = "^\\s* Defeated (.+) in 0?([\\dhms ]+?)\\s*(\\(NEW RECORD!\\))?$";
+    private static final String TOTAL = "^\\s*☠ Defeated (.+) in 0?([\\dhms ]+?)\\s*(\\(NEW RECORD!\\))?$";
 
     private static void buildSplits() {
         active.clear();
@@ -100,6 +101,7 @@ public class Splits {
             buildSplits();
             startTime = System.currentTimeMillis();
             finished = false;
+            pendingSend = 0;
             return;
         }
 
@@ -112,20 +114,33 @@ public class Splits {
             if (split.pattern.matcher(message).matches()) {
                 split.time = System.currentTimeMillis();
 
-                if (i > 0) {
-                    Split prev = active.get(i - 1);
-                    if (prev.time != 0L) sendSplit(prev.name, split.time - prev.time);
-                }
-
                 if (i == n - 1) {
                     finished = true;
-                    long firstTime = active.get(0).time;
-                    if (firstTime != 0L) sendSplit(split.name, split.time - firstTime);
-                    if (TeslaMapsConfig.get().splitsSendAllOnEnd) sendAllSplits();
+                    pendingSend = 10; // delay so we don't cut into Hypixel's run-summary message
+                } else if (i > 0) {
+                    Split prev = active.get(i - 1);
+                    if (prev.time != 0L) sendSplit(prev.name, split.time - prev.time);
                 }
                 break;
             }
         }
+    }
+
+    public static void tick() {
+        if (pendingSend > 0 && --pendingSend == 0) sendEndOfRun();
+    }
+
+    private static void sendEndOfRun() {
+        int n = active.size();
+        if (n == 0) return;
+        Split last = active.get(n - 1);
+        if (n >= 2) {
+            Split prev = active.get(n - 2);
+            if (prev.time != 0L && last.time != 0L) sendSplit(prev.name, last.time - prev.time);
+        }
+        long firstTime = active.get(0).time;
+        if (firstTime != 0L && last.time != 0L) sendSplit(last.name, last.time - firstTime);
+        if (TeslaMapsConfig.get().splitsSendAllOnEnd) sendAllSplits();
     }
 
     private static void sendSplit(String name, long durationMs) {
@@ -142,12 +157,17 @@ public class Splits {
         for (int k = 1; k < active.size(); k++) {
             Split prev = active.get(k - 1), cur = active.get(k);
             if (prev.time != 0L && cur.time != 0L)
-                sb.append("\n  ").append(cur.name).append(" §7- §f").append(formatTime(cur.time - prev.time));
+                sb.append("\n  ").append(prev.name).append(" §7- §f").append(formatTime(cur.time - prev.time)).append(pbSuffix(prev.name));
         }
         Split first = active.get(0), last = active.get(active.size() - 1);
         if (first.time != 0L && last.time != 0L)
-            sb.append("\n  §eTotal §7- §f").append(formatTime(last.time - first.time));
+            sb.append("\n  §eTotal §7- §f").append(formatTime(last.time - first.time)).append(pbSuffix(last.name));
         mc.player.sendSystemMessage(Component.literal(sb.toString()));
+    }
+
+    private static String pbSuffix(String name) {
+        Long pb = TeslaMapsConfig.get().splitPbs.get(pbKey(name));
+        return pb == null ? "" : " §8(" + formatTime(pb) + ")";
     }
 
     private static String pbKey(String name) {
@@ -248,6 +268,7 @@ public class Splits {
         active.clear();
         startTime = 0L;
         finished = false;
+        pendingSend = 0;
     }
 
     private static String formatTime(long ms) {

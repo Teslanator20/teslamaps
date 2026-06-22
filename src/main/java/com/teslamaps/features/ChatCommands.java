@@ -32,15 +32,15 @@ public class ChatCommands {
             "My sources say no", "Outlook not so good", "Very doubtful"
     };
 
-    private static final java.util.Map<String, String> downtimeReasons = new java.util.LinkedHashMap<>();
+    private static final java.util.Set<String> downtimePlayers = new java.util.LinkedHashSet<>();
 
     public static void onChatMessage(String msg) {
         if (!TeslaMapsConfig.get().chatCommands) return;
         msg = msg.replaceAll("(?i)§[0-9A-FK-OR]", ""); // Hypixel sends chat with legacy § codes
 
-        if (msg.contains("> EXTRA STATS <") && !downtimeReasons.isEmpty()) {
-            for (var e : downtimeReasons.entrySet()) pc("Downtime: " + e.getKey() + " - " + e.getValue());
-            downtimeReasons.clear();
+        if (msg.contains("> EXTRA STATS <") && !downtimePlayers.isEmpty()) {
+            for (String p : downtimePlayers) pc("Downtime: " + p);
+            downtimePlayers.clear();
             com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(false);
         }
 
@@ -80,15 +80,14 @@ public class ChatCommands {
             case "promote" -> run("party promote " + (arg != null ? arg : sender));
             case "demote" -> run("party demote " + (arg != null ? arg : sender));
             case "dt", "downtime" -> {
-                if (downtimeReasons.containsKey(sender)) { pc(sender + " already has a downtime reminder!"); break; }
-                String reason = command.contains(" ") ? command.substring(command.indexOf(' ') + 1).trim() : "No reason given";
-                downtimeReasons.put(sender, reason);
+                if (downtimePlayers.contains(sender)) { pc(sender + " already has a downtime reminder!"); break; }
+                downtimePlayers.add(sender);
                 com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(true);
                 pc("Reminder set for end of run (" + sender + ") - auto-requeue paused");
             }
             case "undt", "undowntime" -> {
-                if (downtimeReasons.remove(sender) == null) { pc(sender + " has no downtime reminder set!"); break; }
-                if (downtimeReasons.isEmpty()) com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(false);
+                if (!downtimePlayers.remove(sender)) { pc(sender + " has no downtime reminder set!"); break; }
+                if (downtimePlayers.isEmpty()) com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(false);
                 pc("Downtime reminder removed (" + sender + ")");
             }
             case "help", "h" -> pc("Commands: 8ball cf dice coords ping fps time warp allinvite pt kick promote demote dt undt f1-f7 m1-m7");

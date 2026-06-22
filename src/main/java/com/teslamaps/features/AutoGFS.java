@@ -68,12 +68,21 @@ public class AutoGFS {
         }
 
         if (TeslaMapsConfig.get().autoGFSDraft) {
-            if (message.contains(PUZZLE_FAIL_PREFIX) ||
-                (message.contains(STATUE_FAIL_PREFIX) && message.contains("chose the wrong answer"))) {
-                TeslaMaps.LOGGER.info("[AutoGFS] Puzzle failed, getting draft...");
+            boolean fail = message.contains(PUZZLE_FAIL_PREFIX) ||
+                (message.contains(STATUE_FAIL_PREFIX) && message.contains("chose the wrong answer"));
+            if (fail && failedBySelf(message)) {
+                TeslaMaps.LOGGER.info("[AutoGFS] You failed the puzzle, getting draft...");
                 scheduleCommand(30, "gfs architect's first draft 1");
             }
         }
+    }
+
+    // the fail message names the player who failed — only pull a draft when that's us
+    private static boolean failedBySelf(String message) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return false;
+        String self = mc.getUser().getName();
+        return self != null && message.contains(self);
     }
 
     private static void scheduleRefill(int delayTicks) {

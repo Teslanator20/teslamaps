@@ -92,7 +92,7 @@ public class MimicDetector {
             if (entity instanceof net.minecraft.world.entity.decoration.ArmorStand) {
                 String name = entity.getName().getString();
                 if (name.contains("Mimic")) {
-                    if (name.contains("0") && !mimicKilled) {
+                    if (name.contains("0❤") && !mimicKilled) {
                         TeslaMaps.LOGGER.info("[MimicDetector] Detected Mimic death via armor stand: {}", name);
                         setMimicKilled();
                         return;

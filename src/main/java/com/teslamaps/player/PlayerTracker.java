@@ -39,7 +39,7 @@ public class PlayerTracker {
     public static final Pattern PLAYER_TAB_PATTERN = Pattern.compile(
             "\\[\\d+] (?:\\[[A-Za-z]+] )?(?<name>[A-Za-z0-9_]+) (?:.+ )?\\((?<class>\\S+) ?(?<level>[LXVI0]+)?\\)");
 
-    public static final Pattern PLAYER_GHOST_PATTERN = Pattern.compile("  (?<name>[A-Za-z0-9_]+) .+ became a ghost\\.");
+    public static final Pattern PLAYER_GHOST_PATTERN = Pattern.compile(" ☠ (?<name>[A-Za-z0-9_]+) .+ became a ghost\\.");
 
     private static final DungeonPlayer @Nullable [] players = new DungeonPlayer[5];
 
