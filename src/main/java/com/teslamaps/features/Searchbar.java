@@ -56,7 +56,7 @@ public class Searchbar {
         return inside;
     }
 
-    public static boolean onKeyPressed(int key) {
+    public static boolean onKeyPressed(int key, int scancode) {
         if (!enabled() || !focused) return false;
         if (key == GLFW.GLFW_KEY_BACKSPACE) {
             if (!query.isEmpty()) query = query.substring(0, query.length() - 1);
@@ -68,8 +68,10 @@ public class Searchbar {
             return true;
         }
         if (key == GLFW.GLFW_KEY_SPACE) { query += " "; return true; }
-        if (key >= GLFW.GLFW_KEY_A && key <= GLFW.GLFW_KEY_Z) {
-            query += (char) ('a' + (key - GLFW.GLFW_KEY_A));
+        // use the layout-correct character for the physical key (fixes QWERTZ y/z swap, allows umlauts/digits)
+        String name = GLFW.glfwGetKeyName(key, scancode);
+        if (name != null && name.length() == 1) {
+            query += name.toLowerCase();
             return true;
         }
         return false;
