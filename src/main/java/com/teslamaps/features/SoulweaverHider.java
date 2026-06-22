@@ -55,6 +55,7 @@ public class SoulweaverHider {
         if (entity instanceof ItemEntity item) {
             ItemStack stack = item.getItem();
             if (cfg.hideThrownBones && stack.getItem() == Items.BONE) return true;
+            if (!cfg.hideReviveStone && !cfg.hideJournalEntry) return false; // skip name parse if nothing to match
             String name = cleanName(stack.getHoverName().getString());
             if (cfg.hideReviveStone && name.equals("Revive Stone")) return true;
             if (cfg.hideJournalEntry && name.equals("Journal Entry")) return true;
@@ -63,20 +64,31 @@ public class SoulweaverHider {
 
         if (!(entity instanceof ArmorStand stand)) return false;
 
-        String standName = cleanName(stand.getName().getString());
-        if (cfg.hideSuperboomTnt && standName.startsWith("Superboom TNT")) return true;
-        if (cfg.hideBlessing && standName.startsWith("Blessing of ")) return true;
-        if (cfg.hideReviveStone && standName.equals("Revive Stone")) return true;
-        if (cfg.hidePremiumFlesh && standName.equals("Premium Flesh")) return true;
-        if (cfg.hideHealerOrbs && (standName.startsWith("DAMAGE ")
-                || standName.startsWith("ABILITY DAMAGE ") || standName.startsWith("DEFENSE "))) return true;
+        boolean nameOpt = cfg.hideSuperboomTnt || cfg.hideBlessing || cfg.hideReviveStone
+                || cfg.hidePremiumFlesh || cfg.hideHealerOrbs;
+        boolean texOpt = cfg.hideSoulweaverSkull || cfg.hideBlessing || cfg.hideReviveStone
+                || cfg.hidePremiumFlesh || cfg.hideHealerFairy || cfg.hideHealerOrbs;
+        if (!nameOpt && !texOpt && !cfg.hideSkeletonSkull) return false; // nothing enabled -> no per-entity work
+
+        if (nameOpt) {
+            net.minecraft.network.chat.Component cn = stand.getCustomName(); // named stands only; skips the many unnamed ones
+            if (cn != null) {
+                String standName = cleanName(cn.getString());
+                if (cfg.hideSuperboomTnt && standName.startsWith("Superboom TNT")) return true;
+                if (cfg.hideBlessing && standName.startsWith("Blessing of ")) return true;
+                if (cfg.hideReviveStone && standName.equals("Revive Stone")) return true;
+                if (cfg.hidePremiumFlesh && standName.equals("Premium Flesh")) return true;
+                if (cfg.hideHealerOrbs && (standName.startsWith("DAMAGE ")
+                        || standName.startsWith("ABILITY DAMAGE ") || standName.startsWith("DEFENSE "))) return true;
+            }
+        }
 
         ItemStack head = stand.getItemBySlot(EquipmentSlot.HEAD);
         if (head.isEmpty()) return false;
 
         if (cfg.hideSkeletonSkull && isSkeletonSkull(head)) return true;
 
-        if (head.getItem() != Items.PLAYER_HEAD) return false;
+        if (head.getItem() != Items.PLAYER_HEAD || !texOpt) return false;
         String tex = skullTexture(head);
         if (tex == null) return false;
 

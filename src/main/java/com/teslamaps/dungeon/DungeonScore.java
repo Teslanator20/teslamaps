@@ -66,6 +66,8 @@ public class DungeonScore {
     private static boolean floorDetectionPending = false;
     private static long floorDetectionTime = 0L;
 
+    private static long lastScoreCalcTime = 0L; // recompute the score at most every 500ms (called per render frame)
+
     public static void reset() {
         floorRequirement = FloorRequirement.NONE;
         currentFloor = "";
@@ -85,6 +87,7 @@ public class DungeonScore {
         score = 0;
         floorDetectionPending = false;
         floorDetectionTime = 0L;
+        lastScoreCalcTime = 0L;
     }
 
     public static void onDungeonStart() {
@@ -101,6 +104,11 @@ public class DungeonScore {
 
     public static int calculateScore() {
         if (!dungeonStarted) return 0;
+
+        // throttle: this is called every render frame but the inputs change a few times/sec at most
+        long nowMs = System.currentTimeMillis();
+        if (lastScoreCalcTime != 0L && nowMs - lastScoreCalcTime < 500) return score;
+        lastScoreCalcTime = nowMs;
 
         if (floorDetectionPending && System.currentTimeMillis() >= floorDetectionTime) {
             floorDetectionPending = false;
