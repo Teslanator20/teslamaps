@@ -49,6 +49,7 @@ public class StorageCache {
 
     private static Map<String, Entry> data = new HashMap<>();
     private static final Map<String, LinkedHashMap<Integer, ItemStack>> decoded = new HashMap<>();
+    private static final Map<String, ItemStack> decodedIcon = new HashMap<>();
     private static boolean loaded = false;
 
     public static void load() {
@@ -93,12 +94,16 @@ public class StorageCache {
         if (!loaded) load();
         if (iconSnbt == null) return;
         data.computeIfAbsent(key, k -> new Entry()).icon = iconSnbt;
+        decodedIcon.remove(key);
     }
 
     public static ItemStack icon(String key) {
         if (!loaded) load();
+        if (decodedIcon.containsKey(key)) return decodedIcon.get(key);
         Entry e = data.get(key);
-        return (e == null || e.icon == null) ? null : decode(e.icon);
+        ItemStack st = (e == null || e.icon == null) ? null : decode(e.icon);
+        decodedIcon.put(key, st);   // cache decoded icon so we don't re-parse SNBT every frame
+        return st;
     }
 
     public static boolean has(String key) {

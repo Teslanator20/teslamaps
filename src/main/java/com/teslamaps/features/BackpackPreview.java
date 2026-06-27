@@ -89,7 +89,12 @@ public class BackpackPreview {
     private static String keyFor(String text) {
         for (int i = 0; i < PATTERNS.length; i++) {
             Matcher m = PATTERNS[i].matcher(text);
-            if (m.find()) return (IS_ENDER[i] ? "epage_" : "backpack_") + m.group(1);
+            if (!m.find()) continue;
+            if (IS_ENDER[i]) return "epage_" + m.group(1);
+            // backpack: require an explicit "Backpack" so generic "Slot #N" text
+            // (e.g. "Exp Share Slot #1" in the pet menu) doesn't false-match
+            if (!text.toLowerCase().contains("backpack")) continue;
+            return "backpack_" + m.group(1);
         }
         return null;
     }

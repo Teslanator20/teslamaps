@@ -77,9 +77,9 @@ public class DungeonWaypoints {
 
     private static Waypoint parse(JsonObject o) {
         try {
-            double x = o.has("x") ? o.get("x").getAsDouble() : o.getAsJsonObject("blockPos").get("x").getAsDouble();
-            double y = o.has("y") ? o.get("y").getAsDouble() : o.getAsJsonObject("blockPos").get("y").getAsDouble();
-            double z = o.has("z") ? o.get("z").getAsDouble() : o.getAsJsonObject("blockPos").get("z").getAsDouble();
+            double x = coord(o, "x", "field_11175");
+            double y = coord(o, "y", "field_11174");
+            double z = coord(o, "z", "field_11173");
             int color = parseColor(o.has("color") ? o.get("color").getAsString() : "#FFFFFFFF");
             boolean filled = o.has("filled") && o.get("filled").getAsBoolean();
             boolean depth = !o.has("depth") || o.get("depth").getAsBoolean();
@@ -89,6 +89,15 @@ public class DungeonWaypoints {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    // reads a coordinate from the waypoint object, supporting top-level x/y/z,
+    // blockPos.x/y/z, and blockPos.<yarn field> (Vec3i: field_11175/74/73 = x/y/z)
+    private static double coord(JsonObject o, String plain, String field) {
+        if (o.has(plain)) return o.get(plain).getAsDouble();
+        JsonObject bp = o.getAsJsonObject("blockPos");
+        if (bp.has(plain)) return bp.get(plain).getAsDouble();
+        return bp.get(field).getAsDouble();
     }
 
     private static double[] readAabb(JsonObject a) {
@@ -139,13 +148,50 @@ public class DungeonWaypoints {
     }
 
     private static void drawWaypoint(PoseStack matrices, Vec3 cameraPos, Waypoint wp, double wx, double wy, double wz) {
-        AABB box = new AABB(wx + wp.minX(), wy + wp.minY(), wz + wp.minZ(),
-                wx + wp.maxX(), wy + wp.maxY(), wz + wp.maxZ());
+        AABB box = fitToBlock(wp, wx, wy, wz);
+        // leaves are cutout/non-occluding: a depth-tested box on a leaf shows the foliage through it.
+        // render those through walls so the waypoint stays clean; solid blocks still occlude normally.
+        // red (#ff5555) waypoints always render through walls (important markers).
+        boolean throughWalls = wp.depth() || isLeafAt(wx, wy, wz) || (wp.colorArgb() & 0xFFFFFF) == 0xFF5555;
         if (wp.filled()) {
-            ESPRenderer.drawFilledBox(matrices, box, wp.colorArgb(), cameraPos, wp.depth());
+            // grow slightly so the fill sits outside the block faces (no z-fighting flicker) and fully covers it
+            ESPRenderer.drawFilledBox(matrices, box.inflate(0.01), wp.colorArgb(), cameraPos, throughWalls);
         } else {
-            ESPRenderer.drawBoxOutline(matrices, box, wp.colorArgb(), 2.0f, cameraPos, wp.depth());
+            ESPRenderer.drawBoxOutline(matrices, box, wp.colorArgb(), 2.0f, cameraPos, throughWalls);
         }
+    }
+
+    private static boolean isLeafAt(double wx, double wy, double wz) {
+        net.minecraft.world.level.Level level = net.minecraft.client.Minecraft.getInstance().level;
+        if (level == null) return false;
+        return level.getBlockState(net.minecraft.core.BlockPos.containing(wx, wy, wz))
+                .is(net.minecraft.tags.BlockTags.LEAVES);
+    }
+
+    // when the stored box is the default full cube, hug the actual block shape (slab, wall, stairs, ...)
+    private static AABB fitToBlock(Waypoint wp, double wx, double wy, double wz) {
+        if (isDefaultCube(wp)) {
+            net.minecraft.world.level.Level level = net.minecraft.client.Minecraft.getInstance().level;
+            if (level != null) {
+                net.minecraft.core.BlockPos pos = net.minecraft.core.BlockPos.containing(wx, wy, wz);
+                net.minecraft.world.level.block.state.BlockState state = level.getBlockState(pos);
+                if (!state.isAir()) {
+                    net.minecraft.world.phys.shapes.VoxelShape shape = state.getShape(level, pos);
+                    if (!shape.isEmpty()) {
+                        AABB b = shape.bounds();
+                        return new AABB(wx + b.minX, wy + b.minY, wz + b.minZ,
+                                wx + b.maxX, wy + b.maxY, wz + b.maxZ);
+                    }
+                }
+            }
+        }
+        return new AABB(wx + wp.minX(), wy + wp.minY(), wz + wp.minZ(),
+                wx + wp.maxX(), wy + wp.maxY(), wz + wp.maxZ());
+    }
+
+    private static boolean isDefaultCube(Waypoint wp) {
+        return wp.minX() == 0 && wp.minY() == 0 && wp.minZ() == 0
+                && wp.maxX() == 1 && wp.maxY() == 1 && wp.maxZ() == 1;
     }
 
     public static void debug() {
@@ -176,6 +222,28 @@ public class DungeonWaypoints {
                     .append(corner[0] + ComponentGrid.HALF_ROOM_SIZE).append(",").append(corner[1] + ComponentGrid.HALF_ROOM_SIZE).append("] ");
         }
         msg.accept("Components: §7" + comps);
+
+        // full-footprint scan: find ALL blue terracotta in the room and report offset from each component corner
+        net.minecraft.world.level.Level lvl = mc.level;
+        if (lvl != null) {
+            net.minecraft.core.BlockPos.MutableBlockPos mb = new net.minecraft.core.BlockPos.MutableBlockPos();
+            int found = 0;
+            for (int[] c : room.getComponents()) {
+                int[] corner = ComponentGrid.gridToWorldCorner(c[0], c[1]);
+                for (int dx = 0; dx <= ComponentGrid.ROOM_SIZE - 1 && found < 12; dx++)
+                    for (int dz = 0; dz <= ComponentGrid.ROOM_SIZE - 1 && found < 12; dz++)
+                        for (int y = 150; y >= 11; y--) {
+                            if (lvl.getBlockState(mb.set(corner[0] + dx, y, corner[1] + dz))
+                                    .is(net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA)) {
+                                msg.accept("§9terracotta §fat §e" + (corner[0] + dx) + "," + y + "," + (corner[1] + dz)
+                                        + "§7 (offset from corner " + dx + "," + dz + ", expected one of 0/30)");
+                                found++;
+                                break;
+                            }
+                        }
+            }
+            if (found == 0) msg.accept("§cNo BLUE_TERRACOTTA anywhere in the room footprint (y 11-150).");
+        }
 
         net.minecraft.core.BlockPos p = mc.player.blockPosition();
         if (rot >= 0) {
@@ -208,12 +276,17 @@ public class DungeonWaypoints {
             return "§aAdded waypoint in §e\"" + room.getName() + "\"§a @ " + coords;
         }
 
+        String why = !DungeonManager.isInDungeon() ? "not in dungeon"
+                : room == null ? "no room at your position"
+                : room.getName() == null ? "room has no name"
+                : "no terracotta found (clay scan failed)";
+
         List<Waypoint> list = byRoom.computeIfAbsent(ABSOLUTE_KEY, k -> new ArrayList<>());
         if (removeAt(list, ABSOLUTE_KEY, target.getX(), target.getY(), target.getZ()))
             return "§eRemoved §babsolute§e waypoint @ " + coords;
         list.add(new Waypoint(target.getX(), target.getY(), target.getZ(), colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
         save();
-        return "§aAdded §babsolute§a waypoint @ " + coords;
+        return "§aAdded §babsolute§a waypoint @ " + coords + " §7(" + why + ")";
     }
 
     // removes a waypoint at the exact (rx,ry,rz); returns true if one was found and removed
@@ -238,31 +311,40 @@ public class DungeonWaypoints {
         DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
         int[] clay = (room != null && room.getName() != null) ? detectClay(room) : null;
 
-        String key;
-        List<Waypoint> list;
-        int[] xf; // clay transform, or null for absolute
-        if (room != null && room.getName() != null && clay != null) {
-            key = room.getName(); list = byRoom.get(key); xf = clay;
-        } else {
-            key = ABSOLUTE_KEY; list = byRoom.get(key); xf = null;
-        }
-        if (list == null || list.isEmpty()) return "§eNo waypoints here.";
-
+        // consider both the current room's waypoints AND absolute ones, remove whichever is physically nearest
+        String bestKey = null;
         int best = -1;
         double bestD = Double.MAX_VALUE;
-        for (int i = 0; i < list.size(); i++) {
-            Waypoint wp = list.get(i);
-            double wx, wz;
-            if (xf != null) { double[] rot = rotateAroundNorth(xf[2], wp.rx(), wp.rz()); wx = rot[0] + xf[0]; wz = rot[1] + xf[1]; }
-            else { wx = wp.rx(); wz = wp.rz(); }
-            double dx = wx + 0.5 - px, dy = wp.ry() + 0.5 - py, dz = wz + 0.5 - pz;
-            double d = dx * dx + dy * dy + dz * dz;
-            if (d < bestD) { bestD = d; best = i; }
+        if (room != null && room.getName() != null && clay != null)
+            for (int i = 0; i < sizeOf(room.getName()); i++) {
+                Waypoint wp = byRoom.get(room.getName()).get(i);
+                double[] rot = rotateAroundNorth(clay[2], wp.rx(), wp.rz());
+                double d = dist2(rot[0] + clay[0], wp.ry(), rot[1] + clay[1], px, py, pz);
+                if (d < bestD) { bestD = d; best = i; bestKey = room.getName(); }
+            }
+        for (int i = 0; i < sizeOf(ABSOLUTE_KEY); i++) {
+            Waypoint wp = byRoom.get(ABSOLUTE_KEY).get(i);
+            double d = dist2(wp.rx(), wp.ry(), wp.rz(), px, py, pz);
+            if (d < bestD) { bestD = d; best = i; bestKey = ABSOLUTE_KEY; }
         }
+        if (bestKey == null) return "§eNo waypoints here.";
+
+        List<Waypoint> list = byRoom.get(bestKey);
         list.remove(best);
-        if (list.isEmpty()) byRoom.remove(key);
+        if (list.isEmpty()) byRoom.remove(bestKey);
         save();
-        return "§aRemoved the nearest waypoint (" + list.size() + " left).";
+        String where = bestKey.equals(ABSOLUTE_KEY) ? "§babsolute§a " : "";
+        return "§aRemoved the nearest " + where + "waypoint (" + list.size() + " left).";
+    }
+
+    private static int sizeOf(String key) {
+        List<Waypoint> l = byRoom.get(key);
+        return l == null ? 0 : l.size();
+    }
+
+    private static double dist2(double wx, double wy, double wz, double px, double py, double pz) {
+        double dx = wx + 0.5 - px, dy = wy + 0.5 - py, dz = wz + 0.5 - pz;
+        return dx * dx + dy * dy + dz * dz;
     }
 
     public static String clearRoom() {
@@ -341,6 +423,11 @@ public class DungeonWaypoints {
     public static int[] relativeToWorld(int[] clay, int relX, int relZ) {
         double[] rot = rotateAroundNorth(clay[2], relX, relZ);
         return new int[]{(int) Math.round(rot[0]) + clay[0], (int) Math.round(rot[1]) + clay[1]};
+    }
+
+    public static int[] worldToRelative(int[] clay, int worldX, int worldZ) {
+        double[] rel = rotateToNorth(clay[2], worldX - clay[0], worldZ - clay[1]);
+        return new int[]{(int) Math.round(rel[0]), (int) Math.round(rel[1])};
     }
 
     static int[] detectClay(DungeonRoom room) {

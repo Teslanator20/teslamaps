@@ -62,6 +62,7 @@ public class MapRenderer {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.mapEnabled) return;
         if (config.onlyShowInDungeon && !DungeonManager.isInDungeon()) return;
+        if (config.mapOnlyInBoss && !DungeonManager.isInBoss()) return;
         renderAt(context, config.mapX, config.mapY, config.mapScale, false);
     }
 
@@ -71,8 +72,10 @@ public class MapRenderer {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         playerMarkers.clear();
 
+        boolean legit = com.teslamaps.features.LegitMode.isFiltering();
         Collection<DungeonRoom> rooms = DungeonManager.getGrid().getAllRooms().stream()
                 .filter(r -> r.getType() != RoomType.UNKNOWN && !"Unknown".equals(r.getName()))
+                .filter(r -> !legit || r.isExplored())
                 .toList();
         calculateDungeonBounds(rooms);
 
@@ -80,7 +83,7 @@ public class MapRenderer {
         int gridHeight = maxGridZ - minGridZ + 1;
         int mapWidth = (int)((MAP_PADDING * 2 + gridWidth * CELL_SIZE) * scale);
         int mapHeight = (int)((MAP_PADDING * 2 + gridHeight * CELL_SIZE) * scale);
-        int infoHeight = leapMode ? 0 : 36;
+        int infoHeight = leapMode ? 0 : (int)(36 * scale * config.infoTextScale);
         int totalHeight = mapHeight + infoHeight;
 
         lastMapX = baseX; lastMapY = baseY; lastMapW = mapWidth; lastMapH = mapHeight;
@@ -88,11 +91,14 @@ public class MapRenderer {
         if (config.showMapBackground || leapMode) {
             drawBackground(context, baseX, baseY, mapWidth, totalHeight);
         }
-        drawRoomConnections(context, rooms, baseX, baseY, scale);
+        drawRoomConnections(context, rooms, baseX, baseY, scale, legit);
 
         Set<DungeonRoom> drawnRooms = new HashSet<>();
         for (DungeonRoom room : rooms) {
             if (!drawnRooms.contains(room)) { drawRoom(context, room, baseX, baseY, scale); drawnRooms.add(room); }
+        }
+        if (legit) {
+            drawGuessRooms(context, baseX, baseY, scale);
         }
         drawnRooms.clear();
         for (DungeonRoom room : rooms) {
@@ -103,45 +109,36 @@ public class MapRenderer {
             drawPlayerMarker(context, mc, baseX, baseY, scale);
         }
         if (!leapMode) {
-            drawInfoText(context, mc, baseX, baseY + mapHeight + 2, mapWidth);
+            drawInfoText(context, mc, baseX, baseY + mapHeight + 2, mapWidth, scale * config.infoTextScale);
         }
     }
 
     private static void calculateDungeonBounds(Collection<DungeonRoom> rooms) {
-        if (rooms.isEmpty()) {
-            minGridX = 0; maxGridX = 5;
-            minGridZ = 0; maxGridZ = 5;
-            totalSecrets = 0;
-            return;
-        }
-
-        minGridX = Integer.MAX_VALUE;
-        maxGridX = Integer.MIN_VALUE;
-        minGridZ = Integer.MAX_VALUE;
-        maxGridZ = Integer.MIN_VALUE;
+        // Fixed full grid so the map border stays the same size from the start
+        // instead of growing as rooms get discovered.
+        minGridX = 0; maxGridX = ComponentGrid.GRID_SIZE - 1;
+        minGridZ = 0; maxGridZ = ComponentGrid.GRID_SIZE - 1;
         totalSecrets = 0;
 
         Set<DungeonRoom> counted = new HashSet<>();
         for (DungeonRoom room : rooms) {
-            for (int[] comp : room.getComponents()) {
-                if (comp[0] < minGridX) minGridX = comp[0];
-                if (comp[0] > maxGridX) maxGridX = comp[0];
-                if (comp[1] < minGridZ) minGridZ = comp[1];
-                if (comp[1] > maxGridZ) maxGridZ = comp[1];
-            }
             if (!counted.contains(room) && room.getSecrets() > 0) {
                 totalSecrets += room.getSecrets();
                 counted.add(room);
             }
         }
-
-        if (maxGridX - minGridX < 1) maxGridX = minGridX + 1;
-        if (maxGridZ - minGridZ < 1) maxGridZ = minGridZ + 1;
     }
 
-    private static void drawInfoText(GuiGraphicsExtractor context, Minecraft mc, int x, int y, int width) {
+    private static void drawInfoText(GuiGraphicsExtractor context, Minecraft mc, int x, int y, int width, float scale) {
         var textRenderer = mc.font;
         TeslaMapsConfig config = TeslaMapsConfig.get();
+
+        // Render in scaled local space so the info box shrinks/grows with the map.
+        int lw = (int)(width / scale); // logical (unscaled) width
+        var matrices = context.pose();
+        matrices.pushMatrix();
+        matrices.translate(x, y);
+        matrices.scale(scale, scale);
 
         double secretsPercent = TabListUtils.getSecretsPercentage();
 
@@ -162,7 +159,7 @@ public class MapRenderer {
                 : "Secrets: ?/?/" + totalSecrets;
 
         int secretsColor = (remainingSecrets == 0) ? 0xFF55FF55 : 0xFFFFFFFF;
-        context.text(textRenderer, secretsText, x + 4, y + 2, secretsColor);
+        context.text(textRenderer, secretsText, 4, 2, secretsColor);
 
         if (config.showCrypts) {
             int cryptsFound = TabListUtils.getCryptsFound();
@@ -194,10 +191,10 @@ public class MapRenderer {
             }
 
             int cryptsWidth = textRenderer.width(cryptsText);
-            context.text(textRenderer, cryptsText, x + width - cryptsWidth - 4, y + 2, cryptsColor);
+            context.text(textRenderer, cryptsText, lw - cryptsWidth - 4, 2, cryptsColor);
         }
 
-        int line2Y = y + 12;
+        int line2Y = 12;
 
         if (config.showMimicStatus) {
             boolean mimicKilled = MimicDetector.isMimicKilled();
@@ -217,7 +214,20 @@ public class MapRenderer {
                 mimicColor = 0xFFAAAAAA;
             }
 
-            context.text(textRenderer, mimicText, x + 4, line2Y, mimicColor);
+            context.text(textRenderer, mimicText, 4, line2Y, mimicColor);
+
+            if (config.showPrinceStatus && runHasPrinceRoom()) {
+                boolean killed = DungeonScore.isPrinceKilled();
+                String princeText = killed ? "Prince: \u2714" : "Prince: \u2718";
+                int princeColor = killed ? 0xFF55FF55 : 0xFFFF5555;
+                int mimicWidth = textRenderer.width(mimicText);
+                context.text(textRenderer, princeText, 4 + mimicWidth + 10, line2Y, princeColor);
+            }
+        } else if (config.showPrinceStatus && runHasPrinceRoom()) {
+            boolean killed = DungeonScore.isPrinceKilled();
+            String princeText = killed ? "Prince: \u2714" : "Prince: \u2718";
+            int princeColor = killed ? 0xFF55FF55 : 0xFFFF5555;
+            context.text(textRenderer, princeText, 4, line2Y, princeColor);
         }
 
         if (config.showDungeonScore) {
@@ -236,8 +246,10 @@ public class MapRenderer {
             }
 
             int scoreWidth = textRenderer.width(scoreText);
-            context.text(textRenderer, scoreText, x + width - scoreWidth - 4, line2Y, scoreColor);
+            context.text(textRenderer, scoreText, lw - scoreWidth - 4, line2Y, scoreColor);
         }
+
+        matrices.popMatrix();
     }
 
     private static int getRequiredSecretPercentForDisplay() {
@@ -274,7 +286,7 @@ public class MapRenderer {
         return baseY + (int)((MAP_PADDING + (gridZ - minGridZ) * CELL_SIZE) * scale);
     }
 
-    private static void drawRoomConnections(GuiGraphicsExtractor context, Collection<DungeonRoom> rooms, int baseX, int baseY, float scale) {
+    private static void drawRoomConnections(GuiGraphicsExtractor context, Collection<DungeonRoom> rooms, int baseX, int baseY, float scale, boolean legit) {
         int doorThickness = (int)(DOOR_SIZE * scale * 2);
         if (doorThickness < 5) doorThickness = 5;
 
@@ -286,7 +298,7 @@ public class MapRenderer {
                 int gz = comp[1];
 
                 DungeonRoom rightRoom = DungeonManager.getGrid().getRoom(gx + 1, gz);
-                if (rightRoom != null && rightRoom != room) {
+                if (rightRoom != null && rightRoom != room && (!legit || rightRoom.isExplored())) {
                     String key = gx + "," + gz + "-" + (gx+1) + "," + gz;
                     if (!drawnConnections.contains(key)) {
                         DoorType doorType = DoorScanner.getDoorType(gx, gz, gx + 1, gz);
@@ -305,7 +317,7 @@ public class MapRenderer {
                 }
 
                 DungeonRoom bottomRoom = DungeonManager.getGrid().getRoom(gx, gz + 1);
-                if (bottomRoom != null && bottomRoom != room) {
+                if (bottomRoom != null && bottomRoom != room && (!legit || bottomRoom.isExplored())) {
                     String key = gx + "," + gz + "-" + gx + "," + (gz+1);
                     if (!drawnConnections.contains(key)) {
                         DoorType doorType = DoorScanner.getDoorType(gx, gz, gx, gz + 1);
@@ -335,6 +347,49 @@ public class MapRenderer {
             case ENTRANCE -> TeslaMapsConfig.parseColor(config.colorDoorEntrance);
             default -> TeslaMapsConfig.parseColor(config.colorDoorNormal);
         };
+    }
+
+    // Legit Mode: a plain dark-grey 1x1 placeholder behind each door to an undiscovered cell.
+    private static void drawGuessRooms(GuiGraphicsExtractor context, int baseX, int baseY, float scale) {
+        List<com.teslamaps.map.LegitGuess.Door> guessDoors = com.teslamaps.map.LegitGuess.getGuessDoors();
+        if (guessDoors.isEmpty()) return;
+
+        int gray = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorUnexplored);
+        int roomSize = (int) (ROOM_SIZE * scale);
+
+        Set<Long> drawn = new HashSet<>();
+        for (com.teslamaps.map.LegitGuess.Door d : guessDoors) {
+            long ck = ((long) d.nx() << 32) | (d.nz() & 0xffffffffL);
+            if (!drawn.add(ck)) continue;
+            int px = gridToPixelX(d.nx(), baseX, scale);
+            int py = gridToPixelY(d.nz(), baseY, scale);
+            context.fill(px, py, px + roomSize, py + roomSize, gray);
+        }
+
+        for (com.teslamaps.map.LegitGuess.Door d : guessDoors) {
+            drawDoorBetween(context, d.gx(), d.gz(), d.nx(), d.nz(), getDoorColor(d.type()), baseX, baseY, scale);
+        }
+    }
+
+    private static void drawDoorBetween(GuiGraphicsExtractor context, int gx, int gz, int nx, int nz, int color, int baseX, int baseY, float scale) {
+        int doorThickness = (int) (DOOR_SIZE * scale * 2);
+        if (doorThickness < 5) doorThickness = 5;
+
+        int ax, az, bx, bz;
+        if (gx != nx) { ax = Math.min(gx, nx); bx = Math.max(gx, nx); az = gz; bz = gz; }
+        else { az = Math.min(gz, nz); bz = Math.max(gz, nz); ax = gx; bx = gx; }
+
+        if (bx == ax + 1) { // horizontal door
+            int x1 = gridToPixelX(ax, baseX, scale) + (int) (ROOM_SIZE * scale) - 1;
+            int yCenter = gridToPixelY(az, baseY, scale) + (int) (ROOM_SIZE / 2 * scale);
+            int x2 = gridToPixelX(bx, baseX, scale) + 1;
+            context.fill(x1, yCenter - doorThickness / 2, x2, yCenter + doorThickness / 2, color);
+        } else { // vertical door
+            int xCenter = gridToPixelX(ax, baseX, scale) + (int) (ROOM_SIZE / 2 * scale);
+            int y1 = gridToPixelY(az, baseY, scale) + (int) (ROOM_SIZE * scale) - 1;
+            int y2 = gridToPixelY(bz, baseY, scale) + 1;
+            context.fill(xCenter - doorThickness / 2, y1, xCenter + doorThickness / 2, y2, color);
+        }
     }
 
     private static void drawRoom(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
@@ -441,6 +496,74 @@ public class MapRenderer {
             }
 
         }
+
+        drawPrinceIcon(context, room, baseX, baseY, scale);
+    }
+
+    private static boolean runHasPrinceRoom() {
+        for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
+            if (room.getRoomData() != null && room.getRoomData().getPrince()) return true;
+        }
+        return false;
+    }
+
+    private static final net.minecraft.resources.Identifier[] CROWN_TEX = {
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("teslamaps", "textures/map/crown1.png"),
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("teslamaps", "textures/map/crown2.png"),
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("teslamaps", "textures/map/crown3.png"),
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("teslamaps", "textures/map/crown4.png"),
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("teslamaps", "textures/map/crown5.png"),
+    };
+
+    private static void drawPrinceIcon(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
+        if (!TeslaMapsConfig.get().showPrinceIcon) return;
+        if (DungeonScore.isPrinceKilled()) return;
+        if (room.getRoomData() == null || !room.getRoomData().getPrince()) return;
+
+        int[] primary = room.getPrimaryComponent();
+        int cellX = gridToPixelX(primary[0], baseX, scale);
+        int cellY = gridToPixelY(primary[1], baseY, scale);
+        int cellSize = (int)(ROOM_SIZE * scale);
+
+        int variant = TeslaMapsConfig.get().princeCrownVariant;
+        if (variant >= 1 && variant <= CROWN_TEX.length) {
+            int sz = Math.max(11, (int)(14 * scale));
+            int px = cellX + cellSize - sz - 1;
+            int py = cellY + 1;
+            context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,
+                    CROWN_TEX[variant - 1], px, py, 0f, 0f, sz, sz, 128, 128, 128, 128);
+            return;
+        }
+
+        int s = Math.max(8, (int)(9 * scale));
+        int ix = cellX + cellSize - s - 2; // top-right corner, away from secret count
+        int iy = cellY + 2;
+        int gold = 0xFFFFD700;
+        int shade = 0xFFB8860B;
+        int jewel = 0xFFE03A3A;
+
+        int bandH = Math.max(2, s / 4);
+        int bandTop = iy + s - bandH;
+        int peakH = bandTop - iy;
+
+        context.fill(ix, bandTop, ix + s, iy + s, gold);              // base band
+        context.fill(ix, iy + s - 1, ix + s, iy + s, shade);          // band bottom edge
+
+        int mid = ix + s / 2;
+        fillPointUp(context, ix, bandTop, peakH * 3 / 5, gold);       // left point (shorter)
+        fillPointUp(context, ix + s - 1, bandTop, peakH * 3 / 5, gold); // right point (shorter)
+        fillPointUp(context, mid, bandTop, peakH, gold);              // center point (tallest)
+
+        context.fill(mid, iy, mid + 1, iy + 1, jewel);               // center jewel tip
+    }
+
+    // triangle pointing up: tip at (tipX, baseY-height), base on the band
+    private static void fillPointUp(GuiGraphicsExtractor context, int tipX, int baseY, int height, int color) {
+        for (int row = 0; row < height; row++) {
+            int y = baseY - 1 - row;
+            int half = (row * 2) / Math.max(1, height) + 1; // widens toward the band
+            context.fill(tipX - half, y, tipX + half + 1, y + 1, color);
+        }
     }
 
     private static boolean hasComponent(DungeonRoom room, int x, int z) {
@@ -450,9 +573,17 @@ public class MapRenderer {
         return false;
     }
 
+    private static boolean holdingLeap() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return false;
+        String id = com.teslamaps.utils.ItemUtil.skyblockId(mc.player.getMainHandItem());
+        return id.equals("SPIRIT_LEAP") || id.equals("INFINITE_SPIRIT_LEAP");
+    }
+
     private static void drawRoomName(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.showRoomNames) return;
+        if (config.roomNamesOnlyWithLeap && !holdingLeap()) return;
         if (room.getName() == null) return;
 
         if (config.showNamesOnlyForPuzzles && room.getType() != com.teslamaps.map.RoomType.PUZZLE) {

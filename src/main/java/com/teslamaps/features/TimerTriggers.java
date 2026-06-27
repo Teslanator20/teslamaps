@@ -30,32 +30,71 @@ public class TimerTriggers {
 
     private static final class Mask {
         final String key, name; final long imm; long cd; long proc = -1;
-        Mask(String key, String name, long imm, long cd) { this.key = key; this.name = name; this.imm = imm; this.cd = cd; }
+        final ItemStack icon;
+        Mask(String key, String name, long imm, long cd, ItemStack icon) {
+            this.key = key; this.name = name; this.imm = imm; this.cd = cd; this.icon = icon;
+        }
         void tick(boolean enabled) {
             if (!enabled || proc < 0) { DungeonTimers.clear(key); return; }
             long dt = now() - proc;
             if (dt < cd) {
-                String s = (dt < imm) ? name + "§f: §aimmune " + fmt(imm - dt)
-                                      : name + "§f: " + color(cd - dt, cd) + fmt(cd - dt);
-                DungeonTimers.set(key, s);
+                // skull icon identifies the mask, so no name/label text — just the time
+                String s = (dt < imm) ? "§a" + fmt(imm - dt)
+                                      : color(cd - dt, cd) + fmt(cd - dt);
+                DungeonTimers.set(key, s, icon);
             } else if (dt < cd + 5000) {
-                DungeonTimers.set(key, name + "§f: §a§lREADY");
+                DungeonTimers.set(key, "§a§lREADY", icon);
             } else { proc = -1; DungeonTimers.clear(key); }
         }
     }
 
-    private static final Mask BONZO = new Mask("bonzo", "§9Bonzo", 3000, 360000);
-    private static final Mask SPIRIT = new Mask("spirit", "§bSpirit", 3000, 30000);
-    private static final Mask PHOENIX = new Mask("phoenix", "§6Phoenix", 4000, 60000);
+    public static ItemStack maskIcon(int i) {
+        return switch (i) { case 0 -> BONZO.icon; case 1 -> SPIRIT.icon; default -> PHOENIX.icon; };
+    }
+
+    // hardcoded mask/pet head icons (texture hashes), Odin-style icon + ready/cooldown display
+    private static ItemStack createSkull(String hash) {
+        try {
+            ItemStack head = new ItemStack(net.minecraft.world.item.Items.PLAYER_HEAD);
+            String json = "{\"textures\":{\"SKIN\":{\"url\":\"http://textures.minecraft.net/texture/" + hash + "\"}}}";
+            String b64 = java.util.Base64.getEncoder().encodeToString(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            // PropertyMap copies into an ImmutableMultimap, so fill a mutable map first then wrap
+            com.google.common.collect.Multimap<String, com.mojang.authlib.properties.Property> mm =
+                    com.google.common.collect.LinkedHashMultimap.create();
+            mm.put("textures", new com.mojang.authlib.properties.Property("textures", b64));
+            com.mojang.authlib.properties.PropertyMap props = new com.mojang.authlib.properties.PropertyMap(mm);
+            com.mojang.authlib.GameProfile profile =
+                    new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(), "skull", props);
+            head.set(DataComponents.PROFILE, net.minecraft.world.item.component.ResolvableProfile.createResolved(profile));
+            return head;
+        } catch (Throwable t) {
+            com.teslamaps.TeslaMaps.LOGGER.warn("[TimerTriggers] failed to build skull icon", t);
+            return null; // DungeonTimers falls back to text-only when icon is null
+        }
+    }
+
+    private static final Mask BONZO = new Mask("bonzo", "§9Bonzo", 3000, 360000,
+            createSkull("12716ecbf5b8da00b05f316ec6af61e8bd02805b21eb8e440151468dc656549c"));
+    private static final Mask SPIRIT = new Mask("spirit", "§bSpirit", 3000, 30000,
+            createSkull("9bbe721d7ad8ab965f08cbec0b834f779b5197f79da4aea3d13d253ece9dec2"));
+    private static final Mask PHOENIX = new Mask("phoenix", "§6Phoenix", 4000, 60000,
+            createSkull("66b1b59bc890c9c97527787dde20600c8b86f6b9912d51a6bfcdb0e4c2aa3c97"));
 
     public static void onChatMessage(String m) {
         if (m.contains("The Catacombs, Floor") && m.contains("entered")) warpEnd = now() + 30000;
         if (m.contains("[BOSS] Storm: ENERGY HEED MY CALL!")
                 || m.contains("[BOSS] Storm: THUNDER LET ME BE YOUR CATALYST!")) purplePadTicks = 96;
         if (m.contains("[BOSS] Necron: All this, for nothing...")) relicTicks = 45;
-        if (m.contains("Bonzo's Mask saved your life")) { BONZO.proc = now(); BONZO.cd = readCooldown("Bonzo's Mask", 360000); }
-        if (m.contains("Spirit Mask saved your life")) SPIRIT.proc = now();
-        if (m.contains("Phoenix Pet saved you from certain death")) PHOENIX.proc = now();
+        if (m.contains("Bonzo's Mask saved your life")) { BONZO.proc = now(); BONZO.cd = readCooldown("Bonzo's Mask", 360000); announce("Bonzo"); }
+        if (m.contains("Spirit Mask saved your life")) { SPIRIT.proc = now(); announce("Spirit"); }
+        if (m.contains("Phoenix Pet saved you from certain death")) { PHOENIX.proc = now(); announce("Phoenix"); }
+    }
+
+    private static void announce(String name) {
+        if (!TeslaMapsConfig.get().invincibilityAnnounce) return;
+        if (!com.teslamaps.dungeon.DungeonManager.isInDungeon()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getConnection() != null) mc.getConnection().sendCommand("pc " + name + " Procced!");
     }
 
     public static void tick() {

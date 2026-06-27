@@ -27,33 +27,42 @@ import java.util.Set;
 public class KeybindMessage {
     private static final Set<Integer> heldKeys = new HashSet<>();
     private static final Set<Integer> heldWp = new HashSet<>();
+    private static long screenOpenMs = 0L; // last time a screen (e.g. chat) was open
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.getConnection() == null || mc.getWindow() == null) return;
-        if (mc.screen != null) { heldKeys.clear(); heldWp.clear(); return; }
+        if (mc.screen != null) { screenOpenMs = System.currentTimeMillis(); heldKeys.clear(); heldWp.clear(); return; }
+
+        // grace period after closing a screen: still track key state, but don't fire — stops a key you
+        // just typed (e.g. "o" in a chat message) from being seen as a fresh press the moment chat closes
+        boolean fire = System.currentTimeMillis() - screenOpenMs >= TeslaMapsConfig.get().hotkeyChatDelay;
 
         long handle = mc.getWindow().handle();
         for (TeslaMapsConfig.Keybind kb : TeslaMapsConfig.get().keybinds) {
             if (kb.key < 0 || kb.message == null || kb.message.isBlank()) continue;
             boolean down = GLFW.glfwGetKey(handle, kb.key) == GLFW.GLFW_PRESS;
             boolean wasDown = heldKeys.contains(kb.key);
-            if (down && !wasDown) send(kb.message);   // edge: just pressed
+            if (down && !wasDown && fire) send(kb.message);   // edge: just pressed
             if (down) heldKeys.add(kb.key); else heldKeys.remove(kb.key);
         }
 
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        pollWp(handle, cfg.waypointAddKey, () -> wpResult(DungeonWaypoints.addAtTarget(
+        pollWp(handle, cfg.waypointAddKey, fire, () -> wpResult(DungeonWaypoints.addAtTarget(
                 TeslaMapsConfig.parseColor(cfg.waypointAddColor), cfg.waypointAddFilled, cfg.waypointAddThroughWalls)));
-        pollWp(handle, cfg.waypointRemoveKey, () -> wpResult(DungeonWaypoints.removeNearest()));
-        pollWp(handle, cfg.waypointClearKey, () -> wpResult(DungeonWaypoints.clearRoom()));
+        pollWp(handle, cfg.waypointAdd2Key, fire, () -> wpResult(DungeonWaypoints.addAtTarget(
+                TeslaMapsConfig.parseColor(cfg.waypointAdd2Color), cfg.waypointAdd2Filled, cfg.waypointAdd2ThroughWalls)));
+        pollWp(handle, cfg.waypointAdd3Key, fire, () -> wpResult(DungeonWaypoints.addAtTarget(
+                TeslaMapsConfig.parseColor(cfg.waypointAdd3Color), cfg.waypointAdd3Filled, cfg.waypointAdd3ThroughWalls)));
+        pollWp(handle, cfg.waypointRemoveKey, fire, () -> wpResult(DungeonWaypoints.removeNearest()));
+        pollWp(handle, cfg.waypointClearKey, fire, () -> wpResult(DungeonWaypoints.clearRoom()));
     }
 
-    private static void pollWp(long handle, int key, Runnable action) {
+    private static void pollWp(long handle, int key, boolean fire, Runnable action) {
         if (key < 0) return;
         boolean down = GLFW.glfwGetKey(handle, key) == GLFW.GLFW_PRESS;
         boolean was = heldWp.contains(key);
-        if (down && !was) action.run();
+        if (down && !was && fire) action.run();
         if (down) heldWp.add(key); else heldWp.remove(key);
     }
 

@@ -16,6 +16,7 @@
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.features.croesus.PriceManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -37,11 +38,43 @@ import java.util.Map;
 
 public class StorageOverlay {
 
-    private static final float SCALE = 1.5f;
-    private static final float INV_SCALE = 2.0f;
     private static final int COLS = 3, CELL = 18, GRID_COLS = 9, HEADER = 10;
     private static final int BOX_W = GRID_COLS * CELL + 6;
     private static final int GAP = 8;
+
+    // Both scales are FITTED to the current scaled-GUI size every frame so the overlay looks the
+    // same at any resolution / GUI scale; the config value just nudges it within a safe range.
+    private static final float SIDE_MARGIN = 8f;
+    private static final int SCROLLBAR_W = 13;
+    private static float fitScl = 1.5f, fitIscl = 2.0f;
+
+    private static float scl() { return fitScl; }
+    private static float iscl() { return fitIscl; }
+
+    private static float userScale() {
+        return Math.max(0.5f, Math.min(1.5f, TeslaMapsConfig.get().storageOverlayScale));
+    }
+
+    // Box-grid scale: fit 3 columns into the width minus margins+scrollbar, capped so it never
+    // grows absurdly large on wide screens, then nudged by the user scale but re-clamped to fit.
+    private static void layout(int screenW, int screenH) {
+        float boxGridW = COLS * BOX_W + (COLS - 1) * GAP;          // 520 virtual px
+        float availBoxW = screenW - 2 * SIDE_MARGIN - SCROLLBAR_W;
+        float maxBoxScl = availBoxW / boxGridW;
+        float boxScl = Math.min(maxBoxScl, 1.15f) * userScale();
+        // never exceed the fit width (would clip / hit the scrollbar); floor only as a last resort
+        fitScl = Math.min(Math.max(0.4f, boxScl), maxBoxScl);
+
+        float bottomW = SEL_COLS * SEL_CELL + SEL_GAP + 9 * 18;     // selector + gap + inventory
+        float availBottomW = screenW - 2 * SIDE_MARGIN;
+        float maxInvScl = availBottomW / bottomW;
+        // also bound by available bottom height so the inventory never eats the box area
+        float invVirtH = 13 + 3 * 18 + 4 + 18 + 13;                 // wall top..hotbar bottom padding
+        float maxInvSclH = (screenH * 0.42f) / invVirtH;
+        float maxInv = Math.min(maxInvScl, maxInvSclH);
+        float invScl = Math.min(maxInv, 1.5f) * userScale();
+        fitIscl = Math.min(Math.max(0.4f, invScl), maxInv);
+    }
 
     private static int topPad() { return TeslaMapsConfig.get().storageShowNames ? HEADER : 2; }
     private static int boxH() { return topPad() + 5 * CELL + 2; }
@@ -53,6 +86,86 @@ public class StorageOverlay {
     private static boolean searchFocused = false;
     private static float scroll = 0;
     private static boolean scrollDragging = false;
+
+    private record PageVal(String label, double value) {}
+    private record ItemVal(String name, double value) {}
+
+    private static long lastValueCalc = 0;
+    private static double cachedTotal = 0;
+    private static List<PageVal> cachedPages = new ArrayList<>();
+    private static List<ItemVal> cachedTop = new ArrayList<>();
+
+    private static void recalcValue() {
+        long now = System.currentTimeMillis();
+        if (now - lastValueCalc < 2000) return;
+        lastValueCalc = now;
+        PriceManager.ensureFresh();
+        String live = liveKey();
+        double total = 0;
+        List<PageVal> pages = new ArrayList<>();
+        List<ItemVal> items = new ArrayList<>();
+        for (int i = 1; i <= 9; i++) total += accumPage("epage_" + i, "Ender " + i, live, pages, items);
+        for (int i = 1; i <= 18; i++) total += accumPage("backpack_" + i, "Backpack " + i, live, pages, items);
+        items.sort((a, b) -> Double.compare(b.value, a.value));
+        cachedTotal = total;
+        cachedPages = pages;
+        cachedTop = items.size() > 10 ? new ArrayList<>(items.subList(0, 10)) : items;
+    }
+
+    private static double accumPage(String key, String label, String live, List<PageVal> pages, List<ItemVal> items) {
+        Map<Integer, ItemStack> m = key.equals(live) ? liveContent() : StorageCache.items(key);
+        if (m == null || m.isEmpty()) return 0;
+        double pv = 0;
+        for (ItemStack st : m.values()) {
+            double v = EstimatedValue.compute(st) * st.getCount();
+            if (v <= 0) continue;
+            pv += v;
+            items.add(new ItemVal(strip(st.getHoverName().getString()), v));
+        }
+        if (pv > 0) pages.add(new PageVal(label, pv));
+        return pv;
+    }
+
+    private static void drawValuePanel(GuiGraphicsExtractor ctx, Minecraft mc) {
+        if (!TeslaMapsConfig.get().containerValue) return;
+        recalcValue();
+        if (cachedPages.isEmpty()) return;
+
+        List<String[]> lines = new ArrayList<>();
+        lines.add(new String[]{"§6§lStorage Value", "§6" + EstimatedValue.fmt(cachedTotal)});
+        lines.add(null);
+        lines.add(new String[]{"§e§lPer Page", ""});
+        for (PageVal p : cachedPages) lines.add(new String[]{"§7" + p.label(), "§6" + EstimatedValue.fmt(p.value())});
+        if (!cachedTop.isEmpty()) {
+            lines.add(null);
+            lines.add(new String[]{"§e§lTop " + cachedTop.size(), ""});
+            for (ItemVal it : cachedTop) {
+                String name = it.name().length() > 22 ? it.name().substring(0, 21) + "…" : it.name();
+                lines.add(new String[]{" §7" + name, "§6" + EstimatedValue.fmt(it.value())});
+            }
+        }
+
+        int pad = 4, gap = 14;
+        int contentW = 0;
+        for (String[] l : lines) {
+            if (l == null) continue;
+            contentW = Math.max(contentW, mc.font.width(l[0]) + gap + mc.font.width(l[1]));
+        }
+        int panelW = contentW + pad * 2;
+        int x = 4, y = HEADER_PX + 4;
+        ctx.fill(x, y, x + panelW, y + lines.size() * 10 + pad * 2, 0xF0141118);
+        ctx.fill(x, y, x + panelW, y + 1, 0xFF6A4AC0);
+        int ly = y + pad;
+        for (String[] l : lines) {
+            if (l == null) { ly += 6; continue; }
+            ctx.text(mc.font, l[0], x + pad, ly, 0xFFFFFFFF);
+            if (!l[1].isEmpty()) {
+                int rw = mc.font.width(l[1]);
+                ctx.text(mc.font, l[1], x + panelW - pad - rw, ly, 0xFFFFFFFF);
+            }
+            ly += 10;
+        }
+    }
 
     public static boolean active() {
         if (!TeslaMapsConfig.get().customStorageOverlay) return false;
@@ -141,22 +254,24 @@ public class StorageOverlay {
     }
 
     private static int startX(int screenW) {
-        int vw = (int) (screenW / SCALE);
-        return (vw - (COLS * BOX_W + (COLS - 1) * GAP)) / 2;
+        int vw = (int) ((screenW - SCROLLBAR_W) / scl());
+        return Math.max((int) (SIDE_MARGIN / scl()), (vw - (COLS * BOX_W + (COLS - 1) * GAP)) / 2);
     }
 
-    private static int startY() { return (int) (HEADER_PX / SCALE) + 4; }
+    private static int startY() { return (int) (HEADER_PX / scl()) + 4; }
 
-    private static int invVW() { return (int) (Minecraft.getInstance().screen.width / INV_SCALE); }
-    private static int invVH() { return (int) (Minecraft.getInstance().screen.height / INV_SCALE); }
-    private static int invX() { return (invVW() - 9 * 18) / 2; }
+    private static int invVW() { return (int) (Minecraft.getInstance().screen.width / iscl()); }
+    private static int invVH() { return (int) (Minecraft.getInstance().screen.height / iscl()); }
+    // selector + gap + inventory are laid out as one group, centered in the virtual width
+    private static int groupX() { return (invVW() - (SEL_COLS * SEL_CELL + SEL_GAP + 9 * 18)) / 2; }
+    private static int invX() { return groupX() + SEL_COLS * SEL_CELL + SEL_GAP; }
     private static int hotbarY() { return invVH() - 22; }
     private static int mainY() { return hotbarY() - 58; }
 
     private static int[] sbRect() {
-        int x = (int) (invX() * INV_SCALE);
-        int w = (int) (9 * 18 * INV_SCALE);
-        int y = (int) ((mainY() - 13) * INV_SCALE) + 6;
+        int x = (int) (invX() * iscl());
+        int w = (int) (9 * 18 * iscl());
+        int y = (int) ((mainY() - 13) * iscl()) + 6;
         return new int[]{x, y, w, 14};
     }
 
@@ -166,16 +281,18 @@ public class StorageOverlay {
         return new int[]{invX() + (idx % 9) * 18, mainY() + (idx / 9) * 18};
     }
 
-    private static final int SEL_CELL = 24, SEL_COLS = 9;
-    private static final float SEL_ICON = 1.35f;
-    private static int selX() { return (int) (invX() * INV_SCALE) - SEL_COLS * SEL_CELL - 30; }
-    private static int selY() { return (int) (mainY() * INV_SCALE) + 14; }
+    private static final int SEL_CELL = 20, SEL_COLS = 9, SEL_GAP = 24;
+    private static final float SEL_ICON = 1.1f;
+    // virtual (iscl-space) coordinates so the selector fits next to the inventory at any scale
+    private static int selX() { return groupX(); }
+    private static int selY() { return mainY() + 4; }
     private static int[] selIconPos(int i) { return new int[]{selX() + (i % SEL_COLS) * SEL_CELL, selY() + (i / SEL_COLS) * SEL_CELL}; }
     private static String selKey(int i) { return i < 9 ? "epage_" + (i + 1) : "backpack_" + (i - 8); }
 
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
         int sw = mc.screen.width, sh = mc.screen.height;
+        layout(sw, sh);
         AbstractContainerMenu menu = mc.player != null ? mc.player.containerMenu : null;
         ctx.fill(0, 0, sw, sh, 0xE8101010);
         List<Box> vis = visible();
@@ -185,20 +302,20 @@ public class StorageOverlay {
 
         String live = liveKey();
         boolean searching = !search.isEmpty();
-        float vmx = mouseX / SCALE, vmy = mouseY / SCALE;
+        float vmx = mouseX / scl(), vmy = mouseY / scl();
         int sx = startX(sw), sy = startY();
-        int wallBottom = (int) ((mainY() - 13) * INV_SCALE) - 2;
+        int wallBottom = (int) ((mainY() - 13) * iscl()) - 2;
 
         ItemStack hoverNonLive = null;
         ctx.enableScissor(0, HEADER_PX, sw, Math.max(HEADER_PX, wallBottom));
         var pose = ctx.pose();
         pose.pushMatrix();
-        pose.scale(SCALE, SCALE);
+        pose.scale(scl(), scl());
         for (int i = 0; i < vis.size(); i++) {
             Box b = vis.get(i);
             int bx = sx + (i % COLS) * (BOX_W + GAP);
             int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
-            if (by + boxH() < HEADER_PX / SCALE || by > sh / SCALE) continue;
+            if (by + boxH() < HEADER_PX / scl() || by > sh / scl()) continue;
             boolean isLive = b.key.equals(live);
 
             boolean hoverBox = vmx >= bx && vmx <= bx + BOX_W && vmy >= by && vmy <= by + boxH();
@@ -236,8 +353,8 @@ public class StorageOverlay {
 
         int rows = (vis.size() + COLS - 1) / COLS;
         float contentVirt = rows * (boxH() + GAP) + startY() + 10;
-        float visVirt = wallBottom / SCALE - startY();
-        float maxScroll = Math.max(0, contentVirt - wallBottom / SCALE);
+        float visVirt = wallBottom / scl() - startY();
+        float maxScroll = Math.max(0, contentVirt - wallBottom / scl());
         if (maxScroll > 0) {
             int trackW = 10, trackX = sw - trackW - 3, trackTop = HEADER_PX, trackH = wallBottom - HEADER_PX;
             int thumbH = Math.max(24, (int) (trackH * Math.min(1f, visVirt / (contentVirt - startY()))));
@@ -257,7 +374,7 @@ public class StorageOverlay {
 
         if (menu != null) {
             pose.pushMatrix();
-            pose.scale(INV_SCALE, INV_SCALE);
+            pose.scale(iscl(), iscl());
             int px0 = invX() - 5, py0 = mainY() - 13, px1 = invX() + 9 * 18 + 5, py1 = hotbarY() + 18 + 5;
             ctx.fill(px0, py0, px1, py1, 0xFF1A1A1A);
             ctx.fill(px0, py0, px1, py0 + 1, 0xFF3A3A3A);
@@ -298,11 +415,17 @@ public class StorageOverlay {
             ctx.setTooltipForNextFrame(mc.font, hoverNonLive, mouseX, mouseY);
         }
         if (selHover != null) gridPopup(ctx, mc, selHover, mouseX, mouseY);
+
+        drawValuePanel(ctx, mc);
     }
 
     private static String renderSelector(GuiGraphicsExtractor ctx, Minecraft mc, int mouseX, int mouseY) {
         String live = liveKey();
         int sx = selX(), sy = selY();
+        float vmx = mouseX / iscl(), vmy = mouseY / iscl();
+        var pose = ctx.pose();
+        pose.pushMatrix();
+        pose.scale(iscl(), iscl());
         ctx.fill(sx - 3, sy - 3, sx + SEL_COLS * SEL_CELL + 3, sy + 3 * SEL_CELL + 3, 0xF01A1A1A);
         String hover = null;
         int box = SEL_CELL - 2; // slot face size
@@ -312,14 +435,13 @@ public class StorageOverlay {
             int num = i < 9 ? i + 1 : i - 8;
             int[] p = selIconPos(i);
             boolean isLive = key.equals(live);
-            boolean hovered = mouseX >= p[0] && mouseX < p[0] + box && mouseY >= p[1] && mouseY < p[1] + box && known;
+            boolean hovered = vmx >= p[0] && vmx < p[0] + box && vmy >= p[1] && vmy < p[1] + box && known;
             int border = isLive ? (i < 9 ? 0xFF55FFFF : 0xFFFFAA00) : hovered ? 0xFFFFFFFF : 0xFF373737;
             ctx.fill(p[0] - 1, p[1] - 1, p[0] + box + 1, p[1] + box + 1, border);
             ctx.fill(p[0], p[1], p[0] + box, p[1] + box, hovered ? 0xFF6E6E6E : 0xFF565656);
             ItemStack icon = StorageCache.icon(key);
             if (icon == null || icon.isEmpty()) icon = new ItemStack(i < 9 ? Items.ENDER_CHEST : Items.PLAYER_HEAD);
             float off = (box - 16 * SEL_ICON) / 2f;
-            var pose = ctx.pose();
             pose.pushMatrix();
             pose.translate(p[0] + off, p[1] + off);
             pose.scale(SEL_ICON, SEL_ICON);
@@ -329,6 +451,7 @@ public class StorageOverlay {
             ctx.text(mc.font, "§f" + num, p[0] + box - (num < 10 ? 7 : 12), p[1] + box - 8, 0xFFFFFFFF);
             if (hovered) hover = key;
         }
+        pose.popMatrix();
         return hover;
     }
 
@@ -387,9 +510,10 @@ public class StorageOverlay {
     public static boolean isOverSlot(Slot slot, double mx, double my) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        layout(cs.width, cs.height);
         if (slot.container instanceof Inventory) {
             int[] p = invSlotPos(slot.getContainerSlot());
-            float imx = (float) mx / INV_SCALE, imy = (float) my / INV_SCALE;
+            float imx = (float) mx / iscl(), imy = (float) my / iscl();
             return imx >= p[0] && imx < p[0] + 16 && imy >= p[1] && imy < p[1] + 16;
         }
         String live = liveKey();
@@ -403,7 +527,7 @@ public class StorageOverlay {
             int bx = sx + (i % COLS) * (BOX_W + GAP);
             int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
             int gx = bx + 4 + (cell % GRID_COLS) * CELL, gy = by + topPad() + (cell / GRID_COLS) * CELL;
-            float vmx = (float) mx / SCALE, vmy = (float) my / SCALE;
+            float vmx = (float) mx / scl(), vmy = (float) my / scl();
             return vmx >= gx && vmx < gx + 16 && vmy >= gy && vmy < gy + 16;
         }
         return false;
@@ -412,9 +536,10 @@ public class StorageOverlay {
     public static Slot slotAt(double mx, double my) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return null;
+        layout(cs.width, cs.height);
         AbstractContainerMenu menu = mc.player.containerMenu;
 
-        float imx = (float) mx / INV_SCALE, imy = (float) my / INV_SCALE;
+        float imx = (float) mx / iscl(), imy = (float) my / iscl();
         for (Slot s : menu.slots) {
             if (!(s.container instanceof Inventory)) continue;
             int[] p = invSlotPos(s.getContainerSlot());
@@ -424,7 +549,7 @@ public class StorageOverlay {
 
         String live = liveKey();
         if (live == null) return null;
-        float vmx = (float) mx / SCALE, vmy = (float) my / SCALE;
+        float vmx = (float) mx / scl(), vmy = (float) my / scl();
         int sx = startX(cs.width), sy = startY();
         List<Box> vis = visible();
         for (int i = 0; i < vis.size(); i++) {
@@ -447,6 +572,7 @@ public class StorageOverlay {
     public static boolean handleClick(double mx, double my, int button) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return false;
+        layout(cs.width, cs.height);
 
         int dbX = cs.width - 96;
         if (mx >= dbX && mx <= dbX + 88 && my >= 6 && my <= 20) {
@@ -454,17 +580,18 @@ public class StorageOverlay {
             TeslaMapsConfig.save();
             return true;
         }
+        float selMx = (float) mx / iscl(), selMy = (float) my / iscl();
         for (int i = 0; i < 27; i++) { // left selector column
             String key = selKey(i);
             if (!StorageCache.has(key)) continue;
             int[] p = selIconPos(i);
-            if (mx >= p[0] && mx < p[0] + SEL_CELL - 2 && my >= p[1] && my < p[1] + SEL_CELL - 2) {
+            if (selMx >= p[0] && selMx < p[0] + SEL_CELL - 2 && selMy >= p[1] && selMy < p[1] + SEL_CELL - 2) {
                 if (mc.getConnection() != null) mc.getConnection().sendCommand((i < 9 ? "ec " : "bp ") + (i < 9 ? i + 1 : i - 8));
                 return true;
             }
         }
 
-        int wallBottom = (int) ((mainY() - 13) * INV_SCALE) - 2;
+        int wallBottom = (int) ((mainY() - 13) * iscl()) - 2;
         int trackX = cs.width - 13;
         if (button == 0 && mx >= trackX && my >= HEADER_PX && my <= wallBottom) { // scrollbar drag
             scrollDragging = true;
@@ -480,7 +607,7 @@ public class StorageOverlay {
         if (slotAt(mx, my) != null) return false;
 
         if (my < HEADER_PX) return true;
-        float vmx = (float) mx / SCALE, vmy = (float) my / SCALE;
+        float vmx = (float) mx / scl(), vmy = (float) my / scl();
         int sx = startX(cs.width), sy = startY();
         List<Box> vis = visible();
         for (int i = 0; i < vis.size(); i++) {
@@ -498,7 +625,7 @@ public class StorageOverlay {
         return true;
     }
 
-    public static boolean keyPressed(int key) {
+    public static boolean keyPressed(int key, int scancode) {
         if (key == GLFW.GLFW_KEY_ESCAPE) return false;
         if (!searchFocused) {
             if (key == GLFW.GLFW_KEY_A) { navigateDir(false); return true; }
@@ -509,8 +636,9 @@ public class StorageOverlay {
         }
         if (key == GLFW.GLFW_KEY_BACKSPACE) { if (!search.isEmpty()) search = search.substring(0, search.length() - 1); return true; }
         if (key == GLFW.GLFW_KEY_SPACE) { search += " "; return true; }
-        if (key >= GLFW.GLFW_KEY_A && key <= GLFW.GLFW_KEY_Z) { search += (char) ('a' + (key - GLFW.GLFW_KEY_A)); return true; }
-        if (key >= GLFW.GLFW_KEY_0 && key <= GLFW.GLFW_KEY_9) { search += (char) ('0' + (key - GLFW.GLFW_KEY_0)); return true; }
+        // layout-correct character for the physical key (fixes QWERTZ y/z swap, allows umlauts/digits)
+        String name = GLFW.glfwGetKeyName(key, scancode);
+        if (name != null && name.length() == 1) { search += name.toLowerCase(); return true; }
         return true;
     }
 
@@ -530,9 +658,10 @@ public class StorageOverlay {
     public static boolean mouseScrolled(double sy) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        layout(cs.width, cs.height);
         int rows = (visible().size() + COLS - 1) / COLS;
-        int wallBottom = (int) ((mainY() - 13) * INV_SCALE) - 2;
-        float maxScroll = Math.max(0, rows * (boxH() + GAP) + startY() + 10 - wallBottom / SCALE);
+        int wallBottom = (int) ((mainY() - 13) * iscl()) - 2;
+        float maxScroll = Math.max(0, rows * (boxH() + GAP) + startY() + 10 - wallBottom / scl());
         boolean ctrl = GLFW.glfwGetKey(mc.getWindow().handle(), GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
                 || GLFW.glfwGetKey(mc.getWindow().handle(), GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
         scroll = Math.max(0, Math.min(maxScroll, scroll - (float) (sy * (ctrl ? 90 : 20))));

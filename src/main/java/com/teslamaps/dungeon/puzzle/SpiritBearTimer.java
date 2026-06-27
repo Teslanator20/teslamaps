@@ -64,7 +64,7 @@ public class SpiritBearTimer {
             return;
         }
 
-        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBoss()) {
+        if (!DungeonManager.isInDungeon()) {
             reset();
             return;
         }
@@ -84,10 +84,10 @@ public class SpiritBearTimer {
 
     public static void onBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState) {
         if (!TeslaMapsConfig.get().spiritBearTimer) return;
-        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBoss()) return;
+        if (!DungeonManager.isInDungeon()) return;
 
         String floor = DungeonManager.getFloorName();
-        if (floor == null || (!floor.contains("F4") && !floor.contains("M4"))) return;
+        if (floor == null || (!floor.contains("F4") && !floor.contains("M4"))) return; // bear coords are F4/M4 boss only
 
         Set<BlockPos> positions = floor.contains("M4") ? M4_POSITIONS : F4_POSITIONS;
         if (!positions.contains(pos)) return;
@@ -111,8 +111,11 @@ public class SpiritBearTimer {
         }
     }
 
+    public static final String SAMPLE_TEXT = "Spirit Bear: 0/25";
+
     public static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
-        if (!TeslaMapsConfig.get().spiritBearTimer) return;
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!config.spiritBearTimer) return;
         if (lastFloor.isEmpty()) return;
 
         Minecraft mc = Minecraft.getInstance();
@@ -129,11 +132,21 @@ public class SpiritBearTimer {
             text = "§6Spirit Bear: §aAlive!";
         }
 
-        int screenWidth = mc.getWindow().getGuiScaledWidth();
-        int x = (screenWidth - mc.font.width(text)) / 2;
-        int y = mc.getWindow().getGuiScaledHeight() - 50;
+        draw(context, mc, config.spiritBearX, config.spiritBearY, config.spiritBearScale, text);
+    }
 
-        context.text(mc.font, text, x, y, 0xFFFFFFFF);
+    /** Draws the HUD at a position/scale. Used by the live HUD and the HUD editor preview. */
+    public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
+        draw(context, mc, x, y, scale, "§6Spirit Bear: §d0/25");
+    }
+
+    private static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale, String text) {
+        var pose = context.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(scale, scale);
+        context.text(mc.font, text, 0, 0, 0xFFFFFFFF);
+        pose.popMatrix();
     }
 
     public static void reset() {

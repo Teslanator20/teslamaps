@@ -87,4 +87,5 @@ TeslaMaps is licensed under the **GNU General Public License v3.0** — see the 
 This project ports/adapts code from other open-source mods. Their notices and the
 reason the whole project is GPL v3 are documented in `NOTICE.md`:
 - **Odin** (https://github.com/odtheking/Odin) — BSD 3-Clause
+- **BirdAddon** (https://github.com/BarefootBird/BirdAddon) — BSD 3-Clause
 - **Devonian** (https://github.com/Synnerz/devonian) — GPL v3

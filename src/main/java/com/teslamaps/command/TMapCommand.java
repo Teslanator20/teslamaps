@@ -87,6 +87,41 @@ public class TMapCommand {
                             });
                             return 1;
                         }))
+                .then(ClientCommands.literal("back")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() -> {
+                                Minecraft.getInstance().setScreen(new MapConfigScreen());
+                            });
+                            return 1;
+                        }))
+                .then(ClientCommands.literal("gui2")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() -> {
+                                Minecraft.getInstance().setScreen(new com.teslamaps.screen.MapConfigScreen2());
+                            });
+                            return 1;
+                        }))
+                .then(ClientCommands.literal("gui3")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() -> {
+                                Minecraft.getInstance().setScreen(new com.teslamaps.screen.MapConfigScreen3());
+                            });
+                            return 1;
+                        }))
+                .then(ClientCommands.literal("gui4")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() -> {
+                                Minecraft.getInstance().setScreen(new com.teslamaps.screen.MapConfigScreen4());
+                            });
+                            return 1;
+                        }))
+                .then(ClientCommands.literal("gui5")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() -> {
+                                Minecraft.getInstance().setScreen(new com.teslamaps.screen.MapConfigScreen5());
+                            });
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("ep").executes(context -> {
                     com.teslamaps.features.AutoGFS.gfsEnderPearls();
                     return 1;
@@ -147,7 +182,35 @@ public class TMapCommand {
                             context.getSource().sendFeedback(Component.literal(
                                     "Debug mode " + (config.debugMode ? "enabled" : "disabled")));
                             return 1;
-                        }))
+                        })
+                        .then(ClientCommands.literal("dragon")
+                                .executes(context -> {
+                                    com.teslamaps.dungeon.WitherDragons.debugDump();
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("map")
+                                .executes(context -> {
+                                    com.teslamaps.scanner.MapScanner.debugDump();
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("sound")
+                                .executes(context -> {
+                                    TeslaMapsConfig c = TeslaMapsConfig.get();
+                                    c.soundDebug = !c.soundDebug;
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "Sound debug: " + (c.soundDebug ? "§aON" : "§cOFF")));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("croesus")
+                                .executes(context -> {
+                                    TeslaMapsConfig c = TeslaMapsConfig.get();
+                                    c.croesusDebug = !c.croesusDebug;
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "Croesus debug: " + (c.croesusDebug ? "§aON" : "§cOFF")));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("hotkeys")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() ->
@@ -213,6 +276,57 @@ public class TMapCommand {
                                             com.teslamaps.dungeon.DungeonWaypoints.clearRoom()));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("prince")
+                        .executes(context -> {
+                            com.teslamaps.dungeon.PrinceWaypoints.load();
+                            context.getSource().sendFeedback(Component.literal("Reloaded prince waypoints from config/teslamaps/prince_waypoints.json"));
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("mark")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            com.teslamaps.dungeon.PrinceWaypoints.mark()));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            com.teslamaps.dungeon.PrinceWaypoints.clearRoom()));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("crown")
+                                .then(ClientCommands.argument("n", IntegerArgumentType.integer(0, 5))
+                                        .executes(context -> {
+                                            int n = IntegerArgumentType.getInteger(context, "n");
+                                            TeslaMapsConfig.get().princeCrownVariant = n;
+                                            TeslaMapsConfig.save();
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    n == 0 ? "Prince crown: drawn icon" : "Prince crown: image " + n));
+                                            return 1;
+                                        }))))
+                .then(ClientCommands.literal("mutesound")
+                        .executes(context -> {
+                            TeslaMapsConfig c = TeslaMapsConfig.get();
+                            context.getSource().sendFeedback(Component.literal("Muted sounds: "
+                                    + (c.mutedSounds.isEmpty() ? "(none)" : String.join(", ", c.mutedSounds))));
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    TeslaMapsConfig.get().mutedSounds.clear();
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal("Cleared muted sounds"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.argument("id", StringArgumentType.greedyString())
+                                .executes(context -> {
+                                    TeslaMapsConfig c = TeslaMapsConfig.get();
+                                    String id = StringArgumentType.getString(context, "id").trim();
+                                    if (c.mutedSounds.remove(id)) context.getSource().sendFeedback(Component.literal("§cUnmuted §f" + id));
+                                    else { c.mutedSounds.add(id); context.getSource().sendFeedback(Component.literal("§aMuted §f" + id)); }
+                                    TeslaMapsConfig.save();
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("scan")
                         .executes(context -> {
                             context.getSource().sendFeedback(Component.literal("Forcing dungeon scan..."));
@@ -251,6 +365,17 @@ public class TMapCommand {
                                 context.getSource().sendFeedback(Component.literal("No matching room in database"));
                             }
 
+                            return 1;
+                        }))
+                .then(ClientCommands.literal("sendcoords")
+                        .executes(context -> {
+                            Minecraft mc = Minecraft.getInstance();
+                            if (mc.player == null || mc.getConnection() == null) {
+                                context.getSource().sendFeedback(Component.literal("Not in world"));
+                                return 0;
+                            }
+                            var p = mc.player.blockPosition();
+                            mc.getConnection().sendCommand("pc x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ());
                             return 1;
                         }))
                 .then(ClientCommands.literal("status")

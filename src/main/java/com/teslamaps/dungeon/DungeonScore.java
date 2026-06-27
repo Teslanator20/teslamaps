@@ -97,7 +97,6 @@ public class DungeonScore {
 
         floorDetectionPending = true;
         floorDetectionTime = System.currentTimeMillis() + 3000;
-
     }
 
     private static int debugCounter = 0;
@@ -389,13 +388,14 @@ public class DungeonScore {
 
     private static void fireCryptReminder() {
         if (!DungeonManager.isInDungeon()) return;
+        if (!TeslaMapsConfig.get().cryptReminderClasses.allowsLocal()) return;
         int crypts = getCrypts();
         if (crypts >= 5) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         mc.player.sendSystemMessage(Component.literal(
                 "§c§l Crypts: " + crypts + "/5 §r§7— need 5 for the full +5 bonus score!"));
-        mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.5f);
+        mc.player.playSound(com.teslamaps.utils.SoundOptions.resolve(TeslaMapsConfig.get().cryptReminderSound), 1.0f, 1.0f);
     }
 
     public static int getScore() {
@@ -408,6 +408,10 @@ public class DungeonScore {
 
     public static boolean isMimicKilled() {
         return mimicKilled;
+    }
+
+    public static boolean isPrinceKilled() {
+        return princeKilled;
     }
 
     public static double getNeededSecretsPercentFor300(int cryptsFound) {

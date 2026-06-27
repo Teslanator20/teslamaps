@@ -31,30 +31,37 @@ public class ChatFilter {
         if (c.chatFilterF4Boss && (t.contains("[BOSS] Thorn:")
                 || t.toLowerCase().contains("[crowd]"))) return true; // [CROWD]/[Crowd] spectator spam
         if (c.chatFilterOruo && t.contains("[STATUE] Oruo the Omniscient:")) return true;
+        if (c.chatFilterMort && t.contains("[NPC] Mort:")) return true;
         if (c.chatFilterProfileInfo && (t.contains("You are playing on profile:")
                 || t.contains("Profile ID:"))) return true;
         if (c.chatFilterPerkBuffs && (t.contains("buff changed!") || t.contains("New buff:")
                 || t.contains("disable this messaging by toggling"))) return true;
         if (c.chatFilterMilestone && t.contains("Milestone") && t.contains("so far!")) return true;
+        if (c.chatFilterWatchdog && (t.contains("[WATCHDOG ANNOUNCEMENT]")
+                || (t.contains("Watchdog has banned") && t.contains("players"))
+                || t.contains("Staff have banned an additional")
+                || t.contains("Blacklisted modifications are a bannable offense!"))) return true;
 
         if (t.contains(": ")) return false;
 
         if (c.chatFilterBlessings && (t.contains("DUNGEON BUFF!")
                 || (t.contains("Blessing of") && t.contains("was picked up!"))
+                || (t.contains("Blessing of") && t.contains("has obtained"))
                 || t.contains("Granted you +") || t.contains("Also granted you +"))) return true;
         if (c.chatFilterEssence && (t.contains("ESSENCE!")
                 || (t.contains("Wither Essence!") && t.contains("extra essence")))) return true;
         if (c.chatFilterKeys && (t.contains("Key was picked up!")
                 || (t.contains("has obtained") && t.contains("Key")))) return true;
+        if (c.chatFilterReviveStone && t.contains("has obtained") && t.contains("Revive Stone")) return true;
         if (c.chatFilterDoors && t.contains(" door!")
                 && (t.contains("opened a") || t.contains("opened the"))) return true;
         if (c.chatFilterWish && t.contains("Wish healed you for")) return true;
-        if (c.chatFilterPickups && t.contains("was picked up!")) return true;
+        if (c.chatFilterPickups && (t.contains("was picked up!") || t.contains("has obtained"))) return true;
 
         if (c.chatFilterBlocksInWay && t.contains("There are blocks in the way!")) return true;
         if (c.chatFilterUltReady && t.contains("is ready to use! Press DROP to activate it!")) return true;
         if (c.chatFilterAoeDamage && (t.contains("enemies for") || t.contains("enemy for")) && t.contains("damage")) return true;
-        if (c.chatFilterGuildXp && t.contains("GEXP from playing")) return true;
+        if (c.chatFilterGuildXp && t.contains("from playing SkyBlock!")) return true;
         if (c.chatFilterKillCombo && t.contains("Kill Combo")) return true;
 
         if (c.chatFilterStash && (t.contains("stashed away!")
@@ -63,6 +70,7 @@ public class ChatFilter {
         if (c.chatFilterServerMsgs && (t.contains("Sending to server")
                 || t.contains("Warping...") || t.contains("Queuing..."))) return true;
         if (c.chatFilterSacks && t.contains("[Sacks]")) return true;
+        if (c.chatFilterGfs && t.contains("from your Sacks to your inventory")) return true;
         if (c.chatFilterBonePlating && t.contains("bone plating reduced the damage")) return true;
 
         return false;

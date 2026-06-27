@@ -146,7 +146,7 @@ public class StarredMobESP {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        if (TeslaMapsConfig.get().keyPickupSoundEnabled) {
+        if (TeslaMapsConfig.get().keyPickupSoundEnabled && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
             float volume = TeslaMapsConfig.get().keyPickupVolume;
             LoudSound.play(getPickupSound(), volume, 1.5f);
         }
@@ -164,7 +164,7 @@ public class StarredMobESP {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        if (TeslaMapsConfig.get().keyPickupSoundEnabled) {
+        if (TeslaMapsConfig.get().keyPickupSoundEnabled && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
             float volume = TeslaMapsConfig.get().keyPickupVolume;
             LoudSound.play(getPickupSound(), volume, 1.2f);
         }
@@ -182,7 +182,7 @@ public class StarredMobESP {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        if (TeslaMapsConfig.get().keyOnGroundSoundEnabled) {
+        if (TeslaMapsConfig.get().keyOnGroundSoundEnabled && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
             float volume = TeslaMapsConfig.get().keyOnGroundVolume;
             LoudSound.play(getOnGroundSound(), volume, 1.0f);
         }
@@ -196,7 +196,7 @@ public class StarredMobESP {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        if (TeslaMapsConfig.get().keyOnGroundSoundEnabled) {
+        if (TeslaMapsConfig.get().keyOnGroundSoundEnabled && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
             float volume = TeslaMapsConfig.get().keyOnGroundVolume;
             LoudSound.play(getOnGroundSound(), volume, 0.8f);
         }
@@ -208,7 +208,7 @@ public class StarredMobESP {
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null || mc.player == null) {
+        if (mc.level == null || mc.player == null || com.teslamaps.features.LegitMode.blocksCheats()) {
             highlightedEntities.clear();
             glowingEntities.clear();
             return;
@@ -298,7 +298,7 @@ public class StarredMobESP {
             }
         }
 
-        if (inDungeon && TeslaMapsConfig.get().doorESP) {
+        if (inDungeon && TeslaMapsConfig.get().doorESP && TeslaMapsConfig.get().doorEspClasses.allowsLocal()) {
             scanDoorPositions();
         }
 
@@ -332,10 +332,6 @@ public class StarredMobESP {
             }
         }
 
-        if (checkedCount > 0 && System.currentTimeMillis() % 5000 < 50) {
-            TeslaMaps.LOGGER.info("[StarredMobESP] Checked {} entities, highlighted {}, inDungeon={}, customMobs={}",
-                    checkedCount, highlightedEntities.size(), inDungeon, hasCustomMobs);
-        }
 
         if (inDungeon && TeslaMapsConfig.get().invisibleArmorStandESP) {
             for (Entity entity : mc.level.entitiesForRendering()) {
@@ -421,12 +417,6 @@ public class StarredMobESP {
             }
         }
 
-        if (System.currentTimeMillis() % 5000 < 50) {
-            if (!witherDoorBoxes.isEmpty() || !bloodDoorBoxes.isEmpty()) {
-                TeslaMaps.LOGGER.info("[DoorESP] Found {} wither doors, {} blood doors",
-                        witherDoorBoxes.size(), bloodDoorBoxes.size());
-            }
-        }
     }
 
     private static void checkDoorAt(Minecraft mc, int x, int z, int[] yLevels, boolean xAligned) {
@@ -738,7 +728,13 @@ public class StarredMobESP {
     public static int getHighlightColor(Entity entity) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
-        if (entity instanceof ItemEntity) {
+        if (entity instanceof ItemEntity item) {
+            if (config.secretItemReadiness && DungeonManager.isInDungeon()) {
+                int remaining = config.secretItemPickupTicks - item.getAge();
+                if (remaining <= 0) return TeslaMapsConfig.parseColor(config.colorItemReady);
+                if (remaining <= 11) return TeslaMapsConfig.parseColor(config.colorItemSoon);
+                return TeslaMapsConfig.parseColor(config.colorItemNotReady);
+            }
             return DROPPED_ITEM_COLOR;
         }
 
@@ -805,7 +801,7 @@ public class StarredMobESP {
             }
         }
 
-        if (TeslaMapsConfig.get().doorESP) {
+        if (TeslaMapsConfig.get().doorESP && TeslaMapsConfig.get().doorEspClasses.allowsLocal()) {
             boolean drawDoorTracers = TeslaMapsConfig.get().doorTracers;
             boolean onlyNextDoor = TeslaMapsConfig.get().onlyShowNextDoor;
 
@@ -901,6 +897,25 @@ public class StarredMobESP {
                     AABB entityBox = entity.getBoundingBox();
                     ESPRenderer.drawFilledBox(matrices, entityBox, color, cameraPos,
                             (MultiBufferSource.BufferSource) provider);
+                }
+            }
+        }
+
+        if (TeslaMapsConfig.get().boxESP) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.level != null) {
+                for (Map.Entry<Entity, Integer> entry : glowingEntities.entrySet()) {
+                    Entity entity = entry.getKey();
+                    if (!entity.isAlive()) continue;
+                    ESPRenderer.drawBoxOutline(matrices, entity.getBoundingBox(),
+                            entry.getValue() | 0xFF000000, 2.0f, cameraPos, true);
+                }
+
+                for (Entity entity : mc.level.entitiesForRendering()) {
+                    if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
+                        ESPRenderer.drawBoxOutline(matrices, entity.getBoundingBox(),
+                                SlayerHUD.getGlowColor(entity) | 0xFF000000, 2.0f, cameraPos, true);
+                    }
                 }
             }
         }

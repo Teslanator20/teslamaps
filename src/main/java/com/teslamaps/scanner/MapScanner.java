@@ -232,6 +232,7 @@ public class MapScanner {
             }
 
             int scansSinceExplored = roomExplorationScanCount.getOrDefault(roomKey, 0);
+            com.teslamaps.dungeon.InstaClearAlert.onRoomState(room, bestState);
             if (bestState != CheckmarkState.UNEXPLORED && room.getCheckmarkState() != bestState) {
                 if (wasAlreadyExplored && scansSinceExplored >= 2) {
                     CheckmarkState oldState = room.getCheckmarkState();
@@ -594,6 +595,82 @@ public class MapScanner {
             }
         }
         return false;
+    }
+
+    private static void msg(String s) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(s));
+    }
+
+    public static void debugDump() {
+        Minecraft mc = Minecraft.getInstance();
+        msg("§6[MapDbg] §f---- map scanner state ----");
+        msg("§7inDungeon=§f" + DungeonManager.isInDungeon()
+                + " §7paramsDetected=§f" + mapParamsDetected
+                + " §7corner=§f(" + mapCornerX + "," + mapCornerY + ")"
+                + " §7roomSize=§f" + mapRoomSize + " §7gap=§f" + mapGapSize);
+
+        if (mc.player == null) { msg("§cno player"); return; }
+
+        int foundSlot = -1;
+        MapItemSavedData mapState = null;
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = mc.player.getInventory().getItem(i);
+            if (stack.getItem() instanceof MapItem) {
+                MapId id = stack.get(DataComponents.MAP_ID);
+                if (id != null) {
+                    MapItemSavedData s = MapItem.getSavedData(id, mc.level);
+                    if (s != null) { mapState = s; foundSlot = i; break; }
+                }
+            }
+        }
+
+        if (mapState == null) {
+            msg("§cno usable map in hotbar (data not synced yet?)");
+            return;
+        }
+
+        int decoCount = 0;
+        try {
+            Iterable<MapDecoration> decos = mapState.getDecorations();
+            if (decos != null) for (MapDecoration ignored : decos) decoCount++;
+        } catch (Exception ignored) {}
+
+        msg("§7map slot=§f" + foundSlot
+                + " §7colors=§f" + (mapState.colors == null ? "null" : mapState.colors.length)
+                + " §7decorations=§f" + decoCount
+                + " §7playerDots=§f" + mapPlayerPositions.size());
+
+        byte[] colors = mapState.colors;
+        if (colors == null || colors.length < 16384) { msg("§ccolors too small"); return; }
+        if (mapCornerX < 0 || mapCornerY < 0) { msg("§ccorner not detected yet"); return; }
+
+        int shown = 0;
+        for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
+            if (room.getComponents().isEmpty()) continue;
+            int green = 0, white = 0, failed = 0;
+            for (int[] comp : room.getComponents()) {
+                int topLeftX = mapCornerX + (mapRoomSize + mapGapSize) * comp[0];
+                int topLeftY = mapCornerY + (mapRoomSize + mapGapSize) * comp[1];
+                for (int dy = 0; dy < mapRoomSize; dy++) {
+                    for (int dx = 0; dx < mapRoomSize; dx++) {
+                        int cx = topLeftX + dx, cy = topLeftY + dy;
+                        if (cx < 0 || cx >= 128 || cy < 0 || cy >= 128) continue;
+                        int c = colors[cx + cy * 128] & 0xFF;
+                        if (c == 30) green++;
+                        else if (c == 34) white++;
+                        else if (c == 18) failed++;
+                    }
+                }
+            }
+            if (shown++ < 12) {
+                int[] p = room.getPrimaryComponent();
+                msg("§7" + room.getName() + " §8[" + p[0] + "," + p[1] + "] "
+                        + "§7g=§a" + green + " §7w=§f" + white + " §7f=§c" + failed
+                        + " §7state=§f" + room.getCheckmarkState() + " §7expl=§f" + room.isExplored());
+            }
+        }
+        msg("§6[MapDbg] §f---- " + shown + " rooms ----");
     }
 
     public static void reset() {

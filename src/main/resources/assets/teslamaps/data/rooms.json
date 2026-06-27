@@ -14,7 +14,8 @@
         "crypts": 3,
         "clearScore": 9,
         "secretScore": 7,
-        "shape": "1x4"
+        "shape": "1x4",
+        "prince": true
     },
     {
         "name": "Raccoon",
@@ -373,7 +374,8 @@
         "crypts": 8,
         "clearScore": 4,
         "secretScore": 7,
-        "shape": "2x2"
+        "shape": "2x2",
+        "prince": true
     },
     {
         "name": "Tic Tac Toe",
@@ -418,7 +420,8 @@
         "clearScore": 5,
         "secretScore": 3,
         "shape": "1x1",
-        "doors": "0011"
+        "doors": "0011",
+        "prince": true
     },
     {
         "name": "Balcony",
@@ -670,7 +673,8 @@
         "crypts": 1,
         "clearScore": 3,
         "secretScore": 4,
-        "shape": "1x3"
+        "shape": "1x3",
+        "prince": true
     },
     {
         "name": "Overgrown Chains",
@@ -962,7 +966,8 @@
         "crypts": 4,
         "clearScore": 3,
         "secretScore": 5,
-        "shape": "L"
+        "shape": "L",
+        "prince": true
     },
     {
         "name": "Hallway",
@@ -1066,7 +1071,8 @@
         "crypts": 9,
         "clearScore": 3,
         "secretScore": 7,
-        "shape": "1x4"
+        "shape": "1x4",
+        "prince": true
     },
     {
         "name": "Pressure Plates",
@@ -1175,7 +1181,8 @@
         "clearScore": 2,
         "secretScore": 1,
         "shape": "1x1",
-        "doors": "1011"
+        "doors": "1011",
+        "prince": true
     },
     {
         "name": "Withermancer",
@@ -1192,7 +1199,8 @@
         "crypts": 6,
         "clearScore": 7,
         "secretScore": 4,
-        "shape": "L"
+        "shape": "L",
+        "prince": true
     },
     {
         "name": "Cathedral",
@@ -1337,7 +1345,8 @@
         "crypts": 0,
         "clearScore": 7,
         "secretScore": 3,
-        "shape": "1x2"
+        "shape": "1x2",
+        "prince": true
     },
     {
         "name": "Scaffolding",
@@ -1653,7 +1662,8 @@
         "crypts": 6,
         "clearScore": 4,
         "secretScore": 7,
-        "shape": "2x2"
+        "shape": "2x2",
+        "prince": true
     },
     {
         "name": "Admin",
@@ -1749,7 +1759,8 @@
         "clearScore": 6,
         "secretScore": 5,
         "shape": "1x2",
-        "doors": "0011"
+        "doors": "0011",
+        "prince": true
     },
     {
         "name": "Granite",
@@ -1796,7 +1807,8 @@
         "clearScore": 4,
         "secretScore": 3,
         "shape": "1x1",
-        "doors": "1011"
+        "doors": "1011",
+        "prince": true
     },
     {
         "name": "Redstone Key",
@@ -1921,7 +1933,8 @@
         "crypts": 6,
         "clearScore": 7,
         "secretScore": 6,
-        "shape": "L"
+        "shape": "L",
+        "prince": true
     },
     {
         "name": "Doors",
@@ -1937,7 +1950,8 @@
         "clearScore": 4,
         "secretScore": 5,
         "shape": "1x2",
-        "doors": "1000"
+        "doors": "1000",
+        "prince": true
     },
     {
         "name": "Stone Window",
@@ -2078,7 +2092,8 @@
         "crypts": 2,
         "clearScore": 7,
         "secretScore": 6,
-        "shape": "L"
+        "shape": "L",
+        "prince": true
     },
     {
         "name": "Altar",
@@ -2260,7 +2275,8 @@
         "crypts": 6,
         "clearScore": 0,
         "secretScore": 0,
-        "shape": "L"
+        "shape": "L",
+        "prince": true
     },
     {
         "name": "Gold",

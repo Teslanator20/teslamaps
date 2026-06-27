@@ -109,6 +109,7 @@ public class BloodCamp {
         tickCounter++;
         currentTickTime += 50;
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.bloodCampClasses.allowsLocal()) return;
 
         if (c.bloodCampAssist && c.bloodAssistPingOffset && currentWatcherEntity != null && tickCounter % 40 == 0) {
             PingMeter.requestSilent();
@@ -137,6 +138,7 @@ public class BloodCamp {
 
     public static void onChatMessage(String message) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!config.bloodCampClasses.allowsLocal()) return;
         if (!config.bloodCampMoveTimer && !config.bloodCampAssist && !config.bloodReturnTimer && !config.bloodCampMoveMessage && !config.bloodCampPartyMessage) return;
 
         if (message.contains("Watcher")) dbg("Watcher msg: \"" + message + "\"");
@@ -209,6 +211,10 @@ public class BloodCamp {
         if (packet.getEntityIds().contains(currentWatcherEntity.getId())) currentWatcherEntity = null;
     }
 
+    public static Zombie getWatcherEntity() {
+        return currentWatcherEntity;
+    }
+
     public static void onMoveEntityPacket(ClientboundMoveEntityPacket packet) {
         if (!TeslaMapsConfig.get().bloodCampAssist) return;
         if (packet.getXa() == 0 && packet.getYa() == 0 && packet.getZa() == 0) return;
@@ -252,6 +258,7 @@ public class BloodCamp {
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.bloodCampClasses.allowsLocal()) return;
         if (!c.bloodCampAssist || renderDataMap.isEmpty()) return;
         if (!DungeonManager.isInDungeon() || DungeonManager.isInBoss()) return;
 
@@ -323,6 +330,7 @@ public class BloodCamp {
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!config.bloodCampClasses.allowsLocal()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 

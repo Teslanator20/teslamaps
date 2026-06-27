@@ -91,6 +91,7 @@ public class WaterBoardSolver {
     private static int cornerX = 0;
     private static int cornerZ = 0;
     private static int rotation = -1;
+    private static int variantAttempts = 0;
 
     static {
         loadSolutions();
@@ -138,6 +139,7 @@ public class WaterBoardSolver {
             subvariant = null;
             solution = null;
             waterStartMillis = 0;
+            variantAttempts = 0;
 
             rotation = room.getRotation();
             cornerX = room.getCornerX();
@@ -145,8 +147,12 @@ public class WaterBoardSolver {
 
             TeslaMaps.LOGGER.info("[WaterBoardSolver] Entered Water Board room, rotation={}, corner=({},{})",
                 rotation, cornerX, cornerZ);
+        }
 
-            detectVariant(mc);
+        // retry variant detection: the board blocks are often not loaded yet on the first tick after entering
+        if (variant < 0 && rotation >= 0 && variantAttempts < 100) {
+            if (variantAttempts % 20 == 0) detectVariant(mc);
+            variantAttempts++;
         }
 
         if (variant >= 0 && subvariant == null && rotation >= 0) {
@@ -223,6 +229,60 @@ public class WaterBoardSolver {
         }
 
         TeslaMaps.LOGGER.info("[WaterBoardSolver] Detected variant: {} (left={}, right={})", variant, leftBlock, rightBlock);
+
+        // rare: multi-component room picked the wrong corner/rotation -> the normal read above stayed -1.
+        // only then brute-force the other component corners x rotations (never touches the working case).
+        if (variant < 0) detectVariantFallback(mc);
+    }
+
+    private static void detectVariantFallback(Minecraft mc) {
+        if (currentRoom == null) return;
+        int baseRot = currentRoom.getRotation();
+        int[] rots = {0, 90, 180, 270};
+
+        for (int[] comp : currentRoom.getComponents()) {
+            int[] corner = com.teslamaps.scanner.ComponentGrid.gridToWorldCorner(comp[0], comp[1]);
+            if (baseRot >= 0 && tryDetect(mc, corner[0], corner[1], baseRot)) return;
+            for (int rot : rots) {
+                if (rot == baseRot) continue;
+                if (tryDetect(mc, corner[0], corner[1], rot)) return;
+            }
+        }
+    }
+
+    private static boolean tryDetect(Minecraft mc, int cx, int cz, int rot) {
+        for (int y : new int[]{77, 78}) {
+            int v = readVariant(mc, cx, cz, rot, y);
+            if (v >= 0) {
+                cornerX = cx;
+                cornerZ = cz;
+                rotation = rot;
+                variant = v;
+                TeslaMaps.LOGGER.info("[WaterBoardSolver] Detected variant {} at corner=({},{}) rot={} Y={}", v, cx, cz, rot, y);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int readVariant(Minecraft mc, int cx, int cz, int rot, int y) {
+        Block left = blockAtComp(mc, TOP_LEFT_BLOCK[0], TOP_LEFT_BLOCK[1], rot, cx, cz, y);
+        Block right = blockAtComp(mc, TOP_RIGHT_BLOCK[0], TOP_RIGHT_BLOCK[1], rot, cx, cz, y);
+        if (left == Blocks.AIR || left == Blocks.STONE)
+            left = blockAtComp(mc, TOP_LEFT_BLOCK[0], TOP_LEFT_BLOCK[1] + 1, rot, cx, cz, y);
+        if (right == Blocks.AIR || right == Blocks.STONE)
+            right = blockAtComp(mc, TOP_RIGHT_BLOCK[0], TOP_RIGHT_BLOCK[1] + 1, rot, cx, cz, y);
+
+        if (left == Blocks.GOLD_BLOCK && right == Blocks.TERRACOTTA) return 0;
+        if (left == Blocks.EMERALD_BLOCK && right == Blocks.QUARTZ_BLOCK) return 1;
+        if (left == Blocks.QUARTZ_BLOCK && right == Blocks.DIAMOND_BLOCK) return 2;
+        if (left == Blocks.GOLD_BLOCK && right == Blocks.QUARTZ_BLOCK) return 3;
+        return -1;
+    }
+
+    private static Block blockAtComp(Minecraft mc, int x, int z, int rot, int cx, int cz, int y) {
+        int[] r = rotatePos(x, z, (360 - rot) % 360);
+        return mc.level.getBlockState(new BlockPos(r[0] + cx, y, r[1] + cz)).getBlock();
     }
 
     private static void detectSubvariant(Minecraft mc) {
@@ -460,6 +520,7 @@ public class WaterBoardSolver {
         cornerX = 0;
         cornerZ = 0;
         rotation = -1;
+        variantAttempts = 0;
     }
 
     private record LeverTime(String name, BlockPos pos, double time, int index) {}

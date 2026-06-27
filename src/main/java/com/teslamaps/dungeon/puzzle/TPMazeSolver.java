@@ -32,22 +32,22 @@ import net.minecraft.world.phys.Vec3;
 
 public class TPMazeSolver {
 
+    // Ordered so each consecutive group of 4 is one maze stage; last two are the exit pads.
     private static final BlockPos[] PORTAL_POSITIONS_RELATIVE = {
-        new BlockPos(4, 69, 28), new BlockPos(4, 69, 22), new BlockPos(4, 69, 20),
-        new BlockPos(4, 69, 14), new BlockPos(4, 69, 12), new BlockPos(4, 69, 6),
-        new BlockPos(10, 69, 28), new BlockPos(10, 69, 22), new BlockPos(10, 69, 20),
-        new BlockPos(10, 69, 14), new BlockPos(10, 69, 12), new BlockPos(10, 69, 6),
-        new BlockPos(12, 69, 28), new BlockPos(12, 69, 22), new BlockPos(15, 69, 14),
-        new BlockPos(15, 69, 12), new BlockPos(18, 69, 28), new BlockPos(18, 69, 22),
-        new BlockPos(20, 69, 28), new BlockPos(20, 69, 22), new BlockPos(20, 69, 20),
-        new BlockPos(20, 69, 14), new BlockPos(20, 69, 12), new BlockPos(20, 69, 6),
-        new BlockPos(26, 69, 28), new BlockPos(26, 69, 22), new BlockPos(26, 69, 20),
-        new BlockPos(26, 69, 14), new BlockPos(26, 69, 12), new BlockPos(26, 69, 6)
+        new BlockPos(4, 69, 12), new BlockPos(4, 69, 6), new BlockPos(10, 69, 12), new BlockPos(10, 69, 6),
+        new BlockPos(4, 69, 20), new BlockPos(4, 69, 14), new BlockPos(10, 69, 20), new BlockPos(10, 69, 14),
+        new BlockPos(4, 69, 28), new BlockPos(4, 69, 22), new BlockPos(10, 69, 28), new BlockPos(10, 69, 22),
+        new BlockPos(12, 69, 28), new BlockPos(12, 69, 22), new BlockPos(18, 69, 28), new BlockPos(18, 69, 22),
+        new BlockPos(20, 69, 28), new BlockPos(20, 69, 22), new BlockPos(26, 69, 28), new BlockPos(26, 69, 22),
+        new BlockPos(26, 69, 20), new BlockPos(26, 69, 14), new BlockPos(20, 69, 20), new BlockPos(20, 69, 14),
+        new BlockPos(26, 69, 12), new BlockPos(26, 69, 6), new BlockPos(20, 69, 12), new BlockPos(20, 69, 6),
+        new BlockPos(15, 69, 14), new BlockPos(15, 69, 12)
     };
 
-    private static Set<BlockPos> portalPositions = new HashSet<>();
+    private static List<BlockPos> portalPositions = new ArrayList<>();
     private static List<BlockPos> correctPortals = new ArrayList<>();
     private static Set<BlockPos> visitedPortals = new CopyOnWriteArraySet<>();
+    private static BlockPos best = null;
     private static String lastRoomName = "";
     private static Vec3 lastPlayerPos = null;
     private static long lastTeleportTime = 0;
@@ -174,8 +174,52 @@ public class TPMazeSolver {
                 .toList());
         }
 
+        computeBest(pos, yaw);
+
         TeslaMaps.LOGGER.info("[TPMazeSolver] After teleport: {} correct, {} visited",
             correctPortals.size(), visitedPortals.size());
+    }
+
+    // Pick the suggested next portal: within the current 4-pad stage, prefer a still-correct
+    // pad, otherwise the one (diagonal/straight per config) closest to the current look yaw.
+    private static void computeBest(Vec3 pos, float yaw) {
+        BlockPos on = null;
+        for (BlockPos p : portalPositions) {
+            if (new AABB(p).inflate(1.0, 0, 1.0).contains(pos)) {
+                on = p;
+                break;
+            }
+        }
+        if (on == null) return;
+
+        int idx = portalPositions.indexOf(on);
+        if (idx == 28 || idx == 29) { // landed on an exit pad
+            best = null;
+            return;
+        }
+        int lowest = idx / 4 * 4;
+        if (lowest + 4 > portalPositions.size()) return;
+
+        final BlockPos onF = on;
+        List<BlockPos> around = portalPositions.subList(lowest, lowest + 4).stream()
+            .filter(p -> !p.equals(onF) && !visitedPortals.contains(p))
+            .toList();
+
+        BlockPos chosen = around.stream().filter(correctPortals::contains).findFirst().orElse(null);
+        if (chosen == null) {
+            boolean diag = TeslaMapsConfig.get().tpMazePrioritizeDiagonal;
+            chosen = around.stream()
+                .filter(p -> diag
+                    ? (p.getX() != onF.getX() && p.getZ() != onF.getZ())
+                    : (p.getX() == onF.getX() || p.getZ() == onF.getZ()))
+                .min(Comparator.comparingDouble(p -> {
+                    Vec3 c = p.getCenter();
+                    float portalYaw = (float) (Math.atan2(c.z - pos.z, c.x - pos.x) * 180.0 / Math.PI) - 90.0f;
+                    return Math.abs(Mth.wrapDegrees(portalYaw) - Mth.wrapDegrees(yaw));
+                }))
+                .orElse(around.isEmpty() ? null : around.get(0));
+        }
+        best = chosen;
     }
 
     private static Vec3 getVectorForRotation(float pitch, float yaw) {
@@ -232,12 +276,19 @@ public class TPMazeSolver {
 
             ESPRenderer.drawFilledBox(matrices, box, color, cameraPos);
         }
+
+        if (best != null && TeslaMapsConfig.get().tpMazeTracer) {
+            int tracerColor = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorTPMazeTracer);
+            Vec3 target = new Vec3(best.getX() + 0.5, best.getY() + 0.8, best.getZ() + 0.5);
+            ESPRenderer.drawTracerFromCamera(matrices, target, tracerColor, cameraPos);
+        }
     }
 
     public static void reset() {
         portalPositions.clear();
         correctPortals.clear();
         visitedPortals.clear();
+        best = null;
         lastRoomName = "";
         lastPlayerPos = null;
         detectedRotation = -1;

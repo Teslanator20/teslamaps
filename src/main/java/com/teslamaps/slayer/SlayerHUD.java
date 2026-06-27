@@ -378,6 +378,7 @@ public class SlayerHUD {
     }
 
     public static boolean shouldGlow(Entity entity) {
+        if (com.teslamaps.features.LegitMode.blocksCheats()) return false;
         if (bossEntity != null && entity == bossEntity && TeslaMapsConfig.get().slayerBossESP) {
             return true;
         }

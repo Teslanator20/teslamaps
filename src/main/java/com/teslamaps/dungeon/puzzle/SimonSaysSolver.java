@@ -59,7 +59,7 @@ public class SimonSaysSolver {
             return;
         }
 
-        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBoss()) {
+        if (!DungeonManager.isInDungeon()) {
             reset();
             return;
         }
@@ -102,7 +102,9 @@ public class SimonSaysSolver {
 
     public static void onBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState) {
         if (!TeslaMapsConfig.get().solveSimonSays) return;
-        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBoss()) return;
+        if (!DungeonManager.isInDungeon()) return;
+        String floor = DungeonManager.getFloorName();
+        if (floor == null || (!floor.contains("F7") && !floor.contains("M7"))) return; // device coords are F7/M7 boss only
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;

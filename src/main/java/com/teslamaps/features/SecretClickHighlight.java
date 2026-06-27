@@ -18,6 +18,8 @@ package com.teslamaps.features;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
+import com.teslamaps.map.DungeonRoom;
+import com.teslamaps.map.RoomType;
 import com.teslamaps.render.ESPRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
@@ -45,6 +47,7 @@ public class SecretClickHighlight {
 
     public static void onSecretClick(BlockPos pos) {
         if (!TeslaMapsConfig.get().secretClickHighlight || !DungeonManager.isInDungeon()) return;
+        if (suppressed()) return; // not in puzzles / on the F7 Simon Says device
         long now = now();
         Flash f = new Flash(pos.immutable(), GREEN_FILL, GREEN_LINE, now + DURATION_MS);
         flashes.add(f);
@@ -69,6 +72,17 @@ public class SecretClickHighlight {
             ESPRenderer.drawFilledBox(matrices, box, f.fill, cameraPos);
             ESPRenderer.drawBoxOutline(matrices, box, f.line, 3.0f, cameraPos);
         }
+    }
+
+    private static boolean suppressed() {
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room != null && room.getType() == RoomType.PUZZLE) return true; // puzzle rooms
+        // F7/M7 boss room (Simon Says / Arrows devices) is off the explored grid -> no current room
+        if (room == null) {
+            String floor = DungeonManager.getFloorName();
+            if (floor != null && (floor.contains("F7") || floor.contains("M7"))) return true;
+        }
+        return false;
     }
 
     public static void reset() { flashes.clear(); lastClicked = null; }

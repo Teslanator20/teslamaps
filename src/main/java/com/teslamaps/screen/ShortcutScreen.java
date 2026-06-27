@@ -113,10 +113,13 @@ public class ShortcutScreen extends Screen {
         super.extractRenderState(ctx, mouseX, mouseY, delta);
     }
 
+    // squared (matches the rest of the mod's sharp style); border added for definition
     private void roundRect(GuiGraphicsExtractor ctx, int x, int y, int w, int h, int r, int color) {
-        ctx.fill(x + r, y, x + w - r, y + h, color);
-        ctx.fill(x, y + r, x + r, y + h - r, color);
-        ctx.fill(x + w - r, y + r, x + w, y + h - r, color);
+        ctx.fill(x, y, x + w, y + h, color);
+        ctx.fill(x, y, x + w, y + 1, AppleColors.INPUT_BORDER);
+        ctx.fill(x, y + h - 1, x + w, y + h, AppleColors.INPUT_BORDER);
+        ctx.fill(x, y, x + 1, y + h, AppleColors.INPUT_BORDER);
+        ctx.fill(x + w - 1, y, x + w, y + h, AppleColors.INPUT_BORDER);
     }
 
     @Override

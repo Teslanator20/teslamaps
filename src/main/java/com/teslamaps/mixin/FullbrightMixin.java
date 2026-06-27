@@ -16,20 +16,28 @@
 package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.renderer.Lightmap;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.client.renderer.LightmapRenderStateExtractor;
+import net.minecraft.client.renderer.state.LightmapRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Lightmap.class)
+@Mixin(LightmapRenderStateExtractor.class)
 public class FullbrightMixin {
 
-    @Inject(method = "getBrightness", at = @At("HEAD"), cancellable = true)
-    private static void onGetBrightness(DimensionType type, int lightLevel, CallbackInfoReturnable<Float> cir) {
-        if (TeslaMapsConfig.get().fullbright) {
-            cir.setReturnValue(1.0f);
+    private static boolean teslamaps$wasFullbright = false;
+
+    @Inject(method = "extract", at = @At("TAIL"))
+    private void onExtract(LightmapRenderState state, float tickDelta, CallbackInfo ci) {
+        boolean on = TeslaMapsConfig.get().fullbright;
+        if (on) {
+            state.brightness = 15.0f;
+            state.darknessEffectScale = 0.0f;
+        }
+        if (on != teslamaps$wasFullbright) {
+            state.needsUpdate = true;
+            teslamaps$wasFullbright = on;
         }
     }
 }

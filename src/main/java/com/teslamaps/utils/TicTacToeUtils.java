@@ -15,12 +15,10 @@
  */
 package com.teslamaps.utils;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class TicTacToeUtils {
 
@@ -48,7 +46,12 @@ public class TicTacToeUtils {
     }
 
     private static boolean hasMovesAvailable(char[][] board) {
-        return Arrays.stream(board).flatMap(row -> Stream.of(row[0], row[1], row[2])).anyMatch(c -> c == '\0');
+        for (char[] row : board) {
+            for (char c : row) {
+                if (c == '\0') return true;
+            }
+        }
+        return false;
     }
 
     private static int getScore(char[][] board) {

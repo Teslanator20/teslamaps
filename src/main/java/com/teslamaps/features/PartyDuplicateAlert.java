@@ -16,42 +16,49 @@
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.player.PlayerTracker;
+import com.teslamaps.utils.ScoreboardUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PartyDuplicateAlert {
 
-    private static final List<String> CLASSES = List.of("Archer", "Berserk", "Healer", "Mage", "Tank");
+    // scoreboard line in the entrance looks like "[M] playername [Lvl42]"
+    private static final Pattern CLASS_LINE = Pattern.compile("\\[([MBHAT])]\\s+([A-Za-z0-9_]+)");
+    private static final Map<String, String> CLASS_NAMES = Map.of(
+            "M", "Mage", "B", "Berserk", "H", "Healer", "A", "Archer", "T", "Tank");
+
     private static boolean firedThisRun = false;
-    private static int retryTicks = 0;
+    private static int tickCounter = 0;
 
     public static void onChatMessage(String message) {
-        if (!TeslaMapsConfig.get().partyDuplicateAlert) return;
-        if (message.contains("The Catacombs, Floor")) {
-            firedThisRun = false;
-            retryTicks = 200;
-        }
+        // not needed anymore (tick() checks directly), kept so a new floor re-arms the check promptly
+        if (message.contains("The Catacombs, Floor")) firedThisRun = false;
     }
 
     public static void tick() {
-        if (retryTicks <= 0) return;
-        retryTicks--;
-        if (!firedThisRun && TeslaMapsConfig.get().partyDuplicateAlert) checkDuplicates();
+        if (!TeslaMapsConfig.get().partyDuplicateAlert) return;
+        // reset when not in a dungeon so each run re-checks; otherwise check once per run
+        if (!com.teslamaps.dungeon.DungeonManager.isInDungeon()) { firedThisRun = false; return; }
+        if (firedThisRun) return;
+        if (++tickCounter % 20 != 0) return; // throttle to ~1/s
+        checkDuplicates();
     }
 
     private static void checkDuplicates() {
-        Map<String, List<String>> byClass = new HashMap<>();
-        for (PlayerTracker.DungeonPlayer p : PlayerTracker.getPlayers()) {
-            String cls = p.getDungeonClass();
-            if (!CLASSES.contains(cls)) continue;
-            byClass.computeIfAbsent(cls, k -> new ArrayList<>()).add(p.getName());
+        Map<String, List<String>> byClass = new LinkedHashMap<>();
+        for (String line : ScoreboardUtils.getScoreboardLines()) {
+            Matcher m = CLASS_LINE.matcher(ScoreboardUtils.cleanLine(line));
+            if (!m.find()) continue;
+            String cls = CLASS_NAMES.get(m.group(1));
+            byClass.computeIfAbsent(cls, k -> new ArrayList<>()).add(m.group(2));
         }
         if (byClass.isEmpty()) return;
 
@@ -60,8 +67,9 @@ public class PartyDuplicateAlert {
             if (e.getValue().size() > 1) dupes.add(e.getKey() + ": " + String.join(", ", e.getValue()));
         }
 
-        firedThisRun = true;
+        // keep re-checking until a dupe appears (classes can change pre-start)
         if (dupes.isEmpty()) return;
+        firedThisRun = true;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;

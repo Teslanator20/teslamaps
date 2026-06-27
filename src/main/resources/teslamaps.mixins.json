@@ -29,6 +29,7 @@
         "SignEnterMixin",
         "NoCursorResetMixin",
         "ScreenshotCopyMixin",
+        "OwnNameTagMixin",
         "ScrollableTooltipMixin",
         "ContainerScrollMixin",
         "EstimatedValueMixin",
@@ -42,13 +43,21 @@
         "HandledScreenClickMixin",
         "GenericContainerScreenMixin",
         "ContainerOverlayMixin",
+        "RecipeBookOverlayMixin",
         "RarityBackgroundMixin",
         "ClientPlayNetworkHandlerMixin",
         "ServerTickPingMixin",
         "ChestAutoCloseMixin",
         "BlockUpdateMixin",
         "FullbrightMixin",
-        "InventoryEffectsMixin"
+        "NoFogMixin",
+        "NoHurtCamMixin",
+        "NoGlintMixin",
+        "MouseScrollMixin",
+        "InventoryEffectsMixin",
+        "LoudVolumeMixin",
+        "ChannelGainMixin",
+        "SoundPlayMixin"
     ],
     "injectors": {
         "defaultRequire": 1

@@ -42,10 +42,9 @@ public class HandledScreenClickMixin {
             return;
         }
 
-        if (com.teslamaps.config.TeslaMapsConfig.get().blockWrongTerminalClicks
-                && com.teslamaps.dungeon.puzzle.TerminalManager.isInTerminal()) {
+        {
             net.minecraft.world.inventory.Slot hovered = ((HandledScreenAccessor) (Object) this).getFocusedSlot();
-            if (hovered != null && !com.teslamaps.dungeon.puzzle.TerminalManager.canClick(hovered.index, button)) {
+            if (hovered != null && com.teslamaps.features.TerminalSolver.blockClick(hovered.index, button)) {
                 cir.setReturnValue(true); // consume -> no packet sent
                 return;
             }

@@ -19,12 +19,20 @@ import com.teslamaps.dungeon.BloodCamp;
 import com.teslamaps.dungeon.WitherDragons;
 import com.teslamaps.dungeon.puzzle.TerminalManager;
 import com.teslamaps.features.PingMeter;
+import com.teslamaps.features.CustomTitles;
+import com.teslamaps.features.ThornStunTimer;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundTabListPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket;
 import net.minecraft.network.protocol.ping.ClientboundPongResponsePacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -49,6 +57,11 @@ public class ClientPlayNetworkHandlerMixin {
         WitherDragons.onParticlePacket(packet);
     }
 
+    @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))
+    private void onTabList(ClientboundTabListPacket packet, CallbackInfo ci) {
+        WitherDragons.onTabFooter(packet.footer().getString());
+    }
+
     @Inject(method = "handleMoveEntity", at = @At("HEAD"))
     private void onMoveEntity(ClientboundMoveEntityPacket packet, CallbackInfo ci) {
         BloodCamp.onMoveEntityPacket(packet);
@@ -62,5 +75,30 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleRemoveEntities", at = @At("HEAD"))
     private void onRemoveEntities(ClientboundRemoveEntitiesPacket packet, CallbackInfo ci) {
         BloodCamp.onRemoveEntitiesPacket(packet);
+    }
+
+    @Inject(method = "handleTakeItemEntity", at = @At("TAIL"))
+    private void onTakeItemEntity(ClientboundTakeItemEntityPacket packet, CallbackInfo ci) {
+        com.teslamaps.features.SecretItemPickup.onTakeItem(packet.getItemId());
+    }
+
+    @Inject(method = "handleHurtAnimation", at = @At("HEAD"))
+    private void onHurtAnimation(ClientboundHurtAnimationPacket packet, CallbackInfo ci) {
+        ThornStunTimer.onHurtAnimation(packet.id());
+    }
+
+    @Inject(method = "setTitleText", at = @At("HEAD"), cancellable = true)
+    private void onSetTitle(ClientboundSetTitleTextPacket packet, CallbackInfo ci) {
+        if (CustomTitles.shouldHideDefaultTitle()) ci.cancel();
+    }
+
+    @Inject(method = "setSubtitleText", at = @At("HEAD"), cancellable = true)
+    private void onSetSubtitle(ClientboundSetSubtitleTextPacket packet, CallbackInfo ci) {
+        if (CustomTitles.shouldHideDefaultTitle()) ci.cancel();
+    }
+
+    @Inject(method = "setTitlesAnimation", at = @At("HEAD"), cancellable = true)
+    private void onSetTitlesAnimation(ClientboundSetTitlesAnimationPacket packet, CallbackInfo ci) {
+        if (CustomTitles.shouldHideDefaultTitle()) ci.cancel();
     }
 }

@@ -34,6 +34,8 @@ public class DungeonBlaze {
     private static ArmorStand lowestBlaze = null;
     private static ArmorStand nextHighestBlaze = null;
     private static ArmorStand nextLowestBlaze = null;
+    private static ArmorStand thirdHighestBlaze = null;
+    private static ArmorStand thirdLowestBlaze = null;
     private static final List<ArmorStand> allBlazes = new ArrayList<>(); // every blaze this tick (for red "wrong" boxes)
 
     private static boolean blazeDoneMessageSent = false;
@@ -73,20 +75,20 @@ public class DungeonBlaze {
         }
 
         try {
-            ArmorStand target = null, next = null;
+            ArmorStand target = null, next = null, third = null;
             if (highestBlaze != null && lowestBlaze != null && highestBlaze.isAlive() && lowestBlaze.isAlive()) {
-                if (highestBlaze.getY() < 69) { target = highestBlaze; next = nextHighestBlaze; }
-                else if (lowestBlaze.getY() > 69) { target = lowestBlaze; next = nextLowestBlaze; }
+                if (highestBlaze.getY() < 69) { target = highestBlaze; next = nextHighestBlaze; third = thirdHighestBlaze; }
+                else if (lowestBlaze.getY() > 69) { target = lowestBlaze; next = nextLowestBlaze; third = thirdLowestBlaze; }
             }
 
             for (ArmorStand blaze : allBlazes) {
-                if (blaze == null || !blaze.isAlive() || blaze == target || blaze == next) continue;
+                if (blaze == null || !blaze.isAlive() || blaze == target || blaze == next || blaze == third) continue;
                 AABB box = blaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
                 if (TeslaMapsConfig.get().modernBlazeSolver) ESPRenderer.drawFilledBox(matrices, box, 0x66FF0000, cameraPos);
                 ESPRenderer.drawBoxOutline(matrices, box, 0xFFFF0000, 4.0f, cameraPos); // Red = do NOT shoot
             }
 
-            if (target != null) renderBlazeOutline(matrices, target, next, cameraPos);
+            if (target != null) renderBlazeOutline(matrices, target, next, third, cameraPos);
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[DungeonBlaze] Error rendering", e);
         }
@@ -127,6 +129,7 @@ public class DungeonBlaze {
     private static void updateBlazeEntities(List<ObjectIntPair<ArmorStand>> blazes) {
         allBlazes.clear();
         for (ObjectIntPair<ArmorStand> b : blazes) allBlazes.add(b.left());
+        nextLowestBlaze = nextHighestBlaze = thirdLowestBlaze = thirdHighestBlaze = null;
         if (!blazes.isEmpty()) {
             lowestBlaze = blazes.get(0).left();
             int highestIndex = blazes.size() - 1;
@@ -135,10 +138,14 @@ public class DungeonBlaze {
                 nextLowestBlaze = blazes.get(1).left();
                 nextHighestBlaze = blazes.get(highestIndex - 1).left();
             }
+            if (blazes.size() > 2) {
+                thirdLowestBlaze = blazes.get(2).left();
+                thirdHighestBlaze = blazes.get(highestIndex - 2).left();
+            }
         }
     }
 
-    private static void renderBlazeOutline(PoseStack matrices, ArmorStand blaze, ArmorStand nextBlaze, Vec3 cameraPos) {
+    private static void renderBlazeOutline(PoseStack matrices, ArmorStand blaze, ArmorStand nextBlaze, ArmorStand thirdBlaze, Vec3 cameraPos) {
         boolean modern = TeslaMapsConfig.get().modernBlazeSolver;
         AABB blazeBox = blaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
         if (modern) ESPRenderer.drawFilledBox(matrices, blazeBox, 0x6600FF00, cameraPos); // Green fill
@@ -152,6 +159,13 @@ public class DungeonBlaze {
             Vec3 blazeCenter = blazeBox.getCenter();
             Vec3 nextBlazeCenter = nextBlazeBox.getCenter();
             ESPRenderer.drawLine(matrices, blazeCenter, nextBlazeCenter, 0xFFFFFFFF, 1.0f, cameraPos);
+
+            if (thirdBlaze != null && thirdBlaze.isAlive() && thirdBlaze != blaze && thirdBlaze != nextBlaze) {
+                AABB thirdBlazeBox = thirdBlaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
+                if (modern) ESPRenderer.drawFilledBox(matrices, thirdBlazeBox, 0x660055FF, cameraPos); // Blue fill
+                ESPRenderer.drawBoxOutline(matrices, thirdBlazeBox, 0xFF0055FF, 5.0f, cameraPos); // Blue = 3rd
+                ESPRenderer.drawLine(matrices, nextBlazeCenter, thirdBlazeBox.getCenter(), 0xFF0055FF, 1.0f, cameraPos);
+            }
         }
     }
 
@@ -160,6 +174,8 @@ public class DungeonBlaze {
         lowestBlaze = null;
         nextHighestBlaze = null;
         nextLowestBlaze = null;
+        thirdHighestBlaze = null;
+        thirdLowestBlaze = null;
         allBlazes.clear();
         blazeDoneMessageSent = false;
         previousBlazeCount = 0;

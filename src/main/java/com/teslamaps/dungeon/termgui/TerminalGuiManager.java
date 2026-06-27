@@ -16,192 +16,115 @@
 package com.teslamaps.dungeon.termgui;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.dungeon.puzzle.*;
-import net.minecraft.ChatFormatting;
+import com.teslamaps.features.TerminalSolver;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.ContainerInput;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Custom terminal GUI: a scaled overlay that draws the terminal grid in the
+ * centre of the screen and is driven entirely by {@link TerminalSolver}'s
+ * fresh-scan solution. Clicking a highlighted slot forwards the correct click
+ * (with the right mouse button for rubix) to the real container.
+ */
 public class TerminalGuiManager {
-    private static CustomTermGui currentGui = null;
-    private static String lastScreenTitle = "";
+
+    private static final Map<Integer, float[]> slotBoxes = new HashMap<>(); // slot -> {x, y, size}
 
     public static boolean shouldRenderCustomGui() {
         if (!TeslaMapsConfig.get().customTerminalGui) return false;
-
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen)) return false;
-
-        return getTerminalType() != TerminalType.NONE;
+        if (!(mc.screen instanceof AbstractContainerScreen<?>)) return false;
+        return TerminalSolver.currentType() != TerminalSolver.Type.NONE;
     }
 
-    public static void render(GuiGraphicsExtractor context) {
+    public static void render(GuiGraphicsExtractor ctx) {
         if (!shouldRenderCustomGui()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        TerminalSolver.Solution sol = TerminalSolver.solve();
+        if (sol == null) return;
+        TerminalSolver.Type type = TerminalSolver.currentType();
 
-        TerminalType type = getTerminalType();
-        if (type == TerminalType.NONE) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        int slotCount = cs.getMenu().slots.size() - 36; // terminal slots only
+        int rows = (slotCount + 8) / 9;
 
-        if (currentGui == null || !lastScreenTitle.equals(getScreenTitle())) {
-            currentGui = createGuiForType(type);
-            lastScreenTitle = getScreenTitle();
-        }
+        float size = 55f * c.terminalGuiSize;
+        float gap = c.terminalGuiGap;
+        float step = size + gap;
+        int ww = mc.getWindow().getGuiScaledWidth();
+        int wh = mc.getWindow().getGuiScaledHeight();
+        float originX = ww / 2f - (9 * step - gap) / 2f;
+        float originY = wh / 2f - (rows * step - gap) / 2f;
 
-        if (currentGui != null) {
-            currentGui.render(context);
+        // background
+        int bg = TeslaMapsConfig.parseColor(c.terminalGuiBackgroundColor);
+        ctx.fill((int) (originX - 8), (int) (originY - 8),
+                (int) (originX + 9 * step - gap + 8), (int) (originY + rows * step - gap + 8), bg);
+
+        slotBoxes.clear();
+        for (int index = 0; index < slotCount; index++) {
+            float x = originX + (index % 9) * step;
+            float y = originY + (index / 9) * step;
+            slotBoxes.put(index, new float[]{x, y, size});
+
+            Integer color = sol.colors.get(index);
+            if (color == null) continue;
+            ctx.fill((int) x, (int) y, (int) (x + size), (int) (y + size), color);
+
+            String label = sol.labels.get(index);
+            if (label != null && (c.terminalGuiShowNumbers || type == TerminalSolver.Type.RUBIX)) {
+                int tw = mc.font.width(label);
+                ctx.text(mc.font, label, (int) (x + size / 2 - tw / 2f), (int) (y + size / 2 - 4), 0xFFFFFFFF, true);
+            }
         }
     }
 
     public static boolean handleMouseClick(double mouseX, double mouseY, int button) {
         if (!shouldRenderCustomGui()) return false;
-        if (currentGui == null) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return false;
+        if (TerminalSolver.inFirstClickBlock()) return true; // swallow during first-click protection
+        TerminalSolver.Solution sol = TerminalSolver.solve();
+        if (sol == null) return false;
 
-        if (TeslaMapsConfig.get().terminalClickAnywhere) {
-            TerminalType type = getTerminalType();
-            int nextSlot = getNextCorrectSlot();
-
-            com.teslamaps.TeslaMaps.LOGGER.info("[TerminalGUI] Click anywhere mode - Terminal: {}, Next slot: {}", type, nextSlot);
-
-            if (nextSlot != -1) {
-                Minecraft mc = Minecraft.getInstance();
-                if (mc.screen instanceof ContainerScreen screen && mc.player != null) {
-                    int buttonToUse = button;
-
-                    if (type == TerminalType.RUBIX) {
-                        java.util.Map<Integer, Integer> clickMap = RubixTerminal.getClickMap();
-                        Integer clicksNeeded = clickMap.get(nextSlot);
-                        if (clicksNeeded != null && clicksNeeded < 0) {
-                            buttonToUse = 1; // Right-click for negative (backward) clicks
-                        } else {
-                            buttonToUse = 0; // Left-click for positive (forward) clicks
-                        }
-                    } else {
-                        buttonToUse = 0;
-                    }
-
-                    com.teslamaps.TeslaMaps.LOGGER.info("[TerminalGUI] Clicking slot {} with button {}", nextSlot, buttonToUse);
-                    mc.gameMode.handleContainerInput(
-                        screen.getMenu().containerId,
-                        nextSlot,
-                        buttonToUse,
-                        ContainerInput.PICKUP,
-                        mc.player
-                    );
-
-                    markSlotAsClicked(type, nextSlot);
-                    com.teslamaps.TeslaMaps.LOGGER.info("[TerminalGUI] Marked slot {} as clicked for type {}", nextSlot, type);
-                }
-            } else {
-                com.teslamaps.TeslaMaps.LOGGER.info("[TerminalGUI] No next slot available - solver may not be initialized yet");
+        int hovered = -1;
+        // click-anywhere disabled (redirected clicks to the correct slot = acting for the player)
+        // if (TeslaMapsConfig.get().terminalClickAnywhere) {
+        //     hovered = primarySlot(sol);
+        // } else {
+        for (Map.Entry<Integer, float[]> e : slotBoxes.entrySet()) {
+            float[] b = e.getValue();
+            if (mouseX >= b[0] && mouseX <= b[0] + b[2] && mouseY >= b[1] && mouseY <= b[1] + b[2]) {
+                hovered = e.getKey();
+                break;
             }
-            return true;
         }
+        // only forward clicks on solution slots
+        if (hovered != -1 && !sol.colors.containsKey(hovered)) return true;
+        // }
+        if (hovered == -1) return true; // consume click inside the overlay anyway
 
-        return currentGui.handleClick(mouseX, mouseY, button);
+        Boolean right = sol.rightClick.get(hovered);
+        int btn = (right != null && right) ? 1 : 0;
+        mc.gameMode.handleContainerInput(cs.getMenu().containerId, hovered, btn, ContainerInput.PICKUP, mc.player);
+        return true;
     }
 
-    private static int getNextCorrectSlot() {
-        TerminalType type = getTerminalType();
-        switch (type) {
-            case NUMBERS:
-                return ClickInOrderTerminal.getNextCorrectSlot();
-            case PANES:
-                return CorrectPanesTerminal.getNextCorrectSlot();
-            case STARTS_WITH:
-                return StartsWithTerminal.getNextCorrectSlot();
-            case SELECT_ALL:
-                return SelectAllTerminal.getNextCorrectSlot();
-            case RUBIX:
-                return RubixTerminal.getNextCorrectSlot();
-            case MELODY:
-                return MelodyTerminal.getNextCorrectSlot();
-            default:
-                return -1;
-        }
-    }
-
-    private static void markSlotAsClicked(TerminalType type, int slot) {
-        switch (type) {
-            case PANES:
-                CorrectPanesTerminal.markSlotClicked(slot);
-                break;
-            case STARTS_WITH:
-                StartsWithTerminal.markSlotClicked(slot);
-                break;
-            case SELECT_ALL:
-                SelectAllTerminal.markSlotClicked(slot);
-                break;
-            case RUBIX:
-                RubixTerminal.markSlotClicked(slot);
-                break;
-        }
+    /** Best single slot to click next (for click-anywhere mode). */
+    private static int primarySlot(TerminalSolver.Solution sol) {
+        if (sol.nextSlot != -1) return sol.nextSlot;
+        int best = -1;
+        for (int slot : sol.colors.keySet()) if (best == -1 || slot < best) best = slot;
+        return best;
     }
 
     public static void reset() {
-        currentGui = null;
-        lastScreenTitle = "";
-    }
-
-    private static TerminalType getTerminalType() {
-        String title = getScreenTitle();
-        if (title == null) return TerminalType.NONE;
-
-        String cleanTitle = ChatFormatting.stripFormatting(title);
-        if (cleanTitle == null) return TerminalType.NONE;
-
-        if (cleanTitle.equals("Click in order!")) {
-            return TerminalType.NUMBERS;
-        } else if (cleanTitle.equals("Correct all the panes!")) {
-            return TerminalType.PANES;
-        } else if (cleanTitle.startsWith("What starts with:")) {
-            return TerminalType.STARTS_WITH;
-        } else if (cleanTitle.startsWith("Select all the")) {
-            return TerminalType.SELECT_ALL;
-        } else if (cleanTitle.equals("Change all to same color!")) {
-            return TerminalType.RUBIX;
-        } else if (cleanTitle.equals("Click the button on time!")) {
-            return TerminalType.MELODY;
-        }
-
-        return TerminalType.NONE;
-    }
-
-    private static CustomTermGui createGuiForType(TerminalType type) {
-        switch (type) {
-            case NUMBERS:
-                return new NumbersTermGui();
-            case PANES:
-                return new PanesTermGui();
-            case STARTS_WITH:
-                return new StartsWithTermGui();
-            case SELECT_ALL:
-                return new SelectAllTermGui();
-            case RUBIX:
-                return new RubixTermGui();
-            case MELODY:
-                return new MelodyTermGui();
-            default:
-                return null;
-        }
-    }
-
-    private static String getScreenTitle() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof ContainerScreen screen) {
-            Component title = screen.getTitle();
-            return title != null ? title.getString() : null;
-        }
-        return null;
-    }
-
-    private enum TerminalType {
-        NONE,
-        NUMBERS,      // Click in order!
-        PANES,        // Correct all the panes!
-        STARTS_WITH,  // What starts with: '*'?
-        SELECT_ALL,   // Select all the [color] items!
-        RUBIX,        // Change all to same color!
-        MELODY        // Click the button on time!
+        slotBoxes.clear();
     }
 }

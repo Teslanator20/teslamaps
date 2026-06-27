@@ -28,7 +28,7 @@ public class HudEditScreen extends Screen {
     private final Screen parent;
     private boolean wasMouseDown = false;
 
-    private enum DragTarget { NONE, MAP, SLAYER_HUD, BEAR_SPAWN, SPLITS, BLOOD_CAMP, SPRINTING, DUNGEON_TIMERS }
+    private enum DragTarget { NONE, MAP, SLAYER_HUD, BEAR_SPAWN, SPLITS, BLOOD_CAMP, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, SPIRIT_BEAR }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -58,7 +58,7 @@ public class HudEditScreen extends Screen {
         addRenderableWidget(Button.builder(
                 Component.literal("Done"),
                 button -> onClose()
-        ).bounds(this.width / 2 - 50, this.height - 30, 100, 20).build());
+        ).bounds(this.width - 110, 6, 100, 20).build());
     }
 
     private int getMapSize() {
@@ -124,6 +124,45 @@ public class HudEditScreen extends Screen {
         int w = dungeonTimersWidth(), h = dungeonTimersHeight();
         return mouseX >= config.dungeonTimersX && mouseX <= config.dungeonTimersX + w &&
                mouseY >= config.dungeonTimersY && mouseY <= config.dungeonTimersY + h;
+    }
+
+    private int invincibilityWidth() {
+        return (int)((12 + this.font.width("immune 2.50s")) * TeslaMapsConfig.get().invincibilityScale);
+    }
+    private int invincibilityHeight() {
+        return (int)(this.font.lineHeight * 3 * TeslaMapsConfig.get().invincibilityScale);
+    }
+    private boolean isMouseOverInvincibility(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = invincibilityWidth(), h = invincibilityHeight();
+        return mouseX >= config.invincibilityX && mouseX <= config.invincibilityX + w &&
+               mouseY >= config.invincibilityY && mouseY <= config.invincibilityY + h;
+    }
+
+    private int thornStunWidth() {
+        return (int)(this.font.width(com.teslamaps.features.ThornStunTimer.SAMPLE_TEXT) * TeslaMapsConfig.get().thornStunScale);
+    }
+    private int thornStunHeight() {
+        return (int)(this.font.lineHeight * TeslaMapsConfig.get().thornStunScale);
+    }
+    private boolean isMouseOverThornStun(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = thornStunWidth(), h = thornStunHeight();
+        return mouseX >= config.thornStunX && mouseX <= config.thornStunX + w &&
+               mouseY >= config.thornStunY && mouseY <= config.thornStunY + h;
+    }
+
+    private int spiritBearWidth() {
+        return (int)(this.font.width(com.teslamaps.dungeon.puzzle.SpiritBearTimer.SAMPLE_TEXT) * TeslaMapsConfig.get().spiritBearScale);
+    }
+    private int spiritBearHeight() {
+        return (int)(this.font.lineHeight * TeslaMapsConfig.get().spiritBearScale);
+    }
+    private boolean isMouseOverSpiritBear(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = spiritBearWidth(), h = spiritBearHeight();
+        return mouseX >= config.spiritBearX && mouseX <= config.spiritBearX + w &&
+               mouseY >= config.spiritBearY && mouseY <= config.spiritBearY + h;
     }
 
     private int splitsNameCol() {
@@ -192,6 +231,18 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.DUNGEON_TIMERS;
                 dragOffsetX = mouseX - config.dungeonTimersX;
                 dragOffsetY = mouseY - config.dungeonTimersY;
+            } else if (isMouseOverInvincibility(mouseX, mouseY)) {
+                dragging = DragTarget.INVINCIBILITY;
+                dragOffsetX = mouseX - config.invincibilityX;
+                dragOffsetY = mouseY - config.invincibilityY;
+            } else if (isMouseOverThornStun(mouseX, mouseY)) {
+                dragging = DragTarget.THORN_STUN;
+                dragOffsetX = mouseX - config.thornStunX;
+                dragOffsetY = mouseY - config.thornStunY;
+            } else if (isMouseOverSpiritBear(mouseX, mouseY)) {
+                dragging = DragTarget.SPIRIT_BEAR;
+                dragOffsetX = mouseX - config.spiritBearX;
+                dragOffsetY = mouseY - config.spiritBearY;
             } else if (isMouseOverSlayerHud(mouseX, mouseY)) {
                 dragging = DragTarget.SLAYER_HUD;
                 dragOffsetX = mouseX - config.slayerHudX;
@@ -213,38 +264,50 @@ public class HudEditScreen extends Screen {
         if (dragging == DragTarget.MAP) {
             int mapSize = getMapSize();
             int newX = Math.max(0, Math.min(this.width - mapSize, mouseX - dragOffsetX));
-            int newY = Math.max(0, Math.min(this.height - mapSize - 40, mouseY - dragOffsetY));
+            int newY = Math.max(0, Math.min(this.height - mapSize, mouseY - dragOffsetY));
             config.mapX = newX;
             config.mapY = newY;
         } else if (dragging == DragTarget.SLAYER_HUD) {
             int newX = Math.max(0, Math.min(this.width - SLAYER_WIDTH, mouseX - dragOffsetX));
-            int newY = Math.max(0, Math.min(this.height - SLAYER_HEIGHT - 40, mouseY - dragOffsetY));
+            int newY = Math.max(0, Math.min(this.height - SLAYER_HEIGHT, mouseY - dragOffsetY));
             config.slayerHudX = newX;
             config.slayerHudY = newY;
         } else if (dragging == DragTarget.BEAR_SPAWN) {
             int w = bearSpawnWidth();
             int h = bearSpawnHeight();
             config.bearSpawnX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
-            config.bearSpawnY = Math.max(0, Math.min(this.height - h - 40, mouseY - dragOffsetY));
+            config.bearSpawnY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.SPLITS) {
             int w = splitsWidth();
             int h = splitsHeight();
             config.splitsX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
-            config.splitsY = Math.max(0, Math.min(this.height - h - 40, mouseY - dragOffsetY));
+            config.splitsY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.BLOOD_CAMP) {
             int w = bloodCampWidth();
             int h = bloodCampHeight();
             config.bloodCampX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
-            config.bloodCampY = Math.max(0, Math.min(this.height - h - 40, mouseY - dragOffsetY));
+            config.bloodCampY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.SPRINTING) {
             int w = sprintingWidth();
             int h = sprintingHeight();
             config.sprintingX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
-            config.sprintingY = Math.max(0, Math.min(this.height - h - 40, mouseY - dragOffsetY));
+            config.sprintingY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.DUNGEON_TIMERS) {
             int w = dungeonTimersWidth(), h = dungeonTimersHeight();
             config.dungeonTimersX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
-            config.dungeonTimersY = Math.max(0, Math.min(this.height - h - 40, mouseY - dragOffsetY));
+            config.dungeonTimersY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.INVINCIBILITY) {
+            int w = invincibilityWidth(), h = invincibilityHeight();
+            config.invincibilityX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.invincibilityY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.THORN_STUN) {
+            int w = thornStunWidth(), h = thornStunHeight();
+            config.thornStunX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.thornStunY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.SPIRIT_BEAR) {
+            int w = spiritBearWidth(), h = spiritBearHeight();
+            config.spiritBearX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.spiritBearY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         }
 
         context.fill(0, 0, this.width, this.height, 0xC0000000);
@@ -262,6 +325,12 @@ public class HudEditScreen extends Screen {
         drawSprintingPreview(context, mouseX, mouseY);
 
         drawDungeonTimersPreview(context, mouseX, mouseY);
+
+        drawInvincibilityPreview(context, mouseX, mouseY);
+
+        drawThornStunPreview(context, mouseX, mouseY);
+
+        drawSpiritBearPreview(context, mouseX, mouseY);
 
         String instructions = dragging != DragTarget.NONE ? "Release to place" : "Drag elements to move them | Scroll on map to resize";
         int textWidth = this.font.width(instructions);
@@ -424,6 +493,57 @@ public class HudEditScreen extends Screen {
         context.text(this.font, String.format("Dungeon Timers (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
+    private void drawInvincibilityPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.invincibilityX, y = config.invincibilityY;
+        float scale = config.invincibilityScale;
+        com.teslamaps.features.DungeonTimers.drawInvincibility(context, this.minecraft, x, y, scale);
+        int w = invincibilityWidth(), h = invincibilityHeight();
+        boolean hovering = isMouseOverInvincibility(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.INVINCIBILITY) {
+            int borderColor = dragging == DragTarget.INVINCIBILITY ? 0xFFFFD700 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Invincibility (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawThornStunPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.thornStunX, y = config.thornStunY;
+        float scale = config.thornStunScale;
+        com.teslamaps.features.ThornStunTimer.draw(context, this.minecraft, x, y, scale);
+        int w = thornStunWidth(), h = thornStunHeight();
+        boolean hovering = isMouseOverThornStun(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.THORN_STUN) {
+            int borderColor = dragging == DragTarget.THORN_STUN ? 0xFFAA55FF : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Thorn Stun (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawSpiritBearPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.spiritBearX, y = config.spiritBearY;
+        float scale = config.spiritBearScale;
+        com.teslamaps.dungeon.puzzle.SpiritBearTimer.draw(context, this.minecraft, x, y, scale);
+        int w = spiritBearWidth(), h = spiritBearHeight();
+        boolean hovering = isMouseOverSpiritBear(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.SPIRIT_BEAR) {
+            int borderColor = dragging == DragTarget.SPIRIT_BEAR ? 0xFFAA55FF : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Spirit Bear (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
     private void drawSplitsPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int x = config.splitsX;
@@ -543,6 +663,27 @@ public class HudEditScreen extends Screen {
         if (isMouseOverDungeonTimers((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.dungeonTimersScale = Math.min(5.0f, config.dungeonTimersScale + 0.1f);
             else if (verticalAmount < 0) config.dungeonTimersScale = Math.max(0.5f, config.dungeonTimersScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverInvincibility((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.invincibilityScale = Math.min(5.0f, config.invincibilityScale + 0.1f);
+            else if (verticalAmount < 0) config.invincibilityScale = Math.max(0.5f, config.invincibilityScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverThornStun((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.thornStunScale = Math.min(5.0f, config.thornStunScale + 0.1f);
+            else if (verticalAmount < 0) config.thornStunScale = Math.max(0.5f, config.thornStunScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverSpiritBear((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.spiritBearScale = Math.min(5.0f, config.spiritBearScale + 0.1f);
+            else if (verticalAmount < 0) config.spiritBearScale = Math.max(0.5f, config.spiritBearScale - 0.1f);
             TeslaMapsConfig.save();
             return true;
         }

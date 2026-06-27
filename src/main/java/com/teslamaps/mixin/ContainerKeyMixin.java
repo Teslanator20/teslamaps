@@ -38,7 +38,7 @@ public class ContainerKeyMixin {
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
         if (com.teslamaps.features.StorageOverlay.active()) {
-            if (com.teslamaps.features.StorageOverlay.keyPressed(event.key())) cir.setReturnValue(true);
+            if (com.teslamaps.features.StorageOverlay.keyPressed(event.key(), event.scancode())) cir.setReturnValue(true);
             return;
         }
 

@@ -148,6 +148,13 @@ public class PlayerTracker {
         return players;
     }
 
+    public static @Nullable String getLocalClass() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return null;
+        return getPlayer(mc.player.getName().getString())
+                .map(DungeonPlayer::getDungeonClass).orElse(null);
+    }
+
     public static Optional<DungeonPlayer> getPlayer(String name) {
         return Arrays.stream(players)
                 .filter(p -> p != null && p.getName().equals(name))

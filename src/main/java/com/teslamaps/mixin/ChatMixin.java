@@ -20,7 +20,6 @@ import com.teslamaps.dungeon.DungeonScore;
 import com.teslamaps.dungeon.MimicDetector;
 import com.teslamaps.dungeon.puzzle.ThreeWeirdos;
 import com.teslamaps.dungeon.puzzle.QuizSolver;
-import com.teslamaps.dungeon.puzzle.SimonSaysSolver;
 import com.teslamaps.esp.StarredMobESP;
 import com.teslamaps.features.AutoGFS;
 import com.teslamaps.features.AutoWish;
@@ -45,6 +44,7 @@ public class ChatMixin {
 
     @ModifyVariable(method = ADD_MESSAGE, at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private Component teslamaps$highlightQuiz(Component message) {
+        if (!TeslaMapsConfig.get().section("Puzzles")) return message;
         Component recolored = QuizSolver.highlightLine(message);
         return recolored != null ? recolored : message;
     }
@@ -53,70 +53,80 @@ public class ChatMixin {
     private void onChatMessage(Component message, net.minecraft.network.chat.MessageSignature signature, net.minecraft.client.multiplayer.chat.GuiMessageSource source, net.minecraft.client.multiplayer.chat.GuiMessageTag tag, CallbackInfo ci) {
         String text = message.getString();
 
-        if (QuizSolver.shouldHide(text)) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+
+        if (cfg.section("Puzzles") && QuizSolver.shouldHide(text)) {
             ci.cancel();
             return;
         }
         if (text.contains("SLAYER QUEST COMPLETE")) {
-            SlayerHUD.onSlayerComplete();
+            if (cfg.section("Slayer")) SlayerHUD.onSlayerComplete();
         } else if (text.contains("SLAYER QUEST FAILED")) {
-            SlayerHUD.onSlayerFailed();
+            if (cfg.section("Slayer")) SlayerHUD.onSlayerFailed();
         } else if (text.contains("A Wither Key was picked up!") || text.contains("has obtained Wither Key")) {
-            StarredMobESP.onWitherKeyPickup();
+            if (cfg.section("ESP")) StarredMobESP.onWitherKeyPickup();
         } else if (text.contains("A Blood Key was picked up!") || text.contains("has obtained Blood Key")) {
-            StarredMobESP.onBloodKeyPickup();
+            if (cfg.section("ESP")) StarredMobESP.onBloodKeyPickup();
         } else if (text.contains("opened a WITHER door!") || text.contains("opened the WITHER door!")) {
-            StarredMobESP.onWitherDoorOpened();
+            if (cfg.section("ESP")) StarredMobESP.onWitherDoorOpened();
         } else if (text.contains("opened a BLOOD door!") || text.contains("opened the BLOOD door!")) {
-            StarredMobESP.onBloodDoorOpened();
+            if (cfg.section("ESP")) StarredMobESP.onBloodDoorOpened();
         } else if (text.equals("That chest is locked!")) {
-            com.teslamaps.features.SecretClickHighlight.onChestLocked();
-            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-            if (mc.player != null) {
-                mc.player.playSound(net.minecraft.sounds.SoundEvents.ANVIL_LAND, 1.0f, 1.0f);
+            if (cfg.section("ESP")) {
+                com.teslamaps.features.SecretClickHighlight.onChestLocked();
+                net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+                if (mc.player != null) {
+                    mc.player.playSound(net.minecraft.sounds.SoundEvents.ANVIL_LAND, 1.0f, 1.0f);
+                }
             }
         }
 
         if (text.contains("found a secret") || text.contains("FOUND A SECRET")) {
-            onSecretFound();
-            com.teslamaps.features.SecretChime.onSecretFound();
+            if (cfg.section("Sounds")) {
+                onSecretFound();
+            }
         }
 
-        AutoGFS.onChatMessage(text);
+        if (cfg.section("Auto")) AutoGFS.onChatMessage(text);
 
-        LividSolver.onChatMessage(text);
+        if (cfg.section("ESP")) LividSolver.onChatMessage(text);
 
-        com.teslamaps.features.LeapOverlay.onChatMessage(text);
+        if (cfg.section("Leap")) com.teslamaps.features.LeapOverlay.onChatMessage(text);
 
         MimicDetector.onChatMessage(text);
 
         DungeonScore.onChatMessage(text);
 
-        com.teslamaps.dungeon.WitherDragons.onChatMessage(text);
+        if (cfg.section("Dragons")) com.teslamaps.dungeon.WitherDragons.onChatMessage(text);
 
-        com.teslamaps.dungeon.Splits.onChatMessage(text);
+        if (cfg.section("Score & Splits")) {
+            com.teslamaps.dungeon.Splits.onChatMessage(text);
+            com.teslamaps.dungeon.WatcherAddons.onChatMessage(text);
+        }
 
-        com.teslamaps.features.PartyDuplicateAlert.onChatMessage(text);
-        com.teslamaps.features.TimerTriggers.onChatMessage(text);
-        com.teslamaps.features.ChatWaypoint.onChatMessage(text);
+        if (cfg.section("Party")) com.teslamaps.features.PartyDuplicateAlert.onChatMessage(text);
+        if (cfg.section("Timers")) com.teslamaps.features.TimerTriggers.onChatMessage(text);
+        if (cfg.section("Timers")) com.teslamaps.features.SpiritPetReminder.onChatMessage(text);
+        if (cfg.section("Puzzles")) com.teslamaps.features.CustomTitles.onChatMessage(text);
+        if (cfg.section("Render")) com.teslamaps.features.ChatWaypoint.onChatMessage(text);
 
-        com.teslamaps.dungeon.BloodCamp.onChatMessage(text);
+        if (cfg.section("Blood Camp")) com.teslamaps.dungeon.BloodCamp.onChatMessage(text);
 
-        com.teslamaps.dungeon.AutoRequeue.onChatMessage(text);
+        if (cfg.section("Party")) {
+            com.teslamaps.dungeon.AutoRequeue.onChatMessage(text);
+            com.teslamaps.dungeon.PbOnJoin.onChatMessage(text);
+            com.teslamaps.features.ChatCommands.onChatMessage(text);
+        }
 
-        com.teslamaps.dungeon.PbOnJoin.onChatMessage(text);
+        if (cfg.section("Puzzles")) ThreeWeirdos.onChatMessage(text);
 
-        com.teslamaps.features.ChatCommands.onChatMessage(text);
+        if (cfg.section("Auto")) AutoWish.onChatMessage(text);
 
-        ThreeWeirdos.onChatMessage(text);
+        if (cfg.section("Puzzles")) {
+            QuizSolver.onChatMessage(text);
+        }
 
-        AutoWish.onChatMessage(text);
-
-        QuizSolver.onChatMessage(text);
-
-        SimonSaysSolver.onChatMessage(text);
-
-        if (com.teslamaps.features.ChatFilter.shouldHide(text)) {
+        if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.shouldHide(text)) {
             ci.cancel();
         }
     }
@@ -138,11 +148,12 @@ public class ChatMixin {
     private static int teslamaps$cap(java.util.List<?> list) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         int size = list.size();
-        return (c.infiniteChat && size <= c.chatHistoryLimit) ? 0 : size;
+        return (c.section("Chat") && c.infiniteChat && size <= c.chatHistoryLimit) ? 0 : size;
     }
 
     @Inject(method = ADD_MESSAGE, at = @At("TAIL"))
     private void teslamaps$stackMessages(Component message, net.minecraft.network.chat.MessageSignature signature, net.minecraft.client.multiplayer.chat.GuiMessageSource source, net.minecraft.client.multiplayer.chat.GuiMessageTag tag, CallbackInfo ci) {
+        if (!TeslaMapsConfig.get().section("Chat")) return;
         com.teslamaps.features.ChatStacking.afterAdd((net.minecraft.client.gui.components.ChatComponent) (Object) this);
     }
 

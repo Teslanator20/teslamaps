@@ -26,6 +26,14 @@ import net.minecraft.util.RandomSource;
 
 public class LoudSound {
 
+    // Marker so the SoundEngine/Channel mixins know to bypass the vanilla 1.0 volume cap for our sounds only
+    public static class LoudSoundInstance extends SimpleSoundInstance {
+        public LoudSoundInstance(Identifier id, SoundSource source, float volume, float pitch, RandomSource random,
+                                 boolean looping, int delay, SoundInstance.Attenuation attenuation, double x, double y, double z, boolean relative) {
+            super(id, source, volume, pitch, random, looping, delay, attenuation, x, y, z, relative);
+        }
+    }
+
     public static void play(SoundEvent sound, float volume, float pitch) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
@@ -33,10 +41,10 @@ public class LoudSound {
         Identifier soundId = BuiltInRegistries.SOUND_EVENT.getKey(sound);
         if (soundId == null) return;
 
-        SoundInstance instance = new SimpleSoundInstance(
+        SoundInstance instance = new LoudSoundInstance(
                 soundId,
                 SoundSource.MASTER,  // Use master category to bypass individual volume settings
-                volume,                 // This CAN exceed 1.0 with PositionedSoundInstance
+                volume,                 // CAN exceed 1.0; mixins lift the vanilla clamp + OpenAL AL_MAX_GAIN
                 pitch,
                 RandomSource.create(),
                 false,                  // Not looping

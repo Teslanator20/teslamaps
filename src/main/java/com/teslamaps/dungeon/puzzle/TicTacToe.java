@@ -37,6 +37,8 @@ import net.minecraft.world.phys.Vec3;
 public class TicTacToe {
     private static AABB nextBestMoveBox = null;
     private static DungeonRoom currentRoom = null;
+    private static String lastBoardKey = null;
+    private static TicTacToeUtils.BoardIndex cachedBestMove = null;
 
     public static void tick() {
         if (!DungeonManager.isInDungeon() || !TeslaMapsConfig.get().solveTicTacToe) {
@@ -123,7 +125,13 @@ public class TicTacToe {
                 boardToWorld.put(row + "," + col, worldPos);
             }
 
-            TicTacToeUtils.BoardIndex bestMove = TicTacToeUtils.getBestMove(board);
+            // minimax is expensive; only recompute when the board actually changes
+            String boardKey = new String(board[0]) + new String(board[1]) + new String(board[2]);
+            if (cachedBestMove == null || !boardKey.equals(lastBoardKey)) {
+                cachedBestMove = TicTacToeUtils.getBestMove(board);
+                lastBoardKey = boardKey;
+            }
+            TicTacToeUtils.BoardIndex bestMove = cachedBestMove;
 
             String key = bestMove.row() + "," + bestMove.column();
             BlockPos existingPos = boardToWorld.get(key);
@@ -202,5 +210,7 @@ public class TicTacToe {
     public static void reset() {
         nextBestMoveBox = null;
         currentRoom = null;
+        lastBoardKey = null;
+        cachedBestMove = null;
     }
 }

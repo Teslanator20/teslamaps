@@ -91,10 +91,6 @@ public class Etherwarp {
         return isEther ? tag : null;
     }
 
-    public static String[] soundKeys() {
-        return com.teslamaps.utils.SoundOptions.keys();
-    }
-
     public static void playCustomSound() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         LoudSound.play(com.teslamaps.utils.SoundOptions.resolve(c.etherwarpSound), c.etherwarpSoundVolume, c.etherwarpSoundPitch);
@@ -149,6 +145,11 @@ public class Etherwarp {
         return traverseVoxels(start, end);
     }
 
+    private static boolean isSkull(Level level, int x, int y, int z) {
+        Block b = level.getBlockState(new BlockPos(x, y, z)).getBlock();
+        return b instanceof SkullBlock || b instanceof WallSkullBlock;
+    }
+
     private static boolean passable(Level level, BlockPos pos) {
         BlockState s = level.getBlockState(pos);
         if (s.isAir()) return true;
@@ -197,7 +198,12 @@ public class Etherwarp {
             if (!passable(level, cursor)) {
                 boolean feet = passable(level, new BlockPos(x, y + 1, z));
                 boolean head = passable(level, new BlockPos(x, y + 2, z));
-                return new EtherPos(feet && head, new BlockPos(x, y, z));
+                boolean ok = feet && head;
+                if (ok && TeslaMapsConfig.get().etherwarpSkullFail
+                        && (isSkull(level, x, y, z) || isSkull(level, x, y + 1, z) || isSkull(level, x, y + 2, z))) {
+                    ok = false; // skull on/above the target blocks the etherwarp
+                }
+                return new EtherPos(ok, new BlockPos(x, y, z));
             }
             if (x == endX && y == endY && z == endZ) return EtherPos.NONE;
 

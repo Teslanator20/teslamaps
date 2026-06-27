@@ -54,7 +54,8 @@ public class NoSoundsMixin {
         if (c.noCreeperHurtSound && sound == SoundEvents.CREEPER_HURT) { ci.cancel(); return; }
 
         if (c.customHypeSound && holdingWitherBlade() && sound == SoundEvents.GENERIC_EXPLODE.value()) {
-            play(com.teslamaps.utils.SoundOptions.resolve(c.customHypeSoundType));
+            com.teslamaps.utils.LoudSound.play(
+                    com.teslamaps.utils.SoundOptions.resolve(c.customHypeSoundType), c.customHypeSoundVolume, 1.0f);
             ci.cancel();
             return;
         }

@@ -32,6 +32,7 @@ public class EntityRenderDispatcherMixin {
         com.teslamaps.config.TeslaMapsConfig cfg = com.teslamaps.config.TeslaMapsConfig.get();
         boolean noLightning = cfg.noLightning && entity instanceof net.minecraft.world.entity.LightningBolt;
         boolean noFalling = cfg.noFallingBlocks && entity instanceof net.minecraft.world.entity.item.FallingBlockEntity;
+        boolean noXpOrb = cfg.noXpOrbs && entity instanceof net.minecraft.world.entity.ExperienceOrb;
         boolean dyingDragon = cfg.hideDyingDragons
                 && entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon
                 && dragon.getHealth() <= 0;
@@ -39,8 +40,8 @@ public class EntityRenderDispatcherMixin {
                 && entity instanceof net.minecraft.world.entity.LivingEntity le
                 && !(entity instanceof net.minecraft.world.entity.player.Player)
                 && !(entity instanceof net.minecraft.world.entity.decoration.ArmorStand)
-                && le.isDeadOrDying();
-        if (noLightning || noFalling || dyingDragon || deadMob
+                && (le.isDeadOrDying() || le.deathTime > 0 || le.getHealth() <= 0.0f); // Hypixel keeps dying mobs at 0 HP (red) for ~0.5s without a client death animation
+        if (noLightning || noFalling || noXpOrb || dyingDragon || deadMob
                 || com.teslamaps.features.HideCheapCoins.shouldHide(entity)
                 || HidePlayers.shouldHide(entity)
                 || com.teslamaps.features.SoulweaverHider.shouldHide(entity)

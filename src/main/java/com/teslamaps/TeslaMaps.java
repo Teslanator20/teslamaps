@@ -22,24 +22,21 @@ import com.teslamaps.database.RoomDatabase;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.dungeon.MimicDetector;
 import com.teslamaps.dungeon.puzzle.DungeonBlaze;
-import com.teslamaps.dungeon.puzzle.StartsWithTerminal;
-import com.teslamaps.dungeon.puzzle.SelectAllTerminal;
-import com.teslamaps.dungeon.puzzle.ClickInOrderTerminal;
-import com.teslamaps.dungeon.puzzle.CorrectPanesTerminal;
-import com.teslamaps.dungeon.puzzle.MelodyTerminal;
-import com.teslamaps.dungeon.puzzle.RubixTerminal;
+// import com.teslamaps.dungeon.puzzle.StartsWithTerminal;
+// import com.teslamaps.dungeon.puzzle.SelectAllTerminal;
+// import com.teslamaps.dungeon.puzzle.ClickInOrderTerminal;
+// import com.teslamaps.dungeon.puzzle.CorrectPanesTerminal;
+// import com.teslamaps.dungeon.puzzle.MelodyTerminal;
+// import com.teslamaps.dungeon.puzzle.RubixTerminal;
 import com.teslamaps.dungeon.puzzle.ThreeWeirdos;
 import com.teslamaps.dungeon.puzzle.TicTacToe;
-import com.teslamaps.dungeon.puzzle.ChronomatronSolver;
-import com.teslamaps.dungeon.puzzle.SuperpairsSolver;
-import com.teslamaps.dungeon.puzzle.UltrasequencerSolver;
+// import com.teslamaps.dungeon.puzzle.ChronomatronSolver;
+// import com.teslamaps.dungeon.puzzle.SuperpairsSolver;
+// import com.teslamaps.dungeon.puzzle.UltrasequencerSolver;
 import com.teslamaps.dungeon.puzzle.BoulderSolver;
 import com.teslamaps.dungeon.puzzle.QuizSolver;
 import com.teslamaps.dungeon.puzzle.TPMazeSolver;
 import com.teslamaps.dungeon.puzzle.CreeperBeamsSolver;
-import com.teslamaps.dungeon.puzzle.SimonSaysSolver;
-import com.teslamaps.dungeon.puzzle.ArrowAlignSolver;
-import com.teslamaps.dungeon.puzzle.TerracottaTimer;
 import com.teslamaps.dungeon.puzzle.SpiritBearTimer;
 import com.teslamaps.dungeon.puzzle.WaterBoardSolver;
 import com.teslamaps.esp.StarredMobESP;
@@ -92,20 +89,24 @@ public class TeslaMaps implements ClientModInitializer {
         RoomDatabase.getInstance().load();
 
         com.teslamaps.dungeon.DungeonWaypoints.load();
+        com.teslamaps.dungeon.PrinceWaypoints.load();
 
         ClientCommandRegistrationCallback.EVENT.register(TMapCommand::register);
 
         net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.MODIFY_COMMAND.register(TMapCommand::expandShortcut);
 
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "map"), MapRenderer::render);
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "slayer"), SlayerHUD::render);
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "livid"), LividSolver::renderHUD);
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "spiritbear"), SpiritBearTimer::render);
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "bearspawn"), BearSpawnWarning::render);
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "sprinting"), com.teslamaps.features.SprintingOverlay::render);
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "dungeontimers"), com.teslamaps.features.DungeonTimers::render);
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "splits"), com.teslamaps.dungeon.Splits::render);
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "bloodcamp"), com.teslamaps.dungeon.BloodCamp::render);
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "map"), (g, d) -> { if (TeslaMapsConfig.get().section("Map")) MapRenderer.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "slayer"), (g, d) -> { if (TeslaMapsConfig.get().section("Slayer")) SlayerHUD.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "livid"), (g, d) -> { if (TeslaMapsConfig.get().section("ESP")) LividSolver.renderHUD(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "spiritbear"), (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles")) SpiritBearTimer.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "bearspawn"), (g, d) -> { if (TeslaMapsConfig.get().section("Sounds")) BearSpawnWarning.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "thornstun"), (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles")) com.teslamaps.features.ThornStunTimer.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "sprinting"), (g, d) -> { if (TeslaMapsConfig.get().section("Render")) com.teslamaps.features.SprintingOverlay.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "dungeontimers"), (g, d) -> { if (TeslaMapsConfig.get().section("Timers")) com.teslamaps.features.DungeonTimers.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "splits"), (g, d) -> { if (TeslaMapsConfig.get().section("Score & Splits")) com.teslamaps.dungeon.Splits.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "roomsplits"), (g, d) -> { if (TeslaMapsConfig.get().section("Score & Splits")) com.teslamaps.dungeon.RoomSplits.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "watcherhud"), (g, d) -> { if (TeslaMapsConfig.get().section("Score & Splits")) com.teslamaps.dungeon.WatcherAddons.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "bloodcamp"), (g, d) -> { if (TeslaMapsConfig.get().section("Blood Camp")) com.teslamaps.dungeon.BloodCamp.render(g, d); });
 
         HudElementRegistry.replaceElement(VanillaHudElements.MOB_EFFECTS, original ->
                 (ctx, delta) -> { if (!TeslaMapsConfig.get().noEffects) original.extractRenderState(ctx, delta); });
@@ -119,53 +120,75 @@ public class TeslaMaps implements ClientModInitializer {
             if (mc.gameRenderer != null && mc.gameRenderer.getMainCamera() != null) {
                 Vec3 cameraPos = mc.gameRenderer.getMainCamera().position();
                 Vec3 playerEyePos = cameraPos;
-                StarredMobESP.renderWorldElements(
-                        context.poseStack(),
-                        context.bufferSource(),
-                        cameraPos,
-                        playerEyePos
-                );
-                LividSolver.renderWorld(
-                        context.poseStack(),
-                        context.bufferSource(),
-                        cameraPos,
-                        playerEyePos
-                );
+                if (TeslaMapsConfig.get().section("ESP") && !com.teslamaps.features.LegitMode.blocksCheats()) {
+                    StarredMobESP.renderWorldElements(
+                            context.poseStack(),
+                            context.bufferSource(),
+                            cameraPos,
+                            playerEyePos
+                    );
+                    LividSolver.renderWorld(
+                            context.poseStack(),
+                            context.bufferSource(),
+                            cameraPos,
+                            playerEyePos
+                    );
+                }
 
-                DungeonBlaze.render(context.poseStack(), cameraPos);
-                ThreeWeirdos.render(context.poseStack(), cameraPos);
-                TicTacToe.render(context.poseStack(), cameraPos);
-                BoulderSolver.render(context.poseStack(), cameraPos);
-                QuizSolver.render(context.poseStack(), cameraPos);
-                TPMazeSolver.render(context.poseStack(), cameraPos);
-                CreeperBeamsSolver.render(context.poseStack(), cameraPos);
-                SimonSaysSolver.render(context.poseStack(), cameraPos);
-                ArrowAlignSolver.render(context.poseStack(), cameraPos);
-                TerracottaTimer.render(context.poseStack(), cameraPos);
-                WaterBoardSolver.render(context.poseStack(), cameraPos);
-                com.teslamaps.dungeon.puzzle.IceFillSolver.render(context.poseStack(), cameraPos);
-                com.teslamaps.dungeon.puzzle.IcePathSolver.render(context.poseStack(), cameraPos);
-                com.teslamaps.dungeon.WitherDragons.render(context.poseStack(), cameraPos);
-                com.teslamaps.features.DragonESP.render(context.poseStack(), cameraPos);
-                com.teslamaps.features.HighlightTeammates.render(context.poseStack(), cameraPos);
+                if (TeslaMapsConfig.get().section("Puzzles")) {
+                    DungeonBlaze.render(context.poseStack(), cameraPos);
+                    ThreeWeirdos.render(context.poseStack(), cameraPos);
+                    TicTacToe.render(context.poseStack(), cameraPos);
+                    BoulderSolver.render(context.poseStack(), cameraPos);
+                    QuizSolver.render(context.poseStack(), cameraPos);
+                    TPMazeSolver.render(context.poseStack(), cameraPos);
+                    CreeperBeamsSolver.render(context.poseStack(), cameraPos);
+                    WaterBoardSolver.render(context.poseStack(), cameraPos);
+                    com.teslamaps.dungeon.puzzle.IceFillSolver.render(context.poseStack(), cameraPos);
+                    com.teslamaps.dungeon.puzzle.IcePathSolver.render(context.poseStack(), cameraPos);
+                }
+                if (TeslaMapsConfig.get().section("Dragons")) {
+                    com.teslamaps.dungeon.WitherDragons.render(context.poseStack(), cameraPos);
+                    com.teslamaps.features.DragonESP.render(context.poseStack(), cameraPos);
+                }
+                if (TeslaMapsConfig.get().section("ESP") && !com.teslamaps.features.LegitMode.blocksCheats()) {
+                    com.teslamaps.features.HighlightTeammates.render(context.poseStack(), cameraPos);
+                }
 
-                SecretWaypoints.render(context.poseStack(), cameraPos);
+                if (TeslaMapsConfig.get().section("Waypoints")) {
+                    SecretWaypoints.render(context.poseStack(), cameraPos);
+                }
 
-                com.teslamaps.features.SecretClickHighlight.render(context.poseStack(), cameraPos);
+                if (TeslaMapsConfig.get().section("ESP")) {
+                    com.teslamaps.features.SecretClickHighlight.render(context.poseStack(), cameraPos);
+                    com.teslamaps.features.ColorPortal.render(context.poseStack(), cameraPos);
+                }
 
-                com.teslamaps.features.ColorPortal.render(context.poseStack(), cameraPos);
+                if (TeslaMapsConfig.get().section("Render")) {
+                    com.teslamaps.features.BlockOverlay.render(context.poseStack(), cameraPos);
+                    com.teslamaps.features.ChatWaypoint.render(context.poseStack(), cameraPos);
+                    com.teslamaps.features.Etherwarp.render(context.poseStack(), cameraPos);
+                }
 
-                com.teslamaps.features.BlockOverlay.render(context.poseStack(), cameraPos);
+                if (TeslaMapsConfig.get().section("Waypoints")) {
+                    com.teslamaps.dungeon.DungeonWaypoints.render(context.poseStack(), cameraPos);
+                }
 
-                com.teslamaps.features.ChatWaypoint.render(context.poseStack(), cameraPos);
+                if (TeslaMapsConfig.get().section("Map")) {
+                    com.teslamaps.dungeon.PrinceWaypoints.render(context.poseStack(), cameraPos);
+                }
 
-                com.teslamaps.features.Etherwarp.render(context.poseStack(), cameraPos);
+                if (TeslaMapsConfig.get().section("ESP") && !com.teslamaps.features.LegitMode.blocksCheats()) {
+                    com.teslamaps.esp.BossESP.render(context.poseStack(), cameraPos);
+                    com.teslamaps.esp.CorpseESP.render(context.poseStack(), cameraPos);
+                }
 
-                com.teslamaps.dungeon.DungeonWaypoints.render(context.poseStack(), cameraPos);
+                if (TeslaMapsConfig.get().section("Blood Camp")) {
+                    com.teslamaps.dungeon.BloodCamp.render(context.poseStack(), cameraPos);
+                }
 
-                com.teslamaps.dungeon.BloodCamp.render(context.poseStack(), cameraPos);
-
-                if (DungeonManager.isInDungeon() && !MimicDetector.isMimicKilled() && com.teslamaps.dungeon.DungeonScore.floorHasMimics()) {
+                if (TeslaMapsConfig.get().section("ESP") && !com.teslamaps.features.LegitMode.blocksCheats()
+                        && DungeonManager.isInDungeon() && !MimicDetector.isMimicKilled() && com.teslamaps.dungeon.DungeonScore.floorHasMimics()) {
                     renderMimicChestESP(context.poseStack(), cameraPos);
                 }
             }
@@ -173,55 +196,72 @@ public class TeslaMaps implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null && client.level != null) {
+                TeslaMapsConfig cfg = TeslaMapsConfig.get();
                 DungeonManager.tick();
                 RoomScanner.tick();
                 PlayerTracker.tick();
                 MapScanner.tick();
-                StarredMobESP.tick();
+                if (cfg.section("ESP")) StarredMobESP.tick();
                 SecretTracker.tick();
-                SlayerHUD.tick();
-                AutoGFS.tick();
-                AutoWish.tick();
-                com.teslamaps.features.LastBreathSound.tick();
-                com.teslamaps.features.TimerTriggers.tick();
-                com.teslamaps.features.ColorPortal.tick();
-                SecretClicker.tick();
-                BearSpawnWarning.tick();
+                if (cfg.section("Slayer")) SlayerHUD.tick();
+                if (cfg.section("Auto")) {
+                    if (!com.teslamaps.features.LegitMode.blocksCheats()) {
+                        AutoGFS.tick();
+                        AutoWish.tick();
+                    }
+                    com.teslamaps.features.LastBreathSound.tick();
+                }
+                if (cfg.section("Timers")) com.teslamaps.features.TimerTriggers.tick();
+                if (cfg.section("Timers")) com.teslamaps.features.SpiritPetReminder.tick();
+                if (cfg.section("ESP")) com.teslamaps.features.ColorPortal.tick();
+                if (!com.teslamaps.features.LegitMode.blocksCheats()) SecretClicker.tick();
+                if (cfg.section("Sounds")) BearSpawnWarning.tick();
                 KeybindMessage.tick();
-                com.teslamaps.dungeon.BloodCamp.tick();
-                com.teslamaps.dungeon.AutoRequeue.tick();
-                LividSolver.tick();
+                if (cfg.section("Render")) com.teslamaps.features.Zoom.tick();
+                com.teslamaps.features.LegitMode.tick();
+                com.teslamaps.map.LegitGuess.tick();
+                if (cfg.section("Blood Camp")) com.teslamaps.dungeon.BloodCamp.tick();
+                if (cfg.section("Party")) com.teslamaps.dungeon.AutoRequeue.tick();
+                if (cfg.section("ESP") && !com.teslamaps.features.LegitMode.blocksCheats()) LividSolver.tick();
                 MimicDetector.tick();
-                com.teslamaps.features.PartyDuplicateAlert.tick();
+                if (cfg.section("Party")) com.teslamaps.features.PartyDuplicateAlert.tick();
+                if (cfg.section("Puzzles")) {
                 DungeonBlaze.tick();
                 ThreeWeirdos.tick();
                 TicTacToe.tick();
-                StartsWithTerminal.tick();
-                SelectAllTerminal.tick();
-                ClickInOrderTerminal.tick();
-                CorrectPanesTerminal.tick();
-                MelodyTerminal.tick();
-                RubixTerminal.tick();
-                ChronomatronSolver.tick();
-                SuperpairsSolver.tick();
-                UltrasequencerSolver.tick();
+                // replaced by features.TerminalSolver (per-frame highlight); kept for reference
+                // StartsWithTerminal.tick();
+                // SelectAllTerminal.tick();
+                // ClickInOrderTerminal.tick();
+                // CorrectPanesTerminal.tick();
+                // MelodyTerminal.tick();
+                // RubixTerminal.tick();
+                // experimentation table solvers, disabled for now
+                // ChronomatronSolver.tick();
+                // SuperpairsSolver.tick();
+                // UltrasequencerSolver.tick();
                 BoulderSolver.tick();
                 QuizSolver.tick();
                 TPMazeSolver.tick();
                 CreeperBeamsSolver.tick();
-                SimonSaysSolver.tick();
-                ArrowAlignSolver.tick();
-                TerracottaTimer.tick();
                 SpiritBearTimer.tick();
+                com.teslamaps.features.ThornStunTimer.tick();
+                com.teslamaps.features.CustomTitles.tick();
                 WaterBoardSolver.tick();
                 com.teslamaps.dungeon.puzzle.IceFillSolver.tick();
                 com.teslamaps.dungeon.puzzle.IcePathSolver.tick();
                 com.teslamaps.dungeon.puzzle.PuzzleTimers.tick();
-                com.teslamaps.features.CombatTimers.tick();
-                com.teslamaps.features.BackpackPreview.tick();
-                com.teslamaps.dungeon.WitherDragons.tick();
-                SecretWaypoints.tick();
-                com.teslamaps.dungeon.Splits.tick();
+                }
+                if (cfg.section("Timers")) com.teslamaps.features.CombatTimers.tick();
+                if (cfg.section("Inventory")) com.teslamaps.features.BackpackPreview.tick();
+                if (cfg.section("Dragons")) com.teslamaps.dungeon.WitherDragons.tick();
+                if (cfg.section("Waypoints")) SecretWaypoints.tick();
+                if (cfg.section("Score & Splits")) {
+                    com.teslamaps.dungeon.Splits.tick();
+                    com.teslamaps.dungeon.InstaClearAlert.tick();
+                    com.teslamaps.dungeon.RoomSplits.tick();
+                    com.teslamaps.dungeon.WatcherAddons.tick();
+                }
             }
         });
     }

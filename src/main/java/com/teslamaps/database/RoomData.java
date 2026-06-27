@@ -27,6 +27,7 @@ public class RoomData {
     private int crypts;
     private String shape;
     private String doors;
+    private boolean prince;
 
     private Integer clearScore;
     private Integer secretScore;
@@ -66,6 +67,10 @@ public class RoomData {
 
     public String getDoors() {
         return doors;
+    }
+
+    public boolean getPrince() {
+        return prince;
     }
 
     public Integer getClearScore() {

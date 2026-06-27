@@ -17,15 +17,12 @@ package com.teslamaps.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.teslamaps.TeslaMaps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class ESPRenderer {
-
-    private static int frameCounter = 0;
 
     private static boolean depthTested = false;
 
@@ -43,12 +40,6 @@ public class ESPRenderer {
         float maxX = (float) box.maxX;
         float maxY = (float) box.maxY;
         float maxZ = (float) box.maxZ;
-
-        frameCounter++;
-        if (frameCounter % 200 == 0) {
-            TeslaMaps.LOGGER.info("[ESPRenderer] Drawing box at world ({},{},{}) to ({},{},{})",
-                minX, minY, minZ, maxX, maxY, maxZ);
-        }
 
         matrices.pushPose();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);

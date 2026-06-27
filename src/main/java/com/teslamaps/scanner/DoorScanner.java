@@ -184,6 +184,29 @@ public class DoorScanner {
         return doors.getOrDefault(key, DoorType.NONE);
     }
 
+    /**
+     * Detects the door between two adjacent room cells directly from the world,
+     * without requiring either room to be scanned. Used by Legit Mode to find
+     * doors on the edge of explored rooms leading to undiscovered cells.
+     * Returns NONE if the door area isn't loaded or there is no door.
+     */
+    public static DoorType scanDoorBetweenCells(int rx1, int rz1, int rx2, int rz2) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return DoorType.NONE;
+
+        int gx, gz;
+        if (rx1 != rx2) { gx = rx1 + rx2; gz = rz1 * 2; }   // horizontal neighbour
+        else { gx = rx1 * 2; gz = rz1 + rz2; }              // vertical neighbour
+
+        int worldX = ComponentGrid.DUNGEON_MIN_X + ComponentGrid.HALF_ROOM_SIZE + gx * 16;
+        int worldZ = ComponentGrid.DUNGEON_MIN_Z + ComponentGrid.HALF_ROOM_SIZE + gz * 16;
+
+        if (!CoreHasher.isPositionLoaded(mc.level, worldX, worldZ)) return DoorType.NONE;
+
+        int roofHeight = getHighestBlock(mc.level, worldX, worldZ);
+        return detectDoorType(mc.level, worldX, worldZ, roofHeight);
+    }
+
     public static Map<String, DoorType> getAllDoors() {
         return doors;
     }
