@@ -48,6 +48,18 @@ public class SoulweaverHider {
     private static final String HEALER_FAIRY =
             "ewogICJ0aW1lc3RhbXAiIDogMTcxOTQ2MzA5MTA0NywKICAicHJvZmlsZUlkIiA6ICIyNjRkYzBlYjVlZGI0ZmI3OTgxNWIyZGY1NGY0OTgyNCIsCiAgInByb2ZpbGVOYW1lIiA6ICJxdWludHVwbGV0IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzJlZWRjZmZjNmExMWEzODM0YTI4ODQ5Y2MzMTZhZjdhMjc1MmEzNzZkNTM2Y2Y4NDAzOWNmNzkxMDhiMTY3YWUiCiAgICB9CiAgfQp9";
 
+    // Compare by the texture URL hash, not the raw base64 — Hypixel may send the same skin with a
+    // different JSON formatting (pretty vs minified) or timestamp, which breaks exact base64 matching.
+    private static final java.util.Map<String, String> URL_CACHE = new java.util.HashMap<>();
+    private static final String SOUL_WEAVER_URL = textureUrl(SOUL_WEAVER);
+    private static final String BLESSING_URL = textureUrl(BLESSING);
+    private static final String REVIVE_STONE_URL = textureUrl(REVIVE_STONE);
+    private static final String PREMIUM_FLESH_URL = textureUrl(PREMIUM_FLESH);
+    private static final String ABILITY_ORB_URL = textureUrl(ABILITY_ORB);
+    private static final String SUPPORT_ORB_URL = textureUrl(SUPPORT_ORB);
+    private static final String DAMAGE_ORB_URL = textureUrl(DAMAGE_ORB);
+    private static final String HEALER_FAIRY_URL = textureUrl(HEALER_FAIRY);
+
     public static boolean shouldHide(Entity entity) {
         if (!DungeonManager.isInDungeon()) return false;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
@@ -89,18 +101,46 @@ public class SoulweaverHider {
         if (cfg.hideSkeletonSkull && isSkeletonSkull(head)) return true;
 
         if (head.getItem() != Items.PLAYER_HEAD || !texOpt) return false;
-        String tex = skullTexture(head);
-        if (tex == null) return false;
+        String url = textureUrl(skullTexture(head));
+        if (url == null) return false;
 
-        if (cfg.hideSoulweaverSkull && SOUL_WEAVER.equals(tex)) return true;
-        if (cfg.hideBlessing && BLESSING.equals(tex)) return true;
-        if (cfg.hideReviveStone && REVIVE_STONE.equals(tex)) return true;
-        if (cfg.hidePremiumFlesh && PREMIUM_FLESH.equals(tex)) return true;
-        if (cfg.hideHealerFairy && HEALER_FAIRY.equals(tex)) return true;
-        if (cfg.hideHealerOrbs && (ABILITY_ORB.equals(tex) || SUPPORT_ORB.equals(tex) || DAMAGE_ORB.equals(tex)))
+        if (cfg.hideSoulweaverSkull && url.equals(SOUL_WEAVER_URL)) return true;
+        if (cfg.hideBlessing && url.equals(BLESSING_URL)) return true;
+        if (cfg.hideReviveStone && url.equals(REVIVE_STONE_URL)) return true;
+        if (cfg.hidePremiumFlesh && url.equals(PREMIUM_FLESH_URL)) return true;
+        if (cfg.hideHealerFairy && url.equals(HEALER_FAIRY_URL)) return true;
+        if (cfg.hideHealerOrbs && (url.equals(ABILITY_ORB_URL) || url.equals(SUPPORT_ORB_URL) || url.equals(DAMAGE_ORB_URL)))
             return true;
 
         return false;
+    }
+
+    // Decodes a skull texture-property base64 to its texture URL hash (cached); null if unparseable.
+    private static String textureUrl(String base64) {
+        if (base64 == null) return null;
+        String cached = URL_CACHE.get(base64);
+        if (cached != null) return cached.isEmpty() ? null : cached;
+        String url = decodeTextureUrl(base64);
+        URL_CACHE.put(base64, url == null ? "" : url);
+        return url;
+    }
+
+    private static String decodeTextureUrl(String base64) {
+        try {
+            String json = new String(java.util.Base64.getDecoder().decode(base64), java.nio.charset.StandardCharsets.UTF_8);
+            int i = json.indexOf("/texture/");
+            if (i < 0) return null;
+            int start = i + 9;
+            int end = start;
+            while (end < json.length()) {
+                char c = json.charAt(end);
+                if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) end++;
+                else break;
+            }
+            return end > start ? json.substring(start, end) : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static boolean isSkeletonSkull(ItemStack head) {

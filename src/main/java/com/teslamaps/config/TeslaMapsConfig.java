@@ -36,6 +36,7 @@ public class TeslaMapsConfig {
     public boolean mapEnabled = true;
     public boolean onlyShowInDungeon = true;  // Only show map while in dungeon
     public boolean mapOnlyInBoss = false;     // Only show map during the boss fight
+    public boolean mapHideInBoss = false;     // Hide the map during the boss fight
     public boolean legitMode = false;         // Only show explored (revealed) rooms, like the vanilla map
     public boolean legitMapOnly = false;      // Legit Mode affects only the map; don't block ESP/auto/cheats
     public int legitPeekKey = -1;             // Hold to reveal everything while legit mode is on (GLFW code, -1 = unbound)

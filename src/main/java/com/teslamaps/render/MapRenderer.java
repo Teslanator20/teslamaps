@@ -63,7 +63,16 @@ public class MapRenderer {
         if (!config.mapEnabled) return;
         if (config.onlyShowInDungeon && !DungeonManager.isInDungeon()) return;
         if (config.mapOnlyInBoss && !DungeonManager.isInBoss()) return;
+        if (config.mapHideInBoss && isInBossArea(mc)) return;
         renderAt(context, config.mapX, config.mapY, config.mapScale, false);
+    }
+
+    // Boss area = scoreboard boss state, or being outside the dungeon room grid while still in catacombs
+    // (the boss arena sits outside the room grid). The grid check covers floors where isInBoss() never fires.
+    private static boolean isInBossArea(Minecraft mc) {
+        if (DungeonManager.isInBoss()) return true;
+        if (mc.player == null || !DungeonManager.isInDungeon()) return false;
+        return ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null;
     }
 
     public static void renderAt(GuiGraphicsExtractor context, int baseX, int baseY, float scale, boolean leapMode) {

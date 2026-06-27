@@ -182,6 +182,7 @@ public class MapConfigScreen extends Screen {
         map.add(new ToggleEntry(contentX, contentWidth, "Show Map", () -> config.mapEnabled, v -> config.mapEnabled = v));
         map.add(new ToggleEntry(contentX, contentWidth, "Only In Dungeon", () -> config.onlyShowInDungeon, v -> config.onlyShowInDungeon = v));
         map.add(new ToggleEntry(contentX, contentWidth, "Only In Boss", () -> config.mapOnlyInBoss, v -> config.mapOnlyInBoss = v));
+        map.add(new ToggleEntry(contentX, contentWidth, "Hide In Boss", () -> config.mapHideInBoss, v -> config.mapHideInBoss = v));
         map.add(new ToggleEntry(contentX, contentWidth, "Show Background", () -> config.showMapBackground, v -> config.showMapBackground = v));
         map.add(new ToggleEntry(contentX, contentWidth, "Show Mimic Status", () -> config.showMimicStatus, v -> config.showMimicStatus = v));
         map.add(new ToggleEntry(contentX, contentWidth, "Show Prince Icon", () -> config.showPrinceIcon, v -> config.showPrinceIcon = v));
