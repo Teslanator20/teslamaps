@@ -267,8 +267,8 @@ public class SimonSaysSolver {
         if (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bhr
                 && bhr.getBlockPos().equals(START_BUTTON)) {
             autoStartClicks = 3; // always exactly 3
-            // human-ish reaction delay before the first click (~200-400ms), fresh roll every run
-            autoStartDelay = 4 + java.util.concurrent.ThreadLocalRandom.current().nextInt(5);
+            // human-ish reaction delay before the first click (~150-300ms), fresh roll every run
+            autoStartDelay = 3 + java.util.concurrent.ThreadLocalRandom.current().nextInt(4);
         }
     }
 
