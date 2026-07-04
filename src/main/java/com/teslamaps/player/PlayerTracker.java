@@ -210,6 +210,11 @@ public class PlayerTracker {
         }
 
         public void update(String dungeonClass) {
+            // dead players show "(DEAD)" in tab — keep their real class so sorting stays stable
+            if ("DEAD".equals(dungeonClass)) {
+                this.alive = false;
+                return;
+            }
             if ("EMPTY".equals(this.dungeonClass) && lastGhostTime + 2000 > System.currentTimeMillis()) {
                 return;
             }

@@ -586,7 +586,7 @@ public class MapRenderer {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
         String id = com.teslamaps.utils.ItemUtil.skyblockId(mc.player.getMainHandItem());
-        return id.equals("SPIRIT_LEAP") || id.equals("INFINITE_SPIRIT_LEAP");
+        return id.equals("SPIRIT_LEAP") || id.equals("INFINITE_SPIRIT_LEAP") || id.equals("HAUNT_ABILITY");
     }
 
     private static void drawRoomName(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
@@ -835,7 +835,7 @@ public class MapRenderer {
             String selfName = config.showPlayerNames ? mc.player.getName().getString() : null;
             renderPlayerHead(context, mc, baseX, baseY, scale, headSize,
                     mc.player.getX(), mc.player.getZ(), mc.player.getYRot(),
-                    mc.player.getUUID(), 0x00000000, selfName, true, mc.player.getName().getString());
+                    mc.player.getUUID(), PlayerTracker.getLocalClass(), selfName, true, mc.player.getName().getString());
         }
 
         if (!config.showOtherPlayers) return;
@@ -866,57 +866,73 @@ public class MapRenderer {
             net.minecraft.world.entity.player.Player playerEntity = uuid != null ? mc.level.getPlayerByUUID(uuid) : null;
 
             String recordName = dungeonPlayer != null ? dungeonPlayer.getName() : null;
+            String clazz = dungeonPlayer != null ? dungeonPlayer.getDungeonClass() : null;
             if (playerEntity != null) {
                 renderPlayerHead(context, mc, baseX, baseY, scale, headSize,
                         playerEntity.getX(), playerEntity.getZ(), playerEntity.getYRot(),
-                        uuid, 0x00000000, name, false, recordName);
+                        uuid, clazz, name, false, recordName);
             } else {
                 double[] renderPos = MapScanner.mapToRenderPosition(mapX, mapZ, ROOM_SIZE, DOOR_SIZE);
                 int pixelX = baseX + (int)(renderPos[0] * scale);
                 int pixelY = baseY + (int)(renderPos[1] * scale);
                 float yaw = rotation * 22.5f;
 
-                renderPlayerHeadAtPixel(context, pixelX, pixelY, headSize, yaw, uuid, name, false, recordName);
+                drawHeadMarker(context, pixelX, pixelY, headSize, yaw, uuid, name, false, recordName, clazz);
             }
         }
     }
 
-    private static void renderPlayerHeadAtPixel(GuiGraphicsExtractor context, int pixelX, int pixelY, int headSize, float yaw,
-                                                 java.util.UUID uuid, String name, boolean isLocal, String recordName) {
+    // head + class-colored border rotate together via the pose matrix, name stays upright below
+    private static void drawHeadMarker(GuiGraphicsExtractor context, int pixelX, int pixelY, int headSize,
+                                       float rotationDeg, java.util.UUID uuid, String name, boolean isLocal,
+                                       String recordName, String clazz) {
         if (recordName != null) playerMarkers.add(new PlayerMarker(pixelX, pixelY, recordName, isLocal));
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        int halfSize = headSize / 2;
+        int half = headSize / 2;
+        boolean knownClass = clazz != null && !"EMPTY".equals(clazz);
+        int classColor = knownClass ? getDungeonClassColor(clazz) : 0xFFDDDDDD;
+
+        var pose = context.pose();
+        pose.pushMatrix();
+        pose.translate(pixelX, pixelY);
+        float rad = config.rotatePlayerHeads ? (float) Math.toRadians(rotationDeg) : 0f;
+        if (rad != 0f) pose.rotate(rad);
 
         if (config.useHeadsInsteadOfMarkers && uuid != null) {
-            if (config.rotatePlayerHeads) {
-                PlayerHeadRenderer.drawPlayerHeadRotated(context, pixelX - halfSize, pixelY - halfSize, headSize, uuid, yaw);
-            } else {
-                PlayerHeadRenderer.drawPlayerHead(context, pixelX - halfSize, pixelY - halfSize, headSize, uuid);
+            if (config.mapHeadBorder) {
+                int t = Math.max(1, Math.round(headSize / 8f));
+                int b = half + t;
+                context.fill(-b, -b, b, -half, classColor);
+                context.fill(-b, half, b, b, classColor);
+                context.fill(-b, -half, -half, half, classColor);
+                context.fill(half, -half, b, half, classColor);
             }
+            PlayerHeadRenderer.drawPlayerHead(context, -half, -half, headSize, uuid);
         } else {
-            int color = isLocal ? 0xFF55FF55 : 0xFF55FFFF;
-            context.fill(pixelX - halfSize, pixelY - halfSize, pixelX + halfSize, pixelY + halfSize, color);
-
-            if (config.rotatePlayerHeads) {
-                double rad = Math.toRadians(yaw - 180);
-                int len = headSize;
-                int dx = (int)(Math.sin(rad) * len);
-                int dy = -(int)(Math.cos(rad) * len);
-                context.fill(pixelX + dx - 1, pixelY + dy - 1, pixelX + dx + 1, pixelY + dy + 1, color);
-            }
+            int markerSize = Math.max(10, headSize);
+            int tipLen = (int) (markerSize * 0.5f);
+            int backLen = (int) (markerSize * 0.45f);
+            int sideLen = (int) (markerSize * 0.35f);
+            drawFilledTriangle(context, 0, -tipLen, -sideLen, backLen, sideLen, backLen,
+                    knownClass ? classColor : 0xFF00FF00);
         }
 
-        if (name != null && config.showPlayerNames) {
-            var textRenderer = Minecraft.getInstance().font;
-            int textWidth = textRenderer.width(name);
-            context.text(textRenderer, name, pixelX - textWidth / 2, pixelY + halfSize + 2, 0xFFFFFFFF);
+        if (rad != 0f) pose.rotate(-rad);
+
+        if (name != null && config.showPlayerNames
+                && (!config.playerNamesOnlyWithLeap || holdingLeap())) {
+            var font = Minecraft.getInstance().font;
+            pose.translate(0, half + 3);
+            pose.scale(0.5f, 0.5f);
+            context.text(font, name, -font.width(name) / 2, 0, knownClass ? classColor : 0xFFFFFFFF, true);
         }
+        pose.popMatrix();
     }
 
     private static void renderPlayerHead(GuiGraphicsExtractor context, Minecraft mc,
                                           int baseX, int baseY, float scale, int headSize,
                                           double worldX, double worldZ, float yaw,
-                                          java.util.UUID uuid, int borderColor, String name, boolean isLocal, String recordName) {
+                                          java.util.UUID uuid, String clazz, String name, boolean isLocal, String recordName) {
         int[] gridPos = ComponentGrid.worldToGrid(worldX, worldZ);
         if (gridPos == null) return;
 
@@ -927,67 +943,7 @@ public class MapRenderer {
         int pixelX = gridToPixelX(gridPos[0], baseX, scale) + (int)(roomOffsetX * ROOM_SIZE * scale);
         int pixelY = gridToPixelY(gridPos[1], baseY, scale) + (int)(roomOffsetZ * ROOM_SIZE * scale);
 
-        if (recordName != null) playerMarkers.add(new PlayerMarker(pixelX, pixelY, recordName, isLocal));
-
-        int halfSize = headSize / 2;
-
-        if ((borderColor & 0xFF000000) != 0) {
-            context.fill(pixelX - halfSize - 1, pixelY - halfSize - 1,
-                         pixelX + halfSize + 1, pixelY + halfSize + 1, borderColor);
-        }
-
-        boolean useHeads = TeslaMapsConfig.get().useHeadsInsteadOfMarkers;
-        float rotation = yaw + 180; // Convert yaw to map orientation
-
-        if (useHeads) {
-            if (TeslaMapsConfig.get().rotatePlayerHeads) {
-                PlayerHeadRenderer.drawPlayerHeadRotated(context, pixelX - halfSize, pixelY - halfSize, headSize, uuid, rotation);
-            } else {
-                PlayerHeadRenderer.drawPlayerHead(context, pixelX - halfSize, pixelY - halfSize, headSize, uuid);
-
-                double rad = Math.toRadians(rotation);
-                int arrowDist = halfSize + 3;
-                int arrowX = pixelX + (int)(Math.sin(rad) * arrowDist);
-                int arrowY = pixelY - (int)(Math.cos(rad) * arrowDist);
-
-                int arrowSize = Math.max(2, (int)(2 * scale));
-                context.fill(arrowX - arrowSize, arrowY - arrowSize, arrowX + arrowSize, arrowY + arrowSize, borderColor);
-            }
-        } else {
-            int markerSize = Math.max(10, headSize);
-            int markerColor = 0xFF00FF00; // Bright green (same as marker.png)
-
-            double rad = Math.toRadians(rotation);
-            double sin = Math.sin(rad);
-            double cos = Math.cos(rad);
-
-            float tipLen = markerSize * 0.5f;     // Distance from center to tip
-            float backLen = markerSize * 0.45f;   // Distance from center to back
-            float sideLen = markerSize * 0.35f;   // Half-width at back
-
-            int tipX = pixelX + (int)(sin * tipLen);
-            int tipY = pixelY - (int)(cos * tipLen);
-
-            int backLeftX = pixelX + (int)(-sin * backLen - cos * sideLen);
-            int backLeftY = pixelY - (int)(-cos * backLen + sin * sideLen);
-
-            int backRightX = pixelX + (int)(-sin * backLen + cos * sideLen);
-            int backRightY = pixelY - (int)(-cos * backLen - sin * sideLen);
-
-            drawFilledTriangle(context, tipX, tipY, backLeftX, backLeftY, backRightX, backRightY, markerColor);
-        }
-
-        if (name != null && TeslaMapsConfig.get().showPlayerNames) {
-            var textRenderer = mc.font;
-            int textWidth = textRenderer.width(name);
-            float textScale = 0.5f;
-            var matrices = context.pose();
-            matrices.pushMatrix();
-            matrices.translate(pixelX, pixelY + halfSize + 3);
-            matrices.scale(textScale, textScale);
-            context.text(textRenderer, name, -textWidth / 2, 0, 0xFFFFFFFF);
-            matrices.popMatrix();
-        }
+        drawHeadMarker(context, pixelX, pixelY, headSize, yaw + 180, uuid, name, isLocal, recordName, clazz);
     }
 
     private static int getDungeonClassColor(String dungeonClass) {

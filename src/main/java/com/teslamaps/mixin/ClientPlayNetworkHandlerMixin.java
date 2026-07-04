@@ -30,6 +30,7 @@ import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundTabListPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket;
@@ -45,6 +46,7 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleContainerSetSlot", at = @At("TAIL"))
     private void onSlotUpdate(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
         TerminalManager.onSlotUpdate(packet.getContainerId(), packet.getSlot(), packet.getItem());
+        com.teslamaps.features.MelodyMessage.onSlotUpdate(packet.getSlot(), packet.getItem());
     }
 
     @Inject(method = "handlePongResponse", at = @At("HEAD"))
@@ -67,6 +69,12 @@ public class ClientPlayNetworkHandlerMixin {
         BloodCamp.onMoveEntityPacket(packet);
     }
 
+    @Inject(method = "handleMovePlayer", at = @At("HEAD"))
+    private void onMovePlayer(ClientboundPlayerPositionPacket packet, CallbackInfo ci) {
+        com.teslamaps.dungeon.puzzle.TPMazeSolver.onPositionPacket(
+            packet.change().position(), packet.change().yRot(), packet.change().xRot());
+    }
+
     @Inject(method = "handleSetEquipment", at = @At("HEAD"))
     private void onSetEquipment(ClientboundSetEquipmentPacket packet, CallbackInfo ci) {
         BloodCamp.onSetEquipmentPacket(packet);
@@ -85,6 +93,14 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleHurtAnimation", at = @At("HEAD"))
     private void onHurtAnimation(ClientboundHurtAnimationPacket packet, CallbackInfo ci) {
         ThornStunTimer.onHurtAnimation(packet.id());
+        com.teslamaps.features.M4Highlight.onHurtAnimation(packet.id());
+    }
+
+    @Inject(method = "handleEntityEvent", at = @At("HEAD"))
+    private void onEntityEvent(net.minecraft.network.protocol.game.ClientboundEntityEventPacket packet, CallbackInfo ci) {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.level == null) return;
+        com.teslamaps.features.OverkillCounter.onEntityEvent(packet.getEntity(mc.level), packet.getEventId());
     }
 
     @Inject(method = "setTitleText", at = @At("HEAD"), cancellable = true)

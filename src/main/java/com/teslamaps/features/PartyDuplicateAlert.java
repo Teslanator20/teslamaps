@@ -35,24 +35,23 @@ public class PartyDuplicateAlert {
     private static final Map<String, String> CLASS_NAMES = Map.of(
             "M", "Mage", "B", "Berserk", "H", "Healer", "A", "Archer", "T", "Tank");
 
-    private static boolean firedThisRun = false;
+    private static long firedForStart = -1; // dungeon start time we already alerted for (fire once per run)
     private static int tickCounter = 0;
 
     public static void onChatMessage(String message) {
-        // not needed anymore (tick() checks directly), kept so a new floor re-arms the check promptly
-        if (message.contains("The Catacombs, Floor")) firedThisRun = false;
+        // no-op: the per-run guard below is keyed on the dungeon start time, not chat lines
     }
 
     public static void tick() {
         if (!TeslaMapsConfig.get().partyDuplicateAlert) return;
-        // reset when not in a dungeon so each run re-checks; otherwise check once per run
-        if (!com.teslamaps.dungeon.DungeonManager.isInDungeon()) { firedThisRun = false; return; }
-        if (firedThisRun) return;
+        if (!com.teslamaps.dungeon.DungeonManager.isInDungeon()) return;
+        long start = com.teslamaps.dungeon.DungeonManager.getDungeonStartTime();
+        if (start == firedForStart) return; // already alerted this run (survives state/scoreboard flicker)
         if (++tickCounter % 20 != 0) return; // throttle to ~1/s
-        checkDuplicates();
+        checkDuplicates(start);
     }
 
-    private static void checkDuplicates() {
+    private static void checkDuplicates(long start) {
         Map<String, List<String>> byClass = new LinkedHashMap<>();
         for (String line : ScoreboardUtils.getScoreboardLines()) {
             Matcher m = CLASS_LINE.matcher(ScoreboardUtils.cleanLine(line));
@@ -69,7 +68,7 @@ public class PartyDuplicateAlert {
 
         // keep re-checking until a dupe appears (classes can change pre-start)
         if (dupes.isEmpty()) return;
-        firedThisRun = true;
+        firedForStart = start;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
@@ -81,5 +80,5 @@ public class PartyDuplicateAlert {
         }
     }
 
-    public static void reset() { firedThisRun = false; }
+    public static void reset() { firedForStart = -1; }
 }

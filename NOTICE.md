@@ -122,6 +122,18 @@ in the root of this repository.
 
 ---
 
+## 4. NoammAddons — https://github.com/Noamm9/NoammAddons
+
+The dungeon-map player marker rendering style (rotating head with class-colored
+border, upright name below), the Simon Says device alerts/click-blocking, the
+bossbar health display, and the enchantment lore coloring (including the
+`enchants.json` data file) are adapted from NoammAddons.
+
+NoammAddons is dedicated to the public domain under **CC0 1.0 Universal**; no
+attribution is required, but it is credited here as a courtesy.
+
+---
+
 ## Modifications
 
 All third-party code listed above was modified by Teslanator20 in 2026:
@@ -129,3 +141,28 @@ ported to Minecraft 26.1.2 (Fabric, Java 25, official Mojang mappings) and
 integrated/adapted for TeslaMaps. Individual files derived from these projects
 should carry a notice indicating they were modified; see file headers where
 present.
+
+---
+
+## Bundled fonts (SIL Open Font License 1.1)
+
+The following fonts in `assets/teslamaps/font/` are licensed under the SIL Open
+Font License, Version 1.1 (https://scripts.sil.org/OFL). They are unmodified.
+
+- Press Start 2P — © The Press Start 2P Project Authors
+- VT323 — © The VT323 Project Authors
+- Poppins — © The Poppins Project Authors (Indian Type Foundry, Jonny Pinhorn)
+- Lato — © tyPoland Lukasz Dziedzic
+- Pacifico — © The Pacifico Project Authors
+- Bangers — © The Bangers Project Authors
+
+All retrieved from the Google Fonts repository (https://github.com/google/fonts).
+
+---
+
+## BirdAddon (BSD 3-Clause)
+
+The F4/M4 Overkill Counter (`features/OverkillCounter.java`) is ported from
+BirdAddon (https://github.com/BarefootBird/BirdAddon), licensed under the
+BSD 3-Clause License, Copyright (c) 2025 BarefootBird. Redistributed with this
+notice per the license terms.

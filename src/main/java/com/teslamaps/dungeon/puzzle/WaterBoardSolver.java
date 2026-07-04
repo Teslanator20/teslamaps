@@ -42,14 +42,6 @@ public class WaterBoardSolver {
 
     private static final int[] TOP_LEFT_BLOCK = {16, 26};
     private static final int[] TOP_RIGHT_BLOCK = {14, 26};
-    private static final int[] PURPLE_WOOL = {15, 19};
-    private static final Block[] WOOL_ORDER = {
-        Blocks.PURPLE_WOOL,  // door 0
-        Blocks.ORANGE_WOOL,  // door 1
-        Blocks.BLUE_WOOL,    // door 2
-        Blocks.LIME_WOOL,    // door 3
-        Blocks.RED_WOOL      // door 4
-    };
 
     public enum LeverType {
         QUARTZ("quartz", Blocks.QUARTZ_BLOCK, 20, 61, 20),
@@ -150,7 +142,7 @@ public class WaterBoardSolver {
         }
 
         // retry variant detection: the board blocks are often not loaded yet on the first tick after entering
-        if (variant < 0 && rotation >= 0 && variantAttempts < 100) {
+        if (variant < 0 && rotation >= 0) {
             if (variantAttempts % 20 == 0) detectVariant(mc);
             variantAttempts++;
         }
@@ -182,57 +174,25 @@ public class WaterBoardSolver {
             return;
         }
 
-        int currentY = 77;
-        int[] lanternPos = fromComp(15, 27);
-        if (lanternPos != null) {
-            Block lanternBlock = mc.level.getBlockState(new BlockPos(lanternPos[0], currentY, lanternPos[1])).getBlock();
-            if (lanternBlock != Blocks.SEA_LANTERN) {
-                currentY = 78;
-            }
-        }
-
-        int[] topLeft = fromComp(TOP_LEFT_BLOCK[0], TOP_LEFT_BLOCK[1]);
-        int[] topRight = fromComp(TOP_RIGHT_BLOCK[0], TOP_RIGHT_BLOCK[1]);
-
-        if (topLeft == null || topRight == null) {
-            TeslaMaps.LOGGER.warn("[WaterBoardSolver] Could not convert block positions");
+        // Odin-style: a single identifying block per pattern is enough
+        variant = readVariantSingle(mc, cornerX, cornerZ, rotation);
+        if (variant >= 0) {
+            TeslaMaps.LOGGER.info("[WaterBoardSolver] Detected variant {} (corner=({},{}) rot={})",
+                variant, cornerX, cornerZ, rotation);
             return;
         }
 
-        Block leftBlock = mc.level.getBlockState(new BlockPos(topLeft[0], currentY, topLeft[1])).getBlock();
-        Block rightBlock = mc.level.getBlockState(new BlockPos(topRight[0], currentY, topRight[1])).getBlock();
-
-        TeslaMaps.LOGGER.info("[WaterBoardSolver] Top blocks at Y={}: left={} at ({},{}), right={} at ({},{})",
-            currentY, leftBlock, topLeft[0], topLeft[1], rightBlock, topRight[0], topRight[1]);
-
-        if (leftBlock == Blocks.AIR || leftBlock == Blocks.STONE) {
-            int[] newPos = fromComp(TOP_LEFT_BLOCK[0], TOP_LEFT_BLOCK[1] + 1);
-            if (newPos != null) {
-                leftBlock = mc.level.getBlockState(new BlockPos(newPos[0], currentY, newPos[1])).getBlock();
-            }
-        }
-        if (rightBlock == Blocks.AIR || rightBlock == Blocks.STONE) {
-            int[] newPos = fromComp(TOP_RIGHT_BLOCK[0], TOP_RIGHT_BLOCK[1] + 1);
-            if (newPos != null) {
-                rightBlock = mc.level.getBlockState(new BlockPos(newPos[0], currentY, newPos[1])).getBlock();
-            }
-        }
-
-        if (leftBlock == Blocks.GOLD_BLOCK && rightBlock == Blocks.TERRACOTTA) {
-            variant = 0;
-        } else if (leftBlock == Blocks.EMERALD_BLOCK && rightBlock == Blocks.QUARTZ_BLOCK) {
-            variant = 1;
-        } else if (leftBlock == Blocks.QUARTZ_BLOCK && rightBlock == Blocks.DIAMOND_BLOCK) {
-            variant = 2;
-        } else if (leftBlock == Blocks.GOLD_BLOCK && rightBlock == Blocks.QUARTZ_BLOCK) {
-            variant = 3;
-        }
-
-        TeslaMaps.LOGGER.info("[WaterBoardSolver] Detected variant: {} (left={}, right={})", variant, leftBlock, rightBlock);
-
         // rare: multi-component room picked the wrong corner/rotation -> the normal read above stayed -1.
-        // only then brute-force the other component corners x rotations (never touches the working case).
-        if (variant < 0) detectVariantFallback(mc);
+        // only then brute-force the other component corners x rotations with the stricter pair check.
+        detectVariantFallback(mc);
+    }
+
+    private static int readVariantSingle(Minecraft mc, int cx, int cz, int rot) {
+        if (blockAtComp(mc, 14, 27, rot, cx, cz, 77) == Blocks.TERRACOTTA) return 0;
+        if (blockAtComp(mc, 16, 27, rot, cx, cz, 78) == Blocks.EMERALD_BLOCK) return 1;
+        if (blockAtComp(mc, 14, 27, rot, cx, cz, 78) == Blocks.DIAMOND_BLOCK) return 2;
+        if (blockAtComp(mc, 14, 27, rot, cx, cz, 78) == Blocks.QUARTZ_BLOCK) return 3;
+        return -1;
     }
 
     private static void detectVariantFallback(Minecraft mc) {
@@ -288,14 +248,13 @@ public class WaterBoardSolver {
     private static void detectSubvariant(Minecraft mc) {
         StringBuilder sb = new StringBuilder();
 
-        for (int idx = 0; idx < WOOL_ORDER.length; idx++) {
-            Block woolType = WOOL_ORDER[idx];
-            int[] pos = fromComp(PURPLE_WOOL[0], PURPLE_WOOL[1] - idx);
+        // doors 0-4 = wool columns at z 19..15; any block present = column extended (door closed).
+        // color-agnostic on purpose - exact wool matching broke on some boards (like Odin does it)
+        for (int idx = 0; idx < 5; idx++) {
+            int[] pos = fromComp(15, 19 - idx);
             if (pos == null) continue;
 
-            Block block = mc.level.getBlockState(new BlockPos(pos[0], 57, pos[1])).getBlock();
-
-            if (block == woolType) {
+            if (!mc.level.getBlockState(new BlockPos(pos[0], 56, pos[1])).isAir()) {
                 sb.append(idx);
             }
         }

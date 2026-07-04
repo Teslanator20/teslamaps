@@ -72,7 +72,6 @@ public class LeapOverlay {
     }
 
     private static final LeapPlayer[] leapPlayers = new LeapPlayer[4];
-    private static long lastScanTime = 0;
     private static boolean menuOpen = false;
 
     // boss bar names that mean we're in the boss room (Watcher excluded: that's the blood room)
@@ -98,9 +97,9 @@ public class LeapOverlay {
         return false;
     }
 
-    private static final int BASE_BOX_WIDTH = 100;
-    private static final int BASE_BOX_HEIGHT = 50;
-    private static final int BASE_GAP = 8;
+    // Odin-style layout: boxes fill the screen quadrants around the center
+    private static final float[] hoverAnim = new float[4];
+    private static long lastAnimTime = 0;
 
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().leapOverlay) return false;
@@ -120,7 +119,22 @@ public class LeapOverlay {
 
     private static String lastDoorOpener = null;
 
+    // Fast Leap boss phase, driven by F7/M7 boss chat lines (verified against the dungeon logs).
+    private enum BossPhase { NONE, ARCHER, BERSERK, HEALER }
+    private static BossPhase bossPhase = BossPhase.NONE;
+    private static long berserkUntilMs = 0L;
+    private static int crystalCount = 0;        // "2/2 Energy Crystals are now active!" occurrences
+    private static long berserkScheduledMs = 0L; // delayed -> berserk after the 2nd crystal message
+
     public static String getLastDoorOpener() { return lastDoorOpener; }
+
+    public static void tick() {
+        if (berserkScheduledMs != 0L && System.currentTimeMillis() >= berserkScheduledMs) {
+            bossPhase = BossPhase.BERSERK;
+            berserkUntilMs = Long.MAX_VALUE;
+            berserkScheduledMs = 0L;
+        }
+    }
 
     public static void onChatMessage(String message) {
         if (!DungeonManager.isInDungeon()) return;
@@ -131,28 +145,45 @@ public class LeapOverlay {
             TeslaMaps.LOGGER.info("[LeapOverlay] Last door opener: {}", lastDoorOpener);
         }
 
-        if (!TeslaMapsConfig.get().leapAnnounce) return;
-        Matcher m = LEAPED_PATTERN.matcher(message);
-        if (m.find() && mc.getConnection() != null) {
-            mc.getConnection().sendCommand("pc Leaped to " + m.group(1) + "!");
+        String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        if (clean.contains("[BOSS] Maxor:") && clean.contains("WELL! WELL! WELL!")) {
+            bossPhase = BossPhase.ARCHER;
+        } else if (clean.contains("[BOSS] Maxor:") && clean.contains("YOU TRICKED ME!")) {
+            bossPhase = BossPhase.BERSERK;
+            berserkUntilMs = Long.MAX_VALUE; // stays on berserk until the 10s window below
+        } else if (clean.contains("[BOSS] Maxor:") && clean.contains("I'M TOO YOUNG TO DIE AGAIN!")) {
+            bossPhase = BossPhase.BERSERK;
+            berserkUntilMs = System.currentTimeMillis() + 10_000L;
+        } else if (clean.contains("[BOSS] Storm:") && clean.contains("Oof")) {
+            bossPhase = BossPhase.HEALER;
+        } else if (clean.contains("2/2 Energy Crystals are now active!")) {
+            crystalCount++;
+            if (crystalCount == 2) berserkScheduledMs = System.currentTimeMillis() + 1500L; // 2nd time -> berserk after 1.5s
+        }
+
+        Matcher m = LEAPED_PATTERN.matcher(clean);
+        if (m.find()) {
+            com.teslamaps.features.HidePlayers.onLeap();
+            if (TeslaMapsConfig.get().leapAnnounce && mc.getConnection() != null) {
+                mc.getConnection().sendCommand("pc Leaped to " + m.group(1) + "!");
+            }
         }
     }
 
     public static void render(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         if (!shouldRender()) {
             menuOpen = false;
+            Arrays.fill(hoverAnim, 0f);
+            lastAnimTime = 0;
             return;
         }
 
         ContainerScreen screen = (ContainerScreen) mc.screen;
         if (screen == null) return;
 
-        long now = System.currentTimeMillis();
-        if (!menuOpen || now - lastScanTime > 500) {
-            scanLeapPlayers(screen);
-            lastScanTime = now;
-            menuOpen = true;
-        }
+        // scan every frame: chest contents arrive after the menu opens, and death states change mid-menu
+        scanLeapPlayers(screen);
+        menuOpen = true;
 
         pollKeybinds(screen);
 
@@ -169,6 +200,8 @@ public class LeapOverlay {
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
 
+        context.fill(0, 0, screenWidth, screenHeight, 0x90101010);
+
         leapMapShown = false;
         if (TeslaMapsConfig.get().leapShowMap && DungeonManager.isInDungeon() && !inBossRoom()) {
             float mapScale = TeslaMapsConfig.get().mapScale;
@@ -182,81 +215,80 @@ public class LeapOverlay {
             leapMapShown = true;
         }
 
-        float scale = Math.min(screenWidth / 400f, screenHeight / 250f);
-        scale = Math.max(0.5f, Math.min(scale, 1.5f)); // Clamp between 0.5 and 1.5
+        float s = TeslaMapsConfig.get().leapScale;
+        float boxW = 200f * s, boxH = 75f * s;
+        float xOff = 12f * s;
+        float yOff = 9f * s;
+        float cx = screenWidth / 2f, cy = screenHeight / 2f;
 
-        int boxWidth = (int) (BASE_BOX_WIDTH * scale);
-        int boxHeight = (int) (BASE_BOX_HEIGHT * scale);
-        int gap = (int) (BASE_GAP * scale);
-
-        int totalWidth = boxWidth * 2 + gap;
-        int totalHeight = boxHeight * 2 + gap;
-        int startX = (screenWidth - totalWidth) / 2;
-        int startY = (screenHeight - totalHeight) / 2;
-
-        context.fill(startX - 8, startY - 8, startX + totalWidth + 8, startY + totalHeight + 8, 0xC0000000);
+        long now = System.currentTimeMillis();
+        float dt = lastAnimTime == 0 ? 16f : Math.min(100f, now - lastAnimTime);
+        lastAnimTime = now;
+        int hoverQuad = (mouseX >= cx ? 1 : 0) + (mouseY >= cy ? 2 : 0);
+        for (int i = 0; i < 4; i++) {
+            float target = (i == hoverQuad && leapPlayers[i] != null && !leapPlayers[i].isDead) ? 1f : 0f;
+            float step = dt / 200f;
+            hoverAnim[i] += Math.signum(target - hoverAnim[i]) * Math.min(step, Math.abs(target - hoverAnim[i]));
+        }
 
         for (int i = 0; i < 4; i++) {
             LeapPlayer player = leapPlayers[i];
             if (player == null) continue;
 
-            int col = i % 2;
-            int row = i / 2;
-            int boxX = startX + col * (boxWidth + gap);
-            int boxY = startY + row * (boxHeight + gap);
-
-            boolean hovered = mouseX >= boxX && mouseX < boxX + boxWidth &&
-                              mouseY >= boxY && mouseY < boxY + boxHeight;
-
-            renderPlayerBox(context, textRenderer, player, boxX, boxY, boxWidth, boxHeight, hovered, scale);
+            float bx = (i % 2 == 0) ? cx - xOff - boxW : cx + xOff;
+            float by = (i / 2 == 0) ? cy - yOff - boxH : cy + yOff;
+            float e = hoverAnim[i] * 6f * s;
+            renderPlayerBox(context, textRenderer, player, bx - e, by - e, boxW + 2 * e, boxH + 2 * e, s);
         }
     }
 
     private static void renderPlayerBox(GuiGraphicsExtractor context, Font textRenderer,
-                                         LeapPlayer player, int x, int y, int width, int height,
-                                         boolean hovered, float scale) {
+                                         LeapPlayer player, float fx, float fy, float fw, float fh, float s) {
+        int x = (int) fx, y = (int) fy, w = (int) fw, h = (int) fh;
         int classColor = CLASS_COLORS.getOrDefault(player.dungeonClass, 0xFFFFFFFF);
+        int bg = player.isDead ? 0xBF4A1414 : 0xBF3B3B3B;
 
-        int bgColor = hovered ? 0xE0505050 : 0xC0303030;
-        if (player.isDead) {
-            bgColor = hovered ? 0xE0602020 : 0xC0401010;
-        }
+        // chamfered corners, closest plain fills get to Odin's rounded rect
+        int r = Math.max(2, (int) (5 * s));
+        context.fill(x + r, y, x + w - r, y + h, bg);
+        context.fill(x, y + r, x + r, y + h - r, bg);
+        context.fill(x + w - r, y + r, x + w, y + h - r, bg);
 
-        context.fill(x, y, x + width, y + height, bgColor);
-
-        int borderColor = player.isDead ? 0xFFFF0000 : classColor;
-        int borderWidth = Math.max(1, (int)(2 * scale));
-        context.fill(x, y, x + width, y + borderWidth, borderColor); // Top
-        context.fill(x, y + height - borderWidth, x + width, y + height, borderColor); // Bottom
-        context.fill(x, y, x + borderWidth, y + height, borderColor); // Left
-        context.fill(x + width - borderWidth, y, x + width, y + height, borderColor); // Right
-
-        int iconSize = (int)(32 * scale);
-        int iconX = x + (int)(4 * scale);
-        int iconY = y + (height - iconSize) / 2;
-
+        int headSize = (int) (fh * 0.75f);
+        int headX = x + (int) (fh * 0.125f);
+        int headY = y + (h - headSize) / 2;
         if (TeslaMapsConfig.get().leapShowHeads && player.uuid != null) {
-            PlayerHeadRenderer.drawPlayerHead(context, iconX, iconY, iconSize, player.uuid);
+            PlayerHeadRenderer.drawPlayerHead(context, headX, headY, headSize, player.uuid);
         } else {
-            context.fill(iconX, iconY, iconX + iconSize, iconY + iconSize, classColor);
+            context.fill(headX, headY, headX + headSize, headY + headSize, classColor);
             String letter = CLASS_LETTERS.getOrDefault(player.dungeonClass, "?");
-            int letterX = iconX + (iconSize - textRenderer.width(letter)) / 2;
-            int letterY = iconY + (iconSize - 8) / 2;
-            context.text(textRenderer, letter, letterX, letterY, 0xFFFFFFFF, true);
+            float ls = headSize / 14f;
+            drawScaledText(context, textRenderer, letter,
+                    headX + (headSize - textRenderer.width(letter) * ls) / 2f,
+                    headY + (headSize - 9f * ls) / 2f, ls, 0xFFFFFFFF);
         }
 
-        int textX = iconX + iconSize + (int)(6 * scale);
-        int nameY = y + (int)(8 * scale);
-        int nameColor = player.isDead ? 0xFFFF5555 : 0xFFFFFFFF;
-        context.text(textRenderer, player.name, textX, nameY, nameColor, true);
-
-        int classY = y + (int)(20 * scale);
-        if (player.isDead) {
-            context.text(textRenderer, "DEAD", textX, classY, 0xFFFF0000, true);
-        } else {
-            String classText = player.dungeonClass != null ? player.dungeonClass : "Unknown";
-            context.text(textRenderer, classText, textX, classY, classColor, true);
+        float textX = headX + headSize + 8f * s;
+        float nameScale = fh / 52f;
+        float maxNameWidth = fx + fw - textX - 6f * s;
+        if (textRenderer.width(player.name) * nameScale > maxNameWidth) {
+            nameScale = maxNameWidth / textRenderer.width(player.name);
         }
+        drawScaledText(context, textRenderer, player.name, textX, y + fh * 0.2f, nameScale, classColor);
+
+        String sub = player.isDead ? "DEAD" : (player.dungeonClass != null ? player.dungeonClass : "Unknown");
+        int subColor = player.isDead ? 0xFFFF5555 : 0xFFFFFFFF;
+        drawScaledText(context, textRenderer, sub, textX, y + fh * 0.2f + 12f * nameScale, fh / 68f, subColor);
+    }
+
+    private static void drawScaledText(GuiGraphicsExtractor context, Font font, String text,
+                                        float x, float y, float scale, int color) {
+        var pose = context.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(scale, scale);
+        context.text(font, text, 0, 0, color, true);
+        pose.popMatrix();
     }
 
     private static final Set<Integer> heldLeapKeys = new HashSet<>();
@@ -278,6 +310,64 @@ public class LeapOverlay {
             pollKey(handle, c.leapKeyBR, () -> leapToQuadrant(screen, 3));
         }
         pollKey(handle, c.leapKeyLastDoor, () -> leapToLastDoorOpener(screen));
+        pollKey(handle, c.fastLeapKey, () -> fastLeap(screen));
+    }
+
+    private static boolean inBossArea() {
+        if (mc.player == null || !DungeonManager.isInDungeon()) return false;
+        if (DungeonManager.isInBoss()) return true;
+        return com.teslamaps.scanner.ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null;
+    }
+
+    // Fast Leap: in the clear -> last door opener. In the boss -> arena zone, then boss phase, else door opener.
+    private static void fastLeap(ContainerScreen screen) {
+        if (!inBossArea()) {
+            if (lastDoorOpener != null) { announceLeap("Door Opener (" + lastDoorOpener + ")"); leapToLastDoorOpener(screen); }
+            return;
+        }
+
+        String zone = zoneClass();
+        if (zone != null) { announceLeap(zone); leapToClass(screen, zone); return; }
+
+        switch (bossPhase) {
+            case ARCHER -> { announceLeap("Archer"); leapToClass(screen, "Archer"); }
+            case BERSERK -> {
+                if (System.currentTimeMillis() < berserkUntilMs) { announceLeap("Berserk"); leapToClass(screen, "Berserk"); }
+                // after the 10s window: do nothing until Storm's "Oof"
+            }
+            case HEALER -> { announceLeap("Healer"); leapToClass(screen, "Healer"); }
+            default -> {
+                if (lastDoorOpener != null) { announceLeap("Door Opener (" + lastDoorOpener + ")"); leapToLastDoorOpener(screen); }
+            }
+        }
+    }
+
+    private static void announceLeap(String target) {
+        if (mc.player != null) {
+            mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§a[TeslaMaps] §fLeaping to " + target));
+        }
+    }
+
+    // Returns the class to leap to based on the player's position in the F7/M7 boss arena, or null.
+    private static String zoneClass() {
+        if (mc.player == null) return null;
+        double x = mc.player.getX(), y = mc.player.getY(), z = mc.player.getZ();
+        if (within(x, y, z, 54, 63, 43, 20) || within(x, y, z, 54, 64, 79, 20)) return "Healer";
+        if (y >= 100 && y <= 145) {
+            if (inBox(x, z, 92, 109, 54, 122)) return "Archer";
+            if (inBox(x, z, 36, 77, 127, 141)) return "Healer";
+            if (inBox(x, z, -3, 16, 51, 116)) return "Mage";
+        }
+        return null;
+    }
+
+    private static boolean inBox(double x, double z, double xMin, double xMax, double zMin, double zMax) {
+        return x >= xMin && x <= xMax && z >= zMin && z <= zMax;
+    }
+
+    private static boolean within(double x, double y, double z, double cx, double cy, double cz, double r) {
+        double dx = x - cx, dy = y - cy, dz = z - cz;
+        return dx * dx + dy * dy + dz * dz <= r * r;
     }
 
     private static void leapToLastDoorOpener(ContainerScreen screen) {
@@ -372,13 +462,22 @@ public class LeapOverlay {
         return true;
     }
 
+    // head names can carry a prefix ("✦ Name") — take the last word, like Odin
+    private static String headName(ItemStack stack) {
+        String n = ChatFormatting.stripFormatting(stack.getHoverName().getString());
+        if (n == null) return null;
+        n = n.trim();
+        int sp = n.lastIndexOf(' ');
+        return sp >= 0 ? n.substring(sp + 1) : n;
+    }
+
     private static List<String> leapTargetNames(ContainerScreen screen) {
         List<String> names = new ArrayList<>();
         for (Slot slot : screen.getMenu().slots) {
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
             ItemStack stack = slot.getItem();
             if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
-            String n = ChatFormatting.stripFormatting(stack.getHoverName().getString());
+            String n = headName(stack);
             if (n != null && !n.isEmpty() && !names.contains(n)) names.add(n);
         }
         return names;
@@ -392,8 +491,8 @@ public class LeapOverlay {
             ItemStack stack = slot.getItem();
             if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
 
-            String itemName = ChatFormatting.stripFormatting(stack.getHoverName().getString());
-            if (itemName != null && itemName.equals(playerName)) {
+            String itemName = headName(stack);
+            if (itemName != null && itemName.equalsIgnoreCase(playerName)) {
                 if (mc.gameMode != null && mc.player != null) {
                     mc.gameMode.handleContainerInput(handler.containerId, slot.index, 0,
                         net.minecraft.world.inventory.ContainerInput.PICKUP, mc.player);
@@ -405,31 +504,29 @@ public class LeapOverlay {
         TeslaMaps.LOGGER.warn("[LeapOverlay] Could not find slot for player: {}", playerName);
     }
 
+    // Build from the tracker (tab-list order, dead players included) so quadrants stay stable when
+    // someone dies — their chest head disappears, but the box just flips to DEAD instead of reshuffling.
     private static void scanLeapPlayers(ContainerScreen screen) {
         Arrays.fill(leapPlayers, null);
 
-        var handler = screen.getMenu();
-        List<DungeonPlayer> dungeonPlayers = PlayerTracker.getPlayers();
-        Map<String, DungeonPlayer> playerMap = new HashMap<>();
-        for (DungeonPlayer dp : dungeonPlayers) {
-            playerMap.put(dp.getName(), dp);
+        String self = mc.player != null ? mc.player.getName().getString() : null;
+        List<LeapPlayer> allPlayers = new ArrayList<>();
+        for (DungeonPlayer dp : PlayerTracker.getPlayers()) {
+            if (dp.getName() == null || dp.getName().equals(self)) continue;
+            String clazz = "EMPTY".equals(dp.getDungeonClass()) ? null : dp.getDungeonClass();
+            allPlayers.add(new LeapPlayer(dp.getName(), clazz, !dp.isAlive(), -1, dp.getUuid()));
         }
 
-        List<LeapPlayer> allPlayers = new ArrayList<>();
-        for (Slot slot : handler.slots) {
-            if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
-            ItemStack stack = slot.getItem();
-            if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
-
-            String itemName = ChatFormatting.stripFormatting(stack.getHoverName().getString());
-            if (itemName == null || itemName.isEmpty()) continue;
-
-            DungeonPlayer dp = playerMap.get(itemName);
-            String dungeonClass = dp != null ? dp.getDungeonClass() : null;
-            boolean isDead = dp != null && !dp.isAlive();
-            UUID uuid = dp != null ? dp.getUuid() : null;
-
-            allPlayers.add(new LeapPlayer(itemName, dungeonClass, isDead, slot.index, uuid));
+        // tracker empty (e.g. Teleport to Player outside a tracked run) -> fall back to the chest heads
+        if (allPlayers.isEmpty()) {
+            for (Slot slot : screen.getMenu().slots) {
+                if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+                ItemStack stack = slot.getItem();
+                if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
+                String itemName = headName(stack);
+                if (itemName == null || itemName.isEmpty()) continue;
+                allPlayers.add(new LeapPlayer(itemName, null, false, slot.index, null));
+            }
         }
 
         sortPlayers(allPlayers);
@@ -494,6 +591,11 @@ public class LeapOverlay {
         Arrays.fill(leapPlayers, null);
         menuOpen = false;
         leapMapShown = false;
+        bossPhase = BossPhase.NONE;
+        berserkUntilMs = 0L;
+        crystalCount = 0;
+        berserkScheduledMs = 0L;
+        lastDoorOpener = null;
     }
 
     private static class LeapPlayer {

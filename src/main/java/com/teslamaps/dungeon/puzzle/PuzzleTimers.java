@@ -41,7 +41,9 @@ public class PuzzleTimers {
         if (!name.equals(current)) {
             current = name;
             startMs = System.currentTimeMillis();
-            reported = false;
+            // already solved/failed when we walk in (teammate did it, or re-entering) -> nothing to time
+            CheckmarkState entry = room.getCheckmarkState();
+            reported = entry == CheckmarkState.WHITE || entry == CheckmarkState.GREEN || entry == CheckmarkState.FAILED;
         }
         if (reported) return;
 
@@ -49,8 +51,10 @@ public class PuzzleTimers {
         if (st == CheckmarkState.WHITE || st == CheckmarkState.GREEN) {
             reported = true;
             double secs = (System.currentTimeMillis() - startMs) / 1000.0;
+            if (secs < 0.5) return; // checkmark state raced in right after entering - not our solve
             TeslaMapsConfig c = TeslaMapsConfig.get();
             Double pb = c.puzzlePbs.get(name);
+            if (pb != null && pb < 0.5) { c.puzzlePbs.remove(name); pb = null; } // heal broken 0.00s PBs
             boolean newPb = pb == null || secs < pb;
             String suffix;
             if (newPb) {

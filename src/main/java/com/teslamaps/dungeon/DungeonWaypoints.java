@@ -25,6 +25,7 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.scanner.ComponentGrid;
+import com.teslamaps.utils.TabListUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -43,8 +44,6 @@ public class DungeonWaypoints {
                            double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {}
 
     private static final Map<String, List<Waypoint>> byRoom = new HashMap<>();
-
-    private static final String ABSOLUTE_KEY = "__absolute__";
 
     private static final Path FILE = FabricLoader.getInstance().getConfigDir()
             .resolve("teslamaps").resolve("dungeon_waypoints.json");
@@ -128,9 +127,13 @@ public class DungeonWaypoints {
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().dungeonWaypoints || byRoom.isEmpty()) return;
 
-        List<Waypoint> abs = byRoom.get(ABSOLUTE_KEY);
-        if (abs != null) {
-            for (Waypoint wp : abs) drawWaypoint(matrices, cameraPos, wp, wp.rx(), wp.ry(), wp.rz());
+        // Context-scoped waypoints (boss arena / per area) — absolute coords, shown only in that context.
+        String ctx = currentContextKey();
+        if (ctx != null) {
+            List<Waypoint> ctxList = byRoom.get(ctx);
+            if (ctxList != null) {
+                for (Waypoint wp : ctxList) drawWaypoint(matrices, cameraPos, wp, wp.rx(), wp.ry(), wp.rz());
+            }
         }
 
         if (!DungeonManager.isInDungeon()) return;
@@ -254,6 +257,34 @@ public class DungeonWaypoints {
         }
     }
 
+    // Scope key for non-room waypoints: the dungeon boss arena (shared F/M per floor number)
+    // or the current SkyBlock area. These render only while you are back in that same context.
+    static String currentContextKey() {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (DungeonManager.isInDungeon()) {
+            if (mc.player != null && ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null) {
+                DungeonFloor f = DungeonManager.getCurrentFloor();
+                return "boss:" + (f != null ? f.getLevel() : 0); // F7 and M7 share boss:7
+            }
+            return "area:Catacombs"; // inside the dungeon but not in a named room
+        }
+        String area = currentArea();
+        return "area:" + (area != null ? area : "unknown");
+    }
+
+    private static String currentArea() {
+        for (String line : TabListUtils.getTabListLines()) {
+            if (line == null) continue;
+            String clean = line.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+            int i = clean.indexOf("Area:"); // tab list shows e.g. "Area: Hub" / "Area: Gold Mine"
+            if (i >= 0) {
+                String a = clean.substring(i + 5).trim();
+                if (!a.isEmpty()) return a;
+            }
+        }
+        return null;
+    }
+
     public static String addAtTarget(int colorArgb, boolean filled, boolean depth) {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return "§cNo player.";
@@ -276,17 +307,13 @@ public class DungeonWaypoints {
             return "§aAdded waypoint in §e\"" + room.getName() + "\"§a @ " + coords;
         }
 
-        String why = !DungeonManager.isInDungeon() ? "not in dungeon"
-                : room == null ? "no room at your position"
-                : room.getName() == null ? "room has no name"
-                : "no terracotta found (clay scan failed)";
-
-        List<Waypoint> list = byRoom.computeIfAbsent(ABSOLUTE_KEY, k -> new ArrayList<>());
-        if (removeAt(list, ABSOLUTE_KEY, target.getX(), target.getY(), target.getZ()))
-            return "§eRemoved §babsolute§e waypoint @ " + coords;
+        String ctx = currentContextKey();
+        List<Waypoint> list = byRoom.computeIfAbsent(ctx, k -> new ArrayList<>());
+        if (removeAt(list, ctx, target.getX(), target.getY(), target.getZ()))
+            return "§eRemoved §b" + ctx + "§e waypoint @ " + coords;
         list.add(new Waypoint(target.getX(), target.getY(), target.getZ(), colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
         save();
-        return "§aAdded §babsolute§a waypoint @ " + coords + " §7(" + why + ")";
+        return "§aAdded §b" + ctx + "§a waypoint @ " + coords;
     }
 
     // removes a waypoint at the exact (rx,ry,rz); returns true if one was found and removed
@@ -322,10 +349,11 @@ public class DungeonWaypoints {
                 double d = dist2(rot[0] + clay[0], wp.ry(), rot[1] + clay[1], px, py, pz);
                 if (d < bestD) { bestD = d; best = i; bestKey = room.getName(); }
             }
-        for (int i = 0; i < sizeOf(ABSOLUTE_KEY); i++) {
-            Waypoint wp = byRoom.get(ABSOLUTE_KEY).get(i);
+        String ctx = currentContextKey();
+        for (int i = 0; i < sizeOf(ctx); i++) {
+            Waypoint wp = byRoom.get(ctx).get(i);
             double d = dist2(wp.rx(), wp.ry(), wp.rz(), px, py, pz);
-            if (d < bestD) { bestD = d; best = i; bestKey = ABSOLUTE_KEY; }
+            if (d < bestD) { bestD = d; best = i; bestKey = ctx; }
         }
         if (bestKey == null) return "§eNo waypoints here.";
 
@@ -333,13 +361,41 @@ public class DungeonWaypoints {
         list.remove(best);
         if (list.isEmpty()) byRoom.remove(bestKey);
         save();
-        String where = bestKey.equals(ABSOLUTE_KEY) ? "§babsolute§a " : "";
+        String where = bestKey.startsWith("boss:") || bestKey.startsWith("area:") ? "§b" + bestKey + "§a " : "";
         return "§aRemoved the nearest " + where + "waypoint (" + list.size() + " left).";
     }
 
     private static int sizeOf(String key) {
         List<Waypoint> l = byRoom.get(key);
         return l == null ? 0 : l.size();
+    }
+
+    // moves legacy "__absolute__" waypoints (pre-context format, never rendered anymore) that are
+    // near the player into the current context key — run once per boss arena to adopt them
+    public static String convertLegacy() {
+        List<Waypoint> legacy = byRoom.get("__absolute__");
+        if (legacy == null || legacy.isEmpty()) return "§eNo legacy __absolute__ waypoints in the file.";
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.player == null) return "§cNo player.";
+        double px = mc.player.getX(), py = mc.player.getY(), pz = mc.player.getZ();
+
+        String ctx = currentContextKey();
+        List<Waypoint> target = byRoom.computeIfAbsent(ctx, k -> new ArrayList<>());
+        int moved = 0;
+        for (java.util.Iterator<Waypoint> it = legacy.iterator(); it.hasNext(); ) {
+            Waypoint wp = it.next();
+            if (dist2(wp.rx(), wp.ry(), wp.rz(), px, py, pz) <= 200 * 200) {
+                target.add(wp);
+                it.remove();
+                moved++;
+            }
+        }
+        if (legacy.isEmpty()) byRoom.remove("__absolute__");
+        if (target.isEmpty()) byRoom.remove(ctx);
+        save();
+        return moved == 0
+                ? "§eNo legacy waypoints within 200 blocks. §7(" + legacy.size() + " stored elsewhere — run this in their boss arena)"
+                : "§aMoved " + moved + " legacy waypoint(s) into §b" + ctx + "§a. §7(" + legacy.size() + " remaining)";
     }
 
     private static double dist2(double wx, double wy, double wz, double px, double py, double pz) {
@@ -349,12 +405,11 @@ public class DungeonWaypoints {
 
     public static String clearRoom() {
         DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
-        String key = (room != null && room.getName() != null) ? room.getName() : ABSOLUTE_KEY;
+        String key = (room != null && room.getName() != null) ? room.getName() : currentContextKey();
         List<Waypoint> removed = byRoom.remove(key);
         save();
-        String where = key.equals(ABSOLUTE_KEY) ? "absolute" : "\"" + key + "\"";
-        return removed == null ? "§eNo waypoints to clear (" + where + ")."
-                : "§aCleared " + removed.size() + " " + where + " waypoint(s).";
+        return removed == null ? "§eNo waypoints to clear (" + key + ")."
+                : "§aCleared " + removed.size() + " §b" + key + "§a waypoint(s).";
     }
 
     private static void save() {

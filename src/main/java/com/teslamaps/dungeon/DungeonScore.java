@@ -38,9 +38,12 @@ public class DungeonScore {
     private static final Pattern COMPLETED_ROOMS_PATTERN = Pattern.compile(" *Completed Rooms: (?<rooms>\\d+)");
 
     private static final Pattern DEATHS_PATTERN = Pattern.compile(" \u2620 (?<whodied>\\S+) .*");
-    private static final Pattern MIMIC_PATTERN = Pattern.compile(".*?(?:Mimic dead!?|Mimic Killed!|\\$SKYTILS-DUNGEON-SCORE-MIMIC\\$)$");
-    private static final Pattern PRINCE_PATTERN = Pattern.compile(".*?(?:Prince dead!?|Prince Killed!)$");
-    private static final String PRINCE_KILL_MESSAGE = "A Prince falls. +1 Bonus Score";
+    // mod announces: Odin "Mimic Killed!", SkyHanni "Mimic dead!", ours "Mimic Dead!", Skytils marker
+    public static final Pattern MIMIC_PATTERN =
+            Pattern.compile("(?i).*\\bmimic (?:is )?(?:dead|died|killed|done)[.!]?\\s*$|.*\\$SKYTILS-DUNGEON-SCORE-MIMIC\\$$");
+    // matches other mods' party announces (Odin "Prince Killed!", Devonian "Prince dead!", ours "Prince Dead!")
+    private static final Pattern PRINCE_PATTERN = Pattern.compile("(?i).*\\bprince (?:is )?(?:dead|died|killed)!\\s*$");
+    private static final String PRINCE_KILL_MESSAGE = "A Prince falls."; // "+1 Bonus Score" tail varies, match the prefix
 
     private static final Pattern MIMIC_FLOORS_PATTERN = Pattern.compile("[FM][67]");
 
@@ -365,13 +368,15 @@ public class DungeonScore {
             }).start();
         }
 
-        if (floorHasMimics && MIMIC_PATTERN.matcher(message).matches()) {
+        String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+
+        if (floorHasMimics && MIMIC_PATTERN.matcher(clean).matches()) {
             mimicKilled = true;
         }
 
-        if (PRINCE_PATTERN.matcher(message).matches() || message.equals(PRINCE_KILL_MESSAGE)) {
+        if (PRINCE_PATTERN.matcher(clean).matches() || clean.startsWith(PRINCE_KILL_MESSAGE)) {
             princeKilled = true;
-            if (!princeDeadMessageSent && message.equals(PRINCE_KILL_MESSAGE)
+            if (!princeDeadMessageSent && clean.startsWith(PRINCE_KILL_MESSAGE)
                     && TeslaMapsConfig.get().princeDeadMessage) {
                 princeDeadMessageSent = true;
                 Minecraft mc = Minecraft.getInstance();

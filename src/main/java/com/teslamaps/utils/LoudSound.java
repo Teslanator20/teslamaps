@@ -37,6 +37,11 @@ public class LoudSound {
     public static void play(SoundEvent sound, float volume, float pitch) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
+        // packet hooks call this from the netty thread; SoundEngine maps are not thread-safe
+        if (!mc.isSameThread()) {
+            mc.execute(() -> play(sound, volume, pitch));
+            return;
+        }
 
         Identifier soundId = BuiltInRegistries.SOUND_EVENT.getKey(sound);
         if (soundId == null) return;

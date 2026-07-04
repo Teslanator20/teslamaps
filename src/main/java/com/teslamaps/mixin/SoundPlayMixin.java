@@ -37,6 +37,10 @@ public class SoundPlayMixin {
             "minecraft:entity.firework_rocket.twinkle",
             "minecraft:entity.firework_rocket.twinkle_far");
 
+    private static final java.util.Set<String> LIGHTNING = java.util.Set.of(
+            "minecraft:entity.lightning_bolt.thunder",
+            "minecraft:entity.lightning_bolt.impact");
+
     // injected after the SoundInstance is resolved (this.sound non-null), where getPitch/getVolume are safe
     @Inject(method = "play",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/sounds/SoundInstance;getVolume()F", ordinal = 0),
@@ -44,7 +48,7 @@ public class SoundPlayMixin {
     private void teslamaps$debugAndMute(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
-        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff) return;
+        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning) return;
 
         String id;
         float pitch, vol;
@@ -60,6 +64,7 @@ public class SoundPlayMixin {
                     "§7[Sound] §f" + id + " §8vol=" + String.format("%.2f", vol) + " pitch=" + String.format("%.3f", pitch))); });
         }
         if (c.muteBonzoStaff && BONZO_STAFF.contains(id)) { cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED); return; }
+        if (c.muteLightning && LIGHTNING.contains(id)) { cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED); return; }
         if (hasMutes && isMuted(c, id, pitch)) cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
     }
 

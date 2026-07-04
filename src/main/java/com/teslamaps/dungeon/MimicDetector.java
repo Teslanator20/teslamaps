@@ -244,12 +244,13 @@ public class MimicDetector {
     public static void onChatMessage(String message) {
         if (!DungeonManager.isInDungeon() || mimicKilled) return;
 
-        String lower = message.toLowerCase();
-        if (lower.contains("mimic") && (lower.contains("dead") || lower.contains("killed") || lower.contains("done"))) {
-            TeslaMaps.LOGGER.info("[MimicDetector] Detected mimic dead message from chat: {}", message);
+        String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        if (DungeonScore.MIMIC_PATTERN.matcher(clean).matches()) {
+            TeslaMaps.LOGGER.info("[MimicDetector] Detected mimic dead message from chat: {}", clean);
             mimicKilled = true;
             mimicRooms.clear();
             trappedChestPositions.clear();
+            DungeonScore.onMimicKilled();
         }
     }
 

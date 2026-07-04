@@ -1,0 +1,75 @@
+/*
+ * This file is part of TeslaMaps.
+ *
+ * TeslaMaps is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
+ * Public License for more details.
+ *
+ * Copyright (c) 2026 Teslanator20.
+ *
+ * See the LICENSE file in the project root for full terms.
+ */
+package com.teslamaps.features;
+
+import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.dungeon.DungeonManager;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+
+// Hypixel sometimes drops you to the SkyBlock lobby when joining a dungeon ("A kick occurred in your
+// connection..."). This starts a timer and tells the party "/pc kicked" so they know to wait.
+public class KickedTimer {
+    public static final String SAMPLE_TEXT = "Kicked: 12s";
+
+    private static long kickedAtMs = 0L;
+    private static long lastSendMs = 0L;
+
+    public static void onChatMessage(String message) {
+        String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        if (!clean.contains("A kick occurred in your connection")
+                && !clean.contains("You were kicked while joining that server")) return;
+
+        long now = System.currentTimeMillis();
+        if (now - kickedAtMs > 15_000L) kickedAtMs = now; // new kick episode -> (re)start timer
+
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        Minecraft mc = Minecraft.getInstance();
+        if (cfg.kickedTimer && cfg.kickedPartyMessage && mc.getConnection() != null && now - lastSendMs > 15_000L) {
+            mc.getConnection().sendCommand("pc kicked");
+            lastSendMs = now;
+        }
+    }
+
+    public static void tick() {
+        if (kickedAtMs != 0 && DungeonManager.isInDungeon()) kickedAtMs = 0; // rejoined -> clear
+    }
+
+    public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
+        if (!TeslaMapsConfig.get().kickedTimer || kickedAtMs == 0) return;
+        long elapsed = (System.currentTimeMillis() - kickedAtMs) / 1000L;
+        if (elapsed > 300) { kickedAtMs = 0; return; }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        draw(context, mc, TeslaMapsConfig.get().kickedX, TeslaMapsConfig.get().kickedY,
+                TeslaMapsConfig.get().kickedScale, "§c[Kicked] §f" + elapsed + "s");
+    }
+
+    /** Draw at a position/scale. Used by the live HUD and the HUD editor preview. */
+    public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
+        draw(context, mc, x, y, scale, "§c[Kicked] §f12s");
+    }
+
+    private static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale, String text) {
+        var pose = context.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(scale, scale);
+        context.text(mc.font, text, 0, 0, 0xFFFFFFFF);
+        pose.popMatrix();
+    }
+
+    public static void reset() { kickedAtMs = 0; }
+}

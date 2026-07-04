@@ -22,6 +22,7 @@ public class AutoRequeue {
     private static long requeueAt = 0L; // 0 = nothing scheduled
     private static boolean downtimeHold = false; // set by !dt -> pause auto-requeue for the run
     private static boolean blockNextRequeue = false; // a member left before run end -> skip the upcoming requeue
+    private static long lastPartyRMs = 0L; // cooldown so multiple "r" messages don't requeue repeatedly
 
     public static void setDowntimeHold(boolean hold) { downtimeHold = hold; if (hold) requeueAt = 0L; }
 
@@ -47,8 +48,11 @@ public class AutoRequeue {
         }
 
         if (c.requeueOnPartyR && isPartyR(msg)) {
+            long now = System.currentTimeMillis();
+            if (now - lastPartyRMs < 10_000L) return; // 10s cooldown vs repeated "r" spam
+            lastPartyRMs = now;
             blockNextRequeue = false;
-            requeueAt = System.currentTimeMillis() + 500L;
+            requeueAt = now + 500L;
         }
     }
 

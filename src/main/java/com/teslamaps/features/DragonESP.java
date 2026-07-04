@@ -36,7 +36,9 @@ public class DragonESP {
         DungeonFloor f = DungeonManager.getCurrentFloor();
         if (!DungeonManager.isInDungeon() || f == null || f.getLevel() != 7) return;
 
-        if (c.witherHighlight) {
+        // wither highlight only during the actual boss fight (boss arena = outside the room grid)
+        boolean inBossArea = com.teslamaps.scanner.ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null;
+        if (c.witherHighlight && inBossArea) {
             int wc = TeslaMapsConfig.parseColor(c.witherHighlightColor);
             for (net.minecraft.world.entity.boss.wither.WitherBoss w :
                     mc.level.getEntitiesOfClass(net.minecraft.world.entity.boss.wither.WitherBoss.class,

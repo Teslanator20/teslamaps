@@ -95,10 +95,15 @@ public class TeslaMaps implements ClientModInitializer {
 
         net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.MODIFY_COMMAND.register(TMapCommand::expandShortcut);
 
+        net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register(
+                (stack, ctx, flag, lines) -> com.teslamaps.features.EnchantColors.onTooltip(stack, lines));
+
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "map"), (g, d) -> { if (TeslaMapsConfig.get().section("Map")) MapRenderer.render(g, d); });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "slayer"), (g, d) -> { if (TeslaMapsConfig.get().section("Slayer")) SlayerHUD.render(g, d); });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "livid"), (g, d) -> { if (TeslaMapsConfig.get().section("ESP")) LividSolver.renderHUD(g, d); });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "spiritbear"), (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles")) SpiritBearTimer.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "kicked"), (g, d) -> com.teslamaps.features.KickedTimer.render(g, d));
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "overkill"), (g, d) -> { if (TeslaMapsConfig.get().section("Timers")) com.teslamaps.features.OverkillCounter.render(g, d); });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "bearspawn"), (g, d) -> { if (TeslaMapsConfig.get().section("Sounds")) BearSpawnWarning.render(g, d); });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "thornstun"), (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles")) com.teslamaps.features.ThornStunTimer.render(g, d); });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "sprinting"), (g, d) -> { if (TeslaMapsConfig.get().section("Render")) com.teslamaps.features.SprintingOverlay.render(g, d); });
@@ -181,6 +186,9 @@ public class TeslaMaps implements ClientModInitializer {
                 if (TeslaMapsConfig.get().section("ESP") && !com.teslamaps.features.LegitMode.blocksCheats()) {
                     com.teslamaps.esp.BossESP.render(context.poseStack(), cameraPos);
                     com.teslamaps.esp.CorpseESP.render(context.poseStack(), cameraPos);
+                    com.teslamaps.features.M4Highlight.render(context.poseStack(), cameraPos);
+                    com.teslamaps.features.M4Trajectories.render(context.poseStack(), cameraPos);
+                    com.teslamaps.features.M4Decoy.render(context.poseStack(), cameraPos);
                 }
 
                 if (TeslaMapsConfig.get().section("Blood Camp")) {
@@ -220,6 +228,16 @@ public class TeslaMaps implements ClientModInitializer {
                 if (cfg.section("Render")) com.teslamaps.features.Zoom.tick();
                 com.teslamaps.features.LegitMode.tick();
                 com.teslamaps.map.LegitGuess.tick();
+                if (cfg.section("Leap")) com.teslamaps.features.LeapOverlay.tick();
+                if (cfg.section("Puzzles")) com.teslamaps.features.MelodyMessage.tick();
+                com.teslamaps.features.KickedTimer.tick();
+                com.teslamaps.features.OverkillCounter.tick();
+                if (cfg.section("ESP")) {
+                    com.teslamaps.dungeon.M4Mobs.tick();
+                    com.teslamaps.features.M4Highlight.tick();
+                    com.teslamaps.features.M4Trajectories.tick();
+                    com.teslamaps.features.M4Decoy.tick();
+                }
                 if (cfg.section("Blood Camp")) com.teslamaps.dungeon.BloodCamp.tick();
                 if (cfg.section("Party")) com.teslamaps.dungeon.AutoRequeue.tick();
                 if (cfg.section("ESP") && !com.teslamaps.features.LegitMode.blocksCheats()) LividSolver.tick();

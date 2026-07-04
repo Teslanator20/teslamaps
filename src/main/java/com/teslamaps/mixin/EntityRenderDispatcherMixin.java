@@ -45,6 +45,7 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.HideCheapCoins.shouldHide(entity)
                 || HidePlayers.shouldHide(entity)
                 || com.teslamaps.features.SoulweaverHider.shouldHide(entity)
+                || com.teslamaps.features.M4Highlight.shouldHideEntity(entity)
                 || com.teslamaps.dungeon.puzzle.DungeonBlaze.shouldHideBlaze(entity)) {
             cir.setReturnValue(false);
         }

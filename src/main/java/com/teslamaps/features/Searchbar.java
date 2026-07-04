@@ -32,6 +32,7 @@ public class Searchbar {
     private static final int BOX_W = 120, BOX_H = 12;
     private static String query = "";
     private static String lastTitle = "";
+    private static long lastRenderMs = 0;
     private static boolean focused = false;
 
     private static boolean enabled() {
@@ -86,7 +87,14 @@ public class Searchbar {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         String title = cs.getTitle().getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
-        if (!title.equals(lastTitle)) { query = ""; focused = false; lastTitle = title; }
+        // keep the query across containers/pages; just drop focus when the container changes
+        if (!title.equals(lastTitle)) { focused = false; lastTitle = title; }
+
+        // page swaps re-render within a tick or two; a longer gap means the GUI was actually
+        // closed -> drop the query so a stale search doesn't tint every future container
+        long now = System.currentTimeMillis();
+        if (now - lastRenderMs > 1500) query = "";
+        lastRenderMs = now;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();
@@ -102,7 +110,7 @@ public class Searchbar {
                 : "§f" + query + (focused ? "§e_" : "");
         ctx.text(mc.font, label, bx + 3, by + 2, 0xFFFFFFFF);
 
-        if (query.isEmpty()) return;
+        if (query.isBlank()) return;
         for (Slot slot : cs.getMenu().slots) {
             ItemStack item = slot.getItem();
             if (item.isEmpty()) continue;

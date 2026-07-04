@@ -51,6 +51,7 @@ public class SoulweaverHider {
     // Compare by the texture URL hash, not the raw base64 — Hypixel may send the same skin with a
     // different JSON formatting (pretty vs minified) or timestamp, which breaks exact base64 matching.
     private static final java.util.Map<String, String> URL_CACHE = new java.util.HashMap<>();
+    private static final java.util.Set<String> DBG_SEEN = new java.util.HashSet<>();
     private static final String SOUL_WEAVER_URL = textureUrl(SOUL_WEAVER);
     private static final String BLESSING_URL = textureUrl(BLESSING);
     private static final String REVIVE_STONE_URL = textureUrl(REVIVE_STONE);
@@ -101,7 +102,11 @@ public class SoulweaverHider {
         if (cfg.hideSkeletonSkull && isSkeletonSkull(head)) return true;
 
         if (head.getItem() != Items.PLAYER_HEAD || !texOpt) return false;
-        String url = textureUrl(skullTexture(head));
+        String tex = skullTexture(head);
+        String url = textureUrl(tex);
+        if (cfg.debugMode && DBG_SEEN.add(url == null ? "null:" + tex : url)) {
+            com.teslamaps.TeslaMaps.LOGGER.info("[SkullDbg] armorstand head url={} (soulweaver target={}) raw={}", url, SOUL_WEAVER_URL, tex);
+        }
         if (url == null) return false;
 
         if (cfg.hideSoulweaverSkull && url.equals(SOUL_WEAVER_URL)) return true;

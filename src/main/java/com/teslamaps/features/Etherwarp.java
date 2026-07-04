@@ -125,11 +125,13 @@ public class Etherwarp {
         int color = ether.succeeded()
                 ? TeslaMapsConfig.parseColor(config.colorEtherwarp)
                 : 0xFFFF5555;
-        AABB box = new AABB(ether.pos());
+        // leaves are cutout blocks: a depth-tested box on/at them z-fights and flickers -> draw through walls
+        boolean leaf = mc.level.getBlockState(ether.pos()).is(net.minecraft.tags.BlockTags.LEAVES);
+        AABB box = new AABB(ether.pos()).inflate(0.002);
         if (config.etherwarpFilled) {
-            ESPRenderer.drawFilledBox(matrices, box, color, cameraPos);
+            ESPRenderer.drawFilledBox(matrices, box, color, cameraPos, leaf);
         } else {
-            ESPRenderer.drawBoxOutline(matrices, box, color, 2.0f, cameraPos);
+            ESPRenderer.drawBoxOutline(matrices, box, color, 2.0f, cameraPos, leaf);
         }
     }
 

@@ -193,7 +193,9 @@ public class MapConfigScreen extends Screen {
         map.add(new ToggleEntry(contentX, contentWidth, "Show Room Names", () -> config.showRoomNames, v -> config.showRoomNames = v));
         map.add(new ToggleEntry(contentX, contentWidth, "Hide Entrance/Blood/Fairy Names", () -> config.hideEntranceBloodFairyNames, v -> config.hideEntranceBloodFairyNames = v));
         map.add(new ToggleEntry(contentX, contentWidth, "Show Names Only for Puzzles", () -> config.showNamesOnlyForPuzzles, v -> config.showNamesOnlyForPuzzles = v));
-        map.add(new ToggleEntry(contentX, contentWidth, "Show Names Only When Leap", () -> config.roomNamesOnlyWithLeap, v -> config.roomNamesOnlyWithLeap = v));
+        map.add(new ToggleEntry(contentX, contentWidth, "Room Names Only When Leap", () -> config.roomNamesOnlyWithLeap, v -> config.roomNamesOnlyWithLeap = v));
+        map.add(new ToggleEntry(contentX, contentWidth, "Player Names Only When Leap", () -> config.playerNamesOnlyWithLeap, v -> config.playerNamesOnlyWithLeap = v));
+        map.add(new ToggleEntry(contentX, contentWidth, "Head Border (Class Color)", () -> config.mapHeadBorder, v -> config.mapHeadBorder = v));
         map.add(new SliderEntry(contentX, contentWidth, "Room Name Scale", 0.5f, 2.0f,
                 () -> config.roomNameScale, v -> config.roomNameScale = v));
         map.add(new SliderEntry(contentX, contentWidth, "Info Text Scale", 0.5f, 2.0f,
@@ -267,9 +269,9 @@ public class MapConfigScreen extends Screen {
         esp.add(new ToggleEntry(contentX, contentWidth, "Dungeon Bat Tracers", () -> config.dungeonBatTracers, v -> config.dungeonBatTracers = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Wither Key ESP", () -> config.witherKeyESP, v -> config.witherKeyESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Key Tracers", () -> config.keyTracers, v -> config.keyTracers = v));
-        esp.add(new ToggleEntry(contentX, contentWidth, "Boss ESP", () -> config.bossESP, v -> config.bossESP = v));
-        esp.add(new ToggleEntry(contentX, contentWidth, "Boss ESP Filled", () -> config.bossESPFilled, v -> config.bossESPFilled = v));
-        esp.add(new ToggleEntry(contentX, contentWidth, "Boss ESP Depth Check", () -> config.bossESPDepthCheck, v -> config.bossESPDepthCheck = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Wither ESP", () -> config.bossESP, v -> config.bossESP = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Wither ESP Filled", () -> config.bossESPFilled, v -> config.bossESPFilled = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Wither ESP Depth Check", () -> config.bossESPDepthCheck, v -> config.bossESPDepthCheck = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Corpse ESP (Glacite)", () -> config.corpseESP, v -> config.corpseESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Corpse ESP Depth Check", () -> config.corpseESPDepthCheck, v -> config.corpseESPDepthCheck = v));
         esp.add(new LabelEntry(contentX, "Doors"));
@@ -360,6 +362,7 @@ public class MapConfigScreen extends Screen {
                 () -> (float) config.zoomFov, v -> config.zoomFov = v.intValue()));
         render.add(new ToggleEntry(contentX, contentWidth, "Sprinting Overlay", () -> config.sprintingOverlay, v -> config.sprintingOverlay = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Disable World Loading Screen", () -> config.disableWorldLoadingScreen, v -> config.disableWorldLoadingScreen = v));
+        render.add(new ToggleEntry(contentX, contentWidth, "No Texture Reload Screen", () -> config.noReloadScreen, v -> config.noReloadScreen = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Block Overlay", () -> config.blockOverlay, v -> config.blockOverlay = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Chat Waypoint (coords)", () -> config.chatWaypoint, v -> config.chatWaypoint = v));
         render.add(new LabelEntry(contentX, "Etherwarp"));
@@ -369,6 +372,10 @@ public class MapConfigScreen extends Screen {
         render.add(new ToggleEntry(contentX, contentWidth, "Filled Box", () -> config.etherwarpFilled, v -> config.etherwarpFilled = v));
         render.add(new SliderEntry(contentX, contentWidth, "Eye Height Offset", -0.5f, 0.5f,
                 () -> config.etherwarpEyeOffset, v -> config.etherwarpEyeOffset = v, 3));
+        render.add(new LabelEntry(contentX, "Font"));
+        render.add(new ToggleEntry(contentX, contentWidth, "Custom Font", () -> config.customFont, v -> config.customFont = v));
+        render.add(new DropdownEntry(contentX, contentWidth, "Font", com.teslamaps.features.CustomFont.names(),
+                () -> config.guiFont, v -> config.guiFont = v));
         categories.put("Render", render);
 
         List<SettingsEntry> hide = new ArrayList<>();
@@ -378,6 +385,9 @@ public class MapConfigScreen extends Screen {
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide All (any distance)", () -> config.hidePlayersAll, v -> config.hidePlayersAll = v));
         hide.add(new SliderEntry(contentX, contentWidth, "Hide Distance", 0f, 32f,
                 () -> config.hidePlayersDistance, v -> config.hidePlayersDistance = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "Hide After Leap", () -> config.hidePlayersAfterLeap, v -> config.hidePlayersAfterLeap = v));
+        hide.add(new SliderEntry(contentX, contentWidth, "Hide After Leap (s)", 0.5f, 10f,
+                () -> config.hidePlayersAfterLeapSeconds, v -> config.hidePlayersAfterLeapSeconds = v));
         hide.add(new LabelEntry(contentX, "Hide Dungeon Objects"));
         hide.add(new ButtonEntry(contentX, contentWidth, "Toggle All", () -> {
             int on = 0, total = 12;
@@ -423,6 +433,8 @@ public class MapConfigScreen extends Screen {
 
         List<SettingsEntry> solvers = new ArrayList<>();
         solvers.add(new LabelEntry(contentX, "Terminals"));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Melody Message (/pc on open)", () -> config.melodyMessage, v -> config.melodyMessage = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Melody Progress (/pc 25/50/75%)", () -> config.melodyProgress, v -> config.melodyProgress = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Terminal Solver", () -> config.terminalSolver, v -> config.terminalSolver = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Custom GUI (vs vanilla highlight)", () -> config.customTerminalGui, v -> config.customTerminalGui = v));
         // solvers.add(new ToggleEntry(contentX, contentWidth, "Click Anywhere to Solve", () -> config.terminalClickAnywhere, v -> config.terminalClickAnywhere = v));
@@ -475,6 +487,12 @@ public class MapConfigScreen extends Screen {
         solvers.add(new ToggleEntry(contentX, contentWidth, "Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Ice Path Solver", () -> config.icePathSolver, v -> config.icePathSolver = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Puzzle Timers", () -> config.puzzleTimers, v -> config.puzzleTimers = v));
+        solvers.add(new LabelEntry(contentX, "Simon Says (F7/M7)"));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Simon Says Solver", () -> config.solveSimonSays, v -> config.solveSimonSays = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Block Wrong Clicks (sneak = override)", () -> config.simonSaysBlockWrongClicks, v -> config.simonSaysBlockWrongClicks = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "SS Broke/Restart Alerts", () -> config.simonSaysAlerts, v -> config.simonSaysAlerts = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "SS Alerts to Party Chat", () -> config.simonSaysAlertChat, v -> config.simonSaysAlertChat = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "SS Auto Start (look at button)", () -> config.simonSaysAutoStart, v -> config.simonSaysAutoStart = v));
         solvers.add(new LabelEntry(contentX, "Boss Timers"));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Spirit Bear Timer (F4/M4)", () -> config.spiritBearTimer, v -> config.spiritBearTimer = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Thorn Stun Timer (F4/M4)", () -> config.thornStunTimer, v -> config.thornStunTimer = v));
@@ -507,6 +525,40 @@ public class MapConfigScreen extends Screen {
         dragons.add(new ToggleEntry(contentX, contentWidth, "Wither Highlight", () -> config.witherHighlight, v -> config.witherHighlight = v));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Wither Highlight Box", () -> config.witherHighlightBox, v -> config.witherHighlightBox = v));
         categories.put("Dragons", dragons);
+
+        List<SettingsEntry> m4 = new ArrayList<>();
+        m4.add(new LabelEntry(contentX, "Highlight (F4/M4)"));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Enable Highlight", () -> config.m4Highlight, v -> config.m4Highlight = v));
+        m4.add(new DropdownEntry(contentX, contentWidth, "Style", new String[]{"Filled", "Outline", "Filled Outline"},
+                () -> config.m4HighlightStyle, v -> config.m4HighlightStyle = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Hide Nametags", () -> config.m4HideNametags, v -> config.m4HideNametags = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Thorn", () -> config.m4HlThorn, v -> config.m4HlThorn = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Thorn Damage Flash", () -> config.m4ThornDmgFlash, v -> config.m4ThornDmgFlash = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Bear", () -> config.m4HlBear, v -> config.m4HlBear = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Bear Only On Mage", () -> config.m4BearOnlyMage, v -> config.m4BearOnlyMage = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Cows", () -> config.m4HlCow, v -> config.m4HlCow = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Sheep", () -> config.m4HlSheep, v -> config.m4HlSheep = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Chickens", () -> config.m4HlChicken, v -> config.m4HlChicken = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Bats", () -> config.m4HlBat, v -> config.m4HlBat = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Wolves", () -> config.m4HlWolf, v -> config.m4HlWolf = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Rabbits", () -> config.m4HlRabbit, v -> config.m4HlRabbit = v));
+        m4.add(new LabelEntry(contentX, "Highlight Colors"));
+        m4.add(new ColorEntry(contentX, contentWidth, "Thorn", () -> config.m4ColorThorn, v -> config.m4ColorThorn = v));
+        m4.add(new ColorEntry(contentX, contentWidth, "Thorn Damaged", () -> config.m4ColorThornDmg, v -> config.m4ColorThornDmg = v));
+        m4.add(new ColorEntry(contentX, contentWidth, "Bear", () -> config.m4ColorBear, v -> config.m4ColorBear = v));
+        m4.add(new ColorEntry(contentX, contentWidth, "Cow", () -> config.m4ColorCow, v -> config.m4ColorCow = v));
+        m4.add(new ColorEntry(contentX, contentWidth, "Sheep", () -> config.m4ColorSheep, v -> config.m4ColorSheep = v));
+        m4.add(new ColorEntry(contentX, contentWidth, "Chicken", () -> config.m4ColorChicken, v -> config.m4ColorChicken = v));
+        m4.add(new ColorEntry(contentX, contentWidth, "Bat", () -> config.m4ColorBat, v -> config.m4ColorBat = v));
+        m4.add(new ColorEntry(contentX, contentWidth, "Wolf", () -> config.m4ColorWolf, v -> config.m4ColorWolf = v));
+        m4.add(new ColorEntry(contentX, contentWidth, "Rabbit", () -> config.m4ColorRabbit, v -> config.m4ColorRabbit = v));
+        m4.add(new LabelEntry(contentX, "Decoy & Trajectories"));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Best Decoy Spot", () -> config.m4Decoy, v -> config.m4Decoy = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Trajectories", () -> config.m4Trajectories, v -> config.m4Trajectories = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Trajectory: Cows", () -> config.m4TrajCow, v -> config.m4TrajCow = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Trajectory: Sheep", () -> config.m4TrajSheep, v -> config.m4TrajSheep = v));
+        m4.add(new ToggleEntry(contentX, contentWidth, "Trajectory: Chickens", () -> config.m4TrajChicken, v -> config.m4TrajChicken = v));
+        categories.put("M4", m4);
 
         List<SettingsEntry> sounds = new ArrayList<>();
         sounds.add(new LabelEntry(contentX, "Key"));
@@ -557,6 +609,7 @@ public class MapConfigScreen extends Screen {
         sounds.add(new ToggleEntry(contentX, contentWidth, "No Explosion Sound", () -> config.noExplosionSound, v -> config.noExplosionSound = v));
         sounds.add(new ToggleEntry(contentX, contentWidth, "No Creeper Hurt Sound", () -> config.noCreeperHurtSound, v -> config.noCreeperHurtSound = v));
         sounds.add(new ToggleEntry(contentX, contentWidth, "Mute Bonzo Staff", () -> config.muteBonzoStaff, v -> config.muteBonzoStaff = v));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Mute Lightning", () -> config.muteLightning, v -> config.muteLightning = v));
         sounds.add(new ToggleEntry(contentX, contentWidth, "Custom Hype Sound (wither blades)", () -> config.customHypeSound, v -> config.customHypeSound = v));
         sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Hype Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
@@ -573,7 +626,7 @@ public class MapConfigScreen extends Screen {
         colors.add(new ColorEntry(contentX, contentWidth, "Shadow Assassins", () -> config.colorESPShadowAssassin, v -> config.colorESPShadowAssassin = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Dungeon Bats", () -> config.colorESPBat, v -> config.colorESPBat = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Wither Key", () -> config.colorESPWitherKey, v -> config.colorESPWitherKey = v));
-        colors.add(new ColorEntry(contentX, contentWidth, "Boss ESP", () -> config.colorBossESP, v -> config.colorBossESP = v));
+        colors.add(new ColorEntry(contentX, contentWidth, "Wither ESP", () -> config.colorBossESP, v -> config.colorBossESP = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Corpse ESP", () -> config.colorCorpseESP, v -> config.colorCorpseESP = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Blood Key", () -> config.colorESPBloodKey, v -> config.colorESPBloodKey = v));
         colors.add(new ColorEntry(contentX, contentWidth, "Wither Door", () -> config.colorESPWitherDoor, v -> config.colorESPWitherDoor = v));
@@ -658,6 +711,8 @@ public class MapConfigScreen extends Screen {
         leap.add(new ToggleEntry(contentX, contentWidth, "Enable Leap Overlay", () -> config.leapOverlay, v -> config.leapOverlay = v));
         leap.add(new ToggleEntry(contentX, contentWidth, "Show Player Heads", () -> config.leapShowHeads, v -> config.leapShowHeads = v));
         leap.add(new ToggleEntry(contentX, contentWidth, "Show Map (click to leap)", () -> config.leapShowMap, v -> config.leapShowMap = v));
+        leap.add(new SliderEntry(contentX, contentWidth, "Overlay Scale", 0.5f, 2.0f,
+                () -> config.leapScale, v -> config.leapScale = v));
         leap.add(new ToggleEntry(contentX, contentWidth, "Leap Announce (/pc)", () -> config.leapAnnounce, v -> config.leapAnnounce = v));
         leap.add(new DropdownEntry(contentX, contentWidth, "Sort Mode",
                 new String[]{"Odin", "Class A-Z", "Name A-Z", "Custom", "None"},
@@ -678,6 +733,7 @@ public class MapConfigScreen extends Screen {
         leap.add(new KeybindEntry(contentX, contentWidth, "Tank", () -> config.leapKeyTank, v -> config.leapKeyTank = v));
         leap.add(new LabelEntry(contentX, "Other Keybinds"));
         leap.add(new KeybindEntry(contentX, contentWidth, "Last Door Opener", () -> config.leapKeyLastDoor, v -> config.leapKeyLastDoor = v));
+        leap.add(new KeybindEntry(contentX, contentWidth, "Fast Leap (smart)", () -> config.fastLeapKey, v -> config.fastLeapKey = v));
         categories.put("Leap", leap);
 
         List<SettingsEntry> party = new ArrayList<>();
@@ -728,10 +784,19 @@ public class MapConfigScreen extends Screen {
         timers.add(new ToggleEntry(contentX, contentWidth, "Invincibility: Show In Boss Only", () -> config.invincibilityOnlyInBoss, v -> config.invincibilityOnlyInBoss = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Spirit Pet Reminder (boss)", () -> config.spiritPetReminder, v -> config.spiritPetReminder = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Purple Pad Timer (F7)", () -> config.purplePadTimer, v -> config.purplePadTimer = v));
-        timers.add(new ToggleEntry(contentX, contentWidth, "Death Tick Timer", () -> config.deathTickTimer, v -> config.deathTickTimer = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Necron Drop Timer (F7)", () -> config.necronDropTimer, v -> config.necronDropTimer = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Goldor Tick Timer (F7)", () -> config.goldorTickTimer, v -> config.goldorTickTimer = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Storm Pad Timer (F7)", () -> config.stormPadTimer, v -> config.stormPadTimer = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Storm Lightning Timer (F7)", () -> config.lightningTimer, v -> config.lightningTimer = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Secret Tick Timer", () -> config.secretTickTimer, v -> config.secretTickTimer = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Relic Timer (M7)", () -> config.relicTimer, v -> config.relicTimer = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Simon Says Progress (F7)", () -> config.simonSaysProgress, v -> config.simonSaysProgress = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Leap Counter (F7)", () -> config.leapCounter, v -> config.leapCounter = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Bossbar Health (❤)", () -> config.bossbarHealth, v -> config.bossbarHealth = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Overkill Counter (F4/M4)", () -> config.overkillCounter, v -> config.overkillCounter = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Overkill: Hide Zero", () -> config.overkillHideZero, v -> config.overkillHideZero = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Kicked Timer", () -> config.kickedTimer, v -> config.kickedTimer = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Kicked: send /pc kicked", () -> config.kickedPartyMessage, v -> config.kickedPartyMessage = v));
         categories.put("Timers", timers);
 
         List<SettingsEntry> bloodCamp = new ArrayList<>();
@@ -855,6 +920,14 @@ public class MapConfigScreen extends Screen {
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Estimated Item Value", () -> config.estimatedValue, v -> config.estimatedValue = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Value Breakdown Panel (hover)", () -> config.itemValueGui, v -> config.itemValueGui = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Container Value (Top 5)", () -> config.containerValue, v -> config.containerValue = v));
+        tooltips.add(new LabelEntry(contentX, "Enchant Colors"));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Enchant Colors", () -> config.enchantColors, v -> config.enchantColors = v));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Levels as Numbers", () -> config.enchantLevelsAsNumbers, v -> config.enchantLevelsAsNumbers = v));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Bold Max Level", () -> config.enchantBoldMax, v -> config.enchantBoldMax = v));
+        tooltips.add(new ColorEntry(contentX, contentWidth, "Max Level Color", () -> config.enchantColorMax, v -> config.enchantColorMax = v));
+        tooltips.add(new ColorEntry(contentX, contentWidth, "High Level Color", () -> config.enchantColorHigh, v -> config.enchantColorHigh = v));
+        tooltips.add(new ColorEntry(contentX, contentWidth, "Normal Level Color", () -> config.enchantColorNormal, v -> config.enchantColorNormal = v));
+        tooltips.add(new ColorEntry(contentX, contentWidth, "Bad Level Color", () -> config.enchantColorBad, v -> config.enchantColorBad = v));
         categories.put("Tooltips & Value", tooltips);
 
         List<SettingsEntry> chatFilter = new ArrayList<>();
@@ -931,6 +1004,7 @@ public class MapConfigScreen extends Screen {
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Hide HOTF/HOTM Perks", () -> config.chatFilterPerkBuffs, v -> config.chatFilterPerkBuffs = v));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Hide Bone Plating", () -> config.chatFilterBonePlating, v -> config.chatFilterBonePlating = v));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Hide Oruo Messages", () -> config.chatFilterOruo, v -> config.chatFilterOruo = v));
+        chatFilter.add(new ToggleEntry(contentX, contentWidth, "Hide Wither King Heroes Line", () -> config.chatFilterWitherKingHeroes, v -> config.chatFilterWitherKingHeroes = v));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Hide Sacks", () -> config.chatFilterSacks, v -> config.chatFilterSacks = v));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Hide GFS (Sacks to inventory)", () -> config.chatFilterGfs, v -> config.chatFilterGfs = v));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Hide Watchdog Announcements", () -> config.chatFilterWatchdog, v -> config.chatFilterWatchdog = v));
@@ -941,7 +1015,7 @@ public class MapConfigScreen extends Screen {
         categories.put("Chat", chatFilter);
 
         sections.clear();
-        sections.put("Dungeon", List.of("Legit Mode", "Map", "ESP", "Puzzles", "Dragons", "Blood Camp", "Waypoints", "Leap", "Timers", "Score & Splits"));
+        sections.put("Dungeon", List.of("Legit Mode", "Map", "ESP", "Puzzles", "Dragons", "M4", "Blood Camp", "Waypoints", "Leap", "Timers", "Score & Splits"));
         sections.put("Visual", List.of("Render", "Hide", "Colors"));
         sections.put("Items", List.of("Croesus", "Inventory", "Tooltips & Value"));
         sections.put("Comms", List.of("Chat", "Sounds"));
@@ -952,7 +1026,7 @@ public class MapConfigScreen extends Screen {
                 "Show Glow", "Filled ESP (vs Outline)", "Box ESP (Hitbox)",
                 "Starred Mob ESP", "Tracer When Few Left", "Fel ESP", "Sniper ESP", "Shadow Assassin ESP",
                 "Dungeon Bat ESP", "Dungeon Bat Tracers", "Wither Key ESP", "Key Tracers",
-                "Boss ESP", "Boss ESP Filled", "Boss ESP Depth Check", "Corpse ESP (Glacite)", "Corpse ESP Depth Check",
+                "Wither ESP", "Wither ESP Filled", "Wither ESP Depth Check", "Boss ESP", "Corpse ESP (Glacite)", "Corpse ESP Depth Check",
                 "Door ESP", "Door Tracers", "Only Show Next Door",
                 "Livid Finder", "Livid Tracer", "Mimic Chest ESP", "Mimic Chest Tracers",
                 "Highlight Teammates", "Invisible Armor Stand ESP", "Pest ESP (Garden)", "Pest Tracers",

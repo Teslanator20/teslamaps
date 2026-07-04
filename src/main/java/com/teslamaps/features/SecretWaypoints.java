@@ -248,11 +248,9 @@ public class SecretWaypoints {
 
         int roomId = room.getRoomData().getRoomID();
 
-        if (roomId != lastRoomId) {
-            lastRoomId = roomId;
-            foundSecrets.clear();
-            visitedWaypoints.clear();
-        }
+        // Keep collected secrets for the whole run (positions are absolute world coords, unique per room),
+        // so re-entering a room doesn't make already-found secrets reappear. Cleared on dungeon exit (reset()).
+        lastRoomId = roomId;
 
         Map<WaypointType, List<int[]>> worldWaypoints = cachedWaypoints.get(roomId);
         if (worldWaypoints == null) {
@@ -279,7 +277,7 @@ public class SecretWaypoints {
                 if (type == WaypointType.REDSTONE && TeslaMapsConfig.get().redstoneKeyFilled) {
                     ESPRenderer.drawFilledBox(matrices, box, color, cameraPos, true);
                 } else {
-                    ESPRenderer.drawBoxOutline(matrices, box, color, 2.0f, cameraPos);
+                    ESPRenderer.drawBoxOutline(matrices, box, color, 2.0f, cameraPos, true);
                 }
 
                 if (TeslaMapsConfig.get().secretWaypointTracers) {

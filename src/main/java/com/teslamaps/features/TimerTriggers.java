@@ -27,6 +27,12 @@ public class TimerTriggers {
     private static long warpEnd = -1;
     private static int purplePadTicks = 0; // F7 purple-pad countdown (Storm trigger)
     private static int relicTicks = 0;     // M7 relic spawn countdown (Necron trigger)
+    // Odin tick timers (-1 = inactive)
+    private static int necronDropTicks = -1;  // Necron drop after "your journey ends now"
+    private static int goldorTicks = -1;      // repeating 60t device/terminal pulse in P3
+    private static int goldorStartTicks = -1; // 104t until terms/devices can be activated
+    private static int stormPadTicks = -1;    // repeating 20t Storm pad pulse
+    private static int lightningTicks = -1;   // 560t until Storm's lightning
 
     private static final class Mask {
         final String key, name; final long imm; long cd; long proc = -1;
@@ -85,6 +91,18 @@ public class TimerTriggers {
         if (m.contains("[BOSS] Storm: ENERGY HEED MY CALL!")
                 || m.contains("[BOSS] Storm: THUNDER LET ME BE YOUR CATALYST!")) purplePadTicks = 96;
         if (m.contains("[BOSS] Necron: All this, for nothing...")) relicTicks = 45;
+        // Odin tick timers (F7/M7 boss)
+        if (m.contains("[BOSS] Necron: I'm afraid, your journey ends now.")) necronDropTicks = 60;
+        if (m.contains("[BOSS] Goldor: Who dares trespass into my domain?")) goldorTicks = 60;
+        if (m.contains("The Core entrance is opening!")) { goldorTicks = -1; goldorStartTicks = -1; }
+        if (m.contains("[BOSS] Storm: I should have known that I stood no chance.")) {
+            goldorStartTicks = 104;
+            stormPadTicks = -1;
+        }
+        if (m.contains("[BOSS] Storm: Pathetic Maxor, just like expected.")) {
+            stormPadTicks = 20;
+            lightningTicks = 560;
+        }
         if (m.contains("Bonzo's Mask saved your life")) { BONZO.proc = now(); BONZO.cd = readCooldown("Bonzo's Mask", 360000); announce("Bonzo"); }
         if (m.contains("Spirit Mask saved your life")) { SPIRIT.proc = now(); announce("Spirit"); }
         if (m.contains("Phoenix Pet saved you from certain death")) { PHOENIX.proc = now(); announce("Phoenix"); }
@@ -116,13 +134,19 @@ public class TimerTriggers {
             DungeonTimers.set("purplepad", "§dPurple§f: §d" + String.format("%.2fs", purplePadTicks * 0.05));
         } else { purplePadTicks = 0; DungeonTimers.clear("purplepad"); }
 
-        if (c.leapCounter && f != null && f.getLevel() == 7 && mc.player != null && mc.level != null) {
+        // only in the boss arena (off the room grid) - showed a useless 0/4 for the whole clear before
+        if (c.leapCounter && f != null && f.getLevel() == 7 && mc.player != null && mc.level != null
+                && com.teslamaps.scanner.ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null) {
             int n = 0;
-            for (var pl : mc.level.players()) {
-                if (pl == mc.player) continue;
-                if (pl.distanceToSqr(mc.player) <= 9.0) n++;
+            int total = 0;
+            for (var dp : com.teslamaps.player.PlayerTracker.getPlayers()) {
+                if (dp.getName().equals(mc.player.getName().getString())) continue;
+                total++;
+                var pl = dp.getUuid() != null ? mc.level.getPlayerByUUID(dp.getUuid()) : null;
+                if (pl != null && pl != mc.player && pl.distanceToSqr(mc.player) <= 9.0) n++;
             }
-            DungeonTimers.set("leaps", "§bLeaps§f: §a" + n + "§7/4");
+            if (total > 0) DungeonTimers.set("leaps", "§bLeaps§f: §a" + n + "§7/" + total);
+            else DungeonTimers.clear("leaps");
         } else { DungeonTimers.clear("leaps"); }
 
         if (c.simonSaysProgress && com.teslamaps.dungeon.puzzle.SimonSaysSolver.getSequenceSize() > 0) {
@@ -135,12 +159,51 @@ public class TimerTriggers {
             DungeonTimers.set("relic", "§aRelic§f: §a" + String.format("%.2fs", relicTicks * 0.05));
         } else { relicTicks = 0; DungeonTimers.clear("relic"); }
 
-        if (c.deathTickTimer && mc.level != null
-                && com.teslamaps.dungeon.DungeonManager.isInDungeon()
+        boolean inDungeon = com.teslamaps.dungeon.DungeonManager.isInDungeon();
+        if (!inDungeon) {
+            necronDropTicks = -1; goldorTicks = -1; goldorStartTicks = -1;
+            stormPadTicks = -1; lightningTicks = -1;
+        }
+
+        if (c.necronDropTimer && necronDropTicks >= 0) {
+            DungeonTimers.set("necrondrop", "§4Necron§f: " + tickColor(necronDropTicks, 60) + fmtTicks(necronDropTicks));
+            necronDropTicks--;
+        } else DungeonTimers.clear("necrondrop");
+
+        if (c.goldorTickTimer && goldorStartTicks >= 0) {
+            DungeonTimers.set("goldortick", "§aStart§f: " + tickColor(goldorStartTicks, 104) + fmtTicks(goldorStartTicks));
+            goldorStartTicks--;
+        } else if (c.goldorTickTimer && goldorTicks >= 0) {
+            DungeonTimers.set("goldortick", "§7Tick§f: " + tickColor(goldorTicks, 60) + fmtTicks(goldorTicks));
+            if (--goldorTicks < 0) goldorTicks = 60; // devices/terms pulse every 60 ticks until the core opens
+        } else DungeonTimers.clear("goldortick");
+
+        if (c.stormPadTimer && stormPadTicks >= 0) {
+            DungeonTimers.set("stormpad", "§bPad§f: " + tickColor(stormPadTicks, 20) + fmtTicks(stormPadTicks));
+            if (--stormPadTicks < 0) stormPadTicks = 20; // pad pulses every 20 ticks
+        } else DungeonTimers.clear("stormpad");
+
+        if (c.lightningTimer && lightningTicks >= 0) {
+            DungeonTimers.set("lightning", "§bLightning§f: " + tickColor(lightningTicks, 560) + fmtTicks(lightningTicks));
+            lightningTicks--;
+        } else DungeonTimers.clear("lightning");
+
+        if (c.secretTickTimer && mc.level != null && inDungeon
                 && !com.teslamaps.dungeon.DungeonManager.isInBoss()) {
-            int dt = 40 - (int) (mc.level.getGameTime() % 40);
-            DungeonTimers.set("deathtick", "§cDeath§f: " + color(dt, 40) + String.format("%.2fs", dt * 0.05));
-        } else { DungeonTimers.clear("deathtick"); }
+            int st = 20 - (int) (mc.level.getGameTime() % 20);
+            DungeonTimers.set("secrettick", "§7Secret§f: " + tickColor(st, 20) + fmtTicks(st));
+        } else DungeonTimers.clear("secrettick");
+    }
+
+    // Odin's tick-timer coloring: green >= 66%, gold >= 33%, red below
+    private static String tickColor(int ticks, int max) {
+        if (ticks >= max * 0.66f) return "§a";
+        if (ticks >= max * 0.33f) return "§6";
+        return "§c";
+    }
+
+    private static String fmtTicks(int ticks) {
+        return String.format("%.2fs", ticks * 0.05);
     }
 
     private static long readCooldown(String itemName, long fallback) {

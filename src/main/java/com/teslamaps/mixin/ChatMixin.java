@@ -93,6 +93,10 @@ public class ChatMixin {
 
         if (cfg.section("Leap")) com.teslamaps.features.LeapOverlay.onChatMessage(text);
 
+        com.teslamaps.features.KickedTimer.onChatMessage(text);
+
+        com.teslamaps.features.OverkillCounter.onChatMessage(text);
+
         MimicDetector.onChatMessage(text);
 
         DungeonScore.onChatMessage(text);
@@ -124,6 +128,7 @@ public class ChatMixin {
 
         if (cfg.section("Puzzles")) {
             QuizSolver.onChatMessage(text);
+            com.teslamaps.dungeon.puzzle.SimonSaysSolver.onChatMessage(text);
         }
 
         if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.shouldHide(text)) {

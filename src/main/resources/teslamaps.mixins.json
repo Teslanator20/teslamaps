@@ -57,7 +57,11 @@
         "InventoryEffectsMixin",
         "LoudVolumeMixin",
         "ChannelGainMixin",
-        "SoundPlayMixin"
+        "SoundPlayMixin",
+        "StyleFontMixin",
+        "NoReloadScreenMixin",
+        "LerpingBossEventAccessor",
+        "BossBarHealthMixin"
     ],
     "injectors": {
         "defaultRequire": 1

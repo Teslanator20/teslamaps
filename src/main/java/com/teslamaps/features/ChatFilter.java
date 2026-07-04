@@ -31,6 +31,8 @@ public class ChatFilter {
         if (c.chatFilterF4Boss && (t.contains("[BOSS] Thorn:")
                 || t.toLowerCase().contains("[crowd]"))) return true; // [CROWD]/[Crowd] spectator spam
         if (c.chatFilterOruo && t.contains("[STATUE] Oruo the Omniscient:")) return true;
+        if (c.chatFilterWitherKingHeroes && t.contains("[BOSS] Wither King:")
+                && t.contains("I hope you'll become the Heroes I could never be")) return true;
         if (c.chatFilterMort && t.contains("[NPC] Mort:")) return true;
         if (c.chatFilterProfileInfo && (t.contains("You are playing on profile:")
                 || t.contains("Profile ID:"))) return true;

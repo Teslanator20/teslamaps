@@ -275,6 +275,12 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal(
                                             com.teslamaps.dungeon.DungeonWaypoints.clearRoom()));
                                     return 1;
+                                }))
+                        .then(ClientCommands.literal("convert")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            com.teslamaps.dungeon.DungeonWaypoints.convertLegacy()));
+                                    return 1;
                                 })))
                 .then(ClientCommands.literal("prince")
                         .executes(context -> {

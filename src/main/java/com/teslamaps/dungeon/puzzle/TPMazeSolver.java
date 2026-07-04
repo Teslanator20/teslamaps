@@ -49,17 +49,10 @@ public class TPMazeSolver {
     private static Set<BlockPos> visitedPortals = new CopyOnWriteArraySet<>();
     private static BlockPos best = null;
     private static String lastRoomName = "";
-    private static Vec3 lastPlayerPos = null;
-    private static long lastTeleportTime = 0;
     private static int detectedRotation = -1;
 
     public static void tick() {
-        if (!TeslaMapsConfig.get().solveTPMaze) {
-            reset();
-            return;
-        }
-
-        if (!DungeonManager.isInDungeon()) {
+        if (!TeslaMapsConfig.get().solveTPMaze || !DungeonManager.isInDungeon()) {
             reset();
             return;
         }
@@ -69,9 +62,7 @@ public class TPMazeSolver {
 
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null || room.getName() == null || !room.getName().equals("Teleport Maze")) {
-            if (!lastRoomName.equals("")) {
-                reset();
-            }
+            if (!lastRoomName.isEmpty()) reset();
             return;
         }
 
@@ -80,21 +71,142 @@ public class TPMazeSolver {
             detectedRotation = -1;
             initializePortals(room);
         }
+    }
 
-        Vec3 currentPos = new Vec3(mc.player.getX(), mc.player.getY(), mc.player.getZ());
-        if (lastPlayerPos != null) {
-            double distance = currentPos.distanceTo(lastPlayerPos);
-            if (distance > 3 && distance < 50) {
-                onTeleport(currentPos, mc.player.getYRot(), mc.player.getXRot());
+    // Driven by the real position packet (ClientPlayNetworkHandlerMixin -> handleMovePlayer), so we
+    // act on the exact teleport position/look, not a tick-late distance guess.
+    public static void onPositionPacket(Vec3 pos, float yaw, float pitch) {
+        Minecraft mc = Minecraft.getInstance();
+        // Mixin injects at HEAD of handleMovePlayer: only run on the main-thread invocation (the
+        // network-thread one bails here), and the player is still at its pre-teleport position.
+        if (!mc.isSameThread()) return;
+        if (!TeslaMapsConfig.get().solveTPMaze || portalPositions.isEmpty()) return;
+        if (mc.player == null) return;
+
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null || !"Teleport Maze".equals(room.getName())) return;
+
+        // Pads sit on the half-block grid; real teleports land exactly centered, server corrections don't.
+        if (pos.x % 0.5 != 0.0 || pos.z % 0.5 != 0.0) return;
+
+        AABB posBox = AABB.unitCubeFromLowerCorner(pos).inflate(1.0, 0.0, 1.0);
+        AABB playerBox = mc.player.getBoundingBox();
+        for (BlockPos portal : portalPositions) {
+            if (posBox.intersects(new AABB(portal)) || playerBox.inflate(1.0, 0.0, 1.0).intersects(new AABB(portal))) {
+                visitedPortals.add(portal);
             }
         }
-        lastPlayerPos = currentPos;
+
+        getCorrectPortals(pos, yaw, pitch, playerBox);
+        computeBest(pos, yaw, posBox);
+
+        if (TeslaMapsConfig.get().debugMode) {
+            TeslaMaps.LOGGER.info("[TPMazeSolver] tp -> {} correct, {} visited, best={}",
+                correctPortals.size(), visitedPortals.size(), best);
+        }
+    }
+
+    private static void getCorrectPortals(Vec3 pos, float yaw, float pitch, AABB playerBox) {
+        if (correctPortals.isEmpty()) correctPortals = new ArrayList<>(portalPositions);
+
+        Vec3 look = getLook(yaw, pitch);
+        correctPortals = new ArrayList<>(correctPortals.stream()
+            .filter(p -> !visitedPortals.contains(p))
+            .filter(p -> {
+                AABB box = new AABB(p.getX(), p.getY(), p.getZ(), p.getX() + 1.0, p.getY() + 4.0, p.getZ() + 1.0)
+                    .inflate(0.75, 0.0, 0.75);
+                return isXZInterceptable(box, 32.0, pos, look)
+                    && !new AABB(p).inflate(0.5, 0.0, 0.5).intersects(playerBox);
+            })
+            .toList());
+    }
+
+    // Pick the suggested next portal: within the current 4-pad stage, prefer a still-correct pad
+    // (the yaw-aligned one when several remain, instead of an arbitrary index), otherwise the
+    // (diagonal/straight per config) pad closest to the current look yaw.
+    private static void computeBest(Vec3 pos, float yaw, AABB posBox) {
+        BlockPos on = null;
+        for (BlockPos p : portalPositions) {
+            if (posBox.intersects(new AABB(p))) { on = p; break; }
+        }
+        if (on == null) return;
+
+        int idx = portalPositions.indexOf(on);
+        if (idx == 28 || idx == 29) { best = null; return; } // landed on an exit pad
+        int lowest = idx / 4 * 4;
+        if (lowest + 4 > portalPositions.size()) return;
+
+        final BlockPos onF = on;
+        List<BlockPos> around = portalPositions.subList(lowest, lowest + 4).stream()
+            .filter(p -> !p.equals(onF) && !visitedPortals.contains(p))
+            .toList();
+
+        List<BlockPos> correctInGroup = around.stream().filter(correctPortals::contains).toList();
+        if (!correctInGroup.isEmpty()) {
+            best = correctInGroup.stream().min(yawComparator(pos, yaw)).orElse(null);
+            return;
+        }
+
+        boolean diag = TeslaMapsConfig.get().tpMazePrioritizeDiagonal;
+        best = around.stream()
+            .filter(p -> diag
+                ? (p.getX() != onF.getX() && p.getZ() != onF.getZ())
+                : (p.getX() == onF.getX() || p.getZ() == onF.getZ()))
+            .min(yawComparator(pos, yaw))
+            .orElse(around.isEmpty() ? null : around.get(0));
+    }
+
+    private static Comparator<BlockPos> yawComparator(Vec3 pos, float yaw) {
+        return Comparator.comparingDouble(p -> {
+            Vec3 c = p.getCenter();
+            float portalYaw = (float) (Math.atan2(c.z - pos.z, c.x - pos.x) * 180.0 / Math.PI) - 90.0f;
+            return Math.abs(Mth.wrapDegrees(portalYaw) - Mth.wrapDegrees(yaw));
+        });
+    }
+
+    private static Vec3 getLook(float yaw, float pitch) {
+        float f2 = -Mth.cos(-pitch * 0.017453292F);
+        return new Vec3(
+            Mth.sin(-yaw * 0.017453292F - (float) Math.PI) * f2,
+            Mth.sin(-pitch * 0.017453292F),
+            Mth.cos(-yaw * 0.017453292F - (float) Math.PI) * f2
+        );
+    }
+
+    // Analytic ray/box test in the XZ plane (Y is irrelevant to maze sightlines): does the look ray
+    // from pos cross the box on either its X or Z faces within range? Never skips a thin box.
+    private static boolean isXZInterceptable(AABB box, double range, Vec3 pos, Vec3 look) {
+        Vec3 goal = pos.add(look.scale(range));
+        return inZ(intermediateWithX(pos, goal, box.minX), box)
+            || inZ(intermediateWithX(pos, goal, box.maxX), box)
+            || inX(intermediateWithZ(pos, goal, box.minZ), box)
+            || inX(intermediateWithZ(pos, goal, box.maxZ), box);
+    }
+
+    private static boolean inX(Vec3 v, AABB box) { return v != null && v.x >= box.minX && v.x <= box.maxX; }
+    private static boolean inZ(Vec3 v, AABB box) { return v != null && v.z >= box.minZ && v.z <= box.maxZ; }
+
+    private static Vec3 intermediateWithX(Vec3 from, Vec3 goal, double x) {
+        double dx = goal.x - from.x;
+        if (dx * dx < 1e-8) return null;
+        double t = (x - from.x) / dx;
+        return (t < 0.0 || t > 1.0) ? null
+            : new Vec3(from.x + dx * t, from.y + (goal.y - from.y) * t, from.z + (goal.z - from.z) * t);
+    }
+
+    private static Vec3 intermediateWithZ(Vec3 from, Vec3 goal, double z) {
+        double dz = goal.z - from.z;
+        if (dz * dz < 1e-8) return null;
+        double t = (z - from.z) / dz;
+        return (t < 0.0 || t > 1.0) ? null
+            : new Vec3(from.x + (goal.x - from.x) * t, from.y + (goal.y - from.y) * t, from.z + dz * t);
     }
 
     private static void initializePortals(DungeonRoom room) {
         portalPositions.clear();
         correctPortals.clear();
         visitedPortals.clear();
+        best = null;
 
         BlockPos corner = room.getCorner();
         if (corner == null) return;
@@ -103,15 +215,11 @@ public class TPMazeSolver {
         if (detectedRotation == -1) {
             TeslaMaps.LOGGER.warn("[TPMazeSolver] Could not detect rotation, using 0");
             detectedRotation = 0;
-        } else {
-            TeslaMaps.LOGGER.info("[TPMazeSolver] Detected rotation: {}", detectedRotation);
         }
 
         for (BlockPos rel : PORTAL_POSITIONS_RELATIVE) {
-            BlockPos worldPos = transformPos(rel, corner, detectedRotation);
-            portalPositions.add(worldPos);
+            portalPositions.add(transformPos(rel, corner, detectedRotation));
         }
-
         correctPortals.addAll(portalPositions);
 
         TeslaMaps.LOGGER.info("[TPMazeSolver] Initialized {} portals at corner {} with rotation {}",
@@ -124,118 +232,19 @@ public class TPMazeSolver {
 
         int bestRotation = -1;
         int bestMatches = 0;
-
         for (int rotation = 0; rotation < 4; rotation++) {
             int matches = 0;
-
             for (BlockPos rel : PORTAL_POSITIONS_RELATIVE) {
-                BlockPos worldPos = transformPos(rel, corner, rotation);
-                if (mc.level.getBlockState(worldPos).getBlock() == Blocks.END_PORTAL_FRAME) {
+                if (mc.level.getBlockState(transformPos(rel, corner, rotation)).getBlock() == Blocks.END_PORTAL_FRAME) {
                     matches++;
                 }
             }
-
-            TeslaMaps.LOGGER.debug("[TPMazeSolver] Rotation {} has {} portal frame matches", rotation, matches);
-
             if (matches > bestMatches) {
                 bestMatches = matches;
                 bestRotation = rotation;
             }
         }
-
         return bestMatches >= 5 ? bestRotation : -1;
-    }
-
-    private static void onTeleport(Vec3 pos, float yaw, float pitch) {
-        long now = System.currentTimeMillis();
-        if (now - lastTeleportTime < 500) return; // Debounce
-        lastTeleportTime = now;
-
-        for (BlockPos portal : portalPositions) {
-            AABB portalBox = new AABB(portal).inflate(1.5, 0, 1.5);
-            if (portalBox.contains(pos)) {
-                visitedPortals.add(portal);
-            }
-        }
-
-        Vec3 lookDir = getVectorForRotation(pitch, yaw);
-
-        correctPortals = new ArrayList<>(correctPortals.stream()
-            .filter(p -> !visitedPortals.contains(p))
-            .filter(p -> {
-                AABB portalBox = new AABB(p).inflate(0.75, 2, 0.75);
-                return isLookingAt(pos, lookDir, portalBox, 32.0);
-            })
-            .toList());
-
-        if (correctPortals.isEmpty()) {
-            correctPortals = new ArrayList<>(portalPositions.stream()
-                .filter(p -> !visitedPortals.contains(p))
-                .toList());
-        }
-
-        computeBest(pos, yaw);
-
-        TeslaMaps.LOGGER.info("[TPMazeSolver] After teleport: {} correct, {} visited",
-            correctPortals.size(), visitedPortals.size());
-    }
-
-    // Pick the suggested next portal: within the current 4-pad stage, prefer a still-correct
-    // pad, otherwise the one (diagonal/straight per config) closest to the current look yaw.
-    private static void computeBest(Vec3 pos, float yaw) {
-        BlockPos on = null;
-        for (BlockPos p : portalPositions) {
-            if (new AABB(p).inflate(1.0, 0, 1.0).contains(pos)) {
-                on = p;
-                break;
-            }
-        }
-        if (on == null) return;
-
-        int idx = portalPositions.indexOf(on);
-        if (idx == 28 || idx == 29) { // landed on an exit pad
-            best = null;
-            return;
-        }
-        int lowest = idx / 4 * 4;
-        if (lowest + 4 > portalPositions.size()) return;
-
-        final BlockPos onF = on;
-        List<BlockPos> around = portalPositions.subList(lowest, lowest + 4).stream()
-            .filter(p -> !p.equals(onF) && !visitedPortals.contains(p))
-            .toList();
-
-        BlockPos chosen = around.stream().filter(correctPortals::contains).findFirst().orElse(null);
-        if (chosen == null) {
-            boolean diag = TeslaMapsConfig.get().tpMazePrioritizeDiagonal;
-            chosen = around.stream()
-                .filter(p -> diag
-                    ? (p.getX() != onF.getX() && p.getZ() != onF.getZ())
-                    : (p.getX() == onF.getX() || p.getZ() == onF.getZ()))
-                .min(Comparator.comparingDouble(p -> {
-                    Vec3 c = p.getCenter();
-                    float portalYaw = (float) (Math.atan2(c.z - pos.z, c.x - pos.x) * 180.0 / Math.PI) - 90.0f;
-                    return Math.abs(Mth.wrapDegrees(portalYaw) - Mth.wrapDegrees(yaw));
-                }))
-                .orElse(around.isEmpty() ? null : around.get(0));
-        }
-        best = chosen;
-    }
-
-    private static Vec3 getVectorForRotation(float pitch, float yaw) {
-        float f = Mth.cos(-yaw * 0.017453292F - (float)Math.PI);
-        float f1 = Mth.sin(-yaw * 0.017453292F - (float)Math.PI);
-        float f2 = -Mth.cos(-pitch * 0.017453292F);
-        float f3 = Mth.sin(-pitch * 0.017453292F);
-        return new Vec3(f1 * f2, f3, f * f2);
-    }
-
-    private static boolean isLookingAt(Vec3 pos, Vec3 dir, AABB box, double maxDist) {
-        for (double d = 0; d < maxDist; d += 0.5) {
-            Vec3 point = pos.add(dir.scale(d));
-            if (box.contains(point)) return true;
-        }
-        return false;
     }
 
     private static BlockPos transformPos(BlockPos relative, BlockPos corner, int rotation) {
@@ -249,13 +258,11 @@ public class TPMazeSolver {
             case 3 -> { rx = z; rz = 30 - x; }
             default -> { rx = x; rz = z; }
         }
-
         return new BlockPos(corner.getX() + rx, relative.getY(), corner.getZ() + rz);
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (!TeslaMapsConfig.get().solveTPMaze) return;
-        if (portalPositions.isEmpty()) return;
+        if (!TeslaMapsConfig.get().solveTPMaze || portalPositions.isEmpty()) return;
 
         int colorOne = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorTPMazeOne);
         int colorMultiple = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorTPMazeMultiple);
@@ -263,9 +270,7 @@ public class TPMazeSolver {
         int colorOther = 0x80FFFFFF; // Semi-transparent white for unvisited
 
         for (BlockPos portal : portalPositions) {
-            AABB box = new AABB(portal);
             int color;
-
             if (correctPortals.contains(portal)) {
                 color = correctPortals.size() == 1 ? colorOne : colorMultiple;
             } else if (visitedPortals.contains(portal)) {
@@ -273,8 +278,7 @@ public class TPMazeSolver {
             } else {
                 color = colorOther;
             }
-
-            ESPRenderer.drawFilledBox(matrices, box, color, cameraPos);
+            ESPRenderer.drawFilledBox(matrices, new AABB(portal), color, cameraPos);
         }
 
         if (best != null && TeslaMapsConfig.get().tpMazeTracer) {
@@ -290,7 +294,6 @@ public class TPMazeSolver {
         visitedPortals.clear();
         best = null;
         lastRoomName = "";
-        lastPlayerPos = null;
         detectedRotation = -1;
     }
 }

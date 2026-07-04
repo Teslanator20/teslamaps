@@ -42,12 +42,17 @@ public class ClientPlayerInteractionManagerMixin {
         com.teslamaps.features.CombatTimers.onUseItem(player.getItemInHand(hand));
     }
 
-    @Inject(method = "useItemOn", at = @At("HEAD"))
+    @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
     private void onInteractBlock(net.minecraft.client.player.LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
         BlockPos pos = hitResult.getBlockPos();
+
+        if (com.teslamaps.dungeon.puzzle.SimonSaysSolver.blockClick(pos)) {
+            cir.setReturnValue(InteractionResult.FAIL);
+            return;
+        }
         BlockState state = mc.level.getBlockState(pos);
         Block block = state.getBlock();
 

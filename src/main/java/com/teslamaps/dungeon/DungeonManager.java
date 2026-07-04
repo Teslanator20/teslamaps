@@ -120,7 +120,9 @@ public class DungeonManager {
         }
 
         if (!hasCatacombs) {
-            return DungeonState.NOT_IN_DUNGEON;
+            // M7 P5 swaps the sidebar and the Catacombs line vanishes mid-fight; leaving a
+            // dungeon always changes worlds, so stay in until the world-change path exits us
+            return isInDungeon() ? currentState : DungeonState.NOT_IN_DUNGEON;
         }
 
         if (hasBoss) {

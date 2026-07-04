@@ -510,66 +510,54 @@ public class MapScanner {
     }
 
     private static void detectMapParameters(byte[] colors) {
-        int entranceX = -1, entranceY = -1;
+        // find the entrance room: first horizontal run of >=16 green pixels
+        // (green checkmarks are also color 30 but far smaller, so a plain
+        // first-green-pixel search misdetects after relog/late join)
+        int entranceX = -1, entranceY = -1, roomSize = 0;
 
-        for (int y = 5; y < 123; y++) {
-            for (int x = 5; x < 123; x++) {
-                int idx = x + y * 128;
-                if ((colors[idx] & 0xFF) == 30) {
-                    entranceX = x;
-                    entranceY = y;
-                    break;
+        outer:
+        for (int y = 0; y < 128; y++) {
+            int run = 0;
+            for (int x = 0; x <= 128; x++) {
+                if (x < 128 && (colors[x + y * 128] & 0xFF) == 30) {
+                    run++;
+                } else {
+                    if (run >= 16) {
+                        entranceX = x - run;
+                        entranceY = y;
+                        roomSize = run;
+                        break outer;
+                    }
+                    run = 0;
                 }
             }
-            if (entranceX >= 0) break;
         }
 
-        if (entranceX < 0) {
+        if (entranceX < 0 || (roomSize != 16 && roomSize != 18)) {
+            return; // not on the map yet (or garbage) - retry next scan
+        }
+
+        DungeonRoom entranceRoom = null;
+        for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
+            if (room.getType() == com.teslamaps.map.RoomType.ENTRANCE) {
+                entranceRoom = room;
+                break;
+            }
+        }
+
+        if (entranceRoom == null) {
+            TeslaMaps.LOGGER.debug("[MapScanner] Detected entrance at ({},{}) roomSize={}, waiting for grid",
+                    entranceX, entranceY, roomSize);
             return;
         }
 
-        while (entranceX > 0 && (colors[(entranceX - 1) + entranceY * 128] & 0xFF) == 30) {
-            entranceX--;
-        }
-        while (entranceY > 0 && (colors[entranceX + (entranceY - 1) * 128] & 0xFF) == 30) {
-            entranceY--;
-        }
-
-        int roomSize = 0;
-        while (entranceX + roomSize < 128 && (colors[(entranceX + roomSize) + entranceY * 128] & 0xFF) == 30) {
-            roomSize++;
-        }
-
-        if (roomSize < 10 || roomSize > 20) {
-            mapCornerX = 5;
-            mapCornerY = 5;
-            mapRoomSize = 16;
-        } else {
-            mapRoomSize = roomSize;
-
-            DungeonRoom entranceRoom = null;
-            for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
-                if (room.getType() == com.teslamaps.map.RoomType.ENTRANCE) {
-                    entranceRoom = room;
-                    break;
-                }
-            }
-
-            if (entranceRoom != null) {
-                int[] entranceGrid = entranceRoom.getPrimaryComponent();
-                int cellSize = mapRoomSize + mapGapSize;
-                mapCornerX = entranceX - entranceGrid[0] * cellSize;
-                mapCornerY = entranceY - entranceGrid[1] * cellSize;
-                TeslaMaps.LOGGER.debug("[MapScanner] Detected map params: corner=({},{}), roomSize={}, entranceAt=({},{}), grid=[{},{}]",
-                        mapCornerX, mapCornerY, mapRoomSize, entranceX, entranceY, entranceGrid[0], entranceGrid[1]);
-            } else {
-                mapCornerX = entranceX;
-                mapCornerY = entranceY;
-                TeslaMaps.LOGGER.debug("[MapScanner] Detected entrance at ({},{}) roomSize={}, waiting for grid",
-                        entranceX, entranceY, mapRoomSize);
-                return; // Don't mark as detected yet
-            }
-        }
+        mapRoomSize = roomSize;
+        int[] entranceGrid = entranceRoom.getPrimaryComponent();
+        int cellSize = mapRoomSize + mapGapSize;
+        mapCornerX = entranceX - entranceGrid[0] * cellSize;
+        mapCornerY = entranceY - entranceGrid[1] * cellSize;
+        TeslaMaps.LOGGER.debug("[MapScanner] Detected map params: corner=({},{}), roomSize={}, entranceAt=({},{}), grid=[{},{}]",
+                mapCornerX, mapCornerY, mapRoomSize, entranceX, entranceY, entranceGrid[0], entranceGrid[1]);
 
         mapParamsDetected = true;
     }

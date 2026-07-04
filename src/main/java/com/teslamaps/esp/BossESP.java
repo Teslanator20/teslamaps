@@ -30,13 +30,21 @@ public class BossESP {
         if (!DungeonManager.isInDungeon()) return;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
+        if (mc.level == null || mc.player == null) return;
+
+        // only during the boss fight, not the dungeon clear (boss arena = outside the room grid)
+        boolean inBoss = DungeonManager.isInBoss()
+                || com.teslamaps.scanner.ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null;
+        if (!inBoss) return;
 
         int color = TeslaMapsConfig.parseColor(c.colorBossESP);
         boolean throughWalls = !c.bossESPDepthCheck;
 
         for (Entity e : mc.level.entitiesForRendering()) {
             if (!(e instanceof WitherBoss wb) || wb.isInvisible()) continue;
+            // player-summoned withers (wither armor/cloak, abilities) spawn with 800 invuln ticks,
+            // the real bosses use 200 (Maxor) or 0/1 — filter like NoammAddons
+            if (wb.getInvulnerableTicks() > 400) continue;
             AABB box = wb.getBoundingBox();
             if (c.bossESPFilled) {
                 ESPRenderer.drawFilledBox(matrices, box, color, cameraPos, throughWalls);

@@ -28,7 +28,7 @@ public class HudEditScreen extends Screen {
     private final Screen parent;
     private boolean wasMouseDown = false;
 
-    private enum DragTarget { NONE, MAP, SLAYER_HUD, BEAR_SPAWN, SPLITS, BLOOD_CAMP, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, SPIRIT_BEAR }
+    private enum DragTarget { NONE, MAP, SLAYER_HUD, BEAR_SPAWN, SPLITS, BLOOD_CAMP, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, SPIRIT_BEAR, KICKED, OVERKILL }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -165,6 +165,32 @@ public class HudEditScreen extends Screen {
                mouseY >= config.spiritBearY && mouseY <= config.spiritBearY + h;
     }
 
+    private int overkillWidth() {
+        return (int)(this.font.width("Chickens: 00") * TeslaMapsConfig.get().overkillScale);
+    }
+    private int overkillHeight() {
+        return (int)(this.font.lineHeight * 7 * TeslaMapsConfig.get().overkillScale);
+    }
+    private boolean isMouseOverOverkill(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = overkillWidth(), h = overkillHeight();
+        return mouseX >= config.overkillX && mouseX <= config.overkillX + w &&
+               mouseY >= config.overkillY && mouseY <= config.overkillY + h;
+    }
+
+    private int kickedWidth() {
+        return (int)(this.font.width(com.teslamaps.features.KickedTimer.SAMPLE_TEXT) * TeslaMapsConfig.get().kickedScale);
+    }
+    private int kickedHeight() {
+        return (int)(this.font.lineHeight * TeslaMapsConfig.get().kickedScale);
+    }
+    private boolean isMouseOverKicked(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = kickedWidth(), h = kickedHeight();
+        return mouseX >= config.kickedX && mouseX <= config.kickedX + w &&
+               mouseY >= config.kickedY && mouseY <= config.kickedY + h;
+    }
+
     private int splitsNameCol() {
         int nameCol = 0;
         for (String s : SPLITS_SAMPLE) nameCol = Math.max(nameCol, this.font.width(s));
@@ -243,6 +269,14 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.SPIRIT_BEAR;
                 dragOffsetX = mouseX - config.spiritBearX;
                 dragOffsetY = mouseY - config.spiritBearY;
+            } else if (isMouseOverKicked(mouseX, mouseY)) {
+                dragging = DragTarget.KICKED;
+                dragOffsetX = mouseX - config.kickedX;
+                dragOffsetY = mouseY - config.kickedY;
+            } else if (isMouseOverOverkill(mouseX, mouseY)) {
+                dragging = DragTarget.OVERKILL;
+                dragOffsetX = mouseX - config.overkillX;
+                dragOffsetY = mouseY - config.overkillY;
             } else if (isMouseOverSlayerHud(mouseX, mouseY)) {
                 dragging = DragTarget.SLAYER_HUD;
                 dragOffsetX = mouseX - config.slayerHudX;
@@ -308,6 +342,14 @@ public class HudEditScreen extends Screen {
             int w = spiritBearWidth(), h = spiritBearHeight();
             config.spiritBearX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.spiritBearY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.KICKED) {
+            int w = kickedWidth(), h = kickedHeight();
+            config.kickedX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.kickedY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.OVERKILL) {
+            int w = overkillWidth(), h = overkillHeight();
+            config.overkillX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.overkillY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         }
 
         context.fill(0, 0, this.width, this.height, 0xC0000000);
@@ -331,6 +373,10 @@ public class HudEditScreen extends Screen {
         drawThornStunPreview(context, mouseX, mouseY);
 
         drawSpiritBearPreview(context, mouseX, mouseY);
+
+        drawKickedPreview(context, mouseX, mouseY);
+
+        drawOverkillPreview(context, mouseX, mouseY);
 
         String instructions = dragging != DragTarget.NONE ? "Release to place" : "Drag elements to move them | Scroll on map to resize";
         int textWidth = this.font.width(instructions);
@@ -544,6 +590,40 @@ public class HudEditScreen extends Screen {
         context.text(this.font, String.format("Spirit Bear (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
+    private void drawOverkillPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.overkillX, y = config.overkillY;
+        float scale = config.overkillScale;
+        com.teslamaps.features.OverkillCounter.draw(context, this.minecraft, x, y, scale);
+        int w = overkillWidth(), h = overkillHeight();
+        boolean hovering = isMouseOverOverkill(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.OVERKILL) {
+            int borderColor = dragging == DragTarget.OVERKILL ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Overkill (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawKickedPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.kickedX, y = config.kickedY;
+        float scale = config.kickedScale;
+        com.teslamaps.features.KickedTimer.draw(context, this.minecraft, x, y, scale);
+        int w = kickedWidth(), h = kickedHeight();
+        boolean hovering = isMouseOverKicked(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.KICKED) {
+            int borderColor = dragging == DragTarget.KICKED ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Kicked (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
     private void drawSplitsPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int x = config.splitsX;
@@ -684,6 +764,20 @@ public class HudEditScreen extends Screen {
         if (isMouseOverSpiritBear((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.spiritBearScale = Math.min(5.0f, config.spiritBearScale + 0.1f);
             else if (verticalAmount < 0) config.spiritBearScale = Math.max(0.5f, config.spiritBearScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverKicked((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.kickedScale = Math.min(5.0f, config.kickedScale + 0.1f);
+            else if (verticalAmount < 0) config.kickedScale = Math.max(0.5f, config.kickedScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverOverkill((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.overkillScale = Math.min(5.0f, config.overkillScale + 0.1f);
+            else if (verticalAmount < 0) config.overkillScale = Math.max(0.5f, config.overkillScale - 0.1f);
             TeslaMapsConfig.save();
             return true;
         }
