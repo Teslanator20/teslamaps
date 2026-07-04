@@ -95,7 +95,8 @@ public class SimonSaysSolver {
         lastTickTime = now;
 
         if (autoStartClicks > 0 && --autoStartDelay <= 0) {
-            autoStartDelay = 3;
+            // jittered spacing (100-200ms) so the clicks don't land on a fixed grid
+            autoStartDelay = 2 + java.util.concurrent.ThreadLocalRandom.current().nextInt(3);
             autoStartClicks--;
             clickStartButton();
         }
@@ -265,8 +266,9 @@ public class SimonSaysSolver {
         Minecraft mc = Minecraft.getInstance();
         if (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bhr
                 && bhr.getBlockPos().equals(START_BUTTON)) {
-            autoStartClicks = 3;
-            autoStartDelay = 0;
+            autoStartClicks = 3; // always exactly 3
+            // human-ish reaction delay before the first click (~200-400ms), fresh roll every run
+            autoStartDelay = 4 + java.util.concurrent.ThreadLocalRandom.current().nextInt(5);
         }
     }
 
