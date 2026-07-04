@@ -273,12 +273,9 @@ public class SecretWaypoints {
                 if (foundSecrets.contains(worldPos)) continue;
 
                 AABB box = new AABB(worldPos);
-                // redstone-key skulls are easy to miss: fill them through walls so they pop
-                if (type == WaypointType.REDSTONE && TeslaMapsConfig.get().redstoneKeyFilled) {
-                    ESPRenderer.drawFilledBox(matrices, box, color, cameraPos, true);
-                } else {
-                    ESPRenderer.drawBoxOutline(matrices, box, color, 2.0f, cameraPos, true);
-                }
+                // redstone-key skulls are easy to miss: thicker outline through walls so they pop
+                float width = type == WaypointType.REDSTONE ? 3.0f : 2.0f;
+                ESPRenderer.drawBoxOutline(matrices, box, color, width, cameraPos, true);
 
                 if (TeslaMapsConfig.get().secretWaypointTracers) {
                     Vec3 target = new Vec3(worldPos.getX() + 0.5, worldPos.getY() + 0.5, worldPos.getZ() + 0.5);

@@ -683,7 +683,7 @@ public class TeslaMapsConfig {
     public boolean secretWaypointBats = true;         // Show bat secrets
     public boolean secretWaypointEssence = true;      // Show essence secrets
     public boolean secretWaypointRedstoneKey = true;  // Show redstone key secrets
-    public boolean redstoneKeyFilled = true;          // Fill the redstone key through walls (vs outline) so it pops
+    public boolean kickedCenterWarning = true;        // Big center-screen "wait Xs" warning for 60s after a kick
     public boolean secretWaypointTracers = false;     // Draw tracers to waypoints
     public boolean secretWaypointHideCollected = true; // Hide waypoints when secret is collected
 

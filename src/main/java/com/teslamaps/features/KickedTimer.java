@@ -30,6 +30,7 @@ public class KickedTimer {
     public static void onChatMessage(String message) {
         String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
         if (!clean.contains("A kick occurred in your connection")
+                && !clean.contains("so you were put in the SkyBlock lobby")
                 && !clean.contains("You were kicked while joining that server")) return;
 
         long now = System.currentTimeMillis();
@@ -55,6 +56,18 @@ public class KickedTimer {
         if (mc.player == null) return;
         draw(context, mc, TeslaMapsConfig.get().kickedX, TeslaMapsConfig.get().kickedY,
                 TeslaMapsConfig.get().kickedScale, "§c[Kicked] §f" + elapsed + "s");
+
+        // rejoining too early after a kick tends to kick you again - big center warning for 60s
+        if (TeslaMapsConfig.get().kickedCenterWarning && elapsed < 60) {
+            int sw = mc.getWindow().getGuiScaledWidth(), sh = mc.getWindow().getGuiScaledHeight();
+            var pose = context.pose();
+            pose.pushMatrix();
+            pose.translate(sw / 2f, sh * 0.38f);
+            pose.scale(2f, 2f);
+            String warn = "§c§lWait §f§l" + (60 - elapsed) + "s §c§lbefore rejoining!";
+            context.text(mc.font, warn, -mc.font.width(warn) / 2, 0, 0xFFFFFFFF, true);
+            pose.popMatrix();
+        }
     }
 
     /** Draw at a position/scale. Used by the live HUD and the HUD editor preview. */

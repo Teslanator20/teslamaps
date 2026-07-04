@@ -703,7 +703,6 @@ public class MapConfigScreen extends Screen {
         waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Bats", () -> config.secretWaypointBats, v -> config.secretWaypointBats = v));
         waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Essence", () -> config.secretWaypointEssence, v -> config.secretWaypointEssence = v));
         waypoints.add(new ToggleEntry(contentX, contentWidth, "Show Redstone Key", () -> config.secretWaypointRedstoneKey, v -> config.secretWaypointRedstoneKey = v));
-        waypoints.add(new ToggleEntry(contentX, contentWidth, "Redstone Key Filled (through walls)", () -> config.redstoneKeyFilled, v -> config.redstoneKeyFilled = v));
         waypoints.add(new LabelEntry(contentX, "Display Options"));
         waypoints.add(new ToggleEntry(contentX, contentWidth, "Hide When Collected", () -> config.secretWaypointHideCollected, v -> config.secretWaypointHideCollected = v));
         waypoints.add(new ToggleEntry(contentX, contentWidth, "Tracers to Waypoints", () -> config.secretWaypointTracers, v -> config.secretWaypointTracers = v));
@@ -801,6 +800,7 @@ public class MapConfigScreen extends Screen {
         timers.add(new ToggleEntry(contentX, contentWidth, "Overkill: Hide Zero", () -> config.overkillHideZero, v -> config.overkillHideZero = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Kicked Timer", () -> config.kickedTimer, v -> config.kickedTimer = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Kicked: send /pc kicked", () -> config.kickedPartyMessage, v -> config.kickedPartyMessage = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Kicked: Center Warning (60s)", () -> config.kickedCenterWarning, v -> config.kickedCenterWarning = v));
         categories.put("Timers", timers);
 
         List<SettingsEntry> bloodCamp = new ArrayList<>();
