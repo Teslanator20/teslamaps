@@ -76,6 +76,7 @@ public class StarredMobESP {
 
     private static final List<AABB> witherDoorBoxes = new ArrayList<>();
     private static final List<AABB> bloodDoorBoxes = new ArrayList<>();
+    private static final List<AABB> fairyDoorBoxes = new ArrayList<>();
 
     private static final List<Vec3> pestPositions = new ArrayList<>();
 
@@ -243,6 +244,7 @@ public class StarredMobESP {
         bloodDoorPositions.clear();
         witherDoorBoxes.clear();
         bloodDoorBoxes.clear();
+        fairyDoorBoxes.clear();
         pestPositions.clear();
         dungeonBatPositions.clear();
         invisibleArmorStandBoxes.clear();
@@ -300,6 +302,11 @@ public class StarredMobESP {
 
         if (inDungeon && TeslaMapsConfig.get().doorESP && TeslaMapsConfig.get().doorEspClasses.allowsLocal()) {
             scanDoorPositions();
+        }
+        if (inDungeon && TeslaMapsConfig.get().fairyDoorESP) {
+            scanFairyDoors();
+        } else {
+            fairyDoorBoxes.clear();
         }
 
         if (System.currentTimeMillis() % 5000 < 50 && pestESP) {
@@ -402,7 +409,7 @@ public class StarredMobESP {
                     int roomCenterZ = -200 + gridZ * 32 + 16; // Center of room in Z
 
                     if (Math.abs(doorX - px) <= scanRange && Math.abs(roomCenterZ - pz) <= scanRange) {
-                        checkDoorAt(mc, doorX, roomCenterZ, doorYLevels, true); // X-aligned door
+                        checkDoorAt(mc, doorX, roomCenterZ, doorYLevels, true, gridX, gridZ); // X-aligned door
                     }
                 }
 
@@ -411,7 +418,7 @@ public class StarredMobESP {
                     int doorZ = -200 + (gridZ + 1) * 32 - 2; // Center of door gap
 
                     if (Math.abs(roomCenterX - px) <= scanRange && Math.abs(doorZ - pz) <= scanRange) {
-                        checkDoorAt(mc, roomCenterX, doorZ, doorYLevels, false); // Z-aligned door
+                        checkDoorAt(mc, roomCenterX, doorZ, doorYLevels, false, gridX, gridZ); // Z-aligned door
                     }
                 }
             }
@@ -419,7 +426,52 @@ public class StarredMobESP {
 
     }
 
-    private static void checkDoorAt(Minecraft mc, int x, int z, int[] yLevels, boolean xAligned) {
+    // the fairy-room doors stay closed until the wither door behind them is opened; the map already
+    // shows a door pixel there, so: map says door + neighbor is fairy + gap still solid -> highlight
+    private static void scanFairyDoors() {
+        Minecraft mc = Minecraft.getInstance();
+        fairyDoorBoxes.clear();
+        if (mc.level == null) return;
+
+        for (double[] p : com.teslamaps.scanner.MapScanner.getAllDoorPositions()) {
+            int wx = (int) Math.floor(p[0]), wz = (int) Math.floor(p[1]);
+            if (!isAdjacentToFairy(wx, wz)) continue;
+
+            int solid = 0;
+            for (int off = -1; off <= 1; off++) {
+                if (!mc.level.getBlockState(new BlockPos(wx + off, 70, wz)).isAir()) solid++;
+                if (!mc.level.getBlockState(new BlockPos(wx, 70, wz + off)).isAir()) solid++;
+            }
+            if (solid < 3) continue; // already open (or never closed)
+
+            fairyDoorBoxes.add(new AABB(wx - 1.5, 69, wz - 1.5, wx + 2.5, 73, wz + 2.5));
+        }
+    }
+
+    private static boolean isAdjacentToFairy(int wx, int wz) {
+        int[][] probes = {{wx + 3, wz}, {wx - 3, wz}, {wx, wz + 3}, {wx, wz - 3}};
+        for (int[] pr : probes) {
+            int[] g = ComponentGrid.worldToGrid(pr[0], pr[1]);
+            if (g == null) continue;
+            com.teslamaps.map.DungeonRoom r = DungeonManager.getRoomAt(g[0], g[1]);
+            if (r != null && r.getType() == com.teslamaps.map.RoomType.FAIRY) return true;
+        }
+        return false;
+    }
+
+    // a blood door can only sit next to the blood room - Chambers has the same red-terracotta
+    // column inside the room and used to false-positive
+    private static boolean couldBeBloodDoor(int gridX, int gridZ, boolean xAligned) {
+        com.teslamaps.map.DungeonRoom a = DungeonManager.getRoomAt(gridX, gridZ);
+        com.teslamaps.map.DungeonRoom b = xAligned
+                ? DungeonManager.getRoomAt(gridX + 1, gridZ)
+                : DungeonManager.getRoomAt(gridX, gridZ + 1);
+        if (a == null || b == null) return true; // rooms not scanned yet -> keep old behavior
+        return a.getType() == com.teslamaps.map.RoomType.BLOOD
+                || b.getType() == com.teslamaps.map.RoomType.BLOOD;
+    }
+
+    private static void checkDoorAt(Minecraft mc, int x, int z, int[] yLevels, boolean xAligned, int gridX, int gridZ) {
         for (int dy : yLevels) {
             for (int offset = -2; offset <= 2; offset++) {
                 int checkX = xAligned ? x : x + offset;
@@ -438,6 +490,7 @@ public class StarredMobESP {
                         return; // Found door at this location
                     }
                 } else if (block == Blocks.RED_TERRACOTTA) {
+                    if (!couldBeBloodDoor(gridX, gridZ, xAligned)) return;
                     if (isValidDoor(mc, pos, xAligned)) {
                         AABB doorBox = findDoorBox(mc, pos, false);
                         if (doorBox != null && !containsBox(bloodDoorBoxes, doorBox)) {
@@ -850,6 +903,12 @@ public class StarredMobESP {
                     Vec3 doorCenter = box.getCenter();
                     ESPRenderer.drawTracerFromCamera(matrices, doorCenter, tracerColor, cameraPos);
                 }
+            }
+        }
+
+        if (TeslaMapsConfig.get().fairyDoorESP) {
+            for (AABB box : fairyDoorBoxes) {
+                ESPRenderer.drawESPBox(matrices, box, 0xFFFF69B4, cameraPos); // fairy pink
             }
         }
 

@@ -50,6 +50,7 @@ public class MapScanner {
 
     private static final List<double[]> witherDoorBoxes = new ArrayList<>();  // [minX, minY, minZ, maxX, maxY, maxZ]
     private static final List<double[]> bloodDoorBoxes = new ArrayList<>();
+    private static final List<double[]> allDoorPositions = new ArrayList<>(); // every door pixel on the map: [worldX, worldZ]
 
     private static final Map<String, Integer> roomExplorationScanCount = new HashMap<>();
 
@@ -352,6 +353,7 @@ public class MapScanner {
     private static void scanDoorsFromMap(MapItemSavedData mapState) {
         witherDoorBoxes.clear();
         bloodDoorBoxes.clear();
+        allDoorPositions.clear();
 
         if (!mapParamsDetected || mapCornerX < 0 || mapCornerY < 0) {
             return;
@@ -390,6 +392,10 @@ public class MapScanner {
                 if (shouldDebug && color != 0) {
                     TeslaMaps.LOGGER.debug("[MapScanner] Vertical gap at ({},{}) color={}", mapX, mapY, color);
                 }
+                if (color != 0 && color != COLOR_UNEXPLORED_ALT) {
+                    double[] wp = mapToWorldPosition(mapX, mapY, true);
+                    if (wp != null) allDoorPositions.add(wp);
+                }
                 if (color == COLOR_WITHER_DOOR || color == COLOR_BLOOD_DOOR) {
                     double[] worldPos = mapToWorldPosition(mapX, mapY, true);
                     if (worldPos != null) {
@@ -419,6 +425,10 @@ public class MapScanner {
                 int color = colors[idx] & 0xFF;
                 if (shouldDebug && color != 0) {
                     TeslaMaps.LOGGER.debug("[MapScanner] Horizontal gap at ({},{}) color={}", mapX, mapY, color);
+                }
+                if (color != 0 && color != COLOR_UNEXPLORED_ALT) {
+                    double[] wp = mapToWorldPosition(mapX, mapY, false);
+                    if (wp != null) allDoorPositions.add(wp);
                 }
                 if (color == COLOR_WITHER_DOOR || color == COLOR_BLOOD_DOOR) {
                     double[] worldPos = mapToWorldPosition(mapX, mapY, false);
@@ -481,6 +491,10 @@ public class MapScanner {
 
     public static List<double[]> getBloodDoorBoxes() {
         return bloodDoorBoxes;
+    }
+
+    public static List<double[]> getAllDoorPositions() {
+        return allDoorPositions;
     }
 
     public static List<int[]> getMapPlayerPositions() {

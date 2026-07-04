@@ -276,6 +276,7 @@ public class MapConfigScreen extends Screen {
         esp.add(new ToggleEntry(contentX, contentWidth, "Corpse ESP Depth Check", () -> config.corpseESPDepthCheck, v -> config.corpseESPDepthCheck = v));
         esp.add(new LabelEntry(contentX, "Doors"));
         esp.add(new ToggleEntry(contentX, contentWidth, "Door ESP", () -> config.doorESP, v -> config.doorESP = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Fairy Door ESP", () -> config.fairyDoorESP, v -> config.fairyDoorESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Door Tracers", () -> config.doorTracers, v -> config.doorTracers = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Door Color Based on Key", () -> config.doorColorBasedOnKey, v -> config.doorColorBasedOnKey = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Only Show Next Door", () -> config.onlyShowNextDoor, v -> config.onlyShowNextDoor = v));

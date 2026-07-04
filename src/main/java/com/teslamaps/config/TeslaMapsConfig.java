@@ -103,6 +103,7 @@ public class TeslaMapsConfig {
     public boolean lividTracer = true;          // Draw tracer to correct Livid
     public boolean lividDeathMessage = true;    // Send "/pc Livid Dead!" when Livid dies
     public boolean doorESP = true;              // Highlight wither/blood doors through walls
+    public boolean fairyDoorESP = true;         // Highlight the closed fairy-room doors (open when the wither door behind falls)
     public boolean doorTracers = false;         // Draw tracers to wither/blood doors
     public boolean doorColorBasedOnKey = true;  // Color doors red if key not picked up, green if picked up
     public boolean onlyShowNextDoor = true;     // Only show tracer/ESP for the nearest door
