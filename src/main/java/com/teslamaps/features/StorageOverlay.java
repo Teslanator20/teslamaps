@@ -342,6 +342,7 @@ public class StorageOverlay {
                 ItemStack st = e.getValue();
                 boolean match = !searching || matches(st, search);
                 if (searching && match) ctx.fill(gx, gy, gx + 16, gy + 16, 0xFF2E8B2E); // bright green bg = hit
+                com.teslamaps.features.RarityBackground.draw(ctx, gx, gy, st);
                 ctx.item(st, gx, gy);
                 ctx.itemDecorations(mc.font, st, gx, gy);
                 if (searching && !match) ctx.fill(gx, gy, gx + 16, gy + 16, 0xC0000000); // dim non-hit
@@ -387,6 +388,7 @@ public class StorageOverlay {
                 ctx.fill(p[0] - 1, p[1] - 1, p[0], p[1] + 16, 0xFF8B8B8B);
                 ctx.fill(p[0], p[1], p[0] + 16, p[1] + 16, 0xFF565656);
                 if (!s.getItem().isEmpty()) {
+                    com.teslamaps.features.RarityBackground.draw(ctx, p[0], p[1], s.getItem());
                     ctx.item(s.getItem(), p[0], p[1]);
                     ctx.itemDecorations(mc.font, s.getItem(), p[0], p[1]);
                 }
@@ -473,6 +475,7 @@ public class StorageOverlay {
         }
         for (Map.Entry<Integer, ItemStack> e : items.entrySet()) {
             int gx = px + 4 + (e.getKey() % cols) * cell, gy = py + 4 + (e.getKey() / cols) * cell;
+            com.teslamaps.features.RarityBackground.draw(ctx, gx, gy, e.getValue());
             ctx.item(e.getValue(), gx, gy);
             ctx.itemDecorations(mc.font, e.getValue(), gx, gy);
         }
