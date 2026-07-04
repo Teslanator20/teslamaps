@@ -451,7 +451,7 @@ public class StarredMobESP {
     private static boolean isAdjacentToFairy(int wx, int wz) {
         int[][] probes = {{wx + 3, wz}, {wx - 3, wz}, {wx, wz + 3}, {wx, wz - 3}};
         for (int[] pr : probes) {
-            int[] g = ComponentGrid.worldToGrid(pr[0], pr[1]);
+            int[] g = com.teslamaps.scanner.ComponentGrid.worldToGrid(pr[0], pr[1]);
             if (g == null) continue;
             com.teslamaps.map.DungeonRoom r = DungeonManager.getRoomAt(g[0], g[1]);
             if (r != null && r.getType() == com.teslamaps.map.RoomType.FAIRY) return true;
