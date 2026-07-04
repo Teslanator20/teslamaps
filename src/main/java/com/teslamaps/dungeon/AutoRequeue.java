@@ -31,13 +31,20 @@ public class AutoRequeue {
         msg = msg.replaceAll("(?i)§[0-9A-FK-OR]", ""); // strip legacy color codes
 
         String low = msg.toLowerCase();
-        if (low.contains("left the party") || low.contains("disbanded")
-                || low.contains("removed from") || low.contains("kicked")
-                || low.contains("was removed") || low.contains("has been removed")
-                || low.contains("no longer allowed to access this instance")) {
-            if (requeueAt != 0L) requeueAt = 0L;
-            else blockNextRequeue = true;
-            return;
+
+        if (msg.equals("Starting in 1 second.")) { blockNextRequeue = false; return; }
+
+        // system party events only - player chat always carries ": " and used to false-positive
+        // on words like "kicked", silently eating the next requeue
+        if (!msg.contains(": ")) {
+            if (low.contains("joined the party")) { blockNextRequeue = false; return; }
+            if ((low.contains("the party") && (low.contains("left") || low.contains("removed")
+                    || low.contains("disbanded") || low.contains("kicked")))
+                    || low.contains("no longer allowed to access this instance")) {
+                if (requeueAt != 0L) requeueAt = 0L;
+                else blockNextRequeue = true;
+                return;
+            }
         }
 
         if (c.autoRequeue && msg.contains("> EXTRA STATS <")) {
