@@ -349,6 +349,23 @@ public class StorageOverlay {
                 if (!isLive && vmx >= gx && vmx < gx + 16 && vmy >= gy && vmy < gy + 16 && mouseY < wallBottom) hoverNonLive = st;
             }
         }
+        if (TeslaMapsConfig.get().debugMode) {
+            // magenta frame = the cell the hover/click math resolves under the cursor
+            for (int i = 0; i < vis.size(); i++) {
+                if (!vis.get(i).key.equals(live)) continue;
+                int bx = sx + (i % COLS) * (BOX_W + GAP);
+                int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
+                int gx0 = bx + 4, gy0 = by + topPad();
+                int cx = (int) Math.floor((vmx - gx0) / CELL), cy = (int) Math.floor((vmy - gy0) / CELL);
+                if (cx >= 0 && cx < GRID_COLS && cy >= 0 && cy < 6) {
+                    int gx = gx0 + cx * CELL, gy = gy0 + cy * CELL;
+                    ctx.fill(gx - 1, gy - 1, gx + 17, gy, 0xFFFF00FF);
+                    ctx.fill(gx - 1, gy + 16, gx + 17, gy + 17, 0xFFFF00FF);
+                    ctx.fill(gx - 1, gy, gx, gy + 16, 0xFFFF00FF);
+                    ctx.fill(gx + 16, gy, gx + 17, gy + 16, 0xFFFF00FF);
+                }
+            }
+        }
         pose.popMatrix();
         ctx.disableScissor();
 
@@ -578,6 +595,15 @@ public class StorageOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return false;
         layout(cs.width, cs.height);
+
+        if (TeslaMapsConfig.get().debugMode) {
+            Slot dbg = slotAt(mx, my);
+            com.teslamaps.TeslaMaps.LOGGER.info(
+                    "[StorageDbg] click {},{} btn={} scl={} iscl={} screen={}x{} slot={} item={}",
+                    (int) mx, (int) my, button, scl(), iscl(), cs.width, cs.height,
+                    dbg != null ? dbg.getContainerSlot() : -1,
+                    dbg != null ? strip(dbg.getItem().getHoverName().getString()) : "-");
+        }
 
         int dbX = cs.width - 96;
         if (mx >= dbX && mx <= dbX + 88 && my >= 6 && my <= 20) {
