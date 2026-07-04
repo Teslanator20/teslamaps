@@ -484,9 +484,9 @@ public class TeslaMapsConfig {
     public boolean invincibilityOnlyInBoss = false; // Only show the invincibility block during the boss fight
     public boolean spiritPetReminder = true;        // Remind to swap off the Spirit pet when the boss starts
     public boolean purplePadTimer = true;          // F7 purple-pad countdown after Storm's call
-    public boolean necronDropTimer = true;         // F7 Necron drop countdown ("your journey ends now")
-    public boolean goldorTickTimer = true;         // F7 P3 device/terminal 60-tick pulse (+104t start timer)
-    public boolean stormPadTimer = true;           // F7 Storm pad 20-tick pulse
+    public boolean necronDropTimer = false;        // F7 Necron drop countdown ("your journey ends now")
+    public boolean goldorTickTimer = false;        // F7 P3 device/terminal 60-tick pulse (+104t start timer)
+    public boolean stormPadTimer = false;          // F7 Storm pad 20-tick pulse
     public boolean lightningTimer = false;         // F7 Storm lightning countdown (560t)
     public boolean secretTickTimer = false;        // Secret spawn tick (20-tick cycle, clear only)
     public boolean colorPortal = false;             // Recolor the blood portal by score (red/gold/green)

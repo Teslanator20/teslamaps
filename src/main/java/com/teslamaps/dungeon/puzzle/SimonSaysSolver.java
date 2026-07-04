@@ -74,11 +74,6 @@ public class SimonSaysSolver {
     private static int autoStartDelay = 0;
 
     public static void tick() {
-        if (!TeslaMapsConfig.get().solveSimonSays) {
-            reset();
-            return;
-        }
-
         if (!DungeonManager.isInDungeon()) {
             reset();
             return;
@@ -105,7 +100,13 @@ public class SimonSaysSolver {
             clickStartButton();
         }
 
+        // alerts work without the solver enabled
         tickAlerts(mc);
+
+        if (!TeslaMapsConfig.get().solveSimonSays) {
+            clearSolver();
+            return;
+        }
 
         if (playerPos.distToLowCornerSqr(110, 121, 91) > 400) {
             return;
@@ -321,12 +322,16 @@ public class SimonSaysSolver {
         }
     }
 
-    public static void reset() {
+    private static void clearSolver() {
         clickSequence.clear();
         clickIndex = 0;
         firstPhase = true;
         lastLanternTick = -1;
         startClickCount = 0;
+    }
+
+    public static void reset() {
+        clearSolver();
         monitoring = false;
         thingsDone = 0;
         breakTicks = 0;
