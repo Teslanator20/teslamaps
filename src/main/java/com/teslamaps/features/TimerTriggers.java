@@ -131,7 +131,7 @@ public class TimerTriggers {
 
         if (c.purplePadTimer && purplePadTicks > 0) {
             purplePadTicks--;
-            DungeonTimers.set("purplepad", "§dPurple§f: §d" + String.format("%.2fs", purplePadTicks * 0.05));
+            DungeonTimers.set("purplepad", "§dPurple§f: §d" + fmtTicks(purplePadTicks));
         } else { purplePadTicks = 0; DungeonTimers.clear("purplepad"); }
 
         // only in the boss arena (off the room grid) - showed a useless 0/4 for the whole clear before
@@ -156,7 +156,7 @@ public class TimerTriggers {
 
         if (c.relicTimer && relicTicks > 0) {
             relicTicks--;
-            DungeonTimers.set("relic", "§aRelic§f: §a" + String.format("%.2fs", relicTicks * 0.05));
+            DungeonTimers.set("relic", "§aRelic§f: §a" + fmtTicks(relicTicks));
         } else { relicTicks = 0; DungeonTimers.clear("relic"); }
 
         boolean inDungeon = com.teslamaps.dungeon.DungeonManager.isInDungeon();
@@ -203,7 +203,11 @@ public class TimerTriggers {
     }
 
     private static String fmtTicks(int ticks) {
-        return String.format("%.2fs", ticks * 0.05);
+        return switch (TeslaMapsConfig.get().tickTimerFormat) {
+            case "Ticks" -> ticks + "t";
+            case "Both" -> String.format("%.2fs §7(%dt)", ticks * 0.05, ticks);
+            default -> String.format("%.2fs", ticks * 0.05);
+        };
     }
 
     private static long readCooldown(String itemName, long fallback) {

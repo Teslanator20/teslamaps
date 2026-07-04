@@ -789,6 +789,8 @@ public class MapConfigScreen extends Screen {
         timers.add(new ToggleEntry(contentX, contentWidth, "Storm Pad Timer (F7)", () -> config.stormPadTimer, v -> config.stormPadTimer = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Storm Lightning Timer (F7)", () -> config.lightningTimer, v -> config.lightningTimer = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Secret Tick Timer", () -> config.secretTickTimer, v -> config.secretTickTimer = v));
+        timers.add(new DropdownEntry(contentX, contentWidth, "Timer Format",
+                new String[]{"Seconds", "Ticks", "Both"}, () -> config.tickTimerFormat, v -> config.tickTimerFormat = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Relic Timer (M7)", () -> config.relicTimer, v -> config.relicTimer = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Simon Says Progress (F7)", () -> config.simonSaysProgress, v -> config.simonSaysProgress = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "Leap Counter (F7)", () -> config.leapCounter, v -> config.leapCounter = v));

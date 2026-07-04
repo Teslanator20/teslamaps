@@ -489,6 +489,7 @@ public class TeslaMapsConfig {
     public boolean stormPadTimer = false;          // F7 Storm pad 20-tick pulse
     public boolean lightningTimer = false;         // F7 Storm lightning countdown (560t)
     public boolean secretTickTimer = false;        // Secret spawn tick (20-tick cycle, clear only)
+    public String tickTimerFormat = "Seconds";     // Seconds, Ticks, Both — display format for tick timers
     public boolean colorPortal = false;             // Recolor the blood portal by score (red/gold/green)
     public boolean highlightTeammates = false;      // ESP box around party members (through walls), colored by class
     public boolean relicTimer = true;              // M7 relic spawn countdown after Necron's line
