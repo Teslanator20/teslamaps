@@ -559,8 +559,10 @@ public class StorageOverlay {
             int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
             if (!(vmx >= bx && vmx <= bx + BOX_W && vmy >= by && vmy <= by + boxH())) continue;
             int gx0 = bx + 4, gy0 = by + topPad();
-            int cx = (int) ((vmx - gx0) / CELL), cy = (int) ((vmy - gy0) / CELL);
+            int cx = (int) Math.floor((vmx - gx0) / CELL), cy = (int) Math.floor((vmy - gy0) / CELL);
             if (cx < 0 || cx >= GRID_COLS || cy < 0) return null;
+            // 16px hit box within the 18px cell, matching isOverSlot - gutter clicks are no slot
+            if (vmx - gx0 - cx * CELL >= 16 || vmy - gy0 - cy * CELL >= 16) return null;
             int target = cy * GRID_COLS + cx + 9;
             for (Slot s : menu.slots)
                 if (!(s.container instanceof Inventory) && s.getContainerSlot() == target) return s;
@@ -586,6 +588,7 @@ public class StorageOverlay {
             if (!StorageCache.has(key)) continue;
             int[] p = selIconPos(i);
             if (selMx >= p[0] && selMx < p[0] + SEL_CELL - 2 && selMy >= p[1] && selMy < p[1] + SEL_CELL - 2) {
+                if (!mc.player.containerMenu.getCarried().isEmpty()) return true; // no page swap while holding an item
                 if (mc.getConnection() != null) mc.getConnection().sendCommand((i < 9 ? "ec " : "bp ") + (i < 9 ? i + 1 : i - 8));
                 return true;
             }
@@ -615,6 +618,9 @@ public class StorageOverlay {
             int bx = sx + (i % COLS) * (BOX_W + GAP);
             int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
             if (vmx >= bx && vmx <= bx + BOX_W && vmy >= by && vmy <= by + boxH()) {
+                // clicking the already-open box (gutter/padding miss) or carrying an item: don't
+                // fire page commands - that reloads the container mid-interaction
+                if (b.key.equals(liveKey()) || !mc.player.containerMenu.getCarried().isEmpty()) return true;
                 int liveGi = globalIndex(liveKey()), clickedGi = globalIndex(b.key);
                 if (sameCategory(liveGi, clickedGi) && clickedGi == liveGi + 1) clickPageArrow("Next Page");
                 else if (sameCategory(liveGi, clickedGi) && clickedGi == liveGi - 1) clickPageArrow("Previous Page");
