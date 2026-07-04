@@ -46,6 +46,7 @@ public class LeapOverlay {
     private static final Map<String, Integer> CLASS_PRIORITY = new HashMap<>();
 
     static {
+        // Odin's class palette, same as the map player markers
         CLASS_COLORS.put("Archer", 0xFFFFAA00);     // Gold
         CLASS_COLORS.put("Berserk", 0xFFAA0000);    // Dark Red
         CLASS_COLORS.put("Healer", 0xFFFF55FF);     // Light Purple

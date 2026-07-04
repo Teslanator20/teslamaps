@@ -946,14 +946,15 @@ public class MapRenderer {
         drawHeadMarker(context, pixelX, pixelY, headSize, yaw + 180, uuid, name, isLocal, recordName, clazz);
     }
 
+    // Odin's class palette (DungeonEnums.kt)
     private static int getDungeonClassColor(String dungeonClass) {
         if (dungeonClass == null) return 0xFF5555FF;
         return switch (dungeonClass.toUpperCase()) {
-            case "HEALER" -> 0xFFFF55FF; // Pink
-            case "MAGE" -> 0xFF55FFFF;   // Cyan
-            case "BERSERK" -> 0xFFFF5555; // Red
-            case "ARCHER" -> 0xFF55FF55; // Green
-            case "TANK" -> 0xFFAAAAAA;   // Gray
+            case "HEALER" -> 0xFFFF55FF; // Light Purple
+            case "MAGE" -> 0xFF55FFFF;   // Aqua
+            case "BERSERK" -> 0xFFAA0000; // Dark Red
+            case "ARCHER" -> 0xFFFFAA00; // Gold
+            case "TANK" -> 0xFF00AA00;   // Dark Green
             default -> 0xFF5555FF;        // Blue (default)
         };
     }
