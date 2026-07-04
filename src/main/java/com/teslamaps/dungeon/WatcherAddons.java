@@ -38,8 +38,13 @@ public class WatcherAddons {
     private static boolean graded = false;
     private static Vec3 dialoguePos = null; // watcher position captured at dialogue (to detect its move)
 
+    private static boolean gradeEnabled() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.watcherSpeedGrade && c.watcherGradeClasses.allowsLocal();
+    }
+
     public static void onChatMessage(String raw) {
-        if (!TeslaMapsConfig.get().watcherSpeedGrade && !TeslaMapsConfig.get().watcherHud) return;
+        if (!gradeEnabled() && !TeslaMapsConfig.get().watcherHud) return;
         if (!DungeonManager.isInDungeon()) return;
         String msg = raw.replaceAll("(?i)§[0-9A-FK-OR]", "");
 
@@ -51,10 +56,10 @@ public class WatcherAddons {
             if (startMs == 0L || graded) return;
             dialogueMs = System.currentTimeMillis() - startMs;
             graded = true;
-            if (TeslaMapsConfig.get().watcherSpeedGrade) grade(dialogueMs);
+            if (gradeEnabled()) grade(dialogueMs);
         } else if (msg.equals(PASS)) {
             if (startMs == 0L) return;
-            if (TeslaMapsConfig.get().watcherSpeedGrade) breakdown(System.currentTimeMillis() - startMs, dialogueMs, moveMs);
+            if (gradeEnabled()) breakdown(System.currentTimeMillis() - startMs, dialogueMs, moveMs);
             reset();
         }
     }
@@ -69,7 +74,7 @@ public class WatcherAddons {
         } else if (w.position().distanceTo(dialoguePos) > 1.0) {
             moveMs = System.currentTimeMillis() - startMs;
             Minecraft mc = Minecraft.getInstance();
-            if (mc.player != null && TeslaMapsConfig.get().watcherSpeedGrade) {
+            if (mc.player != null && gradeEnabled()) {
                 mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] Watcher moved at §d§l" + fmt(moveMs) + "§b!"));
             }
         }

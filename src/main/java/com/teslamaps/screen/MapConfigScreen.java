@@ -763,6 +763,7 @@ public class MapConfigScreen extends Screen {
         score.add(new ToggleEntry(contentX, contentWidth, "Show PBs (per split)", () -> config.splitsShowPb, v -> config.splitsShowPb = v));
         score.add(new ToggleEntry(contentX, contentWidth, "Send All Splits on End", () -> config.splitsSendAllOnEnd, v -> config.splitsSendAllOnEnd = v));
         score.add(new ToggleEntry(contentX, contentWidth, "Watcher Speed Grade", () -> config.watcherSpeedGrade, v -> config.watcherSpeedGrade = v));
+        score.add(new ClassFilterEntry(contentX, contentWidth, "Watcher Grade: Only as Class", config.watcherGradeClasses));
         score.add(new ToggleEntry(contentX, contentWidth, "Watcher Stats HUD", () -> config.watcherHud, v -> config.watcherHud = v));
         score.add(new SliderEntry(contentX, contentWidth, "Watcher HUD Scale", 0.5f, 2.0f,
                 () -> config.watcherHudScale, v -> config.watcherHudScale = v, 1));

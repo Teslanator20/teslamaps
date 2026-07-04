@@ -341,6 +341,7 @@ public class TeslaMapsConfig {
     public ClassFilter bloodCampClasses = new ClassFilter(true, false, false, false, false); // mage only
     public ClassFilter cryptReminderClasses = new ClassFilter(false, true, true, true, true); // all but mage
     public ClassFilter keySoundClasses = new ClassFilter(true, true, false, false, false);    // mage + archer
+    public ClassFilter watcherGradeClasses = new ClassFilter(true, false, false, false, false); // mage only
 
     public static class Keybind {
         public int key = -1;          // GLFW key code, -1 = unbound
