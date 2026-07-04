@@ -708,12 +708,24 @@ public class StorageOverlay {
         return x >= sb[0] && x <= sb[0] + sb[2] && y >= sb[1] && y <= sb[1] + sb[3];
     }
 
-    private static boolean matches(ItemStack st, String q) {
-        if (st.getHoverName().getString().replaceAll("(?i)§[0-9A-FK-OR]", "").toLowerCase().contains(q)) return true;
+    // name+lore stripping is way too hot to run per item per frame while searching -> memoize per stack
+    private static final java.util.IdentityHashMap<ItemStack, String> searchTextCache = new java.util.IdentityHashMap<>();
+
+    private static String searchText(ItemStack st) {
+        String cached = searchTextCache.get(st);
+        if (cached != null) return cached;
+        if (searchTextCache.size() > 4096) searchTextCache.clear();
+        StringBuilder sb = new StringBuilder(st.getHoverName().getString().replaceAll("(?i)§[0-9A-FK-OR]", "").toLowerCase());
         ItemLore lore = st.get(DataComponents.LORE);
         if (lore != null) for (Component line : lore.lines())
-            if (line.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").toLowerCase().contains(q)) return true;
-        return false;
+            sb.append('\n').append(line.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").toLowerCase());
+        String s = sb.toString();
+        searchTextCache.put(st, s);
+        return s;
+    }
+
+    private static boolean matches(ItemStack st, String q) {
+        return searchText(st).contains(q);
     }
 
     private static String strip(String s) {
