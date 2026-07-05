@@ -68,6 +68,8 @@ public class BazaarOwnOrders {
                 String l = cmp.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
                 if (!l.startsWith("By: ")) continue;
                 String name = l.substring(4).trim();
+                int sp = name.lastIndexOf(' ');
+                if (sp >= 0) name = name.substring(sp + 1); // drop the "[MVP+]" rank prefix
                 if (name.equalsIgnoreCase(ownName) || name.equalsIgnoreCase("You")) own = true;
                 break;
             }
