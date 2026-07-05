@@ -142,14 +142,22 @@ public class DoorScanner {
         }
 
         if (roofHeight >= 68 && roofHeight <= 82) {
-            Block walkBlock = world.getBlockState(new BlockPos(x, 70, z)).getBlock();
-            String walkBlockName = BuiltInRegistries.BLOCK.getKey(walkBlock).toString();
-            if (walkBlockName.contains("air")) {
-                return DoorType.NORMAL;
+            // a real doorway is walkable: solid floor with 2 blocks of air above it. Air alone
+            // also matches the empty void between unconnected rooms (false "doors" on the map)
+            for (int floorY = 69; floorY >= 68; floorY--) {
+                if (!isAir(world, x, floorY, z)
+                        && isAir(world, x, floorY + 1, z)
+                        && isAir(world, x, floorY + 2, z)) {
+                    return DoorType.NORMAL;
+                }
             }
         }
 
         return DoorType.NONE;
+    }
+
+    private static boolean isAir(Level world, int x, int y, int z) {
+        return world.getBlockState(new BlockPos(x, y, z)).isAir();
     }
 
     private static int getHighestBlock(Level world, int x, int z) {

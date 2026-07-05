@@ -684,5 +684,6 @@ public class MapScanner {
         roomExplorationScanCount.clear();
         witherDoorBoxes.clear();
         bloodDoorBoxes.clear();
+        allDoorPositions.clear();
     }
 }
