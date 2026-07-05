@@ -182,7 +182,14 @@ public class CroesusProfit {
         List<String> lines = new ArrayList<>();
         lines.add("§6§lCroesus Profit");
         if (!PriceManager.isLoaded()) lines.add("§7loading prices…");
-        for (int i = 0; i < results.size(); i++) {
+        // panel sorted by profit (best first), opened chests at the bottom
+        List<Integer> order = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) order.add(i);
+        order.sort((a, b) -> {
+            if (results.get(a).opened != results.get(b).opened) return results.get(a).opened ? 1 : -1;
+            return Double.compare(results.get(b).profit(), results.get(a).profit());
+        });
+        for (int i : order) {
             Parsed r = results.get(i);
             if (r.opened) { if (!cfg.croesusHideOpened) lines.add("§8" + names.get(i) + ": opened"); continue; }
             String col = r.profit() >= 0 ? "§a+" : "§c";
