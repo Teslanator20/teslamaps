@@ -909,6 +909,7 @@ public class MapConfigScreen extends Screen {
         inventory.add(new DropdownEntry(contentX, contentWidth, "Style",
                 new String[]{"Filled", "Outline"}, () -> config.rarityBgStyle, v -> config.rarityBgStyle = v));
         inventory.add(new LabelEntry(contentX, "Wardrobe Keybinds"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Wardrobe Keybinds (1-9)", () -> config.wardrobeKeybinds, v -> config.wardrobeKeybinds = v));
         for (int i = 0; i < 9; i++) {
             final int idx = i;

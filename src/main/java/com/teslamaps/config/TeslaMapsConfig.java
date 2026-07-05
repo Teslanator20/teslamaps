@@ -684,6 +684,7 @@ public class TeslaMapsConfig {
     public boolean secretWaypointEssence = true;      // Show essence secrets
     public boolean secretWaypointRedstoneKey = true;  // Show redstone key secrets
     public boolean kickedCenterWarning = true;        // Big center-screen "wait Xs" warning for 60s after a kick
+    public boolean bazaarOwnOrders = true;            // Highlight your own orders ("By: <you>") green in bazaar order books
     public boolean secretWaypointTracers = false;     // Draw tracers to waypoints
     public boolean secretWaypointHideCollected = true; // Hide waypoints when secret is collected
 

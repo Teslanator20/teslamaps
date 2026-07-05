@@ -50,6 +50,8 @@ public class ContainerOverlays {
             com.teslamaps.features.SlotHighlighter.render(context);
         }
 
+        com.teslamaps.features.BazaarOwnOrders.render(context);
+
         if (com.teslamaps.features.Searchbar.shouldRender()) {
             com.teslamaps.features.Searchbar.render(context);
         }
