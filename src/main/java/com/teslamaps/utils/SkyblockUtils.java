@@ -16,6 +16,7 @@
 package com.teslamaps.utils;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
@@ -52,6 +53,27 @@ public class SkyblockUtils {
         double z = mc.player.getZ();
 
         return x >= -200 && x <= -10 && z >= -200 && z <= -10;
+    }
+
+    private static final Pattern AREA_PATTERN = Pattern.compile("(?:Area|Dungeon):\\s*(.+)");
+    private static String area = "";
+    private static long areaTime = 0;
+
+    // tab list carries "Area: <island>" (or "Dungeon: The Catacombs")
+    public static String getArea() {
+        long now = System.currentTimeMillis();
+        if (now - areaTime < 1000) return area;
+        areaTime = now;
+        if (!isOnHypixel()) return area = "";
+        for (String line : TabListUtils.getTabListLines()) {
+            Matcher m = AREA_PATTERN.matcher(line.replaceAll("§.", "").trim());
+            if (m.find()) return area = m.group(1).trim();
+        }
+        return area = "";
+    }
+
+    public static boolean isInArea(String name) {
+        return getArea().equalsIgnoreCase(name);
     }
 
     public static boolean isInGarden() {

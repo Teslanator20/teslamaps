@@ -98,8 +98,13 @@ public class TeslaMaps implements ClientModInitializer {
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register(
                 (stack, ctx, flag, lines) -> com.teslamaps.features.EnchantColors.onTooltip(stack, lines));
 
+        HudElementRegistry.addFirst(Identifier.fromNamespaceAndPath(MOD_ID, "darkmode_under"), (g, d) -> com.teslamaps.features.DarkMode.renderUnderHud(g));
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "darkmode_over"), (g, d) -> com.teslamaps.features.DarkMode.renderOverHud(g));
+
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "map"), (g, d) -> { if (TeslaMapsConfig.get().section("Map")) MapRenderer.render(g, d); });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "slayer"), (g, d) -> { if (TeslaMapsConfig.get().section("Slayer")) SlayerHUD.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "slayerstats"), (g, d) -> { if (TeslaMapsConfig.get().section("Slayer")) com.teslamaps.slayer.SlayerStats.render(g, d); });
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "combattracker"), (g, d) -> { if (TeslaMapsConfig.get().section("Slayer")) com.teslamaps.features.CombatTracker.render(g, d); });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "livid"), (g, d) -> { if (TeslaMapsConfig.get().section("ESP")) LividSolver.renderHUD(g, d); });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "spiritbear"), (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles")) SpiritBearTimer.render(g, d); });
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "kicked"), (g, d) -> com.teslamaps.features.KickedTimer.render(g, d));
@@ -120,7 +125,9 @@ public class TeslaMaps implements ClientModInitializer {
 
         AutoGFS.init();
 
-        LevelRenderEvents.AFTER_TRANSLUCENT_FEATURES.register(context -> {
+        com.teslamaps.features.WorldScanner.init();
+
+        LevelRenderEvents.AFTER_TRANSLUCENT_TERRAIN.register(context -> {
             Minecraft mc = Minecraft.getInstance();
             if (mc.gameRenderer != null && mc.gameRenderer.getMainCamera() != null) {
                 Vec3 cameraPos = mc.gameRenderer.getMainCamera().position();
@@ -167,6 +174,11 @@ public class TeslaMaps implements ClientModInitializer {
                 if (TeslaMapsConfig.get().section("ESP")) {
                     com.teslamaps.features.SecretClickHighlight.render(context.poseStack(), cameraPos);
                     com.teslamaps.features.ColorPortal.render(context.poseStack(), cameraPos);
+                    com.teslamaps.features.HoppityEggESP.render(context.poseStack(), cameraPos);
+                }
+
+                if (TeslaMapsConfig.get().section("Torrhus Canyon")) {
+                    com.teslamaps.features.CritterESP.render(context.poseStack(), cameraPos);
                 }
 
                 if (TeslaMapsConfig.get().section("Render")) {
@@ -195,6 +207,14 @@ public class TeslaMaps implements ClientModInitializer {
                     com.teslamaps.dungeon.BloodCamp.render(context.poseStack(), cameraPos);
                 }
 
+                if (TeslaMapsConfig.get().section("Slayer")) {
+                    SlayerHUD.renderWorld(context.poseStack(), cameraPos);
+                }
+
+                if (TeslaMapsConfig.get().section("Mining")) {
+                    com.teslamaps.features.WorldScanner.render(context.poseStack(), cameraPos);
+                }
+
                 if (TeslaMapsConfig.get().section("ESP") && !com.teslamaps.features.LegitMode.blocksCheats()
                         && DungeonManager.isInDungeon() && !MimicDetector.isMimicKilled() && com.teslamaps.dungeon.DungeonScore.floorHasMimics()) {
                     renderMimicChestESP(context.poseStack(), cameraPos);
@@ -210,8 +230,11 @@ public class TeslaMaps implements ClientModInitializer {
                 PlayerTracker.tick();
                 MapScanner.tick();
                 if (cfg.section("ESP")) StarredMobESP.tick();
+                if (cfg.section("Torrhus Canyon")) com.teslamaps.features.CritterESP.tick();
                 SecretTracker.tick();
                 if (cfg.section("Slayer")) SlayerHUD.tick();
+                if (cfg.section("Slayer")) com.teslamaps.slayer.SlayerAlerts.tick();
+                if (cfg.section("Slayer")) com.teslamaps.features.CombatTracker.tick();
                 if (cfg.section("Auto")) {
                     if (!com.teslamaps.features.LegitMode.blocksCheats()) {
                         AutoGFS.tick();
@@ -222,6 +245,7 @@ public class TeslaMaps implements ClientModInitializer {
                 if (cfg.section("Timers")) com.teslamaps.features.TimerTriggers.tick();
                 if (cfg.section("Timers")) com.teslamaps.features.SpiritPetReminder.tick();
                 if (cfg.section("ESP")) com.teslamaps.features.ColorPortal.tick();
+                if (cfg.section("ESP")) com.teslamaps.features.HoppityEggESP.tick();
                 if (!com.teslamaps.features.LegitMode.blocksCheats()) SecretClicker.tick();
                 if (cfg.section("Sounds")) BearSpawnWarning.tick();
                 KeybindMessage.tick();
@@ -239,6 +263,7 @@ public class TeslaMaps implements ClientModInitializer {
                     com.teslamaps.features.M4Decoy.tick();
                 }
                 if (cfg.section("Blood Camp")) com.teslamaps.dungeon.BloodCamp.tick();
+                if (cfg.section("Mining")) com.teslamaps.features.WorldScanner.tick();
                 if (cfg.section("Party")) com.teslamaps.dungeon.AutoRequeue.tick();
                 if (cfg.section("ESP") && !com.teslamaps.features.LegitMode.blocksCheats()) LividSolver.tick();
                 MimicDetector.tick();

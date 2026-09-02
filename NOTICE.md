@@ -126,11 +126,39 @@ in the root of this repository.
 
 The dungeon-map player marker rendering style (rotating head with class-colored
 border, upright name below), the Simon Says device alerts/click-blocking, the
-bossbar health display, and the enchantment lore coloring (including the
-`enchants.json` data file) are adapted from NoammAddons.
+bossbar health display, the enchantment lore coloring (including the
+`enchants.json` data file), and the Dark Mode screen-tint overlay
+(`features/DarkMode.java`) are adapted from NoammAddons.
 
 NoammAddons is dedicated to the public domain under **CC0 1.0 Universal**; no
 attribution is required, but it is credited here as a courtesy.
+
+---
+
+## 5. OdinClient / OdinLegacy — https://github.com/odtheking/OdinLegacy
+
+The Crystal Hollows structure scanner (`features/WorldScanner.java`) — chunk
+block-pattern scanning with ESP boxes and chat alerts, including the quarter
+bounds and block sequences — is ported from OdinClient's `WorldScanner.kt`
+(the repo formerly at github.com/odtheking/OdinClient, now odtheking/OdinLegacy).
+
+OdinClient/OdinLegacy is licensed under the **BSD 3-Clause License**,
+Copyright (c) 2023-2025 odtheking. Its license is GPL-v3 compatible; the code is
+redistributed as part of this GPL-v3 work with the copyright notice retained.
+The full BSD 3-Clause text is reproduced in section 1 above and applies equally
+to this notice.
+
+---
+
+## 6. Skyblocker — https://github.com/SkyblockerMod/Skyblocker
+
+The Hoppity chocolate egg detection (`features/HoppityEggESP.java`) — invisible
+armor stand matching and the egg skull texture identifiers — is adapted from
+Skyblocker's `EggFinder.java`.
+
+Skyblocker is licensed under the **GNU Lesser General Public License v3.0**,
+Copyright (c) Skyblocker contributors. LGPL-3.0 code may be conveyed under the
+GPL v3 (LGPL-3.0 §2.2); it is redistributed here as part of this GPL-v3 work.
 
 ---
 

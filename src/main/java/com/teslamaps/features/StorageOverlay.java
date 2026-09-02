@@ -349,21 +349,17 @@ public class StorageOverlay {
                 if (!isLive && vmx >= gx && vmx < gx + 16 && vmy >= gy && vmy < gy + 16 && mouseY < wallBottom) hoverNonLive = st;
             }
         }
-        if (TeslaMapsConfig.get().debugMode) {
-            // magenta frame = the cell the hover/click math resolves under the cursor
+        if (TeslaMapsConfig.get().hoveredSlotOutline && mouseY < wallBottom) {
             for (int i = 0; i < vis.size(); i++) {
-                if (!vis.get(i).key.equals(live)) continue;
                 int bx = sx + (i % COLS) * (BOX_W + GAP);
                 int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
+                if (by + boxH() < HEADER_PX / scl() || by > sh / scl()) continue;
                 int gx0 = bx + 4, gy0 = by + topPad();
                 int cx = (int) Math.floor((vmx - gx0) / CELL), cy = (int) Math.floor((vmy - gy0) / CELL);
-                if (cx >= 0 && cx < GRID_COLS && cy >= 0 && cy < 6) {
-                    int gx = gx0 + cx * CELL, gy = gy0 + cy * CELL;
-                    ctx.fill(gx - 1, gy - 1, gx + 17, gy, 0xFFFF00FF);
-                    ctx.fill(gx - 1, gy + 16, gx + 17, gy + 17, 0xFFFF00FF);
-                    ctx.fill(gx - 1, gy, gx, gy + 16, 0xFFFF00FF);
-                    ctx.fill(gx + 16, gy, gx + 17, gy + 16, 0xFFFF00FF);
-                }
+                int slot = cy * GRID_COLS + cx;
+                if (cx < 0 || cx >= GRID_COLS || cy < 0 || slot >= StorageCache.size(vis.get(i).key)) continue;
+                HoveredSlot.draw(ctx, gx0 + cx * CELL, gy0 + cy * CELL);
+                break;
             }
         }
         pose.popMatrix();
@@ -408,6 +404,11 @@ public class StorageOverlay {
                     com.teslamaps.features.RarityBackground.draw(ctx, p[0], p[1], s.getItem());
                     ctx.item(s.getItem(), p[0], p[1]);
                     ctx.itemDecorations(mc.font, s.getItem(), p[0], p[1]);
+                }
+                float imx = mouseX / iscl(), imy = mouseY / iscl();
+                if (TeslaMapsConfig.get().hoveredSlotOutline
+                        && imx >= p[0] && imx < p[0] + 16 && imy >= p[1] && imy < p[1] + 16) {
+                    HoveredSlot.draw(ctx, p[0], p[1]);
                 }
             }
             pose.popMatrix();
@@ -534,7 +535,8 @@ public class StorageOverlay {
         if (slot.container instanceof Inventory) {
             int[] p = invSlotPos(slot.getContainerSlot());
             float imx = (float) mx / iscl(), imy = (float) my / iscl();
-            return imx >= p[0] && imx < p[0] + 16 && imy >= p[1] && imy < p[1] + 16;
+            // ±1 like vanilla: tiles the 18px pitch with no dead gutter between slots
+            return imx >= p[0] - 1 && imx < p[0] + 17 && imy >= p[1] - 1 && imy < p[1] + 17;
         }
         String live = liveKey();
         if (live == null) return false;
@@ -563,7 +565,7 @@ public class StorageOverlay {
         for (Slot s : menu.slots) {
             if (!(s.container instanceof Inventory)) continue;
             int[] p = invSlotPos(s.getContainerSlot());
-            if (imx >= p[0] && imx < p[0] + 16 && imy >= p[1] && imy < p[1] + 16) return s;
+            if (imx >= p[0] - 1 && imx < p[0] + 17 && imy >= p[1] - 1 && imy < p[1] + 17) return s;
         }
         if (my < HEADER_PX) return null;
 
@@ -638,7 +640,9 @@ public class StorageOverlay {
 
         if (slotAt(mx, my) != null) return false;
 
-        if (my < HEADER_PX) return true;
+        // boxes are scissored to header..wall; clicks outside that band (inventory/selector
+        // area, slot gutters) must never hit the virtual box rects hidden behind it
+        if (my < HEADER_PX || my > wallBottom) return true;
         float vmx = (float) mx / scl(), vmy = (float) my / scl();
         int sx = startX(cs.width), sy = startY();
         List<Box> vis = visible();
@@ -670,10 +674,13 @@ public class StorageOverlay {
             return false;
         }
         if (key == GLFW.GLFW_KEY_BACKSPACE) { if (!search.isEmpty()) search = search.substring(0, search.length() - 1); return true; }
-        if (key == GLFW.GLFW_KEY_SPACE) { search += " "; return true; }
-        // layout-correct character for the physical key (fixes QWERTZ y/z swap, allows umlauts/digits)
-        String name = GLFW.glfwGetKeyName(key, scancode);
-        if (name != null && name.length() == 1) { search += name.toLowerCase(); return true; }
+        return true; // text itself arrives via charTyped
+    }
+
+    public static boolean charTyped(int codepoint) {
+        if (!active() || !searchFocused) return false;
+        if (codepoint < 32 || codepoint == 127) return false;
+        search += Character.toString(Character.toLowerCase(codepoint));
         return true;
     }
 

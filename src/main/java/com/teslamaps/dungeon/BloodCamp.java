@@ -127,9 +127,13 @@ public class BloodCamp {
 
     private static void dbg(String s) {
         if (!TeslaMapsConfig.get().debugMode || inDbg) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (!mc.isSameThread()) {
+            mc.execute(() -> dbg(s));
+            return;
+        }
         inDbg = true;
         try {
-            Minecraft mc = Minecraft.getInstance();
             if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§8[BloodDbg] " + s));
         } finally {
             inDbg = false;

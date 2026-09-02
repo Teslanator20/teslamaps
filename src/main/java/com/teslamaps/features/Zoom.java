@@ -19,9 +19,10 @@ import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 
+// FOV is overridden via CameraZoomMixin while zoomed; the FOV option itself is
+// never touched (OptionInstance validates 30-110 and resets on out-of-range values).
 public class Zoom {
     private static boolean zoomed = false;
-    private static int originalFov = 0;
     private static float currentFov = 30f;   // live FOV, adjusted by scroll while held
 
     public static void tick() {
@@ -32,16 +33,17 @@ public class Zoom {
                 && GLFW.glfwGetKey(mc.getWindow().handle(), cfg.zoomKey) == GLFW.GLFW_PRESS;
 
         if (held && !zoomed) {
-            originalFov = mc.options.fov().get();
             currentFov = clamp(cfg.zoomFov);     // reset to default on every fresh zoom-in
-            mc.options.fov().set(Math.round(currentFov));
-            zoomed = true;
-        } else if (!held && zoomed) {
-            mc.options.fov().set(originalFov);
-            zoomed = false;
-        } else if (held) {
-            mc.options.fov().set(Math.round(currentFov));
         }
+        zoomed = held;
+    }
+
+    public static boolean active() {
+        return zoomed;
+    }
+
+    public static float fov() {
+        return currentFov;
     }
 
     /** Called from MouseScrollMixin. Returns true if the scroll was consumed for zooming. */
@@ -49,8 +51,6 @@ public class Zoom {
         if (!zoomed || vertical == 0) return false;
         currentFov -= (float) vertical * Math.max(1f, currentFov * 0.1f);  // scroll up = zoom in
         currentFov = clamp(currentFov);
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.options != null) mc.options.fov().set(Math.round(currentFov));
         return true;
     }
 

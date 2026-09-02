@@ -28,7 +28,7 @@ public class HudEditScreen extends Screen {
     private final Screen parent;
     private boolean wasMouseDown = false;
 
-    private enum DragTarget { NONE, MAP, SLAYER_HUD, BEAR_SPAWN, SPLITS, BLOOD_CAMP, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, SPIRIT_BEAR, KICKED, OVERKILL }
+    private enum DragTarget { NONE, MAP, SLAYER_HUD, SLAYER_STATS, COMBAT_TRACKER, BEAR_SPAWN, SPLITS, BLOOD_CAMP, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, SPIRIT_BEAR, KICKED, OVERKILL }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -46,7 +46,7 @@ public class HudEditScreen extends Screen {
     private static final int CELL_SIZE = ROOM_SIZE + DOOR_SIZE;
 
     private static final int SLAYER_WIDTH = 140;
-    private static final int SLAYER_HEIGHT = 46;
+    private static final int SLAYER_HEIGHT = 52;
 
     public HudEditScreen(Screen parent) {
         super(Component.literal("Edit HUD Positions"));
@@ -79,6 +79,38 @@ public class HudEditScreen extends Screen {
         int scaledHeight = (int)(SLAYER_HEIGHT * config.slayerHudScale);
         return mouseX >= config.slayerHudX && mouseX <= config.slayerHudX + scaledWidth &&
                mouseY >= config.slayerHudY && mouseY <= config.slayerHudY + scaledHeight;
+    }
+
+    private int slayerStatsWidth() {
+        return (int)(com.teslamaps.slayer.SlayerStats.previewSize(this.font)[0] * TeslaMapsConfig.get().slayerStatsScale);
+    }
+
+    private int slayerStatsHeight() {
+        return (int)(com.teslamaps.slayer.SlayerStats.previewSize(this.font)[1] * TeslaMapsConfig.get().slayerStatsScale);
+    }
+
+    private boolean isMouseOverSlayerStats(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        float s = config.slayerStatsScale;
+        int bx = config.slayerStatsX - (int)(4 * s), by = config.slayerStatsY - (int)(4 * s);
+        return mouseX >= bx && mouseX <= bx + slayerStatsWidth() &&
+               mouseY >= by && mouseY <= by + slayerStatsHeight();
+    }
+
+    private int combatTrackerWidth() {
+        return (int)(com.teslamaps.features.CombatTracker.previewSize(this.font)[0] * TeslaMapsConfig.get().combatTrackerScale);
+    }
+
+    private int combatTrackerHeight() {
+        return (int)(com.teslamaps.features.CombatTracker.previewSize(this.font)[1] * TeslaMapsConfig.get().combatTrackerScale);
+    }
+
+    private boolean isMouseOverCombatTracker(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        float s = config.combatTrackerScale;
+        int bx = config.combatTrackerX - (int)(4 * s), by = config.combatTrackerY - (int)(4 * s);
+        return mouseX >= bx && mouseX <= bx + combatTrackerWidth() &&
+               mouseY >= by && mouseY <= by + combatTrackerHeight();
     }
 
     private int bearSpawnWidth() {
@@ -277,6 +309,14 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.OVERKILL;
                 dragOffsetX = mouseX - config.overkillX;
                 dragOffsetY = mouseY - config.overkillY;
+            } else if (isMouseOverSlayerStats(mouseX, mouseY)) {
+                dragging = DragTarget.SLAYER_STATS;
+                dragOffsetX = mouseX - config.slayerStatsX;
+                dragOffsetY = mouseY - config.slayerStatsY;
+            } else if (isMouseOverCombatTracker(mouseX, mouseY)) {
+                dragging = DragTarget.COMBAT_TRACKER;
+                dragOffsetX = mouseX - config.combatTrackerX;
+                dragOffsetY = mouseY - config.combatTrackerY;
             } else if (isMouseOverSlayerHud(mouseX, mouseY)) {
                 dragging = DragTarget.SLAYER_HUD;
                 dragOffsetX = mouseX - config.slayerHudX;
@@ -350,6 +390,14 @@ public class HudEditScreen extends Screen {
             int w = overkillWidth(), h = overkillHeight();
             config.overkillX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.overkillY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.SLAYER_STATS) {
+            int w = slayerStatsWidth(), h = slayerStatsHeight();
+            config.slayerStatsX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.slayerStatsY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.COMBAT_TRACKER) {
+            int w = combatTrackerWidth(), h = combatTrackerHeight();
+            config.combatTrackerX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.combatTrackerY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         }
 
         context.fill(0, 0, this.width, this.height, 0xC0000000);
@@ -377,6 +425,10 @@ public class HudEditScreen extends Screen {
         drawKickedPreview(context, mouseX, mouseY);
 
         drawOverkillPreview(context, mouseX, mouseY);
+
+        drawSlayerStatsPreview(context, mouseX, mouseY);
+
+        drawCombatTrackerPreview(context, mouseX, mouseY);
 
         String instructions = dragging != DragTarget.NONE ? "Release to place" : "Drag elements to move them | Scroll on map to resize";
         int textWidth = this.font.width(instructions);
@@ -624,6 +676,42 @@ public class HudEditScreen extends Screen {
         context.text(this.font, String.format("Kicked (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
+    private void drawSlayerStatsPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.slayerStatsX, y = config.slayerStatsY;
+        float scale = config.slayerStatsScale;
+        com.teslamaps.slayer.SlayerStats.drawPreview(context, this.minecraft, x, y, scale);
+        int bx = x - (int)(4 * scale), by = y - (int)(4 * scale);
+        int w = slayerStatsWidth(), h = slayerStatsHeight();
+        boolean hovering = isMouseOverSlayerStats(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.SLAYER_STATS) {
+            int borderColor = dragging == DragTarget.SLAYER_STATS ? 0xFF30D158 : 0xFF888888;
+            context.fill(bx - 2, by - 2, bx + w + 2, by, borderColor);
+            context.fill(bx - 2, by + h, bx + w + 2, by + h + 2, borderColor);
+            context.fill(bx - 2, by, bx, by + h, borderColor);
+            context.fill(bx + w, by, bx + w + 2, by + h, borderColor);
+        }
+        context.text(this.font, String.format("Slayer Stats (%.1fx)", scale), bx, by - 12, 0xFFFFFFFF);
+    }
+
+    private void drawCombatTrackerPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.combatTrackerX, y = config.combatTrackerY;
+        float scale = config.combatTrackerScale;
+        com.teslamaps.features.CombatTracker.drawPreview(context, this.minecraft, x, y, scale);
+        int bx = x - (int)(4 * scale), by = y - (int)(4 * scale);
+        int w = combatTrackerWidth(), h = combatTrackerHeight();
+        boolean hovering = isMouseOverCombatTracker(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.COMBAT_TRACKER) {
+            int borderColor = dragging == DragTarget.COMBAT_TRACKER ? 0xFF30D158 : 0xFF888888;
+            context.fill(bx - 2, by - 2, bx + w + 2, by, borderColor);
+            context.fill(bx - 2, by + h, bx + w + 2, by + h + 2, borderColor);
+            context.fill(bx - 2, by, bx, by + h, borderColor);
+            context.fill(bx + w, by, bx + w + 2, by + h, borderColor);
+        }
+        context.text(this.font, String.format("Combat Tracker (%.1fx)", scale), bx, by - 12, 0xFFFFFFFF);
+    }
+
     private void drawSplitsPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int x = config.splitsX;
@@ -778,6 +866,19 @@ public class HudEditScreen extends Screen {
         if (isMouseOverOverkill((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.overkillScale = Math.min(5.0f, config.overkillScale + 0.1f);
             else if (verticalAmount < 0) config.overkillScale = Math.max(0.5f, config.overkillScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverCombatTracker((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.combatTrackerScale = Math.min(3.0f, config.combatTrackerScale + 0.1f);
+            else if (verticalAmount < 0) config.combatTrackerScale = Math.max(0.5f, config.combatTrackerScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+        if (isMouseOverSlayerStats((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.slayerStatsScale = Math.min(3.0f, config.slayerStatsScale + 0.1f);
+            else if (verticalAmount < 0) config.slayerStatsScale = Math.max(0.5f, config.slayerStatsScale - 0.1f);
             TeslaMapsConfig.save();
             return true;
         }

@@ -28,5 +28,6 @@ public abstract class SlotLockRenderMixin {
     @Inject(method = "extractContents", at = @At("TAIL"))
     private void teslamaps$slotLockRender(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         SlotLock.render(ctx);
+        com.teslamaps.features.HoveredSlot.render(ctx, mouseX, mouseY);
     }
 }

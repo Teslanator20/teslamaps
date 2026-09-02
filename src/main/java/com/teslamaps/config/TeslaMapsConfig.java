@@ -118,6 +118,8 @@ public class TeslaMapsConfig {
 
     public boolean pestESP = false;             // Highlight pests in garden (invisible silverfish)
     public boolean pestTracers = false;         // Draw tracers to pests
+    public boolean hoppityEggESP = false;       // Box + label on Hoppity chocolate eggs
+    public boolean hoppityEggTracers = false;   // Draw tracers to Hoppity eggs
     public boolean droppedItemESP = true;       // Highlight all dropped items
     public boolean secretItemReadiness = true;   // Color dropped items in dungeons by pickup readiness
     public int secretItemPickupTicks = 50;       // Ticks after a drop spawns before it's pickable (tune in-game)
@@ -162,6 +164,10 @@ public class TeslaMapsConfig {
     public int sprintingX = 10;                  // Sprinting overlay position X (draggable in HUD edit)
     public int sprintingY = 40;                  // Sprinting overlay position Y
     public float sprintingScale = 1.0f;          // Sprinting overlay text scale (0.5 - 10.0)
+
+    public boolean darkMode = false;             // Darken the whole screen with a black tint
+    public int darkModeOpacity = 25;             // Dark tint strength (1 - 100)
+    public boolean darkModeTintHud = false;      // Also tint HUD elements (else HUD stays bright)
 
     public boolean splitsEnabled = true;         // Dungeon run splits HUD + chat output
     public boolean splitsShowPb = true;          // Show personal-best time per split (and color vs PB)
@@ -234,6 +240,16 @@ public class TeslaMapsConfig {
 
     public int waypointRemoveKey = -1;            // Keybind: remove nearest waypoint in current room
     public int waypointClearKey = -1;             // Keybind: clear all waypoints in current room
+
+    // Crystal Hollows scanner (Golden Dragon nest etc.)
+    public boolean chScanner = false;             // Master toggle: scan CH chunks for structures
+    public boolean chScanDragon = true;           // Golden Dragon nest
+    public boolean chScanCrystals = true;         // King, Queen, Divan, City, Temple, Bal
+    public boolean chScanMobSpots = true;         // Corleone, Key Guardians, Xalx, Pete, Odawa
+    public boolean chScanGrottos = true;          // Fairy Grottos
+    public boolean chScanWorm = false;            // Worm fishing spots
+    public boolean chScanTracers = false;         // Tracer lines to found structures
+    public boolean chScanChat = true;             // Chat alert with coords when found
 
     public boolean etherwarp = true;              // Show etherwarp guess box
     public boolean etherwarpShowFail = true;      // Show the box even when the guess failed
@@ -424,6 +440,17 @@ public class TeslaMapsConfig {
     public boolean slayerOnlyOwnBoss = false;  // Only show HUD for your own boss
     public boolean slayerBossESP = false;      // Glow on boss (color based on phase)
     public boolean slayerMinibossESP = false;  // Glow on minibosses (Burningsoul=red, Kindleheart=white)
+    public boolean slayerMinibossTracer = false; // Tracer lines to slayer minibosses
+    public boolean slayerAlerts = true;        // Title alerts: miniboss spawn, cocoon, boss spawned
+    public boolean slayerStats = true;         // Stats HUD: bosses/hour + combat XP/hour (action bar)
+    public int slayerStatsX = 10;              // X position of slayer stats HUD
+    public int slayerStatsY = 120;             // Y position of slayer stats HUD
+    public float slayerStatsScale = 1.0f;      // Scale of slayer stats HUD
+
+    public boolean combatTracker = false;      // Standalone kills/hour + combat XP/hour HUD (lore kill counter + action bar)
+    public int combatTrackerX = 10;            // X position of combat tracker HUD
+    public int combatTrackerY = 170;           // Y position of combat tracker HUD
+    public float combatTrackerScale = 1.0f;    // Scale of combat tracker HUD
 
     public boolean autoScan = true;
     public int scanTickInterval = 5;
@@ -538,6 +565,36 @@ public class TeslaMapsConfig {
     public boolean customStorageOverlay = false;    // replace the vanilla "Storage" menu with a custom all-in-one view
     public boolean storageShowNames = false;         // show page/backpack name headers in the custom storage view
     public float storageOverlayScale = 1.0f;        // overall size multiplier for the custom storage overlay (0.5 - 1.5)
+    public boolean critterESP = false;              // Torrhus Canyon critter ESP (master)
+    public boolean critterFilled = true;            // also fill the critter boxes
+    public boolean critterBee = true;               // Beeheemoth & Honeybuzz (Bee)
+    public boolean critterBlueJay = true;           // Blue Jay (Parrot)
+    public boolean critterBunbun = true;            // Bunbun (Rabbit)
+    public boolean critterDrybark = true;           // Drybark (Creaking)
+    public boolean critterFirefox = true;           // Firefox (Fox)
+    public boolean critterGrizzly = true;           // Grizzly Bear (by name)
+    public boolean critterGroundhog = true;         // Groundhog (Hoglin)
+    public boolean critterMountainGoat = true;      // Mountain Goat (Goat)
+    public boolean critterSepialot = true;          // Sepialot (Axolotl)
+    public boolean critterDustybit = true;          // Dustybit (Frog)
+    public boolean critterPuck = true;              // Puck (Vex)
+    public String colorCritterBee = "#FFFF55";
+    public String colorCritterBlueJay = "#5599FF";
+    public String colorCritterBunbun = "#8B5A2B";
+    public String colorCritterDrybark = "#A08050";
+    public String colorCritterFirefox = "#FF7F11";
+    public String colorCritterGrizzly = "#8A7A6A";
+    public String colorCritterGroundhog = "#CC5500";
+    public String colorCritterMountainGoat = "#D8D8D8";
+    public String colorCritterSepialot = "#B8860B";
+    public String colorCritterDustybit = "#55DD55";
+    public String colorCritterPuck = "#141414";
+    public boolean critterSpotESP = true;           // floor spots (item_display clusters holding string)
+    public String colorCritterSpot = "#55FFFF";
+    public boolean hoveredSlotOutline = true;       // outline the slot under the cursor in every container
+    public String colorHoveredSlot = "#FF00FF";     // hovered slot outline color
+    public int hoveredSlotThickness = 1;            // outline thickness in pixels
+    public float hoveredSlotFill = 0f;              // extra fill over the hovered slot (0 = off)
     public boolean slotLock = true;                // lock inventory slots from being moved/dropped/sold
     public int slotLockKey = 76;                    // keybind (over a slot) to toggle its lock
     public String colorSlotLock = "#FF5555";        // locked slot outline color

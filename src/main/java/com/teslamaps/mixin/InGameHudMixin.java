@@ -33,6 +33,10 @@ public class InGameHudMixin {
     @Inject(method = "setOverlayMessage", at = @At("HEAD"))
     private void onSetOverlayMessage(Component message, boolean tinted, CallbackInfo ci) {
         SecretTracker.onActionBarMessage(message);
+        if (com.teslamaps.config.TeslaMapsConfig.get().section("Slayer")) {
+            com.teslamaps.slayer.SlayerStats.onActionBar(message.getString());
+            com.teslamaps.features.CombatTracker.onActionBar(message.getString());
+        }
     }
 
     @Inject(method = "extractSlot", at = @At("HEAD"))

@@ -68,14 +68,15 @@ public class Searchbar {
             focused = false;
             return true;
         }
-        if (key == GLFW.GLFW_KEY_SPACE) { query += " "; return true; }
-        // use the layout-correct character for the physical key (fixes QWERTZ y/z swap, allows umlauts/digits)
-        String name = GLFW.glfwGetKeyName(key, scancode);
-        if (name != null && name.length() == 1) {
-            query += name.toLowerCase();
-            return true;
-        }
-        return false;
+        // swallow the rest so typing letters cannot close the container; text arrives via charTyped
+        return GLFW.glfwGetKeyName(key, scancode) != null;
+    }
+
+    public static boolean charTyped(int codepoint) {
+        if (!enabled() || !focused) return false;
+        if (codepoint < 32 || codepoint == 127) return false;
+        query += Character.toString(Character.toLowerCase(codepoint));
+        return true;
     }
 
     public static boolean shouldRender() {

@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 public class TeslaRenderPipelines {
 
     private static final DepthStencilState NO_DEPTH =
-            new DepthStencilState(CompareOp.ALWAYS_PASS, true);
+            new DepthStencilState(CompareOp.ALWAYS_PASS, false);
 
     public static final RenderPipeline LINES_ESP = RenderPipelines.register(
             RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)

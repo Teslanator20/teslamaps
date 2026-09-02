@@ -228,7 +228,10 @@ public class StarredMobESP {
             return;
         }
 
-        if (inDungeon && !TeslaMapsConfig.get().starredMobESP) {
+        if (inDungeon && !TeslaMapsConfig.get().starredMobESP
+                && !hasCustomMobs && !droppedItemESP
+                && !TeslaMapsConfig.get().witherKeyESP && !TeslaMapsConfig.get().doorESP
+                && !TeslaMapsConfig.get().lividFinder && !TeslaMapsConfig.get().dungeonBatESP) {
             highlightedEntities.clear();
             glowingEntities.clear();
             return;
@@ -606,7 +609,6 @@ public class StarredMobESP {
             return true;
         }
 
-        if (entity.isInvisible()) return false;
         if (entity instanceof ArmorStand) return false;
 
         if (matchesCustomESP(entityName)) {
@@ -620,11 +622,13 @@ public class StarredMobESP {
             }
         }
 
+        if (entity.isInvisible()) return false;
+
         if (matchesCustomESPArmorStand(entity)) {
             return true;
         }
 
-        if (!inDungeon) {
+        if (!inDungeon || !TeslaMapsConfig.get().starredMobESP) {
             return false;
         }
 
@@ -805,7 +809,8 @@ public class StarredMobESP {
             return TeslaMapsConfig.parseColor(config.colorESPBat);
         }
 
-        if (entity.isInvisible() && (name.equals("Silverfish") || name.equals("Bat"))) {
+        if (entity.isInvisible() && (name.equals("Silverfish") || name.equals("Bat"))
+                && config.pestESP && SkyblockUtils.isInGarden()) {
             return PEST_COLOR;
         }
 
@@ -846,7 +851,54 @@ public class StarredMobESP {
             }
         }
 
+        Minecraft mc = Minecraft.getInstance();
+
+        if (TeslaMapsConfig.get().filledESP && mc.level != null) {
+            for (Map.Entry<Entity, Integer> entry : glowingEntities.entrySet()) {
+                Entity entity = entry.getKey();
+                if (!entity.isAlive()) continue;
+                ESPRenderer.drawFilledBox(matrices, entity.getBoundingBox(), entry.getValue(), cameraPos,
+                        (MultiBufferSource.BufferSource) provider);
+            }
+
+            for (Entity entity : mc.level.entitiesForRendering()) {
+                if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
+                    ESPRenderer.drawFilledBox(matrices, entity.getBoundingBox(), SlayerHUD.getGlowColor(entity),
+                            cameraPos, (MultiBufferSource.BufferSource) provider);
+                }
+            }
+        }
+
+        if (TeslaMapsConfig.get().boxESP && mc.level != null) {
+            for (Map.Entry<Entity, Integer> entry : glowingEntities.entrySet()) {
+                Entity entity = entry.getKey();
+                if (!entity.isAlive()) continue;
+                ESPRenderer.drawBoxOutline(matrices, entity.getBoundingBox(),
+                        entry.getValue() | 0xFF000000, 2.0f, cameraPos, true);
+            }
+
+            for (Entity entity : mc.level.entitiesForRendering()) {
+                if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
+                    ESPRenderer.drawBoxOutline(matrices, entity.getBoundingBox(),
+                            SlayerHUD.getGlowColor(entity) | 0xFF000000, 2.0f, cameraPos, true);
+                }
+            }
+        }
+
         if (!inDungeon) return;
+
+        if (TeslaMapsConfig.get().starredTracerWhenFew) {
+            List<EntityHighlight> starred = new ArrayList<>();
+            for (EntityHighlight eh : highlightedEntities) {
+                if (eh.entity().isAlive() && isStarred(eh.entity())) starred.add(eh);
+            }
+            if (!starred.isEmpty() && starred.size() <= TeslaMapsConfig.get().starredTracerThreshold) {
+                for (EntityHighlight eh : starred) {
+                    ESPRenderer.drawTracerFromCamera(matrices, eh.entity().getBoundingBox().getCenter(),
+                            eh.color() | 0xFF000000, cameraPos);
+                }
+            }
+        }
 
         if (TeslaMapsConfig.get().dungeonBatESP && TeslaMapsConfig.get().dungeonBatTracers) {
             for (Vec3 batPos : dungeonBatPositions) {
@@ -932,62 +984,6 @@ public class StarredMobESP {
                 if (drawKeyTracers) {
                     Vec3 keyCenter = keyBox.getCenter();
                     ESPRenderer.drawTracerFromCamera(matrices, keyCenter, TRACER_BLOOD_KEY, cameraPos);
-                }
-            }
-        }
-
-        if (TeslaMapsConfig.get().filledESP) {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.level == null) return;
-
-            for (Map.Entry<Entity, Integer> entry : glowingEntities.entrySet()) {
-                Entity entity = entry.getKey();
-                if (!entity.isAlive()) continue;
-
-                int color = entry.getValue();
-                AABB entityBox = entity.getBoundingBox();
-                ESPRenderer.drawFilledBox(matrices, entityBox, color, cameraPos,
-                        (MultiBufferSource.BufferSource) provider);
-            }
-
-            for (Entity entity : mc.level.entitiesForRendering()) {
-                if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
-                    int color = SlayerHUD.getGlowColor(entity);
-                    AABB entityBox = entity.getBoundingBox();
-                    ESPRenderer.drawFilledBox(matrices, entityBox, color, cameraPos,
-                            (MultiBufferSource.BufferSource) provider);
-                }
-            }
-        }
-
-        if (TeslaMapsConfig.get().boxESP) {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.level != null) {
-                for (Map.Entry<Entity, Integer> entry : glowingEntities.entrySet()) {
-                    Entity entity = entry.getKey();
-                    if (!entity.isAlive()) continue;
-                    ESPRenderer.drawBoxOutline(matrices, entity.getBoundingBox(),
-                            entry.getValue() | 0xFF000000, 2.0f, cameraPos, true);
-                }
-
-                for (Entity entity : mc.level.entitiesForRendering()) {
-                    if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
-                        ESPRenderer.drawBoxOutline(matrices, entity.getBoundingBox(),
-                                SlayerHUD.getGlowColor(entity) | 0xFF000000, 2.0f, cameraPos, true);
-                    }
-                }
-            }
-        }
-
-        if (TeslaMapsConfig.get().starredTracerWhenFew) {
-            List<EntityHighlight> starred = new ArrayList<>();
-            for (EntityHighlight eh : highlightedEntities) {
-                if (eh.entity().isAlive() && isStarred(eh.entity())) starred.add(eh);
-            }
-            if (!starred.isEmpty() && starred.size() <= TeslaMapsConfig.get().starredTracerThreshold) {
-                for (EntityHighlight eh : starred) {
-                    ESPRenderer.drawTracerFromCamera(matrices, eh.entity().getBoundingBox().getCenter(),
-                            eh.color() | 0xFF000000, cameraPos);
                 }
             }
         }

@@ -291,6 +291,8 @@ public class MapConfigScreen extends Screen {
         esp.add(new ToggleEntry(contentX, contentWidth, "Invisible Armor Stand ESP", () -> config.invisibleArmorStandESP, v -> config.invisibleArmorStandESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Pest ESP (Garden)", () -> config.pestESP, v -> config.pestESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Pest Tracers", () -> config.pestTracers, v -> config.pestTracers = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Hoppity Egg ESP", () -> config.hoppityEggESP, v -> config.hoppityEggESP = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Hoppity Egg Tracers", () -> config.hoppityEggTracers, v -> config.hoppityEggTracers = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Dropped Item ESP", () -> config.droppedItemESP, v -> config.droppedItemESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Item Pickup Readiness", () -> config.secretItemReadiness, v -> config.secretItemReadiness = v));
         esp.add(new SliderEntry(contentX, contentWidth, "Item Pickup Delay (ticks)", 0f, 200f,
@@ -362,6 +364,11 @@ public class MapConfigScreen extends Screen {
         render.add(new SliderEntry(contentX, contentWidth, "Zoom FOV", 1f, 110f,
                 () -> (float) config.zoomFov, v -> config.zoomFov = v.intValue()));
         render.add(new ToggleEntry(contentX, contentWidth, "Sprinting Overlay", () -> config.sprintingOverlay, v -> config.sprintingOverlay = v));
+        render.add(new LabelEntry(contentX, "Dark Mode"));
+        render.add(new ToggleEntry(contentX, contentWidth, "Dark Mode", () -> config.darkMode, v -> config.darkMode = v));
+        render.add(new SliderEntry(contentX, contentWidth, "Opacity", 1f, 100f,
+                () -> (float) config.darkModeOpacity, v -> config.darkModeOpacity = v.intValue()));
+        render.add(new ToggleEntry(contentX, contentWidth, "Tint HUD", () -> config.darkModeTintHud, v -> config.darkModeTintHud = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Disable World Loading Screen", () -> config.disableWorldLoadingScreen, v -> config.disableWorldLoadingScreen = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Texture Reload Screen", () -> config.noReloadScreen, v -> config.noReloadScreen = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Block Overlay", () -> config.blockOverlay, v -> config.blockOverlay = v));
@@ -430,6 +437,11 @@ public class MapConfigScreen extends Screen {
         slayer.add(new ToggleEntry(contentX, contentWidth, "Only Own Boss", () -> config.slayerOnlyOwnBoss, v -> config.slayerOnlyOwnBoss = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Boss ESP", () -> config.slayerBossESP, v -> config.slayerBossESP = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Miniboss ESP", () -> config.slayerMinibossESP, v -> config.slayerMinibossESP = v));
+        slayer.add(new ToggleEntry(contentX, contentWidth, "Miniboss Tracers", () -> config.slayerMinibossTracer, v -> config.slayerMinibossTracer = v));
+        slayer.add(new ToggleEntry(contentX, contentWidth, "Alerts (Miniboss/Cocoon/Boss)", () -> config.slayerAlerts, v -> config.slayerAlerts = v));
+        slayer.add(new ToggleEntry(contentX, contentWidth, "Stats HUD (Bosses/h, Combat XP/h)", () -> config.slayerStats, v -> config.slayerStats = v));
+        slayer.add(new ToggleEntry(contentX, contentWidth, "Combat Tracker (Kills/h, Combat XP/h)", () -> config.combatTracker, v -> config.combatTracker = v));
+        slayer.add(new LabelEntry(contentX, "Move/resize the HUDs in /tmap gui, reset with /tmap reset"));
         categories.put("Slayer", slayer);
 
         List<SettingsEntry> solvers = new ArrayList<>();
@@ -896,6 +908,13 @@ public class MapConfigScreen extends Screen {
         inventory.add(new ToggleEntry(contentX, contentWidth, "  Show Page Names", () -> config.storageShowNames, v -> config.storageShowNames = v));
         inventory.add(new SliderEntry(contentX, contentWidth, "  Overlay Scale", 0.5f, 1.5f,
                 () -> config.storageOverlayScale, v -> config.storageOverlayScale = v));
+        inventory.add(new LabelEntry(contentX, "Hovered Slot"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Hovered Slot Outline", () -> config.hoveredSlotOutline, v -> config.hoveredSlotOutline = v));
+        inventory.add(new ColorEntry(contentX, contentWidth, "  Outline Color", () -> config.colorHoveredSlot, v -> config.colorHoveredSlot = v));
+        inventory.add(new SliderEntry(contentX, contentWidth, "  Thickness", 1f, 3f,
+                () -> (float) config.hoveredSlotThickness, v -> config.hoveredSlotThickness = Math.round(v)));
+        inventory.add(new SliderEntry(contentX, contentWidth, "  Fill Opacity", 0f, 0.5f,
+                () -> config.hoveredSlotFill, v -> config.hoveredSlotFill = v));
         inventory.add(new LabelEntry(contentX, "Slot Lock"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Slot Lock", () -> config.slotLock, v -> config.slotLock = v));
         inventory.add(new KeybindEntry(contentX, contentWidth, "Slot Lock Key (over slot)", () -> config.slotLockKey, v -> config.slotLockKey = v));
@@ -1019,12 +1038,59 @@ public class MapConfigScreen extends Screen {
                 () -> (float) config.hotkeyChatDelay, v -> config.hotkeyChatDelay = Math.round(v)));
         categories.put("Chat", chatFilter);
 
+        List<SettingsEntry> mining = new ArrayList<>();
+        mining.add(new ToggleEntry(contentX, contentWidth, "Crystal Hollows Scanner", () -> config.chScanner, v -> config.chScanner = v));
+        mining.add(new LabelEntry(contentX, "Scans loaded chunks, boxes + chat alert"));
+        mining.add(new LabelEntry(contentX, "Structures"));
+        mining.add(new ToggleEntry(contentX, contentWidth, "Golden Dragon Nest", () -> config.chScanDragon, v -> config.chScanDragon = v));
+        mining.add(new ToggleEntry(contentX, contentWidth, "Crystals (King/Queen/Temple/City/Divan/Bal)", () -> config.chScanCrystals, v -> config.chScanCrystals = v));
+        mining.add(new ToggleEntry(contentX, contentWidth, "Mob Spots (Corleone/Keys/Xalx/Pete/Odawa)", () -> config.chScanMobSpots, v -> config.chScanMobSpots = v));
+        mining.add(new ToggleEntry(contentX, contentWidth, "Fairy Grottos", () -> config.chScanGrottos, v -> config.chScanGrottos = v));
+        mining.add(new ToggleEntry(contentX, contentWidth, "Worm Fishing Spots", () -> config.chScanWorm, v -> config.chScanWorm = v));
+        mining.add(new LabelEntry(contentX, "Display"));
+        mining.add(new ToggleEntry(contentX, contentWidth, "Tracers", () -> config.chScanTracers, v -> config.chScanTracers = v));
+        mining.add(new ToggleEntry(contentX, contentWidth, "Chat Alert", () -> config.chScanChat, v -> config.chScanChat = v));
+        categories.put("Mining", mining);
+
+        List<SettingsEntry> torrhus = new ArrayList<>();
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Critter ESP", () -> config.critterESP, v -> config.critterESP = v));
+        torrhus.add(new LabelEntry(contentX, "Only active in Area: " + com.teslamaps.features.CritterESP.AREA));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Filled Boxes", () -> config.critterFilled, v -> config.critterFilled = v));
+        torrhus.add(new LabelEntry(contentX, "Floor Spots"));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Floor Spot ESP", () -> config.critterSpotESP, v -> config.critterSpotESP = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterSpot, v -> config.colorCritterSpot = v));
+        torrhus.add(new LabelEntry(contentX, "Critters"));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Beeheemoth & Honeybuzz ESP", () -> config.critterBee, v -> config.critterBee = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterBee, v -> config.colorCritterBee = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Blue Jay ESP", () -> config.critterBlueJay, v -> config.critterBlueJay = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterBlueJay, v -> config.colorCritterBlueJay = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Bunbun ESP", () -> config.critterBunbun, v -> config.critterBunbun = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterBunbun, v -> config.colorCritterBunbun = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Drybark ESP", () -> config.critterDrybark, v -> config.critterDrybark = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterDrybark, v -> config.colorCritterDrybark = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Firefox ESP", () -> config.critterFirefox, v -> config.critterFirefox = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterFirefox, v -> config.colorCritterFirefox = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Grizzly Bear ESP", () -> config.critterGrizzly, v -> config.critterGrizzly = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterGrizzly, v -> config.colorCritterGrizzly = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Groundhog ESP", () -> config.critterGroundhog, v -> config.critterGroundhog = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterGroundhog, v -> config.colorCritterGroundhog = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Mountain Goat ESP", () -> config.critterMountainGoat, v -> config.critterMountainGoat = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterMountainGoat, v -> config.colorCritterMountainGoat = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Sepialot ESP", () -> config.critterSepialot, v -> config.critterSepialot = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterSepialot, v -> config.colorCritterSepialot = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Dustybit ESP", () -> config.critterDustybit, v -> config.critterDustybit = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterDustybit, v -> config.colorCritterDustybit = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Puck ESP", () -> config.critterPuck, v -> config.critterPuck = v));
+        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterPuck, v -> config.colorCritterPuck = v));
+        categories.put("Torrhus Canyon", torrhus);
+
         sections.clear();
         sections.put("Dungeon", List.of("Legit Mode", "Map", "ESP", "Puzzles", "Dragons", "M4", "Blood Camp", "Waypoints", "Leap", "Timers", "Score & Splits"));
-        sections.put("Visual", List.of("Render", "Hide", "Colors"));
+        sections.put("Visual", List.of("Render", "Hide", "Colors", "Torrhus Canyon"));
         sections.put("Items", List.of("Croesus", "Inventory", "Tooltips & Value"));
         sections.put("Comms", List.of("Chat", "Sounds"));
         sections.put("Party / Auto", List.of("Party", "Auto", "Slayer"));
+        sections.put("Mining", List.of("Mining"));
 
         // Mark cheat toggles so they grey out while Legit Mode blocks them.
         java.util.Set<String> cheatLabels = java.util.Set.of(
@@ -1036,7 +1102,7 @@ public class MapConfigScreen extends Screen {
                 "Livid Finder", "Livid Tracer", "Mimic Chest ESP", "Mimic Chest Tracers",
                 "Highlight Teammates", "Invisible Armor Stand ESP", "Pest ESP (Garden)", "Pest Tracers",
                 "Dropped Item ESP", "Item Pickup Readiness",
-                "Miniboss ESP", "Enable Auto GFS", "Auto Wish (Healer Ult)");
+                "Miniboss ESP", "Enable Auto GFS", "Auto Wish (Healer Ult)", "Critter ESP");
         for (List<SettingsEntry> entries : categories.values()) {
             for (SettingsEntry e : entries) {
                 if (e instanceof ToggleEntry te && cheatLabels.contains(te.getLabel())) te.legit();

@@ -333,6 +333,14 @@ public class TMapCommand {
                                     TeslaMapsConfig.save();
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("reset")
+                        .executes(context -> {
+                            com.teslamaps.slayer.SlayerStats.reset();
+                            com.teslamaps.slayer.SlayerHUD.resetSession();
+                            com.teslamaps.features.CombatTracker.reset();
+                            context.getSource().sendFeedback(Component.literal("Slayer/combat trackers reset"));
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("scan")
                         .executes(context -> {
                             context.getSource().sendFeedback(Component.literal("Forcing dungeon scan..."));
@@ -341,6 +349,11 @@ public class TMapCommand {
                             context.getSource().sendFeedback(Component.literal("Scan complete. Found " + roomCount + " rooms."));
                             return 1;
                         }))
+                .then(ClientCommands.literal("entities")
+                        .executes(context -> dumpEntities(context.getSource(), 8))
+                        .then(ClientCommands.argument("radius", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 48))
+                                .executes(context -> dumpEntities(context.getSource(),
+                                        com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius")))))
                 .then(ClientCommands.literal("core")
                         .executes(context -> {
                             Minecraft mc = Minecraft.getInstance();
@@ -692,6 +705,41 @@ public class TMapCommand {
         } catch (NumberFormatException e) {
             return 0xFF55FFFF;
         }
+    }
+
+    // dumps every entity nearby (not just mobs) so unknown skyblock props can be identified
+    private static int dumpEntities(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource source, int radius) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) {
+            source.sendFeedback(Component.literal("Not in world"));
+            return 0;
+        }
+        net.minecraft.world.phys.AABB box = mc.player.getBoundingBox().inflate(radius);
+        source.sendFeedback(Component.literal("=== Entities within " + radius + " ==="));
+        int count = 0;
+        for (Entity e : mc.level.getEntities(mc.player, box, x -> true)) {
+            String type = net.minecraft.world.entity.EntityType.getKey(e.getType()).toString();
+            StringBuilder extra = new StringBuilder();
+            if (e instanceof net.minecraft.world.entity.item.ItemEntity ie) {
+                extra.append(" item=").append(ie.getItem().getItem().toString())
+                     .append(" x").append(ie.getItem().getCount())
+                     .append(" nograv=").append(ie.isNoGravity());
+            }
+            if (e instanceof net.minecraft.world.entity.Display.ItemDisplay id) {
+                var slot = id.getSlot(0);
+                if (slot != null) extra.append(" display=").append(slot.get().getItem().toString());
+            }
+            if (e.getCustomName() != null) extra.append(" custom='").append(e.getCustomName().getString()).append("'");
+            source.sendFeedback(Component.literal(String.format("%s | %s | %.1f %.1f %.1f | d=%.1f%s",
+                    type, e.getName().getString(), e.getX(), e.getY(), e.getZ(),
+                    Math.sqrt(e.distanceToSqr(mc.player)), extra)));
+            if (++count >= 40) {
+                source.sendFeedback(Component.literal("... more"));
+                break;
+            }
+        }
+        if (count == 0) source.sendFeedback(Component.literal("none"));
+        return 1;
     }
 
     private static void sendServer(String command) {

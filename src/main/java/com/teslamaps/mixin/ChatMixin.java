@@ -91,7 +91,11 @@ public class ChatMixin {
 
         if (cfg.section("ESP")) LividSolver.onChatMessage(text);
 
+        if (cfg.section("ESP")) com.teslamaps.features.HoppityEggESP.onChatMessage(text);
+
         if (cfg.section("Leap")) com.teslamaps.features.LeapOverlay.onChatMessage(text);
+
+        if (cfg.section("Slayer")) com.teslamaps.slayer.SlayerAlerts.onChatMessage(text);
 
         com.teslamaps.features.KickedTimer.onChatMessage(text);
 

@@ -45,6 +45,23 @@ public class SlayerHUD {
 
     private static final Pattern SPAWNED_BY_PATTERN = Pattern.compile("(?i)spawned\\s*by:?\\s*(\\w+)");
 
+    // non-Inferno slayer bosses/minibosses, matched against nametag armor stands (need a ❤ HP tag)
+    private static final String[] GENERIC_BOSSES = {
+        "Revenant Horror", "Atoned Horror", "Tarantula Broodfather", "Sven Packmaster",
+        "Voidgloom Seraph", "Riftstalker Bloodfiend"
+    };
+    private static final String[] GENERIC_MINIBOSSES = {
+        "Revenant Sycophant", "Revenant Champion", "Deformed Revenant", "Atoned Champion", "Atoned Revenant",
+        "Tarantula Vermin", "Tarantula Beast", "Mutant Tarantula",
+        "Pack Enforcer", "Sven Follower", "Sven Alpha",
+        "Voidling Devotee", "Voidling Radical", "Voidcrazed Maniac"
+    };
+
+    private static boolean containsAny(String name, String[] names) {
+        for (String n : names) if (name.contains(n)) return true;
+        return false;
+    }
+
     private static final double[] INFERNO_MAX_HP = {
         0,          // Tier 0 (unused)
         250_000,    // Tier I
@@ -215,6 +232,24 @@ public class SlayerHUD {
                     typhoeusHP = 0;
                 } else {
                     typhoeusHP = hp;
+                }
+            }
+
+            if (name.contains("❤")) {
+                if (containsAny(name, GENERIC_BOSSES)) {
+                    if (!questActive) {
+                        questStartTime = System.currentTimeMillis();
+                        questActive = true;
+                        if (lastKillTime > 0) spawnTimes.add(questStartTime - lastKillTime);
+                    }
+                    lastUpdateTime = System.currentTimeMillis();
+                    foundBoss = true;
+                    findBossEntity(mc, armorStand);
+                    continue;
+                }
+                if (containsAny(name, GENERIC_MINIBOSSES)) {
+                    findMinibossEntity(mc, armorStand, name);
+                    continue;
                 }
             }
 
@@ -402,6 +437,8 @@ public class SlayerHUD {
                         return 0xFF5555; // Red
                     } else if (name.contains("Kindleheart")) {
                         return 0xFFFFFF; // White
+                    } else if (containsAny(name, GENERIC_MINIBOSSES)) {
+                        return 0xFFAA00; // Gold
                     }
                 }
             }
@@ -411,7 +448,8 @@ public class SlayerHUD {
     }
 
     public static boolean isSlayerMiniboss(String name) {
-        return name.contains("Burningsoul Demon") || name.contains("Kindleheart Demon");
+        return name.contains("Burningsoul Demon") || name.contains("Kindleheart Demon")
+                || containsAny(name, GENERIC_MINIBOSSES);
     }
 
     private static int parseTier(String tierStr) {
@@ -462,6 +500,15 @@ public class SlayerHUD {
         return minibossEntities;
     }
 
+    public static void renderWorld(com.mojang.blaze3d.vertex.PoseStack matrices, net.minecraft.world.phys.Vec3 cameraPos) {
+        if (!TeslaMapsConfig.get().slayerMinibossTracer) return;
+        for (Entity e : minibossEntities) {
+            if (e == null || !e.isAlive()) continue;
+            com.teslamaps.render.ESPRenderer.drawTracerFromCamera(matrices,
+                    e.getBoundingBox().getCenter(), 0xFFFF5555, cameraPos);
+        }
+    }
+
     private static String formatHP(double hp) {
         if (hp >= 1_000_000_000) return String.format("%.1fB", hp / 1_000_000_000);
         if (hp >= 1_000_000) return String.format("%.1fM", hp / 1_000_000);
@@ -470,6 +517,7 @@ public class SlayerHUD {
     }
 
     public static void onSlayerComplete() {
+        SlayerStats.onBossKill();
         if (!questActive || questStartTime == 0) return;
 
         if (TeslaMapsConfig.get().slayerOnlyOwnBoss && bossOwner != null && !isOwnBoss) {
@@ -491,6 +539,14 @@ public class SlayerHUD {
 
     public static void onSlayerFailed() {
         resetQuest();
+    }
+
+    public static void resetSession() {
+        resetQuest();
+        killTimes.clear();
+        spawnTimes.clear();
+        totalKills = 0;
+        lastKillTime = 0;
     }
 
     private static void clearBossVisuals() {
@@ -529,6 +585,11 @@ public class SlayerHUD {
         if (spawnTimes.size() > 0) {
             long lastSpawnTime = spawnTimes.get(spawnTimes.size() - 1);
             msg.append(ChatFormatting.WHITE).append(" | Spawn: ").append(ChatFormatting.AQUA).append(formatTime(lastSpawnTime));
+        }
+
+        double bph = SlayerStats.bossesPerHour();
+        if (bph > 0) {
+            msg.append(ChatFormatting.WHITE).append(" | B/h: ").append(ChatFormatting.GOLD).append(String.format("%.1f", bph));
         }
 
         mc.player.sendSystemMessage(Component.literal(msg.toString()));

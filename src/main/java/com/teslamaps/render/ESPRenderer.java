@@ -273,7 +273,9 @@ public class ESPRenderer {
         matrices.pushPose();
 
         var pose = matrices.last().pose();
-        float scaleFactor = scale * 0.025f;
+        // grow with distance so text stays readable far away (constant apparent size beyond 12 blocks)
+        float dist = (float) pos.distanceTo(cameraPos);
+        float scaleFactor = scale * 0.025f * Math.max(1f, dist / 12f);
         pose.translate((float) (pos.x - cameraPos.x), (float) (pos.y - cameraPos.y), (float) (pos.z - cameraPos.z));
         pose.rotate(mc.gameRenderer.getMainCamera().rotation());
         pose.scale(scaleFactor, -scaleFactor, scaleFactor);
