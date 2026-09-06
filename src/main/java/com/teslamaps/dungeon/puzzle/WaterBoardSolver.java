@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.google.gson.JsonElement;
@@ -94,7 +79,7 @@ public class WaterBoardSolver {
             InputStream is = WaterBoardSolver.class.getResourceAsStream("/assets/teslamaps/puzzles/watertimes.json");
             if (is != null) {
                 SOLUTIONS = JsonParser.parseReader(new InputStreamReader(is)).getAsJsonObject();
-                TeslaMaps.LOGGER.info("[WaterBoardSolver] Loaded water solutions");
+                TeslaMaps.debug("[WaterBoardSolver] Loaded water solutions");
             }
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[WaterBoardSolver] Failed to load solutions", e);
@@ -137,7 +122,7 @@ public class WaterBoardSolver {
             cornerX = room.getCornerX();
             cornerZ = room.getCornerZ();
 
-            TeslaMaps.LOGGER.info("[WaterBoardSolver] Entered Water Board room, rotation={}, corner=({},{})",
+            TeslaMaps.debug("[WaterBoardSolver] Entered Water Board room, rotation={}, corner=({},{})",
                 rotation, cornerX, cornerZ);
         }
 
@@ -177,7 +162,7 @@ public class WaterBoardSolver {
         // Odin-style: a single identifying block per pattern is enough
         variant = readVariantSingle(mc, cornerX, cornerZ, rotation);
         if (variant >= 0) {
-            TeslaMaps.LOGGER.info("[WaterBoardSolver] Detected variant {} (corner=({},{}) rot={})",
+            TeslaMaps.debug("[WaterBoardSolver] Detected variant {} (corner=({},{}) rot={})",
                 variant, cornerX, cornerZ, rotation);
             return;
         }
@@ -218,7 +203,7 @@ public class WaterBoardSolver {
                 cornerZ = cz;
                 rotation = rot;
                 variant = v;
-                TeslaMaps.LOGGER.info("[WaterBoardSolver] Detected variant {} at corner=({},{}) rot={} Y={}", v, cx, cz, rot, y);
+                TeslaMaps.debug("[WaterBoardSolver] Detected variant {} at corner=({},{}) rot={} Y={}", v, cx, cz, rot, y);
                 return true;
             }
         }
@@ -263,7 +248,7 @@ public class WaterBoardSolver {
 
         if (detected.length() == 3) {
             subvariant = detected;
-            TeslaMaps.LOGGER.info("[WaterBoardSolver] Detected subvariant (doors): '{}'", subvariant);
+            TeslaMaps.debug("[WaterBoardSolver] Detected subvariant (doors): '{}'", subvariant);
             loadSolution();
         }
     }
@@ -273,7 +258,7 @@ public class WaterBoardSolver {
 
         String variantKey = String.valueOf(variant + 1);
 
-        TeslaMaps.LOGGER.info("[WaterBoardSolver] Looking up solution for variant={} doors={}", variantKey, subvariant);
+        TeslaMaps.debug("[WaterBoardSolver] Looking up solution for variant={} doors={}", variantKey, subvariant);
 
         JsonObject variantSolutions = SOLUTIONS.getAsJsonObject(variantKey);
         if (variantSolutions == null) {
@@ -299,7 +284,7 @@ public class WaterBoardSolver {
             }
         }
 
-        TeslaMaps.LOGGER.info("[WaterBoardSolver] Loaded solution with {} lever types", solution.size());
+        TeslaMaps.debug("[WaterBoardSolver] Loaded solution with {} lever types", solution.size());
     }
 
     public static void onLeverClick(BlockPos pos) {
@@ -316,12 +301,12 @@ public class WaterBoardSolver {
                 List<Double> times = solution.get(leverType);
                 if (times != null && !times.isEmpty()) {
                     times.remove(0);
-                    TeslaMaps.LOGGER.info("[WaterBoardSolver] {} clicked, {} times remaining",
+                    TeslaMaps.debug("[WaterBoardSolver] {} clicked, {} times remaining",
                         leverType.name, times.size());
 
                     if (leverType == LeverType.WATER && waterStartMillis == 0) {
                         waterStartMillis = System.currentTimeMillis();
-                        TeslaMaps.LOGGER.info("[WaterBoardSolver] Water lever clicked, timer started");
+                        TeslaMaps.debug("[WaterBoardSolver] Water lever clicked, timer started");
                     }
                 }
                 break;

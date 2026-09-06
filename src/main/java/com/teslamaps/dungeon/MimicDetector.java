@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon;
 
 import com.teslamaps.TeslaMaps;
@@ -64,7 +49,7 @@ public class MimicDetector {
         if (!DungeonScore.floorHasMimics()) {
             if (!loggedNoMimic) {
                 loggedNoMimic = true;
-                TeslaMaps.LOGGER.info("[MimicDetector] Floor does not have mimics, detection disabled");
+                TeslaMaps.debug("[MimicDetector] Floor does not have mimics, detection disabled");
             }
             return;
         }
@@ -93,7 +78,7 @@ public class MimicDetector {
                 String name = entity.getName().getString();
                 if (name.contains("Mimic")) {
                     if (name.contains("0❤") && !mimicKilled) {
-                        TeslaMaps.LOGGER.info("[MimicDetector] Detected Mimic death via armor stand: {}", name);
+                        TeslaMaps.debug("[MimicDetector] Detected Mimic death via armor stand: {}", name);
                         setMimicKilled();
                         return;
                     }
@@ -104,7 +89,7 @@ public class MimicDetector {
                         if (room != null && room.getType() != com.teslamaps.map.RoomType.TRAP) {
                             if (!mimicRooms.contains(room)) {
                                 mimicRooms.add(room);
-                                TeslaMaps.LOGGER.info("[MimicDetector] Found Mimic entity in room: {} at [{},{}]",
+                                TeslaMaps.debug("[MimicDetector] Found Mimic entity in room: {} at [{},{}]",
                                         room.getName(), gridPos[0], gridPos[1]);
                                 sendMimicFoundMessage(room.getName());
                             }
@@ -121,7 +106,7 @@ public class MimicDetector {
         if (wasTrappedChest && isNowAir) {
             mimicOpenTime = System.currentTimeMillis();
             mimicChestPos = pos;
-            TeslaMaps.LOGGER.info("[MimicDetector] Trapped chest opened at {}", pos);
+            TeslaMaps.debug("[MimicDetector] Trapped chest opened at {}", pos);
         }
     }
 
@@ -189,16 +174,16 @@ public class MimicDetector {
             int chestCount = entry.getValue().size();
             int expected = getExpectedChestCount(room.getName());
 
-            TeslaMaps.LOGGER.info("[MimicDetector] Room '{}' has {} trapped chest(s), expected {}",
+            TeslaMaps.debug("[MimicDetector] Room '{}' has {} trapped chest(s), expected {}",
                     room.getName(), chestCount, expected);
 
             if (chestCount > expected) {
                 mimicRooms.add(room);
-                TeslaMaps.LOGGER.info("[MimicDetector] -> Potential mimic room!");
+                TeslaMaps.debug("[MimicDetector] -> Potential mimic room!");
             }
         }
 
-        TeslaMaps.LOGGER.info("[MimicDetector] Scan: {}/{} chunks loaded, {} trapped chests, {} potential mimic rooms, {}ms (complete: {})",
+        TeslaMaps.debug("[MimicDetector] Scan: {}/{} chunks loaded, {} trapped chests, {} potential mimic rooms, {}ms (complete: {})",
                 chunksLoaded, totalChunks, trappedChestPositions.size(), mimicRooms.size(), elapsed, fullScanComplete);
 
         for (DungeonRoom room : mimicRooms) {
@@ -234,7 +219,7 @@ public class MimicDetector {
         mimicKilled = true;
         mimicRooms.clear();
         trappedChestPositions.clear();
-        TeslaMaps.LOGGER.info("[MimicDetector] Mimic killed!");
+        TeslaMaps.debug("[MimicDetector] Mimic killed!");
 
         DungeonScore.onMimicKilled();
 
@@ -246,7 +231,7 @@ public class MimicDetector {
 
         String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
         if (DungeonScore.MIMIC_PATTERN.matcher(clean).matches()) {
-            TeslaMaps.LOGGER.info("[MimicDetector] Detected mimic dead message from chat: {}", clean);
+            TeslaMaps.debug("[MimicDetector] Detected mimic dead message from chat: {}", clean);
             mimicKilled = true;
             mimicRooms.clear();
             trappedChestPositions.clear();
@@ -260,7 +245,7 @@ public class MimicDetector {
         if (!com.teslamaps.config.TeslaMapsConfig.get().mimicDeadMessage) return;
 
         mc.player.connection.sendCommand("pc Mimic Dead!");
-        TeslaMaps.LOGGER.info("[MimicDetector] Announced Mimic death to party");
+        TeslaMaps.debug("[MimicDetector] Announced Mimic death to party");
     }
 
     public static boolean isMimic(Zombie zombie) {

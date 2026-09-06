@@ -1,19 +1,6 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file ports entity tracking from BirdAddon
- * (https://github.com/BarefootBird/BirdAddon, BSD 3-Clause). See NOTICE.md.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon;
 
+import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.scanner.ComponentGrid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
@@ -52,11 +39,13 @@ public class M4Mobs {
         return ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null; // boss arena
     }
 
+    private static long lastDbg = 0;
+
     public static void tick() {
         cows.clear(); sheep.clear(); chickens.clear(); rabbits.clear(); wolves.clear(); bats.clear();
         thorn = null; bear = null;
 
-        if (!inM4Boss()) return;
+        if (!inM4Boss()) { dbg(false, 0); return; }
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
@@ -71,6 +60,20 @@ public class M4Mobs {
             else if (e instanceof Bat b) { if (!b.isInvisible()) bats.add(e); }
             else if (e instanceof Player p && "Spirit Bear".equals(p.getGameProfile().name())) bear = e;
         }
+        dbg(true, mc.level.getEntities((Entity) null, SEARCH).size());
+    }
+
+    /** /tmap debug: says whether the arena gate opened and what was found, once a second. */
+    private static void dbg(boolean inArena, int scanned) {
+        if (!TeslaMapsConfig.get().debugMode) return;
+        long now = System.currentTimeMillis();
+        if (now - lastDbg < 1000) return;
+        lastDbg = now;
+        DungeonFloor f = DungeonManager.getCurrentFloor();
+        com.teslamaps.TeslaMaps.LOGGER.info(
+                "[M4Dbg] floor={} inDungeon={} isInBoss={} inM4Boss={} scanned={} thorn={} bear={} cows={} sheep={} chickens={}",
+                f, DungeonManager.isInDungeon(), DungeonManager.isInBoss(), inArena,
+                scanned, thorn != null, bear != null, cows.size(), sheep.size(), chickens.size());
     }
 
     public static void reset() {

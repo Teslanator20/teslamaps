@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -55,6 +40,10 @@ public class ChatMixin {
 
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
 
+        // Anything a player typed can imitate a server line, so triggers only run on
+        // server messages. Player chat still reaches the features that want it below.
+        boolean fromServer = com.teslamaps.utils.StringUtil.isServerMessage(text);
+
         if (cfg.section("Puzzles") && QuizSolver.shouldHide(text)) {
             ci.cancel();
             return;
@@ -87,15 +76,33 @@ public class ChatMixin {
             }
         }
 
-        if (cfg.section("Auto")) AutoGFS.onChatMessage(text);
+        if (cfg.section("Garden")) com.teslamaps.features.FarmProfit.onChatComponent(message);
+        if (cfg.section("Garden")) com.teslamaps.features.GardenPlots.onChatMessage(text);
+        if (cfg.section("Garden")) com.teslamaps.features.PestRoutine.onChatMessage(text);
+
+        if (fromServer && cfg.section("Auto")) {
+            AutoGFS.onChatMessage(text);
+            com.teslamaps.features.GetFromSacks.onChatMessage(text);
+        }
 
         if (cfg.section("ESP")) LividSolver.onChatMessage(text);
+
+        if (cfg.section("ESP")) com.teslamaps.esp.CorpseESP.onChatMessage(text);
+
+        if (cfg.section("Critter Safari")) {
+            com.teslamaps.safari.SafariTracker.onChatMessage(text);
+            com.teslamaps.safari.SafariTracker.onChatComponent(message);
+        }
 
         if (cfg.section("ESP")) com.teslamaps.features.HoppityEggESP.onChatMessage(text);
 
         if (cfg.section("Leap")) com.teslamaps.features.LeapOverlay.onChatMessage(text);
 
         if (cfg.section("Slayer")) com.teslamaps.slayer.SlayerAlerts.onChatMessage(text);
+
+        if (fromServer && cfg.section("Skills")) com.teslamaps.features.SkillTracker.onChatMessage(text);
+        if (fromServer && cfg.section("Fishing")) com.teslamaps.features.UmbrellaWarning.onChatMessage(text);
+
 
         com.teslamaps.features.KickedTimer.onChatMessage(text);
 
@@ -104,6 +111,8 @@ public class ChatMixin {
         MimicDetector.onChatMessage(text);
 
         DungeonScore.onChatMessage(text);
+
+        com.teslamaps.dungeon.terminals.TerminalUtils.onChatMessage(text);
 
         if (cfg.section("Dragons")) com.teslamaps.dungeon.WitherDragons.onChatMessage(text);
 
@@ -117,6 +126,7 @@ public class ChatMixin {
         if (cfg.section("Timers")) com.teslamaps.features.SpiritPetReminder.onChatMessage(text);
         if (cfg.section("Puzzles")) com.teslamaps.features.CustomTitles.onChatMessage(text);
         if (cfg.section("Render")) com.teslamaps.features.ChatWaypoint.onChatMessage(text);
+        if (cfg.section("Render")) com.teslamaps.features.RareDropEffects.onChatMessage(text);
 
         if (cfg.section("Blood Camp")) com.teslamaps.dungeon.BloodCamp.onChatMessage(text);
 
@@ -133,6 +143,15 @@ public class ChatMixin {
         if (cfg.section("Puzzles")) {
             QuizSolver.onChatMessage(text);
             com.teslamaps.dungeon.puzzle.SimonSaysSolver.onChatMessage(text);
+        }
+
+        if (fromServer && cfg.section("Foraging")) {
+            com.teslamaps.features.foraging.HoneyhiveReminder.onChatMessage(text);
+            com.teslamaps.features.foraging.LatherReminder.onChatMessage(text);
+            if (com.teslamaps.features.foraging.ForagingChat.shouldHide(message)) {
+                ci.cancel();
+                return;
+            }
         }
 
         if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.shouldHide(text)) {

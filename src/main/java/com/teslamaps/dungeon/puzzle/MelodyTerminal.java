@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -62,7 +47,7 @@ public class MelodyTerminal {
 
         if (!(mc.screen instanceof ContainerScreen)) {
             if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[MelodyTerminal] Screen closed, resetting");
+                TeslaMaps.debug("[MelodyTerminal] Screen closed, resetting");
             }
             reset();
             return;
@@ -77,13 +62,13 @@ public class MelodyTerminal {
 
         int currentTick = mc.player.tickCount;
         if (currentTick - lastDebugTick > 20) {
-            TeslaMaps.LOGGER.info("[MelodyTerminal] Container title: '{}'", cleanTitle);
+            TeslaMaps.debug("[MelodyTerminal] Container title: '{}'", cleanTitle);
             lastDebugTick = currentTick;
         }
 
         if (!cleanTitle.equals("Click the button on time!")) {
             if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[MelodyTerminal] Title doesn't match, resetting");
+                TeslaMaps.debug("[MelodyTerminal] Title doesn't match, resetting");
             }
             return;
         }
@@ -96,7 +81,6 @@ public class MelodyTerminal {
             terminalOpenTime = System.currentTimeMillis();
             lastClickTime = 0;
             lastScanTime = 0;
-            TeslaMaps.LOGGER.info("[MelodyTerminal] ===== TERMINAL DETECTED =====");
             initialScanDone = true;
         }
 
@@ -108,7 +92,7 @@ public class MelodyTerminal {
             lastScanTime = currentTime;
         }
 
-        boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
+        boolean usingClickAnywhere = false;
 
         if (!solved && lastGreenPosition != -1 && purplePosition != -1 && lastGreenPosition == purplePosition && !usingClickAnywhere) {
             long timeSinceLastClick = currentTime - lastClickTime;
@@ -128,11 +112,10 @@ public class MelodyTerminal {
             if (!currentTerracotta.isEmpty() && currentTerracotta.getItem() != Items.LIME_TERRACOTTA) {
                 currentLane++;
                 laneProgressTime = currentTime; // Mark when we progressed
-                TeslaMaps.LOGGER.info("[MelodyTerminal] Lane progressed! Now on lane {} (waiting 300ms for magenta update)", currentLane + 1);
+                TeslaMaps.debug("[MelodyTerminal] Lane progressed! Now on lane {} (waiting 300ms for magenta update)", currentLane + 1);
 
                 if (currentLane >= 4) {
                     solved = true;
-                    TeslaMaps.LOGGER.info("[MelodyTerminal] ===== ALL LANES COMPLETE =====");
                 }
 
                 lastGreenPosition = -1;
@@ -155,7 +138,7 @@ public class MelodyTerminal {
 
             if (!stack.isEmpty()) {
                 String itemId = stack.getItem().toString();
-                TeslaMaps.LOGGER.info("[MelodyTerminal] Top row slot {}: {} (exact: {})", topSlot, itemId,
+                TeslaMaps.debug("[MelodyTerminal] Top row slot {}: {} (exact: {})", topSlot, itemId,
                     stack.getItem() == Items.MAGENTA_STAINED_GLASS_PANE ? "MAGENTA" :
                     stack.getItem() == Items.PURPLE_STAINED_GLASS_PANE ? "PURPLE" :
                     stack.getItem() == Items.PINK_STAINED_GLASS_PANE ? "PINK" :
@@ -166,32 +149,32 @@ public class MelodyTerminal {
                     stack.getItem() == Items.PURPLE_STAINED_GLASS_PANE ||
                     stack.getItem() == Items.PINK_STAINED_GLASS_PANE) {
                     purplePosition = topSlot;
-                    TeslaMaps.LOGGER.info("[MelodyTerminal] ===== MAGENTA FOUND at top slot {} = target position {} =====", topSlot, purplePosition);
+                    TeslaMaps.debug("[MelodyTerminal] ===== MAGENTA FOUND at top slot {} = target position {} =====", topSlot, purplePosition);
                     break;
                 }
             }
         }
 
-        TeslaMaps.LOGGER.info("[MelodyTerminal] Scanning lane {} (slots {}-{})", currentLane + 1, laneSlots[0], laneSlots[6]);
+        TeslaMaps.debug("[MelodyTerminal] Scanning lane {} (slots {}-{})", currentLane + 1, laneSlots[0], laneSlots[6]);
         for (int i = 0; i < 7; i++) { // Only scan positions 0-6, skip 7 (terracotta) and 8 (edge)
             int slot = laneSlots[i];
             ItemStack stack = handler.getSlot(slot).getItem();
 
             if (!stack.isEmpty()) {
-                TeslaMaps.LOGGER.info("[MelodyTerminal] Lane {} slot {} (pos {}): {}", currentLane + 1, slot, i, stack.getItem().toString());
+                TeslaMaps.debug("[MelodyTerminal] Lane {} slot {} (pos {}): {}", currentLane + 1, slot, i, stack.getItem().toString());
             }
 
             if (stack.isEmpty()) continue;
 
             if (stack.getItem() == Items.LIME_STAINED_GLASS_PANE) {
                 lastGreenPosition = i;
-                TeslaMaps.LOGGER.info("[MelodyTerminal] ===== Lane {} - GREEN at position {} =====", currentLane + 1, i);
+                TeslaMaps.debug("[MelodyTerminal] ===== Lane {} - GREEN at position {} =====", currentLane + 1, i);
             }
         }
 
         if (lastGreenPosition != -1 && purplePosition != -1) {
             if (lastGreenPosition == purplePosition) {
-                TeslaMaps.LOGGER.info("[MelodyTerminal] ===== ALIGNMENT! Lane {} - Green at position {} matches magenta column {} =====",
+                TeslaMaps.debug("[MelodyTerminal] ===== ALIGNMENT! Lane {} - Green at position {} matches magenta column {} =====",
                     currentLane + 1, lastGreenPosition, purplePosition);
             }
         }
@@ -206,8 +189,7 @@ public class MelodyTerminal {
         int slotToClick = TERRACOTTA_SLOTS[lane];
         ChestMenu handler = screen.getMenu();
 
-        TeslaMaps.LOGGER.info("[MelodyTerminal] ===== CLICKING TERRACOTTA =====");
-        TeslaMaps.LOGGER.info("[MelodyTerminal] Lane {} - Clicking slot {}", lane + 1, slotToClick);
+        TeslaMaps.debug("[MelodyTerminal] Lane {} - Clicking slot {}", lane + 1, slotToClick);
 
         mc.gameMode.handleContainerInput(
             handler.containerId,
@@ -253,11 +235,11 @@ public class MelodyTerminal {
                     laneProgressTime = System.currentTimeMillis();
                     lastGreenPosition = -1;
                     purplePosition = -1;
-                    TeslaMaps.LOGGER.info("[MelodyTerminal] Lane {} completed via event!", i + 1);
+                    TeslaMaps.debug("[MelodyTerminal] Lane {} completed via event!", i + 1);
 
                     if (currentLane >= 4) {
                         solved = true;
-                        TeslaMaps.LOGGER.info("[MelodyTerminal] All lanes complete!");
+                        TeslaMaps.debug("[MelodyTerminal] All lanes complete!");
                     }
                 }
                 break;
@@ -272,14 +254,14 @@ public class MelodyTerminal {
             return true;
         }
 
-        TeslaMaps.LOGGER.info("[MelodyTerminal] Blocked click on slot {} - should click terracotta at {}",
+        TeslaMaps.debug("[MelodyTerminal] Blocked click on slot {} - should click terracotta at {}",
             slotIndex, currentLane < 4 ? TERRACOTTA_SLOTS[currentLane] : "N/A");
         return false;
     }
 
     public static void reset() {
         if (initialScanDone) {
-            TeslaMaps.LOGGER.info("[MelodyTerminal] Resetting");
+            TeslaMaps.debug("[MelodyTerminal] Resetting");
         }
         currentLane = 0;
         lastGreenPosition = -1;

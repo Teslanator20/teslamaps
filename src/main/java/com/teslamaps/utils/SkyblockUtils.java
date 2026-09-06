@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.utils;
 
 import java.util.List;
@@ -23,6 +8,7 @@ import net.minecraft.client.multiplayer.ServerData;
 
 public class SkyblockUtils {
     private static final Pattern HYPIXEL_PATTERN = Pattern.compile(".*\\.hypixel\\.net", Pattern.CASE_INSENSITIVE);
+    private static final Pattern STRIP_PATTERN = Pattern.compile("§.");
 
     public static boolean isOnHypixel() {
         Minecraft mc = Minecraft.getInstance();
@@ -66,7 +52,7 @@ public class SkyblockUtils {
         areaTime = now;
         if (!isOnHypixel()) return area = "";
         for (String line : TabListUtils.getTabListLines()) {
-            Matcher m = AREA_PATTERN.matcher(line.replaceAll("§.", "").trim());
+            Matcher m = AREA_PATTERN.matcher(STRIP_PATTERN.matcher(line).replaceAll("").trim());
             if (m.find()) return area = m.group(1).trim();
         }
         return area = "";
@@ -76,12 +62,27 @@ public class SkyblockUtils {
         return getArea().equalsIgnoreCase(name);
     }
 
+    private static boolean inGarden = false;
+    private static long gardenTime = 0;
+
+    // several HUD overlays ask this every frame, so it gets the same throttle as getArea
     public static boolean isInGarden() {
+        long now = System.currentTimeMillis();
+        if (now - gardenTime < 500) return inGarden;
+        gardenTime = now;
+        return inGarden = computeInGarden();
+    }
+
+    private static boolean computeInGarden() {
         if (!isOnHypixel()) return false;
+
+        // The scoreboard shows the plot name while standing on a plot, so the
+        // tab list area is the reliable signal there.
+        if (getArea().toLowerCase().contains("garden")) return true;
 
         List<String> scoreboard = ScoreboardUtils.getScoreboardLines();
         for (String line : scoreboard) {
-            String stripped = line.replaceAll("§.", "").toLowerCase();
+            String stripped = STRIP_PATTERN.matcher(line).replaceAll("").toLowerCase();
             if (stripped.contains("garden")) {
                 return true;
             }

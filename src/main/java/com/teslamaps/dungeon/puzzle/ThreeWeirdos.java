@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -142,12 +127,12 @@ public class ThreeWeirdos {
         }
 
         String npcName = matcher.group(1);
-        TeslaMaps.LOGGER.info("[ThreeWeirdos] Pattern matched! Message: {}", stripped);
+        TeslaMaps.debug("[ThreeWeirdos] Pattern matched! Message: {}", stripped);
 
-        TeslaMaps.LOGGER.info("[ThreeWeirdos] NPC='{}', message='{}'", npcName, stripped);
+        TeslaMaps.debug("[ThreeWeirdos] NPC='{}', message='{}'", npcName, stripped);
 
         targetNpcName = npcName;
-        TeslaMaps.LOGGER.info("[ThreeWeirdos] Pattern matched! NPC '{}' has the correct chest", targetNpcName);
+        TeslaMaps.debug("[ThreeWeirdos] Pattern matched! NPC '{}' has the correct chest", targetNpcName);
         findNpcAndChest(targetNpcName);
     }
 
@@ -177,7 +162,7 @@ public class ThreeWeirdos {
             (int) Math.floor(targetNpc.getZ())
         );
 
-        TeslaMaps.LOGGER.info("[ThreeWeirdos] Found NPC '{}' at entity pos ({}, {}, {}), block pos {}",
+        TeslaMaps.debug("[ThreeWeirdos] Found NPC '{}' at entity pos ({}, {}, {}), block pos {}",
             npcName, targetNpc.getX(), targetNpc.getY(), targetNpc.getZ(), npcBlockPos);
 
         BlockPos closestChest = null;
@@ -189,7 +174,7 @@ public class ThreeWeirdos {
                     BlockPos checkPos = npcBlockPos.offset(dx, dy, dz);
                     if (mc.level.getBlockState(checkPos).getBlock() == Blocks.CHEST) {
                         double dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-                        TeslaMaps.LOGGER.info("[ThreeWeirdos] Found chest at {} distance {}", checkPos, dist);
+                        TeslaMaps.debug("[ThreeWeirdos] Found chest at {} distance {}", checkPos, dist);
                         if (dist < closestDist) {
                             closestDist = dist;
                             closestChest = checkPos;
@@ -201,7 +186,7 @@ public class ThreeWeirdos {
 
         if (closestChest != null) {
             correctChestPos = closestChest;
-            TeslaMaps.LOGGER.info("[ThreeWeirdos] Selected closest chest at {} (distance {})", correctChestPos, closestDist);
+            TeslaMaps.debug("[ThreeWeirdos] Selected closest chest at {} (distance {})", correctChestPos, closestDist);
 
             targetNpc.setCustomName(Component.literal(npcName).withStyle(ChatFormatting.GREEN));
             targetNpc.setCustomNameVisible(true);
@@ -215,7 +200,7 @@ public class ThreeWeirdos {
         clickedChests.add(pos.immutable());
         if (correctChestPos != null) {
             disabled = true;
-            TeslaMaps.LOGGER.info("[ThreeWeirdos] Chest clicked, solver disabled");
+            TeslaMaps.debug("[ThreeWeirdos] Chest clicked, solver disabled");
         }
     }
 

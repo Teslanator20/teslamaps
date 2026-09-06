@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -298,7 +283,7 @@ public class StorageOverlay {
         List<Box> vis = visible();
         boolean showNames = TeslaMapsConfig.get().storageShowNames;
         ctx.text(mc.font, "§6§lStorage §7(" + vis.size() + ")", 8, 6, 0xFFFFFFFF);
-        drawButton(ctx, mc, sw - 96, 6, 88, "§cVanilla View ✕");
+        drawButton(ctx, mc, sw - 96, 6, 88, "Vanilla View", 0xFFFF453A, true);
 
         String live = liveKey();
         boolean searching = !search.isEmpty();
@@ -499,11 +484,33 @@ public class StorageOverlay {
         }
     }
 
-    private static void drawButton(GuiGraphicsExtractor ctx, Minecraft mc, int x, int y, int w, String label) {
-        ctx.fill(x, y, x + w, y + 14, 0xFF303030);
-        ctx.fill(x, y, x + w, y + 1, 0xFF606060);
-        ctx.fill(x, y + 13, x + w, y + 14, 0xFF000000);
-        ctx.text(mc.font, label, x + 5, y + 3, 0xFFFFFFFF);
+    static final int BUTTON_H = 16;
+
+    /** Rounded card in the mod's own style, with a drawn chevron/cross instead of a font glyph. */
+    private static void drawButton(GuiGraphicsExtractor ctx, Minecraft mc, int x, int y, int w,
+                                   String label, int accent, boolean cross) {
+        boolean hovered = buttonHovered(mc, x, y, w);
+
+        com.teslamaps.render.gui.TeslaGui.roundedRect(ctx, x, y, w, BUTTON_H, 4f,
+                hovered ? 0xFF3A3A3C : 0xFF2C2C2E);
+        com.teslamaps.render.gui.TeslaGui.roundedOutline(ctx, x + 0.5f, y + 0.5f, w - 1, BUTTON_H - 1, 4f, 1f,
+                hovered ? accent : (accent & 0x00FFFFFF) | 0x80000000);
+
+        ctx.text(mc.font, label, x + 8, y + 4, accent);
+
+        float iconX = x + w - 12, iconY = y + 4;
+        if (cross) {
+            com.teslamaps.render.gui.TeslaGui.crossIcon(ctx, iconX, iconY, 8, accent);
+        } else {
+            com.teslamaps.render.gui.TeslaGui.checkIcon(ctx, iconX, iconY, 8, accent);
+        }
+    }
+
+    private static boolean buttonHovered(Minecraft mc, int x, int y, int w) {
+        if (mc.screen == null) return false;
+        double sx = mc.mouseHandler.xpos() * mc.getWindow().getGuiScaledWidth() / mc.getWindow().getScreenWidth();
+        double sy = mc.mouseHandler.ypos() * mc.getWindow().getGuiScaledHeight() / mc.getWindow().getScreenHeight();
+        return sx >= x && sx <= x + w && sy >= y && sy <= y + BUTTON_H;
     }
 
     public static void renderEnableButton(GuiGraphicsExtractor ctx) {
@@ -511,7 +518,7 @@ public class StorageOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         if (!strip(cs.getTitle().getString()).equals("Storage")) return;
-        drawButton(ctx, mc, mc.screen.width - 110, 6, 102, "§aCustom Storage ▶");
+        drawButton(ctx, mc, mc.screen.width - 110, 6, 102, "Custom Storage", 0xFF30D158, false);
     }
 
     public static boolean handleEnableClick(double mx, double my) {
@@ -520,7 +527,7 @@ public class StorageOverlay {
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
         if (!strip(cs.getTitle().getString()).equals("Storage")) return false;
         int x = mc.screen.width - 110, y = 6;
-        if (mx >= x && mx <= x + 102 && my >= y && my <= y + 14) {
+        if (mx >= x && mx <= x + 102 && my >= y && my <= y + BUTTON_H) {
             TeslaMapsConfig.get().customStorageOverlay = true;
             TeslaMapsConfig.save();
             return true;
@@ -608,7 +615,7 @@ public class StorageOverlay {
         }
 
         int dbX = cs.width - 96;
-        if (mx >= dbX && mx <= dbX + 88 && my >= 6 && my <= 20) {
+        if (mx >= dbX && mx <= dbX + 88 && my >= 6 && my <= 6 + BUTTON_H) {
             TeslaMapsConfig.get().customStorageOverlay = false;
             TeslaMapsConfig.save();
             return true;
@@ -722,10 +729,10 @@ public class StorageOverlay {
         String cached = searchTextCache.get(st);
         if (cached != null) return cached;
         if (searchTextCache.size() > 4096) searchTextCache.clear();
-        StringBuilder sb = new StringBuilder(st.getHoverName().getString().replaceAll("(?i)§[0-9A-FK-OR]", "").toLowerCase());
+        StringBuilder sb = new StringBuilder(com.teslamaps.utils.StringUtil.strip(st.getHoverName().getString()).toLowerCase());
         ItemLore lore = st.get(DataComponents.LORE);
         if (lore != null) for (Component line : lore.lines())
-            sb.append('\n').append(line.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").toLowerCase());
+            sb.append('\n').append(com.teslamaps.utils.StringUtil.strip(line.getString()).toLowerCase());
         String s = sb.toString();
         searchTextCache.put(st, s);
         return s;
@@ -736,6 +743,6 @@ public class StorageOverlay {
     }
 
     private static String strip(String s) {
-        return s == null ? "" : s.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        return com.teslamaps.utils.StringUtil.stripTrim(s);
     }
 }

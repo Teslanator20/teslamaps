@@ -1,14 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -59,6 +48,19 @@ public class RoomSplits {
         pose.pushMatrix();
         pose.translate(c.roomSplitsX, c.roomSplitsY);
         pose.scale(c.roomSplitsScale, c.roomSplitsScale);
+
+        // Measured without the colour codes, which the font counts as zero width
+        // anyway, so the backdrop matches what is actually drawn.
+        int widest = mc.font.width("Room Splits");
+        if (currentRoom != null) {
+            widest = Math.max(widest, mc.font.width(
+                    "> " + currentRoom + " " + fmt(System.currentTimeMillis() - enterTime)));
+        }
+        for (Entry e : history) {
+            widest = Math.max(widest, mc.font.width(e.name() + " " + fmt(e.ms())));
+        }
+        int rows = history.size() + (currentRoom != null ? 1 : 0);
+        com.teslamaps.render.gui.TeslaGui.backdrop(ctx, 0, 0, widest, 10 + rows * 9 - 1);
 
         int y = 0;
         ctx.text(mc.font, "§6§lRoom Splits", 0, y, 0xFFFFFFFF);

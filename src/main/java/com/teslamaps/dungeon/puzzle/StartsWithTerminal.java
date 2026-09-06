@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -90,21 +75,20 @@ public class StartsWithTerminal {
             clickedSlots.clear();
             terminalOpenTime = System.currentTimeMillis();
             lastClickTime = 0;
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== TERMINAL DETECTED =====");
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] Target letter: {}", targetLetter);
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] Delay before first click: {}ms", TeslaMapsConfig.get().terminalClickDelay);
+            TeslaMaps.debug("[StartsWithTerminal] Target letter: {}", targetLetter);
+            TeslaMaps.debug("[StartsWithTerminal] Delay before first click: {}ms", TeslaMapsConfig.get().terminalClickDelay);
 
             findAllCorrectSlots(screen);
             slotsFound = true;
         }
 
-        boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
+        boolean usingClickAnywhere = false;
 
         long currentTime = System.currentTimeMillis();
 
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] Break threshold reached, resetting click state");
+            TeslaMaps.debug("[StartsWithTerminal] Break threshold reached, resetting click state");
             isClicked = false;
         }
 
@@ -124,12 +108,11 @@ public class StartsWithTerminal {
                     performNextClick(mc, screen);
                 } else {
                     if (!solved) {
-                        TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== ALL ITEMS CLICKED =====");
                     }
                     solved = true;
 
                     if (timeSinceLastClick > 2000) {
-                        TeslaMaps.LOGGER.info("[StartsWithTerminal] Container still open after 2s, restarting...");
+                        TeslaMaps.debug("[StartsWithTerminal] Container still open after 2s, restarting...");
                         correctSlots.clear();
                         clickedSlots.clear();
                         solved = false;
@@ -172,20 +155,17 @@ public class StartsWithTerminal {
 
                 if (Character.toUpperCase(firstChar) == targetLetter) {
                     correctSlots.add(slot.index);
-                    TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== FOUND MATCHING ITEM =====");
-                    TeslaMaps.LOGGER.info("[StartsWithTerminal] Item: '{}'", strippedName);
-                    TeslaMaps.LOGGER.info("[StartsWithTerminal] Slot: {}", slot.index);
+                    TeslaMaps.debug("[StartsWithTerminal] Item: '{}'", strippedName);
+                    TeslaMaps.debug("[StartsWithTerminal] Slot: {}", slot.index);
                 }
             }
         }
 
         if (correctSlots.isEmpty()) {
-            TeslaMaps.LOGGER.warn("[StartsWithTerminal] ===== SCAN COMPLETE - NO MATCHES =====");
             TeslaMaps.LOGGER.warn("[StartsWithTerminal] Scanned {} items, none started with '{}'", scannedItems, targetLetter);
         } else {
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== SCAN COMPLETE =====");
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] Found {} items starting with '{}'", correctSlots.size(), targetLetter);
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] Slots: {}", correctSlots);
+            TeslaMaps.debug("[StartsWithTerminal] Found {} items starting with '{}'", correctSlots.size(), targetLetter);
+            TeslaMaps.debug("[StartsWithTerminal] Slots: {}", correctSlots);
         }
     }
 
@@ -210,9 +190,8 @@ public class StartsWithTerminal {
 
         ChestMenu handler = screen.getMenu();
 
-        TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== PERFORMING AUTO-CLICK =====");
-        TeslaMaps.LOGGER.info("[StartsWithTerminal] Clicking slot {} ({}/{})", slotToClick, clickedSlots.size() + 1, correctSlots.size());
-        TeslaMaps.LOGGER.info("[StartsWithTerminal] Handler syncId: {}", handler.containerId);
+        TeslaMaps.debug("[StartsWithTerminal] Clicking slot {} ({}/{})", slotToClick, clickedSlots.size() + 1, correctSlots.size());
+        TeslaMaps.debug("[StartsWithTerminal] Handler syncId: {}", handler.containerId);
 
         mc.gameMode.handleContainerInput(
             handler.containerId,
@@ -226,8 +205,7 @@ public class StartsWithTerminal {
         lastClickTime = System.currentTimeMillis();
         isClicked = true;
 
-        TeslaMaps.LOGGER.info("[StartsWithTerminal] ===== CLICK SENT =====");
-        TeslaMaps.LOGGER.info("[StartsWithTerminal] Progress: {}/{} items clicked", clickedSlots.size(), correctSlots.size());
+        TeslaMaps.debug("[StartsWithTerminal] Progress: {}/{} items clicked", clickedSlots.size(), correctSlots.size());
     }
 
     public static int getNextCorrectSlot() {
@@ -265,7 +243,7 @@ public class StartsWithTerminal {
         if (clickedSlots.contains(slotIndex)) {
             if (stack.hasFoil()) {
                 isClicked = false; // Click was registered
-                TeslaMaps.LOGGER.info("[StartsWithTerminal] Slot {} click confirmed (has glint)", slotIndex);
+                TeslaMaps.debug("[StartsWithTerminal] Slot {} click confirmed (has glint)", slotIndex);
             }
         }
     }
@@ -278,9 +256,9 @@ public class StartsWithTerminal {
         }
 
         if (correctSlots.contains(slotIndex)) {
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] Blocked click on slot {} - already clicked", slotIndex);
+            TeslaMaps.debug("[StartsWithTerminal] Blocked click on slot {} - already clicked", slotIndex);
         } else {
-            TeslaMaps.LOGGER.info("[StartsWithTerminal] Blocked click on slot {} - not a matching item", slotIndex);
+            TeslaMaps.debug("[StartsWithTerminal] Blocked click on slot {} - not a matching item", slotIndex);
         }
         return false;
     }

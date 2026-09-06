@@ -7,3 +7,21 @@ accessible field net/minecraft/client/renderer/RenderPipelines LINES_SNIPPET Lco
 accessible field net/minecraft/client/renderer/RenderPipelines DEBUG_FILLED_SNIPPET Lcom/mojang/blaze3d/pipeline/RenderPipeline$Snippet;
 accessible method net/minecraft/client/renderer/RenderPipelines register (Lcom/mojang/blaze3d/pipeline/RenderPipeline;)Lcom/mojang/blaze3d/pipeline/RenderPipeline;
 accessible method net/minecraft/client/renderer/rendertype/RenderType create (Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)Lnet/minecraft/client/renderer/rendertype/RenderType;
+
+# SDF gui shapes: the gui pipeline snippet to derive from, beginElement to
+# write the custom per-quad SdfParams attribute, guiRenderState to queue elements.
+accessible field net/minecraft/client/renderer/RenderPipelines GUI_SNIPPET Lcom/mojang/blaze3d/pipeline/RenderPipeline$Snippet;
+accessible method com/mojang/blaze3d/vertex/BufferBuilder beginElement (Lcom/mojang/blaze3d/vertex/VertexFormatElement;)J
+accessible field net/minecraft/client/gui/GuiGraphicsExtractor guiRenderState Lnet/minecraft/client/renderer/state/gui/GuiRenderState;
+
+
+# Glass server list: the nested Entry type is protected, so referencing it from
+# our mixin signature needs it opened up.
+accessible class net/minecraft/client/gui/components/AbstractSelectionList$Entry
+
+# In-world skybox: per-frame uniform updates on the sky post chain.
+accessible field net/minecraft/client/renderer/PostChain passes Ljava/util/List;
+accessible field net/minecraft/client/renderer/PostPass customUniforms Ljava/util/Map;
+
+# Reading the currently bound key of a mapping: only the default is public.
+accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;

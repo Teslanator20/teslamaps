@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.mojang.authlib.properties.Property;
@@ -105,7 +90,7 @@ public class SoulweaverHider {
         String tex = skullTexture(head);
         String url = textureUrl(tex);
         if (cfg.debugMode && DBG_SEEN.add(url == null ? "null:" + tex : url)) {
-            com.teslamaps.TeslaMaps.LOGGER.info("[SkullDbg] armorstand head url={} (soulweaver target={}) raw={}", url, SOUL_WEAVER_URL, tex);
+            com.teslamaps.TeslaMaps.debug("[SkullDbg] armorstand head url={} (soulweaver target={}) raw={}", url, SOUL_WEAVER_URL, tex);
         }
         if (url == null) return false;
 
@@ -153,8 +138,10 @@ public class SoulweaverHider {
         return cleanName(head.getHoverName().getString()).equals("Skeleton Skull");
     }
 
+    private static final java.util.regex.Pattern COLOR_CODE = java.util.regex.Pattern.compile("(?i)§[0-9A-FK-OR]");
+
     private static String cleanName(String s) {
-        return s == null ? "" : s.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        return s == null ? "" : COLOR_CODE.matcher(s).replaceAll("").trim();
     }
 
     private static String skullTexture(ItemStack stack) {

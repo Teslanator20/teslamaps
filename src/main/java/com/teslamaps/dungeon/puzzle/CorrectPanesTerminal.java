@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -81,7 +66,6 @@ public class CorrectPanesTerminal {
             terminalOpenTime = System.currentTimeMillis();
             lastClickTime = 0;
             lastScanTime = 0;
-            TeslaMaps.LOGGER.info("[CorrectPanesTerminal] ===== TERMINAL DETECTED =====");
             initialScanDone = true;
         }
 
@@ -96,11 +80,11 @@ public class CorrectPanesTerminal {
             }
         }
 
-        boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
+        boolean usingClickAnywhere = false;
 
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
-            TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Break threshold reached, resetting click state");
+            TeslaMaps.debug("[CorrectPanesTerminal] Break threshold reached, resetting click state");
             isClicked = false;
         }
 
@@ -123,11 +107,10 @@ public class CorrectPanesTerminal {
 
             if (!solved) {
                 solved = true;
-                TeslaMaps.LOGGER.info("[CorrectPanesTerminal] ===== ALL PANES CORRECTED =====");
             }
 
             if (timeSinceLastClick > 1000) {
-                TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Container still open after 1s, restarting...");
+                TeslaMaps.debug("[CorrectPanesTerminal] Container still open after 1s, restarting...");
                 incorrectSlots.clear();
                 clickedSlots.clear();
                 solved = false;
@@ -162,7 +145,7 @@ public class CorrectPanesTerminal {
         if (!newIncorrectSlots.equals(incorrectSlots)) {
             incorrectSlots = newIncorrectSlots;
             if (!incorrectSlots.isEmpty()) {
-                TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Found {} incorrect panes: {}",
+                TeslaMaps.debug("[CorrectPanesTerminal] Found {} incorrect panes: {}",
                     incorrectSlots.size(), incorrectSlots);
             }
         }
@@ -182,8 +165,7 @@ public class CorrectPanesTerminal {
         int slotToClick = incorrectSlots.get(0);
         ChestMenu handler = screen.getMenu();
 
-        TeslaMaps.LOGGER.info("[CorrectPanesTerminal] ===== PERFORMING AUTO-CLICK =====");
-        TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Clicking slot {} (clicked {} so far)",
+        TeslaMaps.debug("[CorrectPanesTerminal] Clicking slot {} (clicked {} so far)",
             slotToClick, clickedSlots.size());
 
         mc.gameMode.handleContainerInput(
@@ -198,8 +180,7 @@ public class CorrectPanesTerminal {
         lastClickTime = System.currentTimeMillis();
         isClicked = true;
 
-        TeslaMaps.LOGGER.info("[CorrectPanesTerminal] ===== CLICK SENT =====");
-        TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Total clicks: {}", clickedSlots.size());
+        TeslaMaps.debug("[CorrectPanesTerminal] Total clicks: {}", clickedSlots.size());
     }
 
     public static int getNextCorrectSlot() {
@@ -224,14 +205,14 @@ public class CorrectPanesTerminal {
                 stack.getItem() != Items.ORANGE_STAINED_GLASS_PANE) {
                 incorrectSlots.remove(Integer.valueOf(slotIndex));
                 isClicked = false;
-                TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Slot {} corrected!", slotIndex);
+                TeslaMaps.debug("[CorrectPanesTerminal] Slot {} corrected!", slotIndex);
             }
         }
         else if (stack.getItem() == Items.RED_STAINED_GLASS_PANE ||
                  stack.getItem() == Items.ORANGE_STAINED_GLASS_PANE) {
             if (!clickedSlots.contains(slotIndex)) {
                 incorrectSlots.add(slotIndex);
-                TeslaMaps.LOGGER.info("[CorrectPanesTerminal] New incorrect pane at slot {}", slotIndex);
+                TeslaMaps.debug("[CorrectPanesTerminal] New incorrect pane at slot {}", slotIndex);
             }
         }
     }
@@ -243,7 +224,7 @@ public class CorrectPanesTerminal {
             return true;
         }
 
-        TeslaMaps.LOGGER.info("[CorrectPanesTerminal] Blocked click on slot {} - not an incorrect pane", slotIndex);
+        TeslaMaps.debug("[CorrectPanesTerminal] Blocked click on slot {} - not an incorrect pane", slotIndex);
         return false;
     }
 

@@ -1,17 +1,5 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.render;
 
-import com.teslamaps.dungeon.termgui.TerminalGuiManager;
 import com.teslamaps.features.LeapOverlay;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
@@ -24,12 +12,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 public class ContainerOverlays {
 
     public static void renderAll(GuiGraphicsExtractor context, int mouseX, int mouseY) {
-        if (TerminalGuiManager.shouldRenderCustomGui()) {
-            TerminalGuiManager.render(context);
-        } else if (com.teslamaps.features.TerminalSolver.shouldRender()) {
-            com.teslamaps.features.TerminalSolver.render(context);
-        }
-
         if (LeapOverlay.shouldRender()) {
             LeapOverlay.render(context, mouseX, mouseY);
         }
@@ -51,13 +33,24 @@ public class ContainerOverlays {
         }
 
         com.teslamaps.features.BazaarOwnOrders.render(context);
+        com.teslamaps.features.ProgressHighlight.render(context);
+
+        if (com.teslamaps.features.foraging.HotF.shouldRender()) {
+            com.teslamaps.features.foraging.HotF.render(context);
+        }
 
         if (com.teslamaps.features.Searchbar.shouldRender()) {
             com.teslamaps.features.Searchbar.render(context);
         }
 
         com.teslamaps.features.BackpackPreview.renderOpenPageBorder(context);
-        com.teslamaps.features.BackpackPreview.render(context, mouseX, mouseY);
+        com.teslamaps.features.FarmProfitOverlay.drawTooltip(context,
+                net.minecraft.client.Minecraft.getInstance(), mouseX, mouseY);
+        com.teslamaps.features.GardenPlots.scanConfigureScreen();
+        if (com.teslamaps.features.GardenPlotsOverlay.shouldRender()) {
+            com.teslamaps.features.GardenPlotsOverlay.render(context, mouseX, mouseY);
+        }
+
         com.teslamaps.features.NoCursorReset.onRender();
 
         if (com.teslamaps.features.StorageOverlay.active()) {

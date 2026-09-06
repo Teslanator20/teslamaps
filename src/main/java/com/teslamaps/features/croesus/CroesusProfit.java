@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features.croesus;
 
 import com.teslamaps.TeslaMaps;
@@ -103,7 +88,9 @@ public class CroesusProfit {
             int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
             if (state == 1) ctx.fill(sx, sy, sx + 16, sy + 16, 0xFF44DD55);
             else if (state == 3) ctx.fill(sx, sy, sx + 16, sy + 16, 0xFFDD4444);
-            if (kismetUsed(slot.getItem())) ctx.text(mc.font, "§a§l✔", sx + 9, sy + 1, 0xFF55FF55);
+            if (kismetUsed(slot.getItem())) {
+                com.teslamaps.render.gui.TeslaGui.checkIcon(ctx, sx + 8, sy + 1, 8, 0xFF55FF55);
+            }
         }
     }
 
@@ -319,17 +306,17 @@ public class CroesusProfit {
     }
 
     private static void dumpAll(AbstractContainerScreen<?> cs, String title) {
-        TeslaMaps.LOGGER.info("[CroesusDump] TITLE: '{}'", title);
+        TeslaMaps.debug("[CroesusDump] TITLE: '{}'", title);
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
             ItemStack item = slot.getItem();
             if (item.isEmpty()) continue;
             ItemLore lore = item.get(DataComponents.LORE);
             if (lore == null || lore.lines().isEmpty()) continue;
-            TeslaMaps.LOGGER.info("[CroesusDump] === {} (nameStruck={}) ===",
+            TeslaMaps.debug("[CroesusDump] === {} (nameStruck={}) ===",
                     strip(item.getHoverName().getString()), isStruck(item.getHoverName()));
             for (Component cmp : lore.lines())
-                TeslaMaps.LOGGER.info("[CroesusDump]  |{} {}", isStruck(cmp) ? " [STRUCK]" : "", strip(cmp.getString()));
+                TeslaMaps.debug("[CroesusDump]  |{} {}", isStruck(cmp) ? " [STRUCK]" : "", strip(cmp.getString()));
         }
     }
 
@@ -345,6 +332,6 @@ public class CroesusProfit {
     }
 
     private static String strip(String s) {
-        return s.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        return com.teslamaps.utils.StringUtil.stripTrim(s);
     }
 }

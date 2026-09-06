@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -78,7 +63,7 @@ public class ChronomatronSolver {
 
         if (!(mc.screen instanceof ContainerScreen screen)) {
             if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[Chronomatron] Screen closed, resetting");
+                TeslaMaps.debug("[Chronomatron] Screen closed, resetting");
             }
             reset();
             return;
@@ -107,7 +92,7 @@ public class ChronomatronSolver {
 
             isSingleRow = cleanTitle.endsWith("(High)") || cleanTitle.endsWith("(Grand)") || cleanTitle.endsWith("(Supreme)");
 
-            TeslaMaps.LOGGER.info("[Chronomatron] ===== DETECTED: {} (singleRow={}) =====", cleanTitle, isSingleRow);
+            TeslaMaps.debug("[Chronomatron] ===== DETECTED: {} (singleRow={}) =====", cleanTitle, isSingleRow);
             initialScanDone = true;
         }
 
@@ -119,11 +104,11 @@ public class ChronomatronSolver {
             lastScanTime = currentTime;
         }
 
-        boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
+        boolean usingClickAnywhere = false;
 
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
-            TeslaMaps.LOGGER.info("[Chronomatron] Break threshold reached, resetting click state");
+            TeslaMaps.debug("[Chronomatron] Break threshold reached, resetting click state");
             isClicked = false;
         }
 
@@ -175,7 +160,7 @@ public class ChronomatronSolver {
                                 Item glassItem = TERRACOTTA_TO_GLASS.get(stack.getItem());
                                 if (glassItem != null) {
                                     chronomatronSlots.add(glassItem);
-                                    TeslaMaps.LOGGER.info("[Chronomatron] Added item {} to sequence (total: {})",
+                                    TeslaMaps.debug("[Chronomatron] Added item {} to sequence (total: {})",
                                         glassItem.toString(), chronomatronSlots.size());
                                     state = State.WAIT;
                                 }
@@ -194,7 +179,7 @@ public class ChronomatronSolver {
             }
             case WAIT -> {
                 if (instructionName.startsWith("Timer: ")) {
-                    TeslaMaps.LOGGER.info("[Chronomatron] Timer started, entering SHOW state with {} items", chronomatronSlots.size());
+                    TeslaMaps.debug("[Chronomatron] Timer started, entering SHOW state with {} items", chronomatronSlots.size());
                     state = State.SHOW;
                     chronomatronCurrentOrdinal = 0;
                     terminalOpenTime = System.currentTimeMillis(); // Reset for click timing
@@ -203,14 +188,14 @@ public class ChronomatronSolver {
             case END -> {
                 if (!instructionName.startsWith("Timer: ")) {
                     if (instructionName.equals("Remember the pattern!")) {
-                        TeslaMaps.LOGGER.info("[Chronomatron] New round starting");
+                        TeslaMaps.debug("[Chronomatron] New round starting");
                         chronomatronChainLengthCount = 0;
                         chronomatronCurrentOrdinal = 0;
                         chronomatronCurrentSlot = 0;
                         previousGlintState.clear();
                         state = State.REMEMBER;
                     } else {
-                        TeslaMaps.LOGGER.info("[Chronomatron] Experiment ended");
+                        TeslaMaps.debug("[Chronomatron] Experiment ended");
                         reset();
                     }
                 }
@@ -252,7 +237,7 @@ public class ChronomatronSolver {
             return;
         }
 
-        TeslaMaps.LOGGER.info("[Chronomatron] Clicking slot {} for item {} ({}/{})",
+        TeslaMaps.debug("[Chronomatron] Clicking slot {} for item {} ({}/{})",
             slotToClick, targetItem, chronomatronCurrentOrdinal + 1, chronomatronSlots.size());
 
         mc.gameMode.handleContainerInput(
@@ -268,7 +253,7 @@ public class ChronomatronSolver {
         isClicked = true;
 
         if (chronomatronCurrentOrdinal >= chronomatronSlots.size()) {
-            TeslaMaps.LOGGER.info("[Chronomatron] Sequence complete, entering END state");
+            TeslaMaps.debug("[Chronomatron] Sequence complete, entering END state");
             state = State.END;
         }
     }
@@ -325,7 +310,7 @@ public class ChronomatronSolver {
 
     public static void reset() {
         if (initialScanDone) {
-            TeslaMaps.LOGGER.info("[Chronomatron] Resetting");
+            TeslaMaps.debug("[Chronomatron] Resetting");
         }
         state = State.REMEMBER;
         chronomatronSlots.clear();

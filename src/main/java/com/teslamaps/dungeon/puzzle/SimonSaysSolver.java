@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -70,8 +55,6 @@ public class SimonSaysSolver {
     private static int breakTicks = 0;
     private static boolean canBreak = false;
     private static boolean wasBroken = false;
-    private static int autoStartClicks = 0;
-    private static int autoStartDelay = 0;
 
     public static void tick() {
         if (!DungeonManager.isInDungeon()) {
@@ -93,13 +76,6 @@ public class SimonSaysSolver {
         long now = System.currentTimeMillis();
         if (now - lastTickTime < 50) return;
         lastTickTime = now;
-
-        if (autoStartClicks > 0 && --autoStartDelay <= 0) {
-            // jittered spacing (100-200ms) so the clicks don't land on a fixed grid
-            autoStartDelay = 2 + java.util.concurrent.ThreadLocalRandom.current().nextInt(3);
-            autoStartClicks--;
-            clickStartButton();
-        }
 
         // alerts work without the solver enabled
         tickAlerts(mc);
@@ -123,7 +99,7 @@ public class SimonSaysSolver {
                     }
                 }
                 if (buttonCount > 8) {
-                    TeslaMaps.LOGGER.info("[SimonSays] Grid reset detected");
+                    TeslaMaps.debug("[SimonSays] Grid reset detected");
                     firstPhase = false;
                     startClickCount = 0;
                 }
@@ -147,7 +123,7 @@ public class SimonSaysSolver {
                 clickIndex = 0;
                 firstPhase = true;
                 lastLanternTick = -1;
-                TeslaMaps.LOGGER.info("[SimonSays] Start button pressed, resetting");
+                TeslaMaps.debug("[SimonSays] Start button pressed, resetting");
             }
             return;
         }
@@ -157,7 +133,7 @@ public class SimonSaysSolver {
                 if (!clickSequence.contains(pos)) {
                     clickSequence.add(pos.immutable());
                     lastLanternTick = 0;
-                    TeslaMaps.LOGGER.info("[SimonSays] Added to sequence: {} (total: {})", pos, clickSequence.size());
+                    TeslaMaps.debug("[SimonSays] Added to sequence: {} (total: {})", pos, clickSequence.size());
 
                     if (firstPhase) {
                         if (clickSequence.size() == 2) {
@@ -183,7 +159,7 @@ public class SimonSaysSolver {
                         clickSequence.clear();
                         clickIndex = 0;
                         firstPhase = false;
-                        TeslaMaps.LOGGER.info("[SimonSays] Round complete!");
+                        TeslaMaps.debug("[SimonSays] Round complete!");
                     }
                 }
             } else if (newState.isAir()) {
@@ -202,7 +178,6 @@ public class SimonSaysSolver {
             breakTicks = 0;
             canBreak = false;
             wasBroken = false;
-            tryAutoStart();
             return;
         }
         if (!monitoring) return;
@@ -258,26 +233,6 @@ public class SimonSaysSolver {
         if (mc.gui == null) return;
         mc.gui.setTimes(0, 25, 5);
         mc.gui.setTitle(net.minecraft.network.chat.Component.literal(text));
-    }
-
-    private static void tryAutoStart() {
-        if (!TeslaMapsConfig.get().simonSaysAutoStart) return;
-        if (com.teslamaps.features.LegitMode.blocksCheats()) return;
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bhr
-                && bhr.getBlockPos().equals(START_BUTTON)) {
-            autoStartClicks = 3; // always exactly 3
-            // human-ish reaction delay before the first click (~150-300ms), fresh roll every run
-            autoStartDelay = 3 + java.util.concurrent.ThreadLocalRandom.current().nextInt(4);
-        }
-    }
-
-    private static void clickStartButton() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.gameMode == null) return;
-        mc.gameMode.useItemOn(mc.player, net.minecraft.world.InteractionHand.MAIN_HAND,
-                new net.minecraft.world.phys.BlockHitResult(Vec3.atCenterOf(START_BUTTON),
-                        net.minecraft.core.Direction.WEST, START_BUTTON, false));
     }
 
     // true = swallow the click: it's a device button but not the next one in the sequence (sneak overrides)
@@ -339,7 +294,5 @@ public class SimonSaysSolver {
         breakTicks = 0;
         canBreak = false;
         wasBroken = false;
-        autoStartClicks = 0;
-        autoStartDelay = 0;
     }
 }

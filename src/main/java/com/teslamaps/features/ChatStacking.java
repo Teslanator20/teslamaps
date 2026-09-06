@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -24,6 +9,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
 import java.util.List;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,7 +27,7 @@ public class ChatStacking {
         if (all.size() < 2) return;
 
         GuiMessage newest = all.get(0);
-        String newBase = base(strip(newest.content().getString()));
+        String newBase = baseOf(newest);
         if (shouldNotStack(newBase)) return;
 
         int windowTicks = Math.max(1, c.chatStackWindowMinutes) * 60 * 20;
@@ -49,11 +36,11 @@ public class ChatStacking {
         for (int i = 1; i < all.size(); i++) {
             GuiMessage prev = all.get(i);
             if (newest.addedTime() - prev.addedTime() > windowTicks) break; // past the window -> stop
-            if (base(strip(prev.content().getString())).equals(newBase)) { matchIdx = i; break; }
+            if (baseOf(prev).equals(newBase)) { matchIdx = i; break; }
         }
         if (matchIdx < 0) return;
 
-        int count = parseCount(strip(all.get(matchIdx).content().getString())) + 1;
+        int count = parseCount(plainOf(all.get(matchIdx))) + 1;
 
         Style counterStyle = Style.EMPTY.withColor(0xAAAAAA)
                 .withStrikethrough(false).withUnderlined(false).withBold(false)
@@ -78,8 +65,34 @@ public class ChatStacking {
         return false;
     }
 
+    // stripping + the counter regex used to run over the whole visible history on
+    // every incoming message; the plain form of a message never changes
+    // identity keyed: Component.hashCode walks the whole tree
+    private static final Map<Component, String> plainCache = new IdentityHashMap<>();
+    private static final Map<Component, String> baseCache = new IdentityHashMap<>();
+
+    private static String plainOf(GuiMessage msg) {
+        Component c = msg.content();
+        String cached = plainCache.get(c);
+        if (cached != null) return cached;
+        String plain = strip(c.getString());
+        if (plainCache.size() > 512) plainCache.clear();
+        plainCache.put(c, plain);
+        return plain;
+    }
+
+    private static String baseOf(GuiMessage msg) {
+        Component c = msg.content();
+        String cached = baseCache.get(c);
+        if (cached != null) return cached;
+        String b = base(plainOf(msg));
+        if (baseCache.size() > 512) baseCache.clear();
+        baseCache.put(c, b);
+        return b;
+    }
+
     private static String strip(String s) {
-        return s.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        return com.teslamaps.utils.StringUtil.strip(s);
     }
 
     private static String base(String plain) {

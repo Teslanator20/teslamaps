@@ -16,6 +16,19 @@ repositories {
 
 loom {
     accessWidenerPath = file("src/main/resources/teslamaps.accesswidener")
+
+    runs {
+        client {
+            programArgs "--quickPlaySingleplayer", "New World"
+            // ./gradlew.bat runClient -Pjfr=120  -> run/teslamaps.jfr
+            // JFR sees every thread and records allocation, GC and safepoints,
+            // which the render-thread sampler in spark cannot.
+            if (project.hasProperty("jfr")) {
+                vmArgs "-XX:StartFlightRecording=duration=${project.jfr}s,settings=profile," +
+                        "filename=${rootDir}/run/teslamaps.jfr,dumponexit=true"
+            }
+        }
+    }
 }
 
 dependencies {

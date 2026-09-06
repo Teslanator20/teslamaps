@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * Watcher analytics mirror legitcatmod's WatcherAddons (grade by time-to-dialogue with <22s/<25s
- * thresholds + wolf/cat/wither sound + title; watcher-move timing; blood-camp breakdown; live HUD).
- * Reimplemented; watcher entity reused from BloodCamp.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon;
 
 import com.teslamaps.config.TeslaMapsConfig;

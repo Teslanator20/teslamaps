@@ -1,16 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * Copyright (c) 2026 Teslanator20.
- *
- * See the LICENSE file in the project root for full terms.
- */
 package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -48,7 +35,8 @@ public class SoundPlayMixin {
     private void teslamaps$debugAndMute(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
-        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning) return;
+        boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);
+        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !foragingMutes) return;
 
         String id;
         float pitch, vol;
@@ -65,6 +53,10 @@ public class SoundPlayMixin {
         }
         if (c.muteBonzoStaff && BONZO_STAFF.contains(id)) { cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED); return; }
         if (c.muteLightning && LIGHTNING.contains(id)) { cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED); return; }
+        if (foragingMutes && com.teslamaps.features.foraging.ForagingMutes.shouldMute(c, id, vol)) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
+        }
         if (hasMutes && isMuted(c, id, pitch)) cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
     }
 

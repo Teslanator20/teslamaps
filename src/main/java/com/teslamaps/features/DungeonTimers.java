@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -46,17 +31,50 @@ public class DungeonTimers {
     public static void render(GuiGraphicsExtractor ctx, DeltaTracker delta) {
         if (lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || mc.screen != null) return;
+        if (mc.player == null || mc.options.hideGui) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
+
+        // the invincibility block stays up in the inventory so it can be dragged there
+        boolean inScreen = mc.screen != null;
+        if (inScreen && !inInventory(mc)) return;
 
         List<Row> inv = new ArrayList<>();
         List<Row> rest = new ArrayList<>();
         for (Map.Entry<String, Row> e : lines.entrySet()) {
             (INVINCIBILITY_KEYS.contains(e.getKey()) ? inv : rest).add(e.getValue());
         }
-        if (!rest.isEmpty()) drawRows(ctx, mc, c.dungeonTimersX, c.dungeonTimersY, c.dungeonTimersScale, rest);
-        boolean showInv = !c.invincibilityOnlyInBoss || com.teslamaps.dungeon.DungeonManager.isInBoss();
-        if (showInv && !inv.isEmpty()) drawRows(ctx, mc, c.invincibilityX, c.invincibilityY, c.invincibilityScale, inv);
+        if (!inScreen && !rest.isEmpty()) {
+            drawRows(ctx, mc, c.dungeonTimersX, c.dungeonTimersY, c.dungeonTimersScale, rest);
+        }
+        if (!inv.isEmpty()) drawRows(ctx, mc, c.invincibilityX, c.invincibilityY, c.invincibilityScale, inv);
+    }
+
+    private static boolean inInventory(Minecraft mc) {
+        return mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
+    }
+
+    public static boolean invincibilityVisible() {
+        if (!TeslaMapsConfig.get().invincibilityTimer) return false;
+        for (String key : INVINCIBILITY_KEYS) if (lines.containsKey(key)) return true;
+        return false;
+    }
+
+    public static int invincibilityWidth(float scale) {
+        Minecraft mc = Minecraft.getInstance();
+        int widest = 0;
+        for (Map.Entry<String, Row> e : lines.entrySet()) {
+            if (!INVINCIBILITY_KEYS.contains(e.getKey())) continue;
+            Row r = e.getValue();
+            boolean icon = r.icon() != null && !r.icon().isEmpty();
+            widest = Math.max(widest, (icon ? 12 : 0) + mc.font.width(r.text()));
+        }
+        return (int) (widest * scale);
+    }
+
+    public static int invincibilityHeight(float scale) {
+        int rows = 0;
+        for (String key : lines.keySet()) if (INVINCIBILITY_KEYS.contains(key)) rows++;
+        return (int) ((rows * 11 - 2) * scale);
     }
 
     // HUD-editor preview: the warp/purple/etc block
@@ -78,6 +96,16 @@ public class DungeonTimers {
         pose.pushMatrix();
         pose.translate(x, y);
         pose.scale(scale, scale);
+
+        int widest = 0;
+        int lines = 0;
+        for (Row r : rows) {
+            boolean icon = r.icon() != null && !r.icon().isEmpty();
+            widest = Math.max(widest, (icon ? 12 : 0) + mc.font.width(r.text()));
+            lines++;
+        }
+        com.teslamaps.render.gui.TeslaGui.backdrop(ctx, 0, 0, widest, lines * 11 - 2);
+
         int row = 0;
         for (Row r : rows) {
             if (r.icon() != null && !r.icon().isEmpty()) {

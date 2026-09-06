@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -34,11 +19,19 @@ public class TimerTriggers {
     private static int stormPadTicks = -1;    // repeating 20t Storm pad pulse
     private static int lightningTicks = -1;   // 560t until Storm's lightning
 
+    /** How long READY keeps standing after the cooldown ends. */
+    private static final long READY_LINGER = 30000;
+
     private static final class Mask {
         final String key, name; final long imm; long cd; long proc = -1;
-        final ItemStack icon;
-        Mask(String key, String name, long imm, long cd, ItemStack icon) {
-            this.key = key; this.name = name; this.imm = imm; this.cd = cd; this.icon = icon;
+        final String hash; ItemStack icon;
+        Mask(String key, String name, long imm, long cd, String hash) {
+            this.key = key; this.name = name; this.imm = imm; this.cd = cd; this.hash = hash;
+        }
+        // built lazily: <clinit> can run before the item registry is bound
+        ItemStack icon() {
+            if (icon == null) icon = createSkull(hash);
+            return icon;
         }
         void tick(boolean enabled) {
             if (!enabled || proc < 0) { DungeonTimers.clear(key); return; }
@@ -47,16 +40,18 @@ public class TimerTriggers {
                 // skull icon identifies the mask, so no name/label text — just the time
                 String s = (dt < imm) ? "§a" + fmt(imm - dt)
                                       : color(cd - dt, cd) + fmt(cd - dt);
-                DungeonTimers.set(key, s, icon);
-            } else if (dt < cd + 5000) {
-                DungeonTimers.set(key, "§a§lREADY", icon);
+                DungeonTimers.set(key, s, icon());
+            } else if (dt < cd + READY_LINGER) {
+                DungeonTimers.set(key, "§a§lREADY", icon());
             } else { proc = -1; DungeonTimers.clear(key); }
         }
     }
 
     public static ItemStack maskIcon(int i) {
-        return switch (i) { case 0 -> BONZO.icon; case 1 -> SPIRIT.icon; default -> PHOENIX.icon; };
+        return switch (i) { case 0 -> BONZO.icon(); case 1 -> SPIRIT.icon(); default -> PHOENIX.icon(); };
     }
+
+    private static boolean skullWarned = false;
 
     // hardcoded mask/pet head icons (texture hashes), Odin-style icon + ready/cooldown display
     private static ItemStack createSkull(String hash) {
@@ -74,17 +69,17 @@ public class TimerTriggers {
             head.set(DataComponents.PROFILE, net.minecraft.world.item.component.ResolvableProfile.createResolved(profile));
             return head;
         } catch (Throwable t) {
-            com.teslamaps.TeslaMaps.LOGGER.warn("[TimerTriggers] failed to build skull icon", t);
+            if (!skullWarned) { skullWarned = true; com.teslamaps.TeslaMaps.LOGGER.warn("[TimerTriggers] failed to build skull icon", t); }
             return null; // DungeonTimers falls back to text-only when icon is null
         }
     }
 
     private static final Mask BONZO = new Mask("bonzo", "§9Bonzo", 3000, 360000,
-            createSkull("12716ecbf5b8da00b05f316ec6af61e8bd02805b21eb8e440151468dc656549c"));
+            "12716ecbf5b8da00b05f316ec6af61e8bd02805b21eb8e440151468dc656549c");
     private static final Mask SPIRIT = new Mask("spirit", "§bSpirit", 3000, 30000,
-            createSkull("9bbe721d7ad8ab965f08cbec0b834f779b5197f79da4aea3d13d253ece9dec2"));
+            "9bbe721d7ad8ab965f08cbec0b834f779b5197f79da4aea3d13d253ece9dec2");
     private static final Mask PHOENIX = new Mask("phoenix", "§6Phoenix", 4000, 60000,
-            createSkull("66b1b59bc890c9c97527787dde20600c8b86f6b9912d51a6bfcdb0e4c2aa3c97"));
+            "66b1b59bc890c9c97527787dde20600c8b86f6b9912d51a6bfcdb0e4c2aa3c97");
 
     public static void onChatMessage(String m) {
         if (m.contains("The Catacombs, Floor") && m.contains("entered")) warpEnd = now() + 30000;
@@ -125,9 +120,9 @@ public class TimerTriggers {
             else DungeonTimers.set("warp", "§eWarp§f: " + color(ms, 30000) + fmt(ms));
         } else DungeonTimers.clear("warp");
 
-        BONZO.tick(c.bonzoTimer);
-        SPIRIT.tick(c.spiritMaskTimer);
-        PHOENIX.tick(c.phoenixTimer);
+        BONZO.tick(c.invincibilityTimer);
+        SPIRIT.tick(c.invincibilityTimer);
+        PHOENIX.tick(c.invincibilityTimer);
 
         if (c.purplePadTimer && purplePadTicks > 0) {
             purplePadTicks--;

@@ -1,18 +1,4 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * Egg detection (armor stand + skull texture matching) is adapted from
- * Skyblocker (https://github.com/SkyblockerMod/Skyblocker, LGPL-3.0).
- * See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
+// Adapted from Skyblocker's EggFinder.java (LGPL-3.0), see NOTICE.md
 package com.teslamaps.features;
 
 import com.mojang.authlib.properties.Property;

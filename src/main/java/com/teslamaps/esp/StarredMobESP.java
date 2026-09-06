@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.esp;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -95,12 +80,12 @@ public class StarredMobESP {
 
     public static void onWitherDoorOpened() {
         witherKeyPickedUp = false;
-        TeslaMaps.LOGGER.info("[KeyESP] Wither door opened, key state reset");
+        TeslaMaps.debug("[KeyESP] Wither door opened, key state reset");
     }
 
     public static void onBloodDoorOpened() {
         bloodKeyPickedUp = false;
-        TeslaMaps.LOGGER.info("[KeyESP] Blood door opened, key state reset");
+        TeslaMaps.debug("[KeyESP] Blood door opened, key state reset");
     }
 
     private static final List<Entity> witherKeyEntities = new ArrayList<>();
@@ -260,19 +245,11 @@ public class StarredMobESP {
                     witherKeyPositions.add(new Vec3(entity.getX(), entity.getY(), entity.getZ()));
                     witherKeyEntities.add(entity);
                     glowingEntities.put(entity, WITHER_KEY_COLOR & 0x00FFFFFF);
-                    if (System.currentTimeMillis() % 3000 < 50) {
-                        TeslaMaps.LOGGER.info("[KeyESP] Found Wither Key: {} at {},{},{}",
-                            entity.getClass().getSimpleName(), entity.getX(), entity.getY(), entity.getZ());
-                    }
                 }
                 else if (entityName.equals("Blood Key") || entityName.contains("Blood Key")) {
                     bloodKeyPositions.add(new Vec3(entity.getX(), entity.getY(), entity.getZ()));
                     bloodKeyEntities.add(entity);
                     glowingEntities.put(entity, BLOOD_KEY_COLOR & 0x00FFFFFF);
-                    if (System.currentTimeMillis() % 3000 < 50) {
-                        TeslaMaps.LOGGER.info("[KeyESP] Found Blood Key: {} at {},{},{}",
-                            entity.getClass().getSimpleName(), entity.getX(), entity.getY(), entity.getZ());
-                    }
                 }
             }
 
@@ -312,9 +289,7 @@ public class StarredMobESP {
             fairyDoorBoxes.clear();
         }
 
-        if (System.currentTimeMillis() % 5000 < 50 && pestESP) {
-            TeslaMaps.LOGGER.info("[PestESP] pestESP enabled, in Garden, pestPositions will be tracked from invisible entities");
-        }
+        collectCustomNameStands(mc);
 
         int checkedCount = 0;
         for (Entity entity : mc.level.entitiesForRendering()) {
@@ -371,7 +346,6 @@ public class StarredMobESP {
         AABB searchBox = new AABB(px - 15, py - 5, pz - 15,
                                 px + 15, py + 5, pz + 15);
 
-        TeslaMaps.LOGGER.info("[EntityDebug] === ALL Entities within 15 blocks ===");
 
         for (Entity entity : mc.level.getEntitiesOfClass(Entity.class, searchBox, e -> !(e instanceof Player) || e != mc.player)) {
             String className = entity.getClass().getSimpleName();
@@ -383,7 +357,7 @@ public class StarredMobESP {
             boolean invisible = entity.isInvisible();
             boolean isArmorStand = entity instanceof ArmorStand;
 
-            TeslaMaps.LOGGER.info("[EntityDebug] class={}, name='{}', customName='{}', size={}x{}, invisible={}, armorStand={}, pos={},{},{}",
+            TeslaMaps.debug("[EntityDebug] class={}, name='{}', customName='{}', size={}x{}, invisible={}, armorStand={}, pos={},{},{}",
                     className, name, customName, String.format("%.2f", width), String.format("%.2f", height), invisible, isArmorStand,
                     String.format("%.1f", entity.getX()), String.format("%.1f", entity.getY()), String.format("%.1f", entity.getZ()));
         }
@@ -648,43 +622,81 @@ public class StarredMobESP {
         return false;
     }
 
+    // the patterns were lowercased again for every entity on every tick
+    private static List<String> mobSource;
+    private static String[] mobLower = new String[0];
+    private static List<String> tracerSource;
+    private static String[] tracerLower = new String[0];
+
+    private static String[] lowered(List<String> src, boolean tracers) {
+        if (tracers) {
+            if (src != tracerSource) {
+                tracerSource = src;
+                tracerLower = src.stream().map(String::toLowerCase).toArray(String[]::new);
+            }
+            return tracerLower;
+        }
+        if (src != mobSource) {
+            mobSource = src;
+            mobLower = src.stream().map(String::toLowerCase).toArray(String[]::new);
+        }
+        return mobLower;
+    }
+
     private static boolean matchesCustomESP(String entityName) {
         List<String> customMobs = TeslaMapsConfig.get().customESPMobs;
         if (customMobs == null || customMobs.isEmpty()) return false;
 
         String lowerName = entityName.toLowerCase();
-        for (String pattern : customMobs) {
-            if (lowerName.contains(pattern.toLowerCase())) {
+        for (String pattern : lowered(customMobs, false)) {
+            if (lowerName.contains(pattern)) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean matchesCustomESPArmorStand(Entity entity) {
+    private static boolean matchesCustomTracer(String entityName) {
+        List<String> tracers = TeslaMapsConfig.get().customESPTracers;
+        if (tracers == null || tracers.isEmpty()) return false;
+
+        String lowerName = entityName.toLowerCase();
+        for (String pattern : lowered(tracers, true)) {
+            if (lowerName.contains(pattern)) return true;
+        }
+        return false;
+    }
+
+    // This used to run one getEntitiesOfClass query per entity per tick, which with
+    // ~600 entities loaded cost up to 7.5ms in a single tick. The nametag stands are
+    // collected once instead, then every entity is tested against that short list.
+    private static final List<ArmorStand> customNameStands = new ArrayList<>();
+
+    private static void collectCustomNameStands(Minecraft mc) {
+        customNameStands.clear();
         List<String> customMobs = TeslaMapsConfig.get().customESPMobs;
-        if (customMobs == null || customMobs.isEmpty()) return false;
+        if (customMobs == null || customMobs.isEmpty() || mc.level == null) return;
 
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return false;
-
-        AABB searchBox = entity.getBoundingBox().inflate(1, 4, 1);
-        List<ArmorStand> armorStands = mc.level.getEntitiesOfClass(
-                ArmorStand.class, searchBox, as -> true);
-
-        for (ArmorStand armorStand : armorStands) {
-            String name = armorStand.getName().getString();
-            if (matchesCustomESP(name)) {
-                return true;
+        for (Entity e : mc.level.entitiesForRendering()) {
+            if (!(e instanceof ArmorStand as)) continue;
+            if (matchesCustomESP(as.getName().getString())) {
+                customNameStands.add(as);
+                continue;
             }
-            if (armorStand.getCustomName() != null) {
-                String customName = armorStand.getCustomName().getString();
-                if (matchesCustomESP(customName)) {
-                    return true;
-                }
+            Component custom = as.getCustomName();
+            if (custom != null && matchesCustomESP(custom.getString())) {
+                customNameStands.add(as);
             }
         }
+    }
 
+    private static boolean matchesCustomESPArmorStand(Entity entity) {
+        if (customNameStands.isEmpty()) return false;
+
+        AABB searchBox = entity.getBoundingBox().inflate(1, 4, 1);
+        for (ArmorStand stand : customNameStands) {
+            if (searchBox.intersects(stand.getBoundingBox())) return true;
+        }
         return false;
     }
 
@@ -843,7 +855,7 @@ public class StarredMobESP {
     public static void renderWorldElements(PoseStack matrices, MultiBufferSource provider,
                                            Vec3 cameraPos, Vec3 playerEyePos) {
         boolean inDungeon = DungeonManager.isInDungeon();
-        boolean inGarden = SkyblockUtils.isInGarden();
+        boolean inGarden = TeslaMapsConfig.get().pestESP && SkyblockUtils.isInGarden();
 
         if (inGarden && TeslaMapsConfig.get().pestESP && TeslaMapsConfig.get().pestTracers) {
             for (Vec3 pestPos : pestPositions) {
@@ -861,10 +873,12 @@ public class StarredMobESP {
                         (MultiBufferSource.BufferSource) provider);
             }
 
-            for (Entity entity : mc.level.entitiesForRendering()) {
-                if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
-                    ESPRenderer.drawFilledBox(matrices, entity.getBoundingBox(), SlayerHUD.getGlowColor(entity),
-                            cameraPos, (MultiBufferSource.BufferSource) provider);
+            if (SlayerHUD.hasGlowTargets()) {
+                for (Entity entity : mc.level.entitiesForRendering()) {
+                    if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
+                        ESPRenderer.drawFilledBox(matrices, entity.getBoundingBox(), SlayerHUD.getGlowColor(entity),
+                                cameraPos, (MultiBufferSource.BufferSource) provider);
+                    }
                 }
             }
         }
@@ -877,12 +891,26 @@ public class StarredMobESP {
                         entry.getValue() | 0xFF000000, 2.0f, cameraPos, true);
             }
 
-            for (Entity entity : mc.level.entitiesForRendering()) {
-                if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
-                    ESPRenderer.drawBoxOutline(matrices, entity.getBoundingBox(),
-                            SlayerHUD.getGlowColor(entity) | 0xFF000000, 2.0f, cameraPos, true);
+            if (SlayerHUD.hasGlowTargets()) {
+                for (Entity entity : mc.level.entitiesForRendering()) {
+                    if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
+                        ESPRenderer.drawBoxOutline(matrices, entity.getBoundingBox(),
+                                SlayerHUD.getGlowColor(entity) | 0xFF000000, 2.0f, cameraPos, true);
+                    }
                 }
             }
+        }
+
+        // Per-entry tracers from `/tmap add <name> on`. Not dungeon-gated: custom
+        // entries are used outside dungeons too.
+        for (EntityHighlight eh : highlightedEntities) {
+            Entity entity = eh.entity();
+            if (!entity.isAlive()) continue;
+            if (!matchesCustomTracer(entity.getName().getString())
+                    && (entity.getCustomName() == null
+                        || !matchesCustomTracer(entity.getCustomName().getString()))) continue;
+            ESPRenderer.drawTracerFromCamera(matrices, entity.getBoundingBox().getCenter(),
+                    eh.color() | 0xFF000000, cameraPos);
         }
 
         if (!inDungeon) return;

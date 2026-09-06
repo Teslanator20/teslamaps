@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.utils;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -56,13 +41,71 @@ public class SoundOptions {
         SOUNDS.put("ALLAY_GIVE",       "entity.allay.item_given");
         SOUNDS.put("BOOKSHELF",        "block.chiseled_bookshelf.pickup");
         SOUNDS.put("DOLPHIN",          "entity.dolphin.play");
+        // referenced by the pickers but previously missing, so they silently fell back
+        SOUNDS.put("ANVIL_LAND",       "block.anvil.land");
+        SOUNDS.put("BLAZE_DEATH",      "entity.blaze.death");
+        SOUNDS.put("GHAST_SHOOT",      "entity.ghast.shoot");
+        SOUNDS.put("WITHER_SPAWN",     "entity.wither.spawn");
+        SOUNDS.put("ENDER_DRAGON_GROWL", "entity.ender_dragon.growl");
+        // clean, short, cut through the noise
+        SOUNDS.put("AMETHYST_BREAK",   "block.amethyst_block.break");
+        SOUNDS.put("AMETHYST_STEP",    "block.amethyst_cluster.step");
+        SOUNDS.put("SCULK_CHARGE",     "block.sculk.charge");
+        SOUNDS.put("SCULK_SENSOR",     "block.sculk_sensor.clicking");
+        SOUNDS.put("SCULK_SHRIEK",     "block.sculk_shrieker.shriek");
+        SOUNDS.put("COPPER_BULB",      "block.copper_bulb.turn_on");
+        SOUNDS.put("TRIAL_SPAWNER",    "block.trial_spawner.detect_player");
+        SOUNDS.put("VAULT_INSERT",     "block.vault.insert_item");
+        SOUNDS.put("VAULT_OPEN",       "block.vault.open_shutter");
+        SOUNDS.put("CRAFTER_CRAFT",    "block.crafter.craft");
+        SOUNDS.put("DECORATED_POT",    "block.decorated_pot.insert");
+        SOUNDS.put("LODESTONE",        "item.lodestone_compass.lock");
+        SOUNDS.put("SPYGLASS",         "item.spyglass.use");
+        SOUNDS.put("BOTTLE_FILL",      "item.bottle.fill_dragonbreath");
+        SOUNDS.put("ARROW_HIT_NOTE",   "block.note_block.chime");
+        SOUNDS.put("EXP_LEVEL",        "entity.player.levelup");
+        SOUNDS.put("ALLAY_AMBIENT",    "entity.allay.ambient_without_item");
+        SOUNDS.put("FROG_LONG",        "entity.frog.long_jump");
+        SOUNDS.put("BREEZE_IDLE",      "entity.breeze.idle_air");
+        SOUNDS.put("PORTAL_TRAVEL",    "block.portal.travel");
+        SOUNDS.put("CHORUS_TELEPORT",  "item.chorus_fruit.teleport");
+        SOUNDS.put("TOTEM",            "item.totem.use");
+        SOUNDS.put("ANVIL_USE",        "block.anvil.use");
+        SOUNDS.put("PLING_HIGH",       "block.note_block.pling");
+        SOUNDS.put("UI_TOAST_IN",      "ui.toast.in");
+        SOUNDS.put("UI_TOAST_OUT",     "ui.toast.out");
+        SOUNDS.put("UI_TOAST_CHALLENGE", "ui.toast.challenge_complete");
+        SOUNDS.put("BOAT_PADDLE",      "entity.boat.paddle_water");
+        SOUNDS.put("BUCKET_FILL_FISH", "item.bucket.fill_fish");
+        SOUNDS.put("FISHING_SPLASH",   "entity.fishing_bobber.splash");
+        SOUNDS.put("FISHING_THROW",    "entity.fishing_bobber.throw");
+        SOUNDS.put("FISHING_RETRIEVE", "entity.fishing_bobber.retrieve");
+    }
+
+    // Bundled files under assets/teslamaps/sounds/, declared in sounds.json. Not in the
+    // registry - createVariableRangeEvent is enough for playing them client side, so a build
+    // without the audio files just stays silent instead of failing to load.
+    private static final LinkedHashMap<String, String> CUSTOM = new LinkedHashMap<>();
+    static {
+        CUSTOM.put("TM_CLICK",      "click_soft");
+        CUSTOM.put("TM_TOGGLE_ON",  "toggle_on");
+        CUSTOM.put("TM_TOGGLE_OFF", "toggle_off");
+        CUSTOM.put("TM_CONFIRM",    "confirm");
+        CUSTOM.put("TM_HITMARKER",  "hitmarker");
+        CUSTOM.put("TM_JINGLE",     "jingle");
     }
 
     public static String[] keys() {
-        return SOUNDS.keySet().toArray(new String[0]);
+        java.util.ArrayList<String> out = new java.util.ArrayList<>(CUSTOM.keySet());
+        out.addAll(SOUNDS.keySet());
+        return out.toArray(new String[0]);
     }
 
     public static SoundEvent resolve(String key) {
+        String custom = CUSTOM.get(key);
+        if (custom != null) {
+            return SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath("teslamaps", custom));
+        }
         String id = SOUNDS.getOrDefault(key, "entity.experience_orb.pickup");
         SoundEvent sound = BuiltInRegistries.SOUND_EVENT.getValue(Identifier.fromNamespaceAndPath("minecraft", id));
         return sound != null ? sound : SoundEvents.EXPERIENCE_ORB_PICKUP;

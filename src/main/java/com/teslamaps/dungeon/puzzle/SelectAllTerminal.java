@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -93,20 +78,19 @@ public class SelectAllTerminal {
             clickedSlots.clear();
             terminalOpenTime = System.currentTimeMillis();
             lastClickTime = 0;
-            TeslaMaps.LOGGER.info("[SelectAllTerminal] ===== TERMINAL DETECTED =====");
-            TeslaMaps.LOGGER.info("[SelectAllTerminal] Target color: {}", targetColor);
+            TeslaMaps.debug("[SelectAllTerminal] Target color: {}", targetColor);
 
             findAllCorrectSlots(screen);
             slotsFound = true;
         }
 
-        boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
+        boolean usingClickAnywhere = false;
 
         long currentTime = System.currentTimeMillis();
 
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
-            TeslaMaps.LOGGER.info("[SelectAllTerminal] Break threshold reached, resetting click state");
+            TeslaMaps.debug("[SelectAllTerminal] Break threshold reached, resetting click state");
             isClicked = false;
         }
 
@@ -126,12 +110,11 @@ public class SelectAllTerminal {
                     performNextClick(mc, screen);
                 } else {
                     if (!solved) {
-                        TeslaMaps.LOGGER.info("[SelectAllTerminal] ===== ALL ITEMS CLICKED =====");
                     }
                     solved = true;
 
                     if (timeSinceLastClick > 2000) {
-                        TeslaMaps.LOGGER.info("[SelectAllTerminal] Container still open after 2s, restarting...");
+                        TeslaMaps.debug("[SelectAllTerminal] Container still open after 2s, restarting...");
                         correctSlots.clear();
                         clickedSlots.clear();
                         solved = false;
@@ -172,20 +155,17 @@ public class SelectAllTerminal {
 
                 if (matchesColor(strippedName, targetColor)) {
                     correctSlots.add(slot.index);
-                    TeslaMaps.LOGGER.info("[SelectAllTerminal] ===== FOUND MATCHING ITEM =====");
-                    TeslaMaps.LOGGER.info("[SelectAllTerminal] Item: '{}'", strippedName);
-                    TeslaMaps.LOGGER.info("[SelectAllTerminal] Slot: {}", slot.index);
+                    TeslaMaps.debug("[SelectAllTerminal] Item: '{}'", strippedName);
+                    TeslaMaps.debug("[SelectAllTerminal] Slot: {}", slot.index);
                 }
             }
         }
 
         if (correctSlots.isEmpty()) {
-            TeslaMaps.LOGGER.warn("[SelectAllTerminal] ===== SCAN COMPLETE - NO MATCHES =====");
             TeslaMaps.LOGGER.warn("[SelectAllTerminal] Scanned {} items, none matched '{}'", scannedItems, targetColor);
         } else {
-            TeslaMaps.LOGGER.info("[SelectAllTerminal] ===== SCAN COMPLETE =====");
-            TeslaMaps.LOGGER.info("[SelectAllTerminal] Found {} items with color '{}'", correctSlots.size(), targetColor);
-            TeslaMaps.LOGGER.info("[SelectAllTerminal] Slots: {}", correctSlots);
+            TeslaMaps.debug("[SelectAllTerminal] Found {} items with color '{}'", correctSlots.size(), targetColor);
+            TeslaMaps.debug("[SelectAllTerminal] Slots: {}", correctSlots);
         }
     }
 
@@ -250,8 +230,7 @@ public class SelectAllTerminal {
 
         ChestMenu handler = screen.getMenu();
 
-        TeslaMaps.LOGGER.info("[SelectAllTerminal] ===== PERFORMING AUTO-CLICK =====");
-        TeslaMaps.LOGGER.info("[SelectAllTerminal] Clicking slot {} ({}/{})", slotToClick, clickedSlots.size() + 1, correctSlots.size());
+        TeslaMaps.debug("[SelectAllTerminal] Clicking slot {} ({}/{})", slotToClick, clickedSlots.size() + 1, correctSlots.size());
 
         mc.gameMode.handleContainerInput(
             handler.containerId,
@@ -265,8 +244,7 @@ public class SelectAllTerminal {
         lastClickTime = System.currentTimeMillis();
         isClicked = true;
 
-        TeslaMaps.LOGGER.info("[SelectAllTerminal] ===== CLICK SENT =====");
-        TeslaMaps.LOGGER.info("[SelectAllTerminal] Progress: {}/{} items clicked", clickedSlots.size(), correctSlots.size());
+        TeslaMaps.debug("[SelectAllTerminal] Progress: {}/{} items clicked", clickedSlots.size(), correctSlots.size());
     }
 
     public static int getNextCorrectSlot() {
@@ -304,7 +282,7 @@ public class SelectAllTerminal {
         if (clickedSlots.contains(slotIndex)) {
             if (stack.hasFoil()) {
                 isClicked = false; // Click was registered
-                TeslaMaps.LOGGER.info("[SelectAllTerminal] Slot {} click confirmed (has glint)", slotIndex);
+                TeslaMaps.debug("[SelectAllTerminal] Slot {} click confirmed (has glint)", slotIndex);
             }
         }
     }
@@ -317,9 +295,9 @@ public class SelectAllTerminal {
         }
 
         if (correctSlots.contains(slotIndex)) {
-            TeslaMaps.LOGGER.info("[SelectAllTerminal] Blocked click on slot {} - already clicked", slotIndex);
+            TeslaMaps.debug("[SelectAllTerminal] Blocked click on slot {} - already clicked", slotIndex);
         } else {
-            TeslaMaps.LOGGER.info("[SelectAllTerminal] Blocked click on slot {} - not a matching color", slotIndex);
+            TeslaMaps.debug("[SelectAllTerminal] Blocked click on slot {} - not a matching color", slotIndex);
         }
         return false;
     }

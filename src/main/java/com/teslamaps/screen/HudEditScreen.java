@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -28,7 +13,33 @@ public class HudEditScreen extends Screen {
     private final Screen parent;
     private boolean wasMouseDown = false;
 
-    private enum DragTarget { NONE, MAP, SLAYER_HUD, SLAYER_STATS, COMBAT_TRACKER, BEAR_SPAWN, SPLITS, BLOOD_CAMP, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, SPIRIT_BEAR, KICKED, OVERKILL }
+    /** Which situation an element belongs to, so the editor can hide the rest. */
+    private enum Ctx { ANY, DUNGEON, GARDEN, SLAYER, SAFARI, FORAGING }
+
+    private boolean showAll = false;
+
+    private boolean show(Ctx ctx) {
+        if (showAll) return true;
+        return switch (ctx) {
+            case ANY -> true;
+            case DUNGEON -> com.teslamaps.dungeon.DungeonManager.isInDungeon();
+            case GARDEN -> com.teslamaps.utils.SkyblockUtils.isInGarden();
+            case SLAYER -> com.teslamaps.slayer.SlayerHUD.isActive();
+            case SAFARI -> com.teslamaps.safari.SafariData.inSafari();
+            case FORAGING -> com.teslamaps.features.foraging.Foraging.onForagingIsland();
+        };
+    }
+
+    @Override
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        if (event.key() == org.lwjgl.glfw.GLFW.GLFW_KEY_TAB) {
+            showAll = !showAll;
+            return true;
+        }
+        return super.keyPressed(event);
+    }
+
+    private enum DragTarget { NONE, MAP, SLAYER_HUD, SKILL_TRACKER, BEAR_SPAWN, SPLITS, BLOOD_CAMP, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, SAFARI, HOTF_PERKS, LATHER, BOBBER, DEPLOYABLES, HOOK }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -81,36 +92,20 @@ public class HudEditScreen extends Screen {
                mouseY >= config.slayerHudY && mouseY <= config.slayerHudY + scaledHeight;
     }
 
-    private int slayerStatsWidth() {
-        return (int)(com.teslamaps.slayer.SlayerStats.previewSize(this.font)[0] * TeslaMapsConfig.get().slayerStatsScale);
+    private int skillTrackerWidth() {
+        return (int)(com.teslamaps.features.SkillTracker.previewSize(this.font)[0] * TeslaMapsConfig.get().skillTrackerScale);
     }
 
-    private int slayerStatsHeight() {
-        return (int)(com.teslamaps.slayer.SlayerStats.previewSize(this.font)[1] * TeslaMapsConfig.get().slayerStatsScale);
+    private int skillTrackerHeight() {
+        return (int)(com.teslamaps.features.SkillTracker.previewSize(this.font)[1] * TeslaMapsConfig.get().skillTrackerScale);
     }
 
-    private boolean isMouseOverSlayerStats(int mouseX, int mouseY) {
+    private boolean isMouseOverSkillTracker(int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        float s = config.slayerStatsScale;
-        int bx = config.slayerStatsX - (int)(4 * s), by = config.slayerStatsY - (int)(4 * s);
-        return mouseX >= bx && mouseX <= bx + slayerStatsWidth() &&
-               mouseY >= by && mouseY <= by + slayerStatsHeight();
-    }
-
-    private int combatTrackerWidth() {
-        return (int)(com.teslamaps.features.CombatTracker.previewSize(this.font)[0] * TeslaMapsConfig.get().combatTrackerScale);
-    }
-
-    private int combatTrackerHeight() {
-        return (int)(com.teslamaps.features.CombatTracker.previewSize(this.font)[1] * TeslaMapsConfig.get().combatTrackerScale);
-    }
-
-    private boolean isMouseOverCombatTracker(int mouseX, int mouseY) {
-        TeslaMapsConfig config = TeslaMapsConfig.get();
-        float s = config.combatTrackerScale;
-        int bx = config.combatTrackerX - (int)(4 * s), by = config.combatTrackerY - (int)(4 * s);
-        return mouseX >= bx && mouseX <= bx + combatTrackerWidth() &&
-               mouseY >= by && mouseY <= by + combatTrackerHeight();
+        float s = config.skillTrackerScale;
+        int bx = config.skillTrackerX - (int)(4 * s), by = config.skillTrackerY - (int)(4 * s);
+        return mouseX >= bx && mouseX <= bx + skillTrackerWidth() &&
+               mouseY >= by && mouseY <= by + skillTrackerHeight();
     }
 
     private int bearSpawnWidth() {
@@ -135,6 +130,105 @@ public class HudEditScreen extends Screen {
 
     private int sprintingHeight() {
         return (int)(this.font.lineHeight * TeslaMapsConfig.get().sprintingScale);
+    }
+
+    private int safariWidth() {
+        return (int)(com.teslamaps.safari.SafariTracker.previewSize(this.font)[0] * TeslaMapsConfig.get().safariHudScale);
+    }
+
+    private int safariHeight() {
+        return (int)(com.teslamaps.safari.SafariTracker.previewSize(this.font)[1] * TeslaMapsConfig.get().safariHudScale);
+    }
+
+    private boolean isMouseOverSafari(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = safariWidth();
+        int h = safariHeight();
+        return mouseX >= config.safariHudX && mouseX <= config.safariHudX + w &&
+               mouseY >= config.safariHudY && mouseY <= config.safariHudY + h;
+    }
+
+    private int hotfPerksWidth() {
+        return (int)(com.teslamaps.features.foraging.HotfPerkDisplay.previewSize(this.font)[0]
+                * TeslaMapsConfig.get().hotfPerkDisplayScale);
+    }
+
+    private int hotfPerksHeight() {
+        return (int)(com.teslamaps.features.foraging.HotfPerkDisplay.previewSize(this.font)[1]
+                * TeslaMapsConfig.get().hotfPerkDisplayScale);
+    }
+
+    private boolean isMouseOverHotfPerks(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = hotfPerksWidth(), h = hotfPerksHeight();
+        return mouseX >= config.hotfPerkDisplayX && mouseX <= config.hotfPerkDisplayX + w &&
+               mouseY >= config.hotfPerkDisplayY && mouseY <= config.hotfPerkDisplayY + h;
+    }
+
+    private int hookWidth() {
+        return (int)(this.font.width(com.teslamaps.features.FishingHookDisplay.SAMPLE_TEXT)
+                * TeslaMapsConfig.get().hookDisplayScale);
+    }
+
+    private int hookHeight() {
+        return (int)(this.font.lineHeight * TeslaMapsConfig.get().hookDisplayScale);
+    }
+
+    private boolean isMouseOverHook(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = hookWidth(), h = hookHeight();
+        return mouseX >= config.hookDisplayX && mouseX <= config.hookDisplayX + w &&
+               mouseY >= config.hookDisplayY && mouseY <= config.hookDisplayY + h;
+    }
+
+    private int deployablesWidth() {
+        return (int)(com.teslamaps.features.Deployables.previewSize(this.font)[0]
+                * TeslaMapsConfig.get().deployableScale);
+    }
+
+    private int deployablesHeight() {
+        return (int)(com.teslamaps.features.Deployables.previewSize(this.font)[1]
+                * TeslaMapsConfig.get().deployableScale);
+    }
+
+    private boolean isMouseOverDeployables(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = deployablesWidth(), h = deployablesHeight();
+        return mouseX >= config.deployableX && mouseX <= config.deployableX + w &&
+               mouseY >= config.deployableY && mouseY <= config.deployableY + h;
+    }
+
+    private int bobberWidth() {
+        return (int)(this.font.width(com.teslamaps.features.FishingBobberTimer.SAMPLE_TEXT)
+                * TeslaMapsConfig.get().bobberTimerScale);
+    }
+
+    private int bobberHeight() {
+        return (int)(this.font.lineHeight * TeslaMapsConfig.get().bobberTimerScale);
+    }
+
+    private boolean isMouseOverBobber(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = bobberWidth(), h = bobberHeight();
+        return mouseX >= config.bobberTimerX && mouseX <= config.bobberTimerX + w &&
+               mouseY >= config.bobberTimerY && mouseY <= config.bobberTimerY + h;
+    }
+
+    private int latherWidth() {
+        return (int)(com.teslamaps.features.foraging.LatherOverlay.previewSize(this.font)[0]
+                * TeslaMapsConfig.get().latherOverlayScale);
+    }
+
+    private int latherHeight() {
+        return (int)(com.teslamaps.features.foraging.LatherOverlay.previewSize(this.font)[1]
+                * TeslaMapsConfig.get().latherOverlayScale);
+    }
+
+    private boolean isMouseOverLather(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = latherWidth(), h = latherHeight();
+        return mouseX >= config.latherOverlayX && mouseX <= config.latherOverlayX + w &&
+               mouseY >= config.latherOverlayY && mouseY <= config.latherOverlayY + h;
     }
 
     private boolean isMouseOverSprinting(int mouseX, int mouseY) {
@@ -184,6 +278,19 @@ public class HudEditScreen extends Screen {
                mouseY >= config.thornStunY && mouseY <= config.thornStunY + h;
     }
 
+    private int dragonTimerWidth() {
+        return (int)(this.font.width(com.teslamaps.dungeon.WitherDragons.hudSample()) * TeslaMapsConfig.get().witherDragonHudScale);
+    }
+    private int dragonTimerHeight() {
+        return (int)(this.font.lineHeight * TeslaMapsConfig.get().witherDragonHudScale);
+    }
+    private boolean isMouseOverDragonTimer(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = dragonTimerWidth(), h = dragonTimerHeight();
+        return mouseX >= config.witherDragonHudX && mouseX <= config.witherDragonHudX + w &&
+               mouseY >= config.witherDragonHudY && mouseY <= config.witherDragonHudY + h;
+    }
+
     private int spiritBearWidth() {
         return (int)(this.font.width(com.teslamaps.dungeon.puzzle.SpiritBearTimer.SAMPLE_TEXT) * TeslaMapsConfig.get().spiritBearScale);
     }
@@ -195,6 +302,58 @@ public class HudEditScreen extends Screen {
         int w = spiritBearWidth(), h = spiritBearHeight();
         return mouseX >= config.spiritBearX && mouseX <= config.spiritBearX + w &&
                mouseY >= config.spiritBearY && mouseY <= config.spiritBearY + h;
+    }
+
+    private int farmProfitWidth() {
+        return com.teslamaps.features.FarmProfitOverlay.width(TeslaMapsConfig.get().farmProfitScale);
+    }
+    private int farmProfitHeight() {
+        return com.teslamaps.features.FarmProfitOverlay.height(TeslaMapsConfig.get().farmProfitScale);
+    }
+    private boolean isMouseOverFarmProfit(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = farmProfitWidth(), h = farmProfitHeight();
+        return mouseX >= config.farmProfitX && mouseX <= config.farmProfitX + w &&
+               mouseY >= config.farmProfitY && mouseY <= config.farmProfitY + h;
+    }
+
+    private int pestOverlayWidth() {
+        return com.teslamaps.features.PestOverlay.width(TeslaMapsConfig.get().pestOverlayScale);
+    }
+    private int pestOverlayHeight() {
+        return com.teslamaps.features.PestOverlay.height(TeslaMapsConfig.get().pestOverlayScale);
+    }
+    private boolean isMouseOverPestOverlay(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = pestOverlayWidth(), h = pestOverlayHeight();
+        return mouseX >= config.pestOverlayX && mouseX <= config.pestOverlayX + w &&
+               mouseY >= config.pestOverlayY && mouseY <= config.pestOverlayY + h;
+    }
+
+    private int farmBarWidth() {
+        return com.teslamaps.features.FarmProgress.barWidth(TeslaMapsConfig.get().farmBarScale);
+    }
+    private int farmBarHeight() {
+        return com.teslamaps.features.FarmProgress.barHeight(TeslaMapsConfig.get().farmBarScale);
+    }
+    private boolean isMouseOverFarmBar(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = farmBarWidth(), h = farmBarHeight();
+        return mouseX >= config.farmBarX && mouseX <= config.farmBarX + w &&
+               mouseY >= config.farmBarY && mouseY <= config.farmBarY + h;
+    }
+
+    private int pestRoutineWidth() {
+        return com.teslamaps.features.PestRoutine.panelWidth(TeslaMapsConfig.get().pestRoutineScale);
+    }
+    private int pestRoutineHeight() {
+        return com.teslamaps.features.PestRoutine.panelHeight(TeslaMapsConfig.get().pestRoutineScale);
+    }
+    private boolean isMouseOverPestRoutine(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = pestRoutineWidth(), h = pestRoutineHeight();
+        return mouseX >= config.pestRoutineX && mouseX <= config.pestRoutineX + w &&
+               mouseY >= config.pestRoutineY && mouseY <= config.pestRoutineY + h;
     }
 
     private int overkillWidth() {
@@ -281,6 +440,30 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.BEAR_SPAWN;
                 dragOffsetX = mouseX - config.bearSpawnX;
                 dragOffsetY = mouseY - config.bearSpawnY;
+            } else if (isMouseOverSafari(mouseX, mouseY)) {
+                dragging = DragTarget.SAFARI;
+                dragOffsetX = mouseX - config.safariHudX;
+                dragOffsetY = mouseY - config.safariHudY;
+            } else if (isMouseOverHook(mouseX, mouseY)) {
+                dragging = DragTarget.HOOK;
+                dragOffsetX = mouseX - config.hookDisplayX;
+                dragOffsetY = mouseY - config.hookDisplayY;
+            } else if (isMouseOverDeployables(mouseX, mouseY)) {
+                dragging = DragTarget.DEPLOYABLES;
+                dragOffsetX = mouseX - config.deployableX;
+                dragOffsetY = mouseY - config.deployableY;
+            } else if (isMouseOverBobber(mouseX, mouseY)) {
+                dragging = DragTarget.BOBBER;
+                dragOffsetX = mouseX - config.bobberTimerX;
+                dragOffsetY = mouseY - config.bobberTimerY;
+            } else if (isMouseOverLather(mouseX, mouseY)) {
+                dragging = DragTarget.LATHER;
+                dragOffsetX = mouseX - config.latherOverlayX;
+                dragOffsetY = mouseY - config.latherOverlayY;
+            } else if (isMouseOverHotfPerks(mouseX, mouseY)) {
+                dragging = DragTarget.HOTF_PERKS;
+                dragOffsetX = mouseX - config.hotfPerkDisplayX;
+                dragOffsetY = mouseY - config.hotfPerkDisplayY;
             } else if (isMouseOverSprinting(mouseX, mouseY)) {
                 dragging = DragTarget.SPRINTING;
                 dragOffsetX = mouseX - config.sprintingX;
@@ -297,6 +480,10 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.THORN_STUN;
                 dragOffsetX = mouseX - config.thornStunX;
                 dragOffsetY = mouseY - config.thornStunY;
+            } else if (isMouseOverDragonTimer(mouseX, mouseY)) {
+                dragging = DragTarget.DRAGON_TIMER;
+                dragOffsetX = mouseX - config.witherDragonHudX;
+                dragOffsetY = mouseY - config.witherDragonHudY;
             } else if (isMouseOverSpiritBear(mouseX, mouseY)) {
                 dragging = DragTarget.SPIRIT_BEAR;
                 dragOffsetX = mouseX - config.spiritBearX;
@@ -309,14 +496,26 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.OVERKILL;
                 dragOffsetX = mouseX - config.overkillX;
                 dragOffsetY = mouseY - config.overkillY;
-            } else if (isMouseOverSlayerStats(mouseX, mouseY)) {
-                dragging = DragTarget.SLAYER_STATS;
-                dragOffsetX = mouseX - config.slayerStatsX;
-                dragOffsetY = mouseY - config.slayerStatsY;
-            } else if (isMouseOverCombatTracker(mouseX, mouseY)) {
-                dragging = DragTarget.COMBAT_TRACKER;
-                dragOffsetX = mouseX - config.combatTrackerX;
-                dragOffsetY = mouseY - config.combatTrackerY;
+            } else if (isMouseOverPestRoutine(mouseX, mouseY)) {
+                dragging = DragTarget.PEST_ROUTINE;
+                dragOffsetX = mouseX - config.pestRoutineX;
+                dragOffsetY = mouseY - config.pestRoutineY;
+            } else if (isMouseOverFarmBar(mouseX, mouseY)) {
+                dragging = DragTarget.FARM_BAR;
+                dragOffsetX = mouseX - config.farmBarX;
+                dragOffsetY = mouseY - config.farmBarY;
+            } else if (isMouseOverPestOverlay(mouseX, mouseY)) {
+                dragging = DragTarget.PEST_OVERLAY;
+                dragOffsetX = mouseX - config.pestOverlayX;
+                dragOffsetY = mouseY - config.pestOverlayY;
+            } else if (isMouseOverFarmProfit(mouseX, mouseY)) {
+                dragging = DragTarget.FARM_PROFIT;
+                dragOffsetX = mouseX - config.farmProfitX;
+                dragOffsetY = mouseY - config.farmProfitY;
+            } else if (isMouseOverSkillTracker(mouseX, mouseY)) {
+                dragging = DragTarget.SKILL_TRACKER;
+                dragOffsetX = mouseX - config.skillTrackerX;
+                dragOffsetY = mouseY - config.skillTrackerY;
             } else if (isMouseOverSlayerHud(mouseX, mouseY)) {
                 dragging = DragTarget.SLAYER_HUD;
                 dragOffsetX = mouseX - config.slayerHudX;
@@ -361,6 +560,31 @@ public class HudEditScreen extends Screen {
             int h = bloodCampHeight();
             config.bloodCampX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.bloodCampY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.SAFARI) {
+            int w = safariWidth();
+            int h = safariHeight();
+            config.safariHudX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.safariHudY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.HOOK) {
+            int w = hookWidth(), h = hookHeight();
+            config.hookDisplayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.hookDisplayY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.DEPLOYABLES) {
+            int w = deployablesWidth(), h = deployablesHeight();
+            config.deployableX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.deployableY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.BOBBER) {
+            int w = bobberWidth(), h = bobberHeight();
+            config.bobberTimerX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.bobberTimerY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.LATHER) {
+            int w = latherWidth(), h = latherHeight();
+            config.latherOverlayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.latherOverlayY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.HOTF_PERKS) {
+            int w = hotfPerksWidth(), h = hotfPerksHeight();
+            config.hotfPerkDisplayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.hotfPerkDisplayY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.SPRINTING) {
             int w = sprintingWidth();
             int h = sprintingHeight();
@@ -378,6 +602,10 @@ public class HudEditScreen extends Screen {
             int w = thornStunWidth(), h = thornStunHeight();
             config.thornStunX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.thornStunY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.DRAGON_TIMER) {
+            int w = dragonTimerWidth(), h = dragonTimerHeight();
+            config.witherDragonHudX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.witherDragonHudY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.SPIRIT_BEAR) {
             int w = spiritBearWidth(), h = spiritBearHeight();
             config.spiritBearX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
@@ -390,49 +618,76 @@ public class HudEditScreen extends Screen {
             int w = overkillWidth(), h = overkillHeight();
             config.overkillX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.overkillY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
-        } else if (dragging == DragTarget.SLAYER_STATS) {
-            int w = slayerStatsWidth(), h = slayerStatsHeight();
-            config.slayerStatsX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
-            config.slayerStatsY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
-        } else if (dragging == DragTarget.COMBAT_TRACKER) {
-            int w = combatTrackerWidth(), h = combatTrackerHeight();
-            config.combatTrackerX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
-            config.combatTrackerY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.PEST_ROUTINE) {
+            int w = pestRoutineWidth(), h = pestRoutineHeight();
+            config.pestRoutineX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.pestRoutineY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.FARM_BAR) {
+            int w = farmBarWidth(), h = farmBarHeight();
+            config.farmBarX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.farmBarY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.PEST_OVERLAY) {
+            int w = pestOverlayWidth(), h = pestOverlayHeight();
+            config.pestOverlayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.pestOverlayY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.FARM_PROFIT) {
+            int w = farmProfitWidth(), h = farmProfitHeight();
+            config.farmProfitX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.farmProfitY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.SKILL_TRACKER) {
+            int w = skillTrackerWidth(), h = skillTrackerHeight();
+            config.skillTrackerX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.skillTrackerY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         }
 
         context.fill(0, 0, this.width, this.height, 0xC0000000);
 
-        drawMapPreview(context, mouseX, mouseY);
+        if (show(Ctx.DUNGEON)) {
+            drawMapPreview(context, mouseX, mouseY);
+            drawSplitsPreview(context, mouseX, mouseY);
+            drawBloodCampPreview(context, mouseX, mouseY);
+            drawDungeonTimersPreview(context, mouseX, mouseY);
+            drawInvincibilityPreview(context, mouseX, mouseY);
+            drawThornStunPreview(context, mouseX, mouseY);
+            drawDragonTimerPreview(context, mouseX, mouseY);
+            drawSpiritBearPreview(context, mouseX, mouseY);
+            drawBearSpawnPreview(context, mouseX, mouseY);
+            drawOverkillPreview(context, mouseX, mouseY);
+        }
 
-        drawSlayerHudPreview(context, mouseX, mouseY);
+        if (show(Ctx.SLAYER)) {
+            drawSlayerHudPreview(context, mouseX, mouseY);
+        }
 
-        drawBearSpawnPreview(context, mouseX, mouseY);
+        drawSkillTrackerPreview(context, mouseX, mouseY);
 
-        drawSplitsPreview(context, mouseX, mouseY);
+        if (show(Ctx.GARDEN)) {
+            drawPestRoutinePreview(context, mouseX, mouseY);
+            drawFarmBarPreview(context, mouseX, mouseY);
+            drawPestOverlayPreview(context, mouseX, mouseY);
+            drawFarmProfitPreview(context, mouseX, mouseY);
+        }
 
-        drawBloodCampPreview(context, mouseX, mouseY);
+        if (show(Ctx.SAFARI)) drawSafariPreview(context, mouseX, mouseY);
+        if (show(Ctx.FORAGING)) {
+            drawHotfPerksPreview(context, mouseX, mouseY);
+            drawLatherPreview(context, mouseX, mouseY);
+        }
 
+        drawBobberPreview(context, mouseX, mouseY);
+        drawDeployablesPreview(context, mouseX, mouseY);
+        drawHookPreview(context, mouseX, mouseY);
         drawSprintingPreview(context, mouseX, mouseY);
-
-        drawDungeonTimersPreview(context, mouseX, mouseY);
-
-        drawInvincibilityPreview(context, mouseX, mouseY);
-
-        drawThornStunPreview(context, mouseX, mouseY);
-
-        drawSpiritBearPreview(context, mouseX, mouseY);
-
         drawKickedPreview(context, mouseX, mouseY);
 
-        drawOverkillPreview(context, mouseX, mouseY);
-
-        drawSlayerStatsPreview(context, mouseX, mouseY);
-
-        drawCombatTrackerPreview(context, mouseX, mouseY);
-
-        String instructions = dragging != DragTarget.NONE ? "Release to place" : "Drag elements to move them | Scroll on map to resize";
+        String instructions = dragging != DragTarget.NONE
+                ? "Release to place"
+                : (showAll
+                        ? "Showing every element | TAB for current situation only"
+                        : "Drag to move | Scroll to resize | TAB shows all elements");
         int textWidth = this.font.width(instructions);
-        context.fill(this.width / 2 - textWidth / 2 - 8, 8, this.width / 2 + textWidth / 2 + 8, 26, 0xC0000000);
+        com.teslamaps.render.gui.TeslaGui.hudPanel(context,
+                this.width / 2f - textWidth / 2f - 8, 8, textWidth + 16, 18, 9);
         context.centeredText(this.font, instructions, this.width / 2, 12, 0xFFE0E0E0);
 
         super.extractRenderState(context, mouseX, mouseY, delta);
@@ -485,7 +740,7 @@ public class HudEditScreen extends Screen {
 
         int centerX = x + SLAYER_WIDTH / 2;
 
-        drawRoundedRect(context, x, y, SLAYER_WIDTH, SLAYER_HEIGHT, 4, 0xDD000000);
+        com.teslamaps.render.gui.HudStyle.panel(context, x, y, SLAYER_WIDTH, SLAYER_HEIGHT, 4);
 
         int currentY = y + padding;
 
@@ -547,6 +802,135 @@ public class HudEditScreen extends Screen {
         }
 
         String label = String.format("Bear Warning (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawSafariPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.safariHudX;
+        int y = config.safariHudY;
+        float scale = config.safariHudScale;
+
+        com.teslamaps.safari.SafariTracker.draw(context, this.minecraft, x, y, scale);
+
+        int w = safariWidth();
+        int h = safariHeight();
+
+        boolean hovering = isMouseOverSafari(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.SAFARI) {
+            int borderColor = dragging == DragTarget.SAFARI ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        String label = String.format("Critter Safari (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawHookPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.hookDisplayX, y = config.hookDisplayY;
+        float scale = config.hookDisplayScale;
+
+        com.teslamaps.features.FishingHookDisplay.draw(context, this.minecraft, x, y, scale);
+
+        int w = hookWidth(), h = hookHeight();
+        boolean hovering = isMouseOverHook(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.HOOK) {
+            int borderColor = dragging == DragTarget.HOOK ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        String label = String.format("Hook Timer (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawDeployablesPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.deployableX, y = config.deployableY;
+        float scale = config.deployableScale;
+
+        com.teslamaps.features.Deployables.draw(context, this.minecraft, x, y, scale);
+
+        int w = deployablesWidth(), h = deployablesHeight();
+        boolean hovering = isMouseOverDeployables(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.DEPLOYABLES) {
+            int borderColor = dragging == DragTarget.DEPLOYABLES ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        String label = String.format("Deployables (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawBobberPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.bobberTimerX, y = config.bobberTimerY;
+        float scale = config.bobberTimerScale;
+
+        com.teslamaps.features.FishingBobberTimer.draw(context, this.minecraft, x, y, scale);
+
+        int w = bobberWidth(), h = bobberHeight();
+        boolean hovering = isMouseOverBobber(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.BOBBER) {
+            int borderColor = dragging == DragTarget.BOBBER ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        String label = String.format("Bobber Timer (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawLatherPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.latherOverlayX, y = config.latherOverlayY;
+        float scale = config.latherOverlayScale;
+
+        com.teslamaps.features.foraging.LatherOverlay.draw(context, this.minecraft, x, y, scale);
+
+        int w = latherWidth(), h = latherHeight();
+        boolean hovering = isMouseOverLather(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.LATHER) {
+            int borderColor = dragging == DragTarget.LATHER ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        String label = String.format("Honeycomb Lather (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawHotfPerksPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.hotfPerkDisplayX, y = config.hotfPerkDisplayY;
+        float scale = config.hotfPerkDisplayScale;
+
+        com.teslamaps.features.foraging.HotfPerkDisplay.draw(context, this.minecraft, x, y, scale);
+
+        int w = hotfPerksWidth(), h = hotfPerksHeight();
+        boolean hovering = isMouseOverHotfPerks(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.HOTF_PERKS) {
+            int borderColor = dragging == DragTarget.HOTF_PERKS ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        String label = String.format("HotF Perks (%.1fx)", scale);
         context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
     }
 
@@ -625,6 +1009,24 @@ public class HudEditScreen extends Screen {
         context.text(this.font, String.format("Thorn Stun (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
+    private void drawDragonTimerPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.witherDragonHudX, y = config.witherDragonHudY;
+        float scale = config.witherDragonHudScale;
+        com.teslamaps.dungeon.WitherDragons.drawHud(context, this.minecraft, x, y, scale,
+                com.teslamaps.dungeon.WitherDragons.hudSample());
+        int w = dragonTimerWidth(), h = dragonTimerHeight();
+        boolean hovering = isMouseOverDragonTimer(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.DRAGON_TIMER) {
+            int borderColor = dragging == DragTarget.DRAGON_TIMER ? 0xFFAA55FF : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Dragon Timer (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
     private void drawSpiritBearPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int x = config.spiritBearX, y = config.spiritBearY;
@@ -640,6 +1042,74 @@ public class HudEditScreen extends Screen {
             context.fill(x + w, y, x + w + 2, y + h, borderColor);
         }
         context.text(this.font, String.format("Spirit Bear (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawFarmProfitPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.farmProfitX, y = config.farmProfitY;
+        float scale = config.farmProfitScale;
+        com.teslamaps.features.FarmProfitOverlay.draw(context, this.minecraft, x, y, scale);
+        int w = farmProfitWidth(), h = farmProfitHeight();
+        boolean hovering = isMouseOverFarmProfit(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.FARM_PROFIT) {
+            int borderColor = dragging == DragTarget.FARM_PROFIT ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Profit (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawPestOverlayPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.pestOverlayX, y = config.pestOverlayY;
+        float scale = config.pestOverlayScale;
+        com.teslamaps.features.PestOverlay.draw(context, this.minecraft, x, y, scale);
+        int w = pestOverlayWidth(), h = pestOverlayHeight();
+        boolean hovering = isMouseOverPestOverlay(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.PEST_OVERLAY) {
+            int borderColor = dragging == DragTarget.PEST_OVERLAY ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Pests (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawFarmBarPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.farmBarX, y = config.farmBarY;
+        float scale = config.farmBarScale;
+        com.teslamaps.features.FarmProgress.draw(context, this.minecraft, x, y, scale);
+        int w = farmBarWidth(), h = farmBarHeight();
+        boolean hovering = isMouseOverFarmBar(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.FARM_BAR) {
+            int borderColor = dragging == DragTarget.FARM_BAR ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Farm Bar (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawPestRoutinePreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.pestRoutineX, y = config.pestRoutineY;
+        float scale = config.pestRoutineScale;
+        com.teslamaps.features.PestRoutine.draw(context, this.minecraft, x, y, scale);
+        int w = pestRoutineWidth(), h = pestRoutineHeight();
+        boolean hovering = isMouseOverPestRoutine(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.PEST_ROUTINE) {
+            int borderColor = dragging == DragTarget.PEST_ROUTINE ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Pest Routine (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
     private void drawOverkillPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
@@ -676,41 +1146,24 @@ public class HudEditScreen extends Screen {
         context.text(this.font, String.format("Kicked (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
-    private void drawSlayerStatsPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+    private void drawSkillTrackerPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        int x = config.slayerStatsX, y = config.slayerStatsY;
-        float scale = config.slayerStatsScale;
-        com.teslamaps.slayer.SlayerStats.drawPreview(context, this.minecraft, x, y, scale);
+        int x = config.skillTrackerX, y = config.skillTrackerY;
+        float scale = config.skillTrackerScale;
+        com.teslamaps.features.SkillTracker.drawPreview(context, this.minecraft, x, y, scale);
         int bx = x - (int)(4 * scale), by = y - (int)(4 * scale);
-        int w = slayerStatsWidth(), h = slayerStatsHeight();
-        boolean hovering = isMouseOverSlayerStats(mouseX, mouseY);
-        if (hovering || dragging == DragTarget.SLAYER_STATS) {
-            int borderColor = dragging == DragTarget.SLAYER_STATS ? 0xFF30D158 : 0xFF888888;
+        int w = skillTrackerWidth(), h = skillTrackerHeight();
+        boolean hovering = isMouseOverSkillTracker(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.SKILL_TRACKER) {
+            int borderColor = dragging == DragTarget.SKILL_TRACKER ? 0xFF30D158 : 0xFF888888;
             context.fill(bx - 2, by - 2, bx + w + 2, by, borderColor);
             context.fill(bx - 2, by + h, bx + w + 2, by + h + 2, borderColor);
             context.fill(bx - 2, by, bx, by + h, borderColor);
             context.fill(bx + w, by, bx + w + 2, by + h, borderColor);
         }
-        context.text(this.font, String.format("Slayer Stats (%.1fx)", scale), bx, by - 12, 0xFFFFFFFF);
+        context.text(this.font, String.format("Skill Tracker (%.1fx)", scale), bx, by - 12, 0xFFFFFFFF);
     }
 
-    private void drawCombatTrackerPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
-        TeslaMapsConfig config = TeslaMapsConfig.get();
-        int x = config.combatTrackerX, y = config.combatTrackerY;
-        float scale = config.combatTrackerScale;
-        com.teslamaps.features.CombatTracker.drawPreview(context, this.minecraft, x, y, scale);
-        int bx = x - (int)(4 * scale), by = y - (int)(4 * scale);
-        int w = combatTrackerWidth(), h = combatTrackerHeight();
-        boolean hovering = isMouseOverCombatTracker(mouseX, mouseY);
-        if (hovering || dragging == DragTarget.COMBAT_TRACKER) {
-            int borderColor = dragging == DragTarget.COMBAT_TRACKER ? 0xFF30D158 : 0xFF888888;
-            context.fill(bx - 2, by - 2, bx + w + 2, by, borderColor);
-            context.fill(bx - 2, by + h, bx + w + 2, by + h + 2, borderColor);
-            context.fill(bx - 2, by, bx, by + h, borderColor);
-            context.fill(bx + w, by, bx + w + 2, by + h, borderColor);
-        }
-        context.text(this.font, String.format("Combat Tracker (%.1fx)", scale), bx, by - 12, 0xFFFFFFFF);
-    }
 
     private void drawSplitsPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
@@ -775,13 +1228,7 @@ public class HudEditScreen extends Screen {
     }
 
     private void drawRoundedRect(GuiGraphicsExtractor context, int x, int y, int width, int height, int radius, int color) {
-        context.fill(x + radius, y, x + width - radius, y + height, color);
-        context.fill(x, y + radius, x + radius, y + height - radius, color);
-        context.fill(x + width - radius, y + radius, x + width, y + height - radius, color);
-        context.fill(x + 1, y + 1, x + radius, y + radius, color);
-        context.fill(x + width - radius, y + 1, x + width - 1, y + radius, color);
-        context.fill(x + 1, y + height - radius, x + radius, y + height - 1, color);
-        context.fill(x + width - radius, y + height - radius, x + width - 1, y + height - 1, color);
+        com.teslamaps.render.gui.TeslaGui.roundedRect(context, x, y, width, height, radius, color);
     }
 
     @Override
@@ -818,6 +1265,66 @@ public class HudEditScreen extends Screen {
             return true;
         }
 
+        if (isMouseOverHook((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.hookDisplayScale = Math.min(8.0f, config.hookDisplayScale + 0.2f);
+            } else if (verticalAmount < 0) {
+                config.hookDisplayScale = Math.max(0.5f, config.hookDisplayScale - 0.2f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverDeployables((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.deployableScale = Math.min(3.0f, config.deployableScale + 0.1f);
+            } else if (verticalAmount < 0) {
+                config.deployableScale = Math.max(0.5f, config.deployableScale - 0.1f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverBobber((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.bobberTimerScale = Math.min(3.0f, config.bobberTimerScale + 0.1f);
+            } else if (verticalAmount < 0) {
+                config.bobberTimerScale = Math.max(0.5f, config.bobberTimerScale - 0.1f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverLather((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.latherOverlayScale = Math.min(3.0f, config.latherOverlayScale + 0.1f);
+            } else if (verticalAmount < 0) {
+                config.latherOverlayScale = Math.max(0.5f, config.latherOverlayScale - 0.1f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverHotfPerks((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.hotfPerkDisplayScale = Math.min(3.0f, config.hotfPerkDisplayScale + 0.1f);
+            } else if (verticalAmount < 0) {
+                config.hotfPerkDisplayScale = Math.max(0.5f, config.hotfPerkDisplayScale - 0.1f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverSafari((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.safariHudScale = Math.min(10.0f, config.safariHudScale + 0.5f);
+            } else if (verticalAmount < 0) {
+                config.safariHudScale = Math.max(0.5f, config.safariHudScale - 0.5f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
         if (isMouseOverSprinting((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) {
                 config.sprintingScale = Math.min(10.0f, config.sprintingScale + 0.5f);
@@ -849,6 +1356,13 @@ public class HudEditScreen extends Screen {
             return true;
         }
 
+        if (isMouseOverDragonTimer((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.witherDragonHudScale = Math.min(5.0f, config.witherDragonHudScale + 0.1f);
+            else if (verticalAmount < 0) config.witherDragonHudScale = Math.max(0.5f, config.witherDragonHudScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
         if (isMouseOverSpiritBear((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.spiritBearScale = Math.min(5.0f, config.spiritBearScale + 0.1f);
             else if (verticalAmount < 0) config.spiritBearScale = Math.max(0.5f, config.spiritBearScale - 0.1f);
@@ -870,15 +1384,37 @@ public class HudEditScreen extends Screen {
             return true;
         }
 
-        if (isMouseOverCombatTracker((int) mouseX, (int) mouseY)) {
-            if (verticalAmount > 0) config.combatTrackerScale = Math.min(3.0f, config.combatTrackerScale + 0.1f);
-            else if (verticalAmount < 0) config.combatTrackerScale = Math.max(0.5f, config.combatTrackerScale - 0.1f);
+        if (isMouseOverPestRoutine((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.pestRoutineScale = Math.min(5.0f, config.pestRoutineScale + 0.1f);
+            else if (verticalAmount < 0) config.pestRoutineScale = Math.max(0.5f, config.pestRoutineScale - 0.1f);
             TeslaMapsConfig.save();
             return true;
         }
-        if (isMouseOverSlayerStats((int) mouseX, (int) mouseY)) {
-            if (verticalAmount > 0) config.slayerStatsScale = Math.min(3.0f, config.slayerStatsScale + 0.1f);
-            else if (verticalAmount < 0) config.slayerStatsScale = Math.max(0.5f, config.slayerStatsScale - 0.1f);
+
+        if (isMouseOverFarmBar((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.farmBarScale = Math.min(5.0f, config.farmBarScale + 0.1f);
+            else if (verticalAmount < 0) config.farmBarScale = Math.max(0.5f, config.farmBarScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverPestOverlay((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.pestOverlayScale = Math.min(5.0f, config.pestOverlayScale + 0.1f);
+            else if (verticalAmount < 0) config.pestOverlayScale = Math.max(0.5f, config.pestOverlayScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverFarmProfit((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.farmProfitScale = Math.min(5.0f, config.farmProfitScale + 0.1f);
+            else if (verticalAmount < 0) config.farmProfitScale = Math.max(0.5f, config.farmProfitScale - 0.1f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (isMouseOverSkillTracker((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.skillTrackerScale = Math.min(3.0f, config.skillTrackerScale + 0.1f);
+            else if (verticalAmount < 0) config.skillTrackerScale = Math.max(0.5f, config.skillTrackerScale - 0.1f);
             TeslaMapsConfig.save();
             return true;
         }

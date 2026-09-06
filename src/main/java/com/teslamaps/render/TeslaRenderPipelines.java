@@ -1,24 +1,17 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.render;
 
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.CompareOp;
+import com.mojang.blaze3d.shaders.UniformType;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+
+import java.util.Optional;
 
 public class TeslaRenderPipelines {
 
@@ -53,6 +46,22 @@ public class TeslaRenderPipelines {
             RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
                     .withLocation("pipeline/teslamaps_filled_depth")
                     .withDepthStencilState(DEPTH)
+                    .build()
+    );
+
+    // Fullscreen blit of the accumulation texture, alpha taken from ColorModulator so
+    // the blend amount can change every frame. Same setup as vanilla's entity outline
+    // blit, minus the alpha write — the frame's own alpha channel must stay intact.
+    public static final RenderPipeline MOTION_BLUR = RenderPipelines.register(
+            RenderPipeline.builder()
+                    .withLocation("pipeline/teslamaps_motion_blur")
+                    .withVertexShader("core/screenquad")
+                    .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_motion_blur"))
+                    .withSampler("InSampler")
+                    .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+                    .withColorTargetState(new ColorTargetState(
+                            Optional.of(BlendFunction.TRANSLUCENT), ColorTargetState.WRITE_COLOR))
+                    .withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
                     .build()
     );
 

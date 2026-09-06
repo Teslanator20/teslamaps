@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.utils;
 
 import com.teslamaps.TeslaMaps;
@@ -32,16 +17,23 @@ public class ScoreboardUtils {
     private static final Pattern COLOR_CODE_PATTERN = Pattern.compile("\u00A7[0-9a-fk-or]", Pattern.CASE_INSENSITIVE);
     private static final Pattern CLEARED_PATTERN = Pattern.compile("Cleared:\\s*(\\d+)%");
 
+    private static List<String> cached = new ArrayList<>();
+    private static long cachedTime = -1;
+
     public static List<String> getScoreboardLines() {
+        long now = System.currentTimeMillis();
+        if (now - cachedTime < 50) return cached;
+        cachedTime = now;
+
         List<String> lines = new ArrayList<>();
         Minecraft mc = Minecraft.getInstance();
 
-        if (mc.level == null) return lines;
+        if (mc.level == null) return cached = lines;
 
         Scoreboard scoreboard = mc.level.getScoreboard();
         Objective objective = scoreboard.getDisplayObjective(DisplaySlot.SIDEBAR);
 
-        if (objective == null) return lines;
+        if (objective == null) return cached = lines;
 
         for (ScoreHolder scoreHolder : scoreboard.getTrackedPlayers()) {
             var scoresMap = scoreboard.listPlayerScores(scoreHolder);
@@ -61,7 +53,7 @@ public class ScoreboardUtils {
         lines.add(objective.getDisplayName().getString());
         java.util.Collections.reverse(lines);
 
-        return lines;
+        return cached = lines;
     }
 
     public static String cleanLine(String line) {

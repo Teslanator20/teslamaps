@@ -1,17 +1,4 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file ports the Overkill Display from BirdAddon
- * (https://github.com/BarefootBird/BirdAddon, BSD 3-Clause). See NOTICE.md.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
+// Ported from BirdAddon (BSD-3-Clause), see NOTICE.md
 package com.teslamaps.features;
 
 import com.teslamaps.TeslaMaps;
@@ -65,13 +52,13 @@ public class OverkillCounter {
         else if (entity instanceof Bat) { oBats++; type = "bat"; }
         if (type == null) return;
         overkill++;
-        if (TeslaMapsConfig.get().debugMode) TeslaMaps.LOGGER.info("[OverkillDbg] +{} -> total {}", type, overkill);
+        if (TeslaMapsConfig.get().debugMode) TeslaMaps.debug("[OverkillDbg] +{} -> total {}", type, overkill);
     }
 
     private static void setWindow(boolean open, String why) {
         if (ringFull == open) return;
         ringFull = open;
-        if (TeslaMapsConfig.get().debugMode) TeslaMaps.LOGGER.info("[OverkillDbg] window {} ({})", open ? "OPEN" : "closed", why);
+        if (TeslaMapsConfig.get().debugMode) TeslaMaps.debug("[OverkillDbg] window {} ({})", open ? "OPEN" : "closed", why);
     }
 
     public static void tick() {

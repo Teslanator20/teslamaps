@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -66,7 +51,7 @@ public class UltrasequencerSolver {
 
         if (!(mc.screen instanceof ContainerScreen screen)) {
             if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[Ultrasequencer] Screen closed, resetting");
+                TeslaMaps.debug("[Ultrasequencer] Screen closed, resetting");
             }
             reset();
             return;
@@ -91,7 +76,7 @@ public class UltrasequencerSolver {
             lastScanTime = 0;
             isClicked = false;
 
-            TeslaMaps.LOGGER.info("[Ultrasequencer] ===== DETECTED: {} =====", cleanTitle);
+            TeslaMaps.debug("[Ultrasequencer] ===== DETECTED: {} =====", cleanTitle);
             initialScanDone = true;
         }
 
@@ -102,11 +87,11 @@ public class UltrasequencerSolver {
 
         checkPaneColorChange(handler);
 
-        boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
+        boolean usingClickAnywhere = false;
 
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
-            TeslaMaps.LOGGER.info("[Ultrasequencer] Break threshold reached, resetting click state");
+            TeslaMaps.debug("[Ultrasequencer] Break threshold reached, resetting click state");
             isClicked = false;
         }
 
@@ -142,14 +127,14 @@ public class UltrasequencerSolver {
                 if (instructionName.equals("Remember the pattern!")) {
                     scanNumberedItems(handler);
                     if (!numberedSlots.isEmpty()) {
-                        TeslaMaps.LOGGER.info("[Ultrasequencer] Memorized {} numbered items", numberedSlots.size());
+                        TeslaMaps.debug("[Ultrasequencer] Memorized {} numbered items", numberedSlots.size());
                         state = State.WAIT;
                     }
                 }
             }
             case WAIT -> {
                 if (instructionName.startsWith("Timer: ")) {
-                    TeslaMaps.LOGGER.info("[Ultrasequencer] Timer started, entering SHOW state");
+                    TeslaMaps.debug("[Ultrasequencer] Timer started, entering SHOW state");
                     state = State.SHOW;
                     nextNumber = 1;
                     terminalOpenTime = System.currentTimeMillis();
@@ -158,12 +143,12 @@ public class UltrasequencerSolver {
             case END -> {
                 if (!instructionName.startsWith("Timer: ")) {
                     if (instructionName.equals("Remember the pattern!")) {
-                        TeslaMaps.LOGGER.info("[Ultrasequencer] New round starting");
+                        TeslaMaps.debug("[Ultrasequencer] New round starting");
                         numberedSlots.clear();
                         nextNumber = 1;
                         state = State.REMEMBER;
                     } else {
-                        TeslaMaps.LOGGER.info("[Ultrasequencer] Experiment ended");
+                        TeslaMaps.debug("[Ultrasequencer] Experiment ended");
                         reset();
                     }
                 }
@@ -190,7 +175,7 @@ public class UltrasequencerSolver {
                 int number = Integer.parseInt(name);
                 if (number >= 1 && number <= 14) {
                     numberedSlots.put(slotId, number);
-                    TeslaMaps.LOGGER.info("[Ultrasequencer] Found item {} at slot {}", number, slotId);
+                    TeslaMaps.debug("[Ultrasequencer] Found item {} at slot {}", number, slotId);
                 }
             }
         }
@@ -212,7 +197,7 @@ public class UltrasequencerSolver {
                     if (color == DyeColor.BLACK) continue;
 
                     if (lastPaneColor != null && lastPaneColor != color) {
-                        TeslaMaps.LOGGER.info("[Ultrasequencer] Pane color changed from {} to {}, round ended",
+                        TeslaMaps.debug("[Ultrasequencer] Pane color changed from {} to {}, round ended",
                             lastPaneColor, color);
                         state = State.END;
                     }
@@ -236,7 +221,7 @@ public class UltrasequencerSolver {
     private static void performClick(Minecraft mc, ChestMenu handler, int slotId) {
         if (mc.player == null) return;
 
-        TeslaMaps.LOGGER.info("[Ultrasequencer] Clicking slot {} for number {}", slotId, nextNumber);
+        TeslaMaps.debug("[Ultrasequencer] Clicking slot {} for number {}", slotId, nextNumber);
 
         mc.gameMode.handleContainerInput(
             handler.containerId,
@@ -251,7 +236,7 @@ public class UltrasequencerSolver {
         isClicked = true;
 
         if (nextNumber > numberedSlots.size()) {
-            TeslaMaps.LOGGER.info("[Ultrasequencer] Sequence complete, entering END state");
+            TeslaMaps.debug("[Ultrasequencer] Sequence complete, entering END state");
             state = State.END;
         }
     }
@@ -285,7 +270,7 @@ public class UltrasequencerSolver {
 
     public static void reset() {
         if (initialScanDone) {
-            TeslaMaps.LOGGER.info("[Ultrasequencer] Resetting");
+            TeslaMaps.debug("[Ultrasequencer] Resetting");
         }
         state = State.REMEMBER;
         numberedSlots.clear();

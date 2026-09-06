@@ -1,24 +1,11 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.database.RoomDatabase;
 import com.teslamaps.dungeon.DungeonManager;
@@ -47,9 +34,8 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import com.teslamaps.utils.TabListUtils;
 import com.teslamaps.profileviewer.api.HypixelApi;
 import com.teslamaps.profileviewer.screen.ProfileViewerScreen;
-import com.teslamaps.dungeon.termsim.PanesSimulator;
-import com.teslamaps.dungeon.termsim.NumbersSimulator;
-import com.teslamaps.dungeon.termsim.RubixSimulator;
+import com.teslamaps.dungeon.terminals.TerminalTypes;
+import com.teslamaps.features.TerminalSimulator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,6 +48,31 @@ public class TMapCommand {
             com.teslamaps.features.PingMeter.request();
             return 1;
         }));
+
+        var termsim = ClientCommands.literal("termsim").executes(context -> {
+            Minecraft.getInstance().execute(() -> TerminalSimulator.open(TerminalSimulator.ping()));
+            return 1;
+        });
+        termsim.then(ClientCommands.argument("ping", IntegerArgumentType.integer(0))
+                .executes(context -> {
+                    int ping = IntegerArgumentType.getInteger(context, "ping");
+                    Minecraft.getInstance().execute(() -> TerminalSimulator.open(ping));
+                    return 1;
+                }));
+        for (TerminalTypes type : TerminalTypes.values()) {
+            termsim.then(ClientCommands.literal(type.name().toLowerCase())
+                    .executes(context -> {
+                        Minecraft.getInstance().execute(() -> type.getSimulator().open(TerminalSimulator.ping()));
+                        return 1;
+                    })
+                    .then(ClientCommands.argument("ping", IntegerArgumentType.integer(0))
+                            .executes(context -> {
+                                int ping = IntegerArgumentType.getInteger(context, "ping");
+                                Minecraft.getInstance().execute(() -> type.getSimulator().open(ping));
+                                return 1;
+                            })));
+        }
+        dispatcher.register(termsim);
 
         for (char type : new char[]{'f', 'm'}) {
             for (int n = 1; n <= 7; n++) {
@@ -87,41 +98,38 @@ public class TMapCommand {
                             });
                             return 1;
                         }))
-                .then(ClientCommands.literal("back")
+                .then(ClientCommands.literal("safari")
                         .executes(context -> {
-                            Minecraft.getInstance().schedule(() -> {
-                                Minecraft.getInstance().setScreen(new MapConfigScreen());
-                            });
+                            for (String line : com.teslamaps.safari.SafariHistory.summary(5)) {
+                                context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(line));
+                            }
                             return 1;
-                        }))
-                .then(ClientCommands.literal("gui2")
+                        })
+                        .then(ClientCommands.literal("scan")
+                                .executes(context -> safariScan(context.getSource(), 6))
+                                .then(ClientCommands.argument("chunks", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 16))
+                                        .executes(context -> safariScan(context.getSource(),
+                                                com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "chunks")))))
+                        .then(ClientCommands.literal("debug")
+                                .executes(context -> safariDebug(context.getSource(), 16))
+                                .then(ClientCommands.argument("radius", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 64))
+                                        .executes(context -> safariDebug(context.getSource(),
+                                                com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius"))))))
+                .then(ClientCommands.literal("profile")
                         .executes(context -> {
-                            Minecraft.getInstance().schedule(() -> {
-                                Minecraft.getInstance().setScreen(new com.teslamaps.screen.MapConfigScreen2());
-                            });
+                            context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(
+                                    "§b[TeslaMaps] §fActive profile: §a" + com.teslamaps.config.ConfigProfiles.active()
+                                            + "§7 · available: " + String.join(", ", com.teslamaps.config.ConfigProfiles.list())));
                             return 1;
-                        }))
-                .then(ClientCommands.literal("gui3")
-                        .executes(context -> {
-                            Minecraft.getInstance().schedule(() -> {
-                                Minecraft.getInstance().setScreen(new com.teslamaps.screen.MapConfigScreen3());
-                            });
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("gui4")
-                        .executes(context -> {
-                            Minecraft.getInstance().schedule(() -> {
-                                Minecraft.getInstance().setScreen(new com.teslamaps.screen.MapConfigScreen4());
-                            });
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("gui5")
-                        .executes(context -> {
-                            Minecraft.getInstance().schedule(() -> {
-                                Minecraft.getInstance().setScreen(new com.teslamaps.screen.MapConfigScreen5());
-                            });
-                            return 1;
-                        }))
+                        })
+                        .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                .executes(context -> {
+                                    String name = StringArgumentType.getString(context, "name");
+                                    com.teslamaps.config.ConfigProfiles.switchTo(name);
+                                    context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(
+                                            "§b[TeslaMaps] §fSwitched to profile §a" + com.teslamaps.config.ConfigProfiles.active()));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("ep").executes(context -> {
                     com.teslamaps.features.AutoGFS.gfsEnderPearls();
                     return 1;
@@ -130,50 +138,36 @@ public class TMapCommand {
                     com.teslamaps.features.AutoGFS.gfsSuperboom();
                     return 1;
                 }))
-                .then(ClientCommands.literal("etheroffset")
-                        .then(ClientCommands.argument("value", FloatArgumentType.floatArg(-0.5f, 0.5f))
-                                .executes(context -> {
-                                    float v = FloatArgumentType.getFloat(context, "value");
-                                    TeslaMapsConfig.get().etherwarpEyeOffset = v;
-                                    TeslaMapsConfig.save();
-                                    context.getSource().sendFeedback(Component.literal(
-                                            "§a[TeslaMaps] §7Etherwarp eye offset = §f" + String.format("%.3f", v)));
-                                    return 1;
-                                })))
-                .then(ClientCommands.literal("toggle")
-                        .executes(context -> {
-                            TeslaMapsConfig config = TeslaMapsConfig.get();
-                            config.mapEnabled = !config.mapEnabled;
-                            TeslaMapsConfig.save();
+                .then(ClientCommands.literal("perf")
+                        .executes(context -> perfReport(context.getSource()))
+                        .then(ClientCommands.literal("on").executes(context -> {
+                            com.teslamaps.debug.Perf.setEnabled(true);
                             context.getSource().sendFeedback(Component.literal(
-                                    "Map " + (config.mapEnabled ? "enabled" : "disabled")));
+                                    "§b[TeslaMaps] §fPerf counters §aon§f, counters reset."));
                             return 1;
                         }))
-                .then(ClientCommands.literal("move")
-                        .then(ClientCommands.argument("x", IntegerArgumentType.integer(0))
-                                .then(ClientCommands.argument("y", IntegerArgumentType.integer(0))
+                        .then(ClientCommands.literal("off").executes(context -> {
+                            com.teslamaps.debug.Perf.setEnabled(false);
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§b[TeslaMaps] §fPerf counters §coff§f."));
+                            return 1;
+                        }))
+                        .then(ClientCommands.literal("reset").executes(context -> {
+                            com.teslamaps.debug.Perf.reset();
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§b[TeslaMaps] §fPerf counters reset."));
+                            return 1;
+                        }))
+                        .then(ClientCommands.literal("spike")
+                                .then(ClientCommands.argument("ms", com.mojang.brigadier.arguments.IntegerArgumentType.integer(0, 1000))
                                         .executes(context -> {
-                                            int x = IntegerArgumentType.getInteger(context, "x");
-                                            int y = IntegerArgumentType.getInteger(context, "y");
-                                            TeslaMapsConfig config = TeslaMapsConfig.get();
-                                            config.mapX = x;
-                                            config.mapY = y;
-                                            TeslaMapsConfig.save();
-                                            context.getSource().sendFeedback(Component.literal(
-                                                    "Map moved to " + x + ", " + y));
+                                            int ms = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "ms");
+                                            com.teslamaps.debug.Perf.setSpikeThresholdMs(ms);
+                                            context.getSource().sendFeedback(Component.literal(ms == 0
+                                                    ? "§b[TeslaMaps] §fSpike logging off."
+                                                    : "§b[TeslaMaps] §fLogging frames over §e" + ms + "ms§f to latest.log."));
                                             return 1;
                                         }))))
-                .then(ClientCommands.literal("scale")
-                        .then(ClientCommands.argument("scale", FloatArgumentType.floatArg(0.1f, 3.0f))
-                                .executes(context -> {
-                                    float scale = FloatArgumentType.getFloat(context, "scale");
-                                    TeslaMapsConfig config = TeslaMapsConfig.get();
-                                    config.mapScale = scale;
-                                    TeslaMapsConfig.save();
-                                    context.getSource().sendFeedback(Component.literal(
-                                            "Map scale set to " + scale));
-                                    return 1;
-                                })))
                 .then(ClientCommands.literal("debug")
                         .executes(context -> {
                             TeslaMapsConfig config = TeslaMapsConfig.get();
@@ -183,6 +177,17 @@ public class TMapCommand {
                                     "Debug mode " + (config.debugMode ? "enabled" : "disabled")));
                             return 1;
                         })
+                        .then(ClientCommands.literal("fakelevel")
+                                .executes(context -> {
+                                    com.teslamaps.features.SkillOverflow.preview("Foraging");
+                                    return 1;
+                                })
+                                .then(ClientCommands.argument("skill", StringArgumentType.word())
+                                        .executes(context -> {
+                                            com.teslamaps.features.SkillOverflow.preview(
+                                                    StringArgumentType.getString(context, "skill"));
+                                            return 1;
+                                        })))
                         .then(ClientCommands.literal("dragon")
                                 .executes(context -> {
                                     com.teslamaps.dungeon.WitherDragons.debugDump();
@@ -191,6 +196,29 @@ public class TMapCommand {
                         .then(ClientCommands.literal("map")
                                 .executes(context -> {
                                     com.teslamaps.scanner.MapScanner.debugDump();
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("fish")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§7Sea creature messages: §f" + com.teslamaps.utils.SeaCreatureList.size()
+                                            + " §7(" + (com.teslamaps.utils.SeaCreatureList.ready() ? "§aloaded" : "§eloading") + "§7)"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("sacks")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§7Sack list: §f" + (com.teslamaps.utils.SackItems.ready() ? "§aloaded" : "§eloading")
+                                            + " §7| item table: §f" + (com.teslamaps.utils.SkyblockItems.loaded() ? "§aloaded" : "§eloading")
+                                            + " §7| /gfs suggestions: §f" + com.teslamaps.utils.SackItems.suggestions().size()));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("area")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§7Area: §f\"" + com.teslamaps.utils.SkyblockUtils.getArea() + "\""
+                                            + " §7foraging island: "
+                                            + (com.teslamaps.features.foraging.Foraging.onForagingIsland() ? "§ayes" : "§cno")));
                                     return 1;
                                 }))
                         .then(ClientCommands.literal("sound")
@@ -210,6 +238,378 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal(
                                             "Croesus debug: " + (c.croesusDebug ? "§aON" : "§cOFF")));
                                     return 1;
+                                }))
+                        .then(ClientCommands.literal("core")
+                                .executes(context -> {
+                                    Minecraft mc = Minecraft.getInstance();
+                                    if (mc.player == null || mc.level == null) {
+                                        context.getSource().sendFeedback(Component.literal("Not in world"));
+                                        return 0;
+                                    }
+                                    int x = (int) mc.player.getX();
+                                    int z = (int) mc.player.getZ();
+
+                                    int[] gridPos = ComponentGrid.worldToGrid(x, z);
+                                    if (gridPos == null) {
+                                        context.getSource().sendFeedback(Component.literal("Not in dungeon area"));
+                                        return 0;
+                                    }
+
+                                    int[] center = ComponentGrid.gridToWorld(gridPos[0], gridPos[1]);
+                                    int core = CoreHasher.calculateCore(mc.level, center[0], center[1]);
+
+                                    context.getSource().sendFeedback(Component.literal(
+                                            String.format("Grid: [%d,%d] Center: [%d,%d] Core: %d",
+                                                    gridPos[0], gridPos[1], center[0], center[1], core)));
+
+                                    var roomData = RoomDatabase.getInstance().findByCore(core);
+                                    if (roomData != null) {
+                                        context.getSource().sendFeedback(Component.literal("Matched room: " + roomData.getName()));
+                                    } else {
+                                        context.getSource().sendFeedback(Component.literal("No matching room in database"));
+                                    }
+
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("doors")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal("=== Door Debug ==="));
+                                    var allDoors = DoorScanner.getAllDoors();
+                                    context.getSource().sendFeedback(Component.literal("Total doors found: " + allDoors.size()));
+                                    int normal = 0, wither = 0, blood = 0, entrance = 0;
+                                    for (var entry : allDoors.entrySet()) {
+                                        DoorType type = entry.getValue();
+                                        switch (type) {
+                                            case NORMAL -> normal++;
+                                            case WITHER -> wither++;
+                                            case BLOOD -> blood++;
+                                            case ENTRANCE -> entrance++;
+                                        }
+                                    }
+                                    context.getSource().sendFeedback(Component.literal("Normal: " + normal + ", Wither: " + wither + ", Blood: " + blood + ", Entrance: " + entrance));
+                                    context.getSource().sendFeedback(Component.literal("Rescanning doors..."));
+                                    DoorScanner.scanAllDoors();
+                                    context.getSource().sendFeedback(Component.literal("After rescan: " + DoorScanner.getAllDoors().size() + " doors"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("rooms")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal("=== Room Debug ==="));
+                                    for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
+                                        StringBuilder sb = new StringBuilder();
+                                        sb.append(room.getName()).append(" [");
+                                        for (int[] comp : room.getComponents()) {
+                                            sb.append("(").append(comp[0]).append(",").append(comp[1]).append(")");
+                                        }
+                                        sb.append("] ").append(room.getCheckmarkState());
+                                        context.getSource().sendFeedback(Component.literal(sb.toString()));
+                                    }
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("mapitem")
+                                .executes(context -> {
+                                    Minecraft mc = Minecraft.getInstance();
+                                    context.getSource().sendFeedback(Component.literal("=== Map Item Debug ==="));
+
+                                    for (int i = 0; i < 9; i++) {
+                                        ItemStack stack = mc.player.getInventory().getItem(i);
+                                        if (stack.getItem() instanceof MapItem) {
+                                            MapId mapId = stack.get(DataComponents.MAP_ID);
+                                            context.getSource().sendFeedback(Component.literal("Slot " + i + ": Map found, ID=" + mapId));
+                                            if (mapId != null) {
+                                                MapItemSavedData state = MapItem.getSavedData(mapId, mc.level);
+                                                if (state != null && state.colors != null) {
+                                                    context.getSource().sendFeedback(Component.literal("  MapState: colors length=" + state.colors.length));
+                                                    byte c1 = state.colors[64 + 64*128]; // center
+                                                    byte c2 = state.colors[32 + 32*128]; // top-left area
+                                                    context.getSource().sendFeedback(Component.literal("  Sample colors: center=" + c1 + ", topleft=" + c2));
+                                                } else {
+                                                    context.getSource().sendFeedback(Component.literal("  MapState is null or has no colors"));
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    ItemStack offhand = mc.player.getOffhandItem();
+                                    if (offhand.getItem() instanceof MapItem) {
+                                        context.getSource().sendFeedback(Component.literal("Offhand: Map found"));
+                                    }
+
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("mobs")
+                                .executes(context -> {
+                                    Minecraft mc = Minecraft.getInstance();
+                                    context.getSource().sendFeedback(Component.literal("=== Nearby Entity Names ==="));
+                                    context.getSource().sendFeedback(Component.literal("ESP list: " + TeslaMapsConfig.get().customESPMobs));
+
+                                    int count = 0;
+                                    for (Entity entity : mc.level.entitiesForRendering()) {
+                                        if (!(entity instanceof LivingEntity)) continue;
+                                        if (entity == mc.player) continue;
+
+                                        double dist = entity.distanceToSqr(mc.player);
+                                        if (dist > 400) continue;  // Within 20 blocks
+
+                                        String name = entity.getName().getString();
+                                        String customName = entity.getCustomName() != null ? entity.getCustomName().getString() : "null";
+
+                                        boolean matchesESP = false;
+                                        for (String pattern : TeslaMapsConfig.get().customESPMobs) {
+                                            if (name.toLowerCase().contains(pattern.toLowerCase()) ||
+                                                (entity.getCustomName() != null && customName.toLowerCase().contains(pattern.toLowerCase()))) {
+                                                matchesESP = true;
+                                                break;
+                                            }
+                                        }
+
+                                        StringBuilder hex = new StringBuilder();
+                                        for (char c : name.toCharArray()) {
+                                            if (c > 127) {
+                                                hex.append(String.format("[U+%04X]", (int) c));
+                                            }
+                                        }
+
+                                        String espStatus = matchesESP ? " [ESP MATCH]" : "";
+                                        context.getSource().sendFeedback(Component.literal(
+                                                String.format("%.1f: %s | custom: %s %s%s",
+                                                        Math.sqrt(dist), name, customName, hex.toString(), espStatus)));
+                                        count++;
+                                        if (count > 20) {
+                                            context.getSource().sendFeedback(Component.literal("... and more"));
+                                            break;
+                                        }
+                                    }
+
+                                    if (count == 0) {
+                                        context.getSource().sendFeedback(Component.literal("No entities nearby"));
+                                    }
+
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("crypts")
+                                .executes(context -> {
+                                    int cryptsFound = TabListUtils.getCryptsFound();
+                                    int totalCrypts = DungeonManager.getTotalCrypts();
+                                    context.getSource().sendFeedback(Component.literal("=== Crypts Info ==="));
+                                    if (cryptsFound >= 0) {
+                                        context.getSource().sendFeedback(Component.literal("Crypts: " + cryptsFound + "/" + totalCrypts + " (5 for S+)"));
+                                        if (cryptsFound >= 5) {
+                                            context.getSource().sendFeedback(Component.literal(" Crypt bonus achieved!"));
+                                        } else {
+                                            context.getSource().sendFeedback(Component.literal("Need " + (5 - cryptsFound) + " more for bonus"));
+                                        }
+                                    } else {
+                                        context.getSource().sendFeedback(Component.literal("Total crypts in dungeon: " + totalCrypts));
+                                    }
+                                    java.util.Set<DungeonRoom> shown = new java.util.HashSet<>();
+                                    for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
+                                        if (!shown.contains(room) && room.getCrypts() > 0) {
+                                            context.getSource().sendFeedback(Component.literal("  " + room.getName() + ": " + room.getCrypts()));
+                                            shown.add(room);
+                                        }
+                                    }
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("secrets")
+                                .executes(context -> {
+                                    double secretsPercent = TabListUtils.getSecretsPercentage();
+                                    int totalSecrets = 0;
+                                    for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
+                                        if (room.getSecrets() > 0) {
+                                            totalSecrets += room.getSecrets();
+                                        }
+                                    }
+                                    context.getSource().sendFeedback(Component.literal("=== Secrets Info ==="));
+                                    if (secretsPercent >= 0) {
+                                        context.getSource().sendFeedback(Component.literal(String.format("Secrets found: %.1f%%", secretsPercent)));
+                                        context.getSource().sendFeedback(Component.literal("Total secrets in map: " + totalSecrets));
+                                    } else {
+                                        context.getSource().sendFeedback(Component.literal("Total secrets in map: " + totalSecrets));
+                                        context.getSource().sendFeedback(Component.literal("Found count: Not in dungeon"));
+                                    }
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("scanblocks")
+                                .executes(context -> {
+                                    Minecraft mc = Minecraft.getInstance();
+                                    if (mc.player == null || mc.level == null) {
+                                        context.getSource().sendFeedback(Component.literal("Not in world"));
+                                        return 0;
+                                    }
+
+                                    int px = (int) mc.player.getX();
+                                    int py = (int) mc.player.getY();
+                                    int pz = (int) mc.player.getZ();
+
+                                    context.getSource().sendFeedback(Component.literal("=== Block Scan at " + px + ", " + py + ", " + pz + " ==="));
+
+                                    Map<String, Integer> blockCounts = new HashMap<>();
+                                    int radius = 3;
+
+                                    int smoothSlabCount = 0;
+                                    for (int x = px - radius; x <= px + radius; x++) {
+                                        for (int y = py - radius; y <= py + radius; y++) {
+                                            for (int z = pz - radius; z <= pz + radius; z++) {
+                                                BlockPos pos = new BlockPos(x, y, z);
+                                                Block block = mc.level.getBlockState(pos).getBlock();
+                                                String name = block.getName().getString();
+                                                blockCounts.merge(name, 1, Integer::sum);
+                                                if (name.contains("Smooth Stone Slab")) {
+                                                    smoothSlabCount++;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    blockCounts.entrySet().stream()
+                                            .filter(e -> !e.getKey().equals("Air"))
+                                            .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                                            .limit(15)
+                                            .forEach(e -> context.getSource().sendFeedback(
+                                                    Component.literal("  " + e.getValue() + "x " + e.getKey())));
+
+                                    context.getSource().sendFeedback(Component.literal("Smooth slabs in area: " + smoothSlabCount + " (need 10+ for crypt)"));
+
+                                    BlockPos below = new BlockPos(px, py - 1, pz);
+                                    Block blockBelow = mc.level.getBlockState(below).getBlock();
+                                    context.getSource().sendFeedback(Component.literal("Standing on: " + blockBelow.getName().getString()));
+
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("entities")
+                                .executes(context -> dumpEntities(context.getSource(), 8))
+                                .then(ClientCommands.argument("radius", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 48))
+                                        .executes(context -> dumpEntities(context.getSource(),
+                                                com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius")))))
+                        .then(ClientCommands.literal("status")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal("=== TeslaMaps Status ==="));
+                                    context.getSource().sendFeedback(Component.literal("In Dungeon: " + DungeonManager.isInDungeon()));
+                                    context.getSource().sendFeedback(Component.literal("State: " + DungeonManager.getCurrentState()));
+                                    context.getSource().sendFeedback(Component.literal("Floor: " + DungeonManager.getCurrentFloor()));
+                                    context.getSource().sendFeedback(Component.literal("Rooms loaded: " + DungeonManager.getGrid().getAllRooms().size()));
+                                    context.getSource().sendFeedback(Component.literal("DB loaded: " + RoomDatabase.getInstance().isLoaded()));
+                                    context.getSource().sendFeedback(Component.literal("DB rooms: " + RoomDatabase.getInstance().getAllRooms().size()));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("rescan")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal("Forcing dungeon scan..."));
+                                    RoomScanner.forceScan();
+                                    int roomCount = DungeonManager.getGrid().getAllRooms().size();
+                                    context.getSource().sendFeedback(Component.literal("Scan complete. Found " + roomCount + " rooms."));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("dumptab")
+                                .executes(context -> {
+                                    com.teslamaps.utils.GuiDump.dumpTab();
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("dumpgui")
+                                .executes(context -> {
+                                    com.teslamaps.utils.GuiDump.dump(null);
+                                    return 1;
+                                })
+                                .then(ClientCommands.argument("match", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            com.teslamaps.utils.GuiDump.dump(
+                                                    StringArgumentType.getString(context, "match"));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("testdrop")
+                                .executes(context -> {
+                                    String shown = com.teslamaps.features.RareDropEffects.test(null);
+                                    context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(
+                                            "§b[TeslaMaps] §fDrop effect: §a" + shown));
+                                    return 1;
+                                })
+                                .then(ClientCommands.argument("item", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            String shown = com.teslamaps.features.RareDropEffects.test(
+                                                    StringArgumentType.getString(context, "item"));
+                                            context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(
+                                                    "§b[TeslaMaps] §fDrop effect: §a" + shown));
+                                            return 1;
+                                        }))))
+                .then(ClientCommands.literal("esp")
+                        .then(ClientCommands.literal("add")
+                                .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                        .suggests((context, builder) -> suggest(nearbyEntityNames(), builder))
+                                        .executes(context -> {
+                                            String raw = StringArgumentType.getString(context, "name");
+                                            TeslaMapsConfig config = TeslaMapsConfig.get();
+
+                                            // The name is greedy, so a trailing on/off is split off here
+                                            // rather than being its own argument.
+                                            boolean tracer = false;
+                                            String name = raw;
+                                            if (name.toLowerCase().endsWith(" on")) {
+                                                tracer = true;
+                                                name = name.substring(0, name.length() - 3).trim();
+                                            } else if (name.toLowerCase().endsWith(" off")) {
+                                                name = name.substring(0, name.length() - 4).trim();
+                                            }
+                                            if (name.isEmpty()) {
+                                                context.getSource().sendFeedback(Component.literal("Usage: /tmap add <name> [on]"));
+                                                return 1;
+                                            }
+
+                                            final String entry = name;
+                                            boolean exists = config.customESPMobs.stream()
+                                                    .anyMatch(s -> s.equalsIgnoreCase(entry));
+                                            if (!exists) config.customESPMobs.add(entry);
+
+                                            config.customESPTracers.removeIf(s -> s.equalsIgnoreCase(entry));
+                                            if (tracer) config.customESPTracers.add(entry);
+                                            TeslaMapsConfig.save();
+
+                                            String suffix = tracer ? " (tracer on)" : "";
+                                            context.getSource().sendFeedback(Component.literal(exists
+                                                    ? "Updated '" + entry + "'" + suffix
+                                                    : "Added '" + entry + "' to ESP list" + suffix));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("remove")
+                                .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                        .suggests((context, builder) ->
+                                                suggest(TeslaMapsConfig.get().customESPMobs, builder))
+                                        .executes(context -> {
+                                            String name = StringArgumentType.getString(context, "name");
+                                            TeslaMapsConfig config = TeslaMapsConfig.get();
+
+                                            boolean removed = config.customESPMobs.removeIf(s -> s.equalsIgnoreCase(name));
+                                            config.customESPTracers.removeIf(s -> s.equalsIgnoreCase(name));
+
+                                            if (removed) {
+                                                TeslaMapsConfig.save();
+                                                context.getSource().sendFeedback(Component.literal("Removed '" + name + "' from ESP list"));
+                                            } else {
+                                                context.getSource().sendFeedback(Component.literal("'" + name + "' not found in ESP list"));
+                                            }
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("list")
+                                .executes(context -> {
+                                    TeslaMapsConfig config = TeslaMapsConfig.get();
+                                    if (config.customESPMobs.isEmpty()) {
+                                        context.getSource().sendFeedback(Component.literal("ESP list is empty"));
+                                    } else {
+                                        context.getSource().sendFeedback(Component.literal("=== Custom ESP List ==="));
+                                        for (String mob : config.customESPMobs) {
+                                            context.getSource().sendFeedback(Component.literal("  - " + mob));
+                                        }
+                                    }
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    TeslaMapsConfig config = TeslaMapsConfig.get();
+                                    int count = config.customESPMobs.size();
+                                    config.customESPMobs.clear();
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal("Cleared " + count + " entries from ESP list"));
+                                    return 1;
                                 })))
                 .then(ClientCommands.literal("hotkeys")
                         .executes(context -> {
@@ -225,12 +625,6 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal("Keybind message set to: " + msg));
                                     return 1;
                                 })))
-                .then(ClientCommands.literal("msg") // legacy alias for /tmap hotkeys
-                        .executes(context -> {
-                            Minecraft.getInstance().schedule(() ->
-                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.KeybindMessageScreen()));
-                            return 1;
-                        }))
                 .then(ClientCommands.literal("shortcut")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() ->
@@ -282,6 +676,77 @@ public class TMapCommand {
                                             com.teslamaps.dungeon.DungeonWaypoints.convertLegacy()));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("pest")
+                        .executes(context -> {
+                            com.teslamaps.features.PestRoutine.advance();
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("reset")
+                                .executes(context -> {
+                                    com.teslamaps.features.PestRoutine.reset();
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §fPest routine reset"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("slots")
+                                .executes(context -> {
+                                    com.teslamaps.features.PestRoutine.dumpSlots();
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("start")
+                                .executes(context -> {
+                                    com.teslamaps.features.PestRoutine.start();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fRoutine armed at /loadout"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("skipspray")
+                                .executes(context -> {
+                                    com.teslamaps.features.PestRoutine.skipSpray();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "\u00a7b[TeslaMaps] \u00a7fSkipped the spray trip"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("skip")
+                                .executes(context -> {
+                                    com.teslamaps.features.PestRoutine.skipPhilip();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "\u00a7b[TeslaMaps] \u00a7fSkipped the Philip step"));
+                                    return 1;
+                                })))
+                .then(ClientCommands.literal("farm")
+                        .then(ClientCommands.literal("pos1")
+                                .executes(context -> {
+                                    com.teslamaps.features.FarmProgress.setPoint(1);
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("pos2")
+                                .executes(context -> {
+                                    com.teslamaps.features.FarmProgress.setPoint(2);
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    com.teslamaps.features.FarmProgress.clear();
+                                    return 1;
+                                })))
+                .then(ClientCommands.literal("profit")
+                        .executes(context -> {
+                            com.teslamaps.features.FarmProfit.printBreakdown();
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("window")
+                                .executes(context -> {
+                                    com.teslamaps.features.FarmProfit.cycleWindow();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fProfit window: §e"
+                                                    + com.teslamaps.features.FarmProfit.window().label));
+                                    return 1;
+                                })))
+                .then(ClientCommands.literal("tppest")
+                        .executes(context -> {
+                            com.teslamaps.features.GardenPlots.teleportToPest();
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("prince")
                         .executes(context -> {
                             com.teslamaps.dungeon.PrinceWaypoints.load();
@@ -335,55 +800,9 @@ public class TMapCommand {
                                 })))
                 .then(ClientCommands.literal("reset")
                         .executes(context -> {
-                            com.teslamaps.slayer.SlayerStats.reset();
                             com.teslamaps.slayer.SlayerHUD.resetSession();
-                            com.teslamaps.features.CombatTracker.reset();
-                            context.getSource().sendFeedback(Component.literal("Slayer/combat trackers reset"));
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("scan")
-                        .executes(context -> {
-                            context.getSource().sendFeedback(Component.literal("Forcing dungeon scan..."));
-                            RoomScanner.forceScan();
-                            int roomCount = DungeonManager.getGrid().getAllRooms().size();
-                            context.getSource().sendFeedback(Component.literal("Scan complete. Found " + roomCount + " rooms."));
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("entities")
-                        .executes(context -> dumpEntities(context.getSource(), 8))
-                        .then(ClientCommands.argument("radius", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 48))
-                                .executes(context -> dumpEntities(context.getSource(),
-                                        com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius")))))
-                .then(ClientCommands.literal("core")
-                        .executes(context -> {
-                            Minecraft mc = Minecraft.getInstance();
-                            if (mc.player == null || mc.level == null) {
-                                context.getSource().sendFeedback(Component.literal("Not in world"));
-                                return 0;
-                            }
-                            int x = (int) mc.player.getX();
-                            int z = (int) mc.player.getZ();
-
-                            int[] gridPos = ComponentGrid.worldToGrid(x, z);
-                            if (gridPos == null) {
-                                context.getSource().sendFeedback(Component.literal("Not in dungeon area"));
-                                return 0;
-                            }
-
-                            int[] center = ComponentGrid.gridToWorld(gridPos[0], gridPos[1]);
-                            int core = CoreHasher.calculateCore(mc.level, center[0], center[1]);
-
-                            context.getSource().sendFeedback(Component.literal(
-                                    String.format("Grid: [%d,%d] Center: [%d,%d] Core: %d",
-                                            gridPos[0], gridPos[1], center[0], center[1], core)));
-
-                            var roomData = RoomDatabase.getInstance().findByCore(core);
-                            if (roomData != null) {
-                                context.getSource().sendFeedback(Component.literal("Matched room: " + roomData.getName()));
-                            } else {
-                                context.getSource().sendFeedback(Component.literal("No matching room in database"));
-                            }
-
+                            com.teslamaps.features.SkillTracker.reset();
+                            context.getSource().sendFeedback(Component.literal("Tracker reset"));
                             return 1;
                         }))
                 .then(ClientCommands.literal("sendcoords")
@@ -395,279 +814,6 @@ public class TMapCommand {
                             }
                             var p = mc.player.blockPosition();
                             mc.getConnection().sendCommand("pc x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ());
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("status")
-                        .executes(context -> {
-                            context.getSource().sendFeedback(Component.literal("=== TeslaMaps Status ==="));
-                            context.getSource().sendFeedback(Component.literal("In Dungeon: " + DungeonManager.isInDungeon()));
-                            context.getSource().sendFeedback(Component.literal("State: " + DungeonManager.getCurrentState()));
-                            context.getSource().sendFeedback(Component.literal("Floor: " + DungeonManager.getCurrentFloor()));
-                            context.getSource().sendFeedback(Component.literal("Rooms loaded: " + DungeonManager.getGrid().getAllRooms().size()));
-                            context.getSource().sendFeedback(Component.literal("DB loaded: " + RoomDatabase.getInstance().isLoaded()));
-                            context.getSource().sendFeedback(Component.literal("DB rooms: " + RoomDatabase.getInstance().getAllRooms().size()));
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("doors")
-                        .executes(context -> {
-                            context.getSource().sendFeedback(Component.literal("=== Door Debug ==="));
-                            var allDoors = DoorScanner.getAllDoors();
-                            context.getSource().sendFeedback(Component.literal("Total doors found: " + allDoors.size()));
-                            int normal = 0, wither = 0, blood = 0, entrance = 0;
-                            for (var entry : allDoors.entrySet()) {
-                                DoorType type = entry.getValue();
-                                switch (type) {
-                                    case NORMAL -> normal++;
-                                    case WITHER -> wither++;
-                                    case BLOOD -> blood++;
-                                    case ENTRANCE -> entrance++;
-                                }
-                            }
-                            context.getSource().sendFeedback(Component.literal("Normal: " + normal + ", Wither: " + wither + ", Blood: " + blood + ", Entrance: " + entrance));
-                            context.getSource().sendFeedback(Component.literal("Rescanning doors..."));
-                            DoorScanner.scanAllDoors();
-                            context.getSource().sendFeedback(Component.literal("After rescan: " + DoorScanner.getAllDoors().size() + " doors"));
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("rooms")
-                        .executes(context -> {
-                            context.getSource().sendFeedback(Component.literal("=== Room Debug ==="));
-                            for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
-                                StringBuilder sb = new StringBuilder();
-                                sb.append(room.getName()).append(" [");
-                                for (int[] comp : room.getComponents()) {
-                                    sb.append("(").append(comp[0]).append(",").append(comp[1]).append(")");
-                                }
-                                sb.append("] ").append(room.getCheckmarkState());
-                                context.getSource().sendFeedback(Component.literal(sb.toString()));
-                            }
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("map")
-                        .executes(context -> {
-                            Minecraft mc = Minecraft.getInstance();
-                            context.getSource().sendFeedback(Component.literal("=== Map Item Debug ==="));
-
-                            for (int i = 0; i < 9; i++) {
-                                ItemStack stack = mc.player.getInventory().getItem(i);
-                                if (stack.getItem() instanceof MapItem) {
-                                    MapId mapId = stack.get(DataComponents.MAP_ID);
-                                    context.getSource().sendFeedback(Component.literal("Slot " + i + ": Map found, ID=" + mapId));
-                                    if (mapId != null) {
-                                        MapItemSavedData state = MapItem.getSavedData(mapId, mc.level);
-                                        if (state != null && state.colors != null) {
-                                            context.getSource().sendFeedback(Component.literal("  MapState: colors length=" + state.colors.length));
-                                            byte c1 = state.colors[64 + 64*128]; // center
-                                            byte c2 = state.colors[32 + 32*128]; // top-left area
-                                            context.getSource().sendFeedback(Component.literal("  Sample colors: center=" + c1 + ", topleft=" + c2));
-                                        } else {
-                                            context.getSource().sendFeedback(Component.literal("  MapState is null or has no colors"));
-                                        }
-                                    }
-                                }
-                            }
-
-                            ItemStack offhand = mc.player.getOffhandItem();
-                            if (offhand.getItem() instanceof MapItem) {
-                                context.getSource().sendFeedback(Component.literal("Offhand: Map found"));
-                            }
-
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("mobs")
-                        .executes(context -> {
-                            Minecraft mc = Minecraft.getInstance();
-                            context.getSource().sendFeedback(Component.literal("=== Nearby Entity Names ==="));
-                            context.getSource().sendFeedback(Component.literal("ESP list: " + TeslaMapsConfig.get().customESPMobs));
-
-                            int count = 0;
-                            for (Entity entity : mc.level.entitiesForRendering()) {
-                                if (!(entity instanceof LivingEntity)) continue;
-                                if (entity == mc.player) continue;
-
-                                double dist = entity.distanceToSqr(mc.player);
-                                if (dist > 400) continue;  // Within 20 blocks
-
-                                String name = entity.getName().getString();
-                                String customName = entity.getCustomName() != null ? entity.getCustomName().getString() : "null";
-
-                                boolean matchesESP = false;
-                                for (String pattern : TeslaMapsConfig.get().customESPMobs) {
-                                    if (name.toLowerCase().contains(pattern.toLowerCase()) ||
-                                        (entity.getCustomName() != null && customName.toLowerCase().contains(pattern.toLowerCase()))) {
-                                        matchesESP = true;
-                                        break;
-                                    }
-                                }
-
-                                StringBuilder hex = new StringBuilder();
-                                for (char c : name.toCharArray()) {
-                                    if (c > 127) {
-                                        hex.append(String.format("[U+%04X]", (int) c));
-                                    }
-                                }
-
-                                String espStatus = matchesESP ? " [ESP MATCH]" : "";
-                                context.getSource().sendFeedback(Component.literal(
-                                        String.format("%.1f: %s | custom: %s %s%s",
-                                                Math.sqrt(dist), name, customName, hex.toString(), espStatus)));
-                                count++;
-                                if (count > 20) {
-                                    context.getSource().sendFeedback(Component.literal("... and more"));
-                                    break;
-                                }
-                            }
-
-                            if (count == 0) {
-                                context.getSource().sendFeedback(Component.literal("No entities nearby"));
-                            }
-
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("add")
-                        .then(ClientCommands.argument("name", StringArgumentType.greedyString())
-                                .executes(context -> {
-                                    String name = StringArgumentType.getString(context, "name");
-                                    TeslaMapsConfig config = TeslaMapsConfig.get();
-
-                                    boolean exists = config.customESPMobs.stream()
-                                            .anyMatch(s -> s.equalsIgnoreCase(name));
-
-                                    if (exists) {
-                                        context.getSource().sendFeedback(Component.literal("'" + name + "' is already in ESP list"));
-                                    } else {
-                                        config.customESPMobs.add(name);
-                                        TeslaMapsConfig.save();
-                                        context.getSource().sendFeedback(Component.literal("Added '" + name + "' to ESP list"));
-                                    }
-                                    return 1;
-                                })))
-                .then(ClientCommands.literal("remove")
-                        .then(ClientCommands.argument("name", StringArgumentType.greedyString())
-                                .executes(context -> {
-                                    String name = StringArgumentType.getString(context, "name");
-                                    TeslaMapsConfig config = TeslaMapsConfig.get();
-
-                                    boolean removed = config.customESPMobs.removeIf(s -> s.equalsIgnoreCase(name));
-
-                                    if (removed) {
-                                        TeslaMapsConfig.save();
-                                        context.getSource().sendFeedback(Component.literal("Removed '" + name + "' from ESP list"));
-                                    } else {
-                                        context.getSource().sendFeedback(Component.literal("'" + name + "' not found in ESP list"));
-                                    }
-                                    return 1;
-                                })))
-                .then(ClientCommands.literal("list")
-                        .executes(context -> {
-                            TeslaMapsConfig config = TeslaMapsConfig.get();
-                            if (config.customESPMobs.isEmpty()) {
-                                context.getSource().sendFeedback(Component.literal("ESP list is empty"));
-                            } else {
-                                context.getSource().sendFeedback(Component.literal("=== Custom ESP List ==="));
-                                for (String mob : config.customESPMobs) {
-                                    context.getSource().sendFeedback(Component.literal("  - " + mob));
-                                }
-                            }
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("clear")
-                        .executes(context -> {
-                            TeslaMapsConfig config = TeslaMapsConfig.get();
-                            int count = config.customESPMobs.size();
-                            config.customESPMobs.clear();
-                            TeslaMapsConfig.save();
-                            context.getSource().sendFeedback(Component.literal("Cleared " + count + " entries from ESP list"));
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("crypts")
-                        .executes(context -> {
-                            int cryptsFound = TabListUtils.getCryptsFound();
-                            int totalCrypts = DungeonManager.getTotalCrypts();
-                            context.getSource().sendFeedback(Component.literal("=== Crypts Info ==="));
-                            if (cryptsFound >= 0) {
-                                context.getSource().sendFeedback(Component.literal("Crypts: " + cryptsFound + "/" + totalCrypts + " (5 for S+)"));
-                                if (cryptsFound >= 5) {
-                                    context.getSource().sendFeedback(Component.literal(" Crypt bonus achieved!"));
-                                } else {
-                                    context.getSource().sendFeedback(Component.literal("Need " + (5 - cryptsFound) + " more for bonus"));
-                                }
-                            } else {
-                                context.getSource().sendFeedback(Component.literal("Total crypts in dungeon: " + totalCrypts));
-                            }
-                            java.util.Set<DungeonRoom> shown = new java.util.HashSet<>();
-                            for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
-                                if (!shown.contains(room) && room.getCrypts() > 0) {
-                                    context.getSource().sendFeedback(Component.literal("  " + room.getName() + ": " + room.getCrypts()));
-                                    shown.add(room);
-                                }
-                            }
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("secrets")
-                        .executes(context -> {
-                            double secretsPercent = TabListUtils.getSecretsPercentage();
-                            int totalSecrets = 0;
-                            for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
-                                if (room.getSecrets() > 0) {
-                                    totalSecrets += room.getSecrets();
-                                }
-                            }
-                            context.getSource().sendFeedback(Component.literal("=== Secrets Info ==="));
-                            if (secretsPercent >= 0) {
-                                context.getSource().sendFeedback(Component.literal(String.format("Secrets found: %.1f%%", secretsPercent)));
-                                context.getSource().sendFeedback(Component.literal("Total secrets in map: " + totalSecrets));
-                            } else {
-                                context.getSource().sendFeedback(Component.literal("Total secrets in map: " + totalSecrets));
-                                context.getSource().sendFeedback(Component.literal("Found count: Not in dungeon"));
-                            }
-                            return 1;
-                        }))
-                .then(ClientCommands.literal("scanblocks")
-                        .executes(context -> {
-                            Minecraft mc = Minecraft.getInstance();
-                            if (mc.player == null || mc.level == null) {
-                                context.getSource().sendFeedback(Component.literal("Not in world"));
-                                return 0;
-                            }
-
-                            int px = (int) mc.player.getX();
-                            int py = (int) mc.player.getY();
-                            int pz = (int) mc.player.getZ();
-
-                            context.getSource().sendFeedback(Component.literal("=== Block Scan at " + px + ", " + py + ", " + pz + " ==="));
-
-                            Map<String, Integer> blockCounts = new HashMap<>();
-                            int radius = 3;
-
-                            int smoothSlabCount = 0;
-                            for (int x = px - radius; x <= px + radius; x++) {
-                                for (int y = py - radius; y <= py + radius; y++) {
-                                    for (int z = pz - radius; z <= pz + radius; z++) {
-                                        BlockPos pos = new BlockPos(x, y, z);
-                                        Block block = mc.level.getBlockState(pos).getBlock();
-                                        String name = block.getName().getString();
-                                        blockCounts.merge(name, 1, Integer::sum);
-                                        if (name.contains("Smooth Stone Slab")) {
-                                            smoothSlabCount++;
-                                        }
-                                    }
-                                }
-                            }
-
-                            blockCounts.entrySet().stream()
-                                    .filter(e -> !e.getKey().equals("Air"))
-                                    .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
-                                    .limit(15)
-                                    .forEach(e -> context.getSource().sendFeedback(
-                                            Component.literal("  " + e.getValue() + "x " + e.getKey())));
-
-                            context.getSource().sendFeedback(Component.literal("Smooth slabs in area: " + smoothSlabCount + " (need 10+ for crypt)"));
-
-                            BlockPos below = new BlockPos(px, py - 1, pz);
-                            Block blockBelow = mc.level.getBlockState(below).getBlock();
-                            context.getSource().sendFeedback(Component.literal("Standing on: " + blockBelow.getName().getString()));
-
                             return 1;
                         }))
         );
@@ -693,6 +839,37 @@ public class TMapCommand {
         return command;
     }
 
+    private static java.util.concurrent.CompletableFuture<Suggestions> suggest(
+            java.util.Collection<String> options, SuggestionsBuilder builder) {
+        String remaining = builder.getRemaining().toLowerCase();
+        for (String option : options) {
+            if (option.toLowerCase().startsWith(remaining)) builder.suggest(option);
+        }
+        return builder.buildFuture();
+    }
+
+    /** Names of living entities within 20 blocks, for `/tmap add` completion. */
+    private static java.util.List<String> nearbyEntityNames() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) return java.util.List.of();
+
+        java.util.LinkedHashSet<String> names = new java.util.LinkedHashSet<>();
+        for (Entity entity : mc.level.entitiesForRendering()) {
+            if (!(entity instanceof LivingEntity) || entity == mc.player) continue;
+            if (entity.distanceToSqr(mc.player) > 400) continue;
+
+            if (entity.getCustomName() != null) {
+                // Hypixel name tags carry literal color codes even after getString().
+                String custom = entity.getCustomName().getString()
+                        .replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+                if (!custom.isEmpty()) names.add(custom);
+            }
+            names.add(entity.getName().getString());
+            if (names.size() > 60) break;
+        }
+        return new java.util.ArrayList<>(names);
+    }
+
     private static int parseHexColor(String hex) {
         hex = hex.replace("#", "");
         try {
@@ -708,6 +885,20 @@ public class TMapCommand {
     }
 
     // dumps every entity nearby (not just mobs) so unknown skyblock props can be identified
+    private static int safariScan(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource source, int chunks) {
+        for (String line : com.teslamaps.safari.SafariScanner.scan(chunks)) {
+            source.sendFeedback(Component.literal(line));
+        }
+        return 1;
+    }
+
+    private static int safariDebug(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource source, int radius) {
+        for (String line : com.teslamaps.safari.SafariScanner.debug(radius)) {
+            source.sendFeedback(Component.literal(line));
+        }
+        return 1;
+    }
+
     private static int dumpEntities(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource source, int radius) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) {
@@ -746,4 +937,35 @@ public class TMapCommand {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() != null) mc.getConnection().sendCommand(command);
     }
+
+    private static int perfReport(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource source) {
+        java.util.List<com.teslamaps.debug.Perf.Entry> list = com.teslamaps.debug.Perf.snapshot();
+        if (!com.teslamaps.debug.Perf.enabled && list.isEmpty()) {
+            source.sendFeedback(Component.literal(
+                    "§b[TeslaMaps] §fPerf counters are off. §7/tmap perf on"));
+            return 1;
+        }
+
+        long frames = Math.max(1, com.teslamaps.debug.Perf.frames());
+        source.sendFeedback(Component.literal("§b[TeslaMaps] §fPerf over §e" + frames
+                + "§f frames §8(us/frame · worst frame · worst call)"));
+
+        int shown = 0;
+        for (com.teslamaps.debug.Perf.Entry e : list) {
+            if (shown++ >= 30) break;
+            double perFrame = e.totalNs / 1000.0 / frames;
+            String colour = perFrame >= 200 ? "§c" : perFrame >= 50 ? "§e" : "§a";
+            source.sendFeedback(Component.literal(String.format(java.util.Locale.ROOT,
+                    "§7%-24s %s%7.1f §8| §f%6d §8| §f%6d §8| %d calls",
+                    e.name, colour, perFrame, e.maxFrameNs / 1000, e.maxNs / 1000, e.calls)));
+        }
+        if (list.size() > 30) {
+            source.sendFeedback(Component.literal("§8  … " + (list.size() - 30) + " more"));
+        }
+        if (com.teslamaps.debug.Perf.spikeThresholdMs() > 0) {
+            source.sendFeedback(Component.literal("§8  spikes logged: " + com.teslamaps.debug.Perf.spikes()));
+        }
+        return 1;
+    }
+
 }

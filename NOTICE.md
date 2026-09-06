@@ -1,31 +1,35 @@
 # TeslaMaps — Attribution & Third-Party Notices
 
 TeslaMaps is licensed under the **GNU General Public License v3.0** (see `LICENSE`).
+Copyright (c) 2026 Teslanator20.
 
-Copyright (c) 2026 Teslanator20
+All third-party code listed here was modified by Teslanator20 in 2026 to port it to
+Minecraft 26.1.2 (Fabric, Java 25, Mojang mappings) and to fit this project's
+architecture. Files that are direct ports carry a one-line pointer back to this
+document.
 
-This project incorporates and derives from code in other open-source projects.
-Their original licenses and copyright notices are reproduced below, as required
-by those licenses. Where files were copied or adapted, they were **modified by
-Teslanator20** during 2026 to port them to Minecraft 26.1.2 (Fabric, Java 25,
-Mojang mappings) and to integrate them into TeslaMaps.
+## Sources
 
----
+| Project | License | What was taken |
+|---|---|---|
+| [Odin](https://github.com/odtheking/Odin) | BSD-3-Clause | Dungeon waypoints, Blood Camp, puzzle and terminal solver logic |
+| [OdinLegacy](https://github.com/odtheking/OdinLegacy) | BSD-3-Clause | Crystal Hollows structure scanner (`features/WorldScanner.java`) |
+| [BirdAddon](https://github.com/BarefootBird/BirdAddon) | BSD-3-Clause | F4/M4 overkill counter (`features/OverkillCounter.java`) |
+| [Devonian](https://github.com/Synnerz/devonian) | GPL-3.0 | Assorted dungeon features. This is why TeslaMaps as a whole is GPL v3. |
+| [SkyHanni](https://github.com/hannibal002/SkyHanni) | LGPL-2.1 | Foraging features, deployables, fishing timers, hotspot radar guess, `/gfs` queue and sack lists, garden pest patterns |
+| [Skyblocker](https://github.com/SkyblockerMod/Skyblocker) | LGPL-3.0 | Hoppity egg detection, Garden plot grid, rare drop effects |
+| [NoammAddons](https://github.com/Noamm9/NoammAddons) | CC0 1.0 | Map player marker, Simon Says alerts, bossbar health, enchant lore colouring, dark mode, auction price input |
 
-## 1. Odin — https://github.com/odtheking/Odin
+LGPL-2.1 §3 and LGPL-3.0 §2.2 both allow conveying the covered work under the GNU
+General Public License, which is how that code is redistributed here. CC0 requires
+no attribution; NoammAddons is credited as a courtesy.
 
-Portions of TeslaMaps (e.g. dungeon waypoints, Blood Camp logic, puzzle/terminal
-solver logic and other features) are ported or adapted from Odin.
+## BSD 3-Clause License
 
-Odin is licensed under the **BSD 3-Clause License**. Its license is GPL-v3
-compatible, so this code may be redistributed as part of a GPL-v3 work provided
-the following notice is retained:
+Applies to Odin (Copyright (c) 2025, odtheking), OdinLegacy (Copyright (c)
+2023-2025, odtheking) and BirdAddon (Copyright (c) 2025, BarefootBird).
 
 ```
-BSD 3-Clause License
-
-Copyright (c) 2025, odtheking
-
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -52,145 +56,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
----
+## Bundled assets
 
-## 2. BirdAddon — https://github.com/BarefootBird/BirdAddon
-
-Portions of TeslaMaps (e.g. the Thorn stun timer) are ported or adapted from
-BirdAddon, an M4 addon for Odin.
-
-BirdAddon is licensed under the **BSD 3-Clause License**. Its license is GPL-v3
-compatible, so this code may be redistributed as part of a GPL-v3 work provided
-the following notice is retained:
-
-```
-BSD 3-Clause License
-
-Copyright (c) BarefootBird
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its
-   contributors may be used to endorse or promote products derived from
-   this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-```
-
----
-
-## 3. Devonian — https://github.com/Synnerz/devonian
-
-Portions of TeslaMaps are ported or adapted from Devonian.
-
-Devonian is licensed under the **GNU General Public License v3.0**. Because this
-code is included here, the **entire TeslaMaps project is licensed under GPL v3**
-(see `LICENSE`).
-
-    Devonian
-    Copyright (c) Synnerz and contributors
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-The full text of the GNU General Public License v3.0 is in the `LICENSE` file
-in the root of this repository.
-
----
-
-## 4. NoammAddons — https://github.com/Noamm9/NoammAddons
-
-The dungeon-map player marker rendering style (rotating head with class-colored
-border, upright name below), the Simon Says device alerts/click-blocking, the
-bossbar health display, the enchantment lore coloring (including the
-`enchants.json` data file), and the Dark Mode screen-tint overlay
-(`features/DarkMode.java`) are adapted from NoammAddons.
-
-NoammAddons is dedicated to the public domain under **CC0 1.0 Universal**; no
-attribution is required, but it is credited here as a courtesy.
-
----
-
-## 5. OdinClient / OdinLegacy — https://github.com/odtheking/OdinLegacy
-
-The Crystal Hollows structure scanner (`features/WorldScanner.java`) — chunk
-block-pattern scanning with ESP boxes and chat alerts, including the quarter
-bounds and block sequences — is ported from OdinClient's `WorldScanner.kt`
-(the repo formerly at github.com/odtheking/OdinClient, now odtheking/OdinLegacy).
-
-OdinClient/OdinLegacy is licensed under the **BSD 3-Clause License**,
-Copyright (c) 2023-2025 odtheking. Its license is GPL-v3 compatible; the code is
-redistributed as part of this GPL-v3 work with the copyright notice retained.
-The full BSD 3-Clause text is reproduced in section 1 above and applies equally
-to this notice.
-
----
-
-## 6. Skyblocker — https://github.com/SkyblockerMod/Skyblocker
-
-The Hoppity chocolate egg detection (`features/HoppityEggESP.java`) — invisible
-armor stand matching and the egg skull texture identifiers — is adapted from
-Skyblocker's `EggFinder.java`.
-
-Skyblocker is licensed under the **GNU Lesser General Public License v3.0**,
-Copyright (c) Skyblocker contributors. LGPL-3.0 code may be conveyed under the
-GPL v3 (LGPL-3.0 §2.2); it is redistributed here as part of this GPL-v3 work.
-
----
-
-## Modifications
-
-All third-party code listed above was modified by Teslanator20 in 2026:
-ported to Minecraft 26.1.2 (Fabric, Java 25, official Mojang mappings) and
-integrated/adapted for TeslaMaps. Individual files derived from these projects
-should carry a notice indicating they were modified; see file headers where
-present.
-
----
-
-## Bundled fonts (SIL Open Font License 1.1)
-
-The following fonts in `assets/teslamaps/font/` are licensed under the SIL Open
-Font License, Version 1.1 (https://scripts.sil.org/OFL). They are unmodified.
-
-- Press Start 2P — © The Press Start 2P Project Authors
-- VT323 — © The VT323 Project Authors
-- Poppins — © The Poppins Project Authors (Indian Type Foundry, Jonny Pinhorn)
-- Lato — © tyPoland Lukasz Dziedzic
-- Pacifico — © The Pacifico Project Authors
-- Bangers — © The Bangers Project Authors
-
-All retrieved from the Google Fonts repository (https://github.com/google/fonts).
-
----
-
-## BirdAddon (BSD 3-Clause)
-
-The F4/M4 Overkill Counter (`features/OverkillCounter.java`) is ported from
-BirdAddon (https://github.com/BarefootBird/BirdAddon), licensed under the
-BSD 3-Clause License, Copyright (c) 2025 BarefootBird. Redistributed with this
-notice per the license terms.
+Sounds (`assets/teslamaps/sounds/`) and shaders (`assets/teslamaps/shaders/`) are
+third-party and kept out of this repository — see `.gitignore` — because their
+provenance has not been cleared for redistribution. Builds made from a clean clone
+simply do without them.

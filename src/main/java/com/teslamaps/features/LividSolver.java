@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -115,7 +100,7 @@ public class LividSolver {
         if (LIVID_START_PATTERN.matcher(message).matches()) {
             invulnTime = 390; // 19.5 seconds
             hasAnnounced = false;
-            TeslaMaps.LOGGER.info("[LividSolver] Livid fight started! Invuln timer: {}t", invulnTime);
+            TeslaMaps.debug("[LividSolver] Livid fight started! Invuln timer: {}t", invulnTime);
         }
     }
 
@@ -166,7 +151,7 @@ public class LividSolver {
 
         if (detectedLivid != currentLivid) {
             currentLivid = detectedLivid;
-            TeslaMaps.LOGGER.info("[LividSolver] Detected Livid type: {} (wool: {})",
+            TeslaMaps.debug("[LividSolver] Detected Livid type: {} (wool: {})",
                     currentLivid.entityName, woolBlock.getName().getString());
         }
 
@@ -207,7 +192,7 @@ public class LividSolver {
         if (blindness != null && blindness.getDuration() > 20) {
             pendingAnnouncement = true;
             announcementDelay = blindness.getDuration() - 20; // Announce slightly before it ends
-            TeslaMaps.LOGGER.info("[LividSolver] Delaying announcement by {}t due to blindness", announcementDelay);
+            TeslaMaps.debug("[LividSolver] Delaying announcement by {}t due to blindness", announcementDelay);
         } else {
             doAnnouncement();
         }
@@ -228,7 +213,7 @@ public class LividSolver {
                 .append(Component.literal(coloredName + " Livid"));
 
         mc.player.sendSystemMessage(message);
-        TeslaMaps.LOGGER.info("[LividSolver] Announced: Found {} Livid", currentLivid.entityName);
+        TeslaMaps.debug("[LividSolver] Announced: Found {} Livid", currentLivid.entityName);
     }
 
     private static void announceLividDeath(Minecraft mc) {
@@ -236,7 +221,7 @@ public class LividSolver {
         if (!TeslaMapsConfig.get().lividDeathMessage) return;
 
         mc.player.connection.sendCommand("pc Livid Dead!");
-        TeslaMaps.LOGGER.info("[LividSolver] Announced Livid death to party");
+        TeslaMaps.debug("[LividSolver] Announced Livid death to party");
     }
 
     public static void reset() {

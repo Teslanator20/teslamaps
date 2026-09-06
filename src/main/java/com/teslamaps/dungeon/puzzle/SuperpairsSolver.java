@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -60,7 +45,7 @@ public class SuperpairsSolver {
 
         if (!(mc.screen instanceof ContainerScreen screen)) {
             if (initialScanDone) {
-                TeslaMaps.LOGGER.info("[Superpairs] Screen closed, resetting");
+                TeslaMaps.debug("[Superpairs] Screen closed, resetting");
             }
             reset();
             return;
@@ -85,7 +70,7 @@ public class SuperpairsSolver {
             lastScanTime = 0;
             isClicked = false;
 
-            TeslaMaps.LOGGER.info("[Superpairs] ===== DETECTED: {} =====", cleanTitle);
+            TeslaMaps.debug("[Superpairs] ===== DETECTED: {} =====", cleanTitle);
             initialScanDone = true;
         }
 
@@ -97,11 +82,11 @@ public class SuperpairsSolver {
             lastScanTime = currentTime;
         }
 
-        boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
+        boolean usingClickAnywhere = false;
 
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
-            TeslaMaps.LOGGER.info("[Superpairs] Break threshold reached, resetting click state");
+            TeslaMaps.debug("[Superpairs] Break threshold reached, resetting click state");
             isClicked = false;
         }
 
@@ -138,7 +123,7 @@ public class SuperpairsSolver {
 
             if (!revealedItems.containsKey(slotId)) {
                 revealedItems.put(slotId, stack.copy());
-                TeslaMaps.LOGGER.info("[Superpairs] Revealed item at slot {}: {}", slotId, stack.getHoverName().getString());
+                TeslaMaps.debug("[Superpairs] Revealed item at slot {}: {}", slotId, stack.getHoverName().getString());
 
                 for (Map.Entry<Integer, ItemStack> entry : revealedItems.entrySet()) {
                     int otherSlot = entry.getKey();
@@ -146,7 +131,7 @@ public class SuperpairsSolver {
                     if (matchedSlots.contains(otherSlot)) continue;
 
                     if (ItemStack.isSameItem(stack, entry.getValue())) {
-                        TeslaMaps.LOGGER.info("[Superpairs] Found match: slots {} and {}", slotId, otherSlot);
+                        TeslaMaps.debug("[Superpairs] Found match: slots {} and {}", slotId, otherSlot);
                         matchedSlots.add(slotId);
                         matchedSlots.add(otherSlot);
                         break;
@@ -202,7 +187,7 @@ public class SuperpairsSolver {
     private static void performClick(Minecraft mc, ChestMenu handler, int slotId) {
         if (mc.player == null) return;
 
-        TeslaMaps.LOGGER.info("[Superpairs] Clicking slot {}", slotId);
+        TeslaMaps.debug("[Superpairs] Clicking slot {}", slotId);
 
         mc.gameMode.handleContainerInput(
             handler.containerId,
@@ -249,7 +234,7 @@ public class SuperpairsSolver {
 
     public static void reset() {
         if (initialScanDone) {
-            TeslaMaps.LOGGER.info("[Superpairs] Resetting");
+            TeslaMaps.debug("[Superpairs] Resetting");
         }
         revealedItems.clear();
         matchedSlots.clear();

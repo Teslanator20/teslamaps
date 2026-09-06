@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.mixin;
 
 import com.teslamaps.dungeon.BloodCamp;
@@ -43,6 +28,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPacketListener.class)
 public class ClientPlayNetworkHandlerMixin {
 
+    // The termsim's fake menu shares container id 0 with the real inventory, so
+    // server slot updates are routed to the real inventory and kept out of the sim.
+    @Inject(method = "handleContainerSetSlot", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$guardTermSimSlots(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (!(mc.screen instanceof com.teslamaps.dungeon.termsim.TermSimGUI sim)) return;
+        int slot = packet.getSlot();
+        if (slot < 0 || slot >= sim.size) return;
+        mc.execute(() -> {
+            if (mc.player != null) mc.player.inventoryMenu.setItem(slot, packet.getStateId(), packet.getItem());
+        });
+        ci.cancel();
+    }
+
     @Inject(method = "handleContainerSetSlot", at = @At("TAIL"))
     private void onSlotUpdate(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
         TerminalManager.onSlotUpdate(packet.getContainerId(), packet.getSlot(), packet.getItem());
@@ -57,6 +56,8 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleParticleEvent", at = @At("HEAD"))
     private void onParticle(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
         WitherDragons.onParticlePacket(packet);
+        com.teslamaps.safari.SafariTracker.onParticlePacket(packet);
+        com.teslamaps.features.HotspotRadar.onParticlePacket(packet);
     }
 
     @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))
@@ -78,6 +79,17 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleSetEquipment", at = @At("HEAD"))
     private void onSetEquipment(ClientboundSetEquipmentPacket packet, CallbackInfo ci) {
         BloodCamp.onSetEquipmentPacket(packet);
+        if (com.teslamaps.config.TeslaMapsConfig.get().section("Dragons")) com.teslamaps.dungeon.WitherDragons.onSetEquipment(packet);
+    }
+
+    @Inject(method = "handleAddEntity", at = @At("HEAD"))
+    private void onAddEntity(net.minecraft.network.protocol.game.ClientboundAddEntityPacket packet, CallbackInfo ci) {
+        if (com.teslamaps.config.TeslaMapsConfig.get().section("Dragons")) com.teslamaps.dungeon.WitherDragons.onAddEntity(packet);
+    }
+
+    @Inject(method = "handleSetEntityData", at = @At("HEAD"))
+    private void onSetEntityData(net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket packet, CallbackInfo ci) {
+        if (com.teslamaps.config.TeslaMapsConfig.get().section("Dragons")) com.teslamaps.dungeon.WitherDragons.onSetEntityData(packet);
     }
 
     @Inject(method = "handleRemoveEntities", at = @At("HEAD"))

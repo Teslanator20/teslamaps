@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.google.gson.Gson;
@@ -65,7 +50,7 @@ public class QuizSolver {
             if (is != null) {
                 Type type = new TypeToken<Map<String, List<String>>>(){}.getType();
                 answers = new Gson().fromJson(new InputStreamReader(is), type);
-                TeslaMaps.LOGGER.info("[QuizSolver] Loaded {} quiz questions", answers.size());
+                TeslaMaps.debug("[QuizSolver] Loaded {} quiz questions", answers.size());
             }
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[QuizSolver] Failed to load answers", e);
@@ -103,13 +88,13 @@ public class QuizSolver {
                 answerText = trimmed.substring(circleIdx + 1).trim();
             }
 
-            TeslaMaps.LOGGER.info("[QuizSolver] Option {} text: '{}', looking for: {}",
+            TeslaMaps.debug("[QuizSolver] Option {} text: '{}', looking for: {}",
                 (char)('A' + optionIndex), answerText, currentAnswers);
 
             for (String answer : currentAnswers) {
                 if (trimmed.endsWith(answer) || answerText.equalsIgnoreCase(answer)) {
                     triviaOptions[optionIndex] = new TriviaOption(triviaOptions[optionIndex].worldPos, true);
-                    TeslaMaps.LOGGER.info("[QuizSolver] Correct answer found: {} (option {})", answer, (char)('A' + optionIndex));
+                    TeslaMaps.debug("[QuizSolver] Correct answer found: {} (option {})", answer, (char)('A' + optionIndex));
                     break;
                 }
             }
@@ -118,14 +103,14 @@ public class QuizSolver {
         if (trimmed.equals("What SkyBlock year is it?")) {
             long skyblockYear = ((System.currentTimeMillis() / 1000) - 1560276000) / 446400 + 1;
             currentAnswers = List.of("Year " + skyblockYear);
-            TeslaMaps.LOGGER.info("[QuizSolver] Dynamic answer: Year {}", skyblockYear);
+            TeslaMaps.debug("[QuizSolver] Dynamic answer: Year {}", skyblockYear);
             return;
         }
 
         for (Map.Entry<String, List<String>> entry : answers.entrySet()) {
             if (trimmed.contains(entry.getKey())) {
                 currentAnswers = entry.getValue();
-                TeslaMaps.LOGGER.info("[QuizSolver] Found question: {} -> {}", entry.getKey(), currentAnswers);
+                TeslaMaps.debug("[QuizSolver] Found question: {} -> {}", entry.getKey(), currentAnswers);
                 return;
             }
         }
@@ -146,7 +131,7 @@ public class QuizSolver {
             for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
                 if (room != null && "Quiz".equals(room.getName())) {
                     quizRoom = room;
-                    TeslaMaps.LOGGER.info("[QuizSolver] Found Quiz room in dungeon");
+                    TeslaMaps.debug("[QuizSolver] Found Quiz room in dungeon");
                     break;
                 }
             }

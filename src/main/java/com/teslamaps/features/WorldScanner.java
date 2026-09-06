@@ -1,18 +1,4 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file is ported from OdinClient/OdinLegacy's WorldScanner.kt
- * (https://github.com/odtheking/OdinLegacy, BSD 3-Clause, (c) 2023-2025
- * odtheking). Modified by Teslanator20 2026. See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
+// Ported from OdinLegacy's WorldScanner.kt (BSD-3-Clause), see NOTICE.md
 package com.teslamaps.features;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -203,10 +189,8 @@ public class WorldScanner {
             ESPRenderer.drawBoxOutline(matrices, box, w.color(), 1.5f, cameraPos);
             Vec3 center = new Vec3(p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5);
             int dist = (int) cameraPos.distanceTo(center);
-            // scale with distance so labels stay readable across the map
-            float txtScale = Math.max(4f, dist / 10f);
             ESPRenderer.drawText(matrices, "§f" + e.getKey() + " §7" + dist + "m",
-                    new Vec3(center.x, p.getY() + 1.5 + txtScale * 0.15, center.z), txtScale, cameraPos);
+                    new Vec3(center.x, p.getY() + 1.5, center.z), 2f, cameraPos);
             if (tracers) ESPRenderer.drawTracerFromCamera(matrices, center, w.color(), cameraPos);
         }
     }

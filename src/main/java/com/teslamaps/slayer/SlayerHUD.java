@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.slayer;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -100,6 +85,9 @@ public class SlayerHUD {
     private static long questStartTime = 0;       // When the slayer quest FIRST started (persists through demon phases)
     private static long lastKillTime = 0;         // When the last boss was killed
     private static boolean questActive = false;   // Is a slayer quest currently active?
+
+    /** True while a slayer quest is running. */
+    public static boolean isActive() { return questActive; }
     private static final List<Long> killTimes = new ArrayList<>();    // Fight durations
     private static final List<Long> spawnTimes = new ArrayList<>();   // Time between kills
     private static int totalKills = 0;            // Total kills this session
@@ -337,7 +325,7 @@ public class SlayerHUD {
         }
         int bgHeight = contentHeight + padding * 2;
 
-        drawRoundedRect(context, x, y, bgWidth, bgHeight, 4, 0xDD000000);
+        com.teslamaps.render.gui.HudStyle.panel(context, x, y, bgWidth, bgHeight, 4);
 
         int centerX = x + bgWidth / 2;
         int currentY = y + padding;
@@ -402,14 +390,15 @@ public class SlayerHUD {
         context.text(textRenderer, text, x + 2, y, 0xFFFFFFFF, true);
     }
 
+    /** Stacked rectangles faking a rounded corner used to live here; TeslaGui
+     *  draws the real thing at the same size. */
     private static void drawRoundedRect(GuiGraphicsExtractor context, int x, int y, int width, int height, int radius, int color) {
-        context.fill(x + radius, y, x + width - radius, y + height, color);
-        context.fill(x, y + radius, x + radius, y + height - radius, color);
-        context.fill(x + width - radius, y + radius, x + width, y + height - radius, color);
-        context.fill(x + 1, y + 1, x + radius, y + radius, color);
-        context.fill(x + width - radius, y + 1, x + width - 1, y + radius, color);
-        context.fill(x + 1, y + height - radius, x + radius, y + height - 1, color);
-        context.fill(x + width - radius, y + height - radius, x + width - 1, y + height - 1, color);
+        com.teslamaps.render.gui.TeslaGui.roundedRect(context, x, y, width, height, radius, color);
+    }
+
+    /** Cheap pre-check so the ESP render path can skip its entity sweep entirely. */
+    public static boolean hasGlowTargets() {
+        return bossEntity != null || !minibossEntities.isEmpty();
     }
 
     public static boolean shouldGlow(Entity entity) {
@@ -517,7 +506,7 @@ public class SlayerHUD {
     }
 
     public static void onSlayerComplete() {
-        SlayerStats.onBossKill();
+        com.teslamaps.features.SkillTracker.onBossKill();
         if (!questActive || questStartTime == 0) return;
 
         if (TeslaMapsConfig.get().slayerOnlyOwnBoss && bossOwner != null && !isOwnBoss) {
@@ -587,7 +576,7 @@ public class SlayerHUD {
             msg.append(ChatFormatting.WHITE).append(" | Spawn: ").append(ChatFormatting.AQUA).append(formatTime(lastSpawnTime));
         }
 
-        double bph = SlayerStats.bossesPerHour();
+        double bph = com.teslamaps.features.SkillTracker.bossesPerHour();
         if (bph > 0) {
             msg.append(ChatFormatting.WHITE).append(" | B/h: ").append(ChatFormatting.GOLD).append(String.format("%.1f", bph));
         }

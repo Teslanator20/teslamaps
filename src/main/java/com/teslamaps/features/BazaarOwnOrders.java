@@ -1,16 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * Copyright (c) 2026 Teslanator20.
- *
- * See the LICENSE file in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -35,7 +22,7 @@ public class BazaarOwnOrders {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
 
-        String title = cs.getTitle().getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
+        String title = com.teslamaps.utils.StringUtil.strip(cs.getTitle().getString());
         if (!title.contains("Bazaar") && !title.contains("➜") && !title.contains("Orders")) return;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
@@ -65,7 +52,7 @@ public class BazaarOwnOrders {
         ItemLore lore = item.get(DataComponents.LORE);
         if (lore != null) {
             for (Component cmp : lore.lines()) {
-                String l = cmp.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+                String l = com.teslamaps.utils.StringUtil.stripTrim(cmp.getString());
                 if (!l.startsWith("By: ")) continue;
                 String name = l.substring(4).trim();
                 int sp = name.lastIndexOf(' ');

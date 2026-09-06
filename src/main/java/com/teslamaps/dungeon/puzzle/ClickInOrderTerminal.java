@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -86,7 +71,6 @@ public class ClickInOrderTerminal {
             terminalOpenTime = System.currentTimeMillis();
             lastClickTime = 0;
             lastScanTime = 0;
-            TeslaMaps.LOGGER.info("[ClickInOrderTerminal] ===== TERMINAL DETECTED =====");
             initialScanDone = true;
         }
 
@@ -101,11 +85,11 @@ public class ClickInOrderTerminal {
             }
         }
 
-        boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
+        boolean usingClickAnywhere = false;
 
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
-            TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Break threshold reached, resetting click state");
+            TeslaMaps.debug("[ClickInOrderTerminal] Break threshold reached, resetting click state");
             isClicked = false;
         }
 
@@ -128,11 +112,10 @@ public class ClickInOrderTerminal {
 
             if (!solved) {
                 solved = true;
-                TeslaMaps.LOGGER.info("[ClickInOrderTerminal] ===== ALL PANES TURNED GREEN =====");
             }
 
             if (timeSinceLastClick > 1000) {
-                TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Container still open after 1s, restarting...");
+                TeslaMaps.debug("[ClickInOrderTerminal] Container still open after 1s, restarting...");
                 slotToNumber.clear();
                 orderedSlots.clear();
                 nextNumberToClick = 1;
@@ -165,7 +148,7 @@ public class ClickInOrderTerminal {
             }
         }
 
-        TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Found {} RED panes to click", redFound);
+        TeslaMaps.debug("[ClickInOrderTerminal] Found {} RED panes to click", redFound);
 
         for (int i = 1; i <= 14; i++) {
             for (Map.Entry<Integer, Integer> entry : slotToNumber.entrySet()) {
@@ -176,9 +159,8 @@ public class ClickInOrderTerminal {
             }
         }
 
-        TeslaMaps.LOGGER.info("[ClickInOrderTerminal] ===== SCAN COMPLETE =====");
-        TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Found {} numbered panes", slotToNumber.size());
-        TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Click order: {}", orderedSlots);
+        TeslaMaps.debug("[ClickInOrderTerminal] Found {} numbered panes", slotToNumber.size());
+        TeslaMaps.debug("[ClickInOrderTerminal] Click order: {}", orderedSlots);
     }
 
     private static void performNextClick(Minecraft mc, ContainerScreen screen) {
@@ -196,8 +178,7 @@ public class ClickInOrderTerminal {
         int number = slotToNumber.get(slotToClick);
         ChestMenu handler = screen.getMenu();
 
-        TeslaMaps.LOGGER.info("[ClickInOrderTerminal] ===== PERFORMING AUTO-CLICK =====");
-        TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Clicking pane #{} at slot {}", number, slotToClick);
+        TeslaMaps.debug("[ClickInOrderTerminal] Clicking pane #{} at slot {}", number, slotToClick);
 
         mc.gameMode.handleContainerInput(
             handler.containerId,
@@ -211,7 +192,6 @@ public class ClickInOrderTerminal {
         lastClickTime = System.currentTimeMillis();
         isClicked = true; // Mark that we're waiting for click to register
 
-        TeslaMaps.LOGGER.info("[ClickInOrderTerminal] ===== CLICK SENT =====");
     }
 
     public static int getNextCorrectSlot() {
@@ -228,7 +208,7 @@ public class ClickInOrderTerminal {
                 int number = slotToNumber.remove(slotIndex);
                 orderedSlots.remove(Integer.valueOf(slotIndex));
                 isClicked = false; // Ready for next click
-                TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Slot {} (pane #{}) turned green!", slotIndex, number);
+                TeslaMaps.debug("[ClickInOrderTerminal] Slot {} (pane #{}) turned green!", slotIndex, number);
             }
         }
         else if (stack.getItem() == Items.RED_STAINED_GLASS_PANE) {
@@ -243,7 +223,7 @@ public class ClickInOrderTerminal {
                     insertIdx = i + 1;
                 }
                 orderedSlots.add(insertIdx, slotIndex);
-                TeslaMaps.LOGGER.info("[ClickInOrderTerminal] New red pane #{} at slot {}", number, slotIndex);
+                TeslaMaps.debug("[ClickInOrderTerminal] New red pane #{} at slot {}", number, slotIndex);
             }
         }
     }
@@ -253,7 +233,7 @@ public class ClickInOrderTerminal {
 
         int nextSlot = orderedSlots.get(0);
         if (slotIndex != nextSlot) {
-            TeslaMaps.LOGGER.info("[ClickInOrderTerminal] Blocked click on slot {} - next should be {}", slotIndex, nextSlot);
+            TeslaMaps.debug("[ClickInOrderTerminal] Blocked click on slot {} - next should be {}", slotIndex, nextSlot);
             return false;
         }
         return true;

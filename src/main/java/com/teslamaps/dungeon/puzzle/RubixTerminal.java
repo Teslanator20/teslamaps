@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.TeslaMaps;
@@ -90,7 +75,6 @@ public class RubixTerminal {
             terminalOpenTime = System.currentTimeMillis();
             lastClickTime = 0;
             lastScanTime = 0;
-            TeslaMaps.LOGGER.info("[RubixTerminal] ===== TERMINAL DETECTED =====");
             initialScanDone = true;
         }
 
@@ -106,11 +90,11 @@ public class RubixTerminal {
             }
         }
 
-        boolean usingClickAnywhere = TeslaMapsConfig.get().customTerminalGui && TeslaMapsConfig.get().terminalClickAnywhere;
+        boolean usingClickAnywhere = false;
 
         int breakThreshold = TeslaMapsConfig.get().terminalBreakThreshold;
         if (breakThreshold > 0 && isClicked && currentTime - lastClickTime > breakThreshold) {
-            TeslaMaps.LOGGER.info("[RubixTerminal] Break threshold reached, resetting click state");
+            TeslaMaps.debug("[RubixTerminal] Break threshold reached, resetting click state");
             isClicked = false;
         }
 
@@ -134,10 +118,9 @@ public class RubixTerminal {
             if (clickQueue.isEmpty()) {
                 if (!solved) {
                     solved = true;
-                    TeslaMaps.LOGGER.info("[RubixTerminal] ===== ALL COLORS MATCHED =====");
                 }
             } else if (timeSinceLastClick > 1000) {
-                TeslaMaps.LOGGER.info("[RubixTerminal] Container still open after finishing queue - restarting scan!");
+                TeslaMaps.debug("[RubixTerminal] Container still open after finishing queue - restarting scan!");
                 clickQueue.clear();
                 clickQueueIndex = 0;
                 lastScanTime = 0; // Force immediate re-scan
@@ -177,13 +160,12 @@ public class RubixTerminal {
         }
 
         if (allMatch) {
-            TeslaMaps.LOGGER.info("[RubixTerminal] All colors already match {}!", bestTarget);
+            TeslaMaps.debug("[RubixTerminal] All colors already match {}!", bestTarget);
             clickQueue.clear();
             return;
         }
 
-        TeslaMaps.LOGGER.info("[RubixTerminal] ===== SCANNING =====");
-        TeslaMaps.LOGGER.info("[RubixTerminal] Optimal target color: {}", bestTarget);
+        TeslaMaps.debug("[RubixTerminal] Optimal target color: {}", bestTarget);
 
         if (clickQueueIndex >= clickQueue.size()) {
             clickQueue.clear();
@@ -202,19 +184,19 @@ public class RubixTerminal {
                     for (int i = 0; i < forwardClicks; i++) {
                         clickQueue.add(new ClickAction(slot, false, forwardClicks));
                     }
-                    TeslaMaps.LOGGER.info("[RubixTerminal] Slot {}: {} -> {} (LEFT x{})", slot, currentColor, bestTarget, forwardClicks);
+                    TeslaMaps.debug("[RubixTerminal] Slot {}: {} -> {} (LEFT x{})", slot, currentColor, bestTarget, forwardClicks);
                 } else {
                     for (int i = 0; i < backwardClicks; i++) {
                         clickQueue.add(new ClickAction(slot, true, backwardClicks));
                     }
-                    TeslaMaps.LOGGER.info("[RubixTerminal] Slot {}: {} -> {} (RIGHT x{})", slot, currentColor, bestTarget, backwardClicks);
+                    TeslaMaps.debug("[RubixTerminal] Slot {}: {} -> {} (RIGHT x{})", slot, currentColor, bestTarget, backwardClicks);
                 }
             }
 
             if (clickQueue.isEmpty()) {
-                TeslaMaps.LOGGER.info("[RubixTerminal] All slots match target color!");
+                TeslaMaps.debug("[RubixTerminal] All slots match target color!");
             } else {
-                TeslaMaps.LOGGER.info("[RubixTerminal] Click queue: {} clicks", clickQueue.size());
+                TeslaMaps.debug("[RubixTerminal] Click queue: {} clicks", clickQueue.size());
             }
         }
     }
@@ -295,7 +277,7 @@ public class RubixTerminal {
         ClickAction action = clickQueue.get(clickQueueIndex);
         ChestMenu handler = screen.getMenu();
 
-        TeslaMaps.LOGGER.info("[RubixTerminal] Clicking slot {} ({} {}/{})",
+        TeslaMaps.debug("[RubixTerminal] Clicking slot {} ({} {}/{})",
             action.slot, action.rightClick ? "RIGHT" : "LEFT",
             clickQueueIndex + 1, clickQueue.size());
 
@@ -332,7 +314,7 @@ public class RubixTerminal {
             if (action.slot == slot) {
                 clickQueueIndex++;
                 lastClickTime = System.currentTimeMillis();
-                TeslaMaps.LOGGER.info("[RubixTerminal] Manually clicked slot {} - advancing queue ({}/{})",
+                TeslaMaps.debug("[RubixTerminal] Manually clicked slot {} - advancing queue ({}/{})",
                     slot, clickQueueIndex, clickQueue.size());
             }
         }
@@ -352,7 +334,7 @@ public class RubixTerminal {
         if (!isGridSlot) return;
 
         isClicked = false;
-        TeslaMaps.LOGGER.info("[RubixTerminal] Slot {} color changed, ready for next click", slotIndex);
+        TeslaMaps.debug("[RubixTerminal] Slot {} color changed, ready for next click", slotIndex);
     }
 
     public static boolean canClick(int slotIndex, int button) {
@@ -361,7 +343,7 @@ public class RubixTerminal {
         ClickAction nextAction = clickQueue.get(clickQueueIndex);
 
         if (slotIndex != nextAction.slot) {
-            TeslaMaps.LOGGER.info("[RubixTerminal] Blocked click on slot {} - next should be {}", slotIndex, nextAction.slot);
+            TeslaMaps.debug("[RubixTerminal] Blocked click on slot {} - next should be {}", slotIndex, nextAction.slot);
             return false;
         }
 
@@ -369,7 +351,7 @@ public class RubixTerminal {
         boolean isRightClick = (button == 1);
 
         if (shouldRightClick != isRightClick) {
-            TeslaMaps.LOGGER.info("[RubixTerminal] Blocked {} click on slot {} - should use {} click",
+            TeslaMaps.debug("[RubixTerminal] Blocked {} click on slot {} - should use {} click",
                 isRightClick ? "right" : "left", slotIndex, shouldRightClick ? "right" : "left");
             return false;
         }
@@ -379,7 +361,7 @@ public class RubixTerminal {
 
     public static void reset() {
         if (initialScanDone) {
-            TeslaMaps.LOGGER.info("[RubixTerminal] Resetting");
+            TeslaMaps.debug("[RubixTerminal] Resetting");
         }
         clickQueue.clear();
         clickQueueIndex = 0;

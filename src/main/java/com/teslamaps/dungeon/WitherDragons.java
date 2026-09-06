@@ -1,34 +1,25 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.dungeon;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.player.PlayerTracker;
 import com.teslamaps.render.ESPRenderer;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -55,9 +46,13 @@ public class WitherDragons {
         public final BlockPos spawnPos, statuePos;
         public final AABB box;
         public final double xMin, xMax, zMin, zMax;
+
         public State state = State.DEAD;
-        public int timeToSpawn = 0;
+        public int timeToSpawn = 100;
         public int timesSpawned = 0;
+        public UUID entityUUID = null;
+        public boolean isSprayed = false;
+        public long spawnedTime = 0;
 
         Dragon(String dispName, char colorCode, int colorArgb, BlockPos spawnPos, BlockPos statuePos, AABB box,
                double xMin, double xMax, double zMin, double zMax) {
@@ -65,167 +60,268 @@ public class WitherDragons {
             this.spawnPos = spawnPos; this.statuePos = statuePos; this.box = box;
             this.xMin = xMin; this.xMax = xMax; this.zMin = zMin; this.zMax = zMax;
         }
+
+        public void setAlive(UUID entityId) {
+            if (entityId != null) this.entityUUID = entityId;
+
+            if (state == State.ALIVE || state != State.SPAWNING) return;
+            state = State.ALIVE;
+
+            timesSpawned++;
+            spawnedTime = currentTick;
+            isSprayed = false;
+
+            TeslaMapsConfig config = TeslaMapsConfig.get();
+            if (config.witherDragonMsg && config.witherDragons)
+                msg("§" + colorCode + dispName + " §fdragon spawned §8(§7" + timesSpawned + "§8)");
+        }
+
+        public void setDead(boolean realTime) {
+            state = State.DEAD;
+            entityUUID = null;
+            DragonCheck.lastDragonDeath = this;
+
+            if (priorityDragon == this) priorityDragon = null;
+
+            TeslaMapsConfig config = TeslaMapsConfig.get();
+            if (config.witherDragonSendTime && config.witherDragons && realTime)
+                personalBest(dispName, (currentTick - spawnedTime) / 20f, "s§7!",
+                        "§" + colorCode + dispName + " §7was alive for §6");
+        }
+
+        public Vec3 center() {
+            return new Vec3(spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5);
+        }
     }
 
-    // Odin's two priority orderings. Berserk/Mage use DRAGON_LIST, the other classes use it reversed.
-    private static final Dragon[] DEFAULT_ORDER = {Dragon.RED, Dragon.ORANGE, Dragon.BLUE, Dragon.PURPLE, Dragon.GREEN};
-    private static final Dragon[] DRAGON_LIST = {Dragon.ORANGE, Dragon.GREEN, Dragon.RED, Dragon.BLUE, Dragon.PURPLE};
+    public static final Pattern WITHER_KING_REGEX = Pattern.compile(
+            "^\\[BOSS] Wither King: (Oh, this one hurts!|I have more of those\\.|My soul is disposable\\.)$");
 
-    private static boolean dragonsPhase = false;
-    private static Dragon priorityDragon = null;
-    private static int powerLevel = 0;
-    private static int timeLevel = 0;
-    private static final Pattern WK_REGEX = Pattern.compile("\\[BOSS] Wither King:");
+    public static Dragon priorityDragon = null;
+    public static long currentTick = 0;
+
+    /** Blessing of Power / Time levels, read off the tab footer (Odin reads the same lines). */
+    public static int blessingPower = 0;
+    public static int blessingTime = 0;
+
     private static final Pattern POWER_REGEX = Pattern.compile("Blessing of Power (X{0,3}(?:IX|IV|V?I{0,3}))");
     private static final Pattern TIME_REGEX = Pattern.compile("Blessing of Time (V)");
 
-    private static boolean active() {
-        DungeonFloor f = DungeonManager.getCurrentFloor();
-        return TeslaMapsConfig.get().witherDragons && DungeonManager.isInDungeon()
-                && f != null && f.getLevel() == 7 && dragonsPhase;
+    private static ClientLevel lastLevel = null;
+
+    /** M7 phase 5 — the dragon phase (Odin: getF7Phase() == P5). */
+    private static boolean p5() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || !DungeonManager.isInDungeon()) return false;
+        DungeonFloor floor = DungeonManager.getCurrentFloor();
+        if (floor == null || floor.getLevel() != 7) return false;
+        return mc.player.getY() <= 45;
     }
 
-    public static void onParticlePacket(ClientboundLevelParticlesPacket p) {
-        if (!active()) return;
-        if (p.getCount() != 20 || p.getY() != 19.0 || p.getParticle().getType() != ParticleTypes.FLAME
-                || p.getXDist() != 2f || p.getYDist() != 3f || p.getZDist() != 2f || p.getMaxSpeed() != 0f
-                || p.getX() % 1 != 0.0 || p.getZ() % 1 != 0.0) return;
+    private static boolean active() {
+        return TeslaMapsConfig.get().witherDragons && p5();
+    }
 
-        List<Dragon> spawning = new ArrayList<>();
-        int spawnedCount = 0;
-        for (Dragon d : Dragon.values()) {
-            spawnedCount += d.timesSpawned;
-            if (d.state == State.SPAWNING) {
-                if (!spawning.contains(d)) spawning.add(d);
+    public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
+        if (!active()) return;
+        if (packet.getCount() != 20 || packet.getY() != 19.0 || packet.getParticle().getType() != ParticleTypes.FLAME
+                || packet.getXDist() != 2f || packet.getYDist() != 3f || packet.getZDist() != 2f
+                || packet.getMaxSpeed() != 0f || packet.getX() % 1 != 0.0 || packet.getZ() % 1 != 0.0) return;
+
+        int spawned = 0;
+        List<Dragon> dragons = new ArrayList<>();
+
+        for (Dragon dragon : Dragon.values()) {
+            spawned += dragon.timesSpawned;
+
+            if (dragon.state == State.SPAWNING) {
+                if (!dragons.contains(dragon)) dragons.add(dragon);
                 continue;
             }
-            if (d.state != State.DEAD) continue;
-            if (p.getX() >= d.xMin && p.getX() <= d.xMax && p.getZ() >= d.zMin && p.getZ() <= d.zMax) {
-                d.state = State.SPAWNING;
-                d.timeToSpawn = 100;
-                spawning.add(d);
-                if (TeslaMapsConfig.get().witherDragonMsg) msg("§" + d.colorCode + d.dispName + " §fdragon is spawning.");
-                if (TeslaMapsConfig.get().witherDragonTitle) {
-                    Minecraft mc = Minecraft.getInstance();
-                    if (mc.player != null) {
-                        mc.gui.setTimes(0, 30, 5);
-                        mc.gui.setTitle(Component.literal("§" + d.colorCode + d.dispName + " spawning!"));
-                    }
-                }
-            }
+
+            if (packet.getX() < dragon.xMin || packet.getX() > dragon.xMax
+                    || packet.getZ() < dragon.zMin || packet.getZ() > dragon.zMax) continue;
+
+            dragon.state = State.SPAWNING;
+            dragon.timeToSpawn = 100;
+            dragons.add(dragon);
         }
 
-        // Split: once 2 dragons are up (or 2+ have spawned this run), pick the one YOU should take.
-        if (!spawning.isEmpty() && (spawning.size() == 2 || spawnedCount >= 2) && priorityDragon == null) {
-            priorityDragon = findPriority(spawning);
-            if (TeslaMapsConfig.get().witherDragonPriority) {
-                String list = spawning.stream().map(d -> "§" + d.colorCode + d.dispName).collect(Collectors.joining(", "));
-                msg(list + " §r-> §" + priorityDragon.colorCode + priorityDragon.dispName + " §7is your priority dragon!");
-            }
+        if (dragons.isEmpty() || (dragons.size() != 2 && spawned < 2) || priorityDragon != null) return;
+
+        priorityDragon = DragonPriority.findPriority(dragons);
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+
+        if (config.witherDragonTitle)
+            alert("§" + priorityDragon.colorCode + priorityDragon.dispName + " is spawning!");
+
+        if (config.witherDragonPriority && dragons.size() > 1) {
+            String list = dragons.stream().map(d -> "§" + d.colorCode + d.dispName).collect(Collectors.joining(", "));
+            msg(list + "§r -> §" + priorityDragon.colorCode + priorityDragon.dispName + " §7is your priority dragon!");
         }
     }
 
-    private static Dragon findPriority(List<Dragon> spawning) {
-        if (!TeslaMapsConfig.get().witherDragonPriority) {
-            Dragon best = spawning.get(0);
-            for (Dragon d : spawning) if (indexOf(DEFAULT_ORDER, d) < indexOf(DEFAULT_ORDER, best)) best = d;
-            return best;
-        }
-        return sortPriority(spawning);
+    public static void onAddEntity(net.minecraft.network.protocol.game.ClientboundAddEntityPacket packet) {
+        if (!active()) return;
+        DragonCheck.dragonSpawn(packet);
     }
 
-    private static Dragon sortPriority(List<Dragon> spawning) {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        double totalPower = powerLevel * (c.witherDragonPaulBuff ? 1.25 : 1.0) + (timeLevel > 0 ? 2.5 : 0.0);
-        String playerClass = localClass();
-        boolean hasPurple = spawning.contains(Dragon.PURPLE);
-
-        Dragon[] priorityList;
-        if (totalPower >= c.witherDragonNormalPower || (hasPurple && totalPower >= c.witherDragonEasyPower)) {
-            boolean bersOrMage = "Berserk".equals(playerClass) || "Mage".equals(playerClass);
-            priorityList = bersOrMage ? DRAGON_LIST : reversed(DRAGON_LIST);
-        } else {
-            priorityList = DEFAULT_ORDER;
-        }
-
-        final Dragon[] order = priorityList;
-        spawning.sort((a, b) -> indexOf(order, a) - indexOf(order, b));
-
-        if (totalPower >= c.witherDragonEasyPower) {
-            boolean splitTarget = hasPurple || c.witherDragonSoloDebuffAll;
-            if ((c.witherDragonSoloDebuff == 1 && "Tank".equals(playerClass) && splitTarget)
-                    || ("Healer".equals(playerClass) && splitTarget)) {
-                spawning.sort((a, b) -> indexOf(order, b) - indexOf(order, a));
-            }
-        }
-        return spawning.get(0);
+    public static void onSetEntityData(net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket packet) {
+        if (!active()) return;
+        DragonCheck.dragonUpdate(packet);
     }
 
-    private static int indexOf(Dragon[] arr, Dragon d) {
-        for (int i = 0; i < arr.length; i++) if (arr[i] == d) return i;
-        return -1;
-    }
-
-    private static Dragon[] reversed(Dragon[] arr) {
-        Dragon[] out = new Dragon[arr.length];
-        for (int i = 0; i < arr.length; i++) out[i] = arr[arr.length - 1 - i];
-        return out;
-    }
-
-    private static String localClass() {
-        return PlayerTracker.getLocalClass();
+    public static void onSetEquipment(net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket packet) {
+        if (!active()) return;
+        DragonCheck.dragonSprayed(packet);
     }
 
     public static void onTabFooter(String footer) {
         if (!DungeonManager.isInDungeon()) return;
-        Matcher pm = POWER_REGEX.matcher(footer);
-        if (pm.find()) powerLevel = romanToInt(pm.group(1));
-        Matcher tm = TIME_REGEX.matcher(footer);
-        if (tm.find()) timeLevel = romanToInt(tm.group(1));
+        Matcher power = POWER_REGEX.matcher(footer);
+        if (power.find()) blessingPower = romanToInt(power.group(1));
+        Matcher time = TIME_REGEX.matcher(footer);
+        if (time.find()) blessingTime = romanToInt(time.group(1));
     }
 
-    public static void debugDump() {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        double totalPower = powerLevel * (c.witherDragonPaulBuff ? 1.25 : 1.0) + (timeLevel > 0 ? 2.5 : 0.0);
-        String you = localClass();
-        msg("§6=== Dragon Priority Debug ===");
-        msg("§7In dungeon: §f" + DungeonManager.isInDungeon() + " §7| dragonsPhase: §f" + dragonsPhase + " §7| active: §f" + active());
-        msg("§7Power: §a" + powerLevel + " §7Time: §a" + timeLevel + " §7Paul: §f" + c.witherDragonPaulBuff
-                + " §7-> totalPower: §6" + totalPower);
-        msg("§7Your class: §" + classColor(you) + (you == null ? "Unknown" : you));
-
-        msg("§7Party classes:");
-        for (PlayerTracker.DungeonPlayer p : PlayerTracker.getPlayers()) {
-            String cl = p.getDungeonClass();
-            msg("  §f" + p.getName() + " §7- §" + classColor(cl) + cl);
+    public static void tick() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level != lastLevel) {
+            lastLevel = mc.level;
+            DragonCheck.dragonHealthMap.clear();
+            reset();
+            return;
         }
+        if (!TeslaMapsConfig.get().witherDragons) return;
 
-        boolean wouldSplit = totalPower >= c.witherDragonNormalPower
-                || (totalPower >= c.witherDragonEasyPower);
-        msg("§7Thresholds: normal §f" + c.witherDragonNormalPower + " §7easy §f" + c.witherDragonEasyPower
-                + " §7-> would split (this power): §f" + wouldSplit);
-
-        boolean bersOrMage = "Berserk".equals(you) || "Mage".equals(you);
-        Dragon[] order = !wouldSplit ? DEFAULT_ORDER : (bersOrMage ? DRAGON_LIST : reversed(DRAGON_LIST));
-        StringBuilder sb = new StringBuilder();
-        for (Dragon d : order) sb.append("§").append(d.colorCode).append(d.dispName.charAt(0)).append(" ");
-        msg("§7Order for your class: " + sb);
-
-        msg("§7Dragon states:");
-        for (Dragon d : Dragon.values()) {
-            msg("  §" + d.colorCode + d.dispName + " §7state=§f" + d.state + " §7spawned=§f" + d.timesSpawned
-                    + " §7timer=§f" + d.timeToSpawn);
+        for (Dragon dragon : Dragon.values()) {
+            if (dragon.timeToSpawn > 0) dragon.timeToSpawn--;
+            else if (dragon.state == State.SPAWNING) dragon.setAlive(null);
         }
-        msg("§7Current priority dragon: " + (priorityDragon == null ? "§fnone"
-                : "§" + priorityDragon.colorCode + priorityDragon.dispName));
+        currentTick++;
     }
 
-    private static char classColor(String cl) {
-        if (cl == null) return 'f';
-        return switch (cl) {
-            case "Archer" -> '6'; case "Berserk" -> '4'; case "Healer" -> 'd';
-            case "Mage" -> 'b'; case "Tank" -> '2'; default -> 'f';
+    public static void onChatMessage(String message) {
+        if (!active()) return;
+        String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        if (!WITHER_KING_REGEX.matcher(clean).matches()) return;
+
+        Dragon dragon = DragonCheck.lastDragonDeath;
+        if (dragon == null) {
+            for (Dragon d : Dragon.values()) if (d.state != State.DEAD) { dragon = d; break; }
+        }
+        if (dragon == null) return;
+
+        if (TeslaMapsConfig.get().witherDragonConfirm)
+            msg("§" + dragon.colorCode + dragon.dispName + " dragon counts.");
+        if (dragon.state != State.DEAD) dragon.setDead(false);
+        DragonCheck.lastDragonDeath = null;
+    }
+
+    public static void onBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState) {
+        if (!active() || !newState.isAir()) return;
+        for (Dragon dragon : Dragon.values()) {
+            if (dragon.statuePos.equals(pos)) { dragon.setDead(false); break; }
+        }
+    }
+
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
+        if (!active()) return;
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        Minecraft mc = Minecraft.getInstance();
+        float partial = mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
+
+        if (config.witherDragonHealth) {
+            for (DragonCheck.HealthEntry entry : DragonCheck.dragonHealthMap.values().toArray(new DragonCheck.HealthEntry[0])) {
+                if (entry.health() <= 0) continue;
+                ESPRenderer.drawText(matrices, colorHealth(entry.health()),
+                        entry.dragon().getPosition(partial), 5f, cameraPos, false);
+            }
+        }
+
+        for (Dragon dragon : Dragon.values()) {
+            if (config.witherDragonTimer && dragon.timeToSpawn > 0) {
+                ESPRenderer.drawText(matrices,
+                        "§" + dragon.colorCode + dragon.dispName.charAt(0) + ": " + getDragonTimer(dragon.timeToSpawn),
+                        dragon.center(), 5f, cameraPos, false);
+            }
+
+            if (config.witherDragonBoxes && dragon.state != State.DEAD)
+                ESPRenderer.drawBoxOutline(matrices, dragon.box, dragon.colorArgb, 3f, cameraPos, false);
+        }
+
+        if (config.witherDragonPriorityTracer && priorityDragon != null && priorityDragon.state == State.SPAWNING
+                && mc.player != null) {
+            ESPRenderer.drawTracerFromCamera(matrices, priorityDragon.center(), priorityDragon.colorArgb,
+                    cameraPos, false);
+        }
+    }
+
+    public static void renderHud(GuiGraphicsExtractor context, DeltaTracker delta) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!config.witherDragons || !config.witherDragonHud) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.options.hideGui || mc.screen != null) return;
+        Dragon dragon = priorityDragon;
+        if (dragon == null || dragon.timeToSpawn <= 0) return;
+
+        drawHud(context, mc, config.witherDragonHudX, config.witherDragonHudY, config.witherDragonHudScale,
+                "§" + dragon.colorCode + dragon.dispName.charAt(0) + ": " + getDragonTimer(dragon.timeToSpawn));
+    }
+
+    public static void drawHud(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale, String text) {
+        var pose = context.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(scale, scale);
+        context.text(mc.font, text, 0, 0, 0xFFFFFFFF);
+        pose.popMatrix();
+    }
+
+    public static String hudSample() {
+        return "§5P: §a4.5s";
+    }
+
+    private static String getDragonTimer(int spawnTime) {
+        String color = spawnTime <= 20 ? "§c" : spawnTime <= 60 ? "§e" : "§a";
+        boolean symbol = TeslaMapsConfig.get().witherDragonTimerSymbol;
+        return color + switch (TeslaMapsConfig.get().witherDragonTimerStyle) {
+            case 0 -> (spawnTime * 50) + (symbol ? "ms" : "");
+            case 1 -> String.format("%.1f", spawnTime / 20f) + (symbol ? "s" : "");
+            default -> spawnTime + (symbol ? "t" : "");
         };
+    }
+
+    private static String colorHealth(float health) {
+        if (health >= 750_000_000) return "§a" + formatHealth(health);
+        if (health >= 500_000_000) return "§e" + formatHealth(health);
+        if (health >= 250_000_000) return "§6" + formatHealth(health);
+        return "§c" + formatHealth(health);
+    }
+
+    private static String formatHealth(float health) {
+        if (health >= 1_000_000_000) return String.format("%.1f", health / 1_000_000_000) + "b";
+        if (health >= 1_000_000) return String.format("%.1f", health / 1_000_000) + "m";
+        if (health >= 1_000) return String.format("%.1f", health / 1_000) + "k";
+        return String.valueOf((int) health);
+    }
+
+    /** Odin's PersonalBest.time — prints the time and tracks the best per dragon. */
+    private static void personalBest(String name, float time, String unit, String message) {
+        Minecraft.getInstance().execute(() -> {
+            TeslaMapsConfig config = TeslaMapsConfig.get();
+            float oldPB = config.dragonPbs.getOrDefault(name, 9999f);
+
+            String suffix;
+            if (oldPB > time) {
+                config.dragonPbs.put(name, time);
+                TeslaMapsConfig.save();
+                suffix = "§7(§d§lNew PB§r§7) Old PB was §8" + oldPB;
+            } else {
+                suffix = "§8(§7" + oldPB + "§8)";
+            }
+            msg(message + time + unit + " " + suffix);
+        });
     }
 
     private static int romanToInt(String s) {
@@ -240,74 +336,83 @@ public class WitherDragons {
         return total;
     }
 
-    public static void tick() {
-        if (!DungeonManager.isInDungeon()) { reset(); return; }
-        if (!active()) return;
-        for (Dragon d : Dragon.values()) {
-            if (d.timeToSpawn > 0) {
-                d.timeToSpawn--;
-            } else if (d.state == State.SPAWNING) {
-                d.state = State.ALIVE;
-                d.timesSpawned++;
-                if (TeslaMapsConfig.get().witherDragonMsg) msg("§" + d.colorCode + d.dispName + " §fdragon spawned.");
-            }
-        }
-    }
-
-    public static void onChatMessage(String message) {
-        message = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
-        if (WK_REGEX.matcher(message).find() || message.equals("[BOSS] Necron: All this, for nothing...")) {
-            dragonsPhase = true;
-        }
-    }
-
-    public static void onBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState) {
-        if (!active() || !newState.isAir()) return;
-        for (Dragon d : Dragon.values()) {
-            if (d.statuePos.equals(pos)) {
-                d.state = State.DEAD; d.timeToSpawn = 0;
-                if (priorityDragon == d) priorityDragon = null;
-                break;
-            }
-        }
-    }
-
-    public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (!active()) return;
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        for (Dragon d : Dragon.values()) {
-            if (c.witherDragonTimer && d.timeToSpawn > 0) {
-                String time = timerColor(d.timeToSpawn) + String.format("%.1fs", d.timeToSpawn / 20f);
-                ESPRenderer.drawText(matrices, "§" + d.colorCode + d.dispName.charAt(0) + ": " + time,
-                        new Vec3(d.spawnPos.getX() + 0.5, d.spawnPos.getY() + 0.5, d.spawnPos.getZ() + 0.5), 2f, cameraPos);
-            }
-            if (c.witherDragonBoxes && d.state != State.DEAD) {
-                ESPRenderer.drawBoxOutline(matrices, d.box, d.colorArgb, 3f, cameraPos, true);
-            }
-        }
-        if (c.witherDragonPriority && c.witherDragonPriorityTracer
-                && priorityDragon != null && priorityDragon.state == State.SPAWNING) {
-            ESPRenderer.drawTracerFromCamera(matrices,
-                    new Vec3(priorityDragon.spawnPos.getX() + 0.5, priorityDragon.spawnPos.getY() + 0.5,
-                            priorityDragon.spawnPos.getZ() + 0.5),
-                    priorityDragon.colorArgb, cameraPos);
-        }
-    }
-
-    private static String timerColor(int t) {
-        return t <= 20 ? "§c" : t <= 60 ? "§e" : "§a";
-    }
-
     public static void reset() {
-        dragonsPhase = false;
-        priorityDragon = null;
-        powerLevel = 0;
-        timeLevel = 0;
-        for (Dragon d : Dragon.values()) { d.state = State.DEAD; d.timeToSpawn = 0; d.timesSpawned = 0; }
+        reset(false);
     }
 
-    private static void msg(String s) {
+    public static void reset(boolean soft) {
+        if (soft) {
+            for (Dragon dragon : Dragon.values()) {
+                dragon.state = State.DEAD;
+                dragon.timesSpawned++;
+            }
+            return;
+        }
+
+        for (Dragon dragon : Dragon.values()) {
+            dragon.timeToSpawn = 0;
+            dragon.timesSpawned = 0;
+            dragon.state = State.DEAD;
+            dragon.entityUUID = null;
+            dragon.isSprayed = false;
+            dragon.spawnedTime = 0;
+        }
+        priorityDragon = null;
+        DragonCheck.lastDragonDeath = null;
+        blessingPower = 0;
+        blessingTime = 0;
+    }
+
+    public static void debugDump() {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        double totalPower = blessingPower * (config.witherDragonPaulBuff ? 1.25 : 1.0) + (blessingTime > 0 ? 2.5 : 0.0);
+        String playerClass = PlayerTracker.getLocalClass();
+
+        msg("§6=== Dragon Priority Debug ===");
+        msg("§7In dungeon: §f" + DungeonManager.isInDungeon() + " §7| P5: §f" + p5() + " §7| active: §f" + active());
+        msg("§7Power: §a" + blessingPower + " §7Time: §a" + blessingTime + " §7Paul: §f" + config.witherDragonPaulBuff
+                + " §7-> totalPower: §6" + totalPower);
+        msg("§7Your class: §f" + (playerClass == null ? "Unknown" : playerClass));
+
+        msg("§7Party classes:");
+        for (PlayerTracker.DungeonPlayer player : PlayerTracker.getPlayers()) {
+            msg("  §f" + player.getName() + " §7- §f" + player.getDungeonClass());
+        }
+
+        boolean wouldSplit = totalPower >= config.witherDragonNormalPower || totalPower >= config.witherDragonEasyPower;
+        msg("§7Thresholds: normal §f" + config.witherDragonNormalPower + " §7easy §f" + config.witherDragonEasyPower
+                + " §7-> would split (this power): §f" + wouldSplit);
+
+        boolean bersOrMage = "Berserk".equals(playerClass) || "Mage".equals(playerClass);
+        Dragon[] order = !wouldSplit ? DragonPriority.DEFAULT_ORDER
+                : (bersOrMage ? DragonPriority.DRAGON_LIST : DragonPriority.reversed(DragonPriority.DRAGON_LIST));
+        StringBuilder sb = new StringBuilder();
+        for (Dragon dragon : order) sb.append("§").append(dragon.colorCode).append(dragon.dispName.charAt(0)).append(" ");
+        msg("§7Order for your class: " + sb);
+
+        msg("§7Dragon states:");
+        for (Dragon dragon : Dragon.values()) {
+            msg("  §" + dragon.colorCode + dragon.dispName + " §7state=§f" + dragon.state + " §7spawned=§f"
+                    + dragon.timesSpawned + " §7timer=§f" + dragon.timeToSpawn + " §7sprayed=§f" + dragon.isSprayed);
+        }
+        msg("§7Current priority dragon: " + (priorityDragon == null ? "§fnone"
+                : "§" + priorityDragon.colorCode + priorityDragon.dispName));
+    }
+
+    static void msg(String text) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) mc.player.sendSystemMessage(Component.literal(s));
+        mc.execute(() -> {
+            if (mc.player != null) mc.player.sendSystemMessage(Component.literal(text));
+        });
+    }
+
+    private static void alert(String title) {
+        Minecraft mc = Minecraft.getInstance();
+        mc.execute(() -> {
+            if (mc.player == null) return;
+            mc.gui.setTimes(0, 20, 5);
+            mc.gui.setTitle(Component.literal(title));
+            mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
+        });
     }
 }

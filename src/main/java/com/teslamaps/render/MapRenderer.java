@@ -1,16 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * Copyright (c) 2026 Teslanator20.
- *
- * See the LICENSE file in the project root for full terms.
- */
 package com.teslamaps.render;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -149,15 +136,16 @@ public class MapRenderer {
         matrices.translate(x, y);
         matrices.scale(scale, scale);
 
-        double secretsPercent = TabListUtils.getSecretsPercentage();
+        java.util.List<String> tabLines = TabListUtils.getTabListLines();
+        double secretsPercent = TabListUtils.getSecretsPercentage(tabLines);
 
-        int foundSecretsOverall = TabListUtils.getSecretsFound();
+        int foundSecretsOverall = TabListUtils.getSecretsFound(tabLines);
         if (foundSecretsOverall < 0) {
             foundSecretsOverall = (int) Math.round(totalSecrets * secretsPercent / 100.0);
         }
 
-        int crypts = TabListUtils.getCryptsFound();
-        if (crypts < 0) crypts = 0;
+        int cryptsFound = TabListUtils.getCryptsFound(tabLines);
+        int crypts = cryptsFound < 0 ? 0 : cryptsFound;
         double neededSecretsPercent = DungeonScore.getNeededSecretsPercentFor300(crypts);
         int neededSecretsOverall = (int) Math.ceil(totalSecrets * neededSecretsPercent / 100.0);
 
@@ -171,7 +159,6 @@ public class MapRenderer {
         context.text(textRenderer, secretsText, 4, 2, secretsColor);
 
         if (config.showCrypts) {
-            int cryptsFound = TabListUtils.getCryptsFound();
             String cryptsText;
 
             if (cryptsFound >= 0) {
@@ -277,14 +264,28 @@ public class MapRenderer {
         };
     }
 
+    private static final int MAP_RADIUS = 6;
+
+    /**
+     * Frame only. The map itself is drawn on top afterwards and is untouched by
+     * this, so the panel can be restyled without the rooms moving a pixel.
+     */
     private static void drawBackground(GuiGraphicsExtractor context, int baseX, int baseY, int width, int height) {
         int bgColor = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorBackground);
-        int borderColor = 0xFF333333; // Border is slightly lighter than background
-        context.fill(baseX, baseY, baseX + width, baseY + height, bgColor);
-        context.fill(baseX, baseY, baseX + width, baseY + 2, borderColor);
-        context.fill(baseX, baseY + height - 2, baseX + width, baseY + height, borderColor);
-        context.fill(baseX, baseY, baseX + 2, baseY + height, borderColor);
-        context.fill(baseX + width - 2, baseY, baseX + width, baseY + height, borderColor);
+
+        com.teslamaps.render.gui.TeslaGui.shadow(context, baseX, baseY + 1, width, height,
+                MAP_RADIUS, 4, com.teslamaps.render.gui.TeslaGui.withAlpha(0x000000, 55));
+        // The player picks the background colour, so it is kept rather than
+        // replaced by the panel's own.
+        com.teslamaps.render.gui.TeslaGui.roundedRect(context, baseX, baseY, width, height,
+                MAP_RADIUS, bgColor);
+        com.teslamaps.render.gui.TeslaGui.roundedRectGradient(context, baseX + 1, baseY + 1,
+                width - 2, Math.min(height * 0.5f, 14), MAP_RADIUS - 1,
+                com.teslamaps.render.gui.TeslaGui.withAlpha(0xFFFFFF, 16),
+                com.teslamaps.render.gui.TeslaGui.withAlpha(0xFFFFFF, 0));
+        com.teslamaps.render.gui.TeslaGui.roundedOutline(context, baseX + 0.5f, baseY + 0.5f,
+                width - 1, height - 1, MAP_RADIUS, 1.0f,
+                com.teslamaps.render.gui.TeslaGui.withAlpha(0xFFFFFF, 40));
     }
 
     private static int gridToPixelX(int gridX, int baseX, float scale) {

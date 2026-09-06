@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.teslamaps.TeslaMaps;
@@ -143,7 +128,7 @@ public class LeapOverlay {
         Matcher door = DOOR_OPENER_PATTERN.matcher(message);
         if (door.find()) {
             lastDoorOpener = door.group(1);
-            TeslaMaps.LOGGER.info("[LeapOverlay] Last door opener: {}", lastDoorOpener);
+            TeslaMaps.debug("[LeapOverlay] Last door opener: {}", lastDoorOpener);
         }
 
         String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
@@ -376,7 +361,7 @@ public class LeapOverlay {
         for (LeapPlayer p : leapPlayers) {
             if (p != null && !p.isDead && lastDoorOpener.equals(p.name)) { leapToPlayer(screen, p.name); return; }
         }
-        TeslaMaps.LOGGER.info("[LeapOverlay] Last door opener '{}' not a leap target", lastDoorOpener);
+        TeslaMaps.debug("[LeapOverlay] Last door opener '{}' not a leap target", lastDoorOpener);
     }
 
     private static void pollKey(long handle, int key, Runnable action) {
@@ -415,7 +400,7 @@ public class LeapOverlay {
                 StringBuilder mk = new StringBuilder();
                 for (MapRenderer.PlayerMarker m : leapMarkers)
                     mk.append(m.self() ? "*" : "").append(m.name()).append("(").append(m.x()).append(",").append(m.y()).append(") ");
-                TeslaMaps.LOGGER.info("[LeapDbg] click {},{} | map {},{},{},{} inMap={} | markers: {}| targets: {}",
+                TeslaMaps.debug("[LeapDbg] click {},{} | map {},{},{},{} inMap={} | markers: {}| targets: {}",
                         (int) mouseX, (int) mouseY, mx, my, mw, mh, inMap, mk, targets);
             }
 
@@ -455,7 +440,7 @@ public class LeapOverlay {
         }
 
         if (player.isDead) {
-            TeslaMaps.LOGGER.info("[LeapOverlay] Cannot leap to dead player: {}", player.name);
+            TeslaMaps.debug("[LeapOverlay] Cannot leap to dead player: {}", player.name);
             return true;
         }
 
@@ -497,7 +482,7 @@ public class LeapOverlay {
                 if (mc.gameMode != null && mc.player != null) {
                     mc.gameMode.handleContainerInput(handler.containerId, slot.index, 0,
                         net.minecraft.world.inventory.ContainerInput.PICKUP, mc.player);
-                    TeslaMaps.LOGGER.info("[LeapOverlay] Leaping to {}", playerName);
+                    TeslaMaps.debug("[LeapOverlay] Leaping to {}", playerName);
                 }
                 return;
             }

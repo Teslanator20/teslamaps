@@ -1,25 +1,12 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.mixin.HandledScreenAccessor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,7 +14,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -107,20 +96,13 @@ public class BackpackPreview {
         return keyFor(sb.toString());
     }
 
-    private static Map<Integer, ItemStack> hoveredItems() {
+    private static String hoveredKey() {
         if (!TeslaMapsConfig.get().backpackPreview) return null;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return null;
         Slot hovered = ((HandledScreenAccessor) cs).getFocusedSlot();
         if (hovered == null || hovered.getItem().isEmpty()) return null;
-        String key = keyForStack(hovered.getItem());
-        if (key == null) return null;
-        Map<Integer, ItemStack> items = StorageCache.items(key);
-        return (items == null || items.isEmpty()) ? null : items;
-    }
-
-    public static boolean suppressTooltip() {
-        return hoveredItems() != null;
+        return keyForStack(hovered.getItem());
     }
 
     public static void renderOpenPageBorder(GuiGraphicsExtractor ctx) {
@@ -140,44 +122,87 @@ public class BackpackPreview {
         ctx.fill(x + w - t, y, x + w, y + h, col);
     }
 
-    public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
-        Map<Integer, ItemStack> items = hoveredItems();
-        if (items == null) return;
-        Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+    private static ClientTooltipComponent pendingGrid = null;
+    private static int pendingIndex = -1;
 
-        int cols = 9;
-        int size = StorageCache.size(keyForStack(((HandledScreenAccessor) cs).getFocusedSlot().getItem()));
+    // called with the raw item tooltip lines; drops the "Obtained:" line and
+    // reserves a slot for the item grid
+    public static List<Component> prepareTooltip(List<Component> lines) {
+        pendingGrid = null;
+        pendingIndex = -1;
+
+        String key = hoveredKey();
+        if (key == null) return lines;
+        Map<Integer, ItemStack> items = StorageCache.items(key);
+        if (items == null || items.isEmpty()) return lines;
+
+        int size = StorageCache.size(key);
         if (size <= 0) for (int s : items.keySet()) size = Math.max(size, s + 1);
-        int rows = (size + cols - 1) / cols;
-        int cell = 18;
-        int w = cols * cell + 8;
-        int h = rows * cell + 8;
 
-        int px = mouseX + 12;
-        int py = mouseY - 12;
-        if (px + w > cs.width) px = mouseX - w - 12;
-        if (py + h > cs.height) py = cs.height - h;
-        if (py < 0) py = 0;
-
-        ctx.fill(px, py, px + w, py + h, 0xF0202020);
-        ctx.fill(px, py, px + w, py + 1, 0xFF7755FF);
-        ctx.fill(px, py + h - 1, px + w, py + h, 0xFF7755FF);
-
-        for (int s = 0; s < rows * cols; s++) {
-            int gx = px + 4 + (s % cols) * cell;
-            int gy = py + 4 + (s / cols) * cell;
-            ctx.fill(gx - 1, gy - 1, gx + 17, gy + 17, 0xFF555555);
+        List<Component> out = new ArrayList<>();
+        for (Component c : lines) {
+            if (strip(c.getString()).startsWith("Obtained:")) continue;
+            out.add(c);
         }
-        for (Map.Entry<Integer, ItemStack> e : items.entrySet()) {
-            int gx = px + 4 + (e.getKey() % cols) * cell;
-            int gy = py + 4 + (e.getKey() / cols) * cell;
-            ctx.item(e.getValue(), gx, gy);
-            ctx.itemDecorations(mc.font, e.getValue(), gx, gy);
+        while (!out.isEmpty() && strip(out.get(out.size() - 1).getString()).isEmpty()) out.remove(out.size() - 1);
+
+        int at = -1;
+        for (int i = 1; i < out.size(); i++) {
+            if (strip(out.get(i).getString()).isEmpty()) { at = i; break; }
+        }
+        if (at < 0) { out.add(Component.empty()); at = out.size() - 1; }
+
+        pendingIndex = at;
+        pendingGrid = new Grid(items, size);
+        return out;
+    }
+
+    public static void applyGrid(List<ClientTooltipComponent> components) {
+        if (pendingGrid == null) return;
+        if (pendingIndex < components.size()) components.set(pendingIndex, pendingGrid);
+        else components.add(pendingGrid);
+        pendingGrid = null;
+        pendingIndex = -1;
+    }
+
+    private record Grid(Map<Integer, ItemStack> items, int size) implements ClientTooltipComponent {
+        private static final int CELL = 18, GAP = 2, PAD = 3, COLS = 9;
+        private static final int MARGIN_TOP = 4, MARGIN_BOTTOM = 8;
+
+        private int rows() { return Math.max(1, (size + COLS - 1) / COLS); }
+
+        private int boxHeight() { return PAD * 2 + rows() * CELL + (rows() - 1) * GAP; }
+
+        @Override
+        public int getWidth(Font font) { return PAD * 2 + COLS * CELL + (COLS - 1) * GAP; }
+
+        @Override
+        public int getHeight(Font font) { return MARGIN_TOP + boxHeight() + MARGIN_BOTTOM; }
+
+        @Override
+        public void extractImage(Font font, int x, int y, int tw, int th, GuiGraphicsExtractor ctx) {
+            int rows = rows();
+            int top = y + MARGIN_TOP;
+            ctx.fill(x, top, x + getWidth(font), top + boxHeight(), 0xFF777777);
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < COLS; c++) {
+                    int cx = x + PAD + c * (CELL + GAP);
+                    int cy = top + PAD + r * (CELL + GAP);
+                    ctx.fill(cx, cy, cx + CELL, cy + CELL, 0xFFA0A0A0);
+                }
+            }
+            for (Map.Entry<Integer, ItemStack> e : items.entrySet()) {
+                int s = e.getKey();
+                if (s < 0 || s >= rows * COLS) continue;
+                int cx = x + PAD + (s % COLS) * (CELL + GAP) + 1;
+                int cy = top + PAD + (s / COLS) * (CELL + GAP) + 1;
+                ctx.item(e.getValue(), cx, cy);
+                ctx.itemDecorations(font, e.getValue(), cx, cy);
+            }
         }
     }
 
     private static String strip(String s) {
-        return s == null ? "" : s.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        return com.teslamaps.utils.StringUtil.stripTrim(s);
     }
 }

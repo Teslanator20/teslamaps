@@ -1,17 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from NoammAddons
- * (https://github.com/Noamm9/NoammAddons, CC0-1.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.google.gson.JsonElement;
@@ -68,7 +54,7 @@ public class EnchantColors {
         if (enchants == null) loadData();
 
         for (int i = 1; i < lore.size(); i++) {
-            String plain = lore.get(i).getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
+            String plain = com.teslamaps.utils.StringUtil.strip(lore.get(i).getString());
             if (plain.isEmpty() || plain.contains("◆")) continue;
 
             Matcher m = ENCHANT_PATTERN.matcher(plain);

@@ -1,18 +1,3 @@
-/*
- * This file is part of TeslaMaps.
- *
- * TeslaMaps is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version. TeslaMaps is distributed WITHOUT ANY WARRANTY; see the GNU General
- * Public License for more details.
- *
- * This file references code from Odin
- * (https://github.com/odtheking/Odin, BSD 3-Clause) and Devonian
- * (https://github.com/Synnerz/devonian, GPL-3.0). See NOTICE.md for attribution.
- *
- * See the LICENSE and NOTICE.md files in the project root for full terms.
- */
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -64,13 +49,26 @@ public class RarityBackground {
         }
     }
 
+    // runs for every slot every frame, and the lore component of a stack is
+    // immutable, so the answer only has to be computed once per lore instance
+    private static final java.util.Map<ItemLore, Integer> colorCache = new java.util.IdentityHashMap<>();
+
     private static int rarityColor(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return -1;
         ItemLore lore = stack.get(DataComponents.LORE);
         if (lore == null) return -1;
+        Integer cached = colorCache.get(lore);
+        if (cached != null) return cached;
+        int color = computeRarityColor(lore);
+        if (colorCache.size() > 1024) colorCache.clear();
+        colorCache.put(lore, color);
+        return color;
+    }
+
+    private static int computeRarityColor(ItemLore lore) {
         List<Component> lines = lore.lines();
         for (int i = lines.size() - 1; i >= 0; i--) {
-            int c = matchRarity(lines.get(i).getString().replaceAll("(?i)§[0-9A-FK-OR]", "").toUpperCase());
+            int c = matchRarity(lines.get(i).getString().toUpperCase());
             if (c != -1) return c;
         }
         return -1;
