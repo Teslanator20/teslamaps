@@ -22,7 +22,7 @@ public class ColorPortal {
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (!TeslaMapsConfig.get().colorPortal || mc.player == null || mc.level == null
-                || !DungeonManager.isInDungeon() || DungeonManager.isInBoss()) {
+                || !DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) {
             portals.clear();
             return;
         }

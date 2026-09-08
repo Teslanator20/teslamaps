@@ -1,14 +1,16 @@
 package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.render.gui.GuiStyle;
+import com.teslamaps.render.gui.HudStyle;
+import com.teslamaps.render.gui.TeslaGui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 public class ClassFilterScreen extends Screen {
-    private static final int PANEL_W = 300, PANEL_H = 230;
+    private static final int PANEL_W = 300, PANEL_H = 240;
     private static final int ROW_H = 26;
     private static final String[] CLASSES = {"Mage", "Archer", "Berserk", "Healer", "Tank"};
 
@@ -54,10 +56,14 @@ public class ClassFilterScreen extends Screen {
         listY = panelY + 56;
         listW = PANEL_W - 32;
 
-        addRenderableWidget(Button.builder(Component.literal("Done"), b -> {
+        addRenderableWidget(new TeslaButton(panelX + 16, panelY + PANEL_H - 34, PANEL_W - 32, 22, "§fDone", () -> {
             TeslaMapsConfig.save();
             minecraft.setScreen(parent);
-        }).bounds(panelX + 16, panelY + PANEL_H - 30, PANEL_W - 32, 20).build());
+        }));
+    
+
+        ScreenFit.clamp(this); // keep every widget reachable at any gui scale
+
     }
 
     @Override
@@ -65,12 +71,11 @@ public class ClassFilterScreen extends Screen {
         boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean clicked = isMouseDown && !wasMouseDown;
 
-        ctx.fill(0, 0, width, height, 0xC0000000);
-        roundRect(ctx, panelX, panelY, PANEL_W, PANEL_H, AppleColors.CARD_BACKGROUND);
-        ctx.fill(panelX + 10, panelY, panelX + PANEL_W - 10, panelY + 3, AppleColors.ACCENT_GREEN);
+        ctx.fill(0, 0, width, height, 0xB0000000);
+        HudStyle.screenPanel(ctx, panelX, panelY, PANEL_W, PANEL_H, 8);
 
-        ctx.text(this.font, "Only as Class", panelX + 16, panelY + 16, AppleColors.TEXT_PRIMARY);
-        ctx.text(this.font, featureLabel, panelX + 16, panelY + 30, AppleColors.TEXT_SECONDARY);
+        ctx.text(this.font, "§f§lOnly as Class", panelX + 16, panelY + 16, 0xFFFFFFFF);
+        ctx.text(this.font, "§8" + featureLabel, panelX + 16, panelY + 30, 0xFFFFFFFF);
 
         int rowY = listY;
         for (int i = 0; i < CLASSES.length; i++) {
@@ -78,34 +83,19 @@ public class ClassFilterScreen extends Screen {
             boolean rowHover = mouseX >= listX && mouseX < listX + listW && mouseY >= rowY && mouseY < rowY + ROW_H - 2;
             if (clicked && rowHover) { set(i, !value); value = !value; }
 
-            ctx.fill(listX, rowY, listX + listW, rowY + ROW_H - 2, rowHover ? 0xFF3A3A3C : AppleColors.CARD_BACKGROUND);
-            drawBorder(ctx, listX, rowY, listW, ROW_H - 2, AppleColors.INPUT_BORDER);
-            ctx.text(this.font, CLASSES[i], listX + 8, rowY + 7, AppleColors.TEXT_PRIMARY);
+            HudStyle.screenButton(ctx, listX, rowY, listW, ROW_H - 2, rowHover, true);
+            ctx.text(this.font, "§f" + CLASSES[i], listX + 8, rowY + 7, 0xFFFFFFFF);
 
             int toggleX = listX + listW - 44, toggleY = rowY + 4;
-            ctx.fill(toggleX, toggleY, toggleX + 36, toggleY + 16, value ? AppleColors.TOGGLE_ON : AppleColors.TOGGLE_OFF);
-            drawBorder(ctx, toggleX, toggleY, 36, 16, AppleColors.INPUT_BORDER);
+            ctx.fill(toggleX, toggleY, toggleX + 36, toggleY + 16, value ? GuiStyle.accent() : GuiStyle.toggleOff());
             int knobX = value ? toggleX + 20 : toggleX + 2;
-            ctx.fill(knobX, toggleY + 2, knobX + 14, toggleY + 14, AppleColors.TOGGLE_KNOB);
+            ctx.fill(knobX, toggleY + 2, knobX + 14, toggleY + 14, GuiStyle.knob());
 
             rowY += ROW_H;
         }
 
         super.extractRenderState(ctx, mouseX, mouseY, delta);
         wasMouseDown = isMouseDown;
-    }
-
-    private void roundRect(GuiGraphicsExtractor ctx, int x, int y, int w, int h, int color) {
-        ctx.fill(x + 4, y, x + w - 4, y + h, color);
-        ctx.fill(x, y + 4, x + 4, y + h - 4, color);
-        ctx.fill(x + w - 4, y + 4, x + w, y + h - 4, color);
-    }
-
-    private void drawBorder(GuiGraphicsExtractor ctx, int x, int y, int w, int h, int color) {
-        ctx.fill(x, y, x + w, y + 1, color);
-        ctx.fill(x, y + h - 1, x + w, y + h, color);
-        ctx.fill(x, y, x + 1, y + h, color);
-        ctx.fill(x + w - 1, y, x + w, y + h, color);
     }
 
     @Override

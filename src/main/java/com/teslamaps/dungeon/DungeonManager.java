@@ -82,7 +82,9 @@ public class DungeonManager {
             String clean = ScoreboardUtils.cleanLine(line);
             String cleanLower = clean.toLowerCase();
 
-            if (cleanLower.contains("catacombs")) {
+            // "the catacombs", not "catacombs": the hub has a zone called Catacombs Entrance and
+            // its sidebar line would otherwise put us in a dungeon that never ends
+            if (cleanLower.contains("the catacombs")) {
                 hasCatacombs = true;
 
                 Matcher floorMatcher = CATACOMBS_PATTERN.matcher(clean);
@@ -107,6 +109,12 @@ public class DungeonManager {
         if (!hasCatacombs) {
             // M7 P5 swaps the sidebar and the Catacombs line vanishes mid-fight; leaving a
             // dungeon always changes worlds, so stay in until the world-change path exits us
+            // Escape hatch so a bad read can never strand us: the tab list keeps saying
+            // "Dungeon: The Catacombs" the whole run. Empty means unknown, not outside.
+            String tabArea = SkyblockUtils.getArea().toLowerCase();
+            if (!tabArea.isEmpty() && !tabArea.contains("catacombs")) {
+                return DungeonState.NOT_IN_DUNGEON;
+            }
             return isInDungeon() ? currentState : DungeonState.NOT_IN_DUNGEON;
         }
 
@@ -141,6 +149,7 @@ public class DungeonManager {
         TeslaMaps.LOGGER.info("Entered dungeon: {}", currentFloor);
 
         DungeonScore.onDungeonStart();
+        RareRoomAlert.reset();
 
         RoomScanner.triggerFullScan();
     }
@@ -151,6 +160,7 @@ public class DungeonManager {
         PlayerTracker.reset();
         MapScanner.reset();
         SecretTracker.reset();
+        com.teslamaps.features.SecretChime.reset();
         MimicDetector.reset();
         PlayerHeadRenderer.clearCache();
         com.teslamaps.esp.StarredMobESP.reset();
@@ -171,6 +181,19 @@ public class DungeonManager {
 
     public static boolean isInBoss() {
         return currentState == DungeonState.BOSS_FIGHT;
+    }
+
+    /**
+     * Reliable boss check. The scoreboard boss-health line only says "Boss" on some
+     * floors (F4 Thorn never matches), so also treat standing outside the room grid
+     * as the boss area - every boss arena lies outside it.
+     */
+    public static boolean isInBossArea() {
+        if (currentState == DungeonState.BOSS_FIGHT) return true;
+        if (!isInDungeon()) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return false;
+        return ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null;
     }
 
     public static DungeonState getCurrentState() {

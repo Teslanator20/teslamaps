@@ -1,20 +1,30 @@
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.EstimatedValue.Line;
-import com.teslamaps.features.croesus.PriceManager;
 import com.teslamaps.mixin.HandledScreenAccessor;
-import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+/**
+ * The estimated item value breakdown for the hovered slot, drawn as the plain
+ * line list SkyHanni shows.
+ */
 public class ItemValueOverlay {
 
-    private record PanelLine(String left, String right) {}
+    private static final int LINE_HEIGHT = 12;
+
+    private static final Map<ItemStack, List<String>> cache = new IdentityHashMap<>();
+    private static Screen lastScreen;
+    private static ItemStack hovered;
+    private static long hoverStart;
+    private static boolean hoverDelayOver;
 
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().itemValueGui) return false;
@@ -24,80 +34,60 @@ public class ItemValueOverlay {
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+
+        if (lastScreen != mc.screen) {
+            lastScreen = mc.screen;
+            cache.clear();
+            hovered = null;
+            hoverDelayOver = false;
+        }
+
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
-        Slot hovered = acc.getFocusedSlot();
-        if (hovered == null || hovered.getItem().isEmpty()) return;
+        Slot slot = acc.getFocusedSlot();
+        if (slot == null || slot.getItem().isEmpty()) {
+            hovered = null;
+            return;
+        }
 
-        List<PanelLine> lines = buildLines(hovered.getItem());
-        if (lines == null) return;
-        drawPanelBeside(ctx, mc, lines, acc.getX(), acc.getY(), acc.getImageWidth());
+        ItemStack item = slot.getItem();
+        if (item != hovered) {
+            hovered = item;
+            hoverStart = System.currentTimeMillis();
+        }
+
+        List<String> lines = cache.get(item);
+        if (lines == null) {
+            lines = EstimatedValue.display(item);
+            cache.put(item, lines);
+        }
+        if (lines.isEmpty()) return;
+
+        if (!hoverDelayOver) {
+            int delay = TeslaMapsConfig.get().itemValueHoverDelay;
+            if (delay > 0 && System.currentTimeMillis() - hoverStart < delay) return;
+            hoverDelayOver = true;
+        }
+
+        draw(ctx, mc, lines, acc.getX(), acc.getY(), acc.getImageWidth());
     }
 
-    private static List<PanelLine> buildLines(ItemStack item) {
-        if (!TeslaMapsConfig.get().itemValueGui || item == null || item.isEmpty()) return null;
-        PriceManager.ensureFresh();
-        List<Line> rows = EstimatedValue.breakdown(item);
-        if (rows.isEmpty()) return null;
+    // left of the inventory GUI, flipped to the right when there is no room
+    private static void draw(GuiGraphicsExtractor ctx, Minecraft mc, List<String> lines, int guiX, int guiY, int guiW) {
+        int width = 0;
+        for (String line : lines) width = Math.max(width, mc.font.width(line));
 
-        List<PanelLine> lines = new ArrayList<>();
-        lines.add(new PanelLine(item.getHoverName().getString(), "§a§l" + EstimatedValue.fmt(EstimatedValue.compute(item))));
-        lines.add(null); // separator
-        for (Line r : rows) {
-            lines.add(new PanelLine(r.indent() ? "  " + r.label() : r.label(), r.value()));
-        }
-        return lines;
-    }
-
-    // fixed panel just left of the inventory GUI (flips to the right if there's no room)
-    private static void drawPanelBeside(GuiGraphicsExtractor ctx, Minecraft mc, List<PanelLine> lines, int guiX, int guiY, int guiW) {
-        int pad = 5;
-        int gap = 16;
-        int contentW = 0;
-        for (PanelLine l : lines) {
-            if (l == null) continue;
-            contentW = Math.max(contentW, mc.font.width(l.left()) + gap + mc.font.width(l.right()));
-        }
-        int panelW = contentW + pad * 2;
-        int panelH = lines.size() * 10 + pad * 2;
-
+        int x = guiX - width - 8;
+        if (x < 2) x = guiX + guiW + 8;
+        int y = guiY;
+        int height = lines.size() * LINE_HEIGHT;
         int screenH = mc.getWindow().getGuiScaledHeight();
-        int panelX = guiX - panelW - 6;
-        if (panelX < 2) panelX = guiX + guiW + 6;
-        int panelY = guiY;
-        if (panelY + panelH > screenH - 2) panelY = Math.max(2, screenH - 2 - panelH);
+        if (y + height > screenH - 2) y = Math.max(2, screenH - 2 - height);
 
-        drawPanel(ctx, mc, lines, panelX, panelY, panelW, panelH);
-    }
-
-    private static void drawPanel(GuiGraphicsExtractor ctx, Minecraft mc, List<PanelLine> lines, int panelX, int panelY, int panelW, int panelH) {
-        int pad = 5;
-        // background + subtle purple frame (SkyHanni-ish)
-        ctx.fill(panelX, panelY, panelX + panelW, panelY + panelH, 0xF0141118);
-        drawBorder(ctx, panelX, panelY, panelW, panelH, 0xFF6A4AC0);
-
-        int y = panelY + pad;
-        boolean drewSeparator = false;
-        for (PanelLine l : lines) {
-            if (l == null) {
-                // separator line under the header
-                if (!drewSeparator) {
-                    ctx.fill(panelX + pad, y + 4, panelX + panelW - pad, y + 5, 0x40FFFFFF);
-                    drewSeparator = true;
-                }
-                y += 10;
-                continue;
-            }
-            ctx.text(mc.font, l.left(), panelX + pad, y, 0xFFFFFFFF);
-            int rw = mc.font.width(l.right());
-            ctx.text(mc.font, l.right(), panelX + panelW - pad - rw, y, 0xFFFFFFFF);
-            y += 10;
+        for (String line : lines) {
+            ctx.text(mc.font, line, x, y, 0xFFFFFFFF);
+            y += LINE_HEIGHT;
         }
     }
 
-    private static void drawBorder(GuiGraphicsExtractor ctx, int x, int y, int w, int h, int color) {
-        ctx.fill(x, y, x + w, y + 1, color);
-        ctx.fill(x, y + h - 1, x + w, y + h, color);
-        ctx.fill(x, y, x + 1, y + h, color);
-        ctx.fill(x + w - 1, y, x + w, y + h, color);
-    }
+    private ItemValueOverlay() {}
 }

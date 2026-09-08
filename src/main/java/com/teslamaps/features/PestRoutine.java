@@ -1,4 +1,3 @@
-// Keybind approach from SkyHanni's GardenCustomKeybinds (LGPL-2.1), see NOTICE.md
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -517,12 +516,11 @@ public class PestRoutine {
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         int key = TeslaMapsConfig.get().pestRoutineKey;
-        if (key < 0 || mc.getWindow() == null) return;
+        if (key == -1 || mc.getWindow() == null) return;
         // Don't steal keystrokes that are going into a text field.
         if (mc.screen instanceof net.minecraft.client.gui.screens.ChatScreen) return;
 
-        boolean down = org.lwjgl.glfw.GLFW.glfwGetKey(mc.getWindow().handle(), key)
-                == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+        boolean down = com.teslamaps.utils.KeyNames.isDown(key);
         if (down && !keyWasDown) advance();
         keyWasDown = down;
     }

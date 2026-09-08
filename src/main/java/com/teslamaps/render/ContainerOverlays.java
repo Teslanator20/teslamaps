@@ -34,6 +34,7 @@ public class ContainerOverlays {
 
         com.teslamaps.features.BazaarOwnOrders.render(context);
         com.teslamaps.features.ProgressHighlight.render(context);
+        com.teslamaps.features.CommissionHighlight.render(context);
 
         if (com.teslamaps.features.foraging.HotF.shouldRender()) {
             com.teslamaps.features.foraging.HotF.render(context);

@@ -2,6 +2,7 @@ package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.mixin.HandledScreenAccessor;
+import com.teslamaps.utils.Calculator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -72,7 +73,7 @@ public class Searchbar {
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
-        String title = cs.getTitle().getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
+        String title = com.teslamaps.utils.StringUtil.strip(cs.getTitle().getString());
         // keep the query across containers/pages; just drop focus when the container changes
         if (!title.equals(lastTitle)) { focused = false; lastTitle = title; }
 
@@ -96,6 +97,17 @@ public class Searchbar {
                 : "§f" + query + (focused ? "§e_" : "");
         ctx.text(mc.font, label, bx + 3, by + 2, 0xFFFFFFFF);
 
+        // a leading = turns the box into a calculator, so nothing gets searched or dimmed
+        if (query.startsWith("=")) {
+            Double value = Calculator.eval(query.substring(1));
+            String result = query.length() == 1 ? "§8= 4*(2+3)"
+                    : value == null ? "§c= ?" : "§a= " + Calculator.format(value);
+            int w = mc.font.width(result) + 6;
+            ctx.fill(bx, by - BOX_H - 1, bx + w, by - 1, 0xC0202020);
+            ctx.text(mc.font, result, bx + 3, by - BOX_H + 1, 0xFFFFFFFF);
+            return;
+        }
+
         if (query.isBlank()) return;
         for (Slot slot : cs.getMenu().slots) {
             ItemStack item = slot.getItem();
@@ -113,7 +125,9 @@ public class Searchbar {
         return false;
     }
 
+    // runs per item per lore line while a query is active, so no per-call Pattern.compile
     private static String strip(String s) {
-        return s == null ? "" : s.replaceAll("(?i)§[0-9A-FK-OR]", "").toLowerCase();
+        if (s == null) return "";
+        return com.teslamaps.utils.StringUtil.strip(s).toLowerCase();
     }
 }

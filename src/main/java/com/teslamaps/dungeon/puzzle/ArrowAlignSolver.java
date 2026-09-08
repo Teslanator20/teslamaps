@@ -41,7 +41,7 @@ public class ArrowAlignSolver {
             return;
         }
 
-        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBoss()) {
+        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBossArea()) {
             reset();
             return;
         }
@@ -147,6 +147,14 @@ public class ArrowAlignSolver {
 
     private static BlockPos getFramePosition(int index) {
         return FRAME_GRID_CORNER.offset(0, index % 5, index / 5);
+    }
+
+    /** Clicks land before the server echoes the new rotation, so predict it. */
+    public static void onFrameClick(BlockPos pos) {
+        if (currentRotations == null) return;
+        for (int i = 0; i < 25; i++) {
+            if (getFramePosition(i).equals(pos)) { onFrameClick(i); return; }
+        }
     }
 
     public static void onFrameClick(int index) {

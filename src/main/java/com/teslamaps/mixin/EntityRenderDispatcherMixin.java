@@ -30,12 +30,8 @@ public class EntityRenderDispatcherMixin {
         boolean dyingDragon = cfg.hideDyingDragons
                 && entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon
                 && dragon.getHealth() <= 0;
-        boolean deadMob = cfg.hideDeadMobs
-                && entity instanceof net.minecraft.world.entity.LivingEntity le
-                && !(entity instanceof net.minecraft.world.entity.player.Player)
-                && !(entity instanceof net.minecraft.world.entity.decoration.ArmorStand)
-                && (le.isDeadOrDying() || le.deathTime > 0 || le.getHealth() <= 0.0f); // Hypixel keeps dying mobs at 0 HP (red) for ~0.5s without a client death animation
-        if (noLightning || noFalling || noXpOrb || dyingDragon || deadMob
+        if (noLightning || noFalling || noXpOrb || dyingDragon
+                || com.teslamaps.features.DeadMobHider.shouldHide(entity)
                 || com.teslamaps.features.HideCheapCoins.shouldHide(entity)
                 || HidePlayers.shouldHide(entity)
                 || com.teslamaps.features.SoulweaverHider.shouldHide(entity)

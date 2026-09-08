@@ -37,16 +37,7 @@ public class SkillTracker {
         "Alchemy", "Taming", "Carpentry", "Runecrafting", "Social", "Hunting"
     };
 
-    // display mode, cycled by clicking the panel while the inventory is open
-    private static final String[] MODE_NAMES = {"Both", "Per hour", "30 min", "Session"};
-    private static final int HOUR = 1, WINDOW = 2, SESSION = 3;
-
     private static final long IDLE_CAP_MS = 30_000;
-    private static final long WINDOW_MS = 30 * 60_000;
-
-    // metric ids for the rolling 30 minute window
-    private static final int XP = 0, KILL = 1, BOSS = 2, COCOON = 3,
-            CATCH = 4, DHOOK = 5, GIFT = 6, WHISPER = 7;
 
     private static final class Session {
         double xpGained;
@@ -57,30 +48,6 @@ public class SkillTracker {
         long catches, doubleHooks;           // fishing
         long gifts, whispers;                // foraging
         long lastGiftMs;
-        final java.util.ArrayDeque<double[]> recent = new java.util.ArrayDeque<>();
-
-        void add(int metric, double amount) {
-            recent.addLast(new double[]{System.currentTimeMillis(), metric, amount});
-            prune();
-        }
-
-        void prune() {
-            long cutoff = System.currentTimeMillis() - WINDOW_MS;
-            while (!recent.isEmpty() && recent.peekFirst()[0] < cutoff) recent.removeFirst();
-        }
-
-        double window(int metric) {
-            prune();
-            double sum = 0;
-            for (double[] e : recent) if ((int) e[1] == metric) sum += e[2];
-            return sum;
-        }
-
-        /** Hours the window covers, so a short session doesn't read as a full half hour. */
-        double windowHours() {
-            return Math.min(WINDOW_MS, liveActiveMs()) / 3_600_000.0;
-        }
-
         void touch() {
             long now = System.currentTimeMillis();
             if (lastActivity > 0) activeMs += Math.min(now - lastActivity, IDLE_CAP_MS);
@@ -121,6 +88,18 @@ public class SkillTracker {
         return sessions.computeIfAbsent(skill, k -> new Session());
     }
 
+    /** "Farming 60" / "Farming" -> "Farming", null when it is not a skill item. */
+    public static String skillOf(String hoverName) {
+        if (hoverName == null || hoverName.isEmpty()) return null;
+        String first = hoverName.split(" ")[0];
+        return isSkill(first) ? first : null;
+    }
+
+    /** The eight skills Hypixel averages for "Skill Avg. (non-cosmetic)". */
+    public static final String[] NON_COSMETIC = {
+        "Farming", "Mining", "Combat", "Foraging", "Fishing", "Enchanting", "Alchemy", "Taming"
+    };
+
     private static boolean isSkill(String name) {
         for (String s : SKILLS) if (s.equals(name)) return true;
         return false;
@@ -143,7 +122,6 @@ public class SkillTracker {
     public static void onBossKill() {
         Session s = session("Combat");
         s.bossKills++;
-        s.add(BOSS, 1);
         s.touch();
         show("Combat");
     }
@@ -151,7 +129,6 @@ public class SkillTracker {
     public static void onCocoon() {
         Session s = session("Combat");
         s.cocoons++;
-        s.add(COCOON, 1);
         s.touch();
         show("Combat");
     }
@@ -180,7 +157,6 @@ public class SkillTracker {
         if (id.equals(lastItemId) && lastKills >= 0 && kills > lastKills) {
             Session s = session("Combat");
             s.kills += kills - lastKills;
-            s.add(KILL, kills - lastKills);
             s.touch();
         }
         lastItemId = id;
@@ -274,9 +250,10 @@ public class SkillTracker {
 
         if (delta > 0) {
             s.xpGained += delta;
-            s.add(XP, delta);
             s.touch();
             show(skill);
+            // xp comes in for every catch, including the loot that never reaches chat
+            if (skill.equals("Fishing") && cfg.skillTracker && countEverything()) countCatch("xp");
             long before = totalXp(skill);
             if (before > 0) {
                 setTotalXp(skill, before + (long) delta);
@@ -285,15 +262,54 @@ public class SkillTracker {
         }
     }
 
-    // "TROPHY FISH! You caught a Lavahorse GOLD!" and the frog variant "TROPHY FROG! ..."
+    // "TROPHY FISH! You caught a Lavahorse GOLD! (2x)" and the frog variant "TROPHY FROG! ..."
     private static final Pattern TROPHY_FISH = Pattern.compile("TROPHY \\w+! You caught an? .+");
+    // plain loot, the line every pull gets: "GOOD CATCH! You caught Raw Cod x22!"
+    private static final Pattern PLAIN_CATCH = Pattern.compile("[A-Z]+ CATCH! You(?:'ve)? (?:caught|found) .+");
 
-    private static void countCatch() {
+    private static long lastCatchPull = -1;
+    private static long lastCatchAt = 0;
+    private static long lastCreatureAt = 0;
+
+    /**
+     * Sea creatures only show up when they are what is being fished for, trophy fishing never
+     * brings them in, so a recent creature means creatures are the thing worth counting.
+     */
+    private static final long CREATURE_MEMORY_MS = 10 * 60_000;
+
+    private static boolean countEverything() {
+        return switch (TeslaMapsConfig.get().fishingCatchSource) {
+            case 1 -> false;
+            case 2 -> true;
+            default -> System.currentTimeMillis() - lastCreatureAt >= CREATURE_MEMORY_MS;
+        };
+    }
+
+    /** Panel label, so it is clear which of the two the number is. */
+    public static String catchLabel() {
+        return countEverything() ? "Catches" : "Creatures";
+    }
+
+    /**
+     * A catch reports itself twice, once as Fishing xp and once as a chat line, and plenty of
+     * loot has no chat line at all. Both are counted, and the pull they belong to keeps the
+     * pair from counting twice. Without a bobber to id the pull (Fishing section off) a five
+     * second window does the same job.
+     */
+    private static void countCatch(String source) {
+        long pull = FishingBobberTimer.pullId();
+        long now = System.currentTimeMillis();
+        FishingBobberTimer.onCatch();
+        if (pull == lastCatchPull && now - lastCatchAt <= 5000) return;
+        lastCatchPull = pull;
+        lastCatchAt = now;
+
         Session f = session("Fishing");
         f.catches++;
-        f.add(CATCH, 1);
         f.touch();
-        FishingBobberTimer.onCatch();
+        if (TeslaMapsConfig.get().debugMode) {
+            com.teslamaps.TeslaMaps.LOGGER.info("[FishDbg] catch #{} via {} (pull {})", f.catches, source, pull);
+        }
     }
 
     public static void onChatMessage(String raw) {
@@ -303,15 +319,25 @@ public class SkillTracker {
         if (text.contains("Double Hook")) {
             Session f = session("Fishing");
             f.doubleHooks++;
-            f.add(DHOOK, 1);
             f.touch();
             return;
         }
         String catchLine = text.trim();
-        if (TROPHY_FISH.matcher(catchLine).matches() || SeaCreatures.isCatch(catchLine)) {
-            countCatch();
+        boolean trophy = TROPHY_FISH.matcher(catchLine).matches();
+        // the creature list holds the exact sentences, so it decides before the generic shape
+        boolean creature = !trophy && SeaCreatures.isCatch(catchLine);
+        if (creature) lastCreatureAt = System.currentTimeMillis();
+        boolean plain = !trophy && !creature && PLAIN_CATCH.matcher(catchLine).matches();
+
+        if (TeslaMapsConfig.get().debugMode && catchLine.contains("caught") && !trophy && !plain && !creature) {
+            com.teslamaps.TeslaMaps.LOGGER.info("[FishDbg] unmatched: '{}'", catchLine);
+        }
+        if (trophy || creature || (plain && countEverything())) {
+            countCatch("chat");
+            show("Fishing");
             return;
         }
+        if (plain) return;
 
         String trimmed = text.trim();
         if (trimmed.equals("TREE GIFT") || GIFT_COMPACT.matcher(text).find()) {
@@ -336,7 +362,6 @@ public class SkillTracker {
     private static void addWhispers(double amount) {
         Session f = session("Foraging");
         f.whispers += (long) amount;
-        f.add(WHISPER, amount);
         f.touch();
     }
 
@@ -346,7 +371,6 @@ public class SkillTracker {
         long now = System.currentTimeMillis();
         if (now - f.lastGiftMs > 1000) {
             f.gifts++;
-            f.add(GIFT, 1);
             f.lastGiftMs = now;
         }
         f.touch();
@@ -365,24 +389,20 @@ public class SkillTracker {
         draw(ctx, mc, cfg.skillTrackerX, cfg.skillTrackerY, cfg.skillTrackerScale, lines(activeSkill));
     }
 
-    /** Mode cycling and the reset button, both only reachable from the inventory. */
+    /** The reset button, only reachable from the inventory. */
     public static void onClick(double mouseX, double mouseY, int button) {
-        if (!shouldRender()) return;
+        if (!shouldRender() || !inInventory()) return;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         String[] ls = lines(activeSkill);
         float scale = cfg.skillTrackerScale;
         double localX = (mouseX - cfg.skillTrackerX) / scale;
         double localY = (mouseY - cfg.skillTrackerY) / scale;
 
-        if (inInventory() && (int) Math.floor(localY / 10.0) == ls.length - 1
-                && localX > Minecraft.getInstance().font.width(modeLabel()) + 2) {
-            resetSession();
-            return;
-        }
-
-        int step = button == 1 ? MODE_NAMES.length - 1 : 1;
-        cfg.skillTrackerMode = (cfg.skillTrackerMode + step) % MODE_NAMES.length;
-        TeslaMapsConfig.save();
+        if ((int) Math.floor(localY / 10.0) != ls.length - 1) return;
+        String last = ls[ls.length - 1];
+        int cut = last.indexOf(RESET);
+        String before = cut > 0 ? last.substring(0, cut) : "";
+        if (localX >= Minecraft.getInstance().font.width(before) - 2) resetSession();
     }
 
     /** Clears the counters but keeps the known total xp, so levels stay right. */
@@ -392,8 +412,15 @@ public class SkillTracker {
         lastKills = -1;
     }
 
-    private static String modeLabel() {
-        return "§8[" + MODE_NAMES[TeslaMapsConfig.get().skillTrackerMode % MODE_NAMES.length] + "]";
+    private static final String RESET = "§c[Reset]";
+
+    /** How long the session has been running, idle time already trimmed by touch(). */
+    private static String fmtDuration(long ms) {
+        long total = ms / 1000;
+        long h = total / 3600, m = (total % 3600) / 60, s = total % 60;
+        if (h > 0) return h + "h " + String.format("%02dm", m);
+        if (m > 0) return m + "m " + String.format("%02ds", s);
+        return s + "s";
     }
 
     // lines() walks the whole 30 minute window per metric, so the render path
@@ -401,14 +428,12 @@ public class SkillTracker {
     private static String[] cachedLines = null;
     private static String cachedFor = null;
     private static long cachedAt = 0;
-    private static int cachedMode = -1;
     private static boolean cachedInv = false;
 
     private static String[] lines(String skill) {
         long now = System.currentTimeMillis();
-        int mode = TeslaMapsConfig.get().skillTrackerMode;
         boolean inv = inInventory();
-        if (cachedLines != null && skill.equals(cachedFor) && mode == cachedMode
+        if (cachedLines != null && skill.equals(cachedFor)
                 && inv == cachedInv && now - cachedAt < 250) {
             return cachedLines;
         }
@@ -416,7 +441,6 @@ public class SkillTracker {
         cachedLines = built;
         cachedFor = skill;
         cachedAt = now;
-        cachedMode = mode;
         cachedInv = inv;
         return built;
     }
@@ -428,7 +452,7 @@ public class SkillTracker {
 
         List<String> out = new ArrayList<>();
         out.add(color(skill) + "§l" + skill);
-        out.add(metric("XP", "§b", s.xpGained, s.window(XP), s.windowHours(), h, warm));
+        out.add(metric("XP", "§b", s.xpGained, h, warm));
 
         long total = totalXp(skill);
         if (total > 0) {
@@ -446,41 +470,33 @@ public class SkillTracker {
 
         switch (skill) {
             case "Combat" -> {
-                if (s.kills > 0) out.add(metric("Kills", "§e", s.kills, s.window(KILL), s.windowHours(), h, warm));
-                if (s.bossKills > 1) out.add(metric("Bosses", "§e", s.bossKills, s.window(BOSS), s.windowHours(), h, warm));
+                if (s.kills > 0) out.add(metric("Kills", "§e", s.kills, h, warm));
+                if (s.bossKills > 1) out.add(metric("Bosses", "§e", s.bossKills, h, warm));
                 if (s.cocoons > 1) {
                     out.add("§7Cocoon: §a" + s.cocoons + "§8/§e" + s.bossKills
                             + " §8(" + Math.round(100.0 * s.cocoons / Math.max(1, s.bossKills)) + "%)");
                 }
             }
             case "Fishing" -> {
-                out.add(metric("Catches", "§e", s.catches, s.window(CATCH), s.windowHours(), h, warm));
+                out.add(metric(catchLabel(), "§e", s.catches, h, warm));
                 String chance = s.catches > 0 ? String.format("%.1f%%", 100.0 * s.doubleHooks / s.catches) : "…";
                 out.add("§7Double Hook: §e" + chance + " §8(" + s.doubleHooks + ")");
             }
             case "Foraging" -> {
-                out.add(metric("Gifts", "§e", s.gifts, s.window(GIFT), s.windowHours(), h, warm));
-                out.add(metric("Whispers", "§e", s.whispers, s.window(WHISPER), s.windowHours(), h, warm));
+                out.add(metric("Gifts", "§e", s.gifts, h, warm));
+                out.add(metric("Whispers", "§e", s.whispers, h, warm));
             }
             default -> { }
         }
 
         // controls only exist where they can be clicked
-        if (inInventory()) out.add(modeLabel() + " §c[Reset]");
+        if (inInventory()) out.add("§7Session: §f" + fmtDuration(s.liveActiveMs()) + " " + RESET);
         return out.toArray(new String[0]);
     }
 
-    private static String metric(String label, String color, double total,
-                                 double windowTotal, double windowHours, double hours, boolean warm) {
-        int mode = TeslaMapsConfig.get().skillTrackerMode % MODE_NAMES.length;
+    private static String metric(String label, String color, double total, double hours, boolean warm) {
         String rate = warm ? fmt(total / hours) : "…";
-        return switch (mode) {
-            case HOUR -> "§7" + label + "/h: " + color + rate;
-            case WINDOW -> "§7" + label + "/h: " + color
-                    + (windowHours > 0 ? fmt(windowTotal / windowHours) : "…") + " §8(30m)";
-            case SESSION -> "§7" + label + ": " + color + fmt(total);
-            default -> "§7" + label + "/h: " + color + rate + " §8(" + fmt(total) + ")";
-        };
+        return "§7" + label + "/h: " + color + rate + " §8(" + fmt(total) + ")";
     }
 
     private static boolean inInventory() {

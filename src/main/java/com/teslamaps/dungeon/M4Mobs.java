@@ -33,7 +33,7 @@ public class M4Mobs {
     public static boolean inM4Boss() {
         DungeonFloor f = DungeonManager.getCurrentFloor();
         if (f == null || f.getLevel() != 4 || !DungeonManager.isInDungeon()) return false;
-        if (DungeonManager.isInBoss()) return true;
+        if (DungeonManager.isInBossArea()) return true;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
         return ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null; // boss arena

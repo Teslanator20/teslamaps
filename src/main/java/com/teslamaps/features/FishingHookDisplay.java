@@ -1,8 +1,6 @@
-// Ported from SkyHanni's FishingHookDisplay.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -20,8 +18,12 @@ public class FishingHookDisplay {
 
     public static final String SAMPLE_TEXT = "§e§l3.0";
 
-    // "§e§l3.0" while it counts down, "§c§l!!!" when the hook can be pulled
-    private static final Pattern TIMER = Pattern.compile("§e§l(?<time>\\d+(?:\\.\\d+)?)|(?:§.)*(?<alert>!!!)");
+    // "3.0" / "3.0s" while it counts down, "!!!" when the hook can be pulled.
+    // The colour codes Hypixel puts in front of it are not stable, so match the plain text.
+    private static final Pattern TIMER = Pattern.compile("\\d+(?:\\.\\d+)?s?");
+
+    // a numeric label further away belongs to something else (damage indicators etc.)
+    private static final double MAX_DIST_SQ = 9;
 
     private static String text = null;
     private static int entityId = -1;
@@ -53,16 +55,18 @@ public class FishingHookDisplay {
         for (Entity entity : mc.level.entitiesForRendering()) {
             if (!(entity instanceof ArmorStand stand) || stand.getCustomName() == null) continue;
             String name = stand.getCustomName().getString();
-            Matcher m = TIMER.matcher(name);
-            if (!m.matches()) continue;
+            String plain = com.teslamaps.utils.StringUtil.stripTrim(name);
+            boolean alert = plain.equals("!!!");
+            if (!alert && !TIMER.matcher(plain).matches()) continue;
 
             // several bobbers can be in the water, take the stand closest to ours
             double distance = entity.distanceToSqr(bobber);
-            if (distance > bestDistance) continue;
+            if (distance > MAX_DIST_SQ || distance > bestDistance) continue;
             bestDistance = distance;
             bestId = entity.getId();
-            bestAlert = m.group("alert") != null;
-            best = bestAlert ? c.hookAlertText.replace('&', '§') : name;
+            bestAlert = alert;
+            best = alert ? c.hookAlertText.replace('&', '§')
+                    : (name.indexOf('§') >= 0 ? name : "§e§l" + plain);
         }
 
         // only on the switch to "!!!", the stand keeps that name for a while
@@ -97,7 +101,7 @@ public class FishingHookDisplay {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.hookDisplay || text == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || mc.screen != null) return;
+        if (com.teslamaps.utils.HudVisibility.suppressed()) return;
 
         draw(context, mc, c.hookDisplayX, c.hookDisplayY, c.hookDisplayScale, text);
     }

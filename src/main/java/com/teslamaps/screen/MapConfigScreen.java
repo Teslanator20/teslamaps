@@ -1,6 +1,8 @@
 package com.teslamaps.screen;
 
+import com.teslamaps.render.gui.GuiStyle;
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.render.gui.GuiSounds;
 import com.teslamaps.render.gui.TeslaGui;
 import com.teslamaps.utils.LoudSound;
 import org.lwjgl.glfw.GLFW;
@@ -45,6 +47,8 @@ public class MapConfigScreen extends Screen {
     protected final Map<String, LabelEntry> categoryHeaders = new LinkedHashMap<>();
     protected String selectedCategory = "Profiles";
     protected String searchQuery = "";
+    /** Survives a close/reopen of the screen, the widget itself is rebuilt in init(). */
+    protected static String lastSearch = "";
 
     protected int sidebarScroll = 0;
     protected int sidebarMaxScroll = 0;
@@ -56,6 +60,7 @@ public class MapConfigScreen extends Screen {
 
     protected EditBox searchField;
     protected boolean wasMouseDown = false;
+    protected boolean wasRightDown = false;
     /** Set by an entry that acted on this frame's click, so no second row reacts to it. */
     protected boolean clickHandled = false;
     /** Profile whose delete button was armed — a second click on it actually deletes. */
@@ -65,6 +70,7 @@ public class MapConfigScreen extends Screen {
     protected float pickerHue = 0, pickerSat = 1, pickerBright = 1;
 
     protected KeybindEntry listeningKeybindEntry = null;
+    protected long keybindListenStart = 0;
     protected SliderEntry editingSlider = null;   // slider whose value is being typed
     protected String sliderEditText = "";
 
@@ -88,6 +94,20 @@ public class MapConfigScreen extends Screen {
 
     public MapConfigScreen() {
         super(Component.literal("TeslaMaps Settings"));
+        GuiSounds.open();
+    }
+
+    @Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubleClick) {
+        // Binding a mouse button. The very click that armed the row lands here as well, so
+        // anything arriving right after arming is ignored or every bind became Mouse Left.
+        if (listeningKeybindEntry != null && System.currentTimeMillis() - keybindListenStart > 250) {
+            listeningKeybindEntry.setKey(com.teslamaps.utils.KeyNames.forMouse(event.button()));
+            listeningKeybindEntry = null;
+            GuiSounds.select();
+            return true;
+        }
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
@@ -96,6 +116,7 @@ public class MapConfigScreen extends Screen {
             // Escape unbinds (-1), any other key binds it
             listeningKeybindEntry.setKey(event.key() == GLFW.GLFW_KEY_ESCAPE ? -1 : event.key());
             listeningKeybindEntry = null;
+            GuiSounds.select();
             return true;
         }
         if (editingSlider != null) {
@@ -153,6 +174,7 @@ public class MapConfigScreen extends Screen {
     @Override
     protected void init() {
         buildCategories();
+        GuiSounds.resetHover();
 
         String remembered = TeslaMapsConfig.get().lastConfigCategory;
         if (remembered != null && categories.containsKey(remembered)) {
@@ -173,15 +195,22 @@ public class MapConfigScreen extends Screen {
 
         int sfX = SIDEBAR_WIDTH + 14;
         int sfW = this.width - SIDEBAR_WIDTH - 28;
-        searchField = new EditBox(font, sfX + 18, 13, sfW - 26, 12, Component.literal("Search"));
+        // unbordered EditBox draws its text at getY(), so place it on the bar's text baseline (bar = y 8, h 22)
+        searchField = new EditBox(font, sfX + 18, 8 + (22 - 8) / 2, sfW - 26, 8, Component.literal("Search"));
         searchField.setHint(Component.literal("Search settings..."));
         searchField.setBordered(false);
         searchField.setResponder(query -> {
             searchQuery = query.toLowerCase();
+            lastSearch = query;
             scrollOffset = 0;
             expandedColorEntry = null;
         });
         addRenderableWidget(searchField);
+        if (!lastSearch.isEmpty()) searchField.setValue(lastSearch); // responder restores searchQuery
+    
+
+        ScreenFit.clamp(this); // keep every widget reachable at any gui scale
+
     }
 
     protected void buildCategories() {
@@ -343,16 +372,16 @@ public class MapConfigScreen extends Screen {
         render.add(new ToggleEntry(contentX, contentWidth, "  Smooth Zoom", () -> config.zoomSmooth, v -> config.zoomSmooth = v));
         render.add(new SliderEntry(contentX, contentWidth, "  Zoom Speed", 1f, 30f,
                 () -> config.zoomSmoothSpeed, v -> config.zoomSmoothSpeed = v, 1));
-        render.add(new LabelEntry(contentX, "Smoothness"));
+        render.add(new LabelEntry(contentX, "Motion Blur"));
         render.add(new ToggleEntry(contentX, contentWidth, "Motion Blur", () -> config.motionBlur, v -> config.motionBlur = v));
-        render.add(new SliderEntry(contentX, contentWidth, "  Strength", 0.05f, 0.9f,
-                () -> config.motionBlurStrength, v -> config.motionBlurStrength = v, 2));
+        render.add(new SliderEntry(contentX, contentWidth, "  Blur Strength", 0f, 0.9f,
+                () -> config.motionBlurStrength, v -> config.motionBlurStrength = v, 3));
         render.add(new ToggleEntry(contentX, contentWidth, "  Skip While A Menu Is Open", () -> config.motionBlurWorldOnly, v -> config.motionBlurWorldOnly = v));
+        render.add(new LabelEntry(contentX, "Smoothness"));
         render.add(new ToggleEntry(contentX, contentWidth, "Smooth Entity Movement", () -> config.smoothEntities, v -> config.smoothEntities = v));
         render.add(new SliderEntry(contentX, contentWidth, "  Interpolation Ticks", 3f, 12f,
                 () -> (float) config.smoothEntitySteps, v -> config.smoothEntitySteps = v.intValue()));
         render.add(new LabelEntry(contentX, "HUD"));
-        render.add(new ToggleEntry(contentX, contentWidth, "HUD Panel Background", () -> config.hudPanelBackground, v -> config.hudPanelBackground = v));
         render.add(new DropdownEntry(contentX, contentWidth, "  HUD Style",
                 com.teslamaps.render.gui.HudStyle.NAMES,
                 () -> com.teslamaps.render.gui.HudStyle.current(), v -> config.hudStyle = v));
@@ -388,6 +417,9 @@ public class MapConfigScreen extends Screen {
         title.add(new LabelEntry(contentX, "Main Menu"));
         title.add(new ToggleEntry(contentX, contentWidth, "Custom Title Screen",
                 () -> config.customTitleScreen, v -> config.customTitleScreen = v));
+        title.add(new ToggleEntry(contentX, contentWidth, "Custom Loading Screen",
+                () -> config.customLoadingScreen, v -> config.customLoadingScreen = v));
+        title.add(new InfoEntry(contentX, "Same background while connecting and loading terrain"));
         title.add(new DropdownEntry(contentX, contentWidth, "Background",
                 com.teslamaps.render.gui.MenuBackgroundRenderer.names(),
                 () -> config.titleBackground, v -> config.titleBackground = v));
@@ -510,6 +542,9 @@ public class MapConfigScreen extends Screen {
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Falling Blocks", () -> config.noFallingBlocks, v -> config.noFallingBlocks = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Block Breaking", () -> config.noBlockBreaking, v -> config.noBlockBreaking = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide XP Orbs", () -> config.noXpOrbs, v -> config.noXpOrbs = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Block At Packet Level", () -> config.packetHiders, v -> config.packetHiders = v));
+        hide.add(new InfoEntry(contentX, "Lightning/Falling Blocks/XP Orbs are then never created"));
+        hide.add(new InfoEntry(contentX, "Saves ticking them, not just drawing them"));
         hide.add(new LabelEntry(contentX, "Combat Effects"));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Explosions", () -> config.noExplosions, v -> config.noExplosions = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Arrows", () -> config.noArrows, v -> config.noArrows = v));
@@ -531,20 +566,31 @@ public class MapConfigScreen extends Screen {
         categories.put("Hide", hide);
 
         List<SettingsEntry> slayer = new ArrayList<>();
-        slayer.add(new ToggleEntry(contentX, contentWidth, "Slayer HUD", () -> config.slayerHUD, v -> config.slayerHUD = v));
+        slayer.add(new InfoEntry(contentX, "Slayer kills/bosses live in the Tracker HUD under General"));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Only Own Boss", () -> config.slayerOnlyOwnBoss, v -> config.slayerOnlyOwnBoss = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Boss ESP", () -> config.slayerBossESP, v -> config.slayerBossESP = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Miniboss ESP", () -> config.slayerMinibossESP, v -> config.slayerMinibossESP = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Miniboss Tracers", () -> config.slayerMinibossTracer, v -> config.slayerMinibossTracer = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Alerts (Miniboss/Cocoon/Boss)", () -> config.slayerAlerts, v -> config.slayerAlerts = v));
-        slayer.add(new InfoEntry(contentX, "Move/resize the HUDs in /tmap gui, reset with /tmap reset"));
-        categories.put("Slayer", slayer);
+        categories.put("Combat", slayer);
 
         List<SettingsEntry> skills = new ArrayList<>();
         skills.add(new ToggleEntry(contentX, contentWidth, "Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v));
         skills.add(new ToggleEntry(contentX, contentWidth, "Overflow Levels (menu + chat)", () -> config.skillOverflow, v -> config.skillOverflow = v));
+        skills.add(new ToggleEntry(contentX, contentWidth, "Overflow Skill Avg. (menu tooltip)", () -> config.skillAvgOverflow, v -> config.skillAvgOverflow = v));
+        skills.add(new ToggleEntry(contentX, contentWidth, "Level as Stack Size (skills menu)", () -> config.skillLevelStackSize, v -> config.skillLevelStackSize = v));
         skills.add(new InfoEntry(contentX, "Combat adds kills/bosses/cocoons, Fishing double hooks, Foraging gifts and whispers"));
-        skills.add(new InfoEntry(contentX, "Click the panel in the inventory to switch between per hour and session"));
+        String[] catchSources = {"Auto", "Sea Creatures", "Every Catch"};
+        skills.add(new DropdownEntry(contentX, contentWidth, "Fishing Counts", catchSources,
+                () -> catchSources[Math.max(0, Math.min(2, config.fishingCatchSource))],
+                v -> config.fishingCatchSource = switch (v) {
+                    case "Sea Creatures" -> 1;
+                    case "Every Catch" -> 2;
+                    default -> 0;
+                }));
+        skills.add(new InfoEntry(contentX, "Sea Creatures = chat lines only, Every Catch = counts by Fishing XP"));
+        skills.add(new InfoEntry(contentX, "Auto counts creatures while they keep coming in, otherwise every catch"));
+        skills.add(new InfoEntry(contentX, "The panel shows the session time and a Reset button in the inventory"));
         skills.add(new InfoEntry(contentX, "Open the Skills menu once so the tracker knows your total XP"));
         skills.add(new LabelEntry(contentX, "Deployables"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Deployable Overlay",
@@ -560,9 +606,18 @@ public class MapConfigScreen extends Screen {
                 () -> config.deployableUmbrella, v -> config.deployableUmbrella = v));
         skills.add(new ToggleEntry(contentX, contentWidth, "  Black Hole",
                 () -> config.deployableBlackHole, v -> config.deployableBlackHole = v));
+        skills.add(new ToggleEntry(contentX, contentWidth, "  Flares",
+                () -> config.deployableFlare, v -> config.deployableFlare = v));
+        skills.add(new InfoEntry(contentX, "Flares have no nametag, the timer starts when you see them"));
+        skills.add(new ToggleEntry(contentX, contentWidth, "  Other Deployables (flares, ...)",
+                () -> config.deployableOthers, v -> config.deployableOthers = v));
         skills.add(new InfoEntry(contentX, "Position and scale in /tmap gui"));
+        skills.add(new LabelEntry(contentX, "Fixes"));
+        skills.add(new ToggleEntry(contentX, contentWidth, "Fix Item Double Clicks",
+                () -> config.fixDoubleClicks, v -> config.fixDoubleClicks = v));
+        skills.add(new InfoEntry(contentX, "Hypixel fires blaze daggers and autopet rods twice on blocks"));
 
-        categories.put("Skills", skills);
+        categories.put("General", skills);
 
         List<SettingsEntry> fishing = new ArrayList<>();
         fishing.add(new LabelEntry(contentX, "Hook Timer"));
@@ -591,6 +646,27 @@ public class MapConfigScreen extends Screen {
                 () -> config.hotspotBeam, v -> config.hotspotBeam = v));
         fishing.add(new ColorEntry(contentX, contentWidth, "  Color",
                 () -> config.colorHotspot, v -> config.colorHotspot = v));
+
+        fishing.add(new LabelEntry(contentX, "Hotspot Gone"));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "Warn When Hotspot Ends",
+                () -> config.hotspotGoneWarning, v -> config.hotspotGoneWarning = v));
+        fishing.add(new InfoEntry(contentX, "Fires when the whirlpool you stand at stops"));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "  Show Title",
+                () -> config.hotspotGoneTitle, v -> config.hotspotGoneTitle = v));
+        fishing.add(new SoundDropdownEntry(contentX, contentWidth, "  Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.hotspotGoneSound, v -> config.hotspotGoneSound = v));
+        fishing.add(new SliderEntry(contentX, contentWidth, "  Volume", 0f, 4f,
+                () -> config.hotspotGoneVolume, v -> config.hotspotGoneVolume = v, 2));
+
+        fishing.add(new LabelEntry(contentX, "Exploding Frog"));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "Exploding Frog ESP",
+                () -> config.explodingFrogESP, v -> config.explodingFrogESP = v));
+        fishing.add(new InfoEntry(contentX, "Boxes the lily pad the frog leaves behind"));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "  Tracer",
+                () -> config.explodingFrogTracer, v -> config.explodingFrogTracer = v));
+        fishing.add(new ColorEntry(contentX, contentWidth, "  Color",
+                () -> config.colorExplodingFrog, v -> config.colorExplodingFrog = v));
 
         fishing.add(new LabelEntry(contentX, "Bobber Timer"));
         fishing.add(new ToggleEntry(contentX, contentWidth, "Bobber Timer",
@@ -698,7 +774,9 @@ public class MapConfigScreen extends Screen {
         solvers.add(new ToggleEntry(contentX, contentWidth, "Ice Fill Solver", () -> config.solveIceFill, v -> config.solveIceFill = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Ice Path Solver", () -> config.icePathSolver, v -> config.icePathSolver = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Puzzle Timers", () -> config.puzzleTimers, v -> config.puzzleTimers = v));
+        solvers.add(new ToggleEntry(contentX, contentWidth, "Terracotta Spawn Timers (F6/M6)", () -> config.terracottaTimer, v -> config.terracottaTimer = v));
         solvers.add(new LabelEntry(contentX, "Puzzle Colors"));
         solvers.add(new ColorEntry(contentX, contentWidth, "Boulder Click", () -> config.colorBoulder, v -> config.colorBoulder = v));
         solvers.add(new ColorEntry(contentX, contentWidth, "Quiz Correct", () -> config.colorQuiz, v -> config.colorQuiz = v));
@@ -708,6 +786,11 @@ public class MapConfigScreen extends Screen {
         solvers.add(new ColorEntry(contentX, contentWidth, "TP Maze: Visited", () -> config.colorTPMazeVisited, v -> config.colorTPMazeVisited = v));
         solvers.add(new ColorEntry(contentX, contentWidth, "TP Maze: Tracer", () -> config.colorTPMazeTracer, v -> config.colorTPMazeTracer = v));
         solvers.add(new ColorEntry(contentX, contentWidth, "Puzzle Unexplored", () -> config.colorPuzzleUnexplored, v -> config.colorPuzzleUnexplored = v));
+        solvers.add(new ColorEntry(contentX, contentWidth, "Simon Says: First", () -> config.colorSimonSaysFirst, v -> config.colorSimonSaysFirst = v));
+        solvers.add(new ColorEntry(contentX, contentWidth, "Simon Says: Second", () -> config.colorSimonSaysSecond, v -> config.colorSimonSaysSecond = v));
+        solvers.add(new ColorEntry(contentX, contentWidth, "Simon Says: Third+", () -> config.colorSimonSaysThird, v -> config.colorSimonSaysThird = v));
+        solvers.add(new ColorEntry(contentX, contentWidth, "Water Board: First", () -> config.colorWaterFirst, v -> config.colorWaterFirst = v));
+        solvers.add(new ColorEntry(contentX, contentWidth, "Water Board: Second", () -> config.colorWaterSecond, v -> config.colorWaterSecond = v));
         solvers.add(new LabelEntry(contentX, "Terminal Colors"));
         solvers.add(new ColorEntry(contentX, contentWidth, "Background", () -> config.terminalBackgroundColor, v -> config.terminalBackgroundColor = v));
         solvers.add(new ColorEntry(contentX, contentWidth, "Panes", () -> config.terminalPanesColor, v -> config.terminalPanesColor = v));
@@ -846,6 +929,12 @@ public class MapConfigScreen extends Screen {
         sounds.add(new SliderEntry(contentX, contentWidth, "Secret Pitch", 0.5f, 2f,
                 () -> config.secretSoundPitch, v -> config.secretSoundPitch = v, 2));
         sounds.add(new ToggleEntry(contentX, contentWidth, "Secret Item Pickup Sound", () -> config.secretItemPickupSound, v -> config.secretItemPickupSound = v));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Secret Chime (Rising Pitch)", () -> config.secretChime, v -> config.secretChime = v));
+        sounds.add(new SoundDropdownEntry(contentX, contentWidth, "  Chime Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.secretChimeSound, v -> config.secretChimeSound = v));
+        sounds.add(new SliderEntry(contentX, contentWidth, "  Chime Volume", 0f, 4f,
+                () -> config.secretChimeVolume, v -> config.secretChimeVolume = v, 2));
         sounds.add(new LabelEntry(contentX, "Bear Spawn Warning"));
         sounds.add(new ToggleEntry(contentX, contentWidth, "Enable Alert", () -> config.bearSpawnWarning, v -> config.bearSpawnWarning = v));
         sounds.add(new ToggleEntry(contentX, contentWidth, "Warden Sound", () -> config.bearSpawnWardenSound, v -> config.bearSpawnWardenSound = v));
@@ -997,6 +1086,12 @@ public class MapConfigScreen extends Screen {
         score.add(new SliderEntry(contentX, contentWidth, "  Room Splits Scale", 0.5f, 2.0f,
                 () -> config.roomSplitsScale, v -> config.roomSplitsScale = v, 1));
         score.add(new ToggleEntry(contentX, contentWidth, "Insta-Clear Alert", () -> config.instaClearAlert, v -> config.instaClearAlert = v));
+        score.add(new ToggleEntry(contentX, contentWidth, "Trinity Alert", () -> config.rareRoomAlert, v -> config.rareRoomAlert = v));
+        score.add(new SliderEntry(contentX, contentWidth, "  Alert Volume", 0.0f, 5.0f,
+                () -> config.rareRoomVolume, v -> config.rareRoomVolume = v, 1));
+        score.add(new InfoEntry(contentX, "Title + chat when Trinity is scanned, once per run"));
+        score.add(new ToggleEntry(contentX, contentWidth, "Auto Extra Stats", () -> config.autoExtraStats, v -> config.autoExtraStats = v));
+        score.add(new InfoEntry(contentX, "Runs /showextrastats at the end of a run"));
         categories.put("Score & Splits", score);
 
         List<SettingsEntry> timers = new ArrayList<>();
@@ -1111,7 +1206,8 @@ public class MapConfigScreen extends Screen {
         inventory.add(new InfoEntry(contentX, "A/D = Previous/Next Page, W/S = Scroll Up/Down"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Sign Enter Key", () -> config.signEnterKey, v -> config.signEnterKey = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "No Cursor Reset", () -> config.noCursorReset, v -> config.noCursorReset = v));
-        inventory.add(new ToggleEntry(contentX, contentWidth, "Auto Copy Screenshot", () -> config.autoCopyScreenshot, v -> config.autoCopyScreenshot = v));
+        inventory.add(new SliderEntry(contentX, contentWidth, "  Hold Time (s)", 0.5f, 30f,
+                () -> config.noCursorResetHold, v -> config.noCursorResetHold = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Own Nametag (3rd person)", () -> config.ownNameTag, v -> config.ownNameTag = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Searchbar (type to search)", () -> config.searchbar, v -> config.searchbar = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Backpack/Ender Preview", () -> config.backpackPreview, v -> config.backpackPreview = v));
@@ -1137,6 +1233,13 @@ public class MapConfigScreen extends Screen {
         inventory.add(new ToggleEntry(contentX, contentWidth, "Slot Lock", () -> config.slotLock, v -> config.slotLock = v));
         inventory.add(new KeybindEntry(contentX, contentWidth, "  Slot Lock Key (over slot)", () -> config.slotLockKey, v -> config.slotLockKey = v));
         inventory.add(new ColorEntry(contentX, contentWidth, "  Locked Slot Color", () -> config.colorSlotLock, v -> config.colorSlotLock = v));
+        inventory.add(new LabelEntry(contentX, "Item Protection"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Protect Valuable Items", () -> config.itemProtection, v -> config.itemProtection = v));
+        inventory.add(new SliderEntry(contentX, contentWidth, "  Min Value (million)", 1f, 500f,
+                () -> (float) config.itemProtectionValue, v -> config.itemProtectionValue = Math.round(v), 0));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "  Block Salvage & Selling", () -> config.itemProtectionSell, v -> config.itemProtectionSell = v));
+        inventory.add(new InfoEntry(contentX, "Blocks the Q drop and dropping onto empty space"));
+        inventory.add(new InfoEntry(contentX, "Hold ctrl to override. Uses the estimated item value"));
         inventory.add(new LabelEntry(contentX, "Slot Binds"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Slot Binds", () -> config.slotBinds, v -> config.slotBinds = v));
         inventory.add(new KeybindEntry(contentX, contentWidth, "Bind Set Key (over slot)", () -> config.slotBindsKey, v -> config.slotBindsKey = v));
@@ -1152,13 +1255,15 @@ public class MapConfigScreen extends Screen {
         inventory.add(new SliderEntry(contentX, contentWidth, "  Opacity", 0f, 1f,
                 () -> config.rarityBgOpacity, v -> config.rarityBgOpacity = v));
         inventory.add(new DropdownEntry(contentX, contentWidth, "  Shape",
-                new String[]{"Square", "Circle"}, () -> config.rarityBgShape, v -> config.rarityBgShape = v));
+                com.teslamaps.features.RarityBackground.SHAPES, () -> config.rarityBgShape, v -> config.rarityBgShape = v));
         inventory.add(new DropdownEntry(contentX, contentWidth, "  Style",
-                new String[]{"Filled", "Outline"}, () -> config.rarityBgStyle, v -> config.rarityBgStyle = v));
+                com.teslamaps.features.RarityBackground.STYLES, () -> config.rarityBgStyle, v -> config.rarityBgStyle = v));
         inventory.add(new LabelEntry(contentX, "Bazaar & Progress"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Progress Highlight", () -> config.progressHighlight, v -> config.progressHighlight = v));
         inventory.add(new ColorEntry(contentX, contentWidth, "  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v));
+        inventory.add(new ColorEntry(contentX, contentWidth, "  Commission Color", () -> config.colorCommissionDone, v -> config.colorCommissionDone = v));
         inventory.add(new LabelEntry(contentX, "Wardrobe Keybinds"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Wardrobe Keybinds (1-9)", () -> config.wardrobeKeybinds, v -> config.wardrobeKeybinds = v));
         for (int i = 0; i < 9; i++) {
@@ -1166,6 +1271,32 @@ public class MapConfigScreen extends Screen {
             inventory.add(new KeybindEntry(contentX, contentWidth, "Wardrobe Slot " + (i + 1),
                     () -> config.wardrobeKeys[idx], v -> config.wardrobeKeys[idx] = v));
         }
+        List<SettingsEntry> media = new ArrayList<>();
+        media.add(new LabelEntry(contentX, "Screenshots"));
+        media.add(new ToggleEntry(contentX, contentWidth, "Auto Copy To Clipboard",
+                () -> config.autoCopyScreenshot, v -> config.autoCopyScreenshot = v));
+        media.add(new ToggleEntry(contentX, contentWidth, "Chat Actions",
+                () -> config.screenshotChatActions, v -> config.screenshotChatActions = v));
+        media.add(new InfoEntry(contentX, "Clickable buttons under a saved screenshot"));
+        media.add(new ToggleEntry(contentX, contentWidth, "Hide Vanilla Message",
+                () -> config.screenshotHideVanillaMessage, v -> config.screenshotHideVanillaMessage = v));
+        media.add(new ButtonEntry(contentX, contentWidth, "Open Screenshot Browser", () ->
+                net.minecraft.client.Minecraft.getInstance().schedule(() ->
+                        net.minecraft.client.Minecraft.getInstance().setScreen(new ScreenshotScreen(null)))));
+
+        media.add(new LabelEntry(contentX, "Shared Images"));
+        media.add(new ToggleEntry(contentX, contentWidth, "Show Shared Images In Chat",
+                () -> config.imageShareReceive, v -> config.imageShareReceive = v));
+        media.add(new SliderEntry(contentX, contentWidth, "  Image Height (chat lines)", 3f, 24f,
+                () -> (float) config.imageShareChatLines, v -> config.imageShareChatLines = v.intValue()));
+        media.add(new KeybindEntry(contentX, contentWidth, "  Hold To Enlarge",
+                () -> config.imagePeekKey, v -> config.imagePeekKey = v));
+        media.add(new InfoEntry(contentX, "Hold the key to blow up the newest image"));
+        media.add(new DropdownEntry(contentX, contentWidth, "Upload Lifetime",
+                new String[]{"1h", "12h", "24h", "72h", "permanent"},
+                () -> config.imageShareExpiry, v -> config.imageShareExpiry = v));
+        categories.put("Screenshots", media);
+
         categories.put("Inventory", inventory);
 
         List<SettingsEntry> tooltips = new ArrayList<>();
@@ -1174,10 +1305,33 @@ public class MapConfigScreen extends Screen {
         tooltips.add(new LabelEntry(contentX, "Item Value"));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Estimated Item Value", () -> config.estimatedValue, v -> config.estimatedValue = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Value Breakdown Panel (hover)", () -> config.itemValueGui, v -> config.itemValueGui = v));
+        tooltips.add(new SliderEntry(contentX, contentWidth, "Hover Delay (ms)", 0f, 2000f,
+                () -> (float) config.itemValueHoverDelay, v -> config.itemValueHoverDelay = Math.round(v / 50f) * 50));
+        tooltips.add(new SliderEntry(contentX, contentWidth, "Enchantments Cap", 1f, 30f,
+                () -> (float) config.itemValueEnchantmentsCap, v -> config.itemValueEnchantmentsCap = Math.round(v)));
+        tooltips.add(new SliderEntry(contentX, contentWidth, "Star Material Cap", 1f, 15f,
+                () -> (float) config.itemValueStarMaterialCap, v -> config.itemValueStarMaterialCap = Math.round(v)));
+        tooltips.add(new DropdownEntry(contentX, contentWidth, "Price Source",
+                new String[]{"BZ Instant Buy", "BZ Instant Sell", "Lowest BIN", "NPC Sell"},
+                () -> config.itemValuePriceSource, v -> config.itemValuePriceSource = v));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Lowest BIN / Bazaar Line", () -> config.itemValueShowBin, v -> config.itemValueShowBin = v));
+        tooltips.add(new InfoEntry(contentX, "Market price on every tooltip, BZ insta buy/sell or lowest BIN"));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Show Exact Price", () -> config.itemValueExactPrice, v -> config.itemValueExactPrice = v));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Ignore Helmet Skins", () -> config.itemValueIgnoreHelmetSkins, v -> config.itemValueIgnoreHelmetSkins = v));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Ignore Armor Dyes", () -> config.itemValueIgnoreArmorDyes, v -> config.itemValueIgnoreArmorDyes = v));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Ignore Runes", () -> config.itemValueIgnoreRunes, v -> config.itemValueIgnoreRunes = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Container Value (Top 5)", () -> config.containerValue, v -> config.containerValue = v));
         tooltips.add(new LabelEntry(contentX, "Enchant Colors"));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Enchant Colors", () -> config.enchantColors, v -> config.enchantColors = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Levels as Numbers", () -> config.enchantLevelsAsNumbers, v -> config.enchantLevelsAsNumbers = v));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Chroma Max Enchants (rainbow)", () -> config.enchantChromaMax, v -> config.enchantChromaMax = v));
+        tooltips.add(new SliderEntry(contentX, contentWidth, "  Chroma Size", 5f, 120f,
+                () -> config.chromaSize, v -> config.chromaSize = v, 0));
+        tooltips.add(new SliderEntry(contentX, contentWidth, "  Chroma Speed", 0f, 30f,
+                () -> config.chromaSpeed, v -> config.chromaSpeed = v, 1));
+        tooltips.add(new SliderEntry(contentX, contentWidth, "  Chroma Saturation", 0f, 1f,
+                () -> config.chromaSaturation, v -> config.chromaSaturation = v, 2));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "  Chroma Slant Forward", () -> config.chromaForward, v -> config.chromaForward = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Bold Max Level", () -> config.enchantBoldMax, v -> config.enchantBoldMax = v));
         tooltips.add(new ColorEntry(contentX, contentWidth, "Max Level Color", () -> config.enchantColorMax, v -> config.enchantColorMax = v));
         tooltips.add(new ColorEntry(contentX, contentWidth, "High Level Color", () -> config.enchantColorHigh, v -> config.enchantColorHigh = v));
@@ -1269,6 +1423,9 @@ public class MapConfigScreen extends Screen {
                 () -> (float) config.hotkeyChatDelay, v -> config.hotkeyChatDelay = Math.round(v)));
         chatFilter.add(new LabelEntry(contentX, "Command Suggestions"));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Suggest /warp and /call targets", () -> config.commandSuggestions, v -> config.commandSuggestions = v));
+        chatFilter.add(new ToggleEntry(contentX, contentWidth, "  Suggest Players (/msg, /visit, ...)", () -> config.commandSuggestionsPlayers, v -> config.commandSuggestionsPlayers = v));
+        chatFilter.add(new InfoEntry(contentX, "Run /g list and /f list once to fill the name list"));
+        chatFilter.add(new InfoEntry(contentX, "Player suggestions need a rejoin, and can clash with Hypixel's own commands"));
         chatFilter.add(new InfoEntry(contentX, "Hypixel sends no suggestions for these two"));
         categories.put("Chat", chatFilter);
 
@@ -1492,6 +1649,7 @@ public class MapConfigScreen extends Screen {
         torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterBunbun, v -> config.colorCritterBunbun = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Drybark ESP", () -> config.critterDrybark, v -> config.critterDrybark = v));
         torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterDrybark, v -> config.colorCritterDrybark = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Tracers To All Critters", () -> config.critterTracers, v -> config.critterTracers = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Firefox ESP", () -> config.critterFirefox, v -> config.critterFirefox = v));
         torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterFirefox, v -> config.colorCritterFirefox = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Grizzly Bear ESP", () -> config.critterGrizzly, v -> config.critterGrizzly = v));
@@ -1500,8 +1658,6 @@ public class MapConfigScreen extends Screen {
         torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterGroundhog, v -> config.colorCritterGroundhog = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Hideonsun ESP", () -> config.critterHideonsun, v -> config.critterHideonsun = v));
         torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterHideonsun, v -> config.colorCritterHideonsun = v));
-        torrhus.add(new ToggleEntry(contentX, contentWidth, "Hideyho ESP", () -> config.critterHideyho, v -> config.critterHideyho = v));
-        torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterHideyho, v -> config.colorCritterHideyho = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Mountain Goat ESP", () -> config.critterMountainGoat, v -> config.critterMountainGoat = v));
         torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterMountainGoat, v -> config.colorCritterMountainGoat = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Sepialot ESP", () -> config.critterSepialot, v -> config.critterSepialot = v));
@@ -1527,105 +1683,105 @@ public class MapConfigScreen extends Screen {
         safari.add(new LabelEntry(contentX, "Alerts"));
         safari.add(new ToggleEntry(contentX, contentWidth, "Sparkling Alert", () -> config.safariSparklingAlert, v -> config.safariSparklingAlert = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Sparkling to Party Chat", () -> config.safariSparklingParty, v -> config.safariSparklingParty = v));
+        safari.add(new ToggleEntry(contentX, contentWidth, "Announce Biome Done", () -> config.safariAnnounceBiomeDone, v -> config.safariAnnounceBiomeDone = v));
+        safari.add(new ToggleEntry(contentX, contentWidth, "Announce Unique Done", () -> config.safariAnnounceUniqueDone, v -> config.safariAnnounceUniqueDone = v));
+        safari.add(new ToggleEntry(contentX, contentWidth, "  Share Time To Party", () -> config.safariShareTimeParty, v -> config.safariShareTimeParty = v));
         safari.add(new SliderEntry(contentX, contentWidth, "Alert Volume", 0.0f, 3.0f,
                 () -> config.safariAlertVolume, v -> config.safariAlertVolume = v));
         safari.add(new LabelEntry(contentX, "Quality of Life"));
         safari.add(new ToggleEntry(contentX, contentWidth, "Hide Cold Overlay (Icy)", () -> config.safariHideCold, v -> config.safariHideCold = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Auto Accept Hideyho", () -> config.safariAutoHideyho, v -> config.safariAutoHideyho = v));
+        safari.add(new SliderEntry(contentX, contentWidth, "  Min Delay (ms)", 0f, 2000f,
+                () -> (float) config.safariAutoHideyhoMinMs, v -> config.safariAutoHideyhoMinMs = (int) (float) v, 0));
+        safari.add(new SliderEntry(contentX, contentWidth, "  Extra Random (ms)", 0f, 2000f,
+                () -> (float) config.safariAutoHideyhoJitterMs, v -> config.safariAutoHideyhoJitterMs = (int) (float) v, 0));
         safari.add(new ToggleEntry(contentX, contentWidth, "Show PB in HUD", () -> config.safariShowPb, v -> config.safariShowPb = v));
+        safari.add(new ToggleEntry(contentX, contentWidth, "Show Hotspot in HUD", () -> config.safariShowHotspot, v -> config.safariShowHotspot = v));
+        safari.add(new ToggleEntry(contentX, contentWidth, "Show Head Start in HUD", () -> config.safariShowHeadStart, v -> config.safariShowHeadStart = v));
         safari.add(new InfoEntry(contentX, "Run history: /tmap safari"));
         safari.add(new LabelEntry(contentX, "ESP"));
         safari.add(new ToggleEntry(contentX, contentWidth, "Critter ESP (Safari)", () -> config.safariCritterESP, v -> config.safariCritterESP = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Filled Boxes", () -> config.safariFilled, v -> config.safariFilled = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Only Uncaught", () -> config.safariOnlyMissing, v -> config.safariOnlyMissing = v));
-        safari.add(new ToggleEntry(contentX, contentWidth, "Fast Detect (before nametag)", () -> config.safariFastDetect, v -> config.safariFastDetect = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Name Over Every Critter", () -> config.safariNames, v -> config.safariNames = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Tracers To Named", () -> config.safariTracers, v -> config.safariTracers = v));
+        safari.add(new ToggleEntry(contentX, contentWidth, "  Tracer To Hideyho", () -> config.safariHideyhoTracer, v -> config.safariHideyhoTracer = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Bee Nest ESP", () -> config.safariNestESP, v -> config.safariNestESP = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Floor Spot ESP", () -> config.critterSpotESP, v -> config.critterSpotESP = v));
         safari.add(new ColorEntry(contentX, contentWidth, "Sparkling Color", () -> config.colorSafariSparkling, v -> config.colorSafariSparkling = v));
         safari.add(new ColorEntry(contentX, contentWidth, "Bee Nest Color", () -> config.colorSafariNest, v -> config.colorSafariNest = v));
         safari.add(new ColorEntry(contentX, contentWidth, "Floor Spot Color", () -> config.colorCritterSpot, v -> config.colorCritterSpot = v));
-        safari.add(new ColorEntry(contentX, contentWidth, "Unnamed Body Color", () -> config.colorSafariUnknown, v -> config.colorSafariUnknown = v));
         safari.add(new InfoEntry(contentX, "Hideyho and legendaries always get a name label"));
         safari.add(new InfoEntry(contentX, "Critter boxes are coloured by shard rarity"));
         categories.put("Critter Safari", safari);
 
         List<SettingsEntry> profiles = new ArrayList<>();
-        profiles.add(new InfoEntry(contentX, "Active: " + com.teslamaps.config.ConfigProfiles.active()));
-        profiles.add(new InfoEntry(contentX, "Switching saves the current profile first. PBs, keybinds and"));
-        profiles.add(new InfoEntry(contentX, "your API key are shared by every profile."));
-        for (String name : com.teslamaps.config.ConfigProfiles.list()) {
-            boolean isActive = name.equals(com.teslamaps.config.ConfigProfiles.active());
-            ButtonEntry b = new ButtonEntry(contentX, contentWidth, name, () -> {
-                if (!isActive) {
-                    com.teslamaps.config.ConfigProfiles.switchTo(name);
-                    rebuildWidgets(); // lambdas above captured the old config instance
-                }
-            });
-            profiles.add(isActive ? b.active() : b);
-        }
-        profiles.add(new LabelEntry(contentX, "Look & Feel"));
-        profiles.add(new DropdownEntry(contentX, contentWidth, "HUD Style",
+        profiles.add(new InfoEntry(contentX, "Click a profile to switch - the current one is saved first"));
+        profiles.add(new ProfileTilesEntry(contentX, contentWidth));
+        profiles.add(new ButtonRowEntry(contentX, contentWidth,
+                new String[]{"Save", "Duplicate", "Reset To Preset"},
+                new Runnable[]{
+                        com.teslamaps.config.ConfigProfiles::saveActive,
+                        () -> {
+                            com.teslamaps.config.ConfigProfiles.copyToNew(nextProfileName());
+                            rebuildWidgets();
+                        },
+                        () -> {
+                            com.teslamaps.config.ConfigProfiles.reset(com.teslamaps.config.ConfigProfiles.active());
+                            rebuildWidgets();
+                        }}));
+        profiles.add(new InfoEntry(contentX, "PBs, keybinds and your API key are shared by every profile"));
+        profiles.add(new InfoEntry(contentX, "Presets and the active profile have no x - switch away first"));
+        // the same three pickers as the Interface category, kept narrow so the controls stay
+        // next to their labels instead of at the far edge of a wide window
+        int narrow = Math.min(contentWidth, 430);
+        profiles.add(new InfoEntry(contentX, "Look & feel - full set under Interface"));
+        profiles.add(new DropdownEntry(contentX, narrow, "GUI Style", GuiStyle.NAMES,
+                () -> config.guiStyle, v -> config.guiStyle = v));
+        profiles.add(new DropdownEntry(contentX, narrow, "HUD Style",
                 com.teslamaps.render.gui.HudStyle.NAMES,
                 () -> com.teslamaps.render.gui.HudStyle.current(), v -> config.hudStyle = v));
-        profiles.add(new ToggleEntry(contentX, contentWidth, "HUD Panel Background",
-                () -> config.hudPanelBackground, v -> config.hudPanelBackground = v));
-        profiles.add(new ToggleEntry(contentX, contentWidth, "Custom Main Menu",
-                () -> config.customTitleScreen, v -> config.customTitleScreen = v));
-        profiles.add(new ToggleEntry(contentX, contentWidth, "Custom Skybox",
-                () -> config.customSkybox, v -> config.customSkybox = v));
-        profiles.add(new ToggleEntry(contentX, contentWidth, "Legit Mode (only explored rooms)",
-                () -> config.legitMode, v -> config.legitMode = v));
-        profiles.add(new InfoEntry(contentX, "Every one of these also lives in its own category"));
-
-        profiles.add(new LabelEntry(contentX, "Manage"));
-        profiles.add(new ButtonEntry(contentX, contentWidth, "Save Current Profile", com.teslamaps.config.ConfigProfiles::saveActive));
-        profiles.add(new ButtonEntry(contentX, contentWidth, "Duplicate Current", () -> {
-            com.teslamaps.config.ConfigProfiles.copyToNew(nextProfileName());
-            rebuildWidgets();
-        }));
-        profiles.add(new ButtonEntry(contentX, contentWidth, "Reset Current To Preset", () -> {
-            com.teslamaps.config.ConfigProfiles.reset(com.teslamaps.config.ConfigProfiles.active());
-            rebuildWidgets();
-        }));
-
-        profiles.add(new LabelEntry(contentX, "Delete"));
-        boolean anyDeletable = false;
-        for (String name : com.teslamaps.config.ConfigProfiles.list()) {
-            if (com.teslamaps.config.ConfigProfiles.isPreset(name)
-                    || name.equals(com.teslamaps.config.ConfigProfiles.active())) continue;
-            anyDeletable = true;
-            boolean confirming = name.equals(pendingDeleteProfile);
-            profiles.add(new ButtonEntry(contentX, contentWidth,
-                    confirming ? "Click again to delete \"" + name + "\"" : "Delete \"" + name + "\"",
-                    () -> {
-                        if (confirming) {
-                            com.teslamaps.config.ConfigProfiles.delete(name);
-                            pendingDeleteProfile = null;
-                        } else {
-                            pendingDeleteProfile = name;
-                        }
-                        rebuildWidgets();
-                    }));
-        }
-        if (!anyDeletable) {
-            profiles.add(new InfoEntry(contentX, "Presets and the active profile can't be deleted."));
-            profiles.add(new InfoEntry(contentX, "Switch away from a profile first to delete it."));
-        }
+        profiles.add(new DropdownEntry(contentX, narrow, "GUI Sounds", GuiSounds.THEMES,
+                () -> config.guiSoundTheme, v -> config.guiSoundTheme = v));
+        profiles.add(new SliderEntry(contentX, narrow, "GUI Sound Volume", 0f, 2f,
+                () -> config.guiSoundVolume, v -> config.guiSoundVolume = v, 2));
         categories.put("Profiles", profiles);
+
+        List<SettingsEntry> ui = new ArrayList<>();
+        ui.add(new LabelEntry(contentX, "Style"));
+        ui.add(new DropdownEntry(contentX, contentWidth, "GUI Style", GuiStyle.NAMES,
+                () -> config.guiStyle, v -> config.guiStyle = v));
+        ui.add(new DropdownEntry(contentX, contentWidth, "HUD Style",
+                com.teslamaps.render.gui.HudStyle.NAMES,
+                () -> com.teslamaps.render.gui.HudStyle.current(), v -> config.hudStyle = v));
+        ui.add(new InfoEntry(contentX, "GUI Style skins these screens, HUD Style the in-game panels"));
+        ui.add(new LabelEntry(contentX, "Sounds"));
+        ui.add(new DropdownEntry(contentX, contentWidth, "GUI Sounds", GuiSounds.THEMES,
+                () -> config.guiSoundTheme, v -> config.guiSoundTheme = v));
+        ui.add(new ToggleEntry(contentX, contentWidth, "Hover Ticks", () -> config.guiHoverSounds, v -> config.guiHoverSounds = v));
+        ui.add(new SliderEntry(contentX, contentWidth, "Volume", 0f, 2f,
+                () -> config.guiSoundVolume, v -> config.guiSoundVolume = v, 2));
+        ui.add(new LabelEntry(contentX, "Config Hotkey"));
+        ui.add(new KeybindEntry(contentX, contentWidth, "Open This Screen",
+                () -> config.configScreenKey, v -> config.configScreenKey = v));
+        ui.add(new ToggleEntry(contentX, contentWidth, "  Block Other Mods",
+                () -> config.configScreenKeyExclusive, v -> config.configScreenKeyExclusive = v));
+        ui.add(new InfoEntry(contentX, "Right Shift by default, press again to close"));
+        ui.add(new InfoEntry(contentX, "Block Other Mods eats the key before anything else sees it"));
+        categories.put("Interface", ui);
+
+        addSectionMasters(contentX, contentWidth);
 
         sections.clear();
         sections.put("Profile", List.of("Profiles"));
         sections.put("Dungeon", List.of("Legit Mode", "Map", "ESP", "Secrets & Waypoints", "Leap",
                 "Puzzles & Terminals", "Score & Splits", "Timers"));
         sections.put("Bosses", List.of("F4 / M4", "F7 / M7", "Blood Camp", "Dragons"));
-        sections.put("Visual", List.of("Render", "Hide", "Menu & Skybox"));
-        sections.put("Items", List.of("Inventory", "Tooltips & Value", "Croesus"));
+        sections.put("Visual", List.of("Interface", "Render", "Hide", "Menu & Skybox"));
+        sections.put("Items", List.of("Inventory", "Tooltips & Value", "Croesus", "Screenshots"));
         sections.put("Chat & Audio", List.of("Chat", "Sounds"));
         sections.put("Party & Automation", List.of("Party", "Auto"));
-        sections.put("Skyblock", List.of("Skills", "Slayer"));
-        sections.put("Skills", List.of("Garden", "Mining", "Fishing", "Foraging", "Torrhus Canyon", "Critter Safari"));
+        sections.put("Skills", List.of("General", "Combat", "Garden", "Mining", "Fishing", "Foraging", "Torrhus Canyon", "Critter Safari"));
 
         categoryHeaders.clear();
         for (String cat : categories.keySet()) categoryHeaders.put(cat, new LabelEntry(contentX, cat));
@@ -1638,15 +1794,45 @@ public class MapConfigScreen extends Screen {
                 "Wither ESP", "Wither ESP Filled", "Wither ESP Depth Check", "Boss ESP", "Corpse ESP", "Type Colors",
                 "Door ESP", "Door Tracers", "Only Show Next Door",
                 "Livid Finder", "Livid Tracer", "Mimic Chest ESP", "Mimic Chest Tracers",
-                "Highlight Teammates", "Invisible Armor Stand ESP", "Pest ESP (Garden)", "Pest Tracers",
+                "Highlight Teammates", "Invisible Armor Stand ESP", "Pest ESP", "Pest Tracers",
                 "Dropped Item ESP", "Item Pickup Readiness",
                 "Miniboss ESP", "Enable Auto GFS", "Auto Wish (Healer Ult)", "Critter ESP",
-                "Critter ESP (Safari)", "Bee Nest ESP");
+                "Critter ESP (Safari)", "Bee Nest ESP", "Exploding Frog ESP");
         for (List<SettingsEntry> entries : categories.values()) {
             for (SettingsEntry e : entries) {
                 // trim: sub-options carry a leading indent that is not part of the name
                 if (e instanceof ToggleEntry te && cheatLabels.contains(te.getLabel().trim())) te.legit();
             }
+        }
+    }
+
+    /**
+     * Magnifier glyph, 11x11. The lens is a real circle via the SDF outline shader - the old
+     * version built it from axis-aligned fills, which at 5px reads as a square with a lump.
+     */
+    private void drawMagnifier(GuiGraphicsExtractor ctx, int x, int y, int argb) {
+        com.teslamaps.render.gui.TeslaGui.roundedOutline(ctx, x, y, 8, 8, 4f, 1.2f, argb);
+        // handle: stepped 2px blocks along the lens' lower-right diagonal
+        for (int i = 0; i < 3; i++) {
+            ctx.fill(x + 6 + i, y + 6 + i, x + 8 + i, y + 8 + i, argb);
+        }
+    }
+
+    /**
+     * Puts the master switch at the top of every gated category and greys out the toggles
+     * below it while it is off - without this the sectionEnabled gates in the features had
+     * no UI at all and every section(...) call was always true.
+     */
+    private void addSectionMasters(int contentX, int contentWidth) {
+        for (String cat : TeslaMapsConfig.SECTIONS) {
+            List<SettingsEntry> entries = categories.get(cat);
+            if (entries == null) continue;
+            for (SettingsEntry e : entries) {
+                if (e instanceof ToggleEntry te) te.gatedBy(cat);
+            }
+            entries.add(0, new ToggleEntry(contentX, contentWidth, "Enable " + cat,
+                    () -> TeslaMapsConfig.get().section(cat),
+                    v -> TeslaMapsConfig.get().sectionEnabled.put(cat, v)));
         }
     }
 
@@ -1718,9 +1904,18 @@ public class MapConfigScreen extends Screen {
         if (!searchQuery.isEmpty()) {
             for (Map.Entry<String, List<SettingsEntry>> cat : categories.entrySet()) {
                 int before = result.size();
+                boolean carry = false;               // a matched parent drags its indented sub-options along
                 for (SettingsEntry entry : cat.getValue()) {
-                    if (entry.isLabel()) continue;   // the category header replaces group labels here
-                    if (entry.matchesSearch(searchQuery)) result.add(entry);
+                    if (entry.isLabel()) { carry = false; continue; } // the category header replaces group labels here
+                    boolean child = entry.getLabel().startsWith(" ");
+                    if (entry.matchesSearch(searchQuery)) {
+                        result.add(entry);
+                        carry = !child;
+                    } else if (child && carry) {
+                        result.add(entry);
+                    } else if (!child) {
+                        carry = false;
+                    }
                 }
                 LabelEntry header = categoryHeaders.get(cat.getKey());
                 if (result.size() > before && header != null) {
@@ -1754,15 +1949,19 @@ public class MapConfigScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean clicked = isMouseDown && !wasMouseDown; // Calculate BEFORE updating wasMouseDown
+        boolean isRightDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
+        boolean rightClicked = isRightDown && !wasRightDown;
+        wasRightDown = isRightDown; // early, the block below has several return paths
 
         if (clicked && mouseX < SIDEBAR_WIDTH && mouseY >= SIDEBAR_TOP && mouseY < sidebarBottom()) {
             String hit = categoryAtY(mouseY);
             if (hit != null) {
+                if (!hit.equals(selectedCategory)) GuiSounds.select();
                 selectedCategory = hit;
                 TeslaMapsConfig.get().lastConfigCategory = hit;
                 TeslaMapsConfig.save();
                 searchQuery = "";
-                searchField.setValue("");
+                searchField.setValue(""); // responder clears lastSearch too
                 scrollOffset = 0;
                 expandedColorEntry = null;
             }
@@ -1770,6 +1969,7 @@ public class MapConfigScreen extends Screen {
 
         int shortcutBtnY = this.height - 89;
         if (clicked && mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= shortcutBtnY && mouseY < shortcutBtnY + 22) {
+            GuiSounds.press();
             minecraft.setScreen(new ShortcutScreen());
             wasMouseDown = isMouseDown;
             return;
@@ -1777,6 +1977,7 @@ public class MapConfigScreen extends Screen {
 
         int msgBtnY = this.height - 62;
         if (clicked && mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= msgBtnY && mouseY < msgBtnY + 22) {
+            GuiSounds.press();
             minecraft.setScreen(new KeybindMessageScreen());
             wasMouseDown = isMouseDown;
             return;
@@ -1784,6 +1985,7 @@ public class MapConfigScreen extends Screen {
 
         int tmapBtnY = this.height - 35;
         if (clicked && mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= tmapBtnY && mouseY < tmapBtnY + 22) {
+            GuiSounds.press();
             if (minecraft.player != null) {
                 minecraft.player.connection.sendCommand("tmap gui");
             }
@@ -1792,44 +1994,53 @@ public class MapConfigScreen extends Screen {
         int doneX = this.width - 70;
         int doneY = this.height - 30;
         if (clicked && mouseX >= doneX && mouseX < doneX + 60 && mouseY >= doneY && mouseY < doneY + 22) {
+            GuiSounds.press();
             onClose();
             wasMouseDown = isMouseDown;
             return;
         }
 
-        context.fill(0, 0, this.width, this.height, 0xFF1C1C1E);
+        context.fill(0, 0, this.width, this.height, GuiStyle.background());
 
         int sfX = SIDEBAR_WIDTH + 14, sfY = 8, sfW = this.width - SIDEBAR_WIDTH - 28, sfH = 22;
-        context.fill(sfX, sfY, sfX + sfW, sfY + sfH, 0xFF242426);
+        boolean overSearch = mouseX >= sfX && mouseX < sfX + sfW && mouseY >= sfY && mouseY < sfY + sfH;
+        if (searchField != null && overSearch) {
+            if (rightClicked) {
+                if (!searchField.getValue().isEmpty()) GuiSounds.press();
+                searchField.setValue(""); // responder clears searchQuery/lastSearch
+                scrollOffset = 0;
+                expandedColorEntry = null;
+            } else if (clicked) {
+                searchField.setFocused(true); // the field is only 8px tall, the bar is 22
+            }
+        }
         boolean sfFocus = searchField != null && searchField.isFocused();
-        drawBorder(context, sfX, sfY, sfW, sfH, sfFocus ? AppleColors.ACCENT_GREEN : 0xFF3A3A3C);
-        int gx = sfX + 7, gy = sfY + 7; // little magnifier glyph
-        context.fill(gx, gy, gx + 5, gy + 1, 0xFF8E8E93);
-        context.fill(gx, gy, gx + 1, gy + 5, 0xFF8E8E93);
-        context.fill(gx + 4, gy, gx + 5, gy + 5, 0xFF8E8E93);
-        context.fill(gx, gy + 4, gx + 5, gy + 5, 0xFF8E8E93);
-        context.fill(gx + 5, gy + 5, gx + 8, gy + 8, 0xFF8E8E93);
+        if (GuiStyle.isGlass()) GuiStyle.panel(context, sfX, sfY, sfW, sfH, sfFocus);
+        else context.fill(sfX, sfY, sfX + sfW, sfY + sfH, GuiStyle.input());
+        drawBorder(context, sfX, sfY, sfW, sfH, sfFocus ? GuiStyle.accent() : GuiStyle.cardHover());
+        drawMagnifier(context, sfX + 6, sfY + (sfH - 11) / 2, GuiStyle.textDim());
 
-        context.fill(0, 0, SIDEBAR_WIDTH, this.height, 0xFF2C2C2E);
+        GuiStyle.sidebarPanel(context, 0, 0, SIDEBAR_WIDTH, this.height);
         context.text(font, "TeslaMaps", 10, 8, 0xFFFFFFFF);
-        context.text(font, "Categories", 10, 22, AppleColors.ACCENT_GREEN);
+        context.text(font, "Categories", 10, 22, GuiStyle.accent());
 
         int sbTop = SIDEBAR_TOP, sbBottom = sidebarBottom();
         context.enableScissor(0, sbTop, SIDEBAR_WIDTH, sbBottom);
         int rowY = sbTop - sidebarScroll;
         for (Map.Entry<String, List<String>> sec : sections.entrySet()) {
             if (rowY + SECTION_HEADER_H > sbTop && rowY < sbBottom) {
-                drawSidebarText(context, sec.getKey().toUpperCase(), 10, rowY + 8, 0xFF6A6A6C);
+                drawSidebarText(context, sec.getKey().toUpperCase(), 10, rowY + 8, GuiStyle.textFaint());
             }
             rowY += SECTION_HEADER_H;
             for (String category : sec.getValue()) {
                 boolean selected = category.equals(selectedCategory) && searchQuery.isEmpty();
                 boolean hovered = mouseX < SIDEBAR_WIDTH && mouseY >= rowY && mouseY < rowY + CATEGORY_ROW_H
                         && mouseY >= sbTop && mouseY < sbBottom;
+                if (hovered) GuiSounds.hover(category);
                 if (rowY + CATEGORY_ROW_H > sbTop && rowY < sbBottom) {
-                    if (selected) context.fill(5, rowY, SIDEBAR_WIDTH - 5, rowY + CATEGORY_ROW_H, 0x40FFFFFF);
-                    else if (hovered) context.fill(5, rowY, SIDEBAR_WIDTH - 5, rowY + CATEGORY_ROW_H, 0x20FFFFFF);
-                    int textColor = selected ? AppleColors.ACCENT_GREEN : (hovered ? 0xFFFFFFFF : 0xFF8E8E93);
+                    if (selected) context.fill(5, rowY, SIDEBAR_WIDTH - 5, rowY + CATEGORY_ROW_H, GuiStyle.rowSelected());
+                    else if (hovered) context.fill(5, rowY, SIDEBAR_WIDTH - 5, rowY + CATEGORY_ROW_H, GuiStyle.rowHover());
+                    int textColor = selected ? GuiStyle.accent() : (hovered ? 0xFFFFFFFF : GuiStyle.textDim());
                     drawCategoryLabel(context, category, rowY + 8, textColor);
                 }
                 rowY += CATEGORY_ROW_H;
@@ -1844,23 +2055,26 @@ public class MapConfigScreen extends Screen {
             int trackH = sbBottom - sbTop;
             int thumbH = Math.max(20, (int) ((float) trackH * trackH / sbContentH));
             int thumbY = sbTop + (int) ((trackH - thumbH) * ((float) sidebarScroll / sidebarMaxScroll));
-            context.fill(SIDEBAR_WIDTH - 3, thumbY, SIDEBAR_WIDTH - 1, thumbY + thumbH, 0xFF5A5A5C);
+            context.fill(SIDEBAR_WIDTH - 3, thumbY, SIDEBAR_WIDTH - 1, thumbY + thumbH, GuiStyle.scrollThumb());
         }
 
         boolean shortcutHovered = mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= shortcutBtnY && mouseY < shortcutBtnY + 22;
-        context.fill(8, shortcutBtnY, SIDEBAR_WIDTH - 8, shortcutBtnY + 22, shortcutHovered ? 0xFF3A3A3C : 0xFF2C2C2E);
-        drawBorder(context, 8, shortcutBtnY, SIDEBAR_WIDTH - 16, 22, shortcutHovered ? AppleColors.ACCENT_GREEN : 0xFF48484A);
-        context.centeredText(font, "/tmap shortcut", SIDEBAR_WIDTH / 2, shortcutBtnY + 7, 0xFF8E8E93);
+        if (shortcutHovered) GuiSounds.hover("btn:shortcut");
+        GuiStyle.panel(context, 8, shortcutBtnY, SIDEBAR_WIDTH - 16, 22, shortcutHovered);
+        drawBorder(context, 8, shortcutBtnY, SIDEBAR_WIDTH - 16, 22, shortcutHovered ? GuiStyle.accent() : GuiStyle.border());
+        context.centeredText(font, "/tmap shortcut", SIDEBAR_WIDTH / 2, shortcutBtnY + 7, GuiStyle.textDim());
 
         boolean msgHovered = mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= msgBtnY && mouseY < msgBtnY + 22;
-        context.fill(8, msgBtnY, SIDEBAR_WIDTH - 8, msgBtnY + 22, msgHovered ? 0xFF3A3A3C : 0xFF2C2C2E);
-        drawBorder(context, 8, msgBtnY, SIDEBAR_WIDTH - 16, 22, msgHovered ? AppleColors.ACCENT_GREEN : 0xFF48484A);
-        context.centeredText(font, "/tmap hotkeys", SIDEBAR_WIDTH / 2, msgBtnY + 7, 0xFF8E8E93);
+        if (msgHovered) GuiSounds.hover("btn:hotkeys");
+        GuiStyle.panel(context, 8, msgBtnY, SIDEBAR_WIDTH - 16, 22, msgHovered);
+        drawBorder(context, 8, msgBtnY, SIDEBAR_WIDTH - 16, 22, msgHovered ? GuiStyle.accent() : GuiStyle.border());
+        context.centeredText(font, "/tmap hotkeys", SIDEBAR_WIDTH / 2, msgBtnY + 7, GuiStyle.textDim());
 
         boolean tmapHovered = mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= tmapBtnY && mouseY < tmapBtnY + 22;
-        context.fill(8, tmapBtnY, SIDEBAR_WIDTH - 8, tmapBtnY + 22, tmapHovered ? 0xFF3A3A3C : 0xFF2C2C2E);
-        drawBorder(context, 8, tmapBtnY, SIDEBAR_WIDTH - 16, 22, tmapHovered ? AppleColors.ACCENT_GREEN : 0xFF48484A);
-        context.centeredText(font, "/tmap gui", SIDEBAR_WIDTH / 2, tmapBtnY + 7, 0xFF8E8E93);
+        if (tmapHovered) GuiSounds.hover("btn:gui");
+        GuiStyle.panel(context, 8, tmapBtnY, SIDEBAR_WIDTH - 16, 22, tmapHovered);
+        drawBorder(context, 8, tmapBtnY, SIDEBAR_WIDTH - 16, 22, tmapHovered ? GuiStyle.accent() : GuiStyle.border());
+        context.centeredText(font, "/tmap gui", SIDEBAR_WIDTH / 2, tmapBtnY + 7, GuiStyle.textDim());
 
         int contentTop = 50;
         int contentBottom = this.height - 40;
@@ -1868,7 +2082,7 @@ public class MapConfigScreen extends Screen {
         int contentRight = this.width - 10; // Leave space for scrollbar
 
         String header = searchQuery.isEmpty() ? selectedCategory : "Search Results";
-        context.fill(SIDEBAR_WIDTH, 30, this.width, contentTop, 0xFF1C1C1E); // Header background
+        context.fill(SIDEBAR_WIDTH, 30, this.width, contentTop, GuiStyle.background()); // Header background
         context.text(font, header, SIDEBAR_WIDTH + 20, 35, 0xFFFFFFFF);
 
         List<SettingsEntry> entries = getEntriesToShow();
@@ -1901,17 +2115,19 @@ public class MapConfigScreen extends Screen {
             int thumbH = Math.max(20, (int)(scrollbarTrackH * thumbRatio));
             int thumbY = contentTop + (int)((scrollbarTrackH - thumbH) * scrollRatio);
 
-            context.fill(scrollbarX, contentTop, scrollbarX + scrollbarW, contentBottom, 0xFF2C2C2E);
-            context.fill(scrollbarX, thumbY, scrollbarX + scrollbarW, thumbY + thumbH, 0xFF5A5A5C);
+            context.fill(scrollbarX, contentTop, scrollbarX + scrollbarW, contentBottom, GuiStyle.scrollTrack());
+            context.fill(scrollbarX, thumbY, scrollbarX + scrollbarW, thumbY + thumbH, GuiStyle.scrollThumb());
         }
 
-        context.fill(SIDEBAR_WIDTH, this.height - 40, this.width, this.height, 0xFF1C1C1E);
+        context.fill(SIDEBAR_WIDTH, this.height - 40, this.width, this.height, GuiStyle.background());
 
         boolean doneHovered = mouseX >= doneX && mouseX < doneX + 60 && mouseY >= doneY && mouseY < doneY + 22;
-        context.fill(doneX, doneY, doneX + 60, doneY + 22, doneHovered ? 0xFF3A3A3C : 0xFF2C2C2E);
-        drawBorder(context, doneX, doneY, 60, 22, doneHovered ? AppleColors.ACCENT_GREEN : 0xFF48484A);
+        if (doneHovered) GuiSounds.hover("btn:done");
+        GuiStyle.panel(context, doneX, doneY, 60, 22, doneHovered);
+        drawBorder(context, doneX, doneY, 60, 22, doneHovered ? GuiStyle.accent() : GuiStyle.border());
         context.centeredText(font, "Done", doneX + 30, doneY + 7, 0xFFFFFFFF);
 
+        GuiSounds.endFrame();
         wasMouseDown = isMouseDown; // Update AFTER processing
 
         super.extractRenderState(context, mouseX, mouseY, delta);
@@ -1946,11 +2162,15 @@ public class MapConfigScreen extends Screen {
     @Override
     public void onClose() {
         TeslaMapsConfig.save();
+        GuiSounds.close();
+        GuiSounds.resetHover();
         super.onClose();
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {}
+    public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        if (GuiStyle.blurBackground()) extractBlurredBackground(context);
+    }
 
     protected interface SettingsEntry {
         int getHeight();
@@ -1977,7 +2197,7 @@ public class MapConfigScreen extends Screen {
 
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
-            ctx.text(screen.font, text, x + 10, y + 3, AppleColors.TEXT_SECONDARY);
+            ctx.text(screen.font, text, x + 10, y + 3, GuiStyle.textDim());
         }
     }
 
@@ -2006,7 +2226,7 @@ public class MapConfigScreen extends Screen {
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             String t = text.trim();
             if (collapseKey == null) {
-                ctx.text(screen.font, t, x, y + 9, AppleColors.ACCENT_GREEN);
+                ctx.text(screen.font, t, x, y + 9, GuiStyle.accent());
                 return;
             }
             boolean collapsed = GROUP_COLLAPSED.contains(collapseKey);
@@ -2016,22 +2236,24 @@ public class MapConfigScreen extends Screen {
                 screen.clickHandled = true;
                 if (!GROUP_COLLAPSED.remove(collapseKey)) GROUP_COLLAPSED.add(collapseKey);
                 collapsed = !collapsed;
+                GuiSounds.fold(!collapsed);
                 screen.scrollOffset = Math.min(screen.scrollOffset, screen.maxScroll);
             }
             if (hovered) {
+                GuiSounds.hover(this);
                 TeslaGui.roundedRect(ctx, rowX, y + 1, rowRight - rowX, getHeight() - 3, 5f,
                         TeslaGui.withAlpha(0xFFFFFF, 16));
             }
             int textY = y + 8;
             caret(ctx, x - 2, textY + (collapsed ? 0 : 2), !collapsed,
-                    hovered ? 0xFFFFFFFF : AppleColors.TEXT_SECONDARY);
-            ctx.text(screen.font, t, x + 10, textY, hovered ? 0xFFFFFFFF : AppleColors.ACCENT_GREEN);
+                    hovered ? 0xFFFFFFFF : GuiStyle.textDim());
+            ctx.text(screen.font, t, x + 10, textY, hovered ? 0xFFFFFFFF : GuiStyle.accent());
 
             int tail = rowRight - 6;
             if (collapsed && childCount > 0) {
                 String n = String.valueOf(childCount);
                 int nx = tail - screen.font.width(n);
-                ctx.text(screen.font, n, nx, textY, AppleColors.TEXT_TERTIARY);
+                ctx.text(screen.font, n, nx, textY, GuiStyle.textFaint());
                 tail = nx - 8;
             }
             int lineX = x + 10 + screen.font.width(t) + 8;
@@ -2047,6 +2269,7 @@ public class MapConfigScreen extends Screen {
         private final Supplier<Boolean> getter;
         private final Consumer<Boolean> setter;
         private boolean legitGated = false;
+        private String sectionGate = null;
 
         ToggleEntry(int x, int w, String label, Supplier<Boolean> getter, Consumer<Boolean> setter) {
             this.x = x; this.width = w; this.label = label; this.getter = getter; this.setter = setter;
@@ -2054,6 +2277,9 @@ public class MapConfigScreen extends Screen {
 
         /** Marks this toggle as disabled by Legit Mode (greyed out while it blocks cheats). */
         ToggleEntry legit() { this.legitGated = true; return this; }
+
+        /** Greys the toggle out while its section master is off, since it does nothing then. */
+        ToggleEntry gatedBy(String section) { this.sectionGate = section; return this; }
 
         @Override public int getHeight() { return ROW_HEIGHT; }
         @Override public String getLabel() { return label; }
@@ -2066,11 +2292,16 @@ public class MapConfigScreen extends Screen {
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
-            if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
+            if (hovered) {
+                GuiSounds.hover(this);
+                ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
+            }
 
             int toggleX = x + width - 44;
             int toggleY = y + 5;
-            boolean gatedOff = legitGated && com.teslamaps.features.LegitMode.blocksCheats();
+            boolean legitOff = legitGated && com.teslamaps.features.LegitMode.blocksCheats();
+            boolean sectionOff = sectionGate != null && !TeslaMapsConfig.get().section(sectionGate);
+            boolean gatedOff = legitOff || sectionOff;
             boolean value = getter.get();
 
             if (gatedOff) {
@@ -2079,7 +2310,7 @@ public class MapConfigScreen extends Screen {
                 drawBorder(ctx, toggleX, toggleY, 36, 16, 0xFF444444);
                 ctx.fill(toggleX + 2, toggleY + 2, toggleX + 16, toggleY + 14, 0xFF555555);
                 if (hovered) {
-                    String tip = "Disabled by Legit Mode";
+                    String tip = legitOff ? "Disabled by Legit Mode" : "\"" + sectionGate + "\" is switched off";
                     int tw = screen.font.width(tip);
                     int tx = Math.max(2, mouseX - tw - 6), ty = y - 2;
                     ctx.fill(tx - 3, ty - 2, tx + tw + 3, ty + 11, 0xEE000000);
@@ -2088,21 +2319,22 @@ public class MapConfigScreen extends Screen {
                 return;
             }
 
-            ctx.text(screen.font, screen.fitLabel(label, x + 8, toggleX), x + 8, y + 9, AppleColors.TEXT_PRIMARY);
+            ctx.text(screen.font, screen.fitLabel(label, x + 8, toggleX), x + 8, y + 9, GuiStyle.text());
 
             if (clicked && hovered) {
                 screen.clickHandled = true;
                 setter.accept(!value);
                 TeslaMapsConfig.save();
                 value = !value;
+                GuiSounds.toggle(value);
             }
 
-            int trackColor = value ? AppleColors.TOGGLE_ON : AppleColors.TOGGLE_OFF;
+            int trackColor = value ? GuiStyle.accent() : GuiStyle.toggleOff();
             ctx.fill(toggleX, toggleY, toggleX + 36, toggleY + 16, trackColor);
-            drawBorder(ctx, toggleX, toggleY, 36, 16, AppleColors.INPUT_BORDER);
+            drawBorder(ctx, toggleX, toggleY, 36, 16, GuiStyle.border());
 
             int knobX = value ? toggleX + 20 : toggleX + 2;
-            ctx.fill(knobX, toggleY + 2, knobX + 14, toggleY + 14, AppleColors.TOGGLE_KNOB);
+            ctx.fill(knobX, toggleY + 2, knobX + 14, toggleY + 14, GuiStyle.knob());
         }
     }
 
@@ -2131,16 +2363,159 @@ public class MapConfigScreen extends Screen {
             int btnH = 22;
 
             boolean hovered = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
-            if (clicked && hovered) { screen.clickHandled = true; action.run(); }
+            if (hovered) GuiSounds.hover(this);
+            if (clicked && hovered) { screen.clickHandled = true; GuiSounds.press(); action.run(); }
 
-            ctx.fill(btnX, btnY, btnX + btnW, btnY + btnH, hovered ? 0xFF3A3A3C : AppleColors.CARD_BACKGROUND);
+            GuiStyle.panel(ctx, btnX, btnY, btnW, btnH, hovered);
             drawBorder(ctx, btnX, btnY, btnW, btnH,
-                    active ? AppleColors.ACCENT_GREEN : hovered ? 0xFF5A5A5C : AppleColors.INPUT_BORDER);
+                    active ? GuiStyle.accent() : hovered ? GuiStyle.borderHover() : GuiStyle.border());
             ctx.centeredText(screen.font, label, btnX + btnW / 2, btnY + 7,
-                    active ? AppleColors.ACCENT_GREEN : AppleColors.TEXT_PRIMARY);
+                    active ? GuiStyle.accent() : GuiStyle.text());
             if (active) {
                 int textW = screen.font.width(label);
-                TeslaGui.checkIcon(ctx, btnX + btnW / 2f - textW / 2f - 14, btnY + 6, 10, AppleColors.ACCENT_GREEN);
+                TeslaGui.checkIcon(ctx, btnX + btnW / 2f - textW / 2f - 14, btnY + 6, 10, GuiStyle.accent());
+            }
+        }
+    }
+
+    /** Several small buttons on one row instead of a full-width one per action. */
+    protected class ButtonRowEntry implements SettingsEntry {
+        private int x, width;
+        private final String[] labels;
+        private final Runnable[] actions;
+        private final Object[] hoverKeys;
+
+        ButtonRowEntry(int x, int w, String[] labels, Runnable[] actions) {
+            this.x = x; this.width = w; this.labels = labels; this.actions = actions;
+            this.hoverKeys = new Object[labels.length];
+            for (int i = 0; i < labels.length; i++) hoverKeys[i] = new Object();
+        }
+
+        @Override public int getHeight() { return 28; }
+        @Override public String getLabel() { return String.join(" ", labels); }
+        @Override public boolean matchesSearch(String q) { return getLabel().toLowerCase().contains(q); }
+        @Override public void reposition(int x, int w) { this.x = x; this.width = w; }
+
+        @Override
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+            int gap = 6;
+            int total = width - 16;
+            // capped so a wide window gets compact buttons instead of stretched bars
+            int btnW = Math.min(150, (total - gap * (labels.length - 1)) / labels.length);
+            int btnY = y + 3, btnH = 20;
+
+            for (int i = 0; i < labels.length; i++) {
+                int btnX = x + 8 + i * (btnW + gap);
+                boolean hovered = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
+                if (hovered) GuiSounds.hover(hoverKeys[i]);
+                if (clicked && hovered && !screen.clickHandled) {
+                    screen.clickHandled = true;
+                    GuiSounds.press();
+                    actions[i].run();
+                    return;
+                }
+                GuiStyle.panel(ctx, btnX, btnY, btnW, btnH, hovered);
+                drawBorder(ctx, btnX, btnY, btnW, btnH, hovered ? GuiStyle.borderHover() : GuiStyle.border());
+                ctx.centeredText(screen.font, screen.fitLabel(labels[i], btnX + 4, btnX + btnW - 4),
+                        btnX + btnW / 2, btnY + 6, GuiStyle.text());
+            }
+        }
+    }
+
+    /** Profile picker: compact tiles in a grid, each with its own delete affordance. */
+    protected class ProfileTilesEntry implements SettingsEntry {
+        private static final int TILE_H = 24;
+        private static final int TILE_MAX_W = 170;
+        private static final int GAP = 6;
+
+        private int x, width;
+        private final List<String> names;
+        private final Object[] hoverKeys;
+
+        ProfileTilesEntry(int x, int w) {
+            this.x = x; this.width = w;
+            this.names = new ArrayList<>(com.teslamaps.config.ConfigProfiles.list());
+            this.hoverKeys = new Object[names.size()];
+            for (int i = 0; i < names.size(); i++) hoverKeys[i] = new Object();
+        }
+
+        private int columns() {
+            int avail = width - 16;
+            return Math.max(2, Math.min(5, avail / (TILE_MAX_W + GAP)));
+        }
+
+        private int tileWidth() {
+            int cols = columns();
+            return Math.min(TILE_MAX_W, (width - 16 - GAP * (cols - 1)) / cols);
+        }
+
+        @Override public int getHeight() {
+            int rows = (names.size() + columns() - 1) / columns();
+            return Math.max(1, rows) * (TILE_H + GAP) + 2;
+        }
+
+        @Override public String getLabel() { return String.join(" ", names); }
+        @Override public boolean matchesSearch(String q) { return "profile".contains(q) || getLabel().toLowerCase().contains(q); }
+        @Override public void reposition(int x, int w) { this.x = x; this.width = w; }
+
+        @Override
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+            String active = com.teslamaps.config.ConfigProfiles.active();
+            int cols = columns(), tileW = tileWidth();
+
+            for (int i = 0; i < names.size(); i++) {
+                String name = names.get(i);
+                int tileX = x + 8 + (i % cols) * (tileW + GAP);
+                int tileY = y + (i / cols) * (TILE_H + GAP);
+                boolean isActive = name.equals(active);
+                boolean deletable = !isActive && !com.teslamaps.config.ConfigProfiles.isPreset(name);
+                boolean confirming = name.equals(screen.pendingDeleteProfile);
+
+                boolean hovered = mouseX >= tileX && mouseX < tileX + tileW && mouseY >= tileY && mouseY < tileY + TILE_H;
+                int delX = tileX + tileW - 15;
+                boolean onDelete = deletable && hovered && mouseX >= delX - 2;
+
+                if (hovered) GuiSounds.hover(hoverKeys[i]);
+                if (clicked && hovered && !screen.clickHandled) {
+                    screen.clickHandled = true;
+                    if (onDelete) {
+                        if (confirming) {
+                            GuiSounds.press();
+                            com.teslamaps.config.ConfigProfiles.delete(name);
+                            screen.pendingDeleteProfile = null;
+                        } else {
+                            GuiSounds.fold(true);
+                            screen.pendingDeleteProfile = name;
+                        }
+                        rebuildWidgets();
+                        return;
+                    }
+                    screen.pendingDeleteProfile = null;
+                    if (!isActive) {
+                        GuiSounds.select();
+                        com.teslamaps.config.ConfigProfiles.switchTo(name);
+                        rebuildWidgets();
+                        return;
+                    }
+                }
+
+                GuiStyle.panel(ctx, tileX, tileY, tileW, TILE_H, hovered);
+                drawBorder(ctx, tileX, tileY, tileW, TILE_H,
+                        confirming ? AppleColors.ACCENT_RED
+                                : isActive ? GuiStyle.accent()
+                                : hovered ? GuiStyle.borderHover() : GuiStyle.border());
+
+                int labelRight = deletable ? delX - 4 : tileX + tileW - 6;
+                int labelLeft = tileX + (isActive ? 20 : 8);
+                ctx.text(screen.font, screen.fitLabel(confirming ? "delete?" : name, labelLeft, labelRight),
+                        labelLeft, tileY + 8,
+                        confirming ? AppleColors.ACCENT_RED : isActive ? GuiStyle.accent() : GuiStyle.text());
+                if (isActive) TeslaGui.checkIcon(ctx, tileX + 7, tileY + 7, 9, GuiStyle.accent());
+
+                if (deletable) {
+                    ctx.text(screen.font, "x", delX + 2, tileY + 8,
+                            onDelete || confirming ? AppleColors.ACCENT_RED : GuiStyle.textFaint());
+                }
             }
         }
     }
@@ -2162,18 +2537,22 @@ public class MapConfigScreen extends Screen {
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
-            if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
+            if (hovered) {
+                GuiSounds.hover(this);
+                ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
+            }
 
             int btnW = controlWidth(150, width), btnX = x + width - btnW - 4, btnY = y + 3, btnH = 20;
-            ctx.text(screen.font, screen.fitLabel(label, x + 8, btnX), x + 8, y + 9, AppleColors.TEXT_PRIMARY);
+            ctx.text(screen.font, screen.fitLabel(label, x + 8, btnX), x + 8, y + 9, GuiStyle.text());
 
             boolean btnHover = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
             if (clicked && btnHover) {
                 screen.clickHandled = true;
+                GuiSounds.press();
                 screen.minecraft.setScreen(new ClassFilterScreen(screen, label, filter));
             }
-            ctx.fill(btnX, btnY, btnX + btnW, btnY + btnH, btnHover ? 0xFF3A3A3C : AppleColors.CARD_BACKGROUND);
-            drawBorder(ctx, btnX, btnY, btnW, btnH, AppleColors.INPUT_BORDER);
+            GuiStyle.panel(ctx, btnX, btnY, btnW, btnH, btnHover);
+            drawBorder(ctx, btnX, btnY, btnW, btnH, GuiStyle.border());
             ctx.centeredText(screen.font, filter.summary(), btnX + btnW / 2, btnY + 6, 0xFFE0E0E0);
         }
     }
@@ -2198,22 +2577,27 @@ public class MapConfigScreen extends Screen {
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
-            if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
+            if (hovered) {
+                GuiSounds.hover(this);
+                ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
+            }
 
             int btnW = controlWidth(96, width), btnX = x + width - btnW - 4, btnY = y + 3, btnH = 20;
-            ctx.text(screen.font, screen.fitLabel(label, x + 8, btnX), x + 8, y + 9, AppleColors.TEXT_PRIMARY);
+            ctx.text(screen.font, screen.fitLabel(label, x + 8, btnX), x + 8, y + 9, GuiStyle.text());
 
             boolean btnHover = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
             if (clicked && btnHover) {
                 screen.clickHandled = true;
+                GuiSounds.press();
                 screen.listeningKeybindEntry = this;
+                screen.keybindListenStart = System.currentTimeMillis();
                 if (screen.searchField != null) screen.searchField.setFocused(false); // don't type the key into the search bar
             }
 
             boolean listening = screen.listeningKeybindEntry == this;
             String txt = listening ? "press a key..." : keyName(getter.getAsInt());
-            ctx.fill(btnX, btnY, btnX + btnW, btnY + btnH, (btnHover || listening) ? 0xFF3A3A3C : AppleColors.CARD_BACKGROUND);
-            drawBorder(ctx, btnX, btnY, btnW, btnH, listening ? AppleColors.ACCENT_GREEN : AppleColors.INPUT_BORDER);
+            GuiStyle.panel(ctx, btnX, btnY, btnW, btnH, btnHover || listening);
+            drawBorder(ctx, btnX, btnY, btnW, btnH, listening ? GuiStyle.accent() : GuiStyle.border());
             ctx.centeredText(screen.font, txt, btnX + btnW / 2, btnY + 6, 0xFFE0E0E0);
         }
     }
@@ -2241,7 +2625,10 @@ public class MapConfigScreen extends Screen {
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean isExpanded = expandedColorEntry == this;
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
-            if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
+            if (hovered) {
+                GuiSounds.hover(this);
+                ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
+            }
 
             int swatchX = x + width - 30;
             int swatchY = y + 5;
@@ -2249,10 +2636,11 @@ public class MapConfigScreen extends Screen {
 
             String hexLabel = "#" + getter.get().substring(0, Math.min(6, getter.get().length()));
             int hexX = swatchX - screen.font.width(hexLabel) - 6;
-            ctx.text(screen.font, screen.fitLabel(label, x + 8, hexX), x + 8, y + 9, AppleColors.TEXT_PRIMARY);
+            ctx.text(screen.font, screen.fitLabel(label, x + 8, hexX), x + 8, y + 9, GuiStyle.text());
 
             if (clicked && hovered) {
                 screen.clickHandled = true;
+                GuiSounds.fold(!isExpanded);
                 if (isExpanded) {
                     expandedColorEntry = null;
                 } else {
@@ -2265,9 +2653,9 @@ public class MapConfigScreen extends Screen {
             }
 
             ctx.fill(swatchX, swatchY, swatchX + 22, swatchY + 16, color);
-            drawBorder(ctx, swatchX, swatchY, 22, 16, isExpanded ? AppleColors.ACCENT_GREEN : 0xFF555555);
+            drawBorder(ctx, swatchX, swatchY, 22, 16, isExpanded ? GuiStyle.accent() : 0xFF555555);
 
-            ctx.text(screen.font, hexLabel, hexX, y + 9, AppleColors.TEXT_SECONDARY);
+            ctx.text(screen.font, hexLabel, hexX, y + 9, GuiStyle.textDim());
 
             if (isExpanded) {
                 int pickerY = y + ROW_HEIGHT + 5;
@@ -2372,6 +2760,7 @@ public class MapConfigScreen extends Screen {
         private final Supplier<Float> getter;
         private final Consumer<Float> setter;
         private final int decimals;
+        private int lastNotch = Integer.MIN_VALUE;
 
         SliderEntry(int x, int w, String label, float min, float max, Supplier<Float> getter, Consumer<Float> setter) {
             this(x, w, label, min, max, getter, setter, 1);
@@ -2394,6 +2783,7 @@ public class MapConfigScreen extends Screen {
             float v = Math.max(min, Math.min(max, getter.get() + (float) (dir > 0 ? step : -step)));
             setter.accept(v);
             TeslaMapsConfig.save();
+            GuiSounds.step((v - min) / (max - min));
             return true;
         }
 
@@ -2404,14 +2794,17 @@ public class MapConfigScreen extends Screen {
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
-            if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
+            if (hovered) {
+                GuiSounds.hover(this);
+                ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
+            }
 
             int sliderX = sliderLeft();
             int sliderY = y + 10;
             int sliderW = sliderWidth();
             int sliderH = 6;
 
-            ctx.text(screen.font, screen.fitLabel(label, x + 8, sliderX), x + 8, y + 9, AppleColors.TEXT_PRIMARY);
+            ctx.text(screen.font, screen.fitLabel(label, x + 8, sliderX), x + 8, y + 9, GuiStyle.text());
 
             float value = getter.get();
             float ratio = (value - min) / (max - min);
@@ -2421,24 +2814,30 @@ public class MapConfigScreen extends Screen {
                 float newValue = min + ratio * (max - min);
                 setter.accept(newValue);
                 TeslaMapsConfig.save();
+                float step = (float) Math.pow(10, -decimals);
+                int notch = Math.round(newValue / step);
+                if (notch != lastNotch) {          // one tick per visible step, not per frame
+                    lastNotch = notch;
+                    GuiSounds.step(ratio);
+                }
             }
 
-            ctx.fill(sliderX, sliderY, sliderX + sliderW, sliderY + sliderH, AppleColors.TOGGLE_OFF);
-            ctx.fill(sliderX, sliderY, sliderX + (int)(sliderW * ratio), sliderY + sliderH, AppleColors.ACCENT_GREEN);
+            ctx.fill(sliderX, sliderY, sliderX + sliderW, sliderY + sliderH, GuiStyle.toggleOff());
+            ctx.fill(sliderX, sliderY, sliderX + (int)(sliderW * ratio), sliderY + sliderH, GuiStyle.accent());
 
             int knobX = sliderX + (int)(sliderW * ratio) - 3;
-            ctx.fill(knobX, sliderY - 2, knobX + 6, sliderY + sliderH + 2, AppleColors.TOGGLE_KNOB);
+            ctx.fill(knobX, sliderY - 2, knobX + 6, sliderY + sliderH + 2, GuiStyle.knob());
 
             int valX = sliderX + sliderW + 8;
             boolean editing = screen.editingSlider == this;
             boolean valHover = mouseX >= valX - 2 && mouseX <= valX + 44 && mouseY >= y && mouseY < y + ROW_HEIGHT;
-            if (clicked && valHover && !editing) { screen.clickHandled = true; screen.startSliderEdit(this); }
+            if (clicked && valHover && !editing) { screen.clickHandled = true; GuiSounds.press(); screen.startSliderEdit(this); }
             if (editing) {
-                ctx.fill(valX - 2, y + 7, valX + 44, y + 19, 0x40FFFFFF);
-                ctx.text(screen.font, screen.sliderEditText + "_", valX, y + 9, AppleColors.TEXT_PRIMARY);
+                ctx.fill(valX - 2, y + 7, valX + 44, y + 19, GuiStyle.rowSelected());
+                ctx.text(screen.font, screen.sliderEditText + "_", valX, y + 9, GuiStyle.text());
             } else {
                 String valueStr = String.format("%." + decimals + "f", getter.get());
-                ctx.text(screen.font, valueStr, valX, y + 9, valHover ? AppleColors.TEXT_PRIMARY : AppleColors.TEXT_SECONDARY);
+                ctx.text(screen.font, valueStr, valX, y + 9, valHover ? GuiStyle.text() : GuiStyle.textDim());
             }
         }
     }
@@ -2464,14 +2863,17 @@ public class MapConfigScreen extends Screen {
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
-            if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
+            if (hovered) {
+                GuiSounds.hover(this);
+                ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
+            }
 
             int btnW = controlWidth(110, width);
             int btnX = x + width - btnW - 10;
             int btnY = y + 4;
             int btnH = 18;
 
-            ctx.text(screen.font, screen.fitLabel(label, x + 8, btnX), x + 8, y + 9, AppleColors.TEXT_PRIMARY);
+            ctx.text(screen.font, screen.fitLabel(label, x + 8, btnX), x + 8, y + 9, GuiStyle.text());
 
             String currentValue = getter.get();
             boolean btnHovered = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
@@ -2479,14 +2881,15 @@ public class MapConfigScreen extends Screen {
             if (clicked && btnHovered) {
                 screen.clickHandled = true;
                 expanded = !expanded;
+                GuiSounds.fold(expanded);
             }
 
-            ctx.fill(btnX, btnY, btnX + btnW, btnY + btnH, btnHovered ? 0xFF3A3A3C : AppleColors.CARD_BACKGROUND);
-            drawBorder(ctx, btnX, btnY, btnW, btnH, expanded ? AppleColors.ACCENT_GREEN : AppleColors.INPUT_BORDER);
+            GuiStyle.panel(ctx, btnX, btnY, btnW, btnH, btnHovered);
+            drawBorder(ctx, btnX, btnY, btnW, btnH, expanded ? GuiStyle.accent() : GuiStyle.border());
 
             String display = screen.fitLabel(currentValue, btnX + 4, btnX + btnW - 14);
-            ctx.text(screen.font, display, btnX + 4, btnY + 5, AppleColors.TEXT_PRIMARY);
-            ctx.text(screen.font, expanded ? "▲" : "▼", btnX + btnW - 12, btnY + 5, AppleColors.TEXT_SECONDARY);
+            ctx.text(screen.font, display, btnX + 4, btnY + 5, GuiStyle.text());
+            ctx.text(screen.font, expanded ? "▲" : "▼", btnX + btnW - 12, btnY + 5, GuiStyle.textDim());
 
             if (expanded) {
                 int optY = y + ROW_HEIGHT;
@@ -2498,14 +2901,15 @@ public class MapConfigScreen extends Screen {
                         setter.accept(option);
                         TeslaMapsConfig.save();
                         expanded = false;
+                        GuiSounds.select();
                     }
 
-                    int bgColor = option.equals(currentValue) ? AppleColors.ACCENT_GREEN : (optHovered ? 0xFF3A3A3C : AppleColors.CARD_BACKGROUND);
-                    ctx.fill(btnX, optY, btnX + btnW, optY + 18, bgColor);
-                    drawBorder(ctx, btnX, optY, btnW, 18, AppleColors.INPUT_BORDER);
+                    if (option.equals(currentValue)) ctx.fill(btnX, optY, btnX + btnW, optY + 18, GuiStyle.accent());
+                    else GuiStyle.panel(ctx, btnX, optY, btnW, 18, optHovered);
+                    drawBorder(ctx, btnX, optY, btnW, 18, GuiStyle.border());
 
                     String optDisplay = screen.fitLabel(option, btnX + 4, btnX + btnW - 4);
-                    ctx.text(screen.font, optDisplay, btnX + 4, optY + 5, AppleColors.TEXT_PRIMARY);
+                    ctx.text(screen.font, optDisplay, btnX + 4, optY + 5, GuiStyle.text());
                     optY += 18;
                 }
             }
@@ -2532,23 +2936,27 @@ public class MapConfigScreen extends Screen {
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
-            if (hovered) ctx.fill(x, y, x + width, y + ROW_HEIGHT, 0x20FFFFFF);
+            if (hovered) {
+                GuiSounds.hover(this);
+                ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
+            }
 
             int btnW = controlWidth(110, width), btnX = x + width - btnW - 10, btnY = y + 4, btnH = 18;
-            ctx.text(screen.font, screen.fitLabel(label, x + 8, btnX), x + 8, y + 9, AppleColors.TEXT_PRIMARY);
+            ctx.text(screen.font, screen.fitLabel(label, x + 8, btnX), x + 8, y + 9, GuiStyle.text());
 
             boolean btnHovered = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
             if (clicked && btnHovered) {
                 screen.clickHandled = true;
+                GuiSounds.press();
                 Minecraft.getInstance().setScreen(new SoundPickerScreen(screen, label, options, getter.get(),
                         v -> { setter.accept(v); TeslaMapsConfig.save(); }));
             }
 
-            ctx.fill(btnX, btnY, btnX + btnW, btnY + btnH, btnHovered ? 0xFF3A3A3C : AppleColors.CARD_BACKGROUND);
-            drawBorder(ctx, btnX, btnY, btnW, btnH, btnHovered ? AppleColors.ACCENT_GREEN : AppleColors.INPUT_BORDER);
+            GuiStyle.panel(ctx, btnX, btnY, btnW, btnH, btnHovered);
+            drawBorder(ctx, btnX, btnY, btnW, btnH, btnHovered ? GuiStyle.accent() : GuiStyle.border());
             String cur = getter.get();
             String display = screen.fitLabel(cur, btnX + 4, btnX + btnW - 4);
-            ctx.text(screen.font, display, btnX + 4, btnY + 5, AppleColors.TEXT_PRIMARY);
+            ctx.text(screen.font, display, btnX + 4, btnY + 5, GuiStyle.text());
         }
     }
 }

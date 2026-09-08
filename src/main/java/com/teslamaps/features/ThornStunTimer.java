@@ -44,7 +44,7 @@ public class ThornStunTimer {
         if (!isInThornArena()) return;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || mc.screen != null) return;
+        if (com.teslamaps.utils.HudVisibility.suppressed()) return;
 
         if (TeslaMapsConfig.get().thornStunHealerOnly && !isHealer()) return;
 

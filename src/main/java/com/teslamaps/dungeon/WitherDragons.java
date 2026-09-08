@@ -261,7 +261,7 @@ public class WitherDragons {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.witherDragons || !config.witherDragonHud) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || mc.screen != null) return;
+        if (com.teslamaps.utils.HudVisibility.suppressed()) return;
         Dragon dragon = priorityDragon;
         if (dragon == null || dragon.timeToSpawn <= 0) return;
 

@@ -54,41 +54,58 @@ public class HypixelSuggestions {
     }
 
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
-        forwarding(dispatcher, "warp", WARPS);
         forwarding(dispatcher, "call", CONTACTS);
-        // No client command for /gfs: Hypixel declares that name itself, and registering
-        // over it broke the merge into the server dispatcher, which killed the /warp and
-        // /call suggestions too. The queue runs off ALLOW_COMMAND instead.
+        // Only /call gets a client command. Hypixel declares /warp, /msg and /gfs itself,
+        // and claiming one of those names breaks the merge into the server dispatcher - it
+        // took the /warp suggestions down with it. Those run off CommandSuggestionsMixin.
     }
 
+    public static List<String> warps() {
+        return WARPS;
+    }
+
+    /** Guild, friends, recently seen players and the tab list. */
+    public static List<String> players() {
+        return PlayerNameCache.names();
+    }
 
     private static void forwarding(CommandDispatcher<FabricClientCommandSource> dispatcher,
                                    String name, List<String> options) {
         dispatcher.register(ClientCommands.literal(name)
                 .executes(context -> send(name))
                 .then(ClientCommands.argument("argument", StringArgumentType.greedyString())
-                        .suggests((context, builder) -> suggest(options, builder))
+                        .suggests((context, builder) -> suggest(options == null ? players() : options, builder))
                         .executes(context -> send(name + " "
                                 + StringArgumentType.getString(context, "argument")))));
     }
 
+    /** Off-island the lists would only be noise on servers with their own /warp. */
+    public static boolean enabled() {
+        return TeslaMapsConfig.get().commandSuggestions
+                && (SkyblockUtils.isOnHypixel()
+                    || net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment());
+    }
+
+    /**
+     * Once the typed word IS one of the options this returns nothing. While the popup is
+     * open Enter applies the highlighted entry instead of sending the command, so a name
+     * that suggests itself ("/warp canyon") could never be submitted.
+     */
+    public static List<String> filter(List<String> options, String written) {
+        String w = written.toLowerCase(Locale.ROOT);
+        for (String option : options) {
+            if (option.equalsIgnoreCase(w)) return List.of();
+        }
+        List<String> out = new ArrayList<>();
+        for (String option : options) {
+            if (option.toLowerCase(Locale.ROOT).startsWith(w)) out.add(option);
+        }
+        return out;
+    }
+
     private static CompletableFuture<Suggestions> suggest(List<String> options, SuggestionsBuilder builder) {
-        // Off-island the lists would only be noise on servers with their own /warp.
-        boolean allowed = SkyblockUtils.isInSkyblock()
-                || net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment();
-        if (!TeslaMapsConfig.get().commandSuggestions || !allowed) return builder.buildFuture();
-        String written = builder.getRemaining().toLowerCase(Locale.ROOT);
-
-        // Once the typed word IS one of the options, suggest nothing. While the popup
-        // is open Enter applies the highlighted entry instead of sending the command,
-        // so a name that suggests itself ("/warp canyon") could never be submitted.
-        for (String option : options) {
-            if (option.equalsIgnoreCase(written)) return builder.buildFuture();
-        }
-
-        for (String option : options) {
-            if (option.toLowerCase(Locale.ROOT).startsWith(written)) builder.suggest(option);
-        }
+        if (!enabled()) return builder.buildFuture();
+        for (String option : filter(options, builder.getRemaining())) builder.suggest(option);
         return builder.buildFuture();
     }
 

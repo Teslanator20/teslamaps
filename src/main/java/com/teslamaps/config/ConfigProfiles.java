@@ -17,24 +17,52 @@ import net.fabricmc.loader.api.FabricLoader;
 // @Global fields (PBs, keybinds, api key, ...) are carried across a switch instead of loaded.
 public class ConfigProfiles {
 
-    public static final String DEFAULT = "Default";
+    public static final String DEFAULT = "Recommended";
     public static final String MINIMAL = "Minimal";
-    public static final String LEGIT = "Full Legit";
     public static final String ALL_OFF = "All off";
-    public static final String TESLANATOR = "Teslanator";
 
-    private static final String[] PRESETS = {DEFAULT, MINIMAL, LEGIT, ALL_OFF, TESLANATOR};
+    private static final String[] PRESETS = {DEFAULT, MINIMAL, ALL_OFF};
+
+    // dropped presets: "Full Legit" (Legit Mode is a toggle) and "Teslanator" (same as the default)
+    private static final String[] RETIRED = {"Full Legit", "Teslanator"};
+    private static final String OLD_DEFAULT = "Default";
+    private static boolean migrated = false;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path DIR = FabricLoader.getInstance()
             .getConfigDir().resolve("teslamaps").resolve("profiles");
 
     public static String active() {
+        migrate();
         String p = TeslaMapsConfig.get().activeProfile;
         return p == null || p.isBlank() ? DEFAULT : p;
     }
 
+    /** Renames the old "Default" profile and drops the retired presets, once per launch. */
+    private static void migrate() {
+        if (migrated) return;
+        migrated = true;
+        try {
+            Path old = file(OLD_DEFAULT);
+            if (Files.exists(old) && !Files.exists(file(DEFAULT))) Files.move(old, file(DEFAULT));
+            for (String name : RETIRED) Files.deleteIfExists(file(name));
+        } catch (IOException e) {
+            TeslaMaps.LOGGER.error("Failed to migrate config profiles", e);
+        }
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (OLD_DEFAULT.equals(c.activeProfile) || isRetired(c.activeProfile)) {
+            c.activeProfile = DEFAULT;
+            TeslaMapsConfig.save();
+        }
+    }
+
+    private static boolean isRetired(String name) {
+        for (String r : RETIRED) if (r.equals(name)) return true;
+        return false;
+    }
+
     public static List<String> list() {
+        migrate();
         List<String> out = new ArrayList<>();
         try {
             Files.createDirectories(DIR);
@@ -64,7 +92,7 @@ public class ConfigProfiles {
 
     /**
      * Saves the current profile, then makes {@code name} live. A profile file that does not exist yet
-     * is created from the matching preset, so the three presets work on a fresh install.
+     * is created from the matching preset, so the presets work on a fresh install.
      */
     public static void switchTo(String name) {
         if (name == null || name.isBlank()) return;
@@ -155,26 +183,72 @@ public class ConfigProfiles {
     }
 
     private static TeslaMapsConfig preset(String name) {
-        // Teslanator is "whatever I currently have on", so it starts as a copy of the live config
-        if (TESLANATOR.equals(name)) return copyOfLive();
-
         TeslaMapsConfig c = new TeslaMapsConfig();
         switch (name) {
-            case MINIMAL -> { allOff(c); c.mapEnabled = true; c.onlyShowInDungeon = true; c.showMapBackground = true; }
+            case MINIMAL -> { allOff(c); turnOn(c, MINIMAL_ON); }
             case ALL_OFF -> allOff(c);
-            case LEGIT -> c.legitMode = true;
             default -> {
             }
         }
         return c;
     }
 
-    private static TeslaMapsConfig copyOfLive() {
-        TeslaMapsConfig copy = GSON.fromJson(GSON.toJson(TeslaMapsConfig.get()), TeslaMapsConfig.class);
-        return copy == null ? new TeslaMapsConfig() : copy;
+    /** Minimal: the dungeon essentials. No terminals, no automation, no cosmetics, no non-dungeon features. */
+    private static final String[] MINIMAL_ON = {
+            // map
+            "mapEnabled", "onlyShowInDungeon", "mapHideInBoss", "showMapBackground",
+            "showRoomNames", "hideEntranceBloodFairyNames",
+            "showSecretCount", "hideOneSecretCount", "hideSecretsWhenDone", "showCrypts",
+            "showMimicStatus", "showPrinceIcon", "showPrinceStatus", "showDungeonScore", "announce300",
+            "showCheckmarks", "showWhiteCheckmarks", "showGreenCheckmarks", "showFailedCheckmarks",
+            "showPlayerMarker", "showSelfMarker", "showOtherPlayers", "showPlayerNames",
+            "useHeadsInsteadOfMarkers", "rotatePlayerHeads",
+            // dungeon esp
+            "starredMobESP", "witherKeyESP", "mimicChestESP", "mimicDeadMessage", "princeDeadMessage",
+            // hiders (no player hiding)
+            "hideDeadMobs", "hideSoulweaverSkull", "hideSkeletonSkull", "hideThrownBones",
+            "hideSuperboomTnt", "hideBlessing", "hideReviveStone", "hidePremiumFlesh",
+            "hideJournalEntry", "hideHealerOrbs", "hideHealerFairy", "hideCheapCoins",
+            "hideClouds", "noFog", "noLightning", "noFallingBlocks", "noBlockBreaking", "noXpOrbs",
+            "packetHiders", "noExplosions", "noArrows", "noStuckArrows", "noDeathAnimation",
+            "noFire", "noWaterOverlay", "noVignette", "noBlind", "noNausea", "noEnchantGlint",
+            "hideInventoryEffects", "noEffects", "noHurtCam", "noViewBobbing",
+            // puzzles (terminals stay off)
+            "solveBlaze", "blazeDoneMessage", "modernBlazeSolver", "solveThreeWeirdos", "solveTicTacToe",
+            "solveCreeperBeams", "creeperBeamsTracers", "creeperBeamsDing",
+            "solveBoulder", "showAllBoulderClicks", "solveQuiz", "quizBeacon", "quizChatHighlight",
+            "solveTPMaze", "tpMazeTracer", "tpMazePrioritizeDiagonal",
+            "solveWaterBoard", "waterBoardTracers", "solveIceFill", "icePathSolver",
+            "puzzleTimers", "simonSaysProgress", "simonSaysAlerts", "simonSaysAlertChat",
+            "spiritBearTimer", "terracottaTimer",
+            // runs
+            "splitsEnabled", "splitsShowPb", "splitsSendAllOnEnd",
+            "etherwarp", "etherwarpShowFail", "etherwarpFilled", "etherwarpSkullFail", "etherwarpCustomSound",
+            "croesusProfitOverlay", "croesusHighlightBest", "croesusDimOthers",
+            "croesusHideOpened", "croesusHighlightUnopened",
+            // chat filter (spam only; watcher/thorn/stash/revive/oruo stay visible)
+            "chatFilterEnabled", "chatFilterEmpty", "chatFilterBlessings", "chatFilterEssence",
+            "chatFilterKeys", "chatFilterDoors", "chatFilterWish", "chatFilterUltReady",
+            "chatFilterAoeDamage", "chatFilterKillCombo", "chatFilterBlocksInWay", "chatFilterBonePlating",
+            "chatFilterPickups", "chatFilterGuildXp", "chatFilterSacks", "chatFilterGfs",
+            "chatFilterMilestone", "chatFilterPerkBuffs", "chatFilterWatchdog", "chatFilterMort",
+            "chatFilterProfileInfo", "chatFilterServerMsgs",
+            // qol
+            "infiniteChat", "chatStacking", "commandSuggestions",
+            "searchbar", "scrollableTooltip", "hudDragInInventory", "backpackPreview", "signEnterKey",
+    };
+
+    private static void turnOn(TeslaMapsConfig c, String[] fields) {
+        for (String name : fields) {
+            try {
+                TeslaMapsConfig.class.getDeclaredField(name).setBoolean(c, true);
+            } catch (ReflectiveOperationException e) {
+                TeslaMaps.LOGGER.error("Unknown preset field {}", name, e);
+            }
+        }
     }
 
-    /** Every non-global boolean off. Minimal builds on this and turns the map back on. */
+    /** Every non-global boolean off. Minimal builds on this. */
     private static void allOff(TeslaMapsConfig c) {
         for (Field f : TeslaMapsConfig.class.getDeclaredFields()) {
             if (Modifier.isStatic(f.getModifiers())) continue;

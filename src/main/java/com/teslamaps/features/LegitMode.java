@@ -12,7 +12,7 @@ public class LegitMode {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         peeking = cfg.legitMode && cfg.legitPeekKey >= 0
                 && mc.player != null && mc.screen == null && mc.getWindow() != null
-                && GLFW.glfwGetKey(mc.getWindow().handle(), cfg.legitPeekKey) == GLFW.GLFW_PRESS;
+                && com.teslamaps.utils.KeyNames.isDown(cfg.legitPeekKey);
     }
 
     /** Legit Mode master switch (affects the map). */

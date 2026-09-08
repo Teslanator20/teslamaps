@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractContainerScreen.class)
 public class ContainerKeyMixin {
-    private static final java.util.regex.Pattern PAGE = java.util.regex.Pattern.compile("\\((\\d+)/\\d+\\)");
 
     @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
     private void teslamaps$containerKeys(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
@@ -56,41 +55,11 @@ public class ContainerKeyMixin {
             return;
         }
 
-        String title = cs.getTitle().getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
 
-        boolean loadouts = title.endsWith("Loadouts");
-        boolean sets = title.startsWith("Wardrobe") || title.endsWith("Armor Sets") || title.endsWith("Equipment Sets");
-        if (c.wardrobeKeybinds && (sets || loadouts)) {
-            int want = -1;
-            for (int i = 0; i < 9; i++) {
-                if (c.wardrobeKeys[i] >= 0 && event.key() == c.wardrobeKeys[i]) { want = i; break; }
-            }
-            if (want < 0) {
-                for (int i = 0; i < 9; i++) {
-                    if (mc.options.keyHotbarSlots[i].matches(event)) { want = i; break; }
-                }
-            }
-            if (want >= 0) {
-                int page = 1;
-                java.util.regex.Matcher m = PAGE.matcher(title);
-                if (m.find()) page = Integer.parseInt(m.group(1));
-                int n = (page - 1) * (loadouts ? 12 : 9) + want + 1;
-                String name = (loadouts ? "Loadout " : "Slot ") + n;
-                int target = loadouts ? -1 : 36 + want;
-                for (Slot slot : cs.getMenu().slots) {
-                    if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
-                    String s = slot.getItem().getHoverName().getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
-                    if (s.equalsIgnoreCase(name) || s.regionMatches(true, 0, name + ":", 0, name.length() + 1)) {
-                        target = slot.index;
-                        break;
-                    }
-                }
-                if (target >= 0) {
-                    mc.gameMode.handleContainerInput(cs.getMenu().containerId, target, 0, ContainerInput.PICKUP, mc.player);
-                }
-                cir.setReturnValue(true);
-                return;
-            }
+        if (com.teslamaps.features.WardrobeKeys.handle(cs,
+                com.teslamaps.features.WardrobeKeys.wantedFromKey(event))) {
+            cir.setReturnValue(true);
+            return;
         }
 
         if (c.pageKeybinds) {

@@ -1,4 +1,3 @@
-// Ported from SkyHanni's SeaCreatureManager.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.utils;
 
 import com.google.gson.JsonElement;

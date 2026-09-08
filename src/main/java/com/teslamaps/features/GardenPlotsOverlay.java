@@ -1,4 +1,3 @@
-// Ported from Skyblocker's GardenPlotsWidget.java (LGPL-3.0), see NOTICE.md
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;

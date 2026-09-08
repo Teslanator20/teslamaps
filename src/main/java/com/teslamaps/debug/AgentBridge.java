@@ -182,6 +182,11 @@ public final class AgentBridge {
                     case "none" -> mc.setScreen(null);
                     case "title" -> mc.setScreen(new net.minecraft.client.gui.screens.TitleScreen());
                     case "look" -> mc.setScreen(new com.teslamaps.screen.LookScreen(null));
+                    case "inventory" -> {
+                        if (mc.player != null) {
+                            mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+                        }
+                    }
                     default -> out("ERR unknown screen " + p[1]);
                 }
                 out("screen " + p[1]);
@@ -335,6 +340,16 @@ public final class AgentBridge {
                 out("hidegui " + rest);
             }
             case "term" -> out(term(mc));
+            case "value" -> {
+                if (mc.player == null) {
+                    out("ERR no player");
+                    break;
+                }
+                var held = mc.player.getMainHandItem();
+                var lines = com.teslamaps.features.EstimatedValue.display(held);
+                if (lines.isEmpty()) out("value: (nothing to show)");
+                else for (String row : lines) out("value| " + row);
+            }
             case "slot" -> {
                 if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
                     out("ERR not a container screen");

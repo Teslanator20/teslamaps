@@ -1,4 +1,3 @@
-// Patterns from SkyHanni (LGPL-2.1), see NOTICE.md
 package com.teslamaps.features;
 
 import com.teslamaps.utils.ScoreboardUtils;

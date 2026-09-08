@@ -1,4 +1,3 @@
-// Sack lists from SkyHanni's SackApi.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.utils;
 
 import com.google.gson.JsonObject;

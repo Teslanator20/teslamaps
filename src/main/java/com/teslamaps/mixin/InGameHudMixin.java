@@ -18,7 +18,7 @@ public class InGameHudMixin {
     @Inject(method = "setOverlayMessage", at = @At("HEAD"))
     private void onSetOverlayMessage(Component message, boolean tinted, CallbackInfo ci) {
         SecretTracker.onActionBarMessage(message);
-        if (com.teslamaps.config.TeslaMapsConfig.get().section("Skills")) {
+        if (com.teslamaps.config.TeslaMapsConfig.get().section("General")) {
             com.teslamaps.features.SkillTracker.onActionBar(message.getString());
         }
     }

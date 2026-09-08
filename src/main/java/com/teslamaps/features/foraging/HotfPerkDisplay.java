@@ -1,4 +1,3 @@
-// Ported from SkyHanni's HotxFeatures.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.features.foraging;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -25,7 +24,7 @@ public class HotfPerkDisplay {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.hotfPerkDisplay) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || mc.screen != null) return;
+        if (com.teslamaps.utils.HudVisibility.suppressed()) return;
         if (c.hotfPerkDisplayForagingOnly && !Foraging.onForagingIsland()) return;
 
         List<String> lines = lines();

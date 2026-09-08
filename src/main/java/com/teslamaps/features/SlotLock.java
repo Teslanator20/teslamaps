@@ -21,7 +21,7 @@ public class SlotLock {
 
     public static boolean onKey(int key, Slot hovered) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.slotLock || c.slotLockKey < 0 || key != c.slotLockKey) return false;
+        if (!c.slotLock || c.slotLockKey == -1 || key != c.slotLockKey) return false;
         if (!isPlayerInv(hovered)) return false;
         int s = hovered.getContainerSlot();
         boolean locked;

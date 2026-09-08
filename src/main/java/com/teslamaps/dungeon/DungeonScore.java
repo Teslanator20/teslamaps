@@ -210,7 +210,7 @@ public class DungeonScore {
         if (!bloodRoomCompleted) {
             return isCurrentFloorEntrance ? 1 : 2;
         }
-        if (!DungeonManager.isInBoss() && !isCurrentFloorEntrance) {
+        if (!DungeonManager.isInBossArea() && !isCurrentFloorEntrance) {
             return 1;
         }
         return 0;
@@ -353,7 +353,7 @@ public class DungeonScore {
             }).start();
         }
 
-        String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        String clean = com.teslamaps.utils.StringUtil.stripTrim(message);
 
         if (floorHasMimics && MIMIC_PATTERN.matcher(clean).matches()) {
             mimicKilled = true;
@@ -409,10 +409,13 @@ public class DungeonScore {
 
         int cryptsBonus = Math.clamp(cryptsFound, 0, 5);
         int mimicBonus = mimicKilled ? 2 : 0;
+        int princeBonus = princeKilled ? 1 : 0;
         int paulBonus = com.teslamaps.config.TeslaMapsConfig.get().assumePaulMayor ? 10 : 0;
-        int totalBonus = cryptsBonus + mimicBonus + paulBonus;
+        int totalBonus = cryptsBonus + mimicBonus + princeBonus + paulBonus;
 
-        int secretsScoreNeeded = Math.max(0, 40 - totalBonus);
+        // A death costs skill points, and secrets are the only lever left to make them
+        // back up, so the penalty has to be added on top of the secrets budget.
+        int secretsScoreNeeded = Math.max(0, 40 - totalBonus + getDeathScorePenalty());
 
         if (secretsScoreNeeded <= 0) return 0.0;
 

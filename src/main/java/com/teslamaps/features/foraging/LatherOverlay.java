@@ -34,7 +34,7 @@ public class LatherOverlay {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.latherOverlay) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || mc.screen != null) return;
+        if (com.teslamaps.utils.HudVisibility.suppressed()) return;
         if (c.latherOverlayForagingOnly && !Foraging.onForagingIsland()) return;
         if (c.latherOverlayOnlyWhenActive && !LatherReminder.anyRunning()) return;
 

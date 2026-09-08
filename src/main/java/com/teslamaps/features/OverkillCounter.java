@@ -1,4 +1,3 @@
-// Ported from BirdAddon (BSD-3-Clause), see NOTICE.md
 package com.teslamaps.features;
 
 import com.teslamaps.TeslaMaps;
@@ -20,7 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 // F4/M4 Thorn overkill counter — once the lantern ring is full (bear spawning), every further animal
-// kill is "overkill". Ported from BirdAddon's OverkillDisplay (BSD-3).
+// kill is "overkill". Ported from BirdAddon's OverkillDisplay.
 public class OverkillCounter {
     public static final String SAMPLE_TEXT = "Overkill: 00";
     private static final BlockPos LAST_LANTERN = new BlockPos(7, 77, 34); // last ring block to light

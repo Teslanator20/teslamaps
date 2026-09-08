@@ -39,7 +39,7 @@ public class MotionBlur {
     private static boolean active() {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (broken || !cfg.section("Render") || !cfg.motionBlur) return false;
-        if (cfg.motionBlurStrength <= 0.01f) return false;
+        if (cfg.motionBlurStrength < 0.001f) return false;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.isPaused()) return false;
         return !(cfg.motionBlurWorldOnly && mc.screen != null);

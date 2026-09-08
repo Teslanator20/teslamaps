@@ -89,7 +89,7 @@ public class MenuBackgroundRenderer {
         return pick;
     }
 
-    private static final Preset FALLBACK = PRESETS.get("Snow");
+    private static final Preset FALLBACK = PRESETS.get("Liquid Metal");
 
     /** Procedural presets only. */
     public static String[] shaderNames() { return PRESETS.keySet().toArray(new String[0]); }

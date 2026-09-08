@@ -180,7 +180,7 @@ public class BloodCamp {
 
     public static void onSetEquipmentPacket(ClientboundSetEquipmentPacket packet) {
         if (!TeslaMapsConfig.get().bloodCampAssist || currentWatcherEntity != null) return;
-        if (!DungeonManager.isInDungeon() || DungeonManager.isInBoss()) return;
+        if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
         for (Pair<EquipmentSlot, ItemStack> slot : packet.getSlots()) {
@@ -208,7 +208,7 @@ public class BloodCamp {
         if (!TeslaMapsConfig.get().bloodCampAssist) return;
         if (packet.getXa() == 0 && packet.getYa() == 0 && packet.getZa() == 0) return;
         if (currentWatcherEntity == null) return;
-        if (!DungeonManager.isInDungeon() || DungeonManager.isInBoss()) return;
+        if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
         if (!(packet.getEntity(level) instanceof ArmorStand entity)) return;
@@ -249,7 +249,7 @@ public class BloodCamp {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.bloodCampClasses.allowsLocal()) return;
         if (!c.bloodCampAssist || renderDataMap.isEmpty()) return;
-        if (!DungeonManager.isInDungeon() || DungeonManager.isInBoss()) return;
+        if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
 
         double bs = c.bloodAssistBoxSize;
         Vec3 boxOffset = new Vec3(bs / -2.0, 1.5, bs / -2.0);

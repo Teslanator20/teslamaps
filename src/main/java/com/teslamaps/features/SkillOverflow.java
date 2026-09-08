@@ -13,9 +13,18 @@ public class SkillOverflow {
 
     private static final String PROGRESS_INDENT = "                    ";
 
+    private static final java.util.regex.Pattern SKILL_AVG =
+            java.util.regex.Pattern.compile("^(\\d+(?:\\.\\d+)?) Skill Avg\\.");
+
     public static void onTooltip(ItemStack stack, List<Component> lines) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.skillOverflow || lines.isEmpty()) return;
+        if (lines.isEmpty()) return;
+
+        // The "Your Skills" item lives in the SkyBlock Menu, not in the skills menu itself,
+        // so this one runs before the screen-title gate below.
+        if (cfg.skillAvgOverflow) addOverflowAverage(stack, lines);
+
+        if (!cfg.skillOverflow) return;
         if (!"Your Skills".equals(screenTitle())) return;
 
         String name = strip(stack.getHoverName().getString()).trim();
@@ -57,6 +66,37 @@ public class SkillOverflow {
                 + " §e" + sep(lvl.current()) + "§6/§e" + sep(lvl.needed())));
         lines.add(progressIndex + 1, Component.literal("§b§lOVERFLOW XP:"));
         lines.add(progressIndex + 2, Component.literal("§7▸ " + sep(lvl.overflowTotal())));
+    }
+
+    /**
+     * Hypixel's line only counts up to the cap, so a maxed account sits at a flat number. This
+     * adds the same average over overflow levels underneath it.
+     * <p>
+     * Only when every non-cosmetic skill has a known total, which means the skills menu has to
+     * have been open once - a partial average would silently read too low.
+     */
+    private static void addOverflowAverage(ItemStack stack, List<Component> lines) {
+        if (!"Your Skills".equals(strip(stack.getHoverName().getString()).trim())) return;
+
+        int avgIndex = -1;
+        for (int i = 0; i < lines.size(); i++) {
+            if (SKILL_AVG.matcher(strip(lines.get(i).getString()).trim()).find()) {
+                avgIndex = i;
+                break;
+            }
+        }
+        if (avgIndex < 0) return;
+
+        double sum = 0;
+        for (String skill : SkillTracker.NON_COSMETIC) {
+            long total = SkillTracker.totalXp(skill);
+            if (total <= 0) return;   // missing data, better no line than a wrong one
+            sum += SkillXp.calculate(total, SkillTracker.cap(skill)).level();
+        }
+        double avg = sum / SkillTracker.NON_COSMETIC.length;
+
+        lines.add(avgIndex + 1, Component.literal(
+                "§b" + String.format("%.2f", avg) + " §3Overflow Skill Avg."));
     }
 
     // non-maxed skills still tell us the total xp, which the tracker needs for its ETA

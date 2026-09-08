@@ -17,7 +17,7 @@ public class Zoom {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         boolean held = cfg.zoomEnabled && cfg.zoomKey >= 0
                 && mc.player != null && mc.screen == null && mc.getWindow() != null
-                && GLFW.glfwGetKey(mc.getWindow().handle(), cfg.zoomKey) == GLFW.GLFW_PRESS;
+                && com.teslamaps.utils.KeyNames.isDown(cfg.zoomKey);
 
         if (held && !zoomed) {
             currentFov = clamp(cfg.zoomFov);     // reset to default on every fresh zoom-in

@@ -40,9 +40,12 @@ public class StarredMobESP {
     private static final int SHADOW_ASSASSIN_COLOR = 0xFF5B2CB2; // Purple for shadow assassins
     private static final int DROPPED_ITEM_COLOR = 0xFFFFFF00; // Yellow for dropped items
     private static final int DUNGEON_BAT_COLOR = 0xFFFF8800; // Orange for dungeon bats
-    private static final int WITHER_KEY_COLOR = 0xFF000000; // Black for wither keys
-    private static final int BLOOD_KEY_COLOR = 0xFFCC0000; // Red for blood keys
     private static final int LIVID_COLOR = 0xFF00FF00; // Green for the correct Livid
+
+    private static int witherKeyColor() { return TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorESPWitherKey); }
+    private static int bloodKeyColor() { return TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorESPBloodKey); }
+    private static int witherDoorColor() { return TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorESPWitherDoor); }
+    private static int bloodDoorColor() { return TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorESPBloodDoor); }
 
     private static final String[] PEST_NAMES = {
             "Cricket", "Mosquito", "Moth", "Fly", "Locust",
@@ -244,12 +247,12 @@ public class StarredMobESP {
                 if (entityName.equals("Wither Key") || entityName.contains("Wither Key")) {
                     witherKeyPositions.add(new Vec3(entity.getX(), entity.getY(), entity.getZ()));
                     witherKeyEntities.add(entity);
-                    glowingEntities.put(entity, WITHER_KEY_COLOR & 0x00FFFFFF);
+                    glowingEntities.put(entity, witherKeyColor() & 0x00FFFFFF);
                 }
                 else if (entityName.equals("Blood Key") || entityName.contains("Blood Key")) {
                     bloodKeyPositions.add(new Vec3(entity.getX(), entity.getY(), entity.getZ()));
                     bloodKeyEntities.add(entity);
-                    glowingEntities.put(entity, BLOOD_KEY_COLOR & 0x00FFFFFF);
+                    glowingEntities.put(entity, bloodKeyColor() & 0x00FFFFFF);
                 }
             }
 
@@ -974,7 +977,7 @@ public class StarredMobESP {
                         tracerColor = 0xFFFF5555;
                     }
                 } else {
-                    boxColor = isWither ? 0xFF333333 : 0xFFCC0000;
+                    boxColor = isWither ? witherDoorColor() : bloodDoorColor();
                     tracerColor = isWither ? TRACER_DOOR : 0xFFFF0000;
                 }
 
@@ -998,7 +1001,7 @@ public class StarredMobESP {
             for (Entity keyEntity : witherKeyEntities) {
                 if (!keyEntity.isAlive()) continue;
                 AABB keyBox = keyEntity.getBoundingBox();
-                ESPRenderer.drawESPBox(matrices, keyBox, 0xFF000000, cameraPos);  // Black box
+                ESPRenderer.drawESPBox(matrices, keyBox, witherKeyColor(), cameraPos);
                 if (drawKeyTracers) {
                     Vec3 keyCenter = keyBox.getCenter();
                     ESPRenderer.drawTracerFromCamera(matrices, keyCenter, TRACER_WITHER_KEY, cameraPos);
@@ -1008,7 +1011,7 @@ public class StarredMobESP {
             for (Entity keyEntity : bloodKeyEntities) {
                 if (!keyEntity.isAlive()) continue;
                 AABB keyBox = keyEntity.getBoundingBox();
-                ESPRenderer.drawESPBox(matrices, keyBox, 0xFFCC0000, cameraPos);  // Red box
+                ESPRenderer.drawESPBox(matrices, keyBox, bloodKeyColor(), cameraPos);
                 if (drawKeyTracers) {
                     Vec3 keyCenter = keyBox.getCenter();
                     ESPRenderer.drawTracerFromCamera(matrices, keyCenter, TRACER_BLOOD_KEY, cameraPos);
@@ -1038,12 +1041,12 @@ public class StarredMobESP {
 
         for (Vec3 keyPos : witherKeyPositions) {
             renderKeyIndicator(context, mc, keyPos, centerX, centerY, screenWidth, screenHeight,
-                    0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF); // Black outer, white inner, white text
+                    witherKeyColor(), 0xFFFFFFFF, 0xFFFFFFFF); // white inner, white text
         }
 
         for (Vec3 keyPos : bloodKeyPositions) {
             renderKeyIndicator(context, mc, keyPos, centerX, centerY, screenWidth, screenHeight,
-                    0xFFCC0000, 0xFFFF4444, 0xFFFF4444); // Dark red outer, red inner, red text
+                    bloodKeyColor(), 0xFFFF4444, 0xFFFF4444); // red inner, red text
         }
 
         Entity correctLividEntity = LividSolver.getCorrectLivid();

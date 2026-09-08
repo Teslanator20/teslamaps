@@ -23,5 +23,14 @@ accessible class net/minecraft/client/gui/components/AbstractSelectionList$Entry
 accessible field net/minecraft/client/renderer/PostChain passes Ljava/util/List;
 accessible field net/minecraft/client/renderer/PostPass customUniforms Ljava/util/Map;
 
+# Chroma text: the glyph record is private, and the named-colour constructor - the marker the
+# chroma pipeline keys off - is private too.
+accessible class net/minecraft/client/gui/font/glyphs/BakedSheetGlyph$GlyphInstance
+accessible method net/minecraft/network/chat/TextColor <init> (ILjava/lang/String;)V
+
+# Chat images size themselves off the chat's own width. Chat mods (Polyfrost Chatting)
+# override this instance method, so reading it beats reading the vanilla option.
+accessible method net/minecraft/client/gui/components/ChatComponent getWidth ()I
+
 # Reading the currently bound key of a mapping: only the default is public.
 accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;

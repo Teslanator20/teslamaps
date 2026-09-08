@@ -45,4 +45,18 @@ public class StringUtil {
     public static boolean isServerMessage(String raw) {
         return !isPlayerChat(strip(raw));
     }
+
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+
+    /** "ultimate wise" -> "Ultimate Wise" */
+    public static String titleCase(String raw) {
+        if (raw == null || raw.isEmpty()) return "";
+        StringBuilder out = new StringBuilder();
+        for (String word : WHITESPACE.split(raw.trim().toLowerCase(java.util.Locale.ROOT))) {
+            if (word.isEmpty()) continue;
+            if (out.length() > 0) out.append(' ');
+            out.append(Character.toUpperCase(word.charAt(0))).append(word, 1, word.length());
+        }
+        return out.toString();
+    }
 }

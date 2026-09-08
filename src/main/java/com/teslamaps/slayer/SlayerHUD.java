@@ -8,10 +8,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
@@ -78,8 +75,6 @@ public class SlayerHUD {
     private static long typhoeusLastSeen = 0;
     private static boolean quaziiDead = false;
     private static boolean typhoeusDead = false;
-    private static final double QUAZII_MAX_HP = 10_000_000;  // 10M
-    private static final double TYPHOEUS_MAX_HP = 10_000_000; // 10M
     private static final long MINION_TIMEOUT = 5000; // 5 seconds before hiding if not seen
 
     private static long questStartTime = 0;       // When the slayer quest FIRST started (persists through demon phases)
@@ -94,10 +89,6 @@ public class SlayerHUD {
 
     private static String bossOwner = null;       // Who spawned this boss
     private static boolean isOwnBoss = false;     // Is this our boss?
-
-    private static boolean isDragging = false;
-    private static int dragOffsetX = 0;
-    private static int dragOffsetY = 0;
 
     private static String lastWorldName = null;
 
@@ -286,116 +277,6 @@ public class SlayerHUD {
         }
     }
 
-    public static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
-        if (!TeslaMapsConfig.get().slayerHUD) return;
-        boolean demonsActiveCheck = (quaziiHP > 0 && !quaziiDead) || (typhoeusHP > 0 && !typhoeusDead);
-        if (currentBossName == null && !demonsActiveCheck) return;
-
-        Minecraft mc = Minecraft.getInstance();
-        Font textRenderer = mc.font;
-
-        int x = TeslaMapsConfig.get().slayerHudX;
-        int y = TeslaMapsConfig.get().slayerHudY;
-        float scale = TeslaMapsConfig.get().slayerHudScale;
-
-        var matrices = context.pose();
-        matrices.pushMatrix();
-        matrices.translate(x, y);
-        matrices.scale(scale, scale);
-        matrices.translate(-x, -y);
-
-        int bgWidth = 140;
-        int padding = 6;
-        int barHeight = 12;
-        int smallBarHeight = 8;
-        int barWidth = bgWidth - padding * 2;
-        int barX = x + padding;
-
-        boolean demonsActive = (quaziiHP > 0 && !quaziiDead) || (typhoeusHP > 0 && !typhoeusDead);
-        boolean showBossSection = currentBossName != null && !demonsActive;
-
-        int contentHeight = 0;
-        if (showBossSection) {
-            contentHeight += 10 + barHeight; // Boss name + main bar
-            if (currentPhaseType != null) contentHeight += 12; // Phase line
-        }
-        if (demonsActive) {
-            if (quaziiHP > 0) contentHeight += smallBarHeight + 2; // Quazii bar
-            if (typhoeusHP > 0) contentHeight += smallBarHeight + 2; // Typhoeus bar
-        }
-        int bgHeight = contentHeight + padding * 2;
-
-        com.teslamaps.render.gui.HudStyle.panel(context, x, y, bgWidth, bgHeight, 4);
-
-        int centerX = x + bgWidth / 2;
-        int currentY = y + padding;
-
-        if (showBossSection) {
-            int nameWidth = textRenderer.width(currentBossName);
-            context.text(textRenderer, currentBossName, centerX - nameWidth / 2, currentY, 0xFFFF5555, true);
-            currentY += 12;
-
-            double hpPercent = Math.min(1.0, Math.max(0, currentHP / phaseMaxHP));
-            int filledWidth = (int) (barWidth * hpPercent);
-
-            drawRoundedRect(context, barX, currentY, barWidth, barHeight, 2, 0xFF333333);
-
-            int barColor = getPhaseColor(currentPhaseType);
-            if (filledWidth > 2) {
-                drawRoundedRect(context, barX, currentY, filledWidth, barHeight, 2, barColor);
-            }
-
-            String hpText = formatHP(currentHP) + " / " + formatHP(phaseMaxHP);
-            int hpTextWidth = textRenderer.width(hpText);
-            context.text(textRenderer, hpText, centerX - hpTextWidth / 2, currentY + 2, 0xFFFFFFFF, true);
-            currentY += barHeight + 2;
-
-            if (currentPhaseType != null) {
-                int phaseColor = getPhaseColor(currentPhaseType);
-                String phaseText = currentPhaseType + " x" + phaseCount;
-                int phaseWidth = textRenderer.width(phaseText);
-                context.text(textRenderer, phaseText, centerX - phaseWidth / 2, currentY, phaseColor, true);
-                currentY += 12;
-            }
-        }
-
-        if (demonsActive) {
-            if (quaziiHP > 0) {
-                drawMinionBar(context, textRenderer, barX, currentY, barWidth, smallBarHeight,
-                    "Quazii", quaziiHP, QUAZII_MAX_HP, 0xFF55FF55); // Green
-                currentY += smallBarHeight + 2;
-            }
-
-            if (typhoeusHP > 0) {
-                drawMinionBar(context, textRenderer, barX, currentY, barWidth, smallBarHeight,
-                    "Typhoeus", typhoeusHP, TYPHOEUS_MAX_HP, 0xFFFF55FF); // Magenta
-            }
-        }
-
-        matrices.popMatrix();
-    }
-
-    private static void drawMinionBar(GuiGraphicsExtractor context, Font textRenderer,
-            int x, int y, int width, int height, String name, double hp, double maxHp, int color) {
-        double percent = Math.min(1.0, Math.max(0, hp / maxHp));
-        int filledWidth = (int) (width * percent);
-
-        drawRoundedRect(context, x, y, width, height, 2, 0xFF333333);
-
-        if (filledWidth > 2) {
-            drawRoundedRect(context, x, y, filledWidth, height, 2, color);
-        }
-
-        String text = name + ": " + formatHP(hp);
-        context.text(textRenderer, text, x + 2, y, 0xFFFFFFFF, true);
-    }
-
-    /** Stacked rectangles faking a rounded corner used to live here; TeslaGui
-     *  draws the real thing at the same size. */
-    private static void drawRoundedRect(GuiGraphicsExtractor context, int x, int y, int width, int height, int radius, int color) {
-        com.teslamaps.render.gui.TeslaGui.roundedRect(context, x, y, width, height, radius, color);
-    }
-
     /** Cheap pre-check so the ESP render path can skip its entity sweep entirely. */
     public static boolean hasGlowTargets() {
         return bossEntity != null || !minibossEntities.isEmpty();
@@ -496,13 +377,6 @@ public class SlayerHUD {
             com.teslamaps.render.ESPRenderer.drawTracerFromCamera(matrices,
                     e.getBoundingBox().getCenter(), 0xFFFF5555, cameraPos);
         }
-    }
-
-    private static String formatHP(double hp) {
-        if (hp >= 1_000_000_000) return String.format("%.1fB", hp / 1_000_000_000);
-        if (hp >= 1_000_000) return String.format("%.1fM", hp / 1_000_000);
-        if (hp >= 1_000) return String.format("%.1fK", hp / 1_000);
-        return String.format("%.0f", hp);
     }
 
     public static void onSlayerComplete() {
@@ -608,39 +482,6 @@ public class SlayerHUD {
             return String.format("%d:%02d.%d", minutes, seconds, millis);
         } else {
             return String.format("%d.%ds", seconds, millis);
-        }
-    }
-
-    public static boolean handleMouseClick(double mouseX, double mouseY, int button) {
-        if (!TeslaMapsConfig.get().slayerHUD || currentBossName == null) return false;
-
-        int x = TeslaMapsConfig.get().slayerHudX;
-        int y = TeslaMapsConfig.get().slayerHudY;
-        int width = 148;
-        int height = 50;
-
-        if (mouseX >= x - 4 && mouseX <= x + width && mouseY >= y - 4 && mouseY <= y + height) {
-            isDragging = true;
-            dragOffsetX = (int) mouseX - x;
-            dragOffsetY = (int) mouseY - y;
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean handleMouseDrag(double mouseX, double mouseY) {
-        if (isDragging) {
-            TeslaMapsConfig.get().slayerHudX = (int) mouseX - dragOffsetX;
-            TeslaMapsConfig.get().slayerHudY = (int) mouseY - dragOffsetY;
-            return true;
-        }
-        return false;
-    }
-
-    public static void handleMouseRelease() {
-        if (isDragging) {
-            isDragging = false;
-            TeslaMapsConfig.save();
         }
     }
 }

@@ -34,8 +34,10 @@ public class DungeonTimers {
         if (mc.player == null || mc.options.hideGui) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
-        // the invincibility block stays up in the inventory so it can be dragged there
-        boolean inScreen = mc.screen != null;
+        // the invincibility block stays up in the inventory so it can be dragged there.
+        // Chat does not count as a screen, the timers have to survive typing a message.
+        boolean inScreen = mc.screen != null
+                && !(mc.screen instanceof net.minecraft.client.gui.screens.ChatScreen);
         if (inScreen && !inInventory(mc)) return;
 
         List<Row> inv = new ArrayList<>();

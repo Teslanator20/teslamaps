@@ -25,8 +25,8 @@ public class KeybindMessage {
 
         long handle = mc.getWindow().handle();
         for (TeslaMapsConfig.Keybind kb : TeslaMapsConfig.get().keybinds) {
-            if (kb.key < 0 || kb.message == null || kb.message.isBlank()) continue;
-            boolean down = GLFW.glfwGetKey(handle, kb.key) == GLFW.GLFW_PRESS;
+            if (kb.key == -1 || kb.message == null || kb.message.isBlank()) continue;
+            boolean down = com.teslamaps.utils.KeyNames.isDown(kb.key);
             boolean wasDown = heldKeys.contains(kb.key);
             if (down && !wasDown && fire) send(kb.message);   // edge: just pressed
             if (down) heldKeys.add(kb.key); else heldKeys.remove(kb.key);
@@ -44,8 +44,8 @@ public class KeybindMessage {
     }
 
     private static void pollWp(long handle, int key, boolean fire, Runnable action) {
-        if (key < 0) return;
-        boolean down = GLFW.glfwGetKey(handle, key) == GLFW.GLFW_PRESS;
+        if (key == -1) return;
+        boolean down = com.teslamaps.utils.KeyNames.isDown(key);
         boolean was = heldWp.contains(key);
         if (down && !was && fire) action.run();
         if (down) heldWp.add(key); else heldWp.remove(key);

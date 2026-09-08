@@ -1,4 +1,3 @@
-// Ported from SkyHanni's HotfApi.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.features.foraging;
 
 import java.util.List;

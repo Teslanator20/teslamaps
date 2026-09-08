@@ -16,7 +16,8 @@ public class NoCursorReset {
 
     public static void onContainerInit() {
         if (!TeslaMapsConfig.get().noCursorReset || !savedValid) return;
-        if (System.currentTimeMillis() - savedTime > 2000L) { savedValid = false; return; }
+        long hold = (long) (TeslaMapsConfig.get().noCursorResetHold * 1000f);
+        if (System.currentTimeMillis() - savedTime > hold) { savedValid = false; return; }
         restoreFrames = 2;
     }
 

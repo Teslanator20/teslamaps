@@ -3,7 +3,6 @@ package com.teslamaps.utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -21,15 +20,21 @@ public class LoudSound {
 
     public static void play(SoundEvent sound, float volume, float pitch) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
         // packet hooks call this from the netty thread; SoundEngine maps are not thread-safe
         if (!mc.isSameThread()) {
             mc.execute(() -> play(sound, volume, pitch));
             return;
         }
 
-        Identifier soundId = BuiltInRegistries.SOUND_EVENT.getKey(sound);
+        // the bundled sounds are not in the registry, so the event carries the only id there is
+        Identifier soundId = sound.location();
         if (soundId == null) return;
+
+        // no player on the title screen, so the sound plays on the listener instead
+        boolean atListener = mc.player == null;
+        double x = atListener ? 0 : mc.player.getX();
+        double y = atListener ? 0 : mc.player.getY();
+        double z = atListener ? 0 : mc.player.getZ();
 
         SoundInstance instance = new LoudSoundInstance(
                 soundId,
@@ -40,10 +45,10 @@ public class LoudSound {
                 false,                  // Not looping
                 0,                      // No attenuation delay
                 SoundInstance.Attenuation.NONE,  // No distance attenuation = full volume everywhere
-                mc.player.getX(),
-                mc.player.getY(),
-                mc.player.getZ(),
-                false                   // Not relative
+                x,
+                y,
+                z,
+                atListener              // relative = at the listener when there is no player
         );
 
         mc.getSoundManager().play(instance);

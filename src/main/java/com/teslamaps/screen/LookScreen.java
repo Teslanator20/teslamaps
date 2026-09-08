@@ -2,6 +2,7 @@ package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.render.gui.MenuBackgroundRenderer;
+import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.render.gui.TeslaGui;
 import com.teslamaps.utils.AnimClock;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -42,7 +43,7 @@ public class LookScreen extends Screen {
     @Override
     protected void init() {
         panelH = TITLE_H + ROWS * (ROW_H + GAP) - GAP + PAD;
-        panelX = (this.width - PANEL_W) / 2;
+        panelX = Math.max(8, (this.width - PANEL_W) / 2);
         panelY = Math.max(8, (this.height - panelH) / 2);
         contentX = panelX + PAD;
         contentW = PANEL_W - PAD * 2;
@@ -84,6 +85,10 @@ public class LookScreen extends Screen {
                 }));
 
         addRenderableWidget(new TeslaMenuButton(contentX, rowY(5), contentW, ROW_H, Component.literal("Done"), this::onClose));
+    
+
+        ScreenFit.clamp(this); // keep every widget reachable at any gui scale
+
     }
 
     private void setSpeed(float value) {
@@ -113,7 +118,7 @@ public class LookScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTick) {
-        TeslaGui.glassPanel(ctx, panelX, panelY, PANEL_W, panelH, 8, 26, 45, 70, 16);
+        HudStyle.screenPanel(ctx, panelX, panelY, PANEL_W, panelH, 8);
 
         ctx.centeredText(this.font, "Look", panelX + PANEL_W / 2, panelY + 9, 0xFFF0F3FA);
 

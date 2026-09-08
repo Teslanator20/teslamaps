@@ -291,6 +291,12 @@ public class StorageOverlay {
         int sx = startX(sw), sy = startY();
         int wallBottom = (int) ((mainY() - 13) * iscl()) - 2;
 
+        // a search shrinks the box list, so an offset from the unfiltered view can sit past
+        // the end and show an empty band that reads as "nothing found"
+        int shownRows = (vis.size() + COLS - 1) / COLS;
+        scroll = Math.max(0, Math.min(scroll,
+                Math.max(0, shownRows * (boxH() + GAP) + startY() + 10 - wallBottom / scl())));
+
         ItemStack hoverNonLive = null;
         ctx.enableScissor(0, HEADER_PX, sw, Math.max(HEADER_PX, wallBottom));
         var pose = ctx.pose();
@@ -640,7 +646,7 @@ public class StorageOverlay {
             return true;
         }
         if (inSearchBar(mx, my)) {
-            if (button == 1) search = ""; else searchFocused = true;
+            if (button == 1) setSearch(""); else searchFocused = true;
             return true;
         }
         searchFocused = false;
@@ -680,14 +686,14 @@ public class StorageOverlay {
             if (key == GLFW.GLFW_KEY_S) { navigateRow(COLS); return true; }
             return false;
         }
-        if (key == GLFW.GLFW_KEY_BACKSPACE) { if (!search.isEmpty()) search = search.substring(0, search.length() - 1); return true; }
+        if (key == GLFW.GLFW_KEY_BACKSPACE) { if (!search.isEmpty()) setSearch(search.substring(0, search.length() - 1)); return true; }
         return true; // text itself arrives via charTyped
     }
 
     public static boolean charTyped(int codepoint) {
         if (!active() || !searchFocused) return false;
         if (codepoint < 32 || codepoint == 127) return false;
-        search += Character.toString(Character.toLowerCase(codepoint));
+        setSearch(search + Character.toString(Character.toLowerCase(codepoint)));
         return true;
     }
 
@@ -715,6 +721,13 @@ public class StorageOverlay {
                 || GLFW.glfwGetKey(mc.getWindow().handle(), GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
         scroll = Math.max(0, Math.min(maxScroll, scroll - (float) (sy * (ctrl ? 90 : 20))));
         return true;
+    }
+
+    /** Hits can be anywhere in the list, so every query change goes back to the top. */
+    private static void setSearch(String value) {
+        if (search.equals(value)) return;
+        search = value;
+        scroll = 0;
     }
 
     private static boolean inSearchBar(double x, double y) {

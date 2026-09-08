@@ -365,8 +365,8 @@ public class LeapOverlay {
     }
 
     private static void pollKey(long handle, int key, Runnable action) {
-        if (key < 0) return;
-        boolean down = GLFW.glfwGetKey(handle, key) == GLFW.GLFW_PRESS;
+        if (key == -1) return;
+        boolean down = com.teslamaps.utils.KeyNames.isDown(key);
         boolean was = heldLeapKeys.contains(key);
         if (down && !was) action.run();
         if (down) heldLeapKeys.add(key); else heldLeapKeys.remove(key);

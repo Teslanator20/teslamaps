@@ -25,10 +25,19 @@ public class ClientPlayerInteractionManagerMixin {
     @Inject(method = "useItem", at = @At("HEAD"))
     private void teslamaps$onUseItem(net.minecraft.world.entity.player.Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         com.teslamaps.features.CombatTimers.onUseItem(player.getItemInHand(hand));
+        com.teslamaps.features.HotspotRadar.onUseItem(player.getItemInHand(hand));
+    }
+
+    @Inject(method = "interact", at = @At("HEAD"))
+    private void teslamaps$onInteractEntity(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Entity entity, net.minecraft.world.phys.EntityHitResult hitResult, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        if (entity instanceof net.minecraft.world.entity.decoration.ItemFrame frame) {
+            com.teslamaps.dungeon.puzzle.ArrowAlignSolver.onFrameClick(frame.blockPosition());
+        }
     }
 
     @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
     private void onInteractBlock(net.minecraft.client.player.LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
+        com.teslamaps.features.HotspotRadar.onUseItem(player.getItemInHand(hand));
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 

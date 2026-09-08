@@ -23,7 +23,7 @@ public class TerracottaTimer {
             return;
         }
 
-        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBoss()) {
+        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBossArea()) {
             spawns.clear();
             return;
         }
@@ -48,7 +48,7 @@ public class TerracottaTimer {
 
     public static void onBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState) {
         if (!TeslaMapsConfig.get().terracottaTimer) return;
-        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBoss()) return;
+        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBossArea()) return;
 
         String floor = DungeonManager.getFloorName();
         if (floor == null || (!floor.contains("F6") && !floor.contains("M6"))) return;

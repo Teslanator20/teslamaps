@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 // F7/M7 melody terminal helper: announces the terminal opening and the 25/50/75% progress to party
-// chat (driven by the lime-terracotta progress marker). Ported from Odin's MelodyMessage (BSD-3).
+// chat (driven by the lime-terracotta progress marker). Ported from Odin's MelodyMessage.
 public class MelodyMessage {
     private static final String TITLE = "Click the button on time!";
 

@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class DropProtectMixin {
     @Inject(method = "drop(Z)Z", at = @At("HEAD"), cancellable = true)
     private void teslamaps$blockLockedDrop(boolean full, CallbackInfoReturnable<Boolean> cir) {
-        if (SlotLock.blockSelectedDrop()) {
+        if (SlotLock.blockSelectedDrop()
+                || com.teslamaps.features.ItemProtection.blockSelectedDrop()) {
             cir.setReturnValue(false);
         }
     }

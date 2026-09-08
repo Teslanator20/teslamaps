@@ -19,7 +19,6 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.monster.creaking.Creaking;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -30,7 +29,7 @@ public class CritterESP {
 
     private static final List<Box> boxes = new ArrayList<>();
 
-    private record Box(AABB box, int color) {}
+    private record Box(AABB box, int color, boolean tracer) {}
 
     /** The canyon only - the Safari itself is handled by com.teslamaps.safari. */
     public static boolean inArea() {
@@ -56,7 +55,8 @@ public class CritterESP {
                 if (e instanceof ArmorStand || e == mc.player) continue;
                 String col = colorFor(e, c);
                 if (col == null) continue;
-                boxes.add(new Box(e.getBoundingBox(), TeslaMapsConfig.parseColor(col) | 0xFF000000));
+                boxes.add(new Box(e.getBoundingBox(), TeslaMapsConfig.parseColor(col) | 0xFF000000,
+                        c.critterTracers));
             }
         }
     }
@@ -69,9 +69,6 @@ public class CritterESP {
         if (c.critterFirefox && e instanceof Fox) return c.colorCritterFirefox;
         if (c.critterGroundhog && e instanceof Hoglin) return c.colorCritterGroundhog;
         if (c.critterHideonsun && e instanceof Shulker) return c.colorCritterHideonsun;
-        // Hideyho is a player-type NPC entity, so match its own name only - the armor stand
-        // fallback in named() would box real players standing next to the label
-        if (c.critterHideyho && e instanceof Player && ownName(e).contains("Hideyho")) return c.colorCritterHideyho;
         if (c.critterMountainGoat && e instanceof Goat) return c.colorCritterMountainGoat;
         if (c.critterSepialot && e instanceof Axolotl) return c.colorCritterSepialot;
         if (c.critterDustybit && e instanceof Frog) return c.colorCritterDustybit;
@@ -80,11 +77,6 @@ public class CritterESP {
         return null;
     }
 
-    private static String ownName(Entity e) {
-        String n = e.getName().getString();
-        if (e.getCustomName() != null) n += " " + e.getCustomName().getString();
-        return n;
-    }
 
     // skyblock mobs often carry the display name on an armor stand riding/above them
     private static boolean named(Entity e, String needle) {
@@ -105,6 +97,9 @@ public class CritterESP {
         for (Box b : boxes) {
             if (filled) ESPRenderer.drawFilledBox(matrices, b.box(), b.color() & 0x00FFFFFF, cameraPos, true);
             ESPRenderer.drawBoxOutline(matrices, b.box(), b.color(), 2.0f, cameraPos, true);
+            if (b.tracer()) {
+                ESPRenderer.drawTracerFromCamera(matrices, b.box().getCenter(), b.color(), cameraPos);
+            }
         }
     }
 }

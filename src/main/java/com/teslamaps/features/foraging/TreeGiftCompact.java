@@ -1,4 +1,3 @@
-// Ported from SkyHanni's ForagingTracker.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.features.foraging;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -29,6 +28,7 @@ public class TreeGiftCompact {
     private static final Pattern PHANTOM = Pattern.compile(" *A (?<phantom>[\\S ]+) fell from the Tree!");
 
     private static boolean inBlock = false;
+    private static boolean giftBlock = false;
     private static boolean inBonusGift = false;
     private static int lines = 0;
     private static String treeType = "";
@@ -44,6 +44,10 @@ public class TreeGiftCompact {
             inBlock = false;
             return false;
         }
+
+        // Hypixel wraps a lot of reward blocks in the same ▬ bar (corpse loot, catches, ...),
+        // so the bar alone must not arm the block outside the places gifts drop
+        if (!inBlock && !Foraging.whereTreesGrow()) return false;
 
         String clean = Foraging.strip(message.getString()).stripTrailing();
         String trimmed = clean.trim();
@@ -61,6 +65,7 @@ public class TreeGiftCompact {
             // the opening bar can go missing when other mods eat it, arm on the header instead
             if (GIFT_HEADER.matcher(clean).matches()) {
                 start();
+                giftBlock = true;
                 return true;
             }
             return false;
@@ -69,6 +74,16 @@ public class TreeGiftCompact {
         if (++lines > 60) {
             inBlock = false;
             return false;
+        }
+
+        // the gift header is the first line after the bar - anything else means this is
+        // some other ▬ block and the rest of it has to stay visible
+        if (!giftBlock) {
+            if (GIFT_HEADER.matcher(clean).matches()) giftBlock = true;
+            else if (!trimmed.isEmpty()) {
+                inBlock = false;
+                return false;
+            }
         }
 
         if (BONUS_HEADER.matcher(clean).matches()) {
@@ -111,6 +126,7 @@ public class TreeGiftCompact {
 
     private static void start() {
         inBlock = true;
+        giftBlock = false;
         inBonusGift = false;
         lines = 0;
         treeType = "";

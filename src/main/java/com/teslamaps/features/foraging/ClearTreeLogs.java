@@ -1,4 +1,3 @@
-// Ported from SkyHanni's ClearTreeLogs.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.features.foraging;
 
 import com.teslamaps.config.TeslaMapsConfig;

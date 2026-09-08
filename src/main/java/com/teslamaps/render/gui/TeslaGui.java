@@ -122,12 +122,10 @@ public class TeslaGui {
      * <p>
      * Takes the content's own bounds and grows outwards, so the text keeps the
      * exact position it had before — the anchor the player dragged it to still
-     * points at the same pixel. Skipped entirely when the player turns HUD
-     * backgrounds off, since these sit on top of gameplay.
+     * points at the same pixel. HUD Style "Vanilla" draws nothing here.
      */
     public static void backdrop(GuiGraphicsExtractor ctx, float contentX, float contentY,
                                 float contentWidth, float contentHeight) {
-        if (!com.teslamaps.config.TeslaMapsConfig.get().hudPanelBackground) return;
         if (contentWidth <= 0 || contentHeight <= 0) return;
 
         float p = backdropPadding();
@@ -142,7 +140,6 @@ public class TeslaGui {
      */
     public static void backdropRect(GuiGraphicsExtractor ctx, float x, float y,
                                     float width, float height) {
-        if (!com.teslamaps.config.TeslaMapsConfig.get().hudPanelBackground) return;
         if (width <= 0 || height <= 0) return;
         HudStyle.panel(ctx, x, y, width, height, 5);
     }

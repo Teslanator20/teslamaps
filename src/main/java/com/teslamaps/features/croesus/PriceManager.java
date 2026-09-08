@@ -26,6 +26,7 @@ public class PriceManager {
     });
 
     private static final Map<String, Double> bazaar = new ConcurrentHashMap<>();    // internal id -> instant-buy price
+    private static final Map<String, Double> bazaarSell = new ConcurrentHashMap<>(); // internal id -> instant-sell price
     private static final Map<String, Double> lowestBin = new ConcurrentHashMap<>(); // internal id -> lowest BIN
     private static final Map<String, String> nameToId = new ConcurrentHashMap<>();  // lowercase clean name -> internal id
 
@@ -38,6 +39,7 @@ public class PriceManager {
     public static boolean isLoaded() { return loaded; }
 
     public static void ensureFresh() {
+        com.teslamaps.utils.SkyblockItems.load();
         long now = System.currentTimeMillis();
         if (loaded && now - lastFetch < 600_000) return;
         if (now - lastFetch < 30_000) return;
@@ -76,7 +78,9 @@ public class PriceManager {
         JsonObject products = json.getAsJsonObject("products");
         for (var e : products.entrySet()) {
             JsonObject qs = e.getValue().getAsJsonObject().getAsJsonObject("quick_status");
-            if (qs != null && qs.has("buyPrice")) bazaar.put(e.getKey(), qs.get("buyPrice").getAsDouble());
+            if (qs == null) continue;
+            if (qs.has("buyPrice")) bazaar.put(e.getKey(), qs.get("buyPrice").getAsDouble());
+            if (qs.has("sellPrice")) bazaarSell.put(e.getKey(), qs.get("sellPrice").getAsDouble());
         }
     }
 
@@ -106,6 +110,59 @@ public class PriceManager {
         if (b != null) return b;
         Double bin = lowestBin.get(id);
         return bin != null ? bin : 0;
+    }
+
+    public static boolean hasBazaar(String id) { return id != null && bazaar.containsKey(id); }
+
+    /** BZ instant buy. */
+    public static final int SOURCE_BAZAAR_BUY = 0;
+    /** BZ instant sell (SkyHanni's default). */
+    public static final int SOURCE_BAZAAR_SELL = 1;
+    /** NPC sell only. */
+    public static final int SOURCE_NPC = 2;
+    /** Lowest BIN first, bazaar only as the fallback. */
+    public static final int SOURCE_LOWEST_BIN = 3;
+
+    /**
+     * What one of the given item goes for, or null when nothing knows. Mirrors
+     * SkyHanni's price source order: bazaar, then lowest BIN, then the NPC price.
+     * SOURCE_LOWEST_BIN flips the first two, for the items that trade on the AH.
+     */
+    public static Double getPriceOrNull(String id, int source) {
+        if (id == null || id.isEmpty()) return null;
+        if (id.equals("SKYBLOCK_COIN")) return 1.0;
+
+        if (source == SOURCE_LOWEST_BIN) {
+            Double bin = lowestBin.get(id);
+            if (bin != null) return bin;
+        }
+
+        if (source != SOURCE_NPC) {
+            Double bz = source == SOURCE_BAZAAR_SELL ? bazaarSell.get(id) : bazaar.get(id);
+            if (bz == null) bz = bazaar.get(id);
+            if (bz != null) return bz;
+
+            Double bin = lowestBin.get(id);
+            if (bin != null) return bin;
+        }
+
+        return com.teslamaps.utils.SkyblockItems.hasNpcPrice(id)
+                ? com.teslamaps.utils.SkyblockItems.npcPrice(id) : null;
+    }
+
+    /** Lowest BIN on its own, for showing it next to whatever the active source says. */
+    public static Double lowestBinOrNull(String id) {
+        return id == null ? null : lowestBin.get(id);
+    }
+
+    /** BZ instant buy, what it costs you to buy one right now. */
+    public static Double bazaarBuyOrNull(String id) {
+        return id == null ? null : bazaar.get(id);
+    }
+
+    /** BZ instant sell, what you get for selling one right now. */
+    public static Double bazaarSellOrNull(String id) {
+        return id == null ? null : bazaarSell.get(id);
     }
 
     public static String idForName(String displayName) {

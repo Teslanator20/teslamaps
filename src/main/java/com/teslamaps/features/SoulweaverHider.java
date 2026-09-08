@@ -105,6 +105,12 @@ public class SoulweaverHider {
         return false;
     }
 
+    /** @return the texture URL hash of a player head, or null. */
+    public static String headTextureUrl(ItemStack head) {
+        if (head == null || head.getItem() != Items.PLAYER_HEAD) return null;
+        return textureUrl(skullTexture(head));
+    }
+
     // Decodes a skull texture-property base64 to its texture URL hash (cached); null if unparseable.
     private static String textureUrl(String base64) {
         if (base64 == null) return null;

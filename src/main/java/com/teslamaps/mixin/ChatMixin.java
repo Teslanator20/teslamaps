@@ -28,8 +28,10 @@ public class ChatMixin {
     private static final String ADD_MESSAGE = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V";
 
     @ModifyVariable(method = ADD_MESSAGE, at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private Component teslamaps$highlightQuiz(Component message) {
-        if (!TeslaMapsConfig.get().section("Puzzles")) return message;
+    private Component teslamaps$rewriteLine(Component message) {
+        Component shared = com.teslamaps.features.SharedImageChat.decorate(message);
+        if (shared != null) return shared;
+        if (!TeslaMapsConfig.get().section("Puzzles & Terminals")) return message;
         Component recolored = QuizSolver.highlightLine(message);
         return recolored != null ? recolored : message;
     }
@@ -44,14 +46,16 @@ public class ChatMixin {
         // server messages. Player chat still reaches the features that want it below.
         boolean fromServer = com.teslamaps.utils.StringUtil.isServerMessage(text);
 
-        if (cfg.section("Puzzles") && QuizSolver.shouldHide(text)) {
+        if (fromServer) com.teslamaps.command.PlayerNameCache.onChatMessage(message);
+
+        if (cfg.section("Puzzles & Terminals") && QuizSolver.shouldHide(text)) {
             ci.cancel();
             return;
         }
         if (text.contains("SLAYER QUEST COMPLETE")) {
-            if (cfg.section("Slayer")) SlayerHUD.onSlayerComplete();
+            if (cfg.section("Combat")) SlayerHUD.onSlayerComplete();
         } else if (text.contains("SLAYER QUEST FAILED")) {
-            if (cfg.section("Slayer")) SlayerHUD.onSlayerFailed();
+            if (cfg.section("Combat")) SlayerHUD.onSlayerFailed();
         } else if (text.contains("A Wither Key was picked up!") || text.contains("has obtained Wither Key")) {
             if (cfg.section("ESP")) StarredMobESP.onWitherKeyPickup();
         } else if (text.contains("A Blood Key was picked up!") || text.contains("has obtained Blood Key")) {
@@ -98,9 +102,9 @@ public class ChatMixin {
 
         if (cfg.section("Leap")) com.teslamaps.features.LeapOverlay.onChatMessage(text);
 
-        if (cfg.section("Slayer")) com.teslamaps.slayer.SlayerAlerts.onChatMessage(text);
+        if (cfg.section("Combat")) com.teslamaps.slayer.SlayerAlerts.onChatMessage(text);
 
-        if (fromServer && cfg.section("Skills")) com.teslamaps.features.SkillTracker.onChatMessage(text);
+        if (fromServer && cfg.section("General")) com.teslamaps.features.SkillTracker.onChatMessage(text);
         if (fromServer && cfg.section("Fishing")) com.teslamaps.features.UmbrellaWarning.onChatMessage(text);
 
 
@@ -119,12 +123,13 @@ public class ChatMixin {
         if (cfg.section("Score & Splits")) {
             com.teslamaps.dungeon.Splits.onChatMessage(text);
             com.teslamaps.dungeon.WatcherAddons.onChatMessage(text);
+            com.teslamaps.dungeon.ExtraStats.onChatMessage(text);
         }
 
         if (cfg.section("Party")) com.teslamaps.features.PartyDuplicateAlert.onChatMessage(text);
         if (cfg.section("Timers")) com.teslamaps.features.TimerTriggers.onChatMessage(text);
         if (cfg.section("Timers")) com.teslamaps.features.SpiritPetReminder.onChatMessage(text);
-        if (cfg.section("Puzzles")) com.teslamaps.features.CustomTitles.onChatMessage(text);
+        if (cfg.section("Puzzles & Terminals")) com.teslamaps.features.CustomTitles.onChatMessage(text);
         if (cfg.section("Render")) com.teslamaps.features.ChatWaypoint.onChatMessage(text);
         if (cfg.section("Render")) com.teslamaps.features.RareDropEffects.onChatMessage(text);
 
@@ -136,11 +141,11 @@ public class ChatMixin {
             com.teslamaps.features.ChatCommands.onChatMessage(text);
         }
 
-        if (cfg.section("Puzzles")) ThreeWeirdos.onChatMessage(text);
+        if (cfg.section("Puzzles & Terminals")) ThreeWeirdos.onChatMessage(text);
 
         if (cfg.section("Auto")) AutoWish.onChatMessage(text);
 
-        if (cfg.section("Puzzles")) {
+        if (cfg.section("Puzzles & Terminals")) {
             QuizSolver.onChatMessage(text);
             com.teslamaps.dungeon.puzzle.SimonSaysSolver.onChatMessage(text);
         }
@@ -188,6 +193,7 @@ public class ChatMixin {
     @Unique
     private static void onSecretFound() {
         TeslaMapsConfig config = TeslaMapsConfig.get();
+        com.teslamaps.features.SecretChime.onSecretFound();
         if (!config.secretSound) {
             return;
         }

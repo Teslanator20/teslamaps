@@ -1,4 +1,3 @@
-// Ported from SkyHanni's GetFromSackApi.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;

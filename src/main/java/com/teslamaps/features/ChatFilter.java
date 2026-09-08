@@ -6,11 +6,19 @@ public class ChatFilter {
 
     public static boolean shouldHide(String raw) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        String plain = raw.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        // belongs to the screenshot manager, which prints its own line with buttons,
+        // so it is not tied to the chat filter master switch
+        if (c.screenshotHideVanillaMessage && plain.startsWith("Saved screenshot as ")) return true;
+
         if (!c.chatFilterEnabled) return false;
 
-        String t = raw.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        String t = plain;
 
-        if (c.chatFilterEmpty && t.trim().isEmpty()) return true;
+        // the image padding is empty on purpose, it is the gap the picture is drawn into
+        if (c.chatFilterEmpty && t.trim().isEmpty()) {
+            return !com.teslamaps.features.SharedImageChat.sendingPadding();
+        }
 
         if (c.chatFilterWatcher && t.contains("[BOSS] The Watcher:")) return true;
         if (c.chatFilterF4Boss && (t.contains("[BOSS] Thorn:")

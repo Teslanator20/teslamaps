@@ -1,4 +1,3 @@
-// Ported from SkyHanni's HotxHandler.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.features.foraging;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -26,10 +25,17 @@ public class HotF {
     private static final Pattern TOKENS = Pattern.compile("Tokens of the Forest: (?<token>\\d+)");
     private static final String CURRENT_EFFECT = "Your Current Effect";
 
+    private static net.minecraft.client.gui.screens.Screen cachedScreen;
+    private static boolean cachedInInventory;
+
     public static boolean inInventory() {
         Minecraft mc = Minecraft.getInstance();
-        return mc.screen instanceof AbstractContainerScreen<?> cs
-                && Foraging.strip(cs.getTitle().getString()).contains(INVENTORY);
+        if (mc.screen != cachedScreen) {
+            cachedScreen = mc.screen;
+            cachedInInventory = mc.screen instanceof AbstractContainerScreen<?> cs
+                    && Foraging.strip(cs.getTitle().getString()).contains(INVENTORY);
+        }
+        return cachedInInventory;
     }
 
     public static boolean shouldRender() {
@@ -39,15 +45,67 @@ public class HotF {
                 && inInventory();
     }
 
+    private static final int NONE = 0, LOCKED = 1, ENABLED = 2, DISABLED = 3;
+
+    // called per slot every frame, and the lore component is immutable
+    private static final java.util.Map<ItemLore, Integer> stateCache = new java.util.IdentityHashMap<>();
+
+    /**
+     * Drawn behind the item icon, as one flat rect with no border - SkyHanni highlights the
+     * perks from the background pass, so the icons stay readable.
+     */
+    public static void drawHighlight(GuiGraphicsExtractor ctx, Slot slot) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.hotfHighlight || !c.section("Foraging") || !inInventory()) return;
+        if (slot.container instanceof net.minecraft.world.entity.player.Inventory) return;
+
+        ItemStack item = slot.getItem();
+        if (item.isEmpty()) return;
+        ItemLore lore = item.get(DataComponents.LORE);
+        if (lore == null) return;
+
+        Integer state = stateCache.get(lore);
+        if (state == null) {
+            state = perkState(item, lore);
+            if (stateCache.size() > 512) stateCache.clear();
+            stateCache.put(lore, state);
+        }
+        if (state == NONE) return;
+
+        String hex = switch (state) {
+            case LOCKED -> c.colorHotfLocked;
+            case ENABLED -> c.colorHotfEnabled;
+            default -> c.colorHotfDisabled;
+        };
+        ctx.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, 0xFF000000 | (TeslaMapsConfig.parseColor(hex) & 0xFFFFFF));
+    }
+
+    private static int perkState(ItemStack item, ItemLore raw) {
+        String name = Foraging.strip(item.getHoverName().getString()).trim();
+        if (name.equals(INVENTORY) || name.equals(RESET_ITEM)) return NONE;
+        List<String> lore = lore(item);
+        if (lore.isEmpty()) return NONE;
+        if (!isPerk(lore)) return NONE;
+        if (NOT_UNLOCKED.matcher(lore.get(lore.size() - 1).trim()).matches()) return LOCKED;
+        return isEnabled(lore) ? ENABLED : DISABLED;
+    }
+
+    // only the tree nodes carry a "Level x/y" head line or a state line - navigation
+    // items, tier headers and the scroll arrows must stay uncoloured
+    private static boolean isPerk(List<String> lore) {
+        if (LEVEL.matcher(lore.get(0).trim()).matches()) return true;
+        for (String line : lore) {
+            String l = line.trim();
+            if (l.equals("ENABLED") || l.equals("DISABLED") || l.equals("SELECTED")) return true;
+        }
+        return false;
+    }
+
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
-
-        int enabledColor = TeslaMapsConfig.parseColor(c.colorHotfEnabled) & 0x00FFFFFF;
-        int disabledColor = TeslaMapsConfig.parseColor(c.colorHotfDisabled) & 0x00FFFFFF;
-        int lockedColor = TeslaMapsConfig.parseColor(c.colorHotfLocked) & 0x00FFFFFF;
 
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
@@ -74,9 +132,6 @@ public class HotF {
             boolean locked = NOT_UNLOCKED.matcher(lore.get(lore.size() - 1).trim()).matches();
             boolean enabled = !locked && isEnabled(lore);
 
-            if (c.hotfHighlight) {
-                highlight(ctx, sx, sy, locked ? lockedColor : enabled ? enabledColor : disabledColor);
-            }
             if (c.hotfLevelStack && enabled) {
                 int[] level = readLevel(lore);
                 if (level != null && level[0] != 0 && level[0] != level[1]) {
@@ -84,14 +139,6 @@ public class HotF {
                 }
             }
         }
-    }
-
-    private static void highlight(GuiGraphicsExtractor ctx, int sx, int sy, int col) {
-        ctx.fill(sx, sy, sx + 16, sy + 16, 0x66000000 | col);
-        ctx.fill(sx, sy, sx + 16, sy + 1, 0xFF000000 | col);
-        ctx.fill(sx, sy + 15, sx + 16, sy + 16, 0xFF000000 | col);
-        ctx.fill(sx, sy, sx + 1, sy + 16, 0xFF000000 | col);
-        ctx.fill(sx + 15, sy, sx + 16, sy + 16, 0xFF000000 | col);
     }
 
     private static void stackTip(GuiGraphicsExtractor ctx, Minecraft mc, int sx, int sy, String text) {

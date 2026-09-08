@@ -1,4 +1,3 @@
-// Ported from OdinLegacy's WorldScanner.kt (BSD-3-Clause), see NOTICE.md
 package com.teslamaps.features;
 
 import com.mojang.blaze3d.vertex.PoseStack;

@@ -91,6 +91,63 @@ public class TMapCommand {
                     });
                     return 1;
                 })
+                .then(ClientCommands.literal("image")
+                        .then(ClientCommands.literal("block")
+                                .then(ClientCommands.argument("name", StringArgumentType.word())
+                                        .executes(context -> {
+                                            com.teslamaps.features.SharedImageChat.block(
+                                                    StringArgumentType.getString(context, "name"));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("unblock")
+                                .then(ClientCommands.argument("name", StringArgumentType.word())
+                                        .executes(context -> {
+                                            com.teslamaps.features.SharedImageChat.unblock(
+                                                    StringArgumentType.getString(context, "name"));
+                                            return 1;
+                                        }))))
+                .then(ClientCommands.literal("screenshots")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() ->
+                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.ScreenshotScreen(null)));
+                            return 1;
+                        })
+                        // the chat buttons under a saved screenshot run these
+                        .then(ClientCommands.literal("copy")
+                                .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            String name = StringArgumentType.getString(context, "name");
+                                            boolean ok = com.teslamaps.features.ScreenshotManager.copy(
+                                                    com.teslamaps.features.ScreenshotManager.byName(name));
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    ok ? "§a[TeslaMaps] §7Copied §f" + name
+                                                       : "§c[TeslaMaps] Could not copy " + name));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("delete")
+                                .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            String name = StringArgumentType.getString(context, "name");
+                                            boolean ok = com.teslamaps.features.ScreenshotManager.delete(
+                                                    com.teslamaps.features.ScreenshotManager.byName(name));
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    ok ? "§7[TeslaMaps] Deleted §f" + name
+                                                       : "§c[TeslaMaps] Could not delete " + name));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("share")
+                                .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            String name = StringArgumentType.getString(context, "name");
+                                            com.teslamaps.features.ScreenshotManager.shareToClipboard(
+                                                    com.teslamaps.features.ScreenshotManager.byName(name));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("folder")
+                                .executes(context -> {
+                                    com.teslamaps.features.ScreenshotManager.openFolder();
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("gui")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() -> {
@@ -115,6 +172,20 @@ public class TMapCommand {
                                 .then(ClientCommands.argument("radius", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 64))
                                         .executes(context -> safariDebug(context.getSource(),
                                                 com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius"))))))
+                .then(ClientCommands.literal("names")
+                        .executes(context -> {
+                            context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(
+                                    "§b[TeslaMaps] §f" + PlayerNameCache.status()
+                                            + "§7 · run /g list and /f list to fill it, /tmap names clear to reset"));
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    PlayerNameCache.clear();
+                                    context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(
+                                            "§b[TeslaMaps] §fName list cleared"));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("profile")
                         .executes(context -> {
                             context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(
@@ -188,6 +259,21 @@ public class TMapCommand {
                                                     StringArgumentType.getString(context, "skill"));
                                             return 1;
                                         })))
+                        .then(ClientCommands.literal("deployables")
+                                .executes(context -> {
+                                    com.teslamaps.features.Deployables.debugDump();
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("deaths")
+                                .executes(context -> {
+                                    com.teslamaps.debug.DeathProbe.arm(30);
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("particles")
+                                .executes(context -> {
+                                    com.teslamaps.features.HotspotWatcher.startCensus(10);
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("dragon")
                                 .executes(context -> {
                                     com.teslamaps.dungeon.WitherDragons.debugDump();
@@ -491,6 +577,8 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal("Rooms loaded: " + DungeonManager.getGrid().getAllRooms().size()));
                                     context.getSource().sendFeedback(Component.literal("DB loaded: " + RoomDatabase.getInstance().isLoaded()));
                                     context.getSource().sendFeedback(Component.literal("DB rooms: " + RoomDatabase.getInstance().getAllRooms().size()));
+                                    context.getSource().sendFeedback(Component.literal("Packet-hidden spawns: "
+                                            + com.teslamaps.features.PacketHiders.cancelledCount()));
                                     return 1;
                                 }))
                         .then(ClientCommands.literal("rescan")
@@ -921,6 +1009,20 @@ public class TMapCommand {
                 if (slot != null) extra.append(" display=").append(slot.get().getItem().toString());
             }
             if (e.getCustomName() != null) extra.append(" custom='").append(e.getCustomName().getString()).append("'");
+            // everything the dead-mob hider judges on, so a corpse that slips through can be read off
+            if (e instanceof net.minecraft.world.entity.LivingEntity le) {
+                extra.append(String.format(" hp=%.1f dying=%b deathTime=%d hurt=%d",
+                        le.getHealth(), le.isDeadOrDying(), le.deathTime, le.hurtTime));
+                StringBuilder armor = new StringBuilder();
+                for (net.minecraft.world.entity.EquipmentSlot s : net.minecraft.world.entity.EquipmentSlot.values()) {
+                    if (!s.isArmor()) continue;
+                    if (!le.getItemBySlot(s).isEmpty()) armor.append(s.getName().charAt(0));
+                }
+                extra.append(" armor=").append(armor.isEmpty() ? "-" : armor.toString());
+                extra.append(" nograv=").append(le.isNoGravity());
+                extra.append(" hidden=").append(com.teslamaps.features.DeadMobHider.shouldHide(e));
+            }
+            if (e.getVehicle() != null) extra.append(" riding=").append(e.getVehicle().getType().toShortString());
             source.sendFeedback(Component.literal(String.format("%s | %s | %.1f %.1f %.1f | d=%.1f%s",
                     type, e.getName().getString(), e.getX(), e.getY(), e.getZ(),
                     Math.sqrt(e.distanceToSqr(mc.player)), extra)));

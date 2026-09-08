@@ -70,7 +70,7 @@ public class SlotBinds {
     public static boolean onKey(int key) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
-        if (!c.slotBinds || c.slotBindsKey < 0 || key != c.slotBindsKey) return false;
+        if (!c.slotBinds || c.slotBindsKey == -1 || key != c.slotBindsKey) return false;
         if (!(mc.screen instanceof InventoryScreen screen)) return false;
 
         Integer clicked = hoveredIndex(screen);

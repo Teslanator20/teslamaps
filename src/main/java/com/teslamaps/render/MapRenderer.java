@@ -43,6 +43,12 @@ public class MapRenderer {
     private static final List<PlayerMarker> playerMarkers = new ArrayList<>();
     public static List<PlayerMarker> getPlayerMarkers() { return playerMarkers; }
 
+    private static final List<DungeonRoom> visibleRooms = new ArrayList<>();
+
+    // Room names are static, so the word wrap is kept until the wrap width changes.
+    private static final java.util.HashMap<String, List<String>> wrapCache = new java.util.HashMap<>();
+    private static int wrapCacheWidth = -1;
+
     public static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
@@ -69,10 +75,14 @@ public class MapRenderer {
         playerMarkers.clear();
 
         boolean legit = com.teslamaps.features.LegitMode.isFiltering();
-        Collection<DungeonRoom> rooms = DungeonManager.getGrid().getAllRooms().stream()
-                .filter(r -> r.getType() != RoomType.UNKNOWN && !"Unknown".equals(r.getName()))
-                .filter(r -> !legit || r.isExplored())
-                .toList();
+        // Reused instead of a fresh stream/list every frame.
+        visibleRooms.clear();
+        for (DungeonRoom r : DungeonManager.getGrid().getAllRooms()) {
+            if (r.getType() == RoomType.UNKNOWN || "Unknown".equals(r.getName())) continue;
+            if (legit && !r.isExplored()) continue;
+            visibleRooms.add(r);
+        }
+        Collection<DungeonRoom> rooms = visibleRooms;
         calculateDungeonBounds(rooms);
 
         int gridWidth = maxGridX - minGridX + 1;
@@ -89,16 +99,15 @@ public class MapRenderer {
         }
         drawRoomConnections(context, rooms, baseX, baseY, scale, legit);
 
-        Set<DungeonRoom> drawnRooms = new HashSet<>();
+        // getAllRooms() is already deduped, so no per-frame "already drawn" set.
         for (DungeonRoom room : rooms) {
-            if (!drawnRooms.contains(room)) { drawRoom(context, room, baseX, baseY, scale); drawnRooms.add(room); }
+            drawRoom(context, room, baseX, baseY, scale);
         }
         if (legit) {
             drawGuessRooms(context, baseX, baseY, scale);
         }
-        drawnRooms.clear();
         for (DungeonRoom room : rooms) {
-            if (!drawnRooms.contains(room) && room.isIdentified()) { drawRoomName(context, room, baseX, baseY, scale); drawnRooms.add(room); }
+            if (room.isIdentified()) drawRoomName(context, room, baseX, baseY, scale);
         }
 
         if (config.showPlayerMarker || leapMode) {
@@ -116,12 +125,8 @@ public class MapRenderer {
         minGridZ = 0; maxGridZ = ComponentGrid.GRID_SIZE - 1;
         totalSecrets = 0;
 
-        Set<DungeonRoom> counted = new HashSet<>();
         for (DungeonRoom room : rooms) {
-            if (!counted.contains(room) && room.getSecrets() > 0) {
-                totalSecrets += room.getSecrets();
-                counted.add(room);
-            }
+            if (room.getSecrets() > 0) totalSecrets += room.getSecrets();
         }
     }
 
@@ -300,8 +305,8 @@ public class MapRenderer {
         int doorThickness = (int)(DOOR_SIZE * scale * 2);
         if (doorThickness < 5) doorThickness = 5;
 
-        Set<String> drawnConnections = new HashSet<>();
-
+        // Every cell belongs to exactly one room and each edge is only tested from its
+        // left/top cell, so no dedup set is needed.
         for (DungeonRoom room : rooms) {
             for (int[] comp : room.getComponents()) {
                 int gx = comp[0];
@@ -309,39 +314,31 @@ public class MapRenderer {
 
                 DungeonRoom rightRoom = DungeonManager.getGrid().getRoom(gx + 1, gz);
                 if (rightRoom != null && rightRoom != room && (!legit || rightRoom.isExplored())) {
-                    String key = gx + "," + gz + "-" + (gx+1) + "," + gz;
-                    if (!drawnConnections.contains(key)) {
-                        DoorType doorType = DoorScanner.getDoorType(gx, gz, gx + 1, gz);
-                        boolean bothScanned = room.getName() != null && rightRoom.getName() != null;
-                        if (doorType != DoorType.NONE && bothScanned) {
-                            int color = getDoorColor(doorType);
-                            int x1 = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE * scale) - 1;
-                            int yCenter = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE/2 * scale);
-                            int y1 = yCenter - doorThickness / 2;
-                            int x2 = gridToPixelX(gx + 1, baseX, scale) + 1;
-                            int y2 = yCenter + doorThickness / 2;
-                            context.fill(x1, y1, x2, y2, color);
-                        }
-                        drawnConnections.add(key);
+                    DoorType doorType = DoorScanner.getDoorType(gx, gz, gx + 1, gz);
+                    boolean bothScanned = room.getName() != null && rightRoom.getName() != null;
+                    if (doorType != DoorType.NONE && bothScanned) {
+                        int color = getDoorColor(doorType);
+                        int x1 = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE * scale) - 1;
+                        int yCenter = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE/2 * scale);
+                        int y1 = yCenter - doorThickness / 2;
+                        int x2 = gridToPixelX(gx + 1, baseX, scale) + 1;
+                        int y2 = yCenter + doorThickness / 2;
+                        context.fill(x1, y1, x2, y2, color);
                     }
                 }
 
                 DungeonRoom bottomRoom = DungeonManager.getGrid().getRoom(gx, gz + 1);
                 if (bottomRoom != null && bottomRoom != room && (!legit || bottomRoom.isExplored())) {
-                    String key = gx + "," + gz + "-" + gx + "," + (gz+1);
-                    if (!drawnConnections.contains(key)) {
-                        DoorType doorType = DoorScanner.getDoorType(gx, gz, gx, gz + 1);
-                        boolean bothScanned = room.getName() != null && bottomRoom.getName() != null;
-                        if (doorType != DoorType.NONE && bothScanned) {
-                            int color = getDoorColor(doorType);
-                            int xCenter = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE/2 * scale);
-                            int x1 = xCenter - doorThickness / 2;
-                            int y1 = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE * scale) - 1;
-                            int x2 = xCenter + doorThickness / 2;
-                            int y2 = gridToPixelY(gz + 1, baseY, scale) + 1;
-                            context.fill(x1, y1, x2, y2, color);
-                        }
-                        drawnConnections.add(key);
+                    DoorType doorType = DoorScanner.getDoorType(gx, gz, gx, gz + 1);
+                    boolean bothScanned = room.getName() != null && bottomRoom.getName() != null;
+                    if (doorType != DoorType.NONE && bothScanned) {
+                        int color = getDoorColor(doorType);
+                        int xCenter = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE/2 * scale);
+                        int x1 = xCenter - doorThickness / 2;
+                        int y1 = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE * scale) - 1;
+                        int x2 = xCenter + doorThickness / 2;
+                        int y2 = gridToPixelY(gz + 1, baseY, scale) + 1;
+                        context.fill(x1, y1, x2, y2, color);
                     }
                 }
             }
@@ -441,7 +438,8 @@ public class MapRenderer {
                     secretText = String.valueOf(maxSecrets);
                 }
                 context.text(Minecraft.getInstance().font,
-                        secretText, pixelX + 2, pixelY + 2, getTextColor(room));
+                        secretText, pixelX + 2, pixelY + 2,
+                        TeslaMapsConfig.parseColor(config.colorSecretCount));
             }
 
         } else {
@@ -502,7 +500,8 @@ public class MapRenderer {
                     secretText = String.valueOf(maxSecrets);
                 }
                 context.text(Minecraft.getInstance().font,
-                        secretText, pixelX + 2, pixelY + 2, getTextColor(room));
+                        secretText, pixelX + 2, pixelY + 2,
+                        TeslaMapsConfig.parseColor(configIrregular.colorSecretCount));
             }
 
         }
@@ -675,27 +674,33 @@ public class MapRenderer {
 
         float textScale = 0.5f * TeslaMapsConfig.get().roomNameScale;
 
-        String[] words = displayName.split(" ");
-        java.util.List<String> lines = new java.util.ArrayList<>();
-
         int maxLineWidth = (int)((width * CELL_SIZE - 4) * scale / textScale);
 
-        StringBuilder currentLine = new StringBuilder();
-        for (String word : words) {
-            if (currentLine.length() == 0) {
-                currentLine.append(word);
-            } else {
-                String testLine = currentLine + " " + word;
-                if (textRenderer.width(testLine) <= maxLineWidth) {
-                    currentLine.append(" ").append(word);
+        if (maxLineWidth != wrapCacheWidth) {
+            wrapCache.clear();
+            wrapCacheWidth = maxLineWidth;
+        }
+        java.util.List<String> lines = wrapCache.get(displayName);
+        if (lines == null) {
+            lines = new java.util.ArrayList<>();
+            StringBuilder currentLine = new StringBuilder();
+            for (String word : displayName.split(" ")) {
+                if (currentLine.length() == 0) {
+                    currentLine.append(word);
                 } else {
-                    lines.add(currentLine.toString());
-                    currentLine = new StringBuilder(word);
+                    String testLine = currentLine + " " + word;
+                    if (textRenderer.width(testLine) <= maxLineWidth) {
+                        currentLine.append(" ").append(word);
+                    } else {
+                        lines.add(currentLine.toString());
+                        currentLine = new StringBuilder(word);
+                    }
                 }
             }
-        }
-        if (currentLine.length() > 0) {
-            lines.add(currentLine.toString());
+            if (currentLine.length() > 0) {
+                lines.add(currentLine.toString());
+            }
+            wrapCache.put(displayName, lines);
         }
 
         int lineHeight = (int)(textRenderer.lineHeight * textScale);

@@ -3,7 +3,6 @@ package com.teslamaps.screen;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.scanner.ComponentGrid;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -27,10 +26,11 @@ public class MapEditScreen extends Screen {
 
     @Override
     protected void init() {
-        addRenderableWidget(Button.builder(
-                Component.literal("Done"),
-                button -> onClose()
-        ).bounds(this.width / 2 - 50, this.height - 30, 100, 20).build());
+        addRenderableWidget(new TeslaButton(this.width / 2 - 50, this.height - 32, 100, 22, "§fDone", this::onClose));
+    
+
+        ScreenFit.clamp(this); // keep every widget reachable at any gui scale
+
     }
 
     private int getMapSize() {
@@ -112,7 +112,7 @@ public class MapEditScreen extends Screen {
 
         String instructions = dragging ? "Release to place" : "Drag the map to move it";
         int textWidth = this.font.width(instructions);
-        com.teslamaps.render.gui.TeslaGui.hudPanel(context,
+        com.teslamaps.render.gui.HudStyle.screenPanel(context,
                 this.width / 2f - textWidth / 2f - 8, 8, textWidth + 16, 18, 9);
         context.centeredText(this.font, instructions, this.width / 2, 12, 0xFFE0E0E0);
 

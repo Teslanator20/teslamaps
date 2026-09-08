@@ -1,5 +1,6 @@
 package com.teslamaps.screen;
 
+import com.teslamaps.render.gui.GuiStyle;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
@@ -41,17 +42,17 @@ public class AppleToggleWidget extends Button {
             animationProgress = Math.max(target, animationProgress - ANIMATION_SPEED);
         }
 
-        int bgColor = hovered ? AppleColors.CARD_BACKGROUND : AppleColors.BACKGROUND;
+        int bgColor = hovered ? GuiStyle.card() : GuiStyle.background();
         context.fill(getX(), getY(), getX() + width, getY() + height, bgColor);
 
-        context.fill(getX(), getY() + height - 1, getX() + width, getY() + height, AppleColors.SEPARATOR);
+        context.fill(getX(), getY() + height - 1, getX() + width, getY() + height, GuiStyle.border());
 
-        context.text(mc.font, label, getX() + 12, getY() + (height - 8) / 2, AppleColors.TEXT_PRIMARY);
+        context.text(mc.font, label, getX() + 12, getY() + (height - 8) / 2, GuiStyle.text());
 
         int toggleX = getX() + width - TOGGLE_WIDTH - 12;
         int toggleY = getY() + (height - TOGGLE_HEIGHT) / 2;
 
-        int trackColor = AppleColors.interpolate(AppleColors.TOGGLE_OFF, AppleColors.TOGGLE_ON, animationProgress);
+        int trackColor = AppleColors.interpolate(GuiStyle.toggleOff(), GuiStyle.accent(), animationProgress);
 
         drawPill(context, toggleX, toggleY, TOGGLE_WIDTH, TOGGLE_HEIGHT, trackColor);
 
@@ -63,7 +64,7 @@ public class AppleToggleWidget extends Button {
         int knobY = toggleY + knobPadding;
 
         drawCircle(context, knobX + 1, knobY + 1, knobDiameter, 0x30000000);
-        drawCircle(context, knobX, knobY, knobDiameter, AppleColors.TOGGLE_KNOB);
+        drawCircle(context, knobX, knobY, knobDiameter, GuiStyle.knob());
     }
 
     private void drawPill(GuiGraphicsExtractor context, int x, int y, int w, int h, int color) {

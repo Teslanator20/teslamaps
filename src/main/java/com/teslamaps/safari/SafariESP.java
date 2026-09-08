@@ -11,30 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
-import net.minecraft.world.entity.ambient.Bat;
-import net.minecraft.world.entity.animal.armadillo.Armadillo;
-import net.minecraft.world.entity.animal.bee.Bee;
-import net.minecraft.world.entity.animal.dolphin.Dolphin;
-import net.minecraft.world.entity.animal.fish.TropicalFish;
-import net.minecraft.world.entity.animal.fox.Fox;
-import net.minecraft.world.entity.animal.frog.Frog;
-import net.minecraft.world.entity.animal.goat.Goat;
-import net.minecraft.world.entity.animal.golem.SnowGolem;
-import net.minecraft.world.entity.animal.panda.Panda;
-import net.minecraft.world.entity.animal.parrot.Parrot;
-import net.minecraft.world.entity.animal.polarbear.PolarBear;
-import net.minecraft.world.entity.animal.sniffer.Sniffer;
-import net.minecraft.world.entity.animal.squid.GlowSquid;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.monster.Endermite;
-import net.minecraft.world.entity.monster.Phantom;
-import net.minecraft.world.entity.monster.Ravager;
-import net.minecraft.world.entity.monster.Shulker;
-import net.minecraft.world.entity.monster.Silverfish;
-import net.minecraft.world.entity.monster.Vex;
-import net.minecraft.world.entity.monster.creaking.Creaking;
-import net.minecraft.world.entity.monster.spider.CaveSpider;
-import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -46,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
 // from punching one.
 public class SafariESP {
 
-    private record Marker(AABB box, int color, String label) {}
+    private record Marker(AABB box, int color, String label, boolean tracer) {}
 
     private static final List<Marker> critters = new ArrayList<>();
     private static final List<BlockPos> nests = new ArrayList<>();
@@ -66,8 +43,12 @@ public class SafariESP {
         if (mc.level == null || mc.player == null) return;
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (c.safariCritterESP) scanCritters(mc, c);
+        if (c.safariCritterESP) {
+            scanCritters(mc, c);
+            scanRockmites(mc, c);
+        }
         if (c.safariNestESP) scanNests(mc);
+        else nests.clear();   // without this the last scan kept drawing after switching it off
         if (c.critterSpotESP) scanSpots(mc);
     }
 
@@ -94,6 +75,30 @@ public class SafariESP {
         }
     }
 
+    /**
+     * Rockmites carry no nametag stand at all - they are a small item display showing a player
+     * head, so the nametag scan never sees them. Restricted to the Cavern, which is the only
+     * biome they live in, to keep other head props out.
+     */
+    private static void scanRockmites(Minecraft mc, TeslaMapsConfig c) {
+        SafariData.Critter rockmite = SafariData.byName("Rockmite");
+        if (rockmite == null || SafariData.currentBiome() != rockmite.biome()) return;
+        if (c.safariOnlyMissing && SafariTracker.hasCaught(rockmite)) return;
+
+        int color = rockmite.rarity().color;
+        for (Entity e : mc.level.entitiesForRendering()) {
+            if (!(e instanceof Display.ItemDisplay id)) continue;
+            SlotAccess slot = id.getSlot(0);
+            if (slot == null || slot.get().getItem() != Items.PLAYER_HEAD) continue;
+            if (SafariData.biomeAt(e.blockPosition()) != rockmite.biome()) continue;
+
+            AABB box = e.getBoundingBox();
+            if (box.getXsize() < 0.1 || box.getYsize() < 0.1) box = box.inflate(0.4, 0.4, 0.4);
+            String label = (c.safariNames ? rarityCode(rockmite) + rockmite.name() : null);
+            critters.add(new Marker(box, color, label, c.safariTracers));
+        }
+    }
+
     private record Cluster(Vec3 sum, int n) {
         Vec3 center() { return sum.scale(1.0 / n); }
         Cluster add(Vec3 p) { return new Cluster(sum.add(p), n + 1); }
@@ -107,7 +112,7 @@ public class SafariESP {
             if (!(e instanceof ArmorStand as)) continue;
             if (as.getCustomName() == null) continue;
 
-            String name = as.getCustomName().getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
+            String name = com.teslamaps.utils.StringUtil.strip(as.getCustomName().getString());
             SafariData.Critter critter = matchCritter(name);
             if (critter == null) continue;
             if (here != null && SafariData.biomeAt(as.blockPosition()) != here) continue;
@@ -120,62 +125,11 @@ public class SafariESP {
             if (sparkling) label = "§d§lSPARKLING " + critter.name();
             else if (c.safariNames || isHeadliner(critter)) label = rarityCode(critter) + critter.name();
 
-            critters.add(new Marker(bodyOf(mc, as), color, label));
+            // Hideyho hides, so it gets a line of its own without tracing everything else
+            boolean tracer = c.safariTracers
+                    || (c.safariHideyhoTracer && critter.name().equals("Hideyho"));
+            critters.add(new Marker(bodyOf(mc, as), color, label, tracer));
         }
-
-        if (c.safariFastDetect) scanBodies(mc, c, here);
-    }
-
-    /**
-     * Hypixel spawns the critter body before its nametag armor stand, so waiting for the tag makes
-     * boxes show up late. This adds the bodies straight away, by the entity classes each biome uses.
-     */
-    private static void scanBodies(Minecraft mc, TeslaMapsConfig c, SafariData.Biome here) {
-        if (here == null) return;
-        int color = TeslaMapsConfig.parseColor(c.colorSafariUnknown);
-
-        for (Entity e : mc.level.entitiesForRendering()) {
-            if (e == mc.player || e instanceof ArmorStand) continue;
-            if (isFloorSpotDisplay(e)) continue;
-            if (!isCritterBody(e, here)) continue;
-            if (SafariData.biomeAt(e.blockPosition()) != here) continue;
-
-            AABB box = e.getBoundingBox();
-            if (box.getXsize() < 0.1 || box.getYsize() < 0.1) box = box.inflate(0.4, 0.4, 0.4);
-            if (alreadyMarked(box)) continue;
-            critters.add(new Marker(box, color, null));
-        }
-    }
-
-    private static boolean isFloorSpotDisplay(Entity e) {
-        if (!(e instanceof Display.ItemDisplay id)) return false;
-        SlotAccess slot = id.getSlot(0);
-        return slot != null && slot.get().getItem() == Items.STRING;
-    }
-
-    private static boolean alreadyMarked(AABB box) {
-        Vec3 mid = box.getCenter();
-        for (Marker m : critters) {
-            if (m.box().getCenter().distanceToSqr(mid) < 4) return true;
-        }
-        return false;
-    }
-
-    private static boolean isCritterBody(Entity e, SafariData.Biome biome) {
-        return switch (biome) {
-            case ICY -> e instanceof SnowGolem || e instanceof PolarBear || e instanceof GlowSquid
-                    || e instanceof Goat || e instanceof Dolphin || e instanceof Ravager
-                    || e instanceof TropicalFish || e instanceof Display.ItemDisplay;
-            case HAUNTED -> e instanceof CaveSpider || e instanceof Bat || e instanceof Phantom
-                    || e instanceof Warden || e instanceof Endermite
-                    || e instanceof Shulker || e instanceof Display.ItemDisplay;
-            case CAVERN -> e instanceof Armadillo || e instanceof Vex || e instanceof Sniffer
-                    || e instanceof TropicalFish || e instanceof Silverfish
-                    || e instanceof Display.ItemDisplay;
-            case FOREST -> e instanceof Fox || e instanceof Bee || e instanceof Parrot
-                    || e instanceof Frog || e instanceof Creaking || e instanceof Panda
-                    || e instanceof Shulker || e instanceof Display.ItemDisplay;
-        };
     }
 
     /** Hideyho hides and the legendaries are one-per-run, so those always get a label. */
@@ -245,7 +199,7 @@ public class SafariESP {
             for (int z = cz - 6; z <= cz + 6; z++) {
                 LevelChunk chunk = mc.level.getChunkSource().getChunk(x, z, false);
                 if (chunk == null) continue;
-                chunk.findBlocks(state -> state.is(Blocks.BEE_NEST) || state.is(Blocks.BEEHIVE), (pos, state) -> {
+                chunk.findBlocks(state -> state.is(Blocks.BEE_NEST), (pos, state) -> {
                     if (SafariData.biomeAt(pos) == SafariData.Biome.FOREST) nests.add(pos.immutable());
                 });
             }
@@ -266,7 +220,7 @@ public class SafariESP {
             Vec3 mid = m.box().getCenter();
             Vec3 at = new Vec3(mid.x, m.box().maxY + 0.5, mid.z);
             ESPRenderer.drawText(matrices, m.label(), at, 1.5f, cameraPos);
-            if (c.safariTracers) {
+            if (m.tracer()) {
                 ESPRenderer.drawTracerFromCamera(matrices, mid, m.color() | 0xFF000000, cameraPos);
             }
         }

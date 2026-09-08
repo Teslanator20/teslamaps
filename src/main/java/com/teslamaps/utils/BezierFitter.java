@@ -1,4 +1,3 @@
-// Ported from SkyHanni's PolynomialFitter.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.utils;
 
 import java.util.ArrayList;

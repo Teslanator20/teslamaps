@@ -1,10 +1,11 @@
 package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.render.gui.HudStyle;
+import com.teslamaps.render.gui.TeslaGui;
 import com.teslamaps.utils.LoudSound;
 import com.teslamaps.utils.SoundOptions;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -50,14 +51,18 @@ public class SoundPickerScreen extends Screen {
         listW = PANEL_W - 32;
 
         int btnW = (PANEL_W - 40) / 2;
-        addRenderableWidget(Button.builder(Component.literal("§a§lApply"), b -> {
+        addRenderableWidget(new TeslaButton(panelX + 16, panelY + PANEL_H - 34, btnW, 22, "§aApply", () -> {
             onApply.accept(selected);
             TeslaMapsConfig.save();
             minecraft.setScreen(parent);
-        }).bounds(panelX + 16, panelY + PANEL_H - 30, btnW, 20).build());
+        }));
 
-        addRenderableWidget(Button.builder(Component.literal("§c§lNevermind"), b -> minecraft.setScreen(parent))
-                .bounds(panelX + 24 + btnW, panelY + PANEL_H - 30, btnW, 20).build());
+        addRenderableWidget(new TeslaButton(panelX + 24 + btnW, panelY + PANEL_H - 34, btnW, 22, "§cNevermind",
+                () -> minecraft.setScreen(parent)));
+    
+
+        ScreenFit.clamp(this); // keep every widget reachable at any gui scale
+
     }
 
     @Override
@@ -72,12 +77,11 @@ public class SoundPickerScreen extends Screen {
         boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean clicked = isMouseDown && !wasMouseDown;
 
-        ctx.fill(0, 0, width, height, 0xC0000000);
-        roundRect(ctx, panelX, panelY, PANEL_W, PANEL_H, AppleColors.CARD_BACKGROUND);
-        ctx.fill(panelX + 10, panelY, panelX + PANEL_W - 10, panelY + 3, AppleColors.ACCENT_BLUE);
+        ctx.fill(0, 0, width, height, 0xB0000000);
+        HudStyle.screenPanel(ctx, panelX, panelY, PANEL_W, PANEL_H, 8);
 
-        ctx.text(this.font, "§b §f" + getTitle().getString(), panelX + 16, panelY + 16, AppleColors.TEXT_PRIMARY);
-        ctx.text(this.font, "§7Click a sound to preview · " + selected, panelX + 16, panelY + 30, AppleColors.TEXT_SECONDARY);
+        ctx.text(this.font, "§f§l" + getTitle().getString(), panelX + 16, panelY + 16, 0xFFFFFFFF);
+        ctx.text(this.font, "§8Click a sound to preview · " + selected, panelX + 16, panelY + 30, 0xFFFFFFFF);
 
         int rowY = listY;
         for (int i = scroll; i < Math.min(scroll + VISIBLE, sounds.length); i++) {
@@ -87,33 +91,21 @@ public class SoundPickerScreen extends Screen {
                 selected = s;
                 LoudSound.play(SoundOptions.resolve(s), 1.0f, 1.0f);
             }
-            int bg = s.equals(selected) ? 0xFF2E7D32 : (rowHover ? 0xFF3A3A3C : 0xFF2C2C2E);
-            ctx.fill(listX, rowY, listX + listW, rowY + ROW_H - 2, bg);
-            drawBorder(ctx, listX, rowY, listW, ROW_H - 2, s.equals(selected) ? 0xFF30D158 : 0xFF48484A);
-            ctx.text(this.font, s, listX + 6, rowY + 5, 0xFFFFFFFF);
+            HudStyle.screenButton(ctx, listX, rowY, listW, ROW_H - 2, rowHover, true);
+            if (s.equals(selected)) {
+                ctx.fill(listX, rowY, listX + 2, rowY + ROW_H - 2, 0xFF30D158);
+            }
+            ctx.text(this.font, (s.equals(selected) ? "§a" : "§f") + s, listX + 6, rowY + 5, 0xFFFFFFFF);
             rowY += ROW_H;
         }
 
         if (sounds.length > VISIBLE) {
             ctx.text(this.font, "§8" + (scroll + 1) + "-" + Math.min(scroll + VISIBLE, sounds.length) + " / " + sounds.length + " · scroll",
-                    panelX + 16, panelY + PANEL_H - 46, AppleColors.TEXT_TERTIARY);
+                    panelX + 16, panelY + PANEL_H - 48, 0xFFFFFFFF);
         }
 
         super.extractRenderState(ctx, mouseX, mouseY, delta);
         wasMouseDown = isMouseDown;
-    }
-
-    private void roundRect(GuiGraphicsExtractor ctx, int x, int y, int w, int h, int color) {
-        ctx.fill(x + 4, y, x + w - 4, y + h, color);
-        ctx.fill(x, y + 4, x + 4, y + h - 4, color);
-        ctx.fill(x + w - 4, y + 4, x + w, y + h - 4, color);
-    }
-
-    private void drawBorder(GuiGraphicsExtractor ctx, int x, int y, int w, int h, int color) {
-        ctx.fill(x, y, x + w, y + 1, color);
-        ctx.fill(x, y + h - 1, x + w, y + h, color);
-        ctx.fill(x, y, x + 1, y + h, color);
-        ctx.fill(x + w - 1, y, x + w, y + h, color);
     }
 
     @Override

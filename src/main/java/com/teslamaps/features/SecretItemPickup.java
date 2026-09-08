@@ -23,7 +23,7 @@ public class SecretItemPickup {
     public static void onTakeItem(int itemId) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.secretSound || !c.secretItemPickupSound) return;
-        if (!DungeonManager.isInDungeon() || DungeonManager.isInBoss()) return;
+        if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;

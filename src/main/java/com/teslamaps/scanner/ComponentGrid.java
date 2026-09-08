@@ -21,13 +21,20 @@ public class ComponentGrid {
 
     private final Map<Integer, DungeonRoom> rooms = new HashMap<>();
 
+    // Multi-component rooms sit under several grid keys, so values() has duplicates.
+    // Deduped once per change instead of per call - this is read every frame.
+    private final java.util.Set<DungeonRoom> uniqueRooms = new java.util.LinkedHashSet<>();
+    private boolean uniqueDirty = true;
+
     public void clear() {
         rooms.clear();
+        uniqueDirty = true;
     }
 
     public void setRoom(int gridX, int gridZ, DungeonRoom room) {
         if (isValidGridPos(gridX, gridZ)) {
             rooms.put(gridX * GRID_SIZE + gridZ, room);
+            uniqueDirty = true;
         }
     }
 
@@ -36,8 +43,14 @@ public class ComponentGrid {
         return rooms.get(gridX * GRID_SIZE + gridZ);
     }
 
+    /** Unique rooms, no duplicates. Read-only - the returned set is reused. */
     public Collection<DungeonRoom> getAllRooms() {
-        return new java.util.HashSet<>(rooms.values());
+        if (uniqueDirty) {
+            uniqueRooms.clear();
+            uniqueRooms.addAll(rooms.values());
+            uniqueDirty = false;
+        }
+        return uniqueRooms;
     }
 
     public boolean hasRoom(int gridX, int gridZ) {

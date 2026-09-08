@@ -85,7 +85,7 @@ public class TeslaMapsConfig {
     public boolean bossESP = true;             // Box the F7 wither bosses (Maxor/Storm/Goldor/Necron)
     public boolean bossESPFilled = true;       // Filled box instead of outline for Boss ESP
     public boolean bossESPDepthCheck = false;   // Depth check on = respect walls; off = through walls
-    public boolean corpseESP = false;           // Box + beacon on unlooted Glacite Mineshaft corpses
+    public boolean corpseESP = true;            // Box + beacon on unlooted Glacite Mineshaft corpses
     public boolean corpseESPTypeColors = true;  // Colour per corpse type (Lapis/Umber/Tungsten) instead of one colour
     public boolean lividFinder = true;          // Highlight the correct Livid in F5/M5
     public boolean lividTracer = true;          // Draw tracer to correct Livid
@@ -149,16 +149,24 @@ public class TeslaMapsConfig {
     public int bearSpawnY = 482;                  // "STOP!" overlay position Y
     public float bearSpawnScale = 5.0f;          // "STOP!" overlay text scale (0.5 - 10.0)
 
-    public boolean hudPanelBackground = true;   // Draw the dark panel behind text HUDs (splits, timers, ...)
-    public boolean commandSuggestions = true;   // Tab-complete /warp and /call with the Skyblock lists
-    public String hudStyle = "Modern";          // Look of every HUD panel: Modern / Vanilla / Tooltip / Glass
+    public boolean commandSuggestions = true;
+    public boolean commandSuggestionsPlayers = true;    // Tab-complete the commands that take a player name
+    public String hudStyle = "Modern";          // Look of every HUD panel: Modern / Glass / Vanilla / Tooltip
+    @Global
+    public String guiStyle = "Default";         // Look of the mod's screens: Default / Vanilla / Tooltip / Glass
+    @Global
+    public String guiSoundTheme = "Off";        // Menu sound set: Off / Clicky / Chime / Soft / Digital
+    @Global
+    public boolean guiHoverSounds = false;      // The quiet tick when the cursor moves onto a row
+    @Global
+    public float guiSoundVolume = 1.0f;         // Scales every interface sound (0.0 - 2.0)
     @Global
     public String lastConfigCategory = "Profiles"; // Category the settings screen reopens on
-    public boolean sprintingOverlay = true;     // Show a "Sprinting / Not Sprinting" HUD indicator
+    public boolean sprintingOverlay = false;    // Show a "Sprinting / Not Sprinting" HUD indicator
     public int sprintingX = 10;                  // Sprinting overlay position X (draggable in HUD edit)
     public int sprintingY = 40;                  // Sprinting overlay position Y
     public float sprintingScale = 1.0f;          // Sprinting overlay text scale (0.5 - 10.0)
-    public boolean autoSprint = false;           // Always sprint without holding the sprint key
+    public boolean autoSprint = true;            // Always sprint without holding the sprint key
 
     public boolean auctionPriceInput = true;     // Replace the auction starting-bid sign with a textbox
     public String auctionDefaultMode = "Normal"; // Mode the input opens in: Normal or Undercut
@@ -184,6 +192,12 @@ public class TeslaMapsConfig {
     public float watcherHudScale = 1.0f;         // Watcher HUD scale
     public boolean instaClearAlert = false;      // Alert when a teammate rush/insta-clears a room you never entered
     public float instaClearVolume = 1.0f;        // Volume for the insta-clear alert sound (0.0 - 20.0)
+    public boolean rareRoomAlert = false;        // Title + chat when Trinity is scanned
+    public float rareRoomVolume = 1.0f;          // Volume for the rare room alert sound (0.0 - 20.0)
+    public boolean autoExtraStats = false;       // Run /showextrastats automatically at the end of a run
+    public boolean itemProtection = false;       // Block dropping items worth more than itemProtectionValue
+    public int itemProtectionValue = 10;         // Protection threshold in millions of coins
+    public boolean itemProtectionSell = true;    // Also block salvaging and shift-click selling
     public boolean roomSplits = false;           // Live per-room pace HUD (current room timer + recent rooms)
     public int roomSplitsX = 5;                  // Room Splits HUD position X
     public int roomSplitsY = 120;                // Room Splits HUD position Y
@@ -220,8 +234,8 @@ public class TeslaMapsConfig {
 
     public boolean rarityBackgrounds = true;     // Colored background behind items by rarity
     public float rarityBgOpacity = 0.5f;          // 0.0 - 1.0
-    public String rarityBgShape = "Square";       // Square or Circle
-    public String rarityBgStyle = "Filled";       // Filled or Outline
+    public String rarityBgShape = "Square";       // Square, Rounded, Circle, Diamond, Corners, Underline
+    public String rarityBgStyle = "Filled";       // Filled, Outline, Gradient
 
     public boolean dungeonWaypoints = true;       // Render Odin-format dungeon waypoints from config/teslamaps/dungeon_waypoints.json
     @Global
@@ -387,10 +401,34 @@ public class TeslaMapsConfig {
         return l;
     }
     public int hotkeyChatDelay = 250;            // ms to suppress hotkeys after closing a screen/chat (stops typed keys firing)
+    @Global
+    public int configScreenKey = org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_SHIFT;  // opens /tmap, -1 = unbound
+    @Global
+    public boolean configScreenKeyExclusive = true;  // eat the key so other mods bound to it stay quiet
 
-    // gui4 section masters: a section must be on for its features to function (AND-gated). Absent = on.
+    // Section masters: a section must be on for its features to function (AND-gated). Absent = on.
     public java.util.Map<String, Boolean> sectionEnabled = new java.util.HashMap<>();
-    public boolean section(String name) { return sectionEnabled.getOrDefault(name, Boolean.TRUE); }
+
+    /**
+     * Config-screen categories that have a working master switch. The names have to match the
+     * category keys in MapConfigScreen AND the section(...) call sites - a typo used to mean the
+     * gate silently never matched. section() reports unknown names in dev so that cannot recur.
+     */
+    public static final java.util.List<String> SECTIONS = java.util.List.of(
+            "Auto", "Blood Camp", "Chat", "Combat", "Critter Safari", "Dragons", "ESP", "Fishing",
+            "Foraging", "Garden", "General", "Inventory", "Leap", "Map", "Mining", "Party",
+            "Puzzles & Terminals", "Render", "Score & Splits", "Secrets & Waypoints", "Sounds",
+            "Timers", "Torrhus Canyon");
+
+    private static final java.util.Set<String> WARNED_SECTIONS = new java.util.HashSet<>();
+
+    public boolean section(String name) {
+        if (!SECTIONS.contains(name) && net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()
+                && WARNED_SECTIONS.add(name)) {
+            TeslaMaps.LOGGER.warn("section(\"{}\") is not a known category - the gate never matches", name);
+        }
+        return sectionEnabled.getOrDefault(name, Boolean.TRUE);
+    }
 
     public String keybindChatMessage = "";
 
@@ -436,7 +474,7 @@ public class TeslaMapsConfig {
     public String pestChanceLoadout = "Loadout 7";  // Equipped after the cooldown message, to farm for spawns
     public String roseDragLoadout = "Loadout 6";    // Equipped once the pests have spawned
     public float pestWarpDelay = 1.5f;              // Seconds to block /warp garden after the previous step
-    public boolean sprayRoutine = true;             // Sprayonator running out queues a trip back
+    public boolean sprayRoutine = false;            // Sprayonator running out queues a trip back
     public boolean pestTimer = true;                // Time each pest round and report a PB
     public float pestPersonalBest = 0;              // Best round in seconds, 0 = none yet
     public boolean hudDragInInventory = true;       // Drag and scale garden panels from the inventory
@@ -454,14 +492,14 @@ public class TeslaMapsConfig {
     public boolean pestCustomCooldown = false;      // Count the cooldown ourselves instead of trusting tab
     public int pestCustomCooldownSeconds = 129;     // How long your cooldown actually is, in seconds
     public int pestCooldownWarnAt = 5;              // Warn this many seconds before spawns are ready
-    public boolean pestCooldownTitle = true;        // Title when the spawn cooldown is nearly up
-    public boolean pestCooldownSound = true;
+    public boolean pestCooldownTitle = false;       // Title when the spawn cooldown is nearly up
+    public boolean pestCooldownSound = false;
     public String pestCooldownSoundName = "NOTE_CHIME";
     public float pestCooldownVolume = 1.0f;
-    public boolean pestCooldownArmsRoutine = true;  // Cooldown ready arms the pest routine
+    public boolean pestCooldownArmsRoutine = false; // Cooldown ready arms the pest routine
     public int farmIdleSeconds = 150;               // Quiet time before the profit session counts as a break
-    public boolean pestGearReminder = true;         // Keep warning while the pest chance gear is off and spawn is due
-    public boolean pestTpReminder = true;           // Keep warning while pests are alive on another plot
+    public boolean pestGearReminder = false;        // Keep warning while the pest chance gear is off and spawn is due
+    public boolean pestTpReminder = false;          // Keep warning while pests are alive on another plot
 
     public boolean farmBar = true;                  // Lane progress bar while farming the garden
     public boolean farmLaneSet = false;             // Whether both lane points are set
@@ -476,14 +514,14 @@ public class TeslaMapsConfig {
 
     public String vacuumBagItem = "Empty Vacuum Bag";  // Slot to click in the Pesthunter menu
     public int philipWarnSeconds = 60;              // Warn this long before the Philip buff runs out
-    public boolean philipArmsRoutine = true;        // Buff running out queues the Philip refill
-    public boolean pestBuffWarning = true;          // Title + sound when the pest fortune buff expires
+    public boolean philipArmsRoutine = false;       // Buff running out queues the Philip refill
+    public boolean pestBuffWarning = false;         // Title + sound when the pest fortune buff expires
     public String pestBuffSound = "NOTE_PLING";     // Sound for that warning
     public float pestBuffVolume = 1.5f;
     public boolean pestResumeAttack = false;        // After closing the loadout, tap the attack key
     @Global
     public int pestAttackKey = -1;                  // Which key to tap (-1 = the vanilla attack bind)
-    public boolean pestRoutineHud = true;           // Show the next routine step on screen
+    public boolean pestRoutineHud = false;          // Show the next routine step on screen
     public int pestRoutineX = 10;
     public int pestRoutineY = 120;
     public float pestRoutineScale = 1.0f;
@@ -498,6 +536,7 @@ public class TeslaMapsConfig {
     public boolean noHurtCam = true;         // Disable damage camera tilt
     public boolean noViewBobbing = true;    // Disable view bobbing
     public boolean noXpOrbs = true;          // Hide experience orb entities
+    public boolean packetHiders = true;      // Drop the spawn packet for hidden decorative entities instead of skipping the render
     public boolean noEnchantGlint = true;   // Remove enchantment glint/shimmer on items
     public boolean zoomEnabled = true;       // Enable hold-key zoom
     @Global
@@ -515,12 +554,13 @@ public class TeslaMapsConfig {
 
     @Global
     public boolean customTitleScreen = true;      // Replace the vanilla main menu
+    public boolean customLoadingScreen = true;   // Same background on the loading and connect screens
     @Global
-    public String titleBackground = "Snow";     // Animated background preset
+    public String titleBackground = "Liquid Metal";   // Animated background preset
     @Global
-    public float titleBackgroundSpeed = 0.610625f;    // Menu animation speed (0.05-2.0)
+    public float titleBackgroundSpeed = 0.61f;        // Menu animation speed (0.05-2.0)
     @Global
-    public String titleBackgroundColor = "EB5A02"; // Tint applied to the background shader
+    public String titleBackgroundColor = "3E0E95"; // Tint applied to the background shader
     @Global
     public boolean titleAccentAuto = true;           // Pick the brand title color per background
     @Global
@@ -545,11 +585,7 @@ public class TeslaMapsConfig {
     public int autoCloseRandomization = 3;        // Random ticks added to delay (0-10)
     public boolean closeChestOnInput = false;     // Close chest when any key is pressed
 
-    public boolean slayerHUD = false;          // Show slayer boss health/phase overlay
-    public int slayerHudX = 152;               // X position of slayer HUD
-    public int slayerHudY = 32;                // Y position of slayer HUD
-    public float slayerHudScale = 1.0f;        // Scale of slayer HUD
-    public boolean slayerOnlyOwnBoss = false;  // Only show HUD for your own boss
+    public boolean slayerOnlyOwnBoss = false;  // Only count/track your own boss
     public boolean slayerBossESP = false;      // Glow on boss (color based on phase)
     public boolean slayerMinibossESP = false;  // Glow on minibosses (Burningsoul=red, Kindleheart=white)
     public boolean slayerMinibossTracer = false; // Tracer lines to slayer minibosses
@@ -557,8 +593,11 @@ public class TeslaMapsConfig {
     public boolean skillTracker = true;        // Tracker HUD: skill XP/hour plus the rates that fit the skill
     public int skillTrackerX = 10;             // X position of tracker HUD
     public int skillTrackerY = 120;            // Y position of tracker HUD
-    public int skillTrackerMode = 0;           // 0 = both, 1 = per hour, 2 = session
+    public int fishingCatchSource = 0;         // what counts as a catch: 0 = auto, 1 = sea creatures + trophies (chat), 2 = every catch (xp)
     public float skillTrackerScale = 1.0f;     // Scale of skill tracker HUD
+    public boolean fixDoubleClicks = true;     // Drop the duplicate use-on-block Hypixel sends for blaze daggers / autopet rods
+    public boolean skillLevelStackSize = true;  // draw the skill level as the stack size in the skills menu
+    public boolean skillAvgOverflow = true;     // add the overflow skill average to the "Your Skills" tooltip
     public boolean skillOverflow = true;       // Overflow levels in the skill menu and on level up
     public java.util.Map<String, Long> skillTotalXp = new java.util.HashMap<>(); // total xp per skill, read from the skill menu
 
@@ -648,7 +687,13 @@ public class TeslaMapsConfig {
     public boolean enchantColors = true;           // Recolor enchantments in item lore by level
     public boolean enchantLevelsAsNumbers = false; // Show enchant levels as numbers instead of roman numerals
     public boolean enchantBoldMax = true;          // Bold max-level enchants
-    public String enchantColorMax = "FFAA00";      // Max level (gold)
+    public boolean enchantChromaMax = true;        // moving rainbow on max-level enchants
+    // Chroma look, same knobs and defaults as SkyHanni's shader
+    public float chromaSize = 30f;                 // gui units per full colour cycle
+    public float chromaSpeed = 6f;                 // hue per tick = speed / 360
+    public float chromaSaturation = 0.75f;
+    public boolean chromaForward = true;           // true = x-y slant, false = x+y       // moving rainbow on max-level enchants
+    public String enchantColorMax = "FFAA00";      // Max level (gold), ignored while chroma is on
     public String enchantColorHigh = "FFAA00";     // Above good level (gold)
     public String enchantColorNormal = "00AAAA";   // Good level (cyan)
     public String enchantColorBad = "AAAAAA";      // Below good level (gray)
@@ -656,6 +701,13 @@ public class TeslaMapsConfig {
     public boolean hotspotLine = true;             // tracer from the crosshair to the guess
     public boolean hotspotBeam = false;            // beacon beam at the guess
     public String colorHotspot = "#FF55FF";
+    public boolean hotspotGoneWarning = false;     // warn when the whirlpool you fish at stops
+    public boolean hotspotGoneTitle = true;
+    public String hotspotGoneSound = "NOTE_PLING";
+    public float hotspotGoneVolume = 1.0f;         // 0 = silent
+    public boolean explodingFrogESP = false;       // box the lily pad display an exploding frog leaves
+    public boolean explodingFrogTracer = false;    // tracer to that lily pad
+    public String colorExplodingFrog = "#55FF55";
     public boolean hookDisplay = true;             // Hypixel's bite countdown, big on the HUD
     public boolean hookHideArmorStand = true;      // hide Hypixel's own tiny label over the bobber
     public String hookAlertText = "&c&lPULL";      // replaces Hypixel's "!!!"
@@ -683,12 +735,31 @@ public class TeslaMapsConfig {
     public int[] wardrobeKeys = {-1, -1, -1, -1, -1, -1, -1, -1, -1}; // custom per-slot wardrobe keys (-1 = unbound)
     public boolean signEnterKey = true;            // Enter confirms/closes a sign edit screen
     public boolean noCursorReset = true;           // keep cursor position when navigating between GUIs
+    public float noCursorResetHold = 2f;           // seconds the saved cursor position stays valid
     public boolean autoCopyScreenshot = true;      // copy taken screenshots to the system clipboard
+    public boolean screenshotChatActions = true;    // clickable Copy/Browse/Delete under the save message
+    public boolean screenshotHideVanillaMessage = true; // hide "Saved screenshot as ..."
+    public boolean imageShareReceive = true;       // turn shared links in chat into a click-to-view line
+    public String imageShareExpiry = "24h";        // 1h / 12h / 24h / 72h / permanent
+    public int imageShareChatLines = 12;            // chat rows reserved for an inline image
+    @Global
+    public int imagePeekKey = -1;                  // hold to blow up the newest shared image
+    @Global
+    public java.util.List<String> imageShareBlocked = new java.util.ArrayList<>(); // senders whose images are ignored
     public boolean ownNameTag = true;             // render your own player nametag in third person
     public boolean searchbar = true;               // type to search/highlight items in any container
     public boolean scrollableTooltip = true;       // scroll long item tooltips with the mouse wheel
     public boolean estimatedValue = true;          // show estimated item value (bazaar) in tooltips
     public boolean itemValueGui = false;            // show a value-breakdown panel beside the inventory when hovering an item
+    public int itemValueHoverDelay = 500;           // ms on the same slot before the first breakdown of an inventory shows
+    public int itemValueEnchantmentsCap = 7;        // only list the top # most expensive enchantments
+    public int itemValueStarMaterialCap = 3;        // only list the top # most expensive star materials
+    public boolean itemValueExactPrice = false;     // exact total instead of the compact number
+    public boolean itemValueIgnoreHelmetSkins = false; // leave helmet skins out of the total
+    public boolean itemValueIgnoreArmorDyes = false;   // leave armor dyes out of the total
+    public boolean itemValueIgnoreRunes = false;       // leave runes out of the total
+    public String itemValuePriceSource = "BZ Instant Sell"; // BZ Instant Buy / BZ Instant Sell / Lowest BIN / NPC Sell
+    public boolean itemValueShowBin = true;         // extra "Lowest BIN" line in the value breakdown
     public boolean containerValue = false;          // show total container value + top 5 items in a side panel
     public boolean backpackPreview = true;         // cache + show backpack/ender chest contents on hover (data in storage.json)
     public boolean customStorageOverlay = false;    // replace the vanilla "Storage" menu with a custom all-in-one view
@@ -696,6 +767,7 @@ public class TeslaMapsConfig {
     public float storageOverlayScale = 1.0f;        // overall size multiplier for the custom storage overlay (0.5 - 1.5)
     public boolean critterESP = false;              // Torrhus Canyon critter ESP (master)
     public boolean critterFilled = true;            // also fill the critter boxes
+    public boolean critterTracers = false;          // tracer to every boxed critter
     public boolean critterBee = true;               // Beeheemoth & Honeybuzz (Bee)
     public boolean critterBlueJay = true;           // Blue Jay (Parrot)
     public boolean critterBunbun = true;            // Bunbun (Rabbit)
@@ -704,7 +776,6 @@ public class TeslaMapsConfig {
     public boolean critterGrizzly = true;           // Grizzly Bear (by name)
     public boolean critterGroundhog = true;         // Groundhog (Hoglin)
     public boolean critterHideonsun = true;         // Hideonsun (Shulker)
-    public boolean critterHideyho = true;           // Hideyho (player-type entity, matched by name)
     public boolean critterMountainGoat = true;      // Mountain Goat (Goat)
     public boolean critterSepialot = true;          // Sepialot (Axolotl)
     public boolean critterDustybit = true;          // Dustybit (Frog)
@@ -717,7 +788,6 @@ public class TeslaMapsConfig {
     public String colorCritterGrizzly = "#8A7A6A";
     public String colorCritterGroundhog = "#CC5500";
     public String colorCritterHideonsun = "#AA66CC";
-    public String colorCritterHideyho = "#FF55AA";
     public String colorCritterMountainGoat = "#D8D8D8";
     public String colorCritterSepialot = "#FF09F8";
     public String colorCritterDustybit = "#55DD55";
@@ -735,18 +805,24 @@ public class TeslaMapsConfig {
     public String safariChecklistBiome = "Auto";    // Auto = the biome you are standing in
     public boolean safariChecklistIcons = true;     // check/cross icons, off = colour the name only
     public boolean safariCritterESP = false;         // box critters, coloured by shard rarity
-    public boolean safariFastDetect = false;         // box the body before its nametag arrives
     public boolean safariNames = false;             // name label over every critter, not just the rare ones
     public boolean safariTracers = false;           // tracer to labelled critters
-    public String colorSafariUnknown = "#AAAAAA";   // body found, nametag not there yet
     public boolean safariFilled = true;             // also fill the safari boxes
     public boolean safariOnlyMissing = false;       // only box critters nobody caught yet this run
+    public boolean safariHideyhoTracer = true;      // tracer to Hideyho even with the general ones off
     public boolean safariNestESP = false;            // box the bee nests that spawn Honeybugs
     public boolean safariSparklingAlert = true;     // alert on the WAX_ON particles of a sparkling critter
     public boolean safariSparklingParty = false;    // also post the sparkling coords to party chat
+    public boolean safariAnnounceBiomeDone = true;  // alert when every critter of a biome is caught
+    public boolean safariAnnounceUniqueDone = true; // alert when the whole dex is complete
+    public boolean safariShareTimeParty = false;    // post those completion times to party chat
     public boolean safariAutoHideyho = false;       // click the [Sure] the server put on the Hideyho question
+    public int safariAutoHideyhoMinMs = 300;        // never answer faster than this
+    public int safariAutoHideyhoJitterMs = 400;     // extra 0..n ms on top, so the delay varies
     public boolean safariHideCold = false;          // drop the frost overlay in the Icy Biome
     public boolean safariShowPb = true;             // PB line in the run HUD
+    public boolean safariShowHotspot = false;       // "Hotspot: <Biome>" line
+    public boolean safariShowHeadStart = false;     // "Head Start: <Critter>" line
     public float safariAlertVolume = 1.0f;          // 0 = silent
     public String colorSafariSparkling = "#FF55FF";
     public String colorSafariNest = "#FFAA00";
@@ -760,17 +836,21 @@ public class TeslaMapsConfig {
     public boolean foragingHideSweepDetails = false; // hide the Sweep Details / Toughness / penalty lines
     public boolean foragingCleanTreeView = false;   // hide the floating blocks from chopping
     public boolean foragingHideRuneEffects = false; // hide the floating blocks from rune effects
-    public boolean umbrellaWarning = true;          // alert before and when the Umberella runs out
+    public boolean umbrellaWarning = false;         // alert before and when the Umberella runs out
     public int umbrellaWarnBefore = 30;             // seconds of warning, 0 = only on despawn
-    public boolean umbrellaWarningTitle = true;
+    public boolean umbrellaWarningTitle = false;
     public String umbrellaWarningSound = "NOTE_PLING";
     public float umbrellaWarningVolume = 1.0f;      // 0 = silent
     public boolean deployableOverlay = false;       // HUD with the time left on active deployables
-    public boolean deployableHighestTierOnly = true; // hide a Radiant while an Overflux is up
+    public boolean deployableHighestTierOnly = false; // hide a Radiant while an Overflux is up
     public boolean deployableFlux = true;           // power orbs
     public boolean deployableLantern = true;
     public boolean deployableUmbrella = true;
-    public boolean deployableBlackHole = false;
+    public boolean deployableBlackHole = true;
+    public boolean deployableFlare = true;          // warning/alert/sos flares, matched by head texture
+    // an overlay with every type filtered out shows nothing, which reads as broken
+    public boolean deployableTypesRepaired = false;
+    public boolean deployableOthers = true;         // flares, Willow, anything else with a timer nametag
     public int deployableX = 5;
     public int deployableY = 240;
     public float deployableScale = 1.0f;
@@ -875,7 +955,7 @@ public class TeslaMapsConfig {
     public int spiritBearX = 300;                  // Spirit bear timer position X (draggable in HUD edit)
     public int spiritBearY = 180;                  // Spirit bear timer position Y
     public float spiritBearScale = 1.0f;           // Spirit bear timer text scale (0.5 - 5.0)
-    // M4 visual helpers (ported from BirdAddon, BSD-3)
+    // M4 visual helpers (ported from BirdAddon)
     public boolean m4Highlight = true;             // Highlight M4 animals/thorn/bear
     public String m4HighlightStyle = "Outline";    // Filled, Outline, Filled Outline
     public boolean m4HideNametags = true;          // Hide the ❤ health nametags in M4 boss
@@ -932,26 +1012,9 @@ public class TeslaMapsConfig {
     public String colorWaterFirst = "FF55FF55";       // Water Board first lever (green)
     public String colorWaterSecond = "FFFFAA00";      // Water Board second lever (gold)
 
-    public boolean solveChronomatron = false;      // Auto-solve Chronomatron (memory sequence) [DISABLED]
-    public boolean solveSuperpairs = false;        // Auto-solve Superpairs (matching pairs) [DISABLED]
-    public boolean solveUltrasequencer = false;    // Auto-solve Ultrasequencer (numbered sequence) [DISABLED]
-    public int experimentClickDelay = 300;         // Delay in ms before first click in experiments [DISABLED]
-    public int experimentClickInterval = 150;      // Delay in ms between clicks in experiments [DISABLED]
-
-    public boolean solveStartsWithTerminal = false; // Auto-click correct item in "What starts with" terminal [DISABLED]
-    public boolean solveSelectAllTerminal = false;  // Auto-click all items in "Select all the [color]" terminal [DISABLED]
-    public boolean solveClickInOrderTerminal = false; // Auto-click panes in order 1-14 [DISABLED]
-    public boolean solveCorrectPanesTerminal = false; // Auto-click incorrect panes to fix them [DISABLED]
-    public boolean solveMelodyTerminal = false;    // Auto-click melody sequence (Click the button on time!) [DISABLED]
     public boolean melodyMessage = true;           // Announce "/pc <text>" when the melody terminal opens
     public String melodyMessageText = "Melody Terminal start!"; // message sent on melody open
     public boolean melodyProgress = true;          // Send 25/50/75% melody progress to party chat
-    public boolean solveRubixTerminal = false;     // Auto-solve rubix cube (Change all to same color!) [DISABLED]
-    public int terminalClickDelay = 200;           // Delay in ms before first click (200-500 recommended) [DISABLED]
-    public int terminalClickInterval = 171;        // Delay in ms between subsequent clicks (100-200 recommended) [DISABLED]
-    public int terminalClickRandomization = 70;    // Random variance added to click delays (0-150ms, higher = more human-like) [DISABLED]
-    public int terminalBreakThreshold = 500;       // Reset stuck state if no progress for this many ms (0 to disable) [DISABLED]
-    public int melodyTerminalClickDelay = 25;      // Delay for melody terminal click (separate because timing is critical) [DISABLED]
 
     public int terminalRenderType = 0;             // 0 = Odin, 1 = Normal, 2 = Custom GUI
     public int terminalNormalSize = 3;             // GUI scale for the vanilla terminal window (6 = auto)
@@ -1000,6 +1063,8 @@ public class TeslaMapsConfig {
     public boolean bazaarOwnOrders = true;            // Highlight your own orders ("By: <you>") green in bazaar order books
     public boolean progressHighlight = true;          // Highlight menu items whose lore shows a progress line at 100%
     public String colorProgressDone = "#55FF55";      // Progress Highlight color
+    public boolean commissionHighlight = true;        // Highlight finished commissions in the Commissions menu
+    public String colorCommissionDone = "#55FF55";    // Commission Highlight color
     public boolean secretWaypointTracers = false;     // Draw tracers to waypoints
     public boolean secretWaypointHideCollected = true; // Hide waypoints when secret is collected
 
@@ -1035,6 +1100,10 @@ public class TeslaMapsConfig {
     public String hypixelApiKey = "";
     @Global
     public List<String> recentPlayers = new ArrayList<>();
+    @Global
+    public List<String> guildNames = new ArrayList<>();   // captured from /g list, for the name suggestions
+    @Global
+    public List<String> friendNames = new ArrayList<>();  // captured from /f list
     public int pvCacheDurationSeconds = 300;  // 5 minute cache
 
     public String colorBackground = "CC1A1A1A";      // Map background
@@ -1076,14 +1145,30 @@ public class TeslaMapsConfig {
         return instance;
     }
 
+    // Called per room, per door and per text in the map render path, so the parse
+    // is cached. Colour pickers can churn values, hence the size cap.
+    private static final java.util.concurrent.ConcurrentHashMap<String, Integer> COLOR_CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
     public static int parseColor(String hex) {
+        if (hex == null) return 0xFFFFFFFF;
+
+        Integer cached = COLOR_CACHE.get(hex);
+        if (cached != null) return cached;
+
+        int result;
         try {
-            if (hex.startsWith("#")) hex = hex.substring(1);
-            if (hex.length() == 6) hex = "FF" + hex; // Add full alpha if not specified
-            return (int) Long.parseLong(hex, 16);
+            String s = hex;
+            if (s.startsWith("#")) s = s.substring(1);
+            if (s.length() == 6) s = "FF" + s; // Add full alpha if not specified
+            result = (int) Long.parseLong(s, 16);
         } catch (Exception e) {
-            return 0xFFFFFFFF; // Default to white on error
+            result = 0xFFFFFFFF; // Default to white on error
         }
+
+        if (COLOR_CACHE.size() > 512) COLOR_CACHE.clear();
+        COLOR_CACHE.put(hex, result);
+        return result;
     }
 
     /** Gson leaves collections null when the stored json predates the field. */
@@ -1091,15 +1176,30 @@ public class TeslaMapsConfig {
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.customESPTracers == null) c.customESPTracers = new ArrayList<>();
         if (c.recentPlayers == null) c.recentPlayers = new ArrayList<>();
+        if (c.guildNames == null) c.guildNames = new ArrayList<>();
+        if (c.friendNames == null) c.friendNames = new ArrayList<>();
         if (c.splitPbs == null) c.splitPbs = new java.util.HashMap<>();
         if (c.lockedSlots == null) c.lockedSlots = new java.util.ArrayList<>();
         if (c.slotBindsData == null) c.slotBindsData = new java.util.HashMap<>();
         if (c.puzzlePbs == null) c.puzzlePbs = new java.util.HashMap<>();
         if (c.termSimPbs == null) c.termSimPbs = new java.util.HashMap<>();
         if (c.terminalPbs == null) c.terminalPbs = new java.util.HashMap<>();
+        if (c.sectionEnabled == null) c.sectionEnabled = new java.util.HashMap<>();
+        if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
+        if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
+        if (c.imageShareBlocked == null) c.imageShareBlocked = new java.util.ArrayList<>();
+        if (c.dragonPbs == null) c.dragonPbs = new java.util.HashMap<>();
         if (c.keybinds == null) c.keybinds = defaultKeybinds();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
+        if (c.leapCustomOrder == null) c.leapCustomOrder = new ArrayList<>();
         if (c.activeProfile == null || c.activeProfile.isBlank()) c.activeProfile = ConfigProfiles.DEFAULT;
+        if (c.itemValuePriceSource == null || c.itemValuePriceSource.isBlank()) c.itemValuePriceSource = "BZ Instant Sell";
+        if (!c.deployableTypesRepaired) {
+            c.deployableTypesRepaired = true;
+            if (!c.deployableFlux && !c.deployableLantern && !c.deployableUmbrella && !c.deployableBlackHole) {
+                c.deployableFlux = c.deployableLantern = c.deployableUmbrella = c.deployableBlackHole = true;
+            }
+        }
     }
 
     static void setInstance(TeslaMapsConfig c) {

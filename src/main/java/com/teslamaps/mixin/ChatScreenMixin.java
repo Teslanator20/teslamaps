@@ -18,6 +18,24 @@ import java.util.List;
 @Mixin(ChatScreen.class)
 public class ChatScreenMixin {
 
+    @Inject(method = "extractRenderState", at = @At("TAIL"))
+    private void teslamaps$chatImagesOnTop(net.minecraft.client.gui.GuiGraphicsExtractor ctx,
+                                           int mouseX, int mouseY, float delta,
+                                           org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        com.teslamaps.features.SharedImageChatRenderer.render(ctx, true, mouseX, mouseY);
+    }
+
+    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$openSharedImage(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
+        if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) return;
+        var hit = com.teslamaps.features.SharedImageChatRenderer.hitAt(event.x(), event.y());
+        if (hit == null) return;
+
+        Minecraft mc = Minecraft.getInstance();
+        mc.setScreen(com.teslamaps.screen.ImageViewerScreen.forUrl(mc.screen, hit.sender(), hit.url()));
+        cir.setReturnValue(true);
+    }
+
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void teslamaps$copyOnRightClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         if (!TeslaMapsConfig.get().chatCopyEnabled) return;

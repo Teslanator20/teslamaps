@@ -21,10 +21,8 @@ public class BossESP {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
 
-        // only during the boss fight, not the dungeon clear (boss arena = outside the room grid)
-        boolean inBoss = DungeonManager.isInBoss()
-                || com.teslamaps.scanner.ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null;
-        if (!inBoss) return;
+        // only during the boss fight, not the dungeon clear
+        if (!DungeonManager.isInBossArea()) return;
 
         int color = TeslaMapsConfig.parseColor(c.colorBossESP);
         boolean throughWalls = !c.bossESPDepthCheck;

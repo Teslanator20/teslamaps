@@ -75,11 +75,20 @@ public class EnchantColors {
                 if (data != null) {
                     found = true;
                     int level = parseLevel(levelStr);
-                    Style style = styleFor(data, level, c);
-                    newLine.append(Component.literal(data.loreName()).withStyle(style));
-                    newLine.append(" ");
                     String display = c.enchantLevelsAsNumbers ? String.valueOf(level) : levelStr;
-                    newLine.append(Component.literal(display).withStyle(style));
+
+                    boolean ultimate = "ULTIMATE".equals(data.type());
+                    if (level >= data.maxLevel() && c.enchantChromaMax && !ultimate) {
+                        newLine.append(Component.literal(data.loreName() + " " + display)
+                                .withStyle(Style.EMPTY
+                                        .withColor(com.teslamaps.render.gui.ChromaHook.color())
+                                        .withBold(c.enchantBoldMax)));
+                    } else {
+                        Style style = styleFor(data, level, c);
+                        newLine.append(Component.literal(data.loreName()).withStyle(style));
+                        newLine.append(" ");
+                        newLine.append(Component.literal(display).withStyle(style));
+                    }
                 } else {
                     newLine.append(plain.substring(start, end));
                 }
@@ -90,6 +99,7 @@ public class EnchantColors {
             if (found) lore.set(i, newLine);
         }
     }
+
 
     private static Style styleFor(Enchant data, int level, TeslaMapsConfig c) {
         if ("ULTIMATE".equals(data.type()))

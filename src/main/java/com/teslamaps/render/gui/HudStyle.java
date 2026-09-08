@@ -15,7 +15,7 @@ public class HudStyle {
     public static final String TOOLTIP = "Tooltip";
     public static final String GLASS = "Glass";
 
-    public static final String[] NAMES = {MODERN, VANILLA, TOOLTIP, GLASS};
+    public static final String[] NAMES = {MODERN, GLASS, VANILLA, TOOLTIP};
 
     public static String current() {
         String style = TeslaMapsConfig.get().hudStyle;
@@ -43,6 +43,47 @@ public class HudStyle {
             case TOOLTIP -> tooltip(ctx, x, y, width, height);
             case GLASS -> TeslaGui.glassPanel(ctx, x, y, width, height, radius, 20, 45, 70, 16);
             default -> TeslaGui.hudPanel(ctx, x, y, width, height, radius);
+        }
+    }
+
+    /**
+     * Same switch for the mod's own screens. Differs from {@link #panel} in one point: a screen
+     * panel can never draw nothing, text floating on the dimmed world is unreadable, so Vanilla
+     * gets the flat grey box the game uses for its own menus.
+     */
+    public static void screenPanel(GuiGraphicsExtractor ctx, float x, float y, float width, float height, float radius) {
+        if (width <= 0 || height <= 0) return;
+        switch (current()) {
+            case VANILLA -> {
+                TeslaGui.roundedRect(ctx, x, y, width, height, 0, 0xF0101010);
+                TeslaGui.roundedRect(ctx, x, y, width, 1, 0, 0xFF5A5A5A);
+                TeslaGui.roundedRect(ctx, x, y + height - 1, width, 1, 0, 0xFF5A5A5A);
+                TeslaGui.roundedRect(ctx, x, y, 1, height, 0, 0xFF5A5A5A);
+                TeslaGui.roundedRect(ctx, x + width - 1, y, 1, height, 0, 0xFF5A5A5A);
+            }
+            case TOOLTIP -> tooltip(ctx, x, y, width, height);
+            case GLASS -> TeslaGui.glassPanel(ctx, x, y, width, height, radius, 26, 45, 70, 16);
+            default -> TeslaGui.hudPanel(ctx, x, y, width, height, radius);
+        }
+    }
+
+    /** Buttons and input fields inside those screens, so they match the panel they sit on. */
+    public static void screenButton(GuiGraphicsExtractor ctx, float x, float y, float width, float height,
+                                    boolean hovered, boolean enabled) {
+        if (width <= 0 || height <= 0) return;
+        switch (current()) {
+            case VANILLA -> {
+                int fill = !enabled ? 0xFF3F3F3F : (hovered ? 0xFF8B8B8B : 0xFF6C6C6C);
+                TeslaGui.roundedRect(ctx, x, y, width, height, 0, fill);
+                TeslaGui.roundedRect(ctx, x, y, width, 1, 0, 0xFFFFFFFF & 0x40FFFFFF);
+                TeslaGui.roundedRect(ctx, x, y + height - 1, width, 1, 0, 0xFF2B2B2B);
+            }
+            case TOOLTIP -> {
+                TeslaGui.roundedRect(ctx, x, y, width, height, 0, hovered ? 0xF0201028 : 0xF0100010);
+                TeslaGui.roundedRect(ctx, x, y, width, 1, 0, 0xFF5000FF);
+                TeslaGui.roundedRect(ctx, x, y + height - 1, width, 1, 0, 0xFF28007F);
+            }
+            default -> TeslaGui.glassButton(ctx, x, y, width, height, hovered, enabled);
         }
     }
 

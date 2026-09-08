@@ -2,7 +2,6 @@ package com.teslamaps.mixin;
 
 import com.teslamaps.dungeon.BloodCamp;
 import com.teslamaps.dungeon.WitherDragons;
-import com.teslamaps.dungeon.puzzle.TerminalManager;
 import com.teslamaps.features.PingMeter;
 import com.teslamaps.features.CustomTitles;
 import com.teslamaps.features.ThornStunTimer;
@@ -44,7 +43,6 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "handleContainerSetSlot", at = @At("TAIL"))
     private void onSlotUpdate(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
-        TerminalManager.onSlotUpdate(packet.getContainerId(), packet.getSlot(), packet.getItem());
         com.teslamaps.features.MelodyMessage.onSlotUpdate(packet.getSlot(), packet.getItem());
     }
 
@@ -58,6 +56,7 @@ public class ClientPlayNetworkHandlerMixin {
         WitherDragons.onParticlePacket(packet);
         com.teslamaps.safari.SafariTracker.onParticlePacket(packet);
         com.teslamaps.features.HotspotRadar.onParticlePacket(packet);
+        com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
     }
 
     @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))
@@ -79,22 +78,33 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleSetEquipment", at = @At("HEAD"))
     private void onSetEquipment(ClientboundSetEquipmentPacket packet, CallbackInfo ci) {
         BloodCamp.onSetEquipmentPacket(packet);
+        com.teslamaps.features.DeadMobHider.onSetEquipment(packet);
+        com.teslamaps.debug.DeathProbe.onSetEquipment(packet);
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Dragons")) com.teslamaps.dungeon.WitherDragons.onSetEquipment(packet);
     }
 
-    @Inject(method = "handleAddEntity", at = @At("HEAD"))
+    @Inject(method = "handleAddEntity", at = @At("HEAD"), cancellable = true)
     private void onAddEntity(net.minecraft.network.protocol.game.ClientboundAddEntityPacket packet, CallbackInfo ci) {
+        // dropping the spawn outright, so the entity is never created or ticked
+        if (com.teslamaps.features.PacketHiders.shouldCancelSpawn(packet.getType())) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Dragons")) com.teslamaps.dungeon.WitherDragons.onAddEntity(packet);
     }
 
     @Inject(method = "handleSetEntityData", at = @At("HEAD"))
     private void onSetEntityData(net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket packet, CallbackInfo ci) {
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Dragons")) com.teslamaps.dungeon.WitherDragons.onSetEntityData(packet);
+        com.teslamaps.features.DeadMobHider.onSetEntityData(packet);
+        com.teslamaps.debug.DeathProbe.onSetEntityData(packet);
     }
 
     @Inject(method = "handleRemoveEntities", at = @At("HEAD"))
     private void onRemoveEntities(ClientboundRemoveEntitiesPacket packet, CallbackInfo ci) {
         BloodCamp.onRemoveEntitiesPacket(packet);
+        com.teslamaps.features.DeadMobHider.onRemoveEntities(packet);
+        com.teslamaps.debug.DeathProbe.onRemoveEntities(packet);
     }
 
     @Inject(method = "handleTakeItemEntity", at = @At("TAIL"))
@@ -113,6 +123,9 @@ public class ClientPlayNetworkHandlerMixin {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.level == null) return;
         com.teslamaps.features.OverkillCounter.onEntityEvent(packet.getEntity(mc.level), packet.getEventId());
+        net.minecraft.world.entity.Entity target = packet.getEntity(mc.level);
+        if (target != null) com.teslamaps.features.DeadMobHider.onEntityEvent(target.getId(), packet.getEventId());
+        com.teslamaps.debug.DeathProbe.onEntityEvent(packet, packet.getEventId());
     }
 
     @Inject(method = "setTitleText", at = @At("HEAD"), cancellable = true)

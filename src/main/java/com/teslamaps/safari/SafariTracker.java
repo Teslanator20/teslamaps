@@ -59,12 +59,20 @@ public class SafariTracker {
     private static SafariData.Biome hotspot = null;
     private static String headStart = null;
     private static boolean wumpaAwake = false;
+    private static boolean gemsDone = false;
 
     // one alert per run per subject
     private static final Set<String> alerted = new HashSet<>();
     private static final Set<java.util.UUID> sparklingSeen = new HashSet<>();
 
     private static boolean wasInSafari = false;
+
+    /** Run-relative completion times, so the HUD and the announce agree on one number. */
+    private static final Map<SafariData.Biome, Long> biomeDoneAt = new EnumMap<>(SafariData.Biome.class);
+    private static long dexDoneAt = 0L;
+
+    private static long lastHideyhoAnswer = 0L;
+    private static final java.util.Random RANDOM = new java.util.Random();
 
     public static boolean isActive() {
         return runStart != 0 && SafariData.inSafari();
@@ -134,9 +142,12 @@ public class SafariTracker {
         floorDrops = 0;
         bells = 0;
         incense = 0;
+        biomeDoneAt.clear();
+        dexDoneAt = 0L;
         hotspot = null;
         headStart = null;
         wumpaAwake = false;
+        gemsDone = false;
         runStart = 0;
     }
 
@@ -195,7 +206,16 @@ public class SafariTracker {
         }
         if ((m = GEM_PLACED.matcher(msg)).matches()) {
             gems.add(m.group(1));
+            if (gems.size() >= 3) gemsDone = true;
             if (gems.size() >= 3) alert("gemzie", "§5§lGEMZIE §7all three gems placed");
+            return;
+        }
+        if (msg.startsWith("A rumbling sound can be heard, and the door at the back of the chamber opens")) {
+            gemsDone = true;
+            // no ping and no caps for this one, the server already announces the door itself
+            alerted.add("gemzie");
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§7Gems done"));
             return;
         }
         if (msg.equals("You rang the bell!")) { bells++; return; }
@@ -221,9 +241,23 @@ public class SafariTracker {
             if (c.rarity() == SafariData.Rarity.LEGENDARY) {
                 alert("legendary-" + c.name(), "§6§l" + c.name().toUpperCase() + " §7caught");
             }
+            TeslaMapsConfig cfg = TeslaMapsConfig.get();
             int have = perBiome.getOrDefault(c.biome(), 0);
-            if (have >= SafariData.countIn(c.biome())) {
-                alert("biome-" + c.biome(), c.biome().color + "§l" + c.biome().label.toUpperCase() + " §7biome complete");
+            if (have >= SafariData.countIn(c.biome()) && biomeDoneAt.putIfAbsent(c.biome(), elapsed()) == null
+                    && cfg.safariAnnounceBiomeDone) {
+                String at = SafariHistory.time(biomeDoneAt.get(c.biome()));
+                alert("biome-" + c.biome(), c.biome().color + "§l" + c.biome().label.toUpperCase()
+                        + " §7done after §f" + at);
+                share(c.biome().label + " done after " + at);
+            }
+            if (caughtAny.size() >= SafariData.ALL.size() && dexDoneAt == 0) {
+                dexDoneAt = elapsed();
+                String at = SafariHistory.time(dexDoneAt);
+                if (cfg.safariAnnounceUniqueDone) {
+                    alert("dex-complete", "§6§lFULL DEX §7done after §f" + at
+                            + " §7- all " + SafariData.ALL.size() + " uniques");
+                    share("Full dex done after " + at);
+                }
             }
             if (wumpaMissing() == 0) alert("wumpa-ready", "§6§lWUMPA §7ready - 8/8 Icy critters caught");
         }
@@ -260,6 +294,23 @@ public class SafariTracker {
         }
     }
 
+    private static long elapsed() {
+        return runStart == 0 ? 0 : System.currentTimeMillis() - runStart;
+    }
+
+    public static Map<SafariData.Biome, Long> biomeTimes() { return biomeDoneAt; }
+
+    public static long dexTime() { return dexDoneAt; }
+
+    /** Posts a completion time to party chat, opt-in. */
+    private static void share(String line) {
+        if (!TeslaMapsConfig.get().safariShareTimeParty) return;
+        Minecraft mc = Minecraft.getInstance();
+        mc.execute(() -> {
+            if (mc.getConnection() != null) mc.getConnection().sendCommand("pc " + line);
+        });
+    }
+
     private static void alert(String key, String text) {
         if (!alerted.add(key)) return;
         Minecraft mc = Minecraft.getInstance();
@@ -288,7 +339,16 @@ public class SafariTracker {
             String cmd = run.command();
             if (cmd.startsWith("/")) cmd = cmd.substring(1);
             String finalCmd = cmd;
-            mc.execute(() -> {
+
+            TeslaMapsConfig c = TeslaMapsConfig.get();
+            long now = System.currentTimeMillis();
+            // Hypixel repeats the prompt, and answering every copy is a command-spam block.
+            if (now - lastHideyhoAnswer < c.safariAutoHideyhoMinMs) return;
+            lastHideyhoAnswer = now;
+
+            int jitter = Math.max(0, c.safariAutoHideyhoJitterMs);
+            int delay = Math.max(0, c.safariAutoHideyhoMinMs) + (jitter == 0 ? 0 : RANDOM.nextInt(jitter + 1));
+            com.teslamaps.utils.TickScheduler.schedule(Math.max(1, delay / 50), () -> {
                 if (mc.getConnection() != null) mc.getConnection().sendCommand(finalCmd);
             });
             return;
@@ -332,10 +392,10 @@ public class SafariTracker {
             }
         }
 
-        if (hotspot != null) out.add("§7Hotspot: " + hotspot.color + hotspot.label);
-        if (headStart != null) out.add("§7Head Start: §f" + headStart);
+        if (c.safariShowHotspot && hotspot != null) out.add("§7Hotspot: " + hotspot.color + hotspot.label);
+        if (c.safariShowHeadStart && headStart != null) out.add("§7Head Start: §f" + headStart);
         if (incense > 0 && incense < 4) out.add("§7Incense: §f" + incense + "§7/4");
-        if (!gems.isEmpty() && gems.size() < 3) out.add("§7Gems: §f" + gems.size() + "§7/3");
+        if (!gemsDone && !gems.isEmpty()) out.add("§7Gems: §f" + gems.size() + "§7/3");
         if (bells > 0) out.add("§7Bells: §f" + bells + "§7/7");
 
         int wumpa = 8 - wumpaMissing();
@@ -398,7 +458,7 @@ public class SafariTracker {
         if (!c.safariTracker || !c.safariHud || !isActive()) return;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || mc.screen != null) return;
+        if (com.teslamaps.utils.HudVisibility.suppressed()) return;
 
         draw(context, mc, c.safariHudX, c.safariHudY, c.safariHudScale, lines());
     }

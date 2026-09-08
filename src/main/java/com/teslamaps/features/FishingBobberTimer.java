@@ -1,4 +1,3 @@
-// Ported from SkyHanni's FishingBobberTimer.kt (LGPL-2.1), see NOTICE.md
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
@@ -18,6 +17,12 @@ public class FishingBobberTimer {
     private static FishingHook lastHook = null;
     private static long startedAt = 0;
     private static boolean caught = false;
+    private static long pulls = 0;
+
+    /** Counts up on every cast, so a catch can be tied to the pull it came from. */
+    public static long pullId() {
+        return pulls;
+    }
 
     /** A catch does not remove the bobber on Hypixel, so the announcement stops the clock. */
     public static void onCatch() {
@@ -42,6 +47,7 @@ public class FishingBobberTimer {
         boolean liquidStart = TeslaMapsConfig.get().bobberTimerOnLiquid;
         if (hook != lastHook) {
             lastHook = hook;
+            pulls++;
             caught = false;
             startedAt = liquidStart ? 0 : System.currentTimeMillis();
         }
@@ -66,7 +72,7 @@ public class FishingBobberTimer {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.bobberTimer || startedAt == 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || mc.screen != null) return;
+        if (com.teslamaps.utils.HudVisibility.suppressed()) return;
         if (!SkyblockUtils.isInSkyblock()) return;
 
         draw(context, mc, c.bobberTimerX, c.bobberTimerY, c.bobberTimerScale, text());

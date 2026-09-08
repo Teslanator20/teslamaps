@@ -1,4 +1,3 @@
-// Adapted from Skyblocker's EggFinder.java (LGPL-3.0), see NOTICE.md
 package com.teslamaps.features;
 
 import com.mojang.authlib.properties.Property;
@@ -33,9 +32,24 @@ public class HoppityEggESP {
     private record Found(ArmorStand entity, EggType type) {}
 
     private static final List<Found> found = new ArrayList<>();
-    private static final java.util.Set<net.minecraft.core.BlockPos> collected = new java.util.HashSet<>();
+    // Positions, not block positions: the eggs bob up and down, so blockPosition() shifts
+    // and an exact match would let a collected egg pop back up.
+    private static final List<Vec3> collected = new ArrayList<>();
+    private static final double COLLECTED_RADIUS = 4.0;
     private static java.lang.ref.WeakReference<net.minecraft.world.level.Level> lastLevel = new java.lang.ref.WeakReference<>(null);
     private static int tickCounter = 0;
+
+    private static final java.util.regex.Pattern EGG_FOUND = java.util.regex.Pattern.compile(
+            "(?:HOPPITY'S HUNT You found a Chocolate|You have already collected this Chocolate) "
+            + "(?:Breakfast|Lunch|Dinner|Brunch|Déjeuner|Supper) Egg");
+    private static final String NO_EGGS = "There are no hidden Chocolate Rabbit Eggs nearby";
+
+    private static boolean isCollected(Vec3 pos) {
+        for (Vec3 c : collected) {
+            if (c.distanceTo(pos) < COLLECTED_RADIUS) return true;
+        }
+        return false;
+    }
 
     public static void tick() {
         if (!TeslaMapsConfig.get().hoppityEggESP) return;
@@ -81,15 +95,27 @@ public class HoppityEggESP {
     // hide the waypoint once the egg was clicked ("found" / "already collected" chat)
     public static void onChatMessage(String raw) {
         if (!TeslaMapsConfig.get().hoppityEggESP) return;
-        String text = raw.replaceAll("(?i)§[0-9A-FK-OR]", "");
-        if (!text.startsWith("HOPPITY'S HUNT You found a Chocolate")
-                && !text.startsWith("You have already collected this Chocolate")) return;
+        String text = com.teslamaps.utils.StringUtil.strip(raw);
+
+        // "no eggs nearby" means every egg on this island is already done
+        if (text.contains(NO_EGGS)) {
+            for (Found f : found) collected.add(f.entity.position());
+            return;
+        }
+        if (!EGG_FOUND.matcher(text).find()) return;
+
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         Vec3 p = mc.player.position();
+
+        // nearest egg wins - clicking one shouldn't clear a second one standing close by
+        Found nearest = null;
+        double best = 8 * 8;
         for (Found f : found) {
-            if (f.entity.position().distanceTo(p) < 8) collected.add(f.entity.blockPosition());
+            double d = f.entity.position().distanceToSqr(p);
+            if (d < best) { best = d; nearest = f; }
         }
+        if (nearest != null) collected.add(nearest.entity.position());
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
@@ -99,8 +125,8 @@ public class HoppityEggESP {
         Vec3 playerPos = mc.player != null ? mc.player.position() : cameraPos;
         for (Found f : found) {
             if (!f.entity.isAlive()) continue;
-            if (collected.contains(f.entity.blockPosition())) continue;
             Vec3 pos = f.entity.position();
+            if (isCollected(pos)) continue;
             if (pos.distanceTo(playerPos) < 5) continue; // close enough, stop cluttering the screen
             AABB box = new AABB(pos.x - 0.4, pos.y + 1.1, pos.z - 0.4,
                     pos.x + 0.4, pos.y + 1.9, pos.z + 0.4);

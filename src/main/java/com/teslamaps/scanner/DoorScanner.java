@@ -14,10 +14,31 @@ import net.minecraft.world.level.block.Block;
 
 public class DoorScanner {
 
-    private static final Map<String, DoorType> doors = new HashMap<>();
+    // Flat lookup instead of a keyed map: read for every door on every frame, and a
+    // 6x6 grid means the whole cell-pair key space fits in one array with no boxing.
+    private static final int GRID = ComponentGrid.GRID_SIZE;
+    private static final DoorType[] doors = new DoorType[GRID * GRID * GRID * GRID];
+    private static int doorCount = 0;
 
     public static void reset() {
-        doors.clear();
+        java.util.Arrays.fill(doors, null);
+        doorCount = 0;
+    }
+
+    /** Normalised index for the cell pair, -1 if either cell is off the grid. */
+    private static int doorIndex(int x1, int z1, int x2, int z2) {
+        if (x1 < 0 || x1 >= GRID || z1 < 0 || z1 >= GRID) return -1;
+        if (x2 < 0 || x2 >= GRID || z2 < 0 || z2 >= GRID) return -1;
+
+        int a, b;
+        if (x1 < x2 || (x1 == x2 && z1 < z2)) {
+            a = x1 * GRID + z1;
+            b = x2 * GRID + z2;
+        } else {
+            a = x2 * GRID + z2;
+            b = x1 * GRID + z1;
+        }
+        return a * (GRID * GRID) + b;
     }
 
     public static void scanAllDoors() {
@@ -36,7 +57,7 @@ public class DoorScanner {
             }
         }
 
-        TeslaMaps.LOGGER.debug("Door scan complete. Found {} doors", doors.size());
+        TeslaMaps.LOGGER.debug("Door scan complete. Found {} doors", doorCount);
     }
 
     private static void scanDoorPosition(Level world, int gx, int gz) {
@@ -72,8 +93,8 @@ public class DoorScanner {
             return;
         }
 
-        String key = makeDoorKey(room1X, room1Z, room2X, room2Z);
-        if (doors.containsKey(key)) {
+        int key = doorIndex(room1X, room1Z, room2X, room2Z);
+        if (key < 0 || doors[key] != null) {
             return;
         }
 
@@ -82,7 +103,8 @@ public class DoorScanner {
         DoorType doorType = detectDoorType(world, worldX, worldZ, roofHeight);
 
         if (doorType != DoorType.NONE) {
-            doors.put(key, doorType);
+            doors[key] = doorType;
+            doorCount++;
             TeslaMaps.LOGGER.debug("Found {} door between [{},{}] and [{},{}] at world [{},{}] roof={}",
                     doorType, room1X, room1Z, room2X, room2Z, worldX, worldZ, roofHeight);
         }
@@ -159,22 +181,15 @@ public class DoorScanner {
         return 0;
     }
 
-    private static String makeDoorKey(int x1, int z1, int x2, int z2) {
-        if (x1 < x2 || (x1 == x2 && z1 < z2)) {
-            return x1 + "," + z1 + "-" + x2 + "," + z2;
-        } else {
-            return x2 + "," + z2 + "-" + x1 + "," + z1;
-        }
-    }
-
     public static boolean hasDoorBetween(int x1, int z1, int x2, int z2) {
-        String key = makeDoorKey(x1, z1, x2, z2);
-        return doors.containsKey(key);
+        int key = doorIndex(x1, z1, x2, z2);
+        return key >= 0 && doors[key] != null;
     }
 
     public static DoorType getDoorType(int x1, int z1, int x2, int z2) {
-        String key = makeDoorKey(x1, z1, x2, z2);
-        return doors.getOrDefault(key, DoorType.NONE);
+        int key = doorIndex(x1, z1, x2, z2);
+        if (key < 0 || doors[key] == null) return DoorType.NONE;
+        return doors[key];
     }
 
     /**
@@ -200,7 +215,14 @@ public class DoorScanner {
         return detectDoorType(mc.level, worldX, worldZ, roofHeight);
     }
 
+    /** Debug only - builds the keyed view on demand. */
     public static Map<String, DoorType> getAllDoors() {
-        return doors;
+        Map<String, DoorType> out = new HashMap<>();
+        for (int i = 0; i < doors.length; i++) {
+            if (doors[i] == null) continue;
+            int a = i / (GRID * GRID), b = i % (GRID * GRID);
+            out.put((a / GRID) + "," + (a % GRID) + "-" + (b / GRID) + "," + (b % GRID), doors[i]);
+        }
+        return out;
     }
 }

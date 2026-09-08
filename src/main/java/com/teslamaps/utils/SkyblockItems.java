@@ -50,6 +50,7 @@ public class SkyblockItems {
     /** Texture value inside an NEU nbttag. Signature is keyed separately, so this only takes the skin. */
     private static final Pattern NEU_TEXTURE = Pattern.compile("Value:\\\\?\"([A-Za-z0-9+/=]+)\\\\?\"");
     private static final Pattern NEU_ITEM_ID = Pattern.compile("\"itemid\"\\s*:\\s*\"([^\"]+)\"");
+    private static final Pattern NEU_DISPLAYNAME = Pattern.compile("\"displayname\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
 
     private record ItemData(String material, String skin, String tier) {}
 
@@ -212,6 +213,7 @@ public class SkyblockItems {
                         String display = item.get("name").getAsString();
                         nameToId.putIfAbsent(display.toLowerCase(Locale.ROOT), id);
                         originalNames.putIfAbsent(display.toLowerCase(Locale.ROOT), display);
+                        idToName.putIfAbsent(id, display);
                     }
                     if (item.has("npc_sell_price")) {
                         npcPrices.put(id, item.get("npc_sell_price").getAsDouble());
@@ -245,6 +247,68 @@ public class SkyblockItems {
 
     private static String originalName(String lowercase) {
         return originalNames.getOrDefault(lowercase, lowercase);
+    }
+
+    private static final Map<String, String> idToName = new ConcurrentHashMap<>();
+
+    private static final Map<String, String> TIER_COLOR = Map.ofEntries(
+            Map.entry("COMMON", "§f"),
+            Map.entry("UNCOMMON", "§a"),
+            Map.entry("RARE", "§9"),
+            Map.entry("EPIC", "§5"),
+            Map.entry("LEGENDARY", "§6"),
+            Map.entry("MYTHIC", "§d"),
+            Map.entry("DIVINE", "§b"),
+            Map.entry("SPECIAL", "§c"),
+            Map.entry("VERY_SPECIAL", "§c"),
+            Map.entry("SUPREME", "§4"),
+            Map.entry("ULTIMATE", "§4"),
+            Map.entry("ADMIN", "§4"));
+
+    /** Hypixel's plain display name for an item id, null when unknown. */
+    public static String name(String id) {
+        load();
+        return id == null ? null : idToName.get(id);
+    }
+
+    private static final Map<String, String> neuNames = new ConcurrentHashMap<>();
+    private static final Set<String> nameTried = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Display name prefixed with its rarity colour, null when the id is unknown.
+     * Ids Hypixel does not carry (skins, dyes) are pulled from the NEU repo in the
+     * background, so the first call for one of those still comes back null.
+     */
+    public static String coloredName(String id) {
+        String plain = name(id);
+        if (plain != null) return TIER_COLOR.getOrDefault(tier(id), "§f") + plain;
+
+        String neu = neuNames.get(id);
+        if (neu != null) return neu;
+        if (loaded && id != null && !id.isEmpty() && nameTried.add(id)) prefetch(id);
+        return null;
+    }
+
+    /** NEU json uses § escapes for the colour codes. */
+    private static String unescape(String raw) {
+        StringBuilder out = new StringBuilder(raw.length());
+        for (int i = 0; i < raw.length(); i++) {
+            char c = raw.charAt(i);
+            if (c != '\\' || i + 1 >= raw.length()) {
+                out.append(c);
+                continue;
+            }
+            char next = raw.charAt(++i);
+            if (next == 'u' && i + 4 < raw.length()) {
+                out.append((char) Integer.parseInt(raw.substring(i + 1, i + 5), 16));
+                i += 4;
+            } else if (next == 'n') {
+                out.append('\n');
+            } else {
+                out.append(next);
+            }
+        }
+        return out.toString();
     }
 
     /** Hypixel's own name -> id mapping, null when the name is unknown. */
@@ -299,6 +363,8 @@ public class SkyblockItems {
                 if (texture.find()) skin = texture.group(1);
                 Matcher itemId = NEU_ITEM_ID.matcher(body);
                 if (itemId.find()) material = itemId.group(1);
+                Matcher displayName = NEU_DISPLAYNAME.matcher(body);
+                if (displayName.find()) neuNames.put(id, unescape(displayName.group(1)));
             } catch (Exception e) {
                 TeslaMaps.LOGGER.warn("NEU lookup for {} failed: {}", id, e.toString());
             }
