@@ -19,12 +19,6 @@ Thumbs.db
 # Local config
 .claude/
 
-# Third-party assets, local build only - provenance not cleared for
-# redistribution. Ships in the jar, stays out of the repo.
-src/main/resources/assets/teslamaps/sounds/
-src/main/resources/assets/teslamaps/sounds.json
-src/main/resources/assets/teslamaps/shaders/
-
 # Serena semantic code index cache
 .serena/
 

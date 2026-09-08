@@ -1,0 +1,416 @@
+{
+  "click_soft": {
+    "subtitle": "teslamaps.sound.click_soft",
+    "sounds": [
+      {
+        "name": "teslamaps:click_soft",
+        "stream": false
+      }
+    ]
+  },
+  "toggle_on": {
+    "subtitle": "teslamaps.sound.toggle_on",
+    "sounds": [
+      {
+        "name": "teslamaps:toggle_on",
+        "stream": false
+      }
+    ]
+  },
+  "toggle_off": {
+    "subtitle": "teslamaps.sound.toggle_off",
+    "sounds": [
+      {
+        "name": "teslamaps:toggle_off",
+        "stream": false
+      }
+    ]
+  },
+  "confirm": {
+    "subtitle": "teslamaps.sound.confirm",
+    "sounds": [
+      {
+        "name": "teslamaps:confirm",
+        "stream": false
+      }
+    ]
+  },
+  "hitmarker": {
+    "subtitle": "teslamaps.sound.hitmarker",
+    "sounds": [
+      {
+        "name": "teslamaps:hitmarker",
+        "stream": false
+      }
+    ]
+  },
+  "jingle": {
+    "subtitle": "teslamaps.sound.jingle",
+    "sounds": [
+      {
+        "name": "teslamaps:jingle",
+        "stream": false
+      }
+    ]
+  },
+  "ui_clicky_hover": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_clicky_hover",
+        "stream": false
+      }
+    ]
+  },
+  "ui_clicky_tick": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_clicky_tick",
+        "stream": false
+      }
+    ]
+  },
+  "ui_clicky_click": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_clicky_click",
+        "stream": false
+      }
+    ]
+  },
+  "ui_clicky_select": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_clicky_select",
+        "stream": false
+      }
+    ]
+  },
+  "ui_clicky_toggle_on": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_clicky_toggle_on",
+        "stream": false
+      }
+    ]
+  },
+  "ui_clicky_toggle_off": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_clicky_toggle_off",
+        "stream": false
+      }
+    ]
+  },
+  "ui_clicky_expand": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_clicky_expand",
+        "stream": false
+      }
+    ]
+  },
+  "ui_clicky_collapse": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_clicky_collapse",
+        "stream": false
+      }
+    ]
+  },
+  "ui_clicky_open": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_clicky_open",
+        "stream": false
+      }
+    ]
+  },
+  "ui_clicky_close": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_clicky_close",
+        "stream": false
+      }
+    ]
+  },
+  "ui_chime_hover": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_chime_hover",
+        "stream": false
+      }
+    ]
+  },
+  "ui_chime_tick": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_chime_tick",
+        "stream": false
+      }
+    ]
+  },
+  "ui_chime_click": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_chime_click",
+        "stream": false
+      }
+    ]
+  },
+  "ui_chime_select": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_chime_select",
+        "stream": false
+      }
+    ]
+  },
+  "ui_chime_toggle_on": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_chime_toggle_on",
+        "stream": false
+      }
+    ]
+  },
+  "ui_chime_toggle_off": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_chime_toggle_off",
+        "stream": false
+      }
+    ]
+  },
+  "ui_chime_expand": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_chime_expand",
+        "stream": false
+      }
+    ]
+  },
+  "ui_chime_collapse": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_chime_collapse",
+        "stream": false
+      }
+    ]
+  },
+  "ui_chime_open": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_chime_open",
+        "stream": false
+      }
+    ]
+  },
+  "ui_chime_close": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_chime_close",
+        "stream": false
+      }
+    ]
+  },
+  "ui_soft_hover": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_soft_hover",
+        "stream": false
+      }
+    ]
+  },
+  "ui_soft_tick": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_soft_tick",
+        "stream": false
+      }
+    ]
+  },
+  "ui_soft_click": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_soft_click",
+        "stream": false
+      }
+    ]
+  },
+  "ui_soft_select": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_soft_select",
+        "stream": false
+      }
+    ]
+  },
+  "ui_soft_toggle_on": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_soft_toggle_on",
+        "stream": false
+      }
+    ]
+  },
+  "ui_soft_toggle_off": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_soft_toggle_off",
+        "stream": false
+      }
+    ]
+  },
+  "ui_soft_expand": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_soft_expand",
+        "stream": false
+      }
+    ]
+  },
+  "ui_soft_collapse": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_soft_collapse",
+        "stream": false
+      }
+    ]
+  },
+  "ui_soft_open": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_soft_open",
+        "stream": false
+      }
+    ]
+  },
+  "ui_soft_close": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_soft_close",
+        "stream": false
+      }
+    ]
+  },
+  "ui_digital_hover": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_digital_hover",
+        "stream": false
+      }
+    ]
+  },
+  "ui_digital_tick": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_digital_tick",
+        "stream": false
+      }
+    ]
+  },
+  "ui_digital_click": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_digital_click",
+        "stream": false
+      }
+    ]
+  },
+  "ui_digital_select": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_digital_select",
+        "stream": false
+      }
+    ]
+  },
+  "ui_digital_toggle_on": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_digital_toggle_on",
+        "stream": false
+      }
+    ]
+  },
+  "ui_digital_toggle_off": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_digital_toggle_off",
+        "stream": false
+      }
+    ]
+  },
+  "ui_digital_expand": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_digital_expand",
+        "stream": false
+      }
+    ]
+  },
+  "ui_digital_collapse": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_digital_collapse",
+        "stream": false
+      }
+    ]
+  },
+  "ui_digital_open": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_digital_open",
+        "stream": false
+      }
+    ]
+  },
+  "ui_digital_close": {
+    "subtitle": "teslamaps.sound.ui",
+    "sounds": [
+      {
+        "name": "teslamaps:ui_digital_close",
+        "stream": false
+      }
+    ]
+  }
+}
