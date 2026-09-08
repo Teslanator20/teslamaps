@@ -264,7 +264,6 @@ public class TeslaMaps implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             Perf.begin("TickScheduler.tick"); com.teslamaps.utils.TickScheduler.tick(); Perf.end();
             Perf.begin("GetFromSacks.tick"); com.teslamaps.features.GetFromSacks.tick(); Perf.end();
-            Perf.begin("AgentBridge.tick"); com.teslamaps.debug.AgentBridge.tick(); Perf.end();
             Perf.begin("TerminalUtils.tick"); com.teslamaps.dungeon.terminals.TerminalUtils.onClientTick(); Perf.end();
             if (client.player != null && client.level != null) {
                 TeslaMapsConfig cfg = TeslaMapsConfig.get();
