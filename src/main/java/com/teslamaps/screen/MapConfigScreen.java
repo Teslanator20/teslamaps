@@ -420,6 +420,9 @@ public class MapConfigScreen extends Screen {
         title.add(new ToggleEntry(contentX, contentWidth, "Custom Loading Screen",
                 () -> config.customLoadingScreen, v -> config.customLoadingScreen = v));
         title.add(new InfoEntry(contentX, "Same background while connecting and loading terrain"));
+        title.add(new ToggleEntry(contentX, contentWidth, "Modern Vanilla Buttons",
+                () -> config.modernVanillaButtons, v -> config.modernVanillaButtons = v));
+        title.add(new InfoEntry(contentX, "Glass style in the pause menu, options and every plain button"));
         title.add(new DropdownEntry(contentX, contentWidth, "Background",
                 com.teslamaps.render.gui.MenuBackgroundRenderer.names(),
                 () -> config.titleBackground, v -> config.titleBackground = v));
@@ -665,6 +668,8 @@ public class MapConfigScreen extends Screen {
         fishing.add(new InfoEntry(contentX, "Boxes the lily pad the frog leaves behind"));
         fishing.add(new ToggleEntry(contentX, contentWidth, "  Tracer",
                 () -> config.explodingFrogTracer, v -> config.explodingFrogTracer = v));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "  Show Name",
+                () -> config.explodingFrogName, v -> config.explodingFrogName = v));
         fishing.add(new ColorEntry(contentX, contentWidth, "  Color",
                 () -> config.colorExplodingFrog, v -> config.colorExplodingFrog = v));
 
@@ -1264,12 +1269,25 @@ public class MapConfigScreen extends Screen {
         inventory.add(new ColorEntry(contentX, contentWidth, "  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v));
         inventory.add(new ColorEntry(contentX, contentWidth, "  Commission Color", () -> config.colorCommissionDone, v -> config.colorCommissionDone = v));
-        inventory.add(new LabelEntry(contentX, "Wardrobe Keybinds"));
-        inventory.add(new ToggleEntry(contentX, contentWidth, "Wardrobe Keybinds (1-9)", () -> config.wardrobeKeybinds, v -> config.wardrobeKeybinds = v));
+        inventory.add(new LabelEntry(contentX, "Wardrobe & Loadout Keybinds"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Wardrobe Keybinds", () -> config.wardrobeKeybinds, v -> config.wardrobeKeybinds = v));
+        inventory.add(new InfoEntry(contentX, "Unbound slots fall back to your hotbar keys (1-9)"));
+        inventory.add(new KeybindEntry(contentX, contentWidth, "  Next Page",
+                () -> config.wardrobeNextPageKey, v -> config.wardrobeNextPageKey = v));
+        inventory.add(new KeybindEntry(contentX, contentWidth, "  Previous Page",
+                () -> config.wardrobePrevPageKey, v -> config.wardrobePrevPageKey = v));
+        inventory.add(new LabelEntry(contentX, "Wardrobe Slots (9 per page)"));
         for (int i = 0; i < 9; i++) {
             final int idx = i;
             inventory.add(new KeybindEntry(contentX, contentWidth, "Wardrobe Slot " + (i + 1),
                     () -> config.wardrobeKeys[idx], v -> config.wardrobeKeys[idx] = v));
+        }
+        // 12 per page, so 10-12 need binds of their own - the hotbar only has nine keys
+        inventory.add(new LabelEntry(contentX, "Loadouts (12 per page)"));
+        for (int i = 0; i < 12; i++) {
+            final int idx = i;
+            inventory.add(new KeybindEntry(contentX, contentWidth, "Loadout " + (i + 1),
+                    () -> config.loadoutKeys[idx], v -> config.loadoutKeys[idx] = v));
         }
         List<SettingsEntry> media = new ArrayList<>();
         media.add(new LabelEntry(contentX, "Screenshots"));
@@ -1745,6 +1763,10 @@ public class MapConfigScreen extends Screen {
                 () -> config.guiSoundTheme, v -> config.guiSoundTheme = v));
         profiles.add(new SliderEntry(contentX, narrow, "GUI Sound Volume", 0f, 2f,
                 () -> config.guiSoundVolume, v -> config.guiSoundVolume = v, 2));
+        // reaches every vanilla button in the game, so it belongs where profiles are picked
+        profiles.add(new ToggleEntry(contentX, narrow, "Modern Vanilla Buttons",
+                () -> config.modernVanillaButtons, v -> config.modernVanillaButtons = v));
+        profiles.add(new InfoEntry(contentX, "Restyles the pause menu and every vanilla button"));
         categories.put("Profiles", profiles);
 
         List<SettingsEntry> ui = new ArrayList<>();

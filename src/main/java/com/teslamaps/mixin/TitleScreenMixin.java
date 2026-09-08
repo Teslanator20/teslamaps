@@ -113,19 +113,31 @@ public abstract class TitleScreenMixin extends Screen {
     @Unique
     private void teslamaps$drawLabels(GuiGraphicsExtractor ctx) {
         int accent = MenuBackgroundRenderer.accentColor();
-        // Halo in the opposite direction of the accent's brightness, so the title
-        // keeps its edge whatever the background tint is set to.
-        int halo = teslamaps$isDark(accent) ? 0x59FFFFFF : 0x8C000000;
-        int brandX = -this.font.width("TESLAMAPS") / 2;
+
+        // Letter-spaced wordmark with a hairline rule instead of the old 2.5x font with a drop
+        // halo - the halo read as a game logo and fought whatever background is set.
+        String brand = "TESLAMAPS";
+        float scale = 1.9f;
+        int gap = 3;
+        int plain = this.font.width(brand);
+        int spaced = plain + gap * (brand.length() - 1);
 
         ctx.pose().pushMatrix();
         ctx.pose().translate(this.width / 2.0f, this.teslamaps$titleY);
-        ctx.pose().scale(2.5f, 2.5f);
-        ctx.pose().pushMatrix();
-        ctx.pose().translate(0.4f, 0.4f);
-        ctx.text(this.font, "TESLAMAPS", brandX, 0, halo, false);
-        ctx.pose().popMatrix();
-        ctx.text(this.font, "TESLAMAPS", brandX, 0, accent, false);
+        ctx.pose().scale(scale, scale);
+
+        int x = -spaced / 2;
+        for (int i = 0; i < brand.length(); i++) {
+            String ch = String.valueOf(brand.charAt(i));
+            ctx.text(this.font, ch, x, 0, accent, false);
+            x += this.font.width(ch) + gap;
+        }
+
+        // the rule sits under the glyphs, a touch narrower so it reads as an underline
+        int ruleY = this.font.lineHeight + 3;
+        int inset = 2;
+        ctx.fill(-spaced / 2 + inset, ruleY, spaced / 2 - inset, ruleY + 1,
+                teslamaps$withAlpha(accent, 170));
         ctx.pose().popMatrix();
 
         String info = "TeslaMaps " + teslamaps$version() + " | " + this.minecraft.getUser().getName();
@@ -133,12 +145,10 @@ public abstract class TitleScreenMixin extends Screen {
     }
 
     @Unique
-    private static boolean teslamaps$isDark(int argb) {
-        int r = (argb >> 16) & 0xFF;
-        int g = (argb >> 8) & 0xFF;
-        int b = argb & 0xFF;
-        return (r * 299 + g * 587 + b * 114) / 1000 < 128;
+    private static int teslamaps$withAlpha(int argb, int alpha) {
+        return (argb & 0x00FFFFFF) | (alpha << 24);
     }
+
 
     @Unique
     private static String teslamaps$version() {

@@ -177,12 +177,9 @@ public class ColorPickerWidget extends Screen {
 
     private void drawStyledButton(GuiGraphicsExtractor context, int x, int y, int w, int h, String text, int mouseX, int mouseY) {
         boolean hovered = mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h;
-        int bg = hovered ? 0xFF3A3A3C : 0xFF2C2C2E;
-        int border = hovered ? 0xFF5A5A5C : 0xFF48484A;
-
-        context.fill(x, y, x + w, y + h, bg);
-        drawBorder(context, x, y, w, h, border);
-        context.centeredText(font, text, x + w / 2, y + (h - 8) / 2, 0xFFFFFFFF);
+        com.teslamaps.render.gui.TeslaGui.glassButton(context, x, y, w, h, hovered, true);
+        context.centeredText(font, text, x + w / 2, y + (h - 8) / 2,
+                hovered ? 0xFFFFFFFF : 0xFFD8DEE9);
     }
 
     private void drawBorder(GuiGraphicsExtractor context, int x, int y, int w, int h, int color) {

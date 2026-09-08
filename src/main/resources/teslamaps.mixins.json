@@ -46,7 +46,6 @@
     "InventoryEffectsMixin",
     "JoinMultiplayerScreenMixin",
     "KeyboardHandlerMixin",
-    "KeyboardInputMixin",
     "LerpingBossEventAccessor",
     "LoadingScreenMixin",
     "LocalPlayerMixin",
@@ -91,6 +90,7 @@
     "TerminalScaleMixin",
     "TerminalScreenMixin",
     "TitleScreenMixin",
+    "VanillaButtonStyleMixin",
     "WorldRendererMixin"
   ],
   "injectors": {

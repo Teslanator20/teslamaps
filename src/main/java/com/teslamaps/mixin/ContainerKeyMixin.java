@@ -56,8 +56,7 @@ public class ContainerKeyMixin {
         }
 
 
-        if (com.teslamaps.features.WardrobeKeys.handle(cs,
-                com.teslamaps.features.WardrobeKeys.wantedFromKey(event))) {
+        if (com.teslamaps.features.WardrobeKeys.handleKey(cs, event)) {
             cir.setReturnValue(true);
             return;
         }

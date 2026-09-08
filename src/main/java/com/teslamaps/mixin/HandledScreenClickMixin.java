@@ -29,8 +29,7 @@ public class HandledScreenClickMixin {
 
         // A hotbar key bound to a mouse button produces no KeyEvent at all, so the wardrobe
         // picker never saw it from ContainerKeyMixin. Same logic, mouse entry point.
-        if (com.teslamaps.features.WardrobeKeys.handle((AbstractContainerScreen<?>) (Object) this,
-                com.teslamaps.features.WardrobeKeys.wantedFromMouse(click))) {
+        if (com.teslamaps.features.WardrobeKeys.handleMouse((AbstractContainerScreen<?>) (Object) this, click)) {
             teslamaps$ate("WardrobeKeys", button);
             cir.setReturnValue(true);
             return;

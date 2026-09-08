@@ -3,6 +3,7 @@ package com.teslamaps.features;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.KeyNames;
 import com.teslamaps.utils.StringUtil;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
@@ -10,43 +11,33 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Hotbar keys pick the matching wardrobe slot or loadout. Split out of ContainerKeyMixin so the
- * mouse path can reuse it: a hotbar key bound to a mouse button never produces a KeyEvent, and
- * container screens route clicks to mouseClicked instead of keyPressed.
+ * Keys that pick a wardrobe slot or a loadout, plus page flipping.
+ * <p>
+ * Wardrobe and loadouts are kept apart on purpose: a wardrobe page holds 9 entries, a loadout page
+ * holds 12. Driving both off the 9 hotbar keys left loadouts 10-12 unreachable. Skyblocker splits
+ * them the same way and ships 12 loadout binds for exactly this reason.
+ * <p>
+ * Every lookup runs twice, once against our own binds and once against the vanilla hotbar mappings,
+ * and both entry points share it - a hotbar key bound to a mouse button produces no KeyEvent at
+ * all, so the keyboard path alone would never see it.
  */
 public class WardrobeKeys {
 
     private static final Pattern PAGE = Pattern.compile("\\((\\d+)/\\d+\\)");
+    private static final int WARDROBE_PER_PAGE = 9;
+    private static final int LOADOUTS_PER_PAGE = 12;
 
-    /** @return 0-8 for the requested slot, -1 when this input is not a wardrobe key */
-    public static int wantedFromKey(KeyEvent event) {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        Minecraft mc = Minecraft.getInstance();
-        for (int i = 0; i < 9; i++) {
-            if (c.wardrobeKeys[i] != -1 && event.key() == c.wardrobeKeys[i]) return i;
-        }
-        for (int i = 0; i < 9; i++) {
-            if (mc.options.keyHotbarSlots[i].matches(event)) return i;
-        }
-        return -1;
+    public static boolean handleKey(AbstractContainerScreen<?> cs, KeyEvent event) {
+        return handle(cs, event.key(), mapping -> mapping.matches(event));
     }
 
-    /** Same, for a mouse button - both our own binds and a mouse-bound vanilla hotbar key. */
-    public static int wantedFromMouse(MouseButtonEvent event) {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        Minecraft mc = Minecraft.getInstance();
-        int encoded = KeyNames.forMouse(event.button());
-        for (int i = 0; i < 9; i++) {
-            if (c.wardrobeKeys[i] != -1 && c.wardrobeKeys[i] == encoded) return i;
-        }
-        for (int i = 0; i < 9; i++) {
-            if (mc.options.keyHotbarSlots[i].matchesMouse(event)) return i;
-        }
-        return -1;
+    public static boolean handleMouse(AbstractContainerScreen<?> cs, MouseButtonEvent event) {
+        return handle(cs, KeyNames.forMouse(event.button()), mapping -> mapping.matchesMouse(event));
     }
 
     public static boolean isWardrobeScreen(String strippedTitle) {
@@ -56,10 +47,14 @@ public class WardrobeKeys {
                 || strippedTitle.endsWith("Equipment Sets");
     }
 
-    /** @return true when the input was consumed */
-    public static boolean handle(AbstractContainerScreen<?> cs, int want) {
+    /**
+     * @param bind        the input encoded the way our config stores binds
+     * @param hotbarMatch tests a vanilla hotbar mapping against the same input
+     * @return true when the input was consumed
+     */
+    private static boolean handle(AbstractContainerScreen<?> cs, int bind, Predicate<KeyMapping> hotbarMatch) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.wardrobeKeybinds || want < 0) return false;
+        if (!c.wardrobeKeybinds) return false;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.gameMode == null || mc.player == null) return false;
@@ -68,11 +63,28 @@ public class WardrobeKeys {
         if (!isWardrobeScreen(title)) return false;
         boolean loadouts = title.endsWith("Loadouts");
 
+        if (bind != -1 && bind == c.wardrobeNextPageKey) return clickNamed(cs, "Next Page");
+        if (bind != -1 && bind == c.wardrobePrevPageKey) return clickNamed(cs, "Previous Page");
+
+        int[] own = loadouts ? c.loadoutKeys : c.wardrobeKeys;
+        int want = -1;
+        for (int i = 0; i < own.length; i++) {
+            if (own[i] != -1 && own[i] == bind) { want = i; break; }
+        }
+        // the hotbar fallback only ever covers the first nine, there are no more hotbar keys
+        if (want < 0) {
+            for (int i = 0; i < 9; i++) {
+                if (hotbarMatch.test(mc.options.keyHotbarSlots[i])) { want = i; break; }
+            }
+        }
+        if (want < 0) return false;
+
         int page = 1;
         Matcher m = PAGE.matcher(title);
         if (m.find()) page = Integer.parseInt(m.group(1));
 
-        int n = (page - 1) * (loadouts ? 12 : 9) + want + 1;
+        int perPage = loadouts ? LOADOUTS_PER_PAGE : WARDROBE_PER_PAGE;
+        int n = (page - 1) * perPage + want + 1;
         String name = (loadouts ? "Loadout " : "Slot ") + n;
         int target = loadouts ? -1 : 36 + want;
 
@@ -85,10 +97,26 @@ public class WardrobeKeys {
             }
         }
 
-        if (target >= 0) {
-            mc.gameMode.handleContainerInput(cs.getMenu().containerId, target, 0,
-                    ContainerInput.PICKUP, mc.player);
-        }
+        if (target >= 0) click(cs, target);
         return true;
+    }
+
+    /** The page arrows are ordinary items, so they are found by their name like everything else. */
+    private static boolean clickNamed(AbstractContainerScreen<?> cs, String needle) {
+        for (Slot slot : cs.getMenu().slots) {
+            if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+            String s = StringUtil.strip(slot.getItem().getHoverName().getString());
+            if (s.startsWith(needle)) {
+                click(cs, slot.index);
+                return true;
+            }
+        }
+        return true;   // swallow it either way, the key was meant for us
+    }
+
+    private static void click(AbstractContainerScreen<?> cs, int slotIndex) {
+        Minecraft mc = Minecraft.getInstance();
+        mc.gameMode.handleContainerInput(cs.getMenu().containerId, slotIndex, 0,
+                ContainerInput.PICKUP, mc.player);
     }
 }

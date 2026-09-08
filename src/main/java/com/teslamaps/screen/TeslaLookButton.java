@@ -9,7 +9,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
-/** Square glass button with an eye, opens the background/skybox picker. */
+/** Square glass button with a picture frame, opens the background/skybox picker. */
 public class TeslaLookButton extends AbstractWidget {
 
     private float hover;
@@ -26,8 +26,8 @@ public class TeslaLookButton extends AbstractWidget {
         TeslaGui.glassButton(ctx, getX(), getY(), getWidth(), getHeight(), hovered, true);
 
         int alpha = (int) (150 + hover * 90);
-        TeslaGui.eyeIcon(ctx, getX() + getWidth() / 2.0f, getY() + getHeight() / 2.0f,
-                getWidth() * 0.66f, TeslaGui.withAlpha(0xFFFFFF, alpha));
+        TeslaGui.imageIcon(ctx, getX() + getWidth() / 2.0f, getY() + getHeight() / 2.0f,
+                getWidth() * 0.72f, TeslaGui.withAlpha(0xFFFFFF, alpha));
     }
 
     @Override

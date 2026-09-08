@@ -54,7 +54,9 @@ public class ExplodingFrogESP {
             AABB box = new AABB(pos.x - 0.5, pos.y - 0.1, pos.z - 0.5,
                     pos.x + 0.5, pos.y + 0.9, pos.z + 0.5);
             ESPRenderer.drawESPBox(matrices, box, color, cameraPos);
-            ESPRenderer.drawText(matrices, "§aExploding Frog", pos.add(0, 1.2, 0), 1.2f, cameraPos);
+            if (cfg.explodingFrogName) {
+                ESPRenderer.drawText(matrices, "§aExploding Frog", pos.add(0, 1.2, 0), 1.2f, cameraPos);
+            }
             if (cfg.explodingFrogTracer) {
                 ESPRenderer.drawTracerFromCamera(matrices, box.getCenter(), color, cameraPos);
             }

@@ -214,6 +214,33 @@ public class TeslaGui {
      * gives you — so each lid is walked as a short polyline of rounded bars, and
      * the iris is a filled disc with a hole punched by the button colour behind it.
      */
+
+    /**
+     * Picture frame with a hill - what the button actually opens is a background and skybox
+     * picker, including your own images.
+     * <p>
+     * Deliberately plain: one colour, few shapes. At the ~13px this renders at, a palette ring
+     * with dots inside turned into noise and read as an accessibility symbol.
+     */
+    public static void imageIcon(GuiGraphicsExtractor ctx, float centerX, float centerY,
+                                 float size, int argb) {
+        float w = size;
+        float h = size * 0.80f;
+        float x = centerX - w / 2f;
+        float y = centerY - h / 2f;
+        float border = Math.max(size * 0.09f, 1.0f);
+
+        roundedOutline(ctx, x, y, w, h, Math.max(size * 0.10f, 1.5f), border, argb);
+
+        // hill as a three step staircase - a real triangle disappears at this size
+        float stepH = Math.max(h * 0.13f, 1.0f);
+        float baseY = y + h - border - stepH;
+        for (int i = 0; i < 3; i++) {
+            float inset = w * (0.14f + i * 0.13f);
+            roundedRect(ctx, x + inset, baseY - i * stepH, w - inset * 2f - w * 0.06f, stepH, 0f, argb);
+        }
+    }
+
     public static void eyeIcon(GuiGraphicsExtractor ctx, float centerX, float centerY,
                                float size, int argb) {
         float halfWidth = size * 0.5f;

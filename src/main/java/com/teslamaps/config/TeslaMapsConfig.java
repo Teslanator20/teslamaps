@@ -552,6 +552,9 @@ public class TeslaMapsConfig {
     public int smoothEntitySteps = 4;        // Ticks other entities take to reach a new position
 
 
+    // deliberately NOT @Global: it restyles every vanilla button, so a profile has to be able
+    // to switch it off without dragging the choice into the other profiles
+    public boolean modernVanillaButtons = true;  // glass style on vanilla buttons (pause menu, options, ...)
     @Global
     public boolean customTitleScreen = true;      // Replace the vanilla main menu
     public boolean customLoadingScreen = true;   // Same background on the loading and connect screens
@@ -707,6 +710,7 @@ public class TeslaMapsConfig {
     public float hotspotGoneVolume = 1.0f;         // 0 = silent
     public boolean explodingFrogESP = false;       // box the lily pad display an exploding frog leaves
     public boolean explodingFrogTracer = false;    // tracer to that lily pad
+    public boolean explodingFrogName = true;       // "Exploding Frog" label over the lily pad
     public String colorExplodingFrog = "#55FF55";
     public boolean hookDisplay = true;             // Hypixel's bite countdown, big on the HUD
     public boolean hookHideArmorStand = true;      // hide Hypixel's own tiny label over the bobber
@@ -733,6 +737,10 @@ public class TeslaMapsConfig {
 
     public boolean pageKeybinds = true;            // A/D click Previous/Next Page, W/S Scroll Up/Down in any GUI
     public int[] wardrobeKeys = {-1, -1, -1, -1, -1, -1, -1, -1, -1}; // custom per-slot wardrobe keys (-1 = unbound)
+    // Loadouts hold 12 per page, the wardrobe 9 - sharing one 9-key array left 10-12 unreachable
+    public int[] loadoutKeys = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    public int wardrobeNextPageKey = -1;
+    public int wardrobePrevPageKey = -1;
     public boolean signEnterKey = true;            // Enter confirms/closes a sign edit screen
     public boolean noCursorReset = true;           // keep cursor position when navigating between GUIs
     public float noCursorResetHold = 2f;           // seconds the saved cursor position stays valid
@@ -1192,6 +1200,9 @@ public class TeslaMapsConfig {
         if (c.keybinds == null) c.keybinds = defaultKeybinds();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
         if (c.leapCustomOrder == null) c.leapCustomOrder = new ArrayList<>();
+        // indexed straight through, so a short array out of an older config would throw
+        c.wardrobeKeys = fitKeys(c.wardrobeKeys, 9);
+        c.loadoutKeys = fitKeys(c.loadoutKeys, 12);
         if (c.activeProfile == null || c.activeProfile.isBlank()) c.activeProfile = ConfigProfiles.DEFAULT;
         if (c.itemValuePriceSource == null || c.itemValuePriceSource.isBlank()) c.itemValuePriceSource = "BZ Instant Sell";
         if (!c.deployableTypesRepaired) {
@@ -1200,6 +1211,14 @@ public class TeslaMapsConfig {
                 c.deployableFlux = c.deployableLantern = c.deployableUmbrella = c.deployableBlackHole = true;
             }
         }
+    }
+
+    private static int[] fitKeys(int[] keys, int size) {
+        if (keys != null && keys.length == size) return keys;
+        int[] out = new int[size];
+        java.util.Arrays.fill(out, -1);
+        if (keys != null) System.arraycopy(keys, 0, out, 0, Math.min(keys.length, size));
+        return out;
     }
 
     static void setInstance(TeslaMapsConfig c) {
