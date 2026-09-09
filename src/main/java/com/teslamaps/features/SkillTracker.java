@@ -308,7 +308,7 @@ public class SkillTracker {
         f.catches++;
         f.touch();
         if (TeslaMapsConfig.get().debugMode) {
-            com.teslamaps.TeslaMaps.LOGGER.info("[FishDbg] catch #{} via {} (pull {})", f.catches, source, pull);
+            com.teslamaps.TeslaMaps.debug("[FishDbg] catch #{} via {} (pull {})", f.catches, source, pull);
         }
     }
 
@@ -330,7 +330,7 @@ public class SkillTracker {
         boolean plain = !trophy && !creature && PLAIN_CATCH.matcher(catchLine).matches();
 
         if (TeslaMapsConfig.get().debugMode && catchLine.contains("caught") && !trophy && !plain && !creature) {
-            com.teslamaps.TeslaMaps.LOGGER.info("[FishDbg] unmatched: '{}'", catchLine);
+            com.teslamaps.TeslaMaps.debug("[FishDbg] unmatched: '{}'", catchLine);
         }
         if (trophy || creature || (plain && countEverything())) {
             countCatch("chat");

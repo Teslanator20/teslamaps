@@ -758,6 +758,10 @@ public class TeslaMapsConfig {
     public boolean searchbar = true;               // type to search/highlight items in any container
     public boolean scrollableTooltip = true;       // scroll long item tooltips with the mouse wheel
     public boolean estimatedValue = true;          // show estimated item value (bazaar) in tooltips
+    public boolean itemValueFixedPos = false;       // drag it in /tmap gui instead of pinning it to the container
+    public int itemValueX = 5;
+    public int itemValueY = 60;
+    public float itemValueScale = 1.0f;
     public boolean itemValueGui = false;            // show a value-breakdown panel beside the inventory when hovering an item
     public int itemValueHoverDelay = 500;           // ms on the same slot before the first breakdown of an inventory shows
     public int itemValueEnchantmentsCap = 7;        // only list the top # most expensive enchantments

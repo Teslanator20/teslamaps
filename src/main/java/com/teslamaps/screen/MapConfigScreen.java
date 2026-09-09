@@ -97,6 +97,12 @@ public class MapConfigScreen extends Screen {
         GuiSounds.open();
     }
 
+    /** The visible search bar is 22px tall, the EditBox inside it only 12 - same rect for both. */
+    protected boolean teslamaps$overSearch(double mouseX, double mouseY) {
+        int sfX = SIDEBAR_WIDTH + 14, sfY = 8, sfW = this.width - SIDEBAR_WIDTH - 28, sfH = 22;
+        return mouseX >= sfX && mouseX < sfX + sfW && mouseY >= sfY && mouseY < sfY + sfH;
+    }
+
     @Override
     public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubleClick) {
         // Binding a mouse button. The very click that armed the row lands here as well, so
@@ -105,6 +111,14 @@ public class MapConfigScreen extends Screen {
             listeningKeybindEntry.setKey(com.teslamaps.utils.KeyNames.forMouse(event.button()));
             listeningKeybindEntry = null;
             GuiSounds.select();
+            return true;
+        }
+        // Claim clicks on the search bar. Vanilla's dispatch would find no widget in the 10px
+        // above/below the EditBox and clear the screen's focus owner, which left the field
+        // looking focused while keystrokes went nowhere.
+        if (searchField != null && teslamaps$overSearch(event.x(), event.y())) {
+            setFocused(searchField);
+            searchField.setFocused(true);
             return true;
         }
         return super.mouseClicked(event, doubleClick);

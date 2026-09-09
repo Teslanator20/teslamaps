@@ -218,7 +218,7 @@ public class Deployables {
                         (flare != null ? "§a" : "§7") + " head " + url.substring(0, Math.min(16, url.length()))
                         + "… §8" + (int) Math.sqrt(entity.distanceToSqr(mc.player)) + "m alive="
                         + stand.tickCount / 20 + "s" + (flare != null ? " §a" + flare : "")));
-                com.teslamaps.TeslaMaps.LOGGER.info("[DeployableDump] head url={} flare={} tickCount={}",
+                com.teslamaps.TeslaMaps.debug("[DeployableDump] head url={} flare={} tickCount={}",
                         url, flare, stand.tickCount);
                 continue;
             }
@@ -230,7 +230,7 @@ public class Deployables {
                     (match ? "§a" : "§7") + " \"" + name + "\" §8"
                     + (int) Math.sqrt(entity.distanceToSqr(mc.player)) + "m"
                     + (match ? " §amatches" : "")));
-            com.teslamaps.TeslaMaps.LOGGER.info("[DeployableDump] \"{}\" raw=\"{}\" match={}",
+            com.teslamaps.TeslaMaps.debug("[DeployableDump] \"{}\" raw=\"{}\" match={}",
                     name, stand.getCustomName().getString(), match);
         }
         if (found == 0) {

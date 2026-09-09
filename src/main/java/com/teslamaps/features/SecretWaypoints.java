@@ -297,7 +297,7 @@ public class SecretWaypoints {
             result.put(type, worldPositions);
         }
 
-        TeslaMaps.LOGGER.info("SecretWaypoints: Room '{}' rotation={} corner=[{},{}]",
+        TeslaMaps.debug("SecretWaypoints: Room '{}' rotation={} corner=[{},{}]",
                 room.getName(), rotation, cornerX, cornerZ);
 
         return result;

@@ -19,7 +19,7 @@ public class AutoGFS {
     private static final String STATUE_FAIL_PREFIX = "[STATUE] Oruo the Omniscient:";
 
     public static void init() {
-        TeslaMaps.LOGGER.info("AutoGFS initialized");
+        TeslaMaps.debug("AutoGFS initialized");
     }
 
     public static void tick() {

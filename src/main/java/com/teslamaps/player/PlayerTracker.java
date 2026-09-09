@@ -125,7 +125,7 @@ public class PlayerTracker {
         String finalName = name;
         getPlayer(name).ifPresent(player -> {
             player.ghost();
-            TeslaMaps.LOGGER.info("Player '{}' became a ghost", finalName);
+            TeslaMaps.debug("Player '{}' became a ghost", finalName);
         });
     }
 

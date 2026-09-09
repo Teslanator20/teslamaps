@@ -35,6 +35,7 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.MAP, Ctx.DUNGEON, "Map", c.mapEnabled);
         mark(DragTarget.SPLITS, Ctx.DUNGEON, "Score & Splits", c.splitsEnabled);
         mark(DragTarget.ROOM_SPLITS, Ctx.DUNGEON, "Score & Splits", c.roomSplits);
+        mark(DragTarget.ITEM_VALUE, Ctx.ANY, "Tooltips & Value", c.itemValueGui && c.itemValueFixedPos);
         mark(DragTarget.BLOOD_CAMP, Ctx.DUNGEON, "Blood Camp", true);
         mark(DragTarget.WATCHER_HUD, Ctx.DUNGEON, "Blood Camp", c.watcherHud);
         mark(DragTarget.DUNGEON_TIMERS, Ctx.DUNGEON, "Timers", true);
@@ -79,7 +80,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, SAFARI, HOTF_PERKS, LATHER, BOBBER, DEPLOYABLES, HOOK }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, SAFARI, HOTF_PERKS, LATHER, BOBBER, DEPLOYABLES, HOOK }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -448,6 +449,23 @@ public class HudEditScreen extends Screen {
         return (int)(w * scale);
     }
 
+    private int itemValueWidth() {
+        return (int)(com.teslamaps.features.ItemValueOverlay.previewSize(this.font)[0]
+                * TeslaMapsConfig.get().itemValueScale);
+    }
+
+    private int itemValueHeight() {
+        return (int)(com.teslamaps.features.ItemValueOverlay.previewSize(this.font)[1]
+                * TeslaMapsConfig.get().itemValueScale);
+    }
+
+    private boolean isMouseOverItemValue(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = itemValueWidth(), h = itemValueHeight();
+        return mouseX >= config.itemValueX && mouseX <= config.itemValueX + w &&
+               mouseY >= config.itemValueY && mouseY <= config.itemValueY + h;
+    }
+
     private int roomSplitsWidth() {
         return sampleWidth(ROOM_SPLITS_SAMPLE, TeslaMapsConfig.get().roomSplitsScale);
     }
@@ -504,7 +522,11 @@ public class HudEditScreen extends Screen {
         updateVisible();
 
         if (isMouseDown && !wasMouseDown) {
-            if (visible.contains(DragTarget.ROOM_SPLITS) && isMouseOverRoomSplits(mouseX, mouseY)) {
+            if (visible.contains(DragTarget.ITEM_VALUE) && isMouseOverItemValue(mouseX, mouseY)) {
+                dragging = DragTarget.ITEM_VALUE;
+                dragOffsetX = mouseX - config.itemValueX;
+                dragOffsetY = mouseY - config.itemValueY;
+            } else if (visible.contains(DragTarget.ROOM_SPLITS) && isMouseOverRoomSplits(mouseX, mouseY)) {
                 dragging = DragTarget.ROOM_SPLITS;
                 dragOffsetX = mouseX - config.roomSplitsX;
                 dragOffsetY = mouseY - config.roomSplitsY;
@@ -630,6 +652,10 @@ public class HudEditScreen extends Screen {
             int h = splitsHeight();
             config.splitsX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.splitsY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.ITEM_VALUE) {
+            int w = itemValueWidth(), h = itemValueHeight();
+            config.itemValueX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.itemValueY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.ROOM_SPLITS) {
             int w = roomSplitsWidth(), h = roomSplitsHeight();
             config.roomSplitsX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
@@ -729,6 +755,7 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.SPLITS)) drawSplitsPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.BLOOD_CAMP)) drawBloodCampPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.ROOM_SPLITS)) drawRoomSplitsPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.ITEM_VALUE)) drawItemValuePreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.WATCHER_HUD)) drawWatcherHudPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.DUNGEON_TIMERS)) drawDungeonTimersPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.INVINCIBILITY)) drawInvincibilityPreview(context, mouseX, mouseY);
@@ -1237,6 +1264,18 @@ public class HudEditScreen extends Screen {
         context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
     }
 
+    private void drawItemValuePreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        float scale = config.itemValueScale;
+        drawTextBlockPreview(context,
+                com.teslamaps.features.ItemValueOverlay.SAMPLE.toArray(new String[0]),
+                config.itemValueX, config.itemValueY, scale,
+                itemValueWidth(), itemValueHeight(),
+                visible.contains(DragTarget.ITEM_VALUE) && isMouseOverItemValue(mouseX, mouseY),
+                DragTarget.ITEM_VALUE, 0xFF55FF55,
+                String.format("Item Value (%.1fx)", scale));
+    }
+
     private void drawRoomSplitsPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         float scale = config.roomSplitsScale;
@@ -1295,6 +1334,12 @@ public class HudEditScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
+        if (visible.contains(DragTarget.ITEM_VALUE) && isMouseOverItemValue((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.itemValueScale = Math.min(2.0f, config.itemValueScale + 0.05f);
+            else if (verticalAmount < 0) config.itemValueScale = Math.max(0.5f, config.itemValueScale - 0.05f);
+            TeslaMapsConfig.save();
+            return true;
+        }
         if (visible.contains(DragTarget.ROOM_SPLITS) && isMouseOverRoomSplits((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.roomSplitsScale = Math.min(2.0f, config.roomSplitsScale + 0.05f);
             else if (verticalAmount < 0) config.roomSplitsScale = Math.max(0.5f, config.roomSplitsScale - 0.05f);

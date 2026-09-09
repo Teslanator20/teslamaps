@@ -82,7 +82,7 @@ public class SharedImageLoader {
                     fail(url, "HTTP " + response.statusCode(), onError);
                     return;
                 }
-                TeslaMaps.LOGGER.info("Shared image {} downloaded, {} bytes", url, response.body().length);
+                TeslaMaps.debug("Shared image {} downloaded, {} bytes", url, response.body().length);
                 byte[] data = response.body();
                 if (data.length > MAX_BYTES) {
                     fail(url, "Larger than 20 MB", onError);

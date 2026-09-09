@@ -40,7 +40,7 @@ public class DungeonManager {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level != lastWorld) {
             if (lastWorld != null && isInDungeon()) {
-                TeslaMaps.LOGGER.info("World instance changed while in dungeon, forcing map reset");
+                TeslaMaps.debug("World instance changed while in dungeon, forcing map reset");
                 onDungeonExit();
                 currentState = DungeonState.NOT_IN_DUNGEON;
             }
@@ -52,7 +52,7 @@ public class DungeonManager {
 
         if (isInDungeon() && previousFloor != DungeonFloor.UNKNOWN
                 && currentFloor != previousFloor && currentFloor != DungeonFloor.UNKNOWN) {
-            TeslaMaps.LOGGER.info("Floor changed while in dungeon ({} -> {}), forcing map reset",
+            TeslaMaps.debug("Floor changed while in dungeon ({} -> {}), forcing map reset",
                     previousFloor, currentFloor);
             onDungeonExit();
             currentState = DungeonState.NOT_IN_DUNGEON;
@@ -132,7 +132,7 @@ public class DungeonManager {
     }
 
     private static void onStateChange(DungeonState oldState, DungeonState newState) {
-        TeslaMaps.LOGGER.info("Dungeon state changed: {} -> {}", oldState, newState);
+        TeslaMaps.debug("Dungeon state changed: {} -> {}", oldState, newState);
 
         if (oldState == DungeonState.NOT_IN_DUNGEON &&
             (newState == DungeonState.IN_DUNGEON || newState == DungeonState.STARTING)) {
@@ -146,7 +146,7 @@ public class DungeonManager {
         dungeonStartTime = System.currentTimeMillis();
         grid.clear();
 
-        TeslaMaps.LOGGER.info("Entered dungeon: {}", currentFloor);
+        TeslaMaps.debug("Entered dungeon: {}", currentFloor);
 
         DungeonScore.onDungeonStart();
         RareRoomAlert.reset();
@@ -170,7 +170,7 @@ public class DungeonManager {
         DragonCheck.dragonHealthMap.clear();
         WitherDragons.reset();
 
-        TeslaMaps.LOGGER.info("Exited dungeon");
+        TeslaMaps.debug("Exited dungeon");
     }
 
     public static boolean isInDungeon() {

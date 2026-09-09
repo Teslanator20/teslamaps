@@ -106,7 +106,7 @@ public class StarredMobESP {
     private static final long PICKUP_COOLDOWN_MS = 3000; // 3 second cooldown after pickup
 
     public static void init() {
-        TeslaMaps.LOGGER.info("StarredMobESP initialized");
+        TeslaMaps.debug("StarredMobESP initialized");
     }
 
     private static net.minecraft.sounds.SoundEvent getPickupSound() {

@@ -2,7 +2,6 @@ package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.mixin.HandledScreenAccessor;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
@@ -18,13 +17,28 @@ import net.minecraft.world.item.ItemStack;
  */
 public class ItemValueOverlay {
 
-    private static final int LINE_HEIGHT = 12;
+    public static final int LINE_HEIGHT = 12;
 
-    private static final Map<ItemStack, List<String>> cache = new IdentityHashMap<>();
+    /** What the HUD editor shows in place of a real hovered item. */
+    public static final List<String> SAMPLE = List.of(
+            "§aEstimated Item Value:",
+            "§7Base item: §fHyperion §6(1.2B)",
+            "§7Reforge: §9Withered",
+            "§7Stars: §a5§7/10",
+            "§aTotal: §6§l1.4B coins",
+            "§7Lowest BIN: §61.3B");
+
+    /**
+     * Keyed by slot index, not by the stack. The equipped armor slots hand back a fresh ItemStack
+     * on every call, so an identity-keyed cache missed every frame and the hover tracking below
+     * restarted its timer every frame - which is why the panel never appeared over worn armor.
+     */
+    private record Cached(ItemStack stack, List<String> lines) {}
+
+    private static final Map<Integer, Cached> cache = new java.util.HashMap<>();
     private static Screen lastScreen;
-    private static ItemStack hovered;
+    private static int hoveredSlot = -1;
     private static long hoverStart;
-    private static boolean hoverDelayOver;
 
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().itemValueGui) return false;
@@ -38,36 +52,41 @@ public class ItemValueOverlay {
         if (lastScreen != mc.screen) {
             lastScreen = mc.screen;
             cache.clear();
-            hovered = null;
-            hoverDelayOver = false;
+            hoveredSlot = -1;
         }
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         Slot slot = acc.getFocusedSlot();
         if (slot == null || slot.getItem().isEmpty()) {
-            hovered = null;
+            hoveredSlot = -1;
             return;
         }
 
         ItemStack item = slot.getItem();
-        if (item != hovered) {
-            hovered = item;
+        if (slot.index != hoveredSlot) {
+            hoveredSlot = slot.index;
             hoverStart = System.currentTimeMillis();
         }
 
-        List<String> lines = cache.get(item);
-        if (lines == null) {
+        // the delay is per item, not once per screen
+        int delay = TeslaMapsConfig.get().itemValueHoverDelay;
+        if (delay > 0 && System.currentTimeMillis() - hoverStart < delay) return;
+
+        Cached known = cache.get(slot.index);
+        List<String> lines;
+        if (known != null && ItemStack.matches(known.stack(), item)) {
+            lines = known.lines();
+        } else {
             lines = EstimatedValue.display(item);
-            cache.put(item, lines);
+            cache.put(slot.index, new Cached(item.copy(), lines));
         }
         if (lines.isEmpty()) return;
 
-        if (!hoverDelayOver) {
-            int delay = TeslaMapsConfig.get().itemValueHoverDelay;
-            if (delay > 0 && System.currentTimeMillis() - hoverStart < delay) return;
-            hoverDelayOver = true;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.itemValueFixedPos) {
+            drawAt(ctx, mc, lines, c.itemValueX, c.itemValueY, c.itemValueScale);
+            return;
         }
-
         draw(ctx, mc, lines, acc.getX(), acc.getY(), acc.getImageWidth());
     }
 
@@ -87,6 +106,27 @@ public class ItemValueOverlay {
             ctx.text(mc.font, line, x, y, 0xFFFFFFFF);
             y += LINE_HEIGHT;
         }
+    }
+
+    /** Fixed screen position, used once the panel has been dragged in the HUD editor. */
+    public static void drawAt(GuiGraphicsExtractor ctx, Minecraft mc, List<String> lines,
+                              int x, int y, float scale) {
+        var pose = ctx.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(scale, scale);
+        int ly = 0;
+        for (String line : lines) {
+            ctx.text(mc.font, line, 0, ly, 0xFFFFFFFF);
+            ly += LINE_HEIGHT;
+        }
+        pose.popMatrix();
+    }
+
+    public static int[] previewSize(net.minecraft.client.gui.Font font) {
+        int w = 0;
+        for (String line : SAMPLE) w = Math.max(w, font.width(line));
+        return new int[]{ w, SAMPLE.size() * LINE_HEIGHT };
     }
 
     private ItemValueOverlay() {}

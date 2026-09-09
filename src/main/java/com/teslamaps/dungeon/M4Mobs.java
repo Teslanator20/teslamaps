@@ -66,10 +66,14 @@ public class M4Mobs {
     /** /tmap debug: says whether the arena gate opened and what was found, once a second. */
     private static void dbg(boolean inArena, int scanned) {
         if (!TeslaMapsConfig.get().debugMode) return;
+        // was logging once a second everywhere, including the hub - 48% of a session's log
+        if (!DungeonManager.isInDungeon()) return;
+        DungeonFloor floor = DungeonManager.getCurrentFloor();
+        if (floor == null || floor.getLevel() != 4) return;
         long now = System.currentTimeMillis();
         if (now - lastDbg < 1000) return;
         lastDbg = now;
-        DungeonFloor f = DungeonManager.getCurrentFloor();
+        DungeonFloor f = floor;
         com.teslamaps.TeslaMaps.LOGGER.info(
                 "[M4Dbg] floor={} inDungeon={} isInBoss={} inM4Boss={} scanned={} thorn={} bear={} cows={} sheep={} chickens={}",
                 f, DungeonManager.isInDungeon(), DungeonManager.isInBoss(), inArena,
