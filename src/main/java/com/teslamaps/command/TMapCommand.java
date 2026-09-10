@@ -206,6 +206,16 @@ public class TMapCommand {
                             });
                             return 1;
                         }))
+                .then(ClientCommands.literal("update")
+                        .executes(context -> {
+                            com.teslamaps.features.Updater.install();
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("check")
+                                .executes(context -> {
+                                    com.teslamaps.features.Updater.check(true);
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("shards")
                         .executes(context -> shardReport(context.getSource(), 10))
                         .then(ClientCommands.argument("count", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 60))
@@ -500,6 +510,23 @@ public class TMapCommand {
                                             Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.literal(
                                                     "§9Party §8> §b[MVP§c+§b] §fffnn§f: §f"
                                                             + com.teslamaps.features.ImageShare.TAG + " " + token));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("actionbar")
+                                .executes(context -> {
+                                    boolean on = com.teslamaps.features.ActionBarFilter.toggleDebug();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fAction bar debug " + (on ? "§aon" : "§coff")
+                                            + " §7(prints every new action bar + its segments)"));
+                                    return 1;
+                                })
+                                .then(ClientCommands.literal("copy")
+                                        .executes(context -> {
+                                            String raw = com.teslamaps.features.ActionBarFilter.lastRaw();
+                                            Minecraft.getInstance().keyboardHandler.setClipboard(
+                                                    com.teslamaps.features.ActionBarFilter.escape(raw));
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    "§b[TeslaMaps] §fCopied last action bar"));
                                             return 1;
                                         })))
                         .then(ClientCommands.literal("deployables")
@@ -1238,6 +1265,38 @@ public class TMapCommand {
                                                     n == 0 ? "Prince crown: drawn icon" : "Prince crown: image " + n));
                                             return 1;
                                         }))))
+                .then(ClientCommands.literal("actionbar")
+                        .executes(context -> {
+                            TeslaMapsConfig c = TeslaMapsConfig.get();
+                            context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §fAction bar filter: "
+                                    + (c.actionBarFilter ? "§aon" : "§coff")));
+                            context.getSource().sendFeedback(Component.literal("§7Custom hidden: §f"
+                                    + (c.actionBarHidden.isEmpty() ? "(none)" : String.join(", ", c.actionBarHidden))));
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§7/tmap actionbar <text> toggles a substring · clear · /tmap debug actionbar"));
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    TeslaMapsConfig.get().actionBarHidden.clear();
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal("Cleared action bar filters"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.argument("text", StringArgumentType.greedyString())
+                                .executes(context -> {
+                                    TeslaMapsConfig c = TeslaMapsConfig.get();
+                                    String text = StringArgumentType.getString(context, "text").trim();
+                                    if (c.actionBarHidden.remove(text)) {
+                                        context.getSource().sendFeedback(Component.literal("§cShowing again §f" + text));
+                                    } else {
+                                        c.actionBarHidden.add(text);
+                                        c.actionBarFilter = true;
+                                        context.getSource().sendFeedback(Component.literal("§aHiding §f" + text));
+                                    }
+                                    TeslaMapsConfig.save();
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("mutesound")
                         .executes(context -> {
                             TeslaMapsConfig c = TeslaMapsConfig.get();

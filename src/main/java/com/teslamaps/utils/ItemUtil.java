@@ -3,6 +3,7 @@ package com.teslamaps.utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Predicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -59,23 +60,46 @@ public class ItemUtil {
         return false;
     }
 
-    /** Slot index in the open container whose item name contains the string, -1 if none. */
-    public static int slotByName(String name) {
-        return findSlot(stack -> StringUtil.strip(stack.getHoverName().getString())
-                .toLowerCase(Locale.ROOT).contains(name.toLowerCase(Locale.ROOT)));
+    /** Hotbar index 0-8 whose item name contains the string, -1 if none. Feed to setSelectedSlot. */
+    public static int hotbarSlotByName(String name) {
+        String needle = name.toLowerCase(Locale.ROOT);
+        return findHotbar(stack -> StringUtil.stripTrim(stack.getHoverName().getString())
+                .toLowerCase(Locale.ROOT).contains(needle));
     }
 
-    /** Slot index in the open container whose lore contains the string, -1 if none. */
-    public static int slotByLore(String lore) {
-        return findSlot(stack -> loreContains(stack, lore));
+    /** Hotbar index 0-8 whose lore contains the string, -1 if none. */
+    public static int hotbarSlotByLore(String lore) {
+        return findHotbar(stack -> loreContains(stack, lore));
     }
 
-    /** Slot index in the open container holding the item with this Hypixel uuid, -1 if none. */
-    public static int slotByUuid(String uuid) {
-        return findSlot(stack -> uuid.equals(itemUuid(stack)));
+    /** Slot index in the OPEN CONTAINER whose item name contains the string, -1 if none. */
+    public static int containerSlotByName(String name) {
+        String needle = name.toLowerCase(Locale.ROOT);
+        return findContainer(stack -> StringUtil.stripTrim(stack.getHoverName().getString())
+                .toLowerCase(Locale.ROOT).contains(needle));
     }
 
-    private static int findSlot(java.util.function.Predicate<ItemStack> test) {
+    /** Slot index in the OPEN CONTAINER whose lore contains the string, -1 if none. */
+    public static int containerSlotByLore(String lore) {
+        return findContainer(stack -> loreContains(stack, lore));
+    }
+
+    /** Slot index in the OPEN CONTAINER holding the item with this Hypixel uuid, -1 if none. */
+    public static int containerSlotByUuid(String uuid) {
+        return findContainer(stack -> uuid.equals(itemUuid(stack)));
+    }
+
+    private static int findHotbar(Predicate<ItemStack> test) {
+        var player = Minecraft.getInstance().player;
+        if (player == null) return -1;
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (!stack.isEmpty() && test.test(stack)) return i;
+        }
+        return -1;
+    }
+
+    private static int findContainer(Predicate<ItemStack> test) {
         var player = Minecraft.getInstance().player;
         if (player == null) return -1;
         AbstractContainerMenu menu = player.containerMenu;

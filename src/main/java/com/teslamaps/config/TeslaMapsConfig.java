@@ -153,6 +153,8 @@ public class TeslaMapsConfig {
 
     public boolean commandSuggestions = true;
     public boolean commandSuggestionsPlayers = true;    // Tab-complete the commands that take a player name
+    @Global
+    public boolean updateCheck = true;          // Look for a new signed release on launch and offer it
     public String hudStyle = "Modern";          // Look of every HUD panel: Modern / Glass / Vanilla / Tooltip
     @Global
     public String guiStyle = "Default";         // Look of the mod's screens: Default / Vanilla / Tooltip / Glass
@@ -505,6 +507,17 @@ public class TeslaMapsConfig {
     public boolean noEffects = true;              // Hide status effect icons on HUD (top right)
     public boolean hideArmorBar = false;     // Hide vanilla armor bar
     public boolean hideHungerBar = false;    // Hide vanilla hunger bar
+    public boolean actionBarFilter = false;  // Master toggle for the action bar segment filter
+    public boolean abHideHealth = false;     // Action bar: health segment
+    public boolean abHideDefense = false;    // Action bar: defense segment
+    public boolean abHideMana = false;       // Action bar: mana segment
+    public boolean abHideAbilityMana = false;// Action bar: "-100 Mana (Ability)"
+    public boolean abHideVitality = false;   // Action bar: vitality segment
+    public boolean abHideRiftTime = false;   // Action bar: rift time segment
+    public boolean abHideDrillFuel = false;  // Action bar: drill fuel segment
+    public boolean abHideSecrets = false;    // Action bar: dungeon secrets segment
+    public boolean abHideSkillXp = false;    // Action bar: "+12.5 Farming (1/2)"
+    public java.util.List<String> actionBarHidden = new java.util.ArrayList<>(); // custom substrings to drop
     public boolean noLightning = true;       // Remove lightning bolts
     public boolean noBlockBreaking = true;   // Remove block breaking particles
     public boolean noFallingBlocks = true;   // Hide falling block entities
@@ -1355,6 +1368,7 @@ public class TeslaMapsConfig {
         Boolean oldDragons = c.sectionEnabled.remove("Dragons"); // category merged into F7 / M7
         if (Boolean.FALSE.equals(oldDragons)) c.witherDragons = false;
         if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
+        if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
         if (c.bestiaryTracked == null) c.bestiaryTracked = new java.util.ArrayList<>();
         if (c.bestiaryKillsToMax == null) c.bestiaryKillsToMax = new java.util.HashMap<>();

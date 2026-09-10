@@ -78,6 +78,8 @@ public class SafariTracker {
 
     /** Run-relative completion times, so the HUD and the announce agree on one number. */
     private static final Map<SafariData.Biome, Long> biomeDoneAt = new EnumMap<>(SafariData.Biome.class);
+    /** Everything but the biome's rare critter - that one only spawns every few runs. */
+    private static final Map<SafariData.Biome, Long> biomeAlmostAt = new EnumMap<>(SafariData.Biome.class);
     private static long dexDoneAt = 0L;
 
     private static long lastHideyhoAnswer = 0L;
@@ -215,6 +217,7 @@ public class SafariTracker {
         bells = 0;
         incense = 0;
         biomeDoneAt.clear();
+        biomeAlmostAt.clear();
         dexDoneAt = 0L;
         hotspot = null;
         headStart = null;
@@ -319,12 +322,22 @@ public class SafariTracker {
             }
             TeslaMapsConfig cfg = TeslaMapsConfig.get();
             int have = perBiome.getOrDefault(c.biome(), 0);
-            if (have >= SafariData.countIn(c.biome()) && biomeDoneAt.putIfAbsent(c.biome(), elapsed()) == null
+            int total = SafariData.countIn(c.biome());
+            if (have >= total && biomeDoneAt.putIfAbsent(c.biome(), elapsed()) == null
                     && cfg.safariAnnounceBiomeDone) {
                 String at = SafariHistory.time(biomeDoneAt.get(c.biome()));
                 alert("biome-" + c.biome(), c.biome().color + "§l" + c.biome().label.toUpperCase()
                         + " §7done after §f" + at);
                 share(c.biome().label + " done after " + at);
+            }
+            // Macaw only spawns some runs, so Forest usually ends one short
+            if (c.biome() == SafariData.Biome.FOREST && have == total - 1 && !caughtAny.contains("Macaw")
+                    && biomeAlmostAt.putIfAbsent(c.biome(), elapsed()) == null
+                    && cfg.safariAnnounceBiomeDone) {
+                String at = SafariHistory.time(biomeAlmostAt.get(c.biome()));
+                alert("biome-almost-forest", SafariData.Biome.FOREST.color
+                        + "§lFOREST §7done except §fMacaw §7after §f" + at);
+                share("Forest done except Macaw after " + at);
             }
             if (caughtAny.size() >= SafariData.ALL.size() && dexDoneAt == 0) {
                 dexDoneAt = elapsed();
@@ -375,6 +388,27 @@ public class SafariTracker {
     }
 
     public static Map<SafariData.Biome, Long> biomeTimes() { return biomeDoneAt; }
+
+    /** One party-chat line listing what the run still needs, grouped per biome. */
+    public static String missingLine() {
+        if (runStart == 0) return "No Safari run active";
+
+        List<String> parts = new ArrayList<>();
+        int total = 0;
+        for (SafariData.Biome b : SafariData.Biome.values()) {
+            List<String> names = new ArrayList<>();
+            for (SafariData.Critter c : SafariData.ALL) {
+                if (c.biome() == b && !caughtAny.contains(c.name())) names.add(c.name());
+            }
+            if (names.isEmpty()) continue;
+            total += names.size();
+            parts.add(b.label + ": " + String.join(", ", names));
+        }
+        if (parts.isEmpty()) return "Full dex - nothing missing (" + SafariHistory.time(elapsed()) + ")";
+
+        String line = "Missing " + total + "/" + SafariData.ALL.size() + " - " + String.join(" | ", parts);
+        return line.length() <= 240 ? line : line.substring(0, 237) + "...";
+    }
 
     public static long dexTime() { return dexDoneAt; }
 

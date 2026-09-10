@@ -617,6 +617,19 @@ public class MapConfigScreen extends Screen {
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Enchant Glint", () -> config.noEnchantGlint, v -> config.noEnchantGlint = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Armor Bar", () -> config.hideArmorBar, v -> config.hideArmorBar = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Hunger Bar", () -> config.hideHungerBar, v -> config.hideHungerBar = v));
+        hide.add(new LabelEntry(contentX, "Action Bar"));
+        hide.add(new ToggleEntry(contentX, contentWidth, "Filter Action Bar", () -> config.actionBarFilter, v -> config.actionBarFilter = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Health", () -> config.abHideHealth, v -> config.abHideHealth = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Defense", () -> config.abHideDefense, v -> config.abHideDefense = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Mana", () -> config.abHideMana, v -> config.abHideMana = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Ability Mana Cost", () -> config.abHideAbilityMana, v -> config.abHideAbilityMana = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Vitality", () -> config.abHideVitality, v -> config.abHideVitality = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Rift Time", () -> config.abHideRiftTime, v -> config.abHideRiftTime = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Drill Fuel", () -> config.abHideDrillFuel, v -> config.abHideDrillFuel = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Secrets", () -> config.abHideSecrets, v -> config.abHideSecrets = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Skill XP", () -> config.abHideSkillXp, v -> config.abHideSkillXp = v));
+        hide.add(new InfoEntry(contentX, "/tmap actionbar <text> hides any segment containing that text"));
+        hide.add(new InfoEntry(contentX, "/tmap debug actionbar prints the raw action bar + segments"));
         hide.add(new LabelEntry(contentX, "Camera"));
         hide.add(new ToggleEntry(contentX, contentWidth, "No Hurt Camera", () -> config.noHurtCam, v -> config.noHurtCam = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "No View Bobbing", () -> config.noViewBobbing, v -> config.noViewBobbing = v));
@@ -2026,6 +2039,9 @@ public class MapConfigScreen extends Screen {
                 () -> config.configScreenKeyExclusive, v -> config.configScreenKeyExclusive = v));
         ui.add(new InfoEntry(contentX, "Right Shift by default, press again to close"));
         ui.add(new InfoEntry(contentX, "Block Other Mods eats the key before anything else sees it"));
+        ui.add(new LabelEntry(contentX, "Updates"));
+        ui.add(new ToggleEntry(contentX, contentWidth, "Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v));
+        ui.add(new InfoEntry(contentX, "Signed releases only, install via popup or /tmap update"));
         categories.put("Interface", ui);
 
         addSectionMasters(contentX, contentWidth);

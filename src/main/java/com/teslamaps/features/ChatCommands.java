@@ -76,7 +76,8 @@ public class ChatCommands {
                 if (downtimePlayers.isEmpty()) com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(false);
                 pc("Downtime reminder removed (" + sender + ")");
             }
-            case "help", "h" -> pc("Commands: 8ball cf dice coords ping fps time warp allinvite pt kick promote demote dt undt f1-f7 m1-m7");
+            case "missing", "miss" -> pc(com.teslamaps.safari.SafariTracker.missingLine());
+            case "help", "h" -> pc("Commands: 8ball cf dice coords ping fps time missing warp allinvite pt kick promote demote dt undt f1-f7 m1-m7");
             default -> {
                 String instance = floorInstance(c);
                 if (instance != null) run("joininstance " + instance);
