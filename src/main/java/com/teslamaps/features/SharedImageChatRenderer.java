@@ -116,10 +116,14 @@ public class SharedImageChatRenderer {
             GuiMessage.Line line = lines.get(i);
             // closed chat fades its messages out after a while, do not leave the picture behind
             if (!focused && guiTicks - line.addedTime() >= 200) continue;
+            // the padding rows share the message's parent, so they would match it as well
+            if (SharedImageChat.isPad(line)) continue;
 
             String text = line.parent().content().getString();
             String url = SharedImageChat.urlForLine(text);
             if (url == null) continue;
+            // a wrapped message matches on every row, the picture belongs under the last one
+            if (i > 0 && lines.get(i - 1).parent() == line.parent() && !SharedImageChat.isPad(lines.get(i - 1))) continue;
 
             // Rows are counted up from the chat baseline, so a lower index sits further down.
             // The padding was appended after the message and therefore lives below it: the gap

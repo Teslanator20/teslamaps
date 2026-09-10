@@ -31,6 +31,8 @@ public class ChatMixin {
     private Component teslamaps$rewriteLine(Component message) {
         Component shared = com.teslamaps.features.SharedImageChat.decorate(message);
         if (shared != null) return shared;
+        Component chroma = com.teslamaps.features.ChromaPrefix.rewrite(message);
+        if (chroma != null) message = chroma;
         if (!TeslaMapsConfig.get().section("Puzzles & Terminals")) return message;
         Component recolored = QuizSolver.highlightLine(message);
         return recolored != null ? recolored : message;
@@ -104,7 +106,7 @@ public class ChatMixin {
 
         if (cfg.section("Combat")) com.teslamaps.slayer.SlayerAlerts.onChatMessage(text);
 
-        if (fromServer && cfg.section("General")) com.teslamaps.features.SkillTracker.onChatMessage(text);
+        if (fromServer && cfg.section("Skills")) com.teslamaps.features.SkillTracker.onChatMessage(text);
         if (fromServer && cfg.section("Fishing")) com.teslamaps.features.UmbrellaWarning.onChatMessage(text);
 
 
@@ -118,7 +120,7 @@ public class ChatMixin {
 
         com.teslamaps.dungeon.terminals.TerminalUtils.onChatMessage(text);
 
-        if (cfg.section("Dragons")) com.teslamaps.dungeon.WitherDragons.onChatMessage(text);
+        if (cfg.witherDragons) com.teslamaps.dungeon.WitherDragons.onChatMessage(text);
 
         if (cfg.section("Score & Splits")) {
             com.teslamaps.dungeon.Splits.onChatMessage(text);
@@ -149,6 +151,8 @@ public class ChatMixin {
             QuizSolver.onChatMessage(text);
             com.teslamaps.dungeon.puzzle.SimonSaysSolver.onChatMessage(text);
         }
+
+        if (fromServer && cfg.section("Shards")) com.teslamaps.features.hunting.HuntingBox.onChatMessage(text);
 
         if (fromServer && cfg.section("Foraging")) {
             com.teslamaps.features.foraging.HoneyhiveReminder.onChatMessage(text);
@@ -186,8 +190,16 @@ public class ChatMixin {
 
     @Inject(method = ADD_MESSAGE, at = @At("TAIL"))
     private void teslamaps$stackMessages(Component message, net.minecraft.network.chat.MessageSignature signature, net.minecraft.client.multiplayer.chat.GuiMessageSource source, net.minecraft.client.multiplayer.chat.GuiMessageTag tag, CallbackInfo ci) {
-        if (!TeslaMapsConfig.get().section("Chat")) return;
-        com.teslamaps.features.ChatStacking.afterAdd((net.minecraft.client.gui.components.ChatComponent) (Object) this);
+        ChatComponent chat = (ChatComponent) (Object) this;
+        if (TeslaMapsConfig.get().section("Chat")) com.teslamaps.features.ChatStacking.afterAdd(chat);
+        com.teslamaps.features.SharedImageChat.ensurePadding(chat);
+    }
+
+    // the list is rebuilt on resize and whenever a chat mod switches tabs, which drops the
+    // rows the shared pictures are drawn into
+    @Inject(method = "refreshTrimmedMessages", at = @At("RETURN"))
+    private void teslamaps$repadOnRefresh(CallbackInfo ci) {
+        com.teslamaps.features.SharedImageChat.ensurePadding((ChatComponent) (Object) this);
     }
 
     @Unique

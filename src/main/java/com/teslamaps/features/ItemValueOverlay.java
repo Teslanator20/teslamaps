@@ -87,25 +87,24 @@ public class ItemValueOverlay {
             drawAt(ctx, mc, lines, c.itemValueX, c.itemValueY, c.itemValueScale);
             return;
         }
-        draw(ctx, mc, lines, acc.getX(), acc.getY(), acc.getImageWidth());
+        draw(ctx, mc, lines, acc.getX(), acc.getY(), acc.getImageWidth(), c.itemValueScale);
     }
 
     // left of the inventory GUI, flipped to the right when there is no room
-    private static void draw(GuiGraphicsExtractor ctx, Minecraft mc, List<String> lines, int guiX, int guiY, int guiW) {
+    private static void draw(GuiGraphicsExtractor ctx, Minecraft mc, List<String> lines,
+                             int guiX, int guiY, int guiW, float scale) {
         int width = 0;
         for (String line : lines) width = Math.max(width, mc.font.width(line));
 
-        int x = guiX - width - 8;
+        int scaledW = Math.round(width * scale);
+        int x = guiX - scaledW - 8;
         if (x < 2) x = guiX + guiW + 8;
         int y = guiY;
-        int height = lines.size() * LINE_HEIGHT;
+        int height = Math.round(lines.size() * LINE_HEIGHT * scale);
         int screenH = mc.getWindow().getGuiScaledHeight();
         if (y + height > screenH - 2) y = Math.max(2, screenH - 2 - height);
 
-        for (String line : lines) {
-            ctx.text(mc.font, line, x, y, 0xFFFFFFFF);
-            y += LINE_HEIGHT;
-        }
+        drawAt(ctx, mc, lines, x, y, scale);
     }
 
     /** Fixed screen position, used once the panel has been dragged in the HUD editor. */

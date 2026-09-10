@@ -22,6 +22,9 @@ public class ContainerValue {
         if (!TeslaMapsConfig.get().containerValue) return false;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?>)) return false;
+        // both panels sit right of the container, so the shard ones win where they apply
+        if (TeslaMapsConfig.get().section("Shards")
+                && com.teslamaps.features.hunting.ShardOverlay.shouldRender()) return false;
         return !CroesusProfit.shouldRender();
     }
 

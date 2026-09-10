@@ -46,6 +46,20 @@ public class ChromaPipelines {
                     .build()
     );
 
+    /** Two-colour fade for text, same uniform block and movement as the chroma. */
+    public static final RenderPipeline FADE_TEXT = RenderPipelines.register(
+            RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+                    .withLocation("pipeline/teslamaps_fade_text")
+                    .withVertexShader(shader("textured_chroma"))
+                    .withFragmentShader(shader("textured_fade"))
+                    .withSampler("Sampler0")
+                    .withUniform(UNIFORM, UniformType.UNIFORM_BUFFER)
+                    .withColorTargetState(new ColorTargetState(
+                            Optional.of(BlendFunction.TRANSLUCENT), ColorTargetState.WRITE_COLOR))
+                    .withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
+                    .build()
+    );
+
     public static void init() {
     }
 }

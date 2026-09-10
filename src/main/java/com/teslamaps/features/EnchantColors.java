@@ -82,7 +82,7 @@ public class EnchantColors {
                         newLine.append(Component.literal(data.loreName() + " " + display)
                                 .withStyle(Style.EMPTY
                                         .withColor(com.teslamaps.render.gui.ChromaHook.color())
-                                        .withBold(c.enchantBoldMax)));
+                                        .withBold(c.enchantChromaBold)));
                     } else {
                         Style style = styleFor(data, level, c);
                         newLine.append(Component.literal(data.loreName()).withStyle(style));

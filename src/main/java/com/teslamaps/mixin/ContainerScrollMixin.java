@@ -15,6 +15,11 @@ public class ContainerScrollMixin {
             if (com.teslamaps.features.StorageOverlay.mouseScrolled(scrollY)) cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.config.TeslaMapsConfig.get().section("Shards")
+                && com.teslamaps.features.hunting.ShardOverlay.mouseScrolled(scrollY)) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (ScrollableTooltip.onScroll(scrollY)) cir.setReturnValue(true);
     }
 }

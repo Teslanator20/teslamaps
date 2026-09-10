@@ -296,6 +296,59 @@ public class ESPRenderer {
         matrices.popPose();
     }
 
+    // one buffer + one endBatch for many boxes; only one layer may be open at a time
+    private static PoseStack batchMatrices;
+    private static PoseStack.Pose batchPose;
+    private static VertexConsumer batchBuffer;
+    private static MultiBufferSource.BufferSource batchSource;
+    private static net.minecraft.client.renderer.rendertype.RenderType batchLayer;
+    private static boolean batchFilled;
+
+    public static void beginBoxBatch(PoseStack matrices, Vec3 cameraPos, boolean filled, boolean throughWalls) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.renderBuffers() == null) return;
+        endBoxBatch();
+        batchFilled = filled;
+        batchSource = mc.renderBuffers().bufferSource();
+        batchMatrices = matrices;
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        batchPose = matrices.last();
+        if (filled) {
+            batchLayer = throughWalls ? TeslaRenderLayers.FILLED_ESP : TeslaRenderLayers.FILLED_DEPTH;
+        } else {
+            batchLayer = throughWalls ? TeslaRenderLayers.LINES_ESP : TeslaRenderLayers.LINES_DEPTH;
+        }
+        batchBuffer = batchSource.getBuffer(batchLayer);
+    }
+
+    public static void batchBox(AABB box, int color, float lineWidth) {
+        if (batchBuffer == null) return;
+        float r = ((color >> 16) & 0xFF) / 255f;
+        float g = ((color >> 8) & 0xFF) / 255f;
+        float b = (color & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f;
+        if (a == 0) a = 1.0f;
+        if (batchFilled) {
+            renderFilledBox(batchPose, batchBuffer, (float) box.minX, (float) box.minY, (float) box.minZ,
+                    (float) box.maxX, (float) box.maxY, (float) box.maxZ, r, g, b, a);
+        } else {
+            renderLineBox(batchPose, batchBuffer, (float) box.minX, (float) box.minY, (float) box.minZ,
+                    (float) box.maxX, (float) box.maxY, (float) box.maxZ, r, g, b, a, lineWidth);
+        }
+    }
+
+    public static void endBoxBatch() {
+        if (batchBuffer == null) return;
+        batchSource.endBatch(batchLayer);
+        batchMatrices.popPose();
+        batchBuffer = null;
+        batchPose = null;
+        batchSource = null;
+        batchMatrices = null;
+        batchLayer = null;
+    }
+
     public static void drawBeaconBeam(PoseStack matrices, net.minecraft.core.BlockPos pos, int color, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;

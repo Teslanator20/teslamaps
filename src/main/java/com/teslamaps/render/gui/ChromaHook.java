@@ -20,6 +20,7 @@ public class ChromaHook {
 
     /** Style colours are matched by name, exactly like SkyHanni does it. */
     public static final String COLOR_NAME = "chroma";
+    public static final String FADE_NAME = "teslafade";
 
     private static final ChromaUniform UNIFORM = new ChromaUniform();
     private static GpuBufferSlice slice;
@@ -29,8 +30,12 @@ public class ChromaHook {
     }
 
     private static boolean enabled() {
-        return TeslaMapsConfig.get().enchantChromaMax;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.enchantChromaMax || c.chromaPrefix;
     }
+
+    private static String cachedHexA = "", cachedHexB = "";
+    private static int fadeA = 0xB300FF, fadeB = 0x3355FF;
 
     public static void computeBufferSlice() {
         if (!enabled()) return;
@@ -44,8 +49,23 @@ public class ChromaHook {
                 + mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
         if (!c.chromaForward) ticks = -ticks;
 
+        if (!cachedHexA.equals(c.prefixFadeColorA) || !cachedHexB.equals(c.prefixFadeColorB)) {
+            cachedHexA = c.prefixFadeColorA;
+            cachedHexB = c.prefixFadeColorB;
+            fadeA = TeslaMapsConfig.parseColor(cachedHexA) & 0xFFFFFF;
+            fadeB = TeslaMapsConfig.parseColor(cachedHexB) & 0xFFFFFF;
+        }
+
         float timeOffset = ticks * (c.chromaSpeed / 360f);
-        slice = UNIFORM.writeWith(chromaSize, timeOffset, c.chromaSaturation, c.chromaForward ? 1 : 0);
+
+        // static prefix gradient: pixel span of "[TeslaMaps]" at the chat's left edge
+        float chatScale = mc.options.chatScale().get().floatValue();
+        float guiScale = mc.getWindow().getGuiScale();
+        float fadeStartX = 4f * chatScale * guiScale;
+        float fadeWidth = mc.font.width("[TeslaMaps]") * chatScale * guiScale;
+
+        slice = UNIFORM.writeWith(chromaSize, timeOffset, c.chromaSaturation, c.chromaForward ? 1 : 0,
+                fadeStartX, fadeWidth, fadeA, fadeB);
     }
 
     /**
@@ -71,6 +91,9 @@ public class ChromaHook {
 
         TextColor color = instance.style().getColor();
         if (color == null) return original;
-        return COLOR_NAME.equals(color.serialize()) ? ChromaPipelines.CHROMA_TEXT : original;
+        String name = color.serialize();
+        if (COLOR_NAME.equals(name)) return ChromaPipelines.CHROMA_TEXT;
+        if (FADE_NAME.equals(name)) return ChromaPipelines.FADE_TEXT;
+        return original;
     }
 }

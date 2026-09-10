@@ -50,11 +50,20 @@ public class ClientPlayerInteractionManagerMixin {
         BlockState state = mc.level.getBlockState(pos);
         Block block = state.getBlock();
 
+        if (state.is(Blocks.CHEST) || state.is(Blocks.TRAPPED_CHEST) || state.is(Blocks.BARREL)) {
+            com.teslamaps.features.ItemIndex.onChestClick(pos);
+            com.teslamaps.features.SearchWaypoint.onChestClick(pos);
+        }
+
         if (state.is(Blocks.CHEST) || state.is(Blocks.TRAPPED_CHEST)) {
             ThreeWeirdos.onChestClick(pos);
             SecretWaypoints.onChestOpened(pos);
             SecretWaypoints.onSecretInteract("chest");
             com.teslamaps.features.SecretClickHighlight.onSecretClick(pos);
+        }
+
+        if (state.is(Blocks.BEE_NEST) || state.is(Blocks.BEEHIVE)) {
+            com.teslamaps.safari.SafariESP.onNestClick(pos);
         }
 
         if (state.is(Blocks.LEVER)) {

@@ -80,7 +80,7 @@ public class ClientPlayNetworkHandlerMixin {
         BloodCamp.onSetEquipmentPacket(packet);
         com.teslamaps.features.DeadMobHider.onSetEquipment(packet);
         com.teslamaps.debug.DeathProbe.onSetEquipment(packet);
-        if (com.teslamaps.config.TeslaMapsConfig.get().section("Dragons")) com.teslamaps.dungeon.WitherDragons.onSetEquipment(packet);
+        if (com.teslamaps.config.TeslaMapsConfig.get().witherDragons) com.teslamaps.dungeon.WitherDragons.onSetEquipment(packet);
     }
 
     @Inject(method = "handleAddEntity", at = @At("HEAD"), cancellable = true)
@@ -90,12 +90,12 @@ public class ClientPlayNetworkHandlerMixin {
             ci.cancel();
             return;
         }
-        if (com.teslamaps.config.TeslaMapsConfig.get().section("Dragons")) com.teslamaps.dungeon.WitherDragons.onAddEntity(packet);
+        if (com.teslamaps.config.TeslaMapsConfig.get().witherDragons) com.teslamaps.dungeon.WitherDragons.onAddEntity(packet);
     }
 
     @Inject(method = "handleSetEntityData", at = @At("HEAD"))
     private void onSetEntityData(net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket packet, CallbackInfo ci) {
-        if (com.teslamaps.config.TeslaMapsConfig.get().section("Dragons")) com.teslamaps.dungeon.WitherDragons.onSetEntityData(packet);
+        if (com.teslamaps.config.TeslaMapsConfig.get().witherDragons) com.teslamaps.dungeon.WitherDragons.onSetEntityData(packet);
         com.teslamaps.features.DeadMobHider.onSetEntityData(packet);
         com.teslamaps.debug.DeathProbe.onSetEntityData(packet);
     }

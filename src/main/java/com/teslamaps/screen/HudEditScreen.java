@@ -41,21 +41,23 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.DUNGEON_TIMERS, Ctx.DUNGEON, "Timers", true);
         mark(DragTarget.INVINCIBILITY, Ctx.DUNGEON, "Timers", c.invincibilityTimer);
         mark(DragTarget.THORN_STUN, Ctx.DUNGEON, "Puzzles & Terminals", c.thornStunTimer);
-        mark(DragTarget.DRAGON_TIMER, Ctx.DUNGEON, "Dragons", c.witherDragonHud);
+        mark(DragTarget.DRAGON_TIMER, Ctx.DUNGEON, "F7 / M7", c.witherDragons && c.witherDragonHud);
         mark(DragTarget.SPIRIT_BEAR, Ctx.DUNGEON, "Puzzles & Terminals", c.spiritBearTimer);
         mark(DragTarget.BEAR_SPAWN, Ctx.DUNGEON, "Sounds", c.bearSpawnWarning);
         mark(DragTarget.OVERKILL, Ctx.DUNGEON, "Timers", c.overkillCounter);
-        mark(DragTarget.SKILL_TRACKER, Ctx.ANY, "General", c.skillTracker);
+        mark(DragTarget.SKILL_TRACKER, Ctx.ANY, "Skills", c.skillTracker);
+        mark(DragTarget.BESTIARY, Ctx.ANY, "Combat", c.bestiaryTracker);
         mark(DragTarget.PEST_ROUTINE, Ctx.GARDEN, "Garden", c.pestRoutineHud);
         mark(DragTarget.FARM_BAR, Ctx.GARDEN, "Garden", c.farmBar);
         mark(DragTarget.PEST_OVERLAY, Ctx.GARDEN, "Garden", c.pestOverlay);
         mark(DragTarget.FARM_PROFIT, Ctx.GARDEN, "Garden", c.farmProfit);
+        mark(DragTarget.CHARMED, Ctx.GARDEN, "Garden", c.charmedVisitorList);
         mark(DragTarget.SAFARI, Ctx.SAFARI, "Critter Safari", c.safariTracker && c.safariHud);
         mark(DragTarget.HOTF_PERKS, Ctx.FORAGING, "Foraging", c.hotfPerkDisplay);
         mark(DragTarget.LATHER, Ctx.FORAGING, "Foraging", c.latherOverlay);
         mark(DragTarget.BOBBER, Ctx.ANY, "Fishing", c.bobberTimer);
         mark(DragTarget.HOOK, Ctx.ANY, "Fishing", c.hookDisplay);
-        mark(DragTarget.DEPLOYABLES, Ctx.ANY, "General", c.deployableOverlay);
+        mark(DragTarget.DEPLOYABLES, Ctx.ANY, "Skills", c.deployableOverlay);
         mark(DragTarget.SPRINTING, Ctx.ANY, "Render", c.sprintingOverlay);
         mark(DragTarget.KICKED, Ctx.ANY, "Timers", c.kickedTimer);
     }
@@ -80,7 +82,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, SAFARI, HOTF_PERKS, LATHER, BOBBER, DEPLOYABLES, HOOK }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, BOBBER, DEPLOYABLES, HOOK, BESTIARY }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -145,6 +147,22 @@ public class HudEditScreen extends Screen {
         int bx = config.skillTrackerX - (int)(4 * s), by = config.skillTrackerY - (int)(4 * s);
         return mouseX >= bx && mouseX <= bx + skillTrackerWidth() &&
                mouseY >= by && mouseY <= by + skillTrackerHeight();
+    }
+
+    private int bestiaryWidth() {
+        return (int)(com.teslamaps.features.BestiaryTracker.previewSize(this.font)[0] * TeslaMapsConfig.get().bestiaryTrackerScale);
+    }
+
+    private int bestiaryHeight() {
+        return (int)(com.teslamaps.features.BestiaryTracker.previewSize(this.font)[1] * TeslaMapsConfig.get().bestiaryTrackerScale);
+    }
+
+    private boolean isMouseOverBestiary(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        float s = config.bestiaryTrackerScale;
+        int bx = config.bestiaryTrackerX - (int)(4 * s), by = config.bestiaryTrackerY - (int)(4 * s);
+        return mouseX >= bx && mouseX <= bx + bestiaryWidth() &&
+               mouseY >= by && mouseY <= by + bestiaryHeight();
     }
 
     private int bearSpawnWidth() {
@@ -354,6 +372,19 @@ public class HudEditScreen extends Screen {
         int w = farmProfitWidth(), h = farmProfitHeight();
         return mouseX >= config.farmProfitX && mouseX <= config.farmProfitX + w &&
                mouseY >= config.farmProfitY && mouseY <= config.farmProfitY + h;
+    }
+
+    private int charmedWidth() {
+        return com.teslamaps.features.CharmedVisitors.previewWidth(TeslaMapsConfig.get().charmedVisitorScale);
+    }
+    private int charmedHeight() {
+        return com.teslamaps.features.CharmedVisitors.previewHeight(TeslaMapsConfig.get().charmedVisitorScale);
+    }
+    private boolean isMouseOverCharmed(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = charmedWidth(), h = charmedHeight();
+        return mouseX >= config.charmedVisitorX && mouseX <= config.charmedVisitorX + w &&
+               mouseY >= config.charmedVisitorY && mouseY <= config.charmedVisitorY + h;
     }
 
     private int pestOverlayWidth() {
@@ -618,6 +649,14 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.FARM_PROFIT;
                 dragOffsetX = mouseX - config.farmProfitX;
                 dragOffsetY = mouseY - config.farmProfitY;
+            } else if (visible.contains(DragTarget.CHARMED) && isMouseOverCharmed(mouseX, mouseY)) {
+                dragging = DragTarget.CHARMED;
+                dragOffsetX = mouseX - config.charmedVisitorX;
+                dragOffsetY = mouseY - config.charmedVisitorY;
+            } else if (visible.contains(DragTarget.BESTIARY) && isMouseOverBestiary(mouseX, mouseY)) {
+                dragging = DragTarget.BESTIARY;
+                dragOffsetX = mouseX - config.bestiaryTrackerX;
+                dragOffsetY = mouseY - config.bestiaryTrackerY;
             } else if (visible.contains(DragTarget.SKILL_TRACKER) && isMouseOverSkillTracker(mouseX, mouseY)) {
                 dragging = DragTarget.SKILL_TRACKER;
                 dragOffsetX = mouseX - config.skillTrackerX;
@@ -743,10 +782,18 @@ public class HudEditScreen extends Screen {
             int w = farmProfitWidth(), h = farmProfitHeight();
             config.farmProfitX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.farmProfitY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.CHARMED) {
+            int w = charmedWidth(), h = charmedHeight();
+            config.charmedVisitorX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.charmedVisitorY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.SKILL_TRACKER) {
             int w = skillTrackerWidth(), h = skillTrackerHeight();
             config.skillTrackerX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.skillTrackerY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.BESTIARY) {
+            int w = bestiaryWidth(), h = bestiaryHeight();
+            config.bestiaryTrackerX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.bestiaryTrackerY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         }
 
         context.fill(0, 0, this.width, this.height, 0xC0000000);
@@ -765,10 +812,12 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.BEAR_SPAWN)) drawBearSpawnPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.OVERKILL)) drawOverkillPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.SKILL_TRACKER)) drawSkillTrackerPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.BESTIARY)) drawBestiaryPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.PEST_ROUTINE)) drawPestRoutinePreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.FARM_BAR)) drawFarmBarPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.PEST_OVERLAY)) drawPestOverlayPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.FARM_PROFIT)) drawFarmProfitPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.CHARMED)) drawCharmedPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.SAFARI)) drawSafariPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.HOTF_PERKS)) drawHotfPerksPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.LATHER)) drawLatherPreview(context, mouseX, mouseY);
@@ -1103,6 +1152,23 @@ public class HudEditScreen extends Screen {
         context.text(this.font, String.format("Profit (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
+    private void drawCharmedPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.charmedVisitorX, y = config.charmedVisitorY;
+        float scale = config.charmedVisitorScale;
+        com.teslamaps.features.CharmedVisitors.draw(context, this.minecraft, x, y, scale, true);
+        int w = charmedWidth(), h = charmedHeight();
+        boolean hovering = visible.contains(DragTarget.CHARMED) && isMouseOverCharmed(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.CHARMED) {
+            int borderColor = dragging == DragTarget.CHARMED ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Charmed (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
     private void drawPestOverlayPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int x = config.pestOverlayX, y = config.pestOverlayY;
@@ -1186,6 +1252,24 @@ public class HudEditScreen extends Screen {
             context.fill(x + w, y, x + w + 2, y + h, borderColor);
         }
         context.text(this.font, String.format("Kicked (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawBestiaryPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.bestiaryTrackerX, y = config.bestiaryTrackerY;
+        float scale = config.bestiaryTrackerScale;
+        com.teslamaps.features.BestiaryTracker.drawPreview(context, this.minecraft, x, y, scale);
+        int bx = x - (int)(4 * scale), by = y - (int)(4 * scale);
+        int w = bestiaryWidth(), h = bestiaryHeight();
+        boolean hovering = visible.contains(DragTarget.BESTIARY) && isMouseOverBestiary(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.BESTIARY) {
+            int borderColor = dragging == DragTarget.BESTIARY ? 0xFF30D158 : 0xFF888888;
+            context.fill(bx - 2, by - 2, bx + w + 2, by, borderColor);
+            context.fill(bx - 2, by + h, bx + w + 2, by + h + 2, borderColor);
+            context.fill(bx - 2, by, bx, by + h, borderColor);
+            context.fill(bx + w, by, bx + w + 2, by + h, borderColor);
+        }
+        context.text(this.font, String.format("Bestiary (%.1fx)", scale), bx, by - 12, 0xFFFFFFFF);
     }
 
     private void drawSkillTrackerPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
@@ -1515,6 +1599,13 @@ public class HudEditScreen extends Screen {
             return true;
         }
 
+        if (visible.contains(DragTarget.CHARMED) && isMouseOverCharmed((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.charmedVisitorScale = Math.min(5.0f, config.charmedVisitorScale + 0.05f);
+            else if (verticalAmount < 0) config.charmedVisitorScale = Math.max(0.5f, config.charmedVisitorScale - 0.05f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
         if (visible.contains(DragTarget.PEST_OVERLAY) && isMouseOverPestOverlay((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.pestOverlayScale = Math.min(5.0f, config.pestOverlayScale + 0.05f);
             else if (verticalAmount < 0) config.pestOverlayScale = Math.max(0.5f, config.pestOverlayScale - 0.05f);
@@ -1525,6 +1616,13 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.FARM_PROFIT) && isMouseOverFarmProfit((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.farmProfitScale = Math.min(5.0f, config.farmProfitScale + 0.05f);
             else if (verticalAmount < 0) config.farmProfitScale = Math.max(0.5f, config.farmProfitScale - 0.05f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (visible.contains(DragTarget.BESTIARY) && isMouseOverBestiary((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.bestiaryTrackerScale = Math.min(3.0f, config.bestiaryTrackerScale + 0.05f);
+            else if (verticalAmount < 0) config.bestiaryTrackerScale = Math.max(0.5f, config.bestiaryTrackerScale - 0.05f);
             TeslaMapsConfig.save();
             return true;
         }

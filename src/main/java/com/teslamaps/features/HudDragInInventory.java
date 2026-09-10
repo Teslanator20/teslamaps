@@ -113,6 +113,34 @@ public class HudDragInInventory {
                     value -> TeslaMapsConfig.get().skillTrackerScale = value,
                     SkillTracker::onClick),
 
+            new Panel("Bestiary",
+                    BestiaryTracker::shouldRender,
+                    () -> panelBounds(TeslaMapsConfig.get().bestiaryTrackerX,
+                            TeslaMapsConfig.get().bestiaryTrackerY,
+                            BestiaryTracker.width(TeslaMapsConfig.get().bestiaryTrackerScale),
+                            BestiaryTracker.height(TeslaMapsConfig.get().bestiaryTrackerScale)),
+                    xy -> {
+                        TeslaMapsConfig.get().bestiaryTrackerX = xy[0];
+                        TeslaMapsConfig.get().bestiaryTrackerY = xy[1];
+                    },
+                    () -> TeslaMapsConfig.get().bestiaryTrackerScale,
+                    value -> TeslaMapsConfig.get().bestiaryTrackerScale = value,
+                    BestiaryTracker::onClick),
+
+            new Panel("Charmed",
+                    CharmedVisitors::shouldRender,
+                    () -> panelBounds(TeslaMapsConfig.get().charmedVisitorX,
+                            TeslaMapsConfig.get().charmedVisitorY,
+                            CharmedVisitors.width(TeslaMapsConfig.get().charmedVisitorScale),
+                            CharmedVisitors.height(TeslaMapsConfig.get().charmedVisitorScale)),
+                    xy -> {
+                        TeslaMapsConfig.get().charmedVisitorX = xy[0];
+                        TeslaMapsConfig.get().charmedVisitorY = xy[1];
+                    },
+                    () -> TeslaMapsConfig.get().charmedVisitorScale,
+                    value -> TeslaMapsConfig.get().charmedVisitorScale = value,
+                    CharmedVisitors::onClick),
+
             new Panel("Routine",
                     () -> TeslaMapsConfig.get().pestRoutineHud,
                     () -> panelBounds(TeslaMapsConfig.get().pestRoutineX,

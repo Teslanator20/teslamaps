@@ -10,7 +10,7 @@ public class LegitMode {
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        peeking = cfg.legitMode && cfg.legitPeekKey >= 0
+        peeking = cfg.legitMode
                 && mc.player != null && mc.screen == null && mc.getWindow() != null
                 && com.teslamaps.utils.KeyNames.isDown(cfg.legitPeekKey);
     }

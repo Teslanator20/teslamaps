@@ -1,6 +1,7 @@
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.render.gui.TeslaGui;
 import com.teslamaps.screen.AppleColors;
 import com.teslamaps.utils.SkyblockUtils;
@@ -20,6 +21,26 @@ public class FarmProfitOverlay {
     /** Space a divider takes: the hairline plus air on both sides. */
     private static final int DIVIDER = 7;
 
+
+    /** Vanilla draws no panel, so the overlay goes bare: white, shadowed, no padding. */
+    private static boolean plain() {
+        return HudStyle.VANILLA.equals(HudStyle.current());
+    }
+
+    private static int pad() {
+        return plain() ? 0 : PADDING;
+    }
+
+    private static int dividerSpace() {
+        return plain() ? 0 : DIVIDER;
+    }
+
+    /** Muted greys need the panel behind them; without one everything goes white. */
+    private static int col(int color) {
+        if (!plain()) return color;
+        return color == AppleColors.TEXT_SECONDARY || color == AppleColors.TEXT_TERTIARY
+                ? AppleColors.TEXT_PRIMARY : color;
+    }
 
     public static boolean shouldRender() {
         return TeslaMapsConfig.get().farmProfit && SkyblockUtils.isInGarden();
@@ -43,11 +64,11 @@ public class FarmProfitOverlay {
     /** Y of the footer row, shared by the drawing and the reset hit area. */
     private static int footerY() {
         int items = itemRows();
-        return PADDING + LINE * 2 + DIVIDER + LINE * items + (items > 0 ? DIVIDER : 0);
+        return pad() + LINE * 2 + dividerSpace() + LINE * items + (items > 0 ? dividerSpace() : 0);
     }
 
     private static int panelHeight() {
-        return footerY() + LINE + PADDING - 2;
+        return footerY() + LINE + pad() - 2;
     }
 
     public static int width(float scale) {
@@ -59,6 +80,7 @@ public class FarmProfitOverlay {
     }
 
     private static void divider(GuiGraphicsExtractor context, int y) {
+        if (plain()) return;
         TeslaGui.roundedRect(context, PADDING, y + DIVIDER / 2f - 0.5f,
                 PANEL_WIDTH - PADDING * 2, 1, 0.5f, TeslaGui.withAlpha(0xFFFFFF, 28));
     }
@@ -80,10 +102,10 @@ public class FarmProfitOverlay {
         context.pose().translate(x, y);
         context.pose().scale(scale, scale);
 
-        com.teslamaps.render.gui.HudStyle.panel(context, 0, 0, PANEL_WIDTH, panelHeight(), 6);
+        HudStyle.panel(context, 0, 0, PANEL_WIDTH, panelHeight(), 6);
 
         // Headline block: what was earned, and at what rate.
-        int row = PADDING;
+        int row = pad();
         drawRow(context, mc, "Profit", format(FarmProfit.totalCoins()),
                 AppleColors.TEXT_SECONDARY, AppleColors.ACCENT_GREEN, row);
 
@@ -94,7 +116,7 @@ public class FarmProfitOverlay {
                 perHour > 0 ? AppleColors.TEXT_PRIMARY : AppleColors.TEXT_TERTIARY, row);
 
         divider(context, row + LINE);
-        row += LINE + DIVIDER;
+        row += LINE + dividerSpace();
 
         for (int i = 0; i < items; i++) {
             FarmProfit.Entry entry = entries.get(i);
@@ -102,7 +124,7 @@ public class FarmProfitOverlay {
             // that they are unpriced rather than implying they are worthless.
             String value = BazaarPrices.known(entry.item()) ? format(entry.coins()) : "?";
             String label = fit(mc, shortName(entry.item()),
-                    PANEL_WIDTH - PADDING * 2 - mc.font.width(value) - 6);
+                    PANEL_WIDTH - pad() * 2 - mc.font.width(value) - 6);
             drawRow(context, mc, label, value,
                     AppleColors.TEXT_SECONDARY, AppleColors.TEXT_PRIMARY, row);
             row += LINE;
@@ -110,24 +132,25 @@ public class FarmProfitOverlay {
 
         if (items > 0) {
             divider(context, row);
-            row += DIVIDER;
+            row += dividerSpace();
         }
 
         // Footer doubles as the window selector and carries the reset button.
+        boolean shadow = plain();
         String windowLabel = FarmProfit.window().label;
-        context.text(mc.font, Component.literal(windowLabel), PADDING, row,
-                AppleColors.ACCENT_BLUE, false);
+        context.text(mc.font, Component.literal(windowLabel), pad(), row,
+                AppleColors.ACCENT_BLUE, shadow);
 
-        int resetX = PANEL_WIDTH - PADDING - mc.font.width(RESET);
+        int resetX = PANEL_WIDTH - pad() - mc.font.width(RESET);
         context.text(mc.font, Component.literal(RESET), resetX, row,
-                AppleColors.ACCENT_RED, false);
+                AppleColors.ACCENT_RED, shadow);
 
         // Sits between the two, and gives way rather than running into them.
         String status = status();
-        int statusX = PADDING + mc.font.width(windowLabel) + 6;
+        int statusX = pad() + mc.font.width(windowLabel) + 6;
         status = fit(mc, status, resetX - statusX - 6);
         context.text(mc.font, Component.literal(status), statusX, row,
-                FarmProfit.idle() ? AppleColors.ACCENT_RED : AppleColors.TEXT_TERTIARY, false);
+                FarmProfit.idle() ? AppleColors.ACCENT_RED : col(AppleColors.TEXT_TERTIARY), shadow);
 
         context.pose().popMatrix();
     }
@@ -273,7 +296,7 @@ public class FarmProfitOverlay {
 
         int footerY = footerY();
         boolean onReset = localY >= footerY - 2 && localY <= footerY + LINE
-                && localX >= PANEL_WIDTH - PADDING - mc.font.width(RESET) - 3;
+                && localX >= PANEL_WIDTH - pad() - mc.font.width(RESET) - 3;
 
         if (onReset) {
             FarmProfit.resetSession();
@@ -289,9 +312,10 @@ public class FarmProfitOverlay {
     private static void drawRow(GuiGraphicsExtractor context, Minecraft mc,
                                  String label, String value,
                                  int labelColor, int valueColor, int y) {
-        context.text(mc.font, Component.literal(label), PADDING, y, labelColor, false);
-        int valueX = PANEL_WIDTH - PADDING - mc.font.width(value);
-        context.text(mc.font, Component.literal(value), valueX, y, valueColor, false);
+        boolean shadow = plain();
+        context.text(mc.font, Component.literal(label), pad(), y, col(labelColor), shadow);
+        int valueX = PANEL_WIDTH - pad() - mc.font.width(value);
+        context.text(mc.font, Component.literal(value), valueX, y, col(valueColor), shadow);
     }
 
     /** "Enchanted Red Mushroom" -> "Ench. Red Mushroom", to fit the panel. */

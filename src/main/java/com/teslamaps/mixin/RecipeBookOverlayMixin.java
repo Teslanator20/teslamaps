@@ -16,6 +16,7 @@ public abstract class RecipeBookOverlayMixin {
 
     @Inject(method = "extractRenderState", at = @At("TAIL"))
     private void onRender(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        com.teslamaps.features.HudForeground.render(context);
         ContainerOverlays.renderAll(context, mouseX, mouseY);
     }
 }

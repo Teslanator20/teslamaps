@@ -120,8 +120,7 @@ public class EstimatedValue {
         if (id.isEmpty()) return;
         Double bin = PriceManager.lowestBinOrNull(id);
         if (bin == null || bin <= 0) return;
-        list.add("§7Lowest BIN: §6" + (TeslaMapsConfig.get().itemValueExactPrice
-                ? addSeparators(Math.round(bin)) : shortFormat(bin)));
+        list.add("§7Lowest BIN: §6" + exact(bin));
     }
 
     /** 655000000 -> "655M", the same compact format SkyHanni uses. */
@@ -133,6 +132,13 @@ public class EstimatedValue {
     public static String price(double value) {
         return TeslaMapsConfig.get().itemValueExactPrice
                 ? addSeparators(Math.round(value)) : shortFormat(value);
+    }
+
+    /** Always exact: thousands separators, at most one decimal. */
+    public static String exact(double value) {
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(1);
+        return nf.format(value);
     }
 
     // ---------------------------------------------------------------- calculator
@@ -847,7 +853,7 @@ public class EstimatedValue {
 
     /** SkyHanni's compact format, taken from the same StackOverflow answer (CC BY-SA 3.0). */
     private static String shortFormat(double input) {
-        if (Math.abs(input) < 1) return String.valueOf(input);
+        if (Math.abs(input) < 1) return String.valueOf(Math.round(input * 10.0) / 10.0);
         long value = (long) input;
         if (value < 0) return "-" + shortFormat(-value);
         if (value < 1000) return String.valueOf(value);

@@ -15,7 +15,7 @@ public class Zoom {
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        boolean held = cfg.zoomEnabled && cfg.zoomKey >= 0
+        boolean held = cfg.zoomEnabled
                 && mc.player != null && mc.screen == null && mc.getWindow() != null
                 && com.teslamaps.utils.KeyNames.isDown(cfg.zoomKey);
 

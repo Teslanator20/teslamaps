@@ -28,14 +28,23 @@ public class SafariESP {
     private static final List<Marker> critters = new ArrayList<>();
     private static final List<BlockPos> nests = new ArrayList<>();
     private static final List<Cluster> spots = new ArrayList<>();
+    private static final java.util.Set<Long> looted = new java.util.HashSet<>();
     private static long lastNestScan = 0;
     private static SafariData.Biome lastNestBiome = null;
+    private static int spotScanTimer = 0;
+
+    /** A nest you already punched keeps its box otherwise, the scan finds it again every 5s. */
+    public static void onNestClick(BlockPos pos) {
+        looted.add(pos.asLong());
+    }
 
     public static void tick() {
         critters.clear();
-        spots.clear();
         if (!SafariData.inSafari() || LegitMode.blocksCheats()) {
+            spots.clear();
             nests.clear();
+            looted.clear();
+            spotScanTimer = 0;
             return;
         }
 
@@ -49,7 +58,14 @@ public class SafariESP {
         }
         if (c.safariNestESP) scanNests(mc);
         else nests.clear();   // without this the last scan kept drawing after switching it off
-        if (c.critterSpotESP) scanSpots(mc);
+        if (!c.critterSpotESP) {
+            spots.clear();
+            spotScanTimer = 0;
+        } else if (--spotScanTimer <= 0) {   // drops are static, no need to rescan per tick
+            spotScanTimer = 10;
+            spots.clear();
+            scanSpots(mc);
+        }
     }
 
     // a floor drop is a cluster of 3-4 item_display entities holding a re-modelled string item
@@ -91,12 +107,22 @@ public class SafariESP {
             SlotAccess slot = id.getSlot(0);
             if (slot == null || slot.get().getItem() != Items.PLAYER_HEAD) continue;
             if (SafariData.biomeAt(e.blockPosition()) != rockmite.biome()) continue;
+            if (hasCritterTag(mc, e)) continue;   // bats and the other Cavern critters use heads too
 
             AABB box = e.getBoundingBox();
             if (box.getXsize() < 0.1 || box.getYsize() < 0.1) box = box.inflate(0.4, 0.4, 0.4);
             String label = (c.safariNames ? rarityCode(rockmite) + rockmite.name() : null);
             critters.add(new Marker(box, color, label, c.safariTracers));
         }
+    }
+
+    /** Rockmites are the only Cavern critter without a nametag, so a tagged head is not one. */
+    private static boolean hasCritterTag(Minecraft mc, Entity head) {
+        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class,
+                head.getBoundingBox().inflate(2.0, 2.5, 2.0), a -> a.getCustomName() != null)) {
+            if (matchCritter(com.teslamaps.utils.StringUtil.strip(as.getCustomName().getString())) != null) return true;
+        }
+        return false;
     }
 
     private record Cluster(Vec3 sum, int n) {
@@ -227,6 +253,7 @@ public class SafariESP {
 
         int nestColor = TeslaMapsConfig.parseColor(c.colorSafariNest);
         for (BlockPos p : nests) {
+            if (looted.contains(p.asLong())) continue;
             AABB box = new AABB(p);
             if (filled) ESPRenderer.drawFilledBox(matrices, box, nestColor, cameraPos, true);
             ESPRenderer.drawBoxOutline(matrices, box, nestColor | 0xFF000000, 2.0f, cameraPos, true);

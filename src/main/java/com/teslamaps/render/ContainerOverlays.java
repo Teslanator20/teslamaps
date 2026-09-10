@@ -24,6 +24,15 @@ public class ContainerOverlays {
             com.teslamaps.features.ContainerValue.render(context, mouseX, mouseY);
         }
 
+        if (com.teslamaps.config.TeslaMapsConfig.get().section("Shards")) {
+            com.teslamaps.debug.Perf.begin("ShardOverlay.render");
+            com.teslamaps.features.hunting.ShardOverlay.renderMenuExtras(context);
+            if (com.teslamaps.features.hunting.ShardOverlay.shouldRender()) {
+                com.teslamaps.features.hunting.ShardOverlay.render(context, mouseX, mouseY);
+            }
+            com.teslamaps.debug.Perf.end();
+        }
+
         if (com.teslamaps.features.ItemValueOverlay.shouldRender()) {
             com.teslamaps.features.ItemValueOverlay.render(context, mouseX, mouseY);
         }

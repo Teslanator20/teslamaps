@@ -43,6 +43,7 @@ public class SafariTracker {
     private static final Pattern FLOOR_DROP = Pattern.compile("^FLOOR DROP! You found (.+) on the ground!$");
     private static final Pattern HEAD_START = Pattern.compile("^HEAD START! You started with (?:a|an) (.+)!$");
     private static final Pattern GEM_PLACED = Pattern.compile("^You placed the (\\w+) Gem on its podium!$");
+    private static final Pattern CAPTURED = Pattern.compile("Captured Mobs:?\\s*(\\d+)");
 
     private static final Set<String> caughtSelf = new HashSet<>();
     private static final Set<String> caughtAny = new HashSet<>();
@@ -66,6 +67,14 @@ public class SafariTracker {
     private static final Set<java.util.UUID> sparklingSeen = new HashSet<>();
 
     private static boolean wasInSafari = false;
+    private static int boardZeroTicks = 0;
+
+    // "not full" warning: one check per run, right after entry (run starts within ~1s)
+    private static final int FULL_CHECK_DELAY = 20; // 1s
+    private static int fullCheckTicks = 0;
+    private static boolean fullChecked = false;
+    private static long warnUntil = 0L;
+    private static int warnCount = 0;
 
     /** Run-relative completion times, so the HUD and the announce agree on one number. */
     private static final Map<SafariData.Biome, Long> biomeDoneAt = new EnumMap<>(SafariData.Biome.class);
@@ -90,8 +99,71 @@ public class SafariTracker {
             finishRun();
             clearRun();
         }
-        if (in) ensureRun();
+        if (in) {
+            ensureRun();
+            checkBoardReset();
+            checkFull();
+        }
         wasInSafari = in;
+    }
+
+    /** Warn once per run when the instance holds fewer than 4 players. */
+    private static void checkFull() {
+        if (warnUntil != 0 && System.currentTimeMillis() < warnUntil && countPlayers() >= 4) warnUntil = 0;
+        if (fullChecked || !TeslaMapsConfig.get().safariWarnNotFull) return;
+        if (++fullCheckTicks < FULL_CHECK_DELAY) return;
+        fullChecked = true;
+
+        int players = countPlayers();
+        if (players <= 0 || players >= 4) return;
+
+        warnCount = players;
+        warnUntil = System.currentTimeMillis() + 5_000;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            mc.player.sendSystemMessage(Component.literal(
+                    "§a[TeslaMaps] §c§lPARTY NOT FULL §7- only §f" + players + "§7/4 players in the Safari"));
+        }
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.safariAlertVolume > 0) {
+            LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), c.safariAlertVolume, 0.6f);
+            com.teslamaps.utils.TickScheduler.schedule(6, () ->
+                    LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), c.safariAlertVolume, 0.6f));
+        }
+    }
+
+    private static int countPlayers() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return -1;
+        int n = 0;
+        for (var p : mc.level.players()) {
+            if (p.getUUID().version() == 4) n++; // skip NPCs / fake players
+        }
+        return n;
+    }
+
+    /**
+     * On a laggy server the area never flips between two runs, so the old run keeps running. The
+     * scoreboard counter going back to 0 while we still hold catches is the second run boundary.
+     */
+    private static void checkBoardReset() {
+        if (caughtSelf.isEmpty()) { boardZeroTicks = 0; return; }
+        int captured = boardCaptured();
+        if (captured != 0) { boardZeroTicks = 0; return; }
+        if (++boardZeroTicks < 40) return;   // the board flickers on a laggy join, want a steady 0
+        boardZeroTicks = 0;
+        finishRun();
+        clearRun();
+        runStart = System.currentTimeMillis();
+    }
+
+    /** -1 when the line is absent, so a missing scoreboard never counts as a reset. */
+    private static int boardCaptured() {
+        for (String line : com.teslamaps.utils.ScoreboardUtils.getScoreboardLines()) {
+            Matcher m = CAPTURED.matcher(com.teslamaps.utils.ScoreboardUtils.cleanLine(line));
+            if (m.find()) return Integer.parseInt(m.group(1));
+        }
+        return -1;
     }
 
     /** The tab list area lags a second behind the teleport, so the first messages start the run. */
@@ -148,6 +220,10 @@ public class SafariTracker {
         headStart = null;
         wumpaAwake = false;
         gemsDone = false;
+        boardZeroTicks = 0;
+        fullCheckTicks = 0;
+        fullChecked = false;
+        warnUntil = 0;
         runStart = 0;
     }
 
@@ -455,12 +531,33 @@ public class SafariTracker {
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.safariTracker || !c.safariHud || !isActive()) return;
+        if (!c.safariTracker) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (com.teslamaps.utils.HudVisibility.suppressed()) return;
 
+        if (warnUntil != 0 && System.currentTimeMillis() < warnUntil && SafariData.inSafari()) {
+            drawWarn(context, mc);
+        }
+
+        if (!c.safariHud || !isActive()) return;
         draw(context, mc, c.safariHudX, c.safariHudY, c.safariHudScale, lines());
+    }
+
+    private static void drawWarn(GuiGraphicsExtractor context, Minecraft mc) {
+        String top = "§c§lPARTY NOT FULL";
+        String sub = "§fonly " + warnCount + "/4 players";
+        var pose = context.pose();
+        pose.pushMatrix();
+        pose.translate(context.guiWidth() / 2f, context.guiHeight() / 3f);
+        pose.scale(2.5f, 2.5f);
+        context.text(mc.font, top, -mc.font.width(top) / 2, 0, 0xFFFFFFFF);
+        pose.popMatrix();
+        pose.pushMatrix();
+        pose.translate(context.guiWidth() / 2f, context.guiHeight() / 3f + 26);
+        pose.scale(1.5f, 1.5f);
+        context.text(mc.font, sub, -mc.font.width(sub) / 2, 0, 0xFFFFFFFF);
+        pose.popMatrix();
     }
 
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {

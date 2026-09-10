@@ -95,9 +95,10 @@ public class SkillTracker {
         return isSkill(first) ? first : null;
     }
 
-    /** The eight skills Hypixel averages for "Skill Avg. (non-cosmetic)". */
+    /** The skills Hypixel averages for "Skill Avg." — everything but Runecrafting and Social. */
     public static final String[] NON_COSMETIC = {
-        "Farming", "Mining", "Combat", "Foraging", "Fishing", "Enchanting", "Alchemy", "Taming"
+        "Farming", "Mining", "Combat", "Foraging", "Fishing", "Enchanting",
+        "Alchemy", "Taming", "Carpentry", "Hunting"
     };
 
     private static boolean isSkill(String name) {
@@ -379,6 +380,7 @@ public class SkillTracker {
     public static boolean shouldRender() {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         return cfg.skillTracker && activeSkill != null
+                && !com.teslamaps.dungeon.DungeonManager.isInDungeon()
                 && System.currentTimeMillis() - lastGain <= 10 * 60_000;
     }
 
@@ -489,8 +491,9 @@ public class SkillTracker {
             default -> { }
         }
 
-        // controls only exist where they can be clicked
-        if (inInventory()) out.add("§7Session: §f" + fmtDuration(s.liveActiveMs()) + " " + RESET);
+        // uptime always, the reset control only where it can be clicked
+        String uptime = "§7Session: §f" + fmtDuration(s.liveActiveMs());
+        out.add(inInventory() ? uptime + " " + RESET : uptime);
         return out.toArray(new String[0]);
     }
 
@@ -527,7 +530,8 @@ public class SkillTracker {
             "§7Level: §e57 §6✦ §8(63.4%)",
             "§7Next: §a1h 23m",
             "§7Gifts/h: §e42 §8(14)",
-            "§7Whispers/h: §e250k §8(84.1k)"
+            "§7Whispers/h: §e250k §8(84.1k)",
+            "§7Session: §f1h 23m"
         };
     }
 

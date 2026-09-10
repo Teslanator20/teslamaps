@@ -33,7 +33,6 @@ import net.minecraft.world.phys.Vec3;
 
 public class StarredMobESP {
     private static final int STARRED_COLOR = 0xFFF57738; // Orange
-    private static final int CUSTOM_ESP_COLOR = 0xFF00FFFF; // Cyan
     private static final int FEL_COLOR = 0xFFFF00FF; // Magenta for fels
     private static final int SNIPER_COLOR = 0xFFFFAA00; // Orange-yellow for snipers
     private static final int PEST_COLOR = 0xFF00FF00; // Green for pests
@@ -53,6 +52,8 @@ public class StarredMobESP {
             "Firefly", "Butterfly"  // Garden critters
     };
     private static final List<EntityHighlight> highlightedEntities = new ArrayList<>();
+    // the subset that came from a custom entry, so a per-entry colour cannot be used to spot them
+    private static final List<EntityHighlight> customHighlights = new ArrayList<>();
 
     private static final Map<Entity, Integer> glowingEntities = new WeakHashMap<>();
 
@@ -199,6 +200,7 @@ public class StarredMobESP {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null || com.teslamaps.features.LegitMode.blocksCheats()) {
             highlightedEntities.clear();
+            customHighlights.clear();
             glowingEntities.clear();
             return;
         }
@@ -211,6 +213,7 @@ public class StarredMobESP {
 
         if (!inDungeon && !hasCustomMobs && !droppedItemESP && !pestESP) {
             highlightedEntities.clear();
+            customHighlights.clear();
             glowingEntities.clear();
             pestPositions.clear();
             return;
@@ -221,11 +224,13 @@ public class StarredMobESP {
                 && !TeslaMapsConfig.get().witherKeyESP && !TeslaMapsConfig.get().doorESP
                 && !TeslaMapsConfig.get().lividFinder && !TeslaMapsConfig.get().dungeonBatESP) {
             highlightedEntities.clear();
+            customHighlights.clear();
             glowingEntities.clear();
             return;
         }
 
         highlightedEntities.clear();
+        customHighlights.clear();
         glowingEntities.clear();
         witherKeyPositions.clear();
         bloodKeyPositions.clear();
@@ -315,8 +320,10 @@ public class StarredMobESP {
 
             if (shouldHighlight(entity, inDungeon, pestESP)) {
                 int color = getHighlightColor(entity);
-                highlightedEntities.add(new EntityHighlight(entity, color));
+                EntityHighlight eh = new EntityHighlight(entity, color);
+                highlightedEntities.add(eh);
                 glowingEntities.put(entity, color & 0x00FFFFFF);
+                if (customEntryFor(entity) != null) customHighlights.add(eh);
             }
         }
 
@@ -551,6 +558,9 @@ public class StarredMobESP {
     }
 
     public static boolean shouldHighlight(Entity entity, boolean inDungeon, boolean pestESP) {
+        // a nametag stand overlaps our own box when standing on the mob, which briefly boxed the player
+        if (entity == Minecraft.getInstance().player) return false;
+
         if (entity instanceof ItemEntity && TeslaMapsConfig.get().droppedItemESP) {
             return true;
         }
@@ -586,7 +596,13 @@ public class StarredMobESP {
             return true;
         }
 
-        if (entity instanceof ArmorStand) return false;
+        // an armor stand is usually just a floating nametag, but a garden critter IS one: an
+        // armour-wearing body with its label a block above it. So a stand is only skipped when
+        // nothing but its own name matched - then it is the label, and the body gets the box.
+        if (entity instanceof ArmorStand) {
+            if (isCustomNameStand(entity)) return false;
+            return matchedCustomStandEntry(entity) != null;
+        }
 
         if (matchesCustomESP(entityName)) {
             return true;
@@ -599,11 +615,13 @@ public class StarredMobESP {
             }
         }
 
-        if (entity.isInvisible()) return false;
-
+        // safari critters and most Hypixel props are an invisible or zero-size body under a
+        // named stand, so this has to run before the invisibility bail
         if (matchesCustomESPArmorStand(entity)) {
             return true;
         }
+
+        if (entity.isInvisible()) return false;
 
         if (!inDungeon || !TeslaMapsConfig.get().starredMobESP) {
             return false;
@@ -631,32 +649,69 @@ public class StarredMobESP {
     private static List<String> tracerSource;
     private static String[] tracerLower = new String[0];
 
+    // compare by content, not identity - the command mutates the same list in place
     private static String[] lowered(List<String> src, boolean tracers) {
         if (tracers) {
-            if (src != tracerSource) {
-                tracerSource = src;
+            if (!src.equals(tracerSource)) {
+                tracerSource = new ArrayList<>(src);
                 tracerLower = src.stream().map(String::toLowerCase).toArray(String[]::new);
             }
             return tracerLower;
         }
-        if (src != mobSource) {
-            mobSource = src;
+        if (!src.equals(mobSource)) {
+            mobSource = new ArrayList<>(src);
             mobLower = src.stream().map(String::toLowerCase).toArray(String[]::new);
         }
         return mobLower;
     }
 
     private static boolean matchesCustomESP(String entityName) {
+        return matchedCustomEntry(entityName) != null;
+    }
+
+    /** The config entry a name matched, in its original case, or null. */
+    private static String matchedCustomEntry(String entityName) {
         List<String> customMobs = TeslaMapsConfig.get().customESPMobs;
-        if (customMobs == null || customMobs.isEmpty()) return false;
+        if (customMobs == null || customMobs.isEmpty()) return null;
 
         String lowerName = entityName.toLowerCase();
-        for (String pattern : lowered(customMobs, false)) {
-            if (lowerName.contains(pattern)) {
-                return true;
+        String[] patterns = lowered(customMobs, false);
+        for (int i = 0; i < patterns.length; i++) {
+            // a blank entry (a fresh row in the list screen) would match every entity
+            if (patterns[i].isEmpty()) continue;
+            if (lowerName.contains(patterns[i])) {
+                return i < customMobs.size() ? customMobs.get(i) : null;
             }
         }
-        return false;
+        return null;
+    }
+
+    /** The entry that put this entity on the list, checking its own names and its nametag stand. */
+    public static String customEntryFor(Entity entity) {
+        String entry = matchedCustomEntry(entity.getName().getString());
+        if (entry != null) return entry;
+        if (entity.getCustomName() != null) {
+            entry = matchedCustomEntry(entity.getCustomName().getString());
+            if (entry != null) return entry;
+        }
+        return matchedCustomStandEntry(entity);
+    }
+
+    /** How many highlighted entities each custom entry currently accounts for. For the list screen. */
+    public static Map<String, Integer> customEntryCounts() {
+        Map<String, Integer> out = new HashMap<>();
+        for (EntityHighlight eh : customHighlights) {
+            if (!eh.entity().isAlive()) continue;
+            String entry = customEntryFor(eh.entity());
+            if (entry != null) out.merge(entry, 1, Integer::sum);
+        }
+        return out;
+    }
+
+    public static int customColor(String entry) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        String hex = entry == null ? null : config.customESPColors.get(entry.toLowerCase());
+        return TeslaMapsConfig.parseColor(hex == null ? config.colorESPCustom : hex) | 0xFF000000;
     }
 
     private static boolean matchesCustomTracer(String entityName) {
@@ -673,7 +728,9 @@ public class StarredMobESP {
     // This used to run one getEntitiesOfClass query per entity per tick, which with
     // ~600 entities loaded cost up to 7.5ms in a single tick. The nametag stands are
     // collected once instead, then every entity is tested against that short list.
-    private static final List<ArmorStand> customNameStands = new ArrayList<>();
+    private record NameStand(ArmorStand stand, String entry) {}
+
+    private static final List<NameStand> customNameStands = new ArrayList<>();
 
     private static void collectCustomNameStands(Minecraft mc) {
         customNameStands.clear();
@@ -682,23 +739,48 @@ public class StarredMobESP {
 
         for (Entity e : mc.level.entitiesForRendering()) {
             if (!(e instanceof ArmorStand as)) continue;
-            if (matchesCustomESP(as.getName().getString())) {
-                customNameStands.add(as);
-                continue;
+            String entry = matchedCustomEntry(as.getName().getString());
+            if (entry == null) {
+                Component custom = as.getCustomName();
+                if (custom != null) entry = matchedCustomEntry(custom.getString());
             }
-            Component custom = as.getCustomName();
-            if (custom != null && matchesCustomESP(custom.getString())) {
-                customNameStands.add(as);
-            }
+            if (entry != null) customNameStands.add(new NameStand(as, entry));
         }
     }
 
     private static boolean matchesCustomESPArmorStand(Entity entity) {
+        return matchedCustomStandEntry(entity) != null;
+    }
+
+    /** Whether this stand is one of the labels itself, rather than a body under one. */
+    private static boolean isCustomNameStand(Entity entity) {
+        for (NameStand ns : customNameStands) {
+            if (ns.stand() == entity) return true;
+        }
+        return false;
+    }
+
+    private static String matchedCustomStandEntry(Entity entity) {
+        if (customNameStands.isEmpty()) return null;
+
+        AABB searchBox = entity.getBoundingBox().inflate(1, 4, 1);
+        for (NameStand ns : customNameStands) {
+            if (ns.stand() == entity) continue;   // a label must not put a box on itself
+            if (searchBox.intersects(ns.stand().getBoundingBox())) return ns.entry();
+        }
+        return null;
+    }
+
+    private static boolean matchesCustomTracerArmorStand(Entity entity) {
         if (customNameStands.isEmpty()) return false;
 
         AABB searchBox = entity.getBoundingBox().inflate(1, 4, 1);
-        for (ArmorStand stand : customNameStands) {
-            if (searchBox.intersects(stand.getBoundingBox())) return true;
+        for (NameStand ns : customNameStands) {
+            ArmorStand stand = ns.stand();
+            if (!searchBox.intersects(stand.getBoundingBox())) continue;
+            if (matchesCustomTracer(stand.getName().getString())) return true;
+            Component custom = stand.getCustomName();
+            if (custom != null && matchesCustomTracer(custom.getString())) return true;
         }
         return false;
     }
@@ -833,8 +915,9 @@ public class StarredMobESP {
             return TeslaMapsConfig.parseColor(config.colorESPShadowAssassin);
         }
 
-        if (matchesCustomESP(name)) {
-            return CUSTOM_ESP_COLOR;
+        String customEntry = customEntryFor(entity);
+        if (customEntry != null) {
+            return customColor(customEntry);
         }
 
         if (entity instanceof Player) {
@@ -846,6 +929,13 @@ public class StarredMobESP {
     }
 
     public record EntityHighlight(Entity entity, int color) {}
+
+    // display entities report a zero-size box, which draws as nothing
+    private static AABB visibleBox(Entity entity) {
+        AABB b = entity.getBoundingBox();
+        if (b.getXsize() < 0.1 || b.getYsize() < 0.1) return b.inflate(0.4, 0.4, 0.4);
+        return b;
+    }
 
     public static List<Vec3> getWitherKeyPositions() {
         return witherKeyPositions;
@@ -872,7 +962,7 @@ public class StarredMobESP {
             for (Map.Entry<Entity, Integer> entry : glowingEntities.entrySet()) {
                 Entity entity = entry.getKey();
                 if (!entity.isAlive()) continue;
-                ESPRenderer.drawFilledBox(matrices, entity.getBoundingBox(), entry.getValue(), cameraPos,
+                ESPRenderer.drawFilledBox(matrices, visibleBox(entity), entry.getValue(), cameraPos,
                         (MultiBufferSource.BufferSource) provider);
             }
 
@@ -890,7 +980,7 @@ public class StarredMobESP {
             for (Map.Entry<Entity, Integer> entry : glowingEntities.entrySet()) {
                 Entity entity = entry.getKey();
                 if (!entity.isAlive()) continue;
-                ESPRenderer.drawBoxOutline(matrices, entity.getBoundingBox(),
+                ESPRenderer.drawBoxOutline(matrices, visibleBox(entity),
                         entry.getValue() | 0xFF000000, 2.0f, cameraPos, true);
             }
 
@@ -904,14 +994,26 @@ public class StarredMobESP {
             }
         }
 
+        // Custom entries have to show something with Box/Filled ESP off too - glow never
+        // renders on the invisible or zero-size bodies most named mobs have.
+        if (!TeslaMapsConfig.get().boxESP && !TeslaMapsConfig.get().filledESP) {
+            for (EntityHighlight eh : customHighlights) {
+                Entity entity = eh.entity();
+                if (!entity.isAlive()) continue;
+                ESPRenderer.drawBoxOutline(matrices, visibleBox(entity),
+                        eh.color() | 0xFF000000, 2.0f, cameraPos, true);
+            }
+        }
+
         // Per-entry tracers from `/tmap add <name> on`. Not dungeon-gated: custom
         // entries are used outside dungeons too.
-        for (EntityHighlight eh : highlightedEntities) {
+        for (EntityHighlight eh : customHighlights) {
             Entity entity = eh.entity();
             if (!entity.isAlive()) continue;
             if (!matchesCustomTracer(entity.getName().getString())
                     && (entity.getCustomName() == null
-                        || !matchesCustomTracer(entity.getCustomName().getString()))) continue;
+                        || !matchesCustomTracer(entity.getCustomName().getString()))
+                    && !matchesCustomTracerArmorStand(entity)) continue;
             ESPRenderer.drawTracerFromCamera(matrices, entity.getBoundingBox().getCenter(),
                     eh.color() | 0xFF000000, cameraPos);
         }

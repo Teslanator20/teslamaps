@@ -8,7 +8,8 @@
     "contact": {},
     "environment": "client",
     "entrypoints": {
-        "client": ["com.teslamaps.TeslaMaps"]
+        "client": ["com.teslamaps.TeslaMaps"],
+        "preLaunch": ["com.teslamaps.AwtHeadless"]
     },
     "mixins": ["teslamaps.mixins.json"],
     "accessWidener": "teslamaps.accesswidener",

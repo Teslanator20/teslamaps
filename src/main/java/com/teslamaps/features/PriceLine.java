@@ -24,27 +24,24 @@ public class PriceLine {
         if (id.isEmpty()) id = PriceManager.idForName(stack.getHoverName().getString());
         if (id == null || id.isEmpty()) return List.of();
 
-        int count = stack.getCount();
         List<String> out = new ArrayList<>(2);
 
         Double buy = PriceManager.bazaarBuyOrNull(id);
         Double sell = PriceManager.bazaarSellOrNull(id);
         if (buy != null || sell != null) {
-            if (sell != null && sell > 0) out.add(line("Bazaar Insta-Sell", sell, count));
-            if (buy != null && buy > 0) out.add(line("Bazaar Insta-Buy", buy, count));
+            if (sell != null && sell > 0) out.add(line("Bazaar Insta-Sell", sell));
+            if (buy != null && buy > 0) out.add(line("Bazaar Insta-Buy", buy));
             return out;
         }
 
         Double bin = PriceManager.lowestBinOrNull(id);
         if (bin == null || bin <= 0) return List.of();
-        out.add(line("Lowest BIN", bin, count));
+        out.add(line("Lowest BIN", bin));
         return out;
     }
 
-    private static String line(String label, double unit, int count) {
-        String s = "§7" + label + ": §6" + EstimatedValue.price(unit);
-        if (count > 1) s += " §7(x" + count + " = §6" + EstimatedValue.price(unit * count) + "§7)";
-        return s;
+    private static String line(String label, double unit) {
+        return "§e§l" + label + ": §6§l" + EstimatedValue.exact(unit) + " coins";
     }
 
     private PriceLine() {}

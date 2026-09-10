@@ -15,5 +15,6 @@ public class SlotBackgrounds {
     public static void draw(GuiGraphicsExtractor context, Slot slot) {
         RarityBackground.draw(context, slot.x, slot.y, slot.getItem());
         HotF.drawHighlight(context, slot);
+        com.teslamaps.features.AuctionPriceCompare.drawHighlight(context, slot);
     }
 }

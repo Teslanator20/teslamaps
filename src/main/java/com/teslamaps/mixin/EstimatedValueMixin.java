@@ -27,8 +27,17 @@ public abstract class EstimatedValueMixin {
                 PriceManager.ensureFresh();
                 Double value = EstimatedValue.totalPrice(stack, true);
                 if (value != null) {
-                    String total = java.text.NumberFormat.getNumberInstance(java.util.Locale.US).format(Math.round(value));
-                    cir.getReturnValue().add(Component.literal("§e§lEstimated Value: §6§l" + total + " coins"));
+                    cir.getReturnValue().add(Component.literal("§e§lEstimated Value: §6§l" + EstimatedValue.exact(value) + " coins"));
+                }
+            }
+            if (c.compactorPreview) {
+                for (String line : com.teslamaps.features.CompactorPreview.lines(stack)) {
+                    cir.getReturnValue().add(Component.literal(line));
+                }
+            }
+            if (c.auctionPriceCompare) {
+                for (String line : com.teslamaps.features.AuctionPriceCompare.lines(stack)) {
+                    cir.getReturnValue().add(Component.literal(line));
                 }
             }
             if (c.itemValueShowBin) {

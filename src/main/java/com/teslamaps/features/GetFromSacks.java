@@ -24,6 +24,11 @@ public class GetFromSacks {
     // Hypixel's command cooldown - SkyHanni uses the same 1.65s
     private static final int SEND_INTERVAL_TICKS = 33;
 
+    // SkyHanni queues /gfs itself, cancelling the packet and resending it via sendCommand.
+    // Our re-send hits its packet hook, its re-send hits our ALLOW_COMMAND hook -> the command
+    // ping-pongs between both queues and never reaches Hypixel. Stand down instead.
+    public static final boolean SKYHANNI = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("skyhanni");
+
     private static final Pattern MOVED = Pattern.compile("Moved (?<amount>[\\d,]+) (?<item>.+) from your Sacks to your inventory\\.");
     private static final Pattern MISSING = Pattern.compile("You have no (?<item>.+) in your Sacks!");
     private static final Pattern SUPERCRAFTED = Pattern.compile("You Supercrafted (?<item>[^§]+?)(?: x(?<amount>[\\d,]+))?!");
@@ -42,7 +47,7 @@ public class GetFromSacks {
      */
     public static boolean allowCommand(String command) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.gfsQueued || sendingOwnCommand) return true;
+        if (SKYHANNI || !c.gfsQueued || sendingOwnCommand) return true;
 
         String[] parts = command.trim().split("\\s+");
         String name = parts[0].toLowerCase();
@@ -125,6 +130,7 @@ public class GetFromSacks {
     }
 
     public static void onChatMessage(String raw) {
+        if (SKYHANNI) return; // SkyHanni prints the same supercraft/bazaar links
         TeslaMapsConfig c = TeslaMapsConfig.get();
         String text = StringUtil.strip(raw).trim();
 

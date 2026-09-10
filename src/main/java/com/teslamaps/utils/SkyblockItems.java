@@ -51,8 +51,9 @@ public class SkyblockItems {
     private static final Pattern NEU_TEXTURE = Pattern.compile("Value:\\\\?\"([A-Za-z0-9+/=]+)\\\\?\"");
     private static final Pattern NEU_ITEM_ID = Pattern.compile("\"itemid\"\\s*:\\s*\"([^\"]+)\"");
     private static final Pattern NEU_DISPLAYNAME = Pattern.compile("\"displayname\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
+    private static final Pattern NEU_ITEM_MODEL = Pattern.compile("ItemModel:\\\\?\"([a-z0-9_:/.\\-]+)\\\\?\"");
 
-    private record ItemData(String material, String skin, String tier) {}
+    private record ItemData(String material, String skin, String tier, String model) {}
 
     private static final Map<String, ItemData> items = new ConcurrentHashMap<>();
     private static final Map<String, String> nameToId = new ConcurrentHashMap<>();
@@ -207,7 +208,8 @@ public class SkyblockItems {
                         if (skinObject.has("value")) skin = skinObject.get("value").getAsString();
                     }
                     String tier = item.has("tier") ? item.get("tier").getAsString() : "";
-                    items.put(id, new ItemData(material, skin, tier));
+                    String model = item.has("item_model") ? item.get("item_model").getAsString() : null;
+                    items.put(id, new ItemData(material, skin, tier, model));
 
                     if (item.has("name")) {
                         String display = item.get("name").getAsString();
@@ -241,6 +243,12 @@ public class SkyblockItems {
             if (ids.contains(entry.getValue())) out.add(originalName(entry.getKey()));
         }
         return out;
+    }
+
+    /** Every display name Hypixel knows, in its own casing. */
+    public static java.util.Collection<String> allNames() {
+        load();
+        return originalNames.values();
     }
 
     private static final Map<String, String> originalNames = new ConcurrentHashMap<>();
@@ -347,7 +355,7 @@ public class SkyblockItems {
 
         ItemData data = items.get(id);
         if (data != null) {
-            ItemStack stack = build(data.material(), data.skin());
+            ItemStack stack = build(data.material(), data.skin(), data.model());
             stacks.put(id, stack);
             if (!stack.isEmpty()) callback.accept(stack);
             return;
@@ -357,12 +365,15 @@ public class SkyblockItems {
         CompletableFuture.runAsync(() -> {
             String material = null;
             String skin = null;
+            String model = null;
             try {
                 String body = get(String.format(NEU_URL, id));
                 Matcher texture = NEU_TEXTURE.matcher(body);
                 if (texture.find()) skin = texture.group(1);
                 Matcher itemId = NEU_ITEM_ID.matcher(body);
                 if (itemId.find()) material = itemId.group(1);
+                Matcher itemModel = NEU_ITEM_MODEL.matcher(body);
+                if (itemModel.find()) model = itemModel.group(1);
                 Matcher displayName = NEU_DISPLAYNAME.matcher(body);
                 if (displayName.find()) neuNames.put(id, unescape(displayName.group(1)));
             } catch (Exception e) {
@@ -371,8 +382,9 @@ public class SkyblockItems {
 
             String finalMaterial = material;
             String finalSkin = skin;
+            String finalModel = model;
             Minecraft.getInstance().execute(() -> {
-                ItemStack stack = build(finalMaterial, finalSkin);
+                ItemStack stack = build(finalMaterial, finalSkin, finalModel);
                 if (stack.isEmpty()) {
                     // A dead id or a failed request: let a later call try again
                     // instead of caching the miss for the whole session.
@@ -397,13 +409,21 @@ public class SkyblockItems {
         return client.send(request, HttpResponse.BodyHandlers.ofString()).body();
     }
 
-    private static ItemStack build(String material, String skin) {
+    private static ItemStack build(String material, String skin, String model) {
         if (skin != null && !skin.isEmpty()) {
             ItemStack head = skull(skin);
             if (head != null) return head;
         }
         Item item = itemFor(material);
-        return item == null ? ItemStack.EMPTY : new ItemStack(item);
+        if (item == null) return ItemStack.EMPTY;
+        ItemStack stack = new ItemStack(item);
+        // Hypixel skins many items via the item-model component; the model lives in
+        // the server resource pack, so it only renders while that pack is loaded.
+        if (model != null && !model.isEmpty()) {
+            Identifier modelId = Identifier.tryParse(model);
+            if (modelId != null) stack.set(DataComponents.ITEM_MODEL, modelId);
+        }
+        return stack;
     }
 
     private static Item itemFor(String material) {

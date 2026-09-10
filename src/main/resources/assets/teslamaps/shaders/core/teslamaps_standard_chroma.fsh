@@ -7,6 +7,10 @@ layout(std140) uniform TeslaChromaUniforms {
     float timeOffset;
     float saturation;
     int forwardDirection;
+    float fadeStartX;
+    float fadeWidth;
+    vec4 fadeColorA;
+    vec4 fadeColorB;
 };
 
 out vec4 fragColor;

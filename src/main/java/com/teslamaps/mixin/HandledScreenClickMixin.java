@@ -48,6 +48,13 @@ public class HandledScreenClickMixin {
             return;
         }
 
+        if (com.teslamaps.features.CopyItemName.onClick(
+                ((HandledScreenAccessor) (Object) this).getFocusedSlot(), button)) {
+            teslamaps$ate("CopyItemName", button);
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.features.StorageOverlay.active()) {
             if (com.teslamaps.features.StorageOverlay.handleClick(mouseX, mouseY, button)) {
                 teslamaps$ate("StorageOverlay.handleClick", button);
@@ -57,6 +64,13 @@ public class HandledScreenClickMixin {
         }
         if (com.teslamaps.features.StorageOverlay.handleEnableClick(mouseX, mouseY)) {
             teslamaps$ate("StorageOverlay.handleEnableClick", button);
+            cir.setReturnValue(true);
+            return;
+        }
+
+        if (com.teslamaps.config.TeslaMapsConfig.get().section("Shards")
+                && com.teslamaps.features.hunting.ShardOverlay.handleClick(mouseX, mouseY, button)) {
+            teslamaps$ate("ShardOverlay.handleClick", button);
             cir.setReturnValue(true);
             return;
         }

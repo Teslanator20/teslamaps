@@ -36,6 +36,8 @@ public class MapConfigScreen extends Screen {
 
     protected int scrollOffset = 0;
     protected int maxScroll = 0;
+    protected boolean draggingScrollbar = false;
+    protected boolean draggingSidebarScrollbar = false;
 
     // Collapsed group headers, keyed category#labelOrdinal.
     protected static final java.util.Set<String> GROUP_COLLAPSED = new java.util.HashSet<>();
@@ -73,6 +75,10 @@ public class MapConfigScreen extends Screen {
     protected long keybindListenStart = 0;
     protected SliderEntry editingSlider = null;   // slider whose value is being typed
     protected String sliderEditText = "";
+
+    public boolean isBindingKey() {
+        return listeningKeybindEntry != null || editingSlider != null;
+    }
 
     protected void startSliderEdit(SliderEntry s) {
         if (editingSlider != null && editingSlider != s) commitSliderEdit();
@@ -322,6 +328,8 @@ public class MapConfigScreen extends Screen {
         esp.add(new ToggleEntry(contentX, contentWidth, "Box ESP (Hitbox)", () -> config.boxESP, v -> config.boxESP = v));
         esp.add(new SliderEntry(contentX, contentWidth, "ESP Transparency", 0.0f, 1.0f,
                 () -> config.espAlpha, v -> config.espAlpha = v));
+        esp.add(new ButtonEntry(contentX, contentWidth, "Custom Entries (/tmap esp)",
+                () -> minecraft.setScreen(new EspListScreen())));
         esp.add(new LabelEntry(contentX, "Dungeon ESP"));
         esp.add(new ToggleEntry(contentX, contentWidth, "Color Portal by Score", () -> config.colorPortal, v -> config.colorPortal = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Starred Mob ESP", () -> config.starredMobESP, v -> config.starredMobESP = v));
@@ -369,6 +377,17 @@ public class MapConfigScreen extends Screen {
         esp.add(new ToggleEntry(contentX, contentWidth, "Invisible Armor Stand ESP", () -> config.invisibleArmorStandESP, v -> config.invisibleArmorStandESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Hoppity Egg ESP", () -> config.hoppityEggESP, v -> config.hoppityEggESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Hoppity Egg Tracers", () -> config.hoppityEggTracers, v -> config.hoppityEggTracers = v));
+        esp.add(new LabelEntry(contentX, "Head ESP"));
+        esp.add(new InfoEntry(contentX, "/tmap head add <name> while looking at a head"));
+        esp.add(new InfoEntry(contentX, "/tmap head list | remove <name> | probe [radius]"));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Golden Dragon Egg ESP", () -> config.headGoldenDragonEgg, v -> config.headGoldenDragonEgg = v));
+        esp.add(new ColorEntry(contentX, contentWidth, "  Egg Color", () -> config.headGoldenDragonColor, v -> config.headGoldenDragonColor = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "Head ESP (custom list)", () -> config.headESP, v -> config.headESP = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "  Show Name", () -> config.headESPName, v -> config.headESPName = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "  Head Tracers", () -> config.headESPTracers, v -> config.headESPTracers = v));
+        esp.add(new ToggleEntry(contentX, contentWidth, "  Head Beacon Beam", () -> config.headESPBeam, v -> config.headESPBeam = v));
+        esp.add(new ColorEntry(contentX, contentWidth, "  New Head Color", () -> config.headESPColor, v -> config.headESPColor = v));
+        esp.add(new LabelEntry(contentX, "Items"));
         esp.add(new ToggleEntry(contentX, contentWidth, "Dropped Item ESP", () -> config.droppedItemESP, v -> config.droppedItemESP = v));
         esp.add(new ToggleEntry(contentX, contentWidth, "Item Pickup Readiness", () -> config.secretItemReadiness, v -> config.secretItemReadiness = v));
         esp.add(new SliderEntry(contentX, contentWidth, "Item Pickup Delay (ticks)", 0f, 200f,
@@ -405,10 +424,13 @@ public class MapConfigScreen extends Screen {
         render.add(new SliderEntry(contentX, contentWidth, "  Opacity", 1f, 100f,
                 () -> (float) config.darkModeOpacity, v -> config.darkModeOpacity = v.intValue()));
         render.add(new ToggleEntry(contentX, contentWidth, "  Tint HUD", () -> config.darkModeTintHud, v -> config.darkModeTintHud = v));
+        render.add(new LabelEntry(contentX, "Loading Screens"));
         render.add(new ToggleEntry(contentX, contentWidth, "Disable World Loading Screen", () -> config.disableWorldLoadingScreen, v -> config.disableWorldLoadingScreen = v));
         render.add(new ToggleEntry(contentX, contentWidth, "No Texture Reload Screen", () -> config.noReloadScreen, v -> config.noReloadScreen = v));
+        render.add(new LabelEntry(contentX, "Block Overlay"));
         render.add(new ToggleEntry(contentX, contentWidth, "Block Overlay", () -> config.blockOverlay, v -> config.blockOverlay = v));
         render.add(new ColorEntry(contentX, contentWidth, "  Block Overlay Color", () -> config.blockOverlayColor, v -> config.blockOverlayColor = v));
+        render.add(new LabelEntry(contentX, "Chat Waypoint"));
         render.add(new ToggleEntry(contentX, contentWidth, "Chat Waypoint (coords)", () -> config.chatWaypoint, v -> config.chatWaypoint = v));
         render.add(new LabelEntry(contentX, "Rare Drop Effects"));
         render.add(new ToggleEntry(contentX, contentWidth, "Rare Drops", () -> config.rareDropEffects, v -> config.rareDropEffects = v));
@@ -424,7 +446,13 @@ public class MapConfigScreen extends Screen {
         render.add(new SliderEntry(contentX, contentWidth, "  Eye Height Offset", -0.5f, 0.5f,
                 () -> config.etherwarpEyeOffset, v -> config.etherwarpEyeOffset = v, 3));
         render.add(new ColorEntry(contentX, contentWidth, "  Etherwarp Box Color", () -> config.colorEtherwarp, v -> config.colorEtherwarp = v));
-        render.add(new LabelEntry(contentX, "Font"));
+        render.add(new LabelEntry(contentX, "Cape"));
+        render.add(new ToggleEntry(contentX, contentWidth, "Custom Cape", () -> config.capeEnabled, v -> config.capeEnabled = v));
+        render.add(new InfoEntry(contentX, "Worn capes are visible to every TeslaMaps user"));
+        render.add(new SliderEntry(contentX, contentWidth, "  Waviness", 0f, 1f,
+                () -> config.capeWaviness, v -> config.capeWaviness = v, 2));
+        render.add(new ButtonEntry(contentX, contentWidth, "Choose Cape",
+                () -> minecraft.setScreen(new CapeScreen(this))));
         categories.put("Render", render);
 
         List<SettingsEntry> title = new ArrayList<>();
@@ -513,7 +541,7 @@ public class MapConfigScreen extends Screen {
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Cheap Coins", () -> config.hideCheapCoins, v -> config.hideCheapCoins = v));
         hide.add(new LabelEntry(contentX, "Screen & World Hiders"));
         hide.add(new ButtonEntry(contentX, contentWidth, "Toggle All Screen & World Hiders", () -> {
-            int enabled = 0;
+            int enabled = 0, total = 22;
             if (config.noFire) enabled++;
             if (config.noWaterOverlay) enabled++;
             if (config.noVignette) enabled++;
@@ -531,7 +559,12 @@ public class MapConfigScreen extends Screen {
             if (config.noFog) enabled++;
             if (config.noHurtCam) enabled++;
             if (config.noXpOrbs) enabled++;
-            boolean newValue = enabled <= 8;
+            if (config.hideClouds) enabled++;
+            if (config.noEnchantGlint) enabled++;
+            if (config.noViewBobbing) enabled++;
+            if (config.hideArmorBar) enabled++;
+            if (config.hideHungerBar) enabled++;
+            boolean newValue = enabled <= total / 2;
             config.noFire = newValue;
             config.noWaterOverlay = newValue;
             config.noVignette = newValue;
@@ -549,6 +582,11 @@ public class MapConfigScreen extends Screen {
             config.noFog = newValue;
             config.noHurtCam = newValue;
             config.noXpOrbs = newValue;
+            config.hideClouds = newValue;
+            config.noEnchantGlint = newValue;
+            config.noViewBobbing = newValue;
+            config.hideArmorBar = newValue;
+            config.hideHungerBar = newValue;
             TeslaMapsConfig.save();
         }));
         hide.add(new LabelEntry(contentX, "World & Weather"));
@@ -573,25 +611,35 @@ public class MapConfigScreen extends Screen {
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Vignette", () -> config.noVignette, v -> config.noVignette = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Blindness", () -> config.noBlind, v -> config.noBlind = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Nausea", () -> config.noNausea, v -> config.noNausea = v));
-        hide.add(new ToggleEntry(contentX, contentWidth, "Hide Enchant Glint", () -> config.noEnchantGlint, v -> config.noEnchantGlint = v));
         hide.add(new LabelEntry(contentX, "Interface"));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Inventory Effects", () -> config.hideInventoryEffects, v -> config.hideInventoryEffects = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Effects (HUD)", () -> config.noEffects, v -> config.noEffects = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "Hide Enchant Glint", () -> config.noEnchantGlint, v -> config.noEnchantGlint = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "Hide Armor Bar", () -> config.hideArmorBar, v -> config.hideArmorBar = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "Hide Hunger Bar", () -> config.hideHungerBar, v -> config.hideHungerBar = v));
         hide.add(new LabelEntry(contentX, "Camera"));
         hide.add(new ToggleEntry(contentX, contentWidth, "No Hurt Camera", () -> config.noHurtCam, v -> config.noHurtCam = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "No View Bobbing", () -> config.noViewBobbing, v -> config.noViewBobbing = v));
         categories.put("Hide", hide);
 
         List<SettingsEntry> slayer = new ArrayList<>();
-        slayer.add(new InfoEntry(contentX, "Slayer kills/bosses live in the Tracker HUD under General"));
+        slayer.add(new LabelEntry(contentX, "Slayer"));
+        slayer.add(new InfoEntry(contentX, "Slayer kills/bosses live in the Tracker HUD under Skills"));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Only Own Boss", () -> config.slayerOnlyOwnBoss, v -> config.slayerOnlyOwnBoss = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Boss ESP", () -> config.slayerBossESP, v -> config.slayerBossESP = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Miniboss ESP", () -> config.slayerMinibossESP, v -> config.slayerMinibossESP = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Miniboss Tracers", () -> config.slayerMinibossTracer, v -> config.slayerMinibossTracer = v));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Alerts (Miniboss/Cocoon/Boss)", () -> config.slayerAlerts, v -> config.slayerAlerts = v));
+        slayer.add(new LabelEntry(contentX, "Bestiary"));
+        slayer.add(new ToggleEntry(contentX, contentWidth, "Bestiary HUD (kills/h and tier ETA)", () -> config.bestiaryTracker, v -> config.bestiaryTracker = v));
+        slayer.add(new InfoEntry(contentX, "Reads the Bestiary block in the tab list"));
+        slayer.add(new InfoEntry(contentX, "/tmap be add|remove <mob>, /tmap be clear"));
+        slayer.add(new InfoEntry(contentX, "Shows nothing until a mob was added"));
+        slayer.add(new InfoEntry(contentX, "Kills to max ship with the mod, the Bestiary menu corrects them"));
         categories.put("Combat", slayer);
 
         List<SettingsEntry> skills = new ArrayList<>();
+        skills.add(new LabelEntry(contentX, "Skill Tracker"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v));
         skills.add(new ToggleEntry(contentX, contentWidth, "Overflow Levels (menu + chat)", () -> config.skillOverflow, v -> config.skillOverflow = v));
         skills.add(new ToggleEntry(contentX, contentWidth, "Overflow Skill Avg. (menu tooltip)", () -> config.skillAvgOverflow, v -> config.skillAvgOverflow = v));
@@ -634,7 +682,7 @@ public class MapConfigScreen extends Screen {
                 () -> config.fixDoubleClicks, v -> config.fixDoubleClicks = v));
         skills.add(new InfoEntry(contentX, "Hypixel fires blaze daggers and autopet rods twice on blocks"));
 
-        categories.put("General", skills);
+        categories.put("Skills", skills);
 
         List<SettingsEntry> fishing = new ArrayList<>();
         fishing.add(new LabelEntry(contentX, "Hook Timer"));
@@ -706,6 +754,15 @@ public class MapConfigScreen extends Screen {
                 () -> config.umbrellaWarningSound, v -> config.umbrellaWarningSound = v));
         fishing.add(new SliderEntry(contentX, contentWidth, "  Volume", 0f, 4f,
                 () -> config.umbrellaWarningVolume, v -> config.umbrellaWarningVolume = v, 2));
+        fishing.add(new LabelEntry(contentX, "Liquids"));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "Translucent Lava",
+                () -> config.translucentLava, v -> config.translucentLava = v));
+        fishing.add(new ColorEntry(contentX, contentWidth, "  Lava Tint",
+                () -> config.colorTranslucentLava, v -> config.colorTranslucentLava = v));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "Tinted Water",
+                () -> config.tintedWater, v -> config.tintedWater = v));
+        fishing.add(new ColorEntry(contentX, contentWidth, "  Water Tint",
+                () -> config.colorTintedWater, v -> config.colorTintedWater = v));
         categories.put("Fishing", fishing);
 
         List<SettingsEntry> solvers = new ArrayList<>();
@@ -772,8 +829,6 @@ public class MapConfigScreen extends Screen {
         solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Solver", () -> config.solveBlaze, v -> config.solveBlaze = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Modern Blaze Solver", () -> config.modernBlazeSolver, v -> config.modernBlazeSolver = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v));
-        solvers.add(new ToggleEntry(contentX, contentWidth, "Mimic Dead Message", () -> config.mimicDeadMessage, v -> config.mimicDeadMessage = v));
-        solvers.add(new ToggleEntry(contentX, contentWidth, "Prince Dead Message", () -> config.princeDeadMessage, v -> config.princeDeadMessage = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v));
@@ -847,6 +902,7 @@ public class MapConfigScreen extends Screen {
 
         List<SettingsEntry> dragons = new ArrayList<>();
         dragons.add(new ToggleEntry(contentX, contentWidth, "Wither Dragons", () -> config.witherDragons, v -> config.witherDragons = v));
+        dragons.add(new LabelEntry(contentX, "Spawn Timer & Alerts"));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Dragon Spawn Timer", () -> config.witherDragonTimer, v -> config.witherDragonTimer = v));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Dragon Spawn Boxes", () -> config.witherDragonBoxes, v -> config.witherDragonBoxes = v));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Dragon Spawn Title", () -> config.witherDragonTitle, v -> config.witherDragonTitle = v));
@@ -861,6 +917,7 @@ public class MapConfigScreen extends Screen {
         dragons.add(new ToggleEntry(contentX, contentWidth, "Send Dragon Confirmation", () -> config.witherDragonConfirm, v -> config.witherDragonConfirm = v));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Send Dragon Time Alive", () -> config.witherDragonSendTime, v -> config.witherDragonSendTime = v));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Send Ice Sprayed", () -> config.witherDragonSendSpray, v -> config.witherDragonSendSpray = v));
+        dragons.add(new LabelEntry(contentX, "Priority & Splits"));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Dragon Priority (split)", () -> config.witherDragonPriority, v -> config.witherDragonPriority = v));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Priority Tracer", () -> config.witherDragonPriorityTracer, v -> config.witherDragonPriorityTracer = v));
         dragons.add(new SliderEntry(contentX, contentWidth, "Normal Power (split)", 0f, 32f,
@@ -870,13 +927,16 @@ public class MapConfigScreen extends Screen {
         dragons.add(new ToggleEntry(contentX, contentWidth, "Healer Solos Purple (off=Tank)", () -> config.witherDragonSoloDebuff == 1, v -> config.witherDragonSoloDebuff = v ? 1 : 0));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Solo Debuff on All Splits", () -> config.witherDragonSoloDebuffAll, v -> config.witherDragonSoloDebuffAll = v));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Paul Buff (×1.25 power)", () -> config.witherDragonPaulBuff, v -> config.witherDragonPaulBuff = v));
+        dragons.add(new LabelEntry(contentX, "Live Dragons"));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Dragon Boxes (live)", () -> config.dragonBoxes, v -> config.dragonBoxes = v));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Dragon Health %", () -> config.dragonHealth, v -> config.dragonHealth = v));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Hide Dying Dragons", () -> config.hideDyingDragons, v -> config.hideDyingDragons = v));
+        dragons.add(new LabelEntry(contentX, "Wither Highlight"));
         dragons.add(new ToggleEntry(contentX, contentWidth, "Wither Highlight", () -> config.witherHighlight, v -> config.witherHighlight = v));
         dragons.add(new ToggleEntry(contentX, contentWidth, "  Wither Highlight Box", () -> config.witherHighlightBox, v -> config.witherHighlightBox = v));
         dragons.add(new ColorEntry(contentX, contentWidth, "  Wither Highlight Color", () -> config.witherHighlightColor, v -> config.witherHighlightColor = v));
-        categories.put("Dragons", dragons);
+        f7.add(new LabelEntry(contentX, "Wither Dragons"));
+        f7.addAll(dragons);
 
         List<SettingsEntry> m4 = new ArrayList<>();
         m4.add(new LabelEntry(contentX, "Highlight (F4/M4)"));
@@ -924,7 +984,7 @@ public class MapConfigScreen extends Screen {
         categories.put("F4 / M4", m4);
 
         List<SettingsEntry> sounds = new ArrayList<>();
-        sounds.add(new LabelEntry(contentX, "Key"));
+        sounds.add(new LabelEntry(contentX, "Wither Key"));
         sounds.add(new ToggleEntry(contentX, contentWidth, "Enable Pickup Sound", () -> config.keyPickupSoundEnabled, v -> config.keyPickupSoundEnabled = v));
         sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Pickup Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
@@ -985,6 +1045,8 @@ public class MapConfigScreen extends Screen {
                 () -> config.customHypeSoundType, v -> config.customHypeSoundType = v));
         sounds.add(new SliderEntry(contentX, contentWidth, "Hype Sound Volume", 0f, 20f,
                 () -> config.customHypeSoundVolume, v -> config.customHypeSoundVolume = v, 1));
+        sounds.add(new SliderEntry(contentX, contentWidth, "Hype Sound Pitch", 0.5f, 2f,
+                () -> config.customHypeSoundPitch, v -> config.customHypeSoundPitch = v, 2));
         categories.put("Sounds", sounds);
 
         List<SettingsEntry> autoGFS = new ArrayList<>();
@@ -1003,6 +1065,9 @@ public class MapConfigScreen extends Screen {
         autoGFS.add(new LabelEntry(contentX, "Get From Sacks"));
         autoGFS.add(new ToggleEntry(contentX, contentWidth, "Queued GFS", () -> config.gfsQueued, v -> config.gfsQueued = v));
         autoGFS.add(new InfoEntry(contentX, "Spaces /gfs out so Hypixel stops dropping them"));
+        if (com.teslamaps.features.GetFromSacks.SKYHANNI) {
+            autoGFS.add(new InfoEntry(contentX, "§cInactive: SkyHanni handles /gfs"));
+        }
         autoGFS.add(new SliderEntry(contentX, contentWidth, "  Default Amount", 1f, 64f,
                 () -> (float) config.gfsDefaultAmount, v -> config.gfsDefaultAmount = v.intValue()));
         autoGFS.add(new KeybindEntry(contentX, contentWidth, "GFS Key (over a slot)",
@@ -1077,6 +1142,7 @@ public class MapConfigScreen extends Screen {
         categories.put("Leap", leap);
 
         List<SettingsEntry> party = new ArrayList<>();
+        party.add(new LabelEntry(contentX, "Party Chat & Alerts"));
         party.add(new ToggleEntry(contentX, contentWidth, "Party Chat Commands (!8ball etc)", () -> config.chatCommands, v -> config.chatCommands = v));
         party.add(new ToggleEntry(contentX, contentWidth, "Show PBs on Party Join (needs API key)", () -> config.pbOnJoin, v -> config.pbOnJoin = v));
         party.add(new ToggleEntry(contentX, contentWidth, "Party Duplicate Alert", () -> config.partyDuplicateAlert, v -> config.partyDuplicateAlert = v));
@@ -1093,6 +1159,8 @@ public class MapConfigScreen extends Screen {
         score.add(new LabelEntry(contentX, "Score Announce"));
         score.add(new ToggleEntry(contentX, contentWidth, "Announce 300 (/pc)", () -> config.announce300, v -> config.announce300 = v));
         score.add(new ToggleEntry(contentX, contentWidth, "Announce 270 (/pc)", () -> config.announce270, v -> config.announce270 = v));
+        score.add(new ToggleEntry(contentX, contentWidth, "Mimic Dead Message", () -> config.mimicDeadMessage, v -> config.mimicDeadMessage = v));
+        score.add(new ToggleEntry(contentX, contentWidth, "Prince Dead Message", () -> config.princeDeadMessage, v -> config.princeDeadMessage = v));
         score.add(new ToggleEntry(contentX, contentWidth, "Crypt Reminder (<5 at boss)", () -> config.cryptReminder, v -> config.cryptReminder = v));
         score.add(new SoundDropdownEntry(contentX, contentWidth, "  Crypt Reminder Sound",
                 com.teslamaps.utils.SoundOptions.keys(), () -> config.cryptReminderSound, v -> config.cryptReminderSound = v));
@@ -1104,6 +1172,7 @@ public class MapConfigScreen extends Screen {
         score.add(new ToggleEntry(contentX, contentWidth, "Live Room Splits HUD", () -> config.roomSplits, v -> config.roomSplits = v));
         score.add(new SliderEntry(contentX, contentWidth, "  Room Splits Scale", 0.5f, 2.0f,
                 () -> config.roomSplitsScale, v -> config.roomSplitsScale = v, 1));
+        score.add(new LabelEntry(contentX, "Alerts & Stats"));
         score.add(new ToggleEntry(contentX, contentWidth, "Insta-Clear Alert", () -> config.instaClearAlert, v -> config.instaClearAlert = v));
         score.add(new ToggleEntry(contentX, contentWidth, "Trinity Alert", () -> config.rareRoomAlert, v -> config.rareRoomAlert = v));
         score.add(new SliderEntry(contentX, contentWidth, "  Alert Volume", 0.0f, 5.0f,
@@ -1207,6 +1276,56 @@ public class MapConfigScreen extends Screen {
         waypoints.addAll(waypointsCat);
         categories.put("Secrets & Waypoints", waypoints);
 
+        List<SettingsEntry> ordered = new ArrayList<>();
+        ordered.add(new InfoEntry(contentX, "Routes outside dungeons - Coleweight / Skytils format"));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Render Route",
+                () -> config.orderedWaypoints, v -> config.orderedWaypoints = v));
+        ordered.add(new ButtonEntry(contentX, contentWidth, "Manage Routes",
+                () -> Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(new WaypointRoutesScreen()))));
+        ordered.add(new ButtonEntry(contentX, contentWidth, "Import From Clipboard",
+                () -> orderedFeedback(com.teslamaps.features.waypoints.OrderedWaypoints.importClipboard())));
+        ordered.add(new ButtonEntry(contentX, contentWidth, "Unload Route",
+                () -> orderedFeedback(com.teslamaps.features.waypoints.OrderedWaypoints.unload())));
+        ordered.add(new InfoEntry(contentX, "/tmap waypoints for the GUI, /tmap route ... for commands"));
+
+        ordered.add(new LabelEntry(contentX, "Display"));
+        ordered.add(new ColorEntry(contentX, contentWidth, "Current Color", () -> config.orderedColorCurrent, v -> config.orderedColorCurrent = v));
+        ordered.add(new ColorEntry(contentX, contentWidth, "Previous Color", () -> config.orderedColorPrevious, v -> config.orderedColorPrevious = v));
+        ordered.add(new ColorEntry(contentX, contentWidth, "Next Color", () -> config.orderedColorNext, v -> config.orderedColorNext = v));
+        ordered.add(new SliderEntry(contentX, contentWidth, "Next Waypoints", 1f, 5f,
+                () -> (float) config.orderedNextCount, v -> config.orderedNextCount = Math.round(v)));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Filled Boxes", () -> config.orderedFillBlock, v -> config.orderedFillBlock = v));
+        ordered.add(new SliderEntry(contentX, contentWidth, "Outline Thickness", 1f, 10f,
+                () -> config.orderedOutlineThickness, v -> config.orderedOutlineThickness = v));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Show Number", () -> config.orderedShowName, v -> config.orderedShowName = v));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Show Distance", () -> config.orderedShowDistance, v -> config.orderedShowDistance = v));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Show All Waypoints", () -> config.orderedShowAll, v -> config.orderedShowAll = v));
+        ordered.add(new ColorEntry(contentX, contentWidth, "  All Color", () -> config.orderedColorAll, v -> config.orderedColorAll = v));
+
+        ordered.add(new LabelEntry(contentX, "Trace Line"));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Trace Line", () -> config.orderedTraceLine, v -> config.orderedTraceLine = v));
+        ordered.add(new ColorEntry(contentX, contentWidth, "  Trace Line Color", () -> config.orderedColorTraceLine, v -> config.orderedColorTraceLine = v));
+
+        ordered.add(new LabelEntry(contentX, "Progression"));
+        ordered.add(new SliderEntry(contentX, contentWidth, "Waypoint Range", 1f, 10f,
+                () -> config.orderedWaypointRange, v -> config.orderedWaypointRange = v, 1));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Auto-Skip Forward", () -> config.orderedAutoSkipForward, v -> config.orderedAutoSkipForward = v));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Unload On World Change", () -> config.orderedAutoUnload, v -> config.orderedAutoUnload = v));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Auto-Load Route Named Like Area", () -> config.orderedAutoLoadByArea, v -> config.orderedAutoLoadByArea = v));
+        ordered.add(new InfoEntry(contentX, "Save a route as e.g. \"Crystal Hollows\" to load it there"));
+
+        ordered.add(new LabelEntry(contentX, "Setup Mode"));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Setup Mode", () -> config.orderedSetupMode, v -> config.orderedSetupMode = v));
+        ordered.add(new InfoEntry(contentX, "Shows nearby waypoints + the line between them"));
+        ordered.add(new ColorEntry(contentX, contentWidth, "  Setup Waypoint Color", () -> config.orderedColorSetup, v -> config.orderedColorSetup = v));
+        ordered.add(new ColorEntry(contentX, contentWidth, "  Setup Line Color", () -> config.orderedColorSetupLine, v -> config.orderedColorSetupLine = v));
+        ordered.add(new SliderEntry(contentX, contentWidth, "  Setup Range", 1f, 100f,
+                () -> config.orderedSetupRange, v -> config.orderedSetupRange = v));
+        ordered.add(new SliderEntry(contentX, contentWidth, "  Setup Line Thickness", 1f, 10f,
+                () -> config.orderedSetupLineThickness, v -> config.orderedSetupLineThickness = v));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "  Sneaking During Route", () -> config.orderedSneaking, v -> config.orderedSneaking = v));
+        categories.put("Ordered Waypoints", ordered);
+
         List<SettingsEntry> croesus = new ArrayList<>();
         croesus.add(new ToggleEntry(contentX, contentWidth, "Croesus Profit Overlay", () -> config.croesusProfitOverlay, v -> config.croesusProfitOverlay = v));
         croesus.add(new ToggleEntry(contentX, contentWidth, "Highlight Most Profitable", () -> config.croesusHighlightBest, v -> config.croesusHighlightBest = v));
@@ -1230,12 +1349,34 @@ public class MapConfigScreen extends Screen {
         inventory.add(new ToggleEntry(contentX, contentWidth, "Own Nametag (3rd person)", () -> config.ownNameTag, v -> config.ownNameTag = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Searchbar (type to search)", () -> config.searchbar, v -> config.searchbar = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Backpack/Ender Preview", () -> config.backpackPreview, v -> config.backpackPreview = v));
+        inventory.add(new LabelEntry(contentX, "Item Search"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v));
+        inventory.add(new InfoEntry(contentX, "/tmap search finds items in museum, sacks, vault, chests, storage"));
+        inventory.add(new KeybindEntry(contentX, contentWidth, "  Open Item Search", () -> config.itemSearchKey, v -> config.itemSearchKey = v));
+        inventory.add(new ButtonEntry(contentX, contentWidth, "Open Item Search",
+                () -> minecraft.setScreen(new ItemSearchScreen(null))));
+        inventory.add(new ButtonEntry(contentX, contentWidth, "Clear Item Index",
+                com.teslamaps.features.ItemIndex::clear));
         inventory.add(new LabelEntry(contentX, "Auction Price Input"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Auction Price Input", () -> config.auctionPriceInput, v -> config.auctionPriceInput = v));
-        inventory.add(new DropdownEntry(contentX, contentWidth, "  Default Mode",
+        inventory.add(new DropdownEntry(contentX, contentWidth, "  Mode",
                 new String[]{"Normal", "Undercut"}, () -> config.auctionDefaultMode, v -> config.auctionDefaultMode = v));
-        inventory.add(new ToggleEntry(contentX, contentWidth, "  Remember Text", () -> config.auctionRememberText, v -> config.auctionRememberText = v));
-        inventory.add(new ToggleEntry(contentX, contentWidth, "  Remember Mode", () -> config.auctionRememberMode, v -> config.auctionRememberMode = v));
+        inventory.add(new LabelEntry(contentX, "Auction Price Comparison"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Highlight Value Deals", () -> config.auctionPriceCompare, v -> config.auctionPriceCompare = v));
+        inventory.add(new InfoEntry(contentX, "Green when it sells below the estimated item value, red above"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "  Only Good Deals", () -> config.auctionCompareOnlyGood, v -> config.auctionCompareOnlyGood = v));
+        inventory.add(new SliderEntry(contentX, contentWidth, "  Threshold (%)", 1f, 50f,
+                () -> config.auctionCompareThreshold, v -> config.auctionCompareThreshold = v, 0));
+        inventory.add(new SliderEntry(contentX, contentWidth, "  Opacity", 0.05f, 1f,
+                () -> config.auctionCompareOpacity, v -> config.auctionCompareOpacity = v, 2));
+        inventory.add(new LabelEntry(contentX, "Auction / Bazaar Search"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Custom Search Input", () -> config.searchOverlay, v -> config.searchOverlay = v));
+        inventory.add(new InfoEntry(contentX, "Textbox with item name suggestions instead of the search sign"));
+        inventory.add(new SliderEntry(contentX, contentWidth, "  Suggestions", 0f, 12f,
+                () -> (float) config.searchOverlaySuggestions, v -> config.searchOverlaySuggestions = Math.round(v)));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "  Keep Previous Text", () -> config.searchOverlayKeepText, v -> config.searchOverlayKeepText = v));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "  Recent Searches", () -> config.searchOverlayHistory, v -> config.searchOverlayHistory = v));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Middle Click Copies Item Name", () -> config.middleClickCopyName, v -> config.middleClickCopyName = v));
         inventory.add(new LabelEntry(contentX, "Storage Overlay"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Custom Storage Overlay", () -> config.customStorageOverlay, v -> config.customStorageOverlay = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "  Show Page Names", () -> config.storageShowNames, v -> config.storageShowNames = v));
@@ -1279,6 +1420,7 @@ public class MapConfigScreen extends Screen {
                 com.teslamaps.features.RarityBackground.STYLES, () -> config.rarityBgStyle, v -> config.rarityBgStyle = v));
         inventory.add(new LabelEntry(contentX, "Bazaar & Progress"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Progress Highlight", () -> config.progressHighlight, v -> config.progressHighlight = v));
         inventory.add(new ColorEntry(contentX, contentWidth, "  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v));
@@ -1334,9 +1476,15 @@ public class MapConfigScreen extends Screen {
         List<SettingsEntry> tooltips = new ArrayList<>();
         tooltips.add(new LabelEntry(contentX, "Tooltips"));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Scrollable Tooltip", () -> config.scrollableTooltip, v -> config.scrollableTooltip = v));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Compactor/Deletor Preview", () -> config.compactorPreview, v -> config.compactorPreview = v));
+        tooltips.add(new InfoEntry(contentX, "Tooltip shows on/off status and configured items"));
         tooltips.add(new LabelEntry(contentX, "Item Value"));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Estimated Item Value", () -> config.estimatedValue, v -> config.estimatedValue = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Value Breakdown Panel (hover)", () -> config.itemValueGui, v -> config.itemValueGui = v));
+        tooltips.add(new SliderEntry(contentX, contentWidth, "  Panel Scale", 0.5f, 2.0f,
+                () -> config.itemValueScale, v -> config.itemValueScale = v, 2));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "  Free Position", () -> config.itemValueFixedPos, v -> config.itemValueFixedPos = v));
+        tooltips.add(new InfoEntry(contentX, "Drag it in /tmap gui instead of pinning it to the container"));
         tooltips.add(new SliderEntry(contentX, contentWidth, "Hover Delay (ms)", 0f, 2000f,
                 () -> (float) config.itemValueHoverDelay, v -> config.itemValueHoverDelay = Math.round(v / 50f) * 50));
         tooltips.add(new SliderEntry(contentX, contentWidth, "Enchantments Cap", 1f, 30f,
@@ -1364,6 +1512,7 @@ public class MapConfigScreen extends Screen {
         tooltips.add(new SliderEntry(contentX, contentWidth, "  Chroma Saturation", 0f, 1f,
                 () -> config.chromaSaturation, v -> config.chromaSaturation = v, 2));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "  Chroma Slant Forward", () -> config.chromaForward, v -> config.chromaForward = v));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "  Chroma Bold", () -> config.enchantChromaBold, v -> config.enchantChromaBold = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Bold Max Level", () -> config.enchantBoldMax, v -> config.enchantBoldMax = v));
         tooltips.add(new ColorEntry(contentX, contentWidth, "Max Level Color", () -> config.enchantColorMax, v -> config.enchantColorMax = v));
         tooltips.add(new ColorEntry(contentX, contentWidth, "High Level Color", () -> config.enchantColorHigh, v -> config.enchantColorHigh = v));
@@ -1380,6 +1529,11 @@ public class MapConfigScreen extends Screen {
         chatFilter.add(new SliderEntry(contentX, contentWidth, "Stack Window (min)", 1f, 30f,
                 () -> (float) config.chatStackWindowMinutes, v -> config.chatStackWindowMinutes = Math.round(v)));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Right-Click Copy Chat", () -> config.chatCopyEnabled, v -> config.chatCopyEnabled = v));
+        chatFilter.add(new SliderEntry(contentX, contentWidth, "Hotkey Delay After Chat (ms)", 0f, 1000f,
+                () -> (float) config.hotkeyChatDelay, v -> config.hotkeyChatDelay = Math.round(v)));
+        chatFilter.add(new ToggleEntry(contentX, contentWidth, "Gradient [TeslaMaps] Prefix", () -> config.chromaPrefix, v -> config.chromaPrefix = v));
+        chatFilter.add(new ColorEntry(contentX, contentWidth, "Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v));
+        chatFilter.add(new ColorEntry(contentX, contentWidth, "Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v));
         chatFilter.add(new LabelEntry(contentX, "Filter"));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Enable Chat Filter", () -> config.chatFilterEnabled, v -> config.chatFilterEnabled = v));
         chatFilter.add(new ButtonEntry(contentX, contentWidth, "Toggle All Filters", () -> {
@@ -1451,8 +1605,6 @@ public class MapConfigScreen extends Screen {
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Hide Watchdog Announcements", () -> config.chatFilterWatchdog, v -> config.chatFilterWatchdog = v));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Hide Mort Messages", () -> config.chatFilterMort, v -> config.chatFilterMort = v));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Hide Milestones", () -> config.chatFilterMilestone, v -> config.chatFilterMilestone = v));
-        chatFilter.add(new SliderEntry(contentX, contentWidth, "Hotkey Delay After Chat (ms)", 0f, 1000f,
-                () -> (float) config.hotkeyChatDelay, v -> config.hotkeyChatDelay = Math.round(v)));
         chatFilter.add(new LabelEntry(contentX, "Command Suggestions"));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Suggest /warp and /call targets", () -> config.commandSuggestions, v -> config.commandSuggestions = v));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "  Suggest Players (/msg, /visit, ...)", () -> config.commandSuggestionsPlayers, v -> config.commandSuggestionsPlayers = v));
@@ -1462,6 +1614,7 @@ public class MapConfigScreen extends Screen {
         categories.put("Chat", chatFilter);
 
         List<SettingsEntry> mining = new ArrayList<>();
+        mining.add(new LabelEntry(contentX, "Crystal Hollows Scanner"));
         mining.add(new ToggleEntry(contentX, contentWidth, "Crystal Hollows Scanner", () -> config.chScanner, v -> config.chScanner = v));
         mining.add(new InfoEntry(contentX, "Scans loaded chunks, boxes + chat alert"));
         mining.add(new LabelEntry(contentX, "Structures"));
@@ -1485,6 +1638,12 @@ public class MapConfigScreen extends Screen {
                 () -> config.gardenPlotsOverlay, v -> config.gardenPlotsOverlay = v));
         garden.add(new ToggleEntry(contentX, contentWidth, "Close Inventory On Teleport",
                 () -> config.gardenPlotsCloseOnClick, v -> config.gardenPlotsCloseOnClick = v));
+        garden.add(new LabelEntry(contentX, "Visitors"));
+        garden.add(new ToggleEntry(contentX, contentWidth, "Charmed Visitor List",
+                () -> config.charmedVisitorList, v -> config.charmedVisitorList = v));
+        garden.add(new InfoEntry(contentX, "Visitors charmed with the Gift Vinyl Set, click a name to drop it"));
+        garden.add(new ButtonEntry(contentX, contentWidth, "Clear Charmed List",
+                () -> com.teslamaps.features.CharmedVisitors.clear()));
         garden.add(new LabelEntry(contentX, "Pests"));
         garden.add(new ToggleEntry(contentX, contentWidth, "Pest ESP",
                 () -> config.pestESP, v -> config.pestESP = v));
@@ -1589,6 +1748,36 @@ public class MapConfigScreen extends Screen {
                 () -> config.pestRoutineHud, v -> config.pestRoutineHud = v));
         garden.add(new SliderEntry(contentX, contentWidth, "Warp Delay", 0.0f, 5.0f,
                 () -> config.pestWarpDelay, v -> config.pestWarpDelay = v, 1));
+        garden.add(new LabelEntry(contentX, "Greenhouse Planner"));
+        garden.add(new ToggleEntry(contentX, contentWidth, "Layout Ghost",
+                () -> config.greenhousePlanner, v -> config.greenhousePlanner = v));
+        garden.add(new InfoEntry(contentX, "Only active in the Garden · paste a code with /tmap greenhouse <code>"));
+        garden.add(new DropdownEntry(contentX, contentWidth, "  Phase",
+                new String[]{"Auto", "Floor", "Plants"},
+                () -> com.teslamaps.features.GreenhousePlanner.phaseName(config.greenhousePhase),
+                v -> config.greenhousePhase = "Floor".equals(v) ? 1 : "Plants".equals(v) ? 2 : 0));
+        garden.add(new InfoEntry(contentX, "Auto shows the floor blocks first, plants once the floor is right"));
+        garden.add(new ToggleEntry(contentX, contentWidth, "  Plant Names",
+                () -> config.greenhouseLabels, v -> config.greenhouseLabels = v));
+        garden.add(new ToggleEntry(contentX, contentWidth, "  Hide Placed Cells",
+                () -> config.greenhouseHideDone, v -> config.greenhouseHideDone = v));
+        garden.add(new ToggleEntry(contentX, contentWidth, "  Through Walls",
+                () -> config.greenhouseThroughWalls, v -> config.greenhouseThroughWalls = v));
+        garden.add(new SliderEntry(contentX, contentWidth, "  Ghost Opacity", 0.05f, 1f,
+                () -> config.greenhouseAlpha, v -> config.greenhouseAlpha = v, 2));
+        garden.add(new SliderEntry(contentX, contentWidth, "  Rotation (x90°)", 0f, 3f,
+                () -> (float) config.greenhouseRotation, v -> config.greenhouseRotation = Math.round(v), 0));
+        garden.add(new ToggleEntry(contentX, contentWidth, "  Mirror",
+                () -> config.greenhouseMirror, v -> config.greenhouseMirror = v));
+        garden.add(new ButtonEntry(contentX, contentWidth, "Paste Code From Clipboard", () -> {
+            String err = com.teslamaps.features.GreenhousePlanner.load(
+                    net.minecraft.client.Minecraft.getInstance().keyboardHandler.getClipboard());
+            com.teslamaps.features.GreenhousePlanner.rescan();
+            net.minecraft.client.Minecraft.getInstance().player.sendSystemMessage(
+                    net.minecraft.network.chat.Component.literal(err == null
+                            ? "§b[TeslaMaps] §fLayout loaded · " + com.teslamaps.features.GreenhousePlanner.status()
+                            : "§b[TeslaMaps] §c" + err));
+        }));
         categories.put("Garden", garden);
 
         List<SettingsEntry> foraging = new ArrayList<>();
@@ -1662,12 +1851,15 @@ public class MapConfigScreen extends Screen {
         foraging.add(new ToggleEntry(contentX, contentWidth, "  Foraging Islands Only",
                 () -> config.hotfPerkDisplayForagingOnly, v -> config.hotfPerkDisplayForagingOnly = v));
         foraging.add(new InfoEntry(contentX, "Position and scale in /tmap gui"));
+
         categories.put("Foraging", foraging);
 
         List<SettingsEntry> torrhus = new ArrayList<>();
+        torrhus.add(new LabelEntry(contentX, "Critter ESP"));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Critter ESP", () -> config.critterESP, v -> config.critterESP = v));
         torrhus.add(new InfoEntry(contentX, "Only active in Area: " + com.teslamaps.features.CritterESP.AREA));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Filled Boxes", () -> config.critterFilled, v -> config.critterFilled = v));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Tracers To All Critters", () -> config.critterTracers, v -> config.critterTracers = v));
         torrhus.add(new LabelEntry(contentX, "Tiki (3 stacked heads)"));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Tiki ESP", () -> config.tikiESP, v -> config.tikiESP = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Show Name", () -> config.tikiESPName, v -> config.tikiESPName = v));
@@ -1681,7 +1873,6 @@ public class MapConfigScreen extends Screen {
         torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterBunbun, v -> config.colorCritterBunbun = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Drybark ESP", () -> config.critterDrybark, v -> config.critterDrybark = v));
         torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterDrybark, v -> config.colorCritterDrybark = v));
-        torrhus.add(new ToggleEntry(contentX, contentWidth, "Tracers To All Critters", () -> config.critterTracers, v -> config.critterTracers = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Firefox ESP", () -> config.critterFirefox, v -> config.critterFirefox = v));
         torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterFirefox, v -> config.colorCritterFirefox = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Grizzly Bear ESP", () -> config.critterGrizzly, v -> config.critterGrizzly = v));
@@ -1715,9 +1906,13 @@ public class MapConfigScreen extends Screen {
         safari.add(new LabelEntry(contentX, "Alerts"));
         safari.add(new ToggleEntry(contentX, contentWidth, "Sparkling Alert", () -> config.safariSparklingAlert, v -> config.safariSparklingAlert = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Sparkling to Party Chat", () -> config.safariSparklingParty, v -> config.safariSparklingParty = v));
+        safari.add(new ToggleEntry(contentX, contentWidth, "Force Sparkle Particles", () -> config.safariSparkleForce, v -> config.safariSparkleForce = v));
+        safari.add(new InfoEntry(contentX, "Sparkles render at any distance and particle setting"));
         safari.add(new ToggleEntry(contentX, contentWidth, "Announce Biome Done", () -> config.safariAnnounceBiomeDone, v -> config.safariAnnounceBiomeDone = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Announce Unique Done", () -> config.safariAnnounceUniqueDone, v -> config.safariAnnounceUniqueDone = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "  Share Time To Party", () -> config.safariShareTimeParty, v -> config.safariShareTimeParty = v));
+        safari.add(new ToggleEntry(contentX, contentWidth, "Warn If Not Full", () -> config.safariWarnNotFull, v -> config.safariWarnNotFull = v));
+        safari.add(new InfoEntry(contentX, "Screen warning + sound when fewer than 4 players are in"));
         safari.add(new SliderEntry(contentX, contentWidth, "Alert Volume", 0.0f, 3.0f,
                 () -> config.safariAlertVolume, v -> config.safariAlertVolume = v));
         safari.add(new LabelEntry(contentX, "Quality of Life"));
@@ -1746,6 +1941,31 @@ public class MapConfigScreen extends Screen {
         safari.add(new InfoEntry(contentX, "Hideyho and legendaries always get a name label"));
         safari.add(new InfoEntry(contentX, "Critter boxes are coloured by shard rarity"));
         categories.put("Critter Safari", safari);
+
+        List<SettingsEntry> shards = new ArrayList<>();
+        shards.add(new LabelEntry(contentX, "Hunting Box"));
+        shards.add(new ToggleEntry(contentX, contentWidth, "Hunting Box Value", () -> config.huntingBoxValue, v -> config.huntingBoxValue = v));
+        shards.add(new InfoEntry(contentX, "Bazaar value of every shard in the box, most valuable first"));
+        shards.add(new LabelEntry(contentX, "Shard Overlay"));
+        shards.add(new ToggleEntry(contentX, contentWidth, "Shard Overlay", () -> config.shardOverlay, v -> config.shardOverlay = v));
+        shards.add(new InfoEntry(contentX, "Shows in /attributemenu and the bazaar shard pages"));
+        shards.add(new DropdownEntry(contentX, contentWidth, "Sort By",
+                com.teslamaps.features.hunting.ShardOverlay.SORTS,
+                () -> config.shardSort, v -> config.shardSort = v));
+        shards.add(new DropdownEntry(contentX, contentWidth, "Price Source",
+                com.teslamaps.features.hunting.ShardOverlay.PRICE_SOURCES,
+                () -> config.shardPriceSource, v -> config.shardPriceSource = v));
+        shards.add(new ToggleEntry(contentX, contentWidth, "Hide Maxed", () -> config.shardHideMaxed, v -> config.shardHideMaxed = v));
+        shards.add(new ToggleEntry(contentX, contentWidth, "Only Not Unlocked", () -> config.shardOnlyMissing, v -> config.shardOnlyMissing = v));
+        shards.add(new ToggleEntry(contentX, contentWidth, "Count Hunting Box", () -> config.shardIncludeBox, v -> config.shardIncludeBox = v));
+        shards.add(new ToggleEntry(contentX, contentWidth, "Count Bazaar Orders", () -> config.shardIncludeOrders, v -> config.shardIncludeOrders = v));
+        shards.add(new InfoEntry(contentX, "Open your bazaar orders once so they are known"));
+        shards.add(new ToggleEntry(contentX, contentWidth, "Tier As Stack Size", () -> config.shardTierStack, v -> config.shardTierStack = v));
+        shards.add(new ToggleEntry(contentX, contentWidth, "Highlight Disabled Attributes", () -> config.shardHighlightDisabled, v -> config.shardHighlightDisabled = v));
+        shards.add(new InfoEntry(contentX, "Click a row to look the shard up on the bazaar"));
+        shards.add(new ButtonEntry(contentX, contentWidth, "Reset Hunting Box Data",
+                com.teslamaps.features.hunting.ShardData::resetBox));
+        categories.put("Shards", shards);
 
         List<SettingsEntry> profiles = new ArrayList<>();
         profiles.add(new InfoEntry(contentX, "Click a profile to switch - the current one is saved first"));
@@ -1809,15 +2029,16 @@ public class MapConfigScreen extends Screen {
         addSectionMasters(contentX, contentWidth);
 
         sections.clear();
-        sections.put("Profile", List.of("Profiles"));
-        sections.put("Dungeon", List.of("Legit Mode", "Map", "ESP", "Secrets & Waypoints", "Leap",
-                "Puzzles & Terminals", "Score & Splits", "Timers"));
-        sections.put("Bosses", List.of("F4 / M4", "F7 / M7", "Blood Camp", "Dragons"));
-        sections.put("Visual", List.of("Interface", "Render", "Hide", "Menu & Skybox"));
-        sections.put("Items", List.of("Inventory", "Tooltips & Value", "Croesus", "Screenshots"));
-        sections.put("Chat & Audio", List.of("Chat", "Sounds"));
+        sections.put("General", List.of("Profiles", "Interface", "Legit Mode"));
+        sections.put("Dungeon", List.of("Map", "ESP", "Secrets & Waypoints", "Leap",
+                "Puzzles & Terminals", "Score & Splits", "Timers", "Croesus"));
+        sections.put("Bosses", List.of("Blood Camp", "F4 / M4", "F7 / M7"));
+        sections.put("Visual", List.of("Render", "Hide", "Menu & Skybox"));
+        sections.put("Items", List.of("Inventory", "Tooltips & Value"));
+        sections.put("Chat & Media", List.of("Chat", "Sounds", "Screenshots"));
         sections.put("Party & Automation", List.of("Party", "Auto"));
-        sections.put("Skills", List.of("General", "Combat", "Garden", "Mining", "Fishing", "Foraging", "Torrhus Canyon", "Critter Safari"));
+        sections.put("Skyblock", List.of("Skills", "Combat", "Garden", "Mining", "Fishing", "Foraging",
+                "Torrhus Canyon", "Critter Safari", "Shards", "Ordered Waypoints"));
 
         categoryHeaders.clear();
         for (String cat : categories.keySet()) categoryHeaders.put(cat, new LabelEntry(contentX, cat));
@@ -1840,6 +2061,11 @@ public class MapConfigScreen extends Screen {
                 if (e instanceof ToggleEntry te && cheatLabels.contains(te.getLabel().trim())) te.legit();
             }
         }
+    }
+
+    private static void orderedFeedback(String message) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §r" + message));
     }
 
     /**
@@ -1922,6 +2148,25 @@ public class MapConfigScreen extends Screen {
         sidebarScroll = Math.max(0, Math.min(max, wanted));
     }
 
+    /** Puts the thumb center under the cursor, so grabbing it does not jump. */
+    protected void dragScrollbar(double my) {
+        int contentTop = 50, trackH = this.height - 40 - contentTop;
+        int thumbH = Math.max(20, (int) ((float) trackH * trackH / (maxScroll + trackH)));
+        int travel = trackH - thumbH;
+        if (travel <= 0) return;
+        double t = (my - contentTop - thumbH / 2.0) / travel;
+        scrollOffset = (int) Math.round(Math.max(0, Math.min(1, t)) * maxScroll);
+    }
+
+    protected void dragSidebarScrollbar(double my) {
+        int trackH = sidebarBottom() - SIDEBAR_TOP;
+        int thumbH = Math.max(20, (int) ((float) trackH * trackH / (sidebarMaxScroll + trackH)));
+        int travel = trackH - thumbH;
+        if (travel <= 0) return;
+        double t = (my - SIDEBAR_TOP - thumbH / 2.0) / travel;
+        sidebarScroll = (int) Math.round(Math.max(0, Math.min(1, t)) * sidebarMaxScroll);
+    }
+
     protected String categoryAtY(int my) {
         int rowY = SIDEBAR_TOP - sidebarScroll;
         for (Map.Entry<String, List<String>> sec : sections.entrySet()) {
@@ -1988,6 +2233,28 @@ public class MapConfigScreen extends Screen {
         boolean isRightDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
         boolean rightClicked = isRightDown && !wasRightDown;
         wasRightDown = isRightDown; // early, the block below has several return paths
+
+        // scrollbar drag — thumbs are 4/2 px wide but get a wider grab zone, otherwise unhittable.
+        // mouseDragged does not reach us reliably, so a held thumb is followed per frame instead.
+        if (!isMouseDown) { draggingScrollbar = false; draggingSidebarScrollbar = false; }
+        if (draggingScrollbar) {
+            dragScrollbar(mouseY);
+        } else if (draggingSidebarScrollbar) {
+            dragSidebarScrollbar(mouseY);
+        } else if (clicked) {
+            if (maxScroll > 0 && mouseX >= this.width - 12 && mouseY >= 50 && mouseY < this.height - 40) {
+                draggingScrollbar = true;
+                dragScrollbar(mouseY);
+            } else if (sidebarMaxScroll > 0 && mouseX >= SIDEBAR_WIDTH - 7 && mouseX < SIDEBAR_WIDTH
+                    && mouseY >= SIDEBAR_TOP && mouseY < sidebarBottom()) {
+                draggingSidebarScrollbar = true;
+                dragSidebarScrollbar(mouseY);
+            }
+        }
+        if (draggingScrollbar || draggingSidebarScrollbar) {
+            clicked = false;
+            isMouseDown = false; // sliders must not react while the thumb is held
+        }
 
         if (clicked && mouseX < SIDEBAR_WIDTH && mouseY >= SIDEBAR_TOP && mouseY < sidebarBottom()) {
             String hit = categoryAtY(mouseY);

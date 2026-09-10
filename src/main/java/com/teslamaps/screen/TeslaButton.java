@@ -1,6 +1,5 @@
 package com.teslamaps.screen;
 
-import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.render.gui.TeslaGui;
 import com.teslamaps.utils.AnimClock;
 import net.minecraft.client.Minecraft;
@@ -26,7 +25,8 @@ public class TeslaButton extends AbstractWidget {
         boolean hovered = isHoveredOrFocused();
         hover += ((hovered ? 1.0f : 0.0f) - hover) * AnimClock.lerpFactor(0.35f);
 
-        HudStyle.screenButton(ctx, getX(), getY(), getWidth(), getHeight(), hovered, active);
+        // always the glass look from the title screen - the vanilla stone box has no place here
+        TeslaGui.glassButton(ctx, getX(), getY(), getWidth(), getHeight(), hovered, active);
 
         Minecraft mc = Minecraft.getInstance();
         String label = getMessage().getString();

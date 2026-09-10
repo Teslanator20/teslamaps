@@ -50,7 +50,7 @@ public class FixDoubleClicks {
      */
     public static boolean shouldCancelUseOn() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.fixDoubleClicks || !c.section("General")) return false;
+        if (!c.fixDoubleClicks || !c.section("Skills")) return false;
         if (!SkyblockUtils.isInSkyblock()) return false;
 
         LocalPlayer player = Minecraft.getInstance().player;

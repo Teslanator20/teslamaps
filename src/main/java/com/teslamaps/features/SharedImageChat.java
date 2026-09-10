@@ -3,11 +3,11 @@ package com.teslamaps.features;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.StringUtil;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -48,13 +48,6 @@ public class SharedImageChat {
         return newestSender;
     }
 
-    /** Set while the padding lines are pushed, so the empty-line filter leaves them alone. */
-    private static boolean sendingPadding = false;
-
-    public static boolean sendingPadding() {
-        return sendingPadding;
-    }
-
     public static String urlForLine(String lineText) {
         if (lineText == null) return null;
         return LINE_TO_URL.get(StringUtil.strip(lineText).trim());
@@ -92,7 +85,6 @@ public class SharedImageChat {
         newestSender = sender;
 
         SharedImageLoader.load(url, loaded -> { }, error -> { });
-        padding(c.imageShareChatLines);
         return line;
     }
 
@@ -107,20 +99,44 @@ public class SharedImageChat {
         return out;
     }
 
-    /** Empty lines render nothing but still take a row, which is the gap the image fills. */
-    private static void padding(int lines) {
-        Minecraft mc = Minecraft.getInstance();
-        com.teslamaps.utils.TickScheduler.schedule(1, () -> {
-            if (mc.gui == null) return;
-            sendingPadding = true;
-            try {
-                for (int i = 0; i < lines; i++) {
-                    mc.gui.getChat().addClientSystemMessage(Component.empty());
-                }
-            } finally {
-                sendingPadding = false;
+    /** Draws nothing, but a line holding it still takes a row. */
+    private static final net.minecraft.util.FormattedCharSequence PAD = sink -> true;
+
+    public static boolean isPad(net.minecraft.client.multiplayer.chat.GuiMessage.Line line) {
+        return line.content() == PAD;
+    }
+
+    /**
+     * Puts the empty rows the picture is drawn into right below their message.
+     * <p>
+     * These used to be empty chat messages of their own. Chat mods that filter the chat -
+     * Polyfrost's Chatting drops whatever the active tab does not match - threw them away and
+     * the picture lost its room. Written straight into the line list they are past every filter,
+     * and re-added whenever the list is rebuilt.
+     */
+    public static void ensurePadding(net.minecraft.client.gui.components.ChatComponent chat) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.imageShareReceive) return;
+
+        List<net.minecraft.client.multiplayer.chat.GuiMessage.Line> lines =
+                ((com.teslamaps.mixin.ChatComponentAccessor) chat).teslamaps$getTrimmedMessages();
+        int gap = Math.max(1, c.imageShareChatLines);
+
+        for (int i = 0; i < lines.size(); i++) {
+            net.minecraft.client.multiplayer.chat.GuiMessage.Line line = lines.get(i);
+            if (isPad(line)) continue;
+            if (urlForLine(line.parent().content().getString()) == null) continue;
+            // only the bottom row of a wrapped message, the gap goes underneath the whole thing
+            if (i > 0 && lines.get(i - 1).parent() == line.parent() && !isPad(lines.get(i - 1))) continue;
+
+            int have = 0;
+            while (have < gap && i - 1 - have >= 0 && isPad(lines.get(i - 1 - have))) have++;
+            for (int n = have; n < gap; n++) {
+                lines.add(i, new net.minecraft.client.multiplayer.chat.GuiMessage.Line(
+                        line.parent(), PAD, true));
             }
-        });
+            i += gap - have;
+        }
     }
 
     public static boolean isBlocked(String name) {

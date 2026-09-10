@@ -9,6 +9,7 @@ import net.minecraft.network.chat.TextColor;
 public class ChromaColors {
 
     public static final TextColor CHROMA = new TextColor(0xFFFFFF, ChromaHook.COLOR_NAME);
+    public static final TextColor FADE = new TextColor(0xFFFFFF, ChromaHook.FADE_NAME);
 
     private ChromaColors() {}
 }

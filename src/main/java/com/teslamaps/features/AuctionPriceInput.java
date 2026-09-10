@@ -164,10 +164,8 @@ public class AuctionPriceInput {
         protected void init() {
             super.init();
 
-            TeslaMapsConfig config = TeslaMapsConfig.get();
-            if (!config.auctionRememberText) input = "";
-            if (!config.auctionRememberMode || mode < 0) {
-                mode = "Undercut".equals(config.auctionDefaultMode) ? UNDERCUT : NORMAL;
+            if (mode < 0) {
+                mode = "Undercut".equals(TeslaMapsConfig.get().auctionDefaultMode) ? UNDERCUT : NORMAL;
             }
 
             ItemPrice.resolve(ItemUtil.skyblockId(stack), price -> {
@@ -248,6 +246,8 @@ public class AuctionPriceInput {
 
             if (clicked && modeHover) {
                 mode = mode == NORMAL ? UNDERCUT : NORMAL;
+                TeslaMapsConfig.get().auctionDefaultMode = mode == UNDERCUT ? "Undercut" : "Normal";
+                TeslaMapsConfig.save();
                 recalculateValue();
             }
 

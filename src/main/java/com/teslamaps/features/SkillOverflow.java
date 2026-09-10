@@ -91,7 +91,8 @@ public class SkillOverflow {
         for (String skill : SkillTracker.NON_COSMETIC) {
             long total = SkillTracker.totalXp(skill);
             if (total <= 0) return;   // missing data, better no line than a wrong one
-            sum += SkillXp.calculate(total, SkillTracker.cap(skill)).level();
+            SkillXp.Level lvl = SkillXp.calculate(total, SkillTracker.cap(skill));
+            sum += lvl.level() + (lvl.needed() > 0 ? (double) lvl.current() / lvl.needed() : 0);
         }
         double avg = sum / SkillTracker.NON_COSMETIC.length;
 
@@ -116,12 +117,18 @@ public class SkillOverflow {
 
     private static final String DIVIDER = "§3§l" + "▬".repeat(64);
 
+    // tooltip re-seeds total xp from an abbreviated number ("114.3M"), which can dip the
+    // total back under a threshold that was just crossed - never announce a level twice
+    private static final java.util.Map<String, Integer> announced = new java.util.HashMap<>();
+
     public static void checkLevelUp(String skill, long before, long after) {
         if (!TeslaMapsConfig.get().skillOverflow) return;
         int cap = SkillTracker.cap(skill);
         int oldLevel = SkillXp.calculate(before, cap).level();
         SkillXp.Level now = SkillXp.calculate(after, cap);
         if (now.level() <= oldLevel || now.level() <= cap) return;
+        if (now.level() <= announced.getOrDefault(skill, 0)) return;
+        announced.put(skill, now.level());
 
         announce(skill, oldLevel, now, cap);
     }

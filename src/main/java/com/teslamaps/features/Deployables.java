@@ -75,8 +75,12 @@ public class Deployables {
      * whatever Hypixel adds next show up without needing an entry here first - the enum only
      * still supplies the colour, range, tier and type toggle for the ones we do know.
      */
+    // the name must be plain words - digits or ':' mean it is something else entirely,
+    // like the mayor cycle's "Opens in: 1d 6h 20m 27s"
     private static final Pattern ANY_TIMER = Pattern.compile(
-            "^(?<name>.+?) (?:(?<min>\\d+)m )?(?<sec>\\d+)s$");
+            "^(?<name>[A-Za-z][A-Za-z'\\- ]*?) (?:(?<min>\\d+)m )?(?<sec>\\d+)s$");
+    // no deployable runs anywhere near an hour
+    private static final int MAX_SECONDS = 3600;
     private static final int DEFAULT_RANGE = 30;
 
     // flare head textures, taken from SkyHanni's repo constant "Skulls"
@@ -131,6 +135,7 @@ public class Deployables {
 
             int seconds = Integer.parseInt(m.group("sec"));
             if (m.group("min") != null) seconds += Integer.parseInt(m.group("min")) * 60;
+            if (seconds > MAX_SECONDS) continue;
 
             Track t = tracks.get(label);
             if (t == null) {

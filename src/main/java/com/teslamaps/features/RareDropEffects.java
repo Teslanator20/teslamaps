@@ -25,7 +25,10 @@ import java.util.regex.Pattern;
 public class RareDropEffects {
 
     private static final Pattern RARE_DROP = Pattern.compile(
-            "^\\s*(?!.*:)(?<tier>RARE|VERY RARE|CRAZY RARE|INSANE) DROP!\\s+(?<item>.+?)(?:\\s+\\(\\+\\d+%? \\u272F Magic Find\\))?$");
+            "^\\s*(?!.*:)(?<tier>RARE|VERY RARE|CRAZY RARE|INSANE) DROP!\\s+(?<item>.+)$");
+    /** " (+429% ✯ Magic Find)" and friends, always last on the line. */
+    private static final Pattern DROP_SUFFIX = Pattern.compile("\\s*\\(\\+[^()]*\\)\\s*$");
+    private static final Pattern DROP_COUNT = Pattern.compile("^[\\d,]+x\\s+");
     private static final Pattern DUNGEON_REWARD = Pattern.compile(
             "^\\s{3,}(?!.*:)(?:RARE REWARD!\\s+)?(?<item>.+)$");
     private static final Pattern DYE_DROP = Pattern.compile(
@@ -89,8 +92,12 @@ public class RareDropEffects {
             if (config.rareDropEffects) {
                 Matcher drop = RARE_DROP.matcher(text);
                 if (drop.matches()) {
-                    String item = drop.group("item").trim();
-                    play(RARE_DROPS.get(item), drop.group("tier") + " DROP!", item, ParticleTypes.SCRAPE);
+                    String item = cleanItem(drop.group("item"));
+                    String id = lookup(RARE_DROPS, item);
+                    if (id == null && net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()) {
+                        com.teslamaps.TeslaMaps.LOGGER.info("rare drop not in table: '{}'", item);
+                    }
+                    play(id, drop.group("tier") + " DROP!", item, ParticleTypes.SCRAPE);
                     return;
                 }
             }
@@ -98,8 +105,8 @@ public class RareDropEffects {
             if (config.rareDungeonDropEffects) {
                 Matcher reward = DUNGEON_REWARD.matcher(text);
                 if (reward.matches()) {
-                    String item = reward.group("item").trim();
-                    play(DUNGEON_DROPS.get(item), "RARE REWARD!", item, ParticleTypes.PORTAL);
+                    String item = cleanItem(reward.group("item"));
+                    play(lookup(DUNGEON_DROPS, item), "RARE REWARD!", item, ParticleTypes.PORTAL);
                     return;
                 }
             }
@@ -172,6 +179,18 @@ public class RareDropEffects {
 
     private static int testIndex = 0;
 
+    /**
+     * Slayer drops arrive wrapped: "(3x Foul Flesh) (+429% ✯ Magic Find)".
+     * Peel the magic find tail, the brackets and the count off the name.
+     */
+    private static String cleanItem(String raw) {
+        String item = DROP_SUFFIX.matcher(raw.trim()).replaceAll("").trim();
+        if (item.startsWith("(") && item.endsWith(")")) {
+            item = item.substring(1, item.length() - 1).trim();
+        }
+        return DROP_COUNT.matcher(item).replaceFirst("").trim();
+    }
+
     private static String lookup(Map<String, String> table, String name) {
         for (Map.Entry<String, String> entry : table.entrySet()) {
             if (entry.getKey().equalsIgnoreCase(name)) return entry.getValue();
@@ -206,9 +225,7 @@ public class RareDropEffects {
         subText = headline.toUpperCase(Locale.ROOT);
         priceText = "";
         subColor = tierColor(headline);
-        // the item's own name already carries its rarity colour
-        var named = stack.getHoverName().getStyle().getColor();
-        textColor = named != null ? named.getValue() : 0xFFFFFF;
+        textColor = rarityColor(id, stack);
         shownAt = System.currentTimeMillis();
 
         if (TeslaMapsConfig.get().rareDropPrice) {
@@ -216,6 +233,22 @@ public class RareDropEffects {
             // already on screen.
             ItemPrice.resolve(id, coins -> priceText = " (+" + ItemPrice.format(coins) + ")");
         }
+    }
+
+    private static final Pattern COLOR_CODE = Pattern.compile("§([0-9a-f])");
+
+    /** Rarity colour of the item, from its skyblock tier; hover-name style as fallback. */
+    private static int rarityColor(String id, ItemStack stack) {
+        String colored = SkyblockItems.coloredName(id);
+        if (colored != null) {
+            Matcher code = COLOR_CODE.matcher(colored);
+            if (code.find()) {
+                var formatting = net.minecraft.ChatFormatting.getByCode(code.group(1).charAt(0));
+                if (formatting != null && formatting.getColor() != null) return formatting.getColor();
+            }
+        }
+        var named = stack.getHoverName().getStyle().getColor();
+        return named != null ? named.getValue() : 0xFFFFFF;
     }
 
     private static String text = "";
@@ -256,13 +289,13 @@ public class RareDropEffects {
         float cy = context.guiHeight() / 2f;
 
         pose.pushMatrix();
-        pose.translate(cx, cy + 54);
+        pose.translate(cx, cy + 70);
         pose.scale(2f, 2f);
         context.centeredText(mc.font, subText, 0, 0, (alpha << 24) | subColor);
         pose.popMatrix();
 
         pose.pushMatrix();
-        pose.translate(cx, cy + 78);
+        pose.translate(cx, cy + 94);
         pose.scale(3f, 3f);
         context.centeredText(mc.font, text + priceText, 0, 0, (alpha << 24) | textColor);
         pose.popMatrix();

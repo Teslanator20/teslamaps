@@ -2,9 +2,11 @@ package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
+import com.teslamaps.utils.LoudSound;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.sounds.SoundEvents;
 
 // Hypixel sometimes drops you to the SkyBlock lobby when joining a dungeon ("A kick occurred in your
 // connection..."). This starts a timer and tells the party "/pc kicked" so they know to wait.
@@ -32,13 +34,18 @@ public class KickedTimer {
     }
 
     public static void tick() {
-        if (kickedAtMs != 0 && DungeonManager.isInDungeon()) kickedAtMs = 0; // rejoined -> clear
+        if (kickedAtMs == 0) return;
+        if (DungeonManager.isInDungeon()) { kickedAtMs = 0; return; } // rejoined -> clear
+        if (System.currentTimeMillis() - kickedAtMs >= 60_000L) { // wait over -> ping and hide
+            if (TeslaMapsConfig.get().kickedTimer) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.6f);
+            kickedAtMs = 0;
+        }
     }
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         if (!TeslaMapsConfig.get().kickedTimer || kickedAtMs == 0) return;
         long elapsed = (System.currentTimeMillis() - kickedAtMs) / 1000L;
-        if (elapsed > 300) { kickedAtMs = 0; return; }
+        if (elapsed >= 60) { kickedAtMs = 0; return; }
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         draw(context, mc, TeslaMapsConfig.get().kickedX, TeslaMapsConfig.get().kickedY,

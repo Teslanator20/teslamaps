@@ -148,6 +148,57 @@ public class TMapCommand {
                                     com.teslamaps.features.ScreenshotManager.openFolder();
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("cape")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() ->
+                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.CapeScreen(null)));
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("off")
+                                .executes(context -> {
+                                    com.teslamaps.config.TeslaMapsConfig.get().capeEnabled = false;
+                                    com.teslamaps.features.capes.CapeManager.select("");
+                                    context.getSource().sendFeedback(Component.literal("§7Cape off"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("reload")
+                                .executes(context -> {
+                                    com.teslamaps.features.capes.CapeManager.rescan();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§7Reloaded " + com.teslamaps.features.capes.CapeManager.customs().size()
+                                                    + " capes from config/teslamaps/capes"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                .suggests((context, builder) -> {
+                                    String typed = builder.getRemaining().toLowerCase();
+                                    for (var cape : com.teslamaps.features.capes.CapeManager.all()) {
+                                        if (cape.name.toLowerCase().startsWith(typed)) builder.suggest(cape.name);
+                                    }
+                                    return builder.buildFuture();
+                                })
+                                .executes(context -> {
+                                    String wanted = StringArgumentType.getString(context, "name").trim();
+                                    for (var cape : com.teslamaps.features.capes.CapeManager.all()) {
+                                        if (cape.name.equalsIgnoreCase(wanted) || cape.id.equalsIgnoreCase(wanted)) {
+                                            com.teslamaps.features.capes.CapeManager.select(cape.id);
+                                            context.getSource().sendFeedback(Component.literal("§7Cape: §f" + cape.name));
+                                            return 1;
+                                        }
+                                    }
+                                    context.getSource().sendFeedback(Component.literal("§cNo cape called " + wanted));
+                                    return 1;
+                                })))
+                .then(ClientCommands.literal("search")
+                        .executes(context -> openSearch(null))
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    com.teslamaps.features.ItemIndex.clear();
+                                    context.getSource().sendFeedback(Component.literal("§7Item index cleared"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.argument("query", StringArgumentType.greedyString())
+                                .executes(context -> openSearch(StringArgumentType.getString(context, "query")))))
                 .then(ClientCommands.literal("gui")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() -> {
@@ -155,6 +206,47 @@ public class TMapCommand {
                             });
                             return 1;
                         }))
+                .then(ClientCommands.literal("shards")
+                        .executes(context -> shardReport(context.getSource(), 10))
+                        .then(ClientCommands.argument("count", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 60))
+                                .executes(context -> shardReport(context.getSource(),
+                                        com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "count")))))
+                .then(ClientCommands.literal("be")
+                        .executes(context -> {
+                            for (String line : com.teslamaps.features.BestiaryTracker.report()) {
+                                context.getSource().sendFeedback(Component.literal(line));
+                            }
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    int n = com.teslamaps.features.BestiaryTracker.clear();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fCleared §e" + n + "§f tracked mob(s)"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("add")
+                                .then(ClientCommands.argument("mob", StringArgumentType.greedyString())
+                                        .suggests((c, b) -> suggestMobs(b, false))
+                                        .executes(context -> {
+                                            String arg = StringArgumentType.getString(context, "mob");
+                                            String added = com.teslamaps.features.BestiaryTracker.add(arg);
+                                            context.getSource().sendFeedback(Component.literal(added == null
+                                                    ? "§b[TeslaMaps] §7Already tracked: §e" + arg
+                                                    : "§b[TeslaMaps] §fTracking §e" + added));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("remove")
+                                .then(ClientCommands.argument("mob", StringArgumentType.greedyString())
+                                        .suggests((c, b) -> suggestMobs(b, true))
+                                        .executes(context -> {
+                                            String arg = StringArgumentType.getString(context, "mob");
+                                            String gone = com.teslamaps.features.BestiaryTracker.remove(arg);
+                                            context.getSource().sendFeedback(Component.literal(gone == null
+                                                    ? "§b[TeslaMaps] §7Not tracked: §e" + arg
+                                                    : "§b[TeslaMaps] §fStopped tracking §e" + gone));
+                                            return 1;
+                                        }))))
                 .then(ClientCommands.literal("safari")
                         .executes(context -> {
                             for (String line : com.teslamaps.safari.SafariHistory.summary(5)) {
@@ -172,6 +264,148 @@ public class TMapCommand {
                                 .then(ClientCommands.argument("radius", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 64))
                                         .executes(context -> safariDebug(context.getSource(),
                                                 com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius"))))))
+                .then(ClientCommands.literal("greenhouse")
+                        .executes(context -> {
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§b[TeslaMaps] §fGreenhouse: " + com.teslamaps.features.GreenhousePlanner.status()));
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§7/tmap greenhouse <code|paste> · rotate · flip · plot <n> · phase · scan · clear"));
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§7auto: find the plot and the rotation that fits the floor · rotate auto only the rotation"));
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§7corner1 / corner2 pin the plot by hand"));
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§7learn reads the floor under your plants · soil <plant> <block> sets it by hand"));
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§7learnplants: plot is correct -> remember the heads, wrong plants turn red after that"));
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("corner1")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                            + com.teslamaps.features.GreenhousePlanner.corner1()));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("corner2")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                            + com.teslamaps.features.GreenhousePlanner.corner2()));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("auto")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                            + com.teslamaps.features.GreenhousePlanner.autoPlot()));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("debug")
+                                .executes(context -> {
+                                    for (String line : com.teslamaps.features.GreenhousePlanner.debugDump()) {
+                                        context.getSource().sendFeedback(Component.literal(line));
+                                    }
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("learnplants")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                            + com.teslamaps.features.GreenhousePlanner.learnPlants()));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("learn")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                            + com.teslamaps.features.GreenhousePlanner.learn()));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("soil")
+                                .executes(context -> {
+                                    var table = com.teslamaps.features.GreenhousePlanner.soilTable();
+                                    if (table.isEmpty()) {
+                                        context.getSource().sendFeedback(Component.literal(
+                                                "§b[TeslaMaps] §7No floor blocks known · /tmap greenhouse learn"));
+                                    } else {
+                                        context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §fFloor blocks:"));
+                                        table.forEach((k, v) -> context.getSource().sendFeedback(
+                                                Component.literal("§7  " + k + " §8= §a" + v)));
+                                    }
+                                    return 1;
+                                })
+                                .then(ClientCommands.argument("plant", StringArgumentType.word())
+                                        .then(ClientCommands.argument("block", StringArgumentType.greedyString())
+                                                .executes(context -> {
+                                                    String plant = StringArgumentType.getString(context, "plant");
+                                                    String block = StringArgumentType.getString(context, "block");
+                                                    String err = com.teslamaps.features.GreenhousePlanner.setSoil(plant, block);
+                                                    context.getSource().sendFeedback(Component.literal(err == null
+                                                            ? "§b[TeslaMaps] §f" + plant + " §7floor = §a" + block
+                                                            : "§b[TeslaMaps] §c" + err));
+                                                    return 1;
+                                                }))))
+                        .then(ClientCommands.literal("phase")
+                                .executes(context -> {
+                                    TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                                    cfg.greenhousePhase = (cfg.greenhousePhase + 1) % 3;
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §fPhase §e"
+                                            + com.teslamaps.features.GreenhousePlanner.phaseName(cfg.greenhousePhase)));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    com.teslamaps.features.GreenhousePlanner.clear();
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §fGreenhouse layout cleared"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("paste")
+                                .executes(context -> greenhouseLoad(context.getSource(),
+                                        Minecraft.getInstance().keyboardHandler.getClipboard())))
+                        .then(ClientCommands.literal("scan")
+                                .executes(context -> {
+                                    com.teslamaps.features.GreenhousePlanner.rescan();
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §fRescanning for the 10x10 plot"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("rotate")
+                                .then(ClientCommands.literal("auto")
+                                        .executes(context -> {
+                                            context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                                    + com.teslamaps.features.GreenhousePlanner.autoRotate()));
+                                            return 1;
+                                        }))
+                                .executes(context -> {
+                                    TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                                    cfg.greenhouseRotation = (cfg.greenhouseRotation + 1) & 3;
+                                    com.teslamaps.features.GreenhousePlanner.pinRotation();
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fRotation §e" + (cfg.greenhouseRotation * 90) + "°§7 · the yellow box is planner 0,0"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("flip")
+                                .executes(context -> {
+                                    TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                                    cfg.greenhouseMirror = !cfg.greenhouseMirror;
+                                    com.teslamaps.features.GreenhousePlanner.pinRotation();
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fMirrored: §e" + cfg.greenhouseMirror));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("plot")
+                                .then(ClientCommands.argument("n", IntegerArgumentType.integer(0, 15))
+                                        .executes(context -> {
+                                            TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                                            cfg.greenhousePlot = IntegerArgumentType.getInteger(context, "n");
+                                            com.teslamaps.features.GreenhousePlanner.rebuild();
+                                            TeslaMapsConfig.save();
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    "§b[TeslaMaps] §fPlot §e" + cfg.greenhousePlot + "§7/"
+                                                            + com.teslamaps.features.GreenhousePlanner.plotCount()));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.argument("code", StringArgumentType.greedyString())
+                                .executes(context -> greenhouseLoad(context.getSource(),
+                                        StringArgumentType.getString(context, "code")))))
                 .then(ClientCommands.literal("names")
                         .executes(context -> {
                             context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(
@@ -257,6 +491,15 @@ public class TMapCommand {
                                         .executes(context -> {
                                             com.teslamaps.features.SkillOverflow.preview(
                                                     StringArgumentType.getString(context, "skill"));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("fakeimg")
+                                .then(ClientCommands.argument("token", StringArgumentType.word())
+                                        .executes(context -> {
+                                            String token = StringArgumentType.getString(context, "token");
+                                            Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.literal(
+                                                    "§9Party §8> §b[MVP§c+§b] §fffnn§f: §f"
+                                                            + com.teslamaps.features.ImageShare.TAG + " " + token));
                                             return 1;
                                         })))
                         .then(ClientCommands.literal("deployables")
@@ -431,7 +674,8 @@ public class TMapCommand {
 
                                     int count = 0;
                                     for (Entity entity : mc.level.entitiesForRendering()) {
-                                        if (!(entity instanceof LivingEntity)) continue;
+                                        if (!(entity instanceof LivingEntity) && entity.getCustomName() == null
+                                                && !(entity instanceof net.minecraft.world.entity.Display)) continue;
                                         if (entity == mc.player) continue;
 
                                         double dist = entity.distanceToSqr(mc.player);
@@ -621,6 +865,11 @@ public class TMapCommand {
                                             return 1;
                                         }))))
                 .then(ClientCommands.literal("esp")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() ->
+                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.EspListScreen()));
+                            return 1;
+                        })
                         .then(ClientCommands.literal("add")
                                 .then(ClientCommands.argument("name", StringArgumentType.greedyString())
                                         .suggests((context, builder) -> suggest(nearbyEntityNames(), builder))
@@ -695,6 +944,8 @@ public class TMapCommand {
                                     TeslaMapsConfig config = TeslaMapsConfig.get();
                                     int count = config.customESPMobs.size();
                                     config.customESPMobs.clear();
+                                    config.customESPTracers.clear();
+                                    config.customESPColors.clear();
                                     TeslaMapsConfig.save();
                                     context.getSource().sendFeedback(Component.literal("Cleared " + count + " entries from ESP list"));
                                     return 1;
@@ -721,10 +972,16 @@ public class TMapCommand {
                         }))
                 .then(ClientCommands.literal("waypoints")
                         .executes(context -> {
-                            com.teslamaps.dungeon.DungeonWaypoints.load();
-                            context.getSource().sendFeedback(Component.literal("Reloaded dungeon waypoints from config/teslamaps/dungeon_waypoints.json"));
+                            Minecraft.getInstance().schedule(() ->
+                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.WaypointRoutesScreen()));
                             return 1;
                         })
+                        .then(ClientCommands.literal("reload")
+                                .executes(context -> {
+                                    com.teslamaps.dungeon.DungeonWaypoints.load();
+                                    context.getSource().sendFeedback(Component.literal("Reloaded dungeon waypoints from config/teslamaps/dungeon_waypoints.json"));
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("debug")
                                 .executes(context -> {
                                     com.teslamaps.dungeon.DungeonWaypoints.debug();
@@ -764,6 +1021,124 @@ public class TMapCommand {
                                             com.teslamaps.dungeon.DungeonWaypoints.convertLegacy()));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("head")
+                        .executes(context -> {
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§b[TeslaMaps] §fHead ESP: §e/tmap head add <name> [hash] §7| §elist §7| " +
+                                            "§eremove <name> §7| §eclear §7| §eprobe [radius]"));
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("add")
+                                .then(ClientCommands.argument("name", StringArgumentType.word())
+                                        .executes(context -> addHead(context.getSource(),
+                                                StringArgumentType.getString(context, "name"), null))
+                                        .then(ClientCommands.argument("hash", StringArgumentType.word())
+                                                .executes(context -> addHead(context.getSource(),
+                                                        StringArgumentType.getString(context, "name"),
+                                                        StringArgumentType.getString(context, "hash"))))))
+                        .then(ClientCommands.literal("list")
+                                .executes(context -> {
+                                    TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                                    if (cfg.headTargets.isEmpty()) {
+                                        context.getSource().sendFeedback(Component.literal("§7No heads added yet"));
+                                        return 1;
+                                    }
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §f" + cfg.headTargets.size() + " head(s):"));
+                                    for (TeslaMapsConfig.HeadTarget t : cfg.headTargets) {
+                                        context.getSource().sendFeedback(Component.literal(
+                                                "§7- §f" + t.name + " §8" + t.hash + " §7" + t.color));
+                                    }
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("remove")
+                                .then(ClientCommands.argument("name", StringArgumentType.word())
+                                        .suggests(TMapCommand::suggestHeads)
+                                        .executes(context -> {
+                                            String name = StringArgumentType.getString(context, "name");
+                                            TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                                            boolean removed = cfg.headTargets.removeIf(t -> t.name.equalsIgnoreCase(name));
+                                            if (removed) TeslaMapsConfig.save();
+                                            context.getSource().sendFeedback(Component.literal(removed
+                                                    ? "§7Removed head §f" + name
+                                                    : "§cNo head named " + name));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                                    int n = cfg.headTargets.size();
+                                    cfg.headTargets.clear();
+                                    TeslaMapsConfig.save();
+                                    context.getSource().sendFeedback(Component.literal("§7Cleared " + n + " head(s)"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("probe")
+                                .executes(context -> probeHeads(context.getSource(), 16))
+                                .then(ClientCommands.argument("radius", IntegerArgumentType.integer(1, 128))
+                                        .executes(context -> probeHeads(context.getSource(),
+                                                IntegerArgumentType.getInteger(context, "radius"))))))
+                .then(ClientCommands.literal("route")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() ->
+                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.WaypointRoutesScreen()));
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("load")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.load("")))
+                                .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                        .suggests(TMapCommand::suggestRoutes)
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.load(StringArgumentType.getString(context, "name"))))))
+                        .then(ClientCommands.literal("unload")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.unload())))
+                        .then(ClientCommands.literal("save")
+                                .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.save(StringArgumentType.getString(context, "name"))))))
+                        .then(ClientCommands.literal("erase")
+                                .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                        .suggests(TMapCommand::suggestRoutes)
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.erase(StringArgumentType.getString(context, "name"))))))
+                        .then(ClientCommands.literal("list")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.list())))
+                        .then(ClientCommands.literal("add")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.addHere()))
+                                .then(ClientCommands.argument("number", IntegerArgumentType.integer(1))
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.add(IntegerArgumentType.getInteger(context, "number"))))))
+                        .then(ClientCommands.literal("remove")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.removeNearest())))
+                        .then(ClientCommands.literal("delete")
+                                .then(ClientCommands.argument("number", IntegerArgumentType.integer(1))
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.delete(IntegerArgumentType.getInteger(context, "number"))))))
+                        .then(ClientCommands.literal("skip")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.skip(1)))
+                                .then(ClientCommands.argument("amount", IntegerArgumentType.integer(1))
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.skip(IntegerArgumentType.getInteger(context, "amount"))))))
+                        .then(ClientCommands.literal("unskip")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.unskip(1)))
+                                .then(ClientCommands.argument("amount", IntegerArgumentType.integer(1))
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.unskip(IntegerArgumentType.getInteger(context, "amount"))))))
+                        .then(ClientCommands.literal("skipto")
+                                .then(ClientCommands.argument("number", IntegerArgumentType.integer(1))
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.skipTo(IntegerArgumentType.getInteger(context, "number"))))))
+                        .then(ClientCommands.literal("export")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.export("coleweight")))
+                                .then(ClientCommands.argument("format", StringArgumentType.word())
+                                        .suggests((c, b) -> {
+                                            for (String n : com.teslamaps.features.waypoints.RouteFormats.names()) b.suggest(n);
+                                            return b.buildFuture();
+                                        })
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.export(StringArgumentType.getString(context, "format"))))))
+                        .then(ClientCommands.literal("setup")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.toggleSetup()))))
                 .then(ClientCommands.literal("pest")
                         .executes(context -> {
                             com.teslamaps.features.PestRoutine.advance();
@@ -936,6 +1311,61 @@ public class TMapCommand {
         return builder.buildFuture();
     }
 
+    private static int routeFeedback(com.mojang.brigadier.context.CommandContext<FabricClientCommandSource> context,
+                                     String message) {
+        context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §r" + message));
+        return 1;
+    }
+
+    private static java.util.concurrent.CompletableFuture<Suggestions> suggestRoutes(
+            com.mojang.brigadier.context.CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
+        return suggest(com.teslamaps.features.waypoints.RouteStorage.names(), builder);
+    }
+
+    private static java.util.concurrent.CompletableFuture<Suggestions> suggestHeads(
+            com.mojang.brigadier.context.CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
+        java.util.List<String> names = new java.util.ArrayList<>();
+        for (TeslaMapsConfig.HeadTarget t : TeslaMapsConfig.get().headTargets) names.add(t.name);
+        return suggest(names, builder);
+    }
+
+    private static int addHead(FabricClientCommandSource source, String name, String hash) {
+        String label = "manual";
+        if (hash == null) {
+            com.teslamaps.debug.HeadProbe.Grab grab = com.teslamaps.debug.HeadProbe.grab();
+            if (grab == null) {
+                source.sendFeedback(Component.literal(
+                        "§cNo head found - look at a skull block, stand next to the head, or hold it. "
+                                + "§7Try §e/tmap head probe"));
+                return 0;
+            }
+            hash = grab.hash();
+            label = grab.label();
+        }
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        String finalHash = hash;
+        cfg.headTargets.removeIf(t -> t.name.equalsIgnoreCase(name) || finalHash.equalsIgnoreCase(t.hash));
+        cfg.headTargets.add(new TeslaMapsConfig.HeadTarget(name, hash, cfg.headESPColor));
+        TeslaMapsConfig.save();
+        source.sendFeedback(Component.literal("§7Added head §f" + name + " §8(" + label + ") §b" + hash
+                + (cfg.headESP ? "" : " §7- turn on §eHead ESP§7 in /tmap")));
+        return 1;
+    }
+
+    private static int probeHeads(FabricClientCommandSource source, int radius) {
+        java.util.List<String> lines = com.teslamaps.debug.HeadProbe.dump(radius);
+        source.sendFeedback(Component.literal("§b[TeslaMaps] §fHeads within " + radius + " blocks:"));
+        int shown = 0;
+        for (String line : lines) {
+            source.sendFeedback(Component.literal(line));
+            if (++shown >= 40) {
+                source.sendFeedback(Component.literal("§7... " + (lines.size() - shown) + " more"));
+                break;
+            }
+        }
+        return 1;
+    }
+
     /** Names of living entities within 20 blocks, for `/tmap add` completion. */
     private static java.util.List<String> nearbyEntityNames() {
         Minecraft mc = Minecraft.getInstance();
@@ -972,7 +1402,51 @@ public class TMapCommand {
         }
     }
 
+    // an exact match keeps the popup open and Enter then applies it instead of sending
+    private static java.util.concurrent.CompletableFuture<Suggestions> suggestMobs(SuggestionsBuilder builder,
+                                                                                   boolean tracked) {
+        String typed = builder.getRemaining();
+        String lower = typed.toLowerCase();
+        for (String name : com.teslamaps.features.BestiaryTracker.suggestions(tracked)) {
+            if (name.equalsIgnoreCase(typed)) continue;
+            if (name.toLowerCase().startsWith(lower)) builder.suggest(name);
+        }
+        return builder.buildFuture();
+    }
+
+    private static int openSearch(String query) {
+        Minecraft.getInstance().schedule(() ->
+                Minecraft.getInstance().setScreen(new com.teslamaps.screen.ItemSearchScreen(query)));
+        return 1;
+    }
+
+    private static int shardReport(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource source,
+                                   int count) {
+        for (String line : com.teslamaps.features.hunting.ShardReport.toMax(count)) {
+            source.sendFeedback(Component.literal(line));
+        }
+        return 1;
+    }
+
     // dumps every entity nearby (not just mobs) so unknown skyblock props can be identified
+    private static int greenhouseLoad(FabricClientCommandSource source, String code) {
+        if (code == null || code.isBlank()) {
+            source.sendFeedback(Component.literal("§b[TeslaMaps] §cNothing to read"));
+            return 0;
+        }
+        String err = com.teslamaps.features.GreenhousePlanner.load(code);
+        if (err != null) {
+            source.sendFeedback(Component.literal("§b[TeslaMaps] §c" + err));
+            return 0;
+        }
+        com.teslamaps.features.GreenhousePlanner.rescan();
+        source.sendFeedback(Component.literal("§b[TeslaMaps] §fLayout loaded · "
+                + com.teslamaps.features.GreenhousePlanner.status()));
+        source.sendFeedback(Component.literal(
+                "§7Stand on the greenhouse. The yellow box marks planner 0,0 — /tmap greenhouse rotate until it matches."));
+        return 1;
+    }
+
     private static int safariScan(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource source, int chunks) {
         for (String line : com.teslamaps.safari.SafariScanner.scan(chunks)) {
             source.sendFeedback(Component.literal(line));

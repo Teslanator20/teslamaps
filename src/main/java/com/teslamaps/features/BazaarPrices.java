@@ -161,6 +161,11 @@ public class BazaarPrices {
         return !prices.isEmpty();
     }
 
+    /** True when the bazaar carries that item id at all. */
+    public static boolean onBazaar(String id) {
+        return id != null && (prices.containsKey(id) || buyPrices.containsKey(id));
+    }
+
     public static void refreshIfStale() {
         com.teslamaps.utils.SkyblockItems.load();
 

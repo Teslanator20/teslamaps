@@ -46,6 +46,35 @@ public class TabListUtils {
         return cached = lines;
     }
 
+    // getOnlinePlayers() is unordered; Hypixel lays its tab out in the order vanilla renders,
+    // so sections only stay contiguous once the vanilla comparator has been applied.
+    private static final java.util.Comparator<PlayerInfo> TAB_ORDER =
+            java.util.Comparator.comparingInt((PlayerInfo p) -> -p.getTabListOrder())
+                    .thenComparingInt(p -> p.getGameMode() == net.minecraft.world.level.GameType.SPECTATOR ? 1 : 0)
+                    .thenComparing(p -> p.getTeam() == null ? "" : p.getTeam().getName())
+                    .thenComparing(p -> p.getProfile().name(), String::compareToIgnoreCase);
+
+    private static List<String> cachedOrdered = new ArrayList<>();
+    private static long cachedOrderedTime = -1;
+
+    /** Tab lines in the order they are drawn, so a section header still owns the lines below it. */
+    public static List<String> getOrderedLines() {
+        long now = System.currentTimeMillis();
+        if (now - cachedOrderedTime < 250) return cachedOrdered;
+        cachedOrderedTime = now;
+
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getConnection() == null) return cachedOrdered = new ArrayList<>();
+
+        List<PlayerInfo> entries = new ArrayList<>(mc.getConnection().getListedOnlinePlayers());
+        entries.sort(TAB_ORDER);
+        List<String> lines = new ArrayList<>(entries.size());
+        for (PlayerInfo entry : entries) {
+            lines.add(entry.getTabListDisplayName() == null ? "" : entry.getTabListDisplayName().getString());
+        }
+        return cachedOrdered = lines;
+    }
+
     public static double getSecretsPercentage() {
         return getSecretsPercentage(getTabListLines());
     }

@@ -49,6 +49,7 @@ public class ChatCommands {
         String c = w[0].toLowerCase();
         String arg = w.length > 1 ? w[1] : null;
         Minecraft mc = Minecraft.getInstance();
+        sendDelay = sender.equalsIgnoreCase(mc.getUser().getName()) ? 10 : 0;
 
         switch (c) {
             case "8ball" -> pc(EIGHT_BALL[(int) (Math.random() * EIGHT_BALL.length)]);
@@ -104,12 +105,19 @@ public class ChatCommands {
         return "x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ();
     }
 
+    private static int sendDelay = 0; // ticks; own trigger message hits Hypixel's half-second chat throttle
+
     private static void pc(String message) {
         run("pc " + message);
     }
 
     private static void run(String command) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.getConnection() != null) mc.execute(() -> mc.getConnection().sendCommand(command));
+        int delay = sendDelay;
+        Runnable send = () -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.getConnection() != null) mc.getConnection().sendCommand(command);
+        };
+        if (delay > 0) com.teslamaps.utils.TickScheduler.schedule(delay, send);
+        else Minecraft.getInstance().execute(send);
     }
 }

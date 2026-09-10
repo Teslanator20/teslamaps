@@ -16,9 +16,11 @@ import net.minecraft.world.item.component.ItemLore;
 public class BazaarOwnOrders {
 
     private static final IdentityHashMap<ItemStack, Boolean> cache = new IdentityHashMap<>();
+    private static final IdentityHashMap<ItemStack, Boolean> filledCache = new IdentityHashMap<>();
 
     public static void render(GuiGraphicsExtractor ctx) {
-        if (!TeslaMapsConfig.get().bazaarOwnOrders) return;
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!config.bazaarOwnOrders && !config.bazaarOrderFilled) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
 
@@ -32,15 +34,39 @@ public class BazaarOwnOrders {
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
             ItemStack item = slot.getItem();
             if (item.isEmpty()) continue;
-            if (!isOwnOrder(item, ownName)) continue;
 
             int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
-            ctx.fill(sx, sy, sx + 16, sy + 16, 0x6655FF55);
-            ctx.fill(sx, sy, sx + 16, sy + 1, 0xFF55FF55);
-            ctx.fill(sx, sy + 15, sx + 16, sy + 16, 0xFF55FF55);
-            ctx.fill(sx, sy, sx + 1, sy + 16, 0xFF55FF55);
-            ctx.fill(sx + 15, sy, sx + 16, sy + 16, 0xFF55FF55);
+            if (config.bazaarOwnOrders && isOwnOrder(item, ownName)) {
+                ctx.fill(sx, sy, sx + 16, sy + 16, 0x6655FF55);
+                ctx.fill(sx, sy, sx + 16, sy + 1, 0xFF55FF55);
+                ctx.fill(sx, sy + 15, sx + 16, sy + 16, 0xFF55FF55);
+                ctx.fill(sx, sy, sx + 1, sy + 16, 0xFF55FF55);
+                ctx.fill(sx + 15, sy, sx + 16, sy + 16, 0xFF55FF55);
+            }
+            if (config.bazaarOrderFilled && isFilled(item)) {
+                ctx.text(mc.font, "✔", sx + 1, sy, 0xFF55FF55);
+            }
         }
+    }
+
+    private static boolean isFilled(ItemStack item) {
+        Boolean cached = filledCache.get(item);
+        if (cached != null) return cached;
+        if (filledCache.size() > 512) filledCache.clear();
+
+        boolean filled = false;
+        ItemLore lore = item.get(DataComponents.LORE);
+        if (lore != null) {
+            for (Component cmp : lore.lines()) {
+                String l = com.teslamaps.utils.StringUtil.stripTrim(cmp.getString());
+                if (l.startsWith("Filled:") && l.endsWith("100%!")) {
+                    filled = true;
+                    break;
+                }
+            }
+        }
+        filledCache.put(item, filled);
+        return filled;
     }
 
     private static boolean isOwnOrder(ItemStack item, String ownName) {

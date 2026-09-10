@@ -40,7 +40,8 @@ public class NoSoundsMixin {
 
         if (c.customHypeSound && holdingWitherBlade() && sound == SoundEvents.GENERIC_EXPLODE.value()) {
             com.teslamaps.utils.LoudSound.play(
-                    com.teslamaps.utils.SoundOptions.resolve(c.customHypeSoundType), c.customHypeSoundVolume, 1.0f);
+                    com.teslamaps.utils.SoundOptions.resolve(c.customHypeSoundType),
+                    c.customHypeSoundVolume, c.customHypeSoundPitch);
             ci.cancel();
             return;
         }

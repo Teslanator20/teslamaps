@@ -9,7 +9,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Camera.class)
 public class CameraZoomMixin {
-    @Inject(method = "getFov", at = @At("RETURN"), cancellable = true)
+    // update() builds the projection from the fov FIELD (calculateFov result), never via
+    // getFov(), so the hook has to sit on calculateFov's return.
+    @Inject(method = "calculateFov", at = @At("RETURN"), cancellable = true)
     private void teslamaps$zoomFov(CallbackInfoReturnable<Float> cir) {
         if (Zoom.transitioning()) cir.setReturnValue(Zoom.apply(cir.getReturnValueF()));
     }

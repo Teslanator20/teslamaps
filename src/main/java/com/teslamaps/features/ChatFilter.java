@@ -15,10 +15,7 @@ public class ChatFilter {
 
         String t = plain;
 
-        // the image padding is empty on purpose, it is the gap the picture is drawn into
-        if (c.chatFilterEmpty && t.trim().isEmpty()) {
-            return !com.teslamaps.features.SharedImageChat.sendingPadding();
-        }
+        if (c.chatFilterEmpty && t.trim().isEmpty()) return true;
 
         if (c.chatFilterWatcher && t.contains("[BOSS] The Watcher:")) return true;
         if (c.chatFilterF4Boss && (t.contains("[BOSS] Thorn:")
