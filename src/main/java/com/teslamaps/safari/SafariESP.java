@@ -11,7 +11,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.monster.Shulker;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -55,6 +59,7 @@ public class SafariESP {
         if (c.safariCritterESP) {
             scanCritters(mc, c);
             scanRockmites(mc, c);
+            scanHidden(mc, c);
         }
         if (c.safariNestESP) scanNests(mc);
         else nests.clear();   // without this the last scan kept drawing after switching it off
@@ -114,6 +119,53 @@ public class SafariESP {
             String label = (c.safariNames ? rarityCode(rockmite) + rockmite.name() : null);
             critters.add(new Marker(box, color, label, c.safariTracers));
         }
+    }
+
+    /**
+     * Hideonfloor, Duplico and Bloodbat sit there disguised and only get their nametag once they
+     * are revealed, so the tag scan never boxes them while they still matter.
+     */
+    private static void scanHidden(Minecraft mc, TeslaMapsConfig c) {
+        SafariData.Biome here = SafariData.currentBiome();
+        if (here != SafariData.Biome.FOREST && here != SafariData.Biome.HAUNTED) return;
+
+        for (Entity e : mc.level.entitiesForRendering()) {
+            SafariData.Critter critter = hiddenCritter(e, here);
+            if (critter == null) continue;
+            if (c.safariOnlyMissing && SafariTracker.hasCaught(critter)) continue;
+            if (SafariData.biomeAt(e.blockPosition()) != here) continue;
+            if (hasCritterTag(mc, e)) continue;   // already boxed by the nametag scan
+
+            AABB box = e.getBoundingBox();
+            if (box.getXsize() < 0.1 || box.getYsize() < 0.1) box = box.inflate(0.4, 0.4, 0.4);
+            String label = c.safariNames ? rarityCode(critter) + critter.name() : null;
+            critters.add(new Marker(box, critter.rarity().color, label, c.safariTracers));
+        }
+    }
+
+    private static SafariData.Critter hiddenCritter(Entity e, SafariData.Biome here) {
+        if (here == SafariData.Biome.FOREST) {
+            if (e instanceof Shulker s && s.getColor() == DyeColor.GREEN) return SafariData.byName("Hideonfloor");
+            if (e instanceof Display.ItemDisplay id && itemOf(id).is(Items.GREEN_SHULKER_BOX)) {
+                return SafariData.byName("Hideonfloor");
+            }
+            return null;
+        }
+        if (e instanceof Bat) return SafariData.byName("Bloodbat");
+        // Gimmiegold uses a head, a moving Hideonwall the purple box - everything else on the
+        // three-tick interpolation is a Duplico
+        if (e instanceof Display.ItemDisplay id && id.getPosRotInterpolationDuration() == 3) {
+            ItemStack stack = itemOf(id);
+            if (!stack.is(Items.PLAYER_HEAD) && !stack.is(Items.PURPLE_SHULKER_BOX)) {
+                return SafariData.byName("Duplico");
+            }
+        }
+        return null;
+    }
+
+    private static ItemStack itemOf(Display.ItemDisplay id) {
+        SlotAccess slot = id.getSlot(0);
+        return slot == null ? ItemStack.EMPTY : slot.get();
     }
 
     /** Rockmites are the only Cavern critter without a nametag, so a tagged head is not one. */

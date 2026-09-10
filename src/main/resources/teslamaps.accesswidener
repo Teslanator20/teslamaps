@@ -32,5 +32,8 @@ accessible method net/minecraft/network/chat/TextColor <init> (ILjava/lang/Strin
 # override this instance method, so reading it beats reading the vanilla option.
 accessible method net/minecraft/client/gui/components/ChatComponent getWidth ()I
 
+# Safari: Duplico is a plain item display, only its interpolation duration gives it away.
+accessible method net/minecraft/world/entity/Display getPosRotInterpolationDuration ()I
+
 # Reading the currently bound key of a mapping: only the default is public.
 accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
