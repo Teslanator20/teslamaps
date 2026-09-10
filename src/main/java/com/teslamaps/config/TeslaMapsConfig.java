@@ -288,6 +288,25 @@ public class TeslaMapsConfig {
     public boolean chScanTracers = false;         // Tracer lines to found structures
     public boolean chScanChat = true;             // Chat alert with coords when found
 
+    // Drill / pickaxe ability cooldown, from the "Pickaxe Ability:" tab widget
+    public boolean pickaxeAbilityDisplay = false;
+    public boolean pickaxeAbilityMiningOnly = true;    // only on the mining islands
+    public boolean pickaxeAbilityOnlyOnCooldown = false;
+    public int pickaxeAbilityX = 5;
+    public int pickaxeAbilityY = 120;
+    public float pickaxeAbilityScale = 1.0f;
+
+    // Glacite Mineshaft pity, from the "Pity:" tab widget
+    public boolean mineshaftPityDisplay = false;
+    public boolean mineshaftFoundChat = true;          // chat line with the pity value on spawn
+    public float mineshaftChanceBonus = 0f;            // Surveyor + Core of the Mountain mineshaft chance %
+    public int mineshaftSurveyorLevel = 0;             // runtime: scanned off the HOTM menu
+    public int mineshaftCoreLevel = 0;                 // runtime: scanned off the HOTM menu
+    public int mineshaftTotalFound = 0;                // runtime: mineshafts found overall
+    public int mineshaftPityX = 5;
+    public int mineshaftPityY = 140;
+    public float mineshaftPityScale = 1.0f;
+
     // Head ESP (skull blocks + armor-stand heads, matched on texture hash)
     public static class HeadTarget {
         public String name = "";
@@ -961,6 +980,8 @@ public class TeslaMapsConfig {
     public boolean safariOnlyMissing = false;       // only box critters nobody caught yet this run
     public boolean safariHideyhoTracer = true;      // tracer to Hideyho even with the general ones off
     public boolean safariNestESP = false;            // box the bee nests that spawn Honeybugs
+    public boolean safariRecatchSpot = true;        // mark where an escaped critter comes back
+    public boolean safariWallMarkers = false;       // mark the intact Snoozle / Troodon walls
     public boolean safariSparklingAlert = true;     // alert on the WAX_ON particles of a sparkling critter
     public boolean safariSparklingParty = false;    // also post the sparkling coords to party chat
     public boolean safariSparkleForce = true;       // render WAX_ON sparkles at any distance/particle setting
@@ -978,6 +999,8 @@ public class TeslaMapsConfig {
     public float safariAlertVolume = 1.0f;          // 0 = silent
     public String colorSafariSparkling = "#FF55FF";
     public String colorSafariNest = "#FFAA00";
+    public String colorSafariRecatch = "#FFFF55";
+    public String colorSafariWall = "#FF8800";
     // Foraging (Galatea / Moonglade Marsh + Torrhus Canyon)
     public boolean foragingMutePhantoms = false;    // silence Phantoms in Moonglade Marsh
     public boolean foragingMuteFusion = false;      // silence the Fusion Machine in Moonglade Marsh

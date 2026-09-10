@@ -143,6 +143,34 @@ public class BestiaryTracker {
         return hit;
     }
 
+    /** Adds every Bestiary mob currently in the tab. Returns what was newly added. */
+    public static List<String> addAllFromTab() {
+        List<String> added = new ArrayList<>();
+        for (String name : currentTabMobs()) {
+            String hit = add(name);
+            if (hit != null) added.add(hit);
+        }
+        return added;
+    }
+
+    /** The mobs the tab shows right now, in tab order. */
+    public static List<String> currentTabMobs() {
+        List<String> out = new ArrayList<>();
+        for (String line : tabEntries()) {
+            String name = null;
+            Matcher max = MAXED.matcher(line);
+            if (max.matches()) {
+                name = max.group(1).trim();
+            } else {
+                Matcher m = ENTRY.matcher(line);
+                if (m.matches()) name = m.group(1).trim();
+            }
+            if (name == null || name.isEmpty() || isSkill(name) || out.contains(name)) continue;
+            out.add(name);
+        }
+        return out;
+    }
+
     public static int clear() {
         int n = tracked().size();
         tracked().clear();
@@ -199,8 +227,28 @@ public class BestiaryTracker {
     }
 
     private static void readTabList() {
+        List<String> use = tabEntries();
+        if (use.isEmpty()) return;
+
+        // another profile has its own kill counts, keeping the old ones fakes a huge gain
+        if (!tabProfile.equals(lastProfile)) {
+            lastProfile = tabProfile;
+            stats.clear();
+            seen.clear();
+            cachedLines = null;
+            displayedCache = null;
+        }
+
+        for (String line : use) update(line);
+    }
+
+    private static String tabProfile = "";
+
+    /** The Bestiary block of the tab list, or the loose entries when the block was not found. */
+    private static List<String> tabEntries() {
         List<String> lines = TabListUtils.getOrderedLines();
-        if (lines.isEmpty()) return;
+        tabProfile = lastProfile;
+        if (lines.isEmpty()) return List.of();
 
         List<String> section = null;
         List<String> loose = new ArrayList<>();
@@ -222,19 +270,10 @@ public class BestiaryTracker {
             }
             if (ENTRY.matcher(line).matches() || MAXED.matcher(line).matches()) loose.add(line);
         }
-
-        // another profile has its own kill counts, keeping the old ones fakes a huge gain
-        if (!profile.equals(lastProfile)) {
-            lastProfile = profile;
-            stats.clear();
-            seen.clear();
-            cachedLines = null;
-            displayedCache = null;
-        }
+        tabProfile = profile;
 
         // the section is the truth, the loose scan only covers a tab we failed to order
-        List<String> use = section != null && !section.isEmpty() ? section : loose;
-        for (String line : use) update(line);
+        return section != null && !section.isEmpty() ? section : loose;
     }
 
     private static void update(String line) {
@@ -460,7 +499,7 @@ public class BestiaryTracker {
             String rate = s.liveActiveMs() >= 30_000 && h > 0 ? fmt(s.kills / h) : "…";
             out.add("§7 " + name + " §8T" + s.tier + " §7· §b" + rate + "/h §8(" + fmt(s.kills) + " kills)");
         }
-        out.add("§7/tmap be add|remove <mob> · /tmap be clear");
+        out.add("§7/tmap be add|remove <mob> · auto · clear");
         return out;
     }
 

@@ -13,7 +13,7 @@ public class HudEditScreen extends Screen {
     private boolean wasMouseDown = false;
 
     /** Which situation an element belongs to, so the editor can hide the rest. */
-    private enum Ctx { ANY, DUNGEON, GARDEN, SAFARI, FORAGING }
+    private enum Ctx { ANY, DUNGEON, GARDEN, SAFARI, FORAGING, MINING }
 
     private boolean showAll = false;
 
@@ -55,6 +55,8 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.SAFARI, Ctx.SAFARI, "Critter Safari", c.safariTracker && c.safariHud);
         mark(DragTarget.HOTF_PERKS, Ctx.FORAGING, "Foraging", c.hotfPerkDisplay);
         mark(DragTarget.LATHER, Ctx.FORAGING, "Foraging", c.latherOverlay);
+        mark(DragTarget.PICKAXE_ABILITY, Ctx.MINING, "Mining", c.pickaxeAbilityDisplay);
+        mark(DragTarget.MINESHAFT_PITY, Ctx.MINING, "Mining", c.mineshaftPityDisplay);
         mark(DragTarget.BOBBER, Ctx.ANY, "Fishing", c.bobberTimer);
         mark(DragTarget.HOOK, Ctx.ANY, "Fishing", c.hookDisplay);
         mark(DragTarget.DEPLOYABLES, Ctx.ANY, "Skills", c.deployableOverlay);
@@ -70,6 +72,7 @@ public class HudEditScreen extends Screen {
             case GARDEN -> com.teslamaps.utils.SkyblockUtils.isInGarden();
             case SAFARI -> com.teslamaps.safari.SafariData.inSafari();
             case FORAGING -> com.teslamaps.features.foraging.Foraging.onForagingIsland();
+            case MINING -> com.teslamaps.features.mining.Mining.onMiningIsland();
         };
     }
 
@@ -82,7 +85,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, BOBBER, DEPLOYABLES, HOOK, BESTIARY }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -220,6 +223,40 @@ public class HudEditScreen extends Screen {
         int w = hotfPerksWidth(), h = hotfPerksHeight();
         return mouseX >= config.hotfPerkDisplayX && mouseX <= config.hotfPerkDisplayX + w &&
                mouseY >= config.hotfPerkDisplayY && mouseY <= config.hotfPerkDisplayY + h;
+    }
+
+    private int pickaxeAbilityWidth() {
+        return (int)(com.teslamaps.features.mining.PickaxeAbility.previewSize(this.font)[0]
+                * TeslaMapsConfig.get().pickaxeAbilityScale);
+    }
+
+    private int pickaxeAbilityHeight() {
+        return (int)(com.teslamaps.features.mining.PickaxeAbility.previewSize(this.font)[1]
+                * TeslaMapsConfig.get().pickaxeAbilityScale);
+    }
+
+    private boolean isMouseOverPickaxeAbility(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = pickaxeAbilityWidth(), h = pickaxeAbilityHeight();
+        return mouseX >= config.pickaxeAbilityX && mouseX <= config.pickaxeAbilityX + w &&
+               mouseY >= config.pickaxeAbilityY && mouseY <= config.pickaxeAbilityY + h;
+    }
+
+    private int mineshaftPityWidth() {
+        return (int)(com.teslamaps.features.mining.MineshaftPity.previewSize(this.font)[0]
+                * TeslaMapsConfig.get().mineshaftPityScale);
+    }
+
+    private int mineshaftPityHeight() {
+        return (int)(com.teslamaps.features.mining.MineshaftPity.previewSize(this.font)[1]
+                * TeslaMapsConfig.get().mineshaftPityScale);
+    }
+
+    private boolean isMouseOverMineshaftPity(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = mineshaftPityWidth(), h = mineshaftPityHeight();
+        return mouseX >= config.mineshaftPityX && mouseX <= config.mineshaftPityX + w &&
+               mouseY >= config.mineshaftPityY && mouseY <= config.mineshaftPityY + h;
     }
 
     private int hookWidth() {
@@ -601,6 +638,14 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.HOTF_PERKS;
                 dragOffsetX = mouseX - config.hotfPerkDisplayX;
                 dragOffsetY = mouseY - config.hotfPerkDisplayY;
+            } else if (visible.contains(DragTarget.PICKAXE_ABILITY) && isMouseOverPickaxeAbility(mouseX, mouseY)) {
+                dragging = DragTarget.PICKAXE_ABILITY;
+                dragOffsetX = mouseX - config.pickaxeAbilityX;
+                dragOffsetY = mouseY - config.pickaxeAbilityY;
+            } else if (visible.contains(DragTarget.MINESHAFT_PITY) && isMouseOverMineshaftPity(mouseX, mouseY)) {
+                dragging = DragTarget.MINESHAFT_PITY;
+                dragOffsetX = mouseX - config.mineshaftPityX;
+                dragOffsetY = mouseY - config.mineshaftPityY;
             } else if (visible.contains(DragTarget.SPRINTING) && isMouseOverSprinting(mouseX, mouseY)) {
                 dragging = DragTarget.SPRINTING;
                 dragOffsetX = mouseX - config.sprintingX;
@@ -733,6 +778,14 @@ public class HudEditScreen extends Screen {
             int w = hotfPerksWidth(), h = hotfPerksHeight();
             config.hotfPerkDisplayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.hotfPerkDisplayY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.PICKAXE_ABILITY) {
+            int w = pickaxeAbilityWidth(), h = pickaxeAbilityHeight();
+            config.pickaxeAbilityX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.pickaxeAbilityY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.MINESHAFT_PITY) {
+            int w = mineshaftPityWidth(), h = mineshaftPityHeight();
+            config.mineshaftPityX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.mineshaftPityY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.SPRINTING) {
             int w = sprintingWidth();
             int h = sprintingHeight();
@@ -821,6 +874,8 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.SAFARI)) drawSafariPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.HOTF_PERKS)) drawHotfPerksPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.LATHER)) drawLatherPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.PICKAXE_ABILITY)) drawPickaxeAbilityPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.MINESHAFT_PITY)) drawMineshaftPityPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.BOBBER)) drawBobberPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.HOOK)) drawHookPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.DEPLOYABLES)) drawDeployablesPreview(context, mouseX, mouseY);
@@ -1022,6 +1077,48 @@ public class HudEditScreen extends Screen {
         }
 
         String label = String.format("HotF Perks (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawPickaxeAbilityPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.pickaxeAbilityX, y = config.pickaxeAbilityY;
+        float scale = config.pickaxeAbilityScale;
+
+        com.teslamaps.features.mining.PickaxeAbility.draw(context, this.minecraft, x, y, scale);
+
+        int w = pickaxeAbilityWidth(), h = pickaxeAbilityHeight();
+        boolean hovering = visible.contains(DragTarget.PICKAXE_ABILITY) && isMouseOverPickaxeAbility(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.PICKAXE_ABILITY) {
+            int borderColor = dragging == DragTarget.PICKAXE_ABILITY ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        String label = String.format("Pickaxe Ability (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawMineshaftPityPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.mineshaftPityX, y = config.mineshaftPityY;
+        float scale = config.mineshaftPityScale;
+
+        com.teslamaps.features.mining.MineshaftPity.draw(context, this.minecraft, x, y, scale);
+
+        int w = mineshaftPityWidth(), h = mineshaftPityHeight();
+        boolean hovering = visible.contains(DragTarget.MINESHAFT_PITY) && isMouseOverMineshaftPity(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.MINESHAFT_PITY) {
+            int borderColor = dragging == DragTarget.MINESHAFT_PITY ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        String label = String.format("Mineshaft Pity (%.1fx)", scale);
         context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
     }
 
@@ -1511,6 +1608,26 @@ public class HudEditScreen extends Screen {
                 config.hotfPerkDisplayScale = Math.min(3.0f, config.hotfPerkDisplayScale + 0.05f);
             } else if (verticalAmount < 0) {
                 config.hotfPerkDisplayScale = Math.max(0.5f, config.hotfPerkDisplayScale - 0.05f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (visible.contains(DragTarget.PICKAXE_ABILITY) && isMouseOverPickaxeAbility((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.pickaxeAbilityScale = Math.min(3.0f, config.pickaxeAbilityScale + 0.05f);
+            } else if (verticalAmount < 0) {
+                config.pickaxeAbilityScale = Math.max(0.5f, config.pickaxeAbilityScale - 0.05f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (visible.contains(DragTarget.MINESHAFT_PITY) && isMouseOverMineshaftPity((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.mineshaftPityScale = Math.min(3.0f, config.mineshaftPityScale + 0.05f);
+            } else if (verticalAmount < 0) {
+                config.mineshaftPityScale = Math.max(0.5f, config.mineshaftPityScale - 0.05f);
             }
             TeslaMapsConfig.save();
             return true;

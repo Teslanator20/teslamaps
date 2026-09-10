@@ -235,6 +235,15 @@ public class TMapCommand {
                                             "§b[TeslaMaps] §fCleared §e" + n + "§f tracked mob(s)"));
                                     return 1;
                                 }))
+                        .then(ClientCommands.literal("auto")
+                                .executes(context -> {
+                                    java.util.List<String> added = com.teslamaps.features.BestiaryTracker.addAllFromTab();
+                                    context.getSource().sendFeedback(Component.literal(added.isEmpty()
+                                            ? "§b[TeslaMaps] §7Nothing new in the tab"
+                                            : "§b[TeslaMaps] §fTracking §e" + added.size() + "§f: §e"
+                                                    + String.join("§7, §e", added)));
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("add")
                                 .then(ClientCommands.argument("mob", StringArgumentType.greedyString())
                                         .suggests((c, b) -> suggestMobs(b, false))

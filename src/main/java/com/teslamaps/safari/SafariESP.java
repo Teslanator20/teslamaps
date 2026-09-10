@@ -31,6 +31,7 @@ public class SafariESP {
 
     private static final List<Marker> critters = new ArrayList<>();
     private static final List<BlockPos> nests = new ArrayList<>();
+    private static final List<BlockPos> walls = new ArrayList<>();
     private static final List<Cluster> spots = new ArrayList<>();
     private static final java.util.Set<Long> looted = new java.util.HashSet<>();
     private static long lastNestScan = 0;
@@ -44,6 +45,7 @@ public class SafariESP {
 
     public static void tick() {
         critters.clear();
+        walls.clear();
         if (!SafariData.inSafari() || LegitMode.blocksCheats()) {
             spots.clear();
             nests.clear();
@@ -56,11 +58,13 @@ public class SafariESP {
         if (mc.level == null || mc.player == null) return;
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        // the sweep also feeds the recatch pin, so it runs for that alone too
+        if (c.safariCritterESP || c.safariRecatchSpot) scanCritters(mc, c);
         if (c.safariCritterESP) {
-            scanCritters(mc, c);
             scanRockmites(mc, c);
             scanHidden(mc, c);
         }
+        if (c.safariWallMarkers) SafariWalls.collect(mc, walls);
         if (c.safariNestESP) scanNests(mc);
         else nests.clear();   // without this the last scan kept drawing after switching it off
         if (!c.critterSpotESP) {
@@ -185,6 +189,7 @@ public class SafariESP {
     private static void scanCritters(Minecraft mc, TeslaMapsConfig c) {
         int sparklingColor = TeslaMapsConfig.parseColor(c.colorSafariSparkling);
         SafariData.Biome here = SafariData.currentBiome();
+        RecatchSpots.beginSweep();
 
         for (Entity e : mc.level.entitiesForRendering()) {
             if (!(e instanceof ArmorStand as)) continue;
@@ -194,6 +199,11 @@ public class SafariESP {
             SafariData.Critter critter = matchCritter(name);
             if (critter == null) continue;
             if (here != null && SafariData.biomeAt(as.blockPosition()) != here) continue;
+
+            // a capsule mid-capture wears the species name as well, but has no body under it
+            Entity body = bodyEntity(mc, as);
+            if (body != null) RecatchSpots.see(critter, body.getBoundingBox());
+            if (!c.safariCritterESP) continue;
 
             boolean sparkling = name.contains("SPARKLING");
             if (c.safariOnlyMissing && !sparkling && SafariTracker.hasCaught(critter)) continue;
@@ -226,7 +236,7 @@ public class SafariESP {
     }
 
     // the nametag rides above the critter, so box the body under it instead of the stand itself
-    private static AABB bodyOf(Minecraft mc, ArmorStand tag) {
+    private static Entity bodyEntity(Minecraft mc, ArmorStand tag) {
         AABB search = tag.getBoundingBox().inflate(1.5, 2.5, 1.5);
         Entity best = null;
         double bestDist = Double.MAX_VALUE;
@@ -240,7 +250,11 @@ public class SafariESP {
                 best = e;
             }
         }
+        return best;
+    }
 
+    private static AABB bodyOf(Minecraft mc, ArmorStand tag) {
+        Entity best = bodyEntity(mc, tag);
         if (best != null) {
             AABB b = best.getBoundingBox();
             // display entities report a zero-size box, give those something visible
@@ -285,10 +299,30 @@ public class SafariESP {
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (critters.isEmpty() && nests.isEmpty() && spots.isEmpty()) return;
+        AABB pin = RecatchSpots.pinned();
+        if (critters.isEmpty() && nests.isEmpty() && spots.isEmpty() && walls.isEmpty() && pin == null) return;
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean filled = c.safariFilled;
+
+        if (pin != null && c.safariRecatchSpot) {
+            int pinColor = TeslaMapsConfig.parseColor(c.colorSafariRecatch) | 0xFF000000;
+            if (filled) ESPRenderer.drawFilledBox(matrices, pin, pinColor & 0x00FFFFFF, cameraPos, true);
+            ESPRenderer.drawBoxOutline(matrices, pin, pinColor, 2.0f, cameraPos, true);
+            SafariData.Critter pinned = RecatchSpots.pinnedCritter();
+            if (pinned != null) {
+                Vec3 mid = pin.getCenter();
+                ESPRenderer.drawText(matrices, "§eComes back: §f" + pinned.name(),
+                        new Vec3(mid.x, pin.maxY + 0.5, mid.z), 1.5f, cameraPos);
+            }
+        }
+
+        int wallColor = TeslaMapsConfig.parseColor(c.colorSafariWall) | 0xFF000000;
+        for (BlockPos p : walls) {
+            AABB box = new AABB(p);
+            if (filled) ESPRenderer.drawFilledBox(matrices, box, wallColor & 0x00FFFFFF, cameraPos, true);
+            ESPRenderer.drawBoxOutline(matrices, box, wallColor, 2.0f, cameraPos, true);
+        }
 
         for (Marker m : critters) {
             if (filled) ESPRenderer.drawFilledBox(matrices, m.box(), m.color(), cameraPos, true);

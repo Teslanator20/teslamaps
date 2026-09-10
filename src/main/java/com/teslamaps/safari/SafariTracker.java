@@ -105,6 +105,7 @@ public class SafariTracker {
             ensureRun();
             checkBoardReset();
             checkFull();
+            RecatchSpots.tick();
         }
         wasInSafari = in;
     }
@@ -204,6 +205,7 @@ public class SafariTracker {
     }
 
     private static void clearRun() {
+        RecatchSpots.reset();
         caughtSelf.clear();
         caughtAny.clear();
         gotAway.clear();
@@ -248,11 +250,17 @@ public class SafariTracker {
             alert("sparkling-chat-" + m.group(2), "§d§lSPARKLING §f" + m.group(2) + " §7caught by " + m.group(1));
             return;
         }
-        if (THREW.matcher(msg).matches()) { ensureRun(); capsules++; return; }
+        if ((m = THREW.matcher(msg)).matches()) {
+            ensureRun();
+            capsules++;
+            RecatchSpots.onThrow(SafariData.byName(m.group(1)));
+            return;
+        }
         if ((m = ESCAPED.matcher(msg)).matches() || (m = DODGED.matcher(msg)).matches()) {
             ensureRun();
             escapes++;
             SafariData.Critter c = SafariData.byName(m.group(1));
+            RecatchSpots.onEscape(c);
             if (c != null && !caughtAny.contains(c.name())) gotAway.add(c.name());
             return;
         }
@@ -314,6 +322,7 @@ public class SafariTracker {
         ensureRun();
 
         if (self) caughtSelf.add(c.name());
+        RecatchSpots.onCaught(c);
         gotAway.remove(c.name());
         if (caughtAny.add(c.name())) {
             perBiome.merge(c.biome(), 1, Integer::sum);

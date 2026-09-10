@@ -144,6 +144,8 @@ public class TeslaMaps implements ClientModInitializer {
         hud("sprinting", (g, d) -> { if (TeslaMapsConfig.get().section("Render")) com.teslamaps.features.SprintingOverlay.render(g, d); });
         hud("safari", (g, d) -> { if (TeslaMapsConfig.get().section("Critter Safari")) com.teslamaps.safari.SafariTracker.render(g, d); });
         hud("hotfperks", (g, d) -> { if (TeslaMapsConfig.get().section("Foraging")) com.teslamaps.features.foraging.HotfPerkDisplay.render(g, d); });
+        hud("pickaxeability", (g, d) -> { if (TeslaMapsConfig.get().section("Mining")) com.teslamaps.features.mining.PickaxeAbility.render(g, d); });
+        hud("mineshaftpity", (g, d) -> { if (TeslaMapsConfig.get().section("Mining")) com.teslamaps.features.mining.MineshaftPity.render(g, d); });
         hud("lather", (g, d) -> { if (TeslaMapsConfig.get().section("Foraging")) com.teslamaps.features.foraging.LatherOverlay.render(g, d); });
         hud("bobbertimer", (g, d) -> { if (TeslaMapsConfig.get().section("Fishing")) com.teslamaps.features.FishingBobberTimer.render(g, d); });
         hud("hookdisplay", (g, d) -> { if (TeslaMapsConfig.get().section("Fishing")) com.teslamaps.features.FishingHookDisplay.render(g, d); });
@@ -336,6 +338,11 @@ public class TeslaMaps implements ClientModInitializer {
                 if (cfg.section("Fishing")) { Perf.begin("UmbrellaWarning.tick"); com.teslamaps.features.UmbrellaWarning.tick(); Perf.end(); }
                 if (cfg.section("Fishing")) { Perf.begin("HotspotRadar.tick"); com.teslamaps.features.HotspotRadar.tick(); Perf.end(); }
                 if (cfg.section("Fishing")) { Perf.begin("HotspotWatcher.tick"); com.teslamaps.features.HotspotWatcher.tick(); Perf.end(); }
+                if (cfg.section("Mining")) {
+                    Perf.begin("PickaxeAbility.tick"); com.teslamaps.features.mining.PickaxeAbility.tick(); Perf.end();
+                    Perf.begin("MineshaftPity.tick"); com.teslamaps.features.mining.MineshaftPity.tick(); Perf.end();
+                    Perf.begin("HotmScan.tick"); com.teslamaps.features.mining.HotmScan.tick(); Perf.end();
+                }
                 Perf.begin("TranslucentLava.tick"); com.teslamaps.features.TranslucentLava.tick(); Perf.end();
                 Perf.begin("TranslucentWater.tick"); com.teslamaps.features.TranslucentWater.tick(); Perf.end();
                 if (cfg.section("Foraging")) {

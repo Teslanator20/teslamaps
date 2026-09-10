@@ -154,6 +154,8 @@ public class ChatMixin {
 
         if (fromServer && cfg.section("Shards")) com.teslamaps.features.hunting.HuntingBox.onChatMessage(text);
 
+        if (fromServer && cfg.section("Mining")) com.teslamaps.features.mining.MineshaftPity.onChatMessage(text);
+
         if (fromServer && cfg.section("Foraging")) {
             com.teslamaps.features.foraging.HoneyhiveReminder.onChatMessage(text);
             com.teslamaps.features.foraging.LatherReminder.onChatMessage(text);

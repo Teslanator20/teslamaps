@@ -1645,6 +1645,25 @@ public class MapConfigScreen extends Screen {
         mining.add(new ToggleEntry(contentX, contentWidth, "Corpse ESP", () -> config.corpseESP, v -> config.corpseESP = v));
         mining.add(new ToggleEntry(contentX, contentWidth, "  Type Colors", () -> config.corpseESPTypeColors, v -> config.corpseESPTypeColors = v));
         mining.add(new ColorEntry(contentX, contentWidth, "  Corpse Color", () -> config.colorCorpseESP, v -> config.colorCorpseESP = v));
+        mining.add(new LabelEntry(contentX, "Drill / Pickaxe Ability"));
+        mining.add(new ToggleEntry(contentX, contentWidth, "Ability Cooldown Display",
+                () -> config.pickaxeAbilityDisplay, v -> config.pickaxeAbilityDisplay = v));
+        mining.add(new ToggleEntry(contentX, contentWidth, "  Only On Mining Islands",
+                () -> config.pickaxeAbilityMiningOnly, v -> config.pickaxeAbilityMiningOnly = v));
+        mining.add(new ToggleEntry(contentX, contentWidth, "  Hide While Available",
+                () -> config.pickaxeAbilityOnlyOnCooldown, v -> config.pickaxeAbilityOnlyOnCooldown = v));
+        mining.add(new InfoEntry(contentX, "Needs the Pickaxe Ability tab widget: /tab"));
+        mining.add(new LabelEntry(contentX, "Mineshaft Pity"));
+        mining.add(new ToggleEntry(contentX, contentWidth, "Pity Counter Display",
+                () -> config.mineshaftPityDisplay, v -> config.mineshaftPityDisplay = v));
+        mining.add(new ToggleEntry(contentX, contentWidth, "Chat Line On Mineshaft Found",
+                () -> config.mineshaftFoundChat, v -> config.mineshaftFoundChat = v));
+        mining.add(new SliderEntry(contentX, contentWidth, "Mineshaft Chance Bonus (%)", 0f, 100f,
+                () -> config.mineshaftChanceBonus, v -> config.mineshaftChanceBonus = v, 1));
+        mining.add(new InfoEntry(contentX, "Set from Surveyor + Core of the Mountain when you open the HOTM menu"));
+        mining.add(new ButtonEntry(contentX, contentWidth, "Reset Mineshaft Stats",
+                () -> com.teslamaps.features.mining.MineshaftPity.resetStats()));
+        mining.add(new InfoEntry(contentX, "Needs the Pity widget: /tab > Pity > Glacite Tunnels"));
         categories.put("Mining", mining);
 
         List<SettingsEntry> garden = new ArrayList<>();
@@ -1950,9 +1969,15 @@ public class MapConfigScreen extends Screen {
         safari.add(new ToggleEntry(contentX, contentWidth, "  Tracer To Hideyho", () -> config.safariHideyhoTracer, v -> config.safariHideyhoTracer = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Bee Nest ESP", () -> config.safariNestESP, v -> config.safariNestESP = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Floor Spot ESP", () -> config.critterSpotESP, v -> config.critterSpotESP = v));
+        safari.add(new ToggleEntry(contentX, contentWidth, "Recatch Spot", () -> config.safariRecatchSpot, v -> config.safariRecatchSpot = v));
+        safari.add(new InfoEntry(contentX, "Marks where an escaped critter comes back"));
+        safari.add(new ToggleEntry(contentX, contentWidth, "Hidden Critter Walls", () -> config.safariWallMarkers, v -> config.safariWallMarkers = v));
+        safari.add(new InfoEntry(contentX, "Unbroken Snoozle / Troodon walls, while uncaught"));
         safari.add(new ColorEntry(contentX, contentWidth, "Sparkling Color", () -> config.colorSafariSparkling, v -> config.colorSafariSparkling = v));
         safari.add(new ColorEntry(contentX, contentWidth, "Bee Nest Color", () -> config.colorSafariNest, v -> config.colorSafariNest = v));
         safari.add(new ColorEntry(contentX, contentWidth, "Floor Spot Color", () -> config.colorCritterSpot, v -> config.colorCritterSpot = v));
+        safari.add(new ColorEntry(contentX, contentWidth, "Recatch Spot Color", () -> config.colorSafariRecatch, v -> config.colorSafariRecatch = v));
+        safari.add(new ColorEntry(contentX, contentWidth, "Wall Color", () -> config.colorSafariWall, v -> config.colorSafariWall = v));
         safari.add(new InfoEntry(contentX, "Hideyho and legendaries always get a name label"));
         safari.add(new InfoEntry(contentX, "Critter boxes are coloured by shard rarity"));
         categories.put("Critter Safari", safari);
@@ -2072,7 +2097,7 @@ public class MapConfigScreen extends Screen {
                 "Highlight Teammates", "Invisible Armor Stand ESP", "Pest ESP", "Pest Tracers",
                 "Dropped Item ESP", "Item Pickup Readiness",
                 "Miniboss ESP", "Enable Auto GFS", "Auto Wish (Healer Ult)", "Critter ESP",
-                "Critter ESP (Safari)", "Bee Nest ESP", "Exploding Frog ESP");
+                "Critter ESP (Safari)", "Bee Nest ESP", "Exploding Frog ESP", "Hidden Critter Walls");
         for (List<SettingsEntry> entries : categories.values()) {
             for (SettingsEntry e : entries) {
                 // trim: sub-options carry a leading indent that is not part of the name
