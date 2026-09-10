@@ -641,6 +641,8 @@ public class MapConfigScreen extends Screen {
         List<SettingsEntry> skills = new ArrayList<>();
         skills.add(new LabelEntry(contentX, "Skill Tracker"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v));
+        skills.add(new ToggleEntry(contentX, contentWidth, "Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v));
+        skills.add(new InfoEntry(contentX, "Keeps tracking either way — [Hide]/[Show] in the panel does the same"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Overflow Levels (menu + chat)", () -> config.skillOverflow, v -> config.skillOverflow = v));
         skills.add(new ToggleEntry(contentX, contentWidth, "Overflow Skill Avg. (menu tooltip)", () -> config.skillAvgOverflow, v -> config.skillAvgOverflow = v));
         skills.add(new ToggleEntry(contentX, contentWidth, "Level as Stack Size (skills menu)", () -> config.skillLevelStackSize, v -> config.skillLevelStackSize = v));

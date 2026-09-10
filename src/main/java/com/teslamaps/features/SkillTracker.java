@@ -387,11 +387,12 @@ public class SkillTracker {
     public static void render(GuiGraphicsExtractor ctx, DeltaTracker delta) {
         if (!shouldRender()) return;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (cfg.skillTrackerHidden && !inInventory()) return;
         Minecraft mc = Minecraft.getInstance();
         draw(ctx, mc, cfg.skillTrackerX, cfg.skillTrackerY, cfg.skillTrackerScale, lines(activeSkill));
     }
 
-    /** The reset button, only reachable from the inventory. */
+    /** The reset and hide/show buttons, only reachable from the inventory. */
     public static void onClick(double mouseX, double mouseY, int button) {
         if (!shouldRender() || !inInventory()) return;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
@@ -402,9 +403,18 @@ public class SkillTracker {
 
         if ((int) Math.floor(localY / 10.0) != ls.length - 1) return;
         String last = ls[ls.length - 1];
+        var font = Minecraft.getInstance().font;
+
+        String toggle = cfg.skillTrackerHidden ? SHOW : HIDE;
+        int tCut = last.indexOf(toggle);
+        if (tCut > 0 && localX >= font.width(last.substring(0, tCut)) - 2) {
+            cfg.skillTrackerHidden = !cfg.skillTrackerHidden;
+            cachedLines = null;
+            TeslaMapsConfig.save();
+            return;
+        }
         int cut = last.indexOf(RESET);
-        String before = cut > 0 ? last.substring(0, cut) : "";
-        if (localX >= Minecraft.getInstance().font.width(before) - 2) resetSession();
+        if (cut > 0 && localX >= font.width(last.substring(0, cut)) - 2) resetSession();
     }
 
     /** Clears the counters but keeps the known total xp, so levels stay right. */
@@ -415,6 +425,8 @@ public class SkillTracker {
     }
 
     private static final String RESET = "§c[Reset]";
+    private static final String HIDE = "§7[Hide]";
+    private static final String SHOW = "§a[Show]";
 
     /** How long the session has been running, idle time already trimmed by touch(). */
     private static String fmtDuration(long ms) {
@@ -491,9 +503,12 @@ public class SkillTracker {
             default -> { }
         }
 
-        // uptime always, the reset control only where it can be clicked
+        // uptime always, the controls only where they can be clicked
         String uptime = "§7Session: §f" + fmtDuration(s.liveActiveMs());
-        out.add(inInventory() ? uptime + " " + RESET : uptime);
+        if (inInventory()) {
+            uptime += " " + RESET + " " + (TeslaMapsConfig.get().skillTrackerHidden ? SHOW : HIDE);
+        }
+        out.add(uptime);
         return out.toArray(new String[0]);
     }
 

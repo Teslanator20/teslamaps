@@ -687,6 +687,7 @@ public class TeslaMapsConfig {
     public int skillTrackerY = 120;            // Y position of tracker HUD
     public int fishingCatchSource = 0;         // what counts as a catch: 0 = auto, 1 = sea creatures + trophies (chat), 2 = every catch (xp)
     public float skillTrackerScale = 1.0f;     // Scale of skill tracker HUD
+    public boolean skillTrackerHidden = false; // keep tracking, but only show the panel in the inventory
     public boolean fixDoubleClicks = true;     // Drop the duplicate use-on-block Hypixel sends for blaze daggers / autopet rods
     public boolean skillLevelStackSize = true;  // draw the skill level as the stack size in the skills menu
     public boolean skillAvgOverflow = true;     // add the overflow skill average to the "Your Skills" tooltip
