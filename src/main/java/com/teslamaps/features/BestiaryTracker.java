@@ -153,19 +153,14 @@ public class BestiaryTracker {
         return added;
     }
 
-    /** The mobs the tab shows right now, in tab order. */
+    /** The non-maxed mobs the tab shows right now, in tab order. */
     public static List<String> currentTabMobs() {
         List<String> out = new ArrayList<>();
         for (String line : tabEntries()) {
-            String name = null;
-            Matcher max = MAXED.matcher(line);
-            if (max.matches()) {
-                name = max.group(1).trim();
-            } else {
-                Matcher m = ENTRY.matcher(line);
-                if (m.matches()) name = m.group(1).trim();
-            }
-            if (name == null || name.isEmpty() || isSkill(name) || out.contains(name)) continue;
+            Matcher m = ENTRY.matcher(line);
+            if (!m.matches()) continue;
+            String name = m.group(1).trim();
+            if (name.isEmpty() || isSkill(name) || out.contains(name)) continue;
             out.add(name);
         }
         return out;
