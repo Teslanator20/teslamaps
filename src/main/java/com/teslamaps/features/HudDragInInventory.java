@@ -141,6 +141,20 @@ public class HudDragInInventory {
                     value -> TeslaMapsConfig.get().charmedVisitorScale = value,
                     CharmedVisitors::onClick),
 
+            new Panel("Contests",
+                    ContestTimers::shouldRender,
+                    () -> panelBounds(TeslaMapsConfig.get().contestTimerX,
+                            TeslaMapsConfig.get().contestTimerY,
+                            ContestTimers.width(TeslaMapsConfig.get().contestTimerScale),
+                            ContestTimers.height(TeslaMapsConfig.get().contestTimerScale)),
+                    xy -> {
+                        TeslaMapsConfig.get().contestTimerX = xy[0];
+                        TeslaMapsConfig.get().contestTimerY = xy[1];
+                    },
+                    () -> TeslaMapsConfig.get().contestTimerScale,
+                    value -> TeslaMapsConfig.get().contestTimerScale = value,
+                    null),
+
             new Panel("Routine",
                     () -> TeslaMapsConfig.get().pestRoutineHud,
                     () -> panelBounds(TeslaMapsConfig.get().pestRoutineX,

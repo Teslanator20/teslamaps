@@ -1166,6 +1166,7 @@ public class TeslaMapsConfig {
     public boolean contestShowForaging = true;
     public boolean contestShowFarming = true;
     public boolean contestTimerSkyblockOnly = true;
+    public boolean contestTimerButton = true;       // hide/show button in the player inventory
     public int contestTimerX = 5;
     public int contestTimerY = 120;
     public float contestTimerScale = 1.0f;

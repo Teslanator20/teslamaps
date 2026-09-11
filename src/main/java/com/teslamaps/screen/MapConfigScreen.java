@@ -1930,7 +1930,9 @@ public class MapConfigScreen extends Screen {
                 () -> config.contestShowFarming, v -> config.contestShowFarming = v));
         contests.add(new ToggleEntry(contentX, contentWidth, "  SkyBlock Only",
                 () -> config.contestTimerSkyblockOnly, v -> config.contestTimerSkyblockOnly = v));
-        contests.add(new InfoEntry(contentX, "Position and scale in /tmap gui"));
+        contests.add(new ToggleEntry(contentX, contentWidth, "  Button In Inventory",
+                () -> config.contestTimerButton, v -> config.contestTimerButton = v));
+        contests.add(new InfoEntry(contentX, "Drag it in the inventory, or in /tmap gui"));
         contests.add(new LabelEntry(contentX, "Alerts"));
         contests.add(new ToggleEntry(contentX, contentWidth, "Start Alerts",
                 () -> config.contestAlerts, v -> config.contestAlerts = v));

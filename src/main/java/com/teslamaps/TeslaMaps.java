@@ -87,6 +87,7 @@ public class TeslaMaps implements ClientModInitializer {
         com.teslamaps.features.Updater.init();
         com.teslamaps.features.customize.Customize.init();
         com.teslamaps.screen.customize.CustomizeButton.register();
+        com.teslamaps.screen.ContestTimersButton.register();
 
         com.teslamaps.render.gui.ImageBackgrounds.init();
         com.teslamaps.features.capes.CapeManager.init();

@@ -1,7 +1,6 @@
 package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.utils.HudVisibility;
 import com.teslamaps.utils.LoudSound;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.SoundOptions;
@@ -11,6 +10,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 
 /** Real-time HUD and alerts for Agatha's and Jacob's recurring contests. */
@@ -140,13 +140,23 @@ public final class ContestTimers {
         return String.format("%d:%02d", seconds / 60, seconds % 60);
     }
 
+    public static boolean shouldRender() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.contestTimer) return false;
+        if (c.contestTimerSkyblockOnly && !SkyblockUtils.isInSkyblock()) return false;
+        return c.contestShowForaging || c.contestShowFarming;
+    }
+
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.contestTimer || HudVisibility.suppressed()) return;
-        if (c.contestTimerSkyblockOnly && !SkyblockUtils.isInSkyblock()) return;
-        if (!c.contestShowForaging && !c.contestShowFarming) return;
-        draw(context, Minecraft.getInstance(), c.contestTimerX, c.contestTimerY,
-                c.contestTimerScale, lines());
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.options.hideGui) return;
+        // container screens keep it up, so it stays draggable from the inventory
+        if (mc.screen != null
+                && !(mc.screen instanceof net.minecraft.client.gui.screens.ChatScreen)
+                && !(mc.screen instanceof AbstractContainerScreen)) return;
+        if (!shouldRender()) return;
+        draw(context, mc, c.contestTimerX, c.contestTimerY, c.contestTimerScale, lines());
     }
 
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
@@ -167,6 +177,14 @@ public final class ContestTimers {
             context.text(mc.font, lines.get(row), 0, row * (mc.font.lineHeight + 1), 0xFFFFFFFF);
         }
         pose.popMatrix();
+    }
+
+    public static int width(float scale) {
+        return (int) (previewSize(Minecraft.getInstance().font)[0] * scale);
+    }
+
+    public static int height(float scale) {
+        return (int) (previewSize(Minecraft.getInstance().font)[1] * scale);
     }
 
     public static int[] previewSize(Font font) {
