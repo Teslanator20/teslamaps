@@ -234,7 +234,8 @@ public class ConfigProfiles {
             "chatFilterMilestone", "chatFilterPerkBuffs", "chatFilterWatchdog", "chatFilterMort",
             "chatFilterProfileInfo", "chatFilterServerMsgs",
             // qol
-            "infiniteChat", "chatStacking", "commandSuggestions",
+            "infiniteChat", "chatStacking", "commandSuggestions", "commandSuggestionsPlayers",
+            "gfsSuggestions",
             "searchbar", "scrollableTooltip", "hudDragInInventory", "backpackPreview", "signEnterKey",
     };
 
