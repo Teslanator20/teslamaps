@@ -227,6 +227,41 @@ public class HypixelApi {
         }, executor);
     }
 
+    /** The hypixel player object - ranks, socials. The pv api answers empty here, so this needs a key. */
+    public static CompletableFuture<JsonObject> getPlayer(String uuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            String cacheKey = "player:" + uuid;
+            CacheEntry cached = cache.get(cacheKey);
+            if (cached != null && !cached.isExpired()) return cached.data;
+
+            String apiKey = TeslaMapsConfig.get().hypixelApiKey;
+            if (apiKey == null || apiKey.isBlank()) return new JsonObject();
+
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(HYPIXEL_API + "/player?uuid=" + uuid))
+                        .timeout(Duration.ofSeconds(15))
+                        .header("API-Key", apiKey)
+                        .header("User-Agent", "TeslaMaps/1.0")
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() != 200) return new JsonObject();
+
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                if (!json.has("player") || !json.get("player").isJsonObject()) return new JsonObject();
+
+                JsonObject player = json.getAsJsonObject("player");
+                cache.put(cacheKey, new CacheEntry(player, 600000));
+                return player;
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.warn("Failed to fetch the hypixel player for {}: {}", uuid, e.toString());
+                return new JsonObject();
+            }
+        }, executor);
+    }
+
     /** null = key works, otherwise the reason. Hypixel dropped /key, so this uses a real request. */
     public static CompletableFuture<String> validateKey(String uuid) {
         return CompletableFuture.supplyAsync(() -> {

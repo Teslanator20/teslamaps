@@ -12,6 +12,11 @@ base {
 
 repositories {
     mavenCentral()
+    // DevAuth, so runClient can log into a real account (~/.devauth)
+    maven {
+        url = 'https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1'
+        content { includeGroupAndSubgroups('me.djtheredstoner') }
+    }
 }
 
 loom {
@@ -23,6 +28,10 @@ loom {
             // ./gradlew.bat runClient -Pjfr=120  -> run/teslamaps.jfr
             // JFR sees every thread and records allocation, GC and safepoints,
             // which the render-thread sampler in spark cannot.
+            // ./gradlew.bat runClient -Pda=alt  -> log in as that devauth account
+            if (project.hasProperty("da")) {
+                property "devauth.account", project.da
+            }
             if (project.hasProperty("jfr")) {
                 vmArgs "-XX:StartFlightRecording=duration=${project.jfr}s,settings=profile," +
                         "filename=${rootDir}/run/teslamaps.jfr,dumponexit=true"
@@ -40,6 +49,9 @@ dependencies {
 
     // Include Gson for JSON parsing (bundled with Minecraft but explicit)
     implementation 'com.google.code.gson:gson:2.10.1'
+
+    // dev only: real account login for runClient, picks the account from ~/.devauth/config.toml
+    runtimeOnly "me.djtheredstoner:DevAuth-fabric:${devauth_version}"
 }
 
 processResources {

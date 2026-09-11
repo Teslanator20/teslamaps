@@ -74,7 +74,9 @@ public class BasicPage extends ProfileViewerPage {
 
         // left column: name, player, status
         String name = profiles != null ? profiles.getDisplayName() : "";
-        drawCentered(ctx, tr, name, left + 63, top + 8, NeuStyle.TEXT);
+        net.minecraft.network.chat.Component titled = com.teslamaps.profileviewer.data.LegacyText.parse(
+                (profiles != null ? profiles.getRankPrefix() : "") + name);
+        ctx.text(tr, titled, left + 63 - tr.width(titled) / 2, top + 8, -1);
 
         if (profiles != null && com.teslamaps.features.capes.CapeSync.isUser(profiles.getUuid())) {
             drawCentered(ctx, tr, "TeslaMaps user", left + 63, top + 17, NeuStyle.TEXT_AQUA);
@@ -112,7 +114,6 @@ public class BasicPage extends ProfileViewerPage {
         int sbX = left + 162;
         int sbY = top + 74;
         double sbLevel = profile.getSkyblockLevel();
-        ctx.item(new ItemStack(Items.PLAYER_HEAD), sbX, sbY);
         drawCentered(ctx, tr, "SkyBlock Level", sbX + 9, sbY - 24, NeuStyle.TEXT_GRAY);
         drawCentered(ctx, tr, String.valueOf((int) sbLevel), sbX + 9, sbY - 12, NeuStyle.TEXT_AQUA);
         double sbProgress = sbLevel - (long) sbLevel;
@@ -129,16 +130,17 @@ public class BasicPage extends ProfileViewerPage {
         }
 
 
-        // skills: two columns of eight, 80 wide bars
+        // six and six, with catacombs as the twelfth entry so both columns are even
         Map<String, SkillData> skills = profile.getSkills();
         int position = 0;
         for (Map.Entry<String, SkillData> entry : skills.entrySet()) {
             SkillData skill = entry.getValue();
-            int column = position / 8;
-            int row = position % 8;
+            int column = position / 6;
+            int row = position % 6;
             int sx = left + 237 + 86 * column;
-            int sy = top + 24 + 21 * row;
+            int sy = top + 24 + 25 * row;
             position++;
+            if (position > 12) break;
 
             boolean overflow = skill.hasOverflow();
             int level = overflow ? skill.getOverflowLevel() : skill.getLevel();
@@ -163,6 +165,33 @@ public class BasicPage extends ProfileViewerPage {
             }
         }
 
+        // catacombs sits with the skills, it levels the same way
+        if (profile.getDungeonData() != null && position < 12) {
+            int column = position / 6;
+            int row = position % 6;
+            int sx = left + 237 + 86 * column;
+            int sy = top + 24 + 25 * row;
+            com.teslamaps.api.DungeonData dungeons = profile.getDungeonData();
+
+            ctx.item(new ItemStack(Items.WITHER_SKELETON_SKULL), sx, sy - 9);
+            String levelStr = String.valueOf(dungeons.getCatacombsLevel());
+            int levelWidth = tr.width(levelStr);
+            scaledText(ctx, tr, "Catacombs", sx + 17, sy - 3, 80 - 19 - levelWidth - 3, NeuStyle.TEXT_RED);
+            ctx.text(tr, levelStr, sx + 80 - levelWidth, sy - 4, NeuStyle.TEXT);
+            NeuStyle.bar(ctx, sx, sy + 8, 80, dungeons.getCatacombsProgress());
+
+            if (mouseX > sx && mouseX < sx + 80 && mouseY > sy - 9 && mouseY < sy + 14) {
+                tooltip = new String[]{
+                        "Catacombs",
+                        "Level: " + dungeons.getCatacombsLevel(),
+                        "Total XP: " + formatXp(dungeons.getCatacombsXp()),
+                        "Secrets: " + dungeons.getSecretsFound(),
+                };
+                tooltipX = mouseX;
+                tooltipY = mouseY;
+            }
+        }
+
         if (tooltip != null) {
             drawTooltip(ctx, tr);
             tooltip = null;
@@ -176,7 +205,7 @@ public class BasicPage extends ProfileViewerPage {
         return com.teslamaps.profileviewer.data.InventoryDecoder.decode(inventory, "inv_armor");
     }
 
-    private float skinYaw = 15f;
+    private float skinYaw = 200f;
     private float skinPitch = 0f;
     private double lastDragX;
     private double lastDragY;

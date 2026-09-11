@@ -119,6 +119,82 @@ public class SkyblockProfiles {
     }
 
     private String status = "Status unknown";
+    private String rankPrefix = "";
+
+    public String getRankPrefix() {
+        return rankPrefix;
+    }
+
+    /**
+     * Rank needs the hypixel player object. The pv backend answers that route empty, so this
+     * only fills in once an own api key is set.
+     */
+    public void loadPlayer() {
+        com.teslamaps.api.HypixelApi.getPlayer(uuid).thenAccept(player -> {
+            if (player == null || player.keySet().isEmpty()) return;
+            rankPrefix = buildRank(player);
+        });
+    }
+
+    private static String buildRank(JsonObject player) {
+        String staff = string(player, "rank");
+        if (staff != null && !staff.equals("NORMAL")) {
+            return switch (staff) {
+                case "ADMIN" -> "§c[ADMIN] ";
+                case "GAME_MASTER" -> "§2[GM] ";
+                case "MODERATOR" -> "§2[MOD] ";
+                case "HELPER" -> "§9[HELPER] ";
+                case "YOUTUBER" -> "§c[§fYOUTUBE§c] ";
+                default -> "";
+            };
+        }
+
+        String plusColor = colorCode(string(player, "rankPlusColor"), "§c");
+        String monthly = string(player, "monthlyPackageRank");
+        if ("SUPERSTAR".equals(monthly)) {
+            String base = colorCode(string(player, "monthlyRankColor"), "§6");
+            return base + "[MVP" + plusColor + "++" + base + "] ";
+        }
+
+        String package_ = string(player, "newPackageRank");
+        if (package_ == null) package_ = string(player, "packageRank");
+        if (package_ == null) return "§7";
+
+        return switch (package_) {
+            case "MVP_PLUS" -> "§b[MVP" + plusColor + "+§b] ";
+            case "MVP" -> "§b[MVP] ";
+            case "VIP_PLUS" -> "§a[VIP§6+§a] ";
+            case "VIP" -> "§a[VIP] ";
+            default -> "§7";
+        };
+    }
+
+    private static String string(JsonObject object, String key) {
+        return object.has(key) && object.get(key).isJsonPrimitive() ? object.get(key).getAsString() : null;
+    }
+
+    private static String colorCode(String name, String fallback) {
+        if (name == null) return fallback;
+        return switch (name) {
+            case "BLACK" -> "§0";
+            case "DARK_BLUE" -> "§1";
+            case "DARK_GREEN" -> "§2";
+            case "DARK_AQUA" -> "§3";
+            case "DARK_RED" -> "§4";
+            case "DARK_PURPLE" -> "§5";
+            case "GOLD" -> "§6";
+            case "GRAY" -> "§7";
+            case "DARK_GRAY" -> "§8";
+            case "BLUE" -> "§9";
+            case "GREEN" -> "§a";
+            case "AQUA" -> "§b";
+            case "RED" -> "§c";
+            case "LIGHT_PURPLE" -> "§d";
+            case "YELLOW" -> "§e";
+            case "WHITE" -> "§f";
+            default -> fallback;
+        };
+    }
 
     public String getGuildName() {
         return null;
