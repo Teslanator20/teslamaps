@@ -8,12 +8,9 @@ import com.teslamaps.utils.SkyblockItems;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ScrollableLayout;
 import net.minecraft.client.gui.components.StringWidget;
-import net.minecraft.client.gui.layouts.LayoutSettings;
-import net.minecraft.client.gui.layouts.LinearLayout;
-import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.core.component.DataComponents;
@@ -31,7 +28,9 @@ import java.util.function.BiConsumer;
 /** The real skyblock dyes as a list to pick from. Ported from Skyblocker. */
 public class DyeSelectPopup extends PopupScreen {
 
-    private ScrollableLayout scrollableLayout;
+    private static final int LIST_WIDTH = 150 + net.minecraft.client.gui.components.AbstractScrollArea.SCROLLBAR_WIDTH;
+
+    private DyeListWidget list;
     private StringWidget titleWidget;
     private Button closeButton;
 
@@ -47,41 +46,39 @@ public class DyeSelectPopup extends PopupScreen {
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
-        extractPopupBackground(graphics, scrollableLayout.getX(), scrollableLayout.getY(), scrollableLayout.getWidth(), scrollableLayout.getHeight());
+        extractPopupBackground(graphics, list.getX(), list.getY(), list.getWidth(), list.getHeight());
     }
 
     @Override
     protected void repositionElements() {
         super.repositionElements();
-        scrollableLayout.setMaxHeight(Math.min(300, (int) (height * 0.68)));
-        scrollableLayout.arrangeElements();
-        scrollableLayout.setPosition((width - scrollableLayout.getWidth()) / 2, (height - scrollableLayout.getHeight()) / 2);
+        if (list == null) return;
+        list.setX((width - list.getWidth()) / 2);
+        list.setY((height - list.getHeight()) / 2);
 
-        closeButton.setPosition((width - closeButton.getWidth()) / 2, scrollableLayout.getY() + scrollableLayout.getHeight() + 20);
-        titleWidget.setPosition((width - titleWidget.getWidth()) / 2, scrollableLayout.getY() - 30);
+        closeButton.setPosition((width - closeButton.getWidth()) / 2, list.getBottom() + 20);
+        titleWidget.setPosition((width - titleWidget.getWidth()) / 2, list.getY() - 30);
     }
 
     @Override
     protected void init() {
-        LinearLayout layout = LinearLayout.vertical();
-        layout.defaultCellSetting().alignHorizontallyCenter();
-
-        LayoutSettings headerLayout = layout.defaultCellSetting().copy().paddingBottom(6);
-        layout.addChild(new StringWidget(Component.translatable("teslamaps.customize.armor.pickDye.dyes",
-                Component.translatable("teslamaps.customize.armor.pickDye.dyes.static")), font), headerLayout);
+        List<AbstractWidget> rows = new ArrayList<>();
+        rows.add(new DyeListWidget.Header(Component.translatable("teslamaps.customize.armor.pickDye.dyes",
+                Component.translatable("teslamaps.customize.armor.pickDye.dyes.static"))));
         RepoDyeColors.STATIC_DYES.forEach((name, hex) ->
-                layout.addChild(new StaticDyeButton(name, hex, button -> selectStaticDye(button, hex))));
+                rows.add(new StaticDyeButton(name, hex, button -> selectStaticDye(button, hex))));
 
-        layout.addChild(SpacerElement.height(15));
-        layout.addChild(new StringWidget(Component.translatable("teslamaps.customize.armor.pickDye.dyes",
-                Component.translatable("teslamaps.customize.armor.pickDye.dyes.animated")), font), headerLayout);
+        rows.add(new DyeListWidget.Header(Component.translatable("teslamaps.customize.armor.pickDye.dyes",
+                Component.translatable("teslamaps.customize.armor.pickDye.dyes.animated"))));
         RepoDyeColors.ANIMATED_DYES.forEach((name, colors) -> {
             if (name.startsWith("FAIRY")) return;
-            layout.addChild(new AnimatedDyeButton(name, colors, button -> selectAnimatedDye(button, colors)));
+            rows.add(new AnimatedDyeButton(name, colors, button -> selectAnimatedDye(button, colors)));
         });
 
-        scrollableLayout = new ScrollableLayout(minecraft, layout, 0);
-        scrollableLayout.visitWidgets(this::addRenderableWidget);
+        // whole rows only, and leave room for the title above and the cancel button below
+        int visibleRows = Math.clamp((height - 100) / DyeListWidget.ROW, 3, Math.max(3, rows.size()));
+        list = new DyeListWidget(LIST_WIDTH, visibleRows, rows);
+        addRenderableWidget(list);
 
         titleWidget = new StringWidget(Component.translatable("teslamaps.customize.armor.pickDye.title"), font);
         closeButton = Button.builder(CommonComponents.GUI_CANCEL, b -> onClose()).width(75).build();

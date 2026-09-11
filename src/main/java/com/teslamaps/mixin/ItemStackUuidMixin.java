@@ -28,7 +28,9 @@ public abstract class ItemStackUuidMixin implements DataComponentHolder, Customi
     @Unique
     public String teslamaps$uuid() {
         if (teslamaps$cachedUuid != null) return teslamaps$cachedUuid;
-        CustomData data = get(DataComponents.CUSTOM_DATA);
+        // straight off the map: CustomComponentMixin injects into get() and asks for the uuid,
+        // so going through get() here is infinite recursion
+        CustomData data = getComponents().get(DataComponents.CUSTOM_DATA);
         return teslamaps$cachedUuid = data == null ? "" : data.copyTag().getString("uuid").orElse("");
     }
 
