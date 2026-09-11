@@ -22,7 +22,10 @@ public class PetData {
             5765240
     };
 
-    public PetData(String type, String tier, double exp, boolean active, String heldItem, String skin) {
+    private final int candyUsed;
+
+    public PetData(String type, String tier, double exp, boolean active, String heldItem, String skin, int candyUsed) {
+        this.candyUsed = candyUsed;
         this.type = type;
         this.tier = tier;
         this.exp = exp;
@@ -88,6 +91,22 @@ public class PetData {
             default -> 0;
         };
     }
+
+    public int getCandyUsed() { return candyUsed; }
+
+    /** The paragraph colour hypixel uses for this rarity. */
+    public String getRarityCode() {
+        return switch (tier.toUpperCase()) {
+            case "UNCOMMON" -> "§a";
+            case "RARE" -> "§9";
+            case "EPIC" -> "§5";
+            case "LEGENDARY" -> "§6";
+            case "MYTHIC" -> "§d";
+            case "DIVINE" -> "§b";
+            default -> "§f";
+        };
+    }
+
 
     public int getRarityColor() {
         return switch (tier.toUpperCase()) {

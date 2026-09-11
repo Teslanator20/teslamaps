@@ -41,6 +41,12 @@ public class ProfileViewerScreen extends Screen {
 
     private boolean profileDropdownOpen = false;
     private String hoveredTab = null;
+    private net.minecraft.world.item.ItemStack hoveredStack = net.minecraft.world.item.ItemStack.EMPTY;
+
+    public void setHoveredStack(net.minecraft.world.item.ItemStack stack) {
+        this.hoveredStack = stack;
+    }
+
     private String nameInput = null;
     private long nameCursorBlink = 0;
     private int scale = 1;
@@ -154,6 +160,12 @@ public class ProfileViewerScreen extends Screen {
                     page.render(ctx, 8, contentY, NeuStyle.PANEL_WIDTH - 16, contentHeight,
                             mx, my + page.getScroll(), delta);
                     ctx.pose().popMatrix();
+
+        // outside the panel transform, so it sits on top and lands where the cursor is
+        if (!hoveredStack.isEmpty()) {
+            ctx.setTooltipForNextFrame(font, hoveredStack, mouseX, mouseY);
+            hoveredStack = net.minecraft.world.item.ItemStack.EMPTY;
+        }
                     ctx.disableScissor();
                 }
             }

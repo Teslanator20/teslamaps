@@ -174,17 +174,17 @@ public class InventoriesPage extends ProfileViewerPage {
         }
 
         int columns = section == Section.EQUIPMENT ? 4 : 9;
-        List<String> tooltip = ItemGrid.draw(ctx, slots, gridX, gridY, columns, 0,
+        ItemStack hovered = ItemGrid.draw(ctx, slots, gridX, gridY, columns, 0,
                 Math.min(slots.size(), columns * 9), mouseX, mouseY);
 
         if (section == Section.INVENTORY) {
             int sideX = gridX + 9 * ItemGrid.SLOT + 8;
             ctx.text(tr, "Armor", sideX, gridY - 10, NeuStyle.TEXT_GRAY);
-            List<String> armorTip = ItemGrid.draw(ctx, reverse(sideArmor), sideX, gridY, 1, 0, 4, mouseX, mouseY);
+            ItemStack armorHover = ItemGrid.draw(ctx, reverse(sideArmor), sideX, gridY, 1, 0, 4, mouseX, mouseY);
             ctx.text(tr, "Equip", sideX + ItemGrid.SLOT + 6, gridY - 10, NeuStyle.TEXT_GRAY);
-            List<String> equipTip = ItemGrid.draw(ctx, sideEquipment, sideX + ItemGrid.SLOT + 6, gridY, 1, 0, 4,
+            ItemStack equipHover = ItemGrid.draw(ctx, sideEquipment, sideX + ItemGrid.SLOT + 6, gridY, 1, 0, 4,
                     mouseX, mouseY);
-            if (tooltip == null) tooltip = armorTip != null ? armorTip : equipTip;
+            if (hovered.isEmpty()) hovered = !armorHover.isEmpty() ? armorHover : equipHover;
         }
 
         if (pageCount > 1) {
@@ -199,7 +199,7 @@ public class InventoriesPage extends ProfileViewerPage {
             pagerW = 0;
         }
 
-        ItemGrid.drawTooltip(ctx, tooltip, mouseX, mouseY);
+        hoverStack(hovered);
     }
 
     /** Splits a container into the current page and pads it to a full grid. */

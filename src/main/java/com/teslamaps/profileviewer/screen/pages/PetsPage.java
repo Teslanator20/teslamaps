@@ -2,7 +2,11 @@ package com.teslamaps.profileviewer.screen.pages;
 
 import com.teslamaps.profileviewer.data.PetData;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
+import com.teslamaps.profileviewer.data.LegacyText;
 import com.teslamaps.profileviewer.screen.ItemGrid;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.component.ItemLore;
 import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import com.teslamaps.utils.SkyblockItems;
@@ -23,6 +27,7 @@ public class PetsPage extends ProfileViewerPage {
     private static final int ROWS = 5;
     private static final int PER_PAGE = COLUMNS * ROWS;
 
+    private static final Map<String, ItemStack> petBases = new HashMap<>();
     private static final Map<String, ItemStack> petStacks = new HashMap<>();
 
     private int page = 0;
@@ -79,7 +84,7 @@ public class PetsPage extends ProfileViewerPage {
         int gridX = left + (NeuStyle.PANEL_WIDTH - gridWidth) / 2;
         int gridY = top + 20;
 
-        List<String> tooltip = null;
+        ItemStack hovered = ItemStack.EMPTY;
 
         for (int i = 0; i < PER_PAGE; i++) {
             int index = page * PER_PAGE + i;
@@ -105,7 +110,7 @@ public class PetsPage extends ProfileViewerPage {
 
             if (mouseX >= sx && mouseX < sx + 17 && mouseY >= sy && mouseY < sy + 17) {
                 ctx.fill(sx + 1, sy + 1, sx + 16, sy + 16, 0x40FFFFFF);
-                tooltip = tooltipFor(pet);
+                hovered = stack;
             }
         }
 
@@ -119,27 +124,80 @@ public class PetsPage extends ProfileViewerPage {
             pagerW = 0;
         }
 
-        ItemGrid.drawTooltip(ctx, tooltip, mouseX, mouseY);
+        hoverStack(hovered);
     }
 
+    /** Builds the pet the way the game shows it: level in the name, rarity colour, lore below. */
     private static ItemStack stackFor(PetData pet) {
-        String id = pet.getType() + ";" + pet.getRarityOrdinal();
-        ItemStack cached = petStacks.get(id);
+        String key = pet.getType() + ";" + pet.getRarityOrdinal() + ";" + pet.getLevel()
+                + ";" + pet.getCandyUsed() + ";" + pet.getHeldItem() + ";" + pet.isActive();
+        ItemStack cached = petStacks.get(key);
         if (cached != null) return cached;
-        petStacks.put(id, new ItemStack(Items.BONE));
-        SkyblockItems.resolve(id, stack -> petStacks.put(id, stack));
-        return petStacks.get(id);
+
+        String repoId = pet.getType() + ";" + pet.getRarityOrdinal();
+        ItemStack base = petBases.get(repoId);
+        if (base == null) {
+            petBases.put(repoId, ItemStack.EMPTY);
+            SkyblockItems.resolve(repoId, stack -> {
+                petBases.put(repoId, stack);
+                petStacks.remove(key);
+            });
+            base = ItemStack.EMPTY;
+        }
+
+        ItemStack stack = (base.isEmpty() ? new ItemStack(Items.BONE) : base.copy());
+
+        net.minecraft.nbt.CompoundTag extra = new net.minecraft.nbt.CompoundTag();
+        extra.putString("id", "PET");
+        extra.putString("petInfo", "{\"type\":\"" + pet.getType() + "\",\"tier\":\"" + pet.getTier()
+                + "\",\"exp\":" + (long) pet.getExp() + ",\"candyUsed\":" + pet.getCandyUsed()
+                + (pet.getHeldItem() != null ? ",\"heldItem\":\"" + pet.getHeldItem() + "\"" : "")
+                + (pet.getSkin() != null ? ",\"skin\":\"" + pet.getSkin() + "\"" : "")
+                + ",\"active\":" + pet.isActive() + "}");
+        stack.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(extra));
+        stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, pet.isActive());
+
+        String color = pet.getRarityCode();
+        stack.set(DataComponents.CUSTOM_NAME,
+                LegacyText.parse("§7[Lvl " + pet.getLevel() + "] " + color + pet.getDisplayName()));
+
+        List<Component> lore = new ArrayList<>();
+        if (pet.getHeldItem() != null) {
+            lore.add(LegacyText.parse("§7Held Item: §6" + pretty(pet.getHeldItem())));
+            lore.add(Component.empty());
+        }
+        if (pet.getLevel() >= 100) {
+            lore.add(LegacyText.parse("§bMAX LEVEL"));
+        } else {
+            int percent = (int) Math.round(pet.getProgress() * 100);
+            lore.add(LegacyText.parse("§7Progress to Level " + (pet.getLevel() + 1) + ": §e" + percent + "%"));
+            lore.add(LegacyText.parse(bar(pet.getProgress())));
+        }
+        lore.add(LegacyText.parse("§7Total XP: §e" + format(pet.getExp())));
+        if (pet.getCandyUsed() > 0) {
+            lore.add(LegacyText.parse("§a(" + pet.getCandyUsed() + "/10) Pet Candy Used"));
+        }
+        if (pet.getSkin() != null) {
+            lore.add(LegacyText.parse("§7Skin: §d" + pretty(pet.getSkin())));
+        }
+        lore.add(Component.empty());
+        lore.add(LegacyText.parse(color + pet.getTier().toUpperCase() + (pet.isActive() ? " PET §a(active)" : " PET")));
+        stack.set(DataComponents.LORE, new ItemLore(lore));
+
+        petStacks.put(key, stack);
+        return stack;
     }
 
-    private static List<String> tooltipFor(PetData pet) {
-        List<String> lines = new ArrayList<>();
-        lines.add(pet.getDisplayName());
-        lines.add("Level " + pet.getLevel());
-        lines.add("XP " + (long) pet.getExp());
-        if (pet.getHeldItem() != null) lines.add("Held: " + pretty(pet.getHeldItem()));
-        if (pet.getSkin() != null) lines.add("Skin: " + pretty(pet.getSkin()));
-        if (pet.isActive()) lines.add("Active");
-        return lines;
+    /** The green progress bar hypixel prints under the percentage. */
+    private static String bar(double progress) {
+        int filled = (int) Math.round(Math.max(0, Math.min(1, progress)) * 20);
+        return "§2" + "-".repeat(filled) + "§f" + "-".repeat(20 - filled);
+    }
+
+    private static String format(double value) {
+        if (value >= 1_000_000) return String.format("%.1fM", value / 1_000_000);
+        if (value >= 1_000) return String.format("%.1fK", value / 1_000);
+        return String.valueOf((long) value);
     }
 
     private static String pretty(String id) {

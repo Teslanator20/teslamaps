@@ -26,19 +26,28 @@ public class InventoryDecoder {
         public final String name;
         public final List<String> lore;
         public final int count;
+        /** Hypixel's whole ExtraAttributes tag - enchants, stars, reforge, hpb, uuid. */
+        public final CompoundTag extraAttributes;
+        public final boolean enchanted;
 
-        Slot(String skyblockId, String name, List<String> lore, int count) {
+        Slot(String skyblockId, String name, List<String> lore, int count, CompoundTag extraAttributes) {
+            this(skyblockId, name, lore, count, extraAttributes, false);
+        }
+
+        Slot(String skyblockId, String name, List<String> lore, int count, CompoundTag extraAttributes, boolean enchanted) {
+            this.enchanted = enchanted;
             this.skyblockId = skyblockId;
             this.name = name;
             this.lore = lore;
             this.count = count;
+            this.extraAttributes = extraAttributes;
         }
 
         public boolean isEmpty() {
             return skyblockId == null && name == null;
         }
 
-        public static final Slot EMPTY = new Slot(null, null, List.of(), 0);
+        public static final Slot EMPTY = new Slot(null, null, List.of(), 0, null);
     }
 
     /** Reads inventory.<key>.data, returns an empty list when the player hid their api. */
@@ -89,11 +98,10 @@ public class InventoryDecoder {
 
         int count = item.getByteOr("Count", (byte) 0);
         CompoundTag tag = item.getCompound("tag").orElse(null);
-        if (tag == null) return count > 0 ? new Slot(null, null, List.of(), count) : Slot.EMPTY;
+        if (tag == null) return count > 0 ? new Slot(null, null, List.of(), count, null) : Slot.EMPTY;
 
-        String id = tag.getCompound("ExtraAttributes")
-                .flatMap(extra -> extra.getString("id"))
-                .orElse(null);
+        CompoundTag extra = tag.getCompound("ExtraAttributes").orElse(null);
+        String id = extra != null ? extra.getString("id").orElse(null) : null;
 
         String name = null;
         List<String> lore = new ArrayList<>();
@@ -109,6 +117,7 @@ public class InventoryDecoder {
         }
 
         if (id == null && name == null) return Slot.EMPTY;
-        return new Slot(id, name, lore, Math.max(count, 1));
+        boolean enchanted = tag.getList("ench").map(list -> !list.isEmpty()).orElse(false);
+        return new Slot(id, name, lore, Math.max(count, 1), extra, enchanted);
     }
 }

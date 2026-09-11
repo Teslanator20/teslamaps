@@ -97,7 +97,8 @@ public class SkyblockProfile {
                 String skin = petJson.has("skin") && !petJson.get("skin").isJsonNull() ?
                         petJson.get("skin").getAsString() : null;
 
-                pets.add(new PetData(type, tier, exp, active, heldItem, skin));
+                int candy = petJson.has("candyUsed") ? petJson.get("candyUsed").getAsInt() : 0;
+                pets.add(new PetData(type, tier, exp, active, heldItem, skin, candy));
             }
 
             pets.sort((a, b) -> {
