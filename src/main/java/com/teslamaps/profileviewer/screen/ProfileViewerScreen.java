@@ -54,6 +54,12 @@ public class ProfileViewerScreen extends Screen {
         this.hoveredStack = stack;
     }
 
+    private java.util.List<Component> hoveredLines = null;
+
+    public void setHoveredLines(java.util.List<Component> lines) {
+        this.hoveredLines = lines;
+    }
+
     private String nameInput = null;
     private long nameCursorBlink = 0;
     private int scale = 1;
@@ -174,12 +180,6 @@ public class ProfileViewerScreen extends Screen {
                     page.render(ctx, 8, contentY, NeuStyle.PANEL_WIDTH - 16, contentHeight,
                             mx, my + page.getScroll(), delta);
                     ctx.pose().popMatrix();
-
-        // outside the panel transform, so it sits on top and lands where the cursor is
-        if (!hoveredStack.isEmpty()) {
-            ctx.setTooltipForNextFrame(font, hoveredStack, mouseX, mouseY);
-            hoveredStack = net.minecraft.world.item.ItemStack.EMPTY;
-        }
                     ctx.disableScissor();
                 }
             }
@@ -195,7 +195,10 @@ public class ProfileViewerScreen extends Screen {
         if (!hoveredStack.isEmpty()) {
             ctx.setTooltipForNextFrame(font, hoveredStack, mouseX, mouseY);
             hoveredStack = net.minecraft.world.item.ItemStack.EMPTY;
+        } else if (hoveredLines != null) {
+            ctx.setComponentTooltipForNextFrame(font, hoveredLines, mouseX, mouseY);
         }
+        hoveredLines = null;
     }
 
     private void renderTabs(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {

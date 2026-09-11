@@ -94,16 +94,15 @@ public class BasicPage extends ProfileViewerPage {
             tooltipY = mouseY;
         }
 
-        // the rotating player, dragging inside the box spins it
-        playerBoxX = left + 23;
-        playerBoxY = top + 44;
+        // the player preview, looking at the cursor like the vanilla inventory does
         NeuStyle.slimBox(ctx, left + 23, top + 44, 81, 108);
         if (profiles != null) {
             PvPlayerRender.setArmor(profiles.getUuid(), name, armorSlots(profile));
             // entity renders live in screen space, not inside our scaled panel
             PvPlayerRender.draw(ctx, profiles.getUuid(), name,
                     screenX(left + 26), screenY(top + 47),
-                    screenX(left + 101), screenY(top + 149), skinYaw, skinPitch);
+                    screenX(left + 101), screenY(top + 149),
+                    screenX(mouseX), screenY(mouseY));
         }
 
         String status = profiles != null ? profiles.getOnlineStatus() : "";
@@ -204,42 +203,6 @@ public class BasicPage extends ProfileViewerPage {
                 ? profile.getMemberData().getAsJsonObject("inventory") : null;
         return com.teslamaps.profileviewer.data.InventoryDecoder.decode(inventory, "inv_armor");
     }
-
-    private float skinYaw = 200f;
-    private float skinPitch = 0f;
-    private double lastDragX;
-    private double lastDragY;
-    private boolean dragging;
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (mouseX >= playerBoxX && mouseX <= playerBoxX + 81
-                && mouseY >= playerBoxY && mouseY <= playerBoxY + 108) {
-            dragging = true;
-            lastDragX = mouseX;
-            lastDragY = mouseY;
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button) {
-        if (!dragging) return false;
-        skinYaw += (float) (mouseX - lastDragX) * 2f;
-        skinPitch = Math.max(-40f, Math.min(40f, skinPitch + (float) (mouseY - lastDragY)));
-        lastDragX = mouseX;
-        lastDragY = mouseY;
-        return true;
-    }
-
-    @Override
-    public void mouseReleased() {
-        dragging = false;
-    }
-
-    private int playerBoxX;
-    private int playerBoxY;
 
     private String[] tooltip;
     private int tooltipX;

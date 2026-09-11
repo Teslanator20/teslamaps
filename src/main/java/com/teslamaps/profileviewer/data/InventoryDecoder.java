@@ -29,13 +29,17 @@ public class InventoryDecoder {
         /** Hypixel's whole ExtraAttributes tag - enchants, stars, reforge, hpb, uuid. */
         public final CompoundTag extraAttributes;
         public final boolean enchanted;
+        /** Leather dye from display.color, -1 when the piece is not dyed. */
+        public final int color;
 
         Slot(String skyblockId, String name, List<String> lore, int count, CompoundTag extraAttributes) {
-            this(skyblockId, name, lore, count, extraAttributes, false);
+            this(skyblockId, name, lore, count, extraAttributes, false, -1);
         }
 
-        Slot(String skyblockId, String name, List<String> lore, int count, CompoundTag extraAttributes, boolean enchanted) {
+        Slot(String skyblockId, String name, List<String> lore, int count, CompoundTag extraAttributes,
+             boolean enchanted, int color) {
             this.enchanted = enchanted;
+            this.color = color;
             this.skyblockId = skyblockId;
             this.name = name;
             this.lore = lore;
@@ -104,9 +108,11 @@ public class InventoryDecoder {
         String id = extra != null ? extra.getString("id").orElse(null) : null;
 
         String name = null;
+        int color = -1;
         List<String> lore = new ArrayList<>();
         CompoundTag display = tag.getCompound("display").orElse(null);
         if (display != null) {
+            color = display.getInt("color").orElse(-1);
             name = display.getString("Name").orElse(null);
             ListTag loreTag = display.getList("Lore").orElse(null);
             if (loreTag != null) {
@@ -118,6 +124,6 @@ public class InventoryDecoder {
 
         if (id == null && name == null) return Slot.EMPTY;
         boolean enchanted = tag.getList("ench").map(list -> !list.isEmpty()).orElse(false);
-        return new Slot(id, name, lore, Math.max(count, 1), extra, enchanted);
+        return new Slot(id, name, lore, Math.max(count, 1), extra, enchanted, color);
     }
 }

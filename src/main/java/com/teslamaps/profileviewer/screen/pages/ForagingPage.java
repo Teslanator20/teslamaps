@@ -2,34 +2,32 @@ package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.data.PerkRegistry;
+import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.PerkTreeView;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import com.teslamaps.profileviewer.ui.Kit;
+import com.teslamaps.profileviewer.ui.Ui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Heart of the Forest, the foraging counterpart to the mining page. */
+/** Heart of the Forest: the perk tree, forest whispers and the Galatea tree gifts. */
 public class ForagingPage extends ProfileViewerPage {
-    private static final int SECTION = 120;
 
-    // cumulative hotf xp per tier, same shape as the mining one
-    private static final long[] HOTF_XP = {
-            0, 3_000, 9_000, 25_000, 60_000, 100_000, 150_000, 210_000, 290_000, 400_000,
-    };
+    private static final int GIFT_MILESTONE_MAX = 7;
 
-    @Override
-    public boolean isFixedLayout() {
-        return true;
-    }
+    // cumulative tree xp per tier, same brackets the mountain uses
+    private static final long[] TIER_XP = {3000, 12000, 37000, 97000, 197000, 347000, 557000, 847000, 1247000};
+
+    private static final Map<String, String> TREE_ICONS = Map.of(
+            "FIG", "mangrove_log", "MANGROVE", "mangrove_log", "HELIX", "pale_oak_log");
 
     @Override
     public String getTabName() {
@@ -44,101 +42,22 @@ public class ForagingPage extends ProfileViewerPage {
     @Override
     public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
-        Font tr = Minecraft.getInstance().font;
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
+        drawTree(ctx, build(profile.getMemberData(), width), x, y, mouseX, mouseY);
+    }
 
-        JsonObject member = profile.getMemberData();
-        int left = x - 8;
-        int top = y - 8;
-
-        JsonObject skillTree = member.has("skill_tree") ? member.getAsJsonObject("skill_tree") : null;
+    private Ui build(JsonObject member, int width) {
+        JsonObject skillTree = object(member, "skill_tree");
         JsonObject nodes = skillTree != null && skillTree.has("nodes")
-                && skillTree.getAsJsonObject("nodes").has("foraging")
-                ? skillTree.getAsJsonObject("nodes").getAsJsonObject("foraging") : null;
+                ? object(skillTree.getAsJsonObject("nodes"), "foraging") : null;
+        JsonObject core = object(member, "foraging_core");
+        JsonObject foraging = object(member, "foraging");
 
         int tier = nodes != null ? asInt(nodes.get("center_of_the_forest")) : 0;
-        long xp = skillTree != null && skillTree.has("experience")
-                ? asLong(skillTree.getAsJsonObject("experience").get("foraging")) : 0;
+        long xp = skillTree != null ? asLong(get(object(skillTree, "experience"), "foraging")) : 0;
 
-        int cx = left + 14;
-        int cy = top + 10;
-
-        ctx.text(tr, "Heart of the Forest", cx, cy, NeuStyle.TEXT_GREEN);
-        cy += 12;
-
-        ctx.text(tr, "Tier " + tier, cx, cy, NeuStyle.TEXT);
-        String xpText = formatXp(xp);
-        ctx.text(tr, xpText, cx + SECTION - tr.width(xpText), cy, NeuStyle.TEXT_GRAY);
-        cy += 10;
-        NeuStyle.bar(ctx, cx, cy, SECTION, progress(xp, tier));
-        cy += 16;
-
-        if (skillTree != null && skillTree.has("tokens_spent")) {
-            JsonObject spent = skillTree.getAsJsonObject("tokens_spent");
-            int forest = 0;
-            for (Map.Entry<String, JsonElement> entry : spent.entrySet()) {
-                if (entry.getKey().startsWith("forest")) forest += asInt(entry.getValue());
-            }
-            row(ctx, tr, cx, cy, "Tokens spent:", String.valueOf(forest), NeuStyle.TEXT);
-            cy += 12;
-        }
-
-        JsonObject core = member.has("foraging_core") ? member.getAsJsonObject("foraging_core") : null;
-        if (core != null) {
-            row(ctx, tr, cx, cy, "Trees today:", String.valueOf(asInt(core.get("daily_trees_cut"))), NeuStyle.TEXT);
-            cy += 11;
-            row(ctx, tr, cx, cy, "Gifts today:", String.valueOf(asInt(core.get("daily_gifts"))), NeuStyle.TEXT);
-            cy += 16;
-
-            if (core.has("whispers")) {
-                ctx.text(tr, "Whispers", cx, cy, NeuStyle.TEXT_GREEN);
-                cy += 12;
-                JsonObject whispers = core.getAsJsonObject("whispers");
-                for (Map.Entry<String, JsonElement> entry : whispers.entrySet()) {
-                    if (!entry.getValue().isJsonObject()) continue;
-                    long total = asLong(entry.getValue().getAsJsonObject().get("total"));
-                    if (total <= 0) continue;
-                    row(ctx, tr, cx, cy, capitalize(entry.getKey()), formatXp(total), NeuStyle.TEXT_GRAY);
-                    cy += 10;
-                }
-            }
-        }
-
-        // middle: personal bests and the fish family
-        int mx = left + 150;
-        int my = top + 10;
-
-        JsonObject foraging = member.has("foraging") ? member.getAsJsonObject("foraging") : null;
-        if (foraging != null) {
-            JsonObject starlyn = foraging.has("starlyn") ? foraging.getAsJsonObject("starlyn") : null;
-            if (starlyn != null && starlyn.has("personal_bests")) {
-                ctx.text(tr, "Personal Bests", mx, my, NeuStyle.TEXT_GREEN);
-                my += 12;
-                JsonObject bests = starlyn.getAsJsonObject("personal_bests");
-                for (Map.Entry<String, JsonElement> entry : bests.entrySet()) {
-                    row(ctx, tr, mx, my, capitalize(entry.getKey()), formatXp(asLong(entry.getValue())),
-                            NeuStyle.TEXT_GRAY);
-                    my += 10;
-                }
-                my += 6;
-            }
-
-            if (foraging.has("fish_family") && foraging.get("fish_family").isJsonArray()) {
-                int found = foraging.getAsJsonArray("fish_family").size();
-                row(ctx, tr, mx, my, "Fish family:", String.valueOf(found), NeuStyle.TEXT);
-                my += 12;
-            }
-
-            if (foraging.has("tree_gifts")) {
-                row(ctx, tr, mx, my, "Tree gifts:",
-                        String.valueOf(foraging.getAsJsonObject("tree_gifts").size()), NeuStyle.TEXT);
-            }
-        }
-
-        // the real tree, node positions and formulas come from the bundled perks.json
-        List<PerkRegistry.Perk> tree = PerkRegistry.hotf();
-        Map<String, Integer> levels = new java.util.HashMap<>();
+        Map<String, Integer> levels = new HashMap<>();
         if (nodes != null) {
             for (Map.Entry<String, JsonElement> entry : nodes.entrySet()) {
                 if (entry.getKey().startsWith("toggle_")) continue;
@@ -146,33 +65,115 @@ public class ForagingPage extends ProfileViewerPage {
             }
         }
 
-        int treeX = left + NeuStyle.PANEL_WIDTH - PerkTreeView.width(tree) - 10;
-        ItemStack hovered = PerkTreeView.render(ctx, tree, levels, tier, PerkTreeView.FORAGING,
-                treeX, top + 8, mouseX, mouseY);
-        hoverStack(hovered);
+        List<PerkRegistry.Perk> perks = PerkRegistry.hotf();
+        Ui tree = PerkTreeView.component(perks, levels, tier, PerkTreeView.FORAGING);
+        int sideWidth = Math.max(140, width - tree.width() - 10);
+
+        return Ui.col(10,
+                header(width, tier, xp, skillTree),
+                tiles(width, core, foraging),
+                Ui.row(10, Ui.V.TOP, tree, Ui.col(10,
+                        Kit.section("Tree Gifts", gifts(foraging, sideWidth)),
+                        Kit.section("Personal Bests", personalBests(foraging, sideWidth)))));
     }
 
-    private void row(GuiGraphicsExtractor ctx, Font tr, int x, int y, String label, String value, int color) {
-        ctx.text(tr, label, x, y, NeuStyle.TEXT_GRAY);
-        ctx.text(tr, value, x + SECTION - tr.width(value), y, color);
-    }
-
-    private static double progress(long xp, int tier) {
-        if (tier >= HOTF_XP.length) return 1;
-        long base = HOTF_XP[Math.max(0, tier - 1)];
-        long next = HOTF_XP[Math.min(HOTF_XP.length - 1, tier)];
-        if (next <= base) return 1;
-        return Math.max(0, Math.min(1, (double) (xp - base) / (next - base)));
-    }
-
-    private static String capitalize(String key) {
-        String[] words = key.replace('_', ' ').toLowerCase().split(" ");
-        StringBuilder out = new StringBuilder();
-        for (String word : words) {
-            if (word.isEmpty()) continue;
-            if (!out.isEmpty()) out.append(' ');
-            out.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+    private Ui header(int width, int tier, long xp, JsonObject skillTree) {
+        int spent = 0;
+        JsonObject tokens = object(skillTree, "tokens_spent");
+        if (tokens != null) {
+            for (Map.Entry<String, JsonElement> entry : tokens.entrySet()) {
+                if (entry.getKey().startsWith("forest")) spent += asInt(entry.getValue());
+            }
         }
-        return out.toString();
+        return Ui.col(4,
+                new Ui.SpaceBetween(width,
+                        Ui.row(6, Ui.V.CENTER,
+                                new Ui.Label("Heart of the Forest", NeuStyle.TEXT, Ui.SUBTITLE),
+                                new Ui.Label("Tier " + tier, NeuStyle.TEXT_GREEN)),
+                        new Ui.Label(Kit.compact(xp) + " XP", NeuStyle.TEXT_GRAY)),
+                Kit.bar(width, progress(xp)),
+                new Ui.Label(spent + " tokens spent", NeuStyle.TEXT_GRAY));
+    }
+
+    private Ui tiles(int width, JsonObject core, JsonObject foraging) {
+        long whispers = 0;
+        JsonObject whisperData = object(core, "whispers");
+        if (whisperData != null) {
+            for (Map.Entry<String, JsonElement> entry : whisperData.entrySet()) {
+                if (entry.getValue().isJsonObject()) {
+                    whispers += asLong(entry.getValue().getAsJsonObject().get("total"));
+                }
+            }
+        }
+        int fish = foraging != null && foraging.has("fish_family") && foraging.get("fish_family").isJsonArray()
+                ? foraging.getAsJsonArray("fish_family").size() : 0;
+
+        return Kit.tileRow(width, List.of(
+                new Kit.TileData("Whispers", Kit.compact(whispers), NeuStyle.TEXT_AQUA),
+                new Kit.TileData("Trees Today", String.valueOf(asInt(get(core, "daily_trees_cut"))), NeuStyle.TEXT_GREEN),
+                new Kit.TileData("Gifts Today", String.valueOf(asInt(get(core, "daily_gifts"))), NeuStyle.TEXT_GREEN),
+                new Kit.TileData("Fish Family", String.valueOf(fish), NeuStyle.TEXT)));
+    }
+
+    private Ui gifts(JsonObject foraging, int width) {
+        JsonObject trees = object(foraging, "tree_gifts");
+        if (trees == null) return new Ui.Label("No tree gifts yet", NeuStyle.TEXT_GRAY);
+
+        JsonObject claimed = object(trees, "milestone_tier_claimed");
+        List<Ui> cards = new ArrayList<>();
+        for (Map.Entry<String, JsonElement> entry : trees.entrySet()) {
+            if (entry.getKey().equals("milestone_tier_claimed")) continue;
+            if (!entry.getValue().isJsonPrimitive()) continue;
+
+            long amount = asLong(entry.getValue());
+            int tier = asInt(get(claimed, entry.getKey()));
+            boolean maxed = tier >= GIFT_MILESTONE_MAX;
+            int color = maxed ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA;
+            int bodyWidth = width - 16 - 6;
+
+            Ui body = Ui.col(2,
+                    new Ui.SpaceBetween(bodyWidth,
+                            new Ui.Label(Kit.prettify(entry.getKey()), NeuStyle.TEXT),
+                            Ui.row(6, Ui.V.CENTER,
+                                    new Ui.Label(tier + "/" + GIFT_MILESTONE_MAX, color),
+                                    new Ui.Label(Kit.compact(amount) + " gifts", NeuStyle.TEXT_GRAY))),
+                    Kit.bar(bodyWidth, (double) tier / GIFT_MILESTONE_MAX, color));
+
+            String icon = TREE_ICONS.getOrDefault(entry.getKey(), "oak_log");
+            cards.add(Ui.row(6, Ui.V.CENTER, new Ui.Icon(Kit.icon(icon), 16, false, null), body));
+        }
+        return cards.isEmpty() ? new Ui.Label("No tree gifts yet", NeuStyle.TEXT_GRAY) : Ui.col(5, cards);
+    }
+
+    private Ui personalBests(JsonObject foraging, int width) {
+        JsonObject bests = object(object(foraging, "starlyn"), "personal_bests");
+        if (bests == null) return new Ui.Label("None yet", NeuStyle.TEXT_GRAY);
+
+        List<Ui> rows = new ArrayList<>();
+        for (Map.Entry<String, JsonElement> entry : bests.entrySet()) {
+            rows.add(new Ui.SpaceBetween(width,
+                    new Ui.Label(Kit.prettify(entry.getKey()), NeuStyle.TEXT_GRAY),
+                    new Ui.Label(String.format("%,d", asLong(entry.getValue())), NeuStyle.TEXT)));
+        }
+        return rows.isEmpty() ? new Ui.Label("None yet", NeuStyle.TEXT_GRAY) : Ui.col(3, rows);
+    }
+
+    /** Progress inside whatever xp bracket the player currently sits in. */
+    private static double progress(long xp) {
+        long base = 0;
+        for (long threshold : TIER_XP) {
+            if (xp < threshold) return (double) (xp - base) / (threshold - base);
+            base = threshold;
+        }
+        return 1;
+    }
+
+    private static JsonObject object(JsonObject parent, String key) {
+        return parent != null && parent.has(key) && parent.get(key).isJsonObject()
+                ? parent.getAsJsonObject(key) : null;
+    }
+
+    private static JsonElement get(JsonObject parent, String key) {
+        return parent != null && parent.has(key) ? parent.get(key) : null;
     }
 }

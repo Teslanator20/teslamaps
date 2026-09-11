@@ -1,37 +1,33 @@
 package com.teslamaps.profileviewer.screen.pages;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.teslamaps.api.HypixelApi;
+import com.teslamaps.profileviewer.data.GardenRegistry;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
+import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import com.teslamaps.profileviewer.screen.ProfileViewerScreen;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import com.teslamaps.profileviewer.ui.Kit;
+import com.teslamaps.profileviewer.ui.Ui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/** Garden: level, plots, crop milestones and the composter. Laid out like schrumbo's farming page. */
 public class GardenPage extends ProfileViewerPage {
-    private static final int TEXT_WHITE = 0xFFFFFFFF;
-    private static final int TEXT_GRAY = 0xFF888888;
-    private static final int TEXT_GREEN = 0xFF55FF55;
-    private static final int TEXT_GOLD = 0xFFFFAA00;
-    private static final int BAR_BG = 0xFF333333;
 
-    private JsonObject gardenData;
+    private static final List<String> COMPOSTER_KEYS = List.of(
+            "SPEED", "MULTI_DROP", "FUEL_CAP", "ORGANIC_MATTER_CAP", "COST_REDUCTION");
+    private static final List<String> COMPOSTER_NAMES = List.of(
+            "Speed", "Multi Drop", "Fuel Cap", "Organic Matter Cap", "Cost Reduction");
+    private static final int COMPOSTER_MAX = 25;
+
+    private JsonObject garden;
     private boolean loading = true;
-
-    private static final String[] CROPS = {
-            "WHEAT", "CARROT", "POTATO", "PUMPKIN", "MELON",
-            "MUSHROOM", "CACTUS", "SUGAR_CANE", "NETHER_WART", "COCOA_BEANS"
-    };
-
-    private static final String[] CROP_NAMES = {
-            "Wheat", "Carrot", "Potato", "Pumpkin", "Melon",
-            "Mushroom", "Cactus", "Sugar Cane", "Nether Wart", "Cocoa Beans"
-    };
 
     @Override
     public String getTabName() {
@@ -46,154 +42,139 @@ public class GardenPage extends ProfileViewerPage {
     @Override
     public void init(ProfileViewerScreen parent, SkyblockProfiles profiles) {
         super.init(parent, profiles);
-        loadGardenData();
+        garden = null;
+        load();
     }
 
     @Override
     public void onSelected() {
-        if (gardenData == null && !loading) {
-            loadGardenData();
-        }
+        if (garden == null && !loading) load();
     }
 
-    private void loadGardenData() {
+    private void load() {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
-
         loading = true;
         HypixelApi.getGarden(profile.getProfileId()).thenAccept(data -> {
-            // the route answers {success, garden:{...}}
-            this.gardenData = data != null && data.has("garden") && data.get("garden").isJsonObject()
+            garden = data != null && data.has("garden") && data.get("garden").isJsonObject()
                     ? data.getAsJsonObject("garden") : data;
-            this.loading = false;
+            loading = false;
         });
     }
 
     @Override
     public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
-        Font tr = Minecraft.getInstance().font;
-        int padding = 15;
-        int contentX = x + padding;
-        int col2X = x + width / 2;
-
-        int lineY = y + padding;
-
-        ctx.text(tr, "Garden", contentX, lineY, TEXT_GREEN);
-        lineY += 20;
-
         if (loading) {
-            ctx.text(tr, "Loading garden data...", contentX, lineY, TEXT_GRAY);
+            ctx.text(net.minecraft.client.Minecraft.getInstance().font, "Loading garden...",
+                    x, y + 6, NeuStyle.TEXT_GRAY);
+            return;
+        }
+        if (garden == null || garden.has("error")) {
+            ctx.text(net.minecraft.client.Minecraft.getInstance().font, "No garden data",
+                    x, y + 6, NeuStyle.TEXT_GRAY);
             return;
         }
 
-        if (gardenData == null || gardenData.has("error")) {
-            String error = gardenData != null && gardenData.has("error") ?
-                    gardenData.get("error").getAsString() : "Failed to load garden data";
-            ctx.text(tr, error, contentX, lineY, TEXT_GRAY);
-            return;
-        }
-
-        if (gardenData.has("garden_experience")) {
-            long exp = gardenData.get("garden_experience").getAsLong();
-            int level = calculateGardenLevel(exp);
-            ctx.text(tr, "Garden Level: " + level, contentX, lineY, TEXT_GOLD);
-            lineY += 20;
-        }
-
-        ctx.text(tr, "Crop Milestones", contentX, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject cropMilestones = gardenData.has("resources_collected") ?
-                gardenData.getAsJsonObject("resources_collected") : null;
-
-        for (int i = 0; i < CROPS.length && i < 5; i++) {
-            String cropKey = CROPS[i];
-            String cropName = CROP_NAMES[i];
-
-            long collected = 0;
-            if (cropMilestones != null && cropMilestones.has(cropKey)) {
-                collected = cropMilestones.get(cropKey).getAsLong();
-            }
-
-            int milestone = calculateCropMilestone(collected);
-            ctx.text(tr, cropName + ": " + milestone, contentX, lineY,
-                    milestone > 0 ? TEXT_WHITE : TEXT_GRAY);
-            lineY += 12;
-        }
-
-        lineY = y + padding + 36;
-        for (int i = 5; i < CROPS.length; i++) {
-            String cropKey = CROPS[i];
-            String cropName = CROP_NAMES[i];
-
-            long collected = 0;
-            if (cropMilestones != null && cropMilestones.has(cropKey)) {
-                collected = cropMilestones.get(cropKey).getAsLong();
-            }
-
-            int milestone = calculateCropMilestone(collected);
-            ctx.text(tr, cropName + ": " + milestone, col2X, lineY,
-                    milestone > 0 ? TEXT_WHITE : TEXT_GRAY);
-            lineY += 12;
-        }
-
-        lineY = y + padding;
-        ctx.text(tr, "Visitors", col2X, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        if (gardenData.has("commission_data")) {
-            JsonObject commissions = gardenData.getAsJsonObject("commission_data");
-
-            if (commissions.has("visits")) {
-                JsonObject visits = commissions.getAsJsonObject("visits");
-                int totalVisits = 0;
-                for (var entry : visits.entrySet()) {
-                    if (entry.getValue().isJsonPrimitive()) {
-                        totalVisits += asInt(entry.getValue());
-                    }
-                }
-                ctx.text(tr, "Total Visits: " + formatNumber(totalVisits), col2X, lineY, TEXT_WHITE);
-                lineY += 12;
-            }
-        }
-
-        lineY += 8;
-        ctx.text(tr, "Composter", col2X, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        if (gardenData.has("composter_data")) {
-            JsonObject composter = gardenData.getAsJsonObject("composter_data");
-
-            if (composter.has("organic_matter")) {
-                long organicMatter = composter.get("organic_matter").getAsLong();
-                ctx.text(tr, "Organic Matter: " + formatNumber(organicMatter), col2X, lineY, TEXT_WHITE);
-                lineY += 12;
-            }
-
-            if (composter.has("fuel_units")) {
-                long fuel = composter.get("fuel_units").getAsLong();
-                ctx.text(tr, "Fuel: " + formatNumber(fuel), col2X, lineY, TEXT_WHITE);
-            }
-        }
+        drawTree(ctx, build(width), x, y, mouseX, mouseY);
     }
 
-    private int calculateGardenLevel(long exp) {
-        long[] thresholds = {0, 70, 100, 140, 240, 600, 1500, 2000, 2500, 3000,
-                10000, 10000, 10000, 10000, 10000};
-        long total = 0;
-        for (int i = 0; i < thresholds.length; i++) {
-            total += thresholds[i];
-            if (exp < total) return i;
-        }
-        return 15;
+    private Ui build(int width) {
+        List<Ui> parts = new ArrayList<>();
+        parts.add(header(width));
+        parts.add(Kit.section("Crop Milestones", crops(width)));
+        parts.add(Kit.section("Composter", composter(width)));
+        return Ui.col(10, parts);
     }
 
-    private int calculateCropMilestone(long collected) {
-        long[] thresholds = {100, 150, 250, 500, 1500, 5000, 15000, 50000, 150000, 500000};
-        for (int i = thresholds.length - 1; i >= 0; i--) {
-            if (collected >= thresholds[i]) return i + 1;
+    private Ui header(int width) {
+        long experience = asLong(garden.get("garden_experience"));
+        GardenRegistry.Level level = GardenRegistry.level(experience);
+        boolean overflow = level.level() >= level.max();
+        int color = overflow ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA;
+
+        int plots = garden.has("unlocked_plots_ids") && garden.get("unlocked_plots_ids").isJsonArray()
+                ? garden.getAsJsonArray("unlocked_plots_ids").size() : 0;
+        JsonObject upgrades = object(garden, "garden_upgrades");
+        JsonObject commissions = object(garden, "commission_data");
+
+        return Ui.col(5,
+                new Ui.SpaceBetween(width,
+                        Ui.row(5, Ui.V.CENTER,
+                                new Ui.Icon(Kit.icon("oak_sapling"), 12, false, null),
+                                new Ui.Label("Garden Level " + level.level(), color)),
+                        new Ui.Label(plots + "/" + GardenRegistry.PLOTS_TOTAL + " plots", NeuStyle.TEXT_GRAY)),
+                Kit.bar(width, level.progress()),
+                Kit.tileRow(width, List.of(
+                        new Kit.TileData("Growth Speed", String.valueOf(asInt(get(upgrades, "GROWTH_SPEED"))), NeuStyle.TEXT_GREEN),
+                        new Kit.TileData("Yield", String.valueOf(asInt(get(upgrades, "YIELD"))), NeuStyle.TEXT_GREEN),
+                        new Kit.TileData("Visitors Served", String.valueOf(asInt(get(commissions, "unique_npcs_served"))), NeuStyle.TEXT_AQUA),
+                        new Kit.TileData("Visits", Kit.compact(asLong(get(commissions, "total_completed"))), NeuStyle.TEXT))));
+    }
+
+    private Ui crops(int width) {
+        JsonObject collected = object(garden, "resources_collected");
+        JsonObject upgrades = object(garden, "crop_upgrade_levels");
+        int columns = 2;
+        int cellWidth = Kit.cellWidth(width, columns, 12);
+
+        List<Ui> rows = new ArrayList<>();
+        for (GardenRegistry.Crop crop : GardenRegistry.CROPS) {
+            long amount = asLong(get(collected, crop.key()));
+            GardenRegistry.Milestone milestone = GardenRegistry.milestone(crop.key(), amount);
+            int color = milestone.maxed() ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA;
+            int bodyWidth = cellWidth - 16 - 6;
+
+            Ui body = Ui.col(2,
+                    new Ui.SpaceBetween(bodyWidth,
+                            new Ui.Label(crop.display(), NeuStyle.TEXT),
+                            Ui.row(6, Ui.V.CENTER,
+                                    new Ui.Label("Tier " + milestone.tier(), color),
+                                    new Ui.Label(Kit.compact(amount), NeuStyle.TEXT_GRAY))),
+                    Kit.bar(bodyWidth, milestone.progress(), color));
+
+            List<String> tooltip = List.of(
+                    "§a" + crop.display(),
+                    "§7Milestone §f" + milestone.tier(),
+                    "§7Collected §f" + String.format("%,d", amount),
+                    "§7Crop upgrade §f" + asInt(get(upgrades, crop.key())) + "§7/§89");
+
+            rows.add(new Ui.Tip(Ui.row(6, Ui.V.CENTER,
+                    new Ui.Icon(Kit.icon(crop.icon()), 16, false, null), body), tooltip));
         }
-        return 0;
+        return Kit.grid(rows, columns, 12, 6);
+    }
+
+    private Ui composter(int width) {
+        JsonObject composter = object(garden, "composter_data");
+        JsonObject upgrades = object(composter, "upgrades");
+
+        List<Ui> rows = new ArrayList<>();
+        int cellWidth = Kit.cellWidth(width, 2, 12);
+        for (int i = 0; i < COMPOSTER_KEYS.size(); i++) {
+            int level = asInt(get(upgrades, COMPOSTER_KEYS.get(i).toLowerCase()));
+            if (level == 0) level = asInt(get(upgrades, COMPOSTER_KEYS.get(i)));
+            boolean maxed = level >= COMPOSTER_MAX;
+            rows.add(new Ui.SpaceBetween(cellWidth,
+                    new Ui.Label(COMPOSTER_NAMES.get(i), NeuStyle.TEXT),
+                    new Ui.Label(level + "/" + COMPOSTER_MAX, maxed ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA)));
+        }
+
+        return Ui.col(8,
+                Kit.tileRow(width, List.of(
+                        new Kit.TileData("Organic Matter", Kit.compact(asLong(get(composter, "organic_matter"))), NeuStyle.TEXT_GREEN),
+                        new Kit.TileData("Fuel", Kit.compact(asLong(get(composter, "fuel_units"))), NeuStyle.TEXT_GOLD),
+                        new Kit.TileData("Compost", Kit.compact(asLong(get(composter, "compost_units"))), NeuStyle.TEXT_AQUA),
+                        new Kit.TileData("Items", Kit.compact(asLong(get(composter, "compost_items"))), NeuStyle.TEXT))),
+                Kit.grid(rows, 2, 12, 6));
+    }
+
+    private static JsonObject object(JsonObject parent, String key) {
+        return parent != null && parent.has(key) && parent.get(key).isJsonObject()
+                ? parent.getAsJsonObject(key) : null;
+    }
+
+    private static com.google.gson.JsonElement get(JsonObject parent, String key) {
+        return parent != null && parent.has(key) ? parent.get(key) : null;
     }
 }

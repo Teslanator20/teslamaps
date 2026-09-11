@@ -91,6 +91,19 @@ public abstract class ProfileViewerPage {
         return parent == null ? panelY : parent.toScreenY(panelY);
     }
 
+    /** Renders a laid out component tree and hands its hover result to the screen. */
+    protected void drawTree(GuiGraphicsExtractor ctx, com.teslamaps.profileviewer.ui.Ui root,
+                            int x, int y, int mouseX, int mouseY) {
+        com.teslamaps.profileviewer.ui.Ui.resetHover();
+        root.render(ctx, x, y, mouseX, mouseY);
+        hoverStack(com.teslamaps.profileviewer.ui.Ui.hoveredStack);
+        if (com.teslamaps.profileviewer.ui.Ui.hoveredLines != null && parent != null) {
+            parent.setHoveredLines(com.teslamaps.profileviewer.ui.Ui.hoveredLines);
+        }
+        com.teslamaps.profileviewer.ui.Ui.resetHover();
+        setContentHeight(root.height() + 24);
+    }
+
     /** Vanilla tooltip for an item, drawn by the screen so other mods can hook it. */
     protected void hoverStack(net.minecraft.world.item.ItemStack stack) {
         if (parent != null && stack != null && !stack.isEmpty()) parent.setHoveredStack(stack);

@@ -23,7 +23,8 @@ import java.util.Map;
  * every node the vanilla item hypixel uses for that node type and unlock state.
  */
 public class PerkTreeView {
-    private static final int CELL = 18;
+    private static final int ICON = 18;
+    private static final int CELL = ICON + 2;
 
     public record Icons(String tierLocked, String tierUnlocked, String tierUnlocking,
                         String coreMax, String coreUnlocked, String coreLeveling, String coreLocked,
@@ -81,15 +82,23 @@ public class PerkTreeView {
 
                 int level = perk.id() == null ? -1 : levels.getOrDefault(perk.id(), -1);
                 ItemStack stack = node(perk, level, treeLevel, maxTier, icons);
-                ctx.item(stack, sx + 1, sy + 1);
+                ctx.pose().pushMatrix();
+                ctx.pose().translate(sx, sy);
+                ctx.pose().scale(ICON / 16f, ICON / 16f);
+                ctx.item(stack, 0, 0);
+                ctx.pose().popMatrix();
 
                 if (level > 1 && !"TIER".equals(perk.type())) {
                     String text = String.valueOf(level);
-                    ctx.text(font, text, sx + 17 - font.width(text), sy + 9, 0xFFFFFFFF);
+                    ctx.pose().pushMatrix();
+                    ctx.pose().translate(sx + ICON - font.width(text) * 0.75f, sy + ICON - font.lineHeight * 0.75f);
+                    ctx.pose().scale(0.75f, 0.75f);
+                    ctx.text(font, text, 0, 0, 0xFFFFFFFF);
+                    ctx.pose().popMatrix();
                 }
 
-                if (mouseX >= sx && mouseX < sx + 17 && mouseY >= sy && mouseY < sy + 17) {
-                    ctx.fill(sx + 1, sy + 1, sx + 16, sy + 16, 0x40FFFFFF);
+                if (mouseX >= sx && mouseX < sx + ICON && mouseY >= sy && mouseY < sy + ICON) {
+                    ctx.fill(sx, sy, sx + ICON, sy + ICON, 0x40FFFFFF);
                     hovered = stack;
                 }
             }
@@ -106,6 +115,35 @@ public class PerkTreeView {
             maxX = Math.max(maxX, perk.x());
         }
         return perks.isEmpty() ? 0 : (maxX - minX + 1) * CELL;
+    }
+
+    public static int height(List<PerkRegistry.Perk> perks) {
+        int maxY = 0;
+        for (PerkRegistry.Perk perk : perks) maxY = Math.max(maxY, perk.y());
+        return perks.isEmpty() ? 0 : (maxY + 1) * CELL;
+    }
+
+    /** The tree as a layout component, so pages can place it without hand computed offsets. */
+    public static com.teslamaps.profileviewer.ui.Ui component(List<PerkRegistry.Perk> perks,
+                                                              Map<String, Integer> levels,
+                                                              int treeLevel, Icons icons) {
+        return new com.teslamaps.profileviewer.ui.Ui() {
+            @Override
+            public int width() {
+                return PerkTreeView.width(perks);
+            }
+
+            @Override
+            public int height() {
+                return PerkTreeView.height(perks);
+            }
+
+            @Override
+            public void render(GuiGraphicsExtractor ctx, int x, int y, int mouseX, int mouseY) {
+                ItemStack hovered = PerkTreeView.render(ctx, perks, levels, treeLevel, icons, x, y, mouseX, mouseY);
+                if (!hovered.isEmpty()) com.teslamaps.profileviewer.ui.Ui.hoveredStack = hovered;
+            }
+        };
     }
 
     private static long key(int x, int y) {
@@ -141,14 +179,14 @@ public class PerkTreeView {
             }
             case "CORE" -> {
                 if (treeLevel >= maxTier) yield icons.coreMax();
-                if (treeLevel > 0) yield icons.coreUnlocked();
-                yield level > 0 ? icons.coreLeveling() : icons.coreLocked();
+                if (treeLevel <= 0) yield icons.coreLocked();
+                yield treeLevel == 1 ? icons.coreUnlocked() : icons.coreLeveling();
             }
             case "ABILITY" -> level > 0 ? icons.abilityUnlocked() : icons.abilityLocked();
             default -> {
                 if (level < 0) yield icons.nodeLocked();
                 if (perk.max() != null && level >= perk.max()) yield icons.nodeMax();
-                yield icons.nodeUnlocked();
+                yield level > 0 ? icons.nodeUnlocked() : icons.nodeLocked();
             }
         };
     }

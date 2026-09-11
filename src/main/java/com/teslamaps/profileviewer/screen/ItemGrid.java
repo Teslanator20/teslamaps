@@ -63,6 +63,9 @@ public class ItemGrid {
         if (slot.extraAttributes != null) {
             stack.set(DataComponents.CUSTOM_DATA, CustomData.of(slot.extraAttributes.copy()));
         }
+        if (slot.color >= 0) {
+            stack.set(DataComponents.DYED_COLOR, new net.minecraft.world.item.component.DyedItemColor(slot.color));
+        }
         if (slot.enchanted) {
             stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         }

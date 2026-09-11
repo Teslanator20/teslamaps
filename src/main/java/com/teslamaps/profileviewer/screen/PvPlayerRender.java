@@ -73,8 +73,12 @@ public class PvPlayerRender {
         }
     }
 
+    /**
+     * Vanilla's inventory render, so the model looks at the cursor exactly like every other
+     * player preview in the game instead of the hand rolled rotation we had before.
+     */
     public static void draw(GuiGraphicsExtractor ctx, String uuid, String name,
-                            int x1, int y1, int x2, int y2, float yaw, float pitch) {
+                            int x1, int y1, int x2, int y2, int mouseX, int mouseY) {
         RemotePlayer target = player(uuid, name);
         if (target == null) return;
 
@@ -82,12 +86,8 @@ public class PvPlayerRender {
         com.teslamaps.features.capes.CapeSync.setPreview(target.getId(),
                 com.teslamaps.features.capes.CapeSync.capeFor(uuid));
 
-        float size = (y2 - y1) / 2.4f;
-        Vector3f translation = new Vector3f(0, target.getBbHeight() / 2f + 0.0625f, 0);
-        Quaternionf rotation = new Quaternionf().rotationXYZ(
-                -Mth.clamp(pitch, -50f, 50f) * Mth.DEG_TO_RAD, -yaw * Mth.DEG_TO_RAD, FLIP);
-
-        EntityRenderState state = InventoryScreenInvoker.invokeExtractRenderState(target);
-        ctx.entity(state, size, translation, rotation, null, x1, y1, x2, y2);
+        int size = Math.max(10, (int) ((y2 - y1) * 0.42f));
+        net.minecraft.client.gui.screens.inventory.InventoryScreen.extractEntityInInventoryFollowsMouse(
+                ctx, x1, y1, x2, y2, size, 0f, mouseX, mouseY, target);
     }
 }

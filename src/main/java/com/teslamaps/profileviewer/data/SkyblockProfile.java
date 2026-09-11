@@ -112,13 +112,24 @@ public class SkyblockProfile {
         }
     }
 
+    /** Collections unlock per profile, so every coop member's contribution counts. */
     private void parseCollections() {
         try {
-            if (!memberData.has("collection")) return;
+            List<JsonObject> sources = new ArrayList<>();
+            if (fullProfileJson != null && fullProfileJson.has("members")
+                    && fullProfileJson.get("members").isJsonObject()) {
+                for (Map.Entry<String, JsonElement> member : fullProfileJson.getAsJsonObject("members").entrySet()) {
+                    if (member.getValue().isJsonObject()) sources.add(member.getValue().getAsJsonObject());
+                }
+            }
+            if (sources.isEmpty()) sources.add(memberData);
 
-            JsonObject collectionJson = memberData.getAsJsonObject("collection");
-            for (Map.Entry<String, JsonElement> entry : collectionJson.entrySet()) {
-                collections.put(entry.getKey(), entry.getValue().getAsLong());
+            for (JsonObject member : sources) {
+                if (!member.has("collection") || !member.get("collection").isJsonObject()) continue;
+                for (Map.Entry<String, JsonElement> entry : member.getAsJsonObject("collection").entrySet()) {
+                    if (!entry.getValue().isJsonPrimitive() || !entry.getValue().getAsJsonPrimitive().isNumber()) continue;
+                    collections.merge(entry.getKey(), entry.getValue().getAsLong(), Long::sum);
+                }
             }
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("Failed to parse collections", e);
