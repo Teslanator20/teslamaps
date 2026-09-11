@@ -289,12 +289,6 @@ public class ProfileViewerScreen extends Screen {
             }
         }
 
-        if (profiles != null) {
-            String status = profiles.getOnlineStatus();
-            ctx.text(font, status, 2, -38,
-                    status.startsWith("Online") ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_GRAY);
-        }
-
         if (hoveredTab != null) {
             int tw = font.width(hoveredTab);
             int tx = Math.min(Math.max(mouseX + 8, 2), NeuStyle.PANEL_WIDTH - tw - 6);
@@ -389,6 +383,18 @@ public class ProfileViewerScreen extends Screen {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        int mx = (int) ((event.x() - panelX) / scale);
+        int my = (int) ((event.y() - panelY) / scale);
+
+        if (!loading && error == null && selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
+            if (pages.get(selectedPageIndex).mouseClicked(mx, my, event.button())) return true;
+        }
+        if (handleClick(mx, my, event.button())) return true;
+        return super.mouseClicked(event, doubled);
     }
 
     @Override
