@@ -3,8 +3,8 @@ package com.teslamaps.dungeon;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.profileviewer.api.HypixelApi;
-import com.teslamaps.profileviewer.data.DungeonData;
+import com.teslamaps.api.HypixelApi;
+import com.teslamaps.api.DungeonData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 

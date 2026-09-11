@@ -4,9 +4,12 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.StringUtil;
 import java.util.Locale;
+import java.util.Optional;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -21,9 +24,14 @@ public class LassoDisplay {
 
     public static final String SAMPLE_TEXT = "§e§l          REEL          ";
 
-    private static final double RANGE = 12.0;
+    private static final double PLAYER_RANGE = 12.0;
+    private static final double ANIMAL_RANGE = 3.0;
 
-    private static String text = null;
+    // the bar is a run of struck-through spaces, nothing else on Hypixel looks like that
+    private static final int MIN_BAR_LENGTH = 8;
+
+    private static String reelText = null;
+    private static Component barText = null;
     private static boolean reeling = false;
     private static int handTicks = 0;
     private static int standTicks = 0;
@@ -45,20 +53,22 @@ public class LassoDisplay {
             return;
         }
 
-        boolean reel = false;
-        String bar = null;
+        // the labels sit over the animal, fall back to the player when the leash is not sent
+        Entity animal = leashedAnimal(mc);
+        AABB area = animal != null
+                ? animal.getBoundingBox().inflate(ANIMAL_RANGE)
+                : mc.player.getBoundingBox().inflate(PLAYER_RANGE);
 
-        // Hypixel does not always leash the animal client side, so take any stand around the player
-        AABB area = mc.player.getBoundingBox().inflate(RANGE);
+        boolean reel = false;
+        Component bar = null;
         for (ArmorStand stand : mc.level.getEntitiesOfClass(ArmorStand.class, area)) {
-            if (stand.getCustomName() == null) continue;
-            String name = stand.getCustomName().getString();
-            String plain = StringUtil.stripTrim(name);
-            if (plain.equals("REEL")) {
+            Component name = stand.getCustomName();
+            if (name == null) continue;
+            if (StringUtil.stripTrim(name.getString()).equals("REEL")) {
                 reel = true;
                 break;
             }
-            if (name.contains("§m") && bar == null) bar = name;
+            if (bar == null && isBar(name)) bar = name;
         }
 
         debugStands(mc, area);
@@ -70,11 +80,28 @@ public class LassoDisplay {
         }
         reeling = reel;
 
-        text = reel ? c.lassoReelText.replace('&', '§') : bar;
+        reelText = reel ? c.lassoReelText.replace('&', '§') : null;
+        barText = reel ? null : bar;
+    }
+
+    private static Entity leashedAnimal(Minecraft mc) {
+        for (Entity e : mc.level.entitiesForRendering()) {
+            if (e instanceof Leashable l && l.getLeashHolder() == mc.player) return e;
+        }
+        return null;
+    }
+
+    /** Hypixel sends the bar as a styled component, not as § codes in the text. */
+    private static boolean isBar(Component name) {
+        String plain = name.getString();
+        if (plain.length() < MIN_BAR_LENGTH || !plain.isBlank()) return false;
+        return name.visit((style, part) -> style.isStrikethrough() ? Optional.of(true) : Optional.empty(),
+                Style.EMPTY).isPresent();
     }
 
     private static void reset() {
-        text = null;
+        reelText = null;
+        barText = null;
         reeling = false;
     }
 
@@ -92,20 +119,18 @@ public class LassoDisplay {
         if (!TeslaMapsConfig.get().debugMode) return;
         if (++standTicks < 20) return;
         standTicks = 0;
-        int leashed = 0;
-        for (Entity e : mc.level.entitiesForRendering()) {
-            if (e instanceof Leashable l && l.getLeashHolder() == mc.player) leashed++;
-        }
-        StringBuilder sb = new StringBuilder("§7[Lasso] leashed=" + leashed + " stands:");
+        StringBuilder sb = new StringBuilder("§7[Lasso] animal=" + (leashedAnimal(mc) != null) + " stands:");
         for (ArmorStand stand : mc.level.getEntitiesOfClass(ArmorStand.class, area)) {
-            if (stand.getCustomName() == null) continue;
-            sb.append(" [").append(stand.getCustomName().getString().replace("§", "&")).append(']');
+            Component name = stand.getCustomName();
+            if (name == null) continue;
+            sb.append(" [").append(name.getString().replace("§", "&"))
+                    .append(isBar(name) ? "|BAR]" : "]");
         }
         say(mc, sb.toString());
     }
 
     private static void say(Minecraft mc, String msg) {
-        if (mc.player != null) mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(msg));
+        if (mc.player != null) mc.player.sendSystemMessage(Component.literal(msg));
     }
 
     private static boolean holdingLasso(ItemStack stack) {
@@ -116,22 +141,24 @@ public class LassoDisplay {
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.lassoDisplay || text == null) return;
+        if (!c.lassoDisplay || (reelText == null && barText == null)) return;
         if (com.teslamaps.utils.HudVisibility.suppressed()) return;
 
-        draw(context, Minecraft.getInstance(), c.lassoDisplayX, c.lassoDisplayY, c.lassoDisplayScale, text);
+        draw(context, Minecraft.getInstance(), c.lassoDisplayX, c.lassoDisplayY, c.lassoDisplayScale);
     }
 
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
-        draw(context, mc, x, y, scale, text != null ? text : SAMPLE_TEXT);
-    }
-
-    public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale, String line) {
         var pose = context.pose();
         pose.pushMatrix();
         pose.translate(x, y);
         pose.scale(scale, scale);
-        context.text(mc.font, line, 0, 0, 0xFFFFFFFF);
+        if (reelText != null) {
+            context.text(mc.font, reelText, 0, 0, 0xFFFFFFFF);
+        } else if (barText != null) {
+            context.text(mc.font, barText, 0, 0, 0xFFFFFFFF);
+        } else {
+            context.text(mc.font, SAMPLE_TEXT, 0, 0, 0xFFFFFFFF);
+        }
         pose.popMatrix();
     }
 }

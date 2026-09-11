@@ -1163,6 +1163,7 @@ public class MapConfigScreen extends Screen {
         party.add(new LabelEntry(contentX, "Party Chat & Alerts"));
         party.add(new ToggleEntry(contentX, contentWidth, "Party Chat Commands (!8ball etc)", () -> config.chatCommands, v -> config.chatCommands = v));
         party.add(new ToggleEntry(contentX, contentWidth, "Show PBs on Party Join (needs API key)", () -> config.pbOnJoin, v -> config.pbOnJoin = v));
+        party.add(new InfoEntry(contentX, "Key: /tmap apikey <key> (developer.hypixel.net)"));
         party.add(new ToggleEntry(contentX, contentWidth, "Party Duplicate Alert", () -> config.partyDuplicateAlert, v -> config.partyDuplicateAlert = v));
         party.add(new ToggleEntry(contentX, contentWidth, "  Dup: Play Sound", () -> config.partyDuplicateSound, v -> config.partyDuplicateSound = v));
         party.add(new ToggleEntry(contentX, contentWidth, "  Dup: Announce to Party", () -> config.partyDuplicateMessage, v -> config.partyDuplicateMessage = v));

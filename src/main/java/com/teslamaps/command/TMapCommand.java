@@ -32,8 +32,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import com.teslamaps.utils.TabListUtils;
-import com.teslamaps.profileviewer.api.HypixelApi;
-import com.teslamaps.profileviewer.screen.ProfileViewerScreen;
+import com.teslamaps.api.HypixelApi;
 import com.teslamaps.dungeon.terminals.TerminalTypes;
 import com.teslamaps.features.TerminalSimulator;
 
@@ -210,32 +209,26 @@ public class TMapCommand {
                             });
                             return 1;
                         }))
-                .then(ClientCommands.literal("pv")
-                        .executes(context -> openProfileViewer(context.getSource(), null))
-                        .then(ClientCommands.literal("key")
-                                .then(ClientCommands.argument("key", StringArgumentType.greedyString())
-                                        .executes(context -> {
-                                            TeslaMapsConfig c = TeslaMapsConfig.get();
-                                            c.hypixelApiKey = StringArgumentType.getString(context, "key").trim();
-                                            TeslaMapsConfig.save();
-                                            if (c.hypixelApiKey.isEmpty()) {
-                                                context.getSource().sendFeedback(Component.literal("§7Hypixel API key cleared"));
-                                                return 1;
-                                            }
-                                            context.getSource().sendFeedback(Component.literal("§7Checking API key..."));
-                                            Minecraft mc = Minecraft.getInstance();
-                                            HypixelApi.validateKey(mc.getUser().getProfileId().toString().replace("-", ""))
-                                                    .thenAccept(problem -> mc.execute(() -> {
-                                                        if (mc.player == null) return;
-                                                        mc.player.sendSystemMessage(Component.literal(problem == null
-                                                                ? "§aAPI key works" : "§cAPI key rejected: §7" + problem));
-                                                    }));
-                                            return 1;
-                                        })))
-                        .then(ClientCommands.argument("player", StringArgumentType.word())
-                                .suggests((context, builder) -> suggest(PlayerNameCache.names(), builder))
-                                .executes(context -> openProfileViewer(context.getSource(),
-                                        StringArgumentType.getString(context, "player")))))
+                .then(ClientCommands.literal("apikey")
+                        .then(ClientCommands.argument("key", StringArgumentType.greedyString())
+                                .executes(context -> {
+                                    TeslaMapsConfig c = TeslaMapsConfig.get();
+                                    c.hypixelApiKey = StringArgumentType.getString(context, "key").trim();
+                                    TeslaMapsConfig.save();
+                                    if (c.hypixelApiKey.isEmpty()) {
+                                        context.getSource().sendFeedback(Component.literal("§7Hypixel API key cleared"));
+                                        return 1;
+                                    }
+                                    context.getSource().sendFeedback(Component.literal("§7Checking API key..."));
+                                    Minecraft mc = Minecraft.getInstance();
+                                    HypixelApi.validateKey(mc.getUser().getProfileId().toString().replace("-", ""))
+                                            .thenAccept(problem -> mc.execute(() -> {
+                                                if (mc.player == null) return;
+                                                mc.player.sendSystemMessage(Component.literal(problem == null
+                                                        ? "§aAPI key works" : "§cAPI key rejected: §7" + problem));
+                                            }));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("update")
                         .executes(context -> {
                             com.teslamaps.features.Updater.install();
@@ -1440,19 +1433,6 @@ public class TMapCommand {
             return args.isEmpty() ? expanded : expanded + " " + args;
         }
         return command;
-    }
-
-    private static int openProfileViewer(FabricClientCommandSource source, String player) {
-        Minecraft mc = Minecraft.getInstance();
-        String name = player == null || player.isBlank() ? mc.getUser().getName() : player.trim();
-        String key = TeslaMapsConfig.get().hypixelApiKey;
-        if (key == null || key.isBlank()) {
-            source.sendFeedback(Component.literal(
-                    "§cNo Hypixel API key set. §7Run §f/tmap pv key <key>§7 (developer.hypixel.net)"));
-            return 1;
-        }
-        ProfileViewerScreen.open(name);
-        return 1;
     }
 
     private static java.util.concurrent.CompletableFuture<Suggestions> suggest(

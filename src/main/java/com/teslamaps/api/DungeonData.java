@@ -1,4 +1,4 @@
-package com.teslamaps.profileviewer.data;
+package com.teslamaps.api;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
