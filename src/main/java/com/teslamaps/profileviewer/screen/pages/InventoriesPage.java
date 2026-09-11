@@ -22,9 +22,12 @@ public class InventoriesPage extends ProfileViewerPage {
         ENDER_CHEST("Ender Chest", Items.ENDER_CHEST),
         BACKPACKS("Backpacks", Items.BUNDLE),
         ACCESSORIES("Accessories", Items.GOLDEN_APPLE),
-        WARDROBE("Wardrobe", Items.LEATHER_CHESTPLATE),
         EQUIPMENT("Equipment", Items.DIAMOND_CHESTPLATE),
-        VAULT("Personal Vault", Items.IRON_DOOR);
+        VAULT("Personal Vault", Items.IRON_DOOR),
+        FISHING("Fishing Bag", Items.FISHING_ROD),
+        POTIONS("Potion Bag", Items.POTION),
+        QUIVER("Quiver", Items.ARROW),
+        SACKS("Sacks", Items.BUNDLE);
 
         final String label;
         final net.minecraft.world.item.Item icon;
@@ -81,17 +84,17 @@ public class InventoriesPage extends ProfileViewerPage {
         for (int i = 0; i < Section.values().length; i++) {
             Section s = Section.values()[i];
             int bx = left + 6;
-            int by = top + 8 + i * 26;
+            int by = top + 6 + i * 19;
             boolean selected = s == section;
-            boolean hovered = mouseX >= bx && mouseX < bx + 96 && mouseY >= by && mouseY < by + 24;
+            boolean hovered = mouseX >= bx && mouseX < bx + 100 && mouseY >= by && mouseY < by + 18;
 
-            if (selected) NeuStyle.slimBox(ctx, bx, by, 96, 24);
-            ctx.item(new ItemStack(s.icon), bx + 4, by + 4);
-            ctx.text(tr, s.label, bx + 24, by + 9,
+            if (selected) NeuStyle.slimBox(ctx, bx, by, 100, 18);
+            ctx.item(new ItemStack(s.icon), bx + 2, by + 1);
+            ctx.text(tr, s.label, bx + 21, by + 5,
                     selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
         }
 
-        int gridX = left + 116;
+        int gridX = left + 118;
         int gridY = top + 22;
 
         List<InventoryDecoder.Slot> slots;
@@ -126,13 +129,22 @@ public class InventoriesPage extends ProfileViewerPage {
                 ctx.text(tr, "Magical Power: " + magicalPower, gridX, top + 10, NeuStyle.TEXT_LIGHT_PURPLE);
                 title = null;
             }
-            case WARDROBE -> {
-                List<InventoryDecoder.Slot> all = InventoryDecoder.decode(inventory, "wardrobe_contents");
-                pageCount = Math.max(1, (all.size() + 35) / 36);
-                page = Math.min(page, pageCount - 1);
-                slots = subList(all, page * 36, 36);
-                int equipped = asInt(profile.getMemberData().get("wardrobe_equipped_slot"));
-                title = equipped > 0 ? "Wardrobe (slot " + equipped + " worn)" : "Wardrobe";
+            case FISHING -> {
+                slots = pageOf(InventoryDecoder.decode(inventory, "bag_contents.fishing_bag"), 45);
+                title = "Fishing Bag";
+            }
+            case POTIONS -> {
+                slots = pageOf(InventoryDecoder.decode(inventory, "bag_contents.potion_bag"), 45);
+                title = "Potion Bag";
+            }
+            case QUIVER -> {
+                slots = pageOf(InventoryDecoder.decode(inventory, "bag_contents.quiver"), 45);
+                title = "Quiver";
+            }
+            case SACKS -> {
+                slots = List.of();
+                title = null;
+                drawSacks(ctx, tr, profile, gridX, top + 10, mouseX, mouseY);
             }
             case EQUIPMENT -> {
                 List<InventoryDecoder.Slot> armor = InventoryDecoder.decode(inventory, "inv_armor");
@@ -152,6 +164,8 @@ public class InventoriesPage extends ProfileViewerPage {
         if (title != null) {
             ctx.text(tr, title, gridX, top + 10, NeuStyle.TEXT_YELLOW);
         }
+
+        if (section == Section.SACKS) return;
 
         if (slots.isEmpty()) {
             ctx.text(tr, "Nothing here, or the api is off", gridX, gridY + 20, NeuStyle.TEXT_GRAY);
@@ -177,6 +191,72 @@ public class InventoriesPage extends ProfileViewerPage {
         ItemGrid.drawTooltip(ctx, tooltip, mouseX, mouseY);
     }
 
+    /** Splits a container into the current page and pads it to a full grid. */
+    private List<InventoryDecoder.Slot> pageOf(List<InventoryDecoder.Slot> all, int perPage) {
+        pageCount = Math.max(1, (all.size() + perPage - 1) / perPage);
+        page = Math.min(page, pageCount - 1);
+        return subList(all, page * perPage, perPage);
+    }
+
+    /** Sacks are plain id to amount, so they get a list instead of a slot grid. */
+    private void drawSacks(GuiGraphicsExtractor ctx, Font tr, SkyblockProfile profile,
+                           int x, int y, int mouseX, int mouseY) {
+        JsonObject inventory = profile.getMemberData().has("inventory")
+                ? profile.getMemberData().getAsJsonObject("inventory") : null;
+        if (inventory == null || !inventory.has("sacks_counts")) {
+            ctx.text(tr, "No sack data", x, y + 20, NeuStyle.TEXT_GRAY);
+            return;
+        }
+
+        JsonObject sacks = inventory.getAsJsonObject("sacks_counts");
+        List<java.util.Map.Entry<String, com.google.gson.JsonElement>> entries =
+                new ArrayList<>(sacks.entrySet());
+        entries.removeIf(e -> asInt(e.getValue()) <= 0);
+        entries.sort((a, b) -> Integer.compare(asInt(b.getValue()), asInt(a.getValue())));
+
+        pageCount = Math.max(1, (entries.size() + 29) / 30);
+        page = Math.min(page, pageCount - 1);
+
+        ctx.text(tr, "Sacks (" + entries.size() + " types)", x, y, NeuStyle.TEXT_YELLOW);
+
+        int column = 0;
+        int row = 0;
+        for (int i = page * 30; i < Math.min(entries.size(), page * 30 + 30); i++) {
+            var entry = entries.get(i);
+            int cx = x + column * 100;
+            int cy = y + 14 + row * 11;
+            String name = com.teslamaps.utils.SkyblockItems.name(entry.getKey());
+            if (name == null || name.isEmpty()) name = capitalize(entry.getKey());
+            if (tr.width(name) > 60) name = name.substring(0, Math.min(name.length(), 12));
+            ctx.text(tr, name, cx, cy, NeuStyle.TEXT_GRAY);
+            String amount = formatXp(asInt(entry.getValue()));
+            ctx.text(tr, amount, cx + 92 - tr.width(amount), cy, NeuStyle.TEXT);
+
+            row++;
+            if (row >= 15) {
+                row = 0;
+                column++;
+            }
+        }
+
+        pagerX = x + 40;
+        pagerY = y + NeuStyle.PANEL_HEIGHT - 40;
+        String pager = "< " + (page + 1) + " / " + pageCount + " >";
+        pagerW = tr.width(pager);
+        ctx.text(tr, pager, pagerX, pagerY, NeuStyle.TEXT);
+    }
+
+    private static String capitalize(String key) {
+        String[] words = key.replace('_', ' ').toLowerCase().split(" ");
+        StringBuilder out = new StringBuilder();
+        for (String word : words) {
+            if (word.isEmpty()) continue;
+            if (!out.isEmpty()) out.append(' ');
+            out.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+        }
+        return out.toString();
+    }
+
     private int pagerX;
     private int pagerY;
     private int pagerW;
@@ -185,8 +265,8 @@ public class InventoriesPage extends ProfileViewerPage {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         for (int i = 0; i < Section.values().length; i++) {
             int bx = lastLeft + 6;
-            int by = lastTop + 8 + i * 26;
-            if (mouseX >= bx && mouseX < bx + 96 && mouseY >= by && mouseY < by + 24) {
+            int by = lastTop + 6 + i * 19;
+            if (mouseX >= bx && mouseX < bx + 100 && mouseY >= by && mouseY < by + 18) {
                 section = Section.values()[i];
                 page = 0;
                 return true;
