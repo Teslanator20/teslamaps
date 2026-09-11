@@ -58,6 +58,22 @@ public class ItemProtection {
         return true;
     }
 
+    /** Q on a hovered slot inside any inventory screen, and Q while carrying a stack. */
+    public static boolean blockSlotDrop(net.minecraft.world.inventory.Slot slot) {
+        if (!enabled()) return false;
+        ItemStack stack;
+        if (slot != null) {
+            stack = slot.getItem();
+        } else {
+            Minecraft mc = Minecraft.getInstance();
+            if (!(mc.screen instanceof AbstractContainerScreen<?> screen)) return false;
+            stack = screen.getMenu().getCarried();
+        }
+        if (!tooValuable(stack)) return false;
+        warn(stack);
+        return true;
+    }
+
     // NPC shops whose title is the plain merchant name - shift-clicking sells there.
     // Best effort list, extend as they turn up in game.
     private static final java.util.Set<String> SELL_GUIS = java.util.Set.of(

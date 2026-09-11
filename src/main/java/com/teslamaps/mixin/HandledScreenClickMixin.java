@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractContainerScreen.class)
@@ -16,6 +17,14 @@ public class HandledScreenClickMixin {
     @Unique
     private static void teslamaps$ate(String who, int button) {
         com.teslamaps.TeslaMaps.debug("[ClickDbg] button {} swallowed by {}", button, who);
+    }
+
+    // Q inside an inventory goes through slotClicked with THROW, never through mouseClicked
+    @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$blockSlotDrop(net.minecraft.world.inventory.Slot slot, int slotId, int button,
+                                         net.minecraft.world.inventory.ContainerInput type, CallbackInfo ci) {
+        if (type != net.minecraft.world.inventory.ContainerInput.THROW) return;
+        if (com.teslamaps.features.ItemProtection.blockSlotDrop(slot)) ci.cancel();
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
