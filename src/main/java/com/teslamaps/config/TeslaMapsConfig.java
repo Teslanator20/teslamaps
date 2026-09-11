@@ -1118,6 +1118,14 @@ public class TeslaMapsConfig {
     public int hotfPerkDisplayX = 5;
     public int hotfPerkDisplayY = 160;
     public float hotfPerkDisplayScale = 1.0f;
+    public boolean lassoDisplay = true;             // lasso progress bar / REEL prompt on the HUD
+    public String lassoReelText = "&e&l          REEL          ";
+    public String lassoReelSound = "NOTE_PLING";    // plays once when REEL shows up
+    public float lassoReelVolume = 0f;              // 0 = silent
+    public float lassoReelPitch = 2.0f;
+    public int lassoDisplayX = 200;
+    public int lassoDisplayY = 150;
+    public float lassoDisplayScale = 2.0f;
     @Global
     public String hotfLotteryPerk = "";             // runtime: last seen Lottery perk
     @Global

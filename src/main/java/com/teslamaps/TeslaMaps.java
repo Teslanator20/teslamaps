@@ -144,6 +144,7 @@ public class TeslaMaps implements ClientModInitializer {
         hud("sprinting", (g, d) -> { if (TeslaMapsConfig.get().section("Render")) com.teslamaps.features.SprintingOverlay.render(g, d); });
         hud("safari", (g, d) -> { if (TeslaMapsConfig.get().section("Critter Safari")) com.teslamaps.safari.SafariTracker.render(g, d); });
         hud("hotfperks", (g, d) -> { if (TeslaMapsConfig.get().section("Foraging")) com.teslamaps.features.foraging.HotfPerkDisplay.render(g, d); });
+        hud("lasso", (g, d) -> { if (TeslaMapsConfig.get().section("Foraging")) com.teslamaps.features.hunting.LassoDisplay.render(g, d); });
         hud("pickaxeability", (g, d) -> { if (TeslaMapsConfig.get().section("Mining")) com.teslamaps.features.mining.PickaxeAbility.render(g, d); });
         hud("mineshaftpity", (g, d) -> { if (TeslaMapsConfig.get().section("Mining")) com.teslamaps.features.mining.MineshaftPity.render(g, d); });
         hud("lather", (g, d) -> { if (TeslaMapsConfig.get().section("Foraging")) com.teslamaps.features.foraging.LatherOverlay.render(g, d); });
@@ -331,6 +332,7 @@ public class TeslaMaps implements ClientModInitializer {
                     Perf.begin("CritterESP.tick"); com.teslamaps.features.CritterESP.tick(); Perf.end();
                     Perf.begin("TikiESP.tick"); com.teslamaps.features.TikiESP.tick(); Perf.end();
                 }
+                if (cfg.section("Foraging")) { Perf.begin("LassoDisplay.tick"); com.teslamaps.features.hunting.LassoDisplay.tick(); Perf.end(); }
                 if (cfg.section("Ordered Waypoints")) { Perf.begin("OrderedWaypoints.tick"); com.teslamaps.features.waypoints.OrderedWaypoints.tick(); Perf.end(); }
                 if (cfg.section("Fishing")) { Perf.begin("ExplodingFrogESP.tick"); com.teslamaps.features.ExplodingFrogESP.tick(); Perf.end(); }
                 if (cfg.section("Fishing")) { Perf.begin("FishingBobberTimer.tick"); com.teslamaps.features.FishingBobberTimer.tick(); Perf.end(); }

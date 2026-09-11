@@ -1905,6 +1905,18 @@ public class MapConfigScreen extends Screen {
                 () -> config.hotfPerkDisplayForagingOnly, v -> config.hotfPerkDisplayForagingOnly = v));
         foraging.add(new InfoEntry(contentX, "Position and scale in /tmap gui"));
 
+        foraging.add(new LabelEntry(contentX, "Lasso"));
+        foraging.add(new ToggleEntry(contentX, contentWidth, "Lasso Display",
+                () -> config.lassoDisplay, v -> config.lassoDisplay = v));
+        foraging.add(new InfoEntry(contentX, "Progress bar and REEL on the HUD, position in /tmap gui"));
+        foraging.add(new SoundDropdownEntry(contentX, contentWidth, "  Reel Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.lassoReelSound, v -> config.lassoReelSound = v));
+        foraging.add(new SliderEntry(contentX, contentWidth, "  Volume", 0f, 4f,
+                () -> config.lassoReelVolume, v -> config.lassoReelVolume = v, 2));
+        foraging.add(new SliderEntry(contentX, contentWidth, "  Pitch", 0.5f, 2f,
+                () -> config.lassoReelPitch, v -> config.lassoReelPitch = v, 2));
+
         categories.put("Foraging", foraging);
 
         List<SettingsEntry> torrhus = new ArrayList<>();

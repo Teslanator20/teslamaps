@@ -55,6 +55,7 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.SAFARI, Ctx.SAFARI, "Critter Safari", c.safariTracker && c.safariHud);
         mark(DragTarget.HOTF_PERKS, Ctx.FORAGING, "Foraging", c.hotfPerkDisplay);
         mark(DragTarget.LATHER, Ctx.FORAGING, "Foraging", c.latherOverlay);
+        mark(DragTarget.LASSO, Ctx.FORAGING, "Foraging", c.lassoDisplay);
         mark(DragTarget.PICKAXE_ABILITY, Ctx.MINING, "Mining", c.pickaxeAbilityDisplay);
         mark(DragTarget.MINESHAFT_PITY, Ctx.MINING, "Mining", c.mineshaftPityDisplay);
         mark(DragTarget.BOBBER, Ctx.ANY, "Fishing", c.bobberTimer);
@@ -85,7 +86,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -273,6 +274,22 @@ public class HudEditScreen extends Screen {
         int w = hookWidth(), h = hookHeight();
         return mouseX >= config.hookDisplayX && mouseX <= config.hookDisplayX + w &&
                mouseY >= config.hookDisplayY && mouseY <= config.hookDisplayY + h;
+    }
+
+    private int lassoWidth() {
+        return (int)(this.font.width(com.teslamaps.features.hunting.LassoDisplay.SAMPLE_TEXT)
+                * TeslaMapsConfig.get().lassoDisplayScale);
+    }
+
+    private int lassoHeight() {
+        return (int)(this.font.lineHeight * TeslaMapsConfig.get().lassoDisplayScale);
+    }
+
+    private boolean isMouseOverLasso(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = lassoWidth(), h = lassoHeight();
+        return mouseX >= config.lassoDisplayX && mouseX <= config.lassoDisplayX + w &&
+               mouseY >= config.lassoDisplayY && mouseY <= config.lassoDisplayY + h;
     }
 
     private int deployablesWidth() {
@@ -618,6 +635,10 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.SAFARI;
                 dragOffsetX = mouseX - config.safariHudX;
                 dragOffsetY = mouseY - config.safariHudY;
+            } else if (visible.contains(DragTarget.LASSO) && isMouseOverLasso(mouseX, mouseY)) {
+                dragging = DragTarget.LASSO;
+                dragOffsetX = mouseX - config.lassoDisplayX;
+                dragOffsetY = mouseY - config.lassoDisplayY;
             } else if (visible.contains(DragTarget.HOOK) && isMouseOverHook(mouseX, mouseY)) {
                 dragging = DragTarget.HOOK;
                 dragOffsetX = mouseX - config.hookDisplayX;
@@ -758,6 +779,10 @@ public class HudEditScreen extends Screen {
             int h = safariHeight();
             config.safariHudX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.safariHudY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.LASSO) {
+            int w = lassoWidth(), h = lassoHeight();
+            config.lassoDisplayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.lassoDisplayY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.HOOK) {
             int w = hookWidth(), h = hookHeight();
             config.hookDisplayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
@@ -878,6 +903,7 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.MINESHAFT_PITY)) drawMineshaftPityPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.BOBBER)) drawBobberPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.HOOK)) drawHookPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.LASSO)) drawLassoPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.DEPLOYABLES)) drawDeployablesPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.SPRINTING)) drawSprintingPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.KICKED)) drawKickedPreview(context, mouseX, mouseY);
@@ -972,6 +998,27 @@ public class HudEditScreen extends Screen {
         }
 
         String label = String.format("Critter Safari (%.1fx)", scale);
+        context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawLassoPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.lassoDisplayX, y = config.lassoDisplayY;
+        float scale = config.lassoDisplayScale;
+
+        com.teslamaps.features.hunting.LassoDisplay.draw(context, this.minecraft, x, y, scale);
+
+        int w = lassoWidth(), h = lassoHeight();
+        boolean hovering = visible.contains(DragTarget.LASSO) && isMouseOverLasso(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.LASSO) {
+            int borderColor = dragging == DragTarget.LASSO ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        String label = String.format("Lasso Display (%.1fx)", scale);
         context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
     }
 
@@ -1558,6 +1605,16 @@ public class HudEditScreen extends Screen {
                 config.bearSpawnScale = Math.min(10.0f, config.bearSpawnScale + 0.05f);
             } else if (verticalAmount < 0) {
                 config.bearSpawnScale = Math.max(0.5f, config.bearSpawnScale - 0.05f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (visible.contains(DragTarget.LASSO) && isMouseOverLasso((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.lassoDisplayScale = Math.min(8.0f, config.lassoDisplayScale + 0.2f);
+            } else if (verticalAmount < 0) {
+                config.lassoDisplayScale = Math.max(0.5f, config.lassoDisplayScale - 0.2f);
             }
             TeslaMapsConfig.save();
             return true;

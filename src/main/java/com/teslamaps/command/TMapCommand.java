@@ -210,6 +210,23 @@ public class TMapCommand {
                             });
                             return 1;
                         }))
+                .then(ClientCommands.literal("pv")
+                        .executes(context -> openProfileViewer(context.getSource(), null))
+                        .then(ClientCommands.literal("key")
+                                .then(ClientCommands.argument("key", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            TeslaMapsConfig c = TeslaMapsConfig.get();
+                                            c.hypixelApiKey = StringArgumentType.getString(context, "key").trim();
+                                            TeslaMapsConfig.save();
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    c.hypixelApiKey.isEmpty() ? "§7Hypixel API key cleared"
+                                                            : "§7Hypixel API key saved"));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.argument("player", StringArgumentType.word())
+                                .suggests((context, builder) -> suggest(PlayerNameCache.names(), builder))
+                                .executes(context -> openProfileViewer(context.getSource(),
+                                        StringArgumentType.getString(context, "player")))))
                 .then(ClientCommands.literal("update")
                         .executes(context -> {
                             com.teslamaps.features.Updater.install();
@@ -1414,6 +1431,19 @@ public class TMapCommand {
             return args.isEmpty() ? expanded : expanded + " " + args;
         }
         return command;
+    }
+
+    private static int openProfileViewer(FabricClientCommandSource source, String player) {
+        Minecraft mc = Minecraft.getInstance();
+        String name = player == null || player.isBlank() ? mc.getUser().getName() : player.trim();
+        String key = TeslaMapsConfig.get().hypixelApiKey;
+        if (key == null || key.isBlank()) {
+            source.sendFeedback(Component.literal(
+                    "§cNo Hypixel API key set. §7Run §f/tmap pv key <key>§7 (developer.hypixel.net)"));
+            return 1;
+        }
+        ProfileViewerScreen.open(name);
+        return 1;
     }
 
     private static java.util.concurrent.CompletableFuture<Suggestions> suggest(
