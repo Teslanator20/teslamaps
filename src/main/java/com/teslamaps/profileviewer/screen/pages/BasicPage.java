@@ -82,9 +82,9 @@ public class BasicPage extends ProfileViewerPage {
             drawCentered(ctx, tr, "TeslaMaps user", left + 63, top + 17, NeuStyle.TEXT_AQUA);
         }
 
-        ctx.text(tr, "Purse: " + formatCoins(profile.getCoinPurse()), left + 8, top + 26, NeuStyle.TEXT_GOLD);
-        ctx.text(tr, "Bank: " + formatCoins(profile.getBankBalance()), left + 8, top + 36, NeuStyle.TEXT_GOLD);
-        if (mouseX >= left + 8 && mouseX <= left + 110 && mouseY >= top + 34 && mouseY <= top + 45) {
+        drawCentered(ctx, tr, "Purse: " + formatCoins(profile.getCoinPurse()), left + 63, top + 26, NeuStyle.TEXT_GOLD);
+        drawCentered(ctx, tr, "Bank: " + formatCoins(profile.getBankBalance()), left + 63, top + 36, NeuStyle.TEXT_GOLD);
+        if (mouseX >= left + 8 && mouseX <= left + 118 && mouseY >= top + 34 && mouseY <= top + 45) {
             tooltip = new String[]{
                     "Bank",
                     "Coop: " + formatCoins(profile.getCoopBank()),

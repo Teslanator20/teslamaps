@@ -135,7 +135,7 @@ public class ExtraPage extends ProfileViewerPage {
                 long goldEarned = asLong(auctions.get("gold_earned"));
                 ctx.text(tr, "Auctions Sold: " + formatNumber(sold), col2X, lineY, TEXT_WHITE);
                 lineY += 12;
-                ctx.text(tr, "Gold Earned: " + formatCoins(goldEarned), col2X, lineY, TEXT_GOLD);
+                ctx.text(tr, "Coins Earned: " + formatCoins(goldEarned), col2X, lineY, TEXT_GOLD);
                 lineY += 12;
             }
         }

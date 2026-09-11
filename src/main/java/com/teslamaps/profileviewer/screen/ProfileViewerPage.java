@@ -129,22 +129,22 @@ public abstract class ProfileViewerPage {
         }
     }
 
-    protected String formatXp(double xp) {
-        if (xp >= 1_000_000_000) return String.format("%.2fB", xp / 1_000_000_000);
-        if (xp >= 1_000_000) return String.format("%.1fM", xp / 1_000_000);
-        if (xp >= 1_000) return String.format("%.1fK", xp / 1_000);
-        return String.format("%.0f", xp);
+    protected String formatXp(double value) {
+        if (value >= 1_000_000_000) return trim(value / 1_000_000_000) + "B";
+        if (value >= 1_000_000) return trim(value / 1_000_000) + "M";
+        if (value >= 1_000) return trim(value / 1_000) + "K";
+        return String.format("%.0f", value);
+    }
+
+    /** Four decimals, without trailing zeroes - 1,5124B instead of 1512,4M. */
+    private static String trim(double value) {
+        String text = String.format("%.4f", value);
+        while (text.endsWith("0")) text = text.substring(0, text.length() - 1);
+        if (text.endsWith(".") || text.endsWith(",")) text = text.substring(0, text.length() - 1);
+        return text;
     }
 
     protected String formatCoins(double coins) {
-        if (coins >= 1_000_000_000) {
-            return String.format("%.2fB", coins / 1_000_000_000);
-        } else if (coins >= 1_000_000) {
-            return String.format("%.2fM", coins / 1_000_000);
-        } else if (coins >= 1_000) {
-            return String.format("%.1fK", coins / 1_000);
-        } else {
-            return String.format("%.0f", coins);
-        }
+        return formatXp(coins);
     }
 }

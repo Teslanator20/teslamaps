@@ -222,7 +222,8 @@ public class ProfileViewerScreen extends Screen {
         for (int i = 0; i < Math.min(recent.size(), 7); i++) {
             String name = recent.get(i);
             int y = i * 28;
-            boolean selected = name.equalsIgnoreCase(targetPlayer);
+            boolean selected = name.equalsIgnoreCase(targetPlayer)
+                    || (profiles != null && name.equalsIgnoreCase(profiles.getDisplayName()));
             boolean hovered = mouseX >= x && mouseX < x + 28 && mouseY >= y && mouseY < y + 28;
 
             NeuStyle.sideTab(ctx, selected ? x : x - 1, y, selected);

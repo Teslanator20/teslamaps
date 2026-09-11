@@ -24,8 +24,8 @@ import java.util.Map;
 
 /** The bestiary menu of the game: categories on the left, mob heads with their tier on the right. */
 public class BestiaryPage extends ProfileViewerPage {
-    private static final int COLUMNS = 7;
-    private static final int ROWS = 5;
+    private static final int COLUMNS = 9;
+    private static final int ROWS = 7;
     private static final int PER_PAGE = COLUMNS * ROWS;
 
     private static final Map<String, ItemStack> icons = new HashMap<>();
@@ -86,20 +86,20 @@ public class BestiaryPage extends ProfileViewerPage {
                 ? profile.getMemberData().getAsJsonObject("bestiary").getAsJsonObject("kills") : new JsonObject();
 
         // category rail, scrollable because the game has more than fits
-        int visible = 9;
+        int visible = 10;
         railScroll = Math.max(0, Math.min(railScroll, Math.max(0, categories.size() - visible)));
         for (int i = 0; i < visible && i + railScroll < categories.size(); i++) {
             BestiaryRepo.Category cat = categories.get(i + railScroll);
             int bx = left + 6;
-            int by = top + 8 + i * 20;
+            int by = top + 6 + i * 19;
             boolean selected = (i + railScroll) == category;
-            boolean hovered = mouseX >= bx && mouseX < bx + 104 && mouseY >= by && mouseY < by + 18;
+            boolean hovered = mouseX >= bx && mouseX < bx + 104 && mouseY >= by && mouseY < by + 17;
 
-            if (selected) NeuStyle.slimBox(ctx, bx, by, 104, 18);
+            if (selected) NeuStyle.slimBox(ctx, bx, by, 104, 17);
             ItemStack icon = iconFor(cat.icon());
             if (!icon.isEmpty()) ctx.item(icon, bx + 1, by + 1);
             String name = cat.name();
-            ctx.text(tr, name.length() > 13 ? name.substring(0, 13) : name, bx + 20, by + 5,
+            ctx.text(tr, name.length() > 13 ? name.substring(0, 13) : name, bx + 20, by + 4,
                     selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
         }
 
@@ -108,7 +108,7 @@ public class BestiaryPage extends ProfileViewerPage {
         pageCount = Math.max(1, (mobs.size() + PER_PAGE - 1) / PER_PAGE);
         page = Math.min(page, pageCount - 1);
 
-        int gridX = left + 120;
+        int gridX = left + 116;
         int gridY = top + 20;
 
         Component title = LegacyText.parse(current.name());
@@ -146,12 +146,12 @@ public class BestiaryPage extends ProfileViewerPage {
         }
 
         String summary = "Tiers: " + totalTier + "   Milestone: " + milestone(profile);
-        ctx.text(tr, summary, gridX, top + NeuStyle.PANEL_HEIGHT - 30, NeuStyle.TEXT_GRAY);
+        ctx.text(tr, summary, left + 6, top + NeuStyle.PANEL_HEIGHT - 18, NeuStyle.TEXT_GRAY);
 
         if (pageCount > 1) {
             String pager = "< " + (page + 1) + " / " + pageCount + " >";
             pagerX = gridX + (COLUMNS * ItemGrid.SLOT - tr.width(pager)) / 2;
-            pagerY = gridY + ROWS * ItemGrid.SLOT + 4;
+            pagerY = gridY + ROWS * ItemGrid.SLOT + 2;
             pagerW = tr.width(pager);
             ctx.text(tr, pager, pagerX, pagerY, NeuStyle.TEXT);
         } else {
@@ -209,10 +209,10 @@ public class BestiaryPage extends ProfileViewerPage {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         List<BestiaryRepo.Category> categories = BestiaryRepo.categories();
-        for (int i = 0; i < 9 && i + railScroll < categories.size(); i++) {
+        for (int i = 0; i < 10 && i + railScroll < categories.size(); i++) {
             int bx = lastLeft + 6;
-            int by = lastTop + 8 + i * 20;
-            if (mouseX >= bx && mouseX < bx + 104 && mouseY >= by && mouseY < by + 18) {
+            int by = lastTop + 6 + i * 19;
+            if (mouseX >= bx && mouseX < bx + 104 && mouseY >= by && mouseY < by + 17) {
                 category = i + railScroll;
                 page = 0;
                 return true;

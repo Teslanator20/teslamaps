@@ -28,6 +28,7 @@ public class PetRepo {
     private static final List<Long> levels = new ArrayList<>();
     private static final Map<String, Integer> offsets = new HashMap<>();
     private static final Map<String, List<Long>> customLevels = new HashMap<>();
+    private static final Map<String, Integer> customMax = new HashMap<>();
 
     private static boolean loading = false;
     private static boolean loaded = false;
@@ -78,7 +79,9 @@ public class PetRepo {
                 List<Long> list = new ArrayList<>();
                 JsonArray array = entry.getAsJsonArray("pet_levels");
                 for (JsonElement element : array) list.add(element.getAsLong());
+                if (list.isEmpty()) continue;
                 customLevels.put(key, list);
+                if (entry.has("max_level")) customMax.put(key, entry.get("max_level").getAsInt());
             }
         }
     }
@@ -88,6 +91,8 @@ public class PetRepo {
     }
 
     public static int maxLevel(String type) {
+        Integer max = customMax.get(type);
+        if (max != null) return max;
         return customLevels.containsKey(type) ? 200 : 100;
     }
 

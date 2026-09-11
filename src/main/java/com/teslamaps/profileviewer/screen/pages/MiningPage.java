@@ -3,6 +3,7 @@ package com.teslamaps.profileviewer.screen.pages;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
+import com.teslamaps.profileviewer.screen.ItemGrid;
 import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import net.minecraft.client.Minecraft;
@@ -73,8 +74,8 @@ public class MiningPage extends ProfileViewerPage {
         ctx.text(tr, "Heart of the Mountain", cx, cy, NeuStyle.TEXT_AQUA);
         cy += 12;
 
-        String level = "Tier " + hotmLevel;
-        ctx.text(tr, level, cx, cy, NeuStyle.TEXT);
+        String tierText = "Tier " + hotmLevel;
+        ctx.text(tr, tierText, cx, cy, NeuStyle.TEXT);
         String xpText = formatXp(hotmXp);
         ctx.text(tr, xpText, cx + SECTION - tr.width(xpText), cy, NeuStyle.TEXT_GRAY);
         cy += 10;
@@ -130,36 +131,105 @@ public class MiningPage extends ProfileViewerPage {
             row(ctx, tr, gx, gy, "Fossil dust:", String.valueOf((int) asLong(glacite.get("fossil_dust"))), NeuStyle.TEXT);
         }
 
-        // right column: the perks that are actually levelled
-        int px = left + 286;
-        int py = top + 10;
-        ctx.text(tr, "Perks", px, py, NeuStyle.TEXT_AQUA);
-        py += 12;
+        // right: the perks as a slot grid, disabled ones tinted like in the menu
+        int px = left + 244;
+        ctx.text(tr, "Heart of the Mountain", px, top + 8, NeuStyle.TEXT_AQUA);
+        int py = top + 20;
 
+        ItemStack hovered = ItemStack.EMPTY;
         if (miningNodes != null) {
-            List<Map.Entry<String, JsonElement>> perks = new ArrayList<>();
+            List<String> perks = new ArrayList<>();
             for (Map.Entry<String, JsonElement> entry : miningNodes.entrySet()) {
                 if (entry.getKey().startsWith("toggle_")) continue;
                 if (entry.getKey().equals("core_of_the_mountain")) continue;
-                if (asInt(entry.getValue()) <= 0) continue;
-                perks.add(entry);
+                perks.add(entry.getKey());
             }
-            perks.sort((a, b) -> Integer.compare(asInt(b.getValue()), asInt(a.getValue())));
+            perks.sort((a, b) -> Integer.compare(asInt(miningNodes.get(b)), asInt(miningNodes.get(a))));
 
-            int shown = 0;
-            for (Map.Entry<String, JsonElement> entry : perks) {
-                if (py > top + NeuStyle.PANEL_HEIGHT - 24) {
-                    ctx.text(tr, "+" + (perks.size() - shown) + " more", px, py, NeuStyle.TEXT_DARK);
-                    break;
+            int columns = 9;
+            for (int i = 0; i < perks.size() && i < columns * 7; i++) {
+                String perk = perks.get(i);
+                int level = asInt(miningNodes.get(perk));
+                boolean enabled = !miningNodes.has("toggle_" + perk)
+                        || miningNodes.get("toggle_" + perk).getAsBoolean();
+
+                int sx = px + (i % columns) * ItemGrid.SLOT;
+                int sy = py + (i / columns) * ItemGrid.SLOT;
+
+                ctx.fill(sx, sy, sx + 17, sy + 17, 0x60000000);
+                ctx.fill(sx, sy, sx + 17, sy + 1, 0x40FFFFFF);
+                ctx.fill(sx, sy, sx + 1, sy + 17, 0x40FFFFFF);
+
+                ItemStack stack = perkStack(perk, level, enabled);
+                ctx.item(stack, sx + 1, sy + 1);
+                if (!enabled) ctx.fill(sx + 1, sy + 1, sx + 17, sy + 17, 0x50AA0000);
+
+                if (level > 1) {
+                    String levelText = String.valueOf(level);
+                    ctx.text(tr, levelText, sx + 17 - tr.width(levelText), sy + 9, 0xFFFFFFFF);
                 }
-                row(ctx, tr, px, py, capitalize(entry.getKey()), String.valueOf(asInt(entry.getValue())),
-                        NeuStyle.TEXT_GRAY);
-                py += 10;
-                shown++;
+
+                if (mouseX >= sx && mouseX < sx + 17 && mouseY >= sy && mouseY < sy + 17) {
+                    ctx.fill(sx + 1, sy + 1, sx + 16, sy + 16, 0x40FFFFFF);
+                    hovered = stack;
+                }
             }
         } else {
             ctx.text(tr, "Not in the api", px, py, NeuStyle.TEXT_GRAY);
         }
+
+        hoverStack(hovered);
+    }
+
+    private static final Map<String, ItemStack> perkStacks = new java.util.HashMap<>();
+
+    private static ItemStack perkStack(String perk, int level, boolean enabled) {
+        String key = perk + ":" + level + ":" + enabled;
+        ItemStack cached = perkStacks.get(key);
+        if (cached != null) return cached;
+
+        ItemStack stack = new ItemStack(perkIcon(perk));
+        stack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,
+                com.teslamaps.profileviewer.data.LegacyText.parse(
+                        (level > 0 ? "§a" : "§7") + capitalize(perk)));
+
+        List<net.minecraft.network.chat.Component> lore = new ArrayList<>();
+        lore.add(com.teslamaps.profileviewer.data.LegacyText.parse(
+                level > 0 ? "§7Level §e" + level : "§cNot unlocked"));
+        if (!enabled) lore.add(com.teslamaps.profileviewer.data.LegacyText.parse("§cDisabled"));
+        stack.set(net.minecraft.core.component.DataComponents.LORE,
+                new net.minecraft.world.item.component.ItemLore(lore));
+
+        perkStacks.put(key, stack);
+        return stack;
+    }
+
+    /** Best effort icons; the real menu slots are not exposed by the api. */
+    private static net.minecraft.world.item.Item perkIcon(String perk) {
+        return switch (perk) {
+            case "mining_speed", "speedy_mineman", "seasoned_mineman" -> Items.GOLDEN_PICKAXE;
+            case "mining_fortune", "fortunate_mineman" -> Items.DIAMOND_PICKAXE;
+            case "titanium_insanium" -> Items.IRON_BLOCK;
+            case "pickobulus" -> Items.SNOWBALL;
+            case "efficient_miner" -> Items.NETHERITE_PICKAXE;
+            case "mole" -> Items.DIRT;
+            case "gem_lover" -> Items.EMERALD;
+            case "professional", "mining_master" -> Items.BOOK;
+            case "old_school" -> Items.STONE_PICKAXE;
+            case "sky_mall" -> Items.EMERALD_BLOCK;
+            case "crystalline" -> Items.AMETHYST_SHARD;
+            case "dead_mans_chest", "gifts_from_the_departed" -> Items.CHEST;
+            case "keep_it_cool" -> Items.ICE;
+            case "metal_head" -> Items.IRON_HELMET;
+            case "no_stone_unturned" -> Items.COBBLESTONE;
+            case "powder_buff" -> Items.GLOWSTONE_DUST;
+            case "steady_hand" -> Items.LEATHER_BOOTS;
+            case "strong_arm" -> Items.IRON_SWORD;
+            case "surveyor" -> Items.MAP;
+            case "warm_heart" -> Items.MAGMA_CREAM;
+            case "daily_powder" -> Items.REDSTONE;
+            default -> Items.PAPER;
+        };
     }
 
     private int powder(GuiGraphicsExtractor ctx, Font tr, int x, int y, JsonObject core,
