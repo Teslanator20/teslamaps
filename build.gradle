@@ -1,27 +1,6 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.teamresourceful.com/repository/maven-public/' }
-        mavenCentral()
-    }
-    dependencies {
-        // generates me.owdding.skyblockpv.generated.SkyBlockPvExtraData for the vendored viewer
-        classpath "me.owdding.repo:compacting-resources:${meowdding_resources_version}"
-    }
-}
-
 plugins {
     id 'net.fabricmc.fabric-loom' version "${loom_version}"
-    id 'org.jetbrains.kotlin.jvm' version "${kotlin_version}"
-    id 'com.google.devtools.ksp' version "${ksp_version}"
     id 'maven-publish'
-}
-
-apply plugin: 'me.owdding.resources'
-
-compactingResources {
-    basePath = 'repo'
-    pathDirectory = 'src'
-    configureTask(tasks.named('processResources').get())
 }
 
 version = project.mod_version
@@ -33,25 +12,6 @@ base {
 
 repositories {
     mavenCentral()
-    // skyblock-pv and its libraries
-    maven {
-        url = 'https://maven.teamresourceful.com/repository/maven-public/'
-        content {
-            includeGroupAndSubgroups('earth.terrarium')
-            includeGroupAndSubgroups('com.teamresourceful')
-            includeGroupAndSubgroups('tech.thatgravyboat')
-            includeGroupAndSubgroups('me.owdding')
-            includeGroupAndSubgroups('com.terraformersmc')
-        }
-    }
-    maven { url = 'https://maven.nucleoid.xyz/'; content { includeGroupAndSubgroups('eu.pb4') } }
-    maven { url = 'https://repo.hypixel.net/repository/Hypixel'; content { includeGroupAndSubgroups('net.hypixel') } }
-    maven {
-        url = 'https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1'
-        content { includeGroupAndSubgroups('me.djtheredstoner') }
-    }
-    maven { url = 'https://api.modrinth.com/maven'; content { includeGroupAndSubgroups('maven.modrinth') } }
-    maven { url = 'https://maven.fabricmc.net/' }
 }
 
 loom {
@@ -71,11 +31,6 @@ loom {
     }
 }
 
-// skyblock-api drags DevAuth into the dev runtime, where it aborts the launch on an expired grant
-configurations.configureEach {
-    exclude group: 'me.djtheredstoner', module: 'DevAuth-fabric'
-}
-
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     // 26.1+ is unobfuscated: the net.fabricmc.fabric-loom variant does not remap,
@@ -85,56 +40,6 @@ dependencies {
 
     // Include Gson for JSON parsing (bundled with Minecraft but explicit)
     implementation 'com.google.code.gson:gson:2.10.1'
-
-    // --- skyblock-pv (vendored source) and its library stack, all jar-in-jar'd ---
-    api("tech.thatgravyboat:skyblock-api:${skyblockapi_version}") {
-        capabilities { requireCapability("tech.thatgravyboat:skyblock-api-26.1") }
-    }
-    include("tech.thatgravyboat:skyblock-api:${skyblockapi_version}") {
-        capabilities { requireCapability("tech.thatgravyboat:skyblock-api-26.1") }
-    }
-    api("me.owdding.meowdding-lib:meowdding-lib:${meowdding_lib_version}") {
-        capabilities { requireCapability("me.owdding.meowdding-lib:meowdding-lib-26.1") }
-    }
-    include("me.owdding.meowdding-lib:meowdding-lib:${meowdding_lib_version}") {
-        capabilities { requireCapability("me.owdding.meowdding-lib:meowdding-lib-26.1") }
-    }
-
-    implementation "com.teamresourceful.resourcefullib:resourcefullib-fabric-26.1:${resourceful_lib_version}"
-    include "com.teamresourceful.resourcefullib:resourcefullib-fabric-26.1:${resourceful_lib_version}"
-    implementation "com.teamresourceful.resourcefulconfig:resourcefulconfig-fabric-26.1:${resourceful_config_version}"
-    include "com.teamresourceful.resourcefulconfig:resourcefulconfig-fabric-26.1:${resourceful_config_version}"
-    implementation "com.teamresourceful.resourcefulconfigkt:resourcefulconfigkt-26.1-rc-1:${resourceful_configkt_version}"
-    include "com.teamresourceful.resourcefulconfigkt:resourcefulconfigkt-26.1-rc-1:${resourceful_configkt_version}"
-    implementation "earth.terrarium.olympus:olympus-fabric-26.1:${olympus_version}"
-    include "earth.terrarium.olympus:olympus-fabric-26.1:${olympus_version}"
-    implementation "eu.pb4:placeholder-api:${placeholders_version}"
-    include "eu.pb4:placeholder-api:${placeholders_version}"
-
-    implementation "com.moulberry:mixinconstraints:${mixinconstraints_version}"
-    implementation "net.fabricmc:fabric-language-kotlin:${fabric_language_kotlin_version}"
-
-    compileOnly "me.owdding.ktmodules:KtModules:${ktmodules_version}"
-    compileOnly "me.owdding.ktcodecs:KtCodecs:${ktcodecs_version}"
-    ksp "me.owdding.ktmodules:KtModules:${ktmodules_version}"
-    ksp "me.owdding.ktcodecs:KtCodecs:${ktcodecs_version}"
-}
-
-ksp {
-    arg("meowdding.project_name", "SkyBlockPv")
-    arg("meowdding.package", "me.owdding.skyblockpv.generated")
-}
-
-kotlin {
-    jvmToolchain(25)
-    compilerOptions {
-        optIn.add("kotlin.time.ExperimentalTime")
-        freeCompilerArgs.addAll(
-                "-Xnullability-annotations=@org.jspecify.annotations:warn",
-                "-Xcontext-parameters",
-                "-Xcontext-sensitive-resolution",
-        )
-    }
 }
 
 processResources {
@@ -151,11 +56,6 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
     it.options.release = 25
-}
-
-// skyblock-pv ships widener lines for 26.2 classes that do not exist on 26.1; upstream disables this too
-tasks.withType(net.fabricmc.loom.task.ValidateAccessWidenerTask).configureEach {
-    it.enabled = false
 }
 
 java {

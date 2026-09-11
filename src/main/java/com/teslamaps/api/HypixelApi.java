@@ -142,12 +142,61 @@ public class HypixelApi {
             entry.addProperty("cute_name", cuteName);
             entry.addProperty("current", profile.has("selected") && profile.get("selected").getAsBoolean());
             entry.add("data", members.has(uuid) ? members.getAsJsonObject(uuid) : new JsonObject());
+            entry.add("raw", profile);
 
             profiles.add(cuteName, entry);
         }
 
         result.add("profiles", profiles);
         return result;
+    }
+
+    public static CompletableFuture<JsonObject> getMuseum(String profileId) {
+        return getExtra("museum", "/skyblock/museum?profile=" + profileId, profileId);
+    }
+
+    public static CompletableFuture<JsonObject> getGarden(String profileId) {
+        return getExtra("garden", "/skyblock/garden?profile=" + profileId, profileId);
+    }
+
+    public static CompletableFuture<JsonObject> getBingo(String uuid) {
+        return getExtra("bingo", "/skyblock/bingo?uuid=" + uuid, uuid);
+    }
+
+    private static CompletableFuture<JsonObject> getExtra(String kind, String path, String id) {
+        return CompletableFuture.supplyAsync(() -> {
+            String cacheKey = kind + ":" + id;
+            CacheEntry cached = cache.get(cacheKey);
+            if (cached != null && !cached.isExpired()) {
+                return cached.data;
+            }
+
+            String apiKey = TeslaMapsConfig.get().hypixelApiKey;
+            if (apiKey == null || apiKey.isBlank()) return new JsonObject();
+
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(HYPIXEL_API + path))
+                        .timeout(Duration.ofSeconds(15))
+                        .header("API-Key", apiKey)
+                        .header("User-Agent", "TeslaMaps/1.0")
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() != 200) return new JsonObject();
+
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                if (json.has("success") && json.get("success").getAsBoolean()) {
+                    cache.put(cacheKey, new CacheEntry(json, 300000));
+                    return json;
+                }
+                return new JsonObject();
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.error("Failed to fetch {} data", kind, e);
+                return new JsonObject();
+            }
+        }, executor);
     }
 
     /** null = key works, otherwise the reason. Hypixel dropped /key, so this uses a real request. */

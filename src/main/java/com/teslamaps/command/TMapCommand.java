@@ -229,6 +229,12 @@ public class TMapCommand {
                                             }));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("pv")
+                        .executes(context -> openProfileViewer(context.getSource(), null))
+                        .then(ClientCommands.argument("player", StringArgumentType.word())
+                                .suggests((context, builder) -> suggest(PlayerNameCache.names(), builder))
+                                .executes(context -> openProfileViewer(context.getSource(),
+                                        StringArgumentType.getString(context, "player")))))
                 .then(ClientCommands.literal("update")
                         .executes(context -> {
                             com.teslamaps.features.Updater.install();
@@ -1433,6 +1439,19 @@ public class TMapCommand {
             return args.isEmpty() ? expanded : expanded + " " + args;
         }
         return command;
+    }
+
+    private static int openProfileViewer(FabricClientCommandSource source, String player) {
+        Minecraft mc = Minecraft.getInstance();
+        String name = player == null || player.isBlank() ? mc.getUser().getName() : player.trim();
+        String key = TeslaMapsConfig.get().hypixelApiKey;
+        if (key == null || key.isBlank()) {
+            source.sendFeedback(Component.literal(
+                    "§cNo Hypixel API key set. §7Run §f/tmap apikey <key>§7 (developer.hypixel.net)"));
+            return 1;
+        }
+        com.teslamaps.profileviewer.screen.ProfileViewerScreen.open(name);
+        return 1;
     }
 
     private static java.util.concurrent.CompletableFuture<Suggestions> suggest(
