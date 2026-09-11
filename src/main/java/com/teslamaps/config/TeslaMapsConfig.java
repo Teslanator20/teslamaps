@@ -518,7 +518,7 @@ public class TeslaMapsConfig {
      * gate silently never matched. section() reports unknown names in dev so that cannot recur.
      */
     public static final java.util.List<String> SECTIONS = java.util.List.of(
-            "Auto", "Blood Camp", "Chat", "Combat", "Critter Safari", "ESP", "Fishing",
+            "Auto", "Blood Camp", "Chat", "Combat", "Contest Timers", "Critter Safari", "ESP", "Fishing",
             "Foraging", "Garden", "Inventory", "Leap", "Map", "Mining",
             "Ordered Waypoints", "Party", "Puzzles & Terminals", "Render", "Score & Splits",
             "Secrets & Waypoints", "Shards", "Skills", "Sounds", "Timers", "Torrhus Canyon");
@@ -1160,6 +1160,21 @@ public class TeslaMapsConfig {
     public String colorHotfEnabled = "#55FF55";
     public String colorHotfDisabled = "#FF5555";
     public String colorHotfLocked = "#555555";
+
+    // SkyBlock contests (real-time schedule: Foraging every 20 min, Farming hourly)
+    public boolean contestTimer = false;
+    public boolean contestShowForaging = true;
+    public boolean contestShowFarming = true;
+    public boolean contestTimerSkyblockOnly = true;
+    public int contestTimerX = 5;
+    public int contestTimerY = 120;
+    public float contestTimerScale = 1.0f;
+    public boolean contestAlerts = false;
+    public int contestWarnBefore = 60;
+    public boolean contestAlertChat = true;
+    public boolean contestAlertTitle = false;
+    public String contestAlertSound = "NOTE_PLING";
+    public float contestAlertVolume = 1.0f;
 
     public boolean hoveredSlotOutline = true;       // outline the slot under the cursor in every container
     public String colorHoveredSlot = "#FF00FF";     // hovered slot outline color

@@ -31,6 +31,8 @@ connection instead of a perfect one. Separate PBs from your live runs.
 
 ## Garden & Farming
 
+- **Contest timers & alerts** — live countdowns for Agatha's 20-minute Foraging contests and
+  Jacob's hourly Farming contests, with configurable advance/start titles and sounds
 - **Pest routine** — a keybind-driven loop that swaps your loadouts, warps you around and walks you
   through a full pest round step by step, with an on-screen next-step display
 - **Pest overlay** — cooldown, alive pests and infested plots at a glance, with its own cooldown timer

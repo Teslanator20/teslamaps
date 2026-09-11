@@ -148,6 +148,7 @@ public class TeslaMaps implements ClientModInitializer {
         hud("pickaxeability", (g, d) -> { if (TeslaMapsConfig.get().section("Mining")) com.teslamaps.features.mining.PickaxeAbility.render(g, d); });
         hud("mineshaftpity", (g, d) -> { if (TeslaMapsConfig.get().section("Mining")) com.teslamaps.features.mining.MineshaftPity.render(g, d); });
         hud("lather", (g, d) -> { if (TeslaMapsConfig.get().section("Foraging")) com.teslamaps.features.foraging.LatherOverlay.render(g, d); });
+        hud("contesttimers", (g, d) -> { if (TeslaMapsConfig.get().section("Contest Timers")) com.teslamaps.features.ContestTimers.render(g, d); });
         hud("bobbertimer", (g, d) -> { if (TeslaMapsConfig.get().section("Fishing")) com.teslamaps.features.FishingBobberTimer.render(g, d); });
         hud("hookdisplay", (g, d) -> { if (TeslaMapsConfig.get().section("Fishing")) com.teslamaps.features.FishingHookDisplay.render(g, d); });
         hud("chatimages", (g, d) -> com.teslamaps.features.SharedImageChatRenderer.render(g, d));
@@ -353,6 +354,7 @@ public class TeslaMaps implements ClientModInitializer {
                     Perf.begin("LatherReminder.tick"); com.teslamaps.features.foraging.LatherReminder.tick(); Perf.end();
                 }
                 if (cfg.section("Garden")) { Perf.begin("GreenhousePlanner.tick"); com.teslamaps.features.GreenhousePlanner.tick(); Perf.end(); }
+                if (cfg.section("Contest Timers")) { Perf.begin("ContestTimers.tick"); com.teslamaps.features.ContestTimers.tick(); Perf.end(); }
                 Perf.begin("SecretTracker.tick"); SecretTracker.tick(); Perf.end();
                 if (cfg.section("Combat")) { Perf.begin("SlayerHUD.tick"); SlayerHUD.tick(); Perf.end(); }
                 if (cfg.section("Combat")) { Perf.begin("SlayerAlerts.tick"); com.teslamaps.slayer.SlayerAlerts.tick(); Perf.end(); }

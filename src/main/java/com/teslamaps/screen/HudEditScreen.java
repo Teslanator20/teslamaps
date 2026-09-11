@@ -58,6 +58,7 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.LASSO, Ctx.FORAGING, "Foraging", c.lassoDisplay);
         mark(DragTarget.PICKAXE_ABILITY, Ctx.MINING, "Mining", c.pickaxeAbilityDisplay);
         mark(DragTarget.MINESHAFT_PITY, Ctx.MINING, "Mining", c.mineshaftPityDisplay);
+        mark(DragTarget.CONTEST_TIMERS, Ctx.ANY, "Contest Timers", c.contestTimer);
         mark(DragTarget.BOBBER, Ctx.ANY, "Fishing", c.bobberTimer);
         mark(DragTarget.HOOK, Ctx.ANY, "Fishing", c.hookDisplay);
         mark(DragTarget.DEPLOYABLES, Ctx.ANY, "Skills", c.deployableOverlay);
@@ -86,7 +87,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -340,6 +341,23 @@ public class HudEditScreen extends Screen {
         int w = latherWidth(), h = latherHeight();
         return mouseX >= config.latherOverlayX && mouseX <= config.latherOverlayX + w &&
                mouseY >= config.latherOverlayY && mouseY <= config.latherOverlayY + h;
+    }
+
+    private int contestTimersWidth() {
+        return (int)(com.teslamaps.features.ContestTimers.previewSize(this.font)[0]
+                * TeslaMapsConfig.get().contestTimerScale);
+    }
+
+    private int contestTimersHeight() {
+        return (int)(com.teslamaps.features.ContestTimers.previewSize(this.font)[1]
+                * TeslaMapsConfig.get().contestTimerScale);
+    }
+
+    private boolean isMouseOverContestTimers(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = contestTimersWidth(), h = contestTimersHeight();
+        return mouseX >= config.contestTimerX && mouseX <= config.contestTimerX + w
+                && mouseY >= config.contestTimerY && mouseY <= config.contestTimerY + h;
     }
 
     private boolean isMouseOverSprinting(int mouseX, int mouseY) {
@@ -655,6 +673,10 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.LATHER;
                 dragOffsetX = mouseX - config.latherOverlayX;
                 dragOffsetY = mouseY - config.latherOverlayY;
+            } else if (visible.contains(DragTarget.CONTEST_TIMERS) && isMouseOverContestTimers(mouseX, mouseY)) {
+                dragging = DragTarget.CONTEST_TIMERS;
+                dragOffsetX = mouseX - config.contestTimerX;
+                dragOffsetY = mouseY - config.contestTimerY;
             } else if (visible.contains(DragTarget.HOTF_PERKS) && isMouseOverHotfPerks(mouseX, mouseY)) {
                 dragging = DragTarget.HOTF_PERKS;
                 dragOffsetX = mouseX - config.hotfPerkDisplayX;
@@ -799,6 +821,10 @@ public class HudEditScreen extends Screen {
             int w = latherWidth(), h = latherHeight();
             config.latherOverlayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.latherOverlayY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.CONTEST_TIMERS) {
+            int w = contestTimersWidth(), h = contestTimersHeight();
+            config.contestTimerX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.contestTimerY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.HOTF_PERKS) {
             int w = hotfPerksWidth(), h = hotfPerksHeight();
             config.hotfPerkDisplayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
@@ -901,6 +927,7 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.LATHER)) drawLatherPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.PICKAXE_ABILITY)) drawPickaxeAbilityPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.MINESHAFT_PITY)) drawMineshaftPityPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.CONTEST_TIMERS)) drawContestTimersPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.BOBBER)) drawBobberPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.HOOK)) drawHookPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.LASSO)) drawLassoPreview(context, mouseX, mouseY);
@@ -1104,6 +1131,28 @@ public class HudEditScreen extends Screen {
 
         String label = String.format("Honeycomb Lather (%.1fx)", scale);
         context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawContestTimersPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.contestTimerX, y = config.contestTimerY;
+        float scale = config.contestTimerScale;
+
+        com.teslamaps.features.ContestTimers.draw(context, this.minecraft, x, y, scale);
+
+        int w = contestTimersWidth(), h = contestTimersHeight();
+        boolean hovering = visible.contains(DragTarget.CONTEST_TIMERS)
+                && isMouseOverContestTimers(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.CONTEST_TIMERS) {
+            int borderColor = dragging == DragTarget.CONTEST_TIMERS ? 0xFFFFAA00 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        context.text(this.font, String.format("Contest Timers (%.1fx)", scale),
+                x, y - 12, 0xFFFFFFFF);
     }
 
     private void drawHotfPerksPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
@@ -1655,6 +1704,17 @@ public class HudEditScreen extends Screen {
                 config.latherOverlayScale = Math.min(3.0f, config.latherOverlayScale + 0.05f);
             } else if (verticalAmount < 0) {
                 config.latherOverlayScale = Math.max(0.5f, config.latherOverlayScale - 0.05f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (visible.contains(DragTarget.CONTEST_TIMERS)
+                && isMouseOverContestTimers((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.contestTimerScale = Math.min(3.0f, config.contestTimerScale + 0.05f);
+            } else if (verticalAmount < 0) {
+                config.contestTimerScale = Math.max(0.5f, config.contestTimerScale - 0.05f);
             }
             TeslaMapsConfig.save();
             return true;
