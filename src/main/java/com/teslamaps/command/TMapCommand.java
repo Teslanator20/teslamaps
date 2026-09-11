@@ -218,9 +218,18 @@ public class TMapCommand {
                                             TeslaMapsConfig c = TeslaMapsConfig.get();
                                             c.hypixelApiKey = StringArgumentType.getString(context, "key").trim();
                                             TeslaMapsConfig.save();
-                                            context.getSource().sendFeedback(Component.literal(
-                                                    c.hypixelApiKey.isEmpty() ? "§7Hypixel API key cleared"
-                                                            : "§7Hypixel API key saved"));
+                                            if (c.hypixelApiKey.isEmpty()) {
+                                                context.getSource().sendFeedback(Component.literal("§7Hypixel API key cleared"));
+                                                return 1;
+                                            }
+                                            context.getSource().sendFeedback(Component.literal("§7Checking API key..."));
+                                            Minecraft mc = Minecraft.getInstance();
+                                            HypixelApi.validateKey(mc.getUser().getProfileId().toString().replace("-", ""))
+                                                    .thenAccept(problem -> mc.execute(() -> {
+                                                        if (mc.player == null) return;
+                                                        mc.player.sendSystemMessage(Component.literal(problem == null
+                                                                ? "§aAPI key works" : "§cAPI key rejected: §7" + problem));
+                                                    }));
                                             return 1;
                                         })))
                         .then(ClientCommands.argument("player", StringArgumentType.word())

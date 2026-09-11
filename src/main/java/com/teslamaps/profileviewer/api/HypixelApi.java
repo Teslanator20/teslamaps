@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class HypixelApi {
-    private static final String HYPIXEL_API = "https://api.hypixel.net";
+    private static final String HYPIXEL_API = "https://api.hypixel.net/v2";
     private static final String MOJANG_API = "https://api.mojang.com";
 
     private static final HttpClient client = HttpClient.newBuilder()
@@ -299,6 +299,33 @@ public class HypixelApi {
             } catch (Exception e) {
                 TeslaMaps.LOGGER.error("Failed to fetch bingo data", e);
                 return new JsonObject();
+            }
+        }, executor);
+    }
+
+    /** null = key works, otherwise the reason. Hypixel dropped /key, so this uses a real request. */
+    public static CompletableFuture<String> validateKey(String uuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            String apiKey = TeslaMapsConfig.get().hypixelApiKey;
+            if (apiKey == null || apiKey.isBlank()) return "No API key set";
+
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(HYPIXEL_API + "/player?uuid=" + uuid))
+                        .timeout(Duration.ofSeconds(10))
+                        .header("API-Key", apiKey)
+                        .header("User-Agent", "TeslaMaps/1.0")
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) return null;
+
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                String cause = json.has("cause") ? json.get("cause").getAsString() : "HTTP " + response.statusCode();
+                return cause;
+            } catch (Exception e) {
+                return "Network error: " + e.getMessage();
             }
         }, executor);
     }

@@ -21,10 +21,12 @@ public class LassoDisplay {
 
     public static final String SAMPLE_TEXT = "§e§l          REEL          ";
 
-    private static final String REEL = "§e§lREEL";
+    private static final double RANGE = 12.0;
 
     private static String text = null;
     private static boolean reeling = false;
+    private static int handTicks = 0;
+    private static int standTicks = 0;
 
     public static void tick() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -33,7 +35,12 @@ public class LassoDisplay {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null || mc.player == null || !holdingLasso(mc.player.getMainHandItem())) {
+        if (mc.level == null || mc.player == null) {
+            reset();
+            return;
+        }
+        if (!holdingLasso(mc.player.getMainHandItem())) {
+            debugHand(mc);
             reset();
             return;
         }
@@ -41,22 +48,20 @@ public class LassoDisplay {
         boolean reel = false;
         String bar = null;
 
-        for (Entity entity : mc.level.entitiesForRendering()) {
-            if (!(entity instanceof Leashable leashable)) continue;
-            if (leashable.getLeashHolder() != mc.player) continue;
-
-            AABB area = new AABB(entity.position().add(0, 2, 0), entity.position().add(0, 2, 0)).inflate(2.0);
-            for (ArmorStand stand : mc.level.getEntitiesOfClass(ArmorStand.class, area)) {
-                if (stand.getCustomName() == null) continue;
-                String name = stand.getCustomName().getString();
-                if (name.contains("§l§m")) bar = name;
-                if (name.replace("§r", "").trim().equals(REEL)) {
-                    reel = true;
-                    break;
-                }
+        // Hypixel does not always leash the animal client side, so take any stand around the player
+        AABB area = mc.player.getBoundingBox().inflate(RANGE);
+        for (ArmorStand stand : mc.level.getEntitiesOfClass(ArmorStand.class, area)) {
+            if (stand.getCustomName() == null) continue;
+            String name = stand.getCustomName().getString();
+            String plain = StringUtil.stripTrim(name);
+            if (plain.equals("REEL")) {
+                reel = true;
+                break;
             }
-            if (reel) break;
+            if (name.contains("§m") && bar == null) bar = name;
         }
+
+        debugStands(mc, area);
 
         if (reel && !reeling && c.lassoReelVolume > 0f) {
             com.teslamaps.utils.LoudSound.play(
@@ -71,6 +76,36 @@ public class LassoDisplay {
     private static void reset() {
         text = null;
         reeling = false;
+    }
+
+    private static void debugHand(Minecraft mc) {
+        if (!TeslaMapsConfig.get().debugMode) return;
+        if (++handTicks < 40) return;
+        handTicks = 0;
+        ItemStack stack = mc.player.getMainHandItem();
+        if (stack.isEmpty()) return;
+        say(mc, "§7[Lasso] no lasso: id=" + ItemUtil.skyblockId(stack)
+                + " name=" + StringUtil.stripTrim(stack.getHoverName().getString()));
+    }
+
+    private static void debugStands(Minecraft mc, AABB area) {
+        if (!TeslaMapsConfig.get().debugMode) return;
+        if (++standTicks < 20) return;
+        standTicks = 0;
+        int leashed = 0;
+        for (Entity e : mc.level.entitiesForRendering()) {
+            if (e instanceof Leashable l && l.getLeashHolder() == mc.player) leashed++;
+        }
+        StringBuilder sb = new StringBuilder("§7[Lasso] leashed=" + leashed + " stands:");
+        for (ArmorStand stand : mc.level.getEntitiesOfClass(ArmorStand.class, area)) {
+            if (stand.getCustomName() == null) continue;
+            sb.append(" [").append(stand.getCustomName().getString().replace("§", "&")).append(']');
+        }
+        say(mc, sb.toString());
+    }
+
+    private static void say(Minecraft mc, String msg) {
+        if (mc.player != null) mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(msg));
     }
 
     private static boolean holdingLasso(ItemStack stack) {
