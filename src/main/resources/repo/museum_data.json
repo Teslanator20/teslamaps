@@ -1,0 +1,2850 @@
+{
+  "special": [
+    "EDITOR_PENCIL",
+    "WIKI_JOURNAL",
+    "SNOWMAN_PERSONALITY",
+    "PUFFERFISH_PERSONALITY",
+    "FISH_PERSONALITY",
+    "WHITE_TIGER_PERSONALITY",
+    "PARTY_HAT_SLOTH",
+    "PARTY_HAT_CRAB_ANIMATED",
+    "PARTY_HAT_CRAB",
+    "EPOCH_CAKE_AQUA",
+    "EPOCH_CAKE_HEPHAESTUS",
+    "EPOCH_CAKE_GREEN",
+    "EPOCH_CAKE_BLACK",
+    "EPOCH_CAKE_MAGENTA",
+    "EPOCH_CAKE_STARBORN",
+    "EPOCH_CAKE_GRAY",
+    "EPOCH_CAKE_PURPLE",
+    "EPOCH_CAKE_PINK",
+    "EPOCH_CAKE_CYAN",
+    "EPOCH_CAKE_EXPIRED",
+    "EPOCH_CAKE_ORANGE",
+    "EPOCH_CAKE_SILVER",
+    "EPOCH_CAKE_RED",
+    "EPOCH_CAKE_BLUE",
+    "EPOCH_CAKE_YELLOW",
+    "EPOCH_CAKE_WHITE",
+    "EPOCH_CAKE_BROWN",
+    "EPOCH_CAKE_DARK_GREEN",
+    "EPOCH_CAKE_SEVEN_SEAS",
+    "GIANT_FISHING_ROD",
+    "DIRT_ROD",
+    "RIBBIT_THE_FISH",
+    "LOUDMOUTH_BASS",
+    "ASPECT_OF_THE_JERRY_SIGNATURE",
+    "PAINT_CARTRIDGE",
+    "CENTURY_THE_FISH",
+    "SKELETON_THE_FISH",
+    "RABBIT_THE_FISH",
+    "GREAT_SPOOK_NECKLACE",
+    "GREAT_SPOOK_LEGGINGS",
+    "GREAT_SPOOK_BELT",
+    "GREAT_SPOOK_CHESTPLATE",
+    "GREAT_SPOOK_TALISMAN",
+    "GREAT_SPOOK_BOOTS",
+    "GREAT_SPOOK_STAFF",
+    "GREAT_SPOOK_ARTIFACT",
+    "GREAT_SPOOK_GLOVES",
+    "GREAT_SPOOK_CLOAK",
+    "GREAT_SPOOK_HELMET",
+    "GREAT_SPOOK_SWORD",
+    "GREAT_SPOOK_RING",
+    "GOD_POTION_2",
+    "GOD_POTION",
+    "BREAD_BOWL",
+    "MYTH_THE_FISH",
+    "BINGO_CARD",
+    "BINGO_RELIC",
+    "GOLDEN_DANTE_STATUE",
+    "BINGO_HEIRLOOM",
+    "BINGO_TALISMAN",
+    "BINGO_RING",
+    "BINGO_ARTIFACT",
+    "DITTO_SKIN",
+    "BINGO_DISPLAY",
+    "SPRING_BOOTS",
+    "DITTO_SKULL",
+    "BOOK_OF_STATS",
+    "BONZO_STATUE",
+    "COLLECTION_DISPLAY",
+    "SECRET_BINGO_CARD",
+    "EXTREME_BINGO_CARD",
+    "JUNGLE_HEART",
+    "PET_SKIN_SHEEP_NEON_BLUE",
+    "PET_SKIN_SILVERFISH",
+    "MAGMA_CUBE_HEAD",
+    "HERMIT_CRAB_PERSONALITY",
+    "PET_SKIN_ROCK_COOL",
+    "FLAMEBREAKER_CHESTPLATE",
+    "PET_SKIN_SHEEP_NEON_GREEN",
+    "PET_SKIN_SHEEP_ORANGE",
+    "GAME_BREAKER",
+    "PET_SKIN_ELEPHANT_BLUE",
+    "PET_SKIN_WOLF_HENZO_DOGGO",
+    "GOLD_CANDY",
+    "SINGING_FISH",
+    "GHOST_PERSONALITY",
+    "CHOCO_RABBIT_PERSONALITY",
+    "GAME_ANNIHILATOR",
+    "PET_SKIN_YETI_GROWN_UP",
+    "NAME_TAG",
+    "PUZZLE_CUBE",
+    "DEFUSE_KIT",
+    "SUMMONING_EYE",
+    "IRON_BARDING",
+    "GENERALS_ARMOR_OF_THE_RESISTANCE_LEGGINGS",
+    "REINDEER_PERSONALITY",
+    "ARMOR_OF_THE_RESISTANCE_BOOTS",
+    "THE_ART_OF_PEACE",
+    "PET_SKIN_ROCK_THINKING",
+    "SALMON_BOOTS",
+    "GENERALS_HOPE_OF_THE_RESISTANCE",
+    "NOPE_THE_FISH",
+    "SUN_PERSONALITY",
+    "STEW_THE_FISH",
+    "CAKE_SOUL",
+    "HOPE_OF_THE_RESISTANCE",
+    "ARMOR_OF_MAGMA_BOOTS",
+    "PET_SKIN_MONKEY_GOLDEN",
+    "PET_SKIN_JERRY_GREEN_ELF",
+    "HAPPY_EMOJI_PERSONALITY",
+    "PET_SKIN_MONKEY_SUNGLASSES",
+    "SHRIMP_THE_FISH",
+    "LADY_BUG_PERSONALITY",
+    "DIAMOND_THE_FISH",
+    "PET_SKIN_ENDERMITE_RADIANT",
+    "DUNGEON_DISC_1",
+    "GRINCH_PERSONALITY",
+    "PET_SKIN_ELEPHANT_MONOCHROME",
+    "PET_SKIN_TIGER_TWILIGHT",
+    "PET_SKIN_JERRY_RED_ELF",
+    "ANCIENT_ELEVATOR",
+    "DEAD_BUSH_OF_LOVE",
+    "FOSSIL_THE_FISH",
+    "STOCK_OF_STONKS",
+    "CLUCK_THE_FISH",
+    "PRESENT_PERSONALITY",
+    "EASTER_EGG_PERSONALITY",
+    "PET_SKIN_WOLF",
+    "PET_SKIN_SHEEP_WHITE",
+    "BASKETBALL_PERSONALITY",
+    "BUNNY_PERSONALITY",
+    "PET_SKIN_RABBIT_ROSE",
+    "FLAMEBREAKER_HELMET",
+    "DUECES_BUILDER_CLAY",
+    "OOPS_THE_FISH",
+    "FLAMEBREAKER_BOOTS",
+    "DCTR_SPACE_HELM",
+    "ENRAGER",
+    "DUNGEON_DISC_4",
+    "EMBER_ROD",
+    "RUBY_CRYSTAL",
+    "PET_SKIN_ENDERMAN",
+    "PENGUIN_PERSONALITY",
+    "END_STONE_PERSONALITY",
+    "PET_SKIN_SHEEP_RED",
+    "ALPHA_PICK",
+    "WAND_OF_RECALL",
+    "EXPERIMENT_THE_FISH",
+    "FLAMEBREAKER_LEGGINGS",
+    "PET_SKIN_SHEEP_GREEN",
+    "SHARK_PERSONALITY",
+    "PET_SKIN_ROCK_DERP",
+    "GIANT_THE_FISH",
+    "FRENCH_BREAD",
+    "GIFT_THE_FISH",
+    "SPOOKY_PIE",
+    "POTATO_RING",
+    "SLOTH_PERSONALITY",
+    "ICE_CREAM_PERSONALITY",
+    "SHINY_RELIC",
+    "PET_SKIN_SHEEP_LIGHT_GREEN",
+    "PET_SKIN_SHEEP_LIGHT_GRAY",
+    "PET_SKIN_ENDERMAN_SLAYER",
+    "PET_SKIN_DRAGON_PASTEL",
+    "SKULL_PERSONALITY",
+    "SHINY_ORB",
+    "BEACH_BALL_PERSONALITY",
+    "EMBER_CHESTPLATE",
+    "POTATO_SPREADING",
+    "PINK_DONUT_PERSONALITY",
+    "PET_SKIN_SHEEP_LIGHT_BLUE",
+    "PET_SKIN_ELEPHANT_GREEN",
+    "UNDEAD_PERSONALITY",
+    "THE_ART_OF_WAR",
+    "KLOONBOAT",
+    "DUNGEON_DISC_5",
+    "PET_SKIN_ROCK_EMBARRASSED",
+    "PIG_MASK",
+    "PET_SKIN_RABBIT_AQUAMARINE",
+    "GINGERBREAD_PERSONALITY",
+    "LANTERN_OF_THE_DEAD",
+    "POTATO_SILVER_MEDAL",
+    "BAG_OF_CASH",
+    "PET_SKIN_SHEEP_BLUE",
+    "PET_SKIN_BLACK_CAT_ONYX",
+    "GENERALS_ARMOR_OF_THE_RESISTANCE_CHESTPLATE",
+    "PET_SKIN_SHEEP_BLACK",
+    "THE_CAKE",
+    "SANTA_PERSONALITY",
+    "WINTER_DISC",
+    "PET_SKIN_SHEEP_YELLOW",
+    "KILLER_PERSONALITY",
+    "CANDY_THE_FISH",
+    "CHILL_THE_FISH_2",
+    "MAXOR_THE_FISH",
+    "PET_SKIN_BLACK_CAT_IVORY",
+    "EMBER_BOOTS",
+    "DIAMOND_BARDING",
+    "PROMISING_HOE",
+    "DANTE_TALISMAN",
+    "DUNGEON_DISC_2",
+    "EMBER_LEGGINGS",
+    "FESTIVE_JERRY_PERSONALITY",
+    "DANTE_RING",
+    "ROBOT_PERSONALITY",
+    "ICE_LOLLY_PERSONALITY",
+    "ROCK_THE_FISH",
+    "PET_SKIN_SHEEP_GRAY",
+    "PARTY_THE_FISH",
+    "GHAST_HEAD",
+    "POTATO_TALISMAN",
+    "FAIRY_FLUTE",
+    "REVENGE",
+    "ARMOR_OF_MAGMA_HELMET",
+    "SALMON_HELMET",
+    "SHINY_ROD",
+    "PET_SKIN_CHICKEN_BABY_CHICK",
+    "PET_SKIN_ELEPHANT_RED",
+    "PUMPKIN_PERSONALITY",
+    "SEAL_PERSONALITY",
+    "DIVAN_ALLOY",
+    "ARMOR_OF_MAGMA_LEGGINGS",
+    "FARMING_FOR_DUMMIES",
+    "GOLDOR_THE_FISH",
+    "SPOOK_THE_FISH",
+    "PET_SKIN_ELEPHANT_PINK",
+    "BEE_PERSONALITY",
+    "JASPER_CRYSTAL",
+    "RECOMBOBULATOR_3000",
+    "WORM_THE_FISH",
+    "ETERNAL_FLAME_RING",
+    "PET_SKIN_SHEEP_PURPLE",
+    "HEADLESS_PERSONALITY",
+    "PINK_BUNNY_PERSONALITY",
+    "MUMMY_PERSONALITY",
+    "SALMON_CHESTPLATE",
+    "CLOWN_THE_FISH",
+    "PET_SKIN_SHEEP_NEON_RED",
+    "NETHER_STAR",
+    "FAIRY_WINGS_CHARM",
+    "SCARECROW_PERSONALITY",
+    "PLASTIC_SHOVEL",
+    "PET_SKIN_MEGALODON_BULLHEAD",
+    "DUST_THE_FISH",
+    "PET_SKIN_MONKEY_GORILLA",
+    "EMBER_HELMET",
+    "BLAZE_HAT",
+    "PRICELESS_THE_FISH",
+    "GORF_THE_FISH",
+    "PET_SKIN_DRAGON_NEON_BLUE",
+    "PET_SKIN_SHEEP_BROWN",
+    "BAT_THE_FISH",
+    "PET_SKIN_SHEEP_PINK",
+    "POTATO_CROWN",
+    "FISHY_PENGUIN_PERSONALITY",
+    "PET_SKIN_DRAGON_NEON_RED",
+    "GENERALS_ARMOR_OF_THE_RESISTANCE_BOOTS",
+    "GOLD_BARDING",
+    "CLOWNFISH_PERSONALITY",
+    "CYCLOPS_PERSONALITY",
+    "SNOWFLAKE_THE_FISH",
+    "ARMOR_OF_MAGMA_CHESTPLATE",
+    "PET_SKIN_SILVERFISH_FOSSILIZED",
+    "BATTLE_DISC",
+    "PET_SKIN_GUARDIAN",
+    "EGG_THE_FISH",
+    "PET_SKIN_SHEEP_MAGENTA",
+    "FESTIVE_ZOMBIE_PERSONALITY",
+    "FESTIVE_SKELETON_PERSONALITY",
+    "QUALITY_MAP",
+    "PET_SKIN_SHEEP_NEON_YELLOW",
+    "PET_SKIN_RABBIT",
+    "DUNGEON_DISC_3",
+    "EON_THE_FISH",
+    "PET_SKIN_ROCK_LAUGH",
+    "POTATO_BASKET",
+    "GENERALS_ARMOR_OF_THE_RESISTANCE_HELMET",
+    "PET_SKIN_HORSE_ZOMBIE",
+    "SALMON_LEGGINGS",
+    "GOLD_GIFT",
+    "PET_SKIN_DRAGON_NEON_PURPLE",
+    "PET_SKIN_ELEPHANT_ORANGE",
+    "POLAR_BEAR_PERSONALITY",
+    "MELON_PERSONALITY",
+    "BANANA_MONKEY_PERSONALITY",
+    "CORRUPTED_NETHER_STAR",
+    "PET_SKIN_WITHER",
+    "ARMOR_OF_THE_RESISTANCE_HELMET",
+    "PET_SKIN_SHEEP_AQUA",
+    "CREATIVE_MIND",
+    "STORM_THE_FISH",
+    "PET_SKIN_WHALE_ORCA",
+    "SUPER_COMPACTOR_3000",
+    "SPOOKY_DISC",
+    "HAPPY_MASK",
+    "PET_SKIN_DOLPHIN_SNUBNOSE",
+    "SEA_LANTERN_HAT",
+    "PET_SKIN_ELEPHANT_PURPLE",
+    "POLISHED_PEBBLE",
+    "ENDSTONE_ROSE",
+    "CHILL_THE_FISH",
+    "ARMOR_OF_THE_RESISTANCE_CHESTPLATE",
+    "GAME_FIXER",
+    "SANDCASTLE_PERSONALITY",
+    "NEW_YEAR_CAKE",
+    "ARMOR_OF_THE_RESISTANCE_LEGGINGS",
+    "MAGMA_BOW",
+    "PET_SKIN_MEGALODON_BABY",
+    "PET_SKIN_ROCK_SMILE",
+    "COTTON_CANDY",
+    "BEDROCK",
+    "GABAGOOL_THE_FISH",
+    "AATROX_BADPHONE",
+    "AATROX_BATPHONE",
+    "TROPICAL_BIRD_1_PERSONALITY",
+    "CITRINE_CRYSTAL",
+    "AQUAMARINE_CRYSTAL",
+    "OPAL_CRYSTAL",
+    "PERIDOT_CRYSTAL",
+    "ONYX_CRYSTAL",
+    "HELIX",
+    "TROPICAL_BIRD_2_PERSONALITY",
+    "SNOW_CLOAK",
+    "SNOW_GLOVES",
+    "SNOW_BELT",
+    "SNOW_NECKLACE",
+    "DETECTIVE_WALLET",
+    "ZOOP_THE_FISH",
+    "DARK_PEBBLE",
+    "FAMILY_DOUBLOON",
+    "SWAMP_THE_FISH",
+    "BERRY_THE_FISH",
+    "TREE_THE_FISH",
+    "MOB_THE_FISH",
+    "FISH_THE_FISH"
+  ],
+  "categories": {
+    "combat": {
+      "armors": [
+        {
+          "armor_id": "ARACHNE",
+          "items": [
+            "ARACHNE_BOOTS",
+            "ARACHNE_BELT",
+            "ARACHNE_NECKLACE",
+            "ARACHNE_GLOVES",
+            "ARACHNE_HELMET",
+            "ARACHNE_CHESTPLATE",
+            "ARACHNE_CLOAK",
+            "ARACHNE_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "PERFECT_TIER_13",
+          "items": [
+            "PERFECT_BOOTS_13",
+            "PERFECT_CHESTPLATE_13",
+            "PERFECT_HELMET_13",
+            "PERFECT_LEGGINGS_13"
+          ]
+        },
+        {
+          "armor_id": "PERFECT_TIER_12",
+          "parent_id": "PERFECT_TIER_12",
+          "items": [
+            "PERFECT_BOOTS_12",
+            "PERFECT_LEGGINGS_12",
+            "PERFECT_HELMET_12",
+            "PERFECT_CHESTPLATE_12"
+          ]
+        },
+        {
+          "armor_id": "THERMODYNAMIC",
+          "items": [
+            "THERMODYNAMIC_CHESTPLATE",
+            "THERMODYNAMIC_BOOTS",
+            "THERMODYNAMIC_LEGGINGS",
+            "THERMODYNAMIC_HELMET"
+          ]
+        },
+        {
+          "armor_id": "MYTHOS",
+          "items": [
+            "MYTHOS_CLOAK",
+            "MYTHOS_NECKLACE",
+            "MYTHOS_LEGGINGS",
+            "MYTHOS_BRACELET",
+            "MYTHOS_BOOTS",
+            "MYTHOS_BELT",
+            "MYTHOS_CHESTPLATE",
+            "MYTHOS_HELMET"
+          ]
+        },
+        {
+          "armor_id": "CHALLENGER",
+          "parent_id": "CHALLENGER",
+          "items": [
+            "CHALLENGER_BOOTS",
+            "CHALLENGER_BELT",
+            "CHALLENGER_CHESTPLATE",
+            "CHALLENGER_BRACELET",
+            "CHALLENGER_CLOAK",
+            "CHALLENGER_HELMET",
+            "CHALLENGER_NECKLACE",
+            "CHALLENGER_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "CHEAP_TUXEDO",
+          "parent_id": "CHEAP_TUXEDO",
+          "items": [
+            "CHEAP_TUXEDO_LEGGINGS",
+            "CHEAP_TUXEDO_CHESTPLATE",
+            "CHEAP_TUXEDO_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "CELESTE",
+          "items": [
+            "CELESTE_LEGGINGS",
+            "CELESTE_BOOTS",
+            "CELESTE_CHESTPLATE",
+            "CELESTE_HELMET"
+          ]
+        },
+        {
+          "armor_id": "WEREWOLF",
+          "items": [
+            "WEREWOLF_CHESTPLATE",
+            "WEREWOLF_HELMET",
+            "WEREWOLF_BOOTS",
+            "WEREWOLF_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "GROWTH",
+          "parent_id": "GROWTH",
+          "items": [
+            "GROWTH_HELMET",
+            "GROWTH_CHESTPLATE",
+            "GROWTH_LEGGINGS",
+            "GROWTH_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "CRYSTAL",
+          "items": [
+            "CRYSTAL_CHESTPLATE",
+            "CRYSTAL_HELMET",
+            "CRYSTAL_BOOTS",
+            "CRYSTAL_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "SHIMMERING_LIGHT",
+          "items": [
+            "SHIMMERING_LIGHT_SLIPPERS",
+            "SHIMMERING_LIGHT_TROUSERS",
+            "SHIMMERING_LIGHT_TUNIC",
+            "SHIMMERING_LIGHT_HOOD"
+          ]
+        },
+        {
+          "armor_id": "OLD_DRAGON",
+          "items": [
+            "OLD_DRAGON_BOOTS",
+            "OLD_DRAGON_CHESTPLATE",
+            "OLD_DRAGON_LEGGINGS",
+            "OLD_DRAGON_HELMET"
+          ]
+        },
+        {
+          "armor_id": "VANQUISHED",
+          "items": [
+            "VANQUISHED_GHAST_CLOAK",
+            "VANQUISHED_GLOWSTONE_GAUNTLET",
+            "VANQUISHED_BLAZE_BELT",
+            "VANQUISHED_MAGMA_NECKLACE"
+          ]
+        },
+        {
+          "armor_id": "UNSTABLE_DRAGON",
+          "items": [
+            "UNSTABLE_DRAGON_BOOTS",
+            "UNSTABLE_DRAGON_HELMET",
+            "UNSTABLE_DRAGON_CHESTPLATE",
+            "UNSTABLE_DRAGON_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "SQUIRE",
+          "items": [
+            "SQUIRE_BOOTS",
+            "SQUIRE_HELMET",
+            "SQUIRE_LEGGINGS",
+            "SQUIRE_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "WISE_DRAGON",
+          "items": [
+            "WISE_DRAGON_BOOTS",
+            "WISE_DRAGON_LEGGINGS",
+            "WISE_DRAGON_CHESTPLATE",
+            "WISE_DRAGON_HELMET"
+          ]
+        },
+        {
+          "armor_id": "PROTECTOR_DRAGON",
+          "items": [
+            "PROTECTOR_DRAGON_HELMET",
+            "PROTECTOR_DRAGON_BOOTS",
+            "PROTECTOR_DRAGON_CHESTPLATE",
+            "PROTECTOR_DRAGON_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "STARLIGHT",
+          "items": [
+            "STARLIGHT_LEGGINGS",
+            "STARLIGHT_HELMET",
+            "STARLIGHT_CHESTPLATE",
+            "STARLIGHT_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "PARTY",
+          "items": [
+            "PARTY_HAT",
+            "PARTY_BELT",
+            "PARTY_NECKLACE",
+            "PARTY_GLOVES",
+            "PARTY_CLOAK"
+          ]
+        },
+        {
+          "armor_id": "ZOMBIE",
+          "parent_id": "ZOMBIE",
+          "items": [
+            "ZOMBIE_BOOTS",
+            "ZOMBIE_CHESTPLATE",
+            "ZOMBIE_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "ELEGANT_TUXEDO",
+          "items": [
+            "ELEGANT_TUXEDO_LEGGINGS",
+            "ELEGANT_TUXEDO_CHESTPLATE",
+            "ELEGANT_TUXEDO_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "BLAZE",
+          "parent_id": "BLAZE",
+          "items": [
+            "BLAZE_HELMET",
+            "BLAZE_BELT",
+            "BLAZE_BOOTS",
+            "BLAZE_CHESTPLATE",
+            "BLAZE_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "CRIMSON_HUNTER",
+          "parent_id": "CRIMSON_HUNTER",
+          "items": [
+            "BLAZE_HELMET",
+            "GHAST_CLOAK",
+            "BLAZE_BELT",
+            "BLAZE_BOOTS",
+            "BLAZE_CHESTPLATE",
+            "BLAZE_LEGGINGS",
+            "GLOWSTONE_GAUNTLET",
+            "MAGMA_NECKLACE"
+          ]
+        },
+        {
+          "armor_id": "YOUNG_DRAGON",
+          "items": [
+            "YOUNG_DRAGON_LEGGINGS",
+            "YOUNG_DRAGON_CHESTPLATE",
+            "YOUNG_DRAGON_BOOTS",
+            "YOUNG_DRAGON_HELMET"
+          ]
+        },
+        {
+          "armor_id": "ROSETTA",
+          "items": [
+            "ROSETTA_LEGGINGS",
+            "ROSETTA_CHESTPLATE",
+            "ROSETTA_HELMET",
+            "ROSETTA_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "BAT_PERSON",
+          "items": [
+            "BAT_PERSON_BOOTS",
+            "BAT_PERSON_CHESTPLATE",
+            "BAT_PERSON_LEGGINGS",
+            "BAT_PERSON_HELMET"
+          ]
+        },
+        {
+          "armor_id": "MOLTEN",
+          "items": [
+            "MOLTEN_NECKLACE",
+            "MOLTEN_BRACELET",
+            "MOLTEN_BELT",
+            "MOLTEN_CLOAK"
+          ]
+        },
+        {
+          "armor_id": "FAIRY",
+          "items": [
+            "FAIRY_CHESTPLATE",
+            "FAIRY_BOOTS",
+            "FAIRY_LEGGINGS",
+            "FAIRY_HELMET"
+          ]
+        },
+        {
+          "armor_id": "SUPERIOR_DRAGON",
+          "items": [
+            "SUPERIOR_DRAGON_CHESTPLATE",
+            "SUPERIOR_DRAGON_HELMET",
+            "SUPERIOR_DRAGON_LEGGINGS",
+            "SUPERIOR_DRAGON_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "MONSTER_HUNTER",
+          "parent_id": "MONSTER_HUNTER",
+          "items": [
+            "SKELETON_HELMET",
+            "GUARDIAN_CHESTPLATE",
+            "SPIDER_BOOTS",
+            "CREEPER_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "MONSTER_RAIDER",
+          "parent_id": "TARANTULA",
+          "items": [
+            "SKELETON_HELMET",
+            "GUARDIAN_CHESTPLATE",
+            "SPIDER_BOOTS",
+            "CREEPER_LEGGINGS",
+            "TARANTULA_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "HARDENED_DIAMOND",
+          "parent_id": "HARDENED_DIAMOND",
+          "items": [
+            "HARDENED_DIAMOND_CHESTPLATE",
+            "HARDENED_DIAMOND_BOOTS",
+            "HARDENED_DIAMOND_HELMET",
+            "HARDENED_DIAMOND_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "HOLY_DRAGON",
+          "items": [
+            "HOLY_DRAGON_CHESTPLATE",
+            "HOLY_DRAGON_LEGGINGS",
+            "HOLY_DRAGON_BOOTS",
+            "HOLY_DRAGON_HELMET"
+          ]
+        },
+        {
+          "armor_id": "RAMPART",
+          "items": [
+            "RAMPART_CHESTPLATE",
+            "RAMPART_LEGGINGS",
+            "RAMPART_BOOTS",
+            "RAMPART_HELMET"
+          ]
+        },
+        {
+          "armor_id": "MERCENARY",
+          "items": [
+            "MERCENARY_BOOTS",
+            "MERCENARY_CHESTPLATE",
+            "MERCENARY_LEGGINGS",
+            "MERCENARY_HELMET"
+          ]
+        },
+        {
+          "armor_id": "FROZEN_BLAZE",
+          "items": [
+            "FROZEN_BLAZE_HELMET",
+            "FROZEN_BLAZE_CHESTPLATE",
+            "FROZEN_BLAZE_LEGGINGS",
+            "FROZEN_BLAZE_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "REKINDLED_EMBER",
+          "items": [
+            "REKINDLED_EMBER_BOOTS",
+            "REKINDLED_EMBER_LEGGINGS",
+            "REKINDLED_EMBER_CHESTPLATE",
+            "REKINDLED_EMBER_HELMET"
+          ]
+        },
+        {
+          "armor_id": "FANCY_TUXEDO",
+          "parent_id": "FANCY_TUXEDO",
+          "items": [
+            "FANCY_TUXEDO_LEGGINGS",
+            "FANCY_TUXEDO_BOOTS",
+            "FANCY_TUXEDO_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "SPOOKY",
+          "parent_id": "SPOOKY",
+          "items": [
+            "SPOOKY_CHESTPLATE",
+            "SPOOKY_BOOTS",
+            "SPOOKY_HELMET",
+            "SPOOKY_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "EMERALD_ARMOR",
+          "items": [
+            "EMERALD_ARMOR_CHESTPLATE",
+            "EMERALD_ARMOR_HELMET",
+            "EMERALD_ARMOR_LEGGINGS",
+            "EMERALD_ARMOR_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "GOLEM_ARMOR",
+          "items": [
+            "GOLEM_ARMOR_HELMET",
+            "GOLEM_ARMOR_BOOTS",
+            "GOLEM_ARMOR_CHESTPLATE",
+            "GOLEM_ARMOR_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "STRONG_DRAGON",
+          "items": [
+            "STRONG_DRAGON_LEGGINGS",
+            "STRONG_DRAGON_HELMET",
+            "STRONG_DRAGON_BOOTS",
+            "STRONG_DRAGON_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "BERSERKER",
+          "items": [
+            "BERSERKER_CHESTPLATE",
+            "BERSERKER_BOOTS",
+            "BERSERKER_LEGGINGS",
+            "BERSERKER_HELMET"
+          ]
+        },
+        {
+          "armor_id": "FINAL_DESTINATION",
+          "items": [
+            "FINAL_DESTINATION_HELMET",
+            "FINAL_DESTINATION_CHESTPLATE",
+            "FINAL_DESTINATION_LEGGINGS",
+            "FINAL_DESTINATION_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "TARANTULA",
+          "parent_id": "TARANTULA",
+          "items": [
+            "TARANTULA_CHESTPLATE",
+            "TARANTULA_BOOTS",
+            "TARANTULA_HELMET",
+            "TARANTULA_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "PRIMORDIAL",
+          "items": [
+            "PRIMORDIAL_HELMET",
+            "PRIMORDIAL_BOOTS",
+            "PRIMORDIAL_CHESTPLATE",
+            "PRIMORDIAL_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "REVENANT",
+          "parent_id": "REVENANT",
+          "items": [
+            "REVENANT_CHESTPLATE",
+            "REVENANT_BOOTS",
+            "REVENANT_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "REAPER",
+          "items": [
+            "REAPER_BOOTS",
+            "REAPER_CHESTPLATE",
+            "REAPER_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "MASTIFF",
+          "items": [
+            "MASTIFF_LEGGINGS",
+            "MASTIFF_HELMET",
+            "MASTIFF_BOOTS",
+            "MASTIFF_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "ARMOR_OF_THE_PACK",
+          "items": [
+            "CHESTPLATE_OF_THE_PACK",
+            "BOOTS_OF_THE_PACK",
+            "LEGGINGS_OF_THE_PACK",
+            "HELMET_OF_THE_PACK"
+          ]
+        },
+        {
+          "armor_id": "SNOW_SUIT",
+          "parent_id": "SNOW_SUIT",
+          "items": [
+            "SNOW_SUIT_CHESTPLATE",
+            "SNOW_SUIT_LEGGINGS",
+            "SNOW_SUIT_BOOTS",
+            "SNOW_SUIT_HELMET"
+          ]
+        },
+        {
+          "armor_id": "ELEANOR",
+          "items": [
+            "ELEANOR_TUNIC",
+            "ELEANOR_CAP",
+            "ELEANOR_TROUSERS",
+            "ELEANOR_SLIPPERS"
+          ]
+        },
+        {
+          "armor_id": "END",
+          "items": [
+            "END_BOOTS",
+            "END_LEGGINGS",
+            "END_CHESTPLATE",
+            "END_HELMET"
+          ]
+        },
+        {
+          "armor_id": "TERROR",
+          "items": [
+            "TERROR_HELMET",
+            "TERROR_LEGGINGS",
+            "TERROR_BOOTS",
+            "TERROR_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "CRIMSON",
+          "items": [
+            "CRIMSON_HELMET",
+            "CRIMSON_CHESTPLATE",
+            "CRIMSON_LEGGINGS",
+            "CRIMSON_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "AURORA",
+          "items": [
+            "AURORA_LEGGINGS",
+            "AURORA_BOOTS",
+            "AURORA_HELMET",
+            "AURORA_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "HOLLOW",
+          "items": [
+            "HOLLOW_LEGGINGS",
+            "HOLLOW_CHESTPLATE",
+            "HOLLOW_BOOTS",
+            "HOLLOW_HELMET"
+          ]
+        },
+        {
+          "armor_id": "FERVOR",
+          "items": [
+            "FERVOR_LEGGINGS",
+            "FERVOR_HELMET",
+            "FERVOR_BOOTS",
+            "FERVOR_CHESTPLATE"
+          ]
+        }
+      ],
+      "items": [
+        "ARACK",
+        "SHRIVELED_BRACELET",
+        "FLAMING_FLAY",
+        {
+          "id": "DAEDALUS_AXE",
+          "mapped_item_ids": [
+            "STARRED_DAEDALUS_AXE"
+          ]
+        },
+        "CROWN_OF_AVARICE",
+        "MANTICORE_CLAW",
+        {
+          "id": "SWORD_OF_REVELATIONS",
+          "parent": "DAEDALUS_AXE"
+        },
+        {
+          "id": "ANCESTRAL_SPADE",
+          "parent": "ARCHAIC_SPADE"
+        },
+        "DEIFIC_SPADE",
+        {
+          "id": "CROWN_OF_GREED",
+          "parent": "CROWN_OF_AVARICE"
+        },
+        {
+          "id": "ARCHAIC_SPADE",
+          "parent": "DEIFIC_SPADE"
+        },
+        "GOLDEN_FLEECE",
+        "JERRY_STAFF",
+        {
+          "id": "MIDAS_STAFF",
+          "mapped_item_ids": [
+            "STARRED_MIDAS_STAFF"
+          ]
+        },
+        "DOJO_BLACK_BELT",
+        "MITHRIL_COAT",
+        "FANCY_SWORD",
+        "SQUIRE_SWORD",
+        "ATOMINIZER",
+        "STAFF_OF_THE_VOLCANO",
+        {
+          "id": "DOJO_GREEN_BELT",
+          "parent": "DOJO_BLUE_BELT"
+        },
+        "SLIME_HAT",
+        {
+          "id": "SYNTHESIZER_V2",
+          "parent": "SYNTHESIZER_V3"
+        },
+        "KRAMPUS_HELMET",
+        "ZOMBIE_MASK",
+        "ASPECT_OF_THE_DRAGON",
+        "SNOW_HOWITZER",
+        "PLASMAFLUX_POWER_ORB",
+        "PRISMARINE_BOW",
+        "VAMPIRE_WITCH_MASK",
+        "SYNTHESIZER_V3",
+        {
+          "id": "SNOW_BLASTER",
+          "parent": "SNOW_HOWITZER"
+        },
+        "ASPECT_OF_THE_JERRY",
+        "BLOBFISH_HAT",
+        "SKELETON_HAT",
+        {
+          "id": "ASPECT_OF_THE_END",
+          "parent": "ASPECT_OF_THE_VOID"
+        },
+        {
+          "id": "DOJO_YELLOW_BELT",
+          "parent": "DOJO_GREEN_BELT"
+        },
+        "SUMMONING_RING",
+        "PRISMARINE_BLADE",
+        "FIRE_FURY_STAFF",
+        "SULPHUR_BOW",
+        "DELIRIUM_NECKLACE",
+        {
+          "id": "ZOMBIE_HEART",
+          "parent": "CRYSTALLIZED_HEART"
+        },
+        {
+          "id": "LEAPING_SWORD",
+          "parent": "SILK_EDGE_SWORD"
+        },
+        "CREEPER_HAT",
+        "IMPLOSION_BELT",
+        "GHOUL_BUSTER",
+        "RAGNAROCK_AXE",
+        "FIRE_VEIL_WAND",
+        "TRIBAL_SPEAR",
+        "RAIDER_AXE",
+        {
+          "id": "DOJO_BROWN_BELT",
+          "parent": "DOJO_BLACK_BELT"
+        },
+        "TACTICIAN_SWORD",
+        "COW_HEAD",
+        "GAUNTLET_OF_CONTAGION",
+        "ANCIENT_CLOAK",
+        "SLIME_BOW",
+        "WITHER_BOW",
+        "SOULS_REBOUND",
+        "DECENT_BOW",
+        "SCOURGE_CLOAK",
+        "HURRICANE_BOW",
+        "SCOVILLE_BELT",
+        "SPIDER_HAT",
+        "EMERALD_BLADE",
+        "PUMPKIN_LAUNCHER",
+        "SILK_EDGE_SWORD",
+        "HUNTER_KNIFE",
+        "ARTISANAL_SHORTBOW",
+        {
+          "id": "ORNATE_ZOMBIE_SWORD",
+          "parent": "FLORID_ZOMBIE_SWORD"
+        },
+        "MERCENARY_AXE",
+        "SNOWMAN_MASK",
+        "FIRE_FREEZE_STAFF",
+        {
+          "id": "WITCH_MASK",
+          "parent": "VAMPIRE_WITCH_MASK"
+        },
+        "ALCHEMISTS_STAFF",
+        "CLOWNFISH_HAT",
+        {
+          "id": "DOJO_WHITE_BELT",
+          "parent": "DOJO_YELLOW_BELT"
+        },
+        "FLAMING_FIST",
+        "OBSIDIAN_CHESTPLATE",
+        {
+          "id": "SNOW_CANNON",
+          "parent": "SNOW_BLASTER"
+        },
+        {
+          "id": "SOUL_WHIP",
+          "parent": "FLAMING_FLAY"
+        },
+        "SWORD_OF_BAD_HEALTH",
+        {
+          "id": "YETI_SWORD",
+          "mapped_item_ids": [
+            "STARRED_YETI_SWORD"
+          ]
+        },
+        {
+          "id": "VAMPIRE_MASK",
+          "parent": "WITCH_MASK"
+        },
+        {
+          "id": "SYNTHESIZER_V1",
+          "parent": "SYNTHESIZER_V2"
+        },
+        "PARROT_MASK",
+        "ENDERMAN_MASK",
+        "PIGMAN_SWORD",
+        "RUNIC_STAFF",
+        {
+          "id": "MIDAS_SWORD",
+          "mapped_item_ids": [
+            "STARRED_MIDAS_SWORD"
+          ]
+        },
+        "RABBIT_HAT",
+        {
+          "id": "PUFFERFISH_HAT",
+          "mapped_item_ids": [
+            "PUFFERFISH_HAT_CELEBRATION"
+          ]
+        },
+        {
+          "id": "DOJO_BLUE_BELT",
+          "parent": "DOJO_BROWN_BELT"
+        },
+        "BLADE_OF_THE_VOLCANO",
+        {
+          "id": "SPIDER_SWORD",
+          "parent": "RECLUSE_FANG"
+        },
+        "MAGMA_FISH_HAT",
+        "SAVANA_BOW",
+        "RUNAANS_BOW",
+        "ROGUE_SWORD",
+        "CHARMINIZER",
+        "FLAMING_SWORD",
+        "JINGLE_BELLS",
+        {
+          "id": "UNDEAD_SWORD",
+          "parent": "REVENANT_SWORD"
+        },
+        {
+          "id": "VENOMS_TOUCH",
+          "mapped_item_ids": [
+            "STARRED_VENOMS_TOUCH"
+          ]
+        },
+        "LAVA_SHELL_NECKLACE",
+        "KALHUIKI_MASK",
+        "GOLEM_SWORD",
+        "CELESTE_WAND",
+        "WAND_OF_STRENGTH",
+        "INK_WAND",
+        "ZOMBIE_HAT",
+        "EXPLOSIVE_BOW",
+        {
+          "id": "SPIDER_QUEENS_STINGER",
+          "mapped_item_ids": [
+            "STARRED_SPIDER_QUEENS_STINGER"
+          ]
+        },
+        "FLORID_ZOMBIE_SWORD",
+        {
+          "id": "ZOMBIE_SWORD",
+          "parent": "ORNATE_ZOMBIE_SWORD"
+        },
+        "STARLIGHT_WAND",
+        "HELLSTORM_STAFF",
+        "GHOST_BOOTS",
+        {
+          "id": "DESTRUCTION_CLOAK",
+          "parent": "ANNIHILATION_CLOAK"
+        },
+        "DEMONLORD_GAUNTLET",
+        "ANNIHILATION_CLOAK",
+        {
+          "id": "BURSTFIRE_DAGGER",
+          "parent": "HEARTFIRE_DAGGER"
+        },
+        {
+          "id": "BURSTMAW_DAGGER",
+          "parent": "HEARTMAW_DAGGER"
+        },
+        {
+          "id": "MAWDUST_DAGGER",
+          "parent": "BURSTMAW_DAGGER"
+        },
+        {
+          "id": "FIREDUST_DAGGER",
+          "parent": "BURSTFIRE_DAGGER"
+        },
+        "HEARTMAW_DAGGER",
+        "HEARTFIRE_DAGGER",
+        "TACTICAL_INSERTION",
+        "BLAZETEKK_HAM_RADIO",
+        "MOODY_GRAPPLESHOT",
+        {
+          "id": "WARNING_FLARE",
+          "parent": "ALERT_FLARE"
+        },
+        {
+          "id": "ALERT_FLARE",
+          "parent": "SOS_FLARE"
+        },
+        "SOS_FLARE",
+        "SOUL_ESOWARD",
+        "GLOOMLOCK_GRIMOIRE",
+        "GYROKINETIC_WAND",
+        "ASPECT_OF_THE_VOID",
+        "TERMINATOR",
+        "SINSEEKER_SCYTHE",
+        "JUJU_SHORTBOW",
+        {
+          "id": "VOIDEDGE_KATANA",
+          "parent": "VORPAL_KATANA"
+        },
+        {
+          "id": "VORPAL_KATANA",
+          "parent": "ATOMSPLIT_KATANA"
+        },
+        {
+          "id": "VOIDWALKER_KATANA",
+          "parent": "VOIDEDGE_KATANA"
+        },
+        "ATOMSPLIT_KATANA",
+        "THE_PRIMORDIAL",
+        {
+          "id": "SCORPION_FOIL",
+          "parent": "STING"
+        },
+        "STING",
+        {
+          "id": "TARANTULA_FANG",
+          "parent": "SCORPION_FOIL"
+        },
+        "MOSQUITO_BOW",
+        {
+          "id": "SCORPION_BOW",
+          "parent": "MOSQUITO_BOW"
+        },
+        {
+          "id": "RECLUSE_FANG",
+          "parent": "TARANTULA_FANG"
+        },
+        "WARDEN_HELMET",
+        {
+          "id": "REVIVED_HEART",
+          "parent": "REAPER_MASK"
+        },
+        {
+          "id": "CRYSTALLIZED_HEART",
+          "parent": "REVIVED_HEART"
+        },
+        {
+          "id": "VOODOO_DOLL",
+          "parent": "VOODOO_DOLL_WILTED"
+        },
+        "REAPER_MASK",
+        {
+          "id": "WAND_OF_RESTORATION",
+          "parent": "WAND_OF_ATONEMENT"
+        },
+        "WAND_OF_ATONEMENT",
+        {
+          "id": "WAND_OF_HEALING",
+          "parent": "WAND_OF_MENDING"
+        },
+        {
+          "id": "WAND_OF_MENDING",
+          "parent": "WAND_OF_RESTORATION"
+        },
+        "AXE_OF_THE_SHREDDED",
+        {
+          "id": "REVENANT_SWORD",
+          "parent": "REAPER_SWORD"
+        },
+        {
+          "id": "REAPER_SWORD",
+          "parent": "AXE_OF_THE_SHREDDED"
+        },
+        "REAPER_SCYTHE",
+        {
+          "id": "WEIRD_TUBA",
+          "parent": "WEIRDER_TUBA"
+        },
+        {
+          "id": "OVERFLUX_POWER_ORB",
+          "parent": "PLASMAFLUX_POWER_ORB"
+        },
+        {
+          "id": "RADIANT_POWER_ORB",
+          "parent": "MANA_FLUX_POWER_ORB"
+        },
+        {
+          "id": "MANA_FLUX_POWER_ORB",
+          "parent": "OVERFLUX_POWER_ORB"
+        },
+        "WEIRDER_TUBA",
+        {
+          "id": "SHAMAN_SWORD",
+          "parent": "POOCH_SWORD"
+        },
+        "EDIBLE_MACE",
+        "POOCH_SWORD",
+        {
+          "id": "FROZEN_SCYTHE",
+          "parent": "GLACIAL_SCYTHE"
+        },
+        {
+          "id": "GLACIAL_SCYTHE",
+          "mapped_item_ids": [
+            "STARRED_GLACIAL_SCYTHE"
+          ]
+        },
+        "RIFT_NECKLACE_OUTSIDE",
+        "VOODOO_DOLL_WILTED",
+        "DRAGONFADE_CLOAK",
+        "DRAGONFUSE_GLOVE",
+        "VOID_SWORD",
+        "DRAGON_SHORTBOW",
+        "END_STONE_SWORD",
+        "END_SWORD",
+        "END_STONE_BOW",
+        "ENDER_BOW",
+        "TORMENTOR",
+        "HOLLOW_WAND"
+      ]
+    },
+    "farming": {
+      "armors": [
+        {
+          "armor_id": "FARM_ARMOR",
+          "parent_id": "FARM_ARMOR",
+          "items": [
+            "FARM_ARMOR_CHESTPLATE",
+            "FARM_ARMOR_BOOTS",
+            "FARM_ARMOR_LEGGINGS",
+            "FARM_ARMOR_HELMET"
+          ]
+        },
+        {
+          "armor_id": "SPEEDSTER",
+          "parent_id": "SPEEDSTER",
+          "items": [
+            "SPEEDSTER_LEGGINGS",
+            "SPEEDSTER_BOOTS",
+            "SPEEDSTER_CHESTPLATE",
+            "SPEEDSTER_HELMET"
+          ]
+        },
+        {
+          "armor_id": "CACTUS",
+          "items": [
+            "CACTUS_CHESTPLATE",
+            "CACTUS_BOOTS",
+            "CACTUS_HELMET",
+            "CACTUS_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "PUMPKIN",
+          "parent_id": "PUMPKIN",
+          "items": [
+            "PUMPKIN_BOOTS",
+            "PUMPKIN_CHESTPLATE",
+            "PUMPKIN_HELMET",
+            "PUMPKIN_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "FARM_SUIT",
+          "parent_id": "FARM_SUIT",
+          "items": [
+            "FARM_SUIT_BOOTS",
+            "FARM_SUIT_HELMET",
+            "FARM_SUIT_CHESTPLATE",
+            "FARM_SUIT_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "MUSHROOM",
+          "parent_id": "MUSHROOM",
+          "items": [
+            "MUSHROOM_CHESTPLATE",
+            "MUSHROOM_BOOTS",
+            "MUSHROOM_HELMET",
+            "MUSHROOM_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "BLOSSOM",
+          "items": [
+            "BLOSSOM_BRACELET",
+            "BLOSSOM_BELT",
+            "BLOSSOM_NECKLACE",
+            "BLOSSOM_CLOAK"
+          ]
+        },
+        {
+          "armor_id": "PESTHUNTER",
+          "items": [
+            "PESTHUNTERS_BELT",
+            "PESTHUNTERS_GLOVES",
+            "PESTHUNTERS_NECKLACE",
+            "PESTHUNTERS_CLOAK"
+          ]
+        },
+        {
+          "armor_id": "LOTUS",
+          "parent_id": "LOTUS",
+          "items": [
+            "LOTUS_BRACELET",
+            "LOTUS_BELT",
+            "LOTUS_NECKLACE",
+            "LOTUS_CLOAK"
+          ]
+        },
+        {
+          "armor_id": "FERMENTO",
+          "parent_id": "FERMENTO",
+          "items": [
+            "FERMENTO_HELMET",
+            "FERMENTO_CHESTPLATE",
+            "FERMENTO_BOOTS",
+            "FERMENTO_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "BIOHAZARD",
+          "items": [
+            "BIOHAZARD_LEGGINGS",
+            "BIOHAZARD_SUIT",
+            "BIOHAZARD_HELMET",
+            "BIOHAZARD_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "CROPIE",
+          "parent_id": "CROPIE",
+          "items": [
+            "CROPIE_LEGGINGS",
+            "CROPIE_HELMET",
+            "CROPIE_BOOTS",
+            "CROPIE_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "SEYMOUR",
+          "items": [
+            "CASHMERE_JACKET",
+            "OXFORD_SHOES",
+            "SATIN_TROUSERS",
+            "VELVET_TOP_HAT"
+          ]
+        },
+        {
+          "armor_id": "RABBIT",
+          "items": [
+            "RABBIT_CHESTPLATE",
+            "RABBIT_LEGGINGS",
+            "RABBIT_HELMET",
+            "RABBIT_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "HELIANTHUS",
+          "items": [
+            "HELIANTHUS_BOOTS",
+            "HELIANTHUS_LEGGINGS",
+            "HELIANTHUS_HELMET",
+            "HELIANTHUS_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "SQUASH",
+          "parent_id": "SQUASH",
+          "items": [
+            "SQUASH_LEGGINGS",
+            "SQUASH_HELMET",
+            "SQUASH_CHESTPLATE",
+            "SQUASH_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "MELON",
+          "parent_id": "MELON",
+          "items": [
+            "MELON_HELMET",
+            "MELON_BOOTS",
+            "MELON_CHESTPLATE",
+            "MELON_LEGGINGS"
+          ]
+        }
+      ],
+      "items": [
+        "CACTUS_KNIFE_3",
+        {
+          "id": "COCO_CHOPPER",
+          "parent": "COCO_CHOPPER_2"
+        },
+        {
+          "id": "MELON_DICER",
+          "parent": "MELON_DICER_2"
+        },
+        {
+          "id": "CACTUS_KNIFE",
+          "parent": "CACTUS_KNIFE_2"
+        },
+        "COCO_CHOPPER_3",
+        {
+          "id": "COCO_CHOPPER_2",
+          "parent": "COCO_CHOPPER_3"
+        },
+        "FUNGI_CUTTER_3",
+        {
+          "id": "FUNGI_CUTTER_2",
+          "parent": "FUNGI_CUTTER_3"
+        },
+        {
+          "id": "CACTUS_KNIFE_2",
+          "parent": "CACTUS_KNIFE_3"
+        },
+        {
+          "id": "FUNGI_CUTTER",
+          "parent": "FUNGI_CUTTER_2"
+        },
+        {
+          "id": "HOE_OF_GREAT_TILLING",
+          "parent": "HOE_OF_GREATER_TILLING"
+        },
+        "THEORETICAL_HOE_CARROT_3",
+        {
+          "id": "THEORETICAL_HOE_WHEAT_2",
+          "parent": "THEORETICAL_HOE_WHEAT_3"
+        },
+        {
+          "id": "THEORETICAL_HOE_CANE_1",
+          "parent": "THEORETICAL_HOE_CANE_2"
+        },
+        {
+          "id": "THEORETICAL_HOE_SUNFLOWER_2",
+          "parent": "THEORETICAL_HOE_SUNFLOWER_3"
+        },
+        {
+          "id": "THEORETICAL_HOE_SUNFLOWER_1",
+          "parent": "THEORETICAL_HOE_SUNFLOWER_2"
+        },
+        {
+          "id": "THEORETICAL_HOE_WHEAT_1",
+          "parent": "THEORETICAL_HOE_WHEAT_2"
+        },
+        {
+          "id": "THEORETICAL_HOE_CARROT_2",
+          "parent": "THEORETICAL_HOE_CARROT_3"
+        },
+        "THEORETICAL_HOE_CANE_3",
+        {
+          "id": "THEORETICAL_HOE_POTATO_2",
+          "parent": "THEORETICAL_HOE_POTATO_3"
+        },
+        "THEORETICAL_HOE_POTATO_3",
+        "THEORETICAL_HOE_WHEAT_3",
+        {
+          "id": "THEORETICAL_HOE_CARROT_1",
+          "parent": "THEORETICAL_HOE_CARROT_2"
+        },
+        "THEORETICAL_HOE_WARTS_3",
+        "THEORETICAL_HOE_SUNFLOWER_3",
+        "THEORETICAL_HOE_WILD_ROSE_3",
+        {
+          "id": "THEORETICAL_HOE_CANE_2",
+          "parent": "THEORETICAL_HOE_CANE_3"
+        },
+        {
+          "id": "THEORETICAL_HOE_WARTS_1",
+          "parent": "THEORETICAL_HOE_WARTS_2"
+        },
+        {
+          "id": "THEORETICAL_HOE_POTATO_1",
+          "parent": "THEORETICAL_HOE_POTATO_2"
+        },
+        {
+          "id": "THEORETICAL_HOE_WILD_ROSE_1",
+          "parent": "THEORETICAL_HOE_WILD_ROSE_2"
+        },
+        {
+          "id": "THEORETICAL_HOE_WARTS_2",
+          "parent": "THEORETICAL_HOE_WARTS_3"
+        },
+        {
+          "id": "THEORETICAL_HOE_WILD_ROSE_2",
+          "parent": "THEORETICAL_HOE_WILD_ROSE_3"
+        },
+        {
+          "id": "PUMPKIN_DICER",
+          "parent": "PUMPKIN_DICER_2"
+        },
+        {
+          "id": "HOE_OF_GREATER_TILLING",
+          "parent": "HOE_OF_GREATEST_TILLING"
+        },
+        "ZORROS_CAPE",
+        "PEST_VEST",
+        "CHICKEN_AXE",
+        {
+          "id": "BASIC_RABBIT_AXE",
+          "parent": "RABBIT_AXE"
+        },
+        "ROOKIE_HOE",
+        "CHICKEN_HEAD",
+        {
+          "id": "BASIC_COW_AXE",
+          "parent": "COW_AXE"
+        },
+        {
+          "id": "BASIC_CHICKEN_AXE",
+          "parent": "CHICKEN_AXE"
+        },
+        {
+          "id": "FARMER_BOOTS",
+          "parent": "RANCHERS_BOOTS"
+        },
+        "SPORE_HARVESTER",
+        {
+          "id": "BASIC_MUSHROOM_COW_AXE",
+          "parent": "MUSHROOM_COW_AXE"
+        },
+        {
+          "id": "BASIC_PIG_AXE",
+          "parent": "PIG_AXE"
+        },
+        {
+          "id": "BASIC_SHEEP_AXE",
+          "parent": "SHEEP_AXE"
+        },
+        "SHEEP_AXE",
+        "ENCHANTED_JACK_O_LANTERN",
+        "PIG_AXE",
+        "RANCHERS_BOOTS",
+        "MUSHROOM_COW_AXE",
+        "ROOKIE_FARMING_AXE",
+        "COW_AXE",
+        "THORNLEAF_SCYTHE",
+        "RABBIT_AXE",
+        {
+          "id": "INFINI_VACUUM",
+          "parent": "INFINI_VACUUM_HOOVERIUS"
+        },
+        "INFINI_VACUUM_HOOVERIUS",
+        {
+          "id": "SKYMART_VACUUM",
+          "parent": "SKYMART_TURBO_VACUUM"
+        },
+        {
+          "id": "SKYMART_HYPER_VACUUM",
+          "parent": "INFINI_VACUUM"
+        },
+        {
+          "id": "SKYMART_TURBO_VACUUM",
+          "parent": "SKYMART_HYPER_VACUUM"
+        },
+        {
+          "id": "PUMPKIN_DICER_2",
+          "parent": "PUMPKIN_DICER_3"
+        },
+        "MELON_DICER_3",
+        "PLANT_DIAGNOSTICS_TOOL",
+        "SUNFLOWER_HEAD",
+        {
+          "id": "JUICY_SPRAYONATOR",
+          "parent": "SALTY_SPRAYONATOR"
+        },
+        {
+          "id": "SPRAYONATOR",
+          "parent": "JUICY_SPRAYONATOR"
+        },
+        "SALTY_SPRAYONATOR",
+        "SQUEAKY_MOUSEMAT",
+        "PUMPKIN_DICER_3",
+        {
+          "id": "MELON_DICER_2",
+          "parent": "MELON_DICER_3"
+        },
+        "HOE_OF_GREATEST_TILLING",
+        {
+          "id": "BASIC_GARDENING_HOE",
+          "parent": "ADVANCED_GARDENING_HOE"
+        },
+        {
+          "id": "HYDRO_CAN_1000",
+          "parent": "HYDRO_CAN_TURBO_2000"
+        },
+        {
+          "id": "HYDRO_CAN_ULTRA_3000",
+          "parent": "AQUAMASTER_X"
+        },
+        "ADVANCED_GARDENING_HOE",
+        "ADVANCED_GARDENING_AXE",
+        {
+          "id": "HYDRO_CAN_TURBO_2000",
+          "parent": "HYDRO_CAN_ULTRA_3000"
+        },
+        {
+          "id": "BASIC_GARDENING_AXE",
+          "parent": "ADVANCED_GARDENING_AXE"
+        },
+        "GARDEN_SCYTHE",
+        {
+          "id": "AQUAMASTER_X",
+          "parent": "AQUAMASTER_HYDROMAX"
+        },
+        {
+          "id": "SAM_SCYTHE",
+          "parent": "GARDEN_SCYTHE"
+        },
+        "AQUAMASTER_HYDROMAX",
+        "MOBYS_SHEARS"
+      ]
+    },
+    "dungeoneering": {
+      "armors": [
+        {
+          "armor_id": "ADAPTIVE",
+          "items": [
+            "ADAPTIVE_HELMET",
+            "ADAPTIVE_CHESTPLATE",
+            "ADAPTIVE_LEGGINGS",
+            "ADAPTIVE_BOOTS",
+            "ADAPTIVE_BELT"
+          ]
+        },
+        {
+          "armor_id": "SHADOW_ASSASSIN",
+          "items": [
+            "SHADOW_ASSASSIN_BOOTS",
+            "SHADOW_ASSASSIN_LEGGINGS",
+            "SHADOW_ASSASSIN_CHESTPLATE",
+            "SHADOW_ASSASSIN_HELMET",
+            "SHADOW_ASSASSIN_CLOAK"
+          ]
+        },
+        {
+          "armor_id": "WITHER",
+          "parent_id": "WITHER",
+          "items": [
+            "WITHER_CHESTPLATE",
+            "WITHER_HELMET",
+            "WITHER_BOOTS",
+            "WITHER_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "SKELETON_LORD",
+          "items": [
+            "SKELETON_LORD_CHESTPLATE",
+            "SKELETON_LORD_LEGGINGS",
+            "SKELETON_LORD_BOOTS",
+            "SKELETON_LORD_HELMET"
+          ]
+        },
+        {
+          "armor_id": "SKELETON_MASTER",
+          "items": [
+            "SKELETON_MASTER_CHESTPLATE",
+            "SKELETON_MASTER_BOOTS",
+            "SKELETON_MASTER_LEGGINGS",
+            "SKELETON_MASTER_HELMET"
+          ]
+        },
+        {
+          "armor_id": "HEAVY",
+          "items": [
+            "HEAVY_HELMET",
+            "HEAVY_CHESTPLATE",
+            "HEAVY_LEGGINGS",
+            "HEAVY_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "POWER_WITHER",
+          "items": [
+            "POWER_WITHER_BOOTS",
+            "POWER_WITHER_CHESTPLATE",
+            "POWER_WITHER_LEGGINGS",
+            "POWER_WITHER_HELMET"
+          ]
+        },
+        {
+          "armor_id": "SKELETON_GRUNT",
+          "items": [
+            "SKELETON_GRUNT_BOOTS",
+            "SKELETON_GRUNT_CHESTPLATE",
+            "SKELETON_GRUNT_HELMET",
+            "SKELETON_GRUNT_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "SKELETON_SOLDIER",
+          "items": [
+            "SKELETON_SOLDIER_LEGGINGS",
+            "SKELETON_SOLDIER_HELMET",
+            "SKELETON_SOLDIER_BOOTS",
+            "SKELETON_SOLDIER_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "SUPER_HEAVY",
+          "items": [
+            "SUPER_HEAVY_BOOTS",
+            "SUPER_HEAVY_CHESTPLATE",
+            "SUPER_HEAVY_HELMET",
+            "SUPER_HEAVY_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "BOUNCY",
+          "items": [
+            "BOUNCY_CHESTPLATE",
+            "BOUNCY_LEGGINGS",
+            "BOUNCY_HELMET",
+            "BOUNCY_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "TANK_WITHER",
+          "parent_id": "TANK_WITHER",
+          "items": [
+            "TANK_WITHER_CHESTPLATE",
+            "TANK_WITHER_LEGGINGS",
+            "TANK_WITHER_HELMET",
+            "TANK_WITHER_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "SKELETOR",
+          "items": [
+            "SKELETOR_CHESTPLATE",
+            "SKELETOR_LEGGINGS",
+            "SKELETOR_BOOTS",
+            "SKELETOR_HELMET"
+          ]
+        },
+        {
+          "armor_id": "ZOMBIE_KNIGHT",
+          "items": [
+            "ZOMBIE_KNIGHT_BOOTS",
+            "ZOMBIE_KNIGHT_HELMET",
+            "ZOMBIE_KNIGHT_CHESTPLATE",
+            "ZOMBIE_KNIGHT_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "SPEED_WITHER",
+          "parent_id": "SPEED_WITHER",
+          "items": [
+            "SPEED_WITHER_HELMET",
+            "SPEED_WITHER_BOOTS",
+            "SPEED_WITHER_CHESTPLATE",
+            "SPEED_WITHER_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "ZOMBIE_SOLDIER",
+          "items": [
+            "ZOMBIE_SOLDIER_LEGGINGS",
+            "ZOMBIE_SOLDIER_HELMET",
+            "ZOMBIE_SOLDIER_BOOTS",
+            "ZOMBIE_SOLDIER_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "ZOMBIE_LORD",
+          "items": [
+            "ZOMBIE_LORD_LEGGINGS",
+            "ZOMBIE_LORD_HELMET",
+            "ZOMBIE_LORD_CHESTPLATE",
+            "ZOMBIE_LORD_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "ZOMBIE_COMMANDER",
+          "items": [
+            "ZOMBIE_COMMANDER_CHESTPLATE",
+            "ZOMBIE_COMMANDER_BOOTS",
+            "ZOMBIE_COMMANDER_LEGGINGS",
+            "ZOMBIE_COMMANDER_HELMET"
+          ]
+        },
+        {
+          "armor_id": "ROTTEN",
+          "items": [
+            "ROTTEN_HELMET",
+            "ROTTEN_LEGGINGS",
+            "ROTTEN_BOOTS",
+            "ROTTEN_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "NECROMANCER_LORD",
+          "items": [
+            "NECROMANCER_LORD_HELMET",
+            "NECROMANCER_LORD_CHESTPLATE",
+            "NECROMANCER_LORD_LEGGINGS",
+            "NECROMANCER_LORD_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "WISE_WITHER",
+          "parent_id": "WISE_WITHER",
+          "items": [
+            "WISE_WITHER_BOOTS",
+            "WISE_WITHER_LEGGINGS",
+            "WISE_WITHER_CHESTPLATE",
+            "WISE_WITHER_HELMET"
+          ]
+        }
+      ],
+      "items": [
+        {
+          "id": "ASTRAEA",
+          "parent": "SCYLLA"
+        },
+        {
+          "id": "GOLD_THORN_HEAD",
+          "parent": "DIAMOND_THORN_HEAD"
+        },
+        {
+          "id": "THORNS_BOOTS",
+          "mapped_item_ids": [
+            "STARRED_THORNS_BOOTS"
+          ]
+        },
+        "ZOMBIE_COMMANDER_WHIP",
+        {
+          "id": "FLOWER_OF_TRUTH",
+          "parent": "BOUQUET_OF_LIES"
+        },
+        {
+          "id": "ICE_SPRAY_WAND",
+          "mapped_item_ids": [
+            "STARRED_ICE_SPRAY_WAND"
+          ]
+        },
+        {
+          "id": "STONE_CHESTPLATE",
+          "parent": "METAL_CHESTPLATE"
+        },
+        "CONJURING_SWORD",
+        "SILENT_DEATH",
+        "DIAMOND_THORN_HEAD",
+        "WITHER_CLOAK",
+        "MACHINE_GUN_BOW",
+        {
+          "id": "CLEAVER",
+          "parent": "SUPER_CLEAVER"
+        },
+        {
+          "id": "BONE_BOOMERANG",
+          "mapped_item_ids": [
+            "STARRED_BONE_BOOMERANG"
+          ]
+        },
+        "INFINITE_SUPERBOOM_TNT",
+        "STEEL_CHESTPLATE",
+        "NECROMANCER_SWORD",
+        {
+          "id": "GOLD_NECRON_HEAD",
+          "parent": "DIAMOND_NECRON_HEAD"
+        },
+        {
+          "id": "BAT_WAND",
+          "mapped_item_ids": [
+            "STARRED_BAT_WAND"
+          ]
+        },
+        {
+          "id": "DARK_GOGGLES",
+          "parent": "SHADOW_GOGGLES"
+        },
+        {
+          "id": "SHADOW_FURY",
+          "mapped_item_ids": [
+            "STARRED_SHADOW_FURY"
+          ]
+        },
+        {
+          "id": "GOLD_PROFESSOR_HEAD",
+          "parent": "DIAMOND_PROFESSOR_HEAD"
+        },
+        "DIAMOND_SADAN_HEAD",
+        {
+          "id": "STONE_BLADE",
+          "mapped_item_ids": [
+            "STARRED_STONE_BLADE"
+          ]
+        },
+        {
+          "id": "SUPER_UNDEAD_BOW",
+          "parent": "DEATH_BOW"
+        },
+        {
+          "id": "SPIRIT_SWORD",
+          "parent": "BONE_REAVER"
+        },
+        "FEL_SWORD",
+        "DUNGEON_STONE",
+        {
+          "id": "GOLD_BONZO_HEAD",
+          "parent": "DIAMOND_BONZO_HEAD"
+        },
+        {
+          "id": "MENDER_HELMET",
+          "parent": "MENDER_FEDORA"
+        },
+        {
+          "id": "MENDER_FEDORA",
+          "parent": "MENDER_CROWN"
+        },
+        {
+          "id": "METAL_CHESTPLATE",
+          "parent": "STEEL_CHESTPLATE"
+        },
+        "DEATH_BOW",
+        "SNIPER_HELMET",
+        "GIANT_CLEAVER",
+        {
+          "id": "LAST_BREATH",
+          "mapped_item_ids": [
+            "STARRED_LAST_BREATH"
+          ]
+        },
+        {
+          "id": "SUPER_CLEAVER",
+          "parent": "HYPER_CLEAVER"
+        },
+        {
+          "id": "GOLD_SADAN_HEAD",
+          "parent": "DIAMOND_SADAN_HEAD"
+        },
+        "CRYPT_DREADLORD_SWORD",
+        "GIANTS_SWORD",
+        "DIAMOND_NECRON_HEAD",
+        "CRYPT_BOW",
+        "HYPERION",
+        {
+          "id": "VALKYRIE",
+          "parent": "HYPERION"
+        },
+        "DIAMOND_BONZO_HEAD",
+        "ZOMBIE_KNIGHT_SWORD",
+        {
+          "id": "ITEM_SPIRIT_BOW",
+          "mapped_item_ids": [
+            "STARRED_ITEM_SPIRIT_BOW"
+          ]
+        },
+        {
+          "id": "GOLD_SCARF_HEAD",
+          "parent": "DIAMOND_SCARF_HEAD"
+        },
+        "DIAMOND_LIVID_HEAD",
+        "WITHER_GOGGLES",
+        "DIAMOND_SCARF_HEAD",
+        {
+          "id": "SPIRIT_MASK",
+          "mapped_item_ids": [
+            "STARRED_SPIRIT_MASK"
+          ]
+        },
+        "SNIPER_BOW",
+        {
+          "id": "NECRON_BLADE",
+          "parent": "ASTRAEA"
+        },
+        "MENDER_CROWN",
+        "DIAMOND_PROFESSOR_HEAD",
+        {
+          "id": "SCYLLA",
+          "parent": "VALKYRIE"
+        },
+        "LIVID_DAGGER",
+        {
+          "id": "HYPER_CLEAVER",
+          "parent": "GIANT_CLEAVER"
+        },
+        "ZOMBIE_SOLDIER_CUTLASS",
+        {
+          "id": "UNDEAD_BOW",
+          "parent": "SUPER_UNDEAD_BOW"
+        },
+        "EARTH_SHARD",
+        "SECRET_TRACKER",
+        "DARK_CLAYMORE",
+        {
+          "id": "SHADOW_GOGGLES",
+          "parent": "WITHER_GOGGLES"
+        },
+        {
+          "id": "GOLD_LIVID_HEAD",
+          "parent": "DIAMOND_LIVID_HEAD"
+        },
+        "PRECURSOR_EYE",
+        {
+          "id": "BONE_REAVER",
+          "parent": "FELTHORN_REAPER"
+        },
+        {
+          "id": "FELTHORN_REAPER",
+          "mapped_item_ids": [
+            "STARRED_FELTHORN_REAPER"
+          ]
+        },
+        "BALLOON_SNAKE",
+        "BOUQUET_OF_LIES",
+        "INFINITE_SPIRIT_LEAP",
+        "DUNGEONBREAKER",
+        "SOULWEAVER_GLOVES",
+        {
+          "id": "BONE_NECKLACE",
+          "mapped_item_ids": [
+            "STARRED_BONE_NECKLACE"
+          ]
+        },
+        {
+          "id": "BONZO_STAFF",
+          "mapped_item_ids": [
+            "STARRED_BONZO_STAFF"
+          ]
+        },
+        {
+          "id": "BONZO_MASK",
+          "mapped_item_ids": [
+            "STARRED_BONZO_MASK"
+          ]
+        }
+      ]
+    },
+    "fishing": {
+      "armors": [
+        {
+          "armor_id": "BACKWATER",
+          "items": [
+            "BACKWATER_CLOAK",
+            "BACKWATER_BOOTS",
+            "BACKWATER_CHESTPLATE",
+            "BACKWATER_HELMET",
+            "BACKWATER_GLOVES",
+            "BACKWATER_NECKLACE",
+            "BACKWATER_LEGGINGS",
+            "BACKWATER_BELT"
+          ]
+        },
+        {
+          "armor_id": "ANGLER",
+          "parent_id": "ANGLER",
+          "items": [
+            "ANGLER_BELT",
+            "ANGLER_CLOAK",
+            "ANGLER_HELMET",
+            "ANGLER_LEGGINGS",
+            "ANGLER_BOOTS",
+            "ANGLER_CHESTPLATE",
+            "ANGLER_BRACELET",
+            "ANGLER_NECKLACE"
+          ]
+        },
+        {
+          "armor_id": "FISHERMAN",
+          "items": [
+            "PRISMARINE_NECKLACE",
+            "SPONGE_BELT",
+            "CLOWNFISH_CLOAK",
+            "CLAY_BRACELET"
+          ]
+        },
+        {
+          "armor_id": "SPONGE",
+          "items": [
+            "PRISMARINE_NECKLACE",
+            "SPONGE_BELT",
+            "CLOWNFISH_CLOAK",
+            "CLAY_BRACELET",
+            "SPONGE_HELMET",
+            "SPONGE_BOOTS",
+            "SPONGE_LEGGINGS",
+            "SPONGE_CHESTPLATE"
+          ],
+          "parent_id": "SPONGE"
+        },
+        {
+          "armor_id": "SHARK_SCALE",
+          "items": [
+            "SHARK_SCALE_HELMET",
+            "SHARK_SCALE_BOOTS",
+            "SHARK_SCALE_LEGGINGS",
+            "SHARK_SCALE_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "LAVA_SEA_CREATURE",
+          "items": [
+            "SLUG_BOOTS",
+            "FLAMING_CHESTPLATE",
+            "TAURUS_HELMET",
+            "MOOGMA_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "SILVER_HUNTER",
+          "parent_id": "SILVER_HUNTER",
+          "items": [
+            "SILVER_HUNTER_HELMET",
+            "SILVER_HUNTER_LEGGINGS",
+            "SILVER_HUNTER_CHESTPLATE",
+            "SILVER_HUNTER_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "DIVER",
+          "parent_id": "DIVER",
+          "items": [
+            "DIVER_BOOTS",
+            "DIVER_HELMET",
+            "DIVER_LEGGINGS",
+            "DIVER_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "DIAMOND_HUNTER",
+          "items": [
+            "DIAMOND_HUNTER_LEGGINGS",
+            "DIAMOND_HUNTER_HELMET",
+            "DIAMOND_HUNTER_BOOTS",
+            "DIAMOND_HUNTER_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "BRONZE_HUNTER",
+          "parent_id": "BRONZE_HUNTER",
+          "items": [
+            "BRONZE_HUNTER_LEGGINGS",
+            "BRONZE_HUNTER_BOOTS",
+            "BRONZE_HUNTER_CHESTPLATE",
+            "BRONZE_HUNTER_HELMET"
+          ]
+        },
+        {
+          "armor_id": "SALMON_NEW",
+          "items": [
+            "SALMON_HELMET_NEW",
+            "SALMON_LEGGINGS_NEW",
+            "SALMON_CHESTPLATE_NEW",
+            "SALMON_BOOTS_NEW"
+          ]
+        },
+        {
+          "armor_id": "GOLD_HUNTER",
+          "parent_id": "GOLD_HUNTER",
+          "items": [
+            "GOLD_HUNTER_LEGGINGS",
+            "GOLD_HUNTER_CHESTPLATE",
+            "GOLD_HUNTER_HELMET",
+            "GOLD_HUNTER_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "MAGMA_LORD",
+          "items": [
+            "MAGMA_LORD_BOOTS",
+            "MAGMA_LORD_HELMET",
+            "MAGMA_LORD_CHESTPLATE",
+            "MAGMA_LORD_LEGGINGS",
+            "MAGMA_LORD_GAUNTLET"
+          ]
+        },
+        {
+          "armor_id": "FROZEN",
+          "items": [
+            "FROZEN_AMULET"
+          ]
+        },
+        {
+          "armor_id": "NUTCRACKER",
+          "items": [
+            "NUTCRACKER_HELMET",
+            "NUTCRACKER_BOOTS",
+            "NUTCRACKER_CHESTPLATE",
+            "NUTCRACKER_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "SNORKELING",
+          "parent_id": "SNORKELING",
+          "items": [
+            "SNORKELING_CHESTPLATE",
+            "SNORKELING_LEGGINGS",
+            "SNORKELING_BOOTS",
+            "SNORKELING_HELMET"
+          ]
+        },
+        {
+          "armor_id": "ABYSSAL",
+          "items": [
+            "ABYSSAL_BOOTS",
+            "ABYSSAL_CHESTPLATE",
+            "ABYSSAL_LEGGINGS",
+            "ABYSSAL_HELMET"
+          ]
+        },
+        {
+          "armor_id": "THUNDER",
+          "items": [
+            "THUNDER_CHESTPLATE",
+            "THUNDER_HELMET",
+            "THUNDER_LEGGINGS",
+            "THUNDER_BOOTS",
+            "THUNDERBOLT_NECKLACE"
+          ]
+        },
+        {
+          "armor_id": "FINWAVE",
+          "parent_id": "FINWAVE",
+          "items": [
+            "FINWAVE_GLOVES",
+            "FINWAVE_CLOAK",
+            "FINWAVE_BELT"
+          ]
+        },
+        {
+          "armor_id": "GILLSPLASH",
+          "items": [
+            "GILLSPLASH_GLOVES",
+            "GILLSPLASH_CLOAK",
+            "GILLSPLASH_BELT"
+          ]
+        },
+        {
+          "armor_id": "ICHTHYIC",
+          "parent_id": "ICHTHYIC",
+          "items": [
+            "ICHTHYIC_GLOVES",
+            "ICHTHYIC_CLOAK",
+            "ICHTHYIC_BELT"
+          ]
+        }
+      ],
+      "items": [
+        "FESTIVE_SINKER",
+        "ICY_SINKER",
+        "HOTSPOT_SINKER",
+        "JUNK_SINKER",
+        "PRISMARINE_SINKER",
+        "CHUM_SINKER",
+        "STINGY_SINKER",
+        "SPONGE_SINKER",
+        "LOTUS_SINKER",
+        "COMMON_HOOK",
+        "TREASURE_HOOK",
+        "PUDDLE_JUMPER_HOOK",
+        "PHANTOM_HOOK",
+        "HOTSPOT_HOOK",
+        "SHREDDED_LINE",
+        "TROPHY_LINE",
+        "TITAN_LINE",
+        "SPEEDY_LINE",
+        "FROGGLES_DIAMOND",
+        {
+          "id": "FROGGLES_SILVER",
+          "parent": "FROGGLES_GOLD"
+        },
+        {
+          "id": "FROGGLES_GOLD",
+          "parent": "FROGGLES_DIAMOND"
+        },
+        {
+          "id": "FROGGLES",
+          "parent": "FROGGLES_SILVER"
+        },
+        "ROD_OF_THE_SEA",
+        {
+          "id": "CHAMP_ROD",
+          "parent": "LEGEND_ROD"
+        },
+        "STARTER_LAVA_ROD",
+        {
+          "id": "LEGEND_ROD",
+          "parent": "ROD_OF_THE_SEA"
+        },
+        "HELLFIRE_ROD",
+        {
+          "id": "MAGMA_ROD",
+          "parent": "INFERNO_ROD"
+        },
+        {
+          "id": "CHALLENGE_ROD",
+          "parent": "CHAMP_ROD"
+        },
+        "POLISHED_TOPAZ_ROD",
+        {
+          "id": "INFERNO_ROD",
+          "parent": "HELLFIRE_ROD"
+        },
+        "TIKI_MASK",
+        "HOTSPOT_RADAR",
+        "RED_SWEATER",
+        "UMBERELLA",
+        "SALMON_HAT",
+        "SQUID_HAT",
+        "SALMON_MASK",
+        "MUSIC_PANTS",
+        "FISH_HAT",
+        "TERA_SHELL_NECKLACE",
+        "TOTEM_OF_CORRUPTION",
+        "SQUID_BOOTS",
+        "WATER_HYDRA_HEAD",
+        "LUMINOUS_BRACELET"
+      ]
+    },
+    "mining": {
+      "armors": [
+        {
+          "armor_id": "MINERAL",
+          "parent_id": "MINERAL",
+          "items": [
+            "MINERAL_BOOTS",
+            "MINERAL_HELMET",
+            "MINERAL_CHESTPLATE",
+            "MINERAL_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "GLOSSY_MINERAL",
+          "items": [
+            "GLOSSY_MINERAL_CHESTPLATE",
+            "GLOSSY_MINERAL_LEGGINGS",
+            "GLOSSY_MINERAL_HELMET",
+            "GLOSSY_MINERAL_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "DIVAN",
+          "items": [
+            "DIVAN_BOOTS",
+            "DIVAN_LEGGINGS",
+            "DIVAN_CHESTPLATE",
+            "DIVAN_HELMET"
+          ]
+        },
+        {
+          "armor_id": "TANK_MINER",
+          "parent_id": "TANK_MINER",
+          "items": [
+            "TANK_MINER_LEGGINGS",
+            "TANK_MINER_BOOTS",
+            "TANK_MINER_CHESTPLATE",
+            "TANK_MINER_HELMET"
+          ]
+        },
+        {
+          "armor_id": "ARMOR_OF_YOG",
+          "items": [
+            "ARMOR_OF_YOG_CHESTPLATE",
+            "ARMOR_OF_YOG_LEGGINGS",
+            "ARMOR_OF_YOG_BOOTS",
+            "ARMOR_OF_YOG_HELMET"
+          ]
+        },
+        {
+          "armor_id": "HEAT",
+          "items": [
+            "HEAT_HELMET",
+            "HEAT_LEGGINGS",
+            "HEAT_BOOTS",
+            "HEAT_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "MITHRIL",
+          "parent_id": "MITHRIL",
+          "items": [
+            "MITHRIL_BELT",
+            "MITHRIL_NECKLACE",
+            "MITHRIL_CLOAK",
+            "MITHRIL_GAUNTLET"
+          ]
+        },
+        {
+          "armor_id": "FLAME_BREAKER",
+          "parent_id": "FLAME_BREAKER",
+          "items": [
+            "FLAME_BREAKER_BOOTS",
+            "FLAME_BREAKER_LEGGINGS",
+            "FLAME_BREAKER_HELMET",
+            "FLAME_BREAKER_CHESTPLATE"
+          ]
+        },
+        {
+          "armor_id": "GOBLIN",
+          "items": [
+            "GOBLIN_CHESTPLATE",
+            "GOBLIN_LEGGINGS",
+            "GOBLIN_HELMET",
+            "GOBLIN_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "GLACITE",
+          "items": [
+            "GLACITE_CHESTPLATE",
+            "GLACITE_HELMET",
+            "GLACITE_LEGGINGS",
+            "GLACITE_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "GEMSTONE",
+          "items": [
+            "JADE_BELT",
+            "SAPPHIRE_CLOAK",
+            "AMBER_NECKLACE",
+            "AMETHYST_GAUNTLET"
+          ]
+        },
+        {
+          "armor_id": "LAPIS_ARMOR",
+          "items": [
+            "LAPIS_ARMOR_CHESTPLATE",
+            "LAPIS_ARMOR_BOOTS",
+            "LAPIS_ARMOR_LEGGINGS",
+            "LAPIS_ARMOR_HELMET"
+          ]
+        },
+        {
+          "armor_id": "SORROW",
+          "items": [
+            "SORROW_BOOTS",
+            "SORROW_LEGGINGS",
+            "SORROW_CHESTPLATE",
+            "SORROW_HELMET"
+          ]
+        },
+        {
+          "armor_id": "MINER_OUTFIT",
+          "items": [
+            "MINER_OUTFIT_CHESTPLATE",
+            "MINER_OUTFIT_BOOTS",
+            "MINER_OUTFIT_HELMET",
+            "MINER_OUTFIT_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "TITANIUM",
+          "items": [
+            "TITANIUM_NECKLACE",
+            "TITANIUM_BELT",
+            "TITANIUM_CLOAK",
+            "TITANIUM_GAUNTLET"
+          ]
+        },
+        {
+          "armor_id": "DIVAN_EQUIPMENT",
+          "items": [
+            "DIVAN_PENDANT"
+          ]
+        }
+      ],
+      "items": [
+        {
+          "id": "TITANIUM_DRILL_ENGINE",
+          "parent": "RUBY_POLISHED_DRILL_ENGINE"
+        },
+        {
+          "id": "MITHRIL_FUEL_TANK",
+          "parent": "TITANIUM_FUEL_TANK"
+        },
+        {
+          "id": "GEMSTONE_DRILL_2",
+          "parent": "GEMSTONE_DRILL_3"
+        },
+        {
+          "id": "RUSTY_TITANIUM_PICKAXE",
+          "parent": "TITANIUM_PICKAXE"
+        },
+        {
+          "id": "TITANIUM_FUEL_TANK",
+          "parent": "GEMSTONE_FUEL_TANK"
+        },
+        {
+          "id": "MITHRIL_DRILL_1",
+          "parent": "MITHRIL_DRILL_2"
+        },
+        {
+          "id": "GEMSTONE_DRILL_1",
+          "parent": "GEMSTONE_DRILL_2"
+        },
+        "FLINT_SHOVEL",
+        {
+          "id": "TITANIUM_PICKAXE",
+          "parent": "REFINED_TITANIUM_PICKAXE"
+        },
+        "MITHRIL_DRILL_2",
+        {
+          "id": "MITHRIL_PICKAXE",
+          "parent": "REFINED_MITHRIL_PICKAXE"
+        },
+        "DIVAN_DRILL",
+        "ARMADILLO_MASK",
+        "PROMISING_PICKAXE",
+        {
+          "id": "MITHRIL_DRILL_ENGINE",
+          "parent": "TITANIUM_DRILL_ENGINE"
+        },
+        "GOLEM_HAT",
+        {
+          "id": "FRACTURED_MITHRIL_PICKAXE",
+          "parent": "BANDAGED_MITHRIL_PICKAXE"
+        },
+        {
+          "id": "GEMSTONE_FUEL_TANK",
+          "parent": "PERFECTLY_CUT_FUEL_TANK"
+        },
+        "PERFECTLY_CUT_FUEL_TANK",
+        "AMBER_POLISHED_DRILL_ENGINE",
+        "ROOKIE_PICKAXE",
+        {
+          "id": "GEMSTONE_DRILL_3",
+          "parent": "GEMSTONE_DRILL_4"
+        },
+        "REFINED_TITANIUM_PICKAXE",
+        "GEMSTONE_DRILL_4",
+        {
+          "id": "SAPPHIRE_POLISHED_DRILL_ENGINE",
+          "parent": "AMBER_POLISHED_DRILL_ENGINE"
+        },
+        "ZOMBIE_PICKAXE",
+        "LAPIS_PICKAXE",
+        {
+          "id": "TITANIUM_DRILL_3",
+          "parent": "TITANIUM_DRILL_4"
+        },
+        {
+          "id": "BANDAGED_MITHRIL_PICKAXE",
+          "parent": "MITHRIL_PICKAXE"
+        },
+        {
+          "id": "TITANIUM_DRILL_1",
+          "parent": "TITANIUM_DRILL_2"
+        },
+        "GEMSTONE_GAUNTLET",
+        "FALLEN_STAR_HAT",
+        "STONK_PICKAXE",
+        {
+          "id": "TITANIUM_DRILL_4",
+          "parent": "DIVAN_DRILL"
+        },
+        {
+          "id": "TITANIUM_DRILL_2",
+          "parent": "TITANIUM_DRILL_3"
+        },
+        "JUNGLE_PICKAXE",
+        "ROYAL_PIGEON",
+        "REFINED_MITHRIL_PICKAXE",
+        {
+          "id": "RUBY_POLISHED_DRILL_ENGINE",
+          "parent": "SAPPHIRE_POLISHED_DRILL_ENGINE"
+        },
+        "PROMISING_SPADE",
+        "TUNGSTEN_KEYCHAIN",
+        "DWARVEN_HANDWARMERS",
+        "STARFALL_SEASONING",
+        {
+          "id": "REINFORCED_CHISEL",
+          "parent": "GLACITE_CHISEL"
+        },
+        "PERFECT_CHISEL",
+        {
+          "id": "GLACITE_CHISEL",
+          "parent": "PERFECT_CHISEL"
+        },
+        "ENCHANTED_TIME_CLOCK",
+        "FALLEN_STAR_TRACKER",
+        "GOBLIN_OMELETTE_SUNNY_SIDE",
+        "GOBLIN_OMELETTE_SPICY",
+        "GOBLIN_OMELETTE_BLUE_CHEESE",
+        "GOBLIN_OMELETTE_PESTO",
+        {
+          "id": "GOBLIN_OMELETTE",
+          "parent": "GOBLIN_OMELETTE_PESTO"
+        },
+        "WILL_O_WISP",
+        {
+          "id": "MITHRIL_LANTERN",
+          "parent": "TITANIUM_LANTERN"
+        },
+        {
+          "id": "GLACITE_LANTERN",
+          "parent": "WILL_O_WISP"
+        },
+        {
+          "id": "LANTERN",
+          "parent": "MITHRIL_LANTERN"
+        },
+        {
+          "id": "TITANIUM_LANTERN",
+          "parent": "GLACITE_LANTERN"
+        }
+      ]
+    },
+    "foraging": {
+      "armors": [
+        {
+          "armor_id": "LEAFLET",
+          "items": [
+            "LEAFLET_HELMET",
+            "LEAFLET_CHESTPLATE",
+            "LEAFLET_BOOTS",
+            "LEAFLET_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "HONEYCOMB",
+          "items": [
+            "HONEYCOMB_NECKLACE"
+          ]
+        },
+        {
+          "armor_id": "HELIX_ARMOR",
+          "items": [
+            "HELIX_ARMOR_BOOTS",
+            "HELIX_ARMOR_CHESTPLATE",
+            "HELIX_ARMOR_HELMET",
+            "HELIX_ARMOR_LEGGINGS"
+          ]
+        },
+        {
+          "armor_id": "MANGROVE",
+          "items": [
+            "MANGROVE_GRIPPERS",
+            "MANGROVE_LOCKET"
+          ]
+        },
+        {
+          "armor_id": "PARK",
+          "items": [
+            "CHARLIE_TROUSERS",
+            "MOLE_HAT",
+            "MELODY_SHOES",
+            "KELLY_TSHIRT"
+          ]
+        },
+        {
+          "armor_id": "CANOPY",
+          "parent_id": "CANOPY",
+          "items": [
+            "CANOPY_LEGGINGS",
+            "CANOPY_HELMET",
+            "CANOPY_CHESTPLATE",
+            "CANOPY_BOOTS"
+          ]
+        },
+        {
+          "armor_id": "FIG",
+          "parent_id": "FIG",
+          "items": [
+            "FIG_CHESTPLATE",
+            "FIG_HELMET",
+            "FIG_LEGGINGS",
+            "FIG_BOOTS"
+          ]
+        }
+      ],
+      "items": [
+        "SWEET_AXE",
+        "ROOKIE_AXE",
+        "BEE_MASK",
+        "PROMISING_AXE",
+        "FROG_MASK",
+        "SCULPTORS_AXE",
+        "EFFICIENT_AXE",
+        "VEILSHROOM_BRACELET",
+        "TORRHUS_BELT",
+        "HELIX_CHOPPER",
+        {
+          "id": "MANGROVE_VINE",
+          "parent": "TORRHUS_BELT"
+        },
+        {
+          "id": "TINY_SCAFFOLDING",
+          "parent": "MEDIUM_SCAFFOLDING"
+        },
+        {
+          "id": "MEDIUM_SCAFFOLDING",
+          "parent": "LARGE_SCAFFOLDING"
+        },
+        "LARGE_SCAFFOLDING",
+        "DECENT_AXE",
+        {
+          "id": "JUNGLE_AXE",
+          "parent": "TREECAPITATOR_AXE"
+        },
+        {
+          "id": "SERIOUSLY_DAMAGED_AXE",
+          "parent": "DECENT_AXE"
+        },
+        "TREECAPITATOR_AXE",
+        {
+          "id": "FIG_AXE",
+          "parent": "FIGSTONE_AXE"
+        },
+        {
+          "id": "FIGSTONE_AXE",
+          "parent": "HELIX_CHOPPER"
+        }
+      ]
+    },
+    "hunting": {
+      "armors": [],
+      "items": [
+        "GIGANTIC_FISHING_NET",
+        "DAVIDS_CLOAK",
+        {
+          "id": "RETIA_BASICA",
+          "parent": "RETIA_MELIORA"
+        },
+        {
+          "id": "RETIA_MELIORA",
+          "parent": "RETIA_ROBUSTA"
+        },
+        {
+          "id": "RETIA_FORTA",
+          "parent": "RETIA_SUPREMA"
+        },
+        {
+          "id": "RETIA_ROBUSTA",
+          "parent": "RETIA_FORTA"
+        },
+        "RETIA_SUPREMA",
+        {
+          "id": "CURSUS_FERAE",
+          "parent": "APEX_PRAEDATOR"
+        },
+        {
+          "id": "APEX_PRAEDATOR",
+          "parent": "NEX_TITANUM"
+        },
+        {
+          "id": "SILVA_DOMINUS",
+          "parent": "CURSUS_FERAE"
+        },
+        "NEX_TITANUM",
+        {
+          "id": "VENATOR_GENESIS",
+          "parent": "SILVA_DOMINUS"
+        },
+        {
+          "id": "BASIC_FISHING_NET",
+          "parent": "MEDIUM_FISHING_NET"
+        },
+        {
+          "id": "MEDIUM_FISHING_NET",
+          "parent": "TURBO_FISHING_NET"
+        },
+        {
+          "id": "TURBO_FISHING_NET",
+          "parent": "GIGANTIC_FISHING_NET"
+        },
+        {
+          "id": "ENTANGLER_LASSO",
+          "parent": "EVERSTRETCH_LASSO"
+        },
+        "EVERSTRETCH_LASSO",
+        {
+          "id": "SMALL_POCKET_BLACK_HOLE",
+          "parent": "MEDIUM_POCKET_BLACK_HOLE"
+        },
+        {
+          "id": "VINERIP_LASSO",
+          "parent": "ENTANGLER_LASSO"
+        },
+        "LARGE_POCKET_BLACK_HOLE",
+        {
+          "id": "MEDIUM_POCKET_BLACK_HOLE",
+          "parent": "LARGE_POCKET_BLACK_HOLE"
+        },
+        {
+          "id": "ABYSMAL_LASSO",
+          "parent": "VINERIP_LASSO"
+        },
+        "PELT_BELT",
+        "TALBOTS_THEODOLITE",
+        "SAFARI_BELT"
+      ]
+    }
+  }
+}

@@ -7,16 +7,26 @@
     "authors": ["Tesla"],
     "contact": {},
     "environment": "client",
+    "provides": ["skyblockpv"],
     "entrypoints": {
-        "client": ["com.teslamaps.TeslaMaps"],
-        "preLaunch": ["com.teslamaps.AwtHeadless"]
+        "client": [
+            "com.teslamaps.TeslaMaps",
+            {
+                "value": "me.owdding.skyblockpv.SkyBlockPv",
+                "adapter": "kotlin"
+            }
+        ],
+        "preLaunch": ["com.teslamaps.AwtHeadless"],
+        "catharsis:imc/item_id": ["me.owdding.skyblockpv.utils.CatharsisSupport::id"],
+        "catharsis:imc/disabled": ["me.owdding.skyblockpv.utils.CatharsisSupport::disabled"]
     },
-    "mixins": ["teslamaps.mixins.json"],
+    "mixins": ["teslamaps.mixins.json", "skyblockpv.mixins.json"],
     "accessWidener": "teslamaps.accesswidener",
     "depends": {
         "fabricloader": ">=${loader_version}",
         "minecraft": "~${minecraft_version}",
         "java": ">=25",
-        "fabric-api": "*"
+        "fabric-api": "*",
+        "fabric-language-kotlin": ">=1.13.12+kotlin.2.4.0"
     }
 }
