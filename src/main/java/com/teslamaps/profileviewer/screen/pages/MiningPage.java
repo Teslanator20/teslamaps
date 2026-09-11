@@ -2,14 +2,14 @@ package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.data.PerkRegistry;
-import com.teslamaps.profileviewer.screen.ItemGrid;
-import com.teslamaps.profileviewer.screen.PerkTreeView;
+import com.teslamaps.profileviewer.data.SkillTreeInfo;
+import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.NeuStyle;
+import com.teslamaps.profileviewer.screen.PerkTreeView;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import com.teslamaps.profileviewer.ui.Kit;
+import com.teslamaps.profileviewer.ui.Ui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -18,26 +18,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Heart of the Mountain. Hypixel moved this out of mining_core into skill_tree, so the
- * level is the core_of_the_mountain node and the xp sits in skill_tree.experience.mining.
- */
+/** Heart of the Mountain: tier from the tree xp, powder, glacite tunnels and the perk tree. */
 public class MiningPage extends ProfileViewerPage {
-    private static final int SECTION = 120;
 
-    // cumulative hotm xp per tier
-    private static final long[] HOTM_XP = {
-            0, 3_000, 9_000, 25_000, 60_000, 100_000, 150_000, 210_000, 290_000, 400_000,
-    };
-
-    private static final int MITHRIL_COLOR = 0xFF55FFFF;
+    private static final int MITHRIL_COLOR = 0xFF55FF55;
     private static final int GEMSTONE_COLOR = 0xFFFF55FF;
-    private static final int GLACITE_COLOR = 0xFF5555FF;
+    private static final int GLACITE_COLOR = 0xFF55FFFF;
 
-    @Override
-    public boolean isFixedLayout() {
-        return true;
-    }
+    private static final List<String> CRYSTALS = List.of(
+            "jade_crystal", "amber_crystal", "amethyst_crystal", "sapphire_crystal", "topaz_crystal",
+            "jasper_crystal", "ruby_crystal", "opal_crystal", "onyx_crystal", "aquamarine_crystal",
+            "peridot_crystal", "citrine_crystal");
 
     @Override
     public String getTabName() {
@@ -52,141 +43,125 @@ public class MiningPage extends ProfileViewerPage {
     @Override
     public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
-        Font tr = Minecraft.getInstance().font;
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
+        drawTree(ctx, build(profile.getMemberData(), width), x, y, mouseX, mouseY);
+    }
 
-        JsonObject member = profile.getMemberData();
-        int left = x - 8;
-        int top = y - 8;
+    private Ui build(JsonObject member, int width) {
+        SkillTreeInfo tree = new SkillTreeInfo(member, SkillTreeInfo.Type.MINING);
+        JsonObject core = object(member, "mining_core");
+        JsonObject glacite = object(member, "glacite_player_data");
 
-        JsonObject skillTree = member.has("skill_tree") ? member.getAsJsonObject("skill_tree") : null;
-        JsonObject miningNodes = skillTree != null && skillTree.has("nodes")
-                && skillTree.getAsJsonObject("nodes").has("mining")
-                ? skillTree.getAsJsonObject("nodes").getAsJsonObject("mining") : null;
+        List<PerkRegistry.Perk> perks = PerkRegistry.hotm();
+        Ui treeView = PerkTreeView.component(perks, tree.nodes, tree.level, PerkTreeView.MINING, tree.disabled);
+        int sideWidth = Math.max(150, width - treeView.width() - 10);
 
-        int hotmLevel = miningNodes != null ? asInt(miningNodes.get("core_of_the_mountain")) : 0;
-        long hotmXp = skillTree != null && skillTree.has("experience")
-                ? asLong(skillTree.getAsJsonObject("experience").get("mining")) : 0;
+        return Ui.col(9,
+                header(width, tree),
+                powder(width, tree, core),
+                Ui.row(10, Ui.V.TOP, treeView, Ui.col(9,
+                        Kit.section("Glacite Tunnels", glacite(glacite, sideWidth)),
+                        Kit.section("Crystals", crystals(core, sideWidth)))));
+    }
 
-        // left column: level, xp, tokens
-        int cx = left + 14;
-        int cy = top + 10;
+    private Ui header(int width, SkillTreeInfo tree) {
+        String right = tree.isMaxed()
+                ? Kit.compact(tree.xp) + " XP - MAX"
+                : Kit.compact(tree.xpIntoLevel) + " / " + Kit.compact(tree.xpForLevel) + " XP";
 
-        ctx.text(tr, "Heart of the Mountain", cx, cy, NeuStyle.TEXT_AQUA);
-        cy += 12;
+        return Ui.col(4,
+                new Ui.SpaceBetween(width,
+                        Ui.row(6, Ui.V.CENTER,
+                                new Ui.Label("Heart of the Mountain", NeuStyle.TEXT, Ui.SUBTITLE),
+                                new Ui.Label("Level " + tree.level + "/" + tree.maxLevel,
+                                        tree.isMaxed() ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA)),
+                        new Ui.Label(right, NeuStyle.TEXT_GRAY)),
+                Kit.bar(width, tree.progress()),
+                new Ui.Label("Loadout " + tree.slot + " - " + tree.tokensSpent + " tokens spent", NeuStyle.TEXT_GRAY));
+    }
 
-        String tierText = "Tier " + hotmLevel;
-        ctx.text(tr, tierText, cx, cy, NeuStyle.TEXT);
-        String xpText = formatXp(hotmXp);
-        ctx.text(tr, xpText, cx + SECTION - tr.width(xpText), cy, NeuStyle.TEXT_GRAY);
-        cy += 10;
+    /** Hypixel stores the balance, so the lifetime total is balance plus what this loadout spent. */
+    private Ui powder(int width, SkillTreeInfo tree, JsonObject core) {
+        List<Kit.TileData> tiles = new ArrayList<>();
+        tiles.add(powderTile("Mithril", "mithril", MITHRIL_COLOR, tree, core));
+        tiles.add(powderTile("Gemstone", "gemstone", GEMSTONE_COLOR, tree, core));
+        tiles.add(powderTile("Glacite", "glacite", GLACITE_COLOR, tree, core));
+        return Kit.tileRow(width, tiles);
+    }
 
-        NeuStyle.bar(ctx, cx, cy, SECTION, hotmProgress(hotmXp, hotmLevel));
-        cy += 14;
+    private Kit.TileData powderTile(String label, String key, int color, SkillTreeInfo tree, JsonObject core) {
+        long current = tree.total(core, key);
+        long spent = tree.spent(core, key);
+        return new Kit.TileData(label, Kit.compact(current) + " / " + Kit.compact(current + spent), color);
+    }
 
-        if (skillTree != null && skillTree.has("tokens_spent")) {
-            int spent = asInt(skillTree.getAsJsonObject("tokens_spent").get("mountain"));
-            row(ctx, tr, cx, cy, "Tokens spent:", String.valueOf(spent), NeuStyle.TEXT);
-            cy += 11;
-        }
+    private Ui glacite(JsonObject glacite, int width) {
+        if (glacite == null) return new Ui.Label("No glacite data", NeuStyle.TEXT_GRAY);
 
-        JsonObject miningCore = member.has("mining_core") ? member.getAsJsonObject("mining_core") : null;
-        if (miningCore != null) {
-            cy += 6;
-            ctx.text(tr, "Powder", cx, cy, NeuStyle.TEXT_AQUA);
-            cy += 12;
-            cy = powder(ctx, tr, cx, cy, miningCore, "Mithril", "mithril", MITHRIL_COLOR);
-            cy = powder(ctx, tr, cx, cy, miningCore, "Gemstone", "gemstone", GEMSTONE_COLOR);
-            cy = powder(ctx, tr, cx, cy, miningCore, "Glacite", "glacite", GLACITE_COLOR);
-        }
+        List<Ui> rows = new ArrayList<>();
+        rows.add(row(width, "Mineshafts", String.valueOf(asInt(get(glacite, "mineshafts_entered"))), NeuStyle.TEXT));
 
-        // middle column: glacite and crystals
-        int gx = left + 140;
-        int gy = top + 10;
-
-        JsonObject glacite = member.has("glacite_player_data") ? member.getAsJsonObject("glacite_player_data") : null;
-        if (glacite != null) {
-            ctx.text(tr, "Glacite Tunnels", gx, gy, NeuStyle.TEXT_AQUA);
-            gy += 12;
-            row(ctx, tr, gx, gy, "Mineshafts:", String.valueOf(asInt(glacite.get("mineshafts_entered"))), NeuStyle.TEXT);
-            gy += 11;
-
-            if (glacite.has("corpses_looted")) {
-                JsonObject corpses = glacite.getAsJsonObject("corpses_looted");
-                int total = 0;
-                for (Map.Entry<String, JsonElement> entry : corpses.entrySet()) total += asInt(entry.getValue());
-                row(ctx, tr, gx, gy, "Corpses:", String.valueOf(total), NeuStyle.TEXT);
-                gy += 11;
-                for (Map.Entry<String, JsonElement> entry : corpses.entrySet()) {
-                    row(ctx, tr, gx + 6, gy, capitalize(entry.getKey()), String.valueOf(asInt(entry.getValue())),
-                            NeuStyle.TEXT_GRAY);
-                    gy += 10;
-                }
+        JsonObject corpses = object(glacite, "corpses_looted");
+        if (corpses != null) {
+            int total = 0;
+            for (Map.Entry<String, JsonElement> entry : corpses.entrySet()) total += asInt(entry.getValue());
+            List<String> tooltip = new ArrayList<>();
+            tooltip.add("§aCorpses looted");
+            for (Map.Entry<String, JsonElement> entry : corpses.entrySet()) {
+                tooltip.add("§7" + Kit.prettify(entry.getKey()) + ": §f" + asInt(entry.getValue()));
             }
-
-            if (glacite.has("fossils_donated")) {
-                row(ctx, tr, gx, gy, "Fossils:",
-                        glacite.getAsJsonArray("fossils_donated").size() + " / 11", NeuStyle.TEXT);
-                gy += 11;
-            }
-            row(ctx, tr, gx, gy, "Fossil dust:", String.valueOf((int) asLong(glacite.get("fossil_dust"))), NeuStyle.TEXT);
+            rows.add(new Ui.Tip(row(width, "Corpses", String.valueOf(total), NeuStyle.TEXT), tooltip));
         }
 
-        // the real tree, node positions and formulas come from the bundled perks.json
-        List<PerkRegistry.Perk> tree = PerkRegistry.hotm();
-        Map<String, Integer> levels = new java.util.HashMap<>();
-        if (miningNodes != null) {
-            for (Map.Entry<String, JsonElement> entry : miningNodes.entrySet()) {
-                if (entry.getKey().startsWith("toggle_")) continue;
-                levels.put(entry.getKey(), asInt(entry.getValue()));
-            }
+        int fossils = glacite.has("fossils_donated") && glacite.get("fossils_donated").isJsonArray()
+                ? glacite.getAsJsonArray("fossils_donated").size() : 0;
+        rows.add(row(width, "Fossils", fossils + " / 11", fossils >= 11 ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT));
+        rows.add(row(width, "Fossil dust", Kit.compact(asLong(get(glacite, "fossil_dust"))), NeuStyle.TEXT));
+        return Ui.col(3, rows);
+    }
+
+    private Ui crystals(JsonObject core, int width) {
+        JsonObject found = object(core, "crystals");
+        if (found == null) return new Ui.Label("No crystal data", NeuStyle.TEXT_GRAY);
+
+        List<Ui> icons = new ArrayList<>();
+        for (String crystal : CRYSTALS) {
+            JsonObject data = object(found, crystal);
+            String state = data != null && data.has("state") && data.get("state").isJsonPrimitive()
+                    ? data.get("state").getAsString() : "NOT_FOUND";
+            boolean have = state.equals("FOUND") || state.equals("PLACED");
+            String name = Kit.prettify(crystal);
+
+            List<String> tooltip = List.of(
+                    "§a" + name,
+                    "§7State: §f" + Kit.prettify(state),
+                    "§7Found: §f" + asInt(get(data, "total_found")),
+                    "§7Placed: §f" + asInt(get(data, "total_placed")));
+
+            icons.add(new Ui.Tip(new Ui.Icon(Kit.icon(have ? "amethyst_shard" : "gray_dye"), 16, false, null), tooltip));
         }
 
-        int treeX = left + NeuStyle.PANEL_WIDTH - PerkTreeView.width(tree) - 10;
-        ItemStack hovered = PerkTreeView.render(ctx, tree, levels, hotmLevel, PerkTreeView.MINING,
-                treeX, top + 8, mouseX, mouseY);
-        hoverStack(hovered);
-    }
-
-    private int powder(GuiGraphicsExtractor ctx, Font tr, int x, int y, JsonObject core,
-                       String label, String key, int color) {
-        long current = asLong(core.get("powder_" + key));
-        long spent = asLong(core.get("powder_spent_" + key));
-        ctx.text(tr, label, x, y, color);
-        String value = formatXp(current);
-        ctx.text(tr, value, x + SECTION - tr.width(value), y, NeuStyle.TEXT);
-        y += 10;
-        if (spent > 0) {
-            String spentText = "spent " + formatXp(spent);
-            ctx.text(tr, spentText, x + SECTION - tr.width(spentText), y, NeuStyle.TEXT_DARK);
-            y += 10;
+        int perRow = Math.max(1, width / 18);
+        List<Ui> rows = new ArrayList<>();
+        for (int i = 0; i < icons.size(); i += perRow) {
+            rows.add(Ui.row(2, Ui.V.TOP, new ArrayList<>(icons.subList(i, Math.min(i + perRow, icons.size())))));
         }
-        return y;
+        return Ui.col(2, rows);
     }
 
-    private void row(GuiGraphicsExtractor ctx, Font tr, int x, int y, String label, String value, int color) {
-        int width = x >= 140 ? 96 : SECTION;
-        ctx.text(tr, label, x, y, NeuStyle.TEXT_GRAY);
-        ctx.text(tr, value, x + width - tr.width(value), y, color);
+    private Ui row(int width, String label, String value, int color) {
+        return new Ui.SpaceBetween(width,
+                new Ui.Label(label, NeuStyle.TEXT_GRAY),
+                new Ui.Label(value, color));
     }
 
-    private static double hotmProgress(long xp, int level) {
-        if (level >= HOTM_XP.length) return 1;
-        long base = HOTM_XP[Math.max(0, level - 1)];
-        long next = HOTM_XP[Math.min(HOTM_XP.length - 1, level)];
-        if (next <= base) return 1;
-        return Math.max(0, Math.min(1, (double) (xp - base) / (next - base)));
+    private static JsonObject object(JsonObject parent, String key) {
+        return parent != null && parent.has(key) && parent.get(key).isJsonObject()
+                ? parent.getAsJsonObject(key) : null;
     }
 
-    private static String capitalize(String key) {
-        String[] words = key.replace('_', ' ').split(" ");
-        StringBuilder out = new StringBuilder();
-        for (String word : words) {
-            if (word.isEmpty()) continue;
-            if (!out.isEmpty()) out.append(' ');
-            out.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
-        }
-        return out.toString();
+    private static JsonElement get(JsonObject parent, String key) {
+        return parent != null && parent.has(key) ? parent.get(key) : null;
     }
 }

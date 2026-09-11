@@ -28,20 +28,20 @@ public class PerkTreeView {
 
     public record Icons(String tierLocked, String tierUnlocked, String tierUnlocking,
                         String coreMax, String coreUnlocked, String coreLeveling, String coreLocked,
-                        String abilityUnlocked, String abilityLocked,
-                        String nodeMax, String nodeUnlocked, String nodeLocked) {}
+                        String abilitySelected, String abilityUnlocked, String abilityLocked,
+                        String nodeMax, String nodeUnlocked, String nodeLocked, String nodeDisabled) {}
 
     public static final Icons MINING = new Icons(
             "red_stained_glass_pane", "green_stained_glass_pane", "yellow_stained_glass_pane",
             "diamond_block", "copper_block", "redstone_block", "bedrock",
-            "redstone_block", "coal_block",
-            "diamond", "emerald", "coal");
+            "emerald_block", "redstone_block", "coal_block",
+            "diamond", "emerald", "coal", "redstone");
 
     public static final Icons FORAGING = new Icons(
             "red_stained_glass_pane", "green_stained_glass_pane", "yellow_stained_glass_pane",
             "oak_wood", "stripped_birch_wood", "stripped_oak_wood", "stripped_pale_oak_wood",
-            "cherry_sapling", "pale_oak_sapling",
-            "oak_log", "stripped_oak_log", "pale_oak_button");
+            "oak_sapling", "cherry_sapling", "pale_oak_sapling",
+            "oak_log", "stripped_oak_log", "pale_oak_button", "stripped_mangrove_log");
 
     private static final Map<String, ItemStack> icons = new HashMap<>();
     private static final Map<String, ItemStack> nodes = new HashMap<>();
@@ -49,6 +49,7 @@ public class PerkTreeView {
     /** Returns the stack under the cursor so the caller can show its tooltip. */
     public static ItemStack render(GuiGraphicsExtractor ctx, List<PerkRegistry.Perk> perks,
                                    Map<String, Integer> levels, int treeLevel, Icons icons,
+                                   java.util.Set<String> disabled,
                                    int x, int y, int mouseX, int mouseY) {
         if (perks.isEmpty()) return ItemStack.EMPTY;
 
@@ -81,7 +82,8 @@ public class PerkTreeView {
                 int sy = y + drawRow * CELL;
 
                 int level = perk.id() == null ? -1 : levels.getOrDefault(perk.id(), -1);
-                ItemStack stack = node(perk, level, treeLevel, maxTier, icons);
+                boolean off = perk.id() != null && disabled.contains(perk.id());
+                ItemStack stack = node(perk, level, treeLevel, maxTier, icons, off);
                 ctx.pose().pushMatrix();
                 ctx.pose().translate(sx, sy);
                 ctx.pose().scale(ICON / 16f, ICON / 16f);
@@ -126,7 +128,8 @@ public class PerkTreeView {
     /** The tree as a layout component, so pages can place it without hand computed offsets. */
     public static com.teslamaps.profileviewer.ui.Ui component(List<PerkRegistry.Perk> perks,
                                                               Map<String, Integer> levels,
-                                                              int treeLevel, Icons icons) {
+                                                              int treeLevel, Icons icons,
+                                                              java.util.Set<String> disabled) {
         return new com.teslamaps.profileviewer.ui.Ui() {
             @Override
             public int width() {
@@ -140,7 +143,8 @@ public class PerkTreeView {
 
             @Override
             public void render(GuiGraphicsExtractor ctx, int x, int y, int mouseX, int mouseY) {
-                ItemStack hovered = PerkTreeView.render(ctx, perks, levels, treeLevel, icons, x, y, mouseX, mouseY);
+                ItemStack hovered = PerkTreeView.render(ctx, perks, levels, treeLevel, icons, disabled,
+                        x, y, mouseX, mouseY);
                 if (!hovered.isEmpty()) com.teslamaps.profileviewer.ui.Ui.hoveredStack = hovered;
             }
         };
@@ -150,15 +154,21 @@ public class PerkTreeView {
         return ((long) x << 32) | (y & 0xFFFFFFFFL);
     }
 
-    private static ItemStack node(PerkRegistry.Perk perk, int level, int treeLevel, int maxTier, Icons icons) {
-        String id = iconId(perk, level, treeLevel, maxTier, icons);
-        String cacheKey = perk.type() + ":" + perk.name() + ":" + perk.id() + ":" + level + ":" + treeLevel + ":" + id;
+    private static ItemStack node(PerkRegistry.Perk perk, int level, int treeLevel, int maxTier,
+                                  Icons icons, boolean disabled) {
+        String id = disabled && isPlainNode(perk) ? icons.nodeDisabled() : iconId(perk, level, treeLevel, maxTier, icons);
+        String cacheKey = perk.type() + ":" + perk.name() + ":" + perk.id() + ":" + level + ":" + treeLevel
+                + ":" + disabled + ":" + id;
 
         ItemStack cached = nodes.get(cacheKey);
         if (cached != null) return cached;
 
         ItemStack stack = item(id).copy();
-        List<String> tooltip = PerkRegistry.tooltip(perk, level, treeLevel);
+        List<String> tooltip = new ArrayList<>(PerkRegistry.tooltip(perk, level, treeLevel));
+        if (disabled && !tooltip.isEmpty()) {
+            tooltip.removeIf(line -> line.endsWith("§lENABLED"));
+            tooltip.add("§c§lDISABLED");
+        }
         if (!tooltip.isEmpty()) {
             stack.set(DataComponents.CUSTOM_NAME, LegacyText.parse(tooltip.getFirst()));
             List<Component> lore = new ArrayList<>();
@@ -168,6 +178,11 @@ public class PerkTreeView {
 
         nodes.put(cacheKey, stack);
         return stack;
+    }
+
+    private static boolean isPlainNode(PerkRegistry.Perk perk) {
+        String type = perk.type();
+        return !"TIER".equals(type) && !"CORE".equals(type) && !"ABILITY".equals(type);
     }
 
     private static String iconId(PerkRegistry.Perk perk, int level, int treeLevel, int maxTier, Icons icons) {

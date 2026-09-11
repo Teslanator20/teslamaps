@@ -21,8 +21,12 @@ import java.util.regex.Pattern;
  */
 public class PerkRegistry {
 
+    /** One unlock step of a CORE node: its reward lines and what the step costs. */
+    public record CoreLevel(List<String> reward, List<Integer> include, String costKind, long amount) {}
+
     public record Perk(String type, String id, int x, int y, Integer max, String costKind, String cost,
-                       Map<String, String> reward, String name, List<String> tooltip) {}
+                       Map<String, String> reward, String name, List<String> tooltip,
+                       List<String> rewards, List<CoreLevel> levels) {}
 
     private static final List<Perk> HOTM = new ArrayList<>();
     private static final List<Perk> HOTF = new ArrayList<>();
@@ -72,6 +76,28 @@ public class PerkRegistry {
                 for (JsonElement line : perk.getAsJsonArray("tooltip")) tooltip.add(line.getAsString());
             }
 
+            List<String> rewards = new ArrayList<>();
+            if (perk.has("rewards") && perk.get("rewards").isJsonArray()) {
+                for (JsonElement line : perk.getAsJsonArray("rewards")) rewards.add(line.getAsString());
+            }
+
+            List<CoreLevel> levels = new ArrayList<>();
+            if (perk.has("levels") && perk.get("levels").isJsonArray()) {
+                for (JsonElement levelElement : perk.getAsJsonArray("levels")) {
+                    JsonObject level = levelElement.getAsJsonObject();
+                    List<String> lines = new ArrayList<>();
+                    if (level.has("reward") && level.get("reward").isJsonArray()) {
+                        for (JsonElement line : level.getAsJsonArray("reward")) lines.add(line.getAsString());
+                    }
+                    List<Integer> include = new ArrayList<>();
+                    if (level.has("include") && level.get("include").isJsonArray()) {
+                        for (JsonElement value : level.getAsJsonArray("include")) include.add(value.getAsInt());
+                    }
+                    levels.add(new CoreLevel(lines, include, string(level, "costKind"),
+                            level.has("amount") ? level.get("amount").getAsLong() : 0));
+                }
+            }
+
             out.add(new Perk(
                     string(perk, "type"),
                     string(perk, "id"),
@@ -82,7 +108,9 @@ public class PerkRegistry {
                     string(perk, "cost"),
                     reward,
                     string(perk, "name"),
-                    tooltip));
+                    tooltip,
+                    rewards,
+                    levels));
         }
     }
 
@@ -105,6 +133,7 @@ public class PerkRegistry {
     public static List<String> tooltip(Perk perk, int level, int treeLevel) {
         if ("SPACER".equals(perk.type())) return List.of();
         if ("TIER".equals(perk.type())) return tierTooltip(perk, treeLevel);
+        if ("CORE".equals(perk.type()) && !perk.levels().isEmpty()) return coreTooltip(perk, treeLevel);
 
         List<String> out = new ArrayList<>();
         boolean locked = level < 0;
@@ -159,7 +188,43 @@ public class PerkRegistry {
         boolean unlocking = !unlocked && treeLevel + 1 >= tier;
         String color = unlocked ? "§a" : unlocking ? "§e" : "§c";
         String state = unlocked ? "§a§lUNLOCKED" : unlocking ? "§e§lUNLOCKING" : "§c§lRequires Tier " + tier;
-        return List.of(color + (perk.name() == null ? "Tier " + tier : perk.name()), "", state);
+
+        List<String> out = new ArrayList<>();
+        out.add(color + (perk.name() == null ? "Tier " + tier : perk.name()));
+        if (!perk.rewards().isEmpty()) {
+            out.add("");
+            out.add("§7Rewards");
+            for (String line : perk.rewards()) out.add(tags(line));
+        }
+        out.add("");
+        out.add(state);
+        return out;
+    }
+
+    /** The core node levels up on its own track, each step listing what it grants and costs. */
+    private static List<String> coreTooltip(Perk perk, int treeLevel) {
+        List<CoreLevel> levels = perk.levels();
+        int level = Math.max(0, Math.min(treeLevel, levels.size()));
+
+        List<String> out = new ArrayList<>();
+        out.add("§a" + (perk.name() == null ? "Core" : perk.name()));
+        out.add("§7Level §f" + level + "§7/§8" + levels.size());
+        out.add("");
+
+        if (level > 0) {
+            for (String line : levels.get(level - 1).reward()) out.add(tags(line));
+        }
+
+        if (level < levels.size()) {
+            CoreLevel next = levels.get(level);
+            out.add("");
+            out.add("§7Next level");
+            for (String line : next.reward()) out.add(tags(line));
+            if (next.costKind() != null && next.amount() > 0) {
+                out.add(powderColor(next.costKind()) + "Cost: §f" + String.format("%,d", next.amount()));
+            }
+        }
+        return out;
     }
 
     private static List<String> powderSpent(Perk perk, int level) {

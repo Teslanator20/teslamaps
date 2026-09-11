@@ -2,7 +2,9 @@ package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.teslamaps.profileviewer.data.ForagingRepo;
 import com.teslamaps.profileviewer.data.PerkRegistry;
+import com.teslamaps.profileviewer.data.SkillTreeInfo;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.PerkTreeView;
@@ -14,20 +16,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Heart of the Forest: the perk tree, forest whispers and the Galatea tree gifts. */
+/** Heart of the Forest, following skyblock-pv: level from the tree xp, gifts and whispers per loadout. */
 public class ForagingPage extends ProfileViewerPage {
 
-    private static final int GIFT_MILESTONE_MAX = 7;
-
-    // cumulative tree xp per tier, same brackets the mountain uses
-    private static final long[] TIER_XP = {3000, 12000, 37000, 97000, 197000, 347000, 557000, 847000, 1247000};
-
     private static final Map<String, String> TREE_ICONS = Map.of(
-            "FIG", "mangrove_log", "MANGROVE", "mangrove_log", "HELIX", "pale_oak_log");
+            "FIG", "stripped_birch_log", "MANGROVE", "mangrove_log", "HELIX", "pale_oak_log");
+
+    private static final Map<String, String> STARLYN = Map.of(
+            "FIG", "agatha", "MANGROVE", "agatha", "HELIX", "miria");
 
     @Override
     public String getTabName() {
@@ -48,68 +47,50 @@ public class ForagingPage extends ProfileViewerPage {
     }
 
     private Ui build(JsonObject member, int width) {
-        JsonObject skillTree = object(member, "skill_tree");
-        JsonObject nodes = skillTree != null && skillTree.has("nodes")
-                ? object(skillTree.getAsJsonObject("nodes"), "foraging") : null;
+        SkillTreeInfo tree = new SkillTreeInfo(member, SkillTreeInfo.Type.FORAGING);
         JsonObject core = object(member, "foraging_core");
         JsonObject foraging = object(member, "foraging");
 
-        int tier = nodes != null ? asInt(nodes.get("center_of_the_forest")) : 0;
-        long xp = skillTree != null ? asLong(get(object(skillTree, "experience"), "foraging")) : 0;
-
-        Map<String, Integer> levels = new HashMap<>();
-        if (nodes != null) {
-            for (Map.Entry<String, JsonElement> entry : nodes.entrySet()) {
-                if (entry.getKey().startsWith("toggle_")) continue;
-                levels.put(entry.getKey(), asInt(entry.getValue()));
-            }
-        }
-
         List<PerkRegistry.Perk> perks = PerkRegistry.hotf();
-        Ui tree = PerkTreeView.component(perks, levels, tier, PerkTreeView.FORAGING);
-        int sideWidth = Math.max(140, width - tree.width() - 10);
+        Ui treeView = PerkTreeView.component(perks, tree.nodes, tree.level, PerkTreeView.FORAGING, tree.disabled);
+        int sideWidth = Math.max(150, width - treeView.width() - 10);
 
-        return Ui.col(10,
-                header(width, tier, xp, skillTree),
-                tiles(width, core, foraging),
-                Ui.row(10, Ui.V.TOP, tree, Ui.col(10,
+        return Ui.col(9,
+                header(width, tree),
+                tiles(width, tree, core, foraging),
+                Ui.row(10, Ui.V.TOP, treeView, Ui.col(9,
                         Kit.section("Tree Gifts", gifts(foraging, sideWidth)),
                         Kit.section("Personal Bests", personalBests(foraging, sideWidth)))));
     }
 
-    private Ui header(int width, int tier, long xp, JsonObject skillTree) {
-        int spent = 0;
-        JsonObject tokens = object(skillTree, "tokens_spent");
-        if (tokens != null) {
-            for (Map.Entry<String, JsonElement> entry : tokens.entrySet()) {
-                if (entry.getKey().startsWith("forest")) spent += asInt(entry.getValue());
-            }
-        }
+    private Ui header(int width, SkillTreeInfo tree) {
+        String right = tree.isMaxed()
+                ? Kit.compact(tree.xp) + " XP - MAX"
+                : Kit.compact(tree.xpIntoLevel) + " / " + Kit.compact(tree.xpForLevel) + " XP";
+
         return Ui.col(4,
                 new Ui.SpaceBetween(width,
                         Ui.row(6, Ui.V.CENTER,
                                 new Ui.Label("Heart of the Forest", NeuStyle.TEXT, Ui.SUBTITLE),
-                                new Ui.Label("Tier " + tier, NeuStyle.TEXT_GREEN)),
-                        new Ui.Label(Kit.compact(xp) + " XP", NeuStyle.TEXT_GRAY)),
-                Kit.bar(width, progress(xp)),
-                new Ui.Label(spent + " tokens spent", NeuStyle.TEXT_GRAY));
+                                new Ui.Label("Level " + tree.level + "/" + tree.maxLevel,
+                                        tree.isMaxed() ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_GREEN)),
+                        new Ui.Label(right, NeuStyle.TEXT_GRAY)),
+                Kit.bar(width, tree.progress()),
+                new Ui.Label("Loadout " + tree.slot + " - " + tree.tokensSpent + " tokens spent", NeuStyle.TEXT_GRAY));
     }
 
-    private Ui tiles(int width, JsonObject core, JsonObject foraging) {
-        long whispers = 0;
-        JsonObject whisperData = object(core, "whispers");
-        if (whisperData != null) {
-            for (Map.Entry<String, JsonElement> entry : whisperData.entrySet()) {
-                if (entry.getValue().isJsonObject()) {
-                    whispers += asLong(entry.getValue().getAsJsonObject().get("total"));
-                }
-            }
-        }
+    private Ui tiles(int width, SkillTreeInfo tree, JsonObject core, JsonObject foraging) {
+        long forestTotal = tree.total(core, "forest");
+        long forestLeft = forestTotal - tree.spent(core, "forest");
+        long desertTotal = tree.total(core, "desert");
+        long desertLeft = desertTotal - tree.spent(core, "desert");
+
         int fish = foraging != null && foraging.has("fish_family") && foraging.get("fish_family").isJsonArray()
                 ? foraging.getAsJsonArray("fish_family").size() : 0;
 
         return Kit.tileRow(width, List.of(
-                new Kit.TileData("Whispers", Kit.compact(whispers), NeuStyle.TEXT_AQUA),
+                new Kit.TileData("Forest Whispers", Kit.compact(Math.max(0, forestLeft)) + " / " + Kit.compact(forestTotal), NeuStyle.TEXT_AQUA),
+                new Kit.TileData("Desert Whispers", Kit.compact(Math.max(0, desertLeft)) + " / " + Kit.compact(desertTotal), NeuStyle.TEXT_GOLD),
                 new Kit.TileData("Trees Today", String.valueOf(asInt(get(core, "daily_trees_cut"))), NeuStyle.TEXT_GREEN),
                 new Kit.TileData("Gifts Today", String.valueOf(asInt(get(core, "daily_gifts"))), NeuStyle.TEXT_GREEN),
                 new Kit.TileData("Fish Family", String.valueOf(fish), NeuStyle.TEXT)));
@@ -117,55 +98,70 @@ public class ForagingPage extends ProfileViewerPage {
 
     private Ui gifts(JsonObject foraging, int width) {
         JsonObject trees = object(foraging, "tree_gifts");
-        if (trees == null) return new Ui.Label("No tree gifts yet", NeuStyle.TEXT_GRAY);
-
         JsonObject claimed = object(trees, "milestone_tier_claimed");
-        List<Ui> cards = new ArrayList<>();
-        for (Map.Entry<String, JsonElement> entry : trees.entrySet()) {
-            if (entry.getKey().equals("milestone_tier_claimed")) continue;
-            if (!entry.getValue().isJsonPrimitive()) continue;
 
-            long amount = asLong(entry.getValue());
-            int tier = asInt(get(claimed, entry.getKey()));
-            boolean maxed = tier >= GIFT_MILESTONE_MAX;
+        List<Ui> cards = new ArrayList<>();
+        for (String tree : ForagingRepo.trees()) {
+            long amount = asLong(get(trees, tree));
+            int tier = asInt(get(claimed, tree));
+            ForagingRepo.Milestone milestone = ForagingRepo.milestone(tree, amount);
+            int max = milestone.maxTier();
+            boolean maxed = max > 0 && tier >= max;
             int color = maxed ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA;
             int bodyWidth = width - 16 - 6;
 
             Ui body = Ui.col(2,
                     new Ui.SpaceBetween(bodyWidth,
-                            new Ui.Label(Kit.prettify(entry.getKey()), NeuStyle.TEXT),
+                            new Ui.Label(Kit.prettify(tree), NeuStyle.TEXT),
                             Ui.row(6, Ui.V.CENTER,
-                                    new Ui.Label(tier + "/" + GIFT_MILESTONE_MAX, color),
+                                    new Ui.Label(tier + "/" + max, color),
                                     new Ui.Label(Kit.compact(amount) + " gifts", NeuStyle.TEXT_GRAY))),
-                    Kit.bar(bodyWidth, (double) tier / GIFT_MILESTONE_MAX, color));
+                    Kit.bar(bodyWidth, maxed ? 1 : milestone.progress(), color));
 
-            String icon = TREE_ICONS.getOrDefault(entry.getKey(), "oak_log");
-            cards.add(Ui.row(6, Ui.V.CENTER, new Ui.Icon(Kit.icon(icon), 16, false, null), body));
+            List<String> tooltip = List.of(
+                    "§a" + Kit.prettify(tree) + " Gifts",
+                    "§7Milestone §f" + tier + "§7/§f" + max,
+                    "§7Total gifts: §f" + String.format("%,d", amount),
+                    maxed ? "§6All milestones claimed"
+                            : "§7Next milestone at §f" + String.format("%,d", milestone.next()));
+
+            cards.add(new Ui.Tip(Ui.row(6, Ui.V.CENTER,
+                    new Ui.Icon(Kit.icon(TREE_ICONS.getOrDefault(tree, "oak_log")), 16, false, null), body), tooltip));
         }
-        return cards.isEmpty() ? new Ui.Label("No tree gifts yet", NeuStyle.TEXT_GRAY) : Ui.col(5, cards);
+        return Ui.col(5, cards);
     }
 
+    /** Fig and Mangrove are Agatha's contests, Helix is Miria's; the caps come from the repo. */
     private Ui personalBests(JsonObject foraging, int width) {
         JsonObject bests = object(object(foraging, "starlyn"), "personal_bests");
-        if (bests == null) return new Ui.Label("None yet", NeuStyle.TEXT_GRAY);
 
         List<Ui> rows = new ArrayList<>();
-        for (Map.Entry<String, JsonElement> entry : bests.entrySet()) {
-            rows.add(new Ui.SpaceBetween(width,
-                    new Ui.Label(Kit.prettify(entry.getKey()), NeuStyle.TEXT_GRAY),
-                    new Ui.Label(String.format("%,d", asLong(entry.getValue())), NeuStyle.TEXT)));
-        }
-        return rows.isEmpty() ? new Ui.Label("None yet", NeuStyle.TEXT_GRAY) : Ui.col(3, rows);
-    }
+        for (String tree : ForagingRepo.trees()) {
+            long best = asLong(get(bests, tree + "_LOG"));
+            long max = ForagingRepo.value(tree.toLowerCase() + "_personal_best");
+            boolean full = max > 0 && best >= max;
+            String value = max > 0
+                    ? String.format("%,d", Math.min(best, max)) + " / " + Kit.compact(max)
+                    : String.format("%,d", best);
 
-    /** Progress inside whatever xp bracket the player currently sits in. */
-    private static double progress(long xp) {
-        long base = 0;
-        for (long threshold : TIER_XP) {
-            if (xp < threshold) return (double) (xp - base) / (threshold - base);
-            base = threshold;
+            rows.add(new Ui.Tip(new Ui.SpaceBetween(width,
+                    new Ui.Label(Kit.prettify(tree) + " Log", NeuStyle.TEXT_GRAY),
+                    new Ui.Label(value, full ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT)),
+                    List.of("§a" + Kit.prettify(tree) + " Log",
+                            "§7Personal best: §f" + String.format("%,d", best),
+                            "§7Counts up to §f" + String.format("%,d", max),
+                            "§7Contest: §f" + Kit.prettify(STARLYN.getOrDefault(tree, "")))));
         }
-        return 1;
+
+        for (String contest : List.of("agatha", "miria")) {
+            long best = asLong(get(bests, contest));
+            if (best <= 0) continue;
+            rows.add(new Ui.SpaceBetween(width,
+                    new Ui.Label(Kit.prettify(contest) + " Contest", NeuStyle.TEXT_GRAY),
+                    new Ui.Label(String.format("%,d", best), NeuStyle.TEXT)));
+        }
+
+        return rows.isEmpty() ? new Ui.Label("None yet", NeuStyle.TEXT_GRAY) : Ui.col(3, rows);
     }
 
     private static JsonObject object(JsonObject parent, String key) {
