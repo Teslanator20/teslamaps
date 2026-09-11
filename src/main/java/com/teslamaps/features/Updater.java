@@ -53,6 +53,8 @@ public class Updater {
     private static volatile long jarSize = -1;
     private static boolean promptShown = false;
     private static boolean chatNotified = false;
+    private static volatile long lastCheck = 0;
+    private static final long RECHECK_MILLIS = 30 * 60 * 1000L;
 
     private static String token() {
         return T0 + T1 + T2;
@@ -72,6 +74,7 @@ public class Updater {
     public static void check(boolean verbose) {
         if (state == State.CHECKING || state == State.DOWNLOADING) return;
         state = State.CHECKING;
+        lastCheck = System.currentTimeMillis();
         CompletableFuture.runAsync(() -> {
             try {
                 HttpClient client = http();
@@ -123,7 +126,11 @@ public class Updater {
                 jarAssetId = assetId;
                 jarSize = size;
                 state = State.AVAILABLE;
-                if (verbose) chat("§fUpdate available: §e" + version + " §7— /tmap update to install");
+                if (verbose) {
+                    // tick() would say the same thing again a moment later
+                    chatNotified = true;
+                    chat("§fUpdate available: §e" + version + " §7— /tmap update to install");
+                }
             } catch (Exception e) {
                 state = State.FAILED;
                 error = e.getMessage() == null ? e.toString() : e.getMessage();
@@ -194,6 +201,14 @@ public class Updater {
     }
 
     public static void tick() {
+        // the launch check cannot see a release that went up while the player was already online
+        if (state == State.IDLE || state == State.FAILED) {
+            if (TeslaMapsConfig.get().updateCheck && !token().isEmpty()
+                    && System.currentTimeMillis() - lastCheck > RECHECK_MILLIS) {
+                check(false);
+            }
+            return;
+        }
         if (state != State.AVAILABLE) return;
         Minecraft mc = Minecraft.getInstance();
         if (!promptShown && mc.screen instanceof TitleScreen) {

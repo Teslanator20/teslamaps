@@ -1,0 +1,194 @@
+package com.teslamaps.screen.customize;
+
+import com.teslamaps.features.customize.AnimatedDye;
+import com.teslamaps.features.customize.RepoDyeColors;
+import com.teslamaps.render.gui.PopupScreen;
+import com.teslamaps.utils.OkLabColor;
+import com.teslamaps.utils.SkyblockItems;
+import com.teslamaps.utils.StringUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ScrollableLayout;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.LayoutSettings;
+import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.layouts.SpacerElement;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+
+/** The real skyblock dyes as a list to pick from. Ported from Skyblocker. */
+public class DyeSelectPopup extends PopupScreen {
+
+    private ScrollableLayout scrollableLayout;
+    private StringWidget titleWidget;
+    private Button closeButton;
+
+    private final BiConsumer<Button, Integer> updateStatic;
+    private final AnimatedDyeConsumer updateAnimated;
+
+    protected DyeSelectPopup(Screen backgroundScreen, BiConsumer<Button, Integer> updateStatic, AnimatedDyeConsumer updateAnimated) {
+        super(Component.translatable("teslamaps.customize.armor.pickDye"), backgroundScreen);
+        this.updateStatic = updateStatic;
+        this.updateAnimated = updateAnimated;
+    }
+
+    @Override
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        extractPopupBackground(graphics, scrollableLayout.getX(), scrollableLayout.getY(), scrollableLayout.getWidth(), scrollableLayout.getHeight());
+    }
+
+    @Override
+    protected void repositionElements() {
+        super.repositionElements();
+        scrollableLayout.setMaxHeight(Math.min(300, (int) (height * 0.68)));
+        scrollableLayout.arrangeElements();
+        scrollableLayout.setPosition((width - scrollableLayout.getWidth()) / 2, (height - scrollableLayout.getHeight()) / 2);
+
+        closeButton.setPosition((width - closeButton.getWidth()) / 2, scrollableLayout.getY() + scrollableLayout.getHeight() + 20);
+        titleWidget.setPosition((width - titleWidget.getWidth()) / 2, scrollableLayout.getY() - 30);
+    }
+
+    @Override
+    protected void init() {
+        LinearLayout layout = LinearLayout.vertical();
+        layout.defaultCellSetting().alignHorizontallyCenter();
+
+        LayoutSettings headerLayout = layout.defaultCellSetting().copy().paddingBottom(6);
+        layout.addChild(new StringWidget(Component.translatable("teslamaps.customize.armor.pickDye.dyes",
+                Component.translatable("teslamaps.customize.armor.pickDye.dyes.static")), font), headerLayout);
+        RepoDyeColors.STATIC_DYES.forEach((name, hex) ->
+                layout.addChild(new StaticDyeButton(name, hex, button -> selectStaticDye(button, hex))));
+
+        layout.addChild(SpacerElement.height(15));
+        layout.addChild(new StringWidget(Component.translatable("teslamaps.customize.armor.pickDye.dyes",
+                Component.translatable("teslamaps.customize.armor.pickDye.dyes.animated")), font), headerLayout);
+        RepoDyeColors.ANIMATED_DYES.forEach((name, colors) -> {
+            if (name.startsWith("FAIRY")) return;
+            layout.addChild(new AnimatedDyeButton(name, colors, button -> selectAnimatedDye(button, colors)));
+        });
+
+        scrollableLayout = new ScrollableLayout(minecraft, layout, 0);
+        scrollableLayout.visitWidgets(this::addRenderableWidget);
+
+        titleWidget = new StringWidget(Component.translatable("teslamaps.customize.armor.pickDye.title"), font);
+        closeButton = Button.builder(CommonComponents.GUI_CANCEL, b -> onClose()).width(75).build();
+        addRenderableWidget(titleWidget);
+        addRenderableWidget(closeButton);
+
+        super.init();
+        repositionElements();
+    }
+
+    private void selectStaticDye(Button button, int dyeColor) {
+        this.onClose();
+        this.updateStatic.accept(button, dyeColor);
+    }
+
+    private void selectAnimatedDye(Button button, List<Integer> colors) {
+        boolean cycleBack = colors.size() % 2 == 0;
+        int max = cycleBack ? colors.size() / 2 : colors.size();
+        List<AnimatedDye.Keyframe> keyFrames = new ArrayList<>(colors.size());
+
+        if (Minecraft.getInstance().hasShiftDown() || max < 3) {
+            // every frame verbatim
+            int i = 0;
+            for (int color : colors) {
+                keyFrames.add(new AnimatedDye.Keyframe(color, (float) i / max));
+                i += 1;
+                if (cycleBack && i >= max) break;
+            }
+        } else {
+            // only keep the frames where the gradient changes direction in OkLab
+            keyFrames.add(new AnimatedDye.Keyframe(colors.getFirst(), 0));
+            Vec3 next = toLab(colors.get(1));
+            Vec3 current = toLab(colors.getFirst());
+            Vec3 direction = next.subtract(current).normalize();
+            for (int i = 1; i < max - 1; i++) {
+                current = next;
+                next = toLab(colors.get(i + 1));
+                Vec3 newDirection = next.subtract(current).normalize();
+                if (newDirection.dot(direction) < 0.75) {
+                    keyFrames.add(new AnimatedDye.Keyframe(colors.get(i), (float) i / max));
+                    direction = newDirection;
+                }
+            }
+            keyFrames.add(new AnimatedDye.Keyframe(colors.get(max - 1), 1));
+        }
+
+        this.onClose();
+        this.updateAnimated.accept(button, keyFrames, cycleBack);
+    }
+
+    private static Vec3 toLab(int color) {
+        return OkLabColor.linearSRGB2OkLab(ARGB.redFloat(color), ARGB.greenFloat(color), ARGB.blueFloat(color)).toVec3();
+    }
+
+    private static class StaticDyeButton extends Button.Plain {
+        private static final int TEXT_OFFSET = 10;
+
+        String name;
+        ItemStack dyeStack = new ItemStack(Items.BARRIER);
+
+        protected StaticDyeButton(String dyeId, int color, OnPress onPress) {
+            super(0, 0, 150, 20, Component.empty(), onPress, b -> Component.empty());
+            name = StringUtil.strip(SkyblockItems.name(dyeId));
+            SkyblockItems.resolve(dyeId, stack -> {
+                if (stack != null && !stack.isEmpty()) dyeStack = stack;
+            });
+            setMessage(Component.literal(name).withColor(color));
+        }
+
+        @Override
+        protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+            this.extractDefaultSprite(graphics);
+            graphics.item(dyeStack, this.getX() + TEXT_OFFSET, this.getY() + 1);
+            extractName(graphics, a);
+        }
+
+        protected void extractName(GuiGraphicsExtractor graphics, float a) {
+            graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE)
+                    .acceptScrollingWithDefaultCenter(getMessage(), getX() + 2 + TEXT_OFFSET + 16,
+                            getRight() - 2, getY() + 2, getBottom() - 2);
+        }
+    }
+
+    private static class AnimatedDyeButton extends StaticDyeButton {
+        List<Component> animatedNames = new ArrayList<>();
+        int index = 0;
+        float lastChange = 0;
+
+        protected AnimatedDyeButton(String dyeId, List<Integer> colors, OnPress onPress) {
+            super(dyeId, colors.getFirst(), onPress);
+            for (int color : colors) {
+                animatedNames.add(Component.literal(name).withColor(color));
+            }
+        }
+
+        @Override
+        protected void extractName(GuiGraphicsExtractor graphics, float a) {
+            lastChange += a;
+            if (lastChange > 2) {
+                lastChange = 0;
+                index = Math.min(index + 1, animatedNames.size() - 1);
+                setMessage(animatedNames.get(index));
+                if (index == animatedNames.size() - 1) index = 0;
+            }
+            super.extractName(graphics, a);
+        }
+    }
+
+    public interface AnimatedDyeConsumer {
+        void accept(Button button, List<AnimatedDye.Keyframe> keyframes, boolean cycleBack);
+    }
+}

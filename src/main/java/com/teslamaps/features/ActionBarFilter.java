@@ -9,11 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/** Drops segments out of the Hypixel action bar. /tmap debug actionbar shows what is in it. */
+/** Drops parts out of the Hypixel action bar. /tmap debug actionbar shows what is in it. */
 public class ActionBarFilter {
 
-    private static final Pattern SEP = Pattern.compile("\\s{3,}");
+    // 5 spaces between segments, 1 space between stats inside a segment
+    private static final Pattern SEP = Pattern.compile("\\s{2,}");
     private static final Pattern SKILL_XP = Pattern.compile("\\+[\\d.,]+ [A-Za-z]+ \\(");
+    private static final Pattern ARMOR_STACK = Pattern.compile("\\d+[\u1750\u2051|\u0489\u046A\u26B6]");
 
     private static boolean debug;
     private static String lastDump = "";
@@ -37,30 +39,57 @@ public class ActionBarFilter {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.actionBarFilter || raw.isEmpty()) return message;
 
-        String[] parts = SEP.split(raw);
-        List<String> keep = new ArrayList<>(parts.length);
-        for (String part : parts) {
-            if (!hidden(cfg, part)) keep.add(part.trim());
+        String[] segments = SEP.split(raw);
+        List<String> keep = new ArrayList<>(segments.length);
+        boolean changed = false;
+        for (String segment : segments) {
+            String s = segment.trim();
+            if (s.isEmpty()) continue;
+            if (dropSegment(cfg, s)) {
+                changed = true;
+                continue;
+            }
+            String filtered = dropStats(cfg, s);
+            if (!filtered.equals(s)) changed = true;
+            if (!filtered.isEmpty()) keep.add(filtered);
         }
-        if (keep.size() == parts.length) return message;
+        if (!changed) return message;
         return Component.literal(String.join("     ", keep));
     }
 
-    private static boolean hidden(TeslaMapsConfig cfg, String part) {
-        String s = StringUtil.strip(part);
+    private static boolean dropSegment(TeslaMapsConfig cfg, String segment) {
+        String s = StringUtil.strip(segment);
         for (String custom : cfg.actionBarHidden) {
             if (!custom.isEmpty() && s.toLowerCase().contains(custom.toLowerCase())) return true;
         }
-        if (cfg.abHideHealth && (s.indexOf('❤') >= 0 || s.indexOf('') >= 0)) return true;
-        if (cfg.abHideDefense && (s.indexOf('❈') >= 0 || s.indexOf('') >= 0)) return true;
-        if (cfg.abHideMana && s.contains("/")
-                && (s.indexOf('✎') >= 0 || s.indexOf('') >= 0)) return true;
-        if (cfg.abHideVitality && (s.contains("Vitality") || s.indexOf('') >= 0)) return true;
-        if (cfg.abHideRiftTime && (s.indexOf('ф') >= 0 || s.indexOf('') >= 0)) return true;
+        if (cfg.abHideLocation && (s.indexOf('\uE067') >= 0 || s.indexOf('\u23E3') >= 0)) return true;
+        if (cfg.abHideSkillXp && SKILL_XP.matcher(s).find()) return true;
         if (cfg.abHideAbilityMana && s.contains("Mana (")) return true;
         if (cfg.abHideDrillFuel && s.contains("Drill Fuel")) return true;
         if (cfg.abHideSecrets && s.contains("Secrets")) return true;
-        if (cfg.abHideSkillXp && SKILL_XP.matcher(s).find()) return true;
+        return false;
+    }
+
+    /** Several stats share one segment (mana + overflow mana), so drop them stat by stat. */
+    private static String dropStats(TeslaMapsConfig cfg, String segment) {
+        if (segment.indexOf(' ') < 0) return dropStat(cfg, segment) ? "" : segment;
+        StringBuilder sb = new StringBuilder(segment.length());
+        for (String stat : segment.split(" ")) {
+            if (stat.isEmpty() || dropStat(cfg, stat)) continue;
+            if (sb.length() > 0) sb.append(' ');
+            sb.append(stat);
+        }
+        return sb.toString();
+    }
+
+    private static boolean dropStat(TeslaMapsConfig cfg, String stat) {
+        if (cfg.abHideHealth && (stat.indexOf('\uE010') >= 0 || stat.indexOf('\u2764') >= 0)) return true;
+        if (cfg.abHideDefense && (stat.indexOf('\uE008') >= 0 || stat.indexOf('\u2748') >= 0)) return true;
+        if (cfg.abHideMana && (stat.indexOf('\uE003') >= 0 || stat.indexOf('\u270E') >= 0)) return true;
+        if (cfg.abHideOverflowMana && stat.indexOf('\uE017') >= 0) return true;
+        if (cfg.abHideVitality && stat.indexOf('\uE028') >= 0) return true;
+        if (cfg.abHideRiftTime && (stat.indexOf('\uE020') >= 0 || stat.indexOf('\u0444') >= 0)) return true;
+        if (cfg.abHideArmorStacks && ARMOR_STACK.matcher(StringUtil.strip(stat)).find()) return true;
         return false;
     }
 
@@ -70,10 +99,10 @@ public class ActionBarFilter {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         mc.player.sendSystemMessage(Component.literal("§b[AB] §r" + raw));
-        String[] parts = SEP.split(raw);
-        for (int i = 0; i < parts.length; i++) {
+        String[] segments = SEP.split(raw);
+        for (int i = 0; i < segments.length; i++) {
             mc.player.sendSystemMessage(Component.literal(
-                    "§8 [" + i + "] §7" + escape(parts[i].trim())));
+                    "§8 [" + i + "] §7" + escape(segments[i].trim())));
         }
     }
 

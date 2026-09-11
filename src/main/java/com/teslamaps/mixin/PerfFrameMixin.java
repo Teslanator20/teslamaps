@@ -15,5 +15,7 @@ public class PerfFrameMixin {
     @Inject(method = "renderFrame", at = @At("TAIL"))
     private void teslamaps$perfFrame(boolean tick, CallbackInfo ci) {
         if (Perf.enabled) Perf.frame(Minecraft.getInstance().getFrameTimeNs());
+        // frame boundary for the animated dyes too, so one dye interpolates once per frame
+        com.teslamaps.features.customize.Customize.frame();
     }
 }

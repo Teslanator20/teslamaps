@@ -439,6 +439,35 @@ public class SkyblockItems {
         return BuiltInRegistries.ITEM.getOptional(identifier).orElse(Items.NETHER_STAR);
     }
 
+    /** A skyblock item that is a player head, with the base64 skin the API hands out. */
+    public record HeadTexture(String name, String texture, String id) {}
+
+    /** Every player-head item in the table, sorted by id. Empty until {@link #load()} finished. */
+    public static java.util.List<HeadTexture> headTextures() {
+        load();
+        java.util.List<HeadTexture> out = new java.util.ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (Map.Entry<String, ItemData> entry : items.entrySet()) {
+            String skin = entry.getValue().skin();
+            if (skin == null || skin.isEmpty() || !seen.add(skin)) continue;
+            out.add(new HeadTexture(name(entry.getKey()), skin, entry.getKey()));
+        }
+        out.sort(java.util.Comparator.comparing(HeadTexture::id));
+        return out;
+    }
+
+    /** Cached profile for a base64 skin, for the custom helmet textures. */
+    public static ResolvableProfile profileFor(String textureValue) {
+        return profileCache.computeIfAbsent(textureValue, value -> {
+            Multimap<String, Property> properties = LinkedHashMultimap.create();
+            properties.put("textures", new Property("textures", value));
+            return ResolvableProfile.createResolved(
+                    new GameProfile(uuidFor(value), "custom", new PropertyMap(properties)));
+        });
+    }
+
+    private static final Map<String, ResolvableProfile> profileCache = new ConcurrentHashMap<>();
+
     /** Player head with a hardcoded texture. The value is the base64 the API hands out. */
     private static ItemStack skull(String textureValue) {
         try {

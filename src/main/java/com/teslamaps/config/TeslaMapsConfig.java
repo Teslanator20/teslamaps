@@ -12,7 +12,49 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TeslaMapsConfig {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(net.minecraft.resources.Identifier.class, new IdentifierAdapter())
+            .registerTypeHierarchyAdapter(net.minecraft.network.chat.Component.class, new ComponentAdapter())
+            .create();
+
+    /** Identifiers round-trip as their plain string form. */
+    private static class IdentifierAdapter
+            implements com.google.gson.JsonSerializer<net.minecraft.resources.Identifier>,
+                       com.google.gson.JsonDeserializer<net.minecraft.resources.Identifier> {
+        @Override
+        public com.google.gson.JsonElement serialize(net.minecraft.resources.Identifier src,
+                java.lang.reflect.Type type, com.google.gson.JsonSerializationContext ctx) {
+            return new com.google.gson.JsonPrimitive(src.toString());
+        }
+
+        @Override
+        public net.minecraft.resources.Identifier deserialize(com.google.gson.JsonElement json,
+                java.lang.reflect.Type type, com.google.gson.JsonDeserializationContext ctx) {
+            return net.minecraft.resources.Identifier.tryParse(json.getAsString());
+        }
+    }
+
+    /** Text components go through the vanilla codec so styling survives a restart. */
+    private static class ComponentAdapter
+            implements com.google.gson.JsonSerializer<net.minecraft.network.chat.Component>,
+                       com.google.gson.JsonDeserializer<net.minecraft.network.chat.Component> {
+        @Override
+        public com.google.gson.JsonElement serialize(net.minecraft.network.chat.Component src,
+                java.lang.reflect.Type type, com.google.gson.JsonSerializationContext ctx) {
+            return net.minecraft.network.chat.ComponentSerialization.CODEC
+                    .encodeStart(com.mojang.serialization.JsonOps.INSTANCE, src)
+                    .result().orElseGet(com.google.gson.JsonObject::new);
+        }
+
+        @Override
+        public net.minecraft.network.chat.Component deserialize(com.google.gson.JsonElement json,
+                java.lang.reflect.Type type, com.google.gson.JsonDeserializationContext ctx) {
+            return net.minecraft.network.chat.ComponentSerialization.CODEC
+                    .parse(com.mojang.serialization.JsonOps.INSTANCE, json)
+                    .result().orElse(null);
+        }
+    }
     private static final Path CONFIG_PATH = FabricLoader.getInstance()
             .getConfigDir().resolve("teslamaps").resolve("config.json");
 
@@ -491,6 +533,27 @@ public class TeslaMapsConfig {
         return sectionEnabled.getOrDefault(name, Boolean.TRUE);
     }
 
+    // --- /tmap customize --- keyed by the Hypixel per-item uuid, so they follow the item, not the slot
+    @Global
+    public java.util.Map<String, com.teslamaps.features.customize.ArmorTrimId> customArmorTrims = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, Integer> customDyeColors = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, com.teslamaps.features.customize.AnimatedDye> customAnimatedDyes = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, String> customHelmetTextures = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, String> customAnimatedHelmetTextures = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, net.minecraft.network.chat.Component> customItemNames = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, Boolean> customGlint = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, net.minecraft.resources.Identifier> customItemModel = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, net.minecraft.resources.Identifier> customArmorModel = new java.util.HashMap<>();
+    public boolean showCustomizeButton = true;   // Small button in the inventory that opens /tmap customize
+
     public String keybindChatMessage = "";
 
     public static class Shortcut {
@@ -532,6 +595,9 @@ public class TeslaMapsConfig {
     public boolean abHideMana = false;       // Action bar: mana segment
     public boolean abHideAbilityMana = false;// Action bar: "-100 Mana (Ability)"
     public boolean abHideVitality = false;   // Action bar: vitality segment
+    public boolean abHideOverflowMana = false;// Action bar: overflow mana
+    public boolean abHideArmorStacks = false;// Action bar: armor stacks (10 Ѫ)
+    public boolean abHideLocation = false;   // Action bar: ⏣ area name
     public boolean abHideRiftTime = false;   // Action bar: rift time segment
     public boolean abHideDrillFuel = false;  // Action bar: drill fuel segment
     public boolean abHideSecrets = false;    // Action bar: dungeon secrets segment
@@ -1423,6 +1489,19 @@ public class TeslaMapsConfig {
         // indexed straight through, so a short array out of an older config would throw
         c.wardrobeKeys = fitKeys(c.wardrobeKeys, 9);
         c.loadoutKeys = fitKeys(c.loadoutKeys, 12);
+        if (c.customArmorTrims == null) c.customArmorTrims = new java.util.HashMap<>();
+        if (c.customDyeColors == null) c.customDyeColors = new java.util.HashMap<>();
+        if (c.customAnimatedDyes == null) c.customAnimatedDyes = new java.util.HashMap<>();
+        if (c.customHelmetTextures == null) c.customHelmetTextures = new java.util.HashMap<>();
+        if (c.customAnimatedHelmetTextures == null) c.customAnimatedHelmetTextures = new java.util.HashMap<>();
+        if (c.customItemNames == null) c.customItemNames = new java.util.HashMap<>();
+        if (c.customGlint == null) c.customGlint = new java.util.HashMap<>();
+        if (c.customItemModel == null) c.customItemModel = new java.util.HashMap<>();
+        if (c.customArmorModel == null) c.customArmorModel = new java.util.HashMap<>();
+        // a component or identifier that failed to decode lands as null and would NPE on use
+        c.customItemNames.values().removeIf(java.util.Objects::isNull);
+        c.customItemModel.values().removeIf(java.util.Objects::isNull);
+        c.customArmorModel.values().removeIf(java.util.Objects::isNull);
         if (c.activeProfile == null || c.activeProfile.isBlank()) c.activeProfile = ConfigProfiles.DEFAULT;
         if (c.itemValuePriceSource == null || c.itemValuePriceSource.isBlank()) c.itemValuePriceSource = "BZ Instant Sell";
         if (!c.deployableTypesRepaired) {

@@ -623,7 +623,10 @@ public class MapConfigScreen extends Screen {
         hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Defense", () -> config.abHideDefense, v -> config.abHideDefense = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Mana", () -> config.abHideMana, v -> config.abHideMana = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Ability Mana Cost", () -> config.abHideAbilityMana, v -> config.abHideAbilityMana = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Overflow Mana", () -> config.abHideOverflowMana, v -> config.abHideOverflowMana = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Vitality", () -> config.abHideVitality, v -> config.abHideVitality = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Armor Stacks", () -> config.abHideArmorStacks, v -> config.abHideArmorStacks = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Location", () -> config.abHideLocation, v -> config.abHideLocation = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Rift Time", () -> config.abHideRiftTime, v -> config.abHideRiftTime = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Drill Fuel", () -> config.abHideDrillFuel, v -> config.abHideDrillFuel = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Secrets", () -> config.abHideSecrets, v -> config.abHideSecrets = v));
@@ -1425,6 +1428,11 @@ public class MapConfigScreen extends Screen {
                 com.teslamaps.features.SlotBinds.LINE_MODES, () -> config.slotBindsLineDisplay, v -> config.slotBindsLineDisplay = v));
         inventory.add(new DropdownEntry(contentX, contentWidth, "  Profile",
                 com.teslamaps.features.SlotBinds.PROFILES, () -> config.slotBindsProfile, v -> config.slotBindsProfile = v));
+        inventory.add(new LabelEntry(contentX, "Customization"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Button In Inventory", () -> config.showCustomizeButton, v -> config.showCustomizeButton = v));
+        inventory.add(new ButtonEntry(contentX, contentWidth, "Open Customize Screen",
+                () -> minecraft.setScreen(new com.teslamaps.screen.customize.CustomizeScreen(this, false))));
+        inventory.add(new InfoEntry(contentX, "Rename, dye, trim and reskin items - client side only (/tmap customize)"));
         inventory.add(new LabelEntry(contentX, "Rarity Backgrounds"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Enable Rarity Backgrounds", () -> config.rarityBackgrounds, v -> config.rarityBackgrounds = v));
         inventory.add(new SliderEntry(contentX, contentWidth, "  Opacity", 0f, 1f,

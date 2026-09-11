@@ -91,6 +91,10 @@ public class TMapCommand {
                     });
                     return 1;
                 })
+                .then(ClientCommands.literal("customize")
+                        .executes(context -> openCustomize(context.getSource(), false))
+                        .then(ClientCommands.literal("item")
+                                .executes(context -> openCustomize(context.getSource(), true))))
                 .then(ClientCommands.literal("image")
                         .then(ClientCommands.literal("block")
                                 .then(ClientCommands.argument("name", StringArgumentType.word())
@@ -1612,4 +1616,14 @@ public class TMapCommand {
         return 1;
     }
 
+    private static int openCustomize(FabricClientCommandSource source, boolean itemTab) {
+        Minecraft mc = Minecraft.getInstance();
+        // the armor tab builds a fake player, which needs a level
+        if (mc.player == null || mc.level == null) {
+            source.sendFeedback(Component.literal("§c[TeslaMaps] Join a world first"));
+            return 0;
+        }
+        mc.schedule(() -> mc.setScreen(new com.teslamaps.screen.customize.CustomizeScreen(null, itemTab)));
+        return 1;
+    }
 }
