@@ -96,6 +96,7 @@ public class ProfileViewerScreen extends Screen {
                     error = profiles.getError();
                 } else {
                     SkyblockProfiles.addToRecentPlayers(targetPlayer);
+                    profiles.loadStatus();
 
                     for (ProfileViewerPage page : pages) {
                         page.init(this, profiles);

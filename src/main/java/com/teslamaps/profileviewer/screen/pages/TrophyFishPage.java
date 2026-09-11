@@ -75,20 +75,28 @@ public class TrophyFishPage extends ProfileViewerPage {
         ctx.text(tr, "Total Caught: " + formatNumber(totalCatches), contentX, lineY, TEXT_WHITE);
         lineY += 20;
 
-        ctx.text(tr, "Fish", contentX, lineY, TEXT_GRAY);
-        ctx.text(tr, "Bronze", contentX + 140, lineY, BRONZE);
-        ctx.text(tr, "Silver", contentX + 190, lineY, SILVER);
-        ctx.text(tr, "Gold", contentX + 240, lineY, GOLD);
-        ctx.text(tr, "Diamond", contentX + 280, lineY, DIAMOND);
-        lineY += 14;
+        int columnWidth = 196;
+        for (int c = 0; c < 2; c++) {
+            int cx = contentX + c * columnWidth;
+            ctx.text(tr, "Fish", cx, lineY, TEXT_GRAY);
+            ctx.text(tr, "B", cx + 118, lineY, BRONZE);
+            ctx.text(tr, "S", cx + 138, lineY, SILVER);
+            ctx.text(tr, "G", cx + 158, lineY, GOLD);
+            ctx.text(tr, "D", cx + 178, lineY, DIAMOND);
+        }
+        lineY += 12;
 
         int listStartY = lineY;
         int listHeight = height - (lineY - y) - padding;
 
         ctx.enableScissor(x, listStartY, x + width, listStartY + listHeight);
+        int perColumn = (TROPHY_FISH.length + 1) / 2;
         for (int i = 0; i < TROPHY_FISH.length; i++) {
-            int fishY = listStartY + i * 14 - scrollOffset;
-            if (fishY < listStartY - 14 || fishY > listStartY + listHeight) continue;
+            int column = i / perColumn;
+            int row = i % perColumn;
+            int cx = contentX + column * columnWidth;
+            int fishY = listStartY + row * 11;
+            if (fishY > listStartY + listHeight) continue;
 
             String fishKey = TROPHY_FISH[i];
             String displayName = TROPHY_DISPLAY[i];
@@ -101,11 +109,11 @@ public class TrophyFishPage extends ProfileViewerPage {
             int total = bronze + silver + gold + diamond;
             int nameColor = total > 0 ? TEXT_WHITE : TEXT_GRAY;
 
-            ctx.text(tr, displayName, contentX, fishY, nameColor);
-            ctx.text(tr, String.valueOf(bronze), contentX + 140, fishY, bronze > 0 ? BRONZE : TEXT_GRAY);
-            ctx.text(tr, String.valueOf(silver), contentX + 190, fishY, silver > 0 ? SILVER : TEXT_GRAY);
-            ctx.text(tr, String.valueOf(gold), contentX + 240, fishY, gold > 0 ? GOLD : TEXT_GRAY);
-            ctx.text(tr, String.valueOf(diamond), contentX + 280, fishY, diamond > 0 ? DIAMOND : TEXT_GRAY);
+            ctx.text(tr, displayName, cx, fishY, nameColor);
+            ctx.text(tr, String.valueOf(bronze), cx + 118, fishY, bronze > 0 ? BRONZE : TEXT_GRAY);
+            ctx.text(tr, String.valueOf(silver), cx + 138, fishY, silver > 0 ? SILVER : TEXT_GRAY);
+            ctx.text(tr, String.valueOf(gold), cx + 158, fishY, gold > 0 ? GOLD : TEXT_GRAY);
+            ctx.text(tr, String.valueOf(diamond), cx + 178, fishY, diamond > 0 ? DIAMOND : TEXT_GRAY);
         }
         ctx.disableScissor();
     }

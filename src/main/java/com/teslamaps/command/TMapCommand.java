@@ -968,6 +968,11 @@ public class TMapCommand {
                                     com.teslamaps.utils.GuiDump.dumpTab();
                                     return 1;
                                 }))
+                        .then(ClientCommands.literal("dumptooltip")
+                                .executes(context -> {
+                                    com.teslamaps.utils.GuiDump.dumpTooltip();
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("dumpgui")
                                 .executes(context -> {
                                     com.teslamaps.utils.GuiDump.dump(null);

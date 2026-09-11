@@ -58,7 +58,7 @@ public class SkyblockProfiles {
                 JsonObject rawData = profileData.has("raw") ?
                         profileData.getAsJsonObject("raw") : memberData;
 
-                SkyblockProfile profile = new SkyblockProfile(profileId, cuteName, profileData, memberData, uuid);
+                SkyblockProfile profile = new SkyblockProfile(profileId, cuteName, rawData, memberData, uuid);
                 profile.setSkyCryptData(profileData);  // Store full profile data
                 profiles.put(cuteName, profile);
 
@@ -97,8 +97,28 @@ public class SkyblockProfiles {
     }
 
     public String getOnlineStatus() {
-        return "Status unavailable";
+        return status;
     }
+
+    public void loadStatus() {
+        com.teslamaps.api.PvApi.get("/status/" + com.teslamaps.api.PvApi.dashed(uuid), "status")
+                .thenAccept(response -> {
+                    if (response == null) return;
+                    boolean online = response.has("online") && response.get("online").getAsBoolean();
+                    String location = response.has("mode") && !response.get("mode").isJsonNull()
+                            ? response.get("mode").getAsString() : null;
+                    status = online
+                            ? (location != null ? "Online - " + prettyMode(location) : "Online")
+                            : "Offline";
+                });
+    }
+
+    private static String prettyMode(String mode) {
+        String out = mode.replace('_', ' ').toLowerCase();
+        return out.isEmpty() ? out : Character.toUpperCase(out.charAt(0)) + out.substring(1);
+    }
+
+    private String status = "Status unknown";
 
     public String getGuildName() {
         return null;

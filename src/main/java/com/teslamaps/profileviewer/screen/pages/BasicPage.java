@@ -76,8 +76,17 @@ public class BasicPage extends ProfileViewerPage {
         String name = profiles != null ? profiles.getDisplayName() : "";
         drawCentered(ctx, tr, name, left + 63, top + 8, NeuStyle.TEXT);
 
-        ctx.text(tr, "Purse: " + formatCoins(profile.getCoinPurse()), left + 8, top + 28, NeuStyle.TEXT_GOLD);
-        ctx.text(tr, "Bank: " + formatCoins(profile.getBankBalance()), left + 8, top + 38, NeuStyle.TEXT_GOLD);
+        ctx.text(tr, "Purse: " + formatCoins(profile.getCoinPurse()), left + 8, top + 26, NeuStyle.TEXT_GOLD);
+        ctx.text(tr, "Bank: " + formatCoins(profile.getBankBalance()), left + 8, top + 36, NeuStyle.TEXT_GOLD);
+        if (mouseX >= left + 8 && mouseX <= left + 110 && mouseY >= top + 34 && mouseY <= top + 45) {
+            tooltip = new String[]{
+                    "Bank",
+                    "Coop: " + formatCoins(profile.getCoopBank()),
+                    "Personal: " + formatCoins(profile.getPersonalBank()),
+            };
+            tooltipX = mouseX;
+            tooltipY = mouseY;
+        }
 
         // the rotating player, dragging inside the box spins it
         playerBoxX = left + 23;
@@ -89,7 +98,7 @@ public class BasicPage extends ProfileViewerPage {
             if (skin != null) {
                 boolean thin = skin.model() == net.minecraft.world.entity.player.PlayerModelType.SLIM;
                 SkinRender.draw(ctx, skin.body().texturePath(), thin, skinYaw, skinPitch,
-                        left + 26, top + 47, left + 101, top + 149);
+                        left + 27, top + 48, left + 100, top + 148);
             }
         }
 

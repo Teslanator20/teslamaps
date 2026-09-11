@@ -185,15 +185,29 @@ public class SkyblockProfile {
         return 0;
     }
 
+    /** The coop bank lives on the profile, the personal one on the member. */
     public double getBankBalance() {
+        return getCoopBank() + getPersonalBank();
+    }
+
+    public double getCoopBank() {
         try {
-            if (fullProfileJson.has("banking")) {
+            if (fullProfileJson != null && fullProfileJson.has("banking")) {
                 JsonObject banking = fullProfileJson.getAsJsonObject("banking");
-                if (banking.has("balance")) {
-                    return banking.get("balance").getAsDouble();
-                }
+                if (banking.has("balance")) return banking.get("balance").getAsDouble();
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
+        }
+        return 0;
+    }
+
+    public double getPersonalBank() {
+        try {
+            if (memberData.has("profile")) {
+                JsonObject profile = memberData.getAsJsonObject("profile");
+                if (profile.has("bank_account")) return profile.get("bank_account").getAsDouble();
+            }
+        } catch (Exception ignored) {
         }
         return 0;
     }

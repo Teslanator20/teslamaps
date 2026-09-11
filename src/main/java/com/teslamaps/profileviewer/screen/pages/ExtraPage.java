@@ -1,6 +1,8 @@
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.List;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import net.minecraft.client.Minecraft;
@@ -126,8 +128,11 @@ public class ExtraPage extends ProfileViewerPage {
 
             if (playerStats.has("auctions")) {
                 JsonObject auctions = playerStats.getAsJsonObject("auctions");
-                int sold = auctions.has("sold") ? auctions.get("sold").getAsInt() : 0;
-                long goldEarned = auctions.has("gold_earned") ? auctions.get("gold_earned").getAsLong() : 0;
+                // "sold" does not exist, the count sits in total_sold.total
+                int sold = auctions.has("total_sold")
+                        ? asInt(auctions.getAsJsonObject("total_sold").get("total"))
+                        : asInt(auctions.get("completed"));
+                long goldEarned = asLong(auctions.get("gold_earned"));
                 ctx.text(tr, "Auctions Sold: " + formatNumber(sold), col2X, lineY, TEXT_WHITE);
                 lineY += 12;
                 ctx.text(tr, "Gold Earned: " + formatCoins(goldEarned), col2X, lineY, TEXT_GOLD);
@@ -146,15 +151,70 @@ public class ExtraPage extends ProfileViewerPage {
             int[] slayerColors = {0xFF00AA00, 0xFF333333, 0xFF888888, 0xFFAA00AA, 0xFFFF5500, 0xFFFF0000};
 
             for (int i = 0; i < slayerTypes.length; i++) {
-                if (slayerBosses.has(slayerTypes[i])) {
-                    JsonObject slayer = slayerBosses.getAsJsonObject(slayerTypes[i]);
-                    int xp = slayer.has("xp") ? slayer.get("xp").getAsInt() : 0;
-                    if (xp > 0) {
-                        ctx.text(tr, slayerNames[i] + ": " + formatNumber(xp) + " XP", col2X, lineY, slayerColors[i]);
-                        lineY += 12;
+                if (!slayerBosses.has(slayerTypes[i])) continue;
+                JsonObject slayer = slayerBosses.getAsJsonObject(slayerTypes[i]);
+                int xp = asInt(slayer.get("xp"));
+                if (xp <= 0) continue;
+
+                String line = slayerNames[i] + " " + slayerLevel(slayer) + ": " + formatNumber(xp) + " XP";
+                ctx.text(tr, line, col2X, lineY, slayerColors[i]);
+
+                if (mouseX >= col2X && mouseX <= col2X + tr.width(line) && mouseY >= lineY - 2 && mouseY <= lineY + 9) {
+                    List<String> lines = new ArrayList<>();
+                    lines.add(slayerNames[i] + " Slayer");
+                    int total = 0;
+                    for (int tier = 0; tier < 5; tier++) {
+                        int kills = asInt(slayer.get("boss_kills_tier_" + tier));
+                        int attempts = asInt(slayer.get("boss_attempts_tier_" + tier));
+                        if (kills == 0 && attempts == 0) continue;
+                        total += kills;
+                        lines.add("Tier " + (tier + 1) + ": " + formatNumber(kills) + " kills"
+                                + (attempts > kills ? " (" + formatNumber(attempts) + " started)" : ""));
                     }
+                    lines.add("Total: " + formatNumber(total) + " kills");
+                    tooltip = lines.toArray(new String[0]);
+                    tooltipX = mouseX;
+                    tooltipY = mouseY;
                 }
+                lineY += 12;
             }
+        }
+
+        if (tooltip != null) {
+            drawTooltip(ctx, tr);
+            tooltip = null;
+        }
+    }
+
+    /** Level is the highest claimed level entry. */
+    private static int slayerLevel(JsonObject slayer) {
+        if (!slayer.has("claimed_levels")) return 0;
+        int level = 0;
+        for (String key : slayer.getAsJsonObject("claimed_levels").keySet()) {
+            String number = key.replace("level_", "").replace("_special", "");
+            try {
+                level = Math.max(level, Integer.parseInt(number));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return level;
+    }
+
+    private String[] tooltip;
+    private int tooltipX;
+    private int tooltipY;
+
+    private void drawTooltip(GuiGraphicsExtractor ctx, Font tr) {
+        int w = 0;
+        for (String line : tooltip) w = Math.max(w, tr.width(line));
+        int h = tooltip.length * 10 + 4;
+        int tx = Math.min(tooltipX + 8, com.teslamaps.profileviewer.screen.NeuStyle.PANEL_WIDTH - w - 8);
+        int ty = Math.max(2, tooltipY - h);
+        com.teslamaps.profileviewer.screen.NeuStyle.window(ctx, tx - 3, ty - 2, w + 8, h);
+        for (int i = 0; i < tooltip.length; i++) {
+            ctx.text(tr, tooltip[i], tx, ty + 2 + i * 10,
+                    i == 0 ? com.teslamaps.profileviewer.screen.NeuStyle.TEXT_YELLOW
+                            : com.teslamaps.profileviewer.screen.NeuStyle.TEXT_GRAY);
         }
     }
 

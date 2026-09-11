@@ -59,10 +59,14 @@ public class DungeonPage extends ProfileViewerPage {
         int normalX = titleX - totalWidth / 2;
         int masterX = normalX + tr.width(normal) + gap;
 
-        ctx.text(tr, normal, normalX, top + 5, masterMode ? NeuStyle.TEXT_DARK : NeuStyle.TEXT_RED);
-        ctx.text(tr, master, masterX, top + 5, masterMode ? NeuStyle.TEXT_RED : NeuStyle.TEXT_DARK);
-        NeuStyle.slimBox(ctx, (masterMode ? masterX : normalX) - 3, top + 14,
-                tr.width(masterMode ? master : normal) + 6, 2);
+        // real buttons, the plain text version was too easy to miss
+        NeuStyle.window(ctx, normalX - 5, top + 2, tr.width(normal) + 10, 14);
+        NeuStyle.window(ctx, masterX - 5, top + 2, tr.width(master) + 10, 14);
+        if (!masterMode) NeuStyle.slimBox(ctx, normalX - 5, top + 2, tr.width(normal) + 10, 14);
+        else NeuStyle.slimBox(ctx, masterX - 5, top + 2, tr.width(master) + 10, 14);
+
+        ctx.text(tr, normal, normalX, top + 5, masterMode ? NeuStyle.TEXT_GRAY : NeuStyle.TEXT_RED);
+        ctx.text(tr, master, masterX, top + 5, masterMode ? NeuStyle.TEXT_RED : NeuStyle.TEXT_GRAY);
 
         lastNormalX = normalX;
         lastNormalW = tr.width(normal);
@@ -163,7 +167,7 @@ public class DungeonPage extends ProfileViewerPage {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (mouseY > lastTop + 3 && mouseY < lastTop + 16) {
+        if (mouseY > lastTop + 1 && mouseY < lastTop + 17) {
             if (mouseX >= lastNormalX - 3 && mouseX <= lastNormalX + lastNormalW + 3) {
                 masterMode = false;
                 return true;

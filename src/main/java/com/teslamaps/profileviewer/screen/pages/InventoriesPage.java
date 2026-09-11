@@ -103,8 +103,9 @@ public class InventoriesPage extends ProfileViewerPage {
 
         switch (section) {
             case INVENTORY -> {
-                slots = InventoryDecoder.decode(inventory, "inv_contents");
-                slots = reorderPlayerInventory(slots);
+                slots = reorderPlayerInventory(InventoryDecoder.decode(inventory, "inv_contents"));
+                sideArmor = InventoryDecoder.decode(inventory, "inv_armor");
+                sideEquipment = InventoryDecoder.decode(inventory, "equipment_contents");
             }
             case ENDER_CHEST -> {
                 List<InventoryDecoder.Slot> all = InventoryDecoder.decode(inventory, "ender_chest_contents");
@@ -175,6 +176,16 @@ public class InventoriesPage extends ProfileViewerPage {
         int columns = section == Section.EQUIPMENT ? 4 : 9;
         List<String> tooltip = ItemGrid.draw(ctx, slots, gridX, gridY, columns, 0,
                 Math.min(slots.size(), columns * 9), mouseX, mouseY);
+
+        if (section == Section.INVENTORY) {
+            int sideX = gridX + 9 * ItemGrid.SLOT + 8;
+            ctx.text(tr, "Armor", sideX, gridY - 10, NeuStyle.TEXT_GRAY);
+            List<String> armorTip = ItemGrid.draw(ctx, reverse(sideArmor), sideX, gridY, 1, 0, 4, mouseX, mouseY);
+            ctx.text(tr, "Equip", sideX + ItemGrid.SLOT + 6, gridY - 10, NeuStyle.TEXT_GRAY);
+            List<String> equipTip = ItemGrid.draw(ctx, sideEquipment, sideX + ItemGrid.SLOT + 6, gridY, 1, 0, 4,
+                    mouseX, mouseY);
+            if (tooltip == null) tooltip = armorTip != null ? armorTip : equipTip;
+        }
 
         if (pageCount > 1) {
             String pager = "< " + (page + 1) + " / " + pageCount + " >";
@@ -255,6 +266,16 @@ public class InventoriesPage extends ProfileViewerPage {
             out.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
         }
         return out.toString();
+    }
+
+    private List<InventoryDecoder.Slot> sideArmor = List.of();
+    private List<InventoryDecoder.Slot> sideEquipment = List.of();
+
+    /** Hypixel stores armor boots first; the menu shows the helmet on top. */
+    private static List<InventoryDecoder.Slot> reverse(List<InventoryDecoder.Slot> slots) {
+        List<InventoryDecoder.Slot> out = new ArrayList<>(slots);
+        java.util.Collections.reverse(out);
+        return out;
     }
 
     private int pagerX;

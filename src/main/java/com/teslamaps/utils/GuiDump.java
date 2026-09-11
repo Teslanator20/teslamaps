@@ -37,7 +37,11 @@ public class GuiDump {
 
         boolean down = org.lwjgl.glfw.GLFW.glfwGetKey(mc.getWindow().handle(), key)
                 == org.lwjgl.glfw.GLFW.GLFW_PRESS;
-        if (down && !keyWasDown) dump(null);
+        if (down && !keyWasDown) {
+            boolean shift = org.lwjgl.glfw.GLFW.glfwGetKey(mc.getWindow().handle(),
+                    org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+            if (shift) dumpTooltip(); else dump(null);
+        }
         keyWasDown = down;
     }
 
@@ -63,6 +67,69 @@ public class GuiDump {
             Files.write(path, lines);
             mc.player.sendSystemMessage(Component.literal(
                     "§b[TeslaMaps] §fWrote §e" + lines.size() + "§f lines to §7config/teslamaps/tab_dump.txt"));
+        } catch (Exception e) {
+            mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §cDump failed: " + e));
+        }
+    }
+
+    /** Raw lore vs the tooltip we actually render, so a dropped line is visible. */
+    public static void dumpTooltip() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
+
+        ItemStack stack = ItemStack.EMPTY;
+        if (mc.screen instanceof AbstractContainerScreen<?> screen) {
+            Slot slot = ((com.teslamaps.mixin.HandledScreenAccessor) screen).getFocusedSlot();
+            if (slot != null) stack = slot.getItem();
+        }
+        if (stack.isEmpty()) stack = mc.player.getMainHandItem();
+        if (stack.isEmpty()) {
+            mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fHover an item or hold one"));
+            return;
+        }
+
+        List<String> raw = new ArrayList<>();
+        var lore = stack.get(DataComponents.LORE);
+        if (lore != null) for (Component line : lore.lines()) raw.add(line.getString());
+
+        List<String> shown = new ArrayList<>();
+        for (Component line : stack.getTooltipLines(
+                net.minecraft.world.item.Item.TooltipContext.of(mc.level), mc.player,
+                net.minecraft.world.item.TooltipFlag.NORMAL)) {
+            shown.add(line.getString());
+        }
+
+        List<String> out = new ArrayList<>();
+        out.add("item:   " + strip(stack.getHoverName().getString()));
+        out.add("id:     " + stack.getItem());
+        out.add("lore:   " + raw.size() + " lines");
+        out.add("shown:  " + shown.size() + " lines");
+        out.add("");
+        out.add("=== raw lore (server) ===");
+        for (String line : raw) out.add("  " + line.replace('§', '&'));
+        out.add("");
+        out.add("=== rendered tooltip (after our hooks) ===");
+        for (String line : shown) out.add("  " + line.replace('§', '&'));
+        out.add("");
+        out.add("=== lore lines missing from the tooltip ===");
+        List<String> shownStripped = new ArrayList<>();
+        for (String line : shown) shownStripped.add(strip(line).trim());
+        int missing = 0;
+        for (String line : raw) {
+            String plain = strip(line).trim();
+            if (plain.isEmpty() || shownStripped.contains(plain)) continue;
+            out.add("  " + plain);
+            missing++;
+        }
+        if (missing == 0) out.add("  none");
+
+        Path path = PATH.getParent().resolve("tooltip_dump.txt");
+        try {
+            Files.createDirectories(path.getParent());
+            Files.write(path, out);
+            mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fLore §e" + raw.size()
+                    + "§f, tooltip §e" + shown.size() + "§f, missing §e" + missing
+                    + "§f -> §7config/teslamaps/tooltip_dump.txt"));
         } catch (Exception e) {
             mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §cDump failed: " + e));
         }
