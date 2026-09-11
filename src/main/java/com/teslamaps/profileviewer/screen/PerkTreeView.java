@@ -23,7 +23,7 @@ import java.util.Map;
  * every node the vanilla item hypixel uses for that node type and unlock state.
  */
 public class PerkTreeView {
-    private static final int ICON = 18;
+    private static final int ICON = 16;
     private static final int CELL = ICON + 2;
 
     public record Icons(String tierLocked, String tierUnlocked, String tierUnlocking,

@@ -1046,7 +1046,7 @@ public class TeslaMapsConfig {
     public boolean safariOnlyMissing = false;       // only box critters nobody caught yet this run
     public boolean safariHideyhoTracer = true;      // tracer to Hideyho even with the general ones off
     public boolean safariNestESP = false;            // box the bee nests that spawn Honeybugs
-    public boolean safariRecatchSpot = true;        // mark where an escaped critter comes back
+    public boolean safariRecatchSpot = false;       // mark where an escaped critter comes back
     public boolean safariWallMarkers = false;       // mark the intact Snoozle / Troodon walls
     public boolean safariSparklingAlert = true;     // alert on the WAX_ON particles of a sparkling critter
     public boolean safariSparklingParty = false;    // also post the sparkling coords to party chat
