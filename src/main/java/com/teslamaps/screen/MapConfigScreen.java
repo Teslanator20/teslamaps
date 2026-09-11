@@ -1664,6 +1664,32 @@ public class MapConfigScreen extends Screen {
         foraging.add(new InfoEntry(contentX, "Position and scale in /tmap gui"));
         categories.put("Foraging", foraging);
 
+        List<SettingsEntry> contests = new ArrayList<>();
+        contests.add(new InfoEntry(contentX, "Foraging: :15 / :35 / :55, Farming: hourly at :15"));
+        contests.add(new ToggleEntry(contentX, contentWidth, "Contest Timer HUD",
+                () -> config.contestTimer, v -> config.contestTimer = v));
+        contests.add(new ToggleEntry(contentX, contentWidth, "  Show Foraging",
+                () -> config.contestShowForaging, v -> config.contestShowForaging = v));
+        contests.add(new ToggleEntry(contentX, contentWidth, "  Show Farming",
+                () -> config.contestShowFarming, v -> config.contestShowFarming = v));
+        contests.add(new ToggleEntry(contentX, contentWidth, "  SkyBlock Only",
+                () -> config.contestTimerSkyblockOnly, v -> config.contestTimerSkyblockOnly = v));
+        contests.add(new InfoEntry(contentX, "Position and scale in /tmap gui"));
+        contests.add(new LabelEntry(contentX, "Alerts"));
+        contests.add(new ToggleEntry(contentX, contentWidth, "Start Alerts",
+                () -> config.contestAlerts, v -> config.contestAlerts = v));
+        contests.add(new SliderEntry(contentX, contentWidth, "  Warn Seconds Before", 0f, 300f,
+                () -> (float) config.contestWarnBefore, v -> config.contestWarnBefore = Math.round(v), 0));
+        contests.add(new ToggleEntry(contentX, contentWidth, "  Show Title",
+                () -> config.contestAlertTitle, v -> config.contestAlertTitle = v));
+        contests.add(new SoundDropdownEntry(contentX, contentWidth, "  Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.contestAlertSound, v -> config.contestAlertSound = v));
+        contests.add(new SliderEntry(contentX, contentWidth, "  Volume", 0f, 4f,
+                () -> config.contestAlertVolume, v -> config.contestAlertVolume = v, 2));
+        contests.add(new InfoEntry(contentX, "Alerts fire once before and once when a contest starts"));
+        categories.put("Contest Timers", contests);
+
         List<SettingsEntry> torrhus = new ArrayList<>();
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Critter ESP", () -> config.critterESP, v -> config.critterESP = v));
         torrhus.add(new InfoEntry(contentX, "Only active in Area: " + com.teslamaps.features.CritterESP.AREA));
@@ -1817,7 +1843,7 @@ public class MapConfigScreen extends Screen {
         sections.put("Items", List.of("Inventory", "Tooltips & Value", "Croesus", "Screenshots"));
         sections.put("Chat & Audio", List.of("Chat", "Sounds"));
         sections.put("Party & Automation", List.of("Party", "Auto"));
-        sections.put("Skills", List.of("General", "Combat", "Garden", "Mining", "Fishing", "Foraging", "Torrhus Canyon", "Critter Safari"));
+        sections.put("Skills", List.of("General", "Combat", "Garden", "Mining", "Fishing", "Foraging", "Contest Timers", "Torrhus Canyon", "Critter Safari"));
 
         categoryHeaders.clear();
         for (String cat : categories.keySet()) categoryHeaders.put(cat, new LabelEntry(contentX, cat));
