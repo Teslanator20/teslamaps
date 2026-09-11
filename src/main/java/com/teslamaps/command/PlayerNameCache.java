@@ -161,7 +161,14 @@ public class PlayerNameCache {
 
     public static String status() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        List<String> all = names();
+        StringBuilder sample = new StringBuilder();
+        for (int i = 0; i < Math.min(5, all.size()); i++) {
+            if (i > 0) sample.append(", ");
+            sample.append(all.get(i));
+        }
         return c.guildNames.size() + " guild, " + c.friendNames.size() + " friends, "
-                + c.recentPlayers.size() + " recent";
+                + c.recentPlayers.size() + " recent, " + all.size() + " suggested"
+                + (sample.isEmpty() ? "" : " §7(" + sample + ", ...)§f");
     }
 }

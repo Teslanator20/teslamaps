@@ -1799,6 +1799,17 @@ public class MapConfigScreen extends Screen {
                 () -> com.teslamaps.features.GreenhousePlanner.phaseName(config.greenhousePhase),
                 v -> config.greenhousePhase = "Floor".equals(v) ? 1 : "Plants".equals(v) ? 2 : 0));
         garden.add(new InfoEntry(contentX, "Auto shows the floor blocks first, plants once the floor is right"));
+        garden.add(new ToggleEntry(contentX, contentWidth, "  Dim Everything But The Mutation",
+                () -> config.greenhouseDimOthers, v -> config.greenhouseDimOthers = v));
+        garden.add(new InfoEntry(contentX, "Rarest plant of the layout · /tmap greenhouse focus <plant|all>"));
+        garden.add(new ToggleEntry(contentX, contentWidth, "  Growth Stage Colors",
+                () -> config.greenhouseStages, v -> config.greenhouseStages = v));
+        garden.add(new InfoEntry(contentX, "Red young to green ripe, with the stage over the plant"));
+        garden.add(new SliderEntry(contentX, contentWidth, "    Highest Stage (0 = auto)", 0f, 20f,
+                () -> (float) config.greenhouseStageMax, v -> config.greenhouseStageMax = Math.round(v), 0));
+        garden.add(new ToggleEntry(contentX, contentWidth, "    Stage 1 Is Ripe",
+                () -> config.greenhouseStageInverted, v -> config.greenhouseStageInverted = v));
+        garden.add(new InfoEntry(contentX, "/tmap greenhouse stages lists what is actually on the plot"));
         garden.add(new ToggleEntry(contentX, contentWidth, "  Plant Names",
                 () -> config.greenhouseLabels, v -> config.greenhouseLabels = v));
         garden.add(new ToggleEntry(contentX, contentWidth, "  Hide Placed Cells",

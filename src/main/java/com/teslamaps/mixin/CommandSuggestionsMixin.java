@@ -14,12 +14,14 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.input.KeyEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Hypixel declares /gfs, /warp and /msg itself and sends no suggestions for them.
@@ -33,17 +35,38 @@ public abstract class CommandSuggestionsMixin {
 
     @Shadow private EditBox input;
     @Shadow private CompletableFuture<Suggestions> pendingSuggestions;
+    @Shadow private boolean keepSuggestions;
+    @Shadow private CommandSuggestions.SuggestionsList suggestions;
 
     @Shadow public abstract void showSuggestions(boolean narrateFirstSuggestion);
+    @Shadow public abstract void hide();
 
     private static final int LIMIT = 100;
 
     private static final Set<String> SACK_COMMANDS = Set.of("gfs", "getfromsacks");
-    private static final Set<String> NAME_COMMANDS =
-            Set.of("msg", "w", "tell", "boop", "visit", "invite");
+
+    /** Everything typed before the word being completed, once shortcuts are resolved. */
+    private static final Set<String> NAME_COMMANDS = Set.of(
+            "msg", "w", "tell", "whisper", "boop", "visit", "ah", "pv", "viewprofile",
+            "duel", "trade", "party", "p",
+            "party invite", "p invite", "party kick", "p kick", "party promote", "p promote",
+            "party demote", "p demote", "party transfer", "p transfer",
+            "f add", "f remove", "friend add", "friend remove",
+            "g invite", "g kick", "g promote", "g demote",
+            "guild invite", "guild kick", "guild promote", "guild demote",
+            "co-op add", "coop add");
+
+    @Unique private boolean teslamaps$ours;
+    @Unique private boolean teslamaps$cycled;
 
     @Inject(method = "updateCommandInfo", at = @At("TAIL"))
     private void teslamaps$suggestions(CallbackInfo ci) {
+        // applying an entry rewrites the box and would otherwise rebuild the list and
+        // throw the highlight back to the first row
+        if (keepSuggestions) return;
+        teslamaps$ours = false;
+        teslamaps$cycled = false;
+
         String text = input.getValue();
         if (text.isEmpty() || text.charAt(0) != '/') return;
 
@@ -56,19 +79,19 @@ public abstract class CommandSuggestionsMixin {
         String command = text.substring(1, space).toLowerCase(Locale.ROOT);
         String word = text.substring(start, cursor);
 
-        int argument = 0;
-        for (int i = 0; i < start; i++) if (text.charAt(i) == ' ') argument++;
-
         if (SACK_COMMANDS.contains(command)) {
             teslamaps$sacks(word, start, cursor);
             return;
         }
-        if (argument != 1 || !HypixelSuggestions.enabled()) return;
+        if (!HypixelSuggestions.enabled()) return;
+
+        String path = com.teslamaps.command.TMapCommand.expandShortcut(text.substring(1, start).trim())
+                .toLowerCase(Locale.ROOT);
 
         List<String> options;
-        if (command.equals("warp")) {
+        if (path.equals("warp")) {
             options = HypixelSuggestions.warps();
-        } else if (NAME_COMMANDS.contains(command)) {
+        } else if (NAME_COMMANDS.contains(path)) {
             if (!TeslaMapsConfig.get().commandSuggestionsPlayers) return;
             options = HypixelSuggestions.players();
         } else {
@@ -111,5 +134,30 @@ public abstract class CommandSuggestionsMixin {
     private void teslamaps$show(StringRange range, List<Suggestion> out) {
         pendingSuggestions = CompletableFuture.completedFuture(new Suggestions(range, out));
         showSuggestions(false);
+        teslamaps$ours = true;
+        teslamaps$cycled = false;
+    }
+
+    /**
+     * Tab walks the list instead of applying the first entry, Enter takes what is
+     * highlighted. Enter only does that once Tab was actually used, so a command typed
+     * out in full still sends on the first Enter.
+     */
+    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$keys(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
+        if (!teslamaps$ours || suggestions == null) return;
+
+        if (event.isCycleFocus()) {
+            suggestions.cycle(event.hasShiftDown() ? -1 : 1);
+            teslamaps$cycled = true;
+            cir.setReturnValue(true);
+        } else if (teslamaps$cycled && event.isConfirmation()) {
+            suggestions.useSuggestion();
+            hide();
+            input.setSuggestion(null);
+            teslamaps$ours = false;
+            teslamaps$cycled = false;
+            cir.setReturnValue(true);
+        }
     }
 }

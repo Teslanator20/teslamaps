@@ -321,6 +321,48 @@ public class TMapCommand {
                                             + com.teslamaps.features.GreenhousePlanner.autoPlot()));
                                     return 1;
                                 }))
+                        .then(ClientCommands.literal("focus")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fFocus: §e" + com.teslamaps.features.GreenhousePlanner.focusName()
+                                                    + "§7 · /tmap greenhouse focus <plant|all|auto>"));
+                                    return 1;
+                                })
+                                .then(ClientCommands.argument("plant", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                                    + com.teslamaps.features.GreenhousePlanner.setFocus(
+                                                            StringArgumentType.getString(context, "plant"))));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("stages")
+                                .executes(context -> {
+                                    for (String line : com.teslamaps.features.GreenhousePlanner.stageReport()) {
+                                        context.getSource().sendFeedback(Component.literal(line));
+                                    }
+                                    return 1;
+                                })
+                                .then(ClientCommands.literal("invert")
+                                        .executes(context -> {
+                                            TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                                            cfg.greenhouseStageInverted = !cfg.greenhouseStageInverted;
+                                            TeslaMapsConfig.save();
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    "§b[TeslaMaps] §fStage 1 counts as " + (cfg.greenhouseStageInverted
+                                                            ? "§aripe" : "§cyoung")));
+                                            return 1;
+                                        }))
+                                .then(ClientCommands.literal("max")
+                                        .then(ClientCommands.argument("n", IntegerArgumentType.integer(0, 64))
+                                                .executes(context -> {
+                                                    TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                                                    cfg.greenhouseStageMax = IntegerArgumentType.getInteger(context, "n");
+                                                    TeslaMapsConfig.save();
+                                                    context.getSource().sendFeedback(Component.literal(
+                                                            "§b[TeslaMaps] §fStage max: §e" + (cfg.greenhouseStageMax == 0
+                                                                    ? "auto" : cfg.greenhouseStageMax)));
+                                                    return 1;
+                                                }))))
                         .then(ClientCommands.literal("debug")
                                 .executes(context -> {
                                     for (String line : com.teslamaps.features.GreenhousePlanner.debugDump()) {

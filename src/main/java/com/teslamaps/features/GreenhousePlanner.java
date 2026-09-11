@@ -80,6 +80,23 @@ public class GreenhousePlanner {
         PLANT_KEYS.sort((a, b) -> b.length() - a.length());
     }
 
+    // growth stages the wiki lists, so the bar is right before the plot has ever been full
+    private static final Map<String, Integer> MAX_STAGE = Map.of("TIMESTALK", 14);
+
+    // "timestalk2" -> 2. A leftover that is not pure digits is a model part
+    // (chorusFruitStem) or a colour variant (stoplightpetalGreen1), not a stage.
+    private static int stageOf(String rawName, String plant) {
+        if (plant == null || rawName == null) return -1;
+        String n = norm(rawName);
+        if (!n.startsWith(plant)) return -1;
+        String rest = n.substring(plant.length());
+        if (rest.isEmpty() || rest.length() > 3) return -1;
+        for (int i = 0; i < rest.length(); i++) {
+            if (!Character.isDigit(rest.charAt(i))) return -1;
+        }
+        return Integer.parseInt(rest);
+    }
+
     // hover names carry a suffix per model part and growth stage: chorusFruitStem,
     // stoplightpetalGreen1, ... so match on the longest known plant the name starts with
     private static String resolvePlant(String rawName) {
@@ -116,7 +133,7 @@ public class GreenhousePlanner {
 
     // resolved render lists, rebuilt on tick
     public static final int TODO = 0, OK = 1, WRONG = 2, UNKNOWN = 3;
-    private record Ghost(AABB box, int color, String label, int state) {}
+    private record Ghost(AABB box, int color, String label, int state, boolean focus) {}
     private static final List<Ghost> floorGhosts = new ArrayList<>();
     private static final List<Ghost> plantGhosts = new ArrayList<>();
     private static int floorOk, floorTotal, placed, total, wrong;
@@ -229,6 +246,44 @@ public class GreenhousePlanner {
             String item = o.has("i") ? o.get("i").getAsString() : "?";
             cells.add(new Cell(gx, gy, item));
         }
+        pickFocus();
+    }
+
+    // the plant worth looking at. The mutation is the one the rest of the plot feeds,
+    // so it is the rarest kind in the layout - overridable when that guess is wrong.
+    private static String focusPlant;
+
+    private static void pickFocus() {
+        focusPlant = null;
+        String set = TeslaMapsConfig.get().greenhouseFocus;
+        if (set != null && !set.isBlank()) {
+            if (set.equalsIgnoreCase("all")) return;
+            focusPlant = norm(set);
+            return;
+        }
+        Map<String, Integer> counts = new java.util.HashMap<>();
+        for (Cell c : cells) counts.merge(norm(c.item), 1, Integer::sum);
+        int fewest = Integer.MAX_VALUE;
+        for (var e : counts.entrySet()) {
+            if (e.getValue() < fewest) {
+                fewest = e.getValue();
+                focusPlant = e.getKey();
+            }
+        }
+        if (counts.size() < 2) focusPlant = null;
+    }
+
+    public static String focusName() {
+        return focusPlant == null ? "all" : pretty(focusPlant);
+    }
+
+    public static String setFocus(String value) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        cfg.greenhouseFocus = value == null || value.equalsIgnoreCase("auto") ? "" : value.trim();
+        TeslaMapsConfig.save();
+        pickFocus();
+        tickCounter = 0;
+        return "§fFocus: §e" + focusName();
     }
 
     // ---------------------------------------------------------------- floor requirements
@@ -647,7 +702,7 @@ public class GreenhousePlanner {
 
     // Hypixel renders greenhouse plants as armor stands with a head item, not as blocks.
     // Per cell we keep the lowest such stand plus an identity we can compare against the layout.
-    private record Stand(String id, String name, String plant, double y) {}
+    private record Stand(String id, String name, String plant, int stage, double y) {}
     private static final Map<Long, Stand> standAt = new java.util.HashMap<>();
 
     private static long key(int x, int z) {
@@ -670,17 +725,20 @@ public class GreenhousePlanner {
                     stand.hasCustomName() ? stand.getName().getString() : head.getHoverName().getString());
             String plant = resolvePlant(name);
             if (plant == null && hash != null) plant = DEFAULT_HEADS.get(hash);
+            int stage = stageOf(name, plant);
 
-            // a cell holds several stands (stem, fruit, growth stage) - an identified one
-            // always beats an unidentified one, otherwise take the lowest
+            // a cell holds several stands (stem, fruit, model parts). Identified beats
+            // unidentified, a stage number beats none, otherwise take the lowest.
             Stand prev = standAt.get(k);
-            boolean better = prev == null
-                    || (plant != null && prev.plant == null)
-                    || ((plant != null) == (prev.plant != null) && stand.getY() < prev.y);
+            boolean better;
+            if (prev == null) better = true;
+            else if ((plant != null) != (prev.plant != null)) better = plant != null;
+            else if ((stage >= 0) != (prev.stage >= 0)) better = stage >= 0;
+            else better = stand.getY() < prev.y;
             if (!better) continue;
 
             String id = hash != null ? "h:" + hash : "n:" + norm(name);
-            standAt.put(k, new Stand(id, name, plant, stand.getY()));
+            standAt.put(k, new Stand(id, name, plant, stage, stand.getY()));
         }
     }
 
@@ -724,24 +782,41 @@ public class GreenhousePlanner {
                         mc.level.getBlockState(anchor).getBlock()));
         AABB area = new AABB(anchor.getX(), anchor.getY() - 2, anchor.getZ(),
                 anchor.getX() + PLOT, anchor.getY() + 5, anchor.getZ() + PLOT);
-        int n = 0;
+
+        // one line per distinct head instead of one per stand - a full plot is ~300 stands
+        // and a per-stand dump gets cut off long before the interesting ones show up
+        Map<String, Integer> counts = new java.util.LinkedHashMap<>();
+        Map<String, String> hashes = new java.util.HashMap<>();
+        Map<String, String> firstCell = new java.util.HashMap<>();
+        int n = 0, headless = 0;
         for (net.minecraft.world.entity.decoration.ArmorStand stand
                 : mc.level.getEntitiesOfClass(net.minecraft.world.entity.decoration.ArmorStand.class, area)) {
             var head = stand.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD);
-            String hash = head.isEmpty() ? null : HeadESP.hashOf(head);
-            out.add("§7cell §f" + (net.minecraft.util.Mth.floor(stand.getX()) - anchor.getX())
-                    + "," + (net.minecraft.util.Mth.floor(stand.getZ()) - anchor.getZ())
-                    + " §7dy=§f" + String.format(Locale.ROOT, "%.2f", stand.getY() - anchor.getY())
-                    + " §7head=§f" + (head.isEmpty() ? "-" : head.getItem().toString())
-                    + " §7name=§f" + (stand.hasCustomName() ? stand.getName().getString() : "-")
-                    + " §7hover=§f" + (head.isEmpty() ? "-" : head.getHoverName().getString())
-                    + " §b" + (hash == null ? "-" : hash));
-            if (++n >= 40) {
-                out.add("§7... more");
-                break;
+            if (head.isEmpty()) {
+                headless++;
+                continue;
             }
+            n++;
+            String hover = com.teslamaps.utils.StringUtil.stripTrim(head.getHoverName().getString());
+            counts.merge(hover, 1, Integer::sum);
+            hashes.putIfAbsent(hover, HeadESP.hashOf(head));
+            firstCell.putIfAbsent(hover, (net.minecraft.util.Mth.floor(stand.getX()) - anchor.getX())
+                    + "," + (net.minecraft.util.Mth.floor(stand.getZ()) - anchor.getZ())
+                    + " dy=" + String.format(Locale.ROOT, "%.2f", stand.getY() - anchor.getY()));
         }
-        if (n == 0) out.add("§7no armor stands in the plot");
+        if (n == 0) {
+            out.add("§7no armor stands with a head in the plot (" + headless + " without)");
+            return out;
+        }
+        out.add("§7" + n + " heads, " + counts.size() + " kinds, " + headless + " stands without a head");
+        for (var e : counts.entrySet()) {
+            String hash = hashes.get(e.getKey());
+            out.add("§f" + e.getKey() + " §7x" + e.getValue()
+                    + " §8first " + firstCell.get(e.getKey())
+                    + " §7-> §e" + (resolvePlant(e.getKey()) == null ? "unknown" : resolvePlant(e.getKey()))
+                    + " §8stage " + stageOf(e.getKey(), resolvePlant(e.getKey()))
+                    + " §b" + (hash == null ? "-" : hash));
+        }
         return out;
     }
 
@@ -784,7 +859,7 @@ public class GreenhousePlanner {
                 } else {
                     String id = BuiltInRegistries.BLOCK.getKey(need).toString();
                     AABB box = new AABB(wx + 0.06, fy + 0.06, wz + 0.06, wx + 0.94, fy + 0.94, wz + 0.94);
-                    floorGhosts.add(new Ghost(box, color(id), prettyBlock(id), TODO));
+                    floorGhosts.add(new Ghost(box, color(id), prettyBlock(id), TODO, true));
                 }
             }
 
@@ -792,6 +867,7 @@ public class GreenhousePlanner {
             Stand stand = standAt.get(key(wx, wz));
             boolean here = stand != null || !mc.level.getBlockState(m).isAir();
             total++;
+            boolean focus = focusPlant == null || focusPlant.equals(norm(c.item));
 
             int state;
             String label = pretty(c.item);
@@ -805,6 +881,11 @@ public class GreenhousePlanner {
                     state = UNKNOWN;
                 } else if (is.equals(norm(c.item))) {
                     state = OK;
+                    if (focus && stand != null && stand.stage >= 0 && TeslaMapsConfig.get().greenhouseStages) {
+                        int max = maxStage(is);
+                        col = stageColor(stand.stage, max);
+                        label = pretty(c.item) + " §7" + stand.stage + "§8/§7" + max;
+                    }
                 } else {
                     state = WRONG;
                     wrong++;
@@ -813,7 +894,7 @@ public class GreenhousePlanner {
                 }
             }
             AABB box = new AABB(wx + 0.06, py + 0.01, wz + 0.06, wx + 0.94, py + 0.95, wz + 0.94);
-            plantGhosts.add(new Ghost(box, col, label, state));
+            plantGhosts.add(new Ghost(box, col, label, state, focus));
         }
     }
 
@@ -822,6 +903,71 @@ public class GreenhousePlanner {
         JsonArray row = layer.get(gx).getAsJsonArray();
         if (gy >= row.size()) return true;
         return row.get(gy).getAsBoolean();
+    }
+
+    // config value wins, then the wiki number, then the ripest stand standing in the plot
+    private static int maxStage(String plant) {
+        int set = TeslaMapsConfig.get().greenhouseStageMax;
+        if (set > 0) return set;
+        int seen = 1;
+        for (Stand s : standAt.values()) {
+            if (plant.equals(s.plant)) seen = Math.max(seen, s.stage);
+        }
+        Integer known = MAX_STAGE.get(plant);
+        return known != null ? Math.max(known, seen) : seen;
+    }
+
+    // red while young, through yellow, to green when ripe
+    private static int stageColor(int stage, int max) {
+        float t = max <= 1 ? 1f : Math.min(1f, Math.max(0f, (stage - 1) / (float) (max - 1)));
+        if (TeslaMapsConfig.get().greenhouseStageInverted) t = 1f - t;
+        int r = t < 0.5f ? 255 : (int) (255 * (1 - (t - 0.5f) * 2));
+        int g = t < 0.5f ? (int) (255 * t * 2) : 255;
+        return 0xFF000000 | (r << 16) | (g << 8) | 0x30;
+    }
+
+    // per plant: how many stand in the plot and how they spread across the stages
+    public static List<String> stageReport() {
+        List<String> out = new ArrayList<>();
+        if (anchor == null) {
+            out.add("§cno plot found");
+            return out;
+        }
+        scanPlants();
+        Map<String, java.util.TreeMap<Integer, Integer>> byPlant = new TreeMap<>();
+        Map<String, Integer> totals = new TreeMap<>();
+        int unknown = 0;
+        for (Stand s : standAt.values()) {
+            if (s.plant == null) {
+                unknown++;
+                continue;
+            }
+            totals.merge(s.plant, 1, Integer::sum);
+            byPlant.computeIfAbsent(s.plant, k -> new java.util.TreeMap<>()).merge(s.stage, 1, Integer::sum);
+        }
+        if (totals.isEmpty()) {
+            out.add("§7nothing identified in the plot");
+            return out;
+        }
+        for (var e : totals.entrySet()) {
+            StringBuilder sb = new StringBuilder("§f" + pretty(e.getKey()) + " §7x" + e.getValue() + " §8· ");
+            var stages = byPlant.get(e.getKey());
+            if (stages.size() == 1 && stages.containsKey(-1)) {
+                sb.append("§7no stage in the name");
+            } else {
+                boolean first = true;
+                for (var st : stages.entrySet()) {
+                    if (!first) sb.append("§8, ");
+                    first = false;
+                    sb.append(st.getKey() < 0 ? "§7none" : "§astage " + st.getKey());
+                    sb.append("§7 x").append(st.getValue());
+                }
+                sb.append(" §8(max used: ").append(maxStage(e.getKey())).append(")");
+            }
+            out.add(sb.toString());
+        }
+        if (unknown > 0) out.add("§7" + unknown + " unidentified stands");
+        return out;
     }
 
     private static int color(String item) {
@@ -873,24 +1019,36 @@ public class GreenhousePlanner {
         int alpha = Math.max(8, Math.min(255, (int) (cfg.greenhouseAlpha * 255))) << 24;
         boolean hideDone = cfg.greenhouseHideDone;
 
+        boolean dim = cfg.greenhouseDimOthers && phase == PHASE_PLANTS;
+        boolean stages = cfg.greenhouseStages;
+
         ESPRenderer.beginBoxBatch(matrices, cameraPos, true, cfg.greenhouseThroughWalls);
         for (Ghost g : ghosts) {
+            boolean faint = dim && !g.focus;
             if (g.state == TODO) {
-                ESPRenderer.batchBox(g.box, (g.color & 0x00FFFFFF) | alpha, 0f);
+                int a = faint ? (alpha >>> 2) & 0xFF000000 : alpha;
+                ESPRenderer.batchBox(g.box, (g.color & 0x00FFFFFF) | Math.max(0x14000000, a), 0f);
             } else if (g.state == WRONG) {
                 // a wrong plant is worth more than the ghost alpha, it has to be seen and pulled out
                 ESPRenderer.batchBox(g.box, 0x90FF3030, 0f);
+            } else if (g.state == OK && g.focus && stages) {
+                ESPRenderer.batchBox(g.box, (g.color & 0x00FFFFFF) | 0x50000000, 0f);
             }
         }
         ESPRenderer.endBoxBatch();
 
         ESPRenderer.beginBoxBatch(matrices, cameraPos, false, cfg.greenhouseThroughWalls);
         for (Ghost g : ghosts) {
+            boolean faint = dim && !g.focus;
             switch (g.state) {
                 case WRONG -> ESPRenderer.batchBox(g.box, 0xFFFF3030, 3.0f);
-                case UNKNOWN -> { if (!hideDone) ESPRenderer.batchBox(g.box, 0x80FFFF55, 1.5f); }
-                case OK -> { if (!hideDone) ESPRenderer.batchBox(g.box, 0x6055FF55, 1.5f); }
-                default -> ESPRenderer.batchBox(g.box, g.color, 2.0f);
+                case UNKNOWN -> { if (!hideDone) ESPRenderer.batchBox(g.box, faint ? 0x30FFFF55 : 0x80FFFF55, 1.5f); }
+                case OK -> {
+                    if (g.focus && stages) ESPRenderer.batchBox(g.box, g.color, 2.5f);
+                    else if (!hideDone) ESPRenderer.batchBox(g.box, faint ? 0x2055FF55 : 0x6055FF55, 1.5f);
+                }
+                default -> ESPRenderer.batchBox(g.box, faint ? (g.color & 0x00FFFFFF) | 0x40000000 : g.color,
+                        faint ? 1.0f : 2.0f);
             }
         }
         // plot border + the planner origin corner so the rotation can be lined up
@@ -913,7 +1071,9 @@ public class GreenhousePlanner {
             double prev = 0;
             for (double band : bands) {
                 for (Ghost g : ghosts) {
-                    if (g.state == OK || g.state == UNKNOWN) continue;
+                    boolean grownFocus = g.state == OK && g.focus && stages;
+                    if (!grownFocus && (g.state == OK || g.state == UNKNOWN)) continue;
+                    if (dim && !g.focus && g.state != WRONG) continue;
                     Vec3 c = g.box.getCenter();
                     double d = c.distanceToSqr(eye);
                     if (d > band || d <= prev) continue;
@@ -928,7 +1088,8 @@ public class GreenhousePlanner {
         String head = phase == PHASE_FLOOR
                 ? "§6Step 1 · Floor §f" + floorOk + "§7/§f" + floorTotal
                 : "§aStep 2 · Plants §f" + placed + "§7/§f" + total
-                        + (wrong > 0 ? " §c· " + wrong + " wrong" : "");
+                        + (wrong > 0 ? " §c· " + wrong + " wrong" : "")
+                        + (dim && focusPlant != null ? " §8· " + pretty(focusPlant) : "");
         ESPRenderer.drawText(matrices, head,
                 new Vec3(anchor.getX() + PLOT / 2.0, anchor.getY() + 3.0, anchor.getZ() + PLOT / 2.0),
                 1.2f, cameraPos);

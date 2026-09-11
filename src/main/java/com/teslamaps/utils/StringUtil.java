@@ -29,7 +29,10 @@ public class StringUtil {
     private static final Pattern PLAYER_CHAT = Pattern.compile(
             // Hypixel's own speakers use the same "[TAG] Name: text" shape
             "^(?!\\[(?:NPC|STATUE|BOSS|CROWD|SACKS|IMPORTANT|EVENT|OPEN|WATCHDOG ANNOUNCEMENT)\\])"
-            + "(?:(?:Party|Guild|Officer|Co-op|Team|Squad|Toggle|From|To|Sender) ?>? +)*"
+            // the channel prefixes always carry the arrow - without it "Guild Name: Sequoia"
+            // from /g list reads as guild chat and the roster never gets parsed
+            + "(?:(?:Party|Guild|Officer|Co-op|Team|Squad|Toggle) *> *)*"
+            + "(?:(?:From|To|Sender) +)?"
             + "(?:\\[[^\\]]{1,24}\\] *)*"
             + "[A-Za-z0-9_]{1,16}"
             + "(?: \\[[^\\]]{1,24}\\])*: .*", Pattern.DOTALL);

@@ -1139,6 +1139,11 @@ public class TeslaMapsConfig {
     public java.util.Map<String, String> greenhouseRotations = new java.util.HashMap<>(); // "x,y,z" -> "rot,mirror"
     public int greenhouseRotation = 0;              // 0..3, x90 degrees
     public boolean greenhouseMirror = false;
+    public String greenhouseFocus = "";              // plant to highlight, "" = rarest in the layout, "all" = no dimming
+    public boolean greenhouseDimOthers = true;       // draw everything but the focus plant faint
+    public boolean greenhouseStages = true;          // colour grown focus plants by growth stage
+    public int greenhouseStageMax = 0;               // 0 = take the highest stage seen in the plot
+    public boolean greenhouseStageInverted = false;  // stage 1 is the ripe one
     public boolean greenhouseLabels = true;         // plant names over the cells
     public boolean greenhouseHideDone = true;       // hide cells that already hold a plant
     public boolean greenhouseThroughWalls = true;
@@ -1484,6 +1489,7 @@ public class TeslaMapsConfig {
         if (c.greenhouseSoil == null) c.greenhouseSoil = new java.util.HashMap<>();
         if (c.greenhousePlants == null) c.greenhousePlants = new java.util.HashMap<>();
         if (c.greenhouseRotations == null) c.greenhouseRotations = new java.util.HashMap<>();
+        if (c.greenhouseFocus == null) c.greenhouseFocus = "";
         if (c.shardSort == null || c.shardSort.isBlank()) c.shardSort = "Price to Max";
         if (c.shardPriceSource == null || c.shardPriceSource.isBlank()) c.shardPriceSource = "Instant Buy";
         // indexed straight through, so a short array out of an older config would throw
