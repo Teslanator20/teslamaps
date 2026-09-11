@@ -22,7 +22,7 @@
     "ClientPlayNetworkHandlerMixin",
     "ClientPlayerInteractionManagerMixin",
     "ColdOverlayMixin",
-    "CommandSuggestionsMixin",
+    "CommandsNodeMixin",
     "ContainerCharMixin",
     "ContainerKeyMixin",
     "ContainerOverlayMixin",

@@ -1,16 +1,8 @@
 package com.teslamaps.command;
 
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.SkyblockUtils;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,16 +12,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 
 /**
- * Tab completion for Hypixel's own commands. Hypixel sends no suggestions for
- * {@code /warp} or {@code /call}, so we register client-side commands of the same
- * name that offer the list and then forward the line to the server untouched.
- * <p>
- * Forwarding is what keeps this safe: whatever the player types still reaches
- * Hypixel verbatim, so a name we do not know about — or a future one — behaves
- * exactly as it did before.
+ * The lists behind the tab completion for Hypixel's own commands. Hypixel sends its
+ * command tree without any suggestions; HypixelNodes rebuilds the interesting nodes with
+ * these lists while the tree is being read.
  */
 public class HypixelSuggestions {
 
@@ -53,30 +40,18 @@ public class HypixelSuggestions {
         return out;
     }
 
-    public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
-        forwarding(dispatcher, "call", CONTACTS);
-        // Only /call gets a client command. Hypixel declares /warp, /msg and /gfs itself,
-        // and claiming one of those names breaks the merge into the server dispatcher - it
-        // took the /warp suggestions down with it. Those run off CommandSuggestionsMixin.
-    }
-
     public static List<String> warps() {
         return WARPS;
+    }
+
+    /** Abiphone contacts for /call. */
+    public static List<String> contacts() {
+        return CONTACTS;
     }
 
     /** Guild, friends, recently seen players and the tab list. */
     public static List<String> players() {
         return PlayerNameCache.names();
-    }
-
-    private static void forwarding(CommandDispatcher<FabricClientCommandSource> dispatcher,
-                                   String name, List<String> options) {
-        dispatcher.register(ClientCommands.literal(name)
-                .executes(context -> send(name))
-                .then(ClientCommands.argument("argument", StringArgumentType.greedyString())
-                        .suggests((context, builder) -> suggest(options == null ? players() : options, builder))
-                        .executes(context -> send(name + " "
-                                + StringArgumentType.getString(context, "argument")))));
     }
 
     /** Off-island the lists would only be noise on servers with their own /warp. */
@@ -101,24 +76,5 @@ public class HypixelSuggestions {
             if (option.toLowerCase(Locale.ROOT).startsWith(w)) out.add(option);
         }
         return out;
-    }
-
-    private static CompletableFuture<Suggestions> suggest(List<String> options, SuggestionsBuilder builder) {
-        if (!enabled()) return builder.buildFuture();
-        for (String option : filter(options, builder.getRemaining())) builder.suggest(option);
-        return builder.buildFuture();
-    }
-
-    /**
-     * Sends the command as a raw packet on purpose. {@code sendCommand} is what the
-     * Fabric command API hooks to run client commands — forwarding through it would
-     * land straight back in this executor and recurse until the client dies.
-     */
-    private static int send(String command) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.getConnection() != null) {
-            mc.getConnection().send(new ServerboundChatCommandPacket(command));
-        }
-        return 1;
     }
 }

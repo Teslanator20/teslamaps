@@ -109,8 +109,6 @@ public class TeslaMaps implements ClientModInitializer {
         com.teslamaps.features.SearchOverlay.init();
 
         ClientCommandRegistrationCallback.EVENT.register(TMapCommand::register);
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) ->
-                com.teslamaps.command.HypixelSuggestions.register(dispatcher));
 
         net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.MODIFY_COMMAND.register(TMapCommand::expandShortcut);
         net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.ALLOW_COMMAND.register(
