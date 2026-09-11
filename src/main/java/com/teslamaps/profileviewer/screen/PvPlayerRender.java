@@ -58,10 +58,6 @@ public class PvPlayerRender {
         };
         player.yHeadRot = player.yHeadRotO = 0;
         cachedUuid = uuid;
-
-        // put their teslamaps cape on the render, same as in the world
-        com.teslamaps.features.capes.CapeSync.setPreview(player.getId(),
-                com.teslamaps.features.capes.CapeSync.capeFor(uuid));
         return player;
     }
 
@@ -81,6 +77,10 @@ public class PvPlayerRender {
                             int x1, int y1, int x2, int y2, float yaw, float pitch) {
         RemotePlayer target = player(uuid, name);
         if (target == null) return;
+
+        // the cape texture downloads in the background, so refresh it every frame
+        com.teslamaps.features.capes.CapeSync.setPreview(target.getId(),
+                com.teslamaps.features.capes.CapeSync.capeFor(uuid));
 
         float size = (y2 - y1) / 2.4f;
         Vector3f translation = new Vector3f(0, target.getBbHeight() / 2f + 0.0625f, 0);
