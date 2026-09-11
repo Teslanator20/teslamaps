@@ -2,7 +2,14 @@ package com.teslamaps.profileviewer.screen.pages;
 
 import com.teslamaps.profileviewer.data.SkillData;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
+import com.teslamaps.api.PvApi;
+import com.teslamaps.profileviewer.data.SkyblockProfiles;
+import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
+import com.mojang.authlib.GameProfile;
+import java.util.UUID;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -11,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public class BasicPage extends ProfileViewerPage {
+    private java.util.function.Supplier<net.minecraft.world.entity.player.PlayerSkin> skinLookup;
     private static final int BAR_BG = 0xFF333333;
     private static final int TEXT_WHITE = 0xFFFFFFFF;
     private static final int TEXT_GRAY = 0xFF888888;
@@ -45,62 +53,56 @@ public class BasicPage extends ProfileViewerPage {
     @Override
     public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
+        Font tr = Minecraft.getInstance().font;
         SkyblockProfile profile = getProfile();
+
+        // NEU draws everything against the window origin, our caller hands us an inset of 8
+        int px = x - 8;
+        int py = y - 8;
+
         if (profile == null) {
-            Font tr = Minecraft.getInstance().font;
-            ctx.text(tr, "No profile data", x + 10, y + 10, TEXT_WHITE);
+            ctx.text(tr, "No profile data", px + 20, py + 20, NeuStyle.TEXT);
             return;
         }
 
-        Font tr = Minecraft.getInstance().font;
-        int padding = 15;
-        int contentX = x + padding;
-        int contentWidth = width - padding * 2;
+        NeuStyle.box(ctx, px + 14, py + 8, 100, 186);
+        NeuStyle.box(ctx, px + 120, py + 8, 108, 186);
+        NeuStyle.box(ctx, px + 234, py + 8, 183, 186);
 
-        int leftColumnWidth = 150;
-        int statsY = y + padding;
+        // player column
+        String name = profiles != null ? profiles.getDisplayName() : "";
+        ctx.text(tr, name, px + 64 - tr.width(name) / 2, py + 20, NeuStyle.TEXT);
 
-        double sbLevel = profile.getSkyblockLevel();
-        ctx.text(tr, "Skyblock Level", contentX, statsY, TEXT_WHITE);
-        ctx.text(tr, String.format("%.2f", sbLevel), contentX, statsY + 12, TEXT_AQUA);
-        statsY += 30;
+        NeuStyle.slimBox(ctx, px + 23, py + 36, 82, 108);
+        renderPlayerHead(ctx, px + 48, py + 60);
+
+        String status = profiles != null ? profiles.getOnlineStatus() : "";
+        ctx.text(tr, status, px + 64 - tr.width(status) / 2, py + 150,
+                status.startsWith("Online") ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_RED);
+
+        String sbLevel = String.format("SB Level %.2f", profile.getSkyblockLevel());
+        ctx.text(tr, sbLevel, px + 64 - tr.width(sbLevel) / 2, py + 164, NeuStyle.TEXT_AQUA);
+
+        // stat column
+        int statX = px + 130;
+        int statY = py + 18;
 
         double skillAvg = profile.getSkillAverage();
         double overflowAvg = profile.getOverflowSkillAverage();
-        ctx.text(tr, "Skill Average", contentX, statsY, TEXT_WHITE);
-        String avgText = String.format("%.2f", skillAvg);
-        ctx.text(tr, avgText, contentX, statsY + 12, TEXT_GREEN);
-        if (overflowAvg > skillAvg + 0.005) {
-            ctx.text(tr, String.format(" (%.2f)", overflowAvg), contentX + tr.width(avgText), statsY + 12, TEXT_GRAY);
-        }
-        statsY += 30;
-
-        ctx.text(tr, "Total Skill XP", contentX, statsY, TEXT_WHITE);
-        ctx.text(tr, formatXp(profile.getTotalSkillXp()), contentX, statsY + 12, TEXT_AQUA);
-        statsY += 30;
-
-        double purse = profile.getCoinPurse();
-        double bank = profile.getBankBalance();
-        ctx.text(tr, "Purse", contentX, statsY, TEXT_WHITE);
-        ctx.text(tr, formatCoins(purse), contentX, statsY + 12, TEXT_GOLD);
-        statsY += 30;
-
-        ctx.text(tr, "Bank", contentX, statsY, TEXT_WHITE);
-        ctx.text(tr, formatCoins(bank), contentX, statsY + 12, TEXT_GOLD);
-        statsY += 30;
+        statY = stat(ctx, tr, statX, statY, "Skill Average", String.format("%.2f", skillAvg), NeuStyle.TEXT_GREEN,
+                overflowAvg > skillAvg + 0.005 ? String.format("%.2f overflow", overflowAvg) : null);
+        statY = stat(ctx, tr, statX, statY, "Total Skill XP", formatXp(profile.getTotalSkillXp()), NeuStyle.TEXT_AQUA, null);
+        statY = stat(ctx, tr, statX, statY, "Purse", formatCoins(profile.getCoinPurse()), NeuStyle.TEXT_GOLD, null);
+        statY = stat(ctx, tr, statX, statY, "Bank", formatCoins(profile.getBankBalance()), NeuStyle.TEXT_GOLD, null);
 
         int fairySouls = profile.getFairySouls();
-        ctx.text(tr, "Fairy Souls", contentX, statsY, TEXT_WHITE);
-        ctx.text(tr, fairySouls + " / 242", contentX, statsY + 12,
-                fairySouls >= 242 ? TEXT_GREEN : TEXT_GRAY);
-        statsY += 30;
+        stat(ctx, tr, statX, statY, "Fairy Souls", fairySouls + " / 242",
+                fairySouls >= 242 ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_GRAY, null);
 
-        int skillsX = contentX + leftColumnWidth + 20;
-        int skillsWidth = contentWidth - leftColumnWidth - 40;
-        int skillY = y + padding;
-
-        ctx.text(tr, "Skills", skillsX, skillY, TEXT_WHITE);
-        skillY += 16;
+        // skills
+        int skillsX = px + 244;
+        int skillsWidth = 163;
+        int skillY = py + 18;
 
         Map<String, SkillData> skills = profile.getSkills();
         int colorIndex = 0;
@@ -110,29 +112,44 @@ public class BasicPage extends ProfileViewerPage {
             int barColor = SKILL_COLORS[colorIndex % SKILL_COLORS.length];
             colorIndex++;
 
-            String skillName = skill.getDisplayName();
             boolean overflow = skill.hasOverflow();
             String levelStr = String.valueOf(overflow ? skill.getOverflowLevel() : skill.getLevel());
 
-            ctx.text(tr, skillName, skillsX, skillY, TEXT_WHITE);
+            ctx.text(tr, skill.getDisplayName(), skillsX, skillY, NeuStyle.TEXT);
             ctx.text(tr, levelStr, skillsX + skillsWidth - tr.width(levelStr), skillY,
-                    overflow ? TEXT_GOLD : barColor);
+                    overflow ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_GRAY);
 
-            int barY = skillY + 11;
-            int barHeight = 8;
-            int barWidth = skillsWidth;
+            int barY = skillY + 10;
+            NeuStyle.bar(ctx, skillsX, barY, skillsWidth,
+                    overflow ? skill.getOverflowProgress() : skill.getProgress(), barColor);
 
-            drawProgressBar(ctx, skillsX, barY, barWidth, barHeight,
-                    overflow ? skill.getOverflowProgress() : skill.getProgress(), BAR_BG, barColor);
-
-            if (mouseX >= skillsX && mouseX < skillsX + barWidth &&
-                    mouseY >= skillY && mouseY < barY + barHeight) {
+            if (mouseX >= skillsX && mouseX < skillsX + skillsWidth && mouseY >= skillY && mouseY < barY + 5) {
                 String xpText = overflow ? skill.getFormattedOverflowProgress() : skill.getFormattedProgress();
-                int xpX = skillsX + (barWidth - tr.width(xpText)) / 2;
-                ctx.text(tr, xpText, xpX, barY - 1, TEXT_WHITE);
+                ctx.text(tr, xpText, skillsX + (skillsWidth - tr.width(xpText)) / 2, barY - 1, NeuStyle.TEXT);
             }
 
-            skillY += 22;
+            skillY += 15;
         }
+    }
+
+    private int stat(GuiGraphicsExtractor ctx, Font tr, int x, int y, String label, String value, int color, String extra) {
+        ctx.text(tr, label, x, y, NeuStyle.TEXT_GRAY);
+        ctx.text(tr, value, x, y + 10, color);
+        if (extra != null) {
+            ctx.text(tr, extra, x + tr.width(value) + 4, y + 10, NeuStyle.TEXT_DARK);
+        }
+        return y + 26;
+    }
+
+    private void renderPlayerHead(GuiGraphicsExtractor ctx, int x, int y) {
+        if (profiles == null) return;
+        if (skinLookup == null) {
+            skinLookup = Minecraft.getInstance().getSkinManager().createLookup(
+                    new GameProfile(UUID.fromString(PvApi.dashed(profiles.getUuid())), profiles.getDisplayName()), false);
+        }
+        Identifier skin = skinLookup.get().body().texturePath();
+        // face plus the hat layer, blown up like the player render NEU puts there
+        ctx.blit(RenderPipelines.GUI_TEXTURED, skin, x, y, 8, 8, 8, 8, 32, 32, 64, 64);
+        ctx.blit(RenderPipelines.GUI_TEXTURED, skin, x, y, 40, 8, 8, 8, 32, 32, 64, 64);
     }
 }

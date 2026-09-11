@@ -1444,12 +1444,6 @@ public class TMapCommand {
     private static int openProfileViewer(FabricClientCommandSource source, String player) {
         Minecraft mc = Minecraft.getInstance();
         String name = player == null || player.isBlank() ? mc.getUser().getName() : player.trim();
-        String key = TeslaMapsConfig.get().hypixelApiKey;
-        if (key == null || key.isBlank()) {
-            source.sendFeedback(Component.literal(
-                    "§cNo Hypixel API key set. §7Run §f/tmap apikey <key>§7 (developer.hypixel.net)"));
-            return 1;
-        }
         com.teslamaps.profileviewer.screen.ProfileViewerScreen.open(name);
         return 1;
     }

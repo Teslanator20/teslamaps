@@ -88,7 +88,13 @@ public class HypixelApi {
 
             String apiKey = TeslaMapsConfig.get().hypixelApiKey;
             if (apiKey == null || apiKey.isBlank()) {
-                return error("No Hypixel API key configured");
+                JsonObject viaPv = PvApi.get("/profiles/" + PvApi.dashed(uuid), "profiles").join();
+                if (viaPv == null || !viaPv.has("profiles") || viaPv.get("profiles").isJsonNull()) {
+                    return error("No Hypixel API key, and the PV API had nothing for this player");
+                }
+                JsonObject transformed = transform(viaPv, uuid);
+                cache.put(cacheKey, new CacheEntry(transformed, TeslaMapsConfig.get().pvCacheDurationSeconds * 1000));
+                return transformed;
             }
 
             try {
@@ -141,7 +147,10 @@ public class HypixelApi {
             entry.addProperty("profile_id", profile.get("profile_id").getAsString());
             entry.addProperty("cute_name", cuteName);
             entry.addProperty("current", profile.has("selected") && profile.get("selected").getAsBoolean());
-            entry.add("data", members.has(uuid) ? members.getAsJsonObject(uuid) : new JsonObject());
+            String dashed = PvApi.dashed(uuid);
+            JsonObject member = members.has(uuid) ? members.getAsJsonObject(uuid)
+                    : members.has(dashed) ? members.getAsJsonObject(dashed) : new JsonObject();
+            entry.add("data", member);
             entry.add("raw", profile);
 
             profiles.add(cuteName, entry);
@@ -152,18 +161,19 @@ public class HypixelApi {
     }
 
     public static CompletableFuture<JsonObject> getMuseum(String profileId) {
-        return getExtra("museum", "/skyblock/museum?profile=" + profileId, profileId);
+        return getExtra("museum", "/skyblock/museum?profile=" + profileId, "/museum/" + PvApi.dashed(profileId), profileId);
     }
 
     public static CompletableFuture<JsonObject> getGarden(String profileId) {
-        return getExtra("garden", "/skyblock/garden?profile=" + profileId, profileId);
+        return getExtra("garden", "/skyblock/garden?profile=" + profileId, "/garden/" + PvApi.dashed(profileId), profileId);
     }
 
+    /** The PV API has no bingo route, so this one needs an own key. */
     public static CompletableFuture<JsonObject> getBingo(String uuid) {
-        return getExtra("bingo", "/skyblock/bingo?uuid=" + uuid, uuid);
+        return getExtra("bingo", "/skyblock/bingo?uuid=" + uuid, null, uuid);
     }
 
-    private static CompletableFuture<JsonObject> getExtra(String kind, String path, String id) {
+    private static CompletableFuture<JsonObject> getExtra(String kind, String path, String pvPath, String id) {
         return CompletableFuture.supplyAsync(() -> {
             String cacheKey = kind + ":" + id;
             CacheEntry cached = cache.get(cacheKey);
@@ -172,7 +182,13 @@ public class HypixelApi {
             }
 
             String apiKey = TeslaMapsConfig.get().hypixelApiKey;
-            if (apiKey == null || apiKey.isBlank()) return new JsonObject();
+            if (apiKey == null || apiKey.isBlank()) {
+                if (pvPath == null) return new JsonObject();
+                JsonObject viaPv = PvApi.get(pvPath, kind).join();
+                if (viaPv == null) return new JsonObject();
+                cache.put(cacheKey, new CacheEntry(viaPv, 300000));
+                return viaPv;
+            }
 
             try {
                 HttpRequest request = HttpRequest.newBuilder()
