@@ -80,8 +80,8 @@ public class GreenhousePlanner {
         PLANT_KEYS.sort((a, b) -> b.length() - a.length());
     }
 
-    // growth stages the wiki lists, so the bar is right before the plot has ever been full
-    private static final Map<String, Integer> MAX_STAGE = Map.of("TIMESTALK", 14);
+    // stages the hover name actually carries, not the wiki growth count
+    private static final Map<String, Integer> MAX_STAGE = Map.of("TIMESTALK", 2);
 
     // "timestalk2" -> 2. A leftover that is not pure digits is a model part
     // (chorusFruitStem) or a colour variant (stoplightpetalGreen1), not a stage.

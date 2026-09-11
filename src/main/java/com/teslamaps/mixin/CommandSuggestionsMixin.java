@@ -58,6 +58,7 @@ public abstract class CommandSuggestionsMixin {
 
     @Unique private boolean teslamaps$ours;
     @Unique private boolean teslamaps$cycled;
+    @Unique private Suggestions teslamaps$last;
 
     @Inject(method = "updateCommandInfo", at = @At("TAIL"))
     private void teslamaps$suggestions(CallbackInfo ci) {
@@ -66,6 +67,7 @@ public abstract class CommandSuggestionsMixin {
         if (keepSuggestions) return;
         teslamaps$ours = false;
         teslamaps$cycled = false;
+        teslamaps$last = null;
 
         String text = input.getValue();
         if (text.isEmpty() || text.charAt(0) != '/') return;
@@ -99,6 +101,10 @@ public abstract class CommandSuggestionsMixin {
         }
 
         List<String> matches = HypixelSuggestions.filter(options, word);
+        if (TeslaMapsConfig.get().debugMode) {
+            com.teslamaps.TeslaMaps.LOGGER.info("[SuggestDbg] path='{}' word='{}' options={} matches={}",
+                    path, word, options.size(), matches.size());
+        }
         if (matches.isEmpty()) return;
 
         StringRange range = StringRange.between(start, cursor);
@@ -132,10 +138,24 @@ public abstract class CommandSuggestionsMixin {
 
     @Unique
     private void teslamaps$show(StringRange range, List<Suggestion> out) {
-        pendingSuggestions = CompletableFuture.completedFuture(new Suggestions(range, out));
+        teslamaps$last = new Suggestions(range, out);
+        pendingSuggestions = CompletableFuture.completedFuture(teslamaps$last);
         showSuggestions(false);
         teslamaps$ours = true;
         teslamaps$cycled = false;
+    }
+
+    /**
+     * Hypixel answers the suggestion request a few frames later, and that answer ends in
+     * updateUsageInfo, which drops the list ({@code suggestions = null}) and only rebuilds
+     * it when the vanilla auto-suggest option is on. Our own list has to come back either way.
+     */
+    @Inject(method = "updateUsageInfo", at = @At("TAIL"))
+    private void teslamaps$keepOurs(CallbackInfo ci) {
+        if (teslamaps$last == null || suggestions != null) return;
+        pendingSuggestions = CompletableFuture.completedFuture(teslamaps$last);
+        showSuggestions(false);
+        teslamaps$ours = true;
     }
 
     /**
