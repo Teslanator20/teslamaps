@@ -4,9 +4,9 @@ import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.api.HypixelApi;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
+import java.util.List;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
 import com.teslamaps.profileviewer.screen.pages.*;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,6 @@ public class ProfileViewerScreen extends Screen {
     private int panelX = 0;
     private int panelY = 0;
 
-    private boolean wasMouseDown = false;
 
     private int scrollOffset = 0;
 
@@ -109,9 +108,6 @@ public class ProfileViewerScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
-        boolean clicked = isMouseDown && !wasMouseDown;
-
         if (loading && System.currentTimeMillis() - lastDotUpdate > 500) {
             loadingDots = (loadingDots + 1) % 4;
             lastDotUpdate = System.currentTimeMillis();
@@ -119,9 +115,9 @@ public class ProfileViewerScreen extends Screen {
 
         ctx.fill(0, 0, width, height, NeuStyle.SCREEN_DIM);
 
-        scale = Math.max(1, Math.min(width / (NeuStyle.PANEL_WIDTH + 20), (height - 40) / (NeuStyle.PANEL_HEIGHT + 60)));
+        scale = Math.max(1, Math.min(width / (NeuStyle.PANEL_WIDTH + 60), (height - 20) / (NeuStyle.PANEL_HEIGHT + 60)));
         panelX = (width - NeuStyle.PANEL_WIDTH * scale) / 2;
-        panelY = (height - NeuStyle.PANEL_HEIGHT * scale) / 2;
+        panelY = (height - NeuStyle.PANEL_HEIGHT * scale) / 2 + 10 * scale;
 
         int mx = (mouseX - panelX) / scale;
         int my = (mouseY - panelY) / scale;
@@ -132,7 +128,8 @@ public class ProfileViewerScreen extends Screen {
 
         NeuStyle.window(ctx, 0, 0, NeuStyle.PANEL_WIDTH, NeuStyle.PANEL_HEIGHT);
 
-        renderTabs(ctx, mx, my, clicked);
+        renderTabs(ctx, mx, my);
+        renderRecentPlayers(ctx, mx, my);
 
         int contentY = 8;
         int contentHeight = NeuStyle.PANEL_HEIGHT - 16;
@@ -140,149 +137,178 @@ public class ProfileViewerScreen extends Screen {
         if (loading) {
             renderLoading(ctx, contentY, contentHeight);
         } else if (error != null) {
-            renderError(ctx, contentY, contentHeight, my, clicked);
+            renderError(ctx, contentY, contentHeight);
         } else if (profiles != null && profiles.getSelectedProfile() != null) {
             if (selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
-                pages.get(selectedPageIndex).render(ctx, 8, contentY, NeuStyle.PANEL_WIDTH - 16, contentHeight,
-                        mx, my, delta);
+                ProfileViewerPage page = pages.get(selectedPageIndex);
+                if (page.isFixedLayout()) {
+                    page.render(ctx, 8, contentY, NeuStyle.PANEL_WIDTH - 16, contentHeight, mx, my, delta);
+                } else {
+                    // long pages scroll and stay inside the frame; scissor goes through the pose
+                    ctx.enableScissor(4, 4, NeuStyle.PANEL_WIDTH - 4, NeuStyle.PANEL_HEIGHT - 4);
+                    ctx.pose().pushMatrix();
+                    ctx.pose().translate(0, -page.getScroll());
+                    page.render(ctx, 8, contentY, NeuStyle.PANEL_WIDTH - 16, contentHeight,
+                            mx, my + page.getScroll(), delta);
+                    ctx.pose().popMatrix();
+                    ctx.disableScissor();
+                }
             }
         }
 
-        renderFooter(ctx, mx, my, clicked);
+        renderFooter(ctx, mx, my);
 
         if (profileDropdownOpen && profiles != null) {
-            renderProfileDropdown(ctx, mx, my, clicked);
+            renderProfileDropdown(ctx, mx, my);
         }
 
         ctx.pose().popMatrix();
 
-        wasMouseDown = isMouseDown;
-
         super.extractRenderState(ctx, mouseX, mouseY, delta);
     }
 
-    private void renderTabs(GuiGraphicsExtractor ctx, int mouseX, int mouseY, boolean clicked) {
-        int tabW = 28;
-        int tabH = 22;
-        int gap = 2;
-        int total = pages.size() * (tabW + gap) - gap;
-        int x = (NeuStyle.PANEL_WIDTH - total) / 2;
-        int y = -tabH + 3;
-
+    private void renderTabs(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
+        // NEU: 28 wide, flush with the left window edge, sitting on top of it
         for (int i = 0; i < pages.size(); i++) {
             ProfileViewerPage page = pages.get(i);
             boolean selected = i == selectedPageIndex;
-            boolean hovered = mouseX >= x && mouseX < x + tabW && mouseY >= y && mouseY < y + tabH;
+            int x = i * 28;
+            int y = -28;
+            boolean hovered = mouseX >= x && mouseX < x + 28 && mouseY >= y && mouseY < y + 28;
 
-            if (clicked && hovered && !profileDropdownOpen) {
-                selectedPageIndex = i;
-                pages.get(selectedPageIndex).onSelected();
-            }
-
-            NeuStyle.window(ctx, x, y, tabW, tabH + (selected ? 6 : 3));
-
-            String label = tabLabel(page.getTabName());
-            int textX = x + (tabW - font.width(label)) / 2;
-            ctx.text(font, label, textX, y + 7,
-                    selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
+            NeuStyle.tab(ctx, x, selected ? y : y + 1, selected);
+            ctx.item(page.getTabIcon(), x + 6, y + 9);
 
             if (hovered) hoveredTab = page.getTabName();
-
-            x += tabW + gap;
         }
     }
 
-    private static String tabLabel(String name) {
-        if (name.length() <= 4) return name;
-        String[] words = name.split(" ");
-        if (words.length > 1) {
-            return ("" + words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+    private void renderRecentPlayers(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
+        List<String> recent = TeslaMapsConfig.get().recentPlayers;
+        if (recent == null) return;
+
+        int x = NeuStyle.PANEL_WIDTH;
+        for (int i = 0; i < Math.min(recent.size(), 7); i++) {
+            String name = recent.get(i);
+            int y = i * 28;
+            boolean selected = name.equalsIgnoreCase(targetPlayer);
+            boolean hovered = mouseX >= x && mouseX < x + 28 && mouseY >= y && mouseY < y + 28;
+
+            NeuStyle.sideTab(ctx, selected ? x : x - 1, y, selected);
+            PlayerHeads.faceByName(ctx, name, x + 7, y + 6, 16);
+
+            if (hovered) hoveredTab = name;
         }
-        return name.substring(0, 4);
     }
 
-    private void renderFooter(GuiGraphicsExtractor ctx, int mouseX, int mouseY, boolean clicked) {
+    private void renderFooter(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         int y = NeuStyle.PANEL_HEIGHT + 3;
 
         if (profiles != null && profiles.isLoaded() && !profiles.getProfiles().isEmpty()) {
             SkyblockProfile selected = profiles.getSelectedProfile();
             if (selected != null) {
                 boolean hovered = mouseX >= 0 && mouseX < 100 && mouseY >= y && mouseY < y + 20;
-                if (clicked && hovered && !profileDropdownOpen) profileDropdownOpen = true;
 
                 NeuStyle.window(ctx, 0, y, 100, 20);
                 String name = selected.getCuteName();
-                ctx.text(font, name, (100 - font.width(name)) / 2, y + 7,
-                        hovered ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT);
+                ctx.text(font, name, 50 - font.width(name) / 2, y + 7,
+                        hovered ? NeuStyle.TEXT : NeuStyle.TEXT_TURQUOISE);
             }
         }
 
         String displayName = profiles != null ? profiles.getDisplayName() : targetPlayer;
         NeuStyle.window(ctx, NeuStyle.PANEL_WIDTH - 100, y, 100, 20);
-        ctx.text(font, displayName, NeuStyle.PANEL_WIDTH - 100 + (100 - font.width(displayName)) / 2, y + 7,
-                NeuStyle.TEXT);
-
-        if (profiles != null) {
-            String status = profiles.getOnlineStatus();
-            ctx.text(font, status, 106, y + 7,
-                    status.startsWith("Online") ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_GRAY);
-
-            String guild = profiles.getGuildName();
-            if (guild != null) {
-                ctx.text(font, "[" + guild + "]", 106 + font.width(status) + 6, y + 7, NeuStyle.TEXT_GOLD);
-            }
-        }
+        ctx.text(font, displayName, NeuStyle.PANEL_WIDTH - 50 - font.width(displayName) / 2, y + 7, NeuStyle.TEXT);
 
         if (hoveredTab != null) {
-            ctx.text(font, hoveredTab, (NeuStyle.PANEL_WIDTH - font.width(hoveredTab)) / 2, -32, NeuStyle.TEXT);
+            int tw = font.width(hoveredTab);
+            int tx = Math.min(Math.max(mouseX + 8, 2), NeuStyle.PANEL_WIDTH - tw - 6);
+            NeuStyle.window(ctx, tx - 3, mouseY - 12, tw + 6, 14);
+            ctx.text(font, hoveredTab, tx, mouseY - 8, NeuStyle.TEXT);
             hoveredTab = null;
         }
     }
 
-    private void renderProfileDropdown(GuiGraphicsExtractor ctx, int mouseX, int mouseY, boolean clicked) {
+    private void renderProfileDropdown(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         int w = 100;
         int rows = profiles.getProfiles().size();
-        int h = rows * 16 + 6;
+        int h = rows * 14 + 6;
         int y = NeuStyle.PANEL_HEIGHT + 3 - h;
 
         NeuStyle.window(ctx, 0, y, w, h);
 
-        boolean clickedOutside = clicked;
         int rowY = y + 3;
 
         for (String profileName : profiles.getProfiles().keySet()) {
-            boolean hovered = mouseX >= 3 && mouseX < w - 3 && mouseY >= rowY && mouseY < rowY + 16;
+            boolean hovered = mouseX >= 3 && mouseX < w - 3 && mouseY >= rowY && mouseY < rowY + 14;
             boolean selected = profiles.getSelectedProfile() != null &&
                     profileName.equals(profiles.getSelectedProfile().getCuteName());
 
-            if (clicked && hovered) {
-                SkyblockProfile profile = profiles.getProfiles().get(profileName);
-                profiles.setSelectedProfile(profile);
-                profileDropdownOpen = false;
-                for (ProfileViewerPage page : pages) {
-                    page.init(this, profiles);
+            if (hovered) NeuStyle.slimBox(ctx, 3, rowY, w - 6, 14);
+            ctx.text(font, profileName, 50 - font.width(profileName) / 2, rowY + 3,
+                    selected ? NeuStyle.TEXT_TURQUOISE : NeuStyle.TEXT);
+            rowY += 14;
+        }
+    }
+
+    /** Everything clickable lives here, the render pass only draws and hovers. */
+    private boolean handleClick(int mx, int my) {
+        if (profileDropdownOpen && profiles != null) {
+            int w = 100;
+            int rows = profiles.getProfiles().size();
+            int h = rows * 14 + 6;
+            int y = NeuStyle.PANEL_HEIGHT + 3 - h;
+            int rowY = y + 3;
+            for (String profileName : profiles.getProfiles().keySet()) {
+                if (mx >= 3 && mx < w - 3 && my >= rowY && my < rowY + 14) {
+                    profiles.setSelectedProfile(profiles.getProfiles().get(profileName));
+                    profileDropdownOpen = false;
+                    for (ProfileViewerPage page : pages) page.init(this, profiles);
+                    pages.get(selectedPageIndex).onSelected();
+                    return true;
                 }
-                pages.get(selectedPageIndex).onSelected();
-                clickedOutside = false;
+                rowY += 14;
             }
-
-            if (hovered) {
-                NeuStyle.slimBox(ctx, 3, rowY, w - 6, 16);
-                clickedOutside = false;
-            }
-            ctx.text(font, profileName, 6, rowY + 4,
-                    selected ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT);
-            rowY += 16;
-        }
-
-        int buttonY = NeuStyle.PANEL_HEIGHT + 3;
-        if (mouseX >= 0 && mouseX < w && mouseY >= buttonY && mouseY < buttonY + 20) {
-            clickedOutside = false;
-        }
-
-        if (clicked && clickedOutside) {
             profileDropdownOpen = false;
+            return true;
         }
+
+        for (int i = 0; i < pages.size(); i++) {
+            int x = i * 28;
+            if (mx >= x && mx < x + 28 && my >= -28 && my < 0) {
+                selectedPageIndex = i;
+                pages.get(i).onSelected();
+                return true;
+            }
+        }
+
+        List<String> recent = TeslaMapsConfig.get().recentPlayers;
+        if (recent != null) {
+            for (int i = 0; i < Math.min(recent.size(), 7); i++) {
+                String name = recent.get(i);
+                if (mx >= NeuStyle.PANEL_WIDTH && mx < NeuStyle.PANEL_WIDTH + 28
+                        && my >= i * 28 && my < i * 28 + 28) {
+                    if (!name.equalsIgnoreCase(targetPlayer)) {
+                        Minecraft.getInstance().schedule(() -> open(name));
+                    }
+                    return true;
+                }
+            }
+        }
+
+        int footerY = NeuStyle.PANEL_HEIGHT + 3;
+        if (mx >= 0 && mx < 100 && my >= footerY && my < footerY + 20
+                && profiles != null && profiles.isLoaded() && !profiles.getProfiles().isEmpty()) {
+            profileDropdownOpen = true;
+            return true;
+        }
+
+        if (error != null) {
+            loadProfile();
+            return true;
+        }
+
+        return false;
     }
 
     private void renderLoading(GuiGraphicsExtractor ctx, int contentY, int contentHeight) {
@@ -291,7 +317,7 @@ public class ProfileViewerScreen extends Screen {
                 contentY + contentHeight / 2, NeuStyle.TEXT_YELLOW);
     }
 
-    private void renderError(GuiGraphicsExtractor ctx, int contentY, int contentHeight, int mouseY, boolean clicked) {
+    private void renderError(GuiGraphicsExtractor ctx, int contentY, int contentHeight) {
         int centerY = contentY + contentHeight / 2;
         String title = "An error occurred";
         ctx.text(font, title, (NeuStyle.PANEL_WIDTH - font.width(title)) / 2, centerY - 20, NeuStyle.TEXT_RED);
@@ -299,10 +325,19 @@ public class ProfileViewerScreen extends Screen {
 
         String hint = "Click to retry";
         ctx.text(font, hint, (NeuStyle.PANEL_WIDTH - font.width(hint)) / 2, centerY + 20, NeuStyle.TEXT_GRAY);
+    }
 
-        if (clicked && mouseY >= contentY && mouseY < contentY + contentHeight) {
-            loadProfile();
+    @Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        int mx = (int) ((event.x() - panelX) / scale);
+        int my = (int) ((event.y() - panelY) / scale);
+
+        if (!loading && error == null && !profileDropdownOpen
+                && selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
+            if (pages.get(selectedPageIndex).mouseClicked(mx, my, event.button())) return true;
         }
+        if (handleClick(mx, my)) return true;
+        return super.mouseClicked(event, doubled);
     }
 
     @Override

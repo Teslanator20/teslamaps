@@ -210,11 +210,21 @@ public class TMapCommand {
                             return 1;
                         }))
                 .then(ClientCommands.literal("apikey")
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    TeslaMapsConfig.get().hypixelApiKey = "";
+                                    TeslaMapsConfig.save();
+                                    HypixelApi.clearCache();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§7Hypixel API key cleared, the viewer uses the PV API now"));
+                                    return 1;
+                                }))
                         .then(ClientCommands.argument("key", StringArgumentType.greedyString())
                                 .executes(context -> {
                                     TeslaMapsConfig c = TeslaMapsConfig.get();
                                     c.hypixelApiKey = StringArgumentType.getString(context, "key").trim();
                                     TeslaMapsConfig.save();
+                                    HypixelApi.clearCache();
                                     if (c.hypixelApiKey.isEmpty()) {
                                         context.getSource().sendFeedback(Component.literal("§7Hypixel API key cleared"));
                                         return 1;
@@ -231,6 +241,11 @@ public class TMapCommand {
                                 })))
                 .then(ClientCommands.literal("pv")
                         .executes(context -> openProfileViewer(context.getSource(), null))
+                        .then(ClientCommands.literal("fake")
+                                .executes(context -> {
+                                    com.teslamaps.profileviewer.FakeProfile.open();
+                                    return 1;
+                                }))
                         .then(ClientCommands.argument("player", StringArgumentType.word())
                                 .suggests((context, builder) -> suggest(PlayerNameCache.names(), builder))
                                 .executes(context -> openProfileViewer(context.getSource(),

@@ -3,6 +3,7 @@ package com.teslamaps.features;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.utils.LoudSound;
+import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -15,6 +16,7 @@ public class KickedTimer {
 
     private static long kickedAtMs = 0L;
     private static long lastSendMs = 0L;
+    private static boolean sawLobby = false;
 
     public static void onChatMessage(String message) {
         String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
@@ -23,7 +25,7 @@ public class KickedTimer {
                 && !clean.contains("You were kicked while joining that server")) return;
 
         long now = System.currentTimeMillis();
-        if (now - kickedAtMs > 15_000L) kickedAtMs = now; // new kick episode -> (re)start timer
+        if (now - kickedAtMs > 15_000L) { kickedAtMs = now; sawLobby = false; } // new kick episode -> (re)start timer
 
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
@@ -35,7 +37,13 @@ public class KickedTimer {
 
     public static void tick() {
         if (kickedAtMs == 0) return;
-        if (DungeonManager.isInDungeon()) { kickedAtMs = 0; return; } // rejoined -> clear
+        if (DungeonManager.isInDungeon()) { kickedAtMs = 0; sawLobby = false; return; } // rejoined -> clear
+
+        // kick drops you into the lobby; once a real skyblock island is back, the wait is over
+        boolean inSkyblock = SkyblockUtils.isInSkyblock() && !SkyblockUtils.getArea().isEmpty();
+        if (!inSkyblock) sawLobby = true;
+        else if (sawLobby) { kickedAtMs = 0; sawLobby = false; return; }
+
         if (System.currentTimeMillis() - kickedAtMs >= 60_000L) { // wait over -> ping and hide
             if (TeslaMapsConfig.get().kickedTimer) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.6f);
             kickedAtMs = 0;
@@ -78,5 +86,5 @@ public class KickedTimer {
         pose.popMatrix();
     }
 
-    public static void reset() { kickedAtMs = 0; }
+    public static void reset() { kickedAtMs = 0; sawLobby = false; }
 }

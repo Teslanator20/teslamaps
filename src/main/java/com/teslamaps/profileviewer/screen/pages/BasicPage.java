@@ -5,6 +5,7 @@ import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.api.PvApi;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
 import com.teslamaps.profileviewer.screen.NeuStyle;
+import com.teslamaps.profileviewer.screen.PlayerHeads;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import com.mojang.authlib.GameProfile;
 import java.util.UUID;
@@ -41,6 +42,11 @@ public class BasicPage extends ProfileViewerPage {
     };
 
     @Override
+    public boolean isFixedLayout() {
+        return true;
+    }
+
+    @Override
     public String getTabName() {
         return "Basic";
     }
@@ -56,100 +62,150 @@ public class BasicPage extends ProfileViewerPage {
         Font tr = Minecraft.getInstance().font;
         SkyblockProfile profile = getProfile();
 
-        // NEU draws everything against the window origin, our caller hands us an inset of 8
-        int px = x - 8;
-        int py = y - 8;
+        // everything below is NEU's grid, measured from the window origin
+        int left = x - 8;
+        int top = y - 8;
 
         if (profile == null) {
-            ctx.text(tr, "No profile data", px + 20, py + 20, NeuStyle.TEXT);
+            ctx.text(tr, "No profile data", left + 20, top + 20, NeuStyle.TEXT);
             return;
         }
 
-        NeuStyle.box(ctx, px + 14, py + 8, 100, 186);
-        NeuStyle.box(ctx, px + 120, py + 8, 108, 186);
-        NeuStyle.box(ctx, px + 234, py + 8, 183, 186);
-
-        // player column
+        // left column: name, player, status
         String name = profiles != null ? profiles.getDisplayName() : "";
-        ctx.text(tr, name, px + 64 - tr.width(name) / 2, py + 20, NeuStyle.TEXT);
+        drawCentered(ctx, tr, name, left + 63, top + 8, NeuStyle.TEXT);
 
-        NeuStyle.slimBox(ctx, px + 23, py + 36, 82, 108);
-        renderPlayerHead(ctx, px + 48, py + 60);
+        String networth = "Net Worth: " + formatCoins(profile.getCoinPurse() + profile.getBankBalance());
+        ctx.text(tr, networth, left + 8, top + 34, NeuStyle.TEXT_GREEN);
+
+        if (profiles != null) {
+            PlayerHeads.body(ctx, profiles.getUuid(), name, left + 39, top + 52, 3);
+        }
 
         String status = profiles != null ? profiles.getOnlineStatus() : "";
-        ctx.text(tr, status, px + 64 - tr.width(status) / 2, py + 150,
+        drawCentered(ctx, tr, status, left + 63, top + 160,
                 status.startsWith("Online") ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_RED);
 
-        String sbLevel = String.format("SB Level %.2f", profile.getSkyblockLevel());
-        ctx.text(tr, sbLevel, px + 64 - tr.width(sbLevel) / 2, py + 164, NeuStyle.TEXT_AQUA);
-
-        // stat column
-        int statX = px + 130;
-        int statY = py + 18;
+        // middle column: skyblock level with its own bar, like NEU's skull block
+        int sbX = left + 162;
+        int sbY = top + 74;
+        double sbLevel = profile.getSkyblockLevel();
+        ctx.item(new ItemStack(Items.PLAYER_HEAD), sbX, sbY);
+        drawCentered(ctx, tr, "SkyBlock Level", sbX + 9, sbY - 24, NeuStyle.TEXT_GRAY);
+        drawCentered(ctx, tr, String.valueOf((int) sbLevel), sbX + 9, sbY - 12, NeuStyle.TEXT_AQUA);
+        double sbProgress = sbLevel - (long) sbLevel;
+        ctx.text(tr, (int) (sbProgress * 100) + "/100", sbX - 30, sbY + 20, NeuStyle.TEXT_YELLOW);
+        NeuStyle.bar(ctx, sbX - 30, sbY + 30, 80, sbProgress, 0xFF55FFFF);
 
         double skillAvg = profile.getSkillAverage();
         double overflowAvg = profile.getOverflowSkillAverage();
-        statY = stat(ctx, tr, statX, statY, "Skill Average", String.format("%.2f", skillAvg), NeuStyle.TEXT_GREEN,
-                overflowAvg > skillAvg + 0.005 ? String.format("%.2f overflow", overflowAvg) : null);
-        statY = stat(ctx, tr, statX, statY, "Total Skill XP", formatXp(profile.getTotalSkillXp()), NeuStyle.TEXT_AQUA, null);
-        statY = stat(ctx, tr, statX, statY, "Purse", formatCoins(profile.getCoinPurse()), NeuStyle.TEXT_GOLD, null);
-        statY = stat(ctx, tr, statX, statY, "Bank", formatCoins(profile.getBankBalance()), NeuStyle.TEXT_GOLD, null);
+        ctx.text(tr, "Skill Average", left + 132, sbY + 48, NeuStyle.TEXT_GRAY);
+        String avg = String.format("%.2f", skillAvg);
+        ctx.text(tr, avg, left + 132, sbY + 58, NeuStyle.TEXT_GREEN);
+        if (overflowAvg > skillAvg + 0.005) {
+            ctx.text(tr, String.format("(%.2f)", overflowAvg), left + 134 + tr.width(avg), sbY + 58, NeuStyle.TEXT_GOLD);
+        }
 
         int fairySouls = profile.getFairySouls();
-        stat(ctx, tr, statX, statY, "Fairy Souls", fairySouls + " / 242",
-                fairySouls >= 242 ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_GRAY, null);
+        ctx.text(tr, "Fairy Souls: " + fairySouls + "/242", left + 132, sbY + 72,
+                fairySouls >= 242 ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_GRAY);
 
-        // skills
-        int skillsX = px + 244;
-        int skillsWidth = 163;
-        int skillY = py + 18;
-
+        // skills: two columns of eight, 80 wide bars
         Map<String, SkillData> skills = profile.getSkills();
-        int colorIndex = 0;
-
+        int position = 0;
         for (Map.Entry<String, SkillData> entry : skills.entrySet()) {
             SkillData skill = entry.getValue();
-            int barColor = SKILL_COLORS[colorIndex % SKILL_COLORS.length];
-            colorIndex++;
+            int column = position / 8;
+            int row = position % 8;
+            int sx = left + 237 + 86 * column;
+            int sy = top + 24 + 21 * row;
+            position++;
 
             boolean overflow = skill.hasOverflow();
-            String levelStr = String.valueOf(overflow ? skill.getOverflowLevel() : skill.getLevel());
+            int level = overflow ? skill.getOverflowLevel() : skill.getLevel();
 
-            ctx.text(tr, skill.getDisplayName(), skillsX, skillY, NeuStyle.TEXT);
-            ctx.text(tr, levelStr, skillsX + skillsWidth - tr.width(levelStr), skillY,
-                    overflow ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_GRAY);
+            ctx.item(skillIcon(entry.getKey()), sx, sy - 9);
+            String levelStr = String.valueOf(level);
+            int levelWidth = tr.width(levelStr);
+            scaledText(ctx, tr, skill.getDisplayName(), sx + 17, sy - 3, 80 - 19 - levelWidth - 3, NeuStyle.TEXT);
+            ctx.text(tr, levelStr, sx + 80 - levelWidth, sy - 4,
+                    overflow ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT);
+            NeuStyle.bar(ctx, sx, sy + 8, 80,
+                    overflow ? skill.getOverflowProgress() : skill.getProgress());
 
-            int barY = skillY + 10;
-            NeuStyle.bar(ctx, skillsX, barY, skillsWidth,
-                    overflow ? skill.getOverflowProgress() : skill.getProgress(), barColor);
-
-            if (mouseX >= skillsX && mouseX < skillsX + skillsWidth && mouseY >= skillY && mouseY < barY + 5) {
-                String xpText = overflow ? skill.getFormattedOverflowProgress() : skill.getFormattedProgress();
-                ctx.text(tr, xpText, skillsX + (skillsWidth - tr.width(xpText)) / 2, barY - 1, NeuStyle.TEXT);
+            if (mouseX > sx && mouseX < sx + 80 && mouseY > sy - 9 && mouseY < sy + 14) {
+                tooltip = new String[]{
+                        skill.getDisplayName(),
+                        "Progress: " + (overflow ? skill.getFormattedOverflowProgress() : skill.getFormattedProgress()),
+                        "Total XP: " + skill.getFormattedTotalXp(),
+                };
+                tooltipX = mouseX;
+                tooltipY = mouseY;
             }
+        }
 
-            skillY += 15;
+        if (tooltip != null) {
+            drawTooltip(ctx, tr);
+            tooltip = null;
         }
     }
 
-    private int stat(GuiGraphicsExtractor ctx, Font tr, int x, int y, String label, String value, int color, String extra) {
-        ctx.text(tr, label, x, y, NeuStyle.TEXT_GRAY);
-        ctx.text(tr, value, x, y + 10, color);
-        if (extra != null) {
-            ctx.text(tr, extra, x + tr.width(value) + 4, y + 10, NeuStyle.TEXT_DARK);
+    private String[] tooltip;
+    private int tooltipX;
+    private int tooltipY;
+
+    private void drawTooltip(GuiGraphicsExtractor ctx, Font tr) {
+        int w = 0;
+        for (String line : tooltip) w = Math.max(w, tr.width(line));
+        int h = tooltip.length * 10 + 4;
+        int tx = Math.min(tooltipX + 8, NeuStyle.PANEL_WIDTH - w - 8);
+        int ty = Math.max(2, tooltipY - h);
+        NeuStyle.window(ctx, tx - 3, ty - 2, w + 8, h);
+        for (int i = 0; i < tooltip.length; i++) {
+            ctx.text(tr, tooltip[i], tx, ty + 2 + i * 10, i == 0 ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
         }
-        return y + 26;
     }
 
-    private void renderPlayerHead(GuiGraphicsExtractor ctx, int x, int y) {
-        if (profiles == null) return;
-        if (skinLookup == null) {
-            skinLookup = Minecraft.getInstance().getSkinManager().createLookup(
-                    new GameProfile(UUID.fromString(PvApi.dashed(profiles.getUuid())), profiles.getDisplayName()), false);
+    private void drawCentered(GuiGraphicsExtractor ctx, Font tr, String text, int centerX, int y, int color) {
+        ctx.text(tr, text, centerX - tr.width(text) / 2, y, color);
+    }
+
+    /** Skill names are longer than the column, so they shrink like NEU's scaled strings do. */
+    private void scaledText(GuiGraphicsExtractor ctx, Font tr, String text, int x, int y, int maxWidth, int color) {
+        int width = tr.width(text);
+        if (width <= maxWidth) {
+            ctx.text(tr, text, x, y - 1, color);
+            return;
         }
-        Identifier skin = skinLookup.get().body().texturePath();
-        // face plus the hat layer, blown up like the player render NEU puts there
-        ctx.blit(RenderPipelines.GUI_TEXTURED, skin, x, y, 8, 8, 8, 8, 32, 32, 64, 64);
-        ctx.blit(RenderPipelines.GUI_TEXTURED, skin, x, y, 40, 8, 8, 8, 32, 32, 64, 64);
+        float factor = Math.max(0.5f, (float) maxWidth / width);
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(x, y);
+        ctx.pose().scale(factor, factor);
+        ctx.text(tr, text, 0, 0, color);
+        ctx.pose().popMatrix();
+    }
+
+    /** NEU puts the label left and the value right inside a fixed width. */
+    private void drawAligned(GuiGraphicsExtractor ctx, Font tr, String label, String value, int x, int y, int w, int valueColor) {
+        ctx.text(tr, label, x, y, NeuStyle.TEXT);
+        ctx.text(tr, value, x + w - tr.width(value), y, valueColor);
+    }
+
+    private static ItemStack skillIcon(String key) {
+        return new ItemStack(switch (key) {
+            case "farming" -> Items.GOLDEN_HOE;
+            case "mining" -> Items.STONE_PICKAXE;
+            case "combat" -> Items.STONE_SWORD;
+            case "foraging" -> Items.JUNGLE_SAPLING;
+            case "fishing" -> Items.FISHING_ROD;
+            case "enchanting" -> Items.ENCHANTING_TABLE;
+            case "alchemy" -> Items.BREWING_STAND;
+            case "carpentry" -> Items.CRAFTING_TABLE;
+            case "runecrafting" -> Items.MAGMA_CREAM;
+            case "social" -> Items.EMERALD;
+            case "taming" -> Items.LEAD;
+            case "hunting" -> Items.SPIDER_EYE;
+            default -> Items.PAPER;
+        });
     }
 }

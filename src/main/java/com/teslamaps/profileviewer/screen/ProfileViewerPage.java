@@ -31,8 +31,26 @@ public abstract class ProfileViewerPage {
     }
 
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        if (isFixedLayout()) return false;
+        scroll = (int) Math.max(0, Math.min(maxScroll, scroll - amount * 12));
+        return true;
+    }
+
+    /** Pages laid out on NEU's grid stay put, the long list pages scroll. */
+    public boolean isFixedLayout() {
         return false;
     }
+
+    public int getScroll() {
+        return scroll;
+    }
+
+    public void setContentHeight(int height) {
+        this.maxScroll = Math.max(0, height - com.teslamaps.profileviewer.screen.NeuStyle.PANEL_HEIGHT + 20);
+    }
+
+    protected int scroll = 0;
+    private int maxScroll = 500;
 
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         return false;

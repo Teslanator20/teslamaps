@@ -2,6 +2,7 @@ package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.mixin.HandledScreenAccessor;
+import com.teslamaps.utils.StringUtil;
 import java.util.IdentityHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -17,11 +18,10 @@ public class ProgressHighlight {
 
     private static final IdentityHashMap<ItemStack, Boolean> cache = new IdentityHashMap<>();
 
-    private static final String[] PROGRESS_LINES = {
-            "Families Completed:",
-            "Overall Progress:",
-            "Total Progress:",
-            "Progress to Complete Category:",
+    private static final String[] PROGRESS_WORDS = {
+            "progress",
+            "completed:",
+            "completion:",
     };
 
     public static void render(GuiGraphicsExtractor ctx) {
@@ -56,9 +56,9 @@ public class ProgressHighlight {
         ItemLore lore = item.get(DataComponents.LORE);
         if (lore != null) {
             for (Component cmp : lore.lines()) {
-                String l = cmp.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+                String l = StringUtil.strip(cmp.getString()).trim();
                 if (!isProgressLine(l)) continue;
-                if (percent(l) == 100) { done = true; break; }
+                if (percent(l) >= 100) { done = true; break; }
             }
         }
         cache.put(item, done);
@@ -66,23 +66,25 @@ public class ProgressHighlight {
     }
 
     private static boolean isProgressLine(String line) {
-        for (String prefix : PROGRESS_LINES) {
-            if (line.startsWith(prefix)) return true;
+        String l = line.toLowerCase();
+        for (String word : PROGRESS_WORDS) {
+            if (l.contains(word)) return true;
         }
         return false;
     }
 
-    // "Families Completed: 45/45 (100%)" and "Overall Progress: 100%" both occur
-    private static int percent(String line) {
-        int best = -1;
+    // "Families Completed: 45/45 (100%)", "Overall Progress: 100%", "Progress to 8 Slots: 100%"
+    private static double percent(String line) {
+        double best = -1;
         for (int i = 0; i < line.length(); i++) {
             if (line.charAt(i) != '%') continue;
             int end = i;
             int start = end;
-            while (start > 0 && Character.isDigit(line.charAt(start - 1))) start--;
+            while (start > 0 && (Character.isDigit(line.charAt(start - 1)) || line.charAt(start - 1) == '.')) start--;
+            while (start < end && line.charAt(start) == '.') start++;
             if (start == end) continue;
             try {
-                best = Math.max(best, Integer.parseInt(line.substring(start, end)));
+                best = Math.max(best, Double.parseDouble(line.substring(start, end)));
             } catch (NumberFormatException ignored) {
             }
         }

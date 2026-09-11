@@ -88,13 +88,7 @@ public class HypixelApi {
 
             String apiKey = TeslaMapsConfig.get().hypixelApiKey;
             if (apiKey == null || apiKey.isBlank()) {
-                JsonObject viaPv = PvApi.get("/profiles/" + PvApi.dashed(uuid), "profiles").join();
-                if (viaPv == null || !viaPv.has("profiles") || viaPv.get("profiles").isJsonNull()) {
-                    return error("No Hypixel API key, and the PV API had nothing for this player");
-                }
-                JsonObject transformed = transform(viaPv, uuid);
-                cache.put(cacheKey, new CacheEntry(transformed, TeslaMapsConfig.get().pvCacheDurationSeconds * 1000));
-                return transformed;
+                return profilesViaPv(uuid, cacheKey);
             }
 
             try {
@@ -108,17 +102,21 @@ public class HypixelApi {
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                if (response.statusCode() == 403) return error("Invalid API key");
+                // a dead key should not kill the viewer, the pv backend still works
+                if (response.statusCode() == 403) {
+                    TeslaMaps.LOGGER.warn("Hypixel rejected the API key, falling back to the PV API");
+                    return profilesViaPv(uuid, cacheKey);
+                }
                 if (response.statusCode() == 429) return error("Rate limited - try again later");
                 if (response.statusCode() != 200) {
                     TeslaMaps.LOGGER.warn("Hypixel API returned {}", response.statusCode());
-                    return error("Hypixel API error: " + response.statusCode());
+                    return profilesViaPv(uuid, cacheKey);
                 }
 
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
 
                 if (!json.has("success") || !json.get("success").getAsBoolean()) {
-                    return error(json.has("cause") ? json.get("cause").getAsString() : "Unknown error");
+                    return profilesViaPv(uuid, cacheKey);
                 }
                 if (!json.has("profiles") || json.get("profiles").isJsonNull()) {
                     return error("Player has no Skyblock profiles");
@@ -132,6 +130,24 @@ public class HypixelApi {
                 return error("Network error: " + e.getMessage());
             }
         }, executor);
+    }
+
+    private static JsonObject extraViaPv(String pvPath, String kind, String cacheKey) {
+        if (pvPath == null) return new JsonObject();
+        JsonObject viaPv = PvApi.get(pvPath, kind).join();
+        if (viaPv == null) return new JsonObject();
+        cache.put(cacheKey, new CacheEntry(viaPv, 300000));
+        return viaPv;
+    }
+
+    private static JsonObject profilesViaPv(String uuid, String cacheKey) {
+        JsonObject viaPv = PvApi.get("/profiles/" + PvApi.dashed(uuid), "profiles").join();
+        if (viaPv == null || !viaPv.has("profiles") || viaPv.get("profiles").isJsonNull()) {
+            return error("No profile data (PV API gave nothing, and no working Hypixel key)");
+        }
+        JsonObject transformed = transform(viaPv, uuid);
+        cache.put(cacheKey, new CacheEntry(transformed, TeslaMapsConfig.get().pvCacheDurationSeconds * 1000));
+        return transformed;
     }
 
     private static JsonObject transform(JsonObject response, String uuid) {
@@ -183,11 +199,7 @@ public class HypixelApi {
 
             String apiKey = TeslaMapsConfig.get().hypixelApiKey;
             if (apiKey == null || apiKey.isBlank()) {
-                if (pvPath == null) return new JsonObject();
-                JsonObject viaPv = PvApi.get(pvPath, kind).join();
-                if (viaPv == null) return new JsonObject();
-                cache.put(cacheKey, new CacheEntry(viaPv, 300000));
-                return viaPv;
+                return extraViaPv(pvPath, kind, cacheKey);
             }
 
             try {
@@ -200,14 +212,14 @@ public class HypixelApi {
                         .build();
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() != 200) return new JsonObject();
+                if (response.statusCode() != 200) return extraViaPv(pvPath, kind, cacheKey);
 
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
                 if (json.has("success") && json.get("success").getAsBoolean()) {
                     cache.put(cacheKey, new CacheEntry(json, 300000));
                     return json;
                 }
-                return new JsonObject();
+                return extraViaPv(pvPath, kind, cacheKey);
             } catch (Exception e) {
                 TeslaMaps.LOGGER.error("Failed to fetch {} data", kind, e);
                 return new JsonObject();
@@ -246,6 +258,14 @@ public class HypixelApi {
         error.addProperty("success", false);
         error.addProperty("error", message);
         return error;
+    }
+
+    /** Dev only: feeds the viewer a synthetic profile so the layout can be checked offline. */
+    public static void injectFake(String name, String uuid, JsonObject profiles) {
+        JsonObject id = new JsonObject();
+        id.addProperty("id", uuid);
+        cache.put("uuid:" + name.toLowerCase(), new CacheEntry(id, 600000));
+        cache.put("profiles:" + uuid, new CacheEntry(profiles, 600000));
     }
 
     public static void clearCache() {

@@ -63,7 +63,7 @@ public class SkyblockProfile {
             double xp = 0;
             if (playerData != null && playerData.has("experience")) {
                 JsonObject exp = playerData.getAsJsonObject("experience");
-                String expKey = "SKILL_" + apiKey;
+                String expKey = "SKILL_" + apiKey.toUpperCase();
                 if (exp.has(expKey)) {
                     xp = exp.get(expKey).getAsDouble();
                 }
