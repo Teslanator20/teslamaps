@@ -3,7 +3,9 @@ package com.teslamaps.profileviewer.screen.pages;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
+import com.teslamaps.profileviewer.data.PerkRegistry;
 import com.teslamaps.profileviewer.screen.NeuStyle;
+import com.teslamaps.profileviewer.screen.PerkTreeView;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -134,36 +136,20 @@ public class ForagingPage extends ProfileViewerPage {
             }
         }
 
-        // right: the perks that are levelled
-        int px = left + 286;
-        int py = top + 10;
-        ctx.text(tr, "Perks", px, py, NeuStyle.TEXT_GREEN);
-        py += 12;
-
+        // the real tree, node positions and formulas come from the bundled perks.json
+        List<PerkRegistry.Perk> tree = PerkRegistry.hotf();
+        Map<String, Integer> levels = new java.util.HashMap<>();
         if (nodes != null) {
-            List<Map.Entry<String, JsonElement>> perks = new ArrayList<>();
             for (Map.Entry<String, JsonElement> entry : nodes.entrySet()) {
                 if (entry.getKey().startsWith("toggle_")) continue;
-                if (entry.getKey().equals("center_of_the_forest")) continue;
-                if (asInt(entry.getValue()) <= 0) continue;
-                perks.add(entry);
+                levels.put(entry.getKey(), asInt(entry.getValue()));
             }
-            perks.sort((a, b) -> Integer.compare(asInt(b.getValue()), asInt(a.getValue())));
-
-            int shown = 0;
-            for (Map.Entry<String, JsonElement> entry : perks) {
-                if (py > top + NeuStyle.PANEL_HEIGHT - 24) {
-                    ctx.text(tr, "+" + (perks.size() - shown) + " more", px, py, NeuStyle.TEXT_DARK);
-                    break;
-                }
-                row(ctx, tr, px, py, capitalize(entry.getKey()), String.valueOf(asInt(entry.getValue())),
-                        NeuStyle.TEXT_GRAY);
-                py += 10;
-                shown++;
-            }
-        } else {
-            ctx.text(tr, "Not in the api", px, py, NeuStyle.TEXT_GRAY);
         }
+
+        int treeX = left + NeuStyle.PANEL_WIDTH - PerkTreeView.width(tree) - 10;
+        ItemStack hovered = PerkTreeView.render(ctx, tree, levels, tier, PerkTreeView.FORAGING,
+                treeX, top + 8, mouseX, mouseY);
+        hoverStack(hovered);
     }
 
     private void row(GuiGraphicsExtractor ctx, Font tr, int x, int y, String label, String value, int color) {
