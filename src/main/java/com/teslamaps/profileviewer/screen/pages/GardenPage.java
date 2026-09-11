@@ -148,7 +148,7 @@ public class GardenPage extends ProfileViewerPage {
                 int totalVisits = 0;
                 for (var entry : visits.entrySet()) {
                     if (entry.getValue().isJsonPrimitive()) {
-                        totalVisits += entry.getValue().getAsInt();
+                        totalVisits += asInt(entry.getValue());
                     }
                 }
                 ctx.text(tr, "Total Visits: " + formatNumber(totalVisits), col2X, lineY, TEXT_WHITE);

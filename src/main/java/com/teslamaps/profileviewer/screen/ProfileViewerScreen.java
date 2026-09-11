@@ -41,6 +41,8 @@ public class ProfileViewerScreen extends Screen {
 
     private boolean profileDropdownOpen = false;
     private String hoveredTab = null;
+    private String nameInput = null;
+    private long nameCursorBlink = 0;
     private int scale = 1;
     private int panelX = 0;
     private int panelY = 0;
@@ -216,9 +218,17 @@ public class ProfileViewerScreen extends Screen {
             }
         }
 
-        String displayName = profiles != null ? profiles.getDisplayName() : targetPlayer;
         NeuStyle.window(ctx, NeuStyle.PANEL_WIDTH - 100, y, 100, 20);
-        ctx.text(font, displayName, NeuStyle.PANEL_WIDTH - 50 - font.width(displayName) / 2, y + 7, NeuStyle.TEXT);
+        if (nameInput != null) {
+            String shown = nameInput;
+            while (font.width(shown) > 88) shown = shown.substring(1);
+            boolean caret = (System.currentTimeMillis() / 500) % 2 == 0;
+            String withCaret = shown + (caret ? "_" : "");
+            ctx.text(font, withCaret, NeuStyle.PANEL_WIDTH - 96, y + 7, NeuStyle.TEXT_YELLOW);
+        } else {
+            String displayName = profiles != null ? profiles.getDisplayName() : targetPlayer;
+            ctx.text(font, displayName, NeuStyle.PANEL_WIDTH - 50 - font.width(displayName) / 2, y + 7, NeuStyle.TEXT);
+        }
 
         if (hoveredTab != null) {
             int tw = font.width(hoveredTab);
@@ -252,7 +262,7 @@ public class ProfileViewerScreen extends Screen {
     }
 
     /** Everything clickable lives here, the render pass only draws and hovers. */
-    private boolean handleClick(int mx, int my) {
+    private boolean handleClick(int mx, int my, int button) {
         if (profileDropdownOpen && profiles != null) {
             int w = 100;
             int rows = profiles.getProfiles().size();
@@ -303,6 +313,18 @@ public class ProfileViewerScreen extends Screen {
             return true;
         }
 
+        // the name box behaves like NEU's: click to type a player, right click clears it
+        if (mx >= NeuStyle.PANEL_WIDTH - 100 && mx < NeuStyle.PANEL_WIDTH && my >= footerY && my < footerY + 20) {
+            if (button == 1) {
+                nameInput = "";
+            } else if (nameInput == null) {
+                nameInput = profiles != null ? profiles.getDisplayName() : targetPlayer;
+            }
+            nameCursorBlink = System.currentTimeMillis();
+            return true;
+        }
+        nameInput = null;
+
         if (error != null) {
             loadProfile();
             return true;
@@ -336,8 +358,63 @@ public class ProfileViewerScreen extends Screen {
                 && selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
             if (pages.get(selectedPageIndex).mouseClicked(mx, my, event.button())) return true;
         }
-        if (handleClick(mx, my)) return true;
+        if (handleClick(mx, my, event.button())) return true;
         return super.mouseClicked(event, doubled);
+    }
+
+    @Override
+    public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
+        if (nameInput != null) {
+            String typed = event.codepointAsString();
+            if (!typed.isEmpty() && nameInput.length() < 16 && typed.matches("[A-Za-z0-9_]+")) {
+                nameInput += typed;
+                return true;
+            }
+            return true;
+        }
+        return super.charTyped(event);
+    }
+
+    @Override
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        if (nameInput != null) {
+            int key = event.key();
+            if (key == 259) { // backspace
+                if (!nameInput.isEmpty()) nameInput = nameInput.substring(0, nameInput.length() - 1);
+                return true;
+            }
+            if (key == 257 || key == 335) { // enter
+                String wanted = nameInput.trim();
+                nameInput = null;
+                if (!wanted.isEmpty()) {
+                    Minecraft.getInstance().schedule(() -> open(wanted));
+                }
+                return true;
+            }
+            if (key == 256) { // escape leaves the box, not the screen
+                nameInput = null;
+                return true;
+            }
+        }
+        return super.keyPressed(event);
+    }
+
+    @Override
+    public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dragX, double dragY) {
+        if (selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
+            int mx = (int) ((event.x() - panelX) / scale);
+            int my = (int) ((event.y() - panelY) / scale);
+            if (pages.get(selectedPageIndex).mouseDragged(mx, my, event.button())) return true;
+        }
+        return super.mouseDragged(event, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
+        if (selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
+            pages.get(selectedPageIndex).mouseReleased();
+        }
+        return super.mouseReleased(event);
     }
 
     @Override

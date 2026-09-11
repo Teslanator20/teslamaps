@@ -51,7 +51,7 @@ public class ExtraPage extends ProfileViewerPage {
             if (kills != null) {
                 for (var entry : kills.entrySet()) {
                     if (entry.getValue().isJsonPrimitive()) {
-                        totalKills += entry.getValue().getAsInt();
+                        totalKills += asInt(entry.getValue());
                     }
                 }
             }
@@ -63,7 +63,7 @@ public class ExtraPage extends ProfileViewerPage {
             if (deaths != null) {
                 for (var entry : deaths.entrySet()) {
                     if (entry.getValue().isJsonPrimitive()) {
-                        totalDeaths += entry.getValue().getAsInt();
+                        totalDeaths += asInt(entry.getValue());
                     }
                 }
             }

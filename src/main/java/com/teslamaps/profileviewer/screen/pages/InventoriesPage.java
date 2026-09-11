@@ -1,9 +1,10 @@
 package com.teslamaps.profileviewer.screen.pages;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.teslamaps.profileviewer.data.InventoryDecoder;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
+import com.teslamaps.profileviewer.screen.ItemGrid;
+import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -11,15 +12,40 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-public class InventoriesPage extends ProfileViewerPage {
-    private static final int TEXT_WHITE = 0xFFFFFFFF;
-    private static final int TEXT_GRAY = 0xFF888888;
-    private static final int TEXT_GREEN = 0xFF55FF55;
-    private static final int TEXT_GOLD = 0xFFFFAA00;
-    private static final int TEXT_PURPLE = 0xFFAA00AA;
+import java.util.ArrayList;
+import java.util.List;
 
-    private int selectedTab = 0;
-    private static final String[] TABS = {"Inventory", "Ender Chest", "Backpacks", "Wardrobe", "Accessories"};
+/** The containers of the account, laid out like the menus they come from. */
+public class InventoriesPage extends ProfileViewerPage {
+    private enum Section {
+        INVENTORY("Inventory", Items.CHEST),
+        ENDER_CHEST("Ender Chest", Items.ENDER_CHEST),
+        BACKPACKS("Backpacks", Items.BUNDLE),
+        ACCESSORIES("Accessories", Items.GOLDEN_APPLE),
+        WARDROBE("Wardrobe", Items.LEATHER_CHESTPLATE),
+        EQUIPMENT("Equipment", Items.DIAMOND_CHESTPLATE),
+        VAULT("Personal Vault", Items.IRON_DOOR);
+
+        final String label;
+        final net.minecraft.world.item.Item icon;
+
+        Section(String label, net.minecraft.world.item.Item icon) {
+            this.label = label;
+            this.icon = icon;
+        }
+    }
+
+    private Section section = Section.INVENTORY;
+    private int page = 0;
+
+    private int lastLeft;
+    private int lastTop;
+    private int pageCount = 1;
+
+    @Override
+    public boolean isFixedLayout() {
+        return true;
+    }
 
     @Override
     public String getTabName() {
@@ -32,185 +58,200 @@ public class InventoriesPage extends ProfileViewerPage {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
-                       int mouseX, int mouseY, float delta) {
-        SkyblockProfile profile = getProfile();
-        if (profile == null) return;
-
-        Font tr = Minecraft.getInstance().font;
-        JsonObject memberData = profile.getMemberData();
-        int padding = 15;
-        int contentX = x + padding;
-
-        int lineY = y + padding;
-
-        int tabX = contentX;
-        for (int i = 0; i < TABS.length; i++) {
-            int color = (i == selectedTab) ? TEXT_GREEN : TEXT_GRAY;
-            ctx.text(tr, TABS[i], tabX, lineY, color);
-            tabX += tr.width(TABS[i]) + 15;
-        }
-        lineY += 20;
-
-        switch (selectedTab) {
-            case 0 -> renderInventory(ctx, tr, memberData, contentX, lineY, width);
-            case 1 -> renderEnderChest(ctx, tr, memberData, contentX, lineY, width);
-            case 2 -> renderBackpacks(ctx, tr, memberData, contentX, lineY, width);
-            case 3 -> renderWardrobe(ctx, tr, memberData, contentX, lineY, width);
-            case 4 -> renderAccessories(ctx, tr, memberData, contentX, lineY, width);
-        }
-    }
-
-    private void renderInventory(GuiGraphicsExtractor ctx, Font tr, JsonObject memberData,
-                                  int x, int lineY, int width) {
-        ctx.text(tr, "Player Inventory", x, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject inventory = getNestedObject(memberData, "inventory.inv_contents");
-        if (inventory == null || !inventory.has("data")) {
-            ctx.text(tr, "No inventory data available", x, lineY, TEXT_GRAY);
-            ctx.text(tr, "(Inventory API may be disabled)", x, lineY + 12, TEXT_GRAY);
-            return;
-        }
-
-        String data = inventory.get("data").getAsString();
-        ctx.text(tr, "Inventory data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
-        lineY += 12;
-
-        lineY += 8;
-        ctx.text(tr, "Equipment", x, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject equipment = getNestedObject(memberData, "inventory.equipment_contents");
-        if (equipment != null && equipment.has("data")) {
-            ctx.text(tr, "Equipment data available", x, lineY, TEXT_WHITE);
-        } else {
-            ctx.text(tr, "No equipment data", x, lineY, TEXT_GRAY);
-        }
-    }
-
-    private void renderEnderChest(GuiGraphicsExtractor ctx, Font tr, JsonObject memberData,
-                                   int x, int lineY, int width) {
-        ctx.text(tr, "Ender Chest", x, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject enderChest = getNestedObject(memberData, "inventory.ender_chest_contents");
-        if (enderChest == null || !enderChest.has("data")) {
-            ctx.text(tr, "No ender chest data available", x, lineY, TEXT_GRAY);
-            return;
-        }
-
-        String data = enderChest.get("data").getAsString();
-        ctx.text(tr, "Ender chest data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
-    }
-
-    private void renderBackpacks(GuiGraphicsExtractor ctx, Font tr, JsonObject memberData,
-                                  int x, int lineY, int width) {
-        ctx.text(tr, "Backpacks", x, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject backpackContents = getNestedObject(memberData, "inventory.backpack_contents");
-        if (backpackContents == null) {
-            ctx.text(tr, "No backpack data available", x, lineY, TEXT_GRAY);
-            return;
-        }
-
-        int count = backpackContents.size();
-        ctx.text(tr, "Backpacks: " + count, x, lineY, TEXT_WHITE);
-        lineY += 14;
-
-        int idx = 0;
-        for (var entry : backpackContents.entrySet()) {
-            if (idx >= 18) {
-                ctx.text(tr, "... and more", x, lineY, TEXT_GRAY);
-                break;
-            }
-            ctx.text(tr, "Backpack " + entry.getKey(), x, lineY, TEXT_WHITE);
-            lineY += 12;
-            idx++;
-        }
-    }
-
-    private void renderWardrobe(GuiGraphicsExtractor ctx, Font tr, JsonObject memberData,
-                                 int x, int lineY, int width) {
-        ctx.text(tr, "Wardrobe", x, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject wardrobe = getNestedObject(memberData, "inventory.wardrobe_contents");
-        if (wardrobe == null || !wardrobe.has("data")) {
-            ctx.text(tr, "No wardrobe data available", x, lineY, TEXT_GRAY);
-            return;
-        }
-
-        String data = wardrobe.get("data").getAsString();
-        ctx.text(tr, "Wardrobe data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
-        lineY += 14;
-
-        if (memberData.has("wardrobe_equipped_slot")) {
-            int equipped = memberData.get("wardrobe_equipped_slot").getAsInt();
-            ctx.text(tr, "Equipped slot: " + equipped, x, lineY, TEXT_GOLD);
-        }
-    }
-
-    private void renderAccessories(GuiGraphicsExtractor ctx, Font tr, JsonObject memberData,
-                                    int x, int lineY, int width) {
-        ctx.text(tr, "Accessory Bag", x, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject talisman = getNestedObject(memberData, "inventory.bag_contents.talisman_bag");
-        if (talisman == null || !talisman.has("data")) {
-            ctx.text(tr, "No accessory bag data available", x, lineY, TEXT_GRAY);
-            return;
-        }
-
-        String data = talisman.get("data").getAsString();
-        ctx.text(tr, "Accessory bag data: " + (data.length() / 1024) + " KB", x, lineY, TEXT_WHITE);
-        lineY += 14;
-
-        if (memberData.has("accessory_bag_storage")) {
-            JsonObject storage = memberData.getAsJsonObject("accessory_bag_storage");
-            if (storage.has("highest_magical_power")) {
-                int magicalPower = storage.get("highest_magical_power").getAsInt();
-                ctx.text(tr, "Highest Magical Power: " + formatNumber(magicalPower),
-                        x, lineY, TEXT_PURPLE);
-                lineY += 12;
-            }
-            if (storage.has("bag_upgrades_purchased")) {
-                int upgrades = storage.get("bag_upgrades_purchased").getAsInt();
-                ctx.text(tr, "Bag Upgrades: " + upgrades, x, lineY, TEXT_WHITE);
-            }
-        }
+    public void onSelected() {
+        page = 0;
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        SkyblockProfile profile = getProfile();
-        if (profile == null) return false;
-
+    public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
+                       int mouseX, int mouseY, float delta) {
         Font tr = Minecraft.getInstance().font;
-        int tabX = 15;
-        int tabY = 15;
+        SkyblockProfile profile = getProfile();
+        if (profile == null) return;
 
-        for (int i = 0; i < TABS.length; i++) {
-            int tabWidth = tr.width(TABS[i]);
-            if (mouseX >= tabX && mouseX <= tabX + tabWidth &&
-                    mouseY >= tabY && mouseY <= tabY + 12) {
-                selectedTab = i;
+        int left = x - 8;
+        int top = y - 8;
+        lastLeft = left;
+        lastTop = top;
+
+        JsonObject inventory = profile.getMemberData().has("inventory")
+                ? profile.getMemberData().getAsJsonObject("inventory") : null;
+
+        // left rail with one button per container
+        for (int i = 0; i < Section.values().length; i++) {
+            Section s = Section.values()[i];
+            int bx = left + 6;
+            int by = top + 8 + i * 26;
+            boolean selected = s == section;
+            boolean hovered = mouseX >= bx && mouseX < bx + 96 && mouseY >= by && mouseY < by + 24;
+
+            if (selected) NeuStyle.slimBox(ctx, bx, by, 96, 24);
+            ctx.item(new ItemStack(s.icon), bx + 4, by + 4);
+            ctx.text(tr, s.label, bx + 24, by + 9,
+                    selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
+        }
+
+        int gridX = left + 116;
+        int gridY = top + 22;
+
+        List<InventoryDecoder.Slot> slots;
+        String title = section.label;
+        pageCount = 1;
+
+        switch (section) {
+            case INVENTORY -> {
+                slots = InventoryDecoder.decode(inventory, "inv_contents");
+                slots = reorderPlayerInventory(slots);
+            }
+            case ENDER_CHEST -> {
+                List<InventoryDecoder.Slot> all = InventoryDecoder.decode(inventory, "ender_chest_contents");
+                pageCount = Math.max(1, (all.size() + 44) / 45);
+                page = Math.min(page, pageCount - 1);
+                slots = subList(all, page * 45, 45);
+                title = "Ender Chest";
+            }
+            case BACKPACKS -> {
+                List<List<InventoryDecoder.Slot>> packs = backpacks(inventory);
+                pageCount = Math.max(1, packs.size());
+                page = Math.min(page, pageCount - 1);
+                slots = packs.isEmpty() ? List.of() : packs.get(page);
+                title = "Backpack " + (page + 1);
+            }
+            case ACCESSORIES -> {
+                List<InventoryDecoder.Slot> all = InventoryDecoder.decode(inventory, "bag_contents.talisman_bag");
+                pageCount = Math.max(1, (all.size() + 44) / 45);
+                page = Math.min(page, pageCount - 1);
+                slots = subList(all, page * 45, 45);
+                int magicalPower = magicalPower(profile);
+                ctx.text(tr, "Magical Power: " + magicalPower, gridX, top + 10, NeuStyle.TEXT_LIGHT_PURPLE);
+                title = null;
+            }
+            case WARDROBE -> {
+                List<InventoryDecoder.Slot> all = InventoryDecoder.decode(inventory, "wardrobe_contents");
+                pageCount = Math.max(1, (all.size() + 35) / 36);
+                page = Math.min(page, pageCount - 1);
+                slots = subList(all, page * 36, 36);
+                int equipped = asInt(profile.getMemberData().get("wardrobe_equipped_slot"));
+                title = equipped > 0 ? "Wardrobe (slot " + equipped + " worn)" : "Wardrobe";
+            }
+            case EQUIPMENT -> {
+                List<InventoryDecoder.Slot> armor = InventoryDecoder.decode(inventory, "inv_armor");
+                List<InventoryDecoder.Slot> equipment = InventoryDecoder.decode(inventory, "equipment_contents");
+                List<InventoryDecoder.Slot> merged = new ArrayList<>(armor);
+                merged.addAll(equipment);
+                slots = merged;
+                title = "Armor and Equipment";
+            }
+            case VAULT -> {
+                slots = InventoryDecoder.decode(inventory, "personal_vault_contents");
+                title = "Personal Vault";
+            }
+            default -> slots = List.of();
+        }
+
+        if (title != null) {
+            ctx.text(tr, title, gridX, top + 10, NeuStyle.TEXT_YELLOW);
+        }
+
+        if (slots.isEmpty()) {
+            ctx.text(tr, "Nothing here, or the api is off", gridX, gridY + 20, NeuStyle.TEXT_GRAY);
+            return;
+        }
+
+        int columns = section == Section.EQUIPMENT ? 4 : 9;
+        List<String> tooltip = ItemGrid.draw(ctx, slots, gridX, gridY, columns, 0,
+                Math.min(slots.size(), columns * 9), mouseX, mouseY);
+
+        if (pageCount > 1) {
+            String pager = "< " + (page + 1) + " / " + pageCount + " >";
+            int px = gridX + (columns * ItemGrid.SLOT - tr.width(pager)) / 2;
+            int py = top + NeuStyle.PANEL_HEIGHT - 30;
+            ctx.text(tr, pager, px, py, NeuStyle.TEXT);
+            pagerX = px;
+            pagerY = py;
+            pagerW = tr.width(pager);
+        } else {
+            pagerW = 0;
+        }
+
+        ItemGrid.drawTooltip(ctx, tooltip, mouseX, mouseY);
+    }
+
+    private int pagerX;
+    private int pagerY;
+    private int pagerW;
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for (int i = 0; i < Section.values().length; i++) {
+            int bx = lastLeft + 6;
+            int by = lastTop + 8 + i * 26;
+            if (mouseX >= bx && mouseX < bx + 96 && mouseY >= by && mouseY < by + 24) {
+                section = Section.values()[i];
+                page = 0;
                 return true;
             }
-            tabX += tabWidth + 15;
+        }
+
+        if (pagerW > 0 && mouseY >= pagerY - 2 && mouseY <= pagerY + 10) {
+            if (mouseX >= pagerX - 4 && mouseX <= pagerX + 10) {
+                page = (page - 1 + pageCount) % pageCount;
+                return true;
+            }
+            if (mouseX >= pagerX + pagerW - 10 && mouseX <= pagerX + pagerW + 4) {
+                page = (page + 1) % pageCount;
+                return true;
+            }
         }
         return false;
     }
 
-    private JsonObject getNestedObject(JsonObject root, String path) {
-        String[] parts = path.split("\\.");
-        JsonObject current = root;
-        for (String part : parts) {
-            if (current == null || !current.has(part)) return null;
-            if (!current.get(part).isJsonObject()) return null;
-            current = current.getAsJsonObject(part);
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        if (pageCount <= 1) return false;
+        page = (int) Math.max(0, Math.min(pageCount - 1, page - amount));
+        return true;
+    }
+
+    private static List<InventoryDecoder.Slot> subList(List<InventoryDecoder.Slot> all, int from, int size) {
+        List<InventoryDecoder.Slot> out = new ArrayList<>(size);
+        for (int i = from; i < from + size; i++) {
+            out.add(i < all.size() ? all.get(i) : InventoryDecoder.Slot.EMPTY);
         }
-        return current;
+        return out;
+    }
+
+    /** Hypixel stores the hotbar first; the player menu shows it last. */
+    private static List<InventoryDecoder.Slot> reorderPlayerInventory(List<InventoryDecoder.Slot> slots) {
+        if (slots.size() < 36) return slots;
+        List<InventoryDecoder.Slot> out = new ArrayList<>(36);
+        out.addAll(slots.subList(9, 36));
+        out.addAll(slots.subList(0, 9));
+        return out;
+    }
+
+    private static List<List<InventoryDecoder.Slot>> backpacks(JsonObject inventory) {
+        List<List<InventoryDecoder.Slot>> packs = new ArrayList<>();
+        if (inventory == null || !inventory.has("backpack_contents")) return packs;
+
+        JsonObject contents = inventory.getAsJsonObject("backpack_contents");
+        contents.keySet().stream().sorted((a, b) -> {
+            try {
+                return Integer.compare(Integer.parseInt(a), Integer.parseInt(b));
+            } catch (NumberFormatException e) {
+                return a.compareTo(b);
+            }
+        }).forEach(key -> {
+            List<InventoryDecoder.Slot> pack = InventoryDecoder.decode(contents, key);
+            if (!pack.isEmpty()) packs.add(pack);
+        });
+        return packs;
+    }
+
+    private static int magicalPower(SkyblockProfile profile) {
+        JsonObject accessories = profile.getMemberData().has("accessory_bag_storage")
+                ? profile.getMemberData().getAsJsonObject("accessory_bag_storage") : null;
+        if (accessories == null) return 0;
+        return asInt(accessories.get("highest_magical_power"));
     }
 }

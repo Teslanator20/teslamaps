@@ -40,6 +40,7 @@ public class NeuStyle {
     public static final int TEXT_YELLOW = 0xFFFFFF55;
     public static final int TEXT_TURQUOISE = 0xFF3FE0D0;
     public static final int TEXT_PURPLE = 0xFFAA00AA;
+    public static final int TEXT_LIGHT_PURPLE = 0xFFFF55FF;
 
     /** Tab above the window: 28 wide, the selected one reaches further down into the frame. */
     public static void tab(GuiGraphicsExtractor ctx, int x, int y, boolean selected) {

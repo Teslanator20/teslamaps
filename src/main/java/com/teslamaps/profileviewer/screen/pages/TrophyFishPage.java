@@ -85,6 +85,7 @@ public class TrophyFishPage extends ProfileViewerPage {
         int listStartY = lineY;
         int listHeight = height - (lineY - y) - padding;
 
+        ctx.enableScissor(x, listStartY, x + width, listStartY + listHeight);
         for (int i = 0; i < TROPHY_FISH.length; i++) {
             int fishY = listStartY + i * 14 - scrollOffset;
             if (fishY < listStartY - 14 || fishY > listStartY + listHeight) continue;
@@ -106,6 +107,7 @@ public class TrophyFishPage extends ProfileViewerPage {
             ctx.text(tr, String.valueOf(gold), contentX + 240, fishY, gold > 0 ? GOLD : TEXT_GRAY);
             ctx.text(tr, String.valueOf(diamond), contentX + 280, fishY, diamond > 0 ? DIAMOND : TEXT_GRAY);
         }
+        ctx.disableScissor();
     }
 
     private JsonObject getNestedObject(JsonObject root, String path) {

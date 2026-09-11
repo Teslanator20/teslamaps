@@ -241,6 +241,14 @@ public class TMapCommand {
                                 })))
                 .then(ClientCommands.literal("pv")
                         .executes(context -> openProfileViewer(context.getSource(), null))
+                        .then(ClientCommands.literal("dump")
+                                .then(ClientCommands.argument("player", StringArgumentType.word())
+                                        .executes(context -> {
+                                            String player = StringArgumentType.getString(context, "player");
+                                            context.getSource().sendFeedback(Component.literal("§7Dumping " + player + "..."));
+                                            com.teslamaps.profileviewer.ProfileDump.dump(player);
+                                            return 1;
+                                        })))
                         .then(ClientCommands.literal("fake")
                                 .executes(context -> {
                                     com.teslamaps.profileviewer.FakeProfile.open();

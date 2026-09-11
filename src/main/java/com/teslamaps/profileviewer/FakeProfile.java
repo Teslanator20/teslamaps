@@ -4,6 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.teslamaps.api.HypixelApi;
 import com.teslamaps.profileviewer.screen.ProfileViewerScreen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.StringTag;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Base64;
 
 /** Dev helper: /tmap pv fake - opens the viewer on made up data so the layout can be checked offline. */
 public class FakeProfile {
@@ -18,6 +25,56 @@ public class FakeProfile {
 
         HypixelApi.injectFake(name, uuid, build(uuid));
         ProfileViewerScreen.open(name);
+    }
+
+    private static JsonObject container(String data) {
+        JsonObject obj = new JsonObject();
+        obj.addProperty("type", 0);
+        obj.addProperty("data", data);
+        return obj;
+    }
+
+    private static JsonObject bagContents() {
+        JsonObject bags = new JsonObject();
+        bags.add("talisman_bag", container(encode(new String[]{
+                "WITHER_ARTIFACT", "POWER_ARTIFACT", "SPEED_ARTIFACT", "CANDY_ARTIFACT",
+                "HEGEMONY_ARTIFACT", "TREASURE_ARTIFACT", "SHADY_RING", "CROOKED_ARTIFACT",
+                "MASTER_SKULL_TIER_7", "DANTE_TALISMAN", "POTION_AFFINITY_ARTIFACT",
+        })));
+        return bags;
+    }
+
+    /** Builds the same gzipped 1.8 item nbt hypixel sends, so the decoder gets real input. */
+    private static String encode(String[] ids) {
+        try {
+            ListTag items = new ListTag();
+            for (String id : ids) {
+                CompoundTag item = new CompoundTag();
+                if (id != null) {
+                    item.putByte("Count", (byte) 1);
+                    CompoundTag tag = new CompoundTag();
+                    CompoundTag extra = new CompoundTag();
+                    extra.putString("id", id);
+                    tag.put("ExtraAttributes", extra);
+                    CompoundTag display = new CompoundTag();
+                    display.putString("Name", "§a" + id.replace('_', ' '));
+                    ListTag lore = new ListTag();
+                    lore.add(StringTag.valueOf("§7Fake item for layout tests"));
+                    display.put("Lore", lore);
+                    tag.put("display", display);
+                    item.put("tag", tag);
+                }
+                items.add(item);
+            }
+            CompoundTag root = new CompoundTag();
+            root.put("i", items);
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            NbtIo.writeCompressed(root, out);
+            return Base64.getEncoder().encodeToString(out.toByteArray());
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private static JsonObject build(String uuid) {
@@ -103,6 +160,36 @@ public class FakeProfile {
         JsonObject petsData = new JsonObject();
         petsData.add("pets", pets);
         member.add("pets_data", petsData);
+
+        // containers, encoded exactly like hypixel does it
+        JsonObject inventory = new JsonObject();
+        inventory.add("inv_contents", container(encode(new String[]{
+                "HYPERION", "NECRON_HANDLE", "TERMINATOR", "JUJU_SHORTBOW", "GIANTS_SWORD",
+                "ASPECT_OF_THE_VOID", "SPIRIT_SCEPTRE", "MIDAS_STAFF", "BONE_BOOMERANG",
+                "SUPERBOOM_TNT", "SPIRIT_LEAP", "INFINITE_SUPERBOOM_TNT", "DIAMOND_PICKAXE",
+                "GOLDEN_PICKAXE", "TITANIUM_DRILL_DR_X355", "ROCK_GEMSTONE", "ENCHANTED_LAPIS_LAZULI",
+                "TREECAPITATOR_AXE", null, null, null, null, "HOT_POTATO_BOOK", "RECOMBOBULATOR_3000",
+                null, null, null, null, null, null, null, null, null, null, null, null,
+        })));
+        inventory.add("ender_chest_contents", container(encode(new String[]{
+                "ENCHANTED_DIAMOND_BLOCK", "ENCHANTED_EMERALD_BLOCK", "ENCHANTED_GOLD_BLOCK",
+                "SUPER_ENCHANTED_EGG", "ENCHANTED_CAKE", "GOLDEN_POWDER", "REVENANT_CATALYST",
+                "NECRON_BLADE", "SHADOW_FURY", null, null, null, "ENCHANTED_BOOK", "WITHER_CATALYST",
+        })));
+        inventory.add("bag_contents", bagContents());
+        inventory.add("wardrobe_contents", container(encode(new String[]{
+                "NECRON_HELMET", "NECRON_CHESTPLATE", "NECRON_LEGGINGS", "NECRON_BOOTS",
+                "STORM_HELMET", "STORM_CHESTPLATE", "STORM_LEGGINGS", "STORM_BOOTS",
+        })));
+        inventory.add("inv_armor", container(encode(new String[]{
+                "NECRON_BOOTS", "NECRON_LEGGINGS", "NECRON_CHESTPLATE", "NECRON_HELMET",
+        })));
+        member.add("inventory", inventory);
+
+        JsonObject accessoryStorage = new JsonObject();
+        accessoryStorage.addProperty("highest_magical_power", 1432);
+        member.add("accessory_bag_storage", accessoryStorage);
+        member.addProperty("wardrobe_equipped_slot", 2);
 
         JsonObject leveling = new JsonObject();
         leveling.addProperty("experience", 38_420);

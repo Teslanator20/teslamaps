@@ -22,9 +22,6 @@ public class FishingHookDisplay {
     // The colour codes Hypixel puts in front of it are not stable, so match the plain text.
     private static final Pattern TIMER = Pattern.compile("\\d+(?:\\.\\d+)?s?");
 
-    // a numeric label further away belongs to something else (damage indicators etc.)
-    private static final double MAX_DIST_SQ = 9;
-
     private static String text = null;
     private static int entityId = -1;
     private static boolean alerting = false;
@@ -61,7 +58,7 @@ public class FishingHookDisplay {
 
             // several bobbers can be in the water, take the stand closest to ours
             double distance = entity.distanceToSqr(bobber);
-            if (distance > MAX_DIST_SQ || distance > bestDistance) continue;
+            if (distance > bestDistance) continue;
             bestDistance = distance;
             bestId = entity.getId();
             bestAlert = alert;

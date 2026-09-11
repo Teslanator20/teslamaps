@@ -111,7 +111,7 @@ public class CrimsonIslePage extends ProfileViewerPage {
             int totalPoints = 0;
             for (var entry : dojoData.entrySet()) {
                 if (entry.getKey().startsWith("dojo_points_") && entry.getValue().isJsonPrimitive()) {
-                    totalPoints += entry.getValue().getAsInt();
+                    totalPoints += asInt(entry.getValue());
                 }
             }
             String belt = getDojoBelt(totalPoints);

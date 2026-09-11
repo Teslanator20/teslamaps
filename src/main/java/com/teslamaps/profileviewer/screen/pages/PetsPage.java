@@ -2,8 +2,10 @@ package com.teslamaps.profileviewer.screen.pages;
 
 import com.teslamaps.profileviewer.data.PetData;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
+import com.teslamaps.profileviewer.screen.ItemGrid;
 import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
+import com.teslamaps.utils.SkyblockItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -11,10 +13,31 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/** The pet menu the way the game shows it: a slot grid with pages. */
 public class PetsPage extends ProfileViewerPage {
+    private static final int COLUMNS = 9;
+    private static final int ROWS = 5;
+    private static final int PER_PAGE = COLUMNS * ROWS;
+
+    private static final Map<String, ItemStack> petStacks = new HashMap<>();
+
+    private int page = 0;
+    private int pageCount = 1;
+    private int lastLeft;
+    private int lastTop;
+    private int pagerX;
+    private int pagerY;
+    private int pagerW;
+
+    @Override
+    public boolean isFixedLayout() {
+        return true;
+    }
+
     @Override
     public String getTabName() {
         return "Pets";
@@ -23,6 +46,11 @@ public class PetsPage extends ProfileViewerPage {
     @Override
     public ItemStack getTabIcon() {
         return new ItemStack(Items.BONE);
+    }
+
+    @Override
+    public void onSelected() {
+        page = 0;
     }
 
     @Override
@@ -37,84 +65,107 @@ public class PetsPage extends ProfileViewerPage {
 
         int left = x - 8;
         int top = y - 8;
+        lastLeft = left;
+        lastTop = top;
 
-        List<PetData> pets = new ArrayList<>(profile.getPets());
-        pets.sort(Comparator
-                .comparing(PetData::isActive).reversed()
-                .thenComparing(PetData::getRarityOrdinal, Comparator.reverseOrder())
-                .thenComparing(PetData::getLevel, Comparator.reverseOrder()));
+        List<PetData> pets = profile.getPets();
+        pageCount = Math.max(1, (pets.size() + PER_PAGE - 1) / PER_PAGE);
+        page = Math.min(page, pageCount - 1);
 
         String title = "Pets (" + pets.size() + ")";
-        ctx.text(tr, title, left + NeuStyle.PANEL_WIDTH / 2 - tr.width(title) / 2, top + 5, NeuStyle.TEXT_YELLOW);
+        ctx.text(tr, title, left + NeuStyle.PANEL_WIDTH / 2 - tr.width(title) / 2, top + 6, NeuStyle.TEXT_YELLOW);
 
-        // three columns of rows, same rhythm as the skill grid
-        int columnWidth = 135;
-        int perColumn = 8;
+        int gridWidth = COLUMNS * ItemGrid.SLOT;
+        int gridX = left + (NeuStyle.PANEL_WIDTH - gridWidth) / 2;
+        int gridY = top + 20;
 
-        for (int i = 0; i < pets.size(); i++) {
-            PetData pet = pets.get(i);
-            int column = i / perColumn;
-            int row = i % perColumn;
-            int px = left + 14 + column * columnWidth;
-            int py = top + 22 + row * 21;
+        List<String> tooltip = null;
 
-            if (px + columnWidth > left + NeuStyle.PANEL_WIDTH) break;
+        for (int i = 0; i < PER_PAGE; i++) {
+            int index = page * PER_PAGE + i;
+            int sx = gridX + (i % COLUMNS) * ItemGrid.SLOT;
+            int sy = gridY + (i / COLUMNS) * ItemGrid.SLOT;
 
-            String name = pet.getDisplayName();
-            ctx.text(tr, name, px, py, pet.getRarityColor() | 0xFF000000);
+            ctx.fill(sx, sy, sx + 17, sy + 17, 0x60000000);
+            ctx.fill(sx, sy, sx + 17, sy + 1, 0x40FFFFFF);
+            ctx.fill(sx, sy, sx + 1, sy + 17, 0x40FFFFFF);
 
-            String level = "Lv " + pet.getLevel();
-            ctx.text(tr, level, px + columnWidth - 26 - tr.width(level), py, NeuStyle.TEXT);
+            if (index >= pets.size()) continue;
+            PetData pet = pets.get(index);
+
+            ItemStack stack = stackFor(pet);
+            if (!stack.isEmpty()) ctx.item(stack, sx + 1, sy + 1);
 
             if (pet.isActive()) {
-                ctx.text(tr, "✓", px + columnWidth - 20, py, NeuStyle.TEXT_GREEN);
+                ctx.fill(sx + 1, sy + 1, sx + 17, sy + 17, 0x3055FF55);
             }
 
-            NeuStyle.bar(ctx, px, py + 10, columnWidth - 24, pet.getProgress(), pet.getRarityColor() | 0xFF000000);
+            String level = String.valueOf(pet.getLevel());
+            ctx.text(tr, level, sx + 17 - tr.width(level), sy + 9, 0xFFFFFFFF);
 
-            if (mouseX > px && mouseX < px + columnWidth - 24 && mouseY > py - 2 && mouseY < py + 15) {
-                List<String> lines = new ArrayList<>();
-                lines.add(name);
-                lines.add("Level: " + pet.getLevel());
-                lines.add("XP: " + formatXp(pet.getExp()));
-                if (pet.getHeldItem() != null) lines.add("Held: " + prettify(pet.getHeldItem()));
-                if (pet.getSkin() != null) lines.add("Skin: " + prettify(pet.getSkin()));
-                if (pet.isActive()) lines.add("Active");
-                tooltip = lines.toArray(new String[0]);
-                tooltipX = mouseX;
-                tooltipY = mouseY;
+            if (mouseX >= sx && mouseX < sx + 17 && mouseY >= sy && mouseY < sy + 17) {
+                ctx.fill(sx + 1, sy + 1, sx + 16, sy + 16, 0x40FFFFFF);
+                tooltip = tooltipFor(pet);
             }
         }
 
-        if (tooltip != null) {
-            drawTooltip(ctx, tr);
-            tooltip = null;
+        if (pageCount > 1) {
+            String pager = "< " + (page + 1) + " / " + pageCount + " >";
+            pagerX = left + (NeuStyle.PANEL_WIDTH - tr.width(pager)) / 2;
+            pagerY = gridY + ROWS * ItemGrid.SLOT + 6;
+            pagerW = tr.width(pager);
+            ctx.text(tr, pager, pagerX, pagerY, NeuStyle.TEXT);
+        } else {
+            pagerW = 0;
         }
+
+        ItemGrid.drawTooltip(ctx, tooltip, mouseX, mouseY);
+    }
+
+    private static ItemStack stackFor(PetData pet) {
+        String id = pet.getType() + ";" + pet.getRarityOrdinal();
+        ItemStack cached = petStacks.get(id);
+        if (cached != null) return cached;
+        petStacks.put(id, new ItemStack(Items.BONE));
+        SkyblockItems.resolve(id, stack -> petStacks.put(id, stack));
+        return petStacks.get(id);
+    }
+
+    private static List<String> tooltipFor(PetData pet) {
+        List<String> lines = new ArrayList<>();
+        lines.add(pet.getDisplayName());
+        lines.add("Level " + pet.getLevel());
+        lines.add("XP " + (long) pet.getExp());
+        if (pet.getHeldItem() != null) lines.add("Held: " + pretty(pet.getHeldItem()));
+        if (pet.getSkin() != null) lines.add("Skin: " + pretty(pet.getSkin()));
+        if (pet.isActive()) lines.add("Active");
+        return lines;
+    }
+
+    private static String pretty(String id) {
+        String out = id.replace("PET_ITEM_", "").replace("PET_SKIN_", "").replace('_', ' ').toLowerCase();
+        return out.isEmpty() ? out : Character.toUpperCase(out.charAt(0)) + out.substring(1);
     }
 
     @Override
-    public boolean isFixedLayout() {
-        return true;
-    }
-
-    private static String prettify(String id) {
-        String out = id.replace("PET_ITEM_", "").replace("PET_SKIN_", "").replace('_', ' ').toLowerCase();
-        return out.substring(0, 1).toUpperCase() + out.substring(1);
-    }
-
-    private String[] tooltip;
-    private int tooltipX;
-    private int tooltipY;
-
-    private void drawTooltip(GuiGraphicsExtractor ctx, Font tr) {
-        int w = 0;
-        for (String line : tooltip) w = Math.max(w, tr.width(line));
-        int h = tooltip.length * 10 + 4;
-        int tx = Math.min(tooltipX + 8, NeuStyle.PANEL_WIDTH - w - 8);
-        int ty = Math.max(2, tooltipY - h);
-        NeuStyle.window(ctx, tx - 3, ty - 2, w + 8, h);
-        for (int i = 0; i < tooltip.length; i++) {
-            ctx.text(tr, tooltip[i], tx, ty + 2 + i * 10, i == 0 ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (pagerW > 0 && mouseY >= pagerY - 2 && mouseY <= pagerY + 10) {
+            if (mouseX >= pagerX - 4 && mouseX <= pagerX + 10) {
+                page = (page - 1 + pageCount) % pageCount;
+                return true;
+            }
+            if (mouseX >= pagerX + pagerW - 10 && mouseX <= pagerX + pagerW + 4) {
+                page = (page + 1) % pageCount;
+                return true;
+            }
         }
+        return false;
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        if (pageCount <= 1) return false;
+        page = (int) Math.max(0, Math.min(pageCount - 1, page - amount));
+        return true;
     }
 }

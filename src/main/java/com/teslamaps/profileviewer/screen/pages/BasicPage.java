@@ -6,6 +6,7 @@ import com.teslamaps.api.PvApi;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
 import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.PlayerHeads;
+import com.teslamaps.profileviewer.screen.SkinRender;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import com.mojang.authlib.GameProfile;
 import java.util.UUID;
@@ -75,11 +76,21 @@ public class BasicPage extends ProfileViewerPage {
         String name = profiles != null ? profiles.getDisplayName() : "";
         drawCentered(ctx, tr, name, left + 63, top + 8, NeuStyle.TEXT);
 
-        String networth = "Net Worth: " + formatCoins(profile.getCoinPurse() + profile.getBankBalance());
-        ctx.text(tr, networth, left + 8, top + 34, NeuStyle.TEXT_GREEN);
+        ctx.text(tr, "Purse: " + formatCoins(profile.getCoinPurse()), left + 8, top + 28, NeuStyle.TEXT_GOLD);
+        ctx.text(tr, "Bank: " + formatCoins(profile.getBankBalance()), left + 8, top + 38, NeuStyle.TEXT_GOLD);
 
+        // the rotating player, dragging inside the box spins it
+        playerBoxX = left + 23;
+        playerBoxY = top + 44;
+        NeuStyle.slimBox(ctx, left + 23, top + 44, 81, 108);
         if (profiles != null) {
-            PlayerHeads.body(ctx, profiles.getUuid(), name, left + 39, top + 52, 3);
+            net.minecraft.world.entity.player.PlayerSkin skin =
+                    PlayerHeads.playerSkin(profiles.getUuid(), name);
+            if (skin != null) {
+                boolean thin = skin.model() == net.minecraft.world.entity.player.PlayerModelType.SLIM;
+                SkinRender.draw(ctx, skin.body().texturePath(), thin, skinYaw, skinPitch,
+                        left + 26, top + 47, left + 101, top + 149);
+            }
         }
 
         String status = profiles != null ? profiles.getOnlineStatus() : "";
@@ -149,6 +160,42 @@ public class BasicPage extends ProfileViewerPage {
             tooltip = null;
         }
     }
+
+    private float skinYaw = 15f;
+    private float skinPitch = 0f;
+    private double lastDragX;
+    private double lastDragY;
+    private boolean dragging;
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (mouseX >= playerBoxX && mouseX <= playerBoxX + 81
+                && mouseY >= playerBoxY && mouseY <= playerBoxY + 108) {
+            dragging = true;
+            lastDragX = mouseX;
+            lastDragY = mouseY;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button) {
+        if (!dragging) return false;
+        skinYaw += (float) (mouseX - lastDragX) * 2f;
+        skinPitch = Math.max(-40f, Math.min(40f, skinPitch + (float) (mouseY - lastDragY)));
+        lastDragX = mouseX;
+        lastDragY = mouseY;
+        return true;
+    }
+
+    @Override
+    public void mouseReleased() {
+        dragging = false;
+    }
+
+    private int playerBoxX;
+    private int playerBoxY;
 
     private String[] tooltip;
     private int tooltipX;

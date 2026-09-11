@@ -55,15 +55,16 @@ public class BestiaryPage extends ProfileViewerPage {
         if (bestiaryRoot != null && bestiaryRoot.has("milestone")) {
             JsonObject milestone = bestiaryRoot.getAsJsonObject("milestone");
             int level = milestone.has("last_claimed_milestone") ?
-                    milestone.get("last_claimed_milestone").getAsInt() : 0;
+                    asInt(milestone.get("last_claimed_milestone")) : 0;
             ctx.text(tr, "Milestone Level: " + level, contentX, lineY, TEXT_WHITE);
             lineY += 20;
         }
 
         List<Map.Entry<String, Integer>> mobs = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : bestiary.entrySet()) {
-            if (entry.getValue().isJsonPrimitive()) {
-                mobs.add(new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().getAsInt()));
+            int kills = asInt(entry.getValue());
+            if (kills > 0) {
+                mobs.add(new AbstractMap.SimpleEntry<>(entry.getKey(), kills));
             }
         }
         mobs.sort((a, b) -> b.getValue().compareTo(a.getValue()));
@@ -77,6 +78,7 @@ public class BestiaryPage extends ProfileViewerPage {
         int listHeight = height - (lineY - y) - padding;
         int idx = 0;
 
+        ctx.enableScissor(x, listStartY, x + width, listStartY + listHeight);
         for (Map.Entry<String, Integer> entry : mobs) {
             int mobY = listStartY + idx * 14 - scrollOffset;
             if (mobY < listStartY - 14 || mobY > listStartY + listHeight) {
@@ -97,6 +99,7 @@ public class BestiaryPage extends ProfileViewerPage {
             idx++;
             if (idx > 50) break; // Limit display
         }
+        ctx.disableScissor();
     }
 
     private String formatMobName(String id) {

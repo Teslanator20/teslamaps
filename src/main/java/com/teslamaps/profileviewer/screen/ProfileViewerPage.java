@@ -30,6 +30,13 @@ public abstract class ProfileViewerPage {
         return false;
     }
 
+    public boolean mouseDragged(double mouseX, double mouseY, int button) {
+        return false;
+    }
+
+    public void mouseReleased() {
+    }
+
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         if (isFixedLayout()) return false;
         scroll = (int) Math.max(0, Math.min(maxScroll, scroll - amount * 12));
@@ -54,6 +61,25 @@ public abstract class ProfileViewerPage {
 
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         return false;
+    }
+
+    /** Hypixel mixes strings into numeric maps, so never trust getAsInt on foreign data. */
+    protected static int asInt(com.google.gson.JsonElement element) {
+        if (element == null || !element.isJsonPrimitive()) return 0;
+        try {
+            return element.getAsJsonPrimitive().isNumber() ? element.getAsInt() : 0;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    protected static long asLong(com.google.gson.JsonElement element) {
+        if (element == null || !element.isJsonPrimitive()) return 0;
+        try {
+            return element.getAsJsonPrimitive().isNumber() ? element.getAsLong() : 0;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     protected SkyblockProfile getProfile() {

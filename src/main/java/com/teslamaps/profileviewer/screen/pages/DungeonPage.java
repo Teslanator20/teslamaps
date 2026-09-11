@@ -50,14 +50,24 @@ public class DungeonPage extends ProfileViewerPage {
         lastTop = top;
         DungeonData data = profile.getDungeonData();
 
-        String title = masterMode ? "Master Mode" : "Catacombs";
+        // two switchable headers, so the master mode side is actually findable
         int titleX = left + NeuStyle.PANEL_WIDTH / 2;
-        ctx.text(tr, title, titleX - tr.width(title) / 2, top + 5, NeuStyle.TEXT_RED);
+        String normal = "Catacombs";
+        String master = "Master Mode";
+        int gap = 12;
+        int totalWidth = tr.width(normal) + gap + tr.width(master);
+        int normalX = titleX - totalWidth / 2;
+        int masterX = normalX + tr.width(normal) + gap;
 
-        boolean toggleHovered = mouseX > titleX - 40 && mouseX < titleX + 40 && mouseY > top + 3 && mouseY < top + 14;
-        if (toggleHovered) {
-            ctx.text(tr, "[click]", titleX + tr.width(title) / 2 + 4, top + 5, NeuStyle.TEXT_GRAY);
-        }
+        ctx.text(tr, normal, normalX, top + 5, masterMode ? NeuStyle.TEXT_DARK : NeuStyle.TEXT_RED);
+        ctx.text(tr, master, masterX, top + 5, masterMode ? NeuStyle.TEXT_RED : NeuStyle.TEXT_DARK);
+        NeuStyle.slimBox(ctx, (masterMode ? masterX : normalX) - 3, top + 14,
+                tr.width(masterMode ? master : normal) + 6, 2);
+
+        lastNormalX = normalX;
+        lastNormalW = tr.width(normal);
+        lastMasterX = masterX;
+        lastMasterW = tr.width(master);
 
         // catacombs level
         int cx = left + 23;
@@ -89,6 +99,7 @@ public class DungeonPage extends ProfileViewerPage {
         int rowY = fy + 12;
         for (Map.Entry<String, DungeonData.FloorData> entry : floors.entrySet()) {
             DungeonData.FloorData floor = entry.getValue();
+            if (entry.getKey().equals("0")) continue;
             if (floor.getCompletions() == 0 && floor.getFastestSPlusTime() == 0) continue;
 
             ctx.text(tr, floor.getDisplayName(), fx, rowY, NeuStyle.TEXT);
@@ -152,17 +163,25 @@ public class DungeonPage extends ProfileViewerPage {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // the title doubles as the master mode switch, same as NEU
-        int titleX = lastLeft + NeuStyle.PANEL_WIDTH / 2;
-        if (mouseX > titleX - 40 && mouseX < titleX + 40 && mouseY > lastTop + 3 && mouseY < lastTop + 16) {
-            masterMode = !masterMode;
-            return true;
+        if (mouseY > lastTop + 3 && mouseY < lastTop + 16) {
+            if (mouseX >= lastNormalX - 3 && mouseX <= lastNormalX + lastNormalW + 3) {
+                masterMode = false;
+                return true;
+            }
+            if (mouseX >= lastMasterX - 3 && mouseX <= lastMasterX + lastMasterW + 3) {
+                masterMode = true;
+                return true;
+            }
         }
         return false;
     }
 
     private int lastLeft;
     private int lastTop;
+    private int lastNormalX;
+    private int lastNormalW;
+    private int lastMasterX;
+    private int lastMasterW;
 
     private String[] tooltip;
     private int tooltipX;

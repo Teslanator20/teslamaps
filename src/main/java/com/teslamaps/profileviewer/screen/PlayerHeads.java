@@ -23,6 +23,13 @@ public class PlayerHeads {
     private static final Map<String, Boolean> pending = new ConcurrentHashMap<>();
     private static final Map<String, String> uuids = new ConcurrentHashMap<>();
 
+    public static PlayerSkin playerSkin(String uuid, String name) {
+        Supplier<PlayerSkin> lookup = lookups.get(uuid);
+        if (lookup != null) return lookup.get();
+        skin(uuid, name);
+        return null;
+    }
+
     public static Identifier skin(String uuid, String name) {
         Supplier<PlayerSkin> lookup = lookups.get(uuid);
         if (lookup != null) return lookup.get().body().texturePath();
