@@ -61,8 +61,10 @@ public class HypixelApi {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
                 if (response.statusCode() != 200) {
-                    TeslaMaps.LOGGER.warn("Mojang API returned {}: {}", response.statusCode(), playerName);
-                    return null;
+                    // mojang rate limits hard, playerdb is the fallback skyblock-pv uses too
+                    TeslaMaps.LOGGER.warn("Mojang API returned {} for {}, trying playerdb",
+                            response.statusCode(), playerName);
+                    return viaPlayerDb(playerName, cacheKey);
                 }
 
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
@@ -72,9 +74,35 @@ public class HypixelApi {
                 return json.get("id").getAsString();
             } catch (Exception e) {
                 TeslaMaps.LOGGER.error("Failed to get UUID for {}", playerName, e);
-                return null;
+                return viaPlayerDb(playerName, cacheKey);
             }
         }, executor);
+    }
+
+    private static String viaPlayerDb(String playerName, String cacheKey) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://playerdb.co/api/player/minecraft/" + playerName))
+                    .timeout(Duration.ofSeconds(10))
+                    .header("User-Agent", "TeslaMaps/1.0")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) return null;
+
+            JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+            String id = json.getAsJsonObject("data").getAsJsonObject("player")
+                    .get("raw_id").getAsString();
+
+            JsonObject cached = new JsonObject();
+            cached.addProperty("id", id);
+            cache.put(cacheKey, new CacheEntry(cached, 3600000));
+            return id;
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.warn("playerdb lookup for {} failed: {}", playerName, e.toString());
+            return null;
+        }
     }
 
     /** Profiles keyed by cute name, each with the member data of the given uuid. */

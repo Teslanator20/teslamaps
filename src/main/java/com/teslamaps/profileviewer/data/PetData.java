@@ -7,10 +7,9 @@ public class PetData {
     private final boolean active;
     private final String heldItem;
     private final String skin;
-    private final int level;
-    private final double progress;
 
-    private static final int[] RARITY_OFFSET = {0, 0, 6, 11, 16, 20, 20};
+    // common, uncommon, rare, epic, legendary, mythic - where each rarity starts in the table
+    private static final int[] RARITY_OFFSET = {0, 6, 11, 16, 20, 20};
     private static final double[] PET_XP_TABLE = {
             0, 100, 210, 330, 460, 605, 765, 940, 1130, 1340, 1570, 1820, 2095, 2395, 2725, 3085, 3485, 3925, 4415,
             4955, 5555, 6215, 6945, 7745, 8625, 9585, 10635, 11785, 13045, 14425, 15935, 17585, 19385, 21345, 23475,
@@ -32,33 +31,42 @@ public class PetData {
         this.active = active;
         this.heldItem = heldItem;
         this.skin = skin;
+        PetRepo.load();
+    }
 
-        int rarityIndex = getRarityOrdinal();
-        int offset = rarityIndex < RARITY_OFFSET.length ? RARITY_OFFSET[rarityIndex] : 0;
-        int maxLevel = 100;
+    private int cachedLevel = -1;
+    private double cachedProgress;
+    private boolean cachedFromRepo;
 
-        int lvl = 1;
-        double xpForLevel = 0;
-        for (int i = offset; i < PET_XP_TABLE.length && lvl < maxLevel; i++) {
-            xpForLevel += PET_XP_TABLE[i];
-            if (exp >= xpForLevel) {
-                lvl++;
-            } else {
-                break;
-            }
+    /** Levels off the repo table; recomputed once the repo finished loading. */
+    private void ensureLevel() {
+        boolean repo = PetRepo.isLoaded();
+        if (cachedLevel >= 0 && cachedFromRepo == repo) return;
+
+        int max = repo ? PetRepo.maxLevel(type) : 100;
+        double remaining = exp;
+        int level = 1;
+        long cost = 0;
+
+        while (level < max) {
+            cost = repo ? PetRepo.costFor(type, tier, level) : fallbackCost(level);
+            if (cost <= 0 || remaining < cost) break;
+            remaining -= cost;
+            level++;
         }
-        this.level = lvl;
 
-        if (lvl < maxLevel && offset + lvl < PET_XP_TABLE.length) {
-            double prevLevelXp = 0;
-            for (int i = offset; i < offset + lvl - 1 && i < PET_XP_TABLE.length; i++) {
-                prevLevelXp += PET_XP_TABLE[i];
-            }
-            double nextLevelXp = prevLevelXp + PET_XP_TABLE[offset + lvl - 1];
-            this.progress = (exp - prevLevelXp) / (nextLevelXp - prevLevelXp);
-        } else {
-            this.progress = 1.0;
-        }
+        cachedLevel = level;
+        cachedProgress = (level >= max || cost <= 0) ? 1.0 : remaining / cost;
+        cachedFromRepo = repo;
+    }
+
+    private long fallbackCost(int level) {
+        int index = RARITY_OFFSET[Math.min(getRarityOrdinal(), RARITY_OFFSET.length - 1)] + level - 1;
+        return index >= 0 && index < PET_XP_TABLE.length ? (long) PET_XP_TABLE[index] : 0;
+    }
+
+    public int getMaxLevel() {
+        return PetRepo.isLoaded() ? PetRepo.maxLevel(type) : 100;
     }
 
     public String getType() { return type; }
@@ -67,8 +75,8 @@ public class PetData {
     public boolean isActive() { return active; }
     public String getHeldItem() { return heldItem; }
     public String getSkin() { return skin; }
-    public int getLevel() { return level; }
-    public double getProgress() { return progress; }
+    public int getLevel() { ensureLevel(); return cachedLevel; }
+    public double getProgress() { ensureLevel(); return cachedProgress; }
 
     public String getDisplayName() {
         String[] parts = type.split("_");

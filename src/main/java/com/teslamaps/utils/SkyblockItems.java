@@ -469,6 +469,12 @@ public class SkyblockItems {
     private static final Map<String, ResolvableProfile> profileCache = new ConcurrentHashMap<>();
 
     /** Player head with a hardcoded texture. The value is the base64 the API hands out. */
+    /** A player head with a base64 skin value, used by the bestiary icons too. */
+    public static ItemStack headFromTexture(String textureValue) {
+        ItemStack head = skull(textureValue);
+        return head == null ? ItemStack.EMPTY : head;
+    }
+
     private static ItemStack skull(String textureValue) {
         try {
             Multimap<String, Property> properties = LinkedHashMultimap.create();

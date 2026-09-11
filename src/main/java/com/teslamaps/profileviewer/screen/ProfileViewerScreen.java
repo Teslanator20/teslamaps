@@ -74,18 +74,19 @@ public class ProfileViewerScreen extends Screen {
         pages.clear();
         pages.add(new BasicPage());
         pages.add(new DungeonPage());
-        pages.add(new ExtraPage());
         pages.add(new InventoriesPage());
-        pages.add(new CollectionsPage());
         pages.add(new PetsPage());
         pages.add(new MiningPage());
-        pages.add(new BingoPage());
-        pages.add(new TrophyFishPage());
+        pages.add(new ForagingPage());
+        pages.add(new CollectionsPage());
         pages.add(new BestiaryPage());
-        pages.add(new CrimsonIslePage());
+        pages.add(new TrophyFishPage());
         pages.add(new MuseumPage());
-        pages.add(new RiftPage());
         pages.add(new GardenPage());
+        pages.add(new CrimsonIslePage());
+        pages.add(new RiftPage());
+        pages.add(new ExtraPage());
+        pages.add(new BingoPage());
 
         loadProfile();
     }

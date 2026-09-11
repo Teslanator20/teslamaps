@@ -70,11 +70,22 @@ public class RiftPage extends ProfileViewerPage {
         ctx.text(tr, "Timecharms", contentX, lineY, TEXT_GREEN);
         lineY += 16;
 
-        JsonObject timecharms = getNestedObject(rift, "gallery.secured_trophies");
-        if (timecharms != null) {
-            int count = timecharms.size();
-            ctx.text(tr, "Collected: " + count, contentX, lineY, TEXT_WHITE);
-            lineY += 20;
+        JsonObject gallery = getNestedObject(rift, "gallery");
+        if (gallery != null && gallery.has("secured_trophies") && gallery.get("secured_trophies").isJsonArray()) {
+            var trophies = gallery.getAsJsonArray("secured_trophies");
+            ctx.text(tr, "Collected: " + trophies.size() + " / 8", contentX, lineY,
+                    trophies.size() >= 8 ? TEXT_GREEN : TEXT_WHITE);
+            lineY += 12;
+            for (var element : trophies) {
+                if (!element.isJsonObject()) continue;
+                JsonObject trophy = element.getAsJsonObject();
+                String type = trophy.has("type") ? trophy.get("type").getAsString() : "?";
+                int visits = trophy.has("visits") ? asInt(trophy.get("visits")) : 0;
+                ctx.text(tr, "  " + pretty(type) + (visits > 0 ? " (" + visits + " visits)" : ""),
+                        contentX, lineY, TEXT_GRAY);
+                lineY += 10;
+            }
+            lineY += 8;
         } else {
             ctx.text(tr, "None collected", contentX, lineY, TEXT_GRAY);
             lineY += 20;
@@ -86,10 +97,10 @@ public class RiftPage extends ProfileViewerPage {
         JsonObject enigma = getNestedObject(rift, "enigma");
         if (enigma != null && enigma.has("found_souls")) {
             int souls = enigma.getAsJsonArray("found_souls").size();
-            ctx.text(tr, "Found: " + souls + " / 42", contentX, lineY,
-                    souls >= 42 ? TEXT_GREEN : TEXT_WHITE);
+            ctx.text(tr, "Found: " + souls + " / 52", contentX, lineY,
+                    souls >= 52 ? TEXT_GREEN : TEXT_WHITE);
         } else {
-            ctx.text(tr, "Found: 0 / 42", contentX, lineY, TEXT_GRAY);
+            ctx.text(tr, "Found: 0 / 52", contentX, lineY, TEXT_GRAY);
         }
         lineY += 20;
 
@@ -131,14 +142,42 @@ public class RiftPage extends ProfileViewerPage {
         ctx.text(tr, "Rift Slayer", col2X, lineY, TEXT_GREEN);
         lineY += 16;
 
-        JsonObject slayer = getNestedObject(rift, "slayer");
-        if (slayer != null && slayer.has("vampire")) {
-            JsonObject vampire = slayer.getAsJsonObject("vampire");
-            if (vampire.has("rift_level")) {
-                int level = vampire.get("rift_level").getAsInt();
-                ctx.text(tr, "Vampire Level: " + level, col2X, lineY, TEXT_GOLD);
+        // the vampire slayer sits in the normal slayer data, the rift only keeps the running quest
+        JsonObject vampire = getNestedObject(getProfile().getMemberData(), "slayer.slayer_bosses.vampire");
+        if (vampire != null) {
+            int xp = asInt(vampire.get("xp"));
+            ctx.text(tr, "Vampire XP: " + formatNumber(xp), col2X, lineY, TEXT_GOLD);
+            lineY += 12;
+
+            int total = 0;
+            for (int tier = 0; tier < 5; tier++) {
+                int kills = asInt(vampire.get("boss_kills_tier_" + tier));
+                if (kills == 0) continue;
+                total += kills;
+                ctx.text(tr, "  Tier " + (tier + 1) + ": " + formatNumber(kills), col2X, lineY, TEXT_GRAY);
+                lineY += 10;
             }
+            ctx.text(tr, "Total kills: " + formatNumber(total), col2X, lineY, TEXT_WHITE);
+            lineY += 14;
         }
+
+        JsonObject quest = getNestedObject(rift, "slayer_quest");
+        if (quest != null) {
+            String type = quest.has("type") ? quest.get("type").getAsString() : "?";
+            int tier = asInt(quest.get("tier"));
+            ctx.text(tr, "Active quest: " + pretty(type) + " " + (tier + 1), col2X, lineY, TEXT_GRAY);
+        }
+    }
+
+    private static String pretty(String id) {
+        String[] words = id.replace('_', ' ').toLowerCase().split(" ");
+        StringBuilder out = new StringBuilder();
+        for (String word : words) {
+            if (word.isEmpty()) continue;
+            if (!out.isEmpty()) out.append(' ');
+            out.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+        }
+        return out.toString();
     }
 
     private JsonObject getNestedObject(JsonObject root, String path) {

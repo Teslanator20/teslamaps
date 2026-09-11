@@ -163,7 +163,7 @@ public class PetsPage extends ProfileViewerPage {
             lore.add(LegacyText.parse("§7Held Item: §6" + pretty(pet.getHeldItem())));
             lore.add(Component.empty());
         }
-        if (pet.getLevel() >= 100) {
+        if (pet.getLevel() >= pet.getMaxLevel()) {
             lore.add(LegacyText.parse("§bMAX LEVEL"));
         } else {
             int percent = (int) Math.round(pet.getProgress() * 100);

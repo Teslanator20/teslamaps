@@ -26,7 +26,7 @@ public class TrophyFishPage extends ProfileViewerPage {
     private static final String[] TROPHY_FISH = {
             "sulphur_skitter", "obfuscated_fish_1", "steaming_hot_flounder", "gusher",
             "blobfish", "obfuscated_fish_2", "slugfish", "flyfish",
-            "obfuscated_fish_3", "lavahorse", "mana_ray", "volcanic_stonefish",
+            "obfuscated_fish_3", "lava_horse", "mana_ray", "volcanic_stonefish",
             "vanille", "skeleton_fish", "moldfin", "soul_fish",
             "karate_fish", "golden_fish"
     };
@@ -34,7 +34,7 @@ public class TrophyFishPage extends ProfileViewerPage {
     private static final String[] TROPHY_DISPLAY = {
             "Sulphur Skitter", "Obfuscated 1", "Steaming Hot Flounder", "Gusher",
             "Blobfish", "Obfuscated 2", "Slugfish", "Flyfish",
-            "Obfuscated 3", "Lavahorse", "Mana Ray", "Volcanic Stonefish",
+            "Obfuscated 3", "Lava Horse", "Mana Ray", "Volcanic Stonefish",
             "Vanille", "Skeleton Fish", "Moldfin", "Soul Fish",
             "Karate Fish", "Golden Fish"
     };
@@ -75,14 +75,14 @@ public class TrophyFishPage extends ProfileViewerPage {
         ctx.text(tr, "Total Caught: " + formatNumber(totalCatches), contentX, lineY, TEXT_WHITE);
         lineY += 20;
 
-        int columnWidth = 196;
+        int columnWidth = 205;
         for (int c = 0; c < 2; c++) {
             int cx = contentX + c * columnWidth;
             ctx.text(tr, "Fish", cx, lineY, TEXT_GRAY);
-            ctx.text(tr, "B", cx + 118, lineY, BRONZE);
-            ctx.text(tr, "S", cx + 138, lineY, SILVER);
-            ctx.text(tr, "G", cx + 158, lineY, GOLD);
-            ctx.text(tr, "D", cx + 178, lineY, DIAMOND);
+            right(ctx, tr, "B", cx + 130, lineY, BRONZE);
+            right(ctx, tr, "S", cx + 152, lineY, SILVER);
+            right(ctx, tr, "G", cx + 174, lineY, GOLD);
+            right(ctx, tr, "D", cx + 196, lineY, DIAMOND);
         }
         lineY += 12;
 
@@ -109,11 +109,11 @@ public class TrophyFishPage extends ProfileViewerPage {
             int total = bronze + silver + gold + diamond;
             int nameColor = total > 0 ? TEXT_WHITE : TEXT_GRAY;
 
-            scaledName(ctx, tr, displayName, cx, fishY, 112, nameColor);
-            ctx.text(tr, String.valueOf(bronze), cx + 118, fishY, bronze > 0 ? BRONZE : TEXT_GRAY);
-            ctx.text(tr, String.valueOf(silver), cx + 138, fishY, silver > 0 ? SILVER : TEXT_GRAY);
-            ctx.text(tr, String.valueOf(gold), cx + 158, fishY, gold > 0 ? GOLD : TEXT_GRAY);
-            ctx.text(tr, String.valueOf(diamond), cx + 178, fishY, diamond > 0 ? DIAMOND : TEXT_GRAY);
+            scaledName(ctx, tr, displayName, cx, fishY, 96, nameColor);
+            right(ctx, tr, String.valueOf(bronze), cx + 130, fishY, bronze > 0 ? BRONZE : TEXT_GRAY);
+            right(ctx, tr, String.valueOf(silver), cx + 152, fishY, silver > 0 ? SILVER : TEXT_GRAY);
+            right(ctx, tr, String.valueOf(gold), cx + 174, fishY, gold > 0 ? GOLD : TEXT_GRAY);
+            right(ctx, tr, String.valueOf(diamond), cx + 196, fishY, diamond > 0 ? DIAMOND : TEXT_GRAY);
         }
         ctx.disableScissor();
     }
@@ -127,6 +127,10 @@ public class TrophyFishPage extends ProfileViewerPage {
             current = current.getAsJsonObject(part);
         }
         return current;
+    }
+
+    private void right(GuiGraphicsExtractor ctx, Font tr, String text, int rightEdge, int y, int color) {
+        ctx.text(tr, text, rightEdge - tr.width(text), y, color);
     }
 
     /** Long fish names get squeezed instead of running under the counts. */
