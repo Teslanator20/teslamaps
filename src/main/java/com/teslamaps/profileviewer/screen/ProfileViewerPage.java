@@ -82,6 +82,15 @@ public abstract class ProfileViewerPage {
         }
     }
 
+    /** Entity renders ignore the gui pose, so pages need the window offset and scale. */
+    protected int screenX(int panelX) {
+        return parent == null ? panelX : parent.toScreenX(panelX);
+    }
+
+    protected int screenY(int panelY) {
+        return parent == null ? panelY : parent.toScreenY(panelY);
+    }
+
     /** Vanilla tooltip for an item, drawn by the screen so other mods can hook it. */
     protected void hoverStack(net.minecraft.world.item.ItemStack stack) {
         if (parent != null && stack != null && !stack.isEmpty()) parent.setHoveredStack(stack);

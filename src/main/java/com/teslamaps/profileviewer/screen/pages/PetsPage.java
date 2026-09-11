@@ -105,9 +105,6 @@ public class PetsPage extends ProfileViewerPage {
                 ctx.fill(sx + 1, sy + 1, sx + 17, sy + 17, 0x3055FF55);
             }
 
-            String level = String.valueOf(pet.getLevel());
-            ctx.text(tr, level, sx + 17 - tr.width(level), sy + 9, 0xFFFFFFFF);
-
             if (mouseX >= sx && mouseX < sx + 17 && mouseY >= sy && mouseY < sy + 17) {
                 ctx.fill(sx + 1, sy + 1, sx + 16, sy + 16, 0x40FFFFFF);
                 hovered = stack;

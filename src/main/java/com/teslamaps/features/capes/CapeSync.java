@@ -120,8 +120,29 @@ public class CapeSync {
 
     /** Called from CapeManager.textureFor for every non-local avatar, so one map get only. */
     public static Identifier textureFor(int entityId) {
-        return byEntityId.get(entityId);
+        Identifier preview = previews.get(entityId);
+        return preview != null ? preview : byEntityId.get(entityId);
     }
+
+    /** Is this player a TeslaMaps user? Known because they publish a cape. */
+    public static boolean isUser(String uuid) {
+        return uuid != null && remote.containsKey(uuid.replace("-", ""));
+    }
+
+    /** The cape of any known user, resolved and downloaded on demand. */
+    public static Identifier capeFor(String uuid) {
+        if (uuid == null) return null;
+        Remote entry = remote.get(uuid.replace("-", ""));
+        return entry == null ? null : resolve(entry);
+    }
+
+    /** Lets the profile viewer put a cape on its own render entity. */
+    public static void setPreview(int entityId, Identifier texture) {
+        if (texture == null) previews.remove(entityId);
+        else previews.put(entityId, texture);
+    }
+
+    private static final Map<Integer, Identifier> previews = new ConcurrentHashMap<>();
 
     private static Identifier resolve(Remote entry) {
         if (entry.hash() == null) {

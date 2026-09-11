@@ -51,9 +51,9 @@ public class ItemGrid {
             }
         }
 
+        // never hand back an empty stack for a filled slot, the tooltip would vanish with it
         if (base.isEmpty()) {
-            if (slot.name == null) return ItemStack.EMPTY;
-            base = new ItemStack(Items.PAPER);
+            base = new ItemStack(slot.skyblockId != null ? Items.BARRIER : Items.PAPER);
         }
 
         ItemStack stack = base.copy();

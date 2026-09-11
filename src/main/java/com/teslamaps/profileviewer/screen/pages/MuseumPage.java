@@ -90,8 +90,17 @@ public class MuseumPage extends ProfileViewerPage {
             return;
         }
 
-        JsonObject memberMuseum = members.has(profile.getOwnerUuid()) ?
-                members.getAsJsonObject(profile.getOwnerUuid()) : null;
+        String owner = profile.getOwnerUuid() == null ? "" : profile.getOwnerUuid().replace("-", "");
+        JsonObject memberMuseum = null;
+        for (String key : members.keySet()) {
+            if (key.replace("-", "").equalsIgnoreCase(owner)) {
+                memberMuseum = members.getAsJsonObject(key);
+                break;
+            }
+        }
+        if (memberMuseum == null && members.size() == 1) {
+            memberMuseum = members.getAsJsonObject(members.keySet().iterator().next());
+        }
         if (memberMuseum == null) {
             ctx.text(tr, "No museum data for this player", contentX, lineY, TEXT_GRAY);
             return;

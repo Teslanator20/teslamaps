@@ -43,6 +43,14 @@ public class ProfileViewerScreen extends Screen {
     private String hoveredTab = null;
     private net.minecraft.world.item.ItemStack hoveredStack = net.minecraft.world.item.ItemStack.EMPTY;
 
+    public int toScreenX(int panelCoordinate) {
+        return panelX + panelCoordinate * scale;
+    }
+
+    public int toScreenY(int panelCoordinate) {
+        return panelY + panelCoordinate * scale;
+    }
+
     public void setHoveredStack(net.minecraft.world.item.ItemStack stack) {
         this.hoveredStack = stack;
     }
@@ -180,6 +188,12 @@ public class ProfileViewerScreen extends Screen {
         ctx.pose().popMatrix();
 
         super.extractRenderState(ctx, mouseX, mouseY, delta);
+
+        // after the base class, otherwise its widget pass drops the deferred tooltip again
+        if (!hoveredStack.isEmpty()) {
+            ctx.setTooltipForNextFrame(font, hoveredStack, mouseX, mouseY);
+            hoveredStack = net.minecraft.world.item.ItemStack.EMPTY;
+        }
     }
 
     private void renderTabs(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {

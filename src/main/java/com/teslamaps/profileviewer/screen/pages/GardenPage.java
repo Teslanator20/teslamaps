@@ -62,7 +62,9 @@ public class GardenPage extends ProfileViewerPage {
 
         loading = true;
         HypixelApi.getGarden(profile.getProfileId()).thenAccept(data -> {
-            this.gardenData = data;
+            // the route answers {success, garden:{...}}
+            this.gardenData = data != null && data.has("garden") && data.get("garden").isJsonObject()
+                    ? data.getAsJsonObject("garden") : data;
             this.loading = false;
         });
     }

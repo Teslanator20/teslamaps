@@ -109,7 +109,7 @@ public class TrophyFishPage extends ProfileViewerPage {
             int total = bronze + silver + gold + diamond;
             int nameColor = total > 0 ? TEXT_WHITE : TEXT_GRAY;
 
-            ctx.text(tr, displayName, cx, fishY, nameColor);
+            scaledName(ctx, tr, displayName, cx, fishY, 112, nameColor);
             ctx.text(tr, String.valueOf(bronze), cx + 118, fishY, bronze > 0 ? BRONZE : TEXT_GRAY);
             ctx.text(tr, String.valueOf(silver), cx + 138, fishY, silver > 0 ? SILVER : TEXT_GRAY);
             ctx.text(tr, String.valueOf(gold), cx + 158, fishY, gold > 0 ? GOLD : TEXT_GRAY);
@@ -127,6 +127,21 @@ public class TrophyFishPage extends ProfileViewerPage {
             current = current.getAsJsonObject(part);
         }
         return current;
+    }
+
+    /** Long fish names get squeezed instead of running under the counts. */
+    private void scaledName(GuiGraphicsExtractor ctx, Font tr, String text, int x, int y, int maxWidth, int color) {
+        int width = tr.width(text);
+        if (width <= maxWidth) {
+            ctx.text(tr, text, x, y, color);
+            return;
+        }
+        float factor = Math.max(0.55f, (float) maxWidth / width);
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(x, y + 1);
+        ctx.pose().scale(factor, factor);
+        ctx.text(tr, text, 0, 0, color);
+        ctx.pose().popMatrix();
     }
 
     @Override

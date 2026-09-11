@@ -1,6 +1,8 @@
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.teslamaps.profileviewer.data.SkyblockProfile;
+import com.teslamaps.profileviewer.screen.ItemGrid;
+import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import java.util.*;
 import net.minecraft.client.Minecraft;
@@ -59,58 +61,122 @@ public class CollectionsPage extends ProfileViewerPage {
     }
 
     @Override
+    public boolean isFixedLayout() {
+        return true;
+    }
+
+    @Override
     public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
 
         Font tr = Minecraft.getInstance().font;
-        int padding = 15;
-        int contentX = x + padding;
+        int left = x - 8;
+        int top = y - 8;
+        lastLeft = left;
+        lastTop = top;
 
-        int tabY = y + padding;
-        int tabX = contentX;
+        // category rail on the left, item grid on the right - same shape as the game menu
         for (int i = 0; i < CATEGORIES.length; i++) {
-            String cat = CATEGORIES[i];
-            int tabW = tr.width(cat) + 16;
-            boolean hovered = mouseX >= tabX && mouseX < tabX + tabW &&
-                    mouseY >= tabY && mouseY < tabY + 18;
+            int bx = left + 6;
+            int by = top + 10 + i * 20;
             boolean selected = i == selectedCategory;
+            boolean hovered = mouseX >= bx && mouseX < bx + 86 && mouseY >= by && mouseY < by + 18;
 
-            ctx.fill(tabX, tabY, tabX + tabW, tabY + 18,
-                    selected ? 0xFF444444 : (hovered ? 0xFF3A3A3A : 0xFF333333));
-            if (selected) {
-                ctx.fill(tabX, tabY + 16, tabX + tabW, tabY + 18, TEXT_GREEN);
-            }
-            ctx.text(tr, cat, tabX + 8, tabY + 5, selected ? TEXT_WHITE : TEXT_GRAY);
-            tabX += tabW + 4;
+            if (selected) NeuStyle.slimBox(ctx, bx, by, 86, 18);
+            ctx.text(tr, CATEGORIES[i], bx + 6, by + 5,
+                    selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
         }
 
-        int listY = tabY + 28;
-        int listHeight = height - (listY - y) - padding;
         Map<String, Long> collections = profile.getCollections();
         String[] items = COLLECTION_ITEMS.get(CATEGORIES[selectedCategory]);
-
         if (items == null) return;
 
-        int itemY = listY - scrollOffset;
-        for (String item : items) {
-            if (itemY > listY - 30 && itemY < listY + listHeight) {
-                long amount = collections.getOrDefault(item, 0L);
-                String displayName = formatCollectionName(item);
+        int gridX = left + 104;
+        int gridY = top + 14;
+        int columns = 8;
 
-                ctx.text(tr, displayName, contentX, itemY, amount > 0 ? TEXT_WHITE : TEXT_GRAY);
+        ItemStack hovered = ItemStack.EMPTY;
 
-                String amountStr = formatNumber(amount);
-                ctx.text(tr, amountStr, contentX + 150, itemY, amount > 0 ? TEXT_GREEN : TEXT_GRAY);
+        for (int i = 0; i < items.length; i++) {
+            int sx = gridX + (i % columns) * ItemGrid.SLOT;
+            int sy = gridY + (i / columns) * ItemGrid.SLOT;
 
-                int barX = contentX + 220;
-                int barW = 100;
-                double progress = Math.min(1.0, amount / 100000.0); // Simplified
-                drawProgressBar(ctx, barX, itemY + 2, barW, 8, progress, BAR_BG, TEXT_GREEN);
+            ctx.fill(sx, sy, sx + 17, sy + 17, 0x60000000);
+            ctx.fill(sx, sy, sx + 17, sy + 1, 0x40FFFFFF);
+            ctx.fill(sx, sy, sx + 1, sy + 17, 0x40FFFFFF);
+
+            String id = items[i];
+            long amount = collections.getOrDefault(id, 0L);
+            ItemStack stack = stackFor(id, amount);
+            if (!stack.isEmpty()) ctx.item(stack, sx + 1, sy + 1);
+
+            if (mouseX >= sx && mouseX < sx + 17 && mouseY >= sy && mouseY < sy + 17) {
+                ctx.fill(sx + 1, sy + 1, sx + 16, sy + 16, 0x40FFFFFF);
+                hovered = stack;
             }
-            itemY += 18;
         }
+
+        int total = 0;
+        for (String id : items) if (collections.getOrDefault(id, 0L) > 0) total++;
+        String summary = total + " / " + items.length + " started";
+        ctx.text(tr, summary, gridX, top + NeuStyle.PANEL_HEIGHT - 28, NeuStyle.TEXT_GRAY);
+
+        hoverStack(hovered);
+    }
+
+    private static final Map<String, ItemStack> stacks = new HashMap<>();
+
+    /** One stack per collection, carrying the amount in the lore like the menu does. */
+    private ItemStack stackFor(String id, long amount) {
+        String key = id + ":" + amount;
+        ItemStack cached = stacks.get(key);
+        if (cached != null) return cached;
+
+        String cleanId = id.split(":")[0];
+        ItemStack base = bases.get(cleanId);
+        if (base == null) {
+            bases.put(cleanId, ItemStack.EMPTY);
+            com.teslamaps.utils.SkyblockItems.resolve(cleanId, stack -> {
+                bases.put(cleanId, stack);
+                stacks.remove(key);
+            });
+            base = ItemStack.EMPTY;
+        }
+
+        ItemStack stack = base.isEmpty() ? new ItemStack(Items.PAPER) : base.copy();
+        String name = formatCollectionName(id);
+        stack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,
+                com.teslamaps.profileviewer.data.LegacyText.parse(
+                        (amount > 0 ? "§e" : "§7") + name));
+
+        java.util.List<net.minecraft.network.chat.Component> lore = new java.util.ArrayList<>();
+        lore.add(com.teslamaps.profileviewer.data.LegacyText.parse("§7Collected: §e" + formatNumber(amount)));
+        if (amount == 0) lore.add(com.teslamaps.profileviewer.data.LegacyText.parse("§cNot started"));
+        stack.set(net.minecraft.core.component.DataComponents.LORE,
+                new net.minecraft.world.item.component.ItemLore(lore));
+
+        stacks.put(key, stack);
+        return stack;
+    }
+
+    private static final Map<String, ItemStack> bases = new HashMap<>();
+
+    private int lastLeft;
+    private int lastTop;
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for (int i = 0; i < CATEGORIES.length; i++) {
+            int bx = lastLeft + 6;
+            int by = lastTop + 10 + i * 20;
+            if (mouseX >= bx && mouseX < bx + 86 && mouseY >= by && mouseY < by + 18) {
+                selectedCategory = i;
+                return true;
+            }
+        }
+        return false;
     }
 
     private String formatCollectionName(String id) {
@@ -127,33 +193,4 @@ public class CollectionsPage extends ProfileViewerPage {
         return sb.toString();
     }
 
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int padding = 15;
-        int tabY = 74 + padding; // Approximate
-        int tabX = padding;
-        Font tr = Minecraft.getInstance().font;
-
-        for (int i = 0; i < CATEGORIES.length; i++) {
-            int tabW = tr.width(CATEGORIES[i]) + 16;
-            if (mouseX >= tabX && mouseX < tabX + tabW &&
-                    mouseY >= tabY && mouseY < tabY + 18) {
-                selectedCategory = i;
-                scrollOffset = 0;
-                return true;
-            }
-            tabX += tabW + 4;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        String[] items = COLLECTION_ITEMS.get(CATEGORIES[selectedCategory]);
-        if (items == null) return false;
-
-        int maxScroll = Math.max(0, items.length * 18 - 200);
-        scrollOffset = (int) Math.max(0, Math.min(maxScroll, scrollOffset - amount * 15));
-        return true;
-    }
 }

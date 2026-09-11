@@ -178,11 +178,9 @@ public class InventoriesPage extends ProfileViewerPage {
                 Math.min(slots.size(), columns * 9), mouseX, mouseY);
 
         if (section == Section.INVENTORY) {
-            int sideX = gridX + 9 * ItemGrid.SLOT + 8;
-            ctx.text(tr, "Armor", sideX, gridY - 10, NeuStyle.TEXT_GRAY);
+            int sideX = gridX + 9 * ItemGrid.SLOT + 10;
             ItemStack armorHover = ItemGrid.draw(ctx, reverse(sideArmor), sideX, gridY, 1, 0, 4, mouseX, mouseY);
-            ctx.text(tr, "Equip", sideX + ItemGrid.SLOT + 6, gridY - 10, NeuStyle.TEXT_GRAY);
-            ItemStack equipHover = ItemGrid.draw(ctx, sideEquipment, sideX + ItemGrid.SLOT + 6, gridY, 1, 0, 4,
+            ItemStack equipHover = ItemGrid.draw(ctx, sideEquipment, sideX + ItemGrid.SLOT + 4, gridY, 1, 0, 4,
                     mouseX, mouseY);
             if (hovered.isEmpty()) hovered = !armorHover.isEmpty() ? armorHover : equipHover;
         }

@@ -6,7 +6,7 @@ import com.teslamaps.api.PvApi;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
 import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.PlayerHeads;
-import com.teslamaps.profileviewer.screen.SkinRender;
+import com.teslamaps.profileviewer.screen.PvPlayerRender;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import com.mojang.authlib.GameProfile;
 import java.util.UUID;
@@ -76,6 +76,10 @@ public class BasicPage extends ProfileViewerPage {
         String name = profiles != null ? profiles.getDisplayName() : "";
         drawCentered(ctx, tr, name, left + 63, top + 8, NeuStyle.TEXT);
 
+        if (profiles != null && com.teslamaps.features.capes.CapeSync.isUser(profiles.getUuid())) {
+            drawCentered(ctx, tr, "TeslaMaps user", left + 63, top + 17, NeuStyle.TEXT_AQUA);
+        }
+
         ctx.text(tr, "Purse: " + formatCoins(profile.getCoinPurse()), left + 8, top + 26, NeuStyle.TEXT_GOLD);
         ctx.text(tr, "Bank: " + formatCoins(profile.getBankBalance()), left + 8, top + 36, NeuStyle.TEXT_GOLD);
         if (mouseX >= left + 8 && mouseX <= left + 110 && mouseY >= top + 34 && mouseY <= top + 45) {
@@ -93,13 +97,11 @@ public class BasicPage extends ProfileViewerPage {
         playerBoxY = top + 44;
         NeuStyle.slimBox(ctx, left + 23, top + 44, 81, 108);
         if (profiles != null) {
-            net.minecraft.world.entity.player.PlayerSkin skin =
-                    PlayerHeads.playerSkin(profiles.getUuid(), name);
-            if (skin != null) {
-                boolean thin = skin.model() == net.minecraft.world.entity.player.PlayerModelType.SLIM;
-                SkinRender.draw(ctx, skin.body().texturePath(), thin, skinYaw, skinPitch,
-                        left + 27, top + 48, left + 100, top + 148);
-            }
+            PvPlayerRender.setArmor(profiles.getUuid(), name, armorSlots(profile));
+            // entity renders live in screen space, not inside our scaled panel
+            PvPlayerRender.draw(ctx, profiles.getUuid(), name,
+                    screenX(left + 26), screenY(top + 47),
+                    screenX(left + 101), screenY(top + 149), skinYaw, skinPitch);
         }
 
         String status = profiles != null ? profiles.getOnlineStatus() : "";
@@ -126,9 +128,6 @@ public class BasicPage extends ProfileViewerPage {
             ctx.text(tr, String.format("(%.2f)", overflowAvg), left + 134 + tr.width(avg), sbY + 58, NeuStyle.TEXT_GOLD);
         }
 
-        int fairySouls = profile.getFairySouls();
-        ctx.text(tr, "Fairy Souls: " + fairySouls + "/242", left + 132, sbY + 72,
-                fairySouls >= 242 ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_GRAY);
 
         // skills: two columns of eight, 80 wide bars
         Map<String, SkillData> skills = profile.getSkills();
@@ -168,6 +167,13 @@ public class BasicPage extends ProfileViewerPage {
             drawTooltip(ctx, tr);
             tooltip = null;
         }
+    }
+
+    /** Armor comes from the profile so the render wears it, like NEU does. */
+    private static java.util.List<com.teslamaps.profileviewer.data.InventoryDecoder.Slot> armorSlots(SkyblockProfile profile) {
+        com.google.gson.JsonObject inventory = profile.getMemberData().has("inventory")
+                ? profile.getMemberData().getAsJsonObject("inventory") : null;
+        return com.teslamaps.profileviewer.data.InventoryDecoder.decode(inventory, "inv_armor");
     }
 
     private float skinYaw = 15f;
