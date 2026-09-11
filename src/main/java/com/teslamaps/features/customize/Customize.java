@@ -14,6 +14,9 @@ import net.minecraft.world.item.ItemStack;
 public class Customize {
     private static boolean anyCustomization = false;
     private static boolean anyName = false;
+    /** isInSkyblock() costs a regex plus a scoreboard scan, and the mixins ask per component read. */
+    private static boolean onSkyblock = false;
+    private static int ticks = 0;
 
     public static void init() {
         CustomHelmetTextures.init();
@@ -35,15 +38,16 @@ public class Customize {
                 || !config.customGlint.isEmpty()
                 || !config.customItemModel.isEmpty()
                 || !config.customArmorModel.isEmpty();
+        onSkyblock = anyCustomization && SkyblockUtils.isInSkyblock();
     }
 
     /** True while at least one item anywhere carries a customization. */
     public static boolean active() {
-        return anyCustomization && SkyblockUtils.isInSkyblock();
+        return anyCustomization && onSkyblock;
     }
 
     public static boolean hasAnyName() {
-        return anyName && SkyblockUtils.isInSkyblock();
+        return anyName && onSkyblock;
     }
 
     public static String uuid(ItemStack stack) {
@@ -52,6 +56,8 @@ public class Customize {
 
     public static void tick() {
         CustomAnimatedHelmetTextures.tick();
+        // nothing here changes inside a second, and the check is not cheap
+        if (++ticks % 20 == 0) onSkyblock = anyCustomization && SkyblockUtils.isInSkyblock();
     }
 
     /** Once per frame, so a dye shared by several pieces only interpolates once. */

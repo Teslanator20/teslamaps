@@ -16,9 +16,11 @@ import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
@@ -138,14 +140,18 @@ public class DyeSelectPopup extends PopupScreen {
         private static final int TEXT_OFFSET = 10;
 
         String name;
-        ItemStack dyeStack = new ItemStack(Items.BARRIER);
+        final ItemStack dyeStack;
 
         protected StaticDyeButton(String dyeId, int color, OnPress onPress) {
             super(0, 0, 150, 20, Component.empty(), onPress, b -> Component.empty());
-            name = StringUtil.strip(SkyblockItems.name(dyeId));
-            SkyblockItems.resolve(dyeId, stack -> {
-                if (stack != null && !stack.isEmpty()) dyeStack = stack;
-            });
+            // dyes are not in Hypixel's item table, so this is usually the prettified id
+            String display = SkyblockItems.coloredName(dyeId);
+            name = display == null || display.isBlank()
+                    ? com.teslamaps.features.customize.CustomAnimatedHelmetTextures.formatName(dyeId)
+                    : StringUtil.strip(display);
+            // a leather piece tinted with the dye reads better than the real (async) repo icon
+            dyeStack = new ItemStack(Items.LEATHER_CHESTPLATE);
+            dyeStack.set(DataComponents.DYED_COLOR, new DyedItemColor(color));
             setMessage(Component.literal(name).withColor(color));
         }
 
