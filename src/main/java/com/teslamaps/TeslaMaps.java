@@ -109,6 +109,10 @@ public class TeslaMaps implements ClientModInitializer {
         com.teslamaps.features.AuctionPriceInput.init();
         com.teslamaps.features.SearchOverlay.init();
 
+        net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback.EVENT.register(data ->
+                data instanceof com.teslamaps.features.CompactorPreview.Contents c
+                        ? new com.teslamaps.render.gui.CompactorTooltip(c) : null);
+
         ClientCommandRegistrationCallback.EVENT.register(TMapCommand::register);
 
         net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.MODIFY_COMMAND.register(TMapCommand::expandShortcut);

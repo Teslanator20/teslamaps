@@ -23,6 +23,7 @@
     "ClientPlayerInteractionManagerMixin",
     "ColdOverlayMixin",
     "CommandsNodeMixin",
+    "CompactorTooltipMixin",
     "ContainerCharMixin",
     "ContainerKeyMixin",
     "ContainerOverlayMixin",

@@ -25,23 +25,25 @@ public class PriceLine {
         if (id == null || id.isEmpty()) return List.of();
 
         List<String> out = new ArrayList<>(2);
+        int count = net.minecraft.client.Minecraft.getInstance().hasShiftDown() ? 1 : stack.getCount();
 
         Double buy = PriceManager.bazaarBuyOrNull(id);
         Double sell = PriceManager.bazaarSellOrNull(id);
         if (buy != null || sell != null) {
-            if (sell != null && sell > 0) out.add(line("Bazaar Insta-Sell", sell));
-            if (buy != null && buy > 0) out.add(line("Bazaar Insta-Buy", buy));
+            if (sell != null && sell > 0) out.add(line("Bazaar Insta-Sell", sell, count));
+            if (buy != null && buy > 0) out.add(line("Bazaar Insta-Buy", buy, count));
             return out;
         }
 
         Double bin = PriceManager.lowestBinOrNull(id);
         if (bin == null || bin <= 0) return List.of();
-        out.add(line("Lowest BIN", bin));
+        out.add(line("Lowest BIN", bin, count));
         return out;
     }
 
-    private static String line(String label, double unit) {
-        return "§e§l" + label + ": §6§l" + EstimatedValue.exact(unit) + " coins";
+    private static String line(String label, double unit, int count) {
+        String amount = count > 1 ? " §7(" + count + "x)" : "";
+        return "§e§l" + label + amount + ": §6§l" + EstimatedValue.exact(unit * count) + " coins";
     }
 
     private PriceLine() {}

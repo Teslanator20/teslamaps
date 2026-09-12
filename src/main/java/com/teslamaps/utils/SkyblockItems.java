@@ -402,6 +402,20 @@ public class SkyblockItems {
         resolve(id, stack -> {});
     }
 
+    /**
+     * The stack for an item id right now, EMPTY while a NEU lookup is still running.
+     * For render paths that cannot wait for a callback.
+     */
+    public static ItemStack stackNow(String id) {
+        if (id == null || id.isEmpty()) return ItemStack.EMPTY;
+        ItemStack cached = stacks.get(id);
+        if (cached == null) {
+            resolve(id, stack -> {});
+            cached = stacks.get(id);
+        }
+        return cached == null ? ItemStack.EMPTY : cached;
+    }
+
     private static String get(String url) throws Exception {
         HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
         HttpRequest request = HttpRequest.newBuilder(URI.create(url))

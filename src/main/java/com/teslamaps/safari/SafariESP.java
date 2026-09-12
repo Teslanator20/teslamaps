@@ -34,6 +34,8 @@ public class SafariESP {
     private static final List<BlockPos> walls = new ArrayList<>();
     private static final List<Cluster> spots = new ArrayList<>();
     private static final java.util.Set<Long> looted = new java.util.HashSet<>();
+    private static final java.util.Map<Integer, Vec3> headPos = new java.util.HashMap<>();
+    private static final java.util.Set<Integer> movedHeads = new java.util.HashSet<>();
     private static long lastNestScan = 0;
     private static SafariData.Biome lastNestBiome = null;
     private static int spotScanTimer = 0;
@@ -50,6 +52,8 @@ public class SafariESP {
             spots.clear();
             nests.clear();
             looted.clear();
+            headPos.clear();
+            movedHeads.clear();
             spotScanTimer = 0;
             return;
         }
@@ -111,18 +115,39 @@ public class SafariESP {
         if (c.safariOnlyMissing && SafariTracker.hasCaught(rockmite)) return;
 
         int color = rockmite.rarity().color;
+        java.util.Set<Integer> seen = new java.util.HashSet<>();
         for (Entity e : mc.level.entitiesForRendering()) {
             if (!(e instanceof Display.ItemDisplay id)) continue;
             SlotAccess slot = id.getSlot(0);
             if (slot == null || slot.get().getItem() != Items.PLAYER_HEAD) continue;
             if (SafariData.biomeAt(e.blockPosition()) != rockmite.biome()) continue;
+            seen.add(e.getId());
+            if (!hasMoved(e)) continue;           // the cavern is full of static head props
             if (hasCritterTag(mc, e)) continue;   // bats and the other Cavern critters use heads too
 
             AABB box = e.getBoundingBox();
             if (box.getXsize() < 0.1 || box.getYsize() < 0.1) box = box.inflate(0.4, 0.4, 0.4);
+            if (alreadyBoxed(box)) continue;      // its nametag scan box wins, it is not a Rockmite
             String label = (c.safariNames ? rarityCode(rockmite) + rockmite.name() : null);
             critters.add(new Marker(box, color, label, c.safariTracers));
         }
+        headPos.keySet().retainAll(seen);
+        movedHeads.retainAll(seen);
+    }
+
+    /** Deco heads never move, a Rockmite does. Once one has moved it stays boxed while it rests. */
+    private static boolean hasMoved(Entity e) {
+        Vec3 p = e.position();
+        Vec3 prev = headPos.put(e.getId(), p);
+        if (prev != null && prev.distanceToSqr(p) > 1.0E-4) movedHeads.add(e.getId());
+        return movedHeads.contains(e.getId());
+    }
+
+    private static boolean alreadyBoxed(AABB box) {
+        for (Marker m : critters) {
+            if (m.box().intersects(box)) return true;
+        }
+        return false;
     }
 
     /**
@@ -175,7 +200,7 @@ public class SafariESP {
     /** Rockmites are the only Cavern critter without a nametag, so a tagged head is not one. */
     private static boolean hasCritterTag(Minecraft mc, Entity head) {
         for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class,
-                head.getBoundingBox().inflate(2.0, 2.5, 2.0), a -> a.getCustomName() != null)) {
+                head.getBoundingBox().inflate(3.5, 4.5, 3.5), a -> a.getCustomName() != null)) {
             if (matchCritter(com.teslamaps.utils.StringUtil.strip(as.getCustomName().getString())) != null) return true;
         }
         return false;

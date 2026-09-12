@@ -4,69 +4,73 @@ import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.SkyblockItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-// Ported from SkyHanni's PersonalCompactorOverlay.kt
+// Ported from SkyHanni's PersonalCompactorOverlay.kt, grid layout from Skyblocker's CompactorDeletorPreview
 public class CompactorPreview {
 
-    private static int slotsForTier(int tier) {
+    /** Slots of a compactor/deletor tier, laid out as rows x columns. */
+    public record Contents(int rows, int cols, List<ItemStack> slots) implements TooltipComponent {}
+
+    private static int[] gridForTier(int tier) {
         return switch (tier) {
-            case 7000 -> 12;
-            case 6000 -> 7;
-            case 5000 -> 3;
-            case 4000 -> 1;
-            default -> 0;
+            case 7000 -> new int[]{2, 6};
+            case 6000 -> new int[]{1, 7};
+            case 5000 -> new int[]{1, 3};
+            case 4000 -> new int[]{1, 1};
+            default -> null;
         };
     }
 
+    private static String prefixFor(String id) {
+        if (id.startsWith("PERSONAL_COMPACTOR_")) return "personal_compact_";
+        if (id.startsWith("PERSONAL_DELETOR_")) return "personal_deletor_";
+        return null;
+    }
+
+    private static int tierOf(String id) {
+        try {
+            return Integer.parseInt(id.substring(id.lastIndexOf('_') + 1));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    /** The slot grid for the tooltip image, null for anything that is not a compactor/deletor. */
+    public static Contents contents(ItemStack stack) {
+        String id = ItemUtil.skyblockId(stack);
+        String prefix = prefixFor(id);
+        if (prefix == null) return null;
+
+        int[] grid = gridForTier(tierOf(id));
+        if (grid == null) return null;
+
+        CustomData d = stack.get(DataComponents.CUSTOM_DATA);
+        if (d == null) return null;
+        CompoundTag tag = d.copyTag();
+
+        int count = grid[0] * grid[1];
+        List<ItemStack> slots = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            String itemId = tag.getStringOr(prefix + i, "");
+            slots.add(itemId.isEmpty() ? ItemStack.EMPTY : SkyblockItems.stackNow(itemId));
+        }
+        return new Contents(grid[0], grid[1], slots);
+    }
+
+    /** The status line; the items themselves are drawn by the tooltip image. */
     public static List<String> lines(ItemStack stack) {
         String id = ItemUtil.skyblockId(stack);
-        String prefix;
-        if (id.startsWith("PERSONAL_COMPACTOR_")) prefix = "personal_compact_";
-        else if (id.startsWith("PERSONAL_DELETOR_")) prefix = "personal_deletor_";
-        else return List.of();
-
-        int tier;
-        try {
-            tier = Integer.parseInt(id.substring(id.lastIndexOf('_') + 1));
-        } catch (NumberFormatException e) {
-            return List.of();
-        }
-        int slots = slotsForTier(tier);
-        if (slots == 0) return List.of();
+        if (prefixFor(id) == null || gridForTier(tierOf(id)) == null) return List.of();
 
         CustomData d = stack.get(DataComponents.CUSTOM_DATA);
         if (d == null) return List.of();
-        CompoundTag tag = d.copyTag();
-
-        List<String> out = new java.util.ArrayList<>(slots + 2);
-        boolean enabled = tag.getByteOr("PERSONAL_DELETOR_ACTIVE", (byte) 0) == 1;
-        out.add("§7Status: " + (enabled ? "§aEnabled" : "§cDisabled"));
-        for (int i = 0; i < slots; i++) {
-            String itemId = tag.getStringOr(prefix + i, "");
-            if (itemId.isEmpty()) {
-                out.add(" §8- §7Empty");
-                continue;
-            }
-            String name = SkyblockItems.coloredName(itemId);
-            if (name == null) name = "§f" + pretty(itemId);
-            out.add(" §8- " + name);
-        }
-        return out;
-    }
-
-    private static String pretty(String id) {
-        String[] parts = id.toLowerCase(Locale.ROOT).split("_");
-        StringBuilder sb = new StringBuilder();
-        for (String p : parts) {
-            if (p.isEmpty()) continue;
-            if (sb.length() > 0) sb.append(' ');
-            sb.append(Character.toUpperCase(p.charAt(0))).append(p.substring(1));
-        }
-        return sb.toString();
+        boolean enabled = d.copyTag().getByteOr("PERSONAL_DELETOR_ACTIVE", (byte) 0) == 1;
+        return List.of("§7Status: " + (enabled ? "§aEnabled" : "§cDisabled"));
     }
 }

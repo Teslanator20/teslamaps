@@ -86,10 +86,14 @@ public class Etherwarp {
         if (!config.etherwarp) return;
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-        if (player == null || mc.level == null || !player.isShiftKeyDown() || mc.screen != null) return;
+        if (player == null || mc.level == null || mc.screen != null) return;
 
         CompoundTag data = etherwarpData(player.getMainHandItem());
         if (data == null) return;
+
+        // standalone conduit warps on right-click, no sneak needed
+        boolean conduit = "ETHERWARP_CONDUIT".equals(data.getString("id").orElse(""));
+        if (!conduit && !player.isShiftKeyDown()) return;
 
         double distance = 57.0 + data.getInt("tuned_transmission").orElse(0);
         EtherPos ether = getEtherPos(player.position(), distance);
