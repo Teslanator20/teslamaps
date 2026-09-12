@@ -9,9 +9,11 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Display;
+import com.mojang.authlib.properties.Property;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Shulker;
@@ -102,111 +104,95 @@ public class SafariESP {
     }
 
     /**
-     * A Rockmite comes out of a mound you break, and a mound is an interaction entity - a bare
-     * hitbox, no nametag and no model, so the nametag scan never sees one. Ported from
-     * critterMod's MoundSpotter: the size band alone is weak, the falling fish in the waterfalls
-     * wear interaction boxes too, so a mound also has to sit on the Cavern floor, be centred on
-     * a block (a falling fish is at whatever fraction of a block it has reached) and have
-     * nothing inside it (a fish is a mob the box is drawn around, a mound is only the box).
+     * A Rockmite comes out of a mound you break, and a mound is a static item display holding one
+     * particular player head - the Cavern is full of other head props, so the skin is what tells
+     * them apart. Same key Skyblocker uses, matched on the skin url inside the texture rather than
+     * the whole base64 so a re-signed profile still counts.
      */
-    private static final double MOUND_MIN_W = 0.35, MOUND_MAX_W = 1.10;
-    private static final double MOUND_MIN_H = 0.25, MOUND_MAX_H = 0.95;
-    private static final double MOUND_MAX_Y = 65.0;
-    private static final double MOUND_CENTRE_TOLERANCE = 0.05;
+    private static final String MOUND_SKIN =
+            "5dbaab74d1acd0abe9d04abe9928725de5d4495fcb63b647228caf6944c20800";
+    private static final java.util.Map<String, Boolean> moundTextures = new java.util.HashMap<>();
 
     private static void scanRockmites(Minecraft mc, TeslaMapsConfig c) {
         SafariData.Critter rockmite = SafariData.byName("Rockmite");
         if (rockmite == null || SafariData.currentBiome() != rockmite.biome()) return;
         if (c.safariOnlyMissing && SafariTracker.hasCaught(rockmite)) return;
 
-        List<Entity> mounds = new ArrayList<>();
-        List<Entity> creatures = new ArrayList<>();
-        for (Entity e : mc.level.entitiesForRendering()) {
-            if (e.getType() != EntityType.INTERACTION) {
-                if (isCreature(e)) creatures.add(e);
-                continue;
-            }
-            if (e.getY() > MOUND_MAX_Y) continue;
-            AABB box = e.getBoundingBox();
-            if (!moundSized(box.getXsize(), box.getYsize())) continue;
-            if (offCentre(e.getX()) || offCentre(e.getZ())) continue;
-            if (SafariData.biomeAt(e.blockPosition()) != rockmite.biome()) continue;
-            mounds.add(e);
-        }
-
         int color = rockmite.rarity().color;
         String label = c.safariNames ? rarityCode(rockmite) + "Mound" : null;
-        for (Entity m : mounds) {
-            if (wrapsCreature(m, creatures)) continue;
-            critters.add(new Marker(m.getBoundingBox(), color, label, c.safariTracers));
+        for (Entity e : mc.level.entitiesForRendering()) {
+            if (!(e instanceof Display.ItemDisplay id)) continue;
+            if (id.getPosRotInterpolationDuration() != 0) continue;   // a mound sits still
+            if (!isMoundTexture(headTexture(itemOf(id)))) continue;
+            if (SafariData.biomeAt(e.blockPosition()) != rockmite.biome()) continue;
+
+            AABB box = e.getBoundingBox();
+            if (box.getXsize() < 0.1 || box.getYsize() < 0.1) box = box.inflate(0.4, 0.4, 0.4);
+            critters.add(new Marker(box, color, label, c.safariTracers));
         }
     }
 
-    private static boolean moundSized(double w, double h) {
-        return w >= MOUND_MIN_W && w <= MOUND_MAX_W && h >= MOUND_MIN_H && h <= MOUND_MAX_H && h <= w + 0.1;
-    }
-
-    private static boolean offCentre(double coord) {
-        return Math.abs(coord - (Math.floor(coord) + 0.5)) >= MOUND_CENTRE_TOLERANCE;
-    }
-
-    /** A box with a mob in it is the wrapper around that mob, not a mound. */
-    private static boolean wrapsCreature(Entity box, List<Entity> creatures) {
-        for (Entity e : creatures) {
-            if (Math.abs(e.getX() - box.getX()) > 0.35) continue;
-            if (Math.abs(e.getZ() - box.getZ()) > 0.35) continue;
-            if (Math.abs(e.getY() - box.getY()) <= 1.0) return true;
+    private static String headTexture(ItemStack stack) {
+        if (!stack.is(Items.PLAYER_HEAD)) return "";
+        ResolvableProfile profile = stack.get(DataComponents.PROFILE);
+        if (profile == null) return "";
+        for (Property p : profile.partialProfile().properties().get("textures")) {
+            if (p != null) return p.value();
         }
-        return false;
+        return "";
     }
 
-    /** Every nearby interaction box by size, with how many pass each mound rule. */
+    /** Decoding per entity per tick would be silly, and a safari holds a handful of head skins. */
+    private static boolean isMoundTexture(String texture) {
+        if (texture.isEmpty()) return false;
+        Boolean known = moundTextures.get(texture);
+        if (known != null) return known;
+        boolean mound;
+        try {
+            mound = new String(java.util.Base64.getDecoder().decode(texture),
+                    java.nio.charset.StandardCharsets.UTF_8).contains(MOUND_SKIN);
+        } catch (IllegalArgumentException ex) {
+            mound = false;
+        }
+        if (moundTextures.size() > 256) moundTextures.clear();
+        moundTextures.put(texture, mound);
+        return mound;
+    }
+
+    /** Nearby head displays by skin url, so a changed mound skin can be read off in game. */
     public static List<String> debugMounds() {
         Minecraft mc = Minecraft.getInstance();
         List<String> out = new ArrayList<>();
         if (mc.level == null || mc.player == null) return out;
 
-        List<Entity> creatures = new ArrayList<>();
+        java.util.Map<String, int[]> bySkin = new java.util.HashMap<>();
         for (Entity e : mc.level.entitiesForRendering()) {
-            if (e.getType() != EntityType.INTERACTION && isCreature(e)) creatures.add(e);
-        }
-
-        java.util.Map<String, int[]> bySize = new java.util.TreeMap<>();
-        for (Entity e : mc.level.entitiesForRendering()) {
-            if (e.getType() != EntityType.INTERACTION) continue;
+            if (!(e instanceof Display.ItemDisplay id)) continue;
             if (e.distanceToSqr(mc.player) > 64 * 64) continue;
-            AABB box = e.getBoundingBox();
-            String size = String.format("%.2f x %.2f", box.getXsize(), box.getYsize());
-            int[] n = bySize.computeIfAbsent(size, k -> new int[4]);
+            String texture = headTexture(itemOf(id));
+            if (texture.isEmpty()) continue;
+            String skin;
+            try {
+                String json = new String(java.util.Base64.getDecoder().decode(texture),
+                        java.nio.charset.StandardCharsets.UTF_8);
+                int cut = json.lastIndexOf('/');
+                skin = cut < 0 ? texture : json.substring(cut + 1, Math.min(cut + 65, json.length()));
+            } catch (IllegalArgumentException ex) {
+                skin = "<bad base64>";
+            }
+            int[] n = bySkin.computeIfAbsent(skin, k -> new int[2]);
             n[0]++;
-            if (e.getY() <= MOUND_MAX_Y) n[1]++;
-            if (!offCentre(e.getX()) && !offCentre(e.getZ())) n[2]++;
-            if (e.getY() <= MOUND_MAX_Y && !offCentre(e.getX()) && !offCentre(e.getZ())
-                    && !wrapsCreature(e, creatures)) n[3]++;
+            if (id.getPosRotInterpolationDuration() == 0) n[1]++;
         }
 
-        out.add("§b=== interaction boxes within 64 ===");
-        bySize.entrySet().stream()
+        out.add("§b=== head displays within 64 ===");
+        bySkin.entrySet().stream()
                 .sorted((a, b) -> b.getValue()[0] - a.getValue()[0])
-                .forEach(e -> {
-                    String[] wh = e.getKey().split(" x ");
-                    boolean sized = moundSized(Double.parseDouble(wh[0]), Double.parseDouble(wh[1]));
-                    int[] n = e.getValue();
-                    out.add(String.format("  %-14s x%-3d %s", e.getKey(), n[0], sized
-                            ? String.format("§a<- mound-sized: %d counted (low %d, centred %d, of %d)",
-                                    n[3], n[1], n[2], n[0])
-                            : ""));
-                });
-        if (bySize.isEmpty()) out.add("  none");
+                .forEach(e -> out.add(String.format("  %s x%d (static %d)%s", e.getKey(),
+                        e.getValue()[0], e.getValue()[1],
+                        e.getKey().startsWith(MOUND_SKIN) ? " §a<- mound" : "")));
+        if (bySkin.isEmpty()) out.add("  none");
         return out;
-    }
-
-    /** Skips the scaffolding entities Hypixel builds its props out of. */
-    private static boolean isCreature(Entity e) {
-        EntityType<?> t = e.getType();
-        return t != EntityType.ARMOR_STAND && t != EntityType.ITEM_DISPLAY
-                && t != EntityType.BLOCK_DISPLAY && t != EntityType.TEXT_DISPLAY
-                && t != EntityType.PLAYER && t != EntityType.ITEM;
     }
 
     /**
