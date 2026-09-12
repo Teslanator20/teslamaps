@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -34,8 +35,6 @@ public class SafariESP {
     private static final List<BlockPos> walls = new ArrayList<>();
     private static final List<Cluster> spots = new ArrayList<>();
     private static final java.util.Set<Long> looted = new java.util.HashSet<>();
-    private static final java.util.Map<Integer, Vec3> headPos = new java.util.HashMap<>();
-    private static final java.util.Set<Integer> movedHeads = new java.util.HashSet<>();
     private static long lastNestScan = 0;
     private static SafariData.Biome lastNestBiome = null;
     private static int spotScanTimer = 0;
@@ -52,8 +51,6 @@ public class SafariESP {
             spots.clear();
             nests.clear();
             looted.clear();
-            headPos.clear();
-            movedHeads.clear();
             spotScanTimer = 0;
             return;
         }
@@ -105,49 +102,111 @@ public class SafariESP {
     }
 
     /**
-     * Rockmites carry no nametag stand at all - they are a small item display showing a player
-     * head, so the nametag scan never sees them. Restricted to the Cavern, which is the only
-     * biome they live in, to keep other head props out.
+     * A Rockmite comes out of a mound you break, and a mound is an interaction entity - a bare
+     * hitbox, no nametag and no model, so the nametag scan never sees one. Ported from
+     * critterMod's MoundSpotter: the size band alone is weak, the falling fish in the waterfalls
+     * wear interaction boxes too, so a mound also has to sit on the Cavern floor, be centred on
+     * a block (a falling fish is at whatever fraction of a block it has reached) and have
+     * nothing inside it (a fish is a mob the box is drawn around, a mound is only the box).
      */
+    private static final double MOUND_MIN_W = 0.35, MOUND_MAX_W = 1.10;
+    private static final double MOUND_MIN_H = 0.25, MOUND_MAX_H = 0.95;
+    private static final double MOUND_MAX_Y = 65.0;
+    private static final double MOUND_CENTRE_TOLERANCE = 0.05;
+
     private static void scanRockmites(Minecraft mc, TeslaMapsConfig c) {
         SafariData.Critter rockmite = SafariData.byName("Rockmite");
         if (rockmite == null || SafariData.currentBiome() != rockmite.biome()) return;
         if (c.safariOnlyMissing && SafariTracker.hasCaught(rockmite)) return;
 
-        int color = rockmite.rarity().color;
-        java.util.Set<Integer> seen = new java.util.HashSet<>();
+        List<Entity> mounds = new ArrayList<>();
+        List<Entity> creatures = new ArrayList<>();
         for (Entity e : mc.level.entitiesForRendering()) {
-            if (!(e instanceof Display.ItemDisplay id)) continue;
-            SlotAccess slot = id.getSlot(0);
-            if (slot == null || slot.get().getItem() != Items.PLAYER_HEAD) continue;
-            if (SafariData.biomeAt(e.blockPosition()) != rockmite.biome()) continue;
-            seen.add(e.getId());
-            if (!hasMoved(e)) continue;           // the cavern is full of static head props
-            if (hasCritterTag(mc, e)) continue;   // bats and the other Cavern critters use heads too
-
+            if (e.getType() != EntityType.INTERACTION) {
+                if (isCreature(e)) creatures.add(e);
+                continue;
+            }
+            if (e.getY() > MOUND_MAX_Y) continue;
             AABB box = e.getBoundingBox();
-            if (box.getXsize() < 0.1 || box.getYsize() < 0.1) box = box.inflate(0.4, 0.4, 0.4);
-            if (alreadyBoxed(box)) continue;      // its nametag scan box wins, it is not a Rockmite
-            String label = (c.safariNames ? rarityCode(rockmite) + rockmite.name() : null);
-            critters.add(new Marker(box, color, label, c.safariTracers));
+            if (!moundSized(box.getXsize(), box.getYsize())) continue;
+            if (offCentre(e.getX()) || offCentre(e.getZ())) continue;
+            if (SafariData.biomeAt(e.blockPosition()) != rockmite.biome()) continue;
+            mounds.add(e);
         }
-        headPos.keySet().retainAll(seen);
-        movedHeads.retainAll(seen);
+
+        int color = rockmite.rarity().color;
+        String label = c.safariNames ? rarityCode(rockmite) + "Mound" : null;
+        for (Entity m : mounds) {
+            if (wrapsCreature(m, creatures)) continue;
+            critters.add(new Marker(m.getBoundingBox(), color, label, c.safariTracers));
+        }
     }
 
-    /** Deco heads never move, a Rockmite does. Once one has moved it stays boxed while it rests. */
-    private static boolean hasMoved(Entity e) {
-        Vec3 p = e.position();
-        Vec3 prev = headPos.put(e.getId(), p);
-        if (prev != null && prev.distanceToSqr(p) > 1.0E-4) movedHeads.add(e.getId());
-        return movedHeads.contains(e.getId());
+    private static boolean moundSized(double w, double h) {
+        return w >= MOUND_MIN_W && w <= MOUND_MAX_W && h >= MOUND_MIN_H && h <= MOUND_MAX_H && h <= w + 0.1;
     }
 
-    private static boolean alreadyBoxed(AABB box) {
-        for (Marker m : critters) {
-            if (m.box().intersects(box)) return true;
+    private static boolean offCentre(double coord) {
+        return Math.abs(coord - (Math.floor(coord) + 0.5)) >= MOUND_CENTRE_TOLERANCE;
+    }
+
+    /** A box with a mob in it is the wrapper around that mob, not a mound. */
+    private static boolean wrapsCreature(Entity box, List<Entity> creatures) {
+        for (Entity e : creatures) {
+            if (Math.abs(e.getX() - box.getX()) > 0.35) continue;
+            if (Math.abs(e.getZ() - box.getZ()) > 0.35) continue;
+            if (Math.abs(e.getY() - box.getY()) <= 1.0) return true;
         }
         return false;
+    }
+
+    /** Every nearby interaction box by size, with how many pass each mound rule. */
+    public static List<String> debugMounds() {
+        Minecraft mc = Minecraft.getInstance();
+        List<String> out = new ArrayList<>();
+        if (mc.level == null || mc.player == null) return out;
+
+        List<Entity> creatures = new ArrayList<>();
+        for (Entity e : mc.level.entitiesForRendering()) {
+            if (e.getType() != EntityType.INTERACTION && isCreature(e)) creatures.add(e);
+        }
+
+        java.util.Map<String, int[]> bySize = new java.util.TreeMap<>();
+        for (Entity e : mc.level.entitiesForRendering()) {
+            if (e.getType() != EntityType.INTERACTION) continue;
+            if (e.distanceToSqr(mc.player) > 64 * 64) continue;
+            AABB box = e.getBoundingBox();
+            String size = String.format("%.2f x %.2f", box.getXsize(), box.getYsize());
+            int[] n = bySize.computeIfAbsent(size, k -> new int[4]);
+            n[0]++;
+            if (e.getY() <= MOUND_MAX_Y) n[1]++;
+            if (!offCentre(e.getX()) && !offCentre(e.getZ())) n[2]++;
+            if (e.getY() <= MOUND_MAX_Y && !offCentre(e.getX()) && !offCentre(e.getZ())
+                    && !wrapsCreature(e, creatures)) n[3]++;
+        }
+
+        out.add("§b=== interaction boxes within 64 ===");
+        bySize.entrySet().stream()
+                .sorted((a, b) -> b.getValue()[0] - a.getValue()[0])
+                .forEach(e -> {
+                    String[] wh = e.getKey().split(" x ");
+                    boolean sized = moundSized(Double.parseDouble(wh[0]), Double.parseDouble(wh[1]));
+                    int[] n = e.getValue();
+                    out.add(String.format("  %-14s x%-3d %s", e.getKey(), n[0], sized
+                            ? String.format("§a<- mound-sized: %d counted (low %d, centred %d, of %d)",
+                                    n[3], n[1], n[2], n[0])
+                            : ""));
+                });
+        if (bySize.isEmpty()) out.add("  none");
+        return out;
+    }
+
+    /** Skips the scaffolding entities Hypixel builds its props out of. */
+    private static boolean isCreature(Entity e) {
+        EntityType<?> t = e.getType();
+        return t != EntityType.ARMOR_STAND && t != EntityType.ITEM_DISPLAY
+                && t != EntityType.BLOCK_DISPLAY && t != EntityType.TEXT_DISPLAY
+                && t != EntityType.PLAYER && t != EntityType.ITEM;
     }
 
     /**
@@ -200,7 +259,7 @@ public class SafariESP {
     /** Rockmites are the only Cavern critter without a nametag, so a tagged head is not one. */
     private static boolean hasCritterTag(Minecraft mc, Entity head) {
         for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class,
-                head.getBoundingBox().inflate(3.5, 4.5, 3.5), a -> a.getCustomName() != null)) {
+                head.getBoundingBox().inflate(2.0, 2.5, 2.0), a -> a.getCustomName() != null)) {
             if (matchCritter(com.teslamaps.utils.StringUtil.strip(as.getCustomName().getString())) != null) return true;
         }
         return false;

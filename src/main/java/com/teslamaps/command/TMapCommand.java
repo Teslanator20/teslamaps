@@ -334,7 +334,14 @@ public class TMapCommand {
                                 .executes(context -> safariDebug(context.getSource(), 16))
                                 .then(ClientCommands.argument("radius", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 64))
                                         .executes(context -> safariDebug(context.getSource(),
-                                                com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius"))))))
+                                                com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius")))))
+                        .then(ClientCommands.literal("mounds")
+                                .executes(context -> {
+                                    for (String line : com.teslamaps.safari.SafariESP.debugMounds()) {
+                                        context.getSource().sendFeedback(Component.literal(line));
+                                    }
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("greenhouse")
                         .executes(context -> {
                             context.getSource().sendFeedback(Component.literal(
