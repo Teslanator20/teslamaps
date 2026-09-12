@@ -119,7 +119,7 @@ public class SafariESP {
         if (c.safariOnlyMissing && SafariTracker.hasCaught(rockmite)) return;
 
         int color = rockmite.rarity().color;
-        String label = c.safariNames ? rarityCode(rockmite) + "Mound" : null;
+        String label = c.safariNames ? rarityCode(rockmite) + rockmite.name() : null;
         for (Entity e : mc.level.entitiesForRendering()) {
             if (!(e instanceof Display.ItemDisplay id)) continue;
             if (id.getPosRotInterpolationDuration() != 0) continue;   // a mound sits still
