@@ -273,6 +273,20 @@ public class TMapCommand {
                         .then(ClientCommands.argument("count", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 60))
                                 .executes(context -> shardReport(context.getSource(),
                                         com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "count")))))
+                .then(ClientCommands.literal("chscan")
+                        .executes(context -> {
+                            for (String line : com.teslamaps.features.WorldScanner.report()) {
+                                context.getSource().sendFeedback(Component.literal(line));
+                            }
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("reset")
+                                .executes(context -> {
+                                    com.teslamaps.features.WorldScanner.reset();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fCH scanner reset"));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("be")
                         .executes(context -> {
                             for (String line : com.teslamaps.features.BestiaryTracker.report()) {
