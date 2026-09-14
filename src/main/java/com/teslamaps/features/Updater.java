@@ -47,7 +47,6 @@ public class Updater {
     public static volatile State state = State.IDLE;
     public static volatile String latestVersion = "";
     public static volatile String error = "";
-    private static volatile String jarName = "";
     private static volatile String jarSha256 = "";
     private static volatile long jarAssetId = -1;
     private static volatile long jarSize = -1;
@@ -66,9 +65,26 @@ public class Updater {
     }
 
     public static void init() {
+        cleanPending();
         if (!TeslaMapsConfig.get().updateCheck) return;
         if (token().isEmpty()) return;
         check(false);
+    }
+
+    /** a swap that never completed leaves a .pending behind */
+    private static void cleanPending() {
+        Path own = FabricLoader.getInstance().getModContainer(TeslaMaps.MOD_ID)
+                .flatMap(c -> c.getOrigin().getPaths().stream().findFirst()).orElse(null);
+        if (own == null || own.getParent() == null) return;
+        try (var files = Files.list(own.getParent())) {
+            files.filter(p -> p.getFileName().toString().startsWith("teslamaps-")
+                            && p.getFileName().toString().endsWith(".jar.pending"))
+                    .forEach(p -> {
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (Exception ignored) {}
+                    });
+        } catch (Exception ignored) {}
     }
 
     public static void check(boolean verbose) {
@@ -121,7 +137,6 @@ public class Updater {
                     return;
                 }
                 latestVersion = version;
-                jarName = jar;
                 jarSha256 = sha;
                 jarAssetId = assetId;
                 jarSize = size;
@@ -166,17 +181,15 @@ public class Updater {
                 String sha = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(jar));
                 if (!sha.equals(jarSha256)) throw new Exception("jar sha256 mismatch");
 
-                Path mods = oldJar.getParent();
-                Path pending = mods.resolve(jarName + ".pending");
+                // keep the existing file name: launchers (Modrinth) index mods by path and
+                // refuse to start once the file they know is gone
+                Path pending = oldJar.resolveSibling(oldJar.getFileName() + ".pending");
                 Files.write(pending, jar);
-
-                Path target = mods.resolve(jarName);
                 try {
-                    Files.deleteIfExists(oldJar);
-                    Files.move(pending, target, StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(pending, oldJar, StandardCopyOption.REPLACE_EXISTING);
                 } catch (Exception locked) {
                     // Windows keeps the loaded jar locked — finish the swap after the JVM exits
-                    scheduleSwap(oldJar, pending, target);
+                    scheduleSwap(pending, oldJar);
                 }
                 state = State.READY;
                 chat("§aUpdate " + latestVersion + " installed — restart the game.");
@@ -188,13 +201,15 @@ public class Updater {
         });
     }
 
-    private static void scheduleSwap(Path oldJar, Path pending, Path target) {
+    private static void scheduleSwap(Path pending, Path target) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
+                // a failed move leaves the old jar intact — never a missing or duplicate mod
+                String move = "move /y \"" + pending + "\" \"" + target + "\" >nul 2>&1";
                 new ProcessBuilder("cmd", "/c",
-                        "ping -n 4 127.0.0.1 >nul 2>&1"
-                                + " & del /f \"" + oldJar + "\""
-                                + " & move /y \"" + pending + "\" \"" + target + "\"")
+                        "ping -n 4 127.0.0.1 >nul 2>&1 & " + move
+                                + " || (ping -n 9 127.0.0.1 >nul 2>&1 & " + move
+                                + " || (ping -n 21 127.0.0.1 >nul 2>&1 & " + move + "))")
                         .start();
             } catch (Exception ignored) {}
         }));

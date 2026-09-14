@@ -125,6 +125,7 @@ public class PestRoutine {
                     ? String.format("/warp garden (%.1fs)", left / 1000.0f)
                     : "/warp garden";
         }
+        if (pendingLoadout != null) return "page " + (pageFlips + 1) + " -> " + pendingLoadout;
         if (step == Step.PLOT_TP && pestPlot != null) return "/plottp " + pestPlot;
         if (step == Step.FARM_LOADOUT_CLICK) return "click " + TeslaMapsConfig.get().pestChanceLoadout;
         if (step == Step.FIGHT_LOADOUT_CLICK) return "click " + TeslaMapsConfig.get().roseDragLoadout;
@@ -233,8 +234,7 @@ public class PestRoutine {
                     String wanted = farming
                             ? TeslaMapsConfig.get().pestChanceLoadout
                             : TeslaMapsConfig.get().roseDragLoadout;
-                    if (clickNamedSlot(wanted)) {
-                        pestChanceGear = farming;
+                    if (tryLoadout(wanted, farming)) {
                         step = farming ? Step.FARM_LOADOUT_CLOSE : Step.FIGHT_LOADOUT_CLOSE;
                     }
                     break;
@@ -252,8 +252,7 @@ public class PestRoutine {
                 String wanted = farming
                         ? TeslaMapsConfig.get().pestChanceLoadout
                         : TeslaMapsConfig.get().roseDragLoadout;
-                if (clickNamedSlot(wanted)) {
-                    pestChanceGear = farming;
+                if (tryLoadout(wanted, farming)) {
                     step = farming ? Step.FARM_LOADOUT_CLOSE : Step.FIGHT_LOADOUT_CLOSE;
                 }
             }
@@ -434,12 +433,90 @@ public class PestRoutine {
                 || title.contains("wardrobe");
     }
 
+    // The loadout menu is paginated ("(1/3) Loadouts"), so a loadout on a later
+    // page is simply not in the open one. These carry the search across pages.
+    private static String pendingLoadout = null;
+    private static boolean pendingFarming = false;
+    private static int pageFlips = 0;
+    private static long lastFlip = 0L;
+
+    private static final int MAX_PAGE_FLIPS = 10;
+    private static final long PAGE_SETTLE_MS = 250L;
+
+    /** Clicks the wanted loadout, flipping pages until it shows up. */
+    private static boolean tryLoadout(String wanted, boolean farming) {
+        if (clickNamedSlot(wanted, false, false)) {
+            clearPending();
+            pestChanceGear = farming;
+            return true;
+        }
+        if (pageFlips < MAX_PAGE_FLIPS && clickNextPage()) {
+            pendingLoadout = wanted;
+            pendingFarming = farming;
+            pageFlips++;
+            lastFlip = System.currentTimeMillis();
+            return false;
+        }
+        // last page, so a lore match is the final chance before giving up
+        if (clickNamedSlot(wanted, true, true)) {
+            clearPending();
+            pestChanceGear = farming;
+            return true;
+        }
+        clearPending();
+        return false;
+    }
+
+    /** Retries the pending loadout once the flipped page has arrived. */
+    private static void tickPendingLoadout() {
+        if (pendingLoadout == null) return;
+        if (Minecraft.getInstance().player == null) { clearPending(); return; }
+        if (!loadoutMenuOpen()) { clearPending(); return; }
+        if (System.currentTimeMillis() - lastFlip < PAGE_SETTLE_MS) return;
+
+        boolean farming = pendingFarming;
+        String wanted = pendingLoadout;
+        pendingLoadout = null;
+        if (tryLoadout(wanted, farming)) {
+            step = farming ? Step.FARM_LOADOUT_CLOSE : Step.FIGHT_LOADOUT_CLOSE;
+            lastActionTime = System.currentTimeMillis();
+        }
+    }
+
+    private static void clearPending() {
+        pendingLoadout = null;
+        pageFlips = 0;
+    }
+
+    /** Clicks the menu's next-page arrow, if there is one. */
+    private static boolean clickNextPage() {
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof ContainerScreen screen)) return false;
+
+        for (Slot slot : screen.getMenu().slots) {
+            ItemStack stack = slot.getItem();
+            if (stack.isEmpty()) continue;
+            String name = strip(stack.getHoverName().getString()).trim().toLowerCase();
+            if (!name.contains("next page")) continue;
+            mc.gameMode.handleContainerInput(screen.getMenu().containerId, slot.index, 0,
+                    ContainerInput.PICKUP, mc.player);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean clickNamedSlot(String wanted) {
+        return clickNamedSlot(wanted, true, true);
+    }
+
     /**
-     * Left-clicks the slot in the open menu whose name or lore contains
-     * {@code wanted}. Dumps the menu contents when nothing matches, since the
+     * Left-clicks the slot in the open menu named {@code wanted}. Loose also
+     * takes a partial name or a lore hit - fine on the last page, but never
+     * while pages are still being flipped, where "Loadout 1" would grab
+     * "Loadout 10". Dumps the menu contents when nothing matches, since the
      * only way to fix a mismatch is to see the real names.
      */
-    private static boolean clickNamedSlot(String wanted) {
+    private static boolean clickNamedSlot(String wanted, boolean loose, boolean dumpOnMiss) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof ContainerScreen screen)) return false;
 
@@ -460,6 +537,7 @@ public class PestRoutine {
                 exact = slot.index;
                 break;
             }
+            if (!loose) continue;
             if (byName < 0 && name.contains(needle)) byName = slot.index;
             if (byLore < 0 && loreText(stack).contains(needle)) byLore = slot.index;
         }
@@ -471,9 +549,11 @@ public class PestRoutine {
             return true;
         }
 
-        mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fNo slot matching '"
-                + wanted + "' — writing gui_dump.txt"));
-        com.teslamaps.utils.GuiDump.dump(wanted);
+        if (dumpOnMiss) {
+            mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fNo slot matching '"
+                    + wanted + "' — writing gui_dump.txt"));
+            com.teslamaps.utils.GuiDump.dump(wanted);
+        }
         return false;
     }
 
@@ -516,6 +596,7 @@ public class PestRoutine {
     /** Polls the routine key. Raw GLFW so it also works with the loadout menu open. */
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
+        tickPendingLoadout();
         int key = TeslaMapsConfig.get().pestRoutineKey;
         if (key == -1 || mc.getWindow() == null) return;
         // Don't steal keystrokes that are going into a text field.
@@ -527,6 +608,7 @@ public class PestRoutine {
     }
 
     public static void reset() {
+        clearPending();
         philip = Philip.NONE;
         spray = Spray.NONE;
         sprayPlot = null;
