@@ -1359,6 +1359,22 @@ public class TeslaMapsConfig {
     public boolean bazaarOwnOrders = true;            // Highlight your own orders ("By: <you>") green in bazaar order books
     public boolean bazaarOrderFilled = true;          // Green check mark on bazaar orders that are 100% filled / claimable
     public boolean progressHighlight = true;          // Highlight 100% progress lines in the Ways to Level Up menu
+
+    // Guide Highlight: marks what is still missing in guide-style menus (ported from SkyHanni)
+    public boolean guideHighlight = true;
+    public String colorGuideMissing = "#FF5555";
+    public boolean guideMissingTasks = true;          // SkyBlock Level Guide pages
+    public boolean guideOneTime = true;               // bank, spooky, dojo, slaying, rock/dolphin, dungeons
+    public boolean guideStory = true;                 // fast travels, story objectives, harp songs
+    public boolean guideAbiphone = true;              // abiphone contacts
+    public boolean guideJacob = true;                 // Jacob's Farming Contest guide
+    public boolean guideEssence = true;               // essence shops
+    public boolean guideMinion = true;                // uncrafted minions
+    public boolean guideConsumable = true;            // consumable items
+    public boolean guideMenu = true;                  // Tasks / Skill Related Tasks
+    public boolean guideCollection = true;            // collections
+    public boolean guideCentury = false;              // Century raffle tasks (event only)
+    public boolean guideWikiClick = true;             // click a marked travel scroll / consumable for /wiki
     public String colorProgressDone = "#55FF55";      // Progress Highlight color
     public boolean commissionHighlight = true;        // Highlight finished commissions in the Commissions menu
     public String colorCommissionDone = "#55FF55";    // Commission Highlight color

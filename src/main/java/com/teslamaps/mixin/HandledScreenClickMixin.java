@@ -36,6 +36,9 @@ public class HandledScreenClickMixin {
         com.teslamaps.features.AuctionPriceInput.onSlotClick(
                 (AbstractContainerScreen<?>) (Object) this, ((HandledScreenAccessor) (Object) this).getFocusedSlot());
 
+        com.teslamaps.features.GuideHighlight.onSlotClick(
+                (AbstractContainerScreen<?>) (Object) this, ((HandledScreenAccessor) (Object) this).getFocusedSlot());
+
         // A hotbar key bound to a mouse button produces no KeyEvent at all, so the wardrobe
         // picker never saw it from ContainerKeyMixin. Same logic, mouse entry point.
         if (com.teslamaps.features.WardrobeKeys.handleMouse((AbstractContainerScreen<?>) (Object) this, click)) {
