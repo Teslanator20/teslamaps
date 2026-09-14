@@ -52,7 +52,8 @@ public class ItemGrid {
         }
 
         // never hand back an empty stack for a filled slot, the tooltip would vanish with it
-        if (base.isEmpty()) {
+        boolean resolved = !base.isEmpty();
+        if (!resolved) {
             base = new ItemStack(slot.skyblockId != null ? Items.BARRIER : Items.PAPER);
         }
 
@@ -78,7 +79,9 @@ public class ItemGrid {
             stack.set(DataComponents.LORE, new ItemLore(lore));
         }
 
-        built.put(slot, stack);
+        // a placeholder must never be cached: the item table and the repo answer asynchronously,
+        // and opening the viewer before they are done would freeze the barrier in for good
+        if (resolved) built.put(slot, stack);
         return stack;
     }
 

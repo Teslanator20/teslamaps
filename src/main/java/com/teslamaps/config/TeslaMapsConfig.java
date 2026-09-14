@@ -912,6 +912,7 @@ public class TeslaMapsConfig {
     public float orderedSetupLineThickness = 2.0f;  // Setup-mode line thickness
     public boolean orderedSneaking = true;          // Eye height used for the setup line (sneaking = AOTV)
     public boolean orderedAutoSkipForward = false;  // Jump ahead when reaching a later waypoint
+    public boolean orderedSkipAir = false;          // Skip waypoints whose block is air
     public boolean orderedAutoUnload = false;       // Unload the route on world change
     public boolean orderedAutoLoadByArea = false;   // Load a saved route named like the current area
     public boolean rareDropEffects = true;         // Item animation + particles on RARE DROP! lines

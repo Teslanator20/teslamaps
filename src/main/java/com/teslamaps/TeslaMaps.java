@@ -82,6 +82,19 @@ public class TeslaMaps implements ClientModInitializer {
         com.teslamaps.features.StorageCache.load();
         com.teslamaps.features.ItemIndex.load();
         com.teslamaps.utils.SkyblockItems.load();
+        // joining hypixel loads its resource pack, which is when the custom item models appear
+        net.fabricmc.fabric.api.resource.ResourceManagerHelper.get(net.minecraft.server.packs.PackType.CLIENT_RESOURCES)
+                .registerReloadListener(new net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener() {
+                    @Override
+                    public net.minecraft.resources.Identifier getFabricId() {
+                        return net.minecraft.resources.Identifier.fromNamespaceAndPath(MOD_ID, "item_models");
+                    }
+
+                    @Override
+                    public void onResourceManagerReload(net.minecraft.server.packs.resources.ResourceManager manager) {
+                        com.teslamaps.utils.SkyblockItems.onResourceReload();
+                    }
+                });
         com.teslamaps.utils.SackItems.load();
         com.teslamaps.utils.SeaCreatureList.load();
         com.teslamaps.features.Updater.init();

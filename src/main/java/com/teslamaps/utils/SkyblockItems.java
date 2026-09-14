@@ -560,13 +560,28 @@ public class SkyblockItems {
         Item item = itemFor(material, damage);
         if (item == null) return ItemStack.EMPTY;
         ItemStack stack = new ItemStack(item);
-        // Hypixel skins many items via the item-model component; the model lives in
-        // the server resource pack, so it only renders while that pack is loaded.
+        // Hypixel skins many items via the item-model component, and that model lives in the
+        // server resource pack. Without it (no pack, no skyback) the item renders as the missing
+        // model - the magenta and black cube - so the component is only set when the model is
+        // actually loaded and the plain vanilla material is used otherwise.
         if (model != null && !model.isEmpty()) {
             Identifier modelId = Identifier.tryParse(model);
-            if (modelId != null) stack.set(DataComponents.ITEM_MODEL, modelId);
+            if (modelId != null && modelLoaded(modelId)) stack.set(DataComponents.ITEM_MODEL, modelId);
         }
         return stack;
+    }
+
+    /** True when a model with that id is actually baked, i.e. some loaded pack provides it. */
+    private static boolean modelLoaded(Identifier id) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null || mc.getModelManager() == null) return false;
+        return ((com.teslamaps.mixin.ModelManagerAccessor) mc.getModelManager())
+                .getBakedItemStackModels().containsKey(id);
+    }
+
+    /** A resource reload can add or drop the server pack, so the built stacks are thrown away. */
+    public static void onResourceReload() {
+        stacks.clear();
     }
 
     private static Item itemFor(String material, int damage) {

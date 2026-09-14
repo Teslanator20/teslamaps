@@ -190,7 +190,9 @@ public class PetsPage extends ProfileViewerPage {
         lore.add(LegacyText.parse(color + pet.getTier().toUpperCase() + (pet.isActive() ? " PET §a(active)" : " PET")));
         stack.set(DataComponents.LORE, new ItemLore(lore));
 
-        petStacks.put(key, stack);
+        // never cache the bone: the repo lookup that fills this pet in may be one another pet
+        // started, and then no callback would ever drop this entry again
+        if (!base.isEmpty()) petStacks.put(key, stack);
         return stack;
     }
 

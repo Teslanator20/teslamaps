@@ -1329,6 +1329,8 @@ public class MapConfigScreen extends Screen {
         ordered.add(new SliderEntry(contentX, contentWidth, "Waypoint Range", 1f, 10f,
                 () -> config.orderedWaypointRange, v -> config.orderedWaypointRange = v, 1));
         ordered.add(new ToggleEntry(contentX, contentWidth, "Auto-Skip Forward", () -> config.orderedAutoSkipForward, v -> config.orderedAutoSkipForward = v));
+        ordered.add(new ToggleEntry(contentX, contentWidth, "Skip Air Waypoints", () -> config.orderedSkipAir, v -> config.orderedSkipAir = v));
+        ordered.add(new InfoEntry(contentX, "Waypoints on an air block are jumped over (19 -> 21 if 20 is air)"));
         ordered.add(new ToggleEntry(contentX, contentWidth, "Unload On World Change", () -> config.orderedAutoUnload, v -> config.orderedAutoUnload = v));
         ordered.add(new ToggleEntry(contentX, contentWidth, "Auto-Load Route Named Like Area", () -> config.orderedAutoLoadByArea, v -> config.orderedAutoLoadByArea = v));
         ordered.add(new InfoEntry(contentX, "Save a route as e.g. \"Crystal Hollows\" to load it there"));

@@ -138,10 +138,16 @@ public class OrderedWaypoints {
         double range = cfg.orderedWaypointRange;
         double rangeSq = range * range;
 
+        boolean skipAir = cfg.orderedSkipAir;
+        if (skipAir) {
+            for (int guard = route.size(); guard > 0 && isAir(route.get(current)); guard--) increment(1);
+        }
+
         if (cfg.orderedAutoSkipForward) {
             Wp closest = null;
             double best = rangeSq;
             for (Wp wp : route) {
+                if (skipAir && isAir(wp)) continue;
                 double d = wp.distSq(player);
                 if (d < best) { best = d; closest = wp; }
             }
@@ -163,11 +169,15 @@ public class OrderedWaypoints {
             renderIdx.add(cur.number - 1);
         }
 
-        Wp next = current + 1 < route.size() ? route.get(current + 1) : route.get(0);
+        int nextIdx = Math.floorMod(current + 1, route.size());
+        if (skipAir) nextIdx = firstAlive(nextIdx);
+        Wp next = route.get(nextIdx);
         double distNext = Math.sqrt(next.distSq(player));
-        if (!renderIdx.contains(next.number - 1)) renderIdx.add(next.number - 1);
+        if (!renderIdx.contains(nextIdx)) renderIdx.add(nextIdx);
+        int idx = nextIdx;
         for (int i = 1; i < Math.max(1, cfg.orderedNextCount); i++) {
-            int idx = Math.floorMod(next.number - 1 + i, route.size());
+            idx = Math.floorMod(idx + 1, route.size());
+            if (skipAir) idx = firstAlive(idx);
             if (!renderIdx.contains(idx)) renderIdx.add(idx);
         }
 
@@ -187,6 +197,23 @@ public class OrderedWaypoints {
                 if (wp.distSq(player) < setupSq) renderIdx.add(wp.number - 1);
             }
         }
+    }
+
+    // waypoint block gone (harvested / mined) - treat as done
+    private static boolean isAir(Wp wp) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return false;
+        net.minecraft.core.BlockPos pos = new net.minecraft.core.BlockPos(wp.x, wp.y, wp.z);
+        if (!mc.level.hasChunkAt(pos)) return false;
+        return mc.level.getBlockState(pos).isAir();
+    }
+
+    private static int firstAlive(int from) {
+        for (int i = 0; i < route.size(); i++) {
+            int idx = Math.floorMod(from + i, route.size());
+            if (!isAir(route.get(idx))) return idx;
+        }
+        return from;
     }
 
     private static void increment(int amount) {
