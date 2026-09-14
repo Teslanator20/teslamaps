@@ -221,6 +221,7 @@ public class TeslaMapsConfig {
     public boolean auctionCompareOnlyGood = false; // only the green side, no red/yellow
     public float auctionCompareThreshold = 5f;   // percent off the value before a slot is tinted
     public float auctionCompareOpacity = 0.45f;
+    public boolean auctionCompareButton = true;  // toggle button above the auction browser
 
     public boolean searchOverlay = true;         // Replace the auction/bazaar search sign with a textbox
     public int searchOverlaySuggestions = 7;     // How many item names the search overlay suggests (0 - 12)
@@ -442,7 +443,7 @@ public class TeslaMapsConfig {
     public boolean chatStacking = true;          // Stack identical messages with a (Nx) counter
     public int chatStackWindowMinutes = 5;       // Stack any identical message from the last N minutes (1-30)
 
-    public boolean pbOnJoin = true;               // Show a player's dungeon PBs when they join the party (needs API key)
+    public boolean pbOnJoin = true;               // Show a player's dungeon PBs when they join via party finder
     public boolean chatCommands = true;           // Party chat commands (!8ball, !cf, !warp, !pt, !kick, ...)
 
     public boolean autoRequeue = true;           // Send /instancerequeue at the end of a dungeon
@@ -567,8 +568,15 @@ public class TeslaMapsConfig {
             new Shortcut("pd", "party disband"),
             new Shortcut("pk", "party kick"),
             new Shortcut("pt", "party transfer"),
-            new Shortcut("dh", "warp dhub")
+            new Shortcut("dh", "warp dhub"),
+            new Shortcut("t1", "joinkuudra basic"),
+            new Shortcut("t2", "joinkuudra hot"),
+            new Shortcut("t3", "joinkuudra burning"),
+            new Shortcut("t4", "joinkuudra fiery"),
+            new Shortcut("t5", "joinkuudra infernal")
     ));
+    @Global
+    public boolean kuudraShortcutsAdded = false;
 
     public boolean noFire = true;            // Hide fire overlay on screen
     public boolean noBlind = true;           // Remove blindness effect
@@ -671,6 +679,26 @@ public class TeslaMapsConfig {
     public int charmedVisitorY = 200;
     public float charmedVisitorScale = 1.0f;
     public List<String> charmedVisitorNames = new ArrayList<>();
+
+    public boolean feastSeasonDisplay = true;   // Crops in-season during the Harvest / Grand Feast
+    public boolean feastSeasonEverywhere = true;  // Also outside the garden
+    public int feastSeasonX = 180;
+    public int feastSeasonY = 240;
+    public float feastSeasonScale = 1.0f;
+    @Global
+    public List<String> feastCrops = new ArrayList<>();        // Last read in-season crops
+    @Global
+    public java.util.Map<String, Long> feastNextSeason = new java.util.LinkedHashMap<>();  // Crop -> back in season, epoch millis
+    @Global
+    public int feastMonthIndex = -1;            // Skyblock month the data was read in
+
+    public boolean sixthVisitorWarning = true;  // Title + sound when the 6th visitor is estimated ready
+    public String sixthVisitorSound = "NOTE_PLING";
+    public float sixthVisitorVolume = 1.0f;     // 0 = silent
+    @Global
+    public long visitorInterval = 15 * 60_000L; // Learned time between two visitors
+    @Global
+    public long sixthVisitorArrival = 0L;       // Estimated arrival, epoch millis, 0 = queue not full
 
     public boolean huntingBoxValue = true;      // Bazaar value of the shards in the hunting box
     public boolean shardOverlay = true;         // What is still missing to max every attribute
@@ -1514,8 +1542,19 @@ public class TeslaMapsConfig {
         if (c.dragonPbs == null) c.dragonPbs = new java.util.HashMap<>();
         if (c.keybinds == null) c.keybinds = defaultKeybinds();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
+        if (!c.kuudraShortcutsAdded) {
+            c.kuudraShortcutsAdded = true;
+            String[][] kuudra = {{"t1", "joinkuudra basic"}, {"t2", "joinkuudra hot"}, {"t3", "joinkuudra burning"},
+                    {"t4", "joinkuudra fiery"}, {"t5", "joinkuudra infernal"}};
+            for (String[] k : kuudra) {
+                boolean exists = c.shortcuts.stream().anyMatch(s -> s.alias != null && s.alias.trim().equalsIgnoreCase(k[0]));
+                if (!exists) c.shortcuts.add(new Shortcut(k[0], k[1]));
+            }
+        }
         if (c.leapCustomOrder == null) c.leapCustomOrder = new ArrayList<>();
         if (c.charmedVisitorNames == null) c.charmedVisitorNames = new ArrayList<>();
+        if (c.feastCrops == null) c.feastCrops = new ArrayList<>();
+        if (c.feastNextSeason == null) c.feastNextSeason = new java.util.LinkedHashMap<>();
         if (c.headTargets == null) c.headTargets = new ArrayList<>();
         if (c.headESPColor == null || c.headESPColor.isBlank()) c.headESPColor = "#FFAA00";
         if (c.headGoldenDragonColor == null || c.headGoldenDragonColor.isBlank()) c.headGoldenDragonColor = "#FFD700";

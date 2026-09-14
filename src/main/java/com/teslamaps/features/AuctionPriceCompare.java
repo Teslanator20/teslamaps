@@ -49,8 +49,7 @@ public class AuctionPriceCompare {
             lastScreen = mc.screen;
             deals.clear();
             ticks = 0;
-            String title = StringUtil.stripTrim(cs.getTitle().getString());
-            inAuctions = title.startsWith("Auctions") || title.startsWith("Cosmetics Browser");
+            inAuctions = isAuctionTitle(cs.getTitle().getString());
         }
         if (!inAuctions) return;
         if (ticks++ % 3 != 0) return;
@@ -71,6 +70,11 @@ public class AuctionPriceCompare {
             deals.put(slot, compute(stack));
             if (--budget <= 0) return;
         }
+    }
+
+    public static boolean isAuctionTitle(String rawTitle) {
+        String title = StringUtil.stripTrim(rawTitle);
+        return title.startsWith("Auctions") || title.startsWith("Cosmetics Browser");
     }
 
     private static void reset() {

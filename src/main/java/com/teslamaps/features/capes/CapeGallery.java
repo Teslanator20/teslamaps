@@ -48,8 +48,16 @@ public class CapeGallery {
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
-    /** slug = storage key between gallery/ and .png, e.g. "Baddies/Madelyn_Cline". */
-    public record Entry(String slug, String name, String category) {}
+    /**
+     * One catalogue row. {@code path} is the storage key ("gallery/Baddies/Madelyn_Cline.gif"),
+     * {@code crop} is set for an animated entry that is not already a cape sheet.
+     */
+    public record Entry(String path, String name, String category, CapeCompose.Crop crop) {
+        /** The part below gallery/, extension included - unique, so it keys the thumb cache. */
+        public String slug() { return path.substring("gallery/".length()); }
+
+        public boolean animated() { return path.endsWith(".gif"); }
+    }
 
     public static volatile boolean loading;
     public static volatile String status = "";
@@ -72,8 +80,8 @@ public class CapeGallery {
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
 
-    public static String imageUrl(String slug) {
-        return baseUrl() + "/storage/v1/object/public/capes/gallery/" + slug + ".png";
+    public static String imageUrl(Entry entry) {
+        return baseUrl() + "/storage/v1/object/public/capes/" + entry.path();
     }
 
     /** Drops the cached catalogue so the next search reloads it (after a gallery publish). */
@@ -100,7 +108,7 @@ public class CapeGallery {
                 String anon = TeslaMapsConfig.get().capeServerKey.trim();
                 HttpResponse<String> response = HTTP.send(
                         HttpRequest.newBuilder(URI.create(baseUrl()
-                                        + "/rest/v1/cape_gallery?select=path,name,category&order=category,name"))
+                                        + "/rest/v1/cape_gallery?select=path,name,category,crop&order=category,name"))
                                 .timeout(Duration.ofSeconds(30))
                                 .header("apikey", anon)
                                 .header("Authorization", "Bearer " + anon)
@@ -118,9 +126,10 @@ public class CapeGallery {
                     String path = string(row, "path");
                     String name = string(row, "name");
                     String category = string(row, "category");
-                    if (path == null || name == null || !path.startsWith("gallery/") || !path.endsWith(".png")) continue;
-                    String slug = path.substring("gallery/".length(), path.length() - 4);
-                    found.add(new Entry(slug, name, category == null ? "Gallery" : category));
+                    if (path == null || name == null || !path.startsWith("gallery/")) continue;
+                    if (!path.endsWith(".png") && !path.endsWith(".gif")) continue;
+                    found.add(new Entry(path, name, category == null ? "Gallery" : category,
+                            CapeCompose.Crop.parse(string(row, "crop"))));
                 }
                 Minecraft.getInstance().execute(() -> {
                     CATALOGUE.clear();
@@ -175,7 +184,8 @@ public class CapeGallery {
      * png is decoded, scaled to a thumbnail and thrown away again - keeping the
      * originals on the gpu would be megabytes of vram per tile.
      */
-    public static Identifier thumb(String slug) {
+    public static Identifier thumb(Entry entry) {
+        String slug = entry.slug();
         Identifier known = THUMBS.get(slug);
         if (known != null) return known;
         if (inFlight.get() >= MAX_PARALLEL || !PENDING.add(slug)) return null;
@@ -184,12 +194,12 @@ public class CapeGallery {
         new Thread(() -> {
             NativeImage small = null;
             try {
-                Path cached = CACHE_DIR.resolve(slug.replace('/', '_') + ".png");
+                Path cached = CACHE_DIR.resolve(slug.replace('/', '_') + ".thumb.png");
                 if (Files.isRegularFile(cached)) {
                     small = NativeImage.read(Files.readAllBytes(cached));
                 } else {
                     HttpResponse<byte[]> response = HTTP.send(
-                            HttpRequest.newBuilder(URI.create(imageUrl(slug)))
+                            HttpRequest.newBuilder(URI.create(imageUrl(entry)))
                                     .timeout(Duration.ofSeconds(30)).GET().build(),
                             HttpResponse.BodyHandlers.ofByteArray());
                     if (response.statusCode() != 200 || response.body().length > MAX_BYTES) {
@@ -197,7 +207,10 @@ public class CapeGallery {
                         return;
                     }
                     // decoding and shrinking is plain cpu work, only the upload needs the render thread
-                    try (NativeImage full = NativeImage.read(response.body())) {
+                    // an animated entry shows its first frame, composed exactly like it renders
+                    try (NativeImage full = entry.animated()
+                            ? GifCape.firstSheet(response.body(), entry.crop())
+                            : NativeImage.read(response.body())) {
                         small = new NativeImage(THUMB_W, THUMB_H, false);
                         full.resizeSubRectTo(0, 0, full.getWidth(), full.getHeight(), small);
                     }

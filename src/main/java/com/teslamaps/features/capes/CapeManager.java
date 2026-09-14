@@ -34,23 +34,46 @@ public class CapeManager {
     public static final class Cape {
         public final String id, name, group;
         public final Path file;          // null for a bundled cape
-        public int width = 64, height = 32;
+        public final boolean animated;   // .gif, one texture per frame
+        public volatile int width = 64, height = 32;
         private Identifier texture;
-        private boolean failed;
+        private volatile boolean failed;
+        private volatile GifCape gif;
+        private volatile boolean decoding;
+        private volatile boolean dropped;
 
         Cape(String id, String name, String group, Identifier texture) {
             this.id = id; this.name = name; this.group = group;
-            this.texture = texture; this.file = null;
+            this.texture = texture; this.file = null; this.animated = false;
         }
 
-        Cape(String id, String name, String group, Path file) {
-            this.id = id; this.name = name; this.group = group; this.file = file;
+        Cape(String id, String name, String group, Path file, boolean animated) {
+            this.id = id; this.name = name; this.group = group;
+            this.file = file; this.animated = animated;
         }
 
         public boolean custom() { return file != null; }
 
+        /** The crop the gif was imported with, null when it already was a cape sheet. */
+        public CapeCompose.Crop crop() {
+            try {
+                Path sidecar = cropFile(file);
+                return Files.isRegularFile(sidecar)
+                        ? CapeCompose.Crop.parse(Files.readString(sidecar)) : null;
+            } catch (Throwable t) {
+                return null;
+            }
+        }
+
+        /** 0 until the gif is decoded. */
+        public int frames() {
+            GifCape loaded = gif;
+            return loaded == null ? 0 : loaded.frameCount();
+        }
+
         /** Decodes and uploads a custom cape the first time it is actually drawn. */
         public Identifier texture() {
+            if (animated) return animatedTexture();
             if (texture != null || failed) return texture;
             try (InputStream in = Files.newInputStream(file)) {
                 NativeImage image = CapeImport.toCapeLayout(NativeImage.read(in));
@@ -67,10 +90,47 @@ public class CapeManager {
             return texture;
         }
 
+        /** Gifs are decoded off-thread; until the frames are up there is simply no cape. */
+        private Identifier animatedTexture() {
+            GifCape loaded = gif;
+            if (loaded != null) return loaded.current();
+            if (failed || decoding) return null;
+            decoding = true;
+            new Thread(() -> {
+                try {
+                    GifCape.Decoded decoded = GifCape.decode(Files.readAllBytes(file), crop());
+                    Minecraft.getInstance().execute(() -> {
+                        try {
+                            GifCape uploaded = GifCape.upload(id, decoded);
+                            if (dropped) {
+                                uploaded.release();   // a rescan dropped us while decoding
+                            } else {
+                                width = uploaded.width;
+                                height = uploaded.height;
+                                gif = uploaded;
+                            }
+                        } catch (Throwable t) {
+                            TeslaMaps.LOGGER.warn("Cape {} failed to upload: {}", id, t.toString());
+                            failed = true;
+                        }
+                        decoding = false;
+                    });
+                } catch (Throwable t) {
+                    TeslaMaps.LOGGER.warn("Cape {} failed to decode: {}", id, t.toString());
+                    failed = true;
+                    decoding = false;
+                }
+            }, "TeslaMaps gif cape").start();
+            return null;
+        }
+
         void release() {
             if (!custom()) return;   // a bundled cape's id is its resource path, never drop it
+            dropped = true;
             if (texture != null) Minecraft.getInstance().getTextureManager().release(texture);
+            if (gif != null) gif.release();
             texture = null;
+            gif = null;
             failed = false;
         }
     }
@@ -104,7 +164,11 @@ public class CapeManager {
             Path readme = DIR.resolve("README.txt");
             if (!Files.exists(readme)) {
                 Files.writeString(readme, """
-                        Drop cape .png files in here and they show up in /tmap cape.
+                        Drop cape .png or .gif files in here and they show up in /tmap cape.
+                        A .gif animates: every frame is played at the speed it was saved with,
+                        up to 120 frames and 512 px wide. Everyone else sees the animation too,
+                        as long as the gif stays below 8 MB and 1024 px - a bigger one is shared
+                        as its first frame.
 
                         Layout is the vanilla one: a 2:1 texture with the cape at 1,1 to 11,17
                         of a 64x32 grid. Higher resolutions are supported and rendered sharper,
@@ -137,14 +201,20 @@ public class CapeManager {
     private static void addFolder(Path dir, String group) {
         try (Stream<Path> files = Files.list(dir)) {
             files.filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".png"))
+                    .filter(p -> {
+                        String lower = p.getFileName().toString().toLowerCase(Locale.ROOT);
+                        return lower.endsWith(".png") || lower.endsWith(".gif");
+                    })
                     .sorted(Comparator.comparing(p -> p.getFileName().toString().toLowerCase(Locale.ROOT)))
                     .forEach(p -> {
                         String file = p.getFileName().toString();
                         String name = file.substring(0, file.length() - 4);
+                        boolean gif = file.toLowerCase(Locale.ROOT).endsWith(".gif");
                         // root capes keep their old id, so a saved selection survives the folders
                         String prefix = dir == DIR ? "custom_" : "custom_" + sanitize(group) + "_";
-                        CUSTOM.add(new Cape(prefix + sanitize(name), name, group, p));
+                        // the suffix keeps a gif apart from a png of the same name
+                        CUSTOM.add(new Cape(prefix + sanitize(name) + (gif ? "_gif" : ""),
+                                name, group, p, gif));
                     });
         } catch (Throwable ignored) {
         }
@@ -185,10 +255,16 @@ public class CapeManager {
         CapeSync.publishSelection(null);
     }
 
+    /** Sidecar that holds the crop of an imported gif. */
+    public static Path cropFile(Path gif) {
+        return gif.resolveSibling(gif.getFileName() + ".crop");
+    }
+
     public static boolean delete(Cape cape) {
         if (cape == null || !cape.custom()) return false;
         try {
             Files.deleteIfExists(cape.file);
+            Files.deleteIfExists(cropFile(cape.file));
         } catch (Throwable t) {
             return false;
         }

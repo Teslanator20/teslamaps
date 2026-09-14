@@ -2,7 +2,9 @@ package com.teslamaps.screen;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.teslamaps.TeslaMaps;
+import com.teslamaps.features.capes.CapeCompose;
 import com.teslamaps.features.capes.CapeImport;
+import com.teslamaps.features.capes.GifCape;
 import com.teslamaps.render.gui.HudStyle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -20,14 +22,13 @@ import net.minecraft.resources.Identifier;
 public class CapeCropScreen extends Screen {
 
     private static final int MARGIN = 8;
-    // cape front is 10:16
     private static final int SHEET_SCALE = 32;                       // 64x32 grid -> 2048x1024
-    private static final int FRONT_W = 10 * SHEET_SCALE, FRONT_H = 16 * SHEET_SCALE;
 
     private final Screen parent;
     private final String name;
     private final String subfolder;
     private final byte[] data;
+    private final boolean gif;
 
     private NativeImage source;
     private Identifier texture;
@@ -45,6 +46,7 @@ public class CapeCropScreen extends Screen {
         this.name = name;
         this.data = data;
         this.subfolder = subfolder;
+        this.gif = com.teslamaps.features.capes.GifCape.isGif(data);
     }
 
     public static void open(String name, byte[] data, String subfolder) {
@@ -56,11 +58,11 @@ public class CapeCropScreen extends Screen {
     protected void init() {
         if (source == null) {
             try {
-                source = CapeImport.decode(data);
+                source = still();
                 texture = Identifier.fromNamespaceAndPath("teslamaps", "cape/crop");
                 // the texture owns a copy so the compose step keeps its own pixels
                 minecraft.getTextureManager().register(texture,
-                        new DynamicTexture(() -> "TeslaMaps crop", CapeImport.decode(data)));
+                        new DynamicTexture(() -> "TeslaMaps crop", still()));
             } catch (Throwable t) {
                 TeslaMaps.LOGGER.warn("Crop decode failed", t);
                 onClose();
@@ -94,42 +96,36 @@ public class CapeCropScreen extends Screen {
         ScreenFit.clamp(this);
     }
 
+    /** The picture the crop frame is aimed at - for a gif that is its first frame. */
+    private NativeImage still() throws Exception {
+        return gif ? GifCape.firstFrame(data) : CapeImport.decode(data);
+    }
+
+    private CapeCompose.Crop crop() {
+        return new CapeCompose.Crop(cropCx, cropCy, zoom);
+    }
+
     /** Crop rect in source pixels, clamped inside the picture. */
     private int[] cropRect() {
-        int sw = source.getWidth(), sh = source.getHeight();
-        // biggest 10:16 window that fits, shrunk by zoom
-        double maxH = Math.min(sh, sw * 16.0 / 10.0);
-        double ch = maxH / zoom;
-        double cw = ch * 10.0 / 16.0;
-        double cx = Math.max(cw / 2, Math.min(sw - cw / 2, cropCx * sw));
-        double cy = Math.max(ch / 2, Math.min(sh - ch / 2, cropCy * sh));
-        return new int[]{(int) (cx - cw / 2), (int) (cy - ch / 2), (int) cw, (int) ch};
+        return CapeCompose.rect(source.getWidth(), source.getHeight(), crop());
     }
 
     private void save() {
-        int[] crop = cropRect();
-        NativeImage sheet = null, front = null, tiny = null;
         try {
-            sheet = new NativeImage(64 * SHEET_SCALE, 32 * SHEET_SCALE, true);
-            // background: source shrunk to a handful of pixels and blown back up = cheap blur
-            tiny = new NativeImage(16, 8, true);
-            source.resizeSubRectTo(0, 0, source.getWidth(), source.getHeight(), tiny);
-            tiny.resizeSubRectTo(0, 0, 16, 8, sheet);
-
-            front = new NativeImage(FRONT_W, FRONT_H, true);
-            source.resizeSubRectTo(crop[0], crop[1], crop[2], crop[3], front);
-            front.copyRect(sheet, 0, 0, SHEET_SCALE, SHEET_SCALE, FRONT_W, FRONT_H, false, false);
-            front.copyRect(sheet, 0, 0, 12 * SHEET_SCALE, SHEET_SCALE, FRONT_W, FRONT_H, true, false);
-
-            CapeImport.saveComposed(name, subfolder, sheet);
+            if (gif) {
+                // the gif is kept as it came in; the crop travels with it and is
+                // applied to every frame when the cape is worn
+                CapeImport.saveGif(name, subfolder, data, crop());
+                onClose();
+                return;
+            }
+            try (NativeImage sheet = CapeCompose.sheet(source, crop(), SHEET_SCALE)) {
+                CapeImport.saveComposed(name, subfolder, sheet);
+            }
             onClose();
         } catch (Throwable t) {
             TeslaMaps.LOGGER.warn("Cape compose failed", t);
             status = "§cCould not save: " + t.getClass().getSimpleName();
-        } finally {
-            if (sheet != null) sheet.close();
-            if (front != null) front.close();
-            if (tiny != null) tiny.close();
         }
     }
 
@@ -175,7 +171,8 @@ public class CapeCropScreen extends Screen {
         ctx.fill(0, 0, width, height, 0xB0000000);
         HudStyle.screenPanel(ctx, panelX, panelY, panelW, panelH, 8);
         ctx.text(font, "§f§lCrop \"" + name + "\"", panelX + 12, panelY + 12, 0xFFFFFFFF);
-        ctx.text(font, "§8drag to aim, scroll to zoom", panelX + 12, panelY + panelH - 52, 0xFF808080);
+        ctx.text(font, gif ? "§8drag to aim, scroll to zoom - applies to every frame"
+                : "§8drag to aim, scroll to zoom", panelX + 12, panelY + panelH - 52, 0xFF808080);
         if (!status.isEmpty()) ctx.text(font, status, panelX + 12, panelY + panelH - 40, 0xFFFFFFFF);
 
         // source picture, dimmed, with the crop frame on top

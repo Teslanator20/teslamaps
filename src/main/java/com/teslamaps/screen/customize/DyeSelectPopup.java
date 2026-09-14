@@ -65,15 +65,20 @@ public class DyeSelectPopup extends PopupScreen {
         List<AbstractWidget> rows = new ArrayList<>();
         rows.add(new DyeListWidget.Header(Component.translatable("teslamaps.customize.armor.pickDye.dyes",
                 Component.translatable("teslamaps.customize.armor.pickDye.dyes.static"))));
-        RepoDyeColors.STATIC_DYES.forEach((name, hex) ->
-                rows.add(new StaticDyeButton(name, hex, button -> selectStaticDye(button, hex))));
+        RepoDyeColors.STATIC_DYES.entrySet().stream()
+                .sorted(java.util.Comparator.comparing(
+                        e -> displayName(e.getKey()), String.CASE_INSENSITIVE_ORDER))
+                .forEach(e -> rows.add(new StaticDyeButton(e.getKey(), e.getValue(),
+                        button -> selectStaticDye(button, e.getValue()))));
 
         rows.add(new DyeListWidget.Header(Component.translatable("teslamaps.customize.armor.pickDye.dyes",
                 Component.translatable("teslamaps.customize.armor.pickDye.dyes.animated"))));
-        RepoDyeColors.ANIMATED_DYES.forEach((name, colors) -> {
-            if (name.startsWith("FAIRY")) return;
-            rows.add(new AnimatedDyeButton(name, colors, button -> selectAnimatedDye(button, colors)));
-        });
+        RepoDyeColors.ANIMATED_DYES.entrySet().stream()
+                .filter(e -> !e.getKey().startsWith("FAIRY"))
+                .sorted(java.util.Comparator.comparing(
+                        e -> displayName(e.getKey()), String.CASE_INSENSITIVE_ORDER))
+                .forEach(e -> rows.add(new AnimatedDyeButton(e.getKey(), e.getValue(),
+                        button -> selectAnimatedDye(button, e.getValue()))));
 
         // whole rows only, and leave room for the title above and the cancel button below
         int visibleRows = Math.clamp((height - 100) / DyeListWidget.ROW, 3, Math.max(3, rows.size()));
@@ -133,6 +138,20 @@ public class DyeSelectPopup extends PopupScreen {
         return OkLabColor.linearSRGB2OkLab(ARGB.redFloat(color), ARGB.greenFloat(color), ARGB.blueFloat(color)).toVec3();
     }
 
+    /** "Dye Aquamarine" / "Aquamarine Dye" both read as "Aquamarine" - the list is all dyes. */
+    private static String displayName(String dyeId) {
+        // dyes are not in Hypixel's item table, so this is usually the prettified id
+        String display = SkyblockItems.coloredName(dyeId);
+        String name = (display == null || display.isBlank()
+                ? com.teslamaps.features.customize.CustomAnimatedHelmetTextures.formatName(dyeId)
+                : StringUtil.strip(display)).trim();
+        if (name.regionMatches(true, 0, "dye ", 0, 4)) name = name.substring(4).trim();
+        if (name.length() > 4 && name.regionMatches(true, name.length() - 4, " dye", 0, 4)) {
+            name = name.substring(0, name.length() - 4).trim();
+        }
+        return name.isEmpty() ? dyeId : name;
+    }
+
     private static class StaticDyeButton extends Button.Plain {
         private static final int TEXT_OFFSET = 10;
 
@@ -141,11 +160,7 @@ public class DyeSelectPopup extends PopupScreen {
 
         protected StaticDyeButton(String dyeId, int color, OnPress onPress) {
             super(0, 0, 150, 20, Component.empty(), onPress, b -> Component.empty());
-            // dyes are not in Hypixel's item table, so this is usually the prettified id
-            String display = SkyblockItems.coloredName(dyeId);
-            name = display == null || display.isBlank()
-                    ? com.teslamaps.features.customize.CustomAnimatedHelmetTextures.formatName(dyeId)
-                    : StringUtil.strip(display);
+            name = displayName(dyeId);
             // a leather piece tinted with the dye reads better than the real (async) repo icon
             dyeStack = new ItemStack(Items.LEATHER_CHESTPLATE);
             dyeStack.set(DataComponents.DYED_COLOR, new DyedItemColor(color));

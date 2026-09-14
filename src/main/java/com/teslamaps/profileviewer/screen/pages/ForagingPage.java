@@ -43,7 +43,7 @@ public class ForagingPage extends ProfileViewerPage {
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
-        drawTree(ctx, build(profile.getMemberData(), width), x, y, mouseX, mouseY);
+        drawTree(ctx, w -> build(profile.getMemberData(), w), width, x, y, mouseX, mouseY);
     }
 
     private Ui build(JsonObject member, int width) {
@@ -53,14 +53,37 @@ public class ForagingPage extends ProfileViewerPage {
 
         List<PerkRegistry.Perk> perks = PerkRegistry.hotf();
         Ui treeView = PerkTreeView.component(perks, tree.nodes, tree.level, PerkTreeView.FORAGING, tree.disabled);
-        int sideWidth = Math.max(150, width - treeView.width() - 10);
 
-        return Ui.col(9,
-                header(width, tree),
-                tiles(width, tree, core, foraging),
-                Ui.row(10, Ui.V.TOP, treeView, Ui.col(9,
+        // the tree only gives up a little height; below that it is unreadable, then the whole
+        // page shrinks instead
+        Ui page = compose(width, tree, core, foraging, treeView);
+        int available = NeuStyle.PANEL_HEIGHT - 20;
+        if (page.height() > available && treeView.height() > 0) {
+            int rest = page.height() - treeView.height();
+            float factor = Math.max(0.85f, (available - rest) / (float) treeView.height());
+            if (factor < 1f) page = compose(width, tree, core, foraging, new Ui.Scaled(treeView, factor));
+        }
+        return page;
+    }
+
+    /**
+     * Next to the tree, in two columns. Stacked under each other the side content was taller than
+     * the window and dragged the whole page - tree included - through the shrink.
+     */
+    private Ui compose(int width, SkillTreeInfo tree, JsonObject core, JsonObject foraging, Ui treeView) {
+        int sideWidth = Math.max(150, width - treeView.width() - 10);
+        int half = Math.max(110, (sideWidth - 10) / 2);
+
+        Ui side = sideWidth >= 230
+                ? Ui.row(10, Ui.V.TOP,
+                        Ui.col(6, tiles(half, tree, core, foraging),
+                                Kit.section("Tree Gifts", gifts(foraging, half))),
+                        Kit.section("Personal Bests", personalBests(foraging, half)))
+                : Ui.col(6, tiles(sideWidth, tree, core, foraging),
                         Kit.section("Tree Gifts", gifts(foraging, sideWidth)),
-                        Kit.section("Personal Bests", personalBests(foraging, sideWidth)))));
+                        Kit.section("Personal Bests", personalBests(foraging, sideWidth)));
+
+        return Ui.col(6, header(width, tree), Ui.row(10, Ui.V.TOP, treeView, side));
     }
 
     private Ui header(int width, SkillTreeInfo tree) {
@@ -68,15 +91,18 @@ public class ForagingPage extends ProfileViewerPage {
                 ? Kit.compact(tree.xp) + " XP - MAX"
                 : Kit.compact(tree.xpIntoLevel) + " / " + Kit.compact(tree.xpForLevel) + " XP";
 
-        return Ui.col(4,
+        // the loadout used to be its own line, which cost the tree a row of nodes
+        return Ui.col(3,
                 new Ui.SpaceBetween(width,
                         Ui.row(6, Ui.V.CENTER,
                                 new Ui.Label("Heart of the Forest", NeuStyle.TEXT, Ui.SUBTITLE),
                                 new Ui.Label("Level " + tree.level + "/" + tree.maxLevel,
                                         tree.isMaxed() ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_GREEN)),
-                        new Ui.Label(right, NeuStyle.TEXT_GRAY)),
-                Kit.bar(width, tree.progress()),
-                new Ui.Label("Loadout " + tree.slot + " - " + tree.tokensSpent + " tokens spent", NeuStyle.TEXT_GRAY));
+                        Ui.row(8, Ui.V.CENTER,
+                                new Ui.Label("Loadout " + tree.slot + " - " + tree.tokensSpent + " tokens",
+                                        NeuStyle.TEXT_GRAY, Ui.SMALL),
+                                new Ui.Label(right, NeuStyle.TEXT_GRAY))),
+                Kit.bar(width, tree.progress()));
     }
 
     private Ui tiles(int width, SkillTreeInfo tree, JsonObject core, JsonObject foraging) {

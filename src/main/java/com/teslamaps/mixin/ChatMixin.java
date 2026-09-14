@@ -85,6 +85,7 @@ public class ChatMixin {
         if (cfg.section("Garden")) com.teslamaps.features.FarmProfit.onChatComponent(message);
         if (cfg.section("Garden")) com.teslamaps.features.GardenPlots.onChatMessage(text);
         if (cfg.section("Garden")) com.teslamaps.features.PestRoutine.onChatMessage(text);
+        if (fromServer && cfg.section("Garden")) com.teslamaps.features.SixthVisitor.onChatMessage(text);
 
         if (fromServer && cfg.section("Auto")) {
             AutoGFS.onChatMessage(text);

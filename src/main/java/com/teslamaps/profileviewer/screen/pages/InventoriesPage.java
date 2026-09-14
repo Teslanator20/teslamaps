@@ -41,6 +41,25 @@ public class InventoriesPage extends ProfileViewerPage {
     private Section section = Section.INVENTORY;
     private int page = 0;
 
+    // decoding rebuilt every Slot every frame, so the item cache behind them never hit and the
+    // hovered stack was a different object each frame
+    private final java.util.Map<String, List<InventoryDecoder.Slot>> decodeCache = new java.util.HashMap<>();
+
+    @Override
+    public void init(com.teslamaps.profileviewer.screen.ProfileViewerScreen parent,
+                     com.teslamaps.profileviewer.data.SkyblockProfiles profiles) {
+        super.init(parent, profiles);
+        decodeCache.clear();
+        backpackCache = null;
+    }
+
+    private List<List<InventoryDecoder.Slot>> backpackCache;
+
+    private List<InventoryDecoder.Slot> decoded(JsonObject inventory, String path) {
+        if (inventory == null) return List.of();
+        return decodeCache.computeIfAbsent(path, key -> InventoryDecoder.decode(inventory, key));
+    }
+
     private int lastLeft;
     private int lastTop;
     private int pageCount = 1;
@@ -94,8 +113,12 @@ public class InventoriesPage extends ProfileViewerPage {
                     selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
         }
 
-        int gridX = left + 118;
-        int gridY = top + 22;
+        // everything right of the rail belongs to the container; the grid grows to fill it
+        int areaX = left + 118;
+        int areaW = NeuStyle.PANEL_WIDTH - 118 - 8;
+        // room above for the title and below for the pager, the grid used to touch both
+        int areaY = top + 26;
+        int areaH = NeuStyle.PANEL_HEIGHT - 26 - 34;
 
         List<InventoryDecoder.Slot> slots;
         String title = section.label;
@@ -103,92 +126,105 @@ public class InventoriesPage extends ProfileViewerPage {
 
         switch (section) {
             case INVENTORY -> {
-                slots = reorderPlayerInventory(InventoryDecoder.decode(inventory, "inv_contents"));
-                sideArmor = InventoryDecoder.decode(inventory, "inv_armor");
-                sideEquipment = InventoryDecoder.decode(inventory, "equipment_contents");
+                slots = reorderPlayerInventory(decoded(inventory,"inv_contents"));
+                sideArmor = decoded(inventory,"inv_armor");
+                sideEquipment = decoded(inventory,"equipment_contents");
             }
             case ENDER_CHEST -> {
-                List<InventoryDecoder.Slot> all = InventoryDecoder.decode(inventory, "ender_chest_contents");
+                List<InventoryDecoder.Slot> all = decoded(inventory,"ender_chest_contents");
                 pageCount = Math.max(1, (all.size() + 44) / 45);
                 page = Math.min(page, pageCount - 1);
                 slots = subList(all, page * 45, 45);
-                title = "Ender Chest";
+                title = "Ender Chest " + (page + 1) + " / " + pageCount;
             }
             case BACKPACKS -> {
-                List<List<InventoryDecoder.Slot>> packs = backpacks(inventory);
+                if (backpackCache == null) backpackCache = backpacks(inventory);
+                List<List<InventoryDecoder.Slot>> packs = backpackCache;
                 pageCount = Math.max(1, packs.size());
                 page = Math.min(page, pageCount - 1);
                 slots = packs.isEmpty() ? List.of() : packs.get(page);
-                title = "Backpack " + (page + 1);
+                title = "Backpack " + (page + 1) + " / " + pageCount;
             }
             case ACCESSORIES -> {
-                List<InventoryDecoder.Slot> all = InventoryDecoder.decode(inventory, "bag_contents.talisman_bag");
+                List<InventoryDecoder.Slot> all = decoded(inventory,"bag_contents.talisman_bag");
                 pageCount = Math.max(1, (all.size() + 44) / 45);
                 page = Math.min(page, pageCount - 1);
                 slots = subList(all, page * 45, 45);
                 int magicalPower = magicalPower(profile);
-                ctx.text(tr, "Magical Power: " + magicalPower, gridX, top + 10, NeuStyle.TEXT_LIGHT_PURPLE);
+                ctx.text(tr, "Magical Power: " + magicalPower, areaX, top + 10, NeuStyle.TEXT_LIGHT_PURPLE);
                 title = null;
             }
             case FISHING -> {
-                slots = pageOf(InventoryDecoder.decode(inventory, "bag_contents.fishing_bag"), 45);
+                slots = pageOf(decoded(inventory,"bag_contents.fishing_bag"), 45);
                 title = "Fishing Bag";
             }
             case POTIONS -> {
-                slots = pageOf(InventoryDecoder.decode(inventory, "bag_contents.potion_bag"), 45);
+                slots = pageOf(decoded(inventory,"bag_contents.potion_bag"), 45);
                 title = "Potion Bag";
             }
             case QUIVER -> {
-                slots = pageOf(InventoryDecoder.decode(inventory, "bag_contents.quiver"), 45);
+                slots = pageOf(decoded(inventory,"bag_contents.quiver"), 45);
                 title = "Quiver";
             }
             case SACKS -> {
                 slots = List.of();
                 title = null;
-                drawSacks(ctx, tr, profile, gridX, top + 10, mouseX, mouseY);
+                drawSacks(ctx, tr, profile, areaX, top + 10, areaW, mouseX, mouseY);
             }
             case EQUIPMENT -> {
-                List<InventoryDecoder.Slot> armor = InventoryDecoder.decode(inventory, "inv_armor");
-                List<InventoryDecoder.Slot> equipment = InventoryDecoder.decode(inventory, "equipment_contents");
+                List<InventoryDecoder.Slot> armor = decoded(inventory,"inv_armor");
+                List<InventoryDecoder.Slot> equipment = decoded(inventory,"equipment_contents");
                 List<InventoryDecoder.Slot> merged = new ArrayList<>(armor);
                 merged.addAll(equipment);
                 slots = merged;
                 title = "Armor and Equipment";
             }
             case VAULT -> {
-                slots = InventoryDecoder.decode(inventory, "personal_vault_contents");
+                slots = decoded(inventory,"personal_vault_contents");
                 title = "Personal Vault";
             }
             default -> slots = List.of();
         }
 
         if (title != null) {
-            ctx.text(tr, title, gridX, top + 10, NeuStyle.TEXT_YELLOW);
+            ctx.text(tr, title, areaX, top + 10, NeuStyle.TEXT_YELLOW);
         }
 
         if (section == Section.SACKS) return;
 
         if (slots.isEmpty()) {
-            ctx.text(tr, "Nothing here, or the api is off", gridX, gridY + 20, NeuStyle.TEXT_GRAY);
+            ctx.text(tr, "Nothing here, or the api is off", areaX, areaY + 20, NeuStyle.TEXT_GRAY);
             return;
         }
 
         int columns = section == Section.EQUIPMENT ? 4 : 9;
-        ItemStack hovered = ItemGrid.draw(ctx, slots, gridX, gridY, columns, 0,
-                Math.min(slots.size(), columns * 9), mouseX, mouseY);
+        int count = Math.min(slots.size(), columns * 9);
+        int rows = Math.max(1, (count + columns - 1) / columns);
 
-        if (section == Section.INVENTORY) {
-            int sideX = gridX + 9 * ItemGrid.SLOT + 10;
-            ItemStack armorHover = ItemGrid.draw(ctx, reverse(sideArmor), sideX, gridY, 1, 0, 4, mouseX, mouseY);
-            ItemStack equipHover = ItemGrid.draw(ctx, sideEquipment, sideX + ItemGrid.SLOT + 4, gridY, 1, 0, 4,
-                    mouseX, mouseY);
+        // the player inventory shows armor and equipment as two extra columns on the right
+        boolean sideColumns = section == Section.INVENTORY;
+        int sideGap = sideColumns ? 14 : 0;
+        int slotSize = ItemGrid.fitSlot(areaW - sideGap, areaH, columns + (sideColumns ? 2 : 0), rows);
+
+        int totalWidth = columns * slotSize + (sideColumns ? sideGap + 2 * slotSize : 0);
+        int gridX = areaX + Math.max(0, (areaW - totalWidth) / 2);
+        int gridY = areaY + Math.max(0, (areaH - rows * slotSize) / 2);
+
+        ItemStack hovered = ItemGrid.draw(ctx, slots, gridX, gridY, columns, 0, count, mouseX, mouseY, slotSize);
+
+        if (sideColumns) {
+            int sideX = gridX + 9 * slotSize + 10;
+            ItemStack armorHover = ItemGrid.draw(ctx, reverse(sideArmor), sideX, gridY, 1, 0, 4,
+                    mouseX, mouseY, slotSize);
+            ItemStack equipHover = ItemGrid.draw(ctx, sideEquipment, sideX + slotSize + 4, gridY, 1, 0, 4,
+                    mouseX, mouseY, slotSize);
             if (hovered.isEmpty()) hovered = !armorHover.isEmpty() ? armorHover : equipHover;
         }
 
         if (pageCount > 1) {
             String pager = "< " + (page + 1) + " / " + pageCount + " >";
-            int px = gridX + (columns * ItemGrid.SLOT - tr.width(pager)) / 2;
-            int py = top + NeuStyle.PANEL_HEIGHT - 30;
+            int px = gridX + (columns * slotSize - tr.width(pager)) / 2;
+            int py = Math.max(gridY + rows * slotSize + 8, top + NeuStyle.PANEL_HEIGHT - 24);
             ctx.text(tr, pager, px, py, NeuStyle.TEXT);
             pagerX = px;
             pagerY = py;
@@ -209,7 +245,7 @@ public class InventoriesPage extends ProfileViewerPage {
 
     /** Sacks are plain id to amount, so they get a list instead of a slot grid. */
     private void drawSacks(GuiGraphicsExtractor ctx, Font tr, SkyblockProfile profile,
-                           int x, int y, int mouseX, int mouseY) {
+                           int x, int y, int areaWidth, int mouseX, int mouseY) {
         JsonObject inventory = profile.getMemberData().has("inventory")
                 ? profile.getMemberData().getAsJsonObject("inventory") : null;
         if (inventory == null || !inventory.has("sacks_counts")) {
@@ -223,34 +259,44 @@ public class InventoriesPage extends ProfileViewerPage {
         entries.removeIf(e -> asInt(e.getValue()) <= 0);
         entries.sort((a, b) -> Integer.compare(asInt(b.getValue()), asInt(a.getValue())));
 
-        pageCount = Math.max(1, (entries.size() + 29) / 30);
+        // as many columns as the free space takes, so the list is not two columns in a wide window
+        int columns = Math.max(2, areaWidth / 105);
+        int columnWidth = areaWidth / columns;
+        int rows = 14;
+        int perPage = columns * rows;
+
+        pageCount = Math.max(1, (entries.size() + perPage - 1) / perPage);
         page = Math.min(page, pageCount - 1);
 
-        ctx.text(tr, "Sacks (" + entries.size() + " types)", x, y, NeuStyle.TEXT_YELLOW);
+        ctx.text(tr, "Sacks (" + entries.size() + " types)  -  " + (page + 1) + " / " + pageCount,
+                x, y, NeuStyle.TEXT_YELLOW);
 
         int column = 0;
         int row = 0;
-        for (int i = page * 30; i < Math.min(entries.size(), page * 30 + 30); i++) {
+        for (int i = page * perPage; i < Math.min(entries.size(), page * perPage + perPage); i++) {
             var entry = entries.get(i);
-            int cx = x + column * 100;
+            int cx = x + column * columnWidth;
             int cy = y + 14 + row * 11;
             String name = com.teslamaps.utils.SkyblockItems.name(entry.getKey());
             if (name == null || name.isEmpty()) name = capitalize(entry.getKey());
-            if (tr.width(name) > 60) name = name.substring(0, Math.min(name.length(), 12));
-            ctx.text(tr, name, cx, cy, NeuStyle.TEXT_GRAY);
+
             String amount = formatXp(asInt(entry.getValue()));
-            ctx.text(tr, amount, cx + 92 - tr.width(amount), cy, NeuStyle.TEXT);
+            // clip against the real amount width, cutting at a fixed letter count still collided
+            name = com.teslamaps.profileviewer.ui.Kit.clip(name, columnWidth - 16 - tr.width(amount));
+
+            ctx.text(tr, name, cx, cy, NeuStyle.TEXT_GRAY);
+            ctx.text(tr, amount, cx + columnWidth - 10 - tr.width(amount), cy, NeuStyle.TEXT);
 
             row++;
-            if (row >= 15) {
+            if (row >= rows) {
                 row = 0;
                 column++;
             }
         }
 
-        pagerX = x + 40;
-        pagerY = y + NeuStyle.PANEL_HEIGHT - 40;
         String pager = "< " + (page + 1) + " / " + pageCount + " >";
+        pagerX = x + (areaWidth - tr.width(pager)) / 2;
+        pagerY = y + 14 + rows * 11 + 6;
         pagerW = tr.width(pager);
         ctx.text(tr, pager, pagerX, pagerY, NeuStyle.TEXT);
     }

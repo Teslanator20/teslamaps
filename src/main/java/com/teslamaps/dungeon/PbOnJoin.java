@@ -14,12 +14,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PbOnJoin {
-    private static final Pattern JOIN = Pattern.compile("\\b(\\w{1,16}) joined the party\\.?$");
+    private static final Pattern JOIN = Pattern.compile("^Party Finder > (\\w{1,16}) joined the (?:dungeon )?group!");
 
     public static void onChatMessage(String message) {
         if (!TeslaMapsConfig.get().pbOnJoin) return;
-        message = message.replaceAll("(?i)§[0-9A-FK-OR]", ""); // strip legacy color codes
-        Matcher m = JOIN.matcher(message.trim());
+        Matcher m = JOIN.matcher(com.teslamaps.utils.StringUtil.strip(message).trim());
         if (!m.find()) return;
         lookup(m.group(1));
     }

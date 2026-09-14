@@ -23,10 +23,6 @@ import java.util.Map;
 
 /** The pet menu the way the game shows it: a slot grid with pages. */
 public class PetsPage extends ProfileViewerPage {
-    private static final int COLUMNS = 9;
-    private static final int ROWS = 5;
-    private static final int PER_PAGE = COLUMNS * ROWS;
-
     private static final Map<String, ItemStack> petBases = new HashMap<>();
     private static final Map<String, ItemStack> petStacks = new HashMap<>();
 
@@ -74,39 +70,49 @@ public class PetsPage extends ProfileViewerPage {
         lastTop = top;
 
         List<PetData> pets = profile.getPets();
-        pageCount = Math.max(1, (pets.size() + PER_PAGE - 1) / PER_PAGE);
-        page = Math.min(page, pageCount - 1);
 
         String title = "Pets (" + pets.size() + ")";
         ctx.text(tr, title, left + NeuStyle.PANEL_WIDTH / 2 - tr.width(title) / 2, top + 6, NeuStyle.TEXT_YELLOW);
 
-        int gridWidth = COLUMNS * ItemGrid.SLOT;
-        int gridX = left + (NeuStyle.PANEL_WIDTH - gridWidth) / 2;
-        int gridY = top + 20;
+        // the grid is sized for this collection, so a small one gets big slots and no paging
+        int areaW = NeuStyle.PANEL_WIDTH - 16;
+        int areaY = top + 20;
+        int areaH = NeuStyle.PANEL_HEIGHT - 20 - 16;
+
+        int[] fit = ItemGrid.fitGrid(areaW, areaH, pets.size());
+        int slotSize = fit[0];
+        int columns = fit[1];
+        int rows = fit[2];
+        int perPage = Math.max(1, columns * rows);
+
+        pageCount = Math.max(1, (pets.size() + perPage - 1) / perPage);
+        page = Math.min(page, pageCount - 1);
+
+        int gridX = left + (NeuStyle.PANEL_WIDTH - columns * slotSize) / 2;
+        int gridY = areaY + Math.max(0, (areaH - rows * slotSize) / 2);
 
         ItemStack hovered = ItemStack.EMPTY;
 
-        for (int i = 0; i < PER_PAGE; i++) {
-            int index = page * PER_PAGE + i;
-            int sx = gridX + (i % COLUMNS) * ItemGrid.SLOT;
-            int sy = gridY + (i / COLUMNS) * ItemGrid.SLOT;
+        for (int i = 0; i < perPage; i++) {
+            int index = page * perPage + i;
+            if (index >= pets.size() && pageCount == 1) break;
+            int sx = gridX + (i % columns) * slotSize;
+            int sy = gridY + (i / columns) * slotSize;
 
-            ctx.fill(sx, sy, sx + 17, sy + 17, 0x60000000);
-            ctx.fill(sx, sy, sx + 17, sy + 1, 0x40FFFFFF);
-            ctx.fill(sx, sy, sx + 1, sy + 17, 0x40FFFFFF);
+            ItemGrid.slot(ctx, sx, sy, slotSize);
 
             if (index >= pets.size()) continue;
             PetData pet = pets.get(index);
 
             ItemStack stack = stackFor(pet);
-            if (!stack.isEmpty()) ctx.item(stack, sx + 1, sy + 1);
+            if (!stack.isEmpty()) ItemGrid.item(ctx, stack, sx, sy, slotSize);
 
             if (pet.isActive()) {
-                ctx.fill(sx + 1, sy + 1, sx + 17, sy + 17, 0x3055FF55);
+                ctx.fill(sx + 1, sy + 1, sx + slotSize - 1, sy + slotSize - 1, 0x3055FF55);
             }
 
-            if (mouseX >= sx && mouseX < sx + 17 && mouseY >= sy && mouseY < sy + 17) {
-                ctx.fill(sx + 1, sy + 1, sx + 16, sy + 16, 0x40FFFFFF);
+            if (mouseX >= sx && mouseX < sx + slotSize - 1 && mouseY >= sy && mouseY < sy + slotSize - 1) {
+                ctx.fill(sx + 1, sy + 1, sx + slotSize - 2, sy + slotSize - 2, 0x40FFFFFF);
                 hovered = stack;
             }
         }
@@ -114,7 +120,7 @@ public class PetsPage extends ProfileViewerPage {
         if (pageCount > 1) {
             String pager = "< " + (page + 1) + " / " + pageCount + " >";
             pagerX = left + (NeuStyle.PANEL_WIDTH - tr.width(pager)) / 2;
-            pagerY = gridY + ROWS * ItemGrid.SLOT + 6;
+            pagerY = gridY + rows * slotSize + 4;
             pagerW = tr.width(pager);
             ctx.text(tr, pager, pagerX, pagerY, NeuStyle.TEXT);
         } else {
@@ -131,15 +137,18 @@ public class PetsPage extends ProfileViewerPage {
         ItemStack cached = petStacks.get(key);
         if (cached != null) return cached;
 
-        String repoId = pet.getType() + ";" + pet.getRarityOrdinal();
-        ItemStack base = petBases.get(repoId);
-        if (base == null) {
-            petBases.put(repoId, ItemStack.EMPTY);
-            SkyblockItems.resolve(repoId, stack -> {
-                petBases.put(repoId, stack);
-                petStacks.remove(key);
-            });
-            base = ItemStack.EMPTY;
+        // a skin replaces the whole look, and not every rarity of a pet exists in the repo -
+        // asking only for this one is what left half the cats as plain bones
+        String repoId = pet.getSkin() != null ? skinId(pet.getSkin()) : null;
+        ItemStack base = repoId == null ? ItemStack.EMPTY : lookup(repoId, key);
+
+        if (base.isEmpty()) {
+            for (int rarity = pet.getRarityOrdinal(); rarity >= 0 && base.isEmpty(); rarity--) {
+                base = lookup(pet.getType() + ";" + rarity, key);
+            }
+            for (int rarity = pet.getRarityOrdinal() + 1; rarity <= 5 && base.isEmpty(); rarity++) {
+                base = lookup(pet.getType() + ";" + rarity, key);
+            }
         }
 
         ItemStack stack = (base.isEmpty() ? new ItemStack(Items.BONE) : base.copy());
@@ -183,6 +192,23 @@ public class PetsPage extends ProfileViewerPage {
 
         petStacks.put(key, stack);
         return stack;
+    }
+
+    private static String skinId(String skin) {
+        return skin.startsWith("PET_SKIN_") ? skin : "PET_SKIN_" + skin;
+    }
+
+    /** Repo lookup that kicks off the async fetch once and drops the cached stack when it lands. */
+    private static ItemStack lookup(String repoId, String cacheKey) {
+        ItemStack known = petBases.get(repoId);
+        if (known != null) return known;
+
+        petBases.put(repoId, ItemStack.EMPTY);
+        SkyblockItems.resolve(repoId, stack -> {
+            petBases.put(repoId, stack);
+            petStacks.remove(cacheKey);
+        });
+        return ItemStack.EMPTY;
     }
 
     /** The green progress bar hypixel prints under the percentage. */

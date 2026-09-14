@@ -212,6 +212,33 @@ public abstract class Ui {
         }
     }
 
+    /** Shrinks one child on its own, so a tall block does not force the whole page to scale down. */
+    public static class Scaled extends Ui {
+        private final Ui child;
+        private final float factor;
+
+        public Scaled(Ui child, float factor) {
+            this.child = child;
+            this.factor = factor;
+        }
+
+        public int width() {
+            return (int) Math.ceil(child.width() * factor);
+        }
+
+        public int height() {
+            return (int) Math.ceil(child.height() * factor);
+        }
+
+        public void render(GuiGraphicsExtractor ctx, int x, int y, int mouseX, int mouseY) {
+            ctx.pose().pushMatrix();
+            ctx.pose().translate(x, y);
+            ctx.pose().scale(factor, factor);
+            child.render(ctx, 0, 0, (int) ((mouseX - x) / factor), (int) ((mouseY - y) / factor));
+            ctx.pose().popMatrix();
+        }
+    }
+
     /** Pins one child left and one right inside a fixed width. */
     public static class SpaceBetween extends Ui {
         private final int w;
@@ -234,7 +261,13 @@ public abstract class Ui {
 
         public void render(GuiGraphicsExtractor ctx, int x, int y, int mouseX, int mouseY) {
             int h = height();
+            // the right side is the value and always wins; a long label gets cut instead of overlapping
+            boolean collides = left.width() + right.width() + 4 > w;
+            if (collides) {
+                ctx.enableScissor(x, y, x + Math.max(0, w - right.width() - 4), y + h);
+            }
             left.render(ctx, x, y + (h - left.height()) / 2, mouseX, mouseY);
+            if (collides) ctx.disableScissor();
             right.render(ctx, x + w - right.width(), y + (h - right.height()) / 2, mouseX, mouseY);
         }
     }
@@ -337,12 +370,14 @@ public abstract class Ui {
         public void render(GuiGraphicsExtractor ctx, int x, int y, int mouseX, int mouseY) {
             if (!stack.isEmpty()) {
                 if (size == 16) {
+                    com.teslamaps.features.RarityBackground.draw(ctx, x, y, stack);
                     ctx.item(stack, x, y);
                 } else {
                     float factor = size / 16f;
                     ctx.pose().pushMatrix();
                     ctx.pose().translate(x, y);
                     ctx.pose().scale(factor, factor);
+                    com.teslamaps.features.RarityBackground.draw(ctx, 0, 0, stack);
                     ctx.item(stack, 0, 0);
                     ctx.pose().popMatrix();
                 }

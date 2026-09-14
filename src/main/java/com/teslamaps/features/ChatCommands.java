@@ -77,7 +77,7 @@ public class ChatCommands {
                 pc("Downtime reminder removed (" + sender + ")");
             }
             case "missing", "miss" -> pc(com.teslamaps.safari.SafariTracker.missingLine());
-            case "help", "h" -> pc("Commands: 8ball cf dice coords ping fps time missing warp allinvite pt kick promote demote dt undt f1-f7 m1-m7");
+            case "help", "h" -> pc("Commands: 8ball cf dice coords ping fps time missing warp allinvite pt kick promote demote dt undt f1-f7 m1-m7 t1-t5");
             default -> {
                 String instance = floorInstance(c);
                 if (instance != null) run("joininstance " + instance);
@@ -96,6 +96,11 @@ public class ChatCommands {
         if (c.length() != 2) return null;
         char type = c.charAt(0);
         char num = c.charAt(1);
+        if (type == 't') {
+            String[] tiers = {"normal", "hot", "burning", "fiery", "infernal"};
+            if (num < '1' || num > '5') return null;
+            return "kuudra_" + tiers[num - '1'];
+        }
         if ((type != 'f' && type != 'm') || num < '1' || num > '7') return null;
         String[] names = {"one", "two", "three", "four", "five", "six", "seven"};
         return (type == 'm' ? "master_" : "") + "catacombs_floor_" + names[num - '1'];

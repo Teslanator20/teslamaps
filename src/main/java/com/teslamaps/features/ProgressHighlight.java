@@ -22,6 +22,15 @@ public class ProgressHighlight {
     private static final String[] MENUS = {
             "Ways to Level Up",
             "Bestiary",
+            "Search Result", // /be <mob>
+    };
+
+    // reachable from a whitelisted menu, but there the same lore shape means something else
+    private static final String[] BLOCKED = {
+            "SkyBlock Menu",
+            "SkyBlock Leveling",
+            "Your Skills",
+            "Your Equipment",
     };
 
     private static final String[] PROGRESS_WORDS = {
@@ -33,8 +42,8 @@ public class ProgressHighlight {
     public static void render(GuiGraphicsExtractor ctx) {
         if (!TeslaMapsConfig.get().progressHighlight) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
-        if (!isWhitelisted(StringUtil.strip(cs.getTitle().getString()))) return;
+        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { closed(); return; }
+        if (!isWhitelisted(cs)) return;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int col = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorProgressDone) & 0x00FFFFFF;
@@ -72,8 +81,36 @@ public class ProgressHighlight {
         return done;
     }
 
-    private static boolean isWhitelisted(String title) {
-        for (String menu : MENUS) {
+    private static Object lastScreen;
+    private static String lastTitle = "";
+    private static boolean whitelisted;
+    private static long closedAt;
+
+    // a menu swap can blank the screen for a moment, so the parent flag only expires after a while
+    private static void closed() {
+        lastScreen = null;
+        lastTitle = "";
+        if (!whitelisted) return;
+        if (closedAt == 0) closedAt = System.currentTimeMillis();
+        else if (System.currentTimeMillis() - closedAt > 3000) { whitelisted = false; closedAt = 0; }
+    }
+
+    // sub menus drop the parent name ("Bestiary ➜ Fishing" -> "Fishing ➜ Backwater Bayou", "Ways to
+    // Level Up" -> "Combat"), so any menu opened out of a whitelisted one stays whitelisted
+    private static boolean isWhitelisted(AbstractContainerScreen<?> cs) {
+        String title = StringUtil.strip(cs.getTitle().getString());
+        if (cs == lastScreen && title.equals(lastTitle)) return whitelisted;
+
+        boolean parent = whitelisted;
+        closedAt = 0;
+        lastScreen = cs;
+        lastTitle = title;
+        whitelisted = !matches(title, BLOCKED) && (matches(title, MENUS) || parent);
+        return whitelisted;
+    }
+
+    private static boolean matches(String title, String[] names) {
+        for (String menu : names) {
             if (title.contains(menu)) return true;
         }
         return false;

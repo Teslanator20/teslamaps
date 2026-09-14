@@ -21,10 +21,6 @@ import java.util.List;
 
 /** The museum as a menu: every donated piece as its real item, paged. */
 public class MuseumPage extends ProfileViewerPage {
-    private static final int COLUMNS = 9;
-    private static final int ROWS = 6;
-    private static final int PER_PAGE = COLUMNS * ROWS;
-
     private JsonObject museumData;
     private boolean loading = false;
 
@@ -182,20 +178,30 @@ public class MuseumPage extends ProfileViewerPage {
         switchRowY = switchY;
 
         List<InventoryDecoder.Slot> shown = showSpecial ? special : donated;
-        pageCount = Math.max(1, (shown.size() + PER_PAGE - 1) / PER_PAGE);
+
+        int areaW = NeuStyle.PANEL_WIDTH - 16;
+        int areaY = top + 36;
+        int areaH = NeuStyle.PANEL_HEIGHT - 36 - 14;
+
+        int[] fit = ItemGrid.fitGrid(areaW, areaH, shown.size());
+        int slotSize = fit[0];
+        int columns = fit[1];
+        int rows = fit[2];
+        int perPage = Math.max(1, columns * rows);
+
+        pageCount = Math.max(1, (shown.size() + perPage - 1) / perPage);
         page = Math.min(page, pageCount - 1);
 
-        int gridWidth = COLUMNS * ItemGrid.SLOT;
-        int gridX = left + (NeuStyle.PANEL_WIDTH - gridWidth) / 2;
-        int gridY = top + 36;
+        int gridX = left + (NeuStyle.PANEL_WIDTH - columns * slotSize) / 2;
+        int gridY = areaY + Math.max(0, (areaH - rows * slotSize) / 2);
 
-        ItemStack hovered = ItemGrid.draw(ctx, shown, gridX, gridY, COLUMNS, page * PER_PAGE,
-                PER_PAGE, mouseX, mouseY);
+        ItemStack hovered = ItemGrid.draw(ctx, shown, gridX, gridY, columns, page * perPage,
+                Math.min(perPage, Math.max(0, shown.size() - page * perPage)), mouseX, mouseY, slotSize);
 
         if (pageCount > 1) {
             String pager = "< " + (page + 1) + " / " + pageCount + " >";
             pagerX = left + (NeuStyle.PANEL_WIDTH - tr.width(pager)) / 2;
-            pagerY = gridY + ROWS * ItemGrid.SLOT + 4;
+            pagerY = gridY + rows * slotSize + 4;
             pagerW = tr.width(pager);
             ctx.text(tr, pager, pagerX, pagerY, NeuStyle.TEXT);
         } else {

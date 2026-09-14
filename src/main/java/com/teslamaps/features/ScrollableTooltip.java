@@ -13,12 +13,20 @@ public class ScrollableTooltip {
 
     private static int offset = 0;
     private static int lastSlot = -1;
+    private static int externalSlot = -1;
+
+    /** Screens that are not containers (the profile viewer) hand in their own hover key. */
+    public static void setExternalFocus(int key) {
+        externalSlot = key;
+    }
 
     private static int focusedSlot() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return -1;
-        Slot s = ((HandledScreenAccessor) cs).getFocusedSlot();
-        return (s == null || s.getItem().isEmpty()) ? -1 : s.index;
+        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+            Slot s = ((HandledScreenAccessor) cs).getFocusedSlot();
+            return (s == null || s.getItem().isEmpty()) ? -1 : s.index;
+        }
+        return externalSlot;
     }
 
     public static boolean onScroll(double scrollY) {

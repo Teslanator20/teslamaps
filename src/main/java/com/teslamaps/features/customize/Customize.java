@@ -54,6 +54,37 @@ public class Customize {
         return ((CustomizableStack) (Object) stack).teslamaps$uuid();
     }
 
+    /** Drops every customization of one item. */
+    public static void reset(String uuid) {
+        if (uuid == null || uuid.isEmpty()) return;
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        config.customItemNames.remove(uuid);
+        config.customArmorTrims.remove(uuid);
+        config.customDyeColors.remove(uuid);
+        config.customAnimatedDyes.remove(uuid);
+        config.customHelmetTextures.remove(uuid);
+        config.customAnimatedHelmetTextures.remove(uuid);
+        config.customGlint.remove(uuid);
+        config.customItemModel.remove(uuid);
+        config.customArmorModel.remove(uuid);
+        refresh();
+    }
+
+    /** Drops every customization of every item. */
+    public static void resetAll() {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        config.customItemNames.clear();
+        config.customArmorTrims.clear();
+        config.customDyeColors.clear();
+        config.customAnimatedDyes.clear();
+        config.customHelmetTextures.clear();
+        config.customAnimatedHelmetTextures.clear();
+        config.customGlint.clear();
+        config.customItemModel.clear();
+        config.customArmorModel.clear();
+        refresh();
+    }
+
     public static void tick() {
         CustomAnimatedHelmetTextures.tick();
         // nothing here changes inside a second, and the check is not cheap

@@ -45,7 +45,7 @@ public class MiningPage extends ProfileViewerPage {
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
-        drawTree(ctx, build(profile.getMemberData(), width), x, y, mouseX, mouseY);
+        drawTree(ctx, w -> build(profile.getMemberData(), w), width, x, y, mouseX, mouseY);
     }
 
     private Ui build(JsonObject member, int width) {
@@ -55,14 +55,34 @@ public class MiningPage extends ProfileViewerPage {
 
         List<PerkRegistry.Perk> perks = PerkRegistry.hotm();
         Ui treeView = PerkTreeView.component(perks, tree.nodes, tree.level, PerkTreeView.MINING, tree.disabled);
-        int sideWidth = Math.max(150, width - treeView.width() - 10);
 
-        return Ui.col(9,
-                header(width, tree),
-                powder(width, tree, core),
-                Ui.row(10, Ui.V.TOP, treeView, Ui.col(9,
-                        Kit.section("Glacite Tunnels", glacite(glacite, sideWidth)),
-                        Kit.section("Crystals", crystals(core, sideWidth)))));
+        // only the perk tree shrinks when the page is too tall; scaling the whole page would
+        // pull the text away from both edges and leave the window half empty
+        Ui page = compose(width, tree, core, glacite, treeView);
+        int available = NeuStyle.PANEL_HEIGHT - 20;
+        if (page.height() > available && treeView.height() > 0) {
+            int rest = page.height() - treeView.height();
+            float factor = Math.max(0.85f, (available - rest) / (float) treeView.height());
+            if (factor < 1f) page = compose(width, tree, core, glacite, new Ui.Scaled(treeView, factor));
+        }
+        return page;
+    }
+
+    // everything next to the tree, in two columns when there is room for them
+    private Ui compose(int width, SkillTreeInfo tree, JsonObject core, JsonObject glacite, Ui treeView) {
+        int sideWidth = Math.max(150, width - treeView.width() - 10);
+        int half = Math.max(110, (sideWidth - 10) / 2);
+
+        Ui side = sideWidth >= 230
+                ? Ui.row(10, Ui.V.TOP,
+                        Ui.col(6, Kit.section("Glacite Tunnels", glacite(glacite, half)),
+                                Kit.section("Powder", powder(half, tree, core))),
+                        Kit.section("Crystals", crystals(core, half)))
+                : Ui.col(6, Kit.section("Glacite Tunnels", glacite(glacite, sideWidth)),
+                        Kit.section("Crystals", crystals(core, sideWidth)),
+                        Kit.section("Powder", powder(sideWidth, tree, core)));
+
+        return Ui.col(6, header(width, tree), Ui.row(10, Ui.V.TOP, treeView, side));
     }
 
     private Ui header(int width, SkillTreeInfo tree) {
@@ -70,15 +90,18 @@ public class MiningPage extends ProfileViewerPage {
                 ? Kit.compact(tree.xp) + " XP - MAX"
                 : Kit.compact(tree.xpIntoLevel) + " / " + Kit.compact(tree.xpForLevel) + " XP";
 
-        return Ui.col(4,
+        // the loadout used to be its own line, which cost the tree a row of nodes
+        return Ui.col(3,
                 new Ui.SpaceBetween(width,
                         Ui.row(6, Ui.V.CENTER,
                                 new Ui.Label("Heart of the Mountain", NeuStyle.TEXT, Ui.SUBTITLE),
                                 new Ui.Label("Level " + tree.level + "/" + tree.maxLevel,
                                         tree.isMaxed() ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA)),
-                        new Ui.Label(right, NeuStyle.TEXT_GRAY)),
-                Kit.bar(width, tree.progress()),
-                new Ui.Label("Loadout " + tree.slot + " - " + tree.tokensSpent + " tokens spent", NeuStyle.TEXT_GRAY));
+                        Ui.row(8, Ui.V.CENTER,
+                                new Ui.Label("Loadout " + tree.slot + " - " + tree.tokensSpent + " tokens",
+                                        NeuStyle.TEXT_GRAY, Ui.SMALL),
+                                new Ui.Label(right, NeuStyle.TEXT_GRAY))),
+                Kit.bar(width, tree.progress()));
     }
 
     /** Hypixel stores the balance, so the lifetime total is balance plus what this loadout spent. */

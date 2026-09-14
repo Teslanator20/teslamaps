@@ -52,6 +52,7 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.PEST_OVERLAY, Ctx.GARDEN, "Garden", c.pestOverlay);
         mark(DragTarget.FARM_PROFIT, Ctx.GARDEN, "Garden", c.farmProfit);
         mark(DragTarget.CHARMED, Ctx.GARDEN, "Garden", c.charmedVisitorList);
+        mark(DragTarget.FEAST, Ctx.GARDEN, "Garden", c.feastSeasonDisplay);
         mark(DragTarget.SAFARI, Ctx.SAFARI, "Critter Safari", c.safariTracker && c.safariHud);
         mark(DragTarget.HOTF_PERKS, Ctx.FORAGING, "Foraging", c.hotfPerkDisplay);
         mark(DragTarget.LATHER, Ctx.FORAGING, "Foraging", c.latherOverlay);
@@ -87,7 +88,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -459,6 +460,19 @@ public class HudEditScreen extends Screen {
                mouseY >= config.charmedVisitorY && mouseY <= config.charmedVisitorY + h;
     }
 
+    private int feastWidth() {
+        return com.teslamaps.features.HarvestFeast.previewWidth(TeslaMapsConfig.get().feastSeasonScale);
+    }
+    private int feastHeight() {
+        return com.teslamaps.features.HarvestFeast.previewHeight(TeslaMapsConfig.get().feastSeasonScale);
+    }
+    private boolean isMouseOverFeast(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = feastWidth(), h = feastHeight();
+        return mouseX >= config.feastSeasonX && mouseX <= config.feastSeasonX + w &&
+               mouseY >= config.feastSeasonY && mouseY <= config.feastSeasonY + h;
+    }
+
     private int pestOverlayWidth() {
         return com.teslamaps.features.PestOverlay.width(TeslaMapsConfig.get().pestOverlayScale);
     }
@@ -741,6 +755,10 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.CHARMED;
                 dragOffsetX = mouseX - config.charmedVisitorX;
                 dragOffsetY = mouseY - config.charmedVisitorY;
+            } else if (visible.contains(DragTarget.FEAST) && isMouseOverFeast(mouseX, mouseY)) {
+                dragging = DragTarget.FEAST;
+                dragOffsetX = mouseX - config.feastSeasonX;
+                dragOffsetY = mouseY - config.feastSeasonY;
             } else if (visible.contains(DragTarget.BESTIARY) && isMouseOverBestiary(mouseX, mouseY)) {
                 dragging = DragTarget.BESTIARY;
                 dragOffsetX = mouseX - config.bestiaryTrackerX;
@@ -890,6 +908,10 @@ public class HudEditScreen extends Screen {
             int w = charmedWidth(), h = charmedHeight();
             config.charmedVisitorX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.charmedVisitorY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.FEAST) {
+            int w = feastWidth(), h = feastHeight();
+            config.feastSeasonX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.feastSeasonY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.SKILL_TRACKER) {
             int w = skillTrackerWidth(), h = skillTrackerHeight();
             config.skillTrackerX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
@@ -922,6 +944,7 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.PEST_OVERLAY)) drawPestOverlayPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.FARM_PROFIT)) drawFarmProfitPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.CHARMED)) drawCharmedPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.FEAST)) drawFeastPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.SAFARI)) drawSafariPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.HOTF_PERKS)) drawHotfPerksPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.LATHER)) drawLatherPreview(context, mouseX, mouseY);
@@ -1360,6 +1383,23 @@ public class HudEditScreen extends Screen {
             context.fill(x + w, y, x + w + 2, y + h, borderColor);
         }
         context.text(this.font, String.format("Charmed (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawFeastPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.feastSeasonX, y = config.feastSeasonY;
+        float scale = config.feastSeasonScale;
+        com.teslamaps.features.HarvestFeast.draw(context, this.minecraft, x, y, scale, true);
+        int w = feastWidth(), h = feastHeight();
+        boolean hovering = visible.contains(DragTarget.FEAST) && isMouseOverFeast(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.FEAST) {
+            int borderColor = dragging == DragTarget.FEAST ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("In-Season (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
     private void drawPestOverlayPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
@@ -1829,6 +1869,13 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.FARM_BAR) && isMouseOverFarmBar((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.farmBarScale = Math.min(5.0f, config.farmBarScale + 0.05f);
             else if (verticalAmount < 0) config.farmBarScale = Math.max(0.5f, config.farmBarScale - 0.05f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (visible.contains(DragTarget.FEAST) && isMouseOverFeast((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.feastSeasonScale = Math.min(5.0f, config.feastSeasonScale + 0.05f);
+            else if (verticalAmount < 0) config.feastSeasonScale = Math.max(0.5f, config.feastSeasonScale - 0.05f);
             TeslaMapsConfig.save();
             return true;
         }

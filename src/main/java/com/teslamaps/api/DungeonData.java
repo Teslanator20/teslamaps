@@ -94,24 +94,33 @@ public class DungeonData {
         }
     }
 
+    // past level 50 every catacombs level costs a flat 200m, the table stops there
+    private static final double OVERFLOW_XP = 200_000_000;
+
     private void calculateCatacombsLevel() {
+        double[] result = levelFor(catacombsXp);
+        catacombsLevel = (int) result[0];
+        catacombsProgress = result[1];
+    }
+
+    /** Returns {level, progress}, counting on past 50 instead of stopping there. */
+    private static double[] levelFor(double xp) {
+        int level = 0;
         for (int i = 0; i < CATACOMBS_XP_TABLE.length; i++) {
-            if (catacombsXp >= CATACOMBS_XP_TABLE[i]) {
-                catacombsLevel = i;
-            } else {
-                break;
-            }
+            if (xp >= CATACOMBS_XP_TABLE[i]) level = i;
+            else break;
         }
 
-        if (catacombsLevel < CATACOMBS_XP_TABLE.length - 1) {
-            double currentLevelXp = CATACOMBS_XP_TABLE[catacombsLevel];
-            double nextLevelXp = CATACOMBS_XP_TABLE[catacombsLevel + 1];
-            double progressXp = catacombsXp - currentLevelXp;
-            double xpToNext = nextLevelXp - currentLevelXp;
-            catacombsProgress = xpToNext > 0 ? progressXp / xpToNext : 1.0;
-        } else {
-            catacombsProgress = 1.0;
+        int last = CATACOMBS_XP_TABLE.length - 1;
+        if (level < last) {
+            double current = CATACOMBS_XP_TABLE[level];
+            double next = CATACOMBS_XP_TABLE[level + 1];
+            double span = next - current;
+            return new double[]{level, span > 0 ? (xp - current) / span : 1.0};
         }
+
+        double over = (xp - CATACOMBS_XP_TABLE[last]) / OVERFLOW_XP;
+        return new double[]{last + (int) over, over - (int) over};
     }
 
     private void parseFloorCompletions(JsonObject dungeonType, Map<String, FloorData> floors) {
@@ -177,22 +186,9 @@ public class DungeonData {
 
         public void setXp(double xp) {
             this.xp = xp;
-            for (int i = 0; i < CATACOMBS_XP_TABLE.length; i++) {
-                if (xp >= CATACOMBS_XP_TABLE[i]) {
-                    level = i;
-                } else {
-                    break;
-                }
-            }
-            if (level < CATACOMBS_XP_TABLE.length - 1) {
-                double currentLevelXp = CATACOMBS_XP_TABLE[level];
-                double nextLevelXp = CATACOMBS_XP_TABLE[level + 1];
-                double progressXp = xp - currentLevelXp;
-                double xpToNext = nextLevelXp - currentLevelXp;
-                progress = xpToNext > 0 ? progressXp / xpToNext : 1.0;
-            } else {
-                progress = 1.0;
-            }
+            double[] result = levelFor(xp);
+            level = (int) result[0];
+            progress = result[1];
         }
 
         public String getDisplayName() { return displayName; }

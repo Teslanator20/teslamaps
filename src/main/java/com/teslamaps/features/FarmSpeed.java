@@ -43,6 +43,7 @@ public class FarmSpeed {
         // Farming with nothing dropping is still farming, as far as the session
         // clock is concerned.
         FarmProfit.markActivity();
+        SixthVisitor.onCropBreak();
     }
 
     /**

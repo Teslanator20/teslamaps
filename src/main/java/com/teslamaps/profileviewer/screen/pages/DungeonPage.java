@@ -17,7 +17,8 @@ public class DungeonPage extends ProfileViewerPage {
     private static final int CATA_COLOR = 0xFFAA0000;
     private static final int CLASS_COLOR = 0xFFAA00AA;
 
-    private boolean masterMode = false;
+    // static so the choice survives closing the viewer, master mode people never want normal
+    private static boolean masterMode = false;
 
     @Override
     public boolean isFixedLayout() {
@@ -85,13 +86,19 @@ public class DungeonPage extends ProfileViewerPage {
         aligned(ctx, tr, "Total XP:", formatXp(data.getCatacombsXp()), cx, cy + 20, NeuStyle.TEXT);
         aligned(ctx, tr, "Secrets:", String.valueOf(data.getSecretsFound()), cx, cy + 32, NeuStyle.TEXT);
 
+        // the achievement counts every profile the account ever had, deleted ones included
+        long totalSecrets = profiles == null ? -1 : profiles.getTotalSecrets();
+        if (totalSecrets >= 0) {
+            aligned(ctx, tr, "Total Secrets:", String.valueOf(totalSecrets), cx, cy + 44, NeuStyle.TEXT_AQUA);
+        }
+
         int totalRuns = 0;
         for (DungeonData.FloorData floor : data.getNormalFloors().values()) totalRuns += floor.getCompletions();
         for (DungeonData.FloorData floor : data.getMasterFloors().values()) totalRuns += floor.getCompletions();
-        aligned(ctx, tr, "Runs:", String.valueOf(totalRuns), cx, cy + 44, NeuStyle.TEXT);
+        aligned(ctx, tr, "Runs:", String.valueOf(totalRuns), cx, cy + 56, NeuStyle.TEXT);
 
         double secretsPerRun = totalRuns > 0 ? (double) data.getSecretsFound() / totalRuns : 0;
-        aligned(ctx, tr, "S/R:", String.format("%.2f", secretsPerRun), cx, cy + 56, NeuStyle.TEXT);
+        aligned(ctx, tr, "S/R:", String.format("%.2f", secretsPerRun), cx, cy + 68, NeuStyle.TEXT);
 
         // completions and personal bests per floor
         int fx = left + 161;
@@ -107,8 +114,9 @@ public class DungeonPage extends ProfileViewerPage {
             if (floor.getCompletions() == 0 && floor.getFastestSPlusTime() == 0) continue;
 
             ctx.text(tr, floor.getDisplayName(), fx, rowY, NeuStyle.TEXT);
+            // four digit completion counts used to run straight into the floor name
             String runs = String.valueOf(floor.getCompletions());
-            ctx.text(tr, runs, fx + 34 - tr.width(runs), rowY, NeuStyle.TEXT_GRAY);
+            ctx.text(tr, runs, fx + 52 - tr.width(runs), rowY, NeuStyle.TEXT_GRAY);
 
             String sPlus = floor.getFormattedSPlusTime();
             ctx.text(tr, sPlus, fx + SECTION - tr.width(sPlus), rowY,
@@ -137,7 +145,8 @@ public class DungeonPage extends ProfileViewerPage {
         double classSum = 0;
         for (Map.Entry<String, DungeonData.ClassData> entry : data.getClasses().entrySet()) {
             DungeonData.ClassData cls = entry.getValue();
-            classSum += cls.getLevel();
+            // the progress into the next level counts, otherwise five 49.25s average to 49.00
+            classSum += cls.getLevel() + cls.getProgress();
 
             ctx.text(tr, cls.getDisplayName(), clx, classRow, NeuStyle.TEXT);
             String clevel = String.valueOf(cls.getLevel());

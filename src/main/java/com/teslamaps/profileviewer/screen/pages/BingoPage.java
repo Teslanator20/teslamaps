@@ -27,6 +27,11 @@ public class BingoPage extends ProfileViewerPage {
     private boolean loading = true;
 
     @Override
+    public boolean isFixedLayout() {
+        return true;
+    }
+
+    @Override
     public String getTabName() {
         return "Bingo";
     }
@@ -40,6 +45,15 @@ public class BingoPage extends ProfileViewerPage {
     public void init(ProfileViewerScreen parent, SkyblockProfiles profiles) {
         super.init(parent, profiles);
         loadBingoData();
+    }
+
+    /** Only a bingo profile has a board, everyone else never sees the tab. */
+    @Override
+    public boolean isAvailable(SkyblockProfiles profiles) {
+        if (profiles == null || profiles.getSelectedProfile() == null) return false;
+        JsonObject full = profiles.getSelectedProfile().getFullProfileJson();
+        return full != null && full.has("game_mode") && full.get("game_mode").isJsonPrimitive()
+                && "bingo".equalsIgnoreCase(full.get("game_mode").getAsString());
     }
 
     private void loadBingoData() {

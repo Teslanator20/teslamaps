@@ -112,7 +112,7 @@ public class CapeScreen extends Screen {
     }
 
     private String hint() {
-        return "search capes, or paste a png url";
+        return "search capes, or paste a png / gif / tenor link";
     }
 
     private static boolean looksLikeUrl(String value) {
@@ -125,7 +125,7 @@ public class CapeScreen extends Screen {
         status = "";
         CapeImport.clear();     // a finished import must not keep the status line hostage
         if (looksLikeUrl(value)) CapeImport.fromUrl(value);
-        else status = "§7Typing filters the grid - Load wants a png link";
+        else status = "§7Typing filters the grid - Load wants a link";
     }
 
     /**
@@ -165,8 +165,9 @@ public class CapeScreen extends Screen {
         for (CapeGallery.Entry entry : CapeGallery.results()) {
             if (local.contains((entry.category() + "/" + entry.name()).toLowerCase(java.util.Locale.ROOT))) continue;
             groups.computeIfAbsent(entry.category(), g -> new ArrayList<>()).add(new Card(
-                    entry.name(), entry.category(), () -> CapeGallery.thumb(entry.slug()), false,
-                    () -> CapeImport.fromUrl(CapeGallery.imageUrl(entry.slug()), entry.name(), entry.category()),
+                    entry.name(), entry.category(), () -> CapeGallery.thumb(entry), false,
+                    () -> CapeImport.fromUrl(CapeGallery.imageUrl(entry), entry.name(),
+                            entry.category(), entry.crop()),
                     () -> false));
         }
 
@@ -265,7 +266,7 @@ public class CapeScreen extends Screen {
         for (CapeGallery.Entry entry : CapeGallery.results()) {
             if (entry.category().equals(card.group()) && entry.name().equalsIgnoreCase(card.name())) {
                 status = "§7Removing " + entry.name() + "...";
-                com.teslamaps.features.capes.CapeSync.galleryDelete(entry.slug(), line -> status = line);
+                com.teslamaps.features.capes.CapeSync.galleryDelete(entry.path(), line -> status = line);
                 return;
             }
         }
@@ -405,6 +406,7 @@ public class CapeScreen extends Screen {
         ctx.centeredText(font, "§f" + name, x + w / 2, y + h + 5, 0xFFFFFFFF);
         String detail = on
                 ? selected.width + "x" + selected.height + (selected.width > 64 ? " §aHD" : "")
+                        + (selected.animated ? " §d" + Math.max(1, selected.frames()) + " frames" : "")
                 : "pick one below";
         ctx.centeredText(font, "§8" + detail, x + w / 2, y + h + 17, 0xFF808080);
     }

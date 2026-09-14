@@ -1,23 +1,32 @@
 package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonObject;
-import java.util.ArrayList;
-import java.util.List;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
+import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import com.teslamaps.profileviewer.ui.Kit;
+import com.teslamaps.profileviewer.ui.Ui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/** Everything that has no page of its own: combat totals, essence, slayers, account odds and ends. */
 public class ExtraPage extends ProfileViewerPage {
-    private static final int TEXT_WHITE = 0xFFFFFFFF;
-    private static final int TEXT_GRAY = 0xFF888888;
-    private static final int TEXT_GREEN = 0xFF55FF55;
-    private static final int TEXT_RED = 0xFFFF5555;
-    private static final int TEXT_GOLD = 0xFFFFAA00;
-    private static final int TEXT_AQUA = 0xFF55FFFF;
+
+    private static final List<String> ESSENCE_KEYS = List.of(
+            "WITHER", "DRAGON", "SPIDER", "UNDEAD", "DIAMOND", "GOLD", "ICE", "CRIMSON");
+    private static final List<Integer> ESSENCE_COLORS = List.of(
+            0xFFAAAAAA, 0xFFAA00AA, 0xFF777777, 0xFF00AA00, 0xFF55FFFF, 0xFFFFAA00, 0xFF88DDFF, 0xFFFF5555);
+
+    private static final List<String> SLAYER_KEYS = List.of(
+            "zombie", "spider", "wolf", "enderman", "blaze", "vampire");
+    private static final List<String> SLAYER_NAMES = List.of(
+            "Revenant", "Tarantula", "Sven", "Voidgloom", "Inferno", "Riftstalker");
+    private static final List<Integer> SLAYER_COLORS = List.of(
+            0xFF00AA00, 0xFF777777, 0xFFAAAAAA, 0xFFAA00AA, 0xFFFF5500, 0xFFFF5555);
 
     @Override
     public String getTabName() {
@@ -35,162 +44,128 @@ public class ExtraPage extends ProfileViewerPage {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
 
-        Font tr = Minecraft.getInstance().font;
-        JsonObject memberData = profile.getMemberData();
-        int padding = 15;
-        int contentX = x + padding;
-        int col2X = x + width / 2;
+        JsonObject member = profile.getMemberData();
+        int available = NeuStyle.PANEL_HEIGHT - y - 6;
+        drawTree(ctx, w -> fitted(member, w, available), width, x, y, mouseX, mouseY);
+    }
 
-        int lineY = y + padding;
+    private Ui fitted(JsonObject member, int width, int available) {
+        Ui tree = build(member, width, 2);
+        for (int columns = 3; columns <= 4 && tree.height() > available; columns++) {
+            tree = build(member, width, columns);
+        }
+        return tree;
+    }
 
-        ctx.text(tr, "Combat Stats", contentX, lineY, TEXT_GREEN);
-        lineY += 16;
+    private Ui build(JsonObject member, int width, int columns) {
+        List<Ui> parts = new ArrayList<>();
+        parts.add(Kit.section("Account", account(member, width)));
 
-        JsonObject playerStats = getNestedObject(memberData, "player_stats");
-        if (playerStats != null) {
-            JsonObject kills = playerStats.has("kills") ? playerStats.getAsJsonObject("kills") : null;
-            int totalKills = 0;
-            if (kills != null) {
-                for (var entry : kills.entrySet()) {
-                    if (entry.getValue().isJsonPrimitive()) {
-                        totalKills += asInt(entry.getValue());
-                    }
-                }
-            }
-            ctx.text(tr, "Total Kills: " + formatNumber(totalKills), contentX, lineY, TEXT_WHITE);
-            lineY += 12;
+        Ui essence = essence(member, width);
+        if (essence != null) parts.add(Kit.section("Essence", essence));
 
-            JsonObject deaths = playerStats.has("deaths") ? playerStats.getAsJsonObject("deaths") : null;
-            int totalDeaths = 0;
-            if (deaths != null) {
-                for (var entry : deaths.entrySet()) {
-                    if (entry.getValue().isJsonPrimitive()) {
-                        totalDeaths += asInt(entry.getValue());
-                    }
-                }
-            }
-            ctx.text(tr, "Total Deaths: " + formatNumber(totalDeaths), contentX, lineY, TEXT_WHITE);
-            lineY += 12;
+        Ui slayers = slayers(member, width, columns);
+        if (slayers != null) parts.add(Kit.section("Slayers", slayers));
 
-            double kd = totalDeaths > 0 ? (double) totalKills / totalDeaths : totalKills;
-            ctx.text(tr, "K/D Ratio: " + String.format("%.2f", kd), contentX, lineY, TEXT_AQUA);
-            lineY += 20;
+        return Ui.col(9, parts);
+    }
+
+    private Ui account(JsonObject member, int width) {
+        JsonObject stats = object(member, "player_stats");
+        long kills = sum(object(stats, "kills"));
+        long deaths = sum(object(stats, "deaths"));
+        double kd = deaths > 0 ? (double) kills / deaths : kills;
+
+        JsonObject auctions = object(stats, "auctions");
+        // "sold" does not exist, the count sits in total_sold.total
+        long sold = auctions != null && auctions.has("total_sold")
+                ? asLong(get(object(auctions, "total_sold"), "total"))
+                : asLong(get(auctions, "completed"));
+        long earned = asLong(get(auctions, "gold_earned"));
+
+        long fished = asLong(get(object(stats, "items_fished"), "total"));
+
+        List<Kit.TileData> tiles = new ArrayList<>();
+        tiles.add(new Kit.TileData("Kills", Kit.compact(kills), NeuStyle.TEXT));
+        tiles.add(new Kit.TileData("Deaths", Kit.compact(deaths), NeuStyle.TEXT));
+        tiles.add(new Kit.TileData("K/D", String.format(java.util.Locale.ROOT, "%.2f", kd), NeuStyle.TEXT_AQUA));
+        tiles.add(new Kit.TileData("Items Fished", Kit.compact(fished), NeuStyle.TEXT_AQUA));
+        tiles.add(new Kit.TileData("Auctions Sold", Kit.compact(sold), NeuStyle.TEXT));
+        tiles.add(new Kit.TileData("Coins Earned", Kit.compact(earned), NeuStyle.TEXT_GOLD));
+        tiles.add(new Kit.TileData("First Join", firstJoin(member), NeuStyle.TEXT_GRAY));
+
+        return Kit.tileRow(width, tiles);
+    }
+
+    private Ui essence(JsonObject member, int width) {
+        JsonObject essence = object(object(member, "currencies"), "essence");
+        if (essence == null) return null;
+
+        List<Kit.TileData> tiles = new ArrayList<>();
+        for (int i = 0; i < ESSENCE_KEYS.size(); i++) {
+            long amount = asLong(get(object(essence, ESSENCE_KEYS.get(i)), "current"));
+            if (amount <= 0) continue;
+            tiles.add(new Kit.TileData(Kit.prettify(ESSENCE_KEYS.get(i)), Kit.compact(amount), ESSENCE_COLORS.get(i)));
         }
 
-        ctx.text(tr, "Essence", contentX, lineY, TEXT_GREEN);
-        lineY += 16;
+        return tiles.isEmpty() ? null : Kit.tileRow(width, tiles);
+    }
 
-        JsonObject currencies = getNestedObject(memberData, "currencies");
-        if (currencies != null && currencies.has("essence")) {
-            JsonObject essence = currencies.getAsJsonObject("essence");
-            String[] essenceTypes = {"WITHER", "DRAGON", "SPIDER", "UNDEAD", "DIAMOND", "GOLD", "ICE", "CRIMSON"};
-            String[] essenceNames = {"Wither", "Dragon", "Spider", "Undead", "Diamond", "Gold", "Ice", "Crimson"};
-            int[] essenceColors = {0xFF555555, 0xFFAA00AA, 0xFF333333, 0xFF00AA00, 0xFF55FFFF, 0xFFFFAA00, 0xFF55FFFF, 0xFFFF5555};
+    /** One row per slayer, the per tier kills stay in the tooltip. */
+    private Ui slayers(JsonObject member, int width, int columns) {
+        JsonObject bosses = object(object(member, "slayer"), "slayer_bosses");
+        if (bosses == null) return null;
 
-            for (int i = 0; i < essenceTypes.length; i++) {
-                if (essence.has(essenceTypes[i])) {
-                    JsonObject ess = essence.getAsJsonObject(essenceTypes[i]);
-                    int amount = ess.has("current") ? ess.get("current").getAsInt() : 0;
-                    if (amount > 0) {
-                        ctx.text(tr, essenceNames[i] + ": " + formatNumber(amount), contentX, lineY, essenceColors[i]);
-                        lineY += 12;
-                    }
-                }
+        columns = Math.max(1, Math.min(columns, width / 110));
+        int cellWidth = Kit.cellWidth(width, columns, 12);
+
+        List<Ui> rows = new ArrayList<>();
+        for (int i = 0; i < SLAYER_KEYS.size(); i++) {
+            JsonObject slayer = object(bosses, SLAYER_KEYS.get(i));
+            long xp = asLong(get(slayer, "xp"));
+            if (xp <= 0) continue;
+
+            int level = slayerLevel(slayer);
+            List<String> tooltip = new ArrayList<>();
+            tooltip.add("§a" + SLAYER_NAMES.get(i) + " Slayer");
+            tooltip.add("§7Level §f" + level);
+            tooltip.add("§7Total XP: §f" + String.format("%,d", xp));
+
+            long total = 0;
+            for (int tier = 0; tier < 5; tier++) {
+                long kills = asLong(get(slayer, "boss_kills_tier_" + tier));
+                long attempts = asLong(get(slayer, "boss_attempts_tier_" + tier));
+                if (kills == 0 && attempts == 0) continue;
+                total += kills;
+                tooltip.add("§7Tier " + (tier + 1) + ": §f" + String.format("%,d", kills) + " kills"
+                        + (attempts > kills ? " §8(" + String.format("%,d", attempts) + " started)" : ""));
             }
+            tooltip.add("§7Bosses killed: §f" + String.format("%,d", total));
+
+            rows.add(new Ui.Tip(new Ui.SpaceBetween(cellWidth,
+                    new Ui.Label(SLAYER_NAMES.get(i), SLAYER_COLORS.get(i)),
+                    Ui.row(6, Ui.V.CENTER,
+                            new Ui.Label(String.valueOf(level), NeuStyle.TEXT),
+                            new Ui.Label(Kit.compact(xp), NeuStyle.TEXT_GRAY))),
+                    tooltip));
         }
 
-        lineY = y + padding;
-        ctx.text(tr, "Miscellaneous", col2X, lineY, TEXT_GREEN);
-        lineY += 16;
+        return rows.isEmpty() ? null : Kit.grid(rows, columns, 12, 6);
+    }
 
-        if (memberData.has("profile")) {
-            JsonObject profileInfo = memberData.getAsJsonObject("profile");
-            if (profileInfo.has("first_join")) {
-                long firstJoin = profileInfo.get("first_join").getAsLong();
-                String date = new java.text.SimpleDateFormat("MMM d, yyyy").format(new java.util.Date(firstJoin));
-                ctx.text(tr, "First Join: " + date, col2X, lineY, TEXT_WHITE);
-                lineY += 12;
-            }
-        }
-
-        if (playerStats != null) {
-            int itemsFished = 0;
-            if (playerStats.has("items_fished")) {
-                JsonObject fished = playerStats.getAsJsonObject("items_fished");
-                if (fished.has("total")) {
-                    itemsFished = fished.get("total").getAsInt();
-                }
-            }
-            if (itemsFished > 0) {
-                ctx.text(tr, "Items Fished: " + formatNumber(itemsFished), col2X, lineY, TEXT_AQUA);
-                lineY += 12;
-            }
-
-            if (playerStats.has("auctions")) {
-                JsonObject auctions = playerStats.getAsJsonObject("auctions");
-                // "sold" does not exist, the count sits in total_sold.total
-                int sold = auctions.has("total_sold")
-                        ? asInt(auctions.getAsJsonObject("total_sold").get("total"))
-                        : asInt(auctions.get("completed"));
-                long goldEarned = asLong(auctions.get("gold_earned"));
-                ctx.text(tr, "Auctions Sold: " + formatNumber(sold), col2X, lineY, TEXT_WHITE);
-                lineY += 12;
-                ctx.text(tr, "Coins Earned: " + formatCoins(goldEarned), col2X, lineY, TEXT_GOLD);
-                lineY += 12;
-            }
-        }
-
-        lineY += 8;
-        ctx.text(tr, "Slayer Bosses Killed", col2X, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject slayerBosses = getNestedObject(memberData, "slayer.slayer_bosses");
-        if (slayerBosses != null) {
-            String[] slayerTypes = {"zombie", "spider", "wolf", "enderman", "blaze", "vampire"};
-            String[] slayerNames = {"Revenant", "Tarantula", "Sven", "Voidgloom", "Inferno", "Riftstalker"};
-            int[] slayerColors = {0xFF00AA00, 0xFF333333, 0xFF888888, 0xFFAA00AA, 0xFFFF5500, 0xFFFF0000};
-
-            for (int i = 0; i < slayerTypes.length; i++) {
-                if (!slayerBosses.has(slayerTypes[i])) continue;
-                JsonObject slayer = slayerBosses.getAsJsonObject(slayerTypes[i]);
-                int xp = asInt(slayer.get("xp"));
-                if (xp <= 0) continue;
-
-                String line = slayerNames[i] + " " + slayerLevel(slayer) + ": " + formatNumber(xp) + " XP";
-                ctx.text(tr, line, col2X, lineY, slayerColors[i]);
-
-                if (mouseX >= col2X && mouseX <= col2X + tr.width(line) && mouseY >= lineY - 2 && mouseY <= lineY + 9) {
-                    List<String> lines = new ArrayList<>();
-                    lines.add(slayerNames[i] + " Slayer");
-                    int total = 0;
-                    for (int tier = 0; tier < 5; tier++) {
-                        int kills = asInt(slayer.get("boss_kills_tier_" + tier));
-                        int attempts = asInt(slayer.get("boss_attempts_tier_" + tier));
-                        if (kills == 0 && attempts == 0) continue;
-                        total += kills;
-                        lines.add("Tier " + (tier + 1) + ": " + formatNumber(kills) + " kills"
-                                + (attempts > kills ? " (" + formatNumber(attempts) + " started)" : ""));
-                    }
-                    lines.add("Total: " + formatNumber(total) + " kills");
-                    tooltip = lines.toArray(new String[0]);
-                    tooltipX = mouseX;
-                    tooltipY = mouseY;
-                }
-                lineY += 12;
-            }
-        }
-
-        if (tooltip != null) {
-            drawTooltip(ctx, tr);
-            tooltip = null;
-        }
+    private static String firstJoin(JsonObject member) {
+        long first = asLong(get(object(member, "profile"), "first_join"));
+        if (first <= 0) return "-";
+        return new java.text.SimpleDateFormat("MMM d, yyyy").format(new java.util.Date(first));
     }
 
     /** Level is the highest claimed level entry. */
     private static int slayerLevel(JsonObject slayer) {
-        if (!slayer.has("claimed_levels")) return 0;
+        JsonObject claimed = object(slayer, "claimed_levels");
+        if (claimed == null) return 0;
+
         int level = 0;
-        for (String key : slayer.getAsJsonObject("claimed_levels").keySet()) {
+        for (String key : claimed.keySet()) {
             String number = key.replace("level_", "").replace("_special", "");
             try {
                 level = Math.max(level, Integer.parseInt(number));
@@ -200,32 +175,21 @@ public class ExtraPage extends ProfileViewerPage {
         return level;
     }
 
-    private String[] tooltip;
-    private int tooltipX;
-    private int tooltipY;
-
-    private void drawTooltip(GuiGraphicsExtractor ctx, Font tr) {
-        int w = 0;
-        for (String line : tooltip) w = Math.max(w, tr.width(line));
-        int h = tooltip.length * 10 + 4;
-        int tx = Math.min(tooltipX + 8, com.teslamaps.profileviewer.screen.NeuStyle.PANEL_WIDTH - w - 8);
-        int ty = Math.max(2, tooltipY - h);
-        com.teslamaps.profileviewer.screen.NeuStyle.window(ctx, tx - 3, ty - 2, w + 8, h);
-        for (int i = 0; i < tooltip.length; i++) {
-            ctx.text(tr, tooltip[i], tx, ty + 2 + i * 10,
-                    i == 0 ? com.teslamaps.profileviewer.screen.NeuStyle.TEXT_YELLOW
-                            : com.teslamaps.profileviewer.screen.NeuStyle.TEXT_GRAY);
+    private static long sum(JsonObject object) {
+        if (object == null) return 0;
+        long total = 0;
+        for (var entry : object.entrySet()) {
+            if (entry.getValue().isJsonPrimitive()) total += asLong(entry.getValue());
         }
+        return total;
     }
 
-    private JsonObject getNestedObject(JsonObject root, String path) {
-        String[] parts = path.split("\\.");
-        JsonObject current = root;
-        for (String part : parts) {
-            if (current == null || !current.has(part)) return null;
-            if (!current.get(part).isJsonObject()) return null;
-            current = current.getAsJsonObject(part);
-        }
-        return current;
+    private static JsonObject object(JsonObject parent, String key) {
+        return parent != null && parent.has(key) && parent.get(key).isJsonObject()
+                ? parent.getAsJsonObject(key) : null;
+    }
+
+    private static com.google.gson.JsonElement get(JsonObject parent, String key) {
+        return parent != null && parent.has(key) ? parent.get(key) : null;
     }
 }

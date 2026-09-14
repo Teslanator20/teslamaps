@@ -26,6 +26,11 @@ public abstract class ProfileViewerPage {
 
     public void onSelected() {}
 
+    /** A tab that makes no sense for the selected profile hides itself. */
+    public boolean isAvailable(SkyblockProfiles profiles) {
+        return true;
+    }
+
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         return false;
     }
@@ -91,18 +96,65 @@ public abstract class ProfileViewerPage {
         return parent == null ? panelY : parent.toScreenY(panelY);
     }
 
-    /** Renders a laid out component tree and hands its hover result to the screen. */
+    /**
+     * Same as below, but the page is built through a callback so a page that has to be shrunk can
+     * be laid out on a wider canvas first. Shrinking narrows the content as well, and without this
+     * the window ends up with a third of its width empty on both sides.
+     */
+    protected void drawTree(GuiGraphicsExtractor ctx, java.util.function.IntFunction<com.teslamaps.profileviewer.ui.Ui> builder,
+                            int width, int x, int y, int mouseX, int mouseY) {
+        int available = com.teslamaps.profileviewer.screen.NeuStyle.PANEL_HEIGHT - y - 6;
+        com.teslamaps.profileviewer.ui.Ui page = builder.apply(width);
+
+        if (page.height() > available) {
+            float fit = Math.max(MIN_FIT, available / (float) page.height());
+            com.teslamaps.profileviewer.ui.Ui wider = builder.apply(Math.round(width / fit));
+            // a wider canvas usually means more columns and less height; keep it unless it backfired
+            if (wider.height() <= page.height()) page = wider;
+        }
+
+        drawTree(ctx, page, x, y, mouseX, mouseY);
+    }
+
+    /**
+     * Renders a laid out component tree and hands its hover result to the screen. A tree taller
+     * than the window is shrunk to fit instead of scrolling - nobody wants to scroll a profile.
+     */
     protected void drawTree(GuiGraphicsExtractor ctx, com.teslamaps.profileviewer.ui.Ui root,
                             int x, int y, int mouseX, int mouseY) {
         com.teslamaps.profileviewer.ui.Ui.resetHover();
-        root.render(ctx, x, y, mouseX, mouseY);
+
+        int available = com.teslamaps.profileviewer.screen.NeuStyle.PANEL_HEIGHT - y - 6;
+        int free = com.teslamaps.profileviewer.screen.NeuStyle.PANEL_WIDTH - 2 * x;
+
+        float fitHeight = root.height() > available && root.height() > 0
+                ? available / (float) root.height() : 1f;
+        // a page laid out on a wider canvas has to come back down to the window as well
+        float fitWidth = root.width() > free && root.width() > 0 ? free / (float) root.width() : 1f;
+        float fit = Math.max(MIN_FIT, Math.min(fitHeight, fitWidth));
+
+        if (fit < 1f) {
+            // shrinking narrows the content too, so keep it centred instead of hugging the left edge
+            int offset = Math.max(0, (int) ((free - root.width() * fit) / 2));
+            ctx.pose().pushMatrix();
+            ctx.pose().translate(x + offset, y);
+            ctx.pose().scale(fit, fit);
+            root.render(ctx, 0, 0, (int) ((mouseX - x - offset) / fit), (int) ((mouseY - y) / fit));
+            ctx.pose().popMatrix();
+        } else {
+            root.render(ctx, x, y, mouseX, mouseY);
+        }
+
         hoverStack(com.teslamaps.profileviewer.ui.Ui.hoveredStack);
         if (com.teslamaps.profileviewer.ui.Ui.hoveredLines != null && parent != null) {
             parent.setHoveredLines(com.teslamaps.profileviewer.ui.Ui.hoveredLines);
         }
         com.teslamaps.profileviewer.ui.Ui.resetHover();
-        setContentHeight(root.height() + 24);
+        // below this the text stops being readable, then the rest scrolls after all
+        setContentHeight(fit > MIN_FIT ? 0 : (int) (root.height() * fit) + 24);
     }
+
+    private static final float MIN_FIT = 0.55f;
 
     /** Vanilla tooltip for an item, drawn by the screen so other mods can hook it. */
     protected void hoverStack(net.minecraft.world.item.ItemStack stack) {

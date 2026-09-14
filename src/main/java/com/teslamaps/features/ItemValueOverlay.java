@@ -39,6 +39,9 @@ public class ItemValueOverlay {
     private static Screen lastScreen;
     private static int hoveredSlot = -1;
     private static long hoverStart;
+    /** the delay is paid once per inventory session, not per item, same as SkyHanni */
+    private static boolean delayOver;
+    private static long lastActive;
 
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().itemValueGui) return false;
@@ -49,11 +52,15 @@ public class ItemValueOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
 
+        long now = System.currentTimeMillis();
         if (lastScreen != mc.screen) {
             lastScreen = mc.screen;
             cache.clear();
             hoveredSlot = -1;
+            // an auction page flip reopens the container, that is the same session
+            if (now - lastActive > 1500) delayOver = false;
         }
+        lastActive = now;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         Slot slot = acc.getFocusedSlot();
@@ -65,12 +72,14 @@ public class ItemValueOverlay {
         ItemStack item = slot.getItem();
         if (slot.index != hoveredSlot) {
             hoveredSlot = slot.index;
-            hoverStart = System.currentTimeMillis();
+            hoverStart = now;
         }
 
-        // the delay is per item, not once per screen
         int delay = TeslaMapsConfig.get().itemValueHoverDelay;
-        if (delay > 0 && System.currentTimeMillis() - hoverStart < delay) return;
+        if (!delayOver) {
+            if (delay > 0 && now - hoverStart < delay) return;
+            delayOver = true;
+        }
 
         Cached known = cache.get(slot.index);
         List<String> lines;

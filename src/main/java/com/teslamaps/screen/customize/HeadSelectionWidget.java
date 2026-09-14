@@ -88,13 +88,14 @@ public class HeadSelectionWidget extends SearchableGridWidget {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         switch (this.selectedButton) {
-            case HeadButton button when button == noneButton || button.texture == null -> {
-                config.customHelmetTextures.remove(uuid);
-                config.customAnimatedHelmetTextures.remove(uuid);
-            }
+            // animated heads carry no texture, so this has to come before the null check
             case AnimatedHeadButton button -> {
                 config.customAnimatedHelmetTextures.put(uuid, button.id);
                 config.customHelmetTextures.remove(uuid);
+            }
+            case HeadButton button when button == noneButton || button.texture == null -> {
+                config.customHelmetTextures.remove(uuid);
+                config.customAnimatedHelmetTextures.remove(uuid);
             }
             case HeadButton button -> {
                 config.customHelmetTextures.put(uuid, Objects.requireNonNull(button.texture));

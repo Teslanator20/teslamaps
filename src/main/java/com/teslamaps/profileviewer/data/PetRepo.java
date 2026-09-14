@@ -99,8 +99,9 @@ public class PetRepo {
     /** Xp needed to go from this level to the next one. */
     public static long costFor(String type, String tier, int level) {
         List<Long> custom = customLevels.get(type);
-        if (custom != null && level > 100) {
-            int index = level - 101;
+        // the custom list starts at the step from 100 to 101, so a dragon stalled at 100 before
+        if (custom != null && level >= 100) {
+            int index = level - 100;
             return index < custom.size() ? custom.get(index) : 0;
         }
         int index = offset(tier) + level - 1;

@@ -164,6 +164,19 @@ public class ArmorTab extends GridLayoutTab implements Closeable {
         player.tickCount++;
     }
 
+    /** The piece the reset buttons act on, empty when nothing here can be edited. */
+    ItemStack selected() {
+        return nothingCustomizable ? ItemStack.EMPTY : armor[selectedSlot];
+    }
+
+    ItemStack[] pieces() {
+        return armor;
+    }
+
+    void reloadFromConfig() {
+        updateWidgets();
+    }
+
     @Override
     public void doLayout(ScreenRectangle tabArea) {
         int width = Math.min(444, tabArea.width()) - PLAYER_WIDGET_WIDTH - PADDING * 3;

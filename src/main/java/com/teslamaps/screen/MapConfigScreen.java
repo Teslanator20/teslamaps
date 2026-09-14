@@ -1162,7 +1162,7 @@ public class MapConfigScreen extends Screen {
         List<SettingsEntry> party = new ArrayList<>();
         party.add(new LabelEntry(contentX, "Party Chat & Alerts"));
         party.add(new ToggleEntry(contentX, contentWidth, "Party Chat Commands (!8ball etc)", () -> config.chatCommands, v -> config.chatCommands = v));
-        party.add(new ToggleEntry(contentX, contentWidth, "Show PBs on Party Join (needs API key)", () -> config.pbOnJoin, v -> config.pbOnJoin = v));
+        party.add(new ToggleEntry(contentX, contentWidth, "Show PBs on Party Finder Join", () -> config.pbOnJoin, v -> config.pbOnJoin = v));
         party.add(new InfoEntry(contentX, "Key: /tmap apikey <key> (developer.hypixel.net)"));
         party.add(new ToggleEntry(contentX, contentWidth, "Party Duplicate Alert", () -> config.partyDuplicateAlert, v -> config.partyDuplicateAlert = v));
         party.add(new ToggleEntry(contentX, contentWidth, "  Dup: Play Sound", () -> config.partyDuplicateSound, v -> config.partyDuplicateSound = v));
@@ -1388,6 +1388,7 @@ public class MapConfigScreen extends Screen {
                 () -> config.auctionCompareThreshold, v -> config.auctionCompareThreshold = v, 0));
         inventory.add(new SliderEntry(contentX, contentWidth, "  Opacity", 0.05f, 1f,
                 () -> config.auctionCompareOpacity, v -> config.auctionCompareOpacity = v, 2));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "  Toggle Button In Auction House", () -> config.auctionCompareButton, v -> config.auctionCompareButton = v));
         inventory.add(new LabelEntry(contentX, "Auction / Bazaar Search"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Custom Search Input", () -> config.searchOverlay, v -> config.searchOverlay = v));
         inventory.add(new InfoEntry(contentX, "Textbox with item name suggestions instead of the search sign"));
@@ -1445,7 +1446,7 @@ public class MapConfigScreen extends Screen {
         inventory.add(new LabelEntry(contentX, "Bazaar & Progress"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v));
-        inventory.add(new ToggleEntry(contentX, contentWidth, "Progress Highlight (Ways to Level Up)", () -> config.progressHighlight, v -> config.progressHighlight = v));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Progress Highlight (Ways to Level Up / Bestiary)", () -> config.progressHighlight, v -> config.progressHighlight = v));
         inventory.add(new ColorEntry(contentX, contentWidth, "  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v));
         inventory.add(new ColorEntry(contentX, contentWidth, "  Commission Color", () -> config.colorCommissionDone, v -> config.colorCommissionDone = v));
@@ -1528,6 +1529,7 @@ public class MapConfigScreen extends Screen {
         tooltips.add(new InfoEntry(contentX, "Drag it in /tmap gui instead of pinning it to the container"));
         tooltips.add(new SliderEntry(contentX, contentWidth, "Hover Delay (ms)", 0f, 2000f,
                 () -> (float) config.itemValueHoverDelay, v -> config.itemValueHoverDelay = Math.round(v / 50f) * 50));
+        tooltips.add(new InfoEntry(contentX, "Only the first item of a container waits, the rest show instantly"));
         tooltips.add(new SliderEntry(contentX, contentWidth, "Enchantments Cap", 1f, 30f,
                 () -> (float) config.itemValueEnchantmentsCap, v -> config.itemValueEnchantmentsCap = Math.round(v)));
         tooltips.add(new SliderEntry(contentX, contentWidth, "Star Material Cap", 1f, 15f,
@@ -1704,6 +1706,20 @@ public class MapConfigScreen extends Screen {
         garden.add(new InfoEntry(contentX, "Visitors charmed with the Gift Vinyl Set, click a name to drop it"));
         garden.add(new ButtonEntry(contentX, contentWidth, "Clear Charmed List",
                 () -> com.teslamaps.features.CharmedVisitors.clear()));
+        garden.add(new LabelEntry(contentX, "Harvest Feast"));
+        garden.add(new ToggleEntry(contentX, contentWidth, "In-Season Display",
+                () -> config.feastSeasonDisplay, v -> config.feastSeasonDisplay = v));
+        garden.add(new ToggleEntry(contentX, contentWidth, "  Show Outside The Garden",
+                () -> config.feastSeasonEverywhere, v -> config.feastSeasonEverywhere = v));
+        garden.add(new InfoEntry(contentX, "Open Feast Chef Ted > All Crops once to fill it in"));
+        garden.add(new ToggleEntry(contentX, contentWidth, "6th Visitor Warning",
+                () -> config.sixthVisitorWarning, v -> config.sixthVisitorWarning = v));
+        garden.add(new InfoEntry(contentX, "Hypixel hides the timer at 5 visitors, so this estimates it"));
+        garden.add(new SoundDropdownEntry(contentX, contentWidth, "  Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.sixthVisitorSound, v -> config.sixthVisitorSound = v));
+        garden.add(new SliderEntry(contentX, contentWidth, "  Volume", 0f, 4f,
+                () -> config.sixthVisitorVolume, v -> config.sixthVisitorVolume = v, 2));
         garden.add(new LabelEntry(contentX, "Pests"));
         garden.add(new ToggleEntry(contentX, contentWidth, "Pest ESP",
                 () -> config.pestESP, v -> config.pestESP = v));

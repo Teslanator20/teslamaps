@@ -39,9 +39,11 @@ public class Kit {
 
     /** Key above value inside a slim box. */
     public static Ui tile(int width, String key, String value, int valueColor) {
+        // both lines are clipped to the box, they used to run straight out of it
+        int inner = Math.max(10, width - 10);
         Ui content = Ui.col(1,
-                new Ui.Label(key, NeuStyle.TEXT_GRAY, Ui.SMALL),
-                new Ui.Label(value, valueColor));
+                new Ui.Label(clip(key, (int) (inner / Ui.SMALL)), NeuStyle.TEXT_GRAY, Ui.SMALL),
+                new Ui.Label(clip(value, inner), valueColor));
         return new Ui.Frame(width, content.height() + 10,
                 Ui.row(0, Ui.V.CENTER, new Ui.Spacer(5, 0), content),
                 NeuStyle::slimBox, Ui.H.START, Ui.V.CENTER);
@@ -49,12 +51,30 @@ public class Kit {
 
     public record TileData(String key, String value, int color) {}
 
+    /** Tiles fill the width; if their text does not fit they wrap into a second row instead of being cut. */
     public static Ui tileRow(int width, List<TileData> tiles) {
         int gap = 6;
-        int each = (width - gap * (tiles.size() - 1)) / tiles.size();
-        List<Ui> children = new ArrayList<>(tiles.size());
-        for (TileData tile : tiles) children.add(tile(each, tile.key(), tile.value(), tile.color()));
-        return Ui.row(gap, Ui.V.TOP, children);
+        var font = Minecraft.getInstance().font;
+
+        int need = 0;
+        for (TileData tile : tiles) {
+            need = Math.max(need, Math.max((int) (font.width(tile.key()) * Ui.SMALL), font.width(tile.value())) + 12);
+        }
+
+        int perRow = Math.max(1, Math.min(tiles.size(), (width + gap) / (need + gap)));
+        int rows = (tiles.size() + perRow - 1) / perRow;
+        perRow = (tiles.size() + rows - 1) / rows;
+
+        List<Ui> built = new ArrayList<>(rows);
+        for (int from = 0; from < tiles.size(); from += perRow) {
+            List<TileData> slice = tiles.subList(from, Math.min(from + perRow, tiles.size()));
+            int each = (width - gap * (slice.size() - 1)) / slice.size();
+            List<Ui> children = new ArrayList<>(slice.size());
+            for (TileData tile : slice) children.add(tile(each, tile.key(), tile.value(), tile.color()));
+            built.add(Ui.row(gap, Ui.V.TOP, children));
+        }
+
+        return built.size() == 1 ? built.getFirst() : Ui.col(gap, built);
     }
 
     /** Lays rows into balanced columns. */

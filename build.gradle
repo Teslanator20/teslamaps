@@ -32,6 +32,10 @@ loom {
             if (project.hasProperty("da")) {
                 property "devauth.account", project.da
             }
+            // ./gradlew.bat runClient -Pnoauth  -> skip the devauth login, offline dev account
+            if (project.hasProperty("noauth")) {
+                property "devauth.enabled", "false"
+            }
             if (project.hasProperty("jfr")) {
                 vmArgs "-XX:StartFlightRecording=duration=${project.jfr}s,settings=profile," +
                         "filename=${rootDir}/run/teslamaps.jfr,dumponexit=true"

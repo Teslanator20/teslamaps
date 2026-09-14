@@ -56,7 +56,7 @@ public class RiftPage extends ProfileViewerPage {
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
-        drawTree(ctx, build(profile.getMemberData(), width), x, y, mouseX, mouseY);
+        drawTree(ctx, w -> build(profile.getMemberData(), w), width, x, y, mouseX, mouseY);
     }
 
     private Ui build(JsonObject member, int width) {
@@ -71,24 +71,29 @@ public class RiftPage extends ProfileViewerPage {
         long visits = asLong(get(stats, "visits"));
         int souls = size(object(rift, "enigma"), "found_souls");
 
+        // two columns: the gear grid is wide, everything else is narrow and used to sit under it
+        Ui gear = Kit.section("Rift Gear", gear(rift));
+        int left = Math.max(150, width - gear.width() - 12);
+
         return Ui.col(10,
                 Kit.tileRow(width, List.of(
                         new Kit.TileData("Motes Purse", Kit.compact(motes), MOTE),
                         new Kit.TileData("Lifetime Motes", Kit.compact(lifetime), NeuStyle.TEXT),
                         new Kit.TileData("Enigma Souls", souls + "/" + ENIGMA_MAX,
                                 souls >= ENIGMA_MAX ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA),
-                        new Kit.TileData("Rift Visits", Kit.compact(visits), NeuStyle.TEXT_GREEN))),
-                Kit.tileRow(width, List.of(
+                        new Kit.TileData("Rift Visits", Kit.compact(visits), NeuStyle.TEXT_GREEN),
                         new Kit.TileData("Wither Eyes", size(object(rift, "wither_cage"), "killed_eyes") + "/7", NeuStyle.TEXT),
                         new Kit.TileData("Dead Cats", size(object(rift, "dead_cats"), "found_cats") + "/9", NeuStyle.TEXT),
                         new Kit.TileData("Montezuma",
                                 object(object(rift, "dead_cats"), "montezuma") != null ? "Owned" : "-",
                                 object(object(rift, "dead_cats"), "montezuma") != null ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_GRAY),
                         new Kit.TileData("Burgers", asInt(get(object(rift, "castle"), "grubber_stacks")) + "/5", NeuStyle.TEXT))),
-                Kit.section("Vampire Slayer", vampire(member, width)),
-                Kit.section("Timecharms", timecharms(rift)),
-                Kit.section("Porthals", porthals(rift, width)),
-                Kit.section("Rift Gear", gear(rift)));
+                Ui.row(12, Ui.V.TOP,
+                        Ui.col(9,
+                                Kit.section("Vampire Slayer", vampire(member, left)),
+                                Kit.section("Timecharms", timecharms(rift)),
+                                Kit.section("Porthals", porthals(rift, left))),
+                        gear));
     }
 
     // the rift's own slayer, five levels with their own xp brackets

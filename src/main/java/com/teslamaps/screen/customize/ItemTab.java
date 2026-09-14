@@ -119,6 +119,15 @@ public class ItemTab extends GridLayoutTab {
         glintButton.setMessage(getGlintText());
     }
 
+    /** The item the reset buttons act on, empty when nothing here can be edited. */
+    ItemStack selected() {
+        return currentItem;
+    }
+
+    void reloadFromConfig() {
+        if (!currentItem.isEmpty()) setCurrentItem(currentItem);
+    }
+
     private Component getGlintText() {
         return Component.translatable("teslamaps.customize.item.glint", switch (glintState) {
             case DEFAULT -> Component.translatable("teslamaps.customize.item.glint.default");

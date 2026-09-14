@@ -88,6 +88,7 @@ public class TeslaMaps implements ClientModInitializer {
         com.teslamaps.features.customize.Customize.init();
         com.teslamaps.screen.customize.CustomizeButton.register();
         com.teslamaps.screen.ContestTimersButton.register();
+        com.teslamaps.screen.AuctionDealsButton.register();
 
         com.teslamaps.render.gui.ImageBackgrounds.init();
         com.teslamaps.features.capes.CapeManager.init();
@@ -143,6 +144,7 @@ public class TeslaMaps implements ClientModInitializer {
         hud("pestoverlay", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Garden")) com.teslamaps.features.PestOverlay.render(g, d); });
         hud("farmprofit", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Garden")) com.teslamaps.features.FarmProfitOverlay.render(g, d); });
         hud("charmedvisitors", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Garden")) com.teslamaps.features.CharmedVisitors.render(g, d); });
+        hud("feastseason", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Garden")) com.teslamaps.features.HarvestFeast.render(g, d); });
         hud("overkill", (g, d) -> { if (TeslaMapsConfig.get().section("Timers")) com.teslamaps.features.OverkillCounter.render(g, d); });
         hud("bearspawn", (g, d) -> { if (TeslaMapsConfig.get().section("Sounds")) BearSpawnWarning.render(g, d); });
         hud("thornstun", (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles & Terminals")) com.teslamaps.features.ThornStunTimer.render(g, d); });
@@ -327,6 +329,8 @@ public class TeslaMaps implements ClientModInitializer {
                 if (cfg.section("Garden")) { Perf.begin("FarmProfit.tick"); com.teslamaps.features.FarmProfit.tick(); Perf.end(); }
                 if (cfg.section("Garden")) { Perf.begin("PestOverlay.tick"); com.teslamaps.features.PestOverlay.tick(); Perf.end(); }
                 if (cfg.section("Garden")) { Perf.begin("CharmedVisitors.tick"); com.teslamaps.features.CharmedVisitors.tick(); Perf.end(); }
+                if (cfg.section("Garden")) { Perf.begin("HarvestFeast.tick"); com.teslamaps.features.HarvestFeast.tick(); Perf.end(); }
+                if (cfg.section("Garden")) { Perf.begin("SixthVisitor.tick"); com.teslamaps.features.SixthVisitor.tick(); Perf.end(); }
                 if (cfg.section("Shards")) { Perf.begin("HuntingBox.tick"); com.teslamaps.features.hunting.HuntingBox.tick(); Perf.end(); }
                 if (cfg.section("Garden")) { Perf.begin("FarmingSensitivity.tick"); com.teslamaps.features.FarmingSensitivity.tick(); Perf.end(); }
                 else { Perf.begin("FarmingSensitivity.tick"); com.teslamaps.features.FarmingSensitivity.restore(); Perf.end(); }

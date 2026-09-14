@@ -133,7 +133,27 @@ public class SkyblockProfiles {
         com.teslamaps.api.HypixelApi.getPlayer(uuid).thenAccept(player -> {
             if (player == null || player.keySet().isEmpty()) return;
             rankPrefix = buildRank(player);
+
+            // the treasure hunter achievement counts every secret the account ever found,
+            // across all profiles and the deleted ones - the profile only knows its own
+            if (player.has("achievements") && player.get("achievements").isJsonObject()) {
+                JsonObject achievements = player.getAsJsonObject("achievements");
+                if (achievements.has("skyblock_treasure_hunter")
+                        && achievements.get("skyblock_treasure_hunter").isJsonPrimitive()) {
+                    try {
+                        totalSecrets = achievements.get("skyblock_treasure_hunter").getAsLong();
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
         });
+    }
+
+    private long totalSecrets = -1;
+
+    /** -1 when unknown, the achievement needs an api key. */
+    public long getTotalSecrets() {
+        return totalSecrets;
     }
 
     private static String buildRank(JsonObject player) {
@@ -202,11 +222,26 @@ public class SkyblockProfiles {
 
     public static void addToRecentPlayers(String playerName) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        config.recentPlayers.remove(playerName);
+
+        // the same name in different spelling counted as two entries and showed up twice
+        config.recentPlayers.removeIf(name -> name.equalsIgnoreCase(playerName));
         config.recentPlayers.add(0, playerName);
-        while (config.recentPlayers.size() > 10) {
-            config.recentPlayers.remove(config.recentPlayers.size() - 1);
+
+        java.util.List<String> unique = new java.util.ArrayList<>();
+        for (String name : config.recentPlayers) {
+            boolean known = false;
+            for (String kept : unique) {
+                if (kept.equalsIgnoreCase(name)) {
+                    known = true;
+                    break;
+                }
+            }
+            if (!known) unique.add(name);
         }
+
+        while (unique.size() > 10) unique.remove(unique.size() - 1);
+        config.recentPlayers.clear();
+        config.recentPlayers.addAll(unique);
         TeslaMapsConfig.save();
     }
 }

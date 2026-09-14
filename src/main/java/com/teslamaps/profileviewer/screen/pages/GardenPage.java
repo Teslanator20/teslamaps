@@ -76,14 +76,23 @@ public class GardenPage extends ProfileViewerPage {
             return;
         }
 
-        drawTree(ctx, build(width), x, y, mouseX, mouseY);
+        drawTree(ctx, w -> fitted(w, NeuStyle.PANEL_HEIGHT - y - 6), width, x, y, mouseX, mouseY);
     }
 
-    private Ui build(int width) {
+    /** More columns instead of a taller page - the window is wide, not tall. */
+    private Ui fitted(int width, int available) {
+        Ui tree = build(width, 2);
+        for (int columns = 3; columns <= 5 && tree.height() > available; columns++) {
+            tree = build(width, columns);
+        }
+        return tree;
+    }
+
+    private Ui build(int width, int columns) {
         List<Ui> parts = new ArrayList<>();
         parts.add(header(width));
-        parts.add(Kit.section("Crop Milestones", crops(width)));
-        parts.add(Kit.section("Composter", composter(width)));
+        parts.add(Kit.section("Crop Milestones", crops(width, columns)));
+        parts.add(Kit.section("Composter", composter(width, columns)));
         return Ui.col(10, parts);
     }
 
@@ -112,10 +121,11 @@ public class GardenPage extends ProfileViewerPage {
                         new Kit.TileData("Visits", Kit.compact(asLong(get(commissions, "total_completed"))), NeuStyle.TEXT))));
     }
 
-    private Ui crops(int width) {
+    private Ui crops(int width, int columns) {
         JsonObject collected = object(garden, "resources_collected");
         JsonObject upgrades = object(garden, "crop_upgrade_levels");
-        int columns = 2;
+        // the icon says which crop it is, a half cut name says nothing
+        columns = Math.max(1, Math.min(columns, width / 78));
         int cellWidth = Kit.cellWidth(width, columns, 12);
 
         List<Ui> rows = new ArrayList<>();
@@ -125,12 +135,11 @@ public class GardenPage extends ProfileViewerPage {
             int color = milestone.maxed() ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA;
             int bodyWidth = cellWidth - 16 - 6;
 
+            // name and amount live in the tooltip, the cell shows the icon, the tier and the bar
             Ui body = Ui.col(2,
                     new Ui.SpaceBetween(bodyWidth,
-                            new Ui.Label(crop.display(), NeuStyle.TEXT),
-                            Ui.row(6, Ui.V.CENTER,
-                                    new Ui.Label("Tier " + milestone.tier(), color),
-                                    new Ui.Label(Kit.compact(amount), NeuStyle.TEXT_GRAY))),
+                            new Ui.Label("Tier " + milestone.tier(), color),
+                            new Ui.Label(Kit.compact(amount), NeuStyle.TEXT_GRAY, Ui.SMALL)),
                     Kit.bar(bodyWidth, milestone.progress(), color));
 
             List<String> tooltip = List.of(
@@ -145,12 +154,13 @@ public class GardenPage extends ProfileViewerPage {
         return Kit.grid(rows, columns, 12, 6);
     }
 
-    private Ui composter(int width) {
+    private Ui composter(int width, int columns) {
         JsonObject composter = object(garden, "composter_data");
         JsonObject upgrades = object(composter, "upgrades");
 
         List<Ui> rows = new ArrayList<>();
-        int cellWidth = Kit.cellWidth(width, 2, 12);
+        columns = Math.max(1, Math.min(columns, width / 105));
+        int cellWidth = Kit.cellWidth(width, columns, 12);
         for (int i = 0; i < COMPOSTER_KEYS.size(); i++) {
             int level = asInt(get(upgrades, COMPOSTER_KEYS.get(i).toLowerCase()));
             if (level == 0) level = asInt(get(upgrades, COMPOSTER_KEYS.get(i)));
@@ -166,7 +176,7 @@ public class GardenPage extends ProfileViewerPage {
                         new Kit.TileData("Fuel", Kit.compact(asLong(get(composter, "fuel_units"))), NeuStyle.TEXT_GOLD),
                         new Kit.TileData("Compost", Kit.compact(asLong(get(composter, "compost_units"))), NeuStyle.TEXT_AQUA),
                         new Kit.TileData("Items", Kit.compact(asLong(get(composter, "compost_items"))), NeuStyle.TEXT))),
-                Kit.grid(rows, 2, 12, 6));
+                Kit.grid(rows, columns, 12, 6));
     }
 
     private static JsonObject object(JsonObject parent, String key) {

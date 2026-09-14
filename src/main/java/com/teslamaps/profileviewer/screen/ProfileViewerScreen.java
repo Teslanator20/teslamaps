@@ -36,6 +36,7 @@ public class ProfileViewerScreen extends Screen {
     private int loadingDots = 0;
     private long lastDotUpdate = 0;
 
+    private final List<ProfileViewerPage> allPages = new ArrayList<>();
     private final List<ProfileViewerPage> pages = new ArrayList<>();
     private int selectedPageIndex = 0;
 
@@ -43,11 +44,11 @@ public class ProfileViewerScreen extends Screen {
     private net.minecraft.world.item.ItemStack hoveredStack = net.minecraft.world.item.ItemStack.EMPTY;
 
     public int toScreenX(int panelCoordinate) {
-        return panelX + panelCoordinate * scale;
+        return panelX + (int) (panelCoordinate * scale);
     }
 
     public int toScreenY(int panelCoordinate) {
-        return panelY + panelCoordinate * scale;
+        return panelY + (int) (panelCoordinate * scale);
     }
 
     public void setHoveredStack(net.minecraft.world.item.ItemStack stack) {
@@ -62,7 +63,7 @@ public class ProfileViewerScreen extends Screen {
 
     private String nameInput = null;
     private long nameCursorBlink = 0;
-    private int scale = 1;
+    private float scale = 1;
     private int panelX = 0;
     private int panelY = 0;
 
@@ -76,24 +77,41 @@ public class ProfileViewerScreen extends Screen {
 
     @Override
     protected void init() {
+        allPages.clear();
+        allPages.add(new BasicPage());
+        allPages.add(new DungeonPage());
+        allPages.add(new InventoriesPage());
+        allPages.add(new PetsPage());
+        allPages.add(new MiningPage());
+        allPages.add(new ForagingPage());
+        allPages.add(new CollectionsPage());
+        allPages.add(new BestiaryPage());
+        allPages.add(new TrophyFishPage());
+        allPages.add(new MuseumPage());
+        allPages.add(new GardenPage());
+        allPages.add(new CrimsonIslePage());
+        allPages.add(new RiftPage());
+        allPages.add(new ExtraPage());
+        allPages.add(new BingoPage());
+
         pages.clear();
-        pages.add(new BasicPage());
-        pages.add(new DungeonPage());
-        pages.add(new InventoriesPage());
-        pages.add(new PetsPage());
-        pages.add(new MiningPage());
-        pages.add(new ForagingPage());
-        pages.add(new CollectionsPage());
-        pages.add(new BestiaryPage());
-        pages.add(new TrophyFishPage());
-        pages.add(new MuseumPage());
-        pages.add(new GardenPage());
-        pages.add(new CrimsonIslePage());
-        pages.add(new RiftPage());
-        pages.add(new ExtraPage());
-        pages.add(new BingoPage());
+        pages.addAll(allPages);
 
         loadProfile();
+    }
+
+    /** Tabs that do not apply to the selected profile drop out, bingo being the only one so far. */
+    private void updateTabs() {
+        ProfileViewerPage current = selectedPageIndex >= 0 && selectedPageIndex < pages.size()
+                ? pages.get(selectedPageIndex) : null;
+
+        pages.clear();
+        for (ProfileViewerPage page : allPages) {
+            if (page.isAvailable(profiles)) pages.add(page);
+        }
+
+        int index = current == null ? -1 : pages.indexOf(current);
+        selectedPageIndex = Math.max(0, index);
     }
 
     private void loadProfile() {
@@ -119,9 +137,10 @@ public class ProfileViewerScreen extends Screen {
                     profiles.loadStatus();
                     profiles.loadPlayer();
 
-                    for (ProfileViewerPage page : pages) {
+                    for (ProfileViewerPage page : allPages) {
                         page.init(this, profiles);
                     }
+                    updateTabs();
                     if (!pages.isEmpty()) {
                         pages.get(selectedPageIndex).onSelected();
                     }
@@ -139,17 +158,21 @@ public class ProfileViewerScreen extends Screen {
 
         ctx.fill(0, 0, width, height, NeuStyle.SCREEN_DIM);
 
-        // the window carries a 28px tab strip above and a 24px bar below, both have to fit
+        // the window carries a 28px tab strip above and a 24px bar below, both have to fit,
+        // and the recent player tabs hang 28 off the right edge
         int totalHeight = NeuStyle.PANEL_HEIGHT + 28 + 26;
-        scale = Math.max(1, Math.min(width / (NeuStyle.PANEL_WIDTH + 60), height / totalHeight));
-        panelX = (width - NeuStyle.PANEL_WIDTH * scale) / 2;
-        panelY = (height - totalHeight * scale) / 2 + 28 * scale;
+        int totalWidth = NeuStyle.PANEL_WIDTH + 28;
+        // fractional on purpose: an integer step wastes up to half the screen at the wrong gui scale
+        scale = Math.max(1f, Math.min(width / (float) totalWidth, height / (float) totalHeight));
+        // on a window too narrow for the side tabs the panel wins, they get clipped instead
+        panelX = Math.max(0, (int) ((width - totalWidth * scale) / 2));
+        panelY = (int) ((height - totalHeight * scale) / 2 + 28 * scale);
         // keep the tab strip and the bottom bar on screen even when the window is short
-        int lowest = height - (NeuStyle.PANEL_HEIGHT + 26) * scale;
-        panelY = Math.max(Math.min(panelY, lowest), 28 * scale);
+        int lowest = (int) (height - (NeuStyle.PANEL_HEIGHT + 26) * scale);
+        panelY = Math.max(Math.min(panelY, lowest), (int) (28 * scale));
 
-        int mx = (mouseX - panelX) / scale;
-        int my = (mouseY - panelY) / scale;
+        int mx = (int) ((mouseX - panelX) / scale);
+        int my = (int) ((mouseY - panelY) / scale);
 
         ctx.pose().pushMatrix();
         ctx.pose().translate(panelX, panelY);
@@ -193,10 +216,20 @@ public class ProfileViewerScreen extends Screen {
 
         // after the base class, otherwise its widget pass drops the deferred tooltip again
         if (!hoveredStack.isEmpty()) {
+            // key the scroll offset to what the item IS, not to the object - the inventory page
+            // rebuilds its stacks every frame, so an identity key reset the offset every frame
+            com.teslamaps.features.ScrollableTooltip.setExternalFocus(
+                    hoveredStack.getHoverName().getString().hashCode() * 31 + hoveredStack.getCount());
+            tooltipOpen = true;
             ctx.setTooltipForNextFrame(font, hoveredStack, mouseX, mouseY);
             hoveredStack = net.minecraft.world.item.ItemStack.EMPTY;
         } else if (hoveredLines != null) {
+            com.teslamaps.features.ScrollableTooltip.setExternalFocus(hoveredLines.hashCode());
+            tooltipOpen = true;
             ctx.setComponentTooltipForNextFrame(font, hoveredLines, mouseX, mouseY);
+        } else {
+            com.teslamaps.features.ScrollableTooltip.setExternalFocus(-1);
+            tooltipOpen = false;
         }
         hoveredLines = null;
     }
@@ -222,11 +255,21 @@ public class ProfileViewerScreen extends Screen {
         if (recent == null) return;
 
         int x = NeuStyle.PANEL_WIDTH;
+        // only the first entry matching the shown player lights up, the list can hold it twice
+        int selectedIndex = -1;
+        for (int i = 0; i < Math.min(recent.size(), 7); i++) {
+            String name = recent.get(i);
+            if (name.equalsIgnoreCase(targetPlayer)
+                    || (profiles != null && name.equalsIgnoreCase(profiles.getDisplayName()))) {
+                selectedIndex = i;
+                break;
+            }
+        }
+
         for (int i = 0; i < Math.min(recent.size(), 7); i++) {
             String name = recent.get(i);
             int y = i * 28;
-            boolean selected = name.equalsIgnoreCase(targetPlayer)
-                    || (profiles != null && name.equalsIgnoreCase(profiles.getDisplayName()));
+            boolean selected = i == selectedIndex;
             boolean hovered = mouseX >= x && mouseX < x + 28 && mouseY >= y && mouseY < y + 28;
 
             NeuStyle.sideTab(ctx, selected ? x : x - 1, y, selected);
@@ -240,7 +283,6 @@ public class ProfileViewerScreen extends Screen {
     private void renderFooter(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         int y = NeuStyle.PANEL_HEIGHT + 3;
         int height = 16;
-        profileChips.clear();
 
         // skycrypt button, far right
         String skyLabel = "SkyCrypt";
@@ -270,26 +312,29 @@ public class ProfileViewerScreen extends Screen {
         }
         nameRect = new int[]{nameX, y, nameWidth, height};
 
-        // profile chips, filling from the left
+        // one selector instead of a chip per profile, a whole row of them never fit
         if (profiles != null && profiles.isLoaded()) {
-            int chipX = 0;
             SkyblockProfile selected = profiles.getSelectedProfile();
-            for (java.util.Map.Entry<String, SkyblockProfile> entry : profiles.getProfiles().entrySet()) {
-                String label = entry.getKey();
-                int chipWidth = font.width(label) + 12;
-                if (chipX + chipWidth > nameX - 6) break;
+            String label = selected == null ? "-" : selected.getCuteName();
+            int count = profiles.getProfiles().size();
+            String shown = count > 1 ? label + "  " + (profileIndex() + 1) + "/" + count : label;
 
-                boolean active = selected != null && selected.getCuteName().equals(label);
-                boolean hovered = mouseX >= chipX && mouseX < chipX + chipWidth && mouseY >= y && mouseY < y + height;
+            int selectorWidth = Math.min(nameX - 6, font.width(shown) + 34);
+            NeuStyle.window(ctx, 0, y, selectorWidth, height + 4);
 
-                NeuStyle.window(ctx, chipX, y, chipWidth, height + 4);
-                if (active) NeuStyle.slimBox(ctx, chipX + 2, y + 2, chipWidth - 4, height);
-                ctx.text(font, label, chipX + 6, y + 6,
-                        active ? NeuStyle.TEXT_TURQUOISE : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
+            boolean overLeft = mouseX >= 0 && mouseX < 14 && mouseY >= y && mouseY < y + height;
+            boolean overRight = mouseX >= selectorWidth - 14 && mouseX < selectorWidth
+                    && mouseY >= y && mouseY < y + height;
 
-                profileChips.add(new Object[]{new int[]{chipX, y, chipWidth, height}, label});
-                chipX += chipWidth + 4;
+            if (count > 1) {
+                ctx.text(font, "<", 6, y + 6, overLeft ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
+                ctx.text(font, ">", selectorWidth - 10, y + 6, overRight ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
             }
+            ctx.text(font, shown, (selectorWidth - font.width(shown)) / 2, y + 6, NeuStyle.TEXT_TURQUOISE);
+
+            profileSelector = new int[]{0, y, selectorWidth, height};
+        } else {
+            profileSelector = null;
         }
 
         if (hoveredTab != null) {
@@ -301,9 +346,34 @@ public class ProfileViewerScreen extends Screen {
         }
     }
 
-    private final List<Object[]> profileChips = new ArrayList<>();
+    private int[] profileSelector;
     private int[] skyRect;
     private int[] nameRect;
+
+    private List<String> profileNames() {
+        return profiles == null ? List.of() : new ArrayList<>(profiles.getProfiles().keySet());
+    }
+
+    private int profileIndex() {
+        SkyblockProfile selected = profiles == null ? null : profiles.getSelectedProfile();
+        if (selected == null) return 0;
+        return Math.max(0, profileNames().indexOf(selected.getCuteName()));
+    }
+
+    /** Steps to the next or previous profile and reloads every page for it. */
+    private void cycleProfile(int direction) {
+        List<String> names = profileNames();
+        if (names.size() < 2) return;
+
+        String next = names.get(((profileIndex() + direction) % names.size() + names.size()) % names.size());
+        SkyblockProfile profile = profiles.getProfiles().get(next);
+        if (profile == null) return;
+
+        profiles.setSelectedProfile(profile);
+        for (ProfileViewerPage page : allPages) page.init(this, profiles);
+        updateTabs();
+        if (!pages.isEmpty()) pages.get(selectedPageIndex).onSelected();
+    }
 
     private static boolean inside(int[] rect, int x, int y) {
         return rect != null && x >= rect[0] && x < rect[0] + rect[2] && y >= rect[1] && y < rect[1] + rect[3];
@@ -350,16 +420,10 @@ public class ProfileViewerScreen extends Screen {
             }
         }
 
-        for (Object[] chip : profileChips) {
-            if (inside((int[]) chip[0], mx, my)) {
-                SkyblockProfile profile = profiles.getProfiles().get((String) chip[1]);
-                if (profile != null) {
-                    profiles.setSelectedProfile(profile);
-                    for (ProfileViewerPage page : pages) page.init(this, profiles);
-                    pages.get(selectedPageIndex).onSelected();
-                }
-                return true;
-            }
+        if (inside(profileSelector, mx, my)) {
+            // left edge steps back, anywhere else steps forward
+            cycleProfile(mx < profileSelector[0] + 14 ? -1 : 1);
+            return true;
         }
 
         if (inside(skyRect, mx, my) && profiles != null) {
@@ -455,8 +519,13 @@ public class ProfileViewerScreen extends Screen {
         return super.mouseReleased(event);
     }
 
+    private boolean tooltipOpen = false;
+
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        // a tooltip under the cursor takes the wheel, otherwise it pages the grid below it
+        if (tooltipOpen && com.teslamaps.features.ScrollableTooltip.onScroll(verticalAmount)) return true;
+
         if (!loading && error == null && selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
             if (pages.get(selectedPageIndex).mouseScrolled((mouseX - panelX) / scale, (mouseY - panelY) / scale, verticalAmount)) {
                 return true;

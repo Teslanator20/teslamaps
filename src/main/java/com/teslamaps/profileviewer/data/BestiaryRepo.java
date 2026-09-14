@@ -27,7 +27,9 @@ public class BestiaryRepo {
 
     public record Mob(String name, String texture, int cap, int bracket, List<String> keys) {}
 
-    public record Category(String id, String name, String icon, List<Mob> mobs) {}
+    /** An icon is either a skull texture or a plain vanilla item id, the repo mixes both. */
+    public record Category(String id, String name, String icon, String iconItem, List<Mob> mobs,
+                           List<Category> subs) {}
 
     private static final List<Category> categories = new ArrayList<>();
     private static final Map<Integer, List<Integer>> brackets = new HashMap<>();
@@ -91,15 +93,39 @@ public class BestiaryRepo {
             JsonObject category = element.getAsJsonObject();
             if (!category.has("name")) continue;
 
+            String name = category.get("name").getAsString();
+
+            // fishing and safari hold their mobs one level deeper; those groups stay inside
+            // their parent and are picked above the grid, not stacked into the rail
+            if (!category.has("mobs")) {
+                List<Category> subs = new ArrayList<>();
+                for (String subKey : category.keySet()) {
+                    if (!category.get(subKey).isJsonObject()) continue;
+                    JsonObject sub = category.getAsJsonObject(subKey);
+                    if (!sub.has("name")) continue;
+
+                    List<Mob> subMobs = new ArrayList<>();
+                    collectMobs(sub, subMobs);
+                    if (subMobs.isEmpty()) continue;
+
+                    subs.add(new Category(key + "." + subKey, sub.get("name").getAsString(),
+                            texture(sub), item(sub), subMobs, List.of()));
+                }
+                if (subs.isEmpty()) continue;
+
+                categories.add(new Category(key, name, texture(category), item(category),
+                        subs.getFirst().mobs(), subs));
+                continue;
+            }
+
             List<Mob> mobs = new ArrayList<>();
             collectMobs(category, mobs);
             if (mobs.isEmpty()) continue;
 
-            categories.add(new Category(key, category.get("name").getAsString(), icon(category), mobs));
+            categories.add(new Category(key, name, texture(category), item(category), mobs, List.of()));
         }
     }
 
-    /** Fishing and safari nest their mobs one level deeper. */
     private static void collectMobs(JsonObject category, List<Mob> out) {
         if (category.has("mobs") && category.get("mobs").isJsonArray()) {
             for (JsonElement element : category.getAsJsonArray("mobs")) {
@@ -132,21 +158,47 @@ public class BestiaryRepo {
                 keys);
     }
 
-    private static String icon(JsonObject category) {
-        if (!category.has("icon")) return null;
-        JsonElement icon = category.get("icon");
-        if (icon.isJsonObject() && icon.getAsJsonObject().has("texture")) {
-            return icon.getAsJsonObject().get("texture").getAsString();
-        }
-        return null;
+    private static String texture(JsonObject category) {
+        JsonObject icon = iconObject(category);
+        return icon != null && icon.has("texture") ? icon.get("texture").getAsString() : null;
+    }
+
+    /** Fishing and the spooky festival carry a plain item instead of a skull, that was dropped before. */
+    private static String item(JsonObject category) {
+        JsonObject icon = iconObject(category);
+        return icon != null && icon.has("item") ? icon.get("item").getAsString() : null;
+    }
+
+    private static JsonObject iconObject(JsonObject category) {
+        if (!category.has("icon") || !category.get("icon").isJsonObject()) return null;
+        return category.getAsJsonObject("icon");
+    }
+
+    private static final Map<Mob, List<Integer>> cappedSteps = new HashMap<>();
+
+    /**
+     * Every bracket holds 25 steps, but a mob stops at its cap - the steps above it can never
+     * be reached. Counting all 25 is what showed a maxed mob as 15/25.
+     */
+    private static List<Integer> steps(Mob mob) {
+        List<Integer> all = brackets.get(mob.bracket());
+        if (all == null) return List.of();
+        if (mob.cap() <= 0) return all;
+
+        return cappedSteps.computeIfAbsent(mob, key -> {
+            List<Integer> capped = new ArrayList<>();
+            for (int step : all) {
+                if (step > key.cap()) break;
+                capped.add(step);
+            }
+            return capped.isEmpty() ? all : capped;
+        });
     }
 
     /** Tier for a kill count, using the bracket the repo assigns to that mob. */
     public static int tier(Mob mob, long kills) {
-        List<Integer> steps = brackets.get(mob.bracket());
-        if (steps == null) return 0;
         int tier = 0;
-        for (int step : steps) {
+        for (int step : steps(mob)) {
             if (kills >= step) tier++;
             else break;
         }
@@ -154,7 +206,6 @@ public class BestiaryRepo {
     }
 
     public static int maxTier(Mob mob) {
-        List<Integer> steps = brackets.get(mob.bracket());
-        return steps == null ? 0 : steps.size();
+        return steps(mob).size();
     }
 }

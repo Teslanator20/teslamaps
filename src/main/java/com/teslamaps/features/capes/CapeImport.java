@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -24,8 +26,29 @@ import org.lwjgl.util.tinyfd.TinyFileDialogs;
  */
 public class CapeImport {
 
-    private static final long MAX_BYTES = 8L * 1024 * 1024;
+    private static final long MAX_BYTES = 16L * 1024 * 1024;   // tenor gifs get big
+    private static final String TOO_BIG = "Larger than 16 MB";
     private static final int CHUNK = 16 * 1024;
+    /** Enough of a share page to hold its meta tags. */
+    private static final int MAX_PAGE_BYTES = 512 * 1024;
+
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
+
+    /** Tried in order; the cdn links first, because og:image is sometimes only a preview. */
+    private static final Pattern[] PAGE_MEDIA = {
+            Pattern.compile("https?://(?:media\\d*|c)\\.tenor\\.com/[^\"'\\s<>]+\\.gif",
+                    Pattern.CASE_INSENSITIVE),
+            Pattern.compile("https?://(?:media\\d*|i)\\.giphy\\.com/[^\"'\\s<>]+\\.gif",
+                    Pattern.CASE_INSENSITIVE),
+            Pattern.compile("<meta[^>]+property=[\"']og:image[\"'][^>]+content=[\"']([^\"']+)[\"']",
+                    Pattern.CASE_INSENSITIVE),
+            Pattern.compile("<meta[^>]+content=[\"']([^\"']+)[\"'][^>]+property=[\"']og:image[\"']",
+                    Pattern.CASE_INSENSITIVE),
+            Pattern.compile("<meta[^>]+itemprop=[\"']contentUrl[\"'][^>]+content=[\"']([^\"']+)[\"']",
+                    Pattern.CASE_INSENSITIVE),
+            Pattern.compile("[\"'](https?://[^\"'\\s<>]+\\.gif)[\"']", Pattern.CASE_INSENSITIVE),
+    };
 
     public static volatile boolean running;
     public static volatile boolean failed;
@@ -43,11 +66,12 @@ public class CapeImport {
         new Thread(() -> {
             String picked;
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                PointerBuffer filters = stack.mallocPointer(1);
+                PointerBuffer filters = stack.mallocPointer(2);
                 filters.put(stack.UTF8("*.png"));
+                filters.put(stack.UTF8("*.gif"));
                 filters.flip();
                 picked = TinyFileDialogs.tinyfd_openFileDialog(
-                        "Choose a cape texture", null, filters, "PNG image", false);
+                        "Choose a cape texture", null, filters, "PNG or GIF image", false);
             } catch (Throwable t) {
                 fail("File picker unavailable");
                 return;
@@ -70,7 +94,7 @@ public class CapeImport {
             try {
                 long size = Files.size(source);
                 if (size > MAX_BYTES) {
-                    fail("Larger than 8 MB");
+                    fail(TOO_BIG);
                     return;
                 }
                 byte[] data;
@@ -99,6 +123,14 @@ public class CapeImport {
 
     /** {@code subfolder} places the file in a category folder, used by the gallery. */
     public static void fromUrl(String url, String name, String subfolder) {
+        fromUrl(url, name, subfolder, null);
+    }
+
+    /**
+     * {@code crop} is the crop a gallery gif was published with - passing it through means
+     * the download lands ready to wear instead of asking the player to crop it again.
+     */
+    public static void fromUrl(String url, String name, String subfolder, CapeCompose.Crop crop) {
         if (running) return;
         String trimmed = url == null ? "" : url.trim();
         URI uri;
@@ -120,27 +152,149 @@ public class CapeImport {
                         .connectTimeout(Duration.ofSeconds(15))
                         .followRedirects(HttpClient.Redirect.NORMAL)
                         .build();
-                HttpResponse<InputStream> response = client.send(
-                        HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(60)).GET().build(),
-                        HttpResponse.BodyHandlers.ofInputStream());
+                URI direct = shortcut(uri);
+                HttpResponse<InputStream> response = direct != null
+                        ? get(client, direct, false) : get(client, uri, true);
+                if (direct != null && response.statusCode() != 200) {
+                    response = get(client, uri, true);   // guessed wrong, fall back to the page
+                }
                 if (response.statusCode() != 200) {
                     fail("HTTP " + response.statusCode());
                     return;
                 }
+                String type = response.headers().firstValue("content-type")
+                        .orElse("").toLowerCase(Locale.ROOT);
+                if (type.contains("html") || type.contains("xml")) {
+                    // a tenor/giphy/imgur page instead of the picture - pull the media out of it
+                    message = "Looking for the gif...";
+                    URI media;
+                    try (InputStream in = response.body()) {
+                        media = mediaFromPage(new String(in.readNBytes(MAX_PAGE_BYTES),
+                                java.nio.charset.StandardCharsets.UTF_8), uri);
+                    }
+                    if (media == null) {
+                        fail("No image on that page");
+                        return;
+                    }
+                    message = "Downloading...";
+                    response = get(client, media, false);
+                    if (response.statusCode() != 200) {
+                        fail("HTTP " + response.statusCode());
+                        return;
+                    }
+                    String mediaType = response.headers().firstValue("content-type")
+                            .orElse("").toLowerCase(Locale.ROOT);
+                    if (mediaType.contains("html")) {
+                        // never store a page as if it were a picture
+                        fail("That link served a page, not an image");
+                        return;
+                    }
+                }
                 long size = response.headers().firstValueAsLong("content-length").orElse(-1L);
                 if (size > MAX_BYTES) {
-                    fail("Larger than 8 MB");
+                    fail(TOO_BIG);
                     return;
                 }
                 byte[] data;
                 try (InputStream in = response.body()) {
                     data = read(in, size);
                 }
-                store(name == null || name.isBlank() ? nameFromUrl(uri) : name, data, subfolder);
+                TeslaMaps.LOGGER.info("[Cape] {} -> {} ({} bytes, {}, {})", uri, response.uri(),
+                        data.length, response.headers().firstValue("content-type").orElse("?"),
+                        magic(data));
+                store(name == null || name.isBlank() ? nameFromUrl(uri) : name, data, subfolder, crop);
             } catch (Throwable t) {
                 fail(t.getClass().getSimpleName());
             }
         }, "TeslaMaps cape download").start();
+    }
+
+    /**
+     * {@code html} decides the Accept header, and that is not cosmetic: tenor's cdn
+     * content-negotiates, so asking for text/html on a .gif url really does hand back
+     * a html page with status 200.
+     */
+    private static HttpResponse<InputStream> get(HttpClient client, URI uri, boolean html)
+            throws Exception {
+        return client.send(
+                HttpRequest.newBuilder(uri)
+                        .timeout(Duration.ofSeconds(60))
+                        // the gif sites hand a plain java client an empty page
+                        .header("User-Agent", USER_AGENT)
+                        .header("Accept", html
+                                ? "text/html,application/xhtml+xml,*/*;q=0.8"
+                                : "image/gif,image/png,image/*;q=0.9,*/*;q=0.8")
+                        .GET().build(),
+                HttpResponse.BodyHandlers.ofInputStream());
+    }
+
+    /**
+     * Finds the real picture behind a share page. Tenor and Giphy both put it in
+     * og:image, and their cdn urls are a good fallback when the tag is missing.
+     */
+    static URI mediaFromPage(String pageHtml, URI page) {
+        // json blobs in the page escape their slashes
+        String html = pageHtml.replace("\\/", "/");
+        String id = pageId(page);
+        URI first = null;
+        for (Pattern pattern : PAGE_MEDIA) {
+            Matcher matcher = pattern.matcher(html);
+            while (matcher.find()) {
+                String found = matcher.group(matcher.groupCount()).trim().replace("&amp;", "&");
+                if (!isImage(found)) continue;
+                URI media;
+                try {
+                    media = page.resolve(found);
+                } catch (Throwable ignored) {
+                    continue;
+                }
+                // a share page is full of other people's thumbnails - the right one carries its id
+                if (id != null && found.contains(id)) return media;
+                if (first == null) first = media;
+            }
+        }
+        return first;
+    }
+
+    /** The id a share url ends with, e.g. giphy's "3o7abKhOpu0NwenH3O". */
+    private static String pageId(URI page) {
+        String path = page.getPath() == null ? "" : page.getPath();
+        while (path.endsWith("/")) path = path.substring(0, path.length() - 1);
+        int slash = path.lastIndexOf('/');
+        String last = stripExtension(slash >= 0 ? path.substring(slash + 1) : path);
+        int dash = last.lastIndexOf('-');
+        if (dash >= 0) last = last.substring(dash + 1);
+        return last.length() >= 6 ? last : null;
+    }
+
+    /**
+     * Sites whose media url can be built from the share url, so no page fetch is needed.
+     * Giphy serves a javascript page with no meta tags to a plain client.
+     */
+    private static URI shortcut(URI page) {
+        String host = page.getHost() == null ? "" : page.getHost().toLowerCase(Locale.ROOT);
+        if (!host.equals("giphy.com") && !host.endsWith(".giphy.com")) return null;
+        String id = pageId(page);
+        return id == null ? null : URI.create("https://i.giphy.com/" + id + ".gif");
+    }
+
+    /** First bytes as readable text, so a failed import says what actually arrived. */
+    private static String magic(byte[] data) {
+        int n = Math.min(12, data.length);
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            char c = (char) (data[i] & 0xFF);
+            out.append(c >= 0x20 && c < 0x7f ? c : '.');
+        }
+        return out.toString();
+    }
+
+    private static boolean isImage(String url) {
+        String path = url.toLowerCase(Locale.ROOT);
+        int query = path.indexOf('?');
+        if (query > 0) path = path.substring(0, query);
+        return path.endsWith(".gif") || path.endsWith(".png")
+                || path.endsWith(".jpg") || path.endsWith(".jpeg");
     }
 
     private static byte[] read(InputStream in, long expected) throws Exception {
@@ -149,7 +303,7 @@ public class CapeImport {
         int read;
         while ((read = in.read(buffer)) > 0) {
             out.write(buffer, 0, read);
-            if (out.size() > MAX_BYTES) throw new IllegalArgumentException("Larger than 8 MB");
+            if (out.size() > MAX_BYTES) throw new IllegalArgumentException(TOO_BIG);
             fraction = expected > 0 ? Math.min(1f, (float) out.size() / expected) : -1f;
         }
         fraction = 1f;
@@ -157,12 +311,16 @@ public class CapeImport {
     }
 
     private static void store(String name, byte[] data) {
-        store(name, data, null);
+        store(name, data, null, null);
     }
 
     /** Validates on the main thread (texture upload) and writes the file. */
-    private static void store(String name, byte[] data, String subfolder) {
+    private static void store(String name, byte[] data, String subfolder, CapeCompose.Crop crop) {
         message = "Checking texture...";
+        if (GifCape.isGif(data)) {
+            storeGif(name, data, subfolder, crop);
+            return;
+        }
         Minecraft.getInstance().execute(() -> {
             NativeImage image = null;
             try {
@@ -175,13 +333,70 @@ public class CapeImport {
                     com.teslamaps.screen.CapeCropScreen.open(name, data, subfolder);
                     return;
                 }
-                fail(e.getMessage());
+                // say what arrived, otherwise "not readable" hides a downloaded html page
+                fail(e.getMessage() + " (" + data.length + " bytes, " + magic(data) + ")");
             } catch (Throwable t) {
                 TeslaMaps.LOGGER.warn("Cape import failed", t);
                 fail("Import failed: " + t.getClass().getSimpleName());
             } finally {
                 if (image != null) image.close();
             }
+        });
+    }
+
+    /**
+     * Gifs are stored as they came in - the frames are decoded when the cape is worn.
+     * Only the layout of the canvas is checked here, so a broken gif fails at import
+     * and not silently in the render path.
+     */
+    private static void storeGif(String name, byte[] data, String subfolder, CapeCompose.Crop crop) {
+        try {
+            int[] size = GifCape.canvasSize(data);
+            int w = size[0], h = size[1];
+            if (w > CapeManager.MAX_WIDTH || h > CapeManager.MAX_WIDTH) {
+                fail("Larger than " + CapeManager.MAX_WIDTH + " px");
+                return;
+            }
+            boolean layout = w == h * 2 || w * 11 == h * 23 || w * 17 == h * 22;
+            if (!layout && crop == null) {
+                // not a cape sheet - same deal as a png, pick the part that goes on the back
+                reset();
+                com.teslamaps.screen.CapeCropScreen.open(name, data, subfolder);
+                return;
+            }
+            saveGif(name, subfolder, data, crop);
+        } catch (Throwable t) {
+            TeslaMaps.LOGGER.warn("Gif cape import failed", t);
+            fail("Import failed: " + t.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * Writes the gif untouched, plus a ".crop" sidecar when it needs cropping - the frames
+     * are composed while the cape is worn, so nothing is ever re-encoded.
+     */
+    public static void saveGif(String name, String subfolder, byte[] data, CapeCompose.Crop crop)
+            throws Exception {
+        String folder = subfolder == null || subfolder.isBlank()
+                ? null : subfolder.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+        Path dir = folder == null ? CapeManager.DIR : CapeManager.DIR.resolve(folder);
+        Files.createDirectories(dir);
+        Path target = freeName(dir, name, ".gif");
+        Path temp = target.resolveSibling(target.getFileName() + ".tmp");
+        Files.write(temp, data);
+        Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
+        if (crop != null) Files.writeString(CapeManager.cropFile(target), crop.store());
+
+        String id = "custom_" + (folder == null ? "" : sanitize(folder) + "_")
+                + sanitize(stripExtension(target.getFileName().toString())) + "_gif";
+        Minecraft.getInstance().execute(() -> {
+            CapeManager.rescan();
+            CapeManager.select(id);
+            importedId = id;
+            running = false;
+            failed = false;
+            fraction = 1f;
+            message = "Added " + target.getFileName();
         });
     }
 
@@ -213,7 +428,7 @@ public class CapeImport {
                 ? null : subfolder.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
         Path dir = folder == null ? CapeManager.DIR : CapeManager.DIR.resolve(folder);
         Files.createDirectories(dir);
-        Path target = freeName(dir, name);
+        Path target = freeName(dir, name, ".png");
         // write the normalised image, so a padded legacy cape stays padded
         Path temp = target.resolveSibling(target.getFileName() + ".tmp");
         image.writeToFile(temp);
@@ -256,13 +471,13 @@ public class CapeImport {
         throw new IllegalArgumentException("Needs a 2:1 cape texture, got " + w + "x" + h);
     }
 
-    private static Path freeName(Path dir, String base) {
+    private static Path freeName(Path dir, String base, String extension) {
         String clean = base.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
         if (clean.isEmpty()) clean = "cape";
         if (clean.length() > 32) clean = clean.substring(0, 32);
-        Path target = dir.resolve(clean + ".png");
+        Path target = dir.resolve(clean + extension);
         for (int i = 2; Files.exists(target) && i < 100; i++) {
-            target = dir.resolve(clean + " " + i + ".png");
+            target = dir.resolve(clean + " " + i + extension);
         }
         return target;
     }
@@ -277,6 +492,8 @@ public class CapeImport {
         int slash = path.lastIndexOf('/');
         String name = slash >= 0 ? path.substring(slash + 1) : path;
         name = stripExtension(name);
+        // tenor slugs read "six-seven-bird-aura-gif-17959378270241582062"
+        name = name.replaceFirst("(?i)-gif-\\d+$", "").replace('-', ' ').trim();
         if (name.isEmpty()) return "downloaded cape";
         // texture cdns hand out 64 char hashes, which no ui can show
         return name.length() > 24 ? name.substring(0, 24) : name;

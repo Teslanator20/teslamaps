@@ -10,8 +10,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.tabs.TabManager;
 import net.minecraft.client.gui.components.tabs.TabNavigationBar;
+import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -35,8 +37,9 @@ public class CustomizeScreen extends Screen {
     private final boolean item;
     private TabNavigationBar tabNavigation;
 
-    private final LinearLayout footerLayout = LinearLayout.horizontal().spacing(5);
+    private final LinearLayout footerLayout = LinearLayout.vertical().spacing(4);
     private ArmorTab armorTab;
+    private ItemTab itemTab;
 
     public CustomizeScreen(@Nullable Screen previousScreen, boolean item) {
         super(Component.translatable("teslamaps.customize.title").withStyle(ChatFormatting.GRAY));
@@ -71,8 +74,9 @@ public class CustomizeScreen extends Screen {
         super.init();
 
         armorTab = new ArmorTab(this);
+        itemTab = new ItemTab(this);
         tabNavigation = TabNavigationBar.builder(tabManager, width)
-                .addTabs(armorTab, new ItemTab(this))
+                .addTabs(armorTab, itemTab)
                 .build();
         int top = tabNavigation.getRectangle().bottom();
         tabNavigation.arrangeElements();
@@ -80,8 +84,17 @@ public class CustomizeScreen extends Screen {
         tabNavigation.selectTab(item ? 1 : 0, false);
         addRenderableWidget(tabNavigation);
 
-        addRenderableWidget(footerLayout.addChild(Button.builder(Component.translatable("gui.cancel"), b -> cancel()).build()));
-        addRenderableWidget(footerLayout.addChild(Button.builder(Component.translatable("gui.done"), b -> onClose()).build()));
+        LinearLayout resets = footerLayout.addChild(LinearLayout.horizontal().spacing(5), LayoutSettings::alignHorizontallyCenter);
+        addRenderableWidget(resets.addChild(Button.builder(
+                Component.translatable("teslamaps.customize.resetPiece"), b -> resetPiece()).width(90).build()));
+        addRenderableWidget(resets.addChild(Button.builder(
+                Component.translatable("teslamaps.customize.resetArmor"), b -> resetArmor()).width(90).build()));
+        addRenderableWidget(resets.addChild(Button.builder(
+                Component.translatable("teslamaps.customize.resetAll"), b -> resetAll()).width(90).build()));
+
+        LinearLayout actions = footerLayout.addChild(LinearLayout.horizontal().spacing(5), LayoutSettings::alignHorizontallyCenter);
+        addRenderableWidget(actions.addChild(Button.builder(Component.translatable("gui.cancel"), b -> cancel()).width(100).build()));
+        addRenderableWidget(actions.addChild(Button.builder(Component.translatable("gui.done"), b -> onClose()).width(100).build()));
         footerLayout.arrangeElements();
         repositionElements();
     }
@@ -90,6 +103,48 @@ public class CustomizeScreen extends Screen {
     public void added() {
         super.added();
         if (armorTab != null) armorTab.recreate();
+    }
+
+    private ItemStack currentTabItem() {
+        if (tabManager.getCurrentTab() == itemTab && itemTab != null) return itemTab.selected();
+        return armorTab == null ? ItemStack.EMPTY : armorTab.selected();
+    }
+
+    private void resetPiece() {
+        ItemStack stack = currentTabItem();
+        String uuid = Customize.uuid(stack);
+        if (uuid.isEmpty()) return;
+        backupConfigs(stack);
+        Customize.reset(uuid);
+        reloadTabs();
+    }
+
+    private void resetArmor() {
+        if (armorTab == null) return;
+        for (ItemStack piece : armorTab.pieces()) {
+            if (piece == null || piece.isEmpty()) continue;
+            backupConfigs(piece);
+            Customize.reset(Customize.uuid(piece));
+        }
+        reloadTabs();
+    }
+
+    private void resetAll() {
+        minecraft.setScreen(new ConfirmScreen(confirmed -> {
+            if (confirmed) {
+                Customize.resetAll();
+                // nothing left to restore, the backups would put the old values back
+                previousConfigs.clear();
+                TeslaMapsConfig.save();
+            }
+            minecraft.setScreen(this);
+        }, Component.translatable("teslamaps.customize.resetAll"),
+                Component.translatable("teslamaps.customize.resetAll.confirm")));
+    }
+
+    private void reloadTabs() {
+        if (armorTab != null) armorTab.reloadFromConfig();
+        if (itemTab != null) itemTab.reloadFromConfig();
     }
 
     private void cancel() {

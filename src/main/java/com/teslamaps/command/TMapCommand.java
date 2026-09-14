@@ -48,6 +48,11 @@ public class TMapCommand {
             return 1;
         }));
 
+        // /pv as its own command, but another mod that already owns it keeps it
+        if (dispatcher.getRoot().getChild("pv") == null) {
+            dispatcher.register(profileViewer("pv"));
+        }
+
         var termsim = ClientCommands.literal("termsim").executes(context -> {
             Minecraft.getInstance().execute(() -> TerminalSimulator.open(TerminalSimulator.ping()));
             return 1;
@@ -73,8 +78,8 @@ public class TMapCommand {
         }
         dispatcher.register(termsim);
 
-        for (char type : new char[]{'f', 'm'}) {
-            for (int n = 1; n <= 7; n++) {
+        for (char type : new char[]{'f', 'm', 't'}) {
+            for (int n = 1; n <= (type == 't' ? 5 : 7); n++) {
                 String code = "" + type + n;
                 dispatcher.register(ClientCommands.literal(code).executes(context -> {
                     com.teslamaps.features.ChatCommands.queueFloor(code);
@@ -239,25 +244,7 @@ public class TMapCommand {
                                             }));
                                     return 1;
                                 })))
-                .then(ClientCommands.literal("pv")
-                        .executes(context -> openProfileViewer(context.getSource(), null))
-                        .then(ClientCommands.literal("dump")
-                                .then(ClientCommands.argument("player", StringArgumentType.word())
-                                        .executes(context -> {
-                                            String player = StringArgumentType.getString(context, "player");
-                                            context.getSource().sendFeedback(Component.literal("§7Dumping " + player + "..."));
-                                            com.teslamaps.profileviewer.ProfileDump.dump(player);
-                                            return 1;
-                                        })))
-                        .then(ClientCommands.literal("fake")
-                                .executes(context -> {
-                                    com.teslamaps.profileviewer.FakeProfile.open();
-                                    return 1;
-                                }))
-                        .then(ClientCommands.argument("player", StringArgumentType.word())
-                                .suggests((context, builder) -> suggest(PlayerNameCache.names(), builder))
-                                .executes(context -> openProfileViewer(context.getSource(),
-                                        StringArgumentType.getString(context, "player")))))
+                .then(profileViewer("pv"))
                 .then(ClientCommands.literal("update")
                         .executes(context -> {
                             com.teslamaps.features.Updater.install();
@@ -1488,6 +1475,29 @@ public class TMapCommand {
             return args.isEmpty() ? expanded : expanded + " " + args;
         }
         return command;
+    }
+
+    /** The same tree for /pv and /tmap pv. */
+    private static com.mojang.brigadier.builder.LiteralArgumentBuilder<FabricClientCommandSource> profileViewer(String name) {
+        return ClientCommands.literal(name)
+                .executes(context -> openProfileViewer(context.getSource(), null))
+                .then(ClientCommands.literal("dump")
+                        .then(ClientCommands.argument("player", StringArgumentType.word())
+                                .executes(context -> {
+                                    String player = StringArgumentType.getString(context, "player");
+                                    context.getSource().sendFeedback(Component.literal("§7Dumping " + player + "..."));
+                                    com.teslamaps.profileviewer.ProfileDump.dump(player);
+                                    return 1;
+                                })))
+                .then(ClientCommands.literal("fake")
+                        .executes(context -> {
+                            com.teslamaps.profileviewer.FakeProfile.open();
+                            return 1;
+                        }))
+                .then(ClientCommands.argument("player", StringArgumentType.word())
+                        .suggests((context, builder) -> suggest(PlayerNameCache.names(), builder))
+                        .executes(context -> openProfileViewer(context.getSource(),
+                                StringArgumentType.getString(context, "player"))));
     }
 
     private static int openProfileViewer(FabricClientCommandSource source, String player) {

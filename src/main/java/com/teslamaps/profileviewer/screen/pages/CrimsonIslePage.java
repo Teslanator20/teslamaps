@@ -2,22 +2,32 @@ package com.teslamaps.profileviewer.screen.pages;
 
 import com.google.gson.JsonObject;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
+import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import com.teslamaps.profileviewer.ui.Kit;
+import com.teslamaps.profileviewer.ui.Ui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/** Crimson Isle: faction standing, kuudra runs and the dojo tests. */
 public class CrimsonIslePage extends ProfileViewerPage {
-    private static final int TEXT_WHITE = 0xFFFFFFFF;
-    private static final int TEXT_GRAY = 0xFF888888;
-    private static final int TEXT_GREEN = 0xFF55FF55;
-    private static final int TEXT_RED = 0xFFFF5555;
-    private static final int TEXT_GOLD = 0xFFFFAA00;
     private static final int MAGE_COLOR = 0xFFAA00AA;
     private static final int BARBARIAN_COLOR = 0xFFFF5500;
-    private static final int BAR_BG = 0xFF333333;
+
+    private static final List<String> KUUDRA_KEYS = List.of("none", "hot", "burning", "fiery", "infernal");
+    private static final List<String> KUUDRA_NAMES = List.of("Basic", "Hot", "Burning", "Fiery", "Infernal");
+    private static final List<Integer> KUUDRA_COLORS = List.of(
+            NeuStyle.TEXT, NeuStyle.TEXT_GOLD, 0xFFFF8800, NeuStyle.TEXT_RED, 0xFFAA0000);
+
+    private static final List<String> DOJO_KEYS = List.of(
+            "dojo_points_mob_kb", "dojo_points_wall_jump", "dojo_points_archer", "dojo_points_sword_swap",
+            "dojo_points_snake", "dojo_points_lock_head", "dojo_points_fireball");
+    private static final List<String> DOJO_NAMES = List.of(
+            "Force", "Stamina", "Mastery", "Discipline", "Swiftness", "Control", "Tenacity");
 
     @Override
     public String getTabName() {
@@ -35,135 +45,140 @@ public class CrimsonIslePage extends ProfileViewerPage {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
 
-        Font tr = Minecraft.getInstance().font;
-        JsonObject memberData = profile.getMemberData();
-        int padding = 15;
-        int contentX = x + padding;
-        int col2X = x + width / 2;
-
-        int lineY = y + padding;
-
-        ctx.text(tr, "Faction Reputation", contentX, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject nether = getNestedObject(memberData, "nether_island_player_data");
+        JsonObject nether = object(profile.getMemberData(), "nether_island_player_data");
         if (nether == null) {
-            ctx.text(tr, "No Crimson Isle data found", contentX, lineY, TEXT_GRAY);
+            ctx.text(net.minecraft.client.Minecraft.getInstance().font, "No Crimson Isle data",
+                    x, y + 6, NeuStyle.TEXT_GRAY);
             return;
         }
 
-        String selectedFaction = nether.has("selected_faction") ?
-                nether.get("selected_faction").getAsString() : "None";
-        int factionColor = selectedFaction.equals("mages") ? MAGE_COLOR : BARBARIAN_COLOR;
-        ctx.text(tr, "Faction: " + capitalize(selectedFaction), contentX, lineY, factionColor);
-        lineY += 14;
-
-        int magesRep = nether.has("mages_reputation") ? nether.get("mages_reputation").getAsInt() : 0;
-        ctx.text(tr, "Mages Rep: " + formatNumber(magesRep), contentX, lineY, MAGE_COLOR);
-        lineY += 12;
-
-        int barbRep = nether.has("barbarians_reputation") ? nether.get("barbarians_reputation").getAsInt() : 0;
-        ctx.text(tr, "Barbarian Rep: " + formatNumber(barbRep), contentX, lineY, BARBARIAN_COLOR);
-        lineY += 20;
-
-        ctx.text(tr, "Kuudra Completions", contentX, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject kuudra = getNestedObject(nether, "kuudra_completed_tiers");
-        if (kuudra != null) {
-            String[] tiers = {"none", "hot", "burning", "fiery", "infernal"};
-            String[] tierNames = {"Basic", "Hot", "Burning", "Fiery", "Infernal"};
-            int[] tierColors = {TEXT_GRAY, TEXT_GOLD, 0xFFFF8800, TEXT_RED, 0xFFAA0000};
-
-            for (int i = 0; i < tiers.length; i++) {
-                int completions = kuudra.has(tiers[i]) ? kuudra.get(tiers[i]).getAsInt() : 0;
-                ctx.text(tr, tierNames[i] + ": " + completions, contentX, lineY,
-                        completions > 0 ? tierColors[i] : TEXT_GRAY);
-                lineY += 12;
-            }
-        }
-
-        lineY = y + padding;
-        ctx.text(tr, "Dojo", col2X, lineY, TEXT_GREEN);
-        lineY += 16;
-
-        JsonObject dojo = getNestedObject(nether, "dojo");
-        if (dojo != null) {
-            String[] dojoTests = {
-                    "dojo_points_mob_kb", "dojo_points_wall_jump", "dojo_points_archer",
-                    "dojo_points_sword_swap", "dojo_points_snake", "dojo_points_lock_head", "dojo_points_fireball"
-            };
-            String[] testNames = {"Force", "Stamina", "Mastery", "Discipline", "Swiftness", "Control", "Tenacity"};
-
-            for (int i = 0; i < dojoTests.length; i++) {
-                int points = dojo.has(dojoTests[i]) ? dojo.get(dojoTests[i]).getAsInt() : 0;
-                String rank = getDojoRank(points);
-                int rankColor = getDojoRankColor(rank);
-
-                ctx.text(tr, testNames[i] + ": " + points + " (" + rank + ")",
-                        col2X, lineY, rankColor);
-                lineY += 12;
-            }
-        }
-
-        if (nether.has("dojo")) {
-            JsonObject dojoData = nether.getAsJsonObject("dojo");
-            int totalPoints = 0;
-            for (var entry : dojoData.entrySet()) {
-                if (entry.getKey().startsWith("dojo_points_") && entry.getValue().isJsonPrimitive()) {
-                    totalPoints += asInt(entry.getValue());
-                }
-            }
-            String belt = getDojoBelt(totalPoints);
-            lineY += 8;
-            ctx.text(tr, "Belt: " + belt + " (" + totalPoints + " pts)", col2X, lineY, TEXT_GOLD);
-        }
+        int available = NeuStyle.PANEL_HEIGHT - y - 6;
+        drawTree(ctx, w -> fitted(nether, w, available), width, x, y, mouseX, mouseY);
     }
 
-    private String getDojoRank(int points) {
+    private Ui fitted(JsonObject nether, int width, int available) {
+        Ui tree = build(nether, width, 2);
+        for (int columns = 3; columns <= 4 && tree.height() > available; columns++) {
+            tree = build(nether, width, columns);
+        }
+        return tree;
+    }
+
+    private Ui build(JsonObject nether, int width, int columns) {
+        return Ui.col(10,
+                header(nether, width),
+                Kit.section("Kuudra Completions", kuudra(nether, width)),
+                Kit.section("Dojo", dojo(nether, width, columns)));
+    }
+
+    private Ui header(JsonObject nether, int width) {
+        String faction = nether.has("selected_faction") && nether.get("selected_faction").isJsonPrimitive()
+                ? nether.get("selected_faction").getAsString() : "none";
+        boolean mage = faction.equalsIgnoreCase("mages");
+        int color = mage ? MAGE_COLOR : BARBARIAN_COLOR;
+
+        int mages = asInt(get(nether, "mages_reputation"));
+        int barbarians = asInt(get(nether, "barbarians_reputation"));
+        int reputation = mage ? mages : barbarians;
+
+        return Ui.col(5,
+                new Ui.SpaceBetween(width,
+                        Ui.row(6, Ui.V.CENTER,
+                                new Ui.Label("Crimson Isle", NeuStyle.TEXT, Ui.SUBTITLE),
+                                new Ui.Label(Kit.prettify(faction), color)),
+                        new Ui.Label(Kit.compact(reputation) + " reputation", NeuStyle.TEXT_GRAY)),
+                Kit.bar(width, reputation / 12000.0, color),
+                Kit.tileRow(width, List.of(
+                        new Kit.TileData("Mages Rep", Kit.compact(mages), MAGE_COLOR),
+                        new Kit.TileData("Barbarian Rep", Kit.compact(barbarians), BARBARIAN_COLOR),
+                        new Kit.TileData("Belt", belt(totalDojoPoints(nether)), NeuStyle.TEXT_GOLD),
+                        new Kit.TileData("Dojo Points", String.valueOf(totalDojoPoints(nether)), NeuStyle.TEXT_AQUA))));
+    }
+
+    private Ui kuudra(JsonObject nether, int width) {
+        JsonObject tiers = object(nether, "kuudra_completed_tiers");
+        List<Kit.TileData> tiles = new ArrayList<>();
+        int total = 0;
+
+        for (int i = 0; i < KUUDRA_KEYS.size(); i++) {
+            int runs = asInt(get(tiers, KUUDRA_KEYS.get(i)));
+            total += runs;
+            tiles.add(new Kit.TileData(KUUDRA_NAMES.get(i), String.valueOf(runs),
+                    runs > 0 ? KUUDRA_COLORS.get(i) : NeuStyle.TEXT_GRAY));
+        }
+        tiles.add(new Kit.TileData("Total", String.valueOf(total), NeuStyle.TEXT));
+
+        return Kit.tileRow(width, tiles);
+    }
+
+    private Ui dojo(JsonObject nether, int width, int columns) {
+        JsonObject dojo = object(nether, "dojo");
+        if (dojo == null) return new Ui.Label("No dojo data", NeuStyle.TEXT_GRAY);
+
+        columns = Math.max(1, Math.min(columns, width / 120));
+        int cellWidth = Kit.cellWidth(width, columns, 12);
+        List<Ui> rows = new ArrayList<>();
+
+        for (int i = 0; i < DOJO_KEYS.size(); i++) {
+            int points = asInt(get(dojo, DOJO_KEYS.get(i)));
+            String rank = rank(points);
+            int color = rankColor(rank);
+
+            rows.add(Ui.col(2,
+                    new Ui.SpaceBetween(cellWidth,
+                            new Ui.Label(DOJO_NAMES.get(i), NeuStyle.TEXT),
+                            Ui.row(6, Ui.V.CENTER,
+                                    new Ui.Label(String.valueOf(points), NeuStyle.TEXT_GRAY),
+                                    new Ui.Label(rank, color))),
+                    Kit.bar(cellWidth, points / 1000.0, color)));
+        }
+
+        return Kit.grid(rows, columns, 12, 6);
+    }
+
+    private static int totalDojoPoints(JsonObject nether) {
+        JsonObject dojo = object(nether, "dojo");
+        if (dojo == null) return 0;
+        int total = 0;
+        for (String key : DOJO_KEYS) total += asInt(get(dojo, key));
+        return total;
+    }
+
+    private static String rank(int points) {
         if (points >= 1000) return "S";
         if (points >= 800) return "A";
         if (points >= 600) return "B";
         if (points >= 400) return "C";
         if (points >= 200) return "D";
-        if (points > 0) return "F";
-        return "-";
+        return points > 0 ? "F" : "-";
     }
 
-    private int getDojoRankColor(String rank) {
+    private static int rankColor(String rank) {
         return switch (rank) {
-            case "S" -> TEXT_GOLD;
-            case "A" -> TEXT_GREEN;
-            case "B" -> 0xFF55FFFF;
-            case "C" -> TEXT_WHITE;
-            case "D" -> TEXT_GRAY;
-            default -> TEXT_GRAY;
+            case "S" -> NeuStyle.TEXT_GOLD;
+            case "A" -> NeuStyle.TEXT_GREEN;
+            case "B" -> NeuStyle.TEXT_AQUA;
+            case "C" -> NeuStyle.TEXT;
+            default -> NeuStyle.TEXT_GRAY;
         };
     }
 
-    private String getDojoBelt(int totalPoints) {
-        if (totalPoints >= 7000) return "Black";
-        if (totalPoints >= 6000) return "Brown";
-        if (totalPoints >= 5000) return "Blue";
-        if (totalPoints >= 4000) return "Green";
-        if (totalPoints >= 3000) return "Yellow";
-        if (totalPoints >= 2000) return "White";
+    private static String belt(int points) {
+        if (points >= 7000) return "Black";
+        if (points >= 6000) return "Brown";
+        if (points >= 5000) return "Blue";
+        if (points >= 4000) return "Green";
+        if (points >= 3000) return "Yellow";
+        if (points >= 2000) return "White";
         return "None";
     }
 
-    private String capitalize(String s) {
-        if (s == null || s.isEmpty()) return s;
-        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    private static JsonObject object(JsonObject parent, String key) {
+        return parent != null && parent.has(key) && parent.get(key).isJsonObject()
+                ? parent.getAsJsonObject(key) : null;
     }
 
-    private JsonObject getNestedObject(JsonObject root, String path) {
-        String[] parts = path.split("\\.");
-        JsonObject current = root;
-        for (String part : parts) {
-            if (current == null || !current.has(part)) return null;
-            if (!current.get(part).isJsonObject()) return null;
-            current = current.getAsJsonObject(part);
-        }
-        return current;
+    private static com.google.gson.JsonElement get(JsonObject parent, String key) {
+        return parent != null && parent.has(key) ? parent.get(key) : null;
     }
 }

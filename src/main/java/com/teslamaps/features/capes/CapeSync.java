@@ -48,23 +48,38 @@ public class CapeSync {
 
     private static final long POLL_MS = 120_000;
     private static final long AUTH_REUSE_MS = 240_000;   // mojang session stays valid a while
-    private static final int MAX_TEXTURE_BYTES = 2 * 1024 * 1024;
+    private static final int MAX_PNG_BYTES = 2 * 1024 * 1024;
+    /** Mirrors the cape function's gif limits, so a doomed upload fails before it starts. */
+    private static final int MAX_GIF_BYTES = 8 * 1024 * 1024;
+    private static final int MAX_GIF_PX = 1024;
 
     private static final HttpClient HTTP = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
-    /** uuid (no dashes) -> capeId, plus hash for customs. Swapped whole on the main thread. */
-    private record Remote(String capeId, String hash) {}
+    /**
+     * uuid (no dashes) -> capeId, plus hash/ext/crop for customs. A custom cape is a
+     * png or a gif; a gif keeps the crop it was imported with, so every client composes
+     * the same sheet from the same untouched source bytes. Swapped whole on the main thread.
+     */
+    private record Remote(String capeId, String hash, String ext, CapeCompose.Crop crop) {
+        boolean animated() { return "gif".equals(ext); }
+    }
     private static volatile Map<String, Remote> remote = Map.of();
 
+    /** What a remote player wears - a still texture or an animation picked by wall clock. */
+    private record Skin(Identifier still, GifCape gif) {
+        Identifier current() { return gif != null ? gif.current() : still; }
+    }
+
     private static final Map<String, Identifier> TEXTURES = new ConcurrentHashMap<>();
+    private static final Map<String, GifCape> GIFS = new ConcurrentHashMap<>();
     private static final Map<String, Boolean> LOADING = new ConcurrentHashMap<>();
     private static final Map<String, Boolean> FAILED = new ConcurrentHashMap<>();
 
     /** Rebuilt per tick; the render path only does this one map get per avatar. */
-    private static volatile Map<Integer, Identifier> byEntityId = Map.of();
+    private static volatile Map<Integer, Skin> byEntityId = Map.of();
 
     private static long lastPoll;
     private static volatile boolean polling;
@@ -106,14 +121,14 @@ public class CapeSync {
             return;
         }
 
-        Map<Integer, Identifier> next = new HashMap<>();
+        Map<Integer, Skin> next = new HashMap<>();
         int self = mc.player.getId();
         for (AbstractClientPlayer player : mc.level.players()) {
             if (player.getId() == self) continue;   // own cape stays the local pick
             Remote entry = capes.get(player.getUUID().toString().replace("-", ""));
             if (entry == null) continue;
-            Identifier texture = resolve(entry);
-            if (texture != null) next.put(player.getId(), texture);
+            Skin skin = resolve(entry);
+            if (skin != null) next.put(player.getId(), skin);
         }
         byEntityId = next;
     }
@@ -121,7 +136,9 @@ public class CapeSync {
     /** Called from CapeManager.textureFor for every non-local avatar, so one map get only. */
     public static Identifier textureFor(int entityId) {
         Identifier preview = previews.get(entityId);
-        return preview != null ? preview : byEntityId.get(entityId);
+        if (preview != null) return preview;
+        Skin skin = byEntityId.get(entityId);
+        return skin == null ? null : skin.current();
     }
 
     /** Is this player a TeslaMaps user? Known because they publish a cape. */
@@ -133,7 +150,9 @@ public class CapeSync {
     public static Identifier capeFor(String uuid) {
         if (uuid == null) return null;
         Remote entry = remote.get(uuid.replace("-", ""));
-        return entry == null ? null : resolve(entry);
+        if (entry == null) return null;
+        Skin skin = resolve(entry);
+        return skin == null ? null : skin.current();
     }
 
     /** Lets the profile viewer put a cape on its own render entity. */
@@ -144,15 +163,17 @@ public class CapeSync {
 
     private static final Map<Integer, Identifier> previews = new ConcurrentHashMap<>();
 
-    private static Identifier resolve(Remote entry) {
+    private static Skin resolve(Remote entry) {
         if (entry.hash() == null) {
             CapeManager.Cape builtin = CapeManager.byId(entry.capeId());
-            return builtin != null && !builtin.custom() ? builtin.texture() : null;
+            return builtin != null && !builtin.custom() ? new Skin(builtin.texture(), null) : null;
         }
+        GifCape animated = GIFS.get(entry.hash());
+        if (animated != null) return new Skin(null, animated);
         Identifier known = TEXTURES.get(entry.hash());
-        if (known != null) return known;
+        if (known != null) return new Skin(known, null);
         if (FAILED.containsKey(entry.hash())) return null;
-        download(entry.hash());
+        download(entry);
         return null;
     }
 
@@ -163,7 +184,7 @@ public class CapeSync {
             try {
                 HttpResponse<String> response = HTTP.send(
                         HttpRequest.newBuilder(URI.create(
-                                        baseUrl() + "/rest/v1/cape_users?select=uuid,cape_id,hash"))
+                                        baseUrl() + "/rest/v1/cape_users?select=uuid,cape_id,hash,ext,crop"))
                                 .timeout(Duration.ofSeconds(20))
                                 .header("apikey", anonKey())
                                 .header("Authorization", "Bearer " + anonKey())
@@ -178,11 +199,17 @@ public class CapeSync {
                     String uuid = string(row, "uuid");
                     String capeId = string(row, "cape_id");
                     String hash = string(row, "hash");
+                    String ext = string(row, "ext");
                     if (uuid == null || capeId == null || capeId.isEmpty()) continue;
                     if (hash != null && !hash.matches("[0-9a-f]{64}")) continue;
-                    next.put(uuid.toLowerCase(java.util.Locale.ROOT), new Remote(capeId, hash));
+                    // the extension is part of the storage key, so anything unknown is dropped
+                    if (ext == null || ext.isEmpty()) ext = "png";
+                    if (!ext.equals("png") && !ext.equals("gif")) continue;
+                    next.put(uuid.toLowerCase(java.util.Locale.ROOT),
+                            new Remote(capeId, hash, ext, CapeCompose.Crop.parse(string(row, "crop"))));
                 }
                 remote = next;
+                prune(next);
             } catch (Throwable t) {
                 TeslaMaps.LOGGER.warn("Cape sync poll failed: {}", t.toString());
             } finally {
@@ -196,21 +223,53 @@ public class CapeSync {
         return element == null || element.isJsonNull() ? null : element.getAsString();
     }
 
-    private static void download(String hash) {
+    /**
+     * Drops textures nobody wears anymore. Matters for gifs: a player swapping capes
+     * would otherwise leave 60 frames on the gpu for the rest of the session. The
+     * entity map is cleared in the same task, so no skin points at a released texture.
+     */
+    private static void prune(Map<String, Remote> live) {
+        if (TEXTURES.isEmpty() && GIFS.isEmpty()) return;
+        java.util.Set<String> keep = new java.util.HashSet<>();
+        for (Remote entry : live.values()) {
+            if (entry.hash() != null) keep.add(entry.hash());
+        }
+        Minecraft.getInstance().execute(() -> {
+            byEntityId = Map.of();
+            for (String hash : new java.util.ArrayList<>(GIFS.keySet())) {
+                if (keep.contains(hash)) continue;
+                GifCape gone = GIFS.remove(hash);
+                if (gone != null) gone.release();
+            }
+            for (String hash : new java.util.ArrayList<>(TEXTURES.keySet())) {
+                if (keep.contains(hash)) continue;
+                Identifier gone = TEXTURES.remove(hash);
+                if (gone != null) Minecraft.getInstance().getTextureManager().release(gone);
+            }
+            FAILED.keySet().retainAll(keep);
+        });
+    }
+
+    private static void download(Remote entry) {
+        String hash = entry.hash();
+        String ext = entry.ext();
+        CapeCompose.Crop crop = entry.crop();
+        boolean gif = entry.animated();
         if (LOADING.putIfAbsent(hash, Boolean.TRUE) != null) return;
         new Thread(() -> {
             try {
                 byte[] data;
-                Path cached = CACHE_DIR.resolve(hash + ".png");
+                Path cached = CACHE_DIR.resolve(hash + "." + ext);
                 if (Files.isRegularFile(cached)) {
                     data = Files.readAllBytes(cached);
                 } else {
                     HttpResponse<byte[]> response = HTTP.send(
-                            HttpRequest.newBuilder(URI.create(
-                                            baseUrl() + "/storage/v1/object/public/capes/" + hash + ".png"))
+                            HttpRequest.newBuilder(URI.create(baseUrl()
+                                            + "/storage/v1/object/public/capes/" + hash + "." + ext))
                                     .timeout(Duration.ofSeconds(30)).GET().build(),
                             HttpResponse.BodyHandlers.ofByteArray());
-                    if (response.statusCode() != 200 || response.body().length > MAX_TEXTURE_BYTES) {
+                    int limit = gif ? MAX_GIF_BYTES : MAX_PNG_BYTES;
+                    if (response.statusCode() != 200 || response.body().length > limit) {
                         FAILED.put(hash, Boolean.TRUE);
                         return;
                     }
@@ -224,6 +283,10 @@ public class CapeSync {
                     Path temp = cached.resolveSibling(hash + ".tmp");
                     Files.write(temp, data);
                     Files.move(temp, cached, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                }
+                if (gif) {
+                    uploadGif(hash, data, crop);
+                    return;
                 }
                 byte[] bytes = data;
                 Minecraft.getInstance().execute(() -> {
@@ -244,6 +307,32 @@ public class CapeSync {
                 LOADING.remove(hash);
             }
         }, "TeslaMaps cape download").start();
+    }
+
+    /**
+     * Decodes a synced gif on the download thread and hands the frames to the texture
+     * manager. Strangers' capes get the smaller budget - a crowded lobby can otherwise
+     * hold a dozen animations at once.
+     */
+    private static void uploadGif(String hash, byte[] data, CapeCompose.Crop crop) {
+        GifCape.Decoded decoded;
+        try {
+            decoded = GifCape.decode(data, crop, GifCape.Budget.SYNCED);
+        } catch (Throwable t) {
+            FAILED.put(hash, Boolean.TRUE);
+            LOADING.remove(hash);
+            return;
+        }
+        Minecraft.getInstance().execute(() -> {
+            try {
+                GIFS.put(hash, GifCape.upload("sync/" + hash, decoded));
+            } catch (Throwable t) {
+                decoded.close();
+                FAILED.put(hash, Boolean.TRUE);
+            } finally {
+                LOADING.remove(hash);
+            }
+        });
     }
 
     // ---- upload side ----
@@ -273,19 +362,25 @@ public class CapeSync {
                 body.addProperty("capeId", cape.id);
                 done = "§aCape shown to everyone";
             } else {
-                byte[] png;
-                try {
-                    png = encodeForUpload(Files.readAllBytes(cape.file));
-                } catch (Throwable t) {
-                    png = null;
-                }
-                if (png == null) {
-                    result(feedback, "§cNot a valid cape texture");
-                    return;
-                }
+                byte[] animated = cape.animated ? raw(cape) : null;
                 body.addProperty("action", "upload");
-                body.addProperty("png", Base64.getEncoder().encodeToString(png));
-                done = "§aCape shown to everyone";
+                if (animated != null) {
+                    // the gif goes up untouched, everyone else composes it with the same crop
+                    body.addProperty("png", Base64.getEncoder().encodeToString(animated));
+                    CapeCompose.Crop crop = cape.crop();
+                    if (crop != null) body.addProperty("crop", crop.store());
+                    done = "§aAnimated cape shown to everyone";
+                } else {
+                    byte[] png = still(cape);
+                    if (png == null) {
+                        result(feedback, "§cNot a valid cape texture");
+                        return;
+                    }
+                    body.addProperty("png", Base64.getEncoder().encodeToString(png));
+                    done = cape.animated
+                            ? "§eToo big to animate online - shared as a still"
+                            : "§aCape shown to everyone";
+                }
             }
             result(feedback, callFunction(body, done));
         }, "TeslaMaps cape publish").start();
@@ -307,29 +402,40 @@ public class CapeSync {
             return;
         }
         new Thread(() -> {
-            byte[] png;
-            try {
-                png = encodeForUpload(Files.readAllBytes(cape.file));
-            } catch (Throwable t) {
-                png = null;
+            byte[] animated = cape.animated ? raw(cape) : null;
+            byte[] data = animated;
+            if (data == null) {
+                try {
+                    data = encodeForUpload(cape.animated
+                            ? GifCape.firstSheetPng(Files.readAllBytes(cape.file), cape.crop())
+                            : Files.readAllBytes(cape.file));
+                } catch (Throwable t) {
+                    data = null;
+                }
             }
-            if (png == null) {
+            if (data == null) {
                 result(feedback, "§cNot a valid cape texture");
                 return;
             }
             JsonObject body = new JsonObject();
             body.addProperty("action", "gallery");
-            body.addProperty("png", Base64.getEncoder().encodeToString(png));
+            body.addProperty("png", Base64.getEncoder().encodeToString(data));
             body.addProperty("name", cape.name);
             body.addProperty("category", "Community");
-            String line = callFunction(body, "§aAdded to the gallery");
+            if (animated != null) {
+                CapeCompose.Crop crop = cape.crop();
+                if (crop != null) body.addProperty("crop", crop.store());
+            }
+            String line = callFunction(body, animated != null
+                    ? "§aAdded to the gallery, animated"
+                    : "§aAdded to the gallery");
             if (line.startsWith("§a")) CapeGallery.refresh();
             result(feedback, line);
         }, "TeslaMaps gallery publish").start();
     }
 
     /** Admin only (server-side UUID whitelist): removes a cape from the shared gallery. */
-    public static void galleryDelete(String slug, Consumer<String> feedback) {
+    public static void galleryDelete(String path, Consumer<String> feedback) {
         if (!enabled()) {
             feedback.accept("§cCape server is not configured");
             return;
@@ -337,7 +443,7 @@ public class CapeSync {
         new Thread(() -> {
             JsonObject body = new JsonObject();
             body.addProperty("action", "gallery_delete");
-            body.addProperty("path", "gallery/" + slug + ".png");
+            body.addProperty("path", path);
             String line = callFunction(body, "§7Removed from the gallery");
             if (line.startsWith("§7")) CapeGallery.refresh();
             result(feedback, line);
@@ -408,6 +514,38 @@ public class CapeSync {
                         .header("Authorization", "Bearer " + anonKey())
                         .POST(HttpRequest.BodyPublishers.ofString(body.toString())).build(),
                 HttpResponse.BodyHandlers.ofString());
+    }
+
+    /**
+     * The untouched gif of an animated cape, or null when it busts the server's limits -
+     * the caller then falls back to publishing a still.
+     */
+    /**
+     * An animated cape's bytes exactly as they go online, or null when the gif busts
+     * the server's limits - the caller then falls back to {@link #still}.
+     */
+    private static byte[] raw(CapeManager.Cape cape) {
+        try {
+            byte[] data = Files.readAllBytes(cape.file);
+            if (!GifCape.isGif(data) || data.length > MAX_GIF_BYTES) return null;
+            int[] size = GifCape.canvasSize(data);
+            if (size[0] > MAX_GIF_PX || size[1] > MAX_GIF_PX) return null;
+            // without a crop the server wants a finished 2:1 sheet
+            return cape.crop() == null && size[0] != size[1] * 2 ? null : data;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    /** What goes online for a local cape - an animated one is published as its first frame. */
+    private static byte[] still(CapeManager.Cape cape) {
+        try {
+            byte[] data = Files.readAllBytes(cape.file);
+            return encodeForUpload(cape.animated
+                    ? GifCape.firstSheetPng(data, cape.crop()) : data);
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     /** Fits the png into the server's limits: 2:1 layout, max 1024x512, max 1 MB. */

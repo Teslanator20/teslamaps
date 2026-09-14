@@ -40,6 +40,11 @@ public class TrophyFishPage extends ProfileViewerPage {
     };
 
     @Override
+    public boolean isFixedLayout() {
+        return true;
+    }
+
+    @Override
     public String getTabName() {
         return "Trophy Fish";
     }

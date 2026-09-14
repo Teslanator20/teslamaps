@@ -116,8 +116,11 @@ public class SkillData {
         return formatNumber(totalXp);
     }
 
+    /** Billions got no step of their own, so a maxed skill read 2367.4M. */
     private static String formatNumber(double num) {
-        if (num >= 1_000_000) {
+        if (num >= 1_000_000_000) {
+            return String.format("%.3fB", num / 1_000_000_000);
+        } else if (num >= 1_000_000) {
             return String.format("%.1fM", num / 1_000_000);
         } else if (num >= 1_000) {
             return String.format("%.1fK", num / 1_000);

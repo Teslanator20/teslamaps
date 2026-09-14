@@ -42,26 +42,27 @@ public class NeuStyle {
     public static final int TEXT_PURPLE = 0xFFAA00AA;
     public static final int TEXT_LIGHT_PURPLE = 0xFFFF55FF;
 
-    private static final int SELECTED_EDGE = 0xFFFFCC33;
+    // a thin strip on the edge the tab opens towards, instead of a ring around the whole thing
+    private static final int ACCENT = 0xFF3FE0D0;
 
     /** Tab above the window: 28 wide, the selected one is lit and reaches into the frame. */
     public static void tab(GuiGraphicsExtractor ctx, int x, int y, boolean selected) {
         int h = selected ? 32 : 31;
-        ctx.fill(x, y, x + 28, y + h, selected ? SELECTED_EDGE : OUTLINE);
+        ctx.fill(x, y, x + 28, y + h, OUTLINE);
         ctx.fill(x + 1, y + 1, x + 27, y + h, FRAME);
         ctx.fill(x + 3, y + 3, x + 25, y + h, selected ? BODY_LIGHT : BODY);
         if (selected) {
-            ctx.fill(x + 1, y + 1, x + 27, y + 2, SELECTED_EDGE);
+            ctx.fill(x + 3, y + 1, x + 25, y + 3, ACCENT);
         }
     }
 
     /** Recent player tab on the right edge. */
     public static void sideTab(GuiGraphicsExtractor ctx, int x, int y, boolean selected) {
-        ctx.fill(x, y, x + 29, y + 28, selected ? SELECTED_EDGE : OUTLINE);
+        ctx.fill(x, y, x + 29, y + 28, OUTLINE);
         ctx.fill(x, y + 1, x + 28, y + 27, FRAME);
         ctx.fill(x, y + 3, x + 26, y + 25, selected ? BODY_LIGHT : BODY);
         if (selected) {
-            ctx.fill(x + 26, y + 1, x + 28, y + 27, SELECTED_EDGE);
+            ctx.fill(x + 26, y + 3, x + 28, y + 25, ACCENT);
         }
     }
 
