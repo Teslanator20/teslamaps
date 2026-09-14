@@ -189,6 +189,7 @@ public class PestRoutine {
             pestPlot = matcher.group("plot").trim();
             pestPlotTime = System.currentTimeMillis();
             PestData.onPestSpawn();
+            PestOverlay.onPestSpawn(pestPlot);
             // Don't rewind if the fight half is already running.
             if (step == Step.WAIT_COOLDOWN || step.ordinal() <= Step.WAIT_PEST.ordinal()) {
                 step = Step.SETSPAWN;

@@ -70,6 +70,21 @@ public class PestOverlay {
     private static final long NAG_INTERVAL = 5_000L;
 
     /**
+     * The spawn line in chat arrives a good second before the tab list catches
+     * up, so the teleport reminder is fired straight off it instead of waiting
+     * for the pest count to appear.
+     */
+    public static void onPestSpawn(String plot) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!config.pestTpReminder || !SkyblockUtils.isInGarden()) return;
+
+        String here = PestData.currentPlot();
+        if (plot != null && here != null && here.equalsIgnoreCase(plot)) return;
+
+        warn(config, "§cPests in Plot - " + (plot == null ? "?" : plot), "§7not on their plot");
+    }
+
+    /**
      * Keeps warning while something is being left on the table, rather than
      * saying it once and letting the moment pass.
      * <p>
@@ -94,9 +109,12 @@ public class PestOverlay {
             return;
         }
 
-        long now = System.currentTimeMillis();
-        if (now - lastNag < NAG_INTERVAL) return;
-        lastNag = now;
+        if (System.currentTimeMillis() - lastNag < NAG_INTERVAL) return;
+        warn(config, title, subtitle);
+    }
+
+    private static void warn(TeslaMapsConfig config, String title, String subtitle) {
+        lastNag = System.currentTimeMillis();
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.gui != null) {

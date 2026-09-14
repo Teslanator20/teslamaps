@@ -52,8 +52,9 @@ public class SkyblockItems {
     private static final Pattern NEU_ITEM_ID = Pattern.compile("\"itemid\"\\s*:\\s*\"([^\"]+)\"");
     private static final Pattern NEU_DISPLAYNAME = Pattern.compile("\"displayname\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
     private static final Pattern NEU_ITEM_MODEL = Pattern.compile("ItemModel:\\\\?\"([a-z0-9_:/.\\-]+)\\\\?\"");
+    private static final Pattern NEU_DAMAGE = Pattern.compile("\"damage\"\\s*:\\s*(\\d+)");
 
-    private record ItemData(String material, String skin, String tier, String model) {}
+    private record ItemData(String material, int damage, String skin, String tier, String model) {}
 
     private static final Map<String, ItemData> items = new ConcurrentHashMap<>();
     private static final Map<String, String> nameToId = new ConcurrentHashMap<>();
@@ -186,6 +187,103 @@ public class SkyblockItems {
         LEGACY.put("SULPHUR", "gunpowder");
     }
 
+    /**
+     * 1.8 materials where the damage value picks the item. Without this every dye
+     * is an ink sac and every wool is white.
+     */
+    private static final Map<String, String[]> DAMAGE = new HashMap<>();
+
+    private static String[] colored(String prefix, String suffix) {
+        String[] colors = {"white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray",
+                "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"};
+        String[] out = new String[16];
+        for (int i = 0; i < 16; i++) out[i] = prefix + colors[i] + suffix;
+        return out;
+    }
+
+    static {
+        DAMAGE.put("INK_SACK", new String[]{"ink_sac", "red_dye", "green_dye", "cocoa_beans", "lapis_lazuli",
+                "purple_dye", "cyan_dye", "light_gray_dye", "gray_dye", "pink_dye", "lime_dye", "yellow_dye",
+                "light_blue_dye", "magenta_dye", "orange_dye", "bone_meal"});
+        DAMAGE.put("WOOL", colored("", "_wool"));
+        DAMAGE.put("CARPET", colored("", "_carpet"));
+        DAMAGE.put("STAINED_CLAY", colored("", "_terracotta"));
+        DAMAGE.put("STAINED_GLASS", colored("", "_stained_glass"));
+        DAMAGE.put("STAINED_GLASS_PANE", colored("", "_stained_glass_pane"));
+        DAMAGE.put("BANNER", colored("", "_banner"));
+        DAMAGE.put("LOG", new String[]{"oak_log", "spruce_log", "birch_log", "jungle_log"});
+        DAMAGE.put("LOG_2", new String[]{"acacia_log", "dark_oak_log"});
+        DAMAGE.put("LEAVES", new String[]{"oak_leaves", "spruce_leaves", "birch_leaves", "jungle_leaves"});
+        DAMAGE.put("LEAVES_2", new String[]{"acacia_leaves", "dark_oak_leaves"});
+        DAMAGE.put("SAPLING", new String[]{"oak_sapling", "spruce_sapling", "birch_sapling", "jungle_sapling",
+                "acacia_sapling", "dark_oak_sapling"});
+        DAMAGE.put("WOOD", new String[]{"oak_planks", "spruce_planks", "birch_planks", "jungle_planks",
+                "acacia_planks", "dark_oak_planks"});
+        DAMAGE.put("WOOD_STEP", new String[]{"oak_slab", "spruce_slab", "birch_slab", "jungle_slab",
+                "acacia_slab", "dark_oak_slab"});
+        DAMAGE.put("STEP", new String[]{"smooth_stone_slab", "sandstone_slab", "oak_slab", "cobblestone_slab",
+                "brick_slab", "stone_brick_slab", "nether_brick_slab", "quartz_slab"});
+        DAMAGE.put("STONE", new String[]{"stone", "granite", "polished_granite", "diorite", "polished_diorite",
+                "andesite", "polished_andesite"});
+        DAMAGE.put("SMOOTH_BRICK", new String[]{"stone_bricks", "mossy_stone_bricks", "cracked_stone_bricks",
+                "chiseled_stone_bricks"});
+        DAMAGE.put("SANDSTONE", new String[]{"sandstone", "chiseled_sandstone", "cut_sandstone"});
+        DAMAGE.put("RED_SANDSTONE", new String[]{"red_sandstone", "chiseled_red_sandstone", "cut_red_sandstone"});
+        DAMAGE.put("DIRT", new String[]{"dirt", "coarse_dirt", "podzol"});
+        DAMAGE.put("SAND", new String[]{"sand", "red_sand"});
+        DAMAGE.put("SPONGE", new String[]{"sponge", "wet_sponge"});
+        DAMAGE.put("COAL", new String[]{"coal", "charcoal"});
+        DAMAGE.put("GOLDEN_APPLE", new String[]{"golden_apple", "enchanted_golden_apple"});
+        DAMAGE.put("RAW_FISH", new String[]{"cod", "salmon", "tropical_fish", "pufferfish"});
+        DAMAGE.put("COOKED_FISH", new String[]{"cooked_cod", "cooked_salmon"});
+        DAMAGE.put("RED_ROSE", new String[]{"poppy", "blue_orchid", "allium", "azure_bluet", "red_tulip",
+                "orange_tulip", "white_tulip", "pink_tulip", "oxeye_daisy"});
+        DAMAGE.put("DOUBLE_PLANT", new String[]{"sunflower", "lilac", "tall_grass", "large_fern", "rose_bush", "peony"});
+        DAMAGE.put("LONG_GRASS", new String[]{"dead_bush", "short_grass", "fern"});
+        DAMAGE.put("PRISMARINE", new String[]{"prismarine", "prismarine_bricks", "dark_prismarine"});
+        DAMAGE.put("QUARTZ_BLOCK", new String[]{"quartz_block", "chiseled_quartz_block", "quartz_pillar"});
+        DAMAGE.put("COBBLE_WALL", new String[]{"cobblestone_wall", "mossy_cobblestone_wall"});
+        DAMAGE.put("ANVIL", new String[]{"anvil", "chipped_anvil", "damaged_anvil"});
+    }
+
+    /** NEU's 1.8 material names for the damage-split materials above. */
+    private static final Map<String, String> NEU_MATERIAL = new HashMap<>();
+
+    static {
+        NEU_MATERIAL.put("dye", "INK_SACK");
+        NEU_MATERIAL.put("wool", "WOOL");
+        NEU_MATERIAL.put("carpet", "CARPET");
+        NEU_MATERIAL.put("stained_hardened_clay", "STAINED_CLAY");
+        NEU_MATERIAL.put("stained_glass", "STAINED_GLASS");
+        NEU_MATERIAL.put("stained_glass_pane", "STAINED_GLASS_PANE");
+        NEU_MATERIAL.put("log", "LOG");
+        NEU_MATERIAL.put("log2", "LOG_2");
+        NEU_MATERIAL.put("leaves", "LEAVES");
+        NEU_MATERIAL.put("leaves2", "LEAVES_2");
+        NEU_MATERIAL.put("sapling", "SAPLING");
+        NEU_MATERIAL.put("planks", "WOOD");
+        NEU_MATERIAL.put("wooden_slab", "WOOD_STEP");
+        NEU_MATERIAL.put("stone_slab", "STEP");
+        NEU_MATERIAL.put("stone", "STONE");
+        NEU_MATERIAL.put("stonebrick", "SMOOTH_BRICK");
+        NEU_MATERIAL.put("sandstone", "SANDSTONE");
+        NEU_MATERIAL.put("red_sandstone", "RED_SANDSTONE");
+        NEU_MATERIAL.put("dirt", "DIRT");
+        NEU_MATERIAL.put("sand", "SAND");
+        NEU_MATERIAL.put("sponge", "SPONGE");
+        NEU_MATERIAL.put("coal", "COAL");
+        NEU_MATERIAL.put("golden_apple", "GOLDEN_APPLE");
+        NEU_MATERIAL.put("fish", "RAW_FISH");
+        NEU_MATERIAL.put("cooked_fish", "COOKED_FISH");
+        NEU_MATERIAL.put("red_flower", "RED_ROSE");
+        NEU_MATERIAL.put("double_plant", "DOUBLE_PLANT");
+        NEU_MATERIAL.put("tallgrass", "LONG_GRASS");
+        NEU_MATERIAL.put("prismarine", "PRISMARINE");
+        NEU_MATERIAL.put("quartz_block", "QUARTZ_BLOCK");
+        NEU_MATERIAL.put("cobble_wall", "COBBLE_WALL");
+        NEU_MATERIAL.put("anvil", "ANVIL");
+    }
+
     /** Kicks off the one-off item table load. Safe to call repeatedly. */
     public static void load() {
         if (loaded || loading) return;
@@ -209,7 +307,8 @@ public class SkyblockItems {
                     }
                     String tier = item.has("tier") ? item.get("tier").getAsString() : "";
                     String model = item.has("item_model") ? item.get("item_model").getAsString() : null;
-                    items.put(id, new ItemData(material, skin, tier, model));
+                    int damage = item.has("durability") ? item.get("durability").getAsInt() : 0;
+                    items.put(id, new ItemData(material, damage, skin, tier, model));
 
                     if (item.has("name")) {
                         String display = item.get("name").getAsString();
@@ -319,6 +418,32 @@ public class SkyblockItems {
         return out.toString();
     }
 
+    /**
+     * Adds a name for an id the item table does not carry, e.g. the bazaar-only
+     * shards and enchanted books. Never overwrites a name Hypixel handed out.
+     */
+    public static void registerName(String id, String displayName) {
+        if (id == null || displayName == null || id.isEmpty() || displayName.isBlank()) return;
+        String key = displayName.toLowerCase(Locale.ROOT);
+        nameToId.putIfAbsent(key, id);
+        originalNames.putIfAbsent(key, displayName);
+        idToName.putIfAbsent(id, displayName);
+    }
+
+    private static final Map<String, String> neuAliases = new ConcurrentHashMap<>();
+
+    /** NEU files a few ids under its own name: SHARD_GROVE is ATTRIBUTE_SHARD_NATURE_ELEMENTAL;1. */
+    public static void registerNeuAlias(String id, String neuId) {
+        if (id == null || neuId == null || id.isEmpty() || neuId.isEmpty()) return;
+        neuAliases.put(id, neuId);
+    }
+
+    private static String neuIdFor(String id) {
+        String alias = neuAliases.get(id);
+        if (alias == null) return id;
+        return java.net.URLEncoder.encode(alias, StandardCharsets.UTF_8).replace("+", "%20");
+    }
+
     /** Hypixel's own name -> id mapping, null when the name is unknown. */
     public static String idForName(String displayName) {
         load();
@@ -355,7 +480,7 @@ public class SkyblockItems {
 
         ItemData data = items.get(id);
         if (data != null) {
-            ItemStack stack = build(data.material(), data.skin(), data.model());
+            ItemStack stack = build(data.material(), data.damage(), data.skin(), data.model());
             stacks.put(id, stack);
             if (!stack.isEmpty()) callback.accept(stack);
             return;
@@ -366,14 +491,17 @@ public class SkyblockItems {
             String material = null;
             String skin = null;
             String model = null;
+            int damage = 0;
             try {
-                String body = get(String.format(NEU_URL, id));
+                String body = get(String.format(NEU_URL, neuIdFor(id)));
                 Matcher texture = NEU_TEXTURE.matcher(body);
                 if (texture.find()) skin = texture.group(1);
                 Matcher itemId = NEU_ITEM_ID.matcher(body);
                 if (itemId.find()) material = itemId.group(1);
                 Matcher itemModel = NEU_ITEM_MODEL.matcher(body);
                 if (itemModel.find()) model = itemModel.group(1);
+                Matcher neuDamage = NEU_DAMAGE.matcher(body);
+                if (neuDamage.find()) damage = Integer.parseInt(neuDamage.group(1));
                 Matcher displayName = NEU_DISPLAYNAME.matcher(body);
                 if (displayName.find()) neuNames.put(id, unescape(displayName.group(1)));
             } catch (Exception e) {
@@ -383,8 +511,9 @@ public class SkyblockItems {
             String finalMaterial = material;
             String finalSkin = skin;
             String finalModel = model;
+            int finalDamage = damage;
             Minecraft.getInstance().execute(() -> {
-                ItemStack stack = build(finalMaterial, finalSkin, finalModel);
+                ItemStack stack = build(finalMaterial, finalDamage, finalSkin, finalModel);
                 if (stack.isEmpty()) {
                     // A dead id or a failed request: let a later call try again
                     // instead of caching the miss for the whole session.
@@ -423,12 +552,12 @@ public class SkyblockItems {
         return client.send(request, HttpResponse.BodyHandlers.ofString()).body();
     }
 
-    private static ItemStack build(String material, String skin, String model) {
+    private static ItemStack build(String material, int damage, String skin, String model) {
         if (skin != null && !skin.isEmpty()) {
             ItemStack head = skull(skin);
             if (head != null) return head;
         }
-        Item item = itemFor(material);
+        Item item = itemFor(material, damage);
         if (item == null) return ItemStack.EMPTY;
         ItemStack stack = new ItemStack(item);
         // Hypixel skins many items via the item-model component; the model lives in
@@ -440,11 +569,18 @@ public class SkyblockItems {
         return stack;
     }
 
-    private static Item itemFor(String material) {
+    private static Item itemFor(String material, int damage) {
         if (material == null || material.isEmpty()) return null;
 
-        String path = material.contains(":") ? material.substring(material.indexOf(':') + 1)
-                : LEGACY.getOrDefault(material, material.toLowerCase(Locale.ROOT));
+        // NEU spells the same 1.8 material "minecraft:dye" where Hypixel says INK_SACK
+        String key = material.contains(":") ? material.substring(material.indexOf(':') + 1) : material;
+        key = NEU_MATERIAL.getOrDefault(key.toLowerCase(Locale.ROOT), key.toUpperCase(Locale.ROOT));
+
+        String[] variants = DAMAGE.get(key);
+        String path;
+        if (variants != null && damage >= 0 && damage < variants.length) path = variants[damage];
+        else if (material.contains(":")) path = material.substring(material.indexOf(':') + 1);
+        else path = LEGACY.getOrDefault(material, material.toLowerCase(Locale.ROOT));
         // NEU still says "skull" where the item is now a player head.
         if (path.equals("skull")) path = "player_head";
 

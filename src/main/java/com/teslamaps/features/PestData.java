@@ -25,6 +25,9 @@ public class PestData {
     // plot name and the count.
     private static final Pattern PLOT_PESTS = Pattern.compile(
             "\\s*Plot - (?<plot>.+?)\\s+\\S*\\s*x(?<pests>\\d+)");
+    // Same line without the pest part, for "which plot am I on".
+    private static final Pattern CURRENT_PLOT = Pattern.compile(
+            "\\s*Plot - (?<plot>.+?)(?:\\s+\\S*\\s*x\\d+)?\\s*$");
     private static final Pattern SPRAY = Pattern.compile(
             "\\s*Spray: (?<spray>.+?) \\((?<time>[^)]+)\\)");
     private static final Pattern BONUS_PEST_CHANCE = Pattern.compile("\\s*Bonus Pest Chance: (?<value>.+)");
@@ -231,6 +234,15 @@ public class PestData {
             if (matcher.find()) return Integer.parseInt(matcher.group("pests"));
         }
         return 0;
+    }
+
+    /** Plot the player is standing on, or null. */
+    public static String currentPlot() {
+        for (String raw : ScoreboardUtils.getScoreboardLines()) {
+            Matcher matcher = CURRENT_PLOT.matcher(strip(raw));
+            if (matcher.find()) return matcher.group("plot").trim();
+        }
+        return null;
     }
 
     /** "1m 20s" -> 80. */

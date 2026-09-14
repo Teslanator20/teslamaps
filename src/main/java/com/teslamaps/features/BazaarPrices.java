@@ -166,8 +166,82 @@ public class BazaarPrices {
         return id != null && (prices.containsKey(id) || buyPrices.containsKey(id));
     }
 
+    /** Every product id the bazaar returned, names or not. */
+    private static final java.util.Set<String> productIds = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    private static volatile boolean namesSynced = false;
+
+    private static final String[] ROMAN =
+            {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
+
+    /** "WIKI_TIKI" -> "Wiki Tiki". */
+    private static String title(String id) {
+        StringBuilder out = new StringBuilder(id.length());
+        for (String part : id.split("_")) {
+            if (part.isEmpty()) continue;
+            if (!out.isEmpty()) out.append(' ');
+            out.append(Character.toUpperCase(part.charAt(0)))
+                    .append(part.substring(1).toLowerCase(Locale.ROOT));
+        }
+        return out.toString();
+    }
+
+    /**
+     * Display name for a bazaar id the item resource does not carry. Shards,
+     * enchanted books, essences and chocolate rabbits are roughly half the bazaar
+     * and would otherwise never show up in the search.
+     */
+    private static String nameFor(String id) {
+        if (id.startsWith("SHARD_")) {
+            com.teslamaps.features.hunting.ShardData.Shard shard =
+                    com.teslamaps.features.hunting.ShardData.bySkyblockId(id);
+            if (shard != null && !shard.internalName().isEmpty()) {
+                com.teslamaps.utils.SkyblockItems.registerNeuAlias(id, shard.internalName());
+            }
+            String base = shard != null && !shard.displayName().isEmpty()
+                    ? shard.displayName() : title(id.substring(6));
+            return base + " Shard";
+        }
+        if (id.startsWith("ESSENCE_")) return title(id.substring(8)) + " Essence";
+        if (id.startsWith("FACTION_RABBIT_")) return title(id.substring(15));
+        if (id.startsWith("ENCHANTMENT_")) {
+            String rest = id.substring(12);
+            int cut = rest.lastIndexOf('_');
+            int level = 0;
+            if (cut > 0) {
+                try {
+                    level = Integer.parseInt(rest.substring(cut + 1));
+                    rest = rest.substring(0, cut);
+                } catch (NumberFormatException ignored) {
+                }
+            }
+            if (rest.startsWith("ULTIMATE_")) rest = rest.substring(9);
+            String name = title(rest);
+            return level > 0 && level < ROMAN.length ? name + " " + ROMAN[level] : name;
+        }
+        return title(id);
+    }
+
+    /** Feeds the bazaar-only ids into the item name table so the search can find them. */
+    private static void syncNames() {
+        if (namesSynced || productIds.isEmpty()) return;
+        com.teslamaps.features.hunting.ShardData.load();
+        if (!com.teslamaps.utils.SkyblockItems.loaded()
+                || !com.teslamaps.features.hunting.ShardData.loaded()) return;
+
+        int added = 0;
+        for (String id : productIds) {
+            if (com.teslamaps.utils.SkyblockItems.name(id) != null) continue;
+            com.teslamaps.utils.SkyblockItems.registerName(id, nameFor(id));
+            added++;
+        }
+        namesSynced = true;
+        TeslaMaps.LOGGER.info("Named {} bazaar-only items", added);
+    }
+
     public static void refreshIfStale() {
         com.teslamaps.utils.SkyblockItems.load();
+        syncNames();
 
         long now = System.currentTimeMillis();
         if (fetching || now - lastFetch < REFRESH_MS) return;
@@ -189,6 +263,7 @@ public class BazaarPrices {
 
                 Map<String, Double> parsed = new HashMap<>();
                 Map<String, Double> parsedBuy = new HashMap<>();
+                productIds.addAll(products.keySet());
                 for (String id : products.keySet()) {
                     JsonObject status = products.getAsJsonObject(id).getAsJsonObject("quick_status");
                     if (status == null) continue;
