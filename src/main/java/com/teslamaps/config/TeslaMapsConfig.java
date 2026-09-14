@@ -631,6 +631,7 @@ public class TeslaMapsConfig {
     public int farmProfitY = 200;
     public float farmProfitScale = 1.0f;
     public int farmProfitRows = 4;                  // Items listed in the profit panel
+    public String farmPriceMode = "Instant Sell";   // Instant Sell / Sell Offer / NPC
     public boolean farmingSensitivity = false;      // Drop sensitivity while holding a farming tool
     public float farmingSensitivityValue = 0.0f;    // Sensitivity to use while it applies
     public boolean pestOverlay = true;              // Cooldown / alive / infested plots panel
@@ -1534,6 +1535,7 @@ public class TeslaMapsConfig {
         if (oldGeneral != null) c.sectionEnabled.putIfAbsent("Skills", oldGeneral);
         Boolean oldDragons = c.sectionEnabled.remove("Dragons"); // category merged into F7 / M7
         if (Boolean.FALSE.equals(oldDragons)) c.witherDragons = false;
+        if (c.farmPriceMode == null || c.farmPriceMode.isBlank()) c.farmPriceMode = "Instant Sell";
         if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
         if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();

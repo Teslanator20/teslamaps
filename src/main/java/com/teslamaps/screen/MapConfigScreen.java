@@ -1771,6 +1771,9 @@ public class MapConfigScreen extends Screen {
                 () -> config.farmProfit, v -> config.farmProfit = v));
         garden.add(new SliderEntry(contentX, contentWidth, "Items Listed", 0f, 12f,
                 () -> (float) config.farmProfitRows, v -> config.farmProfitRows = (int) (float) v, 0));
+        garden.add(new DropdownEntry(contentX, contentWidth, "Price Basis",
+                new String[]{"Instant Sell", "Sell Offer", "NPC"},
+                () -> config.farmPriceMode, v -> config.farmPriceMode = v));
         garden.add(new ButtonEntry(contentX, contentWidth, "Show Breakdown In Chat",
                 () -> com.teslamaps.features.FarmProfit.printBreakdown()));
         garden.add(new ButtonEntry(contentX, contentWidth, "Reset Session Profit",

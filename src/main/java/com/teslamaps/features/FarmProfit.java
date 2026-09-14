@@ -253,14 +253,21 @@ public class FarmProfit {
                 continue;
             }
 
-            // Leaving a sack is never a loss of income. It was earned once and
-            // spending it does not unearn it — crafting Enchanted Cookies out of
-            // stored cocoa used to wipe the cocoa straight off the tracker.
             String upper = upperTier(normalize(item));
             if (upper != null && gained.containsKey(upper)) continue;   // compactor
 
-            // Anything else taken out shows up in the inventory next; hold it
-            // against that so it is not counted a second time on arrival.
+            // A message that also carries gains is a craft: the material turned
+            // into the item above, and that item is booked as income. Crafting
+            // Enchanted Cookies out of stored cocoa paid for the same beans
+            // twice otherwise, once as cocoa and once as cookies.
+            if (!gained.isEmpty()) {
+                deduct(item, -amount);
+                continue;
+            }
+
+            // Taken out on its own is not a loss — it was earned once and moving
+            // it does not unearn it. It shows up in the inventory next, so hold
+            // it against that and it is not counted a second time on arrival.
             credit(item, -amount);
         }
     }
@@ -544,6 +551,17 @@ public class FarmProfit {
             if (converted > 0) record(lower, -converted * TIER_RATIO, false);
         }
         record(item, amount, false);
+    }
+
+    /**
+     * Takes material that was consumed back off the tracker, never more than was
+     * booked for it. Deducting blind would turn material that was bought rather
+     * than farmed into a phantom loss.
+     */
+    private static void deduct(String item, long amount) {
+        item = normalize(item);
+        long off = Math.min(amount, ledger.getOrDefault(item, 0L));
+        if (off > 0) record(item, -off, false);
     }
 
     private static void record(String item, long amount, boolean pest) {

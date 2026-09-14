@@ -113,6 +113,32 @@ public class BazaarPrices {
         return known != null ? known : idFromName(displayName);
     }
 
+    /** How the player intends to turn the drop into coins. */
+    public enum Mode { INSTANT_SELL, SELL_OFFER, NPC }
+
+    public static Mode mode() {
+        String set = com.teslamaps.config.TeslaMapsConfig.get().farmPriceMode;
+        if ("Sell Offer".equals(set)) return Mode.SELL_OFFER;
+        if ("NPC".equals(set)) return Mode.NPC;
+        return Mode.INSTANT_SELL;
+    }
+
+    /**
+     * What one unit pays in the chosen mode. A sell offer eventually fills at the
+     * buy side, instant selling at the sell side. NPC prices fall back to the
+     * bazaar for items no NPC buys.
+     */
+    private static double sellValue(String id, Mode mode) {
+        return switch (mode) {
+            case NPC -> {
+                double npc = com.teslamaps.utils.SkyblockItems.npcPrice(id);
+                yield npc > 0 ? npc : prices.getOrDefault(id, 0.0);
+            }
+            case SELL_OFFER -> buyPrices.getOrDefault(id, prices.getOrDefault(id, 0.0));
+            case INSTANT_SELL -> prices.getOrDefault(id, 0.0);
+        };
+    }
+
     /**
      * Coins per unit of a name as it appears in a sack line: the raw drop, or its
      * share of the crafted form when that is worth more.
@@ -124,13 +150,13 @@ public class BazaarPrices {
         // Pest kills pay coins directly, so the amount is already the value.
         if (key.contains("coins")) return 1;
 
+        Mode mode = mode();
         String id = idFor(displayName);
-        double raw = prices.getOrDefault(id, 0.0);
+        double raw = sellValue(id, mode);
 
         String craft = CRAFTS_INTO.get(key);
         if (craft != null) {
-            double crafted = prices.getOrDefault(craft, buyPrices.getOrDefault(craft, 0.0));
-            double perUnit = crafted / CRAFT_AMOUNT;
+            double perUnit = sellValue(craft, mode) / CRAFT_AMOUNT;
             if (perUnit > raw) return perUnit;
         }
 
