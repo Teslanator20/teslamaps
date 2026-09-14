@@ -13,10 +13,16 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 
-// Highlights any menu item whose lore reports a progress line at 100%, in every container
+// Highlights menu items whose lore reports a progress line at 100%, only in the menus listed below -
+// elsewhere (skill menus, SkyBlock Level menu) the same lore shape means something else
 public class ProgressHighlight {
 
     private static final IdentityHashMap<ItemStack, Boolean> cache = new IdentityHashMap<>();
+
+    private static final String[] MENUS = {
+            "Ways to Level Up",
+            "Bestiary",
+    };
 
     private static final String[] PROGRESS_WORDS = {
             "progress",
@@ -28,6 +34,7 @@ public class ProgressHighlight {
         if (!TeslaMapsConfig.get().progressHighlight) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!isWhitelisted(StringUtil.strip(cs.getTitle().getString()))) return;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int col = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorProgressDone) & 0x00FFFFFF;
@@ -63,6 +70,13 @@ public class ProgressHighlight {
         }
         cache.put(item, done);
         return done;
+    }
+
+    private static boolean isWhitelisted(String title) {
+        for (String menu : MENUS) {
+            if (title.contains(menu)) return true;
+        }
+        return false;
     }
 
     private static boolean isProgressLine(String line) {

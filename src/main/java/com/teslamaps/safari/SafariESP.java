@@ -374,36 +374,37 @@ public class SafariESP {
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean filled = c.safariFilled;
+        boolean through = !c.safariLegitMode;
 
         if (pin != null && c.safariRecatchSpot) {
             int pinColor = TeslaMapsConfig.parseColor(c.colorSafariRecatch) | 0xFF000000;
-            if (filled) ESPRenderer.drawFilledBox(matrices, pin, pinColor & 0x00FFFFFF, cameraPos, true);
-            ESPRenderer.drawBoxOutline(matrices, pin, pinColor, 2.0f, cameraPos, true);
+            if (filled) ESPRenderer.drawFilledBox(matrices, pin, pinColor & 0x00FFFFFF, cameraPos, through);
+            ESPRenderer.drawBoxOutline(matrices, pin, pinColor, 2.0f, cameraPos, through);
             SafariData.Critter pinned = RecatchSpots.pinnedCritter();
             if (pinned != null) {
                 Vec3 mid = pin.getCenter();
                 ESPRenderer.drawText(matrices, "§eComes back: §f" + pinned.name(),
-                        new Vec3(mid.x, pin.maxY + 0.5, mid.z), 1.5f, cameraPos);
+                        new Vec3(mid.x, pin.maxY + 0.5, mid.z), 1.5f, cameraPos, true, through);
             }
         }
 
         int wallColor = TeslaMapsConfig.parseColor(c.colorSafariWall) | 0xFF000000;
         for (BlockPos p : walls) {
             AABB box = new AABB(p);
-            if (filled) ESPRenderer.drawFilledBox(matrices, box, wallColor & 0x00FFFFFF, cameraPos, true);
-            ESPRenderer.drawBoxOutline(matrices, box, wallColor, 2.0f, cameraPos, true);
+            if (filled) ESPRenderer.drawFilledBox(matrices, box, wallColor & 0x00FFFFFF, cameraPos, through);
+            ESPRenderer.drawBoxOutline(matrices, box, wallColor, 2.0f, cameraPos, through);
         }
 
         for (Marker m : critters) {
-            if (filled) ESPRenderer.drawFilledBox(matrices, m.box(), m.color(), cameraPos, true);
-            ESPRenderer.drawBoxOutline(matrices, m.box(), m.color() | 0xFF000000, 2.0f, cameraPos, true);
+            if (filled) ESPRenderer.drawFilledBox(matrices, m.box(), m.color(), cameraPos, through);
+            ESPRenderer.drawBoxOutline(matrices, m.box(), m.color() | 0xFF000000, 2.0f, cameraPos, through);
             if (m.label() == null) continue;
 
             Vec3 mid = m.box().getCenter();
             Vec3 at = new Vec3(mid.x, m.box().maxY + 0.5, mid.z);
-            ESPRenderer.drawText(matrices, m.label(), at, 1.5f, cameraPos);
+            ESPRenderer.drawText(matrices, m.label(), at, 1.5f, cameraPos, true, through);
             if (m.tracer()) {
-                ESPRenderer.drawTracerFromCamera(matrices, mid, m.color() | 0xFF000000, cameraPos);
+                ESPRenderer.drawTracerFromCamera(matrices, mid, m.color() | 0xFF000000, cameraPos, through);
             }
         }
 
@@ -411,16 +412,16 @@ public class SafariESP {
         for (BlockPos p : nests) {
             if (looted.contains(p.asLong())) continue;
             AABB box = new AABB(p);
-            if (filled) ESPRenderer.drawFilledBox(matrices, box, nestColor, cameraPos, true);
-            ESPRenderer.drawBoxOutline(matrices, box, nestColor | 0xFF000000, 2.0f, cameraPos, true);
+            if (filled) ESPRenderer.drawFilledBox(matrices, box, nestColor, cameraPos, through);
+            ESPRenderer.drawBoxOutline(matrices, box, nestColor | 0xFF000000, 2.0f, cameraPos, through);
         }
 
         int spotColor = TeslaMapsConfig.parseColor(c.colorCritterSpot) | 0xFF000000;
         for (Cluster cl : spots) {
             Vec3 p = cl.center();
             AABB box = new AABB(p.x - 0.5, p.y - 0.05, p.z - 0.5, p.x + 0.5, p.y + 0.5, p.z + 0.5);
-            if (filled) ESPRenderer.drawFilledBox(matrices, box, spotColor & 0x00FFFFFF, cameraPos, true);
-            ESPRenderer.drawBoxOutline(matrices, box, spotColor, 2.0f, cameraPos, true);
+            if (filled) ESPRenderer.drawFilledBox(matrices, box, spotColor & 0x00FFFFFF, cameraPos, through);
+            ESPRenderer.drawBoxOutline(matrices, box, spotColor, 2.0f, cameraPos, through);
         }
     }
 }

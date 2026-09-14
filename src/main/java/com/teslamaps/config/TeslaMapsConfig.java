@@ -1043,6 +1043,7 @@ public class TeslaMapsConfig {
     public boolean safariNames = false;             // name label over every critter, not just the rare ones
     public boolean safariTracers = false;           // tracer to labelled critters
     public boolean safariFilled = true;             // also fill the safari boxes
+    public boolean safariLegitMode = false;         // depth check: nothing drawn through walls
     public boolean safariOnlyMissing = false;       // only box critters nobody caught yet this run
     public boolean safariHideyhoTracer = true;      // tracer to Hideyho even with the general ones off
     public boolean safariNestESP = false;            // box the bee nests that spawn Honeybugs
@@ -1176,6 +1177,9 @@ public class TeslaMapsConfig {
     public boolean contestAlertTitle = false;
     public String contestAlertSound = "NOTE_PLING";
     public float contestAlertVolume = 1.0f;
+    public boolean contestAnnounceParty = false;    // "Contest Started" to party chat on every contest start
+    public boolean contestTicketAnnounce = false;   // "Ticket Acquired!" once the Miria score clears the threshold
+    public int contestTicketScore = 250;            // score that earns the ticket in Miria's Contest
 
     public boolean hoveredSlotOutline = true;       // outline the slot under the cursor in every container
     public String colorHoveredSlot = "#FF00FF";     // hovered slot outline color
@@ -1354,7 +1358,7 @@ public class TeslaMapsConfig {
     public boolean kickedCenterWarning = true;        // Big center-screen "wait Xs" warning for 60s after a kick
     public boolean bazaarOwnOrders = true;            // Highlight your own orders ("By: <you>") green in bazaar order books
     public boolean bazaarOrderFilled = true;          // Green check mark on bazaar orders that are 100% filled / claimable
-    public boolean progressHighlight = true;          // Highlight menu items whose lore shows a progress line at 100%
+    public boolean progressHighlight = true;          // Highlight 100% progress lines in the Ways to Level Up menu
     public String colorProgressDone = "#55FF55";      // Progress Highlight color
     public boolean commissionHighlight = true;        // Highlight finished commissions in the Commissions menu
     public String colorCommissionDone = "#55FF55";    // Commission Highlight color

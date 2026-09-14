@@ -73,6 +73,7 @@ public class SafariTracker {
     private static final int FULL_CHECK_DELAY = 20; // 1s
     private static int fullCheckTicks = 0;
     private static boolean fullChecked = false;
+    private static boolean fullAlerted = false;
     private static long warnUntil = 0L;
     private static int warnCount = 0;
 
@@ -80,6 +81,9 @@ public class SafariTracker {
     private static final Map<SafariData.Biome, Long> biomeDoneAt = new EnumMap<>(SafariData.Biome.class);
     /** Everything but the biome's rare critter - that one only spawns every few runs. */
     private static final Map<SafariData.Biome, Long> biomeAlmostAt = new EnumMap<>(SafariData.Biome.class);
+    private static final Map<SafariData.Biome, String> RARE_EXCEPT = Map.of(
+            SafariData.Biome.FOREST, "Macaw",
+            SafariData.Biome.CAVERN, "Snoozle");
     private static long dexDoneAt = 0L;
 
     private static long lastHideyhoAnswer = 0L;
@@ -110,28 +114,39 @@ public class SafariTracker {
         wasInSafari = in;
     }
 
-    /** Warn once per run when the instance holds fewer than 4 players. */
+    /** Warn once per run when the instance holds fewer than 4 players, announce once when it fills. */
     private static void checkFull() {
-        if (warnUntil != 0 && System.currentTimeMillis() < warnUntil && countPlayers() >= 4) warnUntil = 0;
-        if (fullChecked || !TeslaMapsConfig.get().safariWarnNotFull) return;
+        if (!TeslaMapsConfig.get().safariWarnNotFull) return;
+        if (fullChecked && fullAlerted) return;
         if (++fullCheckTicks < FULL_CHECK_DELAY) return;
-        fullChecked = true;
 
         int players = countPlayers();
-        if (players <= 0 || players >= 4) return;
+        if (warnUntil != 0 && System.currentTimeMillis() < warnUntil && players >= 4) warnUntil = 0;
 
-        warnCount = players;
-        warnUntil = System.currentTimeMillis() + 5_000;
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) {
-            mc.player.sendSystemMessage(Component.literal(
-                    "§a[TeslaMaps] §c§lPARTY NOT FULL §7- only §f" + players + "§7/4 players in the Safari"));
+        if (!fullChecked) {
+            fullChecked = true;
+            if (players > 0 && players < 4) {
+                warnCount = players;
+                warnUntil = System.currentTimeMillis() + 5_000;
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.player != null) {
+                    mc.player.sendSystemMessage(Component.literal(
+                            "§a[TeslaMaps] §c§lPARTY NOT FULL §7- only §f" + players + "§7/4 players in the Safari"));
+                }
+                TeslaMapsConfig c = TeslaMapsConfig.get();
+                if (c.safariAlertVolume > 0) {
+                    LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), c.safariAlertVolume, 0.6f);
+                    com.teslamaps.utils.TickScheduler.schedule(6, () ->
+                            LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), c.safariAlertVolume, 0.6f));
+                }
+            }
         }
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (c.safariAlertVolume > 0) {
-            LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), c.safariAlertVolume, 0.6f);
-            com.teslamaps.utils.TickScheduler.schedule(6, () ->
-                    LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), c.safariAlertVolume, 0.6f));
+
+        // poll a second at a time until the instance is full
+        fullCheckTicks = FULL_CHECK_DELAY - 20;
+        if (players >= 4 && !fullAlerted) {
+            fullAlerted = true;
+            alert("party-full", "§a§l4/4 Players Joined!");
         }
     }
 
@@ -228,6 +243,7 @@ public class SafariTracker {
         boardZeroTicks = 0;
         fullCheckTicks = 0;
         fullChecked = false;
+        fullAlerted = false;
         warnUntil = 0;
         runStart = 0;
     }
@@ -339,14 +355,15 @@ public class SafariTracker {
                         + " §7done after §f" + at);
                 share(c.biome().label + " done after " + at);
             }
-            // Macaw only spawns some runs, so Forest usually ends one short
-            if (c.biome() == SafariData.Biome.FOREST && have == total - 1 && !caughtAny.contains("Macaw")
+            // these two only spawn some runs, so their biome usually ends one short
+            String except = RARE_EXCEPT.get(c.biome());
+            if (except != null && have == total - 1 && !caughtAny.contains(except)
                     && biomeAlmostAt.putIfAbsent(c.biome(), elapsed()) == null
                     && cfg.safariAnnounceBiomeDone) {
                 String at = SafariHistory.time(biomeAlmostAt.get(c.biome()));
-                alert("biome-almost-forest", SafariData.Biome.FOREST.color
-                        + "§lFOREST §7done except §fMacaw §7after §f" + at);
-                share("Forest done except Macaw after " + at);
+                alert("biome-almost-" + c.biome(), c.biome().color + "§l" + c.biome().label.toUpperCase()
+                        + " §7done except §f" + except + " §7after §f" + at);
+                share(c.biome().label + " done except " + except + " after " + at);
             }
             if (caughtAny.size() >= SafariData.ALL.size() && dexDoneAt == 0) {
                 dexDoneAt = elapsed();

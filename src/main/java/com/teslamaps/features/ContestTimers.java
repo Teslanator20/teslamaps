@@ -27,6 +27,11 @@ public final class ContestTimers {
     private ContestTimers() {}
 
     public static void tick() {
+        tickTicket();
+        tickAlerts();
+    }
+
+    private static void tickAlerts() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.contestAlerts || !SkyblockUtils.isInSkyblock()
                 || (!c.contestShowForaging && !c.contestShowFarming)) {
@@ -86,6 +91,78 @@ public final class ContestTimers {
             LoudSound.play(SoundOptions.resolve(c.contestAlertSound), c.contestAlertVolume,
                     secondsBefore == 0 ? 1.2f : 1.0f);
         }
+        if (secondsBefore == 0 && c.contestAnnounceParty) party("Contest Started");
+    }
+
+    private static void party(String line) {
+        Minecraft mc = Minecraft.getInstance();
+        mc.execute(() -> {
+            if (mc.getConnection() != null) mc.getConnection().sendCommand("pc " + line);
+        });
+    }
+
+    // Miria's Contest, Galatea. The score sits in the tab widget under the contest header.
+    private static final java.util.regex.Pattern MIRIA =
+            java.util.regex.Pattern.compile("^Miria's Contest\\b.*");
+
+    private static boolean ticketAnnounced = false;
+    private static int ticketTicks = 0;
+
+    private static void tickTicket() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.contestTicketAnnounce || !SkyblockUtils.isInSkyblock()) {
+            ticketAnnounced = false;
+            return;
+        }
+        if (++ticketTicks < 20) return;
+        ticketTicks = 0;
+
+        long score = miriaScore();
+        if (score < 0) { ticketAnnounced = false; return; }   // no contest running
+        if (ticketAnnounced || score < c.contestTicketScore) return;
+        ticketAnnounced = true;
+        party("Ticket Acquired!");
+    }
+
+    /** -1 when no Miria's Contest widget is up. */
+    private static long miriaScore() {
+        List<String> lines = com.teslamaps.utils.TabListUtils.getOrderedLines();
+        long best = -1;
+        boolean inWidget = false;
+        for (String raw : lines) {
+            String line = com.teslamaps.utils.StringUtil.stripTrim(raw);
+            if (MIRIA.matcher(line).matches()) {
+                inWidget = true;
+                best = 0;
+                if (TeslaMapsConfig.get().debugMode) {
+                    com.teslamaps.TeslaMaps.LOGGER.info("[Contest] miria header: {}", line);
+                }
+                continue;
+            }
+            if (!inWidget) continue;
+            if (line.isEmpty() || line.endsWith(":")) break;   // next widget
+            if (TeslaMapsConfig.get().debugMode) {
+                com.teslamaps.TeslaMaps.LOGGER.info("[Contest] miria line: {}", line);
+            }
+            best = Math.max(best, largestNumber(line));
+        }
+        return best;
+    }
+
+    /** Biggest plain number in the line, commas allowed. Percentages and timers stay small. */
+    private static long largestNumber(String line) {
+        long best = -1;
+        long current = -1;
+        for (int i = 0; i <= line.length(); i++) {
+            char ch = i < line.length() ? line.charAt(i) : ' ';
+            if (ch >= '0' && ch <= '9') {
+                current = (current < 0 ? 0 : current) * 10 + (ch - '0');
+            } else if (ch != ',') {
+                best = Math.max(best, current);
+                current = -1;
+            }
+        }
+        return best;
     }
 
     private static String contestName(boolean foraging, boolean farming) {

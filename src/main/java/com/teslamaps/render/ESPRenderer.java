@@ -262,6 +262,11 @@ public class ESPRenderer {
 
     public static void drawText(PoseStack matrices, String text, Vec3 pos, float scale, Vec3 cameraPos,
                                 boolean scaleWithDistance) {
+        drawText(matrices, text, pos, scale, cameraPos, scaleWithDistance, true);
+    }
+
+    public static void drawText(PoseStack matrices, String text, Vec3 pos, float scale, Vec3 cameraPos,
+                                boolean scaleWithDistance, boolean throughWalls) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.font == null || mc.gameRenderer == null || mc.gameRenderer.getMainCamera() == null) return;
 
@@ -287,7 +292,8 @@ public class ESPRenderer {
             true,       // shadow
             pose,
             immediate,
-            net.minecraft.client.gui.Font.DisplayMode.SEE_THROUGH,
+            throughWalls ? net.minecraft.client.gui.Font.DisplayMode.SEE_THROUGH
+                         : net.minecraft.client.gui.Font.DisplayMode.NORMAL,
             0,          // no background
             15728880    // full brightness
         );

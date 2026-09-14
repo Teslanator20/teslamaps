@@ -1445,7 +1445,7 @@ public class MapConfigScreen extends Screen {
         inventory.add(new LabelEntry(contentX, "Bazaar & Progress"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v));
-        inventory.add(new ToggleEntry(contentX, contentWidth, "Progress Highlight", () -> config.progressHighlight, v -> config.progressHighlight = v));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Progress Highlight (Ways to Level Up)", () -> config.progressHighlight, v -> config.progressHighlight = v));
         inventory.add(new ColorEntry(contentX, contentWidth, "  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v));
         inventory.add(new ColorEntry(contentX, contentWidth, "  Commission Color", () -> config.colorCommissionDone, v -> config.colorCommissionDone = v));
@@ -1948,6 +1948,15 @@ public class MapConfigScreen extends Screen {
         contests.add(new SliderEntry(contentX, contentWidth, "  Volume", 0f, 4f,
                 () -> config.contestAlertVolume, v -> config.contestAlertVolume = v, 2));
         contests.add(new InfoEntry(contentX, "Alerts fire once before and once when a contest starts"));
+        contests.add(new LabelEntry(contentX, "Party Chat"));
+        contests.add(new ToggleEntry(contentX, contentWidth, "Contest Announce",
+                () -> config.contestAnnounceParty, v -> config.contestAnnounceParty = v));
+        contests.add(new InfoEntry(contentX, "Sends /pc Contest Started on every contest start"));
+        contests.add(new ToggleEntry(contentX, contentWidth, "Ticket Announce",
+                () -> config.contestTicketAnnounce, v -> config.contestTicketAnnounce = v));
+        contests.add(new SliderEntry(contentX, contentWidth, "  Ticket Score", 50f, 1000f,
+                () -> (float) config.contestTicketScore, v -> config.contestTicketScore = Math.round(v), 0));
+        contests.add(new InfoEntry(contentX, "Sends /pc Ticket Acquired! at that score in Miria's Contest"));
         categories.put("Contest Timers", contests);
 
         List<SettingsEntry> torrhus = new ArrayList<>();
@@ -2025,6 +2034,8 @@ public class MapConfigScreen extends Screen {
         safari.add(new LabelEntry(contentX, "ESP"));
         safari.add(new ToggleEntry(contentX, contentWidth, "Critter ESP (Safari)", () -> config.safariCritterESP, v -> config.safariCritterESP = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Filled Boxes", () -> config.safariFilled, v -> config.safariFilled = v));
+        safari.add(new ToggleEntry(contentX, contentWidth, "Legit Mode (Depth Check)", () -> config.safariLegitMode, v -> config.safariLegitMode = v));
+        safari.add(new InfoEntry(contentX, "Nothing drawn through walls"));
         safari.add(new ToggleEntry(contentX, contentWidth, "Only Uncaught", () -> config.safariOnlyMissing, v -> config.safariOnlyMissing = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Name Over Every Critter", () -> config.safariNames, v -> config.safariNames = v));
         safari.add(new ToggleEntry(contentX, contentWidth, "Tracers To Named", () -> config.safariTracers, v -> config.safariTracers = v));
