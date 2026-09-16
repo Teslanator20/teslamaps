@@ -375,13 +375,31 @@ public class ProfileViewerScreen extends Screen {
             SkyblockProfile selected = profiles.getSelectedProfile();
             String label = selected == null ? "-" : selected.getCuteName();
             int count = profiles.getProfiles().size();
-            String shown = count > 1 ? label + " " + (profileListOpen ? "v" : "^") : label;
 
-            int selectorWidth = Math.min(nameX - 6, font.width(shown) + 20);
+            int arrowSpace = count > 1 ? 12 : 0;
+            int selectorWidth = Math.min(nameX - 6, font.width(label) + 16 + arrowSpace);
             NeuStyle.window(ctx, 0, y, selectorWidth, height + 4);
             boolean over = inside(profileSelector, mouseX, mouseY);
-            ctx.text(font, shown, (selectorWidth - font.width(shown)) / 2, y + 6,
-                    over ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_TURQUOISE);
+            int color = over ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_TURQUOISE;
+            ctx.text(font, label, (selectorWidth - arrowSpace - font.width(label)) / 2, y + 6, color);
+
+            // a small pixel triangle instead of an ascii caret
+            if (count > 1) {
+                int ax = selectorWidth - 13;
+                int ay = y + 8;
+                int arrow = over ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY;
+                if (profileListOpen) {
+                    ctx.fill(ax, ay, ax + 7, ay + 1, arrow);
+                    ctx.fill(ax + 1, ay + 1, ax + 6, ay + 2, arrow);
+                    ctx.fill(ax + 2, ay + 2, ax + 5, ay + 3, arrow);
+                    ctx.fill(ax + 3, ay + 3, ax + 4, ay + 4, arrow);
+                } else {
+                    ctx.fill(ax + 3, ay, ax + 4, ay + 1, arrow);
+                    ctx.fill(ax + 2, ay + 1, ax + 5, ay + 2, arrow);
+                    ctx.fill(ax + 1, ay + 2, ax + 6, ay + 3, arrow);
+                    ctx.fill(ax, ay + 3, ax + 7, ay + 4, arrow);
+                }
+            }
 
             profileSelector = new int[]{0, y, selectorWidth, height};
 

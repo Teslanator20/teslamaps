@@ -203,6 +203,16 @@ public class SkyblockProfile {
         return getCoopBank() + getPersonalBank();
     }
 
+    /** Hypixel drops the banking object entirely when the profile's bank api is off. */
+    public boolean hasBankData() {
+        boolean coop = fullProfileJson != null && fullProfileJson.has("banking")
+                && fullProfileJson.get("banking").isJsonObject()
+                && fullProfileJson.getAsJsonObject("banking").has("balance");
+        boolean personal = memberData.has("profile") && memberData.get("profile").isJsonObject()
+                && memberData.getAsJsonObject("profile").has("bank_account");
+        return coop || personal;
+    }
+
     public double getCoopBank() {
         try {
             if (fullProfileJson != null && fullProfileJson.has("banking")) {

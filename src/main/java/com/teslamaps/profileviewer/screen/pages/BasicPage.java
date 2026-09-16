@@ -88,23 +88,27 @@ public class BasicPage extends ProfileViewerPage {
         net.minecraft.network.chat.Component titled = com.teslamaps.profileviewer.data.LegacyText.parse(
                 (profiles != null ? profiles.getRankPrefix() : "") + name);
 
-        // name (with rank) centered over the box, scaled into the column when too long
+        NeuStyle.slimBox(ctx, left + 23, top + 8, 81, 112);
+
+        // vanilla style nametag floating over the head: translucent plate, name centered
         int tagWidth = tr.width(titled);
-        float tagScale = Math.min(1f, 110f / Math.max(1, tagWidth));
+        float tagScale = Math.min(1f, 71f / Math.max(1, tagWidth));
+        int shown = Math.round(tagWidth * tagScale);
+        int plateLeft = left + 63 - shown / 2 - 2;
+        int plateRight = left + 63 + shown / 2 + 2;
+        ctx.fill(plateLeft, top + 13, plateRight, top + 24, 0x45000000);
         ctx.pose().pushMatrix();
-        ctx.pose().translate(left + 63 - tagWidth * tagScale / 2f, top + 6);
+        ctx.pose().translate(left + 63 - shown / 2f, top + 15 + (1 - tagScale) * 3);
         ctx.pose().scale(tagScale, tagScale);
         ctx.text(tr, titled, 0, 0, -1);
         ctx.pose().popMatrix();
 
-        NeuStyle.slimBox(ctx, left + 23, top + 16, 81, 104);
-
-        // the player, looking at the cursor like the vanilla inventory does
+        // the player under his nametag, looking at the cursor like the vanilla inventory does
         if (profiles != null) {
             PvPlayerRender.setArmor(profiles.getUuid(), name, armor);
             // entity renders live in screen space, not inside our scaled panel
             PvPlayerRender.draw(ctx, profiles.getUuid(), name,
-                    screenX(left + 26), screenY(top + 19),
+                    screenX(left + 26), screenY(top + 26),
                     screenX(left + 101), screenY(top + 117),
                     screenX(mouseX), screenY(mouseY));
         }
@@ -119,22 +123,26 @@ public class BasicPage extends ProfileViewerPage {
         }
 
         drawCentered(ctx, tr, "Purse: " + formatCoins(profile.getCoinPurse()), left + 63, top + 152, NeuStyle.TEXT_GOLD);
-        drawCentered(ctx, tr, "Bank: " + formatCoins(profile.getBankBalance()), left + 63, top + 162, NeuStyle.TEXT_GOLD);
-        if (mouseX >= left + 8 && mouseX <= left + 118 && mouseY >= top + 160 && mouseY <= top + 171) {
-            tooltip = new String[]{
-                    "Bank",
-                    "Coop: " + formatCoins(profile.getCoopBank()),
-                    "Personal: " + formatCoins(profile.getPersonalBank()),
-            };
-            tooltipX = mouseX;
-            tooltipY = mouseY;
+        if (profile.hasBankData()) {
+            drawCentered(ctx, tr, "Bank: " + formatCoins(profile.getBankBalance()), left + 63, top + 162, NeuStyle.TEXT_GOLD);
+            if (mouseX >= left + 8 && mouseX <= left + 118 && mouseY >= top + 160 && mouseY <= top + 171) {
+                tooltip = new String[]{
+                        "Bank",
+                        "Coop: " + formatCoins(profile.getCoopBank()),
+                        "Personal: " + formatCoins(profile.getPersonalBank()),
+                };
+                tooltipX = mouseX;
+                tooltipY = mouseY;
+            }
+        } else {
+            // hypixel only ships banking when the profile has the bank api enabled
+            drawCentered(ctx, tr, "Bank: API off", left + 63, top + 162, NeuStyle.TEXT_DARK);
         }
 
         if (profiles != null && com.teslamaps.features.capes.CapeSync.isUser(profiles.getUuid())) {
-            // same gradient the [TeslaMaps] chat prefix wears
-            net.minecraft.network.chat.Component tag = net.minecraft.network.chat.Component
-                    .literal("TeslaMaps user")
-                    .withStyle(style -> style.withColor(com.teslamaps.render.gui.ChromaColors.FADE));
+            // same gradient the [TeslaMaps] chat prefix wears; the fade shader is calibrated to
+            // the chat position, so here the gradient is baked per character instead
+            net.minecraft.network.chat.Component tag = fadeTag();
             float factor = 0.75f;
             ctx.pose().pushMatrix();
             ctx.pose().translate(left + 63 - tr.width(tag) * factor / 2, top + 176);
@@ -229,6 +237,33 @@ public class BasicPage extends ProfileViewerPage {
 
     private void drawCentered(GuiGraphicsExtractor ctx, Font tr, String text, int centerX, int y, int color) {
         ctx.text(tr, text, centerX - tr.width(text) / 2, y, color);
+    }
+
+    private static net.minecraft.network.chat.Component fadeTag;
+    private static String fadeTagKey;
+
+    /** "TeslaMaps user" with the prefix fade baked in per character. */
+    private static net.minecraft.network.chat.Component fadeTag() {
+        var config = com.teslamaps.config.TeslaMapsConfig.get();
+        String key = config.prefixFadeColorA + "|" + config.prefixFadeColorB;
+        if (fadeTag != null && key.equals(fadeTagKey)) return fadeTag;
+
+        int from = com.teslamaps.config.TeslaMapsConfig.parseColor(config.prefixFadeColorA) & 0xFFFFFF;
+        int to = com.teslamaps.config.TeslaMapsConfig.parseColor(config.prefixFadeColorB) & 0xFFFFFF;
+        String text = "TeslaMaps user";
+        net.minecraft.network.chat.MutableComponent out = net.minecraft.network.chat.Component.empty();
+        for (int i = 0; i < text.length(); i++) {
+            float t = i / (float) (text.length() - 1);
+            int r = (int) (((from >> 16) & 0xFF) + (((to >> 16) & 0xFF) - ((from >> 16) & 0xFF)) * t);
+            int g = (int) (((from >> 8) & 0xFF) + (((to >> 8) & 0xFF) - ((from >> 8) & 0xFF)) * t);
+            int b = (int) ((from & 0xFF) + ((to & 0xFF) - (from & 0xFF)) * t);
+            int rgb = (r << 16) | (g << 8) | b;
+            out.append(net.minecraft.network.chat.Component.literal(String.valueOf(text.charAt(i)))
+                    .withStyle(style -> style.withColor(net.minecraft.network.chat.TextColor.fromRgb(rgb))));
+        }
+        fadeTag = out;
+        fadeTagKey = key;
+        return out;
     }
 
     /** Skill names are longer than the column, so they shrink like NEU's scaled strings do. */

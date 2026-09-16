@@ -26,6 +26,7 @@ import java.util.Map;
 public class BestiaryPage extends ProfileViewerPage {
     private static final Map<String, ItemStack> icons = new HashMap<>();
 
+    private boolean overview = true;
     private int category = 0;
     private int sub = 0;
     private final List<int[]> subRects = new java.util.ArrayList<>();
@@ -89,32 +90,40 @@ public class BestiaryPage extends ProfileViewerPage {
         // search over every category at once, sitting on top of the rail
         search.draw(ctx, left + 6, top + 6, 104);
 
-        // category rail, scrollable because the game has more than fits
+        // category rail with the overview entry on top, scrollable because the game has more than fits
+        int entries = categories.size() + 1;
         int visible = RAIL_VISIBLE;
-        railScroll = Math.max(0, Math.min(railScroll, Math.max(0, categories.size() - visible)));
-        for (int i = 0; i < visible && i + railScroll < categories.size(); i++) {
-            BestiaryRepo.Category cat = categories.get(i + railScroll);
+        railScroll = Math.max(0, Math.min(railScroll, Math.max(0, entries - visible)));
+        for (int i = 0; i < visible && i + railScroll < entries; i++) {
+            int idx = i + railScroll;
             int bx = left + 6;
             int by = top + 24 + i * 19;
-            boolean selected = (i + railScroll) == category && search.isEmpty();
+            boolean isOverview = idx == 0;
+            boolean selected = search.isEmpty() && (isOverview ? overview : !overview && idx - 1 == category);
             boolean hovered = mouseX >= bx && mouseX < bx + 104 && mouseY >= by && mouseY < by + 17;
 
             if (selected) NeuStyle.slimBox(ctx, bx, by, 104, 17);
-            ItemStack icon = iconFor(cat);
+            ItemStack icon = isOverview ? new ItemStack(Items.WRITABLE_BOOK) : iconFor(categories.get(idx - 1));
             if (!icon.isEmpty()) ctx.item(icon, bx + 1, by + 1);
-            scaledText(ctx, tr, cat.name(), bx + 20, by + 4, 82,
+            scaledText(ctx, tr, isOverview ? "Overview" : categories.get(idx - 1).name(), bx + 20, by + 4, 82,
                     selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
         }
 
         // thin scrollbar so the hidden categories are visible at a glance
-        if (categories.size() > visible) {
+        if (entries > visible) {
             int trackX = left + 112;
             int trackY = top + 24;
             int trackH = visible * 19 - 2;
             ctx.fill(trackX, trackY, trackX + 2, trackY + trackH, 0x40000000);
-            int thumbH = Math.max(8, trackH * visible / categories.size());
-            int thumbY = trackY + (trackH - thumbH) * railScroll / Math.max(1, categories.size() - visible);
+            int thumbH = Math.max(8, trackH * visible / entries);
+            int thumbY = trackY + (trackH - thumbH) * railScroll / Math.max(1, entries - visible);
             ctx.fill(trackX, thumbY, trackX + 2, thumbY + thumbH, 0xA0FFFFFF);
+        }
+
+        overviewRects.clear();
+        if (search.isEmpty() && overview) {
+            drawOverview(ctx, tr, profile, kills, categories, left, top, mouseX, mouseY);
+            return;
         }
 
         BestiaryRepo.Category current = categories.get(category);
@@ -190,22 +199,11 @@ public class BestiaryPage extends ProfileViewerPage {
         int totalTier = 0;
         for (BestiaryRepo.Mob mob : mobs) totalTier += BestiaryRepo.tier(mob, killsFor(kills, mob));
 
-        // the account's whole bestiary, over every category - cheap thanks to the kill cache
-        int grandTotal = 0;
-        for (BestiaryRepo.Category cat : categories) {
-            List<List<BestiaryRepo.Mob>> groups = cat.subs().isEmpty()
-                    ? List.of(cat.mobs())
-                    : cat.subs().stream().map(BestiaryRepo.Category::mobs).toList();
-            for (List<BestiaryRepo.Mob> group : groups) {
-                for (BestiaryRepo.Mob mob : group) grandTotal += BestiaryRepo.tier(mob, killsFor(kills, mob));
-            }
-        }
-
         Component title = LegacyText.parse(search.isEmpty() ? current.name()
                 : "Results for \"" + search.text() + "\" (" + mobs.size() + ")");
         ctx.text(tr, title, areaX, top + 8, -1);
         // sits next to the title, at the bottom it ran into the last rail entry
-        String summary = "Tiers: " + totalTier + "   Total: " + grandTotal
+        String summary = "Tiers: " + totalTier + "   Total: " + grandTotal(kills, categories)
                 + "   Milestone: " + milestone(profile);
         ctx.text(tr, summary, areaX + areaW - tr.width(summary), top + 8, NeuStyle.TEXT_GRAY);
 
@@ -253,6 +251,121 @@ public class BestiaryPage extends ProfileViewerPage {
     private int pagerX;
     private int pagerY;
     private int pagerW;
+
+    /** The account's whole bestiary, over every category - cheap thanks to the kill cache. */
+    private int grandTotal(JsonObject kills, List<BestiaryRepo.Category> categories) {
+        int total = 0;
+        for (BestiaryRepo.Category cat : categories) {
+            for (List<BestiaryRepo.Mob> group : groupsOf(cat)) {
+                for (BestiaryRepo.Mob mob : group) total += BestiaryRepo.tier(mob, killsFor(kills, mob));
+            }
+        }
+        return total;
+    }
+
+    private static List<List<BestiaryRepo.Mob>> groupsOf(BestiaryRepo.Category cat) {
+        return cat.subs().isEmpty()
+                ? List.of(cat.mobs())
+                : cat.subs().stream().map(BestiaryRepo.Category::mobs).toList();
+    }
+
+    // ---- overview, the way the game's bestiary menu shows its islands ------------------------
+
+    private final List<int[]> overviewRects = new java.util.ArrayList<>();
+
+    private void drawOverview(GuiGraphicsExtractor ctx, Font tr, SkyblockProfile profile, JsonObject kills,
+                              List<BestiaryRepo.Category> categories, int left, int top,
+                              int mouseX, int mouseY) {
+        int areaX = left + 120;
+        int areaW = NeuStyle.PANEL_WIDTH - 120 - 8;
+
+        ctx.text(tr, "Bestiary", areaX, top + 8, NeuStyle.TEXT);
+        String summary = "Total Tiers: " + grandTotal(kills, categories) + "   Milestone: " + milestone(profile);
+        ctx.text(tr, summary, areaX + areaW - tr.width(summary), top + 8, NeuStyle.TEXT_GRAY);
+
+        overviewRects.clear();
+        int slotSize = 26;
+        int columns = Math.max(1, (areaW + 2) / (slotSize + 2));
+        int rows = (categories.size() + columns - 1) / columns;
+        columns = (categories.size() + rows - 1) / rows;
+
+        int areaY = top + 24;
+        int areaH = NeuStyle.PANEL_HEIGHT - 24 - 12;
+        int gridX = areaX + Math.max(0, (areaW - columns * (slotSize + 2)) / 2);
+        int gridY = areaY + Math.max(0, (areaH - rows * (slotSize + 2)) / 2);
+
+        ItemStack hovered = ItemStack.EMPTY;
+        for (int i = 0; i < categories.size(); i++) {
+            BestiaryRepo.Category cat = categories.get(i);
+            int sx = gridX + (i % columns) * (slotSize + 2);
+            int sy = gridY + (i / columns) * (slotSize + 2);
+
+            ItemGrid.slot(ctx, sx, sy, slotSize);
+
+            int found = 0;
+            int maxedCount = 0;
+            int mobCount = 0;
+            int tiers = 0;
+            for (List<BestiaryRepo.Mob> group : groupsOf(cat)) {
+                for (BestiaryRepo.Mob mob : group) {
+                    long killCount = killsFor(kills, mob);
+                    int tier = BestiaryRepo.tier(mob, killCount);
+                    mobCount++;
+                    tiers += tier;
+                    if (killCount > 0) found++;
+                    if (tier >= BestiaryRepo.maxTier(mob) && BestiaryRepo.maxTier(mob) > 0) maxedCount++;
+                }
+            }
+
+            if (maxedCount >= mobCount && mobCount > 0) {
+                ctx.fill(sx, sy, sx + slotSize - 1, sy + slotSize - 1, 0x6055FF55);
+            }
+
+            ItemStack stack = overviewStack(cat, found, mobCount, maxedCount, tiers);
+            if (!stack.isEmpty()) ItemGrid.item(ctx, stack, sx, sy, slotSize);
+
+            boolean over = mouseX >= sx && mouseX < sx + slotSize - 1 && mouseY >= sy && mouseY < sy + slotSize - 1;
+            if (over) {
+                ctx.fill(sx + 1, sy + 1, sx + slotSize - 2, sy + slotSize - 2, 0x40FFFFFF);
+                hovered = stack;
+            }
+            overviewRects.add(new int[]{sx, sy, slotSize, slotSize, i});
+        }
+
+        hoverStack(hovered);
+    }
+
+    private static final Map<String, ItemStack> overviewStacks = new HashMap<>();
+
+    private static ItemStack overviewStack(BestiaryRepo.Category cat, int found, int mobs,
+                                           int maxed, int tiers) {
+        String key = cat.id() + ":" + found + ":" + maxed + ":" + tiers;
+        ItemStack cached = overviewStacks.get(key);
+        if (cached != null) return cached;
+
+        ItemStack base = cat.icon() != null ? SkyblockItems.headFromTexture(cat.icon())
+                : cat.iconItem() != null ? com.teslamaps.profileviewer.ui.Kit.icon(cat.iconItem()).copy()
+                : new ItemStack(Items.PLAYER_HEAD);
+        if (base.isEmpty()) base = new ItemStack(Items.PLAYER_HEAD);
+
+        base.set(DataComponents.CUSTOM_NAME, LegacyText.parse("§a" + cat.name()));
+
+        List<Component> lore = new ArrayList<>();
+        double pct = mobs > 0 ? found * 100.0 / mobs : 0;
+        int filled = (int) Math.round(Math.max(0, Math.min(1, found / (double) Math.max(1, mobs))) * 20);
+        lore.add(LegacyText.parse("§7Families Found: §e" + found + "§6/§e" + mobs));
+        lore.add(LegacyText.parse("§2" + "-".repeat(filled) + "§f" + "-".repeat(20 - filled)
+                + " §b" + String.format(java.util.Locale.ROOT, "%.1f", pct) + "§3%"));
+        lore.add(Component.empty());
+        lore.add(LegacyText.parse("§7Families Completed: §6" + maxed + "§7/§e" + mobs));
+        lore.add(LegacyText.parse("§7Tiers Unlocked: §3" + tiers));
+        lore.add(Component.empty());
+        lore.add(LegacyText.parse("§eClick to view!"));
+        base.set(DataComponents.LORE, new ItemLore(lore));
+
+        overviewStacks.put(key, base);
+        return base;
+    }
 
     private void collectMatches(List<BestiaryRepo.Mob> from, List<BestiaryRepo.Mob> out) {
         for (BestiaryRepo.Mob mob : from) {
@@ -409,14 +522,32 @@ public class BestiaryPage extends ProfileViewerPage {
         }
 
         List<BestiaryRepo.Category> categories = BestiaryRepo.categories();
-        for (int i = 0; i < RAIL_VISIBLE && i + railScroll < categories.size(); i++) {
+        for (int i = 0; i < RAIL_VISIBLE && i + railScroll < categories.size() + 1; i++) {
             int bx = lastLeft + 6;
             int by = lastTop + 24 + i * 19;
             if (mouseX >= bx && mouseX < bx + 104 && mouseY >= by && mouseY < by + 17) {
-                category = i + railScroll;
+                int idx = i + railScroll;
+                if (idx == 0) {
+                    overview = true;
+                } else {
+                    overview = false;
+                    category = idx - 1;
+                }
                 sub = 0;
                 page = 0;
                 search.clear();
+                return true;
+            }
+        }
+
+        // an overview island opens its category, like the ingame menu
+        for (int[] rect : overviewRects) {
+            if (mouseX >= rect[0] && mouseX < rect[0] + rect[2]
+                    && mouseY >= rect[1] && mouseY < rect[1] + rect[3]) {
+                overview = false;
+                category = rect[4];
+                sub = 0;
+                page = 0;
                 return true;
             }
         }
