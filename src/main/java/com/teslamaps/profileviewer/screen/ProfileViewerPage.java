@@ -210,9 +210,9 @@ public abstract class ProfileViewerPage {
         return String.format("%.0f", value);
     }
 
-    /** Four decimals, without trailing zeroes - 1,5124B instead of 1512,4M. */
+    /** Two decimals, without trailing zeroes - 1.51B, not 1.5124B. */
     private static String trim(double value) {
-        String text = String.format("%.4f", value);
+        String text = String.format("%.2f", value);
         while (text.endsWith("0")) text = text.substring(0, text.length() - 1);
         if (text.endsWith(".") || text.endsWith(",")) text = text.substring(0, text.length() - 1);
         return text;

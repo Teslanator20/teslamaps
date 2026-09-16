@@ -265,9 +265,53 @@ public class BestiaryPage extends ProfileViewerPage {
         return asInt(bestiary.getAsJsonObject("milestone").get("last_claimed_milestone"));
     }
 
-    private static long killsFor(JsonObject kills, BestiaryRepo.Mob mob) {
+    private final Map<BestiaryRepo.Mob, Long> killCache = new HashMap<>();
+
+    @Override
+    public void init(com.teslamaps.profileviewer.screen.ProfileViewerScreen parent,
+                     com.teslamaps.profileviewer.data.SkyblockProfiles profiles) {
+        super.init(parent, profiles);
+        killCache.clear();
+    }
+
+    /**
+     * Hypixel splits kills over per-level keys (mob_1, mob_5, mob_70) and the repo lists only
+     * some of them; summing by prefix catches every level. The digit check keeps "zombie_"
+     * from swallowing "zombie_villager_70".
+     */
+    private long killsFor(JsonObject kills, BestiaryRepo.Mob mob) {
+        Long cached = killCache.get(mob);
+        if (cached != null) return cached;
+
+        java.util.Set<String> bases = new java.util.HashSet<>();
+        for (String key : mob.keys()) {
+            int cut = key.lastIndexOf('_');
+            boolean numeric = cut > 0 && cut < key.length() - 1;
+            for (int i = cut + 1; numeric && i < key.length(); i++) {
+                numeric = Character.isDigit(key.charAt(i));
+            }
+            bases.add(numeric ? key.substring(0, cut + 1) : key);
+        }
+
         long total = 0;
-        for (String key : mob.keys()) total += asLong(kills.get(key));
+        for (Map.Entry<String, com.google.gson.JsonElement> entry : kills.entrySet()) {
+            String key = entry.getKey();
+            for (String base : bases) {
+                if (base.endsWith("_")) {
+                    if (!key.startsWith(base) || key.length() == base.length()) continue;
+                    boolean digits = true;
+                    for (int i = base.length(); i < key.length() && digits; i++) {
+                        digits = Character.isDigit(key.charAt(i));
+                    }
+                    if (!digits) continue;
+                } else if (!key.equals(base)) {
+                    continue;
+                }
+                total += asLong(entry.getValue());
+                break;
+            }
+        }
+        killCache.put(mob, total);
         return total;
     }
 

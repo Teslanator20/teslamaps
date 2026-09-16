@@ -166,10 +166,10 @@ public class MuseumPage extends ProfileViewerPage {
                 + (appraisal ? ", appraised" : "");
         ctx.text(tr, counts, left + NeuStyle.PANEL_WIDTH - 8 - tr.width(counts), top + 8, NeuStyle.TEXT_GRAY);
 
-        // two switches, like the tabs inside the museum menu
+        // search first, top left, then the two switches like the tabs inside the museum menu
         String donatedLabel = "Donated";
         String specialLabel = "Special";
-        int donatedX = left + 8;
+        int donatedX = left + 8 + 110 + 12;
         int specialX = donatedX + tr.width(donatedLabel) + 16;
         int switchY = top + 20;
 
@@ -184,7 +184,7 @@ public class MuseumPage extends ProfileViewerPage {
         specialSwitchW = tr.width(specialLabel);
         switchRowY = switchY;
 
-        search.draw(ctx, left + NeuStyle.PANEL_WIDTH - 8 - 110, switchY - 3, 110);
+        search.draw(ctx, left + 8, switchY - 3, 110);
 
         List<InventoryDecoder.Slot> shown = showSpecial ? special : donated;
         if (!search.isEmpty()) {
@@ -209,8 +209,9 @@ public class MuseumPage extends ProfileViewerPage {
         pageCount = Math.max(1, (shown.size() + perPage - 1) / perPage);
         page = Math.min(page, pageCount - 1);
 
-        int gridX = left + (NeuStyle.PANEL_WIDTH - columns * slotSize) / 2;
-        int gridY = areaY + Math.max(0, (areaH - rows * slotSize) / 2);
+        // anchored top left - centering a handful of search hits parked them mid-window
+        int gridX = left + 8;
+        int gridY = areaY;
 
         ItemStack hovered = ItemGrid.draw(ctx, shown, gridX, gridY, columns, page * perPage,
                 Math.min(perPage, Math.max(0, shown.size() - page * perPage)), mouseX, mouseY, slotSize);

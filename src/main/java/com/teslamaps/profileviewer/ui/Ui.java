@@ -261,13 +261,22 @@ public abstract class Ui {
 
         public void render(GuiGraphicsExtractor ctx, int x, int y, int mouseX, int mouseY) {
             int h = height();
-            // the right side is the value and always wins; a long label gets cut instead of overlapping
-            boolean collides = left.width() + right.width() + 4 > w;
-            if (collides) {
-                ctx.enableScissor(x, y, x + Math.max(0, w - right.width() - 4), y + h);
+            // the right side is the value and always wins; a long label shrinks to fit and is
+            // only cut once even shrinking is not enough - the plain scissor left two letters
+            int free = Math.max(0, w - right.width() - 4);
+            if (left.width() > free && left.width() > 0) {
+                float factor = Math.max(0.6f, free / (float) left.width());
+                boolean stillCut = left.width() * factor > free;
+                if (stillCut) ctx.enableScissor(x, y, x + free, y + h);
+                ctx.pose().pushMatrix();
+                ctx.pose().translate(x, y + (h - left.height() * factor) / 2);
+                ctx.pose().scale(factor, factor);
+                left.render(ctx, 0, 0, (int) ((mouseX - x) / factor), (int) ((mouseY - y) / factor));
+                ctx.pose().popMatrix();
+                if (stillCut) ctx.disableScissor();
+            } else {
+                left.render(ctx, x, y + (h - left.height()) / 2, mouseX, mouseY);
             }
-            left.render(ctx, x, y + (h - left.height()) / 2, mouseX, mouseY);
-            if (collides) ctx.disableScissor();
             right.render(ctx, x + w - right.width(), y + (h - right.height()) / 2, mouseX, mouseY);
         }
     }

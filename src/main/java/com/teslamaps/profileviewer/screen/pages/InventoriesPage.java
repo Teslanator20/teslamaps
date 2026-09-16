@@ -201,7 +201,7 @@ public class InventoriesPage extends ProfileViewerPage {
             if (hovered.isEmpty()) hovered = armorHover;
         }
 
-        drawPageChips(ctx, tr, gridX, columns * slotSize,
+        drawPageChips(ctx, tr, areaX, areaW,
                 Math.max(gridY + rows * slotSize + 6, top + NeuStyle.PANEL_HEIGHT - 26), mouseX, mouseY);
 
         hoverStack(hovered);
@@ -215,19 +215,26 @@ public class InventoriesPage extends ProfileViewerPage {
         chipRects.clear();
         if (pageCount <= 1) return;
 
-        int chipW = Math.min(18, Math.max(12, (width - (pageCount - 1) * 2) / pageCount));
-        int total = pageCount * chipW + (pageCount - 1) * 2;
-        int cx = x + Math.max(0, (width - total) / 2);
+        // fixed chip size over the full area width; 18 backpacks overflowed a grid-width row
+        int chipW = 16;
+        int perRow = Math.max(1, (width + 2) / (chipW + 2));
+        int rows = (pageCount + perRow - 1) / perRow;
+        int startY = y - (rows - 1) * 15;
 
         for (int i = 0; i < pageCount; i++) {
+            int row = i / perRow;
+            int inRow = Math.min(perRow, pageCount - row * perRow);
+            int rowX = x + Math.max(0, (width - inRow * (chipW + 2) + 2) / 2);
+            int cx = rowX + (i % perRow) * (chipW + 2);
+            int cy = startY + row * 15;
+
             boolean active = i == page;
-            boolean over = mouseX >= cx && mouseX < cx + chipW && mouseY >= y && mouseY < y + 13;
-            if (active) NeuStyle.slimBox(ctx, cx, y, chipW, 13);
+            boolean over = mouseX >= cx && mouseX < cx + chipW && mouseY >= cy && mouseY < cy + 13;
+            if (active) NeuStyle.slimBox(ctx, cx, cy, chipW, 13);
             String label = String.valueOf(i + 1);
-            ctx.text(tr, label, cx + (chipW - tr.width(label)) / 2, y + 3,
+            ctx.text(tr, label, cx + (chipW - tr.width(label)) / 2, cy + 3,
                     active ? NeuStyle.TEXT_YELLOW : over ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
-            chipRects.add(new int[]{cx, y, chipW, 13, i});
-            cx += chipW + 2;
+            chipRects.add(new int[]{cx, cy, chipW, 13, i});
         }
     }
 

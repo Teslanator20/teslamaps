@@ -203,10 +203,13 @@ public class PetsPage extends ProfileViewerPage {
         ItemStack cached = petStacks.get(key);
         if (cached != null) return cached;
 
-        // a skin replaces the whole look, and not every rarity of a pet exists in the repo -
-        // asking only for this one is what left half the cats as plain bones
-        String repoId = pet.getSkin() != null ? skinId(pet.getSkin()) : null;
-        ItemStack base = repoId == null ? ItemStack.EMPTY : lookup(repoId, key);
+        // bundled textures first: instant and offline. The NEU one-file-at-a-time fallback fired
+        // a hundred raw.githubusercontent requests at once, got rate limited, and the EMPTY
+        // sentinel in petBases then kept every pet a bone for the whole session.
+        ItemStack base = pet.getSkin() != null
+                ? com.teslamaps.profileviewer.data.PetIcons.forSkin(pet.getSkin()) : ItemStack.EMPTY;
+        if (base.isEmpty() && pet.getSkin() != null) base = lookup(skinId(pet.getSkin()), key);
+        if (base.isEmpty()) base = com.teslamaps.profileviewer.data.PetIcons.forType(pet.getType());
 
         if (base.isEmpty()) {
             for (int rarity = pet.getRarityOrdinal(); rarity >= 0 && base.isEmpty(); rarity--) {

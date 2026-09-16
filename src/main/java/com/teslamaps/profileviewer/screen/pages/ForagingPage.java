@@ -56,17 +56,14 @@ public class ForagingPage extends ProfileViewerPage {
 
         // only the tree scales, exactly to the free height - letting the whole page shrink made
         // the tree end up at half of THIS again and everything else unreadable
+        // only the tree scales down to the free height, and never up - it should look exactly
+        // like the mining page, not bigger
         Ui page = compose(width, tree, core, foraging, treeView);
         int available = NeuStyle.PANEL_HEIGHT - 20;
-        if (treeView.height() > 0) {
+        if (page.height() > available && treeView.height() > 0) {
             int rest = page.height() - treeView.height();
             float factor = Math.max(0.5f, (available - rest) / (float) treeView.height());
-            // a small tree also grows into the free height, as long as the side content still fits
-            if (factor > 1f) factor = Math.min(factor,
-                    Math.max(1f, (width - 160) / (float) Math.max(1, treeView.width())));
-            if (Math.abs(factor - 1f) > 0.01f) {
-                page = compose(width, tree, core, foraging, new Ui.Scaled(treeView, factor));
-            }
+            if (factor < 1f) page = compose(width, tree, core, foraging, new Ui.Scaled(treeView, factor));
         }
         return page;
     }
@@ -155,12 +152,11 @@ public class ForagingPage extends ProfileViewerPage {
             int color = maxed ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA;
             int bodyWidth = width - 16 - 6;
 
+            // only name and tier on the line - the gift count squeezed the name down to one letter
             Ui body = Ui.col(2,
                     new Ui.SpaceBetween(bodyWidth,
                             new Ui.Label(Kit.prettify(tree), NeuStyle.TEXT),
-                            Ui.row(6, Ui.V.CENTER,
-                                    new Ui.Label(tier + "/" + max, color),
-                                    new Ui.Label(Kit.compact(amount) + " gifts", NeuStyle.TEXT_GRAY))),
+                            new Ui.Label(tier + "/" + max, color)),
                     Kit.bar(bodyWidth, maxed ? 1 : milestone.progress(), color));
 
             List<String> tooltip = List.of(
@@ -185,9 +181,10 @@ public class ForagingPage extends ProfileViewerPage {
             long best = asLong(get(bests, tree + "_LOG"));
             long max = ForagingRepo.value(tree.toLowerCase() + "_personal_best");
             boolean full = max > 0 && best >= max;
+            // compact on both sides, the long form crushed the label next to it
             String value = max > 0
-                    ? String.format("%,d", Math.min(best, max)) + " / " + Kit.compact(max)
-                    : String.format("%,d", best);
+                    ? Kit.compact(Math.min(best, max)) + " / " + Kit.compact(max)
+                    : Kit.compact(best);
 
             rows.add(new Ui.Tip(new Ui.SpaceBetween(width,
                     new Ui.Label(Kit.prettify(tree) + " Log", NeuStyle.TEXT_GRAY),

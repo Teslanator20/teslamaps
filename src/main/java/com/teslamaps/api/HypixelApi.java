@@ -48,6 +48,14 @@ public class HypixelApi {
         cache.values().removeIf(CacheEntry::isExpired);
     }
 
+    /** The configured key, or null when it is blank or obvious junk ("reset") - junk cost a 403 round trip per request. */
+    private static String configuredKey() {
+        String key = TeslaMapsConfig.get().hypixelApiKey;
+        if (key == null) return null;
+        key = key.trim();
+        return key.replace("-", "").length() == 32 ? key : null;
+    }
+
     public static CompletableFuture<String> nameToUuid(String playerName) {
         return CompletableFuture.supplyAsync(() -> {
             String cacheKey = "uuid:" + playerName.toLowerCase();
@@ -120,7 +128,7 @@ public class HypixelApi {
                 return cached.data;
             }
 
-            String apiKey = TeslaMapsConfig.get().hypixelApiKey;
+            String apiKey = configuredKey();
             if (apiKey == null || apiKey.isBlank()) {
                 return profilesViaPv(uuid, cacheKey);
             }
@@ -231,7 +239,7 @@ public class HypixelApi {
                 return cached.data;
             }
 
-            String apiKey = TeslaMapsConfig.get().hypixelApiKey;
+            String apiKey = configuredKey();
             if (apiKey == null || apiKey.isBlank()) {
                 return extraViaPv(pvPath, kind, cacheKey);
             }
@@ -268,7 +276,7 @@ public class HypixelApi {
             CacheEntry cached = cache.get(cacheKey);
             if (cached != null && !cached.isExpired()) return cached.data;
 
-            String apiKey = TeslaMapsConfig.get().hypixelApiKey;
+            String apiKey = configuredKey();
             if (apiKey == null || apiKey.isBlank()) return new JsonObject();
 
             try {
@@ -305,7 +313,7 @@ public class HypixelApi {
                 return cached.data.has("name") ? cached.data.get("name").getAsString() : null;
             }
 
-            String apiKey = TeslaMapsConfig.get().hypixelApiKey;
+            String apiKey = configuredKey();
             if (apiKey == null || apiKey.isBlank()) return null;
 
             try {
@@ -338,7 +346,7 @@ public class HypixelApi {
     /** null = key works, otherwise the reason. Hypixel dropped /key, so this uses a real request. */
     public static CompletableFuture<String> validateKey(String uuid) {
         return CompletableFuture.supplyAsync(() -> {
-            String apiKey = TeslaMapsConfig.get().hypixelApiKey;
+            String apiKey = configuredKey();
             if (apiKey == null || apiKey.isBlank()) return "No API key set";
 
             try {

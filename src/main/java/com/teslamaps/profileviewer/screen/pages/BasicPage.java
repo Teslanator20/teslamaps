@@ -89,6 +89,19 @@ public class BasicPage extends ProfileViewerPage {
                 (profiles != null ? profiles.getRankPrefix() : "") + name);
         ctx.text(tr, titled, left + 63 - tr.width(titled) / 2, top + 6, -1);
 
+        // rank and guild only exist with an own hypixel key; say so instead of silently missing
+        String apiKey = com.teslamaps.config.TeslaMapsConfig.get().hypixelApiKey;
+        boolean keyMissing = apiKey == null || apiKey.isBlank() || apiKey.length() < 30;
+        if (keyMissing && profiles != null && profiles.getRankPrefix().isEmpty()
+                && mouseX >= left + 8 && mouseX <= left + 118 && mouseY >= top + 4 && mouseY <= top + 14) {
+            tooltip = new String[]{
+                    "Rank & guild need a Hypixel API key",
+                    "Set one with /tmap apikey <key>",
+            };
+            tooltipX = mouseX;
+            tooltipY = mouseY;
+        }
+
         // the player preview, looking at the cursor like the vanilla inventory does
         NeuStyle.slimBox(ctx, left + 23, top + 16, 81, 108);
         if (profiles != null) {
@@ -130,7 +143,7 @@ public class BasicPage extends ProfileViewerPage {
         int sbY = top + 74;
         double sbLevel = profile.getSkyblockLevel();
         drawCentered(ctx, tr, "SkyBlock Level", sbX + 9, sbY - 24, NeuStyle.TEXT_GRAY);
-        drawCentered(ctx, tr, String.valueOf((int) sbLevel), sbX + 9, sbY - 12, NeuStyle.TEXT_AQUA);
+        drawCentered(ctx, tr, String.valueOf((int) sbLevel), sbX + 9, sbY - 12, sbLevelColor((int) sbLevel));
         double sbProgress = sbLevel - (long) sbLevel;
         ctx.text(tr, (int) (sbProgress * 100) + "/100", sbX - 30, sbY + 20, NeuStyle.TEXT_YELLOW);
         NeuStyle.bar(ctx, sbX - 30, sbY + 30, 80, sbProgress, 0xFF55FFFF);
@@ -174,33 +187,6 @@ public class BasicPage extends ProfileViewerPage {
                         skill.getDisplayName(),
                         "Progress: " + (overflow ? skill.getFormattedOverflowProgress() : skill.getFormattedProgress()),
                         "Total XP: " + skill.getFormattedTotalXp(),
-                };
-                tooltipX = mouseX;
-                tooltipY = mouseY;
-            }
-        }
-
-        // hunting took catacombs' skill slot, so cata moved into the middle column
-        if (profile.getDungeonData() != null) {
-            com.teslamaps.api.DungeonData dungeons = profile.getDungeonData();
-            int cataY = sbY + 74;
-
-            ctx.item(new ItemStack(Items.WITHER_SKELETON_SKULL), left + 130, cataY - 5);
-            ctx.text(tr, "Catacombs", left + 149, cataY - 3, NeuStyle.TEXT_RED);
-            ctx.text(tr, String.valueOf(dungeons.getCatacombsLevel()), left + 149 + tr.width("Catacombs") + 5,
-                    cataY - 3, NeuStyle.TEXT);
-            NeuStyle.bar(ctx, left + 130, cataY + 8, 80, dungeons.getCatacombsProgress());
-
-            if (mouseX > left + 128 && mouseX < left + 216 && mouseY > cataY - 6 && mouseY < cataY + 14) {
-                int runs = dungeons.getTotalRuns();
-                double secretsPerRun = runs > 0 ? dungeons.getSecretsFound() / (double) runs : 0;
-                tooltip = new String[]{
-                        "Catacombs",
-                        "Level: " + dungeons.getCatacombsLevel(),
-                        "Total XP: " + formatXp(dungeons.getCatacombsXp()),
-                        "Runs: " + String.format("%,d", runs),
-                        "Secrets: " + String.format("%,d", dungeons.getSecretsFound())
-                                + String.format(java.util.Locale.ROOT, " (%.2f/run)", secretsPerRun),
                 };
                 tooltipX = mouseX;
                 tooltipY = mouseY;
@@ -270,6 +256,26 @@ public class BasicPage extends ProfileViewerPage {
         ctx.text(tr, value, x + w - tr.width(value), y, valueColor);
     }
 
+    /** Hypixel's level bracket colours, one step every 40 levels. */
+    private static int sbLevelColor(int level) {
+        int[] colors = {
+                0xFFAAAAAA, // 0    gray
+                0xFFFFFFFF, // 40   white
+                0xFFFFFF55, // 80   yellow
+                0xFF55FF55, // 120  green
+                0xFF00AA00, // 160  dark green
+                0xFF55FFFF, // 200  aqua
+                0xFF00AAAA, // 240  dark aqua
+                0xFF5555FF, // 280  blue
+                0xFFFF55FF, // 320  light purple
+                0xFFAA00AA, // 360  dark purple
+                0xFFFFAA00, // 400  gold
+                0xFFFF5555, // 440  red
+                0xFFAA0000, // 480  dark red
+        };
+        return colors[Math.max(0, Math.min(colors.length - 1, level / 40))];
+    }
+
     private static ItemStack skillIcon(String key) {
         return new ItemStack(switch (key) {
             case "farming" -> Items.GOLDEN_HOE;
@@ -282,8 +288,8 @@ public class BasicPage extends ProfileViewerPage {
             case "carpentry" -> Items.CRAFTING_TABLE;
             case "runecrafting" -> Items.MAGMA_CREAM;
             case "social" -> Items.EMERALD;
-            case "taming" -> Items.LEAD;
-            case "hunting" -> Items.SPIDER_EYE;
+            case "taming" -> Items.WOLF_SPAWN_EGG;
+            case "hunting" -> Items.LEAD;
             default -> Items.PAPER;
         });
     }
