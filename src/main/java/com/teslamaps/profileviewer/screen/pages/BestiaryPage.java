@@ -130,21 +130,27 @@ public class BestiaryPage extends ProfileViewerPage {
         if (!subs.isEmpty()) {
             sub = Math.min(sub, subs.size() - 1);
             subRects.clear();
+            // wrap into more rows instead of silently dropping groups that no longer fit (icy biome)
             int bx = areaX;
+            int by = subRowY;
             for (int i = 0; i < subs.size(); i++) {
                 String label = subs.get(i).name();
                 int w = tr.width(label) + 10;
-                if (bx + w > areaX + areaW) break;
+                if (bx + w > areaX + areaW && bx > areaX) {
+                    bx = areaX;
+                    by += 14;
+                }
 
                 boolean active = i == sub;
-                boolean over = mouseX >= bx && mouseX < bx + w && mouseY >= subRowY && mouseY < subRowY + 12;
-                if (active) NeuStyle.slimBox(ctx, bx, subRowY - 1, w, 13);
-                ctx.text(tr, label, bx + 5, subRowY + 2,
+                boolean over = mouseX >= bx && mouseX < bx + w && mouseY >= by && mouseY < by + 12;
+                if (active) NeuStyle.slimBox(ctx, bx, by - 1, w, 13);
+                ctx.text(tr, label, bx + 5, by + 2,
                         active ? NeuStyle.TEXT_YELLOW : over ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
 
-                subRects.add(new int[]{bx, subRowY - 1, w, 13, i});
+                subRects.add(new int[]{bx, by - 1, w, 13, i});
                 bx += w + 4;
             }
+            subRowHeight = by - subRowY + 14;
         } else {
             sub = 0;
             subRects.clear();
@@ -184,11 +190,23 @@ public class BestiaryPage extends ProfileViewerPage {
         int totalTier = 0;
         for (BestiaryRepo.Mob mob : mobs) totalTier += BestiaryRepo.tier(mob, killsFor(kills, mob));
 
+        // the account's whole bestiary, over every category - cheap thanks to the kill cache
+        int grandTotal = 0;
+        for (BestiaryRepo.Category cat : categories) {
+            List<List<BestiaryRepo.Mob>> groups = cat.subs().isEmpty()
+                    ? List.of(cat.mobs())
+                    : cat.subs().stream().map(BestiaryRepo.Category::mobs).toList();
+            for (List<BestiaryRepo.Mob> group : groups) {
+                for (BestiaryRepo.Mob mob : group) grandTotal += BestiaryRepo.tier(mob, killsFor(kills, mob));
+            }
+        }
+
         Component title = LegacyText.parse(search.isEmpty() ? current.name()
                 : "Results for \"" + search.text() + "\" (" + mobs.size() + ")");
         ctx.text(tr, title, areaX, top + 8, -1);
         // sits next to the title, at the bottom it ran into the last rail entry
-        String summary = "Tiers: " + totalTier + "   Milestone: " + milestone(profile);
+        String summary = "Tiers: " + totalTier + "   Total: " + grandTotal
+                + "   Milestone: " + milestone(profile);
         ctx.text(tr, summary, areaX + areaW - tr.width(summary), top + 8, NeuStyle.TEXT_GRAY);
 
         for (int i = 0; i < perPage; i++) {
@@ -332,9 +350,16 @@ public class BestiaryPage extends ProfileViewerPage {
         stack.set(DataComponents.CUSTOM_NAME, LegacyText.parse(mob.name()));
 
         List<Component> lore = new ArrayList<>();
-        lore.add(LegacyText.parse("§7Kills: §e" + kills));
-        lore.add(LegacyText.parse("§7Tier: §a" + tier + "§7 / " + BestiaryRepo.maxTier(mob)));
-        if (mob.cap() > 0) lore.add(LegacyText.parse("§7Cap: §e" + mob.cap()));
+        String kill = com.teslamaps.profileviewer.ui.Kit.dots(kills);
+        lore.add(LegacyText.parse(mob.cap() > 0
+                ? "§7Kills: §e" + kill + "§7/§e" + com.teslamaps.profileviewer.ui.Kit.dots(mob.cap())
+                : "§7Kills: §e" + kill));
+        lore.add(LegacyText.parse("§7Tier: §a" + tier + "§7/§a" + BestiaryRepo.maxTier(mob)));
+        List<Integer> steps = mob.steps();
+        if (tier < steps.size()) {
+            lore.add(LegacyText.parse("§7Next tier: §e"
+                    + com.teslamaps.profileviewer.ui.Kit.dots(steps.get(tier)) + " §7kills"));
+        }
         stack.set(DataComponents.LORE, new ItemLore(lore));
 
         mobStacks.put(key, stack);

@@ -146,7 +146,7 @@ public class GardenPage extends ProfileViewerPage {
             List<String> tooltip = List.of(
                     "§a" + crop.display(),
                     "§7Milestone §f" + milestone.tier(),
-                    "§7Collected §f" + String.format("%,d", amount),
+                    "§7Collected §f" + com.teslamaps.profileviewer.ui.Kit.dots(amount),
                     "§7Crop upgrade §f" + asInt(get(upgrades, crop.key())) + "§7/§89");
 
             rows.add(new Ui.Tip(Ui.row(6, Ui.V.CENTER,

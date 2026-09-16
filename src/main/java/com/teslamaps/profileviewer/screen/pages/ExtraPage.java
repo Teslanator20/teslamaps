@@ -151,8 +151,8 @@ public class ExtraPage extends ProfileViewerPage {
             List<String> tooltip = new ArrayList<>();
             tooltip.add("§a" + SLAYER_NAMES.get(i) + " Slayer");
             tooltip.add("§7Level §f" + level + "§7/§f" + table.length);
-            tooltip.add("§7Total XP: §f" + String.format("%,d", xp));
-            if (!maxed) tooltip.add("§7Next level: §f" + String.format("%,d", table[level]) + " XP");
+            tooltip.add("§7Total XP: §f" + com.teslamaps.profileviewer.ui.Kit.dots(xp));
+            if (!maxed) tooltip.add("§7Next level: §f" + com.teslamaps.profileviewer.ui.Kit.dots(table[level]) + " XP");
 
             long total = 0;
             for (int tier = 0; tier < 5; tier++) {
@@ -160,10 +160,10 @@ public class ExtraPage extends ProfileViewerPage {
                 long attempts = asLong(get(slayer, "boss_attempts_tier_" + tier));
                 if (kills == 0 && attempts == 0) continue;
                 total += kills;
-                tooltip.add("§7Tier " + (tier + 1) + ": §f" + String.format("%,d", kills) + " kills"
-                        + (attempts > kills ? " §8(" + String.format("%,d", attempts) + " started)" : ""));
+                tooltip.add("§7Tier " + (tier + 1) + ": §f" + com.teslamaps.profileviewer.ui.Kit.dots(kills) + " kills"
+                        + (attempts > kills ? " §8(" + com.teslamaps.profileviewer.ui.Kit.dots(attempts) + " started)" : ""));
             }
-            tooltip.add("§7Bosses killed: §f" + String.format("%,d", total));
+            tooltip.add("§7Bosses killed: §f" + com.teslamaps.profileviewer.ui.Kit.dots(total));
 
             int color = xp > 0 ? SLAYER_COLORS.get(i) : NeuStyle.TEXT_DARK;
             rows.add(new Ui.Tip(Ui.col(2,

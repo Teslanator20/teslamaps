@@ -45,14 +45,21 @@ public class NeuStyle {
     // a thin strip on the edge the tab opens towards, instead of a ring around the whole thing
     private static final int ACCENT = 0xFF3FE0D0;
 
-    /** Tab above the window: 28 wide, the selected one is lit and reaches into the frame. */
+    /**
+     * Tab above the window, y is the strip top (-28), the window edge sits at 0. The selected
+     * tab melts through the window frame; the others end cleanly ON the edge so the outline
+     * keeps running underneath - no more ragged corners where the strip meets the window.
+     */
     public static void tab(GuiGraphicsExtractor ctx, int x, int y, boolean selected) {
-        int h = selected ? 32 : 31;
-        ctx.fill(x, y, x + 28, y + h, OUTLINE);
-        ctx.fill(x + 1, y + 1, x + 27, y + h, FRAME);
-        ctx.fill(x + 3, y + 3, x + 25, y + h, selected ? BODY_LIGHT : BODY);
         if (selected) {
-            ctx.fill(x + 3, y + 1, x + 25, y + 3, ACCENT);
+            ctx.fill(x, y, x + 28, 3, OUTLINE);
+            ctx.fill(x + 1, y + 1, x + 27, 3, FRAME);
+            ctx.fill(x + 3, y + 3, x + 25, 4, BODY_LIGHT);
+            ctx.fill(x + 3, y + 1, x + 25, 3, ACCENT);
+        } else {
+            ctx.fill(x, y + 2, x + 28, 0, OUTLINE);
+            ctx.fill(x + 1, y + 3, x + 27, 0, FRAME);
+            ctx.fill(x + 3, y + 5, x + 25, 0, BODY);
         }
     }
 

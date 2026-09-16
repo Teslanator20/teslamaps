@@ -160,7 +160,7 @@ public class CollectionsPage extends ProfileViewerPage {
         List<String> tooltip = List.of(
                 "§f" + entry.name(),
                 "§7Tier §f" + tier + "§7/§f" + entry.maxTiers(),
-                "§7Total: §f" + String.format("%,d", amount),
+                "§7Total: §f" + com.teslamaps.profileviewer.ui.Kit.dots(amount),
                 maxed ? "§7Maxed" : "§7Next: §f" + Kit.compact(amount) + "§7/§f" + Kit.compact(next));
 
         return new Ui.Tip(Ui.row(5, Ui.V.CENTER, new Ui.Icon(icon(entry.id()), 16, false, null), body), tooltip);

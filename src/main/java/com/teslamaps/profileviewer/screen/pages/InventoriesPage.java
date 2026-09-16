@@ -231,6 +231,8 @@ public class InventoriesPage extends ProfileViewerPage {
         int step = chipW + 2;
         int perRow = Math.max(1, (width + 2) / step);
         int rows = (pageCount + perRow - 1) / perRow;
+        // balance the rows: 18 packs become 9/9, not 13/5
+        perRow = (pageCount + rows - 1) / rows;
         // grow downward and clamp to the window bottom, so a second row never sits on the grid
         int startY = Math.min(y, lastTop + NeuStyle.PANEL_HEIGHT - rows * (chipH + 2) - 2);
 
@@ -270,7 +272,7 @@ public class InventoriesPage extends ProfileViewerPage {
         if (hoveredPage >= 0) {
             String label = section == Section.BACKPACKS ? "Backpack " + (hoveredPage + 1)
                     : section.label + " " + (hoveredPage + 1);
-            previewTooltip(label, pageContents(hoveredPage));
+            previewGrid(label, pageContents(hoveredPage), mouseX, mouseY);
         }
     }
 
@@ -297,26 +299,12 @@ public class InventoriesPage extends ProfileViewerPage {
         return pagedFull.subList(from, Math.min(from + pagedPerPage, pagedFull.size()));
     }
 
-    /** Small colored list of what a page holds. */
-    private void previewTooltip(String title, List<InventoryDecoder.Slot> contents) {
-        List<net.minecraft.network.chat.Component> lines = new ArrayList<>();
-        int filled = 0;
-        for (InventoryDecoder.Slot slot : contents) if (!slot.isEmpty()) filled++;
-        lines.add(com.teslamaps.profileviewer.data.LegacyText.parse("§e" + title + " §7- " + filled + " items"));
-
-        int shown = 0;
-        for (InventoryDecoder.Slot slot : contents) {
-            if (slot.isEmpty() || slot.name == null) continue;
-            if (shown >= 12) {
-                lines.add(com.teslamaps.profileviewer.data.LegacyText.parse(
-                        "§8... and " + (filled - shown) + " more"));
-                break;
-            }
-            String count = slot.count > 1 ? " §8x" + slot.count : "";
-            lines.add(com.teslamaps.profileviewer.data.LegacyText.parse(" " + slot.name + count));
-            shown++;
-        }
-        if (parent != null) parent.setHoveredLines(lines);
+    /** Item-grid preview at the cursor, exactly like the game's backpack preview. */
+    private void previewGrid(String title, List<InventoryDecoder.Slot> contents, int mouseX, int mouseY) {
+        if (parent == null || contents.isEmpty()) return;
+        parent.setHoveredPreview(
+                com.teslamaps.profileviewer.data.LegacyText.parse("§e" + title),
+                contents, mouseX, mouseY);
     }
 
     private List<InventoryDecoder.Slot> sideArmor = List.of();

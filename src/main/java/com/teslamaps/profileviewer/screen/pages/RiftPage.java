@@ -151,17 +151,17 @@ public class RiftPage extends ProfileViewerPage {
         List<String> tooltip = new ArrayList<>();
         tooltip.add("§cRiftstalker Slayer");
         tooltip.add("§7Level §f" + level + "§7/§f5");
-        tooltip.add("§7Total XP: §f" + String.format("%,d", xp));
+        tooltip.add("§7Total XP: §f" + com.teslamaps.profileviewer.ui.Kit.dots(xp));
         long total = 0;
         for (int tier = 0; tier < 5; tier++) {
             int kills = asInt(get(boss, "boss_kills_tier_" + tier));
             int attempts = asInt(get(boss, "boss_attempts_tier_" + tier));
             if (kills == 0 && attempts == 0) continue;
             total += kills;
-            tooltip.add("§7Tier " + (tier + 1) + ": §f" + String.format("%,d", kills) + " kills"
-                    + (attempts > kills ? " §8(" + String.format("%,d", attempts) + " started)" : ""));
+            tooltip.add("§7Tier " + (tier + 1) + ": §f" + com.teslamaps.profileviewer.ui.Kit.dots(kills) + " kills"
+                    + (attempts > kills ? " §8(" + com.teslamaps.profileviewer.ui.Kit.dots(attempts) + " started)" : ""));
         }
-        tooltip.add("§7Bosses killed: §f" + String.format("%,d", total));
+        tooltip.add("§7Bosses killed: §f" + com.teslamaps.profileviewer.ui.Kit.dots(total));
 
         int color = maxed ? NeuStyle.TEXT_GOLD : 0xFFFF5555;
         return new Ui.Tip(Ui.col(2,

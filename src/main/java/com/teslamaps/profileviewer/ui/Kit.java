@@ -104,6 +104,11 @@ public class Kit {
         return new Ui.Bar(width, 5, progress, (ctx, x, y, w, p) -> NeuStyle.bar(ctx, x, y, w, p, color));
     }
 
+    /** 2.500 - thousands separated with dots. */
+    public static String dots(long value) {
+        return String.format(java.util.Locale.GERMAN, "%,d", value);
+    }
+
     /** 1,234 / 12.3M / 4.5B, the short form the hypixel menus use. */
     public static String compact(long value) {
         if (value < 1_000) return String.valueOf(value);

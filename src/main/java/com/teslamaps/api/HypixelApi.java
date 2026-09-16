@@ -304,6 +304,37 @@ public class HypixelApi {
         }, executor);
     }
 
+    /** Elitebot's public account mirror - playerData carries the rank fields, no key needed. */
+    public static JsonObject getPlayerViaElite(String uuid) {
+        {
+            String cacheKey = "eliteplayer:" + uuid;
+            CacheEntry cached = cache.get(cacheKey);
+            if (cached != null && !cached.isExpired()) return cached.data;
+
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("https://api.elitebot.dev/account/" + uuid.replace("-", "")))
+                        .timeout(Duration.ofSeconds(10))
+                        .header("User-Agent", "TeslaMaps/1.0")
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() != 200) return new JsonObject();
+
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                if (!json.has("playerData") || !json.get("playerData").isJsonObject()) return new JsonObject();
+
+                JsonObject player = json.getAsJsonObject("playerData");
+                cache.put(cacheKey, new CacheEntry(player, 600000));
+                return player;
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.warn("Elitebot player lookup for {} failed: {}", uuid, e.toString());
+                return new JsonObject();
+            }
+        }
+    }
+
     /** The player's guild name, or null. Needs an own key like the player object. */
     public static CompletableFuture<String> getGuildName(String uuid) {
         return CompletableFuture.supplyAsync(() -> {

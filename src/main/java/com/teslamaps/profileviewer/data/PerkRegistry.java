@@ -221,7 +221,7 @@ public class PerkRegistry {
             out.add("§7Next level");
             for (String line : next.reward()) out.add(tags(line));
             if (next.costKind() != null && next.amount() > 0) {
-                out.add(powderColor(next.costKind()) + "Cost: §f" + String.format("%,d", next.amount()));
+                out.add(powderColor(next.costKind()) + "Cost: §f" + com.teslamaps.profileviewer.ui.Kit.dots(next.amount()));
             }
         }
         return out;
@@ -238,8 +238,8 @@ public class PerkRegistry {
         String percent = required > 0 && spent < required ? " §e(" + (spent * 100 / required) + "%)" : "";
 
         return List.of("§7Powder Spent",
-                powderColor(kind) + name + "§7: §f" + String.format("%,d", spent)
-                        + "§7/§8" + String.format("%,d", required) + percent);
+                powderColor(kind) + name + "§7: §f" + com.teslamaps.profileviewer.ui.Kit.dots(spent)
+                        + "§7/§8" + com.teslamaps.profileviewer.ui.Kit.dots(required) + percent);
     }
 
     private static long sum(String formula, int toLevel) {
@@ -260,7 +260,7 @@ public class PerkRegistry {
     }
 
     private static String number(double value) {
-        return value == Math.floor(value) ? String.format("%,d", (long) value) : String.format("%.1f", value);
+        return value == Math.floor(value) ? com.teslamaps.profileviewer.ui.Kit.dots((long) value) : String.format("%.1f", value);
     }
 
     private static final Map<String, String> TAGS = Map.ofEntries(

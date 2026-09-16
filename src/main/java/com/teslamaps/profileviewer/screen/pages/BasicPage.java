@@ -88,36 +88,23 @@ public class BasicPage extends ProfileViewerPage {
         net.minecraft.network.chat.Component titled = com.teslamaps.profileviewer.data.LegacyText.parse(
                 (profiles != null ? profiles.getRankPrefix() : "") + name);
 
-        NeuStyle.slimBox(ctx, left + 23, top + 8, 81, 112);
-
-        // nametag: dark strip inside the box, name scaled to fit it
+        // name (with rank) centered over the box, scaled into the column when too long
         int tagWidth = tr.width(titled);
-        float tagScale = Math.min(1f, 73f / Math.max(1, tagWidth));
-        int shown = (int) (tagWidth * tagScale);
-        ctx.fill(left + 63 - shown / 2 - 3, top + 12, left + 63 + shown / 2 + 3, top + 23, 0x66000000);
+        float tagScale = Math.min(1f, 110f / Math.max(1, tagWidth));
         ctx.pose().pushMatrix();
-        ctx.pose().translate(left + 63 - shown / 2f, top + 15 - (tagScale < 1 ? (1 - tagScale) * 4 : 0));
+        ctx.pose().translate(left + 63 - tagWidth * tagScale / 2f, top + 6);
         ctx.pose().scale(tagScale, tagScale);
         ctx.text(tr, titled, 0, 0, -1);
         ctx.pose().popMatrix();
 
-        // rank and guild come from hypixel or the pv backend; if both stayed empty, say why
-        if (profiles != null && profiles.getRankPrefix().isEmpty()
-                && mouseX >= left + 23 && mouseX <= left + 104 && mouseY >= top + 10 && mouseY <= top + 24) {
-            tooltip = new String[]{
-                    "Rank not loaded (yet)",
-                    "An own key helps: /tmap apikey <key>",
-            };
-            tooltipX = mouseX;
-            tooltipY = mouseY;
-        }
+        NeuStyle.slimBox(ctx, left + 23, top + 16, 81, 104);
 
-        // the player under his nametag, looking at the cursor like the vanilla inventory does
+        // the player, looking at the cursor like the vanilla inventory does
         if (profiles != null) {
             PvPlayerRender.setArmor(profiles.getUuid(), name, armor);
             // entity renders live in screen space, not inside our scaled panel
             PvPlayerRender.draw(ctx, profiles.getUuid(), name,
-                    screenX(left + 26), screenY(top + 27),
+                    screenX(left + 26), screenY(top + 19),
                     screenX(left + 101), screenY(top + 117),
                     screenX(mouseX), screenY(mouseY));
         }

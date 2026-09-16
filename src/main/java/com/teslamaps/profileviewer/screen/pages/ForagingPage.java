@@ -162,9 +162,9 @@ public class ForagingPage extends ProfileViewerPage {
             List<String> tooltip = List.of(
                     "§a" + Kit.prettify(tree) + " Gifts",
                     "§7Milestone §f" + tier + "§7/§f" + max,
-                    "§7Total gifts: §f" + String.format("%,d", amount),
+                    "§7Total gifts: §f" + com.teslamaps.profileviewer.ui.Kit.dots(amount),
                     maxed ? "§6All milestones claimed"
-                            : "§7Next milestone at §f" + String.format("%,d", milestone.next()));
+                            : "§7Next milestone at §f" + com.teslamaps.profileviewer.ui.Kit.dots(milestone.next()));
 
             cards.add(new Ui.Tip(Ui.row(6, Ui.V.CENTER,
                     new Ui.Icon(Kit.icon(TREE_ICONS.getOrDefault(tree, "oak_log")), 16, false, null), body), tooltip));
@@ -190,8 +190,8 @@ public class ForagingPage extends ProfileViewerPage {
                     new Ui.Label(Kit.prettify(tree) + " Log", NeuStyle.TEXT_GRAY),
                     new Ui.Label(value, full ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT)),
                     List.of("§a" + Kit.prettify(tree) + " Log",
-                            "§7Personal best: §f" + String.format("%,d", best),
-                            "§7Counts up to §f" + String.format("%,d", max),
+                            "§7Personal best: §f" + com.teslamaps.profileviewer.ui.Kit.dots(best),
+                            "§7Counts up to §f" + com.teslamaps.profileviewer.ui.Kit.dots(max),
                             "§7Contest: §f" + Kit.prettify(STARLYN.getOrDefault(tree, "")))));
         }
 
@@ -200,7 +200,7 @@ public class ForagingPage extends ProfileViewerPage {
             if (best <= 0) continue;
             rows.add(new Ui.SpaceBetween(width,
                     new Ui.Label(Kit.prettify(contest) + " Contest", NeuStyle.TEXT_GRAY),
-                    new Ui.Label(String.format("%,d", best), NeuStyle.TEXT)));
+                    new Ui.Label(com.teslamaps.profileviewer.ui.Kit.dots(best), NeuStyle.TEXT)));
         }
 
         return rows.isEmpty() ? new Ui.Label("None yet", NeuStyle.TEXT_GRAY) : Ui.col(3, rows);

@@ -61,6 +61,43 @@ public class ProfileViewerScreen extends Screen {
         this.hoveredLines = lines;
     }
 
+    // a small item grid drawn at the cursor, like the game's backpack preview
+    private java.util.List<com.teslamaps.profileviewer.data.InventoryDecoder.Slot> previewSlots;
+    private Component previewTitle;
+    private int previewX;
+    private int previewY;
+
+    public void setHoveredPreview(Component title,
+                                  java.util.List<com.teslamaps.profileviewer.data.InventoryDecoder.Slot> slots,
+                                  int mouseX, int mouseY) {
+        this.previewTitle = title;
+        this.previewSlots = slots;
+        this.previewX = mouseX;
+        this.previewY = mouseY;
+    }
+
+    /** Drawn last inside the panel pose, so it sits over the page and the footer. */
+    private void renderPreview(GuiGraphicsExtractor ctx) {
+        if (previewSlots == null) return;
+
+        int columns = 9;
+        int rows = Math.max(1, (previewSlots.size() + columns - 1) / columns);
+        int slot = 16;
+        int w = columns * slot + 8;
+        int h = rows * slot + 20;
+
+        int x = Math.max(2, Math.min(previewX + 10, NeuStyle.PANEL_WIDTH - w - 2));
+        int y = Math.max(-24, Math.min(previewY - h - 4, NeuStyle.PANEL_HEIGHT - h - 2));
+
+        NeuStyle.window(ctx, x, y, w, h);
+        if (previewTitle != null) ctx.text(font, previewTitle, x + 4, y + 5, -1);
+        ItemGrid.draw(ctx, previewSlots, x + 4, y + 16, columns,
+                0, Math.min(previewSlots.size(), columns * rows), -1000, -1000, slot);
+
+        previewSlots = null;
+        previewTitle = null;
+    }
+
     private String nameInput = null;
     private long nameCursorBlink = 0;
     private float scale = 1;
@@ -221,6 +258,7 @@ public class ProfileViewerScreen extends Screen {
         }
 
         renderFooter(ctx, mx, my);
+        renderPreview(ctx);
 
         ctx.pose().popMatrix();
 
@@ -260,7 +298,7 @@ public class ProfileViewerScreen extends Screen {
             int y = -28;
             boolean hovered = mouseX >= x && mouseX < x + 28 && mouseY >= y && mouseY < y + 28;
 
-            NeuStyle.tab(ctx, x, selected ? y : y + 1, selected);
+            NeuStyle.tab(ctx, x, y, selected);
             ctx.item(page.getTabIcon(), x + 6, y + 9);
 
             if (hovered) hoveredTab = page.getTabName();
@@ -332,29 +370,45 @@ public class ProfileViewerScreen extends Screen {
         }
         nameRect = new int[]{nameX, y, nameWidth, height};
 
-        // one selector instead of a chip per profile, a whole row of them never fit
+        // one dropdown-style selector; clicking it opens the list of profiles above the bar
         if (profiles != null && profiles.isLoaded()) {
             SkyblockProfile selected = profiles.getSelectedProfile();
             String label = selected == null ? "-" : selected.getCuteName();
             int count = profiles.getProfiles().size();
-            String shown = count > 1 ? label + "  " + (profileIndex() + 1) + "/" + count : label;
+            String shown = count > 1 ? label + " " + (profileListOpen ? "v" : "^") : label;
 
-            int selectorWidth = Math.min(nameX - 6, font.width(shown) + 34);
+            int selectorWidth = Math.min(nameX - 6, font.width(shown) + 20);
             NeuStyle.window(ctx, 0, y, selectorWidth, height + 4);
-
-            boolean overLeft = mouseX >= 0 && mouseX < 14 && mouseY >= y && mouseY < y + height;
-            boolean overRight = mouseX >= selectorWidth - 14 && mouseX < selectorWidth
-                    && mouseY >= y && mouseY < y + height;
-
-            if (count > 1) {
-                ctx.text(font, "<", 6, y + 6, overLeft ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
-                ctx.text(font, ">", selectorWidth - 10, y + 6, overRight ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
-            }
-            ctx.text(font, shown, (selectorWidth - font.width(shown)) / 2, y + 6, NeuStyle.TEXT_TURQUOISE);
+            boolean over = inside(profileSelector, mouseX, mouseY);
+            ctx.text(font, shown, (selectorWidth - font.width(shown)) / 2, y + 6,
+                    over ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_TURQUOISE);
 
             profileSelector = new int[]{0, y, selectorWidth, height};
+
+            profileRows.clear();
+            if (profileListOpen && count > 0) {
+                List<String> names = profileNames();
+                int rowHeight = 12;
+                int listWidth = font.width("Profiles") + 20;
+                for (String name : names) listWidth = Math.max(listWidth, font.width(name) + 20);
+                int listHeight = names.size() * rowHeight + 8;
+                int listY = y - listHeight - 2;
+
+                NeuStyle.window(ctx, 0, listY, listWidth, listHeight);
+                for (int i = 0; i < names.size(); i++) {
+                    int rowY = listY + 4 + i * rowHeight;
+                    boolean current = i == profileIndex();
+                    boolean hover = mouseX >= 2 && mouseX < listWidth - 2
+                            && mouseY >= rowY && mouseY < rowY + rowHeight;
+                    if (hover) ctx.fill(3, rowY, listWidth - 3, rowY + rowHeight, 0x30FFFFFF);
+                    ctx.text(font, names.get(i), 8, rowY + 2,
+                            current ? NeuStyle.TEXT_YELLOW : hover ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
+                    profileRows.add(new int[]{2, rowY, listWidth - 4, rowHeight, i});
+                }
+            }
         } else {
             profileSelector = null;
+            profileRows.clear();
         }
 
         if (hoveredTab != null) {
@@ -369,6 +423,8 @@ public class ProfileViewerScreen extends Screen {
     private int[] profileSelector;
     private int[] skyRect;
     private int[] nameRect;
+    private boolean profileListOpen = false;
+    private final List<int[]> profileRows = new ArrayList<>();
 
     private List<String> profileNames() {
         return profiles == null ? List.of() : new ArrayList<>(profiles.getProfiles().keySet());
@@ -380,14 +436,13 @@ public class ProfileViewerScreen extends Screen {
         return Math.max(0, profileNames().indexOf(selected.getCuteName()));
     }
 
-    /** Steps to the next or previous profile and reloads every page for it. */
-    private void cycleProfile(int direction) {
+    /** Switches to the given profile and reloads every page for it. */
+    private void selectProfile(int index) {
         List<String> names = profileNames();
-        if (names.size() < 2) return;
+        if (index < 0 || index >= names.size()) return;
 
-        String next = names.get(((profileIndex() + direction) % names.size() + names.size()) % names.size());
-        SkyblockProfile profile = profiles.getProfiles().get(next);
-        if (profile == null) return;
+        SkyblockProfile profile = profiles.getProfiles().get(names.get(index));
+        if (profile == null || profile == profiles.getSelectedProfile()) return;
 
         profiles.setSelectedProfile(profile);
         for (ProfileViewerPage page : allPages) page.init(this, profiles);
@@ -443,11 +498,21 @@ public class ProfileViewerScreen extends Screen {
             }
         }
 
+        if (profileListOpen) {
+            for (int[] row : profileRows) {
+                if (mx >= row[0] && mx < row[0] + row[2] && my >= row[1] && my < row[1] + row[3]) {
+                    selectProfile(row[4]);
+                    profileListOpen = false;
+                    return true;
+                }
+            }
+        }
+
         if (inside(profileSelector, mx, my)) {
-            // left edge steps back, anywhere else steps forward
-            cycleProfile(mx < profileSelector[0] + 14 ? -1 : 1);
+            profileListOpen = !profileListOpen;
             return true;
         }
+        profileListOpen = false;
 
         if (inside(skyRect, mx, my) && profiles != null) {
             SkyblockProfile selected = profiles.getSelectedProfile();
@@ -479,6 +544,9 @@ public class ProfileViewerScreen extends Screen {
     public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
         int mx = (int) ((event.x() - panelX) / scale);
         int my = (int) ((event.y() - panelY) / scale);
+
+        // an open profile list floats over the page, so it eats the click first
+        if (profileListOpen && handleClick(mx, my, event.button())) return true;
 
         if (!loading && error == null && selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
             if (pages.get(selectedPageIndex).mouseClicked(mx, my, event.button())) return true;

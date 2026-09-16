@@ -107,7 +107,7 @@ public class TrophyFishPage extends ProfileViewerPage {
             if (any) unique++;
         }
 
-        String totals = "Total: " + String.format("%,d", totalCaught) + "   Unique: " + unique + "/" + FISH.size();
+        String totals = "Total: " + com.teslamaps.profileviewer.ui.Kit.dots(totalCaught) + "   Unique: " + unique + "/" + FISH.size();
         ctx.text(tr, totals, left + NeuStyle.PANEL_WIDTH - 10 - tr.width(totals), top + 8, NeuStyle.TEXT);
 
         int summaryY = top + 21;
@@ -170,7 +170,7 @@ public class TrophyFishPage extends ProfileViewerPage {
             if (hovered) {
                 hoverLines = List.of(
                         "§b" + fish.display(),
-                        "§7Total: §f" + String.format("%,d", total),
+                        "§7Total: §f" + com.teslamaps.profileviewer.ui.Kit.dots(total),
                         "§7Bronze: §f" + counts[0],
                         "§7Silver: §f" + counts[1],
                         "§7Gold: §f" + counts[2],
@@ -186,7 +186,7 @@ public class TrophyFishPage extends ProfileViewerPage {
     }
 
     private int summary(GuiGraphicsExtractor ctx, Font tr, String label, int value, int x, int y, int color) {
-        String text = label + ": " + String.format("%,d", value);
+        String text = label + ": " + com.teslamaps.profileviewer.ui.Kit.dots(value);
         ctx.text(tr, text, x, y, color);
         return x + tr.width(text) + 14;
     }

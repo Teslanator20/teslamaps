@@ -125,7 +125,7 @@ public class SkyblockProfiles {
         return rankPrefix;
     }
 
-    /** Rank needs the hypixel player object - own key first, the pv backend's /player as fallback. */
+    /** Rank needs the hypixel player object - own key, then the pv backend, then elitebot's mirror. */
     public void loadPlayer() {
         com.teslamaps.api.HypixelApi.getPlayer(uuid).thenApply(player -> {
             if (player != null && !player.keySet().isEmpty()) return player;
@@ -134,7 +134,8 @@ public class SkyblockProfiles {
             if (viaPv != null && viaPv.has("player") && viaPv.get("player").isJsonObject()) {
                 return viaPv.getAsJsonObject("player");
             }
-            return new JsonObject();
+            // the pv backend keeps /player switched off, elitebot mirrors the same object publicly
+            return com.teslamaps.api.HypixelApi.getPlayerViaElite(uuid);
         }).thenAccept(player -> {
             if (player == null || player.keySet().isEmpty()) return;
             rankPrefix = buildRank(player);
