@@ -59,13 +59,14 @@ public class ExtraPage extends ProfileViewerPage {
 
     private Ui build(JsonObject member, int width, int columns) {
         List<Ui> parts = new ArrayList<>();
+
+        Ui slayers = slayers(member, width, columns);
+        if (slayers != null) parts.add(Kit.section("Slayers", slayers));
+
         parts.add(Kit.section("Account", account(member, width)));
 
         Ui essence = essence(member, width);
         if (essence != null) parts.add(Kit.section("Essence", essence));
-
-        Ui slayers = slayers(member, width, columns);
-        if (slayers != null) parts.add(Kit.section("Slayers", slayers));
 
         return Ui.col(9, parts);
     }
@@ -111,25 +112,47 @@ public class ExtraPage extends ProfileViewerPage {
         return tiles.isEmpty() ? null : Kit.tileRow(width, tiles);
     }
 
-    /** One row per slayer, the per tier kills stay in the tooltip. */
+    // total xp needed per level; zombie, spider and the wolf/eman/blaze group differ, vampire has 5
+    private static final long[] XP_ZOMBIE = {5, 15, 200, 1000, 5000, 20000, 100000, 400000, 1000000};
+    private static final long[] XP_SPIDER = {5, 25, 200, 1000, 5000, 20000, 100000, 400000, 1000000};
+    private static final long[] XP_DEFAULT = {10, 30, 250, 1500, 5000, 20000, 100000, 400000, 1000000};
+    private static final long[] XP_VAMPIRE = {20, 75, 240, 840, 2400};
+
+    private static long[] xpTable(String key) {
+        return switch (key) {
+            case "zombie" -> XP_ZOMBIE;
+            case "spider" -> XP_SPIDER;
+            case "vampire" -> XP_VAMPIRE;
+            default -> XP_DEFAULT;
+        };
+    }
+
+    /** One full width row per slayer with its xp bar; level from the xp, not the claim state. */
     private Ui slayers(JsonObject member, int width, int columns) {
         JsonObject bosses = object(object(member, "slayer"), "slayer_bosses");
         if (bosses == null) return null;
 
-        columns = Math.max(1, Math.min(columns, width / 110));
+        columns = Math.max(1, Math.min(columns, width / 150));
         int cellWidth = Kit.cellWidth(width, columns, 12);
 
         List<Ui> rows = new ArrayList<>();
         for (int i = 0; i < SLAYER_KEYS.size(); i++) {
             JsonObject slayer = object(bosses, SLAYER_KEYS.get(i));
             long xp = asLong(get(slayer, "xp"));
-            if (xp <= 0) continue;
 
-            int level = slayerLevel(slayer);
+            long[] table = xpTable(SLAYER_KEYS.get(i));
+            int level = 0;
+            for (long threshold : table) if (xp >= threshold) level++;
+            boolean maxed = level >= table.length;
+            double progress = maxed ? 1
+                    : (xp - (level > 0 ? table[level - 1] : 0))
+                            / (double) (table[level] - (level > 0 ? table[level - 1] : 0));
+
             List<String> tooltip = new ArrayList<>();
             tooltip.add("§a" + SLAYER_NAMES.get(i) + " Slayer");
-            tooltip.add("§7Level §f" + level);
+            tooltip.add("§7Level §f" + level + "§7/§f" + table.length);
             tooltip.add("§7Total XP: §f" + String.format("%,d", xp));
+            if (!maxed) tooltip.add("§7Next level: §f" + String.format("%,d", table[level]) + " XP");
 
             long total = 0;
             for (int tier = 0; tier < 5; tier++) {
@@ -142,11 +165,15 @@ public class ExtraPage extends ProfileViewerPage {
             }
             tooltip.add("§7Bosses killed: §f" + String.format("%,d", total));
 
-            rows.add(new Ui.Tip(new Ui.SpaceBetween(cellWidth,
-                    new Ui.Label(SLAYER_NAMES.get(i), SLAYER_COLORS.get(i)),
-                    Ui.row(6, Ui.V.CENTER,
-                            new Ui.Label(String.valueOf(level), NeuStyle.TEXT),
-                            new Ui.Label(Kit.compact(xp), NeuStyle.TEXT_GRAY))),
+            int color = xp > 0 ? SLAYER_COLORS.get(i) : NeuStyle.TEXT_DARK;
+            rows.add(new Ui.Tip(Ui.col(2,
+                    new Ui.SpaceBetween(cellWidth,
+                            Ui.row(5, Ui.V.CENTER,
+                                    new Ui.Label(SLAYER_NAMES.get(i), color),
+                                    new Ui.Label(String.valueOf(level),
+                                            maxed ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT)),
+                            new Ui.Label(Kit.compact(xp) + " XP", NeuStyle.TEXT_GRAY)),
+                    Kit.bar(cellWidth, progress, maxed ? NeuStyle.TEXT_GOLD : color)),
                     tooltip));
         }
 
@@ -157,22 +184,6 @@ public class ExtraPage extends ProfileViewerPage {
         long first = asLong(get(object(member, "profile"), "first_join"));
         if (first <= 0) return "-";
         return new java.text.SimpleDateFormat("MMM d, yyyy").format(new java.util.Date(first));
-    }
-
-    /** Level is the highest claimed level entry. */
-    private static int slayerLevel(JsonObject slayer) {
-        JsonObject claimed = object(slayer, "claimed_levels");
-        if (claimed == null) return 0;
-
-        int level = 0;
-        for (String key : claimed.keySet()) {
-            String number = key.replace("level_", "").replace("_special", "");
-            try {
-                level = Math.max(level, Integer.parseInt(number));
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        return level;
     }
 
     private static long sum(JsonObject object) {

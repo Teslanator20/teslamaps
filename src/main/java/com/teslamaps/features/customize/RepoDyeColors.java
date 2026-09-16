@@ -14,12 +14,21 @@ public class RepoDyeColors {
     public static final Map<String, Integer> STATIC_DYES = new LinkedHashMap<>();
     public static final Map<String, List<Integer>> ANIMATED_DYES = new LinkedHashMap<>();
 
+    /** Dyes the NEU repo does not carry yet. */
+    private static final Map<String, List<Integer>> EXTRA_ANIMATED = Map.of(
+            "DYE_CHARCOAL", List.of(0x21262A, 0x202429));
+
     private static boolean requested = false;
 
     public static void init() {
         if (requested) return;
         requested = true;
+        addExtras();
         CustomizeRepo.load("dyes", RepoDyeColors::parse);
+    }
+
+    private static void addExtras() {
+        EXTRA_ANIMATED.forEach(ANIMATED_DYES::putIfAbsent);
     }
 
     private static void parse(JsonElement root) {
@@ -52,6 +61,7 @@ public class RepoDyeColors {
             STATIC_DYES.putAll(statics);
             ANIMATED_DYES.clear();
             ANIMATED_DYES.putAll(animated);
+            addExtras();
             TeslaMaps.LOGGER.info("[Customize] {} static dyes, {} animated dyes", STATIC_DYES.size(), ANIMATED_DYES.size());
         });
     }

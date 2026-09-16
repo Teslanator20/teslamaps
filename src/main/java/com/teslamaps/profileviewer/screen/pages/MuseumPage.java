@@ -26,9 +26,12 @@ public class MuseumPage extends ProfileViewerPage {
 
     private List<InventoryDecoder.Slot> donated = List.of();
     private List<InventoryDecoder.Slot> special = List.of();
+    private boolean parsed = false;
     private boolean showSpecial = false;
     private int page = 0;
     private int pageCount = 1;
+
+    private final com.teslamaps.profileviewer.ui.SearchField search = new com.teslamaps.profileviewer.ui.SearchField();
 
     private int lastLeft;
     private int lastTop;
@@ -57,7 +60,9 @@ public class MuseumPage extends ProfileViewerPage {
         museumData = null;
         donated = List.of();
         special = List.of();
+        parsed = false;
         page = 0;
+        search.clear();
         loadMuseumData();
     }
 
@@ -85,6 +90,7 @@ public class MuseumPage extends ProfileViewerPage {
 
         JsonObject member = member();
         if (member == null) return;
+        parsed = true;
 
         List<InventoryDecoder.Slot> donatedItems = new ArrayList<>();
         if (member.has("items") && member.get("items").isJsonObject()) {
@@ -148,7 +154,8 @@ public class MuseumPage extends ProfileViewerPage {
             ctx.text(tr, "No museum data", left + 20, top + 20, NeuStyle.TEXT_GRAY);
             return;
         }
-        if (donated.isEmpty() && special.isEmpty()) parseItems();
+        // parsed once, not per frame - an empty museum otherwise re-decoded everything each frame
+        if (!parsed) parseItems();
 
         JsonObject member = member();
         long value = member != null ? asLong(member.get("value")) : 0;
@@ -177,7 +184,17 @@ public class MuseumPage extends ProfileViewerPage {
         specialSwitchW = tr.width(specialLabel);
         switchRowY = switchY;
 
+        search.draw(ctx, left + NeuStyle.PANEL_WIDTH - 8 - 110, switchY - 3, 110);
+
         List<InventoryDecoder.Slot> shown = showSpecial ? special : donated;
+        if (!search.isEmpty()) {
+            List<InventoryDecoder.Slot> filtered = new ArrayList<>();
+            for (InventoryDecoder.Slot slot : shown) {
+                String name = slot.name != null ? com.teslamaps.utils.StringUtil.strip(slot.name) : slot.skyblockId;
+                if (search.matches(name)) filtered.add(slot);
+            }
+            shown = filtered;
+        }
 
         int areaW = NeuStyle.PANEL_WIDTH - 16;
         int areaY = top + 36;
@@ -218,7 +235,26 @@ public class MuseumPage extends ProfileViewerPage {
     private int switchRowY;
 
     @Override
+    public boolean charTyped(char chr) {
+        if (search.charTyped(chr)) {
+            page = 0;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (search.keyPressed(keyCode)) {
+            page = 0;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (search.mouseClicked(mouseX, mouseY, button)) return true;
         if (mouseY >= switchRowY - 3 && mouseY <= switchRowY + 10) {
             if (mouseX >= donatedSwitchX - 4 && mouseX <= donatedSwitchX + donatedSwitchW + 4) {
                 showSpecial = false;

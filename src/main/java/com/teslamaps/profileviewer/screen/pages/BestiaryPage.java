@@ -32,6 +32,9 @@ public class BestiaryPage extends ProfileViewerPage {
     private int page = 0;
     private int pageCount = 1;
     private int railScroll = 0;
+    private static final int RAIL_VISIBLE = 9;
+
+    private final com.teslamaps.profileviewer.ui.SearchField search = new com.teslamaps.profileviewer.ui.SearchField();
 
     private int lastLeft;
     private int lastTop;
@@ -83,29 +86,42 @@ public class BestiaryPage extends ProfileViewerPage {
                 && profile.getMemberData().getAsJsonObject("bestiary").has("kills")
                 ? profile.getMemberData().getAsJsonObject("bestiary").getAsJsonObject("kills") : new JsonObject();
 
+        // search over every category at once, sitting on top of the rail
+        search.draw(ctx, left + 6, top + 6, 104);
+
         // category rail, scrollable because the game has more than fits
-        int visible = 10;
+        int visible = RAIL_VISIBLE;
         railScroll = Math.max(0, Math.min(railScroll, Math.max(0, categories.size() - visible)));
         for (int i = 0; i < visible && i + railScroll < categories.size(); i++) {
             BestiaryRepo.Category cat = categories.get(i + railScroll);
             int bx = left + 6;
-            int by = top + 6 + i * 19;
-            boolean selected = (i + railScroll) == category;
+            int by = top + 24 + i * 19;
+            boolean selected = (i + railScroll) == category && search.isEmpty();
             boolean hovered = mouseX >= bx && mouseX < bx + 104 && mouseY >= by && mouseY < by + 17;
 
             if (selected) NeuStyle.slimBox(ctx, bx, by, 104, 17);
             ItemStack icon = iconFor(cat);
             if (!icon.isEmpty()) ctx.item(icon, bx + 1, by + 1);
-            String name = cat.name();
-            ctx.text(tr, name.length() > 13 ? name.substring(0, 13) : name, bx + 20, by + 4,
+            scaledText(ctx, tr, cat.name(), bx + 20, by + 4, 82,
                     selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
+        }
+
+        // thin scrollbar so the hidden categories are visible at a glance
+        if (categories.size() > visible) {
+            int trackX = left + 112;
+            int trackY = top + 24;
+            int trackH = visible * 19 - 2;
+            ctx.fill(trackX, trackY, trackX + 2, trackY + trackH, 0x40000000);
+            int thumbH = Math.max(8, trackH * visible / categories.size());
+            int thumbY = trackY + (trackH - thumbH) * railScroll / Math.max(1, categories.size() - visible);
+            ctx.fill(trackX, thumbY, trackX + 2, thumbY + thumbH, 0xA0FFFFFF);
         }
 
         BestiaryRepo.Category current = categories.get(category);
 
         // fishing and safari pick their group above the grid instead of filling the rail
-        List<BestiaryRepo.Category> subs = current.subs();
-        int railWidth = 116;
+        List<BestiaryRepo.Category> subs = search.isEmpty() ? current.subs() : List.of();
+        int railWidth = 120;
         int areaX = left + railWidth;
         int areaW = NeuStyle.PANEL_WIDTH - railWidth - 8;
         int subRowY = top + 20;
@@ -134,7 +150,19 @@ public class BestiaryPage extends ProfileViewerPage {
             subRects.clear();
         }
 
-        List<BestiaryRepo.Mob> mobs = subs.isEmpty() ? current.mobs() : subs.get(sub).mobs();
+        List<BestiaryRepo.Mob> mobs;
+        if (!search.isEmpty()) {
+            mobs = new java.util.ArrayList<>();
+            for (BestiaryRepo.Category cat : categories) {
+                if (cat.subs().isEmpty()) {
+                    collectMatches(cat.mobs(), mobs);
+                } else {
+                    for (BestiaryRepo.Category subCat : cat.subs()) collectMatches(subCat.mobs(), mobs);
+                }
+            }
+        } else {
+            mobs = subs.isEmpty() ? current.mobs() : subs.get(sub).mobs();
+        }
 
         // the grid is sized for this category, a handful of mobs get big slots instead of a big gap
         int areaY = top + 20 + subRowHeight;
@@ -156,7 +184,8 @@ public class BestiaryPage extends ProfileViewerPage {
         int totalTier = 0;
         for (BestiaryRepo.Mob mob : mobs) totalTier += BestiaryRepo.tier(mob, killsFor(kills, mob));
 
-        Component title = LegacyText.parse(current.name());
+        Component title = LegacyText.parse(search.isEmpty() ? current.name()
+                : "Results for \"" + search.text() + "\" (" + mobs.size() + ")");
         ctx.text(tr, title, areaX, top + 8, -1);
         // sits next to the title, at the bottom it ran into the last rail entry
         String summary = "Tiers: " + totalTier + "   Milestone: " + milestone(profile);
@@ -207,6 +236,28 @@ public class BestiaryPage extends ProfileViewerPage {
     private int pagerY;
     private int pagerW;
 
+    private void collectMatches(List<BestiaryRepo.Mob> from, List<BestiaryRepo.Mob> out) {
+        for (BestiaryRepo.Mob mob : from) {
+            if (search.matches(com.teslamaps.utils.StringUtil.strip(mob.name()))) out.add(mob);
+        }
+    }
+
+    /** Long category names shrink to fit the rail instead of being chopped off. */
+    private static void scaledText(GuiGraphicsExtractor ctx, Font tr, String text, int x, int y,
+                                   int maxWidth, int color) {
+        int width = tr.width(text);
+        if (width <= maxWidth) {
+            ctx.text(tr, text, x, y, color);
+            return;
+        }
+        float factor = Math.max(0.6f, (float) maxWidth / width);
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(x, y + (1 - factor) * 4);
+        ctx.pose().scale(factor, factor);
+        ctx.text(tr, text, 0, 0, color);
+        ctx.pose().popMatrix();
+    }
+
     private static int milestone(SkyblockProfile profile) {
         JsonObject bestiary = profile.getMemberData().has("bestiary")
                 ? profile.getMemberData().getAsJsonObject("bestiary") : null;
@@ -227,9 +278,12 @@ public class BestiaryPage extends ProfileViewerPage {
         ItemStack cached = mobStacks.get(key);
         if (cached != null) return cached;
 
-        ItemStack stack = mob.texture() != null
-                ? SkyblockItems.headFromTexture(mob.texture()) : new ItemStack(Items.ZOMBIE_HEAD);
-        if (stack.isEmpty()) stack = new ItemStack(Items.ZOMBIE_HEAD);
+        // dragons and co carry a plain item instead of a skull; only then fall back to a head
+        ItemStack stack = mob.texture() != null ? SkyblockItems.headFromTexture(mob.texture())
+                : mob.item() != null ? com.teslamaps.profileviewer.ui.Kit.icon(mob.item())
+                : ItemStack.EMPTY;
+        if (stack.isEmpty()) stack = new ItemStack(Items.PLAYER_HEAD);
+        else stack = stack.copy();
 
         stack.set(DataComponents.CUSTOM_NAME, LegacyText.parse(mob.name()));
 
@@ -255,7 +309,27 @@ public class BestiaryPage extends ProfileViewerPage {
     }
 
     @Override
+    public boolean charTyped(char chr) {
+        if (search.charTyped(chr)) {
+            page = 0;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (search.keyPressed(keyCode)) {
+            page = 0;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (search.mouseClicked(mouseX, mouseY, button)) return true;
+
         for (int[] rect : subRects) {
             if (mouseX >= rect[0] && mouseX < rect[0] + rect[2]
                     && mouseY >= rect[1] && mouseY < rect[1] + rect[3]) {
@@ -266,13 +340,14 @@ public class BestiaryPage extends ProfileViewerPage {
         }
 
         List<BestiaryRepo.Category> categories = BestiaryRepo.categories();
-        for (int i = 0; i < 10 && i + railScroll < categories.size(); i++) {
+        for (int i = 0; i < RAIL_VISIBLE && i + railScroll < categories.size(); i++) {
             int bx = lastLeft + 6;
-            int by = lastTop + 6 + i * 19;
+            int by = lastTop + 24 + i * 19;
             if (mouseX >= bx && mouseX < bx + 104 && mouseY >= by && mouseY < by + 17) {
                 category = i + railScroll;
                 sub = 0;
                 page = 0;
+                search.clear();
                 return true;
             }
         }
@@ -293,7 +368,7 @@ public class BestiaryPage extends ProfileViewerPage {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         // the rail scrolls on the left, the pages on the right
-        if (mouseX < lastLeft + 116) {
+        if (mouseX < lastLeft + 120) {
             railScroll = (int) Math.max(0, railScroll - amount);
             return true;
         }

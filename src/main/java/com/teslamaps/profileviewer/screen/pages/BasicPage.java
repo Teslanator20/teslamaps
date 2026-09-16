@@ -42,6 +42,17 @@ public class BasicPage extends ProfileViewerPage {
             0xFFFFAA00   // Taming - gold
     };
 
+    private java.util.List<com.teslamaps.profileviewer.data.InventoryDecoder.Slot> armor = java.util.List.of();
+
+    @Override
+    public void init(com.teslamaps.profileviewer.screen.ProfileViewerScreen parent,
+                     com.teslamaps.profileviewer.data.SkyblockProfiles profiles) {
+        super.init(parent, profiles);
+        // decoded once - doing it per frame rebuilt four slot objects a frame and flooded the item cache
+        SkyblockProfile profile = getProfile();
+        armor = profile == null ? java.util.List.of() : armorSlots(profile);
+    }
+
     @Override
     public boolean isFixedLayout() {
         return true;
@@ -72,19 +83,35 @@ public class BasicPage extends ProfileViewerPage {
             return;
         }
 
-        // left column: name, player, status
+        // left column: name over the head, the player, then status/guild/coins below
         String name = profiles != null ? profiles.getDisplayName() : "";
         net.minecraft.network.chat.Component titled = com.teslamaps.profileviewer.data.LegacyText.parse(
                 (profiles != null ? profiles.getRankPrefix() : "") + name);
-        ctx.text(tr, titled, left + 63 - tr.width(titled) / 2, top + 8, -1);
+        ctx.text(tr, titled, left + 63 - tr.width(titled) / 2, top + 6, -1);
 
-        if (profiles != null && com.teslamaps.features.capes.CapeSync.isUser(profiles.getUuid())) {
-            drawCentered(ctx, tr, "TeslaMaps user", left + 63, top + 17, NeuStyle.TEXT_AQUA);
+        // the player preview, looking at the cursor like the vanilla inventory does
+        NeuStyle.slimBox(ctx, left + 23, top + 16, 81, 108);
+        if (profiles != null) {
+            PvPlayerRender.setArmor(profiles.getUuid(), name, armor);
+            // entity renders live in screen space, not inside our scaled panel
+            PvPlayerRender.draw(ctx, profiles.getUuid(), name,
+                    screenX(left + 26), screenY(top + 19),
+                    screenX(left + 101), screenY(top + 121),
+                    screenX(mouseX), screenY(mouseY));
         }
 
-        drawCentered(ctx, tr, "Purse: " + formatCoins(profile.getCoinPurse()), left + 63, top + 26, NeuStyle.TEXT_GOLD);
-        drawCentered(ctx, tr, "Bank: " + formatCoins(profile.getBankBalance()), left + 63, top + 36, NeuStyle.TEXT_GOLD);
-        if (mouseX >= left + 8 && mouseX <= left + 118 && mouseY >= top + 34 && mouseY <= top + 45) {
+        String status = profiles != null ? profiles.getOnlineStatus() : "";
+        drawCentered(ctx, tr, status, left + 63, top + 128,
+                status.startsWith("Online") ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_RED);
+
+        String guild = profiles != null ? profiles.getGuildName() : null;
+        if (guild != null && !guild.isEmpty()) {
+            drawCentered(ctx, tr, guild, left + 63, top + 138, NeuStyle.TEXT_TURQUOISE);
+        }
+
+        drawCentered(ctx, tr, "Purse: " + formatCoins(profile.getCoinPurse()), left + 63, top + 152, NeuStyle.TEXT_GOLD);
+        drawCentered(ctx, tr, "Bank: " + formatCoins(profile.getBankBalance()), left + 63, top + 162, NeuStyle.TEXT_GOLD);
+        if (mouseX >= left + 8 && mouseX <= left + 118 && mouseY >= top + 160 && mouseY <= top + 171) {
             tooltip = new String[]{
                     "Bank",
                     "Coop: " + formatCoins(profile.getCoopBank()),
@@ -94,20 +121,9 @@ public class BasicPage extends ProfileViewerPage {
             tooltipY = mouseY;
         }
 
-        // the player preview, looking at the cursor like the vanilla inventory does
-        NeuStyle.slimBox(ctx, left + 23, top + 44, 81, 108);
-        if (profiles != null) {
-            PvPlayerRender.setArmor(profiles.getUuid(), name, armorSlots(profile));
-            // entity renders live in screen space, not inside our scaled panel
-            PvPlayerRender.draw(ctx, profiles.getUuid(), name,
-                    screenX(left + 26), screenY(top + 47),
-                    screenX(left + 101), screenY(top + 149),
-                    screenX(mouseX), screenY(mouseY));
+        if (profiles != null && com.teslamaps.features.capes.CapeSync.isUser(profiles.getUuid())) {
+            scaledCentered(ctx, tr, "TeslaMaps user", left + 63, top + 176, 0.75f, NeuStyle.TEXT_AQUA);
         }
-
-        String status = profiles != null ? profiles.getOnlineStatus() : "";
-        drawCentered(ctx, tr, status, left + 63, top + 160,
-                status.startsWith("Online") ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_RED);
 
         // middle column: skyblock level with its own bar, like NEU's skull block
         int sbX = left + 162;
@@ -164,27 +180,27 @@ public class BasicPage extends ProfileViewerPage {
             }
         }
 
-        // catacombs sits with the skills, it levels the same way
-        if (profile.getDungeonData() != null && position < 12) {
-            int column = position / 6;
-            int row = position % 6;
-            int sx = left + 237 + 86 * column;
-            int sy = top + 24 + 25 * row;
+        // hunting took catacombs' skill slot, so cata moved into the middle column
+        if (profile.getDungeonData() != null) {
             com.teslamaps.api.DungeonData dungeons = profile.getDungeonData();
+            int cataY = sbY + 74;
 
-            ctx.item(new ItemStack(Items.WITHER_SKELETON_SKULL), sx, sy - 9);
-            String levelStr = String.valueOf(dungeons.getCatacombsLevel());
-            int levelWidth = tr.width(levelStr);
-            scaledText(ctx, tr, "Catacombs", sx + 17, sy - 3, 80 - 19 - levelWidth - 3, NeuStyle.TEXT_RED);
-            ctx.text(tr, levelStr, sx + 80 - levelWidth, sy - 4, NeuStyle.TEXT);
-            NeuStyle.bar(ctx, sx, sy + 8, 80, dungeons.getCatacombsProgress());
+            ctx.item(new ItemStack(Items.WITHER_SKELETON_SKULL), left + 130, cataY - 5);
+            ctx.text(tr, "Catacombs", left + 149, cataY - 3, NeuStyle.TEXT_RED);
+            ctx.text(tr, String.valueOf(dungeons.getCatacombsLevel()), left + 149 + tr.width("Catacombs") + 5,
+                    cataY - 3, NeuStyle.TEXT);
+            NeuStyle.bar(ctx, left + 130, cataY + 8, 80, dungeons.getCatacombsProgress());
 
-            if (mouseX > sx && mouseX < sx + 80 && mouseY > sy - 9 && mouseY < sy + 14) {
+            if (mouseX > left + 128 && mouseX < left + 216 && mouseY > cataY - 6 && mouseY < cataY + 14) {
+                int runs = dungeons.getTotalRuns();
+                double secretsPerRun = runs > 0 ? dungeons.getSecretsFound() / (double) runs : 0;
                 tooltip = new String[]{
                         "Catacombs",
                         "Level: " + dungeons.getCatacombsLevel(),
                         "Total XP: " + formatXp(dungeons.getCatacombsXp()),
-                        "Secrets: " + dungeons.getSecretsFound(),
+                        "Runs: " + String.format("%,d", runs),
+                        "Secrets: " + String.format("%,d", dungeons.getSecretsFound())
+                                + String.format(java.util.Locale.ROOT, " (%.2f/run)", secretsPerRun),
                 };
                 tooltipX = mouseX;
                 tooltipY = mouseY;
@@ -222,6 +238,15 @@ public class BasicPage extends ProfileViewerPage {
 
     private void drawCentered(GuiGraphicsExtractor ctx, Font tr, String text, int centerX, int y, int color) {
         ctx.text(tr, text, centerX - tr.width(text) / 2, y, color);
+    }
+
+    private void scaledCentered(GuiGraphicsExtractor ctx, Font tr, String text, int centerX, int y,
+                                float factor, int color) {
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(centerX - tr.width(text) * factor / 2, y);
+        ctx.pose().scale(factor, factor);
+        ctx.text(tr, text, 0, 0, color);
+        ctx.pose().popMatrix();
     }
 
     /** Skill names are longer than the column, so they shrink like NEU's scaled strings do. */

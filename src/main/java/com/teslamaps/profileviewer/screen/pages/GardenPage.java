@@ -124,8 +124,9 @@ public class GardenPage extends ProfileViewerPage {
     private Ui crops(int width, int columns) {
         JsonObject collected = object(garden, "resources_collected");
         JsonObject upgrades = object(garden, "crop_upgrade_levels");
-        // the icon says which crop it is, a half cut name says nothing
-        columns = Math.max(1, Math.min(columns, width / 78));
+        // the icon says which crop it is, a half cut name says nothing. 96 keeps "Tier 10"
+        // plus the amount inside the cell - at 78 the tier label was scissored away
+        columns = Math.max(1, Math.min(columns, width / 96));
         int cellWidth = Kit.cellWidth(width, columns, 12);
 
         List<Ui> rows = new ArrayList<>();

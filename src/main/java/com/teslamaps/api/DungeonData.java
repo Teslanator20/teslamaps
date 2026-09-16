@@ -173,6 +173,14 @@ public class DungeonData {
     public Map<String, FloorData> getMasterFloors() { return masterFloors; }
     public int getSecretsFound() { return secretsFound; }
 
+    /** Entrance included, master modes included - what "secrets per run" divides by. */
+    public int getTotalRuns() {
+        int total = 0;
+        for (FloorData floor : normalFloors.values()) total += floor.getCompletions();
+        for (FloorData floor : masterFloors.values()) total += floor.getCompletions();
+        return total;
+    }
+
     public static class ClassData {
         private final String displayName;
         private double xp;

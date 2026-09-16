@@ -54,6 +54,55 @@ public class PetsPage extends ProfileViewerPage {
         page = 0;
     }
 
+    private int uniquePets;
+    private int petScore;
+    private int maxedPets;
+    private List<String> belowMax = List.of();
+
+    @Override
+    public void init(com.teslamaps.profileviewer.screen.ProfileViewerScreen parent,
+                     com.teslamaps.profileviewer.data.SkyblockProfiles profiles) {
+        super.init(parent, profiles);
+        computeStats();
+    }
+
+    /** Pet score: rarity points per unique pet type, plus one bonus point at max level. */
+    private void computeStats() {
+        uniquePets = 0;
+        petScore = 0;
+        maxedPets = 0;
+        List<String> missing = new ArrayList<>();
+
+        SkyblockProfile profile = getProfile();
+        if (profile == null) {
+            belowMax = List.of();
+            return;
+        }
+
+        Map<String, PetData> best = new java.util.LinkedHashMap<>();
+        for (PetData pet : profile.getPets()) {
+            PetData known = best.get(pet.getType());
+            if (known == null || pet.getRarityOrdinal() > known.getRarityOrdinal()
+                    || (pet.getRarityOrdinal() == known.getRarityOrdinal() && pet.getLevel() > known.getLevel())) {
+                best.put(pet.getType(), pet);
+            }
+        }
+
+        uniquePets = best.size();
+        for (PetData pet : best.values()) {
+            boolean maxed = pet.getLevel() >= pet.getMaxLevel();
+            petScore += pet.getRarityOrdinal() + 1 + (maxed ? 1 : 0);
+            if (maxed) {
+                maxedPets++;
+            } else {
+                missing.add(pet.getRarityCode() + pet.getDisplayName() + " §7(Lvl " + pet.getLevel()
+                        + "/" + pet.getMaxLevel() + ")");
+            }
+        }
+        missing.sort(String::compareTo);
+        belowMax = missing;
+    }
+
     @Override
     public void render(GuiGraphicsExtractor ctx, int x, int y, int width, int height,
                        int mouseX, int mouseY, float delta) {
@@ -72,7 +121,24 @@ public class PetsPage extends ProfileViewerPage {
         List<PetData> pets = profile.getPets();
 
         String title = "Pets (" + pets.size() + ")";
-        ctx.text(tr, title, left + NeuStyle.PANEL_WIDTH / 2 - tr.width(title) / 2, top + 6, NeuStyle.TEXT_YELLOW);
+        ctx.text(tr, title, left + 8, top + 6, NeuStyle.TEXT_YELLOW);
+
+        String stats = "Unique: " + uniquePets + "   Pet Score: " + petScore
+                + "   Maxed: " + maxedPets + "/" + uniquePets;
+        int statsX = left + NeuStyle.PANEL_WIDTH - 8 - tr.width(stats);
+        ctx.text(tr, stats, statsX, top + 6, NeuStyle.TEXT_AQUA);
+
+        // hovering the stats lists every pet that is not maxed yet
+        if (!belowMax.isEmpty() && mouseX >= statsX && mouseX <= statsX + tr.width(stats)
+                && mouseY >= top + 4 && mouseY <= top + 15) {
+            List<String> lines = new ArrayList<>();
+            lines.add("§eMissing max level (" + belowMax.size() + ")");
+            for (int i = 0; i < Math.min(belowMax.size(), 18); i++) lines.add(belowMax.get(i));
+            if (belowMax.size() > 18) lines.add("§8... and " + (belowMax.size() - 18) + " more");
+            List<net.minecraft.network.chat.Component> parsed = new ArrayList<>(lines.size());
+            for (String line : lines) parsed.add(LegacyText.parse(line));
+            if (parent != null) parent.setHoveredLines(parsed);
+        }
 
         // the grid is sized for this collection, so a small one gets big slots and no paging
         int areaW = NeuStyle.PANEL_WIDTH - 16;

@@ -96,14 +96,20 @@ public class CollectionsPage extends ProfileViewerPage {
 
         CollectionRepo.Category current = categories.get(category);
         List<CollectionRepo.Entry> items = current.items();
-        Map<String, Long> collected = profile.getCollections();
 
         int contentX = left + RAIL + 8;
         int contentWidth = left + width + 8 - contentX;
         int contentTop = top + 24;
         int available = top + height + 8 - contentTop - 14;
 
-        perPage = Math.max(2, (available / ROW_HEIGHT) * 2);
+        // rows per page from the real cell height, not a guess - a guessed 30 pushed rows that
+        // still fit onto the next page
+        int cellWidth = Kit.cellWidth(contentWidth, 2, 10);
+        Map<String, Long> collected = profile.getCollections();
+        int cellHeight = items.isEmpty() ? ROW_HEIGHT
+                : cell(items.getFirst(), collected.getOrDefault(items.getFirst().id(), 0L), cellWidth).height();
+        int rowsPerPage = Math.max(1, (available + 5) / (cellHeight + 5));
+        perPage = rowsPerPage * 2;
         pageCount = Math.max(1, (items.size() + perPage - 1) / perPage);
         page = Math.min(page, pageCount - 1);
 
@@ -114,14 +120,14 @@ public class CollectionsPage extends ProfileViewerPage {
         ctx.text(tr, current.name() + " - " + maxed + " / " + items.size() + " maxed",
                 contentX, top + 10, NeuStyle.TEXT_YELLOW);
 
-        int cellWidth = Kit.cellWidth(contentWidth, 2, 10);
         List<Ui> cells = new ArrayList<>();
         for (int i = 0; i < perPage; i++) {
             int index = page * perPage + i;
             if (index >= items.size()) break;
             cells.add(cell(items.get(index), collected.getOrDefault(items.get(index).id(), 0L), cellWidth));
         }
-        drawTree(ctx, Kit.grid(cells, 2, 10, 5), contentX, contentTop, mouseX, mouseY);
+        // the real content width, otherwise drawTree assumes a rail on both sides and shrinks
+        drawTree(ctx, Kit.grid(cells, 2, 10, 5), contentX, contentTop, contentWidth, mouseX, mouseY);
 
         if (pageCount > 1) {
             String pager = "< " + (page + 1) + " / " + pageCount + " >";

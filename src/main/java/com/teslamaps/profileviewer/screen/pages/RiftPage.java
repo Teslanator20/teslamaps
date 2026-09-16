@@ -41,6 +41,22 @@ public class RiftPage extends ProfileViewerPage {
             new Timecharm("vampiric", "Vampiric Timecharm", "redstone_block"),
             new Timecharm("mountain", "Celestial Timecharm", "snow_block"));
 
+    private List<InventoryDecoder.Slot> armor = List.of();
+    private List<InventoryDecoder.Slot> equipment = List.of();
+    private List<InventoryDecoder.Slot> items = List.of();
+
+    @Override
+    public void init(com.teslamaps.profileviewer.screen.ProfileViewerScreen parent,
+                     com.teslamaps.profileviewer.data.SkyblockProfiles profiles) {
+        super.init(parent, profiles);
+        // decoding per frame rebuilt every slot object each frame and flooded the item cache
+        SkyblockProfile profile = getProfile();
+        JsonObject inventory = profile == null ? null : object(object(profile.getMemberData(), "rift"), "inventory");
+        armor = InventoryDecoder.decode(inventory, "inv_armor");
+        equipment = InventoryDecoder.decode(inventory, "equipment_contents");
+        items = InventoryDecoder.decode(inventory, "inv_contents");
+    }
+
     @Override
     public String getTabName() {
         return "Rift";
@@ -149,20 +165,25 @@ public class RiftPage extends ProfileViewerPage {
         if (boundaries == null || boundaries.isEmpty()) {
             return new Ui.Label("No porthals unlocked", NeuStyle.TEXT_GRAY);
         }
-        StringBuilder text = new StringBuilder();
+        // wrap into as many lines as needed instead of clipping the whole list to one
+        var font = net.minecraft.client.Minecraft.getInstance().font;
+        List<Ui> lines = new ArrayList<>();
+        StringBuilder line = new StringBuilder();
         for (JsonElement element : boundaries) {
-            if (!text.isEmpty()) text.append("  -  ");
-            text.append(Kit.prettify(element.getAsString()));
+            String name = Kit.prettify(element.getAsString());
+            String appended = line.isEmpty() ? name : line + " - " + name;
+            if (!line.isEmpty() && font.width(appended) > width) {
+                lines.add(new Ui.Label(line.toString(), NeuStyle.TEXT_GREEN));
+                line = new StringBuilder(name);
+            } else {
+                line = new StringBuilder(appended);
+            }
         }
-        return new Ui.Label(Kit.clip(text.toString(), width), NeuStyle.TEXT_GREEN);
+        if (!line.isEmpty()) lines.add(new Ui.Label(line.toString(), NeuStyle.TEXT_GREEN));
+        return Ui.col(2, lines);
     }
 
     private Ui gear(JsonObject rift) {
-        JsonObject inventory = object(rift, "inventory");
-        List<InventoryDecoder.Slot> armor = InventoryDecoder.decode(inventory, "inv_armor");
-        List<InventoryDecoder.Slot> equipment = InventoryDecoder.decode(inventory, "equipment_contents");
-        List<InventoryDecoder.Slot> items = InventoryDecoder.decode(inventory, "inv_contents");
-
         return Ui.row(12, Ui.V.TOP,
                 labeled("Armor", column(reversed(armor), 4)),
                 labeled("Equipment", column(reversed(equipment), 4)),

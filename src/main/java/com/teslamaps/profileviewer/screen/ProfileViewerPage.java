@@ -68,6 +68,10 @@ public abstract class ProfileViewerPage {
         return false;
     }
 
+    public boolean charTyped(char chr) {
+        return false;
+    }
+
     /** Hypixel mixes strings into numeric maps, so never trust getAsInt on foreign data. */
     protected static int asInt(com.google.gson.JsonElement element) {
         if (element == null || !element.isJsonPrimitive()) return 0;
@@ -122,10 +126,15 @@ public abstract class ProfileViewerPage {
      */
     protected void drawTree(GuiGraphicsExtractor ctx, com.teslamaps.profileviewer.ui.Ui root,
                             int x, int y, int mouseX, int mouseY) {
+        // symmetric margins by default; pages with a rail pass their real content width
+        drawTree(ctx, root, x, y, com.teslamaps.profileviewer.screen.NeuStyle.PANEL_WIDTH - 2 * x, mouseX, mouseY);
+    }
+
+    protected void drawTree(GuiGraphicsExtractor ctx, com.teslamaps.profileviewer.ui.Ui root,
+                            int x, int y, int free, int mouseX, int mouseY) {
         com.teslamaps.profileviewer.ui.Ui.resetHover();
 
         int available = com.teslamaps.profileviewer.screen.NeuStyle.PANEL_HEIGHT - y - 6;
-        int free = com.teslamaps.profileviewer.screen.NeuStyle.PANEL_WIDTH - 2 * x;
 
         float fitHeight = root.height() > available && root.height() > 0
                 ? available / (float) root.height() : 1f;

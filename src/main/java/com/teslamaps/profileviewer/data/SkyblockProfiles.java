@@ -216,8 +216,14 @@ public class SkyblockProfiles {
         };
     }
 
+    private String guildName;
+
     public String getGuildName() {
-        return null;
+        return guildName;
+    }
+
+    public void loadGuild() {
+        HypixelApi.getGuildName(uuid).thenAccept(name -> guildName = name);
     }
 
     public static void addToRecentPlayers(String playerName) {

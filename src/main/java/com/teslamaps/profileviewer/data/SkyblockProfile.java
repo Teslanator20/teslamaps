@@ -50,7 +50,8 @@ public class SkyblockProfile {
                 {"carpentry", "Carpentry"},
                 {"runecrafting", "Runecrafting"},
                 {"social", "Social"},
-                {"taming", "Taming"}
+                {"taming", "Taming"},
+                {"hunting", "Hunting"}
         };
 
         JsonObject playerData = memberData.has("player_data") ?

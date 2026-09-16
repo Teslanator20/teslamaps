@@ -43,6 +43,11 @@ public class HypixelApi {
         }
     }
 
+    /** Expired profile blobs are multi-MB each; without this every viewed player stayed in memory forever. */
+    private static void evictExpired() {
+        cache.values().removeIf(CacheEntry::isExpired);
+    }
+
     public static CompletableFuture<String> nameToUuid(String playerName) {
         return CompletableFuture.supplyAsync(() -> {
             String cacheKey = "uuid:" + playerName.toLowerCase();
@@ -108,6 +113,7 @@ public class HypixelApi {
     /** Profiles keyed by cute name, each with the member data of the given uuid. */
     public static CompletableFuture<JsonObject> getProfiles(String uuid) {
         return CompletableFuture.supplyAsync(() -> {
+            evictExpired();
             String cacheKey = "profiles:" + uuid;
             CacheEntry cached = cache.get(cacheKey);
             if (cached != null && !cached.isExpired()) {
@@ -286,6 +292,45 @@ public class HypixelApi {
             } catch (Exception e) {
                 TeslaMaps.LOGGER.warn("Failed to fetch the hypixel player for {}: {}", uuid, e.toString());
                 return new JsonObject();
+            }
+        }, executor);
+    }
+
+    /** The player's guild name, or null. Needs an own key like the player object. */
+    public static CompletableFuture<String> getGuildName(String uuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            String cacheKey = "guild:" + uuid;
+            CacheEntry cached = cache.get(cacheKey);
+            if (cached != null && !cached.isExpired()) {
+                return cached.data.has("name") ? cached.data.get("name").getAsString() : null;
+            }
+
+            String apiKey = TeslaMapsConfig.get().hypixelApiKey;
+            if (apiKey == null || apiKey.isBlank()) return null;
+
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(HYPIXEL_API + "/guild?player=" + uuid))
+                        .timeout(Duration.ofSeconds(15))
+                        .header("API-Key", apiKey)
+                        .header("User-Agent", "TeslaMaps/1.0")
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() != 200) return null;
+
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                JsonObject result = new JsonObject();
+                if (json.has("guild") && json.get("guild").isJsonObject()) {
+                    JsonObject guild = json.getAsJsonObject("guild");
+                    if (guild.has("name")) result.addProperty("name", guild.get("name").getAsString());
+                }
+                cache.put(cacheKey, new CacheEntry(result, 600000));
+                return result.has("name") ? result.get("name").getAsString() : null;
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.warn("Failed to fetch the guild for {}: {}", uuid, e.toString());
+                return null;
             }
         }, executor);
     }

@@ -30,7 +30,19 @@ public class ItemGrid {
     private static final int SLOT_EDGE = 0x40FFFFFF;
 
     private static final Map<String, ItemStack> bases = new HashMap<>();
-    private static final Map<InventoryDecoder.Slot, ItemStack> built = new HashMap<>();
+    // slot keys are identity, so anything decoding per frame would grow this forever - bounded
+    // as a safety net and cleared when the viewer closes
+    private static final Map<InventoryDecoder.Slot, ItemStack> built =
+            new java.util.LinkedHashMap<>(256, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<InventoryDecoder.Slot, ItemStack> eldest) {
+                    return size() > 4096;
+                }
+            };
+
+    public static void clear() {
+        built.clear();
+    }
 
     /** The item as it should look in a menu: right material, hypixel name, hypixel lore. */
     public static ItemStack stackFor(InventoryDecoder.Slot slot) {
@@ -92,8 +104,9 @@ public class ItemGrid {
         return Math.max(SLOT, Math.min(size, MAX_SLOT));
     }
 
-    public static final int MAX_SLOT = 36;
-    public static final int MAX_FREE_SLOT = 54;
+    // grown slots read blurry and fat well before these caps; vanilla-ish sizes look right
+    public static final int MAX_SLOT = 24;
+    public static final int MAX_FREE_SLOT = 28;
 
     /**
      * Fits a free standing grid of <count> items into the area: the biggest slot size that gets

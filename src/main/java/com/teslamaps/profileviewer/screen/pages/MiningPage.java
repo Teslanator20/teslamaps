@@ -62,7 +62,7 @@ public class MiningPage extends ProfileViewerPage {
         int available = NeuStyle.PANEL_HEIGHT - 20;
         if (page.height() > available && treeView.height() > 0) {
             int rest = page.height() - treeView.height();
-            float factor = Math.max(0.85f, (available - rest) / (float) treeView.height());
+            float factor = Math.max(0.5f, (available - rest) / (float) treeView.height());
             if (factor < 1f) page = compose(width, tree, core, glacite, new Ui.Scaled(treeView, factor));
         }
         return page;

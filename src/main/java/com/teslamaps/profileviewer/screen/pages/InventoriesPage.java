@@ -22,12 +22,10 @@ public class InventoriesPage extends ProfileViewerPage {
         ENDER_CHEST("Ender Chest", Items.ENDER_CHEST),
         BACKPACKS("Backpacks", Items.BUNDLE),
         ACCESSORIES("Accessories", Items.GOLDEN_APPLE),
-        EQUIPMENT("Equipment", Items.DIAMOND_CHESTPLATE),
         VAULT("Personal Vault", Items.IRON_DOOR),
         FISHING("Fishing Bag", Items.FISHING_ROD),
         POTIONS("Potion Bag", Items.POTION),
-        QUIVER("Quiver", Items.ARROW),
-        SACKS("Sacks", Items.BUNDLE);
+        QUIVER("Quiver", Items.ARROW);
 
         final String label;
         final net.minecraft.world.item.Item icon;
@@ -128,7 +126,6 @@ public class InventoriesPage extends ProfileViewerPage {
             case INVENTORY -> {
                 slots = reorderPlayerInventory(decoded(inventory,"inv_contents"));
                 sideArmor = decoded(inventory,"inv_armor");
-                sideEquipment = decoded(inventory,"equipment_contents");
             }
             case ENDER_CHEST -> {
                 List<InventoryDecoder.Slot> all = decoded(inventory,"ender_chest_contents");
@@ -166,19 +163,6 @@ public class InventoriesPage extends ProfileViewerPage {
                 slots = pageOf(decoded(inventory,"bag_contents.quiver"), 45);
                 title = "Quiver";
             }
-            case SACKS -> {
-                slots = List.of();
-                title = null;
-                drawSacks(ctx, tr, profile, areaX, top + 10, areaW, mouseX, mouseY);
-            }
-            case EQUIPMENT -> {
-                List<InventoryDecoder.Slot> armor = decoded(inventory,"inv_armor");
-                List<InventoryDecoder.Slot> equipment = decoded(inventory,"equipment_contents");
-                List<InventoryDecoder.Slot> merged = new ArrayList<>(armor);
-                merged.addAll(equipment);
-                slots = merged;
-                title = "Armor and Equipment";
-            }
             case VAULT -> {
                 slots = decoded(inventory,"personal_vault_contents");
                 title = "Personal Vault";
@@ -190,23 +174,21 @@ public class InventoriesPage extends ProfileViewerPage {
             ctx.text(tr, title, areaX, top + 10, NeuStyle.TEXT_YELLOW);
         }
 
-        if (section == Section.SACKS) return;
-
         if (slots.isEmpty()) {
             ctx.text(tr, "Nothing here, or the api is off", areaX, areaY + 20, NeuStyle.TEXT_GRAY);
             return;
         }
 
-        int columns = section == Section.EQUIPMENT ? 4 : 9;
+        int columns = 9;
         int count = Math.min(slots.size(), columns * 9);
         int rows = Math.max(1, (count + columns - 1) / columns);
 
-        // the player inventory shows armor and equipment as two extra columns on the right
+        // the player inventory shows the armor as an extra column on the right
         boolean sideColumns = section == Section.INVENTORY;
         int sideGap = sideColumns ? 14 : 0;
-        int slotSize = ItemGrid.fitSlot(areaW - sideGap, areaH, columns + (sideColumns ? 2 : 0), rows);
+        int slotSize = ItemGrid.fitSlot(areaW - sideGap, areaH, columns + (sideColumns ? 1 : 0), rows);
 
-        int totalWidth = columns * slotSize + (sideColumns ? sideGap + 2 * slotSize : 0);
+        int totalWidth = columns * slotSize + (sideColumns ? sideGap + slotSize : 0);
         int gridX = areaX + Math.max(0, (areaW - totalWidth) / 2);
         int gridY = areaY + Math.max(0, (areaH - rows * slotSize) / 2);
 
@@ -216,24 +198,37 @@ public class InventoriesPage extends ProfileViewerPage {
             int sideX = gridX + 9 * slotSize + 10;
             ItemStack armorHover = ItemGrid.draw(ctx, reverse(sideArmor), sideX, gridY, 1, 0, 4,
                     mouseX, mouseY, slotSize);
-            ItemStack equipHover = ItemGrid.draw(ctx, sideEquipment, sideX + slotSize + 4, gridY, 1, 0, 4,
-                    mouseX, mouseY, slotSize);
-            if (hovered.isEmpty()) hovered = !armorHover.isEmpty() ? armorHover : equipHover;
+            if (hovered.isEmpty()) hovered = armorHover;
         }
 
-        if (pageCount > 1) {
-            String pager = "< " + (page + 1) + " / " + pageCount + " >";
-            int px = gridX + (columns * slotSize - tr.width(pager)) / 2;
-            int py = Math.max(gridY + rows * slotSize + 8, top + NeuStyle.PANEL_HEIGHT - 24);
-            ctx.text(tr, pager, px, py, NeuStyle.TEXT);
-            pagerX = px;
-            pagerY = py;
-            pagerW = tr.width(pager);
-        } else {
-            pagerW = 0;
-        }
+        drawPageChips(ctx, tr, gridX, columns * slotSize,
+                Math.max(gridY + rows * slotSize + 6, top + NeuStyle.PANEL_HEIGHT - 26), mouseX, mouseY);
 
         hoverStack(hovered);
+    }
+
+    // one numbered chip per page, so every backpack / accessory page is one click away
+    private final List<int[]> chipRects = new ArrayList<>();
+
+    private void drawPageChips(GuiGraphicsExtractor ctx, Font tr, int x, int width, int y,
+                               int mouseX, int mouseY) {
+        chipRects.clear();
+        if (pageCount <= 1) return;
+
+        int chipW = Math.min(18, Math.max(12, (width - (pageCount - 1) * 2) / pageCount));
+        int total = pageCount * chipW + (pageCount - 1) * 2;
+        int cx = x + Math.max(0, (width - total) / 2);
+
+        for (int i = 0; i < pageCount; i++) {
+            boolean active = i == page;
+            boolean over = mouseX >= cx && mouseX < cx + chipW && mouseY >= y && mouseY < y + 13;
+            if (active) NeuStyle.slimBox(ctx, cx, y, chipW, 13);
+            String label = String.valueOf(i + 1);
+            ctx.text(tr, label, cx + (chipW - tr.width(label)) / 2, y + 3,
+                    active ? NeuStyle.TEXT_YELLOW : over ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
+            chipRects.add(new int[]{cx, y, chipW, 13, i});
+            cx += chipW + 2;
+        }
     }
 
     /** Splits a container into the current page and pads it to a full grid. */
@@ -243,77 +238,7 @@ public class InventoriesPage extends ProfileViewerPage {
         return subList(all, page * perPage, perPage);
     }
 
-    /** Sacks are plain id to amount, so they get a list instead of a slot grid. */
-    private void drawSacks(GuiGraphicsExtractor ctx, Font tr, SkyblockProfile profile,
-                           int x, int y, int areaWidth, int mouseX, int mouseY) {
-        JsonObject inventory = profile.getMemberData().has("inventory")
-                ? profile.getMemberData().getAsJsonObject("inventory") : null;
-        if (inventory == null || !inventory.has("sacks_counts")) {
-            ctx.text(tr, "No sack data", x, y + 20, NeuStyle.TEXT_GRAY);
-            return;
-        }
-
-        JsonObject sacks = inventory.getAsJsonObject("sacks_counts");
-        List<java.util.Map.Entry<String, com.google.gson.JsonElement>> entries =
-                new ArrayList<>(sacks.entrySet());
-        entries.removeIf(e -> asInt(e.getValue()) <= 0);
-        entries.sort((a, b) -> Integer.compare(asInt(b.getValue()), asInt(a.getValue())));
-
-        // as many columns as the free space takes, so the list is not two columns in a wide window
-        int columns = Math.max(2, areaWidth / 105);
-        int columnWidth = areaWidth / columns;
-        int rows = 14;
-        int perPage = columns * rows;
-
-        pageCount = Math.max(1, (entries.size() + perPage - 1) / perPage);
-        page = Math.min(page, pageCount - 1);
-
-        ctx.text(tr, "Sacks (" + entries.size() + " types)  -  " + (page + 1) + " / " + pageCount,
-                x, y, NeuStyle.TEXT_YELLOW);
-
-        int column = 0;
-        int row = 0;
-        for (int i = page * perPage; i < Math.min(entries.size(), page * perPage + perPage); i++) {
-            var entry = entries.get(i);
-            int cx = x + column * columnWidth;
-            int cy = y + 14 + row * 11;
-            String name = com.teslamaps.utils.SkyblockItems.name(entry.getKey());
-            if (name == null || name.isEmpty()) name = capitalize(entry.getKey());
-
-            String amount = formatXp(asInt(entry.getValue()));
-            // clip against the real amount width, cutting at a fixed letter count still collided
-            name = com.teslamaps.profileviewer.ui.Kit.clip(name, columnWidth - 16 - tr.width(amount));
-
-            ctx.text(tr, name, cx, cy, NeuStyle.TEXT_GRAY);
-            ctx.text(tr, amount, cx + columnWidth - 10 - tr.width(amount), cy, NeuStyle.TEXT);
-
-            row++;
-            if (row >= rows) {
-                row = 0;
-                column++;
-            }
-        }
-
-        String pager = "< " + (page + 1) + " / " + pageCount + " >";
-        pagerX = x + (areaWidth - tr.width(pager)) / 2;
-        pagerY = y + 14 + rows * 11 + 6;
-        pagerW = tr.width(pager);
-        ctx.text(tr, pager, pagerX, pagerY, NeuStyle.TEXT);
-    }
-
-    private static String capitalize(String key) {
-        String[] words = key.replace('_', ' ').toLowerCase().split(" ");
-        StringBuilder out = new StringBuilder();
-        for (String word : words) {
-            if (word.isEmpty()) continue;
-            if (!out.isEmpty()) out.append(' ');
-            out.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
-        }
-        return out.toString();
-    }
-
     private List<InventoryDecoder.Slot> sideArmor = List.of();
-    private List<InventoryDecoder.Slot> sideEquipment = List.of();
 
     /** Hypixel stores armor boots first; the menu shows the helmet on top. */
     private static List<InventoryDecoder.Slot> reverse(List<InventoryDecoder.Slot> slots) {
@@ -321,10 +246,6 @@ public class InventoriesPage extends ProfileViewerPage {
         java.util.Collections.reverse(out);
         return out;
     }
-
-    private int pagerX;
-    private int pagerY;
-    private int pagerW;
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -338,13 +259,10 @@ public class InventoriesPage extends ProfileViewerPage {
             }
         }
 
-        if (pagerW > 0 && mouseY >= pagerY - 2 && mouseY <= pagerY + 10) {
-            if (mouseX >= pagerX - 4 && mouseX <= pagerX + 10) {
-                page = (page - 1 + pageCount) % pageCount;
-                return true;
-            }
-            if (mouseX >= pagerX + pagerW - 10 && mouseX <= pagerX + pagerW + 4) {
-                page = (page + 1) % pageCount;
+        for (int[] chip : chipRects) {
+            if (mouseX >= chip[0] && mouseX < chip[0] + chip[2]
+                    && mouseY >= chip[1] && mouseY < chip[1] + chip[3]) {
+                page = chip[4];
                 return true;
             }
         }

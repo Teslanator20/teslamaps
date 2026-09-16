@@ -130,6 +130,9 @@ public class DyeSelectPopup extends PopupScreen {
             keyFrames.add(new AnimatedDye.Keyframe(colors.get(max - 1), 1));
         }
 
+        // the interpolator always reads keyframe + 1
+        if (keyFrames.size() < 2) keyFrames.add(new AnimatedDye.Keyframe(colors.getLast(), 1));
+
         this.onClose();
         this.updateAnimated.accept(button, keyFrames, cycleBack);
     }

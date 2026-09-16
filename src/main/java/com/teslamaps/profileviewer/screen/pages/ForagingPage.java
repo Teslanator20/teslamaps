@@ -54,14 +54,19 @@ public class ForagingPage extends ProfileViewerPage {
         List<PerkRegistry.Perk> perks = PerkRegistry.hotf();
         Ui treeView = PerkTreeView.component(perks, tree.nodes, tree.level, PerkTreeView.FORAGING, tree.disabled);
 
-        // the tree only gives up a little height; below that it is unreadable, then the whole
-        // page shrinks instead
+        // only the tree scales, exactly to the free height - letting the whole page shrink made
+        // the tree end up at half of THIS again and everything else unreadable
         Ui page = compose(width, tree, core, foraging, treeView);
         int available = NeuStyle.PANEL_HEIGHT - 20;
-        if (page.height() > available && treeView.height() > 0) {
+        if (treeView.height() > 0) {
             int rest = page.height() - treeView.height();
-            float factor = Math.max(0.85f, (available - rest) / (float) treeView.height());
-            if (factor < 1f) page = compose(width, tree, core, foraging, new Ui.Scaled(treeView, factor));
+            float factor = Math.max(0.5f, (available - rest) / (float) treeView.height());
+            // a small tree also grows into the free height, as long as the side content still fits
+            if (factor > 1f) factor = Math.min(factor,
+                    Math.max(1f, (width - 160) / (float) Math.max(1, treeView.width())));
+            if (Math.abs(factor - 1f) > 0.01f) {
+                page = compose(width, tree, core, foraging, new Ui.Scaled(treeView, factor));
+            }
         }
         return page;
     }
@@ -74,14 +79,17 @@ public class ForagingPage extends ProfileViewerPage {
         int sideWidth = Math.max(150, width - treeView.width() - 10);
         int half = Math.max(110, (sideWidth - 10) / 2);
 
+        // mirror of the mining page: whispers where the powder sits, gifts below, bests right
         Ui side = sideWidth >= 230
                 ? Ui.row(10, Ui.V.TOP,
-                        Ui.col(6, tiles(half, tree, core, foraging),
+                        Ui.col(6, Kit.section("Whispers", whispers(half, tree, core)),
                                 Kit.section("Tree Gifts", gifts(foraging, half))),
-                        Kit.section("Personal Bests", personalBests(foraging, half)))
-                : Ui.col(6, tiles(sideWidth, tree, core, foraging),
+                        Ui.col(6, Kit.section("Personal Bests", personalBests(foraging, half)),
+                                Kit.section("Today", today(core, foraging, half))))
+                : Ui.col(6, Kit.section("Whispers", whispers(sideWidth, tree, core)),
                         Kit.section("Tree Gifts", gifts(foraging, sideWidth)),
-                        Kit.section("Personal Bests", personalBests(foraging, sideWidth)));
+                        Kit.section("Personal Bests", personalBests(foraging, sideWidth)),
+                        Kit.section("Today", today(core, foraging, sideWidth)));
 
         return Ui.col(6, header(width, tree), Ui.row(10, Ui.V.TOP, treeView, side));
     }
@@ -105,21 +113,32 @@ public class ForagingPage extends ProfileViewerPage {
                 Kit.bar(width, tree.progress()));
     }
 
-    private Ui tiles(int width, SkillTreeInfo tree, JsonObject core, JsonObject foraging) {
+    /** Same spot and shape as HotM's powder tiles: current / lifetime per whisper type. */
+    private Ui whispers(int width, SkillTreeInfo tree, JsonObject core) {
         long forestTotal = tree.total(core, "forest");
         long forestLeft = forestTotal - tree.spent(core, "forest");
         long desertTotal = tree.total(core, "desert");
         long desertLeft = desertTotal - tree.spent(core, "desert");
 
+        return Kit.tileRow(width, List.of(
+                new Kit.TileData("Forest", Kit.compact(Math.max(0, forestLeft)) + " / " + Kit.compact(forestTotal), NeuStyle.TEXT_AQUA),
+                new Kit.TileData("Desert", Kit.compact(Math.max(0, desertLeft)) + " / " + Kit.compact(desertTotal), NeuStyle.TEXT_GOLD)));
+    }
+
+    private Ui today(JsonObject core, JsonObject foraging, int width) {
         int fish = foraging != null && foraging.has("fish_family") && foraging.get("fish_family").isJsonArray()
                 ? foraging.getAsJsonArray("fish_family").size() : 0;
 
-        return Kit.tileRow(width, List.of(
-                new Kit.TileData("Forest Whispers", Kit.compact(Math.max(0, forestLeft)) + " / " + Kit.compact(forestTotal), NeuStyle.TEXT_AQUA),
-                new Kit.TileData("Desert Whispers", Kit.compact(Math.max(0, desertLeft)) + " / " + Kit.compact(desertTotal), NeuStyle.TEXT_GOLD),
-                new Kit.TileData("Trees Today", String.valueOf(asInt(get(core, "daily_trees_cut"))), NeuStyle.TEXT_GREEN),
-                new Kit.TileData("Gifts Today", String.valueOf(asInt(get(core, "daily_gifts"))), NeuStyle.TEXT_GREEN),
-                new Kit.TileData("Fish Family", String.valueOf(fish), NeuStyle.TEXT)));
+        return Ui.col(3,
+                row(width, "Trees cut", String.valueOf(asInt(get(core, "daily_trees_cut"))), NeuStyle.TEXT_GREEN),
+                row(width, "Gifts", String.valueOf(asInt(get(core, "daily_gifts"))), NeuStyle.TEXT_GREEN),
+                row(width, "Fish Family", String.valueOf(fish), NeuStyle.TEXT));
+    }
+
+    private Ui row(int width, String label, String value, int color) {
+        return new Ui.SpaceBetween(width,
+                new Ui.Label(label, NeuStyle.TEXT_GRAY),
+                new Ui.Label(value, color));
     }
 
     private Ui gifts(JsonObject foraging, int width) {

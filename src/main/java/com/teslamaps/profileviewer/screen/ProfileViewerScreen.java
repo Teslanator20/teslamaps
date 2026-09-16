@@ -76,6 +76,15 @@ public class ProfileViewerScreen extends Screen {
     }
 
     @Override
+    public void removed() {
+        // static caches otherwise outlive the screen and keep whole profiles plus a fake
+        // player (and through it the level) reachable for good
+        ItemGrid.clear();
+        PvPlayerRender.reset();
+        super.removed();
+    }
+
+    @Override
     protected void init() {
         allPages.clear();
         allPages.add(new BasicPage());
@@ -136,6 +145,7 @@ public class ProfileViewerScreen extends Screen {
                     SkyblockProfiles.addToRecentPlayers(targetPlayer);
                     profiles.loadStatus();
                     profiles.loadPlayer();
+                    profiles.loadGuild();
 
                     for (ProfileViewerPage page : allPages) {
                         page.init(this, profiles);
@@ -162,8 +172,10 @@ public class ProfileViewerScreen extends Screen {
         // and the recent player tabs hang 28 off the right edge
         int totalHeight = NeuStyle.PANEL_HEIGHT + 28 + 26;
         int totalWidth = NeuStyle.PANEL_WIDTH + 28;
-        // fractional on purpose: an integer step wastes up to half the screen at the wrong gui scale
-        scale = Math.max(1f, Math.min(width / (float) totalWidth, height / (float) totalHeight));
+        // fractional on purpose: an integer step wastes up to half the screen at the wrong gui scale.
+        // capped - filling the whole screen made everything comically fat on big windows
+        scale = Math.max(1f, Math.min(1.4f,
+                Math.min(width / (float) totalWidth, height / (float) totalHeight)));
         // on a window too narrow for the side tabs the panel wins, they get clipped instead
         panelX = Math.max(0, (int) ((width - totalWidth * scale) / 2));
         panelY = (int) ((height - totalHeight * scale) / 2 + 28 * scale);
@@ -234,12 +246,17 @@ public class ProfileViewerScreen extends Screen {
         hoveredLines = null;
     }
 
+    private int tabsX() {
+        return Math.max(0, (NeuStyle.PANEL_WIDTH - pages.size() * 28) / 2);
+    }
+
     private void renderTabs(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
-        // NEU: 28 wide, flush with the left window edge, sitting on top of it
+        // NEU: 28 wide, centered on the window, sitting on top of it
+        int offset = tabsX();
         for (int i = 0; i < pages.size(); i++) {
             ProfileViewerPage page = pages.get(i);
             boolean selected = i == selectedPageIndex;
-            int x = i * 28;
+            int x = offset + i * 28;
             int y = -28;
             boolean hovered = mouseX >= x && mouseX < x + 28 && mouseY >= y && mouseY < y + 28;
 
@@ -266,9 +283,12 @@ public class ProfileViewerScreen extends Screen {
             }
         }
 
-        for (int i = 0; i < Math.min(recent.size(), 7); i++) {
+        // bottom aligned - hanging off the top corner they fought with the tab strip for attention
+        int count = Math.min(recent.size(), 7);
+        int startY = NeuStyle.PANEL_HEIGHT - count * 28;
+        for (int i = 0; i < count; i++) {
             String name = recent.get(i);
-            int y = i * 28;
+            int y = startY + i * 28;
             boolean selected = i == selectedIndex;
             boolean hovered = mouseX >= x && mouseX < x + 28 && mouseY >= y && mouseY < y + 28;
 
@@ -397,8 +417,9 @@ public class ProfileViewerScreen extends Screen {
 
     /** Everything clickable lives here, the render pass only draws and hovers. */
     private boolean handleClick(int mx, int my, int button) {
+        int offset = tabsX();
         for (int i = 0; i < pages.size(); i++) {
-            int x = i * 28;
+            int x = offset + i * 28;
             if (mx >= x && mx < x + 28 && my >= -28 && my < 0) {
                 selectedPageIndex = i;
                 pages.get(i).onSelected();
@@ -408,10 +429,12 @@ public class ProfileViewerScreen extends Screen {
 
         List<String> recent = TeslaMapsConfig.get().recentPlayers;
         if (recent != null) {
-            for (int i = 0; i < Math.min(recent.size(), 7); i++) {
+            int count = Math.min(recent.size(), 7);
+            int startY = NeuStyle.PANEL_HEIGHT - count * 28;
+            for (int i = 0; i < count; i++) {
                 String name = recent.get(i);
                 if (mx >= NeuStyle.PANEL_WIDTH && mx < NeuStyle.PANEL_WIDTH + 28
-                        && my >= i * 28 && my < i * 28 + 28) {
+                        && my >= startY + i * 28 && my < startY + i * 28 + 28) {
                     if (!name.equalsIgnoreCase(targetPlayer)) {
                         Minecraft.getInstance().schedule(() -> open(name));
                     }
@@ -466,6 +489,11 @@ public class ProfileViewerScreen extends Screen {
 
     @Override
     public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
+        if (nameInput == null && !loading && error == null
+                && selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
+            String typed = event.codepointAsString();
+            if (!typed.isEmpty() && pages.get(selectedPageIndex).charTyped(typed.charAt(0))) return true;
+        }
         if (nameInput != null) {
             String typed = event.codepointAsString();
             if (!typed.isEmpty() && nameInput.length() < 16 && typed.matches("[A-Za-z0-9_]+")) {
@@ -479,6 +507,11 @@ public class ProfileViewerScreen extends Screen {
 
     @Override
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        if (nameInput == null && !loading && error == null
+                && selectedPageIndex >= 0 && selectedPageIndex < pages.size()
+                && pages.get(selectedPageIndex).keyPressed(event.key(), 0, 0)) {
+            return true;
+        }
         if (nameInput != null) {
             int key = event.key();
             if (key == 259) { // backspace

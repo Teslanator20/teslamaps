@@ -25,7 +25,8 @@ public class BestiaryRepo {
     private static final String URL =
             "https://raw.githubusercontent.com/NotEnoughUpdates/NotEnoughUpdates-REPO/master/constants/bestiary.json";
 
-    public record Mob(String name, String texture, int cap, int bracket, List<String> keys) {}
+    public record Mob(String name, String texture, String item, int cap, int bracket,
+                      String bracketType, List<String> keys) {}
 
     /** An icon is either a skull texture or a plain vanilla item id, the repo mixes both. */
     public record Category(String id, String name, String icon, String iconItem, List<Mob> mobs,
@@ -33,6 +34,8 @@ public class BestiaryRepo {
 
     private static final List<Category> categories = new ArrayList<>();
     private static final Map<Integer, List<Integer>> brackets = new HashMap<>();
+    // critters and co level on their own shorter step tables (bracketSets.<TYPE>.<bracket>)
+    private static final Map<String, Map<Integer, List<Integer>>> bracketSets = new HashMap<>();
     private static boolean loading = false;
     private static boolean loaded = false;
 
@@ -85,9 +88,27 @@ public class BestiaryRepo {
             }
         }
 
+        if (root.has("bracketSets") && root.get("bracketSets").isJsonObject()) {
+            JsonObject sets = root.getAsJsonObject("bracketSets");
+            for (String type : sets.keySet()) {
+                if (!sets.get(type).isJsonObject()) continue;
+                Map<Integer, List<Integer>> table = new HashMap<>();
+                JsonObject set = sets.getAsJsonObject(type);
+                for (String key : set.keySet()) {
+                    List<Integer> steps = new ArrayList<>();
+                    for (JsonElement element : set.getAsJsonArray(key)) steps.add(element.getAsInt());
+                    try {
+                        table.put(Integer.parseInt(key), steps);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+                bracketSets.put(type, table);
+            }
+        }
+
         categories.clear();
         for (String key : root.keySet()) {
-            if (key.equals("brackets") || key.equals("bracketSets") || key.equals("dynamic")) continue;
+            if (key.equals("brackets") || key.equals("bracketSets")) continue;
             JsonElement element = root.get(key);
             if (!element.isJsonObject()) continue;
             JsonObject category = element.getAsJsonObject();
@@ -153,8 +174,10 @@ public class BestiaryRepo {
         return new Mob(
                 mob.get("name").getAsString(),
                 mob.has("texture") ? mob.get("texture").getAsString() : null,
+                mob.has("item") ? mob.get("item").getAsString() : null,
                 mob.has("cap") ? mob.get("cap").getAsInt() : 0,
                 mob.has("bracket") ? mob.get("bracket").getAsInt() : 1,
+                mob.has("bracketType") ? mob.get("bracketType").getAsString() : null,
                 keys);
     }
 
@@ -181,7 +204,9 @@ public class BestiaryRepo {
      * be reached. Counting all 25 is what showed a maxed mob as 15/25.
      */
     private static List<Integer> steps(Mob mob) {
-        List<Integer> all = brackets.get(mob.bracket());
+        List<Integer> all = mob.bracketType() != null
+                ? bracketSets.getOrDefault(mob.bracketType(), Map.of()).get(mob.bracket())
+                : brackets.get(mob.bracket());
         if (all == null) return List.of();
         if (mob.cap() <= 0) return all;
 
