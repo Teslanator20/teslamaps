@@ -51,7 +51,9 @@ public class InventoriesPage extends ProfileViewerPage {
         backpackCache = null;
     }
 
-    private List<List<InventoryDecoder.Slot>> backpackCache;
+    private record Backpack(ItemStack icon, List<InventoryDecoder.Slot> contents) {}
+
+    private List<Backpack> backpackCache;
 
     private List<InventoryDecoder.Slot> decoded(JsonObject inventory, String path) {
         if (inventory == null) return List.of();
@@ -129,6 +131,8 @@ public class InventoriesPage extends ProfileViewerPage {
             }
             case ENDER_CHEST -> {
                 List<InventoryDecoder.Slot> all = decoded(inventory,"ender_chest_contents");
+                pagedFull = all;
+                pagedPerPage = 45;
                 pageCount = Math.max(1, (all.size() + 44) / 45);
                 page = Math.min(page, pageCount - 1);
                 slots = subList(all, page * 45, 45);
@@ -136,14 +140,15 @@ public class InventoriesPage extends ProfileViewerPage {
             }
             case BACKPACKS -> {
                 if (backpackCache == null) backpackCache = backpacks(inventory);
-                List<List<InventoryDecoder.Slot>> packs = backpackCache;
-                pageCount = Math.max(1, packs.size());
+                pageCount = Math.max(1, backpackCache.size());
                 page = Math.min(page, pageCount - 1);
-                slots = packs.isEmpty() ? List.of() : packs.get(page);
+                slots = backpackCache.isEmpty() ? List.of() : backpackCache.get(page).contents();
                 title = "Backpack " + (page + 1) + " / " + pageCount;
             }
             case ACCESSORIES -> {
                 List<InventoryDecoder.Slot> all = decoded(inventory,"bag_contents.talisman_bag");
+                pagedFull = all;
+                pagedPerPage = 45;
                 pageCount = Math.max(1, (all.size() + 44) / 45);
                 page = Math.min(page, pageCount - 1);
                 slots = subList(all, page * 45, 45);
@@ -172,6 +177,11 @@ public class InventoriesPage extends ProfileViewerPage {
 
         if (title != null) {
             ctx.text(tr, title, areaX, top + 10, NeuStyle.TEXT_YELLOW);
+        }
+
+        // enough backpacks wrap the icon strip into a second row; the grid gives up that height
+        if (section == Section.BACKPACKS && pageCount > Math.max(1, (areaW + 2) / 22)) {
+            areaH -= 22;
         }
 
         if (slots.isEmpty()) {
@@ -215,34 +225,98 @@ public class InventoriesPage extends ProfileViewerPage {
         chipRects.clear();
         if (pageCount <= 1) return;
 
-        // fixed chip size over the full area width; 18 backpacks overflowed a grid-width row
-        int chipW = 16;
-        int perRow = Math.max(1, (width + 2) / (chipW + 2));
+        boolean icons = section == Section.BACKPACKS && backpackCache != null;
+        int chipW = icons ? 20 : 16;
+        int chipH = icons ? 20 : 13;
+        int step = chipW + 2;
+        int perRow = Math.max(1, (width + 2) / step);
         int rows = (pageCount + perRow - 1) / perRow;
-        int startY = y - (rows - 1) * 15;
+        // grow downward and clamp to the window bottom, so a second row never sits on the grid
+        int startY = Math.min(y, lastTop + NeuStyle.PANEL_HEIGHT - rows * (chipH + 2) - 2);
 
+        int hoveredPage = -1;
         for (int i = 0; i < pageCount; i++) {
             int row = i / perRow;
             int inRow = Math.min(perRow, pageCount - row * perRow);
-            int rowX = x + Math.max(0, (width - inRow * (chipW + 2) + 2) / 2);
-            int cx = rowX + (i % perRow) * (chipW + 2);
-            int cy = startY + row * 15;
+            int rowX = x + Math.max(0, (width - inRow * step + 2) / 2);
+            int cx = rowX + (i % perRow) * step;
+            int cy = startY + row * (chipH + 2);
 
             boolean active = i == page;
-            boolean over = mouseX >= cx && mouseX < cx + chipW && mouseY >= cy && mouseY < cy + 13;
-            if (active) NeuStyle.slimBox(ctx, cx, cy, chipW, 13);
-            String label = String.valueOf(i + 1);
-            ctx.text(tr, label, cx + (chipW - tr.width(label)) / 2, cy + 3,
-                    active ? NeuStyle.TEXT_YELLOW : over ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
-            chipRects.add(new int[]{cx, cy, chipW, 13, i});
+            boolean over = mouseX >= cx && mouseX < cx + chipW && mouseY >= cy && mouseY < cy + chipH;
+            if (over) hoveredPage = i;
+
+            if (icons) {
+                // the real backpack items, like the backpack menu shows them
+                ItemGrid.slot(ctx, cx, cy, 20);
+                ItemGrid.item(ctx, backpackCache.get(i).icon(), cx, cy, 20);
+                if (active) {
+                    ctx.fill(cx, cy, cx + 19, cy + 1, NeuStyle.TEXT_YELLOW);
+                    ctx.fill(cx, cy + 18, cx + 19, cy + 19, NeuStyle.TEXT_YELLOW);
+                    ctx.fill(cx, cy, cx + 1, cy + 19, NeuStyle.TEXT_YELLOW);
+                    ctx.fill(cx + 18, cy, cx + 19, cy + 19, NeuStyle.TEXT_YELLOW);
+                } else if (over) {
+                    ctx.fill(cx + 1, cy + 1, cx + 18, cy + 18, 0x30FFFFFF);
+                }
+            } else {
+                if (active) NeuStyle.slimBox(ctx, cx, cy, chipW, chipH);
+                String label = String.valueOf(i + 1);
+                ctx.text(tr, label, cx + (chipW - tr.width(label)) / 2, cy + 3,
+                        active ? NeuStyle.TEXT_YELLOW : over ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
+            }
+            chipRects.add(new int[]{cx, cy, chipW, chipH, i});
+        }
+
+        if (hoveredPage >= 0) {
+            String label = section == Section.BACKPACKS ? "Backpack " + (hoveredPage + 1)
+                    : section.label + " " + (hoveredPage + 1);
+            previewTooltip(label, pageContents(hoveredPage));
         }
     }
 
     /** Splits a container into the current page and pads it to a full grid. */
     private List<InventoryDecoder.Slot> pageOf(List<InventoryDecoder.Slot> all, int perPage) {
+        pagedFull = all;
+        pagedPerPage = perPage;
         pageCount = Math.max(1, (all.size() + perPage - 1) / perPage);
         page = Math.min(page, pageCount - 1);
         return subList(all, page * perPage, perPage);
+    }
+
+    private List<InventoryDecoder.Slot> pagedFull = List.of();
+    private int pagedPerPage = 45;
+
+    /** What sits on page {@code index}, for the hover preview. */
+    private List<InventoryDecoder.Slot> pageContents(int index) {
+        if (section == Section.BACKPACKS) {
+            return backpackCache != null && index < backpackCache.size()
+                    ? backpackCache.get(index).contents() : List.of();
+        }
+        int from = index * pagedPerPage;
+        if (from >= pagedFull.size()) return List.of();
+        return pagedFull.subList(from, Math.min(from + pagedPerPage, pagedFull.size()));
+    }
+
+    /** Small colored list of what a page holds. */
+    private void previewTooltip(String title, List<InventoryDecoder.Slot> contents) {
+        List<net.minecraft.network.chat.Component> lines = new ArrayList<>();
+        int filled = 0;
+        for (InventoryDecoder.Slot slot : contents) if (!slot.isEmpty()) filled++;
+        lines.add(com.teslamaps.profileviewer.data.LegacyText.parse("§e" + title + " §7- " + filled + " items"));
+
+        int shown = 0;
+        for (InventoryDecoder.Slot slot : contents) {
+            if (slot.isEmpty() || slot.name == null) continue;
+            if (shown >= 12) {
+                lines.add(com.teslamaps.profileviewer.data.LegacyText.parse(
+                        "§8... and " + (filled - shown) + " more"));
+                break;
+            }
+            String count = slot.count > 1 ? " §8x" + slot.count : "";
+            lines.add(com.teslamaps.profileviewer.data.LegacyText.parse(" " + slot.name + count));
+            shown++;
+        }
+        if (parent != null) parent.setHoveredLines(lines);
     }
 
     private List<InventoryDecoder.Slot> sideArmor = List.of();
@@ -300,11 +374,14 @@ public class InventoriesPage extends ProfileViewerPage {
         return out;
     }
 
-    private static List<List<InventoryDecoder.Slot>> backpacks(JsonObject inventory) {
-        List<List<InventoryDecoder.Slot>> packs = new ArrayList<>();
+    private static List<Backpack> backpacks(JsonObject inventory) {
+        List<Backpack> packs = new ArrayList<>();
         if (inventory == null || !inventory.has("backpack_contents")) return packs;
 
         JsonObject contents = inventory.getAsJsonObject("backpack_contents");
+        JsonObject icons = inventory.has("backpack_icons") && inventory.get("backpack_icons").isJsonObject()
+                ? inventory.getAsJsonObject("backpack_icons") : new JsonObject();
+
         contents.keySet().stream().sorted((a, b) -> {
             try {
                 return Integer.compare(Integer.parseInt(a), Integer.parseInt(b));
@@ -313,7 +390,19 @@ public class InventoriesPage extends ProfileViewerPage {
             }
         }).forEach(key -> {
             List<InventoryDecoder.Slot> pack = InventoryDecoder.decode(contents, key);
-            if (!pack.isEmpty()) packs.add(pack);
+            if (pack.isEmpty()) return;
+
+            // hypixel stores the backpack item itself separately, one-slot container per index
+            ItemStack icon = ItemStack.EMPTY;
+            List<InventoryDecoder.Slot> iconSlots = InventoryDecoder.decode(icons, key);
+            for (InventoryDecoder.Slot slot : iconSlots) {
+                if (!slot.isEmpty()) {
+                    icon = ItemGrid.stackFor(slot);
+                    break;
+                }
+            }
+            if (icon.isEmpty()) icon = new ItemStack(Items.BUNDLE);
+            packs.add(new Backpack(icon, pack));
         });
         return packs;
     }

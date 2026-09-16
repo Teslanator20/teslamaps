@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.teslamaps.profileviewer.data.InventoryDecoder;
+import com.teslamaps.profileviewer.data.LegacyText;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.screen.ItemGrid;
 import com.teslamaps.profileviewer.screen.NeuStyle;
@@ -85,36 +86,56 @@ public class RiftPage extends ProfileViewerPage {
         long motes = asLong(get(currencies, "motes_purse"));
         long lifetime = asLong(get(stats, "lifetime_motes_earned"));
         long visits = asLong(get(stats, "visits"));
-        int souls = size(object(rift, "enigma"), "found_souls");
 
-        // two columns: the gear grid is wide, everything else is narrow and used to sit under it
         Ui gear = Kit.section("Rift Gear", gear(rift));
         int left = Math.max(150, width - gear.width() - 12);
 
-        return Ui.col(10,
+        return Ui.col(9,
                 Kit.tileRow(width, List.of(
                         new Kit.TileData("Motes Purse", Kit.compact(motes), MOTE),
                         new Kit.TileData("Lifetime Motes", Kit.compact(lifetime), NeuStyle.TEXT),
-                        new Kit.TileData("Enigma Souls", souls + "/" + ENIGMA_MAX,
-                                souls >= ENIGMA_MAX ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA),
                         new Kit.TileData("Rift Visits", Kit.compact(visits), NeuStyle.TEXT_GREEN),
-                        new Kit.TileData("Wither Eyes", size(object(rift, "wither_cage"), "killed_eyes") + "/7", NeuStyle.TEXT),
-                        new Kit.TileData("Dead Cats", size(object(rift, "dead_cats"), "found_cats") + "/9", NeuStyle.TEXT),
-                        new Kit.TileData("Montezuma",
-                                object(object(rift, "dead_cats"), "montezuma") != null ? "Owned" : "-",
-                                object(object(rift, "dead_cats"), "montezuma") != null ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_GRAY),
                         new Kit.TileData("Burgers", asInt(get(object(rift, "castle"), "grubber_stacks")) + "/5", NeuStyle.TEXT))),
                 Ui.row(12, Ui.V.TOP,
-                        Ui.col(9,
+                        Ui.col(8,
+                                Kit.section("Progress", progress(rift, left)),
                                 Kit.section("Vampire Slayer", vampire(member, left)),
-                                Kit.section("Timecharms", timecharms(rift)),
-                                Kit.section("Porthals", porthals(rift, left))),
+                                timecharmSection(rift),
+                                porthalSection(rift, left)),
                         gear));
+    }
+
+    /** Collection style rows with bars: souls, eyes, cats, montezuma. */
+    private Ui progress(JsonObject rift, int width) {
+        int souls = size(object(rift, "enigma"), "found_souls");
+        int eyes = size(object(rift, "wither_cage"), "killed_eyes");
+        int cats = size(object(rift, "dead_cats"), "found_cats");
+        boolean montezuma = object(object(rift, "dead_cats"), "montezuma") != null;
+
+        return Ui.col(4,
+                progressRow(width, "Enigma Souls", souls, ENIGMA_MAX),
+                progressRow(width, "Wither Eyes", eyes, 7),
+                progressRow(width, "Dead Cats", cats, 9),
+                new Ui.SpaceBetween(width,
+                        new Ui.Label("Montezuma", NeuStyle.TEXT_GRAY),
+                        new Ui.Label(montezuma ? "Owned" : "Not found",
+                                montezuma ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_DARK)));
+    }
+
+    private Ui progressRow(int width, String label, int have, int max) {
+        boolean done = have >= max;
+        int color = done ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA;
+        return Ui.col(2,
+                new Ui.SpaceBetween(width,
+                        new Ui.Label(label, NeuStyle.TEXT_GRAY),
+                        new Ui.Label(have + "/" + max, color)),
+                Kit.bar(width, max > 0 ? have / (double) max : 0, color));
     }
 
     // the rift's own slayer, five levels with their own xp brackets
     private static final long[] VAMPIRE_XP = {20, 75, 240, 840, 2400};
 
+    /** Same look as the slayers on the extra page: level, xp bar, tiers in the tooltip. */
     private Ui vampire(JsonObject member, int width) {
         JsonObject boss = object(object(object(member, "slayer"), "slayer_bosses"), "vampire");
         if (boss == null) return new Ui.Label("Never fought a vampire", NeuStyle.TEXT_GRAY);
@@ -123,20 +144,36 @@ public class RiftPage extends ProfileViewerPage {
         int level = 0;
         for (long threshold : VAMPIRE_XP) if (xp >= threshold) level++;
         boolean maxed = level >= VAMPIRE_XP.length;
+        double progress = maxed ? 1
+                : (xp - (level > 0 ? VAMPIRE_XP[level - 1] : 0))
+                        / (double) (VAMPIRE_XP[level] - (level > 0 ? VAMPIRE_XP[level - 1] : 0));
 
-        List<Kit.TileData> tiles = new ArrayList<>();
-        tiles.add(new Kit.TileData("Level", level + "/5", maxed ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_AQUA));
-        tiles.add(new Kit.TileData("XP", Kit.compact(xp), NeuStyle.TEXT));
+        List<String> tooltip = new ArrayList<>();
+        tooltip.add("§cRiftstalker Slayer");
+        tooltip.add("§7Level §f" + level + "§7/§f5");
+        tooltip.add("§7Total XP: §f" + String.format("%,d", xp));
+        long total = 0;
         for (int tier = 0; tier < 5; tier++) {
             int kills = asInt(get(boss, "boss_kills_tier_" + tier));
             int attempts = asInt(get(boss, "boss_attempts_tier_" + tier));
-            tiles.add(new Kit.TileData("T" + (tier + 1), kills + " / " + attempts,
-                    kills > 0 ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_GRAY));
+            if (kills == 0 && attempts == 0) continue;
+            total += kills;
+            tooltip.add("§7Tier " + (tier + 1) + ": §f" + String.format("%,d", kills) + " kills"
+                    + (attempts > kills ? " §8(" + String.format("%,d", attempts) + " started)" : ""));
         }
-        return Kit.tileRow(width, tiles);
+        tooltip.add("§7Bosses killed: §f" + String.format("%,d", total));
+
+        int color = maxed ? NeuStyle.TEXT_GOLD : 0xFFFF5555;
+        return new Ui.Tip(Ui.col(2,
+                new Ui.SpaceBetween(width,
+                        Ui.row(5, Ui.V.CENTER,
+                                new Ui.Label("Riftstalker", 0xFFFF5555),
+                                new Ui.Label(String.valueOf(level), maxed ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT)),
+                        new Ui.Label(Kit.compact(xp) + " XP", NeuStyle.TEXT_GRAY)),
+                Kit.bar(width, progress, color)), tooltip);
     }
 
-    private Ui timecharms(JsonObject rift) {
+    private Ui timecharmSection(JsonObject rift) {
         Map<String, Long> secured = new HashMap<>();
         JsonArray trophies = array(object(rift, "gallery"), "secured_trophies");
         if (trophies != null) {
@@ -151,36 +188,64 @@ public class RiftPage extends ProfileViewerPage {
         List<Ui> cells = new ArrayList<>();
         for (Timecharm charm : TIMECHARMS) {
             Long timestamp = secured.get(charm.id());
-            Ui icon = new Ui.Icon(Kit.icon(timestamp != null ? charm.icon() : "gray_dye"), 18, false, null);
+            // secured charms sit in a lit slot, missing ones stay dark
+            Ui icon = new Ui.Frame(20, 20,
+                    new Ui.Icon(Kit.icon(timestamp != null ? charm.icon() : "gray_dye"), 16, false, null),
+                    NeuStyle::slimBox, Ui.H.CENTER, Ui.V.CENTER);
             List<String> tooltip = timestamp != null
                     ? List.of("§a" + charm.name(), "§7Secured: §f" + date(timestamp))
                     : List.of("§7" + charm.name(), "§cNot secured");
             cells.add(new Ui.Tip(icon, tooltip));
         }
-        return Ui.row(4, Ui.V.TOP, cells);
+        return Kit.section("Timecharms  " + secured.size() + "/" + TIMECHARMS.size(),
+                Ui.row(3, Ui.V.TOP, cells));
     }
 
-    private Ui porthals(JsonObject rift, int width) {
+    private Ui porthalSection(JsonObject rift, int width) {
         JsonArray boundaries = array(rift, "lifetime_purchased_boundaries");
-        if (boundaries == null || boundaries.isEmpty()) {
-            return new Ui.Label("No porthals unlocked", NeuStyle.TEXT_GRAY);
+        int count = boundaries == null ? 0 : boundaries.size();
+        if (count == 0) {
+            return Kit.section("Porthals", new Ui.Label("None unlocked", NeuStyle.TEXT_DARK));
         }
+
         // wrap into as many lines as needed instead of clipping the whole list to one
         var font = net.minecraft.client.Minecraft.getInstance().font;
         List<Ui> lines = new ArrayList<>();
         StringBuilder line = new StringBuilder();
         for (JsonElement element : boundaries) {
             String name = Kit.prettify(element.getAsString());
-            String appended = line.isEmpty() ? name : line + " - " + name;
-            if (!line.isEmpty() && font.width(appended) > width) {
-                lines.add(new Ui.Label(line.toString(), NeuStyle.TEXT_GREEN));
+            String appended = line.isEmpty() ? name : line + " §8- §a" + name;
+            if (!line.isEmpty() && font.width(com.teslamaps.utils.StringUtil.strip(appended)) > width) {
+                lines.add(label(line.toString()));
                 line = new StringBuilder(name);
             } else {
                 line = new StringBuilder(appended);
             }
         }
-        if (!line.isEmpty()) lines.add(new Ui.Label(line.toString(), NeuStyle.TEXT_GREEN));
-        return Ui.col(2, lines);
+        if (!line.isEmpty()) lines.add(label(line.toString()));
+        return Kit.section("Porthals  " + count, Ui.col(2, lines));
+    }
+
+    private Ui label(String legacy) {
+        net.minecraft.network.chat.Component parsed = LegacyText.parse("§a" + legacy);
+        var font = net.minecraft.client.Minecraft.getInstance().font;
+        return new Ui() {
+            @Override
+            public int width() {
+                return font.width(parsed);
+            }
+
+            @Override
+            public int height() {
+                return font.lineHeight;
+            }
+
+            @Override
+            public void render(net.minecraft.client.gui.GuiGraphicsExtractor ctx, int x, int y,
+                               int mouseX, int mouseY) {
+                ctx.text(font, parsed, x, y, -1);
+            }
+        };
     }
 
     private Ui gear(JsonObject rift) {

@@ -83,43 +83,52 @@ public class BasicPage extends ProfileViewerPage {
             return;
         }
 
-        // left column: name over the head, the player, then status/guild/coins below
+        // left column: the player in a box with the name as its nametag, status/guild/coins below
         String name = profiles != null ? profiles.getDisplayName() : "";
         net.minecraft.network.chat.Component titled = com.teslamaps.profileviewer.data.LegacyText.parse(
                 (profiles != null ? profiles.getRankPrefix() : "") + name);
-        ctx.text(tr, titled, left + 63 - tr.width(titled) / 2, top + 6, -1);
 
-        // rank and guild only exist with an own hypixel key; say so instead of silently missing
-        String apiKey = com.teslamaps.config.TeslaMapsConfig.get().hypixelApiKey;
-        boolean keyMissing = apiKey == null || apiKey.isBlank() || apiKey.length() < 30;
-        if (keyMissing && profiles != null && profiles.getRankPrefix().isEmpty()
-                && mouseX >= left + 8 && mouseX <= left + 118 && mouseY >= top + 4 && mouseY <= top + 14) {
+        NeuStyle.slimBox(ctx, left + 23, top + 8, 81, 112);
+
+        // nametag: dark strip inside the box, name scaled to fit it
+        int tagWidth = tr.width(titled);
+        float tagScale = Math.min(1f, 73f / Math.max(1, tagWidth));
+        int shown = (int) (tagWidth * tagScale);
+        ctx.fill(left + 63 - shown / 2 - 3, top + 12, left + 63 + shown / 2 + 3, top + 23, 0x66000000);
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(left + 63 - shown / 2f, top + 15 - (tagScale < 1 ? (1 - tagScale) * 4 : 0));
+        ctx.pose().scale(tagScale, tagScale);
+        ctx.text(tr, titled, 0, 0, -1);
+        ctx.pose().popMatrix();
+
+        // rank and guild come from hypixel or the pv backend; if both stayed empty, say why
+        if (profiles != null && profiles.getRankPrefix().isEmpty()
+                && mouseX >= left + 23 && mouseX <= left + 104 && mouseY >= top + 10 && mouseY <= top + 24) {
             tooltip = new String[]{
-                    "Rank & guild need a Hypixel API key",
-                    "Set one with /tmap apikey <key>",
+                    "Rank not loaded (yet)",
+                    "An own key helps: /tmap apikey <key>",
             };
             tooltipX = mouseX;
             tooltipY = mouseY;
         }
 
-        // the player preview, looking at the cursor like the vanilla inventory does
-        NeuStyle.slimBox(ctx, left + 23, top + 16, 81, 108);
+        // the player under his nametag, looking at the cursor like the vanilla inventory does
         if (profiles != null) {
             PvPlayerRender.setArmor(profiles.getUuid(), name, armor);
             // entity renders live in screen space, not inside our scaled panel
             PvPlayerRender.draw(ctx, profiles.getUuid(), name,
-                    screenX(left + 26), screenY(top + 19),
-                    screenX(left + 101), screenY(top + 121),
+                    screenX(left + 26), screenY(top + 27),
+                    screenX(left + 101), screenY(top + 117),
                     screenX(mouseX), screenY(mouseY));
         }
 
         String status = profiles != null ? profiles.getOnlineStatus() : "";
-        drawCentered(ctx, tr, status, left + 63, top + 128,
+        drawCentered(ctx, tr, status, left + 63, top + 126,
                 status.startsWith("Online") ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_RED);
 
         String guild = profiles != null ? profiles.getGuildName() : null;
         if (guild != null && !guild.isEmpty()) {
-            drawCentered(ctx, tr, guild, left + 63, top + 138, NeuStyle.TEXT_TURQUOISE);
+            drawCentered(ctx, tr, guild, left + 63, top + 137, NeuStyle.TEXT_TURQUOISE);
         }
 
         drawCentered(ctx, tr, "Purse: " + formatCoins(profile.getCoinPurse()), left + 63, top + 152, NeuStyle.TEXT_GOLD);
@@ -135,7 +144,16 @@ public class BasicPage extends ProfileViewerPage {
         }
 
         if (profiles != null && com.teslamaps.features.capes.CapeSync.isUser(profiles.getUuid())) {
-            scaledCentered(ctx, tr, "TeslaMaps user", left + 63, top + 176, 0.75f, NeuStyle.TEXT_AQUA);
+            // same gradient the [TeslaMaps] chat prefix wears
+            net.minecraft.network.chat.Component tag = net.minecraft.network.chat.Component
+                    .literal("TeslaMaps user")
+                    .withStyle(style -> style.withColor(com.teslamaps.render.gui.ChromaColors.FADE));
+            float factor = 0.75f;
+            ctx.pose().pushMatrix();
+            ctx.pose().translate(left + 63 - tr.width(tag) * factor / 2, top + 176);
+            ctx.pose().scale(factor, factor);
+            ctx.text(tr, tag, 0, 0, -1);
+            ctx.pose().popMatrix();
         }
 
         // middle column: skyblock level with its own bar, like NEU's skull block
@@ -224,15 +242,6 @@ public class BasicPage extends ProfileViewerPage {
 
     private void drawCentered(GuiGraphicsExtractor ctx, Font tr, String text, int centerX, int y, int color) {
         ctx.text(tr, text, centerX - tr.width(text) / 2, y, color);
-    }
-
-    private void scaledCentered(GuiGraphicsExtractor ctx, Font tr, String text, int centerX, int y,
-                                float factor, int color) {
-        ctx.pose().pushMatrix();
-        ctx.pose().translate(centerX - tr.width(text) * factor / 2, y);
-        ctx.pose().scale(factor, factor);
-        ctx.text(tr, text, 0, 0, color);
-        ctx.pose().popMatrix();
     }
 
     /** Skill names are longer than the column, so they shrink like NEU's scaled strings do. */

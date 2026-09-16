@@ -125,12 +125,17 @@ public class SkyblockProfiles {
         return rankPrefix;
     }
 
-    /**
-     * Rank needs the hypixel player object. The pv backend answers that route empty, so this
-     * only fills in once an own api key is set.
-     */
+    /** Rank needs the hypixel player object - own key first, the pv backend's /player as fallback. */
     public void loadPlayer() {
-        com.teslamaps.api.HypixelApi.getPlayer(uuid).thenAccept(player -> {
+        com.teslamaps.api.HypixelApi.getPlayer(uuid).thenApply(player -> {
+            if (player != null && !player.keySet().isEmpty()) return player;
+            JsonObject viaPv = com.teslamaps.api.PvApi
+                    .get("/player/" + com.teslamaps.api.PvApi.dashed(uuid), "player").join();
+            if (viaPv != null && viaPv.has("player") && viaPv.get("player").isJsonObject()) {
+                return viaPv.getAsJsonObject("player");
+            }
+            return new JsonObject();
+        }).thenAccept(player -> {
             if (player == null || player.keySet().isEmpty()) return;
             rankPrefix = buildRank(player);
 
@@ -223,7 +228,20 @@ public class SkyblockProfiles {
     }
 
     public void loadGuild() {
-        HypixelApi.getGuildName(uuid).thenAccept(name -> guildName = name);
+        HypixelApi.getGuildName(uuid).thenAccept(name -> {
+            if (name != null) {
+                guildName = name;
+                return;
+            }
+            com.teslamaps.api.PvApi.get("/guild/" + com.teslamaps.api.PvApi.dashed(uuid), "guild")
+                    .thenAccept(response -> {
+                        if (response == null || !response.has("guild") || !response.get("guild").isJsonObject()) return;
+                        JsonObject guild = response.getAsJsonObject("guild");
+                        if (guild.has("name") && guild.get("name").isJsonPrimitive()) {
+                            guildName = guild.get("name").getAsString();
+                        }
+                    });
+        });
     }
 
     public static void addToRecentPlayers(String playerName) {

@@ -21,24 +21,25 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Bestiary data. Base is the curated file from schrumbo's pv (bundled - NEU's bestiary.json
- * carries stale caps/brackets for most mobs), the NEU repo only fills in islands the bundle
- * does not know yet (safari, new foraging isles).
+ * Bestiary data in NEU's format - NEU gets cap/bracket fixes within days, so it is the source
+ * of truth. A snapshot ships as a resource so the page works offline and instantly; the live
+ * repo file replaces it once fetched.
  */
 public class BestiaryRepo {
     private static final String NEU_URL =
             "https://raw.githubusercontent.com/NotEnoughUpdates/NotEnoughUpdates-REPO/master/constants/bestiary.json";
 
-    /** Steps are resolved at parse time, so tier math never cares where a mob came from. */
+    /** Steps are resolved at parse time, so tier math never cares about brackets again. */
     public record Mob(String name, String texture, String item, long cap, List<Integer> steps,
                       List<String> keys) {}
 
     public record Category(String id, String name, String icon, String iconItem, List<Mob> mobs,
                            List<Category> subs) {}
 
-    private static final List<Category> categories = new ArrayList<>();
+    private static volatile List<Category> categories = List.of();
     private static boolean loading = false;
     private static boolean loaded = false;
+    private static boolean live = false;
 
     public static boolean isLoaded() {
         return loaded;
@@ -49,19 +50,20 @@ public class BestiaryRepo {
     }
 
     public static synchronized void load() {
-        if (loaded || loading) return;
+        if (live || loading) return;
         loading = true;
 
-        try (InputStream stream = BestiaryRepo.class
-                .getResourceAsStream("/assets/teslamaps/pv/bestiary.json")) {
-            if (stream != null) {
-                JsonObject root = JsonParser.parseReader(
-                        new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
-                parseBundled(root);
-                loaded = true;
+        if (!loaded) {
+            try (InputStream stream = BestiaryRepo.class
+                    .getResourceAsStream("/assets/teslamaps/pv/bestiary.json")) {
+                if (stream != null) {
+                    categories = parse(JsonParser.parseReader(
+                            new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject());
+                    loaded = true;
+                }
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.warn("Failed to read the bundled bestiary data: {}", e.toString());
             }
-        } catch (Exception e) {
-            TeslaMaps.LOGGER.warn("Failed to read the bundled bestiary data: {}", e.toString());
         }
 
         CompletableFuture.runAsync(() -> {
@@ -74,8 +76,9 @@ public class BestiaryRepo {
                         .build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == 200) {
-                    appendNeuOnly(JsonParser.parseString(response.body()).getAsJsonObject());
+                    categories = parse(JsonParser.parseString(response.body()).getAsJsonObject());
                     loaded = true;
+                    live = true;
                 }
             } catch (Exception e) {
                 TeslaMaps.LOGGER.warn("Failed to load the NEU bestiary data: {}", e.toString());
@@ -84,37 +87,12 @@ public class BestiaryRepo {
         });
     }
 
-    // ---- bundled (schrumbo) format: {brackets: {id: [steps]}, islands: [{key,name,icon,mobs}]} --
+    private static List<Category> parse(JsonObject root) {
+        Map<String, List<Integer>> brackets = readBrackets(
+                root.has("brackets") && root.get("brackets").isJsonObject()
+                        ? root.getAsJsonObject("brackets") : null);
 
-    private static void parseBundled(JsonObject root) {
-        Map<String, List<Integer>> brackets = readBrackets(root.getAsJsonObject("brackets"));
-
-        categories.clear();
-        for (JsonElement element : root.getAsJsonArray("islands")) {
-            JsonObject island = element.getAsJsonObject();
-            List<Mob> mobs = new ArrayList<>();
-            for (JsonElement mobElement : island.getAsJsonArray("mobs")) {
-                JsonObject mob = mobElement.getAsJsonObject();
-                long cap = mob.get("cap").getAsLong();
-                List<Integer> steps = capped(brackets.get(mob.get("bracket").getAsString()), cap);
-                mobs.add(new Mob(
-                        mob.get("name").getAsString(),
-                        string(mob, "tex"),
-                        string(mob, "item"),
-                        cap, steps, strings(mob.getAsJsonArray("keys"))));
-            }
-            JsonObject icon = island.has("icon") && island.get("icon").isJsonObject()
-                    ? island.getAsJsonObject("icon") : null;
-            categories.add(new Category(island.get("key").getAsString(), island.get("name").getAsString(),
-                    string(icon, "tex"), string(icon, "item"), mobs, List.of()));
-        }
-    }
-
-    // ---- NEU format, only for islands the bundle lacks --------------------------------------
-
-    private static synchronized void appendNeuOnly(JsonObject root) {
-        Map<String, List<Integer>> brackets = readBrackets(root.getAsJsonObject("brackets"));
-
+        // critters and co level on their own shorter step tables (bracketSets.<TYPE>.<bracket>)
         Map<String, Map<String, List<Integer>>> bracketSets = new HashMap<>();
         if (root.has("bracketSets") && root.get("bracketSets").isJsonObject()) {
             JsonObject sets = root.getAsJsonObject("bracketSets");
@@ -125,30 +103,51 @@ public class BestiaryRepo {
             }
         }
 
-        java.util.Set<String> known = new java.util.HashSet<>();
-        for (Category category : categories) known.add(category.id());
-
+        List<Category> out = new ArrayList<>();
         for (String key : root.keySet()) {
-            if (key.equals("brackets") || key.equals("bracketSets") || known.contains(key)) continue;
-            // the bundle splits NEU's nested fishing island, its parts are known under other ids
-            if (key.equals("fishing")) continue;
+            if (key.equals("brackets") || key.equals("bracketSets")) continue;
             JsonElement element = root.get(key);
             if (!element.isJsonObject()) continue;
             JsonObject category = element.getAsJsonObject();
             if (!category.has("name")) continue;
 
+            String name = category.get("name").getAsString();
+
+            // fishing holds its mobs one level deeper; those groups stay inside their parent
+            // and are picked above the grid, not stacked into the rail
+            if (!category.has("mobs")) {
+                List<Category> subs = new ArrayList<>();
+                for (String subKey : category.keySet()) {
+                    if (!category.get(subKey).isJsonObject()) continue;
+                    JsonObject sub = category.getAsJsonObject(subKey);
+                    if (!sub.has("name")) continue;
+
+                    List<Mob> subMobs = new ArrayList<>();
+                    collectMobs(sub, subMobs, brackets, bracketSets);
+                    if (subMobs.isEmpty()) continue;
+
+                    subs.add(new Category(key + "." + subKey, sub.get("name").getAsString(),
+                            texture(sub), item(sub), subMobs, List.of()));
+                }
+                if (subs.isEmpty()) continue;
+
+                out.add(new Category(key, name, texture(category), item(category),
+                        subs.getFirst().mobs(), subs));
+                continue;
+            }
+
             List<Mob> mobs = new ArrayList<>();
-            collectNeuMobs(category, mobs, brackets, bracketSets);
+            collectMobs(category, mobs, brackets, bracketSets);
             if (mobs.isEmpty()) continue;
 
-            categories.add(new Category(key, category.get("name").getAsString(),
-                    neuTexture(category), neuItem(category), mobs, List.of()));
+            out.add(new Category(key, name, texture(category), item(category), mobs, List.of()));
         }
+        return out;
     }
 
-    private static void collectNeuMobs(JsonObject category, List<Mob> out,
-                                       Map<String, List<Integer>> brackets,
-                                       Map<String, Map<String, List<Integer>>> bracketSets) {
+    private static void collectMobs(JsonObject category, List<Mob> out,
+                                    Map<String, List<Integer>> brackets,
+                                    Map<String, Map<String, List<Integer>>> bracketSets) {
         if (category.has("mobs") && category.get("mobs").isJsonArray()) {
             for (JsonElement element : category.getAsJsonArray("mobs")) {
                 if (!element.isJsonObject()) continue;
@@ -171,24 +170,22 @@ public class BestiaryRepo {
         }
         for (String key : category.keySet()) {
             if (category.get(key).isJsonObject()) {
-                collectNeuMobs(category.getAsJsonObject(key), out, brackets, bracketSets);
+                collectMobs(category.getAsJsonObject(key), out, brackets, bracketSets);
             }
         }
     }
 
-    private static String neuTexture(JsonObject category) {
+    private static String texture(JsonObject category) {
         JsonObject icon = category.has("icon") && category.get("icon").isJsonObject()
                 ? category.getAsJsonObject("icon") : null;
         return string(icon, "texture");
     }
 
-    private static String neuItem(JsonObject category) {
+    private static String item(JsonObject category) {
         JsonObject icon = category.has("icon") && category.get("icon").isJsonObject()
                 ? category.getAsJsonObject("icon") : null;
         return string(icon, "item");
     }
-
-    // ---- shared ------------------------------------------------------------------------------
 
     private static Map<String, List<Integer>> readBrackets(JsonObject json) {
         Map<String, List<Integer>> out = new HashMap<>();
