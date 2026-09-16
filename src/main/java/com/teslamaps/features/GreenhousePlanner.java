@@ -57,6 +57,7 @@ public class GreenhousePlanner {
         for (String s : new String[]{"BLASTBERRY", "MAGICJELLYBEAN", "ALLINALOE", "GLASSCORN",
                 "CACTUS", "SUGARCANE"}) DEFAULT_SOIL.put(s, sand);
         for (String s : new String[]{"VEILSHROOM", "REDMUSHROOM", "BROWNMUSHROOM"}) DEFAULT_SOIL.put(s, mycelium);
+        DEFAULT_SOIL.put("COCOABEAN", farmland);
         for (String s : new String[]{"CHOCONUT", "DUSTGRAIN", "GLOOMGOURD", "LONELILY", "SCOURROOT",
                 "SHADEVINE", "CHOCOBERRY", "COALROOT", "CREAMBLOOM", "DUSKBLOOM", "THORNSHADE",
                 "CHEESEBITE", "CHLORONITE", "DONOTEATSHROOM", "FLESHTRAP", "NOCTILUME", "SNOOZLING",
@@ -67,11 +68,20 @@ public class GreenhousePlanner {
     }
 
     // skull textures seen in game, so the plants are identified without learning anything
-    private static final Map<String, String> DEFAULT_HEADS = Map.of(
-            "72d802cd207f1971a2eb826f1a7477740833c920db00cd5c992176c67672dbf5", "SHELLFRUIT",
-            "c5214cc92140cdf9b402b3e7ed1fa0bac7fb4b39e39b46d11b06301caf0f9c3d", "CHORUSFRUIT",
-            "e044238503102f64f30f4d58f0843b215d8dd54fc9f1f70cc17d8dd891bb3e5e", "CHORUSFRUIT",
-            "4c2b797e7172a05169e313739908515864d6b372f9a5ecc772f81d9c4e402a54", "STOPLIGHTPETAL");
+    private static final Map<String, String> DEFAULT_HEADS = new java.util.HashMap<>();
+    static {
+        DEFAULT_HEADS.put("72d802cd207f1971a2eb826f1a7477740833c920db00cd5c992176c67672dbf5", "SHELLFRUIT");
+        DEFAULT_HEADS.put("c5214cc92140cdf9b402b3e7ed1fa0bac7fb4b39e39b46d11b06301caf0f9c3d", "CHORUSFRUIT");
+        DEFAULT_HEADS.put("e044238503102f64f30f4d58f0843b215d8dd54fc9f1f70cc17d8dd891bb3e5e", "CHORUSFRUIT");
+        DEFAULT_HEADS.put("4c2b797e7172a05169e313739908515864d6b372f9a5ecc772f81d9c4e402a54", "STOPLIGHTPETAL");
+        DEFAULT_HEADS.put("18bd4aa55673e90a3c611117277d94f6ce185b5d13d2a862a3376f50a6139c4f", "PUMPKIN");
+        DEFAULT_HEADS.put("360549bf880605bba628e89b1cca4b8a0e428b61d879f45edd9f45469d87aec4", "MELON");
+        DEFAULT_HEADS.put("d4b3ea5cb6b6f046e326621ca11ffb7d6aec22d66c0d81e5039b19ee4400309f", "CACTUS");
+        DEFAULT_HEADS.put("e1f5cb495ba97bf9c05c15b8c9cc866c14c1fe14807fed5802a0bf68deec8912", "COCOABEAN");
+        DEFAULT_HEADS.put("162f0e8d32f3db02ffdf1a16efb21d614a3f0417d49138fdc18bfe52ead705b9", "REDMUSHROOM");
+        DEFAULT_HEADS.put("b40d6fc1e1b67c58d7f82350bcac083f9e9547f9131236463164417fbdd3bee4", "SUNFLOWER");
+        DEFAULT_HEADS.put("f341905af17c74a1c6181a56c88d8f91853f2cff0a9a33aaa16c0d835fdceece", "WILDROSE");
+    }
 
     // longest first, so CHORUSFRUITSTEM does not lose to a shorter key
     private static final List<String> PLANT_KEYS = new ArrayList<>();
@@ -132,11 +142,13 @@ public class GreenhousePlanner {
     private static final List<Cell> cells = new ArrayList<>();
 
     // resolved render lists, rebuilt on tick
-    public static final int TODO = 0, OK = 1, WRONG = 2, UNKNOWN = 3;
+    public static final int TODO = 0, OK = 1, WRONG = 2, UNKNOWN = 3, MUTATION = 4;
     private record Ghost(AABB box, int color, String label, int state, boolean focus) {}
+    private record Todo(int wx, int wz, int gx, int gy, String item) {}
+    private static final List<Todo> todoCells = new ArrayList<>();
     private static final List<Ghost> floorGhosts = new ArrayList<>();
     private static final List<Ghost> plantGhosts = new ArrayList<>();
-    private static int floorOk, floorTotal, placed, total, wrong;
+    private static int floorOk, floorTotal, placed, total, wrong, mutGrown, mutTotal;
 
     private static BlockPos anchor;      // min corner of the plot, y = floor level
     private static int tickCounter;
@@ -155,7 +167,8 @@ public class GreenhousePlanner {
                 + (cfg.greenhouseMirror ? " §7mirrored" : "")
                 + "§7, phase §e" + phaseName(cfg.greenhousePhase)
                 + (anchor == null ? " §c· no 10x10 plot found"
-                        : " §7· floor §f" + floorOk + "/" + floorTotal + "§7, plants §f" + placed + "/" + total);
+                        : " §7· floor §f" + floorOk + "/" + floorTotal + "§7, plants §f" + placed + "/" + total
+                                + (mutTotal > 0 ? "§7, mutation §d" + mutGrown + "/" + mutTotal : ""));
     }
 
     public static String phaseName(int phase) {
@@ -261,6 +274,13 @@ public class GreenhousePlanner {
             focusPlant = norm(set);
             return;
         }
+        // a mutation in the layout is the whole point of the plot, so it wins the focus
+        for (Cell c : cells) {
+            if (isMutation(c.item)) {
+                focusPlant = norm(c.item);
+                return;
+            }
+        }
         Map<String, Integer> counts = new java.util.HashMap<>();
         for (Cell c : cells) counts.merge(norm(c.item), 1, Integer::sum);
         int fewest = Integer.MAX_VALUE;
@@ -275,6 +295,52 @@ public class GreenhousePlanner {
 
     public static String focusName() {
         return focusPlant == null ? "all" : pretty(focusPlant);
+    }
+
+    // ---------------------------------------------------------------- mutations
+
+    // plants the player never places - they appear on their own once the neighbours are right.
+    // Marked by hand because the same plant can be planted in one layout and mutated in the next.
+    public static boolean isMutation(String item) {
+        List<String> m = TeslaMapsConfig.get().greenhouseMutations;
+        return m != null && m.contains(norm(item));
+    }
+
+    public static String toggleMutation(String plant) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        String p = norm(plant);
+        String msg;
+        if (p.equals("CLEAR") || p.equals("NONE")) {
+            cfg.greenhouseMutations.clear();
+            msg = "§fMutations cleared";
+        } else if (cfg.greenhouseMutations.remove(p)) {
+            msg = "§f" + pretty(p) + " §7is planted by hand again";
+        } else {
+            cfg.greenhouseMutations.add(p);
+            msg = "§f" + pretty(p) + " §7counts as a §dmutation§7 now";
+        }
+        TeslaMapsConfig.save();
+        pickFocus();
+        tickCounter = 0;
+        return msg;
+    }
+
+    // every plant of the loaded layout, mutations marked
+    public static List<String> mutationList() {
+        List<String> out = new ArrayList<>();
+        java.util.Set<String> seen = new java.util.LinkedHashSet<>();
+        for (Cell c : cells) seen.add(norm(c.item));
+        if (seen.isEmpty()) {
+            out.add("§7no layout loaded");
+            return out;
+        }
+        for (String p : seen) {
+            out.add(isMutation(p) ? "§d  " + pretty(p) + " §8· mutation" : "§7  " + pretty(p));
+        }
+        for (String p : TeslaMapsConfig.get().greenhouseMutations) {
+            if (!seen.contains(p)) out.add("§d  " + pretty(p) + " §8· mutation (not in this plot)");
+        }
+        return out;
     }
 
     public static String setFocus(String value) {
@@ -353,8 +419,10 @@ public class GreenhousePlanner {
             int[] off = mapCell(c.gx, c.gy);
             int wx = anchor.getX() + off[0], wz = anchor.getZ() + off[1];
             m.set(wx, anchor.getY() + 1, wz);
-            // nothing planted here, the floor proves nothing
-            if (!standAt.containsKey(key(wx, wz)) && mc.level.getBlockState(m).isAir()) continue;
+            // nothing planted here, the floor proves nothing - except on a mutation cell,
+            // where the floor is all the player ever places
+            if (!isMutation(c.item) && !standAt.containsKey(key(wx, wz))
+                    && mc.level.getBlockState(m).isAir()) continue;
             m.set(wx, anchor.getY(), wz);
             Block floor = mc.level.getBlockState(m).getBlock();
             String id = BuiltInRegistries.BLOCK.getKey(floor).toString();
@@ -769,6 +837,37 @@ public class GreenhousePlanner {
                 : "§fLearned §a" + n + "§f cells · wrong plants now show red";
     }
 
+    // /tmap greenhouse todo - the cells the plant counter is still missing, nearest first
+    public static List<String> todoReport() {
+        List<String> out = new ArrayList<>();
+        if (anchor == null) {
+            out.add("§cno plot found");
+            return out;
+        }
+        if (!hasLayout()) {
+            out.add("§cno layout loaded");
+            return out;
+        }
+        buildGhosts();
+        if (todoCells.isEmpty()) {
+            out.add("§anothing missing" + (mutTotal > 0 ? " §7· " + (mutTotal - mutGrown) + " mutation cells still empty" : ""));
+            return out;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        Vec3 eye = mc.player == null ? Vec3.ZERO : mc.player.position();
+        List<Todo> sorted = new ArrayList<>(todoCells);
+        sorted.sort((a, b) -> Double.compare(
+                eye.distanceToSqr(a.wx + 0.5, eye.y, a.wz + 0.5),
+                eye.distanceToSqr(b.wx + 0.5, eye.y, b.wz + 0.5)));
+        out.add("§f" + sorted.size() + " missing §7(nearest first)");
+        for (Todo t : sorted) {
+            double d = Math.sqrt(eye.distanceToSqr(t.wx + 0.5, eye.y, t.wz + 0.5));
+            out.add("§7  " + pretty(t.item) + " §8at §e" + t.wx + " " + (anchor.getY() + 1) + " " + t.wz
+                    + " §8cell " + t.gx + "," + t.gy + " §7" + String.format(Locale.ROOT, "%.0f", d) + "m");
+        }
+        return out;
+    }
+
     // /tmap greenhouse debug - what is actually standing in the plot
     public static List<String> debugDump() {
         List<String> out = new ArrayList<>();
@@ -828,6 +927,9 @@ public class GreenhousePlanner {
         placed = 0;
         total = 0;
         wrong = 0;
+        mutGrown = 0;
+        mutTotal = 0;
+        todoCells.clear();
         if (anchor == null) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
@@ -866,22 +968,28 @@ public class GreenhousePlanner {
             m.set(wx, py, wz);
             Stand stand = standAt.get(key(wx, wz));
             boolean here = stand != null || !mc.level.getBlockState(m).isAir();
-            total++;
+            boolean mutation = isMutation(c.item);
+            if (mutation) mutTotal++;
+            else total++;
             boolean focus = focusPlant == null || focusPlant.equals(norm(c.item));
 
             int state;
             String label = pretty(c.item);
             int col = color(c.item);
             if (!here) {
-                state = TODO;
+                state = mutation ? MUTATION : TODO;
+                if (mutation) label = pretty(c.item) + " §8· mutation";
+                else todoCells.add(new Todo(wx, wz, c.gx, c.gy, c.item));
             } else {
-                placed++;
+                if (mutation) mutGrown++;
+                else placed++;
                 String is = plantOf(stand);
                 if (is == null) {
                     state = UNKNOWN;
                 } else if (is.equals(norm(c.item))) {
                     state = OK;
-                    if (focus && stand != null && stand.stage >= 0 && TeslaMapsConfig.get().greenhouseStages) {
+                    if (focusPlant != null && focus && stand != null && stand.stage >= 0
+                            && TeslaMapsConfig.get().greenhouseStages) {
                         int max = maxStage(is);
                         col = stageColor(stand.stage, max);
                         label = pretty(c.item) + " §7" + stand.stage + "§8/§7" + max;
@@ -1020,12 +1128,16 @@ public class GreenhousePlanner {
         boolean hideDone = cfg.greenhouseHideDone;
 
         boolean dim = cfg.greenhouseDimOthers && phase == PHASE_PLANTS;
-        boolean stages = cfg.greenhouseStages;
+        // while anything is missing or wrong, that IS the job - mutations and ripeness
+        // only take over once the plot is done
+        boolean clean = todoCells.isEmpty() && wrong == 0;
+        boolean stages = cfg.greenhouseStages && focusPlant != null && clean;
 
         ESPRenderer.beginBoxBatch(matrices, cameraPos, true, cfg.greenhouseThroughWalls);
         for (Ghost g : ghosts) {
-            boolean faint = dim && !g.focus;
-            if (g.state == TODO) {
+            // dimming is for finished clutter - an unplanted cell is the job, never fade it out
+            boolean faint = dim && !g.focus && g.state != TODO && g.state != WRONG;
+            if (g.state == TODO || (g.state == MUTATION && clean)) {
                 int a = faint ? (alpha >>> 2) & 0xFF000000 : alpha;
                 ESPRenderer.batchBox(g.box, (g.color & 0x00FFFFFF) | Math.max(0x14000000, a), 0f);
             } else if (g.state == WRONG) {
@@ -1039,9 +1151,12 @@ public class GreenhousePlanner {
 
         ESPRenderer.beginBoxBatch(matrices, cameraPos, false, cfg.greenhouseThroughWalls);
         for (Ghost g : ghosts) {
-            boolean faint = dim && !g.focus;
+            // dimming is for finished clutter - an unplanted cell is the job, never fade it out
+            boolean faint = dim && !g.focus && g.state != TODO && g.state != WRONG;
             switch (g.state) {
                 case WRONG -> ESPRenderer.batchBox(g.box, 0xFFFF3030, 3.0f);
+                // waiting for a mutation, not something to go and plant
+                case MUTATION -> { if (clean) ESPRenderer.batchBox(g.box, 0xFFFF55FF, 2.5f); }
                 case UNKNOWN -> { if (!hideDone) ESPRenderer.batchBox(g.box, faint ? 0x30FFFF55 : 0x80FFFF55, 1.5f); }
                 case OK -> {
                     if (g.focus && stages) ESPRenderer.batchBox(g.box, g.color, 2.5f);
@@ -1073,7 +1188,8 @@ public class GreenhousePlanner {
                 for (Ghost g : ghosts) {
                     boolean grownFocus = g.state == OK && g.focus && stages;
                     if (!grownFocus && (g.state == OK || g.state == UNKNOWN)) continue;
-                    if (dim && !g.focus && g.state != WRONG) continue;
+                    if (g.state == MUTATION && !clean) continue;
+                    if (dim && !g.focus && g.state != WRONG && g.state != TODO) continue;
                     Vec3 c = g.box.getCenter();
                     double d = c.distanceToSqr(eye);
                     if (d > band || d <= prev) continue;
@@ -1088,13 +1204,14 @@ public class GreenhousePlanner {
         String head = phase == PHASE_FLOOR
                 ? "§6Step 1 · Floor §f" + floorOk + "§7/§f" + floorTotal
                 : "§aStep 2 · Plants §f" + placed + "§7/§f" + total
+                        + (mutTotal > 0 ? " §d· mutation " + mutGrown + "§7/§d" + mutTotal : "")
                         + (wrong > 0 ? " §c· " + wrong + " wrong" : "")
                         + (dim && focusPlant != null ? " §8· " + pretty(focusPlant) : "");
         ESPRenderer.drawText(matrices, head,
                 new Vec3(anchor.getX() + PLOT / 2.0, anchor.getY() + 3.0, anchor.getZ() + PLOT / 2.0),
                 1.2f, cameraPos);
-        if (phase == PHASE_FLOOR && floorTotal < total) {
-            ESPRenderer.drawText(matrices, "§7" + (total - floorTotal) + " plants have no floor block set §8· /tmap greenhouse learn",
+        if (phase == PHASE_FLOOR && floorTotal < total + mutTotal) {
+            ESPRenderer.drawText(matrices, "§7" + (total + mutTotal - floorTotal) + " plants have no floor block set §8· /tmap greenhouse learn",
                     new Vec3(anchor.getX() + PLOT / 2.0, anchor.getY() + 2.65, anchor.getZ() + PLOT / 2.0),
                     0.9f, cameraPos);
         }

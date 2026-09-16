@@ -109,6 +109,7 @@ public class ChatMixin {
 
         if (fromServer && cfg.section("Skills")) com.teslamaps.features.SkillTracker.onChatMessage(text);
         if (fromServer && cfg.section("Fishing")) com.teslamaps.features.UmbrellaWarning.onChatMessage(text);
+        if (fromServer && cfg.section("Fishing")) com.teslamaps.features.RareSeaCreature.onChatMessage(text);
 
 
         com.teslamaps.features.KickedTimer.onChatMessage(text);

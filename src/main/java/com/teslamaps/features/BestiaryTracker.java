@@ -32,7 +32,11 @@ public class BestiaryTracker {
     private static final Pattern OVERALL = Pattern.compile("Overall Progress: [\\d.]+%(?: \\(MAX!\\))?");
     private static final Pattern BAR = Pattern.compile("([\\dkKmMbB,.]+)/([\\dkKmMbB,.]+)$");
 
-    private static final long IDLE_CAP_MS = 30_000;
+    // A gap longer than this is a break, not farming. Rare mobs need the long one: a few
+    // minutes between kills is normal there, the common ones would just soak up AFK time.
+    private static final long IDLE_CAP_MS = 5 * 60_000L;
+    private static final long RARE_IDLE_CAP_MS = 10 * 60_000L;
+    private static final long RARE_BELOW_KILLS = 1000;
 
     private static final class Stat {
         int tier;
@@ -40,16 +44,17 @@ public class BestiaryTracker {
         boolean max, seeded;
         long kills;
         long activeMs, lastActivity;
+        long idleCap = IDLE_CAP_MS;
 
         void touch() {
             long now = System.currentTimeMillis();
-            if (lastActivity > 0) activeMs += Math.min(now - lastActivity, IDLE_CAP_MS);
+            if (lastActivity > 0) activeMs += Math.min(now - lastActivity, idleCap);
             lastActivity = now;
         }
 
         long liveActiveMs() {
             if (lastActivity == 0) return 0;
-            return activeMs + Math.min(System.currentTimeMillis() - lastActivity, IDLE_CAP_MS);
+            return activeMs + Math.min(System.currentTimeMillis() - lastActivity, idleCap);
         }
 
         double hours() { return liveActiveMs() / 3_600_000.0; }
@@ -89,6 +94,46 @@ public class BestiaryTracker {
         return stored != null ? stored : defaults().get(name);
     }
 
+    /** Manual override in minutes, null when the mob runs on the automatic cap. */
+    public static Integer idleOverride(String name) {
+        for (Map.Entry<String, Integer> e : TeslaMapsConfig.get().bestiaryIdleMinutes.entrySet()) {
+            if (e.getKey().equalsIgnoreCase(name)) return e.getValue();
+        }
+        return null;
+    }
+
+    /** Minutes rounded from whatever cap the mob ends up with, for chat output. */
+    public static int idleMinutes(String name) {
+        Stat s = stats.get(name);
+        long cap = s != null ? s.idleCap : idleCap(name, 0);
+        return (int) (cap / 60_000L);
+    }
+
+    /** Sets or clears (minutes <= 0) the manual cap. Returns the name it was stored under. */
+    public static String setIdle(String name, int minutes) {
+        String resolved = trackedName(name);
+        if (resolved == null) {
+            resolved = name.trim();
+            for (String s : seen) if (s.equalsIgnoreCase(resolved)) resolved = s;
+        }
+        Map<String, Integer> map = TeslaMapsConfig.get().bestiaryIdleMinutes;
+        map.entrySet().removeIf(e -> e.getKey().equalsIgnoreCase(name));
+        if (minutes > 0) map.put(resolved, minutes);
+        Stat s = stats.get(resolved);
+        if (s != null) s.idleCap = idleCap(resolved, s.needed);
+        TeslaMapsConfig.save();
+        return resolved;
+    }
+
+    /** Few kills to max means a rare mob: long gaps between kills are the norm there. */
+    private static long idleCap(String name, long needed) {
+        Integer override = idleOverride(name);
+        if (override != null && override > 0) return override * 60_000L;
+        Long toMax = killsToMax(name);
+        long reference = toMax != null ? toMax : needed;
+        return reference > 0 && reference < RARE_BELOW_KILLS ? RARE_IDLE_CAP_MS : IDLE_CAP_MS;
+    }
+
     private static final Map<String, Stat> stats = new LinkedHashMap<>();
     private static final List<String> seen = new ArrayList<>();
     private static int tickCounter = 0;
@@ -122,13 +167,18 @@ public class BestiaryTracker {
 
     /** Adds a mob, preferring the casing the tab list uses. Null when it was already tracked. */
     public static String add(String name) {
+        String resolved = addQuiet(name);
+        if (resolved != null) TeslaMapsConfig.save();
+        return resolved;
+    }
+
+    private static String addQuiet(String name) {
         if (trackedName(name) != null) return null;
         String resolved = name.trim();
         for (String s : seen) if (s.equalsIgnoreCase(resolved)) resolved = s;
         tracked().add(resolved);
         cachedLines = null;
         displayedCache = null;
-        TeslaMapsConfig.save();
         return resolved;
     }
 
@@ -137,6 +187,7 @@ public class BestiaryTracker {
         if (hit == null) return null;
         tracked().remove(hit);
         stats.remove(hit);
+        TeslaMapsConfig.get().bestiaryIdleMinutes.remove(hit);
         cachedLines = null;
         displayedCache = null;
         TeslaMapsConfig.save();
@@ -147,10 +198,34 @@ public class BestiaryTracker {
     public static List<String> addAllFromTab() {
         List<String> added = new ArrayList<>();
         for (String name : currentTabMobs()) {
-            String hit = add(name);
+            String hit = addQuiet(name);
             if (hit != null) added.add(hit);
         }
+        if (!added.isEmpty()) TeslaMapsConfig.save();
         return added;
+    }
+
+    /** Auto mode: every non-maxed mob the tab shows joins the list, a maxed one leaves it. */
+    private static void autoTrack() {
+        boolean changed = false;
+        for (String name : currentTabMobs()) {
+            if (addQuiet(name) != null) changed = true;
+        }
+        for (String name : new ArrayList<>(tracked())) {
+            Stat s = stats.get(name);
+            if (s == null) {
+                for (Map.Entry<String, Stat> e : stats.entrySet()) {
+                    if (e.getKey().equalsIgnoreCase(name)) { s = e.getValue(); break; }
+                }
+            }
+            if (s != null && s.max) {
+                tracked().remove(name);
+                cachedLines = null;
+                displayedCache = null;
+                changed = true;
+            }
+        }
+        if (changed) TeslaMapsConfig.save();
     }
 
     /** The non-maxed mobs the tab shows right now, in tab order. */
@@ -178,6 +253,7 @@ public class BestiaryTracker {
     public static void tick() {
         if (++tickCounter % 20 != 0) return;
         readTabList();
+        if (TeslaMapsConfig.get().bestiaryAutoTrack) autoTrack();
         readMenu();
     }
 
@@ -295,6 +371,7 @@ public class BestiaryTracker {
 
         Stat s = stats.computeIfAbsent(name, k -> new Stat());
         s.max = false;
+        s.idleCap = idleCap(name, needed);
         // the tab counts total kills, not tier progress - a tier up does not reset it
         if (s.seeded && current > s.current) {
             s.kills += current - s.current;
@@ -407,7 +484,8 @@ public class BestiaryTracker {
     }
 
     private static String goal(String label, long current, long target, double killsPerHour) {
-        String left = "§8(" + fmt(current) + "/" + fmt(target) + ")";
+        String left = "§8(" + fmt(current) + "/" + fmt(target) + ") "
+                + String.format("%.1f%%", target > 0 ? Math.min(100.0, current * 100.0 / target) : 0.0);
         if (killsPerHour <= 0 || target <= current) return "§7" + label + ": " + left;
         return "§7" + label + ": §a" + fmtEta((target - current) / killsPerHour) + " " + left;
     }
@@ -492,9 +570,12 @@ public class BestiaryTracker {
             if (s == null) continue;
             double h = s.hours();
             String rate = s.liveActiveMs() >= 30_000 && h > 0 ? fmt(s.kills / h) : "…";
-            out.add("§7 " + name + " §8T" + s.tier + " §7· §b" + rate + "/h §8(" + fmt(s.kills) + " kills)");
+            out.add("§7 " + name + " §8T" + s.tier + " §7· §b" + rate + "/h §8(" + fmt(s.kills)
+                    + " kills) §8idle " + idleMinutes(name) + "m"
+                    + (idleOverride(name) != null ? "*" : ""));
         }
-        out.add("§7/tmap be add|remove <mob> · auto · clear");
+        out.add("§7Auto: " + (TeslaMapsConfig.get().bestiaryAutoTrack ? "§aon" : "§coff"));
+        out.add("§7/tmap be add <mob> [idle min] · remove · auto · clear");
         return out;
     }
 

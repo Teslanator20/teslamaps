@@ -21,6 +21,20 @@ public class FarmingSensitivity {
     private static boolean applied = false;
     private static double savedSensitivity = 0.5;
     private static boolean active = false;
+    private static boolean pendingChecked = false;
+
+    /** Quitting while the override was live leaves the low value in options.txt — put it back. */
+    private static void restorePending() {
+        if (pendingChecked) return;
+        pendingChecked = true;
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (config.sensitivityBackup < 0) return;
+        Minecraft mc = Minecraft.getInstance();
+        mc.options.sensitivity().set(config.sensitivityBackup);
+        mc.options.save();
+        config.sensitivityBackup = -1;
+        TeslaMapsConfig.save();
+    }
 
     /**
      * True while looking around should be suppressed entirely. The vanilla
@@ -32,6 +46,7 @@ public class FarmingSensitivity {
     }
 
     public static void tick() {
+        restorePending();
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
@@ -76,13 +91,20 @@ public class FarmingSensitivity {
         savedSensitivity = mc.options.sensitivity().get();
         mc.options.sensitivity().set(sensitivity);
         applied = true;
+        TeslaMapsConfig.get().sensitivityBackup = savedSensitivity;
+        TeslaMapsConfig.save();
     }
 
     /** Puts the player's own sensitivity back. Safe to call at any time. */
     public static void restore() {
+        restorePending();
         active = false;
         if (!applied) return;
-        Minecraft.getInstance().options.sensitivity().set(savedSensitivity);
+        Minecraft mc = Minecraft.getInstance();
+        mc.options.sensitivity().set(savedSensitivity);
+        mc.options.save();
         applied = false;
+        TeslaMapsConfig.get().sensitivityBackup = -1;
+        TeslaMapsConfig.save();
     }
 }

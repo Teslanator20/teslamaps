@@ -174,6 +174,7 @@ public class FarmProfit {
 
         Matcher kill = PEST_DROP.matcher(plain);
         if (kill.matches()) {
+            lastPestKill = System.currentTimeMillis();
             long amount = Long.parseLong(kill.group(1).replace(",", ""));
             String item = kill.group(2).trim();
             record(item, amount, true);
@@ -379,6 +380,17 @@ public class FarmProfit {
     private static final long FARMING_WINDOW = 5_000L;
 
     /**
+     * Pest kills count as farming too, for a good deal longer.
+     * <p>
+     * Ultimate Sunset I and Pesterminator I are announced nowhere — no kill line,
+     * no rare drop line — so the inventory is the only place they ever show up.
+     * Shooting pests breaks no crop, so the crop window alone threw every one of
+     * them away as "not farming".
+     */
+    private static final long PEST_WINDOW = 20_000L;
+    private static long lastPestKill = 0L;
+
+    /**
      * Quiet time after a screen closes before the inventory is trusted again.
      * <p>
      * Closing a container hands anything on the cursor back to the inventory a
@@ -404,7 +416,8 @@ public class FarmProfit {
         }
         if (++tickCounter % 10 != 0) return;
 
-        boolean farming = now - FarmSpeed.lastBreakMillis() < FARMING_WINDOW;
+        boolean farming = now - FarmSpeed.lastBreakMillis() < FARMING_WINDOW
+                || now - lastPestKill < PEST_WINDOW;
 
         Map<String, Integer> current = new HashMap<>();
         for (net.minecraft.world.item.ItemStack stack : mc.player.getInventory().getNonEquipmentItems()) {

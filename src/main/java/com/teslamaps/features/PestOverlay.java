@@ -70,13 +70,24 @@ public class PestOverlay {
     private static final long NAG_INTERVAL = 5_000L;
 
     /**
+     * Both reminders only make sense while the player is actually farming. A
+     * broken crop is the farming xp signal we have; standing in the garden doing
+     * anything else was getting nagged for no reason.
+     */
+    private static final long FARMING_WINDOW = 20_000L;
+
+    private static boolean farming() {
+        return System.currentTimeMillis() - FarmSpeed.lastBreakMillis() < FARMING_WINDOW;
+    }
+
+    /**
      * The spawn line in chat arrives a good second before the tab list catches
      * up, so the teleport reminder is fired straight off it instead of waiting
      * for the pest count to appear.
      */
     public static void onPestSpawn(String plot) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        if (!config.pestTpReminder || !SkyblockUtils.isInGarden()) return;
+        if (!config.pestTpReminder || !SkyblockUtils.isInGarden() || !farming()) return;
 
         String here = PestData.currentPlot();
         if (plot != null && here != null && here.equalsIgnoreCase(plot)) return;
@@ -94,6 +105,11 @@ public class PestOverlay {
     private static void nag(TeslaMapsConfig config, boolean ready) {
         String title = null;
         String subtitle = null;
+
+        if (!farming()) {
+            lastNag = 0L;
+            return;
+        }
 
         int alive = PestData.alive();
         if (config.pestGearReminder && ready && alive == 0 && !PestRoutine.pestChanceGearOn()) {

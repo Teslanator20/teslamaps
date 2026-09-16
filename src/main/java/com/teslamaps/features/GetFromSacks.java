@@ -139,10 +139,7 @@ public class GetFromSacks {
             if (m.matches()) {
                 String item = m.group("item").trim();
                 int amount = m.group("amount") == null ? 1 : parseInt(m.group("amount"));
-                // only offer it when the item actually lives in a sack
-                if (!SackItems.ready() || SackItems.resolve(item.replace(' ', '_')) != null) {
-                    grabLink(item, amount);
-                }
+                grabLink(item, amount);
                 return;
             }
         }
@@ -180,9 +177,15 @@ public class GetFromSacks {
     }
 
     private static void grabLink(String item, int amount) {
+        // NEU's sack list lags behind new items (MOONDEW is missing), so an unknown name still
+        // gets a link - underscored, which is what /gfs wants for multi word names.
+        String query = item.replace(' ', '_');
+        String resolved = SackItems.ready() ? SackItems.resolve(query) : null;
+        String id = resolved != null ? resolved : query.toUpperCase(java.util.Locale.ROOT);
+
         send(Component.literal("§e§lCLICK HERE§r§e to grab §ax" + amount + " §9" + item + "§e from sacks!")
                 .withStyle(style -> style
-                        .withClickEvent(new ClickEvent.RunCommand("/gfs " + item + " " + amount))
+                        .withClickEvent(new ClickEvent.RunCommand("/gfs " + id.replace(':', '-') + " " + amount))
                         .withHoverEvent(new HoverEvent.ShowText(Component.literal("§eClick to get from sacks!")))));
     }
 

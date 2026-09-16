@@ -273,6 +273,13 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal(
                                             "§b[TeslaMaps] §fCH scanner reset"));
                                     return 1;
+                                }))
+                        .then(ClientCommands.literal("column")
+                                .executes(context -> {
+                                    for (String line : com.teslamaps.features.WorldScanner.columnDump()) {
+                                        context.getSource().sendFeedback(Component.literal(line));
+                                    }
+                                    return 1;
                                 })))
                 .then(ClientCommands.literal("be")
                         .executes(context -> {
@@ -290,22 +297,44 @@ public class TMapCommand {
                                 }))
                         .then(ClientCommands.literal("auto")
                                 .executes(context -> {
+                                    TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                                    cfg.bestiaryAutoTrack = !cfg.bestiaryAutoTrack;
+                                    TeslaMapsConfig.save();
+                                    if (!cfg.bestiaryAutoTrack) {
+                                        context.getSource().sendFeedback(Component.literal(
+                                                "§b[TeslaMaps] §fAuto tracking §coff"));
+                                        return 1;
+                                    }
                                     java.util.List<String> added = com.teslamaps.features.BestiaryTracker.addAllFromTab();
-                                    context.getSource().sendFeedback(Component.literal(added.isEmpty()
-                                            ? "§b[TeslaMaps] §7Nothing new in the tab"
-                                            : "§b[TeslaMaps] §fTracking §e" + added.size() + "§f: §e"
-                                                    + String.join("§7, §e", added)));
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fAuto tracking §aon §7· every non-maxed mob in the tab"
+                                                    + (added.isEmpty() ? "" : "§7, added §e" + added.size())));
                                     return 1;
                                 }))
                         .then(ClientCommands.literal("add")
                                 .then(ClientCommands.argument("mob", StringArgumentType.greedyString())
                                         .suggests((c, b) -> suggestMobs(b, false))
                                         .executes(context -> {
-                                            String arg = StringArgumentType.getString(context, "mob");
+                                            String arg = StringArgumentType.getString(context, "mob").trim();
+                                            // "Goblin Raider 12" - a trailing number is the idle cap, not the name
+                                            int minutes = 0;
+                                            int cut = arg.lastIndexOf(' ');
+                                            if (cut > 0) {
+                                                try {
+                                                    minutes = Integer.parseInt(arg.substring(cut + 1));
+                                                    arg = arg.substring(0, cut).trim();
+                                                } catch (NumberFormatException ignored) {}
+                                            }
                                             String added = com.teslamaps.features.BestiaryTracker.add(arg);
+                                            String name = added != null ? added : arg;
+                                            String idle = "";
+                                            if (minutes > 0) {
+                                                name = com.teslamaps.features.BestiaryTracker.setIdle(arg, minutes);
+                                                idle = " §7· idle §e" + minutes + "m";
+                                            }
                                             context.getSource().sendFeedback(Component.literal(added == null
-                                                    ? "§b[TeslaMaps] §7Already tracked: §e" + arg
-                                                    : "§b[TeslaMaps] §fTracking §e" + added));
+                                                    ? "§b[TeslaMaps] §7Already tracked: §e" + name + idle
+                                                    : "§b[TeslaMaps] §fTracking §e" + name + idle));
                                             return 1;
                                         })))
                         .then(ClientCommands.literal("remove")
@@ -357,8 +386,33 @@ public class TMapCommand {
                                     "§7learn reads the floor under your plants · soil <plant> <block> sets it by hand"));
                             context.getSource().sendFeedback(Component.literal(
                                     "§7learnplants: plot is correct -> remember the heads, wrong plants turn red after that"));
+                            context.getSource().sendFeedback(Component.literal(
+                                    "§7mutation <plant>: that plant grows on its own, out of the plant counter"));
                             return 1;
                         })
+                        .then(ClientCommands.literal("todo")
+                                .executes(context -> {
+                                    for (String line : com.teslamaps.features.GreenhousePlanner.todoReport()) {
+                                        context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] " + line));
+                                    }
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("mutation")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fPlants in this plot §8· /tmap greenhouse mutation <plant|clear>"));
+                                    for (String line : com.teslamaps.features.GreenhousePlanner.mutationList()) {
+                                        context.getSource().sendFeedback(Component.literal(line));
+                                    }
+                                    return 1;
+                                })
+                                .then(ClientCommands.argument("plant", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                                    + com.teslamaps.features.GreenhousePlanner.toggleMutation(
+                                                            StringArgumentType.getString(context, "plant"))));
+                                            return 1;
+                                        })))
                         .then(ClientCommands.literal("corner1")
                                 .executes(context -> {
                                     context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "

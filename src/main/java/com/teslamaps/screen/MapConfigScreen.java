@@ -649,7 +649,10 @@ public class MapConfigScreen extends Screen {
         slayer.add(new LabelEntry(contentX, "Bestiary"));
         slayer.add(new ToggleEntry(contentX, contentWidth, "Bestiary HUD (kills/h and tier ETA)", () -> config.bestiaryTracker, v -> config.bestiaryTracker = v));
         slayer.add(new InfoEntry(contentX, "Reads the Bestiary block in the tab list"));
-        slayer.add(new InfoEntry(contentX, "/tmap be add|remove <mob>, /tmap be clear"));
+        slayer.add(new ToggleEntry(contentX, contentWidth, "  Auto Track Non-Maxed",
+                () -> config.bestiaryAutoTrack, v -> config.bestiaryAutoTrack = v));
+        slayer.add(new InfoEntry(contentX, "Adds every non-maxed mob the tab shows, drops maxed ones"));
+        slayer.add(new InfoEntry(contentX, "/tmap be add|remove <mob>, /tmap be auto|clear"));
         slayer.add(new InfoEntry(contentX, "Shows nothing until a mob was added"));
         slayer.add(new InfoEntry(contentX, "Kills to max ship with the mod, the Bestiary menu corrects them"));
         categories.put("Combat", slayer);
@@ -703,6 +706,24 @@ public class MapConfigScreen extends Screen {
         categories.put("Skills", skills);
 
         List<SettingsEntry> fishing = new ArrayList<>();
+        fishing.add(new LabelEntry(contentX, "Rare Sea Creatures"));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "Rare Catch Warning",
+                () -> config.rareCatchAlert, v -> config.rareCatchAlert = v));
+        fishing.add(new InfoEntry(contentX, "Title and sound when you catch a rare one"));
+        fishing.add(new DropdownEntry(contentX, contentWidth, "  Counts As Rare",
+                new String[] { "Rare Flag", "Epic+", "Rare+" },
+                () -> config.rareCatchRarity, v -> config.rareCatchRarity = v));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "  Show Creature Name",
+                () -> config.rareCatchName, v -> config.rareCatchName = v));
+        fishing.add(new SoundDropdownEntry(contentX, contentWidth, "  Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.rareCatchSound, v -> config.rareCatchSound = v));
+        fishing.add(new SliderEntry(contentX, contentWidth, "  Volume", 0f, 4f,
+                () -> config.rareCatchVolume, v -> config.rareCatchVolume = v, 2));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "Announce Rare Catch",
+                () -> config.rareCatchAnnounce, v -> config.rareCatchAnnounce = v));
+        fishing.add(new InfoEntry(contentX, "Sends /pc I caught a <creature>! (double hook noted)"));
+
         fishing.add(new LabelEntry(contentX, "Hook Timer"));
         fishing.add(new ToggleEntry(contentX, contentWidth, "Hook Countdown",
                 () -> config.hookDisplay, v -> config.hookDisplay = v));
@@ -1962,10 +1983,14 @@ public class MapConfigScreen extends Screen {
         contests.add(new InfoEntry(contentX, "Foraging: :15 / :35 / :55, Farming: hourly at :15"));
         contests.add(new ToggleEntry(contentX, contentWidth, "Contest Timer HUD",
                 () -> config.contestTimer, v -> config.contestTimer = v));
-        contests.add(new ToggleEntry(contentX, contentWidth, "  Show Foraging",
-                () -> config.contestShowForaging, v -> config.contestShowForaging = v));
-        contests.add(new ToggleEntry(contentX, contentWidth, "  Show Farming",
-                () -> config.contestShowFarming, v -> config.contestShowFarming = v));
+        contests.add(new DropdownEntry(contentX, contentWidth, "  Show",
+                new String[] { "Both", "Foraging", "Farming" },
+                () -> config.contestShowForaging && !config.contestShowFarming ? "Foraging"
+                        : config.contestShowFarming && !config.contestShowForaging ? "Farming" : "Both",
+                v -> {
+                    config.contestShowForaging = !"Farming".equals(v);
+                    config.contestShowFarming = !"Foraging".equals(v);
+                }));
         contests.add(new ToggleEntry(contentX, contentWidth, "  SkyBlock Only",
                 () -> config.contestTimerSkyblockOnly, v -> config.contestTimerSkyblockOnly = v));
         contests.add(new ToggleEntry(contentX, contentWidth, "  Button In Inventory",
@@ -1995,6 +2020,9 @@ public class MapConfigScreen extends Screen {
         contests.add(new SliderEntry(contentX, contentWidth, "  Ticket Score", 50f, 1000f,
                 () -> (float) config.contestTicketScore, v -> config.contestTicketScore = Math.round(v), 0));
         contests.add(new InfoEntry(contentX, "Sends /pc Ticket Acquired! at that score in Miria's Contest"));
+        contests.add(new ToggleEntry(contentX, contentWidth, "Hide Foraging At Ticket Score",
+                () -> config.contestHideAtTicket, v -> config.contestHideAtTicket = v));
+        contests.add(new InfoEntry(contentX, "Foraging line disappears once the score is reached"));
         categories.put("Contest Timers", contests);
 
         List<SettingsEntry> torrhus = new ArrayList<>();

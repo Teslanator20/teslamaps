@@ -102,10 +102,43 @@ public class BazaarPrices {
                 .replace(' ', '_');
     }
 
+    /** "Enchanted Book (Sunset I)" — the only pest drop that gets no chat line. */
+    private static final java.util.regex.Pattern BOOK =
+            java.util.regex.Pattern.compile("^Enchanted Book \\((.+) ([IVX]+)\\)$");
+
+    private static int roman(String r) {
+        return switch (r) {
+            case "I" -> 1; case "II" -> 2; case "III" -> 3; case "IV" -> 4; case "V" -> 5;
+            case "VI" -> 6; case "VII" -> 7; case "VIII" -> 8; case "IX" -> 9; case "X" -> 10;
+            default -> 0;
+        };
+    }
+
+    /**
+     * Bazaar id of an enchanted book, or null when the name is not one.
+     * <p>
+     * Ultimate books drop the word "Ultimate" from the display name, so
+     * "Sunset I" is ENCHANTMENT_ULTIMATE_SUNSET_1 and nothing in the name says so.
+     */
+    private static String bookId(String displayName) {
+        java.util.regex.Matcher m = BOOK.matcher(displayName.trim());
+        if (!m.matches()) return null;
+        int level = roman(m.group(2));
+        if (level == 0) return null;
+        String base = m.group(1).toUpperCase(Locale.ROOT)
+                .replace("'", "").replaceAll("[^A-Z0-9 ]", "").trim().replace(' ', '_');
+        String plain = "ENCHANTMENT_" + base + "_" + level;
+        if (prices.containsKey(plain) || buyPrices.containsKey(plain)) return plain;
+        return "ENCHANTMENT_ULTIMATE_" + base + "_" + level;
+    }
+
     private static String idFor(String displayName) {
         String key = displayName.toLowerCase(Locale.ROOT);
         String exception = EXCEPTIONS.get(key);
         if (exception != null) return exception;
+
+        String book = bookId(displayName);
+        if (book != null) return book;
 
         // Hypixel's own name -> id table beats deriving it: "Imagine Dragonflies
         // Vinyl" is VINYL_IMAGINE_DRAGONFLIES, which no rule would produce.

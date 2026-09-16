@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 // Crystal Hollows structure scanner.
 // Block sequences follow shizo's CH Scanner, extended with legitcatmod's longer columns.
-// Area/NPC verification follows Skyblocker's CrystalsLocationsManager, bounds follow SkyHanni.
+// Quarter bounds follow legitcatmod, area/NPC verification follows Skyblocker's CrystalsLocationsManager.
 public class WorldScanner {
 
     private static final int GOLD = 0xDCFFAA00, GREEN = 0xDC55FF55, AQUA = 0xDC55FFFF,
@@ -38,19 +38,17 @@ public class WorldScanner {
         return x >= 202 && x <= 823 && z >= 202 && z <= 823 && y >= 31 && y <= 188;
     }
 
-    // quarters split at 513; the nucleus box is misaligned on Hypixel's side
+    // quarter bounds overlap by design - structures sit right on the seams
     private enum Quarter { NUCLEUS, JUNGLE, PRECURSOR, GOBLIN, MITHRIL, MAGMA, ANY }
-
-    private static final int MID = 513, SLACK = 24;
 
     private static boolean inQuarter(Quarter q, int x, int y, int z) {
         return switch (q) {
             case NUCLEUS   -> x >= 463 && x <= 560 && z >= 460 && z <= 563 && y > 64;
-            case JUNGLE    -> x <= MID + SLACK && z <= MID + SLACK;
-            case PRECURSOR -> x >= MID - SLACK && z >= MID - SLACK;
-            case GOBLIN    -> x <= MID + SLACK && z >= MID - SLACK;
-            case MITHRIL   -> x >= MID - SLACK && z <= MID + SLACK;
-            case MAGMA     -> y <= 72;
+            case JUNGLE    -> x <= 576 && z <= 576;
+            case PRECURSOR -> x > 448 && z > 448;
+            case GOBLIN    -> x <= 576 && z > 448;
+            case MITHRIL   -> x > 448 && z <= 576;
+            case MAGMA     -> y < 80;
             case ANY       -> true;
         };
     }
@@ -58,8 +56,9 @@ public class WorldScanner {
     // blocks = vertical sequence upward from the anchor block, null = wildcard
     // lift = y offset from the anchor to the useful height; x/z come from the match centroid,
     //        shizo's fixed x/z offsets only fit the one column its pattern was written for
-    // minHits = matching columns needed before the waypoint shows; a lone hit on a short
-    //           pattern is what produced the bogus waypoints
+    // minHits = matching columns needed before the waypoint shows. Only for short generic
+    //           patterns - a long column like the dock has exactly ONE matching x/z, so
+    //           anything above 1 there means the waypoint never appears at all.
     // category: 0=crystal, 1=mob spot, 2=grotto, 3=dragon, 4=worm
     private enum Structure {
         KING("King",
@@ -73,10 +72,10 @@ public class WorldScanner {
                 GREEN, Quarter.MITHRIL, 5, 1, 0, "Mines of Divan", "Jade Crystal"),
         CITY("City",
                 new Block[]{Blocks.STONE_BRICKS, Blocks.COBBLESTONE, Blocks.COBBLESTONE, Blocks.COBBLESTONE, Blocks.COBBLESTONE, Blocks.COBBLESTONE_STAIRS, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.DARK_OAK_STAIRS},
-                AQUA, Quarter.PRECURSOR, 0, 2, 0, "Lost Precursor City", "Sapphire Crystal"),
+                AQUA, Quarter.PRECURSOR, 0, 1, 0, "Lost Precursor City", "Sapphire Crystal"),
         TEMPLE("Temple",
                 new Block[]{Blocks.BEDROCK, Blocks.BEDROCK, Blocks.BEDROCK, Blocks.BEDROCK, Blocks.STONE, Blocks.CLAY, Blocks.CLAY, Blocks.CLAY, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.LIME_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.GREEN_TERRACOTTA},
-                DARK_PURPLE, Quarter.JUNGLE, 47, 2, 0, "Jungle Temple", "[NPC] Kalhuiki Door Guardian:"),
+                DARK_PURPLE, Quarter.JUNGLE, 47, 1, 0, "Jungle Temple", "[NPC] Kalhuiki Door Guardian:"),
         BAL("Bal",
                 new Block[]{Blocks.LAVA, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER},
                 GOLD, Quarter.MAGMA, 1, 1, 0, "Khazad-dûm", "Topaz Crystal"),
@@ -85,18 +84,19 @@ public class WorldScanner {
                         null, null, null, null, null, null, null, null, null, null,
                         null, null, null, null, null, null, null, null, null, null,
                         Blocks.STONE_BRICKS, Blocks.STONE_BRICKS, Blocks.FIRE, Blocks.STONE_BRICKS},
-                GREEN, Quarter.MITHRIL, 11, 2, 1, "Corleone", null),
+                GREEN, Quarter.MITHRIL, 11, 1, 1, "Corleone", null),
         // legitcatmod's hideout column instead of shizo's four generic precursor blocks
         CORLEONE_HIDEOUT("Corleone Hideout",
                 new Block[]{Blocks.SMOOTH_STONE_SLAB, Blocks.STONE_BRICKS, Blocks.STONE_BRICK_SLAB,
-                        null, null, null, null, null, null, null, null, null, null, null,
-                        null, null, null, null, null, null, null, null, null, null,
-                        null, null, null, null, Blocks.STONE_BRICK_SLAB},
+                        Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR,
+                        Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR,
+                        Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR,
+                        Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.STONE_BRICK_SLAB},
                 GREEN, Quarter.MITHRIL, 0, 1, 1, null, null),
         KEY_GUARDIAN_SPIRAL("Key Guardian",
                 new Block[]{Blocks.OAK_FENCE, Blocks.JUNGLE_SLAB, Blocks.POLISHED_GRANITE,
                         Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD},
-                DARK_PURPLE, Quarter.JUNGLE, 0, 2, 1, null, null),
+                DARK_PURPLE, Quarter.JUNGLE, 0, 1, 1, null, null),
         KEY_GUARDIAN_TEMPLE("Key Guardian",
                 new Block[]{Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_PLANKS, Blocks.POLISHED_GRANITE,
                         Blocks.JUNGLE_SLAB, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_STAIRS,
@@ -113,7 +113,7 @@ public class WorldScanner {
         PETE("Pete",
                 new Block[]{Blocks.NETHERRACK, Blocks.FIRE, Blocks.IRON_BARS,
                         Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR},
-                GOLD, Quarter.GOBLIN, 0, 2, 1, null, null),
+                GOLD, Quarter.GOBLIN, 0, 1, 1, null, null),
         // legitcatmod's column is our four blocks plus seven more, same anchor, far fewer false hits
         ODAWA("Odawa",
                 new Block[]{Blocks.JUNGLE_LOG, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_STAIRS, Blocks.JUNGLE_LOG,
@@ -455,12 +455,18 @@ public class WorldScanner {
         return section.getBlockState(lx & 15, absY & 15, lz & 15);
     }
 
+    // AIR in a pattern means "empty", and the hollows are full of cave_air
     private static boolean checkSeq(LevelChunk chunk, int lx, int startY, int lz, Block[] seq) {
         for (int i = 0; i < seq.length; i++) {
             if (seq[i] == null) continue;
             int y = startY + i;
             if (y > 255) return false;
-            if (blockAt(chunk, lx, y, lz).getBlock() != seq[i]) return false;
+            BlockState st = blockAt(chunk, lx, y, lz);
+            if (seq[i] == Blocks.AIR) {
+                if (!st.isAir()) return false;
+            } else if (st.getBlock() != seq[i]) {
+                return false;
+            }
         }
         return true;
     }
@@ -501,6 +507,33 @@ public class WorldScanner {
             out.add((w.verified() ? "§a✔ " : "§7? ") + "§f" + e.getKey() + " §7"
                     + w.pos().getX() + " " + w.pos().getY() + " " + w.pos().getZ());
         }
+        return out;
+    }
+
+    // /tmap chscan column - the real block column under the player, for writing patterns
+    public static List<String> columnDump() {
+        List<String> out = new ArrayList<>();
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) { out.add("§7no world"); return out; }
+        BlockPos p = mc.player.blockPosition();
+        LevelChunk chunk = mc.level.getChunkSource().getChunk(p.getX() >> 4, p.getZ() >> 4, ChunkStatus.FULL, false);
+        if (chunk == null) { out.add("§7chunk not loaded"); return out; }
+        out.add("§6column at §f" + p.getX() + " " + p.getY() + " " + p.getZ());
+        String run = null;
+        int runStart = 0, runLen = 0;
+        for (int dy = -6; dy <= 32; dy++) {
+            int y = p.getY() + dy;
+            if (y < 0 || y > 255) continue;
+            BlockState st = blockAt(chunk, p.getX() & 15, y, p.getZ() & 15);
+            String name = st.isAir() ? "AIR" : net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                    .getKey(st.getBlock()).getPath().toUpperCase();
+            if (name.equals(run)) { runLen++; continue; }
+            if (run != null) out.add("§7y" + runStart + (runLen > 1 ? "-" + (runStart + runLen - 1) : "")
+                    + " §f" + run + (runLen > 1 ? " §7x" + runLen : ""));
+            run = name; runStart = y; runLen = 1;
+        }
+        if (run != null) out.add("§7y" + runStart + (runLen > 1 ? "-" + (runStart + runLen - 1) : "")
+                + " §f" + run + (runLen > 1 ? " §7x" + runLen : ""));
         return out;
     }
 

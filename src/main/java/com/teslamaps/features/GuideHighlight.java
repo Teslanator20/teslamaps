@@ -22,7 +22,8 @@ import net.minecraft.world.item.component.ItemLore;
 // menu, not what is done: one menu pattern plus one lore condition per entry.
 public class GuideHighlight {
 
-    private record Entry(BooleanSupplier on, Pattern menu, Pattern condition, boolean wiki) {}
+    private record Entry(BooleanSupplier on, Pattern menu, Pattern condition, boolean wiki,
+                         boolean checkProgress) {}
 
     // conditions run against the stripped name/lore line and have to match it whole. The "\d{1,2}"
     // in the progress ones is what excludes 100% - that is the SkyHanni trick, kept as is.
@@ -48,7 +49,11 @@ public class GuideHighlight {
     }
 
     private static void add(BooleanSupplier on, String menu, Pattern condition, boolean wiki) {
-        ENTRIES.add(new Entry(on, Pattern.compile(menu), condition, wiki));
+        ENTRIES.add(new Entry(on, Pattern.compile(menu), condition, wiki, false));
+    }
+
+    private static void addProgress(BooleanSupplier on, String menu, Pattern condition) {
+        ENTRIES.add(new Entry(on, Pattern.compile(menu), condition, false, true));
     }
 
     static {
@@ -71,7 +76,7 @@ public class GuideHighlight {
         add(() -> cfg().guideOneTime, "Dungeon ➜ Complete Dungeons", X);
         add(() -> cfg().guideMenu, "Tasks ➜ ", TOTAL);
         add(() -> cfg().guideMenu, "Skill Related Tasks", CATEGORY);
-        add(() -> cfg().guideCollection, "Collections", COLLECTION);
+        addProgress(() -> cfg().guideCollection, "Collections", COLLECTION);
         add(() -> cfg().guideCentury, "Raffle Tasks", INCOMPLETE);
     }
 
@@ -147,13 +152,12 @@ public class GuideHighlight {
         if (cached != null) return cached;
         if (cache.size() > 512) cache.clear();
 
-        boolean missing = entry.condition().matcher(
-                StringUtil.stripTrim(item.getHoverName().getString())).matches();
+        boolean missing = matches(entry, item.getHoverName().getString());
         if (!missing) {
             ItemLore lore = item.get(DataComponents.LORE);
             if (lore != null) {
                 for (Component cmp : lore.lines()) {
-                    if (entry.condition().matcher(StringUtil.stripTrim(cmp.getString())).matches()) {
+                    if (matches(entry, cmp.getString())) {
                         missing = true;
                         break;
                     }
@@ -162,5 +166,41 @@ public class GuideHighlight {
         }
         cache.put(item, missing);
         return missing;
+    }
+
+    private static boolean matches(Entry entry, String raw) {
+        String line = StringUtil.stripTrim(raw);
+        if (!entry.condition().matcher(line).matches()) return false;
+        return !entry.checkProgress() || !complete(line);
+    }
+
+    private static final Pattern PERCENT = Pattern.compile("(\\d+(?:\\.\\d+)?)%");
+    private static final Pattern FRACTION =
+            Pattern.compile("([\\d,]+)\\s*/\\s*([\\d,]+)");
+
+    // "Collections Unlocked: 18/18" or "Progress to Tier V: 100%" is done, not missing.
+    // Stripping the colour codes loses hypixel's own §a/§e hint, so read the numbers.
+    private static boolean complete(String line) {
+        var percent = PERCENT.matcher(line);
+        if (percent.find()) {
+            try {
+                if (Double.parseDouble(percent.group(1)) >= 100) return true;
+            } catch (NumberFormatException ignored) {}
+        }
+        var fraction = FRACTION.matcher(line);
+        if (fraction.find()) {
+            long have = number(fraction.group(1));
+            long need = number(fraction.group(2));
+            if (need > 0 && have >= need) return true;
+        }
+        return false;
+    }
+
+    private static long number(String s) {
+        try {
+            return Long.parseLong(s.replace(",", ""));
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 }

@@ -634,6 +634,8 @@ public class TeslaMapsConfig {
     public String farmPriceMode = "Instant Sell";   // Instant Sell / Sell Offer / NPC
     public boolean farmingSensitivity = false;      // Drop sensitivity while holding a farming tool
     public float farmingSensitivityValue = 0.0f;    // Sensitivity to use while it applies
+    @Global
+    public double sensitivityBackup = -1;           // Player's own sensitivity while overridden, -1 = nothing pending
     public boolean pestOverlay = true;              // Cooldown / alive / infested plots panel
     public int pestOverlayX = 10;
     public int pestOverlayY = 60;
@@ -806,6 +808,8 @@ public class TeslaMapsConfig {
     public float bestiaryTrackerScale = 1.0f;  // Scale of bestiary HUD
     @Global
     public java.util.List<String> bestiaryTracked = new java.util.ArrayList<>(); // mobs picked with /tmap be add
+    public boolean bestiaryAutoTrack = false;  // Keep tracking every non-maxed mob the tab shows
+    public java.util.Map<String, Integer> bestiaryIdleMinutes = new java.util.HashMap<>(); // per-mob idle cap, /tmap be add <mob> <min>
     @Global
     public java.util.Map<String, Long> bestiaryKillsToMax = new java.util.HashMap<>(); // read from the Bestiary menu
 
@@ -1108,6 +1112,13 @@ public class TeslaMapsConfig {
     public boolean foragingHideSweepDetails = false; // hide the Sweep Details / Toughness / penalty lines
     public boolean foragingCleanTreeView = false;   // hide the floating blocks from chopping
     public boolean foragingHideRuneEffects = false; // hide the floating blocks from rune effects
+    public boolean rareCatchAlert = false;          // title + sound when a rare sea creature is caught
+    public String rareCatchRarity = "Rare Flag";    // Rare Flag / Epic+ / Rare+
+    public boolean rareCatchName = true;            // name the creature in the title
+    public String rareCatchSound = "NOTE_PLING";
+    public float rareCatchVolume = 1.0f;
+    public boolean rareCatchAnnounce = false;       // "I caught a X!" to party chat
+
     public boolean umbrellaWarning = false;         // alert before and when the Umberella runs out
     public int umbrellaWarnBefore = 30;             // seconds of warning, 0 = only on despawn
     public boolean umbrellaWarningTitle = false;
@@ -1176,6 +1187,9 @@ public class TeslaMapsConfig {
     public java.util.Map<String, String> greenhousePlants = new java.util.HashMap<>(); // head identity -> plant id
     @Global
     public java.util.Map<String, String> greenhouseRotations = new java.util.HashMap<>(); // "x,y,z" -> "rot,mirror"
+    @Global
+    public java.util.List<String> greenhouseMutations =
+            new java.util.ArrayList<>(java.util.List.of("TIMESTALK")); // plants that appear by mutation, not planted
     public int greenhouseRotation = 0;              // 0..3, x90 degrees
     public boolean greenhouseMirror = false;
     public String greenhouseFocus = "";              // plant to highlight, "" = rarest in the layout, "all" = no dimming
@@ -1210,6 +1224,7 @@ public class TeslaMapsConfig {
     public boolean contestAnnounceParty = false;    // "Contest Started" to party chat on every contest start
     public boolean contestTicketAnnounce = false;   // "Ticket Acquired!" once the Miria score clears the threshold
     public int contestTicketScore = 250;            // score that earns the ticket in Miria's Contest
+    public boolean contestHideAtTicket = true;      // Drop the foraging line once the ticket score is in
 
     public boolean hoveredSlotOutline = true;       // outline the slot under the cursor in every container
     public String colorHoveredSlot = "#FF00FF";     // hovered slot outline color
@@ -1541,6 +1556,7 @@ public class TeslaMapsConfig {
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
         if (c.bestiaryTracked == null) c.bestiaryTracked = new java.util.ArrayList<>();
         if (c.bestiaryKillsToMax == null) c.bestiaryKillsToMax = new java.util.HashMap<>();
+        if (c.bestiaryIdleMinutes == null) c.bestiaryIdleMinutes = new java.util.HashMap<>();
         if (c.imageShareBlocked == null) c.imageShareBlocked = new java.util.ArrayList<>();
         if (c.dragonPbs == null) c.dragonPbs = new java.util.HashMap<>();
         if (c.keybinds == null) c.keybinds = defaultKeybinds();
@@ -1575,6 +1591,9 @@ public class TeslaMapsConfig {
         if (c.greenhouseSoil == null) c.greenhouseSoil = new java.util.HashMap<>();
         if (c.greenhousePlants == null) c.greenhousePlants = new java.util.HashMap<>();
         if (c.greenhouseRotations == null) c.greenhouseRotations = new java.util.HashMap<>();
+        if (c.greenhouseMutations == null) {
+            c.greenhouseMutations = new java.util.ArrayList<>(java.util.List.of("TIMESTALK"));
+        }
         if (c.greenhouseFocus == null) c.greenhouseFocus = "";
         if (c.shardSort == null || c.shardSort.isBlank()) c.shardSort = "Price to Max";
         if (c.shardPriceSource == null || c.shardPriceSource.isBlank()) c.shardPriceSource = "Instant Buy";

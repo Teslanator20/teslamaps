@@ -27,7 +27,7 @@ public final class ContestTimers {
     private ContestTimers() {}
 
     public static void tick() {
-        tickTicket();
+        tickScore();
         tickAlerts();
     }
 
@@ -107,21 +107,29 @@ public final class ContestTimers {
 
     private static boolean ticketAnnounced = false;
     private static int ticketTicks = 0;
+    private static long currentScore = -1;
 
-    private static void tickTicket() {
+    private static void tickScore() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.contestTicketAnnounce || !SkyblockUtils.isInSkyblock()) {
+        if ((!c.contestTicketAnnounce && !c.contestHideAtTicket) || !SkyblockUtils.isInSkyblock()) {
             ticketAnnounced = false;
+            currentScore = -1;
             return;
         }
         if (++ticketTicks < 20) return;
         ticketTicks = 0;
 
-        long score = miriaScore();
-        if (score < 0) { ticketAnnounced = false; return; }   // no contest running
-        if (ticketAnnounced || score < c.contestTicketScore) return;
+        currentScore = miriaScore();
+        if (currentScore < 0) { ticketAnnounced = false; return; }   // no contest running
+        if (!c.contestTicketAnnounce || ticketAnnounced || currentScore < c.contestTicketScore) return;
         ticketAnnounced = true;
         party("Ticket Acquired!");
+    }
+
+    /** Ticket is in — the foraging line has nothing left to say. */
+    public static boolean ticketDone() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.contestHideAtTicket && currentScore >= c.contestTicketScore;
     }
 
     /** -1 when no Miria's Contest widget is up. */
@@ -188,7 +196,7 @@ public final class ContestTimers {
         List<String> out = new ArrayList<>();
         out.add("§6Contest Timers");
 
-        if (c.contestShowForaging) {
+        if (c.contestShowForaging && !ticketDone()) {
             long left = remaining(now, START_OFFSET_MS, FORAGING_PERIOD_MS);
             out.add("§2Foraging§8: §aLIVE §f" + formatMillis(left));
         }
@@ -221,7 +229,7 @@ public final class ContestTimers {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.contestTimer) return false;
         if (c.contestTimerSkyblockOnly && !SkyblockUtils.isInSkyblock()) return false;
-        return c.contestShowForaging || c.contestShowFarming;
+        return lines().size() > 1;   // header only = nothing to show
     }
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {

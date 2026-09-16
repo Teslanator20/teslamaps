@@ -23,7 +23,11 @@ public class SeaCreatureList {
     private static final String URL =
             "https://raw.githubusercontent.com/hannibal002/SkyHanni-REPO/main/constants/SeaCreatures.json";
 
+    /** rarity is COMMON..LEGENDARY, rare is the bold flag Hypixel gives the notable catches. */
+    public record Info(String name, String rarity, boolean rare, String color) {}
+
     private static final Map<String, String> messageToName = new ConcurrentHashMap<>();
+    private static final Map<String, Info> byName = new ConcurrentHashMap<>();
     private static volatile boolean loaded = false;
     private static volatile boolean loading = false;
 
@@ -40,11 +44,17 @@ public class SeaCreatureList {
 
                 JsonObject root = JsonParser.parseString(body).getAsJsonObject();
                 for (Map.Entry<String, JsonElement> variant : root.entrySet()) {
-                    JsonObject creatures = variant.getValue().getAsJsonObject()
-                            .getAsJsonObject("sea_creatures");
+                    JsonObject group = variant.getValue().getAsJsonObject();
+                    JsonObject creatures = group.getAsJsonObject("sea_creatures");
                     if (creatures == null) continue;
+                    String groupColor = group.has("chat_color") ? group.get("chat_color").getAsString() : "§b";
                     for (Map.Entry<String, JsonElement> entry : creatures.entrySet()) {
                         JsonObject info = entry.getValue().getAsJsonObject();
+                        byName.put(entry.getKey(), new Info(
+                                entry.getKey(),
+                                info.has("rarity") ? info.get("rarity").getAsString() : "COMMON",
+                                info.has("rare") && info.get("rare").getAsBoolean(),
+                                info.has("chat_color") ? info.get("chat_color").getAsString() : groupColor));
                         put(info.has("chat_message") ? info.get("chat_message").getAsString() : null, entry.getKey());
                         if (!info.has("alternate_messages")) continue;
                         for (JsonElement alternate : info.getAsJsonArray("alternate_messages")) {
@@ -79,5 +89,10 @@ public class SeaCreatureList {
     /** @return the creature name, or null when the line is not a catch. */
     public static String nameFor(String cleanMessage) {
         return messageToName.get(cleanMessage.trim());
+    }
+
+    /** @return rarity, rare flag and chat color, or null when the creature is unknown. */
+    public static Info info(String name) {
+        return byName.get(name);
     }
 }
