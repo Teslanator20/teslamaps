@@ -440,6 +440,9 @@ public class MapConfigScreen extends Screen {
         render.add(new ToggleEntry(contentX, contentWidth, "Dye Drops", () -> config.rareDyeDropEffects, v -> config.rareDyeDropEffects = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Show Item Name", () -> config.rareDropText, v -> config.rareDropText = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Show Item Value", () -> config.rareDropPrice, v -> config.rareDropPrice = v));
+        render.add(new SliderEntry(contentX, contentWidth, "Any Drop Worth Over (Mio)", 0f, 50f,
+                () -> config.rareDropMinValue, v -> config.rareDropMinValue = v, 1));
+        render.add(new InfoEntry(contentX, "0 = off. Plays the effect for any RARE DROP over this value"));
         render.add(new LabelEntry(contentX, "Etherwarp"));
         render.add(new ToggleEntry(contentX, contentWidth, "Etherwarp Guess Box", () -> config.etherwarp, v -> config.etherwarp = v));
         render.add(new ToggleEntry(contentX, contentWidth, "  Show When Failed", () -> config.etherwarpShowFail, v -> config.etherwarpShowFail = v));
@@ -635,6 +638,8 @@ public class MapConfigScreen extends Screen {
         hide.add(new ToggleEntry(contentX, contentWidth, "  Hide Skill XP", () -> config.abHideSkillXp, v -> config.abHideSkillXp = v));
         hide.add(new InfoEntry(contentX, "/tmap actionbar <text> hides any segment containing that text"));
         hide.add(new InfoEntry(contentX, "/tmap debug actionbar prints the raw action bar + segments"));
+        hide.add(new LabelEntry(contentX, "Inventory"));
+        hide.add(new ToggleEntry(contentX, contentWidth, "Hide Recipe Book Button", () -> config.hideRecipeBook, v -> config.hideRecipeBook = v));
         hide.add(new LabelEntry(contentX, "Camera"));
         hide.add(new ToggleEntry(contentX, contentWidth, "No Hurt Camera", () -> config.noHurtCam, v -> config.noHurtCam = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "No View Bobbing", () -> config.noViewBobbing, v -> config.noViewBobbing = v));
@@ -663,6 +668,10 @@ public class MapConfigScreen extends Screen {
         skills.add(new LabelEntry(contentX, "Skill Tracker"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v));
         skills.add(new ToggleEntry(contentX, contentWidth, "Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v));
+        skills.add(new LabelEntry(contentX, "Skill XP Display"));
+        skills.add(new ToggleEntry(contentX, contentWidth, "Skill XP Display", () -> config.skillExpDisplay, v -> config.skillExpDisplay = v));
+        skills.add(new InfoEntry(contentX, "Cuts the +XP out of the action bar into its own HUD element"));
+        skills.add(new InfoEntry(contentX, "Move it in /tmap gui"));
         skills.add(new InfoEntry(contentX, "Keeps tracking either way — [Hide]/[Show] in the panel does the same"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Overflow Levels (menu + chat)", () -> config.skillOverflow, v -> config.skillOverflow = v));
         skills.add(new ToggleEntry(contentX, contentWidth, "Overflow Skill Avg. (menu tooltip)", () -> config.skillAvgOverflow, v -> config.skillAvgOverflow = v));
@@ -1600,6 +1609,8 @@ public class MapConfigScreen extends Screen {
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Infinite Chat History", () -> config.infiniteChat, v -> config.infiniteChat = v));
         chatFilter.add(new SliderEntry(contentX, contentWidth, "History Cap (lines)", 1024f, 32768f,
                 () -> (float) config.chatHistoryLimit, v -> config.chatHistoryLimit = v.intValue()));
+        chatFilter.add(new ToggleEntry(contentX, contentWidth, "Keep History Across Restarts", () -> config.chatHistoryPersist, v -> config.chatHistoryPersist = v));
+        chatFilter.add(new InfoEntry(contentX, "Saves the chat on quit and restores it on the next launch"));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Stack Duplicate Messages", () -> config.chatStacking, v -> config.chatStacking = v));
         chatFilter.add(new SliderEntry(contentX, contentWidth, "Stack Window (min)", 1f, 30f,
                 () -> (float) config.chatStackWindowMinutes, v -> config.chatStackWindowMinutes = Math.round(v)));
@@ -2040,6 +2051,15 @@ public class MapConfigScreen extends Screen {
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Tiki ESP", () -> config.tikiESP, v -> config.tikiESP = v));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Show Name", () -> config.tikiESPName, v -> config.tikiESPName = v));
         torrhus.add(new ColorEntry(contentX, contentWidth, "Tiki Box Color", () -> config.tikiESPColor, v -> config.tikiESPColor = v));
+        torrhus.add(new LabelEntry(contentX, "Queen Ant"));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "Queen Ant Warning", () -> config.queenAntWarning, v -> config.queenAntWarning = v));
+        torrhus.add(new InfoEntry(contentX, "Title when a Queen Ant spawns from a destroyed anthill"));
+        torrhus.add(new ToggleEntry(contentX, contentWidth, "  Line To The Queen", () -> config.queenAntLine, v -> config.queenAntLine = v));
+        torrhus.add(new SoundDropdownEntry(contentX, contentWidth, "  Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.queenAntSound, v -> config.queenAntSound = v));
+        torrhus.add(new SliderEntry(contentX, contentWidth, "  Volume", 0f, 4f,
+                () -> config.queenAntVolume, v -> config.queenAntVolume = v, 2));
         torrhus.add(new LabelEntry(contentX, "Critters"));
         torrhus.add(new ToggleEntry(contentX, contentWidth, "Beeheemoth & Honeybuzz ESP", () -> config.critterBee, v -> config.critterBee = v));
         torrhus.add(new ColorEntry(contentX, contentWidth, "  Color", () -> config.colorCritterBee, v -> config.colorCritterBee = v));
@@ -2214,6 +2234,8 @@ public class MapConfigScreen extends Screen {
         ui.add(new ToggleEntry(contentX, contentWidth, "  Show TPS", () -> config.perfHudTps, v -> config.perfHudTps = v));
         ui.add(new ToggleEntry(contentX, contentWidth, "  Show Ping", () -> config.perfHudPing, v -> config.perfHudPing = v));
         ui.add(new ToggleEntry(contentX, contentWidth, "  Vertical", () -> config.perfHudVertical, v -> config.perfHudVertical = v));
+        ui.add(new ColorEntry(contentX, contentWidth, "  Label Color", () -> config.perfHudLabelColor, v -> config.perfHudLabelColor = v));
+        ui.add(new ColorEntry(contentX, contentWidth, "  Value Color", () -> config.perfHudValueColor, v -> config.perfHudValueColor = v));
         ui.add(new InfoEntry(contentX, "Position/scale in /tmap gui, hidden while F3 is open"));
         ui.add(new LabelEntry(contentX, "Updates"));
         ui.add(new ToggleEntry(contentX, contentWidth, "Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v));

@@ -30,7 +30,10 @@ public final class NpcDatabase {
 		Map.entry("Garden", 13),
 		Map.entry("Glacite Tunnels", 14),
 		Map.entry("Galatea", 15),
-		Map.entry("Backwater Bayou", 16)
+		Map.entry("Backwater Bayou", 16),
+		Map.entry("Torrhus Canyon", 17),
+		Map.entry("Lotus Atoll", 18),
+		Map.entry("Critter Safari", 19)
 	);
 
 	static {
@@ -544,6 +547,145 @@ public final class NpcDatabase {
 		rift("Madame Eleanor Q. Goldsworth I", -0.5, 114.0, 35.5, "NPC");
 		rift("Madame Eleanor Q. Goldsworth IX", 37.5, 129.0, 41.5, "NPC");
 
+
+		hub("Alixer", -2.5, 79.0, 4.5, "NPC");
+		hub("Britette", -17.5, 47.0, -118.5, "NPC");
+		hub("Enchantment Nerd", -71.5, 72.0, -80.5, "NPC");
+		hub("Feast Baker Scott", 77.5, 73.0, -82.5, "NPC");
+		hub("Feast Chef Ted", 83.5, 73.0, -78.5, "NPC");
+		hub("Hootie", 11.5, 74.0, -64.5, "NPC");
+		hub("Hoppity", 56.5, 71.0, -2.5, "NPC");
+		hub("Lukas the Aquarist", 17.5, 72.0, -8.5, "NPC");
+		hub("Marco", 59.5, 23.0, 69.5, "NPC");
+		hub("Piggy", 14.5, 72.0, -8.5, "NPC");
+		hub("Security Clerk", -22.5, 46.0, -110.5, "NPC");
+		hub("Simon", -11.5, 77.0, 2.5, "NPC");
+		hub("Susan", -1.5, 80.0, 25.5, "NPC");
+		hub("Taylor", 36.5, 75.0, -40.5, "NPC");
+		hub("Torrhus Canyon", -21.5, 72.0, -22.5, "NPC");
+		park("Molbert", -467.5, 121.0, -42.5, "NPC");
+		spider("Rick", -263.5, 72.0, -323.5, "NPC");
+		end("Gregory", -607.5, 23.0, -282.5, "NPC");
+		end("Lone Adventurer", -523.5, 102.0, -273.5, "NPC");
+		deep("Lift Operator", 45.5, 122.0, 15.5, "NPC");
+		dwarven("Dirt Guy", 42.5, 109.0, 175.5, "NPC");
+		dwarven("Don Expresso", 39.5, 203.0, -123.5, "NPC");
+		dwarven("Dulin", 81.5, 188.0, 127.5, "NPC");
+		dwarven("Lift Operator (Deep Caverns)", -78.5, 201.0, -123.5, "NPC");
+		dwarven("Royal Resident", 62.5, 205.0, 199.5, "NPC");
+		dwarven("Ticket Master (Lower Royal Mines)", 84.5, 115.0, 134.5, "NPC");
+		ch("Chunk", 797.5, 129.0, 707.5, "NPC");
+		barn("Hunter Ava", 319.5, 103.0, -469.5, "NPC");
+		barn("Husbandry Merchant", 117.5, 74.0, -255.5, "NPC");
+		barn("Jake", 203.5, 15.0, -496.5, "NPC");
+		crimson("Aranya", -321.5, 153.0, -1009.5, "NPC");
+		crimson("Arch", -360.5, 190.0, -551.5, "NPC");
+		crimson("Baar", -637.5, 124.0, -790.5, "NPC");
+		crimson("Chak", -602.5, 108.0, -867.5, "NPC");
+		crimson("Chihai", -604.5, 108.0, -860.5, "NPC");
+		crimson("Chuk", -605.5, 108.0, -869.5, "NPC");
+		crimson("Corm", -668.5, 127.0, -925.5, "NPC");
+		crimson("Cyndarin", -204.5, 113.0, -955.5, "NPC");
+		crimson("Dean", -15.5, 124.0, -882.5, "NPC");
+		crimson("Desperate Engineer", -288.5, 128.0, -982.5, "NPC");
+		crimson("Edelis", -92.5, 105.0, -820.5, "NPC");
+		crimson("Edelis", -61.5, 108.0, -811.5, "NPC");
+		crimson("Igor", -550.5, 99.0, -706.5, "NPC");
+		crimson("Keran", -611.5, 109.0, -668.5, "NPC");
+		crimson("Kuudra Believer", -391.5, 82.0, -701.5, "NPC");
+		crimson("Pam", -597.5, 110.0, -665.5, "NPC");
+		crimson("Porc", -576.5, 119.0, -855.5, "NPC");
+		crimson("Prie", -611.5, 109.0, -661.5, "NPC");
+		crimson("Strux", -595.5, 124.0, -845.5, "NPC");
+		crimson("Truu", -612.5, 123.0, -765.5, "NPC");
+		crimson("Turd", -616.5, 116.0, -709.5, "NPC");
+		crimson("Undercover Agent (Barbarian)", -15.5, 94.0, -843.5, "NPC");
+		crimson("Undercover Agent (Mage)", -625.5, 120.0, -959.5, "NPC");
+		crimson("Yoink", -612.5, 124.0, -787.5, "NPC");
+		crimson("Ziri", -81.5, 115.0, -791.5, "NPC");
+		rift("Argofay Trailblazer", -97.5, 67.0, 147.5, "NPC");
+		rift("Autonull", -222.5, 18.0, 4.5, "NPC");
+		rift("Blobbercyst", -222.5, 18.0, -11.5, "NPC");
+		rift("Chester", -130.5, 74.0, 172.5, "NPC");
+		rift("Cryptosis", 29.5, 72.0, -76.5, "NPC");
+		rift("Deer", 138.5, 71.0, -12.5, "NPC");
+		rift("Detective Amog", 25.5, 178.0, 42.5, "NPC");
+		rift("Dr Phear", -147.5, 37.0, 27.5, "NPC");
+		rift("Fairylosopher at the Top", 255.5, 131.0, 76.5, "NPC");
+		rift("Ikrus", 9.5, 158.0, 60.5, "NPC");
+		rift("Jerry", -86.5, 21.0, 3.5, "NPC");
+		rift("Joliet", -30.5, 65.0, -42.5, "NPC");
+		rift("Master Tactician Fink", -189.5, 72.0, -56.5, "NPC");
+		rift("Noway", -223.5, 18.0, 42.5, "NPC");
+		rift("Phaser", 59.5, 71.0, -89.5, "NPC");
+		rift("Roosterzilla", -223.5, 18.0, 97.5, "NPC");
+		rift("Shen Chaos", -259.5, 19.0, -67.5, "NPC");
+		rift("Spike", -222.5, 18.0, -49.5, "NPC");
+		rift("Unbound Explorer", -28.5, 72.0, 314.5, "NPC");
+		galatea("Brian", -628.5, 118.0, 47.5, "NPC");
+		galatea("Soul Campfire Adept", -625.5, 118.0, 50.5, "NPC");
+		galatea("Soul Campfire Initiate", -624.5, 118.0, 47.5, "NPC");
+		galatea("Tilus", -642.5, 56.0, 47.5, "NPC");
+		bayou("Carly", 38.5, 72.0, 7.5, "NPC");
+		bayou("Jonesy", -9.5, 75.0, -10.5, "NPC");
+		bayou("Researcher Gilbert", 27.5, 60.0, -26.5, "NPC");
+		bayou("Researcher Gilbert", -19.5, 76.0, -8.5, "NPC");
+		dwarven("Fossil Muncher", -26.5, 126.0, 300.5, "NPC");
+		dwarven("Researcher Beryl", 35.5, 129.0, 236.5, "NPC");
+		dwarven("Sor'Hen", 0.5, 122.0, 225.5, "NPC");
+		jerry("Banker Barry", 20.5, 78.0, 45.5, "NPC");
+		jerry("Daan", 81.5, 80.0, 110.5, "NPC");
+		jerry("Dirk", 79.5, 82.0, 55.5, "NPC");
+		jerry("Einary", -15.5, 77.0, 63.5, "NPC");
+		jerry("Frosty", -1.5, 77.0, 93.5, "NPC");
+		jerry("Frozen Alex", -42.5, 85.0, -0.5, "NPC");
+		jerry("Gary", 54.5, 104.0, 56.5, "NPC");
+		jerry("George", -72.5, 79.0, 28.5, "NPC");
+		jerry("Gulliver", 68.5, 106.0, 34.5, "NPC");
+		jerry("Helena", 37.5, 80.0, 75.5, "NPC");
+		jerry("Maaike", 49.5, 82.0, 50.5, "NPC");
+		jerry("Sherry", 5.5, 77.0, 94.5, "NPC");
+		jerry("St. Jerry", -21.5, 77.0, 92.5, "NPC");
+		jerry("Terry", -91.5, 79.0, 25.5, "NPC");
+		torrhus("Andrea", -711.5, 109.0, 178.5, "NPC");
+		torrhus("Ant", -615.5, 76.0, 208.5, "NPC");
+		torrhus("Archie", -706.5, 109.0, 165.5, "NPC");
+		torrhus("Beekeeper Bartholomew", -666.5, 96.0, 166.5, "NPC");
+		torrhus("Dory", -645.5, 162.0, 194.5, "NPC");
+		torrhus("Forager Daniel", -639.5, 96.0, 246.5, "NPC");
+		torrhus("Forager Rowan", -725.5, 138.0, 228.5, "NPC");
+		torrhus("Freddy", -694.5, 95.0, 200.5, "NPC");
+		torrhus("Helia", -690.5, 94.0, 155.5, "NPC");
+		torrhus("Honey", -627.5, 100.0, 226.5, "NPC");
+		torrhus("Hunter Jean", -665.5, 146.0, 170.5, "NPC");
+		torrhus("Hunter McNeil", -652.5, 104.0, 167.5, "NPC");
+		torrhus("Maxim", -574.5, 154.0, 248.5, "NPC");
+		torrhus("Miria", -654.5, 99.0, 220.5, "NPC");
+		torrhus("Oen", -566.5, 81.0, 270.5, "NPC");
+		torrhus("Safari Manager", -732.5, 100.0, 185.5, "NPC");
+		torrhus("Safari Receptionist", -719.5, 100.0, 179.5, "NPC");
+		torrhus("Safari Shill", -696.5, 95.0, 177.5, "NPC");
+		torrhus("Sanger", -526.5, 98.0, 218.5, "NPC");
+		torrhus("Sanger", -746.5, 94.0, 261.5, "NPC");
+		torrhus("Sanger", -632.5, 95.0, 160.5, "NPC");
+		torrhus("Treehugger Timothy", -541.5, 111.0, 276.5, "NPC");
+		lotus("Captain Baha", -26.5, 74.0, 2.5, "NPC");
+		lotus("Researcher Betty", -12.5, 72.0, 3.5, "NPC");
+		lotus("Researcher Gilbert", -23.5, 74.0, 4.5, "NPC");
+		lotus("Researcher Jessica", 75.5, 65.0, -11.5, "NPC");
+		lotus("Researcher Kay", 22.5, 84.0, -50.5, "NPC");
+		lotus("Researcher Lily", 26.5, 67.0, 14.5, "NPC");
+		lotus("Researcher Ribery", -12.5, 72.0, -6.5, "NPC");
+		lotus("Researcher Tay", 26.5, 142.0, -61.5, "NPC");
+		lotus("Researcher Timmy", 10.5, 76.0, 30.5, "NPC");
+		lotus("Researcher Tina", 42.5, 71.0, 29.5, "NPC");
+		lotus("The Lotus Eater", 99.5, 69.0, -6.5, "NPC");
+		safari("Archie", -36.5, 66.0, 2.5, "NPC");
+		safari("Birdwatcher Tim", 7.5, 89.0, 46.5, "NPC");
+		safari("Hunter Dennis", -68.5, 67.0, -33.5, "NPC");
+		safari("Hunter Tobias", -49.5, 67.0, 2.5, "NPC");
+		safari("Safari Manager", -51.5, 69.0, 21.5, "NPC");
+
 		Set<String> seen = new LinkedHashSet<>();
 		NPCS.sort((a, b) -> a.name().compareToIgnoreCase(b.name()));
 		for (NpcData npc : NPCS) {
@@ -642,7 +784,7 @@ public final class NpcDatabase {
 	}
 
 	private static void jerry(String name, double x, double y, double z, String desc) {
-		NPCS.add(new NpcData(name, "Jerry's Workshop", "jerry", x, y, z, desc));
+		NPCS.add(new NpcData(name, "Jerry's Workshop", "winter", x, y, z, desc));
 	}
 
 	private static void rift(String name, double x, double y, double z, String desc) {
@@ -663,5 +805,17 @@ public final class NpcDatabase {
 
 	private static void bayou(String name, double x, double y, double z, String desc) {
 		NPCS.add(new NpcData(name, "Backwater Bayou", "bayou", x, y, z, desc));
+	}
+
+	private static void torrhus(String name, double x, double y, double z, String desc) {
+		NPCS.add(new NpcData(name, "Torrhus Canyon", "torrhus", x, y, z, desc));
+	}
+
+	private static void lotus(String name, double x, double y, double z, String desc) {
+		NPCS.add(new NpcData(name, "Lotus Atoll", "lotus", x, y, z, desc));
+	}
+
+	private static void safari(String name, double x, double y, double z, String desc) {
+		NPCS.add(new NpcData(name, "Critter Safari", "safari", x, y, z, desc));
 	}
 }

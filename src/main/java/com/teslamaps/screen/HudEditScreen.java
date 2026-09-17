@@ -46,6 +46,7 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.BEAR_SPAWN, Ctx.DUNGEON, "Sounds", c.bearSpawnWarning);
         mark(DragTarget.OVERKILL, Ctx.DUNGEON, "Timers", c.overkillCounter);
         mark(DragTarget.SKILL_TRACKER, Ctx.ANY, "Skills", c.skillTracker);
+        mark(DragTarget.SKILL_EXP, Ctx.ANY, "Skills", c.skillExpDisplay);
         mark(DragTarget.BESTIARY, Ctx.ANY, "Combat", c.bestiaryTracker);
         mark(DragTarget.PEST_ROUTINE, Ctx.GARDEN, "Garden", c.pestRoutineHud);
         mark(DragTarget.FARM_BAR, Ctx.GARDEN, "Garden", c.farmBar);
@@ -89,7 +90,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, PERF_HUD, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, PERF_HUD, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST, SKILL_EXP }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -139,6 +140,28 @@ public class HudEditScreen extends Screen {
                mouseY >= config.mapY && mouseY <= config.mapY + mapSize;
     }
 
+
+    private int skillExpX() {
+        return com.teslamaps.features.SkillExpDisplay.x(this.minecraft, TeslaMapsConfig.get());
+    }
+
+    private int skillExpY() {
+        return com.teslamaps.features.SkillExpDisplay.y(this.minecraft, TeslaMapsConfig.get());
+    }
+
+    private int skillExpWidth() {
+        return com.teslamaps.features.SkillExpDisplay.width(this.minecraft, TeslaMapsConfig.get().skillExpDisplayScale);
+    }
+
+    private int skillExpHeight() {
+        return com.teslamaps.features.SkillExpDisplay.height(TeslaMapsConfig.get().skillExpDisplayScale);
+    }
+
+    private boolean isMouseOverSkillExp(int mouseX, int mouseY) {
+        int bx = skillExpX(), by = skillExpY();
+        return mouseX >= bx && mouseX <= bx + skillExpWidth() &&
+               mouseY >= by && mouseY <= by + skillExpHeight();
+    }
 
     private int skillTrackerWidth() {
         return (int)(com.teslamaps.features.SkillTracker.previewSize(this.font)[0] * TeslaMapsConfig.get().skillTrackerScale);
@@ -781,6 +804,10 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.BESTIARY;
                 dragOffsetX = mouseX - config.bestiaryTrackerX;
                 dragOffsetY = mouseY - config.bestiaryTrackerY;
+            } else if (visible.contains(DragTarget.SKILL_EXP) && isMouseOverSkillExp(mouseX, mouseY)) {
+                dragging = DragTarget.SKILL_EXP;
+                dragOffsetX = mouseX - skillExpX();
+                dragOffsetY = mouseY - skillExpY();
             } else if (visible.contains(DragTarget.SKILL_TRACKER) && isMouseOverSkillTracker(mouseX, mouseY)) {
                 dragging = DragTarget.SKILL_TRACKER;
                 dragOffsetX = mouseX - config.skillTrackerX;
@@ -934,6 +961,10 @@ public class HudEditScreen extends Screen {
             int w = feastWidth(), h = feastHeight();
             config.feastSeasonX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.feastSeasonY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.SKILL_EXP) {
+            int w = skillExpWidth(), h = skillExpHeight();
+            config.skillExpDisplayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.skillExpDisplayY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.SKILL_TRACKER) {
             int w = skillTrackerWidth(), h = skillTrackerHeight();
             config.skillTrackerX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
@@ -960,6 +991,7 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.BEAR_SPAWN)) drawBearSpawnPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.OVERKILL)) drawOverkillPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.SKILL_TRACKER)) drawSkillTrackerPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.SKILL_EXP)) drawSkillExpPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.BESTIARY)) drawBestiaryPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.PEST_ROUTINE)) drawPestRoutinePreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.FARM_BAR)) drawFarmBarPreview(context, mouseX, mouseY);
@@ -1563,6 +1595,23 @@ public class HudEditScreen extends Screen {
         context.text(this.font, String.format("Skill Tracker (%.1fx)", scale), bx, by - 12, 0xFFFFFFFF);
     }
 
+    private void drawSkillExpPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = skillExpX(), y = skillExpY();
+        float scale = config.skillExpDisplayScale;
+        com.teslamaps.features.SkillExpDisplay.drawPreview(context, this.minecraft, x, y, scale);
+        int w = skillExpWidth(), h = skillExpHeight();
+        boolean hovering = visible.contains(DragTarget.SKILL_EXP) && isMouseOverSkillExp(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.SKILL_EXP) {
+            int borderColor = dragging == DragTarget.SKILL_EXP ? 0xFF30D158 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Skill XP (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
 
     private void drawSplitsPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
@@ -1955,6 +2004,12 @@ public class HudEditScreen extends Screen {
             return true;
         }
 
+        if (visible.contains(DragTarget.SKILL_EXP) && isMouseOverSkillExp((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.skillExpDisplayScale = Math.min(3.0f, config.skillExpDisplayScale + 0.05f);
+            else if (verticalAmount < 0) config.skillExpDisplayScale = Math.max(0.5f, config.skillExpDisplayScale - 0.05f);
+            TeslaMapsConfig.save();
+            return true;
+        }
         if (visible.contains(DragTarget.SKILL_TRACKER) && isMouseOverSkillTracker((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.skillTrackerScale = Math.min(3.0f, config.skillTrackerScale + 0.05f);
             else if (verticalAmount < 0) config.skillTrackerScale = Math.max(0.5f, config.skillTrackerScale - 0.05f);

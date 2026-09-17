@@ -33,6 +33,12 @@ public class RareDropEffects {
             "^\\s{3,}(?!.*:)(?:RARE REWARD!\\s+)?(?<item>.+)$");
     private static final Pattern DYE_DROP = Pattern.compile(
             "WOW! (?:\\[[A-Z+]+] )?(?<player>[A-Za-z0-9_]+) found (?:a|an) (?<dye>[A-Za-z ]+ Dye)(?: #[\\d,]+)?!");
+    // Ported from Skysoft's RareLootChatParser
+    private static final Pattern DUG_OUT = Pattern.compile(
+            "^(?:(?:(?:VERY|CRAZY)\\s+)?RARE DROP!\\s+|Wow!\\s+)?You dug out(?: an? )?(?<drop>.+?)!(?: .*)?$",
+            Pattern.CASE_INSENSITIVE);
+    private static final Pattern ENCHANTED_BOOK = Pattern.compile(
+            "^Enchanted Book \\((?<ench>.+?) (?<level>\\d+|[IVXLCDM]+)\\)$", Pattern.CASE_INSENSITIVE);
 
     /** Slayer and fishing drops that get the animation. */
     private static final Map<String, String> RARE_DROPS = Map.ofEntries(
@@ -97,7 +103,20 @@ public class RareDropEffects {
                     if (id == null && net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()) {
                         com.teslamaps.TeslaMaps.LOGGER.info("rare drop not in table: '{}'", item);
                     }
-                    play(id, drop.group("tier") + " DROP!", item, ParticleTypes.SCRAPE);
+                    if (id != null) {
+                        play(id, drop.group("tier") + " DROP!", item, ParticleTypes.SCRAPE);
+                    } else {
+                        valueDrop(item, countOf(drop.group("item")), drop.group("tier") + " DROP!");
+                    }
+                    return;
+                }
+                Matcher dug = DUG_OUT.matcher(text);
+                if (dug.matches()) {
+                    String item = cleanItem(dug.group("drop"));
+                    if (!item.isEmpty() && !item.toLowerCase(Locale.ROOT).contains("coin")
+                            && !item.equalsIgnoreCase("Griffin Burrow")) {
+                        valueDrop(item, countOf(dug.group("drop")), "RARE DROP!");
+                    }
                     return;
                 }
             }
@@ -189,6 +208,64 @@ public class RareDropEffects {
             item = item.substring(1, item.length() - 1).trim();
         }
         return DROP_COUNT.matcher(item).replaceFirst("").trim();
+    }
+
+    /** Skysoft-style: any drop outside the tables still plays once its price clears the bar. */
+    private static void valueDrop(String item, int amount, String headline) {
+        double threshold = TeslaMapsConfig.get().rareDropMinValue * 1_000_000.0;
+        if (threshold <= 0 || item.isEmpty()) return;
+        String id = genericId(item);
+        int count = Math.max(1, amount);
+        ItemPrice.resolve(id, coins -> {
+            if (coins * count >= threshold) play(id, headline, item, ParticleTypes.SCRAPE);
+        });
+    }
+
+    private static int countOf(String raw) {
+        Matcher m = DROP_COUNT.matcher(cleanBrackets(raw));
+        if (!m.find()) return 1;
+        try {
+            return Integer.parseInt(m.group().replaceAll("[^0-9]", ""));
+        } catch (NumberFormatException e) {
+            return 1;
+        }
+    }
+
+    private static String cleanBrackets(String raw) {
+        String item = DROP_SUFFIX.matcher(raw.trim()).replaceAll("").trim();
+        if (item.startsWith("(") && item.endsWith(")")) {
+            item = item.substring(1, item.length() - 1).trim();
+        }
+        return item;
+    }
+
+    /** Display name to skyblock id, with the enchanted-book special case. */
+    private static String genericId(String name) {
+        Matcher book = ENCHANTED_BOOK.matcher(name);
+        if (book.matches()) {
+            int level = romanOrInt(book.group("level"));
+            String key = book.group("ench").toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]+", "_")
+                    .replaceAll("^_+|_+$", "");
+            return "ENCHANTMENT_" + key + "_" + level;
+        }
+        return name.toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]+", "_").replaceAll("^_+|_+$", "");
+    }
+
+    private static int romanOrInt(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException ignored) {
+        }
+        int result = 0, prev = 0;
+        for (int i = s.length() - 1; i >= 0; i--) {
+            int v = switch (Character.toUpperCase(s.charAt(i))) {
+                case 'I' -> 1; case 'V' -> 5; case 'X' -> 10; case 'L' -> 50;
+                case 'C' -> 100; case 'D' -> 500; case 'M' -> 1000; default -> 0;
+            };
+            result += v < prev ? -v : v;
+            prev = v;
+        }
+        return Math.max(1, result);
     }
 
     private static String lookup(Map<String, String> table, String name) {

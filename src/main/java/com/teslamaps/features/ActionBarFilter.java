@@ -37,7 +37,8 @@ public class ActionBarFilter {
         if (debug) dump(raw);
 
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.actionBarFilter || raw.isEmpty()) return message;
+        boolean cutSkill = SkillExpDisplay.onActionBar(raw);
+        if ((!cfg.actionBarFilter && !cutSkill) || raw.isEmpty()) return message;
 
         String[] segments = SEP.split(raw);
         List<String> keep = new ArrayList<>(segments.length);
@@ -45,11 +46,15 @@ public class ActionBarFilter {
         for (String segment : segments) {
             String s = segment.trim();
             if (s.isEmpty()) continue;
-            if (dropSegment(cfg, s)) {
+            if (cutSkill && SKILL_XP.matcher(StringUtil.strip(s)).find()) {
                 changed = true;
                 continue;
             }
-            String filtered = dropStats(cfg, s);
+            if (cfg.actionBarFilter && dropSegment(cfg, s)) {
+                changed = true;
+                continue;
+            }
+            String filtered = cfg.actionBarFilter ? dropStats(cfg, s) : s;
             if (!filtered.equals(s)) changed = true;
             if (!filtered.isEmpty()) keep.add(filtered);
         }

@@ -162,6 +162,10 @@ public class ChatMixin {
             com.teslamaps.features.WorldScanner.onChatMessage(text);
         }
 
+        if (fromServer && cfg.section("Torrhus Canyon")) {
+            com.teslamaps.features.foraging.QueenAntWarning.onChatMessage(text);
+        }
+
         if (fromServer && cfg.section("Foraging")) {
             com.teslamaps.features.foraging.HoneyhiveReminder.onChatMessage(text);
             com.teslamaps.features.foraging.LatherReminder.onChatMessage(text);
@@ -208,6 +212,16 @@ public class ChatMixin {
     @Inject(method = "refreshTrimmedMessages", at = @At("RETURN"))
     private void teslamaps$repadOnRefresh(CallbackInfo ci) {
         com.teslamaps.features.SharedImageChat.ensurePadding((ChatComponent) (Object) this);
+    }
+
+    @Inject(method = "clearMessages", at = @At("HEAD"))
+    private void teslamaps$keepHistory(boolean history, CallbackInfo ci) {
+        if (history) com.teslamaps.features.ChatHistoryPersistence.captureBeforeClear((ChatComponent) (Object) this);
+    }
+
+    @Inject(method = "clearMessages", at = @At("TAIL"))
+    private void teslamaps$restoreHistory(boolean history, CallbackInfo ci) {
+        if (history) com.teslamaps.features.ChatHistoryPersistence.restoreAfterClear((ChatComponent) (Object) this);
     }
 
     @Unique

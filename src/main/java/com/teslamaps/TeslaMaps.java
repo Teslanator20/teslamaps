@@ -33,6 +33,7 @@ import com.teslamaps.scanner.SecretTracker;
 import com.teslamaps.slayer.SlayerHUD;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
@@ -147,6 +148,7 @@ public class TeslaMaps implements ClientModInitializer {
         // hudPass() false = inventory open, HudForeground draws this panel over the screen instead
         hud("map", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Map")) MapRenderer.render(g, d); });
         hud("skilltracker", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Skills")) com.teslamaps.features.SkillTracker.render(g, d); });
+        hud("skillexp", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Skills")) com.teslamaps.features.SkillExpDisplay.render(g, d); });
         hud("bestiary", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Combat")) com.teslamaps.features.BestiaryTracker.render(g, d); });
         hud("livid", (g, d) -> { if (TeslaMapsConfig.get().section("ESP")) LividSolver.renderHUD(g, d); });
         hud("spiritbear", (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles & Terminals")) SpiritBearTimer.render(g, d); });
@@ -258,6 +260,7 @@ public class TeslaMaps implements ClientModInitializer {
                 if (TeslaMapsConfig.get().section("Torrhus Canyon")) {
                     Perf.begin("CritterESP"); com.teslamaps.features.CritterESP.render(context.poseStack(), cameraPos); Perf.end();
                     Perf.begin("TikiESP"); com.teslamaps.features.TikiESP.render(context.poseStack(), cameraPos); Perf.end();
+                    Perf.begin("QueenAntWarning"); com.teslamaps.features.foraging.QueenAntWarning.render(context.poseStack(), cameraPos); Perf.end();
                 }
 
                 if (TeslaMapsConfig.get().section("Garden")) {
@@ -323,6 +326,11 @@ public class TeslaMaps implements ClientModInitializer {
         // drop the per-tick entity snapshot; it rebuilds lazily on the first caller
         ClientTickEvents.START_CLIENT_TICK.register(client -> com.teslamaps.utils.EntityCache.invalidate());
 
+        ClientLifecycleEvents.CLIENT_STARTED.register(client ->
+                com.teslamaps.features.ChatHistoryPersistence.restore(client));
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client ->
+                com.teslamaps.features.ChatHistoryPersistence.save(client));
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             Perf.begin("TickScheduler.tick"); com.teslamaps.utils.TickScheduler.tick(); Perf.end();
             com.teslamaps.features.customize.Customize.tick();
@@ -356,6 +364,7 @@ public class TeslaMaps implements ClientModInitializer {
                 if (cfg.section("Torrhus Canyon")) {
                     Perf.begin("CritterESP.tick"); com.teslamaps.features.CritterESP.tick(); Perf.end();
                     Perf.begin("TikiESP.tick"); com.teslamaps.features.TikiESP.tick(); Perf.end();
+                    Perf.begin("QueenAntWarning.tick"); com.teslamaps.features.foraging.QueenAntWarning.tick(); Perf.end();
                 }
                 if (cfg.section("Foraging")) { Perf.begin("LassoDisplay.tick"); com.teslamaps.features.hunting.LassoDisplay.tick(); Perf.end(); }
                 if (cfg.section("Ordered Waypoints")) { Perf.begin("OrderedWaypoints.tick"); com.teslamaps.features.waypoints.OrderedWaypoints.tick(); Perf.end(); }

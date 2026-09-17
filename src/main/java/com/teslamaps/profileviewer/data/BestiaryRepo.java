@@ -163,6 +163,14 @@ public class BestiaryRepo {
                     Map<String, List<Integer>> set = bracketSets.get(type);
                     if (set == null) set = bracketSets.get(type + "S");
                     table = set != null ? set : Map.of();
+                } else {
+                    // NEU forgets the critter tag on a few galatea mobs (grizzly bear, parched,
+                    // queen ant) - a cap that IS the end of a critter table marks a critter family
+                    Map<String, List<Integer>> critters = bracketSets.get("CRITTERS");
+                    List<Integer> steps10 = critters != null ? critters.get(bracket) : null;
+                    if (steps10 != null && !steps10.isEmpty() && steps10.getLast() == cap) {
+                        table = critters;
+                    }
                 }
                 List<Integer> steps = capped(table.get(bracket), cap);
 

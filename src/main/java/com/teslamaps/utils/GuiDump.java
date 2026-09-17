@@ -146,6 +146,7 @@ public class GuiDump {
 
         String title = strip(screen.getTitle().getString());
         List<String> lines = new ArrayList<>();
+        lines.add("──────────────────────────────────────────────");
         lines.add("title:      " + title);
         lines.add("screen:     " + screen.getClass().getName());
         lines.add("menu:       " + screen.getMenu().getClass().getName());
@@ -178,9 +179,12 @@ public class GuiDump {
 
         try {
             Files.createDirectories(PATH.getParent());
-            Files.write(PATH, lines);
+            // append - dumping a series of menus (all bestiary islands) must not eat the previous one
+            lines.add("");
+            Files.write(PATH, lines, java.nio.file.StandardOpenOption.CREATE,
+                    java.nio.file.StandardOpenOption.APPEND);
             mc.player.sendSystemMessage(Component.literal(
-                    "§b[TeslaMaps] §fWrote §e" + (lines.size()) + "§f lines to §7config/teslamaps/gui_dump.txt"));
+                    "§b[TeslaMaps] §fAppended §e" + (lines.size()) + "§f lines to §7config/teslamaps/gui_dump.txt"));
         } catch (Exception e) {
             mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §cDump failed: " + e));
         }

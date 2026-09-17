@@ -727,6 +727,7 @@ public class TeslaMapsConfig {
 
     public boolean hideClouds = true;        // Skip the clouds render pass
     public boolean noFog = true;             // Disable fog rendering (boss/water/blindness fog)
+    public boolean hideRecipeBook = false;   // Hide the recipe book button in the inventory
     public boolean noHurtCam = true;         // Disable damage camera tilt
     public boolean noViewBobbing = true;    // Disable view bobbing
     public boolean noXpOrbs = true;          // Hide experience orb entities
@@ -819,6 +820,10 @@ public class TeslaMapsConfig {
     public int fishingCatchSource = 0;         // what counts as a catch: 0 = auto, 1 = sea creatures + trophies (chat), 2 = every catch (xp)
     public float skillTrackerScale = 1.0f;     // Scale of skill tracker HUD
     public boolean skillTrackerHidden = false; // keep tracking, but only show the panel in the inventory
+    public boolean skillExpDisplay = false;    // cut the skill xp out of the action bar into its own HUD element
+    public int skillExpDisplayX = -1;          // -1 = centered above the hotbar
+    public int skillExpDisplayY = -1;
+    public float skillExpDisplayScale = 1.0f;
     public boolean fixDoubleClicks = true;     // Drop the duplicate use-on-block Hypixel sends for blaze daggers / autopet rods
     public boolean skillLevelStackSize = true;  // draw the skill level as the stack size in the skills menu
     public boolean skillAvgOverflow = true;     // add the overflow skill average to the "Your Skills" tooltip
@@ -924,6 +929,7 @@ public class TeslaMapsConfig {
     public boolean rareDropEffects = true;         // Item animation + particles on RARE DROP! lines
     public boolean rareDungeonDropEffects = true;  // Same for dungeon chest rewards
     public boolean rareDyeDropEffects = true;      // Same for your own dye drops
+    public float rareDropMinValue = 0f;            // also play for any parsed drop worth this many million coins (0 = off)
     public boolean rareDropText = true;            // Drop line + item name on screen during the animation
     public boolean rareDropPrice = true;           // Append what the drop is worth to that line
     public boolean showSelectedPet = true;         // Highlight the spawned pet in the Pets menu
@@ -1151,6 +1157,11 @@ public class TeslaMapsConfig {
     public int latherOverlayX = 5;
     public int latherOverlayY = 200;
     public float latherOverlayScale = 1.0f;
+    public boolean chatHistoryPersist = false;      // save the chat on quit and restore it on the next launch
+    public boolean queenAntWarning = true;          // title + sound when a Queen Ant spawns from an anthill
+    public boolean queenAntLine = true;             // crosshair line to the queen
+    public String queenAntSound = "TM_QUEEN_ANT";
+    public float queenAntVolume = 1.0f;             // 0 = silent
     public boolean honeyhiveReminder = false;       // remind when honeyhives are lootable again
     public boolean honeyhiveQueenBeeTitle = true;   // title on a Queen Bee instant refill
     public boolean honeyhiveRemindOutside = false;  // also remind outside Torrhus Canyon
@@ -1337,6 +1348,8 @@ public class TeslaMapsConfig {
     public boolean perfHudTps = true;              // Show server TPS in the performance HUD
     public boolean perfHudPing = true;             // Show ping in the performance HUD (silent ping every 2s)
     public boolean perfHudVertical = false;        // Stack the metrics vertically instead of one line
+    public String perfHudLabelColor = "3296DC";    // Performance HUD label color (FPS:/TPS:/Ping:)
+    public String perfHudValueColor = "FFFFFF";    // Performance HUD value color
     public int perfHudX = 5;                       // Performance HUD position X (draggable in HUD edit)
     public int perfHudY = 5;                       // Performance HUD position Y
     public float perfHudScale = 1.0f;              // Performance HUD text scale (0.5 - 5.0)

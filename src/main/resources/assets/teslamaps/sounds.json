@@ -412,5 +412,14 @@
         "stream": false
       }
     ]
+  },
+  "queen_ant_found": {
+    "subtitle": "teslamaps.sound.queen_ant",
+    "sounds": [
+      {
+        "name": "teslamaps:queen_ant_found",
+        "stream": false
+      }
+    ]
   }
 }

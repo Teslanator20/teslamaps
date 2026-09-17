@@ -93,6 +93,7 @@ public class SoundOptions {
         CUSTOM.put("TM_CONFIRM",    "confirm");
         CUSTOM.put("TM_HITMARKER",  "hitmarker");
         CUSTOM.put("TM_JINGLE",     "jingle");
+        CUSTOM.put("TM_QUEEN_ANT",  "queen_ant_found");
     }
 
     public static String[] keys() {
