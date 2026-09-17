@@ -47,6 +47,7 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.OVERKILL, Ctx.DUNGEON, "Timers", c.overkillCounter);
         mark(DragTarget.SKILL_TRACKER, Ctx.ANY, "Skills", c.skillTracker);
         mark(DragTarget.SKILL_EXP, Ctx.ANY, "Skills", c.skillExpDisplay);
+        mark(DragTarget.PET_OVERLAY, Ctx.ANY, "Skills", c.petOverlay);
         mark(DragTarget.BESTIARY, Ctx.ANY, "Combat", c.bestiaryTracker);
         mark(DragTarget.PEST_ROUTINE, Ctx.GARDEN, "Garden", c.pestRoutineHud);
         mark(DragTarget.FARM_BAR, Ctx.GARDEN, "Garden", c.farmBar);
@@ -90,7 +91,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, PERF_HUD, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST, SKILL_EXP }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, PERF_HUD, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST, SKILL_EXP, PET_OVERLAY }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -161,6 +162,22 @@ public class HudEditScreen extends Screen {
         int bx = skillExpX(), by = skillExpY();
         return mouseX >= bx && mouseX <= bx + skillExpWidth() &&
                mouseY >= by && mouseY <= by + skillExpHeight();
+    }
+
+    private int petOverlayWidth() {
+        return (int) (com.teslamaps.features.pets.PetOverlay.previewSize(this.minecraft)[0] * TeslaMapsConfig.get().petOverlayScale);
+    }
+
+    private int petOverlayHeight() {
+        return (int) (com.teslamaps.features.pets.PetOverlay.previewSize(this.minecraft)[1] * TeslaMapsConfig.get().petOverlayScale);
+    }
+
+    private boolean isMouseOverPetOverlay(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        float s = config.petOverlayScale;
+        int bx = config.petOverlayX - (int) (4 * s), by = config.petOverlayY - (int) (4 * s);
+        return mouseX >= bx && mouseX <= bx + petOverlayWidth() &&
+               mouseY >= by && mouseY <= by + petOverlayHeight();
     }
 
     private int skillTrackerWidth() {
@@ -804,6 +821,10 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.BESTIARY;
                 dragOffsetX = mouseX - config.bestiaryTrackerX;
                 dragOffsetY = mouseY - config.bestiaryTrackerY;
+            } else if (visible.contains(DragTarget.PET_OVERLAY) && isMouseOverPetOverlay(mouseX, mouseY)) {
+                dragging = DragTarget.PET_OVERLAY;
+                dragOffsetX = mouseX - config.petOverlayX;
+                dragOffsetY = mouseY - config.petOverlayY;
             } else if (visible.contains(DragTarget.SKILL_EXP) && isMouseOverSkillExp(mouseX, mouseY)) {
                 dragging = DragTarget.SKILL_EXP;
                 dragOffsetX = mouseX - skillExpX();
@@ -961,6 +982,10 @@ public class HudEditScreen extends Screen {
             int w = feastWidth(), h = feastHeight();
             config.feastSeasonX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.feastSeasonY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.PET_OVERLAY) {
+            int w = petOverlayWidth(), h = petOverlayHeight();
+            config.petOverlayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.petOverlayY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.SKILL_EXP) {
             int w = skillExpWidth(), h = skillExpHeight();
             config.skillExpDisplayX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
@@ -992,6 +1017,7 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.OVERKILL)) drawOverkillPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.SKILL_TRACKER)) drawSkillTrackerPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.SKILL_EXP)) drawSkillExpPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.PET_OVERLAY)) drawPetOverlayPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.BESTIARY)) drawBestiaryPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.PEST_ROUTINE)) drawPestRoutinePreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.FARM_BAR)) drawFarmBarPreview(context, mouseX, mouseY);
@@ -1612,6 +1638,24 @@ public class HudEditScreen extends Screen {
         context.text(this.font, String.format("Skill XP (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
+    private void drawPetOverlayPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.petOverlayX, y = config.petOverlayY;
+        float scale = config.petOverlayScale;
+        com.teslamaps.features.pets.PetOverlay.drawPreview(context, this.minecraft, x, y, scale);
+        int bx = x - (int) (4 * scale), by = y - (int) (4 * scale);
+        int w = petOverlayWidth(), h = petOverlayHeight();
+        boolean hovering = visible.contains(DragTarget.PET_OVERLAY) && isMouseOverPetOverlay(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.PET_OVERLAY) {
+            int borderColor = dragging == DragTarget.PET_OVERLAY ? 0xFF30D158 : 0xFF888888;
+            context.fill(bx - 2, by - 2, bx + w + 2, by, borderColor);
+            context.fill(bx - 2, by + h, bx + w + 2, by + h + 2, borderColor);
+            context.fill(bx - 2, by, bx, by + h, borderColor);
+            context.fill(bx + w, by, bx + w + 2, by + h, borderColor);
+        }
+        context.text(this.font, String.format("Pet (%.1fx)", scale), bx, by - 12, 0xFFFFFFFF);
+    }
+
 
     private void drawSplitsPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
@@ -2007,6 +2051,12 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.SKILL_EXP) && isMouseOverSkillExp((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.skillExpDisplayScale = Math.min(3.0f, config.skillExpDisplayScale + 0.05f);
             else if (verticalAmount < 0) config.skillExpDisplayScale = Math.max(0.5f, config.skillExpDisplayScale - 0.05f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+        if (visible.contains(DragTarget.PET_OVERLAY) && isMouseOverPetOverlay((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.petOverlayScale = Math.min(3.0f, config.petOverlayScale + 0.05f);
+            else if (verticalAmount < 0) config.petOverlayScale = Math.max(0.5f, config.petOverlayScale - 0.05f);
             TeslaMapsConfig.save();
             return true;
         }

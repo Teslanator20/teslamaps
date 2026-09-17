@@ -223,7 +223,7 @@ public class SkillTracker {
 
     public static void onActionBar(String raw) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.skillTracker && !cfg.skillOverflow) return;
+        if (!cfg.skillTracker && !cfg.skillOverflow && !cfg.petOverlay) return;
         Matcher m = GAIN.matcher(strip(raw));
         if (!m.find()) return;
         String skill = m.group(2);
@@ -250,6 +250,7 @@ public class SkillTracker {
         s.lastSegment = segment;
 
         if (delta > 0) {
+            com.teslamaps.features.pets.PetTracker.onSkillXp(skill, delta);
             s.xpGained += delta;
             s.touch();
             show(skill);

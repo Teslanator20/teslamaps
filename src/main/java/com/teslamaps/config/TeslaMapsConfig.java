@@ -821,6 +821,10 @@ public class TeslaMapsConfig {
     public float skillTrackerScale = 1.0f;     // Scale of skill tracker HUD
     public boolean skillTrackerHidden = false; // keep tracking, but only show the panel in the inventory
     public boolean skillExpDisplay = false;    // cut the skill xp out of the action bar into its own HUD element
+    public boolean petOverlay = false;         // equipped pet HUD: level, xp progress, held item
+    public int petOverlayX = 10;
+    public int petOverlayY = 260;
+    public float petOverlayScale = 1.0f;
     public int skillExpDisplayX = -1;          // -1 = centered above the hotbar
     public int skillExpDisplayY = -1;
     public float skillExpDisplayScale = 1.0f;
@@ -964,6 +968,9 @@ public class TeslaMapsConfig {
     public boolean hotspotLine = true;             // tracer from the crosshair to the guess
     public boolean hotspotBeam = false;            // beacon beam at the guess
     public String colorHotspot = "#FF55FF";
+    public boolean hotspotShare = false;           // announce new hotspots to the party (needs a rod in hand)
+    public boolean hotspotShareWaypoints = true;   // waypoints for hotspots shared by party members
+    public boolean hotspotClosedTitle = false;     // title + bell when the nearest hotspot despawns
     public boolean hotspotGoneWarning = false;     // warn when the whirlpool you fish at stops
     public boolean hotspotGoneTitle = true;
     public String hotspotGoneSound = "NOTE_PLING";
@@ -1158,6 +1165,8 @@ public class TeslaMapsConfig {
     public int latherOverlayY = 200;
     public float latherOverlayScale = 1.0f;
     public boolean chatHistoryPersist = false;      // save the chat on quit and restore it on the next launch
+    public boolean chatTabs = false;                // tab bar on the chat screen (All / Guild / DM / Party)
+    public int chatTabPosition = 0;                 // 0 = above chat, 1 = under chat, 2 = right of chat
     public boolean queenAntWarning = true;          // title + sound when a Queen Ant spawns from an anthill
     public boolean queenAntLine = true;             // crosshair line to the queen
     public String queenAntSound = "TM_QUEEN_ANT";

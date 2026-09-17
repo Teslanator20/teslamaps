@@ -668,6 +668,10 @@ public class MapConfigScreen extends Screen {
         skills.add(new LabelEntry(contentX, "Skill Tracker"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v));
         skills.add(new ToggleEntry(contentX, contentWidth, "Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v));
+        skills.add(new LabelEntry(contentX, "Pet"));
+        skills.add(new ToggleEntry(contentX, contentWidth, "Pet HUD", () -> config.petOverlay, v -> config.petOverlay = v));
+        skills.add(new InfoEntry(contentX, "Equipped pet with level, XP progress and held item"));
+        skills.add(new InfoEntry(contentX, "Needs the Pet tab widget (/widget). Move it in /tmap gui"));
         skills.add(new LabelEntry(contentX, "Skill XP Display"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Skill XP Display", () -> config.skillExpDisplay, v -> config.skillExpDisplay = v));
         skills.add(new InfoEntry(contentX, "Cuts the +XP out of the action bar into its own HUD element"));
@@ -769,6 +773,14 @@ public class MapConfigScreen extends Screen {
         fishing.add(new ColorEntry(contentX, contentWidth, "  Color",
                 () -> config.colorHotspot, v -> config.colorHotspot = v));
 
+        fishing.add(new LabelEntry(contentX, "Hotspot Sharing"));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "Share Hotspots To Party",
+                () -> config.hotspotShare, v -> config.hotspotShare = v));
+        fishing.add(new InfoEntry(contentX, "Crimson Isle / Backwater Bayou, needs a rod in hand"));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "Waypoints For Shared Hotspots",
+                () -> config.hotspotShareWaypoints, v -> config.hotspotShareWaypoints = v));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "Hotspot Closed Title",
+                () -> config.hotspotClosedTitle, v -> config.hotspotClosedTitle = v));
         fishing.add(new LabelEntry(contentX, "Hotspot Gone"));
         fishing.add(new ToggleEntry(contentX, contentWidth, "Warn When Hotspot Ends",
                 () -> config.hotspotGoneWarning, v -> config.hotspotGoneWarning = v));
@@ -1611,6 +1623,17 @@ public class MapConfigScreen extends Screen {
                 () -> (float) config.chatHistoryLimit, v -> config.chatHistoryLimit = v.intValue()));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Keep History Across Restarts", () -> config.chatHistoryPersist, v -> config.chatHistoryPersist = v));
         chatFilter.add(new InfoEntry(contentX, "Saves the chat on quit and restores it on the next launch"));
+        chatFilter.add(new ToggleEntry(contentX, contentWidth, "Chat Tabs (All/Guild/DM/Party)", () -> config.chatTabs, v -> config.chatTabs = v));
+        chatFilter.add(new InfoEntry(contentX, "Typing in a tab sends to that channel. Everything stays stored"));
+        String[] tabPositions = {"Above Chat", "Under Chat", "Right of Chat"};
+        chatFilter.add(new DropdownEntry(contentX, contentWidth, "  Tab Position",
+                tabPositions,
+                () -> tabPositions[Math.max(0, Math.min(2, config.chatTabPosition))],
+                v -> {
+                    for (int i = 0; i < tabPositions.length; i++) {
+                        if (tabPositions[i].equals(v)) config.chatTabPosition = i;
+                    }
+                }));
         chatFilter.add(new ToggleEntry(contentX, contentWidth, "Stack Duplicate Messages", () -> config.chatStacking, v -> config.chatStacking = v));
         chatFilter.add(new SliderEntry(contentX, contentWidth, "Stack Window (min)", 1f, 30f,
                 () -> (float) config.chatStackWindowMinutes, v -> config.chatStackWindowMinutes = Math.round(v)));

@@ -110,6 +110,7 @@ public class ChatMixin {
         if (fromServer && cfg.section("Skills")) com.teslamaps.features.SkillTracker.onChatMessage(text);
         if (fromServer && cfg.section("Fishing")) com.teslamaps.features.UmbrellaWarning.onChatMessage(text);
         if (fromServer && cfg.section("Fishing")) com.teslamaps.features.RareSeaCreature.onChatMessage(text);
+        if (fromServer && cfg.section("Fishing")) com.teslamaps.features.HotspotShare.onChatMessage(text);
         if (cfg.section("Fishing")) com.teslamaps.features.FishCatchKeySwap.onChatMessage(text);
 
 
@@ -164,6 +165,10 @@ public class ChatMixin {
 
         if (fromServer && cfg.section("Torrhus Canyon")) {
             com.teslamaps.features.foraging.QueenAntWarning.onChatMessage(text);
+        }
+
+        if (fromServer && cfg.section("Skills")) {
+            com.teslamaps.features.pets.PetTracker.onChatMessage(text);
         }
 
         if (fromServer && cfg.section("Foraging")) {

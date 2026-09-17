@@ -149,6 +149,7 @@ public class TeslaMaps implements ClientModInitializer {
         hud("map", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Map")) MapRenderer.render(g, d); });
         hud("skilltracker", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Skills")) com.teslamaps.features.SkillTracker.render(g, d); });
         hud("skillexp", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Skills")) com.teslamaps.features.SkillExpDisplay.render(g, d); });
+        hud("petoverlay", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Skills")) com.teslamaps.features.pets.PetOverlay.render(g, d); });
         hud("bestiary", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Combat")) com.teslamaps.features.BestiaryTracker.render(g, d); });
         hud("livid", (g, d) -> { if (TeslaMapsConfig.get().section("ESP")) LividSolver.renderHUD(g, d); });
         hud("spiritbear", (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles & Terminals")) SpiritBearTimer.render(g, d); });
@@ -269,6 +270,7 @@ public class TeslaMaps implements ClientModInitializer {
 
                 if (TeslaMapsConfig.get().section("Fishing")) {
                     Perf.begin("HotspotRadar"); com.teslamaps.features.HotspotRadar.render(context.poseStack(), cameraPos); Perf.end();
+                    Perf.begin("HotspotShare"); com.teslamaps.features.HotspotShare.render(context.poseStack(), cameraPos); Perf.end();
                     Perf.begin("ExplodingFrogESP"); com.teslamaps.features.ExplodingFrogESP.render(context.poseStack(), cameraPos); Perf.end();
                 }
 
@@ -366,9 +368,12 @@ public class TeslaMaps implements ClientModInitializer {
                     Perf.begin("TikiESP.tick"); com.teslamaps.features.TikiESP.tick(); Perf.end();
                     Perf.begin("QueenAntWarning.tick"); com.teslamaps.features.foraging.QueenAntWarning.tick(); Perf.end();
                 }
+                Perf.begin("ChatTabs.tick"); com.teslamaps.features.chattabs.ChatTabs.tick(); Perf.end();
+                if (cfg.section("Skills")) { Perf.begin("PetTracker.tick"); com.teslamaps.features.pets.PetTracker.tick(); Perf.end(); }
                 if (cfg.section("Foraging")) { Perf.begin("LassoDisplay.tick"); com.teslamaps.features.hunting.LassoDisplay.tick(); Perf.end(); }
                 if (cfg.section("Ordered Waypoints")) { Perf.begin("OrderedWaypoints.tick"); com.teslamaps.features.waypoints.OrderedWaypoints.tick(); Perf.end(); }
                 if (cfg.section("Fishing")) { Perf.begin("ExplodingFrogESP.tick"); com.teslamaps.features.ExplodingFrogESP.tick(); Perf.end(); }
+                if (cfg.section("Fishing")) { Perf.begin("HotspotShare.tick"); com.teslamaps.features.HotspotShare.tick(); Perf.end(); }
                 if (cfg.section("Fishing")) { Perf.begin("FishingBobberTimer.tick"); com.teslamaps.features.FishingBobberTimer.tick(); Perf.end(); }
                 if (cfg.section("Fishing")) { Perf.begin("FishingHookDisplay.tick"); com.teslamaps.features.FishingHookDisplay.tick(); Perf.end(); }
                 if (cfg.section("Skills") || cfg.section("Fishing")) { Perf.begin("Deployables.tick"); com.teslamaps.features.Deployables.tick(); Perf.end(); }

@@ -16,6 +16,8 @@
     "ChatGeometryMixin",
     "ChatMixin",
     "ChatScreenMixin",
+    "ChatTabsMixin",
+    "ChatTabsScreenMixin",
     "CheckboxAccessor",
     "ChestAutoCloseMixin",
     "ClientBrandMixin",
