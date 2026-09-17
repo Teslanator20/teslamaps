@@ -161,6 +161,17 @@ public class ItemGrid {
         ctx.pose().popMatrix();
     }
 
+    /** Small fixed-size number in the lower right corner - does NOT grow with the slot. */
+    public static void smallCount(GuiGraphicsExtractor ctx, String text, int sx, int sy, int size, int color) {
+        Font font = Minecraft.getInstance().font;
+        float f = 0.75f;
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(sx + size - 2 - font.width(text) * f, sy + size - 2 - font.lineHeight * f);
+        ctx.pose().scale(f, f);
+        ctx.text(font, text, 0, 0, color);
+        ctx.pose().popMatrix();
+    }
+
     /**
      * Draws rows of nine and returns the stack under the cursor, or empty. The caller shows
      * the tooltip so it lands on top of everything.

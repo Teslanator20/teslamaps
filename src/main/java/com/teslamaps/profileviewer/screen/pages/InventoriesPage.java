@@ -206,11 +206,11 @@ public class InventoriesPage extends ProfileViewerPage {
         int sideGap = sideColumns ? 14 : 0;
         int slotSize = ItemGrid.fitSlot(areaW - sideGap, areaH, columns + (sideColumns ? 1 : 0), rows);
 
-        // every section anchors like the player inventory (nine columns plus the armor column,
-        // five rows), so the grid does not jump around when switching sections
+        // horizontally every section anchors like the player inventory (nine columns plus the
+        // armor column), so the grid keeps one left edge; vertically it centers as before
         int refWidth = 9 * slotSize + 14 + slotSize;
         int gridX = areaX + Math.max(0, (areaW - refWidth) / 2);
-        int gridY = areaY + Math.max(0, (NeuStyle.PANEL_HEIGHT - 26 - 34 - 5 * slotSize) / 2);
+        int gridY = areaY + Math.max(0, (areaH - rows * slotSize) / 2);
 
         ItemStack hovered = ItemGrid.draw(ctx, slots, gridX, gridY, columns, 0, count, mouseX, mouseY, slotSize);
 
@@ -267,7 +267,7 @@ public class InventoriesPage extends ProfileViewerPage {
                 ItemGrid.item(ctx, section == Section.BACKPACKS
                         ? backpackCache.get(i).icon() : ENDER_CHEST_ICON, cx, cy, 20);
                 if (section == Section.ENDER_CHEST) {
-                    ItemGrid.count(ctx, String.valueOf(i + 1), cx, cy, 20,
+                    ItemGrid.smallCount(ctx, String.valueOf(i + 1), cx, cy, 20,
                             active ? 0xFFFFFF55 : 0xFFFFFFFF);
                 }
                 if (active) {
