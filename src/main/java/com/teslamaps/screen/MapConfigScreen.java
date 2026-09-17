@@ -723,6 +723,13 @@ public class MapConfigScreen extends Screen {
         fishing.add(new ToggleEntry(contentX, contentWidth, "Announce Rare Catch",
                 () -> config.rareCatchAnnounce, v -> config.rareCatchAnnounce = v));
         fishing.add(new InfoEntry(contentX, "Sends /pc I caught a <creature>! (double hook noted)"));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "Misclick Guard",
+                () -> config.rareCatchKeySwap, v -> config.rareCatchKeySwap = v));
+        fishing.add(new InfoEntry(contentX, "After a Drowned Captain catch, Attack = O and Use = I briefly - mouse does nothing"));
+        fishing.add(new SliderEntry(contentX, contentWidth, "  Guard Duration (s)", 0f, 5f,
+                () -> config.rareCatchKeySwapSeconds, v -> config.rareCatchKeySwapSeconds = v, 2));
+        fishing.add(new ToggleEntry(contentX, contentWidth, "  Also On Party Catches",
+                () -> config.rareCatchKeySwapAll, v -> config.rareCatchKeySwapAll = v));
 
         fishing.add(new LabelEntry(contentX, "Hook Timer"));
         fishing.add(new ToggleEntry(contentX, contentWidth, "Hook Countdown",
@@ -1983,14 +1990,10 @@ public class MapConfigScreen extends Screen {
         contests.add(new InfoEntry(contentX, "Foraging: :15 / :35 / :55, Farming: hourly at :15"));
         contests.add(new ToggleEntry(contentX, contentWidth, "Contest Timer HUD",
                 () -> config.contestTimer, v -> config.contestTimer = v));
-        contests.add(new DropdownEntry(contentX, contentWidth, "  Show",
-                new String[] { "Both", "Foraging", "Farming" },
-                () -> config.contestShowForaging && !config.contestShowFarming ? "Foraging"
-                        : config.contestShowFarming && !config.contestShowForaging ? "Farming" : "Both",
-                v -> {
-                    config.contestShowForaging = !"Farming".equals(v);
-                    config.contestShowFarming = !"Foraging".equals(v);
-                }));
+        contests.add(new ToggleEntry(contentX, contentWidth, "  Foraging Timer",
+                () -> config.contestShowForaging, v -> config.contestShowForaging = v));
+        contests.add(new ToggleEntry(contentX, contentWidth, "  Farming Timer",
+                () -> config.contestShowFarming, v -> config.contestShowFarming = v));
         contests.add(new ToggleEntry(contentX, contentWidth, "  SkyBlock Only",
                 () -> config.contestTimerSkyblockOnly, v -> config.contestTimerSkyblockOnly = v));
         contests.add(new ToggleEntry(contentX, contentWidth, "  Button In Inventory",
@@ -2022,7 +2025,7 @@ public class MapConfigScreen extends Screen {
         contests.add(new InfoEntry(contentX, "Sends /pc Ticket Acquired! at that score in Miria's Contest"));
         contests.add(new ToggleEntry(contentX, contentWidth, "Hide Foraging At Ticket Score",
                 () -> config.contestHideAtTicket, v -> config.contestHideAtTicket = v));
-        contests.add(new InfoEntry(contentX, "Foraging line disappears once the score is reached"));
+        contests.add(new InfoEntry(contentX, "Hidden until the next contest, survives lobby swaps"));
         categories.put("Contest Timers", contests);
 
         List<SettingsEntry> torrhus = new ArrayList<>();

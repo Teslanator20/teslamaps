@@ -1118,6 +1118,9 @@ public class TeslaMapsConfig {
     public String rareCatchSound = "NOTE_PLING";
     public float rareCatchVolume = 1.0f;
     public boolean rareCatchAnnounce = false;       // "I caught a X!" to party chat
+    public boolean rareCatchKeySwap = false;        // attack->O, use->I for a moment after a rare catch
+    public float rareCatchKeySwapSeconds = 2.0f;    // 0-5s swap window
+    public boolean rareCatchKeySwapAll = false;     // also trigger on party members' catch announces
 
     public boolean umbrellaWarning = false;         // alert before and when the Umberella runs out
     public int umbrellaWarnBefore = 30;             // seconds of warning, 0 = only on despawn

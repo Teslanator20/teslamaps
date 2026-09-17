@@ -22,7 +22,7 @@ public final class RareSeaCreature {
 
     public static void onChatMessage(String text) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.rareCatchAlert && !c.rareCatchAnnounce) return;
+        if (!c.rareCatchAlert && !c.rareCatchAnnounce && !c.rareCatchKeySwap) return;
 
         String clean = StringUtil.stripTrim(text);
         if (DOUBLE_HOOK.matcher(clean).matches()) {
@@ -32,6 +32,7 @@ public final class RareSeaCreature {
 
         String name = SeaCreatureList.nameFor(clean);
         if (name == null) return;
+        if (c.rareCatchKeySwap && FishCatchKeySwap.TARGET.equals(name)) FishCatchKeySwap.trigger();
         SeaCreatureList.Info info = SeaCreatureList.info(name);
         if (info == null || !isRare(info, c.rareCatchRarity)) return;
 

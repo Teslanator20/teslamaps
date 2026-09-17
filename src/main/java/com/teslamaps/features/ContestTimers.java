@@ -108,6 +108,7 @@ public final class ContestTimers {
     private static boolean ticketAnnounced = false;
     private static int ticketTicks = 0;
     private static long currentScore = -1;
+    private static long ticketHideUntil = 0;   // real-time end of the contest the ticket was earned in
 
     private static void tickScore() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -121,15 +122,19 @@ public final class ContestTimers {
 
         currentScore = miriaScore();
         if (currentScore < 0) { ticketAnnounced = false; return; }   // no contest running
-        if (!c.contestTicketAnnounce || ticketAnnounced || currentScore < c.contestTicketScore) return;
+        if (currentScore < c.contestTicketScore) return;
+        // latch until the current contest ends, so a lobby swap (widget gone) can't unhide the line
+        long now = System.currentTimeMillis();
+        ticketHideUntil = now + remaining(now, START_OFFSET_MS, FORAGING_PERIOD_MS);
+        if (!c.contestTicketAnnounce || ticketAnnounced) return;
         ticketAnnounced = true;
         party("Ticket Acquired!");
     }
 
-    /** Ticket is in — the foraging line has nothing left to say. */
+    /** Ticket is in — the foraging line has nothing left to say until the next contest. */
     public static boolean ticketDone() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.contestHideAtTicket && currentScore >= c.contestTicketScore;
+        return c.contestHideAtTicket && System.currentTimeMillis() < ticketHideUntil;
     }
 
     /** -1 when no Miria's Contest widget is up. */
