@@ -154,29 +154,18 @@ public class BestiaryRepo {
                 JsonObject mob = element.getAsJsonObject();
                 if (!mob.has("name")) continue;
 
+                String name = mob.get("name").getAsString();
+                String plain = com.teslamaps.utils.StringUtil.strip(name).trim();
+
                 long cap = mob.has("cap") ? mob.get("cap").getAsLong() : 0;
-                String bracket = mob.has("bracket") ? mob.get("bracket").getAsString() : "1";
-                Map<String, List<Integer>> table = brackets;
-                if (mob.has("bracketType")) {
-                    // the repo mixes CRITTER and CRITTERS, skyblock-pv aliases them too
-                    String type = mob.get("bracketType").getAsString().toUpperCase(java.util.Locale.ROOT);
-                    Map<String, List<Integer>> set = bracketSets.get(type);
-                    if (set == null) set = bracketSets.get(type + "S");
-                    table = set != null ? set : Map.of();
-                } else {
-                    // NEU forgets the critter tag on a few galatea mobs (grizzly bear, parched,
-                    // queen ant) - a cap that IS the end of a critter table marks a critter family
-                    Map<String, List<Integer>> critters = bracketSets.get("CRITTERS");
-                    List<Integer> steps10 = critters != null ? critters.get(bracket) : null;
-                    if (steps10 != null && !steps10.isEmpty() && steps10.getLast() == cap) {
-                        table = critters;
-                    }
-                }
-                List<Integer> steps = capped(table.get(bracket), cap);
+                Long capFix = CAP_FIX.get(plain);
+                if (capFix != null) cap = capFix;
+
+                List<Integer> steps = steps(plain, mob, cap, brackets, bracketSets);
 
                 List<String> keys = mob.has("mobs") && mob.get("mobs").isJsonArray()
                         ? strings(mob.getAsJsonArray("mobs")) : List.of();
-                out.add(new Mob(mob.get("name").getAsString(), string(mob, "texture"),
+                out.add(new Mob(name, string(mob, "texture"),
                         string(mob, "item"), cap, steps, keys));
             }
             return;
@@ -186,6 +175,61 @@ public class BestiaryRepo {
                 collectMobs(category.getAsJsonObject(key), out, brackets, bracketSets);
             }
         }
+    }
+
+    // NEU's caps lag behind the game; these were verified against in-game dumps (2026-09-17)
+    private static final Map<String, Long> CAP_FIX = Map.of(
+            "Beeheemoth", 50L, "Tidetot", 50L,
+            "Mithril Grubber", 300L, "Oasis Rabbit", 300L, "Oasis Sheep", 300L,
+            "Bogged", 1000L, "Cretan Bull", 3000L, "Stranded Nymph", 3000L);
+
+    // critter families NEU has not tagged yet (verified in game: they level on critter tables)
+    private static final java.util.Set<String> CRITTER_FIX = java.util.Set.of(
+            "Honeyhog", "Lotusfish", "Flipflopper", "Lotum", "Tidetot");
+
+    // 5 tiers ending on the 50 cap (in game: V at 50/50) - intermediates are a guess, the
+    // family GUI was not dumped; only non-maxed progression can be off by a step
+    private static final Map<String, List<Integer>> STEP_FIX = Map.of(
+            "Queen Ant", List.of(1, 5, 15, 30, 50));
+
+    /**
+     * The tier table for a mob. For critters the repo's bracket field is unreliable - the cap
+     * is what the game actually stops the family at, so the critter table whose end matches
+     * the cap is the right one (verified against in-game dumps: Hewver/Murkbat sit on table 4,
+     * Honeymite/Woodlouse on 3, Honeyhog/Stag Beetle on 2, despite other bracket fields).
+     */
+    private static List<Integer> steps(String plain, JsonObject mob, long cap,
+                                       Map<String, List<Integer>> brackets,
+                                       Map<String, Map<String, List<Integer>>> bracketSets) {
+        List<Integer> fixed = STEP_FIX.get(plain);
+        if (fixed != null) return fixed;
+
+        String bracket = mob.has("bracket") ? mob.get("bracket").getAsString() : "1";
+        String type = mob.has("bracketType")
+                ? mob.get("bracketType").getAsString().toUpperCase(java.util.Locale.ROOT) : null;
+
+        Map<String, List<Integer>> critters = bracketSets.getOrDefault("CRITTERS", Map.of());
+        boolean critter = CRITTER_FIX.contains(plain) || (type != null && type.startsWith("CRITTER"));
+
+        if (type != null && !critter) {
+            Map<String, List<Integer>> set = bracketSets.get(type);
+            if (set == null) set = bracketSets.get(type + "S");
+            return capped(set != null ? set.get(bracket) : null, cap);
+        }
+
+        if (critter) {
+            for (List<Integer> table : critters.values()) {
+                if (!table.isEmpty() && table.getLast() == cap) return table;
+            }
+            return capped(critters.get(bracket), cap);
+        }
+
+        // untagged mob whose cap sits exactly on its critter table end = untagged critter
+        // (grizzly bear, parched - queen ant is shielded by STEP_FIX above)
+        List<Integer> match = critters.get(bracket);
+        if (match != null && !match.isEmpty() && match.getLast() == cap) return match;
+
+        return capped(brackets.get(bracket), cap);
     }
 
     private static String texture(JsonObject category) {

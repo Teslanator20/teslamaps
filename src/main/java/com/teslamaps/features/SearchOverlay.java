@@ -44,7 +44,10 @@ public class SearchOverlay {
             Location location = locationOf(lastContainer);
             if (location == null) return;
 
-            String start = TeslaMapsConfig.get().searchOverlayKeepText ? join(lines[0], lines[1]) : "";
+            String keep = TeslaMapsConfig.get().searchOverlayKeepText ? join(lines[0], lines[1]) : "";
+            String recent = TeslaMapsConfig.get().searchPasteCopied && keep.isBlank()
+                    ? CopyItemName.recent() : null;
+            String start = recent != null ? recent : keep;
 
             // set the screen by hand so the sign gui does not close
             mc.execute(() -> {

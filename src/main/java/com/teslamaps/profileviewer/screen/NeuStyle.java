@@ -96,6 +96,11 @@ public class NeuStyle {
         ctx.fill(x + 2, y + 2, x + w - 2, y + h - 2, BOX_BODY);
     }
 
+    /** Thin vertical divider between a category rail and the content. */
+    public static void divider(GuiGraphicsExtractor ctx, int x, int y, int h) {
+        ctx.fill(x, y, x + 1, y + h, 0x30FFFFFF);
+    }
+
     // vanilla xp bar colors, which is what NEU renders for every skill
     private static final int BAR_EMPTY = 0xFF1E1E1E;
     private static final int BAR_FILL = 0xFF80FF20;

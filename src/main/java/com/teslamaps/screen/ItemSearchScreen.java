@@ -123,6 +123,12 @@ public class ItemSearchScreen extends Screen {
         int index = rowAt(event.x(), event.y());
         if (index >= 0) {
             Row row = rows.get(index);
+            if (event.button() == 2) {
+                if (com.teslamaps.features.CopyItemName.copyText(row.name())) {
+                    status = "§aCopied " + row.name();
+                    return true;
+                }
+            }
             boolean chest = false;
             for (Where w : row.where()) {
                 if (w.pos() == null) continue;

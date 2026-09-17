@@ -15,7 +15,7 @@ import java.util.List;
 public class CompactorPreview {
 
     /** Slots of a compactor/deletor tier, laid out as rows x columns. */
-    public record Contents(int rows, int cols, List<ItemStack> slots) implements TooltipComponent {}
+    public record Contents(int rows, int cols, List<ItemStack> slots, boolean enabled) implements TooltipComponent {}
 
     private static int[] gridForTier(int tier) {
         return switch (tier) {
@@ -60,17 +60,7 @@ public class CompactorPreview {
             String itemId = tag.getStringOr(prefix + i, "");
             slots.add(itemId.isEmpty() ? ItemStack.EMPTY : SkyblockItems.stackNow(itemId));
         }
-        return new Contents(grid[0], grid[1], slots);
-    }
-
-    /** The status line; the items themselves are drawn by the tooltip image. */
-    public static List<String> lines(ItemStack stack) {
-        String id = ItemUtil.skyblockId(stack);
-        if (prefixFor(id) == null || gridForTier(tierOf(id)) == null) return List.of();
-
-        CustomData d = stack.get(DataComponents.CUSTOM_DATA);
-        if (d == null) return List.of();
-        boolean enabled = d.copyTag().getByteOr("PERSONAL_DELETOR_ACTIVE", (byte) 0) == 1;
-        return List.of("§7Status: " + (enabled ? "§aEnabled" : "§cDisabled"));
+        boolean enabled = tag.getByteOr("PERSONAL_DELETOR_ACTIVE", (byte) 0) == 1;
+        return new Contents(grid[0], grid[1], slots, enabled);
     }
 }

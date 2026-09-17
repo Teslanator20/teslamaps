@@ -120,6 +120,8 @@ public class InventoriesPage extends ProfileViewerPage {
                     selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
         }
 
+        NeuStyle.divider(ctx, left + 112, top + 8, NeuStyle.PANEL_HEIGHT - 16);
+
         // everything right of the rail belongs to the container; the grid grows to fill it
         int areaX = left + 118;
         int areaW = NeuStyle.PANEL_WIDTH - 118 - 8;
@@ -159,8 +161,7 @@ public class InventoriesPage extends ProfileViewerPage {
                 pageCount = Math.max(1, (all.size() + 44) / 45);
                 page = Math.min(page, pageCount - 1);
                 slots = subList(all, page * 45, 45);
-                int magicalPower = magicalPower(profile);
-                ctx.text(tr, "Magical Power: " + magicalPower, areaX, top + 10, NeuStyle.TEXT_LIGHT_PURPLE);
+                ctx.text(tr, powerLine(profile), areaX, top + 10, NeuStyle.TEXT_LIGHT_PURPLE);
                 title = null;
             }
             case FISHING -> {
@@ -205,9 +206,11 @@ public class InventoriesPage extends ProfileViewerPage {
         int sideGap = sideColumns ? 14 : 0;
         int slotSize = ItemGrid.fitSlot(areaW - sideGap, areaH, columns + (sideColumns ? 1 : 0), rows);
 
-        int totalWidth = columns * slotSize + (sideColumns ? sideGap + slotSize : 0);
-        int gridX = areaX + Math.max(0, (areaW - totalWidth) / 2);
-        int gridY = areaY + Math.max(0, (areaH - rows * slotSize) / 2);
+        // every section anchors like the player inventory (nine columns plus the armor column,
+        // five rows), so the grid does not jump around when switching sections
+        int refWidth = 9 * slotSize + 14 + slotSize;
+        int gridX = areaX + Math.max(0, (areaW - refWidth) / 2);
+        int gridY = areaY + Math.max(0, (NeuStyle.PANEL_HEIGHT - 26 - 34 - 5 * slotSize) / 2);
 
         ItemStack hovered = ItemGrid.draw(ctx, slots, gridX, gridY, columns, 0, count, mouseX, mouseY, slotSize);
 
@@ -287,7 +290,9 @@ public class InventoriesPage extends ProfileViewerPage {
         if (hoveredPage >= 0) {
             String label = section == Section.BACKPACKS ? "Backpack " + (hoveredPage + 1)
                     : section.label + " " + (hoveredPage + 1);
-            previewGrid(label, pageContents(hoveredPage), mouseX, mouseY);
+            String header = section == Section.ACCESSORIES
+                    ? "§d" + powerLine(getProfile()) : null;
+            previewGrid(label, header, pageContents(hoveredPage), mouseX, mouseY);
         }
     }
 
@@ -315,10 +320,11 @@ public class InventoriesPage extends ProfileViewerPage {
     }
 
     /** Item-grid preview at the cursor, exactly like the game's backpack preview. */
-    private void previewGrid(String title, List<InventoryDecoder.Slot> contents, int mouseX, int mouseY) {
+    private void previewGrid(String title, String header, List<InventoryDecoder.Slot> contents, int mouseX, int mouseY) {
         if (parent == null || contents.isEmpty()) return;
         parent.setHoveredPreview(
                 com.teslamaps.profileviewer.data.LegacyText.parse("§e" + title),
+                header == null ? null : com.teslamaps.profileviewer.data.LegacyText.parse(header),
                 contents, mouseX, mouseY);
     }
 
@@ -410,9 +416,27 @@ public class InventoriesPage extends ProfileViewerPage {
     }
 
     private static int magicalPower(SkyblockProfile profile) {
-        JsonObject accessories = profile.getMemberData().has("accessory_bag_storage")
-                ? profile.getMemberData().getAsJsonObject("accessory_bag_storage") : null;
+        JsonObject accessories = accessoryBag(profile);
         if (accessories == null) return 0;
         return asInt(accessories.get("highest_magical_power"));
+    }
+
+    /** "Magical Power: 1432 (Hurtful)" - the selected power stone when hypixel ships one. */
+    private static String powerLine(SkyblockProfile profile) {
+        String line = "Magical Power: " + magicalPower(profile);
+        JsonObject accessories = accessoryBag(profile);
+        if (accessories != null && accessories.has("selected_power")
+                && accessories.get("selected_power").isJsonPrimitive()) {
+            String power = accessories.get("selected_power").getAsString();
+            if (!power.isEmpty()) {
+                line += " (" + Character.toUpperCase(power.charAt(0)) + power.substring(1) + ")";
+            }
+        }
+        return line;
+    }
+
+    private static JsonObject accessoryBag(SkyblockProfile profile) {
+        return profile.getMemberData().has("accessory_bag_storage")
+                ? profile.getMemberData().getAsJsonObject("accessory_bag_storage") : null;
     }
 }

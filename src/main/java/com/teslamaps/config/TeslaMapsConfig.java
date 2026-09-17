@@ -227,6 +227,7 @@ public class TeslaMapsConfig {
     public int searchOverlaySuggestions = 7;     // How many item names the search overlay suggests (0 - 12)
     public boolean searchOverlayKeepText = true; // Start with whatever the sign already carried
     public boolean searchOverlayHistory = true;  // Remember and list previous searches
+    public boolean searchPasteCopied = true;     // Prefill the search with a name copied in the last 30s
     @Global
     public java.util.List<String> auctionSearchHistory = new java.util.ArrayList<>();
     @Global
@@ -519,7 +520,7 @@ public class TeslaMapsConfig {
      * gate silently never matched. section() reports unknown names in dev so that cannot recur.
      */
     public static final java.util.List<String> SECTIONS = java.util.List.of(
-            "Auto", "Blood Camp", "Chat", "Combat", "Contest Timers", "Critter Safari", "ESP", "Fishing",
+            "Auto", "Blood Camp", "Chat", "Combat", "Contest Timers", "Crimson Isle", "Critter Safari", "ESP", "Fishing",
             "Foraging", "Garden", "Inventory", "Leap", "Map", "Mining",
             "Ordered Waypoints", "Party", "Puzzles & Terminals", "Render", "Score & Splits",
             "Secrets & Waypoints", "Shards", "Skills", "Sounds", "Timers", "Torrhus Canyon");
@@ -727,6 +728,11 @@ public class TeslaMapsConfig {
 
     public boolean hideClouds = true;        // Skip the clouds render pass
     public boolean noFog = true;             // Disable fog rendering (boss/water/blindness fog)
+    public boolean noNetherFog = true;       // Crimson Isle: push the nether fog away even when Hide Fog is off
+
+    public boolean rescueMission = true;     // Crimson Isle rescue mission: hostage parkour waypoints
+    public int rescueVariant = 1;            // Barbarian S-rank has two possible paths (1 or 2)
+    public int rescueLookAhead = 3;          // how many parkour platforms are shown ahead
     public boolean hideRecipeBook = false;   // Hide the recipe book button in the inventory
     public boolean noHurtCam = true;         // Disable damage camera tilt
     public boolean noViewBobbing = true;    // Disable view bobbing
@@ -946,6 +952,7 @@ public class TeslaMapsConfig {
     public boolean leapCounter = false;            // F7: count teammates standing at your spot
     public boolean bossbarHealth = true;           // Append boss HP numbers to the bossbar name (Watcher/Thorn/F7)
 
+    public boolean enchantAbbrev = true;           // Write enchant + level onto enchanted book icons (Leg I)
     public boolean enchantColors = true;           // Recolor enchantments in item lore by level
     public boolean enchantLevelsAsNumbers = false; // Show enchant levels as numbers instead of roman numerals
     public boolean enchantBoldMax = true;          // Bold max-level enchants

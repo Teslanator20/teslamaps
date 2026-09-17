@@ -167,6 +167,10 @@ public class ChatMixin {
             com.teslamaps.features.foraging.QueenAntWarning.onChatMessage(text);
         }
 
+        if (fromServer && cfg.section("Crimson Isle")) {
+            com.teslamaps.features.RescueMission.onChatMessage(text);
+        }
+
         if (fromServer && cfg.section("Skills")) {
             com.teslamaps.features.pets.PetTracker.onChatMessage(text);
         }

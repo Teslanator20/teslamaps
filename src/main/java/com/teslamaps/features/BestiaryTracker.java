@@ -91,7 +91,43 @@ public class BestiaryTracker {
     /** Config first, so a menu read can correct a stale bundled value. */
     private static Long killsToMax(String name) {
         Long stored = TeslaMapsConfig.get().bestiaryKillsToMax.get(name);
-        return stored != null ? stored : defaults().get(name);
+        if (stored != null) return stored;
+        Long bundled = defaults().get(name);
+        return bundled != null ? bundled : repoMax(name);
+    }
+
+    // the PV bestiary data (NEU repo) covers what bestiary_max.json misses (new mobs)
+    private static Object repoCacheFor = null;
+    private static Map<String, Long> repoCache = Map.of();
+
+    private static boolean repoLoadAsked = false;
+
+    private static Long repoMax(String name) {
+        var cats = com.teslamaps.profileviewer.data.BestiaryRepo.categories();
+        if (cats.isEmpty()) {
+            if (!repoLoadAsked) {
+                repoLoadAsked = true;
+                com.teslamaps.profileviewer.data.BestiaryRepo.load();
+            }
+            cats = com.teslamaps.profileviewer.data.BestiaryRepo.categories();
+        }
+        if (cats != repoCacheFor) {
+            Map<String, Long> map = new java.util.HashMap<>();
+            java.util.ArrayDeque<com.teslamaps.profileviewer.data.BestiaryRepo.Category> queue =
+                    new java.util.ArrayDeque<>(cats);
+            while (!queue.isEmpty()) {
+                var cat = queue.poll();
+                queue.addAll(cat.subs());
+                for (var mob : cat.mobs()) {
+                    if (mob.steps().isEmpty()) continue;
+                    String plain = StringUtil.strip(mob.name()).trim().toLowerCase();
+                    map.putIfAbsent(plain, (long) mob.steps().getLast());
+                }
+            }
+            repoCache = map;
+            repoCacheFor = cats;
+        }
+        return repoCache.get(name.toLowerCase());
     }
 
     /** Manual override in minutes, null when the mob runs on the automatic cap. */

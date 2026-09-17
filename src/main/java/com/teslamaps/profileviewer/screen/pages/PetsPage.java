@@ -172,6 +172,8 @@ public class PetsPage extends ProfileViewerPage {
 
             ItemStack stack = stackFor(pet);
             if (!stack.isEmpty()) ItemGrid.item(ctx, stack, sx, sy, slotSize);
+            ItemGrid.count(ctx, String.valueOf(pet.getLevel()), sx, sy, slotSize,
+                    pet.getLevel() >= pet.getMaxLevel() ? 0xFFFFAA00 : 0xFFFFFFFF);
 
             if (pet.isActive()) {
                 ctx.fill(sx + 1, sy + 1, sx + slotSize - 1, sy + slotSize - 1, 0x3055FF55);

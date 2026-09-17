@@ -209,7 +209,7 @@ public class ConfigProfiles {
             "hideDeadMobs", "hideSoulweaverSkull", "hideSkeletonSkull", "hideThrownBones",
             "hideSuperboomTnt", "hideBlessing", "hideReviveStone", "hidePremiumFlesh",
             "hideJournalEntry", "hideHealerOrbs", "hideHealerFairy", "hideCheapCoins",
-            "hideClouds", "noFog", "noLightning", "noFallingBlocks", "noBlockBreaking", "noXpOrbs",
+            "hideClouds", "noFog", "noNetherFog", "noLightning", "noFallingBlocks", "noBlockBreaking", "noXpOrbs",
             "packetHiders", "noExplosions", "noArrows", "noStuckArrows", "noDeathAnimation",
             "noFire", "noWaterOverlay", "noVignette", "noBlind", "noNausea", "noEnchantGlint",
             "hideInventoryEffects", "noEffects", "noHurtCam", "noViewBobbing",
@@ -237,6 +237,7 @@ public class ConfigProfiles {
             "infiniteChat", "chatStacking", "commandSuggestions", "commandSuggestionsPlayers",
             "gfsSuggestions", "gfsQueued", "gfsSuperCraft",
             "searchbar", "scrollableTooltip", "hudDragInInventory", "backpackPreview", "signEnterKey",
+            "enchantAbbrev", "rescueMission",
     };
 
     private static void turnOn(TeslaMapsConfig c, String[] fields) {

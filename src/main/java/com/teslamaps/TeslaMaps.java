@@ -274,6 +274,10 @@ public class TeslaMaps implements ClientModInitializer {
                     Perf.begin("ExplodingFrogESP"); com.teslamaps.features.ExplodingFrogESP.render(context.poseStack(), cameraPos); Perf.end();
                 }
 
+                if (TeslaMapsConfig.get().section("Crimson Isle")) {
+                    Perf.begin("RescueMission"); com.teslamaps.features.RescueMission.render(context.poseStack(), cameraPos); Perf.end();
+                }
+
                 if (TeslaMapsConfig.get().section("Render")) {
                     Perf.begin("BlockOverlay"); com.teslamaps.features.BlockOverlay.render(context.poseStack(), cameraPos); Perf.end();
                     Perf.begin("ChatWaypoint"); com.teslamaps.features.ChatWaypoint.render(context.poseStack(), cameraPos); Perf.end();
@@ -380,6 +384,7 @@ public class TeslaMaps implements ClientModInitializer {
                 if (cfg.section("Fishing")) { Perf.begin("UmbrellaWarning.tick"); com.teslamaps.features.UmbrellaWarning.tick(); Perf.end(); }
                 if (cfg.section("Fishing")) { Perf.begin("HotspotRadar.tick"); com.teslamaps.features.HotspotRadar.tick(); Perf.end(); }
                 if (cfg.section("Fishing")) { Perf.begin("HotspotWatcher.tick"); com.teslamaps.features.HotspotWatcher.tick(); Perf.end(); }
+                if (cfg.section("Crimson Isle")) { Perf.begin("RescueMission.tick"); com.teslamaps.features.RescueMission.tick(); Perf.end(); }
                 if (cfg.section("Mining")) {
                     Perf.begin("PickaxeAbility.tick"); com.teslamaps.features.mining.PickaxeAbility.tick(); Perf.end();
                     Perf.begin("MineshaftPity.tick"); com.teslamaps.features.mining.MineshaftPity.tick(); Perf.end();

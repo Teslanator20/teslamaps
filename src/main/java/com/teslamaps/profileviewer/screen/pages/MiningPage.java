@@ -160,7 +160,13 @@ public class MiningPage extends ProfileViewerPage {
                     "§7Found: §f" + asInt(get(data, "total_found")),
                     "§7Placed: §f" + asInt(get(data, "total_placed")));
 
-            icons.add(new Ui.Tip(new Ui.Icon(Kit.icon(have ? "amethyst_shard" : "gray_dye"), 16, false, null), tooltip));
+            // the real crystal item (paper + hypixel's item model, like the ingame menu);
+            // greyed to a dye only while it was never found
+            net.minecraft.world.item.ItemStack icon = have
+                    ? com.teslamaps.utils.SkyblockItems.stackNow(crystal.toUpperCase(java.util.Locale.ROOT))
+                    : net.minecraft.world.item.ItemStack.EMPTY;
+            if (icon.isEmpty()) icon = Kit.icon(have ? "amethyst_shard" : "gray_dye");
+            icons.add(new Ui.Tip(new Ui.Icon(icon, 16, false, null), tooltip));
         }
 
         int perRow = Math.max(1, width / 18);

@@ -21,9 +21,11 @@ public class CompactorTooltip implements ClientTooltipComponent {
         this.columns = Math.max(contents.cols(), 3);
     }
 
+    private static final int STATUS_H = 12;
+
     @Override
     public int getHeight(Font font) {
-        return contents.rows() * 18 + 24;
+        return contents.rows() * 18 + 24 + STATUS_H;
     }
 
     @Override
@@ -33,6 +35,9 @@ public class CompactorTooltip implements ClientTooltipComponent {
 
     @Override
     public void extractImage(Font font, int x, int y, int width, int height, GuiGraphicsExtractor g) {
+        g.text(font, "Power: " + (contents.enabled() ? "§aEnabled" : "§cDisabled"), x, y, 0xFFAAAAAA);
+        y += STATUS_H;
+
         int rows = contents.rows();
         int cols = contents.cols();
         int bodyW = columns * 18 + 7;

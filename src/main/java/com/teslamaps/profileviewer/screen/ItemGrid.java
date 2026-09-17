@@ -40,8 +40,11 @@ public class ItemGrid {
                 }
             };
 
+    private static final Map<String, Long> retryAt = new HashMap<>();
+
     public static void clear() {
         built.clear();
+        retryAt.clear();
     }
 
     /** The item as it should look in a menu: right material, hypixel name, hypixel lore. */
@@ -52,15 +55,20 @@ public class ItemGrid {
         ItemStack base = ItemStack.EMPTY;
         if (slot.skyblockId != null) {
             ItemStack known = bases.get(slot.skyblockId);
-            if (known == null) {
-                bases.put(slot.skyblockId, ItemStack.EMPTY);
+            // an id whose resolve failed (rate limit, load race) would stay a barrier for the
+            // whole session - retry it every few seconds until it lands
+            long now = System.currentTimeMillis();
+            if (known == null || (known.isEmpty()
+                    && now >= retryAt.getOrDefault(slot.skyblockId, 0L))) {
+                retryAt.put(slot.skyblockId, now + 3000);
+                bases.putIfAbsent(slot.skyblockId, ItemStack.EMPTY);
                 SkyblockItems.resolve(slot.skyblockId, stack -> {
                     bases.put(slot.skyblockId, stack);
                     built.remove(slot);
                 });
-            } else {
-                base = known;
+                known = bases.get(slot.skyblockId);
             }
+            if (known != null) base = known;
         }
 
         // never hand back an empty stack for a filled slot, the tooltip would vanish with it
@@ -163,6 +171,12 @@ public class ItemGrid {
         return draw(ctx, slots, x, y, columns, fromIndex, count, mouseX, mouseY, SLOT);
     }
 
+    private static ItemStack lastHovered = ItemStack.EMPTY;
+
+    public static ItemStack lastHovered() { return lastHovered; }
+
+    public static void resetHover() { lastHovered = ItemStack.EMPTY; }
+
     public static ItemStack draw(GuiGraphicsExtractor ctx, List<InventoryDecoder.Slot> slots,
                                  int x, int y, int columns, int fromIndex, int count,
                                  int mouseX, int mouseY, int size) {
@@ -185,6 +199,7 @@ public class ItemGrid {
                 if (slot.count > 1) {
                     count(ctx, String.valueOf(slot.count), sx, sy, size, 0xFFFFFFFF);
                 }
+                com.teslamaps.features.EnchantAbbrev.drawScaled(ctx, stack, sx, sy, size);
             }
 
             boolean hovered = mouseX >= sx && mouseX < sx + size - 1 && mouseY >= sy && mouseY < sy + size - 1;
@@ -194,6 +209,7 @@ public class ItemGrid {
             }
         }
 
+        if (!hoveredStack.isEmpty()) lastHovered = hoveredStack;
         return hoveredStack;
     }
 }

@@ -336,10 +336,12 @@ public class StorageOverlay {
                 com.teslamaps.features.RarityBackground.draw(ctx, gx, gy, st);
                 ctx.item(st, gx, gy);
                 ctx.itemDecorations(mc.font, st, gx, gy);
+                EnchantAbbrev.draw(ctx, st, gx, gy);
                 if (searching && !match) ctx.fill(gx, gy, gx + 16, gy + 16, 0xC0000000); // dim non-hit
                 if (!isLive && vmx >= gx && vmx < gx + 16 && vmy >= gy && vmy < gy + 16 && mouseY < wallBottom) hoverNonLive = st;
             }
         }
+        lastHover = hoverNonLive;
         if (TeslaMapsConfig.get().hoveredSlotOutline && mouseY < wallBottom) {
             for (int i = 0; i < vis.size(); i++) {
                 int bx = sx + (i % COLS) * (BOX_W + GAP);
@@ -395,6 +397,7 @@ public class StorageOverlay {
                     com.teslamaps.features.RarityBackground.draw(ctx, p[0], p[1], s.getItem());
                     ctx.item(s.getItem(), p[0], p[1]);
                     ctx.itemDecorations(mc.font, s.getItem(), p[0], p[1]);
+                    EnchantAbbrev.draw(ctx, s.getItem(), p[0], p[1]);
                 }
                 float imx = mouseX / iscl(), imy = mouseY / iscl();
                 if (TeslaMapsConfig.get().hoveredSlotOutline
@@ -487,6 +490,7 @@ public class StorageOverlay {
             com.teslamaps.features.RarityBackground.draw(ctx, gx, gy, e.getValue());
             ctx.item(e.getValue(), gx, gy);
             ctx.itemDecorations(mc.font, e.getValue(), gx, gy);
+            EnchantAbbrev.draw(ctx, e.getValue(), gx, gy);
         }
     }
 
@@ -606,10 +610,18 @@ public class StorageOverlay {
         return null;
     }
 
+    private static ItemStack lastHover;
+
     public static boolean handleClick(double mx, double my, int button) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return false;
         layout(cs.width, cs.height);
+
+        if (button == 2) {
+            Slot s = slotAt(mx, my);
+            if (s != null && CopyItemName.copy(s.getItem())) return true;
+            if (lastHover != null && CopyItemName.copy(lastHover)) return true;
+        }
 
         if (TeslaMapsConfig.get().debugMode) {
             Slot dbg = slotAt(mx, my);

@@ -198,6 +198,7 @@ public class BackpackPreview {
                 int cy = top + PAD + (s / COLS) * (CELL + GAP) + 1;
                 ctx.item(e.getValue(), cx, cy);
                 ctx.itemDecorations(font, e.getValue(), cx, cy);
+                EnchantAbbrev.draw(ctx, e.getValue(), cx, cy);
             }
         }
     }

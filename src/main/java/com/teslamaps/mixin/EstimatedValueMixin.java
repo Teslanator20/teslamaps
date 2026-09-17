@@ -30,11 +30,6 @@ public abstract class EstimatedValueMixin {
                     cir.getReturnValue().add(Component.literal("§e§lEstimated Value: §6§l" + EstimatedValue.exact(value) + " coins"));
                 }
             }
-            if (c.compactorPreview) {
-                for (String line : com.teslamaps.features.CompactorPreview.lines(stack)) {
-                    cir.getReturnValue().add(Component.literal(line));
-                }
-            }
             if (c.auctionPriceCompare) {
                 for (String line : com.teslamaps.features.AuctionPriceCompare.lines(stack)) {
                     cir.getReturnValue().add(Component.literal(line));

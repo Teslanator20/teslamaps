@@ -72,6 +72,20 @@ public class SkyblockItems {
         LEGACY.put("SKULL_ITEM", "player_head");
         LEGACY.put("INK_SACK", "ink_sac");
         LEGACY.put("NETHER_STALK", "nether_wart");
+        // vinyls still carry 1.8 record materials
+        LEGACY.put("GOLD_RECORD", "music_disc_13");
+        LEGACY.put("GREEN_RECORD", "music_disc_cat");
+        LEGACY.put("RECORD_3", "music_disc_blocks");
+        LEGACY.put("RECORD_4", "music_disc_chirp");
+        LEGACY.put("RECORD_5", "music_disc_far");
+        LEGACY.put("RECORD_6", "music_disc_mall");
+        LEGACY.put("RECORD_7", "music_disc_mellohi");
+        LEGACY.put("RECORD_8", "music_disc_stal");
+        LEGACY.put("RECORD_9", "music_disc_strad");
+        LEGACY.put("RECORD_10", "music_disc_ward");
+        LEGACY.put("RECORD_11", "music_disc_11");
+        LEGACY.put("RECORD_12", "music_disc_wait");
+        LEGACY.put("STORAGE_MINECART", "chest_minecart");
         LEGACY.put("SULPHUR", "gunpowder");
         LEGACY.put("RAW_FISH", "cod");
         LEGACY.put("COOKED_FISH", "cooked_cod");
@@ -326,9 +340,19 @@ public class SkyblockItems {
                 TeslaMaps.LOGGER.warn("Item table fetch failed: {}", e.toString());
             } finally {
                 loading = false;
+                // parked lookups run now: table hits resolve directly, misses go to NEU
+                java.util.List<Runnable> parked;
+                synchronized (pendingResolves) {
+                    parked = new java.util.ArrayList<>(pendingResolves);
+                    pendingResolves.clear();
+                }
+                Minecraft.getInstance().execute(() -> parked.forEach(Runnable::run));
             }
         });
     }
+
+    private static final java.util.List<Runnable> pendingResolves =
+            java.util.Collections.synchronizedList(new java.util.ArrayList<>());
 
     public static boolean loaded() {
         return loaded;
@@ -483,6 +507,13 @@ public class SkyblockItems {
             ItemStack stack = build(data.material(), data.damage(), data.skin(), data.model());
             stacks.put(id, stack);
             if (!stack.isEmpty()) callback.accept(stack);
+            return;
+        }
+
+        // the item table is still downloading - park the lookup instead of stampeding the NEU
+        // repo with per-item requests (rate limit -> half the ids never resolved -> barriers)
+        if (loading) {
+            pendingResolves.add(() -> resolve(id, callback));
             return;
         }
 

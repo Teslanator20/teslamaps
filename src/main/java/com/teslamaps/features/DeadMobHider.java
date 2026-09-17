@@ -116,7 +116,7 @@ public class DeadMobHider {
         if (nametag) {
             // A tag that actually rides the corpse is the easy case.
             Entity vehicle = entity.getVehicle();
-            if (vehicle != null) return !isRealPlayer(vehicle) && isDead(vehicle);
+            if (vehicle != null) return !isRealPlayer(vehicle) && isDead(vehicle) && isHealthTag(entity);
             return tagOfCorpse(entity);
         }
         return isDead(entity);
@@ -151,10 +151,28 @@ public class DeadMobHider {
         return result;
     }
 
+    // Only a mob health bar ("[Lv100] Name 521k/1M❤") may be matched to a corpse by position.
+    // Kuudra places progress/supply bars right next to dying mobs; those must stay visible.
+    private static final java.util.regex.Pattern HEALTH_TAG =
+            java.util.regex.Pattern.compile("\\[Lv\\d+\\]|[\\d.,]+[kKmMbB]?/[\\d.,]+[kKmMbB]?❤");
+
+    private static boolean isHealthTag(Entity tag) {
+        String text = null;
+        if (tag.getCustomName() != null) {
+            text = tag.getCustomName().getString();
+        } else if (tag instanceof net.minecraft.world.entity.Display.TextDisplay td) {
+            var state = td.textRenderState();
+            if (state != null && state.text() != null) text = state.text().getString();
+        }
+        if (text == null || text.isEmpty()) return false;
+        return HEALTH_TAG.matcher(com.teslamaps.utils.StringUtil.strip(text)).find();
+    }
+
     private static boolean computeTagOfCorpse(Entity tag) {
         net.minecraft.client.multiplayer.ClientLevel level =
                 net.minecraft.client.Minecraft.getInstance().level;
         if (level == null) return false;
+        if (!isHealthTag(tag)) return false;
 
         for (Map.Entry<Integer, Long> e : stripped.entrySet()) {
             if (!isStripped(e.getKey())) continue;

@@ -64,13 +64,21 @@ public class ProfileViewerScreen extends Screen {
     // a small item grid drawn at the cursor, like the game's backpack preview
     private java.util.List<com.teslamaps.profileviewer.data.InventoryDecoder.Slot> previewSlots;
     private Component previewTitle;
+    private Component previewHeader;
     private int previewX;
     private int previewY;
 
     public void setHoveredPreview(Component title,
                                   java.util.List<com.teslamaps.profileviewer.data.InventoryDecoder.Slot> slots,
                                   int mouseX, int mouseY) {
+        setHoveredPreview(title, null, slots, mouseX, mouseY);
+    }
+
+    public void setHoveredPreview(Component title, Component header,
+                                  java.util.List<com.teslamaps.profileviewer.data.InventoryDecoder.Slot> slots,
+                                  int mouseX, int mouseY) {
         this.previewTitle = title;
+        this.previewHeader = header;
         this.previewSlots = slots;
         this.previewX = mouseX;
         this.previewY = mouseY;
@@ -83,19 +91,22 @@ public class ProfileViewerScreen extends Screen {
         int columns = 9;
         int rows = Math.max(1, (previewSlots.size() + columns - 1) / columns);
         int slot = 16;
+        int headerH = previewHeader != null ? 11 : 0;
         int w = columns * slot + 8;
-        int h = rows * slot + 20;
+        int h = rows * slot + 20 + headerH;
 
         int x = Math.max(2, Math.min(previewX + 10, NeuStyle.PANEL_WIDTH - w - 2));
         int y = Math.max(-24, Math.min(previewY - h - 4, NeuStyle.PANEL_HEIGHT - h - 2));
 
         NeuStyle.window(ctx, x, y, w, h);
-        if (previewTitle != null) ctx.text(font, previewTitle, x + 4, y + 5, -1);
-        ItemGrid.draw(ctx, previewSlots, x + 4, y + 16, columns,
+        if (previewHeader != null) ctx.text(font, previewHeader, x + 4, y + 5, -1);
+        if (previewTitle != null) ctx.text(font, previewTitle, x + 4, y + 5 + headerH, -1);
+        ItemGrid.draw(ctx, previewSlots, x + 4, y + 16 + headerH, columns,
                 0, Math.min(previewSlots.size(), columns * rows), -1000, -1000, slot);
 
         previewSlots = null;
         previewTitle = null;
+        previewHeader = null;
     }
 
     private String nameInput = null;
@@ -198,6 +209,7 @@ public class ProfileViewerScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
+        ItemGrid.resetHover();
         if (loading && System.currentTimeMillis() - lastDotUpdate > 500) {
             loadingDots = (loadingDots + 1) % 4;
             lastDotUpdate = System.currentTimeMillis();
@@ -565,6 +577,9 @@ public class ProfileViewerScreen extends Screen {
 
         // an open profile list floats over the page, so it eats the click first
         if (profileListOpen && handleClick(mx, my, event.button())) return true;
+
+        if (event.button() == 2
+                && com.teslamaps.features.CopyItemName.copy(ItemGrid.lastHovered())) return true;
 
         if (!loading && error == null && selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
             if (pages.get(selectedPageIndex).mouseClicked(mx, my, event.button())) return true;

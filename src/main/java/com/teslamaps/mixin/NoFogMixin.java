@@ -16,7 +16,11 @@ public class NoFogMixin {
     @Inject(method = "setupFog", at = @At("RETURN"))
     private void teslamaps$noFog(Camera camera, int viewDistance, DeltaTracker deltaTracker, float fogScale,
                                  ClientLevel level, CallbackInfoReturnable<FogData> cir) {
-        if (!TeslaMapsConfig.get().noFog) return;
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (!cfg.noFog) {
+            // ported from skyblocker's extendNetherFog: crimson isle only
+            if (!cfg.noNetherFog || !com.teslamaps.utils.SkyblockUtils.isInArea("Crimson Isle")) return;
+        }
         FogData data = cir.getReturnValue();
         if (data == null) return;
         data.environmentalStart = 1.0E8f;

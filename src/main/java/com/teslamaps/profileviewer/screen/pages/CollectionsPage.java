@@ -94,6 +94,8 @@ public class CollectionsPage extends ProfileViewerPage {
                     selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
         }
 
+        NeuStyle.divider(ctx, left + RAIL + 1, top + 8, NeuStyle.PANEL_HEIGHT - 16);
+
         CollectionRepo.Category current = categories.get(category);
         List<CollectionRepo.Entry> items = current.items();
 

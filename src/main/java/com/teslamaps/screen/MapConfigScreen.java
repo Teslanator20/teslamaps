@@ -598,6 +598,8 @@ public class MapConfigScreen extends Screen {
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Clouds",
                 () -> config.hideClouds, v -> config.hideClouds = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Fog", () -> config.noFog, v -> config.noFog = v));
+        hide.add(new ToggleEntry(contentX, contentWidth, "  Nether Fog (Crimson Isle)", () -> config.noNetherFog, v -> config.noNetherFog = v));
+        hide.add(new InfoEntry(contentX, "Removes the crimson isle fog even while Hide Fog is off"));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Lightning", () -> config.noLightning, v -> config.noLightning = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Falling Blocks", () -> config.noFallingBlocks, v -> config.noFallingBlocks = v));
         hide.add(new ToggleEntry(contentX, contentWidth, "Hide Block Breaking", () -> config.noBlockBreaking, v -> config.noBlockBreaking = v));
@@ -833,6 +835,19 @@ public class MapConfigScreen extends Screen {
         fishing.add(new ColorEntry(contentX, contentWidth, "  Water Tint",
                 () -> config.colorTintedWater, v -> config.colorTintedWater = v));
         categories.put("Fishing", fishing);
+
+        List<SettingsEntry> crimson = new ArrayList<>();
+        crimson.add(new LabelEntry(contentX, "Rescue Mission"));
+        crimson.add(new ToggleEntry(contentX, contentWidth, "Rescue Mission Pathfinder", () -> config.rescueMission, v -> config.rescueMission = v));
+        crimson.add(new InfoEntry(contentX, "Open the Rescue quest on the Quest Board once, then talk to the"));
+        crimson.add(new InfoEntry(contentX, "Undercover Agent - the hostage parkour path shows up in the world"));
+        crimson.add(new SliderEntry(contentX, contentWidth, "  Look Ahead (platforms)", 1f, 10f,
+                () -> (float) config.rescueLookAhead, v -> config.rescueLookAhead = Math.round(v)));
+        crimson.add(new DropdownEntry(contentX, contentWidth, "  Barbarian S Path Variant",
+                new String[]{"1", "2"},
+                () -> String.valueOf(config.rescueVariant), v -> config.rescueVariant = Integer.parseInt(v)));
+        crimson.add(new InfoEntry(contentX, "Two S-rank layouts exist - switch if the path looks wrong"));
+        categories.put("Crimson Isle", crimson);
 
         List<SettingsEntry> solvers = new ArrayList<>();
         solvers.add(new LabelEntry(contentX, "Terminals"));
@@ -1449,6 +1464,7 @@ public class MapConfigScreen extends Screen {
                 () -> (float) config.searchOverlaySuggestions, v -> config.searchOverlaySuggestions = Math.round(v)));
         inventory.add(new ToggleEntry(contentX, contentWidth, "  Keep Previous Text", () -> config.searchOverlayKeepText, v -> config.searchOverlayKeepText = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "  Recent Searches", () -> config.searchOverlayHistory, v -> config.searchOverlayHistory = v));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "  Paste Copied Name", () -> config.searchPasteCopied, v -> config.searchPasteCopied = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Middle Click Copies Item Name", () -> config.middleClickCopyName, v -> config.middleClickCopyName = v));
         inventory.add(new LabelEntry(contentX, "Storage Overlay"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Custom Storage Overlay", () -> config.customStorageOverlay, v -> config.customStorageOverlay = v));
@@ -1598,6 +1614,8 @@ public class MapConfigScreen extends Screen {
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Ignore Runes", () -> config.itemValueIgnoreRunes, v -> config.itemValueIgnoreRunes = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Container Value (Top 5)", () -> config.containerValue, v -> config.containerValue = v));
         tooltips.add(new LabelEntry(contentX, "Enchant Colors"));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Book Abbreviations (Leg I)", () -> config.enchantAbbrev, v -> config.enchantAbbrev = v));
+        tooltips.add(new InfoEntry(contentX, "Enchant + level written on enchanted book icons"));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Enchant Colors", () -> config.enchantColors, v -> config.enchantColors = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Levels as Numbers", () -> config.enchantLevelsAsNumbers, v -> config.enchantLevelsAsNumbers = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Chroma Max Enchants (rainbow)", () -> config.enchantChromaMax, v -> config.enchantChromaMax = v));
@@ -2277,7 +2295,7 @@ public class MapConfigScreen extends Screen {
         sections.put("Chat & Media", List.of("Chat", "Sounds", "Screenshots"));
         sections.put("Party & Automation", List.of("Party", "Auto"));
         sections.put("Skyblock", List.of("Skills", "Combat", "Garden", "Mining", "Fishing", "Foraging",
-                "Contest Timers", "Torrhus Canyon", "Critter Safari", "Shards", "Ordered Waypoints"));
+                "Contest Timers", "Torrhus Canyon", "Critter Safari", "Crimson Isle", "Shards", "Ordered Waypoints"));
 
         categoryHeaders.clear();
         for (String cat : categories.keySet()) categoryHeaders.put(cat, new LabelEntry(contentX, cat));
