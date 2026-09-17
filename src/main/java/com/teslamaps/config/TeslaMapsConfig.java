@@ -733,6 +733,7 @@ public class TeslaMapsConfig {
     public boolean rescueMission = true;     // Crimson Isle rescue mission: hostage parkour waypoints
     public int rescueVariant = 1;            // Barbarian S-rank has two possible paths (1 or 2)
     public int rescueLookAhead = 3;          // how many parkour platforms are shown ahead
+    public String rescueFaction = "Auto";    // Auto (tab list) / Barbarian / Mage
     public boolean hideRecipeBook = false;   // Hide the recipe book button in the inventory
     public boolean noHurtCam = true;         // Disable damage camera tilt
     public boolean noViewBobbing = true;    // Disable view bobbing

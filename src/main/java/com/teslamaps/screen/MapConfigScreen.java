@@ -843,6 +843,10 @@ public class MapConfigScreen extends Screen {
         crimson.add(new InfoEntry(contentX, "Undercover Agent - the hostage parkour path shows up in the world"));
         crimson.add(new SliderEntry(contentX, contentWidth, "  Look Ahead (platforms)", 1f, 10f,
                 () -> (float) config.rescueLookAhead, v -> config.rescueLookAhead = Math.round(v)));
+        crimson.add(new DropdownEntry(contentX, contentWidth, "  Faction",
+                new String[]{"Auto", "Barbarian", "Mage"},
+                () -> config.rescueFaction, v -> config.rescueFaction = v));
+        crimson.add(new InfoEntry(contentX, "Auto reads the tab list - set it manually if that widget is off"));
         crimson.add(new DropdownEntry(contentX, contentWidth, "  Barbarian S Path Variant",
                 new String[]{"1", "2"},
                 () -> String.valueOf(config.rescueVariant), v -> config.rescueVariant = Integer.parseInt(v)));

@@ -113,8 +113,12 @@ public class RescueMission {
         }
     }
 
-    // tab list carries "Barbarian Reputation:" / "Mage Reputation:"
+    // tab list carries "Barbarian Reputation:" / "Mage Reputation:"; config can override
     private static String faction() {
+        String forced = TeslaMapsConfig.get().rescueFaction;
+        if ("Barbarian".equals(forced)) return "barb";
+        if ("Mage".equals(forced)) return "mage";
+
         long now = System.currentTimeMillis();
         if (now - factionTime < 5000) return faction;
         factionTime = now;
@@ -155,32 +159,38 @@ public class RescueMission {
         if (!TeslaMapsConfig.get().rescueMission) return;
         String text = StringUtil.stripTrim(raw);
 
-        if (text.equals("[NPC] Undercover Agent: Here's what you need to do.")) {
-            if (tier == null) {
-                tierWasUnknown = true;
-                say("§cRescue mission tier not known - open the Rescue quest on the Quest Board once.");
-                return;
-            }
-            start();
-        } else if (text.equals("[NPC] Rescue Recruiter: You want to help us rescue a hostage from those filthy brutes over there?")) {
-            if (tier == null) {
-                tierWasUnknown = true;
-                say("§cRescue mission tier not known - open the Rescue quest on the Quest Board first!");
-            }
-        } else if (text.equals("The guards captured you and threw you out.")) {
+        if (text.equals("The guards captured you and threw you out.")) {
             current = -1;
             visible = false;
         } else if (text.equals("You took too long and the agents found someone else.")
                 || text.equals("[NPC] Undercover Agent: It's too dangerous for you?")
                 || text.equals("You left the area and failed your rescue mission.")) {
             stop();
+        } else if (text.startsWith("[NPC] Undercover Agent:")) {
+            // the dialogue varies with the quest state ("Here's what you need to do.",
+            // "Good luck out there!", ...), so any remaining agent line starts the path
+            if (tier == null) {
+                tierWasUnknown = true;
+                say("§cRescue mission tier not known - open the Rescue quest on the Quest Board once.");
+                return;
+            }
+            if (route == null) start();
+        } else if (text.equals("[NPC] Rescue Recruiter: You want to help us rescue a hostage from those filthy brutes over there?")) {
+            if (tier == null) {
+                tierWasUnknown = true;
+                say("§cRescue mission tier not known - open the Rescue quest on the Quest Board first!");
+            }
         }
     }
 
     private static void start() {
         load();
+        if (barb == null) return;
         String side = faction();
-        if (side == null || barb == null) return;
+        if (side == null) {
+            say("§cFaction unknown - tab list has no Mage/Barbarian Reputation line. Set it in the config (Crimson Isle).");
+            return;
+        }
 
         List<Vec3> found;
         if (tier.equals("S")) {
@@ -192,11 +202,16 @@ public class RescueMission {
         } else {
             found = (side.equals("mage") ? mage : barb).get(tier);
         }
-        if (found == null || found.isEmpty()) return;
+        if (found == null || found.isEmpty()) {
+            say("§cNo path data for tier " + tier + " (" + side + ").");
+            return;
+        }
 
         route = found;
         current = -1;
         visible = true;
+        say("§aRescue path loaded - tier " + tier + ", " + (side.equals("mage") ? "Mage" : "Barbarian")
+                + ", " + found.size() + " platforms.");
     }
 
     private static void stop() {
