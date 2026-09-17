@@ -207,6 +207,16 @@ public class TMapCommand {
                                 }))
                         .then(ClientCommands.argument("query", StringArgumentType.greedyString())
                                 .executes(context -> openSearch(StringArgumentType.getString(context, "query")))))
+                .then(ClientCommands.literal("npc")
+                        .executes(context -> openNpcFinder(null))
+                        .then(ClientCommands.literal("clear")
+                                .executes(context -> {
+                                    com.teslamaps.features.npc.NpcFinder.clearTargets();
+                                    context.getSource().sendFeedback(Component.literal("§7NPC waypoints cleared"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.argument("query", StringArgumentType.greedyString())
+                                .executes(context -> openNpcFinder(StringArgumentType.getString(context, "query")))))
                 .then(ClientCommands.literal("gui")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() -> {
@@ -1676,6 +1686,12 @@ public class TMapCommand {
     private static int openSearch(String query) {
         Minecraft.getInstance().schedule(() ->
                 Minecraft.getInstance().setScreen(new com.teslamaps.screen.ItemSearchScreen(query)));
+        return 1;
+    }
+
+    private static int openNpcFinder(String query) {
+        Minecraft.getInstance().schedule(() ->
+                Minecraft.getInstance().setScreen(new com.teslamaps.screen.NpcFinderScreen(query)));
         return 1;
     }
 

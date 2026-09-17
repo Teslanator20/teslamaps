@@ -156,10 +156,9 @@ public class BasicPage extends ProfileViewerPage {
         int sbY = top + 74;
         double sbLevel = profile.getSkyblockLevel();
         drawCentered(ctx, tr, "SkyBlock Level", sbX + 9, sbY - 24, NeuStyle.TEXT_GRAY);
-        drawCentered(ctx, tr, String.valueOf((int) sbLevel), sbX + 9, sbY - 12, sbLevelColor((int) sbLevel));
-        double sbProgress = sbLevel - (long) sbLevel;
-        ctx.text(tr, (int) (sbProgress * 100) + "/100", sbX - 30, sbY + 20, NeuStyle.TEXT_YELLOW);
-        NeuStyle.bar(ctx, sbX - 30, sbY + 30, 80, sbProgress, 0xFF55FFFF);
+        // the level with its progress as decimals (613.85) instead of a bar plus 85/100
+        drawCentered(ctx, tr, String.format(java.util.Locale.ROOT, "%.2f", sbLevel),
+                sbX + 9, sbY - 12, sbLevelColor((int) sbLevel));
 
         double skillAvg = profile.getSkillAverage();
         double overflowAvg = profile.getOverflowSkillAverage();
@@ -178,8 +177,9 @@ public class BasicPage extends ProfileViewerPage {
             SkillData skill = entry.getValue();
             int column = position / 6;
             int row = position % 6;
+            // starts a touch lower so the column sits centered between the window edges
             int sx = left + 237 + 86 * column;
-            int sy = top + 24 + 25 * row;
+            int sy = top + 36 + 25 * row;
             position++;
             if (position > 12) break;
 

@@ -156,9 +156,14 @@ public class BestiaryRepo {
 
                 long cap = mob.has("cap") ? mob.get("cap").getAsLong() : 0;
                 String bracket = mob.has("bracket") ? mob.get("bracket").getAsString() : "1";
-                Map<String, List<Integer>> table = mob.has("bracketType")
-                        ? bracketSets.getOrDefault(mob.get("bracketType").getAsString(), Map.of())
-                        : brackets;
+                Map<String, List<Integer>> table = brackets;
+                if (mob.has("bracketType")) {
+                    // the repo mixes CRITTER and CRITTERS, skyblock-pv aliases them too
+                    String type = mob.get("bracketType").getAsString().toUpperCase(java.util.Locale.ROOT);
+                    Map<String, List<Integer>> set = bracketSets.get(type);
+                    if (set == null) set = bracketSets.get(type + "S");
+                    table = set != null ? set : Map.of();
+                }
                 List<Integer> steps = capped(table.get(bracket), cap);
 
                 List<String> keys = mob.has("mobs") && mob.get("mobs").isJsonArray()
@@ -199,16 +204,21 @@ public class BestiaryRepo {
         return out;
     }
 
-    /** A mob stops at its kill cap, the steps above it can never be reached. */
+    /**
+     * skyblock-pv's tier table: every step below the cap, then the cap itself as the last tier.
+     * Taking only steps <= cap dropped the final tier for every mob whose cap is not a bracket
+     * value (cap 125 on bracket 1 ended at tier 4 instead of 5).
+     */
     private static List<Integer> capped(List<Integer> all, long cap) {
-        if (all == null) return List.of();
+        if (all == null || all.isEmpty()) return List.of();
         if (cap <= 0) return all;
         List<Integer> out = new ArrayList<>();
         for (int step : all) {
-            if (step > cap) break;
+            if (step >= cap) break;
             out.add(step);
         }
-        return out.isEmpty() ? all : out;
+        out.add((int) cap);
+        return out;
     }
 
     private static String string(JsonObject object, String key) {

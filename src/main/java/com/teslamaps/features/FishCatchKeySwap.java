@@ -16,7 +16,7 @@ public final class FishCatchKeySwap {
     public static final String TARGET = "Drowned Captain";
 
     private static final Pattern PARTY_CATCH = Pattern.compile(
-            "Party > (?:\\[[^\\]]+\\] )?(\\w+): (?:DOUBLE HOOK[:!] )?(?:I caught an? (.+)!|An? (.+) has spawned!)");
+            "Party > (?:\\[[^\\]]+\\] )?(\\w+): (?:DOUBLE HOOK[:!] )?(?:I caught an? (.+)!|An? (.+) has spawned!)(?: \\(x?\\d+x?\\))?");
 
     private static volatile boolean active = false;
     private static long windowEnd = 0;

@@ -894,6 +894,7 @@ public class TeslaMapsConfig {
     public boolean blockOverlay = true;            // Outline the block you're looking at
     public String blockOverlayColor = "FFFFFF";     // Block overlay outline colour
     public boolean chatWaypoint = true;            // Render a waypoint beam from coords in chat
+    public boolean npcFinder = true;               // /tmap npc - NPC search + warp/track waypoints
 
     // Ordered Waypoints (routes outside dungeons, Coleweight/Skytils format)
     public boolean orderedWaypoints = false;        // Master toggle
@@ -1331,6 +1332,14 @@ public class TeslaMapsConfig {
     public int kickedX = 300;                      // Kicked timer position X (draggable in HUD edit)
     public int kickedY = 100;                      // Kicked timer position Y
     public float kickedScale = 1.0f;               // Kicked timer text scale (0.5 - 5.0)
+    public boolean perfHud = false;                // Performance HUD (FPS/TPS/Ping), hidden while F3 is open
+    public boolean perfHudFps = true;              // Show FPS in the performance HUD
+    public boolean perfHudTps = true;              // Show server TPS in the performance HUD
+    public boolean perfHudPing = true;             // Show ping in the performance HUD (silent ping every 2s)
+    public boolean perfHudVertical = false;        // Stack the metrics vertically instead of one line
+    public int perfHudX = 5;                       // Performance HUD position X (draggable in HUD edit)
+    public int perfHudY = 5;                       // Performance HUD position Y
+    public float perfHudScale = 1.0f;              // Performance HUD text scale (0.5 - 5.0)
     public boolean thornStunTimer = true;         // Show how long Thorn is stunned (F4/M4)
     public boolean thornStunHealerOnly = true;     // Only show the Thorn stun timer on healer
     public int thornStunX = 10;                    // Thorn stun timer position X (draggable in HUD edit)

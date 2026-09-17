@@ -165,6 +165,19 @@ public abstract class ProfileViewerPage {
 
     private static final float MIN_FIT = 0.55f;
 
+    /**
+     * One scale for both heart trees, taken from the taller one (hotm). Scaling each tree to its
+     * own height made hotf render bigger than hotm and the page jump when swapping tabs.
+     */
+    protected static float sharedTreeFactor(int rest) {
+        int tallest = Math.max(
+                PerkTreeView.height(com.teslamaps.profileviewer.data.PerkRegistry.hotm()),
+                PerkTreeView.height(com.teslamaps.profileviewer.data.PerkRegistry.hotf()));
+        if (tallest <= 0) return 1f;
+        int available = NeuStyle.PANEL_HEIGHT - 20;
+        return Math.max(0.5f, Math.min(1f, (available - rest) / (float) tallest));
+    }
+
     /** Vanilla tooltip for an item, drawn by the screen so other mods can hook it. */
     protected void hoverStack(net.minecraft.world.item.ItemStack stack) {
         if (parent != null && stack != null && !stack.isEmpty()) parent.setHoveredStack(stack);

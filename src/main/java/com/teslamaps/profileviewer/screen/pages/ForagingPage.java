@@ -54,17 +54,10 @@ public class ForagingPage extends ProfileViewerPage {
         List<PerkRegistry.Perk> perks = PerkRegistry.hotf();
         Ui treeView = PerkTreeView.component(perks, tree.nodes, tree.level, PerkTreeView.FORAGING, tree.disabled);
 
-        // only the tree scales, exactly to the free height - letting the whole page shrink made
-        // the tree end up at half of THIS again and everything else unreadable
-        // only the tree scales down to the free height, and never up - it should look exactly
-        // like the mining page, not bigger
-        Ui page = compose(width, tree, core, foraging, treeView);
-        int available = NeuStyle.PANEL_HEIGHT - 20;
-        if (page.height() > available && treeView.height() > 0) {
-            int rest = page.height() - treeView.height();
-            float factor = Math.max(0.5f, (available - rest) / (float) treeView.height());
-            if (factor < 1f) page = compose(width, tree, core, foraging, new Ui.Scaled(treeView, factor));
-        }
+        // same shared factor as the mining page, so hotm and hotf render pixel-identical
+        float factor = sharedTreeFactor(header(width, tree).height() + 6);
+        Ui page = compose(width, tree, core, foraging,
+                factor < 1f ? new Ui.Scaled(treeView, factor) : treeView);
         return page;
     }
 

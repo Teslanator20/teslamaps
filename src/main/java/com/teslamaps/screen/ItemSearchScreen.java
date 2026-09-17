@@ -29,6 +29,7 @@ public class ItemSearchScreen extends Screen {
     private static String lastQuery = "";
 
     private EditBox field;
+    public boolean swallowNextChar; // hotkey press that opened us still emits a char event
     private List<Row> rows = new ArrayList<>();
     private int scroll = 0;
     private String status = "";
@@ -154,6 +155,15 @@ public class ItemSearchScreen extends Screen {
             return true;
         }
         return super.keyPressed(event);
+    }
+
+    @Override
+    public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
+        if (swallowNextChar) {
+            swallowNextChar = false;
+            return true;
+        }
+        return super.charTyped(event);
     }
 
     /** Command (without slash) that opens the container this hit sits in, null if there is none. */

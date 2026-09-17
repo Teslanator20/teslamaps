@@ -200,7 +200,10 @@ public class MuseumPage extends ProfileViewerPage {
         int areaY = top + 36;
         int areaH = NeuStyle.PANEL_HEIGHT - 36 - 14;
 
-        int[] fit = ItemGrid.fitGrid(areaW, areaH, shown.size());
+        // a handful of search hits kept the browse size instead of growing to fill the window
+        int[] fit = search.isEmpty() ? ItemGrid.fitGrid(areaW, areaH, shown.size())
+                : new int[]{ItemGrid.SLOT, Math.max(1, areaW / ItemGrid.SLOT),
+                        Math.max(1, areaH / ItemGrid.SLOT)};
         int slotSize = fit[0];
         int columns = fit[1];
         int rows = fit[2];

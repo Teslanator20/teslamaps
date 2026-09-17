@@ -432,6 +432,8 @@ public class MapConfigScreen extends Screen {
         render.add(new ColorEntry(contentX, contentWidth, "  Block Overlay Color", () -> config.blockOverlayColor, v -> config.blockOverlayColor = v));
         render.add(new LabelEntry(contentX, "Chat Waypoint"));
         render.add(new ToggleEntry(contentX, contentWidth, "Chat Waypoint (coords)", () -> config.chatWaypoint, v -> config.chatWaypoint = v));
+        render.add(new LabelEntry(contentX, "NPC Finder"));
+        render.add(new ToggleEntry(contentX, contentWidth, "NPC Finder (/tmap npc)", () -> config.npcFinder, v -> config.npcFinder = v));
         render.add(new LabelEntry(contentX, "Rare Drop Effects"));
         render.add(new ToggleEntry(contentX, contentWidth, "Rare Drops", () -> config.rareDropEffects, v -> config.rareDropEffects = v));
         render.add(new ToggleEntry(contentX, contentWidth, "Dungeon Chest Rewards", () -> config.rareDungeonDropEffects, v -> config.rareDungeonDropEffects = v));
@@ -2206,6 +2208,13 @@ public class MapConfigScreen extends Screen {
                 () -> config.configScreenKeyExclusive, v -> config.configScreenKeyExclusive = v));
         ui.add(new InfoEntry(contentX, "Right Shift by default, press again to close"));
         ui.add(new InfoEntry(contentX, "Block Other Mods eats the key before anything else sees it"));
+        ui.add(new LabelEntry(contentX, "Performance HUD"));
+        ui.add(new ToggleEntry(contentX, contentWidth, "Performance HUD", () -> config.perfHud, v -> config.perfHud = v));
+        ui.add(new ToggleEntry(contentX, contentWidth, "  Show FPS", () -> config.perfHudFps, v -> config.perfHudFps = v));
+        ui.add(new ToggleEntry(contentX, contentWidth, "  Show TPS", () -> config.perfHudTps, v -> config.perfHudTps = v));
+        ui.add(new ToggleEntry(contentX, contentWidth, "  Show Ping", () -> config.perfHudPing, v -> config.perfHudPing = v));
+        ui.add(new ToggleEntry(contentX, contentWidth, "  Vertical", () -> config.perfHudVertical, v -> config.perfHudVertical = v));
+        ui.add(new InfoEntry(contentX, "Position/scale in /tmap gui, hidden while F3 is open"));
         ui.add(new LabelEntry(contentX, "Updates"));
         ui.add(new ToggleEntry(contentX, contentWidth, "Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v));
         ui.add(new InfoEntry(contentX, "Signed releases only, install via popup or /tmap update"));

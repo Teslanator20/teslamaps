@@ -47,7 +47,13 @@ public class ConfigHotkey {
         boolean ours = mc.screen instanceof com.teslamaps.screen.ItemSearchScreen;
         if (mc.screen != null && !ours) return false;
         if (action == GLFW.GLFW_PRESS) {
-            mc.setScreen(ours ? null : new com.teslamaps.screen.ItemSearchScreen(null));
+            if (ours) {
+                mc.setScreen(null);
+            } else {
+                com.teslamaps.screen.ItemSearchScreen s = new com.teslamaps.screen.ItemSearchScreen(null);
+                s.swallowNextChar = true;
+                mc.setScreen(s);
+            }
         }
         return true;
     }

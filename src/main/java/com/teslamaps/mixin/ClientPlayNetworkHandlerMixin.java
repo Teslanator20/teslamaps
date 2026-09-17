@@ -51,6 +51,11 @@ public class ClientPlayNetworkHandlerMixin {
         PingMeter.onPong(packet.time());
     }
 
+    @Inject(method = "handleSetTime", at = @At("HEAD"))
+    private void onSetTime(net.minecraft.network.protocol.game.ClientboundSetTimePacket packet, CallbackInfo ci) {
+        com.teslamaps.features.PerformanceHud.onTimePacket();
+    }
+
     @Inject(method = "handleParticleEvent", at = @At("HEAD"))
     private void onParticle(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
         WitherDragons.onParticlePacket(packet);

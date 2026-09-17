@@ -51,7 +51,14 @@ public class InventoriesPage extends ProfileViewerPage {
         backpackCache = null;
     }
 
-    private record Backpack(ItemStack icon, List<InventoryDecoder.Slot> contents) {}
+    // the icon resolves async through the item repo; a stack grabbed at build time froze the
+    // barrier placeholder in, so the slot is kept and resolved per draw (cached in ItemGrid)
+    private record Backpack(InventoryDecoder.Slot iconSlot, List<InventoryDecoder.Slot> contents) {
+        ItemStack icon() {
+            ItemStack stack = iconSlot == null ? ItemStack.EMPTY : ItemGrid.stackFor(iconSlot);
+            return stack.isEmpty() ? new ItemStack(Items.BUNDLE) : stack;
+        }
+    }
 
     private List<Backpack> backpackCache;
 
@@ -218,6 +225,7 @@ public class InventoriesPage extends ProfileViewerPage {
     }
 
     // one numbered chip per page, so every backpack / accessory page is one click away
+    private static final ItemStack ENDER_CHEST_ICON = new ItemStack(Items.ENDER_CHEST);
     private final List<int[]> chipRects = new ArrayList<>();
 
     private void drawPageChips(GuiGraphicsExtractor ctx, Font tr, int x, int width, int y,
@@ -225,7 +233,8 @@ public class InventoriesPage extends ProfileViewerPage {
         chipRects.clear();
         if (pageCount <= 1) return;
 
-        boolean icons = section == Section.BACKPACKS && backpackCache != null;
+        boolean icons = (section == Section.BACKPACKS && backpackCache != null)
+                || section == Section.ENDER_CHEST;
         int chipW = icons ? 20 : 16;
         int chipH = icons ? 20 : 13;
         int step = chipW + 2;
@@ -249,9 +258,15 @@ public class InventoriesPage extends ProfileViewerPage {
             if (over) hoveredPage = i;
 
             if (icons) {
-                // the real backpack items, like the backpack menu shows them
+                // the real backpack items, like the backpack menu shows them; ender chest pages
+                // wear the ender chest with their number on it
                 ItemGrid.slot(ctx, cx, cy, 20);
-                ItemGrid.item(ctx, backpackCache.get(i).icon(), cx, cy, 20);
+                ItemGrid.item(ctx, section == Section.BACKPACKS
+                        ? backpackCache.get(i).icon() : ENDER_CHEST_ICON, cx, cy, 20);
+                if (section == Section.ENDER_CHEST) {
+                    ItemGrid.count(ctx, String.valueOf(i + 1), cx, cy, 20,
+                            active ? 0xFFFFFF55 : 0xFFFFFFFF);
+                }
                 if (active) {
                     ctx.fill(cx, cy, cx + 19, cy + 1, NeuStyle.TEXT_YELLOW);
                     ctx.fill(cx, cy + 18, cx + 19, cy + 19, NeuStyle.TEXT_YELLOW);
@@ -381,16 +396,15 @@ public class InventoriesPage extends ProfileViewerPage {
             if (pack.isEmpty()) return;
 
             // hypixel stores the backpack item itself separately, one-slot container per index
-            ItemStack icon = ItemStack.EMPTY;
+            InventoryDecoder.Slot iconSlot = null;
             List<InventoryDecoder.Slot> iconSlots = InventoryDecoder.decode(icons, key);
             for (InventoryDecoder.Slot slot : iconSlots) {
                 if (!slot.isEmpty()) {
-                    icon = ItemGrid.stackFor(slot);
+                    iconSlot = slot;
                     break;
                 }
             }
-            if (icon.isEmpty()) icon = new ItemStack(Items.BUNDLE);
-            packs.add(new Backpack(icon, pack));
+            packs.add(new Backpack(iconSlot, pack));
         });
         return packs;
     }

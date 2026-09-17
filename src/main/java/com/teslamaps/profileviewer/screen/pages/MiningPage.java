@@ -57,14 +57,12 @@ public class MiningPage extends ProfileViewerPage {
         Ui treeView = PerkTreeView.component(perks, tree.nodes, tree.level, PerkTreeView.MINING, tree.disabled);
 
         // only the perk tree shrinks when the page is too tall; scaling the whole page would
-        // pull the text away from both edges and leave the window half empty
-        Ui page = compose(width, tree, core, glacite, treeView);
-        int available = NeuStyle.PANEL_HEIGHT - 20;
-        if (page.height() > available && treeView.height() > 0) {
-            int rest = page.height() - treeView.height();
-            float factor = Math.max(0.5f, (available - rest) / (float) treeView.height());
-            if (factor < 1f) page = compose(width, tree, core, glacite, new Ui.Scaled(treeView, factor));
-        }
+        // pull the text away from both edges and leave the window half empty.
+        // the factor comes from the taller of hotm/hotf, so both trees render at the same
+        // node size and the page doesn't jump when swapping between the two hearts
+        float factor = sharedTreeFactor(header(width, tree).height() + 6);
+        Ui page = compose(width, tree, core, glacite,
+                factor < 1f ? new Ui.Scaled(treeView, factor) : treeView);
         return page;
     }
 

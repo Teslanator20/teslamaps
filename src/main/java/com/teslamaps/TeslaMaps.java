@@ -151,6 +151,7 @@ public class TeslaMaps implements ClientModInitializer {
         hud("livid", (g, d) -> { if (TeslaMapsConfig.get().section("ESP")) LividSolver.renderHUD(g, d); });
         hud("spiritbear", (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles & Terminals")) SpiritBearTimer.render(g, d); });
         hud("kicked", (g, d) -> com.teslamaps.features.KickedTimer.render(g, d));
+        hud("perfhud", (g, d) -> com.teslamaps.features.PerformanceHud.render(g, d));
         hud("raredrop", (g, d) -> { if (TeslaMapsConfig.get().section("Render")) com.teslamaps.features.RareDropEffects.render(g, d); });
         hud("pestroutine", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Garden")) com.teslamaps.features.PestRoutine.render(g, d); });
         hud("farmbar", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Garden")) com.teslamaps.features.FarmProgress.render(g, d); });
@@ -272,6 +273,7 @@ public class TeslaMaps implements ClientModInitializer {
                     Perf.begin("BlockOverlay"); com.teslamaps.features.BlockOverlay.render(context.poseStack(), cameraPos); Perf.end();
                     Perf.begin("ChatWaypoint"); com.teslamaps.features.ChatWaypoint.render(context.poseStack(), cameraPos); Perf.end();
                     Perf.begin("Etherwarp"); com.teslamaps.features.Etherwarp.render(context.poseStack(), cameraPos); Perf.end();
+                    Perf.begin("NpcFinder"); com.teslamaps.features.npc.NpcFinder.render(context.poseStack(), cameraPos); Perf.end();
                 }
 
                 if (TeslaMapsConfig.get().section("Inventory")) {
@@ -402,6 +404,7 @@ public class TeslaMaps implements ClientModInitializer {
                 if (cfg.section("Leap")) { Perf.begin("LeapOverlay.tick"); com.teslamaps.features.LeapOverlay.tick(); Perf.end(); }
                 if (cfg.section("Puzzles & Terminals")) { Perf.begin("MelodyMessage.tick"); com.teslamaps.features.MelodyMessage.tick(); Perf.end(); }
                 Perf.begin("KickedTimer.tick"); com.teslamaps.features.KickedTimer.tick(); Perf.end();
+                Perf.begin("PerformanceHud.tick"); com.teslamaps.features.PerformanceHud.tick(); Perf.end();
                 Perf.begin("OverkillCounter.tick"); com.teslamaps.features.OverkillCounter.tick(); Perf.end();
                 if (cfg.section("ESP")) {
                     Perf.begin("M4Mobs.tick"); com.teslamaps.dungeon.M4Mobs.tick(); Perf.end();

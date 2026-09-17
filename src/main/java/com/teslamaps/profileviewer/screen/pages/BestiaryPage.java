@@ -183,17 +183,28 @@ public class BestiaryPage extends ProfileViewerPage {
         int areaY = top + 20 + subRowHeight;
         int areaH = NeuStyle.PANEL_HEIGHT - areaY + top - 16;
 
-        int[] fit = ItemGrid.fitGrid(areaW, areaH, mobs.size());
-        int slotSize = fit[0];
-        int columns = fit[1];
-        int rows = fit[2];
+        // search hits stay top left at one fixed size - fitGrid blew three results up to
+        // fill the window and the grid re-centered with every keystroke
+        int slotSize;
+        int columns;
+        int rows;
+        if (!search.isEmpty()) {
+            slotSize = 20;
+            columns = Math.max(1, areaW / slotSize);
+            rows = Math.max(1, areaH / slotSize);
+        } else {
+            int[] fit = ItemGrid.fitGrid(areaW, areaH, mobs.size());
+            slotSize = fit[0];
+            columns = fit[1];
+            rows = fit[2];
+        }
         int perPage = Math.max(1, columns * rows);
 
         pageCount = Math.max(1, (mobs.size() + perPage - 1) / perPage);
         page = Math.min(page, pageCount - 1);
 
-        int gridX = areaX + Math.max(0, (areaW - columns * slotSize) / 2);
-        int gridY = areaY + Math.max(0, (areaH - rows * slotSize) / 2);
+        int gridX = areaX + (search.isEmpty() ? Math.max(0, (areaW - columns * slotSize) / 2) : 0);
+        int gridY = areaY + (search.isEmpty() ? Math.max(0, (areaH - rows * slotSize) / 2) : 0);
 
         ItemStack hovered = ItemStack.EMPTY;
         int totalTier = 0;

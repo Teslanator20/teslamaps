@@ -34,7 +34,7 @@ public final class RareSeaCreature {
         if (name == null) return;
         if (c.rareCatchKeySwap && FishCatchKeySwap.TARGET.equals(name)) FishCatchKeySwap.trigger();
         SeaCreatureList.Info info = SeaCreatureList.info(name);
-        if (info == null || !isRare(info, c.rareCatchRarity)) return;
+        if (info == null || !(isRare(info, c.rareCatchRarity) || FishCatchKeySwap.TARGET.equals(name))) return;
 
         boolean doubleHook = System.currentTimeMillis() - lastDoubleHook < DOUBLE_HOOK_WINDOW_MS;
         lastDoubleHook = 0;

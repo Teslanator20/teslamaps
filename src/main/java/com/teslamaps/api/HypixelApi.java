@@ -183,8 +183,22 @@ public class HypixelApi {
     }
 
     private static JsonObject profilesViaPv(String uuid, String cacheKey) {
-        JsonObject viaPv = PvApi.get("/profiles/" + PvApi.dashed(uuid), "profiles").join();
-        if (viaPv == null || !viaPv.has("profiles") || viaPv.get("profiles").isJsonNull()) {
+        // the pv backend regularly whiffs the first request (cold auth) - retry while the
+        // screen still says Loading instead of parking the user on "No profile data"
+        JsonObject viaPv = null;
+        for (int attempt = 0; attempt < 3 && viaPv == null; attempt++) {
+            if (attempt > 0) {
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+            JsonObject got = PvApi.get("/profiles/" + PvApi.dashed(uuid), "profiles").join();
+            if (got != null && got.has("profiles") && !got.get("profiles").isJsonNull()) viaPv = got;
+        }
+        if (viaPv == null) {
             return error("No profile data (PV API gave nothing, and no working Hypixel key)");
         }
         JsonObject transformed = transform(viaPv, uuid);

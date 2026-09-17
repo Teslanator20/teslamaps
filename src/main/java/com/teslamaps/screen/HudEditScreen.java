@@ -65,6 +65,7 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.DEPLOYABLES, Ctx.ANY, "Skills", c.deployableOverlay);
         mark(DragTarget.SPRINTING, Ctx.ANY, "Render", c.sprintingOverlay);
         mark(DragTarget.KICKED, Ctx.ANY, "Timers", c.kickedTimer);
+        mark(DragTarget.PERF_HUD, Ctx.ANY, "Interface", c.perfHud);
     }
 
     private boolean show(Ctx ctx) {
@@ -88,7 +89,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, PERF_HUD, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -538,6 +539,19 @@ public class HudEditScreen extends Screen {
                mouseY >= config.kickedY && mouseY <= config.kickedY + h;
     }
 
+    private int perfHudWidth() {
+        return (int)(com.teslamaps.features.PerformanceHud.width(this.minecraft) * TeslaMapsConfig.get().perfHudScale);
+    }
+    private int perfHudHeight() {
+        return (int)(com.teslamaps.features.PerformanceHud.height(this.minecraft) * TeslaMapsConfig.get().perfHudScale);
+    }
+    private boolean isMouseOverPerfHud(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = perfHudWidth(), h = perfHudHeight();
+        return mouseX >= config.perfHudX && mouseX <= config.perfHudX + w &&
+               mouseY >= config.perfHudY && mouseY <= config.perfHudY + h;
+    }
+
     private int splitsNameCol() {
         int nameCol = 0;
         for (String s : SPLITS_SAMPLE) nameCol = Math.max(nameCol, this.font.width(s));
@@ -731,6 +745,10 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.KICKED;
                 dragOffsetX = mouseX - config.kickedX;
                 dragOffsetY = mouseY - config.kickedY;
+            } else if (visible.contains(DragTarget.PERF_HUD) && isMouseOverPerfHud(mouseX, mouseY)) {
+                dragging = DragTarget.PERF_HUD;
+                dragOffsetX = mouseX - config.perfHudX;
+                dragOffsetY = mouseY - config.perfHudY;
             } else if (visible.contains(DragTarget.OVERKILL) && isMouseOverOverkill(mouseX, mouseY)) {
                 dragging = DragTarget.OVERKILL;
                 dragOffsetX = mouseX - config.overkillX;
@@ -884,6 +902,10 @@ public class HudEditScreen extends Screen {
             int w = kickedWidth(), h = kickedHeight();
             config.kickedX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.kickedY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.PERF_HUD) {
+            int w = perfHudWidth(), h = perfHudHeight();
+            config.perfHudX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.perfHudY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.OVERKILL) {
             int w = overkillWidth(), h = overkillHeight();
             config.overkillX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
@@ -957,6 +979,7 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.DEPLOYABLES)) drawDeployablesPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.SPRINTING)) drawSprintingPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.KICKED)) drawKickedPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.PERF_HUD)) drawPerfHudPreview(context, mouseX, mouseY);
 
         String instructions = dragging != DragTarget.NONE
                 ? "Release to place"
@@ -1487,6 +1510,23 @@ public class HudEditScreen extends Screen {
         context.text(this.font, String.format("Kicked (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
+    private void drawPerfHudPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.perfHudX, y = config.perfHudY;
+        float scale = config.perfHudScale;
+        com.teslamaps.features.PerformanceHud.draw(context, this.minecraft, x, y, scale);
+        int w = perfHudWidth(), h = perfHudHeight();
+        boolean hovering = visible.contains(DragTarget.PERF_HUD) && isMouseOverPerfHud(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.PERF_HUD) {
+            int borderColor = dragging == DragTarget.PERF_HUD ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+        context.text(this.font, String.format("Performance (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
     private void drawBestiaryPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int x = config.bestiaryTrackerX, y = config.bestiaryTrackerY;
@@ -1841,6 +1881,13 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.SPIRIT_BEAR) && isMouseOverSpiritBear((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.spiritBearScale = Math.min(5.0f, config.spiritBearScale + 0.05f);
             else if (verticalAmount < 0) config.spiritBearScale = Math.max(0.5f, config.spiritBearScale - 0.05f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (visible.contains(DragTarget.PERF_HUD) && isMouseOverPerfHud((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.perfHudScale = Math.min(5.0f, config.perfHudScale + 0.05f);
+            else if (verticalAmount < 0) config.perfHudScale = Math.max(0.5f, config.perfHudScale - 0.05f);
             TeslaMapsConfig.save();
             return true;
         }
