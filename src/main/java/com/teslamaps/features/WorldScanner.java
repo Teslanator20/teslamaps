@@ -102,6 +102,13 @@ public class WorldScanner {
                         Blocks.JUNGLE_SLAB, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_STAIRS,
                         Blocks.AIR, Blocks.JUNGLE_STAIRS, Blocks.POLISHED_GRANITE},
                 DARK_PURPLE, Quarter.JUNGLE, 0, 1, 1, null, null),
+        SLIME_TREE_TRUNK("Slime Tree",
+                new Block[]{Blocks.POLISHED_GRANITE, Blocks.GRANITE, Blocks.GRANITE, Blocks.GRANITE,
+                        Blocks.GRANITE, Blocks.GRANITE, Blocks.AIR},
+                GREEN, Quarter.JUNGLE, 6, 1, 1, null, null),
+        SLIME_TREE_CANOPY("Slime Tree",
+                new Block[]{Blocks.GLOWSTONE, Blocks.GREEN_CARPET, Blocks.AIR},
+                GREEN, Quarter.JUNGLE, -28, 1, 1, null, null),
         XALX("Xalx",
                 new Block[]{Blocks.STONE, Blocks.COAL_BLOCK, Blocks.FIRE, Blocks.NETHER_QUARTZ_ORE,
                         Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR},
@@ -187,8 +194,21 @@ public class WorldScanner {
     public static void init() {
         ClientChunkEvents.CHUNK_LOAD.register((level, chunk) -> {
             if (!enabled() || !inHollows) return;
-            if (scannedChunks.add(chunk.getPos().pack())) scanChunk(chunk);
+            // fresh lobbies stream empty chunks first and re-send them filled -
+            // always rescan on a re-send, never mark an empty chunk as scanned
+            if (!chunkReady(chunk)) return;
+            scannedChunks.add(chunk.getPos().pack());
+            scanChunk(chunk);
         });
+    }
+
+    private static boolean chunkReady(LevelChunk chunk) {
+        int minX = chunk.getPos().x() * 16, minZ = chunk.getPos().z() * 16;
+        if (minX + 15 < 202 || minX > 823 || minZ + 15 < 202 || minZ > 823) return true;
+        for (LevelChunkSection s : chunk.getSections()) {
+            if (s != null && !s.hasOnlyAir()) return true;
+        }
+        return false;
     }
 
     private static boolean enabled() {
@@ -222,7 +242,7 @@ public class WorldScanner {
                     int cx = pcx + dx, cz = pcz + dz;
                     if (scannedChunks.contains(net.minecraft.world.level.ChunkPos.pack(cx, cz))) continue;
                     LevelChunk chunk = mc.level.getChunkSource().getChunk(cx, cz, ChunkStatus.FULL, false);
-                    if (chunk == null) continue;
+                    if (chunk == null || !chunkReady(chunk)) continue;
                     scannedChunks.add(net.minecraft.world.level.ChunkPos.pack(cx, cz));
                     scanChunk(chunk);
                     budget--;
@@ -396,6 +416,10 @@ public class WorldScanner {
                         }
                     } else if (block == Blocks.SMOOTH_STONE_SLAB) {
                         tryAdd(cfg.chScanMobSpots, Structure.CORLEONE_HIDEOUT, chunk, lx, y, lz, worldX, worldZ);
+                    } else if (block == Blocks.POLISHED_GRANITE) {
+                        tryAdd(cfg.chScanMobSpots, Structure.SLIME_TREE_TRUNK, chunk, lx, y, lz, worldX, worldZ);
+                    } else if (block == Blocks.GLOWSTONE) {
+                        tryAdd(cfg.chScanMobSpots, Structure.SLIME_TREE_CANOPY, chunk, lx, y, lz, worldX, worldZ);
                     } else if (block == Blocks.JUNGLE_STAIRS) {
                         tryAdd(cfg.chScanMobSpots, Structure.KEY_GUARDIAN_TEMPLE, chunk, lx, y, lz, worldX, worldZ);
                     } else if (block == Blocks.OAK_FENCE) {

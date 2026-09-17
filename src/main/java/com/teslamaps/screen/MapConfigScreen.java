@@ -1073,6 +1073,7 @@ public class MapConfigScreen extends Screen {
 
         List<SettingsEntry> sounds = new ArrayList<>();
         sounds.add(new LabelEntry(contentX, "Wither Key"));
+        sounds.add(new ToggleEntry(contentX, contentWidth, "Key Pickup/Spawn Title", () -> config.keyPickupTitle, v -> config.keyPickupTitle = v));
         sounds.add(new ToggleEntry(contentX, contentWidth, "Enable Pickup Sound", () -> config.keyPickupSoundEnabled, v -> config.keyPickupSoundEnabled = v));
         sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Pickup Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
@@ -1085,7 +1086,7 @@ public class MapConfigScreen extends Screen {
                 () -> config.keyOnGroundSound, v -> config.keyOnGroundSound = v));
         sounds.add(new SliderEntry(contentX, contentWidth, "Spawn Volume", 0f, 4f,
                 () -> config.keyOnGroundVolume, v -> config.keyOnGroundVolume = v, 2));
-        sounds.add(new ClassFilterEntry(contentX, contentWidth, "Key Sounds: Only as Class", config.keySoundClasses));
+        sounds.add(new ClassFilterEntry(contentX, contentWidth, "Key Alerts: Only as Class", config.keySoundClasses));
         sounds.add(new LabelEntry(contentX, "Secret Found"));
         sounds.add(new ToggleEntry(contentX, contentWidth, "Enable Secret Sound", () -> config.secretSound, v -> config.secretSound = v));
         sounds.add(new SoundDropdownEntry(contentX, contentWidth, "Secret Sound Type",

@@ -169,6 +169,7 @@ public class TeslaMapsConfig {
     public java.util.Map<String, String> customESPColors = new java.util.HashMap<>();
 
     public boolean keyPickupSoundEnabled = true;  // Enable sound when key is picked up
+    public boolean keyPickupTitle = true;        // Show WITHER/BLOOD KEY title (also gated by keySoundClasses)
     public float keyPickupVolume = 1.0f;         // Volume multiplier for key sounds (0.0 - 4.0)
     public String keyPickupSound = "WITHER_SPAWN";   // Sound to play: LEVEL_UP, BLAZE_DEATH, GHAST_SHOOT, WITHER_SPAWN, ENDER_DRAGON_GROWL, NOTE_PLING
     public boolean keyOnGroundSoundEnabled = true; // Enable sound when key spawns on ground
@@ -326,7 +327,7 @@ public class TeslaMapsConfig {
     public boolean chScanner = false;             // Master toggle: scan CH chunks for structures
     public boolean chScanDragon = true;           // Golden Dragon nest
     public boolean chScanCrystals = true;         // King, Queen, Divan, City, Temple, Bal
-    public boolean chScanMobSpots = true;         // Corleone, Key Guardians, Xalx, Pete, Odawa
+    public boolean chScanMobSpots = true;         // Corleone, Key Guardians, Xalx, Pete, Odawa, Slime Tree
     public boolean chScanGrottos = true;          // Fairy Grottos
     public boolean chScanWorm = false;            // Worm fishing spots
     public boolean chScanTracers = false;         // Tracer lines to found structures

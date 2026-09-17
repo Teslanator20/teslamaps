@@ -141,9 +141,11 @@ public class StarredMobESP {
             LoudSound.play(getPickupSound(), volume, 1.5f);
         }
 
-        mc.gui.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
-        mc.gui.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.GRAY));
-        mc.gui.setTimes(5, 30, 10); // fade in, stay, fade out
+        if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
+            mc.gui.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
+            mc.gui.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.GRAY));
+            mc.gui.setTimes(5, 30, 10); // fade in, stay, fade out
+        }
 
         witherKeyOnGroundNotified = false;
         witherKeyPickupTime = System.currentTimeMillis();
@@ -159,9 +161,11 @@ public class StarredMobESP {
             LoudSound.play(getPickupSound(), volume, 1.2f);
         }
 
-        mc.gui.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
-        mc.gui.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.RED));
-        mc.gui.setTimes(5, 30, 10); // fade in, stay, fade out
+        if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
+            mc.gui.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
+            mc.gui.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.RED));
+            mc.gui.setTimes(5, 30, 10); // fade in, stay, fade out
+        }
 
         bloodKeyOnGroundNotified = false;
         bloodKeyPickupTime = System.currentTimeMillis();
@@ -177,9 +181,11 @@ public class StarredMobESP {
             LoudSound.play(getOnGroundSound(), volume, 1.0f);
         }
 
-        mc.gui.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
-        mc.gui.setSubtitle(Component.literal("on ground!").withStyle(ChatFormatting.YELLOW));
-        mc.gui.setTimes(5, 40, 10);
+        if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
+            mc.gui.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
+            mc.gui.setSubtitle(Component.literal("on ground!").withStyle(ChatFormatting.YELLOW));
+            mc.gui.setTimes(5, 40, 10);
+        }
     }
 
     private static void onBloodKeyOnGround() {
@@ -191,9 +197,11 @@ public class StarredMobESP {
             LoudSound.play(getOnGroundSound(), volume, 0.8f);
         }
 
-        mc.gui.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
-        mc.gui.setSubtitle(Component.literal("on ground!").withStyle(ChatFormatting.YELLOW));
-        mc.gui.setTimes(5, 40, 10);
+        if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
+            mc.gui.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
+            mc.gui.setSubtitle(Component.literal("on ground!").withStyle(ChatFormatting.YELLOW));
+            mc.gui.setTimes(5, 40, 10);
+        }
     }
 
     public static void tick() {
