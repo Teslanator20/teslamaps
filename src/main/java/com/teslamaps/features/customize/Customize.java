@@ -2,8 +2,20 @@ package com.teslamaps.features.customize;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.injected.CustomizableStack;
+import com.teslamaps.mixin.EntityRenderDispatcherAccessor;
 import com.teslamaps.utils.SkyblockUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.equipment.EquipmentAsset;
+import net.minecraft.world.item.equipment.Equippable;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Entry point for the per-item customization from {@code /tmap customize}.
@@ -83,6 +95,42 @@ public class Customize {
         config.customItemModel.clear();
         config.customArmorModel.clear();
         refresh();
+    }
+
+    public static boolean hasDye(String uuid) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        return config.customDyeColors.containsKey(uuid) || config.customAnimatedDyes.containsKey(uuid);
+    }
+
+    private static final Map<ResourceKey<EquipmentAsset>, Boolean> dyeableAssets = new HashMap<>();
+
+    /** Whether the equipment asset has a dye-tinted layer (leather); non-dyeable pieces get rendered as dyed leather. */
+    public static boolean dyeableAsset(ResourceKey<EquipmentAsset> key) {
+        return dyeableAssets.computeIfAbsent(key, k -> {
+            EquipmentClientInfo info = ((EntityRenderDispatcherAccessor) Minecraft.getInstance().getEntityRenderDispatcher())
+                    .getEquipmentAssets().get(k);
+            for (List<EquipmentClientInfo.Layer> layers : info.layers().values()) {
+                for (EquipmentClientInfo.Layer layer : layers) {
+                    if (layer.dyeable().isPresent()) return true;
+                }
+            }
+            return false;
+        });
+    }
+
+    /** Leather counterpart item model for a dyed non-dyeable armor piece, null when no swap applies. */
+    public static Identifier leatherModel(ItemStack stack) {
+        Equippable equippable = stack.getComponents().get(DataComponents.EQUIPPABLE);
+        if (equippable == null) return null;
+        ResourceKey<EquipmentAsset> key = equippable.assetId().orElse(null);
+        if (key == null || dyeableAsset(key)) return null;
+        return switch (equippable.slot()) {
+            case HEAD -> Identifier.withDefaultNamespace("leather_helmet");
+            case CHEST -> Identifier.withDefaultNamespace("leather_chestplate");
+            case LEGS -> Identifier.withDefaultNamespace("leather_leggings");
+            case FEET -> Identifier.withDefaultNamespace("leather_boots");
+            default -> null;
+        };
     }
 
     public static void tick() {

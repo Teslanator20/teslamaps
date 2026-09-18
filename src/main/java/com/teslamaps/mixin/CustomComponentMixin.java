@@ -49,6 +49,10 @@ public interface CustomComponentMixin {
         } else if (type == DataComponents.ITEM_MODEL) {
             Identifier id = config.customItemModel.get(uuid);
             if (id != null) return (T) id;
+            if (Customize.hasDye(uuid)) {
+                Identifier leather = Customize.leatherModel(stack);
+                if (leather != null) return (T) leather;
+            }
         }
 
         return original;

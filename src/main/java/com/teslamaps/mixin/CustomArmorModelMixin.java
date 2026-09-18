@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.customize.Customize;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
@@ -19,11 +20,18 @@ public class CustomArmorModelMixin {
 
     @ModifyVariable(method = "renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/resources/Identifier;II)V",
             at = @At("HEAD"), argsOnly = true)
-    private ResourceKey<EquipmentAsset> teslamaps$customArmorModel(ResourceKey<EquipmentAsset> assetKey, @Local(argsOnly = true) ItemStack stack) {
+    private ResourceKey<EquipmentAsset> teslamaps$customArmorModel(ResourceKey<EquipmentAsset> assetKey, @Local(argsOnly = true) ItemStack stack,
+                                                                   @Local(argsOnly = true) EquipmentClientInfo.LayerType layerType) {
         if (!Customize.active()) return assetKey;
         String uuid = Customize.uuid(stack);
         if (uuid.isEmpty()) return assetKey;
         Identifier identifier = TeslaMapsConfig.get().customArmorModel.get(uuid);
-        return identifier == null ? assetKey : ResourceKey.create(EquipmentAssets.ROOT_ID, identifier);
+        if (identifier != null) return ResourceKey.create(EquipmentAssets.ROOT_ID, identifier);
+        // dyed non-dyeable armor renders as dyed leather, like on hypixel
+        if ((layerType == EquipmentClientInfo.LayerType.HUMANOID || layerType == EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS)
+                && Customize.hasDye(uuid) && !Customize.dyeableAsset(assetKey)) {
+            return EquipmentAssets.LEATHER;
+        }
+        return assetKey;
     }
 }

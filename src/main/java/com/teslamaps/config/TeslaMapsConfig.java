@@ -828,6 +828,7 @@ public class TeslaMapsConfig {
     public int fishingCatchSource = 0;         // what counts as a catch: 0 = auto, 1 = sea creatures + trophies (chat), 2 = every catch (xp)
     public float skillTrackerScale = 1.0f;     // Scale of skill tracker HUD
     public boolean skillTrackerHidden = false; // keep tracking, but only show the panel in the inventory
+    public String skillTrackerPin = "";        // "" = follow the xp, otherwise stay on that skill
     public boolean skillExpDisplay = false;    // cut the skill xp out of the action bar into its own HUD element
     public boolean petOverlay = false;         // equipped pet HUD: level, xp progress, held item
     public int petOverlayX = 10;
@@ -1248,8 +1249,9 @@ public class TeslaMapsConfig {
     public int contestTimerX = 5;
     public int contestTimerY = 120;
     public float contestTimerScale = 1.0f;
-    public boolean contestAlerts = false;
-    public int contestWarnBefore = 60;
+    public boolean contestAlertStart = false;       // "has started!" on every contest start
+    public boolean contestAlert5Min = false;        // no ticket yet and the contest ends in 5 min
+    public boolean contestAlert90Sec = false;       // no ticket yet and the contest ends in 1:30
     public boolean contestAlertChat = true;
     public boolean contestAlertTitle = false;
     public String contestAlertSound = "NOTE_PLING";
@@ -1597,6 +1599,7 @@ public class TeslaMapsConfig {
         if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
         if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
+        if (c.skillTrackerPin == null) c.skillTrackerPin = "";
         if (c.bestiaryTracked == null) c.bestiaryTracked = new java.util.ArrayList<>();
         if (c.bestiaryKillsToMax == null) c.bestiaryKillsToMax = new java.util.HashMap<>();
         if (c.bestiaryIdleMinutes == null) c.bestiaryIdleMinutes = new java.util.HashMap<>();

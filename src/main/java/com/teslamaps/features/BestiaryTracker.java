@@ -184,6 +184,7 @@ public class BestiaryTracker {
 
     public static void resetSession() {
         cachedLines = null;
+        displayedCache = null;
         for (Stat s : stats.values()) {
             s.kills = 0;
             s.activeMs = 0;
@@ -439,13 +440,17 @@ public class BestiaryTracker {
         return displayedCache = buildDisplayed();
     }
 
-    /** Only what /tmap be added, so the HUD stays empty until it is asked for. */
+    /** Only what /tmap be added; auto mode additionally hides mobs without a session kill. */
     private static List<String> buildDisplayed() {
+        boolean auto = TeslaMapsConfig.get().bestiaryAutoTrack;
         List<String> out = new ArrayList<>();
         // a mob can be added before the tab was ever read, so the casing has to be forgiving
         for (String name : tracked()) {
-            for (String key : stats.keySet()) {
-                if (key.equalsIgnoreCase(name)) { out.add(key); break; }
+            for (Map.Entry<String, Stat> e : stats.entrySet()) {
+                if (e.getKey().equalsIgnoreCase(name)) {
+                    if (!auto || e.getValue().kills > 0) out.add(e.getKey());
+                    break;
+                }
             }
         }
         return out;

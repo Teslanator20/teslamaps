@@ -670,6 +670,13 @@ public class MapConfigScreen extends Screen {
         skills.add(new LabelEntry(contentX, "Skill Tracker"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v));
         skills.add(new ToggleEntry(contentX, contentWidth, "Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v));
+        String[] pinOptions = new String[com.teslamaps.features.SkillTracker.skills().length + 1];
+        pinOptions[0] = "Auto";
+        System.arraycopy(com.teslamaps.features.SkillTracker.skills(), 0, pinOptions, 1, pinOptions.length - 1);
+        skills.add(new DropdownEntry(contentX, contentWidth, "Tracker Skill", pinOptions,
+                () -> config.skillTrackerPin == null || config.skillTrackerPin.isEmpty() ? "Auto" : config.skillTrackerPin,
+                v -> config.skillTrackerPin = "Auto".equals(v) ? "" : v));
+        skills.add(new InfoEntry(contentX, "Auto follows the XP, a skill keeps the panel on it"));
         skills.add(new LabelEntry(contentX, "Pet"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Pet HUD", () -> config.petOverlay, v -> config.petOverlay = v));
         skills.add(new InfoEntry(contentX, "Equipped pet with level, XP progress and held item"));
@@ -2059,10 +2066,12 @@ public class MapConfigScreen extends Screen {
                 () -> config.contestTimerButton, v -> config.contestTimerButton = v));
         contests.add(new InfoEntry(contentX, "Drag it in the inventory, or in /tmap gui"));
         contests.add(new LabelEntry(contentX, "Alerts"));
-        contests.add(new ToggleEntry(contentX, contentWidth, "Start Alerts",
-                () -> config.contestAlerts, v -> config.contestAlerts = v));
-        contests.add(new SliderEntry(contentX, contentWidth, "  Warn Seconds Before", 0f, 300f,
-                () -> (float) config.contestWarnBefore, v -> config.contestWarnBefore = Math.round(v), 0));
+        contests.add(new ToggleEntry(contentX, contentWidth, "Contest Started Alert",
+                () -> config.contestAlertStart, v -> config.contestAlertStart = v));
+        contests.add(new ToggleEntry(contentX, contentWidth, "Alert if < 5 Minutes left",
+                () -> config.contestAlert5Min, v -> config.contestAlert5Min = v));
+        contests.add(new ToggleEntry(contentX, contentWidth, "Alert if < 1,5 Minutes left",
+                () -> config.contestAlert90Sec, v -> config.contestAlert90Sec = v));
         contests.add(new ToggleEntry(contentX, contentWidth, "  Chat Message",
                 () -> config.contestAlertChat, v -> config.contestAlertChat = v));
         contests.add(new ToggleEntry(contentX, contentWidth, "  Show Title",
@@ -2072,7 +2081,7 @@ public class MapConfigScreen extends Screen {
                 () -> config.contestAlertSound, v -> config.contestAlertSound = v));
         contests.add(new SliderEntry(contentX, contentWidth, "  Volume", 0f, 4f,
                 () -> config.contestAlertVolume, v -> config.contestAlertVolume = v, 2));
-        contests.add(new InfoEntry(contentX, "Alerts fire once before and once when a contest starts"));
+        contests.add(new InfoEntry(contentX, "The two timers only fire while the ticket score is missing"));
         contests.add(new LabelEntry(contentX, "Party Chat"));
         contests.add(new ToggleEntry(contentX, contentWidth, "Contest Announce",
                 () -> config.contestAnnounceParty, v -> config.contestAnnounceParty = v));

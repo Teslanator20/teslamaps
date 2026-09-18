@@ -368,7 +368,10 @@ public class ColorSelectionWidget extends AbstractContainerWidget implements Clo
         } else {
             EquipmentClientInfo model = ((EntityRenderDispatcherAccessor) Minecraft.getInstance().getEntityRenderDispatcher())
                     .getEquipmentAssets().get(key);
-            customizable = Stream.of(EquipmentClientInfo.LayerType.HUMANOID, EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS, EquipmentClientInfo.LayerType.WINGS)
+            // non-dyeable body armor still counts: it renders as dyed leather, like on hypixel
+            customizable = !model.getLayers(EquipmentClientInfo.LayerType.HUMANOID).isEmpty()
+                    || !model.getLayers(EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS).isEmpty()
+                    || Stream.of(EquipmentClientInfo.LayerType.WINGS)
                     .flatMap(l -> model.getLayers(l).stream())
                     .anyMatch(layer -> layer.dyeable().isPresent());
         }

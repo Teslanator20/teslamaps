@@ -22,7 +22,13 @@ public final class ContestTimers {
     static final long FARMING_PERIOD_MS = 60 * MINUTE_MS;
     static final long CONTEST_DURATION_MS = 20 * MINUTE_MS;
 
-    private static long lastAlertCheck;
+    private static final long ALERT_5MIN_MS = 5 * MINUTE_MS;
+    private static final long ALERT_90SEC_MS = 90_000L;
+
+    private static long lastForaging = Long.MIN_VALUE;
+    private static long lastFarming = Long.MIN_VALUE;
+    private static long alerted5 = Long.MIN_VALUE;
+    private static long alerted90 = Long.MIN_VALUE;
 
     private ContestTimers() {}
 
@@ -33,65 +39,86 @@ public final class ContestTimers {
 
     private static void tickAlerts() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.contestAlerts || !SkyblockUtils.isInSkyblock()
-                || (!c.contestShowForaging && !c.contestShowFarming)) {
-            lastAlertCheck = 0L;
+        if (!SkyblockUtils.isInSkyblock()) {
+            lastForaging = Long.MIN_VALUE;
+            lastFarming = Long.MIN_VALUE;
             return;
         }
 
         long now = System.currentTimeMillis();
-        long previous = lastAlertCheck;
-        lastAlertCheck = now;
+        long contest = Math.floorDiv(now - START_OFFSET_MS, FORAGING_PERIOD_MS);
+        long farmingContest = Math.floorDiv(now - START_OFFSET_MS, FARMING_PERIOD_MS);
+        boolean foragingStart = lastForaging != Long.MIN_VALUE && lastForaging != contest;
+        boolean farmingStart = lastFarming != Long.MIN_VALUE && lastFarming != farmingContest;
+        lastForaging = contest;
+        lastFarming = farmingContest;
 
-        // Do not replay missed alerts after joining, sleeping the PC, or changing the system clock.
-        if (previous == 0L || now <= previous || now - previous > 30_000L) return;
+        if (foragingStart && c.contestAnnounceParty) party("Contest Started");
+        if (c.contestAlertStart) {
+            boolean foraging = foragingStart && c.contestShowForaging;
+            boolean farming = farmingStart && c.contestShowFarming;
+            if (foraging || farming) startAlert(c, foraging, farming);
+        }
 
-        boolean foragingStart = c.contestShowForaging
-                && crossed(previous, now, START_OFFSET_MS, FORAGING_PERIOD_MS);
-        boolean farmingStart = c.contestShowFarming
-                && crossed(previous, now, START_OFFSET_MS, FARMING_PERIOD_MS);
-        if (foragingStart || farmingStart) alert(c, foragingStart, farmingStart, 0);
+        if (!c.contestAlert5Min && !c.contestAlert90Sec) return;
+        if (hasTicket()) return;
 
-        int warningSeconds = Math.max(0, c.contestWarnBefore);
-        if (warningSeconds == 0) return;
-        long warningOffset = START_OFFSET_MS - warningSeconds * 1000L;
-        boolean foragingWarning = c.contestShowForaging
-                && crossed(previous, now, warningOffset, FORAGING_PERIOD_MS);
-        boolean farmingWarning = c.contestShowFarming
-                && crossed(previous, now, warningOffset, FARMING_PERIOD_MS);
-        if (foragingWarning || farmingWarning) {
-            alert(c, foragingWarning, farmingWarning, warningSeconds);
+        long left = remaining(now, START_OFFSET_MS, FORAGING_PERIOD_MS);
+        if (c.contestAlert90Sec && left <= ALERT_90SEC_MS) {
+            if (alerted90 != contest) {
+                alerted90 = contest;
+                alert(c, left);
+            }
+            return;
+        }
+        if (c.contestAlert5Min && left <= ALERT_5MIN_MS && alerted5 != contest) {
+            alerted5 = contest;
+            alert(c, left);
         }
     }
 
-    private static boolean crossed(long previous, long now, long offset, long period) {
-        return Math.floorDiv(previous - offset, period) < Math.floorDiv(now - offset, period);
+    private static void alert(TeslaMapsConfig c, long millisLeft) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+
+        String left = formatMillis(millisLeft);
+        if (c.contestAlertChat) {
+            mc.player.sendSystemMessage(Component.literal(
+                    "§a[TeslaMaps] §cNo ticket yet! §eContest ends in §f" + left));
+        }
+        if (c.contestAlertTitle) {
+            mc.gui.setTimes(0, 40, 5);
+            mc.gui.setTitle(Component.literal("§cNo Ticket!"));
+            mc.gui.setSubtitle(Component.literal("§eEnds in §f" + left));
+        }
+        if (c.contestAlertVolume > 0f) {
+            LoudSound.play(SoundOptions.resolve(c.contestAlertSound), c.contestAlertVolume, 1.2f);
+        }
     }
 
-    private static void alert(TeslaMapsConfig c, boolean foraging, boolean farming, int secondsBefore) {
+    private static void startAlert(TeslaMapsConfig c, boolean foraging, boolean farming) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
         String name = contestName(foraging, farming);
-        String action = secondsBefore == 0
-                ? (foraging && farming ? " §ehave started!" : " §ehas started!")
-                : " §estarts in §f" + format(secondsBefore) + "§e.";
         if (c.contestAlertChat) {
-            mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] " + name + action));
+            mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] " + name
+                    + (foraging && farming ? " §ehave started!" : " §ehas started!")));
         }
-
         if (c.contestAlertTitle) {
             mc.gui.setTimes(0, 40, 5);
             mc.gui.setTitle(Component.literal(name));
-            mc.gui.setSubtitle(Component.literal(secondsBefore == 0
-                    ? "§aContest started!"
-                    : "§eStarts in §f" + format(secondsBefore)));
+            mc.gui.setSubtitle(Component.literal("§aContest started!"));
         }
         if (c.contestAlertVolume > 0f) {
-            LoudSound.play(SoundOptions.resolve(c.contestAlertSound), c.contestAlertVolume,
-                    secondsBefore == 0 ? 1.2f : 1.0f);
+            LoudSound.play(SoundOptions.resolve(c.contestAlertSound), c.contestAlertVolume, 1.2f);
         }
-        if (secondsBefore == 0 && c.contestAnnounceParty) party("Contest Started");
+    }
+
+    private static String contestName(boolean foraging, boolean farming) {
+        if (foraging && farming) return "§6Foraging + Farming Contests";
+        if (foraging) return "§2Agatha's Foraging Contest";
+        return "§aJacob's Farming Contest";
     }
 
     private static void party(String line) {
@@ -112,7 +139,8 @@ public final class ContestTimers {
 
     private static void tickScore() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if ((!c.contestTicketAnnounce && !c.contestHideAtTicket) || !SkyblockUtils.isInSkyblock()) {
+        if ((!c.contestTicketAnnounce && !c.contestHideAtTicket
+                && !c.contestAlert5Min && !c.contestAlert90Sec) || !SkyblockUtils.isInSkyblock()) {
             ticketAnnounced = false;
             currentScore = -1;
             return;
@@ -131,10 +159,14 @@ public final class ContestTimers {
         party("Ticket Acquired!");
     }
 
+    /** Ticket score reached in the contest that is still running. */
+    private static boolean hasTicket() {
+        return System.currentTimeMillis() < ticketHideUntil;
+    }
+
     /** Ticket is in — the foraging line has nothing left to say until the next contest. */
     public static boolean ticketDone() {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.contestHideAtTicket && System.currentTimeMillis() < ticketHideUntil;
+        return TeslaMapsConfig.get().contestHideAtTicket && hasTicket();
     }
 
     /** -1 when no Miria's Contest widget is up. */
@@ -176,12 +208,6 @@ public final class ContestTimers {
             }
         }
         return best;
-    }
-
-    private static String contestName(boolean foraging, boolean farming) {
-        if (foraging && farming) return "§6Foraging + Farming Contests";
-        if (foraging) return "§2Agatha's Foraging Contest";
-        return "§aJacob's Farming Contest";
     }
 
     // rebuilt once a second, not once a frame

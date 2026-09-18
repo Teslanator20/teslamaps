@@ -106,6 +106,21 @@ public class SkillTracker {
         return false;
     }
 
+    public static String[] skills() {
+        return SKILLS.clone();
+    }
+
+    /** Pinned skill from the config, null while the tracker follows the xp. */
+    private static String pinned() {
+        String pin = TeslaMapsConfig.get().skillTrackerPin;
+        return pin != null && isSkill(pin) ? pin : null;
+    }
+
+    private static String shown() {
+        String pin = pinned();
+        return pin != null ? pin : activeSkill;
+    }
+
     /** Real cap the server reports in tab ("Foraging 57: MAX"), 60 as fallback. */
     public static int cap(String skill) {
         return caps.getOrDefault(skill, 60);
@@ -380,9 +395,9 @@ public class SkillTracker {
 
     public static boolean shouldRender() {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        return cfg.skillTracker && activeSkill != null
-                && !com.teslamaps.dungeon.DungeonManager.isInDungeon()
-                && System.currentTimeMillis() - lastGain <= 10 * 60_000;
+        if (!cfg.skillTracker || com.teslamaps.dungeon.DungeonManager.isInDungeon()) return false;
+        if (pinned() != null) return true;
+        return activeSkill != null && System.currentTimeMillis() - lastGain <= 10 * 60_000;
     }
 
     public static void render(GuiGraphicsExtractor ctx, DeltaTracker delta) {
@@ -390,14 +405,14 @@ public class SkillTracker {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (cfg.skillTrackerHidden && !inInventory()) return;
         Minecraft mc = Minecraft.getInstance();
-        draw(ctx, mc, cfg.skillTrackerX, cfg.skillTrackerY, cfg.skillTrackerScale, lines(activeSkill));
+        draw(ctx, mc, cfg.skillTrackerX, cfg.skillTrackerY, cfg.skillTrackerScale, lines(shown()));
     }
 
     /** The reset and hide/show buttons, only reachable from the inventory. */
     public static void onClick(double mouseX, double mouseY, int button) {
         if (!shouldRender() || !inInventory()) return;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        String[] ls = lines(activeSkill);
+        String[] ls = lines(shown());
         float scale = cfg.skillTrackerScale;
         double localX = (mouseX - cfg.skillTrackerX) / scale;
         double localY = (mouseY - cfg.skillTrackerY) / scale;
@@ -552,12 +567,12 @@ public class SkillTracker {
     }
 
     public static int width(float scale) {
-        String[] ls = shouldRender() ? lines(activeSkill) : sampleLines();
+        String[] ls = shouldRender() ? lines(shown()) : sampleLines();
         return (int) (boxWidth(Minecraft.getInstance().font, ls) * scale);
     }
 
     public static int height(float scale) {
-        String[] ls = shouldRender() ? lines(activeSkill) : sampleLines();
+        String[] ls = shouldRender() ? lines(shown()) : sampleLines();
         return (int) ((ls.length * 10 + 4) * scale);
     }
 
