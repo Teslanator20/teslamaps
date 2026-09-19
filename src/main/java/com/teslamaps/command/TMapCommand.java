@@ -177,6 +177,18 @@ public class TMapCommand {
                                                     + " capes from config/teslamaps/capes"));
                                     return 1;
                                 }))
+                        .then(ClientCommands.literal("report")
+                                .executes(context -> capeReport(context.getSource(), null))
+                                .then(ClientCommands.argument("player", StringArgumentType.word())
+                                        .suggests((context, builder) -> {
+                                            String typed = builder.getRemaining().toLowerCase();
+                                            for (String name : capedPlayers()) {
+                                                if (name.toLowerCase().startsWith(typed)) builder.suggest(name);
+                                            }
+                                            return builder.buildFuture();
+                                        })
+                                        .executes(context -> capeReport(context.getSource(),
+                                                StringArgumentType.getString(context, "player")))))
                         .then(ClientCommands.argument("name", StringArgumentType.greedyString())
                                 .suggests((context, builder) -> {
                                     String typed = builder.getRemaining().toLowerCase();
@@ -291,6 +303,41 @@ public class TMapCommand {
                                     }
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("flare")
+                        .executes(context -> {
+                            for (String line : com.teslamaps.features.hunting.FlareMode.report()) {
+                                context.getSource().sendFeedback(Component.literal(line));
+                            }
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("on").executes(context -> setFlare(context.getSource(), true)))
+                        .then(ClientCommands.literal("off").executes(context -> setFlare(context.getSource(), false)))
+                        .then(ClientCommands.literal("pause")
+                                .executes(context -> {
+                                    com.teslamaps.features.hunting.FlareMode.togglePause();
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §fFlare session "
+                                            + (com.teslamaps.features.hunting.FlareMode.paused() ? "§6paused" : "§aresumed")));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("reset")
+                                .executes(context -> {
+                                    com.teslamaps.features.hunting.FlareMode.reset();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§b[TeslaMaps] §fFlare session reset"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("mob")
+                                .then(ClientCommands.argument("name", com.mojang.brigadier.arguments.StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            String name = com.mojang.brigadier.arguments.StringArgumentType
+                                                    .getString(context, "name").trim();
+                                            TeslaMapsConfig.get().flareMob = name.isEmpty() ? "Flare" : name;
+                                            TeslaMapsConfig.save();
+                                            com.teslamaps.features.hunting.FlareMode.reset();
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    "§b[TeslaMaps] §fFlare mob: §e" + TeslaMapsConfig.get().flareMob));
+                                            return 1;
+                                        }))))
                 .then(ClientCommands.literal("be")
                         .executes(context -> {
                             for (String line : com.teslamaps.features.BestiaryTracker.report()) {
@@ -702,6 +749,25 @@ public class TMapCommand {
                                                     com.teslamaps.features.ActionBarFilter.escape(raw));
                                             context.getSource().sendFeedback(Component.literal(
                                                     "§b[TeslaMaps] §fCopied last action bar"));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("testcolors")
+                                .executes(context -> {
+                                    com.teslamaps.debug.LevelPrefixPreview.print(
+                                            context.getSource()::sendFeedback, 0);
+                                    return 1;
+                                })
+                                .then(ClientCommands.literal("final")
+                                        .executes(context -> {
+                                            com.teslamaps.debug.LevelPrefixPreview.printFinal(
+                                                    context.getSource()::sendFeedback);
+                                            return 1;
+                                        }))
+                                .then(ClientCommands.argument("level", com.mojang.brigadier.arguments.IntegerArgumentType.integer(0, 1000))
+                                        .executes(context -> {
+                                            com.teslamaps.debug.LevelPrefixPreview.print(
+                                                    context.getSource()::sendFeedback,
+                                                    com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "level"));
                                             return 1;
                                         })))
                         .then(ClientCommands.literal("deployables")
@@ -1700,6 +1766,63 @@ public class TMapCommand {
         for (String line : com.teslamaps.features.hunting.ShardReport.toMax(count)) {
             source.sendFeedback(Component.literal(line));
         }
+        return 1;
+    }
+
+    /** Online players wearing a TeslaMaps cape - the only ones worth reporting. */
+    private static java.util.List<String> capedPlayers() {
+        java.util.List<String> names = new java.util.ArrayList<>();
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) return names;
+        for (var info : connection.getOnlinePlayers()) {
+            String name = info.getProfile().name();
+            if (name == null || name.isBlank()) continue;
+            if (com.teslamaps.features.capes.CapeSync.isUser(info.getProfile().id().toString())) names.add(name);
+        }
+        return names;
+    }
+
+    private static int capeReport(FabricClientCommandSource source, String name) {
+        Minecraft mc = Minecraft.getInstance();
+        java.util.UUID target = null;
+        if (name == null || name.isBlank()) {
+            // no name given: whoever is under the crosshair
+            if (mc.crosshairPickEntity instanceof net.minecraft.world.entity.player.Player player) {
+                target = player.getUUID();
+                name = player.getGameProfile().name();
+            } else {
+                source.sendFeedback(Component.literal("§b[TeslaMaps] §cLook at a player or give a name"));
+                return 1;
+            }
+        } else {
+            var connection = mc.getConnection();
+            var info = connection == null ? null : connection.getPlayerInfoIgnoreCase(name);
+            if (info == null) {
+                source.sendFeedback(Component.literal("§b[TeslaMaps] §cNo player called " + name));
+                return 1;
+            }
+            target = info.getProfile().id();
+            name = info.getProfile().name();
+        }
+        if (!com.teslamaps.features.capes.CapeSync.isUser(target.toString())) {
+            source.sendFeedback(Component.literal("§b[TeslaMaps] §7" + name + " wears no TeslaMaps cape"));
+            return 1;
+        }
+        String reported = name;
+        com.teslamaps.features.capes.CapeSync.report(target, line -> {
+            if (mc.player == null) return;
+            mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] " + line
+                    + (line.startsWith("§c") ? "" : " " + reported + "'s cape")));
+        });
+        return 1;
+    }
+
+    private static int setFlare(FabricClientCommandSource source, boolean on) {
+        TeslaMapsConfig.get().flareMode = on;
+        TeslaMapsConfig.save();
+        if (on) com.teslamaps.features.hunting.FlareMode.reset();
+        source.sendFeedback(Component.literal(
+                "§b[TeslaMaps] §fFlare Mode " + (on ? "§aon" : "§coff")));
         return 1;
     }
 

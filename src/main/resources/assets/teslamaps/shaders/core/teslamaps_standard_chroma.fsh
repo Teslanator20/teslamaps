@@ -11,6 +11,8 @@ layout(std140) uniform TeslaChromaUniforms {
     float fadeWidth;
     vec4 fadeColorA;
     vec4 fadeColorB;
+    float rawTicks;
+    float pxScale;
 };
 
 out vec4 fragColor;

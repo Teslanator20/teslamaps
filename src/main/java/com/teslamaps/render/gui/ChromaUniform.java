@@ -12,15 +12,16 @@ public class ChromaUniform implements AutoCloseable {
 
     private static final int SIZE =
             new Std140SizeCalculator().putFloat().putFloat().putFloat().putInt()
-                    .putFloat().putFloat().putVec4().putVec4().get();
+                    .putFloat().putFloat().putVec4().putVec4().putFloat().putFloat().get();
 
     private final DynamicUniformStorage<Value> storage =
             new DynamicUniformStorage<>("TeslaMaps Chroma UBO", SIZE, 2);
 
     public GpuBufferSlice writeWith(float chromaSize, float timeOffset, float saturation, int forwardDirection,
-                                    float fadeStartX, float fadeWidth, int fadeColorA, int fadeColorB) {
+                                    float fadeStartX, float fadeWidth, int fadeColorA, int fadeColorB,
+                                    float rawTicks, float pxScale) {
         return storage.writeUniform(new Value(chromaSize, timeOffset, saturation, forwardDirection,
-                fadeStartX, fadeWidth, fadeColorA, fadeColorB));
+                fadeStartX, fadeWidth, fadeColorA, fadeColorB, rawTicks, pxScale));
     }
 
     /** Has to run once per frame or the storage grows without bound. */
@@ -34,7 +35,8 @@ public class ChromaUniform implements AutoCloseable {
     }
 
     private record Value(float chromaSize, float timeOffset, float saturation, int forwardDirection,
-                         float fadeStartX, float fadeWidth, int fadeColorA, int fadeColorB)
+                         float fadeStartX, float fadeWidth, int fadeColorA, int fadeColorB,
+                         float rawTicks, float pxScale)
             implements DynamicUniformStorage.DynamicUniform {
         @Override
         public void write(ByteBuffer buffer) {
@@ -46,7 +48,9 @@ public class ChromaUniform implements AutoCloseable {
                     .putFloat(fadeStartX)
                     .putFloat(fadeWidth)
                     .putVec4(red(fadeColorA), green(fadeColorA), blue(fadeColorA), 1f)
-                    .putVec4(red(fadeColorB), green(fadeColorB), blue(fadeColorB), 1f);
+                    .putVec4(red(fadeColorB), green(fadeColorB), blue(fadeColorB), 1f)
+                    .putFloat(rawTicks)
+                    .putFloat(pxScale);
         }
 
         private static float red(int rgb) { return ((rgb >> 16) & 0xFF) / 255f; }

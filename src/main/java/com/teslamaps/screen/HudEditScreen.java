@@ -49,6 +49,7 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.SKILL_EXP, Ctx.ANY, "Skills", c.skillExpDisplay);
         mark(DragTarget.PET_OVERLAY, Ctx.ANY, "Skills", c.petOverlay);
         mark(DragTarget.BESTIARY, Ctx.ANY, "Combat", c.bestiaryTracker);
+        mark(DragTarget.FLARE_MODE, Ctx.ANY, "Skills", c.flareMode);
         mark(DragTarget.PEST_ROUTINE, Ctx.GARDEN, "Garden", c.pestRoutineHud);
         mark(DragTarget.FARM_BAR, Ctx.GARDEN, "Garden", c.farmBar);
         mark(DragTarget.PEST_OVERLAY, Ctx.GARDEN, "Garden", c.pestOverlay);
@@ -91,7 +92,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, PERF_HUD, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST, SKILL_EXP, PET_OVERLAY }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, PERF_HUD, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST, SKILL_EXP, PET_OVERLAY, FLARE_MODE }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -178,6 +179,22 @@ public class HudEditScreen extends Screen {
         int bx = config.petOverlayX - (int) (4 * s), by = config.petOverlayY - (int) (4 * s);
         return mouseX >= bx && mouseX <= bx + petOverlayWidth() &&
                mouseY >= by && mouseY <= by + petOverlayHeight();
+    }
+
+    private int flareModeWidth() {
+        return (int)(com.teslamaps.features.hunting.FlareMode.previewSize(this.font)[0] * TeslaMapsConfig.get().flareModeScale);
+    }
+
+    private int flareModeHeight() {
+        return (int)(com.teslamaps.features.hunting.FlareMode.previewSize(this.font)[1] * TeslaMapsConfig.get().flareModeScale);
+    }
+
+    private boolean isMouseOverFlareMode(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        float s = config.flareModeScale;
+        int bx = config.flareModeX - (int)(4 * s), by = config.flareModeY - (int)(4 * s);
+        return mouseX >= bx && mouseX <= bx + flareModeWidth() &&
+               mouseY >= by && mouseY <= by + flareModeHeight();
     }
 
     private int skillTrackerWidth() {
@@ -821,6 +838,10 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.BESTIARY;
                 dragOffsetX = mouseX - config.bestiaryTrackerX;
                 dragOffsetY = mouseY - config.bestiaryTrackerY;
+            } else if (visible.contains(DragTarget.FLARE_MODE) && isMouseOverFlareMode(mouseX, mouseY)) {
+                dragging = DragTarget.FLARE_MODE;
+                dragOffsetX = mouseX - config.flareModeX;
+                dragOffsetY = mouseY - config.flareModeY;
             } else if (visible.contains(DragTarget.PET_OVERLAY) && isMouseOverPetOverlay(mouseX, mouseY)) {
                 dragging = DragTarget.PET_OVERLAY;
                 dragOffsetX = mouseX - config.petOverlayX;
@@ -998,6 +1019,10 @@ public class HudEditScreen extends Screen {
             int w = bestiaryWidth(), h = bestiaryHeight();
             config.bestiaryTrackerX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.bestiaryTrackerY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.FLARE_MODE) {
+            int w = flareModeWidth(), h = flareModeHeight();
+            config.flareModeX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.flareModeY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         }
 
         context.fill(0, 0, this.width, this.height, 0xC0000000);
@@ -1019,6 +1044,7 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.SKILL_EXP)) drawSkillExpPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.PET_OVERLAY)) drawPetOverlayPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.BESTIARY)) drawBestiaryPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.FLARE_MODE)) drawFlareModePreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.PEST_ROUTINE)) drawPestRoutinePreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.FARM_BAR)) drawFarmBarPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.PEST_OVERLAY)) drawPestOverlayPreview(context, mouseX, mouseY);
@@ -1603,6 +1629,24 @@ public class HudEditScreen extends Screen {
         context.text(this.font, String.format("Bestiary (%.1fx)", scale), bx, by - 12, 0xFFFFFFFF);
     }
 
+    private void drawFlareModePreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.flareModeX, y = config.flareModeY;
+        float scale = config.flareModeScale;
+        com.teslamaps.features.hunting.FlareMode.drawPreview(context, this.minecraft, x, y, scale);
+        int bx = x - (int)(4 * scale), by = y - (int)(4 * scale);
+        int w = flareModeWidth(), h = flareModeHeight();
+        boolean hovering = visible.contains(DragTarget.FLARE_MODE) && isMouseOverFlareMode(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.FLARE_MODE) {
+            int borderColor = dragging == DragTarget.FLARE_MODE ? 0xFF30D158 : 0xFF888888;
+            context.fill(bx - 2, by - 2, bx + w + 2, by, borderColor);
+            context.fill(bx - 2, by + h, bx + w + 2, by + h + 2, borderColor);
+            context.fill(bx - 2, by, bx, by + h, borderColor);
+            context.fill(bx + w, by, bx + w + 2, by + h, borderColor);
+        }
+        context.text(this.font, String.format("Flare Mode (%.1fx)", scale), bx, by - 12, 0xFFFFFFFF);
+    }
+
     private void drawSkillTrackerPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int x = config.skillTrackerX, y = config.skillTrackerY;
@@ -2044,6 +2088,13 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.BESTIARY) && isMouseOverBestiary((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) config.bestiaryTrackerScale = Math.min(3.0f, config.bestiaryTrackerScale + 0.05f);
             else if (verticalAmount < 0) config.bestiaryTrackerScale = Math.max(0.5f, config.bestiaryTrackerScale - 0.05f);
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (visible.contains(DragTarget.FLARE_MODE) && isMouseOverFlareMode((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) config.flareModeScale = Math.min(3.0f, config.flareModeScale + 0.05f);
+            else if (verticalAmount < 0) config.flareModeScale = Math.max(0.5f, config.flareModeScale - 0.05f);
             TeslaMapsConfig.save();
             return true;
         }

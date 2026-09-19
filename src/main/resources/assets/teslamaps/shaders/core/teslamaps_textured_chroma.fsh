@@ -12,6 +12,8 @@ layout(std140) uniform TeslaChromaUniforms {
     float fadeWidth;
     vec4 fadeColorA;
     vec4 fadeColorB;
+    float rawTicks;
+    float pxScale;
 };
 
 uniform sampler2D Sampler0;

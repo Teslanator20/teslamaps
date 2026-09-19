@@ -843,6 +843,15 @@ public class TeslaMapsConfig {
     public boolean skillOverflow = true;       // Overflow levels in the skill menu and on level up
     public java.util.Map<String, Long> skillTotalXp = new java.util.HashMap<>(); // total xp per skill, read from the skill menu
 
+    public boolean flareMode = false;          // Flare grind HUD: Hunting + Combat + flare bestiary and the 3x check
+    public int flareModeX = 10;
+    public int flareModeY = 60;
+    public float flareModeScale = 1.0f;
+    public String flareMob = "Flare";          // bestiary family the panel counts
+    public boolean flareWarnChat = true;       // chat warning while the kill counter climbs in ones
+    public int flareWarnSeconds = 20;          // how often that warning may repeat
+    public boolean flareWarnSound = true;
+
     public boolean autoScan = true;
     public int scanTickInterval = 5;
 
@@ -955,6 +964,7 @@ public class TeslaMapsConfig {
     public boolean leapCounter = false;            // F7: count teammates standing at your spot
     public boolean bossbarHealth = true;           // Append boss HP numbers to the bossbar name (Watcher/Thorn/F7)
 
+    public boolean tooltipFitScreen = true;        // Shrink tooltips taller than the screen instead of cutting the top off
     public boolean enchantAbbrev = true;           // Write enchant + level onto enchanted book icons (Leg I)
     public boolean enchantColors = true;           // Recolor enchantments in item lore by level
     public boolean enchantLevelsAsNumbers = false; // Show enchant levels as numbers instead of roman numerals
@@ -1600,6 +1610,7 @@ public class TeslaMapsConfig {
         if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
         if (c.skillTrackerPin == null) c.skillTrackerPin = "";
+        if (c.flareMob == null || c.flareMob.isBlank()) c.flareMob = "Flare";
         if (c.bestiaryTracked == null) c.bestiaryTracked = new java.util.ArrayList<>();
         if (c.bestiaryKillsToMax == null) c.bestiaryKillsToMax = new java.util.HashMap<>();
         if (c.bestiaryIdleMinutes == null) c.bestiaryIdleMinutes = new java.util.HashMap<>();

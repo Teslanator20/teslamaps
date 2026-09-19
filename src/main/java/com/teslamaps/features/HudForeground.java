@@ -26,6 +26,7 @@ public class HudForeground {
         com.teslamaps.debug.Perf.begin("HudForeground");
         if (cfg.section("Map")) MapRenderer.render(g, d);
         if (cfg.section("Skills")) SkillTracker.render(g, d);
+        if (cfg.section("Skills")) com.teslamaps.features.hunting.FlareMode.render(g, d);
         if (cfg.section("Combat")) BestiaryTracker.render(g, d);
         if (cfg.section("Garden")) {
             PestRoutine.render(g, d);

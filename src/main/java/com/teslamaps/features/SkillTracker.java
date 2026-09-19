@@ -55,8 +55,14 @@ public class SkillTracker {
         }
 
         long liveActiveMs() {
-            if (lastActivity == 0) return 0;
+            if (lastActivity == 0) return activeMs;
             return activeMs + Math.min(System.currentTimeMillis() - lastActivity, IDLE_CAP_MS);
+        }
+
+        /** Folds the running time in and stops the clock, so a pause costs no session time. */
+        void freeze() {
+            activeMs = liveActiveMs();
+            lastActivity = 0;
         }
 
         double hours() { return liveActiveMs() / 3_600_000.0; }
@@ -69,14 +75,27 @@ public class SkillTracker {
     private static long lastGain = 0;
     private static int tickCounter = 0;
     private static String lastItemId = "";
+    private static boolean paused = false;
     private static long lastKills = -1;
     private static long lastWhisperTotal = -1;
     private static double whispersFromChat = 0;
+
+    /** Pause keeps every number, it only stops the clock and the counters. */
+    public static void togglePause() {
+        paused = !paused;
+        if (paused) for (Session s : sessions.values()) s.freeze();
+        cachedLines = null;
+    }
+
+    public static boolean paused() {
+        return paused;
+    }
 
     public static void reset() {
         cachedLines = null;
         sessions.clear();
         activeSkill = null;
+        paused = false;
         lastGain = 0;
         lastItemId = "";
         lastKills = -1;
@@ -121,6 +140,11 @@ public class SkillTracker {
         return pin != null ? pin : activeSkill;
     }
 
+    /** Level the tab list reports, null before the tab was read. */
+    public static Integer tabLevel(String skill) {
+        return levels.get(skill);
+    }
+
     /** Real cap the server reports in tab ("Foraging 57: MAX"), 60 as fallback. */
     public static int cap(String skill) {
         return caps.getOrDefault(skill, 60);
@@ -136,6 +160,7 @@ public class SkillTracker {
     }
 
     public static void onBossKill() {
+        if (paused) return;
         Session s = session("Combat");
         s.bossKills++;
         s.touch();
@@ -143,6 +168,7 @@ public class SkillTracker {
     }
 
     public static void onCocoon() {
+        if (paused) return;
         Session s = session("Combat");
         s.cocoons++;
         s.touch();
@@ -169,8 +195,9 @@ public class SkillTracker {
         long kills = readKills(held);
         if (kills < 0) return;
 
+        // the baseline keeps tracking while paused, so resuming does not dump the whole gap
         String id = ItemUtil.skyblockId(held);
-        if (id.equals(lastItemId) && lastKills >= 0 && kills > lastKills) {
+        if (!paused && id.equals(lastItemId) && lastKills >= 0 && kills > lastKills) {
             Session s = session("Combat");
             s.kills += kills - lastKills;
             s.touch();
@@ -238,7 +265,7 @@ public class SkillTracker {
 
     public static void onActionBar(String raw) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.skillTracker && !cfg.skillOverflow && !cfg.petOverlay) return;
+        if (!cfg.skillTracker && !cfg.skillOverflow && !cfg.petOverlay && !cfg.flareMode) return;
         Matcher m = GAIN.matcher(strip(raw));
         if (!m.find()) return;
         String skill = m.group(2);
@@ -266,11 +293,14 @@ public class SkillTracker {
 
         if (delta > 0) {
             com.teslamaps.features.pets.PetTracker.onSkillXp(skill, delta);
-            s.xpGained += delta;
-            s.touch();
-            show(skill);
-            // xp comes in for every catch, including the loot that never reaches chat
-            if (skill.equals("Fishing") && cfg.skillTracker && countEverything()) countCatch("xp");
+            com.teslamaps.features.hunting.FlareMode.onSkillXp(skill, delta);
+            if (!paused) {
+                s.xpGained += delta;
+                s.touch();
+                show(skill);
+                // xp comes in for every catch, including the loot that never reaches chat
+                if (skill.equals("Fishing") && cfg.skillTracker && countEverything()) countCatch("xp");
+            }
             long before = totalXp(skill);
             if (before > 0) {
                 setTotalXp(skill, before + (long) delta);
@@ -314,6 +344,7 @@ public class SkillTracker {
      * second window does the same job.
      */
     private static void countCatch(String source) {
+        if (paused) return;
         long pull = FishingBobberTimer.pullId();
         long now = System.currentTimeMillis();
         FishingBobberTimer.onCatch();
@@ -334,6 +365,7 @@ public class SkillTracker {
         String text = strip(raw);
 
         if (text.contains("Double Hook")) {
+            if (paused) return;
             Session f = session("Fishing");
             f.doubleHooks++;
             f.touch();
@@ -377,6 +409,7 @@ public class SkillTracker {
     }
 
     private static void addWhispers(double amount) {
+        if (paused) return;
         Session f = session("Foraging");
         f.whispers += (long) amount;
         f.touch();
@@ -384,6 +417,7 @@ public class SkillTracker {
 
     // SkyHanni compacts the gift block into one line, so both forms can show up
     private static void countGift() {
+        if (paused) return;
         Session f = session("Foraging");
         long now = System.currentTimeMillis();
         if (now - f.lastGiftMs > 1000) {
@@ -397,7 +431,8 @@ public class SkillTracker {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.skillTracker || com.teslamaps.dungeon.DungeonManager.isInDungeon()) return false;
         if (pinned() != null) return true;
-        return activeSkill != null && System.currentTimeMillis() - lastGain <= 10 * 60_000;
+        // a pause stops show(), so the panel would time out while it is parked
+        return activeSkill != null && (paused || System.currentTimeMillis() - lastGain <= 10 * 60_000);
     }
 
     public static void render(GuiGraphicsExtractor ctx, DeltaTracker delta) {
@@ -419,30 +454,33 @@ public class SkillTracker {
 
         if ((int) Math.floor(localY / 10.0) != ls.length - 1) return;
         String last = ls[ls.length - 1];
-        var font = Minecraft.getInstance().font;
 
-        String toggle = cfg.skillTrackerHidden ? SHOW : HIDE;
-        int tCut = last.indexOf(toggle);
-        if (tCut > 0 && localX >= font.width(last.substring(0, tCut)) - 2) {
+        if (com.teslamaps.utils.PanelButtons.hit(last, cfg.skillTrackerHidden ? SHOW : HIDE, localX)) {
             cfg.skillTrackerHidden = !cfg.skillTrackerHidden;
             cachedLines = null;
             TeslaMapsConfig.save();
             return;
         }
-        int cut = last.indexOf(RESET);
-        if (cut > 0 && localX >= font.width(last.substring(0, cut)) - 2) resetSession();
+        if (com.teslamaps.utils.PanelButtons.hit(last, paused ? RESUME : PAUSE, localX)) {
+            togglePause();
+            return;
+        }
+        if (com.teslamaps.utils.PanelButtons.hit(last, RESET, localX)) resetSession();
     }
 
     /** Clears the counters but keeps the known total xp, so levels stay right. */
     public static void resetSession() {
         cachedLines = null;
         sessions.clear();
+        paused = false;
         lastKills = -1;
     }
 
     private static final String RESET = "§c[Reset]";
     private static final String HIDE = "§7[Hide]";
     private static final String SHOW = "§a[Show]";
+    private static final String PAUSE = "§e[Pause]";
+    private static final String RESUME = "§a[Resume]";
 
     /** How long the session has been running, idle time already trimmed by touch(). */
     private static String fmtDuration(long ms) {
@@ -520,9 +558,10 @@ public class SkillTracker {
         }
 
         // uptime always, the controls only where they can be clicked
-        String uptime = "§7Session: §f" + fmtDuration(s.liveActiveMs());
+        String uptime = "§7Session: §f" + fmtDuration(s.liveActiveMs()) + (paused ? " §6❚❚" : "");
         if (inInventory()) {
-            uptime += " " + RESET + " " + (TeslaMapsConfig.get().skillTrackerHidden ? SHOW : HIDE);
+            uptime += " " + (paused ? RESUME : PAUSE) + " " + RESET
+                    + " " + (TeslaMapsConfig.get().skillTrackerHidden ? SHOW : HIDE);
         }
         out.add(uptime);
         return out.toArray(new String[0]);

@@ -36,6 +36,10 @@ loom {
             if (project.hasProperty("noauth")) {
                 property "devauth.enabled", "false"
             }
+            // ./gradlew.bat runClient -Ptooltiptest  -> opens the enchant tooltip test screen
+            if (project.hasProperty("tooltiptest")) {
+                property "teslamaps.tooltiptest", "true"
+            }
             if (project.hasProperty("jfr")) {
                 vmArgs "-XX:StartFlightRecording=duration=${project.jfr}s,settings=profile," +
                         "filename=${rootDir}/run/teslamaps.jfr,dumponexit=true"

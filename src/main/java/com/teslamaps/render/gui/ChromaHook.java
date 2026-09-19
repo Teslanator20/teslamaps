@@ -31,7 +31,7 @@ public class ChromaHook {
 
     private static boolean enabled() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.enchantChromaMax || c.chromaPrefix;
+        return c.enchantChromaMax || c.chromaPrefix || AnimFades.previewActive;
     }
 
     private static String cachedHexA = "", cachedHexB = "";
@@ -65,7 +65,7 @@ public class ChromaHook {
         float fadeWidth = mc.font.width("[TeslaMaps]") * chatScale * guiScale;
 
         slice = UNIFORM.writeWith(chromaSize, timeOffset, c.chromaSaturation, c.chromaForward ? 1 : 0,
-                fadeStartX, fadeWidth, fadeA, fadeB);
+                fadeStartX, fadeWidth, fadeA, fadeB, ticks, chatScale * guiScale);
     }
 
     /**
@@ -94,6 +94,10 @@ public class ChromaHook {
         String name = color.serialize();
         if (COLOR_NAME.equals(name)) return ChromaPipelines.CHROMA_TEXT;
         if (FADE_NAME.equals(name)) return ChromaPipelines.FADE_TEXT;
+        if (name.startsWith(AnimFades.PREFIX)) {
+            RenderPipeline anim = AnimFades.pipeline(name);
+            if (anim != null) return anim;
+        }
         return original;
     }
 }

@@ -111,6 +111,7 @@ public class TeslaMaps implements ClientModInitializer {
         com.teslamaps.render.gui.TeslaVertexFormats.init();
         com.teslamaps.render.gui.TeslaGuiPipelines.init();
         com.teslamaps.render.gui.ChromaPipelines.init();
+        com.teslamaps.render.gui.AnimFades.init();
         com.teslamaps.features.TranslucentLava.registerFluidModel();
         com.teslamaps.features.TranslucentWater.registerFluidModel();
 
@@ -151,6 +152,7 @@ public class TeslaMaps implements ClientModInitializer {
         hud("skillexp", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Skills")) com.teslamaps.features.SkillExpDisplay.render(g, d); });
         hud("petoverlay", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Skills")) com.teslamaps.features.pets.PetOverlay.render(g, d); });
         hud("bestiary", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Combat")) com.teslamaps.features.BestiaryTracker.render(g, d); });
+        hud("flaremode", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("Skills")) com.teslamaps.features.hunting.FlareMode.render(g, d); });
         hud("livid", (g, d) -> { if (TeslaMapsConfig.get().section("ESP")) LividSolver.renderHUD(g, d); });
         hud("spiritbear", (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles & Terminals")) SpiritBearTimer.render(g, d); });
         hud("kicked", (g, d) -> com.teslamaps.features.KickedTimer.render(g, d));
@@ -338,6 +340,7 @@ public class TeslaMaps implements ClientModInitializer {
                 com.teslamaps.features.ChatHistoryPersistence.save(client));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            com.teslamaps.debug.TooltipTestScreen.autoOpen(client);
             Perf.begin("TickScheduler.tick"); com.teslamaps.utils.TickScheduler.tick(); Perf.end();
             com.teslamaps.features.customize.Customize.tick();
             Perf.begin("Updater.tick"); com.teslamaps.features.Updater.tick(); Perf.end();
@@ -403,6 +406,7 @@ public class TeslaMaps implements ClientModInitializer {
                 if (cfg.section("Combat")) { Perf.begin("SlayerAlerts.tick"); com.teslamaps.slayer.SlayerAlerts.tick(); Perf.end(); }
                 if (cfg.section("Skills")) { Perf.begin("SkillTracker.tick"); com.teslamaps.features.SkillTracker.tick(); Perf.end(); }
                 if (cfg.section("Combat") && cfg.bestiaryTracker) { Perf.begin("BestiaryTracker.tick"); com.teslamaps.features.BestiaryTracker.tick(); Perf.end(); }
+                if (cfg.section("Skills") && cfg.flareMode) { Perf.begin("FlareMode.tick"); com.teslamaps.features.hunting.FlareMode.tick(); Perf.end(); }
                 if (cfg.section("Auto")) {
                     if (!com.teslamaps.features.LegitMode.blocksCheats()) {
                         Perf.begin("AutoGFS.tick"); AutoGFS.tick(); Perf.end();

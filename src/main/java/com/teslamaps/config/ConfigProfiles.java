@@ -236,7 +236,7 @@ public class ConfigProfiles {
             // qol
             "infiniteChat", "chatStacking", "commandSuggestions", "commandSuggestionsPlayers",
             "gfsSuggestions", "gfsQueued", "gfsSuperCraft",
-            "searchbar", "scrollableTooltip", "hudDragInInventory", "backpackPreview", "signEnterKey",
+            "searchbar", "scrollableTooltip", "tooltipFitScreen", "hudDragInInventory", "backpackPreview", "signEnterKey",
             "enchantAbbrev", "rescueMission",
     };
 

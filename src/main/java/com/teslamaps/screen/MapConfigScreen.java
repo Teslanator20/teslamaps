@@ -677,6 +677,17 @@ public class MapConfigScreen extends Screen {
                 () -> config.skillTrackerPin == null || config.skillTrackerPin.isEmpty() ? "Auto" : config.skillTrackerPin,
                 v -> config.skillTrackerPin = "Auto".equals(v) ? "" : v));
         skills.add(new InfoEntry(contentX, "Auto follows the XP, a skill keeps the panel on it"));
+        skills.add(new LabelEntry(contentX, "Flare Mode"));
+        skills.add(new ToggleEntry(contentX, contentWidth, "Flare Mode HUD", () -> config.flareMode, v -> config.flareMode = v));
+        skills.add(new InfoEntry(contentX, "Hunting and Combat at once, plus the flare bestiary count"));
+        skills.add(new InfoEntry(contentX, "3x check reads the Book of Stats kill counter on the held weapon"));
+        skills.add(new InfoEntry(contentX, "Open the Bestiary menu once for the absolute kill total"));
+        skills.add(new ToggleEntry(contentX, contentWidth, "  Chat Warning on 1x", () -> config.flareWarnChat, v -> config.flareWarnChat = v));
+        skills.add(new ToggleEntry(contentX, contentWidth, "  Warning Sound", () -> config.flareWarnSound, v -> config.flareWarnSound = v));
+        skills.add(new SliderEntry(contentX, contentWidth, "  Warning Interval (s)", 5f, 120f,
+                () -> (float) config.flareWarnSeconds, v -> config.flareWarnSeconds = Math.round(v), 0));
+        skills.add(new InfoEntry(contentX, "/tmap flare on|off · pause · reset · mob <name>"));
+        skills.add(new InfoEntry(contentX, "[Pause]/[Reset] sit on the panel while the inventory is open"));
         skills.add(new LabelEntry(contentX, "Pet"));
         skills.add(new ToggleEntry(contentX, contentWidth, "Pet HUD", () -> config.petOverlay, v -> config.petOverlay = v));
         skills.add(new InfoEntry(contentX, "Equipped pet with level, XP progress and held item"));
@@ -1599,6 +1610,8 @@ public class MapConfigScreen extends Screen {
         List<SettingsEntry> tooltips = new ArrayList<>();
         tooltips.add(new LabelEntry(contentX, "Tooltips"));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Scrollable Tooltip", () -> config.scrollableTooltip, v -> config.scrollableTooltip = v));
+        tooltips.add(new ToggleEntry(contentX, contentWidth, "Fit Tooltip To Screen", () -> config.tooltipFitScreen, v -> config.tooltipFitScreen = v));
+        tooltips.add(new InfoEntry(contentX, "Long tooltips shrink instead of running off the top"));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Compactor/Deletor Preview", () -> config.compactorPreview, v -> config.compactorPreview = v));
         tooltips.add(new InfoEntry(contentX, "Tooltip shows on/off status and configured items"));
         tooltips.add(new LabelEntry(contentX, "Item Value"));

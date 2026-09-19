@@ -53,8 +53,14 @@ public class BestiaryTracker {
         }
 
         long liveActiveMs() {
-            if (lastActivity == 0) return 0;
+            if (lastActivity == 0) return activeMs;
             return activeMs + Math.min(System.currentTimeMillis() - lastActivity, idleCap);
+        }
+
+        /** Folds the running time in and stops the clock, so a pause costs no session time. */
+        void freeze() {
+            activeMs = liveActiveMs();
+            lastActivity = 0;
         }
 
         double hours() { return liveActiveMs() / 3_600_000.0; }
@@ -173,7 +179,19 @@ public class BestiaryTracker {
     private static final Map<String, Stat> stats = new LinkedHashMap<>();
     private static final List<String> seen = new ArrayList<>();
     private static int tickCounter = 0;
+    private static boolean paused = false;
     private static String lastProfile = "";
+
+    /** Pause keeps every number, it only stops the clock and the counters. */
+    public static void togglePause() {
+        paused = !paused;
+        if (paused) for (Stat s : stats.values()) s.freeze();
+        cachedLines = null;
+    }
+
+    public static boolean paused() {
+        return paused;
+    }
 
     public static void reset() {
         cachedLines = null;
@@ -185,6 +203,7 @@ public class BestiaryTracker {
     public static void resetSession() {
         cachedLines = null;
         displayedCache = null;
+        paused = false;
         for (Stat s : stats.values()) {
             s.kills = 0;
             s.activeMs = 0;
@@ -409,8 +428,9 @@ public class BestiaryTracker {
         Stat s = stats.computeIfAbsent(name, k -> new Stat());
         s.max = false;
         s.idleCap = idleCap(name, needed);
-        // the tab counts total kills, not tier progress - a tier up does not reset it
-        if (s.seeded && current > s.current) {
+        // the tab counts total kills, not tier progress - a tier up does not reset it.
+        // s.current keeps tracking while paused, so resuming does not dump the whole gap
+        if (!paused && s.seeded && current > s.current) {
             s.kills += current - s.current;
             s.touch();
         }
@@ -478,12 +498,16 @@ public class BestiaryTracker {
 
         if ((int) Math.floor(localY / 10.0) != ls.length - 1) return;
         String last = ls[ls.length - 1];
-        int cut = last.indexOf(RESET);
-        String before = cut > 0 ? last.substring(0, cut) : "";
-        if (localX >= Minecraft.getInstance().font.width(before) - 2) resetSession();
+        if (com.teslamaps.utils.PanelButtons.hit(last, paused ? RESUME : PAUSE, localX)) {
+            togglePause();
+            return;
+        }
+        if (com.teslamaps.utils.PanelButtons.hit(last, RESET, localX)) resetSession();
     }
 
     private static final String RESET = "§c[Reset]";
+    private static final String PAUSE = "§e[Pause]";
+    private static final String RESUME = "§a[Resume]";
 
     private static String[] cachedLines = null;
     private static long cachedAt = 0;
@@ -520,7 +544,12 @@ public class BestiaryTracker {
             }
         }
 
-        if (inInventory()) out.add("§7Session: §f" + fmtDuration(longest) + " " + RESET);
+        if (inInventory()) {
+            out.add("§7Session: §f" + fmtDuration(longest) + (paused ? " §6❚❚" : "")
+                    + " " + (paused ? RESUME : PAUSE) + " " + RESET);
+        } else if (paused) {
+            out.add("§7Session: §f" + fmtDuration(longest) + " §6❚❚");
+        }
         return out.toArray(new String[0]);
     }
 

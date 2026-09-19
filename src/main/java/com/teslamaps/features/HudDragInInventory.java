@@ -113,6 +113,20 @@ public class HudDragInInventory {
                     value -> TeslaMapsConfig.get().skillTrackerScale = value,
                     SkillTracker::onClick),
 
+            new Panel("Flare",
+                    com.teslamaps.features.hunting.FlareMode::shouldRender,
+                    () -> panelBounds(TeslaMapsConfig.get().flareModeX,
+                            TeslaMapsConfig.get().flareModeY,
+                            com.teslamaps.features.hunting.FlareMode.width(TeslaMapsConfig.get().flareModeScale),
+                            com.teslamaps.features.hunting.FlareMode.height(TeslaMapsConfig.get().flareModeScale)),
+                    xy -> {
+                        TeslaMapsConfig.get().flareModeX = xy[0];
+                        TeslaMapsConfig.get().flareModeY = xy[1];
+                    },
+                    () -> TeslaMapsConfig.get().flareModeScale,
+                    value -> TeslaMapsConfig.get().flareModeScale = value,
+                    com.teslamaps.features.hunting.FlareMode::onClick),
+
             new Panel("Bestiary",
                     BestiaryTracker::shouldRender,
                     () -> panelBounds(TeslaMapsConfig.get().bestiaryTrackerX,
