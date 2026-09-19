@@ -40,9 +40,14 @@ public final class MobVisualRender {
                     .add(0, MobVisuals.renderAnchorHeight(entity), 0);
 
             String[] lines = entry.getValue().split("\n");
-            // second line hangs below the first, so the name stays on the mob's centre
+            // ESPRenderer grows text with distance, so the row gap has to grow with it -
+            // a fixed world offset would drift apart the further away the mob is
+            float dist = (float) center.distanceTo(cameraPos);
+            float factor = c.mobVisualNameplateScale * 0.025f * Math.max(1f, dist / 12f);
+            double rowGap = mc.font.lineHeight * factor;
+
             for (int i = 0; i < lines.length; i++) {
-                Vec3 at = center.add(0, -i * 0.25 * c.mobVisualNameplateScale, 0);
+                Vec3 at = center.add(0, -i * rowGap, 0);
                 ESPRenderer.drawText(matrices, lines[i], at, c.mobVisualNameplateScale, cameraPos);
             }
         }
