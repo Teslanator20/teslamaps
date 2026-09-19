@@ -26,8 +26,6 @@ public abstract class ChatTabsScreenMixin extends Screen {
 
     @Shadow protected EditBox input;
 
-    @Unique private boolean teslamaps$selectedTab = false;
-
     protected ChatTabsScreenMixin(Component title) {
         super(title);
     }
@@ -36,10 +34,7 @@ public abstract class ChatTabsScreenMixin extends Screen {
     private void teslamaps$addTabButtons(CallbackInfo ci) {
         if (!ChatTabs.enabled()) return;
         for (ChatTabs.TabBounds bounds : ChatTabs.layout(Minecraft.getInstance())) {
-            addRenderableWidget(new ChatTabButton(bounds, () -> {
-                ChatTabs.select(bounds.channel());
-                teslamaps$selectedTab = true;
-            }));
+            addRenderableWidget(new ChatTabButton(bounds, () -> ChatTabs.select(bounds.channel())));
         }
     }
 
@@ -74,8 +69,6 @@ public abstract class ChatTabsScreenMixin extends Screen {
 
     @Unique
     private void teslamaps$restoreFocus() {
-        if (!teslamaps$selectedTab) return;
-        setFocused(input);
-        teslamaps$selectedTab = false;
+        if (input != null && getFocused() != input) setFocused(input);
     }
 }

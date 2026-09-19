@@ -66,6 +66,13 @@ public class ChatTabButton extends AbstractWidget {
         g.text(font, getMessage().getString(), tx, ty, TEXT, false);
     }
 
+    // arrow/tab focus navigation would steal the chat input's focus
+    @Override
+    public net.minecraft.client.gui.ComponentPath nextFocusPath(
+            net.minecraft.client.gui.navigation.FocusNavigationEvent event) {
+        return null;
+    }
+
     @Override
     protected void updateWidgetNarration(NarrationElementOutput output) {
         defaultButtonNarrationText(output);
