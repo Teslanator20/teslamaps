@@ -1,4 +1,58 @@
 {
+  "click_soft": {
+    "subtitle": "teslamaps.sound.click_soft",
+    "sounds": [
+      {
+        "name": "teslamaps:click_soft",
+        "stream": false
+      }
+    ]
+  },
+  "toggle_on": {
+    "subtitle": "teslamaps.sound.toggle_on",
+    "sounds": [
+      {
+        "name": "teslamaps:toggle_on",
+        "stream": false
+      }
+    ]
+  },
+  "toggle_off": {
+    "subtitle": "teslamaps.sound.toggle_off",
+    "sounds": [
+      {
+        "name": "teslamaps:toggle_off",
+        "stream": false
+      }
+    ]
+  },
+  "confirm": {
+    "subtitle": "teslamaps.sound.confirm",
+    "sounds": [
+      {
+        "name": "teslamaps:confirm",
+        "stream": false
+      }
+    ]
+  },
+  "hitmarker": {
+    "subtitle": "teslamaps.sound.hitmarker",
+    "sounds": [
+      {
+        "name": "teslamaps:hitmarker",
+        "stream": false
+      }
+    ]
+  },
+  "jingle": {
+    "subtitle": "teslamaps.sound.jingle",
+    "sounds": [
+      {
+        "name": "teslamaps:jingle",
+        "stream": false
+      }
+    ]
+  },
   "ui_clicky_hover": {
     "subtitle": "teslamaps.sound.ui",
     "sounds": [

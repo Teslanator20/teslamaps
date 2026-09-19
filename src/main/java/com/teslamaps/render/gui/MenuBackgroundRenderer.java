@@ -29,7 +29,10 @@ public class MenuBackgroundRenderer {
     private static final Map<String, Preset> PRESETS = new LinkedHashMap<>();
 
     static {
+        PRESETS.put("Snow", new Preset(TeslaGuiPipelines.BG_SNOW, 0xFF0B2C4A, "sky_snow"));
+        PRESETS.put("Shimmer", new Preset(TeslaGuiPipelines.BG_SHIMMER, 0xFF0D2B3A, "sky_shimmer"));
         PRESETS.put("Liquid", new Preset(TeslaGuiPipelines.BG_LIQUID, 0xFF2B0F1C, "sky_liquid"));
+        PRESETS.put("Surge", new Preset(TeslaGuiPipelines.BG_SURGE, 0xFF8BE9FF, "sky_surge"));
         PRESETS.put("Starfield", new Preset(TeslaGuiPipelines.BG_STARFIELD, 0xFF9CC7FF, "sky_starfield"));
         PRESETS.put("Nebula", new Preset(TeslaGuiPipelines.BG_NEBULA, 0xFFD2A8FF, "sky_nebula"));
         PRESETS.put("Mesh", new Preset(TeslaGuiPipelines.BG_MESH, 0xFF12122A, "sky_mesh"));
@@ -41,7 +44,7 @@ public class MenuBackgroundRenderer {
     /** Post-chain file for a preset, used by the in-world skybox. */
     public static String chainFor(String preset) {
         Preset p = PRESETS.get(preset);
-        return p == null ? "sky_liquidmetal" : p.chain();
+        return p == null ? "sky_snow" : p.chain();
     }
 
     /** Preset one step along from {@code name}; wraps at both ends. */
@@ -126,7 +129,7 @@ public class MenuBackgroundRenderer {
 
         // A picked image wins. While one is still decoding we hold whatever was on
         // screen before instead of snapping to the fallback preset, which used to
-        // flash for a frame or two on every switch.
+        // flash Snow for a frame or two on every switch.
         String picked = TeslaMapsConfig.get().titleBackground;
         if (ImageBackgrounds.has(picked)) {
             if (ImageBackgrounds.draw(ctx, picked)) {

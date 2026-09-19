@@ -87,6 +87,12 @@ public class SoundOptions {
     // without the audio files just stays silent instead of failing to load.
     private static final LinkedHashMap<String, String> CUSTOM = new LinkedHashMap<>();
     static {
+        CUSTOM.put("TM_CLICK",      "click_soft");
+        CUSTOM.put("TM_TOGGLE_ON",  "toggle_on");
+        CUSTOM.put("TM_TOGGLE_OFF", "toggle_off");
+        CUSTOM.put("TM_CONFIRM",    "confirm");
+        CUSTOM.put("TM_HITMARKER",  "hitmarker");
+        CUSTOM.put("TM_JINGLE",     "jingle");
         CUSTOM.put("TM_QUEEN_ANT",  "queen_ant_found");
     }
 

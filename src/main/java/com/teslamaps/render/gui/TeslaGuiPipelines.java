@@ -15,7 +15,10 @@ public class TeslaGuiPipelines {
     // Procedural menu backgrounds. Same vertex stage as the SDF shapes — the
     // vertex shader's outputs (localPos/shapeParams/vertexColor) are what these
     // fragment shaders read their resolution, time and mouse from.
+    public static final RenderPipeline BG_SNOW = register("bg_snow", "core/teslamaps_bg_snow");
+    public static final RenderPipeline BG_SHIMMER = register("bg_shimmer", "core/teslamaps_bg_shimmer");
     public static final RenderPipeline BG_LIQUID = register("bg_liquid", "core/teslamaps_bg_liquid");
+    public static final RenderPipeline BG_SURGE = register("bg_surge", "core/teslamaps_bg_surge");
     public static final RenderPipeline BG_STARFIELD = register("bg_starfield", "core/teslamaps_bg_starfield");
     public static final RenderPipeline BG_NEBULA = register("bg_nebula", "core/teslamaps_bg_nebula");
     public static final RenderPipeline BG_MESH = register("bg_mesh", "core/teslamaps_bg_mesh");
