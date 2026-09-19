@@ -973,15 +973,6 @@ public class StarredMobESP {
                 ESPRenderer.drawFilledBox(matrices, visibleBox(entity), entry.getValue(), cameraPos,
                         (MultiBufferSource.BufferSource) provider);
             }
-
-            if (SlayerHUD.hasGlowTargets()) {
-                for (Entity entity : mc.level.entitiesForRendering()) {
-                    if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
-                        ESPRenderer.drawFilledBox(matrices, entity.getBoundingBox(), SlayerHUD.getGlowColor(entity),
-                                cameraPos, (MultiBufferSource.BufferSource) provider);
-                    }
-                }
-            }
         }
 
         if (TeslaMapsConfig.get().boxESP && mc.level != null) {
@@ -990,15 +981,6 @@ public class StarredMobESP {
                 if (!entity.isAlive()) continue;
                 ESPRenderer.drawBoxOutline(matrices, visibleBox(entity),
                         entry.getValue() | 0xFF000000, 2.0f, cameraPos, true);
-            }
-
-            if (SlayerHUD.hasGlowTargets()) {
-                for (Entity entity : mc.level.entitiesForRendering()) {
-                    if (SlayerHUD.shouldGlow(entity) && entity.isAlive()) {
-                        ESPRenderer.drawBoxOutline(matrices, entity.getBoundingBox(),
-                                SlayerHUD.getGlowColor(entity) | 0xFF000000, 2.0f, cameraPos, true);
-                    }
-                }
             }
         }
 

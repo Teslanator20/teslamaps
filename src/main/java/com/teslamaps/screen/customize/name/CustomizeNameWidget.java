@@ -38,6 +38,8 @@ import net.minecraft.client.input.PreeditEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.ARGB;
@@ -48,6 +50,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /** Styled item name editor: formatting buttons, colour swatches, custom colour and gradient. Ported from Skyblocker. */
@@ -135,7 +138,39 @@ public class CustomizeNameWidget extends AbstractContainerWidget {
 
     public void setItem(ItemStack stack) {
         uuid = Customize.uuid(stack);
-        setText(stack.getHoverName().copy(), false);
+        setText(fromLegacy(stack.getHoverName()), false);
+    }
+
+    /** Hypixel names carry literal § codes; turn them into real styles or the format buttons have nothing to work on. */
+    private static Component fromLegacy(Component original) {
+        if (original.getString().indexOf('§') < 0) return original.copy();
+        MutableComponent out = Component.empty();
+        FormattedText.StyledContentConsumer<Void> consumer = (style, str) -> {
+            Style current = style;
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < str.length(); i++) {
+                char c = str.charAt(i);
+                if (c == '§' && i + 1 < str.length()) {
+                    ChatFormatting format = ChatFormatting.getByCode(str.charAt(i + 1));
+                    if (format != null) {
+                        i++;
+                        if (!sb.isEmpty()) {
+                            out.append(Component.literal(sb.toString()).setStyle(current));
+                            sb.setLength(0);
+                        }
+                        if (format == ChatFormatting.RESET) current = style;
+                        else if (format.isColor()) current = style.withColor(format);
+                        else current = current.applyFormat(format);
+                        continue;
+                    }
+                }
+                sb.append(c);
+            }
+            if (!sb.isEmpty()) out.append(Component.literal(sb.toString()).setStyle(current));
+            return Optional.empty();
+        };
+        original.visit(consumer, Style.EMPTY);
+        return out;
     }
 
     @Override
@@ -167,10 +202,14 @@ public class CustomizeNameWidget extends AbstractContainerWidget {
         selectionEnd = previousSelectionEnd;
     }
 
-    /** Applies a style to the selection, or to whatever gets typed next if nothing is selected. */
+    /** Applies a style to the selection, or to the whole name when nothing is selected. */
     private void setStyle(Style style) {
         if (selectionStart == selectionEnd) {
             insertAs = style.applyTo(insertAs == null ? Style.EMPTY : insertAs);
+            if (textString.isEmpty()) return;
+            SetStyleVisitor all = new SetStyleVisitor(style, 0, textString.length());
+            text.visit(all, Style.EMPTY);
+            setText(all.getNewText());
             return;
         }
         SetStyleVisitor visitor = new SetStyleVisitor(style, selectionStart, selectionEnd);

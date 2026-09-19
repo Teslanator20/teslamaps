@@ -136,6 +136,9 @@ public final class ContestTimers {
     private static int ticketTicks = 0;
     private static long currentScore = -1;
     private static long ticketHideUntil = 0;   // real-time end of the contest the ticket was earned in
+    private static long scoreContest = Long.MIN_VALUE;
+    private static long contestBaseline = -1;  // widget value at the contest switch (may still be the old score)
+    private static boolean armed = false;
 
     private static void tickScore() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -148,11 +151,23 @@ public final class ContestTimers {
         if (++ticketTicks < 20) return;
         ticketTicks = 0;
 
-        currentScore = miriaScore();
-        if (currentScore < 0) { ticketAnnounced = false; return; }   // no contest running
-        if (currentScore < c.contestTicketScore) return;
-        // latch until the current contest ends, so a lobby swap (widget gone) can't unhide the line
         long now = System.currentTimeMillis();
+        long contest = Math.floorDiv(now - START_OFFSET_MS, FORAGING_PERIOD_MS);
+        currentScore = miriaScore();
+
+        if (contest != scoreContest) {
+            // the widget can still carry the finished contest's score into the next one
+            scoreContest = contest;
+            contestBaseline = currentScore;
+            armed = false;
+            ticketAnnounced = false;
+            ticketHideUntil = 0;
+        }
+
+        if (currentScore < 0) { ticketAnnounced = false; return; }   // no contest running
+        if (currentScore < c.contestTicketScore || currentScore > contestBaseline) armed = true;
+        if (currentScore < c.contestTicketScore || !armed) return;
+        // latch until the current contest ends, so a lobby swap (widget gone) can't unhide the line
         ticketHideUntil = now + remaining(now, START_OFFSET_MS, FORAGING_PERIOD_MS);
         if (!c.contestTicketAnnounce || ticketAnnounced) return;
         ticketAnnounced = true;
@@ -194,20 +209,31 @@ public final class ContestTimers {
         return best;
     }
 
-    /** Biggest plain number in the line, commas allowed. Percentages and timers stay small. */
+    /** Biggest plain number in the line, commas allowed. Positions (#123) and percentages are not scores. */
     private static long largestNumber(String line) {
         long best = -1;
         long current = -1;
+        int start = -1;
         for (int i = 0; i <= line.length(); i++) {
             char ch = i < line.length() ? line.charAt(i) : ' ';
             if (ch >= '0' && ch <= '9') {
-                current = (current < 0 ? 0 : current) * 10 + (ch - '0');
+                if (current < 0) { current = 0; start = i; }
+                current = current * 10 + (ch - '0');
             } else if (ch != ',') {
-                best = Math.max(best, current);
+                if (current >= 0 && !isPosition(line, start) && ch != '%') best = Math.max(best, current);
                 current = -1;
             }
         }
         return best;
+    }
+
+    private static boolean isPosition(String line, int start) {
+        for (int i = start - 1; i >= 0; i--) {
+            char ch = line.charAt(i);
+            if (ch == '#') return true;
+            if (ch != ' ') return false;
+        }
+        return false;
     }
 
     // rebuilt once a second, not once a frame

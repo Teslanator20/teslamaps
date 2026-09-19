@@ -371,11 +371,30 @@ public class SlayerHUD {
     }
 
     public static void renderWorld(com.mojang.blaze3d.vertex.PoseStack matrices, net.minecraft.world.phys.Vec3 cameraPos) {
-        if (!TeslaMapsConfig.get().slayerMinibossTracer) return;
-        for (Entity e : minibossEntities) {
-            if (e == null || !e.isAlive()) continue;
-            com.teslamaps.render.ESPRenderer.drawTracerFromCamera(matrices,
-                    e.getBoundingBox().getCenter(), 0xFFFF5555, cameraPos);
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        boolean legit = com.teslamaps.features.LegitMode.blocksCheats();
+
+        if (cfg.slayerMinibossTracer && !legit) {
+            for (Entity e : minibossEntities) {
+                if (e == null || !e.isAlive()) continue;
+                com.teslamaps.render.ESPRenderer.drawTracerFromCamera(matrices,
+                        e.getBoundingBox().getCenter(), 0xFFFF5555, cameraPos);
+            }
+        }
+
+        if (legit) return;
+
+        if (cfg.slayerMinibossESP) {
+            for (Entity e : minibossEntities) {
+                if (e == null || !e.isAlive()) continue;
+                com.teslamaps.render.ESPRenderer.drawBoxOutline(matrices, e.getBoundingBox(),
+                        getGlowColor(e) | 0xFF000000, 2.0f, cameraPos, true);
+            }
+        }
+
+        if (cfg.slayerBossESP && bossEntity != null && bossEntity.isAlive()) {
+            com.teslamaps.render.ESPRenderer.drawBoxOutline(matrices, bossEntity.getBoundingBox(),
+                    getGlowColor(bossEntity) | 0xFF000000, 2.0f, cameraPos, true);
         }
     }
 
