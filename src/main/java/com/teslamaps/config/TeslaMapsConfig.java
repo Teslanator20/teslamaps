@@ -793,7 +793,7 @@ public class TeslaMapsConfig {
     @Global
     public boolean skyboxOnlySkyblock = true;     // Only while on Skyblock
     @Global
-    public String skyboxPreset = "Shimmer";       // Which skybox shader
+    public String skyboxPreset = "Liquid Metal";  // Which skybox shader
     @Global
     public String skyboxColor = "FFFFFFFF";       // Tint applied to the skybox
     @Global
@@ -1606,6 +1606,19 @@ public class TeslaMapsConfig {
         Boolean oldDragons = c.sectionEnabled.remove("Dragons"); // category merged into F7 / M7
         if (Boolean.FALSE.equals(oldDragons)) c.witherDragons = false;
         if (c.farmPriceMode == null || c.farmPriceMode.isBlank()) c.farmPriceMode = "Instant Sell";
+        // dropped presets and sounds, an old json can still name one
+        java.util.Set<String> goneBackgrounds = java.util.Set.of("Snow", "Shimmer", "Surge");
+        if (c.titleBackground == null || goneBackgrounds.contains(c.titleBackground)) c.titleBackground = "Liquid Metal";
+        if (c.skyboxPreset == null || goneBackgrounds.contains(c.skyboxPreset)) c.skyboxPreset = "Liquid Metal";
+        java.util.Set<String> goneSounds = java.util.Set.of(
+                "TM_CLICK", "TM_TOGGLE_ON", "TM_TOGGLE_OFF", "TM_CONFIRM", "TM_HITMARKER", "TM_JINGLE");
+        for (java.lang.reflect.Field field : TeslaMapsConfig.class.getFields()) {
+            if (field.getType() != String.class) continue;
+            try {
+                if (goneSounds.contains(field.get(c))) field.set(c, "NOTE_PLING");
+            } catch (IllegalAccessException ignored) {
+            }
+        }
         if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
         if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
