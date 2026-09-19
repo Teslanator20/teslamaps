@@ -522,7 +522,7 @@ public class TeslaMapsConfig {
      */
     public static final java.util.List<String> SECTIONS = java.util.List.of(
             "Auto", "Blood Camp", "Chat", "Combat", "Contest Timers", "Crimson Isle", "Critter Safari", "ESP", "Fishing",
-            "Foraging", "Garden", "Inventory", "Leap", "Map", "Mining",
+            "Foraging", "Garden", "Inventory", "Leap", "Map", "Mining", "Mob Visuals",
             "Ordered Waypoints", "Party", "Puzzles & Terminals", "Render", "Score & Splits",
             "Secrets & Waypoints", "Shards", "Skills", "Sounds", "The End", "Timers", "Torrhus Canyon");
 
@@ -731,6 +731,17 @@ public class TeslaMapsConfig {
     public boolean noFog = true;             // Disable fog rendering (boss/water/blindness fog)
     public boolean noNetherFog = true;       // Crimson Isle: push the nether fog away even when Hide Fog is off
 
+    // --- Mob Visuals ---
+    public boolean mobVisuals = false;             // Master toggle for glow/tracer/nameplate
+    public boolean mobVisualGlow = true;           // Vanilla outline in the mob's colour
+    public boolean mobVisualTracer = true;         // Line from the crosshair to the mob
+    public boolean mobVisualNameplate = true;      // Name (and health) drawn on the mob
+    public boolean mobVisualNameplateHealth = true;
+    public float mobVisualNameplateScale = 1.0f;
+    public boolean mobVisualTracerAll = false;     // Off = one line per species, the nearest
+    @Global
+    public java.util.Set<String> mobVisualTargets = new java.util.HashSet<>();
+
     // --- The End: End Stone Protector ---
     public boolean endProtector = true;             // Master toggle for the protector tracker
     public boolean endProtectorStatusHud = true;    // Stage / timer / location panel
@@ -762,6 +773,17 @@ public class TeslaMapsConfig {
     public int rescueVariant = 1;            // Barbarian S-rank has two possible paths (1 or 2)
     public int rescueLookAhead = 3;          // how many parkour platforms are shown ahead
     public String rescueFaction = "Auto";    // Auto (tab list) / Barbarian / Mage
+    // --- Inventory Buttons (NEU-compatible) ---
+    public boolean inventoryButtons = false;       // Draw the command buttons around container screens
+    public boolean invButtonsHideInDungeonMenus = true;  // Keep them off puzzle/leap menus
+    public int invButtonClickType = 0;             // 0 = mouse down, 1 = mouse up
+    public int invButtonTooltipDelay = 300;        // ms of hover before the command tooltip shows
+    @Global
+    public java.util.List<com.teslamaps.features.invbuttons.InventoryButton> invButtons = new ArrayList<>();
+    @Global
+    public java.util.LinkedHashMap<String, java.util.List<com.teslamaps.features.invbuttons.InventoryButton>>
+            savedButtonPresets = new java.util.LinkedHashMap<>();
+
     public boolean hideRecipeBook = false;   // Hide the recipe book button in the inventory
     public boolean noHurtCam = true;         // Disable damage camera tilt
     public boolean noViewBobbing = true;    // Disable view bobbing
@@ -1617,6 +1639,11 @@ public class TeslaMapsConfig {
 
     /** Gson leaves collections null when the stored json predates the field. */
     static void normalize(TeslaMapsConfig c) {
+        if (c.invButtons == null || c.invButtons.isEmpty()) {
+            c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
+        }
+        if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
+        if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.customESPTracers == null) c.customESPTracers = new ArrayList<>();
         if (c.customESPColors == null) c.customESPColors = new java.util.HashMap<>();

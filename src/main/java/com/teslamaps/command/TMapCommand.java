@@ -236,6 +236,18 @@ public class TMapCommand {
                             });
                             return 1;
                         }))
+                .then(ClientCommands.literal("mobs")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() -> Minecraft.getInstance()
+                                    .setScreen(new com.teslamaps.screen.MobVisualScreen(null)));
+                            return 1;
+                        }))
+                .then(ClientCommands.literal("buttons")
+                        .executes(context -> {
+                            Minecraft.getInstance().schedule(() -> Minecraft.getInstance()
+                                    .setScreen(new com.teslamaps.screen.InventoryButtonEditorScreen(null)));
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("apikey")
                         .then(ClientCommands.literal("clear")
                                 .executes(context -> {

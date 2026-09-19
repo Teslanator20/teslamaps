@@ -42,8 +42,17 @@ public final class ServerTicks {
         return tps;
     }
 
+    public static boolean ready() {
+        return lastPacketMillis != 0;
+    }
+
     /** Current server tick, interpolated between packets at the measured TPS. */
     public static double now() {
+        // before the first packet the only clock we have is the client's
+        if (lastPacketMillis == 0) {
+            var level = net.minecraft.client.Minecraft.getInstance().level;
+            return level == null ? 0 : level.getGameTime();
+        }
         long since = System.currentTimeMillis() - lastPacketMillis;
         double advanced = Math.min(since * tps / 1000.0, PACKET_INTERVAL);
         double estimate = lastPacketTicks + Math.max(0.0, advanced);

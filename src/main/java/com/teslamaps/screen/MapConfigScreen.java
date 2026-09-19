@@ -876,6 +876,22 @@ public class MapConfigScreen extends Screen {
         crimson.add(new InfoEntry(contentX, "Two S-rank layouts exist - switch if the path looks wrong"));
         categories.put("Crimson Isle", crimson);
 
+        List<SettingsEntry> mobVisuals = new ArrayList<>();
+        mobVisuals.add(new LabelEntry(contentX, "Mob Visuals"));
+        mobVisuals.add(new ToggleEntry(contentX, contentWidth, "Mob Visuals", () -> config.mobVisuals, v -> config.mobVisuals = v));
+        mobVisuals.add(new InfoEntry(contentX, "Glow, tracer and nameplate for the mobs you pick, per area"));
+        mobVisuals.add(new ButtonEntry(contentX, contentWidth, "Pick Mobs (/tmap mobs)",
+                () -> minecraft.setScreen(new MobVisualScreen(this))));
+        mobVisuals.add(new ToggleEntry(contentX, contentWidth, "  Glow", () -> config.mobVisualGlow, v -> config.mobVisualGlow = v));
+        mobVisuals.add(new ToggleEntry(contentX, contentWidth, "  Tracers", () -> config.mobVisualTracer, v -> config.mobVisualTracer = v));
+        mobVisuals.add(new ToggleEntry(contentX, contentWidth, "  Tracer to Every Mob", () -> config.mobVisualTracerAll, v -> config.mobVisualTracerAll = v));
+        mobVisuals.add(new InfoEntry(contentX, "Off draws one line per species, to the nearest one"));
+        mobVisuals.add(new ToggleEntry(contentX, contentWidth, "  Nameplates", () -> config.mobVisualNameplate, v -> config.mobVisualNameplate = v));
+        mobVisuals.add(new ToggleEntry(contentX, contentWidth, "    Show Health", () -> config.mobVisualNameplateHealth, v -> config.mobVisualNameplateHealth = v));
+        mobVisuals.add(new SliderEntry(contentX, contentWidth, "    Nameplate Size", 0.5f, 3.0f,
+                () -> config.mobVisualNameplateScale, v -> config.mobVisualNameplateScale = v));
+        categories.put("Mob Visuals", mobVisuals);
+
         List<SettingsEntry> theEnd = new ArrayList<>();
         theEnd.add(new LabelEntry(contentX, "End Stone Protector"));
         theEnd.add(new ToggleEntry(contentX, contentWidth, "Protector Tracker", () -> config.endProtector, v -> config.endProtector = v));
@@ -1638,6 +1654,19 @@ public class MapConfigScreen extends Screen {
                 () -> config.imageShareExpiry, v -> config.imageShareExpiry = v));
         categories.put("Screenshots", media);
 
+        inventory.add(new LabelEntry(contentX, "Inventory Buttons"));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Inventory Buttons", () -> config.inventoryButtons, v -> config.inventoryButtons = v));
+        inventory.add(new InfoEntry(contentX, "Command buttons around every container screen"));
+        inventory.add(new ButtonEntry(contentX, contentWidth, "Edit Buttons (/tmap buttons)",
+                () -> minecraft.setScreen(new InventoryButtonEditorScreen(this))));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "  Hide in Dungeon Menus", () -> config.invButtonsHideInDungeonMenus, v -> config.invButtonsHideInDungeonMenus = v));
+        inventory.add(new DropdownEntry(contentX, contentWidth, "  Run Command On",
+                new String[]{"Mouse Down", "Mouse Up"},
+                () -> config.invButtonClickType == 1 ? "Mouse Up" : "Mouse Down",
+                v -> config.invButtonClickType = "Mouse Up".equals(v) ? 1 : 0));
+        inventory.add(new SliderEntry(contentX, contentWidth, "  Tooltip Delay (ms)", 0f, 1000f,
+                () -> (float) config.invButtonTooltipDelay, v -> config.invButtonTooltipDelay = Math.round(v)));
+
         categories.put("Inventory", inventory);
 
         List<SettingsEntry> tooltips = new ArrayList<>();
@@ -2358,8 +2387,8 @@ public class MapConfigScreen extends Screen {
         sections.put("Chat & Media", List.of("Chat", "Sounds", "Screenshots"));
         sections.put("Party & Automation", List.of("Party", "Auto"));
         sections.put("Skyblock", List.of("Skills", "Combat", "Garden", "Mining", "Fishing", "Foraging",
-                "Contest Timers", "Torrhus Canyon", "Critter Safari", "Crimson Isle", "The End", "Shards",
-                "Ordered Waypoints"));
+                "Contest Timers", "Torrhus Canyon", "Critter Safari", "Crimson Isle", "The End",
+                "Mob Visuals", "Shards", "Ordered Waypoints"));
 
         categoryHeaders.clear();
         for (String cat : categories.keySet()) categoryHeaders.put(cat, new LabelEntry(contentX, cat));
@@ -2375,7 +2404,10 @@ public class MapConfigScreen extends Screen {
                 "Highlight Teammates", "Invisible Armor Stand ESP", "Pest ESP", "Pest Tracers",
                 "Dropped Item ESP", "Item Pickup Readiness",
                 "Miniboss ESP", "Enable Auto GFS", "Auto Wish (Healer Ult)", "Critter ESP",
-                "Critter ESP (Safari)", "Bee Nest ESP", "Exploding Frog ESP", "Hidden Critter Walls");
+                "Critter ESP (Safari)", "Bee Nest ESP", "Exploding Frog ESP", "Hidden Critter Walls",
+                // only the master: the sub-labels ("Glow", "Tracers", ...) collide with other
+                // categories, and MobVisuals.active() already refuses to run under Legit Mode
+                "Mob Visuals");
         for (List<SettingsEntry> entries : categories.values()) {
             for (SettingsEntry e : entries) {
                 // trim: sub-options carry a leading indent that is not part of the name

@@ -103,6 +103,7 @@ public class TeslaMaps implements ClientModInitializer {
         com.teslamaps.screen.customize.CustomizeButton.register();
         com.teslamaps.screen.ContestTimersButton.register();
         com.teslamaps.screen.AuctionDealsButton.register();
+        com.teslamaps.features.invbuttons.InventoryButtons.register();
 
         com.teslamaps.render.gui.ImageBackgrounds.init();
         com.teslamaps.features.capes.CapeManager.init();
@@ -265,6 +266,9 @@ public class TeslaMaps implements ClientModInitializer {
                 if (TeslaMapsConfig.get().section("The End")) {
                     Perf.begin("EndProtector"); com.teslamaps.features.theend.EndProtector.render(context.poseStack(), cameraPos); Perf.end();
                 }
+                if (TeslaMapsConfig.get().section("Mob Visuals")) {
+                    Perf.begin("MobVisuals"); com.teslamaps.features.mobvisuals.MobVisualRender.render(context.poseStack(), cameraPos); Perf.end();
+                }
                 if (TeslaMapsConfig.get().section("Torrhus Canyon")) {
                     Perf.begin("CritterESP"); com.teslamaps.features.CritterESP.render(context.poseStack(), cameraPos); Perf.end();
                     Perf.begin("TikiESP"); com.teslamaps.features.TikiESP.render(context.poseStack(), cameraPos); Perf.end();
@@ -376,6 +380,7 @@ public class TeslaMaps implements ClientModInitializer {
                     Perf.begin("SafariESP.tick"); com.teslamaps.safari.SafariESP.tick(); Perf.end();
                 }
                 if (cfg.section("The End")) { Perf.begin("EndProtector.tick"); com.teslamaps.features.theend.EndProtector.tick(); Perf.end(); }
+                if (cfg.section("Mob Visuals")) { Perf.begin("MobVisuals.tick"); com.teslamaps.features.mobvisuals.MobVisuals.tick(); Perf.end(); }
                 if (cfg.section("Torrhus Canyon")) {
                     Perf.begin("CritterESP.tick"); com.teslamaps.features.CritterESP.tick(); Perf.end();
                     Perf.begin("TikiESP.tick"); com.teslamaps.features.TikiESP.tick(); Perf.end();
