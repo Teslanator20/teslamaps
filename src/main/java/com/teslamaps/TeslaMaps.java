@@ -169,6 +169,8 @@ public class TeslaMaps implements ClientModInitializer {
         hud("thornstun", (g, d) -> { if (TeslaMapsConfig.get().section("Puzzles & Terminals")) com.teslamaps.features.ThornStunTimer.render(g, d); });
         hud("sprinting", (g, d) -> { if (TeslaMapsConfig.get().section("Render")) com.teslamaps.features.SprintingOverlay.render(g, d); });
         hud("safari", (g, d) -> { if (TeslaMapsConfig.get().section("Critter Safari")) com.teslamaps.safari.SafariTracker.render(g, d); });
+        hud("protectorstatus", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("The End")) com.teslamaps.features.theend.ProtectorHud.render(g, d); });
+        hud("protectorloot", (g, d) -> { if (hudPass() && TeslaMapsConfig.get().section("The End")) com.teslamaps.features.theend.ProtectorLootHud.render(g, d); });
         hud("hotfperks", (g, d) -> { if (TeslaMapsConfig.get().section("Foraging")) com.teslamaps.features.foraging.HotfPerkDisplay.render(g, d); });
         hud("lasso", (g, d) -> { if (TeslaMapsConfig.get().section("Foraging")) com.teslamaps.features.hunting.LassoDisplay.render(g, d); });
         hud("pickaxeability", (g, d) -> { if (TeslaMapsConfig.get().section("Mining")) com.teslamaps.features.mining.PickaxeAbility.render(g, d); });
@@ -259,6 +261,9 @@ public class TeslaMaps implements ClientModInitializer {
 
                 if (TeslaMapsConfig.get().section("Critter Safari")) {
                     Perf.begin("SafariESP"); com.teslamaps.safari.SafariESP.render(context.poseStack(), cameraPos); Perf.end();
+                }
+                if (TeslaMapsConfig.get().section("The End")) {
+                    Perf.begin("EndProtector"); com.teslamaps.features.theend.EndProtector.render(context.poseStack(), cameraPos); Perf.end();
                 }
                 if (TeslaMapsConfig.get().section("Torrhus Canyon")) {
                     Perf.begin("CritterESP"); com.teslamaps.features.CritterESP.render(context.poseStack(), cameraPos); Perf.end();
@@ -370,6 +375,7 @@ public class TeslaMaps implements ClientModInitializer {
                     Perf.begin("SafariTracker.tick"); com.teslamaps.safari.SafariTracker.tick(); Perf.end();
                     Perf.begin("SafariESP.tick"); com.teslamaps.safari.SafariESP.tick(); Perf.end();
                 }
+                if (cfg.section("The End")) { Perf.begin("EndProtector.tick"); com.teslamaps.features.theend.EndProtector.tick(); Perf.end(); }
                 if (cfg.section("Torrhus Canyon")) {
                     Perf.begin("CritterESP.tick"); com.teslamaps.features.CritterESP.tick(); Perf.end();
                     Perf.begin("TikiESP.tick"); com.teslamaps.features.TikiESP.tick(); Perf.end();

@@ -268,7 +268,7 @@ public final class HarvestFeast {
         HudStyle.panel(context, 0, 0, width, height, 6);
 
         int textY = PADDING + (ICON - 8) / 2;
-        context.text(mc.font, Component.literal(TITLE), PADDING, textY, AppleColors.TEXT_PRIMARY, false);
+        context.text(mc.font, Component.literal(TITLE), PADDING, textY, AppleColors.TEXT_PRIMARY, true);
 
         int iconX = PADDING + mc.font.width(TITLE) + 4;
         for (String crop : crops) {
@@ -277,7 +277,7 @@ public final class HarvestFeast {
             iconX += ICON + 2;
         }
         context.text(mc.font, Component.literal(time(preview)), iconX + 2, textY,
-                AppleColors.TEXT_SECONDARY, false);
+                HudStyle.label(), true);
 
         context.pose().popMatrix();
     }

@@ -7,7 +7,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -18,9 +17,6 @@ import java.util.Map;
 
 /** Writes which enchant a book holds onto its icon ("Leg I", "Chim II"), like NEU/Skyblocker. */
 public class EnchantAbbrev {
-
-    private static final int COLOR_NORMAL = 0x5555FF;
-    private static final int COLOR_ULTIMATE = 0xFF55FF;
 
     private static final Map<String, String> ULTIMATE = new HashMap<>();
     private static final Map<String, String> NORMAL = new HashMap<>();
@@ -116,21 +112,20 @@ public class EnchantAbbrev {
         NORMAL.put("toxophilite", "Toxo");
     }
 
-    private record Text(Component roman, Component numbers) {}
-    private static final Text NONE = new Text(null, null);
+    private record Text(Component name, String roman, String numbers, boolean ultimate) {}
+    private static final Text NONE = new Text(null, null, null, false);
 
     // keyed by the CustomData object, which is stable per stack - never hash whole nbt per frame
     private static final Map<CustomData, Text> cache = new IdentityHashMap<>();
 
-    public static Component get(ItemStack stack) {
+    private static Text get(ItemStack stack) {
         if (stack == null || !stack.is(Items.ENCHANTED_BOOK)) return null;
-        TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.enchantAbbrev) return null;
+        if (!TeslaMapsConfig.get().enchantAbbrev) return null;
         CustomData data = stack.get(DataComponents.CUSTOM_DATA);
         if (data == null) return null;
         if (cache.size() > 2048) cache.clear();
         Text text = cache.computeIfAbsent(data, EnchantAbbrev::build);
-        return cfg.enchantLevelsAsNumbers ? text.numbers : text.roman;
+        return text.name == null ? null : text;
     }
 
     private static Text build(CustomData data) {
@@ -145,10 +140,8 @@ public class EnchantAbbrev {
         if (!ultimate) name = NORMAL.get(id);
         if (name == null) name = fallback(id);
 
-        TextColor color = TextColor.fromRgb(ultimate ? COLOR_ULTIMATE : COLOR_NORMAL);
-        return new Text(
-                Component.literal(name + " " + roman(level)).withStyle(s -> s.withColor(color)),
-                Component.literal(name + " " + level).withStyle(s -> s.withColor(color)));
+        return new Text(Component.literal(name).withStyle(s -> s.withBold(true)),
+                roman(level), String.valueOf(level), ultimate);
     }
 
     /** Unknown enchant: initials for multi-word ids (bane_of_arthropods = BOA), else first 4 letters. */
@@ -170,16 +163,31 @@ public class EnchantAbbrev {
         return level >= 1 && level <= ROMAN.length ? ROMAN[level - 1] : String.valueOf(level);
     }
 
-    /** Over a 16px item at (itemX, itemY), scaled down until the whole label fits. */
+    /** Name bold across the top of a 16px item, level small in the bottom right. */
     public static void draw(GuiGraphicsExtractor ctx, ItemStack stack, int itemX, int itemY) {
-        Component text = get(stack);
+        Text text = get(stack);
         if (text == null) return;
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
         Font font = Minecraft.getInstance().font;
-        float scale = Math.min(1f, 16f / font.width(text));
+
+        int nameColor = TeslaMapsConfig.parseColor(
+                text.ultimate ? cfg.colorEnchantAbbrevUltimate : cfg.colorEnchantAbbrev);
+        String level = cfg.enchantLevelsAsNumbers ? text.numbers : text.roman;
+
+        float nameScale = Math.min(1f, 17f / font.width(text.name));
+        float levelScale = Math.min(0.75f, 10f / font.width(level));
+
         ctx.pose().pushMatrix();
         ctx.pose().translate(itemX, itemY);
-        ctx.pose().scale(scale, scale);
-        ctx.text(font, text, 0, 0, 0xFFFFFFFF);
+
+        ctx.pose().pushMatrix();
+        ctx.pose().scale(nameScale, nameScale);
+        ctx.text(font, text.name, 0, 0, nameColor);
+        ctx.pose().popMatrix();
+
+        ctx.pose().translate(17f - font.width(level) * levelScale, 17f - 8f * levelScale);
+        ctx.pose().scale(levelScale, levelScale);
+        ctx.text(font, level, 0, 0, TeslaMapsConfig.parseColor(cfg.colorEnchantAbbrevLevel));
         ctx.pose().popMatrix();
     }
 

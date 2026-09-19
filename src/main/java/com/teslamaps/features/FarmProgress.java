@@ -198,7 +198,7 @@ public class FarmProgress {
         int trackWidth = PANEL_WIDTH - PADDING * 2;
         // Header: label on the left, remaining distance right-aligned.
         context.text(mc.font, Component.literal("Lane"), PADDING, 8,
-                AppleColors.TEXT_SECONDARY, false);
+                com.teslamaps.render.gui.HudStyle.label(), true);
 
         String remaining = String.format("%.0f", left);
         String unit = "m";
@@ -207,9 +207,9 @@ public class FarmProgress {
         int rightEdge = PANEL_WIDTH - PADDING;
         context.text(mc.font, Component.literal(remaining),
                 rightEdge - unitWidth - valueWidth, 8,
-                warning ? AppleColors.ACCENT_RED : AppleColors.TEXT_PRIMARY, false);
+                warning ? AppleColors.ACCENT_RED : AppleColors.TEXT_PRIMARY, true);
         context.text(mc.font, Component.literal(unit), rightEdge - unitWidth, 8,
-                AppleColors.TEXT_TERTIARY, false);
+                com.teslamaps.render.gui.HudStyle.dim(), true);
 
         // Fill grows from the end this pass began at, so it empties on the turn.
         TeslaGui.progressTrack(context, PADDING, TRACK_Y, trackWidth, TRACK_HEIGHT,

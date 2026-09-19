@@ -3,7 +3,6 @@ package com.teslamaps.api;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.teslamaps.TeslaMaps;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 
 import java.net.URI;
@@ -33,13 +32,6 @@ public class PvApi {
     private static volatile String key = null;
     private static volatile boolean authFailed = false;
 
-    private static String userAgent() {
-        String version = FabricLoader.getInstance().getModContainer("teslamaps")
-                .map(c -> c.getMetadata().getVersion().getFriendlyString())
-                .orElse("dev");
-        return "TeslaMaps/" + version;
-    }
-
     public static boolean authenticate() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getUser() == null) return false;
@@ -53,7 +45,6 @@ public class PvApi {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(BASE + "/authenticate"))
                     .timeout(Duration.ofSeconds(15))
-                    .header("User-Agent", userAgent())
                     .header("x-minecraft-username", mc.getUser().getName())
                     .header("x-minecraft-server", server)
                     .GET()
@@ -94,7 +85,6 @@ public class PvApi {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(BASE + path))
                     .timeout(Duration.ofSeconds(20))
-                    .header("User-Agent", userAgent())
                     .header("Authorization", key)
                     .header("X-Intent", intent)
                     .GET()

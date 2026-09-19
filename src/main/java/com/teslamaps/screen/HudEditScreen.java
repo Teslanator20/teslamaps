@@ -13,7 +13,7 @@ public class HudEditScreen extends Screen {
     private boolean wasMouseDown = false;
 
     /** Which situation an element belongs to, so the editor can hide the rest. */
-    private enum Ctx { ANY, DUNGEON, GARDEN, SAFARI, FORAGING, MINING }
+    private enum Ctx { ANY, DUNGEON, GARDEN, SAFARI, FORAGING, MINING, THE_END }
 
     private boolean showAll = false;
 
@@ -42,6 +42,7 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.INVINCIBILITY, Ctx.DUNGEON, "Timers", c.invincibilityTimer);
         mark(DragTarget.THORN_STUN, Ctx.DUNGEON, "Puzzles & Terminals", c.thornStunTimer);
         mark(DragTarget.DRAGON_TIMER, Ctx.DUNGEON, "F7 / M7", c.witherDragons && c.witherDragonHud);
+        mark(DragTarget.KICKED, Ctx.ANY, "Timers", c.kickedTimer && c.kickedCenterWarning);
         mark(DragTarget.SPIRIT_BEAR, Ctx.DUNGEON, "Puzzles & Terminals", c.spiritBearTimer);
         mark(DragTarget.BEAR_SPAWN, Ctx.DUNGEON, "Sounds", c.bearSpawnWarning);
         mark(DragTarget.OVERKILL, Ctx.DUNGEON, "Timers", c.overkillCounter);
@@ -62,12 +63,13 @@ public class HudEditScreen extends Screen {
         mark(DragTarget.LASSO, Ctx.FORAGING, "Foraging", c.lassoDisplay);
         mark(DragTarget.PICKAXE_ABILITY, Ctx.MINING, "Mining", c.pickaxeAbilityDisplay);
         mark(DragTarget.MINESHAFT_PITY, Ctx.MINING, "Mining", c.mineshaftPityDisplay);
+        mark(DragTarget.PROTECTOR_STATUS, Ctx.THE_END, "The End", c.endProtector && c.endProtectorStatusHud);
+        mark(DragTarget.PROTECTOR_LOOT, Ctx.THE_END, "The End", c.endProtector && c.endProtectorLootHud);
         mark(DragTarget.CONTEST_TIMERS, Ctx.ANY, "Contest Timers", c.contestTimer);
         mark(DragTarget.BOBBER, Ctx.ANY, "Fishing", c.bobberTimer);
         mark(DragTarget.HOOK, Ctx.ANY, "Fishing", c.hookDisplay);
         mark(DragTarget.DEPLOYABLES, Ctx.ANY, "Skills", c.deployableOverlay);
         mark(DragTarget.SPRINTING, Ctx.ANY, "Render", c.sprintingOverlay);
-        mark(DragTarget.KICKED, Ctx.ANY, "Timers", c.kickedTimer);
         mark(DragTarget.PERF_HUD, Ctx.ANY, "Interface", c.perfHud);
     }
 
@@ -80,6 +82,7 @@ public class HudEditScreen extends Screen {
             case SAFARI -> com.teslamaps.safari.SafariData.inSafari();
             case FORAGING -> com.teslamaps.features.foraging.Foraging.onForagingIsland();
             case MINING -> com.teslamaps.features.mining.Mining.onMiningIsland();
+            case THE_END -> com.teslamaps.features.theend.EndProtector.inArea();
         };
     }
 
@@ -92,7 +95,7 @@ public class HudEditScreen extends Screen {
         return super.keyPressed(event);
     }
 
-    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, PERF_HUD, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST, SKILL_EXP, PET_OVERLAY, FLARE_MODE }
+    private enum DragTarget { NONE, MAP, SKILL_TRACKER, BEAR_SPAWN, SPLITS, ROOM_SPLITS, ITEM_VALUE, BLOOD_CAMP, WATCHER_HUD, SPRINTING, DUNGEON_TIMERS, INVINCIBILITY, THORN_STUN, DRAGON_TIMER, SPIRIT_BEAR, KICKED, PERF_HUD, OVERKILL, PEST_ROUTINE, FARM_BAR, PEST_OVERLAY, FARM_PROFIT, CHARMED, SAFARI, HOTF_PERKS, LATHER, CONTEST_TIMERS, BOBBER, DEPLOYABLES, HOOK, BESTIARY, PICKAXE_ABILITY, MINESHAFT_PITY, LASSO, FEAST, SKILL_EXP, PET_OVERLAY, FLARE_MODE, PROTECTOR_STATUS, PROTECTOR_LOOT }
 
     private static final String[] SPLITS_SAMPLE = {
             "§2Blood Open", "§bBlood Clear", "§dPortal Entry", "§5Maxor", "§1Total"
@@ -318,6 +321,40 @@ public class HudEditScreen extends Screen {
         int w = mineshaftPityWidth(), h = mineshaftPityHeight();
         return mouseX >= config.mineshaftPityX && mouseX <= config.mineshaftPityX + w &&
                mouseY >= config.mineshaftPityY && mouseY <= config.mineshaftPityY + h;
+    }
+
+    private int protectorStatusWidth() {
+        return (int)(com.teslamaps.features.theend.ProtectorHud.previewSize(this.font)[0]
+                * TeslaMapsConfig.get().protectorStatusScale);
+    }
+
+    private int protectorStatusHeight() {
+        return (int)(com.teslamaps.features.theend.ProtectorHud.previewSize(this.font)[1]
+                * TeslaMapsConfig.get().protectorStatusScale);
+    }
+
+    private boolean isMouseOverProtectorStatus(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = protectorStatusWidth(), h = protectorStatusHeight();
+        return mouseX >= config.protectorStatusX && mouseX <= config.protectorStatusX + w &&
+               mouseY >= config.protectorStatusY && mouseY <= config.protectorStatusY + h;
+    }
+
+    private int protectorLootWidth() {
+        return (int)(com.teslamaps.features.theend.ProtectorLootHud.previewSize(this.font)[0]
+                * TeslaMapsConfig.get().protectorLootScale);
+    }
+
+    private int protectorLootHeight() {
+        return (int)(com.teslamaps.features.theend.ProtectorLootHud.previewSize(this.font)[1]
+                * TeslaMapsConfig.get().protectorLootScale);
+    }
+
+    private boolean isMouseOverProtectorLoot(int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int w = protectorLootWidth(), h = protectorLootHeight();
+        return mouseX >= config.protectorLootX && mouseX <= config.protectorLootX + w &&
+               mouseY >= config.protectorLootY && mouseY <= config.protectorLootY + h;
     }
 
     private int hookWidth() {
@@ -584,16 +621,16 @@ public class HudEditScreen extends Screen {
     }
 
     private int kickedWidth() {
-        return (int)(this.font.width(com.teslamaps.features.KickedTimer.SAMPLE_TEXT) * TeslaMapsConfig.get().kickedScale);
+        return (int)(this.font.width(com.teslamaps.features.KickedTimer.SAMPLE_TEXT) * TeslaMapsConfig.get().kickedWarnScale);
     }
     private int kickedHeight() {
-        return (int)(this.font.lineHeight * TeslaMapsConfig.get().kickedScale);
+        return (int)(this.font.lineHeight * TeslaMapsConfig.get().kickedWarnScale);
     }
     private boolean isMouseOverKicked(int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int w = kickedWidth(), h = kickedHeight();
-        return mouseX >= config.kickedX && mouseX <= config.kickedX + w &&
-               mouseY >= config.kickedY && mouseY <= config.kickedY + h;
+        return mouseX >= config.kickedWarnX && mouseX <= config.kickedWarnX + w &&
+               mouseY >= config.kickedWarnY && mouseY <= config.kickedWarnY + h;
     }
 
     private int perfHudWidth() {
@@ -774,6 +811,14 @@ public class HudEditScreen extends Screen {
                 dragging = DragTarget.MINESHAFT_PITY;
                 dragOffsetX = mouseX - config.mineshaftPityX;
                 dragOffsetY = mouseY - config.mineshaftPityY;
+            } else if (visible.contains(DragTarget.PROTECTOR_STATUS) && isMouseOverProtectorStatus(mouseX, mouseY)) {
+                dragging = DragTarget.PROTECTOR_STATUS;
+                dragOffsetX = mouseX - config.protectorStatusX;
+                dragOffsetY = mouseY - config.protectorStatusY;
+            } else if (visible.contains(DragTarget.PROTECTOR_LOOT) && isMouseOverProtectorLoot(mouseX, mouseY)) {
+                dragging = DragTarget.PROTECTOR_LOOT;
+                dragOffsetX = mouseX - config.protectorLootX;
+                dragOffsetY = mouseY - config.protectorLootY;
             } else if (visible.contains(DragTarget.SPRINTING) && isMouseOverSprinting(mouseX, mouseY)) {
                 dragging = DragTarget.SPRINTING;
                 dragOffsetX = mouseX - config.sprintingX;
@@ -800,8 +845,8 @@ public class HudEditScreen extends Screen {
                 dragOffsetY = mouseY - config.spiritBearY;
             } else if (visible.contains(DragTarget.KICKED) && isMouseOverKicked(mouseX, mouseY)) {
                 dragging = DragTarget.KICKED;
-                dragOffsetX = mouseX - config.kickedX;
-                dragOffsetY = mouseY - config.kickedY;
+                dragOffsetX = mouseX - config.kickedWarnX;
+                dragOffsetY = mouseY - config.kickedWarnY;
             } else if (visible.contains(DragTarget.PERF_HUD) && isMouseOverPerfHud(mouseX, mouseY)) {
                 dragging = DragTarget.PERF_HUD;
                 dragOffsetX = mouseX - config.perfHudX;
@@ -942,6 +987,14 @@ public class HudEditScreen extends Screen {
             int w = mineshaftPityWidth(), h = mineshaftPityHeight();
             config.mineshaftPityX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
             config.mineshaftPityY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.PROTECTOR_STATUS) {
+            int w = protectorStatusWidth(), h = protectorStatusHeight();
+            config.protectorStatusX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.protectorStatusY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+        } else if (dragging == DragTarget.PROTECTOR_LOOT) {
+            int w = protectorLootWidth(), h = protectorLootHeight();
+            config.protectorLootX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.protectorLootY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.SPRINTING) {
             int w = sprintingWidth();
             int h = sprintingHeight();
@@ -969,8 +1022,8 @@ public class HudEditScreen extends Screen {
             config.spiritBearY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.KICKED) {
             int w = kickedWidth(), h = kickedHeight();
-            config.kickedX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
-            config.kickedY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
+            config.kickedWarnX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
+            config.kickedWarnY = Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY));
         } else if (dragging == DragTarget.PERF_HUD) {
             int w = perfHudWidth(), h = perfHudHeight();
             config.perfHudX = Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX));
@@ -1056,6 +1109,8 @@ public class HudEditScreen extends Screen {
         if (visible.contains(DragTarget.LATHER)) drawLatherPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.PICKAXE_ABILITY)) drawPickaxeAbilityPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.MINESHAFT_PITY)) drawMineshaftPityPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.PROTECTOR_STATUS)) drawProtectorStatusPreview(context, mouseX, mouseY);
+        if (visible.contains(DragTarget.PROTECTOR_LOOT)) drawProtectorLootPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.CONTEST_TIMERS)) drawContestTimersPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.BOBBER)) drawBobberPreview(context, mouseX, mouseY);
         if (visible.contains(DragTarget.HOOK)) drawHookPreview(context, mouseX, mouseY);
@@ -1348,6 +1403,46 @@ public class HudEditScreen extends Screen {
         context.text(this.font, label, x, y - 12, 0xFFFFFFFF);
     }
 
+    private void drawProtectorStatusPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.protectorStatusX, y = config.protectorStatusY;
+        float scale = config.protectorStatusScale;
+
+        com.teslamaps.features.theend.ProtectorHud.draw(context, this.minecraft, x, y, scale);
+
+        int w = protectorStatusWidth(), h = protectorStatusHeight();
+        boolean hovering = visible.contains(DragTarget.PROTECTOR_STATUS) && isMouseOverProtectorStatus(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.PROTECTOR_STATUS) {
+            int borderColor = dragging == DragTarget.PROTECTOR_STATUS ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        context.text(this.font, String.format("Protector Status (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
+    private void drawProtectorLootPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        int x = config.protectorLootX, y = config.protectorLootY;
+        float scale = config.protectorLootScale;
+
+        com.teslamaps.features.theend.ProtectorLootHud.draw(context, this.minecraft, x, y, scale);
+
+        int w = protectorLootWidth(), h = protectorLootHeight();
+        boolean hovering = visible.contains(DragTarget.PROTECTOR_LOOT) && isMouseOverProtectorLoot(mouseX, mouseY);
+        if (hovering || dragging == DragTarget.PROTECTOR_LOOT) {
+            int borderColor = dragging == DragTarget.PROTECTOR_LOOT ? 0xFFFF5555 : 0xFF888888;
+            context.fill(x - 2, y - 2, x + w + 2, y, borderColor);
+            context.fill(x - 2, y + h, x + w + 2, y + h + 2, borderColor);
+            context.fill(x - 2, y, x, y + h, borderColor);
+            context.fill(x + w, y, x + w + 2, y + h, borderColor);
+        }
+
+        context.text(this.font, String.format("Protector Loot (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+    }
+
     private void drawSprintingPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         int x = config.sprintingX;
@@ -1579,8 +1674,8 @@ public class HudEditScreen extends Screen {
 
     private void drawKickedPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        int x = config.kickedX, y = config.kickedY;
-        float scale = config.kickedScale;
+        int x = config.kickedWarnX, y = config.kickedWarnY;
+        float scale = config.kickedWarnScale;
         com.teslamaps.features.KickedTimer.draw(context, this.minecraft, x, y, scale);
         int w = kickedWidth(), h = kickedHeight();
         boolean hovering = visible.contains(DragTarget.KICKED) && isMouseOverKicked(mouseX, mouseY);
@@ -1591,7 +1686,7 @@ public class HudEditScreen extends Screen {
             context.fill(x - 2, y, x, y + h, borderColor);
             context.fill(x + w, y, x + w + 2, y + h, borderColor);
         }
-        context.text(this.font, String.format("Kicked (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
+        context.text(this.font, String.format("Kick Warning (%.1fx)", scale), x, y - 12, 0xFFFFFFFF);
     }
 
     private void drawPerfHudPreview(GuiGraphicsExtractor context, int mouseX, int mouseY) {
@@ -1967,6 +2062,26 @@ public class HudEditScreen extends Screen {
             return true;
         }
 
+        if (visible.contains(DragTarget.PROTECTOR_STATUS) && isMouseOverProtectorStatus((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.protectorStatusScale = Math.min(3.0f, config.protectorStatusScale + 0.05f);
+            } else if (verticalAmount < 0) {
+                config.protectorStatusScale = Math.max(0.5f, config.protectorStatusScale - 0.05f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
+        if (visible.contains(DragTarget.PROTECTOR_LOOT) && isMouseOverProtectorLoot((int) mouseX, (int) mouseY)) {
+            if (verticalAmount > 0) {
+                config.protectorLootScale = Math.min(3.0f, config.protectorLootScale + 0.05f);
+            } else if (verticalAmount < 0) {
+                config.protectorLootScale = Math.max(0.5f, config.protectorLootScale - 0.05f);
+            }
+            TeslaMapsConfig.save();
+            return true;
+        }
+
         if (visible.contains(DragTarget.SAFARI) && isMouseOverSafari((int) mouseX, (int) mouseY)) {
             if (verticalAmount > 0) {
                 config.safariHudScale = Math.min(10.0f, config.safariHudScale + 0.05f);
@@ -2030,8 +2145,8 @@ public class HudEditScreen extends Screen {
         }
 
         if (visible.contains(DragTarget.KICKED) && isMouseOverKicked((int) mouseX, (int) mouseY)) {
-            if (verticalAmount > 0) config.kickedScale = Math.min(5.0f, config.kickedScale + 0.05f);
-            else if (verticalAmount < 0) config.kickedScale = Math.max(0.5f, config.kickedScale - 0.05f);
+            if (verticalAmount > 0) config.kickedWarnScale = Math.min(5.0f, config.kickedWarnScale + 0.05f);
+            else if (verticalAmount < 0) config.kickedWarnScale = Math.max(0.5f, config.kickedWarnScale - 0.05f);
             TeslaMapsConfig.save();
             return true;
         }

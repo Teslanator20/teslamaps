@@ -138,7 +138,6 @@ public class HypixelApi {
                         .uri(URI.create(HYPIXEL_API + "/skyblock/profiles?uuid=" + uuid))
                         .timeout(Duration.ofSeconds(15))
                         .header("API-Key", apiKey)
-                        .header("User-Agent", "TeslaMaps/1.0")
                         .GET()
                         .build();
 
@@ -263,7 +262,6 @@ public class HypixelApi {
                         .uri(URI.create(HYPIXEL_API + path))
                         .timeout(Duration.ofSeconds(15))
                         .header("API-Key", apiKey)
-                        .header("User-Agent", "TeslaMaps/1.0")
                         .GET()
                         .build();
 
@@ -298,7 +296,6 @@ public class HypixelApi {
                         .uri(URI.create(HYPIXEL_API + "/player?uuid=" + uuid))
                         .timeout(Duration.ofSeconds(15))
                         .header("API-Key", apiKey)
-                        .header("User-Agent", "TeslaMaps/1.0")
                         .GET()
                         .build();
 
@@ -366,7 +363,6 @@ public class HypixelApi {
                         .uri(URI.create(HYPIXEL_API + "/guild?player=" + uuid))
                         .timeout(Duration.ofSeconds(15))
                         .header("API-Key", apiKey)
-                        .header("User-Agent", "TeslaMaps/1.0")
                         .GET()
                         .build();
 
@@ -399,7 +395,6 @@ public class HypixelApi {
                         .uri(URI.create(HYPIXEL_API + "/player?uuid=" + uuid))
                         .timeout(Duration.ofSeconds(10))
                         .header("API-Key", apiKey)
-                        .header("User-Agent", "TeslaMaps/1.0")
                         .GET()
                         .build();
 

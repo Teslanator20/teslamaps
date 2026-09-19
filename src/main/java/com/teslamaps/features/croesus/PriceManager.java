@@ -57,7 +57,7 @@ public class PriceManager {
 
     private static String get(String url) throws Exception {
         HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url)).timeout(Duration.ofSeconds(25))
-                .header("User-Agent", "TeslaMaps").GET().build();
+                .GET().build();
         HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
         if (resp.statusCode() != 200) throw new RuntimeException("HTTP " + resp.statusCode());
         return resp.body();

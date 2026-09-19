@@ -253,14 +253,14 @@ public class PestOverlay {
                     ? AppleColors.ACCENT_RED : AppleColors.TEXT_PRIMARY;
         } else {
             cooldownText = "-";
-            cooldownColor = AppleColors.TEXT_TERTIARY;
+            cooldownColor = com.teslamaps.render.gui.HudStyle.dim();
         }
         drawRow(context, mc, "Spawn", cooldownText, cooldownColor, row);
 
         row += LINE;
         double bps = FarmSpeed.blocksPerSecond();
         drawRow(context, mc, "Blocks/s", String.format("%.1f", bps),
-                bps > 0 ? AppleColors.TEXT_PRIMARY : AppleColors.TEXT_TERTIARY, row);
+                bps > 0 ? AppleColors.TEXT_PRIMARY : com.teslamaps.render.gui.HudStyle.dim(), row);
 
         row += LINE;
         int philipLeft = PestData.philipSeconds();
@@ -301,8 +301,8 @@ public class PestOverlay {
     private static void drawRow(GuiGraphicsExtractor context, Minecraft mc,
                                  String label, String value, int valueColor, int y) {
         context.text(mc.font, Component.literal(label), PADDING, y,
-                AppleColors.TEXT_SECONDARY, false);
+                com.teslamaps.render.gui.HudStyle.label(), true);
         int valueX = PANEL_WIDTH - PADDING - mc.font.width(value);
-        context.text(mc.font, Component.literal(value), valueX, y, valueColor, false);
+        context.text(mc.font, Component.literal(value), valueX, y, valueColor, true);
     }
 }

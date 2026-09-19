@@ -12,7 +12,7 @@ import net.minecraft.sounds.SoundEvents;
 // Hypixel sometimes drops you to the SkyBlock lobby when joining a dungeon ("A kick occurred in your
 // connection..."). This starts a timer and tells the party "/pc kicked" so they know to wait.
 public class KickedTimer {
-    public static final String SAMPLE_TEXT = "Kicked: 12s";
+    public static final String SAMPLE_TEXT = "Wait 45s before rejoining!";
 
     private static long kickedAtMs = 0L;
     private static long lastSendMs = 0L;
@@ -56,25 +56,18 @@ public class KickedTimer {
         if (elapsed >= 60) { kickedAtMs = 0; return; }
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        draw(context, mc, TeslaMapsConfig.get().kickedX, TeslaMapsConfig.get().kickedY,
-                TeslaMapsConfig.get().kickedScale, "§c[Kicked] §f" + elapsed + "s");
 
-        // rejoining too early after a kick tends to kick you again - big center warning for 60s
-        if (TeslaMapsConfig.get().kickedCenterWarning && elapsed < 60) {
-            int sw = mc.getWindow().getGuiScaledWidth(), sh = mc.getWindow().getGuiScaledHeight();
-            var pose = context.pose();
-            pose.pushMatrix();
-            pose.translate(sw / 2f, sh * 0.38f);
-            pose.scale(2f, 2f);
-            String warn = "§c§lWait §f§l" + (60 - elapsed) + "s §c§lbefore rejoining!";
-            context.text(mc.font, warn, -mc.font.width(warn) / 2, 0, 0xFFFFFFFF, true);
-            pose.popMatrix();
+        // rejoining too early after a kick tends to kick you again - warning for 60s
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (cfg.kickedCenterWarning) {
+            draw(context, mc, cfg.kickedWarnX, cfg.kickedWarnY, cfg.kickedWarnScale,
+                    "§c§lWait §f§l" + (60 - elapsed) + "s §c§lbefore rejoining!");
         }
     }
 
     /** Draw at a position/scale. Used by the live HUD and the HUD editor preview. */
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
-        draw(context, mc, x, y, scale, "§c[Kicked] §f12s");
+        draw(context, mc, x, y, scale, "§c§lWait §f§l45s §c§lbefore rejoining!");
     }
 
     private static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale, String text) {
@@ -82,7 +75,7 @@ public class KickedTimer {
         pose.pushMatrix();
         pose.translate(x, y);
         pose.scale(scale, scale);
-        context.text(mc.font, text, 0, 0, 0xFFFFFFFF);
+        context.text(mc.font, text, 0, 0, 0xFFFFFFFF, true);
         pose.popMatrix();
     }
 

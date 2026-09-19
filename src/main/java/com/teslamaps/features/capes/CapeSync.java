@@ -36,10 +36,13 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
 
 /**
- * Shared capes between TeslaMaps users, backed by a Supabase project: cape_users
- * via PostgREST (anon read, RLS), textures in the public "capes" storage bucket,
- * writes through the "cape" edge function which verifies the vanilla Mojang
- * joinServer handshake - no password, no token stored.
+ * Shared capes between TeslaMaps users, backed by a Supabase project: textures in the
+ * public "capes" storage bucket, everything else through the "cape" edge function,
+ * which verifies the vanilla Mojang joinServer handshake - no password, no token stored.
+ *
+ * Reads are scoped on purpose. cape_users has no anon select policy, so the table cannot
+ * be dumped with the baked-in anon key; the function answers a list of uuids we already
+ * know about (players in view, in the tab list, or the one a profile is open for).
  */
 public class CapeSync {
 
@@ -47,6 +50,9 @@ public class CapeSync {
             .getConfigDir().resolve("teslamaps").resolve("cape_cache");
 
     private static final long POLL_MS = 120_000;
+    private static final long ASK_AGAIN_MS = 300_000;    // a player without a cape stays without one
+    private static final long KEEP_TEXTURE_MS = 300_000; // grace before an unworn texture is released
+    private static final int MAX_LOOKUP = 400;           // mirrors the cape function's cap
     private static final long AUTH_REUSE_MS = 240_000;   // mojang session stays valid a while
     private static final int MAX_PNG_BYTES = 2 * 1024 * 1024;
     /** Mirrors the cape function's gif limits, so a doomed upload fails before it starts. */
@@ -66,7 +72,14 @@ public class CapeSync {
     private record Remote(String capeId, String hash, String ext, CapeCompose.Crop crop) {
         boolean animated() { return "gif".equals(ext); }
     }
-    private static volatile Map<String, Remote> remote = Map.of();
+    private static final Map<String, Remote> remote = new ConcurrentHashMap<>();
+
+    /** Uuids a lookup was asked for but that have not been sent yet, drained on the tick. */
+    private static final java.util.Set<String> pending = ConcurrentHashMap.newKeySet();
+    /** uuid -> when we last asked, so a capeless player is not re-requested every frame. */
+    private static final Map<String, Long> asked = new ConcurrentHashMap<>();
+    /** hash -> when it was last worn by anyone we saw; textures survive a short absence. */
+    private static final Map<String, Long> seen = new ConcurrentHashMap<>();
 
     /** What a remote player wears - a still texture or an animation picked by wall clock. */
     private record Skin(Identifier still, GifCape gif) {
@@ -110,10 +123,11 @@ public class CapeSync {
         }
 
         long now = System.currentTimeMillis();
-        if (!polling && now - lastPoll > POLL_MS) {
+        if (now - lastPoll > POLL_MS) {
             lastPoll = now;
-            poll();
+            queueVisible();
         }
+        drain();
 
         Map<String, Remote> capes = remote;
         if (capes.isEmpty()) {
@@ -143,13 +157,16 @@ public class CapeSync {
 
     /** Is this player a TeslaMaps user? Known because they publish a cape. */
     public static boolean isUser(String uuid) {
-        return uuid != null && remote.containsKey(uuid.replace("-", ""));
+        if (uuid == null) return false;
+        queue(uuid);
+        return remote.containsKey(uuid.replace("-", "").toLowerCase(java.util.Locale.ROOT));
     }
 
     /** The cape of any known user, resolved and downloaded on demand. */
     public static Identifier capeFor(String uuid) {
         if (uuid == null) return null;
-        Remote entry = remote.get(uuid.replace("-", ""));
+        queue(uuid);
+        Remote entry = remote.get(uuid.replace("-", "").toLowerCase(java.util.Locale.ROOT));
         if (entry == null) return null;
         Skin skin = resolve(entry);
         return skin == null ? null : skin.current();
@@ -177,22 +194,59 @@ public class CapeSync {
         return null;
     }
 
-    /** RLS only exposes active, non-banned rows, so this is a plain anon select. */
-    private static void poll() {
+    private static String plain(UUID uuid) {
+        return uuid.toString().replace("-", "").toLowerCase(java.util.Locale.ROOT);
+    }
+
+    /** Everyone whose cape we could end up drawing: players in view plus the tab list. */
+    private static void queueVisible() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level != null) {
+            for (AbstractClientPlayer player : mc.level.players()) pending.add(plain(player.getUUID()));
+        }
+        if (mc.getConnection() != null) {
+            for (var info : mc.getConnection().getOnlinePlayers()) pending.add(plain(info.getProfile().id()));
+        }
+        if (mc.player != null) pending.remove(plain(mc.player.getUUID()));
+    }
+
+    /** One uuid the poll would not cover on its own - the profile viewer's target. */
+    private static void queue(String uuid) {
+        String key = uuid.replace("-", "").toLowerCase(java.util.Locale.ROOT);
+        if (remote.containsKey(key)) return;
+        Long last = asked.get(key);
+        if (last != null && System.currentTimeMillis() - last < ASK_AGAIN_MS) return;
+        pending.add(key);
+    }
+
+    /** Sends whatever is queued as a single lookup. Called on the tick, so never concurrent. */
+    private static void drain() {
+        if (polling || pending.isEmpty()) return;
+        java.util.List<String> batch = new java.util.ArrayList<>(pending);
+        pending.clear();
+        if (batch.size() > MAX_LOOKUP) batch = batch.subList(0, MAX_LOOKUP);
+        java.util.List<String> uuids = batch;
         polling = true;
         new Thread(() -> {
             try {
-                HttpResponse<String> response = HTTP.send(
-                        HttpRequest.newBuilder(URI.create(
-                                        baseUrl() + "/rest/v1/cape_users?select=uuid,cape_id,hash,ext,crop"))
-                                .timeout(Duration.ofSeconds(20))
-                                .header("apikey", anonKey())
-                                .header("Authorization", "Bearer " + anonKey())
-                                .GET().build(),
-                        HttpResponse.BodyHandlers.ofString());
+                String[] auth = auth();
+                if (auth == null) return;
+                JsonObject body = new JsonObject();
+                body.addProperty("action", "lookup");
+                JsonArray list = new JsonArray();
+                uuids.forEach(list::add);
+                body.add("uuids", list);
+                body.addProperty("username", auth[0]);
+                body.addProperty("serverId", auth[1]);
+
+                HttpResponse<String> response = send(body);
                 if (response.statusCode() != 200) return;
-                JsonArray rows = JsonParser.parseString(response.body()).getAsJsonArray();
-                Map<String, Remote> next = new HashMap<>();
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                JsonArray rows = json.getAsJsonArray("capes");
+                if (rows == null) return;
+
+                long now = System.currentTimeMillis();
+                Map<String, Remote> found = new HashMap<>();
                 for (JsonElement element : rows) {
                     if (!element.isJsonObject()) continue;
                     JsonObject row = element.getAsJsonObject();
@@ -205,13 +259,18 @@ public class CapeSync {
                     // the extension is part of the storage key, so anything unknown is dropped
                     if (ext == null || ext.isEmpty()) ext = "png";
                     if (!ext.equals("png") && !ext.equals("gif")) continue;
-                    next.put(uuid.toLowerCase(java.util.Locale.ROOT),
+                    found.put(uuid.toLowerCase(java.util.Locale.ROOT),
                             new Remote(capeId, hash, ext, CapeCompose.Crop.parse(string(row, "crop"))));
                 }
-                remote = next;
-                prune(next);
+                // asked for and not answered means the cape is gone, not that the row is stale
+                for (String uuid : uuids) {
+                    asked.put(uuid, now);
+                    if (!found.containsKey(uuid)) remote.remove(uuid);
+                }
+                remote.putAll(found);
+                prune();
             } catch (Throwable t) {
-                TeslaMaps.LOGGER.warn("Cape sync poll failed: {}", t.toString());
+                TeslaMaps.LOGGER.warn("Cape sync lookup failed: {}", t.toString());
             } finally {
                 polling = false;
             }
@@ -228,12 +287,15 @@ public class CapeSync {
      * would otherwise leave 60 frames on the gpu for the rest of the session. The
      * entity map is cleared in the same task, so no skin points at a released texture.
      */
-    private static void prune(Map<String, Remote> live) {
+    private static void prune() {
         if (TEXTURES.isEmpty() && GIFS.isEmpty()) return;
-        java.util.Set<String> keep = new java.util.HashSet<>();
-        for (Remote entry : live.values()) {
-            if (entry.hash() != null) keep.add(entry.hash());
+        long now = System.currentTimeMillis();
+        for (Remote entry : remote.values()) {
+            if (entry.hash() != null) seen.put(entry.hash(), now);
         }
+        // a lookup only covers who is around right now, so hold a texture over a short absence
+        seen.values().removeIf(when -> now - when > KEEP_TEXTURE_MS);
+        java.util.Set<String> keep = new java.util.HashSet<>(seen.keySet());
         Minecraft.getInstance().execute(() -> {
             byEntityId = Map.of();
             for (String hash : new java.util.ArrayList<>(GIFS.keySet())) {

@@ -161,11 +161,11 @@ public class CharmedVisitors {
 
         int row = PADDING;
         context.text(mc.font, Component.literal(title(names.size())), PADDING, row,
-                AppleColors.TEXT_PRIMARY, false);
+                AppleColors.TEXT_PRIMARY, true);
         for (String name : names) {
             row += LINE;
-            context.text(mc.font, Component.literal(" §7- " + name), PADDING, row,
-                    AppleColors.TEXT_SECONDARY, false);
+            context.text(mc.font, Component.literal(" - " + name), PADDING, row,
+                    HudStyle.label(), true);
         }
 
         context.pose().popMatrix();

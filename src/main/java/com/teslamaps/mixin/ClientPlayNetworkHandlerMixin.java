@@ -54,6 +54,7 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleSetTime", at = @At("HEAD"))
     private void onSetTime(net.minecraft.network.protocol.game.ClientboundSetTimePacket packet, CallbackInfo ci) {
         com.teslamaps.features.PerformanceHud.onTimePacket();
+        com.teslamaps.utils.ServerTicks.onTimePacket(packet.gameTime());
     }
 
     @Inject(method = "handleParticleEvent", at = @At("HEAD"))

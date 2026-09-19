@@ -47,7 +47,6 @@ public class CollectionRepo {
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(URL))
                         .timeout(Duration.ofSeconds(20))
-                        .header("User-Agent", "TeslaMaps/1.0")
                         .GET()
                         .build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

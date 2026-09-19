@@ -23,6 +23,23 @@ public class HudStyle {
         return MODERN;
     }
 
+    /**
+     * Text colours for a panel. Vanilla draws no background at all, so the grey
+     * hierarchy disappears on a bright sky — there the text goes white like the
+     * trackers that never had a panel.
+     */
+    public static int label() {
+        return VANILLA.equals(current())
+                ? com.teslamaps.screen.AppleColors.TEXT_PRIMARY
+                : com.teslamaps.screen.AppleColors.TEXT_SECONDARY;
+    }
+
+    public static int dim() {
+        return VANILLA.equals(current())
+                ? 0xFFCCCCCC
+                : com.teslamaps.screen.AppleColors.TEXT_TERTIARY;
+    }
+
     /** Gap a panel leaves around the text it sits behind. */
     public static int padding() {
         return switch (current()) {

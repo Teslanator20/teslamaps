@@ -524,7 +524,7 @@ public class TeslaMapsConfig {
             "Auto", "Blood Camp", "Chat", "Combat", "Contest Timers", "Crimson Isle", "Critter Safari", "ESP", "Fishing",
             "Foraging", "Garden", "Inventory", "Leap", "Map", "Mining",
             "Ordered Waypoints", "Party", "Puzzles & Terminals", "Render", "Score & Splits",
-            "Secrets & Waypoints", "Shards", "Skills", "Sounds", "Timers", "Torrhus Canyon");
+            "Secrets & Waypoints", "Shards", "Skills", "Sounds", "The End", "Timers", "Torrhus Canyon");
 
     private static final java.util.Set<String> WARNED_SECTIONS = new java.util.HashSet<>();
 
@@ -730,6 +730,33 @@ public class TeslaMapsConfig {
     public boolean hideClouds = true;        // Skip the clouds render pass
     public boolean noFog = true;             // Disable fog rendering (boss/water/blindness fog)
     public boolean noNetherFog = true;       // Crimson Isle: push the nether fog away even when Hide Fog is off
+
+    // --- The End: End Stone Protector ---
+    public boolean endProtector = true;             // Master toggle for the protector tracker
+    public boolean endProtectorStatusHud = true;    // Stage / timer / location panel
+    public boolean endProtectorLootHud = true;      // Rare drop counter panel
+    public boolean endProtectorBeacon = true;       // Beacon beam on the spawn site
+    public boolean endProtectorWorldText = true;    // Label above the spawn site
+    public boolean endProtectorStage4Title = true;  // Title when stage 4 starts
+    public boolean endProtectorStage4Sound = true;
+    public boolean endProtectorStage5Title = true;  // Title when the protector is summoned
+    public boolean endProtectorStage5Sound = true;
+    public boolean endProtectorStage4Duration = true;  // Chat line with how long stage 4 took
+    public boolean endProtectorDpsChat = true;         // Your DPS + top 3 on hover
+    public boolean endProtectorLootQualityChat = true; // Your loot quality + which drops it reaches
+    public boolean endProtectorDropAlert = true;       // Title/sound/chat on a rare drop
+    public int protectorStatusX = 230;
+    public int protectorStatusY = 10;
+    public float protectorStatusScale = 1.0f;
+    public int protectorLootX = 230;
+    public int protectorLootY = 60;
+    public float protectorLootScale = 1.0f;
+    @Global
+    public int protectorTierBoostCores = 0;
+    @Global
+    public int protectorLegendaryPets = 0;
+    @Global
+    public int protectorEpicPets = 0;
 
     public boolean rescueMission = true;     // Crimson Isle rescue mission: hostage parkour waypoints
     public int rescueVariant = 1;            // Barbarian S-rank has two possible paths (1 or 2)
@@ -968,6 +995,9 @@ public class TeslaMapsConfig {
     public boolean enchantAbbrev = true;           // Write enchant + level onto enchanted book icons (Leg I)
     public boolean enchantColors = true;           // Recolor enchantments in item lore by level
     public boolean enchantLevelsAsNumbers = false; // Show enchant levels as numbers instead of roman numerals
+    public String colorEnchantAbbrev = "55FFFF";          // Book abbreviation colour
+    public String colorEnchantAbbrevUltimate = "FF55FF";  // Book abbreviation colour for ultimates
+    public String colorEnchantAbbrevLevel = "FFFFFF";     // Book abbreviation level colour
     public boolean enchantBoldMax = true;          // Bold max-level enchants
     public boolean enchantChromaMax = true;        // moving rainbow on max-level enchants
     public boolean enchantChromaBold = true;       // bold the chroma max-level enchants
@@ -1368,11 +1398,11 @@ public class TeslaMapsConfig {
     public int overkillX = 5;                      // Overkill counter position X (draggable in HUD edit)
     public int overkillY = 140;                    // Overkill counter position Y
     public float overkillScale = 1.0f;             // Overkill counter scale (0.5 - 5.0)
-    public boolean kickedTimer = true;             // "Kicked" HUD timer + /pc kicked when kicked while joining
+    public boolean kickedTimer = true;             // Kick handling: center wait warning + /pc kicked
     public boolean kickedPartyMessage = true;      // Auto-send "/pc kicked" when a join kick happens
-    public int kickedX = 300;                      // Kicked timer position X (draggable in HUD edit)
-    public int kickedY = 100;                      // Kicked timer position Y
-    public float kickedScale = 1.0f;               // Kicked timer text scale (0.5 - 5.0)
+    public int kickedWarnX = 150;                  // Kick wait warning position X (draggable in HUD edit)
+    public int kickedWarnY = 120;                  // Kick wait warning position Y
+    public float kickedWarnScale = 2.0f;           // Kick wait warning scale (0.5 - 5.0)
     public boolean perfHud = false;                // Performance HUD (FPS/TPS/Ping), hidden while F3 is open
     public boolean perfHudFps = true;              // Show FPS in the performance HUD
     public boolean perfHudTps = true;              // Show server TPS in the performance HUD

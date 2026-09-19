@@ -647,11 +647,11 @@ public class PestRoutine {
         com.teslamaps.render.gui.HudStyle.panel(context, 0, 0, PANEL_WIDTH, PANEL_HEIGHT, 6);
 
         context.text(mc.font, Component.literal(interrupt ? "Philip" : "Routine"),
-                PADDING, PADDING, com.teslamaps.screen.AppleColors.TEXT_SECONDARY, false);
+                PADDING, PADDING, com.teslamaps.render.gui.HudStyle.label(), true);
 
         // A pip on the right shows at a glance whether a press would do anything.
         int pipColor = waiting
-                ? com.teslamaps.screen.AppleColors.TEXT_TERTIARY
+                ? com.teslamaps.render.gui.HudStyle.dim()
                 : interrupt
                         ? com.teslamaps.screen.AppleColors.ACCENT_BLUE
                         : com.teslamaps.screen.AppleColors.ACCENT_GREEN;
@@ -660,9 +660,9 @@ public class PestRoutine {
 
         String text = hint();
         int textColor = waiting
-                ? com.teslamaps.screen.AppleColors.TEXT_TERTIARY
+                ? com.teslamaps.render.gui.HudStyle.dim()
                 : com.teslamaps.screen.AppleColors.TEXT_PRIMARY;
-        context.text(mc.font, Component.literal(text), PADDING, PADDING + 12, textColor, false);
+        context.text(mc.font, Component.literal(text), PADDING, PADDING + 12, textColor, true);
 
         context.pose().popMatrix();
     }

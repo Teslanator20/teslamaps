@@ -42,6 +42,8 @@ public class MapConfigScreen extends Screen {
     // Collapsed group headers, keyed category#labelOrdinal.
     protected static final java.util.Set<String> GROUP_COLLAPSED = new java.util.HashSet<>();
     private static boolean collapseSeeded = false;
+    // Folded sidebar sections, by section name.
+    protected static final java.util.Set<String> SECTION_COLLAPSED = new java.util.HashSet<>();
 
     protected final Map<String, List<SettingsEntry>> categories = new LinkedHashMap<>();
     protected final Map<String, List<String>> sections = new LinkedHashMap<>();
@@ -199,8 +201,11 @@ public class MapConfigScreen extends Screen {
         String remembered = TeslaMapsConfig.get().lastConfigCategory;
         if (remembered != null && categories.containsKey(remembered)) {
             selectedCategory = remembered;
-            scrollSidebarTo(selectedCategory);
         }
+        for (Map.Entry<String, List<String>> s : sections.entrySet()) {
+            if (s.getValue().contains(selectedCategory)) SECTION_COLLAPSED.remove(s.getKey());
+        }
+        scrollSidebarTo(selectedCategory);
 
         // Start with every group folded (once per session); user toggles persist after.
         if (!collapseSeeded) {
@@ -871,6 +876,34 @@ public class MapConfigScreen extends Screen {
         crimson.add(new InfoEntry(contentX, "Two S-rank layouts exist - switch if the path looks wrong"));
         categories.put("Crimson Isle", crimson);
 
+        List<SettingsEntry> theEnd = new ArrayList<>();
+        theEnd.add(new LabelEntry(contentX, "End Stone Protector"));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "Protector Tracker", () -> config.endProtector, v -> config.endProtector = v));
+        theEnd.add(new InfoEntry(contentX, "Stage comes from the Protector tab widget - enable it via /tab"));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "  Status HUD", () -> config.endProtectorStatusHud, v -> config.endProtectorStatusHud = v));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "  Loot Tracker HUD", () -> config.endProtectorLootHud, v -> config.endProtectorLootHud = v));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "  Spawn Beacon", () -> config.endProtectorBeacon, v -> config.endProtectorBeacon = v));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "  Spawn World Label", () -> config.endProtectorWorldText, v -> config.endProtectorWorldText = v));
+        theEnd.add(new LabelEntry(contentX, "Stage Alerts"));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "Stage 4 Title", () -> config.endProtectorStage4Title, v -> config.endProtectorStage4Title = v));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "Stage 4 Sound", () -> config.endProtectorStage4Sound, v -> config.endProtectorStage4Sound = v));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "Stage 5 Title", () -> config.endProtectorStage5Title, v -> config.endProtectorStage5Title = v));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "Stage 5 Sound", () -> config.endProtectorStage5Sound, v -> config.endProtectorStage5Sound = v));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "Stage 4 Duration in Chat", () -> config.endProtectorStage4Duration, v -> config.endProtectorStage4Duration = v));
+        theEnd.add(new LabelEntry(contentX, "Fight Summary"));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "DPS in Chat", () -> config.endProtectorDpsChat, v -> config.endProtectorDpsChat = v));
+        theEnd.add(new InfoEntry(contentX, "Hover the line for the top 3 damagers' DPS"));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "Loot Quality in Chat", () -> config.endProtectorLootQualityChat, v -> config.endProtectorLootQualityChat = v));
+        theEnd.add(new InfoEntry(contentX, "Placement + damage share + zealots; hover shows which drops it reaches"));
+        theEnd.add(new ToggleEntry(contentX, contentWidth, "Rare Drop Alert", () -> config.endProtectorDropAlert, v -> config.endProtectorDropAlert = v));
+        theEnd.add(new ButtonEntry(contentX, contentWidth, "Reset Loot Counts", () -> {
+            config.protectorTierBoostCores = 0;
+            config.protectorLegendaryPets = 0;
+            config.protectorEpicPets = 0;
+            TeslaMapsConfig.save();
+        }));
+        categories.put("The End", theEnd);
+
         List<SettingsEntry> solvers = new ArrayList<>();
         solvers.add(new LabelEntry(contentX, "Terminals"));
         solvers.add(new ToggleEntry(contentX, contentWidth, "Melody Message (/pc on open)", () -> config.melodyMessage, v -> config.melodyMessage = v));
@@ -1305,7 +1338,7 @@ public class MapConfigScreen extends Screen {
         timers.add(new DropdownEntry(contentX, contentWidth, "Timer Format",
                 new String[]{"Seconds", "Ticks", "Both"}, () -> config.tickTimerFormat, v -> config.tickTimerFormat = v));
         timers.add(new LabelEntry(contentX, "Kicked"));
-        timers.add(new ToggleEntry(contentX, contentWidth, "Kicked Timer", () -> config.kickedTimer, v -> config.kickedTimer = v));
+        timers.add(new ToggleEntry(contentX, contentWidth, "Kick Handling", () -> config.kickedTimer, v -> config.kickedTimer = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "  Send /pc kicked", () -> config.kickedPartyMessage, v -> config.kickedPartyMessage = v));
         timers.add(new ToggleEntry(contentX, contentWidth, "  Center Warning (60s)", () -> config.kickedCenterWarning, v -> config.kickedCenterWarning = v));
         categories.put("Timers", timers);
@@ -1641,6 +1674,9 @@ public class MapConfigScreen extends Screen {
         tooltips.add(new LabelEntry(contentX, "Enchant Colors"));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Book Abbreviations (Leg I)", () -> config.enchantAbbrev, v -> config.enchantAbbrev = v));
         tooltips.add(new InfoEntry(contentX, "Enchant + level written on enchanted book icons"));
+        tooltips.add(new ColorEntry(contentX, contentWidth, "  Abbreviation Color", () -> config.colorEnchantAbbrev, v -> config.colorEnchantAbbrev = v));
+        tooltips.add(new ColorEntry(contentX, contentWidth, "  Ultimate Color", () -> config.colorEnchantAbbrevUltimate, v -> config.colorEnchantAbbrevUltimate = v));
+        tooltips.add(new ColorEntry(contentX, contentWidth, "  Level Color", () -> config.colorEnchantAbbrevLevel, v -> config.colorEnchantAbbrevLevel = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Enchant Colors", () -> config.enchantColors, v -> config.enchantColors = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Levels as Numbers", () -> config.enchantLevelsAsNumbers, v -> config.enchantLevelsAsNumbers = v));
         tooltips.add(new ToggleEntry(contentX, contentWidth, "Chroma Max Enchants (rainbow)", () -> config.enchantChromaMax, v -> config.enchantChromaMax = v));
@@ -1815,12 +1851,6 @@ public class MapConfigScreen extends Screen {
         garden.add(new InfoEntry(contentX, "Visitors charmed with the Gift Vinyl Set, click a name to drop it"));
         garden.add(new ButtonEntry(contentX, contentWidth, "Clear Charmed List",
                 () -> com.teslamaps.features.CharmedVisitors.clear()));
-        garden.add(new LabelEntry(contentX, "Harvest Feast"));
-        garden.add(new ToggleEntry(contentX, contentWidth, "In-Season Display",
-                () -> config.feastSeasonDisplay, v -> config.feastSeasonDisplay = v));
-        garden.add(new ToggleEntry(contentX, contentWidth, "  Show Outside The Garden",
-                () -> config.feastSeasonEverywhere, v -> config.feastSeasonEverywhere = v));
-        garden.add(new InfoEntry(contentX, "Open Feast Chef Ted > All Crops once to fill it in"));
         garden.add(new ToggleEntry(contentX, contentWidth, "6th Visitor Warning",
                 () -> config.sixthVisitorWarning, v -> config.sixthVisitorWarning = v));
         garden.add(new InfoEntry(contentX, "Hypixel hides the timer at 5 visitors, so this estimates it"));
@@ -1829,6 +1859,12 @@ public class MapConfigScreen extends Screen {
                 () -> config.sixthVisitorSound, v -> config.sixthVisitorSound = v));
         garden.add(new SliderEntry(contentX, contentWidth, "  Volume", 0f, 4f,
                 () -> config.sixthVisitorVolume, v -> config.sixthVisitorVolume = v, 2));
+        garden.add(new LabelEntry(contentX, "Harvest Feast"));
+        garden.add(new ToggleEntry(contentX, contentWidth, "In-Season Display",
+                () -> config.feastSeasonDisplay, v -> config.feastSeasonDisplay = v));
+        garden.add(new ToggleEntry(contentX, contentWidth, "  Show Outside The Garden",
+                () -> config.feastSeasonEverywhere, v -> config.feastSeasonEverywhere = v));
+        garden.add(new InfoEntry(contentX, "Open Feast Chef Ted > All Crops once to fill it in"));
         garden.add(new LabelEntry(contentX, "Pests"));
         garden.add(new ToggleEntry(contentX, contentWidth, "Pest ESP",
                 () -> config.pestESP, v -> config.pestESP = v));
@@ -2322,7 +2358,8 @@ public class MapConfigScreen extends Screen {
         sections.put("Chat & Media", List.of("Chat", "Sounds", "Screenshots"));
         sections.put("Party & Automation", List.of("Party", "Auto"));
         sections.put("Skyblock", List.of("Skills", "Combat", "Garden", "Mining", "Fishing", "Foraging",
-                "Contest Timers", "Torrhus Canyon", "Critter Safari", "Crimson Isle", "Shards", "Ordered Waypoints"));
+                "Contest Timers", "Torrhus Canyon", "Critter Safari", "Crimson Isle", "The End", "Shards",
+                "Ordered Waypoints"));
 
         categoryHeaders.clear();
         for (String cat : categories.keySet()) categoryHeaders.put(cat, new LabelEntry(contentX, cat));
@@ -2417,9 +2454,11 @@ public class MapConfigScreen extends Screen {
         int hitY = -1;
         for (Map.Entry<String, List<String>> sec : sections.entrySet()) {
             rowY += SECTION_HEADER_H;
-            for (String cat : sec.getValue()) {
-                if (cat.equals(category)) hitY = rowY;
-                rowY += CATEGORY_ROW_H;
+            if (!SECTION_COLLAPSED.contains(sec.getKey())) {
+                for (String cat : sec.getValue()) {
+                    if (cat.equals(category)) hitY = rowY;
+                    rowY += CATEGORY_ROW_H;
+                }
             }
             rowY += SECTION_GAP;
         }
@@ -2455,6 +2494,7 @@ public class MapConfigScreen extends Screen {
         int rowY = SIDEBAR_TOP - sidebarScroll;
         for (Map.Entry<String, List<String>> sec : sections.entrySet()) {
             rowY += SECTION_HEADER_H;
+            if (SECTION_COLLAPSED.contains(sec.getKey())) { rowY += SECTION_GAP; continue; }
             for (String cat : sec.getValue()) {
                 if (my >= rowY && my < rowY + CATEGORY_ROW_H) return cat;
                 rowY += CATEGORY_ROW_H;
@@ -2462,6 +2502,31 @@ public class MapConfigScreen extends Screen {
             rowY += SECTION_GAP;
         }
         return null;
+    }
+
+    protected String sectionAtY(int my) {
+        int rowY = SIDEBAR_TOP - sidebarScroll;
+        for (Map.Entry<String, List<String>> sec : sections.entrySet()) {
+            if (my >= rowY && my < rowY + SECTION_HEADER_H) return sec.getKey();
+            rowY += SECTION_HEADER_H;
+            if (!SECTION_COLLAPSED.contains(sec.getKey())) rowY += sec.getValue().size() * CATEGORY_ROW_H;
+            rowY += SECTION_GAP;
+        }
+        return null;
+    }
+
+    /** Click folds one section; shift-click shows only that one (again = all back). */
+    protected void toggleSection(String name, boolean solo) {
+        if (solo) {
+            boolean othersOpen = false;
+            for (String s : sections.keySet()) if (!s.equals(name) && !SECTION_COLLAPSED.contains(s)) othersOpen = true;
+            SECTION_COLLAPSED.clear();
+            if (othersOpen) for (String s : sections.keySet()) if (!s.equals(name)) SECTION_COLLAPSED.add(s);
+        } else if (!SECTION_COLLAPSED.remove(name)) {
+            SECTION_COLLAPSED.add(name);
+        }
+        GuiSounds.fold(!SECTION_COLLAPSED.contains(name));
+        sidebarScroll = 0;
     }
 
     protected List<SettingsEntry> getEntriesToShow() {
@@ -2541,8 +2606,11 @@ public class MapConfigScreen extends Screen {
         }
 
         if (clicked && mouseX < SIDEBAR_WIDTH && mouseY >= SIDEBAR_TOP && mouseY < sidebarBottom()) {
-            String hit = categoryAtY(mouseY);
-            if (hit != null) {
+            String sec = sectionAtY(mouseY);
+            String hit = sec != null ? null : categoryAtY(mouseY);
+            if (sec != null) {
+                toggleSection(sec, Minecraft.getInstance().hasShiftDown());
+            } else if (hit != null) {
                 if (!hit.equals(selectedCategory)) GuiSounds.select();
                 selectedCategory = hit;
                 TeslaMapsConfig.get().lastConfigCategory = hit;
@@ -2615,10 +2683,26 @@ public class MapConfigScreen extends Screen {
         context.enableScissor(0, sbTop, SIDEBAR_WIDTH, sbBottom);
         int rowY = sbTop - sidebarScroll;
         for (Map.Entry<String, List<String>> sec : sections.entrySet()) {
+            boolean open = !SECTION_COLLAPSED.contains(sec.getKey());
             if (rowY + SECTION_HEADER_H > sbTop && rowY < sbBottom) {
-                drawSidebarText(context, sec.getKey().toUpperCase(), 10, rowY + 8, GuiStyle.textFaint());
+                boolean secHover = mouseX < SIDEBAR_WIDTH && mouseY >= rowY && mouseY < rowY + SECTION_HEADER_H
+                        && mouseY >= sbTop && mouseY < sbBottom;
+                if (secHover) {
+                    GuiSounds.hover("sec:" + sec.getKey());
+                    context.fill(5, rowY + 1, SIDEBAR_WIDTH - 5, rowY + SECTION_HEADER_H - 1, GuiStyle.rowHover());
+                }
+                int secColor = secHover ? 0xFFFFFFFF : GuiStyle.textFaint();
+                int cy = rowY + 7 + (open ? 2 : 0);
+                if (open) for (int i = 0; i < 4; i++) context.fill(10 + i, cy + i, 17 - i, cy + i + 1, secColor);
+                else for (int i = 0; i < 4; i++) context.fill(10 + i, cy + i, 11 + i, cy + 7 - i, secColor);
+                drawSidebarText(context, sec.getKey().toUpperCase(), 21, rowY + 8, secColor);
+                if (!open) {
+                    String n = String.valueOf(sec.getValue().size());
+                    context.text(font, n, SIDEBAR_WIDTH - 10 - font.width(n), rowY + 8, GuiStyle.textFaint());
+                }
             }
             rowY += SECTION_HEADER_H;
+            if (!open) { rowY += SECTION_GAP; continue; }
             for (String category : sec.getValue()) {
                 boolean selected = category.equals(selectedCategory) && searchQuery.isEmpty();
                 boolean hovered = mouseX < SIDEBAR_WIDTH && mouseY >= rowY && mouseY < rowY + CATEGORY_ROW_H

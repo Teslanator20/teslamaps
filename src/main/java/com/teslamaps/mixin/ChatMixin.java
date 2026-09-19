@@ -103,6 +103,8 @@ public class ChatMixin {
 
         if (cfg.section("ESP")) com.teslamaps.features.HoppityEggESP.onChatMessage(text);
 
+        if (fromServer && cfg.section("The End")) com.teslamaps.features.theend.EndProtector.onChatMessage(text);
+
         if (cfg.section("Leap")) com.teslamaps.features.LeapOverlay.onChatMessage(text);
 
         if (cfg.section("Combat")) com.teslamaps.slayer.SlayerAlerts.onChatMessage(text);
