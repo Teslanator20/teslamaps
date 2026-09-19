@@ -146,8 +146,11 @@ public class TeslaMapsConfig {
     public boolean boxESP = false;              // Outline hitbox (F3+H style) around ESP mobs, through walls
     public float espAlpha = 0.4f;               // Transparency for filled ESP (0.0 = invisible, 1.0 = solid)
 
-    public boolean pestESP = true;             // Highlight pests in garden (invisible silverfish)
-    public boolean pestTracers = true;         // Draw tracers to pests
+    // Legacy pest ESP. Replaced by Mob Visuals, which tells the 15 pest species apart instead
+    // of colouring every invisible hitbox the same. normalize() migrates these once and clears
+    // them, so they only ever carry the old setting forward - nothing reads them at runtime.
+    public boolean pestESP = true;
+    public boolean pestTracers = true;
     public boolean hoppityEggESP = false;       // Box + label on Hoppity chocolate eggs
     public boolean hoppityEggTracers = false;   // Draw tracers to Hoppity eggs
     public boolean droppedItemESP = true;       // Highlight all dropped items
@@ -1638,12 +1641,37 @@ public class TeslaMapsConfig {
     }
 
     /** Gson leaves collections null when the stored json predates the field. */
+    /**
+     * Old pest ESP coloured every invisible hitbox in the garden the same green; Mob Visuals
+     * reads the skull and tells the 15 species apart. Anyone who had the old one on gets the
+     * new one on the same mobs. Clearing the flags is what makes this run exactly once - a
+     * later "all Garden pests off" must not be undone on the next launch.
+     */
+    private static void migratePestEsp(TeslaMapsConfig c) {
+        if (!c.pestESP && !c.pestTracers) return;
+
+        if (c.pestESP) {
+            for (com.teslamaps.features.mobvisuals.Mob mob
+                    : com.teslamaps.features.mobvisuals.Mob.of(
+                            com.teslamaps.features.mobvisuals.MobArea.GARDEN)) {
+                c.mobVisualTargets.add(mob.name());
+            }
+            c.mobVisuals = true;
+            c.mobVisualGlow = true;
+            c.mobVisualTracer = c.pestTracers;
+        }
+
+        c.pestESP = false;
+        c.pestTracers = false;
+    }
+
     static void normalize(TeslaMapsConfig c) {
         if (c.invButtons == null || c.invButtons.isEmpty()) {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
+        migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.customESPTracers == null) c.customESPTracers = new ArrayList<>();
         if (c.customESPColors == null) c.customESPColors = new java.util.HashMap<>();

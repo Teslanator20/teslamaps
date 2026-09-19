@@ -9,7 +9,6 @@ import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.scanner.MapScanner;
 import com.teslamaps.slayer.SlayerHUD;
 import com.teslamaps.utils.LoudSound;
-import com.teslamaps.utils.SkyblockUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +34,6 @@ public class StarredMobESP {
     private static final int STARRED_COLOR = 0xFFF57738; // Orange
     private static final int FEL_COLOR = 0xFFFF00FF; // Magenta for fels
     private static final int SNIPER_COLOR = 0xFFFFAA00; // Orange-yellow for snipers
-    private static final int PEST_COLOR = 0xFF00FF00; // Green for pests
     private static final int SHADOW_ASSASSIN_COLOR = 0xFF5B2CB2; // Purple for shadow assassins
     private static final int DROPPED_ITEM_COLOR = 0xFFFFFF00; // Yellow for dropped items
     private static final int DUNGEON_BAT_COLOR = 0xFFFF8800; // Orange for dungeon bats
@@ -46,11 +44,6 @@ public class StarredMobESP {
     private static int witherDoorColor() { return TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorESPWitherDoor); }
     private static int bloodDoorColor() { return TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorESPBloodDoor); }
 
-    private static final String[] PEST_NAMES = {
-            "Cricket", "Mosquito", "Moth", "Fly", "Locust",
-            "Rat", "Slug", "Earthworm", "Beetle", "Mite",
-            "Firefly", "Butterfly"  // Garden critters
-    };
     private static final List<EntityHighlight> highlightedEntities = new ArrayList<>();
     // the subset that came from a custom entry, so a per-entry colour cannot be used to spot them
     private static final List<EntityHighlight> customHighlights = new ArrayList<>();
@@ -66,8 +59,6 @@ public class StarredMobESP {
     private static final List<AABB> witherDoorBoxes = new ArrayList<>();
     private static final List<AABB> bloodDoorBoxes = new ArrayList<>();
     private static final List<AABB> fairyDoorBoxes = new ArrayList<>();
-
-    private static final List<Vec3> pestPositions = new ArrayList<>();
 
     private static final List<Vec3> dungeonBatPositions = new ArrayList<>();
 
@@ -217,13 +208,11 @@ public class StarredMobESP {
         boolean hasCustomMobs = TeslaMapsConfig.get().customESPMobs != null &&
                                 !TeslaMapsConfig.get().customESPMobs.isEmpty();
         boolean droppedItemESP = TeslaMapsConfig.get().droppedItemESP;
-        boolean pestESP = TeslaMapsConfig.get().pestESP && SkyblockUtils.isInGarden();
 
-        if (!inDungeon && !hasCustomMobs && !droppedItemESP && !pestESP) {
+        if (!inDungeon && !hasCustomMobs && !droppedItemESP) {
             highlightedEntities.clear();
             customHighlights.clear();
             glowingEntities.clear();
-            pestPositions.clear();
             return;
         }
 
@@ -249,7 +238,6 @@ public class StarredMobESP {
         witherDoorBoxes.clear();
         bloodDoorBoxes.clear();
         fairyDoorBoxes.clear();
-        pestPositions.clear();
         dungeonBatPositions.clear();
         invisibleArmorStandBoxes.clear();
 
@@ -320,13 +308,7 @@ public class StarredMobESP {
                 dungeonBatPositions.add(new Vec3(entity.getX(), entity.getY(), entity.getZ()));
             }
 
-            if (entity.isInvisible() && !inDungeon && pestESP) {
-                if (entityName.equals("Silverfish") || entityName.equals("Bat")) {
-                    pestPositions.add(new Vec3(entity.getX(), entity.getY(), entity.getZ()));
-                }
-            }
-
-            if (shouldHighlight(entity, inDungeon, pestESP)) {
+            if (shouldHighlight(entity, inDungeon)) {
                 int color = getHighlightColor(entity);
                 EntityHighlight eh = new EntityHighlight(entity, color);
                 highlightedEntities.add(eh);
@@ -561,11 +543,10 @@ public class StarredMobESP {
     }
 
     public static boolean shouldHighlight(Entity entity) {
-        return shouldHighlight(entity, DungeonManager.isInDungeon(),
-                TeslaMapsConfig.get().pestESP && SkyblockUtils.isInGarden());
+        return shouldHighlight(entity, DungeonManager.isInDungeon());
     }
 
-    public static boolean shouldHighlight(Entity entity, boolean inDungeon, boolean pestESP) {
+    public static boolean shouldHighlight(Entity entity, boolean inDungeon) {
         // a nametag stand overlaps our own box when standing on the mob, which briefly boxed the player
         if (entity == Minecraft.getInstance().player) return false;
 
@@ -592,12 +573,6 @@ public class StarredMobESP {
 
         if (entityName.equals("Shadow Assassin") && entity.isInvisible() && inDungeon && TeslaMapsConfig.get().shadowAssassinESP) {
             return true;
-        }
-
-        if (entity.isInvisible() && pestESP) {
-            if (entityName.equals("Silverfish") || entityName.equals("Bat")) {
-                return true;
-            }
         }
 
         if (entityName.equals("Bat") && inDungeon && TeslaMapsConfig.get().dungeonBatESP) {
@@ -841,33 +816,6 @@ public class StarredMobESP {
         return false;
     }
 
-    private static boolean isPest(Entity entity) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return false;
-
-        AABB searchBox = entity.getBoundingBox().inflate(1, 3, 1);
-        List<ArmorStand> armorStands = mc.level.getEntitiesOfClass(
-                ArmorStand.class, searchBox, as -> true);
-
-        for (ArmorStand armorStand : armorStands) {
-            String name = armorStand.getName().getString();
-            for (String pestName : PEST_NAMES) {
-                if (name.contains(pestName)) {
-                    return true;
-                }
-            }
-            if (armorStand.getCustomName() != null) {
-                String customName = armorStand.getCustomName().getString();
-                for (String pestName : PEST_NAMES) {
-                    if (customName.contains(pestName)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
 
     public static boolean isStarred(Entity entity) {
         Minecraft mc = Minecraft.getInstance();
@@ -914,11 +862,6 @@ public class StarredMobESP {
             return TeslaMapsConfig.parseColor(config.colorESPBat);
         }
 
-        if (entity.isInvisible() && (name.equals("Silverfish") || name.equals("Bat"))
-                && config.pestESP && SkyblockUtils.isInGarden()) {
-            return PEST_COLOR;
-        }
-
         if (name.equals("Shadow Assassin") && entity.isInvisible()) {
             return TeslaMapsConfig.parseColor(config.colorESPShadowAssassin);
         }
@@ -956,14 +899,6 @@ public class StarredMobESP {
     public static void renderWorldElements(PoseStack matrices, MultiBufferSource provider,
                                            Vec3 cameraPos, Vec3 playerEyePos) {
         boolean inDungeon = DungeonManager.isInDungeon();
-        boolean inGarden = TeslaMapsConfig.get().pestESP && SkyblockUtils.isInGarden();
-
-        if (inGarden && TeslaMapsConfig.get().pestESP && TeslaMapsConfig.get().pestTracers) {
-            for (Vec3 pestPos : pestPositions) {
-                ESPRenderer.drawTracerFromCamera(matrices, pestPos, PEST_COLOR, cameraPos);
-            }
-        }
-
         Minecraft mc = Minecraft.getInstance();
 
         if (TeslaMapsConfig.get().filledESP && mc.level != null) {

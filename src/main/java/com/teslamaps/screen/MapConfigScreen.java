@@ -1895,10 +1895,9 @@ public class MapConfigScreen extends Screen {
                 () -> config.feastSeasonEverywhere, v -> config.feastSeasonEverywhere = v));
         garden.add(new InfoEntry(contentX, "Open Feast Chef Ted > All Crops once to fill it in"));
         garden.add(new LabelEntry(contentX, "Pests"));
-        garden.add(new ToggleEntry(contentX, contentWidth, "Pest ESP",
-                () -> config.pestESP, v -> config.pestESP = v));
-        garden.add(new ToggleEntry(contentX, contentWidth, "Pest Tracers",
-                () -> config.pestTracers, v -> config.pestTracers = v));
+        garden.add(new InfoEntry(contentX, "Pest ESP moved to Mob Visuals - it tells the 15 species apart"));
+        garden.add(new ButtonEntry(contentX, contentWidth, "Pest Visuals (Mob Visuals)",
+                () -> minecraft.setScreen(new MobVisualScreen(this))));
         garden.add(new LabelEntry(contentX, "Pest Tracker"));
         garden.add(new ToggleEntry(contentX, contentWidth, "Pest Overlay",
                 () -> config.pestOverlay, v -> config.pestOverlay = v));
@@ -2401,7 +2400,7 @@ public class MapConfigScreen extends Screen {
                 "Wither ESP", "Wither ESP Filled", "Wither ESP Depth Check", "Boss ESP", "Corpse ESP", "Type Colors",
                 "Door ESP", "Door Tracers", "Only Show Next Door",
                 "Livid Finder", "Livid Tracer", "Mimic Chest ESP", "Mimic Chest Tracers",
-                "Highlight Teammates", "Invisible Armor Stand ESP", "Pest ESP", "Pest Tracers",
+                "Highlight Teammates", "Invisible Armor Stand ESP",
                 "Dropped Item ESP", "Item Pickup Readiness",
                 "Miniboss ESP", "Enable Auto GFS", "Auto Wish (Healer Ult)", "Critter ESP",
                 "Critter ESP (Safari)", "Bee Nest ESP", "Exploding Frog ESP", "Hidden Critter Walls",
