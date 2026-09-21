@@ -23,6 +23,11 @@ public class HandledScreenClickMixin {
     @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
     private void teslamaps$blockSlotDrop(net.minecraft.world.inventory.Slot slot, int slotId, int button,
                                          net.minecraft.world.inventory.ContainerInput type, CallbackInfo ci) {
+        if (com.teslamaps.features.PetShiftClick.handle(
+                (AbstractContainerScreen<?>) (Object) this, slot, slotId, button, type)) {
+            ci.cancel();
+            return;
+        }
         if (type != net.minecraft.world.inventory.ContainerInput.THROW) return;
         if (com.teslamaps.features.ItemProtection.blockSlotDrop(slot)) ci.cancel();
     }

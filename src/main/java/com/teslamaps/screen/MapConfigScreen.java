@@ -765,7 +765,7 @@ public class MapConfigScreen extends Screen {
         fishing.add(new InfoEntry(contentX, "Sends /pc I caught a <creature>! (double hook noted)"));
         fishing.add(new ToggleEntry(contentX, contentWidth, "Misclick Guard",
                 () -> config.rareCatchKeySwap, v -> config.rareCatchKeySwap = v));
-        fishing.add(new InfoEntry(contentX, "After a Drowned Captain catch, Attack = O and Use = I briefly - mouse does nothing"));
+        fishing.add(new InfoEntry(contentX, "After a Drowned Captain / Magma Pillar catch, Attack = O and Use = I briefly - mouse does nothing"));
         fishing.add(new SliderEntry(contentX, contentWidth, "  Guard Duration (s)", 0f, 5f,
                 () -> config.rareCatchKeySwapSeconds, v -> config.rareCatchKeySwapSeconds = v, 2));
         fishing.add(new ToggleEntry(contentX, contentWidth, "  Also On Party Catches",
@@ -1499,6 +1499,8 @@ public class MapConfigScreen extends Screen {
         inventory.add(new ToggleEntry(contentX, contentWidth, "Salvage Helper", () -> config.salvageHelper, v -> config.salvageHelper = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Sellable Items Highlighter", () -> config.sellableHighlighter, v -> config.sellableHighlighter = v));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Show Selected Pet", () -> config.showSelectedPet, v -> config.showSelectedPet = v));
+        inventory.add(new ToggleEntry(contentX, contentWidth, "Pet Menu Shift Right-Click", () -> config.petShiftTakeOut, v -> config.petShiftTakeOut = v));
+        inventory.add(new InfoEntry(contentX, "Pets menu: right-click only works with shift held"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Page Keybinds (A/D, W/S)", () -> config.pageKeybinds, v -> config.pageKeybinds = v));
         inventory.add(new InfoEntry(contentX, "A/D = Previous/Next Page, W/S = Scroll Up/Down"));
         inventory.add(new ToggleEntry(contentX, contentWidth, "Sign Enter Key", () -> config.signEnterKey, v -> config.signEnterKey = v));

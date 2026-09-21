@@ -1007,6 +1007,7 @@ public class TeslaMapsConfig {
     public boolean rareDropText = true;            // Drop line + item name on screen during the animation
     public boolean rareDropPrice = true;           // Append what the drop is worth to that line
     public boolean showSelectedPet = true;         // Highlight the spawned pet in the Pets menu
+    public boolean petShiftTakeOut = true;         // Pets menu: right-click needs shift
     public boolean simonSaysProgress = true;       // Show Simon Says progress (X/Y) in the timer HUD
     public boolean customHypeSound = false;         // Replace the wither-blade explosion sound
     public String customHypeSoundType = "NOTE_IRON_XYLO"; // which sound replaces the wither-blade explosion

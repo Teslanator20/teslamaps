@@ -2,6 +2,7 @@ package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.StringUtil;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.KeyMapping;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /** After a rare catch, attack/use move to O/I for a moment so a stray click can't do anything. */
 public final class FishCatchKeySwap {
 
-    public static final String TARGET = "Drowned Captain";
+    public static final Set<String> TARGETS = Set.of("Drowned Captain", "Magma Pillar");
 
     private static final Pattern PARTY_CATCH = Pattern.compile(
             "Party > (?:\\[[^\\]]+\\] )?(\\w+): (?:DOUBLE HOOK[:!] )?(?:I caught an? (.+)!|An? (.+) has spawned!)(?: \\(x?\\d+x?\\))?");
@@ -39,7 +40,7 @@ public final class FishCatchKeySwap {
         if (!c.rareCatchKeySwap || !c.rareCatchKeySwapAll) return;
         Matcher m = PARTY_CATCH.matcher(StringUtil.stripTrim(text));
         String creature = m.matches() ? (m.group(2) != null ? m.group(2) : m.group(3)) : null;
-        if (!TARGET.equals(creature)) return;
+        if (creature == null || !TARGETS.contains(creature)) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null && m.group(1).equals(mc.player.getName().getString())) return;
         trigger();
