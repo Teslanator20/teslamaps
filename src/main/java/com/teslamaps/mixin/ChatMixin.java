@@ -187,6 +187,8 @@ public class ChatMixin {
             }
         }
 
+        com.teslamaps.registry.FeatureRegistry.chat(text, fromServer);
+
         if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.shouldHide(text)) {
             ci.cancel();
         }
