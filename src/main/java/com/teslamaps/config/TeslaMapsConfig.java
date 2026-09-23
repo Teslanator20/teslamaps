@@ -164,6 +164,9 @@ public class TeslaMapsConfig {
     public int secretItemPickupTicks = 50;       // Ticks after a drop spawns before it's pickable (tune in-game)
     public boolean hideSoulweaverSkull = true; // Hide the floating skull spawned by Soulweaver Gloves
     public boolean hideSkeletonSkull = true;   // Hide the floating "Skeleton Skull" armor stands (bone shield / piling skulls)
+    public boolean showMovingSkulls = false;   // keep thrown (moving) skulls visible
+    public boolean highlightMovingSkulls = false; // gold glow on a moving skull for 200 ms
+    public boolean hideDungeonItemParticles = false; // firework/dust at hidden Superboom/Revive Stone/Flesh/orbs
     public boolean hideThrownBones = true;     // Hide thrown/dropped Bone item entities in dungeons
     public boolean hideSuperboomTnt = true;    // Hide Superboom TNT drops
     public boolean hideBlessing = true;        // Hide Blessing drops

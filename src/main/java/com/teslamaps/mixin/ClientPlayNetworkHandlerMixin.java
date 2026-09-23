@@ -65,6 +65,12 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
     }
 
+    @Inject(method = "handleParticleEvent", at = @At("HEAD"), cancellable = true)
+    private void onParticleHide(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()
+                && com.teslamaps.features.SoulweaverHider.hideParticle(packet)) ci.cancel();
+    }
+
     @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))
     private void onTabList(ClientboundTabListPacket packet, CallbackInfo ci) {
         WitherDragons.onTabFooter(packet.footer().getString());

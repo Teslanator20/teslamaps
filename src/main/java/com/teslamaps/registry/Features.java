@@ -10,5 +10,6 @@ final class Features {
         com.teslamaps.dungeon.DungeonManager.register();
         com.teslamaps.api.ElectionApi.register();
         com.teslamaps.dungeon.DungeonScore.register();
+        com.teslamaps.features.SoulweaverHider.register();
     }
 }
