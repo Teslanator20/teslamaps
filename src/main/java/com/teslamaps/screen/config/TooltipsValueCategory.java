@@ -13,6 +13,13 @@ public final class TooltipsValueCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Tooltips");
         b.toggle("Scrollable Tooltip", () -> config.scrollableTooltip, v -> config.scrollableTooltip = v);
+        b.toggle("  Shift + Scroll Sideways", () -> config.tooltipScrollHorizontal, v -> config.tooltipScrollHorizontal = v);
+        b.toggle("  Ctrl + Scroll Zoom", () -> config.tooltipScrollZoom, v -> config.tooltipScrollZoom = v);
+        b.toggle("  Invert Scroll", () -> config.tooltipScrollInvert, v -> config.tooltipScrollInvert = v);
+        b.toggle("  Keep Offset Between Items", () -> config.tooltipScrollKeep, v -> config.tooltipScrollKeep = v);
+        b.slider("  Scroll Step", 1f, 40f,
+                () -> (float) config.tooltipScrollStep, v -> config.tooltipScrollStep = Math.round(v), 0);
+        b.button("  Reset Tooltip Offset & Zoom", com.teslamaps.features.ScrollableTooltip::reset);
         b.toggle("Fit Tooltip To Screen", () -> config.tooltipFitScreen, v -> config.tooltipFitScreen = v);
         b.info("Long tooltips shrink instead of running off the top");
         b.toggle("Compactor/Deletor Preview", () -> config.compactorPreview, v -> config.compactorPreview = v);

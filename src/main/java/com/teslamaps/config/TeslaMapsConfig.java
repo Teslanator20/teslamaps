@@ -1230,6 +1230,12 @@ public class TeslaMapsConfig {
     public boolean ownNameTag = true;             // render your own player nametag in third person
     public boolean searchbar = true;               // type to search/highlight items in any container
     public boolean scrollableTooltip = true;       // scroll long item tooltips with the mouse wheel
+    public boolean tooltipScrollHorizontal = false; // shift + wheel moves sideways
+    public boolean tooltipScrollZoom = false;       // ctrl + wheel scales the tooltip
+    public boolean tooltipScrollInvert = false;
+    public boolean tooltipScrollKeep = false;       // keep the offset when hovering another item
+    public int tooltipScrollStep = 20;
+    public float tooltipZoom = 1f;
     public boolean compactorPreview = true;        // list personal compactor/deletor contents in the tooltip
     public boolean estimatedValue = true;          // show estimated item value (bazaar) in tooltips
     public boolean itemValueFixedPos = false;       // drag it in /tmap gui instead of pinning it to the container

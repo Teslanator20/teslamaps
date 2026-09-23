@@ -31,13 +31,13 @@ public class ScrollableTooltipMixin {
                                    ClientTooltipPositioner positioner, Identifier background, CallbackInfo ci) {
         GuiGraphicsExtractor self = (GuiGraphicsExtractor) (Object) this;
         float f = TooltipFit.begin(font, lines, self.guiHeight());
-        if (f < 1f) self.pose().pushMatrix().scale(f, f);
+        if (f != 1f) self.pose().pushMatrix().scale(f, f);
     }
 
     @Inject(method = "tooltip", at = @At("RETURN"))
     private void teslamaps$fitPop(Font font, List<ClientTooltipComponent> lines, int x, int y,
                                   ClientTooltipPositioner positioner, Identifier background, CallbackInfo ci) {
-        if (TooltipFit.scale() < 1f) ((GuiGraphicsExtractor) (Object) this).pose().popMatrix();
+        if (TooltipFit.scale() != 1f) ((GuiGraphicsExtractor) (Object) this).pose().popMatrix();
     }
 
     @ModifyVariable(
