@@ -1814,14 +1814,34 @@ public class MapConfigScreen extends Screen {
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
         @Override public void reposition(int x, int w) { this.x = x; this.width = w; }
 
+        private List<String> rowsCache;
+        private final java.util.Set<String> selectedCache = new java.util.HashSet<>();
+        private int countCache;
+        private String rowsQuery;
+        private long rowsAt;
+
+        private void invalidateRows() { rowsCache = null; }
+
+        private boolean isOn(String id) { return selectedCache.contains(id); }
+
         private List<String> rows() {
+            long now = System.currentTimeMillis();
+            if (rowsCache != null && query.equals(rowsQuery) && now - rowsAt < 1000) return rowsCache;
             String q = query.toLowerCase();
             List<String> on = new ArrayList<>(), off = new ArrayList<>();
+            selectedCache.clear();
+            int count = 0;
             for (String id : options.get()) {
+                boolean sel = selected.test(id);
+                if (sel) { count++; selectedCache.add(id); }
                 if (!q.isEmpty() && !id.toLowerCase().contains(q) && !displayName.apply(id).toLowerCase().contains(q)) continue;
-                (selected.test(id) ? on : off).add(id);
+                (sel ? on : off).add(id);
             }
             on.addAll(off);
+            rowsCache = on;
+            rowsQuery = query;
+            rowsAt = now;
+            countCache = count;
             return on;
         }
 
@@ -1885,8 +1905,7 @@ public class MapConfigScreen extends Screen {
                 ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
             }
             List<String> all = rows();
-            int count = 0;
-            for (String id : options.get()) if (selected.test(id)) count++;
+            int count = countCache;
             String cnt = count + " selected " + (expanded ? "▲" : "▼");
             int cntX = x + width - 10 - screen.font.width(cnt);
             ctx.text(screen.font, screen.fitLabel(label, x + 8, cntX), x + 8, y + 9, GuiStyle.text());
@@ -1918,7 +1937,7 @@ public class MapConfigScreen extends Screen {
             if (all.isEmpty()) ctx.text(screen.font, "Nothing here", left + 5, viewY + 5, GuiStyle.textFaint());
             for (int i = 0; i < VIEW_ROWS && scroll + i < all.size(); i++) {
                 String id = all.get(scroll + i);
-                boolean on = selected.test(id);
+                boolean on = isOn(id);
                 int ry = viewY + i * ROW;
                 boolean rh = mouseX >= left && mouseX < right - 6 && mouseY >= ry && mouseY < ry + ROW;
                 if (on) ctx.fill(left, ry, right - 6, ry + ROW, GuiStyle.rowSelected());
@@ -1941,6 +1960,7 @@ public class MapConfigScreen extends Screen {
                     screen.clickHandled = true;
                     onToggle.accept(id);
                     TeslaMapsConfig.save();
+                    invalidateRows();
                     GuiSounds.toggle(!on);
                 } else if (rh && screen.rightClickedNow && color != null) {
                     screen.rightClickedNow = false;
@@ -1975,13 +1995,14 @@ public class MapConfigScreen extends Screen {
                 acts.add(() -> {
                     String id = pick.get();
                     if (id != null && !selected.test(id)) { onToggle.accept(id); TeslaMapsConfig.save(); }
+                    invalidateRows();
                 });
             }
             if (clearAll != null) {
                 boolean armed = System.currentTimeMillis() - clearArmed < 3000;
                 labels.add(armed ? "Sure? Click again" : "Clear All");
                 acts.add(() -> {
-                    if (System.currentTimeMillis() - clearArmed < 3000) { clearAll.run(); TeslaMapsConfig.save(); clearArmed = 0; }
+                    if (System.currentTimeMillis() - clearArmed < 3000) { clearAll.run(); TeslaMapsConfig.save(); clearArmed = 0; invalidateRows(); }
                     else clearArmed = System.currentTimeMillis();
                 });
             }
