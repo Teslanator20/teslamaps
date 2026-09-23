@@ -105,6 +105,12 @@ public class TeslaMapsConfig {
     public boolean showWhiteCheckmarks = true;   // Show white (cleared) checkmarks
     public boolean showGreenCheckmarks = true;   // Show green (all secrets) checkmarks
     public boolean showFailedCheckmarks = true;  // Show failed (red X) checkmarks
+    public boolean mapCheckmarkIcons = false;
+    public String mapCheckmarkStyle = "IllegalMap"; // Symbol / IllegalMap / NEU / Vanilla New / Vanilla Old
+    public float mapCheckmarkSize = 0.5f;           // fraction of a room tile
+    public boolean mapCheckmarkCenter = true;
+    public boolean mapCheckmarkUnopened = false;    // question mark on rooms not entered yet
+    public boolean mapCheckmarkHideWithName = false;
 
     public boolean showPlayerMarker = true;
     public boolean showSelfMarker = true;        // Show your own marker/head

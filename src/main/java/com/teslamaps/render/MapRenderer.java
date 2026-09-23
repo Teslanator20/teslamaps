@@ -106,6 +106,9 @@ public class MapRenderer {
         if (legit) {
             drawGuessRooms(context, baseX, baseY, scale);
         }
+        if (config.mapCheckmarkIcons && config.showCheckmarks) {
+            for (DungeonRoom room : rooms) drawRoomCheckmark(context, room, baseX, baseY, scale);
+        }
         for (DungeonRoom room : rooms) {
             if (room.isIdentified()) drawRoomName(context, room, baseX, baseY, scale);
         }
@@ -371,6 +374,11 @@ public class MapRenderer {
             int px = gridToPixelX(d.nx(), baseX, scale);
             int py = gridToPixelY(d.nz(), baseY, scale);
             context.fill(px, py, px + roomSize, py + roomSize, gray);
+            TeslaMapsConfig c = TeslaMapsConfig.get();
+            if (c.mapCheckmarkIcons && c.showCheckmarks && c.mapCheckmarkUnopened) {
+                drawCheckmark(context, px + roomSize / 2, py + roomSize / 2,
+                        Math.max(4, Math.round(ROOM_SIZE * scale * c.mapCheckmarkSize)), CheckmarkState.UNEXPLORED);
+            }
         }
 
         for (com.teslamaps.map.LegitGuess.Door d : guessDoors) {
@@ -589,24 +597,21 @@ public class MapRenderer {
         return id.equals("SPIRIT_LEAP") || id.equals("INFINITE_SPIRIT_LEAP") || id.equals("HAUNT_ABILITY");
     }
 
-    private static void drawRoomName(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
+    private static boolean nameVisible(DungeonRoom room) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        if (!config.showRoomNames) return;
-        if (config.roomNamesOnlyWithLeap && !holdingLeap()) return;
-        if (room.getName() == null) return;
-
-        if (config.showNamesOnlyForPuzzles && room.getType() != com.teslamaps.map.RoomType.PUZZLE) {
-            return; // Only show puzzle room names
-        }
-
+        if (!config.showRoomNames || !room.isIdentified()) return false;
+        if (config.roomNamesOnlyWithLeap && !holdingLeap()) return false;
+        if (room.getName() == null) return false;
+        if (config.showNamesOnlyForPuzzles && room.getType() != RoomType.PUZZLE) return false;
         if (config.hideEntranceBloodFairyNames) {
             var type = room.getType();
-            if (type == com.teslamaps.map.RoomType.ENTRANCE ||
-                type == com.teslamaps.map.RoomType.BLOOD ||
-                type == com.teslamaps.map.RoomType.FAIRY) {
-                return; // Hide entrance/blood/fairy names
-            }
+            if (type == RoomType.ENTRANCE || type == RoomType.BLOOD || type == RoomType.FAIRY) return false;
         }
+        return true;
+    }
+
+    private static void drawRoomName(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
+        if (!nameVisible(room)) return;
 
         int roomMinGX = Integer.MAX_VALUE, roomMinGZ = Integer.MAX_VALUE;
         int roomMaxGX = Integer.MIN_VALUE, roomMaxGZ = Integer.MIN_VALUE;
@@ -800,7 +805,60 @@ public class MapRenderer {
         };
     }
 
-    private static void drawCheckmark(GuiGraphicsExtractor context, int x, int y, int size, CheckmarkState state) {
+    private static final String[] CHECK_SETS = {"illegalmap", "neu", "vanilla_new", "vanilla_old"};
+    private static final String[] CHECK_STYLE_NAMES = {"IllegalMap", "NEU", "Vanilla New", "Vanilla Old"};
+    // per set: white, green, failed, question
+    private static final int[][] CHECK_DIMS = {{10, 10, 10, 62}, {100, 100, 100, 100}, {18, 18, 8, 18}, {8, 7, 8, 7}};
+    private static final net.minecraft.resources.Identifier[][] CHECK_TEX = new net.minecraft.resources.Identifier[4][4];
+    static {
+        String[] files = {"white", "green", "failed", "question"};
+        for (int s = 0; s < 4; s++) for (int i = 0; i < 4; i++)
+            CHECK_TEX[s][i] = net.minecraft.resources.Identifier.fromNamespaceAndPath("teslamaps",
+                    "textures/map/checks/" + CHECK_SETS[s] + "/" + files[i] + ".png");
+    }
+
+    private static int checkIndex(CheckmarkState state) {
+        return switch (state) {
+            case WHITE -> 0;
+            case GREEN -> 1;
+            case FAILED -> 2;
+            case UNEXPLORED -> 3;
+            default -> -1;
+        };
+    }
+
+    private static void drawRoomCheckmark(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        CheckmarkState state = room.getCheckmarkState();
+        if (state == CheckmarkState.UNEXPLORED && !config.mapCheckmarkUnopened) return;
+        if (config.mapCheckmarkHideWithName && nameVisible(room)) return;
+        double[] c = checkmarkCenter(room);
+        int cx = baseX + (int) ((MAP_PADDING + (c[0] - minGridX) * CELL_SIZE + ROOM_SIZE / 2.0) * scale);
+        int cy = baseY + (int) ((MAP_PADDING + (c[1] - minGridZ) * CELL_SIZE + ROOM_SIZE / 2.0) * scale);
+        drawCheckmark(context, cx, cy, Math.max(4, Math.round(ROOM_SIZE * scale * config.mapCheckmarkSize)), state);
+    }
+
+    // Devonian getCenterOf: L rooms use the corner cell, others the mean of their cells
+    private static double[] checkmarkCenter(DungeonRoom room) {
+        List<int[]> comps = room.getComponents();
+        if (!TeslaMapsConfig.get().mapCheckmarkCenter) {
+            int[] best = comps.get(0);
+            for (int[] p : comps) if (p[0] + p[1] < best[0] + best[1]) best = p;
+            return new double[]{best[0], best[1]};
+        }
+        if (comps.size() == 3) {
+            for (int[] p : comps) {
+                boolean h = hasComponent(room, p[0] + 1, p[1]) || hasComponent(room, p[0] - 1, p[1]);
+                boolean v = hasComponent(room, p[0], p[1] + 1) || hasComponent(room, p[0], p[1] - 1);
+                if (h && v) return new double[]{p[0], p[1]};
+            }
+        }
+        double sx = 0, sz = 0;
+        for (int[] p : comps) { sx += p[0]; sz += p[1]; }
+        return new double[]{sx / comps.size(), sz / comps.size()};
+    }
+
+    private static void drawCheckmark(GuiGraphicsExtractor context, int centerX, int centerY, int size, CheckmarkState state) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         if (!config.showCheckmarks) return; // master switch
@@ -808,27 +866,34 @@ public class MapRenderer {
         if (state == CheckmarkState.WHITE && !config.showWhiteCheckmarks) return;
         if (state == CheckmarkState.GREEN && !config.showGreenCheckmarks) return;
         if (state == CheckmarkState.FAILED && !config.showFailedCheckmarks) return;
+        int idx = checkIndex(state);
+        if (idx < 0) return;
+
+        int set = -1;
+        for (int i = 0; i < CHECK_STYLE_NAMES.length; i++) if (CHECK_STYLE_NAMES[i].equals(config.mapCheckmarkStyle)) set = i;
+        if (set >= 0) {
+            int tw = CHECK_DIMS[set][idx];
+            context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, CHECK_TEX[set][idx],
+                    centerX - size / 2, centerY - size / 2, 0f, 0f, size, size, tw, tw, tw, tw);
+            return;
+        }
 
         String symbol = switch (state) {
             case WHITE, GREEN -> "\u2714";
             case FAILED -> "\u2716";
-            default -> "";
+            default -> "?";
         };
-        if (!symbol.isEmpty()) {
-            int centerX = x + size / 2;
-            int centerY = y + size / 2;
-            int textWidth = Minecraft.getInstance().font.width(symbol);
+        int textWidth = Minecraft.getInstance().font.width(symbol);
 
-            int color = switch (state) {
-                case WHITE -> TeslaMapsConfig.parseColor(config.colorCheckWhite);
-                case GREEN -> TeslaMapsConfig.parseColor(config.colorCheckGreen);
-                case FAILED -> TeslaMapsConfig.parseColor(config.colorCheckFailed);
-                default -> 0xFFFFFFFF;
-            };
+        int color = switch (state) {
+            case WHITE -> TeslaMapsConfig.parseColor(config.colorCheckWhite);
+            case GREEN -> TeslaMapsConfig.parseColor(config.colorCheckGreen);
+            case FAILED -> TeslaMapsConfig.parseColor(config.colorCheckFailed);
+            default -> TeslaMapsConfig.parseColor(config.colorTextUnexplored);
+        };
 
-            context.text(Minecraft.getInstance().font,
-                    symbol, centerX - textWidth / 2, centerY - 4, color);
-        }
+        context.text(Minecraft.getInstance().font,
+                symbol, centerX - textWidth / 2, centerY - 4, color);
     }
 
     private static void drawPlayerMarker(GuiGraphicsExtractor context, Minecraft mc, int baseX, int baseY, float scale) {

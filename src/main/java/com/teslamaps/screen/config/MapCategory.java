@@ -45,6 +45,13 @@ public final class MapCategory {
         b.toggle("White Checks", () -> config.showWhiteCheckmarks, v -> config.showWhiteCheckmarks = v);
         b.toggle("Green Checks", () -> config.showGreenCheckmarks, v -> config.showGreenCheckmarks = v);
         b.toggle("Failed Checks", () -> config.showFailedCheckmarks, v -> config.showFailedCheckmarks = v);
+        b.toggle("Checkmark Icons", () -> config.mapCheckmarkIcons, v -> config.mapCheckmarkIcons = v);
+        b.dropdown("  Icon Style", new String[]{"Symbol", "IllegalMap", "NEU", "Vanilla New", "Vanilla Old"},
+                () -> config.mapCheckmarkStyle, v -> config.mapCheckmarkStyle = v);
+        b.slider("  Icon Size", 0.2f, 1.0f, () -> config.mapCheckmarkSize, v -> config.mapCheckmarkSize = v);
+        b.toggle("  Center In Room", () -> config.mapCheckmarkCenter, v -> config.mapCheckmarkCenter = v);
+        b.toggle("  Question Mark On Unentered", () -> config.mapCheckmarkUnopened, v -> config.mapCheckmarkUnopened = v);
+        b.toggle("  Hide When Name Shown", () -> config.mapCheckmarkHideWithName, v -> config.mapCheckmarkHideWithName = v);
         b.label("Players");
         b.toggle("Player Markers", () -> config.showPlayerMarker, v -> config.showPlayerMarker = v);
         b.toggle("Show Self", () -> config.showSelfMarker, v -> config.showSelfMarker = v);
