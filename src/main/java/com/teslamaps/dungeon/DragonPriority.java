@@ -24,7 +24,7 @@ public class DragonPriority {
 
     private static Dragon sortPriority(List<Dragon> spawningDragons) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        double totalPower = WitherDragons.blessingPower * (config.witherDragonPaulBuff ? 1.25 : 1.0)
+        double totalPower = WitherDragons.blessingPower * (WitherDragons.paulBuff() ? 1.25 : 1.0)
                 + (WitherDragons.blessingTime > 0 ? 2.5 : 0.0);
 
         String playerClass = PlayerTracker.getLocalClass();

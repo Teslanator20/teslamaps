@@ -214,6 +214,19 @@ public class MimicDetector {
         }
     }
 
+    // Odin: entity event 3 (death) on a baby zombie, F6/F7 clear only
+    public static void onEntityEvent(net.minecraft.world.entity.Entity entity, byte eventId) {
+        if (eventId != 3 || mimicKilled || !(entity instanceof Zombie zombie) || !zombie.isBaby()) return;
+        if (!DungeonManager.isInDungeon() || !DungeonScore.floorHasMimics() || DungeonManager.isInBossArea()) return;
+        TeslaMaps.debug("[MimicDetector] Mimic death via entity event at {}", zombie.blockPosition());
+        setMimicKilled();
+    }
+
+    public static void markKilledManually() {
+        if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
+        setMimicKilled();
+    }
+
     private static void setMimicKilled() {
         if (mimicKilled) return;
         mimicKilled = true;

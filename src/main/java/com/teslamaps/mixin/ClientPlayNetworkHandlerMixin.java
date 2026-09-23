@@ -65,6 +65,12 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
     }
 
+    @Inject(method = "handleParticleEvent", at = @At("HEAD"), cancellable = true)
+    private void onParticleHide(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()
+                && com.teslamaps.features.SoulweaverHider.hideParticle(packet)) ci.cancel();
+    }
+
     @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))
     private void onTabList(ClientboundTabListPacket packet, CallbackInfo ci) {
         WitherDragons.onTabFooter(packet.footer().getString());
@@ -131,6 +137,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.OverkillCounter.onEntityEvent(packet.getEntity(mc.level), packet.getEventId());
         net.minecraft.world.entity.Entity target = packet.getEntity(mc.level);
         if (target != null) com.teslamaps.features.DeadMobHider.onEntityEvent(target.getId(), packet.getEventId());
+        if (target != null && mc.isSameThread()) com.teslamaps.dungeon.MimicDetector.onEntityEvent(target, packet.getEventId());
         com.teslamaps.debug.DeathProbe.onEntityEvent(packet, packet.getEventId());
     }
 

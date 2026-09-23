@@ -16,10 +16,21 @@ public final class ScoreSplitsCategory {
         b.toggle("Announce 270 (/pc)", () -> config.announce270, v -> config.announce270 = v);
         b.toggle("Mimic Dead Message", () -> config.mimicDeadMessage, v -> config.mimicDeadMessage = v);
         b.toggle("Prince Dead Message", () -> config.princeDeadMessage, v -> config.princeDeadMessage = v);
+        b.buttonRow(new String[]{"Mimic Killed", "Prince Killed"}, new Runnable[]{
+                com.teslamaps.dungeon.MimicDetector::markKilledManually,
+                com.teslamaps.dungeon.DungeonScore::markPrinceKilledManually});
+        b.info("Sets the bonus by hand and sends the message if it was missed");
         b.toggle("Crypt Reminder (<5 at boss)", () -> config.cryptReminder, v -> config.cryptReminder = v);
         b.soundDropdown("  Crypt Reminder Sound",
                 com.teslamaps.utils.SoundOptions.keys(), () -> config.cryptReminderSound, v -> config.cryptReminderSound = v);
         b.classFilter("  Crypt Reminder: Only as Class", config.cryptReminderClasses);
+        b.dropdown("  Crypt Reminder Trigger", new String[]{com.teslamaps.dungeon.DungeonScore.CRYPT_TRIGGER_BLOOD,
+                com.teslamaps.dungeon.DungeonScore.CRYPT_TRIGGER_RUN_START},
+                () -> config.cryptReminderTrigger, v -> config.cryptReminderTrigger = v);
+        b.slider("  Delay After Run Start (min)", 1f, 5f,
+                () -> config.cryptReminderDelay, v -> config.cryptReminderDelay = v, 1);
+        b.toggle("  Crypt Reminder Title", () -> config.cryptReminderTitle, v -> config.cryptReminderTitle = v);
+        b.channel("  Crypt Reminder Announce", () -> config.cryptReminderChannel, v -> config.cryptReminderChannel = v);
         b.label("Dungeon Splits");
         b.toggle("Enable Splits HUD", () -> config.splitsEnabled, v -> config.splitsEnabled = v);
         b.toggle("  Show PBs (per split)", () -> config.splitsShowPb, v -> config.splitsShowPb = v);

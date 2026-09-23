@@ -45,6 +45,8 @@ public final class HideCategory {
         b.toggle("Hide Dead Mobs", () -> config.hideDeadMobs, v -> config.hideDeadMobs = v);
         b.toggle("Hide Soulweaver Skull", () -> config.hideSoulweaverSkull, v -> config.hideSoulweaverSkull = v);
         b.toggle("Hide Skeleton Skulls", () -> config.hideSkeletonSkull, v -> config.hideSkeletonSkull = v);
+        b.toggle("  Keep Thrown Skulls Visible", () -> config.showMovingSkulls, v -> config.showMovingSkulls = v);
+        b.toggle("Highlight Thrown Skulls", () -> config.highlightMovingSkulls, v -> config.highlightMovingSkulls = v);
         b.toggle("Hide Thrown Bones", () -> config.hideThrownBones, v -> config.hideThrownBones = v);
         b.toggle("Hide Superboom TNT", () -> config.hideSuperboomTnt, v -> config.hideSuperboomTnt = v);
         b.toggle("Hide Blessings", () -> config.hideBlessing, v -> config.hideBlessing = v);
@@ -53,6 +55,8 @@ public final class HideCategory {
         b.toggle("Hide Journal Entry", () -> config.hideJournalEntry, v -> config.hideJournalEntry = v);
         b.toggle("Hide Healer Orbs", () -> config.hideHealerOrbs, v -> config.hideHealerOrbs = v);
         b.toggle("Hide Healer Fairy", () -> config.hideHealerFairy, v -> config.hideHealerFairy = v);
+        b.toggle("Hide Hidden Item Particles", () -> config.hideDungeonItemParticles, v -> config.hideDungeonItemParticles = v);
+        b.info("Firework/dust at hidden Superboom, Revive Stone, Premium Flesh and orbs");
         b.toggle("Hide Cheap Coins", () -> config.hideCheapCoins, v -> config.hideCheapCoins = v);
         b.label("Screen & World Hiders");
         b.button("Toggle All Screen & World Hiders", () -> {

@@ -93,10 +93,16 @@ public class TeslaMapsConfig {
     public boolean princeESP = true;             // World ESP marking the superboom structure that spawns a Prince
     public boolean showDungeonScore = true;     // Show estimated dungeon score below map
     public boolean assumePaulMayor = false;    // Always add +10 Paul bonus to score
+    public boolean paulAutoDetect = false;     // +10 when the election API reports Paul EZPZ (mayor or minister)
+    public boolean spiritPetCheck = false;     // Look up the first dead player: no legendary Spirit pet = -2 instead of -1
     public boolean announce300 = true;         // Announce "300 Score" in party chat (/pc)
     public boolean announce270 = false;         // Announce "270 Score" in party chat (/pc)
     public boolean cryptReminder = true;        // Warn at boss entry if fewer than 5 crypts were done
     public String cryptReminderSound = "BELL";  // Sound for the crypt reminder (see SoundOptions)
+    public String cryptReminderTrigger = "Blood Door +30s"; // or "Run Start" (Mort's "Good luck." + delay)
+    public float cryptReminderDelay = 2.0f;     // minutes after run start (Run Start trigger)
+    public boolean cryptReminderTitle = false;  // also show a title
+    public String cryptReminderChannel = "Nobody"; // Announce channel for "n/5 crypts"
     public boolean watcherKillAlert = true;     // Title + sound when the Watcher is cleared (blood done)
     public float roomNameScale = 1.0f;          // Scale of room name text (0.5 - 2.0)
     public float infoTextScale = 1.0f;          // Scale of the info box below the map (Secrets/Crypts/Score) (0.5 - 2.0)
@@ -158,6 +164,9 @@ public class TeslaMapsConfig {
     public int secretItemPickupTicks = 50;       // Ticks after a drop spawns before it's pickable (tune in-game)
     public boolean hideSoulweaverSkull = true; // Hide the floating skull spawned by Soulweaver Gloves
     public boolean hideSkeletonSkull = true;   // Hide the floating "Skeleton Skull" armor stands (bone shield / piling skulls)
+    public boolean showMovingSkulls = false;   // keep thrown (moving) skulls visible
+    public boolean highlightMovingSkulls = false; // gold glow on a moving skull for 200 ms
+    public boolean hideDungeonItemParticles = false; // firework/dust at hidden Superboom/Revive Stone/Flesh/orbs
     public boolean hideThrownBones = true;     // Hide thrown/dropped Bone item entities in dungeons
     public boolean hideSuperboomTnt = true;    // Hide Superboom TNT drops
     public boolean hideBlessing = true;        // Hide Blessing drops
@@ -959,6 +968,9 @@ public class TeslaMapsConfig {
     public boolean secretTickTimer = false;        // Secret spawn tick (20-tick cycle, clear only)
     public String tickTimerFormat = "Seconds";     // Seconds, Ticks, Both — display format for tick timers
     public boolean colorPortal = false;             // Recolor the blood portal by score (red/gold/green)
+    public String colorPortalLow = "A0FF1010";      // portal color below 270
+    public String colorPortalS = "A0FFD700";        // portal color for S
+    public String colorPortalSPlus = "A040FF00";    // portal color for S+
     public boolean highlightTeammates = false;      // ESP box around party members (through walls), colored by class
     public boolean relicTimer = true;              // M7 relic spawn countdown after Necron's line
     public boolean creeperBeamsDing = true;        // Ding when toggling a lantern in Creeper Beams
@@ -1379,6 +1391,7 @@ public class TeslaMapsConfig {
     public int witherDragonSoloDebuff = 0;           // 0 = Tank solos purple, 1 = Healer solos purple
     public boolean witherDragonSoloDebuffAll = true; // Solo-debuff split applies to all dragons, not just purple
     public boolean witherDragonPaulBuff = false;     // Multiply power by 1.25 (Paul mayor)
+    public boolean witherDragonPaulAuto = false;     // Paul buff from the election API (Benediction perk)
     public boolean dragonBoxes = true;             // ESP box around each live wither dragon (by colour)
     public boolean dragonHealth = true;            // Show each dragon's health % above it
     public boolean hideDyingDragons = true;        // Hide a dragon once it's dying (health <= 0)

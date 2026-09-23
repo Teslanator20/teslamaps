@@ -46,6 +46,51 @@ public class SoulweaverHider {
     private static final String DAMAGE_ORB_URL = textureUrl(DAMAGE_ORB);
     private static final String HEALER_FAIRY_URL = textureUrl(HEALER_FAIRY);
 
+    private static final java.util.Map<ArmorStand, Long> SKULL_MOVED = new java.util.WeakHashMap<>();
+    private static final java.util.Map<ArmorStand, Long> PARTICLE_SOURCES = new java.util.WeakHashMap<>();
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("MovingSkulls")
+                .when(() -> {
+                    TeslaMapsConfig c = TeslaMapsConfig.get();
+                    return (c.hideSkeletonSkull && c.showMovingSkulls || c.highlightMovingSkulls) && DungeonManager.isInDungeon();
+                })
+                .tick(SoulweaverHider::tickSkulls);
+    }
+
+    // SkyHanni DungeonHideItems: a skull that moved in the last 100 ms is a thrown one
+    private static void tickSkulls() {
+        long now = System.currentTimeMillis();
+        boolean glow = TeslaMapsConfig.get().highlightMovingSkulls;
+        for (ArmorStand s : com.teslamaps.utils.EntityCache.armorStands()) {
+            ItemStack head = s.getItemBySlot(EquipmentSlot.HEAD);
+            if (head.isEmpty() || !isSkeletonSkull(head)) continue;
+            if (s.getX() != s.xo || s.getY() != s.yo || s.getZ() != s.zo) SKULL_MOVED.put(s, now);
+            Long t = SKULL_MOVED.get(s);
+            if (glow && t != null && now - t < 200) com.teslamaps.render.EntityGlow.mark(s, 0xFFAA00);
+        }
+    }
+
+    /** Main thread. Firework/dust particles right at a hidden Superboom/Revive Stone/orb. */
+    public static boolean hideParticle(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket p) {
+        if (PARTICLE_SOURCES.isEmpty() || !TeslaMapsConfig.get().hideDungeonItemParticles) return false;
+        var type = p.getParticle().getType();
+        if (type != net.minecraft.core.particles.ParticleTypes.FIREWORK && type != net.minecraft.core.particles.ParticleTypes.DUST) return false;
+        long now = System.currentTimeMillis();
+        var it = PARTICLE_SOURCES.entrySet().iterator();
+        while (it.hasNext()) {
+            var e = it.next();
+            if (now - e.getValue() > 100) { it.remove(); continue; }
+            if (e.getKey().distanceToSqr(p.getX(), p.getY(), p.getZ()) < 4) return true;
+        }
+        return false;
+    }
+
+    private static boolean particleSource(ArmorStand stand) {
+        if (TeslaMapsConfig.get().hideDungeonItemParticles) PARTICLE_SOURCES.put(stand, System.currentTimeMillis());
+        return true;
+    }
+
     public static boolean shouldHide(Entity entity) {
         if (!DungeonManager.isInDungeon()) return false;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
@@ -75,7 +120,7 @@ public class SoulweaverHider {
                 if (cfg.hideSuperboomTnt && standName.startsWith("Superboom TNT")) return true;
                 if (cfg.hideBlessing && standName.startsWith("Blessing of ")) return true;
                 if (cfg.hideReviveStone && standName.equals("Revive Stone")) return true;
-                if (cfg.hidePremiumFlesh && standName.equals("Premium Flesh")) return true;
+                if (cfg.hidePremiumFlesh && standName.equals("Premium Flesh")) return particleSource(stand);
                 if (cfg.hideHealerOrbs && (standName.startsWith("DAMAGE ")
                         || standName.startsWith("ABILITY DAMAGE ") || standName.startsWith("DEFENSE "))) return true;
             }
@@ -84,7 +129,15 @@ public class SoulweaverHider {
         ItemStack head = stand.getItemBySlot(EquipmentSlot.HEAD);
         if (head.isEmpty()) return false;
 
-        if (cfg.hideSkeletonSkull && isSkeletonSkull(head)) return true;
+        if (cfg.hideSkeletonSkull && isSkeletonSkull(head)) {
+            if (cfg.showMovingSkulls) {
+                Long t = SKULL_MOVED.get(stand);
+                if (t != null && System.currentTimeMillis() - t < 100) return false;
+            }
+            return true;
+        }
+        if (cfg.hideSuperboomTnt && cfg.hideDungeonItemParticles
+                && cleanName(head.getHoverName().getString()).equals("Superboom TNT")) return particleSource(stand);
 
         if (head.getItem() != Items.PLAYER_HEAD || !texOpt) return false;
         String tex = skullTexture(head);
@@ -96,11 +149,11 @@ public class SoulweaverHider {
 
         if (cfg.hideSoulweaverSkull && url.equals(SOUL_WEAVER_URL)) return true;
         if (cfg.hideBlessing && url.equals(BLESSING_URL)) return true;
-        if (cfg.hideReviveStone && url.equals(REVIVE_STONE_URL)) return true;
+        if (cfg.hideReviveStone && url.equals(REVIVE_STONE_URL)) return particleSource(stand);
         if (cfg.hidePremiumFlesh && url.equals(PREMIUM_FLESH_URL)) return true;
         if (cfg.hideHealerFairy && url.equals(HEALER_FAIRY_URL)) return true;
         if (cfg.hideHealerOrbs && (url.equals(ABILITY_ORB_URL) || url.equals(SUPPORT_ORB_URL) || url.equals(DAMAGE_ORB_URL)))
-            return true;
+            return particleSource(stand);
 
         return false;
     }

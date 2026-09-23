@@ -336,6 +336,11 @@ public class WitherDragons {
         return total;
     }
 
+    public static boolean paulBuff() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.witherDragonPaulBuff || (c.witherDragonPaulAuto && com.teslamaps.api.ElectionApi.benediction());
+    }
+
     public static void reset() {
         reset(false);
     }
@@ -365,12 +370,12 @@ public class WitherDragons {
 
     public static void debugDump() {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        double totalPower = blessingPower * (config.witherDragonPaulBuff ? 1.25 : 1.0) + (blessingTime > 0 ? 2.5 : 0.0);
+        double totalPower = blessingPower * (WitherDragons.paulBuff() ? 1.25 : 1.0) + (blessingTime > 0 ? 2.5 : 0.0);
         String playerClass = PlayerTracker.getLocalClass();
 
         msg("§6=== Dragon Priority Debug ===");
         msg("§7In dungeon: §f" + DungeonManager.isInDungeon() + " §7| P5: §f" + p5() + " §7| active: §f" + active());
-        msg("§7Power: §a" + blessingPower + " §7Time: §a" + blessingTime + " §7Paul: §f" + config.witherDragonPaulBuff
+        msg("§7Power: §a" + blessingPower + " §7Time: §a" + blessingTime + " §7Paul: §f" + paulBuff()
                 + " §7-> totalPower: §6" + totalPower);
         msg("§7Your class: §f" + (playerClass == null ? "Unknown" : playerClass));
 

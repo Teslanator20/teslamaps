@@ -53,6 +53,7 @@ public final class F7M7Category {
         b.toggle("Healer Solos Purple (off=Tank)", () -> config.witherDragonSoloDebuff == 1, v -> config.witherDragonSoloDebuff = v ? 1 : 0);
         b.toggle("Solo Debuff on All Splits", () -> config.witherDragonSoloDebuffAll, v -> config.witherDragonSoloDebuffAll = v);
         b.toggle("Paul Buff (×1.25 power)", () -> config.witherDragonPaulBuff, v -> config.witherDragonPaulBuff = v);
+        b.toggle("  Auto Paul Buff (Election API)", () -> config.witherDragonPaulAuto, v -> config.witherDragonPaulAuto = v);
         b.label("Live Dragons");
         b.toggle("Dragon Boxes (live)", () -> config.dragonBoxes, v -> config.dragonBoxes = v);
         b.toggle("Dragon Health %", () -> config.dragonHealth, v -> config.dragonHealth = v);
