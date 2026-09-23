@@ -98,6 +98,7 @@ public class MapRenderer {
         if (config.showMapBackground || leapMode) {
             drawBackground(context, baseX, baseY, mapWidth, totalHeight);
         }
+        if (config.mapHypixelFallback) drawHypixelFallback(context, rooms, baseX, baseY, scale);
         drawRoomConnections(context, rooms, baseX, baseY, scale, legit);
 
         // getAllRooms() is already deduped, so no per-frame "already drawn" set.
@@ -373,6 +374,51 @@ public class MapRenderer {
             color = undiscoveredColor(color);
         }
         return color;
+    }
+
+    private static final boolean[] covered = new boolean[ComponentGrid.GRID_SIZE * ComponentGrid.GRID_SIZE];
+
+    // cells our scan could not fill get Hypixel's own map pixels
+    private static void drawHypixelFallback(GuiGraphicsExtractor context, Collection<DungeonRoom> rooms, int baseX, int baseY, float scale) {
+        if (!com.teslamaps.map.HypixelMapFallback.ready() || MapScanner.mapCornerX < 0 || MapScanner.mapCornerY < 0) return;
+        int n = ComponentGrid.GRID_SIZE;
+        java.util.Arrays.fill(covered, false);
+        for (DungeonRoom room : rooms) {
+            for (int[] c : room.getComponents()) {
+                if (c[0] >= 0 && c[0] < n && c[1] >= 0 && c[1] < n) covered[c[0] + c[1] * n] = true;
+            }
+        }
+        var tex = com.teslamaps.map.HypixelMapFallback.texture();
+        int rs = MapScanner.mapRoomSize, gap = MapScanner.mapGapSize;
+        for (int gz = 0; gz < n; gz++) {
+            for (int gx = 0; gx < n; gx++) {
+                if (covered[gx + gz * n]) continue;
+                int u = MapScanner.mapCornerX + gx * (rs + gap);
+                int v = MapScanner.mapCornerY + gz * (rs + gap);
+                int x0 = gridToPixelX(gx, baseX, scale), y0 = gridToPixelY(gz, baseY, scale);
+                int xr = x0 + (int) (ROOM_SIZE * scale), yb = y0 + (int) (ROOM_SIZE * scale);
+                int x1 = gridToPixelX(gx + 1, baseX, scale), y1 = gridToPixelY(gz + 1, baseY, scale);
+                blitMap(context, tex, x0, y0, xr, yb, u, v, rs, rs);
+                blitMap(context, tex, xr, y0, x1, yb, u + rs, v, gap, rs);
+                blitMap(context, tex, x0, yb, xr, y1, u, v + rs, rs, gap);
+                blitMap(context, tex, xr, yb, x1, y1, u + rs, v + rs, gap, gap);
+                if (gx > 0 && covered[gx - 1 + gz * n]) {
+                    int xl = gridToPixelX(gx - 1, baseX, scale) + (int) (ROOM_SIZE * scale);
+                    blitMap(context, tex, xl, y0, x0, yb, u - gap, v, gap, rs);
+                }
+                if (gz > 0 && covered[gx + (gz - 1) * n]) {
+                    int yt = gridToPixelY(gz - 1, baseY, scale) + (int) (ROOM_SIZE * scale);
+                    blitMap(context, tex, x0, yt, xr, y0, u, v - gap, rs, gap);
+                }
+            }
+        }
+    }
+
+    private static void blitMap(GuiGraphicsExtractor context, net.minecraft.resources.Identifier tex,
+                                int x0, int y0, int x1, int y1, int u, int v, int uw, int vh) {
+        if (x1 <= x0 || y1 <= y0 || u < 0 || v < 0 || u + uw > 128 || v + vh > 128) return;
+        context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, tex,
+                x0, y0, u, v, x1 - x0, y1 - y0, uw, vh, 128, 128);
     }
 
     private static int getDoorColor(DoorType type) {

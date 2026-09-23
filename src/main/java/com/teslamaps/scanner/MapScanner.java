@@ -79,6 +79,7 @@ public class MapScanner {
         if (colors == null || colors.length < 16384) {
             return;
         }
+        com.teslamaps.map.HypixelMapFallback.update(colors);
 
         if (!mapParamsDetected) {
             detectMapParameters(colors);
@@ -666,6 +667,7 @@ public class MapScanner {
         mapParamsDetected = false;
         mapCornerX = -1;
         mapCornerY = -1;
+        com.teslamaps.map.HypixelMapFallback.reset();
         roomExplorationScanCount.clear();
         witherDoorBoxes.clear();
         bloodDoorBoxes.clear();
