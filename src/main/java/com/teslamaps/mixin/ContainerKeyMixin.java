@@ -28,6 +28,11 @@ public class ContainerKeyMixin {
             return;
         }
 
+        if (com.teslamaps.features.hunting.ShardOverlay.onKeyPressed(event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.features.Searchbar.onKeyPressed(event.key(), event.scancode())) {
             cir.setReturnValue(true);
             return;

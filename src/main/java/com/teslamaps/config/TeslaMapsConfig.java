@@ -867,6 +867,11 @@ public class TeslaMapsConfig {
     public boolean shardOnlyMissing = false;    // Only shards that are not unlocked yet
     public boolean shardIncludeBox = true;      // Count what is already in the hunting box
     public boolean shardIncludeOrders = true;   // Count what is already on order in the bazaar
+    public boolean shardOnlyCurrent = false;    // only shards on the open bazaar / attribute page
+    public boolean shardPanelSearch = false;    // search box in the shard panel
+    public boolean shardPanelButtons = false;   // option buttons under the shard panel
+    public boolean shardFusionTracking = false; // FUSION! chat line moves the box amounts
+    public boolean shardSyphonHint = false;     // clickable /attributemenu hint on "and N more..."
     public boolean shardTierStack = true;       // Tier as the stack size in the attribute menu
     public boolean shardHighlightDisabled = true;   // Red tint over switched-off attributes
     public boolean shardTierColors = false;

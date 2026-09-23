@@ -34,7 +34,13 @@ public class ShardOverlay {
     public static final String PRICE_ORDER = "Buy Order";
     public static final String[] PRICE_SOURCES = { PRICE_INSTANT, PRICE_ORDER };
 
-    private record Row(String text, List<String> tooltip, String bazaarQuery, int need, int slot, double sortKey) {}
+    private record Row(String text, List<String> tooltip, String bazaarQuery, int need, int slot, double sortKey, String key) {}
+
+    private static final int SEARCH_H = ROW + 2;
+    private static String query = "";
+    private static boolean focused = false;
+    private static List<String> buttons = List.of();
+    private static int searchTop = -1, buttonTop = -1, panelLeft = 0;
 
     private static float scroll = 0;
     private static String lastClickQuery = null;
@@ -75,6 +81,14 @@ public class ShardOverlay {
         if (!ShardData.loaded()) newFooter.add("§7loading shard data…");
         else if (!PriceManager.isLoaded()) newFooter.add("§7loading prices…");
 
+        if (config().shardPanelSearch && !query.isEmpty()) {
+            List<Row> kept = new ArrayList<>();
+            for (Row r : newRows) if (r.key().contains(query)) kept.add(r);
+            newRows = kept;
+        }
+        buttons = shouldRender() && !HuntingBox.inBoxScreen() && config().shardPanelButtons ? buttonLines() : List.of();
+        if (!config().shardPanelSearch) focused = false;
+
         header = newHeader;
         footer = newFooter;
         rows = newRows;
@@ -84,9 +98,50 @@ public class ShardOverlay {
         for (String l : header) width = Math.max(width, mc.font.width(l));
         for (String l : footer) width = Math.max(width, mc.font.width(l));
         for (Row r : rows) width = Math.max(width, mc.font.width(r.text()));
+        for (String l : buttons) width = Math.max(width, mc.font.width(l));
+        if (config().shardPanelSearch) width = Math.max(width, 120);
         panelWidth = Math.min(width, 240);
 
         updateMenuExtras(mc);
+    }
+
+    private static TeslaMapsConfig config() {
+        return TeslaMapsConfig.get();
+    }
+
+    private static List<String> buttonLines() {
+        TeslaMapsConfig c = config();
+        List<String> out = new ArrayList<>();
+        out.add("§7Sorted By: §e" + c.shardSort);
+        out.add("§7Price Source: §e" + c.shardPriceSource);
+        out.add(onOff("Hide Maxed", c.shardHideMaxed));
+        out.add(onOff("Only Not Unlocked", c.shardOnlyMissing));
+        out.add(onOff("Include Hunting Box", c.shardIncludeBox));
+        out.add(onOff("Include Bazaar Orders", c.shardIncludeOrders));
+        out.add(onOff("Only Current Menu", c.shardOnlyCurrent));
+        if (c.shardIncludeBox) out.add("§cReset hunting box shards");
+        return out;
+    }
+
+    private static String onOff(String label, boolean on) {
+        return "§7" + label + ": " + (on ? "§aon" : "§coff");
+    }
+
+    private static void pressButton(int index) {
+        TeslaMapsConfig c = config();
+        switch (index) {
+            case 0 -> c.shardSort = SORT_MAX.equals(c.shardSort) ? SORT_NEXT : SORT_MAX;
+            case 1 -> c.shardPriceSource = PRICE_ORDER.equals(c.shardPriceSource) ? PRICE_INSTANT : PRICE_ORDER;
+            case 2 -> c.shardHideMaxed = !c.shardHideMaxed;
+            case 3 -> c.shardOnlyMissing = !c.shardOnlyMissing;
+            case 4 -> c.shardIncludeBox = !c.shardIncludeBox;
+            case 5 -> c.shardIncludeOrders = !c.shardIncludeOrders;
+            case 6 -> c.shardOnlyCurrent = !c.shardOnlyCurrent;
+            case 7 -> ShardData.resetBox();
+            default -> { return; }
+        }
+        TeslaMapsConfig.save();
+        update();
     }
 
     private static boolean menuExtrasWanted() {
@@ -156,7 +211,8 @@ public class ShardOverlay {
 
             rows.add(new Row(" " + rarityColor(entry.shard()) + entry.shard().displayName()
                     + " §8x" + entry.amount() + " §7- §6" + EstimatedValue.fmt(sell),
-                    tooltip, entry.shard().displayName(), 0, entry.slot(), sell));
+                    tooltip, entry.shard().displayName(), 0, entry.slot(), sell,
+                    entry.shard().displayName().toLowerCase(Locale.ROOT)));
         }
         rows.sort(Comparator.comparingDouble(Row::sortKey).reversed());
 
@@ -202,6 +258,7 @@ public class ShardOverlay {
 
             if (config.shardHideMaxed && tier >= 10) continue;
             if (config.shardOnlyMissing && tier > 0) continue;
+            if (config.shardOnlyCurrent && !slotOfShard.containsKey(shard.bazaarId())) continue;
 
             int need = byMax ? needMax : needNext;
             double shown = byMax ? priceMax : priceNext;
@@ -233,7 +290,8 @@ public class ShardOverlay {
             double sortKey = need > 0 ? shown : Double.MAX_VALUE;
             rows.add(new Row(" " + rarityColor(shard) + shard.displayName() + " §7" + tier + " " + priceText,
                     tooltip, need > 0 ? shard.displayName() : null, need,
-                    slotOfShard.getOrDefault(shard.bazaarId(), -1), sortKey));
+                    slotOfShard.getOrDefault(shard.bazaarId(), -1), sortKey,
+                    shard.displayName().toLowerCase(Locale.ROOT) + " " + shard.abilityName().toLowerCase(Locale.ROOT)));
         }
         rows.sort(Comparator.comparingDouble(Row::sortKey));
 
@@ -274,8 +332,9 @@ public class ShardOverlay {
                              List<String> header, List<Row> rows, List<String> footer, int mouseX, int mouseY) {
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         visibleRows = Math.min(MAX_ROWS, rows.size());
-        int lineCount = header.size() + visibleRows + footer.size();
+        int lineCount = header.size() + visibleRows + footer.size() + buttons.size();
         if (lineCount == 0) return;
+        boolean search = config().shardPanelSearch;
 
         int width = panelWidth;
         int x = acc.getX() + 176 + 6;
@@ -283,7 +342,8 @@ public class ShardOverlay {
             x = Math.max(2, acc.getX() - width - PAD * 2 - 6);
         }
         int y = acc.getY();
-        int height = lineCount * ROW;
+        int height = lineCount * ROW + (search ? SEARCH_H : 0);
+        panelLeft = x;
 
         HudStyle.panel(ctx, x - PAD, y - PAD, width + PAD * 2f, height + PAD * 2f);
 
@@ -291,6 +351,22 @@ public class ShardOverlay {
         for (String line : header) {
             ctx.text(mc.font, line, x, cursor, 0xFFFFFFFF);
             cursor += ROW;
+        }
+
+        searchTop = -1;
+        if (search) {
+            searchTop = cursor;
+            int bw = width, bh = ROW;
+            ctx.fill(x, cursor, x + bw, cursor + bh, focused ? 0xFF202020 : 0xC0202020);
+            int border = focused ? 0xFFFFD040 : 0xFF606060;
+            ctx.fill(x, cursor, x + bw, cursor + 1, border);
+            ctx.fill(x, cursor + bh - 1, x + bw, cursor + bh, border);
+            ctx.fill(x, cursor, x + 1, cursor + bh, border);
+            ctx.fill(x + bw - 1, cursor, x + bw, cursor + bh, border);
+            String label = query.isEmpty() ? (focused ? "§7type to search…" : "§8click to search")
+                    : "§f" + query + (focused ? "§e_" : "");
+            ctx.text(mc.font, label, x + 3, cursor + 1, 0xFFFFFFFF);
+            cursor += SEARCH_H;
         }
 
         listLeft = x;
@@ -330,6 +406,14 @@ public class ShardOverlay {
         }
 
         for (String line : footer) {
+            ctx.text(mc.font, line, x, cursor, 0xFFFFFFFF);
+            cursor += ROW;
+        }
+
+        buttonTop = buttons.isEmpty() ? -1 : cursor;
+        for (String line : buttons) {
+            boolean hovered = mouseX >= x - PAD && mouseX <= x + width + PAD && mouseY >= cursor && mouseY < cursor + ROW;
+            if (hovered) ctx.fill(x - PAD + 1, cursor, x + width + PAD - 1, cursor + ROW, 0x33FFFFFF);
             ctx.text(mc.font, line, x, cursor, 0xFFFFFFFF);
             cursor += ROW;
         }
@@ -398,7 +482,22 @@ public class ShardOverlay {
     }
 
     public static boolean handleClick(double mouseX, double mouseY, int button) {
-        if (button != 0 || !shouldRender() || lastClickQuery == null) return false;
+        if (!shouldRender()) return false;
+        boolean inPanel = mouseX >= panelLeft - PAD && mouseX <= panelLeft + panelWidth + PAD;
+        if (config().shardPanelSearch && searchTop >= 0) {
+            boolean inBox = inPanel && mouseY >= searchTop && mouseY < searchTop + ROW;
+            if (inBox && button == 1) {
+                setQuery("");
+                return true;
+            }
+            if (button == 0) focused = inBox;
+            if (inBox) return true;
+        }
+        if (button == 0 && inPanel && buttonTop >= 0 && mouseY >= buttonTop && mouseY < buttonTop + buttons.size() * ROW) {
+            pressButton((int) ((mouseY - buttonTop) / ROW));
+            return true;
+        }
+        if (button != 0 || lastClickQuery == null) return false;
         if (mouseX < listLeft - PAD || mouseX > listLeft + listWidth + PAD) return false;
         if (mouseY < listTop || mouseY >= listTop + visibleRows * ROW) return false;
 
@@ -408,6 +507,30 @@ public class ShardOverlay {
         // the bazaar asks for the amount in a sign, so have it ready to paste
         if (lastClickAmount > 0) mc.keyboardHandler.setClipboard(String.valueOf(lastClickAmount));
         mc.getConnection().sendCommand("bz " + lastClickQuery + " Shard");
+        return true;
+    }
+
+    private static void setQuery(String q) {
+        if (q.equals(query)) return;
+        query = q;
+        scroll = 0;
+        update();
+    }
+
+    public static boolean onKeyPressed(int key) {
+        if (!focused || !config().shardPanelSearch || !shouldRender()) return false;
+        if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_BACKSPACE) {
+            if (!query.isEmpty()) setQuery(query.substring(0, query.length() - 1));
+        } else if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE || key == org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER) {
+            focused = false;
+        }
+        return true;
+    }
+
+    public static boolean charTyped(int codepoint) {
+        if (!focused || !config().shardPanelSearch || !shouldRender()) return false;
+        if (codepoint < 32 || codepoint == 127) return false;
+        setQuery(query + Character.toString(Character.toLowerCase(codepoint)));
         return true;
     }
 
