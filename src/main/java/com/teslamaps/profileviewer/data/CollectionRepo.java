@@ -34,6 +34,7 @@ public class CollectionRepo {
     private static volatile boolean loaded = false;
     private static volatile boolean live = false;
     private static volatile long nextTry = 0;
+    private static boolean bundledTried = false;
 
     public static boolean isLoaded() {
         return loaded;
@@ -44,7 +45,10 @@ public class CollectionRepo {
     }
 
     public static synchronized void load() {
-        if (!loaded) loadBundled();
+        if (!loaded && !bundledTried) {
+            bundledTried = true;
+            loadBundled();
+        }
         if (live || loading || System.currentTimeMillis() < nextTry) return;
         loading = true;
 

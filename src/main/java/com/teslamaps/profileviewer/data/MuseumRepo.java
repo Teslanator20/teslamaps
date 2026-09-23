@@ -33,6 +33,7 @@ public class MuseumRepo {
     private static volatile Data data;
     private static volatile boolean loading = false;
     private static volatile boolean live = false;
+    private static boolean bundledTried = false;
 
     public static Data get() {
         load();
@@ -40,7 +41,8 @@ public class MuseumRepo {
     }
 
     public static synchronized void load() {
-        if (data == null) {
+        if (data == null && !bundledTried) {
+            bundledTried = true;
             try (InputStream stream = MuseumRepo.class.getResourceAsStream("/assets/teslamaps/pv/museum.json")) {
                 if (stream != null) {
                     data = parse(JsonParser.parseReader(
