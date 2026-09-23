@@ -1253,6 +1253,14 @@ public class TeslaMapsConfig {
     public boolean storageShowNames = false;         // show page/backpack name headers in the custom storage view
     public float storageOverlayScale = 1.0f;        // overall size multiplier for the custom storage overlay (0.5 - 1.5)
     public boolean storageVanillaAfterSwap = false;  // after placing/removing a backpack, open the next storage menu in vanilla once
+    public int storageColumns = 3;                   // page columns in the custom storage overlay (1 - 10)
+    public int storageScrollSpeed = 20;              // px per wheel notch
+    public boolean storageCompact = false;           // masonry: short backpacks leave no gaps
+    public boolean storageCenterActive = false;      // scroll to the open page when the overlay opens
+    public boolean storageSearchFocus = false;       // search box is focused on open
+    public boolean storageRenamePages = false;       // click a page title to rename it (& color codes)
+    @Global
+    public java.util.Map<String, String> storagePageNames = new java.util.HashMap<>();
     public boolean critterESP = false;              // Torrhus Canyon critter ESP (master)
     public boolean critterFilled = true;            // also fill the critter boxes
     public boolean critterTracers = false;          // tracer to every boxed critter
@@ -1856,6 +1864,7 @@ public class TeslaMapsConfig {
         if (c.lockedSlots == null) c.lockedSlots = new java.util.ArrayList<>();
         if (c.slotBindsData == null) c.slotBindsData = new java.util.HashMap<>();
         if (c.slotBindsAreaProfiles == null) c.slotBindsAreaProfiles = new java.util.HashMap<>();
+        if (c.storagePageNames == null) c.storagePageNames = new java.util.HashMap<>();
         if (c.puzzlePbs == null) c.puzzlePbs = new java.util.HashMap<>();
         if (c.termSimPbs == null) c.termSimPbs = new java.util.HashMap<>();
         if (c.terminalPbs == null) c.terminalPbs = new java.util.HashMap<>();

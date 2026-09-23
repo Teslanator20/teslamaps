@@ -76,6 +76,15 @@ public final class InventoryCategory {
         b.slider("  Overlay Scale", 0.5f, 1.5f,
                 () -> config.storageOverlayScale, v -> config.storageOverlayScale = v);
         b.toggle("  Vanilla Menu After Backpack Swap", () -> config.storageVanillaAfterSwap, v -> config.storageVanillaAfterSwap = v);
+        b.slider("  Columns", 1f, 10f,
+                () -> (float) config.storageColumns, v -> config.storageColumns = Math.round(v), 0);
+        b.slider("  Scroll Speed", 5f, 80f,
+                () -> (float) config.storageScrollSpeed, v -> config.storageScrollSpeed = Math.round(v), 0);
+        b.toggle("  Compact Vertically", () -> config.storageCompact, v -> config.storageCompact = v);
+        b.toggle("  Center On Open Page", () -> config.storageCenterActive, v -> config.storageCenterActive = v);
+        b.toggle("  Focus Search On Open", () -> config.storageSearchFocus, v -> config.storageSearchFocus = v);
+        b.toggle("  Rename Pages (click title)", () -> config.storageRenamePages, v -> config.storageRenamePages = v);
+        b.info("Needs Show Page Names. & for color codes, empty = default name");
         b.label("Hovered Slot");
         b.toggle("Hovered Slot Outline", () -> config.hoveredSlotOutline, v -> config.hoveredSlotOutline = v);
         b.color("  Outline Color", () -> config.colorHoveredSlot, v -> config.colorHoveredSlot = v);

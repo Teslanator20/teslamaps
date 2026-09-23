@@ -54,6 +54,7 @@
     "GuiRendererChromaMixin",
     "HandledScreenAccessor",
     "HandledScreenClickMixin",
+    "QuickCraftAccessor",
     "InGameHudMixin",
     "InventoryEffectsMixin",
     "InventoryButtonRenderMixin",

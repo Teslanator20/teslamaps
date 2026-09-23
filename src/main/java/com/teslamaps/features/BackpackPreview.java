@@ -148,6 +148,8 @@ public class BackpackPreview {
             out.add(c);
         }
         while (!out.isEmpty() && strip(out.get(out.size() - 1).getString()).isEmpty()) out.remove(out.size() - 1);
+        String custom = TeslaMapsConfig.get().storagePageNames.get(key);
+        if (custom != null && !custom.isEmpty() && !out.isEmpty()) out.add(1, Component.literal("§7» " + custom.replace('&', '§')));
 
         int at = -1;
         for (int i = 1; i < out.size(); i++) {
@@ -229,7 +231,7 @@ public class BackpackPreview {
         ctx.fill(x, y, x + r[2], y + r[3], 0xF0100010);
         ctx.fill(x, y, x + r[2], y + 1, 0xFF7755FF);
         ctx.fill(x, y + r[3] - 1, x + r[2], y + r[3], 0xFF7755FF);
-        ctx.text(mc.font, "§d" + label(frozen) + " §8(frozen)", x + F_PAD, y + F_PAD, 0xFFFFFFFF);
+        ctx.text(mc.font, "§d" + StorageOverlay.pageName(frozen, label(frozen)) + " §8(frozen)", x + F_PAD, y + F_PAD, 0xFFFFFFFF);
         int gx0 = x + F_PAD, gy0 = y + F_PAD + F_TITLE;
         int size = frozenSize();
         for (int s = 0; s < size; s++) {
