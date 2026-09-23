@@ -552,6 +552,8 @@ public class TeslaMapsConfig {
     public int chatHistoryLimit = 16384;         // Hard cap so memory stays bounded (effectively infinite)
     public boolean chatStacking = true;          // Stack identical messages with a (Nx) counter
     public int chatStackWindowMinutes = 5;       // Stack any identical message from the last N minutes (1-30)
+    public boolean chatStackBlocks = false;      // A repeated divider block drops the old one, dividers included
+    public boolean chatStackCompareColors = false; // Only stack lines whose colours match too
 
     public boolean pbOnJoin = true;               // Show a player's dungeon PBs when they join via party finder
     public boolean chatCommands = true;           // Party chat commands (!8ball, !cf, !warp, !pt, !kick, ...)

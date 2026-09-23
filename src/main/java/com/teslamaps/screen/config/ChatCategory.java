@@ -50,6 +50,8 @@ public final class ChatCategory {
         b.toggle("Stack Duplicate Messages", () -> config.chatStacking, v -> config.chatStacking = v);
         b.slider("Stack Window (min)", 1f, 30f,
                 () -> (float) config.chatStackWindowMinutes, v -> config.chatStackWindowMinutes = Math.round(v));
+        b.toggle("  Stack Divider Blocks (---/===/▬▬▬)", () -> config.chatStackBlocks, v -> config.chatStackBlocks = v);
+        b.toggle("  Colours Must Match", () -> config.chatStackCompareColors, v -> config.chatStackCompareColors = v);
         b.toggle("Right-Click Copy Chat", () -> config.chatCopyEnabled, v -> config.chatCopyEnabled = v);
         b.slider("Hotkey Delay After Chat (ms)", 0f, 1000f,
                 () -> (float) config.hotkeyChatDelay, v -> config.hotkeyChatDelay = Math.round(v));
