@@ -42,5 +42,6 @@ final class Features {
         com.teslamaps.features.ChatSpamHud.register();
         // wave 1c garden
         com.teslamaps.features.FarmingSensitivity.register();
+        com.teslamaps.features.FarmProgress.register();
     }
 }

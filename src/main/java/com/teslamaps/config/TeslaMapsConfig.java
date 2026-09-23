@@ -806,6 +806,12 @@ public class TeslaMapsConfig {
     public boolean farmLaneSet = false;             // Whether both lane points are set
     public double farmX1 = 0, farmZ1 = 0;
     public double farmX2 = 0, farmZ2 = 0;
+    public boolean farmLanePerCrop = false;         // one lane per crop, picked by the crop you break
+    public java.util.Map<String, FarmLane> farmLanes = new java.util.LinkedHashMap<>();
+    public boolean farmLaneTimeLeft = false;        // time until the lane end from walking speed
+    public int farmLaneWarnSeconds = 0;             // title this many seconds before the end, 0 = off
+    public boolean farmLaneCorners = false;         // beacons at both lane ends
+    public static class FarmLane { public boolean alongX; public double min, max; }
     public float farmWarnDistance = 5.0f;           // Warn this many blocks before the lane end
     public String farmWarnSound = "NOTE_PLING";
     public float farmWarnVolume = 0.8f;
@@ -2072,6 +2078,7 @@ public class TeslaMapsConfig {
         if (c.leapCustomOrder == null) c.leapCustomOrder = new ArrayList<>();
         if (c.charmedVisitorNames == null) c.charmedVisitorNames = new ArrayList<>();
         if (c.feastCrops == null) c.feastCrops = new ArrayList<>();
+        if (c.farmLanes == null) c.farmLanes = new java.util.LinkedHashMap<>();
         if (c.feastNextSeason == null) c.feastNextSeason = new java.util.LinkedHashMap<>();
         if (c.headTargets == null) c.headTargets = new ArrayList<>();
         if (c.headESPColor == null || c.headESPColor.isBlank()) c.headESPColor = "#FFAA00";

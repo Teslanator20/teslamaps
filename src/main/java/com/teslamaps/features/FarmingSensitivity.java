@@ -133,6 +133,10 @@ public class FarmingSensitivity {
         pose.popMatrix();
     }
 
+    public static boolean isFarmingTool(ItemStack stack) {
+        return holdingFarmingItem(stack);
+    }
+
     private static boolean holdingFarmingItem(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return false;
 

@@ -1547,6 +1547,11 @@ public class TMapCommand {
                                     com.teslamaps.features.FarmProgress.setPoint(2);
                                     return 1;
                                 }))
+                        .then(ClientCommands.literal("detect")
+                                .executes(context -> {
+                                    com.teslamaps.features.FarmProgress.toggleDetection();
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("clear")
                                 .executes(context -> {
                                     com.teslamaps.features.FarmProgress.clear();
