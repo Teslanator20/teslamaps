@@ -916,6 +916,7 @@ public class TeslaMapsConfig {
     public boolean autoGFSJerry = true;         // Refill inflatable jerry
     public boolean autoGFSTNT = true;           // Refill superboom TNT
     public boolean autoGFSDraft = true;         // Auto get draft on puzzle fail
+    public boolean autoGFSDraftAlert = false;
 
     public boolean autoWish = false;            // Auto use healer wish at key boss moments
 
