@@ -36,6 +36,15 @@ public final class GardenCategory {
         b.toggle("  Show Outside The Garden",
                 () -> config.feastSeasonEverywhere, v -> config.feastSeasonEverywhere = v);
         b.info("Open Feast Chef Ted > All Crops once to fill it in");
+        b.toggle("  Fetch From EliteSkyblock",
+                () -> config.feastAutoFetch, v -> config.feastAutoFetch = v);
+        b.info("Loads the rotation from api.eliteskyblock.com when none was read · /tmap feast fetch");
+        b.toggle("  Outdated Data Warning",
+                () -> config.feastOutdatedHint, v -> config.feastOutdatedHint = v);
+        b.channel("  Share Channel",
+                () -> config.feastShareChannel, v -> config.feastShareChannel = v);
+        b.button("Share In-Season Crops",
+                () -> com.teslamaps.features.HarvestFeast.share());
         b.label("Pests");
         b.info("Pest ESP moved to Mob Visuals - it tells the 15 species apart");
         b.button("Pest Visuals (Mob Visuals)",

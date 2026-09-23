@@ -1570,6 +1570,17 @@ public class TMapCommand {
                                                     + com.teslamaps.features.FarmProfit.window().label));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("feast")
+                        .then(ClientCommands.literal("fetch")
+                                .executes(context -> {
+                                    com.teslamaps.features.HarvestFeast.fetch(true);
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("share")
+                                .executes(context -> {
+                                    com.teslamaps.features.HarvestFeast.share();
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("mouselock")
                         .executes(context -> {
                             com.teslamaps.features.FarmingSensitivity.toggleLock();

@@ -841,6 +841,9 @@ public class TeslaMapsConfig {
 
     public boolean feastSeasonDisplay = true;   // Crops in-season during the Harvest / Grand Feast
     public boolean feastSeasonEverywhere = true;  // Also outside the garden
+    public boolean feastAutoFetch = false;        // pull the rotation from EliteSkyblock when missing
+    public boolean feastOutdatedHint = false;     // "Feast data is outdated!" while the feast runs without data
+    public String feastShareChannel = "Nobody";   // /tmap feast share target
     public int feastSeasonX = 180;
     public int feastSeasonY = 240;
     public float feastSeasonScale = 1.0f;
@@ -2078,6 +2081,7 @@ public class TeslaMapsConfig {
         if (c.leapCustomOrder == null) c.leapCustomOrder = new ArrayList<>();
         if (c.charmedVisitorNames == null) c.charmedVisitorNames = new ArrayList<>();
         if (c.feastCrops == null) c.feastCrops = new ArrayList<>();
+        if (c.feastShareChannel == null) c.feastShareChannel = "Nobody";
         if (c.farmLanes == null) c.farmLanes = new java.util.LinkedHashMap<>();
         if (c.feastNextSeason == null) c.feastNextSeason = new java.util.LinkedHashMap<>();
         if (c.headTargets == null) c.headTargets = new ArrayList<>();
