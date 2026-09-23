@@ -1496,6 +1496,13 @@ public class TeslaMapsConfig {
     public boolean foragingMuteTreeBreakGalatea = false; // also mute it on the foraging islands
     public boolean foragingHideLottery = false;     // hide Lottery/Beekeeper buff messages off the foraging islands
     public boolean foragingCompactGifts = true;     // squash the whole TREE GIFT block into one line
+    public boolean foragingGiftHideUncommon = false; // compact gift line: leave out these bonus drop categories
+    public boolean foragingGiftHideBooks = false;
+    public boolean foragingGiftHideBoosters = false;
+    public boolean foragingGiftHideShards = false;
+    public boolean foragingGiftHideRunes = false;
+    public boolean foragingGiftHideMisc = false;
+    public boolean foragingGiftHideMobs = false;
     public boolean foragingHideSweepDetails = false; // hide the Sweep Details / Toughness / penalty lines
     public boolean foragingCompactSweep = false;     // one sweep line with the breakdown in its hover
     public boolean floorDrops = false;               // floor drops on Galatea / Torrhus / Safari, depth tested

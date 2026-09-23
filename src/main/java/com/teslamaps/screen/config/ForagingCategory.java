@@ -16,6 +16,18 @@ public final class ForagingCategory {
         b.toggle("Compact Tree Gifts",
                 () -> config.foragingCompactGifts, v -> config.foragingCompactGifts = v);
         b.info("One line instead of the whole gift block, hover kept");
+        b.toggle("  Hide Uncommon Drops", () -> config.foragingGiftHideUncommon, v -> config.foragingGiftHideUncommon = v)
+                .desc("Stretching Sticks, Deep Root");
+        b.toggle("  Hide Enchanted Books", () -> config.foragingGiftHideBooks, v -> config.foragingGiftHideBooks = v)
+                .desc("First Impression, Missile, Karma");
+        b.toggle("  Hide Boosters", () -> config.foragingGiftHideBoosters, v -> config.foragingGiftHideBoosters = v);
+        b.toggle("  Hide Shards", () -> config.foragingGiftHideShards, v -> config.foragingGiftHideShards = v)
+                .desc("Hummingbird, Chameleon");
+        b.toggle("  Hide Runes", () -> config.foragingGiftHideRunes, v -> config.foragingGiftHideRunes = v);
+        b.toggle("  Hide Misc Drops", () -> config.foragingGiftHideMisc, v -> config.foragingGiftHideMisc = v)
+                .desc("Tree the Fish, pet item");
+        b.toggle("  Hide Mobs", () -> config.foragingGiftHideMobs, v -> config.foragingGiftHideMobs = v)
+                .desc("Phantoms and other mobs falling from the tree");
         b.toggle("Hide Sweep Details",
                 () -> config.foragingHideSweepDetails, v -> config.foragingHideSweepDetails = v);
         b.info("Toughness / Logs / penalty lines");
