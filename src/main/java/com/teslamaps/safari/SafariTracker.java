@@ -711,8 +711,9 @@ public class SafariTracker {
             new java.util.concurrent.ConcurrentLinkedQueue<>();
     private static int sparkleScanTicks = 0;
 
-    /** Sparkling critters spawn WAX_ON particles. Netty thread: only queue the position. */
+    /** Sparkling critters spawn WAX_ON particles. Only queue the position. */
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
+        if (!Minecraft.getInstance().isSameThread()) return;
         if (!TeslaMapsConfig.get().safariSparklingAlert) return;
         if (packet.getParticle().getType() != ParticleTypes.WAX_ON.getType()) return;
         if (sparklePackets.size() >= 64) return;
