@@ -20,6 +20,26 @@ public class SecretItemPickup {
 
     private static long lastPlayed = 0L;
 
+    /** Odin EventDispatcher: a dungeon secret drop within 6 blocks of the player. */
+    public static boolean isSecretDrop(Entity entity) {
+        Minecraft mc = Minecraft.getInstance();
+        if (!(entity instanceof ItemEntity item) || mc.player == null || entity.distanceTo(mc.player) > 6) return false;
+        String name = item.getItem().getHoverName().getString().toLowerCase();
+        for (String drop : DUNGEON_ITEM_DROPS) {
+            if (name.contains(drop.toLowerCase())) return true;
+        }
+        return false;
+    }
+
+    public static void onPacketItem(int itemId, boolean removed) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.secretWaypointEvents || !DungeonManager.isInDungeon()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
+        Entity entity = mc.level.getEntity(itemId);
+        if (isSecretDrop(entity)) SecretWaypoints.onSecretItem((ItemEntity) entity);
+    }
+
     public static void onTakeItem(int itemId) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.secretSound || !c.secretItemPickupSound) return;

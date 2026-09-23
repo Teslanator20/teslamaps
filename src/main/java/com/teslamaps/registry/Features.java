@@ -8,5 +8,6 @@ final class Features {
     static void register() {
         // wave 1a map
         com.teslamaps.esp.DoorRoute.register();
+        com.teslamaps.features.SecretWaypoints.register();
     }
 }

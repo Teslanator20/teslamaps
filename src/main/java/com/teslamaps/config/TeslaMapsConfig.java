@@ -1552,6 +1552,7 @@ public class TeslaMapsConfig {
     public String colorCommissionDone = "#55FF55";    // Commission Highlight color
     public boolean secretWaypointTracers = false;     // Draw tracers to waypoints
     public boolean secretWaypointHideCollected = true; // Hide waypoints when secret is collected
+    public boolean secretWaypointEvents = false;      // hide only on real events (skull click, item pickup packet, bat sound)
 
     public String colorSecretChest = "55FF55";        // Chest (green)
     public String colorSecretItem = "55FFFF";         // Item (cyan)

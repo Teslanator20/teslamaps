@@ -14,6 +14,7 @@ public final class SecretsWaypointsCategory {
         b.label("Secret Waypoints");
         b.toggle("Enable Secret Waypoints", () -> config.secretWaypoints, v -> config.secretWaypoints = v);
         b.toggle("  Hide When Collected", () -> config.secretWaypointHideCollected, v -> config.secretWaypointHideCollected = v);
+        b.toggle("    Event-Based Detection", () -> config.secretWaypointEvents, v -> config.secretWaypointEvents = v);
         b.toggle("  Tracers to Waypoints", () -> config.secretWaypointTracers, v -> config.secretWaypointTracers = v);
         b.toggle("  Secret Click Highlight", () -> config.secretClickHighlight, v -> config.secretClickHighlight = v);
         b.label("Secret Types");

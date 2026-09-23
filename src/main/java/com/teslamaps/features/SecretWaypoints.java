@@ -173,6 +173,7 @@ public class SecretWaypoints {
     }
 
     private static boolean isSecretCollected(ClientLevel world, BlockPos pos, WaypointType type) {
+        if (TeslaMapsConfig.get().secretWaypointEvents && type != WaypointType.REDSTONE) return false;
         switch (type) {
             case CHEST -> {
                 return false; // Handled by onChestOpened() callback
@@ -439,9 +440,74 @@ public class SecretWaypoints {
         for (int[] pos : chestWaypoints) {
             BlockPos waypointPos = new BlockPos(pos[0], pos[1], pos[2]);
             if (waypointPos.closerThan(chestPos, 2.0)) {
-                foundSecrets.add(waypointPos);
+                if (foundSecrets.add(waypointPos)) {
+                    lastChest = waypointPos;
+                    lastChestTime = System.currentTimeMillis();
+                }
                 TeslaMaps.LOGGER.debug("Chest secret collected at {}", waypointPos);
             }
+        }
+    }
+
+    private static BlockPos lastChest = null;
+    private static long lastChestTime = 0;
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("SecretWaypointsChat").section("Secrets & Waypoints")
+                .when(() -> TeslaMapsConfig.get().secretWaypoints && TeslaMapsConfig.get().secretWaypointHideCollected)
+                .serverChat(SecretWaypoints::onChat);
+    }
+
+    // Devonian DungeonWaypoints: a locked chest was not looted, bring its waypoint back
+    private static void onChat(String message) {
+        if (lastChest == null || !"That chest is locked!".equals(com.teslamaps.utils.StringUtil.stripTrim(message))) return;
+        if (System.currentTimeMillis() - lastChestTime < 1500) foundSecrets.remove(lastChest);
+        lastChest = null;
+    }
+
+    private static boolean eventsActive() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.secretWaypoints && c.secretWaypointHideCollected && c.secretWaypointEvents
+                && DungeonManager.isInDungeon() && !DungeonManager.isInBossArea();
+    }
+
+    // Odin SecretWaypoints.clickSecret: exact block for clicks, nearest within distSq for bats/items
+    private static void clickSecret(BlockPos pos, int distSq, WaypointType... types) {
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null || room.getRoomData() == null) return;
+        Map<WaypointType, List<int[]>> worldWaypoints = cachedWaypoints.get(room.getRoomData().getRoomID());
+        if (worldWaypoints == null) return;
+        BlockPos best = null;
+        double bestDist = Double.MAX_VALUE;
+        for (WaypointType type : types) {
+            List<int[]> list = worldWaypoints.get(type);
+            if (list == null) continue;
+            for (int[] p : list) {
+                BlockPos wp = new BlockPos(p[0], p[1], p[2]);
+                if (foundSecrets.contains(wp)) continue;
+                double d = wp.distSqr(pos);
+                if (d <= distSq && d < bestDist) { best = wp; bestDist = d; }
+            }
+        }
+        if (best != null) {
+            foundSecrets.add(best);
+            TeslaMaps.LOGGER.debug("Secret event at {} -> {}", pos, best);
+        }
+    }
+
+    public static void onSkullClick(BlockPos pos) {
+        if (eventsActive()) clickSecret(pos, 1, WaypointType.ESSENCE, WaypointType.REDSTONE);
+    }
+
+    public static void onSecretItem(ItemEntity item) {
+        if (eventsActive()) clickSecret(item.blockPosition(), 3, WaypointType.ITEM);
+    }
+
+    public static void onSound(net.minecraft.network.protocol.game.ClientboundSoundPacket packet) {
+        if (!eventsActive()) return;
+        var sound = packet.getSound().value();
+        if ((sound == SoundEvents.BAT_HURT || sound == SoundEvents.BAT_DEATH) && packet.getVolume() == 0.1f) {
+            clickSecret(BlockPos.containing(packet.getX(), packet.getY(), packet.getZ()), 5, WaypointType.BAT);
         }
     }
 
@@ -449,6 +515,7 @@ public class SecretWaypoints {
         foundSecrets.clear();
         cachedWaypoints.clear();
         visitedWaypoints.clear();
+        lastChest = null;
         lastRoomId = -1;
         lastCheckTime = 0;
     }

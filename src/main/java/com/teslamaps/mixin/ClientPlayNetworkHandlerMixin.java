@@ -108,9 +108,26 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "handleRemoveEntities", at = @At("HEAD"))
     private void onRemoveEntities(ClientboundRemoveEntitiesPacket packet, CallbackInfo ci) {
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()) {
+            for (int id : packet.getEntityIds()) com.teslamaps.features.SecretItemPickup.onPacketItem(id, true);
+        }
         BloodCamp.onRemoveEntitiesPacket(packet);
         com.teslamaps.features.DeadMobHider.onRemoveEntities(packet);
         com.teslamaps.debug.DeathProbe.onRemoveEntities(packet);
+    }
+
+    @Inject(method = "handleTakeItemEntity", at = @At("HEAD"))
+    private void onTakeItemEntityHead(ClientboundTakeItemEntityPacket packet, CallbackInfo ci) {
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()) {
+            com.teslamaps.features.SecretItemPickup.onPacketItem(packet.getItemId(), false);
+        }
+    }
+
+    @Inject(method = "handleSoundEvent", at = @At("HEAD"))
+    private void onSoundEventSecrets(net.minecraft.network.protocol.game.ClientboundSoundPacket packet, CallbackInfo ci) {
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()) {
+            com.teslamaps.features.SecretWaypoints.onSound(packet);
+        }
     }
 
     @Inject(method = "handleTakeItemEntity", at = @At("TAIL"))
