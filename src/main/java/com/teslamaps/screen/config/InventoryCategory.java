@@ -79,6 +79,11 @@ public final class InventoryCategory {
         b.toggle("  Block Salvage & Selling", () -> config.itemProtectionSell, v -> config.itemProtectionSell = v);
         b.info("Blocks the Q drop and dropping onto empty space");
         b.info("Hold ctrl to override. Uses the estimated item value");
+        b.toggle("  Also Guard Trade, AH & Shops", () -> config.itemProtectionMenus, v -> config.itemProtectionMenus = v);
+        b.info("Trade menu, auction house, dungeon chests, any NPC shop");
+        b.toggle("Protect Single Items", () -> config.itemProtectionUuid, v -> config.itemProtectionUuid = v);
+        b.keybind("  Protect Key (over slot)", () -> config.itemProtectionKey, v -> config.itemProtectionKey = v);
+        b.info("Or /tmap protect for the held item. Lock icon, blocks drop, salvage, trade, AH, shops");
         b.label("Slot Binds");
         b.toggle("Slot Binds", () -> config.slotBinds, v -> config.slotBinds = v);
         b.keybind("Bind Set Key (over slot)", () -> config.slotBindsKey, v -> config.slotBindsKey = v);

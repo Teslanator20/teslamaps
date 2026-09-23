@@ -223,6 +223,15 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal("§cNo cape called " + wanted));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("protect")
+                        .executes(context -> {
+                            if (!TeslaMapsConfig.get().itemProtectionUuid) {
+                                context.getSource().sendFeedback(Component.literal("§7Turn on Protect Single Items first (Inventory)"));
+                                return 1;
+                            }
+                            com.teslamaps.features.ItemProtection.toggle(context.getSource().getPlayer().getMainHandItem());
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("search")
                         .executes(context -> openSearch(null))
                         .then(ClientCommands.literal("clear")

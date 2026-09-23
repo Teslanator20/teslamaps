@@ -306,6 +306,11 @@ public class TeslaMapsConfig {
     public boolean itemProtection = false;       // Block dropping items worth more than itemProtectionValue
     public int itemProtectionValue = 10;         // Protection threshold in millions of coins
     public boolean itemProtectionSell = true;    // Also block salvaging and shift-click selling
+    public boolean itemProtectionMenus = false;  // also trade, AH, dungeon chests, any NPC shop
+    public boolean itemProtectionUuid = false;   // per-item protection by Hypixel uuid
+    public int itemProtectionKey = 86;           // V over a slot toggles its protection
+    @Global
+    public java.util.Set<String> protectedItems = new java.util.HashSet<>();
     public boolean roomSplits = false;           // Live per-room pace HUD (current room timer + recent rooms)
     public int roomSplitsX = 5;                  // Room Splits HUD position X
     public int roomSplitsY = 120;                // Room Splits HUD position Y
@@ -1836,6 +1841,7 @@ public class TeslaMapsConfig {
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();
+        if (c.protectedItems == null) c.protectedItems = new java.util.HashSet<>();
         if (c.customESPTracers == null) c.customESPTracers = new ArrayList<>();
         if (c.customESPColors == null) c.customESPColors = new java.util.HashMap<>();
         if (c.colorESPCustom == null || c.colorESPCustom.isBlank()) c.colorESPCustom = "00FFFF";
