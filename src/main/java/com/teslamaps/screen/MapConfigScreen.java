@@ -359,10 +359,19 @@ public class MapConfigScreen extends Screen {
                 // only the master: the sub-labels ("Glow", "Tracers", ...) collide with other
                 // categories, and MobVisuals.active() already refuses to run under Legit Mode
                 "Mob Visuals");
+        java.util.Set<String> seenCheat = new java.util.HashSet<>();
         for (List<SettingsEntry> entries : categories.values()) {
             for (SettingsEntry e : entries) {
                 // trim: sub-options carry a leading indent that is not part of the name
-                if (e instanceof ToggleEntry te && cheatLabels.contains(te.getLabel().trim())) te.legit();
+                if (e instanceof ToggleEntry te && cheatLabels.contains(te.getLabel().trim())) {
+                    te.legit();
+                    seenCheat.add(te.getLabel().trim());
+                }
+            }
+        }
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            for (String l : cheatLabels) {
+                if (!seenCheat.contains(l)) com.teslamaps.TeslaMaps.LOGGER.error("cheatLabels: no toggle named \"{}\" - renamed?", l);
             }
         }
     }

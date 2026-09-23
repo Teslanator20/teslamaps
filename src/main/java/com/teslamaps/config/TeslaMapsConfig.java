@@ -61,6 +61,7 @@ public class TeslaMapsConfig {
     private static TeslaMapsConfig instance = new TeslaMapsConfig();
 
     public String activeProfile = ConfigProfiles.DEFAULT;
+    public int configVersion = ConfigMigrator.CONFIG_VERSION;   // see ConfigMigrator; read from the raw json
 
     public boolean mapEnabled = true;
     public boolean onlyShowInDungeon = true;  // Only show map while in dungeon
@@ -1950,11 +1951,20 @@ public class TeslaMapsConfig {
         try {
             if (Files.exists(CONFIG_PATH)) {
                 String json = Files.readString(CONFIG_PATH);
-                instance = GSON.fromJson(json, TeslaMapsConfig.class);
+                com.google.gson.JsonElement tree = com.google.gson.JsonParser.parseString(json);
+                boolean migrated = false;
+                if (tree != null && tree.isJsonObject()) {
+                    com.google.gson.JsonObject fixed = ConfigMigrator.migrate(tree.getAsJsonObject(), "config.json", CONFIG_PATH);
+                    migrated = fixed != tree;
+                    instance = GSON.fromJson(fixed, TeslaMapsConfig.class);
+                } else {
+                    instance = GSON.fromJson(json, TeslaMapsConfig.class);
+                }
                 if (instance == null) {
                     instance = new TeslaMapsConfig();
                 }
                 normalize(instance);
+                if (migrated) save();
                 TeslaMaps.LOGGER.info("Config loaded from {}", CONFIG_PATH);
             } else {
                 instance = new TeslaMapsConfig();

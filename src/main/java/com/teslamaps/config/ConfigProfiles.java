@@ -42,6 +42,7 @@ public class ConfigProfiles {
     private static void migrate() {
         if (migrated) return;
         migrated = true;
+        checkPresetFields();
         try {
             Path old = file(OLD_DEFAULT);
             if (Files.exists(old) && !Files.exists(file(DEFAULT))) Files.move(old, file(DEFAULT));
@@ -154,7 +155,9 @@ public class ConfigProfiles {
         Path f = file(name);
         if (!Files.exists(f)) return null;
         try {
-            return GSON.fromJson(Files.readString(f), TeslaMapsConfig.class);
+            com.google.gson.JsonElement tree = com.google.gson.JsonParser.parseString(Files.readString(f));
+            if (tree == null || !tree.isJsonObject()) return null;
+            return GSON.fromJson(ConfigMigrator.migrate(tree.getAsJsonObject(), "profile " + name, f), TeslaMapsConfig.class);
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("Failed to read config profile {}", name, e);
             return null;
@@ -239,6 +242,19 @@ public class ConfigProfiles {
             "searchbar", "scrollableTooltip", "tooltipFitScreen", "hudDragInInventory", "backpackPreview", "signEnterKey",
             "enchantAbbrev", "rescueMission",
     };
+
+    /** Dev only: a preset naming a field that no longer exists is logged at launch, not when picked. */
+    public static void checkPresetFields() {
+        if (!FabricLoader.getInstance().isDevelopmentEnvironment()) return;
+        for (String name : MINIMAL_ON) {
+            try {
+                if (TeslaMapsConfig.class.getDeclaredField(name).getType() != boolean.class)
+                    TeslaMaps.LOGGER.error("Preset field {} is not a boolean", name);
+            } catch (NoSuchFieldException e) {
+                TeslaMaps.LOGGER.error("Preset names unknown config field {} - renamed? add a ConfigMigrator.move", name);
+            }
+        }
+    }
 
     private static void turnOn(TeslaMapsConfig c, String[] fields) {
         for (String name : fields) {
