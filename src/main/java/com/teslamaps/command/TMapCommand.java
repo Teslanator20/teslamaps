@@ -1788,6 +1788,17 @@ public class TMapCommand {
                                     TeslaMapsConfig.save();
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("slayerpb")
+                        .executes(context -> {
+                            com.teslamaps.slayer.SlayerTimer.printPbs();
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("reset")
+                                .executes(context -> {
+                                    com.teslamaps.slayer.SlayerTimer.reset();
+                                    context.getSource().sendFeedback(Component.literal("Slayer PBs cleared"));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("reset")
                         .executes(context -> {
                             com.teslamaps.slayer.SlayerHUD.resetSession();

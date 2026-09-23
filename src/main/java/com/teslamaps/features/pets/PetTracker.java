@@ -42,8 +42,47 @@ public class PetTracker {
     private static double totalXp = -1;       // -1 = unknown
     private static boolean maxed = false;
     private static String heldItemColored = null;
+    private static String skinId = null;
 
     private static long lastEstimateAt = 0;
+
+    // xp samples for the rate, {millis, totalXp}
+    private static final java.util.ArrayDeque<double[]> samples = new java.util.ArrayDeque<>();
+    private static String lastPetLine = null;
+
+    public static String skinId() { return skinId; }
+    public static String lastPetLine() { return lastPetLine; }
+
+    /** Pet xp per hour over the last 5 minutes, 0 when unknown or idle. */
+    public static double xpPerHour() {
+        if (samples.size() < 2) return 0;
+        double[] a = samples.peekFirst(), b = samples.peekLast();
+        double dt = (b[0] - a[0]) / 3_600_000.0;
+        return dt > 0 ? Math.max(0, (b[1] - a[1]) / dt) : 0;
+    }
+
+    private static void sampleXp() {
+        if (totalXp < 0) return;
+        long now = System.currentTimeMillis();
+        samples.addLast(new double[]{now, totalXp});
+        while (samples.size() > 2 && now - samples.peekFirst()[0] > 300_000) samples.pollFirst();
+    }
+
+    /** Exact data from the Pets menu (PetStore). */
+    static void applyStored(PetStore.Pet p) {
+        if (p == null || p.type == null) return;
+        if (internalName == null || !internalName.equals(p.type)) {
+            set(PetConstants.displayName(p.type), p.rarity, p.skin != null, -1);
+        }
+        rarity = p.rarity;
+        skinId = p.skin;
+        skin = p.skin != null;
+        totalXp = p.exp;
+        level = PetConstants.xpToLevel(internalName, rarity, totalXp);
+        maxed = level >= PetConstants.maxLevel(internalName);
+        heldItemColored = p.heldItem == null ? null : com.teslamaps.profileviewer.data.PetIcons.heldItemName(p.heldItem);
+        lastEstimateAt = System.currentTimeMillis();
+    }
 
     public static boolean hasPet() {
         return displayName != null;
@@ -117,6 +156,7 @@ public class PetTracker {
         if (!enabled()) return;
         if (++tickCounter % 20 != 0) return;
         readTabWidget();
+        sampleXp();
     }
 
     private static void readTabWidget() {
@@ -193,7 +233,8 @@ public class PetTracker {
         double taming = 1.0 + tamingLevel() / 100.0;
         double item = itemMultiplier(skill);
         double custom = PetConstants.customMultiplier(internalName);
-        totalXp += amount * base * taming * item * custom;
+        double diana = com.teslamaps.api.ElectionApi.hasPerk("Pet XP Buff") ? 1.35 : 1.0;
+        totalXp += amount * base * taming * item * custom * diana * PetStore.beastmaster();
         lastEstimateAt = System.currentTimeMillis();
 
         if (!maxed) {
@@ -244,6 +285,9 @@ public class PetTracker {
     private static void set(String pet, String newRarity, boolean newSkin, int newLevel) {
         boolean samePet = displayName != null && displayName.equalsIgnoreCase(pet)
                 && (newRarity == null || newRarity.equals(rarity));
+        if (!samePet && displayName != null) {
+            lastPetLine = "§7[Lvl " + level + "] " + rarityColor() + displayName + (skin ? " §d✦" : "");
+        }
         displayName = pet;
         internalName = PetConstants.internalName(pet);
         if (newRarity != null) rarity = newRarity;
@@ -252,11 +296,31 @@ public class PetTracker {
             totalXp = -1;
             maxed = false;
             heldItemColored = null;
+            skinId = null;
+            samples.clear();
+            // rarity, skin and xp the tab widget cannot tell, from the Pets menu cache
+            PetStore.Pet stored = PetStore.resolve(internalName, newRarity, newLevel);
+            if (stored != null) {
+                if (newRarity == null) rarity = stored.rarity;
+                skinId = stored.skin;
+                if (newLevel <= 0 || stored.level == newLevel) totalXp = stored.exp;
+                if (newLevel <= 0) level = stored.level;
+                if (stored.heldItem != null) {
+                    heldItemColored = com.teslamaps.profileviewer.data.PetIcons.heldItemName(stored.heldItem);
+                }
+            } else if (newRarity == null) {
+                rarity = null;
+            }
         }
         if (newLevel > 0) level = newLevel;
     }
 
     private static void clear() {
+        if (displayName != null) {
+            lastPetLine = "§7[Lvl " + level + "] " + rarityColor() + displayName + (skin ? " §d✦" : "");
+        }
+        skinId = null;
+        samples.clear();
         displayName = null;
         internalName = null;
         rarity = null;

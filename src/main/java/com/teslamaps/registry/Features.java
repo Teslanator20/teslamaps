@@ -61,5 +61,11 @@ final class Features {
         com.teslamaps.features.ImplosionHider.register();
         com.teslamaps.features.npc.NpcWarps.register();
         com.teslamaps.features.EventTracker.register();
+        // wave 1c combat-pets
+        com.teslamaps.slayer.SlayerHUD.register();
+        com.teslamaps.slayer.SlayerQuest.register();
+        com.teslamaps.features.croesus.KuudraKeys.register();
+        com.teslamaps.features.pets.PetStore.register();
+        com.teslamaps.features.pets.PetOverlay.register();
     }
 }

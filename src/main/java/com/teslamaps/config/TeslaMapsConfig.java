@@ -517,6 +517,13 @@ public class TeslaMapsConfig {
     public boolean croesusHighlightUnopened = true; // Green-highlight runs with openable chests (orange = kismet used)
     public boolean croesusCompact = false;          // Compact profit panel: only totals, no item breakdown
     public boolean croesusDebug = false;            // Log chest lore to latest.log (to calibrate the parser)
+    public int croesusPriceSource = 0;              // PriceManager.SOURCE_*; 0 = bazaar buy then BIN (old behaviour)
+    public boolean croesusKismetCost = false;       // subtract a Kismet Feather when the chest was rerolled
+    public float croesusKuudraPetBonus = 0f;        // Kuudra pet crimson essence bonus in %
+    public boolean croesusKuudraSalvage = false;    // Kuudra armor at its crimson essence salvage value
+    public boolean croesusKuudraNoKeyWarn = false;  // paid Kuudra chest: warn when the key is not in the inventory
+    public String kuudraFaction = "";               // Mage / Barbarian, read from the faction shop
+    public java.util.Map<String, Integer> kuudraKeyCoins = new java.util.HashMap<>(); // key name -> coin cost from the shop
 
     public boolean chatCopyEnabled = true;       // Right-click a chat line to copy its text
 
@@ -1086,6 +1093,20 @@ public class TeslaMapsConfig {
     public boolean slayerMinibossESP = false;  // Glow on minibosses (Burningsoul=red, Kindleheart=white)
     public boolean slayerMinibossTracer = false; // Tracer lines to slayer minibosses
     public boolean slayerAlerts = true;        // Title alerts: miniboss spawn, cocoon, boss spawned
+    public boolean slayerAlertSpawnTitle = true;
+    public boolean slayerAlertCocoonTitle = true;
+    public boolean slayerAlertMinibossTitle = true;
+    public boolean slayerAlertSpawnSound = false;
+    public boolean slayerAlertCocoonSound = false;
+    public boolean slayerAlertMinibossSound = false;
+    public boolean slayerAlertMinibossName = false; // miniboss title shows its name
+    public boolean slayerAlertCustomColor = false;
+    public String slayerAlertColor = "FF5555";
+    public int slayerAlertTicks = 25;          // title stay time
+    public boolean slayerKillChat = true;      // Chat line with kill/spawn time after each boss
+    public boolean slayerKillPb = false;       // Persistent kill-time PB per slayer type and tier
+    public boolean slayerKillTicks = false;    // Kill time in server ticks too
+    public String slayerPbChannel = "Nobody";  // Where a new PB is posted
     public boolean bestiaryTracker = true;     // Bestiary HUD: kills/hour and tier ETA out of the tab list
     public int bestiaryTrackerX = 10;          // X position of bestiary HUD
     public int bestiaryTrackerY = 200;         // Y position of bestiary HUD
@@ -1109,6 +1130,11 @@ public class TeslaMapsConfig {
     public int petOverlayX = 10;
     public int petOverlayY = 260;
     public float petOverlayScale = 1.0f;
+    public boolean petOverlaySkinIcon = false;  // pet skin head from the Pets menu cache
+    public boolean petOverlayXpRate = false;    // XP/h line
+    public boolean petOverlayEta = false;       // time to next level and max level
+    public boolean petOverlayLastPet = false;   // line with the pet before this one
+    public boolean petOverlayRing = false;      // rarity disc + xp ring around the icon
     public int skillExpDisplayX = -1;          // -1 = centered above the hotbar
     public int skillExpDisplayY = -1;
     public float skillExpDisplayScale = 1.0f;
@@ -2169,6 +2195,8 @@ public class TeslaMapsConfig {
         if (c.seaCreatureAlert == null) c.seaCreatureAlert = new java.util.HashMap<>();
         if (c.seaCreatureAnnounce == null) c.seaCreatureAnnounce = new java.util.HashMap<>();
         if (c.npcLockedWarps == null) c.npcLockedWarps = new java.util.HashMap<>();
+        if (c.kuudraKeyCoins == null) c.kuudraKeyCoins = new java.util.HashMap<>();
+        if (c.kuudraFaction == null) c.kuudraFaction = "";
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();

@@ -23,7 +23,15 @@ public class CroesusProfit {
     private static final Set<String> CHEST_NAMES =
             Set.of("Wood", "Gold", "Diamond", "Emerald", "Obsidian", "Bedrock", "Free", "Paid");
 
-    private static final Pattern ESSENCE = Pattern.compile("^(\\w+) Essence x([0-9,]+)$");
+    private static final Pattern ESSENCE = Pattern.compile("^(\\w+) Essence(?: x([0-9,]+))?$");
+    private static final Pattern KUUDRA_ARMOR = Pattern.compile(
+            "^(?:Crimson|Terror|Aurora|Hollow|Fervor) (?:Helmet|Chestplate|Leggings|Boots)$");
+    private static final double[] SALVAGE_BY_STARS = {120, 138, 158, 182, 210, 240, 272, 308};
+    private static final Set<String> WORTHLESS = Set.of(
+            "DUNGEON_DISC_1", "DUNGEON_DISC_2", "DUNGEON_DISC_3", "DUNGEON_DISC_4", "DUNGEON_DISC_5",
+            "MAXOR_THE_FISH", "STORM_THE_FISH", "GOLDOR_THE_FISH");
+    private static final Pattern WORTHLESS_BOOK = Pattern.compile(
+            "^ENCHANTMENT_(?:(?:ULTIMATE_)?(?:NO_PAIN_NO_GAIN|COMBO|BANK|JERRY)_\\d+|(?:FEATHER_FALLING|INFINITE_QUIVER)_(?:[6-9]|10))$");
     private static final Pattern COINS = Pattern.compile("^([0-9,]+) Coins$");
     private static final Pattern BOOK = Pattern.compile("^Enchanted Book \\((.+) ([IVX]+)\\)$");
     private static final Pattern ITEM_QTY = Pattern.compile("^(.+) x([0-9,]+)$"); // "Thorn Shard x1"
@@ -35,6 +43,8 @@ public class CroesusProfit {
     private static final class Parsed {
         boolean opened;
         boolean kismet;   // a Kismet Feather was used (a struck-through line in the lore)
+        boolean incomplete;
+        int keyIndex = -1;
         double value, cost;
         final List<String> breakdown = new ArrayList<>();
         double profit() { return value - cost; }
@@ -182,7 +192,8 @@ public class CroesusProfit {
             String col = r.profit() >= 0 ? "§a+" : "§c";
             String star = (i == bestIdx) ? " §e" : "";
             String kismet = r.kismet ? " §a" : "";    // Kismet Feather already used on this chest
-            lines.add("§f" + names.get(i) + ": " + col + fmt(r.profit()) + star + kismet);
+            lines.add("§f" + names.get(i) + ": " + col + fmt(r.profit()) + (r.incomplete ? " §8?" : "") + star + kismet);
+            if (noKey(r)) lines.add(" §c§lNO KUUDRA KEY");
         }
 
         if (!cfg.croesusCompact) {
@@ -219,7 +230,8 @@ public class CroesusProfit {
                 lines.add("§7Cost: §c-" + fmt(r.cost));
             }
             String col = r.profit() >= 0 ? "§a+" : "§c";
-            lines.add("§fProfit: " + col + fmt(r.profit()));
+            lines.add("§fProfit: " + col + fmt(r.profit()) + (r.incomplete ? " §8(incomplete)" : ""));
+            if (noKey(r)) lines.add("§c§lNO KUUDRA KEY");
             drawPanel(ctx, mc, acc, lines);
             return;
         }
@@ -228,6 +240,7 @@ public class CroesusProfit {
     private static Parsed parseLore(ItemLore lore) {
         Parsed r = new Parsed();
         if (lore == null) return r;
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
         boolean inCost = false;
         for (Component cmp : lore.lines()) {
             String l = strip(cmp.getString());
@@ -241,41 +254,106 @@ public class CroesusProfit {
             if (inCost) {
                 Matcher coins = COINS.matcher(l);
                 if (coins.matches()) r.cost += parseNum(coins.group(1));
+                int key = KuudraKeys.keyIndex(l);
+                if (key >= 0) {
+                    r.keyIndex = key;
+                    double kc = KuudraKeys.cost(key, cfg.croesusPriceSource);
+                    if (kc < 0) r.incomplete = true;
+                    else r.cost += kc;
+                }
                 continue;
             }
 
             Matcher ess = ESSENCE.matcher(l);
             if (ess.matches()) {
-                int cnt = (int) parseNum(ess.group(2));
-                double p = cnt * PriceManager.getPrice("ESSENCE_" + ess.group(1).toUpperCase());
+                int cnt = ess.group(2) != null ? (int) parseNum(ess.group(2)) : 1;
+                double mult = ess.group(1).equalsIgnoreCase("Crimson") ? essenceBonus() : 1;
+                double p = cnt * mult * price("ESSENCE_" + ess.group(1).toUpperCase());
                 r.value += p;
                 r.breakdown.add(" §7" + l + ": §6" + fmt(p));
                 continue;
             }
             Matcher book = BOOK.matcher(l);
             if (book.matches()) {
-                double p = bookValue(book.group(1), roman(book.group(2)));
+                String bookId = bookId(book.group(1), roman(book.group(2)));
+                double p = WORTHLESS_BOOK.matcher(bookId).matches() ? 0 : bookValue(book.group(1), roman(book.group(2)));
                 r.value += p;
                 r.breakdown.add(" §7" + l + ": §6" + fmt(p));
                 continue;
             }
-            String itemName = l;
+            String itemName = l.replace("✪", "").trim();
             int qty = 1;
-            Matcher q = ITEM_QTY.matcher(l);
+            Matcher q = ITEM_QTY.matcher(itemName);
             if (q.matches()) { itemName = q.group(1); qty = (int) parseNum(q.group(2)); }
+
+            if (cfg.croesusKuudraSalvage && (KUUDRA_ARMOR.matcher(itemName).matches() || itemName.startsWith("Molten "))) {
+                double ess2 = itemName.startsWith("Molten ") ? 600 : SALVAGE_BY_STARS[Math.min(7, stars(cmp))];
+                double p = ess2 * essenceBonus() * price("ESSENCE_CRIMSON") * qty;
+                r.value += p;
+                r.breakdown.add(" §7" + l + " §8(salvage)§7: §6" + fmt(p));
+                continue;
+            }
+
             String id = PriceManager.idForName(itemName);
-            double p = (id != null ? PriceManager.getPrice(id) : 0) * qty;
+            if (id != null && WORTHLESS.contains(id)) {
+                r.breakdown.add(" §7" + l + ": §80");
+                continue;
+            }
+            double p = (id != null ? price(id) : 0) * qty;
+            if (p <= 0) r.incomplete = true;
             r.value += p;
             r.breakdown.add(" §7" + l + ": §6" + (p > 0 ? fmt(p) : "?"));
+        }
+        if (r.kismet && cfg.croesusKismetCost) {
+            double k = price("KISMET_FEATHER");
+            if (k > 0) r.cost += k;
+            else r.incomplete = true;
         }
         return r;
     }
 
+    private static boolean noKey(Parsed r) {
+        return r.keyIndex >= 0 && !r.opened && TeslaMapsConfig.get().croesusKuudraNoKeyWarn && !KuudraKeys.hasKey(r.keyIndex);
+    }
+
+    private static double price(String id) {
+        int src = TeslaMapsConfig.get().croesusPriceSource;
+        if (src == PriceManager.SOURCE_BAZAAR_BUY) return PriceManager.getPrice(id);
+        Double p = PriceManager.getPriceOrNull(id, src);
+        return p != null ? p : 0;
+    }
+
+    private static double essenceBonus() {
+        return 1 + TeslaMapsConfig.get().croesusKuudraPetBonus / 100.0;
+    }
+
+    /** Odin's Vesuvius star count: gold ✪ = 1, pink (master) ✪ = 2. */
+    private static int stars(Component c) {
+        int[] n = {0};
+        net.minecraft.network.chat.TextColor gold = net.minecraft.network.chat.TextColor.fromLegacyFormat(net.minecraft.ChatFormatting.GOLD);
+        net.minecraft.network.chat.TextColor pink = net.minecraft.network.chat.TextColor.fromLegacyFormat(net.minecraft.ChatFormatting.LIGHT_PURPLE);
+        c.visit((style, str) -> {
+            int count = 0;
+            for (int i = 0; i < str.length(); i++) if (str.charAt(i) == '✪') count++;
+            if (count > 0) {
+                if (pink.equals(style.getColor())) n[0] += count * 2;
+                else if (gold.equals(style.getColor())) n[0] += count;
+            }
+            return java.util.Optional.empty();
+        }, net.minecraft.network.chat.Style.EMPTY);
+        return n[0];
+    }
+
+    private static String bookId(String name, int level) {
+        String base = name.toUpperCase().replace("'", "").replaceAll("[^A-Z0-9 ]", "").trim().replace(" ", "_");
+        return "ENCHANTMENT_" + base + "_" + level;
+    }
+
     private static double bookValue(String name, int level) {
         String base = name.toUpperCase().replace("'", "").replaceAll("[^A-Z0-9 ]", "").trim().replace(" ", "_");
-        double p = PriceManager.getPrice("ENCHANTMENT_" + base + "_" + level);
+        double p = price("ENCHANTMENT_" + base + "_" + level);
         if (p > 0) return p;
-        return PriceManager.getPrice("ENCHANTMENT_ULTIMATE_" + base + "_" + level); // ultimate books drop the "Ultimate" word
+        return price("ENCHANTMENT_ULTIMATE_" + base + "_" + level); // ultimate books drop the "Ultimate" word
     }
 
     private static int roman(String r) {

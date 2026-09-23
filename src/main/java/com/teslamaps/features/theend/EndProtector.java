@@ -48,6 +48,8 @@ public class EndProtector {
     private static final Pattern RISEN = Pattern.compile(
             "BEWARE - An " + NAME + " has risen!", Pattern.CASE_INSENSITIVE);
     private static final Pattern DOWN = Pattern.compile(NAME + " DOWN!", Pattern.CASE_INSENSITIVE);
+    private static final Pattern TREMOR = Pattern.compile(
+            "You feel a tremor from beneath the earth!", Pattern.CASE_INSENSITIVE);
     private static final Pattern DAMAGE = Pattern.compile(
             "Your Damage: ([\\d,]+) \\(Position #([\\d,]+)\\)", Pattern.CASE_INSENSITIVE);
     private static final Pattern TOP_DAMAGER = Pattern.compile(
@@ -69,6 +71,9 @@ public class EndProtector {
             new Spot("Left", new BlockPos(-649, 5, -217)),
             new Spot("Middle Behind", new BlockPos(-727, 5, -282)),
             new Spot("Middle Center", new BlockPos(-689, 5, -271)));
+
+    private static final String[] STAGES = {
+            STAGE_RESTING, STAGE_DORMANT, STAGE_AGITATED, STAGE_DISTURBED, STAGE_AWAKENING, STAGE_SUMMONED};
 
     // --- state ---
     static String stage = STAGE_RESTING;
@@ -94,6 +99,10 @@ public class EndProtector {
     private static final int MAX_LOOT_SCAN_TICKS = 1200;   // 60s
 
     private static int tabTicks = 0;
+    private static int headTicks = 0;
+    private static long lastRaiseMillis = 0;
+    private static long downMillis = 0;
+    private static Spot headSpot = null;
 
     public static boolean inArea() {
         return SkyblockUtils.isInArea(AREA);
@@ -115,6 +124,9 @@ public class EndProtector {
         top1Damage = top2Damage = top3Damage = 0;
         lootScanning = false;
         dropAlerted = false;
+        lastRaiseMillis = 0;
+        downMillis = 0;
+        headSpot = null;
     }
 
     // --- chat ---
@@ -129,6 +141,13 @@ public class EndProtector {
 
         if (SPAWN.matcher(msg).find()) {
             setSummoned(mc);
+            return;
+        }
+
+        if (TREMOR.matcher(msg).find()) {
+            int i = stageIndex(stage);
+            if (scanning || i < 0) scanHeads(mc);
+            else if (i < 4) raise(mc, i + 1);
             return;
         }
 
@@ -150,6 +169,9 @@ public class EndProtector {
                 dropAlerted = false;
                 lootScanTicks = 0;
             }
+            updateStage(mc, STAGE_RESTING);
+            headSpot = null;
+            downMillis = System.currentTimeMillis();
             return;
         }
 
@@ -352,6 +374,10 @@ public class EndProtector {
             tabTicks = 0;
             readTabList(mc);
         }
+        if (++headTicks >= 20) {
+            headTicks = 0;
+            scanHeads(mc);
+        }
 
         scanLocation(mc);
         scanLoot(mc, c);
@@ -377,8 +403,43 @@ public class EndProtector {
             if (wasScanning && STAGE_SUMMONED.equals(name)) stage5TargetTicks = 1;
             // the tab widget lags one stage behind the spawn message
             if (STAGE_SUMMONED.equals(stage) && STAGE_AWAKENING.equals(name)) return;
+            // and behind the head / tremor
+            int tabIndex = stageIndex(name);
+            if (tabIndex >= 0 && tabIndex < stageIndex(stage)
+                    && System.currentTimeMillis() - lastRaiseMillis < 30_000) return;
             updateStage(mc, name);
             return;
+        }
+    }
+
+    private static int stageIndex(String s) {
+        for (int i = 0; i < STAGES.length; i++) if (STAGES[i].equals(s)) return i;
+        return -1;
+    }
+
+    private static void raise(Minecraft mc, int index) {
+        lastRaiseMillis = System.currentTimeMillis();
+        // joined mid-countdown: the 400 ticks are unknown
+        if (index == 5 && scanning) stage5TargetTicks = 1;
+        scanning = false;
+        updateStage(mc, STAGES[index]);
+    }
+
+    /** Ported from Skyblocker's TheEnd.isProtectorHere: the head climbs one block per stage. */
+    private static void scanHeads(Minecraft mc) {
+        if (mc.level == null || hasRisen) return;
+        if (System.currentTimeMillis() - downMillis < 30_000) return;
+        for (Spot spot : SPOTS) {
+            int x = spot.pos().getX(), z = spot.pos().getZ() - 2;
+            if (!mc.level.hasChunk(x >> 4, z >> 4)) continue;
+            for (int i = 0; i < 5; i++) {
+                var state = mc.level.getBlockState(new BlockPos(x, 5 + i, z));
+                if (!state.is(Blocks.PLAYER_HEAD) && !state.is(Blocks.PLAYER_WALL_HEAD)) continue;
+                headSpot = spot;
+                int index = i + 1;
+                if (scanning || index > stageIndex(stage)) raise(mc, index);
+                return;
+            }
         }
     }
 
@@ -397,6 +458,11 @@ public class EndProtector {
         if (!"None".equals(locationName)) return;
 
         int yOffset = stage5 ? 1 : 0;
+        if (headSpot != null) {
+            locationName = headSpot.name();
+            locationPos = headSpot.pos().above(yOffset);
+            return;
+        }
         for (Spot spot : SPOTS) {
             BlockPos pos = spot.pos().above(yOffset);
             if (mc.level.getBlockState(pos).is(Blocks.SANDSTONE_STAIRS)) {

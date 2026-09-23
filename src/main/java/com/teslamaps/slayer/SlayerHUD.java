@@ -1,13 +1,16 @@
 package com.teslamaps.slayer;
 
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.utils.NametagMobs;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.ChatFormatting;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -90,6 +93,8 @@ public class SlayerHUD {
 
     private static String bossOwner = null;       // Who spawned this boss
     private static boolean isOwnBoss = false;     // Is this our boss?
+    private static ArmorStand lockedTag = null;   // foreign boss the player hit last
+    private static long lastCompleteMs = 0;
 
     private static String lastWorldName = null;
 
@@ -125,11 +130,15 @@ public class SlayerHUD {
         phaseCount = 0;
         bossEntity = null;
 
-        for (ArmorStand armorStand : mc.level.getEntitiesOfClass(ArmorStand.class, searchBox, as -> true)) {
+        List<ArmorStand> stands = mc.level.getEntitiesOfClass(ArmorStand.class, searchBox, as -> true);
+        ArmorStand chosen = pickBoss(mc, stands);
+
+        for (ArmorStand armorStand : stands) {
             String name = armorStand.getName().getString();
 
             Matcher bossMatcher = INFERNO_PATTERN.matcher(name);
             if (bossMatcher.find()) {
+                if (armorStand != chosen) continue;
                 String tierStr = bossMatcher.group(1);
                 String shield = bossMatcher.group(2);
                 String hpNum = bossMatcher.group(3);
@@ -161,11 +170,6 @@ public class SlayerHUD {
                 if (!questActive) {
                     questStartTime = System.currentTimeMillis();
                     questActive = true;
-
-                    if (lastKillTime > 0) {
-                        long spawnDelay = questStartTime - lastKillTime;
-                        spawnTimes.add(spawnDelay);
-                    }
                 }
 
                 findBossEntity(mc, armorStand);
@@ -218,10 +222,10 @@ public class SlayerHUD {
 
             if (name.contains("❤")) {
                 if (containsAny(name, GENERIC_BOSSES)) {
+                    if (armorStand != chosen) continue;
                     if (!questActive) {
                         questStartTime = System.currentTimeMillis();
                         questActive = true;
-                        if (lastKillTime > 0) spawnTimes.add(questStartTime - lastKillTime);
                     }
                     lastUpdateTime = System.currentTimeMillis();
                     foundBoss = true;
@@ -233,17 +237,6 @@ public class SlayerHUD {
                     continue;
                 }
             }
-
-            Matcher spawnedByMatcher = SPAWNED_BY_PATTERN.matcher(name);
-            if (spawnedByMatcher.find()) {
-                bossOwner = spawnedByMatcher.group(1);
-                String playerName = mc.player.getName().getString();
-                isOwnBoss = playerName.equalsIgnoreCase(bossOwner);
-            }
-        }
-
-        if (TeslaMapsConfig.get().slayerOnlyOwnBoss && bossOwner != null && !isOwnBoss) {
-            currentBossName = null; // Hide HUD for other players' bosses
         }
 
         if (!foundBoss && System.currentTimeMillis() - lastUpdateTime > 10000) {
@@ -259,7 +252,82 @@ public class SlayerHUD {
         }
     }
 
+    public static void register() {
+        AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if (!level.isClientSide() || !TeslaMapsConfig.get().section("Combat")) return InteractionResult.PASS;
+            if (entity instanceof ArmorStand || !(entity instanceof net.minecraft.world.entity.LivingEntity)) return InteractionResult.PASS;
+            for (ArmorStand stand : NametagMobs.namedStands(entity, 1.5)) {
+                if (isBossTag(stand.getName().getString())) {
+                    lockedTag = stand;
+                    break;
+                }
+            }
+            return InteractionResult.PASS;
+        });
+    }
+
+    private static boolean isBossTag(String name) {
+        return INFERNO_PATTERN.matcher(name).find() || (name.contains("❤") && containsAny(name, GENERIC_BOSSES));
+    }
+
+    /** Ported from Skyblocker's SlayerManager.findBoss: own boss first, then the one last hit. */
+    private static ArmorStand pickBoss(Minecraft mc, List<ArmorStand> stands) {
+        String me = mc.getUser().getName();
+        ArmorStand foreign = null;
+        String foreignOwner = null;
+        ArmorStand locked = null;
+        String lockedOwner = null;
+        for (ArmorStand as : stands) {
+            String name = as.getName().getString();
+            if (!isBossTag(name)) continue;
+            if (!as.isAlive() || name.endsWith(" 0❤")) continue;
+            String owner = ownerOf(as);
+            if (owner != null && owner.equalsIgnoreCase(me)) {
+                bossOwner = owner;
+                isOwnBoss = true;
+                return as;
+            }
+            if (as == lockedTag) {
+                locked = as;
+                lockedOwner = owner;
+            } else if (foreign == null) {
+                foreign = as;
+                foreignOwner = owner;
+            }
+        }
+        if (lockedTag != null && !lockedTag.isAlive()) lockedTag = null;
+        ArmorStand pick = locked != null ? locked
+                : TeslaMapsConfig.get().slayerOnlyOwnBoss ? null : foreign;
+        bossOwner = pick == null ? null : pick == locked ? lockedOwner : foreignOwner;
+        isOwnBoss = false;
+        return pick;
+    }
+
+    private static String ownerOf(ArmorStand bossTag) {
+        for (ArmorStand s : NametagMobs.namedStands(bossTag, 1.5)) {
+            Matcher m = SPAWNED_BY_PATTERN.matcher(s.getName().getString());
+            if (m.find()) return m.group(1);
+        }
+        return null;
+    }
+
+    private static net.minecraft.world.entity.EntityType<?> bossType(String name) {
+        if (name.contains("Revenant") || name.contains("Atoned")) return net.minecraft.world.entity.EntityType.ZOMBIE;
+        if (name.contains("Tarantula") || name.contains("Conjoined")) return net.minecraft.world.entity.EntityType.SPIDER;
+        if (name.contains("Sven")) return net.minecraft.world.entity.EntityType.WOLF;
+        if (name.contains("Voidgloom")) return net.minecraft.world.entity.EntityType.ENDERMAN;
+        if (name.contains("Demonlord")) return net.minecraft.world.entity.EntityType.BLAZE;
+        if (name.contains("Bloodfiend")) return net.minecraft.world.entity.EntityType.PLAYER;
+        return null;
+    }
+
     private static void findBossEntity(Minecraft mc, ArmorStand armorStand) {
+        var type = bossType(armorStand.getName().getString());
+        Entity paired = type != null ? NametagMobs.mobForTag(type, armorStand) : NametagMobs.mobForTag(armorStand);
+        if (paired != null) {
+            bossEntity = paired;
+            return;
+        }
         AABB searchBox = armorStand.getBoundingBox().inflate(2, 3, 2);
         for (Entity entity : mc.level.getEntitiesOfClass(Entity.class, searchBox, e -> !(e instanceof ArmorStand))) {
             if (entity instanceof Mob || entity.getName().getString().contains("Demonlord")) {
@@ -270,6 +338,11 @@ public class SlayerHUD {
     }
 
     private static void findMinibossEntity(Minecraft mc, ArmorStand armorStand, String type) {
+        Entity paired = NametagMobs.mobForTag(armorStand);
+        if (paired != null) {
+            if (minibossEntities.add(paired)) minibossColors.put(paired, scanMinibossColor(mc, paired));
+            return;
+        }
         AABB searchBox = armorStand.getBoundingBox().inflate(2, 3, 2);
         for (Entity entity : mc.level.getEntitiesOfClass(Entity.class, searchBox, e -> !(e instanceof ArmorStand))) {
             if (entity instanceof Mob) {
@@ -403,28 +476,55 @@ public class SlayerHUD {
     }
 
     public static void onSlayerComplete() {
+        long killTime = System.currentTimeMillis();
+        // "NICE! SLAYER BOSS SLAIN!" and "SLAYER QUEST COMPLETE!" can both come for one kill
+        if (killTime - lastCompleteMs < 3000) return;
+        lastCompleteMs = killTime;
         com.teslamaps.features.SkillTracker.onBossKill();
-        if (!questActive || questStartTime == 0) return;
 
-        if (TeslaMapsConfig.get().slayerOnlyOwnBoss && bossOwner != null && !isOwnBoss) {
+        // the scoreboard "Slay the boss!" line is our own quest, exact and range independent
+        long scoreboardSpawn = SlayerQuest.spawnMs();
+        if (scoreboardSpawn == 0 && (!questActive || questStartTime == 0)) {
+            SlayerQuest.onQuestEnd();
+            return;
+        }
+
+        if (scoreboardSpawn == 0 && TeslaMapsConfig.get().slayerOnlyOwnBoss && bossOwner != null && !isOwnBoss) {
             resetQuest();
+            SlayerQuest.onQuestEnd();
             return;
         }
 
         Minecraft mc = Minecraft.getInstance();
-        long killTime = System.currentTimeMillis();
-        long fightDuration = killTime - questStartTime;
+        long start = scoreboardSpawn > 0 ? scoreboardSpawn : questStartTime;
+        long fightDuration = killTime - start;
+        long questStart = SlayerQuest.questStartMs();
+        long spawn = questStart > 0 && scoreboardSpawn > questStart ? scoreboardSpawn - questStart
+                : lastKillTime > 0 ? start - lastKillTime : -1;
+        if (spawn > 0) spawnTimes.add(spawn);
         killTimes.add(fightDuration);
         lastKillTime = killTime;
         totalKills++;
 
-        sendKillMessage(mc, fightDuration);
+        long ticks = scoreboardSpawn > 0 ? SlayerQuest.fightTicks() : -1;
+        String pb = SlayerTimer.onKill(SlayerQuest.key(), label(), fightDuration, ticks, SlayerQuest.died());
+        if (TeslaMapsConfig.get().slayerKillChat) sendKillMessage(mc, fightDuration, ticks, pb);
 
         resetQuest();
+        SlayerQuest.onQuestEnd();
+    }
+
+    private static String label() {
+        String boss = SlayerQuest.boss();
+        if (boss == null) return "Slayer boss";
+        String[] roman = {"", "I", "II", "III", "IV", "V"};
+        int t = SlayerQuest.tier();
+        return boss + (t > 0 && t < roman.length ? " " + roman[t] : "");
     }
 
     public static void onSlayerFailed() {
         resetQuest();
+        SlayerQuest.onQuestEnd();
     }
 
     public static void resetSession() {
@@ -459,7 +559,7 @@ public class SlayerHUD {
         typhoeusDead = false;
     }
 
-    private static void sendKillMessage(Minecraft mc, long fightDuration) {
+    private static void sendKillMessage(Minecraft mc, long fightDuration, long ticks, String pb) {
         if (mc.player == null) return;
 
         StringBuilder msg = new StringBuilder();
@@ -467,6 +567,10 @@ public class SlayerHUD {
         msg.append(ChatFormatting.GRAY).append("(#").append(totalKills).append(") ");
 
         msg.append(ChatFormatting.WHITE).append("Time: ").append(ChatFormatting.YELLOW).append(formatTime(fightDuration));
+        if (TeslaMapsConfig.get().slayerKillTicks && ticks > 0) {
+            msg.append(ChatFormatting.DARK_GRAY).append(" (").append(ticks).append(" ticks)");
+        }
+        msg.append(pb);
 
         if (spawnTimes.size() > 0) {
             long lastSpawnTime = spawnTimes.get(spawnTimes.size() - 1);

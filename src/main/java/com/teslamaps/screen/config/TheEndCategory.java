@@ -13,7 +13,8 @@ public final class TheEndCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("End Stone Protector");
         b.toggle("Protector Tracker", () -> config.endProtector, v -> config.endProtector = v);
-        b.info("Stage comes from the Protector tab widget - enable it via /tab");
+        b.info("Stage comes from the protector head and the tremor chat line");
+        b.info("The Protector tab widget (/tab) is only a fallback");
         b.toggle("  Status HUD", () -> config.endProtectorStatusHud, v -> config.endProtectorStatusHud = v);
         b.toggle("  Loot Tracker HUD", () -> config.endProtectorLootHud, v -> config.endProtectorLootHud = v);
         b.toggle("  Spawn Beacon", () -> config.endProtectorBeacon, v -> config.endProtectorBeacon = v);
