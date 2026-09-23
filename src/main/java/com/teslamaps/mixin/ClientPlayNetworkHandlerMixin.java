@@ -164,7 +164,9 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "setTitleText", at = @At("HEAD"), cancellable = true)
     private void onSetTitle(ClientboundSetTitleTextPacket packet, CallbackInfo ci) {
-        if (CustomTitles.shouldHideDefaultTitle()) ci.cancel();
+        if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()
+                && com.teslamaps.features.TimerTriggers.onTitle(packet.text().getString())) ci.cancel();
     }
 
     @Inject(method = "setSubtitleText", at = @At("HEAD"), cancellable = true)

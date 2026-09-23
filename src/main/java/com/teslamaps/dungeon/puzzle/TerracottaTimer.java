@@ -3,8 +3,10 @@ package com.teslamaps.dungeon.puzzle;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
+import com.teslamaps.registry.Feature;
 import com.teslamaps.render.ESPRenderer;
-import java.util.Iterator;
+import com.teslamaps.utils.ServerTickTimer;
+import com.teslamaps.utils.StringUtil;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.FlowerPotBlock;
@@ -14,8 +16,32 @@ import net.minecraft.world.phys.Vec3;
 public class TerracottaTimer {
 
     private static final CopyOnWriteArrayList<TerracottaSpawn> spawns = new CopyOnWriteArrayList<>();
+    private static final ServerTickTimer PHASE_END = new ServerTickTimer();
 
-    private record TerracottaSpawn(BlockPos pos, float timeRemaining) {}
+    // respawn as a target server tick, ported from NoammAddons' TerracottaTimer.kt
+    private static final class TerracottaSpawn {
+        final BlockPos pos;
+        final Vec3 center;
+        final long end;
+        String text = "";
+
+        TerracottaSpawn(BlockPos pos, long end) {
+            this.pos = pos;
+            this.center = Vec3.atCenterOf(pos);
+            this.end = end;
+        }
+    }
+
+    public static void register() {
+        Feature.of("TerracottaTimer").section("Puzzles & Terminals").when(() -> TeslaMapsConfig.get().terracottaTimer)
+                .serverChat(TerracottaTimer::onChat);
+    }
+
+    private static void onChat(String text) {
+        if (spawns.isEmpty() || !text.contains("ENOUGH!")) return;
+        if (!"[BOSS] Sadan: ENOUGH!".equals(StringUtil.stripTrim(text))) return;
+        PHASE_END.start(10, spawns::clear);
+    }
 
     public static void tick() {
         if (!TeslaMapsConfig.get().terracottaTimer) {
@@ -34,15 +60,15 @@ public class TerracottaTimer {
             return;
         }
 
-        Iterator<TerracottaSpawn> iter = spawns.iterator();
-        while (iter.hasNext()) {
-            TerracottaSpawn spawn = iter.next();
-            float newTime = spawn.timeRemaining - 0.05f;
-            if (newTime <= 0) {
+        long now = ServerTickTimer.now();
+        for (TerracottaSpawn spawn : spawns) {
+            long left = spawn.end - now;
+            if (left <= 0) {
                 spawns.remove(spawn);
-            } else {
-                spawns.set(spawns.indexOf(spawn), new TerracottaSpawn(spawn.pos, newTime));
+                continue;
             }
+            float secs = left / 20f;
+            spawn.text = String.format("§%s%.1fs", getColorCode(secs), secs);
         }
     }
 
@@ -58,8 +84,8 @@ public class TerracottaTimer {
                 if (spawn.pos.equals(pos)) return;
             }
 
-            float time = floor.contains("M6") ? 12f : 15f;
-            spawns.add(new TerracottaSpawn(pos.immutable(), time));
+            int ticks = floor.contains("M6") ? 240 : 300;
+            spawns.add(new TerracottaSpawn(pos.immutable(), ServerTickTimer.now() + ticks));
         }
     }
 
@@ -68,10 +94,8 @@ public class TerracottaTimer {
         if (spawns.isEmpty()) return;
 
         for (TerracottaSpawn spawn : spawns) {
-            String colorCode = getColorCode(spawn.timeRemaining);
-            String text = String.format("§%s%.1fs", colorCode, spawn.timeRemaining);
-            Vec3 pos = Vec3.atCenterOf(spawn.pos);
-            ESPRenderer.drawText(matrices, text, pos, 2f, cameraPos);
+            if (spawn.text.isEmpty()) continue;
+            ESPRenderer.drawText(matrices, spawn.text, spawn.center, 2f, cameraPos);
         }
     }
 
@@ -83,5 +107,6 @@ public class TerracottaTimer {
 
     public static void reset() {
         spawns.clear();
+        PHASE_END.stop();
     }
 }

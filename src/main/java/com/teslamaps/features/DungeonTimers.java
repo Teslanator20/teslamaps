@@ -96,7 +96,7 @@ public class DungeonTimers {
                 new Row("§a2.50s", com.teslamaps.features.TimerTriggers.maskIcon(2))));
     }
 
-    private static void drawRows(GuiGraphicsExtractor ctx, Minecraft mc, int x, int y, float scale, Iterable<Row> rows) {
+    static void drawRows(GuiGraphicsExtractor ctx, Minecraft mc, int x, int y, float scale, Iterable<Row> rows) {
         var pose = ctx.pose();
         pose.pushMatrix();
         pose.translate(x, y);

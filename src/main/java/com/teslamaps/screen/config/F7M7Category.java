@@ -23,15 +23,24 @@ public final class F7M7Category {
         b.toggle("Goldor Tick Timer", () -> config.goldorTickTimer, v -> config.goldorTickTimer = v);
         b.toggle("Storm Pad Timer", () -> config.stormPadTimer, v -> config.stormPadTimer = v);
         b.toggle("Storm Lightning Timer", () -> config.lightningTimer, v -> config.lightningTimer = v);
+        b.toggle("  Lightning Title Countdown (synced)", () -> config.lightningTimerTitle, v -> config.lightningTimerTitle = v);
         b.toggle("Relic Timer (M7)", () -> config.relicTimer, v -> config.relicTimer = v);
+        b.toggle("Maxor/Storm Start Timers", () -> config.bossStartTimers, v -> config.bossStartTimers = v);
+        b.toggle("Separate Tick Timer HUDs (/tmap gui)", () -> config.tickTimersSeparate, v -> config.tickTimersSeparate = v);
         b.label("Other");
         b.toggle("Leap Counter", () -> config.leapCounter, v -> config.leapCounter = v);
+        b.toggle("  Leap Spots (EE2/EE3/Core/P5)", () -> config.leapCounterSpots, v -> config.leapCounterSpots = v);
+        b.toggle("  All Leaped Alert", () -> config.leapCounterAlert, v -> config.leapCounterAlert = v);
         b.label("Wither Dragons");
         b.toggle("Wither Dragons", () -> config.witherDragons, v -> config.witherDragons = v);
         b.label("Spawn Timer & Alerts");
         b.toggle("Dragon Spawn Timer", () -> config.witherDragonTimer, v -> config.witherDragonTimer = v);
         b.toggle("Dragon Spawn Boxes", () -> config.witherDragonBoxes, v -> config.witherDragonBoxes = v);
         b.toggle("Dragon Spawn Title", () -> config.witherDragonTitle, v -> config.witherDragonTitle = v);
+        b.toggle("  Show HIGH in Spawn Title", () -> config.witherDragonShowHigh, v -> config.witherDragonShowHigh = v);
+        b.slider("  Spawn Title Duration (ticks)", 5f, 100f,
+                () -> (float) config.witherDragonAlertTicks, v -> config.witherDragonAlertTicks = Math.round(v));
+        b.toggle("  Mute Spawn Title Sound", () -> config.witherDragonAlertMute, v -> config.witherDragonAlertMute = v);
         b.dropdown("Timer Style",
                 new String[]{"Milliseconds", "Seconds", "Ticks"},
                 () -> switch (config.witherDragonTimerStyle) { case 1 -> "Seconds"; case 2 -> "Ticks"; default -> "Milliseconds"; },
@@ -54,6 +63,8 @@ public final class F7M7Category {
         b.toggle("Solo Debuff on All Splits", () -> config.witherDragonSoloDebuffAll, v -> config.witherDragonSoloDebuffAll = v);
         b.toggle("Paul Buff (×1.25 power)", () -> config.witherDragonPaulBuff, v -> config.witherDragonPaulBuff = v);
         b.toggle("  Auto Paul Buff (Election API)", () -> config.witherDragonPaulAuto, v -> config.witherDragonPaulAuto = v);
+        b.toggle("Custom Priority Strings", () -> config.witherDragonCustomPrio, v -> config.witherDragonCustomPrio = v);
+        b.button("  Edit Priority Strings", () -> Minecraft.getInstance().setScreen(new DragonPrioScreen(Minecraft.getInstance().screen)));
         b.label("Live Dragons");
         b.toggle("Dragon Boxes (live)", () -> config.dragonBoxes, v -> config.dragonBoxes = v);
         b.toggle("Dragon Health %", () -> config.dragonHealth, v -> config.dragonHealth = v);
@@ -62,5 +73,11 @@ public final class F7M7Category {
         b.toggle("Wither Highlight", () -> config.witherHighlight, v -> config.witherHighlight = v);
         b.toggle("  Wither Highlight Box", () -> config.witherHighlightBox, v -> config.witherHighlightBox = v);
         b.color("  Wither Highlight Color", () -> config.witherHighlightColor, v -> config.witherHighlightColor = v);
+        b.toggle("  Glow Instead of Box", () -> config.witherHighlightGlow, v -> config.witherHighlightGlow = v).legit();
+        b.toggle("  Color per Boss (bossbar)", () -> config.witherHighlightPerBoss, v -> config.witherHighlightPerBoss = v);
+        b.color("    Maxor", () -> config.witherColorMaxor, v -> config.witherColorMaxor = v);
+        b.color("    Storm", () -> config.witherColorStorm, v -> config.witherColorStorm = v);
+        b.color("    Goldor", () -> config.witherColorGoldor, v -> config.witherColorGoldor = v);
+        b.color("    Necron", () -> config.witherColorNecron, v -> config.witherColorNecron = v);
     }
 }

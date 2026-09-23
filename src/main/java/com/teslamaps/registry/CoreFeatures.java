@@ -65,7 +65,7 @@ final class CoreFeatures {
         Feature.of("BestiaryTracker").section("Combat").hudForeground("bestiary", com.teslamaps.features.BestiaryTracker::render);
         Feature.of("FlareMode").section("Skills").hudForeground("flaremode", com.teslamaps.features.hunting.FlareMode::render);
         Feature.of("LividSolver").section("ESP").hud("livid", LividSolver::renderHUD);
-        Feature.of("SpiritBearTimer").section(PUZZLES).hud("spiritbear", SpiritBearTimer::render);
+        Feature.of("SpiritBearTimer").when(() -> cfg().spiritBearTimer).hud("spiritbear", SpiritBearTimer::render);
         Feature.of("KickedTimer").hud("kicked", com.teslamaps.features.KickedTimer::render);
         Feature.of("PerformanceHud").hud("perfhud", com.teslamaps.features.PerformanceHud::render);
         Feature.of("RareDropEffects").section("Render").hud("raredrop", com.teslamaps.features.RareDropEffects::render);
@@ -278,7 +278,7 @@ final class CoreFeatures {
         Feature.of("QuizSolver").section(PUZZLES).tick(QuizSolver::tick);
         Feature.of("TPMazeSolver").section(PUZZLES).tick(TPMazeSolver::tick);
         Feature.of("CreeperBeamsSolver").section(PUZZLES).tick(CreeperBeamsSolver::tick);
-        Feature.of("SpiritBearTimer").section(PUZZLES).tick(SpiritBearTimer::tick);
+        Feature.of("SpiritBearTimer").tick(SpiritBearTimer::tick);
         Feature.of("TerracottaTimer").section(PUZZLES).tick(com.teslamaps.dungeon.puzzle.TerracottaTimer::tick);
         Feature.of("SimonSaysSolver").section(PUZZLES).tick(com.teslamaps.dungeon.puzzle.SimonSaysSolver::tick);
         Feature.of("ThornStunTimer").section(PUZZLES).tick(com.teslamaps.features.ThornStunTimer::tick);

@@ -80,7 +80,7 @@ final class CoreHudElements {
                 .scaleRange(0.5f, 5.0f).dragColor(0xFFAA55FF)
                 .preview((g, m, x, y, s) -> com.teslamaps.dungeon.WitherDragons.drawHud(g, m, x, y, s,
                         com.teslamaps.dungeon.WitherDragons.hudSample()));
-        HudEditElement.of("spiritBear", "Spirit Bear").ctx(HudCtx.DUNGEON).section(PUZZLES).enabled(() -> cfg().spiritBearTimer)
+        HudEditElement.of("spiritBear", "Spirit Bear").ctx(HudCtx.DUNGEON).enabled(() -> cfg().spiritBearTimer)
                 .size(() -> font().width(com.teslamaps.dungeon.puzzle.SpiritBearTimer.SAMPLE_TEXT), () -> font().lineHeight)
                 .scaleRange(0.5f, 5.0f).dragColor(0xFFAA55FF).preview(com.teslamaps.dungeon.puzzle.SpiritBearTimer::draw);
         HudEditElement.of("bearSpawn", "Bear Warning").ctx(HudCtx.DUNGEON).section("Sounds").enabled(() -> cfg().bearSpawnWarning)

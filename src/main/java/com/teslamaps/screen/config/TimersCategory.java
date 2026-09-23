@@ -40,9 +40,14 @@ public final class TimersCategory {
         b.label("Dungeon");
         b.toggle("Spirit Pet Reminder (boss)", () -> config.spiritPetReminder, v -> config.spiritPetReminder = v);
         b.toggle("Secret Tick Timer", () -> config.secretTickTimer, v -> config.secretTickTimer = v);
+        b.toggle("Death Tick Timer (run start)", () -> config.deathTickTimer, v -> config.deathTickTimer = v);
+        b.toggle("Livid Invuln Timer (F5/M5)", () -> config.lividTimerHud, v -> config.lividTimerHud = v);
+        b.toggle("  Ice Spray Alert", () -> config.lividIceSprayAlert, v -> config.lividIceSprayAlert = v);
         b.toggle("Bossbar Health (❤)", () -> config.bossbarHealth, v -> config.bossbarHealth = v);
         b.dropdown("Timer Format",
                 new String[]{"Seconds", "Ticks", "Both"}, () -> config.tickTimerFormat, v -> config.tickTimerFormat = v);
+        b.toggle("  Hide Timer Prefix", () -> config.tickTimerNoPrefix, v -> config.tickTimerNoPrefix = v);
+        b.toggle("  Hide Timer Suffix (s/t)", () -> config.tickTimerNoSuffix, v -> config.tickTimerNoSuffix = v);
         b.label("Kicked");
         b.toggle("Kick Handling", () -> config.kickedTimer, v -> config.kickedTimer = v);
         b.toggle("  Send /pc kicked", () -> config.kickedPartyMessage, v -> config.kickedPartyMessage = v);

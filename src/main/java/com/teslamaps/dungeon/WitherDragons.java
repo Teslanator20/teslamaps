@@ -53,6 +53,7 @@ public class WitherDragons {
         public UUID entityUUID = null;
         public boolean isSprayed = false;
         public long spawnedTime = 0;
+        public boolean high = false;
 
         Dragon(String dispName, char colorCode, int colorArgb, BlockPos spawnPos, BlockPos statuePos, AABB box,
                double xMin, double xMax, double zMin, double zMax) {
@@ -124,7 +125,9 @@ public class WitherDragons {
 
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
         if (!active()) return;
-        if (packet.getCount() != 20 || packet.getY() != 19.0 || packet.getParticle().getType() != ParticleTypes.FLAME
+        // Devonian M7Events: flames at y 27 = the dragon spawns high
+        boolean high = packet.getY() == 27.0 && TeslaMapsConfig.get().witherDragonShowHigh;
+        if (packet.getCount() != 20 || (packet.getY() != 19.0 && !high) || packet.getParticle().getType() != ParticleTypes.FLAME
                 || packet.getXDist() != 2f || packet.getYDist() != 3f || packet.getZDist() != 2f
                 || packet.getMaxSpeed() != 0f || packet.getX() % 1 != 0.0 || packet.getZ() % 1 != 0.0) return;
 
@@ -134,16 +137,20 @@ public class WitherDragons {
         for (Dragon dragon : Dragon.values()) {
             spawned += dragon.timesSpawned;
 
+            boolean inRange = !(packet.getX() < dragon.xMin || packet.getX() > dragon.xMax
+                    || packet.getZ() < dragon.zMin || packet.getZ() > dragon.zMax);
+
             if (dragon.state == State.SPAWNING) {
+                if (high && inRange) dragon.high = true;
                 if (!dragons.contains(dragon)) dragons.add(dragon);
                 continue;
             }
 
-            if (packet.getX() < dragon.xMin || packet.getX() > dragon.xMax
-                    || packet.getZ() < dragon.zMin || packet.getZ() > dragon.zMax) continue;
+            if (!inRange) continue;
 
             dragon.state = State.SPAWNING;
             dragon.timeToSpawn = 100;
+            dragon.high = high;
             dragons.add(dragon);
         }
 
@@ -153,7 +160,8 @@ public class WitherDragons {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         if (config.witherDragonTitle)
-            alert("§" + priorityDragon.colorCode + priorityDragon.dispName + " is spawning!");
+            alert("§" + priorityDragon.colorCode + priorityDragon.dispName + " is spawning!"
+                    + (config.witherDragonShowHigh && priorityDragon.high ? " §" + priorityDragon.colorCode + "§lHIGH" : ""));
 
         if (config.witherDragonPriority && dragons.size() > 1) {
             String list = dragons.stream().map(d -> "§" + d.colorCode + d.dispName).collect(Collectors.joining(", "));
@@ -415,9 +423,10 @@ public class WitherDragons {
         Minecraft mc = Minecraft.getInstance();
         mc.execute(() -> {
             if (mc.player == null) return;
-            mc.gui.setTimes(0, 20, 5);
+            TeslaMapsConfig c = TeslaMapsConfig.get();
+            mc.gui.setTimes(0, Math.max(1, c.witherDragonAlertTicks), 5);
             mc.gui.setTitle(Component.literal(title));
-            mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
+            if (!c.witherDragonAlertMute) mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
         });
     }
 }
