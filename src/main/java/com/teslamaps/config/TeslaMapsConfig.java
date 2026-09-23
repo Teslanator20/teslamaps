@@ -552,6 +552,8 @@ public class TeslaMapsConfig {
     public static class Keybind {
         public int key = -1;          // GLFW key code, -1 = unbound
         public String message = "";
+        public int modifiers = 0;     // GLFW mod bits: 1 shift, 2 ctrl, 4 alt; 0 = any
+        public boolean enabled = true;
         public Keybind() {}
         public Keybind(int key, String message) { this.key = key; this.message = message; }
     }
