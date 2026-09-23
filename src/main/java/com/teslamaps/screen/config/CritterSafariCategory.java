@@ -14,7 +14,16 @@ public final class CritterSafariCategory {
         b.label("Run Tracker");
         b.toggle("Track Run", () -> config.safariTracker, v -> config.safariTracker = v);
         b.toggle("Show HUD", () -> config.safariHud, v -> config.safariHud = v);
+        b.toggle("  Panel Style", () -> config.safariHudPanel, v -> config.safariHudPanel = v);
+        b.info("Bars per biome, players, stays up as \"ready\" / \"last run\" at the entrance");
         b.info("Position and scale in /tmap gui");
+        b.button("Run Screen (/tmap safari gui)",
+                () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.SafariScreen(Minecraft.getInstance().screen)));
+        b.label("Missing Panel");
+        b.toggle("Missing Panel", () -> config.safariMissingPanel, v -> config.safariMissingPanel = v);
+        b.info("What the biome you stand in still needs: quota, tries, walls");
+        b.toggle("  Count Critters In Sight", () -> config.safariMissingNear, v -> config.safariMissingNear = v);
+        b.info("\"n near\" only counts critters with a free line of sight");
         b.label("Checklist");
         b.toggle("Show Checklist", () -> config.safariChecklist, v -> config.safariChecklist = v);
         b.dropdown("Biome",

@@ -29,6 +29,21 @@ public class SafariWalls {
             }),
     };
 
+    /** {intact, unloaded} walls in front of that critter, null when it has none. */
+    public static int[] state(Minecraft mc, String critter) {
+        if (mc.level == null) return null;
+        for (WallSet set : SETS) {
+            if (!set.critter().equals(critter)) continue;
+            int intact = 0, unknown = 0;
+            for (BlockPos pos : set.positions()) {
+                if (!mc.level.isLoaded(pos)) unknown++;
+                else if (!mc.level.getBlockState(pos).isAir()) intact++;
+            }
+            return new int[] {intact, unknown};
+        }
+        return null;
+    }
+
     /** Only the walls of the biome you stand in, only while its critter is still uncaught. */
     public static void collect(Minecraft mc, List<BlockPos> out) {
         SafariData.Biome here = SafariData.currentBiome();

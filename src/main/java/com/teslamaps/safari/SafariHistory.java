@@ -23,6 +23,37 @@ public class SafariHistory {
         public int escapes;
         public int floorDrops;
         public String hotspot;
+        public java.util.Map<String, Integer> catches; // party catches per critter, null on old runs
+    }
+
+    public static long totalTime() {
+        long t = 0;
+        for (Run r : runs()) t += r.durationMs;
+        return t;
+    }
+
+    public static int fullDexRuns() {
+        int n = 0;
+        for (Run r : runs()) if (r.dex >= SafariData.ALL.size()) n++;
+        return n;
+    }
+
+    /** {catches, runs caught in} over the runs that kept a per-critter breakdown. */
+    public static int[] statFor(String critter) {
+        int total = 0, seen = 0;
+        for (Run r : runs()) {
+            if (r.catches == null) continue;
+            int n = r.catches.getOrDefault(critter, 0);
+            total += n;
+            if (n > 0) seen++;
+        }
+        return new int[] {total, seen};
+    }
+
+    public static int runsWithBreakdown() {
+        int n = 0;
+        for (Run r : runs()) if (r.catches != null) n++;
+        return n;
     }
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();

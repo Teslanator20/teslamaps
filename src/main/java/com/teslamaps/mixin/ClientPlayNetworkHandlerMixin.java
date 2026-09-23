@@ -69,7 +69,8 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleParticleEvent", at = @At("HEAD"), cancellable = true)
     private void onParticleHide(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()
-                && com.teslamaps.features.SoulweaverHider.hideParticle(packet)) ci.cancel();
+                && (com.teslamaps.features.SoulweaverHider.hideParticle(packet)
+                    || com.teslamaps.features.Deployables.hideParticle(packet))) ci.cancel();
     }
 
     @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))

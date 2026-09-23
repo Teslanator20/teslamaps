@@ -19,10 +19,13 @@ public class KickedTimer {
     private static boolean sawLobby = false;
 
     public static void onChatMessage(String message) {
-        String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        String clean = com.teslamaps.utils.StringUtil.strip(message);
         if (!clean.contains("A kick occurred in your connection")
+                && !clean.contains("An exception occurred in your connection")
                 && !clean.contains("so you were put in the SkyBlock lobby")
-                && !clean.contains("You were kicked while joining that server")) return;
+                && !clean.contains("so you were put in the SkyBlock Lobby")
+                && !clean.contains("You were kicked while joining that server")
+                && !clean.contains("There was a problem joining SkyBlock, try again in a moment")) return;
 
         long now = System.currentTimeMillis();
         if (now - kickedAtMs > 15_000L) { kickedAtMs = now; sawLobby = false; } // new kick episode -> (re)start timer
@@ -44,24 +47,30 @@ public class KickedTimer {
         if (!inSkyblock) sawLobby = true;
         else if (sawLobby) { kickedAtMs = 0; sawLobby = false; return; }
 
-        if (System.currentTimeMillis() - kickedAtMs >= 60_000L) { // wait over -> ping and hide
-            if (TeslaMapsConfig.get().kickedTimer) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.6f);
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (System.currentTimeMillis() - kickedAtMs >= waitMs(cfg)) { // wait over -> ping and hide
+            if (cfg.kickedTimer) {
+                LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.6f);
+                if (cfg.kickedTitle) Minecraft.getInstance().gui.setTitle(
+                        net.minecraft.network.chat.Component.literal("§eTry rejoining SkyBlock now!"));
+            }
             kickedAtMs = 0;
         }
     }
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         if (!TeslaMapsConfig.get().kickedTimer || kickedAtMs == 0) return;
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
         long elapsed = (System.currentTimeMillis() - kickedAtMs) / 1000L;
-        if (elapsed >= 60) { kickedAtMs = 0; return; }
+        long wait = waitMs(cfg) / 1000L;
+        if (elapsed >= wait) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        // rejoining too early after a kick tends to kick you again - warning for 60s
-        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        // rejoining too early after a kick tends to kick you again
         if (cfg.kickedCenterWarning) {
             draw(context, mc, cfg.kickedWarnX, cfg.kickedWarnY, cfg.kickedWarnScale,
-                    "§c§lWait §f§l" + (60 - elapsed) + "s §c§lbefore rejoining!");
+                    "§c§lWait §f§l" + (wait - elapsed) + "s §c§lbefore rejoining!");
         }
     }
 
@@ -77,6 +86,10 @@ public class KickedTimer {
         pose.scale(scale, scale);
         context.text(mc.font, text, 0, 0, 0xFFFFFFFF, true);
         pose.popMatrix();
+    }
+
+    private static long waitMs(TeslaMapsConfig cfg) {
+        return Math.max(5, cfg.kickedWaitSeconds) * 1000L;
     }
 
     public static void reset() { kickedAtMs = 0; sawLobby = false; }

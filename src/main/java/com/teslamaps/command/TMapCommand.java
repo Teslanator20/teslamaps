@@ -457,6 +457,12 @@ public class TMapCommand {
                             }
                             return 1;
                         })
+                        .then(ClientCommands.literal("gui")
+                                .executes(context -> {
+                                    Minecraft.getInstance().schedule(() ->
+                                            Minecraft.getInstance().setScreen(new com.teslamaps.screen.SafariScreen(null)));
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("scan")
                                 .executes(context -> safariScan(context.getSource(), 6))
                                 .then(ClientCommands.argument("chunks", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 16))

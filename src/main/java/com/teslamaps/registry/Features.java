@@ -30,5 +30,8 @@ final class Features {
         // wave 1b economy
         com.teslamaps.features.BazaarOwnOrders.register();
         com.teslamaps.features.ContainerValue.register();
+        // wave 1b hud
+        com.teslamaps.features.CombatTimers.register();
+        com.teslamaps.safari.SafariTracker.register();
     }
 }

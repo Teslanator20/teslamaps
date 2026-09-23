@@ -132,6 +132,20 @@ public class SafariESP {
         }
     }
 
+    /** Unbroken mounds you have a line of sight to. */
+    public static int visibleMounds(Minecraft mc) {
+        if (mc.level == null) return 0;
+        int n = 0;
+        for (Entity e : mc.level.entitiesForRendering()) {
+            if (!(e instanceof Display.ItemDisplay id)) continue;
+            if (id.getPosRotInterpolationDuration() != 0) continue;
+            if (!isMoundTexture(headTexture(itemOf(id)))) continue;
+            if (SafariData.biomeAt(e.blockPosition()) != SafariData.Biome.CAVERN) continue;
+            if (SafariSight.hasLineTo(e)) n++;
+        }
+        return n;
+    }
+
     private static String headTexture(ItemStack stack) {
         if (!stack.is(Items.PLAYER_HEAD)) return "";
         ResolvableProfile profile = stack.get(DataComponents.PROFILE);

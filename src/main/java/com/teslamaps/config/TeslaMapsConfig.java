@@ -957,6 +957,13 @@ public class TeslaMapsConfig {
     public int skillExpDisplayX = -1;          // -1 = centered above the hotbar
     public int skillExpDisplayY = -1;
     public float skillExpDisplayScale = 1.0f;
+    public boolean skillExpIcon = false;       // skill item icon in front of the xp
+    public boolean skillExpLevel = false;      // "[25]" level prefix, from the tab list
+    public int skillExpFormat = 0;             // 0 = as sent, 1 = percent, 2 = xp/needed
+    public boolean skillExpActionsLeft = false; // "340 left" = rest xp / last gain
+    public boolean skillExpBar = false;        // progress bar under the text
+    public int skillExpBarWidth = 120;
+    public String skillExpBarColor = "30D158";
     public boolean fixDoubleClicks = true;     // Drop the duplicate use-on-block Hypixel sends for blaze daggers / autopet rods
     public boolean skillLevelStackSize = true;  // draw the skill level as the stack size in the skills menu
     public boolean skillAvgOverflow = true;     // add the overflow skill average to the "Your Skills" tooltip
@@ -1029,7 +1036,20 @@ public class TeslaMapsConfig {
     public boolean warpCooldownSound = false;       // ding when a warp cooldown ends
     public float warpCooldownVolume = 1.0f;
     public boolean witherShieldTimer = false;       // Hyperion/wither-blade Wither Impact cooldown timer
+    public boolean witherShieldHud = false;         // own movable HUD with READY instead of the timers line
+    public boolean witherShieldHideReady = false;
+    public boolean witherShieldCompact = false;     // numbers only, no "Shield:"
+    public boolean witherShieldChime = false;       // chime when the shield is ready again
+    public int witherShieldHudX = 200;
+    public int witherShieldHudY = 150;
+    public float witherShieldHudScale = 1.0f;
     public boolean tacticalInsertionTimer = false;  // 3s Tactical Insertion timer on right-click
+    public boolean tacticalHud = false;             // own movable HUD, green/yellow/red
+    public int tacticalHudX = 200;
+    public int tacticalHudY = 162;
+    public float tacticalHudScale = 1.0f;
+    public boolean tacticalWaypoint = false;        // box where the tactical sends you back to
+    public com.teslamaps.render.EspStyle tacticalWaypointEsp = new com.teslamaps.render.EspStyle("50AA55FF", com.teslamaps.render.EspStyle.BOTH);
     public boolean invincibilityTimer = true;       // Bonzo / Spirit / Phoenix immunity + cooldown block
     public boolean invincibilityAnnounce = true;    // Announce mask/pet procs to party chat ("Bonzo Procced!")
     public boolean invincibilityAnnounceCount = false; // add "(2/3)" used-masks counter to the announce
@@ -1318,6 +1338,12 @@ public class TeslaMapsConfig {
     public int safariHudX = 5;
     public int safariHudY = 120;
     public float safariHudScale = 1.0f;
+    public boolean safariHudPanel = false;          // run HUD as a panel with bars, also "ready" / "last run"
+    public boolean safariMissingPanel = false;      // own panel: what the biome you stand in still needs
+    public boolean safariMissingNear = false;       // "n near" = critters in line of sight, plus mounds in sight
+    public int safariMissingX = 300;
+    public int safariMissingY = 20;
+    public float safariMissingScale = 1.0f;
     public boolean safariChecklist = true;          // per-biome critter checklist under the HUD
     public String safariChecklistBiome = "Auto";    // Auto = the biome you are standing in
     public boolean safariChecklistIcons = true;     // check/cross icons, off = colour the name only
@@ -1377,6 +1403,8 @@ public class TeslaMapsConfig {
     public float umbrellaWarningVolume = 1.0f;      // 0 = silent
     public boolean deployableOverlay = false;       // HUD with the time left on active deployables
     public boolean deployableHighestTierOnly = false; // hide a Radiant while an Overflux is up
+    public boolean deployableIconMode = false;      // one panel with the strongest deployable and its big head icon
+    public boolean deployableHideParticles = false; // drop the orbs' own villager/dust/flame particles
     public boolean deployableFlux = true;           // power orbs
     public boolean deployableLantern = true;
     public boolean deployableUmbrella = true;
@@ -1608,6 +1636,8 @@ public class TeslaMapsConfig {
     public float overkillScale = 1.0f;             // Overkill counter scale (0.5 - 5.0)
     public boolean kickedTimer = true;             // Kick handling: center wait warning + /pc kicked
     public boolean kickedPartyMessage = true;      // Auto-send "/pc kicked" when a join kick happens
+    public int kickedWaitSeconds = 60;             // wait before rejoining after a kick
+    public boolean kickedTitle = false;            // "Try rejoining SkyBlock now!" title when the wait is over
     public int kickedWarnX = 150;                  // Kick wait warning position X (draggable in HUD edit)
     public int kickedWarnY = 120;                  // Kick wait warning position Y
     public float kickedWarnScale = 2.0f;           // Kick wait warning scale (0.5 - 5.0)
