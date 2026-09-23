@@ -97,6 +97,9 @@ public class SlayerHUD {
     private static long lastCompleteMs = 0;
 
     private static String lastWorldName = null;
+    private static Object lastLevel = null;
+    private static final java.util.HashMap<Integer, String> ownerCache = new java.util.HashMap<>();
+    private static final java.util.HashMap<Integer, Entity> pairedCache = new java.util.HashMap<>();
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
@@ -111,6 +114,11 @@ public class SlayerHUD {
             resetQuest();
         }
         lastWorldName = currentWorldName;
+        if (mc.level != lastLevel || ownerCache.size() > 256 || pairedCache.size() > 256) {
+            lastLevel = mc.level;
+            ownerCache.clear();
+            pairedCache.clear();
+        }
 
         minibossEntities.clear();
         minibossColors.clear();
@@ -131,10 +139,13 @@ public class SlayerHUD {
         bossEntity = null;
 
         List<ArmorStand> stands = mc.level.getEntitiesOfClass(ArmorStand.class, searchBox, as -> true);
-        ArmorStand chosen = pickBoss(mc, stands);
+        String[] names = new String[stands.size()];
+        for (int i = 0; i < names.length; i++) names[i] = stands.get(i).getName().getString();
+        ArmorStand chosen = pickBoss(mc, stands, names);
 
-        for (ArmorStand armorStand : stands) {
-            String name = armorStand.getName().getString();
+        for (int si = 0; si < names.length; si++) {
+            ArmorStand armorStand = stands.get(si);
+            String name = names[si];
 
             Matcher bossMatcher = INFERNO_PATTERN.matcher(name);
             if (bossMatcher.find()) {
@@ -172,7 +183,7 @@ public class SlayerHUD {
                     questActive = true;
                 }
 
-                findBossEntity(mc, armorStand);
+                findBossEntity(mc, armorStand, name);
                 continue;
             }
 
@@ -229,7 +240,7 @@ public class SlayerHUD {
                     }
                     lastUpdateTime = System.currentTimeMillis();
                     foundBoss = true;
-                    findBossEntity(mc, armorStand);
+                    findBossEntity(mc, armorStand, name);
                     continue;
                 }
                 if (containsAny(name, GENERIC_MINIBOSSES)) {
@@ -271,14 +282,15 @@ public class SlayerHUD {
     }
 
     /** Ported from Skyblocker's SlayerManager.findBoss: own boss first, then the one last hit. */
-    private static ArmorStand pickBoss(Minecraft mc, List<ArmorStand> stands) {
+    private static ArmorStand pickBoss(Minecraft mc, List<ArmorStand> stands, String[] names) {
         String me = mc.getUser().getName();
         ArmorStand foreign = null;
         String foreignOwner = null;
         ArmorStand locked = null;
         String lockedOwner = null;
-        for (ArmorStand as : stands) {
-            String name = as.getName().getString();
+        for (int i = 0; i < names.length; i++) {
+            ArmorStand as = stands.get(i);
+            String name = names[i];
             if (!isBossTag(name)) continue;
             if (!as.isAlive() || name.endsWith(" 0❤")) continue;
             String owner = ownerOf(as);
@@ -304,10 +316,23 @@ public class SlayerHUD {
     }
 
     private static String ownerOf(ArmorStand bossTag) {
+        String cached = ownerCache.get(bossTag.getId());
+        if (cached != null) return cached;
         for (ArmorStand s : NametagMobs.namedStands(bossTag, 1.5)) {
             Matcher m = SPAWNED_BY_PATTERN.matcher(s.getName().getString());
-            if (m.find()) return m.group(1);
+            if (m.find()) {
+                ownerCache.put(bossTag.getId(), m.group(1));
+                return m.group(1);
+            }
         }
+        return null;
+    }
+
+    private static Entity cachedPair(ArmorStand tag) {
+        Entity e = pairedCache.get(tag.getId());
+        if (e == null) return null;
+        if (e.isAlive()) return e;
+        pairedCache.remove(tag.getId());
         return null;
     }
 
@@ -321,31 +346,41 @@ public class SlayerHUD {
         return null;
     }
 
-    private static void findBossEntity(Minecraft mc, ArmorStand armorStand) {
-        var type = bossType(armorStand.getName().getString());
+    private static void findBossEntity(Minecraft mc, ArmorStand armorStand, String name) {
+        Entity cached = cachedPair(armorStand);
+        if (cached != null) {
+            bossEntity = cached;
+            return;
+        }
+        var type = bossType(name);
         Entity paired = type != null ? NametagMobs.mobForTag(type, armorStand) : NametagMobs.mobForTag(armorStand);
         if (paired != null) {
             bossEntity = paired;
+            pairedCache.put(armorStand.getId(), paired);
             return;
         }
         AABB searchBox = armorStand.getBoundingBox().inflate(2, 3, 2);
         for (Entity entity : mc.level.getEntitiesOfClass(Entity.class, searchBox, e -> !(e instanceof ArmorStand))) {
             if (entity instanceof Mob || entity.getName().getString().contains("Demonlord")) {
                 bossEntity = entity;
+                pairedCache.put(armorStand.getId(), entity);
                 break;
             }
         }
     }
 
     private static void findMinibossEntity(Minecraft mc, ArmorStand armorStand, String type) {
-        Entity paired = NametagMobs.mobForTag(armorStand);
+        Entity paired = cachedPair(armorStand);
+        if (paired == null) paired = NametagMobs.mobForTag(armorStand);
         if (paired != null) {
+            pairedCache.put(armorStand.getId(), paired);
             if (minibossEntities.add(paired)) minibossColors.put(paired, scanMinibossColor(mc, paired));
             return;
         }
         AABB searchBox = armorStand.getBoundingBox().inflate(2, 3, 2);
         for (Entity entity : mc.level.getEntitiesOfClass(Entity.class, searchBox, e -> !(e instanceof ArmorStand))) {
             if (entity instanceof Mob) {
+                pairedCache.put(armorStand.getId(), entity);
                 if (minibossEntities.add(entity)) minibossColors.put(entity, scanMinibossColor(mc, entity));
                 break;
             }
