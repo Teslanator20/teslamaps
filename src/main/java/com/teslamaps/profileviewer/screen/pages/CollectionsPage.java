@@ -159,11 +159,16 @@ public class CollectionsPage extends ProfileViewerPage {
                 Kit.bar(bodyWidth, progress, maxed ? NeuStyle.TEXT_GOLD : 0xFF55FFFF),
                 new Ui.Label(Kit.compact(amount), NeuStyle.TEXT_GRAY, Ui.SMALL));
 
-        List<String> tooltip = List.of(
+        List<String> tooltip = new ArrayList<>(List.of(
                 "§f" + entry.name(),
                 "§7Tier §f" + tier + "§7/§f" + entry.maxTiers(),
-                "§7Total: §f" + com.teslamaps.profileviewer.ui.Kit.dots(amount),
-                maxed ? "§7Maxed" : "§7Next: §f" + Kit.compact(amount) + "§7/§f" + Kit.compact(next));
+                "§7Total: §f" + com.teslamaps.profileviewer.ui.Kit.dots(amount)));
+        if (maxed) {
+            tooltip.add("§7Maxed");
+        } else {
+            tooltip.add("§7Next: §f" + Kit.compact(amount) + "§7/§f" + Kit.compact(next));
+            tooltip.add("§7To max: §e" + Kit.dots(CollectionRepo.toMax(entry, amount)));
+        }
 
         return new Ui.Tip(Ui.row(5, Ui.V.CENTER, new Ui.Icon(icon(entry.id()), 16, false, null), body), tooltip);
     }
