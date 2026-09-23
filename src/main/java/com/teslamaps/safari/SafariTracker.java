@@ -742,7 +742,7 @@ public class SafariTracker {
         // critterMod's SparklingWatch: the label itself says Sparkling
         if (++sparkleScanTicks < 10) return;
         sparkleScanTicks = 0;
-        for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
+        for (net.minecraft.world.entity.Entity e : com.teslamaps.utils.EntityCache.all()) {
             if (!e.hasCustomName() || sparklingSeen.contains(e.getUUID())) continue;
             String n = com.teslamaps.utils.StringUtil.strip(e.getCustomName().getString()).trim();
             if (n.length() <= SPARKLING_PREFIX.length()
