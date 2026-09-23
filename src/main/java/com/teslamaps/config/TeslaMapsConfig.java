@@ -472,6 +472,11 @@ public class TeslaMapsConfig {
     public boolean chatFilterKeepClickable = false; // Never hide lines that carry a command button
     public java.util.List<ChatUserFilter> chatUserFilters = new java.util.ArrayList<>(); // /tmap chatfilter
     public String chatUserFilterAction = "Hide";
+    public String chatRedirectTarget = "Spam HUD"; // "Redirect" action: Spam HUD / Action Bar
+    public float chatRedirectSeconds = 4f;
+    public int chatSpamHudX = 4;
+    public int chatSpamHudY = 60;
+    public float chatSpamHudScale = 1.0f;
     public int chatFilterLineKey = -1;           // In open chat: filter the hovered line (GLFW code, -1 = unbound)
 
     public static class ChatUserFilter {
@@ -1897,6 +1902,7 @@ public class TeslaMapsConfig {
         if (c.chatUserFilters == null) c.chatUserFilters = new java.util.ArrayList<>();
         c.chatUserFilters.removeIf(f -> f == null || f.text == null);
         if (c.chatUserFilterAction == null) c.chatUserFilterAction = "Hide";
+        if (c.chatRedirectTarget == null) c.chatRedirectTarget = "Spam HUD";
         if (c.chatFilterAction == null || c.chatFilterAction.isBlank()) c.chatFilterAction = "Hide";
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
         if (c.skillTrackerPin == null) c.skillTrackerPin = "";

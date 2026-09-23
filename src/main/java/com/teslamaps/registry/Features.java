@@ -25,5 +25,6 @@ final class Features {
         com.teslamaps.features.DragonESP.register();
         // wave 1b chat
         com.teslamaps.features.ChatWaypoint.register();
+        com.teslamaps.features.ChatSpamHud.register();
     }
 }

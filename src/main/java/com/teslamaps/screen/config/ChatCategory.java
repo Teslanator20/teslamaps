@@ -60,14 +60,18 @@ public final class ChatCategory {
         b.toggle("Enable Chat Filter", () -> config.chatFilterEnabled, v -> config.chatFilterEnabled = v);
         b.dropdown("Filter Action", com.teslamaps.features.ChatFilter.ACTIONS,
                 () -> config.chatFilterAction, v -> config.chatFilterAction = v);
-        b.info("Grey dims the line, Compact shortens it (full text on hover)");
+        b.info("Grey dims the line, Compact shortens it (full text on hover), Redirect moves it out of chat");
         String[] acts = com.teslamaps.features.ChatFilter.ACTIONS;
         Runnable[] setAll = new Runnable[acts.length];
         for (int i = 0; i < acts.length; i++) {
             String a = acts[i];
             setAll[i] = () -> { config.chatFilterAction = a; config.chatFilterGroupActions.clear(); TeslaMapsConfig.save(); };
         }
-        b.buttonRow(new String[]{"All: Hide", "All: Grey", "All: Compact", "All: Compact+Grey"}, setAll);
+        b.buttonRow(new String[]{"All: Hide", "All: Grey", "All: Compact", "All: Compact+Grey", "All: Redirect"}, setAll);
+        b.dropdown("  Redirect To", com.teslamaps.features.ChatSpamHud.TARGETS,
+                () -> config.chatRedirectTarget, v -> config.chatRedirectTarget = v);
+        b.slider("  Redirect Toast Seconds", 1f, 15f, () -> config.chatRedirectSeconds, v -> config.chatRedirectSeconds = v, 1);
+        b.info("Redirect moves the line out of chat into a movable toast list (/tmap gui)");
         b.toggle("Never Hide Clickable Lines", () -> config.chatFilterKeepClickable, v -> config.chatFilterKeepClickable = v);
         b.button("Toggle All Filters", () -> {
             int enabled = 0, total = 26;

@@ -268,8 +268,8 @@ public class ChatFilter {
 
     // ---- actions (ported from HypixelSimpleChat's Registry.match + ChatHudMixin guards) ----
 
-    public static final String[] ACTIONS = {"Hide", "Grey", "Compact", "Compact + Grey"};
-    public static final String[] GROUP_ACTIONS = {"Default", "Hide", "Grey", "Compact", "Compact + Grey"};
+    public static final String[] ACTIONS = {"Hide", "Grey", "Compact", "Compact + Grey", "Redirect"};
+    public static final String[] GROUP_ACTIONS = {"Default", "Hide", "Grey", "Compact", "Compact + Grey", "Redirect"};
     public static final String[] GROUPS = {G_DUNGEON, G_COMBAT, G_SPAM, G_MORE};
 
     /** Short form per rule, § codes allowed. "" = nothing worth showing, the line goes. */
@@ -369,6 +369,11 @@ public class ChatFilter {
                 } else {
                     queue(text, compact(message, greyed ? "§8" + StringUtil.strip(shortForm) : shortForm));
                 }
+            }
+            case "Redirect" -> {
+                if (TeslaMapsConfig.get().chatFilterKeepClickable && hasClick(message, false)) return false;
+                ChatSpamHud.push(message);
+                return true;
             }
             default -> {
                 if (TeslaMapsConfig.get().chatFilterKeepClickable && hasClick(message, false)) return false;
