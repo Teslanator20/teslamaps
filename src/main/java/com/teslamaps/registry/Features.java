@@ -43,5 +43,6 @@ final class Features {
         // wave 1c visuals
         com.teslamaps.features.Etherwarp.register();
         com.teslamaps.features.BlockOverlay.register();
+        com.teslamaps.features.mobvisuals.MobVisualRender.register();
     }
 }

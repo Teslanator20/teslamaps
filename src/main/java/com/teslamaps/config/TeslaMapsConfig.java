@@ -892,6 +892,7 @@ public class TeslaMapsConfig {
     public boolean mobVisualNameplate = true;      // Name (and health) drawn on the mob
     public boolean mobVisualNameplateHealth = true;
     public float mobVisualNameplateScale = 1.0f;
+    public boolean mobVisualNameplateHud = false;  // Nameplates drawn in the HUD over the projected mob, above glow
     public boolean mobVisualTracerAll = false;     // Off = one line per species, the nearest
     @Global
     public java.util.Set<String> mobVisualTargets = new java.util.HashSet<>();

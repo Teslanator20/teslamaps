@@ -22,6 +22,7 @@ public final class MobVisualsCategory {
         b.info("Off draws one line per species, to the nearest one");
         b.toggle("  Nameplates", () -> config.mobVisualNameplate, v -> config.mobVisualNameplate = v);
         b.toggle("    Show Health", () -> config.mobVisualNameplateHealth, v -> config.mobVisualNameplateHealth = v);
+        b.toggle("    Draw As HUD (constant size)", () -> config.mobVisualNameplateHud, v -> config.mobVisualNameplateHud = v);
         b.slider("    Nameplate Size", 0.5f, 3.0f,
                 () -> config.mobVisualNameplateScale, v -> config.mobVisualNameplateScale = v);
     }
