@@ -74,6 +74,12 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("Blaze Solver", () -> config.solveBlaze, v -> config.solveBlaze = v);
         b.toggle("Modern Blaze Solver", () -> config.modernBlazeSolver, v -> config.modernBlazeSolver = v);
         b.toggle("Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v);
+        b.toggle("Blaze Tracer", () -> config.blazeTracer, v -> config.blazeTracer = v);
+        b.toggle("Blaze Same HP Warning", () -> config.blazeSameHpWarning, v -> config.blazeSameHpWarning = v);
+        b.slider("Blaze Lines", 0f, 10f,
+                () -> (float) config.blazeLineAmount, v -> config.blazeLineAmount = Math.round(v), 0);
+        b.slider("Blaze Line Width", 0.5f, 5f,
+                () -> config.blazeLineWidth, v -> config.blazeLineWidth = v, 1);
         b.toggle("Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v);
         b.toggle("Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v);
         b.toggle("Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v);
@@ -105,6 +111,10 @@ public final class PuzzlesTerminalsCategory {
         b.label("Puzzle Colors");
         b.color("Boulder Click", () -> config.colorBoulder, v -> config.colorBoulder = v);
         b.color("Boulder Button", () -> config.colorBoulderClickBlock, v -> config.colorBoulderClickBlock = v);
+        b.color("Blaze: First", () -> config.blazeColorFirst, v -> config.blazeColorFirst = v);
+        b.color("Blaze: Second", () -> config.blazeColorSecond, v -> config.blazeColorSecond = v);
+        b.color("Blaze: Third", () -> config.blazeColorThird, v -> config.blazeColorThird = v);
+        b.color("Blaze: Wrong", () -> config.blazeColorRest, v -> config.blazeColorRest = v);
         b.color("Quiz Correct", () -> config.colorQuiz, v -> config.colorQuiz = v);
         b.color("Ice Fill Path", () -> config.colorIceFill, v -> config.colorIceFill = v);
         b.color("TP Maze: Single", () -> config.colorTPMazeOne, v -> config.colorTPMazeOne = v);

@@ -923,6 +923,14 @@ public class TeslaMapsConfig {
     public boolean solveBlaze = true;              // Show which blaze to hit
     public boolean blazeDoneMessage = true;        // Send "/pc Blaze Done!" when last blaze killed
     public boolean modernBlazeSolver = true;      // Fill the solver boxes + hide the vanilla blaze mobs (cleaner look)
+    public boolean blazeTracer = false;
+    public boolean blazeSameHpWarning = false;
+    public int blazeLineAmount = 2;
+    public float blazeLineWidth = 1.0f;
+    public String blazeColorFirst = "00FF00";
+    public String blazeColorSecond = "FFFFFF";
+    public String blazeColorThird = "0055FF";
+    public String blazeColorRest = "FF0000";
     public boolean solveThreeWeirdos = true;       // Highlight correct chest in Three Weirdos
     public boolean solveTicTacToe = true;          // Show best move in Tic Tac Toe
     public boolean solveCreeperBeams = true;       // Show solution for Creeper Beams

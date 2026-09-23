@@ -4,26 +4,24 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
+import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.render.ESPRenderer;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class DungeonBlaze {
-    private static ArmorStand highestBlaze = null;
-    private static ArmorStand lowestBlaze = null;
-    private static ArmorStand nextHighestBlaze = null;
-    private static ArmorStand nextLowestBlaze = null;
-    private static ArmorStand thirdHighestBlaze = null;
-    private static ArmorStand thirdLowestBlaze = null;
+    private static final List<ArmorStand> ordered = new ArrayList<>(); // shooting order, empty = direction unknown
     private static final List<ArmorStand> allBlazes = new ArrayList<>(); // every blaze this tick (for red "wrong" boxes)
 
     private static boolean blazeDoneMessageSent = false;
+    private static boolean sameHpWarned = false;
     private static int previousBlazeCount = 0;
 
     public static void tick() {
@@ -38,9 +36,18 @@ public class DungeonBlaze {
             return;
         }
 
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        String roomName = room != null ? room.getName() : null;
+        if (roomName != null && !roomName.equals("Blaze") && !roomName.equals("Higher Blaze") && !roomName.equals("Lower Blaze")) {
+            ordered.clear();
+            allBlazes.clear();
+            previousBlazeCount = 0;
+            return;
+        }
+
         List<ObjectIntPair<ArmorStand>> blazes = getBlazesInWorld();
-        sortBlazes(blazes);
-        updateBlazeEntities(blazes);
+        blazes.sort(Comparator.comparingInt(ObjectIntPair::rightInt));
+        updateBlazeEntities(blazes, roomName);
 
         if (!blazeDoneMessageSent && TeslaMapsConfig.get().blazeDoneMessage) {
             if (blazes.isEmpty() || (blazes.size() == 1 && blazes.get(0).rightInt() == 0)) {
@@ -55,28 +62,60 @@ public class DungeonBlaze {
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (!TeslaMapsConfig.get().solveBlaze || !DungeonManager.isInDungeon()) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (!cfg.solveBlaze || !DungeonManager.isInDungeon()) {
             return;
         }
 
         try {
-            ArmorStand target = null, next = null, third = null;
-            if (highestBlaze != null && lowestBlaze != null && highestBlaze.isAlive() && lowestBlaze.isAlive()) {
-                if (highestBlaze.getY() < 69) { target = highestBlaze; next = nextHighestBlaze; third = thirdHighestBlaze; }
-                else if (lowestBlaze.getY() > 69) { target = lowestBlaze; next = nextLowestBlaze; third = thirdLowestBlaze; }
-            }
+            boolean modern = cfg.modernBlazeSolver;
+            int rest = TeslaMapsConfig.parseColor(cfg.blazeColorRest);
+            int shown = Math.min(3, ordered.size());
 
             for (ArmorStand blaze : allBlazes) {
-                if (blaze == null || !blaze.isAlive() || blaze == target || blaze == next || blaze == third) continue;
-                AABB box = blaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
-                if (TeslaMapsConfig.get().modernBlazeSolver) ESPRenderer.drawFilledBox(matrices, box, 0x66FF0000, cameraPos);
-                ESPRenderer.drawBoxOutline(matrices, box, 0xFFFF0000, 4.0f, cameraPos); // Red = do NOT shoot
+                if (blaze == null || !blaze.isAlive()) continue;
+                boolean highlighted = false;
+                for (int i = 0; i < shown; i++) if (ordered.get(i) == blaze) highlighted = true;
+                if (highlighted) continue;
+                AABB box = boxOf(blaze);
+                if (modern) ESPRenderer.drawFilledBox(matrices, box, fill(rest), cameraPos);
+                ESPRenderer.drawBoxOutline(matrices, box, rest | 0xFF000000, 4.0f, cameraPos); // do NOT shoot
             }
 
-            if (target != null) renderBlazeOutline(matrices, target, next, third, cameraPos);
+            if (ordered.isEmpty() || !ordered.get(0).isAlive()) return;
+
+            Vec3 prev = null;
+            for (int i = 0; i < ordered.size(); i++) {
+                ArmorStand blaze = ordered.get(i);
+                if (!blaze.isAlive()) break;
+                AABB box = boxOf(blaze);
+                Vec3 center = box.getCenter();
+                if (i < 3) {
+                    int c = TeslaMapsConfig.parseColor(i == 0 ? cfg.blazeColorFirst : i == 1 ? cfg.blazeColorSecond : cfg.blazeColorThird);
+                    if (modern) ESPRenderer.drawFilledBox(matrices, box, fill(c), cameraPos);
+                    ESPRenderer.drawBoxOutline(matrices, box, c | 0xFF000000, 5.0f, cameraPos);
+                }
+                if (i == 0 && cfg.blazeTracer) {
+                    ESPRenderer.drawTracerFromCamera(matrices, center, TeslaMapsConfig.parseColor(cfg.blazeColorFirst) | 0xFF000000, cameraPos);
+                }
+                if (i > 0 && i <= cfg.blazeLineAmount && prev != null) {
+                    int c = i < 3 ? TeslaMapsConfig.parseColor(i == 1 ? cfg.blazeColorSecond : cfg.blazeColorThird) : rest;
+                    ESPRenderer.drawLine(matrices, prev, center, c | 0xFF000000, cfg.blazeLineWidth, cameraPos);
+                }
+                if (i >= Math.max(2, cfg.blazeLineAmount)) break;
+                prev = center;
+            }
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[DungeonBlaze] Error rendering", e);
         }
+    }
+
+    private static AABB boxOf(ArmorStand blaze) {
+        return blaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
+    }
+
+    private static int fill(int c) {
+        return (c & 0xFFFFFF) | 0x66000000;
     }
 
     private static List<ObjectIntPair<ArmorStand>> getBlazesInWorld() {
@@ -97,7 +136,7 @@ public class DungeonBlaze {
             if (blazeName.contains("Blaze") && blazeName.contains("/")) {
                 try {
                     String healthStr = blazeName.substring(blazeName.indexOf("/") + 1, blazeName.length() - 1);
-                    int health = Integer.parseInt(healthStr.replaceAll(",", ""));
+                    int health = Integer.parseInt(healthStr.replace(",", ""));
                     blazes.add(ObjectIntPair.of(blaze, health));
                 } catch (NumberFormatException e) {
                     TeslaMaps.LOGGER.warn("[DungeonBlaze] Failed to parse blaze health: {}", blazeName);
@@ -107,62 +146,43 @@ public class DungeonBlaze {
         return blazes;
     }
 
-    private static void sortBlazes(List<ObjectIntPair<ArmorStand>> blazes) {
-        blazes.sort(Comparator.comparingInt(ObjectIntPair::rightInt));
-    }
-
-    private static void updateBlazeEntities(List<ObjectIntPair<ArmorStand>> blazes) {
+    /** blazes sorted by HP ascending. */
+    private static void updateBlazeEntities(List<ObjectIntPair<ArmorStand>> blazes, String roomName) {
         allBlazes.clear();
+        ordered.clear();
         for (ObjectIntPair<ArmorStand> b : blazes) allBlazes.add(b.left());
-        nextLowestBlaze = nextHighestBlaze = thirdLowestBlaze = thirdHighestBlaze = null;
-        if (!blazes.isEmpty()) {
-            lowestBlaze = blazes.get(0).left();
-            int highestIndex = blazes.size() - 1;
-            highestBlaze = blazes.get(highestIndex).left();
-            if (blazes.size() > 1) {
-                nextLowestBlaze = blazes.get(1).left();
-                nextHighestBlaze = blazes.get(highestIndex - 1).left();
-            }
-            if (blazes.size() > 2) {
-                thirdLowestBlaze = blazes.get(2).left();
-                thirdHighestBlaze = blazes.get(highestIndex - 2).left();
-            }
-        }
-    }
+        if (blazes.isEmpty()) return;
 
-    private static void renderBlazeOutline(PoseStack matrices, ArmorStand blaze, ArmorStand nextBlaze, ArmorStand thirdBlaze, Vec3 cameraPos) {
-        boolean modern = TeslaMapsConfig.get().modernBlazeSolver;
-        AABB blazeBox = blaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
-        if (modern) ESPRenderer.drawFilledBox(matrices, blazeBox, 0x6600FF00, cameraPos); // Green fill
-        ESPRenderer.drawBoxOutline(matrices, blazeBox, 0xFF00FF00, 5.0f, cameraPos); // Green
+        ArmorStand lowest = blazes.get(0).left();
+        ArmorStand highest = blazes.get(blazes.size() - 1).left();
+        boolean descending;
+        if ("Lower Blaze".equals(roomName)) descending = true;
+        else if ("Higher Blaze".equals(roomName)) descending = false;
+        else if (highest.getY() < 69) descending = true;
+        else if (lowest.getY() > 69) descending = false;
+        else return;
 
-        if (nextBlaze != null && nextBlaze.isAlive() && nextBlaze != blaze) {
-            AABB nextBlazeBox = nextBlaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
-            if (modern) ESPRenderer.drawFilledBox(matrices, nextBlazeBox, 0x66FFFFFF, cameraPos); // White fill
-            ESPRenderer.drawBoxOutline(matrices, nextBlazeBox, 0xFFFFFFFF, 5.0f, cameraPos); // White
+        if (descending) for (int i = blazes.size() - 1; i >= 0; i--) ordered.add(blazes.get(i).left());
+        else ordered.addAll(allBlazes);
 
-            Vec3 blazeCenter = blazeBox.getCenter();
-            Vec3 nextBlazeCenter = nextBlazeBox.getCenter();
-            ESPRenderer.drawLine(matrices, blazeCenter, nextBlazeCenter, 0xFFFFFFFF, 1.0f, cameraPos);
-
-            if (thirdBlaze != null && thirdBlaze.isAlive() && thirdBlaze != blaze && thirdBlaze != nextBlaze) {
-                AABB thirdBlazeBox = thirdBlaze.getBoundingBox().inflate(0.3, 0.9, 0.3).move(0, -1.1, 0);
-                if (modern) ESPRenderer.drawFilledBox(matrices, thirdBlazeBox, 0x660055FF, cameraPos); // Blue fill
-                ESPRenderer.drawBoxOutline(matrices, thirdBlazeBox, 0xFF0055FF, 5.0f, cameraPos); // Blue = 3rd
-                ESPRenderer.drawLine(matrices, nextBlazeCenter, thirdBlazeBox.getCenter(), 0xFF0055FF, 1.0f, cameraPos);
+        if (TeslaMapsConfig.get().blazeSameHpWarning && !sameHpWarned) {
+            for (int i = 1; i < blazes.size(); i++) {
+                if (blazes.get(i).rightInt() == blazes.get(i - 1).rightInt()) {
+                    sameHpWarned = true;
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.player != null) mc.player.sendSystemMessage(Component.literal(
+                            "§b[TeslaMaps] §cTwo blazes have the same HP (" + blazes.get(i).rightInt() + ") — order may be wrong"));
+                    break;
+                }
             }
         }
     }
 
     public static void reset() {
-        highestBlaze = null;
-        lowestBlaze = null;
-        nextHighestBlaze = null;
-        nextLowestBlaze = null;
-        thirdHighestBlaze = null;
-        thirdLowestBlaze = null;
+        ordered.clear();
         allBlazes.clear();
         blazeDoneMessageSent = false;
+        sameHpWarned = false;
         previousBlazeCount = 0;
     }
 
