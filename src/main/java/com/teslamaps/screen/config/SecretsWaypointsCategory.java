@@ -27,9 +27,9 @@ public final class SecretsWaypointsCategory {
         b.color("  Chest", () -> config.colorSecretChest, v -> config.colorSecretChest = v);
         b.toggle("Show Items", () -> config.secretWaypointItems, v -> config.secretWaypointItems = v);
         b.color("  Item", () -> config.colorSecretItem, v -> config.colorSecretItem = v);
-        b.color("  Item Ready", () -> config.colorItemReady, v -> config.colorItemReady = v);
-        b.color("  Item Nearly Ready", () -> config.colorItemSoon, v -> config.colorItemSoon = v);
-        b.color("  Item Not Ready", () -> config.colorItemNotReady, v -> config.colorItemNotReady = v);
+        b.color("Item Ready", () -> config.colorItemReady, v -> config.colorItemReady = v);
+        b.color("Item Nearly Ready", () -> config.colorItemSoon, v -> config.colorItemSoon = v);
+        b.color("Item Not Ready", () -> config.colorItemNotReady, v -> config.colorItemNotReady = v);
         b.toggle("Show Bats", () -> config.secretWaypointBats, v -> config.secretWaypointBats = v);
         b.color("  Bat", () -> config.colorSecretBat, v -> config.colorSecretBat = v);
         b.toggle("Show Essence", () -> config.secretWaypointEssence, v -> config.secretWaypointEssence = v);
@@ -47,9 +47,9 @@ public final class SecretsWaypointsCategory {
         b.slider("  Title Scale", 0.1f, 4f, () -> config.waypointTitleScale, v -> config.waypointTitleScale = v, 1);
         b.toggle("  Editor HUD", () -> config.dungeonWaypointEditor, v -> config.dungeonWaypointEditor = v);
         b.toggle("  New Waypoints Use Block Size", () -> config.waypointUseBlockSize, v -> config.waypointUseBlockSize = v);
-        b.slider("    Size X", 0.1f, 5f, () -> config.waypointSizeX, v -> config.waypointSizeX = v, 2);
-        b.slider("    Size Y", 0.1f, 5f, () -> config.waypointSizeY, v -> config.waypointSizeY = v, 2);
-        b.slider("    Size Z", 0.1f, 5f, () -> config.waypointSizeZ, v -> config.waypointSizeZ = v, 2);
+        b.slider("  Size X", 0.1f, 5f, () -> config.waypointSizeX, v -> config.waypointSizeX = v, 2);
+        b.slider("  Size Y", 0.1f, 5f, () -> config.waypointSizeY, v -> config.waypointSizeY = v, 2);
+        b.slider("  Size Z", 0.1f, 5f, () -> config.waypointSizeZ, v -> config.waypointSizeZ = v, 2);
         b.info("Secret waypoints hide once collected, Etherwarp ones after warping there.");
         b.info("Title: /tmap waypoints title <text> | type: /tmap waypoints type <type>");
 

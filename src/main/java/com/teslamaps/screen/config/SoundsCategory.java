@@ -14,16 +14,16 @@ public final class SoundsCategory {
         b.label("Wither Key");
         b.toggle("Key Pickup/Spawn Title", () -> config.keyPickupTitle, v -> config.keyPickupTitle = v);
         b.toggle("Enable Pickup Sound", () -> config.keyPickupSoundEnabled, v -> config.keyPickupSoundEnabled = v);
-        b.soundDropdown("Pickup Sound",
+        b.soundDropdown("  Pickup Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.keyPickupSound, v -> config.keyPickupSound = v);
-        b.slider("Pickup Volume", 0f, 4f,
+        b.slider("  Pickup Volume", 0f, 4f,
                 () -> config.keyPickupVolume, v -> config.keyPickupVolume = v, 2);
         b.toggle("Enable Spawn Sound", () -> config.keyOnGroundSoundEnabled, v -> config.keyOnGroundSoundEnabled = v);
-        b.soundDropdown("Spawn Sound",
+        b.soundDropdown("  Spawn Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.keyOnGroundSound, v -> config.keyOnGroundSound = v);
-        b.slider("Spawn Volume", 0f, 4f,
+        b.slider("  Spawn Volume", 0f, 4f,
                 () -> config.keyOnGroundVolume, v -> config.keyOnGroundVolume = v, 2);
         b.classFilter("Key Alerts: Only as Class", config.keySoundClasses);
         b.label("Secret Found");
@@ -44,18 +44,18 @@ public final class SoundsCategory {
                 () -> config.secretChimeVolume, v -> config.secretChimeVolume = v, 2);
         b.label("Bear Spawn Warning");
         b.toggle("Enable Alert", () -> config.bearSpawnWarning, v -> config.bearSpawnWarning = v);
-        b.toggle("Warden Sound", () -> config.bearSpawnWardenSound, v -> config.bearSpawnWardenSound = v);
-        b.toggle("Wither Sound", () -> config.bearSpawnWitherSound, v -> config.bearSpawnWitherSound = v);
-        b.slider("Alert Volume", 0f, 20f,
+        b.toggle("  Warden Sound", () -> config.bearSpawnWardenSound, v -> config.bearSpawnWardenSound = v);
+        b.toggle("  Wither Sound", () -> config.bearSpawnWitherSound, v -> config.bearSpawnWitherSound = v);
+        b.slider("  Alert Volume", 0f, 20f,
                 () -> config.bearSpawnVolume, v -> config.bearSpawnVolume = v, 1);
         b.label("Etherwarp");
         b.toggle("Custom Etherwarp Sound", () -> config.etherwarpCustomSound, v -> config.etherwarpCustomSound = v);
-        b.soundDropdown("Etherwarp Sound",
+        b.soundDropdown("  Etherwarp Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.etherwarpSound, v -> config.etherwarpSound = v);
-        b.slider("Etherwarp Volume", 0f, 20f,
+        b.slider("  Etherwarp Volume", 0f, 20f,
                 () -> config.etherwarpSoundVolume, v -> config.etherwarpSoundVolume = v, 1);
-        b.slider("Etherwarp Pitch", 0.5f, 2f,
+        b.slider("  Etherwarp Pitch", 0.5f, 2f,
                 () -> config.etherwarpSoundPitch, v -> config.etherwarpSoundPitch = v, 2);
         b.label("Last Breath");
         b.slider("Last Breath Volume", 0f, 5f,
@@ -84,12 +84,12 @@ public final class SoundsCategory {
         b.toggle("  Bonzo: Precise (keep real fireworks)", () -> config.muteBonzoStaffPrecise, v -> config.muteBonzoStaffPrecise = v);
         b.toggle("Mute Lightning", () -> config.muteLightning, v -> config.muteLightning = v);
         b.toggle("Custom Hype Sound (wither blades)", () -> config.customHypeSound, v -> config.customHypeSound = v);
-        b.soundDropdown("Hype Sound",
+        b.soundDropdown("  Hype Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.customHypeSoundType, v -> config.customHypeSoundType = v);
-        b.slider("Hype Sound Volume", 0f, 20f,
+        b.slider("  Hype Sound Volume", 0f, 20f,
                 () -> config.customHypeSoundVolume, v -> config.customHypeSoundVolume = v, 1);
-        b.slider("Hype Sound Pitch", 0.5f, 2f,
+        b.slider("  Hype Sound Pitch", 0.5f, 2f,
                 () -> config.customHypeSoundPitch, v -> config.customHypeSoundPitch = v, 2);
     }
 }

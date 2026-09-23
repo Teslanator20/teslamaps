@@ -17,14 +17,14 @@ public final class ShardsCategory {
         b.label("Shard Overlay");
         b.toggle("Shard Overlay", () -> config.shardOverlay, v -> config.shardOverlay = v);
         b.info("Shows in /attributemenu and the bazaar shard pages");
-        b.dropdown("Sort By",
+        b.dropdown("  Sort By",
                 com.teslamaps.features.hunting.ShardOverlay.SORTS,
                 () -> config.shardSort, v -> config.shardSort = v);
-        b.dropdown("Price Source",
+        b.dropdown("  Price Source",
                 com.teslamaps.features.hunting.ShardOverlay.PRICE_SOURCES,
                 () -> config.shardPriceSource, v -> config.shardPriceSource = v);
-        b.toggle("Hide Maxed", () -> config.shardHideMaxed, v -> config.shardHideMaxed = v);
-        b.toggle("Only Not Unlocked", () -> config.shardOnlyMissing, v -> config.shardOnlyMissing = v);
+        b.toggle("  Hide Maxed", () -> config.shardHideMaxed, v -> config.shardHideMaxed = v);
+        b.toggle("  Only Not Unlocked", () -> config.shardOnlyMissing, v -> config.shardOnlyMissing = v);
         b.toggle("Count Hunting Box", () -> config.shardIncludeBox, v -> config.shardIncludeBox = v);
         b.toggle("Count Bazaar Orders", () -> config.shardIncludeOrders, v -> config.shardIncludeOrders = v);
         b.info("Open your bazaar orders once so they are known");

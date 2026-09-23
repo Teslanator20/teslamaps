@@ -17,16 +17,16 @@ public final class TimersCategory {
         b.toggle("  Per Player", () -> config.warpCooldownPerPlayer, v -> config.warpCooldownPerPlayer = v);
         b.toggle("  Only Own Cooldown", () -> config.warpCooldownOwnOnly, v -> config.warpCooldownOwnOnly = v);
         b.toggle("  Sound When Ready", () -> config.warpCooldownSound, v -> config.warpCooldownSound = v);
-        b.slider("  Warp Sound Volume", 0f, 5f, () -> config.warpCooldownVolume, v -> config.warpCooldownVolume = v);
+        b.slider("    Warp Sound Volume", 0f, 5f, () -> config.warpCooldownVolume, v -> config.warpCooldownVolume = v);
         b.toggle("Wither Shield Timer (W-Impact)", () -> config.witherShieldTimer, v -> config.witherShieldTimer = v);
         b.toggle("  Shield HUD", () -> config.witherShieldHud, v -> config.witherShieldHud = v);
-        b.toggle("  Hide When Ready", () -> config.witherShieldHideReady, v -> config.witherShieldHideReady = v);
-        b.toggle("  Compact", () -> config.witherShieldCompact, v -> config.witherShieldCompact = v);
+        b.toggle("    Hide When Ready", () -> config.witherShieldHideReady, v -> config.witherShieldHideReady = v);
+        b.toggle("    Compact", () -> config.witherShieldCompact, v -> config.witherShieldCompact = v);
         b.toggle("  Chime When Ready", () -> config.witherShieldChime, v -> config.witherShieldChime = v);
         b.toggle("Tactical Insertion Timer", () -> config.tacticalInsertionTimer, v -> config.tacticalInsertionTimer = v);
         b.toggle("  Tactical HUD", () -> config.tacticalHud, v -> config.tacticalHud = v);
         b.toggle("  Return Waypoint", () -> config.tacticalWaypoint, v -> config.tacticalWaypoint = v);
-        b.espStyle("Tactical Waypoint", () -> config.tacticalWaypointEsp);
+        b.espStyle("  Tactical Waypoint", () -> config.tacticalWaypointEsp);
         b.toggle("Invincibility Timer", () -> config.invincibilityTimer, v -> config.invincibilityTimer = v)
                 .desc("Shows the cooldowns of Bonzo Mask, Spirit Mask and Phoenix Pet after they saved you.")
                 .tags("mask", "bonzo", "spirit", "phoenix");
@@ -41,11 +41,11 @@ public final class TimersCategory {
         b.toggle("  Only In Dungeons", () -> config.invincibilityOnlyDungeon, v -> config.invincibilityOnlyDungeon = v);
         b.toggle("  Only In Boss", () -> config.invincibilityOnlyBoss, v -> config.invincibilityOnlyBoss = v);
         b.toggle("  Equipped Mask Marker", () -> config.invincibilityEquippedMarker, v -> config.invincibilityEquippedMarker = v);
-        b.color("  Marker Color", () -> config.invincibilityEquippedColor, v -> config.invincibilityEquippedColor = v);
+        b.color("    Marker Color", () -> config.invincibilityEquippedColor, v -> config.invincibilityEquippedColor = v);
         b.toggle("  Cooldown On Mask Items", () -> config.invincibilityItemOverlay, v -> config.invincibilityItemOverlay = v);
-        b.toggle("  As Durability Bar", () -> config.invincibilityItemDurability, v -> config.invincibilityItemDurability = v);
-        b.toggle("  Phoenix On First Slot", () -> config.invincibilityPhoenixSlot, v -> config.invincibilityPhoenixSlot = v);
-        b.color("  Item Cooldown Color", () -> config.invincibilityItemColor, v -> config.invincibilityItemColor = v);
+        b.toggle("    As Durability Bar", () -> config.invincibilityItemDurability, v -> config.invincibilityItemDurability = v);
+        b.toggle("    Phoenix On First Slot", () -> config.invincibilityPhoenixSlot, v -> config.invincibilityPhoenixSlot = v);
+        b.color("    Item Cooldown Color", () -> config.invincibilityItemColor, v -> config.invincibilityItemColor = v);
         b.label("Dungeon");
         b.toggle("Spirit Pet Reminder (boss)", () -> config.spiritPetReminder, v -> config.spiritPetReminder = v);
         b.toggle("Secret Tick Timer", () -> config.secretTickTimer, v -> config.secretTickTimer = v);

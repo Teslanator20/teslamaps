@@ -13,11 +13,11 @@ public final class SkillsCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Skill Tracker");
         b.toggle("Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v);
-        b.toggle("Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v);
+        b.toggle("  Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v);
         String[] pinOptions = new String[com.teslamaps.features.SkillTracker.skills().length + 1];
         pinOptions[0] = "Auto";
         System.arraycopy(com.teslamaps.features.SkillTracker.skills(), 0, pinOptions, 1, pinOptions.length - 1);
-        b.dropdown("Tracker Skill", pinOptions,
+        b.dropdown("  Tracker Skill", pinOptions,
                 () -> config.skillTrackerPin == null || config.skillTrackerPin.isEmpty() ? "Auto" : config.skillTrackerPin,
                 v -> config.skillTrackerPin = "Auto".equals(v) ? "" : v);
         b.info("Auto follows the XP, a skill keeps the panel on it");
@@ -53,8 +53,8 @@ public final class SkillsCategory {
                 v -> config.skillExpFormat = java.util.Arrays.asList(xpFormats).indexOf(v));
         b.toggle("  Actions Left", () -> config.skillExpActionsLeft, v -> config.skillExpActionsLeft = v);
         b.toggle("  Progress Bar", () -> config.skillExpBar, v -> config.skillExpBar = v);
-        b.slider("  Bar Width", 40f, 250f, () -> (float) config.skillExpBarWidth, v -> config.skillExpBarWidth = Math.round(v), 0);
-        b.color("  Bar Color", () -> config.skillExpBarColor, v -> config.skillExpBarColor = v);
+        b.slider("    Bar Width", 40f, 250f, () -> (float) config.skillExpBarWidth, v -> config.skillExpBarWidth = Math.round(v), 0);
+        b.color("    Bar Color", () -> config.skillExpBarColor, v -> config.skillExpBarColor = v);
         b.info("Level, Percent <-> XP and Actions Left need the Skills tab widget");
         b.info("Move it in /tmap gui");
         b.info("Keeps tracking either way — [Hide]/[Show] in the panel does the same");

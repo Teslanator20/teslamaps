@@ -14,12 +14,12 @@ public final class TorrhusCanyonCategory {
         b.label("Critter ESP");
         b.toggle("Critter ESP", () -> config.critterESP, v -> config.critterESP = v);
         b.info("Only active in Area: " + com.teslamaps.features.CritterESP.AREA);
-        b.toggle("Filled Boxes", () -> config.critterFilled, v -> config.critterFilled = v);
-        b.toggle("Tracers To All Critters", () -> config.critterTracers, v -> config.critterTracers = v);
+        b.toggle("  Filled Boxes", () -> config.critterFilled, v -> config.critterFilled = v);
+        b.toggle("  Tracers To All Critters", () -> config.critterTracers, v -> config.critterTracers = v);
         b.label("Tiki (3 stacked heads)");
         b.toggle("Tiki ESP", () -> config.tikiESP, v -> config.tikiESP = v);
-        b.toggle("Show Name", () -> config.tikiESPName, v -> config.tikiESPName = v);
-        b.color("Tiki Box Color", () -> config.tikiESPColor, v -> config.tikiESPColor = v);
+        b.toggle("  Show Name", () -> config.tikiESPName, v -> config.tikiESPName = v);
+        b.color("  Tiki Box Color", () -> config.tikiESPColor, v -> config.tikiESPColor = v);
         b.label("Queen Ant");
         b.toggle("Queen Ant Warning", () -> config.queenAntWarning, v -> config.queenAntWarning = v);
         b.info("Title when a Queen Ant spawns from a destroyed anthill");
