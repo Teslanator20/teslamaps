@@ -34,11 +34,11 @@ public class KeybindMessage {
 
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         pollWp(handle, cfg.waypointAddKey, fire, () -> wpResult(DungeonWaypoints.addAtTarget(
-                TeslaMapsConfig.parseColor(cfg.waypointAddColor), cfg.waypointAddFilled, cfg.waypointAddThroughWalls)));
+                TeslaMapsConfig.parseColor(cfg.waypointAddColor), cfg.waypointAddFilled, cfg.waypointAddThroughWalls, cfg.waypointAddType)));
         pollWp(handle, cfg.waypointAdd2Key, fire, () -> wpResult(DungeonWaypoints.addAtTarget(
-                TeslaMapsConfig.parseColor(cfg.waypointAdd2Color), cfg.waypointAdd2Filled, cfg.waypointAdd2ThroughWalls)));
+                TeslaMapsConfig.parseColor(cfg.waypointAdd2Color), cfg.waypointAdd2Filled, cfg.waypointAdd2ThroughWalls, cfg.waypointAdd2Type)));
         pollWp(handle, cfg.waypointAdd3Key, fire, () -> wpResult(DungeonWaypoints.addAtTarget(
-                TeslaMapsConfig.parseColor(cfg.waypointAdd3Color), cfg.waypointAdd3Filled, cfg.waypointAdd3ThroughWalls)));
+                TeslaMapsConfig.parseColor(cfg.waypointAdd3Color), cfg.waypointAdd3Filled, cfg.waypointAdd3ThroughWalls, cfg.waypointAdd3Type)));
         pollWp(handle, cfg.waypointRemoveKey, fire, () -> wpResult(DungeonWaypoints.removeNearest()));
         pollWp(handle, cfg.waypointClearKey, fire, () -> wpResult(DungeonWaypoints.clearRoom()));
     }

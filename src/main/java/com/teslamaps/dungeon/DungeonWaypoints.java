@@ -24,10 +24,27 @@ import java.util.Map;
 
 public class DungeonWaypoints {
 
+    /** type = Odin's WaypointType name (NORMAL / SECRET / ETHERWARP) or null; title may be null. */
     public record Waypoint(double rx, double ry, double rz, int colorArgb, boolean filled, boolean depth,
-                           double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {}
+                           double minX, double minY, double minZ, double maxX, double maxY, double maxZ,
+                           String type, String title) {
+        public Waypoint(double rx, double ry, double rz, int colorArgb, boolean filled, boolean depth,
+                        double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+            this(rx, ry, rz, colorArgb, filled, depth, minX, minY, minZ, maxX, maxY, maxZ, null, null);
+        }
+        Waypoint withType(String t) {
+            return new Waypoint(rx, ry, rz, colorArgb, filled, depth, minX, minY, minZ, maxX, maxY, maxZ, t, title);
+        }
+        Waypoint withTitle(String t) {
+            return new Waypoint(rx, ry, rz, colorArgb, filled, depth, minX, minY, minZ, maxX, maxY, maxZ, type, t);
+        }
+    }
+
+    public static final String[] TYPES = {"None", "Normal", "Secret", "Etherwarp"};
 
     private static final Map<String, List<Waypoint>> byRoom = new HashMap<>();
+    // secret / etherwarp waypoints already done this run
+    private static final java.util.Set<Waypoint> clicked = new java.util.HashSet<>();
 
 
     private static final Path FILE = FabricLoader.getInstance().getConfigDir()
@@ -37,6 +54,7 @@ public class DungeonWaypoints {
 
     public static void load() {
         byRoom.clear();
+        clicked.clear();
         if (!Files.exists(FILE)) {
             TeslaMaps.LOGGER.info("[Waypoints] No dungeon_waypoints.json found at {}", FILE);
             return;
@@ -69,10 +87,19 @@ public class DungeonWaypoints {
             boolean depth = !o.has("depth") || o.get("depth").getAsBoolean();
 
             double[] b = readAabb(o.has("aabb") ? o.getAsJsonObject("aabb") : null);
-            return new Waypoint(x, y, z, color, filled, depth, b[0], b[1], b[2], b[3], b[4], b[5]);
+            String type = str(o, "type");
+            if (type != null) type = type.toUpperCase(java.util.Locale.ROOT);
+            if ("NONE".equals(type)) type = null;
+            return new Waypoint(x, y, z, color, filled, depth, b[0], b[1], b[2], b[3], b[4], b[5], type, str(o, "title"));
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    private static String str(JsonObject o, String key) {
+        if (!o.has(key) || o.get(key).isJsonNull()) return null;
+        String s = o.get(key).getAsString();
+        return s.isBlank() ? null : s;
     }
 
     // reads a coordinate from the waypoint object, supporting top-level x/y/z,
@@ -117,7 +144,10 @@ public class DungeonWaypoints {
         if (ctx != null) {
             List<Waypoint> ctxList = byRoom.get(ctx);
             if (ctxList != null) {
-                for (Waypoint wp : ctxList) drawWaypoint(matrices, cameraPos, wp, wp.rx(), wp.ry(), wp.rz());
+                for (Waypoint wp : ctxList) {
+                    if (!clicked.isEmpty() && clicked.contains(wp)) continue;
+                    drawWaypoint(matrices, cameraPos, wp, wp.rx(), wp.ry(), wp.rz());
+                }
             }
         }
 
@@ -130,6 +160,7 @@ public class DungeonWaypoints {
         if (clay == null) return;
 
         for (Waypoint wp : list) {
+            if (!clicked.isEmpty() && clicked.contains(wp)) continue;
             double[] rot = rotateAroundNorth(clay[2], wp.rx(), wp.rz());
             drawWaypoint(matrices, cameraPos, wp, rot[0] + clay[0], wp.ry(), rot[1] + clay[1]);
         }
@@ -146,6 +177,10 @@ public class DungeonWaypoints {
             ESPRenderer.drawFilledBox(matrices, box.inflate(0.01), wp.colorArgb(), cameraPos, throughWalls);
         } else {
             ESPRenderer.drawBoxOutline(matrices, box, wp.colorArgb(), 2.0f, cameraPos, throughWalls);
+        }
+        if (wp.title() != null) {
+            float s = TeslaMapsConfig.get().waypointTitleScale;
+            ESPRenderer.drawText(matrices, wp.title(), new Vec3(wx + 0.5, wy + 0.5 + 0.1 * s, wz + 0.5), s, cameraPos, true, throughWalls);
         }
     }
 
@@ -263,6 +298,183 @@ public class DungeonWaypoints {
     }
 
     public static String addAtTarget(int colorArgb, boolean filled, boolean depth) {
+        return addAtTarget(colorArgb, filled, depth, null);
+    }
+
+    private static String typeKey(String display) {
+        if (display == null || display.equalsIgnoreCase("None")) return null;
+        return display.toUpperCase(java.util.Locale.ROOT);
+    }
+
+    private static String typeName(String key) {
+        if (key == null) return "None";
+        return key.charAt(0) + key.substring(1).toLowerCase(java.util.Locale.ROOT);
+    }
+
+    private static Waypoint newWaypoint(double x, double y, double z, int colorArgb, boolean filled, boolean depth, String type) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        double hx = 0, hy = 0, hz = 0;
+        if (!c.waypointUseBlockSize) {
+            hx = (c.waypointSizeX - 1) / 2.0; hy = (c.waypointSizeY - 1) / 2.0; hz = (c.waypointSizeZ - 1) / 2.0;
+        }
+        return new Waypoint(x, y, z, colorArgb, filled, depth, -hx, -hy, -hz, 1 + hx, 1 + hy, 1 + hz, typeKey(type), null);
+    }
+
+    public static void resetClicked() {
+        clicked.clear();
+    }
+
+    /** A secret was taken at {@code pos}: hide the matching SECRET waypoint (exact block, or nearest within sqrt(maxDistSq)). */
+    public static void onSecret(net.minecraft.core.BlockPos pos, int maxDistSq) {
+        if (!TeslaMapsConfig.get().dungeonWaypoints || !DungeonManager.isInDungeon()) return;
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null || room.getName() == null) return;
+        List<Waypoint> list = byRoom.get(room.getName());
+        int[] clay = list == null ? null : detectClay(room);
+        if (clay == null) return;
+        int[] rel = worldToRelative(clay, pos.getX(), pos.getZ());
+        Waypoint best = null;
+        double bestD = Double.MAX_VALUE;
+        for (Waypoint wp : list) {
+            if (!"SECRET".equals(wp.type()) || clicked.contains(wp)) continue;
+            double dx = wp.rx() - rel[0], dy = wp.ry() - pos.getY(), dz = wp.rz() - rel[1];
+            double d = dx * dx + dy * dy + dz * dz;
+            if (d <= maxDistSq && d < bestD) { bestD = d; best = wp; }
+        }
+        if (best != null) clicked.add(best);
+    }
+
+    /** Server teleport (etherwarp landing): hide the ETHERWARP waypoint the player now stands on. */
+    public static void onTeleport(Vec3 pos) {
+        if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) return;
+        if (!TeslaMapsConfig.get().dungeonWaypoints || !DungeonManager.isInDungeon()) return;
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null || room.getName() == null) return;
+        List<Waypoint> list = byRoom.get(room.getName());
+        int[] clay = list == null ? null : detectClay(room);
+        if (clay == null) return;
+        for (Waypoint wp : list) {
+            if (!"ETHERWARP".equals(wp.type()) || clicked.contains(wp)) continue;
+            double[] rot = rotateAroundNorth(clay[2], wp.rx(), wp.rz());
+            double dx = rot[0] + clay[0] + 0.5 - pos.x, dy = wp.ry() + 1 - pos.y, dz = rot[1] + clay[1] + 0.5 - pos.z;
+            if (dx * dx + dy * dy + dz * dz <= 2.25) clicked.add(wp);
+        }
+    }
+
+    /** Waypoint list + stored coords of the looked-at block: {key, rx, ry, rz}, or null. */
+    private static Object[] target() {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.player == null || !(mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bhr)
+                || bhr.getType() == net.minecraft.world.phys.HitResult.Type.MISS) return null;
+        net.minecraft.core.BlockPos t = bhr.getBlockPos();
+        DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
+        int[] clay = (room != null && room.getName() != null) ? detectClay(room) : null;
+        if (clay != null) {
+            int[] rel = worldToRelative(clay, t.getX(), t.getZ());
+            return new Object[]{room.getName(), (double) rel[0], (double) t.getY(), (double) rel[1]};
+        }
+        return new Object[]{currentContextKey(), (double) t.getX(), (double) t.getY(), (double) t.getZ()};
+    }
+
+    private static int indexAt(List<Waypoint> list, double rx, double ry, double rz) {
+        if (list == null) return -1;
+        for (int i = 0; i < list.size(); i++) {
+            Waypoint wp = list.get(i);
+            if (Math.abs(wp.rx() - rx) < 0.001 && Math.abs(wp.ry() - ry) < 0.001 && Math.abs(wp.rz() - rz) < 0.001) return i;
+        }
+        return -1;
+    }
+
+    private static Waypoint lookedAt() {
+        Object[] t = target();
+        if (t == null) return null;
+        List<Waypoint> list = byRoom.get((String) t[0]);
+        int i = indexAt(list, (double) t[1], (double) t[2], (double) t[3]);
+        return i < 0 ? null : list.get(i);
+    }
+
+    /** Title / type of the looked-at waypoint; null title clears it. */
+    public static String editTarget(String title, String type, boolean setTitle) {
+        Object[] t = target();
+        if (t == null) return "§cLook at a waypoint block.";
+        List<Waypoint> list = byRoom.get((String) t[0]);
+        int i = indexAt(list, (double) t[1], (double) t[2], (double) t[3]);
+        if (i < 0) return "§cNo waypoint on that block.";
+        Waypoint wp = list.get(i);
+        list.set(i, setTitle ? wp.withTitle(title == null || title.isBlank() ? null : title) : wp.withType(typeKey(type)));
+        save();
+        return setTitle ? "§aWaypoint title " + (title == null || title.isBlank() ? "cleared." : "set to §f" + title)
+                : "§aWaypoint type set to §f" + typeName(typeKey(type));
+    }
+
+    // --- editor HUD ---
+    private static String editorLine = null;
+    private static int editorColor = 0xFFFFFFFF;
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("DungeonWaypointEditor").section("Secrets & Waypoints")
+                .when(() -> TeslaMapsConfig.get().dungeonWaypoints && TeslaMapsConfig.get().dungeonWaypointEditor)
+                .tick(DungeonWaypoints::tickEditor)
+                .hud("dungeonwaypointeditor", DungeonWaypoints::renderEditor);
+        com.teslamaps.registry.HudEditElement.of("dungeonWaypointEditor", "Waypoint Editor")
+                .ctx(com.teslamaps.registry.HudEditElement.HudCtx.DUNGEON).section("Secrets & Waypoints")
+                .enabled(() -> TeslaMapsConfig.get().dungeonWaypoints && TeslaMapsConfig.get().dungeonWaypointEditor)
+                .size(() -> net.minecraft.client.Minecraft.getInstance().font.width(EDITOR_SAMPLE), () -> 19)
+                .preview((g, mc, x, y, s) -> drawEditor(g, mc, x, y, s, "§fPlacing", EDITOR_SAMPLE));
+    }
+
+    private static final String EDITOR_SAMPLE = "§fType: §5Secret§7, §r#55FF55§7, §3Outline§7, §cThrough Walls§7, §2Block Size";
+    private static String editorTitle = "";
+
+    private static void tickEditor() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!DungeonManager.isInDungeon()) { editorLine = null; return; }
+        Waypoint wp = lookedAt();
+        StringBuilder sb = new StringBuilder();
+        if (wp != null) {
+            editorTitle = "§fEditing Waypoints §8|§f Viewing";
+            editorColor = wp.colorArgb() | 0xFF000000;
+            sb.append("§fType: §5").append(typeName(wp.type()));
+            sb.append("§7, §r#").append(String.format("%06X", wp.colorArgb() & 0xFFFFFF)).append("§7");
+            if (wp.title() != null) sb.append(", §fTitle: §a").append(wp.title()).append("§7");
+            sb.append(", ").append(wp.filled() ? "§2Filled" : "§3Outline");
+            sb.append("§7, ").append(wp.depth() ? "§cThrough Walls" : "§2Depth Check");
+            sb.append("§7, §3Size: ").append(String.format(java.util.Locale.ROOT, "%.2fx%.2fx%.2f",
+                    wp.maxX() - wp.minX(), wp.maxY() - wp.minY(), wp.maxZ() - wp.minZ()));
+        } else {
+            editorTitle = "§fEditing Waypoints §8|§f Placing (#1)";
+            editorColor = TeslaMapsConfig.parseColor(c.waypointAddColor) | 0xFF000000;
+            sb.append("§fType: §5").append(c.waypointAddType == null ? "None" : c.waypointAddType);
+            sb.append("§7, §r#").append(c.waypointAddColor).append("§7");
+            sb.append(", ").append(c.waypointAddFilled ? "§2Filled" : "§3Outline");
+            sb.append("§7, ").append(c.waypointAddThroughWalls ? "§cThrough Walls" : "§2Depth Check");
+            sb.append("§7, ").append(c.waypointUseBlockSize ? "§2Block Size" : String.format(java.util.Locale.ROOT,
+                    "§3Size: %.2fx%.2fx%.2f", c.waypointSizeX, c.waypointSizeY, c.waypointSizeZ));
+        }
+        editorLine = sb.toString();
+    }
+
+    private static void renderEditor(net.minecraft.client.gui.GuiGraphicsExtractor g, net.minecraft.client.DeltaTracker d) {
+        if (editorLine == null) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        drawEditor(g, net.minecraft.client.Minecraft.getInstance(), c.dungeonWaypointEditorX, c.dungeonWaypointEditorY,
+                c.dungeonWaypointEditorScale, editorTitle, editorLine);
+    }
+
+    private static void drawEditor(net.minecraft.client.gui.GuiGraphicsExtractor g, net.minecraft.client.Minecraft mc,
+                                   int x, int y, float scale, String title, String line) {
+        var pose = g.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(scale, scale);
+        int w = Math.max(mc.font.width(line), mc.font.width(title));
+        com.teslamaps.render.gui.TeslaGui.backdrop(g, 0, 0, w, 19);
+        g.centeredText(mc.font, title, w / 2, 0, 0xFFFFFFFF);
+        g.text(mc.font, line, 0, 10, editorColor);
+        pose.popMatrix();
+    }
+
+    public static String addAtTarget(int colorArgb, boolean filled, boolean depth, String type) {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return "§cNo player.";
 
@@ -279,7 +491,7 @@ public class DungeonWaypoints {
             List<Waypoint> list = byRoom.computeIfAbsent(room.getName(), k -> new ArrayList<>());
             if (removeAt(list, room.getName(), rel[0], target.getY(), rel[1]))
                 return "§eRemoved waypoint in §e\"" + room.getName() + "\"§e @ " + coords;
-            list.add(new Waypoint(rel[0], target.getY(), rel[1], colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
+            list.add(newWaypoint(rel[0], target.getY(), rel[1], colorArgb, filled, depth, type));
             save();
             return "§aAdded waypoint in §e\"" + room.getName() + "\"§a @ " + coords;
         }
@@ -288,7 +500,7 @@ public class DungeonWaypoints {
         List<Waypoint> list = byRoom.computeIfAbsent(ctx, k -> new ArrayList<>());
         if (removeAt(list, ctx, target.getX(), target.getY(), target.getZ()))
             return "§eRemoved §b" + ctx + "§e waypoint @ " + coords;
-        list.add(new Waypoint(target.getX(), target.getY(), target.getZ(), colorArgb, filled, depth, 0, 0, 0, 1, 1, 1));
+        list.add(newWaypoint(target.getX(), target.getY(), target.getZ(), colorArgb, filled, depth, type));
         save();
         return "§aAdded §b" + ctx + "§a waypoint @ " + coords;
     }
@@ -405,6 +617,8 @@ public class DungeonWaypoints {
                     o.addProperty("color", toHex(wp.colorArgb()));
                     o.addProperty("filled", wp.filled());
                     o.addProperty("depth", wp.depth());
+                    if (wp.type() != null) o.addProperty("type", wp.type());
+                    if (wp.title() != null) o.addProperty("title", wp.title());
                     JsonObject ab = new JsonObject();
                     ab.addProperty("minX", wp.minX()); ab.addProperty("minY", wp.minY()); ab.addProperty("minZ", wp.minZ());
                     ab.addProperty("maxX", wp.maxX()); ab.addProperty("maxY", wp.maxY()); ab.addProperty("maxZ", wp.maxZ());

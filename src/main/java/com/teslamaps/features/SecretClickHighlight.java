@@ -32,8 +32,10 @@ public class SecretClickHighlight {
     private static final List<Flash> flashes = new ArrayList<>();
     private static Flash lastClicked; // for the locked->red recolor
     private static final EspStyle LOCKED = new EspStyle();
+    private static int lastItemId = -1;
 
     public static void onSecretClick(BlockPos pos) {
+        com.teslamaps.dungeon.DungeonWaypoints.onSecret(pos, 0);
         if (!TeslaMapsConfig.get().secretClickHighlight || !DungeonManager.isInDungeon()) return;
         if (suppressed()) return; // not in puzzles / on the F7 Simon Says device
         Flash f = add(pos);
@@ -43,26 +45,28 @@ public class SecretClickHighlight {
 
     /** Sound packet: Hypixel plays the bat hurt/death sound at 0.1 volume when a secret bat dies. */
     public static void onSound(SoundEvent sound, float volume, double x, double y, double z) {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.secretClickHighlight || !c.secretClickBats || volume != 0.1f) return;
-        if (sound != SoundEvents.BAT_HURT && sound != SoundEvents.BAT_DEATH) return;
-        Minecraft mc = Minecraft.getInstance();
-        if (!mc.isSameThread()) return;
+        if (volume != 0.1f || (sound != SoundEvents.BAT_HURT && sound != SoundEvents.BAT_DEATH)) return;
+        if (!Minecraft.getInstance().isSameThread()) return;
         if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
-        add(BlockPos.containing(x, y, z));
+        BlockPos pos = BlockPos.containing(x, y, z);
+        com.teslamaps.dungeon.DungeonWaypoints.onSecret(pos, 5);
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.secretClickHighlight && c.secretClickBats) add(pos);
     }
 
     /** Item picked up or removed next to the player. */
     public static void onItemGone(int entityId) {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.secretClickHighlight || !c.secretClickItems) return;
         Minecraft mc = Minecraft.getInstance();
         if (!mc.isSameThread() || mc.player == null || mc.level == null) return;
         if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
         Entity e = mc.level.getEntity(entityId);
         if (!(e instanceof ItemEntity item) || e.distanceTo(mc.player) > 6) return;
         if (!SecretItemPickup.isDungeonDrop(item.getItem().getHoverName().getString())) return;
-        add(e.blockPosition());
+        if (entityId == lastItemId) return; // take + remove packet for the same item
+        lastItemId = entityId;
+        com.teslamaps.dungeon.DungeonWaypoints.onSecret(e.blockPosition(), 3);
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.secretClickHighlight && c.secretClickItems) add(e.blockPosition());
     }
 
     private static Flash add(BlockPos pos) {

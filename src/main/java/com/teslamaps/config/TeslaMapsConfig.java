@@ -331,6 +331,18 @@ public class TeslaMapsConfig {
     public String waypointAdd3Color = "FF5555";   // Slot 3 color
     public boolean waypointAdd3Filled = false;   // Slot 3 filled
     public boolean waypointAdd3ThroughWalls = true; // Slot 3 through walls
+    public String waypointAddType = "None";         // Slot 1-3 waypoint type: None, Normal, Secret, Etherwarp
+    public String waypointAdd2Type = "None";
+    public String waypointAdd3Type = "None";
+    public boolean waypointUseBlockSize = true;     // new waypoints hug the block; off = size X/Y/Z below
+    public float waypointSizeX = 1.0f;
+    public float waypointSizeY = 1.0f;
+    public float waypointSizeZ = 1.0f;
+    public float waypointTitleScale = 1.0f;         // waypoint title text scale
+    public boolean dungeonWaypointEditor = false;   // editor HUD: looked-at waypoint / next placement
+    public int dungeonWaypointEditorX = 10;
+    public int dungeonWaypointEditorY = 200;
+    public float dungeonWaypointEditorScale = 1.0f;
 
     @Global
     public int waypointRemoveKey = -1;            // Keybind: remove nearest waypoint in current room

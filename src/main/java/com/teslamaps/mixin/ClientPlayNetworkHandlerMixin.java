@@ -80,6 +80,7 @@ public class ClientPlayNetworkHandlerMixin {
     private void onMovePlayer(ClientboundPlayerPositionPacket packet, CallbackInfo ci) {
         com.teslamaps.dungeon.puzzle.TPMazeSolver.onPositionPacket(
             packet.change().position(), packet.change().yRot(), packet.change().xRot());
+        com.teslamaps.dungeon.DungeonWaypoints.onTeleport(packet.change().position());
     }
 
     @Inject(method = "handleSetEquipment", at = @At("HEAD"))

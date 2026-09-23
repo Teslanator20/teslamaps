@@ -6,5 +6,7 @@ final class Features {
     private Features() {}
 
     static void register() {
+        // wave 1a dungeon-b
+        com.teslamaps.dungeon.DungeonWaypoints.register();
     }
 }

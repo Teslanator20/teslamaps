@@ -43,24 +43,35 @@ public final class SecretsWaypointsCategory {
 
         b.label("Dungeon Waypoints");
         b.toggle("Dungeon Waypoints", () -> config.dungeonWaypoints, v -> config.dungeonWaypoints = v);
+        b.slider("  Title Scale", 0.1f, 4f, () -> config.waypointTitleScale, v -> config.waypointTitleScale = v, 1);
+        b.toggle("  Editor HUD", () -> config.dungeonWaypointEditor, v -> config.dungeonWaypointEditor = v);
+        b.toggle("  New Waypoints Use Block Size", () -> config.waypointUseBlockSize, v -> config.waypointUseBlockSize = v);
+        b.slider("    Size X", 0.1f, 5f, () -> config.waypointSizeX, v -> config.waypointSizeX = v, 2);
+        b.slider("    Size Y", 0.1f, 5f, () -> config.waypointSizeY, v -> config.waypointSizeY = v, 2);
+        b.slider("    Size Z", 0.1f, 5f, () -> config.waypointSizeZ, v -> config.waypointSizeZ = v, 2);
+        b.info("Secret waypoints hide once collected, Etherwarp ones after warping there.");
+        b.info("Title: /tmap waypoints title <text> | type: /tmap waypoints type <type>");
 
         b.label("Add Waypoint #1");
         b.keybind("Keybind #1 (look at block)", () -> config.waypointAddKey, v -> config.waypointAddKey = v);
         b.color("Color #1", () -> config.waypointAddColor, v -> config.waypointAddColor = v);
         b.toggle("Filled Box #1", () -> config.waypointAddFilled, v -> config.waypointAddFilled = v);
         b.toggle("Through Walls #1", () -> config.waypointAddThroughWalls, v -> config.waypointAddThroughWalls = v);
+        b.dropdown("Type #1", com.teslamaps.dungeon.DungeonWaypoints.TYPES, () -> config.waypointAddType, v -> config.waypointAddType = v);
 
         b.label("Add Waypoint #2");
         b.keybind("Keybind #2 (look at block)", () -> config.waypointAdd2Key, v -> config.waypointAdd2Key = v);
         b.color("Color #2", () -> config.waypointAdd2Color, v -> config.waypointAdd2Color = v);
         b.toggle("Filled Box #2", () -> config.waypointAdd2Filled, v -> config.waypointAdd2Filled = v);
         b.toggle("Through Walls #2", () -> config.waypointAdd2ThroughWalls, v -> config.waypointAdd2ThroughWalls = v);
+        b.dropdown("Type #2", com.teslamaps.dungeon.DungeonWaypoints.TYPES, () -> config.waypointAdd2Type, v -> config.waypointAdd2Type = v);
 
         b.label("Add Waypoint #3");
         b.keybind("Keybind #3 (look at block)", () -> config.waypointAdd3Key, v -> config.waypointAdd3Key = v);
         b.color("Color #3", () -> config.waypointAdd3Color, v -> config.waypointAdd3Color = v);
         b.toggle("Filled Box #3", () -> config.waypointAdd3Filled, v -> config.waypointAdd3Filled = v);
         b.toggle("Through Walls #3", () -> config.waypointAdd3ThroughWalls, v -> config.waypointAdd3ThroughWalls = v);
+        b.dropdown("Type #3", com.teslamaps.dungeon.DungeonWaypoints.TYPES, () -> config.waypointAdd3Type, v -> config.waypointAdd3Type = v);
 
         b.label("Remove / Clear Keybinds");
         b.keybind("Remove (nearest)", () -> config.waypointRemoveKey, v -> config.waypointRemoveKey = v);
