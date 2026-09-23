@@ -54,10 +54,41 @@ public final class PetStore {
     private static final ProfiledFile FILE = new ProfiledFile("pets.json",
             FabricLoader.getInstance().getConfigDir().resolve("teslamaps").resolve("pets.json"));
 
+    private static final Pattern BEASTMASTER = Pattern.compile("Pet Exp Boost: \\+([\\d.]+)%");
+
     private static Map<String, Pet> pets = new LinkedHashMap<>();
     private static String activeUuid;
+    private static double bagBeastmaster = 1.0;
+    private static double invBeastmaster = 0;
     private static boolean loaded;
     private static int ticks;
+    private static int invTicks;
+
+    /** Beastmaster Crest pet xp multiplier: the inventory one, else the last Accessory Bag read. */
+    static double beastmaster() {
+        ensure();
+        return invBeastmaster > 0 ? invBeastmaster : bagBeastmaster;
+    }
+
+    /** Ported from Skysoft's AccessoryBagData.readBeastmasterMultiplier. */
+    private static double crest(ItemStack item) {
+        if (item.isEmpty() || !ItemUtil.skyblockId(item).startsWith("BEASTMASTER_CREST_")) return 0;
+        for (String line : ItemUtil.loreLines(item)) {
+            Matcher m = BEASTMASTER.matcher(StringUtil.strip(line));
+            if (m.find()) {
+                try { return 1 + Double.parseDouble(m.group(1)) / 100.0; } catch (NumberFormatException ignored) {}
+            }
+        }
+        return 0;
+    }
+
+    private static void scanInventory(Minecraft mc) {
+        if (mc.player == null) return;
+        Inventory inv = mc.player.getInventory();
+        double best = 0;
+        for (int i = 0; i < inv.getContainerSize(); i++) best = Math.max(best, crest(inv.getItem(i)));
+        invBeastmaster = best;
+    }
 
     private PetStore() {}
 
@@ -75,6 +106,7 @@ public final class PetStore {
             if (Files.exists(p)) {
                 JsonObject root = JsonParser.parseString(Files.readString(p)).getAsJsonObject();
                 if (root.has("active") && !root.get("active").isJsonNull()) activeUuid = root.get("active").getAsString();
+                bagBeastmaster = root.has("beastmaster") ? root.get("beastmaster").getAsDouble() : 1.0;
                 if (root.has("pets")) {
                     Map<String, Pet> read = GSON.fromJson(root.get("pets"), TYPE);
                     if (read != null) pets = read;
@@ -89,6 +121,7 @@ public final class PetStore {
         try {
             JsonObject root = new JsonObject();
             root.addProperty("active", activeUuid);
+            root.addProperty("beastmaster", bagBeastmaster);
             root.add("pets", GSON.toJsonTree(pets, TYPE));
             Path p = FILE.path();
             Files.createDirectories(p.getParent());
@@ -129,12 +162,21 @@ public final class PetStore {
     }
 
     static void tick() {
+        Minecraft mc = Minecraft.getInstance();
+        if (++invTicks >= 100) {
+            invTicks = 0;
+            scanInventory(mc);
+        }
         if (++ticks < 10) return;
         ticks = 0;
-        Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
-        if (!MENU.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches()) return;
+        String title = StringUtil.stripTrim(cs.getTitle().getString());
         ensure();
+        if (title.startsWith("Accessory Bag")) {
+            readBag(cs);
+            return;
+        }
+        if (!MENU.matcher(title).matches()) return;
 
         boolean changed = false;
         Pet selected = null;
@@ -175,6 +217,19 @@ public final class PetStore {
             PetTracker.applyStored(selected);
         }
         if (changed) save();
+    }
+
+    /** Only pages that show a crest update the stored value; the bag has many pages. */
+    private static void readBag(AbstractContainerScreen<?> cs) {
+        double best = 0;
+        for (Slot slot : cs.getMenu().slots) {
+            if (slot.container instanceof Inventory) continue;
+            best = Math.max(best, crest(slot.getItem()));
+        }
+        if (best > 0 && best != bagBeastmaster) {
+            bagBeastmaster = best;
+            save();
+        }
     }
 
     private static JsonObject petInfo(ItemStack item) {

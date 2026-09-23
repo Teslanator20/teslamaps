@@ -233,7 +233,8 @@ public class PetTracker {
         double taming = 1.0 + tamingLevel() / 100.0;
         double item = itemMultiplier(skill);
         double custom = PetConstants.customMultiplier(internalName);
-        totalXp += amount * base * taming * item * custom;
+        double diana = com.teslamaps.api.ElectionApi.hasPerk("Pet XP Buff") ? 1.35 : 1.0;
+        totalXp += amount * base * taming * item * custom * diana * PetStore.beastmaster();
         lastEstimateAt = System.currentTimeMillis();
 
         if (!maxed) {
