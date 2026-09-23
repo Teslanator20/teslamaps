@@ -14,6 +14,7 @@ public final class CombatCategory {
         b.label("Slayer");
         b.info("Slayer kills/bosses live in the Tracker HUD under Skills");
         b.toggle("Only Own Boss", () -> config.slayerOnlyOwnBoss, v -> config.slayerOnlyOwnBoss = v);
+        b.info("Your boss always wins; a boss you hit is tracked too");
         b.toggle("Boss ESP", () -> config.slayerBossESP, v -> config.slayerBossESP = v);
         b.toggle("Miniboss ESP", () -> config.slayerMinibossESP, v -> config.slayerMinibossESP = v);
         b.toggle("Miniboss Tracers", () -> config.slayerMinibossTracer, v -> config.slayerMinibossTracer = v);

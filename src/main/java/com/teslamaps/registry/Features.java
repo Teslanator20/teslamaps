@@ -40,5 +40,7 @@ final class Features {
         // wave 1b chat
         com.teslamaps.features.ChatWaypoint.register();
         com.teslamaps.features.ChatSpamHud.register();
+        // wave 1c combat-pets
+        com.teslamaps.slayer.SlayerHUD.register();
     }
 }
