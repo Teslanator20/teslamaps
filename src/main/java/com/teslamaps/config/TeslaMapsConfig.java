@@ -583,6 +583,7 @@ public class TeslaMapsConfig {
     public boolean chatStackCompareColors = false; // Only stack lines whose colours match too
 
     public boolean pbOnJoin = true;               // Show a player's dungeon PBs when they join via party finder
+    public boolean pbOnJoinCard = false;          // full stats card (hover details, missing items, kick line) instead of the one-liner
     public boolean chatCommands = true;           // Party chat commands (!8ball, !cf, !warp, !pt, !kick, ...)
     public boolean chatCommandsGuild = false;     // harmless !commands in guild chat too
     public boolean chatCommandsDm = false;        // ... in private messages

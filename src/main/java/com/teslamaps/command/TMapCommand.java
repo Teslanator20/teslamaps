@@ -88,6 +88,26 @@ public class TMapCommand {
             }
         }
 
+        dispatcher.register(ClientCommands.literal("cata")
+                .executes(context -> {
+                    com.teslamaps.dungeon.CataCard.show(Minecraft.getInstance().getUser().getName(), false, true);
+                    return 1;
+                })
+                .then(ClientCommands.argument("name", StringArgumentType.word())
+                        .suggests((c, b) -> {
+                            var conn = Minecraft.getInstance().getConnection();
+                            String typed = b.getRemaining().toLowerCase();
+                            if (conn != null) for (var info : conn.getOnlinePlayers()) {
+                                String n = info.getProfile().name();
+                                if (n.matches("\\w{1,16}") && n.toLowerCase().startsWith(typed) && !n.equalsIgnoreCase(typed)) b.suggest(n);
+                            }
+                            return b.buildFuture();
+                        })
+                        .executes(context -> {
+                            com.teslamaps.dungeon.CataCard.show(StringArgumentType.getString(context, "name"), false, true);
+                            return 1;
+                        })));
+
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
                     Minecraft.getInstance().schedule(() -> {

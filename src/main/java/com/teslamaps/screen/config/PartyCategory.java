@@ -26,6 +26,8 @@ public final class PartyCategory {
             });
         }
         b.toggle("Show PBs on Party Finder Join", () -> config.pbOnJoin, v -> config.pbOnJoin = v);
+        b.toggle("  Full Stats Card (hover details)", () -> config.pbOnJoinCard, v -> config.pbOnJoinCard = v);
+        b.info("/cata <name> shows the card for anyone");
         b.info("Key: /tmap apikey <key> (developer.hypixel.net)");
         b.toggle("Party Duplicate Alert", () -> config.partyDuplicateAlert, v -> config.partyDuplicateAlert = v);
         b.toggle("  Dup: Play Sound", () -> config.partyDuplicateSound, v -> config.partyDuplicateSound = v);

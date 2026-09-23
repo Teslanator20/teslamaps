@@ -20,6 +20,11 @@ public class PbOnJoin {
         if (!TeslaMapsConfig.get().pbOnJoin) return;
         Matcher m = JOIN.matcher(com.teslamaps.utils.StringUtil.strip(message).trim());
         if (!m.find()) return;
+        if (TeslaMapsConfig.get().pbOnJoinCard) {
+            var p = Minecraft.getInstance().player;
+            if (p == null || !p.getGameProfile().name().equalsIgnoreCase(m.group(1))) CataCard.show(m.group(1), true, false);
+            return;
+        }
         lookup(m.group(1));
     }
 
