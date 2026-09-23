@@ -436,6 +436,13 @@ public class TeslaMapsConfig {
     public int mineshaftSurveyorLevel = 0;             // runtime: scanned off the HOTM menu
     public int mineshaftCoreLevel = 0;                 // runtime: scanned off the HOTM menu
     public int mineshaftTotalFound = 0;                // runtime: mineshafts found overall
+    public long mineshaftTotalBlocks = 0;              // runtime: pity blocks mined over all found mineshafts
+    public boolean mineshaftPityShowNeeded = false;    // "Needed to pity" rows per block type
+    public boolean mineshaftPityShowAverage = false;   // average blocks per mineshaft line
+    public boolean mineshaftPityHideChance = false;
+    public boolean mineshaftPityHideLast = false;
+    public boolean mineshaftPityHideFound = false;
+    public boolean mineshaftPityChatHover = false;     // block breakdown hover on the found line
     public int mineshaftPityX = 5;
     public int mineshaftPityY = 140;
     public float mineshaftPityScale = 1.0f;

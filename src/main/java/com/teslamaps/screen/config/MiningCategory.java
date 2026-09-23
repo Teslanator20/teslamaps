@@ -46,8 +46,17 @@ public final class MiningCategory {
         b.label("Mineshaft Pity");
         b.toggle("Pity Counter Display",
                 () -> config.mineshaftPityDisplay, v -> config.mineshaftPityDisplay = v);
+        b.toggle("  Needed To Pity Per Block",
+                () -> config.mineshaftPityShowNeeded, v -> config.mineshaftPityShowNeeded = v);
+        b.toggle("  Average Blocks Per Mineshaft",
+                () -> config.mineshaftPityShowAverage, v -> config.mineshaftPityShowAverage = v);
+        b.toggle("  Hide Chance Line", () -> config.mineshaftPityHideChance, v -> config.mineshaftPityHideChance = v);
+        b.toggle("  Hide Last Mineshaft Line", () -> config.mineshaftPityHideLast, v -> config.mineshaftPityHideLast = v);
+        b.toggle("  Hide Found Line", () -> config.mineshaftPityHideFound, v -> config.mineshaftPityHideFound = v);
         b.toggle("Chat Line On Mineshaft Found",
                 () -> config.mineshaftFoundChat, v -> config.mineshaftFoundChat = v);
+        b.toggle("  Block Breakdown Hover",
+                () -> config.mineshaftPityChatHover, v -> config.mineshaftPityChatHover = v);
         b.slider("Mineshaft Chance Bonus (%)", 0f, 100f,
                 () -> config.mineshaftChanceBonus, v -> config.mineshaftChanceBonus = v, 1);
         b.info("Set from Surveyor + Core of the Mountain when you open the HOTM menu");
