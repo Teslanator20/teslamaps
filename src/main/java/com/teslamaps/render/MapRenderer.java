@@ -930,6 +930,8 @@ public class MapRenderer {
 
     private static final String[] CHECK_SETS = {"illegalmap", "neu", "vanilla_new", "vanilla_old"};
     private static final String[] CHECK_STYLE_NAMES = {"IllegalMap", "NEU", "Vanilla New", "Vanilla Old"};
+    private static String checkStyleKey = null;
+    private static int checkStyleIdx = -1;
     // per set: white, green, failed, question
     private static final int[][] CHECK_DIMS = {{10, 10, 10, 62}, {100, 100, 100, 100}, {18, 18, 8, 18}, {8, 7, 8, 7}};
     private static final net.minecraft.resources.Identifier[][] CHECK_TEX = new net.minecraft.resources.Identifier[4][4];
@@ -962,7 +964,21 @@ public class MapRenderer {
     }
 
     // Devonian getCenterOf: L rooms use the corner cell, others the mean of their cells
+    private record CenterCache(int size, boolean center, double[] value) {}
+    private static final java.util.Map<DungeonRoom, CenterCache> CENTER_CACHE = new java.util.WeakHashMap<>();
+
     private static double[] checkmarkCenter(DungeonRoom room) {
+        boolean center = TeslaMapsConfig.get().mapCheckmarkCenter;
+        int size = room.getComponents().size();
+        CenterCache cc = CENTER_CACHE.get(room);
+        if (cc == null || cc.size() != size || cc.center() != center) {
+            cc = new CenterCache(size, center, computeCheckmarkCenter(room));
+            CENTER_CACHE.put(room, cc);
+        }
+        return cc.value();
+    }
+
+    private static double[] computeCheckmarkCenter(DungeonRoom room) {
         List<int[]> comps = room.getComponents();
         if (!TeslaMapsConfig.get().mapCheckmarkCenter) {
             int[] best = comps.get(0);
@@ -992,8 +1008,12 @@ public class MapRenderer {
         int idx = checkIndex(state);
         if (idx < 0) return;
 
-        int set = -1;
-        for (int i = 0; i < CHECK_STYLE_NAMES.length; i++) if (CHECK_STYLE_NAMES[i].equals(config.mapCheckmarkStyle)) set = i;
+        if (!java.util.Objects.equals(config.mapCheckmarkStyle, checkStyleKey)) {
+            checkStyleKey = config.mapCheckmarkStyle;
+            checkStyleIdx = -1;
+            for (int i = 0; i < CHECK_STYLE_NAMES.length; i++) if (CHECK_STYLE_NAMES[i].equals(checkStyleKey)) checkStyleIdx = i;
+        }
+        int set = checkStyleIdx;
         if (set >= 0) {
             int tw = CHECK_DIMS[set][idx];
             context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, CHECK_TEX[set][idx],
