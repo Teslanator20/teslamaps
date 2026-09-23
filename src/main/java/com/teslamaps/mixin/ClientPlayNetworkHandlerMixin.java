@@ -43,7 +43,23 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "handleContainerSetSlot", at = @At("TAIL"))
     private void onSlotUpdate(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
+        com.teslamaps.utils.ContainerState.onSetSlot(packet);
         com.teslamaps.features.MelodyMessage.onSlotUpdate(packet.getSlot(), packet.getItem());
+    }
+
+    @Inject(method = "handleOpenScreen", at = @At("TAIL"))
+    private void teslamaps$onOpenScreen(net.minecraft.network.protocol.game.ClientboundOpenScreenPacket packet, CallbackInfo ci) {
+        com.teslamaps.utils.ContainerState.onOpen(packet);
+    }
+
+    @Inject(method = "handleContainerContent", at = @At("TAIL"))
+    private void teslamaps$onContainerContent(net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket packet, CallbackInfo ci) {
+        com.teslamaps.utils.ContainerState.onContent(packet);
+    }
+
+    @Inject(method = "handleContainerClose", at = @At("TAIL"))
+    private void teslamaps$onContainerClose(net.minecraft.network.protocol.game.ClientboundContainerClosePacket packet, CallbackInfo ci) {
+        com.teslamaps.utils.ContainerState.onClose();
     }
 
     @Inject(method = "handlePongResponse", at = @At("HEAD"))
