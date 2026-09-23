@@ -18,7 +18,7 @@ public final class HideCategory {
         b.slider("  Hide Distance", 0f, 32f,
                 () -> config.hidePlayersDistance, v -> config.hidePlayersDistance = v);
         b.toggle("  Hide After Leap", () -> config.hidePlayersAfterLeap, v -> config.hidePlayersAfterLeap = v);
-        b.slider("  Hide After Leap (s)", 0.5f, 10f,
+        b.slider("    Hide After Leap (s)", 0.5f, 10f,
                 () -> config.hidePlayersAfterLeapSeconds, v -> config.hidePlayersAfterLeapSeconds = v);
         b.label("Hide Dungeon Objects");
         b.button("Toggle All Dungeon Objects", () -> {
@@ -112,13 +112,13 @@ public final class HideCategory {
         b.toggle("Hide Clouds",
                 () -> config.hideClouds, v -> config.hideClouds = v);
         b.toggle("Hide Fog", () -> config.noFog, v -> config.noFog = v);
-        b.toggle("  Nether Fog (Crimson Isle)", () -> config.noNetherFog, v -> config.noNetherFog = v);
+        b.toggle("Nether Fog (Crimson Isle)", () -> config.noNetherFog, v -> config.noNetherFog = v);
         b.info("Removes the crimson isle fog even while Hide Fog is off");
         b.toggle("Hide Lightning", () -> config.noLightning, v -> config.noLightning = v);
         b.toggle("Hide Falling Blocks", () -> config.noFallingBlocks, v -> config.noFallingBlocks = v);
         b.toggle("Hide Block Breaking", () -> config.noBlockBreaking, v -> config.noBlockBreaking = v);
         b.toggle("Hide XP Orbs", () -> config.noXpOrbs, v -> config.noXpOrbs = v);
-        b.toggle("  Block At Packet Level", () -> config.packetHiders, v -> config.packetHiders = v);
+        b.toggle("Block At Packet Level", () -> config.packetHiders, v -> config.packetHiders = v);
         b.info("Lightning/Falling Blocks/XP Orbs are then never created");
         b.info("Saves ticking them, not just drawing them");
         b.label("Combat Effects");

@@ -34,7 +34,7 @@ public final class InventoryCategory {
         b.toggle("Own Nametag (3rd person)", () -> config.ownNameTag, v -> config.ownNameTag = v);
         b.toggle("Searchbar (type to search)", () -> config.searchbar, v -> config.searchbar = v);
         b.toggle("  Ctrl+F To Search", () -> config.searchbarCtrlF, v -> config.searchbarCtrlF = v);
-        b.toggle("  Hide Until Ctrl+F", () -> config.searchbarHidden, v -> config.searchbarHidden = v);
+        b.toggle("    Hide Until Ctrl+F", () -> config.searchbarHidden, v -> config.searchbarHidden = v);
         b.dropdown("  Highlight", com.teslamaps.features.Searchbar.MODES, () -> config.searchbarMode, v -> config.searchbarMode = v);
         b.color("  Match Color", () -> config.colorSearchbarMatch, v -> config.colorSearchbarMatch = v);
         b.toggle("  Name Only (skip lore)", () -> config.searchbarNameOnly, v -> config.searchbarNameOnly = v);
@@ -45,8 +45,8 @@ public final class InventoryCategory {
         b.label("Item Search");
         b.toggle("Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v);
         b.info("/tmap search finds items in museum, sacks, vault, chests, storage");
-        b.keybind("  Open Item Search", () -> config.itemSearchKey, v -> config.itemSearchKey = v);
-        b.toggle("  Right-Click Sack Item: /gfs", () -> config.itemSearchGfsClick, v -> config.itemSearchGfsClick = v);
+        b.keybind("Open Item Search", () -> config.itemSearchKey, v -> config.itemSearchKey = v);
+        b.toggle("Right-Click Sack Item: /gfs", () -> config.itemSearchGfsClick, v -> config.itemSearchGfsClick = v);
         b.button("Open Item Search",
                 () -> Minecraft.getInstance().setScreen(new ItemSearchScreen(null)));
         b.button("Clear Item Index",
@@ -126,7 +126,7 @@ public final class InventoryCategory {
         b.info("Or /tmap protect for the held item. Lock icon, blocks drop, salvage, trade, AH, shops");
         b.label("Slot Binds");
         b.toggle("Slot Binds", () -> config.slotBinds, v -> config.slotBinds = v);
-        b.keybind("Bind Set Key (over slot)", () -> config.slotBindsKey, v -> config.slotBindsKey = v);
+        b.keybind("  Bind Set Key (over slot)", () -> config.slotBindsKey, v -> config.slotBindsKey = v);
         b.color("  Bind Color", () -> config.colorSlotBinds, v -> config.colorSlotBinds = v);
         b.slider("  Line Width", 0.1f, 2f,
                 () -> config.slotBindsLineWidth, v -> config.slotBindsLineWidth = v);

@@ -90,8 +90,8 @@ public final class ForagingCategory {
                 .desc("Tracks every hive's refill time from its nametag, per profile.");
         b.toggle("  Hive List", () -> config.honeyhiveDisplay, v -> config.honeyhiveDisplay = v);
         b.info("Open an inventory to scroll it or click a hive for its waypoint");
-        b.toggle("  List Outside Torrhus", () -> config.honeyhiveDisplayOutside, v -> config.honeyhiveDisplayOutside = v);
-        b.slider("  Max Lines", 1f, 30f, () -> config.honeyhiveMaxLines, v -> config.honeyhiveMaxLines = v, 0);
+        b.toggle("    List Outside Torrhus", () -> config.honeyhiveDisplayOutside, v -> config.honeyhiveDisplayOutside = v);
+        b.slider("    Max Lines", 1f, 30f, () -> config.honeyhiveMaxLines, v -> config.honeyhiveMaxLines = v, 0);
         b.toggle("  Ready Waypoints", () -> config.honeyhiveReadyWaypoints, v -> config.honeyhiveReadyWaypoints = v);
         b.toggle("  Ready Sound", () -> config.honeyhiveReadySound, v -> config.honeyhiveReadySound = v);
         b.label("Heart of the Forest");

@@ -14,7 +14,7 @@ public final class GardenCategory {
         b.label("Plot Teleport Grid");
         b.toggle("Plots Overlay",
                 () -> config.gardenPlotsOverlay, v -> config.gardenPlotsOverlay = v);
-        b.toggle("Close Inventory On Teleport",
+        b.toggle("  Close Inventory On Teleport",
                 () -> config.gardenPlotsCloseOnClick, v -> config.gardenPlotsCloseOnClick = v);
         b.label("Visitors");
         b.toggle("Charmed Visitor List",
@@ -65,7 +65,7 @@ public final class GardenCategory {
                 () -> config.pestTpReminder, v -> config.pestTpReminder = v);
         b.toggle("Custom Cooldown",
                 () -> config.pestCustomCooldown, v -> config.pestCustomCooldown = v);
-        b.slider("Custom Cooldown (sec)", 30f, 600f,
+        b.slider("  Custom Cooldown (sec)", 30f, 600f,
                 () -> (float) config.pestCustomCooldownSeconds,
                 v -> config.pestCustomCooldownSeconds = (int) (float) v, 0);
         b.slider("Warn Seconds Before Ready", 0f, 30f,
@@ -93,7 +93,7 @@ public final class GardenCategory {
         b.label("Profit");
         b.toggle("Profit Tracker",
                 () -> config.farmProfit, v -> config.farmProfit = v);
-        b.slider("Items Listed", 0f, 12f,
+        b.slider("  Items Listed", 0f, 12f,
                 () -> (float) config.farmProfitRows, v -> config.farmProfitRows = (int) (float) v, 0);
         b.dropdown("Price Basis",
                 new String[]{"Instant Sell", "Sell Offer", "NPC"},
@@ -134,12 +134,12 @@ public final class GardenCategory {
         b.label("Farm Lane Bar");
         b.toggle("Show Lane Bar",
                 () -> config.farmBar, v -> config.farmBar = v);
-        b.slider("Warn Distance", 0f, 20f,
+        b.slider("  Warn Distance", 0f, 20f,
                 () -> config.farmWarnDistance, v -> config.farmWarnDistance = v, 0);
-        b.soundDropdown("Warn Sound",
+        b.soundDropdown("  Warn Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.farmWarnSound, v -> config.farmWarnSound = v);
-        b.slider("Warn Volume", 0f, 4f,
+        b.slider("  Warn Volume", 0f, 4f,
                 () -> config.farmWarnVolume, v -> config.farmWarnVolume = v, 2);
         b.button("Set Lane Point 1 (here)",
                 () -> com.teslamaps.features.FarmProgress.setPoint(1));
