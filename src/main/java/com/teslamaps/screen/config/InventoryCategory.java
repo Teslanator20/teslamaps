@@ -71,6 +71,8 @@ public final class InventoryCategory {
         b.label("Slot Lock");
         b.toggle("Slot Lock", () -> config.slotLock, v -> config.slotLock = v);
         b.keybind("  Slot Lock Key (over slot)", () -> config.slotLockKey, v -> config.slotLockKey = v);
+        b.dropdown("  Lock Style", com.teslamaps.features.SlotLock.STYLES,
+                () -> config.slotLockStyle, v -> config.slotLockStyle = v);
         b.color("  Locked Slot Color", () -> config.colorSlotLock, v -> config.colorSlotLock = v);
         b.label("Item Protection");
         b.toggle("Protect Valuable Items", () -> config.itemProtection, v -> config.itemProtection = v);

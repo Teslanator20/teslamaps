@@ -150,7 +150,7 @@ public class ItemProtection {
     /** Protected item into an empty item frame on the island or garden. */
     public static boolean blockItemFrame(ItemStack held, net.minecraft.world.entity.Entity target) {
         if (!(target instanceof net.minecraft.world.entity.decoration.ItemFrame frame) || !frame.getItem().isEmpty()) return false;
-        if (!uuidProtected(held)) return false;
+        if (!uuidProtected(held) && !SlotLock.blockSelectedDrop()) return false;
         if (!com.teslamaps.utils.SkyblockUtils.isInArea("Private Island") && !com.teslamaps.utils.SkyblockUtils.isInGarden()) return false;
         warnKept(held, "framing");
         return true;

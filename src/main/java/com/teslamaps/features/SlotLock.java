@@ -41,6 +41,15 @@ public class SlotLock {
         return TeslaMapsConfig.get().slotLock && isPlayerInv(slot) && isLocked(slot.getContainerSlot());
     }
 
+    public static final String[] STYLES = {"Box", "Icon"};
+
+    /** Any click on a locked slot, and a number-key / offhand swap into a locked hotbar slot. */
+    public static boolean blockSlotClick(Slot slot, int button, net.minecraft.world.inventory.ContainerInput type) {
+        if (!TeslaMapsConfig.get().slotLock) return false;
+        if (isPlayerInv(slot) && isLocked(slot.getContainerSlot())) return true;
+        return type == net.minecraft.world.inventory.ContainerInput.SWAP && isLocked(button);
+    }
+
     public static boolean blockSelectedDrop() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.slotLock) return false;
@@ -58,8 +67,12 @@ public class SlotLock {
         for (Slot slot : cs.getMenu().slots) {
             if (!isPlayerInv(slot) || !isLocked(slot.getContainerSlot())) continue;
             int sx = left + slot.x, sy = top + slot.y;
-            ctx.fill(sx, sy, sx + 16, sy + 16, 0x80FF0000);
             int col = TeslaMapsConfig.parseColor(c.colorSlotLock);
+            if ("Icon".equals(c.slotLockStyle)) {
+                com.teslamaps.render.gui.LockIcon.draw(ctx, sx, sy, (col & 0x00FFFFFF) | 0xC0000000);
+                continue;
+            }
+            ctx.fill(sx, sy, sx + 16, sy + 16, 0x80FF0000);
             ctx.fill(sx, sy, sx + 16, sy + 1, col);
             ctx.fill(sx, sy + 15, sx + 16, sy + 16, col);
             ctx.fill(sx, sy, sx + 1, sy + 16, col);

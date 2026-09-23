@@ -1464,6 +1464,7 @@ public class TeslaMapsConfig {
     public boolean slotLock = true;                // lock inventory slots from being moved/dropped/sold
     @Global
     public int slotLockKey = 76;                    // keybind (over a slot) to toggle its lock
+    public String slotLockStyle = "Box";            // Box = red fill + outline, Icon = padlock
     public String colorSlotLock = "#FF5555";        // locked slot outline color
     @Global
     public java.util.List<Integer> lockedSlots = new java.util.ArrayList<>(); // locked player-inventory slot indices
