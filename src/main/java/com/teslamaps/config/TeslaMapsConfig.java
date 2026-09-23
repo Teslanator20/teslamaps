@@ -584,10 +584,19 @@ public class TeslaMapsConfig {
 
     public boolean pbOnJoin = true;               // Show a player's dungeon PBs when they join via party finder
     public boolean chatCommands = true;           // Party chat commands (!8ball, !cf, !warp, !pt, !kick, ...)
+    public boolean chatCommandsGuild = false;     // harmless !commands in guild chat too
+    public boolean chatCommandsDm = false;        // ... in private messages
+    public boolean chatCommandsCoop = false;      // ... in co-op chat
+    public boolean chatCommandsWhitelistOnly = false; // !pt/!kick/!promote/!demote/!allinv only from you + whitelist
+    @Global public List<String> chatCommandsWhitelist = new ArrayList<>(); // lowercase names, /tmap pcmd <name>
+    public List<String> chatCommandsDisabled = new ArrayList<>(); // switched-off command keys
 
     public boolean autoRequeue = true;           // Send /instancerequeue at the end of a dungeon
     public boolean requeueOnPartyR = true;       // Requeue when a party member types "r"
     public int requeueDelaySeconds = 0;           // Delay before requeuing
+    public boolean requeueDowntimeList = false;   // dt/!dt list, requeue only once everyone said r
+    public boolean requeueCheckParty = false;     // skip when the party size changed since the run started
+    public boolean requeueFeedback = false;       // chat line when a requeue is skipped
 
     // Per-class feature gates. true = feature active when playing that class.
     public static class ClassFilter {
@@ -2006,6 +2015,8 @@ public class TeslaMapsConfig {
         if (c.invButtons == null || c.invButtons.isEmpty()) {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }
+        if (c.chatCommandsWhitelist == null) c.chatCommandsWhitelist = new ArrayList<>();
+        if (c.chatCommandsDisabled == null) c.chatCommandsDisabled = new ArrayList<>();
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
         migratePestEsp(c);

@@ -13,6 +13,18 @@ public final class PartyCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Party Chat & Alerts");
         b.toggle("Party Chat Commands (!8ball etc)", () -> config.chatCommands, v -> config.chatCommands = v);
+        b.toggle("  Commands: Guild Chat", () -> config.chatCommandsGuild, v -> config.chatCommandsGuild = v);
+        b.toggle("  Commands: Private Messages", () -> config.chatCommandsDm, v -> config.chatCommandsDm = v);
+        b.toggle("  Commands: Co-op Chat", () -> config.chatCommandsCoop, v -> config.chatCommandsCoop = v);
+        b.info("Guild/DM/Co-op answer only the harmless ones (8ball cf dice coords ping fps time)");
+        b.toggle("  Commands: Whitelist Only", () -> config.chatCommandsWhitelistOnly, v -> config.chatCommandsWhitelistOnly = v);
+        b.info("!pt !kick !promote !demote !allinv only from you + /tmap pcmd <name>");
+        for (String k : com.teslamaps.features.ChatCommands.KEYS) {
+            b.toggle("  !" + k, () -> com.teslamaps.features.ChatCommands.enabled(k), v -> {
+                config.chatCommandsDisabled.remove(k);
+                if (!v) config.chatCommandsDisabled.add(k);
+            });
+        }
         b.toggle("Show PBs on Party Finder Join", () -> config.pbOnJoin, v -> config.pbOnJoin = v);
         b.info("Key: /tmap apikey <key> (developer.hypixel.net)");
         b.toggle("Party Duplicate Alert", () -> config.partyDuplicateAlert, v -> config.partyDuplicateAlert = v);
