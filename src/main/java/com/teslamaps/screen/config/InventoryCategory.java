@@ -45,14 +45,14 @@ public final class InventoryCategory {
         b.label("Item Search");
         b.toggle("Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v);
         b.info("/tmap search finds items in museum, sacks, vault, chests, storage");
+        b.toggle("  Island Chest Tracker", () -> config.islandChestTracker, v -> config.islandChestTracker = v);
+        b.info("Private Island: large chests per half, minion chests skipped, broken chests removed");
         b.keybind("Open Item Search", () -> config.itemSearchKey, v -> config.itemSearchKey = v);
         b.toggle("Right-Click Sack Item: /gfs", () -> config.itemSearchGfsClick, v -> config.itemSearchGfsClick = v);
         b.button("Open Item Search",
                 () -> Minecraft.getInstance().setScreen(new ItemSearchScreen(null)));
         b.button("Clear Item Index",
                 com.teslamaps.features.ItemIndex::clear);
-        b.toggle("  Island Chest Tracker", () -> config.islandChestTracker, v -> config.islandChestTracker = v);
-        b.info("Private Island: large chests per half, minion chests skipped, broken chests removed");
         b.button("Clear Island Chests",
                 com.teslamaps.features.ItemIndex::clearChests);
         b.label("Auction Price Input");
@@ -86,6 +86,8 @@ public final class InventoryCategory {
         b.label("Storage Overlay");
         b.toggle("Custom Storage Overlay", () -> config.customStorageOverlay, v -> config.customStorageOverlay = v);
         b.toggle("  Show Page Names", () -> config.storageShowNames, v -> config.storageShowNames = v);
+        b.toggle("    Rename Pages (click title)", () -> config.storageRenamePages, v -> config.storageRenamePages = v);
+        b.info("Needs Show Page Names. & for color codes, empty = default name");
         b.slider("  Overlay Scale", 0.5f, 1.5f,
                 () -> config.storageOverlayScale, v -> config.storageOverlayScale = v);
         b.toggle("  Vanilla Menu After Backpack Swap", () -> config.storageVanillaAfterSwap, v -> config.storageVanillaAfterSwap = v);
@@ -97,8 +99,6 @@ public final class InventoryCategory {
         b.toggle("  Compact Vertically", () -> config.storageCompact, v -> config.storageCompact = v);
         b.toggle("  Center On Open Page", () -> config.storageCenterActive, v -> config.storageCenterActive = v);
         b.toggle("  Focus Search On Open", () -> config.storageSearchFocus, v -> config.storageSearchFocus = v);
-        b.toggle("  Rename Pages (click title)", () -> config.storageRenamePages, v -> config.storageRenamePages = v);
-        b.info("Needs Show Page Names. & for color codes, empty = default name");
         b.label("Hovered Slot");
         b.toggle("Hovered Slot Outline", () -> config.hoveredSlotOutline, v -> config.hoveredSlotOutline = v);
         b.color("  Outline Color", () -> config.colorHoveredSlot, v -> config.colorHoveredSlot = v);
