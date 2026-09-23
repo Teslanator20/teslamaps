@@ -163,24 +163,29 @@ public class MapRenderer {
         matrices.translate(x, y);
         matrices.scale(scale, scale);
 
+        // the tab list only refreshes every 50ms; parse it once per refresh, not per frame
         java.util.List<String> tabLines = TabListUtils.getTabListLines();
-        double secretsPercent = TabListUtils.getSecretsPercentage(tabLines);
+        if (tabLines != infoTabSource) {
+            infoTabSource = tabLines;
+            infoSecretsPercent = TabListUtils.getSecretsPercentage(tabLines);
+            infoSecretsFound = TabListUtils.getSecretsFound(tabLines);
+            infoCryptsFound = TabListUtils.getCryptsFound(tabLines);
+        }
+        double secretsPercent = infoSecretsPercent;
 
-        int foundSecretsOverall = TabListUtils.getSecretsFound(tabLines);
+        int foundSecretsOverall = infoSecretsFound;
         if (foundSecretsOverall < 0) {
             foundSecretsOverall = (int) Math.round(totalSecrets * secretsPercent / 100.0);
         }
 
-        int cryptsFound = TabListUtils.getCryptsFound(tabLines);
+        int cryptsFound = infoCryptsFound;
         int crypts = cryptsFound < 0 ? 0 : cryptsFound;
         double neededSecretsPercent = DungeonScore.getNeededSecretsPercentFor300(crypts);
         int neededSecretsOverall = (int) Math.ceil(totalSecrets * neededSecretsPercent / 100.0);
 
         int remainingSecrets = Math.max(0, neededSecretsOverall - foundSecretsOverall);
 
-        String secretsText = secretsPercent >= 0
-                ? String.format("Secrets: %d/%d/%d", foundSecretsOverall, remainingSecrets, totalSecrets)
-                : "Secrets: ?/?/" + totalSecrets;
+        String secretsText = secretsText(secretsPercent >= 0, foundSecretsOverall, remainingSecrets, totalSecrets);
 
         int secretsColor = (remainingSecrets == 0) ? 0xFF55FF55 : 0xFFFFFFFF;
         context.text(textRenderer, secretsText, 4, 2, secretsColor);
@@ -273,6 +278,22 @@ public class MapRenderer {
         }
 
         matrices.popMatrix();
+    }
+
+    private static java.util.List<String> infoTabSource;
+    private static double infoSecretsPercent = -1;
+    private static int infoSecretsFound = -1, infoCryptsFound = -1;
+    private static String secretsTextCache;
+    private static long secretsTextKey = Long.MIN_VALUE;
+
+    private static String secretsText(boolean known, int found, int remaining, int total) {
+        long key = known ? (((long) (found & 0xFFFFF) << 40) | ((long) (remaining & 0xFFFFF) << 20) | (total & 0xFFFFF))
+                : -1L - total;
+        if (key != secretsTextKey || secretsTextCache == null) {
+            secretsTextKey = key;
+            secretsTextCache = known ? "Secrets: " + found + "/" + remaining + "/" + total : "Secrets: ?/?/" + total;
+        }
+        return secretsTextCache;
     }
 
     private static int getRequiredSecretPercentForDisplay() {
@@ -432,6 +453,8 @@ public class MapRenderer {
         };
     }
 
+    private static final Set<Long> guessDrawn = new HashSet<>();
+
     // Legit Mode: a plain dark-grey 1x1 placeholder behind each door to an undiscovered cell.
     private static void drawGuessRooms(GuiGraphicsExtractor context, int baseX, int baseY, float scale) {
         List<com.teslamaps.map.LegitGuess.Door> guessDoors = com.teslamaps.map.LegitGuess.getGuessDoors();
@@ -440,7 +463,8 @@ public class MapRenderer {
         int gray = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorUnexplored);
         int roomSize = (int) (ROOM_SIZE * scale);
 
-        Set<Long> drawn = new HashSet<>();
+        Set<Long> drawn = guessDrawn;
+        drawn.clear();
         for (com.teslamaps.map.LegitGuess.Door d : guessDoors) {
             long ck = ((long) d.nx() << 32) | (d.nz() & 0xffffffffL);
             if (!drawn.add(ck)) continue;

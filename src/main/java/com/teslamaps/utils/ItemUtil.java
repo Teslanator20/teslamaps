@@ -15,8 +15,7 @@ import net.minecraft.world.item.component.ItemLore;
 public class ItemUtil {
     public static String skyblockId(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return "";
-        CustomData d = stack.get(DataComponents.CUSTOM_DATA);
-        return d == null ? "" : d.copyTag().getString("id").orElse("");
+        return ((com.teslamaps.injected.CustomizableStack) (Object) stack).teslamaps$skyblockId();
     }
 
     public static java.util.List<String> abilityScrolls(ItemStack stack) {
@@ -42,20 +41,15 @@ public class ItemUtil {
 
     /** Lore lines, § codes stripped. Empty list if the item has no lore. */
     public static List<String> loreLines(ItemStack stack) {
-        ItemLore lore = lore(stack);
-        if (lore == null) return List.of();
-        List<String> out = new ArrayList<>();
-        for (Component line : lore.lines()) out.add(StringUtil.strip(line.getString()));
-        return out;
+        if (stack == null) return List.of();
+        return ((com.teslamaps.injected.CustomizableStack) (Object) stack).teslamaps$loreLines();
     }
 
     /** Case-insensitive substring search over the stripped lore. */
     public static boolean loreContains(ItemStack stack, String needle) {
-        ItemLore lore = lore(stack);
-        if (lore == null) return false;
         String lower = needle.toLowerCase(Locale.ROOT);
-        for (Component line : lore.lines()) {
-            if (StringUtil.strip(line.getString()).toLowerCase(Locale.ROOT).contains(lower)) return true;
+        for (String line : loreLines(stack)) {
+            if (line.toLowerCase(Locale.ROOT).contains(lower)) return true;
         }
         return false;
     }

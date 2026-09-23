@@ -51,7 +51,7 @@ public class CritterESP {
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.critterESP) {
-            for (Entity e : mc.level.entitiesForRendering()) {
+            for (Entity e : com.teslamaps.utils.EntityCache.all()) {
                 if (e instanceof ArmorStand || e == mc.player) continue;
                 String col = colorFor(e, c);
                 if (col == null) continue;

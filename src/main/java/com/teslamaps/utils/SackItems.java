@@ -30,15 +30,11 @@ public class SackItems {
     public static void load() {
         if (loaded || loading) return;
         loading = true;
+        RepoCache.onReload("SackItems", SackItems::reload);
 
         CompletableFuture.runAsync(() -> {
             try {
-                HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-                HttpRequest request = HttpRequest.newBuilder(URI.create(SACKS_URL))
-                        .timeout(Duration.ofSeconds(15)).GET().build();
-                String body = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
-
-                JsonObject root = JsonParser.parseString(body).getAsJsonObject();
+                JsonObject root = RepoCache.fetch("neu-sacks", SACKS_URL, 15).getAsJsonObject();
                 JsonObject sacks = root.getAsJsonObject("sacks");
                 for (Map.Entry<String, com.google.gson.JsonElement> entry : sacks.entrySet()) {
                     JsonObject sack = entry.getValue().getAsJsonObject();
@@ -55,6 +51,13 @@ public class SackItems {
                 loading = false;
             }
         });
+    }
+
+    /** Drops the loaded flag and fetches again; the old tables stay until the new ones are in. */
+    public static void reload() {
+        if (loading) return;
+        loaded = false;
+        load();
     }
 
     /** False while the list is still downloading, so callers can skip validation instead of blocking. */

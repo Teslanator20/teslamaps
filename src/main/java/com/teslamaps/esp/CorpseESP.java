@@ -53,8 +53,8 @@ public class CorpseESP {
 
         int fallback = TeslaMapsConfig.parseColor(c.colorCorpseESP);
 
-        for (Entity e : mc.level.entitiesForRendering()) {
-            if (!(e instanceof ArmorStand as)) continue;
+        for (Entity e : com.teslamaps.utils.EntityCache.armorStands()) {
+            if (!(e instanceof ArmorStand as) || as.isRemoved()) continue;
             ItemStack helmet = as.getItemBySlot(EquipmentSlot.HEAD);
             if (!CORPSE_HELMETS.contains(ItemUtil.skyblockId(helmet))) continue;
 

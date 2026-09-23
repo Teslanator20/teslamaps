@@ -71,7 +71,14 @@ public final class EntityCache {
     @SuppressWarnings("unchecked")
     public static <T extends Entity> List<T> byType(Class<T> type) {
         build();
-        return (List<T>) typed.computeIfAbsent(type, t -> all.stream().filter(t::isInstance).map(t::cast).toList());
+        List<?> list = typed.get(type);
+        if (list == null) {
+            List<T> out = new ArrayList<>();
+            for (Entity e : all) if (type.isInstance(e)) out.add(type.cast(e));
+            typed.put(type, out);
+            list = out;
+        }
+        return (List<T>) list;
     }
 
     public static List<ArmorStand> armorStands() {

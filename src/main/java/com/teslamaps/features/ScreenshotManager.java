@@ -117,23 +117,56 @@ public class ScreenshotManager {
         net.minecraft.util.Util.getPlatform().openFile(dir);
     }
 
-    public static boolean copy(File file) {
-        if (file == null || !file.isFile()) return false;
-        // NativeImage instead of ImageIO: same decoder the rest of the mod uses, and it does
-        // not depend on ImageIO's plugin registry or its cache directory being writable
-        try (java.io.FileInputStream in = new java.io.FileInputStream(file);
-             NativeImage image = NativeImage.read(in)) {
-            return toClipboard(toBuffered(image));
+    /** Reads, converts and copies off the main thread; onDone gets null or the error, on the main thread. */
+    public static void copyAsync(File file, java.util.function.Consumer<String> onDone) {
+        if (file == null || !file.isFile()) {
+            onDone.accept("file is gone");
+            return;
+        }
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            // NativeImage instead of ImageIO: same decoder the rest of the mod uses, and it does
+            // not depend on ImageIO's plugin registry or its cache directory being writable
+            try (java.io.FileInputStream in = new java.io.FileInputStream(file);
+                 NativeImage image = NativeImage.read(in)) {
+                copyPixels(image.getPixelsABGR(), image.getWidth(), image.getHeight());
+            } catch (java.io.IOException e) {
+                throw new IllegalStateException("could not read " + file.getName() + ": " + e.getMessage(), e);
+            }
+        }, net.minecraft.util.Util.ioPool()).whenComplete((v, err) -> {
+            String msg = err == null ? null : message(err);
+            if (msg != null) TeslaMaps.LOGGER.warn("Screenshot copy failed: {}", msg);
+            Minecraft.getInstance().execute(() -> onDone.accept(msg));
+        });
+    }
+
+    private static String message(Throwable t) {
+        while (t instanceof java.util.concurrent.CompletionException && t.getCause() != null) t = t.getCause();
+        return t.getMessage() != null ? t.getMessage() : t.toString();
+    }
+
+    /** Runs on the screenshot IO thread already; the pixels are copied before the image is freed. */
+    public static void copy(NativeImage image) {
+        try {
+            copyPixels(image.getPixelsABGR(), image.getWidth(), image.getHeight());
         } catch (Throwable t) {
-            TeslaMaps.LOGGER.warn("Could not read screenshot {}: {}", file.getName(), t.toString());
-            return false;
+            TeslaMaps.LOGGER.warn("Screenshot copy failed: {}", message(t));
         }
     }
 
-    private static BufferedImage toBuffered(NativeImage image) {
-        int w = image.getWidth(), h = image.getHeight();
+    private static void copyPixels(int[] abgr, int w, int h) {
+        if (com.teslamaps.utils.WindowsClipboard.supported()) {
+            try {
+                com.teslamaps.utils.WindowsClipboard.copyAbgr(abgr, w, h);
+                return;
+            } catch (Throwable t) {
+                TeslaMaps.LOGGER.warn("Native clipboard failed, trying AWT: {}", message(t));
+            }
+        }
+        if (!toClipboard(toBuffered(abgr, w, h))) throw new IllegalStateException("clipboard not available");
+    }
+
+    private static BufferedImage toBuffered(int[] abgr, int w, int h) {
         BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        int[] abgr = image.getPixelsABGR();
         int[] argb = new int[abgr.length];
         for (int i = 0; i < abgr.length; i++) {
             int p = abgr[i];
@@ -141,14 +174,6 @@ public class ScreenshotManager {
         }
         bi.setRGB(0, 0, w, h, argb, 0, w);
         return bi;
-    }
-
-    public static void copy(NativeImage image) {
-        try {
-            toClipboard(toBuffered(image));
-        } catch (Throwable t) {
-            TeslaMaps.LOGGER.warn("Screenshot copy failed: {}", t.toString());
-        }
     }
 
     private static boolean toClipboard(BufferedImage image) {

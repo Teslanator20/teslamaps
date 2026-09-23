@@ -49,6 +49,7 @@ public final class HarvestFeast {
     private static final Map<String, ItemStack> ICONS = new HashMap<>();
 
     private static long lastRead;
+    private static int lastVersion = -1;
 
     private HarvestFeast() {}
 
@@ -64,8 +65,12 @@ public final class HarvestFeast {
         if (!StringUtil.strip(cs.getTitle().getString()).trim().equals("All Crops")) return;
 
         long now = System.currentTimeMillis();
-        if (now - lastRead < 500L) return;
+        int version = com.teslamaps.utils.ContainerState.version();
+        boolean packetReady = version != lastVersion
+                && com.teslamaps.utils.ContainerState.fullyOpened(cs.getMenu().containerId);
+        if (!packetReady && now - lastRead < 500L) return;
         lastRead = now;
+        lastVersion = version;
         read(config, cs, now);
     }
 

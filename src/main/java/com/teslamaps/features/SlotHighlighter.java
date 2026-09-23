@@ -32,7 +32,9 @@ public class SlotHighlighter {
                 || (c.showSelectedPet && isPetsMenu(t));
     }
 
-    private static boolean isPetsMenu(String t) { return t.equals("Pets") || t.matches("\\(\\d+/\\d+\\) Pets"); }
+    private static final java.util.regex.Pattern PETS_PAGE = java.util.regex.Pattern.compile("\\(\\d+/\\d+\\) Pets");
+
+    private static boolean isPetsMenu(String t) { return t.equals("Pets") || PETS_PAGE.matcher(t).matches(); }
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
@@ -62,9 +64,7 @@ public class SlotHighlighter {
 
     private static boolean isSpawnedPet(ItemStack stack) {
         if (stack.isEmpty()) return false;
-        ItemLore lore = stack.get(DataComponents.LORE);
-        if (lore == null) return false;
-        for (Component line : lore.lines()) if (strip(line.getString()).equals("Click to despawn!")) return true;
+        for (String line : com.teslamaps.utils.ItemUtil.loreLines(stack)) if (line.trim().equals("Click to despawn!")) return true;
         return false;
     }
 
@@ -75,11 +75,8 @@ public class SlotHighlighter {
 
     private static boolean isSalvageable(ItemStack stack) {
         if (stack.isEmpty()) return false;
-        ItemLore lore = stack.get(DataComponents.LORE);
-        if (lore == null) return false;
         boolean dungeon = false;
-        for (Component line : lore.lines()) {
-            String l = strip(line.getString());
+        for (String l : com.teslamaps.utils.ItemUtil.loreLines(stack)) {
             if (l.contains("DUNGEON") && !l.contains("DUNGEON ITEM")) { dungeon = true; break; }
         }
         if (!dungeon) return false;
@@ -100,12 +97,10 @@ public class SlotHighlighter {
     }
 
     private static String skyblockId(ItemStack stack) {
-        CustomData d = stack.get(DataComponents.CUSTOM_DATA);
-        if (d == null) return "";
-        return d.copyTag().getString("id").orElse("");
+        return com.teslamaps.utils.ItemUtil.skyblockId(stack);
     }
 
     private static String strip(String s) {
-        return s == null ? "" : s.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        return s == null ? "" : com.teslamaps.utils.StringUtil.stripTrim(s);
     }
 }

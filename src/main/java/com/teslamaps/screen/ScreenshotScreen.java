@@ -77,7 +77,12 @@ public class ScreenshotScreen extends Screen {
 
         addButton(0, perRow, bw, firstRowY, "§bCopy Picture", () -> {
             File f = current();
-            status = f != null && ScreenshotManager.copy(f) ? "§aCopied " + f.getName() : "§cCopy failed";
+            if (f == null) {
+                status = "§cCopy failed";
+                return;
+            }
+            status = "§7Copying…";
+            ScreenshotManager.copyAsync(f, err -> status = err == null ? "§aCopied " + f.getName() : "§cCopy failed: " + err);
         });
         addButton(1, perRow, bw, firstRowY, "§dCopy Ingame", () -> {
             if (confirm("share", "§eClick §dCopy Ingame§e again to upload ")) share();

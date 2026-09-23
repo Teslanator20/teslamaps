@@ -75,7 +75,7 @@ public class ArrowAlignSolver {
         if (mc.level == null) return;
 
         List<ItemFrame> frames = new ArrayList<>();
-        for (Entity entity : mc.level.entitiesForRendering()) {
+        for (Entity entity : com.teslamaps.utils.EntityCache.byType(ItemFrame.class)) {
             if (entity instanceof ItemFrame frame) {
                 if (frame.getItem().getItem() == Items.ARROW) {
                     frames.add(frame);

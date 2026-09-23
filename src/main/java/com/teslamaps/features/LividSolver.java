@@ -163,7 +163,7 @@ public class LividSolver {
         boolean tags = TeslaMapsConfig.get().lividHideWrongNametags;
         List<Entity> livids = new ArrayList<>();
         List<ArmorStand> stands = new ArrayList<>();
-        for (Entity entity : mc.level.entitiesForRendering()) {
+        for (Entity entity : com.teslamaps.utils.EntityCache.all()) {
             if (entity == mc.player) continue;
             if (entity instanceof ArmorStand stand) {
                 if (!tags) continue;
@@ -283,7 +283,7 @@ public class LividSolver {
 
     private static void checkForLividArena(Minecraft mc) {
         inLividArena = false;
-        for (Entity entity : mc.level.entitiesForRendering()) {
+        for (Entity entity : com.teslamaps.utils.EntityCache.all()) {
             if (entity instanceof ArmorStand) continue;
             String name = entity.getName().getString();
             if (name.endsWith(" Livid") || name.equals("Livid")) {

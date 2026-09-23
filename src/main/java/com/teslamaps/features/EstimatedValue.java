@@ -83,7 +83,7 @@ public class EstimatedValue {
 
     /** SkyHanni's getTotalPrice: null when the item carries no upgrades over its base price. */
     public static Double totalPrice(ItemStack stack, boolean ignoreBasePrice) {
-        double[] result = calculate(stack, null);
+        double[] result = cached(stack).result;
         if (result == null) return null;
         if (ignoreBasePrice && result[0] == result[1]) return null;
         return result[0];
@@ -91,6 +91,52 @@ public class EstimatedValue {
 
     /** The hover panel: header, breakdown, total. Empty when there is nothing to show. */
     public static List<String> display(ItemStack stack) {
+        Cached c = cached(stack);
+        if (c.display == null) c.display = buildDisplay(stack);
+        return c.display;
+    }
+
+    private static final class Cached {
+        final Object data, lore;
+        final long made;
+        final int key;
+        final double[] result;
+        List<String> display;
+
+        Cached(Object data, Object lore, long made, int key, double[] result) {
+            this.data = data; this.lore = lore; this.made = made; this.key = key; this.result = result;
+        }
+    }
+
+    private static final Map<ItemStack, Cached> CACHE = new java.util.WeakHashMap<>();
+
+    private static Cached cached(ItemStack stack) {
+        Object data = stack.get(DataComponents.CUSTOM_DATA);
+        Object lore = stack.get(DataComponents.LORE);
+        long now = System.currentTimeMillis();
+        int key = cacheKey();
+        synchronized (CACHE) {
+            Cached c = CACHE.get(stack);
+            if (c != null && c.data == data && c.lore == lore && c.key == key && now - c.made < 2000) return c;
+        }
+        Cached c = new Cached(data, lore, now, key, calculate(stack, null));
+        synchronized (CACHE) { CACHE.put(stack, c); }
+        return c;
+    }
+
+    private static int cacheKey() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        int flags = (c.itemValueExactPrice ? 1 : 0) | (c.itemValueIgnoreHelmetSkins ? 2 : 0)
+                | (c.itemValueIgnoreArmorDyes ? 4 : 0) | (c.itemValueIgnoreRunes ? 8 : 0)
+                | (c.itemValueShowBin ? 16 : 0) | (SbRepo.loaded() ? 32 : 0) | (SkyblockItems.loaded() ? 64 : 0);
+        int h = flags;
+        h = h * 31 + c.itemValueEnchantmentsCap;
+        h = h * 31 + c.itemValueStarMaterialCap;
+        h = h * 31 + (c.itemValuePriceSource == null ? 0 : c.itemValuePriceSource.hashCode());
+        return h * 31 + PriceManager.version();
+    }
+
+    private static List<String> buildDisplay(ItemStack stack) {
         if (shouldIgnore(stack)) return List.of();
 
         List<String> list = new ArrayList<>();

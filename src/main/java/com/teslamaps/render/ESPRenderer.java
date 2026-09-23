@@ -11,8 +11,47 @@ public class ESPRenderer {
 
     private static boolean depthTested = false;
 
+    // Frame batching: inside the world pass the per-box endBatch is skipped, consecutive boxes of a
+    // layer share one draw, and FeatureRegistry.world flushes at the end. Boxes outside the view
+    // frustum are dropped. Submission order is unchanged, so the picture is the same.
+    private static boolean frameBatch = false;
+    private static net.minecraft.client.renderer.culling.Frustum frustum;
+    private static final java.util.List<MultiBufferSource.BufferSource> frameSources = new java.util.ArrayList<>();
+
+    public static void beginFrame(net.minecraft.client.renderer.culling.Frustum cull) {
+        frameBatch = true;
+        frustum = cull;
+    }
+
+    public static void endFrame() {
+        frameBatch = false;
+        frustum = null;
+        for (MultiBufferSource.BufferSource src : frameSources) {
+            src.endBatch(TeslaRenderLayers.LINES_ESP);
+            src.endBatch(TeslaRenderLayers.LINES_DEPTH);
+            src.endBatch(TeslaRenderLayers.FILLED_ESP);
+            src.endBatch(TeslaRenderLayers.FILLED_DEPTH);
+        }
+        frameSources.clear();
+    }
+
+    private static void finish(MultiBufferSource.BufferSource src,
+                               net.minecraft.client.renderer.rendertype.RenderType layer) {
+        if (!frameBatch) {
+            src.endBatch(layer);
+            return;
+        }
+        for (int i = 0, n = frameSources.size(); i < n; i++) if (frameSources.get(i) == src) return;
+        frameSources.add(src);
+    }
+
+    private static boolean culled(AABB box) {
+        return frustum != null && !frustum.isVisible(box);
+    }
+
     public static void drawBoxOutline(PoseStack matrices, AABB box, int color, float lineWidth, Vec3 cameraPos,
                                        MultiBufferSource.BufferSource bufferSource) {
+        if (culled(box)) return;
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
@@ -35,7 +74,7 @@ public class ESPRenderer {
 
         renderLineBox(pose, buffer, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, a, lineWidth);
 
-        bufferSource.endBatch(layer);
+        finish(bufferSource, layer);
 
         matrices.popPose();
     }
@@ -102,7 +141,7 @@ public class ESPRenderer {
         buffer.addVertex(pose, (float)from.x, (float)from.y, (float)from.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(2.0f);
         buffer.addVertex(pose, (float)to.x, (float)to.y, (float)to.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(2.0f);
 
-        bufferSource.endBatch(TeslaRenderLayers.LINES_ESP);
+        finish(bufferSource, TeslaRenderLayers.LINES_ESP);
 
         matrices.popPose();
     }
@@ -172,6 +211,7 @@ public class ESPRenderer {
 
     public static void drawFilledBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos,
                                        MultiBufferSource.BufferSource bufferSource) {
+        if (culled(box)) return;
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
@@ -194,7 +234,7 @@ public class ESPRenderer {
 
         renderFilledBox(pose, buffer, minX, minY, minZ, maxX, maxY, maxZ, r, g, b, a);
 
-        bufferSource.endBatch(layer);
+        finish(bufferSource, layer);
         matrices.popPose();
     }
 
@@ -329,7 +369,7 @@ public class ESPRenderer {
     }
 
     public static void batchBox(AABB box, int color, float lineWidth) {
-        if (batchBuffer == null) return;
+        if (batchBuffer == null || culled(box)) return;
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;

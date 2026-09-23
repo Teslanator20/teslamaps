@@ -66,7 +66,7 @@ public class QueenAntWarning {
 
         if (activeQueen != null) {
             Vec3 pos = null;
-            for (Entity e : mc.level.entitiesForRendering()) {
+            for (Entity e : com.teslamaps.utils.EntityCache.all()) {
                 if (e.getUUID().equals(activeQueen) && e.isAlive()) { pos = e.position(); break; }
             }
             if (pos == null) { activeQueen = null; queenPos = null; }
@@ -78,7 +78,7 @@ public class QueenAntWarning {
 
         Entity best = null;
         double bestDist = Double.MAX_VALUE;
-        for (Entity e : mc.level.entitiesForRendering()) {
+        for (Entity e : com.teslamaps.utils.EntityCache.all()) {
             if (!isQueenTag(e) || knownQueens.contains(e.getUUID())) continue;
             double d = e.position().distanceToSqr(searchPos);
             if (d > SEARCH_DIST_SQ || d >= bestDist) continue;

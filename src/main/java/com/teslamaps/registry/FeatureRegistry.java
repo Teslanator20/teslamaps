@@ -99,13 +99,21 @@ public final class FeatureRegistry {
         }
     }
 
-    public static void world(PoseStack pose, MultiBufferSource buffers, Vec3 cam) {
+    public static void world(PoseStack pose, MultiBufferSource buffers, Vec3 cam,
+                             net.minecraft.client.renderer.culling.Frustum frustum) {
         WorldCtx ctx = new WorldCtx(pose, buffers, cam);
-        for (int i = 0, n = WORLD.size(); i < n; i++) {
-            World w = WORLD.get(i);
-            if (!w.f.active()) continue;
-            Perf.begin(w.perf);
-            w.r.accept(ctx);
+        com.teslamaps.render.ESPRenderer.beginFrame(frustum);
+        try {
+            for (int i = 0, n = WORLD.size(); i < n; i++) {
+                World w = WORLD.get(i);
+                if (!w.f.active()) continue;
+                Perf.begin(w.perf);
+                w.r.accept(ctx);
+                Perf.end();
+            }
+        } finally {
+            Perf.begin("ESP.flush");
+            com.teslamaps.render.ESPRenderer.endFrame();
             Perf.end();
         }
     }

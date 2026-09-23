@@ -49,7 +49,7 @@ public class FishingHookDisplay {
         boolean bestAlert = false;
         double bestDistance = Double.MAX_VALUE;
 
-        for (Entity entity : mc.level.entitiesForRendering()) {
+        for (Entity entity : com.teslamaps.utils.EntityCache.armorStands()) {
             if (!(entity instanceof ArmorStand stand) || stand.getCustomName() == null) continue;
             String name = stand.getCustomName().getString();
             String plain = com.teslamaps.utils.StringUtil.stripTrim(name);

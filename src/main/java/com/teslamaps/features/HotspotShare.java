@@ -127,7 +127,7 @@ public class HotspotShare {
         // scan
         Map<UUID, Tracked> seen = new HashMap<>();
         List<ArmorStand> stands = new ArrayList<>();
-        for (Entity e : mc.level.entitiesForRendering()) {
+        for (Entity e : com.teslamaps.utils.EntityCache.armorStands()) {
             if (e instanceof ArmorStand stand && stand.isAlive() && stand.hasCustomName()) stands.add(stand);
         }
         for (ArmorStand stand : stands) {

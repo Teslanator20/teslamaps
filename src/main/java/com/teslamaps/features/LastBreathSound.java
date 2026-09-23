@@ -33,7 +33,6 @@ public class LastBreathSound {
     }
 
     private static String skyblockId(ItemStack stack) {
-        CustomData d = stack.get(DataComponents.CUSTOM_DATA);
-        return d == null ? "" : d.copyTag().getString("id").orElse("");
+        return com.teslamaps.utils.ItemUtil.skyblockId(stack);
     }
 }

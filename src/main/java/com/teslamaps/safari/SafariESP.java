@@ -83,7 +83,7 @@ public class SafariESP {
     // a floor drop is a cluster of 3-4 item_display entities holding a re-modelled string item
     private static void scanSpots(Minecraft mc) {
         SafariData.Biome here = SafariData.currentBiome();
-        for (Entity e : mc.level.entitiesForRendering()) {
+        for (Entity e : com.teslamaps.utils.EntityCache.byType(Display.ItemDisplay.class)) {
             if (!(e instanceof Display.ItemDisplay id)) continue;
             SlotAccess slot = id.getSlot(0);
             if (slot == null || slot.get().getItem() != Items.STRING) continue;
@@ -120,7 +120,7 @@ public class SafariESP {
 
         int color = rockmite.rarity().color;
         String label = c.safariNames ? rarityCode(rockmite) + rockmite.name() : null;
-        for (Entity e : mc.level.entitiesForRendering()) {
+        for (Entity e : com.teslamaps.utils.EntityCache.byType(Display.ItemDisplay.class)) {
             if (!(e instanceof Display.ItemDisplay id)) continue;
             if (id.getPosRotInterpolationDuration() != 0) continue;   // a mound sits still
             if (!isMoundTexture(headTexture(itemOf(id)))) continue;
@@ -217,7 +217,7 @@ public class SafariESP {
         SafariData.Biome here = SafariData.currentBiome();
         if (here != SafariData.Biome.FOREST && here != SafariData.Biome.HAUNTED) return;
 
-        for (Entity e : mc.level.entitiesForRendering()) {
+        for (Entity e : com.teslamaps.utils.EntityCache.all()) {
             SafariData.Critter critter = hiddenCritter(e, here);
             if (critter == null) continue;
             if (c.safariOnlyMissing && SafariTracker.hasCaught(critter)) continue;
@@ -275,7 +275,7 @@ public class SafariESP {
         SafariData.Biome here = SafariData.currentBiome();
         RecatchSpots.beginSweep();
 
-        for (Entity e : mc.level.entitiesForRendering()) {
+        for (Entity e : com.teslamaps.utils.EntityCache.armorStands()) {
             if (!(e instanceof ArmorStand as)) continue;
             if (as.getCustomName() == null) continue;
 
