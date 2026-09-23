@@ -25,5 +25,6 @@ final class Features {
         com.teslamaps.features.DragonESP.register();
         // wave 1b economy
         com.teslamaps.features.BazaarOwnOrders.register();
+        com.teslamaps.features.ContainerValue.register();
     }
 }

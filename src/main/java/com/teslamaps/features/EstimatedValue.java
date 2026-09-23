@@ -828,7 +828,7 @@ public class EstimatedValue {
         return PriceManager.getPriceOrNull(id, priceSource());
     }
 
-    private static int priceSource() {
+    static int priceSource() {
         String source = TeslaMapsConfig.get().itemValuePriceSource;
         if ("BZ Instant Buy".equals(source)) return PriceManager.SOURCE_BAZAAR_BUY;
         if ("NPC Sell".equals(source)) return PriceManager.SOURCE_NPC;

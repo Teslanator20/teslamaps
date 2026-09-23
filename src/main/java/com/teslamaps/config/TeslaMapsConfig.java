@@ -1245,6 +1245,14 @@ public class TeslaMapsConfig {
     public boolean priceLineRequireKey = false;     // price lines only while priceLineKey is held
     public int priceLineKey = org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_ALT;
     public boolean containerValue = false;          // show total container value + top 5 items in a side panel
+    public boolean containerValueGroup = false;     // same items in one row
+    public boolean containerValueHover = false;     // hover a row: highlight its slots + value breakdown
+    public int containerValueTop = 5;
+    public int containerValueHideBelow = 0;         // k coins, 0 = off
+    public boolean containerValueFreePos = false;   // drag it in /tmap gui instead of pinning it to the container
+    public int containerValueX = 5;
+    public int containerValueY = 60;
+    public float containerValueScale = 1.0f;
     public boolean backpackPreview = true;         // cache + show backpack/ender chest contents on hover (data in storage.json)
     public boolean itemSearchIndex = true;          // remember opened containers so /tmap search can find items anywhere
     @Global

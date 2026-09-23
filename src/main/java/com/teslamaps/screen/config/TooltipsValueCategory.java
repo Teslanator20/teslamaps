@@ -51,6 +51,14 @@ public final class TooltipsValueCategory {
         b.toggle("Ignore Armor Dyes", () -> config.itemValueIgnoreArmorDyes, v -> config.itemValueIgnoreArmorDyes = v);
         b.toggle("Ignore Runes", () -> config.itemValueIgnoreRunes, v -> config.itemValueIgnoreRunes = v);
         b.toggle("Container Value (Top 5)", () -> config.containerValue, v -> config.containerValue = v);
+        b.toggle("  Group Same Items", () -> config.containerValueGroup, v -> config.containerValueGroup = v);
+        b.toggle("  Hover Breakdown + Slots", () -> config.containerValueHover, v -> config.containerValueHover = v);
+        b.slider("  Items Shown", 1f, 20f,
+                () -> (float) config.containerValueTop, v -> config.containerValueTop = Math.round(v));
+        b.slider("  Hide Below (k coins)", 0f, 1000f,
+                () -> (float) config.containerValueHideBelow, v -> config.containerValueHideBelow = Math.round(v / 10f) * 10);
+        b.toggle("  Free Position", () -> config.containerValueFreePos, v -> config.containerValueFreePos = v);
+        b.info("Drag it in /tmap gui instead of pinning it to the container");
         b.label("Enchant Colors");
         b.toggle("Book Abbreviations (Leg I)", () -> config.enchantAbbrev, v -> config.enchantAbbrev = v);
         b.info("Enchant + level written on enchanted book icons");
