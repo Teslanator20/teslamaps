@@ -893,12 +893,17 @@ public class MapConfigScreen extends Screen {
         }
     }
 
+    static final String CHEAT_MARK = "⚠ ";
+    static final String CHEAT_TIP = "Cheat — may break Hypixel rules (ban risk)";
+    static final int CHEAT_COLOR = 0xFFFF5555;
+
     public class ToggleEntry implements SettingsEntry {
         private int x, width;
         private final String label;
         private final Supplier<Boolean> getter;
         private final Consumer<Boolean> setter;
         private boolean legitGated = false;
+        private boolean cheat = false;
         private String sectionGate = null;
 
         public ToggleEntry(int x, int w, String label, Supplier<Boolean> getter, Consumer<Boolean> setter) {
@@ -907,6 +912,11 @@ public class MapConfigScreen extends Screen {
 
         /** Marks this toggle as disabled by Legit Mode (greyed out while it blocks cheats). */
         public ToggleEntry legit() { this.legitGated = true; return this; }
+
+        /** Cheat-Warnung: red label with a warning sign, ban-risk tooltip, greyed out by Legit Mode. */
+        public ToggleEntry cheat() { this.cheat = true; this.legitGated = true; return this; }
+
+        public boolean isCheat() { return cheat; }
 
         /** Greys the toggle out while its section master is off, since it does nothing then. */
         public ToggleEntry gatedBy(String section) { this.sectionGate = section; return this; }
@@ -934,8 +944,14 @@ public class MapConfigScreen extends Screen {
             boolean gatedOff = legitOff || sectionOff;
             boolean value = getter.get();
 
+            int labelX = x + 8;
+            if (cheat) {
+                ctx.text(screen.font, CHEAT_MARK, labelX, y + 9, gatedOff ? 0xFF666666 : CHEAT_COLOR);
+                labelX += screen.font.width(CHEAT_MARK);
+            }
+
             if (gatedOff) {
-                ctx.text(screen.font, screen.fitLabel(label, x + 8, toggleX), x + 8, y + 9, 0xFF666666);
+                ctx.text(screen.font, screen.fitLabel(label, labelX, toggleX), labelX, y + 9, 0xFF666666);
                 ctx.fill(toggleX, toggleY, toggleX + 36, toggleY + 16, 0xFF2A2A2A);
                 drawBorder(ctx, toggleX, toggleY, 36, 16, 0xFF444444);
                 ctx.fill(toggleX + 2, toggleY + 2, toggleX + 16, toggleY + 14, 0xFF555555);
@@ -949,7 +965,13 @@ public class MapConfigScreen extends Screen {
                 return;
             }
 
-            ctx.text(screen.font, screen.fitLabel(label, x + 8, toggleX), x + 8, y + 9, GuiStyle.text());
+            ctx.text(screen.font, screen.fitLabel(label, labelX, toggleX), labelX, y + 9, cheat ? CHEAT_COLOR : GuiStyle.text());
+            if (cheat && hovered) {
+                int tw = screen.font.width(CHEAT_TIP);
+                int tx = Math.max(SIDEBAR_WIDTH + 5, mouseX - tw - 6), ty = y - 2;
+                ctx.fill(tx - 3, ty - 2, tx + tw + 3, ty + 11, 0xEE000000);
+                ctx.text(screen.font, CHEAT_TIP, tx, ty, CHEAT_COLOR);
+            }
 
             if (clicked && hovered) {
                 screen.clickHandled = true;
