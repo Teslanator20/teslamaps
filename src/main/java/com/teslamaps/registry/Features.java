@@ -15,5 +15,8 @@ final class Features {
         com.teslamaps.dungeon.puzzle.PuzzleTimers.register();
         // wave 1a dungeon-b
         com.teslamaps.dungeon.DungeonWaypoints.register();
+        // wave 1a map
+        com.teslamaps.esp.DoorRoute.register();
+        com.teslamaps.features.SecretWaypoints.register();
     }
 }

@@ -3,6 +3,7 @@ package com.teslamaps.dungeon;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.ScoreboardUtils;
+import com.teslamaps.utils.TabListUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
@@ -46,6 +47,7 @@ public class DungeonScore {
     private static long startingTime = 0L;
     private static int puzzleCount = 0;
     private static int deathCount = 0;
+    private static int tabDeaths = -1;
     private static int score = 0;
     private static boolean firstDeathHasSpirit = true;
 
@@ -76,6 +78,7 @@ public class DungeonScore {
         startingTime = 0L;
         puzzleCount = 0;
         deathCount = 0;
+        tabDeaths = -1;
         score = 0;
         firstDeathHasSpirit = true;
         tabCrypts = 0;
@@ -120,6 +123,7 @@ public class DungeonScore {
             if (currentFloor.equals("E")) isCurrentFloorEntrance = true;
         }
 
+        tabDeaths = TabListUtils.getDeaths();
         int timeScore = calculateTimeScore();
         int exploreScore = calculateExploreScore();
         int skillScore = calculateSkillScore();
@@ -262,9 +266,11 @@ public class DungeonScore {
         return 0;
     }
 
+    // Hypixel's "Team Deaths: n" when the tab shows it, else the chat count
     private static int getDeathScorePenalty() {
-        if (deathCount == 0) return 0;
-        return deathCount * 2 - (firstDeathHasSpirit ? 1 : 0);
+        int deaths = tabDeaths >= 0 ? tabDeaths : deathCount;
+        if (deaths == 0) return 0;
+        return deaths * 2 - (firstDeathHasSpirit ? 1 : 0);
     }
 
     private static int getPuzzlePenalty() {

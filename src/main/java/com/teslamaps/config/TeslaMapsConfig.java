@@ -68,12 +68,15 @@ public class TeslaMapsConfig {
     public boolean mapHideInBoss = true;      // Hide the map during the boss fight
     public boolean legitMode = false;         // Only show explored (revealed) rooms, like the vanilla map
     public boolean legitMapOnly = false;      // Legit Mode affects only the map; don't block ESP/auto/cheats
+    public boolean legitRoomGuess = false;    // guess puzzle/trap/miniboss behind unexplored doors (Odin special column)
     @Global
     public int legitPeekKey = -1;             // Hold to reveal everything while legit mode is on (GLFW code, -1 = unbound)
     public int mapX = 23;
     public int mapY = 172;
     public float mapScale = 1.5f;
     public boolean showMapBackground = true;
+    public boolean mapCenterSmallFloors = false;  // F1-F3 rooms centered in the 6x6 frame
+    public boolean mapHypixelFallback = false;    // draw Hypixel's map pixels where our scan has no room
 
     public boolean showRoomNames = true;
     public boolean hideEntranceBloodFairyNames = true; // Don't render names for entrance, blood, fairy rooms
@@ -111,6 +114,12 @@ public class TeslaMapsConfig {
     public boolean showWhiteCheckmarks = true;   // Show white (cleared) checkmarks
     public boolean showGreenCheckmarks = true;   // Show green (all secrets) checkmarks
     public boolean showFailedCheckmarks = true;  // Show failed (red X) checkmarks
+    public boolean mapCheckmarkIcons = false;
+    public String mapCheckmarkStyle = "IllegalMap"; // Symbol / IllegalMap / NEU / Vanilla New / Vanilla Old
+    public float mapCheckmarkSize = 0.5f;           // fraction of a room tile
+    public boolean mapCheckmarkCenter = true;
+    public boolean mapCheckmarkUnopened = false;    // question mark on rooms not entered yet
+    public boolean mapCheckmarkHideWithName = false;
 
     public boolean showPlayerMarker = true;
     public boolean showSelfMarker = true;        // Show your own marker/head
@@ -119,6 +128,7 @@ public class TeslaMapsConfig {
     public boolean rotatePlayerHeads = true;
     public boolean useHeadsInsteadOfMarkers = true;  // True = player heads, False = arrow markers
     public float playerHeadScale = 1.0f;         // Scale of player heads (0.5 - 2.0)
+    public boolean mapGlowArrow = false;         // pulsing glow arrow for self (and others when markers are used)
 
     public boolean starredMobESP = true;        // Highlight starred mobs
     public boolean felESP = true;               // Highlight fels (Dinnerbone entities)
@@ -143,6 +153,12 @@ public class TeslaMapsConfig {
     public boolean doorTracers = false;         // Draw tracers to wither/blood doors
     public boolean doorColorBasedOnKey = true;  // Color doors red if key not picked up, green if picked up
     public boolean onlyShowNextDoor = true;     // Only show tracer/ESP for the nearest door
+    public boolean doorEspRoute = false;        // next wither/blood doors along the route to blood instead of the nearest
+    public float doorEspAhead = 1f;             // how many route doors ahead (0-10)
+    public boolean doorEspKeyAtCurrentRoom = false; // green only when the key is there AND the door is at your room
+    public boolean doorEspNormalDoors = false;  // box the normal doorways of the current room
+    public boolean doorEspHideUseless = true;   // skip doorways that only lead to green rooms
+    public com.teslamaps.render.EspStyle doorEspNormalStyle = new com.teslamaps.render.EspStyle("FF008080");
     public boolean mimicChestESP = true;        // Highlight trapped chests (potential mimic)
     public boolean mimicChestTracers = false;   // Draw tracers to trapped chests
     public boolean mimicDeadMessage = true;     // Send "/pc Mimic Dead!" when mimic dies
@@ -1610,6 +1626,7 @@ public class TeslaMapsConfig {
     public String colorCommissionDone = "#55FF55";    // Commission Highlight color
     public boolean secretWaypointTracers = false;     // Draw tracers to waypoints
     public boolean secretWaypointHideCollected = true; // Hide waypoints when secret is collected
+    public boolean secretWaypointEvents = false;      // hide only on real events (skull click, item pickup packet, bat sound)
 
     public String colorSecretChest = "55FF55";        // Chest (green)
     public String colorSecretItem = "55FFFF";         // Item (cyan)
@@ -1657,8 +1674,13 @@ public class TeslaMapsConfig {
     public String colorTrap = "FF8800";              // Trap room
     public String colorPuzzle = "6600AA";            // Puzzle room
     public String colorPuzzleUnexplored = "3D1866"; // Unexplored puzzle room (grayed purple)
+    public boolean mapDarkenUndiscovered = false;   // unentered rooms keep their type color, darkened
+    public float mapDarkenPercent = 0.5f;
+    public boolean mapGrayUndiscovered = false;
     public String colorFairy = "FF66CC";             // Fairy room
     public String colorMiniboss = "FFDD00";          // Miniboss/Yellow room
+    public String mapMimicRoomStyle = "Bright Red";  // Bright Red / Tint / Custom
+    public String colorMimicRoom = "BA4234";
 
     public String colorDoorNormal = "5C340E";        // Normal door (brown)
     public String colorDoorWither = "000000";        // Wither door (black)

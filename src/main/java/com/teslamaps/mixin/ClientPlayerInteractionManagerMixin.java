@@ -80,6 +80,7 @@ public class ClientPlayerInteractionManagerMixin {
 
         if (block instanceof SkullBlock || block instanceof WallSkullBlock) {
             SecretWaypoints.onSecretInteract("skull");
+            SecretWaypoints.onSkullClick(pos);
             com.teslamaps.features.SecretClickHighlight.onSecretClick(pos);
         }
     }

@@ -32,6 +32,7 @@ public class MapRenderer {
     private static int minGridX = 0, maxGridX = 5;
     private static int minGridZ = 0, maxGridZ = 5;
     private static int totalSecrets = 0;
+    private static float offX = 0, offZ = 0;
 
     private static int lastMapX, lastMapY, lastMapW, lastMapH;
     public static int mapX() { return lastMapX; }
@@ -97,6 +98,7 @@ public class MapRenderer {
         if (config.showMapBackground || leapMode) {
             drawBackground(context, baseX, baseY, mapWidth, totalHeight);
         }
+        if (config.mapHypixelFallback) drawHypixelFallback(context, rooms, baseX, baseY, scale);
         drawRoomConnections(context, rooms, baseX, baseY, scale, legit);
 
         // getAllRooms() is already deduped, so no per-frame "already drawn" set.
@@ -105,6 +107,9 @@ public class MapRenderer {
         }
         if (legit) {
             drawGuessRooms(context, baseX, baseY, scale);
+        }
+        if (config.mapCheckmarkIcons && config.showCheckmarks) {
+            for (DungeonRoom room : rooms) drawRoomCheckmark(context, room, baseX, baseY, scale);
         }
         for (DungeonRoom room : rooms) {
             if (room.isIdentified()) drawRoomName(context, room, baseX, baseY, scale);
@@ -124,6 +129,23 @@ public class MapRenderer {
         minGridX = 0; maxGridX = ComponentGrid.GRID_SIZE - 1;
         minGridZ = 0; maxGridZ = ComponentGrid.GRID_SIZE - 1;
         totalSecrets = 0;
+        offX = 0; offZ = 0;
+        if (TeslaMapsConfig.get().mapCenterSmallFloors) {
+            // FunnyMap calibrateMap: F1 4x5, F2/F3 5x5
+            int w = 6, h = 6;
+            switch (DungeonManager.getCurrentFloor()) {
+                case F1, M1 -> { w = 4; h = 5; }
+                case F2, F3, M2, M3 -> { w = 5; h = 5; }
+                default -> {}
+            }
+            for (DungeonRoom room : rooms) {
+                for (int[] c : room.getComponents()) {
+                    if (c[0] >= w || c[1] >= h) { w = 6; h = 6; }
+                }
+            }
+            offX = (ComponentGrid.GRID_SIZE - w) * CELL_SIZE / 2f;
+            offZ = (ComponentGrid.GRID_SIZE - h) * CELL_SIZE / 2f;
+        }
 
         for (DungeonRoom room : rooms) {
             if (room.getSecrets() > 0) totalSecrets += room.getSecrets();
@@ -294,11 +316,11 @@ public class MapRenderer {
     }
 
     private static int gridToPixelX(int gridX, int baseX, float scale) {
-        return baseX + (int)((MAP_PADDING + (gridX - minGridX) * CELL_SIZE) * scale);
+        return baseX + (int)((MAP_PADDING + offX + (gridX - minGridX) * CELL_SIZE) * scale);
     }
 
     private static int gridToPixelY(int gridZ, int baseY, float scale) {
-        return baseY + (int)((MAP_PADDING + (gridZ - minGridZ) * CELL_SIZE) * scale);
+        return baseY + (int)((MAP_PADDING + offZ + (gridZ - minGridZ) * CELL_SIZE) * scale);
     }
 
     private static void drawRoomConnections(GuiGraphicsExtractor context, Collection<DungeonRoom> rooms, int baseX, int baseY, float scale, boolean legit) {
@@ -317,7 +339,7 @@ public class MapRenderer {
                     DoorType doorType = DoorScanner.getDoorType(gx, gz, gx + 1, gz);
                     boolean bothScanned = room.getName() != null && rightRoom.getName() != null;
                     if (doorType != DoorType.NONE && bothScanned) {
-                        int color = getDoorColor(doorType);
+                        int color = connectionColor(doorType, room, rightRoom);
                         int x1 = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE * scale) - 1;
                         int yCenter = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE/2 * scale);
                         int y1 = yCenter - doorThickness / 2;
@@ -332,7 +354,7 @@ public class MapRenderer {
                     DoorType doorType = DoorScanner.getDoorType(gx, gz, gx, gz + 1);
                     boolean bothScanned = room.getName() != null && bottomRoom.getName() != null;
                     if (doorType != DoorType.NONE && bothScanned) {
-                        int color = getDoorColor(doorType);
+                        int color = connectionColor(doorType, room, bottomRoom);
                         int xCenter = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE/2 * scale);
                         int x1 = xCenter - doorThickness / 2;
                         int y1 = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE * scale) - 1;
@@ -343,6 +365,60 @@ public class MapRenderer {
                 }
             }
         }
+    }
+
+    private static int connectionColor(DoorType type, DungeonRoom a, DungeonRoom b) {
+        int color = getDoorColor(type);
+        if ((a.getCheckmarkState() == CheckmarkState.UNEXPLORED || b.getCheckmarkState() == CheckmarkState.UNEXPLORED)
+                && typedUndiscovered()) {
+            color = undiscoveredColor(color);
+        }
+        return color;
+    }
+
+    private static final boolean[] covered = new boolean[ComponentGrid.GRID_SIZE * ComponentGrid.GRID_SIZE];
+
+    // cells our scan could not fill get Hypixel's own map pixels
+    private static void drawHypixelFallback(GuiGraphicsExtractor context, Collection<DungeonRoom> rooms, int baseX, int baseY, float scale) {
+        if (!com.teslamaps.map.HypixelMapFallback.ready() || MapScanner.mapCornerX < 0 || MapScanner.mapCornerY < 0) return;
+        int n = ComponentGrid.GRID_SIZE;
+        java.util.Arrays.fill(covered, false);
+        for (DungeonRoom room : rooms) {
+            for (int[] c : room.getComponents()) {
+                if (c[0] >= 0 && c[0] < n && c[1] >= 0 && c[1] < n) covered[c[0] + c[1] * n] = true;
+            }
+        }
+        var tex = com.teslamaps.map.HypixelMapFallback.texture();
+        int rs = MapScanner.mapRoomSize, gap = MapScanner.mapGapSize;
+        for (int gz = 0; gz < n; gz++) {
+            for (int gx = 0; gx < n; gx++) {
+                if (covered[gx + gz * n]) continue;
+                int u = MapScanner.mapCornerX + gx * (rs + gap);
+                int v = MapScanner.mapCornerY + gz * (rs + gap);
+                int x0 = gridToPixelX(gx, baseX, scale), y0 = gridToPixelY(gz, baseY, scale);
+                int xr = x0 + (int) (ROOM_SIZE * scale), yb = y0 + (int) (ROOM_SIZE * scale);
+                int x1 = gridToPixelX(gx + 1, baseX, scale), y1 = gridToPixelY(gz + 1, baseY, scale);
+                blitMap(context, tex, x0, y0, xr, yb, u, v, rs, rs);
+                blitMap(context, tex, xr, y0, x1, yb, u + rs, v, gap, rs);
+                blitMap(context, tex, x0, yb, xr, y1, u, v + rs, rs, gap);
+                blitMap(context, tex, xr, yb, x1, y1, u + rs, v + rs, gap, gap);
+                if (gx > 0 && covered[gx - 1 + gz * n]) {
+                    int xl = gridToPixelX(gx - 1, baseX, scale) + (int) (ROOM_SIZE * scale);
+                    blitMap(context, tex, xl, y0, x0, yb, u - gap, v, gap, rs);
+                }
+                if (gz > 0 && covered[gx + (gz - 1) * n]) {
+                    int yt = gridToPixelY(gz - 1, baseY, scale) + (int) (ROOM_SIZE * scale);
+                    blitMap(context, tex, x0, yt, xr, y0, u, v - gap, rs, gap);
+                }
+            }
+        }
+    }
+
+    private static void blitMap(GuiGraphicsExtractor context, net.minecraft.resources.Identifier tex,
+                                int x0, int y0, int x1, int y1, int u, int v, int uw, int vh) {
+        if (x1 <= x0 || y1 <= y0 || u < 0 || v < 0 || u + uw > 128 || v + vh > 128) return;
+        context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, tex,
+                x0, y0, u, v, x1 - x0, y1 - y0, uw, vh, 128, 128);
     }
 
     private static int getDoorColor(DoorType type) {
@@ -370,7 +446,23 @@ public class MapRenderer {
             if (!drawn.add(ck)) continue;
             int px = gridToPixelX(d.nx(), baseX, scale);
             int py = gridToPixelY(d.nz(), baseY, scale);
-            context.fill(px, py, px + roomSize, py + roomSize, gray);
+            int[] guess = com.teslamaps.map.LegitGuess.colorsAt(d.nx(), d.nz());
+            if (guess == null) {
+                context.fill(px, py, px + roomSize, py + roomSize, gray);
+            } else if (guess.length == 1) {
+                context.fill(px, py, px + roomSize, py + roomSize, guess[0]);
+            } else {
+                // Odin renderPathHints: split tile, each part darker(0.5)
+                for (int i = 0; i < guess.length; i++) {
+                    int x0 = px + roomSize * i / guess.length, x1 = px + roomSize * (i + 1) / guess.length;
+                    context.fill(x0, py, x1, py + roomSize, darkenColor(guess[i], 0.5f));
+                }
+            }
+            TeslaMapsConfig c = TeslaMapsConfig.get();
+            if (c.mapCheckmarkIcons && c.showCheckmarks && c.mapCheckmarkUnopened) {
+                drawCheckmark(context, px + roomSize / 2, py + roomSize / 2,
+                        Math.max(4, Math.round(ROOM_SIZE * scale * c.mapCheckmarkSize)), CheckmarkState.UNEXPLORED);
+            }
         }
 
         for (com.teslamaps.map.LegitGuess.Door d : guessDoors) {
@@ -589,24 +681,21 @@ public class MapRenderer {
         return id.equals("SPIRIT_LEAP") || id.equals("INFINITE_SPIRIT_LEAP") || id.equals("HAUNT_ABILITY");
     }
 
-    private static void drawRoomName(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
+    private static boolean nameVisible(DungeonRoom room) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        if (!config.showRoomNames) return;
-        if (config.roomNamesOnlyWithLeap && !holdingLeap()) return;
-        if (room.getName() == null) return;
-
-        if (config.showNamesOnlyForPuzzles && room.getType() != com.teslamaps.map.RoomType.PUZZLE) {
-            return; // Only show puzzle room names
-        }
-
+        if (!config.showRoomNames || !room.isIdentified()) return false;
+        if (config.roomNamesOnlyWithLeap && !holdingLeap()) return false;
+        if (room.getName() == null) return false;
+        if (config.showNamesOnlyForPuzzles && room.getType() != RoomType.PUZZLE) return false;
         if (config.hideEntranceBloodFairyNames) {
             var type = room.getType();
-            if (type == com.teslamaps.map.RoomType.ENTRANCE ||
-                type == com.teslamaps.map.RoomType.BLOOD ||
-                type == com.teslamaps.map.RoomType.FAIRY) {
-                return; // Hide entrance/blood/fairy names
-            }
+            if (type == RoomType.ENTRANCE || type == RoomType.BLOOD || type == RoomType.FAIRY) return false;
         }
+        return true;
+    }
+
+    private static void drawRoomName(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
+        if (!nameVisible(room)) return;
 
         int roomMinGX = Integer.MAX_VALUE, roomMinGZ = Integer.MAX_VALUE;
         int roomMaxGX = Integer.MIN_VALUE, roomMaxGZ = Integer.MIN_VALUE;
@@ -776,15 +865,54 @@ public class MapRenderer {
         if (type == null) type = RoomType.UNKNOWN;
 
         if (MimicDetector.isMimicRoom(room) && !MimicDetector.isMimicKilled()) {
-            return 0xFFFF0000; // Bright red for mimic room
+            switch (config.mapMimicRoomStyle) {
+                case "Tint" -> { return shiftColor(baseRoomColor(room, type), 0xFFFF0000, 0.2f); }
+                case "Custom" -> { return TeslaMapsConfig.parseColor(config.colorMimicRoom); }
+                default -> { return 0xFFFF0000; }
+            }
         }
+        return baseRoomColor(room, type);
+    }
 
+    private static boolean typedUndiscovered() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.mapDarkenUndiscovered || c.mapGrayUndiscovered;
+    }
+
+    // FunnyMap renderRooms: darken(1 - percent), then grayscale
+    private static int undiscoveredColor(int color) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.mapDarkenUndiscovered) color = darkenColor(color, 1f - c.mapDarkenPercent);
+        if (c.mapGrayUndiscovered) {
+            int gray = Math.round(((color >> 16) & 0xFF) * 0.299f + ((color >> 8) & 0xFF) * 0.587f + (color & 0xFF) * 0.114f);
+            color = (color & 0xFF000000) | (gray << 16) | (gray << 8) | gray;
+        }
+        return color;
+    }
+
+    // IllegalMap colorShift
+    private static int shiftColor(int from, int to, float t) {
+        int r = Math.round(((from >> 16) & 0xFF) + ((((to >> 16) & 0xFF) - ((from >> 16) & 0xFF)) * t));
+        int g = Math.round(((from >> 8) & 0xFF) + ((((to >> 8) & 0xFF) - ((from >> 8) & 0xFF)) * t));
+        int b = Math.round((from & 0xFF) + (((to & 0xFF) - (from & 0xFF)) * t));
+        return (from & 0xFF000000) | (r << 16) | (g << 8) | b;
+    }
+
+    private static int baseRoomColor(DungeonRoom room, RoomType type) {
+        if (room.getCheckmarkState() == CheckmarkState.UNEXPLORED && typedUndiscovered()) {
+            return undiscoveredColor(typeColor(room, type, false));
+        }
+        return typeColor(room, type, true);
+    }
+
+    private static int typeColor(DungeonRoom room, RoomType type, boolean unexploredColors) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
         return switch (type) {
             case ENTRANCE -> TeslaMapsConfig.parseColor(config.colorEntrance);
             case BLOOD -> TeslaMapsConfig.parseColor(config.colorBlood);
             case TRAP -> TeslaMapsConfig.parseColor(config.colorTrap);
             case PUZZLE -> {
-                if (room.getCheckmarkState() == CheckmarkState.UNEXPLORED) {
+                if (unexploredColors && room.getCheckmarkState() == CheckmarkState.UNEXPLORED) {
                     yield TeslaMapsConfig.parseColor(config.colorPuzzleUnexplored);
                 }
                 yield TeslaMapsConfig.parseColor(config.colorPuzzle);
@@ -792,7 +920,7 @@ public class MapRenderer {
             case FAIRY -> TeslaMapsConfig.parseColor(config.colorFairy);
             case YELLOW -> TeslaMapsConfig.parseColor(config.colorMiniboss);
             default -> {
-                if (room.getCheckmarkState() == CheckmarkState.UNEXPLORED) {
+                if (unexploredColors && room.getCheckmarkState() == CheckmarkState.UNEXPLORED) {
                     yield TeslaMapsConfig.parseColor(config.colorUnexplored);
                 }
                 yield TeslaMapsConfig.parseColor(config.colorNormal);
@@ -800,7 +928,60 @@ public class MapRenderer {
         };
     }
 
-    private static void drawCheckmark(GuiGraphicsExtractor context, int x, int y, int size, CheckmarkState state) {
+    private static final String[] CHECK_SETS = {"illegalmap", "neu", "vanilla_new", "vanilla_old"};
+    private static final String[] CHECK_STYLE_NAMES = {"IllegalMap", "NEU", "Vanilla New", "Vanilla Old"};
+    // per set: white, green, failed, question
+    private static final int[][] CHECK_DIMS = {{10, 10, 10, 62}, {100, 100, 100, 100}, {18, 18, 8, 18}, {8, 7, 8, 7}};
+    private static final net.minecraft.resources.Identifier[][] CHECK_TEX = new net.minecraft.resources.Identifier[4][4];
+    static {
+        String[] files = {"white", "green", "failed", "question"};
+        for (int s = 0; s < 4; s++) for (int i = 0; i < 4; i++)
+            CHECK_TEX[s][i] = net.minecraft.resources.Identifier.fromNamespaceAndPath("teslamaps",
+                    "textures/map/checks/" + CHECK_SETS[s] + "/" + files[i] + ".png");
+    }
+
+    private static int checkIndex(CheckmarkState state) {
+        return switch (state) {
+            case WHITE -> 0;
+            case GREEN -> 1;
+            case FAILED -> 2;
+            case UNEXPLORED -> 3;
+            default -> -1;
+        };
+    }
+
+    private static void drawRoomCheckmark(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        CheckmarkState state = room.getCheckmarkState();
+        if (state == CheckmarkState.UNEXPLORED && !config.mapCheckmarkUnopened) return;
+        if (config.mapCheckmarkHideWithName && nameVisible(room)) return;
+        double[] c = checkmarkCenter(room);
+        int cx = baseX + (int) ((MAP_PADDING + offX + (c[0] - minGridX) * CELL_SIZE + ROOM_SIZE / 2.0) * scale);
+        int cy = baseY + (int) ((MAP_PADDING + offZ + (c[1] - minGridZ) * CELL_SIZE + ROOM_SIZE / 2.0) * scale);
+        drawCheckmark(context, cx, cy, Math.max(4, Math.round(ROOM_SIZE * scale * config.mapCheckmarkSize)), state);
+    }
+
+    // Devonian getCenterOf: L rooms use the corner cell, others the mean of their cells
+    private static double[] checkmarkCenter(DungeonRoom room) {
+        List<int[]> comps = room.getComponents();
+        if (!TeslaMapsConfig.get().mapCheckmarkCenter) {
+            int[] best = comps.get(0);
+            for (int[] p : comps) if (p[0] + p[1] < best[0] + best[1]) best = p;
+            return new double[]{best[0], best[1]};
+        }
+        if (comps.size() == 3) {
+            for (int[] p : comps) {
+                boolean h = hasComponent(room, p[0] + 1, p[1]) || hasComponent(room, p[0] - 1, p[1]);
+                boolean v = hasComponent(room, p[0], p[1] + 1) || hasComponent(room, p[0], p[1] - 1);
+                if (h && v) return new double[]{p[0], p[1]};
+            }
+        }
+        double sx = 0, sz = 0;
+        for (int[] p : comps) { sx += p[0]; sz += p[1]; }
+        return new double[]{sx / comps.size(), sz / comps.size()};
+    }
+
+    private static void drawCheckmark(GuiGraphicsExtractor context, int centerX, int centerY, int size, CheckmarkState state) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         if (!config.showCheckmarks) return; // master switch
@@ -808,27 +989,34 @@ public class MapRenderer {
         if (state == CheckmarkState.WHITE && !config.showWhiteCheckmarks) return;
         if (state == CheckmarkState.GREEN && !config.showGreenCheckmarks) return;
         if (state == CheckmarkState.FAILED && !config.showFailedCheckmarks) return;
+        int idx = checkIndex(state);
+        if (idx < 0) return;
+
+        int set = -1;
+        for (int i = 0; i < CHECK_STYLE_NAMES.length; i++) if (CHECK_STYLE_NAMES[i].equals(config.mapCheckmarkStyle)) set = i;
+        if (set >= 0) {
+            int tw = CHECK_DIMS[set][idx];
+            context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, CHECK_TEX[set][idx],
+                    centerX - size / 2, centerY - size / 2, 0f, 0f, size, size, tw, tw, tw, tw);
+            return;
+        }
 
         String symbol = switch (state) {
             case WHITE, GREEN -> "\u2714";
             case FAILED -> "\u2716";
-            default -> "";
+            default -> "?";
         };
-        if (!symbol.isEmpty()) {
-            int centerX = x + size / 2;
-            int centerY = y + size / 2;
-            int textWidth = Minecraft.getInstance().font.width(symbol);
+        int textWidth = Minecraft.getInstance().font.width(symbol);
 
-            int color = switch (state) {
-                case WHITE -> TeslaMapsConfig.parseColor(config.colorCheckWhite);
-                case GREEN -> TeslaMapsConfig.parseColor(config.colorCheckGreen);
-                case FAILED -> TeslaMapsConfig.parseColor(config.colorCheckFailed);
-                default -> 0xFFFFFFFF;
-            };
+        int color = switch (state) {
+            case WHITE -> TeslaMapsConfig.parseColor(config.colorCheckWhite);
+            case GREEN -> TeslaMapsConfig.parseColor(config.colorCheckGreen);
+            case FAILED -> TeslaMapsConfig.parseColor(config.colorCheckFailed);
+            default -> TeslaMapsConfig.parseColor(config.colorTextUnexplored);
+        };
 
-            context.text(Minecraft.getInstance().font,
-                    symbol, centerX - textWidth / 2, centerY - 4, color);
-        }
+        context.text(Minecraft.getInstance().font,
+                symbol, centerX - textWidth / 2, centerY - 4, color);
     }
 
     private static void drawPlayerMarker(GuiGraphicsExtractor context, Minecraft mc, int baseX, int baseY, float scale) {
@@ -879,8 +1067,8 @@ public class MapRenderer {
                         uuid, clazz, name, false, recordName);
             } else {
                 double[] renderPos = MapScanner.mapToRenderPosition(mapX, mapZ, ROOM_SIZE, DOOR_SIZE);
-                int pixelX = baseX + (int)(renderPos[0] * scale);
-                int pixelY = baseY + (int)(renderPos[1] * scale);
+                int pixelX = baseX + (int)((MAP_PADDING + offX + renderPos[0]) * scale);
+                int pixelY = baseY + (int)((MAP_PADDING + offZ + renderPos[1]) * scale);
                 float yaw = rotation * 22.5f;
 
                 drawHeadMarker(context, pixelX, pixelY, headSize, yaw, uuid, name, false, recordName, clazz);
@@ -904,7 +1092,9 @@ public class MapRenderer {
         float rad = config.rotatePlayerHeads ? (float) Math.toRadians(rotationDeg) : 0f;
         if (rad != 0f) pose.rotate(rad);
 
-        if (config.useHeadsInsteadOfMarkers && uuid != null) {
+        if (config.mapGlowArrow && (isLocal || !config.useHeadsInsteadOfMarkers || uuid == null)) {
+            drawGlowArrow(context, Math.max(10, headSize) / 20f, knownClass ? classColor : 0xFF00FF00);
+        } else if (config.useHeadsInsteadOfMarkers && uuid != null) {
             if (config.mapHeadBorder) {
                 int t = Math.max(1, Math.round(headSize / 8f));
                 int b = half + t;
@@ -986,6 +1176,44 @@ public class MapRenderer {
             x += xInc;
             y += yInc;
         }
+    }
+
+    // Oracle Economy TerritoryMapScreen.renderPlayerMarker: notched arrow, outer glow / inner glow / core
+    private static void drawGlowArrow(GuiGraphicsExtractor context, float s, int color) {
+        float pulse = (float) (0.9 + 0.1 * Math.sin(System.currentTimeMillis() / 150.0));
+        int r = (int) (((color >> 16) & 0xFF) * pulse);
+        int g = (int) (((color >> 8) & 0xFF) * pulse);
+        int b = (int) ((color & 0xFF) * pulse);
+        int rgb = (r << 16) | (g << 8) | b;
+        int[] colors = {0x1A000000 | rgb, 0x44000000 | rgb, 0xFF000000 | rgb};
+        int[] expands = {3, 1, 0};
+        int hw = 9, h = 20, notchHW = 6, notchD = 7;
+        int tipY = -h * 2 / 3;
+        int baseY = tipY + h;
+        var pose = context.pose();
+        pose.pushMatrix();
+        pose.scale(s, s);
+        for (int pass = 0; pass < 3; pass++) {
+            int ex = expands[pass];
+            int c = colors[pass];
+            for (int row = tipY - ex; row <= baseY + ex; row++) {
+                float triT = Math.clamp((float) (row - tipY) / h, 0f, 1f);
+                int rowHW = (int) (hw * triT + ex + 0.5f);
+                if (rowHW <= 0) continue;
+                int notchStart = baseY - notchD;
+                if (row > notchStart - ex) {
+                    float nT = Math.clamp((float) (row - notchStart) / notchD, 0f, 1f);
+                    int nHW = Math.max(0, (int) (notchHW * nT + 0.5f) - ex);
+                    if (nHW > 0 && nHW < rowHW) {
+                        context.fill(-rowHW, row, -nHW, row + 1, c);
+                        context.fill(nHW, row, rowHW, row + 1, c);
+                        continue;
+                    }
+                }
+                context.fill(-rowHW, row, rowHW, row + 1, c);
+            }
+        }
+        pose.popMatrix();
     }
 
     private static void drawFilledTriangle(GuiGraphicsExtractor context, int x1, int y1, int x2, int y2, int x3, int y3, int color) {

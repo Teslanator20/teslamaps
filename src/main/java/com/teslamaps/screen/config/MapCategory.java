@@ -17,6 +17,8 @@ public final class MapCategory {
         b.toggle("Only In Boss", () -> config.mapOnlyInBoss, v -> config.mapOnlyInBoss = v);
         b.toggle("Hide In Boss", () -> config.mapHideInBoss, v -> config.mapHideInBoss = v);
         b.toggle("Show Background", () -> config.showMapBackground, v -> config.showMapBackground = v);
+        b.toggle("Center Small Floors", () -> config.mapCenterSmallFloors, v -> config.mapCenterSmallFloors = v);
+        b.toggle("Hypixel Map Fallback", () -> config.mapHypixelFallback, v -> config.mapHypixelFallback = v);
         b.toggle("Show Mimic Status", () -> config.showMimicStatus, v -> config.showMimicStatus = v);
         b.toggle("Show Prince Icon", () -> config.showPrinceIcon, v -> config.showPrinceIcon = v);
         b.toggle("Show Prince Status", () -> config.showPrinceStatus, v -> config.showPrinceStatus = v);
@@ -47,6 +49,13 @@ public final class MapCategory {
         b.toggle("White Checks", () -> config.showWhiteCheckmarks, v -> config.showWhiteCheckmarks = v);
         b.toggle("Green Checks", () -> config.showGreenCheckmarks, v -> config.showGreenCheckmarks = v);
         b.toggle("Failed Checks", () -> config.showFailedCheckmarks, v -> config.showFailedCheckmarks = v);
+        b.toggle("Checkmark Icons", () -> config.mapCheckmarkIcons, v -> config.mapCheckmarkIcons = v);
+        b.dropdown("  Icon Style", new String[]{"Symbol", "IllegalMap", "NEU", "Vanilla New", "Vanilla Old"},
+                () -> config.mapCheckmarkStyle, v -> config.mapCheckmarkStyle = v);
+        b.slider("  Icon Size", 0.2f, 1.0f, () -> config.mapCheckmarkSize, v -> config.mapCheckmarkSize = v);
+        b.toggle("  Center In Room", () -> config.mapCheckmarkCenter, v -> config.mapCheckmarkCenter = v);
+        b.toggle("  Question Mark On Unentered", () -> config.mapCheckmarkUnopened, v -> config.mapCheckmarkUnopened = v);
+        b.toggle("  Hide When Name Shown", () -> config.mapCheckmarkHideWithName, v -> config.mapCheckmarkHideWithName = v);
         b.label("Players");
         b.toggle("Player Markers", () -> config.showPlayerMarker, v -> config.showPlayerMarker = v);
         b.toggle("Show Self", () -> config.showSelfMarker, v -> config.showSelfMarker = v);
@@ -54,11 +63,15 @@ public final class MapCategory {
         b.toggle("Show Names", () -> config.showPlayerNames, v -> config.showPlayerNames = v);
         b.toggle("Use Heads (vs Markers)", () -> config.useHeadsInsteadOfMarkers, v -> config.useHeadsInsteadOfMarkers = v);
         b.toggle("Rotate Heads", () -> config.rotatePlayerHeads, v -> config.rotatePlayerHeads = v);
+        b.toggle("Glow Arrow Marker", () -> config.mapGlowArrow, v -> config.mapGlowArrow = v);
         b.slider("Head Scale", 0.5f, 2.0f,
                 () -> config.playerHeadScale, v -> config.playerHeadScale = v);
         b.label("Room Colors");
         b.color("Background", () -> config.colorBackground, v -> config.colorBackground = v);
         b.color("Unexplored", () -> config.colorUnexplored, v -> config.colorUnexplored = v);
+        b.toggle("Darken Unentered (Type Color)", () -> config.mapDarkenUndiscovered, v -> config.mapDarkenUndiscovered = v);
+        b.slider("  Darken Amount", 0.0f, 1.0f, () -> config.mapDarkenPercent, v -> config.mapDarkenPercent = v);
+        b.toggle("Gray Unentered (Type Color)", () -> config.mapGrayUndiscovered, v -> config.mapGrayUndiscovered = v);
         b.color("Normal", () -> config.colorNormal, v -> config.colorNormal = v);
         b.color("Entrance", () -> config.colorEntrance, v -> config.colorEntrance = v);
         b.color("Blood", () -> config.colorBlood, v -> config.colorBlood = v);
@@ -66,6 +79,9 @@ public final class MapCategory {
         b.color("Puzzle", () -> config.colorPuzzle, v -> config.colorPuzzle = v);
         b.color("Fairy", () -> config.colorFairy, v -> config.colorFairy = v);
         b.color("Miniboss", () -> config.colorMiniboss, v -> config.colorMiniboss = v);
+        b.dropdown("Mimic Room", new String[]{"Bright Red", "Tint", "Custom"},
+                () -> config.mapMimicRoomStyle, v -> config.mapMimicRoomStyle = v);
+        b.color("  Mimic Room Color", () -> config.colorMimicRoom, v -> config.colorMimicRoom = v);
         b.label("Door Colors");
         b.color("Normal Door", () -> config.colorDoorNormal, v -> config.colorDoorNormal = v);
         b.color("Wither Door", () -> config.colorDoorWither, v -> config.colorDoorWither = v);
