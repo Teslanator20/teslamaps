@@ -8,12 +8,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * Outgoing announcements. Every line goes through one queue with a minimum gap, so two
  * announcements in the same tick are not dropped by Hypixel's chat limit. Ported from
  * critterMod's ChatQueue (1.2 s gap, 250 char cap, cleared on disconnect).
- *
- * <pre>
- * public String fooAnnounce = Announce.NOBODY;             // config field
- * b.channel("Announce Foo", () -&gt; c.fooAnnounce, v -&gt; c.fooAnnounce = v);
- * Announce.send(c.fooAnnounce, "Foo spawned!");
- * </pre>
  */
 public final class Announce {
 

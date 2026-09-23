@@ -14,13 +14,6 @@ import java.util.function.IntSupplier;
 /**
  * A movable panel in /tmap gui. Position and scale live in the config fields
  * {@code <prefix>X}, {@code <prefix>Y}, {@code <prefix>Scale}.
- *
- * <pre>
- * HudEditElement.of("bobberTimer", "Bobber Timer").ctx(HudCtx.ANY).section("Fishing")
- *         .enabled(() -&gt; cfg().bobberTimer)
- *         .size(() -&gt; font().width(SAMPLE), () -&gt; font().lineHeight)
- *         .preview(FishingBobberTimer::draw);
- * </pre>
  */
 public final class HudEditElement {
 

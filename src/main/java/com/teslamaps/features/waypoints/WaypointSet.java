@@ -16,13 +16,6 @@ import java.util.regex.Pattern;
 /**
  * Waypoints a feature owns: beam, box, label and distance, optional expiry and
  * remove-on-arrival. The label text is rebuilt in {@link #tick()}, render only draws.
- *
- * <pre>
- * static final WaypointSet POINTS = new WaypointSet().removeWithin(3);
- * POINTS.add(WaypointSet.fromChat(text), "Burrow", 0xFFFFAA00, 60_000);   // chat handler
- * POINTS.tick();                 // registry tick
- * POINTS.render(pose, cam);      // registry world
- * </pre>
  */
 public final class WaypointSet {
 

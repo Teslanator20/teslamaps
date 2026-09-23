@@ -14,11 +14,6 @@ import java.util.function.Consumer;
  * One feature as the registry sees it. Every callback added here is gated by the same
  * section / legit / when checks and wrapped in Perf, so a switched-off feature is never called.
  *
- * <pre>
- * Feature.of("PestRoutine").section("Garden").tick(PestRoutine::tick);
- * Feature.of("DungeonBlaze").section("Puzzles &amp; Terminals").world(DungeonBlaze::render);
- * </pre>
- *
  * Callbacks run in registration order, per kind.
  */
 public final class Feature {

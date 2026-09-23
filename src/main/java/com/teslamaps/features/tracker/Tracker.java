@@ -30,14 +30,6 @@ import java.util.function.IntSupplier;
  * Keys are SkyBlock item ids (priced through {@link PriceManager}) or free labels
  * (priced 0 unless {@link #fixedValue} says otherwise). Coins go under {@link #COINS}.
  *
- * <pre>
- * static final Tracker LOOT = Tracker.create("kuudra", "§6§lKuudra Loot")
- *         .priceSource(() -&gt; cfg().kuudraPriceSource);
- * LOOT.add("KUUDRA_TEETH", 3);          // from a chat handler
- * LOOT.tick();                          // registry tick: idle clock + HUD lines
- * LOOT.draw(g, mc, x, y, scale);        // HUD render + /tmap gui preview
- * </pre>
- *
  * Only the all-time counts are saved, to {@code config/teslamaps/trackers/<id>.json}.
  */
 public final class Tracker {

@@ -7,12 +7,6 @@ import java.util.List;
  * Countdowns in server ticks. Hypixel sends one ping packet per server tick, so a lagging
  * server stretches the countdown the same way it stretches the event being timed. Without
  * pings (singleplayer, other servers) the client tick stands in.
- *
- * <pre>
- * static final ServerTickTimer STUN = new ServerTickTimer();
- * STUN.start(100, () -&gt; LoudSound.play(...));   // on the chat line
- * if (STUN.active()) text = ServerTickTimer.seconds(STUN.remaining());   // tick, not render
- * </pre>
  */
 public final class ServerTickTimer {
 
