@@ -265,6 +265,7 @@ public class ProfileViewerScreen extends Screen {
                             mx, my + page.getScroll(), delta);
                     ctx.pose().popMatrix();
                     ctx.disableScissor();
+                    drawScrollbar(ctx, page, mx, my);
                 }
             }
         }
@@ -581,6 +582,14 @@ public class ProfileViewerScreen extends Screen {
         if (event.button() == 2
                 && com.teslamaps.features.CopyItemName.copy(ItemGrid.lastHovered())) return true;
 
+        ProfileViewerPage scrollable = scrollablePage();
+        if (scrollable != null && event.button() == 0 && mx >= barX() - 2 && mx <= barX() + BAR_WIDTH + 2
+                && my >= BAR_TOP && my <= barBottom()) {
+            draggingBar = true;
+            dragBar(scrollable, my);
+            return true;
+        }
+
         if (!loading && error == null && selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
             if (pages.get(selectedPageIndex).mouseClicked(mx, my, event.button())) return true;
         }
@@ -635,8 +644,58 @@ public class ProfileViewerScreen extends Screen {
         return super.keyPressed(event);
     }
 
+    private static final int BAR_TOP = 8;
+    private static final int BAR_WIDTH = 3;
+    private boolean draggingBar = false;
+
+    private static int barX() {
+        return NeuStyle.PANEL_WIDTH - 7;
+    }
+
+    private static int barBottom() {
+        return NeuStyle.PANEL_HEIGHT - 8;
+    }
+
+    private ProfileViewerPage scrollablePage() {
+        if (loading || error != null || selectedPageIndex < 0 || selectedPageIndex >= pages.size()) return null;
+        ProfileViewerPage page = pages.get(selectedPageIndex);
+        if (page.isFixedLayout() || page.getMaxScroll() <= 0
+                || !com.teslamaps.config.TeslaMapsConfig.get().pvScrollPages) return null;
+        return page;
+    }
+
+    private static int thumbHeight(ProfileViewerPage page) {
+        int track = barBottom() - BAR_TOP;
+        return Math.max(12, track * track / (track + page.getMaxScroll()));
+    }
+
+    private void drawScrollbar(GuiGraphicsExtractor ctx, ProfileViewerPage page, int mx, int my) {
+        if (scrollablePage() != page) return;
+        int track = barBottom() - BAR_TOP;
+        int thumb = thumbHeight(page);
+        int thumbY = BAR_TOP + (track - thumb) * page.getScroll() / Math.max(1, page.getMaxScroll());
+        boolean hover = draggingBar || (mx >= barX() - 2 && mx <= barX() + BAR_WIDTH + 2 && my >= BAR_TOP && my <= barBottom());
+        ctx.fill(barX(), BAR_TOP, barX() + BAR_WIDTH, barBottom(), 0x40000000);
+        ctx.fill(barX(), thumbY, barX() + BAR_WIDTH, thumbY + thumb, hover ? 0xFFFFFFFF : 0xFFAAAAAA);
+    }
+
+    private void dragBar(ProfileViewerPage page, int my) {
+        int track = barBottom() - BAR_TOP;
+        int thumb = thumbHeight(page);
+        double t = (my - BAR_TOP - thumb / 2.0) / Math.max(1, track - thumb);
+        page.setScroll((int) Math.round(Math.max(0, Math.min(1, t)) * page.getMaxScroll()));
+    }
+
     @Override
     public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dragX, double dragY) {
+        if (draggingBar) {
+            ProfileViewerPage page = scrollablePage();
+            if (page != null) {
+                dragBar(page, (int) ((event.y() - panelY) / scale));
+                return true;
+            }
+            draggingBar = false;
+        }
         if (selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
             int mx = (int) ((event.x() - panelX) / scale);
             int my = (int) ((event.y() - panelY) / scale);
@@ -647,6 +706,7 @@ public class ProfileViewerScreen extends Screen {
 
     @Override
     public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
+        draggingBar = false;
         if (selectedPageIndex >= 0 && selectedPageIndex < pages.size()) {
             pages.get(selectedPageIndex).mouseReleased();
         }
