@@ -1509,6 +1509,8 @@ public class TeslaMapsConfig {
     public String rareCatchSound = "NOTE_PLING";
     public float rareCatchVolume = 1.0f;
     public boolean rareCatchAnnounce = false;       // "I caught a X!" to party chat
+    public java.util.Map<String, Boolean> seaCreatureAlert = new java.util.HashMap<>();    // per-creature override of Counts As Rare
+    public java.util.Map<String, Boolean> seaCreatureAnnounce = new java.util.HashMap<>();
     public boolean rareCatchKeySwap = false;        // attack->O, use->I for a moment after a rare catch
     public float rareCatchKeySwapSeconds = 2.0f;    // 0-5s swap window
     public boolean rareCatchKeySwapAll = false;     // also trigger on party members' catch announces
@@ -2026,6 +2028,8 @@ public class TeslaMapsConfig {
         }
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
+        if (c.seaCreatureAlert == null) c.seaCreatureAlert = new java.util.HashMap<>();
+        if (c.seaCreatureAnnounce == null) c.seaCreatureAnnounce = new java.util.HashMap<>();
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();

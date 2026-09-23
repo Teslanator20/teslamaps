@@ -35,13 +35,24 @@ public final class RareSeaCreature {
         boolean target = FishCatchKeySwap.TARGETS.contains(name);
         if (c.rareCatchKeySwap && target) FishCatchKeySwap.trigger();
         SeaCreatureList.Info info = SeaCreatureList.info(name);
-        if (info == null || !(isRare(info, c.rareCatchRarity) || target)) return;
+        if (info == null) return;
+        boolean rare = isRare(info, c.rareCatchRarity) || target;
+        boolean doAlert = c.seaCreatureAlert.getOrDefault(name, rare);
+        boolean doAnnounce = c.seaCreatureAnnounce.getOrDefault(name, rare);
+        if (!doAlert && !doAnnounce) return;
 
         boolean doubleHook = System.currentTimeMillis() - lastDoubleHook < DOUBLE_HOOK_WINDOW_MS;
         lastDoubleHook = 0;
 
-        if (c.rareCatchAlert) alert(c, info, doubleHook);
-        if (c.rareCatchAnnounce) announce(name, doubleHook);
+        if (c.rareCatchAlert && doAlert) alert(c, info, doubleHook);
+        if (c.rareCatchAnnounce && doAnnounce) announce(name, doubleHook);
+    }
+
+    /** What the Counts As Rare rule says, without per-creature overrides. */
+    public static boolean ruleRare(String name) {
+        SeaCreatureList.Info info = SeaCreatureList.info(name);
+        if (info == null) return false;
+        return isRare(info, TeslaMapsConfig.get().rareCatchRarity) || FishCatchKeySwap.TARGETS.contains(name);
     }
 
     private static boolean isRare(SeaCreatureList.Info info, String mode) {

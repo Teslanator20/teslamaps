@@ -28,6 +28,9 @@ public final class FishingCategory {
         b.toggle("Announce Rare Catch",
                 () -> config.rareCatchAnnounce, v -> config.rareCatchAnnounce = v);
         b.info("Sends /pc I caught a <creature>! (double hook noted)");
+        b.button("  Per Sea Creature...",
+                () -> Minecraft.getInstance().setScreen(new SeaCreatureScreen(b.screen())));
+        b.info("Pick alert and announce per creature, overrides Counts As Rare");
         b.toggle("Misclick Guard",
                 () -> config.rareCatchKeySwap, v -> config.rareCatchKeySwap = v);
         b.info("After a Drowned Captain / Magma Pillar catch, Attack = O and Use = I briefly - mouse does nothing");

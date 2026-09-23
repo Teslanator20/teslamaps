@@ -94,6 +94,12 @@ public class SeaCreatureList {
         return messageToName.get(cleanMessage.trim());
     }
 
+    public static java.util.List<String> names() {
+        java.util.List<String> out = new java.util.ArrayList<>(byName.keySet());
+        out.sort(String.CASE_INSENSITIVE_ORDER);
+        return out;
+    }
+
     /** @return rarity, rare flag and chat color, or null when the creature is unknown. */
     public static Info info(String name) {
         return byName.get(name);
