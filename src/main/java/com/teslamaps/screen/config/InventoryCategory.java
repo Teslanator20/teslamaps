@@ -90,6 +90,11 @@ public final class InventoryCategory {
                 com.teslamaps.features.SlotBinds.LINE_MODES, () -> config.slotBindsLineDisplay, v -> config.slotBindsLineDisplay = v);
         b.dropdown("  Profile",
                 com.teslamaps.features.SlotBinds.PROFILES, () -> config.slotBindsProfile, v -> config.slotBindsProfile = v);
+        b.toggle("  Work In Every Container", () -> config.slotBindsAllContainers, v -> config.slotBindsAllContainers = v);
+        b.toggle("  Per SkyBlock Profile", () -> config.slotBindsPerProfile, v -> config.slotBindsPerProfile = v);
+        b.toggle("  Switch Profile By Area", () -> config.slotBindsAreaSwitch, v -> config.slotBindsAreaSwitch = v);
+        b.buttonRow(new String[]{"Use Profile Here", "Clear Areas"},
+                new Runnable[]{com.teslamaps.features.SlotBinds::bindCurrentArea, com.teslamaps.features.SlotBinds::clearAreas});
         b.label("Customization");
         b.toggle("Button In Inventory", () -> config.showCustomizeButton, v -> config.showCustomizeButton = v);
         b.button("Open Customize Screen",

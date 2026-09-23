@@ -1462,6 +1462,11 @@ public class TeslaMapsConfig {
     public String slotBindsProfile = "Profile 1";   // active bind profile
     @Global
     public java.util.Map<String, java.util.Map<Integer, Integer>> slotBindsData = new java.util.HashMap<>();
+    public boolean slotBindsAllContainers = false;  // binds also work in chests, storage, wardrobe ...
+    public boolean slotBindsPerProfile = false;     // separate bind sets per skyblock profile
+    public boolean slotBindsAreaSwitch = false;     // pick the bind profile by area
+    @Global
+    public java.util.Map<String, String> slotBindsAreaProfiles = new java.util.HashMap<>();
     public boolean solveWaterBoard = true;          // Show solution for Water Board puzzle
     public boolean waterBoardTracers = true;        // Draw tracers to next lever
     public boolean waterBoardColorStages = false;
@@ -1837,6 +1842,7 @@ public class TeslaMapsConfig {
         if (c.splitPbs == null) c.splitPbs = new java.util.HashMap<>();
         if (c.lockedSlots == null) c.lockedSlots = new java.util.ArrayList<>();
         if (c.slotBindsData == null) c.slotBindsData = new java.util.HashMap<>();
+        if (c.slotBindsAreaProfiles == null) c.slotBindsAreaProfiles = new java.util.HashMap<>();
         if (c.puzzlePbs == null) c.puzzlePbs = new java.util.HashMap<>();
         if (c.termSimPbs == null) c.termSimPbs = new java.util.HashMap<>();
         if (c.terminalPbs == null) c.terminalPbs = new java.util.HashMap<>();
