@@ -98,6 +98,33 @@ public final class ConfigBuilder {
         return add(s.new SoundDropdownEntry(x, w, label, options, get, set));
     }
 
+    /** Searchable multi-select list; add icons/colours/actions via the returned entry. */
+    public MapConfigScreen.SearchListEntry searchList(String label, Supplier<List<String>> options,
+                                                      java.util.function.Predicate<String> selected, Consumer<String> toggle) {
+        return add(s.new SearchListEntry(x, w, label, options, selected, toggle));
+    }
+
+    /** The Custom ESP names as a searchable list with nearby mobs, icons and per-entry colours. */
+    public MapConfigScreen.SearchListEntry customEspList(String label) {
+        TeslaMapsConfig c = config();
+        return searchList(label, () -> NearbyMobs.options(c.customESPMobs),
+                id -> c.customESPMobs.stream().anyMatch(s -> s.equalsIgnoreCase(id)),
+                id -> {
+                    NearbyMobs.remember(id);
+                    if (!c.customESPMobs.removeIf(s -> s.equalsIgnoreCase(id))) c.customESPMobs.add(id);
+                })
+                .icons(NearbyMobs::icon)
+                .colors(id -> c.customESPColors.getOrDefault(id.toLowerCase(), c.colorESPCustom),
+                        (id, hex) -> c.customESPColors.put(id.toLowerCase(), hex))
+                .pick(NearbyMobs::looked)
+                .clearAll(() -> {
+                    for (String m : c.customESPMobs) NearbyMobs.remember(m);
+                    c.customESPMobs.clear();
+                    c.customESPTracers.clear();
+                    c.customESPColors.clear();
+                });
+    }
+
     public MapConfigScreen.ClassFilterEntry classFilter(String label, TeslaMapsConfig.ClassFilter filter) {
         return add(s.new ClassFilterEntry(x, w, label, filter));
     }
