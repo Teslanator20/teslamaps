@@ -18,6 +18,10 @@ public class TimerTriggers {
     private static int goldorStartTicks = -1; // 104t until terms/devices can be activated
     private static int stormPadTicks = -1;    // repeating 20t Storm pad pulse
     private static int lightningTicks = -1;   // 560t until Storm's lightning
+    private static int bossStartTicks = -1;   // Maxor 167t / Storm 120t
+    private static int bossStartMax = 167;
+    private static long runStartMs = 0;
+    private static long lastServerTick = -1;
 
     /** How long READY keeps standing after the cooldown ends. */
     private static final long READY_LINGER = 30000;
@@ -98,6 +102,9 @@ public class TimerTriggers {
             stormPadTicks = 20;
             lightningTicks = 560;
         }
+        if (m.contains("[BOSS] Maxor: WELL! WELL! WELL! LOOK WHO'S HERE!")) { bossStartTicks = 167; bossStartMax = 167; }
+        if (m.contains("[BOSS] Maxor: I'M TOO YOUNG TO DIE AGAIN!")) { bossStartTicks = 120; bossStartMax = 120; }
+        if (m.contains("[NPC] Mort: Here, I found this map when I first entered the dungeon.")) runStartMs = now();
         if (m.contains("Bonzo's Mask saved your life")) { BONZO.proc = now(); BONZO.cd = readCooldown("Bonzo's Mask", 360000); announce("Bonzo"); }
         if (m.contains("Spirit Mask saved your life")) { SPIRIT.proc = now(); announce("Spirit"); }
         if (m.contains("Phoenix Pet saved you from certain death")) { PHOENIX.proc = now(); announce("Phoenix"); }
@@ -202,6 +209,9 @@ public class TimerTriggers {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
         com.teslamaps.dungeon.DungeonFloor f = com.teslamaps.dungeon.DungeonManager.getCurrentFloor();
+        long serverTick = com.teslamaps.utils.ServerTickTimer.now();
+        int dt = lastServerTick < 0 ? 1 : (int) Math.max(0, Math.min(40, serverTick - lastServerTick));
+        lastServerTick = serverTick;
         if (c.warpCooldown && warpEnd > 0) {
             long ms = warpEnd - now();
             if (ms < 0) { warpEnd = -1; DungeonTimers.clear("warp"); }
@@ -213,9 +223,9 @@ public class TimerTriggers {
         PHOENIX.tick(c.invincibilityTimer);
 
         if (c.purplePadTimer && purplePadTicks > 0) {
-            purplePadTicks--;
-            DungeonTimers.set("purplepad", "§dPurple§f: §d" + fmtTicks(purplePadTicks));
-        } else { purplePadTicks = 0; DungeonTimers.clear("purplepad"); }
+            purplePadTicks = Math.max(0, purplePadTicks - dt);
+            show("purplepad", "§dPurple§f: ", "§d" + fmtTicks(purplePadTicks));
+        } else { purplePadTicks = 0; hide("purplepad"); }
 
         // only in the boss arena (off the room grid) - showed a useless 0/4 for the whole clear before
         boolean leapArea = c.leapCounter && f != null && f.getLevel() == 7 && mc.player != null && mc.level != null
@@ -241,14 +251,15 @@ public class TimerTriggers {
         } else DungeonTimers.clear("ss");
 
         if (c.relicTimer && relicTicks > 0) {
-            relicTicks--;
-            DungeonTimers.set("relic", "§aRelic§f: §a" + fmtTicks(relicTicks));
-        } else { relicTicks = 0; DungeonTimers.clear("relic"); }
+            relicTicks = Math.max(0, relicTicks - dt);
+            show("relic", "§aRelic§f: ", "§a" + fmtTicks(relicTicks));
+        } else { relicTicks = 0; hide("relic"); }
 
         boolean inDungeon = com.teslamaps.dungeon.DungeonManager.isInDungeon();
         if (!inDungeon) {
             necronDropTicks = -1; goldorTicks = -1; goldorStartTicks = -1;
-            stormPadTicks = -1; lightningTicks = -1;
+            stormPadTicks = -1; lightningTicks = -1; bossStartTicks = -1;
+            runStartMs = 0;
             resetLeapSpots();
             LIGHTNING.stop();
         }
@@ -258,38 +269,78 @@ public class TimerTriggers {
             mc.gui.setTitle(Component.literal(String.format(java.util.Locale.ROOT, "§c§l%.1f", LIGHTNING.remaining() / 20.0)));
         }
 
+        // display first, then advance by the server ticks since the last client tick
+        if (c.bossStartTimers && bossStartTicks >= 0) {
+            show("bossstart", "§aStart§f: ", tickColor(bossStartTicks, bossStartMax) + fmtTicks(bossStartTicks));
+        } else hide("bossstart");
+        bossStartTicks = countDown(bossStartTicks, dt);
+
         if (c.necronDropTimer && necronDropTicks >= 0) {
-            DungeonTimers.set("necrondrop", "§4Necron§f: " + tickColor(necronDropTicks, 60) + fmtTicks(necronDropTicks));
-            necronDropTicks--;
-        } else DungeonTimers.clear("necrondrop");
+            show("necrondrop", "§4Necron§f: ", tickColor(necronDropTicks, 60) + fmtTicks(necronDropTicks));
+        } else hide("necrondrop");
+        necronDropTicks = countDown(necronDropTicks, dt);
 
         if (c.goldorTickTimer && goldorStartTicks >= 0) {
-            DungeonTimers.set("goldortick", "§aStart§f: " + tickColor(goldorStartTicks, 104) + fmtTicks(goldorStartTicks));
-            goldorStartTicks--;
+            show("goldortick", "§aStart§f: ", tickColor(goldorStartTicks, 104) + fmtTicks(goldorStartTicks));
         } else if (c.goldorTickTimer && goldorTicks >= 0) {
-            DungeonTimers.set("goldortick", "§7Tick§f: " + tickColor(goldorTicks, 60) + fmtTicks(goldorTicks));
-            if (--goldorTicks < 0) goldorTicks = 60; // devices/terms pulse every 60 ticks until the core opens
-        } else DungeonTimers.clear("goldortick");
+            show("goldortick", "§7Tick§f: ", tickColor(goldorTicks, 60) + fmtTicks(goldorTicks));
+        } else hide("goldortick");
+        goldorStartTicks = countDown(goldorStartTicks, dt);
+        goldorTicks = pulse(goldorTicks, dt, 60);
 
         if (c.stormPadTimer && stormPadTicks >= 0) {
-            DungeonTimers.set("stormpad", "§bPad§f: " + tickColor(stormPadTicks, 20) + fmtTicks(stormPadTicks));
-            if (--stormPadTicks < 0) stormPadTicks = 20; // pad pulses every 20 ticks
-        } else DungeonTimers.clear("stormpad");
+            show("stormpad", "§bPad§f: ", tickColor(stormPadTicks, 20) + fmtTicks(stormPadTicks));
+        } else hide("stormpad");
+        stormPadTicks = pulse(stormPadTicks, dt, 20);
 
         if (LIGHTNING.active()) lightningTicks = -1;
         if (c.lightningTimer && LIGHTNING.active()) {
             int lt = (int) LIGHTNING.remaining();
-            DungeonTimers.set("lightning", "§bLightning§f: " + tickColor(lt, 162) + fmtTicks(lt));
+            show("lightning", "§bLightning§f: ", tickColor(lt, 162) + fmtTicks(lt));
         } else if (c.lightningTimer && lightningTicks >= 0) {
-            DungeonTimers.set("lightning", "§bLightning§f: " + tickColor(lightningTicks, 560) + fmtTicks(lightningTicks));
-            lightningTicks--;
-        } else DungeonTimers.clear("lightning");
+            show("lightning", "§bLightning§f: ", tickColor(lightningTicks, 560) + fmtTicks(lightningTicks));
+        } else hide("lightning");
+        lightningTicks = countDown(lightningTicks, dt);
+
+        if (c.deathTickTimer && mc.level != null && inDungeon && (runStartMs == 0 || now() - runStartMs < 6000)) {
+            int dk = 40 - (int) (mc.level.getGameTime() % 40);
+            show("deathtick", "§cDeath§f: ", tickColor(dk, 40) + fmtTicks(dk));
+        } else hide("deathtick");
 
         if (c.secretTickTimer && mc.level != null && inDungeon
-                && !com.teslamaps.dungeon.DungeonManager.isInBoss()) {
+                && !com.teslamaps.dungeon.DungeonManager.isInBossArea()) {
             int st = 20 - (int) (mc.level.getGameTime() % 20);
-            DungeonTimers.set("secrettick", "§7Secret§f: " + tickColor(st, 20) + fmtTicks(st));
-        } else DungeonTimers.clear("secrettick");
+            show("secrettick", "§7Secret§f: ", tickColor(st, 20) + fmtTicks(st));
+        } else hide("secrettick");
+    }
+
+    private static int countDown(int ticks, int dt) {
+        if (ticks < 0) return -1;
+        return ticks - dt < 0 ? -1 : ticks - dt;
+    }
+
+    private static int pulse(int ticks, int dt, int period) {
+        if (ticks < 0) return -1;
+        ticks -= dt;
+        while (ticks < 0) ticks += period;
+        return ticks;
+    }
+
+    private static void show(String key, String prefix, String value) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String text = c.tickTimerNoPrefix ? value : prefix + value;
+        if (c.tickTimersSeparate && BossTickHuds.owns(key)) {
+            DungeonTimers.clear(key);
+            BossTickHuds.set(key, text);
+        } else {
+            BossTickHuds.clear(key);
+            DungeonTimers.set(key, text);
+        }
+    }
+
+    private static void hide(String key) {
+        DungeonTimers.clear(key);
+        BossTickHuds.clear(key);
     }
 
     // Odin's tick-timer coloring: green >= 66%, gold >= 33%, red below
@@ -300,10 +351,11 @@ public class TimerTriggers {
     }
 
     private static String fmtTicks(int ticks) {
+        boolean bare = TeslaMapsConfig.get().tickTimerNoSuffix;
         return switch (TeslaMapsConfig.get().tickTimerFormat) {
-            case "Ticks" -> ticks + "t";
+            case "Ticks" -> bare ? String.valueOf(ticks) : ticks + "t";
             case "Both" -> String.format("%.2fs §7(%dt)", ticks * 0.05, ticks);
-            default -> String.format("%.2fs", ticks * 0.05);
+            default -> String.format(bare ? "%.2f" : "%.2fs", ticks * 0.05);
         };
     }
 
