@@ -93,6 +93,8 @@ public class TeslaMapsConfig {
     public boolean princeESP = true;             // World ESP marking the superboom structure that spawns a Prince
     public boolean showDungeonScore = true;     // Show estimated dungeon score below map
     public boolean assumePaulMayor = false;    // Always add +10 Paul bonus to score
+    public boolean paulAutoDetect = false;     // +10 when the election API reports Paul EZPZ (mayor or minister)
+    public boolean spiritPetCheck = false;     // Look up the first dead player: no legendary Spirit pet = -2 instead of -1
     public boolean announce300 = true;         // Announce "300 Score" in party chat (/pc)
     public boolean announce270 = false;         // Announce "270 Score" in party chat (/pc)
     public boolean cryptReminder = true;        // Warn at boss entry if fewer than 5 crypts were done
@@ -1379,6 +1381,7 @@ public class TeslaMapsConfig {
     public int witherDragonSoloDebuff = 0;           // 0 = Tank solos purple, 1 = Healer solos purple
     public boolean witherDragonSoloDebuffAll = true; // Solo-debuff split applies to all dragons, not just purple
     public boolean witherDragonPaulBuff = false;     // Multiply power by 1.25 (Paul mayor)
+    public boolean witherDragonPaulAuto = false;     // Paul buff from the election API (Benediction perk)
     public boolean dragonBoxes = true;             // ESP box around each live wither dragon (by colour)
     public boolean dragonHealth = true;            // Show each dragon's health % above it
     public boolean hideDyingDragons = true;        // Hide a dragon once it's dying (health <= 0)

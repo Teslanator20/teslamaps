@@ -2,14 +2,10 @@ package com.teslamaps.dungeon;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.mixin.PlayerTabOverlayAccessor;
 import com.teslamaps.utils.ScoreboardUtils;
-import java.util.Comparator;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 
 public class DungeonScore {
@@ -17,10 +13,10 @@ public class DungeonScore {
     private static final Pattern FLOOR_PATTERN = Pattern.compile(".*Cata.*ombs.*\\((?<floor>[EFM]\\d+)\\)");
 
     private static final Pattern SECRETS_PATTERN = Pattern.compile("Secrets Found: (?<secper>\\d+\\.?\\d*)%");
-    private static final Pattern PUZZLES_PATTERN = Pattern.compile(".+?(?=:): \\[(?<state>.)](?: \\(\\w*\\))?");
+    private static final Pattern PUZZLES_PATTERN = Pattern.compile("[^:\\[]+: \\[(?<state>[✔✖✦])](?: ?\\(\\w*\\))?");
     private static final Pattern PUZZLE_COUNT_PATTERN = Pattern.compile("Puzzles: \\((?<count>\\d+)\\)");
     private static final Pattern CRYPTS_PATTERN = Pattern.compile("Crypts: (?<crypts>\\d+)");
-    private static final Pattern COMPLETED_ROOMS_PATTERN = Pattern.compile(" *Completed Rooms: (?<rooms>\\d+)");
+    private static final Pattern COMPLETED_ROOMS_PATTERN = Pattern.compile("Completed Rooms: (?<rooms>\\d+)");
 
     private static final Pattern DEATHS_PATTERN = Pattern.compile(" \u2620 (?<whodied>\\S+) .*");
     // mod announces: Odin "Mimic Killed!", SkyHanni "Mimic dead!", ours "Mimic Dead!", Skytils marker
@@ -48,8 +44,12 @@ public class DungeonScore {
     private static int puzzleCount = 0;
     private static int deathCount = 0;
     private static int score = 0;
+    private static boolean firstDeathHasSpirit = true;
 
-    private static Comparator<PlayerInfo> tabListComparator = null;
+    private static int tabCrypts = 0;
+    private static int tabCompletedRooms = 0;
+    private static int tabPuzzlesDone = 0;
+    private static double tabSecretsPct = 0;
 
     private static boolean floorDetectionPending = false;
     private static long floorDetectionTime = 0L;
@@ -73,6 +73,11 @@ public class DungeonScore {
         puzzleCount = 0;
         deathCount = 0;
         score = 0;
+        firstDeathHasSpirit = true;
+        tabCrypts = 0;
+        tabCompletedRooms = 0;
+        tabPuzzlesDone = 0;
+        tabSecretsPct = 0;
         floorDetectionPending = false;
         floorDetectionTime = 0L;
         lastScoreCalcTime = 0L;
@@ -97,10 +102,11 @@ public class DungeonScore {
         if (lastScoreCalcTime != 0L && nowMs - lastScoreCalcTime < 500) return score;
         lastScoreCalcTime = nowMs;
 
+        readTab();
+
         if (floorDetectionPending && System.currentTimeMillis() >= floorDetectionTime) {
             floorDetectionPending = false;
             setCurrentFloor();
-            puzzleCount = getPuzzleCount();
             try {
                 floorRequirement = FloorRequirement.valueOf(currentFloor);
             } catch (IllegalArgumentException e) {
@@ -187,7 +193,7 @@ public class DungeonScore {
     }
 
     private static int calculateBonusScore() {
-        int paulScore = TeslaMapsConfig.get().assumePaulMayor ? 10 : 0;
+        int paulScore = paulBonus();
         int cryptsScore = Math.clamp(getCrypts(), 0, 5);
         int mimicScore = mimicKilled ? 2 : 0;
         if (getSecretsPercentage() >= 100 && floorHasMimics) mimicScore = 2;
@@ -201,9 +207,34 @@ public class DungeonScore {
         return (int) Math.round(getCompletedRooms() / clearPct);
     }
 
+    private static int paulBonus() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.assumePaulMayor || (c.paulAutoDetect && com.teslamaps.api.ElectionApi.ezpz()) ? 10 : 0;
+    }
+
+    // scan every tab line: Hypixel moves the rows around, fixed indices break
+    private static void readTab() {
+        int crypts = 0, rooms = 0, done = 0, count = -1;
+        double secrets = 0;
+        for (String raw : com.teslamaps.utils.TabListUtils.getTabListLines()) {
+            String line = com.teslamaps.utils.StringUtil.stripTrim(raw);
+            if (line.length() < 8) continue;
+            Matcher m;
+            if ((m = CRYPTS_PATTERN.matcher(line)).matches()) crypts = Integer.parseInt(m.group("crypts"));
+            else if ((m = SECRETS_PATTERN.matcher(line)).matches()) secrets = Double.parseDouble(m.group("secper"));
+            else if ((m = COMPLETED_ROOMS_PATTERN.matcher(line)).matches()) rooms = Integer.parseInt(m.group("rooms"));
+            else if ((m = PUZZLE_COUNT_PATTERN.matcher(line)).matches()) count = Integer.parseInt(m.group("count"));
+            else if ((m = PUZZLES_PATTERN.matcher(line)).matches() && m.group("state").equals("✔")) done++;
+        }
+        tabCrypts = crypts;
+        tabCompletedRooms = rooms;
+        tabSecretsPct = secrets;
+        tabPuzzlesDone = done;
+        if (count >= 0) puzzleCount = count;
+    }
+
     private static int getCompletedRooms() {
-        Matcher matcher = regexAt(43, COMPLETED_ROOMS_PATTERN);
-        return matcher != null ? Integer.parseInt(matcher.group("rooms")) : 0;
+        return tabCompletedRooms;
     }
 
     private static int getExtraCompletedRooms() {
@@ -229,33 +260,19 @@ public class DungeonScore {
 
     private static int getDeathScorePenalty() {
         if (deathCount == 0) return 0;
-        return 1 + (deathCount - 1) * 2;  // First death: -1, subsequent: -2 each
-    }
-
-    private static int getPuzzleCount() {
-        Matcher matcher = regexAt(47, PUZZLE_COUNT_PATTERN);
-        return matcher != null ? Integer.parseInt(matcher.group("count")) : 0;
+        return deathCount * 2 - (firstDeathHasSpirit ? 1 : 0);
     }
 
     private static int getPuzzlePenalty() {
-        int incompletePuzzles = 0;
-        for (int index = 0; index < puzzleCount; index++) {
-            Matcher puzzleMatcher = regexAt(48 + index, PUZZLES_PATTERN);
-            if (puzzleMatcher == null) break;
-            if (!puzzleMatcher.group("state").equals("✔")) incompletePuzzles++;
-        }
-        return incompletePuzzles * 10;
+        return Math.max(0, puzzleCount - tabPuzzlesDone) * 10;
     }
 
     private static double getSecretsPercentage() {
-        Matcher matcher = regexAt(44, SECRETS_PATTERN);
-        return matcher != null ? Double.parseDouble(matcher.group("secper")) : 0;
+        return tabSecretsPct;
     }
 
     private static int getCrypts() {
-        Matcher matcher = regexAt(33, CRYPTS_PATTERN);
-        if (matcher == null) matcher = regexAt(32, CRYPTS_PATTERN);
-        return matcher != null ? Integer.parseInt(matcher.group("crypts")) : 0;
+        return tabCrypts;
     }
 
     private static void setCurrentFloor() {
@@ -270,45 +287,6 @@ public class DungeonScore {
         currentFloor = "F1";
     }
 
-    private static Matcher regexAt(int index, Pattern pattern) {
-        String str = strAt(index);
-        if (str == null) return null;
-
-        Matcher m = pattern.matcher(str);
-        if (!m.matches()) {
-            return null;
-        }
-        return m;
-    }
-
-    private static String strAt(int index) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.getConnection() == null) return null;
-
-        if (tabListComparator == null) {
-            try {
-                tabListComparator = PlayerTabOverlayAccessor.getOrdering();
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-        List<PlayerInfo> playerList = mc.getConnection().getOnlinePlayers()
-                .stream()
-                .sorted(tabListComparator)
-                .toList();
-
-        if (playerList.size() <= index) return null;
-
-        var txt = playerList.get(index).getTabListDisplayName();
-        if (txt == null) return null;
-
-        String str = txt.getString().trim();
-        if (str.isEmpty()) return null;
-
-        return str;
-    }
-
     public static void onChatMessage(String message) {
         if (!dungeonStarted) return;
 
@@ -321,6 +299,7 @@ public class DungeonScore {
             Matcher matcher = DEATHS_PATTERN.matcher(message);
             if (matcher.matches()) {
                 deathCount++;
+                if (deathCount == 1 && TeslaMapsConfig.get().spiritPetCheck) checkSpiritPet(matcher.group("whodied"));
             }
         }
 
@@ -372,6 +351,47 @@ public class DungeonScore {
         }
     }
 
+    // Skyblocker: only a legendary Spirit pet on the first death makes it -1 instead of -2
+    private static void checkSpiritPet(String name) {
+        Minecraft mc = Minecraft.getInstance();
+        String who = name.equals("You") ? mc.getUser().getName() : name;
+        long run = startingTime;
+        com.teslamaps.api.HypixelApi.nameToUuid(who)
+                .thenCompose(uuid -> uuid == null ? java.util.concurrent.CompletableFuture.completedFuture(null)
+                        : com.teslamaps.api.HypixelApi.getProfiles(uuid))
+                .thenAccept(resp -> {
+                    Boolean spirit = hasSpiritPet(resp);
+                    if (spirit == null) return;
+                    mc.execute(() -> {
+                        if (startingTime != run) return;
+                        firstDeathHasSpirit = spirit;
+                        lastScoreCalcTime = 0L;
+                        TeslaMaps.debug("[Score] first death {} spirit pet: {}", who, spirit);
+                    });
+                })
+                .exceptionally(e -> null);
+    }
+
+    private static Boolean hasSpiritPet(com.google.gson.JsonObject resp) {
+        if (resp == null || !resp.has("profiles")) return null;
+        com.google.gson.JsonObject member = null;
+        for (var e : resp.getAsJsonObject("profiles").entrySet()) {
+            com.google.gson.JsonObject p = e.getValue().getAsJsonObject();
+            if (!p.has("data")) continue;
+            if (member == null || (p.has("current") && p.get("current").getAsBoolean())) member = p.getAsJsonObject("data");
+        }
+        if (member == null || !member.has("pets_data")) return null;
+        try {
+            for (var pet : member.getAsJsonObject("pets_data").getAsJsonArray("pets")) {
+                com.google.gson.JsonObject o = pet.getAsJsonObject();
+                if ("SPIRIT".equals(o.get("type").getAsString()) && "LEGENDARY".equals(o.get("tier").getAsString())) return true;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return false;
+    }
+
     public static void onMimicKilled() {
         mimicKilled = true;
     }
@@ -379,6 +399,7 @@ public class DungeonScore {
     private static void fireCryptReminder() {
         if (!DungeonManager.isInDungeon()) return;
         if (!TeslaMapsConfig.get().cryptReminderClasses.allowsLocal()) return;
+        readTab();
         int crypts = getCrypts();
         if (crypts >= 5) return;
         Minecraft mc = Minecraft.getInstance();
@@ -410,7 +431,7 @@ public class DungeonScore {
         int cryptsBonus = Math.clamp(cryptsFound, 0, 5);
         int mimicBonus = mimicKilled ? 2 : 0;
         int princeBonus = princeKilled ? 1 : 0;
-        int paulBonus = com.teslamaps.config.TeslaMapsConfig.get().assumePaulMayor ? 10 : 0;
+        int paulBonus = paulBonus();
         int totalBonus = cryptsBonus + mimicBonus + princeBonus + paulBonus;
 
         // A death costs skill points, and secrets are the only lever left to make them

@@ -8,5 +8,6 @@ final class Features {
     static void register() {
         // wave 1a dungeon-a
         com.teslamaps.dungeon.DungeonManager.register();
+        com.teslamaps.api.ElectionApi.register();
     }
 }

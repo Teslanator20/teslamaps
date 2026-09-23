@@ -40,6 +40,8 @@ public final class MapCategory {
         b.toggle("Show Total Crypts", () -> config.showTotalCrypts, v -> config.showTotalCrypts = v);
         b.toggle("Hide When Done", () -> config.hideSecretsWhenDone, v -> config.hideSecretsWhenDone = v);
         b.toggle("Assume Paul Mayor", () -> config.assumePaulMayor, v -> config.assumePaulMayor = v);
+        b.toggle("  Auto-detect Paul (Election API)", () -> config.paulAutoDetect, v -> config.paulAutoDetect = v);
+        b.toggle("Check Spirit Pet on First Death", () -> config.spiritPetCheck, v -> config.spiritPetCheck = v);
         b.label("Checkmarks");
         b.toggle("Show Checkmarks", () -> config.showCheckmarks, v -> config.showCheckmarks = v);
         b.toggle("White Checks", () -> config.showWhiteCheckmarks, v -> config.showWhiteCheckmarks = v);

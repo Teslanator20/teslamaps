@@ -243,6 +243,15 @@ public class TMapCommand {
                                 }))
                         .then(ClientCommands.argument("query", StringArgumentType.greedyString())
                                 .executes(context -> openNpcFinder(StringArgumentType.getString(context, "query")))))
+                .then(ClientCommands.literal("mayor")
+                        .executes(context -> {
+                            com.teslamaps.api.ElectionApi.refresh();
+                            context.getSource().sendFeedback(Component.literal(com.teslamaps.api.ElectionApi.isLoaded()
+                                    ? "§7Mayor: §f" + com.teslamaps.api.ElectionApi.mayor() + " §7Minister: §f"
+                                    + com.teslamaps.api.ElectionApi.minister() + " §7Perks: §f" + com.teslamaps.api.ElectionApi.perks()
+                                    : "§7No election data yet, fetching..."));
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("gui")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() -> {
