@@ -1,0 +1,37 @@
+package com.teslamaps.screen.config;
+
+import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.render.gui.GuiSounds;
+import com.teslamaps.render.gui.GuiStyle;
+import com.teslamaps.screen.*;
+import net.minecraft.client.Minecraft;
+
+public final class ShardsCategory {
+
+    private ShardsCategory() {}
+
+    public static void build(ConfigBuilder b, TeslaMapsConfig config) {
+        b.label("Hunting Box");
+        b.toggle("Hunting Box Value", () -> config.huntingBoxValue, v -> config.huntingBoxValue = v);
+        b.info("Bazaar value of every shard in the box, most valuable first");
+        b.label("Shard Overlay");
+        b.toggle("Shard Overlay", () -> config.shardOverlay, v -> config.shardOverlay = v);
+        b.info("Shows in /attributemenu and the bazaar shard pages");
+        b.dropdown("Sort By",
+                com.teslamaps.features.hunting.ShardOverlay.SORTS,
+                () -> config.shardSort, v -> config.shardSort = v);
+        b.dropdown("Price Source",
+                com.teslamaps.features.hunting.ShardOverlay.PRICE_SOURCES,
+                () -> config.shardPriceSource, v -> config.shardPriceSource = v);
+        b.toggle("Hide Maxed", () -> config.shardHideMaxed, v -> config.shardHideMaxed = v);
+        b.toggle("Only Not Unlocked", () -> config.shardOnlyMissing, v -> config.shardOnlyMissing = v);
+        b.toggle("Count Hunting Box", () -> config.shardIncludeBox, v -> config.shardIncludeBox = v);
+        b.toggle("Count Bazaar Orders", () -> config.shardIncludeOrders, v -> config.shardIncludeOrders = v);
+        b.info("Open your bazaar orders once so they are known");
+        b.toggle("Tier As Stack Size", () -> config.shardTierStack, v -> config.shardTierStack = v);
+        b.toggle("Highlight Disabled Attributes", () -> config.shardHighlightDisabled, v -> config.shardHighlightDisabled = v);
+        b.info("Click a row to look the shard up on the bazaar");
+        b.button("Reset Hunting Box Data",
+                com.teslamaps.features.hunting.ShardData::resetBox);
+    }
+}

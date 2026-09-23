@@ -532,7 +532,7 @@ public class TeslaMapsConfig {
     private static final java.util.Set<String> WARNED_SECTIONS = new java.util.HashSet<>();
 
     public boolean section(String name) {
-        if (!SECTIONS.contains(name) && net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()
+        if (!SECTIONS.contains(name) && !com.teslamaps.registry.FeatureRegistry.isGatedCategory(name) && net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()
                 && WARNED_SECTIONS.add(name)) {
             TeslaMaps.LOGGER.warn("section(\"{}\") is not a known category - the gate never matches", name);
         }

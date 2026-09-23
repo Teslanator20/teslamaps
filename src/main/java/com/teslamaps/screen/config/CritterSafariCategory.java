@@ -1,0 +1,71 @@
+package com.teslamaps.screen.config;
+
+import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.render.gui.GuiSounds;
+import com.teslamaps.render.gui.GuiStyle;
+import com.teslamaps.screen.*;
+import net.minecraft.client.Minecraft;
+
+public final class CritterSafariCategory {
+
+    private CritterSafariCategory() {}
+
+    public static void build(ConfigBuilder b, TeslaMapsConfig config) {
+        b.label("Run Tracker");
+        b.toggle("Track Run", () -> config.safariTracker, v -> config.safariTracker = v);
+        b.toggle("Show HUD", () -> config.safariHud, v -> config.safariHud = v);
+        b.info("Position and scale in /tmap gui");
+        b.label("Checklist");
+        b.toggle("Show Checklist", () -> config.safariChecklist, v -> config.safariChecklist = v);
+        b.dropdown("Biome",
+                new String[] { "Auto", "Cavern", "Forest", "Haunted", "Icy" },
+                () -> config.safariChecklistBiome, v -> config.safariChecklistBiome = v);
+        b.toggle("Check/Cross Icons", () -> config.safariChecklistIcons, v -> config.safariChecklistIcons = v);
+        b.info("Green = caught, red = escaped, grey = not seen");
+        b.label("Alerts");
+        b.toggle("Sparkling Alert", () -> config.safariSparklingAlert, v -> config.safariSparklingAlert = v);
+        b.toggle("Sparkling to Party Chat", () -> config.safariSparklingParty, v -> config.safariSparklingParty = v);
+        b.toggle("Force Sparkle Particles", () -> config.safariSparkleForce, v -> config.safariSparkleForce = v);
+        b.info("Sparkles render at any distance and particle setting");
+        b.toggle("Announce Biome Done", () -> config.safariAnnounceBiomeDone, v -> config.safariAnnounceBiomeDone = v);
+        b.toggle("Announce Unique Done", () -> config.safariAnnounceUniqueDone, v -> config.safariAnnounceUniqueDone = v);
+        b.toggle("  Share Time To Party", () -> config.safariShareTimeParty, v -> config.safariShareTimeParty = v);
+        b.toggle("Warn If Not Full", () -> config.safariWarnNotFull, v -> config.safariWarnNotFull = v);
+        b.info("Screen warning + sound when fewer than 4 players are in");
+        b.slider("Alert Volume", 0.0f, 3.0f,
+                () -> config.safariAlertVolume, v -> config.safariAlertVolume = v);
+        b.label("Quality of Life");
+        b.toggle("Hide Cold Overlay (Icy)", () -> config.safariHideCold, v -> config.safariHideCold = v);
+        b.toggle("Auto Accept Hideyho", () -> config.safariAutoHideyho, v -> config.safariAutoHideyho = v);
+        b.slider("  Min Delay (ms)", 0f, 2000f,
+                () -> (float) config.safariAutoHideyhoMinMs, v -> config.safariAutoHideyhoMinMs = (int) (float) v, 0);
+        b.slider("  Extra Random (ms)", 0f, 2000f,
+                () -> (float) config.safariAutoHideyhoJitterMs, v -> config.safariAutoHideyhoJitterMs = (int) (float) v, 0);
+        b.toggle("Show PB in HUD", () -> config.safariShowPb, v -> config.safariShowPb = v);
+        b.toggle("Show Hotspot in HUD", () -> config.safariShowHotspot, v -> config.safariShowHotspot = v);
+        b.toggle("Show Head Start in HUD", () -> config.safariShowHeadStart, v -> config.safariShowHeadStart = v);
+        b.info("Run history: /tmap safari");
+        b.label("ESP");
+        b.toggle("Critter ESP (Safari)", () -> config.safariCritterESP, v -> config.safariCritterESP = v);
+        b.toggle("Filled Boxes", () -> config.safariFilled, v -> config.safariFilled = v);
+        b.toggle("Legit Mode (Depth Check)", () -> config.safariLegitMode, v -> config.safariLegitMode = v);
+        b.info("Nothing drawn through walls");
+        b.toggle("Only Uncaught", () -> config.safariOnlyMissing, v -> config.safariOnlyMissing = v);
+        b.toggle("Name Over Every Critter", () -> config.safariNames, v -> config.safariNames = v);
+        b.toggle("Tracers To Named", () -> config.safariTracers, v -> config.safariTracers = v);
+        b.toggle("  Tracer To Hideyho", () -> config.safariHideyhoTracer, v -> config.safariHideyhoTracer = v);
+        b.toggle("Bee Nest ESP", () -> config.safariNestESP, v -> config.safariNestESP = v);
+        b.toggle("Floor Spot ESP", () -> config.critterSpotESP, v -> config.critterSpotESP = v);
+        b.toggle("Recatch Spot", () -> config.safariRecatchSpot, v -> config.safariRecatchSpot = v);
+        b.info("Marks where an escaped critter comes back");
+        b.toggle("Hidden Critter Walls", () -> config.safariWallMarkers, v -> config.safariWallMarkers = v);
+        b.info("Unbroken Snoozle / Troodon walls, while uncaught");
+        b.color("Sparkling Color", () -> config.colorSafariSparkling, v -> config.colorSafariSparkling = v);
+        b.color("Bee Nest Color", () -> config.colorSafariNest, v -> config.colorSafariNest = v);
+        b.color("Floor Spot Color", () -> config.colorCritterSpot, v -> config.colorCritterSpot = v);
+        b.color("Recatch Spot Color", () -> config.colorSafariRecatch, v -> config.colorSafariRecatch = v);
+        b.color("Wall Color", () -> config.colorSafariWall, v -> config.colorSafariWall = v);
+        b.info("Hideyho and legendaries always get a name label");
+        b.info("Critter boxes are coloured by shard rarity");
+    }
+}

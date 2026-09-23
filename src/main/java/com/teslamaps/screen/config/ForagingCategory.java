@@ -1,0 +1,97 @@
+package com.teslamaps.screen.config;
+
+import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.render.gui.GuiSounds;
+import com.teslamaps.render.gui.GuiStyle;
+import com.teslamaps.screen.*;
+import net.minecraft.client.Minecraft;
+
+public final class ForagingCategory {
+
+    private ForagingCategory() {}
+
+    public static void build(ConfigBuilder b, TeslaMapsConfig config) {
+        b.info("For Moonglade Marsh and Torrhus Canyon");
+        b.label("Chat");
+        b.toggle("Compact Tree Gifts",
+                () -> config.foragingCompactGifts, v -> config.foragingCompactGifts = v);
+        b.info("One line instead of the whole gift block, hover kept");
+        b.toggle("Hide Sweep Details",
+                () -> config.foragingHideSweepDetails, v -> config.foragingHideSweepDetails = v);
+        b.info("Toughness / Logs / penalty lines");
+        b.toggle("Hide Lottery Buffs",
+                () -> config.foragingHideLottery, v -> config.foragingHideLottery = v);
+        b.info("Lottery and Beekeeper messages off the foraging islands");
+        b.label("Sounds");
+        b.toggle("Mute Phantoms",
+                () -> config.foragingMutePhantoms, v -> config.foragingMutePhantoms = v);
+        b.toggle("Mute Fusion Machine",
+                () -> config.foragingMuteFusion, v -> config.foragingMuteFusion = v);
+        b.toggle("Mute Tree Breaking",
+                () -> config.foragingMuteTreeBreak, v -> config.foragingMuteTreeBreak = v);
+        b.info("Mutes it everywhere except Moonglade / Torrhus");
+        b.toggle("  Also on Moonglade / Torrhus",
+                () -> config.foragingMuteTreeBreakGalatea, v -> config.foragingMuteTreeBreakGalatea = v);
+        b.label("Clean Tree View");
+        b.toggle("Hide Block Break Effects",
+                () -> config.foragingCleanTreeView, v -> config.foragingCleanTreeView = v);
+        b.toggle("Hide Rune Effects",
+                () -> config.foragingHideRuneEffects, v -> config.foragingHideRuneEffects = v);
+        b.label("Honeycomb");
+        b.toggle("Lather Reminder",
+                () -> config.latherReminder, v -> config.latherReminder = v);
+        b.info("12 min per tree, tracked for Helix / Fig / Mangrove");
+        b.toggle("  Show Title",
+                () -> config.latherReminderTitle, v -> config.latherReminderTitle = v);
+        b.soundDropdown("  Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.latherReminderSound, v -> config.latherReminderSound = v);
+        b.slider("  Volume", 0f, 4f,
+                () -> config.latherReminderVolume, v -> config.latherReminderVolume = v, 2);
+        b.toggle("Lather Overlay",
+                () -> config.latherOverlay, v -> config.latherOverlay = v);
+        b.toggle("  Foraging Islands Only",
+                () -> config.latherOverlayForagingOnly, v -> config.latherOverlayForagingOnly = v);
+        b.toggle("  Hide When Nothing Lathered",
+                () -> config.latherOverlayOnlyWhenActive, v -> config.latherOverlayOnlyWhenActive = v);
+        b.info("Position and scale in /tmap gui");
+
+        b.label("Honeyhives");
+        b.toggle("Refill Reminder",
+                () -> config.honeyhiveReminder, v -> config.honeyhiveReminder = v);
+        b.toggle("  Remind Outside Torrhus Canyon",
+                () -> config.honeyhiveRemindOutside, v -> config.honeyhiveRemindOutside = v);
+        b.toggle("Queen Bee Title",
+                () -> config.honeyhiveQueenBeeTitle, v -> config.honeyhiveQueenBeeTitle = v);
+        b.label("Heart of the Forest");
+        b.toggle("Highlight Perks",
+                () -> config.hotfHighlight, v -> config.hotfHighlight = v);
+        b.color("  Enabled Color",
+                () -> config.colorHotfEnabled, v -> config.colorHotfEnabled = v);
+        b.color("  Disabled Color",
+                () -> config.colorHotfDisabled, v -> config.colorHotfDisabled = v);
+        b.color("  Locked Color",
+                () -> config.colorHotfLocked, v -> config.colorHotfLocked = v);
+        b.toggle("Level Stack",
+                () -> config.hotfLevelStack, v -> config.hotfLevelStack = v);
+        b.toggle("Token Stack",
+                () -> config.hotfTokenStack, v -> config.hotfTokenStack = v);
+        b.toggle("Rotating Perk Display",
+                () -> config.hotfPerkDisplay, v -> config.hotfPerkDisplay = v);
+        b.toggle("  Foraging Islands Only",
+                () -> config.hotfPerkDisplayForagingOnly, v -> config.hotfPerkDisplayForagingOnly = v);
+        b.info("Position and scale in /tmap gui");
+
+        b.label("Lasso");
+        b.toggle("Lasso Display",
+                () -> config.lassoDisplay, v -> config.lassoDisplay = v);
+        b.info("Progress bar and REEL on the HUD, position in /tmap gui");
+        b.soundDropdown("  Reel Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.lassoReelSound, v -> config.lassoReelSound = v);
+        b.slider("  Volume", 0f, 4f,
+                () -> config.lassoReelVolume, v -> config.lassoReelVolume = v, 2);
+        b.slider("  Pitch", 0.5f, 2f,
+                () -> config.lassoReelPitch, v -> config.lassoReelPitch = v, 2);
+    }
+}

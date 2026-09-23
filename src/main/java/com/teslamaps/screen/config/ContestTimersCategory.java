@@ -1,0 +1,56 @@
+package com.teslamaps.screen.config;
+
+import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.render.gui.GuiSounds;
+import com.teslamaps.render.gui.GuiStyle;
+import com.teslamaps.screen.*;
+import net.minecraft.client.Minecraft;
+
+public final class ContestTimersCategory {
+
+    private ContestTimersCategory() {}
+
+    public static void build(ConfigBuilder b, TeslaMapsConfig config) {
+        b.info("Foraging: :15 / :35 / :55, Farming: hourly at :15");
+        b.toggle("Contest Timer HUD",
+                () -> config.contestTimer, v -> config.contestTimer = v);
+        b.toggle("  Foraging Timer",
+                () -> config.contestShowForaging, v -> config.contestShowForaging = v);
+        b.toggle("  Farming Timer",
+                () -> config.contestShowFarming, v -> config.contestShowFarming = v);
+        b.toggle("  SkyBlock Only",
+                () -> config.contestTimerSkyblockOnly, v -> config.contestTimerSkyblockOnly = v);
+        b.toggle("  Button In Inventory",
+                () -> config.contestTimerButton, v -> config.contestTimerButton = v);
+        b.info("Drag it in the inventory, or in /tmap gui");
+        b.label("Alerts");
+        b.toggle("Contest Started Alert",
+                () -> config.contestAlertStart, v -> config.contestAlertStart = v);
+        b.toggle("Alert if < 5 Minutes left",
+                () -> config.contestAlert5Min, v -> config.contestAlert5Min = v);
+        b.toggle("Alert if < 1,5 Minutes left",
+                () -> config.contestAlert90Sec, v -> config.contestAlert90Sec = v);
+        b.toggle("  Chat Message",
+                () -> config.contestAlertChat, v -> config.contestAlertChat = v);
+        b.toggle("  Show Title",
+                () -> config.contestAlertTitle, v -> config.contestAlertTitle = v);
+        b.soundDropdown("  Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.contestAlertSound, v -> config.contestAlertSound = v);
+        b.slider("  Volume", 0f, 4f,
+                () -> config.contestAlertVolume, v -> config.contestAlertVolume = v, 2);
+        b.info("The two timers only fire while the ticket score is missing");
+        b.label("Party Chat");
+        b.toggle("Contest Announce",
+                () -> config.contestAnnounceParty, v -> config.contestAnnounceParty = v);
+        b.info("Sends /pc Contest Started on every contest start");
+        b.toggle("Ticket Announce",
+                () -> config.contestTicketAnnounce, v -> config.contestTicketAnnounce = v);
+        b.slider("  Ticket Score", 50f, 1000f,
+                () -> (float) config.contestTicketScore, v -> config.contestTicketScore = Math.round(v), 0);
+        b.info("Sends /pc Ticket Acquired! at that score in Miria's Contest");
+        b.toggle("Hide Foraging At Ticket Score",
+                () -> config.contestHideAtTicket, v -> config.contestHideAtTicket = v);
+        b.info("Hidden until the next contest, survives lobby swaps");
+    }
+}

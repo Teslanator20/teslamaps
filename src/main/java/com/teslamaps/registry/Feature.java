@@ -113,4 +113,10 @@ public final class Feature {
         FeatureRegistry.CHAT.add(new FeatureRegistry.Chat(this, name + ".chat", r, true));
         return this;
     }
+
+    /** Rows in a config-screen category, appended after the built-in ones. */
+    public Feature config(String category, Consumer<com.teslamaps.screen.config.ConfigBuilder> build) {
+        FeatureRegistry.CONFIG.add(new FeatureRegistry.Config(category, build));
+        return this;
+    }
 }

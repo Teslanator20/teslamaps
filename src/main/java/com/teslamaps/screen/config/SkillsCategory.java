@@ -1,0 +1,85 @@
+package com.teslamaps.screen.config;
+
+import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.render.gui.GuiSounds;
+import com.teslamaps.render.gui.GuiStyle;
+import com.teslamaps.screen.*;
+import net.minecraft.client.Minecraft;
+
+public final class SkillsCategory {
+
+    private SkillsCategory() {}
+
+    public static void build(ConfigBuilder b, TeslaMapsConfig config) {
+        b.label("Skill Tracker");
+        b.toggle("Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v);
+        b.toggle("Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v);
+        String[] pinOptions = new String[com.teslamaps.features.SkillTracker.skills().length + 1];
+        pinOptions[0] = "Auto";
+        System.arraycopy(com.teslamaps.features.SkillTracker.skills(), 0, pinOptions, 1, pinOptions.length - 1);
+        b.dropdown("Tracker Skill", pinOptions,
+                () -> config.skillTrackerPin == null || config.skillTrackerPin.isEmpty() ? "Auto" : config.skillTrackerPin,
+                v -> config.skillTrackerPin = "Auto".equals(v) ? "" : v);
+        b.info("Auto follows the XP, a skill keeps the panel on it");
+        b.label("Flare Mode");
+        b.toggle("Flare Mode HUD", () -> config.flareMode, v -> config.flareMode = v);
+        b.info("Hunting and Combat at once, plus the flare bestiary count");
+        b.info("3x check reads the Book of Stats kill counter on the held weapon");
+        b.info("Open the Bestiary menu once for the absolute kill total");
+        b.toggle("  Chat Warning on 1x", () -> config.flareWarnChat, v -> config.flareWarnChat = v);
+        b.toggle("  Warning Sound", () -> config.flareWarnSound, v -> config.flareWarnSound = v);
+        b.slider("  Warning Interval (s)", 5f, 120f,
+                () -> (float) config.flareWarnSeconds, v -> config.flareWarnSeconds = Math.round(v), 0);
+        b.info("/tmap flare on|off · pause · reset · mob <name>");
+        b.info("[Pause]/[Reset] sit on the panel while the inventory is open");
+        b.label("Pet");
+        b.toggle("Pet HUD", () -> config.petOverlay, v -> config.petOverlay = v);
+        b.info("Equipped pet with level, XP progress and held item");
+        b.info("Needs the Pet tab widget (/widget). Move it in /tmap gui");
+        b.label("Skill XP Display");
+        b.toggle("Skill XP Display", () -> config.skillExpDisplay, v -> config.skillExpDisplay = v);
+        b.info("Cuts the +XP out of the action bar into its own HUD element");
+        b.info("Move it in /tmap gui");
+        b.info("Keeps tracking either way — [Hide]/[Show] in the panel does the same");
+        b.toggle("Overflow Levels (menu + chat)", () -> config.skillOverflow, v -> config.skillOverflow = v);
+        b.toggle("Overflow Skill Avg. (menu tooltip)", () -> config.skillAvgOverflow, v -> config.skillAvgOverflow = v);
+        b.toggle("Level as Stack Size (skills menu)", () -> config.skillLevelStackSize, v -> config.skillLevelStackSize = v);
+        b.info("Combat adds kills/bosses/cocoons, Fishing double hooks, Foraging gifts and whispers");
+        String[] catchSources = {"Auto", "Sea Creatures", "Every Catch"};
+        b.dropdown("Fishing Counts", catchSources,
+                () -> catchSources[Math.max(0, Math.min(2, config.fishingCatchSource))],
+                v -> config.fishingCatchSource = switch (v) {
+                    case "Sea Creatures" -> 1;
+                    case "Every Catch" -> 2;
+                    default -> 0;
+                });
+        b.info("Sea Creatures = chat lines only, Every Catch = counts by Fishing XP");
+        b.info("Auto counts creatures while they keep coming in, otherwise every catch");
+        b.info("The panel shows the session time and a Reset button in the inventory");
+        b.info("Open the Skills menu once so the tracker knows your total XP");
+        b.label("Deployables");
+        b.toggle("Deployable Overlay",
+                () -> config.deployableOverlay, v -> config.deployableOverlay = v);
+        b.info("Time left on power orbs, lanterns, Umberella");
+        b.toggle("  Only Highest Tier",
+                () -> config.deployableHighestTierOnly, v -> config.deployableHighestTierOnly = v);
+        b.toggle("  Power Orbs",
+                () -> config.deployableFlux, v -> config.deployableFlux = v);
+        b.toggle("  Lanterns",
+                () -> config.deployableLantern, v -> config.deployableLantern = v);
+        b.toggle("  Umberella",
+                () -> config.deployableUmbrella, v -> config.deployableUmbrella = v);
+        b.toggle("  Black Hole",
+                () -> config.deployableBlackHole, v -> config.deployableBlackHole = v);
+        b.toggle("  Flares",
+                () -> config.deployableFlare, v -> config.deployableFlare = v);
+        b.info("Flares have no nametag, the timer starts when you see them");
+        b.toggle("  Other Deployables (flares, ...)",
+                () -> config.deployableOthers, v -> config.deployableOthers = v);
+        b.info("Position and scale in /tmap gui");
+        b.label("Fixes");
+        b.toggle("Fix Item Double Clicks",
+                () -> config.fixDoubleClicks, v -> config.fixDoubleClicks = v);
+        b.info("Hypixel fires blaze daggers and autopet rods twice on blocks");
+    }
+}

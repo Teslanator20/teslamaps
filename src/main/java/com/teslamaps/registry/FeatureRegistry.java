@@ -13,9 +13,12 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
+import com.teslamaps.screen.MapConfigScreen;
+import com.teslamaps.screen.config.ConfigBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public final class FeatureRegistry {
@@ -24,6 +27,8 @@ public final class FeatureRegistry {
     record World(Feature f, String perf, Consumer<WorldCtx> r) {}
     record Hud(Feature f, String id, HudElement r, InventoryMode mode) {}
     record Chat(Feature f, String perf, Consumer<String> r, boolean serverOnly) {}
+    record Config(String category, Consumer<ConfigBuilder> build) {}
+    record Category(String name, String sidebarSection, boolean gated) {}
 
     public record WorldCtx(PoseStack pose, MultiBufferSource buffers, Vec3 cam) {}
 
@@ -33,6 +38,8 @@ public final class FeatureRegistry {
     static final List<World> WORLD = new ArrayList<>();
     static final List<Hud> FOREGROUND = new ArrayList<>();
     static final List<Chat> CHAT = new ArrayList<>();
+    static final List<Config> CONFIG = new ArrayList<>();
+    static final List<Category> CATEGORIES = new ArrayList<>();
 
     private FeatureRegistry() {}
 
@@ -93,6 +100,43 @@ public final class FeatureRegistry {
             Perf.begin(c.perf);
             c.r.accept(text);
             Perf.end();
+        }
+    }
+
+    /**
+     * A config-screen category of its own. Gated = gets an "Enable X" master and works as a
+     * {@code section(...)} name. Existing categories need no declaration.
+     */
+    public static void category(String name, String sidebarSection, boolean gated) {
+        CATEGORIES.add(new Category(name, sidebarSection, gated));
+    }
+
+    public static boolean isGatedCategory(String name) {
+        for (Category c : CATEGORIES) if (c.gated && c.name.equals(name)) return true;
+        return false;
+    }
+
+    public static List<String> gatedCategories() {
+        List<String> out = new ArrayList<>();
+        for (Category c : CATEGORIES) if (c.gated) out.add(c.name);
+        return out;
+    }
+
+    /** Appends every feature's rows; called by MapConfigScreen after its own categories. */
+    public static void addConfig(ConfigBuilder b, Map<String, List<MapConfigScreen.SettingsEntry>> categories) {
+        for (Category c : CATEGORIES) categories.computeIfAbsent(c.name, k -> new ArrayList<>());
+        for (Config c : CONFIG) {
+            b.into(categories.computeIfAbsent(c.category, k -> new ArrayList<>()));
+            c.build.accept(b);
+        }
+    }
+
+    /** Puts declared categories into their sidebar group. */
+    public static void addSidebar(Map<String, List<String>> sections) {
+        for (Category c : CATEGORIES) {
+            List<String> list = new ArrayList<>(sections.getOrDefault(c.sidebarSection, List.of()));
+            if (!list.contains(c.name)) list.add(c.name);
+            sections.put(c.sidebarSection, list);
         }
     }
 }
