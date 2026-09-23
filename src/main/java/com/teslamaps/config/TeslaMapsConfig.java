@@ -267,6 +267,11 @@ public class TeslaMapsConfig {
     public boolean auctionCompareOnlyGood = false; // only the green side, no red/yellow
     public float auctionCompareThreshold = 5f;   // percent off the value before a slot is tinted
     public float auctionCompareOpacity = 0.45f;
+    public boolean auctionCompareGradient = false; // fade relative to the best/worst deal on the page
+    public String colorAuctionVeryGood = "#00AA00";
+    public String colorAuctionGood = "#55FF55";
+    public String colorAuctionBad = "#FFFF55";
+    public String colorAuctionVeryBad = "#E12B1E";
     public boolean auctionCompareButton = true;  // toggle button above the auction browser
 
     public boolean searchOverlay = true;         // Replace the auction/bazaar search sign with a textbox

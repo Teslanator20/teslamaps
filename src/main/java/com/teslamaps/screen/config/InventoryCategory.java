@@ -46,6 +46,12 @@ public final class InventoryCategory {
                 () -> config.auctionCompareThreshold, v -> config.auctionCompareThreshold = v, 0);
         b.slider("  Opacity", 0.05f, 1f,
                 () -> config.auctionCompareOpacity, v -> config.auctionCompareOpacity = v, 2);
+        b.toggle("  Gradient Relative To Page", () -> config.auctionCompareGradient, v -> config.auctionCompareGradient = v);
+        b.info("Best deal on the page gets the Very Good color, the rest fade toward Good");
+        b.color("  Very Good Color", () -> config.colorAuctionVeryGood, v -> config.colorAuctionVeryGood = v);
+        b.color("  Good Color", () -> config.colorAuctionGood, v -> config.colorAuctionGood = v);
+        b.color("  Bad Color", () -> config.colorAuctionBad, v -> config.colorAuctionBad = v);
+        b.color("  Very Bad Color", () -> config.colorAuctionVeryBad, v -> config.colorAuctionVeryBad = v);
         b.toggle("  Toggle Button In Auction House", () -> config.auctionCompareButton, v -> config.auctionCompareButton = v);
         b.label("Auction / Bazaar Search");
         b.toggle("Custom Search Input", () -> config.searchOverlay, v -> config.searchOverlay = v);
