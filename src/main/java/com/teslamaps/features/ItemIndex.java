@@ -18,6 +18,11 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.ChestType;
 
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -80,8 +85,9 @@ public class ItemIndex {
 
     private static String lastKey = null;
     private static long openedMs = 0, lastCaptureMs = 0;
-    private static BlockPos chestPos = null;
+    private static BlockPos chestPos = null, chestPos2 = null;
     private static long chestClickMs = 0;
+    private static int chestTicks = 0;
 
     private static final Pattern STORED = Pattern.compile("Stored:\\s*([\\d,.]+)\\s*([kKmMbB]?)");
 
@@ -148,7 +154,67 @@ public class ItemIndex {
     public static void onChestClick(BlockPos pos) {
         if (com.teslamaps.dungeon.DungeonManager.isInDungeon()) return;   // secret chests are not storage
         chestPos = pos;
+        chestPos2 = null;
         chestClickMs = System.currentTimeMillis();
+        if (!TeslaMapsConfig.get().islandChestTracker) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
+        BlockState st = mc.level.getBlockState(pos);
+        if (!st.hasProperty(BlockStateProperties.CHEST_TYPE)) return;
+        ChestType t = st.getValue(BlockStateProperties.CHEST_TYPE);
+        if (t == ChestType.SINGLE) return;
+        BlockPos diff = switch (st.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
+            case EAST -> new BlockPos(0, 0, 1);
+            case WEST -> new BlockPos(0, 0, -1);
+            case NORTH -> new BlockPos(1, 0, 0);
+            case SOUTH -> new BlockPos(-1, 0, 0);
+            default -> BlockPos.ZERO;
+        };
+        if (t != ChestType.LEFT) diff = diff.multiply(-1);
+        BlockPos other = pos.offset(diff);
+        // the RIGHT half holds container slots 0-26
+        if (t == ChestType.RIGHT) { chestPos = pos; chestPos2 = other; }
+        else { chestPos = other; chestPos2 = pos; }
+    }
+
+    private static boolean onPrivateIsland() {
+        return "Private Island".equals(com.teslamaps.utils.SkyblockUtils.getArea());
+    }
+
+    private static boolean vanillaChestTitle(Component title) {
+        return title.getContents() instanceof TranslatableContents tc && tc.getKey().startsWith("container.chest");
+    }
+
+    private static String chestKey(BlockPos p) {
+        return "chest:" + p.getX() + "," + p.getY() + "," + p.getZ();
+    }
+
+    private static void removeChest(BlockPos p) {
+        if (p == null) return;
+        String k = chestKey(p);
+        if (data.remove(k) != null) { dropDecoded(k); dirty = true; }
+    }
+
+    public static void clearChests() {
+        ensure();
+        List<String> keys = new ArrayList<>();
+        for (String k : data.keySet()) if (k.startsWith("chest:")) keys.add(k);
+        for (String k : keys) { data.remove(k); dropDecoded(k); }
+        dirty = true;
+        save();
+    }
+
+    /** Broken island chests drop out of the index. */
+    private static void sweepChests(Minecraft mc) {
+        if (++chestTicks % 40 != 0 || !onPrivateIsland()) return;
+        List<String> gone = new ArrayList<>();
+        for (String k : data.keySet()) {
+            BlockPos p = chestPosFromKey(k);
+            if (p == null || !mc.level.isLoaded(p)) continue;
+            BlockState st = mc.level.getBlockState(p);
+            if (!st.is(Blocks.CHEST) && !st.is(Blocks.TRAPPED_CHEST) && !st.is(Blocks.BARREL)) gone.add(k);
+        }
+        for (String k : gone) { data.remove(k); dropDecoded(k); dirty = true; }
     }
 
     public static void tick() {
@@ -156,6 +222,8 @@ public class ItemIndex {
         ensure();
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
+        boolean tracker = TeslaMapsConfig.get().islandChestTracker;
+        if (tracker) sweepChests(mc);
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { flush(); return; }
 
         String title = StringUtil.stripTrim(cs.getTitle().getString());
@@ -170,6 +238,11 @@ public class ItemIndex {
         } else {
             long now = System.currentTimeMillis();
             if (chestPos == null || now - chestClickMs > CHEST_CLICK_VALID_MS) { flush(); return; }
+            if (tracker) {
+                if (!onPrivateIsland()) { flush(); return; }
+                if (title.equals("Minion Chest")) { removeChest(chestPos); flush(); return; }
+                if (!vanillaChestTitle(cs.getTitle())) { flush(); return; }
+            }
             type = CHESTS;
             key = "chest:" + chestPos.getX() + "," + chestPos.getY() + "," + chestPos.getZ();
             name = title + " " + chestPos.getX() + " " + chestPos.getY() + " " + chestPos.getZ();
@@ -185,10 +258,23 @@ public class ItemIndex {
         if (now - openedMs < 500) return;
         if (now - lastCaptureMs < 500) return;
         lastCaptureMs = now;
-        capture(cs, key, type, name);
+        if (tracker && type.equals(CHESTS) && chestPos2 != null) captureDouble(cs, title);
+        else capture(cs, key, type, name);
+    }
+
+    /** A large chest is stored as its two blocks, 27 slots each, so a hit points at the right half. */
+    private static void captureDouble(AbstractContainerScreen<?> cs, String title) {
+        BlockPos a = chestPos, b = chestPos2;
+        capture(cs, chestKey(a), CHESTS, title + " " + a.getX() + " " + a.getY() + " " + a.getZ(), 0);
+        capture(cs, chestKey(b), CHESTS, title + " " + b.getX() + " " + b.getY() + " " + b.getZ(), 27);
     }
 
     private static void capture(AbstractContainerScreen<?> cs, String key, String type, String name) {
+        capture(cs, key, type, name, -1);
+    }
+
+    /** @param half -1 = whole menu, 0/27 = only that half of a large chest, renumbered from 0 */
+    private static void capture(AbstractContainerScreen<?> cs, String key, String type, String name, int half) {
         LinkedHashMap<Integer, String> slots = new LinkedHashMap<>();
         LinkedHashMap<Integer, String> names = new LinkedHashMap<>();
         LinkedHashMap<Integer, Integer> amounts = null;
@@ -197,6 +283,11 @@ public class ItemIndex {
 
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof Inventory) continue;
+            int cslot = slot.getContainerSlot();
+            if (half >= 0) {
+                if (cslot < half || cslot >= half + 27) continue;
+                cslot -= half;
+            }
             ItemStack st = slot.getItem();
             if (st.isEmpty()) continue;
             filled++;
@@ -205,7 +296,6 @@ public class ItemIndex {
             if (amount <= 0) continue;
             String snbt = StorageCache.encode(st);
             if (snbt == null) continue;
-            int cslot = slot.getContainerSlot();
             slots.put(cslot, snbt);
             names.put(cslot, StringUtil.stripTrim(st.getHoverName().getString()));
             String l = loreText(st);

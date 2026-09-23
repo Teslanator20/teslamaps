@@ -49,6 +49,10 @@ public final class InventoryCategory {
                 () -> Minecraft.getInstance().setScreen(new ItemSearchScreen(null)));
         b.button("Clear Item Index",
                 com.teslamaps.features.ItemIndex::clear);
+        b.toggle("  Island Chest Tracker", () -> config.islandChestTracker, v -> config.islandChestTracker = v);
+        b.info("Private Island: large chests per half, minion chests skipped, broken chests removed");
+        b.button("Clear Island Chests",
+                com.teslamaps.features.ItemIndex::clearChests);
         b.label("Auction Price Input");
         b.toggle("Auction Price Input", () -> config.auctionPriceInput, v -> config.auctionPriceInput = v);
         b.dropdown("  Mode",
