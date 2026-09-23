@@ -1230,6 +1230,7 @@ public class TeslaMapsConfig {
     public boolean itemValueIgnoreArmorDyes = false;   // leave armor dyes out of the total
     public boolean itemValueIgnoreRunes = false;       // leave runes out of the total
     public String itemValuePriceSource = "BZ Instant Sell"; // BZ Instant Buy / BZ Instant Sell / Lowest BIN / NPC Sell
+    public boolean priceCraftFallback = false;      // price unknown items by their NEU raw craft cost
     public boolean itemValueShowBin = true;         // extra "Lowest BIN" line in the value breakdown
     public boolean containerValue = false;          // show total container value + top 5 items in a side panel
     public boolean backpackPreview = true;         // cache + show backpack/ender chest contents on hover (data in storage.json)

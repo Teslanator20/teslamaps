@@ -34,6 +34,8 @@ public final class TooltipsValueCategory {
         b.dropdown("Price Source",
                 new String[]{"BZ Instant Buy", "BZ Instant Sell", "Lowest BIN", "NPC Sell"},
                 () -> config.itemValuePriceSource, v -> config.itemValuePriceSource = v);
+        b.toggle("Craft Cost Fallback", () -> config.priceCraftFallback, v -> config.priceCraftFallback = v);
+        b.info("Items with no market price use their raw craft cost (Croesus, trackers, value)");
         b.toggle("Lowest BIN / Bazaar Line", () -> config.itemValueShowBin, v -> config.itemValueShowBin = v);
         b.info("Market price on every tooltip, BZ insta buy/sell or lowest BIN");
         b.toggle("Show Exact Price", () -> config.itemValueExactPrice, v -> config.itemValueExactPrice = v);
