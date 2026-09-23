@@ -197,6 +197,8 @@ public class StarredMobESP {
     }
 
     public static void tick() {
+        tagText.clear();
+        sniperTag.clear();
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null || com.teslamaps.features.LegitMode.blocksCheats()) {
             highlightedEntities.clear();
@@ -796,6 +798,14 @@ public class StarredMobESP {
     }
 
     private static boolean hasSniperArmorStand(Entity entity) {
+        Boolean cached = sniperTag.get(entity);
+        if (cached != null) return cached;
+        boolean r = scanSniperArmorStand(entity);
+        sniperTag.put(entity, r);
+        return r;
+    }
+
+    private static boolean scanSniperArmorStand(Entity entity) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return false;
 
@@ -821,21 +831,25 @@ public class StarredMobESP {
 
 
     public static boolean isStarred(Entity entity) {
+        return tagText(entity).contains("✯");
+    }
+
+    // stand names in the nametag box, once per entity per tick
+    private static final java.util.IdentityHashMap<Entity, String> tagText = new java.util.IdentityHashMap<>();
+    private static final java.util.IdentityHashMap<Entity, Boolean> sniperTag = new java.util.IdentityHashMap<>();
+
+    private static String tagText(Entity entity) {
+        String t = tagText.get(entity);
+        if (t != null) return t;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return false;
-
-        AABB searchBox = entity.getBoundingBox().inflate(0, 2, 0);
-        List<ArmorStand> armorStands = mc.level.getEntitiesOfClass(
-                ArmorStand.class, searchBox, as -> true);
-
-        for (ArmorStand armorStand : armorStands) {
-            String name = armorStand.getName().getString();
-            if (name.contains("✯")) {
-                return true;
-            }
+        if (mc.level == null) return "";
+        StringBuilder sb = new StringBuilder();
+        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, entity.getBoundingBox().inflate(0, 2, 0), as -> true)) {
+            sb.append(as.getName().getString()).append('\n');
         }
-
-        return false;
+        t = sb.toString();
+        tagText.put(entity, t);
+        return t;
     }
 
     private static boolean isMiniboss(Entity entity, String name) {
@@ -852,12 +866,7 @@ public class StarredMobESP {
     }
 
     private static boolean nametagContains(Entity entity, String text) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return false;
-        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, entity.getBoundingBox().inflate(0, 2, 0), as -> true)) {
-            if (as.getName().getString().contains(text)) return true;
-        }
-        return false;
+        return tagText(entity).contains(text);
     }
 
     public static int getHighlightColor(Entity entity) {
