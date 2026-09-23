@@ -213,14 +213,20 @@ public final class HudEditElement {
             java.util.Map.entry("perfhud", "perfHud"));
 
     /** The editor element of a registered HUD id (same name ignoring case, or an alias), or null. */
+    private static final java.util.Map<String, Integer> MISSED_AT = new java.util.HashMap<>();
+
     public static HudEditElement forHud(String hudId) {
-        if (BY_HUD.containsKey(hudId)) return BY_HUD.get(hudId);
+        HudEditElement cached = BY_HUD.get(hudId);
+        if (cached != null) return cached;
+        if (UNLINKED.contains(hudId)) return null;
+        // a miss only holds until more elements register
+        Integer missed = MISSED_AT.get(hudId);
+        if (missed != null && missed == ALL.size()) return null;
         HudEditElement hit = null;
-        if (!UNLINKED.contains(hudId)) {
-            String want = HUD_ALIAS.getOrDefault(hudId, hudId);
-            for (HudEditElement e : ALL) if (e.prefix.equalsIgnoreCase(want)) { hit = e; break; }
-        }
-        BY_HUD.put(hudId, hit);
+        String want = HUD_ALIAS.getOrDefault(hudId, hudId);
+        for (HudEditElement e : ALL) if (e.prefix.equalsIgnoreCase(want)) { hit = e; break; }
+        if (hit != null) BY_HUD.put(hudId, hit);
+        else MISSED_AT.put(hudId, ALL.size());
         return hit;
     }
 

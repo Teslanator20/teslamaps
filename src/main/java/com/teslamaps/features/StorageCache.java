@@ -43,7 +43,12 @@ public class StorageCache {
 
     private static void ensure() {
         if (!loaded) load();
-        else if (FILE.stale()) { save(); load(); }
+    }
+
+    static {
+        com.teslamaps.utils.SbProfile.onChange(() -> {
+            if (loaded && FILE.stale()) { save(); load(); }
+        });
     }
 
     public static void load() {

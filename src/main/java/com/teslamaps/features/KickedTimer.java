@@ -19,20 +19,22 @@ public class KickedTimer {
     private static boolean sawLobby = false;
 
     public static void onChatMessage(String message) {
+        if (!com.teslamaps.utils.StringUtil.isServerMessage(message)) return;
         String clean = com.teslamaps.utils.StringUtil.strip(message);
-        if (!clean.contains("A kick occurred in your connection")
+        boolean joinProblem = clean.contains("There was a problem joining SkyBlock, try again in a moment");
+        if (!joinProblem
+                && !clean.contains("A kick occurred in your connection")
                 && !clean.contains("An exception occurred in your connection")
                 && !clean.contains("so you were put in the SkyBlock lobby")
                 && !clean.contains("so you were put in the SkyBlock Lobby")
-                && !clean.contains("You were kicked while joining that server")
-                && !clean.contains("There was a problem joining SkyBlock, try again in a moment")) return;
+                && !clean.contains("You were kicked while joining that server")) return;
 
         long now = System.currentTimeMillis();
         if (now - kickedAtMs > 15_000L) { kickedAtMs = now; sawLobby = false; } // new kick episode -> (re)start timer
 
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
-        if (cfg.kickedTimer && cfg.kickedPartyMessage && mc.getConnection() != null && now - lastSendMs > 15_000L) {
+        if (!joinProblem && cfg.kickedTimer && cfg.kickedPartyMessage && mc.getConnection() != null && now - lastSendMs > 15_000L) {
             mc.getConnection().sendCommand("pc kicked");
             lastSendMs = now;
         }

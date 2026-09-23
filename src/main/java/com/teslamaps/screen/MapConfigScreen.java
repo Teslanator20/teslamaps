@@ -82,6 +82,8 @@ public class MapConfigScreen extends Screen {
     protected String sliderEditText = "";
     private static final long DESC_DELAY_MS = 500;
     private SettingsEntry descHoverEntry = null;
+    private String descLinesFor;
+    private List<net.minecraft.util.FormattedCharSequence> descLines;
     protected SearchListEntry editingList = null;  // list whose search/colour field takes keys
     protected boolean rightClickedNow = false;
     private long descHoverStart = 0;
@@ -278,6 +280,7 @@ public class MapConfigScreen extends Screen {
     }
 
     protected void buildCategories() {
+        buildCount++;
         categories.clear();
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
@@ -523,7 +526,16 @@ public class MapConfigScreen extends Screen {
         sidebarScroll = 0;
     }
 
+    private List<SettingsEntry> searchCache;
+    private String searchCacheQuery;
+    private int searchCacheBuild = -1;
+    private int buildCount;
+
     protected List<SettingsEntry> getEntriesToShow() {
+        if (!searchQuery.isEmpty() && searchCache != null && searchQuery.equals(searchCacheQuery) && searchCacheBuild == buildCount) {
+            for (SettingsEntry e : searchCache) if (e instanceof LabelEntry le) le.collapseKey = null;
+            return searchCache;
+        }
         List<SettingsEntry> result = new ArrayList<>();
         if (!searchQuery.isEmpty()) {
             for (Map.Entry<String, List<SettingsEntry>> cat : categories.entrySet()) {
@@ -548,6 +560,9 @@ public class MapConfigScreen extends Screen {
                     result.add(before, header);
                 }
             }
+            searchCache = result;
+            searchCacheQuery = searchQuery;
+            searchCacheBuild = buildCount;
         } else {
             List<SettingsEntry> categoryEntries = categories.get(selectedCategory);
             if (categoryEntries == null) return result;
@@ -785,7 +800,11 @@ public class MapConfigScreen extends Screen {
             descHoverEntry = desc == null ? null : hoverEntry;
             descHoverStart = System.currentTimeMillis();
         } else if (System.currentTimeMillis() - descHoverStart >= DESC_DELAY_MS && !isMouseDown) {
-            context.setTooltipForNextFrame(font, font.split(Component.literal(desc), 220), mouseX, mouseY);
+            if (!desc.equals(descLinesFor)) {
+                descLinesFor = desc;
+                descLines = font.split(Component.literal(desc), 220);
+            }
+            context.setTooltipForNextFrame(font, descLines, mouseX, mouseY);
         }
 
         if (maxScroll > 0) {
@@ -923,12 +942,14 @@ public class MapConfigScreen extends Screen {
         String collapseKey = null;
         int childCount = 0;
 
-        public LabelEntry(int x, String text) { this.x = x; this.text = text; }
+        private final String textLower;
+
+        public LabelEntry(int x, String text) { this.x = x; this.text = text; this.textLower = text.toLowerCase(); }
 
         @Override public int getHeight() { return 24; }
         @Override public String getLabel() { return text; }
         @Override public boolean isLabel() { return true; }
-        @Override public boolean matchesSearch(String q) { return text.toLowerCase().contains(q); }
+        @Override public boolean matchesSearch(String q) { return textLower.contains(q); }
         @Override public void reposition(int x, int w) { this.x = x; this.collapseKey = null; }
 
         private void caret(GuiGraphicsExtractor ctx, int cx, int cy, boolean open, int color) {
@@ -1814,14 +1835,34 @@ public class MapConfigScreen extends Screen {
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
         @Override public void reposition(int x, int w) { this.x = x; this.width = w; }
 
+        private List<String> rowsCache;
+        private final java.util.Set<String> selectedCache = new java.util.HashSet<>();
+        private int countCache;
+        private String rowsQuery;
+        private long rowsAt;
+
+        private void invalidateRows() { rowsCache = null; }
+
+        private boolean isOn(String id) { return selectedCache.contains(id); }
+
         private List<String> rows() {
+            long now = System.currentTimeMillis();
+            if (rowsCache != null && query.equals(rowsQuery) && now - rowsAt < 1000) return rowsCache;
             String q = query.toLowerCase();
             List<String> on = new ArrayList<>(), off = new ArrayList<>();
+            selectedCache.clear();
+            int count = 0;
             for (String id : options.get()) {
+                boolean sel = selected.test(id);
+                if (sel) { count++; selectedCache.add(id); }
                 if (!q.isEmpty() && !id.toLowerCase().contains(q) && !displayName.apply(id).toLowerCase().contains(q)) continue;
-                (selected.test(id) ? on : off).add(id);
+                (sel ? on : off).add(id);
             }
             on.addAll(off);
+            rowsCache = on;
+            rowsQuery = query;
+            rowsAt = now;
+            countCache = count;
             return on;
         }
 
@@ -1885,8 +1926,7 @@ public class MapConfigScreen extends Screen {
                 ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
             }
             List<String> all = rows();
-            int count = 0;
-            for (String id : options.get()) if (selected.test(id)) count++;
+            int count = countCache;
             String cnt = count + " selected " + (expanded ? "▲" : "▼");
             int cntX = x + width - 10 - screen.font.width(cnt);
             ctx.text(screen.font, screen.fitLabel(label, x + 8, cntX), x + 8, y + 9, GuiStyle.text());
@@ -1918,7 +1958,7 @@ public class MapConfigScreen extends Screen {
             if (all.isEmpty()) ctx.text(screen.font, "Nothing here", left + 5, viewY + 5, GuiStyle.textFaint());
             for (int i = 0; i < VIEW_ROWS && scroll + i < all.size(); i++) {
                 String id = all.get(scroll + i);
-                boolean on = selected.test(id);
+                boolean on = isOn(id);
                 int ry = viewY + i * ROW;
                 boolean rh = mouseX >= left && mouseX < right - 6 && mouseY >= ry && mouseY < ry + ROW;
                 if (on) ctx.fill(left, ry, right - 6, ry + ROW, GuiStyle.rowSelected());
@@ -1941,6 +1981,7 @@ public class MapConfigScreen extends Screen {
                     screen.clickHandled = true;
                     onToggle.accept(id);
                     TeslaMapsConfig.save();
+                    invalidateRows();
                     GuiSounds.toggle(!on);
                 } else if (rh && screen.rightClickedNow && color != null) {
                     screen.rightClickedNow = false;
@@ -1975,13 +2016,14 @@ public class MapConfigScreen extends Screen {
                 acts.add(() -> {
                     String id = pick.get();
                     if (id != null && !selected.test(id)) { onToggle.accept(id); TeslaMapsConfig.save(); }
+                    invalidateRows();
                 });
             }
             if (clearAll != null) {
                 boolean armed = System.currentTimeMillis() - clearArmed < 3000;
                 labels.add(armed ? "Sure? Click again" : "Clear All");
                 acts.add(() -> {
-                    if (System.currentTimeMillis() - clearArmed < 3000) { clearAll.run(); TeslaMapsConfig.save(); clearArmed = 0; }
+                    if (System.currentTimeMillis() - clearArmed < 3000) { clearAll.run(); TeslaMapsConfig.save(); clearArmed = 0; invalidateRows(); }
                     else clearArmed = System.currentTimeMillis();
                 });
             }

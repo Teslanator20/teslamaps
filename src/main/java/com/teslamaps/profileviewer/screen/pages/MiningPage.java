@@ -60,7 +60,8 @@ public class MiningPage extends ProfileViewerPage {
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
-        drawTree(ctx, w -> build(profile.getMemberData(), w), width, x, y, mouseX, mouseY);
+        JsonObject member = profile.getMemberData();
+        drawTree(ctx, cachedTree(member, w -> build(member, w)), width, x, y, mouseX, mouseY);
     }
 
     private Ui build(JsonObject member, int width) {

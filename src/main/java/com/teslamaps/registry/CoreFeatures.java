@@ -290,6 +290,7 @@ final class CoreFeatures {
         Feature.of("CombatTimers").section("Timers").tick(com.teslamaps.features.CombatTimers::tick);
         Feature.of("BackpackPreview").section("Inventory").tick(com.teslamaps.features.BackpackPreview::tick);
         Feature.of("ItemIndex").section("Inventory").tick(com.teslamaps.features.ItemIndex::tick);
+        com.teslamaps.features.ItemIndex.registerEvents();
         Feature.of("AuctionPriceCompare").section("Inventory").tick(com.teslamaps.features.AuctionPriceCompare::tick);
         Feature.of("WitherDragons").when(() -> cfg().witherDragons).tick(com.teslamaps.dungeon.WitherDragons::tick);
         Feature.of("SecretWaypoints").section("Secrets & Waypoints").tick(SecretWaypoints::tick);

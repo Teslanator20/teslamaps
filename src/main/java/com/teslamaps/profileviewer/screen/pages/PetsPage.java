@@ -90,7 +90,14 @@ public class PetsPage extends ProfileViewerPage {
             });
         }
         sorted = list;
+        heldIcons.clear();
+        for (PetData pet : list) {
+            if (pet.getHeldItem() != null)
+                heldIcons.put(pet, com.teslamaps.profileviewer.data.PetIcons.forHeldItem(pet.getHeldItem()));
+        }
     }
+
+    private final java.util.Map<PetData, ItemStack> heldIcons = new java.util.IdentityHashMap<>();
 
     /** Pet score: rarity points per unique pet type, plus one bonus point at max level. */
     private void computeStats() {
@@ -213,7 +220,8 @@ public class PetsPage extends ProfileViewerPage {
             ItemStack stack = stackFor(pet);
             if (!stack.isEmpty()) ItemGrid.item(ctx, stack, sx, sy, slotSize);
             if (pet.getHeldItem() != null) {
-                ItemStack held = com.teslamaps.profileviewer.data.PetIcons.forHeldItem(pet.getHeldItem());
+                ItemStack held = heldIcons.get(pet);
+                if (held == null) held = com.teslamaps.profileviewer.data.PetIcons.forHeldItem(pet.getHeldItem());
                 float factor = 9 / 16f;
                 ctx.pose().pushMatrix();
                 ctx.pose().translate(sx + slotSize - 10, sy + 1);

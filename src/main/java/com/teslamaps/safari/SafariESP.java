@@ -136,8 +136,8 @@ public class SafariESP {
     public static int visibleMounds(Minecraft mc) {
         if (mc.level == null) return 0;
         int n = 0;
-        for (Entity e : mc.level.entitiesForRendering()) {
-            if (!(e instanceof Display.ItemDisplay id)) continue;
+        for (Display.ItemDisplay id : com.teslamaps.utils.EntityCache.byType(Display.ItemDisplay.class)) {
+            Entity e = id;
             if (id.getPosRotInterpolationDuration() != 0) continue;
             if (!isMoundTexture(headTexture(itemOf(id)))) continue;
             if (SafariData.biomeAt(e.blockPosition()) != SafariData.Biome.CAVERN) continue;

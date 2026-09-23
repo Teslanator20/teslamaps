@@ -153,11 +153,27 @@ public class EnchantColors {
     private static int cacheStamp;
     private static List<Component> cacheBefore = List.of(), cacheAfter = List.of();
 
+    private static TeslaMapsConfig stampCfg;
+    private static int stampVersion, stampValue;
+
     private static int stamp(TeslaMapsConfig c) {
-        return Objects.hash(c.enchantColors, c.enchantLevelsAsNumbers, c.enchantBoldMax, c.enchantChromaMax,
+        if (c == stampCfg && TeslaMapsConfig.version() == stampVersion) return stampValue;
+        stampCfg = c;
+        stampVersion = TeslaMapsConfig.version();
+        return stampValue = Objects.hash(c.enchantColors, c.enchantLevelsAsNumbers, c.enchantBoldMax, c.enchantChromaMax,
                 c.enchantChromaBold, c.enchantColorMax, c.enchantColorHigh, c.enchantColorNormal, c.enchantColorBad,
                 c.enchantLayout, c.enchantHideDescriptions, c.enchantStackingProgress,
                 c.enchantCustomRules, c.enchantColorRules);
+    }
+
+    private static boolean sameLore(List<Component> a, List<Component> b) {
+        int n = a.size();
+        if (n != b.size()) return false;
+        for (int i = 0; i < n; i++) {
+            Component x = a.get(i), y = b.get(i);
+            if (x != y && !x.equals(y)) return false;
+        }
+        return true;
     }
 
     public static void onTooltip(ItemStack stack, List<Component> lore) {
@@ -169,7 +185,7 @@ public class EnchantColors {
         if (enchants == null) loadData();
 
         int stamp = stamp(c);
-        if (stack == cacheStack && stamp == cacheStamp && lore.equals(cacheBefore)) {
+        if (stack == cacheStack && stamp == cacheStamp && sameLore(lore, cacheBefore)) {
             lore.clear();
             lore.addAll(cacheAfter);
             return;

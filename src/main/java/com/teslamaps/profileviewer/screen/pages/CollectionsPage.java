@@ -142,7 +142,28 @@ public class CollectionsPage extends ProfileViewerPage {
         }
     }
 
+    private final Map<CollectionRepo.Entry, Ui> cellCache = new java.util.IdentityHashMap<>();
+    private Object cellProfile;
+    private List<CollectionRepo.Category> cellRepo;
+    private int cellCacheWidth = -1;
+
     private Ui cell(CollectionRepo.Entry entry, long amount, int cellWidth) {
+        SkyblockProfile profile = getProfile();
+        List<CollectionRepo.Category> repo = CollectionRepo.categories();
+        if (profile != cellProfile || repo != cellRepo || cellWidth != cellCacheWidth) {
+            cellCache.clear();
+            cellProfile = profile;
+            cellRepo = repo;
+            cellCacheWidth = cellWidth;
+        }
+        Ui cached = cellCache.get(entry);
+        if (cached != null) return cached;
+        Ui built = buildCell(entry, amount, cellWidth);
+        cellCache.put(entry, built);
+        return built;
+    }
+
+    private Ui buildCell(CollectionRepo.Entry entry, long amount, int cellWidth) {
         int tier = CollectionRepo.tier(entry, amount);
         boolean maxed = tier >= entry.maxTiers();
         int color = maxed ? NeuStyle.TEXT_GOLD : tier == 0 ? NeuStyle.TEXT_GRAY : NeuStyle.TEXT_AQUA;

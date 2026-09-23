@@ -67,6 +67,7 @@ public class ItemIndex {
         public LinkedHashMap<Integer, String> names;      // plain item names, so a search never decodes everything
         public LinkedHashMap<Integer, Integer> amounts;   // sacks store their count in the lore
         public LinkedHashMap<Integer, String> lore;       // stripped lower-case lore, for lore search
+        public Boolean island;                            // captured by the island chest tracker
     }
 
     /** One item found by a search. pos is only set for island chests. */
@@ -85,7 +86,7 @@ public class ItemIndex {
 
     private static String lastKey = null;
     private static long openedMs = 0, lastCaptureMs = 0;
-    private static int lastVersion = -1;
+    private static boolean packetTaken = false;
     private static BlockPos chestPos = null, chestPos2 = null;
     private static long chestClickMs = 0;
     private static int chestTicks = 0;
@@ -98,10 +99,16 @@ public class ItemIndex {
 
     private static void ensure() {
         if (!loaded) load();
-        else if (FILE.stale()) { save(); load(); }
+    }
+
+    static {
+        com.teslamaps.utils.SbProfile.onChange(() -> {
+            if (loaded && FILE.stale()) { save(); load(); }
+        });
     }
 
     public static void load() {
+        pending.join();
         data = new LinkedHashMap<>();
         decoded.clear();
         dirty = false;
@@ -120,15 +127,37 @@ public class ItemIndex {
         loaded = true;
     }
 
+    private static final long SAVE_EVERY_MS = 30_000;
+    private static long lastSaveMs = 0;
+    private static java.util.concurrent.CompletableFuture<Void> pending = java.util.concurrent.CompletableFuture.completedFuture(null);
+
+    public static void registerEvents() {
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> save());
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STOPPING.register(c -> {
+            save();
+            pending.join();
+        });
+    }
+
+    /** Serialized here, written on the io pool. */
     public static void save() {
         if (!dirty || path == null) return;
         dirty = false;
-        try {
-            Files.createDirectories(path.getParent());
-            Files.writeString(path, GSON.toJson(data, MAP_TYPE));
-        } catch (Exception e) {
-            TeslaMaps.LOGGER.error("Failed to save item_index.json", e);
-        }
+        lastSaveMs = System.currentTimeMillis();
+        Path p = path;
+        String json = GSON.toJson(data, MAP_TYPE);
+        pending = pending.thenRunAsync(() -> {
+            try {
+                Files.createDirectories(p.getParent());
+                Files.writeString(p, json);
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.error("Failed to save item_index.json", e);
+            }
+        }, net.minecraft.util.Util.ioPool());
+    }
+
+    private static void saveThrottled() {
+        if (dirty && System.currentTimeMillis() - lastSaveMs >= SAVE_EVERY_MS) save();
     }
 
     public static void clear() {
@@ -209,7 +238,9 @@ public class ItemIndex {
     private static void sweepChests(Minecraft mc) {
         if (++chestTicks % 40 != 0 || !onPrivateIsland()) return;
         List<String> gone = new ArrayList<>();
-        for (String k : data.keySet()) {
+        for (Map.Entry<String, Src> e : data.entrySet()) {
+            if (!Boolean.TRUE.equals(e.getValue().island)) continue;
+            String k = e.getKey();
             BlockPos p = chestPosFromKey(k);
             if (p == null || !mc.level.isLoaded(p)) continue;
             BlockState st = mc.level.getBlockState(p);
@@ -254,18 +285,17 @@ public class ItemIndex {
             lastKey = key;
             openedMs = now;
             lastCaptureMs = 0;
-            lastVersion = -1;
+            packetTaken = false;
         }
-        // packets say when the menu is filled; the half-second timer stays as fallback and resync
-        int version = com.teslamaps.utils.ContainerState.version();
-        boolean packetReady = version != lastVersion
+        // first full fill is taken at once, everything after goes through the half-second timer
+        boolean packetReady = !packetTaken
                 && com.teslamaps.utils.ContainerState.fullyOpened(cs.getMenu().containerId);
         if (!packetReady) {
             if (now - openedMs < 500) return;
             if (now - lastCaptureMs < 500) return;
         }
+        if (packetReady) packetTaken = true;
         lastCaptureMs = now;
-        lastVersion = version;
         if (tracker && type.equals(CHESTS) && chestPos2 != null) captureDouble(cs, title);
         else capture(cs, key, type, name);
     }
@@ -329,6 +359,7 @@ public class ItemIndex {
         src.names = names;
         src.amounts = amounts;
         src.lore = lore;
+        src.island = type.equals(CHESTS) && TeslaMapsConfig.get().islandChestTracker && onPrivateIsland() ? Boolean.TRUE : null;
         dropDecoded(key);
         dirty = true;
         trim();
@@ -352,9 +383,8 @@ public class ItemIndex {
     }
 
     private static void flush() {
-        if (lastKey == null) return;
         lastKey = null;
-        save();
+        saveThrottled();
     }
 
     private static String typeFor(String title) {

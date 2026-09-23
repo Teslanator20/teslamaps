@@ -17,6 +17,7 @@ public class ESPRenderer {
     private static boolean frameBatch = false;
     private static net.minecraft.client.renderer.culling.Frustum frustum;
     private static final java.util.List<MultiBufferSource.BufferSource> frameSources = new java.util.ArrayList<>();
+    private static final java.util.List<MultiBufferSource.BufferSource> textSources = new java.util.ArrayList<>();
 
     public static void beginFrame(net.minecraft.client.renderer.culling.Frustum cull) {
         frameBatch = true;
@@ -33,6 +34,8 @@ public class ESPRenderer {
             src.endBatch(TeslaRenderLayers.FILLED_DEPTH);
         }
         frameSources.clear();
+        for (MultiBufferSource.BufferSource src : textSources) src.endBatch();
+        textSources.clear();
     }
 
     private static void finish(MultiBufferSource.BufferSource src,
@@ -310,19 +313,23 @@ public class ESPRenderer {
         Minecraft mc = Minecraft.getInstance();
         if (mc.font == null || mc.gameRenderer == null || mc.gameRenderer.getMainCamera() == null) return;
 
+        // grow with distance so text stays readable far away (constant apparent size beyond 12 blocks)
+        float dist = (float) pos.distanceTo(cameraPos);
+        float scaleFactor = scale * 0.025f * (scaleWithDistance ? Math.max(1f, dist / 12f) : 1f);
+        float textWidth = mc.font.width(text);
+        if (frustum != null) {
+            double r = Math.max(textWidth, 9f) * scaleFactor;
+            if (culled(new AABB(pos.x - r, pos.y - r, pos.z - r, pos.x + r, pos.y + r, pos.z + r))) return;
+        }
+
         MultiBufferSource.BufferSource immediate = mc.renderBuffers().bufferSource();
 
         matrices.pushPose();
 
         var pose = matrices.last().pose();
-        // grow with distance so text stays readable far away (constant apparent size beyond 12 blocks)
-        float dist = (float) pos.distanceTo(cameraPos);
-        float scaleFactor = scale * 0.025f * (scaleWithDistance ? Math.max(1f, dist / 12f) : 1f);
         pose.translate((float) (pos.x - cameraPos.x), (float) (pos.y - cameraPos.y), (float) (pos.z - cameraPos.z));
         pose.rotate(mc.gameRenderer.getMainCamera().rotation());
         pose.scale(scaleFactor, -scaleFactor, scaleFactor);
-
-        float textWidth = mc.font.width(text);
 
         mc.font.drawInBatch(
             text,
@@ -338,7 +345,8 @@ public class ESPRenderer {
             15728880    // full brightness
         );
 
-        immediate.endBatch(); // flush so the glyphs actually render this frame
+        if (!frameBatch) immediate.endBatch();
+        else if (!textSources.contains(immediate)) textSources.add(immediate);
         matrices.popPose();
     }
 

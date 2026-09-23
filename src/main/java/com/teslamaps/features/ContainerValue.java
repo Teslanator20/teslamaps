@@ -37,6 +37,7 @@ public class ContainerValue {
         int amount;
         final List<Integer> slots = new ArrayList<>(2);
         final ItemStack stack;
+        String hoverKey;
 
         Entry(String name, ItemStack stack) {
             this.name = name;
@@ -210,7 +211,8 @@ public class ContainerValue {
             int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
             ctx.fill(sx, sy, sx + 16, sy + 16, 0x80FFAA00);
         }
-        List<String> detail = breakdowns.computeIfAbsent(e.slots.get(0) + "|" + e.name, k -> EstimatedValue.display(e.stack));
+        if (e.hoverKey == null) e.hoverKey = e.slots.get(0) + "|" + e.name;
+        List<String> detail = breakdowns.computeIfAbsent(e.hoverKey, k -> EstimatedValue.display(e.stack));
         if (detail.isEmpty()) return;
         int dw = 0;
         for (String l : detail) dw = Math.max(dw, mc.font.width(l));

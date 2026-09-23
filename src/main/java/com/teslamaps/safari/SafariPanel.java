@@ -24,6 +24,22 @@ public final class SafariPanel {
 
     private final List<Row> rows = new ArrayList<>();
     private int cachedWidth = -1;
+    private int measuredRows = -1, cachedValueWidth;
+    private int[] valueWidths = new int[0];
+    private Font measuredFont;
+
+    private void measure(Font font) {
+        if (measuredRows == rows.size() && measuredFont == font) return;
+        measuredRows = rows.size();
+        measuredFont = font;
+        valueWidths = new int[rows.size()];
+        for (int i = 0; i < valueWidths.length; i++) {
+            String v = rows.get(i).value;
+            valueWidths[i] = v == null ? 0 : font.width(v);
+        }
+        cachedValueWidth = valueWidth(font);
+        cachedWidth = contentWidth(font) + PADDING * 2;
+    }
 
     public SafariPanel title(String text, int color) {
         rows.add(new Row(Kind.TITLE, text, null, color, 0, 0, 0));
@@ -55,7 +71,7 @@ public final class SafariPanel {
     }
 
     public int width(Font font) {
-        if (cachedWidth < 0) cachedWidth = contentWidth(font) + PADDING * 2;
+        measure(font);
         return cachedWidth;
     }
 
@@ -99,15 +115,16 @@ public final class SafariPanel {
         HudStyle.panel(g, 0, 0, panelWidth, height());
 
         int valueRight = panelWidth - PADDING;
-        int barLeft = valueRight - valueWidth(font) - GUTTER - BAR_WIDTH;
+        int barLeft = valueRight - cachedValueWidth - GUTTER - BAR_WIDTH;
         int rowY = PADDING;
-        for (Row r : rows) {
+        for (int i = 0; i < rows.size(); i++) {
+            Row r = rows.get(i);
             switch (r.kind) {
                 case BLANK -> { }
                 case TITLE, TEXT -> g.text(font, r.label, PADDING, rowY, r.labelColor, true);
                 case PAIR -> {
                     g.text(font, r.label, PADDING, rowY, r.labelColor, true);
-                    g.text(font, r.value, valueRight - font.width(r.value), rowY, r.valueColor, true);
+                    g.text(font, r.value, valueRight - valueWidths[i], rowY, r.valueColor, true);
                 }
                 case BAR -> {
                     g.text(font, r.label, PADDING, rowY, r.labelColor, true);
@@ -117,7 +134,7 @@ public final class SafariPanel {
                         int filled = Math.max(1, BAR_WIDTH * Math.min(r.current, r.max) / r.max);
                         g.fill(barLeft, barY, barLeft + filled, barY + BAR_HEIGHT, r.valueColor);
                     }
-                    g.text(font, r.value, valueRight - font.width(r.value), rowY, r.valueColor, true);
+                    g.text(font, r.value, valueRight - valueWidths[i], rowY, r.valueColor, true);
                 }
             }
             rowY += LINE_HEIGHT;

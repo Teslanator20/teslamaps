@@ -43,19 +43,10 @@ public class ItemProtection {
 
     // ---------------------------------------------------------------- per-item (uuid)
 
-    private record UuidRef(net.minecraft.world.item.component.CustomData data, String uuid) {}
-    private static final java.util.Map<ItemStack, UuidRef> UUIDS = new java.util.WeakHashMap<>();
-
     private static String uuid(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return null;
-        var data = stack.getComponents().get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
-        if (data == null) return null;
-        UuidRef ref = UUIDS.get(stack);
-        if (ref == null || ref.data != data) {
-            ref = new UuidRef(data, data.copyTag().getString("uuid").orElse(null));
-            UUIDS.put(stack, ref);
-        }
-        return ref.uuid;
+        String id = ((com.teslamaps.injected.CustomizableStack) (Object) stack).teslamaps$uuid();
+        return id.isEmpty() ? null : id;
     }
 
     public static boolean uuidProtected(ItemStack stack) {
@@ -150,6 +141,7 @@ public class ItemProtection {
     /** Protected item into an empty item frame on the island or garden. */
     public static boolean blockItemFrame(ItemStack held, net.minecraft.world.entity.Entity target) {
         if (!(target instanceof net.minecraft.world.entity.decoration.ItemFrame frame) || !frame.getItem().isEmpty()) return false;
+        if (!TeslaMapsConfig.get().itemProtectionUuid) return false;
         if (!uuidProtected(held) && !SlotLock.blockSelectedDrop()) return false;
         if (!com.teslamaps.utils.SkyblockUtils.isInArea("Private Island") && !com.teslamaps.utils.SkyblockUtils.isInGarden()) return false;
         warnKept(held, "framing");

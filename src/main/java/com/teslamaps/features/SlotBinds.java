@@ -35,11 +35,19 @@ public class SlotBinds {
         return PROFILES[0];
     }
 
+    private static String keyP, keySb, keyValue;
+
     private static String dataKey() {
         String p = profile();
         if (!TeslaMapsConfig.get().slotBindsPerProfile) return p;
         String sb = com.teslamaps.utils.SbProfile.key();
-        return sb == null ? p : "sb:" + sb + ":" + p;
+        if (sb == null) return p;
+        if (p != keyP || sb != keySb) {
+            keyP = p;
+            keySb = sb;
+            keyValue = "sb:" + sb + ":" + p;
+        }
+        return keyValue;
     }
 
     private static Map<Integer, Integer> binds() {

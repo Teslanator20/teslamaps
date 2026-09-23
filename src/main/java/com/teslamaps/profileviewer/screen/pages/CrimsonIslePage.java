@@ -68,7 +68,7 @@ public class CrimsonIslePage extends ProfileViewerPage {
         }
 
         int available = NeuStyle.PANEL_HEIGHT - y - 6;
-        drawTree(ctx, w -> fitted(nether, w, available), width, x, y, mouseX, mouseY);
+        drawTree(ctx, cachedTree(nether, w -> fitted(nether, w, available)), width, x, y, mouseX, mouseY);
     }
 
     private Ui fitted(JsonObject nether, int width, int available) {

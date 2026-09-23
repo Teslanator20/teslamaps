@@ -39,7 +39,11 @@ public class MuseumPage extends ProfileViewerPage {
     private final Map<String, Integer> viewDonated = new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<String, Integer> viewTotal = new java.util.concurrent.ConcurrentHashMap<>();
 
-    private record Cell(InventoryDecoder.Slot slot, ItemStack missing, String name) {}
+    private record Cell(InventoryDecoder.Slot slot, ItemStack missing, String name, String plain) {
+        Cell(InventoryDecoder.Slot slot, ItemStack missing, String name) {
+            this(slot, missing, name, com.teslamaps.utils.StringUtil.strip(name));
+        }
+    }
 
     private static final Map<String, String> CATEGORY_ICONS = Map.of(
             "combat", "diamond_sword", "farming", "golden_hoe", "mining", "stone_pickaxe",
@@ -197,9 +201,16 @@ public class MuseumPage extends ProfileViewerPage {
         return stack;
     }
 
+    private MuseumRepo.Data keysFrom;
+    private List<String> catKeys = List.of();
+
     private List<String> categoryKeys() {
         MuseumRepo.Data data = MuseumRepo.get();
-        return data == null ? List.of() : new ArrayList<>(data.items().keySet());
+        if (data != keysFrom) {
+            keysFrom = data;
+            catKeys = data == null ? List.of() : new ArrayList<>(data.items().keySet());
+        }
+        return catKeys;
     }
 
     private static List<InventoryDecoder.Slot> readSlots(JsonObject entry) {
@@ -355,7 +366,7 @@ public class MuseumPage extends ProfileViewerPage {
         if (!search.isEmpty()) {
             shown = new ArrayList<>();
             for (Cell cell : cells) {
-                if (search.matches(com.teslamaps.utils.StringUtil.strip(cell.name()))) shown.add(cell);
+                if (search.matches(cell.plain())) shown.add(cell);
             }
         }
 

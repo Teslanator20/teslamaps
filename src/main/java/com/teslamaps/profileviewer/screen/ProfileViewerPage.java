@@ -121,6 +121,19 @@ public abstract class ProfileViewerPage {
      * be laid out on a wider canvas first. Shrinking narrows the content as well, and without this
      * the window ends up with a third of its width empty on both sides.
      */
+    private final java.util.Map<Integer, com.teslamaps.profileviewer.ui.Ui> treeCache = new java.util.HashMap<>();
+    private Object treeCacheKey;
+
+    /** Builder that lays a tree out once per width while {@code key} (compared by identity) stays the same. */
+    protected java.util.function.IntFunction<com.teslamaps.profileviewer.ui.Ui> cachedTree(
+            Object key, java.util.function.IntFunction<com.teslamaps.profileviewer.ui.Ui> builder) {
+        if (key != treeCacheKey) {
+            treeCache.clear();
+            treeCacheKey = key;
+        }
+        return w -> treeCache.computeIfAbsent(w, builder::apply);
+    }
+
     protected void drawTree(GuiGraphicsExtractor ctx, java.util.function.IntFunction<com.teslamaps.profileviewer.ui.Ui> builder,
                             int width, int x, int y, int mouseX, int mouseY) {
         int available = com.teslamaps.profileviewer.screen.NeuStyle.PANEL_HEIGHT - y - 6;

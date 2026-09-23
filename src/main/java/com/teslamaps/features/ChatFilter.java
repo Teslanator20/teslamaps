@@ -237,8 +237,11 @@ public class ChatFilter {
 
     /** First enabled rule that matches the line, or null. */
     public static Rule match(String raw) {
+        return matchStripped(StringUtil.strip(raw));
+    }
+
+    private static Rule matchStripped(String t) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        String t = StringUtil.strip(raw);
         lastReason = null;
         // belongs to the screenshot manager, which prints its own line with buttons,
         // so it is not tied to the chat filter master switch
@@ -344,10 +347,10 @@ public class ChatFilter {
     public static boolean process(Component message, String text) {
         pendingText = null;
         pendingOut = null;
-        if (StashCompact.handle(StringUtil.strip(text))) return true;
-        Rule r = match(text);
-        if (r == SCREENSHOT) return true;
         String t = StringUtil.strip(text);
+        if (StashCompact.handle(t)) return true;
+        Rule r = matchStripped(t);
+        if (r == SCREENSHOT) return true;
         if (r != null) return apply(message, text, t, actionOf(r), COMPACT.get(r.id));
         if (ChatUserFilters.match(t) != null) {
             lastReason = "user";

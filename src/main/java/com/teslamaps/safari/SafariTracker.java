@@ -212,7 +212,7 @@ public class SafariTracker {
         List<net.minecraft.world.entity.Entity> labels = new ArrayList<>();
         List<SafariData.Critter> species = new ArrayList<>();
         List<net.minecraft.world.entity.Entity> mobs = new ArrayList<>();
-        for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
+        for (net.minecraft.world.entity.Entity e : com.teslamaps.utils.EntityCache.all()) {
             SafariData.Critter named = null;
             if (e.hasCustomName()) {
                 String n = com.teslamaps.utils.StringUtil.strip(e.getCustomName().getString()).trim();
@@ -405,10 +405,16 @@ public class SafariTracker {
                 });
     }
 
+    private static SafariPanel previewPanel;
+    private static long previewAt;
+
     private static SafariPanel missingPreview() {
         if (missingPanel != null) return missingPanel;
+        long now = System.currentTimeMillis();
+        if (previewPanel != null && now - previewAt < 1000) return previewPanel;
         SafariData.Biome b = SafariData.currentBiome();
-        return missingPanel(b != null ? b : SafariData.Biome.ICY, null);
+        previewAt = now;
+        return previewPanel = missingPanel(b != null ? b : SafariData.Biome.ICY, null);
     }
 
     /** Warn once per run when the instance holds fewer than 4 players, announce once when it fills. */

@@ -46,10 +46,21 @@ public final class PlayerChat {
 
     private PlayerChat() {}
 
-    public static void begin(Component message) {
+    public record State(Component current, Msg parsed, boolean done) {}
+
+    /** Returns the outer line's state; hand it to {@link #end} so nested lines don't clobber it. */
+    public static State begin(Component message) {
+        State prev = new State(current, parsed, done);
         current = message;
         parsed = null;
         done = false;
+        return prev;
+    }
+
+    public static void end(State prev) {
+        current = prev.current;
+        parsed = prev.parsed;
+        done = prev.done;
     }
 
     /** The line ChatMixin is handling right now; null = system line. */

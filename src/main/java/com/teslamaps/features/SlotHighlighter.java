@@ -29,6 +29,8 @@ public class SlotHighlighter {
 
     // quality lookups copy the custom data tag, so each stack is judged once
     private static final java.util.IdentityHashMap<ItemStack, Integer> kinds = new java.util.IdentityHashMap<>();
+    private static final java.util.IdentityHashMap<ItemStack, Boolean> salvage = new java.util.IdentityHashMap<>();
+    private static long salvageAt;
     private static final int NONE = 0, LOW = 1, MAX = 2, JUNK = 4;
 
     public static boolean shouldRender() {
@@ -133,6 +135,16 @@ public class SlotHighlighter {
 
     private static boolean isSalvageable(ItemStack stack) {
         if (stack.isEmpty()) return false;
+        long now = System.currentTimeMillis();
+        if (now - salvageAt > 1000 || salvage.size() > 2000) { salvage.clear(); salvageAt = now; }
+        Boolean cached = salvage.get(stack);
+        if (cached != null) return cached;
+        boolean v = computeSalvageable(stack);
+        salvage.put(stack, v);
+        return v;
+    }
+
+    private static boolean computeSalvageable(ItemStack stack) {
         boolean dungeon = false;
         for (String l : com.teslamaps.utils.ItemUtil.loreLines(stack)) {
             if (l.contains("DUNGEON") && !l.contains("DUNGEON ITEM")) { dungeon = true; break; }

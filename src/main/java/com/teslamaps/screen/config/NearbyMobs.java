@@ -20,6 +20,7 @@ import java.util.Set;
 /** Mob names around the player for the searchable Custom ESP list, refreshed once a second. */
 final class NearbyMobs {
     private static final double RANGE = 48;
+    private static final int MAX_SEEN = 200;
     private static final Set<String> seen = new LinkedHashSet<>();
     private static final Map<String, EntityType<?>> types = new HashMap<>();
     private static final Map<EntityType<?>, ItemStack> eggs = new HashMap<>();
@@ -39,7 +40,14 @@ final class NearbyMobs {
 
     /** Remembers an entry so it stays in the list after being switched off. */
     static void remember(String name) {
-        if (name != null && !name.isBlank()) seen.add(name);
+        if (name != null && !name.isBlank()) see(name);
+    }
+
+    private static void see(String n) {
+        if (!seen.add(n) || seen.size() <= MAX_SEEN) return;
+        var it = seen.iterator();
+        it.next();
+        it.remove();
     }
 
     static ItemStack icon(String name) {
@@ -55,7 +63,7 @@ final class NearbyMobs {
         String n = nameOf(e);
         if (n != null) {
             types.putIfAbsent(n.toLowerCase(), e.getType());
-            seen.add(n);
+            see(n);
         }
         return n;
     }
@@ -66,12 +74,11 @@ final class NearbyMobs {
         lastScan = now;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
-        for (Entity e : mc.level.entitiesForRendering()) {
+        for (LivingEntity e : com.teslamaps.utils.EntityCache.byType(LivingEntity.class)) {
             if (e instanceof Player || e.distanceToSqr(mc.player) > RANGE * RANGE) continue;
-            if (!(e instanceof LivingEntity)) continue;
             String n = nameOf(e);
             if (n == null) continue;
-            seen.add(n);
+            see(n);
             if (!(e instanceof ArmorStand)) types.putIfAbsent(n.toLowerCase(), e.getType());
         }
     }
