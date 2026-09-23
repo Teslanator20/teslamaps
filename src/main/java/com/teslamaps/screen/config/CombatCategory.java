@@ -19,6 +19,17 @@ public final class CombatCategory {
         b.toggle("Miniboss ESP", () -> config.slayerMinibossESP, v -> config.slayerMinibossESP = v);
         b.toggle("Miniboss Tracers", () -> config.slayerMinibossTracer, v -> config.slayerMinibossTracer = v);
         b.toggle("Alerts (Miniboss/Cocoon/Boss)", () -> config.slayerAlerts, v -> config.slayerAlerts = v);
+        b.toggle("  Boss Spawn Title", () -> config.slayerAlertSpawnTitle, v -> config.slayerAlertSpawnTitle = v);
+        b.toggle("  Boss Spawn Sound", () -> config.slayerAlertSpawnSound, v -> config.slayerAlertSpawnSound = v);
+        b.toggle("  Cocoon Title", () -> config.slayerAlertCocoonTitle, v -> config.slayerAlertCocoonTitle = v);
+        b.toggle("  Cocoon Sound", () -> config.slayerAlertCocoonSound, v -> config.slayerAlertCocoonSound = v);
+        b.toggle("  Miniboss Title", () -> config.slayerAlertMinibossTitle, v -> config.slayerAlertMinibossTitle = v);
+        b.toggle("  Miniboss Sound", () -> config.slayerAlertMinibossSound, v -> config.slayerAlertMinibossSound = v);
+        b.toggle("  Miniboss Name in Title", () -> config.slayerAlertMinibossName, v -> config.slayerAlertMinibossName = v);
+        b.slider("  Title Duration (ticks)", 5, 100, () -> (float) config.slayerAlertTicks,
+                v -> config.slayerAlertTicks = Math.round(v), 0);
+        b.toggle("  Custom Title Color", () -> config.slayerAlertCustomColor, v -> config.slayerAlertCustomColor = v);
+        b.color("  Title Color", () -> config.slayerAlertColor, v -> config.slayerAlertColor = v);
         b.label("Slayer Kill Time");
         b.toggle("Kill Time in Chat", () -> config.slayerKillChat, v -> config.slayerKillChat = v);
         b.info("Timed from the scoreboard's \"Slay the boss!\" line to the kill");

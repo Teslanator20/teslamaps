@@ -1002,6 +1002,16 @@ public class TeslaMapsConfig {
     public boolean slayerMinibossESP = false;  // Glow on minibosses (Burningsoul=red, Kindleheart=white)
     public boolean slayerMinibossTracer = false; // Tracer lines to slayer minibosses
     public boolean slayerAlerts = true;        // Title alerts: miniboss spawn, cocoon, boss spawned
+    public boolean slayerAlertSpawnTitle = true;
+    public boolean slayerAlertCocoonTitle = true;
+    public boolean slayerAlertMinibossTitle = true;
+    public boolean slayerAlertSpawnSound = false;
+    public boolean slayerAlertCocoonSound = false;
+    public boolean slayerAlertMinibossSound = false;
+    public boolean slayerAlertMinibossName = false; // miniboss title shows its name
+    public boolean slayerAlertCustomColor = false;
+    public String slayerAlertColor = "FF5555";
+    public int slayerAlertTicks = 25;          // title stay time
     public boolean slayerKillChat = true;      // Chat line with kill/spawn time after each boss
     public boolean slayerKillPb = false;       // Persistent kill-time PB per slayer type and tier
     public boolean slayerKillTicks = false;    // Kill time in server ticks too
