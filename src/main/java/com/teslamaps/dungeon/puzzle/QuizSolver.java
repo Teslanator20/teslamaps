@@ -35,6 +35,27 @@ public class QuizSolver {
     private record TriviaOption(BlockPos worldPos, boolean isCorrect) {}
 
     private static int[] clay = null; // {clayX, clayZ, rotation} for the current Quiz room
+    private static boolean soulsRequested = false;
+
+    private static final String FAIRY_SOULS_URL =
+            "https://raw.githubusercontent.com/NotEnoughUpdates/NotEnoughUpdates-REPO/master/constants/fairy_souls.json";
+    // question island -> NEU location key (Skyblocker Trivia)
+    private static final String[][] SOUL_QUESTIONS = {
+        {"How many total Fairy Souls are there?", "Max Souls"},
+        {"How many Fairy Souls are there in Spider's Den?", "combat_1"},
+        {"How many Fairy Souls are there in Spiders Den?", "combat_1"},
+        {"How many Fairy Souls are there in The End?", "combat_3"},
+        {"How many Fairy Souls are there in The Farming Islands?", "farming_1"},
+        {"How many Fairy Souls are there in Crimson Isle?", "crimson_isle"},
+        {"How many Fairy Souls are there in The Park?", "foraging_1"},
+        {"How many Fairy Souls are there in Jerry's Workshop?", "winter"},
+        {"How many Fairy Souls are there in Hub?", "hub"},
+        {"How many Fairy Souls are there in The Hub?", "hub"},
+        {"How many Fairy Souls are there in Deep Caverns?", "mining_2"},
+        {"How many Fairy Souls are there in Gold Mine?", "mining_1"},
+        {"How many Fairy Souls are there in Dungeon Hub?", "dungeon_hub"},
+        {"How many Fairy Souls are there in Backwater Bayou?", "fishing_1"},
+    };
     private static DungeonRoom quizRoom = null;
 
     static {
@@ -116,6 +137,34 @@ public class QuizSolver {
         }
     }
 
+    private static void loadFairySouls() {
+        try {
+            java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                    .connectTimeout(java.time.Duration.ofSeconds(10)).build();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder(java.net.URI.create(FAIRY_SOULS_URL))
+                    .timeout(java.time.Duration.ofSeconds(20)).header("User-Agent", "TeslaMaps").GET().build();
+            java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) return;
+            com.google.gson.JsonObject root = com.google.gson.JsonParser.parseString(response.body()).getAsJsonObject();
+            Map<String, List<String>> live = new java.util.HashMap<>();
+            for (String[] q : SOUL_QUESTIONS) {
+                if (!root.has(q[1])) continue;
+                var v = root.get(q[1]);
+                int count = v.isJsonArray() ? v.getAsJsonArray().size() : v.getAsInt();
+                live.put(q[0], List.of(count + " Fairy Souls"));
+            }
+            net.minecraft.client.Minecraft.getInstance().execute(() -> {
+                if (answers == null) return;
+                Map<String, List<String>> merged = new java.util.LinkedHashMap<>(answers);
+                merged.putAll(live);
+                answers = merged;
+                TeslaMaps.debug("[QuizSolver] {} fairy soul answers from NEU", live.size());
+            });
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.warn("[QuizSolver] fairy soul fetch failed: {}", e.toString());
+        }
+    }
+
     public static void tick() {
         if (!TeslaMapsConfig.get().solveQuiz) {
             reset();
@@ -125,6 +174,11 @@ public class QuizSolver {
         if (!DungeonManager.isInDungeon()) {
             reset();
             return;
+        }
+
+        if (!soulsRequested) {
+            soulsRequested = true;
+            java.util.concurrent.CompletableFuture.runAsync(QuizSolver::loadFairySouls);
         }
 
         if (quizRoom == null && DungeonManager.getGrid() != null) {

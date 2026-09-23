@@ -11,5 +11,7 @@ final class Features {
         com.teslamaps.api.ElectionApi.register();
         com.teslamaps.dungeon.DungeonScore.register();
         com.teslamaps.features.SoulweaverHider.register();
+        // wave 1a puzzles
+        com.teslamaps.dungeon.puzzle.PuzzleTimers.register();
     }
 }

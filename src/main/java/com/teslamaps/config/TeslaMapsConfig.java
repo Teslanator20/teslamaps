@@ -925,6 +925,7 @@ public class TeslaMapsConfig {
     public boolean autoGFSJerry = true;         // Refill inflatable jerry
     public boolean autoGFSTNT = true;           // Refill superboom TNT
     public boolean autoGFSDraft = true;         // Auto get draft on puzzle fail
+    public boolean autoGFSDraftAlert = false;
 
     public boolean autoWish = false;            // Auto use healer wish at key boss moments
 
@@ -932,12 +933,21 @@ public class TeslaMapsConfig {
     public boolean solveBlaze = true;              // Show which blaze to hit
     public boolean blazeDoneMessage = true;        // Send "/pc Blaze Done!" when last blaze killed
     public boolean modernBlazeSolver = true;      // Fill the solver boxes + hide the vanilla blaze mobs (cleaner look)
+    public boolean blazeTracer = false;
+    public boolean blazeSameHpWarning = false;
+    public int blazeLineAmount = 2;
+    public float blazeLineWidth = 1.0f;
+    public String blazeColorFirst = "00FF00";
+    public String blazeColorSecond = "FFFFFF";
+    public String blazeColorThird = "0055FF";
+    public String blazeColorRest = "FF0000";
     public boolean solveThreeWeirdos = true;       // Highlight correct chest in Three Weirdos
     public boolean solveTicTacToe = true;          // Show best move in Tic Tac Toe
     public boolean solveCreeperBeams = true;       // Show solution for Creeper Beams
     public boolean creeperBeamsTracers = true;     // Draw lines between lantern pairs
     public boolean solveBoulder = true;            // Show solution for Boulder puzzle
     public boolean showAllBoulderClicks = true;    // Show all clicks vs just next one
+    public boolean boulderClickBlock = false;
     public boolean solveQuiz = true;               // Highlight correct answer in Quiz (Trivia)
     public boolean quizBeacon = true;              // Draw beacon beam on correct answer
     public boolean quizChatHighlight = true;       // Recolor the correct answer line green in chat
@@ -1360,13 +1370,22 @@ public class TeslaMapsConfig {
     public java.util.Map<String, java.util.Map<Integer, Integer>> slotBindsData = new java.util.HashMap<>();
     public boolean solveWaterBoard = true;          // Show solution for Water Board puzzle
     public boolean waterBoardTracers = true;        // Draw tracers to next lever
+    public boolean waterBoardColorStages = false;
+    public int waterBoardSolutionSet = 0;
     public boolean solveIceFill = true;             // Show Ice Fill (F7) path solution
     public boolean iceFillOptimized = true;         // Use optimized (harder/faster) ice fill paths
+    public boolean iceFillDynamic = false;
+    public boolean iceFillGradient = false;
+    public float iceFillLineWidth = 3f;
     public boolean icePathSolver = true;            // Draw the silverfish path in the Ice Path puzzle
+    public boolean icePathDynamic = false;
+    public String colorIcePathNext = "00FF00";
+    public String colorIcePathRest = "FF0000";
     public boolean puzzleTimers = true;            // Report how long each puzzle took to solve
     @Global
     public java.util.Map<String, Double> puzzlePbs = new java.util.HashMap<>(); // per-puzzle personal bests (seconds)
     public String colorIceFill = "55FFFF";          // Ice Fill path color (aqua)
+    public String colorIceFillEnd = "FF5555";
     public boolean witherDragons = true;            // M7 Wither Dragons helper (master toggle)
     public boolean witherDragonTimer = true;        // Spawn countdown timer at each dragon's spawn
     public boolean witherDragonBoxes = true;        // Boxes around spawning/alive dragons
@@ -1463,6 +1482,7 @@ public class TeslaMapsConfig {
     public boolean hideDefaultTitles = true;      // Hide Hypixel's default bow/bear titles in F4/M4 boss
 
     public String colorBoulder = "55FF55";           // Boulder click highlight (green)
+    public String colorBoulderClickBlock = "FFAA00";
     public String colorQuiz = "55FF55";              // Quiz correct answer (green)
     public String colorTPMazeOne = "55FF55";         // TP Maze single correct (green)
     public String colorTPMazeMultiple = "FFFF55";    // TP Maze multiple correct (yellow)

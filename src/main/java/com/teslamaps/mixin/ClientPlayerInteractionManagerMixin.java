@@ -49,6 +49,7 @@ public class ClientPlayerInteractionManagerMixin {
         }
         BlockState state = mc.level.getBlockState(pos);
         Block block = state.getBlock();
+        com.teslamaps.dungeon.puzzle.BoulderSolver.onBlockInteract(pos);
 
         if (state.is(Blocks.CHEST) || state.is(Blocks.TRAPPED_CHEST) || state.is(Blocks.BARREL)) {
             com.teslamaps.features.ItemIndex.onChestClick(pos);

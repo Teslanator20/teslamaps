@@ -15,8 +15,11 @@ public class AutoGFS {
     private static final String DUNGEON_START_MSG1 = "[NPC] Mort: Here, I found this map when I first entered the dungeon.";
     private static final String DUNGEON_START_MSG2 = "[NPC] Mort: Right-click the Orb for spells, and Left-click (or Drop) to use your Ultimate!";
 
-    private static final String PUZZLE_FAIL_PREFIX = "PUZZLE FAIL!";
-    private static final String STATUE_FAIL_PREFIX = "[STATUE] Oruo the Omniscient:";
+    private static final java.util.regex.Pattern PUZZLE_FAIL = java.util.regex.Pattern.compile("^PUZZLE FAIL! (\\w{1,16}) .*$");
+    private static final java.util.regex.Pattern QUIZ_FAIL = java.util.regex.Pattern.compile("^\\[STATUE] Oruo the Omniscient: (\\w{1,16}) chose the wrong answer!.*$");
+
+    private record Pending(long dueTick, Runnable action) {}
+    private static final java.util.List<Pending> pending = new java.util.ArrayList<>();
 
     public static void init() {
         TeslaMaps.debug("AutoGFS initialized");
@@ -26,6 +29,10 @@ public class AutoGFS {
         if (!TeslaMapsConfig.get().autoGFS) return;
 
         tickCounter++;
+
+        for (int i = pending.size() - 1; i >= 0; i--) {
+            if (pending.get(i).dueTick() <= tickCounter) pending.remove(i).action().run();
+        }
 
         if (TeslaMapsConfig.get().autoGFSTimer) {
             int intervalTicks = TeslaMapsConfig.get().autoGFSInterval * 20;
@@ -40,7 +47,7 @@ public class AutoGFS {
     }
 
     public static void onChatMessage(String message) {
-        if (!TeslaMapsConfig.get().autoGFS) return;
+        if (!TeslaMapsConfig.get().autoGFS || LegitMode.blocksCheats()) return;
 
         message = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
 
@@ -53,43 +60,33 @@ public class AutoGFS {
         }
 
         if (TeslaMapsConfig.get().autoGFSDraft) {
-            boolean fail = message.contains(PUZZLE_FAIL_PREFIX) ||
-                (message.contains(STATUE_FAIL_PREFIX) && message.contains("chose the wrong answer"));
-            if (fail && failedBySelf(message)) {
+            if (failedBySelf(message.trim())) {
                 TeslaMaps.debug("[AutoGFS] You failed the puzzle, getting draft...");
+                if (TeslaMapsConfig.get().autoGFSDraftAlert) {
+                    Minecraft.getInstance().gui.setTitle(net.minecraft.network.chat.Component.literal("\u00A7c\u00A7lDRAFT"));
+                }
                 scheduleCommand(30, "gfs architect's first draft 1");
             }
         }
     }
 
-    // the fail message names the player who failed — only pull a draft when that's us
+    // the fail message names the player who failed — only pull a draft when that's exactly us
     private static boolean failedBySelf(String message) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
         String self = mc.getUser().getName();
-        return self != null && message.contains(self);
+        if (self == null) return false;
+        java.util.regex.Matcher m = PUZZLE_FAIL.matcher(message);
+        if (!m.matches()) m = QUIZ_FAIL.matcher(message);
+        return m.matches() && m.group(1).equals(self);
     }
 
     private static void scheduleRefill(int delayTicks) {
-        new Thread(() -> {
-            try {
-                Thread.sleep(delayTicks * 50L); // 50ms per tick
-                Minecraft.getInstance().execute(AutoGFS::refillItems); // inventory/networking on main thread
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }).start();
+        pending.add(new Pending(tickCounter + delayTicks, AutoGFS::refillItems));
     }
 
     private static void scheduleCommand(int delayTicks, String command) {
-        new Thread(() -> {
-            try {
-                Thread.sleep(delayTicks * 50L);
-                Minecraft.getInstance().execute(() -> sendCommand(command));
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }).start();
+        pending.add(new Pending(tickCounter + delayTicks, () -> sendCommand(command)));
     }
 
     public static void refillItems() {

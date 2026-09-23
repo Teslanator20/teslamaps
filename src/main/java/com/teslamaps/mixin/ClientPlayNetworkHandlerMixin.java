@@ -155,4 +155,9 @@ public class ClientPlayNetworkHandlerMixin {
     private void onSetTitlesAnimation(ClientboundSetTitlesAnimationPacket packet, CallbackInfo ci) {
         if (CustomTitles.shouldHideDefaultTitle()) ci.cancel();
     }
+
+    @Inject(method = "handleBlockEvent", at = @At("TAIL"))
+    private void teslamaps$onBlockEvent(net.minecraft.network.protocol.game.ClientboundBlockEventPacket packet, CallbackInfo ci) {
+        com.teslamaps.dungeon.puzzle.PuzzleTimers.onBlockEvent(packet.getPos(), packet.getBlock());
+    }
 }

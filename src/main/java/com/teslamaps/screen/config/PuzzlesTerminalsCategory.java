@@ -74,6 +74,12 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("Blaze Solver", () -> config.solveBlaze, v -> config.solveBlaze = v);
         b.toggle("Modern Blaze Solver", () -> config.modernBlazeSolver, v -> config.modernBlazeSolver = v);
         b.toggle("Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v);
+        b.toggle("Blaze Tracer", () -> config.blazeTracer, v -> config.blazeTracer = v);
+        b.toggle("Blaze Same HP Warning", () -> config.blazeSameHpWarning, v -> config.blazeSameHpWarning = v);
+        b.slider("Blaze Lines", 0f, 10f,
+                () -> (float) config.blazeLineAmount, v -> config.blazeLineAmount = Math.round(v), 0);
+        b.slider("Blaze Line Width", 0.5f, 5f,
+                () -> config.blazeLineWidth, v -> config.blazeLineWidth = v, 1);
         b.toggle("Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v);
         b.toggle("Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v);
         b.toggle("Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v);
@@ -81,6 +87,7 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("Creeper Beams Ding", () -> config.creeperBeamsDing, v -> config.creeperBeamsDing = v);
         b.toggle("Boulder Solver", () -> config.solveBoulder, v -> config.solveBoulder = v);
         b.toggle("Show All Boulder Clicks", () -> config.showAllBoulderClicks, v -> config.showAllBoulderClicks = v);
+        b.toggle("Boulder: Highlight Button", () -> config.boulderClickBlock, v -> config.boulderClickBlock = v);
         b.toggle("Quiz (Trivia) Solver", () -> config.solveQuiz, v -> config.solveQuiz = v);
         b.toggle("Quiz Beacon Beam", () -> config.quizBeacon, v -> config.quizBeacon = v);
         b.toggle("Quiz Chat Highlight", () -> config.quizChatHighlight, v -> config.quizChatHighlight = v);
@@ -90,16 +97,34 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("TP Maze Prioritize Diagonal", () -> config.tpMazePrioritizeDiagonal, v -> config.tpMazePrioritizeDiagonal = v);
         b.toggle("Water Board Solver", () -> config.solveWaterBoard, v -> config.solveWaterBoard = v);
         b.toggle("Water Board Tracers", () -> config.waterBoardTracers, v -> config.waterBoardTracers = v);
+        b.toggle("Water Board Colored Countdown", () -> config.waterBoardColorStages, v -> config.waterBoardColorStages = v);
+        String[] waterSets = {"Standard", "Optimized (Odin)", "Efficient (Devonian)"};
+        b.dropdown("Water Board Solutions", waterSets,
+                () -> waterSets[Math.max(0, Math.min(2, config.waterBoardSolutionSet))],
+                v -> config.waterBoardSolutionSet = Math.max(0, java.util.Arrays.asList(waterSets).indexOf(v)));
         b.toggle("Ice Fill Solver", () -> config.solveIceFill, v -> config.solveIceFill = v);
         b.toggle("Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v);
+        b.toggle("Ice Fill: Solve From Blocks", () -> config.iceFillDynamic, v -> config.iceFillDynamic = v);
+        b.toggle("Ice Fill Color Gradient", () -> config.iceFillGradient, v -> config.iceFillGradient = v);
+        b.slider("Ice Fill Line Width", 1f, 8f,
+                () -> config.iceFillLineWidth, v -> config.iceFillLineWidth = v, 1);
         b.toggle("Ice Path Solver", () -> config.icePathSolver, v -> config.icePathSolver = v);
+        b.toggle("Ice Path: Follow Silverfish", () -> config.icePathDynamic, v -> config.icePathDynamic = v);
         b.toggle("Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v);
         b.toggle("Puzzle Timers", () -> config.puzzleTimers, v -> config.puzzleTimers = v);
         b.toggle("Terracotta Spawn Timers (F6/M6)", () -> config.terracottaTimer, v -> config.terracottaTimer = v);
         b.label("Puzzle Colors");
         b.color("Boulder Click", () -> config.colorBoulder, v -> config.colorBoulder = v);
+        b.color("Boulder Button", () -> config.colorBoulderClickBlock, v -> config.colorBoulderClickBlock = v);
+        b.color("Blaze: First", () -> config.blazeColorFirst, v -> config.blazeColorFirst = v);
+        b.color("Blaze: Second", () -> config.blazeColorSecond, v -> config.blazeColorSecond = v);
+        b.color("Blaze: Third", () -> config.blazeColorThird, v -> config.blazeColorThird = v);
+        b.color("Blaze: Wrong", () -> config.blazeColorRest, v -> config.blazeColorRest = v);
         b.color("Quiz Correct", () -> config.colorQuiz, v -> config.colorQuiz = v);
         b.color("Ice Fill Path", () -> config.colorIceFill, v -> config.colorIceFill = v);
+        b.color("Ice Fill Path End", () -> config.colorIceFillEnd, v -> config.colorIceFillEnd = v);
+        b.color("Ice Path: Next", () -> config.colorIcePathNext, v -> config.colorIcePathNext = v);
+        b.color("Ice Path: Rest", () -> config.colorIcePathRest, v -> config.colorIcePathRest = v);
         b.color("TP Maze: Single", () -> config.colorTPMazeOne, v -> config.colorTPMazeOne = v);
         b.color("TP Maze: Multiple", () -> config.colorTPMazeMultiple, v -> config.colorTPMazeMultiple = v);
         b.color("TP Maze: Visited", () -> config.colorTPMazeVisited, v -> config.colorTPMazeVisited = v);
