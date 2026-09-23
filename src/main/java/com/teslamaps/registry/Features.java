@@ -6,5 +6,7 @@ final class Features {
     private Features() {}
 
     static void register() {
+        // wave 1a puzzles
+        com.teslamaps.dungeon.puzzle.PuzzleTimers.register();
     }
 }

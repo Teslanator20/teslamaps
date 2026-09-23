@@ -49,13 +49,11 @@ public class DungeonBlaze {
         blazes.sort(Comparator.comparingInt(ObjectIntPair::rightInt));
         updateBlazeEntities(blazes, roomName);
 
-        if (!blazeDoneMessageSent && TeslaMapsConfig.get().blazeDoneMessage) {
-            if (blazes.isEmpty() || (blazes.size() == 1 && blazes.get(0).rightInt() == 0)) {
-                if (previousBlazeCount >= 1) {
-                    sendBlazeDoneMessage();
-                    blazeDoneMessageSent = true;
-                }
-            }
+        boolean done = previousBlazeCount >= 1 && (blazes.isEmpty() || (blazes.size() == 1 && blazes.get(0).rightInt() == 0));
+        if (done && roomName != null) PuzzleTimers.onPuzzleComplete(roomName);
+        if (done && !blazeDoneMessageSent && TeslaMapsConfig.get().blazeDoneMessage) {
+            sendBlazeDoneMessage();
+            blazeDoneMessageSent = true;
         }
 
         previousBlazeCount = blazes.size();
