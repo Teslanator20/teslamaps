@@ -51,13 +51,22 @@ public class SoundPlayMixin {
             mc.execute(() -> { if (mc.player != null) mc.player.sendSystemMessage(Component.literal(
                     "§7[Sound] §f" + id + " §8vol=" + String.format("%.2f", vol) + " pitch=" + String.format("%.3f", pitch))); });
         }
-        if (c.muteBonzoStaff && BONZO_STAFF.contains(id)) { cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED); return; }
+        if (c.muteBonzoStaff && (c.muteBonzoStaffPrecise ? isBonzoPrecise(id, pitch) : BONZO_STAFF.contains(id))) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
+        }
         if (c.muteLightning && LIGHTNING.contains(id)) { cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED); return; }
         if (foragingMutes && com.teslamaps.features.foraging.ForagingMutes.shouldMute(c, id, vol)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
             return;
         }
         if (hasMutes && isMuted(c, id, pitch)) cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+    }
+
+    // Devonian's NoBonzoStaffSound; the ghast moan is filtered on the packet in NoSoundsMixin
+    private static boolean isBonzoPrecise(String id, float pitch) {
+        return (id.equals("minecraft:entity.firework_rocket.blast") || id.equals("minecraft:entity.firework_rocket.blast_far"))
+                && pitch >= 0.9f && pitch <= 1.1f;
     }
 
     // entries are "id" (any pitch) or "id@pitch" (specific pitch)

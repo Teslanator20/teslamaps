@@ -727,6 +727,7 @@ public class TeslaMapsConfig {
     public boolean noCreeperHurtSound = true; // Mute creeper hurt sounds
     public boolean soundDebug = false;       // Print every incoming sound (id/vol/pitch) to chat
     public boolean muteBonzoStaff = false;   // Mute Bonzo's Staff impact (firework blast/twinkle sounds)
+    public boolean muteBonzoStaffPrecise = false; // only the Bonzo pitch window + its ghast moan, real fireworks stay
     public boolean muteLightning = false;    // Mute lightning/thunder sounds (Storm phase)
     public java.util.List<String> mutedSounds = new java.util.ArrayList<>(); // sound ids to mute ("id" or "id@pitch")
     public boolean noArrows = true;          // Hide arrow entities

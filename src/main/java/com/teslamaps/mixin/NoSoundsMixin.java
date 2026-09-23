@@ -38,6 +38,8 @@ public class NoSoundsMixin {
 
         if (c.noExplosionSound && sound == SoundEvents.GENERIC_EXPLODE.value()) { ci.cancel(); return; }
         if (c.noCreeperHurtSound && sound == SoundEvents.CREEPER_HURT) { ci.cancel(); return; }
+        if (c.muteBonzoStaff && c.muteBonzoStaffPrecise && sound == SoundEvents.GHAST_AMBIENT
+                && vol == 1f && pitch >= 1.3968254f && pitch <= 1.7936507f) { ci.cancel(); return; }
 
         if (c.customHypeSound && holdingWitherBlade() && sound == SoundEvents.GENERIC_EXPLODE.value()) {
             com.teslamaps.utils.LoudSound.play(
