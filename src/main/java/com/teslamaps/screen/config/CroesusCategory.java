@@ -14,11 +14,11 @@ public final class CroesusCategory {
         b.toggle("Croesus Profit Overlay", () -> config.croesusProfitOverlay, v -> config.croesusProfitOverlay = v);
         b.toggle("  Highlight Most Profitable", () -> config.croesusHighlightBest, v -> config.croesusHighlightBest = v);
         b.toggle("  Gray Out Other Chests", () -> config.croesusDimOthers, v -> config.croesusDimOthers = v);
+        b.toggle("  Hide Opened Chests", () -> config.croesusHideOpened, v -> config.croesusHideOpened = v);
+        b.toggle("  Compact Mode (profit only)", () -> config.croesusCompact, v -> config.croesusCompact = v);
+        b.priceSource("  Price Source", () -> config.croesusPriceSource, v -> config.croesusPriceSource = v);
+        b.toggle("  Subtract Kismet Feather", () -> config.croesusKismetCost, v -> config.croesusKismetCost = v);
         b.toggle("Highlight Unopened (green)", () -> config.croesusHighlightUnopened, v -> config.croesusHighlightUnopened = v);
-        b.toggle("Hide Opened Chests", () -> config.croesusHideOpened, v -> config.croesusHideOpened = v);
-        b.toggle("Compact Mode (profit only)", () -> config.croesusCompact, v -> config.croesusCompact = v);
-        b.priceSource("Price Source", () -> config.croesusPriceSource, v -> config.croesusPriceSource = v);
-        b.toggle("Subtract Kismet Feather", () -> config.croesusKismetCost, v -> config.croesusKismetCost = v);
         b.label("Kuudra Chests");
         b.info("Paid chests subtract the key: coins + Mycelium/Red Sand + 2 Nether Stars");
         b.info("Open your faction's shop once to read your key prices and faction");
