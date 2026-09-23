@@ -35,6 +35,8 @@ public class IceFillSolver {
     private static boolean solved = false;
     private static int retryTicks = 0;
     private static int dfsSteps = 0;
+    private static final int[] failedSig = new int[3];
+    private static final boolean[] hasFailed = new boolean[3];
 
     static { load(); }
 
@@ -118,9 +120,13 @@ public class IceFillSolver {
             if (floorPaths[i] != null) { found++; continue; }
             boolean[][] board = readBoard(i);
             if (board == null) continue;
+            int sig = java.util.Arrays.deepHashCode(board);
+            if (hasFailed[i] && failedSig[i] == sig) continue;
             List<int[]> cells = solveBoard(board);
             if (cells == null) {
                 TeslaMaps.debug("[IceFill] No path for floor {}", i);
+                hasFailed[i] = true;
+                failedSig[i] = sig;
                 continue;
             }
             int[] o = BOARD_ORIGINS[i];
@@ -237,5 +243,6 @@ public class IceFillSolver {
         clay = null;
         solved = false;
         retryTicks = 0;
+        java.util.Arrays.fill(hasFailed, false);
     }
 }

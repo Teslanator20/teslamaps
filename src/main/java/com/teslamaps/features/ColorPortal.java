@@ -11,6 +11,7 @@ import com.teslamaps.scanner.ComponentGrid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -18,6 +19,11 @@ public class ColorPortal {
 
     private static AABB portal = null;
     private static int scanCd = 0;
+    private static boolean rescan = false;
+
+    public static void onBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState) {
+        if (TeslaMapsConfig.get().colorPortal && newState.is(Blocks.NETHER_PORTAL)) rescan = true;
+    }
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
@@ -26,7 +32,8 @@ public class ColorPortal {
             portal = null;
             return;
         }
-        if (portal != null || --scanCd > 0) return;
+        if (!rescan && (portal != null || --scanCd > 0)) return;
+        rescan = false;
         scanCd = 20;
 
         DungeonRoom blood = null;
@@ -34,6 +41,7 @@ public class ColorPortal {
             if (room.getType() == RoomType.BLOOD) { blood = room; break; }
         }
         if (blood != null) {
+            scanCd = 200;
             for (int[] c : blood.getComponents()) {
                 int[] corner = ComponentGrid.gridToWorldCorner(c[0], c[1]);
                 AABB box = scan(mc, corner[0], 60, corner[1], ComponentGrid.ROOM_SIZE, 20, ComponentGrid.ROOM_SIZE);
@@ -42,7 +50,8 @@ public class ColorPortal {
             return;
         }
         BlockPos p = mc.player.blockPosition();
-        portal = scan(mc, p.getX() - 10, p.getY() - 6, p.getZ() - 10, 21, 13, 21);
+        AABB near = scan(mc, p.getX() - 10, p.getY() - 6, p.getZ() - 10, 21, 13, 21);
+        if (near != null) portal = near;
     }
 
     // one box over every portal block, found once per run

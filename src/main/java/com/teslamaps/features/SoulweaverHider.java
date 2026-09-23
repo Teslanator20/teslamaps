@@ -99,7 +99,7 @@ public class SoulweaverHider {
             ItemStack stack = item.getItem();
             if (cfg.hideThrownBones && stack.getItem() == Items.BONE) return true;
             if (!cfg.hideReviveStone && !cfg.hideJournalEntry) return false; // skip name parse if nothing to match
-            String name = cleanName(stack.getHoverName().getString());
+            String name = cachedItemName(item, stack);
             if (cfg.hideReviveStone && name.equals("Revive Stone")) return true;
             if (cfg.hideJournalEntry && name.equals("Journal Entry")) return true;
             return false;
@@ -116,7 +116,7 @@ public class SoulweaverHider {
         if (nameOpt) {
             net.minecraft.network.chat.Component cn = stand.getCustomName(); // named stands only; skips the many unnamed ones
             if (cn != null) {
-                String standName = cleanName(cn.getString());
+                String standName = cachedStandName(stand, cn);
                 if (cfg.hideSuperboomTnt && standName.startsWith("Superboom TNT")) return true;
                 if (cfg.hideBlessing && standName.startsWith("Blessing of ")) return true;
                 if (cfg.hideReviveStone && standName.equals("Revive Stone")) return true;
@@ -128,8 +128,13 @@ public class SoulweaverHider {
 
         ItemStack head = stand.getItemBySlot(EquipmentSlot.HEAD);
         if (head.isEmpty()) return false;
+        HeadInfo info = HEAD_INFO.get(stand);
+        if (info == null || info.stack() != head) {
+            info = headInfo(head);
+            HEAD_INFO.put(stand, info);
+        }
 
-        if (cfg.hideSkeletonSkull && isSkeletonSkull(head)) {
+        if (cfg.hideSkeletonSkull && info.skeleton()) {
             if (cfg.showMovingSkulls) {
                 Long t = SKULL_MOVED.get(stand);
                 if (t != null && System.currentTimeMillis() - t < 100) return false;
@@ -137,11 +142,11 @@ public class SoulweaverHider {
             return true;
         }
         if (cfg.hideSuperboomTnt && cfg.hideDungeonItemParticles
-                && cleanName(head.getHoverName().getString()).equals("Superboom TNT")) return particleSource(stand);
+                && info.superboom()) return particleSource(stand);
 
-        if (head.getItem() != Items.PLAYER_HEAD || !texOpt) return false;
-        String tex = skullTexture(head);
-        String url = textureUrl(tex);
+        if (!info.playerHead() || !texOpt) return false;
+        String tex = info.tex();
+        String url = info.url();
         if (cfg.debugMode && DBG_SEEN.add(url == null ? "null:" + tex : url)) {
             com.teslamaps.TeslaMaps.debug("[SkullDbg] armorstand head url={} (soulweaver target={}) raw={}", url, SOUL_WEAVER_URL, tex);
         }
@@ -156,6 +161,37 @@ public class SoulweaverHider {
             return particleSource(stand);
 
         return false;
+    }
+
+    private record HeadInfo(ItemStack stack, boolean skeleton, boolean superboom, boolean playerHead, String tex, String url) {}
+    private record NameInfo(Object src, String name) {}
+
+    private static final java.util.Map<ArmorStand, HeadInfo> HEAD_INFO = new java.util.WeakHashMap<>();
+    private static final java.util.Map<Entity, NameInfo> NAME_INFO = new java.util.WeakHashMap<>();
+
+    private static HeadInfo headInfo(ItemStack head) {
+        boolean ph = head.getItem() == Items.PLAYER_HEAD;
+        String tex = ph ? skullTexture(head) : null;
+        return new HeadInfo(head, isSkeletonSkull(head), cleanName(head.getHoverName().getString()).equals("Superboom TNT"),
+                ph, tex, ph ? textureUrl(tex) : null);
+    }
+
+    private static String cachedStandName(ArmorStand stand, net.minecraft.network.chat.Component cn) {
+        NameInfo n = NAME_INFO.get(stand);
+        if (n == null || n.src() != cn) {
+            n = new NameInfo(cn, cleanName(cn.getString()));
+            NAME_INFO.put(stand, n);
+        }
+        return n.name();
+    }
+
+    private static String cachedItemName(ItemEntity item, ItemStack stack) {
+        NameInfo n = NAME_INFO.get(item);
+        if (n == null || n.src() != stack) {
+            n = new NameInfo(stack, cleanName(stack.getHoverName().getString()));
+            NAME_INFO.put(item, n);
+        }
+        return n.name();
     }
 
     /** @return the texture URL hash of a player head, or null. */

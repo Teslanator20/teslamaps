@@ -27,6 +27,8 @@ public class IcePathSolver {
     private static final int N = 17;
     private static final boolean[][] board = new boolean[N][N];
     private static int fishRow = -1, fishCol = -1;
+    private static int boardCd = 0;
+    private static final BlockPos.MutableBlockPos scanPos = new BlockPos.MutableBlockPos();
 
     private record Seg(double x1, double z1, double x2, double z2) {}
 
@@ -54,6 +56,7 @@ public class IcePathSolver {
             inPath = true;
             path.clear();
             fishRow = fishCol = -1;
+            boardCd = 0;
             if (!dynamic) {
                 for (int[] s : SOLUTION) {
                     int[] a = fromComp(s[0], s[1]);
@@ -83,13 +86,16 @@ public class IcePathSolver {
 
     private static void tickDynamic(Minecraft mc, Silverfish fish) {
         boolean changed = false;
-        for (int row = 0; row < N; row++) {
-            for (int col = 0; col < N; col++) {
-                int[] w = fromComp(23 - col, 24 - row);
-                boolean block = !mc.level.getBlockState(new BlockPos(w[0], 67, w[1])).isAir();
-                if (board[row][col] != block) {
-                    board[row][col] = block;
-                    changed = true;
+        if (--boardCd <= 0) {
+            boardCd = 20;
+            for (int row = 0; row < N; row++) {
+                for (int col = 0; col < N; col++) {
+                    int[] w = fromComp(23 - col, 24 - row);
+                    boolean block = !mc.level.getBlockState(scanPos.set(w[0], 67, w[1])).isAir();
+                    if (board[row][col] != block) {
+                        board[row][col] = block;
+                        changed = true;
+                    }
                 }
             }
         }
@@ -174,6 +180,7 @@ public class IcePathSolver {
         path.clear();
         inPath = false;
         fishRow = fishCol = -1;
+        boardCd = 0;
         for (boolean[] r : board) java.util.Arrays.fill(r, false);
     }
 }

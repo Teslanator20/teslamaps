@@ -165,14 +165,16 @@ public class LividSolver {
         List<ArmorStand> stands = new ArrayList<>();
         for (Entity entity : mc.level.entitiesForRendering()) {
             if (entity == mc.player) continue;
-            String name = entity.getName().getString();
             if (entity instanceof ArmorStand stand) {
+                if (!tags) continue;
+                String name = entity.getName().getString();
                 // §2﴾ §2§lLivid§r§r §a7M§c❤ §2﴿
-                if (tags && name.length() > 2 && name.charAt(0) == '§' && name.charAt(2) == '﴾' && name.contains("§lLivid")) {
+                if (name.length() > 2 && name.charAt(0) == '§' && name.charAt(2) == '﴾' && name.contains("§lLivid")) {
                     stands.add(stand);
                 }
                 continue;
             }
+            String name = entity.getName().getString();
             if (name.endsWith(" Livid") || name.equals("Livid")) {
                 livids.add(entity);
             }

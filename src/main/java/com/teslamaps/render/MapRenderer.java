@@ -930,6 +930,8 @@ public class MapRenderer {
 
     private static final String[] CHECK_SETS = {"illegalmap", "neu", "vanilla_new", "vanilla_old"};
     private static final String[] CHECK_STYLE_NAMES = {"IllegalMap", "NEU", "Vanilla New", "Vanilla Old"};
+    private static String checkStyleKey = null;
+    private static int checkStyleIdx = -1;
     // per set: white, green, failed, question
     private static final int[][] CHECK_DIMS = {{10, 10, 10, 62}, {100, 100, 100, 100}, {18, 18, 8, 18}, {8, 7, 8, 7}};
     private static final net.minecraft.resources.Identifier[][] CHECK_TEX = new net.minecraft.resources.Identifier[4][4];
@@ -962,7 +964,21 @@ public class MapRenderer {
     }
 
     // Devonian getCenterOf: L rooms use the corner cell, others the mean of their cells
+    private record CenterCache(int size, boolean center, double[] value) {}
+    private static final java.util.Map<DungeonRoom, CenterCache> CENTER_CACHE = new java.util.WeakHashMap<>();
+
     private static double[] checkmarkCenter(DungeonRoom room) {
+        boolean center = TeslaMapsConfig.get().mapCheckmarkCenter;
+        int size = room.getComponents().size();
+        CenterCache cc = CENTER_CACHE.get(room);
+        if (cc == null || cc.size() != size || cc.center() != center) {
+            cc = new CenterCache(size, center, computeCheckmarkCenter(room));
+            CENTER_CACHE.put(room, cc);
+        }
+        return cc.value();
+    }
+
+    private static double[] computeCheckmarkCenter(DungeonRoom room) {
         List<int[]> comps = room.getComponents();
         if (!TeslaMapsConfig.get().mapCheckmarkCenter) {
             int[] best = comps.get(0);
@@ -992,8 +1008,12 @@ public class MapRenderer {
         int idx = checkIndex(state);
         if (idx < 0) return;
 
-        int set = -1;
-        for (int i = 0; i < CHECK_STYLE_NAMES.length; i++) if (CHECK_STYLE_NAMES[i].equals(config.mapCheckmarkStyle)) set = i;
+        if (!java.util.Objects.equals(config.mapCheckmarkStyle, checkStyleKey)) {
+            checkStyleKey = config.mapCheckmarkStyle;
+            checkStyleIdx = -1;
+            for (int i = 0; i < CHECK_STYLE_NAMES.length; i++) if (CHECK_STYLE_NAMES[i].equals(checkStyleKey)) checkStyleIdx = i;
+        }
+        int set = checkStyleIdx;
         if (set >= 0) {
             int tw = CHECK_DIMS[set][idx];
             context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, CHECK_TEX[set][idx],
@@ -1179,40 +1199,61 @@ public class MapRenderer {
     }
 
     // Oracle Economy TerritoryMapScreen.renderPlayerMarker: notched arrow, outer glow / inner glow / core
+    // baked once as a white alpha mask, tinted per marker
+    private static final int ARROW_X0 = -12, ARROW_Y0 = -16, ARROW_W = 24, ARROW_H = 27;
+    private static net.minecraft.resources.Identifier arrowTex = null;
+
+    private static net.minecraft.resources.Identifier arrowTexture() {
+        if (arrowTex != null) return arrowTex;
+        float[] alpha = new float[ARROW_W * ARROW_H];
+        float[] passAlpha = {0x1A / 255f, 0x44 / 255f, 1f};
+        int[] expands = {3, 1, 0};
+        int hw = 9, h = 20, notchHW = 6, notchD = 7;
+        int tipY = -h * 2 / 3;
+        int baseY = tipY + h;
+        for (int pass = 0; pass < 3; pass++) {
+            int ex = expands[pass];
+            float a = passAlpha[pass];
+            for (int row = tipY - ex; row <= baseY + ex; row++) {
+                float triT = Math.clamp((float) (row - tipY) / h, 0f, 1f);
+                int rowHW = (int) (hw * triT + ex + 0.5f);
+                if (rowHW <= 0) continue;
+                int notchStart = baseY - notchD;
+                int nHW = 0;
+                if (row > notchStart - ex) {
+                    float nT = Math.clamp((float) (row - notchStart) / notchD, 0f, 1f);
+                    nHW = Math.max(0, (int) (notchHW * nT + 0.5f) - ex);
+                    if (nHW >= rowHW) nHW = 0;
+                }
+                for (int x = -rowHW; x < rowHW; x++) {
+                    if (nHW > 0 && x >= -nHW && x < nHW) continue;
+                    int i = (row - ARROW_Y0) * ARROW_W + (x - ARROW_X0);
+                    alpha[i] = alpha[i] + a * (1f - alpha[i]);
+                }
+            }
+        }
+        com.mojang.blaze3d.platform.NativeImage img = new com.mojang.blaze3d.platform.NativeImage(ARROW_W, ARROW_H, true);
+        for (int y = 0; y < ARROW_H; y++)
+            for (int x = 0; x < ARROW_W; x++)
+                img.setPixel(x, y, (Math.round(alpha[y * ARROW_W + x] * 255f) << 24) | 0xFFFFFF);
+        net.minecraft.resources.Identifier id = net.minecraft.resources.Identifier.fromNamespaceAndPath("teslamaps", "map/glow_arrow");
+        Minecraft.getInstance().getTextureManager()
+                .register(id, new net.minecraft.client.renderer.texture.DynamicTexture(() -> "TeslaMaps glow arrow", img));
+        arrowTex = id;
+        return id;
+    }
+
     private static void drawGlowArrow(GuiGraphicsExtractor context, float s, int color) {
         float pulse = (float) (0.9 + 0.1 * Math.sin(System.currentTimeMillis() / 150.0));
         int r = (int) (((color >> 16) & 0xFF) * pulse);
         int g = (int) (((color >> 8) & 0xFF) * pulse);
         int b = (int) ((color & 0xFF) * pulse);
         int rgb = (r << 16) | (g << 8) | b;
-        int[] colors = {0x1A000000 | rgb, 0x44000000 | rgb, 0xFF000000 | rgb};
-        int[] expands = {3, 1, 0};
-        int hw = 9, h = 20, notchHW = 6, notchD = 7;
-        int tipY = -h * 2 / 3;
-        int baseY = tipY + h;
         var pose = context.pose();
         pose.pushMatrix();
         pose.scale(s, s);
-        for (int pass = 0; pass < 3; pass++) {
-            int ex = expands[pass];
-            int c = colors[pass];
-            for (int row = tipY - ex; row <= baseY + ex; row++) {
-                float triT = Math.clamp((float) (row - tipY) / h, 0f, 1f);
-                int rowHW = (int) (hw * triT + ex + 0.5f);
-                if (rowHW <= 0) continue;
-                int notchStart = baseY - notchD;
-                if (row > notchStart - ex) {
-                    float nT = Math.clamp((float) (row - notchStart) / notchD, 0f, 1f);
-                    int nHW = Math.max(0, (int) (notchHW * nT + 0.5f) - ex);
-                    if (nHW > 0 && nHW < rowHW) {
-                        context.fill(-rowHW, row, -nHW, row + 1, c);
-                        context.fill(nHW, row, rowHW, row + 1, c);
-                        continue;
-                    }
-                }
-                context.fill(-rowHW, row, rowHW, row + 1, c);
-            }
-        }
+        context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, arrowTexture(),
+                ARROW_X0, ARROW_Y0, 0f, 0f, ARROW_W, ARROW_H, ARROW_W, ARROW_H, ARROW_W, ARROW_H, 0xFF000000 | rgb);
         pose.popMatrix();
     }
 
