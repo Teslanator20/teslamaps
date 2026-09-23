@@ -44,7 +44,7 @@ public class DungeonWaypoints {
 
     private static final Map<String, List<Waypoint>> byRoom = new HashMap<>();
     // secret / etherwarp waypoints already done this run
-    private static final java.util.Set<Waypoint> clicked = new java.util.HashSet<>();
+    private static final java.util.Set<Waypoint> clicked = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
 
 
     private static final Path FILE = FabricLoader.getInstance().getConfigDir()
