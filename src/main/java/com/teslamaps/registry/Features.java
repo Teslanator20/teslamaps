@@ -9,5 +9,6 @@ final class Features {
         // wave 1a boss
         com.teslamaps.features.BossTickHuds.register();
         com.teslamaps.features.LividTimer.register();
+        com.teslamaps.dungeon.puzzle.TerracottaTimer.register();
     }
 }
