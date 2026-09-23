@@ -184,6 +184,8 @@ public class TeslaMapsConfig {
     public boolean hoppityEggESP = false;       // Box + label on Hoppity chocolate eggs
     public boolean hoppityEggTracers = false;   // Draw tracers to Hoppity eggs
     public boolean droppedItemESP = true;       // Highlight all dropped items
+    public boolean droppedItemRarityColor = false; // Dropped items in their rarity / name colour
+    public boolean droppedItemLabel = false;       // "x3 Name" above dropped items
     public boolean secretItemReadiness = true;   // Color dropped items in dungeons by pickup readiness
     public int secretItemPickupTicks = 50;       // Ticks after a drop spawns before it's pickable (tune in-game)
     public boolean hideSoulweaverSkull = true; // Hide the floating skull spawned by Soulweaver Gloves
