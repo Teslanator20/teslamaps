@@ -1497,6 +1497,9 @@ public class TeslaMapsConfig {
     public boolean foragingHideLottery = false;     // hide Lottery/Beekeeper buff messages off the foraging islands
     public boolean foragingCompactGifts = true;     // squash the whole TREE GIFT block into one line
     public boolean foragingHideSweepDetails = false; // hide the Sweep Details / Toughness / penalty lines
+    public boolean floorDrops = false;               // floor drops on Galatea / Torrhus / Safari, depth tested
+    public boolean floorDropsSafariBiome = false;    // Safari: only the biome you stand in
+    public String floorDropsColor = "55FF55";
     public boolean foragingCleanTreeView = false;   // hide the floating blocks from chopping
     public boolean foragingHideRuneEffects = false; // hide the floating blocks from rune effects
     public boolean rareCatchAlert = false;          // title + sound when a rare sea creature is caught

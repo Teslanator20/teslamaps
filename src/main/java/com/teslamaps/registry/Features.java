@@ -43,5 +43,6 @@ final class Features {
         // wave 1c mining-foraging
         com.teslamaps.esp.CorpseFinder.register();
         com.teslamaps.features.mining.PickaxeAbility.register();
+        com.teslamaps.features.foraging.FloorDrops.register();
     }
 }

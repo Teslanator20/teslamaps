@@ -56,6 +56,14 @@ public final class ForagingCategory {
                 () -> config.latherOverlayOnlyWhenActive, v -> config.latherOverlayOnlyWhenActive = v);
         b.info("Position and scale in /tmap gui");
 
+        b.label("Floor Drops");
+        b.toggle("Floor Drop Highlight", () -> config.floorDrops, v -> config.floorDrops = v)
+                .desc("Galatea, Torrhus Canyon and Critter Safari. Gone once you click it.")
+                .tags("forest node", "string", "hunting");
+        b.toggle("  Safari: Current Biome Only",
+                () -> config.floorDropsSafariBiome, v -> config.floorDropsSafariBiome = v);
+        b.color("  Floor Drop Color", () -> config.floorDropsColor, v -> config.floorDropsColor = v);
+
         b.label("Honeyhives");
         b.toggle("Refill Reminder",
                 () -> config.honeyhiveReminder, v -> config.honeyhiveReminder = v);
