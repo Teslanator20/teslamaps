@@ -109,6 +109,7 @@ public final class PuzzlesTerminalsCategory {
         b.slider("Ice Fill Line Width", 1f, 8f,
                 () -> config.iceFillLineWidth, v -> config.iceFillLineWidth = v, 1);
         b.toggle("Ice Path Solver", () -> config.icePathSolver, v -> config.icePathSolver = v);
+        b.toggle("Ice Path: Follow Silverfish", () -> config.icePathDynamic, v -> config.icePathDynamic = v);
         b.toggle("Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v);
         b.toggle("Puzzle Timers", () -> config.puzzleTimers, v -> config.puzzleTimers = v);
         b.toggle("Terracotta Spawn Timers (F6/M6)", () -> config.terracottaTimer, v -> config.terracottaTimer = v);
@@ -122,6 +123,8 @@ public final class PuzzlesTerminalsCategory {
         b.color("Quiz Correct", () -> config.colorQuiz, v -> config.colorQuiz = v);
         b.color("Ice Fill Path", () -> config.colorIceFill, v -> config.colorIceFill = v);
         b.color("Ice Fill Path End", () -> config.colorIceFillEnd, v -> config.colorIceFillEnd = v);
+        b.color("Ice Path: Next", () -> config.colorIcePathNext, v -> config.colorIcePathNext = v);
+        b.color("Ice Path: Rest", () -> config.colorIcePathRest, v -> config.colorIcePathRest = v);
         b.color("TP Maze: Single", () -> config.colorTPMazeOne, v -> config.colorTPMazeOne = v);
         b.color("TP Maze: Multiple", () -> config.colorTPMazeMultiple, v -> config.colorTPMazeMultiple = v);
         b.color("TP Maze: Visited", () -> config.colorTPMazeVisited, v -> config.colorTPMazeVisited = v);

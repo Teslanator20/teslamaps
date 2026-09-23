@@ -1365,6 +1365,9 @@ public class TeslaMapsConfig {
     public boolean iceFillGradient = false;
     public float iceFillLineWidth = 3f;
     public boolean icePathSolver = true;            // Draw the silverfish path in the Ice Path puzzle
+    public boolean icePathDynamic = false;
+    public String colorIcePathNext = "00FF00";
+    public String colorIcePathRest = "FF0000";
     public boolean puzzleTimers = true;            // Report how long each puzzle took to solve
     @Global
     public java.util.Map<String, Double> puzzlePbs = new java.util.HashMap<>(); // per-puzzle personal bests (seconds)
