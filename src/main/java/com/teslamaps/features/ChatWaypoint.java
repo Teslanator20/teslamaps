@@ -41,10 +41,8 @@ public class ChatWaypoint {
         String t = StringUtil.strip(message);
         if (t.startsWith("[TeslaMaps]") || t.startsWith("[NPC] Treasure Hunter:")) return;
 
-        PlayerChat.Msg msg = PlayerChat.current();
-        if (msg != null && c.chatWaypointIgnoreAllChat && msg.channel() == PlayerChat.Channel.ALL) return;
-        if (msg != null && c.chatWaypointIgnoreOwn && msg.own()) return;
-
+        PlayerChat.Msg msg = null;
+        boolean parsed = false;
         BlockPos pos = null;
         String area = "";
         Matcher m = COORDS.matcher(t);
@@ -57,11 +55,16 @@ public class ChatWaypoint {
             if (inq.find()) {
                 pos = pos(inq.group(2), inq.group(3), inq.group(4));
                 area = inq.group("area");
-            } else if (msg != null) {
-                pos = WaypointSet.fromChatLoose(msg.message());
+            } else {
+                msg = PlayerChat.current();
+                parsed = true;
+                if (msg != null) pos = WaypointSet.fromChatLoose(msg.message());
             }
         }
         if (pos == null) return;
+        if (!parsed) msg = PlayerChat.current();
+        if (msg != null && c.chatWaypointIgnoreAllChat && msg.channel() == PlayerChat.Channel.ALL) return;
+        if (msg != null && c.chatWaypointIgnoreOwn && msg.own()) return;
 
         String label = "§b" + pos.getX() + " " + pos.getY() + " " + pos.getZ();
         if (c.chatWaypointDetails) {
