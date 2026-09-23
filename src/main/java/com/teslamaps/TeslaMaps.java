@@ -110,7 +110,8 @@ public class TeslaMaps implements ClientModInitializer {
             Minecraft mc = Minecraft.getInstance();
             if (mc.gameRenderer != null && mc.gameRenderer.getMainCamera() != null) {
                 com.teslamaps.registry.FeatureRegistry.world(context.poseStack(), context.bufferSource(),
-                        mc.gameRenderer.getMainCamera().position());
+                        mc.gameRenderer.getMainCamera().position(),
+                        context.levelState().cameraRenderState.cullFrustum);
             }
         });
 
