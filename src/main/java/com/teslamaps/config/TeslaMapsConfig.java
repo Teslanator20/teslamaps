@@ -1589,6 +1589,9 @@ public class TeslaMapsConfig {
     public String colorTrap = "FF8800";              // Trap room
     public String colorPuzzle = "6600AA";            // Puzzle room
     public String colorPuzzleUnexplored = "3D1866"; // Unexplored puzzle room (grayed purple)
+    public boolean mapDarkenUndiscovered = false;   // unentered rooms keep their type color, darkened
+    public float mapDarkenPercent = 0.5f;
+    public boolean mapGrayUndiscovered = false;
     public String colorFairy = "FF66CC";             // Fairy room
     public String colorMiniboss = "FFDD00";          // Miniboss/Yellow room
     public String mapMimicRoomStyle = "Bright Red";  // Bright Red / Tint / Custom

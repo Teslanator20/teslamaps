@@ -64,6 +64,9 @@ public final class MapCategory {
         b.label("Room Colors");
         b.color("Background", () -> config.colorBackground, v -> config.colorBackground = v);
         b.color("Unexplored", () -> config.colorUnexplored, v -> config.colorUnexplored = v);
+        b.toggle("Darken Unentered (Type Color)", () -> config.mapDarkenUndiscovered, v -> config.mapDarkenUndiscovered = v);
+        b.slider("  Darken Amount", 0.0f, 1.0f, () -> config.mapDarkenPercent, v -> config.mapDarkenPercent = v);
+        b.toggle("Gray Unentered (Type Color)", () -> config.mapGrayUndiscovered, v -> config.mapGrayUndiscovered = v);
         b.color("Normal", () -> config.colorNormal, v -> config.colorNormal = v);
         b.color("Entrance", () -> config.colorEntrance, v -> config.colorEntrance = v);
         b.color("Blood", () -> config.colorBlood, v -> config.colorBlood = v);

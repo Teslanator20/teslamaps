@@ -320,7 +320,7 @@ public class MapRenderer {
                     DoorType doorType = DoorScanner.getDoorType(gx, gz, gx + 1, gz);
                     boolean bothScanned = room.getName() != null && rightRoom.getName() != null;
                     if (doorType != DoorType.NONE && bothScanned) {
-                        int color = getDoorColor(doorType);
+                        int color = connectionColor(doorType, room, rightRoom);
                         int x1 = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE * scale) - 1;
                         int yCenter = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE/2 * scale);
                         int y1 = yCenter - doorThickness / 2;
@@ -335,7 +335,7 @@ public class MapRenderer {
                     DoorType doorType = DoorScanner.getDoorType(gx, gz, gx, gz + 1);
                     boolean bothScanned = room.getName() != null && bottomRoom.getName() != null;
                     if (doorType != DoorType.NONE && bothScanned) {
-                        int color = getDoorColor(doorType);
+                        int color = connectionColor(doorType, room, bottomRoom);
                         int xCenter = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE/2 * scale);
                         int x1 = xCenter - doorThickness / 2;
                         int y1 = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE * scale) - 1;
@@ -346,6 +346,15 @@ public class MapRenderer {
                 }
             }
         }
+    }
+
+    private static int connectionColor(DoorType type, DungeonRoom a, DungeonRoom b) {
+        int color = getDoorColor(type);
+        if ((a.getCheckmarkState() == CheckmarkState.UNEXPLORED || b.getCheckmarkState() == CheckmarkState.UNEXPLORED)
+                && typedUndiscovered()) {
+            color = undiscoveredColor(color);
+        }
+        return color;
     }
 
     private static int getDoorColor(DoorType type) {
@@ -790,6 +799,22 @@ public class MapRenderer {
         return baseRoomColor(room, type);
     }
 
+    private static boolean typedUndiscovered() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.mapDarkenUndiscovered || c.mapGrayUndiscovered;
+    }
+
+    // FunnyMap renderRooms: darken(1 - percent), then grayscale
+    private static int undiscoveredColor(int color) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.mapDarkenUndiscovered) color = darkenColor(color, 1f - c.mapDarkenPercent);
+        if (c.mapGrayUndiscovered) {
+            int gray = Math.round(((color >> 16) & 0xFF) * 0.299f + ((color >> 8) & 0xFF) * 0.587f + (color & 0xFF) * 0.114f);
+            color = (color & 0xFF000000) | (gray << 16) | (gray << 8) | gray;
+        }
+        return color;
+    }
+
     // IllegalMap colorShift
     private static int shiftColor(int from, int to, float t) {
         int r = Math.round(((from >> 16) & 0xFF) + ((((to >> 16) & 0xFF) - ((from >> 16) & 0xFF)) * t));
@@ -799,13 +824,20 @@ public class MapRenderer {
     }
 
     private static int baseRoomColor(DungeonRoom room, RoomType type) {
+        if (room.getCheckmarkState() == CheckmarkState.UNEXPLORED && typedUndiscovered()) {
+            return undiscoveredColor(typeColor(room, type, false));
+        }
+        return typeColor(room, type, true);
+    }
+
+    private static int typeColor(DungeonRoom room, RoomType type, boolean unexploredColors) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         return switch (type) {
             case ENTRANCE -> TeslaMapsConfig.parseColor(config.colorEntrance);
             case BLOOD -> TeslaMapsConfig.parseColor(config.colorBlood);
             case TRAP -> TeslaMapsConfig.parseColor(config.colorTrap);
             case PUZZLE -> {
-                if (room.getCheckmarkState() == CheckmarkState.UNEXPLORED) {
+                if (unexploredColors && room.getCheckmarkState() == CheckmarkState.UNEXPLORED) {
                     yield TeslaMapsConfig.parseColor(config.colorPuzzleUnexplored);
                 }
                 yield TeslaMapsConfig.parseColor(config.colorPuzzle);
@@ -813,7 +845,7 @@ public class MapRenderer {
             case FAIRY -> TeslaMapsConfig.parseColor(config.colorFairy);
             case YELLOW -> TeslaMapsConfig.parseColor(config.colorMiniboss);
             default -> {
-                if (room.getCheckmarkState() == CheckmarkState.UNEXPLORED) {
+                if (unexploredColors && room.getCheckmarkState() == CheckmarkState.UNEXPLORED) {
                     yield TeslaMapsConfig.parseColor(config.colorUnexplored);
                 }
                 yield TeslaMapsConfig.parseColor(config.colorNormal);
