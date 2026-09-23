@@ -20,7 +20,9 @@ public final class TimersCategory {
         b.slider("  Warp Sound Volume", 0f, 5f, () -> config.warpCooldownVolume, v -> config.warpCooldownVolume = v);
         b.toggle("Wither Shield Timer (W-Impact)", () -> config.witherShieldTimer, v -> config.witherShieldTimer = v);
         b.toggle("Tactical Insertion Timer", () -> config.tacticalInsertionTimer, v -> config.tacticalInsertionTimer = v);
-        b.toggle("Invincibility Timer", () -> config.invincibilityTimer, v -> config.invincibilityTimer = v);
+        b.toggle("Invincibility Timer", () -> config.invincibilityTimer, v -> config.invincibilityTimer = v)
+                .desc("Shows the cooldowns of Bonzo Mask, Spirit Mask and Phoenix Pet after they saved you.")
+                .tags("mask", "bonzo", "spirit", "phoenix");
         b.toggle("  Announce Invincibility", () -> config.invincibilityAnnounce, v -> config.invincibilityAnnounce = v);
         b.toggle("  Announce Counter (n/3)", () -> config.invincibilityAnnounceCount, v -> config.invincibilityAnnounceCount = v);
         b.toggle("  Proc Title", () -> config.invincibilityTitle, v -> config.invincibilityTitle = v);

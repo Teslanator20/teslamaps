@@ -80,6 +80,9 @@ public class MapConfigScreen extends Screen {
     protected long keybindListenStart = 0;
     protected SliderEntry editingSlider = null;   // slider whose value is being typed
     protected String sliderEditText = "";
+    private static final long DESC_DELAY_MS = 500;
+    private SettingsEntry descHoverEntry = null;
+    private long descHoverStart = 0;
 
     public boolean isBindingKey() {
         return listeningKeybindEntry != null || editingSlider != null || editingColor != null;
@@ -512,10 +515,11 @@ public class MapConfigScreen extends Screen {
             for (Map.Entry<String, List<SettingsEntry>> cat : categories.entrySet()) {
                 int before = result.size();
                 boolean carry = false;               // a matched parent drags its indented sub-options along
+                boolean groupHit = false;            // a matched group label brings its whole group
                 for (SettingsEntry entry : cat.getValue()) {
-                    if (entry.isLabel()) { carry = false; continue; } // the category header replaces group labels here
+                    if (entry.isLabel()) { carry = false; groupHit = searchHit(entry, searchQuery); continue; }
                     boolean child = entry.getLabel().startsWith(" ");
-                    if (entry.matchesSearch(searchQuery)) {
+                    if (groupHit || searchHit(entry, searchQuery)) {
                         result.add(entry);
                         carry = !child;
                     } else if (child && carry) {
@@ -745,14 +749,28 @@ public class MapConfigScreen extends Screen {
         // pulls the rows below up under the cursor — without this they would take the click too.
         clickHandled = false;
         int y = contentTop - scrollOffset;
+        SettingsEntry hoverEntry = null;
+        boolean inContent = mouseX >= contentLeft && mouseX < contentRight && mouseY >= contentTop && mouseY < contentBottom;
         for (SettingsEntry entry : entries) {
             if (y + entry.getHeight() > contentTop - 50 && y < contentBottom + 50) {
                 entry.render(context, this, y, mouseX, mouseY, clicked && !clickHandled, isMouseDown);
             }
+            if (inContent && mouseY >= y && mouseY < y + Math.min(entry.getHeight(), ROW_HEIGHT + 4)) hoverEntry = entry;
             y += entry.getHeight();
+        }
+        if (entries.isEmpty() && !searchQuery.isEmpty()) {
+            context.centeredText(font, "No results found.", (contentLeft + contentRight) / 2, contentTop + 20, GuiStyle.textDim());
         }
 
         context.disableScissor();
+
+        String desc = hoverEntry != null ? hoverEntry.description() : null;
+        if (desc == null || hoverEntry != descHoverEntry) {
+            descHoverEntry = desc == null ? null : hoverEntry;
+            descHoverStart = System.currentTimeMillis();
+        } else if (System.currentTimeMillis() - descHoverStart >= DESC_DELAY_MS && !isMouseDown) {
+            context.setTooltipForNextFrame(font, font.split(Component.literal(desc), 220), mouseX, mouseY);
+        }
 
         if (maxScroll > 0) {
             int scrollbarX = this.width - 8;
@@ -830,6 +848,40 @@ public class MapConfigScreen extends Screen {
         default void reposition(int x, int w) {}
         default boolean isLabel() { return false; }
         default boolean isToggle() { return false; }
+        default String description() { return null; }
+        default boolean matchesMeta(String q) { return false; }
+    }
+
+    static boolean searchHit(SettingsEntry e, String q) {
+        return e.matchesSearch(q) || e.matchesMeta(q);
+    }
+
+    /** Hover description and extra search words: {@code .desc("...")}, {@code .tags("esp", ...)}. */
+    @SuppressWarnings("unchecked")
+    public abstract class DescribedEntry<T extends DescribedEntry<T>> implements SettingsEntry {
+        private String description;
+        private String descLower;
+        private String[] tags;
+
+        public T desc(String d) {
+            description = d;
+            descLower = d == null ? null : d.toLowerCase();
+            return (T) this;
+        }
+
+        public T tags(String... t) {
+            tags = new String[t.length];
+            for (int i = 0; i < t.length; i++) tags[i] = t[i].toLowerCase();
+            return (T) this;
+        }
+
+        @Override public String description() { return description; }
+
+        @Override public boolean matchesMeta(String q) {
+            if (descLower != null && descLower.contains(q)) return true;
+            if (tags != null) for (String t : tags) if (t.contains(q)) return true;
+            return false;
+        }
     }
 
     // Plain descriptive text. Never a collapsible group header.
@@ -849,7 +901,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class LabelEntry implements SettingsEntry {
+    public class LabelEntry extends DescribedEntry<LabelEntry> {
         private int x;
         private final String text;
         String collapseKey = null;
@@ -860,6 +912,7 @@ public class MapConfigScreen extends Screen {
         @Override public int getHeight() { return 24; }
         @Override public String getLabel() { return text; }
         @Override public boolean isLabel() { return true; }
+        @Override public boolean matchesSearch(String q) { return text.toLowerCase().contains(q); }
         @Override public void reposition(int x, int w) { this.x = x; this.collapseKey = null; }
 
         private void caret(GuiGraphicsExtractor ctx, int cx, int cy, boolean open, int color) {
@@ -915,7 +968,7 @@ public class MapConfigScreen extends Screen {
     static final String CHEAT_TIP = "Cheat — may break Hypixel rules (ban risk)";
     static final int CHEAT_COLOR = 0xFFFF5555;
 
-    public class ToggleEntry implements SettingsEntry {
+    public class ToggleEntry extends DescribedEntry<ToggleEntry> {
         private int x, width;
         private final String label;
         private final Supplier<Boolean> getter;
@@ -1008,7 +1061,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class ButtonEntry implements SettingsEntry {
+    public class ButtonEntry extends DescribedEntry<ButtonEntry> {
         private int x, width;
         private final String label;
         private final Runnable action;
@@ -1049,7 +1102,7 @@ public class MapConfigScreen extends Screen {
     }
 
     /** Several small buttons on one row instead of a full-width one per action. */
-    public class ButtonRowEntry implements SettingsEntry {
+    public class ButtonRowEntry extends DescribedEntry<ButtonRowEntry> {
         private int x, width;
         private final String[] labels;
         private final Runnable[] actions;
@@ -1190,7 +1243,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class ClassFilterEntry implements SettingsEntry {
+    public class ClassFilterEntry extends DescribedEntry<ClassFilterEntry> {
         private int x, width;
         private final String label;
         private final TeslaMapsConfig.ClassFilter filter;
@@ -1227,7 +1280,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class KeybindEntry implements SettingsEntry {
+    public class KeybindEntry extends DescribedEntry<KeybindEntry> {
         private int x, width;
         private final String label;
         private final IntSupplier getter;
@@ -1272,7 +1325,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class ColorEntry implements SettingsEntry {
+    public class ColorEntry extends DescribedEntry<ColorEntry> {
         private int x, width;
         private final String label;
         private final Supplier<String> getter;
@@ -1486,7 +1539,7 @@ public class MapConfigScreen extends Screen {
         return new float[]{h, s, max};
     }
 
-    public class SliderEntry implements SettingsEntry {
+    public class SliderEntry extends DescribedEntry<SliderEntry> {
         private int x, width;
         private final String label;
         private final float min, max;
@@ -1575,7 +1628,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class DropdownEntry implements SettingsEntry {
+    public class DropdownEntry extends DescribedEntry<DropdownEntry> {
         private int x, width;
         private final String label;
         private final String[] options;
@@ -1649,7 +1702,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class SoundDropdownEntry implements SettingsEntry {
+    public class SoundDropdownEntry extends DescribedEntry<SoundDropdownEntry> {
         private int x, width;
         private final String label;
         private final String[] options;
