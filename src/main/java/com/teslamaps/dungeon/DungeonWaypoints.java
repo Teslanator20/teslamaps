@@ -660,7 +660,10 @@ public class DungeonWaypoints {
     private static final int[][] ROT_OFFSETS = {{-15, -15}, {15, 15}, {15, -15}, {-15, 15}}; // 0=SOUTH 1=NORTH 2=WEST 3=EAST
 
     private static int[] cachedClay = null;     // {clayX, clayZ, rotation}
-    private static String cacheKey = "";
+    private static DungeonRoom cacheRoom = null;
+    private static String cacheName = null;
+    private static int cacheX, cacheZ, cacheSize;
+    private static long nextClayScan = 0;
 
     public static int[] scanClayPos(DungeonRoom room) {
         return scanClay(room);
@@ -679,9 +682,23 @@ public class DungeonWaypoints {
     static int[] detectClay(DungeonRoom room) {
         List<int[]> comps = room.getComponents();
         if (comps.isEmpty()) return null;
-        String key = room.getName() + "@" + comps.get(0)[0] + "," + comps.get(0)[1] + ":" + comps.size();
-        if (!key.equals(cacheKey)) { cacheKey = key; cachedClay = null; } // room changed -> invalidate
-        if (cachedClay == null) cachedClay = scanClay(room);
+        int[] c0 = comps.get(0);
+        if (room != cacheRoom || !java.util.Objects.equals(room.getName(), cacheName)
+                || c0[0] != cacheX || c0[1] != cacheZ || comps.size() != cacheSize) {
+            cacheRoom = room;
+            cacheName = room.getName();
+            cacheX = c0[0];
+            cacheZ = c0[1];
+            cacheSize = comps.size();
+            cachedClay = null;
+            nextClayScan = 0;
+        }
+        if (cachedClay == null) {
+            long now = System.currentTimeMillis();
+            if (now < nextClayScan) return null;
+            cachedClay = scanClay(room);
+            if (cachedClay == null) nextClayScan = now + 1000;
+        }
         return cachedClay;
     }
 
