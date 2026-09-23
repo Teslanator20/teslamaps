@@ -254,6 +254,7 @@ public class TeslaMapsConfig {
 
     public boolean splitsEnabled = true;         // Dungeon run splits HUD + chat output
     public boolean splitsShowPb = true;          // Show personal-best time per split (and color vs PB)
+    public boolean splitsShowDelta = false;      // "+1.23s" / "-0.50s" per finished split vs the PB before the run
     @Global
     public java.util.Map<String, Long> splitPbs = new java.util.HashMap<>(); // "floor:splitName" -> best duration ms
     public int splitsX = 936;                       // Splits HUD position X (draggable in HUD edit)
