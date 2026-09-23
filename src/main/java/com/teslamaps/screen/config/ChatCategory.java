@@ -134,6 +134,13 @@ public final class ChatCategory {
         b.label("Spam / Info");
         groupAction(b, config, com.teslamaps.features.ChatFilter.G_SPAM, "  Spam Filter Action");
         b.toggle("Hide Stash Messages", () -> config.chatFilterStash, v -> config.chatFilterStash = v);
+        b.toggle("Compact Stash Warnings", () -> config.stashCompact, v -> config.stashCompact = v);
+        b.info("One clickable line instead of the block (wins over Hide Stash Messages)");
+        b.toggle("  Hide Repeated Counts", () -> config.stashHideDuplicates, v -> config.stashHideDuplicates = v);
+        b.toggle("  Repeat Once Per World", () -> config.stashDuplicatesPerWorld, v -> config.stashDuplicatesPerWorld = v);
+        b.toggle("  Hide \"Added To Stash\"", () -> config.stashHideAdded, v -> config.stashHideAdded = v);
+        b.slider("  Hide Warnings Up To", 0f, 10000f, () -> (float) config.stashMinCount, v -> config.stashMinCount = Math.round(v));
+        b.toggle("  Click Opens /viewstash", () -> config.stashUseViewStash, v -> config.stashUseViewStash = v);
         b.toggle("Hide Server Messages", () -> config.chatFilterServerMsgs, v -> config.chatFilterServerMsgs = v);
         b.toggle("Hide Profile Info", () -> config.chatFilterProfileInfo, v -> config.chatFilterProfileInfo = v);
         b.toggle("Hide HOTF/HOTM Perks", () -> config.chatFilterPerkBuffs, v -> config.chatFilterPerkBuffs = v);

@@ -344,6 +344,7 @@ public class ChatFilter {
     public static boolean process(Component message, String text) {
         pendingText = null;
         pendingOut = null;
+        if (StashCompact.handle(StringUtil.strip(text))) return true;
         Rule r = match(text);
         if (r == SCREENSHOT) return true;
         String t = StringUtil.strip(text);

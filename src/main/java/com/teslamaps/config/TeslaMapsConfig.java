@@ -500,6 +500,12 @@ public class TeslaMapsConfig {
     public boolean chatFilterGuildXp = true;     // Hide "You earned N GEXP from playing SkyBlock!"
     public boolean chatFilterKillCombo = true;   // Hide "+N Kill Combo ..." lines
     public boolean chatFilterStash = true;       // Hide "... items/materials stashed away!" + "CLICK HERE to pick them up!"
+    public boolean stashCompact = false;         // Stash warning block -> one clickable line
+    public boolean stashHideDuplicates = false;  // Skip a warning with the same count as the last one
+    public boolean stashDuplicatesPerWorld = false; // ...but show it again once per world
+    public boolean stashHideAdded = false;       // Hide "didn't fit ... added to your stash"
+    public int stashMinCount = 0;                // Hide warnings at or below this count
+    public boolean stashUseViewStash = false;    // Click runs /viewstash <type> instead of /pickupstash
     public boolean chatFilterServerMsgs = true;  // Hide "Sending to server...", "Warping...", "Queuing..."
     public boolean chatFilterProfileInfo = true; // Hide "You are playing on profile: ..." + "Profile ID: ..."
     public boolean chatFilterPerkBuffs = true;   // Hide HOTF/HOTM daily perk buffs (Lottery / Sky Mall "buff changed!")
