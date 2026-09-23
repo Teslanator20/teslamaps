@@ -88,6 +88,16 @@ public class Etherwarp {
                 });
     }
 
+    private static String failText(String reason) {
+        return switch (reason) {
+            case "Too far!" -> "Can't TP: Too far!";
+            case "No air above!" -> "Can't TP: No air above!";
+            case "No room to stand!" -> "Can't TP: No room to stand!";
+            case "Skull in the way!" -> "Can't TP: Skull in the way!";
+            default -> "Can't TP: " + reason;
+        };
+    }
+
     private static void drawReason(net.minecraft.client.gui.GuiGraphicsExtractor g, Minecraft mc, int x, int y, float s, String text) {
         g.pose().pushMatrix();
         g.pose().translate(x, y);
@@ -143,7 +153,7 @@ public class Etherwarp {
                         Vec3.directionFromRotation(player.xRotLast, player.yRotLast), distance)
                 : getEtherPos(player.position(), player.getLookAngle(), distance);
         previewShownAt = System.currentTimeMillis();
-        failReason = ether.succeeded() ? "" : "Can't TP: " + ether.reason();
+        failReason = ether.succeeded() ? "" : failText(ether.reason());
         if (!ether.succeeded() && !config.etherwarpShowFail) return;
         if (ether.pos() == null) return;
 
