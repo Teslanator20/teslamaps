@@ -132,6 +132,11 @@ public class TeslaMapsConfig {
     public boolean lividFinder = true;          // Highlight the correct Livid in F5/M5
     public boolean lividTracer = true;          // Draw tracer to correct Livid
     public boolean lividDeathMessage = true;    // Send "/pc Livid Dead!" when Livid dies
+    public boolean lividTimerHud = false;       // movable Livid invuln timer on server ticks, independent of the finder
+    public boolean lividIceSprayAlert = false;  // title + sound when the invuln timer runs out
+    public int lividTimerX = 10;
+    public int lividTimerY = 120;
+    public float lividTimerScale = 1.0f;
     public boolean doorESP = true;              // Highlight wither/blood doors through walls
     public boolean fairyDoorESP = true;         // Highlight the closed fairy-room doors (open when the wither door behind falls)
     public boolean doorTracers = false;         // Draw tracers to wither/blood doors

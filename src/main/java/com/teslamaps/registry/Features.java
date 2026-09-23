@@ -8,5 +8,6 @@ final class Features {
     static void register() {
         // wave 1a boss
         com.teslamaps.features.BossTickHuds.register();
+        com.teslamaps.features.LividTimer.register();
     }
 }

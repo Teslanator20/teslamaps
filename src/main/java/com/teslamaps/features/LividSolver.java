@@ -289,6 +289,7 @@ public class LividSolver {
 
     public static void renderHUD(net.minecraft.client.gui.GuiGraphicsExtractor context, net.minecraft.client.DeltaTracker tickCounter) {
         if (!TeslaMapsConfig.get().lividFinder) return;
+        if (TeslaMapsConfig.get().lividTimerHud && TeslaMapsConfig.get().section("Timers")) return;
         if (!isFloor5()) return;
         if (invulnTime <= 0) return;
 
