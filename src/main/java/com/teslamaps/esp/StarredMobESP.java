@@ -1150,27 +1150,37 @@ public class StarredMobESP {
         context.text(mc.font, distText, indicatorX - textWidth / 2, indicatorY + size + 2, textColor, true);
     }
 
+    // mixin asks per entity per frame; every source only changes in its tick
+    private static final java.util.IdentityHashMap<Entity, Integer> glowCache = new java.util.IdentityHashMap<>();
+
+    public static void clearGlowCache() {
+        glowCache.clear();
+    }
+
+    private static int glowOf(Entity entity) {
+        Integer c = glowCache.get(entity);
+        if (c == null) {
+            c = computeGlow(entity);
+            glowCache.put(entity, c);
+        }
+        return c;
+    }
+
+    private static int computeGlow(Entity entity) {
+        Integer own = glowingEntities.get(entity);
+        if (own != null) return own;
+        if (LividSolver.shouldGlow(entity)) return LividSolver.getGlowColor(entity);
+        if (SlayerHUD.shouldGlow(entity)) return SlayerHUD.getGlowColor(entity);
+        return -1;
+    }
+
     public static boolean shouldGlow(Entity entity) {
-        if (glowingEntities.containsKey(entity)) {
-            return true;
-        }
-        if (LividSolver.shouldGlow(entity)) {
-            return true;
-        }
-        return SlayerHUD.shouldGlow(entity);
+        return glowOf(entity) != -1;
     }
 
     public static int getGlowColor(Entity entity) {
-        if (glowingEntities.containsKey(entity)) {
-            return glowingEntities.get(entity);
-        }
-        if (LividSolver.shouldGlow(entity)) {
-            return LividSolver.getGlowColor(entity);
-        }
-        if (SlayerHUD.shouldGlow(entity)) {
-            return SlayerHUD.getGlowColor(entity);
-        }
-        return 0;
+        int c = glowOf(entity);
+        return c == -1 ? 0 : c;
     }
 
     public static boolean shouldBeInvisible(Entity entity) {

@@ -66,6 +66,7 @@ public class SlayerHUD {
     private static int phaseCount = 0;
 
     private static final Set<Entity> minibossEntities = new HashSet<>();
+    private static final java.util.IdentityHashMap<Entity, Integer> minibossColors = new java.util.IdentityHashMap<>();
     private static String miniboss1Type = null;
     private static String miniboss2Type = null;
 
@@ -107,6 +108,7 @@ public class SlayerHUD {
         lastWorldName = currentWorldName;
 
         minibossEntities.clear();
+        minibossColors.clear();
         miniboss1Type = null;
         miniboss2Type = null;
 
@@ -271,7 +273,7 @@ public class SlayerHUD {
         AABB searchBox = armorStand.getBoundingBox().inflate(2, 3, 2);
         for (Entity entity : mc.level.getEntitiesOfClass(Entity.class, searchBox, e -> !(e instanceof ArmorStand))) {
             if (entity instanceof Mob) {
-                minibossEntities.add(entity);
+                if (minibossEntities.add(entity)) minibossColors.put(entity, scanMinibossColor(mc, entity));
                 break;
             }
         }
@@ -298,23 +300,25 @@ public class SlayerHUD {
             return getPhaseColor(currentPhaseType) & 0x00FFFFFF;
         }
         if (minibossEntities.contains(entity)) {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.level != null) {
-                AABB searchBox = entity.getBoundingBox().inflate(1, 3, 1);
-                for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, searchBox, a -> true)) {
-                    String name = as.getName().getString();
-                    if (name.contains("Burningsoul")) {
-                        return 0xFF5555; // Red
-                    } else if (name.contains("Kindleheart")) {
-                        return 0xFFFFFF; // White
-                    } else if (containsAny(name, GENERIC_MINIBOSSES)) {
-                        return 0xFFAA00; // Gold
-                    }
-                }
-            }
-            return 0xFF5555; // Default red
+            Integer c = minibossColors.get(entity);
+            return c != null ? c : 0xFF5555;
         }
         return 0xFFFFFF;
+    }
+
+    private static int scanMinibossColor(Minecraft mc, Entity entity) {
+        AABB searchBox = entity.getBoundingBox().inflate(1, 3, 1);
+        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, searchBox, a -> true)) {
+            String name = as.getName().getString();
+            if (name.contains("Burningsoul")) {
+                return 0xFF5555; // Red
+            } else if (name.contains("Kindleheart")) {
+                return 0xFFFFFF; // White
+            } else if (containsAny(name, GENERIC_MINIBOSSES)) {
+                return 0xFFAA00; // Gold
+            }
+        }
+        return 0xFF5555; // Default red
     }
 
     public static boolean isSlayerMiniboss(String name) {

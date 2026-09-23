@@ -118,6 +118,7 @@ public class TeslaMaps implements ClientModInitializer {
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             com.teslamaps.utils.EntityCache.invalidate();
             com.teslamaps.render.EntityGlow.clear();
+            com.teslamaps.esp.StarredMobESP.clearGlowCache();
         });
 
         ClientLifecycleEvents.CLIENT_STARTED.register(client ->
