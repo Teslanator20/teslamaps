@@ -16,10 +16,10 @@ import net.minecraft.world.phys.Vec3;
 public class DragonESP {
 
     private static int bossColor = -1;
+    private static final java.util.List<net.minecraft.world.entity.boss.wither.WitherBoss> withers = new java.util.ArrayList<>();
 
     public static void register() {
-        Feature.of("WitherHighlight").when(() -> TeslaMapsConfig.get().witherHighlight
-                        && (TeslaMapsConfig.get().witherHighlightGlow || TeslaMapsConfig.get().witherHighlightPerBoss))
+        Feature.of("WitherHighlight").when(() -> TeslaMapsConfig.get().witherHighlight)
                 .tick(DragonESP::tickWither);
     }
 
@@ -28,15 +28,18 @@ public class DragonESP {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
         DungeonFloor f = DungeonManager.getCurrentFloor();
+        withers.clear();
         if (f == null || f.getLevel() != 7 || !DungeonManager.isInBossArea()) { bossColor = -1; return; }
+        if (mc.level == null || mc.player == null) return;
+
+        withers.addAll(mc.level.getEntitiesOfClass(net.minecraft.world.entity.boss.wither.WitherBoss.class,
+                mc.player.getBoundingBox().inflate(60)));
 
         bossColor = c.witherHighlightPerBoss ? colorFromBossbar(mc, c) : -1;
 
         if (!c.witherHighlightGlow || LegitMode.blocksCheats() || mc.player.getY() <= 45) return;
         int rgb = (bossColor != -1 ? bossColor : TeslaMapsConfig.parseColor(c.witherHighlightColor)) & 0xFFFFFF;
-        for (net.minecraft.world.entity.boss.wither.WitherBoss w :
-                mc.level.getEntitiesOfClass(net.minecraft.world.entity.boss.wither.WitherBoss.class,
-                        mc.player.getBoundingBox().inflate(60))) {
+        for (net.minecraft.world.entity.boss.wither.WitherBoss w : withers) {
             if (w.isInvisible() || w.getInvulnerableTicks() == 800) continue;
             EntityGlow.mark(w, rgb);
         }
@@ -71,9 +74,8 @@ public class DragonESP {
         if (c.witherHighlight && inBossArea && !glowing) {
             int wc = c.witherHighlightPerBoss && bossColor != -1 ? 0xFF000000 | bossColor
                     : TeslaMapsConfig.parseColor(c.witherHighlightColor);
-            for (net.minecraft.world.entity.boss.wither.WitherBoss w :
-                    mc.level.getEntitiesOfClass(net.minecraft.world.entity.boss.wither.WitherBoss.class,
-                            mc.player.getBoundingBox().inflate(60))) {
+            for (net.minecraft.world.entity.boss.wither.WitherBoss w : withers) {
+                if (w.isRemoved()) continue;
                 AABB wb = w.getBoundingBox();
                 if (c.witherHighlightBox) ESPRenderer.drawFilledBox(matrices, wb, (wc & 0xFFFFFF) | 0x66000000, cameraPos);
                 else ESPRenderer.drawBoxOutline(matrices, wb, wc, 3.0f, cameraPos);
