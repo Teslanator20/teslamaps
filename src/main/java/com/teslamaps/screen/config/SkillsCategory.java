@@ -36,6 +36,12 @@ public final class SkillsCategory {
         b.toggle("Pet HUD", () -> config.petOverlay, v -> config.petOverlay = v);
         b.info("Equipped pet with level, XP progress and held item");
         b.info("Needs the Pet tab widget (/widget). Move it in /tmap gui");
+        b.info("Open /pets once: rarity, skin and exact XP are then remembered per profile");
+        b.toggle("  Skin Icon", () -> config.petOverlaySkinIcon, v -> config.petOverlaySkinIcon = v);
+        b.toggle("  XP Ring Around Icon", () -> config.petOverlayRing, v -> config.petOverlayRing = v);
+        b.toggle("  XP/h Line", () -> config.petOverlayXpRate, v -> config.petOverlayXpRate = v);
+        b.toggle("  Time to Next / Max Level", () -> config.petOverlayEta, v -> config.petOverlayEta = v);
+        b.toggle("  Show Last Pet", () -> config.petOverlayLastPet, v -> config.petOverlayLastPet = v);
         b.label("Skill XP Display");
         b.toggle("Skill XP Display", () -> config.skillExpDisplay, v -> config.skillExpDisplay = v);
         b.info("Cuts the +XP out of the action bar into its own HUD element");

@@ -68,6 +68,20 @@ public class PetConstants {
         return clean.toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]+", "_").replaceAll("^_+|_+$", "");
     }
 
+    /** GOLDEN_DRAGON -> "Golden Dragon". */
+    public static String displayName(String internalName) {
+        load();
+        String name = ID_TO_DISPLAY.get(internalName);
+        if (name != null) return name;
+        StringBuilder out = new StringBuilder();
+        for (String w : internalName.toLowerCase(Locale.ROOT).split("_")) {
+            if (w.isEmpty()) continue;
+            if (!out.isEmpty()) out.append(' ');
+            out.append(Character.toUpperCase(w.charAt(0))).append(w.substring(1));
+        }
+        return out.toString();
+    }
+
     /** COMBAT / MINING / ... / ALL, null when unknown. */
     public static String petType(String internalName) {
         load();

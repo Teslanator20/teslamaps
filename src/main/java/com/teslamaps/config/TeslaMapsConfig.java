@@ -1046,6 +1046,11 @@ public class TeslaMapsConfig {
     public int petOverlayX = 10;
     public int petOverlayY = 260;
     public float petOverlayScale = 1.0f;
+    public boolean petOverlaySkinIcon = false;  // pet skin head from the Pets menu cache
+    public boolean petOverlayXpRate = false;    // XP/h line
+    public boolean petOverlayEta = false;       // time to next level and max level
+    public boolean petOverlayLastPet = false;   // line with the pet before this one
+    public boolean petOverlayRing = false;      // rarity disc + xp ring around the icon
     public int skillExpDisplayX = -1;          // -1 = centered above the hotbar
     public int skillExpDisplayY = -1;
     public float skillExpDisplayScale = 1.0f;
