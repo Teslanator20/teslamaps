@@ -467,6 +467,9 @@ public class TeslaMapsConfig {
     public boolean chatCopyEnabled = true;       // Right-click a chat line to copy its text
 
     public boolean chatFilterEnabled = true;     // Master switch for the chat filter
+    public String chatFilterAction = "Hide";     // Hide / Grey / Compact / Compact + Grey
+    public java.util.Map<String, String> chatFilterGroupActions = new java.util.HashMap<>(); // group -> action, absent = default
+    public boolean chatFilterKeepClickable = false; // Never hide lines that carry a command button
     public boolean chatFilterWatcher = true;    // Hide "[BOSS] The Watcher:" lines
     public boolean chatFilterF4Boss = true;     // Hide F4/M4 boss taunt spam ("[BOSS] Thorn: ...")
     public boolean chatFilterBlessings = true;  // Hide "DUNGEON BUFF! ... Blessing of ..." + blessing pickups
@@ -1880,6 +1883,8 @@ public class TeslaMapsConfig {
         if (c.farmPriceMode == null || c.farmPriceMode.isBlank()) c.farmPriceMode = "Instant Sell";
         if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
         if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
+        if (c.chatFilterGroupActions == null) c.chatFilterGroupActions = new java.util.HashMap<>();
+        if (c.chatFilterAction == null || c.chatFilterAction.isBlank()) c.chatFilterAction = "Hide";
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
         if (c.skillTrackerPin == null) c.skillTrackerPin = "";
         if (c.flareMob == null || c.flareMob.isBlank()) c.flareMob = "Flare";

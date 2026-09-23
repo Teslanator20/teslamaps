@@ -5,10 +5,22 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.PlayerChat;
 import com.teslamaps.utils.StringUtil;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ChatFilter {
@@ -58,7 +70,7 @@ public class ChatFilter {
     private static final Pattern LOTTERY = p("^(?:New day! Your Lottery buff changed!|You can disable this messaging by toggling Lottery in your /hotf!)$");
 
     static {
-        old("chatFilterEmpty", G_SPAM, true, c -> c.chatFilterEmpty, t -> t.trim().isEmpty());
+        old("chatFilterEmpty", G_DUNGEON, true, c -> c.chatFilterEmpty, t -> t.trim().isEmpty());
         old("chatFilterWatcher", G_DUNGEON, true, c -> c.chatFilterWatcher, t -> t.contains("[BOSS] The Watcher:"));
         old("chatFilterF4Boss", G_DUNGEON, true, c -> c.chatFilterF4Boss, t -> t.contains("[BOSS] Thorn:")
                 || t.toLowerCase().contains("[crowd]"));
@@ -76,7 +88,7 @@ public class ChatFilter {
             if (LOTTERY.matcher(s).matches()) return !com.teslamaps.features.foraging.Foraging.onForagingIsland();
             return true;
         });
-        old("chatFilterMilestone", G_DUNGEON, true, c -> c.chatFilterMilestone, t -> t.contains("Milestone") && t.contains("so far!"));
+        old("chatFilterMilestone", G_SPAM, true, c -> c.chatFilterMilestone, t -> t.contains("Milestone") && t.contains("so far!"));
         old("chatFilterWatchdog", G_SPAM, true, c -> c.chatFilterWatchdog, t -> t.contains("[WATCHDOG ANNOUNCEMENT]")
                 || (t.contains("Watchdog has banned") && t.contains("players"))
                 || t.contains("Staff have banned an additional")
@@ -223,10 +235,6 @@ public class ChatFilter {
         old("chatFilterBonePlating", G_SPAM, false, c -> c.chatFilterBonePlating, t -> t.contains("bone plating reduced the damage"));
     }
 
-    public static boolean shouldHide(String raw) {
-        return match(raw) != null;
-    }
-
     /** First enabled rule that matches the line, or null. */
     public static Rule match(String raw) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -257,4 +265,162 @@ public class ChatFilter {
     }
 
     private static final Rule SCREENSHOT = new Rule("screenshotHideVanillaMessage", "", true, false, c -> true, t -> true);
+
+    // ---- actions (ported from HypixelSimpleChat's Registry.match + ChatHudMixin guards) ----
+
+    public static final String[] ACTIONS = {"Hide", "Grey", "Compact", "Compact + Grey"};
+    public static final String[] GROUP_ACTIONS = {"Default", "Hide", "Grey", "Compact", "Compact + Grey"};
+    public static final String[] GROUPS = {G_DUNGEON, G_COMBAT, G_SPAM, G_MORE};
+
+    /** Short form per rule, § codes allowed. "" = nothing worth showing, the line goes. */
+    private static final Map<String, Function<String, String>> COMPACT = new HashMap<>();
+    private static final Pattern BLESSING = p("Blessing of (\\w+(?: [IVX]+)?)");
+    private static final Pattern KEY = p("(Wither|Blood) Key");
+    private static final Pattern DOOR = p("opened (?:a|the) (\\w+) door!");
+    private static final Pattern ESSENCE = p("found (?:a |an )?(x\\d+ )?([\\w ]+? Essence)");
+    private static final Pattern SACKS_ADD = p("\\+([\\d,]+) items?");
+    private static final Pattern SACKS_REM = p("-([\\d,]+) items?");
+    private static final Pattern GFS = p("Moved ([\\d,]+) (.+) from your Sacks to your inventory");
+    private static final Pattern COMBO = p("\\+(\\d+) Kill Combo");
+    private static final Pattern AOE = p("Your (.+?) hit (\\d+) enem(?:y|ies) for ([\\d,.]+) damage");
+    private static final Pattern GEXP = p("You earned ([\\d,]+) GEXP");
+
+    static {
+        COMPACT.put("chatFilterBlessings", t -> {
+            if (t.contains("Granted you +") || t.contains("Also granted you +")) return "";
+            Matcher m = BLESSING.matcher(t);
+            return m.find() ? "§dBlessing of " + m.group(1) : null;
+        });
+        COMPACT.put("chatFilterKeys", t -> {
+            Matcher m = KEY.matcher(t);
+            return m.find() ? (m.group(1).equals("Blood") ? "§c" : "§8") + m.group(1) + " Key §7picked up" : null;
+        });
+        COMPACT.put("chatFilterDoors", t -> {
+            Matcher m = DOOR.matcher(t);
+            return m.find() ? "§7" + m.group(1).charAt(0) + m.group(1).substring(1).toLowerCase() + " door opened" : null;
+        });
+        COMPACT.put("chatFilterEssence", t -> {
+            Matcher m = ESSENCE.matcher(t);
+            if (!m.find()) return null;
+            String n = m.group(1) == null ? "1" : m.group(1).trim().substring(1);
+            return "§d+" + n + " " + m.group(2);
+        });
+        COMPACT.put("chatFilterSacks", t -> {
+            Matcher add = SACKS_ADD.matcher(t), rem = SACKS_REM.matcher(t);
+            String out = "§6[Sacks]";
+            if (add.find()) out += " §a+" + add.group(1);
+            if (rem.find()) out += " §c-" + rem.group(1);
+            return out;
+        });
+        COMPACT.put("chatFilterGfs", t -> {
+            Matcher m = GFS.matcher(t);
+            return m.find() ? "§aSacks §7→ §f" + m.group(1) + "x " + m.group(2) : null;
+        });
+        COMPACT.put("chatFilterKillCombo", t -> {
+            Matcher m = COMBO.matcher(t);
+            return m.find() ? "§6+" + m.group(1) + " Combo" : null;
+        });
+        COMPACT.put("chatFilterAoeDamage", t -> {
+            Matcher m = AOE.matcher(t);
+            return m.find() ? "§7" + m.group(1) + " §8» §e" + m.group(2) + " §7for §c" + m.group(3) : null;
+        });
+        COMPACT.put("chatFilterGuildXp", t -> {
+            Matcher m = GEXP.matcher(t);
+            return m.find() ? "§2+" + m.group(1) + " GEXP" : null;
+        });
+    }
+
+    private static String pendingText;
+    private static Component pendingOut;
+
+    public static String actionOf(Rule r) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String a = c.chatFilterGroupActions == null ? null : c.chatFilterGroupActions.get(r.group);
+        if (a == null || a.equals("Default")) a = c.chatFilterAction;
+        return a == null ? "Hide" : a;
+    }
+
+    /** From ChatMixin after every other handler: true = drop the line. May queue a rewrite. */
+    public static boolean process(Component message, String text) {
+        pendingText = null;
+        pendingOut = null;
+        Rule r = match(text);
+        if (r == null) return false;
+        if (r == SCREENSHOT) return true;
+
+        String action = actionOf(r);
+        String t = StringUtil.strip(text);
+        switch (action) {
+            case "Grey" -> queue(text, grey(message));
+            case "Compact", "Compact + Grey" -> {
+                // a web link would not survive the rebuild
+                if (hasClick(message, true)) return false;
+                Function<String, String> f = COMPACT.get(r.id);
+                String shortForm = f == null ? null : f.apply(t);
+                if (shortForm != null && shortForm.isEmpty()) return true;
+                boolean greyed = action.equals("Compact + Grey");
+                if (shortForm == null) {
+                    if (greyed) queue(text, grey(message));
+                } else {
+                    queue(text, compact(message, greyed ? "§8" + StringUtil.strip(shortForm) : shortForm));
+                }
+            }
+            default -> {
+                if (TeslaMapsConfig.get().chatFilterKeepClickable && hasClick(message, false)) return false;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void queue(String text, Component out) {
+        pendingText = text;
+        pendingOut = out;
+    }
+
+    /** Right before vanilla stores the line; the handlers above all saw the original. */
+    public static Component rewrite(Component message) {
+        if (pendingOut == null) return message;
+        Component out = pendingOut;
+        boolean same = message.getString().equals(pendingText);
+        pendingOut = null;
+        pendingText = null;
+        return same ? out : message;
+    }
+
+    /** Same text, dark grey, click and hover kept. */
+    static Component grey(Component c) {
+        MutableComponent out = Component.empty();
+        c.visit((style, text) -> {
+            out.append(Component.literal(StringUtil.strip(text)).setStyle(style.withColor(ChatFormatting.DARK_GRAY)
+                    .withBold(false).withObfuscated(false)));
+            return Optional.empty();
+        }, Style.EMPTY);
+        return out;
+    }
+
+    /** Short line; the full line moves into the hover, the first command click stays. */
+    static Component compact(Component original, String shortForm) {
+        HoverEvent[] hover = {null};
+        ClickEvent[] click = {null};
+        original.visit((style, text) -> {
+            if (hover[0] == null && style.getHoverEvent() != null) hover[0] = style.getHoverEvent();
+            ClickEvent e = style.getClickEvent();
+            if (click[0] == null && (e instanceof ClickEvent.RunCommand || e instanceof ClickEvent.SuggestCommand)) click[0] = e;
+            return Optional.empty();
+        }, Style.EMPTY);
+        HoverEvent h = hover[0] != null ? hover[0] : new HoverEvent.ShowText(original);
+        ClickEvent k = click[0];
+        return Component.literal(shortForm).withStyle(s -> s.withHoverEvent(h).withClickEvent(k));
+    }
+
+    /** {@code url} = web links, otherwise command buttons. */
+    static boolean hasClick(Component c, boolean url) {
+        return c.visit((style, text) -> {
+            ClickEvent e = style.getClickEvent();
+            boolean hit = url ? e instanceof ClickEvent.OpenUrl
+                    : e instanceof ClickEvent.RunCommand || e instanceof ClickEvent.SuggestCommand;
+            return hit ? Optional.of(Boolean.TRUE) : Optional.<Boolean>empty();
+        }, Style.EMPTY).isPresent();
+    }
 }

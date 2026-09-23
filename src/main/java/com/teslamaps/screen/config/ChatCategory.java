@@ -12,6 +12,12 @@ public final class ChatCategory {
 
     private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterWelcome", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterUselessWarnings", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterEventLevel", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterLegacyItems", "chatFilterParkour", "chatFilterTeleportPads", "chatFilterChefTed", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
 
+    private static void groupAction(ConfigBuilder b, TeslaMapsConfig config, String group, String label) {
+        b.dropdown(label, com.teslamaps.features.ChatFilter.GROUP_ACTIONS,
+                () -> config.chatFilterGroupActions.getOrDefault(group, "Default"),
+                v -> { if (v.equals("Default")) config.chatFilterGroupActions.remove(group); else config.chatFilterGroupActions.put(group, v); });
+    }
+
     private static void toggleAll(TeslaMapsConfig config, String[] fields) {
         try {
             int on = 0;
@@ -52,6 +58,17 @@ public final class ChatCategory {
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);
         b.label("Filter");
         b.toggle("Enable Chat Filter", () -> config.chatFilterEnabled, v -> config.chatFilterEnabled = v);
+        b.dropdown("Filter Action", com.teslamaps.features.ChatFilter.ACTIONS,
+                () -> config.chatFilterAction, v -> config.chatFilterAction = v);
+        b.info("Grey dims the line, Compact shortens it (full text on hover)");
+        String[] acts = com.teslamaps.features.ChatFilter.ACTIONS;
+        Runnable[] setAll = new Runnable[acts.length];
+        for (int i = 0; i < acts.length; i++) {
+            String a = acts[i];
+            setAll[i] = () -> { config.chatFilterAction = a; config.chatFilterGroupActions.clear(); TeslaMapsConfig.save(); };
+        }
+        b.buttonRow(new String[]{"All: Hide", "All: Grey", "All: Compact", "All: Compact+Grey"}, setAll);
+        b.toggle("Never Hide Clickable Lines", () -> config.chatFilterKeepClickable, v -> config.chatFilterKeepClickable = v);
         b.button("Toggle All Filters", () -> {
             int enabled = 0, total = 26;
             if (config.chatFilterEmpty) enabled++;
@@ -92,6 +109,7 @@ public final class ChatCategory {
             config.chatFilterMilestone = nv;
             TeslaMapsConfig.save();
         });
+        groupAction(b, config, com.teslamaps.features.ChatFilter.G_DUNGEON, "  Dungeon Filter Action");
         b.toggle("Hide Empty Lines", () -> config.chatFilterEmpty, v -> config.chatFilterEmpty = v);
         b.toggle("Hide Watcher Messages", () -> config.chatFilterWatcher, v -> config.chatFilterWatcher = v);
         b.toggle("Hide F4/M4 Boss (Thorn)", () -> config.chatFilterF4Boss, v -> config.chatFilterF4Boss = v);
@@ -103,12 +121,14 @@ public final class ChatCategory {
         b.toggle("Hide Wish Heal Messages", () -> config.chatFilterWish, v -> config.chatFilterWish = v);
         b.toggle("Hide All \"picked up\"", () -> config.chatFilterPickups, v -> config.chatFilterPickups = v);
         b.label("Combat / Misc");
+        groupAction(b, config, com.teslamaps.features.ChatFilter.G_COMBAT, "  Combat Filter Action");
         b.toggle("Hide \"Blocks in the way\"", () -> config.chatFilterBlocksInWay, v -> config.chatFilterBlocksInWay = v);
         b.toggle("Hide Ult Ready (DROP to activate)", () -> config.chatFilterUltReady, v -> config.chatFilterUltReady = v);
         b.toggle("Hide AOE Damage Messages", () -> config.chatFilterAoeDamage, v -> config.chatFilterAoeDamage = v);
         b.toggle("Hide Guild XP (GEXP)", () -> config.chatFilterGuildXp, v -> config.chatFilterGuildXp = v);
         b.toggle("Hide Kill Combo", () -> config.chatFilterKillCombo, v -> config.chatFilterKillCombo = v);
         b.label("Spam / Info");
+        groupAction(b, config, com.teslamaps.features.ChatFilter.G_SPAM, "  Spam Filter Action");
         b.toggle("Hide Stash Messages", () -> config.chatFilterStash, v -> config.chatFilterStash = v);
         b.toggle("Hide Server Messages", () -> config.chatFilterServerMsgs, v -> config.chatFilterServerMsgs = v);
         b.toggle("Hide Profile Info", () -> config.chatFilterProfileInfo, v -> config.chatFilterProfileInfo = v);
@@ -124,6 +144,7 @@ public final class ChatCategory {
         b.toggle("Hide Milestones", () -> config.chatFilterMilestone, v -> config.chatFilterMilestone = v);
         b.label("More Filters");
         b.button("Toggle All More Filters", () -> toggleAll(config, MORE));
+        groupAction(b, config, com.teslamaps.features.ChatFilter.G_MORE, "  More Filter Action");
         b.toggle("Hide All [BOSS] Lines", () -> config.chatFilterBossAll, v -> config.chatFilterBossAll = v);
         b.toggle("Hide Lobby Messages", () -> config.chatFilterLobby, v -> config.chatFilterLobby = v);
         b.toggle("Hide Welcome Message", () -> config.chatFilterWelcome, v -> config.chatFilterWelcome = v);

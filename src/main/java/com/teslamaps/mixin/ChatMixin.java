@@ -190,9 +190,16 @@ public class ChatMixin {
 
         com.teslamaps.registry.FeatureRegistry.chat(text, fromServer);
 
-        if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.shouldHide(text)) {
+        if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.process(message, text)) {
             ci.cancel();
         }
+    }
+
+    // past every HEAD handler, right before the GuiMessage is built
+    @ModifyVariable(method = ADD_MESSAGE, argsOnly = true, ordinal = 0,
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getGuiTicks()I"))
+    private Component teslamaps$filterRewrite(Component message) {
+        return com.teslamaps.features.ChatFilter.rewrite(message);
     }
 
     @Redirect(method = "addMessageToQueue",
