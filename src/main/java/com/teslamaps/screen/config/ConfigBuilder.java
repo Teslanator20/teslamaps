@@ -139,4 +139,9 @@ public final class ConfigBuilder {
         toggle("  " + name + " Tracer", () -> s.get().tracer, v -> s.get().tracer = v);
         toggle("  " + name + " Through Walls", () -> s.get().throughWalls, v -> s.get().throughWalls = v);
     }
+
+    /** Nobody / Party / All dropdown for an {@link com.teslamaps.features.Announce} channel. */
+    public MapConfigScreen.DropdownEntry channel(String label, Supplier<String> get, Consumer<String> set) {
+        return dropdown(label, com.teslamaps.features.Announce.CHANNELS, get, set);
+    }
 }
