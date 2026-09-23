@@ -153,17 +153,24 @@ public class EnchantColors {
     private static int cacheStamp;
     private static List<Component> cacheBefore = List.of(), cacheAfter = List.of();
 
-    private static TeslaMapsConfig stampCfg;
-    private static int stampVersion, stampValue;
-
+    // hashed every call: screen edits change fields without a save
     private static int stamp(TeslaMapsConfig c) {
-        if (c == stampCfg && TeslaMapsConfig.version() == stampVersion) return stampValue;
-        stampCfg = c;
-        stampVersion = TeslaMapsConfig.version();
-        return stampValue = Objects.hash(c.enchantColors, c.enchantLevelsAsNumbers, c.enchantBoldMax, c.enchantChromaMax,
-                c.enchantChromaBold, c.enchantColorMax, c.enchantColorHigh, c.enchantColorNormal, c.enchantColorBad,
-                c.enchantLayout, c.enchantHideDescriptions, c.enchantStackingProgress,
-                c.enchantCustomRules, c.enchantColorRules);
+        int h = System.identityHashCode(c);
+        h = 31 * h + (c.enchantColors ? 1 : 0);
+        h = 31 * h + (c.enchantLevelsAsNumbers ? 1 : 0);
+        h = 31 * h + (c.enchantBoldMax ? 1 : 0);
+        h = 31 * h + (c.enchantChromaMax ? 1 : 0);
+        h = 31 * h + (c.enchantChromaBold ? 1 : 0);
+        h = 31 * h + (c.enchantHideDescriptions ? 1 : 0);
+        h = 31 * h + (c.enchantStackingProgress ? 1 : 0);
+        h = 31 * h + (c.enchantCustomRules ? 1 : 0);
+        h = 31 * h + Objects.hashCode(c.enchantColorMax);
+        h = 31 * h + Objects.hashCode(c.enchantColorHigh);
+        h = 31 * h + Objects.hashCode(c.enchantColorNormal);
+        h = 31 * h + Objects.hashCode(c.enchantColorBad);
+        h = 31 * h + Objects.hashCode(c.enchantLayout);
+        h = 31 * h + Objects.hashCode(c.enchantColorRules);
+        return h;
     }
 
     private static boolean sameLore(List<Component> a, List<Component> b) {
