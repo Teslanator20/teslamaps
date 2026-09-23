@@ -47,9 +47,12 @@ public class MapConfigScreen extends Screen {
 
     protected final Map<String, List<SettingsEntry>> categories = new LinkedHashMap<>();
     protected final Map<String, List<String>> sections = new LinkedHashMap<>();
+    // sidebar entry -> the categories it shows, in order
+    protected final Map<String, List<String>> groups = new LinkedHashMap<>();
+    protected static final String ACTIVE = "Turned On";
     // Headers shown above search hits so duplicate option names stay tellable apart.
     protected final Map<String, LabelEntry> categoryHeaders = new LinkedHashMap<>();
-    protected String selectedCategory = "Profiles";
+    protected String selectedCategory = "Profiles & Interface";
     protected String searchQuery = "";
     /** Survives a close/reopen of the screen, the widget itself is rebuilt in init(). */
     protected static String lastSearch = "";
@@ -227,9 +230,9 @@ public class MapConfigScreen extends Screen {
         GuiSounds.resetHover();
 
         String remembered = TeslaMapsConfig.get().lastConfigCategory;
-        if (remembered != null && categories.containsKey(remembered)) {
-            selectedCategory = remembered;
-        }
+        String group = groupOf(remembered);
+        if (group != null) selectedCategory = group;
+        else if (!groups.containsKey(selectedCategory)) selectedCategory = "Profiles & Interface";
         for (Map.Entry<String, List<String>> s : sections.entrySet()) {
             if (s.getValue().contains(selectedCategory)) SECTION_COLLAPSED.remove(s.getKey());
         }
@@ -271,17 +274,34 @@ public class MapConfigScreen extends Screen {
         rebuildWidgets();
     }
 
+    // default value of each built-in toggle, from a second build against a fresh config
+    private final Map<ToggleEntry, Boolean> toggleDefaults = new java.util.IdentityHashMap<>();
+
     private void category(com.teslamaps.screen.config.ConfigBuilder b, String name,
                           java.util.function.BiConsumer<com.teslamaps.screen.config.ConfigBuilder, TeslaMapsConfig> build) {
         List<SettingsEntry> list = new ArrayList<>();
         b.into(list);
         build.accept(b, TeslaMapsConfig.get());
         categories.put(name, list);
+        try {
+            List<SettingsEntry> def = new ArrayList<>();
+            b.into(def);
+            build.accept(b, new TeslaMapsConfig());
+            if (def.size() == list.size()) {
+                for (int i = 0; i < def.size(); i++) {
+                    if (list.get(i) instanceof ToggleEntry live && def.get(i) instanceof ToggleEntry d
+                            && live.getLabel().equals(d.getLabel())) toggleDefaults.put(live, d.get());
+                }
+            }
+        } catch (RuntimeException ignored) {
+        }
+        b.into(list);
     }
 
     protected void buildCategories() {
         buildCount++;
         categories.clear();
+        toggleDefaults.clear();
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         int contentWidth = Math.max(150, this.width - SIDEBAR_WIDTH - 50);
@@ -331,18 +351,33 @@ public class MapConfigScreen extends Screen {
         addSectionMasters(contentX, contentWidth);
 
         sections.clear();
-        sections.put("General", List.of("Profiles", "Interface", "Legit Mode"));
-        sections.put("Dungeon", List.of("Map", "ESP", "Secrets & Waypoints", "Leap",
-                "Puzzles & Terminals", "Score & Splits", "Timers", "Croesus"));
-        sections.put("Bosses", List.of("Blood Camp", "F4 / M4", "F7 / M7"));
-        sections.put("Visual", List.of("Render", "Hide", "Menu & Skybox"));
-        sections.put("Items", List.of("Inventory", "Tooltips & Value"));
-        sections.put("Chat & Media", List.of("Chat", "Sounds", "Screenshots"));
-        sections.put("Party & Automation", List.of("Party", "Auto"));
-        sections.put("Skyblock", List.of("Skills", "Combat", "Garden", "Mining", "Fishing", "Foraging",
-                "Contest Timers", "Torrhus Canyon", "Critter Safari", "Crimson Isle", "The End",
-                "Mob Visuals", "Shards", "Ordered Waypoints"));
+        groups.clear();
+        groups.put(ACTIVE, List.of());
+        group("Profiles & Interface", "Profiles", "Interface");
+        group("Map & Leap", "Map", "Leap");
+        group("Score & Timers", "Score & Splits", "Timers");
+        group("Bosses", "Blood Camp", "F4 / M4", "F7 / M7");
+        group("Render & Hide", "Render", "Hide");
+        group("Inventory & Tooltips", "Inventory", "Tooltips & Value");
+        group("Chat & Screenshots", "Chat", "Screenshots");
+        group("Party & Auto", "Party", "Auto");
+        group("Skills & Combat", "Skills", "Combat", "Mob Visuals");
+        group("Garden", "Garden", "Contest Timers");
+        group("Foraging & Hunting", "Foraging", "Shards", "Torrhus Canyon", "Critter Safari");
+        group("Crimson & End", "Crimson Isle", "The End");
+        sections.put("General", new ArrayList<>(List.of(ACTIVE, "Profiles & Interface", "Legit Mode")));
+        sections.put("Dungeon", new ArrayList<>(List.of("Map & Leap", "ESP", "Secrets & Waypoints",
+                "Puzzles & Terminals", "Score & Timers", "Bosses", "Croesus")));
+        sections.put("Visual", new ArrayList<>(List.of("Render & Hide", "Menu & Skybox")));
+        sections.put("Items & Chat", new ArrayList<>(List.of("Inventory & Tooltips", "Chat & Screenshots",
+                "Party & Auto", "Sounds")));
+        sections.put("Skyblock", new ArrayList<>(List.of("Skills & Combat", "Garden", "Mining", "Fishing",
+                "Foraging & Hunting", "Crimson & End", "Ordered Waypoints")));
         com.teslamaps.registry.FeatureRegistry.addSidebar(sections);
+        // anything listed in a section without an explicit group is a group of one
+        for (List<String> items : sections.values()) {
+            for (String item : items) if (!groups.containsKey(item)) groups.put(item, List.of(item));
+        }
 
         categoryHeaders.clear();
         for (String cat : categories.keySet()) categoryHeaders.put(cat, new LabelEntry(contentX, cat));
@@ -377,6 +412,61 @@ public class MapConfigScreen extends Screen {
                 if (!seenCheat.contains(l)) com.teslamaps.TeslaMaps.LOGGER.error("cheatLabels: no toggle named \"{}\" - renamed?", l);
             }
         }
+    }
+
+    private void group(String name, String... cats) {
+        groups.put(name, List.of(cats));
+    }
+
+    /** Sidebar entry holding a category (or the entry itself). */
+    protected String groupOf(String name) {
+        if (name == null) return null;
+        if (groups.containsKey(name)) return name;
+        for (Map.Entry<String, List<String>> g : groups.entrySet()) if (g.getValue().contains(name)) return g.getKey();
+        return null;
+    }
+
+    private static int indent(String label) {
+        int i = 0;
+        while (i < label.length() && label.charAt(i) == ' ') i++;
+        return i;
+    }
+
+    /** Drops sub-options whose parent toggle (the nearest less indented one above) is off. */
+    private static List<SettingsEntry> visibleChildren(List<SettingsEntry> in) {
+        List<SettingsEntry> out = new ArrayList<>(in.size());
+        int[] depth = new int[8];
+        ToggleEntry[] parent = new ToggleEntry[8];
+        int n = 0;
+        for (SettingsEntry e : in) {
+            if (e.isLabel()) { n = 0; out.add(e); continue; }
+            int d = indent(e.getLabel());
+            while (n > 0 && depth[n - 1] >= d) n--;
+            boolean hidden = false;
+            for (int i = 0; i < n; i++) if (!parent[i].get()) { hidden = true; break; }
+            if (!hidden) out.add(e);
+            if (e instanceof ToggleEntry te && n < 8) { depth[n] = d; parent[n] = te; n++; }
+        }
+        return out;
+    }
+
+    /** Toggles the user turned on (on now, off by default), with the sub-options of top-level ones. */
+    private List<SettingsEntry> activeEntries(List<SettingsEntry> in) {
+        List<SettingsEntry> out = new ArrayList<>();
+        boolean carry = false;
+        for (SettingsEntry e : visibleChildren(in)) {
+            if (e.isLabel()) { carry = false; continue; }
+            boolean child = e.getLabel().startsWith(" ");
+            boolean turnedOn = e instanceof ToggleEntry te && te.get() && !te.getLabel().startsWith("Enable ")
+                    && !Boolean.TRUE.equals(toggleDefaults.get(te));
+            if (!child) {
+                carry = turnedOn;
+                if (carry) out.add(e);
+            } else if (carry || turnedOn) {
+                out.add(e);
+            }
+        }
+        return out;
     }
 
     public static void orderedFeedback(String message) {
@@ -563,22 +653,43 @@ public class MapConfigScreen extends Screen {
             searchCache = result;
             searchCacheQuery = searchQuery;
             searchCacheBuild = buildCount;
+        } else if (ACTIVE.equals(selectedCategory)) {
+            for (Map.Entry<String, List<SettingsEntry>> cat : categories.entrySet()) {
+                List<SettingsEntry> on = activeEntries(cat.getValue());
+                if (on.isEmpty()) continue;
+                LabelEntry header = categoryHeaders.get(cat.getKey());
+                if (header != null) { header.collapseKey = null; result.add(header); }
+                result.addAll(on);
+            }
         } else {
-            List<SettingsEntry> categoryEntries = categories.get(selectedCategory);
-            if (categoryEntries == null) return result;
-            boolean hidden = false;
-            int ord = 0;
-            LabelEntry group = null;
-            for (SettingsEntry e : categoryEntries) {
-                if (e instanceof LabelEntry le) {
-                    le.collapseKey = selectedCategory + "#" + (ord++);
-                    le.childCount = 0;
-                    group = le;
-                    hidden = GROUP_COLLAPSED.contains(le.collapseKey);
-                    result.add(e);
-                } else {
-                    if (group != null) group.childCount++;
-                    if (!hidden) result.add(e);
+            List<String> members = groups.getOrDefault(selectedCategory, List.of(selectedCategory));
+            for (String catName : members) {
+                List<SettingsEntry> categoryEntries = categories.get(catName);
+                if (categoryEntries == null) continue;
+                if (members.size() > 1) {
+                    LabelEntry header = categoryHeaders.get(catName);
+                    if (header != null) { header.collapseKey = null; result.add(header); }
+                }
+                boolean hidden = false;
+                int ord = 0;
+                LabelEntry group = null;
+                // a switched-off section shows only its master
+                if (!categoryEntries.isEmpty() && categoryEntries.get(0) instanceof ToggleEntry master
+                        && master.getLabel().equals("Enable " + catName) && !master.get()) {
+                    result.add(master);
+                    continue;
+                }
+                for (SettingsEntry e : visibleChildren(categoryEntries)) {
+                    if (e instanceof LabelEntry le) {
+                        le.collapseKey = catName + "#" + (ord++);
+                        le.childCount = 0;
+                        group = le;
+                        hidden = GROUP_COLLAPSED.contains(le.collapseKey);
+                        result.add(e);
+                    } else {
+                        if (group != null) group.childCount++;
+                        if (!hidden) result.add(e);
+                    }
                 }
             }
         }
