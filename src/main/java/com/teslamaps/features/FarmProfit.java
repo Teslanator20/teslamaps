@@ -239,10 +239,14 @@ public class FarmProfit {
     private static String lastHover = null;
     private static long lastHoverTime = 0L;
 
+    private static boolean isKernelMessage(String raw) {
+        return raw.contains("Kernel") && com.teslamaps.utils.StringUtil.stripTrim(raw).equals(KERNEL_MESSAGE);
+    }
+
     public static void onChatComponent(net.minecraft.network.chat.Component message) {
         if (!SkyblockUtils.isInGarden()) {
             if (SkyblockUtils.isInSkyblock() && com.teslamaps.config.TeslaMapsConfig.get().farmProfitKernels
-                    && message.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").trim().equals(KERNEL_MESSAGE)) {
+                    && isKernelMessage(message.getString())) {
                 record("Kernel", 1, kernelValue(), false);
             }
             return;
