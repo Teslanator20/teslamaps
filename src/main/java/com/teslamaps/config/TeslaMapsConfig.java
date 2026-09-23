@@ -470,6 +470,16 @@ public class TeslaMapsConfig {
     public float etherwarpEyeOffset = -0.0f;      // Fine-tune the ray's eye height (blocks) if the guess sits too high/low
     public boolean etherwarpSkullFail = true;     // Mark as failed if the target block (or above it) is a skull
     public String colorEtherwarp = "00FF8C";      // Etherwarp guess box color (gold)
+    public String colorEtherwarpFail = "FF5555";
+    public boolean etherwarpOutline = false;      // Outline on top of the filled box
+    public float etherwarpLineWidth = 2.0f;
+    public boolean etherwarpThroughWalls = false;
+    public boolean etherwarpBlockShape = false;   // Box follows the block shape (slabs, stairs) instead of a full block
+    public boolean etherwarpServerPos = false;    // Ray from the last position sent to the server
+    public boolean etherwarpFailReason = false;   // HUD line: why the warp would fail
+    public int etherwarpFailReasonX = 404;
+    public int etherwarpFailReasonY = 150;
+    public float etherwarpFailReasonScale = 1.0f;
     public boolean etherwarpCustomSound = true;  // Replace the etherwarp sound with a custom one
     public String etherwarpSound = "NOTE_PLING"; // see SoundOptions for all options
     public float etherwarpSoundVolume = 1.0f;     // Custom etherwarp sound volume (0.0 - 20.0)

@@ -2,6 +2,8 @@ package com.teslamaps.features;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.registry.Feature;
+import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.LoudSound;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -60,13 +62,53 @@ import net.minecraft.world.phys.Vec3;
 
 public class Etherwarp {
 
-    public record EtherPos(boolean succeeded, BlockPos pos) {
-        static final EtherPos NONE = new EtherPos(false, null);
+    public record EtherPos(boolean succeeded, BlockPos pos, String reason) {
+        static final EtherPos NONE = new EtherPos(false, null, "Too far!");
     }
 
     private static BlockPos lastDebugPos = null; // throttles [EtherDbg] logging to pos changes
 
+    private static ItemStack cachedStack;
+    private static CompoundTag cachedData;
+    private static long previewShownAt;
+    public static String failReason = "";
+    private static HudEditElement failEl;
+
+    public static void register() {
+        failEl = HudEditElement.of("etherwarpFailReason", "Etherwarp Fail Reason").section("Render")
+                .enabled(() -> TeslaMapsConfig.get().etherwarp && TeslaMapsConfig.get().etherwarpFailReason)
+                .size(() -> Minecraft.getInstance().font.width("Can't TP: No air above!"), () -> 9)
+                .preview((g, mc, x, y, s) -> drawReason(g, mc, x, y, s, "Can't TP: No air above!"));
+        Feature.of("EtherwarpFailReason").section("Render")
+                .when(() -> TeslaMapsConfig.get().etherwarp && TeslaMapsConfig.get().etherwarpFailReason)
+                .hud("etherwarpfailreason", (g, d) -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    if (failReason.isEmpty() || failEl == null || mc.options.hideGui || !previewShown()) return;
+                    drawReason(g, mc, failEl.x(), failEl.y(), failEl.scale(), failReason);
+                });
+    }
+
+    private static void drawReason(net.minecraft.client.gui.GuiGraphicsExtractor g, Minecraft mc, int x, int y, float s, String text) {
+        g.pose().pushMatrix();
+        g.pose().translate(x, y);
+        g.pose().scale(s, s);
+        g.text(mc.font, text, 0, 0, 0xFFFF5555, true);
+        g.pose().popMatrix();
+    }
+
+    /** The guess box was computed in the last frame or two. */
+    public static boolean previewShown() {
+        return System.currentTimeMillis() - previewShownAt < 100;
+    }
+
     private static CompoundTag etherwarpData(ItemStack stack) {
+        if (stack == cachedStack) return cachedData;
+        cachedStack = stack;
+        cachedData = readEtherwarpData(stack);
+        return cachedData;
+    }
+
+    private static CompoundTag readEtherwarpData(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return null;
         CustomData data = stack.get(DataComponents.CUSTOM_DATA);
         if (data == null) return null;
@@ -96,7 +138,12 @@ public class Etherwarp {
         if (!conduit && !player.isShiftKeyDown()) return;
 
         double distance = 57.0 + data.getInt("tuned_transmission").orElse(0);
-        EtherPos ether = getEtherPos(player.position(), distance);
+        EtherPos ether = config.etherwarpServerPos
+                ? getEtherPos(new Vec3(player.xLast, player.yLast, player.zLast),
+                        Vec3.directionFromRotation(player.xRotLast, player.yRotLast), distance)
+                : getEtherPos(player.position(), player.getLookAngle(), distance);
+        previewShownAt = System.currentTimeMillis();
+        failReason = ether.succeeded() ? "" : "Can't TP: " + ether.reason();
         if (!ether.succeeded() && !config.etherwarpShowFail) return;
         if (ether.pos() == null) return;
 
@@ -113,39 +160,65 @@ public class Etherwarp {
 
         int color = ether.succeeded()
                 ? TeslaMapsConfig.parseColor(config.colorEtherwarp)
-                : 0xFFFF5555;
+                : TeslaMapsConfig.parseColor(config.colorEtherwarpFail);
+        BlockState target = mc.level.getBlockState(ether.pos());
         // leaves are cutout blocks: a depth-tested box on/at them z-fights and flickers -> draw through walls
-        boolean leaf = mc.level.getBlockState(ether.pos()).is(net.minecraft.tags.BlockTags.LEAVES);
-        AABB box = new AABB(ether.pos()).inflate(0.002);
+        boolean through = config.etherwarpThroughWalls || target.is(net.minecraft.tags.BlockTags.LEAVES);
+        AABB box = new AABB(ether.pos());
+        if (config.etherwarpBlockShape) {
+            var shape = target.getShape(mc.level, ether.pos());
+            if (!shape.isEmpty()) box = shape.bounds().move(ether.pos());
+        }
+        box = box.inflate(0.002);
         if (config.etherwarpFilled) {
-            ESPRenderer.drawFilledBox(matrices, box, color, cameraPos, leaf);
+            ESPRenderer.drawFilledBox(matrices, box, color, cameraPos, through);
+            if (config.etherwarpOutline)
+                ESPRenderer.drawBoxOutline(matrices, box, color | 0xFF000000, config.etherwarpLineWidth, cameraPos, through);
         } else {
-            ESPRenderer.drawBoxOutline(matrices, box, color, 2.0f, cameraPos, leaf);
+            ESPRenderer.drawBoxOutline(matrices, box, color, config.etherwarpLineWidth, cameraPos, through);
         }
     }
 
-    private static EtherPos getEtherPos(Vec3 position, double distance) {
+    private static EtherPos getEtherPos(Vec3 position, Vec3 look, double distance) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if (player == null || position == null) return EtherPos.NONE;
 
-        double eyeHeight = (player.isShiftKeyDown() ? 1.27 : 1.62) + TeslaMapsConfig.get().etherwarpEyeOffset;
+        double eye = player.getPose() == net.minecraft.world.entity.Pose.SWIMMING ? 0.4 : player.isShiftKeyDown() ? 1.27 : 1.62;
+        double eyeHeight = eye + TeslaMapsConfig.get().etherwarpEyeOffset;
         Vec3 start = position.add(0, eyeHeight, 0);
-        Vec3 look = player.getLookAngle();
         Vec3 end = look.multiply(distance, distance, distance).add(start);
         return traverseVoxels(start, end);
     }
 
-    private static boolean isSkull(Level level, int x, int y, int z) {
-        Block b = level.getBlockState(new BlockPos(x, y, z)).getBlock();
-        return b instanceof SkullBlock || b instanceof WallSkullBlock;
+    private static final int PASSABLE = 1, BLOCKS_FEET = 2, SKULL = 4;
+    private static int[] flags;
+
+    private static int flags(BlockState s) {
+        if (flags == null) {
+            int[] f = new int[Block.BLOCK_STATE_REGISTRY.size()];
+            for (BlockState st : Block.BLOCK_STATE_REGISTRY) {
+                Block b = st.getBlock();
+                int v = 0;
+                if (st.isAir() || passableBlock(b)) v |= PASSABLE;
+                if (b instanceof FlowerPotBlock || b instanceof LadderBlock || b instanceof VineBlock) v |= BLOCKS_FEET;
+                if (b instanceof SkullBlock || b instanceof WallSkullBlock) v |= SKULL;
+                int id = Block.getId(st);
+                if (id >= 0 && id < f.length) f[id] = v;
+            }
+            flags = f;
+        }
+        int id = Block.getId(s);
+        return id >= 0 && id < flags.length ? flags[id] : 0;
     }
 
-    private static boolean passable(Level level, BlockPos pos) {
-        BlockState s = level.getBlockState(pos);
-        if (s.isAir()) return true;
-        Block b = s.getBlock();
-        return b instanceof ButtonBlock
+    private static boolean passableBlock(Block b) {
+        return b instanceof net.minecraft.world.level.block.LanternBlock
+                || b instanceof net.minecraft.world.level.block.DoublePlantBlock
+                || b instanceof net.minecraft.world.level.block.GrowingPlantBlock
+                || b instanceof net.minecraft.world.level.block.BigDripleafStemBlock
+                || b instanceof net.minecraft.world.level.block.piston.PistonHeadBlock
+                || b instanceof ButtonBlock
                 || b instanceof SkullBlock || b instanceof WallSkullBlock || b instanceof LadderBlock
                 || b instanceof SaplingBlock || b instanceof FlowerBlock || b instanceof StemBlock
                 || b instanceof CropBlock || b instanceof BaseRailBlock || b instanceof SnowLayerBlock
@@ -186,15 +259,20 @@ public class Etherwarp {
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         for (int i = 0; i < 1000; i++) {
             cursor.set(x, y, z);
-            if (!passable(level, cursor)) {
-                boolean feet = passable(level, new BlockPos(x, y + 1, z));
-                boolean head = passable(level, new BlockPos(x, y + 2, z));
-                boolean ok = feet && head;
-                if (ok && TeslaMapsConfig.get().etherwarpSkullFail
-                        && (isSkull(level, x, y, z) || isSkull(level, x, y + 1, z) || isSkull(level, x, y + 2, z))) {
-                    ok = false; // skull on/above the target blocks the etherwarp
-                }
-                return new EtherPos(ok, new BlockPos(x, y, z));
+            BlockState hit = level.getBlockState(cursor);
+            if ((flags(hit) & PASSABLE) == 0) {
+                BlockPos pos = new BlockPos(x, y, z);
+                // fences, walls: the feet go on top of the collision shape
+                var col = hit.getCollisionShape(level, pos);
+                double top = col.isEmpty() ? 1 : col.max(net.minecraft.core.Direction.Axis.Y);
+                int base = y + Math.max(1, (int) Math.ceil(top));
+                int feet = flags(level.getBlockState(new BlockPos(x, base, z)));
+                int head = flags(level.getBlockState(new BlockPos(x, base + 1, z)));
+                if ((feet & PASSABLE) == 0 || (head & PASSABLE) == 0) return new EtherPos(false, pos, "No air above!");
+                if (((feet | head) & BLOCKS_FEET) != 0) return new EtherPos(false, pos, "No room to stand!");
+                if (TeslaMapsConfig.get().etherwarpSkullFail && ((feet | head) & SKULL) != 0)
+                    return new EtherPos(false, pos, "Skull in the way!");
+                return new EtherPos(true, pos, "");
             }
             if (x == endX && y == endY && z == endZ) return EtherPos.NONE;
 
