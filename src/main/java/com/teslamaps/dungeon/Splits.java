@@ -78,6 +78,10 @@ public class Splits {
         }
 
         active.add(new Split(TOTAL, "§1Total"));
+        // M7 last phase used to be keyed "Cleared"
+        var pbs = TeslaMapsConfig.get().splitPbs;
+        String oldKey = pbKey("Cleared"), newKey = pbKey("Wither King");
+        if (floor.isMaster() && floor.getLevel() == 7 && pbs.containsKey(oldKey) && !pbs.containsKey(newKey)) pbs.put(newKey, pbs.get(oldKey));
         for (Split s : active) s.pbAtStart = TeslaMapsConfig.get().splitPbs.get(pbKey(s.name));
     }
 
