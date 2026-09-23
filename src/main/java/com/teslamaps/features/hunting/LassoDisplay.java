@@ -85,7 +85,7 @@ public class LassoDisplay {
     }
 
     private static Entity leashedAnimal(Minecraft mc) {
-        for (Entity e : mc.level.entitiesForRendering()) {
+        for (Entity e : com.teslamaps.utils.EntityCache.all()) {
             if (e instanceof Leashable l && l.getLeashHolder() == mc.player) return e;
         }
         return null;

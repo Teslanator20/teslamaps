@@ -246,7 +246,7 @@ public class StarredMobESP {
         invisibleArmorStandBoxes.clear();
 
         if (inDungeon && TeslaMapsConfig.get().witherKeyESP) {
-            for (Entity entity : mc.level.entitiesForRendering()) {
+            for (Entity entity : com.teslamaps.utils.EntityCache.all()) {
                 String entityName = entity.getName().getString();
 
                 if (entityName.equals("Wither Key") || entityName.contains("Wither Key")) {
@@ -300,7 +300,7 @@ public class StarredMobESP {
         collectCustomNameStands(mc);
 
         int checkedCount = 0;
-        for (Entity entity : mc.level.entitiesForRendering()) {
+        for (Entity entity : com.teslamaps.utils.EntityCache.all()) {
             checkedCount++;
             if (TeslaMapsConfig.get().lividFinder && isLivid(entity)) {
                 continue;
@@ -324,7 +324,7 @@ public class StarredMobESP {
 
 
         if (inDungeon && TeslaMapsConfig.get().invisibleArmorStandESP) {
-            for (Entity entity : mc.level.entitiesForRendering()) {
+            for (Entity entity : com.teslamaps.utils.EntityCache.armorStands()) {
                 if (entity instanceof ArmorStand && entity.isInvisible()) {
                     ArmorStand armorStand = (ArmorStand) entity;
                     if (!armorStand.isVehicle()) {
@@ -725,7 +725,7 @@ public class StarredMobESP {
         List<String> customMobs = TeslaMapsConfig.get().customESPMobs;
         if (customMobs == null || customMobs.isEmpty() || mc.level == null) return;
 
-        for (Entity e : mc.level.entitiesForRendering()) {
+        for (Entity e : com.teslamaps.utils.EntityCache.armorStands()) {
             if (!(e instanceof ArmorStand as)) continue;
             String entry = matchedCustomEntry(as.getName().getString());
             if (entry == null) {

@@ -147,7 +147,7 @@ public final class MobVisuals {
 
         if (scanShulkers) claimShulkerHitboxes(mc);
 
-        for (Entity entity : mc.level.entitiesForRendering()) {
+        for (Entity entity : com.teslamaps.utils.EntityCache.all()) {
             if (entity == mc.player || entity.isRemoved()) continue;
 
             Mob mob = null;
@@ -302,7 +302,7 @@ public final class MobVisuals {
      * again as a Duplico, which uses the same invisible silverfish.
      */
     private static void claimShulkerHitboxes(Minecraft mc) {
-        for (Entity entity : mc.level.entitiesForRendering()) {
+        for (Entity entity : com.teslamaps.utils.EntityCache.byType(Shulker.class)) {
             if (!(entity instanceof Shulker)) continue;
             Entity hitbox = nearestOfType(mc, entity, Silverfish.class);
             if (hitbox != null) shulkerClaimed.add(hitbox);

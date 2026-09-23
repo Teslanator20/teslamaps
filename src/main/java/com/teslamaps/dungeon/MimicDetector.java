@@ -73,7 +73,7 @@ public class MimicDetector {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
-        for (var entity : mc.level.entitiesForRendering()) {
+        for (var entity : com.teslamaps.utils.EntityCache.armorStands()) {
             if (entity instanceof net.minecraft.world.entity.decoration.ArmorStand) {
                 String name = entity.getName().getString();
                 if (name.contains("Mimic")) {
@@ -200,7 +200,7 @@ public class MimicDetector {
         }
 
         boolean mimicFound = false;
-        for (var entity : mc.level.entitiesForRendering()) {
+        for (var entity : com.teslamaps.utils.EntityCache.byType(Zombie.class)) {
             if (entity instanceof Zombie zombie && zombie.isBaby()) {
                 if (zombie.distanceToSqr(mimicChestPos.getX(), mimicChestPos.getY(), mimicChestPos.getZ()) < 100) {
                     mimicFound = true;

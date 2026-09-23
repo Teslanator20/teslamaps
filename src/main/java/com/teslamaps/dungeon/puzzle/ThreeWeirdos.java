@@ -68,7 +68,7 @@ public class ThreeWeirdos {
 
         if (!npcNames.isEmpty()) {
             npcBoxes.clear();
-            for (var entity : mc.level.entitiesForRendering()) {
+            for (var entity : com.teslamaps.utils.EntityCache.armorStands()) {
                 if (!(entity instanceof ArmorStand as)) continue;
                 String name = ChatFormatting.stripFormatting(as.getName().getString());
                 if (name != null && npcNames.contains(name)) {

@@ -27,8 +27,8 @@ public class BossESP {
         int color = TeslaMapsConfig.parseColor(c.colorBossESP);
         boolean throughWalls = !c.bossESPDepthCheck;
 
-        for (Entity e : mc.level.entitiesForRendering()) {
-            if (!(e instanceof WitherBoss wb) || wb.isInvisible()) continue;
+        for (Entity e : com.teslamaps.utils.EntityCache.byType(WitherBoss.class)) {
+            if (!(e instanceof WitherBoss wb) || wb.isRemoved() || wb.isInvisible()) continue;
             // player-summoned withers (wither armor/cloak, abilities) spawn with 800 invuln ticks,
             // the real bosses use 200 (Maxor) or 0/1 — filter like NoammAddons
             if (wb.getInvulnerableTicks() > 400) continue;

@@ -114,7 +114,7 @@ public class Deployables {
 
         boolean flares = c.deployableOverlay && c.deployableFlare;
 
-        for (Entity entity : mc.level.entitiesForRendering()) {
+        for (Entity entity : com.teslamaps.utils.EntityCache.armorStands()) {
             if (!(entity instanceof ArmorStand stand) || stand.isRemoved()) continue;
             if (stand.getCustomName() == null) {
                 if (flares) trackFlare(stand, mc, now);
