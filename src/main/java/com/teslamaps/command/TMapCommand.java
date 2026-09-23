@@ -139,11 +139,11 @@ public class TMapCommand {
                                 .then(ClientCommands.argument("name", StringArgumentType.greedyString())
                                         .executes(context -> {
                                             String name = StringArgumentType.getString(context, "name");
-                                            boolean ok = com.teslamaps.features.ScreenshotManager.copy(
-                                                    com.teslamaps.features.ScreenshotManager.byName(name));
-                                            context.getSource().sendFeedback(Component.literal(
-                                                    ok ? "§a[TeslaMaps] §7Copied §f" + name
-                                                       : "§c[TeslaMaps] Could not copy " + name));
+                                            com.teslamaps.features.ScreenshotManager.copyAsync(
+                                                    com.teslamaps.features.ScreenshotManager.byName(name),
+                                                    err -> com.teslamaps.features.ImageShare.feedback(err == null
+                                                            ? "§a[TeslaMaps] §7Copied §f" + name
+                                                            : "§c[TeslaMaps] Could not copy " + name + ": " + err));
                                             return 1;
                                         })))
                         .then(ClientCommands.literal("delete")
