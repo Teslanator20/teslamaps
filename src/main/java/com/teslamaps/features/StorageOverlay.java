@@ -230,7 +230,7 @@ public class StorageOverlay {
             vanillaScreen = new java.lang.ref.WeakReference<>(cs);
             return false;
         }
-        lastScreen = new java.lang.ref.WeakReference<>(cs);
+        if (lastScreen.get() != cs) lastScreen = new java.lang.ref.WeakReference<>(cs);
         return true;
     }
 
@@ -385,7 +385,9 @@ public class StorageOverlay {
         lastRenderMs = nowMs;
         scroll = Math.max(0, Math.min(scroll,
                 Math.max(0, L.contentH + startY() + 10 - wallBottom / scl())));
-        Map<Integer, ItemStack> dragTop = new java.util.HashMap<>(), dragInv = new java.util.HashMap<>();
+        Map<Integer, ItemStack> dragTop = DRAG_TOP, dragInv = DRAG_INV;
+        dragTop.clear();
+        dragInv.clear();
         dragPreview(mc, dragTop, dragInv);
 
         ItemStack hoverNonLive = null;
@@ -545,6 +547,7 @@ public class StorageOverlay {
     }
 
     private static int dragRemainder = -1;
+    private static final Map<Integer, ItemStack> DRAG_TOP = new java.util.HashMap<>(), DRAG_INV = new java.util.HashMap<>();
 
     /** Vanilla drag-splitting still runs; this only shows the counts it will produce. */
     private static void dragPreview(Minecraft mc, Map<Integer, ItemStack> top, Map<Integer, ItemStack> inv) {

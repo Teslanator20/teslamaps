@@ -86,7 +86,9 @@ public final class SbProfile {
     }
 
     private static String uuid() {
-        UUID id = Minecraft.getInstance().getUser().getProfileId();
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null || mc.getUser() == null) return null;
+        UUID id = mc.getUser().getProfileId();
         return id == null ? null : id.toString();
     }
 
