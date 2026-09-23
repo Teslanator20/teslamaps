@@ -39,6 +39,9 @@ public class LividSolver {
     private static Entity correctLividEntity = null;
 
     private static final Set<Entity> wrongLivids = Collections.newSetFromMap(new WeakHashMap<>());
+    private static final Set<Entity> wrongNametags = Collections.newSetFromMap(new WeakHashMap<>());
+    private static int lockedLividId = -1;
+    private static long blindSeenAt = 0;
 
     private static boolean hasAnnounced = false;
 
@@ -124,6 +127,8 @@ public class LividSolver {
             invulnTime--;
         }
 
+        if (blindSeenAt == 0 && mc.player.hasEffect(MobEffects.BLINDNESS)) blindSeenAt = System.currentTimeMillis();
+
         if (pendingAnnouncement) {
             if (announcementDelay > 0) {
                 announcementDelay--;
@@ -155,12 +160,19 @@ public class LividSolver {
                     currentLivid.entityName, woolBlock.getName().getString());
         }
 
+        boolean tags = TeslaMapsConfig.get().lividHideWrongNametags;
         List<Entity> livids = new ArrayList<>();
+        List<ArmorStand> stands = new ArrayList<>();
         for (Entity entity : mc.level.entitiesForRendering()) {
             if (entity == mc.player) continue;
-            if (entity instanceof ArmorStand) continue;
-
             String name = entity.getName().getString();
+            if (entity instanceof ArmorStand stand) {
+                // §2﴾ §2§lLivid§r§r §a7M§c❤ §2﴿
+                if (tags && name.length() > 2 && name.charAt(0) == '§' && name.charAt(2) == '﴾' && name.contains("§lLivid")) {
+                    stands.add(stand);
+                }
+                continue;
+            }
             if (name.endsWith(" Livid") || name.equals("Livid")) {
                 livids.add(entity);
             }
@@ -169,20 +181,39 @@ public class LividSolver {
         if (livids.isEmpty()) return;
 
         wrongLivids.clear();
+        wrongNametags.clear();
         correctLividEntity = null;
 
-        for (Entity livid : livids) {
-            String lividName = livid.getName().getString();
-            Livid type = Livid.fromName(lividName);
-
-            if (type == currentLivid) {
-                correctLividEntity = livid;
-            } else {
-                wrongLivids.add(livid);
+        // Skyblocker's correctLividId: the real one keeps its entity even if M5 swaps colors
+        Entity locked = lockedLividId >= 0 ? mc.level.getEntity(lockedLividId) : null;
+        if (locked != null && locked.isAlive() && livids.contains(locked)) {
+            correctLividEntity = locked;
+        } else {
+            for (Entity livid : livids) {
+                if (Livid.fromName(livid.getName().getString()) == currentLivid) correctLividEntity = livid;
             }
         }
 
-        if (correctLividEntity != null && !hasAnnounced) {
+        // nothing found = hide nothing, a misread wool must never hide the real Livid
+        if (correctLividEntity == null) return;
+
+        if (lockedLividId < 0 && blindSeenAt > 0 && System.currentTimeMillis() - blindSeenAt >= 2000) {
+            lockedLividId = correctLividEntity.getId();
+        }
+
+        for (Entity livid : livids) {
+            if (livid != correctLividEntity) wrongLivids.add(livid);
+        }
+
+        if (tags && !stands.isEmpty()) {
+            Livid type = Livid.fromName(correctLividEntity.getName().getString());
+            char code = (type != null ? type : currentLivid).colorCode;
+            for (ArmorStand stand : stands) {
+                if (stand.getName().getString().charAt(1) != code) wrongNametags.add(stand);
+            }
+        }
+
+        if (!hasAnnounced) {
             scheduleAnnouncement(mc);
         }
     }
@@ -229,6 +260,9 @@ public class LividSolver {
         currentLivid = Livid.HOCKEY;
         correctLividEntity = null;
         wrongLivids.clear();
+        wrongNametags.clear();
+        lockedLividId = -1;
+        blindSeenAt = 0;
         hasAnnounced = false;
         hasAnnouncedDeath = false;
         pendingAnnouncement = false;
@@ -278,7 +312,12 @@ public class LividSolver {
     }
 
     public static boolean isWrongLivid(Entity entity) {
-        return wrongLivids.contains(entity);
+        return !TeslaMapsConfig.get().lividShowWrong && wrongLivids.contains(entity);
+    }
+
+    public static boolean shouldHideNametag(Entity entity) {
+        return !wrongNametags.isEmpty() && TeslaMapsConfig.get().lividFinder && !TeslaMapsConfig.get().lividShowWrong
+                && !LegitMode.blocksCheats() && wrongNametags.contains(entity);
     }
 
     public static boolean hasBlindness() {

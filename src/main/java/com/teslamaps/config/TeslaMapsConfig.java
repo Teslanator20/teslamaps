@@ -132,7 +132,9 @@ public class TeslaMapsConfig {
     public boolean lividFinder = true;          // Highlight the correct Livid in F5/M5
     public boolean lividTracer = true;          // Draw tracer to correct Livid
     public boolean lividDeathMessage = true;    // Send "/pc Livid Dead!" when Livid dies
-    public boolean lividTimerHud = false;       // movable Livid invuln timer on server ticks, independent of the finder
+    public boolean lividShowWrong = false;      // keep the fake Livids visible instead of hiding them
+    public boolean lividHideWrongNametags = false; // also hide the fake Livids' ﴾ Livid ﴿ nametags
+    public boolean lividTimerHud = false;      // movable Livid invuln timer on server ticks, independent of the finder
     public boolean lividIceSprayAlert = false;  // title + sound when the invuln timer runs out
     public int lividTimerX = 10;
     public int lividTimerY = 120;
