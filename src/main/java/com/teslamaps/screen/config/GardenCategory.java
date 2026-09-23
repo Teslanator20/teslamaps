@@ -141,19 +141,19 @@ public final class GardenCategory {
                 () -> config.farmWarnSound, v -> config.farmWarnSound = v);
         b.slider("  Warn Volume", 0f, 4f,
                 () -> config.farmWarnVolume, v -> config.farmWarnVolume = v, 2);
+        b.toggle("  Lane Per Crop",
+                () -> config.farmLanePerCrop, v -> config.farmLanePerCrop = v);
+        b.info("Breaking a crop picks its lane · /tmap farm detect: farm two rows to save one");
+        b.toggle("  Show Time Until Lane End",
+                () -> config.farmLaneTimeLeft, v -> config.farmLaneTimeLeft = v);
+        b.slider("  Lane Switch Title (sec, 0 = off)", 0f, 10f,
+                () -> (float) config.farmLaneWarnSeconds, v -> config.farmLaneWarnSeconds = Math.round(v), 0);
         b.button("Set Lane Point 1 (here)",
                 () -> com.teslamaps.features.FarmProgress.setPoint(1));
         b.button("Set Lane Point 2 (here)",
                 () -> com.teslamaps.features.FarmProgress.setPoint(2));
-        b.toggle("Lane Per Crop",
-                () -> config.farmLanePerCrop, v -> config.farmLanePerCrop = v);
-        b.info("Breaking a crop picks its lane · /tmap farm detect: farm two rows to save one");
         b.button("Detect Lane (farm two rows)",
                 () -> com.teslamaps.features.FarmProgress.toggleDetection());
-        b.toggle("Show Time Until Lane End",
-                () -> config.farmLaneTimeLeft, v -> config.farmLaneTimeLeft = v);
-        b.slider("Lane Switch Title (sec, 0 = off)", 0f, 10f,
-                () -> (float) config.farmLaneWarnSeconds, v -> config.farmLaneWarnSeconds = Math.round(v), 0);
         b.toggle("Lane Corner Beacons",
                 () -> config.farmLaneCorners, v -> config.farmLaneCorners = v);
         b.label("Pest Fortune Buff");
