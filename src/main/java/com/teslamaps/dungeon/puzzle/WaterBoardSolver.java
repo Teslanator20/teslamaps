@@ -12,9 +12,7 @@ import com.teslamaps.render.ESPRenderer;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -23,7 +21,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class WaterBoardSolver {
 
-    private static JsonObject SOLUTIONS;
+    private static final String[] SOLUTION_FILES = {"watertimes", "watertimes_optimized", "watertimes_efficient"};
+    private static final JsonObject[] SOLUTION_SETS = new JsonObject[SOLUTION_FILES.length];
 
     private static final int[] TOP_LEFT_BLOCK = {16, 26};
     private static final int[] TOP_RIGHT_BLOCK = {14, 26};
@@ -62,7 +61,9 @@ public class WaterBoardSolver {
     private static int variant = -1;
     private static String subvariant = null;
     private static Map<LeverType, List<Double>> solution = null;
-    private static long waterStartMillis = 0;
+    private static long waterStartTick = -1;
+    private static final List<Label> labels = new ArrayList<>();
+    private static BlockPos firstPos, secondPos;
     private static boolean inWaterBoard = false;
     private static DungeonRoom currentRoom = null;
     private static int cornerX = 0;
@@ -75,15 +76,13 @@ public class WaterBoardSolver {
     }
 
     private static void loadSolutions() {
-        try {
-            InputStream is = WaterBoardSolver.class.getResourceAsStream("/assets/teslamaps/puzzles/watertimes.json");
-            if (is != null) {
-                SOLUTIONS = JsonParser.parseReader(new InputStreamReader(is)).getAsJsonObject();
-                TeslaMaps.debug("[WaterBoardSolver] Loaded water solutions");
+        for (int i = 0; i < SOLUTION_FILES.length; i++) {
+            SOLUTION_SETS[i] = new JsonObject();
+            try (InputStream is = WaterBoardSolver.class.getResourceAsStream("/assets/teslamaps/puzzles/" + SOLUTION_FILES[i] + ".json")) {
+                if (is != null) SOLUTION_SETS[i] = JsonParser.parseReader(new InputStreamReader(is)).getAsJsonObject();
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.error("[WaterBoardSolver] Failed to load " + SOLUTION_FILES[i], e);
             }
-        } catch (Exception e) {
-            TeslaMaps.LOGGER.error("[WaterBoardSolver] Failed to load solutions", e);
-            SOLUTIONS = new JsonObject();
         }
     }
 
@@ -115,7 +114,7 @@ public class WaterBoardSolver {
             variant = -1;
             subvariant = null;
             solution = null;
-            waterStartMillis = 0;
+            waterStartTick = -1;
             variantAttempts = 0;
 
             rotation = room.getRotation();
@@ -135,6 +134,8 @@ public class WaterBoardSolver {
         if (variant >= 0 && subvariant == null && rotation >= 0) {
             detectSubvariant(mc);
         }
+
+        buildLabels();
     }
 
     private static int[] rotatePos(int x, int z, int degree) {
@@ -254,6 +255,8 @@ public class WaterBoardSolver {
     }
 
     private static void loadSolution() {
+        int set = Math.max(0, Math.min(SOLUTION_SETS.length - 1, TeslaMapsConfig.get().waterBoardSolutionSet));
+        JsonObject SOLUTIONS = SOLUTION_SETS[set];
         if (SOLUTIONS == null || variant < 0 || subvariant == null) return;
 
         String variantKey = String.valueOf(variant + 1);
@@ -304,8 +307,8 @@ public class WaterBoardSolver {
                     TeslaMaps.debug("[WaterBoardSolver] {} clicked, {} times remaining",
                         leverType.name, times.size());
 
-                    if (leverType == LeverType.WATER && waterStartMillis == 0) {
-                        waterStartMillis = System.currentTimeMillis();
+                    if (leverType == LeverType.WATER && waterStartTick < 0) {
+                        waterStartTick = com.teslamaps.utils.ServerTickTimer.now();
                         TeslaMaps.debug("[WaterBoardSolver] Water lever clicked, timer started");
                     }
                 }
@@ -314,12 +317,10 @@ public class WaterBoardSolver {
         }
     }
 
-    public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (!TeslaMapsConfig.get().solveWaterBoard || solution == null) return;
-
-        long now = System.currentTimeMillis();
-        int colorFirst = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorWaterFirst);
-        int colorSecond = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorWaterSecond);
+    private static void buildLabels() {
+        labels.clear();
+        firstPos = secondPos = null;
+        if (solution == null) return;
 
         List<LeverTime> remaining = new ArrayList<>();
         for (Map.Entry<LeverType, List<Double>> entry : solution.entrySet()) {
@@ -333,77 +334,6 @@ public class WaterBoardSolver {
                 remaining.add(new LeverTime(leverType.name, new BlockPos(pos[0], leverType.y, pos[1]), times.get(i), i));
             }
         }
-
-        remaining.sort((a, b) -> {
-            if (a.time == 0.0 && b.time != 0.0) return -1;
-            if (b.time == 0.0 && a.time != 0.0) return 1;
-            return Double.compare(a.time, b.time);
-        });
-
-        if (!remaining.isEmpty()) {
-            LeverTime first = remaining.get(0);
-            Vec3 firstCenter = Vec3.atCenterOf(first.pos);
-            LeverTime second = remaining.size() > 1 ? remaining.get(1) : null;
-            boolean hasSecond = second != null && !second.pos.equals(first.pos);
-
-            ESPRenderer.drawBoxOutline(matrices, new AABB(first.pos), colorFirst, 3f, cameraPos);
-            if (hasSecond) {
-                ESPRenderer.drawBoxOutline(matrices, new AABB(second.pos), colorSecond, 2f, cameraPos);
-            }
-
-            if (TeslaMapsConfig.get().waterBoardTracers) {
-                ESPRenderer.drawTracerFromCamera(matrices, firstCenter, colorFirst, cameraPos);
-                if (hasSecond) {
-                    ESPRenderer.drawLine(matrices, firstCenter, Vec3.atCenterOf(second.pos), colorSecond, 2f, cameraPos);
-                }
-            }
-        }
-
-        Map<BlockPos, List<LeverTime>> byPos = new HashMap<>();
-        for (LeverTime lt : remaining) {
-            byPos.computeIfAbsent(lt.pos, k -> new ArrayList<>()).add(lt);
-        }
-
-        for (Map.Entry<BlockPos, List<LeverTime>> entry : byPos.entrySet()) {
-            BlockPos leverPos = entry.getKey();
-            List<LeverTime> clicks = entry.getValue();
-
-            for (int i = 0; i < clicks.size(); i++) {
-                LeverTime lt = clicks.get(i);
-                long timeInMillis = (long)(lt.time * 1000);
-
-                String text;
-                if (waterStartMillis == 0) {
-                    text = timeInMillis == 0 ? "\u00A7a\u00A7lCLICK!" : String.format("\u00A7e%.1fs", lt.time);
-                } else {
-                    long remainingMillis = waterStartMillis + timeInMillis - now;
-                    text = remainingMillis <= 0 ? "\u00A7a\u00A7lCLICK!" : String.format("\u00A7e%.1fs", remainingMillis / 1000.0);
-                }
-
-                Vec3 textPos = Vec3.atCenterOf(leverPos).add(0, i * 0.5 + 1.5, 0);
-                ESPRenderer.drawText(matrices, text, textPos, 1.5f, cameraPos);
-            }
-        }
-    }
-
-    public static void renderHud(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
-        if (!TeslaMapsConfig.get().solveWaterBoard || solution == null) return;
-
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.font == null) return;
-
-        long now = System.currentTimeMillis();
-
-        List<LeverTime> remaining = new ArrayList<>();
-        for (Map.Entry<LeverType, List<Double>> entry : solution.entrySet()) {
-            LeverType leverType = entry.getKey();
-            List<Double> times = entry.getValue();
-
-            for (int i = 0; i < times.size(); i++) {
-                remaining.add(new LeverTime(leverType.name, null, times.get(i), i));
-            }
-        }
-
         if (remaining.isEmpty()) return;
 
         remaining.sort((a, b) -> {
@@ -412,45 +342,47 @@ public class WaterBoardSolver {
             return Double.compare(a.time, b.time);
         });
 
-        int screenWidth = mc.getWindow().getGuiScaledWidth();
-        int baseX = screenWidth / 2 - 60;
-        int baseY = 10;
-        int lineHeight = 12;
-        int height = Math.min(remaining.size(), 8) * lineHeight + 20;
+        firstPos = remaining.get(0).pos;
+        if (remaining.size() > 1 && !remaining.get(1).pos.equals(firstPos)) secondPos = remaining.get(1).pos;
 
-        context.fill(baseX - 4, baseY - 4, baseX + 124, baseY + height, 0xAA000000);
-        context.text(mc.font, "Water Board (v" + (variant+1) + " " + subvariant + ")", baseX, baseY, 0xFF55FFFF);
-        baseY += lineHeight + 2;
-
-        int count = 0;
+        boolean stages = TeslaMapsConfig.get().waterBoardColorStages;
+        long now = com.teslamaps.utils.ServerTickTimer.now();
         for (LeverTime lt : remaining) {
-            if (count >= 8) break;
-
-            long timeInMillis = (long)(lt.time * 1000);
+            long ticks = Math.round(lt.time * 20);
+            if (waterStartTick >= 0) ticks = waterStartTick + ticks - now;
             String text;
-            int color;
-
-            if (waterStartMillis == 0) {
-                if (timeInMillis == 0) {
-                    text = lt.name + ": CLICK!";
-                    color = 0xFF55FF55;
-                } else {
-                    text = String.format("%s: %.1fs", lt.name, lt.time);
-                    color = 0xFFFFFF55;
-                }
+            if (ticks <= 0) {
+                text = "\u00A7a\u00A7lCLICK!";
             } else {
-                long remainingMillis = waterStartMillis + timeInMillis - now;
-                if (remainingMillis <= 0) {
-                    text = lt.name + ": CLICK!";
-                    color = 0xFF55FF55;
-                } else {
-                    text = String.format("%s: %.1fs", lt.name, remainingMillis / 1000.0);
-                    color = 0xFFFFFF55;
-                }
+                double sec = ticks / 20.0;
+                String color = !stages ? "\u00A7e" : sec < 2 ? "\u00A7c" : sec < 6 ? "\u00A7e" : "\u00A7a";
+                text = color + String.format(java.util.Locale.ROOT, "%.1fs", sec);
             }
+            labels.add(new Label(Vec3.atCenterOf(lt.pos).add(0, lt.index * 0.5 + 1.5, 0), text));
+        }
+    }
 
-            context.text(mc.font, text, baseX, baseY + count * lineHeight, color);
-            count++;
+    public static void render(PoseStack matrices, Vec3 cameraPos) {
+        if (!TeslaMapsConfig.get().solveWaterBoard || solution == null || firstPos == null) return;
+
+        int colorFirst = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorWaterFirst);
+        int colorSecond = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorWaterSecond);
+
+        Vec3 firstCenter = Vec3.atCenterOf(firstPos);
+        ESPRenderer.drawBoxOutline(matrices, new AABB(firstPos), colorFirst, 3f, cameraPos);
+        if (secondPos != null) {
+            ESPRenderer.drawBoxOutline(matrices, new AABB(secondPos), colorSecond, 2f, cameraPos);
+        }
+
+        if (TeslaMapsConfig.get().waterBoardTracers) {
+            ESPRenderer.drawTracerFromCamera(matrices, firstCenter, colorFirst, cameraPos);
+            if (secondPos != null) {
+                ESPRenderer.drawLine(matrices, firstCenter, Vec3.atCenterOf(secondPos), colorSecond, 2f, cameraPos);
+            }
+        }
+
+        for (Label l : labels) {
+            ESPRenderer.drawText(matrices, l.text, l.pos, 1.5f, cameraPos);
         }
     }
 
@@ -458,7 +390,9 @@ public class WaterBoardSolver {
         variant = -1;
         subvariant = null;
         solution = null;
-        waterStartMillis = 0;
+        waterStartTick = -1;
+        labels.clear();
+        firstPos = secondPos = null;
         inWaterBoard = false;
         currentRoom = null;
         cornerX = 0;
@@ -468,4 +402,6 @@ public class WaterBoardSolver {
     }
 
     private record LeverTime(String name, BlockPos pos, double time, int index) {}
+
+    private record Label(Vec3 pos, String text) {}
 }

@@ -91,6 +91,11 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("TP Maze Prioritize Diagonal", () -> config.tpMazePrioritizeDiagonal, v -> config.tpMazePrioritizeDiagonal = v);
         b.toggle("Water Board Solver", () -> config.solveWaterBoard, v -> config.solveWaterBoard = v);
         b.toggle("Water Board Tracers", () -> config.waterBoardTracers, v -> config.waterBoardTracers = v);
+        b.toggle("Water Board Colored Countdown", () -> config.waterBoardColorStages, v -> config.waterBoardColorStages = v);
+        String[] waterSets = {"Standard", "Optimized (Odin)", "Efficient (Devonian)"};
+        b.dropdown("Water Board Solutions", waterSets,
+                () -> waterSets[Math.max(0, Math.min(2, config.waterBoardSolutionSet))],
+                v -> config.waterBoardSolutionSet = Math.max(0, java.util.Arrays.asList(waterSets).indexOf(v)));
         b.toggle("Ice Fill Solver", () -> config.solveIceFill, v -> config.solveIceFill = v);
         b.toggle("Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v);
         b.toggle("Ice Path Solver", () -> config.icePathSolver, v -> config.icePathSolver = v);

@@ -1349,6 +1349,8 @@ public class TeslaMapsConfig {
     public java.util.Map<String, java.util.Map<Integer, Integer>> slotBindsData = new java.util.HashMap<>();
     public boolean solveWaterBoard = true;          // Show solution for Water Board puzzle
     public boolean waterBoardTracers = true;        // Draw tracers to next lever
+    public boolean waterBoardColorStages = false;
+    public int waterBoardSolutionSet = 0;
     public boolean solveIceFill = true;             // Show Ice Fill (F7) path solution
     public boolean iceFillOptimized = true;         // Use optimized (harder/faster) ice fill paths
     public boolean icePathSolver = true;            // Draw the silverfish path in the Ice Path puzzle
