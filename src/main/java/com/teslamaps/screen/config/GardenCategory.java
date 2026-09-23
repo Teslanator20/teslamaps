@@ -190,6 +190,7 @@ public final class GardenCategory {
         b.toggle("Layout Ghost",
                 () -> config.greenhousePlanner, v -> config.greenhousePlanner = v);
         b.info("Only active in the Garden · paste a code with /tmap greenhouse <code>");
+        b.info("SkyShards / SkyMutations links work too · /tmap greenhouse preset save|load <name>");
         b.dropdown("  Phase",
                 new String[]{"Auto", "Floor", "Plants"},
                 () -> com.teslamaps.features.GreenhousePlanner.phaseName(config.greenhousePhase),

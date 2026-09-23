@@ -1583,6 +1583,7 @@ public class TeslaMapsConfig {
     public boolean greenhousePlanner = true;        // ghost overlay for a pasted greenhouse layout
     @Global
     public String greenhouseCode = "";              // last pasted planner code
+    public java.util.Map<String, String> greenhousePresets = new java.util.LinkedHashMap<>(); // name -> code or link
     public int greenhousePlot = 0;                  // which plot of the code to show
     public int greenhousePhase = 0;                 // 0 auto (floor until done, then plants), 1 floor, 2 plants
     public boolean greenhouseManual = false;        // use the corner1/corner2 anchor instead of scanning
@@ -2106,6 +2107,7 @@ public class TeslaMapsConfig {
         }
         if (c.capeServerKey == null || c.capeServerKey.isBlank()) c.capeServerKey = CAPE_SERVER_KEY;
         if (c.greenhouseCode == null) c.greenhouseCode = "";
+        if (c.greenhousePresets == null) c.greenhousePresets = new java.util.LinkedHashMap<>();
         if (c.greenhouseSoil == null) c.greenhouseSoil = new java.util.HashMap<>();
         if (c.greenhousePlants == null) c.greenhousePlants = new java.util.HashMap<>();
         if (c.greenhouseRotations == null) c.greenhouseRotations = new java.util.HashMap<>();
