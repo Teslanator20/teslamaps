@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class StorageOverlay {
 
-    private static final int COLS = 3, CELL = 18, GRID_COLS = 9, HEADER = 10;
+    private static final int CELL = 18, GRID_COLS = 9, HEADER = 10;
     private static final int BOX_W = GRID_COLS * CELL + 6;
     private static final int GAP = 8;
 
@@ -36,6 +36,10 @@ public class StorageOverlay {
     private static float scl() { return fitScl; }
     private static float iscl() { return fitIscl; }
 
+    private static int cols() {
+        return Math.max(1, Math.min(10, TeslaMapsConfig.get().storageColumns));
+    }
+
     private static float userScale() {
         return Math.max(0.5f, Math.min(1.5f, TeslaMapsConfig.get().storageOverlayScale));
     }
@@ -43,7 +47,7 @@ public class StorageOverlay {
     // Box-grid scale: fit 3 columns into the width minus margins+scrollbar, capped so it never
     // grows absurdly large on wide screens, then nudged by the user scale but re-clamped to fit.
     private static void layout(int screenW, int screenH) {
-        float boxGridW = COLS * BOX_W + (COLS - 1) * GAP;          // 520 virtual px
+        float boxGridW = cols() * BOX_W + (cols() - 1) * GAP;
         float availBoxW = screenW - 2 * SIDE_MARGIN - SCROLLBAR_W;
         float maxBoxScl = availBoxW / boxGridW;
         float boxScl = Math.min(maxBoxScl, 1.15f) * userScale();
@@ -66,6 +70,50 @@ public class StorageOverlay {
     private static final int HEADER_PX = 34;
 
     private record Box(String key, String label, boolean ender, int num) {}
+
+    /** Box offsets from (startX, startY) in virtual px, before scrolling. */
+    private record Lay(int[] x, int[] y, int[] h, int contentH) {}
+
+    private static int rowsOf(String key) {
+        int size = StorageCache.size(key);
+        return Math.max(1, (size + GRID_COLS - 1) / GRID_COLS);
+    }
+
+    private static Lay lay(List<Box> vis) {
+        int n = vis.size(), cols = cols();
+        int[] x = new int[n], y = new int[n], h = new int[n];
+        if (!TeslaMapsConfig.get().storageCompact) {
+            for (int i = 0; i < n; i++) {
+                x[i] = (i % cols) * (BOX_W + GAP);
+                y[i] = (i / cols) * (boxH() + GAP);
+                h[i] = boxH();
+            }
+            return new Lay(x, y, h, ((n + cols - 1) / cols) * (boxH() + GAP));
+        }
+        // masonry: each box drops into the shortest column
+        int[] colH = new int[cols];
+        for (int i = 0; i < n; i++) {
+            int c = 0;
+            for (int k = 1; k < cols; k++) if (colH[k] < colH[c]) c = k;
+            x[i] = c * (BOX_W + GAP);
+            y[i] = colH[c];
+            h[i] = topPad() + rowsOf(vis.get(i).key) * CELL + 2;
+            colH[c] += h[i] + GAP;
+        }
+        int max = 0;
+        for (int v : colH) max = Math.max(max, v);
+        return new Lay(x, y, h, max);
+    }
+
+    private static String rename = null;
+    private static String renameText = "";
+
+    public static String pageName(String key, String fallback) {
+        String n = TeslaMapsConfig.get().storagePageNames.get(key);
+        return n == null || n.isEmpty() ? fallback : n.replace('&', '§');
+    }
+
+    private static long lastRenderMs = 0;
 
     private static String search = "";
     private static boolean searchFocused = false;
@@ -152,13 +200,41 @@ public class StorageOverlay {
         }
     }
 
+    public static void register() {
+        com.teslamaps.registry.Feature.of("StorageChat").section("Inventory").serverChat(StorageOverlay::onChat);
+    }
+
+    private static final java.util.regex.Pattern REMOVED_BACKPACK =
+            java.util.regex.Pattern.compile("^Removed backpack from slot (\\d+)!$");
+
+    private static boolean vanillaNext = false;
+    private static java.lang.ref.WeakReference<net.minecraft.client.gui.screens.Screen> vanillaScreen = new java.lang.ref.WeakReference<>(null);
+
+    private static void onChat(String raw) {
+        String t = strip(raw);
+        java.util.regex.Matcher m = REMOVED_BACKPACK.matcher(t);
+        if (m.matches()) StorageCache.remove("backpack_" + m.group(1));
+        if (TeslaMapsConfig.get().storageVanillaAfterSwap
+                && (t.startsWith("Placing backpack") || t.startsWith("Removed backpack"))) vanillaNext = true;
+    }
+
     public static boolean active() {
         if (!TeslaMapsConfig.get().customStorageOverlay) return false;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (vanillaScreen.get() == cs) return false;
         String t = strip(cs.getTitle().getString());
-        return t.equals("Storage") || BackpackPreview.keyFromTitle(t) != null;
+        if (!t.equals("Storage") && BackpackPreview.keyFromTitle(t) == null) return false;
+        if (vanillaNext && cs != lastScreen.get()) {
+            vanillaNext = false;
+            vanillaScreen = new java.lang.ref.WeakReference<>(cs);
+            return false;
+        }
+        if (lastScreen.get() != cs) lastScreen = new java.lang.ref.WeakReference<>(cs);
+        return true;
     }
+
+    private static java.lang.ref.WeakReference<net.minecraft.client.gui.screens.Screen> lastScreen = new java.lang.ref.WeakReference<>(null);
 
     private static int globalIndex(String key) {
         if (key == null) return -1;
@@ -240,7 +316,7 @@ public class StorageOverlay {
 
     private static int startX(int screenW) {
         int vw = (int) ((screenW - SCROLLBAR_W) / scl());
-        return Math.max((int) (SIDE_MARGIN / scl()), (vw - (COLS * BOX_W + (COLS - 1) * GAP)) / 2);
+        return Math.max((int) (SIDE_MARGIN / scl()), (vw - (cols() * BOX_W + (cols() - 1) * GAP)) / 2);
     }
 
     private static int startY() { return (int) (HEADER_PX / scl()) + 4; }
@@ -281,7 +357,9 @@ public class StorageOverlay {
         AbstractContainerMenu menu = mc.player != null ? mc.player.containerMenu : null;
         ctx.fill(0, 0, sw, sh, 0xE8101010);
         List<Box> vis = visible();
-        boolean showNames = TeslaMapsConfig.get().storageShowNames;
+        Lay L = lay(vis);
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        boolean showNames = cfg.storageShowNames;
         ctx.text(mc.font, "§6§lStorage §7(" + vis.size() + ")", 8, 6, 0xFFFFFFFF);
         drawButton(ctx, mc, sw - 96, 6, 88, "Vanilla View", 0xFFFF453A, true);
 
@@ -293,9 +371,24 @@ public class StorageOverlay {
 
         // a search shrinks the box list, so an offset from the unfiltered view can sit past
         // the end and show an empty band that reads as "nothing found"
-        int shownRows = (vis.size() + COLS - 1) / COLS;
+        long nowMs = System.currentTimeMillis();
+        if (nowMs - lastRenderMs > 1000) {
+            if (cfg.storageSearchFocus) searchFocused = true;
+            if (cfg.storageCenterActive) {
+                for (int i = 0; i < vis.size(); i++) {
+                    if (!vis.get(i).key.equals(live)) continue;
+                    scroll = sy + L.y[i] + L.h[i] / 2f - (HEADER_PX + wallBottom) / (2f * scl());
+                    break;
+                }
+            }
+        }
+        lastRenderMs = nowMs;
         scroll = Math.max(0, Math.min(scroll,
-                Math.max(0, shownRows * (boxH() + GAP) + startY() + 10 - wallBottom / scl())));
+                Math.max(0, L.contentH + startY() + 10 - wallBottom / scl())));
+        Map<Integer, ItemStack> dragTop = DRAG_TOP, dragInv = DRAG_INV;
+        dragTop.clear();
+        dragInv.clear();
+        dragPreview(mc, dragTop, dragInv);
 
         ItemStack hoverNonLive = null;
         ctx.enableScissor(0, HEADER_PX, sw, Math.max(HEADER_PX, wallBottom));
@@ -304,21 +397,25 @@ public class StorageOverlay {
         pose.scale(scl(), scl());
         for (int i = 0; i < vis.size(); i++) {
             Box b = vis.get(i);
-            int bx = sx + (i % COLS) * (BOX_W + GAP);
-            int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
-            if (by + boxH() < HEADER_PX / scl() || by > sh / scl()) continue;
+            int bx = sx + L.x[i];
+            int by = (int) (sy + L.y[i] - scroll);
+            int bh = L.h[i];
+            if (by + bh < HEADER_PX / scl() || by > sh / scl()) continue;
             boolean isLive = b.key.equals(live);
 
-            boolean hoverBox = vmx >= bx && vmx <= bx + BOX_W && vmy >= by && vmy <= by + boxH();
-            ctx.fill(bx, by, bx + BOX_W, by + boxH(), hoverBox ? 0xFF2A2A2A : 0xF01E1E1E);
+            boolean hoverBox = vmx >= bx && vmx <= bx + BOX_W && vmy >= by && vmy <= by + bh;
+            ctx.fill(bx, by, bx + BOX_W, by + bh, hoverBox ? 0xFF2A2A2A : 0xF01E1E1E);
             if (isLive) {
                 int c = b.ender ? 0xFF55FFFF : 0xFFFFAA00;
                 ctx.fill(bx - 1, by - 1, bx + BOX_W + 1, by + 1, c);
-                ctx.fill(bx - 1, by + boxH() - 1, bx + BOX_W + 1, by + boxH() + 1, c);
-                ctx.fill(bx - 1, by - 1, bx + 1, by + boxH() + 1, c);
-                ctx.fill(bx + BOX_W - 1, by - 1, bx + BOX_W + 1, by + boxH() + 1, c);
+                ctx.fill(bx - 1, by + bh - 1, bx + BOX_W + 1, by + bh + 1, c);
+                ctx.fill(bx - 1, by - 1, bx + 1, by + bh + 1, c);
+                ctx.fill(bx + BOX_W - 1, by - 1, bx + BOX_W + 1, by + bh + 1, c);
             }
-            if (showNames) ctx.text(mc.font, b.label + (isLive ? " §a●" : ""), bx + 4, by + 2, 0xFFFFFFFF);
+            if (showNames) {
+                String title = b.key.equals(rename) ? "§e" + renameText + "_" : pageName(b.key, b.label);
+                ctx.text(mc.font, title + (isLive ? " §a●" : ""), bx + 4, by + 2, 0xFFFFFFFF);
+            }
 
             int size = StorageCache.size(b.key);
             Map<Integer, ItemStack> items = isLive ? liveContent() : StorageCache.items(b.key);
@@ -328,9 +425,20 @@ public class StorageOverlay {
                 int gx = gx0 + (s % GRID_COLS) * CELL, gy = gy0 + (s / GRID_COLS) * CELL;
                 ctx.fill(gx, gy, gx + 16, gy + 16, emptyCol);
             }
+            if (isLive) for (Map.Entry<Integer, ItemStack> e : dragTop.entrySet()) {
+                if (items != null && items.containsKey(e.getKey())) continue;
+                int gx = gx0 + (e.getKey() % GRID_COLS) * CELL, gy = gy0 + (e.getKey() / GRID_COLS) * CELL;
+                ctx.fill(gx, gy, gx + 16, gy + 16, 0x80FFFFFF);
+                ctx.item(e.getValue(), gx, gy);
+                ctx.itemDecorations(mc.font, e.getValue(), gx, gy);
+            }
             if (items != null) for (Map.Entry<Integer, ItemStack> e : items.entrySet()) {
                 int gx = gx0 + (e.getKey() % GRID_COLS) * CELL, gy = gy0 + (e.getKey() / GRID_COLS) * CELL;
                 ItemStack st = e.getValue();
+                if (isLive) {
+                    ItemStack pv = dragTop.get(e.getKey());
+                    if (pv != null) st = pv;
+                }
                 boolean match = !searching || matches(st, search);
                 if (searching && match) ctx.fill(gx, gy, gx + 16, gy + 16, 0xFF2E8B2E); // bright green bg = hit
                 com.teslamaps.features.RarityBackground.draw(ctx, gx, gy, st);
@@ -344,9 +452,9 @@ public class StorageOverlay {
         lastHover = hoverNonLive;
         if (TeslaMapsConfig.get().hoveredSlotOutline && mouseY < wallBottom) {
             for (int i = 0; i < vis.size(); i++) {
-                int bx = sx + (i % COLS) * (BOX_W + GAP);
-                int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
-                if (by + boxH() < HEADER_PX / scl() || by > sh / scl()) continue;
+                int bx = sx + L.x[i];
+                int by = (int) (sy + L.y[i] - scroll);
+                if (by + L.h[i] < HEADER_PX / scl() || by > sh / scl()) continue;
                 int gx0 = bx + 4, gy0 = by + topPad();
                 int cx = (int) Math.floor((vmx - gx0) / CELL), cy = (int) Math.floor((vmy - gy0) / CELL);
                 int slot = cy * GRID_COLS + cx;
@@ -358,8 +466,7 @@ public class StorageOverlay {
         pose.popMatrix();
         ctx.disableScissor();
 
-        int rows = (vis.size() + COLS - 1) / COLS;
-        float contentVirt = rows * (boxH() + GAP) + startY() + 10;
+        float contentVirt = L.contentH + startY() + 10;
         float visVirt = wallBottom / scl() - startY();
         float maxScroll = Math.max(0, contentVirt - wallBottom / scl());
         if (maxScroll > 0) {
@@ -393,11 +500,14 @@ public class StorageOverlay {
                 ctx.fill(p[0] - 1, p[1] - 1, p[0] + 16, p[1], 0xFF8B8B8B);
                 ctx.fill(p[0] - 1, p[1] - 1, p[0], p[1] + 16, 0xFF8B8B8B);
                 ctx.fill(p[0], p[1], p[0] + 16, p[1] + 16, 0xFF565656);
-                if (!s.getItem().isEmpty()) {
-                    com.teslamaps.features.RarityBackground.draw(ctx, p[0], p[1], s.getItem());
-                    ctx.item(s.getItem(), p[0], p[1]);
-                    ctx.itemDecorations(mc.font, s.getItem(), p[0], p[1]);
-                    EnchantAbbrev.draw(ctx, s.getItem(), p[0], p[1]);
+                ItemStack pv = dragInv.get(s.getContainerSlot());
+                if (pv != null) ctx.fill(p[0], p[1], p[0] + 16, p[1] + 16, 0x80FFFFFF);
+                ItemStack shown = pv != null ? pv : s.getItem();
+                if (!shown.isEmpty()) {
+                    com.teslamaps.features.RarityBackground.draw(ctx, p[0], p[1], shown);
+                    ctx.item(shown, p[0], p[1]);
+                    ctx.itemDecorations(mc.font, shown, p[0], p[1]);
+                    EnchantAbbrev.draw(ctx, shown, p[0], p[1]);
                 }
                 float imx = mouseX / iscl(), imy = mouseY / iscl();
                 if (TeslaMapsConfig.get().hoveredSlotOutline
@@ -408,8 +518,11 @@ public class StorageOverlay {
             pose.popMatrix();
             ItemStack carried = menu.getCarried();
             if (!carried.isEmpty()) {
-                ctx.item(carried, mouseX - 8, mouseY - 8);
-                ctx.itemDecorations(mc.font, carried, mouseX - 8, mouseY - 8);
+                if (dragRemainder >= 0) carried = dragRemainder == 0 ? ItemStack.EMPTY : carried.copyWithCount(dragRemainder);
+                if (!carried.isEmpty()) {
+                    ctx.item(carried, mouseX - 8, mouseY - 8);
+                    ctx.itemDecorations(mc.font, carried, mouseX - 8, mouseY - 8);
+                }
             }
         }
 
@@ -431,6 +544,33 @@ public class StorageOverlay {
         if (selHover != null) gridPopup(ctx, mc, selHover, mouseX, mouseY);
 
         drawValuePanel(ctx, mc);
+    }
+
+    private static int dragRemainder = -1;
+    private static final Map<Integer, ItemStack> DRAG_TOP = new java.util.HashMap<>(), DRAG_INV = new java.util.HashMap<>();
+
+    /** Vanilla drag-splitting still runs; this only shows the counts it will produce. */
+    private static void dragPreview(Minecraft mc, Map<Integer, ItemStack> top, Map<Integer, ItemStack> inv) {
+        dragRemainder = -1;
+        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
+        com.teslamaps.mixin.QuickCraftAccessor q = (com.teslamaps.mixin.QuickCraftAccessor) cs;
+        java.util.Set<Slot> slots = q.teslamaps$quickCraftSlots();
+        ItemStack carried = mc.player.containerMenu.getCarried();
+        if (!q.teslamaps$isQuickCrafting() || slots.size() < 2 || carried.isEmpty()) return;
+        int type = q.teslamaps$quickCraftingType();
+        int place = AbstractContainerMenu.getQuickCraftPlaceCount(slots.size(), type, carried);
+        int left = carried.getCount();
+        for (Slot s : slots) {
+            ItemStack cur = s.getItem();
+            int base = cur.isEmpty() ? 0 : cur.getCount();
+            int max = Math.min(carried.getMaxStackSize(), s.getMaxStackSize(carried));
+            int n = Math.min(max, base + place);
+            left -= n - base;
+            ItemStack out = carried.copyWithCount(n);
+            if (s.container instanceof Inventory) inv.put(s.getContainerSlot(), out);
+            else if (s.getContainerSlot() >= 9) top.put(s.getContainerSlot() - 9, out);
+        }
+        dragRemainder = Math.max(0, left);
     }
 
     private static String renderSelector(GuiGraphicsExtractor ctx, Minecraft mc, int mouseX, int mouseY) {
@@ -481,6 +621,12 @@ public class StorageOverlay {
         ctx.fill(px, py, px + w, py + h, 0xF0202020);
         ctx.fill(px, py, px + w, py + 1, 0xFF7755FF);
         ctx.fill(px, py + h - 1, px + w, py + h, 0xFF7755FF);
+        String custom = TeslaMapsConfig.get().storagePageNames.get(key);
+        if (custom != null && !custom.isEmpty()) {
+            int tw = mc.font.width(custom.replace('&', '§')) + 6;
+            ctx.fill(px, py - 12, px + tw, py, 0xF0202020);
+            ctx.text(mc.font, custom.replace('&', '§'), px + 3, py - 10, 0xFFFFFFFF);
+        }
         for (int s = 0; s < size; s++) {
             int gx = px + 4 + (s % cols) * cell, gy = py + 4 + (s / cols) * cell;
             ctx.fill(gx, gy, gx + 16, gy + 16, 0xFF555555);
@@ -560,11 +706,12 @@ public class StorageOverlay {
         int cell = slot.getContainerSlot() - 9;
         if (cell < 0) return false;
         List<Box> vis = visible();
+        Lay L = lay(vis);
         int sx = startX(cs.width), sy = startY();
         for (int i = 0; i < vis.size(); i++) {
             if (!vis.get(i).key.equals(live)) continue;
-            int bx = sx + (i % COLS) * (BOX_W + GAP);
-            int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
+            int bx = sx + L.x[i];
+            int by = (int) (sy + L.y[i] - scroll);
             int gx = bx + 4 + (cell % GRID_COLS) * CELL, gy = by + topPad() + (cell / GRID_COLS) * CELL;
             float vmx = (float) mx / scl(), vmy = (float) my / scl();
             return vmx >= gx && vmx < gx + 16 && vmy >= gy && vmy < gy + 16;
@@ -591,12 +738,13 @@ public class StorageOverlay {
         float vmx = (float) mx / scl(), vmy = (float) my / scl();
         int sx = startX(cs.width), sy = startY();
         List<Box> vis = visible();
+        Lay L = lay(vis);
         for (int i = 0; i < vis.size(); i++) {
             Box b = vis.get(i);
             if (!b.key.equals(live)) continue;
-            int bx = sx + (i % COLS) * (BOX_W + GAP);
-            int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
-            if (!(vmx >= bx && vmx <= bx + BOX_W && vmy >= by && vmy <= by + boxH())) continue;
+            int bx = sx + L.x[i];
+            int by = (int) (sy + L.y[i] - scroll);
+            if (!(vmx >= bx && vmx <= bx + BOX_W && vmy >= by && vmy <= by + L.h[i])) continue;
             int gx0 = bx + 4, gy0 = by + topPad();
             int cx = (int) Math.floor((vmx - gx0) / CELL), cy = (int) Math.floor((vmy - gy0) / CELL);
             if (cx < 0 || cx >= GRID_COLS || cy < 0) return null;
@@ -662,6 +810,7 @@ public class StorageOverlay {
             return true;
         }
         searchFocused = false;
+        if (rename != null) finishRename(true);
 
         if (slotAt(mx, my) != null) return false;
 
@@ -671,11 +820,20 @@ public class StorageOverlay {
         float vmx = (float) mx / scl(), vmy = (float) my / scl();
         int sx = startX(cs.width), sy = startY();
         List<Box> vis = visible();
+        Lay L = lay(vis);
         for (int i = 0; i < vis.size(); i++) {
             Box b = vis.get(i);
-            int bx = sx + (i % COLS) * (BOX_W + GAP);
-            int by = (int) (sy + (i / COLS) * (boxH() + GAP) - scroll);
-            if (vmx >= bx && vmx <= bx + BOX_W && vmy >= by && vmy <= by + boxH()) {
+            int bx = sx + L.x[i];
+            int by = (int) (sy + L.y[i] - scroll);
+            if (vmx >= bx && vmx <= bx + BOX_W && vmy >= by && vmy <= by + L.h[i]) {
+                TeslaMapsConfig cfg = TeslaMapsConfig.get();
+                if (cfg.storageRenamePages && cfg.storageShowNames && vmy < by + topPad()) {
+                    rename = b.key;
+                    String cur = cfg.storagePageNames.get(b.key);
+                    renameText = cur == null ? "" : cur;
+                    searchFocused = false;
+                    return true;
+                }
                 // clicking the already-open box (gutter/padding miss) or carrying an item: don't
                 // fire page commands - that reloads the container mid-interaction
                 if (b.key.equals(liveKey()) || !mc.player.containerMenu.getCarried().isEmpty()) return true;
@@ -689,13 +847,31 @@ public class StorageOverlay {
         return true;
     }
 
+    private static void finishRename(boolean save) {
+        if (rename == null) return;
+        if (save) {
+            String t = renameText.trim();
+            if (t.isEmpty()) TeslaMapsConfig.get().storagePageNames.remove(rename);
+            else TeslaMapsConfig.get().storagePageNames.put(rename, t);
+            TeslaMapsConfig.save();
+        }
+        rename = null;
+        renameText = "";
+    }
+
     public static boolean keyPressed(int key, int scancode) {
+        if (rename != null) {
+            if (key == GLFW.GLFW_KEY_ESCAPE) finishRename(false);
+            else if (key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) finishRename(true);
+            else if (key == GLFW.GLFW_KEY_BACKSPACE && !renameText.isEmpty()) renameText = renameText.substring(0, renameText.length() - 1);
+            return true;
+        }
         if (key == GLFW.GLFW_KEY_ESCAPE) return false;
         if (!searchFocused) {
             if (key == GLFW.GLFW_KEY_A) { navigateDir(false); return true; }
             if (key == GLFW.GLFW_KEY_D) { navigateDir(true); return true; }
-            if (key == GLFW.GLFW_KEY_W) { navigateRow(-COLS); return true; }
-            if (key == GLFW.GLFW_KEY_S) { navigateRow(COLS); return true; }
+            if (key == GLFW.GLFW_KEY_W) { navigateRow(-cols()); return true; }
+            if (key == GLFW.GLFW_KEY_S) { navigateRow(cols()); return true; }
             return false;
         }
         if (key == GLFW.GLFW_KEY_BACKSPACE) { if (!search.isEmpty()) setSearch(search.substring(0, search.length() - 1)); return true; }
@@ -703,6 +879,10 @@ public class StorageOverlay {
     }
 
     public static boolean charTyped(int codepoint) {
+        if (active() && rename != null) {
+            if (codepoint >= 32 && codepoint != 127 && renameText.length() < 32) renameText += Character.toString(codepoint);
+            return true;
+        }
         if (!active() || !searchFocused) return false;
         if (codepoint < 32 || codepoint == 127) return false;
         setSearch(search + Character.toString(Character.toLowerCase(codepoint)));
@@ -726,12 +906,12 @@ public class StorageOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
         layout(cs.width, cs.height);
-        int rows = (visible().size() + COLS - 1) / COLS;
         int wallBottom = (int) ((mainY() - 13) * iscl()) - 2;
-        float maxScroll = Math.max(0, rows * (boxH() + GAP) + startY() + 10 - wallBottom / scl());
+        float maxScroll = Math.max(0, lay(visible()).contentH + startY() + 10 - wallBottom / scl());
         boolean ctrl = GLFW.glfwGetKey(mc.getWindow().handle(), GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
                 || GLFW.glfwGetKey(mc.getWindow().handle(), GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
-        scroll = Math.max(0, Math.min(maxScroll, scroll - (float) (sy * (ctrl ? 90 : 20))));
+        int speed = Math.max(1, TeslaMapsConfig.get().storageScrollSpeed);
+        scroll = Math.max(0, Math.min(maxScroll, scroll - (float) (sy * (ctrl ? speed * 4.5f : speed))));
         return true;
     }
 

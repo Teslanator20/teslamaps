@@ -145,6 +145,12 @@ public class RarityBackground {
 
     private static int rarityColor(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return -1;
+        // hypixel tags skyblock items with a tooltip style named after the rarity
+        net.minecraft.resources.Identifier style = stack.get(DataComponents.TOOLTIP_STYLE);
+        if (style != null && "hypixel_skyblock".equals(style.getNamespace())) {
+            int c = styleColor(style.getPath());
+            if (c != -1) return c;
+        }
         ItemLore lore = stack.get(DataComponents.LORE);
         if (lore == null) return -1;
         Integer cached = colorCache.get(lore);
@@ -155,6 +161,16 @@ public class RarityBackground {
         return color;
     }
 
+    private static final int[] RANK_COLORS = {0xFFFFFF, 0x55FF55, 0x5555FF, 0xAA00AA, 0xFFAA00, 0xFF55FF, 0x55FFFF, 0xFF5555, 0xAA0000};
+
+    /** 0 = common ... higher = rarer, -1 = unknown. */
+    public static int rarityRank(ItemStack stack) {
+        int c = rarityColor(stack);
+        if (c == -1) return -1;
+        for (int i = 0; i < RANK_COLORS.length; i++) if (RANK_COLORS[i] == c) return i;
+        return -1;
+    }
+
     private static int computeRarityColor(ItemLore lore) {
         List<Component> lines = lore.lines();
         for (int i = lines.size() - 1; i >= 0; i--) {
@@ -162,6 +178,21 @@ public class RarityBackground {
             if (c != -1) return c;
         }
         return -1;
+    }
+
+    private static int styleColor(String path) {
+        return switch (path) {
+            case "common" -> 0xFFFFFF;
+            case "uncommon" -> 0x55FF55;
+            case "rare" -> 0x5555FF;
+            case "epic" -> 0xAA00AA;
+            case "legendary" -> 0xFFAA00;
+            case "mythic" -> 0xFF55FF;
+            case "divine" -> 0x55FFFF;
+            case "special", "very_special" -> 0xFF5555;
+            case "supreme", "ultimate", "admin" -> 0xAA0000;
+            default -> -1;
+        };
     }
 
     // case sensitive on purpose: Hypixel's rarity line is upper case, pet perk text is

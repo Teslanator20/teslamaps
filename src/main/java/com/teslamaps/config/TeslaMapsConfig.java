@@ -229,6 +229,11 @@ public class TeslaMapsConfig {
     }
     public boolean salvageHelper = true;        // Highlight cheap (<100k) dungeon-salvageable gear in the Salvage menu
     public boolean sellableHighlighter = true;  // Highlight common junk to sell in Ophelia/Booster Cookie menus
+    public boolean sellableExtended = false;    // Trades menu + dungeon junk list + non-max quality gear
+    public String colorSellable = "#80FFFF00";
+    public boolean salvageQuality = false;      // mark dungeon gear by baseStatBoostPercentage in every container
+    public String colorStatBoostLow = "#A000FFFF";
+    public String colorStatBoostMax = "#A0FF0000";
     public boolean secretChime = false;          // Ascending chime per secret found in the room
     public String secretChimeSound = "NOTE_CHIME"; // Chime sound (see SoundOptions.keys())
     public float secretChimeVolume = 1.0f;       // Volume for the secret chime (0.0 - 4.0)
@@ -1268,6 +1273,11 @@ public class TeslaMapsConfig {
     public java.util.List<String> imageShareBlocked = new java.util.ArrayList<>(); // senders whose images are ignored
     public boolean ownNameTag = true;             // render your own player nametag in third person
     public boolean searchbar = true;               // type to search/highlight items in any container
+    public boolean searchbarCtrlF = false;         // ctrl+f / ctrl+k focuses the searchbar
+    public boolean searchbarHidden = false;        // box only appears after ctrl+f
+    public String searchbarMode = "Fill";          // Fill / Outline
+    public String colorSearchbarMatch = "#6655FF55";
+    public boolean searchbarNameOnly = false;      // skip the lore when searching
     public boolean scrollableTooltip = true;       // scroll long item tooltips with the mouse wheel
     public boolean tooltipScrollHorizontal = false; // shift + wheel moves sideways
     public boolean tooltipScrollZoom = false;       // ctrl + wheel scales the tooltip
@@ -1310,12 +1320,27 @@ public class TeslaMapsConfig {
     public int containerValueY = 60;
     public float containerValueScale = 1.0f;
     public boolean backpackPreview = true;         // cache + show backpack/ender chest contents on hover (data in storage.json)
+    public boolean backpackPreviewShift = false;   // only while shift is held
+    @Global
+    public int backpackPreviewFreezeKey = -1;      // pins the preview so its items can be hovered
     public boolean itemSearchIndex = true;          // remember opened containers so /tmap search can find items anywhere
     @Global
     public int itemSearchKey = 79;                  // opens /tmap search (default O), -1 = unbound
+    public boolean islandChestTracker = false;      // private island only: real chests, large chests split, broken chests removed
+    public boolean itemSearchGfsClick = false;      // right-click a sack hit in /tmap search -> /gfs prefilled
     public boolean customStorageOverlay = false;    // replace the vanilla "Storage" menu with a custom all-in-one view
     public boolean storageShowNames = false;         // show page/backpack name headers in the custom storage view
     public float storageOverlayScale = 1.0f;        // overall size multiplier for the custom storage overlay (0.5 - 1.5)
+    public boolean storageVanillaAfterSwap = false;  // after placing/removing a backpack, open the next storage menu in vanilla once
+    public boolean storageApiFill = false;           // empty storage cache: load pages from the skyblock api once
+    public int storageColumns = 3;                   // page columns in the custom storage overlay (1 - 10)
+    public int storageScrollSpeed = 20;              // px per wheel notch
+    public boolean storageCompact = false;           // masonry: short backpacks leave no gaps
+    public boolean storageCenterActive = false;      // scroll to the open page when the overlay opens
+    public boolean storageSearchFocus = false;       // search box is focused on open
+    public boolean storageRenamePages = false;       // click a page title to rename it (& color codes)
+    @Global
+    public java.util.Map<String, String> storagePageNames = new java.util.HashMap<>();
     public boolean critterESP = false;              // Torrhus Canyon critter ESP (master)
     public boolean critterFilled = true;            // also fill the critter boxes
     public boolean critterTracers = false;          // tracer to every boxed critter
@@ -1547,6 +1572,11 @@ public class TeslaMapsConfig {
     public String slotBindsProfile = "Profile 1";   // active bind profile
     @Global
     public java.util.Map<String, java.util.Map<Integer, Integer>> slotBindsData = new java.util.HashMap<>();
+    public boolean slotBindsAllContainers = false;  // binds also work in chests, storage, wardrobe ...
+    public boolean slotBindsPerProfile = false;     // separate bind sets per skyblock profile
+    public boolean slotBindsAreaSwitch = false;     // pick the bind profile by area
+    @Global
+    public java.util.Map<String, String> slotBindsAreaProfiles = new java.util.HashMap<>();
     public boolean solveWaterBoard = true;          // Show solution for Water Board puzzle
     public boolean waterBoardTracers = true;        // Draw tracers to next lever
     public boolean waterBoardColorStages = false;
@@ -1931,6 +1961,8 @@ public class TeslaMapsConfig {
         if (c.splitPbs == null) c.splitPbs = new java.util.HashMap<>();
         if (c.lockedSlots == null) c.lockedSlots = new java.util.ArrayList<>();
         if (c.slotBindsData == null) c.slotBindsData = new java.util.HashMap<>();
+        if (c.slotBindsAreaProfiles == null) c.slotBindsAreaProfiles = new java.util.HashMap<>();
+        if (c.storagePageNames == null) c.storagePageNames = new java.util.HashMap<>();
         if (c.puzzlePbs == null) c.puzzlePbs = new java.util.HashMap<>();
         if (c.termSimPbs == null) c.termSimPbs = new java.util.HashMap<>();
         if (c.terminalPbs == null) c.terminalPbs = new java.util.HashMap<>();

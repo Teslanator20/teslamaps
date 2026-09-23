@@ -14,6 +14,12 @@ public final class InventoryCategory {
         b.label("Container Helpers");
         b.toggle("Salvage Helper", () -> config.salvageHelper, v -> config.salvageHelper = v);
         b.toggle("Sellable Items Highlighter", () -> config.sellableHighlighter, v -> config.sellableHighlighter = v);
+        b.toggle("  More Junk + Trades Menu", () -> config.sellableExtended, v -> config.sellableExtended = v);
+        b.color("  Sellable Color", () -> config.colorSellable, v -> config.colorSellable = v);
+        b.toggle("Stat Boost Quality Highlight", () -> config.salvageQuality, v -> config.salvageQuality = v);
+        b.info("Dungeon gear in any menu: below 50% vs perfect 50% base stat boost");
+        b.color("  Below 50% Color", () -> config.colorStatBoostLow, v -> config.colorStatBoostLow = v);
+        b.color("  50% Color", () -> config.colorStatBoostMax, v -> config.colorStatBoostMax = v);
         b.toggle("Show Selected Pet", () -> config.showSelectedPet, v -> config.showSelectedPet = v);
         b.toggle("Pet Menu Shift Right-Click", () -> config.petShiftTakeOut, v -> config.petShiftTakeOut = v);
         b.info("Pets menu: right-click only works with shift held");
@@ -25,15 +31,28 @@ public final class InventoryCategory {
                 () -> config.noCursorResetHold, v -> config.noCursorResetHold = v);
         b.toggle("Own Nametag (3rd person)", () -> config.ownNameTag, v -> config.ownNameTag = v);
         b.toggle("Searchbar (type to search)", () -> config.searchbar, v -> config.searchbar = v);
+        b.toggle("  Ctrl+F To Search", () -> config.searchbarCtrlF, v -> config.searchbarCtrlF = v);
+        b.toggle("  Hide Until Ctrl+F", () -> config.searchbarHidden, v -> config.searchbarHidden = v);
+        b.dropdown("  Highlight", com.teslamaps.features.Searchbar.MODES, () -> config.searchbarMode, v -> config.searchbarMode = v);
+        b.color("  Match Color", () -> config.colorSearchbarMatch, v -> config.colorSearchbarMatch = v);
+        b.toggle("  Name Only (skip lore)", () -> config.searchbarNameOnly, v -> config.searchbarNameOnly = v);
         b.toggle("Backpack/Ender Preview", () -> config.backpackPreview, v -> config.backpackPreview = v);
+        b.toggle("  Only While Shift Held", () -> config.backpackPreviewShift, v -> config.backpackPreviewShift = v);
+        b.keybind("  Freeze Preview Key", () -> config.backpackPreviewFreezeKey, v -> config.backpackPreviewFreezeKey = v);
+        b.info("Freeze pins the preview, hover its items for their tooltip");
         b.label("Item Search");
         b.toggle("Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v);
         b.info("/tmap search finds items in museum, sacks, vault, chests, storage");
         b.keybind("  Open Item Search", () -> config.itemSearchKey, v -> config.itemSearchKey = v);
+        b.toggle("  Right-Click Sack Item: /gfs", () -> config.itemSearchGfsClick, v -> config.itemSearchGfsClick = v);
         b.button("Open Item Search",
                 () -> Minecraft.getInstance().setScreen(new ItemSearchScreen(null)));
         b.button("Clear Item Index",
                 com.teslamaps.features.ItemIndex::clear);
+        b.toggle("  Island Chest Tracker", () -> config.islandChestTracker, v -> config.islandChestTracker = v);
+        b.info("Private Island: large chests per half, minion chests skipped, broken chests removed");
+        b.button("Clear Island Chests",
+                com.teslamaps.features.ItemIndex::clearChests);
         b.label("Auction Price Input");
         b.toggle("Auction Price Input", () -> config.auctionPriceInput, v -> config.auctionPriceInput = v);
         b.dropdown("  Mode",
@@ -67,6 +86,17 @@ public final class InventoryCategory {
         b.toggle("  Show Page Names", () -> config.storageShowNames, v -> config.storageShowNames = v);
         b.slider("  Overlay Scale", 0.5f, 1.5f,
                 () -> config.storageOverlayScale, v -> config.storageOverlayScale = v);
+        b.toggle("  Vanilla Menu After Backpack Swap", () -> config.storageVanillaAfterSwap, v -> config.storageVanillaAfterSwap = v);
+        b.toggle("  Prefill Empty Storage From API", () -> config.storageApiFill, v -> config.storageApiFill = v);
+        b.slider("  Columns", 1f, 10f,
+                () -> (float) config.storageColumns, v -> config.storageColumns = Math.round(v), 0);
+        b.slider("  Scroll Speed", 5f, 80f,
+                () -> (float) config.storageScrollSpeed, v -> config.storageScrollSpeed = Math.round(v), 0);
+        b.toggle("  Compact Vertically", () -> config.storageCompact, v -> config.storageCompact = v);
+        b.toggle("  Center On Open Page", () -> config.storageCenterActive, v -> config.storageCenterActive = v);
+        b.toggle("  Focus Search On Open", () -> config.storageSearchFocus, v -> config.storageSearchFocus = v);
+        b.toggle("  Rename Pages (click title)", () -> config.storageRenamePages, v -> config.storageRenamePages = v);
+        b.info("Needs Show Page Names. & for color codes, empty = default name");
         b.label("Hovered Slot");
         b.toggle("Hovered Slot Outline", () -> config.hoveredSlotOutline, v -> config.hoveredSlotOutline = v);
         b.color("  Outline Color", () -> config.colorHoveredSlot, v -> config.colorHoveredSlot = v);
@@ -102,6 +132,11 @@ public final class InventoryCategory {
                 com.teslamaps.features.SlotBinds.LINE_MODES, () -> config.slotBindsLineDisplay, v -> config.slotBindsLineDisplay = v);
         b.dropdown("  Profile",
                 com.teslamaps.features.SlotBinds.PROFILES, () -> config.slotBindsProfile, v -> config.slotBindsProfile = v);
+        b.toggle("  Work In Every Container", () -> config.slotBindsAllContainers, v -> config.slotBindsAllContainers = v);
+        b.toggle("  Per SkyBlock Profile", () -> config.slotBindsPerProfile, v -> config.slotBindsPerProfile = v);
+        b.toggle("  Switch Profile By Area", () -> config.slotBindsAreaSwitch, v -> config.slotBindsAreaSwitch = v);
+        b.buttonRow(new String[]{"Use Profile Here", "Clear Areas"},
+                new Runnable[]{com.teslamaps.features.SlotBinds::bindCurrentArea, com.teslamaps.features.SlotBinds::clearAreas});
         b.label("Customization");
         b.toggle("Button In Inventory", () -> config.showCustomizeButton, v -> config.showCustomizeButton = v);
         b.button("Open Customize Screen",

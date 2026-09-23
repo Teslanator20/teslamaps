@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.utils.ProfiledFile;
 import com.teslamaps.utils.StringUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -17,6 +18,11 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.ChestType;
 
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -60,6 +66,7 @@ public class ItemIndex {
         public LinkedHashMap<Integer, String> slots = new LinkedHashMap<>();
         public LinkedHashMap<Integer, String> names;      // plain item names, so a search never decodes everything
         public LinkedHashMap<Integer, Integer> amounts;   // sacks store their count in the lore
+        public LinkedHashMap<Integer, String> lore;       // stripped lower-case lore, for lore search
     }
 
     /** One item found by a search. pos is only set for island chests. */
@@ -67,8 +74,9 @@ public class ItemIndex {
 
     private static final Gson GSON = new GsonBuilder().create();
     private static final Type MAP_TYPE = new TypeToken<Map<String, Src>>() {}.getType();
-    private static final Path PATH = FabricLoader.getInstance().getConfigDir()
-            .resolve("teslamaps").resolve("item_index.json");
+    private static final ProfiledFile FILE = new ProfiledFile("item_index.json",
+            FabricLoader.getInstance().getConfigDir().resolve("teslamaps").resolve("item_index.json"));
+    private static Path path;
 
     private static Map<String, Src> data = new LinkedHashMap<>();
     private static final Map<String, ItemStack> decoded = new LinkedHashMap<>();
@@ -78,8 +86,9 @@ public class ItemIndex {
     private static String lastKey = null;
     private static long openedMs = 0, lastCaptureMs = 0;
     private static int lastVersion = -1;
-    private static BlockPos chestPos = null;
+    private static BlockPos chestPos = null, chestPos2 = null;
     private static long chestClickMs = 0;
+    private static int chestTicks = 0;
 
     private static final Pattern STORED = Pattern.compile("Stored:\\s*([\\d,.]+)\\s*([kKmMbB]?)");
 
@@ -87,10 +96,19 @@ public class ItemIndex {
             "Go Back", "Close", "Next Page", "Previous Page", "Back", "Search", "Sort",
             "Collect All", "Refresh", "Navigate Pages", "Sack of Sacks");
 
+    private static void ensure() {
+        if (!loaded) load();
+        else if (FILE.stale()) { save(); load(); }
+    }
+
     public static void load() {
+        data = new LinkedHashMap<>();
+        decoded.clear();
+        dirty = false;
+        path = FILE.path();
         try {
-            if (Files.exists(PATH)) {
-                Map<String, Src> d = GSON.fromJson(Files.readString(PATH), MAP_TYPE);
+            if (Files.exists(path)) {
+                Map<String, Src> d = GSON.fromJson(Files.readString(path), MAP_TYPE);
                 if (d != null) {
                     d.entrySet().removeIf(e -> e.getValue() == null || e.getValue().slots == null);
                     data = d;
@@ -103,18 +121,18 @@ public class ItemIndex {
     }
 
     public static void save() {
-        if (!dirty) return;
+        if (!dirty || path == null) return;
         dirty = false;
         try {
-            Files.createDirectories(PATH.getParent());
-            Files.writeString(PATH, GSON.toJson(data, MAP_TYPE));
+            Files.createDirectories(path.getParent());
+            Files.writeString(path, GSON.toJson(data, MAP_TYPE));
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("Failed to save item_index.json", e);
         }
     }
 
     public static void clear() {
-        if (!loaded) load();
+        ensure();
         data.clear();
         decoded.clear();
         dirty = true;
@@ -122,12 +140,12 @@ public class ItemIndex {
     }
 
     public static int sourceCount() {
-        if (!loaded) load();
+        ensure();
         return data.size();
     }
 
     public static int itemCount() {
-        if (!loaded) load();
+        ensure();
         int n = 0;
         for (Src s : data.values()) n += s.slots.size();
         return n;
@@ -137,14 +155,76 @@ public class ItemIndex {
     public static void onChestClick(BlockPos pos) {
         if (com.teslamaps.dungeon.DungeonManager.isInDungeon()) return;   // secret chests are not storage
         chestPos = pos;
+        chestPos2 = null;
         chestClickMs = System.currentTimeMillis();
+        if (!TeslaMapsConfig.get().islandChestTracker) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
+        BlockState st = mc.level.getBlockState(pos);
+        if (!st.hasProperty(BlockStateProperties.CHEST_TYPE)) return;
+        ChestType t = st.getValue(BlockStateProperties.CHEST_TYPE);
+        if (t == ChestType.SINGLE) return;
+        BlockPos diff = switch (st.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
+            case EAST -> new BlockPos(0, 0, 1);
+            case WEST -> new BlockPos(0, 0, -1);
+            case NORTH -> new BlockPos(1, 0, 0);
+            case SOUTH -> new BlockPos(-1, 0, 0);
+            default -> BlockPos.ZERO;
+        };
+        if (t != ChestType.LEFT) diff = diff.multiply(-1);
+        BlockPos other = pos.offset(diff);
+        // the RIGHT half holds container slots 0-26
+        if (t == ChestType.RIGHT) { chestPos = pos; chestPos2 = other; }
+        else { chestPos = other; chestPos2 = pos; }
+    }
+
+    private static boolean onPrivateIsland() {
+        return "Private Island".equals(com.teslamaps.utils.SkyblockUtils.getArea());
+    }
+
+    private static boolean vanillaChestTitle(Component title) {
+        return title.getContents() instanceof TranslatableContents tc && tc.getKey().startsWith("container.chest");
+    }
+
+    private static String chestKey(BlockPos p) {
+        return "chest:" + p.getX() + "," + p.getY() + "," + p.getZ();
+    }
+
+    private static void removeChest(BlockPos p) {
+        if (p == null) return;
+        String k = chestKey(p);
+        if (data.remove(k) != null) { dropDecoded(k); dirty = true; }
+    }
+
+    public static void clearChests() {
+        ensure();
+        List<String> keys = new ArrayList<>();
+        for (String k : data.keySet()) if (k.startsWith("chest:")) keys.add(k);
+        for (String k : keys) { data.remove(k); dropDecoded(k); }
+        dirty = true;
+        save();
+    }
+
+    /** Broken island chests drop out of the index. */
+    private static void sweepChests(Minecraft mc) {
+        if (++chestTicks % 40 != 0 || !onPrivateIsland()) return;
+        List<String> gone = new ArrayList<>();
+        for (String k : data.keySet()) {
+            BlockPos p = chestPosFromKey(k);
+            if (p == null || !mc.level.isLoaded(p)) continue;
+            BlockState st = mc.level.getBlockState(p);
+            if (!st.is(Blocks.CHEST) && !st.is(Blocks.TRAPPED_CHEST) && !st.is(Blocks.BARREL)) gone.add(k);
+        }
+        for (String k : gone) { data.remove(k); dropDecoded(k); dirty = true; }
     }
 
     public static void tick() {
         if (!TeslaMapsConfig.get().itemSearchIndex) return;
-        if (!loaded) load();
+        ensure();
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
+        boolean tracker = TeslaMapsConfig.get().islandChestTracker;
+        if (tracker) sweepChests(mc);
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { flush(); return; }
 
         String title = StringUtil.stripTrim(cs.getTitle().getString());
@@ -159,6 +239,11 @@ public class ItemIndex {
         } else {
             long now = System.currentTimeMillis();
             if (chestPos == null || now - chestClickMs > CHEST_CLICK_VALID_MS) { flush(); return; }
+            if (tracker) {
+                if (!onPrivateIsland()) { flush(); return; }
+                if (title.equals("Minion Chest")) { removeChest(chestPos); flush(); return; }
+                if (!vanillaChestTitle(cs.getTitle())) { flush(); return; }
+            }
             type = CHESTS;
             key = "chest:" + chestPos.getX() + "," + chestPos.getY() + "," + chestPos.getZ();
             name = title + " " + chestPos.getX() + " " + chestPos.getY() + " " + chestPos.getZ();
@@ -181,17 +266,36 @@ public class ItemIndex {
         }
         lastCaptureMs = now;
         lastVersion = version;
-        capture(cs, key, type, name);
+        if (tracker && type.equals(CHESTS) && chestPos2 != null) captureDouble(cs, title);
+        else capture(cs, key, type, name);
+    }
+
+    /** A large chest is stored as its two blocks, 27 slots each, so a hit points at the right half. */
+    private static void captureDouble(AbstractContainerScreen<?> cs, String title) {
+        BlockPos a = chestPos, b = chestPos2;
+        capture(cs, chestKey(a), CHESTS, title + " " + a.getX() + " " + a.getY() + " " + a.getZ(), 0);
+        capture(cs, chestKey(b), CHESTS, title + " " + b.getX() + " " + b.getY() + " " + b.getZ(), 27);
     }
 
     private static void capture(AbstractContainerScreen<?> cs, String key, String type, String name) {
+        capture(cs, key, type, name, -1);
+    }
+
+    /** @param half -1 = whole menu, 0/27 = only that half of a large chest, renumbered from 0 */
+    private static void capture(AbstractContainerScreen<?> cs, String key, String type, String name, int half) {
         LinkedHashMap<Integer, String> slots = new LinkedHashMap<>();
         LinkedHashMap<Integer, String> names = new LinkedHashMap<>();
         LinkedHashMap<Integer, Integer> amounts = null;
+        LinkedHashMap<Integer, String> lore = new LinkedHashMap<>();
         int filled = 0;
 
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof Inventory) continue;
+            int cslot = slot.getContainerSlot();
+            if (half >= 0) {
+                if (cslot < half || cslot >= half + 27) continue;
+                cslot -= half;
+            }
             ItemStack st = slot.getItem();
             if (st.isEmpty()) continue;
             filled++;
@@ -200,9 +304,10 @@ public class ItemIndex {
             if (amount <= 0) continue;
             String snbt = StorageCache.encode(st);
             if (snbt == null) continue;
-            int cslot = slot.getContainerSlot();
             slots.put(cslot, snbt);
             names.put(cslot, StringUtil.stripTrim(st.getHoverName().getString()));
+            String l = loreText(st);
+            if (!l.isEmpty()) lore.put(cslot, l);
             if (amount != st.getCount()) {
                 if (amounts == null) amounts = new LinkedHashMap<>();
                 amounts.put(cslot, amount);
@@ -223,6 +328,7 @@ public class ItemIndex {
         src.slots = slots;
         src.names = names;
         src.amounts = amounts;
+        src.lore = lore;
         dropDecoded(key);
         dirty = true;
         trim();
@@ -305,9 +411,27 @@ public class ItemIndex {
         return 0;
     }
 
+    private static String loreText(ItemStack st) {
+        ItemLore lore = st.get(DataComponents.LORE);
+        if (lore == null) return "";
+        StringBuilder sb = new StringBuilder();
+        for (Component line : lore.lines()) {
+            if (sb.length() > 0) sb.append('\n');
+            sb.append(StringUtil.strip(line.getString()));
+        }
+        return sb.toString().toLowerCase(Locale.ROOT);
+    }
+
     /** @param typeFilter null or "" = every source type. */
     public static List<Hit> search(String query, String typeFilter) {
-        if (!loaded) load();
+        return search(query, typeFilter, false);
+    }
+
+    private static boolean withLore;
+
+    public static List<Hit> search(String query, String typeFilter, boolean lore) {
+        ensure();
+        withLore = lore;
         List<Hit> out = new ArrayList<>();
         String q = StringUtil.strip(query).toLowerCase(Locale.ROOT).trim();
         if (q.isEmpty()) return out;
@@ -334,11 +458,18 @@ public class ItemIndex {
             int slot = e.getKey();
             // the plain name list keeps a search off the SNBT parser for everything that misses
             String name = src.names == null ? null : src.names.get(slot);
-            if (name != null && !name.toLowerCase(Locale.ROOT).contains(q)) continue;
+            boolean nameHit = name != null && name.toLowerCase(Locale.ROOT).contains(q);
+            if (name != null && !nameHit) {
+                if (!withLore) continue;
+                if (src.lore != null) {
+                    String l = src.lore.get(slot);
+                    if (l == null || !l.contains(q)) continue;
+                }
+            }
 
             ItemStack st = stack(key, slot, e.getValue());
             if (st.isEmpty()) continue;
-            if (name == null && !matches(st, q)) continue;
+            if (!nameHit && !matches(st, q)) continue;
 
             int count = st.getCount();
             if (src.amounts != null) count = src.amounts.getOrDefault(slot, count);
@@ -389,6 +520,7 @@ public class ItemIndex {
     }
 
     private static boolean matches(ItemStack st, String q) {
-        return StringUtil.strip(st.getHoverName().getString()).toLowerCase(Locale.ROOT).contains(q);
+        if (StringUtil.strip(st.getHoverName().getString()).toLowerCase(Locale.ROOT).contains(q)) return true;
+        return withLore && loreText(st).contains(q);
     }
 }

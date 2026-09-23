@@ -55,6 +55,7 @@ public class ContainerOverlays {
         }
 
         com.teslamaps.features.BackpackPreview.renderOpenPageBorder(context);
+        com.teslamaps.features.BackpackPreview.renderFrozen(context, mouseX, mouseY);
         com.teslamaps.features.FarmProfitOverlay.drawTooltip(context,
                 net.minecraft.client.Minecraft.getInstance(), mouseX, mouseY);
         com.teslamaps.features.GardenPlots.scanConfigureScreen();

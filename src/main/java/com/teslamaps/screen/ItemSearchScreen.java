@@ -24,9 +24,13 @@ public class ItemSearchScreen extends Screen {
     private static final int MAX_ROWS_KEPT = 300;
 
     private record Where(String source, String type, int count, net.minecraft.core.BlockPos pos) {}
-    private record Row(ItemStack stack, String name, long total, List<Where> where) {}
+    private record Row(ItemStack stack, String name, long total, List<Where> where, double value) {}
 
     private static String lastQuery = "";
+    private static final String[] SORTS = {"Amount", "Price", "Rarity", "Name"};
+    private static int sort = 0, type = -1;
+    private static boolean lore = false;
+    private TeslaButton typeBtn, sortBtn, loreBtn;
 
     private EditBox field;
     public boolean swallowNextChar; // hotkey press that opened us still emits a char event
@@ -64,11 +68,37 @@ public class ItemSearchScreen extends Screen {
         addRenderableWidget(field);
         setInitialFocus(field);
 
+        int bw = 78, bx = panelX + panelW - 12 - bw * 3 - 8;
+        typeBtn = addRenderableWidget(new TeslaButton(bx, panelY + 8, bw, 16, typeLabel(), () -> {
+            type = type + 1 >= ItemIndex.TYPES.size() ? -1 : type + 1;
+            typeBtn.setMessage(Component.literal(typeLabel()));
+            scroll = 0;
+            rebuild();
+        }));
+        sortBtn = addRenderableWidget(new TeslaButton(bx + bw + 4, panelY + 8, bw, 16, "Sort: " + SORTS[sort], () -> {
+            sort = (sort + 1) % SORTS.length;
+            sortBtn.setMessage(Component.literal("Sort: " + SORTS[sort]));
+            rebuild();
+        }));
+        loreBtn = addRenderableWidget(new TeslaButton(bx + (bw + 4) * 2, panelY + 8, bw, 16, loreLabel(), () -> {
+            lore = !lore;
+            loreBtn.setMessage(Component.literal(loreLabel()));
+            rebuild();
+        }));
+
         int by = panelY + panelH - 26;
         addRenderableWidget(new TeslaButton(panelX + panelW - 74, by, 62, 18, "§fClose", this::onClose));
 
         rebuild();
         ScreenFit.clamp(this);
+    }
+
+    private static String typeLabel() {
+        return type < 0 ? "All" : ItemIndex.TYPES.get(type);
+    }
+
+    private static String loreLabel() {
+        return lore ? "Lore: On" : "Lore: Off";
     }
 
     private void rebuild() {
@@ -80,7 +110,7 @@ public class ItemSearchScreen extends Screen {
         }
 
         Map<String, List<ItemIndex.Hit>> grouped = new LinkedHashMap<>();
-        for (ItemIndex.Hit hit : ItemIndex.search(q, null)) {
+        for (ItemIndex.Hit hit : ItemIndex.search(q, type < 0 ? null : ItemIndex.TYPES.get(type), lore)) {
             String key = com.teslamaps.utils.StringUtil.strip(hit.stack().getHoverName().getString());
             grouped.computeIfAbsent(key, k -> new ArrayList<>()).add(hit);
         }
@@ -97,9 +127,17 @@ public class ItemSearchScreen extends Screen {
             }
             List<Where> where = new ArrayList<>(bySource.values());
             where.sort((a, b) -> Integer.compare(b.count(), a.count()));
-            rows.add(new Row(e.getValue().get(0).stack(), e.getKey(), total, where));
+            ItemStack first = e.getValue().get(0).stack();
+            double value = sort == 1 ? com.teslamaps.features.EstimatedValue.compute(first) * total : 0;
+            rows.add(new Row(first, e.getKey(), total, where, value));
         }
-        rows.sort((a, b) -> Long.compare(b.total(), a.total()));
+        java.util.Comparator<Row> byAmount = (a, b) -> Long.compare(b.total(), a.total());
+        rows.sort(switch (sort) {
+            case 1 -> java.util.Comparator.<Row>comparingDouble(r -> -r.value()).thenComparing(byAmount);
+            case 2 -> java.util.Comparator.<Row>comparingInt(r -> -com.teslamaps.features.RarityBackground.rarityRank(r.stack())).thenComparing(byAmount);
+            case 3 -> java.util.Comparator.comparing(Row::name, String.CASE_INSENSITIVE_ORDER);
+            default -> byAmount;
+        });
         if (rows.size() > MAX_ROWS_KEPT) rows = new ArrayList<>(rows.subList(0, MAX_ROWS_KEPT));
         status = rows.isEmpty()
                 ? "§7Nothing found - open the container once so it gets indexed"
@@ -123,6 +161,12 @@ public class ItemSearchScreen extends Screen {
         int index = rowAt(event.x(), event.y());
         if (index >= 0) {
             Row row = rows.get(index);
+            if (event.button() == 1 && com.teslamaps.config.TeslaMapsConfig.get().itemSearchGfsClick
+                    && row.where().stream().anyMatch(w -> ItemIndex.SACKS.equals(w.type()))) {
+                String id = com.teslamaps.utils.ItemUtil.skyblockId(row.stack());
+                minecraft.setScreen(new net.minecraft.client.gui.screens.ChatScreen("/gfs " + (id.isEmpty() ? row.name() : id) + " ", false));
+                return true;
+            }
             if (event.button() == 2) {
                 if (com.teslamaps.features.CopyItemName.copyText(row.name())) {
                     status = "§aCopied " + row.name();
@@ -237,6 +281,12 @@ public class ItemSearchScreen extends Screen {
                     hint = "§8click to open " + w.source();
                     break;
                 }
+            }
+            double value = com.teslamaps.features.EstimatedValue.compute(row.stack()) * row.total();
+            if (value > 0) lines.add(Component.literal("§7Value: §6" + com.teslamaps.features.EstimatedValue.fmt(value)));
+            if (com.teslamaps.config.TeslaMapsConfig.get().itemSearchGfsClick
+                    && row.where().stream().anyMatch(w -> ItemIndex.SACKS.equals(w.type()))) {
+                lines.add(Component.literal("§8right-click: /gfs with amount"));
             }
             lines.add(Component.literal(hint));
             ctx.setComponentTooltipForNextFrame(font, lines, mouseX, mouseY);

@@ -21,18 +21,34 @@ public class SlotHighlighter {
     private static final Set<String> SELLABLE_IDS = Set.of(
             "DEFUSE_KIT", "TRAINING_WEIGHTS", "DUNGEON_LORE_PAPER", "REVIVE_STONE");
 
+    private static final Set<String> JUNK_NAMES = Set.of(
+            "Defuse Kit", "Lever", "Torch", "Stone Button", "Tripwire Hook", "Journal Entry",
+            "Training Weights", "Mimic Fragment", "Healing 8 Splash Potion", "Healing VIII Splash Potion",
+            "Premium Flesh", "Decoy", "Trap", "Inflatable Jerry");
+    private static final java.util.regex.Pattern COUNT_SUFFIX = java.util.regex.Pattern.compile(" x\\d+$");
+
+    // quality lookups copy the custom data tag, so each stack is judged once
+    private static final java.util.IdentityHashMap<ItemStack, Integer> kinds = new java.util.IdentityHashMap<>();
+    private static final int NONE = 0, LOW = 1, MAX = 2, JUNK = 4;
+
     public static boolean shouldRender() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.salvageHelper && !c.sellableHighlighter && !c.showSelectedPet) return false;
+        boolean quality = c.salvageQuality && c.section("Inventory");
+        if (!c.salvageHelper && !c.sellableHighlighter && !c.showSelectedPet && !quality) return false;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (quality) return true;
         String t = strip(cs.getTitle().getString());
         return (c.salvageHelper && t.startsWith("Salvage Items"))
-                || (c.sellableHighlighter && (t.equals("Ophelia") || t.equals("Booster Cookie")))
+                || (c.sellableHighlighter && isSellMenu(t, c))
                 || (c.showSelectedPet && isPetsMenu(t));
     }
 
     private static final java.util.regex.Pattern PETS_PAGE = java.util.regex.Pattern.compile("\\(\\d+/\\d+\\) Pets");
+
+    private static boolean isSellMenu(String t, TeslaMapsConfig c) {
+        return t.equals("Ophelia") || t.equals("Booster Cookie") || (c.sellableExtended && t.equals("Trades"));
+    }
 
     private static boolean isPetsMenu(String t) { return t.equals("Pets") || PETS_PAGE.matcher(t).matches(); }
 
@@ -42,6 +58,9 @@ public class SlotHighlighter {
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         String t = strip(cs.getTitle().getString());
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (kinds.size() > 2000) kinds.clear();
+
+        if (c.salvageQuality && c.section("Inventory")) renderQuality(ctx, acc, cs, c);
 
         if (c.salvageHelper && t.startsWith("Salvage Items")) {
             PriceManager.ensureFresh();
@@ -49,10 +68,15 @@ public class SlotHighlighter {
                 if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
                 if (isSalvageable(slot.getItem())) fillSlot(ctx, acc, slot);
             }
-        } else if (c.sellableHighlighter && (t.equals("Ophelia") || t.equals("Booster Cookie"))) {
+        } else if (c.sellableHighlighter && isSellMenu(t, c)) {
+            int col = TeslaMapsConfig.parseColor(c.colorSellable);
             for (Slot slot : cs.getMenu().slots) {
                 if (!(slot.container instanceof net.minecraft.world.entity.player.Inventory)) continue;
-                if (isSellable(slot.getItem())) fillSlot(ctx, acc, slot);
+                ItemStack st = slot.getItem();
+                if (isSellable(st) || (c.sellableExtended && (kind(st) & JUNK) != 0)) {
+                    int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
+                    ctx.fill(sx, sy, sx + 16, sy + 16, col);
+                }
             }
         } else if (c.showSelectedPet && isPetsMenu(t)) {
             for (Slot slot : cs.getMenu().slots) {
@@ -60,6 +84,40 @@ public class SlotHighlighter {
                 if (isSpawnedPet(slot.getItem())) { fillCyan(ctx, acc, slot); break; }
             }
         }
+    }
+
+    private static void renderQuality(GuiGraphicsExtractor ctx, HandledScreenAccessor acc, AbstractContainerScreen<?> cs, TeslaMapsConfig c) {
+        int low = TeslaMapsConfig.parseColor(c.colorStatBoostLow), max = TeslaMapsConfig.parseColor(c.colorStatBoostMax);
+        for (Slot slot : cs.getMenu().slots) {
+            // worn armor is not for sale
+            if (slot.container instanceof net.minecraft.world.entity.player.Inventory && slot.getContainerSlot() >= 36) continue;
+            int k = kind(slot.getItem()) & 3;
+            if (k == NONE) continue;
+            int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
+            ctx.fill(sx, sy, sx + 16, sy + 16, k == MAX ? max : low);
+        }
+    }
+
+    private static int kind(ItemStack st) {
+        if (st.isEmpty()) return NONE;
+        Integer k = kinds.get(st);
+        if (k != null) return k;
+        int v = NONE;
+        String name = strip(st.getHoverName().getString());
+        if (JUNK_NAMES.contains(COUNT_SUFFIX.matcher(name).replaceAll(""))) v |= JUNK;
+        CustomData d = st.get(DataComponents.CUSTOM_DATA);
+        if (d != null && !name.contains("✪")) {
+            var tag = d.copyTag();
+            if (!tag.getString("id").orElse("").equals("ICE_SPRAY_WAND")) {
+                var boost = tag.getInt("baseStatBoostPercentage");
+                if (boost.isPresent()) {
+                    v |= boost.get() == 50 ? MAX : LOW;
+                    if (boost.get() != 50 && tag.getInt("upgrade_level").isEmpty()) v |= JUNK;
+                }
+            }
+        }
+        kinds.put(st, v);
+        return v;
     }
 
     private static boolean isSpawnedPet(ItemStack stack) {

@@ -46,6 +46,10 @@ public class ContainerKeyMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.BackpackPreview.onKey(event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (com.teslamaps.features.SlotBinds.onKey(event.key())) {
             cir.setReturnValue(true);
             return;

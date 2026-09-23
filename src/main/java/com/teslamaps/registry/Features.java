@@ -33,5 +33,9 @@ final class Features {
         // wave 1b hud
         com.teslamaps.features.CombatTimers.register();
         com.teslamaps.safari.SafariTracker.register();
+        // wave 1b inventory-b
+        com.teslamaps.utils.SbProfile.register();
+        com.teslamaps.features.StorageOverlay.register();
+        com.teslamaps.features.StorageApiFill.register();
     }
 }
