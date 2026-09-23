@@ -723,6 +723,7 @@ public class TeslaMapsConfig {
     public boolean noBlind = true;           // Remove blindness effect
     public boolean noNausea = true;          // Remove nausea effect
     public boolean noExplosions = true;      // Hide explosion particles
+    public boolean hideImplosions = false;   // Only wither blade implosion particles
     public boolean noExplosionSound = false; // Mute explosion sounds (TNT/creeper)
     public boolean noCreeperHurtSound = true; // Mute creeper hurt sounds
     public boolean soundDebug = false;       // Print every incoming sound (id/vol/pitch) to chat

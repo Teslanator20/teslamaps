@@ -123,6 +123,9 @@ public final class HideCategory {
         b.info("Saves ticking them, not just drawing them");
         b.label("Combat Effects");
         b.toggle("Hide Explosions", () -> config.noExplosions, v -> config.noExplosions = v);
+        b.toggle("Hide Wither Blade Implosion", () -> config.hideImplosions, v -> config.hideImplosions = v);
+        b.info("Only near players holding Hyperion/Astraea/Valkyrie/Scylla");
+        b.info("Use with Hide Explosions off to keep other smoke");
         b.toggle("Hide Arrows", () -> config.noArrows, v -> config.noArrows = v);
         b.toggle("Hide Stuck Arrows", () -> config.noStuckArrows, v -> config.noStuckArrows = v);
         b.toggle("Hide Death Animation", () -> config.noDeathAnimation, v -> config.noDeathAnimation = v);
