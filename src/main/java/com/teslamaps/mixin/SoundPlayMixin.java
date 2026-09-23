@@ -28,11 +28,17 @@ public class SoundPlayMixin {
             "minecraft:entity.lightning_bolt.thunder",
             "minecraft:entity.lightning_bolt.impact");
 
+    @Inject(method = "play", at = @At("HEAD"))
+    private void teslamaps$recordSound(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
+        com.teslamaps.features.SoundVolumes.record(instance);
+    }
+
     // injected after the SoundInstance is resolved (this.sound non-null), where getPitch/getVolume are safe
     @Inject(method = "play",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/sounds/SoundInstance;getVolume()F", ordinal = 0),
             cancellable = true)
     private void teslamaps$debugAndMute(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
+        com.teslamaps.features.EventTracker.onSound(instance);
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
         boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);

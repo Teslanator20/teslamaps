@@ -17,8 +17,29 @@ public class OrderedWaypoints {
         public int x, y, z;
         public int number;
 
+        public String name;
+        public int color = -1;
+        private String label;
+        private int labelFor = -1;
+
         public Wp(int x, int y, int z, int number) {
             this.x = x; this.y = y; this.z = z; this.number = number;
+        }
+
+        public Wp(int x, int y, int z, int number, String name, int color) {
+            this(x, y, z, number);
+            this.name = name == null || name.isBlank() ? null : name;
+            this.color = color;
+        }
+
+        public Wp copy() { return new Wp(x, y, z, number, name, color); }
+
+        public String label() {
+            if (labelFor != number) {
+                labelFor = number;
+                label = name == null || name.equals(String.valueOf(number)) ? "§e" + number : "§e" + number + " §f" + name;
+            }
+            return label;
         }
 
         public Vec3 center() { return new Vec3(x + 0.5, y + 0.5, z + 0.5); }
@@ -75,7 +96,8 @@ public class OrderedWaypoints {
             } else {
                 colorHex = cfg.orderedColorSetup;
             }
-            int color = TeslaMapsConfig.parseColor(colorHex);
+            int color = cfg.orderedImportedStyle && wp.color != -1 && !cfg.orderedSetupMode
+                    ? 0xFF000000 | wp.color : TeslaMapsConfig.parseColor(colorHex);
 
             AABB box = new AABB(wp.x, wp.y, wp.z, wp.x + 1, wp.y + 1, wp.z + 1);
             if (cfg.orderedFillBlock) {
@@ -85,7 +107,7 @@ public class OrderedWaypoints {
             }
 
             if (cfg.orderedShowName && (cfg.orderedSetupMode || cfg.orderedShowAll || i <= 1 + nextCount)) {
-                ESPRenderer.drawText(matrices, "§e" + wp.number,
+                ESPRenderer.drawText(matrices, cfg.orderedImportedStyle ? wp.label() : "§e" + wp.number,
                         new Vec3(wp.x + 0.5, wp.y + 2.5, wp.z + 0.5), 1.0f, cameraPos);
             }
             if (cfg.orderedShowDistance) {
@@ -257,8 +279,9 @@ public class OrderedWaypoints {
         String clip = Minecraft.getInstance().keyboardHandler.getClipboard();
         RouteFormats.Result parsed = RouteFormats.load(clip);
         if (parsed == null) {
+            if (RouteFormats.lastError() != null) return "§c" + RouteFormats.lastError();
             return "§cCould not read a route from the clipboard. Formats: "
-                    + String.join(", ", RouteFormats.names()) + ", coordinate list";
+                    + "coleweight, skytils V1, skyblocker, firmament, waypointer (WP:), soopy, json, coordinate list";
         }
 
         List<RouteFormats.Route> routes = parsed.routes();
@@ -266,6 +289,7 @@ public class OrderedWaypoints {
         for (RouteFormats.Route r : routes) {
             String saved = uniqueName(r.name());
             RouteStorage.put(saved, r.waypoints());
+            if (r.island() != null) RouteStorage.setIsland(saved, r.island());
             if (firstSaved == null) firstSaved = saved;
         }
         activate(firstSaved, routes.get(0).waypoints());
@@ -278,7 +302,7 @@ public class OrderedWaypoints {
 
     private static void activate(String name, List<Wp> waypoints) {
         route.clear();
-        for (Wp wp : waypoints) route.add(new Wp(wp.x, wp.y, wp.z, wp.number));
+        for (Wp wp : waypoints) route.add(wp.copy());
         renumberIfBroken();
         renderIdx.clear();
         loadedName = name == null ? "" : name;
@@ -403,6 +427,37 @@ public class OrderedWaypoints {
         if (out == null) return "§cUnknown format. Formats: " + String.join(", ", RouteFormats.names());
         Minecraft.getInstance().keyboardHandler.setClipboard(out);
         return "§aCopied §e" + name + "§a to clipboard (§e" + format + "§a).";
+    }
+
+    private static List<RouteFormats.Route> allRoutes() {
+        List<RouteFormats.Route> out = new ArrayList<>();
+        for (String n : RouteStorage.names()) out.add(new RouteFormats.Route(n, RouteStorage.island(n), RouteStorage.get(n)));
+        return out;
+    }
+
+    public static String exportAll(String format) {
+        List<RouteFormats.Route> all = allRoutes();
+        if (all.isEmpty()) return "§cNo saved routes.";
+        String out = RouteFormats.exportAll(all, format);
+        if (out == null) return "§cUnknown format. Formats: skytils, skyblocker";
+        Minecraft.getInstance().keyboardHandler.setClipboard(out);
+        return "§aCopied §e" + all.size() + "§a routes to clipboard (§e" + format + "§a).";
+    }
+
+    public static String exportFile() {
+        List<RouteFormats.Route> all = allRoutes();
+        if (all.isEmpty()) return "§cNo saved routes.";
+        try {
+            java.nio.file.Path dir = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir()
+                    .resolve("teslamaps").resolve("route_exports");
+            java.nio.file.Files.createDirectories(dir);
+            String stamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+            java.nio.file.Path file = dir.resolve("routes_" + stamp + ".json");
+            java.nio.file.Files.writeString(file, RouteFormats.exportJson(all));
+            return "§aSaved §e" + all.size() + "§a routes to §e" + file.getFileName() + " §7(config/teslamaps/route_exports)";
+        } catch (Exception e) {
+            return "§cCould not write the file: " + e.getMessage();
+        }
     }
 
     /** GUI edits act on the live route; nothing else may mutate the list. */

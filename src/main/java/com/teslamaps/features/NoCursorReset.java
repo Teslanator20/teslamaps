@@ -2,37 +2,37 @@ package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
+// Ported from Bax's NoCursorReset: save on container close, restore instead of centring on open
 public class NoCursorReset {
 
     private static double savedX, savedY;
     private static boolean savedValid = false;
     private static long savedTime = 0L;
-    private static int restoreFrames = 0;
 
     public static void onContainerRemoved() {
-    }
-
-    public static void onContainerInit() {
-        if (!TeslaMapsConfig.get().noCursorReset || !savedValid) return;
-        long hold = (long) (TeslaMapsConfig.get().noCursorResetHold * 1000f);
-        if (System.currentTimeMillis() - savedTime > hold) { savedValid = false; return; }
-        restoreFrames = 2;
-    }
-
-    public static void onRender() {
-        if (!TeslaMapsConfig.get().noCursorReset) { restoreFrames = 0; return; }
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.noCursorReset) return;
         Minecraft mc = Minecraft.getInstance();
-        if (restoreFrames > 0) {
-            GLFW.glfwSetCursorPos(mc.getWindow().handle(), savedX, savedY);
-            restoreFrames--;
-            return;
+        savedX = mc.mouseHandler.xpos();
+        savedY = mc.mouseHandler.ypos();
+        savedValid = true;
+        savedTime = System.currentTimeMillis();
+    }
+
+    /** Position to use instead of the window centre, or null to let vanilla centre the cursor. */
+    public static double[] restorePos() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.noCursorReset || !savedValid) return null;
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof AbstractContainerScreen<?>)) return null;
+        if (!c.noCursorResetForever && System.currentTimeMillis() - savedTime > (long) (c.noCursorResetHold * 1000f)) {
+            savedValid = false;
+            return null;
         }
-        double x = mc.mouseHandler.xpos(), y = mc.mouseHandler.ypos();
-        double cx = mc.getWindow().getWidth() / 2.0, cy = mc.getWindow().getHeight() / 2.0;
-        if (Math.abs(x - cx) > 5 || Math.abs(y - cy) > 5) {
-            savedX = x; savedY = y; savedValid = true; savedTime = System.currentTimeMillis();
-        }
+        double x = Math.max(0, Math.min(savedX, mc.getWindow().getScreenWidth()));
+        double y = Math.max(0, Math.min(savedY, mc.getWindow().getScreenHeight()));
+        return new double[]{x, y};
     }
 }

@@ -38,7 +38,7 @@ public class RouteEditScreen extends Screen {
         List<OrderedWaypoints.Wp> stored = RouteStorage.get(name);
         if (stored != null) {
             for (OrderedWaypoints.Wp wp : stored) {
-                waypoints.add(new OrderedWaypoints.Wp(wp.x, wp.y, wp.z, wp.number));
+                waypoints.add(wp.copy());
             }
         }
         renumber();

@@ -21,6 +21,10 @@ public final class RenderCategory {
         b.toggle("  Smooth Zoom", () -> config.zoomSmooth, v -> config.zoomSmooth = v);
         b.slider("  Zoom Speed", 1f, 30f,
                 () -> config.zoomSmoothSpeed, v -> config.zoomSmoothSpeed = v, 1);
+        b.toggle("  Toggle Instead Of Hold", () -> config.zoomToggle, v -> config.zoomToggle = v);
+        b.toggle("  Remember Scroll Adjustment", () -> config.zoomRememberScroll, v -> config.zoomRememberScroll = v);
+        b.toggle("  Relative Sensitivity", () -> config.zoomRelativeSensitivity, v -> config.zoomRelativeSensitivity = v);
+        b.toggle("  Hide Hand While Zoomed", () -> config.zoomHideHand, v -> config.zoomHideHand = v);
         b.label("Motion Blur");
         b.toggle("Motion Blur", () -> config.motionBlur, v -> config.motionBlur = v);
         b.slider("  Blur Strength", 0f, 0.9f,
@@ -70,6 +74,12 @@ public final class RenderCategory {
         b.toggle("  /tmap sendcoords Adds Area", () -> config.chatWaypointShareArea, v -> config.chatWaypointShareArea = v);
         b.label("NPC Finder");
         b.toggle("NPC Finder (/tmap npc)", () -> config.npcFinder, v -> config.npcFinder = v);
+        b.toggle("  Use Nearest Unlocked Warp", () -> config.npcNearestWarp, v -> config.npcNearestWarp = v);
+        b.info("Learns locked warps from the 'not unlocked' chat message");
+        b.toggle("  Warp Twice", () -> config.npcWarpTwice, v -> config.npcWarpTwice = v);
+        b.keybind("  NPC Waypoint Key", () -> config.npcWaypointKey, v -> config.npcWaypointKey = v);
+        b.info("Over an NPC item (Abiphone): track, Shift: also warp");
+        b.info("In the world: open the finder, Shift: warp to the target");
         b.label("Rare Drop Effects");
         b.toggle("Rare Drops", () -> config.rareDropEffects, v -> config.rareDropEffects = v);
         b.toggle("Dungeon Chest Rewards", () -> config.rareDungeonDropEffects, v -> config.rareDungeonDropEffects = v);

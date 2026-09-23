@@ -91,8 +91,10 @@ public class WaypointRoutesScreen extends Screen {
             if (to.isBlank() || to.equals(from)) continue;
             List<OrderedWaypoints.Wp> wps = RouteStorage.get(from);
             if (wps == null || RouteStorage.get(to) != null) continue;
+            String island = RouteStorage.island(from);
             RouteStorage.remove(from);
             RouteStorage.put(to, wps);
+            if (island != null) RouteStorage.setIsland(to, island);
             if (OrderedWaypoints.isActive(from)) OrderedWaypoints.renameActive(to);
             changed = true;
         }

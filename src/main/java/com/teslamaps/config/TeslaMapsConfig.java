@@ -760,13 +760,25 @@ public class TeslaMapsConfig {
     public boolean noBlind = true;           // Remove blindness effect
     public boolean noNausea = true;          // Remove nausea effect
     public boolean noExplosions = true;      // Hide explosion particles
+    public boolean hideImplosions = false;   // Only wither blade implosion particles
     public boolean noExplosionSound = false; // Mute explosion sounds (TNT/creeper)
     public boolean noCreeperHurtSound = true; // Mute creeper hurt sounds
     public boolean soundDebug = false;       // Print every incoming sound (id/vol/pitch) to chat
+    public int eventTrackerWindow = 3;       // /tmap tracksounds|trackparticles: seconds an event stays listed
+    public int eventTrackerMaxLines = 10;
+    @Global
+    public int trackSoundsKey = -1;
+    @Global
+    public int trackParticlesKey = -1;
+    public int eventTrackerX = 4;
+    public int eventTrackerY = 120;
+    public float eventTrackerScale = 1.0f;
     public boolean muteBonzoStaff = false;   // Mute Bonzo's Staff impact (firework blast/twinkle sounds)
     public boolean muteBonzoStaffPrecise = false; // only the Bonzo pitch window + its ghast moan, real fireworks stay
     public boolean muteLightning = false;    // Mute lightning/thunder sounds (Storm phase)
     public java.util.List<String> mutedSounds = new java.util.ArrayList<>(); // sound ids to mute ("id" or "id@pitch")
+    public boolean soundManager = false;     // per-sound volume multipliers
+    public java.util.Map<String, Float> soundVolumes = new java.util.HashMap<>(); // sound id -> multiplier (0-2)
     public boolean noArrows = true;          // Hide arrow entities
     public boolean noStuckArrows = true;     // Hide arrows stuck in entities
     public boolean noWaterOverlay = true;    // Hide water overlay on screen
@@ -1006,6 +1018,10 @@ public class TeslaMapsConfig {
     public int zoomFov = 30;                 // FOV while zoomed (1-110)
     public boolean zoomSmooth = true;        // Ease the FOV in and out instead of snapping
     public float zoomSmoothSpeed = 14f;      // Higher = snappier (1-30)
+    public boolean zoomToggle = false;       // Key toggles zoom instead of holding
+    public boolean zoomRememberScroll = false;
+    public boolean zoomRelativeSensitivity = false;
+    public boolean zoomHideHand = false;
 
     public boolean motionBlur = false;       // Blend the previous frame over the current one
     public float motionBlurStrength = 0.35f; // How much of the old frame survives (0-0.95)
@@ -1278,6 +1294,12 @@ public class TeslaMapsConfig {
     public String chatWaypointColor = "AA00FFFF";
     public boolean chatWaypointShareArea = false;   // /tmap sendcoords appends "| <area>"
     public boolean npcFinder = true;               // /tmap npc - NPC search + warp/track waypoints
+    public boolean npcNearestWarp = false;         // warp to the closest unlocked warp instead of the island default
+    public boolean npcWarpTwice = false;
+    @Global
+    public int npcWaypointKey = -1;                // over an NPC item: track, Shift = warp; in world: open finder / Shift = warp
+    @Global
+    public java.util.Map<String, java.util.Set<String>> npcLockedWarps = new java.util.HashMap<>(); // sb profile -> warps not unlocked
 
     // Ordered Waypoints (routes outside dungeons, Coleweight/Skytils format)
     public boolean orderedWaypoints = false;        // Master toggle
@@ -1296,6 +1318,7 @@ public class TeslaMapsConfig {
     public boolean orderedShowDistance = true;      // Show the distance above a waypoint
     public boolean orderedShowName = true;          // Show the waypoint number
     public boolean orderedShowAll = false;          // Render the whole route at once
+    public boolean orderedImportedStyle = false;    // Use imported waypoint names/colors
     public boolean orderedSetupMode = false;        // Show nearby waypoints + line of sight while building a route
     public float orderedSetupRange = 16.0f;         // Radius for setup mode
     public float orderedSetupLineThickness = 2.0f;  // Setup-mode line thickness
@@ -1419,6 +1442,7 @@ public class TeslaMapsConfig {
     public boolean signEnterKey = true;            // Enter confirms/closes a sign edit screen
     public boolean noCursorReset = true;           // keep cursor position when navigating between GUIs
     public float noCursorResetHold = 2f;           // seconds the saved cursor position stays valid
+    public boolean noCursorResetForever = false;   // ignore hold time, restore until the next menu
     public boolean autoCopyScreenshot = true;      // copy taken screenshots to the system clipboard
     public boolean screenshotChatActions = true;    // clickable Copy/Browse/Delete under the save message
     public boolean screenshotHideVanillaMessage = true; // hide "Saved screenshot as ..."
@@ -2144,6 +2168,7 @@ public class TeslaMapsConfig {
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
         if (c.seaCreatureAlert == null) c.seaCreatureAlert = new java.util.HashMap<>();
         if (c.seaCreatureAnnounce == null) c.seaCreatureAnnounce = new java.util.HashMap<>();
+        if (c.npcLockedWarps == null) c.npcLockedWarps = new java.util.HashMap<>();
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();
@@ -2169,6 +2194,7 @@ public class TeslaMapsConfig {
         if (Boolean.FALSE.equals(oldDragons)) c.witherDragons = false;
         if (c.farmPriceMode == null || c.farmPriceMode.isBlank()) c.farmPriceMode = "Instant Sell";
         if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
+        if (c.soundVolumes == null) c.soundVolumes = new java.util.HashMap<>();
         if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
         if (c.chatFilterGroupActions == null) c.chatFilterGroupActions = new java.util.HashMap<>();
         if (c.chatUserFilters == null) c.chatUserFilters = new java.util.ArrayList<>();

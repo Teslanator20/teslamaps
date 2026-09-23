@@ -21,6 +21,11 @@ public final class OrderedWaypointsCategory {
         b.button("Unload Route",
                 () -> MapConfigScreen.orderedFeedback(com.teslamaps.features.waypoints.OrderedWaypoints.unload()));
         b.info("/tmap waypoints for the GUI, /tmap route ... for commands");
+        b.info("Import: Coleweight, Skytils V1, Skyblocker, Firmament, Waypointer (WP:), Soopy, JSON");
+        b.button("Export All Routes (Skyblocker)",
+                () -> MapConfigScreen.orderedFeedback(com.teslamaps.features.waypoints.OrderedWaypoints.exportAll("skyblocker")));
+        b.button("Save All Routes As JSON File",
+                () -> MapConfigScreen.orderedFeedback(com.teslamaps.features.waypoints.OrderedWaypoints.exportFile()));
 
         b.label("Display");
         b.color("Current Color", () -> config.orderedColorCurrent, v -> config.orderedColorCurrent = v);
@@ -35,6 +40,7 @@ public final class OrderedWaypointsCategory {
         b.toggle("Show Distance", () -> config.orderedShowDistance, v -> config.orderedShowDistance = v);
         b.toggle("Show All Waypoints", () -> config.orderedShowAll, v -> config.orderedShowAll = v);
         b.color("  All Color", () -> config.orderedColorAll, v -> config.orderedColorAll = v);
+        b.toggle("Use Imported Names & Colors", () -> config.orderedImportedStyle, v -> config.orderedImportedStyle = v);
 
         b.label("Trace Line");
         b.toggle("Trace Line", () -> config.orderedTraceLine, v -> config.orderedTraceLine = v);

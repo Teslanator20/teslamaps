@@ -81,6 +81,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.HotspotRadar.onParticlePacket(packet);
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
         com.teslamaps.features.foraging.FloorDrops.onParticle(packet);
+        com.teslamaps.features.EventTracker.onParticle(packet);
     }
 
     @Inject(method = "handleParticleEvent", at = @At("HEAD"), cancellable = true)

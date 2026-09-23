@@ -63,8 +63,6 @@ public class ContainerOverlays {
             com.teslamaps.features.GardenPlotsOverlay.render(context, mouseX, mouseY);
         }
 
-        com.teslamaps.features.NoCursorReset.onRender();
-
         if (com.teslamaps.features.StorageOverlay.active()) {
             com.teslamaps.features.StorageOverlay.render(context, mouseX, mouseY);
         } else {

@@ -29,6 +29,10 @@ public class NpcFinder {
         targets.clear();
     }
 
+    public static NpcData firstTarget() {
+        return targets.isEmpty() ? null : targets.get(0);
+    }
+
     public static boolean hasTarget() {
         return !targets.isEmpty();
     }

@@ -29,6 +29,8 @@ public final class InventoryCategory {
         b.toggle("No Cursor Reset", () -> config.noCursorReset, v -> config.noCursorReset = v);
         b.slider("  Hold Time (s)", 0.5f, 30f,
                 () -> config.noCursorResetHold, v -> config.noCursorResetHold = v);
+        b.toggle("  Ignore Hold Time", () -> config.noCursorResetForever, v -> config.noCursorResetForever = v);
+        b.info("Also restores after closing a menu, walking and reopening");
         b.toggle("Own Nametag (3rd person)", () -> config.ownNameTag, v -> config.ownNameTag = v);
         b.toggle("Searchbar (type to search)", () -> config.searchbar, v -> config.searchbar = v);
         b.toggle("  Ctrl+F To Search", () -> config.searchbarCtrlF, v -> config.searchbarCtrlF = v);

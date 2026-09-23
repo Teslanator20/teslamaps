@@ -78,6 +78,7 @@
     "NoBlockBreakingMixin",
     "NoCloudsMixin",
     "NoCursorResetMixin",
+    "NoCursorResetMouseMixin",
     "NoDeathAnimationMixin",
     "NoExplosionsMixin",
     "NoFireMixin",
@@ -107,6 +108,7 @@
     "SlotBindsMixin",
     "SlotLockRenderMixin",
     "SoundPlayMixin",
+    "SoundVolumeMixin",
     "SparkleForceMixin",
     "StorageHoverMixin",
     "TermSimPacketMixin",
@@ -116,7 +118,8 @@
     "TitleScreenMixin",
     "VanillaButtonStyleMixin",
     "WaterFogLavaMixin",
-    "WorldRendererMixin"
+    "WorldRendererMixin",
+    "ZoomHandMixin"
   ],
   "injectors": {
     "defaultRequire": 1

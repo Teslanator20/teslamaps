@@ -57,5 +57,9 @@ final class Features {
         com.teslamaps.features.mining.PickaxeAbility.register();
         com.teslamaps.features.foraging.FloorDrops.register();
         com.teslamaps.features.foraging.HoneyhiveHelper.register();
+        // wave 1c qol
+        com.teslamaps.features.ImplosionHider.register();
+        com.teslamaps.features.npc.NpcWarps.register();
+        com.teslamaps.features.EventTracker.register();
     }
 }

@@ -274,12 +274,21 @@ public class TMapCommand {
                         .then(ClientCommands.argument("query", StringArgumentType.greedyString())
                                 .executes(context -> openSearch(StringArgumentType.getString(context, "query")))))
                 .then(com.teslamaps.features.croesus.PriceDebug.command())
+                .then(com.teslamaps.features.EventTracker.soundsCommand())
+                .then(com.teslamaps.features.EventTracker.particlesCommand())
+                .then(com.teslamaps.features.EventTracker.playSoundCommand())
                 .then(ClientCommands.literal("npc")
                         .executes(context -> openNpcFinder(null))
                         .then(ClientCommands.literal("clear")
                                 .executes(context -> {
                                     com.teslamaps.features.npc.NpcFinder.clearTargets();
                                     context.getSource().sendFeedback(Component.literal("§7NPC waypoints cleared"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("clearwarps")
+                                .executes(context -> {
+                                    com.teslamaps.features.npc.NpcWarps.clearLocked();
+                                    context.getSource().sendFeedback(Component.literal("§7Locked warps reset"));
                                     return 1;
                                 }))
                         .then(ClientCommands.argument("query", StringArgumentType.greedyString())
@@ -1580,6 +1589,18 @@ public class TMapCommand {
                                         })
                                         .executes(context -> routeFeedback(context,
                                                 com.teslamaps.features.waypoints.OrderedWaypoints.export(StringArgumentType.getString(context, "format"))))))
+                        .then(ClientCommands.literal("exportall")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.exportAll("skyblocker")))
+                                .then(ClientCommands.argument("format", StringArgumentType.word())
+                                        .suggests((c, b) -> {
+                                            b.suggest("skytils");
+                                            b.suggest("skyblocker");
+                                            return b.buildFuture();
+                                        })
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.exportAll(StringArgumentType.getString(context, "format"))))))
+                        .then(ClientCommands.literal("exportfile")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.exportFile())))
                         .then(ClientCommands.literal("setup")
                                 .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.toggleSetup()))))
                 .then(ClientCommands.literal("pest")

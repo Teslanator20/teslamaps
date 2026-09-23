@@ -11,16 +11,24 @@ public class Zoom {
     private static float currentFov = 30f;   // live FOV, adjusted by scroll while held
     private static float progress = 0f;      // 0 = normal fov, 1 = fully zoomed
     private static long lastNanos = 0L;
+    private static boolean toggled = false;
+    private static boolean keyWasDown = false;
+    private static boolean scrolled = false;
+    private static float magnification = 1f;
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        boolean held = cfg.zoomEnabled
-                && mc.player != null && mc.screen == null && mc.getWindow() != null
-                && com.teslamaps.utils.KeyNames.isDown(cfg.zoomKey);
+        boolean canZoom = cfg.zoomEnabled
+                && mc.player != null && mc.screen == null && mc.getWindow() != null;
+        boolean keyDown = canZoom && com.teslamaps.utils.KeyNames.isDown(cfg.zoomKey);
+        if (!canZoom) toggled = false;
+        else if (cfg.zoomToggle && keyDown && !keyWasDown) toggled = !toggled;
+        keyWasDown = keyDown;
+        boolean held = cfg.zoomToggle ? toggled : keyDown;
 
         if (held && !zoomed) {
-            currentFov = clamp(cfg.zoomFov);     // reset to default on every fresh zoom-in
+            if (!cfg.zoomRememberScroll || !scrolled) currentFov = clamp(cfg.zoomFov);
             lastNanos = 0L;                      // first eased frame starts at dt 0
         }
         zoomed = held;
@@ -55,8 +63,10 @@ public class Zoom {
             if (Math.abs(target - progress) < 0.001f) progress = target;
         }
 
-        if (progress <= 0f) return baseFov;
-        return baseFov + (currentFov - baseFov) * progress;
+        if (progress <= 0f) { magnification = 1f; return baseFov; }
+        float fov = baseFov + (currentFov - baseFov) * progress;
+        magnification = fov > 0f ? Math.max(1f, baseFov / fov) : 1f;
+        return fov;
     }
 
     /** True while the FOV is still on its way back to normal. */
@@ -69,7 +79,17 @@ public class Zoom {
         if (!zoomed || vertical == 0) return false;
         currentFov -= (float) vertical * Math.max(1f, currentFov * 0.1f);  // scroll up = zoom in
         currentFov = clamp(currentFov);
+        scrolled = true;
         return true;
+    }
+
+    public static double mouse(double movement) {
+        if (!TeslaMapsConfig.get().zoomRelativeSensitivity || !transitioning()) return movement;
+        return movement / magnification;
+    }
+
+    public static boolean hideHand() {
+        return zoomed && TeslaMapsConfig.get().zoomHideHand;
     }
 
     private static float clamp(float fov) {
