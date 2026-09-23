@@ -34,15 +34,11 @@ public class SeaCreatureList {
     public static void load() {
         if (loaded || loading) return;
         loading = true;
+        RepoCache.onReload("SeaCreatureList", SeaCreatureList::reload);
 
         CompletableFuture.runAsync(() -> {
             try {
-                HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-                HttpRequest request = HttpRequest.newBuilder(URI.create(URL))
-                        .timeout(Duration.ofSeconds(15)).GET().build();
-                String body = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
-
-                JsonObject root = JsonParser.parseString(body).getAsJsonObject();
+                JsonObject root = RepoCache.fetch("sh-SeaCreatures", URL, 15).getAsJsonObject();
                 for (Map.Entry<String, JsonElement> variant : root.entrySet()) {
                     JsonObject group = variant.getValue().getAsJsonObject();
                     JsonObject creatures = group.getAsJsonObject("sea_creatures");
@@ -70,6 +66,13 @@ public class SeaCreatureList {
                 loading = false;
             }
         });
+    }
+
+    /** Drops the loaded flag and fetches again; the old tables stay until the new ones are in. */
+    public static void reload() {
+        if (loading) return;
+        loaded = false;
+        load();
     }
 
     private static void put(String message, String name) {

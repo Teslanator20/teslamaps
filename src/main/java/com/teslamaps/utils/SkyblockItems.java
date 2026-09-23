@@ -302,10 +302,11 @@ public class SkyblockItems {
     public static void load() {
         if (loaded || loading) return;
         loading = true;
+        RepoCache.onReload("SkyblockItems", SkyblockItems::reload);
 
         CompletableFuture.runAsync(() -> {
             try {
-                JsonObject root = JsonParser.parseString(get(ITEMS_URL)).getAsJsonObject();
+                JsonObject root = RepoCache.fetch("hypixel-items", ITEMS_URL, 30).getAsJsonObject();
                 if (!root.has("items")) return;
 
                 for (var element : root.getAsJsonArray("items")) {
@@ -349,6 +350,13 @@ public class SkyblockItems {
                 Minecraft.getInstance().execute(() -> parked.forEach(Runnable::run));
             }
         });
+    }
+
+    /** Drops the loaded flag and fetches again; the old tables stay until the new ones are in. */
+    public static void reload() {
+        if (loading) return;
+        loaded = false;
+        load();
     }
 
     private static final java.util.List<Runnable> pendingResolves =

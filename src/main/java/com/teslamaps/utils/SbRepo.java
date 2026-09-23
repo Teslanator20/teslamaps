@@ -66,6 +66,7 @@ public class SbRepo {
     public static void load() {
         if (loaded || loading) return;
         loading = true;
+        RepoCache.onReload("SbRepo", SbRepo::reload);
         EXEC.submit(() -> {
             try {
                 loadReforgeStones();
@@ -82,6 +83,13 @@ public class SbRepo {
                 loading = false;
             }
         });
+    }
+
+    /** Drops the loaded flag and fetches again; the old tables stay until the new ones are in. */
+    public static void reload() {
+        if (loading) return;
+        loaded = false;
+        load();
     }
 
     public static Reforge reforgeByModifier(String modifier) {
@@ -272,12 +280,9 @@ public class SbRepo {
     }
 
     private static JsonObject fetch(String url) throws Exception {
-        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-        HttpRequest request = HttpRequest.newBuilder(URI.create(url))
-                .timeout(Duration.ofSeconds(30)).header("User-Agent", "TeslaMaps").GET().build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() != 200) throw new RuntimeException("HTTP " + response.statusCode() + " for " + url);
-        return JsonParser.parseString(response.body()).getAsJsonObject();
+        String file = url.substring(url.lastIndexOf('/') + 1).replace(".json", "");
+        String name = (url.contains("SkyHanni-REPO") ? "sh-" : "neu-") + file;
+        return RepoCache.fetch(name, url, 30).getAsJsonObject();
     }
 
     private SbRepo() {}

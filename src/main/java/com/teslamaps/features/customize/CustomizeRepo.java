@@ -22,11 +22,7 @@ final class CustomizeRepo {
     static void load(String constant, Consumer<JsonElement> onLoaded) {
         CompletableFuture.runAsync(() -> {
             try {
-                HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-                HttpRequest request = HttpRequest.newBuilder(URI.create(NEU.formatted(constant)))
-                        .timeout(Duration.ofSeconds(30)).GET().build();
-                String body = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
-                onLoaded.accept(JsonParser.parseString(body));
+                onLoaded.accept(com.teslamaps.utils.RepoCache.fetch("neu-" + constant, NEU.formatted(constant), 30));
             } catch (Exception e) {
                 TeslaMaps.LOGGER.warn("[Customize] failed to load {}.json: {}", constant, e.toString());
             }

@@ -223,6 +223,17 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal("§cNo cape called " + wanted));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("repo")
+                        .executes(context -> repoStatus(context.getSource()))
+                        .then(ClientCommands.literal("status")
+                                .executes(context -> repoStatus(context.getSource())))
+                        .then(ClientCommands.literal("reload")
+                                .executes(context -> {
+                                    com.teslamaps.utils.RepoCache.reloadAll();
+                                    context.getSource().sendFeedback(Component.literal(
+                                            "§7[TeslaMaps] Reloading repo data, §f/tmap repo §7shows the result"));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("search")
                         .executes(context -> openSearch(null))
                         .then(ClientCommands.literal("clear")
@@ -1807,6 +1818,28 @@ public class TMapCommand {
             if (name.toLowerCase().startsWith(lower)) builder.suggest(name);
         }
         return builder.buildFuture();
+    }
+
+    private static int repoStatus(FabricClientCommandSource source) {
+        var list = com.teslamaps.utils.RepoCache.status();
+        if (list.isEmpty()) {
+            source.sendFeedback(Component.literal("§7[TeslaMaps] No repo file loaded yet"));
+            return 1;
+        }
+        source.sendFeedback(Component.literal("§6[TeslaMaps] Repo data:"));
+        long now = System.currentTimeMillis();
+        for (var s : list) {
+            String color = switch (s.source()) {
+                case "live" -> "§a";
+                case "cache" -> "§e";
+                default -> "§c";
+            };
+            long min = Math.max(0, (now - s.time()) / 60_000);
+            String line = " " + color + s.name() + " §7" + s.source() + ", " + min + " min ago";
+            if (s.error() != null) line += " §8(" + s.error() + ")";
+            source.sendFeedback(Component.literal(line));
+        }
+        return 1;
     }
 
     private static int openSearch(String query) {
