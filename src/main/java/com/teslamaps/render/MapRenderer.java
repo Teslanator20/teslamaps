@@ -32,6 +32,7 @@ public class MapRenderer {
     private static int minGridX = 0, maxGridX = 5;
     private static int minGridZ = 0, maxGridZ = 5;
     private static int totalSecrets = 0;
+    private static float offX = 0, offZ = 0;
 
     private static int lastMapX, lastMapY, lastMapW, lastMapH;
     public static int mapX() { return lastMapX; }
@@ -127,6 +128,23 @@ public class MapRenderer {
         minGridX = 0; maxGridX = ComponentGrid.GRID_SIZE - 1;
         minGridZ = 0; maxGridZ = ComponentGrid.GRID_SIZE - 1;
         totalSecrets = 0;
+        offX = 0; offZ = 0;
+        if (TeslaMapsConfig.get().mapCenterSmallFloors) {
+            // FunnyMap calibrateMap: F1 4x5, F2/F3 5x5
+            int w = 6, h = 6;
+            switch (DungeonManager.getCurrentFloor()) {
+                case F1, M1 -> { w = 4; h = 5; }
+                case F2, F3, M2, M3 -> { w = 5; h = 5; }
+                default -> {}
+            }
+            for (DungeonRoom room : rooms) {
+                for (int[] c : room.getComponents()) {
+                    if (c[0] >= w || c[1] >= h) { w = 6; h = 6; }
+                }
+            }
+            offX = (ComponentGrid.GRID_SIZE - w) * CELL_SIZE / 2f;
+            offZ = (ComponentGrid.GRID_SIZE - h) * CELL_SIZE / 2f;
+        }
 
         for (DungeonRoom room : rooms) {
             if (room.getSecrets() > 0) totalSecrets += room.getSecrets();
@@ -297,11 +315,11 @@ public class MapRenderer {
     }
 
     private static int gridToPixelX(int gridX, int baseX, float scale) {
-        return baseX + (int)((MAP_PADDING + (gridX - minGridX) * CELL_SIZE) * scale);
+        return baseX + (int)((MAP_PADDING + offX + (gridX - minGridX) * CELL_SIZE) * scale);
     }
 
     private static int gridToPixelY(int gridZ, int baseY, float scale) {
-        return baseY + (int)((MAP_PADDING + (gridZ - minGridZ) * CELL_SIZE) * scale);
+        return baseY + (int)((MAP_PADDING + offZ + (gridZ - minGridZ) * CELL_SIZE) * scale);
     }
 
     private static void drawRoomConnections(GuiGraphicsExtractor context, Collection<DungeonRoom> rooms, int baseX, int baseY, float scale, boolean legit) {
@@ -881,8 +899,8 @@ public class MapRenderer {
         if (state == CheckmarkState.UNEXPLORED && !config.mapCheckmarkUnopened) return;
         if (config.mapCheckmarkHideWithName && nameVisible(room)) return;
         double[] c = checkmarkCenter(room);
-        int cx = baseX + (int) ((MAP_PADDING + (c[0] - minGridX) * CELL_SIZE + ROOM_SIZE / 2.0) * scale);
-        int cy = baseY + (int) ((MAP_PADDING + (c[1] - minGridZ) * CELL_SIZE + ROOM_SIZE / 2.0) * scale);
+        int cx = baseX + (int) ((MAP_PADDING + offX + (c[0] - minGridX) * CELL_SIZE + ROOM_SIZE / 2.0) * scale);
+        int cy = baseY + (int) ((MAP_PADDING + offZ + (c[1] - minGridZ) * CELL_SIZE + ROOM_SIZE / 2.0) * scale);
         drawCheckmark(context, cx, cy, Math.max(4, Math.round(ROOM_SIZE * scale * config.mapCheckmarkSize)), state);
     }
 
@@ -992,8 +1010,8 @@ public class MapRenderer {
                         uuid, clazz, name, false, recordName);
             } else {
                 double[] renderPos = MapScanner.mapToRenderPosition(mapX, mapZ, ROOM_SIZE, DOOR_SIZE);
-                int pixelX = baseX + (int)(renderPos[0] * scale);
-                int pixelY = baseY + (int)(renderPos[1] * scale);
+                int pixelX = baseX + (int)((MAP_PADDING + offX + renderPos[0]) * scale);
+                int pixelY = baseY + (int)((MAP_PADDING + offZ + renderPos[1]) * scale);
                 float yaw = rotation * 22.5f;
 
                 drawHeadMarker(context, pixelX, pixelY, headSize, yaw, uuid, name, false, recordName, clazz);

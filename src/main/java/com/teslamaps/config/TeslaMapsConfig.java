@@ -74,6 +74,7 @@ public class TeslaMapsConfig {
     public int mapY = 172;
     public float mapScale = 1.5f;
     public boolean showMapBackground = true;
+    public boolean mapCenterSmallFloors = false;  // F1-F3 rooms centered in the 6x6 frame
 
     public boolean showRoomNames = true;
     public boolean hideEntranceBloodFairyNames = true; // Don't render names for entrance, blood, fairy rooms

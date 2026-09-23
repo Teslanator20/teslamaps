@@ -17,6 +17,7 @@ public final class MapCategory {
         b.toggle("Only In Boss", () -> config.mapOnlyInBoss, v -> config.mapOnlyInBoss = v);
         b.toggle("Hide In Boss", () -> config.mapHideInBoss, v -> config.mapHideInBoss = v);
         b.toggle("Show Background", () -> config.showMapBackground, v -> config.showMapBackground = v);
+        b.toggle("Center Small Floors", () -> config.mapCenterSmallFloors, v -> config.mapCenterSmallFloors = v);
         b.toggle("Show Mimic Status", () -> config.showMimicStatus, v -> config.showMimicStatus = v);
         b.toggle("Show Prince Icon", () -> config.showPrinceIcon, v -> config.showPrinceIcon = v);
         b.toggle("Show Prince Status", () -> config.showPrinceStatus, v -> config.showPrinceStatus = v);
