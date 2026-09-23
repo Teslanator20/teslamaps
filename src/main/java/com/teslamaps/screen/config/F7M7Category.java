@@ -54,17 +54,17 @@ public final class F7M7Category {
         b.toggle("Send Ice Sprayed", () -> config.witherDragonSendSpray, v -> config.witherDragonSendSpray = v);
         b.label("Priority & Splits");
         b.toggle("Dragon Priority (split)", () -> config.witherDragonPriority, v -> config.witherDragonPriority = v);
-        b.toggle("Priority Tracer", () -> config.witherDragonPriorityTracer, v -> config.witherDragonPriorityTracer = v);
-        b.slider("Normal Power (split)", 0f, 32f,
+        b.slider("  Normal Power (split)", 0f, 32f,
                 () -> (float) config.witherDragonNormalPower, v -> config.witherDragonNormalPower = Math.round(v));
-        b.slider("Easy Power (purple split)", 0f, 32f,
+        b.slider("  Easy Power (purple split)", 0f, 32f,
                 () -> (float) config.witherDragonEasyPower, v -> config.witherDragonEasyPower = Math.round(v));
-        b.toggle("Healer Solos Purple (off=Tank)", () -> config.witherDragonSoloDebuff == 1, v -> config.witherDragonSoloDebuff = v ? 1 : 0);
-        b.toggle("Solo Debuff on All Splits", () -> config.witherDragonSoloDebuffAll, v -> config.witherDragonSoloDebuffAll = v);
-        b.toggle("Paul Buff (×1.25 power)", () -> config.witherDragonPaulBuff, v -> config.witherDragonPaulBuff = v);
+        b.toggle("  Healer Solos Purple (off=Tank)", () -> config.witherDragonSoloDebuff == 1, v -> config.witherDragonSoloDebuff = v ? 1 : 0);
+        b.toggle("  Solo Debuff on All Splits", () -> config.witherDragonSoloDebuffAll, v -> config.witherDragonSoloDebuffAll = v);
+        b.toggle("  Paul Buff (×1.25 power)", () -> config.witherDragonPaulBuff, v -> config.witherDragonPaulBuff = v);
         b.toggle("  Auto Paul Buff (Election API)", () -> config.witherDragonPaulAuto, v -> config.witherDragonPaulAuto = v);
-        b.toggle("Custom Priority Strings", () -> config.witherDragonCustomPrio, v -> config.witherDragonCustomPrio = v);
-        b.button("  Edit Priority Strings", () -> Minecraft.getInstance().setScreen(new DragonPrioScreen(Minecraft.getInstance().screen)));
+        b.toggle("  Custom Priority Strings", () -> config.witherDragonCustomPrio, v -> config.witherDragonCustomPrio = v);
+        b.button("    Edit Priority Strings", () -> Minecraft.getInstance().setScreen(new DragonPrioScreen(Minecraft.getInstance().screen)));
+        b.toggle("Priority Tracer", () -> config.witherDragonPriorityTracer, v -> config.witherDragonPriorityTracer = v);
         b.label("Live Dragons");
         b.toggle("Dragon Boxes (live)", () -> config.dragonBoxes, v -> config.dragonBoxes = v);
         b.toggle("Dragon Health %", () -> config.dragonHealth, v -> config.dragonHealth = v);
