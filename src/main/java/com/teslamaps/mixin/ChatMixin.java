@@ -41,6 +41,7 @@ public class ChatMixin {
     @Inject(method = ADD_MESSAGE, at = @At("HEAD"), cancellable = true)
     private void onChatMessage(Component message, net.minecraft.network.chat.MessageSignature signature, net.minecraft.client.multiplayer.chat.GuiMessageSource source, net.minecraft.client.multiplayer.chat.GuiMessageTag tag, CallbackInfo ci) {
         String text = message.getString();
+        com.teslamaps.utils.PlayerChat.begin(message);
 
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
 
