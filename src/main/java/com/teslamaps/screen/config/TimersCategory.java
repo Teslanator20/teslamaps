@@ -51,6 +51,8 @@ public final class TimersCategory {
         b.label("Kicked");
         b.toggle("Kick Handling", () -> config.kickedTimer, v -> config.kickedTimer = v);
         b.toggle("  Send /pc kicked", () -> config.kickedPartyMessage, v -> config.kickedPartyMessage = v);
-        b.toggle("  Center Warning (60s)", () -> config.kickedCenterWarning, v -> config.kickedCenterWarning = v);
+        b.toggle("  Center Warning", () -> config.kickedCenterWarning, v -> config.kickedCenterWarning = v);
+        b.slider("  Wait Time (s)", 10f, 180f, () -> (float) config.kickedWaitSeconds, v -> config.kickedWaitSeconds = Math.round(v), 0);
+        b.toggle("  Rejoin Title", () -> config.kickedTitle, v -> config.kickedTitle = v);
     }
 }

@@ -1571,6 +1571,8 @@ public class TeslaMapsConfig {
     public float overkillScale = 1.0f;             // Overkill counter scale (0.5 - 5.0)
     public boolean kickedTimer = true;             // Kick handling: center wait warning + /pc kicked
     public boolean kickedPartyMessage = true;      // Auto-send "/pc kicked" when a join kick happens
+    public int kickedWaitSeconds = 60;             // wait before rejoining after a kick
+    public boolean kickedTitle = false;            // "Try rejoining SkyBlock now!" title when the wait is over
     public int kickedWarnX = 150;                  // Kick wait warning position X (draggable in HUD edit)
     public int kickedWarnY = 120;                  // Kick wait warning position Y
     public float kickedWarnScale = 2.0f;           // Kick wait warning scale (0.5 - 5.0)
