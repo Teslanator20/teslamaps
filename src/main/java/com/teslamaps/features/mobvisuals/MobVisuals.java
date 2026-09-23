@@ -97,7 +97,16 @@ public final class MobVisuals {
     public static final Set<Entity> headOnlyGlow = new HashSet<>();
 
     public static final Map<Entity, Integer> tracers = new LinkedHashMap<>();
-    public static final Map<Entity, String> nameplates = new LinkedHashMap<>();
+    public static final Map<Entity, Label> nameplates = new LinkedHashMap<>();
+
+    public record Label(String[] lines, int[] widths) {}
+
+    private static Label label(Minecraft mc, String text) {
+        String[] lines = text.split("\n");
+        int[] widths = new int[lines.length];
+        for (int i = 0; i < lines.length; i++) widths[i] = mc.font.width(lines[i]);
+        return new Label(lines, widths);
+    }
 
     private static final Map<Entity, Double> renderAnchors = new HashMap<>();
     private static final Map<Mob, Entity> tracerNearest = new HashMap<>();
@@ -191,7 +200,7 @@ public final class MobVisuals {
             if (entity instanceof ArmorStand stand && !stand.isMarker()) headOnlyGlow.add(entity);
         }
         if (mob.tracer()) addTracer(mc, entity, mob);
-        if (mob.nameplate()) nameplates.put(entity, nameplateLabel(mc, entity, mob));
+        if (mob.nameplate()) nameplates.put(entity, label(mc, nameplateLabel(mc, entity, mob)));
     }
 
     /** One line per mob by default, so a swarm does not turn into a fan of lines. */
