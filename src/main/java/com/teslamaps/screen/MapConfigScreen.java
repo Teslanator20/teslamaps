@@ -278,6 +278,7 @@ public class MapConfigScreen extends Screen {
     }
 
     protected void buildCategories() {
+        buildCount++;
         categories.clear();
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
@@ -523,7 +524,16 @@ public class MapConfigScreen extends Screen {
         sidebarScroll = 0;
     }
 
+    private List<SettingsEntry> searchCache;
+    private String searchCacheQuery;
+    private int searchCacheBuild = -1;
+    private int buildCount;
+
     protected List<SettingsEntry> getEntriesToShow() {
+        if (!searchQuery.isEmpty() && searchCache != null && searchQuery.equals(searchCacheQuery) && searchCacheBuild == buildCount) {
+            for (SettingsEntry e : searchCache) if (e instanceof LabelEntry le) le.collapseKey = null;
+            return searchCache;
+        }
         List<SettingsEntry> result = new ArrayList<>();
         if (!searchQuery.isEmpty()) {
             for (Map.Entry<String, List<SettingsEntry>> cat : categories.entrySet()) {
@@ -548,6 +558,9 @@ public class MapConfigScreen extends Screen {
                     result.add(before, header);
                 }
             }
+            searchCache = result;
+            searchCacheQuery = searchQuery;
+            searchCacheBuild = buildCount;
         } else {
             List<SettingsEntry> categoryEntries = categories.get(selectedCategory);
             if (categoryEntries == null) return result;
@@ -923,12 +936,14 @@ public class MapConfigScreen extends Screen {
         String collapseKey = null;
         int childCount = 0;
 
-        public LabelEntry(int x, String text) { this.x = x; this.text = text; }
+        private final String textLower;
+
+        public LabelEntry(int x, String text) { this.x = x; this.text = text; this.textLower = text.toLowerCase(); }
 
         @Override public int getHeight() { return 24; }
         @Override public String getLabel() { return text; }
         @Override public boolean isLabel() { return true; }
-        @Override public boolean matchesSearch(String q) { return text.toLowerCase().contains(q); }
+        @Override public boolean matchesSearch(String q) { return textLower.contains(q); }
         @Override public void reposition(int x, int w) { this.x = x; this.collapseKey = null; }
 
         private void caret(GuiGraphicsExtractor ctx, int cx, int cy, boolean open, int color) {
