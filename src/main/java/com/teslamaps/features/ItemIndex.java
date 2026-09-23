@@ -67,6 +67,7 @@ public class ItemIndex {
         public LinkedHashMap<Integer, String> names;      // plain item names, so a search never decodes everything
         public LinkedHashMap<Integer, Integer> amounts;   // sacks store their count in the lore
         public LinkedHashMap<Integer, String> lore;       // stripped lower-case lore, for lore search
+        public Boolean island;                            // captured by the island chest tracker
     }
 
     /** One item found by a search. pos is only set for island chests. */
@@ -209,7 +210,9 @@ public class ItemIndex {
     private static void sweepChests(Minecraft mc) {
         if (++chestTicks % 40 != 0 || !onPrivateIsland()) return;
         List<String> gone = new ArrayList<>();
-        for (String k : data.keySet()) {
+        for (Map.Entry<String, Src> e : data.entrySet()) {
+            if (!Boolean.TRUE.equals(e.getValue().island)) continue;
+            String k = e.getKey();
             BlockPos p = chestPosFromKey(k);
             if (p == null || !mc.level.isLoaded(p)) continue;
             BlockState st = mc.level.getBlockState(p);
@@ -328,6 +331,7 @@ public class ItemIndex {
         src.names = names;
         src.amounts = amounts;
         src.lore = lore;
+        src.island = type.equals(CHESTS) && TeslaMapsConfig.get().islandChestTracker && onPrivateIsland() ? Boolean.TRUE : null;
         dropDecoded(key);
         dirty = true;
         trim();
