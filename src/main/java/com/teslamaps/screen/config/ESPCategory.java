@@ -28,14 +28,14 @@ public final class ESPCategory {
         b.color("  Portal S+", () -> config.colorPortalSPlus, v -> config.colorPortalSPlus = v);
         b.toggle("Starred Mob ESP", () -> config.starredMobESP, v -> config.starredMobESP = v);
         b.toggle("  Tracer When Few Left", () -> config.starredTracerWhenFew, v -> config.starredTracerWhenFew = v);
-        b.slider("  Tracer Threshold", 1f, 5f,
+        b.slider("    Tracer Threshold", 1f, 5f,
                 () -> (float) config.starredTracerThreshold, v -> config.starredTracerThreshold = Math.round(v));
         b.color("  Starred Mobs", () -> config.colorESPStarred, v -> config.colorESPStarred = v);
         b.color("  Lost Adventurer", () -> config.colorESPLostAdventurer, v -> config.colorESPLostAdventurer = v);
         b.color("  Diamond Guy", () -> config.colorESPDiamondGuy, v -> config.colorESPDiamondGuy = v);
         b.toggle("  Starred Fel / Withermancer Colors", () -> config.espStarSpecialColors, v -> config.espStarSpecialColors = v);
-        b.color("  Starred Fel", () -> config.colorESPStarredFel, v -> config.colorESPStarredFel = v);
-        b.color("  Starred Withermancer", () -> config.colorESPStarredWithermancer, v -> config.colorESPStarredWithermancer = v);
+        b.color("    Starred Fel", () -> config.colorESPStarredFel, v -> config.colorESPStarredFel = v);
+        b.color("    Starred Withermancer", () -> config.colorESPStarredWithermancer, v -> config.colorESPStarredWithermancer = v);
         b.slider("  Line Width Mobs", 1f, 8f, () -> config.espLineWidthNormal, v -> config.espLineWidthNormal = v, 1);
         b.slider("  Line Width Fel / Withermancer", 1f, 8f, () -> config.espLineWidthSpecial, v -> config.espLineWidthSpecial = v, 1);
         b.slider("  Line Width Minibosses", 1f, 8f, () -> config.espLineWidthMiniboss, v -> config.espLineWidthMiniboss = v, 1);
@@ -86,7 +86,7 @@ public final class ESPCategory {
         b.toggle("Highlight Teammates", () -> config.highlightTeammates, v -> config.highlightTeammates = v);
         b.toggle("Invisible Armor Stand ESP", () -> config.invisibleArmorStandESP, v -> config.invisibleArmorStandESP = v);
         b.toggle("Hoppity Egg ESP", () -> config.hoppityEggESP, v -> config.hoppityEggESP = v);
-        b.toggle("Hoppity Egg Tracers", () -> config.hoppityEggTracers, v -> config.hoppityEggTracers = v);
+        b.toggle("  Hoppity Egg Tracers", () -> config.hoppityEggTracers, v -> config.hoppityEggTracers = v);
         b.label("Head ESP");
         b.info("/tmap head add <name> while looking at a head");
         b.info("/tmap head list | remove <name> | probe [radius]");
@@ -102,7 +102,7 @@ public final class ESPCategory {
         b.toggle("  Rarity Color", () -> config.droppedItemRarityColor, v -> config.droppedItemRarityColor = v);
         b.toggle("  Show Name & Amount", () -> config.droppedItemLabel, v -> config.droppedItemLabel = v);
         b.toggle("Item Pickup Readiness", () -> config.secretItemReadiness, v -> config.secretItemReadiness = v);
-        b.slider("Item Pickup Delay (ticks)", 0f, 200f,
+        b.slider("  Item Pickup Delay (ticks)", 0f, 200f,
                 () -> (float) config.secretItemPickupTicks, v -> config.secretItemPickupTicks = Math.round(v));
     }
 }

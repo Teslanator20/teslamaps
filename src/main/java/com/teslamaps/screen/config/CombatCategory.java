@@ -29,7 +29,7 @@ public final class CombatCategory {
         b.slider("  Title Duration (ticks)", 5, 100, () -> (float) config.slayerAlertTicks,
                 v -> config.slayerAlertTicks = Math.round(v), 0);
         b.toggle("  Custom Title Color", () -> config.slayerAlertCustomColor, v -> config.slayerAlertCustomColor = v);
-        b.color("  Title Color", () -> config.slayerAlertColor, v -> config.slayerAlertColor = v);
+        b.color("    Title Color", () -> config.slayerAlertColor, v -> config.slayerAlertColor = v);
         b.label("Slayer Kill Time");
         b.toggle("Kill Time in Chat", () -> config.slayerKillChat, v -> config.slayerKillChat = v);
         b.info("Timed from the scoreboard's \"Slay the boss!\" line to the kill");

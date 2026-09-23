@@ -40,7 +40,7 @@ public final class AutoCategory {
 
         b.label("Special");
         b.toggle("Auto Draft on Puzzle Fail", () -> config.autoGFSDraft, v -> config.autoGFSDraft = v);
-        b.toggle("Draft Alert Title", () -> config.autoGFSDraftAlert, v -> config.autoGFSDraftAlert = v);
+        b.toggle("  Draft Alert Title", () -> config.autoGFSDraftAlert, v -> config.autoGFSDraftAlert = v);
         b.label("Auto Wish");
         b.toggle("Auto Wish (Healer Ult)", () -> config.autoWish, v -> config.autoWish = v);
         b.toggle("Last Breath Pull Sound", () -> config.lastBreathSound, v -> config.lastBreathSound = v);
@@ -48,7 +48,7 @@ public final class AutoCategory {
         b.toggle("Auto Close Chests", () -> config.autoCloseChests, v -> config.autoCloseChests = v);
         b.slider("  Auto Close Delay (ticks)", 0, 20, () -> (float) config.autoCloseDelay, v -> config.autoCloseDelay = v.intValue());
         b.slider("  Randomization (ticks)", 0, 10, () -> (float) config.autoCloseRandomization, v -> config.autoCloseRandomization = v.intValue());
-        b.toggle("  Close Chest On Input", () -> config.closeChestOnInput, v -> config.closeChestOnInput = v);
+        b.toggle("Close Chest On Input", () -> config.closeChestOnInput, v -> config.closeChestOnInput = v);
         b.label("Movement");
         b.toggle("Auto Sprint", () -> config.autoSprint, v -> config.autoSprint = v);
     }

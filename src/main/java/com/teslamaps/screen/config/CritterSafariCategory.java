@@ -26,10 +26,10 @@ public final class CritterSafariCategory {
         b.info("\"n near\" only counts critters with a free line of sight");
         b.label("Checklist");
         b.toggle("Show Checklist", () -> config.safariChecklist, v -> config.safariChecklist = v);
-        b.dropdown("Biome",
+        b.dropdown("  Biome",
                 new String[] { "Auto", "Cavern", "Forest", "Haunted", "Icy" },
                 () -> config.safariChecklistBiome, v -> config.safariChecklistBiome = v);
-        b.toggle("Check/Cross Icons", () -> config.safariChecklistIcons, v -> config.safariChecklistIcons = v);
+        b.toggle("  Check/Cross Icons", () -> config.safariChecklistIcons, v -> config.safariChecklistIcons = v);
         b.info("Green = caught, red = escaped, grey = not seen");
         b.label("Alerts");
         b.toggle("Encounter Banners", () -> config.safariEncounterBanner, v -> config.safariEncounterBanner = v);
@@ -40,7 +40,7 @@ public final class CritterSafariCategory {
         b.toggle("  Only In Its Biome", () -> config.safariBannerBiomeOnly, v -> config.safariBannerBiomeOnly = v);
         b.channel("  Post Stages To", () -> config.safariBannerChannel, v -> config.safariBannerChannel = v);
         b.toggle("Sparkling Alert", () -> config.safariSparklingAlert, v -> config.safariSparklingAlert = v);
-        b.channel("Sparkling Announce", () -> config.safariSparklingChannel, v -> config.safariSparklingChannel = v);
+        b.channel("  Sparkling Announce", () -> config.safariSparklingChannel, v -> config.safariSparklingChannel = v);
         b.toggle("  Full Screen Alert", () -> config.safariSparklingScreen, v -> config.safariSparklingScreen = v);
         b.info("Screen wash with SPARKLING!, the critter, biome and coords, 7s");
         b.toggle("  Only When Visible", () -> config.safariSparklingVisible, v -> config.safariSparklingVisible = v);
@@ -48,7 +48,7 @@ public final class CritterSafariCategory {
         b.info("Sparkles render at any distance and particle setting");
         b.toggle("Announce Biome Done", () -> config.safariAnnounceBiomeDone, v -> config.safariAnnounceBiomeDone = v);
         b.toggle("Announce Unique Done", () -> config.safariAnnounceUniqueDone, v -> config.safariAnnounceUniqueDone = v);
-        b.channel("  Share Time", () -> config.safariShareTimeChannel, v -> config.safariShareTimeChannel = v);
+        b.channel("Share Time", () -> config.safariShareTimeChannel, v -> config.safariShareTimeChannel = v);
         b.toggle("Warn If Not Full", () -> config.safariWarnNotFull, v -> config.safariWarnNotFull = v);
         b.info("Screen warning + sound when fewer than 4 players are in");
         b.slider("Alert Volume", 0.0f, 3.0f,
@@ -72,7 +72,7 @@ public final class CritterSafariCategory {
         b.toggle("Only Uncaught", () -> config.safariOnlyMissing, v -> config.safariOnlyMissing = v);
         b.toggle("Name Over Every Critter", () -> config.safariNames, v -> config.safariNames = v);
         b.toggle("Tracers To Named", () -> config.safariTracers, v -> config.safariTracers = v);
-        b.toggle("  Tracer To Hideyho", () -> config.safariHideyhoTracer, v -> config.safariHideyhoTracer = v);
+        b.toggle("Tracer To Hideyho", () -> config.safariHideyhoTracer, v -> config.safariHideyhoTracer = v);
         b.toggle("Bee Nest ESP", () -> config.safariNestESP, v -> config.safariNestESP = v);
         b.toggle("Floor Spot ESP", () -> config.critterSpotESP, v -> config.critterSpotESP = v);
         b.toggle("Recatch Spot", () -> config.safariRecatchSpot, v -> config.safariRecatchSpot = v);

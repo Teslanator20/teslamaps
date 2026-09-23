@@ -32,7 +32,7 @@ public final class ChatCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Chat QoL");
         b.toggle("Infinite Chat History", () -> config.infiniteChat, v -> config.infiniteChat = v);
-        b.slider("History Cap (lines)", 1024f, 32768f,
+        b.slider("  History Cap (lines)", 1024f, 32768f,
                 () -> (float) config.chatHistoryLimit, v -> config.chatHistoryLimit = v.intValue());
         b.toggle("Keep History Across Restarts", () -> config.chatHistoryPersist, v -> config.chatHistoryPersist = v);
         b.info("Saves the chat on quit and restores it on the next launch");
@@ -48,7 +48,7 @@ public final class ChatCategory {
                     }
                 });
         b.toggle("Stack Duplicate Messages", () -> config.chatStacking, v -> config.chatStacking = v);
-        b.slider("Stack Window (min)", 1f, 30f,
+        b.slider("  Stack Window (min)", 1f, 30f,
                 () -> (float) config.chatStackWindowMinutes, v -> config.chatStackWindowMinutes = Math.round(v));
         b.toggle("  Stack Divider Blocks (---/===/▬▬▬)", () -> config.chatStackBlocks, v -> config.chatStackBlocks = v);
         b.toggle("  Colours Must Match", () -> config.chatStackCompareColors, v -> config.chatStackCompareColors = v);
@@ -115,7 +115,7 @@ public final class ChatCategory {
             config.chatFilterMilestone = nv;
             TeslaMapsConfig.save();
         });
-        groupAction(b, config, com.teslamaps.features.ChatFilter.G_DUNGEON, "  Dungeon Filter Action");
+        groupAction(b, config, com.teslamaps.features.ChatFilter.G_DUNGEON, "Dungeon Filter Action");
         b.toggle("Hide Empty Lines", () -> config.chatFilterEmpty, v -> config.chatFilterEmpty = v);
         b.toggle("Hide Watcher Messages", () -> config.chatFilterWatcher, v -> config.chatFilterWatcher = v);
         b.toggle("Hide F4/M4 Boss (Thorn)", () -> config.chatFilterF4Boss, v -> config.chatFilterF4Boss = v);
@@ -139,7 +139,7 @@ public final class ChatCategory {
         b.toggle("Compact Stash Warnings", () -> config.stashCompact, v -> config.stashCompact = v);
         b.info("One clickable line instead of the block (wins over Hide Stash Messages)");
         b.toggle("  Hide Repeated Counts", () -> config.stashHideDuplicates, v -> config.stashHideDuplicates = v);
-        b.toggle("  Repeat Once Per World", () -> config.stashDuplicatesPerWorld, v -> config.stashDuplicatesPerWorld = v);
+        b.toggle("    Repeat Once Per World", () -> config.stashDuplicatesPerWorld, v -> config.stashDuplicatesPerWorld = v);
         b.toggle("  Hide \"Added To Stash\"", () -> config.stashHideAdded, v -> config.stashHideAdded = v);
         b.slider("  Hide Warnings Up To", 0f, 10000f, () -> (float) config.stashMinCount, v -> config.stashMinCount = Math.round(v));
         b.toggle("  Click Opens /viewstash", () -> config.stashUseViewStash, v -> config.stashUseViewStash = v);

@@ -30,14 +30,14 @@ public final class ContestTimersCategory {
                 () -> config.contestAlert5Min, v -> config.contestAlert5Min = v);
         b.toggle("Alert if < 1,5 Minutes left",
                 () -> config.contestAlert90Sec, v -> config.contestAlert90Sec = v);
-        b.toggle("  Chat Message",
+        b.toggle("Chat Message",
                 () -> config.contestAlertChat, v -> config.contestAlertChat = v);
-        b.toggle("  Show Title",
+        b.toggle("Show Title",
                 () -> config.contestAlertTitle, v -> config.contestAlertTitle = v);
-        b.soundDropdown("  Sound",
+        b.soundDropdown("Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.contestAlertSound, v -> config.contestAlertSound = v);
-        b.slider("  Volume", 0f, 4f,
+        b.slider("Volume", 0f, 4f,
                 () -> config.contestAlertVolume, v -> config.contestAlertVolume = v, 2);
         b.info("The two timers only fire while the ticket score is missing");
         b.label("Party Chat");

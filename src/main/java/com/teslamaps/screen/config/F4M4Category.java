@@ -17,9 +17,9 @@ public final class F4M4Category {
                 () -> config.m4HighlightStyle, v -> config.m4HighlightStyle = v);
         b.toggle("Hide Nametags", () -> config.m4HideNametags, v -> config.m4HideNametags = v);
         b.toggle("Thorn", () -> config.m4HlThorn, v -> config.m4HlThorn = v);
-        b.toggle("Thorn Damage Flash", () -> config.m4ThornDmgFlash, v -> config.m4ThornDmgFlash = v);
+        b.toggle("  Thorn Damage Flash", () -> config.m4ThornDmgFlash, v -> config.m4ThornDmgFlash = v);
         b.toggle("Bear", () -> config.m4HlBear, v -> config.m4HlBear = v);
-        b.toggle("Bear Only On Mage", () -> config.m4BearOnlyMage, v -> config.m4BearOnlyMage = v);
+        b.toggle("  Bear Only On Mage", () -> config.m4BearOnlyMage, v -> config.m4BearOnlyMage = v);
         b.toggle("Cows", () -> config.m4HlCow, v -> config.m4HlCow = v);
         b.toggle("Sheep", () -> config.m4HlSheep, v -> config.m4HlSheep = v);
         b.toggle("Chickens", () -> config.m4HlChicken, v -> config.m4HlChicken = v);
