@@ -39,6 +39,17 @@ public final class SkillsCategory {
         b.label("Skill XP Display");
         b.toggle("Skill XP Display", () -> config.skillExpDisplay, v -> config.skillExpDisplay = v);
         b.info("Cuts the +XP out of the action bar into its own HUD element");
+        b.toggle("  Skill Icon", () -> config.skillExpIcon, v -> config.skillExpIcon = v);
+        b.toggle("  Level Prefix", () -> config.skillExpLevel, v -> config.skillExpLevel = v);
+        String[] xpFormats = {"As Sent", "Percent", "XP / Needed"};
+        b.dropdown("  Progress Format", xpFormats,
+                () -> xpFormats[Math.max(0, Math.min(2, config.skillExpFormat))],
+                v -> config.skillExpFormat = java.util.Arrays.asList(xpFormats).indexOf(v));
+        b.toggle("  Actions Left", () -> config.skillExpActionsLeft, v -> config.skillExpActionsLeft = v);
+        b.toggle("  Progress Bar", () -> config.skillExpBar, v -> config.skillExpBar = v);
+        b.slider("  Bar Width", 40f, 250f, () -> (float) config.skillExpBarWidth, v -> config.skillExpBarWidth = Math.round(v), 0);
+        b.color("  Bar Color", () -> config.skillExpBarColor, v -> config.skillExpBarColor = v);
+        b.info("Level, Percent <-> XP and Actions Left need the Skills tab widget");
         b.info("Move it in /tmap gui");
         b.info("Keeps tracking either way — [Hide]/[Show] in the panel does the same");
         b.toggle("Overflow Levels (menu + chat)", () -> config.skillOverflow, v -> config.skillOverflow = v);

@@ -944,6 +944,13 @@ public class TeslaMapsConfig {
     public int skillExpDisplayX = -1;          // -1 = centered above the hotbar
     public int skillExpDisplayY = -1;
     public float skillExpDisplayScale = 1.0f;
+    public boolean skillExpIcon = false;       // skill item icon in front of the xp
+    public boolean skillExpLevel = false;      // "[25]" level prefix, from the tab list
+    public int skillExpFormat = 0;             // 0 = as sent, 1 = percent, 2 = xp/needed
+    public boolean skillExpActionsLeft = false; // "340 left" = rest xp / last gain
+    public boolean skillExpBar = false;        // progress bar under the text
+    public int skillExpBarWidth = 120;
+    public String skillExpBarColor = "30D158";
     public boolean fixDoubleClicks = true;     // Drop the duplicate use-on-block Hypixel sends for blaze daggers / autopet rods
     public boolean skillLevelStackSize = true;  // draw the skill level as the stack size in the skills menu
     public boolean skillAvgOverflow = true;     // add the overflow skill average to the "Your Skills" tooltip
