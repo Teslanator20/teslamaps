@@ -323,6 +323,11 @@ public class ESPRenderer {
 
     public static void drawText(PoseStack matrices, String text, Vec3 pos, float scale, Vec3 cameraPos,
                                 boolean scaleWithDistance, boolean throughWalls) {
+        drawText(matrices, text, pos, scale, cameraPos, scaleWithDistance, throughWalls, 0);
+    }
+
+    public static void drawText(PoseStack matrices, String text, Vec3 pos, float scale, Vec3 cameraPos,
+                                boolean scaleWithDistance, boolean throughWalls, int background) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.font == null || mc.gameRenderer == null || mc.gameRenderer.getMainCamera() == null) return;
 
@@ -350,7 +355,7 @@ public class ESPRenderer {
             immediate,
             throughWalls ? net.minecraft.client.gui.Font.DisplayMode.SEE_THROUGH
                          : net.minecraft.client.gui.Font.DisplayMode.NORMAL,
-            0,          // no background
+            background,
             15728880    // full brightness
         );
 
@@ -420,6 +425,22 @@ public class ESPRenderer {
         float b = (color & 0xFF) / 255f;
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = 0.5f;
+
+        if (com.teslamaps.config.TeslaMapsConfig.get().realBeaconBeam && mc.gameRenderer != null) {
+            double dx = cameraPos.x - (pos.getX() + 0.5);
+            double dz = cameraPos.z - (pos.getZ() + 0.5);
+            float scale = mc.player != null && mc.player.isScoping() ? 1f
+                    : Math.max(1f, (float) Math.sqrt(dx * dx + dz * dz) / 96f);
+            float time = Math.floorMod(mc.level.getGameTime(), 40L) + mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
+            matrices.pushPose();
+            matrices.translate(pos.getX() - cameraPos.x, pos.getY() - cameraPos.y, pos.getZ() - cameraPos.z);
+            net.minecraft.client.renderer.blockentity.BeaconRenderer.submitBeaconBeam(matrices,
+                    mc.gameRenderer.getFeatureRenderDispatcher().getSubmitNodeStorage(),
+                    net.minecraft.client.renderer.blockentity.BeaconRenderer.BEAM_LOCATION,
+                    1f, time, 0, 319, color | 0xFF000000, 0.2f * scale, 0.25f * scale);
+            matrices.popPose();
+            return;
+        }
 
         Vec3 bottom = new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         Vec3 top = new Vec3(pos.getX() + 0.5, pos.getY() + 256, pos.getZ() + 0.5);

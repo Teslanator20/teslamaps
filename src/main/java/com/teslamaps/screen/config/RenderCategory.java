@@ -43,6 +43,9 @@ public final class RenderCategory {
         b.label("Loading Screens");
         b.toggle("Disable World Loading Screen", () -> config.disableWorldLoadingScreen, v -> config.disableWorldLoadingScreen = v);
         b.toggle("No Texture Reload Screen", () -> config.noReloadScreen, v -> config.noReloadScreen = v);
+        b.label("Beacons & Lines");
+        b.toggle("Real Beacon Beams", () -> config.realBeaconBeam, v -> config.realBeaconBeam = v);
+        b.toggle("Waypoint Label Background", () -> config.waypointLabelBackground, v -> config.waypointLabelBackground = v);
         b.label("Block Overlay");
         b.toggle("Block Overlay", () -> config.blockOverlay, v -> config.blockOverlay = v);
         b.color("  Block Overlay Color", () -> config.blockOverlayColor, v -> config.blockOverlayColor = v);
