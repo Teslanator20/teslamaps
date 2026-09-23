@@ -120,6 +120,7 @@ public class TeslaMapsConfig {
     public boolean rotatePlayerHeads = true;
     public boolean useHeadsInsteadOfMarkers = true;  // True = player heads, False = arrow markers
     public float playerHeadScale = 1.0f;         // Scale of player heads (0.5 - 2.0)
+    public boolean mapGlowArrow = false;         // pulsing glow arrow for self (and others when markers are used)
 
     public boolean starredMobESP = true;        // Highlight starred mobs
     public boolean felESP = true;               // Highlight fels (Dinnerbone entities)

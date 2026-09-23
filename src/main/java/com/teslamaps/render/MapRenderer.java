@@ -1035,7 +1035,9 @@ public class MapRenderer {
         float rad = config.rotatePlayerHeads ? (float) Math.toRadians(rotationDeg) : 0f;
         if (rad != 0f) pose.rotate(rad);
 
-        if (config.useHeadsInsteadOfMarkers && uuid != null) {
+        if (config.mapGlowArrow && (isLocal || !config.useHeadsInsteadOfMarkers || uuid == null)) {
+            drawGlowArrow(context, Math.max(10, headSize) / 20f, knownClass ? classColor : 0xFF00FF00);
+        } else if (config.useHeadsInsteadOfMarkers && uuid != null) {
             if (config.mapHeadBorder) {
                 int t = Math.max(1, Math.round(headSize / 8f));
                 int b = half + t;
@@ -1117,6 +1119,44 @@ public class MapRenderer {
             x += xInc;
             y += yInc;
         }
+    }
+
+    // Oracle Economy TerritoryMapScreen.renderPlayerMarker: notched arrow, outer glow / inner glow / core
+    private static void drawGlowArrow(GuiGraphicsExtractor context, float s, int color) {
+        float pulse = (float) (0.9 + 0.1 * Math.sin(System.currentTimeMillis() / 150.0));
+        int r = (int) (((color >> 16) & 0xFF) * pulse);
+        int g = (int) (((color >> 8) & 0xFF) * pulse);
+        int b = (int) ((color & 0xFF) * pulse);
+        int rgb = (r << 16) | (g << 8) | b;
+        int[] colors = {0x1A000000 | rgb, 0x44000000 | rgb, 0xFF000000 | rgb};
+        int[] expands = {3, 1, 0};
+        int hw = 9, h = 20, notchHW = 6, notchD = 7;
+        int tipY = -h * 2 / 3;
+        int baseY = tipY + h;
+        var pose = context.pose();
+        pose.pushMatrix();
+        pose.scale(s, s);
+        for (int pass = 0; pass < 3; pass++) {
+            int ex = expands[pass];
+            int c = colors[pass];
+            for (int row = tipY - ex; row <= baseY + ex; row++) {
+                float triT = Math.clamp((float) (row - tipY) / h, 0f, 1f);
+                int rowHW = (int) (hw * triT + ex + 0.5f);
+                if (rowHW <= 0) continue;
+                int notchStart = baseY - notchD;
+                if (row > notchStart - ex) {
+                    float nT = Math.clamp((float) (row - notchStart) / notchD, 0f, 1f);
+                    int nHW = Math.max(0, (int) (notchHW * nT + 0.5f) - ex);
+                    if (nHW > 0 && nHW < rowHW) {
+                        context.fill(-rowHW, row, -nHW, row + 1, c);
+                        context.fill(nHW, row, rowHW, row + 1, c);
+                        continue;
+                    }
+                }
+                context.fill(-rowHW, row, rowHW, row + 1, c);
+            }
+        }
+        pose.popMatrix();
     }
 
     private static void drawFilledTriangle(GuiGraphicsExtractor context, int x1, int y1, int x2, int y2, int x3, int y3, int color) {

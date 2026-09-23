@@ -60,6 +60,7 @@ public final class MapCategory {
         b.toggle("Show Names", () -> config.showPlayerNames, v -> config.showPlayerNames = v);
         b.toggle("Use Heads (vs Markers)", () -> config.useHeadsInsteadOfMarkers, v -> config.useHeadsInsteadOfMarkers = v);
         b.toggle("Rotate Heads", () -> config.rotatePlayerHeads, v -> config.rotatePlayerHeads = v);
+        b.toggle("Glow Arrow Marker", () -> config.mapGlowArrow, v -> config.mapGlowArrow = v);
         b.slider("Head Scale", 0.5f, 2.0f,
                 () -> config.playerHeadScale, v -> config.playerHeadScale = v);
         b.label("Room Colors");
