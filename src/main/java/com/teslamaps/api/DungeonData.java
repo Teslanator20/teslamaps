@@ -18,6 +18,9 @@ public class DungeonData {
     private final Map<String, FloorData> masterFloors = new LinkedHashMap<>();
 
     private int secretsFound = 0;
+    private String selectedClass;
+    private int highestNormal = 0;
+    private int highestMaster = 0;
 
     private static final double[] CATACOMBS_XP_TABLE = {
             0, 50, 125, 235, 395, 625, 955, 1425, 2095, 3045,
@@ -64,12 +67,16 @@ public class DungeonData {
 
                     parseFloorCompletions(catacombs, normalFloors);
                     parseFloorTimes(catacombs, normalFloors);
+                    parseBestRuns(catacombs, normalFloors);
+                    highestNormal = intOf(catacombs, "highest_tier_completed");
                 }
 
                 if (dungeonTypes.has("master_catacombs")) {
                     JsonObject master = dungeonTypes.getAsJsonObject("master_catacombs");
                     parseFloorCompletions(master, masterFloors);
                     parseFloorTimes(master, masterFloors);
+                    parseBestRuns(master, masterFloors);
+                    highestMaster = intOf(master, "highest_tier_completed");
                 }
             }
 
@@ -88,6 +95,10 @@ public class DungeonData {
 
             if (dungeons.has("secrets")) {
                 this.secretsFound = dungeons.get("secrets").getAsInt();
+            }
+
+            if (dungeons.has("selected_dungeon_class") && dungeons.get("selected_dungeon_class").isJsonPrimitive()) {
+                this.selectedClass = dungeons.get("selected_dungeon_class").getAsString();
             }
 
         } catch (Exception e) {
@@ -134,6 +145,41 @@ public class DungeonData {
         }
     }
 
+    private static int intOf(JsonObject obj, String key) {
+        try {
+            return obj.has(key) ? obj.get(key).getAsInt() : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /** Highest combined score of a floor's stored runs, with the time it was played. */
+    private void parseBestRuns(JsonObject dungeonType, Map<String, FloorData> floors) {
+        if (!dungeonType.has("best_runs") || !dungeonType.get("best_runs").isJsonObject()) return;
+        for (Map.Entry<String, JsonElement> entry : dungeonType.getAsJsonObject("best_runs").entrySet()) {
+            FloorData floor = floors.get(entry.getKey());
+            if (floor == null || !entry.getValue().isJsonArray()) continue;
+            for (JsonElement element : entry.getValue().getAsJsonArray()) {
+                if (!element.isJsonObject()) continue;
+                JsonObject run = element.getAsJsonObject();
+                int score = (int) (num(run, "score_exploration") + num(run, "score_speed")
+                        + num(run, "score_skill") + num(run, "score_bonus"));
+                if (score > floor.bestScore) {
+                    floor.bestScore = score;
+                    floor.bestTimestamp = (long) num(run, "timestamp");
+                }
+            }
+        }
+    }
+
+    private static double num(JsonObject obj, String key) {
+        try {
+            return obj.has(key) && obj.get(key).isJsonPrimitive() ? obj.get(key).getAsDouble() : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     private void parseFloorTimes(JsonObject dungeonType, Map<String, FloorData> floors) {
         if (!dungeonType.has("fastest_time")) return;
         JsonObject times = dungeonType.getAsJsonObject("fastest_time");
@@ -172,6 +218,9 @@ public class DungeonData {
     public Map<String, FloorData> getNormalFloors() { return normalFloors; }
     public Map<String, FloorData> getMasterFloors() { return masterFloors; }
     public int getSecretsFound() { return secretsFound; }
+    public String getSelectedClass() { return selectedClass; }
+    public int getHighestNormal() { return highestNormal; }
+    public int getHighestMaster() { return highestMaster; }
 
     /** Entrance included, master modes included - what "secrets per run" divides by. */
     public int getTotalRuns() {
@@ -211,6 +260,8 @@ public class DungeonData {
         private long fastestTime = 0;      // milliseconds
         private long fastestSTime = 0;
         private long fastestSPlusTime = 0;
+        private int bestScore = 0;
+        private long bestTimestamp = 0;
 
         public FloorData(String displayName) {
             this.displayName = displayName;
@@ -228,6 +279,19 @@ public class DungeonData {
 
         public long getFastestSPlusTime() { return fastestSPlusTime; }
         public void setFastestSPlusTime(long fastestSPlusTime) { this.fastestSPlusTime = fastestSPlusTime; }
+
+        public int getBestScore() { return bestScore; }
+        public long getBestTimestamp() { return bestTimestamp; }
+
+        public String getBestGrade() {
+            if (bestScore <= 0) return null;
+            if (bestScore >= 300) return "S+";
+            if (bestScore >= 270) return "S";
+            if (bestScore >= 230) return "A";
+            if (bestScore >= 160) return "B";
+            if (bestScore >= 100) return "C";
+            return "D";
+        }
 
         public String formatTime(long ms) {
             if (ms == 0) return "-";
