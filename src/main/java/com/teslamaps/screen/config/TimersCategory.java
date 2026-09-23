@@ -14,6 +14,10 @@ public final class TimersCategory {
         b.info("All timers share one movable HUD block (/tmap gui).");
         b.label("Cooldowns");
         b.toggle("Warp Cooldown", () -> config.warpCooldown, v -> config.warpCooldown = v);
+        b.toggle("  Per Player", () -> config.warpCooldownPerPlayer, v -> config.warpCooldownPerPlayer = v);
+        b.toggle("  Only Own Cooldown", () -> config.warpCooldownOwnOnly, v -> config.warpCooldownOwnOnly = v);
+        b.toggle("  Sound When Ready", () -> config.warpCooldownSound, v -> config.warpCooldownSound = v);
+        b.slider("  Warp Sound Volume", 0f, 5f, () -> config.warpCooldownVolume, v -> config.warpCooldownVolume = v);
         b.toggle("Wither Shield Timer (W-Impact)", () -> config.witherShieldTimer, v -> config.witherShieldTimer = v);
         b.toggle("Tactical Insertion Timer", () -> config.tacticalInsertionTimer, v -> config.tacticalInsertionTimer = v);
         b.toggle("Invincibility Timer", () -> config.invincibilityTimer, v -> config.invincibilityTimer = v);

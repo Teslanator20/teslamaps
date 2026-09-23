@@ -90,7 +90,12 @@ public class TimerTriggers {
     }
 
     public static void onChatMessage(String m) {
-        if (m.contains("The Catacombs, Floor") && m.contains("entered")) warpEnd = now() + 30000;
+        if (m.contains("The Catacombs, Floor") && m.contains("entered")) {
+            warpEnd = now() + 30000;
+            warpStart(ENTERED.matcher(strip(m)));
+        } else if (m.contains("warped the party to a SkyBlock dungeon!")) {
+            warpStart(WARPED.matcher(strip(m)));
+        }
         if (m.contains("[BOSS] Storm: ENERGY HEED MY CALL!")
                 || m.contains("[BOSS] Storm: THUNDER LET ME BE YOUR CATALYST!")) purplePadTicks = 96;
         if (m.contains("[BOSS] Necron: All this, for nothing...")) relicTicks = 45;
@@ -111,6 +116,57 @@ public class TimerTriggers {
         if (m.contains("Phoenix Pet saved you from certain death")) { PHOENIX.proc = now(); announce("Phoenix"); }
     }
 
+    private static final java.util.regex.Pattern ENTERED =
+            java.util.regex.Pattern.compile("(?:\\[[^\\]]+] )?(\\w{1,16}) entered (?:MM )?The Catacombs, Floor");
+    private static final java.util.regex.Pattern WARPED =
+            java.util.regex.Pattern.compile("(?:\\[[^\\]]+] )?(\\w{1,16}) warped the party to a SkyBlock dungeon!");
+    private static final java.util.Map<String, Long> playerWarpEnds = new java.util.LinkedHashMap<>();
+    private static final java.util.Set<String> shownWarpKeys = new java.util.HashSet<>();
+
+    private static void warpStart(java.util.regex.Matcher mt) {
+        if (!mt.find()) return;
+        long end = now() + 30000;
+        Long prev = playerWarpEnds.get(mt.group(1));
+        if (prev != null && end - prev < 5000) return;
+        playerWarpEnds.put(mt.group(1), end);
+    }
+
+    private static void warpDoneSound() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.warpCooldownSound) com.teslamaps.utils.LoudSound.play(
+                net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), c.warpCooldownVolume, 1.5f);
+    }
+
+    private static void tickWarp(TeslaMapsConfig c, Minecraft mc) {
+        java.util.Set<String> keep = new java.util.HashSet<>();
+        if (c.warpCooldown && !c.warpCooldownPerPlayer && warpEnd > 0) {
+            long ms = warpEnd - now();
+            if (ms < 0) { warpEnd = -1; warpDoneSound(); }
+            else { DungeonTimers.set("warp", "§eWarp§f: " + color(ms, 30000) + fmt(ms)); keep.add("warp"); }
+        }
+        String self = mc.player != null ? mc.player.getName().getString() : "";
+        var it = playerWarpEnds.entrySet().iterator();
+        while (it.hasNext()) {
+            var e = it.next();
+            long ms = e.getValue() - now();
+            boolean shown = c.warpCooldown && c.warpCooldownPerPlayer
+                    && (!c.warpCooldownOwnOnly || e.getKey().equals(self));
+            if (ms < 0) {
+                it.remove();
+                if (shown) warpDoneSound();
+                continue;
+            }
+            if (!shown) continue;
+            String key = "warp_" + e.getKey();
+            DungeonTimers.set(key, "§e" + e.getKey() + "§f: " + color(ms, 30000) + fmt(ms));
+            keep.add(key);
+        }
+        for (String k : shownWarpKeys) if (!keep.contains(k)) DungeonTimers.clear(k);
+        if (!keep.contains("warp")) DungeonTimers.clear("warp");
+        shownWarpKeys.clear();
+        shownWarpKeys.addAll(keep);
+    }
+
     private static void announce(String name) {
         if (!TeslaMapsConfig.get().invincibilityAnnounce) return;
         if (!com.teslamaps.dungeon.DungeonManager.isInDungeon()) return;
@@ -122,11 +178,7 @@ public class TimerTriggers {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
         com.teslamaps.dungeon.DungeonFloor f = com.teslamaps.dungeon.DungeonManager.getCurrentFloor();
-        if (c.warpCooldown && warpEnd > 0) {
-            long ms = warpEnd - now();
-            if (ms < 0) { warpEnd = -1; DungeonTimers.clear("warp"); }
-            else DungeonTimers.set("warp", "§eWarp§f: " + color(ms, 30000) + fmt(ms));
-        } else DungeonTimers.clear("warp");
+        tickWarp(c, mc);
 
         BONZO.tick(c.invincibilityTimer);
         SPIRIT.tick(c.invincibilityTimer);

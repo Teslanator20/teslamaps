@@ -946,6 +946,10 @@ public class TeslaMapsConfig {
     public boolean partyDuplicateMessage = true;   // Announce duplicate classes to party chat
     public boolean hideCheapCoins = true;          // Hide the spinning coin item entities from coin talismans
     public boolean warpCooldown = true;            // 30s warp/re-queue cooldown timer after a floor starts
+    public boolean warpCooldownPerPlayer = false;   // one warp cooldown line per player who entered
+    public boolean warpCooldownOwnOnly = false;     // per-player mode: only your own cooldown
+    public boolean warpCooldownSound = false;       // ding when a warp cooldown ends
+    public float warpCooldownVolume = 1.0f;
     public boolean witherShieldTimer = false;       // Hyperion/wither-blade Wither Impact cooldown timer
     public boolean tacticalInsertionTimer = false;  // 3s Tactical Insertion timer on right-click
     public boolean invincibilityTimer = true;       // Bonzo / Spirit / Phoenix immunity + cooldown block
