@@ -152,6 +152,12 @@ public class ESPRenderer {
         if (mc.player == null || mc.gameRenderer == null || mc.gameRenderer.getMainCamera() == null) return;
 
         var camera = mc.gameRenderer.getMainCamera();
+        if (camera.isDetached()) {
+            float pt = mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
+            Vec3 start = mc.player.getEyePosition(pt).add(mc.player.getViewVector(pt).scale(0.2));
+            drawTracer(matrices, start, target, color, cameraPos, bufferSource);
+            return;
+        }
         float yaw = camera.yRot();
         float pitch = camera.xRot();
 
