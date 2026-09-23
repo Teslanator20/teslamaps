@@ -21,6 +21,9 @@ public final class ESPCategory {
                 () -> Minecraft.getInstance().setScreen(new EspListScreen()));
         b.label("Dungeon ESP");
         b.toggle("Color Portal by Score", () -> config.colorPortal, v -> config.colorPortal = v);
+        b.color("  Portal < 270", () -> config.colorPortalLow, v -> config.colorPortalLow = v);
+        b.color("  Portal S", () -> config.colorPortalS, v -> config.colorPortalS = v);
+        b.color("  Portal S+", () -> config.colorPortalSPlus, v -> config.colorPortalSPlus = v);
         b.toggle("Starred Mob ESP", () -> config.starredMobESP, v -> config.starredMobESP = v);
         b.toggle("  Tracer When Few Left", () -> config.starredTracerWhenFew, v -> config.starredTracerWhenFew = v);
         b.slider("  Tracer Threshold", 1f, 5f,

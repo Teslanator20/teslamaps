@@ -968,6 +968,9 @@ public class TeslaMapsConfig {
     public boolean secretTickTimer = false;        // Secret spawn tick (20-tick cycle, clear only)
     public String tickTimerFormat = "Seconds";     // Seconds, Ticks, Both — display format for tick timers
     public boolean colorPortal = false;             // Recolor the blood portal by score (red/gold/green)
+    public String colorPortalLow = "A0FF1010";      // portal color below 270
+    public String colorPortalS = "A0FFD700";        // portal color for S
+    public String colorPortalSPlus = "A040FF00";    // portal color for S+
     public boolean highlightTeammates = false;      // ESP box around party members (through walls), colored by class
     public boolean relicTimer = true;              // M7 relic spawn countdown after Necron's line
     public boolean creeperBeamsDing = true;        // Ding when toggling a lantern in Creeper Beams
