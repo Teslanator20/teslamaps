@@ -1,6 +1,7 @@
 package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.features.KeybindMessage;
 import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.render.gui.TeslaGui;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class KeybindMessageScreen extends Screen {
     private static final int PANEL_W = 420, PANEL_H = 290;
-    private static final int ROW_H = 28, VISIBLE = 6, KEY_W = 92;
+    private static final int ROW_H = 28, VISIBLE = 6, KEY_W = 92, MOD_W = 18;
 
     private int panelX, panelY, listX, listY, listW;
     private int scroll = 0;
@@ -53,17 +54,33 @@ public class KeybindMessageScreen extends Screen {
         List<TeslaMapsConfig.Keybind> b = binds();
         scroll = Math.max(0, Math.min(scroll, Math.max(0, b.size() - VISIBLE)));
 
-        int boxW = listW - KEY_W - 6 - 28;
+        int modsW = 3 * (MOD_W + 2);
+        int boxW = listW - 24 - KEY_W - 4 - modsW - 4 - 28;
         for (int row = 0; row < VISIBLE; row++) {
             final int idx = scroll + row;
             if (idx >= b.size()) break;
             TeslaMapsConfig.Keybind kb = b.get(idx);
             int ry = listY + row * ROW_H;
-            int boxX = listX + KEY_W + 6;
+            int keyX = listX + 24;
+            int modX = keyX + KEY_W + 4;
+            int boxX = modX + modsW + 2;
 
-            String label = listening == idx ? "§epress..." : "§f" + keyName(kb.key);
-            addRenderableWidget(new TeslaButton(listX, ry, KEY_W, 22, label,
+            addRenderableWidget(new TeslaButton(listX, ry, 22, 22, kb.enabled ? "§a✔" : "§c✖",
+                    () -> { kb.enabled = !kb.enabled; rebuild(); }));
+
+            String label = listening == idx ? "§epress..."
+                    : (kb.enabled ? "§f" : "§8") + KeybindMessage.modifierPrefix(kb.modifiers) + keyName(kb.key);
+            addRenderableWidget(new TeslaButton(keyX, ry, KEY_W, 22, label,
                     () -> { listening = idx; listenStart = System.currentTimeMillis(); rebuild(); }));
+
+            String[] modNames = {"C", "A", "S"};
+            int[] modBits = {GLFW.GLFW_MOD_CONTROL, GLFW.GLFW_MOD_ALT, GLFW.GLFW_MOD_SHIFT};
+            for (int m = 0; m < 3; m++) {
+                int bit = modBits[m];
+                boolean on = (kb.modifiers & bit) != 0;
+                addRenderableWidget(new TeslaButton(modX + m * (MOD_W + 2), ry, MOD_W, 22,
+                        (on ? "§b" : "§8") + modNames[m], () -> { kb.modifiers ^= bit; rebuild(); }));
+            }
 
             EditBox box = new EditBox(this.font, boxX + 4, ry + 7, boxW - 8, 12, Component.literal("Message"));
             box.setMaxLength(256);
@@ -88,6 +105,14 @@ public class KeybindMessageScreen extends Screen {
                 "§fDone", this::onClose));
     }
 
+    private static final int MOD_MASK = GLFW.GLFW_MOD_SHIFT | GLFW.GLFW_MOD_CONTROL | GLFW.GLFW_MOD_ALT;
+
+    private static boolean isModifierKey(int k) {
+        return k == GLFW.GLFW_KEY_LEFT_SHIFT || k == GLFW.GLFW_KEY_RIGHT_SHIFT
+                || k == GLFW.GLFW_KEY_LEFT_CONTROL || k == GLFW.GLFW_KEY_RIGHT_CONTROL
+                || k == GLFW.GLFW_KEY_LEFT_ALT || k == GLFW.GLFW_KEY_RIGHT_ALT;
+    }
+
     private String keyName(int key) {
         return com.teslamaps.utils.KeyNames.display(key);
     }
@@ -96,7 +121,9 @@ public class KeybindMessageScreen extends Screen {
     public boolean keyPressed(KeyEvent event) {
         if (listening >= 0) {
             if (event.key() != GLFW.GLFW_KEY_ESCAPE && listening < binds().size()) {
-                binds().get(listening).key = event.key();
+                TeslaMapsConfig.Keybind kb = binds().get(listening);
+                kb.key = event.key();
+                kb.modifiers = isModifierKey(event.key()) ? 0 : event.modifiers() & MOD_MASK;
             }
             listening = -1; // ESC just cancels
             rebuild();
@@ -111,7 +138,9 @@ public class KeybindMessageScreen extends Screen {
         // anything within a moment of arming or every bind would end up as Mouse Left.
         if (listening >= 0 && System.currentTimeMillis() - listenStart > 250) {
             if (listening < binds().size()) {
-                binds().get(listening).key = com.teslamaps.utils.KeyNames.forMouse(event.button());
+                TeslaMapsConfig.Keybind kb = binds().get(listening);
+                kb.key = com.teslamaps.utils.KeyNames.forMouse(event.button());
+                kb.modifiers = KeybindMessage.heldModifiers(minecraft);
             }
             listening = -1;
             rebuild();
@@ -136,7 +165,7 @@ public class KeybindMessageScreen extends Screen {
         HudStyle.screenPanel(ctx, panelX, panelY, PANEL_W, PANEL_H, 8);
 
         ctx.text(this.font, "§f§lHotkeys §7Chat Messages", panelX + 16, panelY + 16, 0xFFFFFFFF);
-        ctx.text(this.font, "§8Click a key button, press a key, type a message. / = command.",
+        ctx.text(this.font, "§8Hold Ctrl/Alt/Shift while binding for a combo. / = command.",
                 panelX + 16, panelY + 30, 0xFFFFFFFF);
 
         for (int[] f : fields) HudStyle.screenButton(ctx, f[0], f[1], f[2], f[3], false, true);

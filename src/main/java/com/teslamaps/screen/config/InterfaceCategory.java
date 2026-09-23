@@ -10,6 +10,33 @@ public final class InterfaceCategory {
 
     private InterfaceCategory() {}
 
+    private static String pickedPanel = null;
+
+    /** One HUD panel picked from a list, then its own HUD Style ("Default" = the global one). */
+    private static void panelStyles(ConfigBuilder b, TeslaMapsConfig config) {
+        java.util.List<String> ids = com.teslamaps.registry.FeatureRegistry.hudIds();
+        if (ids.isEmpty()) return;
+        java.util.Map<String, String> byLabel = new java.util.LinkedHashMap<>();
+        for (String id : ids) {
+            var e = com.teslamaps.registry.HudEditElement.forHud(id);
+            byLabel.putIfAbsent(e != null ? e.label : id, id);
+        }
+        String[] labels = byLabel.keySet().toArray(new String[0]);
+        if (pickedPanel == null || !byLabel.containsKey(pickedPanel)) pickedPanel = labels[0];
+        String[] styles = new String[com.teslamaps.render.gui.HudStyle.NAMES.length + 1];
+        styles[0] = "Default";
+        System.arraycopy(com.teslamaps.render.gui.HudStyle.NAMES, 0, styles, 1, styles.length - 1);
+        b.dropdown("Per-Panel Style: Panel", labels, () -> pickedPanel, v -> pickedPanel = v)
+                .desc("Pick a HUD panel, then give it its own style below.").tags("panel", "hud style");
+        b.dropdown("  Style Of That Panel", styles,
+                () -> config.hudPanelStyles.getOrDefault(byLabel.get(pickedPanel), "Default"),
+                v -> {
+                    String id = byLabel.get(pickedPanel);
+                    if ("Default".equals(v)) config.hudPanelStyles.remove(id);
+                    else config.hudPanelStyles.put(id, v);
+                }).tags("panel", "hud style");
+    }
+
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Style");
         b.dropdown("GUI Style", GuiStyle.NAMES,
@@ -18,6 +45,27 @@ public final class InterfaceCategory {
                 com.teslamaps.render.gui.HudStyle.NAMES,
                 () -> com.teslamaps.render.gui.HudStyle.current(), v -> config.hudStyle = v);
         b.info("GUI Style skins these screens, HUD Style the in-game panels");
+        b.color("  Custom Background", () -> config.hudCustomBg, v -> config.hudCustomBg = v)
+                .desc("Fill of HUD Style \"Custom\", alpha included.").tags("panel", "hud style");
+        b.color("  Custom Border", () -> config.hudCustomBorder, v -> config.hudCustomBorder = v).tags("panel", "hud style");
+        b.dropdown("  Custom Border Mode", com.teslamaps.render.gui.HudStyle.BORDER_MODES,
+                () -> config.hudCustomBorderMode, v -> config.hudCustomBorderMode = v)
+                .desc("Solid, cycling chroma, or a fade between Border and Fade Color.").tags("chroma", "panel");
+        b.color("  Custom Fade Color", () -> config.hudCustomBorderFade, v -> config.hudCustomBorderFade = v).tags("panel");
+        b.slider("  Custom Corner Radius", 0f, 12f, () -> config.hudCustomRadius, v -> config.hudCustomRadius = v, 0).tags("panel");
+        b.slider("  Custom Border Width", 0f, 4f, () -> config.hudCustomBorderWidth, v -> config.hudCustomBorderWidth = v, 1).tags("panel");
+        b.slider("  Custom Padding", 0f, 12f, () -> config.hudCustomPadding, v -> config.hudCustomPadding = v, 0).tags("panel");
+        panelStyles(b, config);
+        b.label("HUD Positions");
+        b.toggle("Keep HUDs On Screen", () -> config.hudClampToScreen, v -> config.hudClampToScreen = v)
+                .desc("A panel that would end up off screen (smaller GUI scale, terminal scale, window resize) is drawn at the edge. The saved position stays.")
+                .tags("clamp", "hud", "position", "offscreen");
+        b.toggle("Anchor HUDs To Nearest Edge", () -> config.hudEdgeAnchors, v -> {
+                    config.hudEdgeAnchors = v;
+                    if (v) com.teslamaps.registry.HudEditElement.anchorUnplaced();
+                })
+                .desc("Panels in the right or bottom half keep their distance to that edge when the screen size or GUI scale changes.")
+                .tags("anchor", "hud", "position", "gui scale");
         b.label("Sounds");
         b.dropdown("GUI Sounds", GuiSounds.THEMES,
                 () -> config.guiSoundTheme, v -> config.guiSoundTheme = v);

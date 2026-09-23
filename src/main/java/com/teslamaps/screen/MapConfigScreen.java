@@ -80,9 +80,14 @@ public class MapConfigScreen extends Screen {
     protected long keybindListenStart = 0;
     protected SliderEntry editingSlider = null;   // slider whose value is being typed
     protected String sliderEditText = "";
+    private static final long DESC_DELAY_MS = 500;
+    private SettingsEntry descHoverEntry = null;
+    protected SearchListEntry editingList = null;  // list whose search/colour field takes keys
+    protected boolean rightClickedNow = false;
+    private long descHoverStart = 0;
 
     public boolean isBindingKey() {
-        return listeningKeybindEntry != null || editingSlider != null || editingColor != null;
+        return listeningKeybindEntry != null || editingSlider != null || editingColor != null || editingList != null;
     }
 
     protected void startSliderEdit(SliderEntry s) {
@@ -128,6 +133,7 @@ public class MapConfigScreen extends Screen {
         // above/below the EditBox and clear the screen's focus owner, which left the field
         // looking focused while keystrokes went nowhere.
         if (searchField != null && teslamaps$overSearch(event.x(), event.y())) {
+            editingList = null;
             setFocused(searchField);
             searchField.setFocused(true);
             return true;
@@ -144,6 +150,7 @@ public class MapConfigScreen extends Screen {
             GuiSounds.select();
             return true;
         }
+        if (editingList != null) { editingList.key(event.key()); return true; }
         if (editingColor != null) {
             int k = event.key();
             if (k == GLFW.GLFW_KEY_ENTER || k == GLFW.GLFW_KEY_KP_ENTER) { if (editingColor.commitHex(colorEditText)) editingColor = null; return true; }
@@ -169,6 +176,7 @@ public class MapConfigScreen extends Screen {
 
     @Override
     public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
+        if (editingList != null) { editingList.chr((char) event.codepoint()); return true; }
         if (editingColor != null) {
             char c = Character.toUpperCase((char) event.codepoint());
             if (((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')) && colorEditText.length() < 8) colorEditText += c;
@@ -351,10 +359,19 @@ public class MapConfigScreen extends Screen {
                 // only the master: the sub-labels ("Glow", "Tracers", ...) collide with other
                 // categories, and MobVisuals.active() already refuses to run under Legit Mode
                 "Mob Visuals");
+        java.util.Set<String> seenCheat = new java.util.HashSet<>();
         for (List<SettingsEntry> entries : categories.values()) {
             for (SettingsEntry e : entries) {
                 // trim: sub-options carry a leading indent that is not part of the name
-                if (e instanceof ToggleEntry te && cheatLabels.contains(te.getLabel().trim())) te.legit();
+                if (e instanceof ToggleEntry te && cheatLabels.contains(te.getLabel().trim())) {
+                    te.legit();
+                    seenCheat.add(te.getLabel().trim());
+                }
+            }
+        }
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            for (String l : cheatLabels) {
+                if (!seenCheat.contains(l)) com.teslamaps.TeslaMaps.LOGGER.error("cheatLabels: no toggle named \"{}\" - renamed?", l);
             }
         }
     }
@@ -512,10 +529,11 @@ public class MapConfigScreen extends Screen {
             for (Map.Entry<String, List<SettingsEntry>> cat : categories.entrySet()) {
                 int before = result.size();
                 boolean carry = false;               // a matched parent drags its indented sub-options along
+                boolean groupHit = false;            // a matched group label brings its whole group
                 for (SettingsEntry entry : cat.getValue()) {
-                    if (entry.isLabel()) { carry = false; continue; } // the category header replaces group labels here
+                    if (entry.isLabel()) { carry = false; groupHit = searchHit(entry, searchQuery); continue; }
                     boolean child = entry.getLabel().startsWith(" ");
-                    if (entry.matchesSearch(searchQuery)) {
+                    if (groupHit || searchHit(entry, searchQuery)) {
                         result.add(entry);
                         carry = !child;
                     } else if (child && carry) {
@@ -744,15 +762,31 @@ public class MapConfigScreen extends Screen {
         // One click belongs to one row. Picking a dropdown option collapses it mid-pass, which
         // pulls the rows below up under the cursor — without this they would take the click too.
         clickHandled = false;
+        rightClickedNow = rightClicked;
         int y = contentTop - scrollOffset;
+        SettingsEntry hoverEntry = null;
+        boolean inContent = mouseX >= contentLeft && mouseX < contentRight && mouseY >= contentTop && mouseY < contentBottom;
         for (SettingsEntry entry : entries) {
             if (y + entry.getHeight() > contentTop - 50 && y < contentBottom + 50) {
                 entry.render(context, this, y, mouseX, mouseY, clicked && !clickHandled, isMouseDown);
             }
+            if (inContent && mouseY >= y && mouseY < y + Math.min(entry.getHeight(), ROW_HEIGHT + 4)) hoverEntry = entry;
             y += entry.getHeight();
         }
+        if (entries.isEmpty() && !searchQuery.isEmpty()) {
+            context.centeredText(font, "No results found.", (contentLeft + contentRight) / 2, contentTop + 20, GuiStyle.textDim());
+        }
 
+        if (clicked && !clickHandled) editingList = null;
         context.disableScissor();
+
+        String desc = hoverEntry != null ? hoverEntry.description() : null;
+        if (desc == null || hoverEntry != descHoverEntry) {
+            descHoverEntry = desc == null ? null : hoverEntry;
+            descHoverStart = System.currentTimeMillis();
+        } else if (System.currentTimeMillis() - descHoverStart >= DESC_DELAY_MS && !isMouseDown) {
+            context.setTooltipForNextFrame(font, font.split(Component.literal(desc), 220), mouseX, mouseY);
+        }
 
         if (maxScroll > 0) {
             int scrollbarX = this.width - 8;
@@ -830,6 +864,40 @@ public class MapConfigScreen extends Screen {
         default void reposition(int x, int w) {}
         default boolean isLabel() { return false; }
         default boolean isToggle() { return false; }
+        default String description() { return null; }
+        default boolean matchesMeta(String q) { return false; }
+    }
+
+    static boolean searchHit(SettingsEntry e, String q) {
+        return e.matchesSearch(q) || e.matchesMeta(q);
+    }
+
+    /** Hover description and extra search words: {@code .desc("...")}, {@code .tags("esp", ...)}. */
+    @SuppressWarnings("unchecked")
+    public abstract class DescribedEntry<T extends DescribedEntry<T>> implements SettingsEntry {
+        private String description;
+        private String descLower;
+        private String[] tags;
+
+        public T desc(String d) {
+            description = d;
+            descLower = d == null ? null : d.toLowerCase();
+            return (T) this;
+        }
+
+        public T tags(String... t) {
+            tags = new String[t.length];
+            for (int i = 0; i < t.length; i++) tags[i] = t[i].toLowerCase();
+            return (T) this;
+        }
+
+        @Override public String description() { return description; }
+
+        @Override public boolean matchesMeta(String q) {
+            if (descLower != null && descLower.contains(q)) return true;
+            if (tags != null) for (String t : tags) if (t.contains(q)) return true;
+            return false;
+        }
     }
 
     // Plain descriptive text. Never a collapsible group header.
@@ -849,7 +917,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class LabelEntry implements SettingsEntry {
+    public class LabelEntry extends DescribedEntry<LabelEntry> {
         private int x;
         private final String text;
         String collapseKey = null;
@@ -860,6 +928,7 @@ public class MapConfigScreen extends Screen {
         @Override public int getHeight() { return 24; }
         @Override public String getLabel() { return text; }
         @Override public boolean isLabel() { return true; }
+        @Override public boolean matchesSearch(String q) { return text.toLowerCase().contains(q); }
         @Override public void reposition(int x, int w) { this.x = x; this.collapseKey = null; }
 
         private void caret(GuiGraphicsExtractor ctx, int cx, int cy, boolean open, int color) {
@@ -915,7 +984,7 @@ public class MapConfigScreen extends Screen {
     static final String CHEAT_TIP = "Cheat — may break Hypixel rules (ban risk)";
     static final int CHEAT_COLOR = 0xFFFF5555;
 
-    public class ToggleEntry implements SettingsEntry {
+    public class ToggleEntry extends DescribedEntry<ToggleEntry> {
         private int x, width;
         private final String label;
         private final Supplier<Boolean> getter;
@@ -1008,7 +1077,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class ButtonEntry implements SettingsEntry {
+    public class ButtonEntry extends DescribedEntry<ButtonEntry> {
         private int x, width;
         private final String label;
         private final Runnable action;
@@ -1049,7 +1118,7 @@ public class MapConfigScreen extends Screen {
     }
 
     /** Several small buttons on one row instead of a full-width one per action. */
-    public class ButtonRowEntry implements SettingsEntry {
+    public class ButtonRowEntry extends DescribedEntry<ButtonRowEntry> {
         private int x, width;
         private final String[] labels;
         private final Runnable[] actions;
@@ -1190,7 +1259,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class ClassFilterEntry implements SettingsEntry {
+    public class ClassFilterEntry extends DescribedEntry<ClassFilterEntry> {
         private int x, width;
         private final String label;
         private final TeslaMapsConfig.ClassFilter filter;
@@ -1227,7 +1296,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class KeybindEntry implements SettingsEntry {
+    public class KeybindEntry extends DescribedEntry<KeybindEntry> {
         private int x, width;
         private final String label;
         private final IntSupplier getter;
@@ -1272,7 +1341,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class ColorEntry implements SettingsEntry {
+    public class ColorEntry extends DescribedEntry<ColorEntry> {
         private int x, width;
         private final String label;
         private final Supplier<String> getter;
@@ -1486,7 +1555,7 @@ public class MapConfigScreen extends Screen {
         return new float[]{h, s, max};
     }
 
-    public class SliderEntry implements SettingsEntry {
+    public class SliderEntry extends DescribedEntry<SliderEntry> {
         private int x, width;
         private final String label;
         private final float min, max;
@@ -1575,7 +1644,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class DropdownEntry implements SettingsEntry {
+    public class DropdownEntry extends DescribedEntry<DropdownEntry> {
         private int x, width;
         private final String label;
         private final String[] options;
@@ -1649,7 +1718,7 @@ public class MapConfigScreen extends Screen {
         }
     }
 
-    public class SoundDropdownEntry implements SettingsEntry {
+    public class SoundDropdownEntry extends DescribedEntry<SoundDropdownEntry> {
         private int x, width;
         private final String label;
         private final String[] options;
@@ -1690,6 +1759,242 @@ public class MapConfigScreen extends Screen {
             String cur = getter.get();
             String display = screen.fitLabel(cur, btnX + 4, btnX + btnW - 4);
             ctx.text(screen.font, display, btnX + 4, btnY + 5, GuiStyle.text());
+        }
+    }
+
+    /**
+     * Long id list with search, optional icons, display names and a colour swatch per row.
+     * Click toggles, right-click edits the colour, selected rows sit on top.
+     */
+    public class SearchListEntry extends DescribedEntry<SearchListEntry> {
+        private static final int ROW = 18, VIEW_ROWS = 8, SEARCH_H = 20, ACTIONS_H = 22, EDIT_H = 20;
+        private int x, width;
+        private final String label;
+        private final Supplier<List<String>> options;
+        private final java.util.function.Predicate<String> selected;
+        private final Consumer<String> onToggle;
+        private java.util.function.Function<String, String> displayName = id -> id;
+        private java.util.function.Function<String, net.minecraft.world.item.ItemStack> icon = null;
+        private java.util.function.Function<String, String> color = null;
+        private java.util.function.BiConsumer<String, String> onColor = null;
+        private Supplier<String> pick = null;
+        private Runnable clearAll = null;
+
+        private boolean expanded = false;
+        private int scroll = 0;
+        private String query = "";
+        private String colorId = null;
+        private String colorText = "";
+        private boolean typingColor = false;
+        private long clearArmed = 0;
+        private final Object[] actionHover = {new Object(), new Object()};
+
+        public SearchListEntry(int x, int w, String label, Supplier<List<String>> options,
+                               java.util.function.Predicate<String> selected, Consumer<String> onToggle) {
+            this.x = x; this.width = w; this.label = label;
+            this.options = options; this.selected = selected; this.onToggle = onToggle;
+        }
+
+        public SearchListEntry names(java.util.function.Function<String, String> f) { this.displayName = f; return this; }
+        public SearchListEntry icons(java.util.function.Function<String, net.minecraft.world.item.ItemStack> f) { this.icon = f; return this; }
+        public SearchListEntry colors(java.util.function.Function<String, String> get, java.util.function.BiConsumer<String, String> set) {
+            this.color = get; this.onColor = set; return this;
+        }
+        /** "Pick from World": returns the id to add, or null. */
+        public SearchListEntry pick(Supplier<String> f) { this.pick = f; return this; }
+        public SearchListEntry clearAll(Runnable r) { this.clearAll = r; return this; }
+
+        private boolean hasActions() { return pick != null || clearAll != null; }
+
+        @Override public int getHeight() {
+            if (!expanded) return ROW_HEIGHT;
+            return ROW_HEIGHT + SEARCH_H + VIEW_ROWS * ROW + 4 + (colorId != null ? EDIT_H : 0) + (hasActions() ? ACTIONS_H : 0);
+        }
+        @Override public String getLabel() { return label; }
+        @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
+        @Override public void reposition(int x, int w) { this.x = x; this.width = w; }
+
+        private List<String> rows() {
+            String q = query.toLowerCase();
+            List<String> on = new ArrayList<>(), off = new ArrayList<>();
+            for (String id : options.get()) {
+                if (!q.isEmpty() && !id.toLowerCase().contains(q) && !displayName.apply(id).toLowerCase().contains(q)) continue;
+                (selected.test(id) ? on : off).add(id);
+            }
+            on.addAll(off);
+            return on;
+        }
+
+        @Override public boolean scrollAt(int mouseX, int mouseY, int rowY, double dir) {
+            if (!expanded) return false;
+            int viewY = rowY + ROW_HEIGHT + SEARCH_H;
+            if (mouseY < viewY || mouseY >= viewY + VIEW_ROWS * ROW) return false;
+            int max = Math.max(0, rows().size() - VIEW_ROWS);
+            scroll = Math.max(0, Math.min(max, scroll - (int) Math.signum(dir)));
+            return true;
+        }
+
+        void key(int k) {
+            if (k == GLFW.GLFW_KEY_ESCAPE) { stopTyping(); return; }
+            boolean enter = k == GLFW.GLFW_KEY_ENTER || k == GLFW.GLFW_KEY_KP_ENTER;
+            if (typingColor) {
+                if (enter) {
+                    if (colorText.length() == 6 && onColor != null) { onColor.accept(colorId, colorText); TeslaMapsConfig.save(); GuiSounds.select(); }
+                    colorId = null;
+                    stopTyping();
+                } else if (k == GLFW.GLFW_KEY_BACKSPACE && !colorText.isEmpty()) {
+                    colorText = colorText.substring(0, colorText.length() - 1);
+                }
+                return;
+            }
+            if (enter) { stopTyping(); return; }
+            if (k == GLFW.GLFW_KEY_BACKSPACE && !query.isEmpty()) { query = query.substring(0, query.length() - 1); scroll = 0; }
+        }
+
+        void chr(char c) {
+            if (typingColor) {
+                c = Character.toUpperCase(c);
+                if (((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')) && colorText.length() < 6) colorText += c;
+            } else if (c >= ' ' && query.length() < 40) {
+                query += c;
+                scroll = 0;
+            }
+        }
+
+        private void stopTyping() {
+            typingColor = false;
+            if (editingList == this) editingList = null;
+        }
+
+        private void startTyping(boolean colorField) {
+            typingColor = colorField;
+            editingList = this;
+            if (searchField != null) searchField.setFocused(false);
+        }
+
+        private int swatchColor(String id) {
+            String hex = color == null ? null : color.apply(id);
+            return hex == null ? 0xFF555555 : TeslaMapsConfig.parseColor(hex);
+        }
+
+        @Override
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+            boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
+            if (hovered) {
+                GuiSounds.hover(this);
+                ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
+            }
+            List<String> all = rows();
+            int count = 0;
+            for (String id : options.get()) if (selected.test(id)) count++;
+            String cnt = count + " selected " + (expanded ? "▲" : "▼");
+            int cntX = x + width - 10 - screen.font.width(cnt);
+            ctx.text(screen.font, screen.fitLabel(label, x + 8, cntX), x + 8, y + 9, GuiStyle.text());
+            ctx.text(screen.font, cnt, cntX, y + 9, GuiStyle.textDim());
+            if (clicked && hovered) {
+                screen.clickHandled = true;
+                expanded = !expanded;
+                if (!expanded) { colorId = null; stopTyping(); }
+                GuiSounds.fold(expanded);
+                return;
+            }
+            if (!expanded) return;
+
+            int left = x + 8, right = x + width - 8;
+            int sy = y + ROW_HEIGHT;
+            boolean typingQuery = editingList == this && !typingColor;
+            boolean overSearch = mouseX >= left && mouseX < right && mouseY >= sy && mouseY < sy + SEARCH_H - 2;
+            ctx.fill(left, sy, right, sy + SEARCH_H - 2, GuiStyle.input());
+            drawBorder(ctx, left, sy, right - left, SEARCH_H - 2, typingQuery ? GuiStyle.accent() : GuiStyle.border());
+            boolean hint = query.isEmpty() && !typingQuery;
+            ctx.text(screen.font, hint ? "Search..." : query + (typingQuery ? "_" : ""), left + 5, sy + 5,
+                    hint ? GuiStyle.textFaint() : GuiStyle.text());
+            if (clicked && overSearch) { screen.clickHandled = true; startTyping(false); }
+
+            int viewY = sy + SEARCH_H;
+            int viewH = VIEW_ROWS * ROW;
+            int max = Math.max(0, all.size() - VIEW_ROWS);
+            if (scroll > max) scroll = max;
+            if (all.isEmpty()) ctx.text(screen.font, "Nothing here", left + 5, viewY + 5, GuiStyle.textFaint());
+            for (int i = 0; i < VIEW_ROWS && scroll + i < all.size(); i++) {
+                String id = all.get(scroll + i);
+                boolean on = selected.test(id);
+                int ry = viewY + i * ROW;
+                boolean rh = mouseX >= left && mouseX < right - 6 && mouseY >= ry && mouseY < ry + ROW;
+                if (on) ctx.fill(left, ry, right - 6, ry + ROW, GuiStyle.rowSelected());
+                else if (rh) ctx.fill(left, ry, right - 6, ry + ROW, GuiStyle.rowHover());
+                int ix = left + 2;
+                net.minecraft.world.item.ItemStack st = icon == null ? null : icon.apply(id);
+                if (st != null && !st.isEmpty()) ctx.item(st, ix, ry + 1);
+                else if (icon != null) ctx.fill(ix + 2, ry + 3, ix + 14, ry + 15, 0xFF3A3A3A);
+                int tx = icon != null ? ix + 20 : ix + 4;
+                int checkX = right - 20;
+                int swX = color != null ? checkX - 18 : checkX;
+                ctx.text(screen.font, screen.fitLabel(displayName.apply(id), tx, swX), tx, ry + 5, on ? GuiStyle.text() : GuiStyle.textDim());
+                if (color != null) {
+                    ctx.fill(swX, ry + 4, swX + 12, ry + 14, swatchColor(id));
+                    drawBorder(ctx, swX, ry + 4, 12, 10, 0xFF555555);
+                }
+                drawBorder(ctx, checkX, ry + 4, 10, 10, GuiStyle.accent());
+                if (on) ctx.fill(checkX + 2, ry + 6, checkX + 8, ry + 12, GuiStyle.accent());
+                if (rh && clicked && !screen.clickHandled) {
+                    screen.clickHandled = true;
+                    onToggle.accept(id);
+                    TeslaMapsConfig.save();
+                    GuiSounds.toggle(!on);
+                } else if (rh && screen.rightClickedNow && color != null) {
+                    screen.rightClickedNow = false;
+                    colorId = id;
+                    colorText = String.format("%06X", swatchColor(id) & 0xFFFFFF);
+                    startTyping(true);
+                    GuiSounds.fold(true);
+                }
+            }
+            if (all.size() > VIEW_ROWS) {
+                int thumbH = Math.max(12, viewH * VIEW_ROWS / all.size());
+                int thumbY = viewY + (viewH - thumbH) * scroll / max;
+                ctx.fill(right - 3, viewY, right - 1, viewY + viewH, GuiStyle.scrollTrack());
+                ctx.fill(right - 3, thumbY, right - 1, thumbY + thumbH, GuiStyle.scrollThumb());
+            }
+
+            int below = viewY + viewH + 4;
+            if (colorId != null) {
+                boolean typing = editingList == this && typingColor;
+                int prev = colorText.length() == 6 ? TeslaMapsConfig.parseColor(colorText) : 0xFF555555;
+                ctx.fill(left, below, left + 14, below + 14, prev);
+                String t = displayName.apply(colorId) + ": #" + colorText + (typing ? "_" : "") + "  (Enter = apply)";
+                ctx.text(screen.font, screen.fitLabel(t, left + 20, right), left + 20, below + 4,
+                        colorText.length() == 6 ? GuiStyle.text() : 0xFFFF5555);
+                below += EDIT_H;
+            }
+            if (!hasActions()) return;
+            List<String> labels = new ArrayList<>();
+            List<Runnable> acts = new ArrayList<>();
+            if (pick != null) {
+                labels.add("Pick from World");
+                acts.add(() -> {
+                    String id = pick.get();
+                    if (id != null && !selected.test(id)) { onToggle.accept(id); TeslaMapsConfig.save(); }
+                });
+            }
+            if (clearAll != null) {
+                boolean armed = System.currentTimeMillis() - clearArmed < 3000;
+                labels.add(armed ? "Sure? Click again" : "Clear All");
+                acts.add(() -> {
+                    if (System.currentTimeMillis() - clearArmed < 3000) { clearAll.run(); TeslaMapsConfig.save(); clearArmed = 0; }
+                    else clearArmed = System.currentTimeMillis();
+                });
+            }
+            int gap = 6, bw = Math.min(150, (right - left - gap * (labels.size() - 1)) / labels.size());
+            for (int i = 0; i < labels.size(); i++) {
+                int bx = left + i * (bw + gap);
+                boolean bh = mouseX >= bx && mouseX < bx + bw && mouseY >= below && mouseY < below + 18;
+                if (bh) GuiSounds.hover(actionHover[i]);
+                GuiStyle.panel(ctx, bx, below, bw, 18, bh);
+                drawBorder(ctx, bx, below, bw, 18, bh ? GuiStyle.borderHover() : GuiStyle.border());
+                ctx.centeredText(screen.font, labels.get(i), bx + bw / 2, below + 5, GuiStyle.text());
+                if (clicked && bh && !screen.clickHandled) { screen.clickHandled = true; GuiSounds.press(); acts.get(i).run(); }
+            }
         }
     }
 }

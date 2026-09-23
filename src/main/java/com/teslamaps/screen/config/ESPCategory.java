@@ -19,6 +19,8 @@ public final class ESPCategory {
                 () -> config.espAlpha, v -> config.espAlpha = v);
         b.button("Custom Entries (/tmap esp)",
                 () -> Minecraft.getInstance().setScreen(new EspListScreen()));
+        b.customEspList("Custom ESP Mobs").desc("Tick mobs seen nearby to highlight them. Right-click a row for its colour.")
+                .tags("custom", "mob", "highlight");
         b.label("Dungeon ESP");
         b.toggle("Color Portal by Score", () -> config.colorPortal, v -> config.colorPortal = v);
         b.color("  Portal < 270", () -> config.colorPortalLow, v -> config.colorPortalLow = v);

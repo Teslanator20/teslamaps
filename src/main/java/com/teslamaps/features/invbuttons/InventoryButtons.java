@@ -47,8 +47,8 @@ public final class InventoryButtons {
 
     public record Placement(InventoryButton button, int x, int y) {
         public boolean contains(double mouseX, double mouseY) {
-            return mouseX >= x && mouseX <= x + ButtonTexture.BUTTON_SIZE
-                    && mouseY >= y && mouseY <= y + ButtonTexture.BUTTON_SIZE;
+            int size = button.size();
+            return mouseX >= x && mouseX <= x + size && mouseY >= y && mouseY <= y + size;
         }
     }
 
@@ -76,10 +76,7 @@ public final class InventoryButtons {
         InventoryButton hovered = null;
 
         for (Placement placement : placements(screen)) {
-            ButtonTexture.drawButton(graphics, placement.button().backgroundIndex,
-                    placement.x(), placement.y(), OPAQUE);
-            ButtonIcons.render(graphics, placement.button().iconOrEmpty(),
-                    placement.x() + 1, placement.y() + 1);
+            draw(graphics, placement.button(), placement.x(), placement.y(), OPAQUE);
 
             if (placement.contains(mouseX, mouseY)) hovered = placement.button();
         }
@@ -100,6 +97,23 @@ public final class InventoryButtons {
         Component text = Component.literal(commandWithSlash(hovered)).withStyle(ChatFormatting.GRAY);
         graphics.setTooltipForNextFrame(client.font, List.of(text.getVisualOrderText()),
                 DefaultTooltipPositioner.INSTANCE, mouseX, mouseY, true);
+    }
+
+    /** Frame and icon at x/y, scaled by the button's own size. */
+    public static void draw(GuiGraphicsExtractor graphics, InventoryButton button, int x, int y, int color) {
+        float s = button.scaleOrOne();
+        if (s == 1f) {
+            ButtonTexture.drawButton(graphics, button.backgroundIndex, x, y, color);
+            ButtonIcons.render(graphics, button.iconOrEmpty(), x + 1, y + 1);
+            return;
+        }
+        var pose = graphics.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(s, s);
+        ButtonTexture.drawButton(graphics, button.backgroundIndex, 0, 0, color);
+        ButtonIcons.render(graphics, button.iconOrEmpty(), 1, 1);
+        pose.popMatrix();
     }
 
     // --- input ---

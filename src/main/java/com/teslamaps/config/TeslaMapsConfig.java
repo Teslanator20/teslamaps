@@ -61,6 +61,7 @@ public class TeslaMapsConfig {
     private static TeslaMapsConfig instance = new TeslaMapsConfig();
 
     public String activeProfile = ConfigProfiles.DEFAULT;
+    public int configVersion = ConfigMigrator.CONFIG_VERSION;   // see ConfigMigrator; read from the raw json
 
     public boolean mapEnabled = true;
     public boolean onlyShowInDungeon = true;  // Only show map while in dungeon
@@ -244,6 +245,17 @@ public class TeslaMapsConfig {
     @Global
     public boolean updateCheck = true;          // Look for a new signed release on launch and offer it
     public String hudStyle = "Modern";          // Look of every HUD panel: Modern / Glass / Vanilla / Tooltip
+    public String hudCustomBg = "C0101014";         // HUD Style "Custom": fill (AARRGGBB)
+    public String hudCustomBorder = "FF5A5A6E";
+    public String hudCustomBorderMode = "Solid";   // Solid / Chroma / Fade
+    public String hudCustomBorderFade = "FF55FFFF"; // second colour of Fade
+    public float hudCustomRadius = 5f;
+    public float hudCustomBorderWidth = 1f;
+    public float hudCustomPadding = 5f;
+    public java.util.Map<String, String> hudPanelStyles = new java.util.HashMap<>(); // hud id -> own HUD Style
+    public boolean hudClampToScreen = false;    // draw off-screen HUD panels at the screen edge, stored position kept
+    public boolean hudEdgeAnchors = false;      // right/bottom panels keep their edge distance when the screen size changes
+    public java.util.Map<String, int[]> hudAnchorRefs = new java.util.HashMap<>(); // element -> screen w/h it was placed at
     @Global
     public String guiStyle = "Default";         // Look of the mod's screens: Default / Vanilla / Tooltip / Glass
     @Global
@@ -562,6 +574,8 @@ public class TeslaMapsConfig {
     public static class Keybind {
         public int key = -1;          // GLFW key code, -1 = unbound
         public String message = "";
+        public int modifiers = 0;     // GLFW mod bits: 1 shift, 2 ctrl, 4 alt; 0 = any
+        public boolean enabled = true;
         public Keybind() {}
         public Keybind(int key, String message) { this.key = key; this.message = message; }
     }
@@ -1937,6 +1951,8 @@ public class TeslaMapsConfig {
         if (c.imageShareBlocked == null) c.imageShareBlocked = new java.util.ArrayList<>();
         if (c.dragonPbs == null) c.dragonPbs = new java.util.HashMap<>();
         if (c.keybinds == null) c.keybinds = defaultKeybinds();
+        if (c.hudAnchorRefs == null) c.hudAnchorRefs = new java.util.HashMap<>();
+        if (c.hudPanelStyles == null) c.hudPanelStyles = new java.util.HashMap<>();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
         if (!c.kuudraShortcutsAdded) {
             c.kuudraShortcutsAdded = true;
@@ -2016,11 +2032,20 @@ public class TeslaMapsConfig {
         try {
             if (Files.exists(CONFIG_PATH)) {
                 String json = Files.readString(CONFIG_PATH);
-                instance = GSON.fromJson(json, TeslaMapsConfig.class);
+                com.google.gson.JsonElement tree = com.google.gson.JsonParser.parseString(json);
+                boolean migrated = false;
+                if (tree != null && tree.isJsonObject()) {
+                    com.google.gson.JsonObject fixed = ConfigMigrator.migrate(tree.getAsJsonObject(), "config.json", CONFIG_PATH);
+                    migrated = fixed != tree;
+                    instance = GSON.fromJson(fixed, TeslaMapsConfig.class);
+                } else {
+                    instance = GSON.fromJson(json, TeslaMapsConfig.class);
+                }
                 if (instance == null) {
                     instance = new TeslaMapsConfig();
                 }
                 normalize(instance);
+                if (migrated) save();
                 TeslaMaps.LOGGER.info("Config loaded from {}", CONFIG_PATH);
             } else {
                 instance = new TeslaMapsConfig();

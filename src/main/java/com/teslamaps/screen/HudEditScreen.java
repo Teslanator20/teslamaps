@@ -64,12 +64,14 @@ public class HudEditScreen extends Screen {
         if (isMouseDown && !wasMouseDown) {
             HudEditElement hit = at(mouseX, mouseY);
             if (hit != null) {
+                hit.bakeShift();
                 dragging = hit;
                 dragOffsetX = mouseX - hit.x();
                 dragOffsetY = mouseY - hit.y();
             }
         }
         if (!isMouseDown && wasMouseDown && dragging != null) {
+            dragging.recordAnchor();
             dragging = null;
             TeslaMapsConfig.save();
         }

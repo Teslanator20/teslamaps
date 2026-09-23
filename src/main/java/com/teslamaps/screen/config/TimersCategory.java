@@ -27,7 +27,9 @@ public final class TimersCategory {
         b.toggle("  Tactical HUD", () -> config.tacticalHud, v -> config.tacticalHud = v);
         b.toggle("  Return Waypoint", () -> config.tacticalWaypoint, v -> config.tacticalWaypoint = v);
         b.espStyle("Tactical Waypoint", () -> config.tacticalWaypointEsp);
-        b.toggle("Invincibility Timer", () -> config.invincibilityTimer, v -> config.invincibilityTimer = v);
+        b.toggle("Invincibility Timer", () -> config.invincibilityTimer, v -> config.invincibilityTimer = v)
+                .desc("Shows the cooldowns of Bonzo Mask, Spirit Mask and Phoenix Pet after they saved you.")
+                .tags("mask", "bonzo", "spirit", "phoenix");
         b.toggle("  Announce Invincibility", () -> config.invincibilityAnnounce, v -> config.invincibilityAnnounce = v);
         b.toggle("  Announce Counter (n/3)", () -> config.invincibilityAnnounceCount, v -> config.invincibilityAnnounceCount = v);
         b.toggle("  Proc Title", () -> config.invincibilityTitle, v -> config.invincibilityTitle = v);

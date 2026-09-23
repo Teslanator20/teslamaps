@@ -24,7 +24,9 @@ public final class MiningCategory {
         b.toggle("Tracers", () -> config.chScanTracers, v -> config.chScanTracers = v);
         b.toggle("Chat Alert", () -> config.chScanChat, v -> config.chScanChat = v);
         b.label("Glacite Corpses");
-        b.toggle("Corpse ESP", () -> config.corpseESP, v -> config.corpseESP = v);
+        b.toggle("Corpse ESP", () -> config.corpseESP, v -> config.corpseESP = v)
+                .desc("Highlights Glacite Mineshaft corpses through walls.")
+                .tags("esp", "lapis", "tungsten", "umber", "vanguard", "mineshaft");
         b.toggle("  Type Colors", () -> config.corpseESPTypeColors, v -> config.corpseESPTypeColors = v);
         b.color("  Corpse Color", () -> config.colorCorpseESP, v -> config.colorCorpseESP = v);
         b.label("Drill / Pickaxe Ability");

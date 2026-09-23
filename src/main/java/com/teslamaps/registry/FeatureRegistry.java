@@ -54,14 +54,36 @@ public final class FeatureRegistry {
 
     static void addHud(Feature f, String id, HudElement r, InventoryMode mode) {
         Hud h = new Hud(f, id, r, mode);
+        HUD_IDS.add(id);
         if (mode == InventoryMode.FOREGROUND) FOREGROUND.add(h);
         // in front of PLAYER_LIST = drawn under the tab list
         HudElementRegistry.attachElementBefore(VanillaHudElements.PLAYER_LIST,
                 Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, id), Perf.hud(id, (g, d) -> {
                     if (mode != InventoryMode.ALWAYS && HudForeground.active()) return;
-                    if (f.active()) r.extractRenderState(g, d);
+                    if (f.active()) drawShifted(id, r, g, d);
                 }));
     }
+
+    private static void drawShifted(String id, HudElement r, GuiGraphicsExtractor g, DeltaTracker d) {
+        com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
+        HudEditElement e = c.hudClampToScreen || c.hudEdgeAnchors ? HudEditElement.forHud(id) : null;
+        int dx = e == null ? 0 : e.shiftX(), dy = e == null ? 0 : e.shiftY();
+        com.teslamaps.render.gui.HudStyle.beginPanel(id);
+        try {
+            if (dx == 0 && dy == 0) { r.extractRenderState(g, d); return; }
+            g.pose().pushMatrix();
+            g.pose().translate(dx, dy);
+            r.extractRenderState(g, d);
+            g.pose().popMatrix();
+        } finally {
+            com.teslamaps.render.gui.HudStyle.endPanel();
+        }
+    }
+
+    static final List<String> HUD_IDS = new ArrayList<>();
+
+    /** Every registered HUD id, for per-panel settings. */
+    public static List<String> hudIds() { return HUD_IDS; }
 
     public static void tick(Minecraft client) {
         com.teslamaps.utils.ServerTickTimer.clientTick();
@@ -92,7 +114,7 @@ public final class FeatureRegistry {
     public static void foreground(GuiGraphicsExtractor g, DeltaTracker d) {
         for (int i = 0, n = FOREGROUND.size(); i < n; i++) {
             Hud h = FOREGROUND.get(i);
-            if (h.f.active()) h.r.extractRenderState(g, d);
+            if (h.f.active()) drawShifted(h.id, h.r, g, d);
         }
     }
 

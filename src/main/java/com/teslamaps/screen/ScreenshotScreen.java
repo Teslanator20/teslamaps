@@ -46,6 +46,9 @@ public class ScreenshotScreen extends Screen {
     private int selected = -1;
     private boolean wasMouseDown = false;
     private String status = "";
+    private String armedAction = null;   // "delete" / "share" waiting for its confirm click
+    private String armedFile = null;
+    private long armedAt = 0;
 
     private int gridX, gridY, gridW, panelX, panelY, panelW, panelH;
     /** Grid actually shown, shrunk from MAX_COLS/MAX_ROWS to whatever the viewport allows. */
@@ -76,10 +79,13 @@ public class ScreenshotScreen extends Screen {
             File f = current();
             status = f != null && ScreenshotManager.copy(f) ? "§aCopied " + f.getName() : "§cCopy failed";
         });
-        addButton(1, perRow, bw, firstRowY, "§dCopy Ingame", this::share);
+        addButton(1, perRow, bw, firstRowY, "§dCopy Ingame", () -> {
+            if (confirm("share", "§eClick §dCopy Ingame§e again to upload ")) share();
+        });
         addButton(2, perRow, bw, firstRowY, "§cDelete", () -> {
             File f = current();
-            if (f != null && ScreenshotManager.delete(f)) {
+            if (f == null || !confirm("delete", "§eClick §cDelete§e again to delete ")) return;
+            if (ScreenshotManager.delete(f)) {
                 TEXTURES.remove(f.getName());
                 status = "§7Deleted " + f.getName();
                 rebuildWidgets();
@@ -140,6 +146,69 @@ public class ScreenshotScreen extends Screen {
         gridY = panelY + HEADER_H;
     }
 
+    /** First click arms the action for the current file, a second one within 4s runs it. */
+    private boolean confirm(String action, String prompt) {
+        File f = current();
+        if (f == null) return false;
+        long now = System.currentTimeMillis();
+        if (action.equals(armedAction) && f.getName().equals(armedFile) && now - armedAt < 4000) {
+            armedAction = null;
+            return true;
+        }
+        armedAction = action;
+        armedFile = f.getName();
+        armedAt = now;
+        status = prompt + f.getName();
+        return false;
+    }
+
+    @Override
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        int k = event.key();
+        if (!files.isEmpty()) {
+            int step = k == GLFW.GLFW_KEY_LEFT ? -1 : k == GLFW.GLFW_KEY_RIGHT ? 1
+                    : k == GLFW.GLFW_KEY_UP ? -cols : k == GLFW.GLFW_KEY_DOWN ? cols : 0;
+            if (step != 0) {
+                select(Math.clamp(Math.max(0, selected) + step, 0, files.size() - 1));
+                return true;
+            }
+            if ((k == GLFW.GLFW_KEY_ENTER || k == GLFW.GLFW_KEY_KP_ENTER) && current() != null) {
+                openFullscreen(current(), tileRect(selected), 0);
+                return true;
+            }
+        }
+        if (k == GLFW.GLFW_KEY_BACKSPACE) { onClose(); return true; }
+        return super.keyPressed(event);
+    }
+
+    private void select(int index) {
+        selected = index;
+        int row = index / cols;
+        if (row < scrollRow) scrollRow = row;
+        if (row >= scrollRow + rows) scrollRow = row - rows + 1;
+    }
+
+    /** Where a tile sits on screen, or null when scrolled out. */
+    private int[] tileRect(int index) {
+        int i = index - scrollRow * cols;
+        if (i < 0 || i >= cols * rows) return null;
+        return new int[]{gridX + (i % cols) * (thumbW + GAP), gridY + (i / cols) * (thumbH + 30), thumbW, thumbH};
+    }
+
+    private void browse(int dir) {
+        if (files.isEmpty()) return;
+        int next = Math.clamp(selected + dir, 0, files.size() - 1);
+        if (next == selected) return;
+        select(next);
+        openFullscreen(files.get(next), null, dir);
+    }
+
+    @Override
+    public void onClose() {
+        if (parent != null) minecraft.setScreen(parent);
+        else super.onClose();
+    }
+
     /** Uploads and puts the chat token on the clipboard, no extra dialog in between. */
     private void share() {
         File file = current();
@@ -159,14 +228,14 @@ public class ScreenshotScreen extends Screen {
                 error -> status = "§cUpload failed: " + error);
     }
 
-    private void openFullscreen(File file) {
+    private void openFullscreen(File file, int[] from, int slideDir) {
         Thumb thumb = thumb(file);
         if (thumb == null) {
             status = "§cCannot preview " + file.getName();
             return;
         }
         minecraft.setScreen(ImageViewerScreen.forTexture(this, file.getName(),
-                thumb.id(), thumb.width(), thumb.height()));
+                thumb.id(), thumb.width(), thumb.height()).gallery(this::browse, from, slideDir));
     }
 
     private File current() {
@@ -204,7 +273,7 @@ public class ScreenshotScreen extends Screen {
             boolean hover = mouseX >= x && mouseX < x + thumbW && mouseY >= y && mouseY < y + thumbH;
             if (clicked && hover) {
                 // first click picks, a second one on the same tile blows it up
-                if (selected == index) openFullscreen(files.get(index));
+                if (selected == index) openFullscreen(files.get(index), new int[]{x, y, thumbW, thumbH}, 0);
                 else selected = index;
             }
 
