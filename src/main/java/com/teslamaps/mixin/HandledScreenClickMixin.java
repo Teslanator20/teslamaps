@@ -55,7 +55,8 @@ public class HandledScreenClickMixin {
         // Binds live in one int for both devices, so a mouse-bound slot bind or slot lock has to
         // reach the same handlers ContainerKeyMixin calls for keyboard binds.
         int asBind = com.teslamaps.utils.KeyNames.forMouse(button);
-        if (com.teslamaps.features.SlotBinds.onKey(asBind)
+        if (com.teslamaps.features.BackpackPreview.onKey(asBind)
+                || com.teslamaps.features.SlotBinds.onKey(asBind)
                 || com.teslamaps.features.SlotLock.onKey(asBind,
                         ((HandledScreenAccessor) (Object) this).getFocusedSlot())
                 || com.teslamaps.features.GetFromSacks.onKey(asBind,
@@ -94,6 +95,12 @@ public class HandledScreenClickMixin {
 
         if (TermGui.clickActive(mouseX, mouseY, button)) {
             teslamaps$ate("TermGui.clickActive", button);
+            cir.setReturnValue(true);
+            return;
+        }
+
+        if (com.teslamaps.features.BackpackPreview.handleClick(mouseX, mouseY, button)) {
+            teslamaps$ate("BackpackPreview.frozen", button);
             cir.setReturnValue(true);
             return;
         }

@@ -1243,6 +1243,9 @@ public class TeslaMapsConfig {
     public boolean itemValueShowBin = true;         // extra "Lowest BIN" line in the value breakdown
     public boolean containerValue = false;          // show total container value + top 5 items in a side panel
     public boolean backpackPreview = true;         // cache + show backpack/ender chest contents on hover (data in storage.json)
+    public boolean backpackPreviewShift = false;   // only while shift is held
+    @Global
+    public int backpackPreviewFreezeKey = -1;      // pins the preview so its items can be hovered
     public boolean itemSearchIndex = true;          // remember opened containers so /tmap search can find items anywhere
     @Global
     public int itemSearchKey = 79;                  // opens /tmap search (default O), -1 = unbound

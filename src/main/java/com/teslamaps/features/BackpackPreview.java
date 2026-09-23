@@ -97,8 +97,10 @@ public class BackpackPreview {
     }
 
     private static String hoveredKey() {
-        if (!TeslaMapsConfig.get().backpackPreview) return null;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.backpackPreview) return null;
         Minecraft mc = Minecraft.getInstance();
+        if (c.backpackPreviewShift && !mc.hasShiftDown()) return null;
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return null;
         Slot hovered = ((HandledScreenAccessor) cs).getFocusedSlot();
         if (hovered == null || hovered.getItem().isEmpty()) return null;
@@ -130,6 +132,7 @@ public class BackpackPreview {
     public static List<Component> prepareTooltip(List<Component> lines) {
         pendingGrid = null;
         pendingIndex = -1;
+        if (frozen != null) return lines;
 
         String key = hoveredKey();
         if (key == null) return lines;
@@ -163,6 +166,109 @@ public class BackpackPreview {
         else components.add(pendingGrid);
         pendingGrid = null;
         pendingIndex = -1;
+    }
+
+    private static String frozen = null;
+    private static int frozenX, frozenY;
+    private static java.lang.ref.WeakReference<net.minecraft.client.gui.screens.Screen> frozenScreen = new java.lang.ref.WeakReference<>(null);
+    private static final int F_CELL = 18, F_PAD = 4, F_TITLE = 11;
+
+    /** Freeze key over a backpack/ender page: pins its preview so single items can be hovered. */
+    public static boolean onKey(int key) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.backpackPreview || c.backpackPreviewFreezeKey == -1 || key != c.backpackPreviewFreezeKey) return false;
+        if (frozen != null) { frozen = null; return true; }
+        String k = hoveredKey();
+        if (k == null) return false;
+        Map<Integer, ItemStack> items = StorageCache.items(k);
+        if (items == null || items.isEmpty()) return false;
+        Minecraft mc = Minecraft.getInstance();
+        frozen = k;
+        frozenScreen = new java.lang.ref.WeakReference<>(mc.screen);
+        double sx = mc.mouseHandler.xpos() * mc.getWindow().getGuiScaledWidth() / mc.getWindow().getScreenWidth();
+        double sy = mc.mouseHandler.ypos() * mc.getWindow().getGuiScaledHeight() / mc.getWindow().getScreenHeight();
+        frozenX = (int) sx + 12;
+        frozenY = (int) sy - 12;
+        return true;
+    }
+
+    private static int frozenSize() {
+        int size = StorageCache.size(frozen);
+        if (size <= 0) {
+            Map<Integer, ItemStack> items = StorageCache.items(frozen);
+            if (items != null) for (int s : items.keySet()) size = Math.max(size, s + 1);
+        }
+        return Math.max(9, size);
+    }
+
+    private static int[] frozenRect(int sw, int sh) {
+        int rows = (frozenSize() + 8) / 9;
+        int w = F_PAD * 2 + 9 * F_CELL, h = F_PAD * 2 + F_TITLE + rows * F_CELL;
+        int x = frozenX, y = frozenY;
+        if (x + w > sw) x = sw - w;
+        if (y + h > sh) y = sh - h;
+        return new int[]{Math.max(0, x), Math.max(0, y), w, h};
+    }
+
+    private static boolean frozenLive() {
+        if (frozen == null) return false;
+        if (Minecraft.getInstance().screen != frozenScreen.get() || !TeslaMapsConfig.get().backpackPreview) {
+            frozen = null;
+            return false;
+        }
+        return true;
+    }
+
+    public static void renderFrozen(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
+        if (!frozenLive()) return;
+        Minecraft mc = Minecraft.getInstance();
+        Map<Integer, ItemStack> items = StorageCache.items(frozen);
+        if (items == null) { frozen = null; return; }
+        int[] r = frozenRect(mc.screen.width, mc.screen.height);
+        int x = r[0], y = r[1];
+        ctx.fill(x, y, x + r[2], y + r[3], 0xF0100010);
+        ctx.fill(x, y, x + r[2], y + 1, 0xFF7755FF);
+        ctx.fill(x, y + r[3] - 1, x + r[2], y + r[3], 0xFF7755FF);
+        ctx.text(mc.font, "§d" + label(frozen) + " §8(frozen)", x + F_PAD, y + F_PAD, 0xFFFFFFFF);
+        int gx0 = x + F_PAD, gy0 = y + F_PAD + F_TITLE;
+        int size = frozenSize();
+        for (int s = 0; s < size; s++) {
+            int gx = gx0 + (s % 9) * F_CELL, gy = gy0 + (s / 9) * F_CELL;
+            ctx.fill(gx, gy, gx + 16, gy + 16, 0xFF3A3A3A);
+        }
+        ItemStack hover = null;
+        for (Map.Entry<Integer, ItemStack> e : items.entrySet()) {
+            int s = e.getKey();
+            if (s < 0 || s >= size) continue;
+            int gx = gx0 + (s % 9) * F_CELL, gy = gy0 + (s / 9) * F_CELL;
+            ItemStack st = e.getValue();
+            RarityBackground.draw(ctx, gx, gy, st);
+            ctx.item(st, gx, gy);
+            ctx.itemDecorations(mc.font, st, gx, gy);
+            EnchantAbbrev.draw(ctx, st, gx, gy);
+            if (mouseX >= gx && mouseX < gx + 16 && mouseY >= gy && mouseY < gy + 16) {
+                ctx.fill(gx, gy, gx + 16, gy + 16, 0x60FFFFFF);
+                hover = st;
+            }
+        }
+        if (hover != null && !hover.isEmpty()) ctx.setTooltipForNextFrame(mc.font, hover, mouseX, mouseY);
+    }
+
+    /** Clicks on the frozen panel never reach the slots below it. */
+    public static boolean handleClick(double mx, double my, int button) {
+        if (!frozenLive()) return false;
+        Minecraft mc = Minecraft.getInstance();
+        int[] r = frozenRect(mc.screen.width, mc.screen.height);
+        boolean inside = mx >= r[0] && mx < r[0] + r[2] && my >= r[1] && my < r[1] + r[3];
+        if (!inside) return false;
+        if (button == 1) frozen = null;
+        return true;
+    }
+
+    private static String label(String key) {
+        if (key.startsWith("epage_")) return "Ender Chest " + key.substring(6);
+        if (key.startsWith("backpack_")) return "Backpack " + key.substring(9);
+        return key;
     }
 
     private record Grid(Map<Integer, ItemStack> items, int size) implements ClientTooltipComponent {
