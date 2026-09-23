@@ -19,6 +19,13 @@ public final class CombatCategory {
         b.toggle("Miniboss ESP", () -> config.slayerMinibossESP, v -> config.slayerMinibossESP = v);
         b.toggle("Miniboss Tracers", () -> config.slayerMinibossTracer, v -> config.slayerMinibossTracer = v);
         b.toggle("Alerts (Miniboss/Cocoon/Boss)", () -> config.slayerAlerts, v -> config.slayerAlerts = v);
+        b.label("Slayer Kill Time");
+        b.toggle("Kill Time in Chat", () -> config.slayerKillChat, v -> config.slayerKillChat = v);
+        b.info("Timed from the scoreboard's \"Slay the boss!\" line to the kill");
+        b.toggle("  Show Server Ticks", () -> config.slayerKillTicks, v -> config.slayerKillTicks = v);
+        b.toggle("Personal Bests", () -> config.slayerKillPb, v -> config.slayerKillPb = v);
+        b.info("One PB per slayer and tier, per profile. /tmap slayerpb lists them");
+        b.channel("  Post New PB", () -> config.slayerPbChannel, v -> config.slayerPbChannel = v);
         b.label("Bestiary");
         b.toggle("Bestiary HUD (kills/h and tier ETA)", () -> config.bestiaryTracker, v -> config.bestiaryTracker = v);
         b.info("Reads the Bestiary block in the tab list");

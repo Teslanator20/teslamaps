@@ -476,28 +476,55 @@ public class SlayerHUD {
     }
 
     public static void onSlayerComplete() {
+        long killTime = System.currentTimeMillis();
+        // "NICE! SLAYER BOSS SLAIN!" and "SLAYER QUEST COMPLETE!" can both come for one kill
+        if (killTime - lastCompleteMs < 3000) return;
+        lastCompleteMs = killTime;
         com.teslamaps.features.SkillTracker.onBossKill();
-        if (!questActive || questStartTime == 0) return;
 
-        if (TeslaMapsConfig.get().slayerOnlyOwnBoss && bossOwner != null && !isOwnBoss) {
+        // the scoreboard "Slay the boss!" line is our own quest, exact and range independent
+        long scoreboardSpawn = SlayerQuest.spawnMs();
+        if (scoreboardSpawn == 0 && (!questActive || questStartTime == 0)) {
+            SlayerQuest.onQuestEnd();
+            return;
+        }
+
+        if (scoreboardSpawn == 0 && TeslaMapsConfig.get().slayerOnlyOwnBoss && bossOwner != null && !isOwnBoss) {
             resetQuest();
+            SlayerQuest.onQuestEnd();
             return;
         }
 
         Minecraft mc = Minecraft.getInstance();
-        long killTime = System.currentTimeMillis();
-        long fightDuration = killTime - questStartTime;
+        long start = scoreboardSpawn > 0 ? scoreboardSpawn : questStartTime;
+        long fightDuration = killTime - start;
+        long questStart = SlayerQuest.questStartMs();
+        long spawn = questStart > 0 && scoreboardSpawn > questStart ? scoreboardSpawn - questStart
+                : lastKillTime > 0 ? start - lastKillTime : -1;
+        if (spawn > 0) spawnTimes.add(spawn);
         killTimes.add(fightDuration);
         lastKillTime = killTime;
         totalKills++;
 
-        sendKillMessage(mc, fightDuration);
+        long ticks = scoreboardSpawn > 0 ? SlayerQuest.fightTicks() : -1;
+        String pb = SlayerTimer.onKill(SlayerQuest.key(), label(), fightDuration, ticks, SlayerQuest.died());
+        if (TeslaMapsConfig.get().slayerKillChat) sendKillMessage(mc, fightDuration, ticks, pb);
 
         resetQuest();
+        SlayerQuest.onQuestEnd();
+    }
+
+    private static String label() {
+        String boss = SlayerQuest.boss();
+        if (boss == null) return "Slayer boss";
+        String[] roman = {"", "I", "II", "III", "IV", "V"};
+        int t = SlayerQuest.tier();
+        return boss + (t > 0 && t < roman.length ? " " + roman[t] : "");
     }
 
     public static void onSlayerFailed() {
         resetQuest();
+        SlayerQuest.onQuestEnd();
     }
 
     public static void resetSession() {
@@ -532,7 +559,7 @@ public class SlayerHUD {
         typhoeusDead = false;
     }
 
-    private static void sendKillMessage(Minecraft mc, long fightDuration) {
+    private static void sendKillMessage(Minecraft mc, long fightDuration, long ticks, String pb) {
         if (mc.player == null) return;
 
         StringBuilder msg = new StringBuilder();
@@ -540,6 +567,10 @@ public class SlayerHUD {
         msg.append(ChatFormatting.GRAY).append("(#").append(totalKills).append(") ");
 
         msg.append(ChatFormatting.WHITE).append("Time: ").append(ChatFormatting.YELLOW).append(formatTime(fightDuration));
+        if (TeslaMapsConfig.get().slayerKillTicks && ticks > 0) {
+            msg.append(ChatFormatting.DARK_GRAY).append(" (").append(ticks).append(" ticks)");
+        }
+        msg.append(pb);
 
         if (spawnTimes.size() > 0) {
             long lastSpawnTime = spawnTimes.get(spawnTimes.size() - 1);

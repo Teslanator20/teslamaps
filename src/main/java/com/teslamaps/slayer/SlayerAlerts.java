@@ -1,7 +1,7 @@
 package com.teslamaps.slayer;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.utils.ScoreboardUtils;
+import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
@@ -9,11 +9,8 @@ public class SlayerAlerts {
 
     private static final int TITLE_TICKS = 25;
 
-    private static int scoreboardTicks = 0;
-    private static boolean wasSlayBoss = false;
-
     public static void onChatMessage(String rawText) {
-        String text = rawText.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        String text = StringUtil.strip(rawText).trim();
         if (text.contains("YOU COCOONED YOUR SLAYER BOSS")) com.teslamaps.features.SkillTracker.onCocoon();
         if (!TeslaMapsConfig.get().slayerAlerts) return;
 
@@ -28,19 +25,12 @@ public class SlayerAlerts {
     }
 
     public static void tick() {
-        if (!TeslaMapsConfig.get().slayerAlerts) {
-            wasSlayBoss = false;
-            return;
-        }
-        if (++scoreboardTicks < 10) return;
-        scoreboardTicks = 0;
+    }
 
-        boolean slayBoss = false;
-        for (String line : ScoreboardUtils.getScoreboardLines()) {
-            if (ScoreboardUtils.cleanLine(line).contains("Slay the boss")) { slayBoss = true; break; }
-        }
-        if (slayBoss && !wasSlayBoss) setTitle("§cBOSS SPAWNED");
-        wasSlayBoss = slayBoss;
+    /** Scoreboard switched to "Slay the boss!" (SlayerQuest). */
+    static void onBossSpawn() {
+        if (!TeslaMapsConfig.get().slayerAlerts) return;
+        setTitle("§cBOSS SPAWNED");
     }
 
     private static void setTitle(String title) {

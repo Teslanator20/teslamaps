@@ -1002,6 +1002,10 @@ public class TeslaMapsConfig {
     public boolean slayerMinibossESP = false;  // Glow on minibosses (Burningsoul=red, Kindleheart=white)
     public boolean slayerMinibossTracer = false; // Tracer lines to slayer minibosses
     public boolean slayerAlerts = true;        // Title alerts: miniboss spawn, cocoon, boss spawned
+    public boolean slayerKillChat = true;      // Chat line with kill/spawn time after each boss
+    public boolean slayerKillPb = false;       // Persistent kill-time PB per slayer type and tier
+    public boolean slayerKillTicks = false;    // Kill time in server ticks too
+    public String slayerPbChannel = "Nobody";  // Where a new PB is posted
     public boolean bestiaryTracker = true;     // Bestiary HUD: kills/hour and tier ETA out of the tab list
     public int bestiaryTrackerX = 10;          // X position of bestiary HUD
     public int bestiaryTrackerY = 200;         // Y position of bestiary HUD

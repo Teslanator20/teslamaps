@@ -42,5 +42,6 @@ final class Features {
         com.teslamaps.features.ChatSpamHud.register();
         // wave 1c combat-pets
         com.teslamaps.slayer.SlayerHUD.register();
+        com.teslamaps.slayer.SlayerQuest.register();
     }
 }
