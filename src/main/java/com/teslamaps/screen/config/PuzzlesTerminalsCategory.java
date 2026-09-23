@@ -104,6 +104,10 @@ public final class PuzzlesTerminalsCategory {
                 v -> config.waterBoardSolutionSet = Math.max(0, java.util.Arrays.asList(waterSets).indexOf(v)));
         b.toggle("Ice Fill Solver", () -> config.solveIceFill, v -> config.solveIceFill = v);
         b.toggle("Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v);
+        b.toggle("Ice Fill: Solve From Blocks", () -> config.iceFillDynamic, v -> config.iceFillDynamic = v);
+        b.toggle("Ice Fill Color Gradient", () -> config.iceFillGradient, v -> config.iceFillGradient = v);
+        b.slider("Ice Fill Line Width", 1f, 8f,
+                () -> config.iceFillLineWidth, v -> config.iceFillLineWidth = v, 1);
         b.toggle("Ice Path Solver", () -> config.icePathSolver, v -> config.icePathSolver = v);
         b.toggle("Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v);
         b.toggle("Puzzle Timers", () -> config.puzzleTimers, v -> config.puzzleTimers = v);
@@ -117,6 +121,7 @@ public final class PuzzlesTerminalsCategory {
         b.color("Blaze: Wrong", () -> config.blazeColorRest, v -> config.blazeColorRest = v);
         b.color("Quiz Correct", () -> config.colorQuiz, v -> config.colorQuiz = v);
         b.color("Ice Fill Path", () -> config.colorIceFill, v -> config.colorIceFill = v);
+        b.color("Ice Fill Path End", () -> config.colorIceFillEnd, v -> config.colorIceFillEnd = v);
         b.color("TP Maze: Single", () -> config.colorTPMazeOne, v -> config.colorTPMazeOne = v);
         b.color("TP Maze: Multiple", () -> config.colorTPMazeMultiple, v -> config.colorTPMazeMultiple = v);
         b.color("TP Maze: Visited", () -> config.colorTPMazeVisited, v -> config.colorTPMazeVisited = v);

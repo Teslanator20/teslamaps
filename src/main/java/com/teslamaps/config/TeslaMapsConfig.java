@@ -1361,11 +1361,15 @@ public class TeslaMapsConfig {
     public int waterBoardSolutionSet = 0;
     public boolean solveIceFill = true;             // Show Ice Fill (F7) path solution
     public boolean iceFillOptimized = true;         // Use optimized (harder/faster) ice fill paths
+    public boolean iceFillDynamic = false;
+    public boolean iceFillGradient = false;
+    public float iceFillLineWidth = 3f;
     public boolean icePathSolver = true;            // Draw the silverfish path in the Ice Path puzzle
     public boolean puzzleTimers = true;            // Report how long each puzzle took to solve
     @Global
     public java.util.Map<String, Double> puzzlePbs = new java.util.HashMap<>(); // per-puzzle personal bests (seconds)
     public String colorIceFill = "55FFFF";          // Ice Fill path color (aqua)
+    public String colorIceFillEnd = "FF5555";
     public boolean witherDragons = true;            // M7 Wither Dragons helper (master toggle)
     public boolean witherDragonTimer = true;        // Spawn countdown timer at each dragon's spawn
     public boolean witherDragonBoxes = true;        // Boxes around spawning/alive dragons
