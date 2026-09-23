@@ -1565,6 +1565,11 @@ public class TMapCommand {
                                                     + com.teslamaps.features.FarmProfit.window().label));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("mouselock")
+                        .executes(context -> {
+                            com.teslamaps.features.FarmingSensitivity.toggleLock();
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("tppest")
                         .executes(context -> {
                             com.teslamaps.features.GardenPlots.teleportToPest();

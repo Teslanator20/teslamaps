@@ -100,6 +100,17 @@ public final class GardenCategory {
                 () -> config.farmingSensitivity, v -> config.farmingSensitivity = v);
         b.slider("Sensitivity While Farming", 0f, 1f,
                 () -> config.farmingSensitivityValue, v -> config.farmingSensitivityValue = v, 2);
+        b.toggle("  Only On Ground",
+                () -> config.farmingSensitivityGroundOnly, v -> config.farmingSensitivityGroundOnly = v);
+        b.toggle("  Pause In The Barn",
+                () -> config.farmingSensitivityPauseBarn, v -> config.farmingSensitivityPauseBarn = v);
+        b.info("/tmap mouselock locks turning by hand until used again");
+        b.toggle("Lock Mouse On Mousemat Snap",
+                () -> config.farmingMouseLockOnMousemat, v -> config.farmingMouseLockOnMousemat = v);
+        b.toggle("Unlock Mouse On Teleport",
+                () -> config.farmingMouseUnlockOnTeleport, v -> config.farmingMouseUnlockOnTeleport = v);
+        b.toggle("Mouse Lock HUD",
+                () -> config.farmingSensitivityHud, v -> config.farmingSensitivityHud = v);
         b.label("Farm Lane Bar");
         b.toggle("Show Lane Bar",
                 () -> config.farmBar, v -> config.farmBar = v);

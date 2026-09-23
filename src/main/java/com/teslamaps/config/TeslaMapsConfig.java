@@ -775,6 +775,14 @@ public class TeslaMapsConfig {
     public String farmPriceMode = "Instant Sell";   // Instant Sell / Sell Offer / NPC
     public boolean farmingSensitivity = false;      // Drop sensitivity while holding a farming tool
     public float farmingSensitivityValue = 0.0f;    // Sensitivity to use while it applies
+    public boolean farmingSensitivityGroundOnly = false;
+    public boolean farmingSensitivityPauseBarn = false;
+    public boolean farmingMouseLockOnMousemat = false;
+    public boolean farmingMouseUnlockOnTeleport = false;
+    public boolean farmingSensitivityHud = false;
+    public int farmingSensitivityHudX = 10;
+    public int farmingSensitivityHudY = 120;
+    public float farmingSensitivityHudScale = 1.0f;
     @Global
     public double sensitivityBackup = -1;           // Player's own sensitivity while overridden, -1 = nothing pending
     public boolean pestOverlay = true;              // Cooldown / alive / infested plots panel
