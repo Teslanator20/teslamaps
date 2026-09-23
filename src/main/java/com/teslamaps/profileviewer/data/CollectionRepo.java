@@ -93,17 +93,6 @@ public class CollectionRepo {
         return Math.max(0, entry.tiers().getLast() - amount);
     }
 
-    /** Tier of a collection id against the bundled/live thresholds, -1 when unknown. */
-    public static int tierOf(String id, long amount) {
-        load();
-        for (Category category : categories) {
-            for (Entry entry : category.items()) {
-                if (entry.id().equals(id)) return tier(entry, amount);
-            }
-        }
-        return -1;
-    }
-
     private static List<Category> parse(JsonObject root) {
         List<Category> categories = new ArrayList<>();
         if (!root.has("collections")) return categories;

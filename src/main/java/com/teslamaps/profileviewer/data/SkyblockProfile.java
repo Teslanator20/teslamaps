@@ -32,10 +32,10 @@ public class SkyblockProfile {
         this.memberData = memberData;
         this.ownerUuid = ownerUuid;
 
+        parseCollections();
         parseSkills();
         this.dungeonData = new DungeonData(memberData);
         parsePets();
-        parseCollections();
     }
 
     private void parseSkills() {
@@ -54,25 +54,67 @@ public class SkyblockProfile {
                 {"hunting", "Hunting"}
         };
 
-        JsonObject playerData = memberData.has("player_data") ?
-                memberData.getAsJsonObject("player_data") : null;
-
         for (String[] skill : skillKeys) {
             String apiKey = skill[0];
             String displayName = skill[1];
-
-            double xp = 0;
-            if (playerData != null && playerData.has("experience")) {
-                JsonObject exp = playerData.getAsJsonObject("experience");
-                String expKey = "SKILL_" + apiKey.toUpperCase();
-                if (exp.has(expKey)) {
-                    xp = exp.get(expKey).getAsDouble();
-                }
-            }
-
-            skills.put(apiKey, new SkillData(displayName, xp, apiKey));
+            double xp = apiKey.equals("social") ? coopSocialXp() : skillXp(memberData, apiKey);
+            skills.put(apiKey, new SkillData(displayName, xp, apiKey, skillCap(apiKey)));
         }
     }
+
+    private static double skillXp(JsonObject member, String apiKey) {
+        try {
+            JsonObject playerData = member.getAsJsonObject("player_data");
+            JsonObject exp = playerData == null ? null : playerData.getAsJsonObject("experience");
+            String expKey = "SKILL_" + apiKey.toUpperCase();
+            if (exp != null && exp.has(expKey)) return exp.get(expKey).getAsDouble();
+        } catch (Exception ignored) {
+        }
+        return 0;
+    }
+
+    /** Social xp is shared by the coop, so every member's part counts. */
+    private double coopSocialXp() {
+        double own = skillXp(memberData, "social");
+        if (fullProfileJson == null || !fullProfileJson.has("members") || !fullProfileJson.get("members").isJsonObject()) {
+            return own;
+        }
+        double total = 0;
+        for (Map.Entry<String, JsonElement> member : fullProfileJson.getAsJsonObject("members").entrySet()) {
+            if (member.getValue().isJsonObject()) total += skillXp(member.getValue().getAsJsonObject(), "social");
+        }
+        return Math.max(total, own);
+    }
+
+    private int skillCap(String apiKey) {
+        return switch (apiKey) {
+            case "farming" -> 50 + farmingCapPerks();
+            case "taming" -> 50 + petTypesSacrificed();
+            case "foraging" -> 57;
+            case "fishing", "alchemy", "carpentry", "hunting" -> 50;
+            case "runecrafting", "social" -> 25;
+            default -> 60;
+        };
+    }
+
+    private int farmingCapPerks() {
+        try {
+            return memberData.getAsJsonObject("jacobs_contest").getAsJsonObject("perks")
+                    .get("farming_level_cap").getAsInt();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private int petTypesSacrificed() {
+        try {
+            return memberData.getAsJsonObject("pets_data").getAsJsonObject("pet_care")
+                    .getAsJsonArray("pet_types_sacrificed").size();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
 
     private void parsePets() {
         try {

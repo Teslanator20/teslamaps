@@ -19,6 +19,12 @@ public class SkillData {
             111672425
     };
 
+    private static final double[] SOCIAL_XP_TABLE = {
+            0, 50, 150, 300, 550, 1050, 1800, 2800, 4050, 5550,
+            7550, 10050, 13050, 16800, 21300, 27300, 35300, 45300, 57800, 72800,
+            92800, 117800, 147800, 182800, 222800, 272800
+    };
+
     private static final double[] RUNECRAFTING_XP_TABLE = {
             0, 50, 150, 275, 435, 635, 885, 1200, 1600, 2100,
             2725, 3510, 4510, 5760, 7325, 9325, 11825, 14950, 18950, 23950,
@@ -36,16 +42,20 @@ public class SkillData {
     private final double overflowProgress;
 
     public SkillData(String displayName, double totalXp, String apiKey) {
+        this(displayName, totalXp, apiKey, 60);
+    }
+
+    public SkillData(String displayName, double totalXp, String apiKey, int cap) {
         this.displayName = displayName;
         this.totalXp = totalXp;
         this.apiKey = apiKey;
 
-        double[] table = apiKey.equals("runecrafting") || apiKey.equals("social") ?
-                RUNECRAFTING_XP_TABLE : SKILL_XP_TABLE;
-        int maxLevel = table.length - 1;
+        double[] table = apiKey.equals("runecrafting") ? RUNECRAFTING_XP_TABLE
+                : apiKey.equals("social") ? SOCIAL_XP_TABLE : SKILL_XP_TABLE;
+        int maxLevel = Math.min(table.length - 1, Math.max(1, cap));
 
         int lvl = 0;
-        for (int i = 0; i < table.length; i++) {
+        for (int i = 0; i <= maxLevel; i++) {
             if (totalXp >= table[i]) {
                 lvl = i;
             } else {
