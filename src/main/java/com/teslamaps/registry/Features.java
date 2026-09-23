@@ -10,5 +10,6 @@ final class Features {
         com.teslamaps.features.BossTickHuds.register();
         com.teslamaps.features.LividTimer.register();
         com.teslamaps.dungeon.puzzle.TerracottaTimer.register();
+        com.teslamaps.features.DragonESP.register();
     }
 }

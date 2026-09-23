@@ -72,5 +72,11 @@ public final class F7M7Category {
         b.toggle("Wither Highlight", () -> config.witherHighlight, v -> config.witherHighlight = v);
         b.toggle("  Wither Highlight Box", () -> config.witherHighlightBox, v -> config.witherHighlightBox = v);
         b.color("  Wither Highlight Color", () -> config.witherHighlightColor, v -> config.witherHighlightColor = v);
+        b.toggle("  Glow Instead of Box", () -> config.witherHighlightGlow, v -> config.witherHighlightGlow = v).legit();
+        b.toggle("  Color per Boss (bossbar)", () -> config.witherHighlightPerBoss, v -> config.witherHighlightPerBoss = v);
+        b.color("    Maxor", () -> config.witherColorMaxor, v -> config.witherColorMaxor = v);
+        b.color("    Storm", () -> config.witherColorStorm, v -> config.witherColorStorm = v);
+        b.color("    Goldor", () -> config.witherColorGoldor, v -> config.witherColorGoldor = v);
+        b.color("    Necron", () -> config.witherColorNecron, v -> config.witherColorNecron = v);
     }
 }

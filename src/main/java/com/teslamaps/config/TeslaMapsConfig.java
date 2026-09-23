@@ -1428,6 +1428,12 @@ public class TeslaMapsConfig {
     public boolean witherHighlight = false;        // Highlight F7/M7 device-phase withers
     public boolean witherHighlightBox = true;       // Filled box (vs outline) for the wither highlight
     public String witherHighlightColor = "00FFFF";  // Wither highlight colour
+    public boolean witherHighlightGlow = false;     // outline glow on the current boss wither instead of a box
+    public boolean witherHighlightPerBoss = false;  // colour by the bossbar name (Maxor/Storm/Goldor/Necron)
+    public String witherColorMaxor = "5804A4";
+    public String witherColorStorm = "00D0FF";
+    public String witherColorGoldor = "FFFFFF";
+    public String witherColorNecron = "FF0000";
 
     public boolean solveSimonSays = false;         // Show button sequence for Simon Says
     public boolean simonSaysBlockWrongClicks = false; // Block clicks on wrong SS buttons (sneak to override)
