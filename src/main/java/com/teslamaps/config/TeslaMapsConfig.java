@@ -1661,6 +1661,10 @@ public class TeslaMapsConfig {
     public boolean kickedCenterWarning = true;        // Big center-screen "wait Xs" warning for 60s after a kick
     public boolean bazaarOwnOrders = true;            // Highlight your own orders ("By: <you>") green in bazaar order books
     public boolean bazaarOrderFilled = true;          // Green check mark on bazaar orders that are 100% filled / claimable
+    public boolean bazaarOrderStatus = false;         // Your/Co-op Bazaar Orders: filled / outbid / competitive / partial / expiry
+    public String colorBazaarOrderFilled = "#5555FF";
+    public String colorBazaarOrderOutbid = "#FF5555";
+    public String colorBazaarOrderCompetitive = "#55FF55";
     public boolean progressHighlight = true;          // Highlight 100% progress lines in the Ways to Level Up menu
 
     // Guide Highlight: marks what is still missing in guide-style menus (ported from SkyHanni)

@@ -105,6 +105,11 @@ public final class InventoryCategory {
         b.label("Bazaar & Progress");
         b.toggle("Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v);
         b.toggle("Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v);
+        b.toggle("Bazaar: Order Status Colors", () -> config.bazaarOrderStatus, v -> config.bazaarOrderStatus = v);
+        b.info("Your Bazaar Orders: filled, outbid/undercut, still top, % partly filled, ⏰ expiry");
+        b.color("  Filled Color", () -> config.colorBazaarOrderFilled, v -> config.colorBazaarOrderFilled = v);
+        b.color("  Outbid Color", () -> config.colorBazaarOrderOutbid, v -> config.colorBazaarOrderOutbid = v);
+        b.color("  Top Order Color", () -> config.colorBazaarOrderCompetitive, v -> config.colorBazaarOrderCompetitive = v);
         b.toggle("Progress Highlight (Ways to Level Up / Bestiary)", () -> config.progressHighlight, v -> config.progressHighlight = v);
         b.color("  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v);
         b.toggle("Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v);
