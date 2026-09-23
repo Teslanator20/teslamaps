@@ -51,6 +51,14 @@ public final class RenderCategory {
         b.label("Block Overlay");
         b.toggle("Block Overlay", () -> config.blockOverlay, v -> config.blockOverlay = v);
         b.color("  Block Overlay Color", () -> config.blockOverlayColor, v -> config.blockOverlayColor = v);
+        b.dropdown("  Block Overlay Style", com.teslamaps.features.BlockOverlay.STYLES,
+                () -> config.blockOverlayStyle, v -> config.blockOverlayStyle = v);
+        b.color("  Block Overlay Fill Color", () -> config.blockOverlayFillColor, v -> config.blockOverlayFillColor = v);
+        b.slider("  Block Overlay Line Width", 0.5f, 10f, () -> config.blockOverlayLineWidth, v -> config.blockOverlayLineWidth = v, 1);
+        b.toggle("  Block Overlay Through Walls", () -> config.blockOverlayThroughWalls, v -> config.blockOverlayThroughWalls = v);
+        b.toggle("  Exact Block Shape", () -> config.blockOverlayExactShape, v -> config.blockOverlayExactShape = v);
+        b.toggle("  Hide Vanilla Outline", () -> config.blockOverlayHideVanilla, v -> config.blockOverlayHideVanilla = v);
+        b.toggle("  Hide While Etherwarping", () -> config.blockOverlayHideEtherwarp, v -> config.blockOverlayHideEtherwarp = v);
         b.label("Chat Waypoint");
         b.toggle("Chat Waypoint (coords)", () -> config.chatWaypoint, v -> config.chatWaypoint = v);
         b.toggle("  More Formats (x y z, Inquisitor)", () -> config.chatWaypointMoreFormats, v -> config.chatWaypointMoreFormats = v);

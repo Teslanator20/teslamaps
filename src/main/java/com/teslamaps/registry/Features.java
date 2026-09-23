@@ -42,5 +42,6 @@ final class Features {
         com.teslamaps.features.ChatSpamHud.register();
         // wave 1c visuals
         com.teslamaps.features.Etherwarp.register();
+        com.teslamaps.features.BlockOverlay.register();
     }
 }

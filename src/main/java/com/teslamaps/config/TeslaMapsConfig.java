@@ -1203,6 +1203,13 @@ public class TeslaMapsConfig {
     public boolean waypointLabelBackground = false;
     public boolean blockOverlay = true;            // Outline the block you're looking at
     public String blockOverlayColor = "FFFFFF";     // Block overlay outline colour
+    public String blockOverlayStyle = "Outline";     // Outline / Filled / Filled + Outline
+    public String blockOverlayFillColor = "40FFFFFF";
+    public float blockOverlayLineWidth = 3.0f;
+    public boolean blockOverlayThroughWalls = false;
+    public boolean blockOverlayExactShape = false;   // Every box of the shape (stairs, fences) instead of its bounds
+    public boolean blockOverlayHideVanilla = false;  // Cancel the vanilla black outline
+    public boolean blockOverlayHideEtherwarp = false; // Hide while the etherwarp guess box shows
     public boolean chatWaypoint = true;            // Render a waypoint beam from coords in chat
     public boolean chatWaypointMoreFormats = false; // Also "x y z", "x, y, z" in player chat + Inquisitor lines
     public boolean chatWaypointIgnoreAllChat = false;
