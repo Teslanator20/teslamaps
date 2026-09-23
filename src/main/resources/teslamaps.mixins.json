@@ -78,6 +78,7 @@
     "NoBlockBreakingMixin",
     "NoCloudsMixin",
     "NoCursorResetMixin",
+    "NoCursorResetMouseMixin",
     "NoDeathAnimationMixin",
     "NoExplosionsMixin",
     "NoFireMixin",

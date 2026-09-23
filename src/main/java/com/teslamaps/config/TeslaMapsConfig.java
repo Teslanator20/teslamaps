@@ -1325,6 +1325,7 @@ public class TeslaMapsConfig {
     public boolean signEnterKey = true;            // Enter confirms/closes a sign edit screen
     public boolean noCursorReset = true;           // keep cursor position when navigating between GUIs
     public float noCursorResetHold = 2f;           // seconds the saved cursor position stays valid
+    public boolean noCursorResetForever = false;   // ignore hold time, restore until the next menu
     public boolean autoCopyScreenshot = true;      // copy taken screenshots to the system clipboard
     public boolean screenshotChatActions = true;    // clickable Copy/Browse/Delete under the save message
     public boolean screenshotHideVanillaMessage = true; // hide "Saved screenshot as ..."
