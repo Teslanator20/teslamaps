@@ -1232,6 +1232,13 @@ public class TeslaMapsConfig {
     public String itemValuePriceSource = "BZ Instant Sell"; // BZ Instant Buy / BZ Instant Sell / Lowest BIN / NPC Sell
     public boolean priceCraftFallback = false;      // price unknown items by their NEU raw craft cost
     public boolean itemValueShowBin = true;         // extra "Lowest BIN" line in the value breakdown
+    public boolean priceLineHideInstant = false;    // drop the BZ insta buy/sell lines
+    public boolean priceLineOrders = false;         // best buy order / sell offer lines
+    public boolean priceLineNpc = false;            // NPC sell price line
+    public boolean priceLineCraft = false;          // raw craft cost line (NEU recipes)
+    public boolean priceLineEach = false;           // "total coins (each)" in aligned columns
+    public boolean priceLineRequireKey = false;     // price lines only while priceLineKey is held
+    public int priceLineKey = org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_ALT;
     public boolean containerValue = false;          // show total container value + top 5 items in a side panel
     public boolean backpackPreview = true;         // cache + show backpack/ender chest contents on hover (data in storage.json)
     public boolean itemSearchIndex = true;          // remember opened containers so /tmap search can find items anywhere

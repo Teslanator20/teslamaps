@@ -38,6 +38,14 @@ public final class TooltipsValueCategory {
         b.info("Items with no market price use their raw craft cost (Croesus, trackers, value)");
         b.toggle("Lowest BIN / Bazaar Line", () -> config.itemValueShowBin, v -> config.itemValueShowBin = v);
         b.info("Market price on every tooltip, BZ insta buy/sell or lowest BIN");
+        b.toggle("  Hide Insta Buy/Sell", () -> config.priceLineHideInstant, v -> config.priceLineHideInstant = v);
+        b.toggle("  Buy Order / Sell Offer", () -> config.priceLineOrders, v -> config.priceLineOrders = v);
+        b.toggle("  NPC Sell Price", () -> config.priceLineNpc, v -> config.priceLineNpc = v);
+        b.toggle("  Raw Craft Cost", () -> config.priceLineCraft, v -> config.priceLineCraft = v);
+        b.toggle("  Total + Each, Aligned", () -> config.priceLineEach, v -> config.priceLineEach = v);
+        b.info("\"1,200 coins (100 each)\" in two columns, no Shift needed");
+        b.toggle("  Only While Key Held", () -> config.priceLineRequireKey, v -> config.priceLineRequireKey = v);
+        b.keybind("  Price Key", () -> config.priceLineKey, v -> config.priceLineKey = v);
         b.toggle("Show Exact Price", () -> config.itemValueExactPrice, v -> config.itemValueExactPrice = v);
         b.toggle("Ignore Helmet Skins", () -> config.itemValueIgnoreHelmetSkins, v -> config.itemValueIgnoreHelmetSkins = v);
         b.toggle("Ignore Armor Dyes", () -> config.itemValueIgnoreArmorDyes, v -> config.itemValueIgnoreArmorDyes = v);
