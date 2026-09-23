@@ -97,13 +97,13 @@ public class ChatCommands {
         char type = c.charAt(0);
         char num = c.charAt(1);
         if (type == 't') {
-            String[] tiers = {"NORMAL", "HOT", "BURNING", "FIERY", "INFERNAL"};
+            String[] tiers = {"normal", "hot", "burning", "fiery", "infernal"};
             if (num < '1' || num > '5') return null;
-            return "KUUDRA_" + tiers[num - '1'];
+            return "kuudra_" + tiers[num - '1'];
         }
         if ((type != 'f' && type != 'm') || num < '1' || num > '7') return null;
-        String[] names = {"ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN"};
-        return (type == 'm' ? "MASTER_" : "") + "CATACOMBS_FLOOR_" + names[num - '1'];
+        String[] names = {"one", "two", "three", "four", "five", "six", "seven"};
+        return (type == 'm' ? "master_" : "") + "catacombs_floor_" + names[num - '1'];
     }
 
     private static String coords() {
