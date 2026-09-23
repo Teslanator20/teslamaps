@@ -67,8 +67,39 @@ public final class FishingCategory {
         b.toggle("Share Hotspots To Party",
                 () -> config.hotspotShare, v -> config.hotspotShare = v);
         b.info("Crimson Isle / Backwater Bayou, needs a rod in hand");
+        b.channel("  Channel",
+                () -> config.hotspotShareChannel, v -> config.hotspotShareChannel = v);
+        b.toggle("  Ask Before Sharing",
+                () -> config.hotspotShareManual, v -> config.hotspotShareManual = v);
+        b.info("Chat line with a [Share] button instead of sending");
+        b.toggle("  x: y: z: Format",
+                () -> config.hotspotShareXyz, v -> config.hotspotShareXyz = v);
+        b.info("x: 1, y: 2, z: 3 | <perk>, other mods read it too");
+        b.toggle("All Fishing Islands",
+                () -> config.hotspotShareAllIslands, v -> config.hotspotShareAllIslands = v);
+        b.info("Sharing, found alert and waypoints outside the two islands");
+        b.toggle("Only Selected Perks",
+                () -> config.hotspotShareFilter, v -> config.hotspotShareFilter = v);
+        b.info("Filters sharing and the found alert");
+        b.toggle("  Sea Creature Chance",
+                () -> config.hotspotPerkSeaCreature, v -> config.hotspotPerkSeaCreature = v);
+        b.toggle("  Fishing Speed",
+                () -> config.hotspotPerkFishingSpeed, v -> config.hotspotPerkFishingSpeed = v);
+        b.toggle("  Double Hook Chance",
+                () -> config.hotspotPerkDoubleHook, v -> config.hotspotPerkDoubleHook = v);
+        b.toggle("  Treasure Chance",
+                () -> config.hotspotPerkTreasure, v -> config.hotspotPerkTreasure = v);
+        b.toggle("  Trophy Chance",
+                () -> config.hotspotPerkTrophy, v -> config.hotspotPerkTrophy = v);
+        b.toggle("  Shard Chance",
+                () -> config.hotspotPerkShard, v -> config.hotspotPerkShard = v);
+        b.toggle("Hotspot Found Alert",
+                () -> config.hotspotFoundAlert, v -> config.hotspotFoundAlert = v);
+        b.info("Title, sound and a 30s waypoint when a new hotspot shows up");
         b.toggle("Waypoints For Shared Hotspots",
                 () -> config.hotspotShareWaypoints, v -> config.hotspotShareWaypoints = v);
+        b.toggle("  Tracer To Hotspot Waypoints",
+                () -> config.hotspotShareTracer, v -> config.hotspotShareTracer = v);
         b.toggle("Hotspot Closed Title",
                 () -> config.hotspotClosedTitle, v -> config.hotspotClosedTitle = v);
         b.label("Hotspot Gone");

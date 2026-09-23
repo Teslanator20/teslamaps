@@ -38,6 +38,8 @@ public class HotspotShare {
     private static final Pattern SHARE_PATTERN = Pattern.compile(
             "Found a Hotspot! \\((?<stat>[^)]+)\\) @ (?<x>-?\\d+) (?<y>-?\\d+) (?<z>-?\\d+)",
             Pattern.CASE_INSENSITIVE);
+    private static final Pattern XYZ_PATTERN = Pattern.compile(
+            "x: (?<x>-?\\d+), y: (?<y>-?\\d+), z: (?<z>-?\\d+) \\| (?<stat>[^|]+)");
     private static final Pattern PARTY_LINE = Pattern.compile("^Party > (?<sender>.+?): (?<body>.*)$");
     private static final Pattern NON_STAT = Pattern.compile("[^A-Za-z0-9+.% -]");
     private static final Pattern SPACES = Pattern.compile("\\s+");
@@ -48,6 +50,7 @@ public class HotspotShare {
     private static final long PENDING_SHARE_EXPIRE_MS = 60_000;
     private static final long SHARE_SUPPRESS_MS = 10 * 60 * 1000;
     private static final long WAYPOINT_LIFETIME_MS = 20_000;
+    private static final long FOUND_LIFETIME_MS = 30_000;
     private static final double STAT_PAIR_DISTANCE_SQ = 1.0;
     private static final double MATCH_HORIZONTAL_SQ = 36.0;
     private static final double MATCH_VERTICAL = 3.0;
@@ -64,6 +67,7 @@ public class HotspotShare {
         final long firstSeen = System.currentTimeMillis();
         long missingSince = 0;
         long sharedAt = 0;
+        boolean alerted = false;
 
         Tracked(UUID id, String stat, BlockPos pos) {
             this.id = id;
@@ -77,27 +81,37 @@ public class HotspotShare {
         final BlockPos pos;
         final String sender;
         final long createdAt = System.currentTimeMillis();
+        final boolean own;
 
         Waypoint(String stat, BlockPos pos, String sender) {
+            this(stat, pos, sender, false);
+        }
+
+        Waypoint(String stat, BlockPos pos, String sender, boolean own) {
             this.stat = stat;
             this.pos = pos;
             this.sender = sender;
+            this.own = own;
         }
     }
 
     private static final Map<UUID, Tracked> tracked = new HashMap<>();
     private static final Map<String, Long> recentShares = new HashMap<>();
+    private static final Map<String, Long> recentAlerts = new HashMap<>();
+    private static final Map<Integer, String> offers = new java.util.LinkedHashMap<>();
+    private static int nextOfferId = 1;
     private static final List<Waypoint> waypoints = new ArrayList<>();
     private static int tickCounter = 0;
     private static String lastArea = "";
 
     private static boolean inHotspotIsland() {
+        if (TeslaMapsConfig.get().hotspotShareAllIslands) return SkyblockUtils.isInSkyblock();
         String area = SkyblockUtils.getArea();
         return area.equalsIgnoreCase("Crimson Isle") || area.equalsIgnoreCase("Backwater Bayou");
     }
 
     private static boolean active(TeslaMapsConfig c) {
-        return c.hotspotShare || c.hotspotShareWaypoints || c.hotspotClosedTitle;
+        return c.hotspotShare || c.hotspotShareWaypoints || c.hotspotClosedTitle || c.hotspotFoundAlert;
     }
 
     public static void tick() {
@@ -177,26 +191,102 @@ public class HotspotShare {
             }
         }
 
+        if (c.hotspotFoundAlert) {
+            for (Tracked t : tracked.values()) {
+                if (t.alerted || t.missingSince != 0) continue;
+                t.alerted = true;
+                if (!perkAllowed(c, t.stat)) continue;
+                String key = key(t);
+                Long last = recentAlerts.get(key);
+                if (last != null && now - last < SHARE_SUPPRESS_MS) continue;
+                recentAlerts.put(key, now);
+                mc.gui.setTimes(5, 40, 10);
+                mc.gui.setTitle(Component.literal("§d§lHOTSPOT"));
+                mc.gui.setSubtitle(Component.literal("§b" + t.stat));
+                LoudSound.play(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+                waypoints.add(new Waypoint(t.stat, t.pos, "", true));
+            }
+        }
+
         // share new hotspots
-        if (c.hotspotShare && mc.getConnection() != null && holdingRod(mc)) {
+        if (c.hotspotShare && mc.getConnection() != null && holdingRod(mc)
+                && !Announce.NOBODY.equals(c.hotspotShareChannel)) {
             for (Tracked t : tracked.values()) {
                 if (t.sharedAt != 0 || t.missingSince != 0) continue;
                 long age = now - t.firstSeen;
                 if (age < PENDING_SHARE_DELAY_MS || age > PENDING_SHARE_EXPIRE_MS) continue;
-                String key = t.pos.getX() + "," + t.pos.getY() + "," + t.pos.getZ() + ":" + t.stat.toLowerCase(Locale.ROOT);
+                String key = key(t);
                 Long last = recentShares.get(key);
-                if (last != null && now - last < SHARE_SUPPRESS_MS) {
+                if (last != null && now - last < SHARE_SUPPRESS_MS || !perkAllowed(c, t.stat)) {
                     t.sharedAt = now;
                     continue;
                 }
                 recentShares.put(key, now);
                 t.sharedAt = now;
-                mc.getConnection().sendCommand("pc " + SHARE_MARKER + " (" + t.stat + ") @ "
-                        + t.pos.getX() + " " + t.pos.getY() + " " + t.pos.getZ());
+                String msg = c.hotspotShareXyz
+                        ? "x: " + t.pos.getX() + ", y: " + t.pos.getY() + ", z: " + t.pos.getZ() + " | " + t.stat
+                        : SHARE_MARKER + " (" + t.stat + ") @ " + t.pos.getX() + " " + t.pos.getY() + " " + t.pos.getZ();
+                if (c.hotspotShareManual) offer(mc, t, msg);
+                else Announce.send(c.hotspotShareChannel, msg);
                 break; // one share per scan
             }
         }
         recentShares.values().removeIf(time -> now - time > SHARE_SUPPRESS_MS);
+        recentAlerts.values().removeIf(time -> now - time > SHARE_SUPPRESS_MS);
+    }
+
+    private static String key(Tracked t) {
+        return t.pos.getX() + "," + t.pos.getY() + "," + t.pos.getZ() + ":" + t.stat.toLowerCase(Locale.ROOT);
+    }
+
+    private static void offer(Minecraft mc, Tracked t, String msg) {
+        int id = nextOfferId++;
+        offers.put(id, msg);
+        if (offers.size() > 20) offers.remove(offers.keySet().iterator().next());
+        mc.player.sendSystemMessage(Component.literal("§d§lHOTSPOT §b" + t.stat + " §7"
+                        + t.pos.getX() + " " + t.pos.getY() + " " + t.pos.getZ() + " ")
+                .append(Component.literal("§a§l[Share]").withStyle(style -> style
+                        .withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/tmap hotspotshare " + id))
+                        .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(
+                                Component.literal("§7Send to " + TeslaMapsConfig.get().hotspotShareChannel))))));
+    }
+
+    /** [Share] click. */
+    public static void share(int id) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        String msg = offers.remove(id);
+        if (msg == null) {
+            mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §cThis hotspot can no longer be shared."));
+            return;
+        }
+        Announce.send(TeslaMapsConfig.get().hotspotShareChannel, msg);
+    }
+
+    /** Sea Creature / Fishing Speed / ..., null when unknown. */
+    private static String perk(String stat) {
+        String s = stat.toLowerCase(Locale.ROOT);
+        if (s.contains("sea creature")) return "sc";
+        if (s.contains("fishing speed")) return "speed";
+        if (s.contains("double hook")) return "double";
+        if (s.contains("treasure")) return "treasure";
+        if (s.contains("trophy")) return "trophy";
+        if (s.contains("shard")) return "shard";
+        return null;
+    }
+
+    private static boolean perkAllowed(TeslaMapsConfig c, String stat) {
+        if (!c.hotspotShareFilter) return true;
+        String p = perk(stat);
+        if (p == null) return false;
+        return switch (p) {
+            case "sc" -> c.hotspotPerkSeaCreature;
+            case "speed" -> c.hotspotPerkFishingSpeed;
+            case "double" -> c.hotspotPerkDoubleHook;
+            case "treasure" -> c.hotspotPerkTreasure;
+            case "trophy" -> c.hotspotPerkTrophy;
+            default -> c.hotspotPerkShard;
+        };
     }
 
     public static void onChatMessage(String raw) {
@@ -207,7 +297,10 @@ public class HotspotShare {
         Matcher party = PARTY_LINE.matcher(text);
         if (!party.matches()) return;
         Matcher m = SHARE_PATTERN.matcher(party.group("body"));
-        if (!m.find()) return;
+        if (!m.find()) {
+            m = XYZ_PATTERN.matcher(party.group("body"));
+            if (!m.find() || perk(m.group("stat")) == null) return;
+        }
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
@@ -240,7 +333,8 @@ public class HotspotShare {
         long now = System.currentTimeMillis();
         Vec3 player = mc.player.position();
         waypoints.removeIf(w -> {
-            if (now - w.createdAt > WAYPOINT_LIFETIME_MS) return true;
+            if (now - w.createdAt > (w.own ? FOUND_LIFETIME_MS : WAYPOINT_LIFETIME_MS)) return true;
+            if (w.own) return false;
             double dx = player.x - (w.pos.getX() + 0.5), dz = player.z - (w.pos.getZ() + 0.5);
             return dx * dx + dz * dz <= ARRIVAL_HORIZONTAL_SQ
                     && Math.abs(player.y - w.pos.getY()) <= ARRIVAL_VERTICAL;
@@ -248,9 +342,11 @@ public class HotspotShare {
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (waypoints.isEmpty() || !TeslaMapsConfig.get().hotspotShareWaypoints) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (waypoints.isEmpty()) return;
 
         for (Waypoint w : waypoints) {
+            if (!(w.own ? c.hotspotFoundAlert : c.hotspotShareWaypoints)) continue;
             AABB box = new AABB(w.pos.getX(), w.pos.getY(), w.pos.getZ(),
                     w.pos.getX() + 1, w.pos.getY() + 1, w.pos.getZ() + 1);
             ESPRenderer.drawFilledBox(matrices, box, WAYPOINT_FILL, cameraPos, true);
@@ -259,7 +355,11 @@ public class HotspotShare {
             Vec3 anchor = new Vec3(w.pos.getX() + 0.5, w.pos.getY() + 1.8, w.pos.getZ() + 0.5);
             ESPRenderer.drawText(matrices, "§d§lHOTSPOT", anchor.add(0, 0.8, 0), 1.2f, cameraPos);
             ESPRenderer.drawText(matrices, "§b" + w.stat, anchor.add(0, 0.4, 0), 1.0f, cameraPos);
-            ESPRenderer.drawText(matrices, "§7Shared by " + w.sender, anchor, 0.9f, cameraPos);
+            ESPRenderer.drawText(matrices, w.own ? "§7Found" : "§7Shared by " + w.sender, anchor, 0.9f, cameraPos);
+            if (c.hotspotShareTracer) {
+                ESPRenderer.drawTracerFromCamera(matrices, new Vec3(w.pos.getX() + 0.5, w.pos.getY() + 0.5, w.pos.getZ() + 0.5),
+                        WAYPOINT_OUTLINE, cameraPos);
+            }
         }
     }
 
