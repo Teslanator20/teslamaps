@@ -51,6 +51,12 @@ public final class ESPCategory {
         b.toggle("  Door Tracers", () -> config.doorTracers, v -> config.doorTracers = v);
         b.toggle("  Door Color Based on Key", () -> config.doorColorBasedOnKey, v -> config.doorColorBasedOnKey = v);
         b.toggle("  Only Show Next Door", () -> config.onlyShowNextDoor, v -> config.onlyShowNextDoor = v);
+        b.toggle("  Doors In Route Order", () -> config.doorEspRoute, v -> config.doorEspRoute = v);
+        b.slider("    Route Doors Ahead", 0f, 10f, () -> config.doorEspAhead, v -> config.doorEspAhead = v, 0);
+        b.toggle("  Green Only At Current Room", () -> config.doorEspKeyAtCurrentRoom, v -> config.doorEspKeyAtCurrentRoom = v);
+        b.toggle("  Normal Doorways (Current Room)", () -> config.doorEspNormalDoors, v -> config.doorEspNormalDoors = v);
+        b.toggle("    Hide Useless Doorways", () -> config.doorEspHideUseless, v -> config.doorEspHideUseless = v);
+        b.espStyle("  Doorway", () -> config.doorEspNormalStyle);
         b.classFilter("  Doors: Only as Class", config.doorEspClasses);
         b.color("  Wither Door", () -> config.colorESPWitherDoor, v -> config.colorESPWitherDoor = v);
         b.color("  Blood Door", () -> config.colorESPBloodDoor, v -> config.colorESPBloodDoor = v);

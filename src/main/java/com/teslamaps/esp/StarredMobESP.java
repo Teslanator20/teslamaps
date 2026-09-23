@@ -975,8 +975,9 @@ public class StarredMobESP {
             allDoors.addAll(bloodDoorBoxes);
             for (int i = 0; i < bloodDoorBoxes.size(); i++) isWitherDoor.add(false);
 
+            boolean route = DoorRoute.routeActive();
             int nearestIdx = -1;
-            if (onlyNextDoor && !allDoors.isEmpty()) {
+            if (onlyNextDoor && !route && !allDoors.isEmpty()) {
                 double nearestDist = Double.MAX_VALUE;
                 for (int i = 0; i < allDoors.size(); i++) {
                     double dist = allDoors.get(i).getCenter().distanceToSqr(cameraPos);
@@ -988,14 +989,17 @@ public class StarredMobESP {
             }
 
             for (int i = 0; i < allDoors.size(); i++) {
-                if (onlyNextDoor && nearestIdx != -1 && i != nearestIdx) continue;
-
                 AABB box = allDoors.get(i);
+                if (route) {
+                    if (!DoorRoute.isAhead(box)) continue;
+                } else if (onlyNextDoor && nearestIdx != -1 && i != nearestIdx) continue;
+
                 boolean isWither = isWitherDoor.get(i);
 
                 int boxColor, tracerColor;
                 if (TeslaMapsConfig.get().doorColorBasedOnKey) {
                     boolean keyPickedUp = isWither ? witherKeyPickedUp : bloodKeyPickedUp;
+                    if (keyPickedUp && TeslaMapsConfig.get().doorEspKeyAtCurrentRoom) keyPickedUp = DoorRoute.atCurrentRoom(box);
                     if (keyPickedUp) {
                         boxColor = 0xFF00FF00;
                         tracerColor = 0xFF55FF55;

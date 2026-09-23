@@ -147,6 +147,12 @@ public class TeslaMapsConfig {
     public boolean doorTracers = false;         // Draw tracers to wither/blood doors
     public boolean doorColorBasedOnKey = true;  // Color doors red if key not picked up, green if picked up
     public boolean onlyShowNextDoor = true;     // Only show tracer/ESP for the nearest door
+    public boolean doorEspRoute = false;        // next wither/blood doors along the route to blood instead of the nearest
+    public float doorEspAhead = 1f;             // how many route doors ahead (0-10)
+    public boolean doorEspKeyAtCurrentRoom = false; // green only when the key is there AND the door is at your room
+    public boolean doorEspNormalDoors = false;  // box the normal doorways of the current room
+    public boolean doorEspHideUseless = true;   // skip doorways that only lead to green rooms
+    public com.teslamaps.render.EspStyle doorEspNormalStyle = new com.teslamaps.render.EspStyle("FF008080");
     public boolean mimicChestESP = true;        // Highlight trapped chests (potential mimic)
     public boolean mimicChestTracers = false;   // Draw tracers to trapped chests
     public boolean mimicDeadMessage = true;     // Send "/pc Mimic Dead!" when mimic dies
