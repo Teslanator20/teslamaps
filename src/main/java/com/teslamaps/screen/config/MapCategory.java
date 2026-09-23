@@ -71,6 +71,9 @@ public final class MapCategory {
         b.color("Puzzle", () -> config.colorPuzzle, v -> config.colorPuzzle = v);
         b.color("Fairy", () -> config.colorFairy, v -> config.colorFairy = v);
         b.color("Miniboss", () -> config.colorMiniboss, v -> config.colorMiniboss = v);
+        b.dropdown("Mimic Room", new String[]{"Bright Red", "Tint", "Custom"},
+                () -> config.mapMimicRoomStyle, v -> config.mapMimicRoomStyle = v);
+        b.color("  Mimic Room Color", () -> config.colorMimicRoom, v -> config.colorMimicRoom = v);
         b.label("Door Colors");
         b.color("Normal Door", () -> config.colorDoorNormal, v -> config.colorDoorNormal = v);
         b.color("Wither Door", () -> config.colorDoorWither, v -> config.colorDoorWither = v);

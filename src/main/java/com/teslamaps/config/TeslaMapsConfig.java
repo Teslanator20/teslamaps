@@ -1591,6 +1591,8 @@ public class TeslaMapsConfig {
     public String colorPuzzleUnexplored = "3D1866"; // Unexplored puzzle room (grayed purple)
     public String colorFairy = "FF66CC";             // Fairy room
     public String colorMiniboss = "FFDD00";          // Miniboss/Yellow room
+    public String mapMimicRoomStyle = "Bright Red";  // Bright Red / Tint / Custom
+    public String colorMimicRoom = "BA4234";
 
     public String colorDoorNormal = "5C340E";        // Normal door (brown)
     public String colorDoorWither = "000000";        // Wither door (black)

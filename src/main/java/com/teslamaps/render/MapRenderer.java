@@ -781,9 +781,25 @@ public class MapRenderer {
         if (type == null) type = RoomType.UNKNOWN;
 
         if (MimicDetector.isMimicRoom(room) && !MimicDetector.isMimicKilled()) {
-            return 0xFFFF0000; // Bright red for mimic room
+            switch (config.mapMimicRoomStyle) {
+                case "Tint" -> { return shiftColor(baseRoomColor(room, type), 0xFFFF0000, 0.2f); }
+                case "Custom" -> { return TeslaMapsConfig.parseColor(config.colorMimicRoom); }
+                default -> { return 0xFFFF0000; }
+            }
         }
+        return baseRoomColor(room, type);
+    }
 
+    // IllegalMap colorShift
+    private static int shiftColor(int from, int to, float t) {
+        int r = Math.round(((from >> 16) & 0xFF) + ((((to >> 16) & 0xFF) - ((from >> 16) & 0xFF)) * t));
+        int g = Math.round(((from >> 8) & 0xFF) + ((((to >> 8) & 0xFF) - ((from >> 8) & 0xFF)) * t));
+        int b = Math.round((from & 0xFF) + (((to & 0xFF) - (from & 0xFF)) * t));
+        return (from & 0xFF000000) | (r << 16) | (g << 8) | b;
+    }
+
+    private static int baseRoomColor(DungeonRoom room, RoomType type) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
         return switch (type) {
             case ENTRANCE -> TeslaMapsConfig.parseColor(config.colorEntrance);
             case BLOOD -> TeslaMapsConfig.parseColor(config.colorBlood);
