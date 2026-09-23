@@ -103,6 +103,7 @@ public class ItemIndex {
     }
 
     public static void load() {
+        pending.join();
         data = new LinkedHashMap<>();
         decoded.clear();
         dirty = false;
@@ -121,15 +122,37 @@ public class ItemIndex {
         loaded = true;
     }
 
+    private static final long SAVE_EVERY_MS = 30_000;
+    private static long lastSaveMs = 0;
+    private static java.util.concurrent.CompletableFuture<Void> pending = java.util.concurrent.CompletableFuture.completedFuture(null);
+
+    public static void registerEvents() {
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> save());
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STOPPING.register(c -> {
+            save();
+            pending.join();
+        });
+    }
+
+    /** Serialized here, written on the io pool. */
     public static void save() {
         if (!dirty || path == null) return;
         dirty = false;
-        try {
-            Files.createDirectories(path.getParent());
-            Files.writeString(path, GSON.toJson(data, MAP_TYPE));
-        } catch (Exception e) {
-            TeslaMaps.LOGGER.error("Failed to save item_index.json", e);
-        }
+        lastSaveMs = System.currentTimeMillis();
+        Path p = path;
+        String json = GSON.toJson(data, MAP_TYPE);
+        pending = pending.thenRunAsync(() -> {
+            try {
+                Files.createDirectories(p.getParent());
+                Files.writeString(p, json);
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.error("Failed to save item_index.json", e);
+            }
+        }, net.minecraft.util.Util.ioPool());
+    }
+
+    private static void saveThrottled() {
+        if (dirty && System.currentTimeMillis() - lastSaveMs >= SAVE_EVERY_MS) save();
     }
 
     public static void clear() {
@@ -355,9 +378,8 @@ public class ItemIndex {
     }
 
     private static void flush() {
-        if (lastKey == null) return;
         lastKey = null;
-        save();
+        saveThrottled();
     }
 
     private static String typeFor(String title) {
