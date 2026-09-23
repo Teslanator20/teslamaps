@@ -730,6 +730,8 @@ public class TeslaMapsConfig {
     public boolean muteBonzoStaff = false;   // Mute Bonzo's Staff impact (firework blast/twinkle sounds)
     public boolean muteLightning = false;    // Mute lightning/thunder sounds (Storm phase)
     public java.util.List<String> mutedSounds = new java.util.ArrayList<>(); // sound ids to mute ("id" or "id@pitch")
+    public boolean soundManager = false;     // per-sound volume multipliers
+    public java.util.Map<String, Float> soundVolumes = new java.util.HashMap<>(); // sound id -> multiplier (0-2)
     public boolean noArrows = true;          // Hide arrow entities
     public boolean noStuckArrows = true;     // Hide arrows stuck in entities
     public boolean noWaterOverlay = true;    // Hide water overlay on screen
@@ -2045,6 +2047,7 @@ public class TeslaMapsConfig {
         if (Boolean.FALSE.equals(oldDragons)) c.witherDragons = false;
         if (c.farmPriceMode == null || c.farmPriceMode.isBlank()) c.farmPriceMode = "Instant Sell";
         if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
+        if (c.soundVolumes == null) c.soundVolumes = new java.util.HashMap<>();
         if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
         if (c.chatFilterGroupActions == null) c.chatFilterGroupActions = new java.util.HashMap<>();
         if (c.chatUserFilters == null) c.chatUserFilters = new java.util.ArrayList<>();

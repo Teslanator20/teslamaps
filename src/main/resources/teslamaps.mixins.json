@@ -108,6 +108,7 @@
     "SlotBindsMixin",
     "SlotLockRenderMixin",
     "SoundPlayMixin",
+    "SoundVolumeMixin",
     "SparkleForceMixin",
     "StorageHoverMixin",
     "TermSimPacketMixin",

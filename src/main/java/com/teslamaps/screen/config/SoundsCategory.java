@@ -62,6 +62,11 @@ public final class SoundsCategory {
                 () -> config.lastBreathVolume, v -> config.lastBreathVolume = v, 2);
         b.slider("Last Breath Threshold (ticks)", 0f, 21f,
                 () -> (float) config.lastBreathThreshold, v -> config.lastBreathThreshold = Math.round(v));
+        b.label("Sound Manager");
+        b.toggle("Sound Manager (volume per sound)", () -> config.soundManager, v -> config.soundManager = v);
+        b.button("  Open Sound Manager", () -> net.minecraft.client.Minecraft.getInstance()
+                .setScreen(new com.teslamaps.screen.SoundManagerScreen(b.screen())));
+        b.info("Recent tab lists the last 100 played sounds");
         b.label("Sound Hiders");
         b.toggle("No Explosion Sound", () -> config.noExplosionSound, v -> config.noExplosionSound = v);
         b.toggle("No Creeper Hurt Sound", () -> config.noCreeperHurtSound, v -> config.noCreeperHurtSound = v);
