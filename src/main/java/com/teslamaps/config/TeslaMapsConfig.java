@@ -99,6 +99,10 @@ public class TeslaMapsConfig {
     public boolean announce270 = false;         // Announce "270 Score" in party chat (/pc)
     public boolean cryptReminder = true;        // Warn at boss entry if fewer than 5 crypts were done
     public String cryptReminderSound = "BELL";  // Sound for the crypt reminder (see SoundOptions)
+    public String cryptReminderTrigger = "Blood Door +30s"; // or "Run Start" (Mort's "Good luck." + delay)
+    public float cryptReminderDelay = 2.0f;     // minutes after run start (Run Start trigger)
+    public boolean cryptReminderTitle = false;  // also show a title
+    public String cryptReminderChannel = "Nobody"; // Announce channel for "n/5 crypts"
     public boolean watcherKillAlert = true;     // Title + sound when the Watcher is cleared (blood done)
     public float roomNameScale = 1.0f;          // Scale of room name text (0.5 - 2.0)
     public float infoTextScale = 1.0f;          // Scale of the info box below the map (Secrets/Crypts/Score) (0.5 - 2.0)

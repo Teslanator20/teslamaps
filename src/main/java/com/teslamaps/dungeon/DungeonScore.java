@@ -36,6 +36,9 @@ public class DungeonScore {
     private static boolean princeKilled = false;
     private static boolean princeDeadMessageSent = false;
     private static boolean cryptReminderSent = false;
+    private static long cryptReminderAt = 0L;
+    public static final String CRYPT_TRIGGER_BLOOD = "Blood Door +30s";
+    public static final String CRYPT_TRIGGER_RUN_START = "Run Start";
     private static boolean dungeonStarted = false;
     private static boolean bloodRoomCompleted = false;
     private static boolean sent270 = false;
@@ -65,6 +68,7 @@ public class DungeonScore {
         princeKilled = false;
         princeDeadMessageSent = false;
         cryptReminderSent = false;
+        cryptReminderAt = 0L;
         dungeonStarted = false;
         bloodRoomCompleted = false;
         sent270 = false;
@@ -321,18 +325,19 @@ public class DungeonScore {
             }
         }
 
-        if (!cryptReminderSent && TeslaMapsConfig.get().cryptReminder
-                && message.equals("The BLOOD DOOR has been opened!")) {
-            cryptReminderSent = true;
-            new Thread(() -> {
-                try {
-                    Thread.sleep(30000);
-                } catch (InterruptedException ignored) { return; }
-                Minecraft.getInstance().execute(DungeonScore::fireCryptReminder);
-            }).start();
-        }
-
         String clean = com.teslamaps.utils.StringUtil.stripTrim(message);
+
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (!cryptReminderSent && cfg.cryptReminder) {
+            boolean runStart = CRYPT_TRIGGER_RUN_START.equals(cfg.cryptReminderTrigger);
+            if (!runStart && clean.equals("The BLOOD DOOR has been opened!")) {
+                cryptReminderSent = true;
+                cryptReminderAt = System.currentTimeMillis() + 30_000L;
+            } else if (runStart && clean.equals("[NPC] Mort: Good luck.")) {
+                cryptReminderSent = true;
+                cryptReminderAt = System.currentTimeMillis() + Math.round(cfg.cryptReminderDelay * 60_000f);
+            }
+        }
 
         if (floorHasMimics && MIMIC_PATTERN.matcher(clean).matches()) {
             mimicKilled = true;
@@ -396,9 +401,20 @@ public class DungeonScore {
         mimicKilled = true;
     }
 
+    public static void register() {
+        com.teslamaps.registry.Feature.of("CryptReminder")
+                .when(() -> cryptReminderAt > 0L)
+                .tick(() -> {
+                    if (System.currentTimeMillis() < cryptReminderAt) return;
+                    cryptReminderAt = 0L;
+                    fireCryptReminder();
+                });
+    }
+
     private static void fireCryptReminder() {
-        if (!DungeonManager.isInDungeon()) return;
-        if (!TeslaMapsConfig.get().cryptReminderClasses.allowsLocal()) return;
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (!cfg.cryptReminder || !DungeonManager.isInDungeon()) return;
+        if (!cfg.cryptReminderClasses.allowsLocal()) return;
         readTab();
         int crypts = getCrypts();
         if (crypts >= 5) return;
@@ -406,7 +422,12 @@ public class DungeonScore {
         if (mc.player == null) return;
         mc.player.sendSystemMessage(Component.literal(
                 "§c§l Crypts: " + crypts + "/5 §r§7— need 5 for the full +5 bonus score!"));
-        mc.player.playSound(com.teslamaps.utils.SoundOptions.resolve(TeslaMapsConfig.get().cryptReminderSound), 1.0f, 1.0f);
+        mc.player.playSound(com.teslamaps.utils.SoundOptions.resolve(cfg.cryptReminderSound), 1.0f, 1.0f);
+        if (cfg.cryptReminderTitle) {
+            mc.gui.setTimes(0, 40, 10);
+            mc.gui.setTitle(Component.literal("§c" + crypts + "/5 Crypts"));
+        }
+        com.teslamaps.features.Announce.send(cfg.cryptReminderChannel, crypts + "/5 crypts, need more!");
     }
 
     public static int getScore() {

@@ -20,6 +20,13 @@ public final class ScoreSplitsCategory {
         b.soundDropdown("  Crypt Reminder Sound",
                 com.teslamaps.utils.SoundOptions.keys(), () -> config.cryptReminderSound, v -> config.cryptReminderSound = v);
         b.classFilter("  Crypt Reminder: Only as Class", config.cryptReminderClasses);
+        b.dropdown("  Crypt Reminder Trigger", new String[]{com.teslamaps.dungeon.DungeonScore.CRYPT_TRIGGER_BLOOD,
+                com.teslamaps.dungeon.DungeonScore.CRYPT_TRIGGER_RUN_START},
+                () -> config.cryptReminderTrigger, v -> config.cryptReminderTrigger = v);
+        b.slider("  Delay After Run Start (min)", 1f, 5f,
+                () -> config.cryptReminderDelay, v -> config.cryptReminderDelay = v, 1);
+        b.toggle("  Crypt Reminder Title", () -> config.cryptReminderTitle, v -> config.cryptReminderTitle = v);
+        b.channel("  Crypt Reminder Announce", () -> config.cryptReminderChannel, v -> config.cryptReminderChannel = v);
         b.label("Dungeon Splits");
         b.toggle("Enable Splits HUD", () -> config.splitsEnabled, v -> config.splitsEnabled = v);
         b.toggle("  Show PBs (per split)", () -> config.splitsShowPb, v -> config.splitsShowPb = v);
