@@ -122,6 +122,7 @@ public class MineshaftPity {
     }
 
     public static boolean tracking() {
+        if (!inDwarven) return false;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         return (c.mineshaftPityChatHover || c.mineshaftPityShowAverage) && c.section("Mining") && Mining.onMiningIsland();
     }
