@@ -19,6 +19,9 @@ public final class ForagingCategory {
         b.toggle("Hide Sweep Details",
                 () -> config.foragingHideSweepDetails, v -> config.foragingHideSweepDetails = v);
         b.info("Toughness / Logs / penalty lines");
+        b.toggle("Compact Sweep Details",
+                () -> config.foragingCompactSweep, v -> config.foragingCompactSweep = v)
+                .desc("One line: sweep, logs, penalties. Hover for the breakdown and pro tip, click for /treegifts.");
         b.toggle("Hide Lottery Buffs",
                 () -> config.foragingHideLottery, v -> config.foragingHideLottery = v);
         b.info("Lottery and Beekeeper messages off the foraging islands");
