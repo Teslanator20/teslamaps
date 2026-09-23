@@ -25,6 +25,11 @@ public final class InventoryCategory {
                 () -> config.noCursorResetHold, v -> config.noCursorResetHold = v);
         b.toggle("Own Nametag (3rd person)", () -> config.ownNameTag, v -> config.ownNameTag = v);
         b.toggle("Searchbar (type to search)", () -> config.searchbar, v -> config.searchbar = v);
+        b.toggle("  Ctrl+F To Search", () -> config.searchbarCtrlF, v -> config.searchbarCtrlF = v);
+        b.toggle("  Hide Until Ctrl+F", () -> config.searchbarHidden, v -> config.searchbarHidden = v);
+        b.dropdown("  Highlight", com.teslamaps.features.Searchbar.MODES, () -> config.searchbarMode, v -> config.searchbarMode = v);
+        b.color("  Match Color", () -> config.colorSearchbarMatch, v -> config.colorSearchbarMatch = v);
+        b.toggle("  Name Only (skip lore)", () -> config.searchbarNameOnly, v -> config.searchbarNameOnly = v);
         b.toggle("Backpack/Ender Preview", () -> config.backpackPreview, v -> config.backpackPreview = v);
         b.label("Item Search");
         b.toggle("Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v);

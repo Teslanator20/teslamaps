@@ -1214,6 +1214,11 @@ public class TeslaMapsConfig {
     public java.util.List<String> imageShareBlocked = new java.util.ArrayList<>(); // senders whose images are ignored
     public boolean ownNameTag = true;             // render your own player nametag in third person
     public boolean searchbar = true;               // type to search/highlight items in any container
+    public boolean searchbarCtrlF = false;         // ctrl+f / ctrl+k focuses the searchbar
+    public boolean searchbarHidden = false;        // box only appears after ctrl+f
+    public String searchbarMode = "Fill";          // Fill / Outline
+    public String colorSearchbarMatch = "#6655FF55";
+    public boolean searchbarNameOnly = false;      // skip the lore when searching
     public boolean scrollableTooltip = true;       // scroll long item tooltips with the mouse wheel
     public boolean compactorPreview = true;        // list personal compactor/deletor contents in the tooltip
     public boolean estimatedValue = true;          // show estimated item value (bazaar) in tooltips

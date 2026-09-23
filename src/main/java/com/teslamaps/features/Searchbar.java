@@ -13,13 +13,23 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.List;
+
 public class Searchbar {
 
     private static final int BOX_W = 120, BOX_H = 12;
+    public static final String[] MODES = {"Fill", "Outline"};
     private static String query = "";
     private static String lastTitle = "";
     private static long lastRenderMs = 0;
     private static boolean focused = false;
+    private static boolean shown = false;
+
+    // per-slot match cache, recomputed only when the query or the slot's stack changes
+    private static ItemStack[] cachedStacks = new ItemStack[0];
+    private static boolean[] cachedMatch = new boolean[0];
+    private static String cachedQuery = "";
+    private static boolean cachedLore = true;
 
     private static boolean enabled() {
         if (!TeslaMapsConfig.get().searchbar) return false;
@@ -27,8 +37,13 @@ public class Searchbar {
         return mc.screen instanceof AbstractContainerScreen<?>;
     }
 
+    private static boolean visible() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return !(c.searchbarCtrlF && c.searchbarHidden) || shown || !query.isEmpty();
+    }
+
     public static boolean handleClick(double mx, double my, int button) {
-        if (!enabled()) return false;
+        if (!enabled() || !visible()) return false;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
@@ -43,8 +58,20 @@ public class Searchbar {
         return inside;
     }
 
+    private static boolean ctrlDown() {
+        long w = Minecraft.getInstance().getWindow().handle();
+        return GLFW.glfwGetKey(w, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
+                || GLFW.glfwGetKey(w, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
+    }
+
     public static boolean onKeyPressed(int key, int scancode) {
-        if (!enabled() || !focused) return false;
+        if (!enabled()) return false;
+        if (TeslaMapsConfig.get().searchbarCtrlF && (key == GLFW.GLFW_KEY_F || key == GLFW.GLFW_KEY_K) && ctrlDown()) {
+            shown = true;
+            focused = true;
+            return true;
+        }
+        if (!focused) return false;
         if (key == GLFW.GLFW_KEY_BACKSPACE) {
             if (!query.isEmpty()) query = query.substring(0, query.length() - 1);
             return true;
@@ -54,8 +81,8 @@ public class Searchbar {
             focused = false;
             return true;
         }
-        // swallow the rest so typing letters cannot close the container; text arrives via charTyped
-        return GLFW.glfwGetKeyName(key, scancode) != null;
+        // swallow everything else so typing cannot close the container or swap hotbar slots
+        return true;
     }
 
     public static boolean charTyped(int codepoint) {
@@ -73,6 +100,7 @@ public class Searchbar {
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
         String title = com.teslamaps.utils.StringUtil.strip(cs.getTitle().getString());
         // keep the query across containers/pages; just drop focus when the container changes
         if (!title.equals(lastTitle)) { focused = false; lastTitle = title; }
@@ -80,8 +108,9 @@ public class Searchbar {
         // page swaps re-render within a tick or two; a longer gap means the GUI was actually
         // closed -> drop the query so a stale search doesn't tint every future container
         long now = System.currentTimeMillis();
-        if (now - lastRenderMs > 1500) query = "";
+        if (now - lastRenderMs > 1500) { query = ""; shown = false; }
         lastRenderMs = now;
+        if (!visible()) return;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();
@@ -109,23 +138,48 @@ public class Searchbar {
         }
 
         if (query.isBlank()) return;
-        for (Slot slot : cs.getMenu().slots) {
+        List<Slot> slots = cs.getMenu().slots;
+        refreshCache(slots.size(), !c.searchbarNameOnly);
+        boolean outline = "Outline".equals(c.searchbarMode);
+        int hit = TeslaMapsConfig.parseColor(c.colorSearchbarMatch);
+        for (int i = 0; i < slots.size(); i++) {
+            Slot slot = slots.get(i);
             ItemStack item = slot.getItem();
             if (item.isEmpty()) continue;
             int sx = left + slot.x, sy = top + slot.y;
-            if (matches(item, query)) ctx.fill(sx, sy, sx + 16, sy + 16, 0x6655FF55);
-            else ctx.fill(sx, sy, sx + 16, sy + 16, 0xB0101010);
+            if (cachedStacks[i] != item) {
+                cachedStacks[i] = item;
+                cachedMatch[i] = matches(item, query, !c.searchbarNameOnly);
+            }
+            if (cachedMatch[i]) {
+                if (outline) {
+                    int o = hit | 0xFF000000;
+                    ctx.fill(sx, sy, sx + 16, sy + 1, o);
+                    ctx.fill(sx, sy + 15, sx + 16, sy + 16, o);
+                    ctx.fill(sx, sy, sx + 1, sy + 16, o);
+                    ctx.fill(sx + 15, sy, sx + 16, sy + 16, o);
+                } else ctx.fill(sx, sy, sx + 16, sy + 16, hit);
+            } else if (!outline) ctx.fill(sx, sy, sx + 16, sy + 16, 0xB0101010);
         }
     }
 
-    private static boolean matches(ItemStack stack, String q) {
+    private static void refreshCache(int n, boolean lore) {
+        if (cachedStacks.length != n || !cachedQuery.equals(query) || cachedLore != lore) {
+            cachedStacks = new ItemStack[n];
+            cachedMatch = new boolean[n];
+            cachedQuery = query;
+            cachedLore = lore;
+        }
+    }
+
+    private static boolean matches(ItemStack stack, String q, boolean withLore) {
         if (strip(stack.getHoverName().getString()).contains(q)) return true;
+        if (!withLore) return false;
         ItemLore lore = stack.get(DataComponents.LORE);
         if (lore != null) for (Component line : lore.lines()) if (strip(line.getString()).contains(q)) return true;
         return false;
     }
 
-    // runs per item per lore line while a query is active, so no per-call Pattern.compile
     private static String strip(String s) {
         if (s == null) return "";
         return com.teslamaps.utils.StringUtil.strip(s).toLowerCase();
