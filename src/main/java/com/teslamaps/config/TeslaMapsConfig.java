@@ -1302,6 +1302,12 @@ public class TeslaMapsConfig {
     public int bobberTimerX = 10;
     public int bobberTimerY = 10;
     public float bobberTimerScale = 1.0f;
+    public boolean bobberTimerWorld = false;
+    public boolean bobberTimerThreshold = false;
+    public String colorBobberTimer = "#FFFFFF";
+    public String colorBobberTimerLate = "#FF5555";
+    public boolean bobberTimerPing = false;
+    public boolean bobberTimerSlug = false;
 
     public boolean gfsQueued = true;               // space /gfs commands out so Hypixel does not drop them
     public int gfsDefaultAmount = 1;               // amount used when /gfs is called without one

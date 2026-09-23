@@ -307,6 +307,11 @@ public class ESPRenderer {
 
     public static void drawText(PoseStack matrices, String text, Vec3 pos, float scale, Vec3 cameraPos,
                                 boolean scaleWithDistance, boolean throughWalls) {
+        drawText(matrices, text, pos, scale, cameraPos, scaleWithDistance, throughWalls, 0xFFFFFFFF);
+    }
+
+    public static void drawText(PoseStack matrices, String text, Vec3 pos, float scale, Vec3 cameraPos,
+                                boolean scaleWithDistance, boolean throughWalls, int color) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.font == null || mc.gameRenderer == null || mc.gameRenderer.getMainCamera() == null) return;
 
@@ -328,7 +333,7 @@ public class ESPRenderer {
             text,
             -textWidth / 2f,
             0f,
-            0xFFFFFFFF, // base color (white) — § codes in the string override
+            color,
             true,       // shadow
             pose,
             immediate,
