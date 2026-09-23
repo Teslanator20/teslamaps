@@ -82,7 +82,41 @@ public class SafariScreen extends Screen {
         addRenderableWidget(new TeslaButton(bx, by, bw, 20, "Copy missing", this::copyMissing));
         addRenderableWidget(new TeslaButton(bx + bw + 6, by, bw, 20, "Share", this::share));
         addRenderableWidget(new TeslaButton(bx + (bw + 6) * 2, by, bw, 20, "Close", this::onClose));
+        precompute();
         ScreenFit.clamp(this);
+    }
+
+    private final Map<String, int[]> statCache = new java.util.HashMap<>();
+    private final Map<String, String> statNotes = new java.util.HashMap<>();
+    private List<SafariHistory.Run> histRuns = List.of();
+    private String[] histWhen = new String[0], histLen = new String[0];
+    private String totalHours = "", histSummary = "", statsSummary = "", breakdownLine = "";
+    private int histCaps, histEsc, histCaught;
+
+    private void precompute() {
+        statCache.clear();
+        statNotes.clear();
+        for (SafariData.Critter c : SafariData.ALL) {
+            int[] st = SafariHistory.statFor(c.name());
+            statCache.put(c.name(), st);
+            statNotes.put(c.name(), st[0] == 0 ? "—" : st[0] + "/" + st[1]);
+        }
+        histRuns = SafariHistory.runs();
+        int n = histRuns.size();
+        histWhen = new String[n];
+        histLen = new String[n];
+        histCaps = histEsc = histCaught = 0;
+        for (int i = 0; i < n; i++) {
+            SafariHistory.Run r = histRuns.get(i);
+            histWhen[i] = when(r.startedAt);
+            histLen[i] = SafariHistory.time(r.durationMs);
+            histCaps += r.capsules; histEsc += r.escapes; histCaught += r.own;
+        }
+        totalHours = hours(SafariHistory.totalTime());
+        histSummary = n + " runs  ·  " + totalHours + " played  ·  best "
+                + SafariHistory.bestDex() + "/" + SafariData.ALL.size() + "  ·  " + SafariHistory.fullDexRuns() + " full dex";
+        statsSummary = n + " runs  ·  " + totalHours + " played  ·  " + SafariHistory.fullDexRuns() + " full dex";
+        breakdownLine = SafariHistory.runsWithBreakdown() + " of " + n + " runs kept a per-critter breakdown";
     }
 
     private void copyMissing() {
@@ -193,7 +227,7 @@ public class SafariScreen extends Screen {
 
     private void history(GuiGraphicsExtractor g, int y) {
         int x = left + PAD, right = left + panelW - PAD;
-        List<SafariHistory.Run> runs = SafariHistory.runs();
+        List<SafariHistory.Run> runs = histRuns;
         g.text(font, "Saved runs", x, y, HEADING);
         String kept = runs.size() + " kept";
         g.text(font, kept, right - font.width(kept), y, DIM);
@@ -202,10 +236,8 @@ public class SafariScreen extends Screen {
             g.text(font, "No runs saved yet. A run is saved when you leave the Safari.", x, y, LABEL);
             return;
         }
-        int caps = 0, esc = 0, caught = 0;
-        for (SafariHistory.Run r : runs) { caps += r.capsules; esc += r.escapes; caught += r.own; }
-        g.text(font, runs.size() + " runs  ·  " + hours(SafariHistory.totalTime()) + " played  ·  best "
-                + SafariHistory.bestDex() + "/" + SafariData.ALL.size() + "  ·  " + SafariHistory.fullDexRuns() + " full dex", x, y, LABEL);
+        int caps = histCaps, esc = histEsc, caught = histCaught;
+        g.text(font, histSummary, x, y, LABEL);
         y += LINE + 5;
 
         int timeW = Math.min(120, panelW / 3);
@@ -217,8 +249,8 @@ public class SafariScreen extends Screen {
         int total = SafariData.ALL.size();
         for (int i = runs.size() - 1, shown = 0; i >= 0 && shown < HISTORY_ROWS; i--, shown++) {
             SafariHistory.Run r = runs.get(i);
-            g.text(font, when(r.startedAt), x, y, WHITE);
-            g.text(font, SafariHistory.time(r.durationMs), x + timeW, y, DIM);
+            g.text(font, histWhen[i], x, y, WHITE);
+            g.text(font, histLen[i], x + timeW, y, DIM);
             g.text(font, r.dex + "/" + total, x + timeW + cell, y, r.dex >= total ? YOU : WHITE);
             g.text(font, r.own + "/" + total, x + timeW + cell * 2, y, PARTY);
             g.text(font, r.capsules + " (" + r.escapes + ")", x + timeW + cell * 3, y, DIM);
@@ -228,14 +260,14 @@ public class SafariScreen extends Screen {
         g.fill(x, y, right, y + 1, 0x40FFFFFF);
         y += 3;
         g.text(font, "Total", x, y, LABEL);
-        g.text(font, hours(SafariHistory.totalTime()), x + timeW, y, DIM);
+        g.text(font, totalHours, x + timeW, y, DIM);
         g.text(font, String.valueOf(caught), x + timeW + cell * 2, y, PARTY);
         g.text(font, caps + " (" + esc + ")", x + timeW + cell * 3, y, DIM);
     }
 
     private void stats(GuiGraphicsExtractor g, int y) {
         int x = left + PAD, right = left + panelW - PAD;
-        List<SafariHistory.Run> runs = SafariHistory.runs();
+        List<SafariHistory.Run> runs = histRuns;
         g.text(font, "Across saved runs", x, y, HEADING);
         String legend = "catches  ·  runs seen in";
         g.text(font, legend, right - font.width(legend), y, DIM);
@@ -244,11 +276,9 @@ public class SafariScreen extends Screen {
             g.text(font, "Nothing saved yet.", x, y, LABEL);
             return;
         }
-        int with = SafariHistory.runsWithBreakdown();
-        g.text(font, runs.size() + " runs  ·  " + hours(SafariHistory.totalTime()) + " played  ·  "
-                + SafariHistory.fullDexRuns() + " full dex", x, y, LABEL);
+        g.text(font, statsSummary, x, y, LABEL);
         y += LINE;
-        g.text(font, with + " of " + runs.size() + " runs kept a per-critter breakdown", x, y, DIM);
+        g.text(font, breakdownLine, x, y, DIM);
         y += LINE + 5;
 
         SafariData.Biome[] biomes = SafariData.Biome.values();
@@ -259,9 +289,11 @@ public class SafariScreen extends Screen {
             g.text(font, b.label, cx, ry, SafariData.argb(b));
             ry += LINE + 2;
             for (SafariData.Critter c : SafariData.in(b)) {
-                int[] st = SafariHistory.statFor(c.name());
+                int[] st = statCache.get(c.name());
+                if (st == null) st = SafariHistory.statFor(c.name());
                 g.text(font, c.name(), cx, ry, st[0] == 0 ? UNCAUGHT : WHITE);
-                String note = st[0] == 0 ? "—" : st[0] + "/" + st[1];
+                String note = statNotes.get(c.name());
+                if (note == null) note = st[0] == 0 ? "—" : st[0] + "/" + st[1];
                 g.text(font, note, cx + column - 8 - font.width(note), ry, st[0] == 0 ? UNCAUGHT : DIM);
                 ry += LINE;
             }
