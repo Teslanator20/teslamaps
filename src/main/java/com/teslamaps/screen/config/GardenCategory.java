@@ -98,6 +98,17 @@ public final class GardenCategory {
         b.dropdown("Price Basis",
                 new String[]{"Instant Sell", "Sell Offer", "NPC"},
                 () -> config.farmPriceMode, v -> config.farmPriceMode = v);
+        b.toggle("Subtract Replenish Cost",
+                () -> config.farmProfitReplenish, v -> config.farmProfitReplenish = v);
+        b.toggle("Count Kernels As Coins",
+                () -> config.farmProfitKernels, v -> config.farmProfitKernels = v);
+        b.dropdown("  Kernel Item", com.teslamaps.features.FarmProfit.KERNEL_ITEMS,
+                () -> config.farmKernelItem, v -> config.farmKernelItem = v);
+        b.toggle("  Kernel 5% Discount",
+                () -> config.farmKernelDiscount, v -> config.farmKernelDiscount = v);
+        b.toggle("Pest Species In Breakdown",
+                () -> config.farmProfitPestTypes, v -> config.farmProfitPestTypes = v);
+        b.info("/tmap profit exclude <item> leaves an item out, run again to count it");
         b.button("Show Breakdown In Chat",
                 () -> com.teslamaps.features.FarmProfit.printBreakdown());
         b.button("Reset Session Profit",

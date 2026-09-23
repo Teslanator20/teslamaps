@@ -773,6 +773,12 @@ public class TeslaMapsConfig {
     public float farmProfitScale = 1.0f;
     public int farmProfitRows = 4;                  // Items listed in the profit panel
     public String farmPriceMode = "Instant Sell";   // Instant Sell / Sell Offer / NPC
+    public boolean farmProfitReplenish = false;     // subtract what Replenish eats
+    public boolean farmProfitKernels = false;       // Ted kernels as coins
+    public String farmKernelItem = "Feast I";
+    public boolean farmKernelDiscount = false;      // 5% kernel discount
+    public boolean farmProfitPestTypes = false;     // pests per species in the breakdown
+    public List<String> farmProfitExcluded = new ArrayList<>();
     public boolean farmingSensitivity = false;      // Drop sensitivity while holding a farming tool
     public float farmingSensitivityValue = 0.0f;    // Sensitivity to use while it applies
     public boolean farmingSensitivityGroundOnly = false;
@@ -2081,6 +2087,8 @@ public class TeslaMapsConfig {
         if (c.leapCustomOrder == null) c.leapCustomOrder = new ArrayList<>();
         if (c.charmedVisitorNames == null) c.charmedVisitorNames = new ArrayList<>();
         if (c.feastCrops == null) c.feastCrops = new ArrayList<>();
+        if (c.farmProfitExcluded == null) c.farmProfitExcluded = new ArrayList<>();
+        if (c.farmKernelItem == null) c.farmKernelItem = "Feast I";
         if (c.feastShareChannel == null) c.feastShareChannel = "Nobody";
         if (c.farmLanes == null) c.farmLanes = new java.util.LinkedHashMap<>();
         if (c.feastNextSeason == null) c.feastNextSeason = new java.util.LinkedHashMap<>();

@@ -1562,6 +1562,15 @@ public class TMapCommand {
                             com.teslamaps.features.FarmProfit.printBreakdown();
                             return 1;
                         })
+                        .then(ClientCommands.literal("exclude")
+                                .then(ClientCommands.argument("item", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            String item = StringArgumentType.getString(context, "item");
+                                            boolean ex = com.teslamaps.features.FarmProfit.toggleExcluded(item);
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    "§b[TeslaMaps] §f" + item + (ex ? " §cexcluded" : " §acounted again")));
+                                            return 1;
+                                        })))
                         .then(ClientCommands.literal("window")
                                 .executes(context -> {
                                     com.teslamaps.features.FarmProfit.cycleWindow();
