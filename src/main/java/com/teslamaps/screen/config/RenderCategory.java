@@ -94,11 +94,11 @@ public final class RenderCategory {
         b.toggle("  Show When Failed", () -> config.etherwarpShowFail, v -> config.etherwarpShowFail = v);
         b.toggle("  Fail On Skull", () -> config.etherwarpSkullFail, v -> config.etherwarpSkullFail = v);
         b.toggle("  Filled Box", () -> config.etherwarpFilled, v -> config.etherwarpFilled = v);
+        b.toggle("    Outline On Filled Box", () -> config.etherwarpOutline, v -> config.etherwarpOutline = v);
         b.slider("  Eye Height Offset", -0.5f, 0.5f,
                 () -> config.etherwarpEyeOffset, v -> config.etherwarpEyeOffset = v, 3);
         b.color("  Etherwarp Box Color", () -> config.colorEtherwarp, v -> config.colorEtherwarp = v);
         b.color("  Etherwarp Fail Color", () -> config.colorEtherwarpFail, v -> config.colorEtherwarpFail = v);
-        b.toggle("  Outline On Filled Box", () -> config.etherwarpOutline, v -> config.etherwarpOutline = v);
         b.slider("  Etherwarp Line Width", 1f, 8f, () -> config.etherwarpLineWidth, v -> config.etherwarpLineWidth = v, 1);
         b.toggle("  Etherwarp Through Walls", () -> config.etherwarpThroughWalls, v -> config.etherwarpThroughWalls = v);
         b.toggle("  Use Block Shape", () -> config.etherwarpBlockShape, v -> config.etherwarpBlockShape = v);
