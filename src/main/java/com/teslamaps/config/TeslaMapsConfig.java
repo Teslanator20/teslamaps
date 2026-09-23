@@ -1188,6 +1188,8 @@ public class TeslaMapsConfig {
     public boolean disableWorldLoadingScreen = true; // Skip the world loading / downloading-terrain screen
     public boolean noReloadScreen = true;          // Skip the resource/texture reload (dirt) overlay (F3+T etc.)
     public boolean realBeaconBeam = false;         // Vanilla textured beacon beam instead of a 2 px line
+    public boolean glowRibbons = false;            // Tracers/lines as glowing camera-facing bands
+    public float glowRibbonWidth = 1.0f;
     public boolean waypointLabelBackground = false;
     public boolean blockOverlay = true;            // Outline the block you're looking at
     public String blockOverlayColor = "FFFFFF";     // Block overlay outline colour

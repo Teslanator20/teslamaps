@@ -45,6 +45,8 @@ public final class RenderCategory {
         b.toggle("No Texture Reload Screen", () -> config.noReloadScreen, v -> config.noReloadScreen = v);
         b.label("Beacons & Lines");
         b.toggle("Real Beacon Beams", () -> config.realBeaconBeam, v -> config.realBeaconBeam = v);
+        b.toggle("Glow Ribbons (Tracers & Lines)", () -> config.glowRibbons, v -> config.glowRibbons = v);
+        b.slider("  Ribbon Width", 0.5f, 4f, () -> config.glowRibbonWidth, v -> config.glowRibbonWidth = v, 1);
         b.toggle("Waypoint Label Background", () -> config.waypointLabelBackground, v -> config.waypointLabelBackground = v);
         b.label("Block Overlay");
         b.toggle("Block Overlay", () -> config.blockOverlay, v -> config.blockOverlay = v);

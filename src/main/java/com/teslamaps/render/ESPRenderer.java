@@ -132,6 +132,11 @@ public class ESPRenderer {
 
     public static void drawTracer(PoseStack matrices, Vec3 from, Vec3 to, int color, Vec3 cameraPos,
                                    MultiBufferSource.BufferSource bufferSource) {
+        if (com.teslamaps.config.TeslaMapsConfig.get().glowRibbons) {
+            int c = (color >>> 24) == 0 ? color | 0xFF000000 : color;
+            drawRibbon(matrices, from, to, c, c, cameraPos, bufferSource);
+            return;
+        }
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
@@ -154,6 +159,61 @@ public class ESPRenderer {
         finish(bufferSource, TeslaRenderLayers.LINES_ESP);
 
         matrices.popPose();
+    }
+
+    /**
+     * Camera-facing band with a bright core and soft edges, colour blended from one end to the other.
+     * Width follows the distance to the camera, so it keeps a constant size on screen like a line.
+     */
+    public static void drawRibbon(PoseStack matrices, Vec3 from, Vec3 to, int colorFrom, int colorTo, Vec3 cameraPos,
+                                  MultiBufferSource.BufferSource bufferSource) {
+        double dx = to.x - from.x, dy = to.y - from.y, dz = to.z - from.z;
+        if (dx * dx + dy * dy + dz * dz < 1.0E-8) return;
+        float k = 0.004f * com.teslamaps.config.TeslaMapsConfig.get().glowRibbonWidth;
+        float[] sa = ribbonSide(from, dx, dy, dz, cameraPos, k);
+        float[] sb = ribbonSide(to, dx, dy, dz, cameraPos, k);
+        if (sa == null || sb == null) return;
+
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        PoseStack.Pose pose = matrices.last();
+        VertexConsumer buf = bufferSource.getBuffer(TeslaRenderLayers.FILLED_ESP);
+
+        float ax = (float) from.x, ay = (float) from.y, az = (float) from.z;
+        float bx = (float) to.x, by = (float) to.y, bz = (float) to.z;
+        float[] ca = argbF(colorFrom), cb = argbF(colorTo);
+        for (int i = 0; i < 3; i++) {
+            float o0 = RIBBON_OFF[i], o1 = RIBBON_OFF[i + 1];
+            float m0 = RIBBON_ALPHA[i], m1 = RIBBON_ALPHA[i + 1];
+            // both windings: the pipeline culls back faces, exactly one of them survives
+            for (int w = 0; w < 2; w++) {
+                float p0 = w == 0 ? o0 : o1, p1 = w == 0 ? o1 : o0;
+                float n0 = w == 0 ? m0 : m1, n1 = w == 0 ? m1 : m0;
+                buf.addVertex(pose, ax + sa[0] * p0, ay + sa[1] * p0, az + sa[2] * p0).setColor(ca[0], ca[1], ca[2], ca[3] * n0);
+                buf.addVertex(pose, bx + sb[0] * p0, by + sb[1] * p0, bz + sb[2] * p0).setColor(cb[0], cb[1], cb[2], cb[3] * n0);
+                buf.addVertex(pose, bx + sb[0] * p1, by + sb[1] * p1, bz + sb[2] * p1).setColor(cb[0], cb[1], cb[2], cb[3] * n1);
+                buf.addVertex(pose, ax + sa[0] * p1, ay + sa[1] * p1, az + sa[2] * p1).setColor(ca[0], ca[1], ca[2], ca[3] * n1);
+            }
+        }
+        finish(bufferSource, TeslaRenderLayers.FILLED_ESP);
+        matrices.popPose();
+    }
+
+    // across the band: soft edge, solid core, soft edge
+    private static final float[] RIBBON_OFF = {-1f, -0.3f, 0.3f, 1f};
+    private static final float[] RIBBON_ALPHA = {0f, 1f, 1f, 0f};
+
+    private static float[] ribbonSide(Vec3 p, double dx, double dy, double dz, Vec3 cam, float k) {
+        double vx = p.x - cam.x, vy = p.y - cam.y, vz = p.z - cam.z;
+        double sx = dy * vz - dz * vy, sy = dz * vx - dx * vz, sz = dx * vy - dy * vx;
+        double len = Math.sqrt(sx * sx + sy * sy + sz * sz);
+        if (len < 1.0E-9) return null;
+        double w = k * Math.max(0.05, Math.sqrt(vx * vx + vy * vy + vz * vz)) / len;
+        return new float[]{(float) (sx * w), (float) (sy * w), (float) (sz * w)};
+    }
+
+    private static float[] argbF(int c) {
+        return new float[]{((c >> 16) & 0xFF) / 255f, ((c >> 8) & 0xFF) / 255f, (c & 0xFF) / 255f, ((c >>> 24) & 0xFF) / 255f};
     }
 
     public static void drawTracerFromCamera(PoseStack matrices, Vec3 target, int color, Vec3 cameraPos,
@@ -445,6 +505,11 @@ public class ESPRenderer {
         Vec3 bottom = new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         Vec3 top = new Vec3(pos.getX() + 0.5, pos.getY() + 256, pos.getZ() + 0.5);
 
+        if (com.teslamaps.config.TeslaMapsConfig.get().glowRibbons && mc.renderBuffers() != null) {
+            int c = (color >>> 24) == 0 ? (color & 0xFFFFFF) | 0x80000000 : color;
+            drawRibbon(matrices, bottom, top, c, c & 0xFFFFFF, cameraPos, mc.renderBuffers().bufferSource());
+            return;
+        }
         drawLine(matrices, bottom, top, color, 2.0f, cameraPos);
     }
 }
