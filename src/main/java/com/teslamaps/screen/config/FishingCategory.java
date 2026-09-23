@@ -136,11 +136,11 @@ public final class FishingCategory {
         b.info("Off = the timer starts when you cast");
         b.toggle("  Show Over Bobber",
                 () -> config.bobberTimerWorld, v -> config.bobberTimerWorld = v);
+        b.color("  Color",
+                () -> config.colorBobberTimer, v -> config.colorBobberTimer = v);
         b.toggle("  20s Threshold",
                 () -> config.bobberTimerThreshold, v -> config.bobberTimerThreshold = v);
         b.info("Switches color once the sea creature window is over");
-        b.color("    Color",
-                () -> config.colorBobberTimer, v -> config.colorBobberTimer = v);
         b.color("    Color After",
                 () -> config.colorBobberTimerLate, v -> config.colorBobberTimerLate = v);
         b.toggle("    Ping",
