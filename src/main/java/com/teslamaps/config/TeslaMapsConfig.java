@@ -2121,8 +2121,14 @@ public class TeslaMapsConfig {
         return out;
     }
 
+    private static int version;
+
+    /** Bumps on every save; together with the instance it tells when cached derived values are stale. */
+    public static int version() { return version; }
+
     static void setInstance(TeslaMapsConfig c) {
         instance = c;
+        version++;
     }
 
     public static void load() {
@@ -2156,6 +2162,7 @@ public class TeslaMapsConfig {
     }
 
     public static void save() {
+        version++;
         try {
             Files.createDirectories(CONFIG_PATH.getParent());
             Files.writeString(CONFIG_PATH, GSON.toJson(instance));
