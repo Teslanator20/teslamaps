@@ -19,7 +19,14 @@ public final class TimersCategory {
         b.toggle("  Sound When Ready", () -> config.warpCooldownSound, v -> config.warpCooldownSound = v);
         b.slider("  Warp Sound Volume", 0f, 5f, () -> config.warpCooldownVolume, v -> config.warpCooldownVolume = v);
         b.toggle("Wither Shield Timer (W-Impact)", () -> config.witherShieldTimer, v -> config.witherShieldTimer = v);
+        b.toggle("  Shield HUD", () -> config.witherShieldHud, v -> config.witherShieldHud = v);
+        b.toggle("  Hide When Ready", () -> config.witherShieldHideReady, v -> config.witherShieldHideReady = v);
+        b.toggle("  Compact", () -> config.witherShieldCompact, v -> config.witherShieldCompact = v);
+        b.toggle("  Chime When Ready", () -> config.witherShieldChime, v -> config.witherShieldChime = v);
         b.toggle("Tactical Insertion Timer", () -> config.tacticalInsertionTimer, v -> config.tacticalInsertionTimer = v);
+        b.toggle("  Tactical HUD", () -> config.tacticalHud, v -> config.tacticalHud = v);
+        b.toggle("  Return Waypoint", () -> config.tacticalWaypoint, v -> config.tacticalWaypoint = v);
+        b.espStyle("Tactical Waypoint", () -> config.tacticalWaypointEsp);
         b.toggle("Invincibility Timer", () -> config.invincibilityTimer, v -> config.invincibilityTimer = v);
         b.toggle("  Announce Invincibility", () -> config.invincibilityAnnounce, v -> config.invincibilityAnnounce = v);
         b.toggle("  Announce Counter (n/3)", () -> config.invincibilityAnnounceCount, v -> config.invincibilityAnnounceCount = v);

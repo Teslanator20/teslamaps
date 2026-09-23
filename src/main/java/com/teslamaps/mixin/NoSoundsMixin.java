@@ -34,7 +34,7 @@ public class NoSoundsMixin {
     private static void process(SoundEvent sound, float vol, float pitch, CallbackInfo ci) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
-        com.teslamaps.features.CombatTimers.onSound(sound, pitch);
+        com.teslamaps.features.CombatTimers.onSound(sound, vol, pitch);
 
         if (c.noExplosionSound && sound == SoundEvents.GENERIC_EXPLODE.value()) { ci.cancel(); return; }
         if (c.noCreeperHurtSound && sound == SoundEvents.CREEPER_HURT) { ci.cancel(); return; }
