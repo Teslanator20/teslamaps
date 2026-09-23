@@ -84,7 +84,7 @@ public class WardrobeKeys {
         if (now - lastClick < 300) return true;
 
         int target = findTarget(cs, title, loadouts, want);
-        if (target < 0) return false;
+        if (target < 0) return true;
         if (c.wardrobeKeepEquipped && isEquipped(cs.getMenu().slots.get(target).getItem())) return true;
         lastClick = now;
         click(cs, target);
@@ -111,7 +111,7 @@ public class WardrobeKeys {
                 break;
             }
         }
-        if (target >= cs.getMenu().slots.size() || cs.getMenu().slots.get(target).getItem().isEmpty()) return -1;
+        if (target < 0 || target >= cs.getMenu().slots.size() || cs.getMenu().slots.get(target).getItem().isEmpty()) return -1;
         return target;
     }
 
