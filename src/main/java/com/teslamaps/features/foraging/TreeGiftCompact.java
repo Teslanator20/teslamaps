@@ -108,13 +108,17 @@ public class TreeGiftCompact {
 
         m = PHANTOM.matcher(clean);
         if (m.matches()) {
-            rareDrops.add("A wild §d" + m.group("phantom") + " §fappeared!");
+            boolean hide = GiftDropFilter.anyHidden() && GiftDropFilter.hidden(GiftDropFilter.Cat.MOBS)
+                    && GiftDropFilter.isMob(m.group("phantom").trim());
+            if (!hide) rareDrops.add("A wild §d" + m.group("phantom") + " §fappeared!");
             return true;
         }
 
         if (inBonusGift) {
             m = BONUS_REWARD.matcher(clean);
-            if (m.matches()) rareDrops.add(m.group("item"));
+            if (m.matches() && !(GiftDropFilter.anyHidden() && GiftDropFilter.hidden(GiftDropFilter.of(m.group("item"))))) {
+                rareDrops.add(m.group("item"));
+            }
         }
         return true;
     }
@@ -125,6 +129,7 @@ public class TreeGiftCompact {
     }
 
     private static void start() {
+        if (GiftDropFilter.anyHidden()) GiftDropFilter.fetch();
         inBlock = true;
         giftBlock = false;
         inBonusGift = false;

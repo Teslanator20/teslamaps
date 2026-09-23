@@ -19,7 +19,13 @@ public class BlockUpdateMixin {
             at = @At("HEAD"))
     private void onSetBlockState(BlockPos pos, BlockState newState, int flags, int maxUpdateDepth,
                                   CallbackInfoReturnable<Boolean> cir) {
-        if (!DungeonManager.isInDungeon()) return;
+        if (!DungeonManager.isInDungeon()) {
+            if (com.teslamaps.features.mining.MineshaftPity.tracking()) {
+                Level level = (Level) (Object) this;
+                if (level.isClientSide()) com.teslamaps.features.mining.MineshaftPity.onBlockUpdate(pos, level.getBlockState(pos), newState);
+            }
+            return;
+        }
 
         Level world = (Level)(Object)this;
         if (!world.isClientSide()) return;

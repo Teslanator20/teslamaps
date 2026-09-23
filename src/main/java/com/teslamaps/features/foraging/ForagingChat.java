@@ -22,6 +22,8 @@ public class ForagingChat {
 
         if (TreeGiftCompact.handle(message)) return true;
 
+        if (c.foragingCompactSweep && Foraging.whereTreesGrow() && CompactSweep.handle(message, clean)) return true;
+
         if (c.foragingHideSweepDetails && Foraging.whereTreesGrow()
                 && (SWEEP_HEADER.matcher(clean).matches()
                 || SWEEP_TOUGHNESS.matcher(clean).matches()

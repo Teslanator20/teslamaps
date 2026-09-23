@@ -16,9 +16,24 @@ public final class ForagingCategory {
         b.toggle("Compact Tree Gifts",
                 () -> config.foragingCompactGifts, v -> config.foragingCompactGifts = v);
         b.info("One line instead of the whole gift block, hover kept");
+        b.toggle("  Hide Uncommon Drops", () -> config.foragingGiftHideUncommon, v -> config.foragingGiftHideUncommon = v)
+                .desc("Stretching Sticks, Deep Root");
+        b.toggle("  Hide Enchanted Books", () -> config.foragingGiftHideBooks, v -> config.foragingGiftHideBooks = v)
+                .desc("First Impression, Missile, Karma");
+        b.toggle("  Hide Boosters", () -> config.foragingGiftHideBoosters, v -> config.foragingGiftHideBoosters = v);
+        b.toggle("  Hide Shards", () -> config.foragingGiftHideShards, v -> config.foragingGiftHideShards = v)
+                .desc("Hummingbird, Chameleon");
+        b.toggle("  Hide Runes", () -> config.foragingGiftHideRunes, v -> config.foragingGiftHideRunes = v);
+        b.toggle("  Hide Misc Drops", () -> config.foragingGiftHideMisc, v -> config.foragingGiftHideMisc = v)
+                .desc("Tree the Fish, pet item");
+        b.toggle("  Hide Mobs", () -> config.foragingGiftHideMobs, v -> config.foragingGiftHideMobs = v)
+                .desc("Phantoms and other mobs falling from the tree");
         b.toggle("Hide Sweep Details",
                 () -> config.foragingHideSweepDetails, v -> config.foragingHideSweepDetails = v);
         b.info("Toughness / Logs / penalty lines");
+        b.toggle("Compact Sweep Details",
+                () -> config.foragingCompactSweep, v -> config.foragingCompactSweep = v)
+                .desc("One line: sweep, logs, penalties. Hover for the breakdown and pro tip, click for /treegifts.");
         b.toggle("Hide Lottery Buffs",
                 () -> config.foragingHideLottery, v -> config.foragingHideLottery = v);
         b.info("Lottery and Beekeeper messages off the foraging islands");
@@ -56,6 +71,14 @@ public final class ForagingCategory {
                 () -> config.latherOverlayOnlyWhenActive, v -> config.latherOverlayOnlyWhenActive = v);
         b.info("Position and scale in /tmap gui");
 
+        b.label("Floor Drops");
+        b.toggle("Floor Drop Highlight", () -> config.floorDrops, v -> config.floorDrops = v)
+                .desc("Galatea, Torrhus Canyon and Critter Safari. Gone once you click it.")
+                .tags("forest node", "string", "hunting");
+        b.toggle("  Safari: Current Biome Only",
+                () -> config.floorDropsSafariBiome, v -> config.floorDropsSafariBiome = v);
+        b.color("  Floor Drop Color", () -> config.floorDropsColor, v -> config.floorDropsColor = v);
+
         b.label("Honeyhives");
         b.toggle("Refill Reminder",
                 () -> config.honeyhiveReminder, v -> config.honeyhiveReminder = v);
@@ -63,6 +86,14 @@ public final class ForagingCategory {
                 () -> config.honeyhiveRemindOutside, v -> config.honeyhiveRemindOutside = v);
         b.toggle("Queen Bee Title",
                 () -> config.honeyhiveQueenBeeTitle, v -> config.honeyhiveQueenBeeTitle = v);
+        b.toggle("Honeyhive Helper", () -> config.honeyhiveHelper, v -> config.honeyhiveHelper = v)
+                .desc("Tracks every hive's refill time from its nametag, per profile.");
+        b.toggle("  Hive List", () -> config.honeyhiveDisplay, v -> config.honeyhiveDisplay = v);
+        b.info("Open an inventory to scroll it or click a hive for its waypoint");
+        b.toggle("  List Outside Torrhus", () -> config.honeyhiveDisplayOutside, v -> config.honeyhiveDisplayOutside = v);
+        b.slider("  Max Lines", 1f, 30f, () -> config.honeyhiveMaxLines, v -> config.honeyhiveMaxLines = v, 0);
+        b.toggle("  Ready Waypoints", () -> config.honeyhiveReadyWaypoints, v -> config.honeyhiveReadyWaypoints = v);
+        b.toggle("  Ready Sound", () -> config.honeyhiveReadySound, v -> config.honeyhiveReadySound = v);
         b.label("Heart of the Forest");
         b.toggle("Highlight Perks",
                 () -> config.hotfHighlight, v -> config.hotfHighlight = v);

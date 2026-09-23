@@ -14,6 +14,7 @@ public abstract class ContainerCharMixin implements ContainerEventHandler {
     @Override
     public boolean charTyped(CharacterEvent event) {
         if (com.teslamaps.features.StorageOverlay.charTyped(event.codepoint())) return true;
+        if (com.teslamaps.features.hunting.ShardOverlay.charTyped(event.codepoint())) return true;
         if (com.teslamaps.features.Searchbar.charTyped(event.codepoint())) return true;
         GuiEventListener focused = getFocused();
         return focused != null && focused.charTyped(event);

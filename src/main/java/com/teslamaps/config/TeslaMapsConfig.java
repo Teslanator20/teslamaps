@@ -146,6 +146,9 @@ public class TeslaMapsConfig {
     public boolean bossESPDepthCheck = false;   // Depth check on = respect walls; off = through walls
     public boolean corpseESP = true;            // Box + beacon on unlooted Glacite Mineshaft corpses
     public boolean corpseESPTypeColors = true;  // Colour per corpse type (Lapis/Umber/Tungsten) instead of one colour
+    public boolean corpseFinder = false;         // Legit corpse finder: only corpses seen in line of sight, no walls
+    public boolean corpseFinderParseChat = false; // Party/all chat "x: y: z:" marks a corpse as seen
+    public String corpseFinderChannel = "Nobody"; // Announce channel for the click-to-share line
     public boolean lividFinder = true;          // Highlight the correct Livid in F5/M5
     public boolean lividTracer = true;          // Draw tracer to correct Livid
     public boolean lividDeathMessage = true;    // Send "/pc Livid Dead!" when Livid dies
@@ -424,6 +427,11 @@ public class TeslaMapsConfig {
     public boolean pickaxeAbilityDisplay = false;
     public boolean pickaxeAbilityMiningOnly = true;    // only on the mining islands
     public boolean pickaxeAbilityOnlyOnCooldown = false;
+    public boolean pickaxeAbilityBar = false;          // animated bar instead of the text line
+    public boolean pickaxeAbilityBarVertical = false;
+    public String pickaxeAbilityReadyText = "Right";   // Off / Right / Left / Top / Bottom
+    public String pickaxeAbilityReadyColor = "55FF55";
+    public String pickaxeAbilityEmptyColor = "FF5555";
     public int pickaxeAbilityX = 5;
     public int pickaxeAbilityY = 120;
     public float pickaxeAbilityScale = 1.0f;
@@ -435,6 +443,13 @@ public class TeslaMapsConfig {
     public int mineshaftSurveyorLevel = 0;             // runtime: scanned off the HOTM menu
     public int mineshaftCoreLevel = 0;                 // runtime: scanned off the HOTM menu
     public int mineshaftTotalFound = 0;                // runtime: mineshafts found overall
+    public long mineshaftTotalBlocks = 0;              // runtime: pity blocks mined over all found mineshafts
+    public boolean mineshaftPityShowNeeded = false;    // "Needed to pity" rows per block type
+    public boolean mineshaftPityShowAverage = false;   // average blocks per mineshaft line
+    public boolean mineshaftPityHideChance = false;
+    public boolean mineshaftPityHideLast = false;
+    public boolean mineshaftPityHideFound = false;
+    public boolean mineshaftPityChatHover = false;     // block breakdown hover on the found line
     public int mineshaftPityX = 5;
     public int mineshaftPityY = 140;
     public float mineshaftPityScale = 1.0f;
@@ -899,6 +914,11 @@ public class TeslaMapsConfig {
     public boolean shardOnlyMissing = false;    // Only shards that are not unlocked yet
     public boolean shardIncludeBox = true;      // Count what is already in the hunting box
     public boolean shardIncludeOrders = true;   // Count what is already on order in the bazaar
+    public boolean shardOnlyCurrent = false;    // only shards on the open bazaar / attribute page
+    public boolean shardPanelSearch = false;    // search box in the shard panel
+    public boolean shardPanelButtons = false;   // option buttons under the shard panel
+    public boolean shardFusionTracking = false; // FUSION! chat line moves the box amounts
+    public boolean shardSyphonHint = false;     // clickable /attributemenu hint on "and N more..."
     public boolean shardTierStack = true;       // Tier as the stack size in the attribute menu
     public boolean shardHighlightDisabled = true;   // Red tint over switched-off attributes
     public boolean shardTierColors = false;
@@ -1571,7 +1591,18 @@ public class TeslaMapsConfig {
     public boolean foragingMuteTreeBreakGalatea = false; // also mute it on the foraging islands
     public boolean foragingHideLottery = false;     // hide Lottery/Beekeeper buff messages off the foraging islands
     public boolean foragingCompactGifts = true;     // squash the whole TREE GIFT block into one line
+    public boolean foragingGiftHideUncommon = false; // compact gift line: leave out these bonus drop categories
+    public boolean foragingGiftHideBooks = false;
+    public boolean foragingGiftHideBoosters = false;
+    public boolean foragingGiftHideShards = false;
+    public boolean foragingGiftHideRunes = false;
+    public boolean foragingGiftHideMisc = false;
+    public boolean foragingGiftHideMobs = false;
     public boolean foragingHideSweepDetails = false; // hide the Sweep Details / Toughness / penalty lines
+    public boolean foragingCompactSweep = false;     // one sweep line with the breakdown in its hover
+    public boolean floorDrops = false;               // floor drops on Galatea / Torrhus / Safari, depth tested
+    public boolean floorDropsSafariBiome = false;    // Safari: only the biome you stand in
+    public String floorDropsColor = "55FF55";
     public boolean foragingCleanTreeView = false;   // hide the floating blocks from chopping
     public boolean foragingHideRuneEffects = false; // hide the floating blocks from rune effects
     public boolean rareCatchAlert = false;          // title + sound when a rare sea creature is caught
@@ -1626,6 +1657,15 @@ public class TeslaMapsConfig {
     public boolean honeyhiveReminder = false;       // remind when honeyhives are lootable again
     public boolean honeyhiveQueenBeeTitle = true;   // title on a Queen Bee instant refill
     public boolean honeyhiveRemindOutside = false;  // also remind outside Torrhus Canyon
+    public boolean honeyhiveHelper = false;         // per-hive refill tracking off the hive nametags
+    public boolean honeyhiveDisplay = false;        // hive list HUD, click a row for its waypoint
+    public boolean honeyhiveDisplayOutside = false;
+    public float honeyhiveMaxLines = 12f;
+    public boolean honeyhiveReadyWaypoints = false;
+    public boolean honeyhiveReadySound = false;
+    public int honeyhiveX = 8;
+    public int honeyhiveY = 180;
+    public float honeyhiveScale = 1.0f;
     @Global
     public long honeyhiveReadyAt = 0L;              // runtime: when the hives are lootable again
     public boolean hotfHighlight = true;            // colour the perks in the Heart of the Forest

@@ -40,6 +40,15 @@ public class HuntingBox {
             "\\+(?<amount>\\d+) (?<attributeName>.+) Attribute \\(Level (?<level>\\d+)\\) - (?<untilNext>\\d+) more to upgrade!");
     private static final Pattern SYPHONED_MAXED =
             Pattern.compile("\\+(?<amount>\\d+) (?<attributeName>.+) Attribute \\(Level (?<level>\\d+)\\) MAXED");
+    // Fusion and "and N more" from SkyHanni's AttributeShardsData.kt / FusionData.kt
+    private static final Pattern FUSION =
+            Pattern.compile("FUSION! You obtained(?: an?)? (?<shardName>.+) Shard(?: x(?<amount>\\d+))?!(?: NEW!)?");
+    private static final Pattern AND_MORE = Pattern.compile("and (?<amount>\\d+) more\\.\\.\\.");
+    private static final Pattern REQUIRED = Pattern.compile("Required to fuse: (?<amount>\\d+)");
+
+    private record Fusion(ShardData.Shard first, int firstAmount, ShardData.Shard second, int secondAmount, ShardData.Shard output) {}
+    private static Fusion fusion;
+    private static long lastSyphon;
 
     /** Slots holding shards - the box uses the usual bordered 9x6 layout. */
     private static boolean isShardSlot(int index) {
@@ -77,6 +86,7 @@ public class HuntingBox {
         if (packetChanged && !screenChanged) packetRead = true;   // first fill only, then every 5 ticks
 
         if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+            if (config.shardFusionTracking && screenTitle.equals("Confirm Fusion")) readFusion(cs);
             if (boxScreen) readBox(cs, screenTitle);
             else if (menuScreen) readAttributeMenu(cs);
             else BazaarOrders.tick();
@@ -256,6 +266,24 @@ public class HuntingBox {
         return resolve(stack);
     }
 
+    private static void readFusion(AbstractContainerScreen<?> cs) {
+        List<Slot> slots = cs.getMenu().slots;
+        if (slots.size() <= 31) return;
+        ItemStack a = slots.get(12).getItem(), b = slots.get(14).getItem(), out = slots.get(31).getItem();
+        ShardData.Shard first = shardOf(a), second = shardOf(b), output = shardOf(out);
+        int firstAmount = required(a), secondAmount = required(b);
+        if (first == null || second == null || output == null || firstAmount < 0 || secondAmount < 0) return;
+        fusion = new Fusion(first, firstAmount, second, secondAmount, output);
+    }
+
+    private static int required(ItemStack stack) {
+        for (String line : lore(stack)) {
+            Matcher m = REQUIRED.matcher(line);
+            if (m.find()) return parseInt(m.group("amount"));
+        }
+        return -1;
+    }
+
     // ---------------------------------------------------------------- chat
 
     public static void onChatMessage(String raw) {
@@ -271,8 +299,34 @@ public class HuntingBox {
             return;
         }
 
+        if (config.shardFusionTracking && fusion != null) {
+            Matcher f = FUSION.matcher(text);
+            if (f.matches()) {
+                ShardData.addInBox(fusion.output(), f.group("amount") == null ? 1 : parseInt(f.group("amount")));
+                ShardData.addInBox(fusion.first(), -fusion.firstAmount());
+                ShardData.addInBox(fusion.second(), -fusion.secondAmount());
+                return;
+            }
+        }
+
+        if (config.shardSyphonHint && System.currentTimeMillis() - lastSyphon < 1000) {
+            Matcher more = AND_MORE.matcher(text);
+            if (more.matches()) {
+                String n = more.group("amount");
+                com.teslamaps.utils.TickScheduler.schedule(1, () -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.player == null) return;
+                    mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §aClick here and scroll through /attributemenu to refresh "
+                                    + n + " more shards")
+                            .withStyle(s -> s.withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/attributemenu"))));
+                });
+                return;
+            }
+        }
+
         Matcher syphon = SYPHONED.matcher(text);
         if (syphon.matches()) {
+            lastSyphon = System.currentTimeMillis();
             applySyphon(syphon.group("attributeName"), parseInt(syphon.group("level")),
                     parseInt(syphon.group("untilNext")), parseInt(syphon.group("amount")));
             return;
@@ -280,6 +334,7 @@ public class HuntingBox {
 
         Matcher maxed = SYPHONED_MAXED.matcher(text);
         if (maxed.matches()) {
+            lastSyphon = System.currentTimeMillis();
             applySyphon(maxed.group("attributeName"), 10, 0, parseInt(maxed.group("amount")));
             return;
         }

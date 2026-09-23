@@ -29,6 +29,12 @@ public final class MiningCategory {
                 .tags("esp", "lapis", "tungsten", "umber", "vanguard", "mineshaft");
         b.toggle("  Type Colors", () -> config.corpseESPTypeColors, v -> config.corpseESPTypeColors = v);
         b.color("  Corpse Color", () -> config.colorCorpseESP, v -> config.colorCorpseESP = v);
+        b.toggle("Corpse Finder (Legit)", () -> config.corpseFinder, v -> config.corpseFinder = v)
+                .desc("Marks a corpse once you had line of sight to it. Never through walls.")
+                .tags("lapis", "tungsten", "umber", "vanguard", "mineshaft", "share");
+        b.toggle("  Read Coords From Chat", () -> config.corpseFinderParseChat, v -> config.corpseFinderParseChat = v);
+        b.channel("  Share Channel", () -> config.corpseFinderChannel, v -> config.corpseFinderChannel = v);
+        b.info("Click the Found line or /tmap corpse share to send it");
         b.label("Drill / Pickaxe Ability");
         b.toggle("Ability Cooldown Display",
                 () -> config.pickaxeAbilityDisplay, v -> config.pickaxeAbilityDisplay = v);
@@ -36,12 +42,28 @@ public final class MiningCategory {
                 () -> config.pickaxeAbilityMiningOnly, v -> config.pickaxeAbilityMiningOnly = v);
         b.toggle("  Hide While Available",
                 () -> config.pickaxeAbilityOnlyOnCooldown, v -> config.pickaxeAbilityOnlyOnCooldown = v);
+        b.toggle("  Show As Bar", () -> config.pickaxeAbilityBar, v -> config.pickaxeAbilityBar = v)
+                .desc("Animated cooldown bar, reacts to the ability chat line right away.");
+        b.toggle("  Vertical Bar", () -> config.pickaxeAbilityBarVertical, v -> config.pickaxeAbilityBarVertical = v);
+        b.dropdown("  Ready Text", new String[] {"Off", "Right", "Left", "Top", "Bottom"},
+                () -> config.pickaxeAbilityReadyText, v -> config.pickaxeAbilityReadyText = v);
+        b.color("  Ready Color", () -> config.pickaxeAbilityReadyColor, v -> config.pickaxeAbilityReadyColor = v);
+        b.color("  Empty Color", () -> config.pickaxeAbilityEmptyColor, v -> config.pickaxeAbilityEmptyColor = v);
         b.info("Needs the Pickaxe Ability tab widget: /tab");
         b.label("Mineshaft Pity");
         b.toggle("Pity Counter Display",
                 () -> config.mineshaftPityDisplay, v -> config.mineshaftPityDisplay = v);
+        b.toggle("  Needed To Pity Per Block",
+                () -> config.mineshaftPityShowNeeded, v -> config.mineshaftPityShowNeeded = v);
+        b.toggle("  Average Blocks Per Mineshaft",
+                () -> config.mineshaftPityShowAverage, v -> config.mineshaftPityShowAverage = v);
+        b.toggle("  Hide Chance Line", () -> config.mineshaftPityHideChance, v -> config.mineshaftPityHideChance = v);
+        b.toggle("  Hide Last Mineshaft Line", () -> config.mineshaftPityHideLast, v -> config.mineshaftPityHideLast = v);
+        b.toggle("  Hide Found Line", () -> config.mineshaftPityHideFound, v -> config.mineshaftPityHideFound = v);
         b.toggle("Chat Line On Mineshaft Found",
                 () -> config.mineshaftFoundChat, v -> config.mineshaftFoundChat = v);
+        b.toggle("  Block Breakdown Hover",
+                () -> config.mineshaftPityChatHover, v -> config.mineshaftPityChatHover = v);
         b.slider("Mineshaft Chance Bonus (%)", 0f, 100f,
                 () -> config.mineshaftChanceBonus, v -> config.mineshaftChanceBonus = v, 1);
         b.info("Set from Surveyor + Core of the Mountain when you open the HOTM menu");
