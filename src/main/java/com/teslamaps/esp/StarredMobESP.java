@@ -199,6 +199,7 @@ public class StarredMobESP {
     public static void tick() {
         tagText.clear();
         sniperTag.clear();
+        itemLabels.clear();
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null || com.teslamaps.features.LegitMode.blocksCheats()) {
             highlightedEntities.clear();
@@ -313,6 +314,9 @@ public class StarredMobESP {
             }
 
             if (shouldHighlight(entity, inDungeon)) {
+                if (entity instanceof ItemEntity ie && TeslaMapsConfig.get().droppedItemLabel) {
+                    itemLabels.put(entity, "§ax" + ie.getItem().getCount() + " §f" + ie.getItem().getHoverName().getString());
+                }
                 int color = getHighlightColor(entity);
                 EntityHighlight eh = new EntityHighlight(entity, color);
                 highlightedEntities.add(eh);
@@ -555,8 +559,8 @@ public class StarredMobESP {
         // a nametag stand overlaps our own box when standing on the mob, which briefly boxed the player
         if (entity == Minecraft.getInstance().player) return false;
 
-        if (entity instanceof ItemEntity && TeslaMapsConfig.get().droppedItemESP) {
-            return true;
+        if (entity instanceof ItemEntity ie && TeslaMapsConfig.get().droppedItemESP) {
+            return !isShowcase(ie);
         }
 
         String entityName = entity.getName().getString();
@@ -879,6 +883,7 @@ public class StarredMobESP {
                 if (remaining <= 11) return TeslaMapsConfig.parseColor(config.colorItemSoon);
                 return TeslaMapsConfig.parseColor(config.colorItemNotReady);
             }
+            if (config.droppedItemRarityColor) return itemColor(item.getItem());
             return DROPPED_ITEM_COLOR;
         }
 
@@ -919,9 +924,38 @@ public class StarredMobESP {
 
     public record EntityHighlight(Entity entity, int color) {}
 
+    // shop / museum showcase items sit on (or under) an armor stand wearing a glass block
+    private static boolean isShowcase(ItemEntity item) {
+        if (item.isPassenger()) return true;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return false;
+        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, item.getBoundingBox().inflate(0.5, 2.5, 0.5), a -> true)) {
+            if (as.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).is(net.minecraft.world.item.Items.GLASS)) return true;
+        }
+        return false;
+    }
+
+    private static final Map<net.minecraft.world.item.ItemStack, Integer> itemColors = new WeakHashMap<>();
+    private static final Map<Entity, String> itemLabels = new WeakHashMap<>();
+
+    private static int itemColor(net.minecraft.world.item.ItemStack stack) {
+        Integer cached = itemColors.get(stack);
+        if (cached != null) return cached;
+        int rgb = com.teslamaps.features.RarityBackground.rarityColor(stack);
+        if (rgb == -1) {
+            Component name = stack.getHoverName();
+            net.minecraft.network.chat.TextColor tc = name.getStyle().getColor();
+            if (tc == null && !name.getSiblings().isEmpty()) tc = name.getSiblings().get(0).getStyle().getColor();
+            rgb = tc != null ? tc.getValue() : 0xFFFFFF;
+        }
+        int c = 0xFF000000 | (rgb & 0xFFFFFF);
+        itemColors.put(stack, c);
+        return c;
+    }
+
     // display entities report a zero-size box, which draws as nothing
     private static AABB visibleBox(Entity entity) {
-        AABB b = entity.getBoundingBox();
+        AABB b = ESPRenderer.lerpBox(entity);
         if (b.getXsize() < 0.1 || b.getYsize() < 0.1) return b.inflate(0.4, 0.4, 0.4);
         return b;
     }
@@ -957,6 +991,16 @@ public class StarredMobESP {
             }
         }
 
+        if (!itemLabels.isEmpty()) {
+            for (Map.Entry<Entity, String> entry : itemLabels.entrySet()) {
+                Entity entity = entry.getKey();
+                if (!entity.isAlive()) continue;
+                AABB b = ESPRenderer.lerpBox(entity);
+                ESPRenderer.drawText(matrices, entry.getValue(), new Vec3(b.getCenter().x, b.maxY + 0.5, b.getCenter().z),
+                        0.8f, cameraPos);
+            }
+        }
+
         // Custom entries have to show something with Box/Filled ESP off too - glow never
         // renders on the invisible or zero-size bodies most named mobs have.
         if (!TeslaMapsConfig.get().boxESP && !TeslaMapsConfig.get().filledESP) {
@@ -977,7 +1021,7 @@ public class StarredMobESP {
                     && (entity.getCustomName() == null
                         || !matchesCustomTracer(entity.getCustomName().getString()))
                     && !matchesCustomTracerArmorStand(entity)) continue;
-            ESPRenderer.drawTracerFromCamera(matrices, entity.getBoundingBox().getCenter(),
+            ESPRenderer.drawTracerFromCamera(matrices, ESPRenderer.lerpBox(entity).getCenter(),
                     eh.color() | 0xFF000000, cameraPos);
         }
 
@@ -990,7 +1034,7 @@ public class StarredMobESP {
             }
             if (!starred.isEmpty() && starred.size() <= TeslaMapsConfig.get().starredTracerThreshold) {
                 for (EntityHighlight eh : starred) {
-                    ESPRenderer.drawTracerFromCamera(matrices, eh.entity().getBoundingBox().getCenter(),
+                    ESPRenderer.drawTracerFromCamera(matrices, ESPRenderer.lerpBox(eh.entity()).getCenter(),
                             eh.color() | 0xFF000000, cameraPos);
                 }
             }
@@ -1069,7 +1113,7 @@ public class StarredMobESP {
 
             for (Entity keyEntity : witherKeyEntities) {
                 if (!keyEntity.isAlive()) continue;
-                AABB keyBox = keyEntity.getBoundingBox();
+                AABB keyBox = ESPRenderer.lerpBox(keyEntity);
                 ESPRenderer.drawESPBox(matrices, keyBox, witherKeyColor(), cameraPos);
                 if (drawKeyTracers) {
                     Vec3 keyCenter = keyBox.getCenter();
@@ -1079,7 +1123,7 @@ public class StarredMobESP {
 
             for (Entity keyEntity : bloodKeyEntities) {
                 if (!keyEntity.isAlive()) continue;
-                AABB keyBox = keyEntity.getBoundingBox();
+                AABB keyBox = ESPRenderer.lerpBox(keyEntity);
                 ESPRenderer.drawESPBox(matrices, keyBox, bloodKeyColor(), cameraPos);
                 if (drawKeyTracers) {
                     Vec3 keyCenter = keyBox.getCenter();

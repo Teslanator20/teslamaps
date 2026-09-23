@@ -43,9 +43,22 @@ public final class RenderCategory {
         b.label("Loading Screens");
         b.toggle("Disable World Loading Screen", () -> config.disableWorldLoadingScreen, v -> config.disableWorldLoadingScreen = v);
         b.toggle("No Texture Reload Screen", () -> config.noReloadScreen, v -> config.noReloadScreen = v);
+        b.label("Beacons & Lines");
+        b.toggle("Real Beacon Beams", () -> config.realBeaconBeam, v -> config.realBeaconBeam = v);
+        b.toggle("Glow Ribbons (Tracers & Lines)", () -> config.glowRibbons, v -> config.glowRibbons = v);
+        b.slider("  Ribbon Width", 0.5f, 4f, () -> config.glowRibbonWidth, v -> config.glowRibbonWidth = v, 1);
+        b.toggle("Waypoint Label Background", () -> config.waypointLabelBackground, v -> config.waypointLabelBackground = v);
         b.label("Block Overlay");
         b.toggle("Block Overlay", () -> config.blockOverlay, v -> config.blockOverlay = v);
         b.color("  Block Overlay Color", () -> config.blockOverlayColor, v -> config.blockOverlayColor = v);
+        b.dropdown("  Block Overlay Style", com.teslamaps.features.BlockOverlay.STYLES,
+                () -> config.blockOverlayStyle, v -> config.blockOverlayStyle = v);
+        b.color("  Block Overlay Fill Color", () -> config.blockOverlayFillColor, v -> config.blockOverlayFillColor = v);
+        b.slider("  Block Overlay Line Width", 0.5f, 10f, () -> config.blockOverlayLineWidth, v -> config.blockOverlayLineWidth = v, 1);
+        b.toggle("  Block Overlay Through Walls", () -> config.blockOverlayThroughWalls, v -> config.blockOverlayThroughWalls = v);
+        b.toggle("  Exact Block Shape", () -> config.blockOverlayExactShape, v -> config.blockOverlayExactShape = v);
+        b.toggle("  Hide Vanilla Outline", () -> config.blockOverlayHideVanilla, v -> config.blockOverlayHideVanilla = v);
+        b.toggle("  Hide While Etherwarping", () -> config.blockOverlayHideEtherwarp, v -> config.blockOverlayHideEtherwarp = v);
         b.label("Chat Waypoint");
         b.toggle("Chat Waypoint (coords)", () -> config.chatWaypoint, v -> config.chatWaypoint = v);
         b.toggle("  More Formats (x y z, Inquisitor)", () -> config.chatWaypointMoreFormats, v -> config.chatWaypointMoreFormats = v);
@@ -74,6 +87,13 @@ public final class RenderCategory {
         b.slider("  Eye Height Offset", -0.5f, 0.5f,
                 () -> config.etherwarpEyeOffset, v -> config.etherwarpEyeOffset = v, 3);
         b.color("  Etherwarp Box Color", () -> config.colorEtherwarp, v -> config.colorEtherwarp = v);
+        b.color("  Etherwarp Fail Color", () -> config.colorEtherwarpFail, v -> config.colorEtherwarpFail = v);
+        b.toggle("  Outline On Filled Box", () -> config.etherwarpOutline, v -> config.etherwarpOutline = v);
+        b.slider("  Etherwarp Line Width", 1f, 8f, () -> config.etherwarpLineWidth, v -> config.etherwarpLineWidth = v, 1);
+        b.toggle("  Etherwarp Through Walls", () -> config.etherwarpThroughWalls, v -> config.etherwarpThroughWalls = v);
+        b.toggle("  Use Block Shape", () -> config.etherwarpBlockShape, v -> config.etherwarpBlockShape = v);
+        b.toggle("  Use Server Position", () -> config.etherwarpServerPos, v -> config.etherwarpServerPos = v);
+        b.toggle("  Fail Reason HUD", () -> config.etherwarpFailReason, v -> config.etherwarpFailReason = v);
         b.label("Cape");
         b.toggle("Custom Cape", () -> config.capeEnabled, v -> config.capeEnabled = v);
         b.info("Worn capes are visible to every TeslaMaps user");

@@ -143,7 +143,7 @@ public class RarityBackground {
     // immutable, so the answer only has to be computed once per lore instance
     private static final java.util.Map<ItemLore, Integer> colorCache = new java.util.IdentityHashMap<>();
 
-    private static int rarityColor(ItemStack stack) {
+    public static int rarityColor(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return -1;
         // hypixel tags skyblock items with a tooltip style named after the rarity
         net.minecraft.resources.Identifier style = stack.get(DataComponents.TOOLTIP_STYLE);

@@ -13,6 +13,52 @@ public final class MobVisualRender {
 
     private MobVisualRender() {}
 
+    public static void register() {
+        com.teslamaps.registry.Feature.of("MobVisualNameplates").section("Mob Visuals")
+                .when(() -> TeslaMapsConfig.get().mobVisualNameplateHud)
+                .hud("mobvisualnameplates", MobVisualRender::renderHud);
+    }
+
+    private static final double REFERENCE_GUI_SCALE = 4.0;
+
+    private static void renderHud(net.minecraft.client.gui.GuiGraphicsExtractor g, net.minecraft.client.DeltaTracker d) {
+        if (MobVisuals.nameplates.isEmpty() || !MobVisuals.active()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.options.hideGui) return;
+
+        float partial = mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
+        var camera = mc.gameRenderer.getMainCamera();
+        Vec3 cam = camera.position();
+        org.joml.Vector3fc fwd = camera.forwardVector();
+        float sw = mc.getWindow().getGuiScaledWidth();
+        float sh = mc.getWindow().getGuiScaledHeight();
+        float scale = (float) (REFERENCE_GUI_SCALE / mc.getWindow().getGuiScale()) * TeslaMapsConfig.get().mobVisualNameplateScale;
+
+        for (Map.Entry<Entity, String> entry : MobVisuals.nameplates.entrySet()) {
+            Entity entity = entry.getKey();
+            if (entity.isRemoved()) continue;
+            Vec3 center = entity.getPosition(partial).add(0, MobVisuals.renderAnchorHeight(entity), 0);
+            double tx = center.x - cam.x, ty = center.y - cam.y, tz = center.z - cam.z;
+            if (tx * tx + ty * ty + tz * tz < 1.0E-4) continue;
+            // behind the camera the projection mirrors onto the screen
+            if (tx * fwd.x() + ty * fwd.y() + tz * fwd.z() <= 0) continue;
+
+            Vec3 ndc = mc.gameRenderer.projectPointToScreen(center);
+            float x = (float) (ndc.x * 0.5 + 0.5) * sw;
+            float y = (float) (0.5 - ndc.y * 0.5) * sh;
+
+            String[] lines = entry.getValue().split("\n");
+            g.pose().pushMatrix();
+            g.pose().translate(x, y);
+            g.pose().scale(scale, scale);
+            int top = -lines.length * mc.font.lineHeight / 2;
+            for (int i = 0; i < lines.length; i++) {
+                g.text(mc.font, lines[i], -mc.font.width(lines[i]) / 2, top + i * mc.font.lineHeight, 0xFFFFFFFF, true);
+            }
+            g.pose().popMatrix();
+        }
+    }
+
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (MobVisuals.tracers.isEmpty() && MobVisuals.nameplates.isEmpty()) return;
         if (!MobVisuals.active()) return;
@@ -32,6 +78,7 @@ public final class MobVisualRender {
             ESPRenderer.drawTracerFromCamera(matrices, target, entry.getValue(), cameraPos);
         }
 
+        if (c.mobVisualNameplateHud) return;
         for (Map.Entry<Entity, String> entry : MobVisuals.nameplates.entrySet()) {
             Entity entity = entry.getKey();
             if (entity.isRemoved()) continue;

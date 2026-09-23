@@ -37,3 +37,10 @@ accessible method net/minecraft/world/entity/Display getPosRotInterpolationDurat
 
 # Reading the currently bound key of a mapping: only the default is public.
 accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
+
+# Etherwarp "Use Server Position": the last pose sent to the server.
+accessible field net/minecraft/client/player/LocalPlayer xLast D
+accessible field net/minecraft/client/player/LocalPlayer yLast D
+accessible field net/minecraft/client/player/LocalPlayer zLast D
+accessible field net/minecraft/client/player/LocalPlayer yRotLast F
+accessible field net/minecraft/client/player/LocalPlayer xRotLast F

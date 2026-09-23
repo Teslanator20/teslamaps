@@ -115,7 +115,8 @@ public final class WaypointSet {
             if (box) ESPRenderer.drawBoxOutline(pose, new AABB(w.pos), w.color | 0xFF000000, 2f, cam, throughWalls);
             if (label && w.text != null && !w.text.isEmpty()) {
                 ESPRenderer.drawText(pose, w.text, new Vec3(w.pos.getX() + 0.5, w.pos.getY() + 1.5, w.pos.getZ() + 0.5),
-                        1.0f, cam, true, throughWalls);
+                        1.0f, cam, true, throughWalls, 0xFFFFFFFF,
+                        com.teslamaps.config.TeslaMapsConfig.get().waypointLabelBackground ? 0x66000000 : 0);
             }
         }
     }

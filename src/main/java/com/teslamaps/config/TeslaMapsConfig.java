@@ -184,6 +184,8 @@ public class TeslaMapsConfig {
     public boolean hoppityEggESP = false;       // Box + label on Hoppity chocolate eggs
     public boolean hoppityEggTracers = false;   // Draw tracers to Hoppity eggs
     public boolean droppedItemESP = true;       // Highlight all dropped items
+    public boolean droppedItemRarityColor = false; // Dropped items in their rarity / name colour
+    public boolean droppedItemLabel = false;       // "x3 Name" above dropped items
     public boolean secretItemReadiness = true;   // Color dropped items in dungeons by pickup readiness
     public int secretItemPickupTicks = 50;       // Ticks after a drop spawns before it's pickable (tune in-game)
     public boolean hideSoulweaverSkull = true; // Hide the floating skull spawned by Soulweaver Gloves
@@ -470,6 +472,16 @@ public class TeslaMapsConfig {
     public float etherwarpEyeOffset = -0.0f;      // Fine-tune the ray's eye height (blocks) if the guess sits too high/low
     public boolean etherwarpSkullFail = true;     // Mark as failed if the target block (or above it) is a skull
     public String colorEtherwarp = "00FF8C";      // Etherwarp guess box color (gold)
+    public String colorEtherwarpFail = "FF5555";
+    public boolean etherwarpOutline = false;      // Outline on top of the filled box
+    public float etherwarpLineWidth = 2.0f;
+    public boolean etherwarpThroughWalls = false;
+    public boolean etherwarpBlockShape = false;   // Box follows the block shape (slabs, stairs) instead of a full block
+    public boolean etherwarpServerPos = false;    // Ray from the last position sent to the server
+    public boolean etherwarpFailReason = false;   // HUD line: why the warp would fail
+    public int etherwarpFailReasonX = 404;
+    public int etherwarpFailReasonY = 150;
+    public float etherwarpFailReasonScale = 1.0f;
     public boolean etherwarpCustomSound = true;  // Replace the etherwarp sound with a custom one
     public String etherwarpSound = "NOTE_PLING"; // see SoundOptions for all options
     public float etherwarpSoundVolume = 1.0f;     // Custom etherwarp sound volume (0.0 - 20.0)
@@ -891,6 +903,7 @@ public class TeslaMapsConfig {
     public boolean mobVisualNameplate = true;      // Name (and health) drawn on the mob
     public boolean mobVisualNameplateHealth = true;
     public float mobVisualNameplateScale = 1.0f;
+    public boolean mobVisualNameplateHud = false;  // Nameplates drawn in the HUD over the projected mob, above glow
     public boolean mobVisualTracerAll = false;     // Off = one line per species, the nearest
     @Global
     public java.util.Set<String> mobVisualTargets = new java.util.HashSet<>();
@@ -1199,8 +1212,19 @@ public class TeslaMapsConfig {
     public float invincibilityScale = 1.0f;         // Invincibility block scale
     public boolean disableWorldLoadingScreen = true; // Skip the world loading / downloading-terrain screen
     public boolean noReloadScreen = true;          // Skip the resource/texture reload (dirt) overlay (F3+T etc.)
+    public boolean realBeaconBeam = false;         // Vanilla textured beacon beam instead of a 2 px line
+    public boolean glowRibbons = false;            // Tracers/lines as glowing camera-facing bands
+    public float glowRibbonWidth = 1.0f;
+    public boolean waypointLabelBackground = false;
     public boolean blockOverlay = true;            // Outline the block you're looking at
     public String blockOverlayColor = "FFFFFF";     // Block overlay outline colour
+    public String blockOverlayStyle = "Outline";     // Outline / Filled / Filled + Outline
+    public String blockOverlayFillColor = "40FFFFFF";
+    public float blockOverlayLineWidth = 3.0f;
+    public boolean blockOverlayThroughWalls = false;
+    public boolean blockOverlayExactShape = false;   // Every box of the shape (stairs, fences) instead of its bounds
+    public boolean blockOverlayHideVanilla = false;  // Cancel the vanilla black outline
+    public boolean blockOverlayHideEtherwarp = false; // Hide while the etherwarp guess box shows
     public boolean chatWaypoint = true;            // Render a waypoint beam from coords in chat
     public boolean chatWaypointMoreFormats = false; // Also "x y z", "x, y, z" in player chat + Inquisitor lines
     public boolean chatWaypointIgnoreAllChat = false;

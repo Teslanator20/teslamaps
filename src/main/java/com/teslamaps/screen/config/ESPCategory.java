@@ -99,6 +99,8 @@ public final class ESPCategory {
         b.color("  New Head Color", () -> config.headESPColor, v -> config.headESPColor = v);
         b.label("Items");
         b.toggle("Dropped Item ESP", () -> config.droppedItemESP, v -> config.droppedItemESP = v);
+        b.toggle("  Rarity Color", () -> config.droppedItemRarityColor, v -> config.droppedItemRarityColor = v);
+        b.toggle("  Show Name & Amount", () -> config.droppedItemLabel, v -> config.droppedItemLabel = v);
         b.toggle("Item Pickup Readiness", () -> config.secretItemReadiness, v -> config.secretItemReadiness = v);
         b.slider("Item Pickup Delay (ticks)", 0f, 200f,
                 () -> (float) config.secretItemPickupTicks, v -> config.secretItemPickupTicks = Math.round(v));
