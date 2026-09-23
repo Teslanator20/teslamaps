@@ -45,6 +45,16 @@ public class ESPRenderer {
         frameSources.add(src);
     }
 
+    /** Bounding box at the entity's rendered (partial-tick) position. */
+    public static AABB lerpBox(net.minecraft.world.entity.Entity e) {
+        AABB b = e.getBoundingBox();
+        float pt = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
+        double dx = net.minecraft.util.Mth.lerp(pt, e.xo, e.getX()) - e.getX();
+        double dy = net.minecraft.util.Mth.lerp(pt, e.yo, e.getY()) - e.getY();
+        double dz = net.minecraft.util.Mth.lerp(pt, e.zo, e.getZ()) - e.getZ();
+        return dx == 0 && dy == 0 && dz == 0 ? b : b.move(dx, dy, dz);
+    }
+
     private static boolean culled(AABB box) {
         return frustum != null && !frustum.isVisible(box);
     }

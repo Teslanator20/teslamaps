@@ -382,7 +382,7 @@ public class SlayerHUD {
             for (Entity e : minibossEntities) {
                 if (e == null || !e.isAlive()) continue;
                 com.teslamaps.render.ESPRenderer.drawTracerFromCamera(matrices,
-                        e.getBoundingBox().getCenter(), 0xFFFF5555, cameraPos);
+                        com.teslamaps.render.ESPRenderer.lerpBox(e).getCenter(), 0xFFFF5555, cameraPos);
             }
         }
 
@@ -391,13 +391,13 @@ public class SlayerHUD {
         if (cfg.slayerMinibossESP) {
             for (Entity e : minibossEntities) {
                 if (e == null || !e.isAlive()) continue;
-                com.teslamaps.render.ESPRenderer.drawBoxOutline(matrices, e.getBoundingBox(),
+                com.teslamaps.render.ESPRenderer.drawBoxOutline(matrices, com.teslamaps.render.ESPRenderer.lerpBox(e),
                         getGlowColor(e) | 0xFF000000, 2.0f, cameraPos, true);
             }
         }
 
         if (cfg.slayerBossESP && bossEntity != null && bossEntity.isAlive()) {
-            com.teslamaps.render.ESPRenderer.drawBoxOutline(matrices, bossEntity.getBoundingBox(),
+            com.teslamaps.render.ESPRenderer.drawBoxOutline(matrices, com.teslamaps.render.ESPRenderer.lerpBox(bossEntity),
                     getGlowColor(bossEntity) | 0xFF000000, 2.0f, cameraPos, true);
         }
     }

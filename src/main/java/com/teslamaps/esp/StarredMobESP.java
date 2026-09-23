@@ -921,7 +921,7 @@ public class StarredMobESP {
 
     // display entities report a zero-size box, which draws as nothing
     private static AABB visibleBox(Entity entity) {
-        AABB b = entity.getBoundingBox();
+        AABB b = ESPRenderer.lerpBox(entity);
         if (b.getXsize() < 0.1 || b.getYsize() < 0.1) return b.inflate(0.4, 0.4, 0.4);
         return b;
     }
@@ -977,7 +977,7 @@ public class StarredMobESP {
                     && (entity.getCustomName() == null
                         || !matchesCustomTracer(entity.getCustomName().getString()))
                     && !matchesCustomTracerArmorStand(entity)) continue;
-            ESPRenderer.drawTracerFromCamera(matrices, entity.getBoundingBox().getCenter(),
+            ESPRenderer.drawTracerFromCamera(matrices, ESPRenderer.lerpBox(entity).getCenter(),
                     eh.color() | 0xFF000000, cameraPos);
         }
 
@@ -990,7 +990,7 @@ public class StarredMobESP {
             }
             if (!starred.isEmpty() && starred.size() <= TeslaMapsConfig.get().starredTracerThreshold) {
                 for (EntityHighlight eh : starred) {
-                    ESPRenderer.drawTracerFromCamera(matrices, eh.entity().getBoundingBox().getCenter(),
+                    ESPRenderer.drawTracerFromCamera(matrices, ESPRenderer.lerpBox(eh.entity()).getCenter(),
                             eh.color() | 0xFF000000, cameraPos);
                 }
             }
@@ -1069,7 +1069,7 @@ public class StarredMobESP {
 
             for (Entity keyEntity : witherKeyEntities) {
                 if (!keyEntity.isAlive()) continue;
-                AABB keyBox = keyEntity.getBoundingBox();
+                AABB keyBox = ESPRenderer.lerpBox(keyEntity);
                 ESPRenderer.drawESPBox(matrices, keyBox, witherKeyColor(), cameraPos);
                 if (drawKeyTracers) {
                     Vec3 keyCenter = keyBox.getCenter();
@@ -1079,7 +1079,7 @@ public class StarredMobESP {
 
             for (Entity keyEntity : bloodKeyEntities) {
                 if (!keyEntity.isAlive()) continue;
-                AABB keyBox = keyEntity.getBoundingBox();
+                AABB keyBox = ESPRenderer.lerpBox(keyEntity);
                 ESPRenderer.drawESPBox(matrices, keyBox, bloodKeyColor(), cameraPos);
                 if (drawKeyTracers) {
                     Vec3 keyCenter = keyBox.getCenter();

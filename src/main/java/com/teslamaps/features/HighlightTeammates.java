@@ -32,7 +32,7 @@ public class HighlightTeammates {
             var dp = PlayerTracker.getPlayer(p.getName().getString());
             if (dp.isEmpty()) continue;
             int color = classColor(dp.get().getDungeonClass());
-            ESPRenderer.drawBoxOutline(matrices, p.getBoundingBox(), color, 3.0f, cameraPos, true);
+            ESPRenderer.drawBoxOutline(matrices, ESPRenderer.lerpBox(p), color, 3.0f, cameraPos, true);
         }
     }
 }
