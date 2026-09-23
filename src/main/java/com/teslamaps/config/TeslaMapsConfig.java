@@ -490,6 +490,13 @@ public class TeslaMapsConfig {
     public boolean croesusHighlightUnopened = true; // Green-highlight runs with openable chests (orange = kismet used)
     public boolean croesusCompact = false;          // Compact profit panel: only totals, no item breakdown
     public boolean croesusDebug = false;            // Log chest lore to latest.log (to calibrate the parser)
+    public int croesusPriceSource = 0;              // PriceManager.SOURCE_*; 0 = bazaar buy then BIN (old behaviour)
+    public boolean croesusKismetCost = false;       // subtract a Kismet Feather when the chest was rerolled
+    public float croesusKuudraPetBonus = 0f;        // Kuudra pet crimson essence bonus in %
+    public boolean croesusKuudraSalvage = false;    // Kuudra armor at its crimson essence salvage value
+    public boolean croesusKuudraNoKeyWarn = false;  // paid Kuudra chest: warn when the key is not in the inventory
+    public String kuudraFaction = "";               // Mage / Barbarian, read from the faction shop
+    public java.util.Map<String, Integer> kuudraKeyCoins = new java.util.HashMap<>(); // key name -> coin cost from the shop
 
     public boolean chatCopyEnabled = true;       // Right-click a chat line to copy its text
 
@@ -2021,6 +2028,8 @@ public class TeslaMapsConfig {
         }
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
+        if (c.kuudraKeyCoins == null) c.kuudraKeyCoins = new java.util.HashMap<>();
+        if (c.kuudraFaction == null) c.kuudraFaction = "";
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();

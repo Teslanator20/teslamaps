@@ -43,5 +43,6 @@ final class Features {
         // wave 1c combat-pets
         com.teslamaps.slayer.SlayerHUD.register();
         com.teslamaps.slayer.SlayerQuest.register();
+        com.teslamaps.features.croesus.KuudraKeys.register();
     }
 }

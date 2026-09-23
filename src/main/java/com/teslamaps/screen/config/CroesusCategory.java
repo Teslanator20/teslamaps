@@ -17,5 +17,14 @@ public final class CroesusCategory {
         b.toggle("Highlight Unopened (green)", () -> config.croesusHighlightUnopened, v -> config.croesusHighlightUnopened = v);
         b.toggle("Hide Opened Chests", () -> config.croesusHideOpened, v -> config.croesusHideOpened = v);
         b.toggle("Compact Mode (profit only)", () -> config.croesusCompact, v -> config.croesusCompact = v);
+        b.priceSource("Price Source", () -> config.croesusPriceSource, v -> config.croesusPriceSource = v);
+        b.toggle("Subtract Kismet Feather", () -> config.croesusKismetCost, v -> config.croesusKismetCost = v);
+        b.label("Kuudra Chests");
+        b.info("Paid chests subtract the key: coins + Mycelium/Red Sand + 2 Nether Stars");
+        b.info("Open your faction's shop once to read your key prices and faction");
+        b.slider("Kuudra Pet Essence Bonus %", 0, 20, () -> config.croesusKuudraPetBonus,
+                v -> config.croesusKuudraPetBonus = v, 1);
+        b.toggle("Kuudra Armor at Salvage Value", () -> config.croesusKuudraSalvage, v -> config.croesusKuudraSalvage = v);
+        b.toggle("Warn Without Kuudra Key", () -> config.croesusKuudraNoKeyWarn, v -> config.croesusKuudraNoKeyWarn = v);
     }
 }
