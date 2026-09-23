@@ -39,6 +39,7 @@ public final class FeatureRegistry {
     /** Once, from onInitializeClient. */
     public static void init() {
         CoreFeatures.register();
+        CoreHudElements.register();
         Features.register();
     }
 
