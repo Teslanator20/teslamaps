@@ -10,6 +10,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemLore;
+import com.teslamaps.utils.StringUtil;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -32,6 +34,39 @@ public abstract class ItemStackUuidMixin implements DataComponentHolder, Customi
         // so going through get() here is infinite recursion
         CustomData data = getComponents().get(DataComponents.CUSTOM_DATA);
         return teslamaps$cachedUuid = data == null ? "" : data.copyTag().getString("uuid").orElse("");
+    }
+
+    // keyed on the component instance: components are immutable, any change swaps the object
+    @Unique
+    private @Nullable com.teslamaps.injected.StackCache<String> teslamaps$idCache;
+    @Unique
+    private @Nullable com.teslamaps.injected.StackCache<java.util.List<String>> teslamaps$loreCache;
+
+    @Override
+    @Unique
+    public String teslamaps$skyblockId() {
+        CustomData data = getComponents().get(DataComponents.CUSTOM_DATA);
+        if (data == null) return "";
+        com.teslamaps.injected.StackCache<String> c = teslamaps$idCache;
+        if (c != null && c.src() == data) return c.value();
+        String id = data.copyTag().getString("id").orElse("");
+        teslamaps$idCache = new com.teslamaps.injected.StackCache<>(data, id);
+        return id;
+    }
+
+    @Override
+    @Unique
+    public java.util.List<String> teslamaps$loreLines() {
+        ItemLore lore = getComponents().get(DataComponents.LORE);
+        if (lore == null) return java.util.List.of();
+        com.teslamaps.injected.StackCache<java.util.List<String>> c = teslamaps$loreCache;
+        if (c != null && c.src() == lore) return c.value();
+        java.util.List<Component> lines = lore.lines();
+        String[] out = new String[lines.size()];
+        for (int i = 0; i < out.length; i++) out[i] = StringUtil.strip(lines.get(i).getString());
+        java.util.List<String> value = java.util.List.of(out);
+        teslamaps$loreCache = new com.teslamaps.injected.StackCache<>(lore, value);
+        return value;
     }
 
     @Inject(method = "set(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;", at = @At("TAIL"))

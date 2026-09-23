@@ -4,4 +4,10 @@ package com.teslamaps.injected;
 public interface CustomizableStack {
     /** Hypixel's per-item uuid, cached on the stack. Empty string when the item has none. */
     String teslamaps$uuid();
+
+    /** SkyBlock item id, cached until CUSTOM_DATA changes. Empty when none. */
+    String teslamaps$skyblockId();
+
+    /** Lore lines with § codes stripped, cached until LORE changes. Immutable. */
+    java.util.List<String> teslamaps$loreLines();
 }

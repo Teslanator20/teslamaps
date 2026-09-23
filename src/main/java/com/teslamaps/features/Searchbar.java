@@ -120,8 +120,7 @@ public class Searchbar {
 
     private static boolean matches(ItemStack stack, String q) {
         if (strip(stack.getHoverName().getString()).contains(q)) return true;
-        ItemLore lore = stack.get(DataComponents.LORE);
-        if (lore != null) for (Component line : lore.lines()) if (strip(line.getString()).contains(q)) return true;
+        for (String line : com.teslamaps.utils.ItemUtil.loreLines(stack)) if (line.toLowerCase().contains(q)) return true;
         return false;
     }
 
