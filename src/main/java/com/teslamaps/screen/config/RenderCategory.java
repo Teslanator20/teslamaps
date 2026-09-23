@@ -19,7 +19,7 @@ public final class RenderCategory {
         b.slider("  Zoom FOV", 1f, 110f,
                 () -> (float) config.zoomFov, v -> config.zoomFov = v.intValue());
         b.toggle("  Smooth Zoom", () -> config.zoomSmooth, v -> config.zoomSmooth = v);
-        b.slider("  Zoom Speed", 1f, 30f,
+        b.slider("    Zoom Speed", 1f, 30f,
                 () -> config.zoomSmoothSpeed, v -> config.zoomSmoothSpeed = v, 1);
         b.toggle("  Toggle Instead Of Hold", () -> config.zoomToggle, v -> config.zoomToggle = v);
         b.toggle("  Remember Scroll Adjustment", () -> config.zoomRememberScroll, v -> config.zoomRememberScroll = v);

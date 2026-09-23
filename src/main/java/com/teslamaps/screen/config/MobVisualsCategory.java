@@ -18,7 +18,7 @@ public final class MobVisualsCategory {
                 () -> Minecraft.getInstance().setScreen(new MobVisualScreen(b.screen())));
         b.toggle("  Glow", () -> config.mobVisualGlow, v -> config.mobVisualGlow = v);
         b.toggle("  Tracers", () -> config.mobVisualTracer, v -> config.mobVisualTracer = v);
-        b.toggle("  Tracer to Every Mob", () -> config.mobVisualTracerAll, v -> config.mobVisualTracerAll = v);
+        b.toggle("    Tracer to Every Mob", () -> config.mobVisualTracerAll, v -> config.mobVisualTracerAll = v);
         b.info("Off draws one line per species, to the nearest one");
         b.toggle("  Nameplates", () -> config.mobVisualNameplate, v -> config.mobVisualNameplate = v);
         b.toggle("    Show Health", () -> config.mobVisualNameplateHealth, v -> config.mobVisualNameplateHealth = v);

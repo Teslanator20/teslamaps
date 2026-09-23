@@ -27,9 +27,9 @@ public final class MapCategory {
         b.toggle("Show Dungeon Score", () -> config.showDungeonScore, v -> config.showDungeonScore = v);
         b.label("Rooms");
         b.toggle("Show Room Names", () -> config.showRoomNames, v -> config.showRoomNames = v);
-        b.toggle("Hide Entrance/Blood/Fairy Names", () -> config.hideEntranceBloodFairyNames, v -> config.hideEntranceBloodFairyNames = v);
-        b.toggle("Show Names Only for Puzzles", () -> config.showNamesOnlyForPuzzles, v -> config.showNamesOnlyForPuzzles = v);
-        b.toggle("Room Names Only When Leap", () -> config.roomNamesOnlyWithLeap, v -> config.roomNamesOnlyWithLeap = v);
+        b.toggle("  Hide Entrance/Blood/Fairy Names", () -> config.hideEntranceBloodFairyNames, v -> config.hideEntranceBloodFairyNames = v);
+        b.toggle("  Show Names Only for Puzzles", () -> config.showNamesOnlyForPuzzles, v -> config.showNamesOnlyForPuzzles = v);
+        b.toggle("  Room Names Only When Leap", () -> config.roomNamesOnlyWithLeap, v -> config.roomNamesOnlyWithLeap = v);
         b.toggle("Player Names Only When Leap", () -> config.playerNamesOnlyWithLeap, v -> config.playerNamesOnlyWithLeap = v);
         b.toggle("Head Border (Class Color)", () -> config.mapHeadBorder, v -> config.mapHeadBorder = v);
         b.slider("Room Name Scale", 0.5f, 2.0f,
@@ -37,25 +37,25 @@ public final class MapCategory {
         b.slider("Info Text Scale", 0.5f, 2.0f,
                 () -> config.infoTextScale, v -> config.infoTextScale = v);
         b.toggle("Show Secrets", () -> config.showSecretCount, v -> config.showSecretCount = v);
-        b.toggle("Hide 1 Secret Count", () -> config.hideOneSecretCount, v -> config.hideOneSecretCount = v);
+        b.toggle("  Hide 1 Secret Count", () -> config.hideOneSecretCount, v -> config.hideOneSecretCount = v);
         b.toggle("Show Crypts", () -> config.showCrypts, v -> config.showCrypts = v);
-        b.toggle("Show Total Crypts", () -> config.showTotalCrypts, v -> config.showTotalCrypts = v);
+        b.toggle("  Show Total Crypts", () -> config.showTotalCrypts, v -> config.showTotalCrypts = v);
         b.toggle("Hide When Done", () -> config.hideSecretsWhenDone, v -> config.hideSecretsWhenDone = v);
         b.toggle("Assume Paul Mayor", () -> config.assumePaulMayor, v -> config.assumePaulMayor = v);
         b.toggle("  Auto-detect Paul (Election API)", () -> config.paulAutoDetect, v -> config.paulAutoDetect = v);
         b.toggle("Check Spirit Pet on First Death", () -> config.spiritPetCheck, v -> config.spiritPetCheck = v);
         b.label("Checkmarks");
         b.toggle("Show Checkmarks", () -> config.showCheckmarks, v -> config.showCheckmarks = v);
-        b.toggle("White Checks", () -> config.showWhiteCheckmarks, v -> config.showWhiteCheckmarks = v);
-        b.toggle("Green Checks", () -> config.showGreenCheckmarks, v -> config.showGreenCheckmarks = v);
-        b.toggle("Failed Checks", () -> config.showFailedCheckmarks, v -> config.showFailedCheckmarks = v);
-        b.toggle("Checkmark Icons", () -> config.mapCheckmarkIcons, v -> config.mapCheckmarkIcons = v);
-        b.dropdown("  Icon Style", new String[]{"Symbol", "IllegalMap", "NEU", "Vanilla New", "Vanilla Old"},
+        b.toggle("  White Checks", () -> config.showWhiteCheckmarks, v -> config.showWhiteCheckmarks = v);
+        b.toggle("  Green Checks", () -> config.showGreenCheckmarks, v -> config.showGreenCheckmarks = v);
+        b.toggle("  Failed Checks", () -> config.showFailedCheckmarks, v -> config.showFailedCheckmarks = v);
+        b.toggle("  Checkmark Icons", () -> config.mapCheckmarkIcons, v -> config.mapCheckmarkIcons = v);
+        b.dropdown("    Icon Style", new String[]{"Symbol", "IllegalMap", "NEU", "Vanilla New", "Vanilla Old"},
                 () -> config.mapCheckmarkStyle, v -> config.mapCheckmarkStyle = v);
-        b.slider("  Icon Size", 0.2f, 1.0f, () -> config.mapCheckmarkSize, v -> config.mapCheckmarkSize = v);
-        b.toggle("  Center In Room", () -> config.mapCheckmarkCenter, v -> config.mapCheckmarkCenter = v);
-        b.toggle("  Question Mark On Unentered", () -> config.mapCheckmarkUnopened, v -> config.mapCheckmarkUnopened = v);
-        b.toggle("  Hide When Name Shown", () -> config.mapCheckmarkHideWithName, v -> config.mapCheckmarkHideWithName = v);
+        b.slider("    Icon Size", 0.2f, 1.0f, () -> config.mapCheckmarkSize, v -> config.mapCheckmarkSize = v);
+        b.toggle("    Center In Room", () -> config.mapCheckmarkCenter, v -> config.mapCheckmarkCenter = v);
+        b.toggle("    Question Mark On Unentered", () -> config.mapCheckmarkUnopened, v -> config.mapCheckmarkUnopened = v);
+        b.toggle("    Hide When Name Shown", () -> config.mapCheckmarkHideWithName, v -> config.mapCheckmarkHideWithName = v);
         b.label("Players");
         b.toggle("Player Markers", () -> config.showPlayerMarker, v -> config.showPlayerMarker = v);
         b.toggle("Show Self", () -> config.showSelfMarker, v -> config.showSelfMarker = v);

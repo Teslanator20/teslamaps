@@ -37,16 +37,16 @@ public final class MenuSkyboxCategory {
         b.label("In-World Skybox");
         b.toggle("Custom Skybox",
                 () -> config.customSkybox, v -> config.customSkybox = v);
-        b.toggle("Only In Skyblock",
+        b.toggle("  Only In Skyblock",
                 () -> config.skyboxOnlySkyblock, v -> config.skyboxOnlySkyblock = v);
-        b.dropdown("Skybox",
+        b.dropdown("  Skybox",
                 com.teslamaps.render.gui.MenuBackgroundRenderer.shaderNames(),
                 () -> config.skyboxPreset, v -> config.skyboxPreset = v);
-        b.color("Skybox Tint",
+        b.color("  Skybox Tint",
                 () -> config.skyboxColor, v -> config.skyboxColor = v);
-        b.slider("Skybox Scale", 0.2f, 3.0f,
+        b.slider("  Skybox Scale", 0.2f, 3.0f,
                 () -> config.skyboxScale, v -> config.skyboxScale = v, 2);
-        b.slider("Skybox Speed", 0.05f, 2.0f,
+        b.slider("  Skybox Speed", 0.05f, 2.0f,
                 () -> config.skyboxSpeed, v -> config.skyboxSpeed = v, 2);
     }
 }

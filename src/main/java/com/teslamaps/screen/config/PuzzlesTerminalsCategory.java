@@ -45,7 +45,7 @@ public final class PuzzlesTerminalsCategory {
         b.slider("First Click Prot (ms)", 350f, 800f,
                 () -> (float) config.terminalFirstClickProt, v -> config.terminalFirstClickProt = Math.round(v), 0);
         b.toggle("Account For Server Lag", () -> config.terminalLagProtection, v -> config.terminalLagProtection = v);
-        b.slider("Lag Protection Ticks", 7f, 16f,
+        b.slider("  Lag Protection Ticks", 7f, 16f,
                 () -> (float) config.terminalLagProtectionTicks, v -> config.terminalLagProtectionTicks = Math.round(v), 0);
         b.toggle("Announce Solve Times", () -> config.terminalTimes, v -> config.terminalTimes = v);
         b.toggle("Solver Debug Overlay", () -> config.terminalSolverDebug, v -> config.terminalSolverDebug = v);
@@ -72,44 +72,44 @@ public final class PuzzlesTerminalsCategory {
             config.waterBoardTracers = v;
         });
         b.toggle("Blaze Solver", () -> config.solveBlaze, v -> config.solveBlaze = v);
-        b.toggle("Modern Blaze Solver", () -> config.modernBlazeSolver, v -> config.modernBlazeSolver = v);
-        b.toggle("Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v);
-        b.toggle("Blaze Tracer", () -> config.blazeTracer, v -> config.blazeTracer = v);
-        b.toggle("Blaze Same HP Warning", () -> config.blazeSameHpWarning, v -> config.blazeSameHpWarning = v);
-        b.slider("Blaze Lines", 0f, 10f,
+        b.toggle("  Modern Blaze Solver", () -> config.modernBlazeSolver, v -> config.modernBlazeSolver = v);
+        b.toggle("  Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v);
+        b.toggle("  Blaze Tracer", () -> config.blazeTracer, v -> config.blazeTracer = v);
+        b.toggle("  Blaze Same HP Warning", () -> config.blazeSameHpWarning, v -> config.blazeSameHpWarning = v);
+        b.slider("  Blaze Lines", 0f, 10f,
                 () -> (float) config.blazeLineAmount, v -> config.blazeLineAmount = Math.round(v), 0);
-        b.slider("Blaze Line Width", 0.5f, 5f,
+        b.slider("  Blaze Line Width", 0.5f, 5f,
                 () -> config.blazeLineWidth, v -> config.blazeLineWidth = v, 1);
         b.toggle("Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v);
         b.toggle("Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v);
         b.toggle("Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v);
-        b.toggle("Creeper Beams Tracers", () -> config.creeperBeamsTracers, v -> config.creeperBeamsTracers = v);
+        b.toggle("  Creeper Beams Tracers", () -> config.creeperBeamsTracers, v -> config.creeperBeamsTracers = v);
         b.toggle("Creeper Beams Ding", () -> config.creeperBeamsDing, v -> config.creeperBeamsDing = v);
         b.toggle("Boulder Solver", () -> config.solveBoulder, v -> config.solveBoulder = v);
-        b.toggle("Show All Boulder Clicks", () -> config.showAllBoulderClicks, v -> config.showAllBoulderClicks = v);
-        b.toggle("Boulder: Highlight Button", () -> config.boulderClickBlock, v -> config.boulderClickBlock = v);
+        b.toggle("  Show All Boulder Clicks", () -> config.showAllBoulderClicks, v -> config.showAllBoulderClicks = v);
+        b.toggle("  Boulder: Highlight Button", () -> config.boulderClickBlock, v -> config.boulderClickBlock = v);
         b.toggle("Quiz (Trivia) Solver", () -> config.solveQuiz, v -> config.solveQuiz = v);
-        b.toggle("Quiz Beacon Beam", () -> config.quizBeacon, v -> config.quizBeacon = v);
-        b.toggle("Quiz Chat Highlight", () -> config.quizChatHighlight, v -> config.quizChatHighlight = v);
-        b.toggle("Quiz Hide Wrong Answers", () -> config.quizHideWrongAnswers, v -> config.quizHideWrongAnswers = v);
+        b.toggle("  Quiz Beacon Beam", () -> config.quizBeacon, v -> config.quizBeacon = v);
+        b.toggle("  Quiz Chat Highlight", () -> config.quizChatHighlight, v -> config.quizChatHighlight = v);
+        b.toggle("  Quiz Hide Wrong Answers", () -> config.quizHideWrongAnswers, v -> config.quizHideWrongAnswers = v);
         b.toggle("Teleport Maze Solver", () -> config.solveTPMaze, v -> config.solveTPMaze = v);
-        b.toggle("TP Maze Next-Portal Tracer", () -> config.tpMazeTracer, v -> config.tpMazeTracer = v);
-        b.toggle("TP Maze Prioritize Diagonal", () -> config.tpMazePrioritizeDiagonal, v -> config.tpMazePrioritizeDiagonal = v);
+        b.toggle("  TP Maze Next-Portal Tracer", () -> config.tpMazeTracer, v -> config.tpMazeTracer = v);
+        b.toggle("  TP Maze Prioritize Diagonal", () -> config.tpMazePrioritizeDiagonal, v -> config.tpMazePrioritizeDiagonal = v);
         b.toggle("Water Board Solver", () -> config.solveWaterBoard, v -> config.solveWaterBoard = v);
-        b.toggle("Water Board Tracers", () -> config.waterBoardTracers, v -> config.waterBoardTracers = v);
-        b.toggle("Water Board Colored Countdown", () -> config.waterBoardColorStages, v -> config.waterBoardColorStages = v);
+        b.toggle("  Water Board Tracers", () -> config.waterBoardTracers, v -> config.waterBoardTracers = v);
+        b.toggle("  Water Board Colored Countdown", () -> config.waterBoardColorStages, v -> config.waterBoardColorStages = v);
         String[] waterSets = {"Standard", "Optimized (Odin)", "Efficient (Devonian)"};
-        b.dropdown("Water Board Solutions", waterSets,
+        b.dropdown("  Water Board Solutions", waterSets,
                 () -> waterSets[Math.max(0, Math.min(2, config.waterBoardSolutionSet))],
                 v -> config.waterBoardSolutionSet = Math.max(0, java.util.Arrays.asList(waterSets).indexOf(v)));
         b.toggle("Ice Fill Solver", () -> config.solveIceFill, v -> config.solveIceFill = v);
-        b.toggle("Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v);
-        b.toggle("Ice Fill: Solve From Blocks", () -> config.iceFillDynamic, v -> config.iceFillDynamic = v);
-        b.toggle("Ice Fill Color Gradient", () -> config.iceFillGradient, v -> config.iceFillGradient = v);
-        b.slider("Ice Fill Line Width", 1f, 8f,
+        b.toggle("  Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v);
+        b.toggle("  Ice Fill: Solve From Blocks", () -> config.iceFillDynamic, v -> config.iceFillDynamic = v);
+        b.toggle("  Ice Fill Color Gradient", () -> config.iceFillGradient, v -> config.iceFillGradient = v);
+        b.slider("  Ice Fill Line Width", 1f, 8f,
                 () -> config.iceFillLineWidth, v -> config.iceFillLineWidth = v, 1);
         b.toggle("Ice Path Solver", () -> config.icePathSolver, v -> config.icePathSolver = v);
-        b.toggle("Ice Path: Follow Silverfish", () -> config.icePathDynamic, v -> config.icePathDynamic = v);
+        b.toggle("  Ice Path: Follow Silverfish", () -> config.icePathDynamic, v -> config.icePathDynamic = v);
         b.toggle("Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v);
         b.toggle("Puzzle Timers", () -> config.puzzleTimers, v -> config.puzzleTimers = v);
         b.toggle("Terracotta Spawn Timers (F6/M6)", () -> config.terracottaTimer, v -> config.terracottaTimer = v);
