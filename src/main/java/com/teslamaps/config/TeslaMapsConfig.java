@@ -2257,6 +2257,13 @@ public class TeslaMapsConfig {
         if (c.farmProfitExcluded == null) c.farmProfitExcluded = new ArrayList<>();
         if (c.farmKernelItem == null) c.farmKernelItem = "Feast I";
         if (c.feastShareChannel == null) c.feastShareChannel = "Nobody";
+        if (c.corpseFinderChannel == null) c.corpseFinderChannel = "Nobody";
+        if (c.slayerPbChannel == null) c.slayerPbChannel = "Nobody";
+        if (c.safariBannerChannel == null) c.safariBannerChannel = "Nobody";
+        if (c.hotspotShareChannel == null) c.hotspotShareChannel = "Party";
+        if (c.safariSparklingChannel == null) c.safariSparklingChannel = "Nobody";
+        if (c.safariShareTimeChannel == null) c.safariShareTimeChannel = "Nobody";
+        if (c.pickaxeAbilityReadyText == null) c.pickaxeAbilityReadyText = "Right";
         if (c.farmLanes == null) c.farmLanes = new java.util.LinkedHashMap<>();
         if (c.feastNextSeason == null) c.feastNextSeason = new java.util.LinkedHashMap<>();
         if (c.headTargets == null) c.headTargets = new ArrayList<>();
