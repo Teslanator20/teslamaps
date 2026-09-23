@@ -72,7 +72,7 @@ public final class HoneyhiveHelper {
     private static final int ROW_H = 10;
     private static final int COLOR = 0xE6FFAA00;
     private static final int FILL = 0x46FFAA00;
-    private static final ItemStack ICON = new ItemStack(Items.BEE_NEST);
+    private static ItemStack icon;
 
     private static final Gson GSON = new Gson();
     private static final ProfiledFile FILE = new ProfiledFile("honeyhives.json", null);
@@ -387,7 +387,8 @@ public final class HoneyhiveHelper {
             pose.pushMatrix();
             pose.translate(0, ry);
             pose.scale(0.5f, 0.5f);
-            g.item(ICON, 0, 0);
+            if (icon == null) icon = new ItemStack(Items.BEE_NEST);
+            g.item(icon, 0, 0);
             pose.popMatrix();
             g.text(mc.font, "§6Hive " + r.number, 10, ry, 0xFFFFFFFF);
             g.text(mc.font, r.status, hudW - mc.font.width(r.status), ry, 0xFFFFFFFF);
