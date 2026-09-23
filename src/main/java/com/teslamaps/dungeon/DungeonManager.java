@@ -198,6 +198,7 @@ public class DungeonManager {
         PlayerHeadRenderer.clearCache();
         com.teslamaps.esp.StarredMobESP.reset();
         com.teslamaps.features.SecretWaypoints.reset();
+        DungeonWaypoints.resetClicked();
         Splits.reset();
         BloodCamp.reset();
         DragonCheck.dragonHealthMap.clear();

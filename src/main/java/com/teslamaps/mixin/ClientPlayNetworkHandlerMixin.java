@@ -55,6 +55,7 @@ public class ClientPlayNetworkHandlerMixin {
     private void onSetTime(net.minecraft.network.protocol.game.ClientboundSetTimePacket packet, CallbackInfo ci) {
         com.teslamaps.features.PerformanceHud.onTimePacket();
         com.teslamaps.utils.ServerTicks.onTimePacket(packet.gameTime());
+        com.teslamaps.features.TimerTriggers.onTimePacket(packet.gameTime());
     }
 
     @Inject(method = "handleParticleEvent", at = @At("HEAD"))
@@ -85,6 +86,7 @@ public class ClientPlayNetworkHandlerMixin {
     private void onMovePlayer(ClientboundPlayerPositionPacket packet, CallbackInfo ci) {
         com.teslamaps.dungeon.puzzle.TPMazeSolver.onPositionPacket(
             packet.change().position(), packet.change().yRot(), packet.change().xRot());
+        com.teslamaps.dungeon.DungeonWaypoints.onTeleport(packet.change().position());
     }
 
     @Inject(method = "handleSetEquipment", at = @At("HEAD"))
@@ -115,6 +117,7 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleRemoveEntities", at = @At("HEAD"))
     private void onRemoveEntities(ClientboundRemoveEntitiesPacket packet, CallbackInfo ci) {
         BloodCamp.onRemoveEntitiesPacket(packet);
+        for (int id : packet.getEntityIds()) com.teslamaps.features.SecretClickHighlight.onItemGone(id);
         com.teslamaps.features.DeadMobHider.onRemoveEntities(packet);
         com.teslamaps.debug.DeathProbe.onRemoveEntities(packet);
     }
@@ -122,6 +125,7 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleTakeItemEntity", at = @At("TAIL"))
     private void onTakeItemEntity(ClientboundTakeItemEntityPacket packet, CallbackInfo ci) {
         com.teslamaps.features.SecretItemPickup.onTakeItem(packet.getItemId());
+        com.teslamaps.features.SecretClickHighlight.onItemGone(packet.getItemId());
     }
 
     @Inject(method = "handleHurtAnimation", at = @At("HEAD"))

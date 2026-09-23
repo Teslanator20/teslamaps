@@ -193,6 +193,16 @@ public class TeslaMapsConfig {
     public float secretSoundPitch = 1.0f;        // Pitch for secret found sound (0.5 - 2.0)
     public boolean secretItemPickupSound = true; // Play the secret sound when picking up dungeon item drops
     public boolean secretClickHighlight = true;  // Flash clicked secret blocks green (worked) / red (locked chest)
+    public boolean secretClickBats = false;      // also box killed secret bats
+    public boolean secretClickItems = false;     // also box picked-up secret items
+    public float secretClickDuration = 3.0f;     // seconds a box stays
+    public com.teslamaps.render.EspStyle secretClickStyle = secretClickStyleDefault();
+    public String secretClickLockedColor = "66FF0000";
+    private static com.teslamaps.render.EspStyle secretClickStyleDefault() {
+        var s = new com.teslamaps.render.EspStyle("6600FF00", com.teslamaps.render.EspStyle.BOTH);
+        s.lineWidth = 3.0f;
+        return s;
+    }
     public boolean salvageHelper = true;        // Highlight cheap (<100k) dungeon-salvageable gear in the Salvage menu
     public boolean sellableHighlighter = true;  // Highlight common junk to sell in Ophelia/Booster Cookie menus
     public boolean secretChime = false;          // Ascending chime per secret found in the room
@@ -253,6 +263,7 @@ public class TeslaMapsConfig {
 
     public boolean splitsEnabled = true;         // Dungeon run splits HUD + chat output
     public boolean splitsShowPb = true;          // Show personal-best time per split (and color vs PB)
+    public boolean splitsShowDelta = false;      // "+1.23s" / "-0.50s" per finished split vs the PB before the run
     @Global
     public java.util.Map<String, Long> splitPbs = new java.util.HashMap<>(); // "floor:splitName" -> best duration ms
     public int splitsX = 936;                       // Splits HUD position X (draggable in HUD edit)
@@ -329,6 +340,18 @@ public class TeslaMapsConfig {
     public String waypointAdd3Color = "FF5555";   // Slot 3 color
     public boolean waypointAdd3Filled = false;   // Slot 3 filled
     public boolean waypointAdd3ThroughWalls = true; // Slot 3 through walls
+    public String waypointAddType = "None";         // Slot 1-3 waypoint type: None, Normal, Secret, Etherwarp
+    public String waypointAdd2Type = "None";
+    public String waypointAdd3Type = "None";
+    public boolean waypointUseBlockSize = true;     // new waypoints hug the block; off = size X/Y/Z below
+    public float waypointSizeX = 1.0f;
+    public float waypointSizeY = 1.0f;
+    public float waypointSizeZ = 1.0f;
+    public float waypointTitleScale = 1.0f;         // waypoint title text scale
+    public boolean dungeonWaypointEditor = false;   // editor HUD: looked-at waypoint / next placement
+    public int dungeonWaypointEditorX = 10;
+    public int dungeonWaypointEditorY = 200;
+    public float dungeonWaypointEditorScale = 1.0f;
 
     @Global
     public int waypointRemoveKey = -1;            // Keybind: remove nearest waypoint in current room
@@ -965,10 +988,28 @@ public class TeslaMapsConfig {
     public boolean partyDuplicateMessage = true;   // Announce duplicate classes to party chat
     public boolean hideCheapCoins = true;          // Hide the spinning coin item entities from coin talismans
     public boolean warpCooldown = true;            // 30s warp/re-queue cooldown timer after a floor starts
+    public boolean warpCooldownPerPlayer = false;   // one warp cooldown line per player who entered
+    public boolean warpCooldownOwnOnly = false;     // per-player mode: only your own cooldown
+    public boolean warpCooldownSound = false;       // ding when a warp cooldown ends
+    public float warpCooldownVolume = 1.0f;
     public boolean witherShieldTimer = false;       // Hyperion/wither-blade Wither Impact cooldown timer
     public boolean tacticalInsertionTimer = false;  // 3s Tactical Insertion timer on right-click
     public boolean invincibilityTimer = true;       // Bonzo / Spirit / Phoenix immunity + cooldown block
     public boolean invincibilityAnnounce = true;    // Announce mask/pet procs to party chat ("Bonzo Procced!")
+    public boolean invincibilityAnnounceCount = false; // add "(2/3)" used-masks counter to the announce
+    public boolean invincibilityTitle = false;       // title alert on a mask/pet proc
+    public String invincibilityShow = "Default";     // Default, Always, Any, When Active, On Cooldown
+    public boolean invincibilityHideBonzo = false;
+    public boolean invincibilityHideSpirit = false;
+    public boolean invincibilityHidePhoenix = false;
+    public boolean invincibilityOnlyDungeon = false; // procs + HUD only inside dungeons
+    public boolean invincibilityOnlyBoss = false;    // HUD only in the boss arena
+    public boolean invincibilityEquippedMarker = false; // colored bar next to the worn mask
+    public String invincibilityEquippedColor = "AA00AA";
+    public boolean invincibilityItemOverlay = false; // cooldown drawn over the mask items
+    public boolean invincibilityItemDurability = false; // overlay as durability bar instead of vertical fill
+    public boolean invincibilityPhoenixSlot = false; // phoenix cooldown on the top-left inventory slot
+    public String invincibilityItemColor = "AA262626";
     public boolean spiritPetReminder = true;        // Remind to swap off the Spirit pet when the boss starts
     public boolean purplePadTimer = true;          // F7 purple-pad countdown after Storm's call
     public boolean necronDropTimer = false;        // F7 Necron drop countdown ("your journey ends now")
@@ -1637,6 +1678,14 @@ public class TeslaMapsConfig {
     public String colorESPFel = "FF0000";            // Fels (red)
     public String colorESPSniper = "55FFFF";         // Snipers (light blue/cyan)
     public String colorESPShadowAssassin = "AA00AA"; // Shadow Assassins (purple)
+    public String colorESPLostAdventurer = "FEE15C";
+    public String colorESPDiamondGuy = "57C2F7";
+    public boolean espStarSpecialColors = false;     // own colors for starred Fels / Withermancers
+    public String colorESPStarredFel = "FF5555";
+    public String colorESPStarredWithermancer = "555555";
+    public float espLineWidthNormal = 2.0f;          // dungeon box ESP line widths per group
+    public float espLineWidthSpecial = 2.0f;         // Fel, Withermancer
+    public float espLineWidthMiniboss = 2.0f;        // LA, SA, Diamond Guy
     public String colorESPBat = "AAAAAA";            // Dungeon bats (gray)
     public String colorESPWitherKey = "000000";      // Wither key (black)
     public String colorESPBloodKey = "FF0000";       // Blood key (red)

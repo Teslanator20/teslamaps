@@ -18,6 +18,8 @@ public class Splits {
         public final Pattern pattern;
         public final String name;   // may contain § color codes
         public long time = 0L;      // 0 = not reached yet
+        Long pbAtStart;
+        String delta;               // "+1.23s" vs the PB from before this run
         Split(String regex, String name) {
             this.pattern = Pattern.compile(regex);
             this.name = name;
@@ -70,12 +72,19 @@ public class Splits {
                 active.add(new Split("\\[BOSS] Goldor: Who dares trespass into my domain\\?", "§6Terminals"));
                 active.add(new Split("The Core entrance is opening!", "§7Goldor"));
                 active.add(new Split("\\[BOSS] Necron: You went further than any human before, congratulations\\.", "§cNecron"));
-                active.add(new Split("\\[BOSS] Necron: All this, for nothing\\.\\.\\.", "§4Cleared"));
+                active.add(new Split("\\[BOSS] Necron: All this, for nothing\\.\\.\\.", floor.isMaster() ? "§4Wither King" : "§4Cleared"));
             }
             default -> { }
         }
 
         active.add(new Split(TOTAL, "§1Total"));
+        for (Split s : active) s.pbAtStart = TeslaMapsConfig.get().splitPbs.get(pbKey(s.name));
+    }
+
+    private static void setDelta(Split s, long durationMs) {
+        if (s.pbAtStart == null) return;
+        long d = durationMs - s.pbAtStart;
+        s.delta = (d <= 0 ? "§a" : "§c") + String.format(java.util.Locale.ROOT, "%+.2fs", d / 1000.0);
     }
 
     public static void onChatMessage(String message) {
@@ -100,7 +109,12 @@ public class Splits {
             if (split.pattern.matcher(message).matches()) {
                 split.time = System.currentTimeMillis();
 
+                if (i > 0) {
+                    Split prev = active.get(i - 1);
+                    if (prev.time != 0L) setDelta(prev, split.time - prev.time);
+                }
                 if (i == n - 1) {
+                    if (active.get(0).time != 0L) setDelta(split, split.time - active.get(0).time);
                     finished = true;
                     pendingSend = 10; // delay so we don't cut into Hypixel's run-summary message
                 } else if (i > 0) {
@@ -194,11 +208,13 @@ public class Splits {
         long latest = active.get(n - 1).time != 0L ? active.get(n - 1).time : now;
 
         boolean showPb = config.splitsShowPb;
+        boolean showDelta = config.splitsShowDelta;
 
         // Widest row decides the backdrop; the times are monospaced enough that
         // the longest name plus a full time and PB is a safe upper bound.
         int widest = nameCol + mc.font.width("00:00.0");
         if (showPb) widest += mc.font.width(" (00:00.0)") + 4;
+        if (showDelta) widest += mc.font.width("+00.00s") + 4;
         TeslaGui.backdrop(context, 0, 0, widest, n * 9 - 1);
 
         int y = 0;
@@ -230,8 +246,12 @@ public class Splits {
             if (frozenMs >= 0 && pb != null) timeColor = frozenMs <= pb ? 0xFF55FF55 : 0xFFFF5555; // green = beat PB
             context.text(mc.font, split.name, 0, y, 0xFFFFFFFF);
             context.text(mc.font, timeStr, nameCol, y, timeColor);
+            int px = nameCol + mc.font.width(timeStr) + 4;
+            if (showDelta && split.delta != null && frozenMs >= 0) {
+                context.text(mc.font, split.delta, px, y, 0xFFFFFFFF);
+                px += mc.font.width(split.delta) + 4;
+            }
             if (pb != null) {
-                int px = nameCol + mc.font.width(timeStr) + 4;
                 context.text(mc.font, "§8(" + formatTime(pb) + ")", px, y, 0xFFFFFFFF);
             }
             y += 9;
@@ -245,6 +265,7 @@ public class Splits {
         for (Split split : active) nameCol = Math.max(nameCol, mc.font.width(split.name));
         int w = nameCol + 6 + mc.font.width("00:00.0");
         if (TeslaMapsConfig.get().splitsShowPb) w += 8 + mc.font.width("00:00.0");
+        if (TeslaMapsConfig.get().splitsShowDelta) w += 4 + mc.font.width("+00.00s");
         return w;
     }
 

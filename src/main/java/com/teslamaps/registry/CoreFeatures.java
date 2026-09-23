@@ -132,7 +132,7 @@ final class CoreFeatures {
         Feature.of("HighlightTeammates").section("ESP").legit().world(com.teslamaps.features.HighlightTeammates::render);
         Feature.of("SecretWaypoints").section("Secrets & Waypoints").world(SecretWaypoints::render);
 
-        Feature.of("SecretClickHighlight").section("ESP").world(com.teslamaps.features.SecretClickHighlight::render);
+        Feature.of("SecretClickHighlight").section("Secrets & Waypoints").world(com.teslamaps.features.SecretClickHighlight::render);
         Feature.of("ColorPortal").section("ESP").world(com.teslamaps.features.ColorPortal::render);
         Feature.of("HoppityEggESP").section("ESP").world(com.teslamaps.features.HoppityEggESP::render);
         Feature.of("HeadESP").section("ESP").world(com.teslamaps.features.HeadESP::render);

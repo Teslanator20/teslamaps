@@ -1328,7 +1328,32 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal(
                                             com.teslamaps.dungeon.DungeonWaypoints.convertLegacy()));
                                     return 1;
-                                })))
+                                }))
+                        .then(ClientCommands.literal("title")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            com.teslamaps.dungeon.DungeonWaypoints.editTarget(null, null, true)));
+                                    return 1;
+                                })
+                                .then(ClientCommands.argument("text", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    com.teslamaps.dungeon.DungeonWaypoints.editTarget(
+                                                            StringArgumentType.getString(context, "text"), null, true)));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("type")
+                                .then(ClientCommands.argument("type", StringArgumentType.word())
+                                        .suggests((c, sb) -> {
+                                            for (String t : com.teslamaps.dungeon.DungeonWaypoints.TYPES) sb.suggest(t.toLowerCase());
+                                            return sb.buildFuture();
+                                        })
+                                        .executes(context -> {
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    com.teslamaps.dungeon.DungeonWaypoints.editTarget(
+                                                            null, StringArgumentType.getString(context, "type"), false)));
+                                            return 1;
+                                        }))))
                 .then(ClientCommands.literal("head")
                         .executes(context -> {
                             context.getSource().sendFeedback(Component.literal(

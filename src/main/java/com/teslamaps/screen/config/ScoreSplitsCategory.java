@@ -34,6 +34,7 @@ public final class ScoreSplitsCategory {
         b.label("Dungeon Splits");
         b.toggle("Enable Splits HUD", () -> config.splitsEnabled, v -> config.splitsEnabled = v);
         b.toggle("  Show PBs (per split)", () -> config.splitsShowPb, v -> config.splitsShowPb = v);
+        b.toggle("  Show Delta To PB", () -> config.splitsShowDelta, v -> config.splitsShowDelta = v);
         b.toggle("  Send All Splits on End", () -> config.splitsSendAllOnEnd, v -> config.splitsSendAllOnEnd = v);
         b.toggle("Live Room Splits HUD", () -> config.roomSplits, v -> config.roomSplits = v);
         b.slider("  Room Splits Scale", 0.5f, 2.0f,

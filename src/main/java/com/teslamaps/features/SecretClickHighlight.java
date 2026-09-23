@@ -5,10 +5,16 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.map.DungeonRoom;
 import com.teslamaps.map.RoomType;
-import com.teslamaps.render.ESPRenderer;
+import com.teslamaps.render.EspStyle;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,46 +22,98 @@ import java.util.List;
 
 public class SecretClickHighlight {
 
-    private static final long DURATION_MS = 3000;
-    private static final int GREEN_FILL = 0x6600FF00, GREEN_LINE = 0xFF00FF00;
-    private static final int RED_FILL = 0x66FF0000, RED_LINE = 0xFFFF0000;
-
     private static final class Flash {
-        final BlockPos pos;
-        int fill, line;
+        final AABB box;
+        boolean locked;
         long until;
-        Flash(BlockPos pos, int fill, int line, long until) { this.pos = pos; this.fill = fill; this.line = line; this.until = until; }
+        Flash(AABB box, long until) { this.box = box; this.until = until; }
     }
 
     private static final List<Flash> flashes = new ArrayList<>();
     private static Flash lastClicked; // for the locked->red recolor
+    private static final EspStyle LOCKED = new EspStyle();
+    private static int lastItemId = -1;
 
     public static void onSecretClick(BlockPos pos) {
+        com.teslamaps.dungeon.DungeonWaypoints.onSecret(pos, 0);
         if (!TeslaMapsConfig.get().secretClickHighlight || !DungeonManager.isInDungeon()) return;
         if (suppressed()) return; // not in puzzles / on the F7 Simon Says device
-        long now = now();
-        Flash f = new Flash(pos.immutable(), GREEN_FILL, GREEN_LINE, now + DURATION_MS);
-        flashes.add(f);
+        Flash f = add(pos);
+        f.locked = false;
         lastClicked = f;
+    }
+
+    /** Sound packet: Hypixel plays the bat hurt/death sound at 0.1 volume when a secret bat dies. */
+    public static void onSound(SoundEvent sound, float volume, double x, double y, double z) {
+        if (volume != 0.1f || (sound != SoundEvents.BAT_HURT && sound != SoundEvents.BAT_DEATH)) return;
+        if (!Minecraft.getInstance().isSameThread()) return;
+        if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
+        BlockPos pos = BlockPos.containing(x, y, z);
+        com.teslamaps.dungeon.DungeonWaypoints.onSecret(pos, 5);
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.secretClickHighlight && c.secretClickBats) add(pos);
+    }
+
+    /** Item picked up or removed next to the player. */
+    public static void onItemGone(int entityId) {
+        Minecraft mc = Minecraft.getInstance();
+        if (!mc.isSameThread() || mc.player == null || mc.level == null) return;
+        if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
+        Entity e = mc.level.getEntity(entityId);
+        if (!(e instanceof ItemEntity item) || e.distanceTo(mc.player) > 6) return;
+        if (!SecretItemPickup.isDungeonDrop(item.getItem().getHoverName().getString())) return;
+        if (entityId == lastItemId) return; // take + remove packet for the same item
+        lastItemId = entityId;
+        com.teslamaps.dungeon.DungeonWaypoints.onSecret(e.blockPosition(), 3);
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.secretClickHighlight && c.secretClickItems) add(e.blockPosition());
+    }
+
+    private static Flash add(BlockPos pos) {
+        AABB cell = new AABB(pos);
+        for (Flash f : flashes) {
+            if (!f.box.intersects(cell)) continue;
+            f.until = now() + duration();
+            return f;
+        }
+        Flash f = new Flash(bounds(pos.immutable()), now() + duration());
+        flashes.add(f);
+        return f;
+    }
+
+    private static AABB bounds(BlockPos pos) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level != null) {
+            VoxelShape shape = mc.level.getBlockState(pos).getShape(mc.level, pos);
+            if (!shape.isEmpty()) return shape.bounds().move(pos);
+        }
+        return new AABB(pos);
+    }
+
+    private static long duration() {
+        return (long) (TeslaMapsConfig.get().secretClickDuration * 1000);
     }
 
     public static void onChestLocked() {
         if (lastClicked == null) return;
-        lastClicked.fill = RED_FILL;
-        lastClicked.line = RED_LINE;
-        lastClicked.until = now() + DURATION_MS;
+        lastClicked.locked = true;
+        lastClicked.until = now() + duration();
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (!TeslaMapsConfig.get().secretClickHighlight || flashes.isEmpty()) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.secretClickHighlight || flashes.isEmpty()) return;
+        EspStyle style = EspStyle.of(c.secretClickStyle);
+        LOCKED.color = c.secretClickLockedColor;
+        LOCKED.mode = style.mode;
+        LOCKED.lineWidth = style.lineWidth;
+        LOCKED.tracer = false;
+        LOCKED.throughWalls = style.throughWalls;
         long now = now();
         for (Iterator<Flash> it = flashes.iterator(); it.hasNext(); ) {
             Flash f = it.next();
             if (now >= f.until) { it.remove(); if (f == lastClicked) lastClicked = null; continue; }
-            AABB box = new AABB(f.pos.getX(), f.pos.getY(), f.pos.getZ(),
-                    f.pos.getX() + 1, f.pos.getY() + 1, f.pos.getZ() + 1);
-            ESPRenderer.drawFilledBox(matrices, box, f.fill, cameraPos);
-            ESPRenderer.drawBoxOutline(matrices, box, f.line, 3.0f, cameraPos);
+            (f.locked ? LOCKED : style).drawBox(matrices, f.box, cameraPos);
         }
     }
 
