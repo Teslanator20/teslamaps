@@ -1474,7 +1474,14 @@ public class TeslaMapsConfig {
     public boolean safariNestESP = false;            // box the bee nests that spawn Honeybugs
     public boolean safariRecatchSpot = false;       // mark where an escaped critter comes back
     public boolean safariWallMarkers = false;       // mark the intact Snoozle / Troodon walls
+    public boolean safariEncounterBanner = false;   // big READY / STARTED / DONE banner per encounter
+    public boolean safariBannerGemzie = true;
+    public boolean safariBannerWumpa = true;
+    public boolean safariBannerDoomspiral = true;
+    public boolean safariBannerBiomeOnly = false;
+    public String safariBannerChannel = "Nobody";
     public boolean safariSparklingAlert = true;     // alert on the WAX_ON particles of a sparkling critter
+    public boolean safariSparklingScreen = false;   // full-screen SPARKLING! wash
     public boolean safariSparklingParty = false;    // also post the sparkling coords to party chat
     public boolean safariSparkleForce = true;       // render WAX_ON sparkles at any distance/particle setting
     public boolean safariAnnounceBiomeDone = true;  // alert when every critter of a biome is caught

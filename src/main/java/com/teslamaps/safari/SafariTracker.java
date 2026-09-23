@@ -525,6 +525,7 @@ public class SafariTracker {
 
     private static void clearRun() {
         RecatchSpots.reset();
+        SafariBanners.reset();
         caughtSelf.clear();
         caughtAny.clear();
         gotAway.clear();
@@ -561,6 +562,7 @@ public class SafariTracker {
     public static void onChatMessage(String raw) {
         if (!TeslaMapsConfig.get().safariTracker) return;
         String msg = COLORS.matcher(raw).replaceAll("").trim();
+        SafariBanners.onChat(msg);
 
         Matcher m;
         if ((m = CAUGHT.matcher(msg)).matches() || (m = FOUND.matcher(msg)).matches()) {
@@ -612,7 +614,7 @@ public class SafariTracker {
         }
         if (msg.startsWith("You used the Soothing Incense to light the candle!")) {
             incense++;
-            if (incense >= 4) alert("doomspiral", "§5§lDOOMSPIRAL §7ritual complete - stay still");
+            if (incense >= 4 && !SafariBanners.handles("Doomspiral")) alert("doomspiral", "§5§lDOOMSPIRAL §7ritual complete - stay still");
             return;
         }
         if (msg.equals("Your ritual summoned a Doomspiral into this world. Stay still.")) {
@@ -622,7 +624,7 @@ public class SafariTracker {
         if ((m = GEM_PLACED.matcher(msg)).matches()) {
             gems.add(m.group(1));
             if (gems.size() >= 3) gemsDone = true;
-            if (gems.size() >= 3) alert("gemzie", "§5§lGEMZIE §7all three gems placed");
+            if (gems.size() >= 3 && !SafariBanners.handles("Gemzie")) alert("gemzie", "§5§lGEMZIE §7all three gems placed");
             return;
         }
         if (msg.startsWith("A rumbling sound can be heard, and the door at the back of the chamber opens")) {
@@ -635,12 +637,12 @@ public class SafariTracker {
         }
         if (msg.equals("You rang the bell!")) { bells++; return; }
         if (msg.startsWith("You hear the sound of massive footsteps")) {
-            alert("wumpa-spawn", "§6§lWUMPA §7has spawned in the Icy Biome");
+            if (!SafariBanners.handles("Wumpa")) alert("wumpa-spawn", "§6§lWUMPA §7has spawned in the Icy Biome");
             return;
         }
         if (msg.equals("The Wumpa has awoken.")) {
             wumpaAwake = true;
-            alert("wumpa-awake", "§6§lWUMPA §cawake");
+            if (!SafariBanners.handles("Wumpa")) alert("wumpa-awake", "§6§lWUMPA §cawake");
         }
     }
 
@@ -649,7 +651,10 @@ public class SafariTracker {
         if (c == null) return;
         ensureRun();
 
-        if (count) partyCatches.merge(c.name(), 1, Integer::sum);
+        if (count) {
+            partyCatches.merge(c.name(), 1, Integer::sum);
+            SafariBanners.onCatch(c.name());
+        }
         if (catcher != null) catchers.computeIfAbsent(c.name(), k -> new LinkedHashSet<>()).add(catcher);
 
         if (self) caughtSelf.add(c.name());

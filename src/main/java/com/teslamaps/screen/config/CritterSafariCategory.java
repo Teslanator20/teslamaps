@@ -32,6 +32,13 @@ public final class CritterSafariCategory {
         b.toggle("Check/Cross Icons", () -> config.safariChecklistIcons, v -> config.safariChecklistIcons = v);
         b.info("Green = caught, red = escaped, grey = not seen");
         b.label("Alerts");
+        b.toggle("Encounter Banners", () -> config.safariEncounterBanner, v -> config.safariEncounterBanner = v);
+        b.info("Gemzie / Wumpa / Doomspiral: READY, STARTED, DONE on screen");
+        b.toggle("  Gemzie", () -> config.safariBannerGemzie, v -> config.safariBannerGemzie = v);
+        b.toggle("  Wumpa", () -> config.safariBannerWumpa, v -> config.safariBannerWumpa = v);
+        b.toggle("  Doomspiral", () -> config.safariBannerDoomspiral, v -> config.safariBannerDoomspiral = v);
+        b.toggle("  Only In Its Biome", () -> config.safariBannerBiomeOnly, v -> config.safariBannerBiomeOnly = v);
+        b.channel("  Post Stages To", () -> config.safariBannerChannel, v -> config.safariBannerChannel = v);
         b.toggle("Sparkling Alert", () -> config.safariSparklingAlert, v -> config.safariSparklingAlert = v);
         b.toggle("Sparkling to Party Chat", () -> config.safariSparklingParty, v -> config.safariSparklingParty = v);
         b.toggle("Force Sparkle Particles", () -> config.safariSparkleForce, v -> config.safariSparkleForce = v);

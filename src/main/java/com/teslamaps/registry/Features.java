@@ -42,5 +42,6 @@ final class Features {
         com.teslamaps.features.ChatSpamHud.register();
         // wave 1c fishing-safari
         com.teslamaps.features.FishingBobberTimer.register();
+        com.teslamaps.safari.SafariBanners.register();
     }
 }
