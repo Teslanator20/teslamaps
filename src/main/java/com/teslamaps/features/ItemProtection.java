@@ -43,19 +43,10 @@ public class ItemProtection {
 
     // ---------------------------------------------------------------- per-item (uuid)
 
-    private record UuidRef(net.minecraft.world.item.component.CustomData data, String uuid) {}
-    private static final java.util.Map<ItemStack, UuidRef> UUIDS = new java.util.WeakHashMap<>();
-
     private static String uuid(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return null;
-        var data = stack.getComponents().get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
-        if (data == null) return null;
-        UuidRef ref = UUIDS.get(stack);
-        if (ref == null || ref.data != data) {
-            ref = new UuidRef(data, data.copyTag().getString("uuid").orElse(null));
-            UUIDS.put(stack, ref);
-        }
-        return ref.uuid;
+        String id = ((com.teslamaps.injected.CustomizableStack) (Object) stack).teslamaps$uuid();
+        return id.isEmpty() ? null : id;
     }
 
     public static boolean uuidProtected(ItemStack stack) {
