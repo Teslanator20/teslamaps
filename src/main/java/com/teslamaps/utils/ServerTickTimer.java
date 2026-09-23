@@ -2,6 +2,7 @@ package com.teslamaps.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Countdowns in server ticks. Hypixel sends one ping packet per server tick, so a lagging
@@ -13,7 +14,7 @@ public final class ServerTickTimer {
     private static final long NO_PING_MS = 250L;
     private static final List<ServerTickTimer> PENDING = new ArrayList<>();
 
-    private static volatile long ticks;
+    private static final AtomicLong TICKS = new AtomicLong();
     private static volatile long lastPingMs;
     private static volatile int lastPingId = Integer.MIN_VALUE;
 
@@ -21,18 +22,18 @@ public final class ServerTickTimer {
     private Runnable onDone;
 
     /** Mixin hook, any thread. The same id arrives twice (netty + main), counted once. */
-    public static void onPing(int id) {
+    public static synchronized void onPing(int id) {
         if (id == 0 || id == lastPingId) return;
         lastPingId = id;
         lastPingMs = System.currentTimeMillis();
-        ticks++;
+        TICKS.incrementAndGet();
     }
 
     /** Client tick: fallback clock and due callbacks. */
     public static void clientTick() {
-        if (System.currentTimeMillis() - lastPingMs > NO_PING_MS) ticks++;
+        if (System.currentTimeMillis() - lastPingMs > NO_PING_MS) TICKS.incrementAndGet();
         if (PENDING.isEmpty()) return;
-        long now = ticks;
+        long now = TICKS.get();
         for (int i = PENDING.size() - 1; i >= 0; i--) {
             ServerTickTimer t = PENDING.get(i);
             if (t.end < 0) { PENDING.remove(i); continue; }
@@ -45,7 +46,7 @@ public final class ServerTickTimer {
     }
 
     public static long now() {
-        return ticks;
+        return TICKS.get();
     }
 
     /** True while the server actually sends tick pings. */
@@ -64,7 +65,7 @@ public final class ServerTickTimer {
 
     /** Main thread only. {@code onDone} runs on the client tick the countdown reaches 0. */
     public void start(int durationTicks, Runnable onDone) {
-        end = ticks + durationTicks;
+        end = TICKS.get() + durationTicks;
         this.onDone = onDone;
         if (onDone != null && !PENDING.contains(this)) PENDING.add(this);
     }
@@ -75,11 +76,11 @@ public final class ServerTickTimer {
     }
 
     public boolean active() {
-        return end >= 0 && ticks < end;
+        return end >= 0 && TICKS.get() < end;
     }
 
     /** Ticks left, 0 once done or stopped. */
     public long remaining() {
-        return end < 0 ? 0 : Math.max(0, end - ticks);
+        return end < 0 ? 0 : Math.max(0, end - TICKS.get());
     }
 }
