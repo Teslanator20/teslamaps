@@ -1482,6 +1482,7 @@ public class TeslaMapsConfig {
     public String safariBannerChannel = "Nobody";
     public boolean safariSparklingAlert = true;     // alert on the WAX_ON particles of a sparkling critter
     public boolean safariSparklingScreen = false;   // full-screen SPARKLING! wash
+    public boolean safariSparklingVisible = false;  // only sparklings with a free line of sight
     public boolean safariSparklingParty = false;    // also post the sparkling coords to party chat
     public boolean safariSparkleForce = true;       // render WAX_ON sparkles at any distance/particle setting
     public boolean safariAnnounceBiomeDone = true;  // alert when every critter of a biome is caught

@@ -40,6 +40,9 @@ public final class CritterSafariCategory {
         b.toggle("  Only In Its Biome", () -> config.safariBannerBiomeOnly, v -> config.safariBannerBiomeOnly = v);
         b.channel("  Post Stages To", () -> config.safariBannerChannel, v -> config.safariBannerChannel = v);
         b.toggle("Sparkling Alert", () -> config.safariSparklingAlert, v -> config.safariSparklingAlert = v);
+        b.toggle("  Full Screen Alert", () -> config.safariSparklingScreen, v -> config.safariSparklingScreen = v);
+        b.info("Screen wash with SPARKLING!, the critter, biome and coords, 7s");
+        b.toggle("  Only When Visible", () -> config.safariSparklingVisible, v -> config.safariSparklingVisible = v);
         b.toggle("Sparkling to Party Chat", () -> config.safariSparklingParty, v -> config.safariSparklingParty = v);
         b.toggle("Force Sparkle Particles", () -> config.safariSparkleForce, v -> config.safariSparkleForce = v);
         b.info("Sparkles render at any distance and particle setting");
