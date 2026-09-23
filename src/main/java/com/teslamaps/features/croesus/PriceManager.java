@@ -36,7 +36,11 @@ public class PriceManager {
     private static final Pattern ESSENCE = Pattern.compile("^(\\w+) Essence$");
     private static final Pattern SHARD = Pattern.compile("^(.+) Shard$");
 
+    private static volatile int version = 0;
+
     public static boolean isLoaded() { return loaded; }
+
+    public static int version() { return version; }
 
     public static void ensureFresh() {
         com.teslamaps.utils.SkyblockItems.load();
@@ -52,6 +56,7 @@ public class PriceManager {
         try { fetchBazaar(); } catch (Exception e) { TeslaMaps.LOGGER.warn("[Croesus] bazaar fetch failed: {}", e.toString()); }
         try { fetchLowestBin(); } catch (Exception e) { TeslaMaps.LOGGER.warn("[Croesus] lowest-BIN fetch failed: {}", e.toString()); }
         loaded = !nameToId.isEmpty() && (!bazaar.isEmpty() || !lowestBin.isEmpty());
+        version++;
         TeslaMaps.LOGGER.info("[Croesus] prices: {} items, {} bazaar, {} BIN", nameToId.size(), bazaar.size(), lowestBin.size());
     }
 
