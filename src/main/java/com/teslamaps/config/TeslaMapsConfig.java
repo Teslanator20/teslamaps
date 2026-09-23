@@ -929,6 +929,7 @@ public class TeslaMapsConfig {
     public boolean creeperBeamsTracers = true;     // Draw lines between lantern pairs
     public boolean solveBoulder = true;            // Show solution for Boulder puzzle
     public boolean showAllBoulderClicks = true;    // Show all clicks vs just next one
+    public boolean boulderClickBlock = false;
     public boolean solveQuiz = true;               // Highlight correct answer in Quiz (Trivia)
     public boolean quizBeacon = true;              // Draw beacon beam on correct answer
     public boolean quizChatHighlight = true;       // Recolor the correct answer line green in chat
@@ -1450,6 +1451,7 @@ public class TeslaMapsConfig {
     public boolean hideDefaultTitles = true;      // Hide Hypixel's default bow/bear titles in F4/M4 boss
 
     public String colorBoulder = "55FF55";           // Boulder click highlight (green)
+    public String colorBoulderClickBlock = "FFAA00";
     public String colorQuiz = "55FF55";              // Quiz correct answer (green)
     public String colorTPMazeOne = "55FF55";         // TP Maze single correct (green)
     public String colorTPMazeMultiple = "FFFF55";    // TP Maze multiple correct (yellow)

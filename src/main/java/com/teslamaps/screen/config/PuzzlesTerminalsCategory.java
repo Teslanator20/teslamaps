@@ -81,6 +81,7 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("Creeper Beams Ding", () -> config.creeperBeamsDing, v -> config.creeperBeamsDing = v);
         b.toggle("Boulder Solver", () -> config.solveBoulder, v -> config.solveBoulder = v);
         b.toggle("Show All Boulder Clicks", () -> config.showAllBoulderClicks, v -> config.showAllBoulderClicks = v);
+        b.toggle("Boulder: Highlight Button", () -> config.boulderClickBlock, v -> config.boulderClickBlock = v);
         b.toggle("Quiz (Trivia) Solver", () -> config.solveQuiz, v -> config.solveQuiz = v);
         b.toggle("Quiz Beacon Beam", () -> config.quizBeacon, v -> config.quizBeacon = v);
         b.toggle("Quiz Chat Highlight", () -> config.quizChatHighlight, v -> config.quizChatHighlight = v);
@@ -98,6 +99,7 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("Terracotta Spawn Timers (F6/M6)", () -> config.terracottaTimer, v -> config.terracottaTimer = v);
         b.label("Puzzle Colors");
         b.color("Boulder Click", () -> config.colorBoulder, v -> config.colorBoulder = v);
+        b.color("Boulder Button", () -> config.colorBoulderClickBlock, v -> config.colorBoulderClickBlock = v);
         b.color("Quiz Correct", () -> config.colorQuiz, v -> config.colorQuiz = v);
         b.color("Ice Fill Path", () -> config.colorIceFill, v -> config.colorIceFill = v);
         b.color("TP Maze: Single", () -> config.colorTPMazeOne, v -> config.colorTPMazeOne = v);
