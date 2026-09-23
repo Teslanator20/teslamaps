@@ -21,6 +21,10 @@ public class EntityMixin {
         }
         if (!MobVisuals.glowing.isEmpty() && MobVisuals.glowing.contains(self)) {
             cir.setReturnValue(true);
+            return;
+        }
+        if (!com.teslamaps.render.EntityGlow.COLORS.isEmpty() && com.teslamaps.render.EntityGlow.COLORS.containsKey(self)) {
+            cir.setReturnValue(true);
         }
     }
 
@@ -33,9 +37,16 @@ public class EntityMixin {
             cir.setReturnValue(color);
             return;
         }
-        if (MobVisuals.glowColors.isEmpty()) return;
-        Integer mobColor = MobVisuals.glowColors.get(self);
-        if (mobColor != null) cir.setReturnValue(mobColor);
+        if (!MobVisuals.glowColors.isEmpty()) {
+            Integer mobColor = MobVisuals.glowColors.get(self);
+            if (mobColor != null) {
+                cir.setReturnValue(mobColor);
+                return;
+            }
+        }
+        if (com.teslamaps.render.EntityGlow.COLORS.isEmpty()) return;
+        Integer glow = com.teslamaps.render.EntityGlow.COLORS.get(self);
+        if (glow != null) cir.setReturnValue(glow);
     }
 
     /**

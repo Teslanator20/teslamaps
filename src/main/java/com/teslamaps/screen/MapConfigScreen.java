@@ -72,6 +72,9 @@ public class MapConfigScreen extends Screen {
 
     protected ColorEntry expandedColorEntry = null;
     protected float pickerHue = 0, pickerSat = 1, pickerBright = 1;
+    protected int pickerAlpha = 255;
+    protected ColorEntry editingColor = null;     // color whose hex is being typed
+    protected String colorEditText = "";
 
     protected KeybindEntry listeningKeybindEntry = null;
     protected long keybindListenStart = 0;
@@ -79,7 +82,7 @@ public class MapConfigScreen extends Screen {
     protected String sliderEditText = "";
 
     public boolean isBindingKey() {
-        return listeningKeybindEntry != null || editingSlider != null;
+        return listeningKeybindEntry != null || editingSlider != null || editingColor != null;
     }
 
     protected void startSliderEdit(SliderEntry s) {
@@ -141,6 +144,16 @@ public class MapConfigScreen extends Screen {
             GuiSounds.select();
             return true;
         }
+        if (editingColor != null) {
+            int k = event.key();
+            if (k == GLFW.GLFW_KEY_ENTER || k == GLFW.GLFW_KEY_KP_ENTER) { if (editingColor.commitHex(colorEditText)) editingColor = null; return true; }
+            if (k == GLFW.GLFW_KEY_ESCAPE) { editingColor = null; return true; }
+            if (k == GLFW.GLFW_KEY_BACKSPACE) {
+                if (!colorEditText.isEmpty()) colorEditText = colorEditText.substring(0, colorEditText.length() - 1);
+                return true;
+            }
+            return true;
+        }
         if (editingSlider != null) {
             int k = event.key();
             if (k == GLFW.GLFW_KEY_ENTER || k == GLFW.GLFW_KEY_KP_ENTER) { commitSliderEdit(); return true; }
@@ -156,6 +169,11 @@ public class MapConfigScreen extends Screen {
 
     @Override
     public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
+        if (editingColor != null) {
+            char c = Character.toUpperCase((char) event.codepoint());
+            if (((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')) && colorEditText.length() < 8) colorEditText += c;
+            return true;
+        }
         if (editingSlider != null) {
             char c = (char) event.codepoint();
             if ((c >= '0' && c <= '9') || c == '.' || c == '-') sliderEditText += c;
@@ -1286,28 +1304,40 @@ public class MapConfigScreen extends Screen {
             int swatchY = y + 5;
             int color = TeslaMapsConfig.parseColor(getter.get());
 
-            String hexLabel = "#" + getter.get().substring(0, Math.min(6, getter.get().length()));
-            int hexX = swatchX - screen.font.width(hexLabel) - 6;
+            boolean editing = screen.editingColor == this;
+            String hexLabel = editing ? "#" + screen.colorEditText + "_" : hexOf(color);
+            int hexW = Math.max(screen.font.width(hexLabel), screen.font.width("#DDDDDDDD_"));
+            int hexX = swatchX - hexW - 6;
             ctx.text(screen.font, screen.fitLabel(label, x + 8, hexX), x + 8, y + 9, GuiStyle.text());
 
-            if (clicked && hovered) {
+            boolean hexHover = mouseX >= hexX - 2 && mouseX < swatchX - 2 && mouseY >= y && mouseY < y + ROW_HEIGHT;
+            if (clicked && hexHover) {
                 screen.clickHandled = true;
+                GuiSounds.press();
+                if (!editing) {
+                    screen.editingColor = this;
+                    screen.colorEditText = hexOf(color).substring(1);
+                    if (screen.searchField != null) screen.searchField.setFocused(false);
+                }
+            } else if (clicked && hovered) {
+                screen.clickHandled = true;
+                if (editing) screen.editingColor = null;
                 GuiSounds.fold(!isExpanded);
                 if (isExpanded) {
                     expandedColorEntry = null;
                 } else {
                     expandedColorEntry = this;
-                    float[] hsv = rgbToHsv((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
-                    pickerHue = hsv[0];
-                    pickerSat = hsv[1];
-                    pickerBright = hsv[2];
+                    loadPicker(color);
                 }
             }
 
             ctx.fill(swatchX, swatchY, swatchX + 22, swatchY + 16, color);
             drawBorder(ctx, swatchX, swatchY, 22, 16, isExpanded ? GuiStyle.accent() : 0xFF555555);
 
-            ctx.text(screen.font, hexLabel, hexX, y + 9, GuiStyle.textDim());
+            int hexColor = editing ? (validHex(screen.colorEditText) ? GuiStyle.text() : 0xFFFF5555)
+                    : hexHover ? GuiStyle.text() : GuiStyle.textDim();
+            if (editing) ctx.fill(hexX - 2, y + 7, swatchX - 2, y + 19, GuiStyle.rowSelected());
+            ctx.text(screen.font, hexLabel, hexX, y + 9, hexColor);
 
             if (isExpanded) {
                 int pickerY = y + ROW_HEIGHT + 5;
@@ -1333,8 +1363,27 @@ public class MapConfigScreen extends Screen {
                     ctx.fill(hueX, pickerY + cy, hueX + hueWidth, pickerY + cy + 8, c);
                 }
 
+                int alphaX = hueX + hueWidth + 6;
+                for (int cy = 0; cy < pickerSize; cy += 4) {
+                    for (int cx = 0; cx < hueWidth; cx += 4) {
+                        int c = ((cx + cy) / 4) % 2 == 0 ? 0xFFCCCCCC : 0xFF888888;
+                        ctx.fill(alphaX + cx, pickerY + cy, alphaX + cx + 4, pickerY + cy + 4, c);
+                    }
+                }
+                int[] base = hsvToRgb(pickerHue, pickerSat, pickerBright);
+                int rgbOnly = (base[0] << 16) | (base[1] << 8) | base[2];
+                for (int cy = 0; cy < pickerSize; cy += 4) {
+                    int a = 255 - (int) ((cy + 2f) / pickerSize * 255);
+                    ctx.fill(alphaX, pickerY + cy, alphaX + hueWidth, pickerY + cy + 4, (a << 24) | rgbOnly);
+                }
+
                 if (mouseDown) {
-                    if (mouseX >= pickerX && mouseX < pickerX + pickerSize &&
+                    if (mouseX >= alphaX && mouseX < alphaX + hueWidth &&
+                        mouseY >= pickerY && mouseY < pickerY + pickerSize) {
+                        pickerAlpha = 255 - Math.round(Math.max(0, Math.min(1, (float)(mouseY - pickerY) / pickerSize)) * 255);
+                        updateColorFromPicker();
+                    }
+                    else if (mouseX >= pickerX && mouseX < pickerX + pickerSize &&
                         mouseY >= pickerY && mouseY < pickerY + pickerSize) {
                         pickerSat = Math.max(0, Math.min(1, (float)(mouseX - pickerX) / pickerSize));
                         pickerBright = 1.0f - Math.max(0, Math.min(1, (float)(mouseY - pickerY) / pickerSize));
@@ -1354,24 +1403,56 @@ public class MapConfigScreen extends Screen {
 
                 int hueCursorY = pickerY + (int)(pickerHue * pickerSize);
                 ctx.fill(hueX - 1, hueCursorY - 1, hueX + hueWidth + 1, hueCursorY + 2, 0xFFFFFFFF);
+                int alphaCursorY = pickerY + (int)((255 - pickerAlpha) / 255f * pickerSize);
+                ctx.fill(alphaX - 1, alphaCursorY - 1, alphaX + hueWidth + 1, alphaCursorY + 2, 0xFFFFFFFF);
 
-                int[] newRgb = hsvToRgb(pickerHue, pickerSat, pickerBright);
-                int newColor = 0xFF000000 | (newRgb[0] << 16) | (newRgb[1] << 8) | newRgb[2];
-                int previewX = hueX + hueWidth + 15;
+                int newColor = (pickerAlpha << 24) | rgbOnly;
+                int previewX = alphaX + hueWidth + 15;
+                ctx.fill(previewX, pickerY, previewX + 20, pickerY + 25, 0xFFCCCCCC);
+                ctx.fill(previewX + 20, pickerY, previewX + 40, pickerY + 25, 0xFF888888);
                 ctx.fill(previewX, pickerY, previewX + 40, pickerY + 25, newColor);
                 drawBorder(ctx, previewX, pickerY, 40, 25, 0xFF555555);
 
-                String newHex = String.format("#%02X%02X%02X", newRgb[0], newRgb[1], newRgb[2]);
-                ctx.text(screen.font, newHex, previewX, pickerY + 30, 0xFFFFFFFF);
+                ctx.text(screen.font, hexOf(newColor), previewX, pickerY + 30, 0xFFFFFFFF);
             }
         }
 
         private void updateColorFromPicker() {
             int[] rgb = hsvToRgb(pickerHue, pickerSat, pickerBright);
-            String hex = String.format("%02X%02X%02X", rgb[0], rgb[1], rgb[2]);
+            // opaque stays RRGGBB so untouched colors keep their stored form
+            String hex = pickerAlpha == 255
+                    ? String.format("%02X%02X%02X", rgb[0], rgb[1], rgb[2])
+                    : String.format("%02X%02X%02X%02X", pickerAlpha, rgb[0], rgb[1], rgb[2]);
             setter.accept(hex);
             TeslaMapsConfig.save();
         }
+
+        private void loadPicker(int color) {
+            float[] hsv = rgbToHsv((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
+            pickerHue = hsv[0];
+            pickerSat = hsv[1];
+            pickerBright = hsv[2];
+            pickerAlpha = (color >>> 24) & 0xFF;
+        }
+
+        /** 6 or 8 hex digits; false keeps the field open. */
+        boolean commitHex(String text) {
+            if (!validHex(text)) return false;
+            setter.accept(text.length() == 8 && text.startsWith("FF") ? text.substring(2) : text);
+            TeslaMapsConfig.save();
+            GuiSounds.select();
+            if (expandedColorEntry == this) loadPicker(TeslaMapsConfig.parseColor(getter.get()));
+            return true;
+        }
+    }
+
+    private static String hexOf(int argb) {
+        int a = (argb >>> 24) & 0xFF;
+        return a == 255 ? String.format("#%06X", argb & 0xFFFFFF) : String.format("#%08X", argb);
+    }
+
+    private static boolean validHex(String t) {
+        return (t.length() == 6 || t.length() == 8) && t.chars().allMatch(c -> Character.digit(c, 16) >= 0);
     }
 
     private static int[] hsvToRgb(float h, float s, float v) {

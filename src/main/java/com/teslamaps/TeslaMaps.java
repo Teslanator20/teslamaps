@@ -115,7 +115,10 @@ public class TeslaMaps implements ClientModInitializer {
         });
 
         // drop the per-tick entity snapshot; it rebuilds lazily on the first caller
-        ClientTickEvents.START_CLIENT_TICK.register(client -> com.teslamaps.utils.EntityCache.invalidate());
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            com.teslamaps.utils.EntityCache.invalidate();
+            com.teslamaps.render.EntityGlow.clear();
+        });
 
         ClientLifecycleEvents.CLIENT_STARTED.register(client ->
                 com.teslamaps.features.ChatHistoryPersistence.restore(client));

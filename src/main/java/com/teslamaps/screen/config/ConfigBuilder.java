@@ -129,4 +129,14 @@ public final class ConfigBuilder {
         return buttonRow(new String[]{"Reset Session", "Reset Total", "Session / Total"},
                 new Runnable[]{t::resetSession, t::resetTotal, t::toggleView});
     }
+
+    /** Color, mode, line width, tracer and through-walls rows for one {@link com.teslamaps.render.EspStyle}. */
+    public void espStyle(String name, Supplier<com.teslamaps.render.EspStyle> style) {
+        Supplier<com.teslamaps.render.EspStyle> s = () -> com.teslamaps.render.EspStyle.of(style.get());
+        color("  " + name + " Color", () -> s.get().color, v -> s.get().color = v);
+        dropdown("  " + name + " Style", com.teslamaps.render.EspStyle.MODES, () -> s.get().mode, v -> s.get().mode = v);
+        slider("  " + name + " Line Width", 1f, 8f, () -> s.get().lineWidth, v -> s.get().lineWidth = v);
+        toggle("  " + name + " Tracer", () -> s.get().tracer, v -> s.get().tracer = v);
+        toggle("  " + name + " Through Walls", () -> s.get().throughWalls, v -> s.get().throughWalls = v);
+    }
 }
