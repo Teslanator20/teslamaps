@@ -84,6 +84,69 @@ public class EnchantColors {
         return out.toString().replace("Xp", "XP");
     }
 
+    // ---------------------------------------------------------------- rules (NEU format)
+
+    public static final String RULE_CODES = "0123456789abcdefz";
+    public static final String[] RULE_CMPS = {">", ">=", "=", "<=", "<"};
+    public static final String SHARE_PREFIX = "NEUEC/";
+
+    public record Rule(Pattern name, String cmp, int level, char color, int mods) {
+        boolean matches(String enchant, int lvl) {
+            if (!name.matcher(enchant).matches()) return false;
+            return switch (cmp) {
+                case ">" -> lvl > level;
+                case ">=" -> lvl >= level;
+                case "=" -> lvl == level;
+                case "<=" -> lvl <= level;
+                case "<" -> lvl < level;
+                default -> false;
+            };
+        }
+
+        Style apply(Style base) {
+            Style st = color == 'z' ? base.withColor(com.teslamaps.render.gui.ChromaHook.color())
+                    : base.withColor(ChatFormatting.getByCode(color));
+            return st.withBold((mods & 1) != 0).withItalic((mods & 2) != 0).withObfuscated((mods & 4) != 0)
+                    .withUnderlined((mods & 8) != 0).withStrikethrough((mods & 16) != 0);
+        }
+    }
+
+    /** name:cmp:level:colour:modifiers, e.g. {@code Sharpness:>=:6:6:1}. Null if invalid. */
+    public static Rule parseRule(String saved) {
+        if (saved == null) return null;
+        String[] parts = saved.split(":", 5);
+        if (parts.length < 4 || parts[0].isEmpty()) return null;
+        String cmp = parts[1];
+        if (!Arrays.asList(RULE_CMPS).contains(cmp)) return null;
+        if (parts[3].length() != 1) return null;
+        char color = Character.toLowerCase(parts[3].charAt(0));
+        if (RULE_CODES.indexOf(color) < 0) return null;
+        try {
+            int level = Integer.parseInt(parts[2].trim());
+            int mods = parts.length > 4 && !parts[4].isBlank() ? Integer.parseInt(parts[4].trim()) : 0;
+            return new Rule(Pattern.compile(parts[0], Pattern.CASE_INSENSITIVE), cmp, level, color, mods);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private static List<Rule> rules = List.of();
+    private static List<String> rulesFrom = List.of();
+
+    private static List<Rule> rules(TeslaMapsConfig c) {
+        if (!c.enchantCustomRules || c.enchantColorRules == null) return List.of();
+        if (!c.enchantColorRules.equals(rulesFrom)) {
+            List<Rule> out = new ArrayList<>();
+            for (String s : c.enchantColorRules) {
+                Rule r = parseRule(s);
+                if (r != null) out.add(r);
+            }
+            rules = out;
+            rulesFrom = new ArrayList<>(c.enchantColorRules);
+        }
+        return rules;
+    }
+
     // ---------------------------------------------------------------- cache
 
     private static ItemStack cacheStack;
@@ -93,7 +156,8 @@ public class EnchantColors {
     private static int stamp(TeslaMapsConfig c) {
         return Objects.hash(c.enchantColors, c.enchantLevelsAsNumbers, c.enchantBoldMax, c.enchantChromaMax,
                 c.enchantChromaBold, c.enchantColorMax, c.enchantColorHigh, c.enchantColorNormal, c.enchantColorBad,
-                c.enchantLayout, c.enchantHideDescriptions, c.enchantStackingProgress);
+                c.enchantLayout, c.enchantHideDescriptions, c.enchantStackingProgress,
+                c.enchantCustomRules, c.enchantColorRules);
     }
 
     public static void onTooltip(ItemStack stack, List<Component> lore) {
@@ -136,7 +200,7 @@ public class EnchantColors {
             Parsed p = parse(lore.get(i), c);
             if (p == null) continue;
             parsed[i] = p;
-            if (c.enchantColors && p.hits.stream().anyMatch(h -> h.data != null)) {
+            if (c.enchantColors && p.out != p.flat.styles) {
                 lore.set(i, build(p, 0, p.flat.text.length()));
             }
         }
@@ -178,12 +242,16 @@ public class EnchantColors {
             Enchant data = enchants.get(name.toLowerCase().replace("'", ""));
             if (hits == null) hits = new ArrayList<>();
             hits.add(new Hit(m.start(), m.end(), data, name, m.group("stack") != null));
-            if (data == null || !c.enchantColors) continue;
+            if (!c.enchantColors) continue;
 
             int level = parseLevel(m.group("level"));
+            Rule rule = null;
+            for (Rule r : rules(c)) if (r.matches(data != null ? data.loreName : name, level)) { rule = r; break; }
+            if (data == null && rule == null) continue;
             if (out == null) out = flat.styles.clone();
             int colorEnd = m.end("level");
-            for (int i = m.start(); i < colorEnd; i++) out[i] = styleFor(flat.styles[i], data, level, c);
+            for (int i = m.start(); i < colorEnd; i++)
+                out[i] = rule != null ? rule.apply(flat.styles[i]) : styleFor(flat.styles[i], data, level, c);
             if (c.enchantLevelsAsNumbers && level > 0) {
                 if (repl == null) repl = new HashMap<>();
                 repl.put(m.start("level"), new Replacement(colorEnd, String.valueOf(level)));

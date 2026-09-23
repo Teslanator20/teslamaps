@@ -69,5 +69,9 @@ public final class TooltipsValueCategory {
         b.color("High Level Color", () -> config.enchantColorHigh, v -> config.enchantColorHigh = v);
         b.color("Normal Level Color", () -> config.enchantColorNormal, v -> config.enchantColorNormal = v);
         b.color("Bad Level Color", () -> config.enchantColorBad, v -> config.enchantColorBad = v);
+        b.toggle("Custom Enchant Rules", () -> config.enchantCustomRules, v -> config.enchantCustomRules = v);
+        b.info("First matching rule wins over the level colours");
+        b.button("Edit Enchant Rules", () -> Minecraft.getInstance().setScreen(
+                new com.teslamaps.screen.EnchantRulesScreen(Minecraft.getInstance().screen)));
     }
 }

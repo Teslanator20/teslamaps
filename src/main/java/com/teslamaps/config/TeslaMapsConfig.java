@@ -1157,6 +1157,8 @@ public class TeslaMapsConfig {
     public String enchantColorHigh = "FFAA00";     // Above good level (gold)
     public String enchantColorNormal = "00AAAA";   // Good level (cyan)
     public String enchantColorBad = "AAAAAA";      // Below good level (gray)
+    public boolean enchantCustomRules = false;
+    public List<String> enchantColorRules = new ArrayList<>();   // NEU format name:cmp:level:colour:mods
     public boolean translucentLava = false;        // render lava with water textures + tint
     public String colorTranslucentLava = "3F76E4";
     public boolean tintedWater = false;            // custom tint on water
@@ -1833,6 +1835,7 @@ public class TeslaMapsConfig {
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
+        if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();
         if (c.customESPTracers == null) c.customESPTracers = new ArrayList<>();
         if (c.customESPColors == null) c.customESPColors = new java.util.HashMap<>();
         if (c.colorESPCustom == null || c.colorESPCustom.isBlank()) c.colorESPCustom = "00FFFF";
