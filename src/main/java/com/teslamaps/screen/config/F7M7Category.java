@@ -26,6 +26,8 @@ public final class F7M7Category {
         b.toggle("Relic Timer (M7)", () -> config.relicTimer, v -> config.relicTimer = v);
         b.label("Other");
         b.toggle("Leap Counter", () -> config.leapCounter, v -> config.leapCounter = v);
+        b.toggle("  Leap Spots (EE2/EE3/Core/P5)", () -> config.leapCounterSpots, v -> config.leapCounterSpots = v);
+        b.toggle("  All Leaped Alert", () -> config.leapCounterAlert, v -> config.leapCounterAlert = v);
         b.label("Wither Dragons");
         b.toggle("Wither Dragons", () -> config.witherDragons, v -> config.witherDragons = v);
         b.label("Spawn Timer & Alerts");
