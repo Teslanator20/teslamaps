@@ -2,25 +2,17 @@ package com.teslamaps.dungeon;
 
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.mixin.PlayerTabOverlayAccessor;
 import com.teslamaps.utils.ScoreboardUtils;
-import java.util.Comparator;
-import java.util.List;
+import com.teslamaps.utils.TabListUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 
 public class DungeonScore {
     private static final Pattern CLEARED_PATTERN = Pattern.compile("Cleared: (?<cleared>\\d+)%.*");
     private static final Pattern FLOOR_PATTERN = Pattern.compile(".*Cata.*ombs.*\\((?<floor>[EFM]\\d+)\\)");
 
-    private static final Pattern SECRETS_PATTERN = Pattern.compile("Secrets Found: (?<secper>\\d+\\.?\\d*)%");
-    private static final Pattern PUZZLES_PATTERN = Pattern.compile(".+?(?=:): \\[(?<state>.)](?: \\(\\w*\\))?");
-    private static final Pattern PUZZLE_COUNT_PATTERN = Pattern.compile("Puzzles: \\((?<count>\\d+)\\)");
-    private static final Pattern CRYPTS_PATTERN = Pattern.compile("Crypts: (?<crypts>\\d+)");
-    private static final Pattern COMPLETED_ROOMS_PATTERN = Pattern.compile(" *Completed Rooms: (?<rooms>\\d+)");
 
     private static final Pattern DEATHS_PATTERN = Pattern.compile(" \u2620 (?<whodied>\\S+) .*");
     // mod announces: Odin "Mimic Killed!", SkyHanni "Mimic dead!", ours "Mimic Dead!", Skytils marker
@@ -47,9 +39,8 @@ public class DungeonScore {
     private static long startingTime = 0L;
     private static int puzzleCount = 0;
     private static int deathCount = 0;
+    private static int tabDeaths = -1;
     private static int score = 0;
-
-    private static Comparator<PlayerInfo> tabListComparator = null;
 
     private static boolean floorDetectionPending = false;
     private static long floorDetectionTime = 0L;
@@ -72,6 +63,7 @@ public class DungeonScore {
         startingTime = 0L;
         puzzleCount = 0;
         deathCount = 0;
+        tabDeaths = -1;
         score = 0;
         floorDetectionPending = false;
         floorDetectionTime = 0L;
@@ -110,6 +102,7 @@ public class DungeonScore {
             if (currentFloor.equals("E")) isCurrentFloorEntrance = true;
         }
 
+        tabDeaths = TabListUtils.getDeaths();
         int timeScore = calculateTimeScore();
         int exploreScore = calculateExploreScore();
         int skillScore = calculateSkillScore();
@@ -202,8 +195,7 @@ public class DungeonScore {
     }
 
     private static int getCompletedRooms() {
-        Matcher matcher = regexAt(43, COMPLETED_ROOMS_PATTERN);
-        return matcher != null ? Integer.parseInt(matcher.group("rooms")) : 0;
+        return Math.max(0, TabListUtils.getCompletedRooms());
     }
 
     private static int getExtraCompletedRooms() {
@@ -227,35 +219,27 @@ public class DungeonScore {
         return 0;
     }
 
+    // Hypixel's "Team Deaths: n" when the tab shows it, else the chat count
     private static int getDeathScorePenalty() {
-        if (deathCount == 0) return 0;
-        return 1 + (deathCount - 1) * 2;  // First death: -1, subsequent: -2 each
+        int deaths = tabDeaths >= 0 ? tabDeaths : deathCount;
+        if (deaths == 0) return 0;
+        return 1 + (deaths - 1) * 2;  // First death: -1, subsequent: -2 each
     }
 
     private static int getPuzzleCount() {
-        Matcher matcher = regexAt(47, PUZZLE_COUNT_PATTERN);
-        return matcher != null ? Integer.parseInt(matcher.group("count")) : 0;
+        return TabListUtils.getPuzzleCount();
     }
 
     private static int getPuzzlePenalty() {
-        int incompletePuzzles = 0;
-        for (int index = 0; index < puzzleCount; index++) {
-            Matcher puzzleMatcher = regexAt(48 + index, PUZZLES_PATTERN);
-            if (puzzleMatcher == null) break;
-            if (!puzzleMatcher.group("state").equals("✔")) incompletePuzzles++;
-        }
-        return incompletePuzzles * 10;
+        return TabListUtils.getIncompletePuzzles() * 10;
     }
 
     private static double getSecretsPercentage() {
-        Matcher matcher = regexAt(44, SECRETS_PATTERN);
-        return matcher != null ? Double.parseDouble(matcher.group("secper")) : 0;
+        return Math.max(0, TabListUtils.getSecretsPercentage());
     }
 
     private static int getCrypts() {
-        Matcher matcher = regexAt(33, CRYPTS_PATTERN);
-        if (matcher == null) matcher = regexAt(32, CRYPTS_PATTERN);
-        return matcher != null ? Integer.parseInt(matcher.group("crypts")) : 0;
+        return Math.max(0, TabListUtils.getCryptsFound());
     }
 
     private static void setCurrentFloor() {
@@ -268,45 +252,6 @@ public class DungeonScore {
             }
         }
         currentFloor = "F1";
-    }
-
-    private static Matcher regexAt(int index, Pattern pattern) {
-        String str = strAt(index);
-        if (str == null) return null;
-
-        Matcher m = pattern.matcher(str);
-        if (!m.matches()) {
-            return null;
-        }
-        return m;
-    }
-
-    private static String strAt(int index) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.getConnection() == null) return null;
-
-        if (tabListComparator == null) {
-            try {
-                tabListComparator = PlayerTabOverlayAccessor.getOrdering();
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-        List<PlayerInfo> playerList = mc.getConnection().getOnlinePlayers()
-                .stream()
-                .sorted(tabListComparator)
-                .toList();
-
-        if (playerList.size() <= index) return null;
-
-        var txt = playerList.get(index).getTabListDisplayName();
-        if (txt == null) return null;
-
-        String str = txt.getString().trim();
-        if (str.isEmpty()) return null;
-
-        return str;
     }
 
     public static void onChatMessage(String message) {
