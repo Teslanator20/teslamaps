@@ -143,7 +143,18 @@ public class QuizSolver {
                     .connectTimeout(java.time.Duration.ofSeconds(10)).build();
             java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder(java.net.URI.create(FAIRY_SOULS_URL))
                     .timeout(java.time.Duration.ofSeconds(20)).header("User-Agent", "TeslaMaps").GET().build();
-            java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+            client.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.ofString())
+                    .whenComplete((response, err) -> {
+                        if (err != null) TeslaMaps.LOGGER.warn("[QuizSolver] fairy soul fetch failed: {}", err.toString());
+                        else applyFairySouls(response);
+                    });
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.warn("[QuizSolver] fairy soul fetch failed: {}", e.toString());
+        }
+    }
+
+    private static void applyFairySouls(java.net.http.HttpResponse<String> response) {
+        try {
             if (response.statusCode() != 200) return;
             com.google.gson.JsonObject root = com.google.gson.JsonParser.parseString(response.body()).getAsJsonObject();
             Map<String, List<String>> live = new java.util.HashMap<>();
@@ -178,7 +189,7 @@ public class QuizSolver {
 
         if (!soulsRequested) {
             soulsRequested = true;
-            java.util.concurrent.CompletableFuture.runAsync(QuizSolver::loadFairySouls);
+            loadFairySouls();
         }
 
         if (quizRoom == null && DungeonManager.getGrid() != null) {

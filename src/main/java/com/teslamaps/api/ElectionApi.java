@@ -77,10 +77,16 @@ public final class ElectionApi {
     private static void fetch() {
         fetching = true;
         nextFetch = System.currentTimeMillis() + REFRESH_MS;
-        CompletableFuture.runAsync(() -> {
+        CompletableFuture<HttpResponse<String>> call;
+        try {
+            HttpRequest req = HttpRequest.newBuilder(URI.create(URL)).timeout(Duration.ofSeconds(15)).GET().build();
+            call = CLIENT.sendAsync(req, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            call = CompletableFuture.failedFuture(e);
+        }
+        call.whenComplete((resp, err) -> {
             try {
-                HttpRequest req = HttpRequest.newBuilder(URI.create(URL)).timeout(Duration.ofSeconds(15)).GET().build();
-                HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
+                if (err != null) throw err instanceof java.util.concurrent.CompletionException && err.getCause() != null ? err.getCause() : err;
                 if (resp.statusCode() != 200) throw new IllegalStateException("HTTP " + resp.statusCode());
                 JsonObject root = JsonParser.parseString(resp.body()).getAsJsonObject();
                 JsonObject m = root.getAsJsonObject("mayor");
@@ -100,7 +106,7 @@ public final class ElectionApi {
                 perks = Set.copyOf(p);
                 loaded = true;
                 TeslaMaps.LOGGER.info("[Election] mayor={} minister={} perks={}", mayor, minister, perks);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 nextFetch = System.currentTimeMillis() + RETRY_MS;
                 TeslaMaps.LOGGER.warn("[Election] fetch failed: {}", e.toString());
             } finally {
