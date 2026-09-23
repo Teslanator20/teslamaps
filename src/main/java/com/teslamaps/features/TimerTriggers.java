@@ -33,19 +33,31 @@ public class TimerTriggers {
             if (icon == null) icon = createSkull(hash);
             return icon;
         }
-        void tick(boolean enabled) {
-            if (!enabled || proc < 0) { DungeonTimers.clear(key); return; }
-            long dt = now() - proc;
-            if (dt < cd) {
-                // skull icon identifies the mask, so no name/label text — just the time
-                String s = (dt < imm) ? "§a" + fmt(imm - dt)
-                                      : color(cd - dt, cd) + fmt(cd - dt);
-                DungeonTimers.set(key, s, icon());
-            } else if (dt < cd + READY_LINGER) {
-                DungeonTimers.set(key, "§a§lREADY", icon());
-            } else { proc = -1; DungeonTimers.clear(key); }
+        boolean onCooldown() {
+            return proc >= 0 && tnow() - proc < cd;
+        }
+        void tick(boolean enabled, String mode, int marker) {
+            long dt = proc < 0 ? 0 : tnow() - proc;
+            if (proc >= 0 && dt >= cd + READY_LINGER) proc = -1;
+            boolean active = proc >= 0 && dt < imm;
+            boolean onCd = proc >= 0 && dt < cd;
+            boolean show = enabled && switch (mode) {
+                case "Always" -> true;
+                case "Any" -> active || onCd;
+                case "When Active" -> active;
+                case "On Cooldown" -> onCd;
+                default -> proc >= 0;
+            };
+            if (!show) { DungeonTimers.clear(key); return; }
+            // skull icon identifies the mask, so no name/label text — just the time
+            String s = active ? "§a" + fmt(imm - dt)
+                     : onCd ? color(cd - dt, cd) + fmt(cd - dt)
+                     : "§a§lREADY";
+            DungeonTimers.set(key, s, icon(), marker);
         }
     }
+
+    private static long tnow() { return com.teslamaps.utils.ServerTickTimer.now() * 50L; }
 
     public static ItemStack maskIcon(int i) {
         return switch (i) { case 0 -> BONZO.icon(); case 1 -> SPIRIT.icon(); default -> PHOENIX.icon(); };
@@ -111,9 +123,10 @@ public class TimerTriggers {
             stormPadTicks = 20;
             lightningTicks = 560;
         }
-        if (m.contains("Bonzo's Mask saved your life")) { BONZO.proc = now(); BONZO.cd = readCooldown("Bonzo's Mask", 360000); announce("Bonzo"); }
-        if (m.contains("Spirit Mask saved your life")) { SPIRIT.proc = now(); announce("Spirit"); }
-        if (m.contains("Phoenix Pet saved you from certain death")) { PHOENIX.proc = now(); announce("Phoenix"); }
+        boolean procOk = !TeslaMapsConfig.get().invincibilityOnlyDungeon || com.teslamaps.dungeon.DungeonManager.isInDungeon();
+        if (procOk && m.contains("Bonzo's Mask saved your life")) { BONZO.proc = tnow(); BONZO.cd = readCooldown("Bonzo's Mask", 360000); procced(BONZO, "Bonzo"); }
+        if (procOk && m.contains("Spirit Mask saved your life")) { SPIRIT.proc = tnow(); procced(SPIRIT, "Spirit"); }
+        if (procOk && m.contains("Phoenix Pet saved you from certain death")) { PHOENIX.proc = tnow(); procced(PHOENIX, "Phoenix"); }
     }
 
     private static final java.util.regex.Pattern ENTERED =
@@ -167,11 +180,64 @@ public class TimerTriggers {
         shownWarpKeys.addAll(keep);
     }
 
-    private static void announce(String name) {
-        if (!TeslaMapsConfig.get().invincibilityAnnounce) return;
-        if (!com.teslamaps.dungeon.DungeonManager.isInDungeon()) return;
+    private static void procced(Mask mask, String name) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
-        if (mc.getConnection() != null) mc.getConnection().sendCommand("pc " + name + " Procced!");
+        if (c.invincibilityTitle) {
+            mc.gui.setTimes(0, 30, 5);
+            mc.gui.setTitle(Component.literal(mask.name));
+        }
+        if (!c.invincibilityAnnounce) return;
+        if (!com.teslamaps.dungeon.DungeonManager.isInDungeon()) return;
+        String msg = "pc " + name + " Procced!";
+        if (c.invincibilityAnnounceCount) {
+            int used = (BONZO.onCooldown() ? 1 : 0) + (SPIRIT.onCooldown() ? 1 : 0) + (PHOENIX.onCooldown() ? 1 : 0);
+            msg += " (" + used + "/3)";
+        }
+        if (mc.getConnection() != null) mc.getConnection().sendCommand(msg);
+    }
+
+    private static boolean wearing(Minecraft mc, String id) {
+        if (mc.player == null) return false;
+        String worn = com.teslamaps.utils.ItemUtil.skyblockId(mc.player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD));
+        return worn.equals(id) || worn.equals("STARRED_" + id);
+    }
+
+    private static void tickMasks(TeslaMapsConfig c, Minecraft mc) {
+        boolean ctx = (!c.invincibilityOnlyDungeon || com.teslamaps.dungeon.DungeonManager.isInDungeon())
+                && (!c.invincibilityOnlyBoss || com.teslamaps.dungeon.DungeonManager.isInBossArea());
+        boolean on = c.invincibilityTimer && ctx;
+        String mode = c.invincibilityShow == null ? "Default" : c.invincibilityShow;
+        int marker = c.invincibilityEquippedMarker ? TeslaMapsConfig.parseColor(c.invincibilityEquippedColor) | 0xFF000000 : 0;
+        BONZO.tick(on && !c.invincibilityHideBonzo, mode, marker != 0 && wearing(mc, "BONZO_MASK") ? marker : 0);
+        SPIRIT.tick(on && !c.invincibilityHideSpirit, mode, marker != 0 && wearing(mc, "SPIRIT_MASK") ? marker : 0);
+        PHOENIX.tick(on && !c.invincibilityHidePhoenix, mode, 0);
+    }
+
+    /** Cooldown drawn over the mask items in a container slot. */
+    public static void drawSlot(net.minecraft.client.gui.GuiGraphicsExtractor g, net.minecraft.world.inventory.Slot slot) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.invincibilityItemOverlay || !c.invincibilityTimer || !c.section("Timers")) return;
+        if (BONZO.proc < 0 && SPIRIT.proc < 0 && PHOENIX.proc < 0) return;
+        ItemStack st = slot.getItem();
+        Mask m = null;
+        if (!st.isEmpty() && st.is(net.minecraft.world.item.Items.PLAYER_HEAD)) {
+            String id = com.teslamaps.utils.ItemUtil.skyblockId(st);
+            if (id.equals("BONZO_MASK") || id.equals("STARRED_BONZO_MASK")) m = BONZO;
+            else if (id.equals("SPIRIT_MASK") || id.equals("STARRED_SPIRIT_MASK")) m = SPIRIT;
+        }
+        if (m == null && c.invincibilityPhoenixSlot && slot.getContainerSlot() == 9
+                && slot.container instanceof net.minecraft.world.entity.player.Inventory) m = PHOENIX;
+        if (m == null || !m.onCooldown()) return;
+        double pct = (m.cd - (tnow() - m.proc)) / (double) m.cd;
+        int col = TeslaMapsConfig.parseColor(c.invincibilityItemColor);
+        int x = slot.x, y = slot.y;
+        if (c.invincibilityItemDurability) {
+            g.fill(x + 2, y + 13, x + 14, y + 15, 0xFF000000);
+            g.fill(x + 2, y + 13, x + 14 - (int) ((1 - pct) * 12), y + 14, col);
+        } else {
+            g.fill(x, y + (int) ((1 - pct) * 16), x + 16, y + 16, col);
+        }
     }
 
     public static void tick() {
@@ -180,9 +246,7 @@ public class TimerTriggers {
         com.teslamaps.dungeon.DungeonFloor f = com.teslamaps.dungeon.DungeonManager.getCurrentFloor();
         tickWarp(c, mc);
 
-        BONZO.tick(c.invincibilityTimer);
-        SPIRIT.tick(c.invincibilityTimer);
-        PHOENIX.tick(c.invincibilityTimer);
+        tickMasks(c, mc);
 
         if (c.purplePadTimer && purplePadTicks > 0) {
             purplePadTicks--;

@@ -22,6 +22,21 @@ public final class TimersCategory {
         b.toggle("Tactical Insertion Timer", () -> config.tacticalInsertionTimer, v -> config.tacticalInsertionTimer = v);
         b.toggle("Invincibility Timer", () -> config.invincibilityTimer, v -> config.invincibilityTimer = v);
         b.toggle("  Announce Invincibility", () -> config.invincibilityAnnounce, v -> config.invincibilityAnnounce = v);
+        b.toggle("  Announce Counter (n/3)", () -> config.invincibilityAnnounceCount, v -> config.invincibilityAnnounceCount = v);
+        b.toggle("  Proc Title", () -> config.invincibilityTitle, v -> config.invincibilityTitle = v);
+        b.dropdown("  Show", new String[]{"Default", "Always", "Any", "When Active", "On Cooldown"},
+                () -> config.invincibilityShow, v -> config.invincibilityShow = v);
+        b.toggle("  Hide Bonzo", () -> config.invincibilityHideBonzo, v -> config.invincibilityHideBonzo = v);
+        b.toggle("  Hide Spirit", () -> config.invincibilityHideSpirit, v -> config.invincibilityHideSpirit = v);
+        b.toggle("  Hide Phoenix", () -> config.invincibilityHidePhoenix, v -> config.invincibilityHidePhoenix = v);
+        b.toggle("  Only In Dungeons", () -> config.invincibilityOnlyDungeon, v -> config.invincibilityOnlyDungeon = v);
+        b.toggle("  Only In Boss", () -> config.invincibilityOnlyBoss, v -> config.invincibilityOnlyBoss = v);
+        b.toggle("  Equipped Mask Marker", () -> config.invincibilityEquippedMarker, v -> config.invincibilityEquippedMarker = v);
+        b.color("  Marker Color", () -> config.invincibilityEquippedColor, v -> config.invincibilityEquippedColor = v);
+        b.toggle("  Cooldown On Mask Items", () -> config.invincibilityItemOverlay, v -> config.invincibilityItemOverlay = v);
+        b.toggle("  As Durability Bar", () -> config.invincibilityItemDurability, v -> config.invincibilityItemDurability = v);
+        b.toggle("  Phoenix On First Slot", () -> config.invincibilityPhoenixSlot, v -> config.invincibilityPhoenixSlot = v);
+        b.color("  Item Cooldown Color", () -> config.invincibilityItemColor, v -> config.invincibilityItemColor = v);
         b.label("Dungeon");
         b.toggle("Spirit Pet Reminder (boss)", () -> config.spiritPetReminder, v -> config.spiritPetReminder = v);
         b.toggle("Secret Tick Timer", () -> config.secretTickTimer, v -> config.secretTickTimer = v);

@@ -15,7 +15,9 @@ import java.util.Set;
 public class DungeonTimers {
 
     public static final String SAMPLE_TEXT = "Warp: 30.00s"; // for HUD-editor sizing
-    public record Row(String text, ItemStack icon) {}
+    public record Row(String text, ItemStack icon, int marker) {
+        public Row(String text, ItemStack icon) { this(text, icon, 0); }
+    }
     private static final Map<String, Row> lines = new LinkedHashMap<>();
 
     // the Bonzo/Spirit/Phoenix masks render as their own movable block
@@ -25,6 +27,7 @@ public class DungeonTimers {
 
     public static void set(String key, String text) { lines.put(key, new Row(text, null)); }
     public static void set(String key, String text, ItemStack icon) { lines.put(key, new Row(text, icon)); }
+    public static void set(String key, String text, ItemStack icon, int marker) { lines.put(key, new Row(text, icon, marker)); }
     public static void clear(String key) { lines.remove(key); }
     public static void clearAll() { lines.clear(); }
 
@@ -116,6 +119,7 @@ public class DungeonTimers {
                 pose.scale(ICON, ICON);
                 ctx.item(r.icon(), 0, 0);
                 pose.popMatrix();
+                if (r.marker() != 0) ctx.fill(10, row, 11, row + 10, r.marker());
                 ctx.text(mc.font, r.text(), 12, row + 1, 0xFFFFFFFF);
             } else {
                 ctx.text(mc.font, r.text(), 0, row, 0xFFFFFFFF);
