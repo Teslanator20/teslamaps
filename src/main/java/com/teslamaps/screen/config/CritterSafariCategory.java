@@ -79,11 +79,17 @@ public final class CritterSafariCategory {
         b.info("Marks where an escaped critter comes back");
         b.toggle("Hidden Critter Walls", () -> config.safariWallMarkers, v -> config.safariWallMarkers = v);
         b.info("Unbroken Snoozle / Troodon walls, while uncaught");
+        b.toggle("  Broken Only Once Seen", () -> config.safariWallSight, v -> config.safariWallSight = v);
+        b.info("A wall a partymate broke stays marked until you look at the spot");
+        b.toggle("  Labels With Distance", () -> config.safariWallLabels, v -> config.safariWallLabels = v);
         b.color("Sparkling Color", () -> config.colorSafariSparkling, v -> config.colorSafariSparkling = v);
         b.color("Bee Nest Color", () -> config.colorSafariNest, v -> config.colorSafariNest = v);
         b.color("Floor Spot Color", () -> config.colorCritterSpot, v -> config.colorCritterSpot = v);
         b.color("Recatch Spot Color", () -> config.colorSafariRecatch, v -> config.colorSafariRecatch = v);
         b.color("Wall Color", () -> config.colorSafariWall, v -> config.colorSafariWall = v);
+        b.color("Troodon Wall Color",
+                () -> config.colorSafariWallTroodon != null ? config.colorSafariWallTroodon : config.colorSafariWall,
+                v -> config.colorSafariWallTroodon = v);
         b.info("Hideyho and legendaries always get a name label");
         b.info("Critter boxes are coloured by shard rarity");
     }

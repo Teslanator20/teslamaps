@@ -122,6 +122,7 @@ public class SafariTracker {
             checkBoardReset();
             checkFull();
             RecatchSpots.tick();
+            SafariWalls.tick(Minecraft.getInstance());
         }
         checkSparkling(in);
         wasInSafari = in;
@@ -527,6 +528,7 @@ public class SafariTracker {
     private static void clearRun() {
         RecatchSpots.reset();
         SafariBanners.reset();
+        SafariWalls.reset();
         caughtSelf.clear();
         caughtAny.clear();
         gotAway.clear();

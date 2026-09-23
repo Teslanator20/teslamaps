@@ -42,6 +42,20 @@ public final class SafariSight {
         return false;
     }
 
+    /** Clear line from the eyes to the block's centre. */
+    public static boolean canSee(net.minecraft.core.BlockPos pos) {
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        if (player == null || mc.level == null) return false;
+        Vec3 eye = player.getEyePosition();
+        Vec3 centre = Vec3.atCenterOf(pos);
+        if (eye.distanceToSqr(centre) > MAX_RANGE * MAX_RANGE) return false;
+        HitResult hit = mc.level.clip(new ClipContext(eye, centre, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, player));
+        boolean clear = hit.getType() == HitResult.Type.MISS
+                || (hit instanceof net.minecraft.world.phys.BlockHitResult b && b.getBlockPos().equals(pos));
+        return clear && !behindPainting(mc, eye, centre);
+    }
+
     // Hideonwalls sit behind paintings, and clip() goes straight through entities
     private static boolean behindPainting(Minecraft mc, Vec3 from, Vec3 to) {
         long now = System.currentTimeMillis();

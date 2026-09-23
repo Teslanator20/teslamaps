@@ -1,10 +1,13 @@
 package com.teslamaps.safari;
 
+import com.teslamaps.config.TeslaMapsConfig;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 
-// Wall positions taken from critterMod's WallTracker.java
+// Wall positions and the sight latch taken from critterMod's WallTracker.java
 /**
  * The breakable walls a critter sits behind: five in the Cavern for Snoozle, three in the
  * Icy for Troodon. Fixed positions every run, so marking them gives nothing away - a wall
@@ -13,6 +16,8 @@ import net.minecraft.core.BlockPos;
 public class SafariWalls {
 
     private record WallSet(String critter, SafariData.Biome biome, BlockPos[] positions) {}
+
+    public record Wall(BlockPos pos, String critter, String label) {}
 
     private static final WallSet[] SETS = {
             new WallSet("Snoozle", SafariData.Biome.CAVERN, new BlockPos[] {
@@ -29,15 +34,44 @@ public class SafariWalls {
             }),
     };
 
-    /** {intact, unloaded} walls in front of that critter, null when it has none. */
+    /** Walls seen to be gone this run. */
+    private static final Set<BlockPos> seenBroken = new HashSet<>();
+    private static int ticks = 0;
+
+    private static boolean latch() {
+        return TeslaMapsConfig.get().safariWallSight;
+    }
+
+    public static void reset() {
+        seenBroken.clear();
+    }
+
+    /** Latches walls that are loaded, air and in plain sight. */
+    public static void tick(Minecraft mc) {
+        if (!latch() || mc.level == null || mc.player == null) return;
+        if (++ticks < 10) return;
+        ticks = 0;
+        for (WallSet set : SETS) {
+            for (BlockPos pos : set.positions()) {
+                if (seenBroken.contains(pos) || !mc.level.isLoaded(pos)) continue;
+                if (!mc.level.getBlockState(pos).isAir()) continue;
+                if (SafariSight.canSee(pos)) seenBroken.add(pos);
+            }
+        }
+    }
+
+    /** {intact, unknown} walls in front of that critter, null when it has none. */
     public static int[] state(Minecraft mc, String critter) {
         if (mc.level == null) return null;
+        boolean latch = latch();
         for (WallSet set : SETS) {
             if (!set.critter().equals(critter)) continue;
             int intact = 0, unknown = 0;
             for (BlockPos pos : set.positions()) {
+                if (latch && seenBroken.contains(pos)) continue;
                 if (!mc.level.isLoaded(pos)) unknown++;
                 else if (!mc.level.getBlockState(pos).isAir()) intact++;
+                else if (latch) unknown++;
             }
             return new int[] {intact, unknown};
         }
@@ -45,9 +79,11 @@ public class SafariWalls {
     }
 
     /** Only the walls of the biome you stand in, only while its critter is still uncaught. */
-    public static void collect(Minecraft mc, List<BlockPos> out) {
+    public static void collect(Minecraft mc, List<Wall> out) {
         SafariData.Biome here = SafariData.currentBiome();
-        if (here == null || mc.level == null) return;
+        if (here == null || mc.level == null || mc.player == null) return;
+        boolean latch = latch();
+        boolean labels = TeslaMapsConfig.get().safariWallLabels;
 
         for (WallSet set : SETS) {
             if (set.biome() != here) continue;
@@ -55,10 +91,20 @@ public class SafariWalls {
             if (critter != null && SafariTracker.hasCaught(critter)) continue;
 
             for (BlockPos pos : set.positions()) {
-                // an unloaded chunk reports air too, so that is not a broken wall
-                if (!mc.level.isLoaded(pos)) continue;
-                if (mc.level.getBlockState(pos).isAir()) continue;
-                out.add(pos);
+                if (latch) {
+                    // only a wall seen gone drops out, unknown ones stay marked
+                    if (seenBroken.contains(pos)) continue;
+                } else {
+                    // an unloaded chunk reports air too, so that is not a broken wall
+                    if (!mc.level.isLoaded(pos)) continue;
+                    if (mc.level.getBlockState(pos).isAir()) continue;
+                }
+                String label = null;
+                if (labels) {
+                    int dist = (int) Math.sqrt(mc.player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
+                    label = set.critter() + " wall §e" + dist + "m";
+                }
+                out.add(new Wall(pos, set.critter(), label));
             }
         }
     }

@@ -1474,6 +1474,8 @@ public class TeslaMapsConfig {
     public boolean safariNestESP = false;            // box the bee nests that spawn Honeybugs
     public boolean safariRecatchSpot = false;       // mark where an escaped critter comes back
     public boolean safariWallMarkers = false;       // mark the intact Snoozle / Troodon walls
+    public boolean safariWallSight = false;         // a wall only counts as broken once seen gone
+    public boolean safariWallLabels = false;        // "Snoozle wall 34m" over each marker
     public boolean safariEncounterBanner = false;   // big READY / STARTED / DONE banner per encounter
     public boolean safariBannerGemzie = true;
     public boolean safariBannerWumpa = true;
@@ -1501,6 +1503,7 @@ public class TeslaMapsConfig {
     public String colorSafariNest = "#FFAA00";
     public String colorSafariRecatch = "#FFFF55";
     public String colorSafariWall = "#FF8800";
+    public String colorSafariWallTroodon = null;    // null = same as colorSafariWall
     // Foraging (Galatea / Moonglade Marsh + Torrhus Canyon)
     public boolean foragingMutePhantoms = false;    // silence Phantoms in Moonglade Marsh
     public boolean foragingMuteFusion = false;      // silence the Fusion Machine in Moonglade Marsh
