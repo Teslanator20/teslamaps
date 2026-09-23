@@ -1552,6 +1552,15 @@ public class TeslaMapsConfig {
     public boolean honeyhiveReminder = false;       // remind when honeyhives are lootable again
     public boolean honeyhiveQueenBeeTitle = true;   // title on a Queen Bee instant refill
     public boolean honeyhiveRemindOutside = false;  // also remind outside Torrhus Canyon
+    public boolean honeyhiveHelper = false;         // per-hive refill tracking off the hive nametags
+    public boolean honeyhiveDisplay = false;        // hive list HUD, click a row for its waypoint
+    public boolean honeyhiveDisplayOutside = false;
+    public float honeyhiveMaxLines = 12f;
+    public boolean honeyhiveReadyWaypoints = false;
+    public boolean honeyhiveReadySound = false;
+    public int honeyhiveX = 8;
+    public int honeyhiveY = 180;
+    public float honeyhiveScale = 1.0f;
     @Global
     public long honeyhiveReadyAt = 0L;              // runtime: when the hives are lootable again
     public boolean hotfHighlight = true;            // colour the perks in the Heart of the Forest
