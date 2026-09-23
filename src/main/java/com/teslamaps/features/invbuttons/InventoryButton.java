@@ -24,6 +24,9 @@ public class InventoryButton {
     public String command = "";
     public String icon = "";
 
+    /** Size multiplier, set with the mouse wheel in the editor. */
+    public float scale = 1f;
+
     public InventoryButton() {}
 
     public InventoryButton(int x, int y, String icon, boolean playerInvOnly,
@@ -52,7 +55,17 @@ public class InventoryButton {
     }
 
     public InventoryButton copy() {
-        return new InventoryButton(x, y, iconOrEmpty(), playerInvOnly,
+        InventoryButton b = new InventoryButton(x, y, iconOrEmpty(), playerInvOnly,
                 anchorRight, anchorBottom, backgroundIndex, commandOrEmpty());
+        b.scale = scale;
+        return b;
+    }
+
+    public float scaleOrOne() {
+        return scale > 0.2f && scale < 5f ? scale : 1f;
+    }
+
+    public int size() {
+        return Math.round(ButtonTexture.BUTTON_SIZE * scaleOrOne());
     }
 }

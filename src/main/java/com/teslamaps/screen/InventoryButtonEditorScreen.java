@@ -3,6 +3,8 @@ package com.teslamaps.screen;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.invbuttons.ButtonIcons;
 import com.teslamaps.features.invbuttons.ButtonPresets;
+import com.teslamaps.features.invbuttons.ButtonShare;
+import com.teslamaps.features.invbuttons.InventoryButtons;
 import com.teslamaps.features.invbuttons.ButtonTexture;
 import com.teslamaps.features.invbuttons.InventoryButton;
 import java.util.ArrayList;
@@ -20,8 +22,9 @@ import net.minecraft.world.item.Items;
 
 /**
  * Picks the slot and command of each inventory button.
- * A mock player inventory is drawn with the free slots around it - the positions are fixed by
- * the layout, you pick one rather than drag it. Ported from GanKura / NEU's /neubuttons.
+ * A mock player inventory is drawn with the free slots around it. Click picks a button, drag
+ * moves it anywhere, arrow keys nudge, the wheel resizes. Ported from GanKura / NEU's /neubuttons,
+ * free placement, share codes and NEU/Firmament import after Skysoft.
  */
 public class InventoryButtonEditorScreen extends Screen {
 
@@ -90,6 +93,13 @@ public class InventoryButtonEditorScreen extends Screen {
     private Component status;
     private long statusUntil;
 
+    private InventoryButton pressed;
+    private double pressX, pressY;
+    private int pressBtnX, pressBtnY;
+    private boolean dragging;
+    private List<ButtonShare.Source> importSources = null;
+    private static final int SOURCE_STEP = 11;
+
     public InventoryButtonEditorScreen(Screen parent) {
         super(Component.literal("Inventory Buttons"));
         this.parent = parent;
@@ -128,6 +138,20 @@ public class InventoryButtonEditorScreen extends Screen {
         addRenderableWidget(Button.builder(Component.literal("Save Preset"), button -> savePreset())
                 .bounds(saveLeft, guiTop + 2 + FIELD_HEIGHT + 4, SAVE_WIDTH, SAVE_BUTTON_HEIGHT)
                 .tooltip(Tooltip.create(Component.literal("Saves the current buttons to the preset list.")))
+                .build());
+
+        int shareY = guiTop + 60;
+        addRenderableWidget(Button.builder(Component.literal("Copy Code"), button -> copyCode())
+                .bounds(saveLeft, shareY, SAVE_WIDTH, SAVE_BUTTON_HEIGHT)
+                .tooltip(Tooltip.create(Component.literal("Copies the layout as a share code.")))
+                .build());
+        addRenderableWidget(Button.builder(Component.literal("Paste Code"), button -> pasteCode())
+                .bounds(saveLeft, shareY + 24, SAVE_WIDTH, SAVE_BUTTON_HEIGHT)
+                .tooltip(Tooltip.create(Component.literal("Loads a share code from the clipboard. The old layout is kept as a preset.")))
+                .build());
+        addRenderableWidget(Button.builder(Component.literal("Import NEU/Firm."), button -> findImports())
+                .bounds(saveLeft, shareY + 48, SAVE_WIDTH, SAVE_BUTTON_HEIGHT)
+                .tooltip(Tooltip.create(Component.literal("Looks for NEU and Firmament buttons in your launcher profiles.")))
                 .build());
 
         select(null);
@@ -207,16 +231,16 @@ public class InventoryButtonEditorScreen extends Screen {
             int y = buttonY(button);
             boolean active = button.isActive();
 
-            ButtonTexture.drawButton(graphics, button.backgroundIndex, x, y, active ? OPAQUE : INACTIVE_TINT);
-
             if (active) {
-                ButtonIcons.render(graphics, button.iconOrEmpty(), x + 1, y + 1);
+                InventoryButtons.draw(graphics, button, x, y, OPAQUE);
             } else {
+                ButtonTexture.drawButton(graphics, button.backgroundIndex, x, y, INACTIVE_TINT);
                 graphics.text(font, Component.literal("+"), x + 6, y + 5, PLACEHOLDER_COLOR, false);
             }
         }
 
         drawPresets(graphics);
+        drawImportSources(graphics);
     }
 
     private void drawPresets(GuiGraphicsExtractor graphics) {
@@ -249,10 +273,31 @@ public class InventoryButtonEditorScreen extends Screen {
         }
     }
 
+    private int sourcesTop() {
+        return guiTop + 60 + 72;
+    }
+
+    private void drawImportSources(GuiGraphicsExtractor graphics) {
+        if (importSources == null) return;
+        int left = guiLeft - SAVE_WIDTH - PRESET_PANEL_GAP - 2;
+        int y = sourcesTop();
+        if (importSources.isEmpty()) {
+            graphics.text(font, Component.literal("Nothing found"), left, y, PRESET_COLOR, false);
+            return;
+        }
+        for (ButtonShare.Source src : importSources) {
+            String label = src.label();
+            while (font.width(label) > SAVE_WIDTH + 20 && label.length() > 4) label = label.substring(0, label.length() - 1);
+            graphics.text(font, Component.literal(label), left, y, SAVED_PRESET_COLOR, false);
+            y += SOURCE_STEP;
+        }
+        graphics.text(font, Component.literal("Click to load"), left, y + 2, PRESET_COLOR, false);
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-        if (editing == null) return;
+        if (editing == null || dragging) return;
 
         // after the preset widgets, otherwise those draw on top of the panel
         ButtonTexture.drawPanel(graphics, panelLeft, panelTop);
@@ -383,16 +428,73 @@ public class InventoryButtonEditorScreen extends Screen {
 
             int x = buttonX(button);
             int y = buttonY(button);
-            if (mouseX < x || mouseX > x + BUTTON_SIZE || mouseY < y || mouseY > y + BUTTON_SIZE) continue;
+            int size = button.size();
+            if (mouseX < x || mouseX > x + size || mouseY < y || mouseY > y + size) continue;
 
+            if (event.button() == 0) {
+                pressed = button;
+                pressX = mouseX;
+                pressY = mouseY;
+                pressBtnX = button.x;
+                pressBtnY = button.y;
+                dragging = false;
+            }
             select(editing == button ? null : button);
             return true;
         }
 
+        if (clickImportSource(mouseX, mouseY)) return true;
         if (editing == null && clickPreset(mouseX, mouseY, event.button())) return true;
 
         select(null);
         return true;
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (pressed != null) {
+            double mx = event.x(), my = event.y();
+            if (!dragging && Math.abs(mx - pressX) + Math.abs(my - pressY) > 3) {
+                dragging = true;
+                if (editing != pressed) select(pressed);
+            }
+            if (dragging) {
+                pressed.x = pressBtnX + (int) Math.round(mx - pressX);
+                pressed.y = pressBtnY + (int) Math.round(my - pressY);
+                layoutPanel();
+            }
+            return true;
+        }
+        return super.mouseDragged(event, dx, dy);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (pressed != null) {
+            pressed = null;
+            dragging = false;
+            layoutPanel();
+            return true;
+        }
+        return super.mouseReleased(event);
+    }
+
+    @Override
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        boolean typing = commandBox.isFocused() || iconBox.isFocused() || nameBox.isFocused();
+        if (editing != null && !typing) {
+            int step = (event.modifiers() & org.lwjgl.glfw.GLFW.GLFW_MOD_SHIFT) != 0 ? 5 : 1;
+            int k = event.key();
+            int dx = k == org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT ? -step : k == org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT ? step : 0;
+            int dy = k == org.lwjgl.glfw.GLFW.GLFW_KEY_UP ? -step : k == org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN ? step : 0;
+            if (dx != 0 || dy != 0) {
+                editing.x += dx;
+                editing.y += dy;
+                layoutPanel();
+                return true;
+            }
+        }
+        return super.keyPressed(event);
     }
 
     private boolean insidePanel(double mouseX, double mouseY) {
@@ -488,7 +590,20 @@ public class InventoryButtonEditorScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (super.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) return true;
-        if (editing == null || scrollY == 0) return false;
+        if (scrollY == 0) return false;
+        if (editing == null || !insidePanel(mouseX, mouseY)) {
+            for (InventoryButton button : buttons()) {
+                if (button == null) continue;
+                int x = buttonX(button), y = buttonY(button), size = button.size();
+                if (mouseX < x || mouseX > x + size || mouseY < y || mouseY > y + size) continue;
+                float s = button.scaleOrOne() + (scrollY > 0 ? 0.1f : -0.1f);
+                button.scale = Math.round(Math.clamp(s, 0.5f, 2f) * 10f) / 10f;
+                setStatus(Component.literal("Size " + button.scale + "x"));
+                layoutPanel();
+                return true;
+            }
+        }
+        if (editing == null) return false;
 
         scroll = Math.clamp(scroll - (int) Math.signum(scrollY) * GRID_STEP, 0, maxScroll());
         return true;
@@ -500,6 +615,59 @@ public class InventoryButtonEditorScreen extends Screen {
         searchedIcons.clear();
         searchedIcons.addAll(ButtonIcons.search(iconType, iconBox == null ? "" : iconBox.getValue()));
         scroll = Math.clamp(scroll, 0, maxScroll());
+    }
+
+    private void copyCode() {
+        if (minecraft == null) return;
+        minecraft.keyboardHandler.setClipboard(ButtonShare.export(buttons()));
+        setStatus(Component.literal("Share code copied."));
+    }
+
+    private void pasteCode() {
+        if (minecraft == null) return;
+        try {
+            List<InventoryButton> imported = ButtonShare.importCode(minecraft.keyboardHandler.getClipboard());
+            backupAndReplace(imported);
+            setStatus(Component.literal("Loaded " + imported.size() + " buttons."));
+        } catch (IllegalArgumentException e) {
+            setStatus(Component.literal(e.getMessage()));
+        }
+    }
+
+    private void findImports() {
+        importSources = ButtonShare.discover();
+        if (importSources.size() > 8) importSources = new ArrayList<>(importSources.subList(0, 8));
+        setStatus(Component.literal(importSources.isEmpty() ? "No NEU/Firmament config found." : "Found " + importSources.size() + "."));
+    }
+
+    private boolean clickImportSource(double mouseX, double mouseY) {
+        if (importSources == null || importSources.isEmpty()) return false;
+        int left = guiLeft - SAVE_WIDTH - PRESET_PANEL_GAP - 2;
+        if (mouseX < left || mouseX > left + SAVE_WIDTH + 20) return false;
+        if (mouseY < sourcesTop() - 1) return false;
+        int index = (int) Math.floor((mouseY - sourcesTop() + 1) / SOURCE_STEP);
+        if (index < 0 || index >= importSources.size()) return false;
+        ButtonShare.Source src = importSources.get(index);
+        try {
+            List<InventoryButton> imported = ButtonShare.read(src);
+            if (imported.isEmpty()) {
+                setStatus(Component.literal("No buttons in there."));
+                return true;
+            }
+            backupAndReplace(imported);
+            setStatus(Component.literal("Imported " + imported.size() + " buttons."));
+        } catch (IllegalArgumentException e) {
+            setStatus(Component.literal(e.getMessage()));
+        }
+        return true;
+    }
+
+    /** The current layout goes to the preset "Before import" first, so nothing is lost. */
+    private void backupAndReplace(List<InventoryButton> imported) {
+        boolean any = false;
+        for (InventoryButton b : buttons()) if (b != null && b.isActive()) any = true;
+        if (any) ButtonPresets.save("Before import", buttons());
+        replaceButtons(imported);
     }
 
     private void replaceButtons(List<InventoryButton> buttons) {
