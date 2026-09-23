@@ -1506,6 +1506,18 @@ public class TMapCommand {
                                         })
                                         .executes(context -> routeFeedback(context,
                                                 com.teslamaps.features.waypoints.OrderedWaypoints.export(StringArgumentType.getString(context, "format"))))))
+                        .then(ClientCommands.literal("exportall")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.exportAll("skyblocker")))
+                                .then(ClientCommands.argument("format", StringArgumentType.word())
+                                        .suggests((c, b) -> {
+                                            b.suggest("skytils");
+                                            b.suggest("skyblocker");
+                                            return b.buildFuture();
+                                        })
+                                        .executes(context -> routeFeedback(context,
+                                                com.teslamaps.features.waypoints.OrderedWaypoints.exportAll(StringArgumentType.getString(context, "format"))))))
+                        .then(ClientCommands.literal("exportfile")
+                                .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.exportFile())))
                         .then(ClientCommands.literal("setup")
                                 .executes(context -> routeFeedback(context, com.teslamaps.features.waypoints.OrderedWaypoints.toggleSetup()))))
                 .then(ClientCommands.literal("pest")

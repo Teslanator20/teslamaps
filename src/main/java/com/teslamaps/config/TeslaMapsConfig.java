@@ -1238,6 +1238,7 @@ public class TeslaMapsConfig {
     public boolean orderedShowDistance = true;      // Show the distance above a waypoint
     public boolean orderedShowName = true;          // Show the waypoint number
     public boolean orderedShowAll = false;          // Render the whole route at once
+    public boolean orderedImportedStyle = false;    // Use imported waypoint names/colors
     public boolean orderedSetupMode = false;        // Show nearby waypoints + line of sight while building a route
     public float orderedSetupRange = 16.0f;         // Radius for setup mode
     public float orderedSetupLineThickness = 2.0f;  // Setup-mode line thickness
