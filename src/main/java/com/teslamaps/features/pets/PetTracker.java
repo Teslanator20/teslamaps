@@ -160,7 +160,7 @@ public class PetTracker {
     }
 
     private static void readTabWidget() {
-        List<String> lines = TabListUtils.getTabListLines();
+        List<String> lines = TabListUtils.getOrderedLines();
         int petIndex = -1;
         for (int i = 0; i < lines.size(); i++) {
             if (StringUtil.strip(lines.get(i)).trim().equals("Pet:")) {

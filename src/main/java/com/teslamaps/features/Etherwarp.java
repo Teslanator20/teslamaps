@@ -143,7 +143,7 @@ public class Etherwarp {
         CompoundTag data = etherwarpData(player.getMainHandItem());
         if (data == null) return;
 
-        // standalone conduit warps on right-click, no sneak needed
+
         boolean conduit = "ETHERWARP_CONDUIT".equals(data.getString("id").orElse(""));
         if (!conduit && !player.isShiftKeyDown()) return;
 

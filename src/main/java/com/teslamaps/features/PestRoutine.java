@@ -203,6 +203,7 @@ public class PestRoutine {
     public static void advance() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.getConnection() == null) return;
+        if (!com.teslamaps.utils.SkyblockUtils.isInGarden()) return;
 
         if (philip != Philip.NONE) {
             advancePhilip(mc);
@@ -596,6 +597,11 @@ public class PestRoutine {
     /** Polls the routine key. Raw GLFW so it also works with the loadout menu open. */
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
+        if (!com.teslamaps.utils.SkyblockUtils.isInGarden()) {
+            clearPending();
+            keyWasDown = false;
+            return;
+        }
         tickPendingLoadout();
         int key = TeslaMapsConfig.get().pestRoutineKey;
         if (key == -1 || mc.getWindow() == null) return;
