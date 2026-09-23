@@ -956,6 +956,7 @@ public class TeslaMapsConfig {
     public boolean goldorTickTimer = false;        // F7 P3 device/terminal 60-tick pulse (+104t start timer)
     public boolean stormPadTimer = false;          // F7 Storm pad 20-tick pulse
     public boolean lightningTimer = false;         // F7 Storm lightning countdown (560t)
+    public boolean lightningTimerTitle = false;    // replace Hypixel's 4/6 lightning title with a synced countdown
     public boolean secretTickTimer = false;        // Secret spawn tick (20-tick cycle, clear only)
     public String tickTimerFormat = "Seconds";     // Seconds, Ticks, Both — display format for tick timers
     public boolean colorPortal = false;             // Recolor the blood portal by score (red/gold/green)

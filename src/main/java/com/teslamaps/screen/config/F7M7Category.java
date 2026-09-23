@@ -23,6 +23,7 @@ public final class F7M7Category {
         b.toggle("Goldor Tick Timer", () -> config.goldorTickTimer, v -> config.goldorTickTimer = v);
         b.toggle("Storm Pad Timer", () -> config.stormPadTimer, v -> config.stormPadTimer = v);
         b.toggle("Storm Lightning Timer", () -> config.lightningTimer, v -> config.lightningTimer = v);
+        b.toggle("  Lightning Title Countdown (synced)", () -> config.lightningTimerTitle, v -> config.lightningTimerTitle = v);
         b.toggle("Relic Timer (M7)", () -> config.relicTimer, v -> config.relicTimer = v);
         b.label("Other");
         b.toggle("Leap Counter", () -> config.leapCounter, v -> config.leapCounter = v);

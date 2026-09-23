@@ -107,6 +107,30 @@ public class TimerTriggers {
         }
     }
 
+    // Ported from NoammAddons' F7Titles.kt
+    private static final com.teslamaps.utils.ServerTickTimer LIGHTNING = new com.teslamaps.utils.ServerTickTimer();
+
+    /** Main thread. True = swallow Hypixel's title. */
+    public static boolean onTitle(String raw) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.lightningTimerTitle || !c.section("Timers")) return false;
+        com.teslamaps.dungeon.DungeonFloor f = com.teslamaps.dungeon.DungeonManager.getCurrentFloor();
+        if (f == null || f.getLevel() != 7 || !com.teslamaps.dungeon.DungeonManager.isInBossArea()) return false;
+        String t = com.teslamaps.utils.StringUtil.stripTrim(raw);
+        if (t.isEmpty() || t.length() > 2) return false;
+        int n;
+        try { n = Integer.parseInt(t); } catch (NumberFormatException e) { return false; }
+        if (!LIGHTNING.active() && (n == 4 || n == 6)) {
+            LIGHTNING.start((int) Math.round(n * 1.35 * 20), () -> {
+                Minecraft mc = Minecraft.getInstance();
+                mc.gui.setTimes(0, 40, 5);
+                mc.gui.setTitle(Component.literal("§aStorm's Lightning Ended!"));
+                if (mc.player != null) mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 0.25f, 1f);
+            });
+        }
+        return true;
+    }
+
     // Ported from Devonian's LeapCounter.kt
     private record LeapSpot(double x, double y, double z, double r, int need) {}
     private static final LeapSpot[] LEAP_SPOTS = {
@@ -226,6 +250,12 @@ public class TimerTriggers {
             necronDropTicks = -1; goldorTicks = -1; goldorStartTicks = -1;
             stormPadTicks = -1; lightningTicks = -1;
             resetLeapSpots();
+            LIGHTNING.stop();
+        }
+
+        if (LIGHTNING.active()) {
+            mc.gui.setTimes(0, 3, 0);
+            mc.gui.setTitle(Component.literal(String.format(java.util.Locale.ROOT, "§c§l%.1f", LIGHTNING.remaining() / 20.0)));
         }
 
         if (c.necronDropTimer && necronDropTicks >= 0) {
@@ -246,7 +276,11 @@ public class TimerTriggers {
             if (--stormPadTicks < 0) stormPadTicks = 20; // pad pulses every 20 ticks
         } else DungeonTimers.clear("stormpad");
 
-        if (c.lightningTimer && lightningTicks >= 0) {
+        if (LIGHTNING.active()) lightningTicks = -1;
+        if (c.lightningTimer && LIGHTNING.active()) {
+            int lt = (int) LIGHTNING.remaining();
+            DungeonTimers.set("lightning", "§bLightning§f: " + tickColor(lt, 162) + fmtTicks(lt));
+        } else if (c.lightningTimer && lightningTicks >= 0) {
             DungeonTimers.set("lightning", "§bLightning§f: " + tickColor(lightningTicks, 560) + fmtTicks(lightningTicks));
             lightningTicks--;
         } else DungeonTimers.clear("lightning");
