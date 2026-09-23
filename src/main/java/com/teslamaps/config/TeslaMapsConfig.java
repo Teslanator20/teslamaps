@@ -1354,6 +1354,8 @@ public class TeslaMapsConfig {
     public float umbrellaWarningVolume = 1.0f;      // 0 = silent
     public boolean deployableOverlay = false;       // HUD with the time left on active deployables
     public boolean deployableHighestTierOnly = false; // hide a Radiant while an Overflux is up
+    public boolean deployableIconMode = false;      // one panel with the strongest deployable and its big head icon
+    public boolean deployableHideParticles = false; // drop the orbs' own villager/dust/flame particles
     public boolean deployableFlux = true;           // power orbs
     public boolean deployableLantern = true;
     public boolean deployableUmbrella = true;

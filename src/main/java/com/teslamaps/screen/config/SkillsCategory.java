@@ -74,6 +74,8 @@ public final class SkillsCategory {
         b.info("Time left on power orbs, lanterns, Umberella");
         b.toggle("  Only Highest Tier",
                 () -> config.deployableHighestTierOnly, v -> config.deployableHighestTierOnly = v);
+        b.toggle("  Big Icon (strongest only)",
+                () -> config.deployableIconMode, v -> config.deployableIconMode = v);
         b.toggle("  Power Orbs",
                 () -> config.deployableFlux, v -> config.deployableFlux = v);
         b.toggle("  Lanterns",
@@ -88,6 +90,8 @@ public final class SkillsCategory {
         b.toggle("  Other Deployables (flares, ...)",
                 () -> config.deployableOthers, v -> config.deployableOthers = v);
         b.info("Position and scale in /tmap gui");
+        b.toggle("Hide Deployable Particles",
+                () -> config.deployableHideParticles, v -> config.deployableHideParticles = v);
         b.label("Fixes");
         b.toggle("Fix Item Double Clicks",
                 () -> config.fixDoubleClicks, v -> config.fixDoubleClicks = v);

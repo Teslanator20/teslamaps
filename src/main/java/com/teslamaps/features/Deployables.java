@@ -62,6 +62,9 @@ public class Deployables {
         int lastSeconds = -1;
         long valueSince;
         boolean active;
+        net.minecraft.world.item.ItemStack icon = net.minecraft.world.item.ItemStack.EMPTY;
+        long iconTry;
+        double x, y, z;
     }
 
     // stands drop out of entitiesForRendering for a tick or two, that is not the timer ending
@@ -97,7 +100,7 @@ public class Deployables {
 
     public static void tick() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.deployableOverlay && !c.umbrellaWarning) return;
+        if (!c.deployableOverlay && !c.umbrellaWarning && !c.deployableHideParticles) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
@@ -152,12 +155,99 @@ public class Deployables {
                 t.lastSeenAt = now;
                 t.end = now + seconds * 1000L;
                 t.active = true;
+                t.x = stand.getX(); t.y = stand.getY(); t.z = stand.getZ();
+                if (c.deployableIconMode && t.icon.isEmpty() && now - t.iconTry > 1000) {
+                    t.iconTry = now;
+                    t.icon = headBelow(mc, stand);
+                }
             }
         }
 
         for (Track t : tracks.values()) {
             if (t.active && (now >= t.end || now - t.lastSeenAt > SEEN_TIMEOUT_MS)) t.active = false;
         }
+        buildIcon(c);
+    }
+
+    // the timer tag floats above the stand that wears the orb/lantern head
+    private static net.minecraft.world.item.ItemStack headBelow(Minecraft mc, ArmorStand tag) {
+        var box = tag.getBoundingBox().expandTowards(0, -3, 0).inflate(0.6, 0, 0.6);
+        for (ArmorStand s : mc.level.getEntitiesOfClass(ArmorStand.class, box)) {
+            var head = s.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD);
+            if (!head.isEmpty()) return head.copy();
+        }
+        return net.minecraft.world.item.ItemStack.EMPTY;
+    }
+
+    private static String iconName = null;
+    private static String iconTime = "";
+    private static net.minecraft.world.item.ItemStack iconStack = net.minecraft.world.item.ItemStack.EMPTY;
+
+    // one deployable, the strongest in range, like Devonian/Odin
+    private static void buildIcon(TeslaMapsConfig c) {
+        iconName = null;
+        if (!c.deployableIconMode || !c.deployableOverlay) return;
+        String bestKey = null;
+        int bestRank = Integer.MAX_VALUE;
+        for (Map.Entry<String, Track> e : tracks.entrySet()) {
+            if (!e.getValue().active) continue;
+            Deployable known = byName(e.getKey());
+            if (!visible(c, known)) continue;
+            int r = rank(known);
+            if (r < bestRank) { bestRank = r; bestKey = e.getKey(); }
+        }
+        if (bestKey == null) return;
+        Deployable known = byName(bestKey);
+        iconName = known != null ? known.displayName : "§b" + bestKey;
+        iconTime = "§e" + format(Math.max(0, secondsLeft(bestKey)));
+        iconStack = tracks.get(bestKey).icon;
+    }
+
+    private static int rank(Deployable d) {
+        if (d == null) return 100;
+        return switch (d) {
+            case PLASMAFLUX -> 0;
+            case SOS_FLARE -> 1;
+            case OVERFLUX -> 2;
+            case ALERT_FLARE -> 3;
+            case MANA_FLUX -> 4;
+            case WARNING_FLARE -> 5;
+            case RADIANT -> 6;
+            case UMBERELLA -> 7;
+            case BLACK_HOLE -> 8;
+            default -> 20 - d.tier;
+        };
+    }
+
+    private static final java.util.Set<Integer> ORB_DUST = java.util.Set.of(0x6CC7EB, 0xBC2525, 0x3B0E37, 0x6A3294, 0x0D0606);
+
+    /** Main thread. The orbs' own HAPPY_VILLAGER / DUST / FLAME effects, matched like Devonian does. */
+    public static boolean hideParticle(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket p) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (!cfg.deployableHideParticles || !cfg.section("Skills")) return false;
+        if (!p.alwaysShow() || !p.isOverrideLimiter()) return false;
+        var type = p.getParticle().getType();
+        if (type == net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER) {
+            if (p.getMaxSpeed() != 0f) return false;
+            if (p.getCount() == 4) return p.getXDist() == 0.3f && p.getYDist() == 0.2f && p.getZDist() == 0.3f;
+            if (p.getCount() != 1 || p.getXDist() != 0f || p.getYDist() != 0f || p.getZDist() != 0f) return false;
+            for (Track t : tracks.values()) {
+                if (t.active && Math.abs(t.x - p.getX()) < 2 && Math.abs(t.y - 1 - p.getY()) < 3 && Math.abs(t.z - p.getZ()) < 2) return true;
+            }
+            return false;
+        }
+        if (type == net.minecraft.core.particles.ParticleTypes.DUST) {
+            if (p.getCount() != 0 || p.getMaxSpeed() != 1f) return false;
+            if (!(p.getParticle() instanceof net.minecraft.core.particles.DustParticleOptions o) || o.getScale() != 1f) return false;
+            var col = o.getColor();
+            int rgb = (Math.round(col.x() * 255f) << 16) | (Math.round(col.y() * 255f) << 8) | Math.round(col.z() * 255f);
+            return ORB_DUST.contains(rgb);
+        }
+        if (type == net.minecraft.core.particles.ParticleTypes.FLAME) {
+            return p.getCount() == 11 && p.getMaxSpeed() == 0.35f
+                    && p.getXDist() == 1f && p.getYDist() == 1f && p.getZDist() == 1f;
+        }
+        return false;
     }
 
     /**
@@ -177,6 +267,8 @@ public class Deployables {
         t.lastSeenAt = now;
         t.end = now + left;
         t.active = true;
+        t.x = stand.getX(); t.y = stand.getY() + 1; t.z = stand.getZ();
+        if (t.icon.isEmpty()) t.icon = stand.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).copy();
     }
 
     private static String flareOf(ArmorStand stand) {
@@ -266,6 +358,7 @@ public class Deployables {
     public static void reset() {
         tracks.clear();
         flareCache.clear();
+        iconName = null;
     }
 
     public static void clear(Deployable deployable) {
@@ -298,17 +391,17 @@ public class Deployables {
             if (left < 0) continue;
 
             Deployable known = byName(e.getKey());
-            if (known == null) {
-                if (!c.deployableOthers) continue;
-                out.add("§b" + e.getKey() + " §e" + format(left));
-                continue;
-            }
-            if (!shows(c, known.type)) continue;
-            // a Radiant next to an Overflux is just noise
-            if (c.deployableHighestTierOnly && outranked(known)) continue;
-            out.add(known.displayName + " §e" + format(left));
+            if (!visible(c, known)) continue;
+            out.add((known == null ? "§b" + e.getKey() : known.displayName) + " §e" + format(left));
         }
         return out;
+    }
+
+    private static boolean visible(TeslaMapsConfig c, Deployable known) {
+        if (known == null) return c.deployableOthers;
+        if (!shows(c, known.type)) return false;
+        // a Radiant next to an Overflux is just noise
+        return !(c.deployableHighestTierOnly && outranked(known));
     }
 
     private static boolean outranked(Deployable deployable) {
@@ -329,12 +422,44 @@ public class Deployables {
         Minecraft mc = Minecraft.getInstance();
         if (com.teslamaps.utils.HudVisibility.suppressed()) return;
 
+        if (c.deployableIconMode) {
+            if (iconName != null) drawIcon(context, mc, c.deployableX, c.deployableY, c.deployableScale, iconStack, iconName, iconTime);
+            return;
+        }
         List<String> lines = lines();
         if (lines.isEmpty()) return;
         draw(context, mc, c.deployableX, c.deployableY, c.deployableScale, lines);
     }
 
+    private static final String ICON_SAMPLE_NAME = "§5Overflux";
+    private static final String ICON_SAMPLE_TIME = "§e42s";
+
+    private static void drawIcon(GuiGraphicsExtractor g, Minecraft mc, int x, int y, float scale,
+                                 net.minecraft.world.item.ItemStack stack, String name, String time) {
+        var pose = g.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(scale, scale);
+        int w = 36 + Math.max(mc.font.width(name), mc.font.width(time));
+        com.teslamaps.render.gui.HudStyle.panel(g, -2, -2, w + 4, 36);
+        if (!stack.isEmpty()) {
+            pose.pushMatrix();
+            pose.scale(2f, 2f);
+            g.item(stack, 0, 0);
+            pose.popMatrix();
+        }
+        g.text(mc.font, name, 36, 6, 0xFFFFFFFF, true);
+        g.text(mc.font, time, 36, 18, 0xFFFFFFFF, true);
+        pose.popMatrix();
+    }
+
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
+        if (TeslaMapsConfig.get().deployableIconMode) {
+            if (iconName != null) drawIcon(context, mc, x, y, scale, iconStack, iconName, iconTime);
+            else drawIcon(context, mc, x, y, scale,
+                    new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.PLAYER_HEAD), ICON_SAMPLE_NAME, ICON_SAMPLE_TIME);
+            return;
+        }
         List<String> lines = lines();
         draw(context, mc, x, y, scale, lines.isEmpty() ? List.of("§9Umberella §e4m 58s") : lines);
     }
@@ -353,6 +478,11 @@ public class Deployables {
     }
 
     public static int[] previewSize(Font font) {
+        if (TeslaMapsConfig.get().deployableIconMode) {
+            String n = iconName != null ? iconName : ICON_SAMPLE_NAME;
+            String t = iconName != null ? iconTime : ICON_SAMPLE_TIME;
+            return new int[] { 36 + Math.max(font.width(n), font.width(t)), 32 };
+        }
         List<String> lines = lines();
         if (lines.isEmpty()) lines = List.of("§9Umberella §e4m 58s");
         int w = 0;
