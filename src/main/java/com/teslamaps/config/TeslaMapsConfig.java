@@ -228,6 +228,11 @@ public class TeslaMapsConfig {
     }
     public boolean salvageHelper = true;        // Highlight cheap (<100k) dungeon-salvageable gear in the Salvage menu
     public boolean sellableHighlighter = true;  // Highlight common junk to sell in Ophelia/Booster Cookie menus
+    public boolean sellableExtended = false;    // Trades menu + dungeon junk list + non-max quality gear
+    public String colorSellable = "#80FFFF00";
+    public boolean salvageQuality = false;      // mark dungeon gear by baseStatBoostPercentage in every container
+    public String colorStatBoostLow = "#A000FFFF";
+    public String colorStatBoostMax = "#A0FF0000";
     public boolean secretChime = false;          // Ascending chime per secret found in the room
     public String secretChimeSound = "NOTE_CHIME"; // Chime sound (see SoundOptions.keys())
     public float secretChimeVolume = 1.0f;       // Volume for the secret chime (0.0 - 4.0)
