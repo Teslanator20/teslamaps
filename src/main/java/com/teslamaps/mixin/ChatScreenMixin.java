@@ -44,32 +44,42 @@ public class ChatScreenMixin {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        ChatComponent chat = mc.gui.getChat();
-        ChatComponentAccessor acc = (ChatComponentAccessor) chat;
-        List<GuiMessage.Line> lines = acc.teslamaps$getTrimmedMessages();
-        if (lines.isEmpty()) return;
-
-        double scale = acc.teslamaps$getScale();
-        int lineHeight = acc.teslamaps$getLineHeight();
-        if (scale <= 0 || lineHeight <= 0) return;
-
-        int guiHeight = mc.getWindow().getGuiScaledHeight();
-        double aboveBottom = (guiHeight - 40) - event.y();
-        if (aboveBottom < 0) return;
-        int lineFromBottom = (int) (aboveBottom / (scale * lineHeight));
-        int index = lineFromBottom + acc.teslamaps$getChatScrollbarPos();
-        if (index < 0 || index >= lines.size()) return;
-
-        String raw = lines.get(index).parent().content().getString();
+        GuiMessage msg = teslamaps$lineAt(mc, event.y());
+        if (msg == null) return;
+        Component content = msg.content();
+        String raw = content.getString();
         if (raw.isEmpty()) return;
 
         long handle = mc.getWindow().handle();
         boolean keepColors = GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
                 || GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
-        String text = keepColors ? raw : raw.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        String text = keepColors ? com.teslamaps.utils.ChatText.formatted(content) : com.teslamaps.utils.StringUtil.strip(raw);
 
         mc.keyboardHandler.setClipboard(text);
         mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §7Copied" + (keepColors ? " §8(with colors)§7" : "") + ": §f" + text));
         cir.setReturnValue(true); // consume the right-click
+    }
+
+    /** The hovered message; vanilla row math only when a chat mod bypasses the hover hook. */
+    @org.spongepowered.asm.mixin.Unique
+    private static GuiMessage teslamaps$lineAt(Minecraft mc, double mouseY) {
+        if (com.teslamaps.features.ChatHover.works()) return com.teslamaps.features.ChatHover.hovered();
+
+        ChatComponent chat = mc.gui.getChat();
+        ChatComponentAccessor acc = (ChatComponentAccessor) chat;
+        List<GuiMessage.Line> lines = acc.teslamaps$getTrimmedMessages();
+        if (lines.isEmpty()) return null;
+
+        double scale = acc.teslamaps$getScale();
+        int lineHeight = acc.teslamaps$getLineHeight();
+        if (scale <= 0 || lineHeight <= 0) return null;
+
+        int guiHeight = mc.getWindow().getGuiScaledHeight();
+        double aboveBottom = (guiHeight - 40) - mouseY;
+        if (aboveBottom < 0) return null;
+        int lineFromBottom = (int) (aboveBottom / (scale * lineHeight));
+        int index = lineFromBottom + acc.teslamaps$getChatScrollbarPos();
+        if (index < 0 || index >= lines.size()) return null;
+        return lines.get(index).parent();
     }
 }
