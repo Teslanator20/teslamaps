@@ -38,6 +38,7 @@ public class SoundPlayMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/sounds/SoundInstance;getVolume()F", ordinal = 0),
             cancellable = true)
     private void teslamaps$debugAndMute(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
+        com.teslamaps.features.EventTracker.onSound(instance);
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
         boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);

@@ -80,6 +80,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.safari.SafariTracker.onParticlePacket(packet);
         com.teslamaps.features.HotspotRadar.onParticlePacket(packet);
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
+        com.teslamaps.features.EventTracker.onParticle(packet);
     }
 
     @Inject(method = "handleParticleEvent", at = @At("HEAD"), cancellable = true)

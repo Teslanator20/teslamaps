@@ -43,5 +43,6 @@ final class Features {
         // wave 1c qol
         com.teslamaps.features.ImplosionHider.register();
         com.teslamaps.features.npc.NpcWarps.register();
+        com.teslamaps.features.EventTracker.register();
     }
 }

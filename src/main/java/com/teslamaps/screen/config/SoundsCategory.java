@@ -67,6 +67,16 @@ public final class SoundsCategory {
         b.button("  Open Sound Manager", () -> net.minecraft.client.Minecraft.getInstance()
                 .setScreen(new com.teslamaps.screen.SoundManagerScreen(b.screen())));
         b.info("Recent tab lists the last 100 played sounds");
+        b.label("Sound & Particle Tracker");
+        b.info("/tmap tracksounds [seconds|end|ignore <id>]");
+        b.info("/tmap trackparticles [seconds|end|ignore <id>]");
+        b.info("/tmap playsound <id> [pitch] [volume]");
+        b.slider("  Shown For (s)", 1f, 20f,
+                () -> (float) config.eventTrackerWindow, v -> config.eventTrackerWindow = Math.round(v));
+        b.slider("  Max Lines", 1f, 100f,
+                () -> (float) config.eventTrackerMaxLines, v -> config.eventTrackerMaxLines = Math.round(v));
+        b.keybind("  Track Sounds Key", () -> config.trackSoundsKey, v -> config.trackSoundsKey = v);
+        b.keybind("  Track Particles Key", () -> config.trackParticlesKey, v -> config.trackParticlesKey = v);
         b.label("Sound Hiders");
         b.toggle("No Explosion Sound", () -> config.noExplosionSound, v -> config.noExplosionSound = v);
         b.toggle("No Creeper Hurt Sound", () -> config.noCreeperHurtSound, v -> config.noCreeperHurtSound = v);

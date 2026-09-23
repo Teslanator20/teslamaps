@@ -727,6 +727,15 @@ public class TeslaMapsConfig {
     public boolean noExplosionSound = false; // Mute explosion sounds (TNT/creeper)
     public boolean noCreeperHurtSound = true; // Mute creeper hurt sounds
     public boolean soundDebug = false;       // Print every incoming sound (id/vol/pitch) to chat
+    public int eventTrackerWindow = 3;       // /tmap tracksounds|trackparticles: seconds an event stays listed
+    public int eventTrackerMaxLines = 10;
+    @Global
+    public int trackSoundsKey = -1;
+    @Global
+    public int trackParticlesKey = -1;
+    public int eventTrackerX = 4;
+    public int eventTrackerY = 120;
+    public float eventTrackerScale = 1.0f;
     public boolean muteBonzoStaff = false;   // Mute Bonzo's Staff impact (firework blast/twinkle sounds)
     public boolean muteLightning = false;    // Mute lightning/thunder sounds (Storm phase)
     public java.util.List<String> mutedSounds = new java.util.ArrayList<>(); // sound ids to mute ("id" or "id@pitch")
