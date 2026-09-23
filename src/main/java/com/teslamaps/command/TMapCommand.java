@@ -696,6 +696,40 @@ public class TMapCommand {
                         .then(ClientCommands.literal("paste")
                                 .executes(context -> greenhouseLoad(context.getSource(),
                                         Minecraft.getInstance().keyboardHandler.getClipboard())))
+                        .then(ClientCommands.literal("preset")
+                                .executes(context -> {
+                                    var names = com.teslamaps.features.GreenhousePlanner.presetNames();
+                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §fPresets: §e"
+                                            + (names.isEmpty() ? "§7none" : String.join("§7, §e", names))
+                                            + " §7· preset save|load|delete <name>"));
+                                    return 1;
+                                })
+                                .then(ClientCommands.literal("save")
+                                        .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                                .executes(context -> {
+                                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                                            + com.teslamaps.features.GreenhousePlanner.savePreset(
+                                                                    StringArgumentType.getString(context, "name"))));
+                                                    return 1;
+                                                })))
+                                .then(ClientCommands.literal("load")
+                                        .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                                .suggests((c, sb) -> com.teslamaps.features.GreenhousePlanner.suggestPresets(sb))
+                                                .executes(context -> {
+                                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                                            + com.teslamaps.features.GreenhousePlanner.loadPreset(
+                                                                    StringArgumentType.getString(context, "name"))));
+                                                    return 1;
+                                                })))
+                                .then(ClientCommands.literal("delete")
+                                        .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                                .suggests((c, sb) -> com.teslamaps.features.GreenhousePlanner.suggestPresets(sb))
+                                                .executes(context -> {
+                                                    context.getSource().sendFeedback(Component.literal("§b[TeslaMaps] "
+                                                            + com.teslamaps.features.GreenhousePlanner.deletePreset(
+                                                                    StringArgumentType.getString(context, "name"))));
+                                                    return 1;
+                                                }))))
                         .then(ClientCommands.literal("scan")
                                 .executes(context -> {
                                     com.teslamaps.features.GreenhousePlanner.rescan();
@@ -1590,6 +1624,11 @@ public class TMapCommand {
                                     com.teslamaps.features.FarmProgress.setPoint(2);
                                     return 1;
                                 }))
+                        .then(ClientCommands.literal("detect")
+                                .executes(context -> {
+                                    com.teslamaps.features.FarmProgress.toggleDetection();
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("clear")
                                 .executes(context -> {
                                     com.teslamaps.features.FarmProgress.clear();
@@ -1600,6 +1639,15 @@ public class TMapCommand {
                             com.teslamaps.features.FarmProfit.printBreakdown();
                             return 1;
                         })
+                        .then(ClientCommands.literal("exclude")
+                                .then(ClientCommands.argument("item", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            String item = StringArgumentType.getString(context, "item");
+                                            boolean ex = com.teslamaps.features.FarmProfit.toggleExcluded(item);
+                                            context.getSource().sendFeedback(Component.literal(
+                                                    "§b[TeslaMaps] §f" + item + (ex ? " §cexcluded" : " §acounted again")));
+                                            return 1;
+                                        })))
                         .then(ClientCommands.literal("window")
                                 .executes(context -> {
                                     com.teslamaps.features.FarmProfit.cycleWindow();
@@ -1608,6 +1656,22 @@ public class TMapCommand {
                                                     + com.teslamaps.features.FarmProfit.window().label));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("feast")
+                        .then(ClientCommands.literal("fetch")
+                                .executes(context -> {
+                                    com.teslamaps.features.HarvestFeast.fetch(true);
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("share")
+                                .executes(context -> {
+                                    com.teslamaps.features.HarvestFeast.share();
+                                    return 1;
+                                })))
+                .then(ClientCommands.literal("mouselock")
+                        .executes(context -> {
+                            com.teslamaps.features.FarmingSensitivity.toggleLock();
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("tppest")
                         .executes(context -> {
                             com.teslamaps.features.GardenPlots.teleportToPest();

@@ -59,6 +59,10 @@ public final class HarvestFeast {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.feastSeasonDisplay) return;
         if (!SkyblockUtils.isInSkyblock()) return;
+        if (config.feastAutoFetch && season() == null && feastMonth()
+                && System.currentTimeMillis() - lastFetch > FETCH_GAP_MS) {
+            fetch(false);
+        }
 
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
@@ -207,6 +211,116 @@ public final class HarvestFeast {
     }
 
     private static final String TITLE = "§aIn-season:";
+    private static final String OUTDATED = "§cFeast data is outdated! §7Ted > All Crops";
+
+    // Current rotation from EliteSkyblock, ported from SkyHanni's HarvestFeastManager.
+    private static final String ELITE_URL = "https://api.eliteskyblock.com/harvest-feast/current";
+    private static final long FETCH_GAP_MS = 10 * 60_000L;
+    private static final java.net.http.HttpClient HTTP = java.net.http.HttpClient.newBuilder()
+            .connectTimeout(java.time.Duration.ofSeconds(10)).build();
+    private static volatile boolean fetching = false;
+    private static long lastFetch = 0L;
+
+    /** Early to Late Autumn, when the regular feast runs. */
+    private static boolean feastMonth() {
+        long inYear = Math.floorMod(System.currentTimeMillis() - SB_EPOCH, SB_YEAR);
+        int month = (int) (inYear / SB_MONTH) + 1;
+        return month >= 7 && month <= 9;
+    }
+
+    public static void fetch(boolean verbose) {
+        if (fetching) return;
+        fetching = true;
+        lastFetch = System.currentTimeMillis();
+        java.util.concurrent.CompletableFuture<java.net.http.HttpResponse<String>> call;
+        try {
+            java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder(java.net.URI.create(ELITE_URL))
+                    .timeout(java.time.Duration.ofSeconds(15)).header("User-Agent", "TeslaMaps").GET().build();
+            call = HTTP.sendAsync(req, java.net.http.HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            call = java.util.concurrent.CompletableFuture.failedFuture(e);
+        }
+        call.whenComplete((resp, err) -> {
+            String result;
+            try {
+                if (err != null) throw err;
+                if (resp.statusCode() != 200) throw new IllegalStateException("HTTP " + resp.statusCode());
+                com.google.gson.JsonObject root = com.google.gson.JsonParser.parseString(resp.body()).getAsJsonObject();
+                if (root.has("data") && root.get("data").isJsonObject()) root = root.getAsJsonObject("data");
+                result = parseElite(root);
+            } catch (Throwable e) {
+                com.teslamaps.TeslaMaps.LOGGER.warn("[Feast] fetch failed: {}", e.toString());
+                result = "§cFetch failed: " + e.getClass().getSimpleName();
+            } finally {
+                fetching = false;
+            }
+            String msg = result;
+            Minecraft.getInstance().execute(() -> {
+                if (!verbose || msg == null) return;
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] " + msg));
+            });
+        });
+    }
+
+    /** Parses the EliteSkyblock body and applies it on the main thread; returns a chat line. */
+    private static String parseElite(com.google.gson.JsonObject o) {
+        int year = o.get("year").getAsInt();
+        int month = o.get("month").getAsInt();
+        boolean complete = !o.has("complete") || o.get("complete").getAsBoolean();
+        List<String> current = new ArrayList<>();
+        for (com.google.gson.JsonElement e : o.getAsJsonArray("current")) {
+            String name = eliteCrop(e.getAsString());
+            if (name != null) current.add(name);
+        }
+        Map<String, Long> next = new LinkedHashMap<>();
+        com.google.gson.JsonObject n = o.getAsJsonObject("next");
+        if (n != null) {
+            for (Map.Entry<String, com.google.gson.JsonElement> e : n.entrySet()) {
+                String name = eliteCrop(e.getKey());
+                if (name == null) continue;
+                com.google.gson.JsonElement v = e.getValue();
+                next.put(name, v == null || v.isJsonNull() ? 0L : v.getAsLong() * 1000L);
+            }
+        }
+        int index = year * 12 + (month - 1);
+        long now = System.currentTimeMillis();
+        if (!complete || current.size() != 4 || monthIndex(now) - index > 1) {
+            return "§cHarvest Feast data is not available yet · talk to Feast Chef Ted to fill it in";
+        }
+        Minecraft.getInstance().execute(() -> {
+            TeslaMapsConfig config = TeslaMapsConfig.get();
+            if (config.feastMonthIndex > index) return;
+            config.feastCrops = current;
+            config.feastNextSeason = next;
+            config.feastMonthIndex = index;
+            TeslaMapsConfig.save();
+        });
+        return "§fHarvest Feast data loaded: §e" + String.join(", ", current);
+    }
+
+    private static String eliteCrop(String name) {
+        for (GardenRegistry.Crop crop : GardenRegistry.CROPS) {
+            if (crop.display().equalsIgnoreCase(name.trim()) || crop.key().equalsIgnoreCase(name.trim())) return crop.display();
+        }
+        return null;
+    }
+
+    /** Sends the current rotation through the Announce channel, only on an explicit command or button. */
+    public static void share() {
+        Minecraft mc = Minecraft.getInstance();
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        Season season = season();
+        String err = season == null ? "§cNo Harvest Feast data"
+                : com.teslamaps.features.Announce.NOBODY.equals(config.feastShareChannel)
+                ? "§cPick a Share Channel under Garden > Harvest Feast" : null;
+        if (err != null) {
+            if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] " + err));
+            return;
+        }
+        com.teslamaps.features.Announce.send(config.feastShareChannel, "Harvest Feast in-season: "
+                + String.join(", ", season.crops()) + " (" + format(season.until() - System.currentTimeMillis()) + " left)");
+    }
 
     public static boolean shouldRender() {
         TeslaMapsConfig config = TeslaMapsConfig.get();
@@ -215,7 +329,27 @@ public final class HarvestFeast {
         return season() != null;
     }
 
+    private static boolean showOutdated() {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!config.feastOutdatedHint || !config.feastSeasonDisplay || !SkyblockUtils.isInSkyblock()) return false;
+        if (!config.feastSeasonEverywhere && !SkyblockUtils.isInGarden()) return false;
+        return feastMonth() && season() == null;
+    }
+
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
+        if (showOutdated()) {
+            TeslaMapsConfig config = TeslaMapsConfig.get();
+            Minecraft mc = Minecraft.getInstance();
+            String text = fetching ? "§eFetching Harvest Feast data..." : OUTDATED;
+            int w = PADDING * 2 + mc.font.width(text);
+            context.pose().pushMatrix();
+            context.pose().translate(config.feastSeasonX, config.feastSeasonY);
+            context.pose().scale(config.feastSeasonScale, config.feastSeasonScale);
+            HudStyle.panel(context, 0, 0, w, panelHeight(), 6);
+            context.text(mc.font, Component.literal(text), PADDING, PADDING + (ICON - 8) / 2, AppleColors.TEXT_PRIMARY, true);
+            context.pose().popMatrix();
+            return;
+        }
         if (!shouldRender()) return;
         TeslaMapsConfig config = TeslaMapsConfig.get();
         draw(context, Minecraft.getInstance(), config.feastSeasonX, config.feastSeasonY,

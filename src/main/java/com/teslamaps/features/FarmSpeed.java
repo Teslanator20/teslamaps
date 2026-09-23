@@ -33,7 +33,10 @@ public class FarmSpeed {
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
-        if (!isCrop(mc.level.getBlockState(pos))) return;
+        BlockState state = mc.level.getBlockState(pos);
+        if (!isCrop(state)) return;
+        FarmProgress.onCropBreak(state);
+        FarmProfit.onCropBreak(state, mc.level.getOverworldClockTime());
 
         lastBreak = System.currentTimeMillis();
         times[head] = lastBreak;

@@ -36,6 +36,15 @@ public final class GardenCategory {
         b.toggle("  Show Outside The Garden",
                 () -> config.feastSeasonEverywhere, v -> config.feastSeasonEverywhere = v);
         b.info("Open Feast Chef Ted > All Crops once to fill it in");
+        b.toggle("  Fetch From EliteSkyblock",
+                () -> config.feastAutoFetch, v -> config.feastAutoFetch = v);
+        b.info("Loads the rotation from api.eliteskyblock.com when none was read · /tmap feast fetch");
+        b.toggle("  Outdated Data Warning",
+                () -> config.feastOutdatedHint, v -> config.feastOutdatedHint = v);
+        b.channel("  Share Channel",
+                () -> config.feastShareChannel, v -> config.feastShareChannel = v);
+        b.button("Share In-Season Crops",
+                () -> com.teslamaps.features.HarvestFeast.share());
         b.label("Pests");
         b.info("Pest ESP moved to Mob Visuals - it tells the 15 species apart");
         b.button("Pest Visuals (Mob Visuals)",
@@ -43,6 +52,8 @@ public final class GardenCategory {
         b.label("Pest Tracker");
         b.toggle("Pest Overlay",
                 () -> config.pestOverlay, v -> config.pestOverlay = v);
+        b.toggle("  Alive + Infested Plots",
+                () -> config.pestOverlayAlivePlots, v -> config.pestOverlayAlivePlots = v);
         b.toggle("Cooldown Arms Routine",
                 () -> config.pestCooldownArmsRoutine, v -> config.pestCooldownArmsRoutine = v);
         b.slider("Profit Idle After (sec)", 30f, 600f,
@@ -87,6 +98,17 @@ public final class GardenCategory {
         b.dropdown("Price Basis",
                 new String[]{"Instant Sell", "Sell Offer", "NPC"},
                 () -> config.farmPriceMode, v -> config.farmPriceMode = v);
+        b.toggle("Subtract Replenish Cost",
+                () -> config.farmProfitReplenish, v -> config.farmProfitReplenish = v);
+        b.toggle("Count Kernels As Coins",
+                () -> config.farmProfitKernels, v -> config.farmProfitKernels = v);
+        b.dropdown("  Kernel Item", com.teslamaps.features.FarmProfit.KERNEL_ITEMS,
+                () -> config.farmKernelItem, v -> config.farmKernelItem = v);
+        b.toggle("  Kernel 5% Discount",
+                () -> config.farmKernelDiscount, v -> config.farmKernelDiscount = v);
+        b.toggle("Pest Species In Breakdown",
+                () -> config.farmProfitPestTypes, v -> config.farmProfitPestTypes = v);
+        b.info("/tmap profit exclude <item> leaves an item out, run again to count it");
         b.button("Show Breakdown In Chat",
                 () -> com.teslamaps.features.FarmProfit.printBreakdown());
         b.button("Reset Session Profit",
@@ -98,6 +120,17 @@ public final class GardenCategory {
                 () -> config.farmingSensitivity, v -> config.farmingSensitivity = v);
         b.slider("Sensitivity While Farming", 0f, 1f,
                 () -> config.farmingSensitivityValue, v -> config.farmingSensitivityValue = v, 2);
+        b.toggle("  Only On Ground",
+                () -> config.farmingSensitivityGroundOnly, v -> config.farmingSensitivityGroundOnly = v);
+        b.toggle("  Pause In The Barn",
+                () -> config.farmingSensitivityPauseBarn, v -> config.farmingSensitivityPauseBarn = v);
+        b.info("/tmap mouselock locks turning by hand until used again");
+        b.toggle("Lock Mouse On Mousemat Snap",
+                () -> config.farmingMouseLockOnMousemat, v -> config.farmingMouseLockOnMousemat = v);
+        b.toggle("Unlock Mouse On Teleport",
+                () -> config.farmingMouseUnlockOnTeleport, v -> config.farmingMouseUnlockOnTeleport = v);
+        b.toggle("Mouse Lock HUD",
+                () -> config.farmingSensitivityHud, v -> config.farmingSensitivityHud = v);
         b.label("Farm Lane Bar");
         b.toggle("Show Lane Bar",
                 () -> config.farmBar, v -> config.farmBar = v);
@@ -112,6 +145,17 @@ public final class GardenCategory {
                 () -> com.teslamaps.features.FarmProgress.setPoint(1));
         b.button("Set Lane Point 2 (here)",
                 () -> com.teslamaps.features.FarmProgress.setPoint(2));
+        b.toggle("Lane Per Crop",
+                () -> config.farmLanePerCrop, v -> config.farmLanePerCrop = v);
+        b.info("Breaking a crop picks its lane · /tmap farm detect: farm two rows to save one");
+        b.button("Detect Lane (farm two rows)",
+                () -> com.teslamaps.features.FarmProgress.toggleDetection());
+        b.toggle("Show Time Until Lane End",
+                () -> config.farmLaneTimeLeft, v -> config.farmLaneTimeLeft = v);
+        b.slider("Lane Switch Title (sec, 0 = off)", 0f, 10f,
+                () -> (float) config.farmLaneWarnSeconds, v -> config.farmLaneWarnSeconds = Math.round(v), 0);
+        b.toggle("Lane Corner Beacons",
+                () -> config.farmLaneCorners, v -> config.farmLaneCorners = v);
         b.label("Pest Fortune Buff");
         b.toggle("Warn When Expired",
                 () -> config.pestBuffWarning, v -> config.pestBuffWarning = v);
@@ -146,6 +190,7 @@ public final class GardenCategory {
         b.toggle("Layout Ghost",
                 () -> config.greenhousePlanner, v -> config.greenhousePlanner = v);
         b.info("Only active in the Garden · paste a code with /tmap greenhouse <code>");
+        b.info("SkyShards / SkyMutations links work too · /tmap greenhouse preset save|load <name>");
         b.dropdown("  Phase",
                 new String[]{"Auto", "Floor", "Plants"},
                 () -> com.teslamaps.features.GreenhousePlanner.phaseName(config.greenhousePhase),

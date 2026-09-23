@@ -796,11 +796,26 @@ public class TeslaMapsConfig {
     public float farmProfitScale = 1.0f;
     public int farmProfitRows = 4;                  // Items listed in the profit panel
     public String farmPriceMode = "Instant Sell";   // Instant Sell / Sell Offer / NPC
+    public boolean farmProfitReplenish = false;     // subtract what Replenish eats
+    public boolean farmProfitKernels = false;       // Ted kernels as coins
+    public String farmKernelItem = "Feast I";
+    public boolean farmKernelDiscount = false;      // 5% kernel discount
+    public boolean farmProfitPestTypes = false;     // pests per species in the breakdown
+    public List<String> farmProfitExcluded = new ArrayList<>();
     public boolean farmingSensitivity = false;      // Drop sensitivity while holding a farming tool
     public float farmingSensitivityValue = 0.0f;    // Sensitivity to use while it applies
+    public boolean farmingSensitivityGroundOnly = false;
+    public boolean farmingSensitivityPauseBarn = false;
+    public boolean farmingMouseLockOnMousemat = false;
+    public boolean farmingMouseUnlockOnTeleport = false;
+    public boolean farmingSensitivityHud = false;
+    public int farmingSensitivityHudX = 10;
+    public int farmingSensitivityHudY = 120;
+    public float farmingSensitivityHudScale = 1.0f;
     @Global
     public double sensitivityBackup = -1;           // Player's own sensitivity while overridden, -1 = nothing pending
     public boolean pestOverlay = true;              // Cooldown / alive / infested plots panel
+    public boolean pestOverlayAlivePlots = false;   // alive count + infested plots rows
     public int pestOverlayX = 10;
     public int pestOverlayY = 60;
     public float pestOverlayScale = 1.0f;
@@ -820,6 +835,12 @@ public class TeslaMapsConfig {
     public boolean farmLaneSet = false;             // Whether both lane points are set
     public double farmX1 = 0, farmZ1 = 0;
     public double farmX2 = 0, farmZ2 = 0;
+    public boolean farmLanePerCrop = false;         // one lane per crop, picked by the crop you break
+    public java.util.Map<String, FarmLane> farmLanes = new java.util.LinkedHashMap<>();
+    public boolean farmLaneTimeLeft = false;        // time until the lane end from walking speed
+    public int farmLaneWarnSeconds = 0;             // title this many seconds before the end, 0 = off
+    public boolean farmLaneCorners = false;         // beacons at both lane ends
+    public static class FarmLane { public boolean alongX; public double min, max; }
     public float farmWarnDistance = 5.0f;           // Warn this many blocks before the lane end
     public String farmWarnSound = "NOTE_PLING";
     public float farmWarnVolume = 0.8f;
@@ -849,6 +870,9 @@ public class TeslaMapsConfig {
 
     public boolean feastSeasonDisplay = true;   // Crops in-season during the Harvest / Grand Feast
     public boolean feastSeasonEverywhere = true;  // Also outside the garden
+    public boolean feastAutoFetch = false;        // pull the rotation from EliteSkyblock when missing
+    public boolean feastOutdatedHint = false;     // "Feast data is outdated!" while the feast runs without data
+    public String feastShareChannel = "Nobody";   // /tmap feast share target
     public int feastSeasonX = 180;
     public int feastSeasonY = 240;
     public float feastSeasonScale = 1.0f;
@@ -1627,6 +1651,7 @@ public class TeslaMapsConfig {
     public boolean greenhousePlanner = true;        // ghost overlay for a pasted greenhouse layout
     @Global
     public String greenhouseCode = "";              // last pasted planner code
+    public java.util.Map<String, String> greenhousePresets = new java.util.LinkedHashMap<>(); // name -> code or link
     public int greenhousePlot = 0;                  // which plot of the code to show
     public int greenhousePhase = 0;                 // 0 auto (floor until done, then plants), 1 floor, 2 plants
     public boolean greenhouseManual = false;        // use the corner1/corner2 anchor instead of scanning
@@ -2135,6 +2160,10 @@ public class TeslaMapsConfig {
         if (c.leapCustomOrder == null) c.leapCustomOrder = new ArrayList<>();
         if (c.charmedVisitorNames == null) c.charmedVisitorNames = new ArrayList<>();
         if (c.feastCrops == null) c.feastCrops = new ArrayList<>();
+        if (c.farmProfitExcluded == null) c.farmProfitExcluded = new ArrayList<>();
+        if (c.farmKernelItem == null) c.farmKernelItem = "Feast I";
+        if (c.feastShareChannel == null) c.feastShareChannel = "Nobody";
+        if (c.farmLanes == null) c.farmLanes = new java.util.LinkedHashMap<>();
         if (c.feastNextSeason == null) c.feastNextSeason = new java.util.LinkedHashMap<>();
         if (c.headTargets == null) c.headTargets = new ArrayList<>();
         if (c.headESPColor == null || c.headESPColor.isBlank()) c.headESPColor = "#FFAA00";
@@ -2150,6 +2179,7 @@ public class TeslaMapsConfig {
         }
         if (c.capeServerKey == null || c.capeServerKey.isBlank()) c.capeServerKey = CAPE_SERVER_KEY;
         if (c.greenhouseCode == null) c.greenhouseCode = "";
+        if (c.greenhousePresets == null) c.greenhousePresets = new java.util.LinkedHashMap<>();
         if (c.greenhouseSoil == null) c.greenhouseSoil = new java.util.HashMap<>();
         if (c.greenhousePlants == null) c.greenhousePlants = new java.util.HashMap<>();
         if (c.greenhouseRotations == null) c.greenhouseRotations = new java.util.HashMap<>();

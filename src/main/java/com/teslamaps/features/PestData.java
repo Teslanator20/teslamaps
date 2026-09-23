@@ -83,6 +83,7 @@ public class PestData {
     private static boolean ready = false;
     private static boolean maxPests = false;
     private static int alive = 0;
+    private static List<String> infested = List.of();
     private static String spray = null;
     private static int spraySeconds = 0;
     private static int bonusPestChance = 0;
@@ -139,6 +140,7 @@ public class PestData {
         ready = false;
         maxPests = false;
         alive = 0;
+        List<String> plots = new ArrayList<>();
         spray = null;
         spraySeconds = 0;
         bonusPestChance = 0;
@@ -147,7 +149,10 @@ public class PestData {
         philipBonus = 0;
         philipSeconds = -1;
 
-        if (!SkyblockUtils.isInGarden()) return;
+        if (!SkyblockUtils.isInGarden()) {
+            infested = List.of();
+            return;
+        }
 
         for (String raw : TabListUtils.getTabListLines()) {
             String line = strip(raw);
@@ -169,6 +174,15 @@ public class PestData {
             Matcher aliveMatcher = ALIVE.matcher(line);
             if (aliveMatcher.find()) {
                 alive = Integer.parseInt(aliveMatcher.group("alive"));
+                continue;
+            }
+
+            Matcher plotsMatcher = INFESTED_PLOTS.matcher(line);
+            if (plotsMatcher.find()) {
+                for (String part : plotsMatcher.group("plots").split(",")) {
+                    String name = part.strip();
+                    if (!name.isEmpty()) plots.add(name);
+                }
                 continue;
             }
 
@@ -204,6 +218,7 @@ public class PestData {
                 philipSeconds = parseTime(philipMatcher.group("time"));
             }
         }
+        infested = List.copyOf(plots);
     }
 
     /** True once the tab list actually carries the pest block. */
@@ -213,19 +228,7 @@ public class PestData {
     }
 
     /** Plot names the tab list currently reports as infested. */
-    public static List<String> infestedPlots() {
-        List<String> plots = new ArrayList<>();
-        for (String raw : TabListUtils.getTabListLines()) {
-            Matcher matcher = INFESTED_PLOTS.matcher(strip(raw));
-            if (!matcher.find()) continue;
-            for (String part : matcher.group("plots").split(",")) {
-                String name = part.strip();
-                if (!name.isEmpty()) plots.add(name);
-            }
-            break;
-        }
-        return plots;
-    }
+    public static List<String> infestedPlots() { parse(); return infested; }
 
     /** Pests on the plot the player is standing on, or 0. */
     public static int pestsOnCurrentPlot() {

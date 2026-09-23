@@ -179,8 +179,215 @@ public class GreenhousePlanner {
         };
     }
 
+    // Planner links from SkyShards and SkyMutations, ported from Skyblocker's GreenhousePaste / SkyShardsLayout.
+    // Index = Skyblocker crop id: 1..40 mutations, then the base crops.
+    private static final String[] CROP_BY_ID = {null,
+            "ASHWREATH", "CHOCONUT", "DUSTGRAIN", "GLOOMGOURD", "LONELILY", "SCOURROOT", "SHADEVINE", "VEILSHROOM",
+            "WITHERBLOOM", "CHOCOBERRY", "CINDERSHADE", "COALROOT", "CREAMBLOOM", "DUSKBLOOM", "THORNSHADE",
+            "BLASTBERRY", "CHEESEBITE", "CHLORONITE", "DONOTEATSHROOM", "FLESHTRAP", "MAGICJELLYBEAN", "NOCTILUME",
+            "SNOOZLING", "SOGGYBUD", "CHORUSFRUIT", "PLANTBOYADVANCE", "PUFFERCLOUD", "SHELLFRUIT", "STARTLEVINE",
+            "STOPLIGHTPETAL", "THUNDERLING", "TURTLELLINI", "ZOMBUD", "ALLINALOE", "DEVOURER", "GLASSCORN", "GODSEED",
+            "JERRYFLOWER", "PHANTOMLEAF", "TIMESTALK",
+            "COCOABEAN", "WILDROSE", "MOONFLOWER", "SUNFLOWER", "CACTUS", "MELON", "PUMPKIN", "BROWNMUSHROOM",
+            "REDMUSHROOM", "WHEAT", "CARROT", "POTATO", "NETHERWART", "SUGARCANE", "DEADPLANTS", "FIRE",
+            "HELIANTHUS", "FERMENTO", "SQUASH", "CROPIE"};
+    // SkyShards palette order before the 40 mutations
+    private static final int[] SHARDS_CROPS = {50, 52, 51, 47, 46, 41, 54, 45, 53, 49, 48, 43, 44, 42, 56, 55, 58};
+
+    private static String cropName(String name) {
+        String n = norm(name);
+        return switch (n) {
+            case "WHEATSEEDS" -> "WHEAT";
+            case "PUMPKINSEEDS" -> "PUMPKIN";
+            case "MELONSEEDS" -> "MELON";
+            case "COCOABEANS" -> "COCOABEAN";
+            default -> n;
+        };
+    }
+
+    private static String linkCode(String text) {
+        String t = text.strip();
+        int i = t.indexOf("layout=");
+        if (i >= 0) t = t.substring(i + 7);
+        else if ((i = t.indexOf("/share/")) >= 0) t = t.substring(i + 7);
+        else return null;
+        for (int k = 0; k < t.length(); k++) {
+            char c = t.charAt(k);
+            boolean ok = Character.isLetterOrDigit(c) || c == '-' || c == '_' || c == '=' || c == '+' || c == '$';
+            if (!ok) return t.substring(0, k);
+        }
+        return t;
+    }
+
+    private static void addCell(JsonArray m, int gx, int gy, String item, List<String> mutations) {
+        if (gx < 0 || gy < 0 || gx >= PLOT || gy >= PLOT || item == null) return;
+        JsonObject o = new JsonObject();
+        o.addProperty("x", gx);
+        o.addProperty("y", gy);
+        o.addProperty("i", item);
+        o.addProperty("p", 0);
+        m.add(o);
+        if (mutations != null && !mutations.contains(item)) mutations.add(item);
+    }
+
+    private static JsonObject importShards(String code) {
+        try {
+            byte[] compressed = Base64.getUrlDecoder().decode(code.replace('+', '-').replace('/', '_'));
+            String s;
+            try (var in = new java.util.zip.InflaterInputStream(new java.io.ByteArrayInputStream(compressed),
+                    new Inflater(true))) {
+                byte[] out = in.readNBytes(4096);
+                if (in.read() != -1) return null;
+                s = new String(out, java.nio.charset.StandardCharsets.UTF_8);
+            }
+            String[] parts = s.split("\\|", -1);
+            if (parts.length != 3) return null;
+            int[] inputs = palette(parts[0]), targets = palette(parts[1]);
+            if (inputs == null || targets == null) return null;
+            String grid = parts[2];
+            int w = grid.length() == 100 ? 1 : grid.length() == 200 ? 2 : 0;
+            if (w == 0) return null;
+            JsonArray m = new JsonArray();
+            List<String> mutations = new ArrayList<>();
+            for (int cell = 0; cell < 100; cell++) {
+                String chars = grid.substring(cell * w, (cell + 1) * w);
+                boolean upper = chars.equals(chars.toUpperCase(java.util.Locale.ENGLISH));
+                if (!upper && !chars.equals(chars.toLowerCase(java.util.Locale.ENGLISH))) continue;
+                int idx = 0;
+                boolean valid = true;
+                for (int k = 0; k < chars.length(); k++) {
+                    char c = Character.toLowerCase(chars.charAt(k));
+                    if (c < 'a' || c > 'z') { valid = false; break; }
+                    idx = idx * 26 + (c - 'a');
+                }
+                int[] pal = upper ? targets : inputs;
+                if (!valid || idx >= pal.length) continue;
+                int id = pal[idx];
+                int row = cell / 10, col = cell % 10;
+                int gx = col, gy = row;
+                if (id == 23) { gx += 1; gy += 2; }
+                else if (id == 37) { gx += 1; gy += 1; }
+                addCell(m, gx, gy, id < CROP_BY_ID.length ? CROP_BY_ID[id] : null, upper ? mutations : null);
+            }
+            if (m.isEmpty()) return null;
+            addMutations(mutations);
+            JsonObject obj = new JsonObject();
+            obj.add("m", m);
+            obj.addProperty("p", 1);
+            return obj;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static int[] palette(String s) {
+        if (s.isEmpty()) return new int[0];
+        String[] idx = s.split(",", -1);
+        int[] out = new int[idx.length];
+        for (int i = 0; i < idx.length; i++) {
+            int v;
+            try {
+                v = Integer.parseInt(idx[i], 36);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+            if (v < 0 || v >= SHARDS_CROPS.length + 40) return null;
+            out[i] = v < SHARDS_CROPS.length ? SHARDS_CROPS[v] : v - SHARDS_CROPS.length + 1;
+        }
+        return out;
+    }
+
+    private static JsonObject importMutations(String code) {
+        try {
+            String json = com.teslamaps.utils.LZString.decompressFromEncodedURIComponent(code);
+            if (json == null || json.isEmpty()) return null;
+            JsonArray arr = JsonParser.parseString(json).getAsJsonArray();
+            JsonArray m = new JsonArray();
+            List<String> mutations = new ArrayList<>();
+            for (var el : arr) {
+                JsonArray e = el.getAsJsonArray();
+                int x = e.get(0).getAsInt(), z = e.get(1).getAsInt();
+                String item = cropName(e.get(2).getAsString());
+                boolean target = e.get(3).getAsInt() == 0;
+                addCell(m, 9 - x, z, item, target ? mutations : null);
+            }
+            if (m.isEmpty()) return null;
+            addMutations(mutations);
+            JsonObject obj = new JsonObject();
+            obj.add("m", m);
+            obj.addProperty("p", 1);
+            return obj;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static void addMutations(List<String> targets) {
+        List<String> list = TeslaMapsConfig.get().greenhouseMutations;
+        for (String t : targets) if (!list.contains(t)) list.add(t);
+    }
+
+    private static JsonObject importLink(String text) {
+        String code = linkCode(text);
+        if (code == null) return null;
+        String host = text.toLowerCase(java.util.Locale.ENGLISH);
+        if (host.contains("skymutations")) return importMutations(code);
+        if (host.contains("skyshards")) return importShards(code);
+        JsonObject o = importShards(code);
+        return o != null ? o : importMutations(code);
+    }
+
+    public static String savePreset(String name) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (cfg.greenhouseCode == null || cfg.greenhouseCode.isBlank()) return "§cno layout loaded";
+        cfg.greenhousePresets.put(name.trim(), cfg.greenhouseCode);
+        TeslaMapsConfig.save();
+        return "§fSaved preset §e" + name.trim();
+    }
+
+    public static String loadPreset(String name) {
+        String code = null;
+        for (var e : TeslaMapsConfig.get().greenhousePresets.entrySet()) {
+            if (e.getKey().equalsIgnoreCase(name.trim())) code = e.getValue();
+        }
+        if (code == null) return "§cno preset named " + name.trim();
+        String err = load(code);
+        rescan();
+        return err == null ? "§fLoaded preset §e" + name.trim() + " §7· " + status() : "§c" + err;
+    }
+
+    public static String deletePreset(String name) {
+        boolean removed = TeslaMapsConfig.get().greenhousePresets.keySet().removeIf(k -> k.equalsIgnoreCase(name.trim()));
+        TeslaMapsConfig.save();
+        return removed ? "§fDeleted preset §e" + name.trim() : "§cno preset named " + name.trim();
+    }
+
+    public static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestPresets(
+            com.mojang.brigadier.suggestion.SuggestionsBuilder sb) {
+        String typed = sb.getRemaining();
+        for (String n : presetNames()) {
+            if (n.toLowerCase().startsWith(typed.toLowerCase()) && !n.equalsIgnoreCase(typed)) sb.suggest(n);
+        }
+        return sb.buildFuture();
+    }
+
+    public static java.util.Set<String> presetNames() {
+        return TeslaMapsConfig.get().greenhousePresets.keySet();
+    }
+
     // returns null on success, otherwise an error message
     public static String load(String code) {
+        JsonObject linked = code.contains("layout=") || code.contains("/share/") ? importLink(code) : null;
+        if (linked != null) {
+            parsed = linked;
+            plotCount = 1;
+            TeslaMapsConfig cfg = TeslaMapsConfig.get();
+            cfg.greenhousePlot = 0;
+            cfg.greenhouseCode = code.trim();
+            rebuild();
+            TeslaMapsConfig.save();
+            return cells.isEmpty() ? "that link holds no plants" : null;
+        }
         try {
             String body = code.trim();
             int us = body.indexOf('_');

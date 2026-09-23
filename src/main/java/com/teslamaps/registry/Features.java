@@ -49,5 +49,8 @@ final class Features {
         com.teslamaps.features.Etherwarp.register();
         com.teslamaps.features.BlockOverlay.register();
         com.teslamaps.features.mobvisuals.MobVisualRender.register();
+        // wave 1c garden
+        com.teslamaps.features.FarmingSensitivity.register();
+        com.teslamaps.features.FarmProgress.register();
     }
 }

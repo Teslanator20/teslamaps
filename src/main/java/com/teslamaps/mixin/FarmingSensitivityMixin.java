@@ -1,5 +1,6 @@
 package com.teslamaps.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.teslamaps.features.FarmingSensitivity;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,5 +20,11 @@ public class FarmingSensitivityMixin {
     @Inject(method = "turnPlayer", at = @At("HEAD"), cancellable = true)
     private void teslamaps$freezeTurn(double delta, CallbackInfo ci) {
         if (FarmingSensitivity.blocksTurning()) ci.cancel();
+    }
+
+    @ModifyExpressionValue(method = "turnPlayer", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;", ordinal = 0))
+    private Object teslamaps$sensitivity(Object original) {
+        return FarmingSensitivity.sensitivity(original);
     }
 }

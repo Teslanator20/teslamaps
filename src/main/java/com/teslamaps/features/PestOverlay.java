@@ -21,9 +21,40 @@ public class PestOverlay {
     private static final int LINE = 11;
     private static int rows() {
         int rows = 3;   // Spawn, Blocks/s, Philip
+        if (TeslaMapsConfig.get().pestOverlayAlivePlots) rows += plotsText == null ? 1 : 2;
         if (PestData.spray() != null) rows++;
         if (PestData.bonusPestChance() > 0 && PestRoutine.pestChanceGearOn()) rows++;
         return rows;
+    }
+
+    private static String aliveText = "0";
+    private static int aliveColor = 0xFFAAAAAA;
+    private static String plotsText = null;
+
+    private static void aliveTick() {
+        if (!TeslaMapsConfig.get().pestOverlayAlivePlots) return;
+        if (!PestData.hasPestSection()) {
+            aliveText = "/widget > Pests";
+            aliveColor = AppleColors.ACCENT_RED;
+            plotsText = null;
+            return;
+        }
+        int alive = PestData.alive();
+        aliveText = Integer.toString(alive);
+        aliveColor = alive <= 0 ? 0xFFAAAAAA : alive <= 4 ? 0xFFFFFF55 : alive <= 7 ? 0xFFFF5555 : 0xFFAA0000;
+        List<String> plots = PestData.infestedPlots();
+        if (plots.isEmpty()) {
+            plotsText = null;
+            return;
+        }
+        String text = String.join(", ", plots);
+        var font = Minecraft.getInstance().font;
+        int max = PANEL_WIDTH - PADDING * 2 - font.width("Plots") - 6;
+        if (font.width(text) > max) {
+            while (text.length() > 1 && font.width(text + "…") > max) text = text.substring(0, text.length() - 1);
+            text = text + "…";
+        }
+        plotsText = text;
     }
 
     private static boolean philipWasActive = false;
@@ -161,6 +192,7 @@ public class PestOverlay {
 
         countdown(config, ready, seconds);
         nag(config, ready);
+        aliveTick();
 
         philipTick(config);
 
@@ -256,6 +288,15 @@ public class PestOverlay {
             cooldownColor = com.teslamaps.render.gui.HudStyle.dim();
         }
         drawRow(context, mc, "Spawn", cooldownText, cooldownColor, row);
+
+        if (TeslaMapsConfig.get().pestOverlayAlivePlots) {
+            row += LINE;
+            drawRow(context, mc, "Alive", aliveText, aliveColor, row);
+            if (plotsText != null) {
+                row += LINE;
+                drawRow(context, mc, "Plots", plotsText, AppleColors.ACCENT_RED, row);
+            }
+        }
 
         row += LINE;
         double bps = FarmSpeed.blocksPerSecond();
