@@ -446,7 +446,18 @@ public class MapRenderer {
             if (!drawn.add(ck)) continue;
             int px = gridToPixelX(d.nx(), baseX, scale);
             int py = gridToPixelY(d.nz(), baseY, scale);
-            context.fill(px, py, px + roomSize, py + roomSize, gray);
+            int[] guess = com.teslamaps.map.LegitGuess.colorsAt(d.nx(), d.nz());
+            if (guess == null) {
+                context.fill(px, py, px + roomSize, py + roomSize, gray);
+            } else if (guess.length == 1) {
+                context.fill(px, py, px + roomSize, py + roomSize, guess[0]);
+            } else {
+                // Odin renderPathHints: split tile, each part darker(0.5)
+                for (int i = 0; i < guess.length; i++) {
+                    int x0 = px + roomSize * i / guess.length, x1 = px + roomSize * (i + 1) / guess.length;
+                    context.fill(x0, py, x1, py + roomSize, darkenColor(guess[i], 0.5f));
+                }
+            }
             TeslaMapsConfig c = TeslaMapsConfig.get();
             if (c.mapCheckmarkIcons && c.showCheckmarks && c.mapCheckmarkUnopened) {
                 drawCheckmark(context, px + roomSize / 2, py + roomSize / 2,
