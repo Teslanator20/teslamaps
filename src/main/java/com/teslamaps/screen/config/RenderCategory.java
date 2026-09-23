@@ -61,6 +61,12 @@ public final class RenderCategory {
         b.toggle("  /tmap sendcoords Adds Area", () -> config.chatWaypointShareArea, v -> config.chatWaypointShareArea = v);
         b.label("NPC Finder");
         b.toggle("NPC Finder (/tmap npc)", () -> config.npcFinder, v -> config.npcFinder = v);
+        b.toggle("  Use Nearest Unlocked Warp", () -> config.npcNearestWarp, v -> config.npcNearestWarp = v);
+        b.info("Learns locked warps from the 'not unlocked' chat message");
+        b.toggle("  Warp Twice", () -> config.npcWarpTwice, v -> config.npcWarpTwice = v);
+        b.keybind("  NPC Waypoint Key", () -> config.npcWaypointKey, v -> config.npcWaypointKey = v);
+        b.info("Over an NPC item (Abiphone): track, Shift: also warp");
+        b.info("In the world: open the finder, Shift: warp to the target");
         b.label("Rare Drop Effects");
         b.toggle("Rare Drops", () -> config.rareDropEffects, v -> config.rareDropEffects = v);
         b.toggle("Dungeon Chest Rewards", () -> config.rareDungeonDropEffects, v -> config.rareDungeonDropEffects = v);

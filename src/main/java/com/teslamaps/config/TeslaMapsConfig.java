@@ -1203,6 +1203,12 @@ public class TeslaMapsConfig {
     public String chatWaypointColor = "AA00FFFF";
     public boolean chatWaypointShareArea = false;   // /tmap sendcoords appends "| <area>"
     public boolean npcFinder = true;               // /tmap npc - NPC search + warp/track waypoints
+    public boolean npcNearestWarp = false;         // warp to the closest unlocked warp instead of the island default
+    public boolean npcWarpTwice = false;
+    @Global
+    public int npcWaypointKey = -1;                // over an NPC item: track, Shift = warp; in world: open finder / Shift = warp
+    @Global
+    public java.util.Map<String, java.util.Set<String>> npcLockedWarps = new java.util.HashMap<>(); // sb profile -> warps not unlocked
 
     // Ordered Waypoints (routes outside dungeons, Coleweight/Skytils format)
     public boolean orderedWaypoints = false;        // Master toggle
@@ -2013,6 +2019,7 @@ public class TeslaMapsConfig {
         }
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
+        if (c.npcLockedWarps == null) c.npcLockedWarps = new java.util.HashMap<>();
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();

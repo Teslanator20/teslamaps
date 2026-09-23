@@ -42,5 +42,6 @@ final class Features {
         com.teslamaps.features.ChatSpamHud.register();
         // wave 1c qol
         com.teslamaps.features.ImplosionHider.register();
+        com.teslamaps.features.npc.NpcWarps.register();
     }
 }

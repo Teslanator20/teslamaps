@@ -144,7 +144,7 @@ public class NpcFinderScreen extends Screen {
         if (NpcFinder.isOnTargetIsland(npc)) {
             minecraft.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §7Tracking §f" + npc.name() + "§7" + suffix));
         } else {
-            minecraft.getConnection().sendCommand("warp " + npc.warpCommand());
+            com.teslamaps.features.npc.NpcWarps.warp(com.teslamaps.features.npc.NpcWarps.warpFor(npc), true);
             minecraft.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §7Warping to §f" + npc.name() + "§7 on §f" + npc.island() + "§7" + suffix));
         }
         onClose();

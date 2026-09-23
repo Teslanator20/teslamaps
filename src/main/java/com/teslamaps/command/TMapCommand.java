@@ -262,6 +262,12 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal("§7NPC waypoints cleared"));
                                     return 1;
                                 }))
+                        .then(ClientCommands.literal("clearwarps")
+                                .executes(context -> {
+                                    com.teslamaps.features.npc.NpcWarps.clearLocked();
+                                    context.getSource().sendFeedback(Component.literal("§7Locked warps reset"));
+                                    return 1;
+                                }))
                         .then(ClientCommands.argument("query", StringArgumentType.greedyString())
                                 .executes(context -> openNpcFinder(StringArgumentType.getString(context, "query")))))
                 .then(ClientCommands.literal("mayor")
