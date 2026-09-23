@@ -59,8 +59,19 @@ public final class FeatureRegistry {
         HudElementRegistry.attachElementBefore(VanillaHudElements.PLAYER_LIST,
                 Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, id), Perf.hud(id, (g, d) -> {
                     if (mode != InventoryMode.ALWAYS && HudForeground.active()) return;
-                    if (f.active()) r.extractRenderState(g, d);
+                    if (f.active()) drawShifted(id, r, g, d);
                 }));
+    }
+
+    private static void drawShifted(String id, HudElement r, GuiGraphicsExtractor g, DeltaTracker d) {
+        com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
+        HudEditElement e = c.hudClampToScreen || c.hudEdgeAnchors ? HudEditElement.forHud(id) : null;
+        int dx = e == null ? 0 : e.shiftX(), dy = e == null ? 0 : e.shiftY();
+        if (dx == 0 && dy == 0) { r.extractRenderState(g, d); return; }
+        g.pose().pushMatrix();
+        g.pose().translate(dx, dy);
+        r.extractRenderState(g, d);
+        g.pose().popMatrix();
     }
 
     public static void tick(Minecraft client) {
@@ -92,7 +103,7 @@ public final class FeatureRegistry {
     public static void foreground(GuiGraphicsExtractor g, DeltaTracker d) {
         for (int i = 0, n = FOREGROUND.size(); i < n; i++) {
             Hud h = FOREGROUND.get(i);
-            if (h.f.active()) h.r.extractRenderState(g, d);
+            if (h.f.active()) drawShifted(h.id, h.r, g, d);
         }
     }
 

@@ -18,6 +18,16 @@ public final class InterfaceCategory {
                 com.teslamaps.render.gui.HudStyle.NAMES,
                 () -> com.teslamaps.render.gui.HudStyle.current(), v -> config.hudStyle = v);
         b.info("GUI Style skins these screens, HUD Style the in-game panels");
+        b.label("HUD Positions");
+        b.toggle("Keep HUDs On Screen", () -> config.hudClampToScreen, v -> config.hudClampToScreen = v)
+                .desc("A panel that would end up off screen (smaller GUI scale, terminal scale, window resize) is drawn at the edge. The saved position stays.")
+                .tags("clamp", "hud", "position", "offscreen");
+        b.toggle("Anchor HUDs To Nearest Edge", () -> config.hudEdgeAnchors, v -> {
+                    config.hudEdgeAnchors = v;
+                    if (v) com.teslamaps.registry.HudEditElement.anchorUnplaced();
+                })
+                .desc("Panels in the right or bottom half keep their distance to that edge when the screen size or GUI scale changes.")
+                .tags("anchor", "hud", "position", "gui scale");
         b.label("Sounds");
         b.dropdown("GUI Sounds", GuiSounds.THEMES,
                 () -> config.guiSoundTheme, v -> config.guiSoundTheme = v);

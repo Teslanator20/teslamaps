@@ -48,6 +48,7 @@ public final class HudEditElement {
     }
 
     public final String label;
+    public final String prefix;
     private final Field fx, fy, fscale;
     private HudCtx ctx = HudCtx.ANY;
     private String section;
@@ -62,6 +63,7 @@ public final class HudEditElement {
 
     private HudEditElement(String prefix, String label) {
         this.label = label;
+        this.prefix = prefix;
         this.fx = field(prefix + "X");
         this.fy = field(prefix + "Y");
         this.fscale = field(prefix + "Scale");
@@ -121,8 +123,8 @@ public final class HudEditElement {
     public void setY(int v) { setInt(fy, v); }
     public int width() { return w.of(scale()); }
     public int height() { return h.of(scale()); }
-    public int boxX() { return x() - (int) (boxOffset * scale()); }
-    public int boxY() { return y() - (int) (boxOffset * scale()); }
+    public int boxX() { return x() - (int) (boxOffset * scale()) + shiftX(); }
+    public int boxY() { return y() - (int) (boxOffset * scale()) + shiftY(); }
     public int dragColor() { return dragColor; }
 
     public boolean hit(int mouseX, int mouseY) {
@@ -138,11 +140,88 @@ public final class HudEditElement {
     }
 
     public void drawPreview(GuiGraphicsExtractor g, Minecraft mc) {
-        if (preview != null) preview.draw(g, mc, x(), y(), scale());
+        if (preview != null) preview.draw(g, mc, x() + shiftX(), y() + shiftY(), scale());
     }
 
     public String title() {
         return plainLabel ? label : String.format("%s (%.1fx)", label, scale());
+    }
+
+    // GUI-005: edge anchors + render clamp, applied as an offset; the stored position never changes
+    private int cachedDx, cachedDy;
+    private long cachedAt;
+
+    public int shiftX() { updateShift(); return cachedDx; }
+    public int shiftY() { updateShift(); return cachedDy; }
+
+    private void updateShift() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.hudClampToScreen && !c.hudEdgeAnchors) { cachedDx = cachedDy = 0; return; }
+        long now = System.currentTimeMillis();
+        if (now - cachedAt < 200 && cachedAt != 0) return;
+        cachedAt = now;
+        var win = Minecraft.getInstance().getWindow();
+        int sw = win.getGuiScaledWidth(), sh = win.getGuiScaledHeight();
+        int bw = width(), bh = height();
+        int bx = x() - (int) (boxOffset * scale()), by = y() - (int) (boxOffset * scale());
+        int dx = 0, dy = 0;
+        int[] ref = c.hudAnchorRefs.get(prefix);
+        if (c.hudEdgeAnchors && ref != null && ref.length == 2 && xOverride == null && yOverride == null) {
+            if (bx + bw / 2 > ref[0] / 2) dx = sw - ref[0];
+            if (by + bh / 2 > ref[1] / 2) dy = sh - ref[1];
+        }
+        if (c.hudClampToScreen) {
+            int nx = bx + dx, ny = by + dy;
+            dx += Math.max(0, Math.min(sw - bw, nx)) - nx;
+            dy += Math.max(0, Math.min(sh - bh, ny)) - ny;
+        }
+        cachedDx = dx;
+        cachedDy = dy;
+    }
+
+    /** Before a drag: store where the panel is actually drawn, and anchor it to this screen size. */
+    public void bakeShift() {
+        cachedAt = 0;
+        int dx = shiftX(), dy = shiftY();
+        if (dx != 0) setX(x() + dx);
+        if (dy != 0) setY(y() + dy);
+        recordAnchor();
+    }
+
+    public void recordAnchor() {
+        var win = Minecraft.getInstance().getWindow();
+        TeslaMapsConfig.get().hudAnchorRefs.put(prefix, new int[]{win.getGuiScaledWidth(), win.getGuiScaledHeight()});
+        cachedAt = 0;
+    }
+
+    /** When anchors get switched on: every element not placed yet counts as placed on this screen. */
+    public static void anchorUnplaced() {
+        for (HudEditElement e : ALL) if (!TeslaMapsConfig.get().hudAnchorRefs.containsKey(e.prefix)) e.recordAnchor();
+    }
+
+    private static final java.util.Map<String, HudEditElement> BY_HUD = new java.util.HashMap<>();
+    // clamp themselves or draw several elements
+    private static final java.util.Set<String> UNLINKED = java.util.Set.of("farmprofit", "dungeontimers");
+    private static final java.util.Map<String, String> HUD_ALIAS = java.util.Map.ofEntries(
+            java.util.Map.entry("skilltracker", "skillTracker"), java.util.Map.entry("skillexp", "skillExpDisplay"),
+            java.util.Map.entry("petoverlay", "petOverlay"), java.util.Map.entry("bestiary", "bestiaryTracker"),
+            java.util.Map.entry("charmedvisitors", "charmedVisitor"), java.util.Map.entry("feastseason", "feastSeason"),
+            java.util.Map.entry("safari", "safariHud"), java.util.Map.entry("hotfperks", "hotfPerkDisplay"),
+            java.util.Map.entry("lasso", "lassoDisplay"), java.util.Map.entry("lather", "latherOverlay"),
+            java.util.Map.entry("contesttimers", "contestTimer"), java.util.Map.entry("deployables", "deployable"),
+            java.util.Map.entry("dragontimer", "witherDragonHud"),
+            java.util.Map.entry("perfhud", "perfHud"));
+
+    /** The editor element of a registered HUD id (same name ignoring case, or an alias), or null. */
+    public static HudEditElement forHud(String hudId) {
+        if (BY_HUD.containsKey(hudId)) return BY_HUD.get(hudId);
+        HudEditElement hit = null;
+        if (!UNLINKED.contains(hudId)) {
+            String want = HUD_ALIAS.getOrDefault(hudId, hudId);
+            for (HudEditElement e : ALL) if (e.prefix.equalsIgnoreCase(want)) { hit = e; break; }
+        }
+        BY_HUD.put(hudId, hit);
+        return hit;
     }
 
     private static int getInt(Field f) {

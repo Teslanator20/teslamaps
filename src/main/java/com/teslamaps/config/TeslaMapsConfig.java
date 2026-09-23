@@ -244,6 +244,9 @@ public class TeslaMapsConfig {
     @Global
     public boolean updateCheck = true;          // Look for a new signed release on launch and offer it
     public String hudStyle = "Modern";          // Look of every HUD panel: Modern / Glass / Vanilla / Tooltip
+    public boolean hudClampToScreen = false;    // draw off-screen HUD panels at the screen edge, stored position kept
+    public boolean hudEdgeAnchors = false;      // right/bottom panels keep their edge distance when the screen size changes
+    public java.util.Map<String, int[]> hudAnchorRefs = new java.util.HashMap<>(); // element -> screen w/h it was placed at
     @Global
     public String guiStyle = "Default";         // Look of the mod's screens: Default / Vanilla / Tooltip / Glass
     @Global
@@ -1858,6 +1861,7 @@ public class TeslaMapsConfig {
         if (c.imageShareBlocked == null) c.imageShareBlocked = new java.util.ArrayList<>();
         if (c.dragonPbs == null) c.dragonPbs = new java.util.HashMap<>();
         if (c.keybinds == null) c.keybinds = defaultKeybinds();
+        if (c.hudAnchorRefs == null) c.hudAnchorRefs = new java.util.HashMap<>();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
         if (!c.kuudraShortcutsAdded) {
             c.kuudraShortcutsAdded = true;
