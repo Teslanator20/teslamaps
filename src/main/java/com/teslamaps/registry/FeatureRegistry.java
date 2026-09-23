@@ -54,6 +54,7 @@ public final class FeatureRegistry {
 
     static void addHud(Feature f, String id, HudElement r, InventoryMode mode) {
         Hud h = new Hud(f, id, r, mode);
+        HUD_IDS.add(id);
         if (mode == InventoryMode.FOREGROUND) FOREGROUND.add(h);
         // in front of PLAYER_LIST = drawn under the tab list
         HudElementRegistry.attachElementBefore(VanillaHudElements.PLAYER_LIST,
@@ -67,12 +68,22 @@ public final class FeatureRegistry {
         com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
         HudEditElement e = c.hudClampToScreen || c.hudEdgeAnchors ? HudEditElement.forHud(id) : null;
         int dx = e == null ? 0 : e.shiftX(), dy = e == null ? 0 : e.shiftY();
-        if (dx == 0 && dy == 0) { r.extractRenderState(g, d); return; }
-        g.pose().pushMatrix();
-        g.pose().translate(dx, dy);
-        r.extractRenderState(g, d);
-        g.pose().popMatrix();
+        com.teslamaps.render.gui.HudStyle.beginPanel(id);
+        try {
+            if (dx == 0 && dy == 0) { r.extractRenderState(g, d); return; }
+            g.pose().pushMatrix();
+            g.pose().translate(dx, dy);
+            r.extractRenderState(g, d);
+            g.pose().popMatrix();
+        } finally {
+            com.teslamaps.render.gui.HudStyle.endPanel();
+        }
     }
+
+    static final List<String> HUD_IDS = new ArrayList<>();
+
+    /** Every registered HUD id, for per-panel settings. */
+    public static List<String> hudIds() { return HUD_IDS; }
 
     public static void tick(Minecraft client) {
         com.teslamaps.utils.ServerTickTimer.clientTick();

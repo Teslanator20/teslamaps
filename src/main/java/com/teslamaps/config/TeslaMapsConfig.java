@@ -244,6 +244,14 @@ public class TeslaMapsConfig {
     @Global
     public boolean updateCheck = true;          // Look for a new signed release on launch and offer it
     public String hudStyle = "Modern";          // Look of every HUD panel: Modern / Glass / Vanilla / Tooltip
+    public String hudCustomBg = "C0101014";         // HUD Style "Custom": fill (AARRGGBB)
+    public String hudCustomBorder = "FF5A5A6E";
+    public String hudCustomBorderMode = "Solid";   // Solid / Chroma / Fade
+    public String hudCustomBorderFade = "FF55FFFF"; // second colour of Fade
+    public float hudCustomRadius = 5f;
+    public float hudCustomBorderWidth = 1f;
+    public float hudCustomPadding = 5f;
+    public java.util.Map<String, String> hudPanelStyles = new java.util.HashMap<>(); // hud id -> own HUD Style
     public boolean hudClampToScreen = false;    // draw off-screen HUD panels at the screen edge, stored position kept
     public boolean hudEdgeAnchors = false;      // right/bottom panels keep their edge distance when the screen size changes
     public java.util.Map<String, int[]> hudAnchorRefs = new java.util.HashMap<>(); // element -> screen w/h it was placed at
@@ -1862,6 +1870,7 @@ public class TeslaMapsConfig {
         if (c.dragonPbs == null) c.dragonPbs = new java.util.HashMap<>();
         if (c.keybinds == null) c.keybinds = defaultKeybinds();
         if (c.hudAnchorRefs == null) c.hudAnchorRefs = new java.util.HashMap<>();
+        if (c.hudPanelStyles == null) c.hudPanelStyles = new java.util.HashMap<>();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
         if (!c.kuudraShortcutsAdded) {
             c.kuudraShortcutsAdded = true;

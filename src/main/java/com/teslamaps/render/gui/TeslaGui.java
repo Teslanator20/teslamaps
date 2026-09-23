@@ -30,6 +30,13 @@ public class TeslaGui {
                 x, y, width, height, radius, thickness, EDGE_PAD, argb, argb, null));
     }
 
+    public static void roundedOutlineGradient(GuiGraphicsExtractor ctx, float x, float y,
+                                              float width, float height, float radius,
+                                              float thickness, int topArgb, int bottomArgb) {
+        submit(ctx, new SdfRectRenderState(TeslaGuiPipelines.SDF_OUTLINE, ctx.pose(),
+                x, y, width, height, radius, thickness, EDGE_PAD, topArgb, bottomArgb, null));
+    }
+
     /** Outer glow / drop shadow. {@code blur} is the falloff distance in gui units. */
     public static void shadow(GuiGraphicsExtractor ctx, float x, float y,
                                float width, float height, float radius,

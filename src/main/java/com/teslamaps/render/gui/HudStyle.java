@@ -14,11 +14,24 @@ public class HudStyle {
     public static final String VANILLA = "Vanilla";
     public static final String TOOLTIP = "Tooltip";
     public static final String GLASS = "Glass";
+    public static final String CUSTOM = "Custom";
 
-    public static final String[] NAMES = {MODERN, GLASS, VANILLA, TOOLTIP};
+    public static final String[] NAMES = {MODERN, GLASS, VANILLA, TOOLTIP, CUSTOM};
+    public static final String[] BORDER_MODES = {"Solid", "Chroma", "Fade"};
+
+    /** HUD id being drawn right now, set by the registry, for per-panel styles. */
+    private static String panelId = null;
+
+    public static void beginPanel(String id) { panelId = id; }
+    public static void endPanel() { panelId = null; }
 
     public static String current() {
-        String style = TeslaMapsConfig.get().hudStyle;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String style = c.hudStyle;
+        if (panelId != null && c.hudPanelStyles != null && !c.hudPanelStyles.isEmpty()) {
+            String own = c.hudPanelStyles.get(panelId);
+            if (own != null) style = own;
+        }
         for (String name : NAMES) if (name.equals(style)) return name;
         return MODERN;
     }
@@ -45,6 +58,7 @@ public class HudStyle {
         return switch (current()) {
             case VANILLA -> 0;
             case TOOLTIP -> 4;
+            case CUSTOM -> Math.round(TeslaMapsConfig.get().hudCustomPadding);
             default -> 5;
         };
     }
@@ -59,8 +73,41 @@ public class HudStyle {
             case VANILLA -> { }   // SkyHanni draws its trackers on nothing at all
             case TOOLTIP -> tooltip(ctx, x, y, width, height);
             case GLASS -> TeslaGui.glassPanel(ctx, x, y, width, height, radius, 20, 45, 70, 16);
+            case CUSTOM -> custom(ctx, x, y, width, height);
             default -> TeslaGui.hudPanel(ctx, x, y, width, height, radius);
         }
+    }
+
+    /** User-set fill, border (solid / chroma / fade), radius and border width. */
+    private static void custom(GuiGraphicsExtractor ctx, float x, float y, float width, float height) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        float r = Math.max(0, Math.min(c.hudCustomRadius, Math.min(width, height) / 2f));
+        TeslaGui.roundedRect(ctx, x, y, width, height, r, TeslaMapsConfig.parseColor(c.hudCustomBg));
+        float bw = c.hudCustomBorderWidth;
+        if (bw <= 0) return;
+        int top, bottom;
+        switch (c.hudCustomBorderMode == null ? "Solid" : c.hudCustomBorderMode) {
+            case "Chroma" -> {
+                float h = (System.currentTimeMillis() % 4000L) / 4000f;
+                top = 0xFF000000 | java.awt.Color.HSBtoRGB(h, 0.8f, 1f);
+                bottom = 0xFF000000 | java.awt.Color.HSBtoRGB((h + 0.5f) % 1f, 0.8f, 1f);
+            }
+            case "Fade" -> {
+                int a = TeslaMapsConfig.parseColor(c.hudCustomBorder), b = TeslaMapsConfig.parseColor(c.hudCustomBorderFade);
+                double t = (System.currentTimeMillis() % 2500L) / 2500.0 * Math.PI * 2;
+                top = blend(a, b, (float) ((Math.sin(t) + 1) / 2));
+                bottom = blend(a, b, (float) ((Math.sin(t + Math.PI) + 1) / 2));
+            }
+            default -> top = bottom = TeslaMapsConfig.parseColor(c.hudCustomBorder);
+        }
+        TeslaGui.roundedOutlineGradient(ctx, x + bw / 2f, y + bw / 2f, width - bw, height - bw, r, bw, top, bottom);
+    }
+
+    private static int blend(int a, int b, float t) {
+        int aa = a >>> 24, ar = a >> 16 & 0xFF, ag = a >> 8 & 0xFF, ab = a & 0xFF;
+        int ba = b >>> 24, br = b >> 16 & 0xFF, bg = b >> 8 & 0xFF, bb = b & 0xFF;
+        return Math.round(aa + (ba - aa) * t) << 24 | Math.round(ar + (br - ar) * t) << 16
+                | Math.round(ag + (bg - ag) * t) << 8 | Math.round(ab + (bb - ab) * t);
     }
 
     /**
@@ -80,6 +127,7 @@ public class HudStyle {
             }
             case TOOLTIP -> tooltip(ctx, x, y, width, height);
             case GLASS -> TeslaGui.glassPanel(ctx, x, y, width, height, radius, 26, 45, 70, 16);
+            case CUSTOM -> custom(ctx, x, y, width, height);
             default -> TeslaGui.hudPanel(ctx, x, y, width, height, radius);
         }
     }
