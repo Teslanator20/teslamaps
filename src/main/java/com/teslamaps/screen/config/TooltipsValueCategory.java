@@ -49,6 +49,12 @@ public final class TooltipsValueCategory {
         b.color("  Level Color", () -> config.colorEnchantAbbrevLevel, v -> config.colorEnchantAbbrevLevel = v);
         b.toggle("Enchant Colors", () -> config.enchantColors, v -> config.enchantColors = v);
         b.toggle("Levels as Numbers", () -> config.enchantLevelsAsNumbers, v -> config.enchantLevelsAsNumbers = v);
+        b.dropdown("Enchant Layout", com.teslamaps.features.EnchantColors.LAYOUTS,
+                () -> config.enchantLayout, v -> config.enchantLayout = v);
+        b.info("Compressed = 3 per line, Stacked = 1 per line, both sorted");
+        b.toggle("Hide Enchant Descriptions", () -> config.enchantHideDescriptions, v -> config.enchantHideDescriptions = v);
+        b.toggle("Stacking Enchant Progress", () -> config.enchantStackingProgress, v -> config.enchantStackingProgress = v);
+        b.info("Expertise, Compact, Cultivating ... progress to the next level");
         b.toggle("Chroma Max Enchants (rainbow)", () -> config.enchantChromaMax, v -> config.enchantChromaMax = v);
         b.slider("  Chroma Size", 5f, 120f,
                 () -> config.chromaSize, v -> config.chromaSize = v, 0);

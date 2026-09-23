@@ -1139,6 +1139,9 @@ public class TeslaMapsConfig {
     public boolean enchantAbbrev = true;           // Write enchant + level onto enchanted book icons (Leg I)
     public boolean enchantColors = true;           // Recolor enchantments in item lore by level
     public boolean enchantLevelsAsNumbers = false; // Show enchant levels as numbers instead of roman numerals
+    public String enchantLayout = "Normal";        // Normal / Compressed / Stacked
+    public boolean enchantHideDescriptions = false;
+    public boolean enchantStackingProgress = false;
     public String colorEnchantAbbrev = "55FFFF";          // Book abbreviation colour
     public String colorEnchantAbbrevUltimate = "FF55FF";  // Book abbreviation colour for ultimates
     public String colorEnchantAbbrevLevel = "FFFFFF";     // Book abbreviation level colour
