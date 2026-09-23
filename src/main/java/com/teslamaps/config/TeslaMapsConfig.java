@@ -1292,6 +1292,19 @@ public class TeslaMapsConfig {
     public boolean hotspotShare = false;           // announce new hotspots to the party (needs a rod in hand)
     public boolean hotspotShareWaypoints = true;   // waypoints for hotspots shared by party members
     public boolean hotspotClosedTitle = false;     // title + bell when the nearest hotspot despawns
+    public String hotspotShareChannel = "Party";
+    public boolean hotspotShareManual = false;
+    public boolean hotspotShareXyz = false;
+    public boolean hotspotShareAllIslands = false;
+    public boolean hotspotShareFilter = false;
+    public boolean hotspotPerkSeaCreature = true;
+    public boolean hotspotPerkFishingSpeed = true;
+    public boolean hotspotPerkDoubleHook = true;
+    public boolean hotspotPerkTreasure = true;
+    public boolean hotspotPerkTrophy = true;
+    public boolean hotspotPerkShard = true;
+    public boolean hotspotFoundAlert = false;
+    public boolean hotspotShareTracer = false;
     public boolean hotspotGoneWarning = false;     // warn when the whirlpool you fish at stops
     public boolean hotspotGoneTitle = true;
     public String hotspotGoneSound = "NOTE_PLING";
@@ -1314,6 +1327,12 @@ public class TeslaMapsConfig {
     public int bobberTimerX = 10;
     public int bobberTimerY = 10;
     public float bobberTimerScale = 1.0f;
+    public boolean bobberTimerWorld = false;
+    public boolean bobberTimerThreshold = false;
+    public String colorBobberTimer = "#FFFFFF";
+    public String colorBobberTimerLate = "#FF5555";
+    public boolean bobberTimerPing = false;
+    public boolean bobberTimerSlug = false;
 
     public boolean gfsQueued = true;               // space /gfs commands out so Hypixel does not drop them
     public int gfsDefaultAmount = 1;               // amount used when /gfs is called without one
@@ -1467,8 +1486,18 @@ public class TeslaMapsConfig {
     public boolean safariNestESP = false;            // box the bee nests that spawn Honeybugs
     public boolean safariRecatchSpot = false;       // mark where an escaped critter comes back
     public boolean safariWallMarkers = false;       // mark the intact Snoozle / Troodon walls
+    public boolean safariWallSight = false;         // a wall only counts as broken once seen gone
+    public boolean safariWallLabels = false;        // "Snoozle wall 34m" over each marker
+    public boolean safariEncounterBanner = false;   // big READY / STARTED / DONE banner per encounter
+    public boolean safariBannerGemzie = true;
+    public boolean safariBannerWumpa = true;
+    public boolean safariBannerDoomspiral = true;
+    public boolean safariBannerBiomeOnly = false;
+    public String safariBannerChannel = "Nobody";
     public boolean safariSparklingAlert = true;     // alert on the WAX_ON particles of a sparkling critter
     public String safariSparklingChannel = "Nobody"; // post the sparkling coords: Nobody / Party / All
+    public boolean safariSparklingScreen = false;   // full-screen SPARKLING! wash
+    public boolean safariSparklingVisible = false;  // only sparklings with a free line of sight
     public boolean safariSparkleForce = true;       // render WAX_ON sparkles at any distance/particle setting
     public boolean safariAnnounceBiomeDone = true;  // alert when every critter of a biome is caught
     public boolean safariAnnounceUniqueDone = true; // alert when the whole dex is complete
@@ -1486,6 +1515,7 @@ public class TeslaMapsConfig {
     public String colorSafariNest = "#FFAA00";
     public String colorSafariRecatch = "#FFFF55";
     public String colorSafariWall = "#FF8800";
+    public String colorSafariWallTroodon = null;    // null = same as colorSafariWall
     // Foraging (Galatea / Moonglade Marsh + Torrhus Canyon)
     public boolean foragingMutePhantoms = false;    // silence Phantoms in Moonglade Marsh
     public boolean foragingMuteFusion = false;      // silence the Fusion Machine in Moonglade Marsh
@@ -1502,6 +1532,8 @@ public class TeslaMapsConfig {
     public String rareCatchSound = "NOTE_PLING";
     public float rareCatchVolume = 1.0f;
     public boolean rareCatchAnnounce = false;       // "I caught a X!" to party chat
+    public java.util.Map<String, Boolean> seaCreatureAlert = new java.util.HashMap<>();    // per-creature override of Counts As Rare
+    public java.util.Map<String, Boolean> seaCreatureAnnounce = new java.util.HashMap<>();
     public boolean rareCatchKeySwap = false;        // attack->O, use->I for a moment after a rare catch
     public float rareCatchKeySwapSeconds = 2.0f;    // 0-5s swap window
     public boolean rareCatchKeySwapAll = false;     // also trigger on party members' catch announces
@@ -2021,6 +2053,8 @@ public class TeslaMapsConfig {
         if (c.chatCommandsDisabled == null) c.chatCommandsDisabled = new ArrayList<>();
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
+        if (c.seaCreatureAlert == null) c.seaCreatureAlert = new java.util.HashMap<>();
+        if (c.seaCreatureAnnounce == null) c.seaCreatureAnnounce = new java.util.HashMap<>();
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();

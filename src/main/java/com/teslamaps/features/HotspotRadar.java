@@ -26,6 +26,10 @@ public class HotspotRadar {
     private static final long KEEP_MS = 30_000;
     private static final double ARRIVED_DISTANCE = 10;
     private static final double MAX_GUESS_DISTANCE = 800;
+    private static final long REUSE_GUARD_MS = 200;
+    private static final double SNAP_DISTANCE_SQ = 15 * 15;
+    private static final java.util.Set<String> NO_HOTSPOT_AREAS = java.util.Set.of(
+            "the catacombs", "catacombs", "kuudra", "the rift", "garden", "private island", "dungeon hub");
 
     private static final BezierFitter fitter = new BezierFitter(3);
 
@@ -34,13 +38,23 @@ public class HotspotRadar {
     private static volatile long lastUse = 0;
     private static volatile long lastHeld = 0;
     private static volatile long lastParticle = 0;
+    private static volatile boolean islandOk = true;
+    private static volatile Vec3 snapped = null;
+    private static Vec3 snappedFor = null;
+    private static int tickCounter = 0;
     private static long lastDebug = 0;
 
     /** Right clicking the radar starts a new trail. Main thread. */
     public static void onUseItem(ItemStack stack) {
         if (!TeslaMapsConfig.get().hotspotRadar) return;
         if (!RADAR_ID.equals(ItemUtil.skyblockId(stack))) return;
-        lastUse = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
+        // a second click while the trail still flies must not wipe it
+        if (now - lastParticle < REUSE_GUARD_MS) {
+            debug("radar reuse ignored, trail still flying", true);
+            return;
+        }
+        lastUse = now;
         synchronized (fitter) {
             fitter.reset();
         }
@@ -55,6 +69,34 @@ public class HotspotRadar {
         if (RADAR_ID.equals(ItemUtil.skyblockId(mc.player.getMainHandItem()))) {
             lastHeld = System.currentTimeMillis();
         }
+        if (++tickCounter % 10 != 0) return;
+        islandOk = com.teslamaps.utils.SkyblockUtils.isInSkyblock()
+                && !NO_HOTSPOT_AREAS.contains(com.teslamaps.utils.SkyblockUtils.getArea().toLowerCase(java.util.Locale.ROOT));
+        Vec3 guess = hotspot;
+        if (guess == null) {
+            snapped = null;
+            snappedFor = null;
+            return;
+        }
+        if (snapped != null && guess == snappedFor) return;
+        snappedFor = guess;
+        snapped = nearestHotspotStand(guess);
+    }
+
+    private static Vec3 nearestHotspotStand(Vec3 guess) {
+        Vec3 best = null;
+        double bestDist = SNAP_DISTANCE_SQ;
+        for (net.minecraft.world.entity.Entity e : com.teslamaps.utils.EntityCache.armorStands()) {
+            if (!e.isAlive() || !e.hasCustomName()) continue;
+            if (!"HOTSPOT".equals(com.teslamaps.utils.StringUtil.strip(e.getCustomName().getString()).trim())) continue;
+            double dx = e.getX() - guess.x, dz = e.getZ() - guess.z;
+            double d = dx * dx + dz * dz;
+            if (d < bestDist) {
+                bestDist = d;
+                best = new Vec3(e.getX(), e.getY() - 1, e.getZ());
+            }
+        }
+        return best;
     }
 
     /** Called from ClientPlayNetworkHandlerMixin on the netty thread - no world access here. */
@@ -63,6 +105,7 @@ public class HotspotRadar {
         if (!c.hotspotRadar) return;
         if (packet.getParticle().getType() != ParticleTypes.FLAME) return;
         if (packet.getCount() != 1 || packet.getMaxSpeed() != 0f) return;
+        if (!islandOk) return;
 
         long now = System.currentTimeMillis();
         if (now - lastUse > USE_WINDOW_MS && now - lastHeld > HELD_WINDOW_MS) {
@@ -92,11 +135,13 @@ public class HotspotRadar {
     }
 
     public static Vec3 guess() {
-        return hotspot;
+        Vec3 s = snapped;
+        return s != null ? s : hotspot;
     }
 
     public static void reset() {
         hotspot = null;
+        snapped = null;
         foundAt = 0;
         synchronized (fitter) {
             fitter.reset();
@@ -105,7 +150,7 @@ public class HotspotRadar {
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        Vec3 at = hotspot;
+        Vec3 at = guess();
         if (!c.hotspotRadar || at == null) return;
         if (System.currentTimeMillis() - foundAt > KEEP_MS) {
             reset();

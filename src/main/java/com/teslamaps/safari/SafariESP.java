@@ -34,7 +34,7 @@ public class SafariESP {
 
     private static final List<Marker> critters = new ArrayList<>();
     private static final List<BlockPos> nests = new ArrayList<>();
-    private static final List<BlockPos> walls = new ArrayList<>();
+    private static final List<SafariWalls.Wall> walls = new ArrayList<>();
     private static final List<Cluster> spots = new ArrayList<>();
     private static final java.util.Set<Long> looted = new java.util.HashSet<>();
     private static long lastNestScan = 0;
@@ -403,10 +403,17 @@ public class SafariESP {
         }
 
         int wallColor = TeslaMapsConfig.parseColor(c.colorSafariWall) | 0xFF000000;
-        for (BlockPos p : walls) {
-            AABB box = new AABB(p);
-            if (filled) ESPRenderer.drawFilledBox(matrices, box, wallColor & 0x00FFFFFF, cameraPos, through);
-            ESPRenderer.drawBoxOutline(matrices, box, wallColor, 2.0f, cameraPos, through);
+        int troodonColor = c.colorSafariWallTroodon == null ? wallColor
+                : TeslaMapsConfig.parseColor(c.colorSafariWallTroodon) | 0xFF000000;
+        for (SafariWalls.Wall w : walls) {
+            AABB box = new AABB(w.pos());
+            int color = w.critter().equals("Troodon") ? troodonColor : wallColor;
+            if (filled) ESPRenderer.drawFilledBox(matrices, box, color & 0x00FFFFFF, cameraPos, through);
+            ESPRenderer.drawBoxOutline(matrices, box, color, 2.0f, cameraPos, through);
+            if (w.label() != null) {
+                Vec3 mid = box.getCenter();
+                ESPRenderer.drawText(matrices, w.label(), new Vec3(mid.x, box.maxY + 0.5, mid.z), 1.2f, cameraPos, true, through);
+            }
         }
 
         for (Marker m : critters) {

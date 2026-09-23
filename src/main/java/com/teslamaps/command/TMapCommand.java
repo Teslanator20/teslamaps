@@ -497,6 +497,13 @@ public class TMapCommand {
                                                     : "§b[TeslaMaps] §fStopped tracking §e" + gone));
                                             return 1;
                                         }))))
+                .then(ClientCommands.literal("hotspotshare")
+                        .then(ClientCommands.argument("id", IntegerArgumentType.integer(0))
+                                .executes(context -> {
+                                    int id = IntegerArgumentType.getInteger(context, "id");
+                                    Minecraft.getInstance().execute(() -> com.teslamaps.features.HotspotShare.share(id));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("safari")
                         .executes(context -> {
                             for (String line : com.teslamaps.safari.SafariHistory.summary(5)) {

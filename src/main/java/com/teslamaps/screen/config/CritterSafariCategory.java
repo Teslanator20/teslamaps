@@ -32,8 +32,18 @@ public final class CritterSafariCategory {
         b.toggle("Check/Cross Icons", () -> config.safariChecklistIcons, v -> config.safariChecklistIcons = v);
         b.info("Green = caught, red = escaped, grey = not seen");
         b.label("Alerts");
+        b.toggle("Encounter Banners", () -> config.safariEncounterBanner, v -> config.safariEncounterBanner = v);
+        b.info("Gemzie / Wumpa / Doomspiral: READY, STARTED, DONE on screen");
+        b.toggle("  Gemzie", () -> config.safariBannerGemzie, v -> config.safariBannerGemzie = v);
+        b.toggle("  Wumpa", () -> config.safariBannerWumpa, v -> config.safariBannerWumpa = v);
+        b.toggle("  Doomspiral", () -> config.safariBannerDoomspiral, v -> config.safariBannerDoomspiral = v);
+        b.toggle("  Only In Its Biome", () -> config.safariBannerBiomeOnly, v -> config.safariBannerBiomeOnly = v);
+        b.channel("  Post Stages To", () -> config.safariBannerChannel, v -> config.safariBannerChannel = v);
         b.toggle("Sparkling Alert", () -> config.safariSparklingAlert, v -> config.safariSparklingAlert = v);
         b.channel("Sparkling Announce", () -> config.safariSparklingChannel, v -> config.safariSparklingChannel = v);
+        b.toggle("  Full Screen Alert", () -> config.safariSparklingScreen, v -> config.safariSparklingScreen = v);
+        b.info("Screen wash with SPARKLING!, the critter, biome and coords, 7s");
+        b.toggle("  Only When Visible", () -> config.safariSparklingVisible, v -> config.safariSparklingVisible = v);
         b.toggle("Force Sparkle Particles", () -> config.safariSparkleForce, v -> config.safariSparkleForce = v);
         b.info("Sparkles render at any distance and particle setting");
         b.toggle("Announce Biome Done", () -> config.safariAnnounceBiomeDone, v -> config.safariAnnounceBiomeDone = v);
@@ -69,11 +79,17 @@ public final class CritterSafariCategory {
         b.info("Marks where an escaped critter comes back");
         b.toggle("Hidden Critter Walls", () -> config.safariWallMarkers, v -> config.safariWallMarkers = v);
         b.info("Unbroken Snoozle / Troodon walls, while uncaught");
+        b.toggle("  Broken Only Once Seen", () -> config.safariWallSight, v -> config.safariWallSight = v);
+        b.info("A wall a partymate broke stays marked until you look at the spot");
+        b.toggle("  Labels With Distance", () -> config.safariWallLabels, v -> config.safariWallLabels = v);
         b.color("Sparkling Color", () -> config.colorSafariSparkling, v -> config.colorSafariSparkling = v);
         b.color("Bee Nest Color", () -> config.colorSafariNest, v -> config.colorSafariNest = v);
         b.color("Floor Spot Color", () -> config.colorCritterSpot, v -> config.colorCritterSpot = v);
         b.color("Recatch Spot Color", () -> config.colorSafariRecatch, v -> config.colorSafariRecatch = v);
         b.color("Wall Color", () -> config.colorSafariWall, v -> config.colorSafariWall = v);
+        b.color("Troodon Wall Color",
+                () -> config.colorSafariWallTroodon != null ? config.colorSafariWallTroodon : config.colorSafariWall,
+                v -> config.colorSafariWallTroodon = v);
         b.info("Hideyho and legendaries always get a name label");
         b.info("Critter boxes are coloured by shard rarity");
     }

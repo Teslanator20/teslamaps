@@ -122,7 +122,9 @@ public class SafariTracker {
             checkBoardReset();
             checkFull();
             RecatchSpots.tick();
+            SafariWalls.tick(Minecraft.getInstance());
         }
+        checkSparkling(in);
         wasInSafari = in;
         panels(in);
     }
@@ -531,6 +533,8 @@ public class SafariTracker {
 
     private static void clearRun() {
         RecatchSpots.reset();
+        SafariBanners.reset();
+        SafariWalls.reset();
         caughtSelf.clear();
         caughtAny.clear();
         gotAway.clear();
@@ -567,6 +571,7 @@ public class SafariTracker {
     public static void onChatMessage(String raw) {
         if (!TeslaMapsConfig.get().safariTracker) return;
         String msg = COLORS.matcher(raw).replaceAll("").trim();
+        SafariBanners.onChat(msg);
 
         Matcher m;
         if ((m = CAUGHT.matcher(msg)).matches() || (m = FOUND.matcher(msg)).matches()) {
@@ -618,7 +623,7 @@ public class SafariTracker {
         }
         if (msg.startsWith("You used the Soothing Incense to light the candle!")) {
             incense++;
-            if (incense >= 4) alert("doomspiral", "§5§lDOOMSPIRAL §7ritual complete - stay still");
+            if (incense >= 4 && !SafariBanners.handles("Doomspiral")) alert("doomspiral", "§5§lDOOMSPIRAL §7ritual complete - stay still");
             return;
         }
         if (msg.equals("Your ritual summoned a Doomspiral into this world. Stay still.")) {
@@ -628,7 +633,7 @@ public class SafariTracker {
         if ((m = GEM_PLACED.matcher(msg)).matches()) {
             gems.add(m.group(1));
             if (gems.size() >= 3) gemsDone = true;
-            if (gems.size() >= 3) alert("gemzie", "§5§lGEMZIE §7all three gems placed");
+            if (gems.size() >= 3 && !SafariBanners.handles("Gemzie")) alert("gemzie", "§5§lGEMZIE §7all three gems placed");
             return;
         }
         if (msg.startsWith("A rumbling sound can be heard, and the door at the back of the chamber opens")) {
@@ -641,12 +646,12 @@ public class SafariTracker {
         }
         if (msg.equals("You rang the bell!")) { bells++; return; }
         if (msg.startsWith("You hear the sound of massive footsteps")) {
-            alert("wumpa-spawn", "§6§lWUMPA §7has spawned in the Icy Biome");
+            if (!SafariBanners.handles("Wumpa")) alert("wumpa-spawn", "§6§lWUMPA §7has spawned in the Icy Biome");
             return;
         }
         if (msg.equals("The Wumpa has awoken.")) {
             wumpaAwake = true;
-            alert("wumpa-awake", "§6§lWUMPA §cawake");
+            if (!SafariBanners.handles("Wumpa")) alert("wumpa-awake", "§6§lWUMPA §cawake");
         }
     }
 
@@ -655,7 +660,10 @@ public class SafariTracker {
         if (c == null) return;
         ensureRun();
 
-        if (count) partyCatches.merge(c.name(), 1, Integer::sum);
+        if (count) {
+            partyCatches.merge(c.name(), 1, Integer::sum);
+            SafariBanners.onCatch(c.name());
+        }
         if (catcher != null) catchers.computeIfAbsent(c.name(), k -> new LinkedHashSet<>()).add(catcher);
 
         if (self) caughtSelf.add(c.name());
@@ -699,30 +707,66 @@ public class SafariTracker {
         }
     }
 
-    /** Sparkling critters spawn WAX_ON particles, which beats waiting for someone to catch it. */
+    private static final java.util.concurrent.ConcurrentLinkedQueue<Vec3> sparklePackets =
+            new java.util.concurrent.ConcurrentLinkedQueue<>();
+    private static int sparkleScanTicks = 0;
+
+    /** Sparkling critters spawn WAX_ON particles. Netty thread: only queue the position. */
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
-        if (!TeslaMapsConfig.get().safariSparklingAlert || !SafariData.inSafari()) return;
+        if (!TeslaMapsConfig.get().safariSparklingAlert) return;
         if (packet.getParticle().getType() != ParticleTypes.WAX_ON.getType()) return;
+        if (sparklePackets.size() >= 64) return;
+        sparklePackets.add(new Vec3(packet.getX(), packet.getY(), packet.getZ()));
+    }
 
+    private static void checkSparkling(boolean in) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
-
-        Vec3 at = new Vec3(packet.getX(), packet.getY(), packet.getZ());
-        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, AABB.ofSize(at, 1.0, 1.0, 1.0), a -> true)) {
-            if (as.getCustomName() == null) continue;
-            String name = COLORS.matcher(as.getCustomName().getString()).replaceAll("");
-            SafariData.Critter c = null;
-            for (SafariData.Critter candidate : SafariData.ALL) {
-                if (name.contains(candidate.name())) { c = candidate; break; }
-            }
-            if (c == null || !sparklingSeen.add(as.getUUID())) continue;
-
-            String pos = as.blockPosition().getX() + " " + as.blockPosition().getY() + " " + as.blockPosition().getZ();
-            alert("sparkling-" + as.getUUID(), "§d§lSPARKLING §f" + c.name() + " §7at §f" + pos);
-
-            com.teslamaps.features.Announce.send(TeslaMapsConfig.get().safariSparklingChannel, "SPARKLING " + c.name() + " at " + pos);
+        if (!in || !cfg.safariSparklingAlert || mc.level == null) {
+            sparklePackets.clear();
             return;
         }
+        Vec3 at;
+        while ((at = sparklePackets.poll()) != null) {
+            for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, AABB.ofSize(at, 1.0, 1.0, 1.0), a -> true)) {
+                if (as.getCustomName() == null) continue;
+                String name = COLORS.matcher(as.getCustomName().getString()).replaceAll("");
+                SafariData.Critter c = null;
+                for (SafariData.Critter candidate : SafariData.ALL) {
+                    if (name.contains(candidate.name())) { c = candidate; break; }
+                }
+                if (c != null && sparkling(mc, cfg, as, c)) break;
+            }
+        }
+        // critterMod's SparklingWatch: the label itself says Sparkling
+        if (++sparkleScanTicks < 10) return;
+        sparkleScanTicks = 0;
+        for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
+            if (!e.hasCustomName() || sparklingSeen.contains(e.getUUID())) continue;
+            String n = com.teslamaps.utils.StringUtil.strip(e.getCustomName().getString()).trim();
+            if (n.length() <= SPARKLING_PREFIX.length()
+                    || !n.regionMatches(true, 0, SPARKLING_PREFIX, 0, SPARKLING_PREFIX.length())) continue;
+            SafariData.Critter c = SafariData.byName(n.substring(SPARKLING_PREFIX.length()));
+            if (c != null) sparkling(mc, cfg, e, c);
+        }
+    }
+
+    private static boolean sparkling(Minecraft mc, TeslaMapsConfig cfg, net.minecraft.world.entity.Entity label, SafariData.Critter c) {
+        if (sparklingSeen.contains(label.getUUID())) return false;
+        // unseen ones stay unmarked, so they still fire once you come round the corner
+        if (cfg.safariSparklingVisible && !SafariSight.hasLineTo(label)) return false;
+        sparklingSeen.add(label.getUUID());
+
+        net.minecraft.core.BlockPos bp = label.blockPosition();
+        SafariData.Biome biome = SafariData.biomeAt(bp);
+        String pos = bp.getX() + " " + bp.getY() + " " + bp.getZ();
+        String where = biome == null ? pos : biome.label + " " + pos;
+        alert("sparkling-" + label.getUUID(), "§d§lSPARKLING §f" + c.name() + " §7at §f" + where);
+        if (cfg.safariSparklingScreen) {
+            SafariBanners.fullScreen("SPARKLING!", c.name(), where, TeslaMapsConfig.parseColor(cfg.colorSafariSparkling));
+        }
+        com.teslamaps.features.Announce.send(cfg.safariSparklingChannel, "SPARKLING " + c.name() + " at " + where);
+        return true;
     }
 
     private static long elapsed() {
