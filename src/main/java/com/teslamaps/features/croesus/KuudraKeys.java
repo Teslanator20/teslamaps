@@ -67,13 +67,24 @@ public final class KuudraKeys {
     static boolean hasKey(int index) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return true;
-        Inventory inv = mc.player.getInventory();
-        for (int i = 0; i < inv.getContainerSize(); i++) {
-            ItemStack s = inv.getItem(i);
-            if (!s.isEmpty() && StringUtil.stripTrim(s.getHoverName().getString()).equals(NAMES[index])) return true;
+        if (mc.player != keysPlayer || mc.player.tickCount != keysTick) {
+            keysPlayer = mc.player;
+            keysTick = mc.player.tickCount;
+            java.util.Arrays.fill(keys, false);
+            Inventory inv = mc.player.getInventory();
+            for (int i = 0; i < inv.getContainerSize(); i++) {
+                ItemStack s = inv.getItem(i);
+                if (s.isEmpty()) continue;
+                String name = StringUtil.stripTrim(s.getHoverName().getString());
+                for (int k = 0; k < NAMES.length; k++) if (NAMES[k].equals(name)) keys[k] = true;
+            }
         }
-        return false;
+        return keys[index];
     }
+
+    private static final boolean[] keys = new boolean[NAMES.length];
+    private static Object keysPlayer;
+    private static int keysTick;
 
     static void tick() {
         if (++ticks < 10) return;

@@ -82,6 +82,7 @@ public class HotspotShare {
         final String sender;
         final long createdAt = System.currentTimeMillis();
         final boolean own;
+        final String statLabel, senderLabel;
 
         Waypoint(String stat, BlockPos pos, String sender) {
             this(stat, pos, sender, false);
@@ -92,6 +93,8 @@ public class HotspotShare {
             this.pos = pos;
             this.sender = sender;
             this.own = own;
+            this.statLabel = "§b" + stat;
+            this.senderLabel = own ? "§7Found" : "§7Shared by " + sender;
         }
     }
 
@@ -354,8 +357,8 @@ public class HotspotShare {
 
             Vec3 anchor = new Vec3(w.pos.getX() + 0.5, w.pos.getY() + 1.8, w.pos.getZ() + 0.5);
             ESPRenderer.drawText(matrices, "§d§lHOTSPOT", anchor.add(0, 0.8, 0), 1.2f, cameraPos);
-            ESPRenderer.drawText(matrices, "§b" + w.stat, anchor.add(0, 0.4, 0), 1.0f, cameraPos);
-            ESPRenderer.drawText(matrices, w.own ? "§7Found" : "§7Shared by " + w.sender, anchor, 0.9f, cameraPos);
+            ESPRenderer.drawText(matrices, w.statLabel, anchor.add(0, 0.4, 0), 1.0f, cameraPos);
+            ESPRenderer.drawText(matrices, w.senderLabel, anchor, 0.9f, cameraPos);
             if (c.hotspotShareTracer) {
                 ESPRenderer.drawTracerFromCamera(matrices, new Vec3(w.pos.getX() + 0.5, w.pos.getY() + 0.5, w.pos.getZ() + 0.5),
                         WAYPOINT_OUTLINE, cameraPos);

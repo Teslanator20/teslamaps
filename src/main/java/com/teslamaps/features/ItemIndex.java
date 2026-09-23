@@ -239,7 +239,7 @@ public class ItemIndex {
         if (++chestTicks % 40 != 0 || !onPrivateIsland()) return;
         List<String> gone = new ArrayList<>();
         for (Map.Entry<String, Src> e : data.entrySet()) {
-            if (!Boolean.TRUE.equals(e.getValue().island)) continue;
+            if (Boolean.FALSE.equals(e.getValue().island)) continue;
             String k = e.getKey();
             BlockPos p = chestPosFromKey(k);
             if (p == null || !mc.level.isLoaded(p)) continue;
@@ -359,7 +359,7 @@ public class ItemIndex {
         src.names = names;
         src.amounts = amounts;
         src.lore = lore;
-        src.island = type.equals(CHESTS) && TeslaMapsConfig.get().islandChestTracker && onPrivateIsland() ? Boolean.TRUE : null;
+        src.island = type.equals(CHESTS) ? Boolean.valueOf(TeslaMapsConfig.get().islandChestTracker && onPrivateIsland()) : null;
         dropDecoded(key);
         dirty = true;
         trim();

@@ -183,6 +183,7 @@ public final class NpcWarps {
             Minecraft.getInstance().setScreen(null);
             useWarp();
         }
+        keyWasDown = true;
         return true;
     }
 

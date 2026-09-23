@@ -250,7 +250,7 @@ public final class EventTracker {
     }
 
     private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
-        if (el == null) return;
+        if (el == null || !SOUNDS.recording && !PARTICLES.recording) return;
         List<String> lines = new ArrayList<>();
         if (SOUNDS.recording) { lines.add("§eTracking sounds"); lines.addAll(SOUNDS.display); }
         if (PARTICLES.recording) { lines.add("§eTracking particles"); lines.addAll(PARTICLES.display); }

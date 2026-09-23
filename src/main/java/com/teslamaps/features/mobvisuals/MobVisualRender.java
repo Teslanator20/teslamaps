@@ -34,7 +34,7 @@ public final class MobVisualRender {
         float sh = mc.getWindow().getGuiScaledHeight();
         float scale = (float) (REFERENCE_GUI_SCALE / mc.getWindow().getGuiScale()) * TeslaMapsConfig.get().mobVisualNameplateScale;
 
-        for (Map.Entry<Entity, String> entry : MobVisuals.nameplates.entrySet()) {
+        for (Map.Entry<Entity, MobVisuals.Label> entry : MobVisuals.nameplates.entrySet()) {
             Entity entity = entry.getKey();
             if (entity.isRemoved()) continue;
             Vec3 center = entity.getPosition(partial).add(0, MobVisuals.renderAnchorHeight(entity), 0);
@@ -47,13 +47,13 @@ public final class MobVisualRender {
             float x = (float) (ndc.x * 0.5 + 0.5) * sw;
             float y = (float) (0.5 - ndc.y * 0.5) * sh;
 
-            String[] lines = entry.getValue().split("\n");
+            String[] lines = entry.getValue().lines();
             g.pose().pushMatrix();
             g.pose().translate(x, y);
             g.pose().scale(scale, scale);
             int top = -lines.length * mc.font.lineHeight / 2;
             for (int i = 0; i < lines.length; i++) {
-                g.text(mc.font, lines[i], -mc.font.width(lines[i]) / 2, top + i * mc.font.lineHeight, 0xFFFFFFFF, true);
+                g.text(mc.font, lines[i], -entry.getValue().widths()[i] / 2, top + i * mc.font.lineHeight, 0xFFFFFFFF, true);
             }
             g.pose().popMatrix();
         }
@@ -79,14 +79,14 @@ public final class MobVisualRender {
         }
 
         if (c.mobVisualNameplateHud) return;
-        for (Map.Entry<Entity, String> entry : MobVisuals.nameplates.entrySet()) {
+        for (Map.Entry<Entity, MobVisuals.Label> entry : MobVisuals.nameplates.entrySet()) {
             Entity entity = entry.getKey();
             if (entity.isRemoved()) continue;
 
             Vec3 center = entity.getPosition(partial)
                     .add(0, MobVisuals.renderAnchorHeight(entity), 0);
 
-            String[] lines = entry.getValue().split("\n");
+            String[] lines = entry.getValue().lines();
             // ESPRenderer grows text with distance, so the row gap has to grow with it -
             // a fixed world offset would drift apart the further away the mob is
             float dist = (float) center.distanceTo(cameraPos);

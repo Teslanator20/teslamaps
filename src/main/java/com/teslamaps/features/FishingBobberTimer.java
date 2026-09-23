@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.FishingRodItem;
@@ -52,8 +51,8 @@ public class FishingBobberTimer {
             return;
         }
 
-        FishingHook hook = bobber(mc);
-        if (hook == null || !holdingRod(mc)) {
+        FishingHook hook = holdingRod(mc) ? bobber(mc) : null;
+        if (hook == null) {
             reset();
             return;
         }
@@ -77,8 +76,8 @@ public class FishingBobberTimer {
         if (hook != null && !hook.isRemoved()) return hook;
         if (mc.level == null) return null;
         // player.fishing can be set late
-        for (Entity e : mc.level.entitiesForRendering()) {
-            if (e instanceof FishingHook h && !h.isRemoved() && h.getPlayerOwner() == mc.player) return h;
+        for (FishingHook h : com.teslamaps.utils.EntityCache.byType(FishingHook.class)) {
+            if (!h.isRemoved() && h.getPlayerOwner() == mc.player) return h;
         }
         return null;
     }

@@ -35,6 +35,7 @@ public class CroesusProfit {
     private static final Pattern COINS = Pattern.compile("^([0-9,]+) Coins$");
     private static final Pattern BOOK = Pattern.compile("^Enchanted Book \\((.+) ([IVX]+)\\)$");
     private static final Pattern ITEM_QTY = Pattern.compile("^(.+) x([0-9,]+)$"); // "Thorn Shard x1"
+    static final Pattern NON_ALNUM = Pattern.compile("[^A-Z0-9 ]");
 
     private static final int GRAY_COVER = 0xCC2A2A2E; // dims a slot so it looks empty ("as if nothing there")
 
@@ -237,10 +238,27 @@ public class CroesusProfit {
         }
     }
 
+    private static final java.util.IdentityHashMap<ItemLore, Parsed> parsedCache = new java.util.IdentityHashMap<>();
+    private static int parsedStamp;
+
     private static Parsed parseLore(ItemLore lore) {
-        Parsed r = new Parsed();
-        if (lore == null) return r;
+        if (lore == null) return new Parsed();
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        int stamp = java.util.Objects.hash(System.identityHashCode(cfg), TeslaMapsConfig.version(), PriceManager.version(),
+                cfg.croesusPriceSource, cfg.croesusKismetCost, cfg.croesusKuudraPetBonus, cfg.croesusKuudraSalvage, cfg.kuudraFaction);
+        if (stamp != parsedStamp || parsedCache.size() > 256) {
+            parsedStamp = stamp;
+            parsedCache.clear();
+        }
+        Parsed cached = parsedCache.get(lore);
+        if (cached != null) return cached;
+        Parsed r = parse(lore, cfg);
+        parsedCache.put(lore, r);
+        return r;
+    }
+
+    private static Parsed parse(ItemLore lore, TeslaMapsConfig cfg) {
+        Parsed r = new Parsed();
         boolean inCost = false;
         for (Component cmp : lore.lines()) {
             String l = strip(cmp.getString());
@@ -275,8 +293,9 @@ public class CroesusProfit {
             }
             Matcher book = BOOK.matcher(l);
             if (book.matches()) {
-                String bookId = bookId(book.group(1), roman(book.group(2)));
-                double p = WORTHLESS_BOOK.matcher(bookId).matches() ? 0 : bookValue(book.group(1), roman(book.group(2)));
+                String base = bookBase(book.group(1));
+                int level = roman(book.group(2));
+                double p = WORTHLESS_BOOK.matcher("ENCHANTMENT_" + base + "_" + level).matches() ? 0 : bookValue(base, level);
                 r.value += p;
                 r.breakdown.add(" §7" + l + ": §6" + fmt(p));
                 continue;
@@ -344,13 +363,11 @@ public class CroesusProfit {
         return n[0];
     }
 
-    private static String bookId(String name, int level) {
-        String base = name.toUpperCase().replace("'", "").replaceAll("[^A-Z0-9 ]", "").trim().replace(" ", "_");
-        return "ENCHANTMENT_" + base + "_" + level;
+    private static String bookBase(String name) {
+        return NON_ALNUM.matcher(name.toUpperCase().replace("'", "")).replaceAll("").trim().replace(" ", "_");
     }
 
-    private static double bookValue(String name, int level) {
-        String base = name.toUpperCase().replace("'", "").replaceAll("[^A-Z0-9 ]", "").trim().replace(" ", "_");
+    private static double bookValue(String base, int level) {
         double p = price("ENCHANTMENT_" + base + "_" + level);
         if (p > 0) return p;
         return price("ENCHANTMENT_ULTIMATE_" + base + "_" + level); // ultimate books drop the "Ultimate" word

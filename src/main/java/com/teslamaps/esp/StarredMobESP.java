@@ -925,13 +925,24 @@ public class StarredMobESP {
     public record EntityHighlight(Entity entity, int color) {}
 
     // shop / museum showcase items sit on (or under) an armor stand wearing a glass block
+    private static List<ArmorStand> glassSource;
+    private static final List<ArmorStand> glassStands = new ArrayList<>();
+
     private static boolean isShowcase(ItemEntity item) {
         if (item.isPassenger()) return true;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return false;
-        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, item.getBoundingBox().inflate(0.5, 2.5, 0.5), a -> true)) {
-            if (as.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).is(net.minecraft.world.item.Items.GLASS)) return true;
+        List<ArmorStand> stands = com.teslamaps.utils.EntityCache.armorStands();
+        if (stands != glassSource) {
+            glassSource = stands;
+            glassStands.clear();
+            for (ArmorStand as : stands) {
+                if (as.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).is(net.minecraft.world.item.Items.GLASS)) glassStands.add(as);
+            }
         }
+        if (glassStands.isEmpty()) return false;
+        AABB box = item.getBoundingBox().inflate(0.5, 2.5, 0.5);
+        for (ArmorStand as : glassStands) if (as.getBoundingBox().intersects(box)) return true;
         return false;
     }
 

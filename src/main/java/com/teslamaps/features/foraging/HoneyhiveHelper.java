@@ -42,6 +42,7 @@ public final class HoneyhiveHelper {
         int x, y, z;
         long readyAt;
         boolean observed;
+        transient String key, statusText;
 
         Hive() {}
 
@@ -51,12 +52,15 @@ public final class HoneyhiveHelper {
             this.z = z;
         }
 
-        String key() { return x + ":" + y + ":" + z; }
+        String key() {
+            if (key == null) key = x + ":" + y + ":" + z;
+            return key;
+        }
         boolean known() { return observed; }
         boolean ready(long now) { return observed && readyAt <= now; }
     }
 
-    private record Row(int number, Hive hive, String status) {}
+    private record Row(int number, Hive hive, String status, String label, int statusW) {}
 
     private static final int[][] KNOWN = {
             {-696, 93, 150}, {-693, 94, 147}, {-693, 93, 153}, {-664, 96, 170}, {-665, 97, 167},
@@ -174,6 +178,7 @@ public final class HoneyhiveHelper {
             clearReached(now);
             alertReady(now);
             playSound();
+            for (Hive h : hives) h.statusText = status(h, now);
         } else {
             soundsLeft = 0;
         }
@@ -312,7 +317,7 @@ public final class HoneyhiveHelper {
             ESPRenderer.drawBoxOutline(pose, box, COLOR, 2f, cam, true);
             Vec3 at = new Vec3(h.x + 0.5, h.y + 2.0, h.z + 0.5);
             ESPRenderer.drawText(pose, "§6§lHoneyhive", at.add(0, 0.35, 0), 1f, cam, true, true);
-            ESPRenderer.drawText(pose, status(h, now), at, 1f, cam, true, true);
+            ESPRenderer.drawText(pose, h.statusText != null ? h.statusText : status(h, now), at, 1f, cam, true, true);
         }
     }
 
@@ -331,7 +336,11 @@ public final class HoneyhiveHelper {
 
     private static void buildRows(long now) {
         List<Row> all = new ArrayList<>();
-        for (int i = 0; i < hives.size(); i++) all.add(new Row(i + 1, hives.get(i), status(hives.get(i), now)));
+        Font font = Minecraft.getInstance().font;
+        for (int i = 0; i < hives.size(); i++) {
+            String st = status(hives.get(i), now);
+            all.add(new Row(i + 1, hives.get(i), st, "§6Hive " + (i + 1), font.width(st)));
+        }
         all.sort((a, b) -> {
             if (a.hive.known() != b.hive.known()) return a.hive.known() ? -1 : 1;
             long ra = Math.max(0, a.hive.readyAt - now), rb = Math.max(0, b.hive.readyAt - now);
@@ -342,9 +351,8 @@ public final class HoneyhiveHelper {
         total = all.size();
         scroll = Math.max(0, Math.min(scroll, total - max));
         rows = all.subList(scroll, Math.min(total, scroll + max));
-        Font font = Minecraft.getInstance().font;
         int w = font.width("§6§lHoneyhives");
-        for (Row r : rows) w = Math.max(w, 10 + font.width("§6Hive " + r.number) + 8 + font.width(r.status));
+        for (Row r : rows) w = Math.max(w, 10 + font.width(r.label) + 8 + r.statusW);
         hudW = w;
         hudH = ROW_H + rows.size() * ROW_H + (total > rows.size() ? ROW_H : 0);
     }
@@ -390,8 +398,8 @@ public final class HoneyhiveHelper {
             if (icon == null) icon = new ItemStack(Items.BEE_NEST);
             g.item(icon, 0, 0);
             pose.popMatrix();
-            g.text(mc.font, "§6Hive " + r.number, 10, ry, 0xFFFFFFFF);
-            g.text(mc.font, r.status, hudW - mc.font.width(r.status), ry, 0xFFFFFFFF);
+            g.text(mc.font, r.label, 10, ry, 0xFFFFFFFF);
+            g.text(mc.font, r.status, hudW - r.statusW, ry, 0xFFFFFFFF);
             ry += ROW_H;
         }
         if (total > rows.size()) {

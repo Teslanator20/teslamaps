@@ -711,8 +711,9 @@ public class SafariTracker {
             new java.util.concurrent.ConcurrentLinkedQueue<>();
     private static int sparkleScanTicks = 0;
 
-    /** Sparkling critters spawn WAX_ON particles. Netty thread: only queue the position. */
+    /** Sparkling critters spawn WAX_ON particles. Only queue the position. */
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
+        if (!Minecraft.getInstance().isSameThread()) return;
         if (!TeslaMapsConfig.get().safariSparklingAlert) return;
         if (packet.getParticle().getType() != ParticleTypes.WAX_ON.getType()) return;
         if (sparklePackets.size() >= 64) return;
@@ -741,7 +742,7 @@ public class SafariTracker {
         // critterMod's SparklingWatch: the label itself says Sparkling
         if (++sparkleScanTicks < 10) return;
         sparkleScanTicks = 0;
-        for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
+        for (net.minecraft.world.entity.Entity e : com.teslamaps.utils.EntityCache.all()) {
             if (!e.hasCustomName() || sparklingSeen.contains(e.getUUID())) continue;
             String n = com.teslamaps.utils.StringUtil.strip(e.getCustomName().getString()).trim();
             if (n.length() <= SPARKLING_PREFIX.length()

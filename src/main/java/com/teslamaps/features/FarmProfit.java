@@ -110,11 +110,19 @@ public class FarmProfit {
         if (counted) pestKills.merge(pest, 1L, Long::sum);
     }
 
+    private static final java.util.Set<String> excludedLower = new java.util.HashSet<>();
+    private static List<String> excludedSource;
+
+    private static void rebuildExcluded(List<String> list) {
+        excludedSource = list;
+        excludedLower.clear();
+        for (String e : list) excludedLower.add(e.toLowerCase(java.util.Locale.ROOT));
+    }
+
     private static boolean excluded(String item) {
-        for (String e : com.teslamaps.config.TeslaMapsConfig.get().farmProfitExcluded) {
-            if (e.equalsIgnoreCase(item)) return true;
-        }
-        return false;
+        List<String> list = com.teslamaps.config.TeslaMapsConfig.get().farmProfitExcluded;
+        if (list != excludedSource) rebuildExcluded(list);
+        return excludedLower.contains(item.toLowerCase(java.util.Locale.ROOT));
     }
 
     /** Adds or removes an item from the exclusion list, returns true when it is excluded now. */
@@ -122,6 +130,8 @@ public class FarmProfit {
         List<String> list = com.teslamaps.config.TeslaMapsConfig.get().farmProfitExcluded;
         boolean removed = list.removeIf(e -> e.equalsIgnoreCase(item.trim()));
         if (!removed) list.add(item.trim());
+        rebuildExcluded(list);
+        rev++;
         com.teslamaps.config.TeslaMapsConfig.save();
         return !removed;
     }
@@ -229,10 +239,14 @@ public class FarmProfit {
     private static String lastHover = null;
     private static long lastHoverTime = 0L;
 
+    private static boolean isKernelMessage(String raw) {
+        return raw.contains("Kernel") && com.teslamaps.utils.StringUtil.stripTrim(raw).equals(KERNEL_MESSAGE);
+    }
+
     public static void onChatComponent(net.minecraft.network.chat.Component message) {
         if (!SkyblockUtils.isInGarden()) {
             if (SkyblockUtils.isInSkyblock() && com.teslamaps.config.TeslaMapsConfig.get().farmProfitKernels
-                    && message.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").trim().equals(KERNEL_MESSAGE)) {
+                    && isKernelMessage(message.getString())) {
                 record("Kernel", 1, kernelValue(), false);
             }
             return;
@@ -684,6 +698,7 @@ public class FarmProfit {
 
         gains.addLast(new Gain(System.currentTimeMillis(), item, amount, coins, pest));
         trim();
+        rev++;
 
         if (!loaded) load();
         long[] total = allTime.computeIfAbsent(item, k -> new long[2]);
@@ -702,8 +717,32 @@ public class FarmProfit {
 
     public record Entry(String item, long amount, double coins) {}
 
+    private static int rev, cacheRev = -1;
+    private static long cacheAt;
+    private static Window cacheWindow;
+    private static List<Entry> cachedEntries = List.of();
+    private static double cachedTotal, cachedPest;
+
+    private static void refresh() {
+        long now = System.currentTimeMillis();
+        if (rev == cacheRev && window == cacheWindow && now - cacheAt < 250) return;
+        cacheRev = rev;
+        cacheWindow = window;
+        cacheAt = now;
+        cachedEntries = java.util.Collections.unmodifiableList(computeEntries());
+        double total = 0;
+        for (Entry entry : cachedEntries) total += entry.coins();
+        cachedTotal = total;
+        cachedPest = computePestCoins();
+    }
+
     /** Totals for the active window, biggest earner first. */
     public static List<Entry> entries() {
+        refresh();
+        return cachedEntries;
+    }
+
+    private static List<Entry> computeEntries() {
         Map<String, long[]> counts = new HashMap<>();
         Map<String, Double> coins = new HashMap<>();
 
@@ -739,9 +778,8 @@ public class FarmProfit {
     }
 
     public static double totalCoins() {
-        double total = 0;
-        for (Entry entry : entries()) total += entry.coins();
-        return total;
+        refresh();
+        return cachedTotal;
     }
 
     /**
@@ -749,6 +787,11 @@ public class FarmProfit {
      * tracker reports. The rest is farmed crops.
      */
     public static double pestCoins() {
+        refresh();
+        return cachedPest;
+    }
+
+    private static double computePestCoins() {
         if (window == Window.ALL_TIME) return -1;   // source is not stored per item
         long cutoff = window == Window.SESSION
                 ? sessionStart
@@ -839,6 +882,7 @@ public class FarmProfit {
         sessionStart = 0L;
         lastGain = 0L;
         activeMillis = 0L;
+        rev++;
     }
 
     public static void cycleWindowBack() { window = window.previous(); }
@@ -852,6 +896,7 @@ public class FarmProfit {
 
     public static void resetAllTime() {
         allTime.clear();
+        rev++;
         save();
     }
 
@@ -866,6 +911,7 @@ public class FarmProfit {
 
     private static void load() {
         loaded = true;
+        rev++;
         try {
             if (Files.exists(PATH)) {
                 Map<String, long[]> read = GSON.fromJson(Files.readString(PATH), TYPE);

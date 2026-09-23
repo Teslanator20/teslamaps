@@ -120,7 +120,6 @@ public final class PartyTracker {
         if ((m = PARTY_CHAT.matcher(s)).find()) { add(m.group(1)); return; }
         if ((m = INVITE.matcher(s)).matches()) {
             add(m.group(1));
-            if (leader == null) leader = m.group(1);
             return;
         }
         if (QUEUED.matcher(s).matches()) {
