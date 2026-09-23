@@ -10,6 +10,19 @@ public final class ChatCategory {
 
     private ChatCategory() {}
 
+    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterWelcome", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterUselessWarnings", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterEventLevel", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterLegacyItems", "chatFilterParkour", "chatFilterTeleportPads", "chatFilterChefTed", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
+
+    private static void toggleAll(TeslaMapsConfig config, String[] fields) {
+        try {
+            int on = 0;
+            for (String f : fields) if (TeslaMapsConfig.class.getField(f).getBoolean(config)) on++;
+            boolean nv = on <= fields.length / 2;
+            if (nv) config.chatFilterEnabled = true;
+            for (String f : fields) TeslaMapsConfig.class.getField(f).setBoolean(config, nv);
+        } catch (ReflectiveOperationException ignored) {}
+        TeslaMapsConfig.save();
+    }
+
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Chat QoL");
         b.toggle("Infinite Chat History", () -> config.infiniteChat, v -> config.infiniteChat = v);
@@ -100,6 +113,7 @@ public final class ChatCategory {
         b.toggle("Hide Server Messages", () -> config.chatFilterServerMsgs, v -> config.chatFilterServerMsgs = v);
         b.toggle("Hide Profile Info", () -> config.chatFilterProfileInfo, v -> config.chatFilterProfileInfo = v);
         b.toggle("Hide HOTF/HOTM Perks", () -> config.chatFilterPerkBuffs, v -> config.chatFilterPerkBuffs = v);
+        b.toggle("  Keep Sky Mall/Lottery On Its Island", () -> config.chatFilterPerkBuffsElsewhere, v -> config.chatFilterPerkBuffsElsewhere = v);
         b.toggle("Hide Bone Plating", () -> config.chatFilterBonePlating, v -> config.chatFilterBonePlating = v);
         b.toggle("Hide Oruo Messages", () -> config.chatFilterOruo, v -> config.chatFilterOruo = v);
         b.toggle("Hide Wither King Heroes Line", () -> config.chatFilterWitherKingHeroes, v -> config.chatFilterWitherKingHeroes = v);
@@ -108,6 +122,33 @@ public final class ChatCategory {
         b.toggle("Hide Watchdog Announcements", () -> config.chatFilterWatchdog, v -> config.chatFilterWatchdog = v);
         b.toggle("Hide Mort Messages", () -> config.chatFilterMort, v -> config.chatFilterMort = v);
         b.toggle("Hide Milestones", () -> config.chatFilterMilestone, v -> config.chatFilterMilestone = v);
+        b.label("More Filters");
+        b.button("Toggle All More Filters", () -> toggleAll(config, MORE));
+        b.toggle("Hide All [BOSS] Lines", () -> config.chatFilterBossAll, v -> config.chatFilterBossAll = v);
+        b.toggle("Hide Lobby Messages", () -> config.chatFilterLobby, v -> config.chatFilterLobby = v);
+        b.toggle("Hide Welcome Message", () -> config.chatFilterWelcome, v -> config.chatFilterWelcome = v);
+        b.toggle("Hide Friend/Guild Join & Leave", () -> config.chatFilterFriendJoin, v -> config.chatFilterFriendJoin = v);
+        b.toggle("Hide More Warp/Visit Messages", () -> config.chatFilterWarpMore, v -> config.chatFilterWarpMore = v);
+        b.toggle("Hide Bazaar/AH Progress Lines", () -> config.chatFilterBzAhMinis, v -> config.chatFilterBzAhMinis = v);
+        b.toggle("Hide Slayer Quest Spam", () -> config.chatFilterSlayerSpam, v -> config.chatFilterSlayerSpam = v);
+        b.toggle("Hide Useless Warnings", () -> config.chatFilterUselessWarnings, v -> config.chatFilterUselessWarnings = v);
+        b.toggle("Hide Useless Notifications", () -> config.chatFilterUselessNotifications, v -> config.chatFilterUselessNotifications = v);
+        b.toggle("Hide Fire Sales", () -> config.chatFilterFireSale, v -> config.chatFilterFireSale = v);
+        b.toggle("Hide Event Level-Ups", () -> config.chatFilterEventLevel, v -> config.chatFilterEventLevel = v);
+        b.toggle("Hide Hoppity Egg Spawns", () -> config.chatFilterHoppity, v -> config.chatFilterHoppity = v);
+        b.toggle("Hide Chocolate Factory Upgrades", () -> config.chatFilterChocolateFactory, v -> config.chatFilterChocolateFactory = v);
+        b.toggle("Hide Others' Sacrifices", () -> config.chatFilterSacrifice, v -> config.chatFilterSacrifice = v);
+        b.toggle("Hide \"No Pests\" Line", () -> config.chatFilterNoPests, v -> config.chatFilterNoPests = v);
+        b.toggle("Hide Legacy Items Warning", () -> config.chatFilterLegacyItems, v -> config.chatFilterLegacyItems = v);
+        b.toggle("Hide Parkour Messages", () -> config.chatFilterParkour, v -> config.chatFilterParkour = v);
+        b.toggle("Hide Teleport Pad Messages", () -> config.chatFilterTeleportPads, v -> config.chatFilterTeleportPads = v);
+        b.toggle("Hide Chef Ted Donations", () -> config.chatFilterChefTed, v -> config.chatFilterChefTed = v);
+        b.toggle("Hide Reward Reminders", () -> config.chatFilterRewardBundles, v -> config.chatFilterRewardBundles = v);
+        b.toggle("Hide Gift Rewards", () -> config.chatFilterWinterGift, v -> config.chatFilterWinterGift = v);
+        b.toggle("Hide Anita Fortune (outside Garden)", () -> config.chatFilterAnita, v -> config.chatFilterAnita = v);
+        b.toggle("Hide Dungeon Rare Rewards (others)", () -> config.chatFilterRareRewards, v -> config.chatFilterRareRewards = v);
+        b.toggle("Hide Solo Class Messages", () -> config.chatFilterSoloClass, v -> config.chatFilterSoloClass = v);
+        b.toggle("Hide Fairy Messages", () -> config.chatFilterFairy, v -> config.chatFilterFairy = v);
         b.label("Command Suggestions");
         b.toggle("Suggest /warp and /call targets", () -> config.commandSuggestions, v -> config.commandSuggestions = v);
         b.toggle("  Suggest Players (/msg, /visit, ...)", () -> config.commandSuggestionsPlayers, v -> config.commandSuggestionsPlayers = v);
