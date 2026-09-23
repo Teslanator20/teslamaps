@@ -29,6 +29,10 @@ public final class ShardsCategory {
         b.toggle("Count Bazaar Orders", () -> config.shardIncludeOrders, v -> config.shardIncludeOrders = v);
         b.info("Open your bazaar orders once so they are known");
         b.toggle("Tier As Stack Size", () -> config.shardTierStack, v -> config.shardTierStack = v);
+        b.toggle("Tier Color Scale", () -> config.shardTierColors, v -> config.shardTierColors = v);
+        b.info("0 red, 1-5 yellow, 6-9 green, 10 gold");
+        b.toggle("Hide Maxed Tier", () -> config.shardHideMaxedTier, v -> config.shardHideMaxedTier = v);
+        b.toggle("Highlight Maxed / Unfinished", () -> config.shardHighlightProgress, v -> config.shardHighlightProgress = v);
         b.toggle("Highlight Disabled Attributes", () -> config.shardHighlightDisabled, v -> config.shardHighlightDisabled = v);
         b.info("Click a row to look the shard up on the bazaar");
         b.button("Reset Hunting Box Data",

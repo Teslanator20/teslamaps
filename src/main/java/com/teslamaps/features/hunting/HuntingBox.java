@@ -58,7 +58,7 @@ public class HuntingBox {
 
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.huntingBoxValue && !config.shardOverlay
-                && !config.shardTierStack && !config.shardHighlightDisabled) {
+                && !config.shardTierStack && !config.shardHighlightDisabled && !config.shardHighlightProgress) {
             ShardOverlay.update();   // drops whatever is still cached
             return;
         }

@@ -773,6 +773,9 @@ public class TeslaMapsConfig {
     public boolean shardIncludeOrders = true;   // Count what is already on order in the bazaar
     public boolean shardTierStack = true;       // Tier as the stack size in the attribute menu
     public boolean shardHighlightDisabled = true;   // Red tint over switched-off attributes
+    public boolean shardTierColors = false;
+    public boolean shardHideMaxedTier = false;
+    public boolean shardHighlightProgress = false;
     @Global
     public java.util.Map<String, Integer> shardsSyphoned = new java.util.HashMap<>(); // bazaar id -> total syphoned
     @Global
