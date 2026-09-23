@@ -25,5 +25,6 @@ final class Features {
         com.teslamaps.features.DragonESP.register();
         // wave 1b hud
         com.teslamaps.features.CombatTimers.register();
+        com.teslamaps.safari.SafariTracker.register();
     }
 }

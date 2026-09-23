@@ -1295,6 +1295,12 @@ public class TeslaMapsConfig {
     public int safariHudX = 5;
     public int safariHudY = 120;
     public float safariHudScale = 1.0f;
+    public boolean safariHudPanel = false;          // run HUD as a panel with bars, also "ready" / "last run"
+    public boolean safariMissingPanel = false;      // own panel: what the biome you stand in still needs
+    public boolean safariMissingNear = false;       // "n near" = critters in line of sight, plus mounds in sight
+    public int safariMissingX = 300;
+    public int safariMissingY = 20;
+    public float safariMissingScale = 1.0f;
     public boolean safariChecklist = true;          // per-biome critter checklist under the HUD
     public String safariChecklistBiome = "Auto";    // Auto = the biome you are standing in
     public boolean safariChecklistIcons = true;     // check/cross icons, off = colour the name only

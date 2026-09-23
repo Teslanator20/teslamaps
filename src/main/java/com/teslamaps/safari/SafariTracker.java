@@ -4,6 +4,7 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.LoudSound;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -49,6 +50,17 @@ public class SafariTracker {
     private static final Set<String> caughtAny = new HashSet<>();
     private static final Set<String> gotAway = new HashSet<>();
     private static final Map<SafariData.Biome, Integer> perBiome = new EnumMap<>(SafariData.Biome.class);
+    private static final Map<String, Integer> partyCatches = new HashMap<>();
+    private static final Map<String, Integer> attempts = new HashMap<>();
+    private static final Map<String, Set<String>> catchers = new HashMap<>();
+    private static Map<String, Integer> nearby = Map.of();
+    private static int moundsInSight = 0;
+    private static int scanTicks = 0;
+    private static int panelTicks = 0;
+    private static List<String> cachedLines = List.of();
+    private static SafariPanel missingPanel = null;
+    private static SafariPanel progressPanel = null;
+    private static RunView lastRun = null;
 
     private static long runStart = 0;
     private static int capsules = 0;
@@ -112,6 +124,291 @@ public class SafariTracker {
             RecatchSpots.tick();
         }
         wasInSafari = in;
+        panels(in);
+    }
+
+    /** Everything the HUDs and the run screen read, copied so a finished run can still be shown. */
+    public record RunView(long elapsedMs, boolean live, Set<String> caughtAny, Set<String> caughtSelf,
+                          Set<String> gotAway, Map<SafariData.Biome, Integer> perBiome,
+                          Map<String, Integer> partyCatches, Map<String, Integer> attempts,
+                          Map<String, Set<String>> catchers, int capsules, int escapes, int floorDrops,
+                          SafariData.Biome hotspot, String self) {
+
+        public int dex() { return caughtAny.size(); }
+        public int own() { return caughtSelf.size(); }
+        public int inBiome(SafariData.Biome b) { return perBiome.getOrDefault(b, 0); }
+        public int catches(SafariData.Critter c) { return partyCatches.getOrDefault(c.name(), 0); }
+        public int attempts(SafariData.Critter c) { return attempts.getOrDefault(c.name(), 0); }
+
+        /** Done with it: caught, and for a quota critter every spawn taken. */
+        public boolean complete(SafariData.Critter c) {
+            if (!caughtAny.contains(c.name())) return false;
+            int q = SafariData.quota(c);
+            return q <= 1 || catches(c) >= q;
+        }
+
+        /** Unique critters per player and biome, busiest first is up to the caller. */
+        public Map<String, Map<SafariData.Biome, Integer>> perPlayer() {
+            Map<String, Map<SafariData.Biome, Integer>> out = new java.util.TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            for (Map.Entry<String, Set<String>> e : catchers.entrySet()) {
+                SafariData.Critter c = SafariData.byName(e.getKey());
+                if (c == null) continue;
+                for (String who : e.getValue()) {
+                    out.computeIfAbsent(who, k -> new EnumMap<>(SafariData.Biome.class)).merge(c.biome(), 1, Integer::sum);
+                }
+            }
+            return out;
+        }
+    }
+
+    private static String selfName() {
+        return Minecraft.getInstance().getUser().getName();
+    }
+
+    private static RunView currentView() {
+        Map<String, Set<String>> who = new HashMap<>();
+        for (Map.Entry<String, Set<String>> e : catchers.entrySet()) who.put(e.getKey(), new LinkedHashSet<>(e.getValue()));
+        return new RunView(elapsed(), true, new HashSet<>(caughtAny), new HashSet<>(caughtSelf), new HashSet<>(gotAway),
+                new EnumMap<>(perBiome), new HashMap<>(partyCatches), new HashMap<>(attempts), who,
+                capsules, escapes, floorDrops, hotspot, selfName());
+    }
+
+    /** The live run, else the last one since launch, else null. */
+    public static RunView view() {
+        if (isActive()) return currentView();
+        return lastRun;
+    }
+
+    private static void panels(boolean in) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        Minecraft mc = Minecraft.getInstance();
+        if (in && c.safariMissingPanel && c.safariMissingNear && ++scanTicks >= 5) {
+            scanTicks = 0;
+            nearby = scanNearby(mc);
+            moundsInSight = SafariData.currentBiome() == SafariData.Biome.CAVERN ? SafariESP.visibleMounds(mc) : 0;
+        } else if (!in || !c.safariMissingNear) {
+            nearby = Map.of();
+            moundsInSight = 0;
+        }
+        if (++panelTicks < 10) return;
+        panelTicks = 0;
+        cachedLines = c.safariHud && isActive() && !c.safariHudPanel ? buildLines() : List.of();
+        progressPanel = c.safariHud && c.safariHudPanel && nearSafari() ? progressPanel(view()) : null;
+        SafariData.Biome here = in ? SafariData.currentBiome() : null;
+        missingPanel = c.safariMissingPanel && here != null ? missingPanel(here, runStart != 0 ? currentView() : null) : null;
+    }
+
+    /** The Safari or its entrance, where the "ready" / "last run" view is worth showing. */
+    private static boolean nearSafari() {
+        return com.teslamaps.utils.SkyblockUtils.getArea().toLowerCase().contains("safari");
+    }
+
+    private static final String SPARKLING_PREFIX = "Sparkling ";
+
+    // critterMod's CritterEntities + CritterSpotter: a label entity named exactly like the
+    // critter, the mob under it within 3 blocks, counted only with a free line of sight
+    private static Map<String, Integer> scanNearby(Minecraft mc) {
+        if (mc.level == null) return Map.of();
+        List<net.minecraft.world.entity.Entity> labels = new ArrayList<>();
+        List<SafariData.Critter> species = new ArrayList<>();
+        List<net.minecraft.world.entity.Entity> mobs = new ArrayList<>();
+        for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
+            SafariData.Critter named = null;
+            if (e.hasCustomName()) {
+                String n = com.teslamaps.utils.StringUtil.strip(e.getCustomName().getString()).trim();
+                named = SafariData.byName(n);
+                if (named == null && n.length() > SPARKLING_PREFIX.length()
+                        && n.regionMatches(true, 0, SPARKLING_PREFIX, 0, SPARKLING_PREFIX.length())) {
+                    named = SafariData.byName(n.substring(SPARKLING_PREFIX.length()));
+                }
+            }
+            if (named != null) {
+                labels.add(e);
+                species.add(named);
+            } else if (mobLike(e)) {
+                mobs.add(e);
+            }
+        }
+        Map<String, Integer> out = new HashMap<>();
+        for (int i = 0; i < labels.size(); i++) {
+            net.minecraft.world.entity.Entity label = labels.get(i);
+            net.minecraft.world.entity.Entity body = label;
+            double best = 9.0;
+            for (net.minecraft.world.entity.Entity m : mobs) {
+                double d = m.position().distanceToSqr(label.position());
+                if (d < best) { best = d; body = m; }
+            }
+            if (SafariSight.hasLineTo(body)) out.merge(species.get(i).name(), 1, Integer::sum);
+        }
+        return out;
+    }
+
+    private static boolean mobLike(net.minecraft.world.entity.Entity e) {
+        var t = e.getType();
+        return t != net.minecraft.world.entity.EntityType.ARMOR_STAND
+                && t != net.minecraft.world.entity.EntityType.INTERACTION
+                && t != net.minecraft.world.entity.EntityType.ITEM_DISPLAY
+                && t != net.minecraft.world.entity.EntityType.BLOCK_DISPLAY
+                && t != net.minecraft.world.entity.EntityType.TEXT_DISPLAY
+                && t != net.minecraft.world.entity.EntityType.PLAYER
+                && t != net.minecraft.world.entity.EntityType.ITEM;
+    }
+
+    private static final int DONE = 0xFF55FF55;
+    private static final int DIM = 0xFF888888;
+    private static final int WALL = 0xFFFFAA00;
+    private static final int HEADER = 0xFFFFAA00;
+    private static final int LABEL = 0xFFBBBBBB;
+    private static final int WHITE = 0xFFFFFFFF;
+    private static final int OWN = 0xFF55FFFF;
+
+    private static int near(SafariData.Critter c) {
+        return nearby.getOrDefault(c.name(), 0);
+    }
+
+    // critterMod's SessionManager.updateUnavailable: every Snoozle wall broken and none seen
+    private static boolean unavailable(RunView v, SafariData.Critter c) {
+        if (!c.name().equals("Snoozle") || v == null || v.catches(c) > 0 || near(c) > 0) return false;
+        int[] w = SafariWalls.state(Minecraft.getInstance(), "Snoozle");
+        return w != null && w[0] == 0 && w[1] == 0;
+    }
+
+    // Ported from critterMod's MissingHud.buildPanel
+    private static SafariPanel missingPanel(SafariData.Biome biome, RunView v) {
+        List<SafariData.Critter> roster = SafariData.in(biome);
+        List<SafariData.Critter> missing = new ArrayList<>();
+        List<SafariData.Critter> gone = new ArrayList<>();
+        List<SafariData.Critter> alsoHere = new ArrayList<>();
+        for (SafariData.Critter c : roster) {
+            if (unavailable(v, c)) gone.add(c);
+            else if (v == null || !v.complete(c)) missing.add(c);
+            else if (near(c) > 0) alsoHere.add(c);
+        }
+
+        SafariPanel panel = new SafariPanel();
+        int color = SafariData.argb(biome);
+        if (missing.isEmpty() && alsoHere.isEmpty()) {
+            panel.title(biome.label + " Biome", color);
+            panel.line("all " + roster.size() + " caught", DONE);
+        } else if (missing.isEmpty()) {
+            panel.title(biome.label + " Biome — all caught", DONE);
+        } else {
+            panel.title(biome.label + " Biome — " + missing.size() + " left", color);
+            for (SafariData.Critter c : missing) {
+                int n = near(c);
+                int q = SafariData.quota(c);
+                int tried = v == null ? 0 : v.attempts(c);
+                String note;
+                if (n > 0) note = n + " near";
+                else if (q > 1) note = (v == null ? 0 : v.catches(c)) + "/" + q;
+                else note = tried > 0 ? tried + " tried" : "";
+                panel.pair(c.name(), note, 0xFF000000 | c.rarity().color, DIM);
+            }
+        }
+        if (!gone.isEmpty()) {
+            panel.blank();
+            for (SafariData.Critter c : gone) panel.pair(c.name(), "none this run", DIM, DIM);
+        }
+        if (!alsoHere.isEmpty()) {
+            panel.blank();
+            panel.line("also here", DIM);
+            for (SafariData.Critter c : alsoHere) panel.pair(c.name(), near(c) + " near", DONE, DIM);
+        }
+        if (biome == SafariData.Biome.CAVERN) walls(panel, v, "Snoozle");
+        if (biome == SafariData.Biome.ICY) walls(panel, v, "Troodon");
+        if (biome == SafariData.Biome.CAVERN && moundsInSight > 0) {
+            panel.blank();
+            panel.pair("Mounds to break", String.valueOf(moundsInSight), WALL, DIM);
+        }
+        return panel;
+    }
+
+    private static void walls(SafariPanel panel, RunView v, String critter) {
+        SafariData.Critter c = SafariData.byName(critter);
+        if (c == null || (v != null && v.complete(c))) return;
+        int[] w = SafariWalls.state(Minecraft.getInstance(), critter);
+        if (w == null) return;
+        panel.blank();
+        if (w[0] == 0 && w[1] == 0) {
+            panel.line(critter + " walls all broken", DONE);
+            return;
+        }
+        panel.pair(critter + " walls to break", w[0] + (w[1] > 0 ? " (+" + w[1] + "?)" : ""), WALL, DIM);
+    }
+
+    // Ported from critterMod's CritterHud.buildPanel
+    private static SafariPanel progressPanel(RunView v) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        boolean waiting = v == null;
+        int total = SafariData.ALL.size();
+        SafariPanel panel = new SafariPanel();
+        panel.title(waiting ? "Critter Safari (ready)"
+                : v.live() ? "Critter Safari  " + SafariHistory.time(v.elapsedMs())
+                : "Critter Safari (last run)", HEADER);
+        int dex = waiting ? 0 : v.dex();
+        panel.bar("Party", dex, total, LABEL, dex >= total ? DONE : WHITE);
+        panel.bar("You", waiting ? 0 : v.own(), total, LABEL, OWN);
+        if (c.safariShowHotspot && !waiting && v.hotspot() != null) {
+            panel.pair("Hotspot", v.hotspot().label, LABEL, SafariData.argb(v.hotspot()));
+        }
+        panel.blank();
+        for (SafariData.Biome b : SafariData.Biome.values()) {
+            int max = SafariData.countIn(b);
+            int have = waiting ? 0 : v.inBiome(b);
+            boolean done = have >= max;
+            panel.bar(done ? b.label + " *" : b.label, have, max, SafariData.argb(b), done ? DONE : SafariData.argb(b));
+        }
+        if (!waiting) {
+            panel.blank();
+            panel.pair("Capsules", v.capsules() + " (" + v.escapes() + " esc)", LABEL, WHITE);
+            if (v.floorDrops() > 0) panel.pair("Floor Drops", String.valueOf(v.floorDrops()), LABEL, WHITE);
+            if (c.safariShowPb) {
+                int pb = SafariHistory.bestDex();
+                if (pb > 0) panel.pair("PB", pb + "/" + total, LABEL, dex > pb ? HEADER : WHITE);
+            }
+            Map<String, Map<SafariData.Biome, Integer>> players = v.perPlayer();
+            if (players.size() > 1) {
+                panel.blank();
+                for (Map.Entry<String, Map<SafariData.Biome, Integer>> e : players.entrySet()) {
+                    panel.pair(e.getKey(), describe(e.getValue()), e.getKey().equals(v.self()) ? DONE : OWN, DIM);
+                }
+            }
+        }
+        return panel;
+    }
+
+    private static String describe(Map<SafariData.Biome, Integer> counts) {
+        List<Map.Entry<SafariData.Biome, Integer>> list = new ArrayList<>(counts.entrySet());
+        list.sort((a, b) -> b.getValue() - a.getValue());
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<SafariData.Biome, Integer> e : list) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(e.getKey().label).append(' ').append(e.getValue());
+        }
+        return sb.length() == 0 ? "-" : sb.toString();
+    }
+
+    public static void register() {
+        var missing = com.teslamaps.registry.HudEditElement.of("safariMissing", "Safari Missing")
+                .ctx(com.teslamaps.registry.HudEditElement.HudCtx.SAFARI).section("Critter Safari")
+                .enabled(() -> TeslaMapsConfig.get().safariTracker && TeslaMapsConfig.get().safariMissingPanel)
+                .scaledSize(s -> (int) (missingPreview().width(Minecraft.getInstance().font) * s),
+                        s -> (int) (missingPreview().height() * s))
+                .scaleRange(0.5f, 5.0f)
+                .preview((g, mc, x, y, s) -> missingPreview().draw(g, mc.font, x, y, s));
+        com.teslamaps.registry.Feature.of("SafariMissing").section("Critter Safari")
+                .when(() -> TeslaMapsConfig.get().safariTracker && TeslaMapsConfig.get().safariMissingPanel)
+                .hud("safarimissing", (g, d) -> {
+                    SafariPanel p = missingPanel;
+                    if (p == null || com.teslamaps.utils.HudVisibility.suppressed()) return;
+                    p.draw(g, Minecraft.getInstance().font, missing.x(), missing.y(), missing.scale());
+                });
+    }
+
+    private static SafariPanel missingPreview() {
+        if (missingPanel != null) return missingPanel;
+        SafariData.Biome b = SafariData.currentBiome();
+        return missingPanel(b != null ? b : SafariData.Biome.ICY, null);
     }
 
     /** Warn once per run when the instance holds fewer than 4 players, announce once when it fills. */
@@ -194,6 +491,12 @@ public class SafariTracker {
     /** Anything shorter than a minute is a misfire, not a run. */
     private static void finishRun() {
         if (runStart == 0) return;
+        if (!caughtAny.isEmpty()) {
+            RunView v = currentView();
+            lastRun = new RunView(v.elapsedMs(), false, v.caughtAny(), v.caughtSelf(), v.gotAway(), v.perBiome(),
+                    v.partyCatches(), v.attempts(), v.catchers(), v.capsules(), v.escapes(), v.floorDrops(),
+                    v.hotspot(), v.self());
+        }
         long duration = System.currentTimeMillis() - runStart;
         if (duration < 60_000 || caughtAny.isEmpty()) return;
 
@@ -206,6 +509,7 @@ public class SafariTracker {
         run.escapes = escapes;
         run.floorDrops = floorDrops;
         run.hotspot = hotspot == null ? null : hotspot.label;
+        run.catches = new HashMap<>(partyCatches);
 
         int oldBest = SafariHistory.bestDex();
         SafariHistory.add(run);
@@ -225,6 +529,12 @@ public class SafariTracker {
         caughtAny.clear();
         gotAway.clear();
         perBiome.clear();
+        partyCatches.clear();
+        attempts.clear();
+        catchers.clear();
+        nearby = Map.of();
+        moundsInSight = 0;
+        missingPanel = null;
         gems.clear();
         alerted.clear();
         sparklingSeen.clear();
@@ -254,22 +564,24 @@ public class SafariTracker {
 
         Matcher m;
         if ((m = CAUGHT.matcher(msg)).matches() || (m = FOUND.matcher(msg)).matches()) {
-            record(m.group(1), true);
+            record(m.group(1), true, selfName(), true);
             return;
         }
         if ((m = LOOT_SHARE.matcher(msg)).matches()) {
-            record(m.group(2), false);
+            record(m.group(2), false, m.group(1), true);
             return;
         }
         if ((m = SPARKLING.matcher(msg)).matches()) {
-            record(m.group(2), false);
+            record(m.group(2), false, m.group(1), false);
             alert("sparkling-chat-" + m.group(2), "§d§lSPARKLING §f" + m.group(2) + " §7caught by " + m.group(1));
             return;
         }
         if ((m = THREW.matcher(msg)).matches()) {
             ensureRun();
             capsules++;
-            RecatchSpots.onThrow(SafariData.byName(m.group(1)));
+            SafariData.Critter thrown = SafariData.byName(m.group(1));
+            if (thrown != null) attempts.merge(thrown.name(), 1, Integer::sum);
+            RecatchSpots.onThrow(thrown);
             return;
         }
         if ((m = ESCAPED.matcher(msg)).matches() || (m = DODGED.matcher(msg)).matches()) {
@@ -332,10 +644,13 @@ public class SafariTracker {
         }
     }
 
-    private static void record(String name, boolean self) {
+    private static void record(String name, boolean self, String catcher, boolean count) {
         SafariData.Critter c = SafariData.byName(name);
         if (c == null) return;
         ensureRun();
+
+        if (count) partyCatches.merge(c.name(), 1, Integer::sum);
+        if (catcher != null) catchers.computeIfAbsent(c.name(), k -> new LinkedHashSet<>()).add(catcher);
 
         if (self) caughtSelf.add(c.name());
         RecatchSpots.onCaught(c);
@@ -499,7 +814,12 @@ public class SafariTracker {
         return missing;
     }
 
+    /** Built every half second in the tick; the editor preview builds its own. */
     public static List<String> lines() {
+        return cachedLines.isEmpty() ? buildLines() : cachedLines;
+    }
+
+    private static List<String> buildLines() {
         List<String> out = new ArrayList<>();
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
@@ -600,7 +920,13 @@ public class SafariTracker {
             drawWarn(context, mc);
         }
 
-        if (!c.safariHud || !isActive()) return;
+        if (!c.safariHud) return;
+        if (c.safariHudPanel) {
+            SafariPanel p = progressPanel;
+            if (p != null) p.draw(context, mc.font, c.safariHudX, c.safariHudY, c.safariHudScale);
+            return;
+        }
+        if (!isActive()) return;
         draw(context, mc, c.safariHudX, c.safariHudY, c.safariHudScale, lines());
     }
 
@@ -621,7 +947,15 @@ public class SafariTracker {
     }
 
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
+        if (TeslaMapsConfig.get().safariHudPanel) {
+            panelPreview().draw(context, mc.font, x, y, scale);
+            return;
+        }
         draw(context, mc, x, y, scale, lines());
+    }
+
+    private static SafariPanel panelPreview() {
+        return progressPanel != null ? progressPanel : progressPanel(view());
     }
 
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale, List<String> lines) {
@@ -650,6 +984,10 @@ public class SafariTracker {
     }
 
     public static int[] previewSize(net.minecraft.client.gui.Font font) {
+        if (TeslaMapsConfig.get().safariHudPanel) {
+            SafariPanel p = panelPreview();
+            return new int[] { p.width(font), p.height() };
+        }
         List<String> lines = lines();
         int w = 0;
         for (String line : lines) {

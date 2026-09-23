@@ -98,6 +98,30 @@ public class SafariData {
         return out;
     }
 
+    // critterMod's Critters.java: these spawn a fixed number per run, the rest respawn
+    private static final Map<String, Integer> QUOTA = Map.of(
+            "Gemzie", 3, "Troodon", 3, "Wumpa", 1, "Gazer", 4, "Hideyho", 1, "Doomspiral", 1);
+
+    /** Spawns per run, 0 when the critter keeps respawning. */
+    public static int quota(Critter c) {
+        return QUOTA.getOrDefault(c.name(), 0);
+    }
+
+    public static int argb(Biome b) {
+        return switch (b) {
+            case CAVERN -> 0xFFFFAA00;
+            case FOREST -> 0xFF00AA00;
+            case HAUNTED -> 0xFFAA00AA;
+            case ICY -> 0xFF55FFFF;
+        };
+    }
+
+    public static List<Critter> in(Biome biome) {
+        List<Critter> out = new ArrayList<>();
+        for (Critter c : ALL) if (c.biome() == biome) out.add(c);
+        return out;
+    }
+
     public static int countIn(Biome biome) {
         int n = 0;
         for (Critter c : ALL) if (c.biome() == biome) n++;
