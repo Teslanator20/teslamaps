@@ -38,9 +38,9 @@ public final class MapCategory {
                 () -> config.infoTextScale, v -> config.infoTextScale = v);
         b.toggle("Show Secrets", () -> config.showSecretCount, v -> config.showSecretCount = v);
         b.toggle("  Hide 1 Secret Count", () -> config.hideOneSecretCount, v -> config.hideOneSecretCount = v);
+        b.toggle("  Hide When Done", () -> config.hideSecretsWhenDone, v -> config.hideSecretsWhenDone = v);
         b.toggle("Show Crypts", () -> config.showCrypts, v -> config.showCrypts = v);
         b.toggle("  Show Total Crypts", () -> config.showTotalCrypts, v -> config.showTotalCrypts = v);
-        b.toggle("Hide When Done", () -> config.hideSecretsWhenDone, v -> config.hideSecretsWhenDone = v);
         b.toggle("Assume Paul Mayor", () -> config.assumePaulMayor, v -> config.assumePaulMayor = v);
         b.toggle("  Auto-detect Paul (Election API)", () -> config.paulAutoDetect, v -> config.paulAutoDetect = v);
         b.toggle("Check Spirit Pet on First Death", () -> config.spiritPetCheck, v -> config.spiritPetCheck = v);
