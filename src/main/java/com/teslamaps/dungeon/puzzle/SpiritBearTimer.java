@@ -2,6 +2,7 @@ package com.teslamaps.dungeon.puzzle;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
+import com.teslamaps.utils.ServerTickTimer;
 import java.util.Set;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -40,8 +41,10 @@ public class SpiritBearTimer {
     private static final BlockPos LAST_POSITION = new BlockPos(7, 77, 34);
 
     private static int kills = 0;
-    private static int timer = -1; // -1 = not spawning, 0 = alive, >0 = ticks until spawn
+    private static int timer = -1; // -1 = not spawning, 0 = alive, >0 = spawning (SPAWN runs)
+    private static final ServerTickTimer SPAWN = new ServerTickTimer();
     private static String lastFloor = "";
+    private static String text = null;
 
     public static void tick() {
         if (!TeslaMapsConfig.get().spiritBearTimer) {
@@ -60,11 +63,21 @@ public class SpiritBearTimer {
             return;
         }
 
+        // Odin: only in the boss, the clear showed a useless 0/25
+        if (!DungeonManager.isInBossArea()) {
+            lastFloor = "";
+            text = null;
+            return;
+        }
+
         lastFloor = floor;
 
-        if (timer > 0) {
-            timer--;
-        }
+        if (timer > 0 && !SPAWN.active()) timer = 0;
+
+        int maxKills = floor.contains("M4") ? 30 : 25;
+        if (timer < 0) text = "§6Spirit Bear: §d" + kills + "/" + maxKills;
+        else if (timer > 0) text = String.format("§6Spirit Bear: §e%.2fs", SPAWN.remaining() / 20f);
+        else text = "§6Spirit Bear: §aAlive!";
     }
 
     public static void onBlockUpdate(BlockPos pos, BlockState oldState, BlockState newState) {
@@ -73,6 +86,7 @@ public class SpiritBearTimer {
 
         String floor = DungeonManager.getFloorName();
         if (floor == null || (!floor.contains("F4") && !floor.contains("M4"))) return; // bear coords are F4/M4 boss only
+        if (!DungeonManager.isInBossArea()) return;
 
         Set<BlockPos> positions = floor.contains("M4") ? M4_POSITIONS : F4_POSITIONS;
         if (!positions.contains(pos)) return;
@@ -84,6 +98,7 @@ public class SpiritBearTimer {
             }
             if (pos.equals(LAST_POSITION)) {
                 timer = 68; // 3.4 seconds
+                SPAWN.start(68);
             }
         }
         else if (oldState.getBlock() == Blocks.SEA_LANTERN && newState.getBlock() == Blocks.COAL_BLOCK) {
@@ -92,6 +107,7 @@ public class SpiritBearTimer {
             }
             if (pos.equals(LAST_POSITION)) {
                 timer = -1;
+                SPAWN.stop();
             }
         }
     }
@@ -101,23 +117,13 @@ public class SpiritBearTimer {
     public static void render(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.spiritBearTimer) return;
-        if (lastFloor.isEmpty()) return;
+        String t = text;
+        if (lastFloor.isEmpty() || t == null) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        int maxKills = lastFloor.contains("M4") ? 30 : 25;
-
-        String text;
-        if (timer < 0) {
-            text = String.format("§6Spirit Bear: §d%d/%d", kills, maxKills);
-        } else if (timer > 0) {
-            text = String.format("§6Spirit Bear: §e%.2fs", timer / 20f);
-        } else {
-            text = "§6Spirit Bear: §aAlive!";
-        }
-
-        draw(context, mc, config.spiritBearX, config.spiritBearY, config.spiritBearScale, text);
+        draw(context, mc, config.spiritBearX, config.spiritBearY, config.spiritBearScale, t);
     }
 
     /** Draws the HUD at a position/scale. Used by the live HUD and the HUD editor preview. */
@@ -137,7 +143,9 @@ public class SpiritBearTimer {
     public static void reset() {
         kills = 0;
         timer = -1;
+        SPAWN.stop();
         lastFloor = "";
+        text = null;
     }
 
     public static boolean isActive() {
