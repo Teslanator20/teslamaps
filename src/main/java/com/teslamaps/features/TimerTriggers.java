@@ -81,6 +81,14 @@ public class TimerTriggers {
     private static final Mask PHOENIX = new Mask("phoenix", "§6Phoenix", 4000, 60000,
             "66b1b59bc890c9c97527787dde20600c8b86f6b9912d51a6bfcdb0e4c2aa3c97");
 
+    private static volatile long timeAnchor = -1, tickAnchor;
+
+    /** Time packet: re-sync the secret tick to the server clock. */
+    public static void onTimePacket(long gameTime) {
+        tickAnchor = com.teslamaps.utils.ServerTickTimer.now();
+        timeAnchor = gameTime;
+    }
+
     public static void onChatMessage(String m) {
         if (m.contains("The Catacombs, Floor") && m.contains("entered")) warpEnd = now() + 30000;
         if (m.contains("[BOSS] Storm: ENERGY HEED MY CALL!")
@@ -158,6 +166,7 @@ public class TimerTriggers {
         if (!inDungeon) {
             necronDropTicks = -1; goldorTicks = -1; goldorStartTicks = -1;
             stormPadTicks = -1; lightningTicks = -1;
+            timeAnchor = -1;
         }
 
         if (c.necronDropTimer && necronDropTicks >= 0) {
@@ -184,8 +193,11 @@ public class TimerTriggers {
         } else DungeonTimers.clear("lightning");
 
         if (c.secretTickTimer && mc.level != null && inDungeon
-                && !com.teslamaps.dungeon.DungeonManager.isInBoss()) {
-            int st = 20 - (int) (mc.level.getGameTime() % 20);
+                && !com.teslamaps.dungeon.DungeonManager.isInBossArea()) {
+            long gt = timeAnchor >= 0
+                    ? timeAnchor + (com.teslamaps.utils.ServerTickTimer.now() - tickAnchor)
+                    : mc.level.getGameTime();
+            int st = 20 - (int) (gt % 20);
             DungeonTimers.set("secrettick", "§7Secret§f: " + tickColor(st, 20) + fmtTicks(st));
         } else DungeonTimers.clear("secrettick");
     }
