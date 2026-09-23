@@ -1227,6 +1227,7 @@ public class TeslaMapsConfig {
     public int itemValueY = 60;
     public float itemValueScale = 1.0f;
     public boolean itemValueGui = false;            // show a value-breakdown panel beside the inventory when hovering an item
+    public int itemValueScreenKey = -1;              // over a slot: pinned, scrollable value breakdown screen
     public int itemValueHoverDelay = 500;           // ms on the same slot before the first breakdown of an inventory shows
     public int itemValueEnchantmentsCap = 7;        // only list the top # most expensive enchantments
     public int itemValueStarMaterialCap = 3;        // only list the top # most expensive star materials
