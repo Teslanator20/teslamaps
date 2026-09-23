@@ -82,6 +82,8 @@ public class MapConfigScreen extends Screen {
     protected String sliderEditText = "";
     private static final long DESC_DELAY_MS = 500;
     private SettingsEntry descHoverEntry = null;
+    private String descLinesFor;
+    private List<net.minecraft.util.FormattedCharSequence> descLines;
     protected SearchListEntry editingList = null;  // list whose search/colour field takes keys
     protected boolean rightClickedNow = false;
     private long descHoverStart = 0;
@@ -798,7 +800,11 @@ public class MapConfigScreen extends Screen {
             descHoverEntry = desc == null ? null : hoverEntry;
             descHoverStart = System.currentTimeMillis();
         } else if (System.currentTimeMillis() - descHoverStart >= DESC_DELAY_MS && !isMouseDown) {
-            context.setTooltipForNextFrame(font, font.split(Component.literal(desc), 220), mouseX, mouseY);
+            if (!desc.equals(descLinesFor)) {
+                descLinesFor = desc;
+                descLines = font.split(Component.literal(desc), 220);
+            }
+            context.setTooltipForNextFrame(font, descLines, mouseX, mouseY);
         }
 
         if (maxScroll > 0) {
