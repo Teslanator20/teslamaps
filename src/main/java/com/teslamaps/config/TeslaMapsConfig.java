@@ -938,6 +938,10 @@ public class TeslaMapsConfig {
     public int zoomFov = 30;                 // FOV while zoomed (1-110)
     public boolean zoomSmooth = true;        // Ease the FOV in and out instead of snapping
     public float zoomSmoothSpeed = 14f;      // Higher = snappier (1-30)
+    public boolean zoomToggle = false;       // Key toggles zoom instead of holding
+    public boolean zoomRememberScroll = false;
+    public boolean zoomRelativeSensitivity = false;
+    public boolean zoomHideHand = false;
 
     public boolean motionBlur = false;       // Blend the previous frame over the current one
     public float motionBlurStrength = 0.35f; // How much of the old frame survives (0-0.95)
