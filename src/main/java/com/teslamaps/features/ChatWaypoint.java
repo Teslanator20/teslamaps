@@ -1,14 +1,16 @@
 package com.teslamaps.features;
 
+// Formats from Skyblocker's ChatPositionShare.java, channel/sender/arrival from Devonian's ChatWaypoint.kt
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.render.ESPRenderer;
+import com.teslamaps.features.waypoints.WaypointSet;
+import com.teslamaps.registry.Feature;
+import com.teslamaps.utils.PlayerChat;
+import com.teslamaps.utils.StringUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,32 +18,81 @@ public class ChatWaypoint {
 
     private static final Pattern COORDS =
             Pattern.compile("x:\\s*(-?\\d+)[,.]?\\s*y:\\s*(-?\\d+)[,.]?\\s*z:\\s*(-?\\d+)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern AREA = Pattern.compile("^(?:\\.\\d*)?\\s*\\|\\s*(?<area>[^|]{1,40})");
+    private static final Pattern INQUISITOR = Pattern.compile(
+            "A MINOS INQUISITOR has spawned near \\[(?<area>[^]]*)] at Coords (-?\\d+)(?:\\.\\d*)? (-?\\d+)(?:\\.\\d*)? (-?\\d+)(?:\\.\\d*)?");
     private static final long DURATION_MS = 60_000;
+    private static final double ARRIVAL = 5;
 
-    private static final class WP { final BlockPos pos; final long until; WP(BlockPos p, long u) { pos = p; until = u; } }
-    private static final List<WP> waypoints = new ArrayList<>();
+    private static final WaypointSet waypoints = new WaypointSet().box(false).distance(false);
+    private static Object lastLevel;
+
+    public static void register() {
+        Feature.of("ChatWaypoint").section("Render").when(() -> cfg().chatWaypoint).tick(ChatWaypoint::tick);
+    }
+
+    private static TeslaMapsConfig cfg() {
+        return TeslaMapsConfig.get();
+    }
 
     public static void onChatMessage(String message) {
-        if (!TeslaMapsConfig.get().chatWaypoint) return;
-        String t = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        TeslaMapsConfig c = cfg();
+        if (!c.chatWaypoint) return;
+        String t = StringUtil.strip(message);
+        if (t.startsWith("[TeslaMaps]") || t.startsWith("[NPC] Treasure Hunter:")) return;
+
+        PlayerChat.Msg msg = PlayerChat.current();
+        if (msg != null && c.chatWaypointIgnoreAllChat && msg.channel() == PlayerChat.Channel.ALL) return;
+        if (msg != null && c.chatWaypointIgnoreOwn && msg.own()) return;
+
+        BlockPos pos = null;
+        String area = "";
         Matcher m = COORDS.matcher(t);
-        if (!m.find()) return;
+        if (m.find()) {
+            pos = pos(m.group(1), m.group(2), m.group(3));
+            Matcher a = AREA.matcher(t.substring(m.end()));
+            if (a.find()) area = a.group("area").trim();
+        } else if (c.chatWaypointMoreFormats) {
+            Matcher inq = INQUISITOR.matcher(t);
+            if (inq.find()) {
+                pos = pos(inq.group(2), inq.group(3), inq.group(4));
+                area = inq.group("area");
+            } else if (msg != null) {
+                pos = WaypointSet.fromChatLoose(msg.message());
+            }
+        }
+        if (pos == null) return;
+
+        String label = "§b" + pos.getX() + " " + pos.getY() + " " + pos.getZ();
+        if (c.chatWaypointDetails) {
+            if (msg != null) label = "§e" + msg.author() + " " + label;
+            if (!area.isEmpty()) label += " §7at §b" + area;
+        }
+        waypoints.add(pos, label, TeslaMapsConfig.parseColor(c.chatWaypointColor), DURATION_MS);
+    }
+
+    private static BlockPos pos(String x, String y, String z) {
         try {
-            BlockPos pos = new BlockPos(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)));
-            waypoints.add(new WP(pos, System.currentTimeMillis() + DURATION_MS));
-        } catch (NumberFormatException ignored) {}
+            return new BlockPos(Integer.parseInt(x), Integer.parseInt(y), Integer.parseInt(z));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private static void tick() {
+        Object level = Minecraft.getInstance().level;
+        if (level != lastLevel) {
+            lastLevel = level;
+            waypoints.clear();
+        }
+        TeslaMapsConfig c = cfg();
+        waypoints.distance(c.chatWaypointDetails).removeWithin(c.chatWaypointRemoveOnArrival ? ARRIVAL : -1);
+        waypoints.tick();
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (!TeslaMapsConfig.get().chatWaypoint || waypoints.isEmpty()) return;
-        long now = System.currentTimeMillis();
-        for (Iterator<WP> it = waypoints.iterator(); it.hasNext(); ) {
-            WP w = it.next();
-            if (now >= w.until) { it.remove(); continue; }
-            ESPRenderer.drawBeaconBeam(matrices, w.pos, 0xAA00FFFF, cameraPos);
-            Vec3 txt = new Vec3(w.pos.getX() + 0.5, w.pos.getY() + 1.5, w.pos.getZ() + 0.5);
-            ESPRenderer.drawText(matrices, "§b" + w.pos.getX() + " " + w.pos.getY() + " " + w.pos.getZ(), txt, 1.0f, cameraPos);
-        }
+        if (!cfg().chatWaypoint || waypoints.all().isEmpty()) return;
+        waypoints.render(matrices, cameraPos);
     }
 
     public static void reset() { waypoints.clear(); }

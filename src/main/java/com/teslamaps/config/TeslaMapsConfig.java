@@ -1086,6 +1086,13 @@ public class TeslaMapsConfig {
     public boolean blockOverlay = true;            // Outline the block you're looking at
     public String blockOverlayColor = "FFFFFF";     // Block overlay outline colour
     public boolean chatWaypoint = true;            // Render a waypoint beam from coords in chat
+    public boolean chatWaypointMoreFormats = false; // Also "x y z", "x, y, z" in player chat + Inquisitor lines
+    public boolean chatWaypointIgnoreAllChat = false;
+    public boolean chatWaypointIgnoreOwn = false;
+    public boolean chatWaypointDetails = false;     // Sender, area and distance in the label
+    public boolean chatWaypointRemoveOnArrival = false; // Drop the waypoint within 5 blocks
+    public String chatWaypointColor = "AA00FFFF";
+    public boolean chatWaypointShareArea = false;   // /tmap sendcoords appends "| <area>"
     public boolean npcFinder = true;               // /tmap npc - NPC search + warp/track waypoints
 
     // Ordered Waypoints (routes outside dungeons, Coleweight/Skytils format)

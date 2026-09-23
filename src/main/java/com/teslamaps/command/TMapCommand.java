@@ -1641,7 +1641,9 @@ public class TMapCommand {
                                 return 0;
                             }
                             var p = mc.player.blockPosition();
-                            mc.getConnection().sendCommand("pc x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ());
+                            String area = TeslaMapsConfig.get().chatWaypointShareArea ? com.teslamaps.utils.SkyblockUtils.getArea() : "";
+                            mc.getConnection().sendCommand("pc x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ()
+                                    + (area.isEmpty() ? "" : " | " + area));
                             return 1;
                         }))
         );
