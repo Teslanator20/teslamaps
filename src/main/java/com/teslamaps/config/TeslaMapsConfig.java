@@ -1253,6 +1253,7 @@ public class TeslaMapsConfig {
     public boolean storageShowNames = false;         // show page/backpack name headers in the custom storage view
     public float storageOverlayScale = 1.0f;        // overall size multiplier for the custom storage overlay (0.5 - 1.5)
     public boolean storageVanillaAfterSwap = false;  // after placing/removing a backpack, open the next storage menu in vanilla once
+    public boolean storageApiFill = false;           // empty storage cache: load pages from the skyblock api once
     public int storageColumns = 3;                   // page columns in the custom storage overlay (1 - 10)
     public int storageScrollSpeed = 20;              // px per wheel notch
     public boolean storageCompact = false;           // masonry: short backpacks leave no gaps
