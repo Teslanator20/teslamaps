@@ -17,9 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPacketListener.class)
 public class NoSoundsMixin {
 
-    private static final java.util.Set<String> WITHER_BLADES =
-            java.util.Set.of("HYPERION", "VALKYRIE", "SCYLLA", "ASTRAEA");
-
     @Inject(method = "handleSoundEvent", at = @At("HEAD"), cancellable = true)
     private void teslamaps$muteSounds(ClientboundSoundPacket packet, CallbackInfo ci) {
         process(packet.getSound().value(), packet.getVolume(), packet.getPitch(), ci);
@@ -38,11 +35,10 @@ public class NoSoundsMixin {
 
         if (c.noExplosionSound && sound == SoundEvents.GENERIC_EXPLODE.value()) { ci.cancel(); return; }
         if (c.noCreeperHurtSound && sound == SoundEvents.CREEPER_HURT) { ci.cancel(); return; }
+        if (c.muteBonzoStaff && c.muteBonzoStaffPrecise && sound == SoundEvents.GHAST_AMBIENT
+                && vol == 1f && pitch >= 1.3968254f && pitch <= 1.7936507f) { ci.cancel(); return; }
 
-        if (c.customHypeSound && holdingWitherBlade() && sound == SoundEvents.GENERIC_EXPLODE.value()) {
-            com.teslamaps.utils.LoudSound.play(
-                    com.teslamaps.utils.SoundOptions.resolve(c.customHypeSoundType),
-                    c.customHypeSoundVolume, c.customHypeSoundPitch);
+        if (c.customHypeSound && com.teslamaps.features.HypeSound.onSound(sound, vol, pitch)) {
             ci.cancel();
             return;
         }
@@ -67,11 +63,5 @@ public class NoSoundsMixin {
     private static boolean inCreeperBeams() {
         DungeonRoom room = DungeonManager.getCurrentRoom();
         return room != null && "Creeper Beams".equals(room.getName());
-    }
-
-    private static boolean holdingWitherBlade() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return false;
-        return WITHER_BLADES.contains(com.teslamaps.utils.ItemUtil.skyblockId(mc.player.getMainHandItem()));
     }
 }

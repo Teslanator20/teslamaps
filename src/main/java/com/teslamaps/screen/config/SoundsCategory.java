@@ -66,6 +66,7 @@ public final class SoundsCategory {
         b.toggle("No Explosion Sound", () -> config.noExplosionSound, v -> config.noExplosionSound = v);
         b.toggle("No Creeper Hurt Sound", () -> config.noCreeperHurtSound, v -> config.noCreeperHurtSound = v);
         b.toggle("Mute Bonzo Staff", () -> config.muteBonzoStaff, v -> config.muteBonzoStaff = v);
+        b.toggle("  Bonzo: Precise (keep real fireworks)", () -> config.muteBonzoStaffPrecise, v -> config.muteBonzoStaffPrecise = v);
         b.toggle("Mute Lightning", () -> config.muteLightning, v -> config.muteLightning = v);
         b.toggle("Custom Hype Sound (wither blades)", () -> config.customHypeSound, v -> config.customHypeSound = v);
         b.soundDropdown("Hype Sound",

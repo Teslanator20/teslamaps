@@ -583,11 +583,21 @@ public class TeslaMapsConfig {
     public boolean chatStackCompareColors = false; // Only stack lines whose colours match too
 
     public boolean pbOnJoin = true;               // Show a player's dungeon PBs when they join via party finder
+    public boolean pbOnJoinCard = false;          // full stats card (hover details, missing items, kick line) instead of the one-liner
     public boolean chatCommands = true;           // Party chat commands (!8ball, !cf, !warp, !pt, !kick, ...)
+    public boolean chatCommandsGuild = false;     // harmless !commands in guild chat too
+    public boolean chatCommandsDm = false;        // ... in private messages
+    public boolean chatCommandsCoop = false;      // ... in co-op chat
+    public boolean chatCommandsWhitelistOnly = false; // !pt/!kick/!promote/!demote/!allinv only from you + whitelist
+    @Global public List<String> chatCommandsWhitelist = new ArrayList<>(); // lowercase names, /tmap pcmd <name>
+    public List<String> chatCommandsDisabled = new ArrayList<>(); // switched-off command keys
 
     public boolean autoRequeue = true;           // Send /instancerequeue at the end of a dungeon
     public boolean requeueOnPartyR = true;       // Requeue when a party member types "r"
     public int requeueDelaySeconds = 0;           // Delay before requeuing
+    public boolean requeueDowntimeList = false;   // dt/!dt list, requeue only once everyone said r
+    public boolean requeueCheckParty = false;     // skip when the party size changed since the run started
+    public boolean requeueFeedback = false;       // chat line when a requeue is skipped
 
     // Per-class feature gates. true = feature active when playing that class.
     public static class ClassFilter {
@@ -727,6 +737,7 @@ public class TeslaMapsConfig {
     public boolean noCreeperHurtSound = true; // Mute creeper hurt sounds
     public boolean soundDebug = false;       // Print every incoming sound (id/vol/pitch) to chat
     public boolean muteBonzoStaff = false;   // Mute Bonzo's Staff impact (firework blast/twinkle sounds)
+    public boolean muteBonzoStaffPrecise = false; // only the Bonzo pitch window + its ghast moan, real fireworks stay
     public boolean muteLightning = false;    // Mute lightning/thunder sounds (Storm phase)
     public java.util.List<String> mutedSounds = new java.util.ArrayList<>(); // sound ids to mute ("id" or "id@pitch")
     public boolean noArrows = true;          // Hide arrow entities
@@ -1100,6 +1111,7 @@ public class TeslaMapsConfig {
     public boolean partyDuplicateAlert = true;     // Alert when the party has duplicate dungeon classes
     public boolean partyDuplicateSound = true;      // Play a sound on the duplicate-class alert
     public boolean partyDuplicateMessage = true;   // Announce duplicate classes to party chat
+    public boolean partyDuplicatePreStart = false; // check once at "Starting in 4 seconds." with class picks from chat + a title
     public boolean hideCheapCoins = true;          // Hide the spinning coin item entities from coin talismans
     public boolean warpCooldown = true;            // 30s warp/re-queue cooldown timer after a floor starts
     public boolean warpCooldownPerPlayer = false;   // one warp cooldown line per player who entered
@@ -1456,12 +1468,12 @@ public class TeslaMapsConfig {
     public boolean safariRecatchSpot = false;       // mark where an escaped critter comes back
     public boolean safariWallMarkers = false;       // mark the intact Snoozle / Troodon walls
     public boolean safariSparklingAlert = true;     // alert on the WAX_ON particles of a sparkling critter
-    public boolean safariSparklingParty = false;    // also post the sparkling coords to party chat
+    public String safariSparklingChannel = "Nobody"; // post the sparkling coords: Nobody / Party / All
     public boolean safariSparkleForce = true;       // render WAX_ON sparkles at any distance/particle setting
     public boolean safariAnnounceBiomeDone = true;  // alert when every critter of a biome is caught
     public boolean safariAnnounceUniqueDone = true; // alert when the whole dex is complete
     public boolean safariWarnNotFull = true;        // warn shortly after entry when fewer than 4 players are in
-    public boolean safariShareTimeParty = false;    // post those completion times to party chat
+    public String safariShareTimeChannel = "Nobody"; // post those completion times: Nobody / Party / All
     public boolean safariAutoHideyho = false;       // click the [Sure] the server put on the Hideyho question
     public int safariAutoHideyhoMinMs = 300;        // never answer faster than this
     public int safariAutoHideyhoJitterMs = 400;     // extra 0..n ms on top, so the delay varies
@@ -2005,6 +2017,8 @@ public class TeslaMapsConfig {
         if (c.invButtons == null || c.invButtons.isEmpty()) {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }
+        if (c.chatCommandsWhitelist == null) c.chatCommandsWhitelist = new ArrayList<>();
+        if (c.chatCommandsDisabled == null) c.chatCommandsDisabled = new ArrayList<>();
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
         migratePestEsp(c);

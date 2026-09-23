@@ -33,12 +33,12 @@ public final class CritterSafariCategory {
         b.info("Green = caught, red = escaped, grey = not seen");
         b.label("Alerts");
         b.toggle("Sparkling Alert", () -> config.safariSparklingAlert, v -> config.safariSparklingAlert = v);
-        b.toggle("Sparkling to Party Chat", () -> config.safariSparklingParty, v -> config.safariSparklingParty = v);
+        b.channel("Sparkling Announce", () -> config.safariSparklingChannel, v -> config.safariSparklingChannel = v);
         b.toggle("Force Sparkle Particles", () -> config.safariSparkleForce, v -> config.safariSparkleForce = v);
         b.info("Sparkles render at any distance and particle setting");
         b.toggle("Announce Biome Done", () -> config.safariAnnounceBiomeDone, v -> config.safariAnnounceBiomeDone = v);
         b.toggle("Announce Unique Done", () -> config.safariAnnounceUniqueDone, v -> config.safariAnnounceUniqueDone = v);
-        b.toggle("  Share Time To Party", () -> config.safariShareTimeParty, v -> config.safariShareTimeParty = v);
+        b.channel("  Share Time", () -> config.safariShareTimeChannel, v -> config.safariShareTimeChannel = v);
         b.toggle("Warn If Not Full", () -> config.safariWarnNotFull, v -> config.safariWarnNotFull = v);
         b.info("Screen warning + sound when fewer than 4 players are in");
         b.slider("Alert Volume", 0.0f, 3.0f,
