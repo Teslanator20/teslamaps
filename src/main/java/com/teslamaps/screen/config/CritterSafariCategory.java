@@ -66,13 +66,13 @@ public final class CritterSafariCategory {
         b.info("Run history: /tmap safari");
         b.label("ESP");
         b.toggle("Critter ESP (Safari)", () -> config.safariCritterESP, v -> config.safariCritterESP = v);
+        b.toggle("  Only Uncaught", () -> config.safariOnlyMissing, v -> config.safariOnlyMissing = v);
+        b.toggle("  Name Over Every Critter", () -> config.safariNames, v -> config.safariNames = v);
+        b.toggle("  Tracers To Named", () -> config.safariTracers, v -> config.safariTracers = v);
+        b.toggle("  Tracer To Hideyho", () -> config.safariHideyhoTracer, v -> config.safariHideyhoTracer = v);
         b.toggle("Filled Boxes", () -> config.safariFilled, v -> config.safariFilled = v);
         b.toggle("Legit Mode (Depth Check)", () -> config.safariLegitMode, v -> config.safariLegitMode = v);
         b.info("Nothing drawn through walls");
-        b.toggle("Only Uncaught", () -> config.safariOnlyMissing, v -> config.safariOnlyMissing = v);
-        b.toggle("Name Over Every Critter", () -> config.safariNames, v -> config.safariNames = v);
-        b.toggle("Tracers To Named", () -> config.safariTracers, v -> config.safariTracers = v);
-        b.toggle("Tracer To Hideyho", () -> config.safariHideyhoTracer, v -> config.safariHideyhoTracer = v);
         b.toggle("Bee Nest ESP", () -> config.safariNestESP, v -> config.safariNestESP = v);
         b.toggle("Floor Spot ESP", () -> config.critterSpotESP, v -> config.critterSpotESP = v);
         b.toggle("Recatch Spot", () -> config.safariRecatchSpot, v -> config.safariRecatchSpot = v);
