@@ -778,6 +778,7 @@ public class TeslaMapsConfig {
     @Global
     public double sensitivityBackup = -1;           // Player's own sensitivity while overridden, -1 = nothing pending
     public boolean pestOverlay = true;              // Cooldown / alive / infested plots panel
+    public boolean pestOverlayAlivePlots = false;   // alive count + infested plots rows
     public int pestOverlayX = 10;
     public int pestOverlayY = 60;
     public float pestOverlayScale = 1.0f;

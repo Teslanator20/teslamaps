@@ -43,6 +43,8 @@ public final class GardenCategory {
         b.label("Pest Tracker");
         b.toggle("Pest Overlay",
                 () -> config.pestOverlay, v -> config.pestOverlay = v);
+        b.toggle("  Alive + Infested Plots",
+                () -> config.pestOverlayAlivePlots, v -> config.pestOverlayAlivePlots = v);
         b.toggle("Cooldown Arms Routine",
                 () -> config.pestCooldownArmsRoutine, v -> config.pestCooldownArmsRoutine = v);
         b.slider("Profit Idle After (sec)", 30f, 600f,
