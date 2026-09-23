@@ -397,6 +397,16 @@ public class DungeonScore {
         return false;
     }
 
+    public static void markPrinceKilledManually() {
+        if (princeKilled || !DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
+        princeKilled = true;
+        lastScoreCalcTime = 0L;
+        if (!princeDeadMessageSent && TeslaMapsConfig.get().princeDeadMessage) {
+            princeDeadMessageSent = true;
+            com.teslamaps.features.Announce.party("Prince Dead!");
+        }
+    }
+
     public static void onMimicKilled() {
         mimicKilled = true;
     }

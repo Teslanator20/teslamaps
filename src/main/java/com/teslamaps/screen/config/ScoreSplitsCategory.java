@@ -16,6 +16,10 @@ public final class ScoreSplitsCategory {
         b.toggle("Announce 270 (/pc)", () -> config.announce270, v -> config.announce270 = v);
         b.toggle("Mimic Dead Message", () -> config.mimicDeadMessage, v -> config.mimicDeadMessage = v);
         b.toggle("Prince Dead Message", () -> config.princeDeadMessage, v -> config.princeDeadMessage = v);
+        b.buttonRow(new String[]{"Mimic Killed", "Prince Killed"}, new Runnable[]{
+                com.teslamaps.dungeon.MimicDetector::markKilledManually,
+                com.teslamaps.dungeon.DungeonScore::markPrinceKilledManually});
+        b.info("Sets the bonus by hand and sends the message if it was missed");
         b.toggle("Crypt Reminder (<5 at boss)", () -> config.cryptReminder, v -> config.cryptReminder = v);
         b.soundDropdown("  Crypt Reminder Sound",
                 com.teslamaps.utils.SoundOptions.keys(), () -> config.cryptReminderSound, v -> config.cryptReminderSound = v);

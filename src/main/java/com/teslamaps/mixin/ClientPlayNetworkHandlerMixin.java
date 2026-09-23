@@ -131,6 +131,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.OverkillCounter.onEntityEvent(packet.getEntity(mc.level), packet.getEventId());
         net.minecraft.world.entity.Entity target = packet.getEntity(mc.level);
         if (target != null) com.teslamaps.features.DeadMobHider.onEntityEvent(target.getId(), packet.getEventId());
+        if (target != null && mc.isSameThread()) com.teslamaps.dungeon.MimicDetector.onEntityEvent(target, packet.getEventId());
         com.teslamaps.debug.DeathProbe.onEntityEvent(packet, packet.getEventId());
     }
 
