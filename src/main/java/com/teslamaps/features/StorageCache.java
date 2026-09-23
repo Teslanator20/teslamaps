@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.teslamaps.TeslaMaps;
+import com.teslamaps.utils.ProfiledFile;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -30,17 +31,30 @@ public class StorageCache {
 
     private static final Gson GSON = new GsonBuilder().create();
     private static final Type TYPE = new TypeToken<Map<String, Entry>>() {}.getType();
-    private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("teslamaps").resolve("storage.json");
+    private static final ProfiledFile FILE = new ProfiledFile("storage.json",
+            FabricLoader.getInstance().getConfigDir().resolve("teslamaps").resolve("storage.json"));
+    private static Path path;
 
     private static Map<String, Entry> data = new HashMap<>();
     private static final Map<String, LinkedHashMap<Integer, ItemStack>> decoded = new HashMap<>();
     private static final Map<String, ItemStack> decodedIcon = new HashMap<>();
     private static boolean loaded = false;
+    private static boolean dirty = false;
+
+    private static void ensure() {
+        if (!loaded) load();
+        else if (FILE.stale()) { save(); load(); }
+    }
 
     public static void load() {
+        data = new HashMap<>();
+        dirty = false;
+        decoded.clear();
+        decodedIcon.clear();
+        path = FILE.path();
         try {
-            if (Files.exists(PATH)) {
-                Map<String, Entry> d = GSON.fromJson(Files.readString(PATH), TYPE);
+            if (Files.exists(path)) {
+                Map<String, Entry> d = GSON.fromJson(Files.readString(path), TYPE);
                 if (d != null) {
                     boolean changed = false;
                     var it = d.entrySet().iterator();
@@ -49,7 +63,7 @@ public class StorageCache {
                         if (e == null || e.slots == null || (e.size <= 0 && e.icon == null)) { it.remove(); changed = true; }
                     }
                     data = d;
-                    if (changed) save();
+                    if (changed) { dirty = true; save(); }
                 }
             }
         } catch (Exception e) {
@@ -59,31 +73,37 @@ public class StorageCache {
     }
 
     public static void save() {
+        if (!dirty || path == null) return;
+        dirty = false;
         try {
-            Files.createDirectories(PATH.getParent());
-            Files.writeString(PATH, GSON.toJson(data, TYPE));
+            Files.createDirectories(path.getParent());
+            Files.writeString(path, GSON.toJson(data, TYPE));
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("Failed to save storage.json", e);
         }
     }
 
     public static void put(String key, int size, LinkedHashMap<Integer, String> slots) {
-        if (!loaded) load();
+        ensure();
         Entry e = data.computeIfAbsent(key, k -> new Entry());
         e.size = size;
         e.slots = slots;
         decoded.remove(key);
+        dirty = true;
     }
 
     public static void putIcon(String key, String iconSnbt) {
-        if (!loaded) load();
+        ensure();
         if (iconSnbt == null) return;
-        data.computeIfAbsent(key, k -> new Entry()).icon = iconSnbt;
+        Entry e = data.computeIfAbsent(key, k -> new Entry());
+        if (iconSnbt.equals(e.icon)) return;
+        e.icon = iconSnbt;
+        dirty = true;
         decodedIcon.remove(key);
     }
 
     public static ItemStack icon(String key) {
-        if (!loaded) load();
+        ensure();
         if (decodedIcon.containsKey(key)) return decodedIcon.get(key);
         Entry e = data.get(key);
         ItemStack st = (e == null || e.icon == null) ? null : decode(e.icon);
@@ -92,18 +112,18 @@ public class StorageCache {
     }
 
     public static boolean has(String key) {
-        if (!loaded) load();
+        ensure();
         return data.containsKey(key);
     }
 
     public static int size(String key) {
-        if (!loaded) load();
+        ensure();
         Entry e = data.get(key);
         return e == null ? 0 : e.size;
     }
 
     public static LinkedHashMap<Integer, ItemStack> items(String key) {
-        if (!loaded) load();
+        ensure();
         LinkedHashMap<Integer, ItemStack> d = decoded.get(key);
         if (d != null) return d;
         Entry e = data.get(key);

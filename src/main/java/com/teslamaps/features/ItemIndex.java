@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.utils.ProfiledFile;
 import com.teslamaps.utils.StringUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -67,8 +68,9 @@ public class ItemIndex {
 
     private static final Gson GSON = new GsonBuilder().create();
     private static final Type MAP_TYPE = new TypeToken<Map<String, Src>>() {}.getType();
-    private static final Path PATH = FabricLoader.getInstance().getConfigDir()
-            .resolve("teslamaps").resolve("item_index.json");
+    private static final ProfiledFile FILE = new ProfiledFile("item_index.json",
+            FabricLoader.getInstance().getConfigDir().resolve("teslamaps").resolve("item_index.json"));
+    private static Path path;
 
     private static Map<String, Src> data = new LinkedHashMap<>();
     private static final Map<String, ItemStack> decoded = new LinkedHashMap<>();
@@ -86,10 +88,19 @@ public class ItemIndex {
             "Go Back", "Close", "Next Page", "Previous Page", "Back", "Search", "Sort",
             "Collect All", "Refresh", "Navigate Pages", "Sack of Sacks");
 
+    private static void ensure() {
+        if (!loaded) load();
+        else if (FILE.stale()) { save(); load(); }
+    }
+
     public static void load() {
+        data = new LinkedHashMap<>();
+        decoded.clear();
+        dirty = false;
+        path = FILE.path();
         try {
-            if (Files.exists(PATH)) {
-                Map<String, Src> d = GSON.fromJson(Files.readString(PATH), MAP_TYPE);
+            if (Files.exists(path)) {
+                Map<String, Src> d = GSON.fromJson(Files.readString(path), MAP_TYPE);
                 if (d != null) {
                     d.entrySet().removeIf(e -> e.getValue() == null || e.getValue().slots == null);
                     data = d;
@@ -102,18 +113,18 @@ public class ItemIndex {
     }
 
     public static void save() {
-        if (!dirty) return;
+        if (!dirty || path == null) return;
         dirty = false;
         try {
-            Files.createDirectories(PATH.getParent());
-            Files.writeString(PATH, GSON.toJson(data, MAP_TYPE));
+            Files.createDirectories(path.getParent());
+            Files.writeString(path, GSON.toJson(data, MAP_TYPE));
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("Failed to save item_index.json", e);
         }
     }
 
     public static void clear() {
-        if (!loaded) load();
+        ensure();
         data.clear();
         decoded.clear();
         dirty = true;
@@ -121,12 +132,12 @@ public class ItemIndex {
     }
 
     public static int sourceCount() {
-        if (!loaded) load();
+        ensure();
         return data.size();
     }
 
     public static int itemCount() {
-        if (!loaded) load();
+        ensure();
         int n = 0;
         for (Src s : data.values()) n += s.slots.size();
         return n;
@@ -141,7 +152,7 @@ public class ItemIndex {
 
     public static void tick() {
         if (!TeslaMapsConfig.get().itemSearchIndex) return;
-        if (!loaded) load();
+        ensure();
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { flush(); return; }
@@ -299,7 +310,7 @@ public class ItemIndex {
 
     /** @param typeFilter null or "" = every source type. */
     public static List<Hit> search(String query, String typeFilter) {
-        if (!loaded) load();
+        ensure();
         List<Hit> out = new ArrayList<>();
         String q = StringUtil.strip(query).toLowerCase(Locale.ROOT).trim();
         if (q.isEmpty()) return out;
