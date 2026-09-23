@@ -152,13 +152,41 @@ public class StorageOverlay {
         }
     }
 
+    public static void register() {
+        com.teslamaps.registry.Feature.of("StorageChat").section("Inventory").serverChat(StorageOverlay::onChat);
+    }
+
+    private static final java.util.regex.Pattern REMOVED_BACKPACK =
+            java.util.regex.Pattern.compile("^Removed backpack from slot (\\d+)!$");
+
+    private static boolean vanillaNext = false;
+    private static java.lang.ref.WeakReference<net.minecraft.client.gui.screens.Screen> vanillaScreen = new java.lang.ref.WeakReference<>(null);
+
+    private static void onChat(String raw) {
+        String t = strip(raw);
+        java.util.regex.Matcher m = REMOVED_BACKPACK.matcher(t);
+        if (m.matches()) StorageCache.remove("backpack_" + m.group(1));
+        if (TeslaMapsConfig.get().storageVanillaAfterSwap
+                && (t.startsWith("Placing backpack") || t.startsWith("Removed backpack"))) vanillaNext = true;
+    }
+
     public static boolean active() {
         if (!TeslaMapsConfig.get().customStorageOverlay) return false;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (vanillaScreen.get() == cs) return false;
         String t = strip(cs.getTitle().getString());
-        return t.equals("Storage") || BackpackPreview.keyFromTitle(t) != null;
+        if (!t.equals("Storage") && BackpackPreview.keyFromTitle(t) == null) return false;
+        if (vanillaNext && cs != lastScreen.get()) {
+            vanillaNext = false;
+            vanillaScreen = new java.lang.ref.WeakReference<>(cs);
+            return false;
+        }
+        lastScreen = new java.lang.ref.WeakReference<>(cs);
+        return true;
     }
+
+    private static java.lang.ref.WeakReference<net.minecraft.client.gui.screens.Screen> lastScreen = new java.lang.ref.WeakReference<>(null);
 
     private static int globalIndex(String key) {
         if (key == null) return -1;

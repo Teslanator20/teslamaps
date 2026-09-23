@@ -25,5 +25,6 @@ final class Features {
         com.teslamaps.features.DragonESP.register();
         // wave 1b inventory-b
         com.teslamaps.utils.SbProfile.register();
+        com.teslamaps.features.StorageOverlay.register();
     }
 }

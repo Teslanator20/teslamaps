@@ -92,6 +92,15 @@ public class StorageCache {
         dirty = true;
     }
 
+    public static void remove(String key) {
+        ensure();
+        if (data.remove(key) == null) return;
+        decoded.remove(key);
+        decodedIcon.remove(key);
+        dirty = true;
+        save();
+    }
+
     public static void putIcon(String key, String iconSnbt) {
         ensure();
         if (iconSnbt == null) return;

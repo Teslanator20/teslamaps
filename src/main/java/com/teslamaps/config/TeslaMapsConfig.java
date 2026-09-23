@@ -1239,6 +1239,7 @@ public class TeslaMapsConfig {
     public boolean customStorageOverlay = false;    // replace the vanilla "Storage" menu with a custom all-in-one view
     public boolean storageShowNames = false;         // show page/backpack name headers in the custom storage view
     public float storageOverlayScale = 1.0f;        // overall size multiplier for the custom storage overlay (0.5 - 1.5)
+    public boolean storageVanillaAfterSwap = false;  // after placing/removing a backpack, open the next storage menu in vanilla once
     public boolean critterESP = false;              // Torrhus Canyon critter ESP (master)
     public boolean critterFilled = true;            // also fill the critter boxes
     public boolean critterTracers = false;          // tracer to every boxed critter
