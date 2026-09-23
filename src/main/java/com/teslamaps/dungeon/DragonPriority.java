@@ -19,7 +19,48 @@ public class DragonPriority {
             for (Dragon d : spawningDragons) if (indexOf(DEFAULT_ORDER, d) < indexOf(DEFAULT_ORDER, best)) best = d;
             return best;
         }
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.witherDragonCustomPrio && validPrio(c.witherDragonSplitPrio) && validPrio(c.witherDragonNoSplitPrio)
+                && validTeam(c.witherDragonBersTeam)) {
+            return customPriority(spawningDragons, c);
+        }
         return sortPriority(spawningDragons);
+    }
+
+    public static boolean validPrio(String s) {
+        if (s == null || s.length() != 5) return false;
+        char[] chars = s.toLowerCase().toCharArray();
+        java.util.Arrays.sort(chars);
+        return new String(chars).equals("bgopr");
+    }
+
+    public static boolean validTeam(String s) {
+        if (s == null) return false;
+        for (char ch : s.toLowerCase().toCharArray()) if ("abhmt".indexOf(ch) < 0) return false;
+        return true;
+    }
+
+    // Ported from Devonian's DragonSpawnAlert.kt: the bers team takes the dragon earlier in the string
+    private static Dragon customPriority(List<Dragon> spawningDragons, TeslaMapsConfig config) {
+        double totalPower = WitherDragons.blessingPower * (config.witherDragonPaulBuff ? 1.25 : 1.0)
+                + (WitherDragons.blessingTime > 0 ? 2.5 : 0.0);
+        boolean hasPurple = spawningDragons.contains(Dragon.PURPLE);
+        boolean split = totalPower >= config.witherDragonNormalPower || (hasPurple && totalPower >= config.witherDragonEasyPower);
+
+        String prio = (split ? config.witherDragonSplitPrio : config.witherDragonNoSplitPrio).toLowerCase();
+        String team = split ? config.witherDragonBersTeam.toLowerCase() : "abhmt";
+        String playerClass = PlayerTracker.getLocalClass();
+        char role = playerClass == null || playerClass.isEmpty() ? 0 : Character.toLowerCase(playerClass.charAt(0));
+        boolean bersSide = role == 0 || team.indexOf(role) >= 0;
+
+        Comparator<Dragon> byPrio = Comparator.comparingInt(d -> prio.indexOf(Character.toLowerCase(d.dispName.charAt(0))));
+        spawningDragons.sort(bersSide ? byPrio : byPrio.reversed());
+
+        if (config.debugMode) {
+            WitherDragons.msg("§7Custom prio: §f" + prio + " §7split §f" + split + " §7class §f" + playerClass
+                    + " §7-> §" + spawningDragons.get(0).colorCode + spawningDragons.get(0).dispName);
+        }
+        return spawningDragons.get(0);
     }
 
     private static Dragon sortPriority(List<Dragon> spawningDragons) {

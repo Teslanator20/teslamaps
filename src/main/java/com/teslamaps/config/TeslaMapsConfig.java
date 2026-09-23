@@ -1415,6 +1415,13 @@ public class TeslaMapsConfig {
     public int witherDragonSoloDebuff = 0;           // 0 = Tank solos purple, 1 = Healer solos purple
     public boolean witherDragonSoloDebuffAll = true; // Solo-debuff split applies to all dragons, not just purple
     public boolean witherDragonPaulBuff = false;     // Multiply power by 1.25 (Paul mayor)
+    public boolean witherDragonCustomPrio = false;   // use the priority strings below instead of the built-in order
+    public String witherDragonSplitPrio = "ogrbp";   // bers team <- ... -> arch team, split
+    public String witherDragonNoSplitPrio = "robpg"; // no split
+    public String witherDragonBersTeam = "bmh";      // classes that split with bers (a b h m t)
+    public boolean witherDragonShowHigh = false;     // "HIGH" in the spawn title when the dragon spawns high
+    public int witherDragonAlertTicks = 20;          // spawn title duration
+    public boolean witherDragonAlertMute = false;    // no sound with the spawn title
     public boolean dragonBoxes = true;             // ESP box around each live wither dragon (by colour)
     public boolean dragonHealth = true;            // Show each dragon's health % above it
     public boolean hideDyingDragons = true;        // Hide a dragon once it's dying (health <= 0)
