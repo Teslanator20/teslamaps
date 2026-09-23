@@ -48,9 +48,7 @@ public final class SafariSight {
         if (now - paintingsAt >= PAINTING_CACHE_MS) {
             paintingsAt = now;
             List<AABB> found = new ArrayList<>();
-            for (Entity e : mc.level.entitiesForRendering()) {
-                if (e instanceof Painting) found.add(e.getBoundingBox());
-            }
+            for (Painting e : com.teslamaps.utils.EntityCache.byType(Painting.class)) found.add(e.getBoundingBox());
             paintings = found;
         }
         for (AABB p : paintings) {
