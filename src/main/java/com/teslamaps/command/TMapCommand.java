@@ -1603,6 +1603,7 @@ public class TMapCommand {
                                     TeslaMapsConfig.save();
                                     return 1;
                                 })))
+                .then(com.teslamaps.features.ChatUserFilters.command())
                 .then(ClientCommands.literal("mutesound")
                         .executes(context -> {
                             TeslaMapsConfig c = TeslaMapsConfig.get();

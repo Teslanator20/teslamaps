@@ -345,17 +345,22 @@ public class ChatFilter {
         pendingText = null;
         pendingOut = null;
         Rule r = match(text);
-        if (r == null) return false;
         if (r == SCREENSHOT) return true;
-
-        String action = actionOf(r);
         String t = StringUtil.strip(text);
-        switch (action) {
+        if (r != null) return apply(message, text, t, actionOf(r), COMPACT.get(r.id));
+        if (ChatUserFilters.match(t) != null) {
+            lastReason = "user";
+            return apply(message, text, t, TeslaMapsConfig.get().chatUserFilterAction, null);
+        }
+        return false;
+    }
+
+    private static boolean apply(Component message, String text, String t, String action, Function<String, String> f) {
+        switch (action == null ? "Hide" : action) {
             case "Grey" -> queue(text, grey(message));
             case "Compact", "Compact + Grey" -> {
                 // a web link would not survive the rebuild
                 if (hasClick(message, true)) return false;
-                Function<String, String> f = COMPACT.get(r.id);
                 String shortForm = f == null ? null : f.apply(t);
                 if (shortForm != null && shortForm.isEmpty()) return true;
                 boolean greyed = action.equals("Compact + Grey");

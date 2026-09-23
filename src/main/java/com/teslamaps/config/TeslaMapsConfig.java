@@ -470,6 +470,16 @@ public class TeslaMapsConfig {
     public String chatFilterAction = "Hide";     // Hide / Grey / Compact / Compact + Grey
     public java.util.Map<String, String> chatFilterGroupActions = new java.util.HashMap<>(); // group -> action, absent = default
     public boolean chatFilterKeepClickable = false; // Never hide lines that carry a command button
+    public java.util.List<ChatUserFilter> chatUserFilters = new java.util.ArrayList<>(); // /tmap chatfilter
+    public String chatUserFilterAction = "Hide";
+    public int chatFilterLineKey = -1;           // In open chat: filter the hovered line (GLFW code, -1 = unbound)
+
+    public static class ChatUserFilter {
+        public String mode = "contains";         // contains / equals / startswith / endswith / regex
+        public String text = "";
+        public ChatUserFilter() {}
+        public ChatUserFilter(String mode, String text) { this.mode = mode; this.text = text; }
+    }
     public boolean chatFilterWatcher = true;    // Hide "[BOSS] The Watcher:" lines
     public boolean chatFilterF4Boss = true;     // Hide F4/M4 boss taunt spam ("[BOSS] Thorn: ...")
     public boolean chatFilterBlessings = true;  // Hide "DUNGEON BUFF! ... Blessing of ..." + blessing pickups
@@ -1884,6 +1894,9 @@ public class TeslaMapsConfig {
         if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
         if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
         if (c.chatFilterGroupActions == null) c.chatFilterGroupActions = new java.util.HashMap<>();
+        if (c.chatUserFilters == null) c.chatUserFilters = new java.util.ArrayList<>();
+        c.chatUserFilters.removeIf(f -> f == null || f.text == null);
+        if (c.chatUserFilterAction == null) c.chatUserFilterAction = "Hide";
         if (c.chatFilterAction == null || c.chatFilterAction.isBlank()) c.chatFilterAction = "Hide";
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
         if (c.skillTrackerPin == null) c.skillTrackerPin = "";

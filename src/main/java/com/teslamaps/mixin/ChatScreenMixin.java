@@ -36,6 +36,16 @@ public class ChatScreenMixin {
         cir.setReturnValue(true);
     }
 
+    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$filterHoveredLine(net.minecraft.client.input.KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.chatFilterLineKey < 0 || event.key() != c.chatFilterLineKey || !c.section("Chat")) return;
+        GuiMessage msg = com.teslamaps.features.ChatHover.hovered();
+        if (msg == null) return;
+        com.teslamaps.features.ChatUserFilters.addLine(msg.content());
+        cir.setReturnValue(true);
+    }
+
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void teslamaps$copyOnRightClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         if (!TeslaMapsConfig.get().chatCopyEnabled) return;

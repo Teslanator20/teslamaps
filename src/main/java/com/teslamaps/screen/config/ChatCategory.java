@@ -142,6 +142,21 @@ public final class ChatCategory {
         b.toggle("Hide Watchdog Announcements", () -> config.chatFilterWatchdog, v -> config.chatFilterWatchdog = v);
         b.toggle("Hide Mort Messages", () -> config.chatFilterMort, v -> config.chatFilterMort = v);
         b.toggle("Hide Milestones", () -> config.chatFilterMilestone, v -> config.chatFilterMilestone = v);
+        b.label("Own Filters");
+        b.dropdown("Own Filter Action", com.teslamaps.features.ChatFilter.ACTIONS,
+                () -> config.chatUserFilterAction, v -> config.chatUserFilterAction = v);
+        b.keybind("Filter Hovered Line Key", () -> config.chatFilterLineKey, v -> config.chatFilterLineKey = v);
+        b.info("Press it over a line in open chat to hide that exact line");
+        b.info("/tmap chatfilter <contains|equals|startswith|endswith|regex> <text>");
+        b.button("List Own Filters In Chat", () -> {
+            var mc = Minecraft.getInstance();
+            if (mc.player == null) return;
+            mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§b[TeslaMaps] §f" + config.chatUserFilters.size() + " own chat filters"));
+            for (int i = 0; i < config.chatUserFilters.size(); i++) {
+                var f = config.chatUserFilters.get(i);
+                mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7" + (i + 1) + ". §e" + f.mode + " §f" + f.text));
+            }
+        });
         b.label("More Filters");
         b.button("Toggle All More Filters", () -> toggleAll(config, MORE));
         groupAction(b, config, com.teslamaps.features.ChatFilter.G_MORE, "  More Filter Action");
