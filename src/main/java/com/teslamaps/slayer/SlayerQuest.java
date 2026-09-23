@@ -82,7 +82,7 @@ public final class SlayerQuest {
         String b = null;
         int t = 0;
         boolean slay = false;
-        for (String raw : ScoreboardUtils.getScoreboardLines()) {
+        if (com.teslamaps.utils.SkyblockUtils.isInSkyblock()) for (String raw : ScoreboardUtils.getScoreboardLines()) {
             String line = ScoreboardUtils.cleanLine(raw);
             if (line.contains("Slay the boss")) {
                 slay = true;
