@@ -1135,6 +1135,8 @@ public class TeslaMapsConfig {
     public float customHypeSoundVolume = 1.0f;     // Volume for the custom hype sound (0.0 - 20.0)
     public float customHypeSoundPitch = 1.0f;      // Pitch for the custom hype sound (0.5 - 2.0)
     public boolean wardrobeKeybinds = true;        // Hotbar keys 1-9 switch wardrobe slots in the Wardrobe GUI
+    public boolean wardrobeKeepEquipped = false;   // pressing the key of the worn set does nothing
+    public boolean wardrobeShowKeys = false;       // key name on each wardrobe / loadout button
     public boolean leapCounter = false;            // F7: count teammates standing at your spot
     public boolean leapCounterSpots = false;       // count only at the known leap spots, with target count
     public boolean leapCounterAlert = false;       // title + sound once every expected player leaped

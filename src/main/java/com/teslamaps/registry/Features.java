@@ -25,5 +25,6 @@ final class Features {
         com.teslamaps.features.DragonESP.register();
         // wave 1b inventory-a
         com.teslamaps.features.ItemProtection.register();
+        com.teslamaps.features.WardrobeKeys.register();
     }
 }

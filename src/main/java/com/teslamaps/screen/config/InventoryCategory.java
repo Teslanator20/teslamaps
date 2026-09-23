@@ -134,6 +134,8 @@ public final class InventoryCategory {
         b.label("Wardrobe & Loadout Keybinds");
         b.toggle("Wardrobe Keybinds", () -> config.wardrobeKeybinds, v -> config.wardrobeKeybinds = v);
         b.info("Unbound slots fall back to your hotbar keys (1-9)");
+        b.toggle("  Don't Unequip Worn Set", () -> config.wardrobeKeepEquipped, v -> config.wardrobeKeepEquipped = v);
+        b.toggle("  Show Keys On Buttons", () -> config.wardrobeShowKeys, v -> config.wardrobeShowKeys = v);
         b.keybind("  Next Page",
                 () -> config.wardrobeNextPageKey, v -> config.wardrobeNextPageKey = v);
         b.keybind("  Previous Page",
