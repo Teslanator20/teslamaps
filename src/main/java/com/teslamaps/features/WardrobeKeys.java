@@ -79,6 +79,21 @@ public class WardrobeKeys {
         }
         if (want < 0) return false;
 
+        if (!mc.player.containerMenu.getCarried().isEmpty()) return true;
+        long now = System.currentTimeMillis();
+        if (now - lastClick < 300) return true;
+
+        int target = findTarget(cs, title, loadouts, want);
+        if (target < 0) return false;
+        if (c.wardrobeKeepEquipped && isEquipped(cs.getMenu().slots.get(target).getItem())) return true;
+        lastClick = now;
+        click(cs, target);
+        return true;
+    }
+
+    private static long lastClick = 0;
+
+    private static int findTarget(AbstractContainerScreen<?> cs, String title, boolean loadouts, int want) {
         int page = 1;
         Matcher m = PAGE.matcher(title);
         if (m.find()) page = Integer.parseInt(m.group(1));
@@ -96,9 +111,68 @@ public class WardrobeKeys {
                 break;
             }
         }
+        if (target >= cs.getMenu().slots.size() || cs.getMenu().slots.get(target).getItem().isEmpty()) return -1;
+        return target;
+    }
 
-        if (target >= 0) click(cs, target);
-        return true;
+    private static boolean isEquipped(net.minecraft.world.item.ItemStack stack) {
+        if (stack.is(net.minecraft.world.item.Items.LIME_DYE)) return true;
+        return com.teslamaps.utils.ItemUtil.loreContains(stack, "Click to unequip");
+    }
+
+    // ---------------------------------------------------------------- labels
+
+    private static java.util.Map<Integer, String> labels = java.util.Map.of();
+    private static int ticks = 0;
+
+    public static void tick() {
+        if (++ticks % 5 != 0) return;
+        Minecraft mc = Minecraft.getInstance();
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.wardrobeKeybinds || !c.wardrobeShowKeys || !(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+            if (!labels.isEmpty()) labels = java.util.Map.of();
+            return;
+        }
+        String title = StringUtil.strip(cs.getTitle().getString());
+        if (!isWardrobeScreen(title)) {
+            if (!labels.isEmpty()) labels = java.util.Map.of();
+            return;
+        }
+        boolean loadouts = title.endsWith("Loadouts");
+        int[] own = loadouts ? c.loadoutKeys : c.wardrobeKeys;
+        java.util.Map<Integer, String> out = new java.util.HashMap<>();
+        for (int i = 0; i < own.length; i++) {
+            String label = own[i] != -1 ? KeyNames.display(own[i])
+                    : i < 9 ? mc.options.keyHotbarSlots[i].getTranslatedKeyMessage().getString() : null;
+            if (label == null || label.isEmpty()) continue;
+            int target = findTarget(cs, title, loadouts, i);
+            if (target >= 0) out.put(target, label.length() > 3 ? label.substring(0, 3) : label);
+        }
+        labels = out;
+    }
+
+    public static void render(net.minecraft.client.gui.GuiGraphicsExtractor ctx) {
+        if (labels.isEmpty()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        com.teslamaps.mixin.HandledScreenAccessor acc = (com.teslamaps.mixin.HandledScreenAccessor) cs;
+        var slots = cs.getMenu().slots;
+        for (var e : labels.entrySet()) {
+            if (e.getKey() >= slots.size()) continue;
+            Slot slot = slots.get(e.getKey());
+            int x = acc.getX() + slot.x, y = acc.getY() + slot.y;
+            ctx.pose().pushMatrix();
+            ctx.pose().translate(x + 1, y + 10);
+            ctx.pose().scale(0.75f, 0.75f);
+            ctx.text(mc.font, e.getValue(), 0, 0, 0xFF55FFFF, true);
+            ctx.pose().popMatrix();
+        }
+    }
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("WardrobeKeys")
+                .when(() -> TeslaMapsConfig.get().wardrobeKeybinds)
+                .tick(WardrobeKeys::tick);
     }
 
     /** The page arrows are ordinary items, so they are found by their name like everything else. */

@@ -8,10 +8,12 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositione
 import net.minecraft.world.inventory.Slot;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
+import org.lwjgl.glfw.GLFW;
 
 public class ScrollableTooltip {
 
     private static int offset = 0;
+    private static int offsetX = 0;
     private static int lastSlot = -1;
     private static int externalSlot = -1;
 
@@ -29,20 +31,54 @@ public class ScrollableTooltip {
         return externalSlot;
     }
 
+    private static boolean down(int a, int b) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getWindow() == null) return false;
+        long h = mc.getWindow().handle();
+        return GLFW.glfwGetKey(h, a) == GLFW.GLFW_PRESS || GLFW.glfwGetKey(h, b) == GLFW.GLFW_PRESS;
+    }
+
+    private static void track(int slot) {
+        if (slot == lastSlot) return;
+        lastSlot = slot;
+        if (!TeslaMapsConfig.get().tooltipScrollKeep) { offset = 0; offsetX = 0; }
+    }
+
     public static boolean onScroll(double scrollY) {
-        if (!TeslaMapsConfig.get().scrollableTooltip) return false;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.scrollableTooltip) return false;
         int slot = focusedSlot();
         if (slot == -1) return false;
-        if (slot != lastSlot) { offset = 0; lastSlot = slot; }
-        offset += (int) (scrollY * 20);
+        track(slot);
+        double dir = c.tooltipScrollInvert ? -scrollY : scrollY;
+        if (c.tooltipScrollZoom && down(GLFW.GLFW_KEY_LEFT_CONTROL, GLFW.GLFW_KEY_RIGHT_CONTROL)) {
+            c.tooltipZoom = (float) Math.max(0.3, Math.min(3.0, c.tooltipZoom * (1 + 0.1 * Math.signum(scrollY))));
+        } else if (c.tooltipScrollHorizontal && down(GLFW.GLFW_KEY_LEFT_SHIFT, GLFW.GLFW_KEY_RIGHT_SHIFT)) {
+            offsetX += (int) (dir * c.tooltipScrollStep);
+        } else {
+            offset += (int) (dir * c.tooltipScrollStep);
+        }
         return true;
+    }
+
+    /** Ctrl+scroll zoom, 1 while the option is off. */
+    public static float zoom() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.scrollableTooltip || !c.tooltipScrollZoom) return 1f;
+        return c.tooltipZoom;
+    }
+
+    public static void reset() {
+        offset = 0;
+        offsetX = 0;
+        TeslaMapsConfig.get().tooltipZoom = 1f;
     }
 
     public static ClientTooltipPositioner wrap(ClientTooltipPositioner base) {
         if (!TeslaMapsConfig.get().scrollableTooltip) return base;
         int slot = focusedSlot();
         if (slot == -1) return base;
-        if (slot != lastSlot) { offset = 0; lastSlot = slot; }
+        track(slot);
 
         return (screenWidth, screenHeight, mouseX, mouseY, width, height) -> {
             Vector2ic pos = base.positionTooltip(screenWidth, screenHeight, mouseX, mouseY, width, height);
@@ -51,7 +87,12 @@ public class ScrollableTooltip {
             int max = screenHeight - 8 - y;
             if (offset < min) offset = min;
             if (offset > max) offset = max;
-            return new Vector2i(pos.x(), y + offset);
+            int x = pos.x();
+            int minX = 8 - x - width;
+            int maxX = screenWidth - 8 - x;
+            if (offsetX < minX) offsetX = minX;
+            if (offsetX > maxX) offsetX = maxX;
+            return new Vector2i(x + offsetX, y + offset);
         };
     }
 }

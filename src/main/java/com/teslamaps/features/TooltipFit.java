@@ -21,15 +21,16 @@ public class TooltipFit {
 
     /** Height vanilla computes for the same list, plus the background padding. */
     public static float begin(Font font, List<ClientTooltipComponent> lines, int guiHeight) {
-        scale = 1f;
-        if (!TeslaMapsConfig.get().tooltipFitScreen || lines.isEmpty()) return 1f;
+        float zoom = ScrollableTooltip.zoom();
+        scale = zoom;
+        if (!TeslaMapsConfig.get().tooltipFitScreen || lines.isEmpty()) return scale;
 
         int height = lines.size() == 1 ? -2 : 0;
         for (ClientTooltipComponent line : lines) height += line.getHeight(font);
         height += 8;
 
-        if (height <= guiHeight) return 1f;
-        scale = Math.max(MIN_SCALE, (float) guiHeight / height);
+        if (height * zoom <= guiHeight) return scale;
+        scale = Math.min(zoom, Math.max(MIN_SCALE, (float) guiHeight / height));
         return scale;
     }
 
@@ -41,7 +42,7 @@ public class TooltipFit {
     public static ClientTooltipPositioner wrap(ClientTooltipPositioner base) {
         return (screenWidth, screenHeight, mouseX, mouseY, width, height) -> {
             float f = scale;
-            if (f >= 1f) return base.positionTooltip(screenWidth, screenHeight, mouseX, mouseY, width, height);
+            if (f == 1f) return base.positionTooltip(screenWidth, screenHeight, mouseX, mouseY, width, height);
             Vector2ic pos = base.positionTooltip(
                     Math.round(screenWidth / f), Math.round(screenHeight / f),
                     Math.round(mouseX / f), Math.round(mouseY / f), width, height);

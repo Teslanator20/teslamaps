@@ -23,5 +23,9 @@ final class Features {
         com.teslamaps.features.LividTimer.register();
         com.teslamaps.dungeon.puzzle.TerracottaTimer.register();
         com.teslamaps.features.DragonESP.register();
+        // wave 1b inventory-a
+        com.teslamaps.features.ItemProtection.register();
+        com.teslamaps.features.WardrobeKeys.register();
+        com.teslamaps.features.SkillLevelStack.register();
     }
 }

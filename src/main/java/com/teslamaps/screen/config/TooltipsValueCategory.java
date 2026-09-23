@@ -13,6 +13,13 @@ public final class TooltipsValueCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Tooltips");
         b.toggle("Scrollable Tooltip", () -> config.scrollableTooltip, v -> config.scrollableTooltip = v);
+        b.toggle("  Shift + Scroll Sideways", () -> config.tooltipScrollHorizontal, v -> config.tooltipScrollHorizontal = v);
+        b.toggle("  Ctrl + Scroll Zoom", () -> config.tooltipScrollZoom, v -> config.tooltipScrollZoom = v);
+        b.toggle("  Invert Scroll", () -> config.tooltipScrollInvert, v -> config.tooltipScrollInvert = v);
+        b.toggle("  Keep Offset Between Items", () -> config.tooltipScrollKeep, v -> config.tooltipScrollKeep = v);
+        b.slider("  Scroll Step", 1f, 40f,
+                () -> (float) config.tooltipScrollStep, v -> config.tooltipScrollStep = Math.round(v), 0);
+        b.button("  Reset Tooltip Offset & Zoom", com.teslamaps.features.ScrollableTooltip::reset);
         b.toggle("Fit Tooltip To Screen", () -> config.tooltipFitScreen, v -> config.tooltipFitScreen = v);
         b.info("Long tooltips shrink instead of running off the top");
         b.toggle("Compactor/Deletor Preview", () -> config.compactorPreview, v -> config.compactorPreview = v);
@@ -49,6 +56,12 @@ public final class TooltipsValueCategory {
         b.color("  Level Color", () -> config.colorEnchantAbbrevLevel, v -> config.colorEnchantAbbrevLevel = v);
         b.toggle("Enchant Colors", () -> config.enchantColors, v -> config.enchantColors = v);
         b.toggle("Levels as Numbers", () -> config.enchantLevelsAsNumbers, v -> config.enchantLevelsAsNumbers = v);
+        b.dropdown("Enchant Layout", com.teslamaps.features.EnchantColors.LAYOUTS,
+                () -> config.enchantLayout, v -> config.enchantLayout = v);
+        b.info("Compressed = 3 per line, Stacked = 1 per line, both sorted");
+        b.toggle("Hide Enchant Descriptions", () -> config.enchantHideDescriptions, v -> config.enchantHideDescriptions = v);
+        b.toggle("Stacking Enchant Progress", () -> config.enchantStackingProgress, v -> config.enchantStackingProgress = v);
+        b.info("Expertise, Compact, Cultivating ... progress to the next level");
         b.toggle("Chroma Max Enchants (rainbow)", () -> config.enchantChromaMax, v -> config.enchantChromaMax = v);
         b.slider("  Chroma Size", 5f, 120f,
                 () -> config.chromaSize, v -> config.chromaSize = v, 0);
@@ -63,5 +76,9 @@ public final class TooltipsValueCategory {
         b.color("High Level Color", () -> config.enchantColorHigh, v -> config.enchantColorHigh = v);
         b.color("Normal Level Color", () -> config.enchantColorNormal, v -> config.enchantColorNormal = v);
         b.color("Bad Level Color", () -> config.enchantColorBad, v -> config.enchantColorBad = v);
+        b.toggle("Custom Enchant Rules", () -> config.enchantCustomRules, v -> config.enchantCustomRules = v);
+        b.info("First matching rule wins over the level colours");
+        b.button("Edit Enchant Rules", () -> Minecraft.getInstance().setScreen(
+                new com.teslamaps.screen.EnchantRulesScreen(Minecraft.getInstance().screen)));
     }
 }

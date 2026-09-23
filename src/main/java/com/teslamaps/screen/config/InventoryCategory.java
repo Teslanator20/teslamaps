@@ -71,6 +71,8 @@ public final class InventoryCategory {
         b.label("Slot Lock");
         b.toggle("Slot Lock", () -> config.slotLock, v -> config.slotLock = v);
         b.keybind("  Slot Lock Key (over slot)", () -> config.slotLockKey, v -> config.slotLockKey = v);
+        b.dropdown("  Lock Style", com.teslamaps.features.SlotLock.STYLES,
+                () -> config.slotLockStyle, v -> config.slotLockStyle = v);
         b.color("  Locked Slot Color", () -> config.colorSlotLock, v -> config.colorSlotLock = v);
         b.label("Item Protection");
         b.toggle("Protect Valuable Items", () -> config.itemProtection, v -> config.itemProtection = v);
@@ -79,6 +81,11 @@ public final class InventoryCategory {
         b.toggle("  Block Salvage & Selling", () -> config.itemProtectionSell, v -> config.itemProtectionSell = v);
         b.info("Blocks the Q drop and dropping onto empty space");
         b.info("Hold ctrl to override. Uses the estimated item value");
+        b.toggle("  Also Guard Trade, AH & Shops", () -> config.itemProtectionMenus, v -> config.itemProtectionMenus = v);
+        b.info("Trade menu, auction house, dungeon chests, any NPC shop");
+        b.toggle("Protect Single Items", () -> config.itemProtectionUuid, v -> config.itemProtectionUuid = v);
+        b.keybind("  Protect Key (over slot)", () -> config.itemProtectionKey, v -> config.itemProtectionKey = v);
+        b.info("Or /tmap protect for the held item. Lock icon, blocks drop, salvage, trade, AH, shops");
         b.label("Slot Binds");
         b.toggle("Slot Binds", () -> config.slotBinds, v -> config.slotBinds = v);
         b.keybind("Bind Set Key (over slot)", () -> config.slotBindsKey, v -> config.slotBindsKey = v);
@@ -129,6 +136,8 @@ public final class InventoryCategory {
         b.label("Wardrobe & Loadout Keybinds");
         b.toggle("Wardrobe Keybinds", () -> config.wardrobeKeybinds, v -> config.wardrobeKeybinds = v);
         b.info("Unbound slots fall back to your hotbar keys (1-9)");
+        b.toggle("  Don't Unequip Worn Set", () -> config.wardrobeKeepEquipped, v -> config.wardrobeKeepEquipped = v);
+        b.toggle("  Show Keys On Buttons", () -> config.wardrobeShowKeys, v -> config.wardrobeShowKeys = v);
         b.keybind("  Next Page",
                 () -> config.wardrobeNextPageKey, v -> config.wardrobeNextPageKey = v);
         b.keybind("  Previous Page",

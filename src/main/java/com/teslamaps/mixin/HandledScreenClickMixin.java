@@ -28,6 +28,14 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
+        if (com.teslamaps.features.SlotLock.blockSlotClick(slot, button, type)) {
+            ci.cancel();
+            return;
+        }
+        if (com.teslamaps.features.ItemProtection.blockMenuClick((AbstractContainerScreen<?>) (Object) this, slot)) {
+            ci.cancel();
+            return;
+        }
         if (type != net.minecraft.world.inventory.ContainerInput.THROW) return;
         if (com.teslamaps.features.ItemProtection.blockSlotDrop(slot)) ci.cancel();
     }
@@ -57,6 +65,8 @@ public class HandledScreenClickMixin {
         int asBind = com.teslamaps.utils.KeyNames.forMouse(button);
         if (com.teslamaps.features.SlotBinds.onKey(asBind)
                 || com.teslamaps.features.SlotLock.onKey(asBind,
+                        ((HandledScreenAccessor) (Object) this).getFocusedSlot())
+                || com.teslamaps.features.ItemProtection.onKey(asBind, (AbstractContainerScreen<?>) (Object) this,
                         ((HandledScreenAccessor) (Object) this).getFocusedSlot())
                 || com.teslamaps.features.GetFromSacks.onKey(asBind,
                         ((HandledScreenAccessor) (Object) this).getFocusedSlot())) {

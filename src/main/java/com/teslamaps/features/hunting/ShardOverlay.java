@@ -91,7 +91,8 @@ public class ShardOverlay {
 
     private static boolean menuExtrasWanted() {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        return (config.shardTierStack || config.shardHighlightDisabled) && HuntingBox.inOverlayScreen();
+        return (config.shardTierStack || config.shardHighlightDisabled || config.shardHighlightProgress)
+                && HuntingBox.inOverlayScreen();
     }
 
     /** Tier and disabled state per slot, so the render pass only does lookups. */
@@ -101,6 +102,7 @@ public class ShardOverlay {
             disabledSlots = java.util.Set.of();
             return;
         }
+        TeslaMapsConfig config = TeslaMapsConfig.get();
         java.util.Map<Integer, Integer> tiers = new java.util.HashMap<>();
         java.util.Set<Integer> disabled = new java.util.HashSet<>();
         List<net.minecraft.world.inventory.Slot> slots = cs.getMenu().slots;
@@ -109,7 +111,7 @@ public class ShardOverlay {
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
             if (slot.getItem().isEmpty()) continue;
             int tier = HuntingBox.menuTier(slot.getItem());
-            if (tier <= 0) continue;
+            if (tier < 0 || (tier == 0 && !config.shardTierColors && !config.shardHighlightProgress)) continue;
             tiers.put(i, tier);
             if (HuntingBox.isDisabled(slot.getItem())) disabled.add(i);
         }
@@ -352,6 +354,8 @@ public class ShardOverlay {
      * Attribute menu extras: the tier where vanilla would draw a stack size (the items are all
      * stacks of one) and a red tint over the attributes that are switched off.
      */
+    private static final String[] TIER_TEXT = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+
     public static void renderMenuExtras(GuiGraphicsExtractor ctx) {
         if (slotTiers.isEmpty()) return;
         TeslaMapsConfig config = TeslaMapsConfig.get();
@@ -368,13 +372,17 @@ public class ShardOverlay {
             int tier = entry.getValue();
             int x = acc.getX() + slot.x, y = acc.getY() + slot.y;
 
-            if (config.shardHighlightDisabled && disabledSlots.contains(index)) {
+            if (config.shardHighlightProgress) {
+                ctx.fill(x, y, x + 16, y + 16, tier >= 10 ? 0x6655FF55 : 0x66FF5555);
+            } else if (config.shardHighlightDisabled && disabledSlots.contains(index)) {
                 ctx.fill(x, y, x + 16, y + 16, 0x66FF5555);
             }
-            if (config.shardTierStack) {
-                String text = String.valueOf(tier);
-                ctx.text(mc.font, text, x + 17 - mc.font.width(text), y + 9,
-                        tier >= 10 ? 0xFF55FF55 : 0xFFFFFFFF);
+            if (config.shardTierStack && (tier > 0 || config.shardTierColors)
+                    && !(tier >= 10 && config.shardHideMaxedTier)) {
+                String text = TIER_TEXT[Math.min(tier, 10)];
+                int color = !config.shardTierColors ? (tier >= 10 ? 0xFF55FF55 : 0xFFFFFFFF)
+                        : tier == 0 ? 0xFFFF5555 : tier <= 5 ? 0xFFFFFF55 : tier <= 9 ? 0xFF55FF55 : 0xFFFFAA00;
+                ctx.text(mc.font, text, x + 17 - mc.font.width(text), y + 9, color);
             }
         }
     }

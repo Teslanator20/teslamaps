@@ -38,6 +38,10 @@ public class ContainerKeyMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.ItemProtection.onKey(event.key(), cs, hovered)) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (com.teslamaps.features.GetFromSacks.onKey(event.key(), hovered)) {
             cir.setReturnValue(true);
             return;

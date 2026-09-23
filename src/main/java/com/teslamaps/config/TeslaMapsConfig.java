@@ -306,6 +306,11 @@ public class TeslaMapsConfig {
     public boolean itemProtection = false;       // Block dropping items worth more than itemProtectionValue
     public int itemProtectionValue = 10;         // Protection threshold in millions of coins
     public boolean itemProtectionSell = true;    // Also block salvaging and shift-click selling
+    public boolean itemProtectionMenus = false;  // also trade, AH, dungeon chests, any NPC shop
+    public boolean itemProtectionUuid = false;   // per-item protection by Hypixel uuid
+    public int itemProtectionKey = 86;           // V over a slot toggles its protection
+    @Global
+    public java.util.Set<String> protectedItems = new java.util.HashSet<>();
     public boolean roomSplits = false;           // Live per-room pace HUD (current room timer + recent rooms)
     public int roomSplitsX = 5;                  // Room Splits HUD position X
     public int roomSplitsY = 120;                // Room Splits HUD position Y
@@ -773,6 +778,9 @@ public class TeslaMapsConfig {
     public boolean shardIncludeOrders = true;   // Count what is already on order in the bazaar
     public boolean shardTierStack = true;       // Tier as the stack size in the attribute menu
     public boolean shardHighlightDisabled = true;   // Red tint over switched-off attributes
+    public boolean shardTierColors = false;
+    public boolean shardHideMaxedTier = false;
+    public boolean shardHighlightProgress = false;
     @Global
     public java.util.Map<String, Integer> shardsSyphoned = new java.util.HashMap<>(); // bazaar id -> total syphoned
     @Global
@@ -1127,6 +1135,8 @@ public class TeslaMapsConfig {
     public float customHypeSoundVolume = 1.0f;     // Volume for the custom hype sound (0.0 - 20.0)
     public float customHypeSoundPitch = 1.0f;      // Pitch for the custom hype sound (0.5 - 2.0)
     public boolean wardrobeKeybinds = true;        // Hotbar keys 1-9 switch wardrobe slots in the Wardrobe GUI
+    public boolean wardrobeKeepEquipped = false;   // pressing the key of the worn set does nothing
+    public boolean wardrobeShowKeys = false;       // key name on each wardrobe / loadout button
     public boolean leapCounter = false;            // F7: count teammates standing at your spot
     public boolean leapCounterSpots = false;       // count only at the known leap spots, with target count
     public boolean leapCounterAlert = false;       // title + sound once every expected player leaped
@@ -1136,6 +1146,9 @@ public class TeslaMapsConfig {
     public boolean enchantAbbrev = true;           // Write enchant + level onto enchanted book icons (Leg I)
     public boolean enchantColors = true;           // Recolor enchantments in item lore by level
     public boolean enchantLevelsAsNumbers = false; // Show enchant levels as numbers instead of roman numerals
+    public String enchantLayout = "Normal";        // Normal / Compressed / Stacked
+    public boolean enchantHideDescriptions = false;
+    public boolean enchantStackingProgress = false;
     public String colorEnchantAbbrev = "55FFFF";          // Book abbreviation colour
     public String colorEnchantAbbrevUltimate = "FF55FF";  // Book abbreviation colour for ultimates
     public String colorEnchantAbbrevLevel = "FFFFFF";     // Book abbreviation level colour
@@ -1151,6 +1164,8 @@ public class TeslaMapsConfig {
     public String enchantColorHigh = "FFAA00";     // Above good level (gold)
     public String enchantColorNormal = "00AAAA";   // Good level (cyan)
     public String enchantColorBad = "AAAAAA";      // Below good level (gray)
+    public boolean enchantCustomRules = false;
+    public List<String> enchantColorRules = new ArrayList<>();   // NEU format name:cmp:level:colour:mods
     public boolean translucentLava = false;        // render lava with water textures + tint
     public String colorTranslucentLava = "3F76E4";
     public boolean tintedWater = false;            // custom tint on water
@@ -1215,6 +1230,12 @@ public class TeslaMapsConfig {
     public boolean ownNameTag = true;             // render your own player nametag in third person
     public boolean searchbar = true;               // type to search/highlight items in any container
     public boolean scrollableTooltip = true;       // scroll long item tooltips with the mouse wheel
+    public boolean tooltipScrollHorizontal = false; // shift + wheel moves sideways
+    public boolean tooltipScrollZoom = false;       // ctrl + wheel scales the tooltip
+    public boolean tooltipScrollInvert = false;
+    public boolean tooltipScrollKeep = false;       // keep the offset when hovering another item
+    public int tooltipScrollStep = 20;
+    public float tooltipZoom = 1f;
     public boolean compactorPreview = true;        // list personal compactor/deletor contents in the tooltip
     public boolean estimatedValue = true;          // show estimated item value (bazaar) in tooltips
     public boolean itemValueFixedPos = false;       // drag it in /tmap gui instead of pinning it to the container
@@ -1449,6 +1470,7 @@ public class TeslaMapsConfig {
     public boolean slotLock = true;                // lock inventory slots from being moved/dropped/sold
     @Global
     public int slotLockKey = 76;                    // keybind (over a slot) to toggle its lock
+    public String slotLockStyle = "Box";            // Box = red fill + outline, Icon = padlock
     public String colorSlotLock = "#FF5555";        // locked slot outline color
     @Global
     public java.util.List<Integer> lockedSlots = new java.util.ArrayList<>(); // locked player-inventory slot indices
@@ -1827,6 +1849,8 @@ public class TeslaMapsConfig {
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
+        if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();
+        if (c.protectedItems == null) c.protectedItems = new java.util.HashSet<>();
         if (c.customESPTracers == null) c.customESPTracers = new ArrayList<>();
         if (c.customESPColors == null) c.customESPColors = new java.util.HashMap<>();
         if (c.colorESPCustom == null || c.colorESPCustom.isBlank()) c.colorESPCustom = "00FFFF";
