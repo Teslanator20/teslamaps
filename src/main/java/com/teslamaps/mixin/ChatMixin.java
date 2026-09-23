@@ -41,6 +41,7 @@ public class ChatMixin {
     @Inject(method = ADD_MESSAGE, at = @At("HEAD"), cancellable = true)
     private void onChatMessage(Component message, net.minecraft.network.chat.MessageSignature signature, net.minecraft.client.multiplayer.chat.GuiMessageSource source, net.minecraft.client.multiplayer.chat.GuiMessageTag tag, CallbackInfo ci) {
         String text = message.getString();
+        com.teslamaps.utils.PlayerChat.begin(message);
 
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
 
@@ -189,9 +190,16 @@ public class ChatMixin {
 
         com.teslamaps.registry.FeatureRegistry.chat(text, fromServer);
 
-        if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.shouldHide(text)) {
+        if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.process(message, text)) {
             ci.cancel();
         }
+    }
+
+    // past every HEAD handler, right before the GuiMessage is built
+    @ModifyVariable(method = ADD_MESSAGE, argsOnly = true, ordinal = 0,
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getGuiTicks()I"))
+    private Component teslamaps$filterRewrite(Component message) {
+        return com.teslamaps.features.ChatFilter.rewrite(message);
     }
 
     @Redirect(method = "addMessageToQueue",

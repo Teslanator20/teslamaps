@@ -37,5 +37,8 @@ final class Features {
         com.teslamaps.utils.SbProfile.register();
         com.teslamaps.features.StorageOverlay.register();
         com.teslamaps.features.StorageApiFill.register();
+        // wave 1b chat
+        com.teslamaps.features.ChatWaypoint.register();
+        com.teslamaps.features.ChatSpamHud.register();
     }
 }

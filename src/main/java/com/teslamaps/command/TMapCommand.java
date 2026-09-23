@@ -1630,6 +1630,7 @@ public class TMapCommand {
                                     TeslaMapsConfig.save();
                                     return 1;
                                 })))
+                .then(com.teslamaps.features.ChatUserFilters.command())
                 .then(ClientCommands.literal("mutesound")
                         .executes(context -> {
                             TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -1668,7 +1669,9 @@ public class TMapCommand {
                                 return 0;
                             }
                             var p = mc.player.blockPosition();
-                            mc.getConnection().sendCommand("pc x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ());
+                            String area = TeslaMapsConfig.get().chatWaypointShareArea ? com.teslamaps.utils.SkyblockUtils.getArea() : "";
+                            mc.getConnection().sendCommand("pc x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ()
+                                    + (area.isEmpty() ? "" : " | " + area));
                             return 1;
                         }))
         );

@@ -27,6 +27,7 @@ public class ChatGeometryMixin {
     private void teslamaps$captureChatPose(GuiGraphicsExtractor ctx, Font font, int tickCount, int mouseX, int mouseY,
                                            ChatComponent.DisplayMode mode, boolean focused, CallbackInfo ci) {
         if (!mode.foreground) return;
+        com.teslamaps.features.ChatHover.beginFrame();
         com.teslamaps.features.SharedImageChatRenderer.captureGeometry(ctx.pose(), ctx.guiHeight());
     }
 }

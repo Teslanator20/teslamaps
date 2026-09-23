@@ -494,6 +494,24 @@ public class TeslaMapsConfig {
     public boolean chatCopyEnabled = true;       // Right-click a chat line to copy its text
 
     public boolean chatFilterEnabled = true;     // Master switch for the chat filter
+    public String chatFilterAction = "Hide";     // Hide / Grey / Compact / Compact + Grey
+    public java.util.Map<String, String> chatFilterGroupActions = new java.util.HashMap<>(); // group -> action, absent = default
+    public boolean chatFilterKeepClickable = false; // Never hide lines that carry a command button
+    public java.util.List<ChatUserFilter> chatUserFilters = new java.util.ArrayList<>(); // /tmap chatfilter
+    public String chatUserFilterAction = "Hide";
+    public String chatRedirectTarget = "Spam HUD"; // "Redirect" action: Spam HUD / Action Bar
+    public float chatRedirectSeconds = 4f;
+    public int chatSpamHudX = 4;
+    public int chatSpamHudY = 60;
+    public float chatSpamHudScale = 1.0f;
+    public int chatFilterLineKey = -1;           // In open chat: filter the hovered line (GLFW code, -1 = unbound)
+
+    public static class ChatUserFilter {
+        public String mode = "contains";         // contains / equals / startswith / endswith / regex
+        public String text = "";
+        public ChatUserFilter() {}
+        public ChatUserFilter(String mode, String text) { this.mode = mode; this.text = text; }
+    }
     public boolean chatFilterWatcher = true;    // Hide "[BOSS] The Watcher:" lines
     public boolean chatFilterF4Boss = true;     // Hide F4/M4 boss taunt spam ("[BOSS] Thorn: ...")
     public boolean chatFilterBlessings = true;  // Hide "DUNGEON BUFF! ... Blessing of ..." + blessing pickups
@@ -509,6 +527,12 @@ public class TeslaMapsConfig {
     public boolean chatFilterGuildXp = true;     // Hide "You earned N GEXP from playing SkyBlock!"
     public boolean chatFilterKillCombo = true;   // Hide "+N Kill Combo ..." lines
     public boolean chatFilterStash = true;       // Hide "... items/materials stashed away!" + "CLICK HERE to pick them up!"
+    public boolean stashCompact = false;         // Stash warning block -> one clickable line
+    public boolean stashHideDuplicates = false;  // Skip a warning with the same count as the last one
+    public boolean stashDuplicatesPerWorld = false; // ...but show it again once per world
+    public boolean stashHideAdded = false;       // Hide "didn't fit ... added to your stash"
+    public int stashMinCount = 0;                // Hide warnings at or below this count
+    public boolean stashUseViewStash = false;    // Click runs /viewstash <type> instead of /pickupstash
     public boolean chatFilterServerMsgs = true;  // Hide "Sending to server...", "Warping...", "Queuing..."
     public boolean chatFilterProfileInfo = true; // Hide "You are playing on profile: ..." + "Profile ID: ..."
     public boolean chatFilterPerkBuffs = true;   // Hide HOTF/HOTM daily perk buffs (Lottery / Sky Mall "buff changed!")
@@ -521,6 +545,32 @@ public class TeslaMapsConfig {
     public boolean chatFilterEmpty = true;        // Hide blank/whitespace-only chat lines (leftover from filtered multi-line msgs)
     public boolean chatFilterBonePlating = true; // Hide "Your bone plating reduced the damage ..." spam
     public boolean chatFilterMilestone = true;   // Hide dungeon milestone spam ("Healer/Class Milestone ❹: ... so far!")
+    public boolean chatFilterPerkBuffsElsewhere = false; // Sky Mall / Lottery lines stay visible on Mining / Foraging islands
+    public boolean chatFilterBossAll = false; // Every "[BOSS] " line (dungeon + slayer bosses)
+    public boolean chatFilterLobby = false; // Lobby joins, mystery boxes/dust, tournaments
+    public boolean chatFilterWelcome = false; // "Welcome to Hypixel SkyBlock!"
+    public boolean chatFilterFriendJoin = false; // "Friend/Guild > X joined/left."
+    public boolean chatFilterWarpMore = false; // Request join, Warped to, Finding player, visit request
+    public boolean chatFilterBzAhMinis = false; // Bazaar/AH/bank "..." progress lines
+    public boolean chatFilterSlayerSpam = false; // Slayer quest start/complete block + RING
+    public boolean chatFilterUselessWarnings = false; // "sending commands too fast", "in combat" etc.
+    public boolean chatFilterUselessNotifications = false; // Tips, speed boost, 0 coin interest
+    public boolean chatFilterFireSale = false;
+    public boolean chatFilterEventLevel = false; // Event level / silver / LEVEL UP
+    public boolean chatFilterHoppity = false; // Egg appeared + hunt begun
+    public boolean chatFilterChocolateFactory = false; // Factory upgrade lines
+    public boolean chatFilterSacrifice = false; // Other players' dragon sacrifices
+    public boolean chatFilterNoPests = false; // "There are not any Pests on your Garden"
+    public boolean chatFilterLegacyItems = false; // Legacy items warning
+    public boolean chatFilterParkour = false;
+    public boolean chatFilterTeleportPads = false; // "Warped from the ... to the ..."
+    public boolean chatFilterChefTed = false; // Feast Chef Ted donation line
+    public boolean chatFilterRewardBundles = false; // Seasonal reward reminders
+    public boolean chatFilterWinterGift = false; // Gift rewards
+    public boolean chatFilterAnita = false; // Anita accessory contest line, outside the Garden
+    public boolean chatFilterRareRewards = false; // Dungeon "RARE REWARD! X found ..."
+    public boolean chatFilterSoloClass = false; // Solo class + class stat lines in dungeons
+    public boolean chatFilterFairy = false; // Fairy lines in dungeons
 
     public boolean infiniteChat = true;          // Keep full chat history (scroll back through everything)
     public boolean chromaPrefix = true;          // [TeslaMaps] chat prefix with animated fade
@@ -529,6 +579,8 @@ public class TeslaMapsConfig {
     public int chatHistoryLimit = 16384;         // Hard cap so memory stays bounded (effectively infinite)
     public boolean chatStacking = true;          // Stack identical messages with a (Nx) counter
     public int chatStackWindowMinutes = 5;       // Stack any identical message from the last N minutes (1-30)
+    public boolean chatStackBlocks = false;      // A repeated divider block drops the old one, dividers included
+    public boolean chatStackCompareColors = false; // Only stack lines whose colours match too
 
     public boolean pbOnJoin = true;               // Show a player's dungeon PBs when they join via party finder
     public boolean chatCommands = true;           // Party chat commands (!8ball, !cf, !warp, !pt, !kick, ...)
@@ -1138,6 +1190,13 @@ public class TeslaMapsConfig {
     public boolean blockOverlay = true;            // Outline the block you're looking at
     public String blockOverlayColor = "FFFFFF";     // Block overlay outline colour
     public boolean chatWaypoint = true;            // Render a waypoint beam from coords in chat
+    public boolean chatWaypointMoreFormats = false; // Also "x y z", "x, y, z" in player chat + Inquisitor lines
+    public boolean chatWaypointIgnoreAllChat = false;
+    public boolean chatWaypointIgnoreOwn = false;
+    public boolean chatWaypointDetails = false;     // Sender, area and distance in the label
+    public boolean chatWaypointRemoveOnArrival = false; // Drop the waypoint within 5 blocks
+    public String chatWaypointColor = "AA00FFFF";
+    public boolean chatWaypointShareArea = false;   // /tmap sendcoords appends "| <area>"
     public boolean npcFinder = true;               // /tmap npc - NPC search + warp/track waypoints
 
     // Ordered Waypoints (routes outside dungeons, Coleweight/Skytils format)
@@ -1974,6 +2033,12 @@ public class TeslaMapsConfig {
         if (c.farmPriceMode == null || c.farmPriceMode.isBlank()) c.farmPriceMode = "Instant Sell";
         if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
         if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
+        if (c.chatFilterGroupActions == null) c.chatFilterGroupActions = new java.util.HashMap<>();
+        if (c.chatUserFilters == null) c.chatUserFilters = new java.util.ArrayList<>();
+        c.chatUserFilters.removeIf(f -> f == null || f.text == null);
+        if (c.chatUserFilterAction == null) c.chatUserFilterAction = "Hide";
+        if (c.chatRedirectTarget == null) c.chatRedirectTarget = "Spam HUD";
+        if (c.chatFilterAction == null || c.chatFilterAction.isBlank()) c.chatFilterAction = "Hide";
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
         if (c.skillTrackerPin == null) c.skillTrackerPin = "";
         if (c.flareMob == null || c.flareMob.isBlank()) c.flareMob = "Flare";

@@ -24,11 +24,25 @@ public class ChatStacking {
 
         ChatComponentAccessor acc = (ChatComponentAccessor) chat;
         List<GuiMessage> all = acc.teslamaps$getAllMessages();
-        if (all.size() < 2) return;
+        if (all.isEmpty()) return;
 
         GuiMessage newest = all.get(0);
+        if (c.chatStackBlocks && isDivider(plainOf(newest))) {
+            trackDivider(all);
+            return;
+        }
+        if (all.size() < 2) {
+            trackLine(newest);
+            return;
+        }
+
         String newBase = baseOf(newest);
-        if (shouldNotStack(newBase)) return;
+        if (shouldNotStack(newBase)) {
+            trackLine(newest);
+            return;
+        }
+        boolean colors = c.chatStackCompareColors;
+        String newKey = keyOf(newest, colors);
 
         int windowTicks = Math.max(1, c.chatStackWindowMinutes) * 60 * 20;
 
@@ -36,9 +50,12 @@ public class ChatStacking {
         for (int i = 1; i < all.size(); i++) {
             GuiMessage prev = all.get(i);
             if (newest.addedTime() - prev.addedTime() > windowTicks) break; // past the window -> stop
-            if (baseOf(prev).equals(newBase)) { matchIdx = i; break; }
+            if (keyOf(prev, colors).equals(newKey)) { matchIdx = i; break; }
         }
-        if (matchIdx < 0) return;
+        if (matchIdx < 0) {
+            trackLine(newest);
+            return;
+        }
 
         int count = parseCount(plainOf(all.get(matchIdx))) + 1;
 
@@ -51,9 +68,72 @@ public class ChatStacking {
         GuiMessage replacement = new GuiMessage(newest.addedTime(), stacked,
                 newest.signature(), newest.source(), newest.tag());
 
+        if (colors) putCapped(colorCache, stacked, newKey);
+        GuiMessage old = all.get(matchIdx);
         all.set(0, replacement);
         all.remove(matchIdx); // drop the older occurrence; the stack moves to the bottom
+        if (c.chatStackBlocks) removeDividers(all, old, windowTicks);
+        trackLine(replacement);
         acc.teslamaps$refreshTrimmedMessages();
+    }
+
+    // ---- divider blocks (ported from Skysoft's ChatCompactor.trackDividerBlock) ----
+    // A block = divider, lines, divider within 5s. Its first line remembers the opening divider,
+    // its last line the closing one; when that line repeats, the old dividers go with it.
+
+    private static final long BLOCK_TIMEOUT_MS = 5_000;
+    private static final Map<GuiMessage, GuiMessage> openOf = new IdentityHashMap<>();
+    private static final Map<GuiMessage, GuiMessage> closeOf = new IdentityHashMap<>();
+    private static GuiMessage openDivider, firstLine;
+    private static int blockLines;
+    private static long openedAt;
+
+    private static boolean isDivider(String plain) {
+        String t = plain.trim();
+        if (t.length() <= 5) return false;
+        for (int i = 0; i < t.length(); i++) {
+            char ch = t.charAt(i);
+            if (ch != '-' && ch != '=' && ch != '▬') return false;
+        }
+        return true;
+    }
+
+    private static void trackLine(GuiMessage line) {
+        if (openDivider == null) return;
+        if (System.currentTimeMillis() - openedAt >= BLOCK_TIMEOUT_MS) {
+            openDivider = null;
+            return;
+        }
+        if (++blockLines == 1) firstLine = line;
+    }
+
+    private static void trackDivider(List<GuiMessage> all) {
+        GuiMessage divider = all.get(0);
+        boolean open = openDivider != null && System.currentTimeMillis() - openedAt < BLOCK_TIMEOUT_MS;
+        if (open && blockLines > 0 && all.size() > 1) {
+            if (openOf.size() > 256) { openOf.clear(); closeOf.clear(); }
+            openOf.put(firstLine, openDivider);
+            closeOf.put(all.get(1), divider);
+            openDivider = null;
+            firstLine = null;
+            return;
+        }
+        openDivider = divider;
+        firstLine = null;
+        blockLines = 0;
+        openedAt = System.currentTimeMillis();
+    }
+
+    private static void removeDividers(List<GuiMessage> all, GuiMessage old, int windowTicks) {
+        GuiMessage open = openOf.remove(old), close = closeOf.remove(old);
+        if (open == null && close == null) return;
+        int newest = all.get(0).addedTime();
+        for (int i = 1; i < all.size() && (open != null || close != null); i++) {
+            GuiMessage m = all.get(i);
+            if (newest - m.addedTime() > windowTicks) break;
+            if (m == open) { all.remove(i--); open = null; }
+            else if (m == close) { all.remove(i--); close = null; }
+        }
     }
 
     private static boolean shouldNotStack(String plain) {
@@ -70,6 +150,23 @@ public class ChatStacking {
     // identity keyed: Component.hashCode walks the whole tree
     private static final Map<Component, String> plainCache = new IdentityHashMap<>();
     private static final Map<Component, String> baseCache = new IdentityHashMap<>();
+    private static final Map<Component, String> colorCache = new IdentityHashMap<>();
+
+    /** Plain base, or with {@code colors} the whole formatted line (colours must match too). */
+    private static String keyOf(GuiMessage msg, boolean colors) {
+        if (!colors) return baseOf(msg);
+        Component c = msg.content();
+        String cached = colorCache.get(c);
+        if (cached != null) return cached;
+        String k = com.teslamaps.utils.ChatText.formatted(c);
+        putCapped(colorCache, c, k);
+        return k;
+    }
+
+    private static void putCapped(Map<Component, String> map, Component c, String v) {
+        if (map.size() > 512) map.clear();
+        map.put(c, v);
+    }
 
     private static String plainOf(GuiMessage msg) {
         Component c = msg.content();
