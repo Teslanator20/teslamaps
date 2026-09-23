@@ -95,6 +95,20 @@ public class TMapCommand {
                     });
                     return 1;
                 })
+                .then(ClientCommands.literal("tracker")
+                        .then(ClientCommands.argument("id", StringArgumentType.word())
+                                .suggests((c, b) -> {
+                                    for (var t : com.teslamaps.features.tracker.Tracker.all()) b.suggest(t.id);
+                                    return b.buildFuture();
+                                })
+                                .then(ClientCommands.literal("reset")
+                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "session"))
+                                        .then(ClientCommands.literal("session")
+                                                .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "session")))
+                                        .then(ClientCommands.literal("total")
+                                                .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "total"))))
+                                .then(ClientCommands.literal("view")
+                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "view")))))
                 .then(ClientCommands.literal("customize")
                         .executes(context -> openCustomize(context.getSource(), false))
                         .then(ClientCommands.literal("item")
@@ -1962,6 +1976,21 @@ public class TMapCommand {
             return 0;
         }
         mc.schedule(() -> mc.setScreen(new com.teslamaps.screen.customize.CustomizeScreen(null, itemTab)));
+        return 1;
+    }
+
+    private static int tracker(FabricClientCommandSource source, String id, String action) {
+        var t = com.teslamaps.features.tracker.Tracker.get(id);
+        if (t == null) {
+            source.sendFeedback(Component.literal("§b[TeslaMaps] §cNo tracker " + id));
+            return 0;
+        }
+        switch (action) {
+            case "total" -> t.resetTotal();
+            case "view" -> t.toggleView();
+            default -> t.resetSession();
+        }
+        source.sendFeedback(Component.literal("§b[TeslaMaps] §f" + id + ": " + (action.equals("view") ? "showing " + t.view() : action + " reset")));
         return 1;
     }
 }

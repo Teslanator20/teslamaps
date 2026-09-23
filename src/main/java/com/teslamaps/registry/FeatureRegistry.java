@@ -45,6 +45,8 @@ public final class FeatureRegistry {
 
     /** Once, from onInitializeClient. */
     public static void init() {
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STOPPING.register(
+                c -> com.teslamaps.features.tracker.Tracker.saveAll());
         CoreFeatures.register();
         CoreHudElements.register();
         Features.register();

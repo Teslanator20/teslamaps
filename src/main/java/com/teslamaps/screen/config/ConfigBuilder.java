@@ -105,4 +105,28 @@ public final class ConfigBuilder {
     public MapConfigScreen.ProfileTilesEntry profileTiles() {
         return add(s.new ProfileTilesEntry(x, w));
     }
+
+    private static final String[] PRICE_SOURCES = {"Bazaar Sell", "Bazaar Buy", "NPC", "Lowest BIN"};
+    private static final int[] PRICE_SOURCE_IDS = {
+            com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL,
+            com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_BUY,
+            com.teslamaps.features.croesus.PriceManager.SOURCE_NPC,
+            com.teslamaps.features.croesus.PriceManager.SOURCE_LOWEST_BIN};
+
+    /** Dropdown over {@code PriceManager.SOURCE_*}. */
+    public MapConfigScreen.DropdownEntry priceSource(String label, IntSupplier get, IntConsumer set) {
+        return dropdown(label, PRICE_SOURCES, () -> {
+            int v = get.getAsInt();
+            for (int i = 0; i < PRICE_SOURCE_IDS.length; i++) if (PRICE_SOURCE_IDS[i] == v) return PRICE_SOURCES[i];
+            return PRICE_SOURCES[0];
+        }, v -> {
+            for (int i = 0; i < PRICE_SOURCES.length; i++) if (PRICE_SOURCES[i].equals(v)) set.accept(PRICE_SOURCE_IDS[i]);
+        });
+    }
+
+    /** Reset Session / Reset Total / Session-Total switch for one tracker. */
+    public MapConfigScreen.ButtonRowEntry trackerButtons(com.teslamaps.features.tracker.Tracker t) {
+        return buttonRow(new String[]{"Reset Session", "Reset Total", "Session / Total"},
+                new Runnable[]{t::resetSession, t::resetTotal, t::toggleView});
+    }
 }
