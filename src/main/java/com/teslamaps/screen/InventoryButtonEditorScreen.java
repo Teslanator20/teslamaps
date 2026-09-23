@@ -634,10 +634,21 @@ public class InventoryButtonEditorScreen extends Screen {
         }
     }
 
+    private boolean searchingImports;
+
     private void findImports() {
-        importSources = ButtonShare.discover();
-        if (importSources.size() > 8) importSources = new ArrayList<>(importSources.subList(0, 8));
-        setStatus(Component.literal(importSources.isEmpty() ? "No NEU/Firmament config found." : "Found " + importSources.size() + "."));
+        if (searchingImports) return;
+        searchingImports = true;
+        importSources = null;
+        setStatus(Component.literal("Searching…"));
+        java.util.concurrent.CompletableFuture.supplyAsync(ButtonShare::discover, net.minecraft.util.Util.ioPool())
+                .whenComplete((found, err) -> minecraft.execute(() -> {
+                    searchingImports = false;
+                    List<ButtonShare.Source> list = found == null ? List.of() : found;
+                    if (list.size() > 8) list = new ArrayList<>(list.subList(0, 8));
+                    importSources = list;
+                    setStatus(Component.literal(list.isEmpty() ? "No NEU/Firmament config found." : "Found " + list.size() + "."));
+                }));
     }
 
     private boolean clickImportSource(double mouseX, double mouseY) {
