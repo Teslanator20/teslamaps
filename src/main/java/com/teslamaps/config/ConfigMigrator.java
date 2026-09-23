@@ -23,7 +23,7 @@ import java.util.function.UnaryOperator;
  */
 public final class ConfigMigrator {
 
-    public static final int CONFIG_VERSION = 1;
+    public static final int CONFIG_VERSION = 2;
     static final String KEY = "configVersion";
 
     private record Step(int version, String what, UnaryOperator<JsonObject> fix) {}
@@ -36,7 +36,10 @@ public final class ConfigMigrator {
         if (steps != null) return steps;
         List<Step> s = new ArrayList<>();
         // v1: version counter introduced, nothing to fix
-        // e.g. s.add(move(2, "oldFieldName", "newFieldName"));
+        s.add(move(2, "safariSparklingParty", "safariSparklingChannel"));
+        s.add(transform(2, "safariSparklingChannel", ConfigMigrator::boolToChannel));
+        s.add(move(2, "safariShareTimeParty", "safariShareTimeChannel"));
+        s.add(transform(2, "safariShareTimeChannel", ConfigMigrator::boolToChannel));
         for (Step step : s) {
             if (step.version() < 1 || step.version() > CONFIG_VERSION) {
                 String msg = "ConfigMigrator: step '" + step.what() + "' has version " + step.version()
@@ -48,6 +51,13 @@ public final class ConfigMigrator {
         s.sort((a, b) -> Integer.compare(a.version(), b.version()));
         steps = s;
         return s;
+    }
+
+    // old party-chat boolean -> Announce channel
+    private static JsonElement boolToChannel(JsonElement v) {
+        if (v.isJsonPrimitive() && v.getAsJsonPrimitive().isBoolean())
+            return new JsonPrimitive(v.getAsBoolean() ? "Party" : "Nobody");
+        return v;
     }
 
     /** Renames a field; an existing value under the new name wins. */

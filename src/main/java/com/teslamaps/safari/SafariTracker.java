@@ -714,12 +714,7 @@ public class SafariTracker {
             String pos = as.blockPosition().getX() + " " + as.blockPosition().getY() + " " + as.blockPosition().getZ();
             alert("sparkling-" + as.getUUID(), "§d§lSPARKLING §f" + c.name() + " §7at §f" + pos);
 
-            if (TeslaMapsConfig.get().safariSparklingParty) {
-                String line = "SPARKLING " + c.name() + " at " + pos;
-                mc.execute(() -> {
-                    if (mc.getConnection() != null) mc.getConnection().sendCommand("pc " + line);
-                });
-            }
+            com.teslamaps.features.Announce.send(TeslaMapsConfig.get().safariSparklingChannel, "SPARKLING " + c.name() + " at " + pos);
             return;
         }
     }
@@ -753,13 +748,8 @@ public class SafariTracker {
 
     public static long dexTime() { return dexDoneAt; }
 
-    /** Posts a completion time to party chat, opt-in. */
     private static void share(String line) {
-        if (!TeslaMapsConfig.get().safariShareTimeParty) return;
-        Minecraft mc = Minecraft.getInstance();
-        mc.execute(() -> {
-            if (mc.getConnection() != null) mc.getConnection().sendCommand("pc " + line);
-        });
+        com.teslamaps.features.Announce.send(TeslaMapsConfig.get().safariShareTimeChannel, line);
     }
 
     private static void alert(String key, String text) {

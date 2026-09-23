@@ -1456,12 +1456,12 @@ public class TeslaMapsConfig {
     public boolean safariRecatchSpot = false;       // mark where an escaped critter comes back
     public boolean safariWallMarkers = false;       // mark the intact Snoozle / Troodon walls
     public boolean safariSparklingAlert = true;     // alert on the WAX_ON particles of a sparkling critter
-    public boolean safariSparklingParty = false;    // also post the sparkling coords to party chat
+    public String safariSparklingChannel = "Nobody"; // post the sparkling coords: Nobody / Party / All
     public boolean safariSparkleForce = true;       // render WAX_ON sparkles at any distance/particle setting
     public boolean safariAnnounceBiomeDone = true;  // alert when every critter of a biome is caught
     public boolean safariAnnounceUniqueDone = true; // alert when the whole dex is complete
     public boolean safariWarnNotFull = true;        // warn shortly after entry when fewer than 4 players are in
-    public boolean safariShareTimeParty = false;    // post those completion times to party chat
+    public String safariShareTimeChannel = "Nobody"; // post those completion times: Nobody / Party / All
     public boolean safariAutoHideyho = false;       // click the [Sure] the server put on the Hideyho question
     public int safariAutoHideyhoMinMs = 300;        // never answer faster than this
     public int safariAutoHideyhoJitterMs = 400;     // extra 0..n ms on top, so the delay varies
