@@ -151,11 +151,24 @@ public class SkyblockProfiles {
                     } catch (NumberFormatException ignored) {
                     }
                 }
+                if (achievements.has("skyblock_hard_working_miner")
+                        && achievements.get("skyblock_hard_working_miner").isJsonPrimitive()) {
+                    try {
+                        commissions = achievements.get("skyblock_hard_working_miner").getAsLong();
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
             }
         });
     }
 
     private long totalSecrets = -1;
+    private long commissions = -1;
+
+    /** Account wide commission count from the achievement, -1 when unknown. */
+    public long getCommissions() {
+        return commissions;
+    }
 
     /** -1 when unknown, the achievement needs an api key. */
     public long getTotalSecrets() {
