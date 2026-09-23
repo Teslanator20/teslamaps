@@ -59,10 +59,26 @@ public abstract class ProfileViewerPage {
 
     public void setContentHeight(int height) {
         this.maxScroll = Math.max(0, height - com.teslamaps.profileviewer.screen.NeuStyle.PANEL_HEIGHT + 20);
+        this.contentKnown = true;
+        this.scroll = Math.min(scroll, maxScroll);
+    }
+
+    /** 0 until the page reported its height, so hand drawn pages get no scrollbar. */
+    public int getMaxScroll() {
+        return contentKnown ? maxScroll : 0;
+    }
+
+    public void setScroll(int scroll) {
+        this.scroll = Math.max(0, Math.min(maxScroll, scroll));
+    }
+
+    protected static boolean scrollMode() {
+        return com.teslamaps.config.TeslaMapsConfig.get().pvScrollPages;
     }
 
     protected int scroll = 0;
     private int maxScroll = 500;
+    private boolean contentKnown = false;
 
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         return false;
@@ -110,7 +126,7 @@ public abstract class ProfileViewerPage {
         int available = com.teslamaps.profileviewer.screen.NeuStyle.PANEL_HEIGHT - y - 6;
         com.teslamaps.profileviewer.ui.Ui page = builder.apply(width);
 
-        if (page.height() > available) {
+        if (page.height() > available && !scrollMode()) {
             float fit = Math.max(MIN_FIT, available / (float) page.height());
             com.teslamaps.profileviewer.ui.Ui wider = builder.apply(Math.round(width / fit));
             // a wider canvas usually means more columns and less height; keep it unless it backfired
@@ -136,7 +152,7 @@ public abstract class ProfileViewerPage {
 
         int available = com.teslamaps.profileviewer.screen.NeuStyle.PANEL_HEIGHT - y - 6;
 
-        float fitHeight = root.height() > available && root.height() > 0
+        float fitHeight = !scrollMode() && root.height() > available && root.height() > 0
                 ? available / (float) root.height() : 1f;
         // a page laid out on a wider canvas has to come back down to the window as well
         float fitWidth = root.width() > free && root.width() > 0 ? free / (float) root.width() : 1f;
@@ -160,7 +176,8 @@ public abstract class ProfileViewerPage {
         }
         com.teslamaps.profileviewer.ui.Ui.resetHover();
         // below this the text stops being readable, then the rest scrolls after all
-        setContentHeight(fit > MIN_FIT ? 0 : (int) (root.height() * fit) + 24);
+        if (scrollMode()) setContentHeight(y + (int) (root.height() * fit) + 14);
+        else setContentHeight(fit > MIN_FIT ? 0 : (int) (root.height() * fit) + 24);
     }
 
     private static final float MIN_FIT = 0.55f;

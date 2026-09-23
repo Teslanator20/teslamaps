@@ -1792,6 +1792,7 @@ public class TeslaMapsConfig {
     @Global
     public List<String> friendNames = new ArrayList<>();  // captured from /f list
     public int pvCacheDurationSeconds = 300;  // 5 minute cache
+    public boolean pvScrollPages = false;
 
     public String colorBackground = "CC1A1A1A";      // Map background
     public String colorUnexplored = "2A2A2A";        // Unexplored room

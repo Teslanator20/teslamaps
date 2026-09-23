@@ -30,6 +30,21 @@ public class MiningPage extends ProfileViewerPage {
             "jasper_crystal", "ruby_crystal", "opal_crystal", "onyx_crystal", "aquamarine_crystal",
             "peridot_crystal", "citrine_crystal");
 
+    private static final List<String> NUCLEUS_CRYSTALS = List.of(
+            "jade_crystal", "amethyst_crystal", "topaz_crystal", "sapphire_crystal", "amber_crystal");
+
+    // api key, item id, name - the api stores the short key
+    private static final String[][] FOSSILS = {
+            {"HELIX", "HELIX", "Helix Fossil"},
+            {"FOOTPRINT", "FOOTPRINT_FOSSIL", "Footprint Fossil"},
+            {"CLAW", "CLAW_FOSSIL", "Claw Fossil"},
+            {"TUSK", "TUSK_FOSSIL", "Tusk Fossil"},
+            {"SPINE", "SPINE_FOSSIL", "Spine Fossil"},
+            {"WEBBED", "WEBBED_FOSSIL", "Webbed Fossil"},
+            {"CLUBBED", "CLUBBED_FOSSIL", "Clubbed Fossil"},
+            {"UGLY", "UGLY_FOSSIL", "Ugly Fossil"},
+    };
+
     @Override
     public String getTabName() {
         return "Mining";
@@ -135,11 +150,38 @@ public class MiningPage extends ProfileViewerPage {
             rows.add(new Ui.Tip(row(width, "Corpses", String.valueOf(total), NeuStyle.TEXT), tooltip));
         }
 
-        int fossils = glacite.has("fossils_donated") && glacite.get("fossils_donated").isJsonArray()
-                ? glacite.getAsJsonArray("fossils_donated").size() : 0;
-        rows.add(row(width, "Fossils", fossils + " / 11", fossils >= 11 ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT));
+        java.util.Set<String> donated = new java.util.HashSet<>();
+        if (glacite.has("fossils_donated") && glacite.get("fossils_donated").isJsonArray()) {
+            for (JsonElement element : glacite.getAsJsonArray("fossils_donated")) {
+                if (element.isJsonPrimitive()) donated.add(element.getAsString().toUpperCase(java.util.Locale.ROOT));
+            }
+        }
+        int fossils = donated.size();
+        int max = Math.max(FOSSILS.length, fossils);
+        rows.add(row(width, "Fossils", fossils + " / " + max, fossils >= max ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT));
+        rows.add(fossilHeads(donated, width));
         rows.add(row(width, "Fossil dust", Kit.compact(asLong(get(glacite, "fossil_dust"))), NeuStyle.TEXT));
+        long commissions = profiles == null ? -1 : profiles.getCommissions();
+        if (commissions >= 0) rows.add(row(width, "Commissions", Kit.dots(commissions), NeuStyle.TEXT));
         return Ui.col(3, rows);
+    }
+
+    /** Every fossil as its head, the ones not donated yet as grey dye. */
+    private Ui fossilHeads(java.util.Set<String> donated, int width) {
+        List<Ui> icons = new ArrayList<>();
+        for (String[] fossil : FOSSILS) {
+            boolean have = donated.contains(fossil[0]) || donated.contains(fossil[1]);
+            ItemStack icon = have ? com.teslamaps.utils.SkyblockItems.stackNow(fossil[1]) : ItemStack.EMPTY;
+            if (icon.isEmpty()) icon = Kit.icon(have ? "bone" : "gray_dye");
+            icons.add(new Ui.Tip(new Ui.Icon(icon, 12, false, null), List.of(
+                    "§f" + fossil[2], have ? "§aDONATED" : "§cNot donated")));
+        }
+        int perRow = Math.max(1, (width + 2) / 14);
+        List<Ui> rows = new ArrayList<>();
+        for (int i = 0; i < icons.size(); i += perRow) {
+            rows.add(Ui.row(2, Ui.V.TOP, new ArrayList<>(icons.subList(i, Math.min(i + perRow, icons.size())))));
+        }
+        return Ui.col(2, rows);
     }
 
     private Ui crystals(JsonObject core, int width) {
@@ -174,6 +216,11 @@ public class MiningPage extends ProfileViewerPage {
         for (int i = 0; i < icons.size(); i += perRow) {
             rows.add(Ui.row(2, Ui.V.TOP, new ArrayList<>(icons.subList(i, Math.min(i + perRow, icons.size())))));
         }
+
+        // a nucleus run places all five, so the smallest placement count is the run count
+        long nucleus = Long.MAX_VALUE;
+        for (String crystal : NUCLEUS_CRYSTALS) nucleus = Math.min(nucleus, asLong(get(object(found, crystal), "total_placed")));
+        rows.add(row(width, "Nucleus Runs", Kit.dots(nucleus), NeuStyle.TEXT));
         return Ui.col(2, rows);
     }
 

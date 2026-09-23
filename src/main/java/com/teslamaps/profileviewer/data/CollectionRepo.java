@@ -5,7 +5,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.teslamaps.TeslaMaps;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -16,7 +19,8 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Collections straight from hypixel's own resource endpoint - it needs no key and carries
- * the display names and tier thresholds, so no hardcoded "LOG:1" lists.
+ * the display names and tier thresholds, so no hardcoded "LOG:1" lists. A bundled snapshot
+ * covers the time before (or without) the fetch.
  */
 public class CollectionRepo {
     private static final String URL = "https://api.hypixel.net/v2/resources/skyblock/collections";
@@ -25,9 +29,11 @@ public class CollectionRepo {
 
     public record Category(String id, String name, List<Entry> items) {}
 
-    private static final List<Category> categories = new ArrayList<>();
-    private static boolean loading = false;
-    private static boolean loaded = false;
+    private static volatile List<Category> categories = List.of();
+    private static volatile boolean loading = false;
+    private static volatile boolean loaded = false;
+    private static volatile boolean live = false;
+    private static volatile long nextTry = 0;
 
     public static boolean isLoaded() {
         return loaded;
@@ -37,8 +43,9 @@ public class CollectionRepo {
         return categories;
     }
 
-    public static void load() {
-        if (loaded || loading) return;
+    public static synchronized void load() {
+        if (!loaded) loadBundled();
+        if (live || loading || System.currentTimeMillis() < nextTry) return;
         loading = true;
 
         CompletableFuture.runAsync(() -> {
@@ -51,19 +58,44 @@ public class CollectionRepo {
                         .build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == 200) {
-                    parse(JsonParser.parseString(response.body()).getAsJsonObject());
-                    loaded = true;
+                    List<Category> parsed = parse(JsonParser.parseString(response.body()).getAsJsonObject());
+                    if (!parsed.isEmpty()) {
+                        categories = parsed;
+                        loaded = true;
+                        live = true;
+                    }
                 }
             } catch (Exception e) {
                 TeslaMaps.LOGGER.warn("Failed to load the collection data: {}", e.toString());
             }
+            if (!live) nextTry = System.currentTimeMillis() + 60_000;
             loading = false;
         });
     }
 
-    private static void parse(JsonObject root) {
-        if (!root.has("collections")) return;
-        categories.clear();
+    private static void loadBundled() {
+        try (InputStream stream = CollectionRepo.class.getResourceAsStream("/assets/teslamaps/pv/collections.json")) {
+            if (stream == null) return;
+            List<Category> parsed = parse(JsonParser.parseReader(
+                    new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject());
+            if (!parsed.isEmpty()) {
+                categories = parsed;
+                loaded = true;
+            }
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.warn("Failed to read collections.json: {}", e.toString());
+        }
+    }
+
+    /** Amount still missing to the last tier, 0 when maxed. */
+    public static long toMax(Entry entry, long amount) {
+        if (entry.tiers().isEmpty()) return 0;
+        return Math.max(0, entry.tiers().getLast() - amount);
+    }
+
+    private static List<Category> parse(JsonObject root) {
+        List<Category> categories = new ArrayList<>();
+        if (!root.has("collections")) return categories;
 
         JsonObject collections = root.getAsJsonObject("collections");
         for (String categoryId : collections.keySet()) {
@@ -96,6 +128,7 @@ public class CollectionRepo {
         }
 
         categories.sort((a, b) -> a.name().compareToIgnoreCase(b.name()));
+        return categories;
     }
 
     public static int tier(Entry entry, long amount) {

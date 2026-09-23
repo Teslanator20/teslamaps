@@ -40,6 +40,9 @@ public final class InterfaceCategory {
         b.color("  Label Color", () -> config.perfHudLabelColor, v -> config.perfHudLabelColor = v);
         b.color("  Value Color", () -> config.perfHudValueColor, v -> config.perfHudValueColor = v);
         b.info("Position/scale in /tmap gui, hidden while F3 is open");
+        b.label("Profile Viewer");
+        b.toggle("Scroll Long Pages", () -> config.pvScrollPages, v -> config.pvScrollPages = v);
+        b.info("Full size text with a scrollbar instead of shrinking the page");
         b.label("Updates");
         b.toggle("Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v);
         b.info("Signed releases only, install via popup or /tmap update");

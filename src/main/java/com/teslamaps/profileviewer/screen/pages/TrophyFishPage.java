@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Trophy fishing, laid out like the rest of the viewer: two column table with the real fish items. */
+/** Trophy fishing as a head grid, one column per fish and one head per tier. */
 public class TrophyFishPage extends ProfileViewerPage {
     private static final int BRONZE = 0xFFCD7F32;
     private static final int SILVER = 0xFFC0C0C0;
@@ -46,15 +46,69 @@ public class TrophyFishPage extends ProfileViewerPage {
             new Fish("golden_fish", "GOLDEN_FISH_BRONZE", "Golden Fish"));
 
     private static final Map<String, ItemStack> icons = new HashMap<>();
+    private static final String[] TIER_SUFFIXES = {"_bronze", "_silver", "_gold", "_diamond"};
+    private static final String[] TIER_NAMES = {"Bronze", "Silver", "Gold", "Diamond"};
 
-    private static ItemStack icon(Fish fish) {
-        ItemStack known = icons.get(fish.id());
+    private static ItemStack icon(String id) {
+        ItemStack known = icons.get(id);
         if (known != null) return known;
-        icons.put(fish.id(), new ItemStack(Items.TROPICAL_FISH));
-        SkyblockItems.resolve(fish.id(), stack -> {
-            if (!stack.isEmpty()) icons.put(fish.id(), stack);
+        icons.put(id, new ItemStack(Items.TROPICAL_FISH));
+        SkyblockItems.resolve(id, stack -> {
+            if (!stack.isEmpty()) icons.put(id, stack);
         });
-        return icons.get(fish.id());
+        return icons.get(id);
+    }
+
+    /** One fish with its per tier counts, bronze first. */
+    private record Caught(String key, String display, int[] counts, int total, String[] ids, String[] corners) {}
+
+    private List<Caught> caught = List.of();
+
+    @Override
+    public void init(com.teslamaps.profileviewer.screen.ProfileViewerScreen parent,
+                     com.teslamaps.profileviewer.data.SkyblockProfiles profiles) {
+        super.init(parent, profiles);
+        caught = buildCaught();
+    }
+
+    /** Known fish plus any new key the api carries, most caught first. */
+    private List<Caught> buildCaught() {
+        SkyblockProfile profile = getProfile();
+        JsonObject trophyFish = profile != null && profile.getMemberData().has("trophy_fish")
+                && profile.getMemberData().get("trophy_fish").isJsonObject()
+                ? profile.getMemberData().getAsJsonObject("trophy_fish") : null;
+        if (trophyFish == null) return List.of();
+
+        Map<String, String> names = new java.util.LinkedHashMap<>();
+        for (Fish fish : FISH) names.put(fish.key(), fish.display());
+        for (String key : trophyFish.keySet()) {
+            if (key.equals("total_caught") || key.equals("rewards") || key.startsWith("last_caught")) continue;
+            if (!trophyFish.get(key).isJsonPrimitive() || !trophyFish.get(key).getAsJsonPrimitive().isNumber()) continue;
+            String base = key;
+            for (String suffix : TIER_SUFFIXES) {
+                if (key.endsWith(suffix)) base = key.substring(0, key.length() - suffix.length());
+            }
+            names.putIfAbsent(base, com.teslamaps.profileviewer.ui.Kit.prettify(base));
+        }
+
+        List<Caught> out = new ArrayList<>();
+        for (Map.Entry<String, String> entry : names.entrySet()) {
+            int[] counts = new int[4];
+            int total = 0;
+            String[] ids = new String[4];
+            String[] corners = new String[4];
+            for (int t = 0; t < 4; t++) {
+                counts[t] = asInt(trophyFish.get(entry.getKey() + TIER_SUFFIXES[t]));
+                total += counts[t];
+                ids[t] = (entry.getKey() + TIER_SUFFIXES[t]).toUpperCase(java.util.Locale.ROOT);
+                corners[t] = counts[t] > 0 ? com.teslamaps.profileviewer.ui.Kit.compact(counts[t]) : null;
+            }
+            // the plain key is the running total hypixel keeps next to the tiers
+            total = Math.max(total, asInt(trophyFish.get(entry.getKey())));
+            out.add(new Caught(entry.getKey(), entry.getValue(), counts, total, ids, corners));
+        }
+        out.sort((a, b) -> Integer.compare(b.total(), a.total()));
+        return out;
     }
 
     @Override
@@ -96,18 +150,16 @@ public class TrophyFishPage extends ProfileViewerPage {
         int totalCaught = asInt(trophyFish.get("total_caught"));
         int unique = 0;
         int[] tierTotals = new int[4];
-        String[] suffixes = {"_bronze", "_silver", "_gold", "_diamond"};
-        for (Fish fish : FISH) {
+        for (Caught fish : caught) {
             boolean any = false;
             for (int t = 0; t < 4; t++) {
-                int count = asInt(trophyFish.get(fish.key() + suffixes[t]));
-                tierTotals[t] += count;
-                any |= count > 0;
+                tierTotals[t] += fish.counts()[t];
+                any |= fish.counts()[t] > 0;
             }
             if (any) unique++;
         }
 
-        String totals = "Total: " + com.teslamaps.profileviewer.ui.Kit.dots(totalCaught) + "   Unique: " + unique + "/" + FISH.size();
+        String totals = "Total: " + com.teslamaps.profileviewer.ui.Kit.dots(totalCaught) + "   Unique: " + unique + "/" + caught.size();
         ctx.text(tr, totals, left + NeuStyle.PANEL_WIDTH - 10 - tr.width(totals), top + 8, NeuStyle.TEXT);
 
         int summaryY = top + 21;
@@ -117,64 +169,32 @@ public class TrophyFishPage extends ProfileViewerPage {
         sx = summary(ctx, tr, "Gold", tierTotals[2], sx, summaryY, GOLD);
         summary(ctx, tr, "Diamond", tierTotals[3], sx, summaryY, DIAMOND);
 
-        // two column table, every count in its own fixed column so nothing runs together
-        int columnWidth = (NeuStyle.PANEL_WIDTH - 20 - 10) / 2;
-        int nameWidth = columnWidth - 20 - 4 * 26 - 6;
-        int headerY = top + 36;
-        int rowsTop = headerY + 12;
-        int rowHeight = 16;
-
-        for (int c = 0; c < 2; c++) {
-            int cx = left + 10 + c * (columnWidth + 10);
-            ctx.text(tr, "Fish", cx + 20, headerY, NeuStyle.TEXT_GRAY);
-            String[] heads = {"B", "S", "G", "D"};
-            int[] headColors = {BRONZE, SILVER, GOLD, DIAMOND};
-            for (int t = 0; t < 4; t++) {
-                int rightEdge = cx + columnWidth - (3 - t) * 26;
-                right(ctx, tr, heads[t], rightEdge, headerY, headColors[t]);
-            }
-        }
-
-        int perColumn = (FISH.size() + 1) / 2;
+        // one column per fish, diamond on top like the ingame trophy menu
+        int gridTop = top + 38;
+        int count = Math.max(1, caught.size());
+        int slot = Math.max(12, Math.min(22, (NeuStyle.PANEL_WIDTH - 20 + 2) / count - 2));
+        int stride = slot + 2;
+        int gridX = left + (NeuStyle.PANEL_WIDTH - (count * stride - 2)) / 2;
         List<String> hoverLines = null;
-        for (int i = 0; i < FISH.size(); i++) {
-            Fish fish = FISH.get(i);
-            int column = i / perColumn;
-            int row = i % perColumn;
-            int cx = left + 10 + column * (columnWidth + 10);
-            int cy = rowsTop + row * rowHeight;
-
-            boolean hovered = mouseX >= cx - 2 && mouseX < cx + columnWidth + 2
-                    && mouseY >= cy - 1 && mouseY < cy + rowHeight - 1;
-            if (row % 2 == 0) ctx.fill(cx - 2, cy - 1, cx + columnWidth + 2, cy + rowHeight - 1, 0x18FFFFFF);
-            if (hovered) ctx.fill(cx - 2, cy - 1, cx + columnWidth + 2, cy + rowHeight - 1, 0x30FFFFFF);
-
-            int[] counts = new int[4];
-            int total = 0;
-            for (int t = 0; t < 4; t++) {
-                counts[t] = asInt(trophyFish.get(fish.key() + suffixes[t]));
-                total += counts[t];
-            }
-
-            ctx.item(icon(fish), cx, cy - 1);
-            ctx.text(tr, com.teslamaps.profileviewer.ui.Kit.clip(fish.display(), nameWidth), cx + 20, cy + 3,
-                    total > 0 ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
-
-            int[] colors = {BRONZE, SILVER, GOLD, DIAMOND};
-            for (int t = 0; t < 4; t++) {
-                int rightEdge = cx + columnWidth - (3 - t) * 26;
-                right(ctx, tr, String.valueOf(counts[t]), rightEdge, cy + 3,
-                        counts[t] > 0 ? colors[t] : NeuStyle.TEXT_DARK);
-            }
-
-            if (hovered) {
-                hoverLines = List.of(
-                        "§b" + fish.display(),
-                        "§7Total: §f" + com.teslamaps.profileviewer.ui.Kit.dots(total),
-                        "§7Bronze: §f" + counts[0],
-                        "§7Silver: §f" + counts[1],
-                        "§7Gold: §f" + counts[2],
-                        "§7Diamond: §f" + counts[3]);
+        for (int i = 0; i < caught.size(); i++) {
+            Caught fish = caught.get(i);
+            int cx = gridX + i * stride;
+            for (int t = 3; t >= 0; t--) {
+                int cy = gridTop + (3 - t) * stride;
+                com.teslamaps.profileviewer.screen.ItemGrid.slot(ctx, cx, cy, slot);
+                com.teslamaps.profileviewer.screen.ItemGrid.item(ctx, icon(fish.ids()[t]), cx, cy, slot);
+                if (fish.counts()[t] == 0) {
+                    ctx.fill(cx + 1, cy + 1, cx + slot - 1, cy + slot - 1, 0xA0000000);
+                } else {
+                    com.teslamaps.profileviewer.screen.ItemGrid.smallCount(ctx, fish.corners()[t], cx, cy, slot, 0xFFFFFFFF);
+                }
+                if (mouseX >= cx && mouseX < cx + slot && mouseY >= cy && mouseY < cy + slot) {
+                    ctx.fill(cx + 1, cy + 1, cx + slot - 1, cy + slot - 1, 0x40FFFFFF);
+                    hoverLines = List.of(
+                            "§b" + fish.display(),
+                            "§7" + TIER_NAMES[t] + ": §f" + com.teslamaps.profileviewer.ui.Kit.dots(fish.counts()[t]),
+                            "§7Total: §f" + com.teslamaps.profileviewer.ui.Kit.dots(fish.total()));
+                }
             }
         }
 
@@ -189,9 +209,5 @@ public class TrophyFishPage extends ProfileViewerPage {
         String text = label + ": " + com.teslamaps.profileviewer.ui.Kit.dots(value);
         ctx.text(tr, text, x, y, color);
         return x + tr.width(text) + 14;
-    }
-
-    private void right(GuiGraphicsExtractor ctx, Font tr, String text, int rightEdge, int y, int color) {
-        ctx.text(tr, text, rightEdge - tr.width(text), y, color);
     }
 }

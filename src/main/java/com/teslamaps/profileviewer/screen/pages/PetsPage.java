@@ -58,12 +58,38 @@ public class PetsPage extends ProfileViewerPage {
     private int petScore;
     private int maxedPets;
     private List<String> belowMax = List.of();
+    private String statsLine = "";
+
+    private static final String[] SORT_NAMES = {"Default", "Pet Exp", "A-Z"};
+    private static int sortMode = 0;
+    private List<PetData> sorted = List.of();
+    private int sortX;
+    private int sortW;
 
     @Override
     public void init(com.teslamaps.profileviewer.screen.ProfileViewerScreen parent,
                      com.teslamaps.profileviewer.data.SkyblockProfiles profiles) {
         super.init(parent, profiles);
         computeStats();
+        resort();
+    }
+
+    private void resort() {
+        SkyblockProfile profile = getProfile();
+        if (profile == null) {
+            sorted = List.of();
+            return;
+        }
+        List<PetData> list = new ArrayList<>(profile.getPets());
+        if (sortMode == 1) {
+            list.sort((a, b) -> Double.compare(b.getExp(), a.getExp()));
+        } else if (sortMode == 2) {
+            list.sort((a, b) -> {
+                int byName = a.getDisplayName().compareToIgnoreCase(b.getDisplayName());
+                return byName != 0 ? byName : Integer.compare(b.getRarityOrdinal(), a.getRarityOrdinal());
+            });
+        }
+        sorted = list;
     }
 
     /** Pet score: rarity points per unique pet type, plus one bonus point at max level. */
@@ -76,6 +102,7 @@ public class PetsPage extends ProfileViewerPage {
         SkyblockProfile profile = getProfile();
         if (profile == null) {
             belowMax = List.of();
+            statsLine = "";
             return;
         }
 
@@ -101,6 +128,11 @@ public class PetsPage extends ProfileViewerPage {
         }
         missing.sort(String::compareTo);
         belowMax = missing;
+
+        double totalXp = 0;
+        for (PetData pet : profile.getPets()) totalXp += pet.getExp();
+        statsLine = "Unique: " + uniquePets + "  Pet Score: " + petScore
+                + "  Maxed: " + maxedPets + "/" + uniquePets + "  XP: " + format(totalXp);
     }
 
     @Override
@@ -118,13 +150,19 @@ public class PetsPage extends ProfileViewerPage {
         lastLeft = left;
         lastTop = top;
 
-        List<PetData> pets = profile.getPets();
+        List<PetData> pets = sorted.size() == profile.getPets().size() ? sorted : profile.getPets();
 
         String title = "Pets (" + pets.size() + ")";
         ctx.text(tr, title, left + 8, top + 6, NeuStyle.TEXT_YELLOW);
 
-        String stats = "Unique: " + uniquePets + "   Pet Score: " + petScore
-                + "   Maxed: " + maxedPets + "/" + uniquePets;
+        String sortLabel = "Sort: " + SORT_NAMES[sortMode];
+        sortX = left + 8 + tr.width(title) + 10;
+        sortW = tr.width(sortLabel);
+        boolean sortHover = mouseX >= sortX - 3 && mouseX <= sortX + sortW + 3 && mouseY >= top + 3 && mouseY <= top + 16;
+        NeuStyle.slimBox(ctx, sortX - 3, top + 3, sortW + 6, 13);
+        ctx.text(tr, sortLabel, sortX, top + 6, sortHover ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
+
+        String stats = statsLine;
         int statsX = left + NeuStyle.PANEL_WIDTH - 8 - tr.width(stats);
         ctx.text(tr, stats, statsX, top + 6, NeuStyle.TEXT_AQUA);
 
@@ -170,8 +208,19 @@ public class PetsPage extends ProfileViewerPage {
             if (index >= pets.size()) continue;
             PetData pet = pets.get(index);
 
+            ctx.fill(sx + 1, sy + 1, sx + slotSize - 1, sy + slotSize - 1,
+                    (pet.getRarityColor() & 0x00FFFFFF) | 0x33000000);
             ItemStack stack = stackFor(pet);
             if (!stack.isEmpty()) ItemGrid.item(ctx, stack, sx, sy, slotSize);
+            if (pet.getHeldItem() != null) {
+                ItemStack held = com.teslamaps.profileviewer.data.PetIcons.forHeldItem(pet.getHeldItem());
+                float factor = 9 / 16f;
+                ctx.pose().pushMatrix();
+                ctx.pose().translate(sx + slotSize - 10, sy + 1);
+                ctx.pose().scale(factor, factor);
+                ctx.item(held, 0, 0);
+                ctx.pose().popMatrix();
+            }
             ItemGrid.smallCount(ctx, String.valueOf(pet.getLevel()), sx, sy, slotSize,
                     pet.getLevel() >= pet.getMaxLevel() ? 0xFFFFAA00 : 0xFFFFFFFF);
 
@@ -240,7 +289,7 @@ public class PetsPage extends ProfileViewerPage {
 
         List<Component> lore = new ArrayList<>();
         if (pet.getHeldItem() != null) {
-            lore.add(LegacyText.parse("§7Held Item: §6" + pretty(pet.getHeldItem())));
+            lore.add(LegacyText.parse("§7Held Item: " + com.teslamaps.profileviewer.data.PetIcons.heldItemName(pet.getHeldItem())));
             lore.add(Component.empty());
         }
         if (pet.getLevel() >= pet.getMaxLevel()) {
@@ -303,6 +352,13 @@ public class PetsPage extends ProfileViewerPage {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (sortW > 0 && mouseX >= sortX - 3 && mouseX <= sortX + sortW + 3
+                && mouseY >= lastTop + 3 && mouseY <= lastTop + 16) {
+            sortMode = (sortMode + (button == 1 ? SORT_NAMES.length - 1 : 1)) % SORT_NAMES.length;
+            resort();
+            page = 0;
+            return true;
+        }
         if (pagerW > 0 && mouseY >= pagerY - 2 && mouseY <= pagerY + 10) {
             if (mouseX >= pagerX - 4 && mouseX <= pagerX + 10) {
                 page = (page - 1 + pageCount) % pageCount;
