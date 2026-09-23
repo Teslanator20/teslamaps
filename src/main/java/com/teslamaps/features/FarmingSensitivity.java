@@ -56,11 +56,13 @@ public class FarmingSensitivity {
      * zero without stopping the turn itself.
      */
     public static boolean blocksTurning() {
-        return manualLocked || (autoActive && TeslaMapsConfig.get().farmingSensitivityValue <= 0.001f);
+        if (!manualLocked && !autoActive) return false;
+        if (!TeslaMapsConfig.get().section("Garden")) return false;
+        return manualLocked || TeslaMapsConfig.get().farmingSensitivityValue <= 0.001f;
     }
 
     public static Object sensitivity(Object original) {
-        if (!autoActive) return original;
+        if (!autoActive || !TeslaMapsConfig.get().section("Garden")) return original;
         return (double) TeslaMapsConfig.get().farmingSensitivityValue;
     }
 
