@@ -64,6 +64,7 @@ public final class FeatureRegistry {
     }
 
     public static void tick(Minecraft client) {
+        com.teslamaps.utils.ServerTickTimer.clientTick();
         boolean world = client.player != null && client.level != null;
         for (int i = 0, n = TICKS.size(); i < n; i++) {
             Tick t = TICKS.get(i);

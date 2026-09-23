@@ -14,6 +14,7 @@ public class ServerTickPingMixin {
     @Inject(method = "handlePing", at = @At("HEAD"))
     private void teslamaps$onServerPing(ClientboundPingPacket packet, CallbackInfo ci) {
         BloodCamp.onServerPing(packet.getId());
+        com.teslamaps.utils.ServerTickTimer.onPing(packet.getId());
         if (packet.getId() != 0) com.teslamaps.dungeon.terminals.TerminalUtils.onServerTick();
     }
 }
