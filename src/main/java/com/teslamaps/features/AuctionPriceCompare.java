@@ -37,6 +37,7 @@ public class AuctionPriceCompare {
     private static Screen lastScreen;
     private static boolean inAuctions;
     private static int ticks;
+    private static long bestDiff, worstDiff;
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
@@ -68,8 +69,17 @@ public class AuctionPriceCompare {
             Deal known = deals.get(slot);
             if (known != null && ItemStack.matches(known.stack(), stack)) continue;
             deals.put(slot, compute(stack));
-            if (--budget <= 0) return;
+            if (--budget <= 0) break;
         }
+        // page-relative range for the gradient, after SkyHanni's AuctionHousePriceComparison
+        long best = 0, worst = 0;
+        for (Deal d : deals.values()) {
+            if (Double.isNaN(d.ratio())) continue;
+            if (d.diff() > best) best = d.diff();
+            if (d.diff() < worst) worst = d.diff();
+        }
+        bestDiff = best;
+        worstDiff = worst;
     }
 
     public static boolean isAuctionTitle(String rawTitle) {
@@ -117,22 +127,47 @@ public class AuctionPriceCompare {
 
         Deal deal = deals.get(slot);
         if (deal == null || Double.isNaN(deal.ratio())) return;
-        int color = color(deal.ratio());
+        int color = color(deal);
         if (color == 0) return;
         ctx.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, color);
     }
 
-    private static int color(double ratio) {
+    private static int color(Deal deal) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        double ratio = deal.ratio();
         double min = Math.max(0.01, c.auctionCompareThreshold / 100.0);
         int alpha = (int) (Math.max(0.05f, Math.min(1f, c.auctionCompareOpacity)) * 255) << 24;
+        int veryGood = rgb(c.colorAuctionVeryGood), good = rgb(c.colorAuctionGood);
+        int bad = rgb(c.colorAuctionBad), veryBad = rgb(c.colorAuctionVeryBad);
 
-        if (ratio >= min * 3) return alpha | 0x00AA00;
-        if (ratio >= min) return alpha | 0x55FF55;
+        if (c.auctionCompareGradient) {
+            if (ratio >= min) {
+                double t = bestDiff > 0 ? (double) deal.diff() / bestDiff : 1;
+                return alpha | lerp(good, veryGood, t);
+            }
+            if (c.auctionCompareOnlyGood || ratio > -min) return 0;
+            double t = worstDiff < 0 ? (double) deal.diff() / worstDiff : 1;
+            return alpha | lerp(bad, veryBad, t);
+        }
+
+        if (ratio >= min * 3) return alpha | veryGood;
+        if (ratio >= min) return alpha | good;
         if (c.auctionCompareOnlyGood) return 0;
-        if (ratio <= -min * 3) return alpha | 0xE12B1E;
-        if (ratio <= -min) return alpha | 0xFFFF55;
+        if (ratio <= -min * 3) return alpha | veryBad;
+        if (ratio <= -min) return alpha | bad;
         return 0;
+    }
+
+    private static int rgb(String hex) {
+        return TeslaMapsConfig.parseColor(hex) & 0x00FFFFFF;
+    }
+
+    private static int lerp(int a, int b, double t) {
+        t = Math.max(0, Math.min(1, t));
+        int r = (int) Math.round(((a >> 16) & 0xFF) + t * (((b >> 16) & 0xFF) - ((a >> 16) & 0xFF)));
+        int g = (int) Math.round(((a >> 8) & 0xFF) + t * (((b >> 8) & 0xFF) - ((a >> 8) & 0xFF)));
+        int bl = (int) Math.round((a & 0xFF) + t * ((b & 0xFF) - (a & 0xFF)));
+        return (r << 16) | (g << 8) | bl;
     }
 
     /** Extra tooltip lines for the hovered auction, empty when it is not one. */

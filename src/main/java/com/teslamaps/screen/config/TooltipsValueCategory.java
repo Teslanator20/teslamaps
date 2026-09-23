@@ -31,6 +31,8 @@ public final class TooltipsValueCategory {
                 () -> config.itemValueScale, v -> config.itemValueScale = v, 2);
         b.toggle("  Free Position", () -> config.itemValueFixedPos, v -> config.itemValueFixedPos = v);
         b.info("Drag it in /tmap gui instead of pinning it to the container");
+        b.keybind("Value Screen Key (over slot)", () -> config.itemValueScreenKey, v -> config.itemValueScreenKey = v);
+        b.info("Pinned breakdown, sorted by price with % share, scroll to read");
         b.slider("Hover Delay (ms)", 0f, 2000f,
                 () -> (float) config.itemValueHoverDelay, v -> config.itemValueHoverDelay = Math.round(v / 50f) * 50);
         b.info("Only the first item of a container waits, the rest show instantly");
@@ -41,13 +43,31 @@ public final class TooltipsValueCategory {
         b.dropdown("Price Source",
                 new String[]{"BZ Instant Buy", "BZ Instant Sell", "Lowest BIN", "NPC Sell"},
                 () -> config.itemValuePriceSource, v -> config.itemValuePriceSource = v);
+        b.toggle("Craft Cost Fallback", () -> config.priceCraftFallback, v -> config.priceCraftFallback = v);
+        b.info("Items with no market price use their raw craft cost (Croesus, trackers, value)");
         b.toggle("Lowest BIN / Bazaar Line", () -> config.itemValueShowBin, v -> config.itemValueShowBin = v);
         b.info("Market price on every tooltip, BZ insta buy/sell or lowest BIN");
+        b.toggle("  Hide Insta Buy/Sell", () -> config.priceLineHideInstant, v -> config.priceLineHideInstant = v);
+        b.toggle("  Buy Order / Sell Offer", () -> config.priceLineOrders, v -> config.priceLineOrders = v);
+        b.toggle("  NPC Sell Price", () -> config.priceLineNpc, v -> config.priceLineNpc = v);
+        b.toggle("  Raw Craft Cost", () -> config.priceLineCraft, v -> config.priceLineCraft = v);
+        b.toggle("  Total + Each, Aligned", () -> config.priceLineEach, v -> config.priceLineEach = v);
+        b.info("\"1,200 coins (100 each)\" in two columns, no Shift needed");
+        b.toggle("  Only While Key Held", () -> config.priceLineRequireKey, v -> config.priceLineRequireKey = v);
+        b.keybind("  Price Key", () -> config.priceLineKey, v -> config.priceLineKey = v);
         b.toggle("Show Exact Price", () -> config.itemValueExactPrice, v -> config.itemValueExactPrice = v);
         b.toggle("Ignore Helmet Skins", () -> config.itemValueIgnoreHelmetSkins, v -> config.itemValueIgnoreHelmetSkins = v);
         b.toggle("Ignore Armor Dyes", () -> config.itemValueIgnoreArmorDyes, v -> config.itemValueIgnoreArmorDyes = v);
         b.toggle("Ignore Runes", () -> config.itemValueIgnoreRunes, v -> config.itemValueIgnoreRunes = v);
         b.toggle("Container Value (Top 5)", () -> config.containerValue, v -> config.containerValue = v);
+        b.toggle("  Group Same Items", () -> config.containerValueGroup, v -> config.containerValueGroup = v);
+        b.toggle("  Hover Breakdown + Slots", () -> config.containerValueHover, v -> config.containerValueHover = v);
+        b.slider("  Items Shown", 1f, 20f,
+                () -> (float) config.containerValueTop, v -> config.containerValueTop = Math.round(v));
+        b.slider("  Hide Below (k coins)", 0f, 1000f,
+                () -> (float) config.containerValueHideBelow, v -> config.containerValueHideBelow = Math.round(v / 10f) * 10);
+        b.toggle("  Free Position", () -> config.containerValueFreePos, v -> config.containerValueFreePos = v);
+        b.info("Drag it in /tmap gui instead of pinning it to the container");
         b.label("Enchant Colors");
         b.toggle("Book Abbreviations (Leg I)", () -> config.enchantAbbrev, v -> config.enchantAbbrev = v);
         b.info("Enchant + level written on enchanted book icons");

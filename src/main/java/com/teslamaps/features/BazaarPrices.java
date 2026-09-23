@@ -1,18 +1,10 @@
 package com.teslamaps.features;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.teslamaps.TeslaMaps;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Instant-sell prices from the public bazaar endpoint. No API key needed for
@@ -23,9 +15,6 @@ import java.util.concurrent.CompletableFuture;
  * does not follow from the name are listed as exceptions.
  */
 public class BazaarPrices {
-
-    private static final String URL = "https://api.hypixel.net/v2/skyblock/bazaar";
-    private static final long REFRESH_MS = 10 * 60 * 1000L;
 
     /** Display names whose bazaar id cannot be guessed from the name. */
     private static final Map<String, String> EXCEPTIONS = new HashMap<>();
@@ -92,8 +81,7 @@ public class BazaarPrices {
     /** Buy-order price, only used when an item has no instant-sell orders. */
     private static final Map<String, Double> buyPrices = new HashMap<>();
 
-    private static long lastFetch = 0L;
-    private static boolean fetching = false;
+    private static long lastSynced = 0L;
 
     /** "Carrot Zest" -> "CARROT_ZEST". */
     private static String idFromName(String displayName) {
@@ -298,53 +286,30 @@ public class BazaarPrices {
         TeslaMaps.LOGGER.info("Named {} bazaar-only items", added);
     }
 
+    /** Reads the bazaar out of PriceManager, which does the one fetch for everything. */
     public static void refreshIfStale() {
         com.teslamaps.utils.SkyblockItems.load();
         syncNames();
 
-        long now = System.currentTimeMillis();
-        if (fetching || now - lastFetch < REFRESH_MS) return;
-        lastFetch = now;
-        fetching = true;
+        com.teslamaps.features.croesus.PriceManager.ensureFresh();
+        long updated = com.teslamaps.features.croesus.PriceManager.bazaarUpdatedAt();
+        if (updated == 0 || updated == lastSynced) return;
+        lastSynced = updated;
 
-        CompletableFuture.runAsync(() -> {
-            try {
-                HttpClient client = HttpClient.newBuilder()
-                        .connectTimeout(Duration.ofSeconds(10)).build();
-                HttpRequest request = HttpRequest.newBuilder(URI.create(URL))
-                        .timeout(Duration.ofSeconds(15)).GET().build();
-                HttpResponse<String> response =
-                        client.send(request, HttpResponse.BodyHandlers.ofString());
-
-                JsonObject root = JsonParser.parseString(response.body()).getAsJsonObject();
-                if (!root.has("products")) return;
-                JsonObject products = root.getAsJsonObject("products");
-
-                Map<String, Double> parsed = new HashMap<>();
-                Map<String, Double> parsedBuy = new HashMap<>();
-                productIds.addAll(products.keySet());
-                for (String id : products.keySet()) {
-                    JsonObject status = products.getAsJsonObject(id).getAsJsonObject("quick_status");
-                    if (status == null) continue;
-
-                    double sell = status.has("sellPrice") ? status.get("sellPrice").getAsDouble() : 0;
-                    double buy = status.has("buyPrice") ? status.get("buyPrice").getAsDouble() : 0;
-                    if (sell > 0) parsed.put(id, sell);
-                    if (buy > 0) parsedBuy.put(id, buy);
-                }
-
-                synchronized (prices) {
-                    prices.clear();
-                    prices.putAll(parsed);
-                    buyPrices.clear();
-                    buyPrices.putAll(parsedBuy);
-                }
-                TeslaMaps.LOGGER.info("Loaded {} bazaar prices", parsed.size());
-            } catch (Exception e) {
-                TeslaMaps.LOGGER.warn("Bazaar price fetch failed: {}", e.toString());
-            } finally {
-                fetching = false;
-            }
-        });
+        Map<String, Double> parsed = new HashMap<>();
+        Map<String, Double> parsedBuy = new HashMap<>();
+        for (String id : com.teslamaps.features.croesus.PriceManager.bazaarProductIds()) {
+            productIds.add(id);
+            Double sell = com.teslamaps.features.croesus.PriceManager.bazaarSellOrNull(id);
+            Double buy = com.teslamaps.features.croesus.PriceManager.bazaarBuyOrNull(id);
+            if (sell != null && sell > 0) parsed.put(id, sell);
+            if (buy != null && buy > 0) parsedBuy.put(id, buy);
+        }
+        synchronized (prices) {
+            prices.clear();
+            prices.putAll(parsed);
+            buyPrices.clear();
+            buyPrices.putAll(parsedBuy);
+        }
     }
 }

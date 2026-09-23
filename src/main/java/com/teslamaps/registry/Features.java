@@ -27,5 +27,8 @@ final class Features {
         com.teslamaps.features.ItemProtection.register();
         com.teslamaps.features.WardrobeKeys.register();
         com.teslamaps.features.SkillLevelStack.register();
+        // wave 1b economy
+        com.teslamaps.features.BazaarOwnOrders.register();
+        com.teslamaps.features.ContainerValue.register();
     }
 }

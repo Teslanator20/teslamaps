@@ -46,6 +46,12 @@ public final class InventoryCategory {
                 () -> config.auctionCompareThreshold, v -> config.auctionCompareThreshold = v, 0);
         b.slider("  Opacity", 0.05f, 1f,
                 () -> config.auctionCompareOpacity, v -> config.auctionCompareOpacity = v, 2);
+        b.toggle("  Gradient Relative To Page", () -> config.auctionCompareGradient, v -> config.auctionCompareGradient = v);
+        b.info("Best deal on the page gets the Very Good color, the rest fade toward Good");
+        b.color("  Very Good Color", () -> config.colorAuctionVeryGood, v -> config.colorAuctionVeryGood = v);
+        b.color("  Good Color", () -> config.colorAuctionGood, v -> config.colorAuctionGood = v);
+        b.color("  Bad Color", () -> config.colorAuctionBad, v -> config.colorAuctionBad = v);
+        b.color("  Very Bad Color", () -> config.colorAuctionVeryBad, v -> config.colorAuctionVeryBad = v);
         b.toggle("  Toggle Button In Auction House", () -> config.auctionCompareButton, v -> config.auctionCompareButton = v);
         b.label("Auction / Bazaar Search");
         b.toggle("Custom Search Input", () -> config.searchOverlay, v -> config.searchOverlay = v);
@@ -112,6 +118,11 @@ public final class InventoryCategory {
         b.label("Bazaar & Progress");
         b.toggle("Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v);
         b.toggle("Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v);
+        b.toggle("Bazaar: Order Status Colors", () -> config.bazaarOrderStatus, v -> config.bazaarOrderStatus = v);
+        b.info("Your Bazaar Orders: filled, outbid/undercut, still top, % partly filled, ⏰ expiry");
+        b.color("  Filled Color", () -> config.colorBazaarOrderFilled, v -> config.colorBazaarOrderFilled = v);
+        b.color("  Outbid Color", () -> config.colorBazaarOrderOutbid, v -> config.colorBazaarOrderOutbid = v);
+        b.color("  Top Order Color", () -> config.colorBazaarOrderCompetitive, v -> config.colorBazaarOrderCompetitive = v);
         b.toggle("Progress Highlight (Ways to Level Up / Bestiary)", () -> config.progressHighlight, v -> config.progressHighlight = v);
         b.color("  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v);
         b.toggle("Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v);

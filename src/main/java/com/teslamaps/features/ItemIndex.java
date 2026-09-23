@@ -277,7 +277,7 @@ public class ItemIndex {
     }
 
     /** Sacks keep the real amount in a "Stored: 1,234" lore line, the stack size is always 1. */
-    private static int storedAmount(ItemStack st) {
+    static int storedAmount(ItemStack st) {
         ItemLore lore = st.get(DataComponents.LORE);
         if (lore == null) return 0;
         for (Component line : lore.lines()) {

@@ -17,6 +17,8 @@ public class ConfigHotkey {
         if (typing()) return false;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.itemSearchKey != -1 && key == c.itemSearchKey && itemSearch(window, action)) return true;
+        if (c.itemValueScreenKey != -1 && key == c.itemValueScreenKey
+                && com.teslamaps.screen.ItemValueScreen.handleKey(window, action)) return true;
         if (c.configScreenKey == -1 || key != c.configScreenKey) return false;
 
         Minecraft mc = Minecraft.getInstance();

@@ -242,6 +242,7 @@ public class TMapCommand {
                                 }))
                         .then(ClientCommands.argument("query", StringArgumentType.greedyString())
                                 .executes(context -> openSearch(StringArgumentType.getString(context, "query")))))
+                .then(com.teslamaps.features.croesus.PriceDebug.command())
                 .then(ClientCommands.literal("npc")
                         .executes(context -> openNpcFinder(null))
                         .then(ClientCommands.literal("clear")

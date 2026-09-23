@@ -267,6 +267,11 @@ public class TeslaMapsConfig {
     public boolean auctionCompareOnlyGood = false; // only the green side, no red/yellow
     public float auctionCompareThreshold = 5f;   // percent off the value before a slot is tinted
     public float auctionCompareOpacity = 0.45f;
+    public boolean auctionCompareGradient = false; // fade relative to the best/worst deal on the page
+    public String colorAuctionVeryGood = "#00AA00";
+    public String colorAuctionGood = "#55FF55";
+    public String colorAuctionBad = "#FFFF55";
+    public String colorAuctionVeryBad = "#E12B1E";
     public boolean auctionCompareButton = true;  // toggle button above the auction browser
 
     public boolean searchOverlay = true;         // Replace the auction/bazaar search sign with a textbox
@@ -1243,6 +1248,7 @@ public class TeslaMapsConfig {
     public int itemValueY = 60;
     public float itemValueScale = 1.0f;
     public boolean itemValueGui = false;            // show a value-breakdown panel beside the inventory when hovering an item
+    public int itemValueScreenKey = -1;              // over a slot: pinned, scrollable value breakdown screen
     public int itemValueHoverDelay = 500;           // ms on the same slot before the first breakdown of an inventory shows
     public int itemValueEnchantmentsCap = 7;        // only list the top # most expensive enchantments
     public int itemValueStarMaterialCap = 3;        // only list the top # most expensive star materials
@@ -1251,8 +1257,24 @@ public class TeslaMapsConfig {
     public boolean itemValueIgnoreArmorDyes = false;   // leave armor dyes out of the total
     public boolean itemValueIgnoreRunes = false;       // leave runes out of the total
     public String itemValuePriceSource = "BZ Instant Sell"; // BZ Instant Buy / BZ Instant Sell / Lowest BIN / NPC Sell
+    public boolean priceCraftFallback = false;      // price unknown items by their NEU raw craft cost
     public boolean itemValueShowBin = true;         // extra "Lowest BIN" line in the value breakdown
+    public boolean priceLineHideInstant = false;    // drop the BZ insta buy/sell lines
+    public boolean priceLineOrders = false;         // best buy order / sell offer lines
+    public boolean priceLineNpc = false;            // NPC sell price line
+    public boolean priceLineCraft = false;          // raw craft cost line (NEU recipes)
+    public boolean priceLineEach = false;           // "total coins (each)" in aligned columns
+    public boolean priceLineRequireKey = false;     // price lines only while priceLineKey is held
+    public int priceLineKey = org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_ALT;
     public boolean containerValue = false;          // show total container value + top 5 items in a side panel
+    public boolean containerValueGroup = false;     // same items in one row
+    public boolean containerValueHover = false;     // hover a row: highlight its slots + value breakdown
+    public int containerValueTop = 5;
+    public int containerValueHideBelow = 0;         // k coins, 0 = off
+    public boolean containerValueFreePos = false;   // drag it in /tmap gui instead of pinning it to the container
+    public int containerValueX = 5;
+    public int containerValueY = 60;
+    public float containerValueScale = 1.0f;
     public boolean backpackPreview = true;         // cache + show backpack/ender chest contents on hover (data in storage.json)
     public boolean itemSearchIndex = true;          // remember opened containers so /tmap search can find items anywhere
     @Global
@@ -1675,6 +1697,10 @@ public class TeslaMapsConfig {
     public boolean kickedCenterWarning = true;        // Big center-screen "wait Xs" warning for 60s after a kick
     public boolean bazaarOwnOrders = true;            // Highlight your own orders ("By: <you>") green in bazaar order books
     public boolean bazaarOrderFilled = true;          // Green check mark on bazaar orders that are 100% filled / claimable
+    public boolean bazaarOrderStatus = false;         // Your/Co-op Bazaar Orders: filled / outbid / competitive / partial / expiry
+    public String colorBazaarOrderFilled = "#5555FF";
+    public String colorBazaarOrderOutbid = "#FF5555";
+    public String colorBazaarOrderCompetitive = "#55FF55";
     public boolean progressHighlight = true;          // Highlight 100% progress lines in the Ways to Level Up menu
 
     // Guide Highlight: marks what is still missing in guide-style menus (ported from SkyHanni)

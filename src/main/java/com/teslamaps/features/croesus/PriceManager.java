@@ -27,11 +27,15 @@ public class PriceManager {
 
     private static final Map<String, Double> bazaar = new ConcurrentHashMap<>();    // internal id -> instant-buy price
     private static final Map<String, Double> bazaarSell = new ConcurrentHashMap<>(); // internal id -> instant-sell price
+    private static final Map<String, Double> buyOrder = new ConcurrentHashMap<>();   // best buy order, top of the book
+    private static final Map<String, Double> sellOffer = new ConcurrentHashMap<>();  // best sell offer, top of the book
+    private static final java.util.Set<String> productIds = ConcurrentHashMap.newKeySet();
     private static final Map<String, Double> lowestBin = new ConcurrentHashMap<>(); // internal id -> lowest BIN
     private static final Map<String, String> nameToId = new ConcurrentHashMap<>();  // lowercase clean name -> internal id
 
     private static volatile boolean loaded = false;
     private static volatile long lastFetch = 0L;
+    private static volatile long bazaarUpdated = 0L;
 
     private static final Pattern ESSENCE = Pattern.compile("^(\\w+) Essence$");
     private static final Pattern SHARD = Pattern.compile("^(.+) Shard$");
@@ -44,6 +48,12 @@ public class PriceManager {
         if (loaded && now - lastFetch < 600_000) return;
         if (now - lastFetch < 30_000) return;
         lastFetch = now;
+        EXEC.submit(PriceManager::refresh);
+    }
+
+    /** Skips the 10-minute wait and fetches everything again. */
+    public static void forceRefresh() {
+        lastFetch = System.currentTimeMillis();
         EXEC.submit(PriceManager::refresh);
     }
 
@@ -77,11 +87,26 @@ public class PriceManager {
         JsonObject json = JsonParser.parseString(get("https://api.hypixel.net/v2/skyblock/bazaar")).getAsJsonObject();
         JsonObject products = json.getAsJsonObject("products");
         for (var e : products.entrySet()) {
-            JsonObject qs = e.getValue().getAsJsonObject().getAsJsonObject("quick_status");
+            productIds.add(e.getKey());
+            JsonObject product = e.getValue().getAsJsonObject();
+            JsonObject qs = product.getAsJsonObject("quick_status");
             if (qs == null) continue;
             if (qs.has("buyPrice")) bazaar.put(e.getKey(), qs.get("buyPrice").getAsDouble());
             if (qs.has("sellPrice")) bazaarSell.put(e.getKey(), qs.get("sellPrice").getAsDouble());
+            // sell_summary = buy orders, buy_summary = sell offers
+            putTop(buyOrder, e.getKey(), product.getAsJsonArray("sell_summary"));
+            putTop(sellOffer, e.getKey(), product.getAsJsonArray("buy_summary"));
         }
+        bazaarUpdated = json.has("lastUpdated") ? json.get("lastUpdated").getAsLong() : System.currentTimeMillis();
+    }
+
+    private static void putTop(Map<String, Double> into, String id, com.google.gson.JsonArray rows) {
+        if (rows == null || rows.isEmpty()) {
+            into.remove(id);
+            return;
+        }
+        JsonObject top = rows.get(0).getAsJsonObject();
+        if (top.has("pricePerUnit")) into.put(id, top.get("pricePerUnit").getAsDouble());
     }
 
     private static final String[] BIN_URLS = {
@@ -109,7 +134,14 @@ public class PriceManager {
         Double b = bazaar.get(id);
         if (b != null) return b;
         Double bin = lowestBin.get(id);
-        return bin != null ? bin : 0;
+        if (bin != null) return bin;
+        if (!craftFallback()) return 0;
+        Double craft = CraftCost.costOrNull(id, SOURCE_BAZAAR_BUY);
+        return craft != null ? craft : 0;
+    }
+
+    private static boolean craftFallback() {
+        return com.teslamaps.config.TeslaMapsConfig.get().priceCraftFallback;
     }
 
     public static boolean hasBazaar(String id) { return id != null && bazaar.containsKey(id); }
@@ -125,10 +157,18 @@ public class PriceManager {
 
     /**
      * What one of the given item goes for, or null when nothing knows. Mirrors
-     * SkyHanni's price source order: bazaar, then lowest BIN, then the NPC price.
+     * SkyHanni's price source order: bazaar, then lowest BIN, then the NPC price,
+     * then (opt-in) the raw craft cost from the NEU recipe.
      * SOURCE_LOWEST_BIN flips the first two, for the items that trade on the AH.
      */
     public static Double getPriceOrNull(String id, int source) {
+        Double market = marketPriceOrNull(id, source);
+        if (market != null || source == SOURCE_NPC || id == null || id.isEmpty() || !craftFallback()) return market;
+        return CraftCost.costOrNull(id, source);
+    }
+
+    /** {@link #getPriceOrNull} without the craft-cost fallback. */
+    public static Double marketPriceOrNull(String id, int source) {
         if (id == null || id.isEmpty()) return null;
         if (id.equals("SKYBLOCK_COIN")) return 1.0;
 
@@ -164,6 +204,26 @@ public class PriceManager {
     public static Double bazaarSellOrNull(String id) {
         return id == null ? null : bazaarSell.get(id);
     }
+
+    /** Best buy order right now, the price a new buy order has to beat. */
+    public static Double bazaarBuyOrderOrNull(String id) {
+        return id == null ? null : buyOrder.get(id);
+    }
+
+    /** Best sell offer right now, the price a new sell offer has to undercut. */
+    public static Double bazaarSellOfferOrNull(String id) {
+        return id == null ? null : sellOffer.get(id);
+    }
+
+    /** Every product id the bazaar returned. */
+    public static java.util.Set<String> bazaarProductIds() { return productIds; }
+
+    /** Hypixel's lastUpdated of the bazaar data in hand, 0 before the first fetch. */
+    public static long bazaarUpdatedAt() { return bazaarUpdated; }
+
+    public static int lowestBinCount() { return lowestBin.size(); }
+
+    public static int bazaarCount() { return bazaar.size(); }
 
     public static String idForName(String displayName) {
         if (displayName == null) return null;

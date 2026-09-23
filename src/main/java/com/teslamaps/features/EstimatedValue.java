@@ -144,6 +144,10 @@ public class EstimatedValue {
     // ---------------------------------------------------------------- calculator
 
     private static double[] calculate(ItemStack stack, List<String> list) {
+        return calculate(stack, list, null);
+    }
+
+    private static double[] calculate(ItemStack stack, List<String> list, List<Part> parts) {
         CompoundTag ea = extraAttributes(stack);
         if (ea == null) return null;
         String id = ea.getStringOr("id", "");
@@ -153,52 +157,84 @@ public class EstimatedValue {
         SbRepo.load();
 
         List<String> lore = lore(stack);
+        Recorder rec = new Recorder(list, parts);
         double basePrice = addBaseItem(id, list);
         // enchanted books get their value from ::addEnchantments, counting the base too would double up
-        double total = id.equals("ENCHANTED_BOOK") ? 0.0 : basePrice;
+        double total = rec.add(id.equals("ENCHANTED_BOOK") ? 0.0 : basePrice);
 
-        total += addReforgeStone(lore, ea, list);
+        total += rec.add(addReforgeStone(lore, ea, list));
 
-        total += addRecombobulator(ea, list);
-        total += addArtOfWar(ea, list);
-        total += addArtOfPeace(ea, list);
-        total += addEtherwarp(ea, list);
-        total += addPowerScrolls(ea, list);
-        total += addWoodSingularity(ea, list);
-        total += addJalapenoBook(ea, list);
-        total += addStatsBook(ea, list);
-        total += addEnrichment(ea, list);
-        total += addDivanPowderCoating(ea, list);
-        total += addMithrilInfusion(ea, list);
-        total += addFreeWill(ea, list);
+        total += rec.add(addRecombobulator(ea, list));
+        total += rec.add(addArtOfWar(ea, list));
+        total += rec.add(addArtOfPeace(ea, list));
+        total += rec.add(addEtherwarp(ea, list));
+        total += rec.add(addPowerScrolls(ea, list));
+        total += rec.add(addWoodSingularity(ea, list));
+        total += rec.add(addJalapenoBook(ea, list));
+        total += rec.add(addStatsBook(ea, list));
+        total += rec.add(addEnrichment(ea, list));
+        total += rec.add(addDivanPowderCoating(ea, list));
+        total += rec.add(addMithrilInfusion(ea, list));
+        total += rec.add(addFreeWill(ea, list));
 
-        total += addCrimsonPrestige(id, list);
-        total += addStars(lore, ea, id, list);
-        total += addMasterStars(lore, ea, list);
-        total += addHotPotatoBooks(ea, list);
-        total += addWetBook(ea, list);
-        total += addFarmingForDummies(ea, list);
-        total += addOverclocker(ea, list);
-        total += addSilex(ea, id, list);
-        total += addTransmissionTuners(ea, list);
-        total += addManaDisintegrators(ea, list);
-        total += addPolarvoidBook(ea, list);
-        total += addBookwormBook(ea, list);
-        total += addPocketSackInASack(ea, list);
+        total += rec.add(addCrimsonPrestige(id, list));
+        total += rec.add(addStars(lore, ea, id, list));
+        total += rec.add(addMasterStars(lore, ea, list));
+        total += rec.add(addHotPotatoBooks(ea, list));
+        total += rec.add(addWetBook(ea, list));
+        total += rec.add(addFarmingForDummies(ea, list));
+        total += rec.add(addOverclocker(ea, list));
+        total += rec.add(addSilex(ea, id, list));
+        total += rec.add(addTransmissionTuners(ea, list));
+        total += rec.add(addManaDisintegrators(ea, list));
+        total += rec.add(addPolarvoidBook(ea, list));
+        total += rec.add(addBookwormBook(ea, list));
+        total += rec.add(addPocketSackInASack(ea, list));
 
-        total += addHelmetSkin(ea, list);
-        total += addArmorDye(ea, list);
-        total += addRune(ea, id, list);
+        total += rec.add(addHelmetSkin(ea, list));
+        total += rec.add(addArmorDye(ea, list));
+        total += rec.add(addRune(ea, id, list));
 
-        total += addAbilityScrolls(ea, list);
-        total += addBoosters(ea, list);
-        total += addDrillUpgrades(ea, list);
-        total += addRodUpgrades(ea, list);
-        total += addGemstoneSlotUnlockCost(ea, id, list);
-        total += addGemstones(ea, list);
-        total += addEnchantments(ea, id, list);
+        total += rec.add(addAbilityScrolls(ea, list));
+        total += rec.add(addBoosters(ea, list));
+        total += rec.add(addDrillUpgrades(ea, list));
+        total += rec.add(addRodUpgrades(ea, list));
+        total += rec.add(addGemstoneSlotUnlockCost(ea, id, list));
+        total += rec.add(addGemstones(ea, list));
+        total += rec.add(addEnchantments(ea, id, list));
 
         return new double[]{total, basePrice};
+    }
+
+    /** One value component with its breakdown lines, for the item value screen. */
+    public record Part(List<String> lines, double value) {}
+
+    private static final class Recorder {
+        private final List<String> list;
+        private final List<Part> parts;
+        private int mark;
+
+        Recorder(List<String> list, List<Part> parts) {
+            this.list = list;
+            this.parts = parts;
+            this.mark = list == null ? 0 : list.size();
+        }
+
+        double add(double value) {
+            if (parts == null || list == null) return value;
+            if (list.size() > mark || value != 0) parts.add(new Part(new ArrayList<>(list.subList(mark, list.size())), value));
+            mark = list.size();
+            return value;
+        }
+    }
+
+    /** Every component of the value with its lines, unsorted; empty when the item has no value. */
+    public static List<Part> parts(ItemStack stack) {
+        if (shouldIgnore(stack)) return List.of();
+        List<Part> parts = new ArrayList<>();
+        double[] result = calculate(stack, new ArrayList<>(), parts);
+        if (result == null || result[0] <= 0) return List.of();
+        return parts;
     }
 
     private static double addBaseItem(String rawId, List<String> list) {
@@ -828,7 +864,7 @@ public class EstimatedValue {
         return PriceManager.getPriceOrNull(id, priceSource());
     }
 
-    private static int priceSource() {
+    static int priceSource() {
         String source = TeslaMapsConfig.get().itemValuePriceSource;
         if ("BZ Instant Buy".equals(source)) return PriceManager.SOURCE_BAZAAR_BUY;
         if ("NPC Sell".equals(source)) return PriceManager.SOURCE_NPC;
