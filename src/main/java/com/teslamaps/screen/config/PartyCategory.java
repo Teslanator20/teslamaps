@@ -35,5 +35,9 @@ public final class PartyCategory {
         b.toggle("Requeue on Party \"r\"", () -> config.requeueOnPartyR, v -> config.requeueOnPartyR = v);
         b.slider("Requeue Delay (s)", 0f, 30f,
                 () -> (float) config.requeueDelaySeconds, v -> config.requeueDelaySeconds = Math.round(v));
+        b.toggle("Wait for Downtime Players", () -> config.requeueDowntimeList, v -> config.requeueDowntimeList = v);
+        b.info("dt / !dt puts a player on the list, r / !r takes them off; requeues once it is empty");
+        b.toggle("Skip if Party Size Changed", () -> config.requeueCheckParty, v -> config.requeueCheckParty = v);
+        b.toggle("Requeue Feedback in Chat", () -> config.requeueFeedback, v -> config.requeueFeedback = v);
     }
 }
