@@ -44,6 +44,7 @@ public final class InventoryCategory {
         b.toggle("Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v);
         b.info("/tmap search finds items in museum, sacks, vault, chests, storage");
         b.keybind("  Open Item Search", () -> config.itemSearchKey, v -> config.itemSearchKey = v);
+        b.toggle("  Right-Click Sack Item: /gfs", () -> config.itemSearchGfsClick, v -> config.itemSearchGfsClick = v);
         b.button("Open Item Search",
                 () -> Minecraft.getInstance().setScreen(new ItemSearchScreen(null)));
         b.button("Clear Item Index",

@@ -61,6 +61,7 @@ public class ItemIndex {
         public LinkedHashMap<Integer, String> slots = new LinkedHashMap<>();
         public LinkedHashMap<Integer, String> names;      // plain item names, so a search never decodes everything
         public LinkedHashMap<Integer, Integer> amounts;   // sacks store their count in the lore
+        public LinkedHashMap<Integer, String> lore;       // stripped lower-case lore, for lore search
     }
 
     /** One item found by a search. pos is only set for island chests. */
@@ -191,6 +192,7 @@ public class ItemIndex {
         LinkedHashMap<Integer, String> slots = new LinkedHashMap<>();
         LinkedHashMap<Integer, String> names = new LinkedHashMap<>();
         LinkedHashMap<Integer, Integer> amounts = null;
+        LinkedHashMap<Integer, String> lore = new LinkedHashMap<>();
         int filled = 0;
 
         for (Slot slot : cs.getMenu().slots) {
@@ -206,6 +208,8 @@ public class ItemIndex {
             int cslot = slot.getContainerSlot();
             slots.put(cslot, snbt);
             names.put(cslot, StringUtil.stripTrim(st.getHoverName().getString()));
+            String l = loreText(st);
+            if (!l.isEmpty()) lore.put(cslot, l);
             if (amount != st.getCount()) {
                 if (amounts == null) amounts = new LinkedHashMap<>();
                 amounts.put(cslot, amount);
@@ -226,6 +230,7 @@ public class ItemIndex {
         src.slots = slots;
         src.names = names;
         src.amounts = amounts;
+        src.lore = lore;
         dropDecoded(key);
         dirty = true;
         trim();
@@ -308,9 +313,27 @@ public class ItemIndex {
         return 0;
     }
 
+    private static String loreText(ItemStack st) {
+        ItemLore lore = st.get(DataComponents.LORE);
+        if (lore == null) return "";
+        StringBuilder sb = new StringBuilder();
+        for (Component line : lore.lines()) {
+            if (sb.length() > 0) sb.append('\n');
+            sb.append(StringUtil.strip(line.getString()));
+        }
+        return sb.toString().toLowerCase(Locale.ROOT);
+    }
+
     /** @param typeFilter null or "" = every source type. */
     public static List<Hit> search(String query, String typeFilter) {
+        return search(query, typeFilter, false);
+    }
+
+    private static boolean withLore;
+
+    public static List<Hit> search(String query, String typeFilter, boolean lore) {
         ensure();
+        withLore = lore;
         List<Hit> out = new ArrayList<>();
         String q = StringUtil.strip(query).toLowerCase(Locale.ROOT).trim();
         if (q.isEmpty()) return out;
@@ -337,11 +360,18 @@ public class ItemIndex {
             int slot = e.getKey();
             // the plain name list keeps a search off the SNBT parser for everything that misses
             String name = src.names == null ? null : src.names.get(slot);
-            if (name != null && !name.toLowerCase(Locale.ROOT).contains(q)) continue;
+            boolean nameHit = name != null && name.toLowerCase(Locale.ROOT).contains(q);
+            if (name != null && !nameHit) {
+                if (!withLore) continue;
+                if (src.lore != null) {
+                    String l = src.lore.get(slot);
+                    if (l == null || !l.contains(q)) continue;
+                }
+            }
 
             ItemStack st = stack(key, slot, e.getValue());
             if (st.isEmpty()) continue;
-            if (name == null && !matches(st, q)) continue;
+            if (!nameHit && !matches(st, q)) continue;
 
             int count = st.getCount();
             if (src.amounts != null) count = src.amounts.getOrDefault(slot, count);
@@ -392,6 +422,7 @@ public class ItemIndex {
     }
 
     private static boolean matches(ItemStack st, String q) {
-        return StringUtil.strip(st.getHoverName().getString()).toLowerCase(Locale.ROOT).contains(q);
+        if (StringUtil.strip(st.getHoverName().getString()).toLowerCase(Locale.ROOT).contains(q)) return true;
+        return withLore && loreText(st).contains(q);
     }
 }

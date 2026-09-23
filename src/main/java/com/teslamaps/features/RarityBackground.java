@@ -155,6 +155,16 @@ public class RarityBackground {
         return color;
     }
 
+    private static final int[] RANK_COLORS = {0xFFFFFF, 0x55FF55, 0x5555FF, 0xAA00AA, 0xFFAA00, 0xFF55FF, 0x55FFFF, 0xFF5555, 0xAA0000};
+
+    /** 0 = common ... higher = rarer, -1 = unknown. */
+    public static int rarityRank(ItemStack stack) {
+        int c = rarityColor(stack);
+        if (c == -1) return -1;
+        for (int i = 0; i < RANK_COLORS.length; i++) if (RANK_COLORS[i] == c) return i;
+        return -1;
+    }
+
     private static int computeRarityColor(ItemLore lore) {
         List<Component> lines = lore.lines();
         for (int i = lines.size() - 1; i >= 0; i--) {

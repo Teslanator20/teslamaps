@@ -1249,6 +1249,7 @@ public class TeslaMapsConfig {
     public boolean itemSearchIndex = true;          // remember opened containers so /tmap search can find items anywhere
     @Global
     public int itemSearchKey = 79;                  // opens /tmap search (default O), -1 = unbound
+    public boolean itemSearchGfsClick = false;      // right-click a sack hit in /tmap search -> /gfs prefilled
     public boolean customStorageOverlay = false;    // replace the vanilla "Storage" menu with a custom all-in-one view
     public boolean storageShowNames = false;         // show page/backpack name headers in the custom storage view
     public float storageOverlayScale = 1.0f;        // overall size multiplier for the custom storage overlay (0.5 - 1.5)
