@@ -184,6 +184,16 @@ public class TeslaMapsConfig {
     public float secretSoundPitch = 1.0f;        // Pitch for secret found sound (0.5 - 2.0)
     public boolean secretItemPickupSound = true; // Play the secret sound when picking up dungeon item drops
     public boolean secretClickHighlight = true;  // Flash clicked secret blocks green (worked) / red (locked chest)
+    public boolean secretClickBats = false;      // also box killed secret bats
+    public boolean secretClickItems = false;     // also box picked-up secret items
+    public float secretClickDuration = 3.0f;     // seconds a box stays
+    public com.teslamaps.render.EspStyle secretClickStyle = secretClickStyleDefault();
+    public String secretClickLockedColor = "66FF0000";
+    private static com.teslamaps.render.EspStyle secretClickStyleDefault() {
+        var s = new com.teslamaps.render.EspStyle("6600FF00", com.teslamaps.render.EspStyle.BOTH);
+        s.lineWidth = 3.0f;
+        return s;
+    }
     public boolean salvageHelper = true;        // Highlight cheap (<100k) dungeon-salvageable gear in the Salvage menu
     public boolean sellableHighlighter = true;  // Highlight common junk to sell in Ophelia/Booster Cookie menus
     public boolean secretChime = false;          // Ascending chime per secret found in the room

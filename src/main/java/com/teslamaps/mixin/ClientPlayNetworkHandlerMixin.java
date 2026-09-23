@@ -110,6 +110,7 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleRemoveEntities", at = @At("HEAD"))
     private void onRemoveEntities(ClientboundRemoveEntitiesPacket packet, CallbackInfo ci) {
         BloodCamp.onRemoveEntitiesPacket(packet);
+        for (int id : packet.getEntityIds()) com.teslamaps.features.SecretClickHighlight.onItemGone(id);
         com.teslamaps.features.DeadMobHider.onRemoveEntities(packet);
         com.teslamaps.debug.DeathProbe.onRemoveEntities(packet);
     }
@@ -117,6 +118,7 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleTakeItemEntity", at = @At("TAIL"))
     private void onTakeItemEntity(ClientboundTakeItemEntityPacket packet, CallbackInfo ci) {
         com.teslamaps.features.SecretItemPickup.onTakeItem(packet.getItemId());
+        com.teslamaps.features.SecretClickHighlight.onItemGone(packet.getItemId());
     }
 
     @Inject(method = "handleHurtAnimation", at = @At("HEAD"))

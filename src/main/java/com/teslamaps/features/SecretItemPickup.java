@@ -20,6 +20,12 @@ public class SecretItemPickup {
 
     private static long lastPlayed = 0L;
 
+    public static boolean isDungeonDrop(String name) {
+        String n = name.toLowerCase();
+        for (String drop : DUNGEON_ITEM_DROPS) if (n.contains(drop.toLowerCase())) return true;
+        return false;
+    }
+
     public static void onTakeItem(int itemId) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.secretSound || !c.secretItemPickupSound) return;
@@ -32,12 +38,7 @@ public class SecretItemPickup {
         if (!(entity instanceof ItemEntity item)) return;
         if (entity.distanceTo(mc.player) > 6) return;
 
-        String name = item.getItem().getHoverName().getString();
-        boolean match = false;
-        for (String drop : DUNGEON_ITEM_DROPS) {
-            if (name.toLowerCase().contains(drop.toLowerCase())) { match = true; break; }
-        }
-        if (!match) return;
+        if (!isDungeonDrop(item.getItem().getHoverName().getString())) return;
 
         long now = System.currentTimeMillis();
         if (now - lastPlayed <= 50) return;

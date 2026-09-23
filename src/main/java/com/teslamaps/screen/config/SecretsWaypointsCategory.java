@@ -16,6 +16,11 @@ public final class SecretsWaypointsCategory {
         b.toggle("  Hide When Collected", () -> config.secretWaypointHideCollected, v -> config.secretWaypointHideCollected = v);
         b.toggle("  Tracers to Waypoints", () -> config.secretWaypointTracers, v -> config.secretWaypointTracers = v);
         b.toggle("  Secret Click Highlight", () -> config.secretClickHighlight, v -> config.secretClickHighlight = v);
+        b.toggle("    Highlight Bats", () -> config.secretClickBats, v -> config.secretClickBats = v);
+        b.toggle("    Highlight Items", () -> config.secretClickItems, v -> config.secretClickItems = v);
+        b.slider("    Highlight Duration (s)", 1f, 120f, () -> config.secretClickDuration, v -> config.secretClickDuration = v, 1);
+        b.espStyle("  Secret Click", () -> config.secretClickStyle);
+        b.color("    Secret Click Locked Color", () -> config.secretClickLockedColor, v -> config.secretClickLockedColor = v);
         b.label("Secret Types");
         b.toggle("Show Chests", () -> config.secretWaypointChests, v -> config.secretWaypointChests = v);
         b.color("  Chest", () -> config.colorSecretChest, v -> config.colorSecretChest = v);

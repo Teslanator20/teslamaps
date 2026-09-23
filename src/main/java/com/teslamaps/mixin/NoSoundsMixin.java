@@ -23,6 +23,7 @@ public class NoSoundsMixin {
     @Inject(method = "handleSoundEvent", at = @At("HEAD"), cancellable = true)
     private void teslamaps$muteSounds(ClientboundSoundPacket packet, CallbackInfo ci) {
         process(packet.getSound().value(), packet.getVolume(), packet.getPitch(), ci);
+        com.teslamaps.features.SecretClickHighlight.onSound(packet.getSound().value(), packet.getVolume(), packet.getX(), packet.getY(), packet.getZ());
     }
 
     @Inject(method = "handleSoundEntityEvent", at = @At("HEAD"), cancellable = true)
