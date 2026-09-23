@@ -34,6 +34,9 @@ public final class SbProfile {
     private static String key;
     private static int version;
     private static int ticks;
+    private static boolean initialized;
+    private static int notifiedVersion;
+    private static final java.util.List<Runnable> LISTENERS = new java.util.ArrayList<>();
 
     private SbProfile() {}
 
@@ -41,15 +44,20 @@ public final class SbProfile {
         Feature.of("SbProfile").tickAlways(SbProfile::tick).serverChat(SbProfile::onChat);
     }
 
+    /** Runs on the main thread from the tick after {@link #key()} changed. */
+    public static void onChange(Runnable r) {
+        LISTENERS.add(r);
+    }
+
     /** "uuid/profile", or null when this player never showed a profile. */
     public static String key() {
-        if (key == null) refresh();
+        if (!initialized) refresh();
         return key;
     }
 
     /** Bumps whenever {@link #key()} changes, cheap to compare every call. */
     public static int version() {
-        if (key == null) refresh();
+        if (!initialized) refresh();
         return version;
     }
 
@@ -65,11 +73,18 @@ public final class SbProfile {
     }
 
     private static void tick() {
-        if (++ticks % 20 != 0) return;
-        refresh();
-        for (String line : TabListUtils.getTabListLines()) {
-            Matcher m = TAB.matcher(StringUtil.stripTrim(line));
-            if (m.matches()) { set(m.group(1)); return; }
+        if (++ticks % 20 == 0) {
+            refresh();
+            for (String line : TabListUtils.getTabListLines()) {
+                Matcher m = TAB.matcher(StringUtil.stripTrim(line));
+                if (m.matches()) { set(m.group(1)); break; }
+            }
+        }
+        if (notifiedVersion != version) {
+            notifiedVersion = version;
+            for (Runnable r : LISTENERS) {
+                try { r.run(); } catch (Exception e) { TeslaMaps.LOGGER.error("profile change listener failed", e); }
+            }
         }
     }
 
@@ -110,6 +125,7 @@ public final class SbProfile {
     }
 
     private static void refresh() {
+        initialized = true;
         loadLast();
         String u = uuid();
         String n = u == null ? null : last.get(u);
