@@ -26,6 +26,14 @@ public final class ESPCategory {
         b.slider("  Tracer Threshold", 1f, 5f,
                 () -> (float) config.starredTracerThreshold, v -> config.starredTracerThreshold = Math.round(v));
         b.color("  Starred Mobs", () -> config.colorESPStarred, v -> config.colorESPStarred = v);
+        b.color("  Lost Adventurer", () -> config.colorESPLostAdventurer, v -> config.colorESPLostAdventurer = v);
+        b.color("  Diamond Guy", () -> config.colorESPDiamondGuy, v -> config.colorESPDiamondGuy = v);
+        b.toggle("  Starred Fel / Withermancer Colors", () -> config.espStarSpecialColors, v -> config.espStarSpecialColors = v);
+        b.color("  Starred Fel", () -> config.colorESPStarredFel, v -> config.colorESPStarredFel = v);
+        b.color("  Starred Withermancer", () -> config.colorESPStarredWithermancer, v -> config.colorESPStarredWithermancer = v);
+        b.slider("  Line Width Mobs", 1f, 8f, () -> config.espLineWidthNormal, v -> config.espLineWidthNormal = v, 1);
+        b.slider("  Line Width Fel / Withermancer", 1f, 8f, () -> config.espLineWidthSpecial, v -> config.espLineWidthSpecial = v, 1);
+        b.slider("  Line Width Minibosses", 1f, 8f, () -> config.espLineWidthMiniboss, v -> config.espLineWidthMiniboss = v, 1);
         b.toggle("Fel ESP", () -> config.felESP, v -> config.felESP = v);
         b.slider("  Fel ESP Range", 10f, 100f,
                 () -> (float) config.felESPRange, v -> config.felESPRange = v.intValue());

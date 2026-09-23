@@ -49,6 +49,7 @@ public class StarredMobESP {
     private static final List<EntityHighlight> customHighlights = new ArrayList<>();
 
     private static final Map<Entity, Integer> glowingEntities = new WeakHashMap<>();
+    private static final Map<Entity, Float> lineWidths = new WeakHashMap<>();
 
     private static final List<Vec3> witherKeyPositions = new ArrayList<>();
     private static final List<Vec3> bloodKeyPositions = new ArrayList<>();
@@ -229,6 +230,7 @@ public class StarredMobESP {
         highlightedEntities.clear();
         customHighlights.clear();
         glowingEntities.clear();
+        lineWidths.clear();
         witherKeyPositions.clear();
         bloodKeyPositions.clear();
         witherKeyEntities.clear();
@@ -313,6 +315,7 @@ public class StarredMobESP {
                 EntityHighlight eh = new EntityHighlight(entity, color);
                 highlightedEntities.add(eh);
                 glowingEntities.put(entity, color & 0x00FFFFFF);
+                if (inDungeon) lineWidths.put(entity, lineWidthFor(entity, entityName));
                 if (customEntryFor(entity) != null) customHighlights.add(eh);
             }
         }
@@ -835,6 +838,28 @@ public class StarredMobESP {
         return false;
     }
 
+    private static boolean isMiniboss(Entity entity, String name) {
+        return (entity instanceof Player && (name.equals("Lost Adventurer") || name.equals("Diamond Guy")))
+                || name.equals("Shadow Assassin");
+    }
+
+    private static float lineWidthFor(Entity entity, String name) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (isMiniboss(entity, name)) return c.espLineWidthMiniboss;
+        if (name.equals("Dinnerbone")) return c.espLineWidthSpecial;
+        if (c.espLineWidthSpecial != c.espLineWidthNormal && nametagContains(entity, "Withermancer")) return c.espLineWidthSpecial;
+        return c.espLineWidthNormal;
+    }
+
+    private static boolean nametagContains(Entity entity, String text) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return false;
+        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, entity.getBoundingBox().inflate(0, 2, 0), as -> true)) {
+            if (as.getName().getString().contains(text)) return true;
+        }
+        return false;
+    }
+
     public static int getHighlightColor(Entity entity) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
@@ -851,6 +876,7 @@ public class StarredMobESP {
         String name = entity.getName().getString();
 
         if (name.equals("Dinnerbone")) {
+            if (config.espStarSpecialColors && isStarred(entity)) return TeslaMapsConfig.parseColor(config.colorESPStarredFel);
             return TeslaMapsConfig.parseColor(config.colorESPFel);
         }
 
@@ -872,9 +898,12 @@ public class StarredMobESP {
         }
 
         if (entity instanceof Player) {
-            if (name.equals("Lost Adventurer")) return 0xFFFEE15C; // Yellow
+            if (name.equals("Lost Adventurer")) return TeslaMapsConfig.parseColor(config.colorESPLostAdventurer);
             if (name.equals("Shadow Assassin")) return TeslaMapsConfig.parseColor(config.colorESPShadowAssassin);
-            if (name.equals("Diamond Guy")) return 0xFF57C2F7; // Light blue
+            if (name.equals("Diamond Guy")) return TeslaMapsConfig.parseColor(config.colorESPDiamondGuy);
+        }
+        if (config.espStarSpecialColors && nametagContains(entity, "Withermancer")) {
+            return TeslaMapsConfig.parseColor(config.colorESPStarredWithermancer);
         }
         return TeslaMapsConfig.parseColor(config.colorESPStarred);
     }
@@ -915,7 +944,7 @@ public class StarredMobESP {
                 Entity entity = entry.getKey();
                 if (!entity.isAlive()) continue;
                 ESPRenderer.drawBoxOutline(matrices, visibleBox(entity),
-                        entry.getValue() | 0xFF000000, 2.0f, cameraPos, true);
+                        entry.getValue() | 0xFF000000, lineWidths.getOrDefault(entity, 2.0f), cameraPos, true);
             }
         }
 

@@ -1633,6 +1633,14 @@ public class TeslaMapsConfig {
     public String colorESPFel = "FF0000";            // Fels (red)
     public String colorESPSniper = "55FFFF";         // Snipers (light blue/cyan)
     public String colorESPShadowAssassin = "AA00AA"; // Shadow Assassins (purple)
+    public String colorESPLostAdventurer = "FEE15C";
+    public String colorESPDiamondGuy = "57C2F7";
+    public boolean espStarSpecialColors = false;     // own colors for starred Fels / Withermancers
+    public String colorESPStarredFel = "FF5555";
+    public String colorESPStarredWithermancer = "555555";
+    public float espLineWidthNormal = 2.0f;          // dungeon box ESP line widths per group
+    public float espLineWidthSpecial = 2.0f;         // Fel, Withermancer
+    public float espLineWidthMiniboss = 2.0f;        // LA, SA, Diamond Guy
     public String colorESPBat = "AAAAAA";            // Dungeon bats (gray)
     public String colorESPWitherKey = "000000";      // Wither key (black)
     public String colorESPBloodKey = "FF0000";       // Blood key (red)
