@@ -4,9 +4,13 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Drops parts out of the Hypixel action bar. /tmap debug actionbar shows what is in it. */
@@ -40,26 +44,61 @@ public class ActionBarFilter {
         boolean cutSkill = SkillExpDisplay.onActionBar(raw);
         if ((!cfg.actionBarFilter && !cutSkill) || raw.isEmpty()) return message;
 
-        String[] segments = SEP.split(raw);
-        List<String> keep = new ArrayList<>(segments.length);
-        boolean changed = false;
-        for (String segment : segments) {
-            String s = segment.trim();
-            if (s.isEmpty()) continue;
-            if (cutSkill && SKILL_XP.matcher(StringUtil.strip(s)).find()) {
-                changed = true;
-                continue;
-            }
-            if (cfg.actionBarFilter && dropSegment(cfg, s)) {
-                changed = true;
-                continue;
-            }
-            String filtered = cfg.actionBarFilter ? dropStats(cfg, s) : s;
-            if (!filtered.equals(s)) changed = true;
-            if (!filtered.isEmpty()) keep.add(filtered);
+        List<int[]> segs = new ArrayList<>();
+        Matcher sep = SEP.matcher(raw);
+        int pos = 0;
+        while (sep.find()) {
+            if (sep.start() > pos) segs.add(new int[]{pos, sep.start()});
+            pos = sep.end();
         }
-        if (!changed) return message;
-        return Component.literal(String.join("     ", keep));
+        if (pos < raw.length()) segs.add(new int[]{pos, raw.length()});
+        if (segs.isEmpty()) return message;
+
+        boolean[] cut = new boolean[raw.length()];
+        boolean changed = false;
+        int keptEnd = -1;
+        for (int j = 0; j < segs.size(); j++) {
+            int from = segs.get(j)[0], to = segs.get(j)[1];
+            String s = raw.substring(from, to).trim();
+            boolean drop = (cutSkill && SKILL_XP.matcher(StringUtil.strip(s)).find())
+                    || (cfg.actionBarFilter && dropSegment(cfg, s));
+            if (!drop && cfg.actionBarFilter && !cutStats(cfg, raw, from, to, cut)) drop = true;
+            if (drop) {
+                changed = true;
+                mark(cut, from, to);
+                continue;
+            }
+            if (keptEnd >= 0) mark(cut, keptEnd, segs.get(j - 1)[1]);
+            else mark(cut, segs.get(0)[0], from);
+            keptEnd = to;
+        }
+        if (keptEnd < 0) return Component.empty();
+        mark(cut, keptEnd, segs.get(segs.size() - 1)[1]);
+        if (!changed) {
+            for (boolean b : cut) if (b) { changed = true; break; }
+            if (!changed) return message;
+        }
+        return withoutRanges(message, cut);
+    }
+
+    private static void mark(boolean[] cut, int from, int to) {
+        for (int i = from; i < to; i++) cut[i] = true;
+    }
+
+    private static Component withoutRanges(Component message, boolean[] cut) {
+        MutableComponent out = Component.empty();
+        int[] offset = {0};
+        message.visit((style, text) -> {
+            StringBuilder kept = new StringBuilder(text.length());
+            for (int i = 0; i < text.length(); i++) {
+                int at = offset[0] + i;
+                if (at >= cut.length || !cut[at]) kept.append(text.charAt(i));
+            }
+            if (!kept.isEmpty()) out.append(Component.literal(kept.toString()).setStyle(style));
+            offset[0] += text.length();
+            return Optional.empty();
+        }, Style.EMPTY);
+        return out;
     }
 
     private static boolean dropSegment(TeslaMapsConfig cfg, String segment) {
@@ -75,16 +114,25 @@ public class ActionBarFilter {
         return false;
     }
 
-    /** Several stats share one segment (mana + overflow mana), so drop them stat by stat. */
-    private static String dropStats(TeslaMapsConfig cfg, String segment) {
-        if (segment.indexOf(' ') < 0) return dropStat(cfg, segment) ? "" : segment;
-        StringBuilder sb = new StringBuilder(segment.length());
-        for (String stat : segment.split(" ")) {
-            if (stat.isEmpty() || dropStat(cfg, stat)) continue;
-            if (sb.length() > 0) sb.append(' ');
-            sb.append(stat);
+    /** Several stats share one segment (mana + overflow mana), so cut them stat by stat. False = nothing left. */
+    private static boolean cutStats(TeslaMapsConfig cfg, String raw, int from, int to, boolean[] cut) {
+        int keptEnd = -1;
+        int i = from;
+        while (i < to) {
+            if (raw.charAt(i) == ' ') { i++; continue; }
+            int end = raw.indexOf(' ', i);
+            if (end < 0 || end > to) end = to;
+            if (dropStat(cfg, raw.substring(i, end))) {
+                mark(cut, i, end);
+            } else {
+                mark(cut, keptEnd >= 0 ? keptEnd : from, keptEnd >= 0 ? Math.max(keptEnd, i - 1) : i);
+                keptEnd = end;
+            }
+            i = end;
         }
-        return sb.toString();
+        if (keptEnd < 0) return false;
+        mark(cut, keptEnd, to);
+        return true;
     }
 
     private static boolean dropStat(TeslaMapsConfig cfg, String stat) {
