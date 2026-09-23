@@ -371,7 +371,8 @@ public class FarmProgress {
         if (mc.player == null) return;
         boolean x = alongX();
         double y = Math.min(mc.player.getY(), 76.0);
-        for (double v : new double[]{laneMin(), laneMax()}) {
+        for (int i = 0; i < 2; i++) {
+            double v = i == 0 ? laneMin() : laneMax();
             double px = x ? v : mc.player.getX();
             double pz = x ? mc.player.getZ() : v;
             BlockPos bp = BlockPos.containing(px, y, pz);
