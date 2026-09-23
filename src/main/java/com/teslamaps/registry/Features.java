@@ -42,5 +42,6 @@ final class Features {
         com.teslamaps.features.ChatSpamHud.register();
         // wave 1c mining-foraging
         com.teslamaps.esp.CorpseFinder.register();
+        com.teslamaps.features.mining.PickaxeAbility.register();
     }
 }

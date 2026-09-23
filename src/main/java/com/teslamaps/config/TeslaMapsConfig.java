@@ -425,6 +425,11 @@ public class TeslaMapsConfig {
     public boolean pickaxeAbilityDisplay = false;
     public boolean pickaxeAbilityMiningOnly = true;    // only on the mining islands
     public boolean pickaxeAbilityOnlyOnCooldown = false;
+    public boolean pickaxeAbilityBar = false;          // animated bar instead of the text line
+    public boolean pickaxeAbilityBarVertical = false;
+    public String pickaxeAbilityReadyText = "Right";   // Off / Right / Left / Top / Bottom
+    public String pickaxeAbilityReadyColor = "55FF55";
+    public String pickaxeAbilityEmptyColor = "FF5555";
     public int pickaxeAbilityX = 5;
     public int pickaxeAbilityY = 120;
     public float pickaxeAbilityScale = 1.0f;

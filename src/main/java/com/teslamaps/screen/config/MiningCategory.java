@@ -42,6 +42,13 @@ public final class MiningCategory {
                 () -> config.pickaxeAbilityMiningOnly, v -> config.pickaxeAbilityMiningOnly = v);
         b.toggle("  Hide While Available",
                 () -> config.pickaxeAbilityOnlyOnCooldown, v -> config.pickaxeAbilityOnlyOnCooldown = v);
+        b.toggle("  Show As Bar", () -> config.pickaxeAbilityBar, v -> config.pickaxeAbilityBar = v)
+                .desc("Animated cooldown bar, reacts to the ability chat line right away.");
+        b.toggle("  Vertical Bar", () -> config.pickaxeAbilityBarVertical, v -> config.pickaxeAbilityBarVertical = v);
+        b.dropdown("  Ready Text", new String[] {"Off", "Right", "Left", "Top", "Bottom"},
+                () -> config.pickaxeAbilityReadyText, v -> config.pickaxeAbilityReadyText = v);
+        b.color("  Ready Color", () -> config.pickaxeAbilityReadyColor, v -> config.pickaxeAbilityReadyColor = v);
+        b.color("  Empty Color", () -> config.pickaxeAbilityEmptyColor, v -> config.pickaxeAbilityEmptyColor = v);
         b.info("Needs the Pickaxe Ability tab widget: /tab");
         b.label("Mineshaft Pity");
         b.toggle("Pity Counter Display",
