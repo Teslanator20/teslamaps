@@ -24,6 +24,37 @@ public class DungeonManager {
     private static int tickCounter = 0;
 
     private static ClientLevel lastWorld = null;
+    private static boolean bossEntered = false;
+
+    private static final java.util.Set<String> BOSS_INTROS = java.util.Set.of(
+            "[BOSS] Bonzo: Gratz for making it this far, but I'm basically unbeatable.",
+            "[BOSS] Scarf: This is where the journey ends for you, Adventurers.",
+            "[BOSS] The Professor: I was burdened with terrible news recently...",
+            "[BOSS] Thorn: Welcome Adventurers! I am Thorn, the Spirit! And host of the Vegan Trials!",
+            "[BOSS] Livid: Welcome, you've arrived right on time. I am Livid, the Master of Shadows.",
+            "[BOSS] Sadan: So you made it all the way here... Now you wish to defy me? Sadan?!");
+    private static final String[] F7_BOSSES = {
+            "[BOSS] Maxor: ", "[BOSS] Storm: ", "[BOSS] Goldor: ", "[BOSS] Necron: ", "[BOSS] Wither King: "};
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("BossIntro")
+                .when(() -> !bossEntered && isInDungeon())
+                .serverChat(DungeonManager::onBossChat);
+    }
+
+    private static void onBossChat(String raw) {
+        if (raw.indexOf("[BOSS] ") < 0) return;
+        String s = com.teslamaps.utils.StringUtil.stripTrim(raw);
+        if (!s.startsWith("[BOSS] ")) return;
+        boolean hit = BOSS_INTROS.contains(s);
+        if (!hit && currentFloor.getLevel() == 7) {
+            for (String p : F7_BOSSES) if (s.startsWith(p)) { hit = true; break; }
+        }
+        if (hit) {
+            bossEntered = true;
+            TeslaMaps.debug("Boss entered via intro line: {}", s);
+        }
+    }
 
     private static final Pattern FLOOR_PATTERN = Pattern.compile("([FM])(\\d+)");
     private static final Pattern CATACOMBS_PATTERN = Pattern.compile("The Catacombs \\(([FM]\\d+)\\)");
@@ -143,6 +174,7 @@ public class DungeonManager {
     }
 
     private static void onDungeonEnter() {
+        bossEntered = false;
         dungeonStartTime = System.currentTimeMillis();
         grid.clear();
 
@@ -155,6 +187,7 @@ public class DungeonManager {
     }
 
     private static void onDungeonExit() {
+        bossEntered = false;
         currentFloor = DungeonFloor.UNKNOWN;
         grid.clear();
         PlayerTracker.reset();
@@ -180,7 +213,7 @@ public class DungeonManager {
     }
 
     public static boolean isInBoss() {
-        return currentState == DungeonState.BOSS_FIGHT;
+        return bossEntered || currentState == DungeonState.BOSS_FIGHT;
     }
 
     /**
@@ -189,8 +222,8 @@ public class DungeonManager {
      * as the boss area - every boss arena lies outside it.
      */
     public static boolean isInBossArea() {
-        if (currentState == DungeonState.BOSS_FIGHT) return true;
         if (!isInDungeon()) return false;
+        if (isInBoss()) return true;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
         return ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null;
