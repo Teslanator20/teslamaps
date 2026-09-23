@@ -146,6 +146,9 @@ public class TeslaMapsConfig {
     public boolean bossESPDepthCheck = false;   // Depth check on = respect walls; off = through walls
     public boolean corpseESP = true;            // Box + beacon on unlooted Glacite Mineshaft corpses
     public boolean corpseESPTypeColors = true;  // Colour per corpse type (Lapis/Umber/Tungsten) instead of one colour
+    public boolean corpseFinder = false;         // Legit corpse finder: only corpses seen in line of sight, no walls
+    public boolean corpseFinderParseChat = false; // Party/all chat "x: y: z:" marks a corpse as seen
+    public String corpseFinderChannel = "Nobody"; // Announce channel for the click-to-share line
     public boolean lividFinder = true;          // Highlight the correct Livid in F5/M5
     public boolean lividTracer = true;          // Draw tracer to correct Livid
     public boolean lividDeathMessage = true;    // Send "/pc Livid Dead!" when Livid dies

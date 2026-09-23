@@ -333,6 +333,12 @@ public class TMapCommand {
                                     com.teslamaps.features.Updater.check(true);
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("corpse")
+                        .then(ClientCommands.literal("share")
+                                .executes(context -> corpseShare(context.getSource(), -1))
+                                .then(ClientCommands.argument("id", IntegerArgumentType.integer(0))
+                                        .executes(context -> corpseShare(context.getSource(),
+                                                IntegerArgumentType.getInteger(context, "id"))))))
                 .then(ClientCommands.literal("shards")
                         .executes(context -> shardReport(context.getSource(), 10))
                         .then(ClientCommands.argument("count", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 60))
@@ -1870,6 +1876,16 @@ public class TMapCommand {
     private static int openNpcFinder(String query) {
         Minecraft.getInstance().schedule(() ->
                 Minecraft.getInstance().setScreen(new com.teslamaps.screen.NpcFinderScreen(query)));
+        return 1;
+    }
+
+    private static int corpseShare(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource source, int id) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (com.teslamaps.features.Announce.NOBODY.equals(c.corpseFinderChannel)) {
+            source.sendFeedback(Component.literal("§7Set a Share Channel under Mining > Corpse Finder first"));
+        } else if (!com.teslamaps.esp.CorpseFinder.share(id)) {
+            source.sendFeedback(Component.literal("§7No seen corpse to share"));
+        }
         return 1;
     }
 

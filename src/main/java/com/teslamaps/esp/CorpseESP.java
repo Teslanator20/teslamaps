@@ -100,7 +100,7 @@ public class CorpseESP {
     private static boolean mineshaft = false;
     private static long mineshaftTime = 0;
 
-    private static boolean inMineshaft() {
+    static boolean inMineshaft() {
         long now = System.currentTimeMillis();
         if (now - mineshaftTime < 500) return mineshaft;
         mineshaftTime = now;

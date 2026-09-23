@@ -29,6 +29,12 @@ public final class MiningCategory {
                 .tags("esp", "lapis", "tungsten", "umber", "vanguard", "mineshaft");
         b.toggle("  Type Colors", () -> config.corpseESPTypeColors, v -> config.corpseESPTypeColors = v);
         b.color("  Corpse Color", () -> config.colorCorpseESP, v -> config.colorCorpseESP = v);
+        b.toggle("Corpse Finder (Legit)", () -> config.corpseFinder, v -> config.corpseFinder = v)
+                .desc("Marks a corpse once you had line of sight to it. Never through walls.")
+                .tags("lapis", "tungsten", "umber", "vanguard", "mineshaft", "share");
+        b.toggle("  Read Coords From Chat", () -> config.corpseFinderParseChat, v -> config.corpseFinderParseChat = v);
+        b.channel("  Share Channel", () -> config.corpseFinderChannel, v -> config.corpseFinderChannel = v);
+        b.info("Click the Found line or /tmap corpse share to send it");
         b.label("Drill / Pickaxe Ability");
         b.toggle("Ability Cooldown Display",
                 () -> config.pickaxeAbilityDisplay, v -> config.pickaxeAbilityDisplay = v);
