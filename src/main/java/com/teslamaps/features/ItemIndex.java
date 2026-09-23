@@ -85,7 +85,7 @@ public class ItemIndex {
 
     private static String lastKey = null;
     private static long openedMs = 0, lastCaptureMs = 0;
-    private static int lastVersion = -1;
+    private static boolean packetTaken = false;
     private static BlockPos chestPos = null, chestPos2 = null;
     private static long chestClickMs = 0;
     private static int chestTicks = 0;
@@ -254,18 +254,17 @@ public class ItemIndex {
             lastKey = key;
             openedMs = now;
             lastCaptureMs = 0;
-            lastVersion = -1;
+            packetTaken = false;
         }
-        // packets say when the menu is filled; the half-second timer stays as fallback and resync
-        int version = com.teslamaps.utils.ContainerState.version();
-        boolean packetReady = version != lastVersion
+        // first full fill is taken at once, everything after goes through the half-second timer
+        boolean packetReady = !packetTaken
                 && com.teslamaps.utils.ContainerState.fullyOpened(cs.getMenu().containerId);
         if (!packetReady) {
             if (now - openedMs < 500) return;
             if (now - lastCaptureMs < 500) return;
         }
+        if (packetReady) packetTaken = true;
         lastCaptureMs = now;
-        lastVersion = version;
         if (tracker && type.equals(CHESTS) && chestPos2 != null) captureDouble(cs, title);
         else capture(cs, key, type, name);
     }

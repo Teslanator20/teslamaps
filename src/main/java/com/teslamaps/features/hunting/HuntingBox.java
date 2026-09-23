@@ -69,10 +69,12 @@ public class HuntingBox {
         if (ticks % 10 == 0) scanPlayerInventory(mc);
         // menu contents barely move; a fresh read every 5 ticks is plenty, but a new screen
         // (page turn, menu switch) has to be read at once
+        if (screenChanged) packetRead = false;
         int version = com.teslamaps.utils.ContainerState.version();
-        boolean packetChanged = version != lastVersion;
+        boolean packetChanged = version != lastVersion && !packetRead;
         lastVersion = version;
         if (!screenChanged && !packetChanged && ticks % 5 != 0) return;
+        if (packetChanged && !screenChanged) packetRead = true;   // first fill only, then every 5 ticks
 
         if (mc.screen instanceof AbstractContainerScreen<?> cs) {
             if (boxScreen) readBox(cs, screenTitle);
@@ -85,6 +87,7 @@ public class HuntingBox {
 
     private static int ticks = 0;
     private static int lastVersion = -1;
+    private static boolean packetRead;
     private static Object lastScreen;
     private static String screenTitle = "";
     private static boolean boxScreen, menuScreen, bazaarScreen;
