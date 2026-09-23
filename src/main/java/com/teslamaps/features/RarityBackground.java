@@ -145,6 +145,12 @@ public class RarityBackground {
 
     private static int rarityColor(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return -1;
+        // hypixel tags skyblock items with a tooltip style named after the rarity
+        net.minecraft.resources.Identifier style = stack.get(DataComponents.TOOLTIP_STYLE);
+        if (style != null && "hypixel_skyblock".equals(style.getNamespace())) {
+            int c = styleColor(style.getPath());
+            if (c != -1) return c;
+        }
         ItemLore lore = stack.get(DataComponents.LORE);
         if (lore == null) return -1;
         Integer cached = colorCache.get(lore);
@@ -172,6 +178,21 @@ public class RarityBackground {
             if (c != -1) return c;
         }
         return -1;
+    }
+
+    private static int styleColor(String path) {
+        return switch (path) {
+            case "common" -> 0xFFFFFF;
+            case "uncommon" -> 0x55FF55;
+            case "rare" -> 0x5555FF;
+            case "epic" -> 0xAA00AA;
+            case "legendary" -> 0xFFAA00;
+            case "mythic" -> 0xFF55FF;
+            case "divine" -> 0x55FFFF;
+            case "special", "very_special" -> 0xFF5555;
+            case "supreme", "ultimate", "admin" -> 0xAA0000;
+            default -> -1;
+        };
     }
 
     // case sensitive on purpose: Hypixel's rarity line is upper case, pet perk text is
