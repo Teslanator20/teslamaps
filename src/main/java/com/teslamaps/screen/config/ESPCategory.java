@@ -60,7 +60,6 @@ public final class ESPCategory {
         b.color("  Wither ESP", () -> config.colorBossESP, v -> config.colorBossESP = v);
         b.label("Doors");
         b.toggle("Door ESP", () -> config.doorESP, v -> config.doorESP = v);
-        b.toggle("Fairy Door ESP", () -> config.fairyDoorESP, v -> config.fairyDoorESP = v);
         b.toggle("  Door Tracers", () -> config.doorTracers, v -> config.doorTracers = v);
         b.toggle("  Door Color Based on Key", () -> config.doorColorBasedOnKey, v -> config.doorColorBasedOnKey = v);
         b.toggle("  Only Show Next Door", () -> config.onlyShowNextDoor, v -> config.onlyShowNextDoor = v);
@@ -73,6 +72,7 @@ public final class ESPCategory {
         b.classFilter("  Doors: Only as Class", config.doorEspClasses);
         b.color("  Wither Door", () -> config.colorESPWitherDoor, v -> config.colorESPWitherDoor = v);
         b.color("  Blood Door", () -> config.colorESPBloodDoor, v -> config.colorESPBloodDoor = v);
+        b.toggle("Fairy Door ESP", () -> config.fairyDoorESP, v -> config.fairyDoorESP = v);
         b.label("Livid");
         b.toggle("Livid Finder", () -> config.lividFinder, v -> config.lividFinder = v);
         b.toggle("  Livid Tracer", () -> config.lividTracer, v -> config.lividTracer = v);
