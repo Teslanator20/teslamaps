@@ -1110,6 +1110,7 @@ public class TeslaMapsConfig {
     public boolean partyDuplicateAlert = true;     // Alert when the party has duplicate dungeon classes
     public boolean partyDuplicateSound = true;      // Play a sound on the duplicate-class alert
     public boolean partyDuplicateMessage = true;   // Announce duplicate classes to party chat
+    public boolean partyDuplicatePreStart = false; // check once at "Starting in 4 seconds." with class picks from chat + a title
     public boolean hideCheapCoins = true;          // Hide the spinning coin item entities from coin talismans
     public boolean warpCooldown = true;            // 30s warp/re-queue cooldown timer after a floor starts
     public boolean warpCooldownPerPlayer = false;   // one warp cooldown line per player who entered
