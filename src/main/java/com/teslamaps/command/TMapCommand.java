@@ -273,6 +273,14 @@ public class TMapCommand {
                                 }))
                         .then(ClientCommands.argument("query", StringArgumentType.greedyString())
                                 .executes(context -> openSearch(StringArgumentType.getString(context, "query")))))
+                .then(ClientCommands.literal("suggest")
+                        .executes(context -> openFeedback(false, null))
+                        .then(ClientCommands.argument("text", StringArgumentType.greedyString())
+                                .executes(context -> openFeedback(false, StringArgumentType.getString(context, "text")))))
+                .then(ClientCommands.literal("bugreport")
+                        .executes(context -> openFeedback(true, null))
+                        .then(ClientCommands.argument("text", StringArgumentType.greedyString())
+                                .executes(context -> openFeedback(true, StringArgumentType.getString(context, "text")))))
                 .then(com.teslamaps.features.croesus.PriceDebug.command())
                 .then(com.teslamaps.features.EventTracker.soundsCommand())
                 .then(com.teslamaps.features.EventTracker.particlesCommand())
@@ -2009,6 +2017,12 @@ public class TMapCommand {
     private static int openSearch(String query) {
         Minecraft.getInstance().schedule(() ->
                 Minecraft.getInstance().setScreen(new com.teslamaps.screen.ItemSearchScreen(query)));
+        return 1;
+    }
+
+    private static int openFeedback(boolean bug, String text) {
+        Minecraft.getInstance().schedule(() ->
+                Minecraft.getInstance().setScreen(new com.teslamaps.screen.FeedbackScreen(bug, text)));
         return 1;
     }
 

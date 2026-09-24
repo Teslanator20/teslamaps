@@ -110,7 +110,7 @@ public class CapeSync {
         return TeslaMapsConfig.get().capeServerKey.trim();
     }
 
-    private static boolean enabled() {
+    public static boolean enabled() {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         return !cfg.capeServerUrl.isBlank() && !cfg.capeServerKey.isBlank() && cfg.section("Render");
     }
@@ -534,7 +534,7 @@ public class CapeSync {
         Minecraft.getInstance().execute(() -> feedback.accept(line));
     }
 
-    private static String callFunction(JsonObject body, String successLine) {
+    public static String callFunction(JsonObject body, String successLine) {
         try {
             String[] auth = auth();
             if (auth == null) return "§cMojang auth failed";
