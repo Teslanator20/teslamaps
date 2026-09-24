@@ -56,7 +56,11 @@ public class ChatMixin {
 
         // Anything a player typed can imitate a server line, so triggers only run on
         // server messages. Player chat still reaches the features that want it below.
-        boolean fromServer = com.teslamaps.utils.StringUtil.isServerMessage(text);
+        com.teslamaps.utils.PlayerChat.Msg pm = com.teslamaps.utils.PlayerChat.current();
+        boolean fromServer = com.teslamaps.utils.StringUtil.isServerMessage(text)
+                && (pm == null || pm.channel() == com.teslamaps.utils.PlayerChat.Channel.NPC);
+        // mimic / prince callouts come from other mods in party chat
+        boolean serverOrParty = fromServer || pm != null && pm.channel() == com.teslamaps.utils.PlayerChat.Channel.PARTY;
 
         if (fromServer) com.teslamaps.command.PlayerNameCache.onChatMessage(message);
 
@@ -64,7 +68,9 @@ public class ChatMixin {
             ci.cancel();
             return;
         }
-        if (text.contains("SLAYER QUEST COMPLETE")) {
+        if (!fromServer) {
+            // player lines only reach the features below that read player chat on purpose
+        } else if (text.contains("SLAYER QUEST COMPLETE")) {
             if (cfg.section("Combat")) SlayerHUD.onSlayerComplete();
         } else if (text.contains("SLAYER QUEST FAILED")) {
             if (cfg.section("Combat")) SlayerHUD.onSlayerFailed();
@@ -86,15 +92,15 @@ public class ChatMixin {
             }
         }
 
-        if (text.contains("found a secret") || text.contains("FOUND A SECRET")) {
+        if (fromServer && (text.contains("found a secret") || text.contains("FOUND A SECRET"))) {
             if (cfg.section("Sounds")) {
                 onSecretFound();
             }
         }
 
-        if (cfg.section("Garden")) com.teslamaps.features.FarmProfit.onChatComponent(message);
-        if (cfg.section("Garden")) com.teslamaps.features.GardenPlots.onChatMessage(text);
-        if (cfg.section("Garden")) com.teslamaps.features.PestRoutine.onChatMessage(text);
+        if (fromServer && cfg.section("Garden")) com.teslamaps.features.FarmProfit.onChatComponent(message);
+        if (fromServer && cfg.section("Garden")) com.teslamaps.features.GardenPlots.onChatMessage(text);
+        if (fromServer && cfg.section("Garden")) com.teslamaps.features.PestRoutine.onChatMessage(text);
         if (fromServer && cfg.section("Garden")) com.teslamaps.features.SixthVisitor.onChatMessage(text);
 
         if (fromServer && cfg.section("Auto")) {
@@ -102,22 +108,22 @@ public class ChatMixin {
             com.teslamaps.features.GetFromSacks.onChatMessage(text);
         }
 
-        if (cfg.section("ESP")) LividSolver.onChatMessage(text);
+        if (fromServer && cfg.section("ESP")) LividSolver.onChatMessage(text);
 
-        if (cfg.section("ESP")) com.teslamaps.esp.CorpseESP.onChatMessage(text);
+        if (fromServer && cfg.section("ESP")) com.teslamaps.esp.CorpseESP.onChatMessage(text);
 
-        if (cfg.section("Critter Safari")) {
+        if (fromServer && cfg.section("Critter Safari")) {
             com.teslamaps.safari.SafariTracker.onChatMessage(text);
             com.teslamaps.safari.SafariTracker.onChatComponent(message);
         }
 
-        if (cfg.section("ESP")) com.teslamaps.features.HoppityEggESP.onChatMessage(text);
+        if (fromServer && cfg.section("ESP")) com.teslamaps.features.HoppityEggESP.onChatMessage(text);
 
         if (fromServer && cfg.section("The End")) com.teslamaps.features.theend.EndProtector.onChatMessage(text);
 
-        if (cfg.section("Leap")) com.teslamaps.features.LeapOverlay.onChatMessage(text);
+        if (fromServer && cfg.section("Leap")) com.teslamaps.features.LeapOverlay.onChatMessage(text);
 
-        if (cfg.section("Combat")) com.teslamaps.slayer.SlayerAlerts.onChatMessage(text);
+        if (fromServer && cfg.section("Combat")) com.teslamaps.slayer.SlayerAlerts.onChatMessage(text);
 
         if (fromServer && cfg.section("Skills")) com.teslamaps.features.SkillTracker.onChatMessage(text);
         if (fromServer && cfg.section("Skills")) com.teslamaps.features.hunting.FlareMode.onChatMessage(text);
@@ -127,44 +133,44 @@ public class ChatMixin {
         if (cfg.section("Fishing")) com.teslamaps.features.FishCatchKeySwap.onChatMessage(text);
 
 
-        com.teslamaps.features.KickedTimer.onChatMessage(text);
+        if (fromServer) com.teslamaps.features.KickedTimer.onChatMessage(text);
 
-        com.teslamaps.features.OverkillCounter.onChatMessage(text);
+        if (fromServer) com.teslamaps.features.OverkillCounter.onChatMessage(text);
 
-        MimicDetector.onChatMessage(text);
+        if (serverOrParty) MimicDetector.onChatMessage(text);
 
-        DungeonScore.onChatMessage(text);
+        if (serverOrParty) DungeonScore.onChatMessage(text);
 
-        com.teslamaps.dungeon.terminals.TerminalUtils.onChatMessage(text);
+        if (fromServer) com.teslamaps.dungeon.terminals.TerminalUtils.onChatMessage(text);
 
-        if (cfg.witherDragons) com.teslamaps.dungeon.WitherDragons.onChatMessage(text);
+        if (fromServer && cfg.witherDragons) com.teslamaps.dungeon.WitherDragons.onChatMessage(text);
 
-        if (cfg.section("Score & Splits")) {
+        if (fromServer && cfg.section("Score & Splits")) {
             com.teslamaps.dungeon.Splits.onChatMessage(text);
             com.teslamaps.dungeon.WatcherAddons.onChatMessage(text);
             com.teslamaps.dungeon.ExtraStats.onChatMessage(text);
         }
 
-        if (cfg.section("Party")) com.teslamaps.features.PartyDuplicateAlert.onChatMessage(text);
-        if (cfg.section("Timers")) com.teslamaps.features.TimerTriggers.onChatMessage(text);
-        if (cfg.section("Timers")) com.teslamaps.features.SpiritPetReminder.onChatMessage(text);
-        if (cfg.section("Puzzles & Terminals")) com.teslamaps.features.CustomTitles.onChatMessage(text);
+        if (fromServer && cfg.section("Party")) com.teslamaps.features.PartyDuplicateAlert.onChatMessage(text);
+        if (fromServer && cfg.section("Timers")) com.teslamaps.features.TimerTriggers.onChatMessage(text);
+        if (fromServer && cfg.section("Timers")) com.teslamaps.features.SpiritPetReminder.onChatMessage(text);
+        if (fromServer && cfg.section("Puzzles & Terminals")) com.teslamaps.features.CustomTitles.onChatMessage(text);
         if (cfg.section("Render")) com.teslamaps.features.ChatWaypoint.onChatMessage(text);
-        if (cfg.section("Render")) com.teslamaps.features.RareDropEffects.onChatMessage(text);
+        if (fromServer && cfg.section("Render")) com.teslamaps.features.RareDropEffects.onChatMessage(text);
 
-        if (cfg.section("Blood Camp")) com.teslamaps.dungeon.BloodCamp.onChatMessage(text);
+        if (fromServer && cfg.section("Blood Camp")) com.teslamaps.dungeon.BloodCamp.onChatMessage(text);
 
         if (cfg.section("Party")) {
             com.teslamaps.dungeon.AutoRequeue.onChatMessage(text);
-            com.teslamaps.dungeon.PbOnJoin.onChatMessage(text);
+            if (fromServer) com.teslamaps.dungeon.PbOnJoin.onChatMessage(text);
             com.teslamaps.features.ChatCommands.onChatMessage(text);
         }
 
-        if (cfg.section("Puzzles & Terminals")) ThreeWeirdos.onChatMessage(text);
+        if (fromServer && cfg.section("Puzzles & Terminals")) ThreeWeirdos.onChatMessage(text);
 
-        if (cfg.section("Auto")) AutoWish.onChatMessage(text);
+        if (fromServer && cfg.section("Auto")) AutoWish.onChatMessage(text);
 
-        if (cfg.section("Puzzles & Terminals")) {
+        if (fromServer && cfg.section("Puzzles & Terminals")) {
             QuizSolver.onChatMessage(text);
             com.teslamaps.dungeon.puzzle.SimonSaysSolver.onChatMessage(text);
         }

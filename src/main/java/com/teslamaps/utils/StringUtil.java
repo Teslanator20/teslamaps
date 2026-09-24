@@ -41,7 +41,11 @@ public class StringUtil {
         if (stripped == null) return false;
         String s = stripped.trim();
         if (s.indexOf(':') < 0) return false;
-        return PLAYER_CHAT.matcher(s).matches();
+        if (PLAYER_CHAT.matcher(s).matches()) return true;
+        // level / emblem / ironman forms; rank-less all chat needs the colour check in PlayerChat
+        PlayerChat.Msg m = PlayerChat.parse(s);
+        return m != null && m.channel() != PlayerChat.Channel.NPC
+                && (m.channel() != PlayerChat.Channel.ALL || m.level() != null || m.rank() != null);
     }
 
     /** Strips colours and reports whether the line is safe to act on. */
