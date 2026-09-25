@@ -111,6 +111,16 @@ public final class SoundsCategory {
         b.toggle("Mute Backpack Opening Sound", () -> config.muteBackpackOpen, v -> config.muteBackpackOpen = v);
         b.toggle("Mute Endermen In The End", () -> config.muteEndermanEnd, v -> config.muteEndermanEnd = v)
                 .desc("Enderman ambient, hurt, death, scream and stare sounds, only on The End island.");
+        b.toggle("Mute Blaze Slayer Sounds", () -> config.muteBlazeSounds, v -> config.muteBlazeSounds = v)
+                .desc("Blaze, ghast shot, fire, lava pop and lightning, only on the Crimson Isle.")
+                .tags("slayer", "demonlord", "inferno", "blaze", "crimson");
+        b.toggle("Mute Wolf Slayer Sounds", () -> config.muteWolfSounds, v -> config.muteWolfSounds = v)
+                .desc("Every wolf sound, only in the Park and the Hub.")
+                .tags("slayer", "sven", "wolf");
+        b.toggle("Mute Spider Slayer Sounds", () -> config.muteSpiderSounds, v -> config.muteSpiderSounds = v)
+                .desc("Spider, bat, silverfish and skeleton sounds in the Spider's Den and on the Crimson Isle, "
+                        + "except while your Inferno Demonlord is up.")
+                .tags("slayer", "tarantula", "spider", "skeleton");
         b.toggle("Mute Error Sound (wrong click / no mana)", () -> config.muteErrorSound, v -> config.muteErrorSound = v)
                 .desc("Also the ability cooldown sound (enderman teleport, pitch 0, volume 8)").tags("cooldown");
         b.toggle("Mute Jerry-chine Gun", () -> config.muteJerrychine, v -> config.muteJerrychine = v)

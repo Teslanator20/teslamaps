@@ -800,5 +800,9 @@ final class Features {
         com.teslamaps.slayer.SlayerHiders.register();
         com.teslamaps.slayer.VengeanceTimer.register();
         com.teslamaps.slayer.SlayerBossHud.register();
+        // w16-05-sla
+        com.teslamaps.slayer.CallMaddox.register();
+        com.teslamaps.slayer.VoidgloomBeacon.register();
+        com.teslamaps.features.theend.EndermanQol.register();
     }
 }

@@ -2165,6 +2165,17 @@ public class TeslaMapsConfig {
     public int slayerBossHudY = 240;
     public float slayerBossHudScale = 1.0f;
     public boolean slayerBossHudBar = true;
+    // w16-05-sla
+    public boolean muteBlazeSounds = false;
+    public boolean muteWolfSounds = false;
+    public boolean muteSpiderSounds = false;
+    public boolean callMaddoxOnFail = false;
+    public boolean voidgloomYangGlyphAlert = false;
+    public boolean voidgloomBeaconHighlight = false;
+    public boolean voidgloomBeaconPing = false;
+    public boolean endermanNoHurtTint = false;
+    public boolean endermanStageColors = false;
+    public boolean endermanStopTeleport = false;
     // w15-01-min
     public boolean forgeReminder = false;
     public int forgeReminderDelay = 1;
