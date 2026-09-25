@@ -2,11 +2,14 @@ package com.teslamaps.dungeon;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.LoudSound;
+import com.teslamaps.utils.ServerTickTimer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.phys.Vec3;
 
@@ -20,8 +23,11 @@ public class WatcherAddons {
     private static long startMs = 0L;     // first "[BOSS] The Watcher:" line of the fight
     private static long dialogueMs = 0L;  // time taken to reach the dialogue line
     private static long moveMs = 0L;      // time taken until the Watcher first moves
+    private static long startTick = 0L, dialogueTicks = 0L, moveTicks = 0L;
     private static boolean graded = false;
     private static Vec3 dialoguePos = null; // watcher position captured at dialogue (to detect its move)
+    private static Zombie ownWatcher = null;
+    private static int scanCooldown = 0;
 
     private static boolean gradeEnabled() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -29,7 +35,8 @@ public class WatcherAddons {
     }
 
     public static void onChatMessage(String raw) {
-        if (!gradeEnabled() && !TeslaMapsConfig.get().watcherHud) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!gradeEnabled() && !c.watcherHud && !c.watcherChatSplits) return;
         if (!DungeonManager.isInDungeon()) return;
         String msg = raw.replaceAll("(?i)§[0-9A-FK-OR]", "");
 
@@ -37,14 +44,18 @@ public class WatcherAddons {
 
         if (startMs == 0L && msg.startsWith("[BOSS] The Watcher:")) {
             startMs = System.currentTimeMillis();
+            startTick = ServerTickTimer.now();
         } else if (msg.equals(DIALOGUE)) {
             if (startMs == 0L || graded) return;
             dialogueMs = System.currentTimeMillis() - startMs;
+            dialogueTicks = ServerTickTimer.now() - startTick;
             graded = true;
             if (gradeEnabled()) grade(dialogueMs);
         } else if (msg.equals(PASS)) {
             if (startMs == 0L) return;
-            if (gradeEnabled()) breakdown(System.currentTimeMillis() - startMs, dialogueMs, moveMs);
+            long full = System.currentTimeMillis() - startMs, fullT = ServerTickTimer.now() - startTick;
+            if (gradeEnabled()) breakdown(full, dialogueMs, moveMs);
+            if (c.watcherChatSplits) splits(full, fullT);
             reset();
         }
     }
@@ -53,16 +64,35 @@ public class WatcherAddons {
     public static void tick() {
         if (startMs == 0L || !graded || moveMs != 0L) return;
         Zombie w = BloodCamp.getWatcherEntity();
+        if (w == null) w = findWatcher();
         if (w == null) return;
         if (dialoguePos == null) {
             dialoguePos = w.position();
         } else if (w.position().distanceTo(dialoguePos) > 1.0) {
             moveMs = System.currentTimeMillis() - startMs;
+            moveTicks = ServerTickTimer.now() - startTick;
             Minecraft mc = Minecraft.getInstance();
             if (mc.player != null && gradeEnabled()) {
                 mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] Watcher moved at §d§l" + fmt(moveMs) + "§b!"));
             }
         }
+    }
+
+    // Devonian WatcherSplits: the " The Watcher " nametag stand sits one id above the zombie
+    private static Zombie findWatcher() {
+        if (ownWatcher != null && ownWatcher.isAlive()) return ownWatcher;
+        ownWatcher = null;
+        if (--scanCooldown > 0) return null;
+        scanCooldown = 10;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return null;
+        for (Entity e : com.teslamaps.utils.EntityCache.all()) {
+            if (!(e instanceof ArmorStand) || !e.getName().getString().contains("The Watcher")) continue;
+            if (mc.level.getEntity(e.getId() - 1) instanceof Zombie z) return ownWatcher = z;
+            for (Zombie z : mc.level.getEntitiesOfClass(Zombie.class, e.getBoundingBox().inflate(2)))
+                return ownWatcher = z;
+        }
+        return null;
     }
 
     private static void grade(long ms) {
@@ -100,18 +130,32 @@ public class WatcherAddons {
                         + " §rMove: §d§l" + (mvMs > 0 ? fmt(mvMs) : "?") + "§b!"));
     }
 
+    private static void splits(long fullMs, long fullTicks) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        mc.player.sendSystemMessage(Component.literal(
+                "§b[TeslaMaps] §dDialogue§r: " + (dialogueMs > 0 ? time(dialogueMs, dialogueTicks) : "?")
+                        + " §f| §dMove§r: " + (moveMs > 0 ? time(moveMs, moveTicks) : "?")
+                        + " §f| §dBlood Clear§r: " + time(fullMs, fullTicks)));
+    }
+
+    private static boolean hudAllowed() {
+        return TeslaMapsConfig.get().watcherHudAllClasses
+                || "Mage".equals(com.teslamaps.player.PlayerTracker.getLocalClass());
+    }
+
     public static void render(GuiGraphicsExtractor ctx, DeltaTracker delta) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.watcherHud || startMs == 0L) return;
-        if (!"Mage".equals(com.teslamaps.player.PlayerTracker.getLocalClass())) return; // mage-only
+        if (!hudAllowed()) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        long now = System.currentTimeMillis();
-        String dlg = dialogueMs > 0 ? fmt(dialogueMs) : fmt(now - startMs);
-        String mv = moveMs > 0 ? fmt(moveMs) : "-";
-        String camp = fmt(now - startMs);
+        long now = System.currentTimeMillis(), nowT = ServerTickTimer.now();
+        String dlg = dialogueMs > 0 ? time(dialogueMs, dialogueTicks) : time(now - startMs, nowT - startTick);
+        String mv = moveMs > 0 ? time(moveMs, moveTicks) : "-";
+        String camp = time(now - startMs, nowT - startTick);
 
         var pose = ctx.pose();
         pose.pushMatrix();
@@ -129,8 +173,18 @@ public class WatcherAddons {
         startMs = 0L;
         dialogueMs = 0L;
         moveMs = 0L;
+        startTick = dialogueTicks = moveTicks = 0L;
         graded = false;
         dialoguePos = null;
+        ownWatcher = null;
+    }
+
+    private static String time(long ms, long ticks) {
+        return switch (TeslaMapsConfig.get().watcherTimeFormat) {
+            case 1 -> ticks + "t";
+            case 2 -> fmt(ms) + " §7(" + ticks + "t)";
+            default -> fmt(ms);
+        };
     }
 
     private static String fmt(long ms) {

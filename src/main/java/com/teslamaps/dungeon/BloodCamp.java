@@ -87,6 +87,7 @@ public class BloodCamp {
         Vec3 currVector, endVector, speedVectors;
         long endVecUpdated;
         Vec3 lastEndVector, lastPingPoint, lastEndPoint;
+        boolean soundPlayed;
         RenderEData(Vec3 cv, Vec3 ev, long eu, Vec3 sv) { this.currVector = cv; this.endVector = ev; this.endVecUpdated = eu; this.speedVectors = sv; }
     }
 
@@ -289,6 +290,14 @@ public class BloodCamp {
             }
             if (c.bloodAssistLine) {
                 ESPRenderer.drawLine(matrices, rd.currVector.add(0, 2, 0), endPoint.add(0, 2, 0), 0xFFFF5555, 2.0f, cameraPos);
+            }
+            if (c.bloodCampSound && !rd.soundPlayed) {
+                float ticksLeft = (time - c.bloodAssistOffset) / 50f;
+                if (ticksLeft < c.bloodCampSoundTicks && ticksLeft > -3f) {
+                    rd.soundPlayed = true;
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.player != null) mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_COW_BELL.value(), 1f, 1f);
+                }
             }
             if (c.bloodAssistTime) {
                 float timeDisplay = (time - c.bloodAssistOffset) / 1000f;

@@ -110,5 +110,9 @@ final class Features {
         com.teslamaps.features.BloodCheck.register();
         com.teslamaps.dungeon.RushSplits.register();
         com.teslamaps.features.MapPeek.register();
+        // w03-00-boss
+        com.teslamaps.dungeon.WatcherBar.register();
+        com.teslamaps.dungeon.DragonExtras.register();
+        com.teslamaps.features.LividSolver.register();
     }
 }

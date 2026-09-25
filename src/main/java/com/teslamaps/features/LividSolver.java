@@ -6,6 +6,9 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonFloor;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.dungeon.DungeonState;
+import com.teslamaps.registry.Feature;
+import com.teslamaps.registry.HudEditElement;
+import com.teslamaps.registry.HudEditElement.HudCtx;
 import com.teslamaps.render.ESPRenderer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +47,7 @@ public class LividSolver {
     private static long blindSeenAt = 0;
 
     private static boolean hasAnnounced = false;
+    private static String correctTag = null;
 
     private static boolean hasAnnouncedDeath = false;
 
@@ -161,13 +165,14 @@ public class LividSolver {
         }
 
         boolean tags = TeslaMapsConfig.get().lividHideWrongNametags;
+        boolean hp = TeslaMapsConfig.get().lividHpLabel || TeslaMapsConfig.get().lividHpHud;
         boolean skins = TeslaMapsConfig.get().lividSkinDetection;
         List<Entity> livids = new ArrayList<>();
         List<ArmorStand> stands = new ArrayList<>();
         for (Entity entity : com.teslamaps.utils.EntityCache.all()) {
             if (entity == mc.player) continue;
             if (entity instanceof ArmorStand stand) {
-                if (!tags) continue;
+                if (!tags && !hp) continue;
                 String name = entity.getName().getString();
                 // §2﴾ §2§lLivid§r§r §a7M§c❤ §2﴿
                 if (name.length() > 2 && name.charAt(0) == '§' && name.charAt(2) == '﴾' && name.contains("§lLivid")) {
@@ -216,6 +221,19 @@ public class LividSolver {
             char code = (type != null ? type : currentLivid).colorCode;
             for (ArmorStand stand : stands) {
                 if (stand.getName().getString().charAt(1) != code) wrongNametags.add(stand);
+            }
+        }
+
+        correctTag = null;
+        if (hp && !stands.isEmpty()) {
+            Livid type = typeOf(correctLividEntity, skins);
+            char code = (type != null ? type : currentLivid).colorCode;
+            double best = Double.MAX_VALUE;
+            for (ArmorStand stand : stands) {
+                String n = stand.getName().getString();
+                if (n.charAt(1) != code) continue;
+                double d = stand.distanceToSqr(correctLividEntity);
+                if (d < best) { best = d; correctTag = n; }
             }
         }
 
@@ -304,6 +322,15 @@ public class LividSolver {
 
         mc.player.sendSystemMessage(message);
         TeslaMaps.debug("[LividSolver] Announced: Found {} Livid", currentLivid.entityName);
+
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.lividColorTitle) {
+            mc.gui.setTimes(0, 40, 10);
+            mc.gui.setTitle(Component.literal(coloredName + " Livid"));
+        }
+        // Skyblocker LividColor: [color] placeholder
+        if (c.lividAnnounce && !LegitMode.blocksCheats() && c.lividAnnounceText != null)
+            Announce.party(c.lividAnnounceText.replace("[color]", currentLivid.entityName));
     }
 
     private static void announceLividDeath(Minecraft mc) {
@@ -324,6 +351,7 @@ public class LividSolver {
         blindSeenAt = 0;
         hasAnnounced = false;
         hasAnnouncedDeath = false;
+        correctTag = null;
         pendingAnnouncement = false;
         announcementDelay = 0;
     }
@@ -428,7 +456,43 @@ public class LividSolver {
                 Vec3 lividCenter = lividBox.getCenter();
                 ESPRenderer.drawTracerFromCamera(matrices, lividCenter, TRACER_LIVID, cameraPos);
             }
+            String tag = correctTag;
+            if (TeslaMapsConfig.get().lividHpLabel && tag != null) {
+                ESPRenderer.drawText(matrices, tag, new Vec3(correctLividEntity.getX(), lividBox.maxY + 1.0,
+                        correctLividEntity.getZ()), 2.5f, cameraPos);
+            }
         }
+    }
+
+    // NoammAddons showHp (3D label) + Skytils LividHud (movable nametag HUD)
+    public static void register() {
+        Feature.of("LividHpHud").section("ESP").legit()
+                .when(() -> TeslaMapsConfig.get().lividFinder && TeslaMapsConfig.get().lividHpHud)
+                .hud("lividhphud", LividSolver::renderHpHud);
+        HudEditElement.of("lividHpHud", "Livid HP").ctx(HudCtx.DUNGEON).section("ESP")
+                .enabled(() -> TeslaMapsConfig.get().lividFinder && TeslaMapsConfig.get().lividHpHud)
+                .size(() -> 90, () -> 10).scaleRange(0.5f, 3.0f).preview(LividSolver::drawHpSample);
+    }
+
+    private static void renderHpHud(net.minecraft.client.gui.GuiGraphicsExtractor ctx, net.minecraft.client.DeltaTracker delta) {
+        String tag = correctTag;
+        if (tag == null || !isFloor5() || correctLividEntity == null || !correctLividEntity.isAlive()) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        drawHp(ctx, c.lividHpHudX, c.lividHpHudY, c.lividHpHudScale, tag);
+    }
+
+    private static void drawHpSample(net.minecraft.client.gui.GuiGraphicsExtractor ctx, Minecraft mc, int x, int y, float scale) {
+        drawHp(ctx, x, y, scale, "§c﴾ §c§lLivid§r §a7M§c❤ §c﴿");
+    }
+
+    private static void drawHp(net.minecraft.client.gui.GuiGraphicsExtractor ctx, int x, int y, float scale, String text) {
+        Minecraft mc = Minecraft.getInstance();
+        var pose = ctx.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(scale, scale);
+        ctx.text(mc.font, text, 0, 0, 0xFFFFFFFF);
+        pose.popMatrix();
     }
 
     public static boolean shouldGlow(Entity entity) {

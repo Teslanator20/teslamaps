@@ -2130,6 +2130,34 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w03-00-boss
+    public boolean bossbarHealthPercent = false;       // " - 25.0%" on boss bars without a known max hp
+    public boolean dragonHealthColorName = false;      // colour name on the live dragon label
+    public boolean dragonHealthStatue = false;         // "R" while the dragon sits in its statue box
+    public float witherDragonBoxWidth = 3f;            // spawn box line width
+    public boolean witherDragonLbSpots = false;        // last breath beams per spawning dragon
+    public boolean dragonGlow = false;                 // glow live dragons in their colour
+    public float witherDragonTracerWidth = 2f;
+    public boolean witherDragonCenterTimer = false;    // big spawn countdown mid-screen
+    public int dragonBoxMode = 0;                      // 0 full box, 1 part hitboxes
+    public float dragonHitboxWidth = 2f;
+    public boolean dragonHitboxCustomColor = false;
+    public String dragonHitboxColor = "00FFFF";
+    public boolean bloodCampSound = false;             // cowbell when a predicted mob lands
+    public float bloodCampSoundTicks = 1.3f;
+    public boolean lividColorTitle = false;
+    public boolean lividAnnounce = false;              // /pc the found colour
+    public String lividAnnounceText = "Livid is [color]!";
+    public boolean lividHpLabel = false;               // 3D hp text over the real livid
+    public boolean lividHpHud = false;
+    public int lividHpHudX = 10;
+    public int lividHpHudY = 120;
+    public float lividHpHudScale = 1.0f;
+    public boolean watcherHudAllClasses = false;
+    public int watcherTimeFormat = 0;                  // 0 real, 1 server ticks, 2 both
+    public boolean watcherChatSplits = false;
+    public boolean watcherBossbarKills = false;        // "n/total" blood kills on the watcher bar
+    public boolean watcherBossbarHide = false;         // hide the watcher bar outside blood
     // w02-06-term
     public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
     public int terminalDropKey = -1;                   // own key/mouse button that clicks the hovered terminal slot
@@ -2450,6 +2478,8 @@ public class TeslaMapsConfig {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }
         if (c.chatCommandsWhitelist == null) c.chatCommandsWhitelist = new ArrayList<>();
+        if (c.dragonHitboxColor == null) c.dragonHitboxColor = "00FFFF";
+        if (c.lividAnnounceText == null) c.lividAnnounceText = "Livid is [color]!";
         if (c.chatCommandsDisabled == null) c.chatCommandsDisabled = new ArrayList<>();
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
