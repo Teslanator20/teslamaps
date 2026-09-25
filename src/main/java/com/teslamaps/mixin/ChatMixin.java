@@ -304,6 +304,7 @@ public class ChatMixin {
         Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.features.ChatCompacts.rewrite(split));
         out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out)));
         out = com.teslamaps.features.ChatCompactsMore.rewrite(out);
+        out = com.teslamaps.features.PartyFinderLinks.rewrite(out);
         // before channel compaction, the parser needs "Party > "
         out = com.teslamaps.features.PlayerChatFormat.rewrite(com.teslamaps.features.ChatTranslator.rewrite(out));
         out = com.teslamaps.features.ChatCompact.rewrite(out);

@@ -512,6 +512,13 @@ final class Features {
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w11-01-par
+        com.teslamaps.features.KuudraPartyFinder.register();
+        com.teslamaps.features.AcceptLastInvite.register();
+        com.teslamaps.features.ManaDrainAnnounce.register();
+        com.teslamaps.features.MutePartySpam.register();
+        com.teslamaps.safari.SafariHotspotPost.register();
+        com.teslamaps.safari.HunterTrades.register();
         // w11-02-par
         com.teslamaps.features.PartyInvites.register();
         com.teslamaps.features.capes.TeslaUserLabels.register();
