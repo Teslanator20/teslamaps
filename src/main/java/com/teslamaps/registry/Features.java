@@ -329,5 +329,12 @@ final class Features {
         com.teslamaps.features.hud.CustomTextBox.register();
         com.teslamaps.features.hud.MovementSpeed.register();
         com.teslamaps.features.hud.CrownOfAvarice.register();
+        // w07-08-hud
+        com.teslamaps.features.ExecutionLog.register();
+        com.teslamaps.features.ChickenHeadTimer.register();
+        com.teslamaps.features.CakeTracker.register();
+        com.teslamaps.features.theend.DraconicSacrificeTracker.register();
+        com.teslamaps.features.ItemPickupLog.register();
+        com.teslamaps.features.CustomTodos.register();
     }
 }
