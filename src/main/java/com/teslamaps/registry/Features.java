@@ -512,5 +512,10 @@ final class Features {
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w11-05-par
+        com.teslamaps.features.PartyShortcuts.register();
+        com.teslamaps.features.HighlightTeammates.register();
+        com.teslamaps.features.DianaPartyFinder.register();
+        com.teslamaps.features.PositionalMessages.register();
     }
 }
