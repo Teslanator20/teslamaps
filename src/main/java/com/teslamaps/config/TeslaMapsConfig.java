@@ -2147,6 +2147,23 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w11-08-gui
+    public boolean configColumnLayout = false;
+    public boolean configColumnFling = false;
+    public java.util.Map<String, float[]> configColumns = new java.util.LinkedHashMap<>(); // category -> x, y, scale, collapsed
+    public boolean hudEditExtras = false;
+    public boolean hudEditReset = true;
+    public boolean hudEditNudge = true;
+    public boolean hudEditShowDisabled = true;
+    public boolean hudEditRightClickToggle = true;
+    public boolean hudEditJump = true;
+    @Global
+    public boolean configBackups = false;
+    @Global
+    public int configBackupsMax = 20;
+    public boolean featureToggleKeys = false;
+    public boolean featureToggleChat = true;
+    public java.util.Map<String, Integer> featureToggleBinds = new java.util.LinkedHashMap<>(); // boolean field -> key
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4465,6 +4482,10 @@ public class TeslaMapsConfig {
         c.keybinds.removeIf(java.util.Objects::isNull);
         for (Keybind kb : c.keybinds) if (kb.actions == null) kb.actions = "";
         if (c.hudAnchorRefs == null) c.hudAnchorRefs = new java.util.HashMap<>();
+        if (c.configColumns == null) c.configColumns = new java.util.LinkedHashMap<>();
+        c.configColumns.values().removeIf(v -> v == null || v.length < 4);
+        if (c.featureToggleBinds == null) c.featureToggleBinds = new java.util.LinkedHashMap<>();
+        c.featureToggleBinds.values().removeIf(java.util.Objects::isNull);
         if (c.hudPanelStyles == null) c.hudPanelStyles = new java.util.HashMap<>();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
         if (c.abiphoneFavoriteList == null) c.abiphoneFavoriteList = new ArrayList<>();
@@ -4613,6 +4634,7 @@ public class TeslaMapsConfig {
                     instance = new TeslaMapsConfig();
                 }
                 normalize(instance);
+                ConfigBackups.afterLoad(CONFIG_PATH);
                 if (migrated) save();
                 TeslaMaps.LOGGER.info("Config loaded from {}", CONFIG_PATH);
             } else {
@@ -4626,10 +4648,18 @@ public class TeslaMapsConfig {
         }
     }
 
+    public static Path path() { return CONFIG_PATH; }
+
+    public static void reloadFromDisk() {
+        load();
+        version++;
+    }
+
     public static void save() {
         version++;
         try {
             Files.createDirectories(CONFIG_PATH.getParent());
+            ConfigBackups.beforeSave(CONFIG_PATH);
             Files.writeString(CONFIG_PATH, GSON.toJson(instance));
         } catch (IOException e) {
             TeslaMaps.LOGGER.error("Failed to save config", e);

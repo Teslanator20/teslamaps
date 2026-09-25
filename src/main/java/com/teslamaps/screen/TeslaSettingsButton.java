@@ -33,7 +33,7 @@ public class TeslaSettingsButton extends AbstractWidget {
     @Override
     public void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
         playDownSound(Minecraft.getInstance().getSoundManager());
-        Minecraft.getInstance().setScreen(new MapConfigScreen());
+        Minecraft.getInstance().setScreen(MapConfigScreen.open());
     }
 
     @Override

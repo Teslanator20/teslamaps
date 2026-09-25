@@ -509,5 +509,8 @@ final class Features {
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w11-08-gui
+        com.teslamaps.config.ConfigBackups.register();
+        com.teslamaps.features.FeatureToggleKeys.register();
     }
 }

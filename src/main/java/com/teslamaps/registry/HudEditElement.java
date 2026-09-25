@@ -116,6 +116,66 @@ public final class HudEditElement {
         return enabled.getAsBoolean() && (section == null || c.section(section)) && (showAll || ctx.now());
     }
 
+    public String section() { return section; }
+
+    /** Toggle and section both on - what {@link #shown} checks besides the situation. */
+    public boolean enabledNow() {
+        return enabled.getAsBoolean() && (section == null || TeslaMapsConfig.get().section(section));
+    }
+
+    public boolean shownDisabled(boolean showAll) {
+        return !enabledNow() && (showAll || ctx.now());
+    }
+
+    private Field toggleField;
+    private boolean toggleLooked;
+
+    /** The boolean config field that switches this element's feature, found by name, or null. */
+    public Field toggleField() {
+        if (toggleLooked) return toggleField;
+        toggleLooked = true;
+        String cap = Character.toUpperCase(prefix.charAt(0)) + prefix.substring(1);
+        for (String n : new String[]{prefix, prefix + "Enabled", "show" + cap, prefix + "Hud", prefix + "Display",
+                prefix + "Tracker", prefix + "Timer", prefix + "Overlay"}) {
+            try {
+                Field f = TeslaMapsConfig.class.getField(n);
+                if (f.getType() == boolean.class) { toggleField = f; break; }
+            } catch (NoSuchFieldException ignored) {}
+        }
+        return toggleField;
+    }
+
+    /** @return the new value, or null when there is no toggle field. */
+    public Boolean toggle() {
+        Field f = toggleField();
+        if (f == null) return null;
+        try {
+            boolean v = !f.getBoolean(TeslaMapsConfig.get());
+            f.setBoolean(TeslaMapsConfig.get(), v);
+            return v;
+        } catch (IllegalAccessException e) {
+            throw fail(e);
+        }
+    }
+
+    public void resetToDefault(TeslaMapsConfig defaults) {
+        try {
+            fx.setInt(TeslaMapsConfig.get(), fx.getInt(defaults));
+            fy.setInt(TeslaMapsConfig.get(), fy.getInt(defaults));
+            fscale.setFloat(TeslaMapsConfig.get(), fscale.getFloat(defaults));
+        } catch (IllegalAccessException e) {
+            throw fail(e);
+        }
+        TeslaMapsConfig.get().hudAnchorRefs.remove(prefix);
+        cachedAt = 0;
+    }
+
+    public void nudgeScale(float d) {
+        float s = Math.round((scale() + d) * 100f) / 100f;
+        setFloat(fscale, Math.max(min, Math.min(max, s)));
+        cachedAt = 0;
+    }
+
     public int x() { return xOverride != null ? xOverride.getAsInt() : getInt(fx); }
     public int y() { return yOverride != null ? yOverride.getAsInt() : getInt(fy); }
     public float scale() { return getFloat(fscale); }
