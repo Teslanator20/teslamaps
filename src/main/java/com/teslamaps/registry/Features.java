@@ -517,5 +517,7 @@ final class Features {
         com.teslamaps.features.HighlightTeammates.register();
         com.teslamaps.features.DianaPartyFinder.register();
         com.teslamaps.features.PositionalMessages.register();
+        // w11-00-chat
+        com.teslamaps.features.ChatEncryption.register();
     }
 }

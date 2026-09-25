@@ -2177,6 +2177,11 @@ public class TeslaMapsConfig {
     }
     @Global
     public List<PosMessage> posMessageList = new ArrayList<>();
+    // w11-00-chat
+    public boolean fullChatChroma = false;
+    public boolean chatStackNormalizeNumbers = false;
+    public boolean chatFilterPerkBuffsCompact = false;
+    public boolean chatEncrypt = false;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
