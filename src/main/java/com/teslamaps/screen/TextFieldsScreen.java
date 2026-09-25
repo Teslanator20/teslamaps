@@ -21,6 +21,12 @@ public class TextFieldsScreen extends Screen {
     private final String heading, hint;
     private final List<Field> fields;
     private int panelX, panelY, panelH;
+    private int maxLength = 100;
+
+    public TextFieldsScreen(Screen parent, String heading, String hint, List<Field> fields, int maxLength) {
+        this(parent, heading, hint, fields);
+        this.maxLength = maxLength;
+    }
 
     public TextFieldsScreen(Screen parent, String heading, String hint, List<Field> fields) {
         super(Component.literal(heading));
@@ -38,7 +44,7 @@ public class TextFieldsScreen extends Screen {
         for (int i = 0; i < fields.size(); i++) {
             Field f = fields.get(i);
             EditBox box = new EditBox(this.font, panelX + 144, rowY(i) + 7, 196, 12, Component.literal("text"));
-            box.setMaxLength(100);
+            box.setMaxLength(maxLength);
             box.setBordered(false);
             box.setValue(f.get().get() == null ? "" : f.get().get());
             box.setResponder(f.set());

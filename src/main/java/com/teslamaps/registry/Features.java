@@ -316,5 +316,11 @@ final class Features {
         com.teslamaps.features.QolTweaks.register();
         com.teslamaps.features.RenderHiders.register();
         com.teslamaps.features.ServerRestartWarning.register();
+        // w07-07-hud
+        com.teslamaps.features.tracker.CustomTrackers.register();
+        com.teslamaps.features.hud.BeaconPower.register();
+        com.teslamaps.features.hud.CustomTextBox.register();
+        com.teslamaps.features.hud.MovementSpeed.register();
+        com.teslamaps.features.hud.CrownOfAvarice.register();
     }
 }

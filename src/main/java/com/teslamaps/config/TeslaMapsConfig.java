@@ -2135,6 +2135,55 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w07-07-hud
+    public boolean customTrackers = false;
+    public java.util.List<CustomTrackerDef> customTrackerDefs = new java.util.ArrayList<>();
+    public int customTrackerX = 10;
+    public int customTrackerY = 120;
+    public float customTrackerScale = 1.0f;
+    public boolean beaconPower = false;
+    public boolean beaconPowerStat = true;
+    public boolean beaconPowerCompress = false;
+    @Global
+    public java.util.Map<String, Long> beaconPowerExpiry = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, String> beaconPowerStats = new java.util.HashMap<>();
+    public int beaconPowerX = 10;
+    public int beaconPowerY = 200;
+    public float beaconPowerScale = 1.0f;
+    public boolean arrowPoisonHud = false;
+    public int arrowPoisonHudX = 10;
+    public int arrowPoisonHudY = 230;
+    public float arrowPoisonHudScale = 1.0f;
+    public boolean customTextBox = false;
+    public String customTextBoxText = "&aHello &fWorld\\n&7second line";
+    public boolean customTextBoxOnlyInGui = false;
+    public int customTextBoxX = 10;
+    public int customTextBoxY = 260;
+    public float customTextBoxScale = 1.0f;
+    public boolean perfHudCps = false;
+    public boolean movementSpeed = false;
+    public int movementSpeedX = 10;
+    public int movementSpeedY = 290;
+    public float movementSpeedScale = 1.0f;
+    public boolean crownOfAvarice = false;
+    public boolean crownOfAvariceShort = true;
+    public boolean crownOfAvariceResetOnWorld = false;
+    public int crownOfAvariceAfk = 120;
+    public int crownOfAvariceX = 10;
+    public int crownOfAvariceY = 310;
+    public float crownOfAvariceScale = 1.0f;
+
+    public static class CustomTrackerDef {
+        public boolean enabled = true;
+        public String name = "Custom Tracker";
+        public String areas = "";
+        public String items = "";
+        public boolean coins = false;
+        public int priceSource = 1;
+        public int pauseSeconds = 60;
+    }
+
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
@@ -3311,6 +3360,11 @@ public class TeslaMapsConfig {
 
     static void normalize(TeslaMapsConfig c) {
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
+        if (c.customTrackerDefs == null) c.customTrackerDefs = new java.util.ArrayList<>();
+        c.customTrackerDefs.removeIf(java.util.Objects::isNull);
+        if (c.beaconPowerExpiry == null) c.beaconPowerExpiry = new java.util.HashMap<>();
+        if (c.beaconPowerStats == null) c.beaconPowerStats = new java.util.HashMap<>();
+        if (c.customTextBoxText == null) c.customTextBoxText = "";
         if (c.invButtons == null || c.invButtons.isEmpty()) {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }
