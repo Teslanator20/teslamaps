@@ -156,8 +156,7 @@ public class PerformanceHud {
     public static int width(Minecraft mc) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.perfHudVertical) return mc.font.width(SAMPLE_TEXT) + (cfg.perfHudCps ? mc.font.width(" CPS: 8 | 12") : 0)
-                + (cfg.perfHudDay ? mc.font.width(" Day: 12") : 0);
-        return mc.font.width("Ping: 45ms");
+                + (cfg.perfHudDay ? mc.font.width(" Day: 12") : 0)
                 + (cfg.perfHudTime ? mc.font.width(" Time: 12:00:00 PM") : 0);
         return cfg.perfHudTime ? mc.font.width("Time: 12:00:00 PM") : mc.font.width("Ping: 45ms");
     }
@@ -165,7 +164,6 @@ public class PerformanceHud {
     public static int height(Minecraft mc) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.perfHudVertical) return mc.font.lineHeight;
-        return (mc.font.lineHeight + 1) * (3 + (cfg.perfHudCps ? 1 : 0) + (cfg.perfHudDay ? 1 : 0));
-        return (mc.font.lineHeight + 1) * (3 + (cfg.perfHudCps ? 1 : 0) + (cfg.perfHudTime ? 1 : 0));
+        return (mc.font.lineHeight + 1) * (3 + (cfg.perfHudCps ? 1 : 0) + (cfg.perfHudDay ? 1 : 0) + (cfg.perfHudTime ? 1 : 0));
     }
 }

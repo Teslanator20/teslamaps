@@ -27,7 +27,6 @@ public class SafariHistory {
         public java.util.Map<String, Integer> attempts;
         public java.util.Map<String, Integer> failures;
         public java.util.Map<String, Integer> ownCatches;
-        public java.util.Map<String, Integer> attempts;
         public java.util.Map<String, Integer> shards;
         public int moundsBroken;
         public int rockmites;

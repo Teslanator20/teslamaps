@@ -533,7 +533,6 @@ public class SafariTracker {
         run.attempts = new HashMap<>(attempts);
         run.failures = new HashMap<>(failures);
         run.ownCatches = new HashMap<>(ownCatches);
-        run.attempts = new HashMap<>(attempts);
         run.shards = new HashMap<>(shards);
         run.moundsBroken = moundsBroken;
         run.rockmites = rockmites;
