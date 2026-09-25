@@ -212,6 +212,11 @@ public final class HudEditElement {
         setFloat(fscale, s);
     }
 
+    public void resizeTo(float s) {
+        setFloat(fscale, Math.max(min, Math.min(max, Math.round(s / step) * step)));
+        cachedAt = 0;
+    }
+
     public void drawPreview(GuiGraphicsExtractor g, Minecraft mc) {
         if (preview == null) return;
         float gs = globalScale();

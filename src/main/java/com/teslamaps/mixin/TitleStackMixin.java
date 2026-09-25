@@ -25,6 +25,11 @@ public abstract class TitleStackMixin {
         if (TitleStack.onSubtitle(sub)) ci.cancel();
     }
 
+    @org.spongepowered.asm.mixin.injection.ModifyVariable(method = "setTimes", at = @At("HEAD"), argsOnly = true, ordinal = 1)
+    private int teslamaps$titleDuration(int stay) {
+        return com.teslamaps.features.CustomTitles.stay(stay);
+    }
+
     @Inject(method = "setTimes", at = @At("TAIL"))
     private void teslamaps$stackTimes(int in, int stay, int out, CallbackInfo ci) {
         TitleStack.onTimes(titleFadeInTime, titleStayTime, titleFadeOutTime);

@@ -17,12 +17,29 @@ public class ChromaPrefix {
 
     private static final String TAG = "[TeslaMaps]";
 
+    public static final String[] STYLES = {"Long", "Short", "Custom"};
+
+    private static String cachedRaw, cachedTag = TAG;
+
+    /** Prefix text in use: [TeslaMaps], [TM] or the custom one with & turned into colour codes. */
+    public static String tag() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if ("Short".equals(c.chatPrefixStyle)) return "[TM]";
+        if (!"Custom".equals(c.chatPrefixStyle) || c.chatPrefixCustom == null || c.chatPrefixCustom.isBlank()) return TAG;
+        if (!c.chatPrefixCustom.equals(cachedRaw)) {
+            cachedRaw = c.chatPrefixCustom;
+            cachedTag = cachedRaw.replaceAll("&(?=[0-9a-fk-orA-FK-OR])", "§");
+        }
+        return cachedTag;
+    }
+
     /** Rewritten line, or null when the message is not one of ours. */
     public static Component rewrite(Component message) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.section("Chat")) return null;
         boolean chroma = config.chromaPrefix, click = config.clickablePrefix;
-        if (!chroma && !click) return null;
+        boolean restyle = config.chatPrefixStyle != null && !"Long".equals(config.chatPrefixStyle);
+        if (!chroma && !click && !restyle) return null;
 
         List<Component> parts = message.toFlatList();
         if (parts.isEmpty()) return null;
@@ -35,12 +52,14 @@ public class ChromaPrefix {
 
         MutableComponent out = Component.empty();
         String lead = text.substring(0, idx);
-        MutableComponent tag = chroma
-                ? Component.literal(TAG).withStyle(style -> style.withColor(ChromaColors.FADE))
-                : Component.literal(lead + TAG).setStyle(first.getStyle());
+        String own = tag();
+        MutableComponent tag;
+        if (own.indexOf('\u00a7') >= 0) tag = Component.literal(own + "\u00a7r");
+        else if (chroma) tag = Component.literal(own).withStyle(style -> style.withColor(ChromaColors.FADE));
+        else tag = Component.literal(lead + own).setStyle(first.getStyle());
         if (click) tag = tag.withStyle(style -> style
                 .withClickEvent(new ClickEvent.RunCommand("/tmap"))
-                .withHoverEvent(new HoverEvent.ShowText(Component.literal("§7Click to open the TeslaMaps config"))));
+                .withHoverEvent(new HoverEvent.ShowText(Component.literal("\u00a77Click to open the TeslaMaps config"))));
         out.append(tag);
         // keep the old colour code so the text after the tag stays coloured
         String rest = lead + text.substring(idx + TAG.length());

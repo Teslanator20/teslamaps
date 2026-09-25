@@ -40,6 +40,32 @@ public final class FeatureRegistry {
     static final List<Chat> CHAT = new ArrayList<>();
     static final List<Config> CONFIG = new ArrayList<>();
     static final List<Category> CATEGORIES = new ArrayList<>();
+    static final List<Feature> ALL = new ArrayList<>();
+
+    private static boolean inSkyblock = true;
+    private static final java.util.Set<String> OUTSIDE_SB = new java.util.HashSet<>();
+    private static int sbTicks = 0;
+
+    /** Central "only in SkyBlock" gate; features picked in the list keep running outside. */
+    static boolean blockedOutsideSb(String name) {
+        return !inSkyblock && com.teslamaps.config.TeslaMapsConfig.get().outsideSbGate && !OUTSIDE_SB.contains(name);
+    }
+
+    private static void updateOutsideSb() {
+        com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
+        if (!c.outsideSbGate) { inSkyblock = true; return; }
+        if (sbTicks++ % 20 != 0) return;
+        inSkyblock = com.teslamaps.utils.SkyblockUtils.isInSkyblock();
+        OUTSIDE_SB.clear();
+        if (c.outsideSbFeatures != null) OUTSIDE_SB.addAll(c.outsideSbFeatures);
+    }
+
+    /** Names of the section-gated features, for the outside-SkyBlock list. */
+    public static List<String> featureNames() {
+        java.util.TreeSet<String> names = new java.util.TreeSet<>();
+        for (Feature f : ALL) if (f.section != null && !f.always) names.add(f.name);
+        return new ArrayList<>(names);
+    }
 
     private FeatureRegistry() {}
 
@@ -102,6 +128,7 @@ public final class FeatureRegistry {
     public static void tick(Minecraft client) {
         com.teslamaps.utils.ServerTickTimer.clientTick();
         com.teslamaps.features.Announce.tick();
+        updateOutsideSb();
         boolean world = client.player != null && client.level != null;
         for (int i = 0, n = TICKS.size(); i < n; i++) {
             Tick t = TICKS.get(i);

@@ -512,6 +512,8 @@ final class Features {
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w12-01-gui
+        com.teslamaps.features.HideSillyButtons.register();
         // w12-05-perf
         com.teslamaps.features.KeepTerrainLoaded.register();
         com.teslamaps.features.ErrorManager.register();
