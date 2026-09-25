@@ -129,7 +129,86 @@ public class WorldScanner {
                 GREEN, Quarter.JUNGLE, 0, 1, 1, null, "[NPC] Odawa:"),
         GOLDEN_DRAGON("Golden Dragon",
                 new Block[]{Blocks.STONE, Blocks.RED_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.PLAYER_HEAD, Blocks.RED_WOOL},
-                WHITE, Quarter.ANY, -3, 1, 3, "Dragon's Lair", "[NPC] Golden Dragon:");
+                WHITE, Quarter.ANY, -3, 1, 3, "Dragon's Lair", "[NPC] Golden Dragon:"),
+        // legitcatmod's smaller landmarks, category 5
+        JUNGLE_LAGOON_PILLARS("Jungle Lagoon Pillars",
+                new Block[]{Blocks.GRASS_BLOCK, Blocks.COBBLESTONE_WALL, Blocks.TORCH, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.STONE},
+                GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
+        PURPLE_TREE("Purple Tree",
+                new Block[]{Blocks.SPRUCE_PLANKS, Blocks.SPRUCE_PLANKS, Blocks.OAK_WOOD, Blocks.SPRUCE_PLANKS, Blocks.OAK_WOOD, Blocks.SPRUCE_STAIRS, Blocks.AIR, Blocks.SPRUCE_STAIRS, Blocks.OAK_WOOD, Blocks.OAK_WOOD, Blocks.OAK_WOOD, Blocks.SPRUCE_SLAB},
+                LIGHT_PURPLE, Quarter.ANY, 0, 1, 5, null, null),
+        MINI_JUNGLE_TEMPLE("Mini Jungle Temple",
+                new Block[]{Blocks.POLISHED_ANDESITE, Blocks.ANDESITE, Blocks.STONE_BRICK_STAIRS, Blocks.ANDESITE, Blocks.ANDESITE, Blocks.STONE, Blocks.ANDESITE, Blocks.STONE, Blocks.ANDESITE, Blocks.ANDESITE, Blocks.STONE_BRICK_STAIRS, Blocks.ANDESITE, Blocks.STONE, Blocks.ANDESITE},
+                GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
+        SMALL_TEMPLE("Small Temple",
+                new Block[]{Blocks.STONE_BRICK_SLAB, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.JUNGLE_SLAB, Blocks.BLUE_TERRACOTTA, Blocks.POLISHED_GRANITE},
+                GREEN, Quarter.ANY, 0, 1, 5, null, null),
+        JUNGLE_LAGOON_TEMPLE("Jungle Lagoon Temple",
+                new Block[]{Blocks.DIRT, Blocks.POLISHED_GRANITE, Blocks.JUNGLE_FENCE, Blocks.JUNGLE_FENCE, Blocks.JUNGLE_PLANKS, Blocks.AIR, Blocks.JUNGLE_SLAB, Blocks.POLISHED_GRANITE, Blocks.JUNGLE_PLANKS},
+                GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
+        CRYSTAL_TREE("Crystal Tree",
+                new Block[]{Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.GLOWSTONE, Blocks.LIGHT_GRAY_CARPET},
+                LIGHT_PURPLE, Quarter.ANY, 0, 1, 5, null, null),
+        JUNGLE_BRIDGES("Jungle Bridges",
+                new Block[]{Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_PLANKS, Blocks.GRANITE, Blocks.GRANITE},
+                GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
+        JUNGLE_GORGE("Jungle Gorge",
+                new Block[]{Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_PLANKS, Blocks.GRANITE, Blocks.JUNGLE_STAIRS, Blocks.GRANITE, Blocks.GRANITE, Blocks.GRANITE, Blocks.GRANITE},
+                GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
+        TINY_POND("Tiny Pond",
+                new Block[]{Blocks.LIME_TERRACOTTA, Blocks.WATER, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.STONE, Blocks.STONE, Blocks.GRASS_BLOCK, Blocks.AZURE_BLUET},
+                GREEN, Quarter.ANY, 0, 1, 5, null, null),
+        JUNGLE_LUXURIANT_CAVERN("Jungle Luxuriant Cavern",
+                new Block[]{Blocks.LILY_PAD, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES},
+                GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
+        JUNGLE_VALLEY("Jungle Valley",
+                new Block[]{Blocks.LIME_TERRACOTTA, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.GREEN_WOOL},
+                GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
+        SLUDGE_CAVERN("Sludge Cavern",
+                new Block[]{Blocks.DIRT, Blocks.CLAY, Blocks.CLAY, Blocks.CLAY, Blocks.GRASS_BLOCK, Blocks.BLUE_ORCHID},
+                GREEN, Quarter.ANY, 0, 1, 5, null, null),
+        JUNGLE_CAVERN("Jungle Cavern",
+                new Block[]{Blocks.LIME_TERRACOTTA, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.GREEN_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.LIME_TERRACOTTA},
+                GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
+        STUCK_SLUDGE("Stuck Sludge",
+                new Block[]{Blocks.STONE_BRICKS, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.POLISHED_GRANITE, Blocks.GRANITE, Blocks.GRANITE},
+                GREEN, Quarter.ANY, 0, 1, 5, null, null),
+        GOBLIN_HALL("Goblin Hall",
+                new Block[]{Blocks.SPRUCE_PLANKS, null, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_STAIRS, null, null, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_STAIRS, null, null, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_STAIRS, null, Blocks.SPRUCE_PLANKS},
+                GOLD, Quarter.GOBLIN, 0, 1, 5, null, null),
+        RUINED_FORGE("Ruined Forge",
+                new Block[]{Blocks.POLISHED_ANDESITE, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_PLANKS, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_LOG, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_STAIRS, Blocks.AIR, Blocks.OAK_LOG},
+                AQUA, Quarter.ANY, 0, 1, 5, null, null),
+        JADE_PEDESTAL("Jade Pedestal",
+                new Block[]{Blocks.ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.AIR, Blocks.SEA_LANTERN, Blocks.LIME_STAINED_GLASS, Blocks.LIME_STAINED_GLASS},
+                AQUA, Quarter.ANY, 0, 1, 5, null, null),
+        CRYSTAL_TRAIN("Crystal Train",
+                new Block[]{Blocks.STONE_BRICK_STAIRS, Blocks.COBBLESTONE_STAIRS, Blocks.COBBLESTONE_STAIRS, Blocks.POLISHED_GRANITE, Blocks.GRANITE, Blocks.GRANITE, Blocks.AIR, Blocks.AIR, Blocks.AIR},
+                AQUA, Quarter.ANY, 0, 1, 5, null, null),
+        MINIATURE_FORGE("Miniature Forge",
+                new Block[]{Blocks.COBBLESTONE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.STONE},
+                AQUA, Quarter.ANY, 0, 1, 5, null, null),
+        GRANITE_WALKWAY("Granite Walkway",
+                new Block[]{Blocks.POLISHED_ANDESITE, Blocks.STONE_BRICK_STAIRS, Blocks.POLISHED_ANDESITE, Blocks.COBBLESTONE_WALL, Blocks.COBBLESTONE_WALL, Blocks.COBBLESTONE_WALL, Blocks.COBBLESTONE_WALL, Blocks.COBBLESTONE_WALL, Blocks.COBBLESTONE_WALL, Blocks.COBBLESTONE_WALL, Blocks.COBBLESTONE_WALL, Blocks.COBBLESTONE_WALL, Blocks.COBBLESTONE_WALL, Blocks.COBBLESTONE_WALL, Blocks.POLISHED_ANDESITE},
+                AQUA, Quarter.ANY, 0, 1, 5, null, null),
+        GRUNT_RAILS("Grunt Rails",
+                new Block[]{Blocks.SPRUCE_PLANKS, Blocks.AIR, Blocks.OAK_WALL_SIGN, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.SPRUCE_PLANKS, Blocks.TNT},
+                AQUA, Quarter.ANY, 0, 1, 5, null, null),
+        RAIL_CROSSING("Rail Crossing",
+                new Block[]{Blocks.STONE, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.SPRUCE_STAIRS, Blocks.OAK_LOG, Blocks.OAK_FENCE_GATE},
+                AQUA, Quarter.ANY, 0, 1, 5, null, null),
+        WATERFALL("Waterfall",
+                new Block[]{Blocks.SPRUCE_FENCE, Blocks.SPRUCE_FENCE, Blocks.SPRUCE_FENCE, Blocks.SPRUCE_FENCE, Blocks.SPRUCE_FENCE, Blocks.SPRUCE_FENCE, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_STAIRS, Blocks.OAK_WOOD, Blocks.RAIL},
+                AQUA, Quarter.ANY, 0, 1, 5, null, null),
+        DOUBLE_RAILWAYS("Double Railways",
+                new Block[]{Blocks.FERN, Blocks.AIR, Blocks.STONE_BRICK_STAIRS, Blocks.POLISHED_ANDESITE, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_SLAB},
+                AQUA, Quarter.ANY, 0, 1, 5, null, null),
+        PRECURSOR_TALL_PILLARS("Precursor Tall Pillars",
+                new Block[]{Blocks.POLISHED_DIORITE, Blocks.POLISHED_DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.POLISHED_DIORITE, Blocks.POLISHED_DIORITE, Blocks.POLISHED_ANDESITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.POLISHED_DIORITE, Blocks.DIORITE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.POLISHED_DIORITE},
+                AQUA, Quarter.PRECURSOR, 0, 1, 5, null, null),
+        MANSION("Mansion",
+                new Block[]{Blocks.CYAN_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.AIR, Blocks.AIR, Blocks.CRACKED_STONE_BRICKS, Blocks.WALL_TORCH, Blocks.STONE_BRICK_STAIRS, Blocks.STONE_BRICKS},
+                LIGHT_PURPLE, Quarter.ANY, 0, 1, 5, null, null);
 
         final String displayName;
         final Block[] blocks;
@@ -183,6 +262,25 @@ public class WorldScanner {
         }
     }
 
+    // first block -> landmark patterns starting with it, and every block any pattern starts with
+    private static final Map<Block, List<Structure>> LANDMARKS_BY_FIRST = new java.util.HashMap<>();
+    private static final Set<Block> FIRST_BLOCKS = new java.util.HashSet<>(List.of(Blocks.LAVA,
+            Blocks.MAGENTA_STAINED_GLASS, Blocks.MAGENTA_STAINED_GLASS_PANE));
+    static {
+        for (Structure s : Structure.values()) {
+            FIRST_BLOCKS.add(s.blocks[0]);
+            if (s.category == 5) LANDMARKS_BY_FIRST.computeIfAbsent(s.blocks[0], k -> new ArrayList<>()).add(s);
+        }
+    }
+
+    private static final java.util.concurrent.ExecutorService SCAN_THREAD =
+            java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r, "TeslaMaps-StructureScanner");
+                t.setDaemon(true);
+                return t;
+            });
+    private static volatile int generation;
+
     private static final Map<String, WaypointData> waypoints = new ConcurrentHashMap<>();
     private static final Map<Structure, List<Cluster>> clusters = new ConcurrentHashMap<>();
     private static final Set<Long> scannedChunks = ConcurrentHashMap.newKeySet();
@@ -198,7 +296,23 @@ public class WorldScanner {
             // always rescan on a re-send, never mark an empty chunk as scanned
             if (!chunkReady(chunk)) return;
             scannedChunks.add(chunk.getPos().pack());
+            submit(chunk);
+        });
+    }
+
+    // off-thread like legitcatmod's StructureFinder-Scanner, so chunk streaming never stalls the frame
+    private static void submit(LevelChunk chunk) {
+        if (!TeslaMapsConfig.get().chScanOffThread) {
             scanChunk(chunk);
+            return;
+        }
+        int gen = generation;
+        SCAN_THREAD.execute(() -> {
+            if (gen != generation) return;
+            try {
+                scanChunk(chunk);
+            } catch (RuntimeException ignored) {
+            }
         });
     }
 
@@ -244,7 +358,7 @@ public class WorldScanner {
                     LevelChunk chunk = mc.level.getChunkSource().getChunk(cx, cz, ChunkStatus.FULL, false);
                     if (chunk == null || !chunkReady(chunk)) continue;
                     scannedChunks.add(net.minecraft.world.level.ChunkPos.pack(cx, cz));
-                    scanChunk(chunk);
+                    submit(chunk);
                     budget--;
                 }
             }
@@ -342,6 +456,7 @@ public class WorldScanner {
     }
 
     private static void clear() {
+        generation++;
         waypoints.clear();
         clusters.clear();
         scannedChunks.clear();
@@ -355,7 +470,7 @@ public class WorldScanner {
         boolean tracers = TeslaMapsConfig.get().chScanTracers;
         for (Map.Entry<String, WaypointData> e : waypoints.entrySet()) {
             WaypointData w = e.getValue();
-            if (!categoryEnabled(w.category())) continue;
+            if (!categoryEnabled(w.category()) || !structureOn(e.getKey())) continue;
             BlockPos p = w.pos();
             AABB box = new AABB(p.getX(), p.getY(), p.getZ(), p.getX() + 1, p.getY() + 1, p.getZ() + 1);
             ESPRenderer.drawBoxOutline(matrices, box, w.color(), 1.5f, cameraPos);
@@ -369,12 +484,17 @@ public class WorldScanner {
 
     public interface Visitor { void visit(String name, BlockPos pos, int color); }
 
-    /** Found structures, for the Hollows minimap. */
+    /** Found structures plus named waypoints, for the Hollows minimap. */
     public static void visit(Visitor v) {
+        visitScanned(v);
+        com.teslamaps.features.mining.HollowsWaypoints.visit(v);
+    }
+
+    public static void visitScanned(Visitor v) {
         if (!inHollows) return;
         for (Map.Entry<String, WaypointData> e : waypoints.entrySet()) {
             WaypointData w = e.getValue();
-            if (categoryEnabled(w.category())) v.visit(e.getKey(), w.pos(), w.color());
+            if (categoryEnabled(w.category()) && structureOn(e.getKey())) v.visit(e.getKey(), w.pos(), w.color());
         }
     }
 
@@ -386,13 +506,40 @@ public class WorldScanner {
             case 2 -> cfg.chScanGrottos;
             case 3 -> cfg.chScanDragon;
             case 4 -> cfg.chScanWorm;
+            case 5 -> cfg.chScanLandmarks;
             default -> false;
         };
+    }
+
+    /** Per-structure switch, keyed by the waypoint name; absent = on. */
+    public static boolean structureOn(String name) {
+        Boolean on = TeslaMapsConfig.get().chScanStructures.get(name);
+        return on == null || on;
+    }
+
+    /** Every waypoint name with its category (0 crystal, 1 mob spot, 2 grotto, 3 dragon, 4 worm, 5 landmark). */
+    public static Map<String, Integer> structureNames() {
+        Map<String, Integer> out = new java.util.LinkedHashMap<>();
+        for (Structure s : Structure.values()) out.putIfAbsent(s.displayName, s.category);
+        out.put("Fairy Grotto", 2);
+        out.put("Worm Fishing", 4);
+        return out;
     }
 
     private static void scanChunk(LevelChunk chunk) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         int chunkX = chunk.getPos().x(), chunkZ = chunk.getPos().z();
+        // palette pre-filter: a section without any first block cannot anchor a match
+        LevelChunkSection[] sections = chunk.getSections();
+        boolean[] relevant = new boolean[sections.length];
+        boolean any = false;
+        for (int i = 0; i < sections.length; i++) {
+            LevelChunkSection sec = sections[i];
+            relevant[i] = sec != null && !sec.hasOnlyAir() && sec.maybeHas(st -> FIRST_BLOCKS.contains(st.getBlock()));
+            any |= relevant[i];
+        }
+        if (!any) return;
+        boolean landmarks = cfg.chScanLandmarks;
 
         for (int lx = 0; lx < 16; lx++) {
             for (int lz = 0; lz < 16; lz++) {
@@ -401,9 +548,17 @@ public class WorldScanner {
                 if (worldX < 202 || worldX > 823 || worldZ < 202 || worldZ > 823) continue;
 
                 for (int y = 31; y <= 188; y++) {
+                    int si = chunk.getSectionIndex(y);
+                    if (si < 0 || si >= relevant.length || !relevant[si]) continue;
                     BlockState state = blockAt(chunk, lx, y, lz);
                     if (state.isAir()) continue;
                     Block block = state.getBlock();
+                    if (landmarks) {
+                        List<Structure> extra = LANDMARKS_BY_FIRST.get(block);
+                        if (extra != null) {
+                            for (Structure s : extra) tryAdd(true, s, chunk, lx, y, lz, worldX, worldZ);
+                        }
+                    }
 
                     if (block == Blocks.RED_WOOL) {
                         tryAdd(cfg.chScanCrystals, Structure.KING, chunk, lx, y, lz, worldX, worldZ);
@@ -420,7 +575,7 @@ public class WorldScanner {
                         tryAdd(cfg.chScanCrystals, Structure.TEMPLE, chunk, lx, y, lz, worldX, worldZ);
                     } else if (block == Blocks.LAVA) {
                         tryAdd(cfg.chScanCrystals, Structure.BAL, chunk, lx, y, lz, worldX, worldZ);
-                        if (cfg.chScanWorm && !waypoints.containsKey("Worm Fishing")
+                        if (cfg.chScanWorm && structureOn("Worm Fishing") && !waypoints.containsKey("Worm Fishing")
                                 && y > 63 && blockAt(chunk, lx, y + 1, lz).isAir()
                                 && ((worldX >= 564 && worldZ >= 513) || (worldX >= 513 && worldZ >= 564))) {
                             addWaypoint("Worm Fishing", new BlockPos(worldX, y, worldZ), GOLD, 4, null, null);
@@ -442,7 +597,7 @@ public class WorldScanner {
                     } else if (block == Blocks.JUNGLE_LOG) {
                         tryAdd(cfg.chScanMobSpots, Structure.ODAWA, chunk, lx, y, lz, worldX, worldZ);
                     } else if ((block == Blocks.MAGENTA_STAINED_GLASS || block == Blocks.MAGENTA_STAINED_GLASS_PANE)
-                            && cfg.chScanGrottos && !waypoints.containsKey("Fairy Grotto")
+                            && cfg.chScanGrottos && structureOn("Fairy Grotto") && !waypoints.containsKey("Fairy Grotto")
                             && !inQuarter(Quarter.NUCLEUS, worldX, y, worldZ)) {
                         addWaypoint("Fairy Grotto", new BlockPos(worldX, y, worldZ), LIGHT_PURPLE, 2, null, null);
                     }
@@ -452,7 +607,7 @@ public class WorldScanner {
     }
 
     private static void tryAdd(boolean toggle, Structure s, LevelChunk chunk, int lx, int y, int lz, int worldX, int worldZ) {
-        if (!toggle) return;
+        if (!toggle || !structureOn(s.displayName)) return;
         WaypointData existing = waypoints.get(s.displayName);
         if (existing != null && existing.verified()) return;
         if (!inQuarter(s.quarter, worldX, y, worldZ)) return;

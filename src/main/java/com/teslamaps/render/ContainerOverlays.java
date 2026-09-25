@@ -97,6 +97,7 @@ public class ContainerOverlays {
         if (com.teslamaps.features.foraging.HotF.shouldRender()) {
             com.teslamaps.features.foraging.HotF.render(context);
         }
+        if (com.teslamaps.features.mining.HotmPerks.shouldRender()) com.teslamaps.features.mining.HotmPerks.render(context);
 
         if (com.teslamaps.features.Searchbar.shouldRender()) {
             com.teslamaps.features.Searchbar.render(context);

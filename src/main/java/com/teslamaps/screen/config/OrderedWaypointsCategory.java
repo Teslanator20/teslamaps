@@ -45,6 +45,8 @@ public final class OrderedWaypointsCategory {
         b.label("Trace Line");
         b.toggle("Trace Line", () -> config.orderedTraceLine, v -> config.orderedTraceLine = v);
         b.color("  Trace Line Color", () -> config.orderedColorTraceLine, v -> config.orderedColorTraceLine = v);
+        b.slider("  Trace Line Thickness", 1f, 10f,
+                () -> config.orderedTraceThickness, v -> config.orderedTraceThickness = v, 1);
 
         b.label("Progression");
         b.slider("Waypoint Range", 1f, 10f,
@@ -57,6 +59,10 @@ public final class OrderedWaypointsCategory {
         b.toggle("Unload On World Change", () -> config.orderedAutoUnload, v -> config.orderedAutoUnload = v);
         b.toggle("Auto-Load Route Named Like Area", () -> config.orderedAutoLoadByArea, v -> config.orderedAutoLoadByArea = v);
         b.info("Save a route as e.g. \"Crystal Hollows\" to load it there");
+        b.toggle("Auto-Load Route Named Like Mineshaft", () -> config.orderedAutoLoadShaft, v -> config.orderedAutoLoadShaft = v)
+                .desc("Loads the saved route named like the mineshaft type from the scoreboard, e.g. TOPA_1 or PERI_C.")
+                .tags("mineshaft", "glacite", "shaft");
+        b.toggle("  Unload On Leaving Mineshaft", () -> config.orderedAutoUnloadShaft, v -> config.orderedAutoUnloadShaft = v);
 
         b.label("Setup Mode");
         b.toggle("Setup Mode", () -> config.orderedSetupMode, v -> config.orderedSetupMode = v);

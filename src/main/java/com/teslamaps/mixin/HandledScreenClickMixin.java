@@ -28,6 +28,7 @@ public class HandledScreenClickMixin {
         com.teslamaps.features.WardrobeKeys.onSlotClicked((AbstractContainerScreen<?>) (Object) this, slot, button, type);
         com.teslamaps.features.StorageGuiScale.onClick((AbstractContainerScreen<?>) (Object) this);
         com.teslamaps.features.qol.TiaRelayHelper.onSlotClick(slot, slotId, button, type);
+        com.teslamaps.features.mining.HotmPowderGoal.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, type);
         if (com.teslamaps.features.DnaAnalyzerSolver.onSlotClick((AbstractContainerScreen<?>) (Object) this, slotId, type)) {
             ci.cancel();
             return;
@@ -123,6 +124,8 @@ public class HandledScreenClickMixin {
                 || com.teslamaps.features.BazaarOwnOrders.hideTooltip((AbstractContainerScreen<?>) (Object) this,
                 ((HandledScreenAccessor) (Object) this).getFocusedSlot())
                 || com.teslamaps.features.DnaAnalyzerSolver.hideTooltip((AbstractContainerScreen<?>) (Object) this,
+                ((HandledScreenAccessor) (Object) this).getFocusedSlot())
+                || com.teslamaps.features.mining.FossilExcavatorHelper.hideTooltip((AbstractContainerScreen<?>) (Object) this,
                 ((HandledScreenAccessor) (Object) this).getFocusedSlot())) ci.cancel();
     }
 
@@ -146,6 +149,7 @@ public class HandledScreenClickMixin {
                 || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyPartyFinder.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyAuctionHouse.click((AbstractContainerScreen<?>) (Object) this, click)
+                || com.teslamaps.features.mining.CommissionPanel.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.RadialMenus.click((AbstractContainerScreen<?>) (Object) this, click)) {
             cir.setReturnValue(true);
             return;

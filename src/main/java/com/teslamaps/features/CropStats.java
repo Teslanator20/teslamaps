@@ -2,26 +2,23 @@ package com.teslamaps.features;
 
 // Crop data after SkyHanni's CropType, CropMilestonesApi, GardenCropSpeed and FarmingFortuneDisplay
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.features.garden.GardenCropData;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.render.gui.HudStyle;
-import com.teslamaps.utils.ContainerState;
-import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.StringUtil;
 import com.teslamaps.utils.TabListUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/** Shared per-crop data: milestone counters, latest blocks/s and latest farming fortune. */
+/** Shared per-crop data: latest blocks/s and latest farming fortune; milestone counters live in GardenMilestoneData. */
 public final class CropStats {
 
     public record Crop(String key, String name, double baseDrops, String eliteLb, String[] aliases) {}
@@ -47,8 +44,7 @@ public final class CropStats {
     private static String curCrop, lastCrop;
     private static long stretchStart, lastBreak, lastLiveSave;
     private static int stretchBlocks;
-    private static int ticks, lastVersion = -1;
-    private static int milestoneVersion;
+    private static int ticks;
 
     private CropStats() {}
 
@@ -56,7 +52,8 @@ public final class CropStats {
 
     static boolean wanted() {
         TeslaMapsConfig c = cfg();
-        return c.cropSpeedMeter || c.cropCalcCommands || c.jacobContestFF || c.eliteLeaderboards || c.fortuneGuide;
+        return c.cropSpeedMeter || c.cropCalcCommands || c.jacobContestFF || c.eliteLeaderboards || c.fortuneGuide
+                || GardenCropData.needed();
     }
 
     public static void register() {
@@ -138,7 +135,6 @@ public final class CropStats {
                 cfg().cropLatestBps.put(curCrop, Math.round(stretchBlocks * 100_000.0 / span) / 100.0);
             }
         }
-        readMilestoneMenu(now);
     }
 
     private static void readTabFortune(String key) {
@@ -173,41 +169,6 @@ public final class CropStats {
             return Double.NaN;
         }
     }
-
-    private static void readMilestoneMenu(long now) {
-        Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
-        if (!StringUtil.stripTrim(cs.getTitle().getString()).equals("Crop Milestones")) return;
-        int version = ContainerState.version();
-        if (version == lastVersion || !ContainerState.fullyOpened(cs.getMenu().containerId)) return;
-        lastVersion = version;
-        boolean any = false;
-        for (Slot slot : cs.getMenu().slots) {
-            if (slot.container instanceof Inventory || slot.getItem().isEmpty()) continue;
-            Crop crop = null;
-            long total = -1;
-            for (String raw : ItemUtil.loreLines(slot.getItem())) {
-                String l = StringUtil.stripTrim(raw);
-                if (crop == null && l.startsWith("Harvest ")) {
-                    int on = l.indexOf(" on ");
-                    if (on > 8) crop = byName(l.substring(8, on));
-                } else if (l.startsWith("Total: ")) {
-                    double v = number(l.substring(7));
-                    if (!Double.isNaN(v)) total = (long) v;
-                }
-            }
-            if (crop != null && total >= 0) {
-                cfg().cropMilestoneCounters.put(crop.key, total);
-                any = true;
-            }
-        }
-        if (!any) return;
-        milestoneVersion++;
-        TeslaMapsConfig.save();
-        if (cfg().cropSpeedMeter) CropSpeedMeter.onMilestones();
-    }
-
-    public static int milestoneVersion() { return milestoneVersion; }
 
     /** Crop broken most recently, or null. */
     public static Crop lastCrop() { return lastCrop == null ? null : byKey(lastCrop); }
@@ -271,5 +232,12 @@ public final class CropStats {
         g.pose().popMatrix();
     }
 
-    static Map<String, Long> milestones() { return cfg().cropMilestoneCounters; }
+    static Map<String, Long> milestones() {
+        Map<String, Long> out = new HashMap<>();
+        for (Map.Entry<String, Long> e : GardenMilestoneData.get().counters.entrySet()) {
+            String key = GardenMilestoneData.CROPS.get(e.getKey());
+            if (key != null && e.getValue() != null) out.put(key, e.getValue());
+        }
+        return out;
+    }
 }

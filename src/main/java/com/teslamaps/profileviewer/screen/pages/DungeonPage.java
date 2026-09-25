@@ -83,8 +83,9 @@ public class DungeonPage extends ProfileViewerPage {
         ctx.text(tr, lvl, cx + SECTION - tr.width(lvl), cy, NeuStyle.TEXT);
         NeuStyle.bar(ctx, cx, cy + 10, SECTION, data.getCatacombsProgress(), CATA_COLOR);
 
-        String cataRank = com.teslamaps.profileviewer.PvExtras.rankLine("catacombs");
-        if (cataRank != null && mouseX > cx && mouseX < cx + SECTION && mouseY > cy - 2 && mouseY < cy + 15) {
+        String cataRank = mouseX > cx && mouseX < cx + SECTION && mouseY > cy - 2 && mouseY < cy + 15
+                ? com.teslamaps.profileviewer.PvExtras.rankLine("catacombs") : null;
+        if (cataRank != null) {
             tooltip = new String[]{"Catacombs", "Level: " + cataLevel, cataRank};
             tooltipX = mouseX;
             tooltipY = mouseY;

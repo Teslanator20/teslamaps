@@ -141,6 +141,7 @@ public class ChatMixin {
 
         if (fromServer && cfg.section("Garden")) com.teslamaps.features.FarmProfit.onChatComponent(message);
         if (fromServer) com.teslamaps.features.SackApi.onChatComponent(message);
+        if (fromServer && cfg.gemstoneMoney && cfg.section("Mining")) com.teslamaps.features.mining.GemstoneMoneyPerHour.onChatComponent(message);
         if (fromServer) com.teslamaps.features.AbiphoneAccept.onChatComponent(message);
         if (fromServer && cfg.customTrackers) com.teslamaps.features.tracker.CustomTrackers.onChatComponent(message);
         if (fromServer) com.teslamaps.features.ItemPickupLog.onChatComponent(message);
@@ -316,6 +317,8 @@ public class ChatMixin {
         out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out));
         out = com.teslamaps.features.PartyFinderLinks.rewrite(out);
         out = com.teslamaps.features.garden.HoeLevelDisplay.rewrite(out);
+        out = com.teslamaps.features.mining.GemstonePowderChat.rewrite(com.teslamaps.features.mining.DwarvenPuzzles.rewrite(out));
+        out = com.teslamaps.features.mining.ScathaAlerts.rewrite(out);
         // before channel compaction, the parser needs "Party > "
         out = com.teslamaps.features.PlayerChatFormat.rewrite(com.teslamaps.features.ChatTranslator.rewrite(out));
         out = com.teslamaps.features.MarkedPlayers.rewrite(out);

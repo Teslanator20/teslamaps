@@ -40,13 +40,18 @@ public class HotmScan {
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         if (!TITLE.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches()) return;
 
-        int surveyor = -1, core = -1;
+        int surveyor = -1, core = -1, buff = -1;
         for (Slot slot : cs.getMenu().slots) {
             ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
             String name = StringUtil.stripTrim(stack.getHoverName().getString());
             if (name.equals("Surveyor")) surveyor = level(stack);
             else if (name.equals("Core of the Mountain") || name.equals("Peak of the Mountain")) core = level(stack);
+            else if (name.equals("Powder Buff")) buff = level(stack);
+        }
+        if (buff >= 0 && buff != TeslaMapsConfig.get().hotmPowderBuffLevel) {
+            TeslaMapsConfig.get().hotmPowderBuffLevel = buff;
+            TeslaMapsConfig.save();
         }
         if (surveyor < 0 && core < 0) return;
         done = true;

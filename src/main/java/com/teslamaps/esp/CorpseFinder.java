@@ -53,7 +53,7 @@ public final class CorpseFinder {
         final int id;
         final BlockPos pos;
         final Type type;
-        boolean seen, looted;
+        boolean seen, looted, shared;
 
         Corpse(int id, BlockPos pos, Type type) {
             this.id = id;
@@ -64,6 +64,8 @@ public final class CorpseFinder {
 
     private static final Pattern LOOT = Pattern.compile("^([A-Z]+) CORPSE LOOT!$");
     private static final Pattern COORDS = Pattern.compile("x: (-?\\d+), y: (-?\\d+), z: (-?\\d+)");
+    private static final Pattern SHARED_TYPE = Pattern.compile("\\((\\w+) Corpse\\)");
+    private static final List<BlockPos> sharedByOthers = new ArrayList<>();
 
     private static final List<Corpse> corpses = new ArrayList<>();
     private static Object lastLevel;
@@ -72,7 +74,7 @@ public final class CorpseFinder {
     private CorpseFinder() {}
 
     public static void register() {
-        Feature.of("CorpseFinder").section("Mining").when(() -> cfg().corpseFinder)
+        Feature.of("CorpseFinder").section("Mining").when(() -> cfg().corpseFinder || waypointMode())
                 .tick(CorpseFinder::tick)
                 .world(CorpseFinder::render)
                 .chat(CorpseFinder::onChat);
@@ -82,11 +84,16 @@ public final class CorpseFinder {
         return TeslaMapsConfig.get();
     }
 
+    private static boolean waypointMode() {
+        return cfg().mineshaftWaypoints && cfg().mineshaftWpCorpses;
+    }
+
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level != lastLevel) {
             lastLevel = mc.level;
             corpses.clear();
+            sharedByOthers.clear();
         }
         if (!CorpseESP.inMineshaft()) return;
         for (ArmorStand as : com.teslamaps.utils.EntityCache.armorStands()) {
@@ -103,6 +110,46 @@ public final class CorpseFinder {
                 announce(c);
             }
         }
+        if (cfg().mineshaftWaypoints && cfg().mineshaftAutoShareCorpses
+                && com.teslamaps.utils.PartyTracker.inParty()) autoShare(mc.player.blockPosition());
+    }
+
+    // SkyHanni's CorpseSharing: the corpse you stand at goes to party chat once, unless someone already sent it
+    private static void autoShare(BlockPos player) {
+        for (Corpse c : corpses) {
+            if (!c.seen || c.shared || c.pos.distSqr(player) > 25) continue;
+            c.shared = true;
+            boolean known = false;
+            for (BlockPos p : sharedByOthers) if (p.distSqr(c.pos) <= 25) { known = true; break; }
+            if (!known) Announce.send(Announce.PARTY, shareLine(c));
+            return;
+        }
+    }
+
+    private static String shareLine(Corpse c) {
+        BlockPos p = c.pos.above();
+        return "x: " + (p.getX() + 1) + ", y: " + p.getY() + ", z: " + (p.getZ() + 1) + " | (" + c.type.name + " Corpse)";
+    }
+
+    /** Share line of the nearest seen corpse within {@code range} blocks, or null. */
+    public static String nearestShareLine(BlockPos player, double range) {
+        Corpse pick = null;
+        double best = range * range;
+        for (Corpse c : corpses) {
+            if (!c.seen) continue;
+            double d = c.pos.distSqr(player);
+            if (d <= best) {
+                best = d;
+                pick = c;
+            }
+        }
+        return pick == null ? null : shareLine(pick);
+    }
+
+    public static double nearestDistSq(BlockPos player) {
+        double best = Double.MAX_VALUE;
+        for (Corpse c : corpses) if (c.seen) best = Math.min(best, c.pos.distSqr(player));
+        return best;
     }
 
     private static Corpse find(BlockPos pos) {
@@ -139,21 +186,19 @@ public final class CorpseFinder {
             }
         }
         if (pick == null) return false;
-        BlockPos p = pick.pos.above();
-        Announce.send(cfg().corpseFinderChannel, "x: " + (p.getX() + 1) + ", y: " + p.getY() + ", z: " + (p.getZ() + 1)
-                + " | (" + pick.type.name + " Corpse)");
+        Announce.send(cfg().corpseFinderChannel, shareLine(pick));
         return true;
     }
 
     private static void onChat(String message) {
-        if (corpses.isEmpty()) return;
+        if (corpses.isEmpty() && !waypointMode()) return;
         String t = StringUtil.strip(message).trim();
         Matcher loot = LOOT.matcher(t);
         if (loot.matches()) {
             markLooted(loot.group(1));
             return;
         }
-        if (!cfg().corpseFinderParseChat || t.startsWith("[TeslaMaps]")) return;
+        if (!(cfg().corpseFinderParseChat || waypointMode()) || t.startsWith("[TeslaMaps]")) return;
         PlayerChat.Msg msg = PlayerChat.current();
         if (msg == null || msg.own()) return;
         Matcher m = COORDS.matcher(msg.message());
@@ -165,8 +210,22 @@ public final class CorpseFinder {
         } catch (NumberFormatException e) {
             return;
         }
+        sharedByOthers.add(pos);
         Corpse c = find(pos);
-        if (c != null) c.seen = true;
+        if (c != null) {
+            c.seen = true;
+            return;
+        }
+        if (!waypointMode() || !CorpseESP.inMineshaft()) return;
+        Matcher tm = SHARED_TYPE.matcher(msg.message());
+        if (!tm.find()) return;
+        Type type = null;
+        for (Type ty : Type.values()) if (ty.name.equalsIgnoreCase(tm.group(1))) type = ty;
+        if (type == null) return;
+        Corpse shared = new Corpse(nextId++, pos, type);
+        shared.seen = true;
+        shared.shared = true;
+        corpses.add(shared);
     }
 
     private static void markLooted(String typeName) {
@@ -187,8 +246,15 @@ public final class CorpseFinder {
 
     private static void render(PoseStack pose, Vec3 cam) {
         if (corpses.isEmpty()) return;
+        boolean outline = cfg().corpseFinder, waypoints = waypointMode();
         for (Corpse c : corpses) {
-            if (!c.seen || c.looted) continue;
+            if (!c.seen) continue;
+            if (waypoints) {
+                ESPRenderer.drawFilledBox(pose, new AABB(c.pos), 0x66000000 | c.type.color, cam, true);
+                ESPRenderer.drawText(pose, (c.looted ? "§a" : "§e") + c.type.name + " Corpse",
+                        new Vec3(c.pos.getX() + 0.5, c.pos.getY() + 2.5, c.pos.getZ() + 0.5), 1f, cam);
+            }
+            if (!outline || c.looted) continue;
             AABB box = new AABB(c.pos.getX() + 0.1, c.pos.getY(), c.pos.getZ() + 0.1,
                     c.pos.getX() + 0.9, c.pos.getY() + 2.0, c.pos.getZ() + 0.9);
             ESPRenderer.drawBoxOutline(pose, box, c.type.color, 2f, cam, false);

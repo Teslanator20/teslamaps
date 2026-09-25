@@ -724,6 +724,70 @@ final class Features {
         com.teslamaps.features.BazaarOrderTooltip.register();
         com.teslamaps.features.EssenceShopCosts.register();
         com.teslamaps.features.EscrowFix.register();
+        // w15-01-min
+        com.teslamaps.features.mining.ForgeReminder.register();
+        com.teslamaps.features.mining.MineshaftCaveInTimer.register();
+        com.teslamaps.features.mining.CommissionPanel.register();
+        com.teslamaps.features.mining.FlowstateHelper.register();
+        com.teslamaps.features.mining.ExcavatorProfitTracker.register();
+        com.teslamaps.features.mining.GemstoneMoneyPerHour.register();
+        com.teslamaps.features.mining.GlaciteColdOverlay.register();
+        // w15-06-min
+        com.teslamaps.features.mining.CarpetHighlight.register();
+        com.teslamaps.features.mining.HotmPlanner.register();
+        com.teslamaps.features.mining.SuperprotectronHighlight.register();
+        com.teslamaps.features.mining.VanguardGambling.register();
+        com.teslamaps.features.mining.HollowsWaypoints.register();
+        com.teslamaps.features.BpsDisplay.register();
+        // w15-03-min
+        com.teslamaps.features.mining.TunnelsMaps.register();
+        com.teslamaps.features.mining.DwarvenMinimap.register();
+        com.teslamaps.features.mining.PowderHud.register();
+        com.teslamaps.features.mining.PowderGrindTracker.register();
+        com.teslamaps.features.mining.GemstonePowderChat.register();
+        com.teslamaps.features.mining.HollowsItemInfo.register();
+        com.teslamaps.features.mining.DwarvenPuzzles.register();
+        // w15-07-min
+        com.teslamaps.features.mining.MineshaftWaypoints.register();
+        com.teslamaps.features.mining.PigeonSwapper.register();
+        com.teslamaps.features.mining.GhostVisuals.register();
+        // w15-04-min
+        com.teslamaps.features.mining.MineshaftAnnounce.register();
+        com.teslamaps.features.mining.MiningNotifications.register();
+        com.teslamaps.features.mining.MiningEvents.register();
+        com.teslamaps.features.mining.CorpseTracker.register();
+        com.teslamaps.features.mining.PowderMiningFilter.register();
+        // w15-02-min
+        com.teslamaps.features.mining.KingTalismanHelper.register();
+        com.teslamaps.features.mining.HotmPowderGoal.register();
+        com.teslamaps.features.mining.GoldenGoblinHighlight.register();
+        com.teslamaps.features.theend.EnderNodeTracker.register();
+        com.teslamaps.features.mining.MinesRecolor.register();
+        com.teslamaps.features.mining.FossilExcavatorHelper.register();
+        // w15-00-min
+        com.teslamaps.features.mining.DonExpressoReminder.register();
+        com.teslamaps.features.mining.ForgeSlotHud.register();
+        com.teslamaps.features.mining.DwarvenOverlay.register();
+        com.teslamaps.features.mining.MetalDetectorSolver.register();
+        com.teslamaps.features.mining.DrillFuelDisplay.register();
+        com.teslamaps.features.mining.FossilExcavatorSolver.register();
+        com.teslamaps.features.mining.MineshaftExitWaypoint.register();
+        // w15-09-sla
+        com.teslamaps.slayer.RemainingSlayerKills.register();
+        com.teslamaps.slayer.SlayerTransparency.register();
+        com.teslamaps.slayer.Rev5TntPing.register();
+        com.teslamaps.slayer.InfernoHelper.register();
+        com.teslamaps.features.KeeperWaypoints.register();
+        // w15-08-sla
+        com.teslamaps.slayer.BlazeSlayerHelper.register();
+        com.teslamaps.slayer.BloodfiendHelper.register();
+        com.teslamaps.slayer.CarryTracker.register();
+        // w15-05-min
+        com.teslamaps.features.mining.MiningSoundMutes.register();
+        com.teslamaps.features.mining.WishingCompassSolver.register();
+        com.teslamaps.features.mining.PickobulusHelper.register();
+        com.teslamaps.features.mining.ScathaAlerts.register();
+        com.teslamaps.features.mining.PrecisionMiningHighlight.register();
         // w14-09-min
         com.teslamaps.features.mining.DarkMonolith.register();
         com.teslamaps.features.mining.NucleusChatFilter.register();
