@@ -17,6 +17,8 @@ public final class F7M7Category {
         b.toggle("  Broke/Restart Alerts", () -> config.simonSaysAlerts, v -> config.simonSaysAlerts = v);
         b.toggle("    Alerts to Party Chat", () -> config.simonSaysAlertChat, v -> config.simonSaysAlertChat = v);
         b.toggle("  Simon Says Progress", () -> config.simonSaysProgress, v -> config.simonSaysProgress = v);
+        b.toggle("  Completion Time in Chat", () -> config.simonSaysTime, v -> config.simonSaysTime = v)
+                .desc("Time from the start of P3 until Simon Says is done, with PB.");
         b.label("Phase Timers");
         b.toggle("Purple Pad Timer", () -> config.purplePadTimer, v -> config.purplePadTimer = v);
         b.toggle("Necron Drop Timer", () -> config.necronDropTimer, v -> config.necronDropTimer = v);
@@ -26,11 +28,29 @@ public final class F7M7Category {
         b.toggle("  Lightning Title Countdown (synced)", () -> config.lightningTimerTitle, v -> config.lightningTimerTitle = v);
         b.toggle("Relic Timer (M7)", () -> config.relicTimer, v -> config.relicTimer = v);
         b.toggle("Maxor/Storm Start Timers", () -> config.bossStartTimers, v -> config.bossStartTimers = v);
+        b.toggle("Maxor Energy Crystals", () -> config.maxorCrystals, v -> config.maxorCrystals = v)
+                .desc("P1 energy crystal helpers.").tags("crystal");
+        b.toggle("  Crystal Spawn Timer", () -> config.maxorCrystalSpawnTimer, v -> config.maxorCrystalSpawnTimer = v);
+        b.toggle("  Crystal Place Time in Chat (PB)", () -> config.maxorCrystalPlaceTimer, v -> config.maxorCrystalPlaceTimer = v);
+        b.toggle("  Unplaced Crystal Alert", () -> config.maxorCrystalAlert, v -> config.maxorCrystalAlert = v);
         b.toggle("Separate Tick Timer HUDs (/tmap gui)", () -> config.tickTimersSeparate, v -> config.tickTimersSeparate = v);
         b.label("Other");
         b.toggle("Leap Counter", () -> config.leapCounter, v -> config.leapCounter = v);
         b.toggle("  Leap Spots (EE2/EE3/Core/P5)", () -> config.leapCounterSpots, v -> config.leapCounterSpots = v);
         b.toggle("  All Leaped Alert", () -> config.leapCounterAlert, v -> config.leapCounterAlert = v);
+        b.label("P3 Devices");
+        b.toggle("Arrows Device Solver", () -> config.arrowsDeviceSolver, v -> config.arrowsDeviceSolver = v)
+                .desc("Sharp shooter device: marks hit blocks and the current target.").tags("sharp shooter", "4th device");
+        b.color("  Hit Color", () -> config.arrowsDeviceHitColor, v -> config.arrowsDeviceHitColor = v);
+        b.color("  Target Color", () -> config.arrowsDeviceTargetColor, v -> config.arrowsDeviceTargetColor = v);
+        b.toggle("  Aim Points", () -> config.arrowsDeviceAim, v -> config.arrowsDeviceAim = v);
+        b.toggle("  Device Complete Alert", () -> config.arrowsDeviceAlert, v -> config.arrowsDeviceAlert = v);
+        b.toggle("Lights Device Levers", () -> config.lightsDeviceHighlight, v -> config.lightsDeviceHighlight = v)
+                .desc("Marks every unpowered lever of the lights device.");
+        b.color("  Lever Color", () -> config.lightsDeviceColor, v -> config.lightsDeviceColor = v);
+        b.toggle("Gate Highlight", () -> config.p3GateHighlight, v -> config.p3GateHighlight = v)
+                .desc("Box around your section's gate while it still stands.");
+        b.espStyle("  Gate", () -> config.p3GateEsp);
         b.label("Wither Dragons");
         b.toggle("Wither Dragons", () -> config.witherDragons, v -> config.witherDragons = v);
         b.label("Spawn Timer & Alerts");
@@ -69,6 +89,8 @@ public final class F7M7Category {
         b.toggle("Dragon Boxes (live)", () -> config.dragonBoxes, v -> config.dragonBoxes = v);
         b.toggle("Dragon Health %", () -> config.dragonHealth, v -> config.dragonHealth = v);
         b.toggle("Hide Dying Dragons", () -> config.hideDyingDragons, v -> config.hideDyingDragons = v);
+        b.toggle("Dragon Arrow Hit Counter (M7)", () -> config.dragonHitCounter, v -> config.dragonHitCounter = v)
+                .desc("Counts your arrow hits on the priority dragon and posts them in chat.");
         b.label("Wither Highlight");
         b.toggle("Wither Highlight", () -> config.witherHighlight, v -> config.witherHighlight = v);
         b.toggle("  Wither Highlight Box", () -> config.witherHighlightBox, v -> config.witherHighlightBox = v);
