@@ -801,6 +801,14 @@ final class Features {
         com.teslamaps.slayer.SlayerArmorProgress.register();
         com.teslamaps.slayer.SeraphHelper.register();
         com.teslamaps.features.theend.ZealotSpawns.register();
+        // w16-07-kuu
+        com.teslamaps.features.kuudra.Kuudra.register();
+        com.teslamaps.features.kuudra.KuudraAlerts.register();
+        com.teslamaps.features.kuudra.KuudraTickTimers.register();
+        com.teslamaps.features.kuudra.KuudraDistance.register();
+        com.teslamaps.features.kuudra.KuudraSplits.register();
+        com.teslamaps.features.kuudra.KuudraNoPre.register();
+        com.teslamaps.features.kuudra.KuudraHider.register();
         // w16-02-sla
         com.teslamaps.slayer.SlayerItemsOnGround.register();
         com.teslamaps.slayer.TarantulaHelper.register();
