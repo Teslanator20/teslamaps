@@ -140,6 +140,7 @@
     "NoWaterOverlayMixin",
     "OverlayTextureMixin",
     "OwnNameTagMixin",
+    "EntityRendererNameMixin",
     "PacketSendMixin",
     "PerfFrameMixin",
     "PlayerTabOverlayAccessor",

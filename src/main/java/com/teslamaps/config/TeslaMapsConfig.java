@@ -2142,6 +2142,50 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w09-09-vis
+    public boolean hideCloudsIslands = false;
+    public java.util.List<String> cloudHiderIslands = new java.util.ArrayList<>(com.teslamaps.features.IslandClouds.DEFAULTS);
+    public boolean etherwarpZeroPing = false;
+    public boolean iHateDoors = false;
+    public boolean iHateDoorsEntrance = false;
+    public String iHateDoorsEntranceColor = "White";
+    public boolean iHateDoorsWither = true;
+    public String iHateDoorsWitherColor = "Black";
+    public boolean iHateDoorsBlood = true;
+    public String iHateDoorsBloodColor = "Red";
+    public boolean trajectories = false;
+    public boolean trajBows = true;
+    public boolean trajTerminator = true;
+    public boolean trajPearls = true;
+    public boolean trajLines = true;
+    public boolean trajBoxes = true;
+    public boolean trajPlane = false;
+    public boolean trajEntities = true;
+    public boolean trajThroughWalls = false;
+    public int trajRange = 60;
+    public float trajLineWidth = 2.0f;
+    public String trajColor = "00AAAA";
+    public boolean customEspRules = false;
+    public java.util.List<com.teslamaps.features.CustomEspRules.EspRule> customEspRuleList = new java.util.ArrayList<>();
+    public boolean customEspRuleLabels = true;
+    public float customEspRuleLineWidth = 2.0f;
+    public String customEspRuleSound = "NOTE_PLING";
+    public boolean orderedOnGround = false;
+    public boolean parkourGuides = false;
+    public int parkourLookAhead = 3;
+    public boolean parkourRainbow = true;
+    public String parkourColor = "FFFFFF";
+    public boolean parkourShortcuts = true;
+    public boolean particleCloak = false;
+    public String particleCloakType = "Dust";
+    public String particleCloakColor = "AA00FF";
+    public int particleCloakDensity = 3;
+    public float particleCloakMotion = 0.5f;
+    public boolean particleCloakFirstPerson = false;
+    public boolean coloredNames = false;
+    public String coloredNameSelf = "FF55FF";
+    public boolean coloredNameUsers = true;
+    public String coloredNameUserColor = "55FFFF";
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;
@@ -4007,6 +4051,8 @@ public class TeslaMapsConfig {
         if (c.customGlint == null) c.customGlint = new java.util.HashMap<>();
         if (c.customGlintColor == null) c.customGlintColor = new java.util.HashMap<>();
         if (c.itemNumberTypes == null) c.itemNumberTypes = new java.util.ArrayList<>();
+        if (c.cloudHiderIslands == null) c.cloudHiderIslands = new java.util.ArrayList<>(com.teslamaps.features.IslandClouds.DEFAULTS);
+        if (c.customEspRuleList == null) c.customEspRuleList = new java.util.ArrayList<>();
         if (c.itemCycleRules == null) c.itemCycleRules = new java.util.ArrayList<>();
         c.itemCycleRules.removeIf(java.util.Objects::isNull);
         if (c.customItemModel == null) c.customItemModel = new java.util.HashMap<>();

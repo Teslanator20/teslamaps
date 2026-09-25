@@ -123,6 +123,12 @@ public final class HideCategory {
         b.label("World & Weather");
         b.toggle("Hide Clouds",
                 () -> config.hideClouds, v -> config.hideClouds = v);
+        b.toggle("  Only On Selected Islands", () -> config.hideCloudsIslands, v -> config.hideCloudsIslands = v)
+                .desc("Clouds stay visible on the other islands.");
+        b.searchList("    Cloud Islands", () -> com.teslamaps.features.IslandClouds.ISLANDS,
+                config.cloudHiderIslands::contains, t -> {
+                    if (!config.cloudHiderIslands.remove(t)) config.cloudHiderIslands.add(t);
+                });
         b.toggle("Hide Fog", () -> config.noFog, v -> config.noFog = v);
         b.toggle("Nether Fog (Crimson Isle)", () -> config.noNetherFog, v -> config.noNetherFog = v);
         b.info("Removes the crimson isle fog even while Hide Fog is off");
