@@ -731,6 +731,14 @@ final class Features {
         com.teslamaps.features.mining.VanguardGambling.register();
         com.teslamaps.features.mining.HollowsWaypoints.register();
         com.teslamaps.features.BpsDisplay.register();
+        // w15-03-min
+        com.teslamaps.features.mining.TunnelsMaps.register();
+        com.teslamaps.features.mining.DwarvenMinimap.register();
+        com.teslamaps.features.mining.PowderHud.register();
+        com.teslamaps.features.mining.PowderGrindTracker.register();
+        com.teslamaps.features.mining.GemstonePowderChat.register();
+        com.teslamaps.features.mining.HollowsItemInfo.register();
+        com.teslamaps.features.mining.DwarvenPuzzles.register();
         // w15-04-min
         com.teslamaps.features.mining.MineshaftAnnounce.register();
         com.teslamaps.features.mining.MiningNotifications.register();
