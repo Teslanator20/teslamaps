@@ -142,6 +142,13 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.DragonRecolor.onAddEntity(packet);
     }
 
+    @org.spongepowered.asm.mixin.injection.Redirect(method = "handleSetEntityData", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/network/protocol/game/ClientboundSetEntityDataPacket;packedItems()Ljava/util/List;"))
+    private java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> teslamaps$doubleSneakFix(
+            net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket packet) {
+        return com.teslamaps.features.CameraTweaks.filterEntityData(packet.packedItems(), packet);
+    }
+
     @Inject(method = "handleSetEntityData", at = @At("HEAD"))
     private void onSetEntityData(net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket packet, CallbackInfo ci) {
         if (com.teslamaps.config.TeslaMapsConfig.get().witherDragons) com.teslamaps.dungeon.WitherDragons.onSetEntityData(packet);

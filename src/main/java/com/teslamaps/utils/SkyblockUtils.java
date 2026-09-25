@@ -20,6 +20,7 @@ public class SkyblockUtils {
     }
 
     public static boolean isInSkyblock() {
+        if (areaOverride != null) return true;
         if (!isOnHypixel()) return false;
 
         List<String> scoreboard = ScoreboardUtils.getScoreboardLines();
@@ -45,8 +46,12 @@ public class SkyblockUtils {
     private static String area = "";
     private static long areaTime = 0;
 
+    /** /tmap debug island: pretend to be on this island, null = real detection. */
+    public static String areaOverride = null;
+
     // tab list carries "Area: <island>" (or "Dungeon: The Catacombs")
     public static String getArea() {
+        if (areaOverride != null) return areaOverride;
         long now = System.currentTimeMillis();
         if (now - areaTime < 1000) return area;
         areaTime = now;
@@ -74,6 +79,7 @@ public class SkyblockUtils {
     }
 
     private static boolean computeInGarden() {
+        if (areaOverride != null) return areaOverride.toLowerCase().contains("garden");
         if (!isOnHypixel()) return false;
 
         // The scoreboard shows the plot name while standing on a plot, so the

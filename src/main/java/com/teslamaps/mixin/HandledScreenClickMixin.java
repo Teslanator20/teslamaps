@@ -48,7 +48,8 @@ public class HandledScreenClickMixin {
         }
         if (com.teslamaps.features.ItemProtection.blockMenuClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.ReforgeStop.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
-                || com.teslamaps.features.HideNotClickable.blockClick(slot)) {
+                || com.teslamaps.features.HideNotClickable.blockClick(slot)
+                || com.teslamaps.features.InfernoMinion.blockClick((AbstractContainerScreen<?>) (Object) this, slot)) {
             ci.cancel();
             return;
         }
@@ -93,7 +94,8 @@ public class HandledScreenClickMixin {
         double mouseY = click.y();
         int button = click.button();
 
-        if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)) {
+        if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)
+                || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)) {
             cir.setReturnValue(true);
             return;
         }

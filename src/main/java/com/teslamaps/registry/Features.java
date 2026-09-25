@@ -302,5 +302,11 @@ final class Features {
         com.teslamaps.features.BrewingStandColors.register();
         com.teslamaps.features.BingoCard.register();
         com.teslamaps.features.ArrowHitSound.register();
+        // w06-05-qol
+        com.teslamaps.features.FancyWarpMenu.register();
+        com.teslamaps.features.DevWorldTools.register();
+        com.teslamaps.features.DeathSound.register();
+        com.teslamaps.features.CameraTweaks.register();
+        com.teslamaps.features.InfernoMinion.register();
     }
 }

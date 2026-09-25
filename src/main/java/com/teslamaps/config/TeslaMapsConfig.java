@@ -2315,6 +2315,37 @@ public class TeslaMapsConfig {
     public String arrowHitSoundType = "NOTE_HARP";
     public float arrowHitSoundVolume = 1f;
     public float arrowHitSoundPitch = 1f;
+    // w06-05-qol
+    public boolean fancyWarpMenu = false;
+    public boolean devWorldTools = false;
+    public boolean devRegionSelect = true;
+    public boolean devParkourRecorder = true;
+    public int devParkourSaveKey = -1;
+    public int devParkourDeleteKey = -1;
+    public boolean devGraphEditor = false;
+    public int devGraphPlaceKey = -1;
+    public int devGraphSelectKey = -1;
+    public int devGraphDeleteKey = -1;
+    public int devGraphUndoKey = -1;
+    public boolean deathSound = false;
+    public String deathSoundType = "BLAZE_DEATH";
+    public String deathSoundSpecial = "WITHER_SPAWN";
+    public float deathSoundVolume = 1.0f;
+    public boolean noFrontView = false;
+    public int noFrontViewKey = -1;
+    public boolean infernoFuelBlocker = false;
+    public boolean infernoProfitTracker = false;
+    public boolean infernoTrackerAfterCollect = true;
+    public int infernoTrackerPriceSource = 1;
+    public int infernoTrackerX = 10;
+    public int infernoTrackerY = 120;
+    public float infernoTrackerScale = 1.0f;
+    public boolean doubleSneakFix = false;
+    public boolean ridingInputFix = false;
+    public boolean customFov = false;
+    public int customFovValue = 110;
+    public boolean oldCrouch = false;
+    public boolean noSwimPose = false;
     // w05-02-inv
     public boolean menuSlotText = false;
     public boolean mstLevels = true;
