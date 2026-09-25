@@ -1941,7 +1941,7 @@ public class TMapCommand {
             if (expanded.isEmpty()) continue;
             return args.isEmpty() ? expanded : expanded + " " + args;
         }
-        return lowercased(command, alias, args);
+        return warpShortcut(lowercased(command, alias, args));
     }
 
     private static String lowercased(String command, String alias, String args) {
@@ -1949,6 +1949,17 @@ public class TMapCommand {
         String low = alias.toLowerCase(java.util.Locale.ROOT);
         if (low.equals(alias)) return command;
         return args.isEmpty() ? low : low + " " + args;
+    }
+
+    // SkyHanni ShortenWarpCommand: /crimson -> /warp crimson
+    private static String warpShortcut(String command) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.warpShortcuts || !c.section("Chat") || !com.teslamaps.utils.SkyblockUtils.isInSkyblock()) return command;
+        String name = command.trim().toLowerCase(java.util.Locale.ROOT);
+        if (name.isEmpty() || name.indexOf(' ') >= 0) return command;
+        if (name.equals("jerry") && com.teslamaps.utils.SkyblockUtils.isInArea("Private Island")) return command;
+        if (name.equals("barn") && com.teslamaps.utils.SkyblockUtils.isInGarden()) return command;
+        return HypixelSuggestions.warps().contains(name) ? "warp " + name : command;
     }
 
     /** The same tree for /pv and /tmap pv. */

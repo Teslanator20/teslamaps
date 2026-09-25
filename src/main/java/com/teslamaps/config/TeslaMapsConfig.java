@@ -2343,6 +2343,27 @@ public class TeslaMapsConfig {
     public boolean waypointGroups = false;
     public boolean waypointGroupsBeam = true;
     public boolean waypointGroupsDistance = true;
+    // w07-05-qol
+    public boolean tabCompleteShowSlots = false;
+    public boolean tabCompleteBestFriends = false;
+    public boolean tabCompleteTradeIsland = false;
+    public List<String> bestFriendNames = new ArrayList<>();
+    public boolean scoreboardLogger = false;
+    public boolean scoreboardLoggerFull = false;
+    public boolean scoreboardLoggerColors = false;
+    public boolean scoreboardLoggerDungeonsOnly = false;
+    public boolean warpShortcuts = false;
+    public boolean wikiLookup = false;
+    public int wikiLookupKey = 290;
+    public boolean chatWaypointCommands = false;
+    public boolean routeEditorExtras = false;
+    public int routeEditKey = -1;
+    public int routePlaceKey = -1;
+    public int routePauseKey = -1;
+    public int routeNextKey = -1;
+    public int routePrevKey = -1;
+    public int routeStopKey = -1;
+    public boolean abilityMenuFix = false;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
@@ -3585,6 +3606,7 @@ public class TeslaMapsConfig {
         if (c.hoppityUniqueEggs == null) c.hoppityUniqueEggs = new java.util.HashMap<>();
         if (c.guildNames == null) c.guildNames = new ArrayList<>();
         if (c.friendNames == null) c.friendNames = new ArrayList<>();
+        if (c.bestFriendNames == null) c.bestFriendNames = new ArrayList<>();
         if (c.splitPbs == null) c.splitPbs = new java.util.HashMap<>();
         if (c.customSplitDefs == null) c.customSplitDefs = new java.util.HashMap<>();
         if (c.lockedSlots == null) c.lockedSlots = new java.util.ArrayList<>();

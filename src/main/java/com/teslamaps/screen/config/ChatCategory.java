@@ -205,6 +205,11 @@ public final class ChatCategory {
         b.label("Command Suggestions");
         b.toggle("Suggest /warp and /call targets", () -> config.commandSuggestions, v -> config.commandSuggestions = v);
         b.toggle("  Suggest Players (/msg, /visit, ...)", () -> config.commandSuggestionsPlayers, v -> config.commandSuggestionsPlayers = v);
+        b.toggle("    Only Best Friends", () -> config.tabCompleteBestFriends, v -> config.tabCompleteBestFriends = v)
+                .desc("Of your friends, only best friends are suggested. Run /f list once to learn them.");
+        b.toggle("    /trade: Only Island Players", () -> config.tabCompleteTradeIsland, v -> config.tabCompleteTradeIsland = v);
+        b.toggle("  Suggest /show Slots", () -> config.tabCompleteShowSlots, v -> config.tabCompleteShowSlots = v)
+                .desc("/show, /showitem, /showoff suggest item, helmet, ..., pet.");
         b.info("Run /g list and /f list once to fill the name list");
         b.info("Player suggestions need a rejoin, and can clash with Hypixel's own commands");
         b.info("Hypixel sends no suggestions for these two");

@@ -51,6 +51,7 @@ public class OrderedWaypoints {
     private static int current = 0;
     private static int lastCloser = 0;
     private static String loadedName = "";
+    private static boolean paused;
 
     public static List<Wp> route() { return route; }
     public static String loadedName() { return loadedName; }
@@ -66,7 +67,7 @@ public class OrderedWaypoints {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (cfg.orderedAutoLoadByArea) autoLoadForArea();
         if (!cfg.orderedWaypoints || route.isEmpty()) { renderIdx.clear(); return; }
-        if (mc.player == null) return;
+        if (mc.player == null || paused) return;
         decide(mc.player.position());
     }
 
@@ -307,6 +308,7 @@ public class OrderedWaypoints {
         renderIdx.clear();
         loadedName = name == null ? "" : name;
         lastCloser = 0;
+        paused = false;
         current = closestIndex();
     }
 
@@ -354,6 +356,7 @@ public class OrderedWaypoints {
         current = 0;
         lastCloser = 0;
         loadedName = "";
+        paused = false;
         return "§aUnloaded ordered waypoints.";
     }
 
@@ -482,6 +485,50 @@ public class OrderedWaypoints {
     }
 
     public static int currentIndex() { return current; }
+
+    public static boolean paused() { return paused; }
+
+    public static String togglePause() {
+        if (route.isEmpty()) return "§cNo route loaded.";
+        paused = !paused;
+        return paused ? "§eRoute paused." : "§aRoute resumed.";
+    }
+
+    /** Appends a point to the loaded route (a new one if none) and saves it. */
+    public static String place(int x, int y, int z) {
+        if (loadedName.isEmpty()) {
+            if (!route.isEmpty()) return "§cThe loaded route has no name, save it first.";
+            loadedName = uniqueName("Route");
+        }
+        route.add(new Wp(x, y, z, route.size() + 1));
+        renumber();
+        renderIdx.clear();
+        RouteStorage.put(loadedName, route);
+        if (!TeslaMapsConfig.get().orderedWaypoints) {
+            TeslaMapsConfig.get().orderedWaypoints = true;
+            TeslaMapsConfig.save();
+        }
+        return "§aAdded point " + route.size() + " to §e" + loadedName + "§a at " + x + " " + y + " " + z + ".";
+    }
+
+    /** Index of the loaded waypoint closest to the view ray within 128 blocks, -1 if none. */
+    public static int lookedAt() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || route.isEmpty()) return -1;
+        Vec3 eye = mc.player.getEyePosition();
+        Vec3 look = mc.player.getViewVector(1f);
+        int best = -1;
+        double bestD = 1.5 * 1.5;
+        for (int i = 0; i < route.size(); i++) {
+            Vec3 to = route.get(i).center().subtract(eye);
+            double along = to.dot(look);
+            if (along < 0 || along > 128) continue;
+            double perp = to.lengthSqr() - along * along;
+            double allowed = bestD * Math.max(1, along / 16);
+            if (perp < allowed) { bestD = perp / Math.max(1, along / 16); best = i; }
+        }
+        return best;
+    }
 
     public static void moveWaypoint(int index, int delta) {
         int target = index + delta;
