@@ -98,6 +98,7 @@ public class SoulweaverHider {
         if (entity instanceof ItemEntity item) {
             ItemStack stack = item.getItem();
             if (cfg.hideThrownBones && stack.getItem() == Items.BONE) return true;
+            if (cfg.hideThrownBones && cfg.hideArcherPassive && stack.getItem() == Items.BONE_MEAL) return true;
             if (!cfg.hideReviveStone && !cfg.hideJournalEntry) return false; // skip name parse if nothing to match
             String name = cachedItemName(item, stack);
             if (cfg.hideReviveStone && name.equals("Revive Stone")) return true;

@@ -67,7 +67,7 @@ public class ContainerTriggerScreen extends Screen {
             box.setMaxLength(128);
             box.setBordered(false);
             box.setHint(Component.literal("Title contains..."));
-            box.setValue(t.title);
+            box.setValue(t.title == null ? "" : t.title);
             box.setResponder(v -> t.title = v);
             addRenderableWidget(box);
             fields.add(new int[]{x, ry, 260, 20});

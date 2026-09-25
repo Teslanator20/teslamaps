@@ -55,10 +55,10 @@ public final class ScreenshotPreview {
                 });
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> {
             ScreenEvents.afterExtract(screen).register((s, ctx, mx, my, delta) -> {
-                if (texture != null && !(s instanceof ScreenshotScreen)) render(ctx, mx, my, true);
+                if (texture != null && !(s instanceof ScreenshotScreen || s instanceof com.teslamaps.screen.ScreenshotEditorScreen)) render(ctx, mx, my, true);
             });
             ScreenMouseEvents.allowMouseClick(screen).register((s, event) ->
-                    texture == null || s instanceof ScreenshotScreen || !click(s, event.x(), event.y(), event.button()));
+                    texture == null || s instanceof ScreenshotScreen || s instanceof com.teslamaps.screen.ScreenshotEditorScreen || !click(s, event.x(), event.y(), event.button()));
         });
     }
 

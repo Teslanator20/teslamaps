@@ -53,6 +53,9 @@ public class Updater {
     private static boolean promptShown = false;
     private static boolean chatNotified = false;
     private static volatile long lastCheck = 0;
+    public static volatile java.util.List<String> changelog = java.util.List.of();
+    public static volatile String changelogVersion = "";
+    private static boolean whatsNewPending = false;
     private static final long RECHECK_MILLIS = 30 * 60 * 1000L;
 
     private static String token() {
@@ -66,6 +69,7 @@ public class Updater {
 
     public static void init() {
         cleanPending();
+        loadSavedChangelog();
         if (!TeslaMapsConfig.get().updateCheck) return;
         if (token().isEmpty()) return;
         check(false);
@@ -136,6 +140,16 @@ public class Updater {
                     if (verbose) chat("§fUp to date (§e" + currentVersion() + "§f)");
                     return;
                 }
+                java.util.List<String> lines = new java.util.ArrayList<>();
+                if (manifest.has("changelog") && manifest.get("changelog").isJsonArray()) {
+                    for (var el : manifest.getAsJsonArray("changelog")) {
+                        if (lines.size() >= 80) break;
+                        String l = el.isJsonPrimitive() ? el.getAsString() : "";
+                        lines.add(l.length() > 300 ? l.substring(0, 300) : l);
+                    }
+                }
+                changelog = java.util.List.copyOf(lines);
+                changelogVersion = version;
                 latestVersion = version;
                 jarSha256 = sha;
                 jarAssetId = assetId;
@@ -192,6 +206,7 @@ public class Updater {
                     scheduleSwap(pending, oldJar);
                 }
                 state = State.READY;
+                saveChangelog();
                 chat("§aUpdate " + latestVersion + " installed — restart the game.");
             } catch (Exception e) {
                 state = State.FAILED;
@@ -215,7 +230,74 @@ public class Updater {
         }));
     }
 
+    private static Path changelogFile() {
+        return FabricLoader.getInstance().getConfigDir().resolve("teslamaps").resolve("changelog.json");
+    }
+
+    private static void saveChangelog() {
+        if (changelog.isEmpty()) return;
+        try {
+            JsonObject o = new JsonObject();
+            o.addProperty("version", changelogVersion);
+            o.addProperty("shown", false);
+            JsonArray arr = new JsonArray();
+            changelog.forEach(arr::add);
+            o.add("lines", arr);
+            Files.createDirectories(changelogFile().getParent());
+            Files.writeString(changelogFile(), o.toString(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.info("changelog save failed: {}", e.toString());
+        }
+    }
+
+    private static void loadSavedChangelog() {
+        try {
+            Path f = changelogFile();
+            if (!Files.exists(f)) return;
+            JsonObject o = JsonParser.parseString(Files.readString(f, StandardCharsets.UTF_8)).getAsJsonObject();
+            String v = o.get("version").getAsString();
+            if (!v.equals(currentVersion())) return;
+            java.util.List<String> lines = new java.util.ArrayList<>();
+            for (var el : o.getAsJsonArray("lines")) lines.add(el.getAsString());
+            changelog = java.util.List.copyOf(lines);
+            changelogVersion = v;
+            whatsNewPending = !o.has("shown") || !o.get("shown").getAsBoolean();
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.info("changelog load failed: {}", e.toString());
+        }
+    }
+
+    private static void markChangelogShown() {
+        try {
+            Path f = changelogFile();
+            if (!Files.exists(f)) return;
+            JsonObject o = JsonParser.parseString(Files.readString(f, StandardCharsets.UTF_8)).getAsJsonObject();
+            o.addProperty("shown", true);
+            Files.writeString(f, o.toString(), StandardCharsets.UTF_8);
+        } catch (Exception ignored) {}
+    }
+
+    /** Changelog screen for the installed (or pending) version. */
+    public static void openChangelog() {
+        Minecraft mc = Minecraft.getInstance();
+        if (changelog.isEmpty()) {
+            chat("§7No changelog for this version.");
+            return;
+        }
+        mc.schedule(() -> mc.setScreen(new com.teslamaps.screen.UpdateScreen(mc.screen, true)));
+    }
+
     public static void tick() {
+        if (whatsNewPending && Minecraft.getInstance().player != null) {
+            whatsNewPending = false;
+            markChangelogShown();
+            if (TeslaMapsConfig.get().updateChangelog) {
+                Minecraft.getInstance().player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fUpdated to §e"
+                        + changelogVersion + "§f — ").append(Component.literal("§b§n[What's new]")
+                        .withStyle(st -> st.withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/tmap update changelog"))
+                                .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(Component.literal("§7Show the changelog"))))));
+            }
+        }
         // the launch check cannot see a release that went up while the player was already online
         if (state == State.IDLE || state == State.FAILED) {
             if (TeslaMapsConfig.get().updateCheck && !token().isEmpty()

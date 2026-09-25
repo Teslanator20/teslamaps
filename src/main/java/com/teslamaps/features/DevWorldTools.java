@@ -106,13 +106,14 @@ public final class DevWorldTools {
                     b.info("/tmap debug island <name|clear> fakes the island, /tmap debug whereami shows it");
                 });
 
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((h, mc) -> SkyblockUtils.areaOverride = null);
         AttackBlockCallback.EVENT.register((player, level, hand, pos, dir) -> {
-            if (!level.isClientSide() || !selecting(player.getMainHandItem().is(Items.WOODEN_AXE))) return InteractionResult.PASS;
+            if (!level.isClientSide() || !selecting(isWand(player.getMainHandItem()))) return InteractionResult.PASS;
             setPos(true, pos.immutable());
             return InteractionResult.FAIL;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
-            if (!level.isClientSide() || !selecting(player.getItemInHand(hand).is(Items.WOODEN_AXE))) return InteractionResult.PASS;
+            if (!level.isClientSide() || !selecting(isWand(player.getItemInHand(hand)))) return InteractionResult.PASS;
             setPos(false, hit.getBlockPos().immutable());
             return InteractionResult.FAIL;
         });
@@ -362,6 +363,10 @@ public final class DevWorldTools {
         return ((long) lo << 32) | (hi & 0xFFFFFFFFL);
     }
 
+    private static boolean isWand(net.minecraft.world.item.ItemStack s) {
+        return s.is(Items.WOODEN_AXE) && com.teslamaps.utils.ItemUtil.skyblockId(s).isEmpty();
+    }
+
     private static Node node(int id) {
         for (Node n : nodes) if (n.id == id) return n;
         return null;
@@ -503,14 +508,16 @@ public final class DevWorldTools {
             }
         }
         if (c.devGraphEditor && !nodes.isEmpty()) {
+            Map<Integer, Node> byId = new java.util.HashMap<>(nodes.size() * 2);
+            for (Node n : nodes) byId.put(n.id, n);
             for (long k : edges) {
-                Node a = node((int) (k >> 32)), b = node((int) k);
+                Node a = byId.get((int) (k >> 32)), b = byId.get((int) k);
                 if (a != null && b != null) ESPRenderer.drawLine(ps, a.center, b.center, 0xFFFFAA00, 2f, cam);
             }
             for (Node n : nodes) {
                 boolean act = n.id == active;
                 ESPRenderer.drawFilledBox(ps, n.box, act ? 0xA055FF55 : n.name != null ? 0xA0FFFF55 : 0x80FFFFFF, cam, true);
-                ESPRenderer.drawText(ps, n.label, n.labelPos, 1.0f, cam);
+                if (n.center.distanceToSqr(cam) < 48 * 48) ESPRenderer.drawText(ps, n.label, n.labelPos, 1.0f, cam);
             }
         }
     }

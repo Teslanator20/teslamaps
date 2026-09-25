@@ -24,6 +24,11 @@ public class ContainerScrollMixin {
             cir.setReturnValue(true);
             return;
         }
+        AbstractContainerScreen<?> cs = (AbstractContainerScreen<?>) (Object) this;
+        if (com.teslamaps.features.PageScroll.onScroll(cs, ((HandledScreenAccessor) (Object) this).getFocusedSlot(), scrollY)) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (ScrollableTooltip.onScroll(scrollY)) cir.setReturnValue(true);
     }
 }

@@ -86,11 +86,24 @@ public final class InterfaceCategory {
         b.toggle("  Show Ping", () -> config.perfHudPing, v -> config.perfHudPing = v);
         b.toggle("  Show CPS", () -> config.perfHudCps, v -> config.perfHudCps = v)
                 .desc("Left | right clicks per second");
+        b.toggle("  Show Lobby Day", () -> config.perfHudDay, v -> config.perfHudDay = v)
+                .desc("Day: n = how long this lobby has been running (world time / 24000). Fresh lobbies lag less.");
         b.toggle("  Lag Display (zzz)", () -> config.perfHudLag, v -> config.perfHudLag = v)
                 .desc("Adds \"zzz for 1.23s\" while the server has not sent a tick for longer than the threshold")
                 .tags("lag", "freeze", "zzz");
         b.slider("    Lag Threshold (ms)", 50f, 1000f, () -> config.perfHudLagThreshold, v -> config.perfHudLagThreshold = v, 0);
+        b.toggle("  Show Time", () -> config.perfHudTime, v -> config.perfHudTime = v)
+                .desc("Real-world clock (system time)").tags("clock", "time", "uhr");
+        b.dropdown("    Time Format", new String[]{"24h", "12h"}, () -> config.perfHudTimeFormat, v -> config.perfHudTimeFormat = v);
+        b.toggle("    Seconds", () -> config.perfHudTimeSeconds, v -> config.perfHudTimeSeconds = v);
+        b.dropdown("    Time Label", new String[]{"Text", "Symbol", "None"}, () -> config.perfHudTimeLabel, v -> config.perfHudTimeLabel = v);
         b.toggle("  Vertical", () -> config.perfHudVertical, v -> config.perfHudVertical = v);
+        b.toggle("  Color By Value", () -> config.perfHudColorCoded, v -> config.perfHudColorCoded = v)
+                .desc("FPS relative to your FPS limit, TPS and ping green to red");
+        b.dropdown("  TPS Value", new String[]{"Average", "Current", "Min", "Max"},
+                () -> config.perfHudTpsMode, v -> config.perfHudTpsMode = v);
+        b.dropdown("  Ping Value", new String[]{"Instant", "Median", "Mean"},
+                () -> config.perfHudPingMode, v -> config.perfHudPingMode = v);
         b.color("  Label Color", () -> config.perfHudLabelColor, v -> config.perfHudLabelColor = v);
         b.color("  Value Color", () -> config.perfHudValueColor, v -> config.perfHudValueColor = v);
         b.info("Position/scale in /tmap gui, hidden while F3 is open");
@@ -99,6 +112,7 @@ public final class InterfaceCategory {
         b.info("Full size text with a scrollbar instead of shrinking the page");
         b.label("Updates");
         b.toggle("Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v);
+        b.toggle("  Show Changelog", () -> config.updateChangelog, v -> config.updateChangelog = v);
         b.info("Signed releases only, install via popup or /tmap update");
     }
 }

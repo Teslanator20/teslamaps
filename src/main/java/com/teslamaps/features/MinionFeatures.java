@@ -357,8 +357,9 @@ public final class MinionFeatures {
     }
 
     private static void warn(ArmorStand as, boolean full, long now) {
-        if (!warned.add(as.getId())) return;
+        if (warned.contains(as.getId())) return;
         if (full ? now - lastFullWarn < 30000 : now - lastReachWarn < 30000) return;
+        warned.add(as.getId());
         if (full) lastFullWarn = now;
         else lastReachWarn = now;
         Minecraft mc = Minecraft.getInstance();

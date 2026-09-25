@@ -353,8 +353,12 @@ public class BestiaryTracker {
         }
     }
 
+    private static boolean widgetMissing;
+    private static final String[] MISSING = com.teslamaps.features.TabWidgetHint.lines("Bestiary");
+
     private static void readTabList() {
         List<String> use = tabEntries();
+        widgetMissing = use.isEmpty() && !TabListUtils.getOrderedLines().isEmpty();
         if (use.isEmpty()) return;
 
         // another profile has its own kill counts, keeping the old ones fakes a huge gain
@@ -481,8 +485,14 @@ public class BestiaryTracker {
     }
 
     public static void render(GuiGraphicsExtractor ctx, DeltaTracker delta) {
-        if (!shouldRender()) return;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (!shouldRender()) {
+            if (cfg.bestiaryTracker && widgetMissing && com.teslamaps.features.TabWidgetHint.on() && !tracked().isEmpty()) {
+                com.teslamaps.features.TabWidgetHint.draw(ctx, Minecraft.getInstance(), cfg.bestiaryTrackerX,
+                        cfg.bestiaryTrackerY, cfg.bestiaryTrackerScale, MISSING);
+            }
+            return;
+        }
         draw(ctx, Minecraft.getInstance(), cfg.bestiaryTrackerX, cfg.bestiaryTrackerY,
                 cfg.bestiaryTrackerScale, lines());
     }

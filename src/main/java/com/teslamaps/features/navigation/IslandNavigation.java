@@ -218,7 +218,15 @@ public final class IslandNavigation {
         return key;
     }
 
+    private static final Map<String, Node[]> GRAPHS = new java.util.concurrent.ConcurrentHashMap<>();
+
     private static void load(String key) {
+        Node[] cached = GRAPHS.get(key);
+        if (cached != null) {
+            graph = cached;
+            lastClosest = -1;
+            return;
+        }
         CompletableFuture.runAsync(() -> {
             Node[] g = null;
             try {
@@ -227,6 +235,7 @@ public final class IslandNavigation {
                 TeslaMaps.LOGGER.info("[Navigation] no island graph for {}: {}", key, e.toString());
             }
             Node[] fin = g;
+            if (g != null) GRAPHS.put(key, g);
             Minecraft.getInstance().execute(() -> {
                 if (key.equals(loadedKey)) {
                     graph = fin;
@@ -265,7 +274,12 @@ public final class IslandNavigation {
             List<int[]> ids = new ArrayList<>();
             List<Double> ws = new ArrayList<>();
             for (Map.Entry<String, JsonElement> e : o.getAsJsonObject("Neighbours").entrySet()) {
-                Integer j = index.get(Integer.parseInt(e.getKey()));
+                Integer j;
+                try {
+                    j = index.get(Integer.parseInt(e.getKey()));
+                } catch (NumberFormatException ex) {
+                    continue;
+                }
                 if (j == null) continue;
                 ids.add(new int[]{j});
                 ws.add(e.getValue().getAsDouble());

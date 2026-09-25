@@ -77,6 +77,8 @@ public final class RenderCategory {
         b.dropdown("  /tmap sendcoords Channel", new String[] {"Party", "Current", "All", "Guild", "Coop"},
                 () -> config.sendCoordsChannel, v -> config.sendCoordsChannel = v)
                 .desc("Where /tmap sendcoords [text] goes. Current = the chat you are in");
+        b.toggle("  /tmap wp Commands", () -> config.chatWaypointCommands, v -> config.chatWaypointCommands = v)
+                .desc("/tmap wp addtemp [name] [x y z] sets a 60s beam here or at the coords, /tmap wp share [x y z] posts coords in chat, /tmap wp clear removes all");
         b.label("NPC Finder");
         b.toggle("NPC Finder (/tmap npc)", () -> config.npcFinder, v -> config.npcFinder = v);
         b.toggle("  Use Nearest Unlocked Warp", () -> config.npcNearestWarp, v -> config.npcNearestWarp = v);
@@ -99,6 +101,13 @@ public final class RenderCategory {
         b.slider("Any Drop Worth Over (Mio)", 0f, 50f,
                 () -> config.rareDropMinValue, v -> config.rareDropMinValue = v, 1);
         b.info("0 = off. Plays the effect for any RARE DROP over this value");
+        b.toggle("Valuable Drop Warning (Trackers)", () -> config.valuableDropWarn, v -> config.valuableDropWarn = v)
+                .desc("Any tracker gain or [Sacks] gain over the value, no RARE DROP line needed")
+                .tags("expensive", "item warning", "tracker");
+        b.slider("  Chat Line Over (Mio)", 0.1f, 50f,
+                () -> config.valuableDropChatValue, v -> config.valuableDropChatValue = v, 1);
+        b.slider("  Title Over (Mio, 0 = off)", 0f, 200f,
+                () -> config.valuableDropTitleValue, v -> config.valuableDropTitleValue = v, 1);
         b.label("Etherwarp");
         b.toggle("Etherwarp Guess Box", () -> config.etherwarp, v -> config.etherwarp = v);
         b.toggle("  Show When Failed", () -> config.etherwarpShowFail, v -> config.etherwarpShowFail = v);

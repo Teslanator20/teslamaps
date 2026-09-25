@@ -3,7 +3,11 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "TitleStackMixin",
     "PauseScreenMixin",
+    "PacketLogMixin",
+    "AbilityMenuSlotMixin",
+    "ReaperBarMixin",
     "FocusLossMixin",
     "WindowTitleMixin",
     "MonoAudioChannelMixin",
@@ -14,6 +18,9 @@
     "ItemBarMixin",
     "ItemCooldownMixin",
     "CrosshairCooldownMixin",
+    "CustomCrosshairMixin",
+    "OldItemTexturesMixin",
+    "ContainerLabelColorMixin",
     "ArmorStandArmorMixin",
     "TooltipStyleMixin",
     "QolContainerMixin",
@@ -165,7 +172,13 @@
     "VanillaButtonStyleMixin",
     "WaterFogLavaMixin",
     "WorldRendererMixin",
-    "ZoomHandMixin"
+    "ZoomHandMixin",
+    "ContainerTintMixin",
+    "InventoryLabelsMixin",
+    "ContainerDimMixin",
+    "ContainerSlotTweaksMixin",
+    "LivingEntityAlphaStateMixin",
+    "LivingEntityAlphaMixin"
   ],
   "injectors": {
     "defaultRequire": 1

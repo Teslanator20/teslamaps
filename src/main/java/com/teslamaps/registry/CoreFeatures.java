@@ -105,6 +105,16 @@ final class CoreFeatures {
                 (ctx, delta) -> { if (!cfg().hideArmorBar) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.FOOD_BAR, original ->
                 (ctx, delta) -> { if (!cfg().hideHungerBar) original.extractRenderState(ctx, delta); });
+        HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, original ->
+                (ctx, delta) -> { if (!cfg().hideHealthBar) original.extractRenderState(ctx, delta); });
+        HudElementRegistry.replaceElement(VanillaHudElements.AIR_BAR, original ->
+                (ctx, delta) -> { if (!cfg().hideAirBar) original.extractRenderState(ctx, delta); });
+        HudElementRegistry.replaceElement(VanillaHudElements.BOSS_BAR, original ->
+                (ctx, delta) -> { if (!cfg().hideBossBar) original.extractRenderState(ctx, delta); });
+        HudElementRegistry.replaceElement(VanillaHudElements.INFO_BAR, original ->
+                (ctx, delta) -> { if (!cfg().hideXpBar) original.extractRenderState(ctx, delta); });
+        HudElementRegistry.replaceElement(VanillaHudElements.EXPERIENCE_LEVEL, original ->
+                (ctx, delta) -> { if (!cfg().hideXpBar) original.extractRenderState(ctx, delta); });
     }
 
     private static void world() {

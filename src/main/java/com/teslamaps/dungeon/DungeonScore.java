@@ -47,6 +47,7 @@ public class DungeonScore {
     private static boolean bloodRoomCompleted = false;
     private static boolean sent270 = false;
     private static boolean sent300 = false;
+    private static long reached300Ms = 0L, reached300Tick = 0L;
     private static long startingTime = 0L;
     private static int puzzleCount = 0;
     private static int deathCount = 0;
@@ -81,6 +82,7 @@ public class DungeonScore {
         bloodRoomCompleted = false;
         sent270 = false;
         sent300 = false;
+        reached300Ms = reached300Tick = 0L;
         startingTime = 0L;
         puzzleCount = 0;
         deathCount = 0;
@@ -155,7 +157,12 @@ public class DungeonScore {
         if (!sent270 && !sent300 && score >= 270 && score < 300) {
             sent270 = true;
             sendScoreMessage(270);
-        } else if (!sent300 && score >= 300) {
+        }
+        if (reached300Ms == 0L && score >= 300) {
+            reached300Ms = nowMs;
+            reached300Tick = com.teslamaps.utils.ServerTickTimer.now();
+        }
+        if (!sent300 && score >= 300) {
             sent300 = true;
             sendScoreMessage(300);
         }
@@ -499,6 +506,9 @@ public class DungeonScore {
         }
         com.teslamaps.features.Announce.send(cfg.cryptReminderChannel, crypts + "/5 crypts, need more!");
     }
+
+    public static long reached300Ms() { return reached300Ms; }
+    public static long reached300Tick() { return reached300Tick; }
 
     public static int getScore() {
         return score;

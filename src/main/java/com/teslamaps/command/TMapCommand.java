@@ -149,7 +149,9 @@ public class TMapCommand {
                                         .then(ClientCommands.literal("total")
                                                 .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "total"))))
                                 .then(ClientCommands.literal("view")
-                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "view")))))
+                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "view")))
+                                .then(ClientCommands.literal("history")
+                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "history")))))
                 .then(com.teslamaps.features.SecretWaypoints.command())
                 .then(com.teslamaps.features.HideExCoopMembers.command())
                 .then(com.teslamaps.features.MinionFeatures.command())
@@ -310,6 +312,7 @@ public class TMapCommand {
                                 .executes(context -> openFeedback(true, StringArgumentType.getString(context, "text")))))
                 .then(com.teslamaps.features.croesus.PriceDebug.command())
                 .then(com.teslamaps.features.SackApi.command())
+                .then(com.teslamaps.features.Notifications.command())
                 .then(com.teslamaps.features.ItemCycle.command())
                 .then(com.teslamaps.database.RoomLearn.newCoreCommand())
                 .then(com.teslamaps.database.RoomLearn.newRoomCommand())
@@ -422,6 +425,11 @@ public class TMapCommand {
                         .then(ClientCommands.literal("check")
                                 .executes(context -> {
                                     com.teslamaps.features.Updater.check(true);
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("changelog")
+                                .executes(context -> {
+                                    com.teslamaps.features.Updater.openChangelog();
                                     return 1;
                                 })))
                 .then(ClientCommands.literal("corpse")
@@ -583,6 +591,23 @@ public class TMapCommand {
                                             Minecraft.getInstance().setScreen(new com.teslamaps.screen.SafariScreen(null)));
                                     return 1;
                                 }))
+                        .then(ClientCommands.literal("missing")
+                                .executes(context -> {
+                                    for (String l : com.teslamaps.safari.SafariTracker.missingLines(true))
+                                        context.getSource().sendFeedback(Component.literal(l));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("copy")
+                                .executes(context -> {
+                                    com.teslamaps.safari.SafariTracker.copyMissing();
+                                    context.getSource().sendFeedback(Component.literal("§aCopied the missing list"));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("share")
+                                .executes(context -> {
+                                    com.teslamaps.safari.SafariTracker.shareMissing();
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("scan")
                                 .executes(context -> safariScan(context.getSource(), 6))
                                 .then(ClientCommands.argument("chunks", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 16))
@@ -593,6 +618,18 @@ public class TMapCommand {
                                 .then(ClientCommands.argument("radius", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 64))
                                         .executes(context -> safariDebug(context.getSource(),
                                                 com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius")))))
+                        .then(ClientCommands.literal("species")
+                                .executes(context -> {
+                                    for (String line : com.teslamaps.safari.SafariHistory.speciesSummary()) {
+                                        context.getSource().sendFeedback(Component.literal(line));
+                                    }
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("import")
+                                .executes(context -> {
+                                    com.teslamaps.safari.SafariLogImport.start();
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("testalert")
                                 .executes(context -> {
                                     com.teslamaps.safari.SafariBanners.testAll();
@@ -1005,6 +1042,31 @@ public class TMapCommand {
                                     com.teslamaps.debug.DeathProbe.arm(30);
                                     return 1;
                                 }))
+                        .then(ClientCommands.literal("packets")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(com.teslamaps.debug.PacketLogger.start(30, null)
+                                            + "\n§7/tmap debug packets <sec> [name] [full] [in|out] [r=25] [id=123] | stop"));
+                                    return 1;
+                                })
+                                .then(ClientCommands.literal("stop")
+                                        .executes(context -> {
+                                            com.teslamaps.debug.PacketLogger.stop();
+                                            context.getSource().sendFeedback(Component.literal("§fPacket log stopped."));
+                                            return 1;
+                                        }))
+                                .then(ClientCommands.argument("seconds", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 600))
+                                        .executes(context -> {
+                                            context.getSource().sendFeedback(Component.literal(com.teslamaps.debug.PacketLogger.start(
+                                                    com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "seconds"), null)));
+                                            return 1;
+                                        })
+                                        .then(ClientCommands.argument("options", com.mojang.brigadier.arguments.StringArgumentType.greedyString())
+                                                .executes(context -> {
+                                                    context.getSource().sendFeedback(Component.literal(com.teslamaps.debug.PacketLogger.start(
+                                                            com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "seconds"),
+                                                            com.mojang.brigadier.arguments.StringArgumentType.getString(context, "options"))));
+                                                    return 1;
+                                                }))))
                         .then(ClientCommands.literal("particles")
                                 .executes(context -> {
                                     com.teslamaps.features.HotspotWatcher.startCensus(10);
@@ -1942,7 +2004,7 @@ public class TMapCommand {
             if (expanded.isEmpty()) continue;
             return args.isEmpty() ? expanded : expanded + " " + args;
         }
-        return lowercased(command, alias, args);
+        return warpShortcut(lowercased(command, alias, args));
     }
 
     private static String lowercased(String command, String alias, String args) {
@@ -1950,6 +2012,17 @@ public class TMapCommand {
         String low = alias.toLowerCase(java.util.Locale.ROOT);
         if (low.equals(alias)) return command;
         return args.isEmpty() ? low : low + " " + args;
+    }
+
+    // SkyHanni ShortenWarpCommand: /crimson -> /warp crimson
+    private static String warpShortcut(String command) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.warpShortcuts || !c.section("Chat") || !com.teslamaps.utils.SkyblockUtils.isInSkyblock()) return command;
+        String name = command.trim().toLowerCase(java.util.Locale.ROOT);
+        if (name.isEmpty() || name.indexOf(' ') >= 0) return command;
+        if (name.equals("jerry") && com.teslamaps.utils.SkyblockUtils.isInArea("Private Island")) return command;
+        if (name.equals("barn") && com.teslamaps.utils.SkyblockUtils.isInGarden()) return command;
+        return HypixelSuggestions.warps().contains(name) ? "warp " + name : command;
     }
 
     /** The same tree for /pv and /tmap pv. */
@@ -2348,6 +2421,12 @@ public class TMapCommand {
         if (t == null) {
             source.sendFeedback(Component.literal("§b[TeslaMaps] §cNo tracker " + id));
             return 0;
+        }
+        if (action.equals("history")) {
+            var lines = t.historyLines();
+            source.sendFeedback(Component.literal("§b[TeslaMaps] §f" + id + " history" + (lines.isEmpty() ? ": §7none (Tracker History off?)" : ":")));
+            for (String l : lines) source.sendFeedback(Component.literal("  " + l));
+            return 1;
         }
         switch (action) {
             case "total" -> t.resetTotal();

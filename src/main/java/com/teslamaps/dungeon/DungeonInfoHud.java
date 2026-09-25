@@ -68,6 +68,10 @@ public final class DungeonInfoHud {
         footer = text;
     }
 
+    public static String footer() {
+        return footer;
+    }
+
     private static void tick() {
         if (++tickCounter % 5 != 0) return;
         TeslaMapsConfig c = cfg();

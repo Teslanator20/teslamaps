@@ -31,7 +31,11 @@ public class HypixelNodes {
     private static final Set<String> PLAYER_AND_TEXT = Set.of("msg", "w", "tell", "whisper", "message");
     /** /visit Player */
     private static final Set<String> PLAYER_ONLY = Set.of(
-            "boop", "visit", "ah", "pv", "viewprofile", "duel", "trade", "invite");
+            "boop", "visit", "ah", "pv", "viewprofile", "duel", "invite");
+
+    private static final Set<String> SHOW = Set.of("show", "showitem", "showoff");
+    private static final List<String> SHOW_SLOTS = List.of(
+            "item", "helmet", "chestplate", "leggings", "boots", "necklace", "cloak", "belt", "bracelet", "gloves", "pet");
 
     private static final Set<String> PARTY_SUBS = Set.of(
             "invite", "kick", "promote", "demote", "transfer", "kickoffline", "accept", "join");
@@ -67,6 +71,26 @@ public class HypixelNodes {
         }
         if (PLAYER_ONLY.contains(name)) {
             return literal(name).then(player()).build();
+        }
+        if (name.equals("trade")) {
+            return literal(name).then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument(
+                            "player", StringArgumentType.word())
+                    .suggests((context, builder) -> {
+                        if (!HypixelSuggestions.enabled() || !TeslaMapsConfig.get().commandSuggestionsPlayers) {
+                            return builder.buildFuture();
+                        }
+                        return suggest(TeslaMapsConfig.get().tabCompleteTradeIsland
+                                ? PlayerNameCache.islandPlayers() : HypixelSuggestions.players(), builder);
+                    })
+                    .executes(NOOP)).build();
+        }
+        if (SHOW.contains(name)) {
+            return literal(name).then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument(
+                            "slot", StringArgumentType.word())
+                    .suggests((context, builder) -> HypixelSuggestions.enabled()
+                            && TeslaMapsConfig.get().tabCompleteShowSlots && SkyblockUtils.isInSkyblock()
+                            ? suggest(SHOW_SLOTS, builder) : builder.buildFuture())
+                    .executes(NOOP)).build();
         }
         if (name.equals("party") || name.equals("p")) {
             // /p Player invites, so the bare argument takes names too

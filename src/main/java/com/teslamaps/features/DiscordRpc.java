@@ -45,12 +45,19 @@ public class DiscordRpc {
                             .desc("Shows SkyBlock, your island and dungeon floor in your Discord status while on SkyBlock.");
                     b.toggle("  Show Location", () -> c.discordRpcLocation, v -> c.discordRpcLocation = v);
                     b.toggle("  Show Dungeon Floor", () -> c.discordRpcDungeon, v -> c.discordRpcDungeon = v);
+                    b.button("  Set Application ID", () -> net.minecraft.client.Minecraft.getInstance().setScreen(
+                            new com.teslamaps.screen.TextFieldsScreen(net.minecraft.client.Minecraft.getInstance().screen,
+                                    "Discord Application ID", "From discord.com/developers, empty = off",
+                                    java.util.List.of(new com.teslamaps.screen.TextFieldsScreen.Field("App ID",
+                                            () -> c.discordRpcAppId == null ? "" : c.discordRpcAppId,
+                                            v -> c.discordRpcAppId = v.trim())))));
                 });
     }
 
     private static void tick() {
         if (++ticks % 40 != 0) return;
-        boolean on = cfg().discordRpc && SkyblockUtils.isInSkyblock();
+        String appId = cfg().discordRpcAppId;
+        boolean on = cfg().discordRpc && appId != null && !appId.isBlank() && SkyblockUtils.isInSkyblock();
         if (on && !wanted) startSec = System.currentTimeMillis() / 1000;
         wanted = on;
         if (on) {
@@ -90,15 +97,10 @@ public class DiscordRpc {
         int failures = 0;
         try {
             while (true) {
-                if (!wanted) {
-                    if (conn != null) { conn.close(); conn = null; sent = null; }
-                    if (!cfg().discordRpc) return;
-                    Thread.sleep(2000);
-                    continue;
-                }
+                String appId = cfg().discordRpcAppId;
+                if (!wanted || appId == null || appId.isBlank()) return;
                 if (conn == null) {
-                    if (cfg().discordRpcAppId == null || cfg().discordRpcAppId.isBlank()) { Thread.sleep(5000); continue; }
-                    conn = connect(cfg().discordRpcAppId);
+                    conn = connect(appId.trim());
                     if (conn == null) {
                         failures++;
                         Thread.sleep(Math.min(60_000, 5000L * failures));
