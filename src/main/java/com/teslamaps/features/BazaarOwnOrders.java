@@ -43,6 +43,52 @@ public class BazaarOwnOrders {
         Feature.of("BazaarOrderStatus")
                 .when(() -> TeslaMapsConfig.get().bazaarOrderStatus)
                 .serverChat(BazaarOwnOrders::onChat);
+        // w13-01-eco: SkyHanni's Hide Order Owner / Hide Trade Partners
+        net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
+            TeslaMapsConfig c = TeslaMapsConfig.get();
+            if (!c.bazaarOrderTooltipClean || lines.size() < 2) return;
+            Minecraft mc = Minecraft.getInstance();
+            if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
+            if (cs != cleanScreen) {
+                cleanScreen = cs;
+                String t = com.teslamaps.utils.StringUtil.stripTrim(cs.getTitle().getString());
+                cleanOrderMenu = t.equals("Bazaar Orders") || t.equals(COOP_TITLE);
+                cleanCheckedAt = 0;
+            }
+            if (!cleanOrderMenu) return;
+            long now = System.currentTimeMillis();
+            if (now - cleanCheckedAt > 500) {
+                cleanCheckedAt = now;
+                String own = mc.player.getName().getString();
+                boolean all = true;
+                for (Slot slot : cs.getMenu().slots) {
+                    if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+                    if (!slot.getItem().isEmpty() && isForeignOrder(slot.getItem(), own)) { all = false; break; }
+                }
+                cleanAllOwn = all;
+            }
+            if (c.bazaarHideTradePartners) removeBlock(lines, true);
+            if (c.bazaarHideOrderOwner && cleanAllOwn) removeBlock(lines, false);
+        });
+    }
+
+    private static AbstractContainerScreen<?> cleanScreen;
+    private static boolean cleanOrderMenu, cleanAllOwn;
+    private static long cleanCheckedAt;
+
+    private static void removeBlock(java.util.List<Component> lines, boolean partners) {
+        int start = -1;
+        for (int i = 1; i < lines.size(); i++) {
+            String t = lines.get(i).getString().trim();
+            boolean header = partners
+                    ? t.equals("Vendors:") || t.equals("Single vendor:") || t.equals("Customers:") || t.equals("Single customer:")
+                    : t.startsWith("By: ");
+            if (header) { start = i; break; }
+        }
+        if (start < 0) return;
+        int end = start;
+        while (end < lines.size() && !lines.get(end).getString().isBlank()) end++;
+        lines.subList(start, Math.min(end + 1, lines.size())).clear();
     }
 
     private static void onChat(String text) {

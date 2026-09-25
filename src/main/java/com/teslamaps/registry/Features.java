@@ -592,5 +592,11 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w13-01-eco
+        com.teslamaps.features.foraging.StarlynCouponProfit.register();
+        com.teslamaps.features.SupercraftHelper.register();
+        com.teslamaps.features.NpcTradeCosts.register();
+        com.teslamaps.features.RngMeterHelper.register();
+        com.teslamaps.features.TradeHistory.register();
     }
 }
