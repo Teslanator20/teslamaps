@@ -460,6 +460,12 @@ final class Features {
         com.teslamaps.features.ParticleHiders.register();
         com.teslamaps.features.FollowingLine.register();
         com.teslamaps.features.VisualFixes.register();
+        // w10-08-chat
+        com.teslamaps.features.PlayerChatFormat.register();
+        com.teslamaps.features.ChatTranslator.register();
+        com.teslamaps.features.SmoothChat.register();
+        com.teslamaps.features.ReportAutoConfirm.register();
+        com.teslamaps.command.ExtraSuggestions.register();
         // w09-04-vis
         com.teslamaps.features.VisualTweaks.register();
         com.teslamaps.features.CompactTabList.register();
