@@ -45,11 +45,20 @@ public class ChatWaypoint {
         boolean parsed = false;
         BlockPos pos = null;
         String area = "";
+        String note = "";
         Matcher m = COORDS.matcher(t);
         if (m.find()) {
             pos = pos(m.group(1), m.group(2), m.group(3));
-            Matcher a = AREA.matcher(t.substring(m.end()));
-            if (a.find()) area = a.group("area").trim();
+            String rest = t.substring(m.end());
+            Matcher a = AREA.matcher(rest);
+            if (a.find()) {
+                area = a.group("area").trim();
+                rest = rest.substring(a.end());
+                if (rest.startsWith("|")) rest = rest.substring(1);
+                else rest = "";
+            }
+            note = rest.trim();
+            if (note.length() > 40) note = note.substring(0, 40);
         } else if (c.chatWaypointMoreFormats) {
             Matcher inq = INQUISITOR.matcher(t);
             if (inq.find()) {
@@ -70,6 +79,7 @@ public class ChatWaypoint {
         if (c.chatWaypointDetails) {
             if (msg != null) label = "§e" + msg.author() + " " + label;
             if (!area.isEmpty()) label += " §7at §b" + area;
+            if (!note.isEmpty()) label += " §f" + note;
         }
         waypoints.add(pos, label, TeslaMapsConfig.parseColor(c.chatWaypointColor), DURATION_MS);
     }

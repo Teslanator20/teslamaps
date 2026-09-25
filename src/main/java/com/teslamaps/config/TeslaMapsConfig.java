@@ -2148,6 +2148,12 @@ public class TeslaMapsConfig {
     public boolean muteRatPetSqueakOnly = false;
     public boolean muteBackpackOpen = false;
     public boolean signEnterShiftNewline = false;
+    // w07-01-qol
+    public boolean commandLowercase = false;
+    public boolean shortcutTabComplete = false;
+    public String sendCoordsChannel = "Party";
+    public boolean abiphoneAccept = false;
+    public int abiphoneAcceptKey = -1;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;

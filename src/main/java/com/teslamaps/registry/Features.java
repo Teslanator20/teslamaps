@@ -319,5 +319,9 @@ final class Features {
         // w07-04-qol
         com.teslamaps.features.ChatCalculator.register();
         com.teslamaps.features.SoundMutes.register();
+        // w07-01-qol
+        com.teslamaps.features.CommandShortcuts.register();
+        com.teslamaps.features.AbiphoneAccept.register();
+        com.teslamaps.features.DebugDump.register();
     }
 }
