@@ -31,7 +31,12 @@ public class ChromaHook {
 
     private static boolean enabled() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.enchantChromaMax || c.chromaPrefix || AnimFades.previewActive;
+        return c.enchantChromaMax || c.chromaPrefix || c.chromaFormatCode || AnimFades.previewActive;
+    }
+
+    private static boolean everything() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.chromaFormatCode && c.chromaEverything;
     }
 
     private static String cachedHexA = "", cachedHexB = "";
@@ -90,7 +95,7 @@ public class ChromaHook {
         if (!(glyph.renderable() instanceof BakedSheetGlyph.GlyphInstance instance)) return original;
 
         TextColor color = instance.style().getColor();
-        if (color == null) return original;
+        if (color == null) return everything() ? ChromaPipelines.CHROMA_TEXT : original;
         String name = color.serialize();
         if (COLOR_NAME.equals(name)) return ChromaPipelines.CHROMA_TEXT;
         if (FADE_NAME.equals(name)) return ChromaPipelines.FADE_TEXT;
@@ -98,6 +103,6 @@ public class ChromaHook {
             RenderPipeline anim = AnimFades.pipeline(name);
             if (anim != null) return anim;
         }
-        return original;
+        return everything() ? ChromaPipelines.CHROMA_TEXT : original;
     }
 }

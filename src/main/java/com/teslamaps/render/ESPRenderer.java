@@ -62,6 +62,17 @@ public class ESPRenderer {
         return frustum != null && !frustum.isVisible(box);
     }
 
+    // logistic falloff over distance, 0.5 at espFadeDistance
+    private static float fade(AABB box, Vec3 cam) {
+        float d = com.teslamaps.config.TeslaMapsConfig.get().espFadeDistance;
+        if (d <= 0f || cam == null) return 1f;
+        double dx = (box.minX + box.maxX) * 0.5 - cam.x;
+        double dy = (box.minY + box.maxY) * 0.5 - cam.y;
+        double dz = (box.minZ + box.maxZ) * 0.5 - cam.z;
+        double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        return (float) (1.0 / (1.0 + Math.exp(6.0 * (dist - d) / d)));
+    }
+
     public static void drawBoxOutline(PoseStack matrices, AABB box, int color, float lineWidth, Vec3 cameraPos,
                                        MultiBufferSource.BufferSource bufferSource) {
         if (culled(box)) return;
@@ -70,6 +81,8 @@ public class ESPRenderer {
         float b = (color & 0xFF) / 255f;
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = 1.0f;
+        a *= fade(box, cameraPos);
+        if (a < 2f / 255f) return;
 
         float minX = (float) box.minX;
         float minY = (float) box.minY;
@@ -324,6 +337,37 @@ public class ESPRenderer {
         matrices.popPose();
     }
 
+    /** Connected segments pts[i-1] -> pts[i], segment i drawn with widths[i]; widths[i] <= 0 skips it. */
+    public static void drawPolyline(PoseStack matrices, java.util.List<Vec3> pts, float[] widths, int color, Vec3 cameraPos,
+                                    boolean throughWalls) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.renderBuffers() == null || pts.size() < 2) return;
+        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        float r = ((color >> 16) & 0xFF) / 255f;
+        float g = ((color >> 8) & 0xFF) / 255f;
+        float b = (color & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f;
+        if (a == 0) a = 1.0f;
+        var layer = throughWalls ? TeslaRenderLayers.LINES_ESP : TeslaRenderLayers.LINES_DEPTH;
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        PoseStack.Pose pose = matrices.last();
+        VertexConsumer buffer = src.getBuffer(layer);
+        Vec3 from = pts.get(0);
+        for (int i = 1, n = pts.size(); i < n; i++) {
+            Vec3 to = pts.get(i);
+            float w = widths[i];
+            if (w > 0) {
+                float dx = (float) (to.x - from.x), dy = (float) (to.y - from.y), dz = (float) (to.z - from.z);
+                buffer.addVertex(pose, (float) from.x, (float) from.y, (float) from.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(w);
+                buffer.addVertex(pose, (float) to.x, (float) to.y, (float) to.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(w);
+            }
+            from = to;
+        }
+        finish(src, layer);
+        matrices.popPose();
+    }
+
     public static void drawLine(PoseStack matrices, Vec3 start, Vec3 end, int color, float lineWidth, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;
@@ -339,6 +383,8 @@ public class ESPRenderer {
         float b = (color & 0xFF) / 255f;
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = com.teslamaps.config.TeslaMapsConfig.get().espAlpha; // Use config transparency
+        a *= fade(box, cameraPos);
+        if (a < 2f / 255f) return;
 
         float minX = (float) box.minX;
         float minY = (float) box.minY;
@@ -417,6 +463,69 @@ public class ESPRenderer {
         VertexConsumer buf = src.getBuffer(TeslaRenderLayers.FILLED_DEPTH);
         for (int i = 0; i < 4; i++) buf.addVertex(pose, c[i * 3], c[i * 3 + 1], c[i * 3 + 2]).setColor(r, g, b, a);
         for (int i = 3; i >= 0; i--) buf.addVertex(pose, c[i * 3], c[i * 3 + 1], c[i * 3 + 2]).setColor(r, g, b, a);
+        finish(src, TeslaRenderLayers.FILLED_DEPTH);
+        matrices.popPose();
+    }
+
+    private static final int CIRCLE_SEGMENTS = 64;
+    private static final float[] CIRCLE_COS = new float[CIRCLE_SEGMENTS + 1];
+    private static final float[] CIRCLE_SIN = new float[CIRCLE_SEGMENTS + 1];
+    static {
+        for (int i = 0; i <= CIRCLE_SEGMENTS; i++) {
+            double a = Math.PI * 2 * i / CIRCLE_SEGMENTS;
+            CIRCLE_COS[i] = (float) Math.cos(a);
+            CIRCLE_SIN[i] = (float) Math.sin(a);
+        }
+    }
+
+    /** Horizontal ring around a point, depth tested. */
+    public static void drawCircle(PoseStack matrices, double cx, double cy, double cz, double radius, int color, float lineWidth, Vec3 cameraPos) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.renderBuffers() == null) return;
+        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
+        float a = ((color >>> 24) & 0xFF) / 255f;
+        if (a == 0) a = 1f;
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        PoseStack.Pose pose = matrices.last();
+        VertexConsumer buf = src.getBuffer(TeslaRenderLayers.LINES_DEPTH);
+        float y = (float) cy, rad = (float) radius;
+        for (int i = 0; i < CIRCLE_SEGMENTS; i++) {
+            float x0 = (float) cx + CIRCLE_COS[i] * rad, z0 = (float) cz + CIRCLE_SIN[i] * rad;
+            float x1 = (float) cx + CIRCLE_COS[i + 1] * rad, z1 = (float) cz + CIRCLE_SIN[i + 1] * rad;
+            float dx = x1 - x0, dz = z1 - z0;
+            buf.addVertex(pose, x0, y, z0).setColor(r, g, b, a).setNormal(pose, dx, 0, dz).setLineWidth(lineWidth);
+            buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a).setNormal(pose, dx, 0, dz).setLineWidth(lineWidth);
+        }
+        finish(src, TeslaRenderLayers.LINES_DEPTH);
+        matrices.popPose();
+    }
+
+    /** Filled horizontal disc, double sided, depth tested. */
+    public static void drawDisc(PoseStack matrices, double cx, double cy, double cz, double radius, int color, Vec3 cameraPos) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.renderBuffers() == null) return;
+        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
+        float a = ((color >>> 24) & 0xFF) / 255f;
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        PoseStack.Pose pose = matrices.last();
+        VertexConsumer buf = src.getBuffer(TeslaRenderLayers.FILLED_DEPTH);
+        float x = (float) cx, y = (float) cy, z = (float) cz, rad = (float) radius;
+        for (int i = 0; i < CIRCLE_SEGMENTS; i++) {
+            float x0 = x + CIRCLE_COS[i] * rad, z0 = z + CIRCLE_SIN[i] * rad;
+            float x1 = x + CIRCLE_COS[i + 1] * rad, z1 = z + CIRCLE_SIN[i + 1] * rad;
+            buf.addVertex(pose, x, y, z).setColor(r, g, b, a);
+            buf.addVertex(pose, x0, y, z0).setColor(r, g, b, a);
+            buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a);
+            buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a);
+            buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a);
+            buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a);
+            buf.addVertex(pose, x0, y, z0).setColor(r, g, b, a);
+            buf.addVertex(pose, x, y, z).setColor(r, g, b, a);
+        }
         finish(src, TeslaRenderLayers.FILLED_DEPTH);
         matrices.popPose();
     }
@@ -503,12 +612,14 @@ public class ESPRenderer {
     private static MultiBufferSource.BufferSource batchSource;
     private static net.minecraft.client.renderer.rendertype.RenderType batchLayer;
     private static boolean batchFilled;
+    private static Vec3 batchCam;
 
     public static void beginBoxBatch(PoseStack matrices, Vec3 cameraPos, boolean filled, boolean throughWalls) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;
         endBoxBatch();
         batchFilled = filled;
+        batchCam = cameraPos;
         batchSource = mc.renderBuffers().bufferSource();
         batchMatrices = matrices;
         matrices.pushPose();
@@ -529,6 +640,8 @@ public class ESPRenderer {
         float b = (color & 0xFF) / 255f;
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = 1.0f;
+        a *= fade(box, batchCam);
+        if (a < 2f / 255f) return;
         if (batchFilled) {
             renderFilledBox(batchPose, batchBuffer, (float) box.minX, (float) box.minY, (float) box.minZ,
                     (float) box.maxX, (float) box.maxY, (float) box.maxZ, r, g, b, a);
