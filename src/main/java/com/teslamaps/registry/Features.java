@@ -272,5 +272,11 @@ final class Features {
         com.teslamaps.features.SeeThroughWindow.register();
         com.teslamaps.features.SoopyCommand.register();
         com.teslamaps.features.SpyMode.register();
+        // w06-04-qol
+        com.teslamaps.features.Reminders.register();
+        com.teslamaps.features.DamageAlert.register();
+        com.teslamaps.features.ContainerTriggers.register();
+        com.teslamaps.features.HarpHelper.register();
+        com.teslamaps.features.DiscordRpc.register();
     }
 }
