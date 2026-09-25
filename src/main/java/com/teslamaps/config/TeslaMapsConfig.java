@@ -2286,6 +2286,19 @@ public class TeslaMapsConfig {
         m.put("cactus", 464);
         return m;
     }
+    // w14-03-gar
+    public boolean samScytheBlocks = false;
+    public String samScytheColor = "FFFF5555";
+    public boolean plotCleanupHelper = false;
+    public String plotCleanupColor = "80FFE14D";
+    public boolean zorroCapeProtection = false;
+    public boolean phantomleafSolver = false;
+    public boolean visitorsOutsideHighlight = false;
+    public String visitorsOutsideBlock = "Don't";
+    public boolean visitorLogbookStats = false;
+    public boolean visitorSupercraft = false;
+    public boolean visitorAcceptHotkey = false;
+    public int visitorAcceptKey = -1;
     // w14-00-gar
     public boolean mantidKillDisplay = false;
     public String mantidShowWhen = "Mantid Armor";

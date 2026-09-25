@@ -31,6 +31,8 @@ public class ContainerTooltipStackMixin {
         if (old != null) return old;
         ItemStack web = com.teslamaps.features.gardenqol.MutationsWebsite.replacement(slot);
         if (web != null) return web;
+        ItemStack garden = com.teslamaps.features.GardenMenuHelpers.icon(slot, stack);
+        if (garden != stack) return garden;
         ItemStack shown = com.teslamaps.features.AnimatedDyeFix.displayStack(slot);
         return shown != slot.getItem() ? shown : stack;
     }

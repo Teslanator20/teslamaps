@@ -27,7 +27,7 @@ public final class GardenSafety {
     private static final Set<String> COMPOSTER = Set.of(
             "minecraft:entity.wolf.growl", "minecraft:block.piston.extend",
             "minecraft:block.water.ambient", "minecraft:entity.chicken.egg");
-    private static final Pattern SPRAYED = Pattern.compile("^SPRAYONATOR! You sprayed Plot - .+ with .+!$");
+    private static final Pattern SPRAYED = Pattern.compile("^SPRAYONATOR! You sprayed Plot - .+ with .+!");
     private static final Pattern COOLDOWN = Pattern.compile("Cooldown: (\\d+)s");
     private static final long CONFIRM_MS = 3000;
 
@@ -100,7 +100,7 @@ public final class GardenSafety {
         long len = 0;
         if (mc.player != null) {
             ItemStack held = mc.player.getMainHandItem();
-            if ("SPRAYONATOR".equals(ItemUtil.skyblockId(held))) len = cooldown(held);
+            if (ItemUtil.skyblockId(held).endsWith("SPRAYONATOR")) len = cooldown(held);
         }
         sprayStart = System.currentTimeMillis();
         sprayLength = len > 0 ? len : 2000L;
@@ -122,7 +122,7 @@ public final class GardenSafety {
             sprayStart = 0;
             return false;
         }
-        if (!"SPRAYONATOR".equals(ItemUtil.skyblockId(stack))) return false;
+        if (!ItemUtil.skyblockId(stack).endsWith("SPRAYONATOR")) return false;
         float done = 1f - (float) left / sprayLength;
         int w = Math.round(13 * done);
         int rgb = net.minecraft.util.Mth.hsvToRgb(done / 3f, 1f, 1f);

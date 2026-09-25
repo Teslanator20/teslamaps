@@ -69,7 +69,8 @@ public class ContainerKeyMixin {
             cir.setReturnValue(true);
             return;
         }
-        if (com.teslamaps.features.EcoOverlays.key(event.key(), hovered)) {
+        if (com.teslamaps.features.GardenMenuHelpers.key(event.key())
+                || com.teslamaps.features.EcoOverlays.key(event.key(), hovered)) {
             cir.setReturnValue(true);
             return;
         }

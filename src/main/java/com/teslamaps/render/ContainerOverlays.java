@@ -85,6 +85,7 @@ public class ContainerOverlays {
         com.teslamaps.features.qol.CityProject.render(context);
         com.teslamaps.features.EcoOverlays.render(context, mouseX, mouseY);
         com.teslamaps.features.gardenqol.GardenHooks.render(context);
+        com.teslamaps.features.GardenMenuHelpers.render(context, mouseX, mouseY);
         com.teslamaps.features.AbiphoneHelper.render(context);
 
         if (com.teslamaps.features.foraging.HotF.shouldRender()) {
