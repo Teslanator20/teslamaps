@@ -28,7 +28,7 @@ public final class SoundMutes {
 
     public static boolean shouldMute(TeslaMapsConfig c, SoundInstance s, String id) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return false;
+        if (mc.player == null || mc.level == null || !mc.isSameThread()) return false;
         if (c.muteBackpackOpen && id.equals("minecraft:block.chest.open")
                 && System.currentTimeMillis() - backpackOpenMs < 500 && near(mc, s, 1.5)) return true;
         if (c.muteRatPet) {
