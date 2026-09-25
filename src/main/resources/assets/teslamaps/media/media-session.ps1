@@ -1,3 +1,4 @@
+param([int]$ParentPid = 0)
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
@@ -47,6 +48,7 @@ $propertiesType = [Windows.Media.Control.GlobalSystemMediaTransportControlsSessi
 $lastKey = ''
 
 while ($true) {
+    if ($ParentPid -gt 0 -and -not (Get-Process -Id $ParentPid -ErrorAction SilentlyContinue)) { exit }
     try {
         $session = $manager.GetCurrentSession()
         if ($null -eq $session) {

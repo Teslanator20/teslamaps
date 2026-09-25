@@ -92,6 +92,10 @@ public final class CritterSafariCategory {
         b.toggle("  Name Over Every Critter", () -> config.safariNames, v -> config.safariNames = v);
         b.toggle("  Tracers To Named", () -> config.safariTracers, v -> config.safariTracers = v);
         b.toggle("  Tracer To Hideyho", () -> config.safariHideyhoTracer, v -> config.safariHideyhoTracer = v);
+        b.toggle("  Hideonwall Perches", () -> config.safariHideonwallPerches, v -> config.safariHideonwallPerches = v)
+                .desc("The 8 Haunted perches: resolved by looking at one or throwing a capsule through it");
+        b.color("    Perch Color", () -> config.colorHideonwallPerch, v -> config.colorHideonwallPerch = v);
+        b.color("    Found Color", () -> config.colorHideonwallFound, v -> config.colorHideonwallFound = v);
         b.toggle("Filled Boxes", () -> config.safariFilled, v -> config.safariFilled = v);
         b.toggle("Legit Mode (Depth Check)", () -> config.safariLegitMode, v -> config.safariLegitMode = v);
         b.info("Nothing drawn through walls");

@@ -27,10 +27,12 @@ public class EntityRenderDispatcherMixin {
         boolean noLightning = cfg.noLightning && entity instanceof net.minecraft.world.entity.LightningBolt;
         boolean noFalling = cfg.noFallingBlocks && entity instanceof net.minecraft.world.entity.item.FallingBlockEntity;
         boolean noXpOrb = cfg.noXpOrbs && entity instanceof net.minecraft.world.entity.ExperienceOrb;
+        boolean annoying = cfg.hideFireworks && entity instanceof net.minecraft.world.entity.projectile.FireworkRocketEntity
+                || cfg.hideHorses && entity instanceof net.minecraft.world.entity.animal.equine.Horse;
         boolean dyingDragon = cfg.hideDyingDragons
                 && entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon
                 && dragon.getHealth() <= 0;
-        if (noLightning || noFalling || noXpOrb || dyingDragon
+        if (noLightning || noFalling || noXpOrb || annoying || dyingDragon
                 || com.teslamaps.features.DeadMobHider.shouldHide(entity)
                 || com.teslamaps.features.NonStarredNametags.shouldHide(entity)
                 || com.teslamaps.features.HideCheapCoins.shouldHide(entity)
@@ -50,7 +52,10 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.CommonSeaCreatureHider.shouldHide(entity)
                 || com.teslamaps.features.ChumBucketHider.shouldHide(entity)
                 || com.teslamaps.features.ArachneTagHider.shouldHide(entity)
-                || com.teslamaps.features.WitherCloakShields.shouldHide(entity)) {
+                || com.teslamaps.features.WitherCloakShields.shouldHide(entity)
+                || com.teslamaps.features.VisualTweaks.shouldHide(entity)
+                || com.teslamaps.features.ZeroHpNametags.shouldHide(entity)
+                || com.teslamaps.features.HideGlitchMobs.shouldHide(entity)) {
             cir.setReturnValue(false);
         }
     }
