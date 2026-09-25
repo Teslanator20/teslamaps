@@ -46,8 +46,18 @@ public class ExtraPage extends ProfileViewerPage {
 
         JsonObject member = profile.getMemberData();
         int available = NeuStyle.PANEL_HEIGHT - y - 6;
-        drawTree(ctx, w -> fitted(member, w, available), width, x, y, mouseX, mouseY);
+        int version = com.teslamaps.profileviewer.PvExtras.ranks() ? com.teslamaps.profileviewer.data.EliteRanks.version() : -1;
+        if (member != treeMember || version != treeVersion) {
+            treeMember = member;
+            treeVersion = version;
+            treeKey = new Object();
+        }
+        drawTree(ctx, cachedTree(treeKey, w -> fitted(member, w, available)), width, x, y, mouseX, mouseY);
     }
+
+    private JsonObject treeMember;
+    private int treeVersion;
+    private Object treeKey;
 
     private Ui fitted(JsonObject member, int width, int available) {
         Ui tree = build(member, width, 2);
