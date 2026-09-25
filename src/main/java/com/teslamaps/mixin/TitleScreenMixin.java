@@ -40,6 +40,7 @@ public abstract class TitleScreenMixin extends Screen {
         // stay put even when the vanilla title screen is showing.
         if (!TeslaMapsConfig.get().customTitleScreen) {
             teslamaps$addCornerButtons();
+            if (TeslaMapsConfig.get().quickJoinButton) teslamaps$addQuickJoin();
             return;
         }
 
@@ -159,8 +160,30 @@ public abstract class TitleScreenMixin extends Screen {
     }
 
     @Unique
+    private void teslamaps$addQuickJoin() {
+        for (var child : children()) {
+            if (!(child instanceof net.minecraft.client.gui.components.Button button)) continue;
+            if (!(button.getMessage().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents t)
+                    || !"menu.multiplayer".equals(t.getKey())) continue;
+            int half = (button.getWidth() - 4) / 2;
+            int full = button.getWidth();
+            button.setWidth(half);
+            addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
+                            Component.literal("Join " + teslamaps$ip()), b -> this.teslamaps$connectToHypixel())
+                    .bounds(button.getX() + full - half, button.getY(), half, button.getHeight()).build());
+            return;
+        }
+    }
+
+    @Unique
+    private static String teslamaps$ip() {
+        String ip = TeslaMapsConfig.get().quickJoinIp;
+        return ip == null || ip.isBlank() ? HYPIXEL_IP : ip.trim();
+    }
+
+    @Unique
     private void teslamaps$connectToHypixel() {
-        ServerData data = new ServerData("Hypixel", HYPIXEL_IP, ServerData.Type.OTHER);
+        ServerData data = new ServerData("Hypixel", teslamaps$ip(), ServerData.Type.OTHER);
         data.setResourcePackStatus(ServerData.ServerPackStatus.ENABLED);
         ConnectScreen.startConnecting(this, this.minecraft,
                 ServerAddress.parseString(data.ip), data, false, null);

@@ -19,6 +19,7 @@ public final class TabWidgetHint {
                     b.toggle("Missing Tab Widget Hint", () -> c.tabWidgetHint, v -> c.tabWidgetHint = v)
                             .desc("Pet, Pickaxe Ability and Bestiary HUDs say which tab widget is missing instead of staying empty. Add widgets with /tab.")
                             .tags("widget", "tab list", "missing");
+                    TabWidgetGuide.config(b, c);
                 });
     }
 

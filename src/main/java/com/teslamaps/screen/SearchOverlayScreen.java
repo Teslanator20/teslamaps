@@ -66,6 +66,7 @@ public class SearchOverlayScreen extends Screen {
         field.setHint(Component.literal(switch (location) {
             case BAZAAR -> "Bazaar item…";
             case RECIPE -> "Recipe…";
+            case OTHER -> "Search…";
             default -> "Auction item…";
         }));
         field.setResponder(text -> {
@@ -188,6 +189,7 @@ public class SearchOverlayScreen extends Screen {
         String title = switch (location) {
             case BAZAAR -> "Bazaar Search";
             case RECIPE -> "Recipe Search";
+            case OTHER -> "Search";
             default -> "Auction Search";
         };
         ctx.text(font, "§f§l" + title, panelX + 12, panelY + 12, 0xFFFFFFFF);

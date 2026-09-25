@@ -31,7 +31,8 @@ public class HighlightTeammates {
             if (p == mc.player) continue;
             var dp = PlayerTracker.getPlayer(p.getName().getString());
             if (dp.isEmpty()) continue;
-            int color = classColor(dp.get().getDungeonClass());
+            String cls = dp.get().getDungeonClass();
+            int color = com.teslamaps.dungeon.ClassColors.or(cls, classColor(cls));
             ESPRenderer.drawBoxOutline(matrices, ESPRenderer.lerpBox(p), color, 3.0f, cameraPos, true);
         }
     }

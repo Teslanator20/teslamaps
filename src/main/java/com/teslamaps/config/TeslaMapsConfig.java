@@ -2148,6 +2148,27 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w12-02-gui
+    public boolean containerPanelDrag = false;
+    public int croesusPanelDX = 0;
+    public int croesusPanelDY = 0;
+    public int shardPanelDX = 0;
+    public int shardPanelDY = 0;
+    public String invButtonConfirm = "Off";
+    public boolean inventoryScaleOverride = false;
+    public int inventoryScale = 2;
+    public boolean customClassColors = false;
+    public String classColorArcher = "FFAA00";
+    public String classColorBerserk = "AA0000";
+    public String classColorHealer = "FF55FF";
+    public String classColorMage = "55FFFF";
+    public String classColorTank = "00AA00";
+    public boolean quickJoinButton = false;
+    @Global
+    public String quickJoinIp = "mc.hypixel.net";
+    public boolean searchOverlayAllSigns = false;
+    public java.util.List<String> otherSearchHistory = new java.util.ArrayList<>();
+    public boolean tabWidgetGuide = false;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4529,6 +4550,8 @@ public class TeslaMapsConfig {
         if (c.auctionSearchHistory == null) c.auctionSearchHistory = new ArrayList<>();
         if (c.bazaarSearchHistory == null) c.bazaarSearchHistory = new ArrayList<>();
         if (c.recipeSearchHistory == null) c.recipeSearchHistory = new ArrayList<>();
+        if (c.otherSearchHistory == null) c.otherSearchHistory = new ArrayList<>();
+        if (c.invButtonConfirm == null) c.invButtonConfirm = "Off";
         if (c.favoritePowers == null) c.favoritePowers = new ArrayList<>();
         if (c.magicalPower == null) c.magicalPower = new java.util.HashMap<>();
         if (c.museumHelperSort == null) c.museumHelperSort = "Lowest Price";

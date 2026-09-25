@@ -39,6 +39,8 @@ public class ContainerOverlays {
             com.teslamaps.debug.Perf.end();
         }
 
+        com.teslamaps.features.ContainerPanelMover.render(context, mouseX, mouseY);
+
         if (com.teslamaps.features.ItemValueOverlay.shouldRender()) {
             com.teslamaps.features.ItemValueOverlay.render(context, mouseX, mouseY);
         }
@@ -53,6 +55,7 @@ public class ContainerOverlays {
         }
 
         com.teslamaps.features.BingoCardTips.render(context);
+        com.teslamaps.features.TabWidgetGuide.render(context);
         if (com.teslamaps.features.EnchantTablePanel.shouldRender()) {
             com.teslamaps.features.EnchantTablePanel.render(context);
         }

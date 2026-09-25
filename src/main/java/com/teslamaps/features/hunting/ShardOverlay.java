@@ -343,6 +343,10 @@ public class ShardOverlay {
         }
         int y = acc.getY();
         int height = lineCount * ROW + (search ? SEARCH_H : 0);
+        int ow = width + PAD * 2, oh = height + PAD * 2;
+        x = com.teslamaps.features.ContainerPanelMover.x(com.teslamaps.features.ContainerPanelMover.SHARD, x - PAD, ow) + PAD;
+        y = com.teslamaps.features.ContainerPanelMover.y(com.teslamaps.features.ContainerPanelMover.SHARD, y - PAD, oh) + PAD;
+        com.teslamaps.features.ContainerPanelMover.record(com.teslamaps.features.ContainerPanelMover.SHARD, x - PAD, y - PAD, ow, oh);
         panelLeft = x;
 
         HudStyle.panel(ctx, x - PAD, y - PAD, width + PAD * 2f, height + PAD * 2f);

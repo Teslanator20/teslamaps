@@ -37,6 +37,11 @@ public final class PuzzlesTerminalsCategory {
                 });
         b.slider("Normal Term Size", 1f, 6f,
                 () -> (float) config.terminalNormalSize, v -> config.terminalNormalSize = Math.round(v), 0);
+        b.toggle("  Inventory Scale (all containers)", () -> config.inventoryScaleOverride, v -> config.inventoryScaleOverride = v)
+                .desc("Same idea as the terminal size for every chest menu and the inventory: own GUI scale while open, restored on close. Terminals and the storage scale win.")
+                .tags("gui scale", "inventory", "container", "chest");
+        b.slider("    Inventory GUI Scale (0 = auto)", 0f, 5f,
+                () -> (float) config.inventoryScale, v -> config.inventoryScale = Math.round(v), 0);
         b.slider("Custom GUI Size", 1f, 3f,
                 () -> config.terminalCustomSize, v -> config.terminalCustomSize = v, 1);
         b.slider("Custom GUI Roundness", 0f, 15f,
