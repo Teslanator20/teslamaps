@@ -165,5 +165,7 @@ final class Features {
         com.teslamaps.dungeon.RoomPreview.register();
         com.teslamaps.dungeon.TeamStats.register();
         com.teslamaps.features.ShadowAssassinAlert.register();
+        // w04-00-dun
+        com.teslamaps.features.DiamanteAlert.register();
     }
 }

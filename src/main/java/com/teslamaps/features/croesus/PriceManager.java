@@ -151,6 +151,37 @@ public class PriceManager {
 
     public static boolean hasBazaar(String id) { return id != null && bazaar.containsKey(id); }
 
+    private static final Map<String, Double> avg7 = new ConcurrentHashMap<>();
+    private static volatile long avgFetch = 0L;
+
+    /** Odin's 7-day average, fetched on first use and hourly after. */
+    public static Double averageOrNull(String id) {
+        long now = System.currentTimeMillis();
+        if (now - avgFetch > (avg7.isEmpty() ? 60_000 : 3_600_000)) {
+            avgFetch = now;
+            EXEC.submit(PriceManager::fetchAverages);
+        }
+        return id == null ? null : avg7.get(id);
+    }
+
+    private static void fetchAverages() {
+        try {
+            JsonObject json = JsonParser.parseString(get("https://lb.odtheking.com/averages/7day")).getAsJsonObject();
+            for (var e : json.entrySet()) {
+                String k = e.getKey();
+                if (k.startsWith("ENCHANTED_BOOK-")) {
+                    int dash = k.lastIndexOf('-');
+                    if (dash > 15) k = "ENCHANTMENT_" + k.substring(15, dash) + "_" + k.substring(dash + 1);
+                }
+                try { avg7.put(k, e.getValue().getAsDouble()); } catch (Exception ignored) {}
+            }
+            version++;
+            TeslaMaps.LOGGER.info("[Croesus] 7-day averages: {}", avg7.size());
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.warn("[Croesus] averages fetch failed: {}", e.toString());
+        }
+    }
+
     /** BZ instant buy. */
     public static final int SOURCE_BAZAAR_BUY = 0;
     /** BZ instant sell (SkyHanni's default). */

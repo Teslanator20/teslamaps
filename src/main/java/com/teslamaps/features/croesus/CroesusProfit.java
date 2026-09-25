@@ -45,10 +45,12 @@ public class CroesusProfit {
         boolean opened;
         boolean kismet;   // a Kismet Feather was used (a struck-through line in the lore)
         boolean incomplete;
+        boolean noEssence;
+        boolean chestKey;
         int keyIndex = -1;
         double value, cost, essence;
         final List<String> breakdown = new ArrayList<>();
-        double profit() { return value - cost; }
+        double profit() { return value - (noEssence ? essence : 0) - cost; }
     }
 
     private static boolean isStruck(Component c) {
@@ -163,6 +165,13 @@ public class CroesusProfit {
             if (results.get(i).opened) continue;
             if (bestIdx < 0 || results.get(i).profit() > results.get(bestIdx).profit()) bestIdx = i;
         }
+        int secondIdx = -1;
+        if (cfg.croesusHighlightSecond) {
+            for (int i = 0; i < results.size(); i++) {
+                if (i == bestIdx || results.get(i).opened || results.get(i).profit() <= 0) continue;
+                if (secondIdx < 0 || results.get(i).profit() > results.get(secondIdx).profit()) secondIdx = i;
+            }
+        }
 
         for (int i = 0; i < chestSlots.size(); i++) {
             Slot s = chestSlots.get(i);
@@ -172,6 +181,9 @@ public class CroesusProfit {
                     ctx.fill(sx, sy, sx + 16, sy + 16, 0x6655FF55);
                     drawBorder(ctx, sx, sy, 0xFF55FF55);
                 }
+            } else if (i == secondIdx) {
+                ctx.fill(sx, sy, sx + 16, sy + 16, 0x66FFFF55);
+                drawBorder(ctx, sx, sy, 0xFFFFFF55);
             } else if (cfg.croesusDimOthers) {   // every other chest -> grayed out
                 ctx.fill(sx, sy, sx + 16, sy + 16, GRAY_COVER);
             }
@@ -180,6 +192,7 @@ public class CroesusProfit {
         List<String> lines = new ArrayList<>();
         lines.add("§6§lCroesus Profit");
         if (!PriceManager.isLoaded()) lines.add("§7loading prices…");
+        if (derpyWarn(results)) lines.add("§cDerpy is mayor: essence counts may be off");
         // panel sorted by profit (best first), opened chests at the bottom
         List<Integer> order = new ArrayList<>();
         for (int i = 0; i < results.size(); i++) order.add(i);
@@ -191,7 +204,7 @@ public class CroesusProfit {
             Parsed r = results.get(i);
             if (r.opened) { if (!cfg.croesusHideOpened) lines.add("§8" + names.get(i) + ": opened"); continue; }
             String col = r.profit() >= 0 ? "§a+" : "§c";
-            String star = (i == bestIdx) ? " §e" : "";
+            String star = (i == bestIdx) ? " §e" : (i == secondIdx ? " §62nd" : "");
             String kismet = r.kismet ? " §a" : "";    // Kismet Feather already used on this chest
             lines.add("§f" + names.get(i) + ": " + col + fmt(r.profit()) + (r.incomplete ? " §8?" : "") + star + kismet);
             if (noKey(r)) lines.add(" §c§lNO KUUDRA KEY");
@@ -234,6 +247,9 @@ public class CroesusProfit {
             String col = r.profit() >= 0 ? "§a+" : "§c";
             lines.add("§fProfit: " + col + fmt(r.profit()) + (r.incomplete ? " §8(incomplete)" : ""));
             if (noKey(r)) lines.add("§c§lNO KUUDRA KEY");
+            if (derpyWarn(List.of(r))) lines.add("§cDerpy is mayor: essence counts may be off");
+            if (TeslaMapsConfig.get().croesusRerollProtect && r.profit() >= rerollMin() && hasRerollButton(cs))
+                lines.add("§eReroll blocked §7(hold CTRL to reroll anyway)");
             drawPanel(ctx, mc, acc, lines);
             return;
         }
@@ -287,7 +303,8 @@ public class CroesusProfit {
         if (lore == null) return new Parsed();
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         int stamp = java.util.Objects.hash(System.identityHashCode(cfg), TeslaMapsConfig.version(), PriceManager.version(),
-                cfg.croesusPriceSource, cfg.croesusKismetCost, cfg.croesusKuudraPetBonus, cfg.croesusKuudraSalvage, cfg.kuudraFaction);
+                cfg.croesusPriceSource, cfg.croesusKismetCost, cfg.croesusKuudraPetBonus, cfg.croesusKuudraSalvage, cfg.kuudraFaction,
+                cfg.croesusKeyCost, cfg.croesusNoEssence, cfg.croesusAvgPrices);
         if (stamp != parsedStamp || parsedCache.size() > 256) {
             parsedStamp = stamp;
             parsedCache.clear();
@@ -301,6 +318,7 @@ public class CroesusProfit {
 
     private static Parsed parse(ItemLore lore, TeslaMapsConfig cfg) {
         Parsed r = new Parsed();
+        r.noEssence = cfg.croesusNoEssence;
         boolean inCost = false;
         for (Component cmp : lore.lines()) {
             String l = strip(cmp.getString());
@@ -314,6 +332,14 @@ public class CroesusProfit {
             if (inCost) {
                 Matcher coins = COINS.matcher(l);
                 if (coins.matches()) r.cost += parseNum(coins.group(1));
+                if (l.equals("Dungeon Chest Key")) {
+                    r.chestKey = true;
+                    if (cfg.croesusKeyCost) {
+                        double kc = price("DUNGEON_CHEST_KEY");
+                        if (kc > 0) r.cost += kc;
+                        else r.incomplete = true;
+                    }
+                }
                 int key = KuudraKeys.keyIndex(l);
                 if (key >= 0) {
                     r.keyIndex = key;
@@ -331,7 +357,7 @@ public class CroesusProfit {
                 double p = cnt * mult * price("ESSENCE_" + ess.group(1).toUpperCase());
                 r.value += p;
                 r.essence += p;
-                r.breakdown.add(" §7" + l + ": §6" + fmt(p));
+                r.breakdown.add(" §7" + l + ": " + (r.noEssence ? "§8" : "§6") + fmt(p));
                 continue;
             }
             Matcher book = BOOK.matcher(l);
@@ -381,11 +407,69 @@ public class CroesusProfit {
         return new ChestValue(p.value, p.essence, p.cost, p.kismet, p.incomplete);
     }
 
+    private static boolean derpyWarn(List<Parsed> rs) {
+        if (!TeslaMapsConfig.get().croesusDerpyWarn || !"Derpy".equalsIgnoreCase(com.teslamaps.api.ElectionApi.mayor())) return false;
+        for (Parsed r : rs) if (r.essence > 0) return true;
+        return false;
+    }
+
+    private static double rerollMin() {
+        return TeslaMapsConfig.get().croesusRerollProtectMin * 1_000_000.0;
+    }
+
+    private static long rerollMsgAt;
+
+    private static boolean hasRerollButton(AbstractContainerScreen<?> cs) {
+        for (Slot s : cs.getMenu().slots) {
+            if (s.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+            ItemStack item = s.getItem();
+            if (!item.isEmpty() && strip(item.getHoverName().getString()).equals("Reroll Chest")) return true;
+        }
+        return false;
+    }
+
+    /** True = swallow this click on the Reroll Chest button. */
+    public static boolean blockReroll(AbstractContainerScreen<?> cs, Slot slot) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (!cfg.croesusRerollProtect || slot == null || slot.container instanceof net.minecraft.world.entity.player.Inventory) return false;
+        ItemStack item = slot.getItem();
+        if (item.isEmpty() || !strip(item.getHoverName().getString()).equals("Reroll Chest")) return false;
+        if (!isChestGui(strip(cs.getTitle().getString()))) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.hasControlDown()) return false;
+        Parsed best = null;
+        for (Slot s : cs.getMenu().slots) {
+            if (s.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+            ItemLore lore = s.getItem().get(DataComponents.LORE);
+            if (lore == null) continue;
+            boolean hasContents = false;
+            for (Component cmp : lore.lines()) if (strip(cmp.getString()).equals("Contents")) { hasContents = true; break; }
+            if (!hasContents) continue;
+            best = parseLore(lore);
+            break;
+        }
+        if (best == null || best.profit() < rerollMin()) return false;
+        long now = System.currentTimeMillis();
+        if (mc.player != null) {
+            mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BASS.value(), 1.0f, 0.5f);
+            if (now - rerollMsgAt > 1500) {
+                rerollMsgAt = now;
+                mc.player.sendSystemMessage(Component.literal("§c[TeslaMaps] Blocked rerolling a " + fmt(best.profit())
+                        + " chest. §7Hold CTRL and click to reroll anyway."));
+            }
+        }
+        return true;
+    }
+
     private static boolean noKey(Parsed r) {
         return r.keyIndex >= 0 && !r.opened && TeslaMapsConfig.get().croesusKuudraNoKeyWarn && !KuudraKeys.hasKey(r.keyIndex);
     }
 
     private static double price(String id) {
+        if (TeslaMapsConfig.get().croesusAvgPrices) {
+            Double avg = PriceManager.averageOrNull(id);
+            if (avg != null && avg > 0) return avg;
+        }
         int src = TeslaMapsConfig.get().croesusPriceSource;
         if (src == PriceManager.SOURCE_BAZAAR_BUY) return PriceManager.getPrice(id);
         Double p = PriceManager.getPriceOrNull(id, src);
