@@ -47,6 +47,9 @@ public final class ChatCategory {
                         if (tabPositions[i].equals(v)) config.chatTabPosition = i;
                     }
                 });
+        com.teslamaps.features.chattabs.ChatTabs.channels(); // defines the order
+        b.lineOrder("  Shown Tabs (drag to sort)", com.teslamaps.features.chattabs.ChatTabs.ORDER_ID)
+                .desc("Drag to reorder, click the box to hide a tab. Takes effect the next time chat opens.");
         b.toggle("Stack Duplicate Messages", () -> config.chatStacking, v -> config.chatStacking = v);
         b.slider("  Stack Window (min)", 1f, 30f,
                 () -> (float) config.chatStackWindowMinutes, v -> config.chatStackWindowMinutes = Math.round(v));
@@ -123,6 +126,9 @@ public final class ChatCategory {
         });
         groupAction(b, config, com.teslamaps.features.ChatFilter.G_DUNGEON, "Dungeon Filter Action");
         b.toggle("Hide Empty Lines", () -> config.chatFilterEmpty, v -> config.chatFilterEmpty = v);
+        b.toggle("Hide Separator Lines (-----)", () -> config.chatFilterSeparators, v -> config.chatFilterSeparators = v)
+                .desc("Hides the divider lines Hypixel puts around party, friend and guild messages.")
+                .tags("divider", "separator", "line");
         b.toggle("Hide Watcher Messages", () -> config.chatFilterWatcher, v -> config.chatFilterWatcher = v);
         b.toggle("Hide F4/M4 Boss (Thorn)", () -> config.chatFilterF4Boss, v -> config.chatFilterF4Boss = v);
         b.toggle("Hide Blessings", () -> config.chatFilterBlessings, v -> config.chatFilterBlessings = v);
@@ -212,6 +218,12 @@ public final class ChatCategory {
         b.toggle("    /trade: Only Island Players", () -> config.tabCompleteTradeIsland, v -> config.tabCompleteTradeIsland = v);
         b.toggle("  Suggest /show Slots", () -> config.tabCompleteShowSlots, v -> config.tabCompleteShowSlots = v)
                 .desc("/show, /showitem, /showoff suggest item, helmet, ..., pet.");
+        b.toggle("  More Command Suggestions", () -> config.commandSuggestionsExtra, v -> {
+                    config.commandSuggestionsExtra = v;
+                    if (v) com.teslamaps.command.ExtraSuggestions.load();
+                })
+                .desc("/joininstance, /joindungeon, /joinkuudra, /rngmeter, /chapter, /viewstash, /ahs, /bz, /setmaxspeed. /warp then uses an online list (Skyblocker's) that hides MVP+ warps for lower ranks.")
+                .tags("tab", "autocomplete", "joininstance", "bazaar", "warp");
         b.info("Run /g list and /f list once to fill the name list");
         b.info("Player suggestions need a rejoin, and can clash with Hypixel's own commands");
         b.info("Hypixel sends no suggestions for these two");

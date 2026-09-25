@@ -2142,6 +2142,25 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w10-08-chat
+    public boolean chatFilterSeparators = false;
+    public boolean playerChatFormat = false;
+    public boolean playerChatHideRank = true;
+    public boolean playerChatKeepYoutube = true;
+    public boolean playerChatNoLevelBrackets = false;
+    public boolean playerChatLevelColorName = false;
+    public boolean playerChatWhiteText = false;
+    public boolean smoothChatMessages = false;
+    public int smoothChatMessageMs = 150;
+    public boolean smoothChatOpen = false;
+    public int smoothChatOpenMs = 200;
+    public boolean chatHideMessageIndicator = false;
+    public boolean reportAutoConfirm = false;
+    public boolean chatTranslator = false;
+    public String chatTranslatorLanguage = "en";
+    public boolean commandSuggestionsExtra = false;
+    @Global
+    public String ownHypixelRank = "";
     // w08-00-hud
     public boolean tabStatsHud = false;
     public String tabStatsHudStats = "Ferocity";

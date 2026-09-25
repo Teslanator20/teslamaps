@@ -226,7 +226,8 @@ public class ChatMixin {
     @ModifyVariable(method = ADD_MESSAGE, argsOnly = true, ordinal = 0,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getGuiTicks()I"))
     private Component teslamaps$filterRewrite(Component message) {
-        return com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.dungeon.TerminalSplits.rewrite(message));
+        Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.dungeon.TerminalSplits.rewrite(message));
+        return com.teslamaps.features.PlayerChatFormat.rewrite(com.teslamaps.features.ChatTranslator.rewrite(out));
     }
 
     @Redirect(method = "addMessageToQueue",

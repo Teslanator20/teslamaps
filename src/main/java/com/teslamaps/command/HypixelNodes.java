@@ -64,6 +64,11 @@ public class HypixelNodes {
                     .build();
         }
 
+        if (TeslaMapsConfig.get().commandSuggestionsExtra) {
+            CommandNode<SharedSuggestionProvider> extra = extra(name);
+            if (extra != null) return extra;
+        }
+
         if (PLAYER_AND_TEXT.contains(name)) {
             return literal(name)
                     .then(player().then(text("message")))
@@ -103,6 +108,62 @@ public class HypixelNodes {
             return subCommands(original, name, GUILD_SUBS, false);
         }
         return original;
+    }
+
+    private static CommandNode<SharedSuggestionProvider> extra(String name) {
+        return switch (name) {
+            case "joininstance" -> word(name, "instance", () -> ExtraSuggestions.instances(null));
+            case "joindungeon" -> word(name, "instance", () -> ExtraSuggestions.instances("Catacombs"));
+            case "joinkuudra" -> word(name, "instance", () -> ExtraSuggestions.instances("Kuudra"));
+            case "chapter", "chapters" -> greedy(name, () -> ExtraSuggestions.enabled() ? ExtraSuggestions.chapters() : List.of());
+            case "viewstash" -> word(name, "stash", () -> ExtraSuggestions.VIEWSTASH);
+            case "setmaxspeed" -> word(name, "speed", () -> ExtraSuggestions.MAX_SPEED);
+            case "ahs", "ahsearch" -> items(name, com.teslamaps.features.SearchOverlay.Location.AUCTION);
+            case "bz", "bazaar" -> items(name, com.teslamaps.features.SearchOverlay.Location.BAZAAR);
+            case "rngmeter", "rng" -> literal(name)
+                    .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument("type", StringArgumentType.string())
+                            .suggests((context, builder) -> ExtraSuggestions.enabled() && SkyblockUtils.isInSkyblock()
+                                    ? suggest(quoted(ExtraSuggestions.rngTypes()), builder) : builder.buildFuture())
+                            .executes(NOOP)
+                            .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument("subtype", StringArgumentType.string())
+                                    .suggests((context, builder) -> ExtraSuggestions.enabled() && SkyblockUtils.isInSkyblock()
+                                            ? suggest(quoted(ExtraSuggestions.rngSubtypes(StringArgumentType.getString(context, "type"))), builder)
+                                            : builder.buildFuture())
+                                    .executes(NOOP)))
+                    .build();
+            default -> null;
+        };
+    }
+
+    private static List<String> quoted(List<String> in) {
+        List<String> out = new java.util.ArrayList<>(in.size());
+        for (String s : in) out.add(s.indexOf(' ') >= 0 ? "\"" + s + "\"" : s);
+        return out;
+    }
+
+    private static CommandNode<SharedSuggestionProvider> word(
+            String name, String arg, java.util.function.Supplier<List<String>> options) {
+        return literal(name)
+                .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument(arg, StringArgumentType.word())
+                        .suggests((context, builder) -> ExtraSuggestions.enabled() && SkyblockUtils.isInSkyblock()
+                                ? suggest(options.get(), builder) : builder.buildFuture())
+                        .executes(NOOP))
+                .build();
+    }
+
+    private static CommandNode<SharedSuggestionProvider> items(String name, com.teslamaps.features.SearchOverlay.Location loc) {
+        return literal(name)
+                .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument("item", StringArgumentType.greedyString())
+                        .suggests((context, builder) -> {
+                            if (!ExtraSuggestions.enabled() || !SkyblockUtils.isInSkyblock()) return builder.buildFuture();
+                            String typed = builder.getRemaining();
+                            List<String> names = com.teslamaps.features.SearchOverlay.suggestions(typed, loc, 40);
+                            for (String n : names) if (n.equalsIgnoreCase(typed.trim())) return builder.buildFuture();
+                            for (String n : names) builder.suggest(n);
+                            return builder.buildFuture();
+                        })
+                        .executes(NOOP))
+                .build();
     }
 
     /** Our sub-commands plus everything of Hypixel's that we did not rebuild. */

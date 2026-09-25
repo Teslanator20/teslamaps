@@ -71,6 +71,9 @@ public class ChatFilter {
 
     static {
         old("chatFilterEmpty", G_DUNGEON, true, c -> c.chatFilterEmpty, t -> t.trim().isEmpty());
+        // with chat tabs on the tab filter hides them, its trackers need them stored
+        old("chatFilterSeparators", G_DUNGEON, false, c -> c.chatFilterSeparators
+                && !com.teslamaps.features.chattabs.ChatTabs.enabled(), ChatFilter::isSeparator);
         old("chatFilterWatcher", G_DUNGEON, true, c -> c.chatFilterWatcher, t -> t.contains("[BOSS] The Watcher:"));
         old("chatFilterF4Boss", G_DUNGEON, true, c -> c.chatFilterF4Boss, t -> t.contains("[BOSS] Thorn:")
                 || t.toLowerCase().contains("[crowd]"));
@@ -233,6 +236,18 @@ public class ChatFilter {
         old("chatFilterSacks", G_SPAM, false, c -> c.chatFilterSacks, t -> t.contains("[Sacks]"));
         old("chatFilterGfs", G_SPAM, false, c -> c.chatFilterGfs, t -> t.contains("from your Sacks to your inventory"));
         old("chatFilterBonePlating", G_SPAM, false, c -> c.chatFilterBonePlating, t -> t.contains("bone plating reduced the damage"));
+    }
+
+    /** Hypixel's divider lines: only -, =, ▬ and the like, at least 10 of them. */
+    public static boolean isSeparator(String t) {
+        int n = 0;
+        for (int i = 0, len = t.length(); i < len; i++) {
+            char ch = t.charAt(i);
+            if (ch == ' ') continue;
+            if (ch != '-' && ch != '=' && ch != '▬' && ch != '━' && ch != '─' && ch != '▭') return false;
+            n++;
+        }
+        return n >= 10;
     }
 
     /** First enabled rule that matches the line, or null. */
