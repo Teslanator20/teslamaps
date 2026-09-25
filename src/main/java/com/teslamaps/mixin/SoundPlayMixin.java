@@ -52,7 +52,8 @@ public class SoundPlayMixin {
         boolean extraMutes = com.teslamaps.features.SoundMutes.active(c);
         boolean partySpam = com.teslamaps.features.MutePartySpam.active(c);
         if (!c.soundDebug && !partySpam && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !c.arrowHitSound && !extraMutes
-                && !c.tiaRelayHelper && !com.teslamaps.features.ChatCompacts.soundActive(c)) return;
+                && !c.tiaRelayHelper && !com.teslamaps.features.ChatCompacts.soundActive(c)
+                && !com.teslamaps.features.PestSpawnSound.enabled(c)) return;
 
         String id;
         float pitch, vol;
@@ -68,6 +69,10 @@ public class SoundPlayMixin {
                     "§7[Sound] §f" + id + " §8vol=" + String.format("%.2f", vol) + " pitch=" + String.format("%.3f", pitch))); });
         }
         if (c.tiaRelayHelper && com.teslamaps.features.qol.TiaRelayHelper.onSound(instance, id, pitch)) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
+        }
+        if (com.teslamaps.features.PestSpawnSound.enabled(c) && com.teslamaps.features.PestSpawnSound.onSound(instance, id, vol, pitch)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
             return;
         }

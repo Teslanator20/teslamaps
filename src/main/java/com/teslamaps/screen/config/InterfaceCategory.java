@@ -122,7 +122,7 @@ public final class InterfaceCategory {
         b.toggle("  Ctrl+Click Multi-Drag", () -> config.hudEditMultiDrag, v -> config.hudEditMultiDrag = v);
         b.toggle("  Resize Grip", () -> config.hudEditResize, v -> config.hudEditResize = v);
         b.toggle("HUD Editor Extras", () -> config.hudEditExtras, v -> config.hudEditExtras = v)
-                .desc("More controls in /tmap gui. Hover an element to see its position and the keys.")
+                .desc("More controls in /tmap gui: global scale (- / + / 1x, top left), hover an element to see its position and the keys.")
                 .tags("hud", "editor", "reset", "nudge", "tmap gui");
         b.toggle("  Reset (R Key + Reset All)", () -> config.hudEditReset, v -> config.hudEditReset = v)
                 .desc("R puts the hovered or last clicked element back to its default position and scale. Reset All asks for a second click.");
@@ -201,6 +201,10 @@ public final class InterfaceCategory {
         b.label("Profile Viewer");
         b.toggle("Scroll Long Pages", () -> config.pvScrollPages, v -> config.pvScrollPages = v);
         b.info("Full size text with a scrollbar instead of shrinking the page");
+        b.toggle("Sacks Tab", () -> config.pvSacks, v -> config.pvSacks = v)
+                .desc("Adds the sack contents with their bazaar value to the Inventories page");
+        b.toggle("Hunting Page", () -> config.pvHunting, v -> config.pvHunting = v)
+                .desc("Attribute levels and the Hunting Box of the viewed player");
         b.label("Updates");
         b.toggle("Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v);
         b.toggle("  Show Changelog", () -> config.updateChangelog, v -> config.updateChangelog = v);
