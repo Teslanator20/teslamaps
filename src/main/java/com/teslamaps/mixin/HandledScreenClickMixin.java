@@ -28,7 +28,8 @@ public class HandledScreenClickMixin {
         com.teslamaps.features.WardrobeKeys.onSlotClicked((AbstractContainerScreen<?>) (Object) this, slot, button, type);
         com.teslamaps.features.StorageGuiScale.onClick((AbstractContainerScreen<?>) (Object) this);
         com.teslamaps.features.qol.TiaRelayHelper.onSlotClick(slot, slotId, button, type);
-        if (com.teslamaps.features.OldSkyblockMenu.onClick(slot)) {
+        if (com.teslamaps.features.PartyFinderHelper.rightClick(slot, button, type)
+                || com.teslamaps.features.OldSkyblockMenu.onClick(slot)) {
             ci.cancel();
             return;
         }
@@ -65,6 +66,7 @@ public class HandledScreenClickMixin {
         if (com.teslamaps.features.OpheliaPotLock.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.SlotHighlighter.blockSalvageClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.CommandHelpers.blockCoopClick((AbstractContainerScreen<?>) (Object) this, slot)
+                || com.teslamaps.features.BazaarOwnOrders.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.QuickCraftConfirm.blockClick(slot)
                 || com.teslamaps.features.AbiphoneHelper.blockClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
             ci.cancel();
@@ -95,6 +97,8 @@ public class HandledScreenClickMixin {
     @Inject(method = "extractTooltip", at = @At("HEAD"), cancellable = true)
     private void teslamaps$hideFillerTooltip(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (com.teslamaps.features.FillerItems.hideTooltip((AbstractContainerScreen<?>) (Object) this,
+                ((HandledScreenAccessor) (Object) this).getFocusedSlot())
+                || com.teslamaps.features.BazaarOwnOrders.hideTooltip((AbstractContainerScreen<?>) (Object) this,
                 ((HandledScreenAccessor) (Object) this).getFocusedSlot())) ci.cancel();
     }
 
@@ -111,7 +115,8 @@ public class HandledScreenClickMixin {
         }
 
         if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)
-                || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)) {
+                || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)
+                || com.teslamaps.features.FancyPartyFinder.click((AbstractContainerScreen<?>) (Object) this, click)) {
             cir.setReturnValue(true);
             return;
         }

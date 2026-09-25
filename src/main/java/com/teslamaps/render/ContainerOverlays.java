@@ -64,6 +64,8 @@ public class ContainerOverlays {
         }
 
         com.teslamaps.features.BazaarOwnOrders.render(context);
+        com.teslamaps.features.TradeValue.render(context);
+        com.teslamaps.features.BitsShopHelper.render(context);
         com.teslamaps.features.ProgressHighlight.render(context);
         com.teslamaps.features.DevTools.render(context);
         com.teslamaps.features.HideNotClickable.render(context);

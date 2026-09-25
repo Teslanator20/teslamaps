@@ -84,6 +84,8 @@ public final class TooltipsValueCategory {
         b.toggle("  Buy Order / Sell Offer", () -> config.priceLineOrders, v -> config.priceLineOrders = v);
         b.toggle("  NPC Sell Price", () -> config.priceLineNpc, v -> config.priceLineNpc = v);
         b.toggle("  Raw Craft Cost", () -> config.priceLineCraft, v -> config.priceLineCraft = v);
+        b.toggle("    Cheaper Of Buy / Craft", () -> config.priceLineCraftCheapest, v -> config.priceLineCraftCheapest = v)
+                .desc("\"Crafting Price\": each ingredient counts at the cheaper of buying and crafting it, up to 15 levels deep");
         b.toggle("  Total + Each, Aligned", () -> config.priceLineEach, v -> config.priceLineEach = v);
         b.info("\"1,200 coins (100 each)\" in two columns, no Shift needed");
         b.toggle("  Only While Key Held", () -> config.priceLineRequireKey, v -> config.priceLineRequireKey = v);
