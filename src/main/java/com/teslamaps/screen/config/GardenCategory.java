@@ -54,6 +54,9 @@ public final class GardenCategory {
                 () -> config.pestOverlay, v -> config.pestOverlay = v);
         b.toggle("  Alive + Infested Plots",
                 () -> config.pestOverlayAlivePlots, v -> config.pestOverlayAlivePlots = v);
+        b.toggle("  Always Show Pest Chance",
+                () -> config.pestChanceAlways, v -> config.pestChanceAlways = v)
+                .desc("Bonus Pest Chance line even without the pest chance loadout. Struck through with OFF while Hypixel marks it disabled.");
         b.toggle("Cooldown Arms Routine",
                 () -> config.pestCooldownArmsRoutine, v -> config.pestCooldownArmsRoutine = v);
         b.slider("Profit Idle After (sec)", 30f, 600f,

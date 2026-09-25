@@ -23,9 +23,16 @@ public class PestOverlay {
         int rows = 3;   // Spawn, Blocks/s, Philip
         if (TeslaMapsConfig.get().pestOverlayAlivePlots) rows += plotsText == null ? 1 : 2;
         if (PestData.spray() != null) rows++;
-        if (PestData.bonusPestChance() > 0 && PestRoutine.pestChanceGearOn()) rows++;
+        if (showPestChance()) rows++;
         return rows;
     }
+
+    private static boolean showPestChance() {
+        if (PestData.bonusPestChance() <= 0) return false;
+        return TeslaMapsConfig.get().pestChanceAlways || PestRoutine.pestChanceGearOn();
+    }
+
+    private static final Component BPC_OFF_TAIL = Component.literal(" OFF").withStyle(net.minecraft.ChatFormatting.RED);
 
     private static String aliveText = "0";
     private static int aliveColor = 0xFFAAAAAA;
@@ -332,9 +339,18 @@ public class PestOverlay {
         }
 
         int bpc = PestData.bonusPestChance();
-        if (bpc > 0 && PestRoutine.pestChanceGearOn()) {
+        if (showPestChance()) {
             row += LINE;
-            drawRow(context, mc, "Pest Chance", bpc + "%", AppleColors.ACCENT_GREEN, row);
+            if (TeslaMapsConfig.get().pestChanceAlways && PestData.bonusPestChanceDisabled()) {
+                context.text(mc.font, Component.literal("Pest Chance"), PADDING, row,
+                        com.teslamaps.render.gui.HudStyle.label(), true);
+                Component value = Component.literal(bpc + "%")
+                        .withStyle(net.minecraft.ChatFormatting.RED, net.minecraft.ChatFormatting.STRIKETHROUGH)
+                        .append(BPC_OFF_TAIL);
+                context.text(mc.font, value, PANEL_WIDTH - PADDING - mc.font.width(value), row, 0xFFFFFFFF, true);
+            } else {
+                drawRow(context, mc, "Pest Chance", bpc + "%", AppleColors.ACCENT_GREEN, row);
+            }
         }
 
         context.pose().popMatrix();

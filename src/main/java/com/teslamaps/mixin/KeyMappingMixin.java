@@ -19,11 +19,13 @@ public abstract class KeyMappingMixin {
     @Inject(method = "isDown", at = @At("HEAD"), cancellable = true)
     private void tmap$isDown(CallbackInfoReturnable<Boolean> cir) {
         FishCatchKeySwap.overrideIsDown((KeyMapping) (Object) this, cir);
+        if (!cir.isCancelled()) com.teslamaps.features.FarmKeys.overrideIsDown((KeyMapping) (Object) this, cir);
     }
 
     @Inject(method = "consumeClick", at = @At("HEAD"), cancellable = true)
     private void tmap$consumeClick(CallbackInfoReturnable<Boolean> cir) {
-        if (FishCatchKeySwap.overrideConsumeClick((KeyMapping) (Object) this, cir)) {
+        if (FishCatchKeySwap.overrideConsumeClick((KeyMapping) (Object) this, cir)
+                || com.teslamaps.features.FarmKeys.overrideConsumeClick((KeyMapping) (Object) this, cir)) {
             this.clickCount = 0;
         }
     }

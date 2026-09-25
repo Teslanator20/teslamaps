@@ -67,6 +67,7 @@ public class GardenPlots {
         public String name;
         public String icon;        // SNBT of the stack the server sent
         public int customIcon = -1; // index into CUSTOM_ICONS, -1 = use icon
+        public String customStack;  // SNBT of any item picked in the Configure Plots menu
     }
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -117,8 +118,37 @@ public class GardenPlots {
         Plot plot = get(slot);
         if (plot == null) return;
         plot.customIcon = iconIndex;
+        plot.customStack = null;
         decodedIcons.remove(slot);
+        customIcons.remove(slot);
         save();
+    }
+
+    /** Any item as icon; null clears it. */
+    public static void setCustomStack(int slot, ItemStack stack) {
+        if (!loaded) load();
+        Plot plot = plots.computeIfAbsent(slot, k -> new Plot());
+        plot.customStack = stack == null || stack.isEmpty() ? null : StorageCache.encode(stack.copyWithCount(1));
+        if (plot.customStack != null) plot.customIcon = -1;
+        decodedIcons.remove(slot);
+        customIcons.remove(slot);
+        save();
+    }
+
+    private static final Map<Integer, ItemStack> customIcons = new HashMap<>();
+
+    /** The picked icon alone (custom stack or fixed choice), or null when the plot keeps the server icon. */
+    public static ItemStack customIcon(int slot) {
+        if (slot == BARN_SLOT) return null;
+        ItemStack cached = customIcons.get(slot);
+        if (cached != null) return cached.isEmpty() ? null : cached;
+        Plot plot = get(slot);
+        ItemStack stack = ItemStack.EMPTY;
+        if (plot != null && plot.customStack != null) stack = StorageCache.decodeStack(plot.customStack);
+        else if (plot != null && plot.customIcon >= 0 && plot.customIcon < CUSTOM_ICONS.length)
+            stack = new ItemStack(CUSTOM_ICONS[plot.customIcon]);
+        customIcons.put(slot, stack);
+        return stack.isEmpty() ? null : stack;
     }
 
     /** Decoded icon for a plot, cached so the SNBT is not re-parsed every frame. */
@@ -136,7 +166,9 @@ public class GardenPlots {
         if (plot == null) return ItemStack.EMPTY;
 
         ItemStack stack;
-        if (plot.customIcon >= 0 && plot.customIcon < CUSTOM_ICONS.length) {
+        if (plot.customStack != null) {
+            stack = StorageCache.decodeStack(plot.customStack);
+        } else if (plot.customIcon >= 0 && plot.customIcon < CUSTOM_ICONS.length) {
             stack = new ItemStack(CUSTOM_ICONS[plot.customIcon]);
         } else {
             stack = StorageCache.decodeStack(plot.icon);

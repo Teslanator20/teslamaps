@@ -111,6 +111,22 @@ public class PestData {
     /** Bonus pest chance in percent. */
     public static int bonusPestChance() { parse(); return bonusPestChance; }
 
+    /** Hypixel shows the value struck through while it does not apply. Only read with pestChanceAlways on. */
+    public static boolean bonusPestChanceDisabled() { parse(); return bonusPestChanceDisabled; }
+
+    private static boolean bonusPestChanceDisabled = false;
+
+    private static boolean readBpcDisabled() {
+        var conn = net.minecraft.client.Minecraft.getInstance().getConnection();
+        if (conn == null) return false;
+        for (net.minecraft.client.multiplayer.PlayerInfo info : conn.getOnlinePlayers()) {
+            var name = info.getTabListDisplayName();
+            if (name == null || !name.getString().contains("Bonus Pest Chance:")) continue;
+            return com.teslamaps.utils.ChatText.formatted(name).contains("§m");
+        }
+        return false;
+    }
+
     /** Pest traps as "3/3", or null. */
     public static String pestTraps() { parse(); return pestTraps; }
 
@@ -151,6 +167,7 @@ public class PestData {
 
         if (!SkyblockUtils.isInGarden()) {
             infested = List.of();
+            bonusPestChanceDisabled = false;
             return;
         }
 
@@ -219,6 +236,7 @@ public class PestData {
             }
         }
         infested = List.copyOf(plots);
+        bonusPestChanceDisabled = com.teslamaps.config.TeslaMapsConfig.get().pestChanceAlways && readBpcDisabled();
     }
 
     /** True once the tab list actually carries the pest block. */

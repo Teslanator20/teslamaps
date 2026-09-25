@@ -58,6 +58,10 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
+        if (com.teslamaps.features.GardenPlotMenu.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.features.SlotLock.blockSlotClick(slot, button, type)) {
             ci.cancel();
             return;
