@@ -3646,6 +3646,8 @@ public class TeslaMapsConfig {
             if (t.time == null) t.time = "1h";
         }
         if (c.cakeTrackerShow == null) c.cakeTrackerShow = "Missing";
+        c.containerTriggerList.removeIf(java.util.Objects::isNull);
+        if (c.islandAlertMode == null) c.islandAlertMode = "Title + Sound";
         if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new int[]{49, 50, 51, 52, 53, 54, 55};
         if (c.damageAlertSoundType == null) c.damageAlertSoundType = "NOTE_PLING";
         if (c.discordRpcAppId == null) c.discordRpcAppId = "";

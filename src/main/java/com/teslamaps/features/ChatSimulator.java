@@ -10,12 +10,14 @@ import net.minecraft.network.chat.ComponentSerialization;
 /** /tmap debug chat: fake lines through the full chat pipeline. */
 public final class ChatSimulator {
 
-    private static boolean silent;
+    private static boolean silent, running;
 
     private ChatSimulator() {}
 
     /** Checked by ChatMixin after every handler ran. */
     public static boolean silent() { return silent; }
+
+    public static boolean running() { return running; }
 
     /** Lines split on "\n" or real newlines, &-codes become §, a line starting with { or [ is JSON. */
     public static int send(String input, boolean quiet) {
@@ -26,10 +28,12 @@ public final class ChatSimulator {
             if (line.isEmpty()) continue;
             Component c = parse(line);
             silent = quiet;
+            running = true;
             try {
                 mc.gui.getChat().addClientSystemMessage(c);
             } finally {
                 silent = false;
+                running = false;
             }
             n++;
         }

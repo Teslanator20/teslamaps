@@ -94,6 +94,7 @@ public final class WindowTweaks {
 
     private static void ensureBorderless(Window w) {
         boolean want = cfg().borderlessWindow;
+        if (GLFW.glfwGetWindowAttrib(w.handle(), GLFW.GLFW_ICONIFIED) == GLFW.GLFW_TRUE) return;
         if (w.isFullscreen()) {
             if (want && !suppressNextWindowed) {
                 suppressNextWindowed = true;

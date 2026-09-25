@@ -89,6 +89,7 @@ public final class BingoCard {
     private static boolean stepsDirty = true;
 
     private static List<String> lines = List.of();
+    private static long lastSave;
     private static int width = 0;
     private static HudEditElement el;
 
@@ -99,7 +100,7 @@ public final class BingoCard {
     public static void register() {
         el = HudEditElement.of("bingoCardDisplay", "Bingo Card").section("Inventory")
                 .enabled(() -> cfg().bingoCardDisplay)
-                .size(() -> Minecraft.getInstance().font.width(SAMPLE_W), () -> 6 * 10)
+                .size(() -> Minecraft.getInstance().font.width(SAMPLE_W) + 6, () -> 6 * 10 + 4).boxOffset(3)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, List.of("§6Community Goals:", "  §7Kill 100 Zombies §e4.2%", " ",
                         "§6Personal Goals: (12/20 done)", "  §7Reach 1,000 Ink Sac Collection.", "§eThe next hint will unlock in §b2h 5m"),
                         mc.font.width(SAMPLE_W)));
@@ -114,6 +115,8 @@ public final class BingoCard {
         String key = SbProfile.key();
         if (key != null && !key.equals(dataKey)) {
             dataKey = key;
+            visited.clear();
+            skillLevels.clear();
             load();
             resetSteps();
         }
@@ -193,11 +196,20 @@ public final class BingoCard {
                 }
             }
         }
-        boolean changed = !sameGoals(data.goals, out);
+        boolean changed = !sameGoals(data.goals, out) || percentChanged(data.goals, out);
         data.goals = out;
         data.lastOpen = System.currentTimeMillis();
         if (changed) stepsDirty = true;
-        save();
+        if (changed || data.lastOpen - lastSave > 60_000) {
+            lastSave = data.lastOpen;
+            save();
+        }
+    }
+
+    private static boolean percentChanged(List<Goal> a, List<Goal> b) {
+        if (a.size() != b.size()) return true;
+        for (int i = 0; i < a.size(); i++) if (a.get(i).percent != b.get(i).percent) return true;
+        return false;
     }
 
     private static boolean sameGoals(List<Goal> a, List<Goal> b) {

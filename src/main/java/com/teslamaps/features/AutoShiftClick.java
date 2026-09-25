@@ -22,7 +22,7 @@ public final class AutoShiftClick {
     public static void register() {
         Feature.of("AutoShiftClick").section("Inventory")
                 .config("Inventory", b -> {
-                    b.toggle("Auto Shift-Click", () -> cfg().autoShiftClick, v -> cfg().autoShiftClick = v)
+                    b.toggle("Auto Shift-Click", () -> cfg().autoShiftClick, v -> cfg().autoShiftClick = v).cheat()
                             .desc("A normal click acts as shift-click in these menus");
                     b.toggle("  NPC Shops (sell own items)", () -> cfg().autoShiftNpcSell, v -> cfg().autoShiftNpcSell = v);
                     b.toggle("  Brewing Stand", () -> cfg().autoShiftBrewing, v -> cfg().autoShiftBrewing = v);
@@ -33,7 +33,7 @@ public final class AutoShiftClick {
     /** True = the click was re-sent as a shift-click, swallow the original. */
     public static boolean handle(AbstractContainerScreen<?> screen, Slot slot, int slotId, int button, ContainerInput type) {
         TeslaMapsConfig c = cfg();
-        if (!c.autoShiftClick || !c.section("Inventory")) return false;
+        if (!c.autoShiftClick || !c.section("Inventory") || com.teslamaps.features.LegitMode.blocksCheats()) return false;
         if (slot == null || type != ContainerInput.PICKUP || (button != 0 && button != 1)) return false;
         if (!(screen instanceof ContainerScreen) || !SkyblockUtils.isInSkyblock()) return false;
         if (!matches(screen, slot, slotId, c)) return false;
