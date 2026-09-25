@@ -48,6 +48,7 @@ public class FarmSpeed {
         // clock is concerned.
         FarmProfit.markActivity();
         SixthVisitor.onCropBreak();
+        GardenUptime.onCropBreak();
     }
 
     /**

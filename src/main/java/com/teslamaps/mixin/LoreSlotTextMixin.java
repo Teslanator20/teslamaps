@@ -17,5 +17,6 @@ public class LoreSlotTextMixin {
         com.teslamaps.features.CrownValueOverlay.drawSlot(ctx, slot);
         com.teslamaps.features.GardenPlots.drawDeskCount(ctx, slot);
         com.teslamaps.features.ItemNumbers.drawToolkit(ctx, slot);
+        com.teslamaps.features.GardenPlotMenu.drawCount(ctx, slot);
     }
 }

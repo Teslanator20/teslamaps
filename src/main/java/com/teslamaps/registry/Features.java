@@ -632,6 +632,13 @@ final class Features {
         com.teslamaps.features.PhantomleafSolver.register();
         com.teslamaps.features.VisitorsOutsideGarden.register();
         com.teslamaps.features.GardenMenuHelpers.register();
+        // w14-04-gar
+        com.teslamaps.features.FarmingToolTooltips.register();
+        com.teslamaps.features.GardenPlotMenu.register();
+        com.teslamaps.features.FarmingStatsHud.register();
+        com.teslamaps.features.GardenUptime.register();
+        com.teslamaps.features.FarmKeys.register();
+        com.teslamaps.features.CarrolynHelper.register();
         // w14-00-gar
         com.teslamaps.features.MantidKillDisplay.register();
         com.teslamaps.features.GlowingMushrooms.register();
