@@ -2508,7 +2508,6 @@ public class TeslaMapsConfig {
     public boolean shortenChatCoins = false;
     public boolean darkAuctionItemName = false;
     public boolean hideArachneMessages = false;
-    public boolean hideChatIndicator = false;
     // w10-05-chat
     public boolean rareDropPetRarity = false;
     public boolean rareDropBookName = false;

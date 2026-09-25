@@ -41,7 +41,8 @@ public final class TerminatorCooldownMute {
 
     /** Any thread. */
     public static boolean muteSound(SoundEvent sound, float volume) {
-        return holding && TeslaMapsConfig.get().terminatorCooldownMute
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return holding && c.terminatorCooldownMute && c.section("Chat")
                 && sound == SoundEvents.ENDERMAN_TELEPORT && volume == 8.0f;
     }
 }

@@ -91,6 +91,12 @@ public final class ChatTranslator {
     }
 
     private static void translate(String text, String target, String source, boolean copy) {
+        TeslaMapsConfig c = cfg();
+        if (!c.chatTranslator || !c.section("Chat")) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §7Turn on Chat > Click Message To Translate first."));
+            return;
+        }
         String msg = com.teslamaps.utils.StringUtil.strip(text);
         CompletableFuture.supplyAsync(() -> fetch(msg, target, source)).thenAccept(r -> Minecraft.getInstance().execute(() -> {
             Minecraft mc = Minecraft.getInstance();

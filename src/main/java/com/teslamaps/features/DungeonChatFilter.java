@@ -131,8 +131,8 @@ public final class DungeonChatFilter {
     }
 
     private static void rule(String id, Predicate<TeslaMapsConfig> on, Predicate<String> match) {
-        ChatFilter.RULES.add(new ChatFilter.Rule(id, ChatFilter.G_DUNGEON, true, false, on,
-                t -> TeslaMapsConfig.get().dungeonFilterFull && DungeonManager.isInDungeon() && match.test(t.trim())));
+        ChatFilter.RULES.add(new ChatFilter.Rule(id, ChatFilter.G_DUNGEON, true, false,
+                c -> c.dungeonFilterFull && on.test(c), t -> DungeonManager.isInDungeon() && match.test(t.trim())));
     }
 
     private static boolean boss(String t) {
