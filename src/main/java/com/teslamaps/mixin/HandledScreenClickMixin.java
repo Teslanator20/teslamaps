@@ -48,6 +48,11 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
+        if (com.teslamaps.features.MiddleClickGui.handle(
+                (AbstractContainerScreen<?>) (Object) this, slot, slotId, button, type)) {
+            ci.cancel();
+            return;
+        }
         if (type != net.minecraft.world.inventory.ContainerInput.THROW) return;
         if (com.teslamaps.features.ItemProtection.blockSlotDrop(slot)
                 || com.teslamaps.features.LimitDroppingItems.block()) ci.cancel();

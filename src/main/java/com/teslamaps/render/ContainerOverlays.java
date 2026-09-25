@@ -40,6 +40,11 @@ public class ContainerOverlays {
         if (com.teslamaps.features.SlotHighlighter.shouldRender()) {
             com.teslamaps.features.SlotHighlighter.render(context);
         }
+        if (com.teslamaps.features.TrashHighlighter.shouldRender()) {
+            com.teslamaps.debug.Perf.begin("TrashHighlighter.render");
+            com.teslamaps.features.TrashHighlighter.render(context);
+            com.teslamaps.debug.Perf.end();
+        }
 
         com.teslamaps.features.BingoCardTips.render(context);
         if (com.teslamaps.features.EnchantTablePanel.shouldRender()) {

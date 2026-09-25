@@ -208,5 +208,7 @@ final class Features {
         com.teslamaps.features.AnvilHelper.register();
         com.teslamaps.features.accessories.AccessoryHelper.register();
         com.teslamaps.features.CraftHelper.register();
+        // w05-09-inv
+        com.teslamaps.features.InstaLoadoutSwap.register();
     }
 }

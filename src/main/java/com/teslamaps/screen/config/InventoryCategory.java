@@ -16,6 +16,13 @@ public final class InventoryCategory {
         b.toggle("Sellable Items Highlighter", () -> config.sellableHighlighter, v -> config.sellableHighlighter = v);
         b.toggle("  More Junk + Trades Menu", () -> config.sellableExtended, v -> config.sellableExtended = v);
         b.color("  Sellable Color", () -> config.colorSellable, v -> config.colorSellable = v);
+        b.toggle("  Trash Highlighter (every menu)", () -> config.trashHighlighter, v -> config.trashHighlighter = v)
+                .desc("Marks items matching your own trash filter list in every container, inventory included.");
+        b.button("    Edit Trash Filters",
+                () -> Minecraft.getInstance().setScreen(new TrashFilterScreen(b.screen())));
+        b.color("    Trash Color", () -> config.colorTrash, v -> config.colorTrash = v);
+        b.dropdown("    Trash Style", com.teslamaps.features.TrashHighlighter.STYLES,
+                () -> config.trashHighlightStyle, v -> config.trashHighlightStyle = v);
         b.dropdown("  Ophelia Potion Lock", com.teslamaps.features.OpheliaPotLock.LEVELS,
                 () -> config.opheliaPotLock, v -> config.opheliaPotLock = v);
         b.info("  Ophelia: only this Dungeon Potion can be bought, other shop clicks are blocked");
@@ -33,6 +40,11 @@ public final class InventoryCategory {
         b.toggle("  Skip Finished Goals", () -> config.bingoHideDoneDifficulty, v -> config.bingoHideDoneDifficulty = v);
         b.toggle("Pet Menu Shift Right-Click", () -> config.petShiftTakeOut, v -> config.petShiftTakeOut = v);
         b.info("Pets menu: right-click only works with shift held");
+        b.toggle("Middle Click GUI", () -> config.middleClickGui, v -> config.middleClickGui = v)
+                .desc("SkyBlock menus: a left-click on a menu button is sent as a middle-click, so nothing sticks to the cursor. Hold Ctrl for a normal click.");
+        b.keybind("  Blacklist Menu Key", () -> config.middleClickGuiBlacklistKey, v -> config.middleClickGuiBlacklistKey = v);
+        b.info("  Press it in a menu to add or remove that menu from the blacklist");
+        b.button("  Clear Blacklist", () -> { config.middleClickGuiBlacklist.clear(); TeslaMapsConfig.save(); });
         b.toggle("Page Keybinds (A/D, W/S)", () -> config.pageKeybinds, v -> config.pageKeybinds = v);
         b.info("A/D = Previous/Next Page, W/S = Scroll Up/Down");
         b.toggle("Sign Enter Key", () -> config.signEnterKey, v -> config.signEnterKey = v);
@@ -109,6 +121,10 @@ public final class InventoryCategory {
                 () -> config.storageOverlayScale, v -> config.storageOverlayScale = v);
         b.toggle("  Vanilla Menu After Backpack Swap", () -> config.storageVanillaAfterSwap, v -> config.storageVanillaAfterSwap = v);
         b.toggle("  Prefill Empty Storage From API", () -> config.storageApiFill, v -> config.storageApiFill = v);
+        b.toggle("  Toolkit / Home / Hide Buttons", () -> config.storageQuickButtons, v -> config.storageQuickButtons = v)
+                .desc("Header buttons: Farming Toolkit, Hunting Toolkit, Home (back to /storage, also reloads) and Hide (vanilla menu until reopened).");
+        b.toggle("  Vanilla Textures", () -> config.storageVanillaTextures, v -> config.storageVanillaTextures = v)
+                .desc("Pages drawn with the chest texture, so resource packs apply.");
         b.slider("  Columns", 1f, 10f,
                 () -> (float) config.storageColumns, v -> config.storageColumns = Math.round(v), 0);
         b.slider("  Scroll Speed", 5f, 80f,
@@ -234,6 +250,18 @@ public final class InventoryCategory {
             final int idx = i;
             b.keybind("Loadout " + (i + 1),
                     () -> config.loadoutKeys[idx], v -> config.loadoutKeys[idx] = v);
+        }
+        b.toggle("Insta Loadout Swap", () -> config.instaLoadoutSwap, v -> config.instaLoadoutSwap = v).cheat()
+                .desc("Press a loadout key anywhere outside menus: sends /loadout, clicks that loadout after the delay and closes the menu again.");
+        b.info("  One key press = /loadout + click + close, done for you");
+        b.toggle("  Auto Close Menu", () -> config.instaLoadoutAutoClose, v -> config.instaLoadoutAutoClose = v);
+        b.slider("  Click Delay (s)", 0.1f, 2f, () -> config.instaLoadoutDelay, v -> config.instaLoadoutDelay = v, 2);
+        b.slider("  Random Extra Delay (ms)", 0f, 1000f,
+                () -> (float) config.instaLoadoutRandomMs, v -> config.instaLoadoutRandomMs = Math.round(v), 0);
+        for (int i = 0; i < 9; i++) {
+            final int idx = i;
+            b.keybind("  Swap To Loadout " + (i + 1),
+                    () -> config.instaLoadoutKeys[idx], v -> config.instaLoadoutKeys[idx] = v);
         }
 
         b.label("Inventory Buttons");
