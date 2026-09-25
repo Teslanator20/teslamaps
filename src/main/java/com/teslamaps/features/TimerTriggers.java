@@ -297,7 +297,7 @@ public class TimerTriggers {
             int used = (BONZO.onCooldown() ? 1 : 0) + (SPIRIT.onCooldown() ? 1 : 0) + (PHOENIX.onCooldown() ? 1 : 0);
             msg += " (" + used + "/3)";
         }
-        if (mc.getConnection() != null) mc.getConnection().sendCommand(msg);
+        com.teslamaps.features.ChatQueue.command(msg);
     }
 
     private static boolean wearing(Minecraft mc, String id) {

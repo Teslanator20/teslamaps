@@ -153,7 +153,7 @@ public class LeapOverlay {
         if (clean.startsWith("You have teleported to") && m.find()) {
             com.teslamaps.features.HidePlayers.onLeap();
             if (TeslaMapsConfig.get().leapAnnounce && mc.getConnection() != null) {
-                mc.getConnection().sendCommand("pc " + announceText(m.group(1)));
+                com.teslamaps.features.ChatQueue.command("pc " + announceText(m.group(1)));
             }
         }
     }

@@ -543,6 +543,7 @@ public class TeslaMapsConfig {
     public static class ChatUserFilter {
         public String mode = "contains";         // contains / equals / startswith / endswith / regex
         public String text = "";
+        public String action;                    // null = Own Filter Action, "Notify" = highlight + ping
         public String title;                     // alert: title, {0}/{1}/{name} = regex groups
         public String sound;                     // alert: SoundOptions key
         public boolean flash;                    // alert: screen flash
@@ -2167,6 +2168,40 @@ public class TeslaMapsConfig {
     public boolean throttleNotifier = false;
     public boolean throttleNotifierCooldown = true;
     public String throttleNotifierText = "Menu throttled, give me a second!";
+    // w11-05-par
+    public boolean partyShortcuts = false;
+    public boolean partyKickReason = false;
+    public boolean partyTabComplete = false;
+    public boolean reversePtClickable = false;
+    @Global
+    public String reversePtMessage = "";
+    public boolean highlightPartyOutside = false;
+    public String highlightPartyColor = "55FFFF";
+    public boolean dianaPartyFinder = false;
+    public float dianaPartyFinderMinRate = 0f;
+    public boolean posMessages = false;
+    public boolean posMessagesOnlyDungeons = true;
+    public boolean posMessagesOncePerWorld = false;
+    public boolean posMessagesShow = true;
+    public float posMessagesHeight = 0.2f;
+    public boolean posMessagesDepth = true;
+    public boolean posMessagesShowText = true;
+    public float posMessagesTextSize = 1.0f;
+    public static class PosMessage {
+        public double x, y, z;
+        public Double x2, y2, z2;
+        public int delay;
+        public Double distance;
+        public int color = 0xFFFFFFFF;
+        public String message = "";
+    }
+    @Global
+    public List<PosMessage> posMessageList = new ArrayList<>();
+    // w11-00-chat
+    public boolean fullChatChroma = false;
+    public boolean chatStackNormalizeNumbers = false;
+    public boolean chatFilterPerkBuffsCompact = false;
+    public boolean chatEncrypt = false;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -2181,6 +2216,64 @@ public class TeslaMapsConfig {
     public boolean cameraClip = false;
     public boolean glowUnbuiltSections = false;
     public int glowOutlineWidth = 1;
+    // w10-09-chat
+    public boolean dungeonFilterFull = false;
+    public boolean dungeonFilterBoss = true;
+    public boolean dungeonFilterPrepare = true;
+    public boolean dungeonFilterAmbience = true;
+    public boolean dungeonFilterReminder = true;
+    public boolean dungeonFilterBuff = true;
+    public boolean dungeonFilterNotPossible = true;
+    public boolean dungeonFilterDamage = true;
+    public boolean dungeonFilterAbility = true;
+    public boolean dungeonFilterPuzzle = true;
+    public boolean dungeonFilterEnd = true;
+    public boolean chatCompactDungeon = false;
+    public boolean chatCompactLobby = false;
+    public boolean chatCompactForaging = false;
+    public boolean chatSendQueue = false;
+    public int chatSendQueueGap = 200;
+    public boolean terminatorCooldownMute = false;
+    public boolean terminatorCooldownMuteChat = true;
+    public boolean imageLinkPreview = false;
+    public int imageLinkPreviewKey = -1;
+    // w10-08-chat
+    public boolean chatFilterSeparators = false;
+    public boolean playerChatFormat = false;
+    public boolean playerChatHideRank = true;
+    public boolean playerChatKeepYoutube = true;
+    public boolean playerChatNoLevelBrackets = false;
+    public boolean playerChatLevelColorName = false;
+    public boolean playerChatWhiteText = false;
+    public boolean smoothChatMessages = false;
+    public int smoothChatMessageMs = 150;
+    public boolean smoothChatOpen = false;
+    public int smoothChatOpenMs = 200;
+    public boolean chatHideMessageIndicator = false;
+    public boolean reportAutoConfirm = false;
+    public boolean chatTranslator = false;
+    public String chatTranslatorLanguage = "en";
+    public boolean commandSuggestionsExtra = false;
+    @Global
+    public String ownHypixelRank = "";
+    // w10-01-chat
+    public String chatAutopetMode = "Show";          // Show / Hide / Action Bar / Toast
+    public float chatAutopetToastSeconds = 3f;
+    public boolean chatLog = false;                  // every chat line into logs/teslamaps-chat
+    public int chatLogDays = 7;
+    public boolean chatLogFilterStatus = false;      // status + reason, blocked/modified files, outgoing
+    public boolean chatTimestamps = false;
+    public String chatTimestampFormat = "24h";
+    public String chatTimestampColor = "555555";
+    public boolean currentChatDisplay = false;
+    public int currentChatDisplayX = 4;
+    public int currentChatDisplayY = 150;
+    public float currentChatDisplayScale = 1.0f;
+    public int chatPeekKey = -1;
+    public String chatNotifyColor = "FFFF55";
+    public String chatNotifySound = "NOTE_PLING";
+    public float chatNotifyVolume = 1.0f;
+    public boolean chatNotifyIgnoreOwn = true;
     // w10-03-chat
     public boolean compactJacobClaim = false;
     public boolean compactLevelUps = false;
@@ -3508,7 +3601,6 @@ public class TeslaMapsConfig {
     public boolean tooltipStonksPrice = false;
     public boolean tooltipFannCost = false;
     public boolean supercraftReminder = false;
-    public int bitsAvailable = -1;
     public String fameRank = "";
     // w05-05-inv
     public boolean progressHighlightTier = false;
@@ -4309,6 +4401,9 @@ public class TeslaMapsConfig {
 
     static void normalize(TeslaMapsConfig c) {
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
+        if (c.posMessageList == null) c.posMessageList = new java.util.ArrayList<>();
+        c.posMessageList.removeIf(java.util.Objects::isNull);
+        if (c.reversePtMessage == null) c.reversePtMessage = "";
         if (c.sackNotifyItems == null) c.sackNotifyItems = new java.util.ArrayList<>();
         if (c.chatMutedPlayers == null) c.chatMutedPlayers = new java.util.ArrayList<>();
         if (c.mobIconColors == null) c.mobIconColors = new java.util.HashMap<>();
@@ -4429,6 +4524,8 @@ public class TeslaMapsConfig {
         if (c.chatUserFilters == null) c.chatUserFilters = new java.util.ArrayList<>();
         c.chatUserFilters.removeIf(f -> f == null || f.text == null);
         if (c.chatUserFilterAction == null) c.chatUserFilterAction = "Hide";
+        if (c.chatAutopetMode == null) c.chatAutopetMode = "Show";
+        if (c.chatTimestampFormat == null) c.chatTimestampFormat = "24h";
         if (c.chatRedirectTarget == null) c.chatRedirectTarget = "Spam HUD";
         if (c.chatFilterAction == null || c.chatFilterAction.isBlank()) c.chatFilterAction = "Hide";
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();

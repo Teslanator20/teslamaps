@@ -47,11 +47,16 @@ public final class ChatCategory {
                         if (tabPositions[i].equals(v)) config.chatTabPosition = i;
                     }
                 });
+        com.teslamaps.features.chattabs.ChatTabs.channels(); // defines the order
+        b.lineOrder("  Shown Tabs (drag to sort)", com.teslamaps.features.chattabs.ChatTabs.ORDER_ID)
+                .desc("Drag to reorder, click the box to hide a tab. Takes effect the next time chat opens.");
         b.toggle("Stack Duplicate Messages", () -> config.chatStacking, v -> config.chatStacking = v);
         b.slider("  Stack Window (min)", 1f, 30f,
                 () -> (float) config.chatStackWindowMinutes, v -> config.chatStackWindowMinutes = Math.round(v));
         b.toggle("  Stack Divider Blocks (---/===/▬▬▬)", () -> config.chatStackBlocks, v -> config.chatStackBlocks = v);
         b.toggle("  Colours Must Match", () -> config.chatStackCompareColors, v -> config.chatStackCompareColors = v);
+        b.toggle("  Ignore Numbers (Smart Collapse)", () -> config.chatStackNormalizeNumbers, v -> config.chatStackNormalizeNumbers = v)
+                .desc("Lines that only differ in their numbers stack too; player chat only stacks with the line right above");
         b.toggle("Keep Scroll Position On Reopen", () -> config.chatKeepScroll, v -> config.chatKeepScroll = v)
                 .desc("Closing and reopening chat keeps where you scrolled to instead of jumping to the newest line");
         b.toggle("Compact Channel Lines", () -> config.chatCompactChannels, v -> config.chatCompactChannels = v)
@@ -71,6 +76,22 @@ public final class ChatCategory {
                 n -> !config.chatSoundResponsesOff.contains(n),
                 n -> { if (!config.chatSoundResponsesOff.remove(n)) config.chatSoundResponsesOff.add(n); });
         b.toggle("Right-Click Copy Chat", () -> config.chatCopyEnabled, v -> config.chatCopyEnabled = v);
+        b.toggle("Chat Timestamps", () -> config.chatTimestamps, v -> config.chatTimestamps = v)
+                .desc("[HH:mm] in front of every new chat line. Copy, tabs and stacking ignore it");
+        b.dropdown("  Timestamp Format", com.teslamaps.features.ChatTimestamps.FORMATS,
+                () -> config.chatTimestampFormat, v -> config.chatTimestampFormat = v);
+        b.color("  Timestamp Color", () -> config.chatTimestampColor, v -> config.chatTimestampColor = v);
+        b.keybind("Chat Peek Key (hold)", () -> config.chatPeekKey, v -> config.chatPeekKey = v)
+                .desc("While held, the chat shows in full like it was open. No chat screen, you keep moving. Off in menus");
+        b.toggle("Current Chat Channel", () -> config.currentChatDisplay, v -> config.currentChatDisplay = v)
+                .desc("\"Chat: Party (4 members)\", Guild, All or the /msg partner with time left, while the chat is open. Move it in /tmap gui");
+        b.toggle("Chat Log Files", () -> config.chatLog, v -> config.chatLog = v)
+                .desc("Every chat line into .minecraft/logs/teslamaps-chat/, one file per day");
+        b.slider("  Delete Logs After (days)", 1f, 60f,
+                () -> (float) config.chatLogDays, v -> config.chatLogDays = Math.round(v));
+        b.toggle("  Filter Status & Reason", () -> config.chatLogFilterStatus, v -> config.chatLogFilterStatus = v)
+                .desc("Marks lines BLOCKED / MODIFIED / ALLOWED / OUTGOING with the filter that did it, plus blocked-*.log and modified-*.log");
+        b.button("  Open Chat Log Folder", com.teslamaps.features.ChatLog::openFolder);
         b.toggle("Pet Rarity In Drop Lines", () -> config.rareDropPetRarity, v -> config.rareDropPetRarity = v)
                 .desc("PET DROP / GREAT CATCH / has obtained lines get the rarity in front of the pet name");
         b.toggle("Real Name For Enchanted Book Drops", () -> config.rareDropBookName, v -> config.rareDropBookName = v)
@@ -86,6 +107,10 @@ public final class ChatCategory {
         b.toggle("  Hotkey Placeholders", () -> config.hotkeyPlaceholders, v -> config.hotkeyPlaceholders = v)
                 .desc("{x} {y} {z} {player} {island} {location} {server} {health} {maxHealth} {mana} {maxMana} in hotkey texts");
         b.toggle("Gradient [TeslaMaps] Prefix", () -> config.chromaPrefix, v -> config.chromaPrefix = v);
+        b.toggle("Full Chat Chroma", () -> config.fullChatChroma, v -> config.fullChatChroma = v)
+                .desc("All visible chat text cycles through chroma");
+        b.toggle("Encrypted Chat", () -> config.chatEncrypt, v -> config.chatEncrypt = v)
+                .desc("Your chat and /pc /gc /msg text is sent encrypted; only TeslaMaps users can read it. Same as /tmap encrypt on|off. Incoming encrypted lines are always decrypted.");
         b.color("Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v);
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);
         b.label("Filter");
@@ -171,6 +196,9 @@ public final class ChatCategory {
         });
         groupAction(b, config, com.teslamaps.features.ChatFilter.G_DUNGEON, "Dungeon Filter Action");
         b.toggle("Hide Empty Lines", () -> config.chatFilterEmpty, v -> config.chatFilterEmpty = v);
+        b.toggle("Hide Separator Lines (-----)", () -> config.chatFilterSeparators, v -> config.chatFilterSeparators = v)
+                .desc("Hides the divider lines Hypixel puts around party, friend and guild messages.")
+                .tags("divider", "separator", "line");
         b.toggle("Hide Watcher Messages", () -> config.chatFilterWatcher, v -> config.chatFilterWatcher = v);
         b.toggle("Hide F4/M4 Boss (Thorn)", () -> config.chatFilterF4Boss, v -> config.chatFilterF4Boss = v);
         b.toggle("Hide Blessings", () -> config.chatFilterBlessings, v -> config.chatFilterBlessings = v);
@@ -206,6 +234,8 @@ public final class ChatCategory {
         b.toggle("Hide Profile Info", () -> config.chatFilterProfileInfo, v -> config.chatFilterProfileInfo = v);
         b.toggle("Hide HOTF/HOTM Perks", () -> config.chatFilterPerkBuffs, v -> config.chatFilterPerkBuffs = v);
         b.toggle("  Keep Sky Mall/Lottery On Its Island", () -> config.chatFilterPerkBuffsElsewhere, v -> config.chatFilterPerkBuffsElsewhere = v);
+        b.toggle("  One Line Instead (☀ Sky Mall · buff)", () -> config.chatFilterPerkBuffsCompact, v -> config.chatFilterPerkBuffsCompact = v)
+                .desc("Sky Mall, Lottery and Beekeeper: the buff of the day as one short line instead of hiding it");
         b.toggle("Hide Bone Plating", () -> config.chatFilterBonePlating, v -> config.chatFilterBonePlating = v);
         b.toggle("Hide Oruo Messages", () -> config.chatFilterOruo, v -> config.chatFilterOruo = v);
         b.toggle("Hide Wither King Heroes Line", () -> config.chatFilterWitherKingHeroes, v -> config.chatFilterWitherKingHeroes = v);
@@ -214,12 +244,22 @@ public final class ChatCategory {
         b.toggle("Hide Watchdog Announcements", () -> config.chatFilterWatchdog, v -> config.chatFilterWatchdog = v);
         b.toggle("Hide Mort Messages", () -> config.chatFilterMort, v -> config.chatFilterMort = v);
         b.toggle("Hide Milestones", () -> config.chatFilterMilestone, v -> config.chatFilterMilestone = v);
+        b.dropdown("Autopet Messages", com.teslamaps.features.ChatFilter.AUTOPET_MODES,
+                () -> config.chatAutopetMode, v -> config.chatAutopetMode = v)
+                .desc("Hide the \"Autopet equipped your ...\" line, or move it to the action bar or a toast. The pet HUD still reads it");
+        b.slider("  Autopet Toast Seconds", 1f, 10f, () -> config.chatAutopetToastSeconds, v -> config.chatAutopetToastSeconds = v, 1);
         b.label("Own Filters");
         b.dropdown("Own Filter Action", com.teslamaps.features.ChatFilter.ACTIONS,
                 () -> config.chatUserFilterAction, v -> config.chatUserFilterAction = v);
         b.keybind("Filter Hovered Line Key", () -> config.chatFilterLineKey, v -> config.chatFilterLineKey = v);
         b.info("Press it over a line in open chat to hide that exact line");
         b.info("/tmap chatfilter <contains|equals|startswith|endswith|regex> <text>");
+        b.info("/tmap chatfilter notify [regex] <text> = highlight + ping instead of hiding");
+        b.color("  Notify Color", () -> config.chatNotifyColor, v -> config.chatNotifyColor = v);
+        b.soundDropdown("  Notify Sound", com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.chatNotifySound, v -> config.chatNotifySound = v);
+        b.slider("  Notify Volume", 0f, 4f, () -> config.chatNotifyVolume, v -> config.chatNotifyVolume = v, 2);
+        b.toggle("  Notify: Ignore Own Messages", () -> config.chatNotifyIgnoreOwn, v -> config.chatNotifyIgnoreOwn = v);
         b.toggle("Own Filter Alerts", () -> config.chatUserAlerts, v -> config.chatUserAlerts = v)
                 .desc("Own filters with a title, sound or flash fire it when they match. Regex groups go into the title as {1} or {name}");
         b.info("/tmap chatfilter title|sound|flash|show|system <n> ...");
@@ -232,6 +272,7 @@ public final class ChatCategory {
             mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§b[TeslaMaps] §f" + config.chatUserFilters.size() + " own chat filters"));
             for (int i = 0; i < config.chatUserFilters.size(); i++) {
                 var f = config.chatUserFilters.get(i);
+                mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7" + (i + 1) + ". §e" + f.mode + (com.teslamaps.features.ChatNotify.isNotify(f) ? " §6[notify]" : "") + " §f" + f.text));
                 mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7" + (i + 1) + ". §e" + f.mode + " §f" + f.text + com.teslamaps.features.ChatAlerts.describe(f)));
             }
         });
@@ -273,6 +314,12 @@ public final class ChatCategory {
         b.toggle("    /trade: Only Island Players", () -> config.tabCompleteTradeIsland, v -> config.tabCompleteTradeIsland = v);
         b.toggle("  Suggest /show Slots", () -> config.tabCompleteShowSlots, v -> config.tabCompleteShowSlots = v)
                 .desc("/show, /showitem, /showoff suggest item, helmet, ..., pet.");
+        b.toggle("  More Command Suggestions", () -> config.commandSuggestionsExtra, v -> {
+                    config.commandSuggestionsExtra = v;
+                    if (v) com.teslamaps.command.ExtraSuggestions.load();
+                })
+                .desc("/joininstance, /joindungeon, /joinkuudra, /rngmeter, /chapter, /viewstash, /ahs, /bz, /setmaxspeed. /warp then uses an online list (Skyblocker's) that hides MVP+ warps for lower ranks.")
+                .tags("tab", "autocomplete", "joininstance", "bazaar", "warp");
         b.info("Run /g list and /f list once to fill the name list");
         b.info("Player suggestions need a rejoin, and can clash with Hypixel's own commands");
         b.info("Hypixel sends no suggestions for these two");

@@ -72,15 +72,15 @@ public final class CustomScoreboard {
                     b.slider("    Values Per Line", 1f, 6f, () -> (float) c.customScoreboardChunkSize, v -> c.customScoreboardChunkSize = Math.round(v), 0);
                     b.toggle("    Hide Empty Values", () -> c.customScoreboardChunkHideEmpty, v -> c.customScoreboardChunkHideEmpty = v);
                     b.toggle("    Add Bank + Gems From Tab", () -> c.customScoreboardChunkTab, v -> c.customScoreboardChunkTab = v);
+                    b.toggle("  Show Number Changes", () -> c.customScoreboardNumberDiff, v -> c.customScoreboardNumberDiff = v)
+                            .desc("Purse, Bits, Copper and Motes show the change for 5s, e.g. Purse: 52,763,737 (+1.2M)")
+                            .tags("purse", "bits", "difference");
                     b.toggle("Show Purse Instead Of Piggy", () -> c.scoreboardPiggyToPurse, v -> { c.scoreboardPiggyToPurse = v; ScoreboardText.clear(); })
                             .desc("Sidebar line \"Piggy:\" reads \"Purse:\" again. Vanilla and custom scoreboard.")
                             .tags("piggy bank", "purse", "sidebar");
                     b.toggle("Color Month Names", () -> c.scoreboardColorMonths, v -> { c.scoreboardColorMonths = v; ScoreboardText.clear(); })
                             .desc("SkyBlock date line colored by season: spring pink, summer gold, autumn yellow, winter blue.")
                             .tags("season", "date", "sidebar");
-                    b.toggle("  Show Number Changes", () -> c.customScoreboardNumberDiff, v -> c.customScoreboardNumberDiff = v)
-                            .desc("Purse, Bits, Copper and Motes show the change for 5s, e.g. Purse: 52,763,737 (+1.2M)")
-                            .tags("purse", "bits", "difference");
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.SCOREBOARD, original ->
                 (ctx, delta) -> { if (!on()) original.extractRenderState(ctx, delta); });
@@ -172,13 +172,17 @@ public final class CustomScoreboard {
             if (!plain.startsWith(cur[0])) continue;
             String v = plain.substring(cur[0].length()).trim();
             if (c.customScoreboardChunkHideEmpty && (v.isEmpty() || v.equals("0") || v.startsWith("0 ") || v.equals("♨ 0"))) return "";
-            return cur[1] + v;
+            return "§7" + cur[0] + cur[1] + v;
         }
         return null;
     }
 
     private static void tabCurrencies(List<String> chunk, TeslaMapsConfig c) {
         boolean bank = false, gems = false;
+        for (String v : chunk) {
+            if (v.startsWith("§7Bank: ")) bank = true;
+            else if (v.startsWith("§7Gems: ")) gems = true;
+        }
         for (String raw : com.teslamaps.utils.TabListUtils.getTabListLines()) {
             String t = StringUtil.strip(raw).trim();
             if (!bank && t.startsWith("Bank: ")) {

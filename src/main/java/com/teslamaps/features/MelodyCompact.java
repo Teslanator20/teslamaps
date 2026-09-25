@@ -62,7 +62,7 @@ public final class MelodyCompact {
         ChatComponentAccessor acc = (ChatComponentAccessor) Minecraft.getInstance().gui.getChat();
         List<GuiMessage> all = acc.teslamaps$getAllMessages();
         for (int i = 0; i < Math.min(all.size(), 100); i++) {
-            if (StringUtil.strip(all.get(i).content().getString()).equals(plain)) {
+            if (ChatTimestamps.cut(StringUtil.strip(all.get(i).content().getString())).equals(plain)) {
                 all.remove(i);
                 acc.teslamaps$refreshTrimmedMessages();
                 return;
