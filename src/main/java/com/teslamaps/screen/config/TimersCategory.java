@@ -48,6 +48,8 @@ public final class TimersCategory {
         b.color("    Item Cooldown Color", () -> config.invincibilityItemColor, v -> config.invincibilityItemColor = v);
         b.label("Dungeon");
         b.toggle("Spirit Pet Reminder (boss)", () -> config.spiritPetReminder, v -> config.spiritPetReminder = v);
+        b.toggle("  Party Check (before start)", () -> config.spiritPetPartyCheck, v -> config.spiritPetPartyCheck = v)
+                .desc("Chat + title when someone in your party shows a Spirit pet before the run starts");
         b.toggle("Secret Tick Timer", () -> config.secretTickTimer, v -> config.secretTickTimer = v);
         b.toggle("Death Tick Timer (run start)", () -> config.deathTickTimer, v -> config.deathTickTimer = v);
         b.toggle("Livid Invuln Timer (F5/M5)", () -> config.lividTimerHud, v -> config.lividTimerHud = v);

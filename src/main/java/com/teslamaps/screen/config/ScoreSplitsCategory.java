@@ -36,6 +36,12 @@ public final class ScoreSplitsCategory {
         b.toggle("  Show PBs (per split)", () -> config.splitsShowPb, v -> config.splitsShowPb = v);
         b.toggle("  Show Delta To PB", () -> config.splitsShowDelta, v -> config.splitsShowDelta = v);
         b.toggle("  Send All Splits on End", () -> config.splitsSendAllOnEnd, v -> config.splitsSendAllOnEnd = v);
+        b.toggle("  Show Tick Time", () -> config.splitsTickTime, v -> config.splitsTickTime = v)
+                .desc("Server-tick time behind every split, lag independent");
+        b.toggle("  Boss Entry Split", () -> config.splitsBossEntry, v -> config.splitsBossEntry = v)
+                .desc("Extra row: run start until the boss, with PB");
+        b.toggle("  Current Split HUD", () -> config.splitsCurrentHud, v -> config.splitsCurrentHud = v)
+                .desc("Only the running split in ticks, move it in /tmap gui");
         b.toggle("  Terminal Splits (P3 Sections)", () -> config.terminalSplits, v -> config.terminalSplits = v)
                 .desc("Adds section and P3 time to every terminal/device line, summary when the core opens.");
         b.toggle("    Use Server Ticks", () -> config.terminalSplitsServerTicks, v -> config.terminalSplitsServerTicks = v);
