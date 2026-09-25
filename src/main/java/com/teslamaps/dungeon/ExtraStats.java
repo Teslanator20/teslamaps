@@ -181,6 +181,8 @@ public class ExtraStats {
             }
             out.append(center(sb.length() == 0 ? "§3Solo" : sb.toString())).append("\n");
         }
+        String lag = ServerLagTimer.takeSummaryLine();
+        if (lag != null) out.append(center(lag)).append("\n");
         out.append(chatBreak());
         mc.player.sendSystemMessage(out);
         seenEnd = false;
