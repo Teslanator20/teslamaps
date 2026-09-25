@@ -2199,6 +2199,15 @@ public class TeslaMapsConfig {
     public boolean pestGlowContest = false;
     public boolean pestGlowVinyl = false;
     public String pestGlowVinylId = "";
+    // w13-04-pv (master pvExtras lives in w13-05-pv)
+    public boolean pvEliteRanks = true;
+    public boolean pvGearScan = true;
+    public boolean pvGreenhouse = true;
+    public boolean pvFishingStats = true;
+    public boolean pvMinions = true;
+    public boolean pvMiscBags = true;
+    public boolean pvDeepLinks = true;
+    public boolean pvLevelHoppity = true;
     // w14-07-min
     public boolean commissionHud = false;
     public int commissionHudX = 10;

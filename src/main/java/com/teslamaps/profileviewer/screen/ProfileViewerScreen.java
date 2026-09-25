@@ -129,6 +129,7 @@ public class ProfileViewerScreen extends Screen {
         // player (and through it the level) reachable for good
         ItemGrid.clear();
         PvPlayerRender.reset();
+        com.teslamaps.profileviewer.data.GearScan.clear();
         super.removed();
     }
 
@@ -153,6 +154,7 @@ public class ProfileViewerScreen extends Screen {
         allPages.add(new ExtraPage());
         allPages.add(new MobsPage());
         allPages.add(new BingoPage());
+        allPages.add(new LevelPage());
 
         pages.clear();
         pages.addAll(allPages);
@@ -461,6 +463,18 @@ public class ProfileViewerScreen extends Screen {
             ctx.text(font, hoveredTab, tx, mouseY - 8, NeuStyle.TEXT);
             hoveredTab = null;
         }
+    }
+
+    /** Switches to the first visible page of that type; false when it is hidden. */
+    public boolean openPage(Class<? extends ProfileViewerPage> type) {
+        for (int i = 0; i < pages.size(); i++) {
+            if (type.isInstance(pages.get(i))) {
+                selectedPageIndex = i;
+                pages.get(i).onSelected();
+                return true;
+            }
+        }
+        return false;
     }
 
     private int[] profileSelector;

@@ -100,6 +100,10 @@ public class GardenPage extends ProfileViewerPage {
         parts.add(header(width));
         parts.add(Kit.section("Crop Milestones", crops(width, columns)));
         parts.add(Kit.section("Composter", composter(width, columns)));
+        SkyblockProfile profile = getProfile();
+        if (com.teslamaps.profileviewer.PvExtras.greenhouse() && profile != null) {
+            parts.add(Kit.section("Greenhouse", com.teslamaps.profileviewer.data.Greenhouse.build(profile.getMemberData(), width)));
+        }
         if (jacobs != null) parts.add(jacobsSection(width, columns));
         return Ui.col(10, parts);
     }

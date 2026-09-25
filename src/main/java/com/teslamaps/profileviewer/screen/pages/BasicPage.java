@@ -54,6 +54,9 @@ public class BasicPage extends ProfileViewerPage {
         armor = profile == null ? java.util.List.of() : armorSlots(profile);
         board = profile == null ? java.util.List.of() : buildBoard(profile);
         hypixelExp = Double.NaN;
+        if (profile != null && profiles != null && com.teslamaps.profileviewer.PvExtras.ranks()) {
+            com.teslamaps.profileviewer.data.EliteRanks.request(profiles.getUuid(), profile.getProfileId());
+        }
     }
 
     private record BoardRow(String key, String value, int color) {}
@@ -118,6 +121,49 @@ public class BasicPage extends ProfileViewerPage {
         }
     }
 
+    private record Link(int x, int y, int w, int h, Class<? extends com.teslamaps.profileviewer.screen.ProfileViewerPage> page) {}
+
+    private final java.util.List<Link> links = new java.util.ArrayList<>();
+
+    /** Detail page a skill cell jumps to, null when there is none. */
+    private static Class<? extends com.teslamaps.profileviewer.screen.ProfileViewerPage> skillPage(String key) {
+        return switch (key) {
+            case "farming" -> GardenPage.class;
+            case "mining" -> MiningPage.class;
+            case "combat" -> BestiaryPage.class;
+            case "foraging" -> ForagingPage.class;
+            case "fishing" -> TrophyFishPage.class;
+            case "taming" -> PetsPage.class;
+            default -> null;
+        };
+    }
+
+    private void link(GuiGraphicsExtractor ctx, int x, int y, int w, int h, int mouseX, int mouseY,
+                      Class<? extends com.teslamaps.profileviewer.screen.ProfileViewerPage> page) {
+        if (page == null || !com.teslamaps.profileviewer.PvExtras.deepLinks()) return;
+        links.add(new Link(x, y, w, h, page));
+        if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
+            ctx.fill(x, y, x + w, y + h, 0x20FFFFFF);
+        }
+    }
+
+    private static String[] withExtra(String[] lines, String... extra) {
+        java.util.List<String> out = new java.util.ArrayList<>(java.util.List.of(lines));
+        for (String line : extra) if (line != null) out.add(line);
+        return out.toArray(new String[0]);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button != 0 || parent == null) return false;
+        for (Link link : links) {
+            if (mouseX >= link.x() && mouseX < link.x() + link.w() && mouseY >= link.y() && mouseY < link.y() + link.h()) {
+                return parent.openPage(link.page());
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean isFixedLayout() {
         return true;
@@ -143,6 +189,7 @@ public class BasicPage extends ProfileViewerPage {
         int left = x - 8;
         int top = y - 8;
 
+        links.clear();
         if (profile == null) {
             ctx.text(tr, "No profile data", left + 20, top + 20, NeuStyle.TEXT);
             return;
@@ -236,6 +283,15 @@ public class BasicPage extends ProfileViewerPage {
         // the level with its progress as decimals (613.85) instead of a bar plus 85/100
         drawCentered(ctx, tr, String.format(java.util.Locale.ROOT, "%.2f", sbLevel),
                 sbX + 9, sbY - 12, sbLevelColor((int) sbLevel));
+        boolean levelLink = com.teslamaps.profileviewer.PvExtras.levelPage();
+        link(ctx, sbX - 36, sbY - 27, 90, 26, mouseX, mouseY, levelLink ? LevelPage.class : null);
+        String sbRank = com.teslamaps.profileviewer.PvExtras.rankLine("skyblockxp");
+        boolean sbClick = levelLink && com.teslamaps.profileviewer.PvExtras.deepLinks();
+        if ((sbRank != null || sbClick) && mouseX >= sbX - 36 && mouseX < sbX + 54 && mouseY >= sbY - 27 && mouseY < sbY - 1) {
+            tooltip = withExtra(new String[]{"SkyBlock Level"}, sbRank, sbClick ? "§eClick to open the level page" : null);
+            tooltipX = mouseX;
+            tooltipY = mouseY;
+        }
 
         double skillAvg = profile.getSkillAverage();
         double overflowAvg = profile.getOverflowSkillAverage();
@@ -244,6 +300,20 @@ public class BasicPage extends ProfileViewerPage {
         ctx.text(tr, avg, left + 132, sbY + 58, NeuStyle.TEXT_GREEN);
         if (overflowAvg > skillAvg + 0.005) {
             ctx.text(tr, String.format("(%.2f)", overflowAvg), left + 134 + tr.width(avg), sbY + 58, NeuStyle.TEXT_GOLD);
+        }
+
+        // catacombs as a jump into the dungeon page
+        if (com.teslamaps.profileviewer.PvExtras.deepLinks() && profile.getDungeonData() != null && !boardOn) {
+            int cataY = sbY + 74;
+            ctx.text(tr, "Catacombs", left + 132, cataY, NeuStyle.TEXT_GRAY);
+            ctx.text(tr, String.valueOf(profile.getDungeonData().getCatacombsLevel()), left + 132, cataY + 10, NeuStyle.TEXT_RED);
+            link(ctx, left + 129, cataY - 2, 70, 22, mouseX, mouseY, DungeonPage.class);
+            if (mouseX >= left + 129 && mouseX < left + 199 && mouseY >= cataY - 2 && mouseY < cataY + 20) {
+                tooltip = withExtra(new String[]{"Catacombs " + profile.getDungeonData().getCatacombsLevel()},
+                        com.teslamaps.profileviewer.PvExtras.rankLine("catacombs"), "§eClick to open Dungeons");
+                tooltipX = mouseX;
+                tooltipY = mouseY;
+            }
         }
 
 
@@ -274,12 +344,16 @@ public class BasicPage extends ProfileViewerPage {
             NeuStyle.bar(ctx, sx, sy + 8, 80,
                     overflow ? skill.getOverflowProgress() : skill.getProgress());
 
+            Class<? extends com.teslamaps.profileviewer.screen.ProfileViewerPage> target = skillPage(entry.getKey());
+            link(ctx, sx - 1, sy - 10, 82, 24, mouseX, mouseY, target);
             if (mouseX > sx && mouseX < sx + 80 && mouseY > sy - 9 && mouseY < sy + 14) {
-                tooltip = new String[]{
+                tooltip = withExtra(new String[]{
                         skill.getDisplayName(),
                         "Progress: " + (overflow ? skill.getFormattedOverflowProgress() : skill.getFormattedProgress()),
                         "Total XP: " + skill.getFormattedTotalXp(),
-                };
+                }, com.teslamaps.profileviewer.PvExtras.rankLine(entry.getKey()),
+                        target != null && com.teslamaps.profileviewer.PvExtras.deepLinks()
+                                ? "§eClick to open " + target.getSimpleName().replace("Page", "") : null);
                 tooltipX = mouseX;
                 tooltipY = mouseY;
             }
@@ -304,13 +378,14 @@ public class BasicPage extends ProfileViewerPage {
 
     private void drawTooltip(GuiGraphicsExtractor ctx, Font tr) {
         int w = 0;
-        for (String line : tooltip) w = Math.max(w, tr.width(line));
+        for (String line : tooltip) w = Math.max(w, tr.width(com.teslamaps.profileviewer.data.LegacyText.parse(line)));
         int h = tooltip.length * 10 + 4;
         int tx = Math.min(tooltipX + 8, NeuStyle.PANEL_WIDTH - w - 8);
         int ty = Math.max(2, tooltipY - h);
         NeuStyle.window(ctx, tx - 3, ty - 2, w + 8, h);
         for (int i = 0; i < tooltip.length; i++) {
-            ctx.text(tr, tooltip[i], tx, ty + 2 + i * 10, i == 0 ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
+            ctx.text(tr, com.teslamaps.profileviewer.data.LegacyText.parse(tooltip[i]), tx, ty + 2 + i * 10,
+                    i == 0 ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
         }
     }
 

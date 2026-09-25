@@ -83,6 +83,12 @@ public class DungeonPage extends ProfileViewerPage {
         ctx.text(tr, lvl, cx + SECTION - tr.width(lvl), cy, NeuStyle.TEXT);
         NeuStyle.bar(ctx, cx, cy + 10, SECTION, data.getCatacombsProgress(), CATA_COLOR);
 
+        String cataRank = com.teslamaps.profileviewer.PvExtras.rankLine("catacombs");
+        if (cataRank != null && mouseX > cx && mouseX < cx + SECTION && mouseY > cy - 2 && mouseY < cy + 15) {
+            tooltip = new String[]{"Catacombs", "Level: " + cataLevel, cataRank};
+            tooltipX = mouseX;
+            tooltipY = mouseY;
+        }
         aligned(ctx, tr, "Total XP:", formatXp(data.getCatacombsXp()), cx, cy + 20, NeuStyle.TEXT);
         aligned(ctx, tr, "Secrets:", String.valueOf(data.getSecretsFound()), cx, cy + 32, NeuStyle.TEXT);
 
@@ -205,6 +211,8 @@ public class DungeonPage extends ProfileViewerPage {
                         "Level: " + cls.getLevel(),
                         "Total XP: " + formatXp(cls.getXp()),
                 };
+                String classRank = com.teslamaps.profileviewer.PvExtras.rankLine(entry.getKey().toLowerCase(java.util.Locale.ROOT) + "-xp");
+                if (classRank != null) tooltip = new String[]{tooltip[0], tooltip[1], tooltip[2], classRank};
                 tooltipX = mouseX;
                 tooltipY = mouseY;
             }
@@ -254,13 +262,14 @@ public class DungeonPage extends ProfileViewerPage {
 
     private void drawTooltip(GuiGraphicsExtractor ctx, Font tr) {
         int w = 0;
-        for (String line : tooltip) w = Math.max(w, tr.width(line));
+        for (String line : tooltip) w = Math.max(w, tr.width(com.teslamaps.profileviewer.data.LegacyText.parse(line)));
         int h = tooltip.length * 10 + 4;
         int tx = Math.min(tooltipX + 8, NeuStyle.PANEL_WIDTH - w - 8);
         int ty = Math.max(2, tooltipY - h);
         NeuStyle.window(ctx, tx - 3, ty - 2, w + 8, h);
         for (int i = 0; i < tooltip.length; i++) {
-            ctx.text(tr, tooltip[i], tx, ty + 2 + i * 10, i == 0 ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
+            ctx.text(tr, com.teslamaps.profileviewer.data.LegacyText.parse(tooltip[i]), tx, ty + 2 + i * 10,
+                    i == 0 ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
         }
     }
 
