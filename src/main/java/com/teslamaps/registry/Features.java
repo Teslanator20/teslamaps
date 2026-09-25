@@ -717,5 +717,11 @@ final class Features {
         com.teslamaps.features.BazaarOrderTooltip.register();
         com.teslamaps.features.EssenceShopCosts.register();
         com.teslamaps.features.EscrowFix.register();
+        // w15-09-sla
+        com.teslamaps.slayer.RemainingSlayerKills.register();
+        com.teslamaps.slayer.SlayerTransparency.register();
+        com.teslamaps.slayer.Rev5TntPing.register();
+        com.teslamaps.slayer.InfernoHelper.register();
+        com.teslamaps.features.KeeperWaypoints.register();
     }
 }
