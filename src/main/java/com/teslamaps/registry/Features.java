@@ -349,5 +349,10 @@ final class Features {
         com.teslamaps.features.theend.EyesPlacedHud.register();
         com.teslamaps.features.theend.EndStatsHud.register();
         com.teslamaps.features.FatalTempo.register();
+        // w07-02-qol
+        com.teslamaps.features.DebugCopy.register();
+        com.teslamaps.features.CommandChains.register();
+        com.teslamaps.features.AbiphoneHelper.register();
+        com.teslamaps.features.waypoints.WaypointGroups.register();
     }
 }

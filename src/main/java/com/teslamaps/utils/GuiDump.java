@@ -40,9 +40,60 @@ public class GuiDump {
         if (down && !keyWasDown) {
             boolean shift = org.lwjgl.glfw.GLFW.glfwGetKey(mc.getWindow().handle(),
                     org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
-            if (shift) dumpTooltip(); else dump(null);
+            if (shift) dumpTooltip();
+            else if (com.teslamaps.config.TeslaMapsConfig.get().dumpGuiSingleItem && hovered() != null) itemToChat(hovered());
+            else dump(null);
         }
         keyWasDown = down;
+    }
+
+    private static ItemStack hovered() {
+        if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen)) return null;
+        Slot slot = ((com.teslamaps.mixin.HandledScreenAccessor) screen).getFocusedSlot();
+        return slot == null || slot.getItem().isEmpty() ? null : slot.getItem();
+    }
+
+    /** Hovered slot, else the held item. */
+    public static ItemStack hoveredOrHeld() {
+        ItemStack s = hovered();
+        Minecraft mc = Minecraft.getInstance();
+        if (s == null && mc.player != null) s = mc.player.getMainHandItem();
+        return s == null ? ItemStack.EMPTY : s;
+    }
+
+    /** Registry id, skyblock id, model, profile, names and custom data of one item. */
+    public static List<String> itemInfo(ItemStack stack, int dataLimit) {
+        List<String> out = new ArrayList<>();
+        out.add("item: " + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()) + " x" + stack.getCount());
+        String id = ItemUtil.skyblockId(stack);
+        out.add("skyblock id: " + (id.isEmpty() ? "-" : id));
+        var model = stack.get(DataComponents.ITEM_MODEL);
+        out.add("item_model: " + (model == null ? "-" : model));
+        var cmd = stack.get(DataComponents.CUSTOM_MODEL_DATA);
+        out.add("custom_model_data: " + (cmd == null ? "-" : cmd));
+        out.add("profile: " + (stack.get(DataComponents.PROFILE) != null ? "yes" : "no"));
+        var cn = stack.get(DataComponents.CUSTOM_NAME);
+        out.add("custom_name: " + (cn == null ? "-" : cn.getString()));
+        out.add("hover name: " + stack.getHoverName().getString());
+        var data = stack.get(DataComponents.CUSTOM_DATA);
+        String d = data == null ? "-" : data.copyTag().toString();
+        if (dataLimit > 0 && d.length() > dataLimit) d = d.substring(0, dataLimit) + "…";
+        out.add("custom_data: " + d);
+        return out;
+    }
+
+    public static void itemToChat(ItemStack stack) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        if (stack == null || stack.isEmpty()) {
+            mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fHover an item or hold one"));
+            return;
+        }
+        mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fItem dump:"));
+        for (String line : itemInfo(stack, 300)) {
+            int c = line.indexOf(": ");
+            mc.player.sendSystemMessage(Component.literal("§7" + line.substring(0, c + 1) + " §f" + line.substring(c + 2).replace('§', '&')));
+        }
     }
 
     /** Writes the tab list and scoreboard to a file, for building parsers. */

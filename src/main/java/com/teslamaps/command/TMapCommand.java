@@ -1936,6 +1936,8 @@ public class TMapCommand {
             if (sc.alias == null || sc.command == null) continue;
             if (!sc.alias.trim().equalsIgnoreCase(alias)) continue;
             String expanded = sc.command.trim();
+            if (expanded.indexOf(';') >= 0 && com.teslamaps.features.CommandChains.active())
+                expanded = expanded.substring(0, expanded.indexOf(';')).trim();
             if (expanded.isEmpty()) continue;
             return args.isEmpty() ? expanded : expanded + " " + args;
         }

@@ -107,6 +107,7 @@ public final class SoundsCategory {
                 .desc("Bat squeak and chicken steps near you, only when no real bat/chicken is there");
         b.toggle("  Squeak Only", () -> config.muteRatPetSqueakOnly, v -> config.muteRatPetSqueakOnly = v);
         b.toggle("Mute Backpack Opening Sound", () -> config.muteBackpackOpen, v -> config.muteBackpackOpen = v);
+        b.toggle("Mute Error Sound (wrong click / no mana)", () -> config.muteErrorSound, v -> config.muteErrorSound = v);
         b.toggle("Quiet F7 Boss Sounds", () -> config.f7BossSounds, v -> config.f7BossSounds = v);
         b.toggle("  Cancel All Above 1.0", () -> config.f7BossSoundsAboveCap, v -> config.f7BossSoundsAboveCap = v);
         b.toggle("  Cap at 1.0 Instead of Cancel", () -> config.f7BossSoundsCap, v -> config.f7BossSoundsCap = v);

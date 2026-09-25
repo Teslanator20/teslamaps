@@ -13,4 +13,10 @@ public interface PlayerTabOverlayAccessor {
     static Comparator<PlayerInfo> getOrdering() {
         throw new UnsupportedOperationException();
     }
+
+    @Accessor("header")
+    net.minecraft.network.chat.Component teslamaps$getHeader();
+
+    @Accessor("footer")
+    net.minecraft.network.chat.Component teslamaps$getFooter();
 }

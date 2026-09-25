@@ -100,7 +100,7 @@ public class ShortcutScreen extends Screen {
         HudStyle.screenPanel(ctx, panelX, panelY, PANEL_W, PANEL_H, 8);
 
         ctx.text(this.font, "§f§lCommand Shortcuts", panelX + 16, panelY + 16, 0xFFFFFFFF);
-        ctx.text(this.font, "§8alias  command (no slashes). §eRelog to apply changes.",
+        ctx.text(this.font, "§8alias  command (no slashes)" + (com.teslamaps.features.CommandChains.active() ? ", chain with ; and wait <ms>" : "") + ". §eRelog to apply changes.",
                 panelX + 16, panelY + 30, 0xFFFFFFFF);
 
         for (int[] f : fields) HudStyle.screenButton(ctx, f[0], f[1], f[2], f[3], false, true);
