@@ -6,29 +6,20 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonFloor;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.HudEditElement;
-import com.teslamaps.registry.HudEditElement.HudCtx;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.StringUtil;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class TerminalWaypoints {
 
-    private static final Pattern COMPLETED = Pattern.compile("^(.{1,16}) (activated|completed) a (terminal|lever|device)! \\((\\d)/(\\d)\\)$");
     private static final String GOLDOR = "[BOSS] Goldor: Who dares trespass into my domain?";
     private static final String CORE = "The Core entrance is opening!";
-    private static final String GATE = "The gate has been destroyed!";
-
 
     private record Point(ArmorStand stand, int kind) {}
 
@@ -39,8 +30,7 @@ public final class TerminalWaypoints {
     private static Object lastLevel;
     private static int scanTick;
 
-    private static boolean p3, firstInSection, complete, device, gate;
-    private static int lastCompleted, terminals, section = 1, levers;
+    private static boolean p3;
 
     private TerminalWaypoints() {}
 
@@ -65,56 +55,13 @@ public final class TerminalWaypoints {
         if (text.equals(GOLDOR)) {
             reset();
             p3 = true;
-            section = 1;
-            return;
-        }
-        if (!p3) return;
-        if (text.equals(CORE)) {
+        } else if (p3 && text.equals(CORE)) {
             reset();
-            return;
         }
-        if (text.equals(GATE)) {
-            gate = true;
-            if (complete) newSection();
-            return;
-        }
-        Matcher m = COMPLETED.matcher(text);
-        if (!m.matches()) return;
-        int done = Integer.parseInt(m.group(4));
-        int max = Integer.parseInt(m.group(5));
-        if (done == 1) firstInSection = true;
-        if (done == max) {
-            if (gate) newSection(); else complete = true;
-            return;
-        }
-        switch (m.group(3)) {
-            case "lever" -> levers++;
-            case "terminal" -> terminals++;
-            default -> { if (!firstInSection || lastCompleted != done) device = true; }
-        }
-        lastCompleted = done;
-    }
-
-    private static void newSection() {
-        firstInSection = false;
-        complete = false;
-        device = false;
-        terminals = 0;
-        gate = false;
-        levers = 0;
-        section++;
     }
 
     private static void reset() {
         p3 = false;
-        firstInSection = false;
-        lastCompleted = 0;
-        complete = false;
-        device = false;
-        terminals = 0;
-        gate = false;
-        section = 1;
-        levers = 0;
         points.clear();
         unhide();
     }
