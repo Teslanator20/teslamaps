@@ -86,6 +86,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.EventTracker.onParticle(packet);
         com.teslamaps.features.mobvisuals.MobVisuals.onParticle(packet);
         com.teslamaps.features.mining.TreasureChestHelper.onParticle(packet);
+        com.teslamaps.features.garden.PestGuess.onParticle(packet);
     }
 
     @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",
@@ -106,7 +107,8 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.MageBeam.onParticle(packet)
                     || com.teslamaps.features.ParticleHiders.hideParticle(packet)
                     || com.teslamaps.features.AbilityRadius.hideParticle(packet)
-                    || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet))) ci.cancel();
+                    || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet)
+                    || com.teslamaps.features.garden.PestGuess.hideParticle(packet))) ci.cancel();
     }
 
     @Inject(method = "handleInitializeBorder", at = @At("HEAD"))

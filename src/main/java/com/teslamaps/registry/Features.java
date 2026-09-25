@@ -661,6 +661,16 @@ final class Features {
         com.teslamaps.features.FortuneGuide.register();
         com.teslamaps.features.FarmToolOverlays.register();
         com.teslamaps.features.JacobContestFF.register();
+        // w13-09-gar
+        com.teslamaps.features.garden.GardenCropData.register();
+        com.teslamaps.features.garden.ContestStatsSummary.register();
+        com.teslamaps.features.garden.JacobContestMenus.register();
+        com.teslamaps.features.garden.JacobContestTimes.register();
+        com.teslamaps.features.garden.OptimalSpeed.register();
+        com.teslamaps.features.garden.HoeLevelDisplay.register();
+        com.teslamaps.features.garden.GreenhouseGrowthTimer.register();
+        com.teslamaps.features.garden.PestGuess.register();
+        com.teslamaps.features.garden.CropMoneyDisplay.register();
         // w14-00-gar
         com.teslamaps.features.MantidKillDisplay.register();
         com.teslamaps.features.GlowingMushrooms.register();

@@ -36,6 +36,7 @@ public class FarmSpeed {
         BlockState state = mc.level.getBlockState(pos);
         if (!isCrop(state)) return;
         FarmProgress.onCropBreak(state);
+        com.teslamaps.features.garden.GardenCropData.onBreak(state);
         MousematAngles.onCrop(state);
         FarmProfit.onCropBreak(state, mc.level.getOverworldClockTime());
         CropStats.onCropBreak(state, mc.level.getOverworldClockTime());
