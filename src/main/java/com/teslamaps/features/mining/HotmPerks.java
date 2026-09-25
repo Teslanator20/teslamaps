@@ -106,7 +106,8 @@ public class HotmPerks {
                             .tags("hotm", "perk", "level", "slot text");
                 });
         skyMall = Feature.of("HotmSkyMall").section("Mining").when(() -> cfg().hotmSkyMallDisplay)
-                .hud("hotmskymalldisplay", HotmPerks::renderSkyMall)
+                .hud("hotmskymalldisplay", HotmPerks::renderSkyMall);
+        Feature.of("SkyMallTracker").section("Mining").when(HotmPerks::trackSkyMall)
                 .serverChat(HotmPerks::onChat);
         HudEditElement.of("hotmSkyMallDisplay", "Sky Mall").ctx(HudEditElement.HudCtx.MINING).section("Mining")
                 .enabled(() -> cfg().hotmSkyMallDisplay)
@@ -156,7 +157,7 @@ public class HotmPerks {
 
     public static boolean shouldRender() {
         TeslaMapsConfig c = cfg();
-        return feature != null && (c.hotmTokenStack || c.hotmSkyMallDisplay)
+        return feature != null && (c.hotmTokenStack || trackSkyMall())
                 && inMenu() && c.section("Mining");
     }
 
@@ -243,14 +244,51 @@ public class HotmPerks {
             wrapped.append(line);
         }
         String display = skyMallDisplay(wrapped.toString());
-        if (display != null) cfg().hotmSkyMallPerk = display;
+        if (display != null) setSkyMall(display);
+    }
+
+    private static final long YEAR_0 = 1560275700000L, DAY_MS = 1_200_000L;
+    private static long newDayAt;
+
+    private static boolean trackSkyMall() {
+        TeslaMapsConfig c = cfg();
+        return c.hotmSkyMallDisplay || c.dwarvenOverlay && c.dwarvenOverlaySkyMall;
+    }
+
+    private static long sbDay(long now) {
+        return Math.floorDiv(now - YEAR_0, DAY_MS);
+    }
+
+    /** Today's Sky Mall buff, null when unknown or from an earlier SkyBlock day. */
+    public static String skyMallToday() {
+        TeslaMapsConfig c = cfg();
+        return c.hotmSkyMallPerk.isEmpty() || c.skyMallDay != sbDay(System.currentTimeMillis()) ? null : c.hotmSkyMallPerk;
+    }
+
+    private static void setSkyMall(String display) {
+        TeslaMapsConfig c = cfg();
+        long day = sbDay(System.currentTimeMillis());
+        if (display.equals(c.hotmSkyMallPerk) && c.skyMallDay == day) return;
+        c.hotmSkyMallPerk = display;
+        c.skyMallDay = day;
+        TeslaMapsConfig.save();
     }
 
     private static void onChat(String message) {
         String t = StringUtil.strip(message).trim();
+        if (t.equals("New day! Your Sky Mall buff changed!")) {
+            newDayAt = System.currentTimeMillis();
+            return;
+        }
         if (!t.startsWith("New buff: ")) return;
         String display = skyMallDisplay(t);
-        if (display != null) cfg().hotmSkyMallPerk = display;
+        if (display == null && System.currentTimeMillis() - newDayAt < 3000) {
+            String perk = t.substring(10).trim();
+            if (perk.startsWith("Gain ")) perk = perk.substring(5);
+            if (perk.endsWith(".")) perk = perk.substring(0, perk.length() - 1);
+            display = "§a" + perk;
+        }
+        if (display != null) setSkyMall(display);
     }
 
     // Ported from SkyHanni's HotmApi.SkymallPerk
@@ -315,8 +353,8 @@ public class HotmPerks {
     }
 
     private static String line() {
-        String perk = cfg().hotmSkyMallPerk;
-        return perk == null || perk.isEmpty() ? null : "§bSky Mall§8: " + perk;
+        String perk = skyMallToday();
+        return perk == null ? null : "§bSky Mall§8: " + perk;
     }
 
     public static void draw(GuiGraphicsExtractor ctx, Minecraft mc, int x, int y, float scale) {
