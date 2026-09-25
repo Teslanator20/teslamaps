@@ -609,5 +609,11 @@ final class Features {
         com.teslamaps.features.PestBaitPanel.register();
         com.teslamaps.features.NoCropRotation.register();
         com.teslamaps.features.PbFortuneGain.register();
+        // w13-02-eco
+        com.teslamaps.features.AuctionPriceInput.register();
+        com.teslamaps.features.SearchOverlay.register();
+        com.teslamaps.features.BazaarOrderTooltip.register();
+        com.teslamaps.features.EssenceShopCosts.register();
+        com.teslamaps.features.EscrowFix.register();
     }
 }

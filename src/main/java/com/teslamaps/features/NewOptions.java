@@ -22,7 +22,7 @@ public final class NewOptions {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("NewOptions").when(() -> !checked)
+        Feature.of("NewOptions").when(() -> !checked && cfg().newOptionsNotify)
                 .tick(NewOptions::tick)
                 .config("Interface", b ->
                         b.toggle("Tell Me About New Options", () -> cfg().newOptionsNotify, v -> cfg().newOptionsNotify = v)

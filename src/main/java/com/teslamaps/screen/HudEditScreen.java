@@ -49,15 +49,21 @@ public class HudEditScreen extends Screen {
         if (extras() && TeslaMapsConfig.get().hudEditReset) {
             resetAllBtn = addRenderableWidget(new TeslaButton(this.width - 110, 32, 100, 22, "Reset All", this::resetAll));
         }
-        addRenderableWidget(new TeslaButton(10, 6, 20, 22, "§f-", () -> globalScale(-0.05f)));
-        addRenderableWidget(new TeslaButton(34, 6, 20, 22, "§f+", () -> globalScale(0.05f)));
-        addRenderableWidget(new TeslaButton(58, 6, 26, 22, "§f1x", () -> globalScale(0f)));
+        if (globalScaleShown()) {
+            addRenderableWidget(new TeslaButton(10, 6, 20, 22, "§f-", () -> globalScale(-0.05f)));
+            addRenderableWidget(new TeslaButton(34, 6, 20, 22, "§f+", () -> globalScale(0.05f)));
+            addRenderableWidget(new TeslaButton(58, 6, 26, 22, "§f1x", () -> globalScale(0f)));
+        }
         if (com.teslamaps.features.HudLayouts.enabled()) layoutButtons();
         ScreenFit.clamp(this); // keep every widget reachable at any gui scale
     }
 
     private static boolean extras() {
         return TeslaMapsConfig.get().hudEditExtras;
+    }
+
+    private static boolean globalScaleShown() {
+        return extras() || HudEditElement.globalScale() != 1f;
     }
 
     private void flash(String msg) {
@@ -330,7 +336,7 @@ public class HudEditScreen extends Screen {
 
         if (resetAllBtn != null) resetAllBtn.setMessage(Component.literal(
                 System.currentTimeMillis() - resetArmed < 3000 ? "§cConfirm Reset" : "Reset All"));
-        context.text(this.font, String.format("Global %.2fx", HudEditElement.globalScale()), 90, 13, 0xFFE0E0E0);
+        if (globalScaleShown()) context.text(this.font, String.format("Global %.2fx", HudEditElement.globalScale()), 90, 13, 0xFFE0E0E0);
 
         super.extractRenderState(context, mouseX, mouseY, delta);
     }
