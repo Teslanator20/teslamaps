@@ -2142,6 +2142,15 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w10-03-chat
+    public boolean compactJacobClaim = false;
+    public boolean compactLevelUps = false;
+    public boolean compactLevelUpsHideBorder = false;
+    public boolean compactExperimentRewards = false;
+    public boolean shortenChatCoins = false;
+    public boolean darkAuctionItemName = false;
+    public boolean hideArachneMessages = false;
+    public boolean hideChatIndicator = false;
     // w08-00-hud
     public boolean tabStatsHud = false;
     public String tabStatsHudStats = "Ferocity";

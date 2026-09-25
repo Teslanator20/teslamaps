@@ -54,6 +54,7 @@
     "ChatScreenMixin",
     "ChatTabsMixin",
     "ChatTabsScreenMixin",
+    "GuiMessageLineMixin",
     "CheckboxAccessor",
     "ChestAutoCloseMixin",
     "ClientBrandMixin",
