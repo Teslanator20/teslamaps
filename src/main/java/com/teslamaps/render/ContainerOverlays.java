@@ -49,7 +49,6 @@ public class ContainerOverlays {
             com.teslamaps.features.HoppityCollectionStats.render(context);
         }
 
-        com.teslamaps.dungeon.PartyFinderMarks.render(context);
         com.teslamaps.features.BazaarOwnOrders.render(context);
         com.teslamaps.features.ProgressHighlight.render(context);
         com.teslamaps.features.GuideHighlight.render(context);
