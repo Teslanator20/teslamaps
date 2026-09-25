@@ -2288,13 +2288,12 @@ public class TeslaMapsConfig {
     public int cropMilestoneHudY = 120;
     public float cropMilestoneHudScale = 1.0f;
     public int cropMilestoneGoal = 0;
-    public boolean cropMilestoneOverflow = true;
+    public boolean cropMilestoneOverflow = false;
     public boolean cropMilestoneWarn = false;
     public boolean mooshroomPerkHud = false;
     public int mooshroomPerkHudX = 10;
     public int mooshroomPerkHudY = 180;
     public float mooshroomPerkHudScale = 1.0f;
-    public java.util.Map<String, Long> cropMilestoneTotals = new java.util.HashMap<>();
     public boolean farmingFortuneHud = false;
     public int farmingFortuneHudX = 10;
     public int farmingFortuneHudY = 100;
@@ -2583,18 +2582,12 @@ public class TeslaMapsConfig {
     public int jacobContestFFY = 40;
     public float jacobContestFFScale = 1.0f;
     @Global
-    public java.util.Map<String, Long> cropMilestoneCounters = new java.util.HashMap<>();
-    @Global
     public java.util.Map<String, Double> cropLatestBps = new java.util.HashMap<>();
     @Global
     public java.util.Map<String, Double> cropLatestFortune = new java.util.HashMap<>();
     @Global
     public java.util.Map<String, Double> cropMeasuredPerBlock = new java.util.HashMap<>();
     // w13-09-gar
-    @Global
-    public java.util.Map<String, Double> gardenLatestFortune = new java.util.HashMap<>();
-    @Global
-    public java.util.Map<String, Double> gardenLatestBps = new java.util.HashMap<>();
     public boolean jacobContestTimes = false;
     public String jacobContestBracket = "GOLD";
     public boolean jacobContestCustomBps = false;
@@ -5289,20 +5282,18 @@ public class TeslaMapsConfig {
         if (c.visitorStatRewards == null) c.visitorStatRewards = new java.util.HashMap<>();
         c.visitorStatRarities.values().removeIf(java.util.Objects::isNull);
         c.visitorStatRewards.values().removeIf(java.util.Objects::isNull);
-        if (c.cropMilestoneCounters == null) c.cropMilestoneCounters = new java.util.HashMap<>();
         if (c.cropLatestBps == null) c.cropLatestBps = new java.util.HashMap<>();
         if (c.cropLatestFortune == null) c.cropLatestFortune = new java.util.HashMap<>();
         if (c.cropMeasuredPerBlock == null) c.cropMeasuredPerBlock = new java.util.HashMap<>();
+        c.cropLatestBps.values().removeIf(java.util.Objects::isNull);
+        c.cropLatestFortune.values().removeIf(java.util.Objects::isNull);
+        c.cropMeasuredPerBlock.values().removeIf(java.util.Objects::isNull);
         if (c.eliteLbGamemode == null) c.eliteLbGamemode = "All";
         if (c.farmToolColor == null) c.farmToolColor = "66B22222";
         if (c.contestCropWarnFor == null) c.contestCropWarnFor = new java.util.ArrayList<>();
         if (c.pestGlowVinylId == null) c.pestGlowVinylId = "";
-        if (c.gardenLatestFortune == null) c.gardenLatestFortune = new java.util.HashMap<>();
-        if (c.gardenLatestBps == null) c.gardenLatestBps = new java.util.HashMap<>();
         if (c.gardenOptimalSpeeds == null) c.gardenOptimalSpeeds = new java.util.HashMap<>();
         if (c.hoeOverflowLevels == null) c.hoeOverflowLevels = new java.util.HashMap<>();
-        c.gardenLatestFortune.values().removeIf(java.util.Objects::isNull);
-        c.gardenLatestBps.values().removeIf(java.util.Objects::isNull);
         c.gardenOptimalSpeeds.values().removeIf(java.util.Objects::isNull);
         c.hoeOverflowLevels.values().removeIf(java.util.Objects::isNull);
         if (c.jacobContestBracket == null) c.jacobContestBracket = "GOLD";
@@ -5558,7 +5549,6 @@ public class TeslaMapsConfig {
         if (c.greenhouseCode == null) c.greenhouseCode = "";
         if (c.greenhousePresets == null) c.greenhousePresets = new java.util.LinkedHashMap<>();
         if (c.composterUpgrades == null) c.composterUpgrades = new java.util.HashMap<>();
-        if (c.cropMilestoneTotals == null) c.cropMilestoneTotals = new java.util.HashMap<>();
         if (c.composterTimeUnit == null) c.composterTimeUnit = "Hour";
         if (c.composterMatterItem == null) c.composterMatterItem = "";
         if (c.composterFuelItem == null) c.composterFuelItem = "";
