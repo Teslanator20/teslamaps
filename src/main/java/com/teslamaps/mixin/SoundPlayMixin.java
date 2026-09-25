@@ -43,8 +43,7 @@ public class SoundPlayMixin {
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
         boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);
         boolean extraMutes = com.teslamaps.features.SoundMutes.active(c);
-        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !foragingMutes && !c.arrowHitSound && !extraMutes) return;
-        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !c.arrowHitSound) return;
+        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !c.arrowHitSound && !extraMutes) return;
 
         String id;
         float pitch, vol;
