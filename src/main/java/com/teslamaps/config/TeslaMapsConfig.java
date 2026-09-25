@@ -3547,7 +3547,6 @@ public class TeslaMapsConfig {
     public boolean tooltipStonksPrice = false;
     public boolean tooltipFannCost = false;
     public boolean supercraftReminder = false;
-    public int bitsAvailable = -1;
     public String fameRank = "";
     // w05-05-inv
     public boolean progressHighlightTier = false;

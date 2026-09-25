@@ -64,11 +64,11 @@ public final class BitsWarning {
         return k == null || k.isEmpty() ? "default" : k;
     }
 
-    private static long available() {
+    public static long available() {
         return cfg().bitsAvailableByProfile.getOrDefault(key(), -1L);
     }
 
-    private static void setAvailable(long v) {
+    public static void setAvailable(long v) {
         Long old = cfg().bitsAvailableByProfile.put(key(), v);
         if (old == null || old != v) TeslaMapsConfig.save();
     }
