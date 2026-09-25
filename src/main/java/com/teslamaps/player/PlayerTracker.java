@@ -76,8 +76,10 @@ public class PlayerTracker {
             if (dungeonPlayer != null && dungeonPlayer.getName().equals(name)) {
                 dungeonPlayer.update(dungeonClass);
             } else {
-                players[i] = new DungeonPlayer(name, dungeonClass);
+                dungeonPlayer = players[i] = new DungeonPlayer(name, dungeonClass);
             }
+            String level = matcher.group("level");
+            if (level != null) dungeonPlayer.classLevel = level;
         }
     }
 
@@ -162,6 +164,7 @@ public class PlayerTracker {
         private String dungeonClass = "EMPTY";
         private boolean alive = true;
         private long lastGhostTime = 0;
+        public String classLevel;
 
         public DungeonPlayer(String name, String dungeonClass) {
             this.uuid = findPlayerUuid(name);

@@ -485,9 +485,10 @@ public class DungeonScore {
     public static double getNeededSecretsPercentFor300(int cryptsFound) {
         if (!dungeonStarted) return 100.0;
 
-        int cryptsBonus = Math.clamp(cryptsFound, 0, 5);
-        int mimicBonus = mimicKilled ? 2 : 0;
-        int princeBonus = princeKilled ? 1 : 0;
+        boolean max = TeslaMapsConfig.get().scoreSecretsMaxBonus;
+        int cryptsBonus = max ? 5 : Math.clamp(cryptsFound, 0, 5);
+        int mimicBonus = mimicKilled || (max && floorHasMimics) ? 2 : 0;
+        int princeBonus = princeKilled || (max && com.teslamaps.render.MapRenderer.runHasPrinceRoom()) ? 1 : 0;
         int paulBonus = paulBonus();
         int totalBonus = cryptsBonus + mimicBonus + princeBonus + paulBonus;
 
@@ -500,6 +501,36 @@ public class DungeonScore {
         double neededPercent = (secretsScoreNeeded / 40.0) * floorRequirement.percentage;
 
         return Math.min(100.0, neededPercent);
+    }
+
+    private static long scanCheckAt = 0L;
+    private static boolean scanDone = false;
+    private static Object scanLevel;
+
+    /** legitcatmod calculateTotalSecrets: room scan once every room is known, else found / tab %. */
+    public static int totalSecrets(int scanTotal, int found, double pct) {
+        if (!TeslaMapsConfig.get().scoreSecretsTabTotal) return scanTotal;
+        Minecraft mc = Minecraft.getInstance();
+        long now = System.currentTimeMillis();
+        if (mc.level != scanLevel) { scanLevel = mc.level; scanDone = false; scanCheckAt = 0L; }
+        if (!scanDone && now - scanCheckAt > 1000 && mc.level != null && !com.teslamaps.features.LegitMode.isActive()) {
+            scanCheckAt = now;
+            scanDone = allRoomsKnown(mc);
+        }
+        if (scanDone || found <= 0 || pct <= 0) return scanTotal;
+        return Math.max(scanTotal, (int) Math.floor(100.0 / pct * found + 0.5));
+    }
+
+    private static boolean allRoomsKnown(Minecraft mc) {
+        for (int gx = 0; gx < com.teslamaps.scanner.ComponentGrid.GRID_SIZE; gx++) {
+            for (int gz = 0; gz < com.teslamaps.scanner.ComponentGrid.GRID_SIZE; gz++) {
+                int[] c = com.teslamaps.scanner.ComponentGrid.gridToWorld(gx, gz);
+                if (!com.teslamaps.scanner.CoreHasher.isPositionLoaded(mc.level, c[0], c[1])) return false;
+            }
+        }
+        if (DungeonManager.getGrid().getAllRooms().isEmpty()) return false;
+        for (com.teslamaps.map.DungeonRoom room : DungeonManager.getGrid().getAllRooms()) if (!room.isIdentified()) return false;
+        return true;
     }
 
     enum FloorRequirement {

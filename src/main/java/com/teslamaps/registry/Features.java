@@ -110,5 +110,7 @@ final class Features {
         com.teslamaps.features.BloodCheck.register();
         com.teslamaps.dungeon.RushSplits.register();
         com.teslamaps.features.MapPeek.register();
+        // w03-08-dun
+        com.teslamaps.features.NonStarredNametags.register();
     }
 }

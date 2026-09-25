@@ -13,12 +13,30 @@ public final class LeapCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.toggle("Enable Leap Overlay", () -> config.leapOverlay, v -> config.leapOverlay = v);
         b.toggle("Show Player Heads", () -> config.leapShowHeads, v -> config.leapShowHeads = v);
+        b.dropdown("  Box Style", new String[]{"Default", "Class Color", "Custom"},
+                () -> config.leapBoxStyle, v -> config.leapBoxStyle = v);
+        b.color("    Custom Box Color", () -> config.leapBoxColor, v -> config.leapBoxColor = v);
+        b.toggle("  Show Keybind On Box", () -> config.leapKeyHint, v -> config.leapKeyHint = v);
+        b.toggle("  Show Class Level", () -> config.leapClassLevel, v -> config.leapClassLevel = v);
+        b.toggle("  Offline Status + Dead Click Message", () -> config.leapOfflineStatus, v -> config.leapOfflineStatus = v)
+                .desc("Grays out disconnected players and says in chat why a dead/offline box does not leap");
+        b.toggle("  Highlight Last Door Opener", () -> config.leapDoorOpenerHighlight, v -> config.leapDoorOpenerHighlight = v);
+        b.color("    Door Opener Color", () -> config.leapDoorOpenerColor, v -> config.leapDoorOpenerColor = v);
+        b.toggle("  Leap On Release", () -> config.leapOnRelease, v -> config.leapOnRelease = v)
+                .desc("Mouse and leap keys fire when released instead of pressed");
+        b.toggle("  Fixed Class Quadrants", () -> config.leapStaticQuadrants, v -> config.leapStaticQuadrants = v)
+                .desc("Missing classes leave their quadrant empty, so every class always sits in the same spot");
         b.toggle("Show Map (click to leap)", () -> config.leapShowMap, v -> config.leapShowMap = v);
         b.toggle("  Link Button And Map Head On Hover", () -> config.leapHoverLink, v -> config.leapHoverLink = v);
+        b.toggle("  Map Only After Blood Opens", () -> config.leapMapAfterBlood, v -> config.leapMapAfterBlood = v)
+                .desc("Class boxes until the blood door opens, then the leap menu is just the clickable map");
+        b.toggle("  Own Map Scale", () -> config.leapMapCustomScale, v -> config.leapMapCustomScale = v);
+        b.slider("    Leap Map Scale", 0.5f, 3.0f, () -> config.leapMapScale, v -> config.leapMapScale = v);
         b.toggle("Close Overlay When You Die", () -> config.leapCloseOnDeath, v -> config.leapCloseOnDeath = v);
         b.slider("Overlay Scale", 0.5f, 2.0f,
                 () -> config.leapScale, v -> config.leapScale = v);
         b.toggle("Leap Announce (/pc)", () -> config.leapAnnounce, v -> config.leapAnnounce = v);
+        b.button("  Edit Announce Text", () -> Minecraft.getInstance().setScreen(new LeapMessageScreen(Minecraft.getInstance().screen)));
         b.dropdown("Sort Mode",
                 new String[]{"Odin", "Class A-Z", "Name A-Z", "Custom", "None"},
                 () -> config.leapSortMode, v -> config.leapSortMode = v);

@@ -32,6 +32,7 @@ public class EntityRenderDispatcherMixin {
                 && dragon.getHealth() <= 0;
         if (noLightning || noFalling || noXpOrb || dyingDragon
                 || com.teslamaps.features.DeadMobHider.shouldHide(entity)
+                || com.teslamaps.features.NonStarredNametags.shouldHide(entity)
                 || com.teslamaps.features.HideCheapCoins.shouldHide(entity)
                 || HidePlayers.shouldHide(entity)
                 || com.teslamaps.features.SoulweaverHider.shouldHide(entity)

@@ -42,6 +42,12 @@ public final class MapCategory {
         b.toggle("Show Dungeon Score", () -> config.showDungeonScore, v -> config.showDungeonScore = v);
         b.toggle("  Blaze Done From Party Chat", () -> config.mapBlazeDoneFromChat, v -> config.mapBlazeDoneFromChat = v)
                 .desc("A party member's \"Blaze Done\" marks the Blaze puzzle solved on map and score");
+        b.toggle("  Needed Secrets: Assume Max Bonus", () -> config.scoreSecretsMaxBonus, v -> config.scoreSecretsMaxBonus = v)
+                .desc("Needed secrets count 5 crypts, the Mimic (F6/F7) and the Prince as if already done");
+        b.toggle("  Needed Secrets: Show Total Instead Of Missing", () -> config.scoreSecretsShowNeeded, v -> config.scoreSecretsShowNeeded = v)
+                .desc("Secrets line reads found/needed/total instead of found/still missing/total");
+        b.toggle("  Total Secrets From Tab Until Scanned", () -> config.scoreSecretsTabTotal, v -> config.scoreSecretsTabTotal = v)
+                .desc("Estimates the total from found secrets and the tab % until every room is scanned");
         b.toggle("Chat Info After Scan", () -> config.mapScanChatInfo, v -> config.mapScanChatInfo = v)
                 .desc("Puzzles, trap, wither doors, crypts, secrets and minimum secrets once the dungeon is scanned");
         b.label("Style");

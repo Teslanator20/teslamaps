@@ -18,6 +18,8 @@ public final class CroesusCategory {
         b.toggle("  Compact Mode (profit only)", () -> config.croesusCompact, v -> config.croesusCompact = v);
         b.priceSource("  Price Source", () -> config.croesusPriceSource, v -> config.croesusPriceSource = v);
         b.toggle("  Subtract Kismet Feather", () -> config.croesusKismetCost, v -> config.croesusKismetCost = v);
+        b.toggle("  Kismet Feathers On Reroll Button", () -> config.croesusKismetCount, v -> config.croesusKismetCount = v)
+                .desc("Feathers in your inventory plus your Dungeon Sack (the sack count needs 'Index Opened Containers' and the sack opened once)");
         b.toggle("Highlight Unopened (green)", () -> config.croesusHighlightUnopened, v -> config.croesusHighlightUnopened = v);
         b.label("Kuudra Chests");
         b.info("Paid chests subtract the key: coins + Mycelium/Red Sand + 2 Nether Stars");

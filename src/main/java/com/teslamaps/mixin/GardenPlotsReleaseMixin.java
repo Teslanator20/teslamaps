@@ -31,6 +31,10 @@ public class GardenPlotsReleaseMixin {
         }
         if (GardenPlotsOverlay.handleRelease()) {
             cir.setReturnValue(true);
+            return;
+        }
+        if (com.teslamaps.features.LeapOverlay.handleRelease(click.x(), click.y(), click.button())) {
+            cir.setReturnValue(true);
         }
     }
 }
