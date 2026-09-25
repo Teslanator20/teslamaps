@@ -73,6 +73,7 @@ public class ContainerOverlays {
         com.teslamaps.features.PartyFinderHelper.render(context);
         com.teslamaps.features.Experimentation.render(context);
         com.teslamaps.features.qol.CityProject.render(context);
+        com.teslamaps.features.AbiphoneHelper.render(context);
 
         if (com.teslamaps.features.foraging.HotF.shouldRender()) {
             com.teslamaps.features.foraging.HotF.render(context);

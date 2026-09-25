@@ -15,5 +15,6 @@ public class CroesusSlotMixin {
     private void teslamaps$croesusSlot(GuiGraphicsExtractor ctx, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
         if (CroesusProfit.styleCroesusSlot(ctx, slot)) ci.cancel();
         else if (com.teslamaps.features.FancyCraftingTable.hideSlot(this, slot)) ci.cancel();
+        else if (com.teslamaps.features.AbiphoneHelper.hideSlot(slot)) ci.cancel();
     }
 }

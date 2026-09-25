@@ -46,6 +46,8 @@ public final class RenderCategory {
         b.toggle("  Tint HUD", () -> config.darkModeTintHud, v -> config.darkModeTintHud = v);
         b.label("Loading Screens");
         b.toggle("Disable World Loading Screen", () -> config.disableWorldLoadingScreen, v -> config.disableWorldLoadingScreen = v);
+        b.toggle("  Seamless Server Switch", () -> config.seamlessServerSwitch, v -> config.seamlessServerSwitch = v)
+                .desc("Hides Hypixel's Reconfiguring screen and keeps the cursor captured, so a /warp looks like a teleport");
         b.toggle("No Texture Reload Screen", () -> config.noReloadScreen, v -> config.noReloadScreen = v);
         b.label("Beacons & Lines");
         b.toggle("Real Beacon Beams", () -> config.realBeaconBeam, v -> config.realBeaconBeam = v);

@@ -38,4 +38,14 @@ public class LoadingScreenMixin {
         MenuBackgroundRenderer.render(ctx);
         ci.cancel();
     }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void teslamaps$transferTick(CallbackInfo ci) {
+        com.teslamaps.features.ServerTransfer.onScreenTick((Screen) (Object) this);
+    }
+
+    @Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$hideReconfig(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+        if (com.teslamaps.features.ServerTransfer.hideReconfig((Screen) (Object) this)) ci.cancel();
+    }
 }

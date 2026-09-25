@@ -2135,6 +2135,24 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w07-02-qol
+    public boolean muteErrorSound = false;
+    public boolean dumpGuiSingleItem = false;
+    public boolean shortcutChains = false;
+    public int shortcutChainDelay = 500;
+    public boolean seamlessServerSwitch = false;
+    public boolean abiphoneHelper = false;
+    public boolean abiphoneFavorites = true;
+    public String abiphoneFavoriteColor = "FFAA00";
+    public boolean abiphoneRequirements = true;
+    public boolean abiphoneRemoveConfirm = true;
+    @Global
+    public boolean abiphoneFavOnly = false;
+    @Global
+    public java.util.List<String> abiphoneFavoriteList = new java.util.ArrayList<>();
+    public boolean waypointGroups = false;
+    public boolean waypointGroupsBeam = true;
+    public boolean waypointGroupsDistance = true;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
@@ -3403,6 +3421,7 @@ public class TeslaMapsConfig {
         if (c.hudAnchorRefs == null) c.hudAnchorRefs = new java.util.HashMap<>();
         if (c.hudPanelStyles == null) c.hudPanelStyles = new java.util.HashMap<>();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
+        if (c.abiphoneFavoriteList == null) c.abiphoneFavoriteList = new ArrayList<>();
         if (!c.kuudraShortcutsAdded) {
             c.kuudraShortcutsAdded = true;
             String[][] kuudra = {{"t1", "joinkuudra basic"}, {"t2", "joinkuudra hot"}, {"t3", "joinkuudra burning"},

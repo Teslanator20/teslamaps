@@ -103,6 +103,7 @@ public final class SoundsCategory {
         b.toggle("Mute Bonzo Staff", () -> config.muteBonzoStaff, v -> config.muteBonzoStaff = v);
         b.toggle("  Bonzo: Precise (keep real fireworks)", () -> config.muteBonzoStaffPrecise, v -> config.muteBonzoStaffPrecise = v);
         b.toggle("Mute Lightning", () -> config.muteLightning, v -> config.muteLightning = v);
+        b.toggle("Mute Error Sound (wrong click / no mana)", () -> config.muteErrorSound, v -> config.muteErrorSound = v);
         b.toggle("Quiet F7 Boss Sounds", () -> config.f7BossSounds, v -> config.f7BossSounds = v);
         b.toggle("  Cancel All Above 1.0", () -> config.f7BossSoundsAboveCap, v -> config.f7BossSoundsAboveCap = v);
         b.toggle("  Cap at 1.0 Instead of Cancel", () -> config.f7BossSoundsCap, v -> config.f7BossSoundsCap = v);

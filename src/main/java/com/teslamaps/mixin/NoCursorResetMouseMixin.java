@@ -21,6 +21,16 @@ public class NoCursorResetMouseMixin {
     @Shadow @Final private Minecraft minecraft;
 
     @Inject(method = "releaseMouse", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$keepGrabbedDuringTransfer(CallbackInfo ci) {
+        if (com.teslamaps.features.ServerTransfer.keepGrabbed()) ci.cancel();
+    }
+
+    @Inject(method = "grabMouse", at = @At("HEAD"))
+    private void teslamaps$resetTransfer(CallbackInfo ci) {
+        com.teslamaps.features.ServerTransfer.onGrab();
+    }
+
+    @Inject(method = "releaseMouse", at = @At("HEAD"), cancellable = true)
     private void teslamaps$restoreCursor(CallbackInfo ci) {
         if (!mouseGrabbed) return;
         double[] pos = NoCursorReset.restorePos();
