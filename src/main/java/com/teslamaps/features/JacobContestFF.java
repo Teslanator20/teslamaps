@@ -2,10 +2,10 @@ package com.teslamaps.features;
 
 // Ported from SkyHanni's JacobContestFFNeededDisplay.kt + FarmingContestApi.kt
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.features.garden.JacobContestMenus;
 import com.teslamaps.mixin.HandledScreenAccessor;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.registry.HudEditElement;
-import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -15,28 +15,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class JacobContestFF {
 
     private static final Pattern YOUR_CONTESTS = Pattern.compile("(?:\\(\\d+/\\d+\\) )?Your Contests");
-    private static final Pattern TIME = Pattern.compile("(.*) (\\d+)(?:rd|st|nd|th), Year (\\d+)");
-    private static final Pattern CROP = Pattern.compile("(.*) Contest");
-    private static final String[] BRACKETS = {"DIAMOND", "PLATINUM", "GOLD", "SILVER", "BRONZE"};
     private static final String[] COLORS = {"§b", "§3", "§6", "§f", "§c"};
-    private static final Pattern[] BRACKET_PATTERNS = new Pattern[BRACKETS.length];
-    private static final String[] MONTHS = {"Early Spring", "Spring", "Late Spring", "Early Summer", "Summer", "Late Summer",
-            "Early Autumn", "Autumn", "Late Autumn", "Early Winter", "Winter", "Late Winter"};
-
-    static {
-        for (int i = 0; i < BRACKETS.length; i++) {
-            BRACKET_PATTERNS[i] = Pattern.compile(BRACKETS[i] + " \\(Top \\d{1,2}%\\): ([\\d,]+)");
-        }
-    }
 
     private record Contest(long time, CropStats.Crop crop, int[] brackets) {}
 
@@ -44,7 +30,6 @@ public final class JacobContestFF {
             "§7For this §eWheat §7contest:", " §b§lDIAMOND§f: §61,480 FF §7(1,812,000 crops)",
             " §6§lGOLD§f: §6980 FF §7(1,201,000 crops)", "", "§6Your latest Wheat FF: 1,520");
 
-    private static final Map<String, Contest> contests = new HashMap<>();
     private static List<String> lines = List.of();
     private static Slot lastSlot;
     private static int width, ticks, lastBpsHash;
@@ -79,7 +64,7 @@ public final class JacobContestFF {
             lastSlot = null;
             return;
         }
-        if (++ticks % 10 == 0) scan(cs);
+        ++ticks;
         Slot hovered = ((HandledScreenAccessor) cs).getFocusedSlot();
         int bpsHash = cfg().cropLatestBps.hashCode() ^ cfg().cropLatestFortune.hashCode();
         if (hovered == lastSlot && bpsHash == lastBpsHash && ticks % 10 != 0) return;
@@ -93,38 +78,20 @@ public final class JacobContestFF {
         width = CropStats.linesWidth(lines);
     }
 
-    private static void scan(AbstractContainerScreen<?> cs) {
-        for (Slot slot : cs.getMenu().slots) {
-            if (slot.container instanceof Inventory || slot.getItem().isEmpty()) continue;
-            Contest c = parse(slot.getItem());
-            if (c != null) contests.putIfAbsent(StringUtil.stripTrim(slot.getItem().getHoverName().getString()), c);
-        }
+    private static Contest contest(long time, JacobContestMenus.Contest c) {
+        CropStats.Crop crop = c.crop() == null ? null : CropStats.byName(c.crop().cropName);
+        if (crop == null) return null;
+        JacobContestMenus.Bracket[] all = JacobContestMenus.Bracket.values();
+        int[] brackets = new int[all.length];
+        for (int i = 0; i < all.length; i++) brackets[i] = c.brackets().getOrDefault(all[i], 0);
+        return new Contest(time, crop, brackets);
     }
 
     private static Contest parse(net.minecraft.world.item.ItemStack stack) {
-        String name = StringUtil.stripTrim(stack.getHoverName().getString());
-        Matcher tm = TIME.matcher(name);
-        if (!tm.matches()) return null;
-        int month = -1;
-        for (int i = 0; i < MONTHS.length; i++) if (MONTHS[i].equals(tm.group(1))) month = i;
-        long time = Long.parseLong(tm.group(3)) * 372 + Math.max(0, month) * 31L + Long.parseLong(tm.group(2));
-        CropStats.Crop crop = null;
-        int[] brackets = new int[BRACKETS.length];
-        boolean scored = false;
-        for (String raw : ItemUtil.loreLines(stack)) {
-            String l = StringUtil.stripTrim(raw);
-            if (l.startsWith("Your score: ")) scored = true;
-            if (crop == null) {
-                Matcher cm = CROP.matcher(l);
-                if (cm.matches()) crop = CropStats.byName(cm.group(1));
-            }
-            for (int i = 0; i < BRACKETS.length; i++) {
-                Matcher bm = BRACKET_PATTERNS[i].matcher(l);
-                if (bm.find()) brackets[i] = Integer.parseInt(bm.group(1).replace(",", ""));
-            }
-        }
-        if (crop == null || !scored) return null;
-        return new Contest(time, crop, brackets);
+        long time = JacobContestMenus.sbTime(StringUtil.stripTrim(stack.getHoverName().getString()));
+        if (time <= 0) return null;
+        JacobContestMenus.Contest c = JacobContestMenus.contests().get(time);
+        return c == null ? null : contest(time, c);
     }
 
     private static List<String> build(Contest contest) {
@@ -133,15 +100,18 @@ public final class JacobContestFF {
         out.add("§6Minimum Farming Fortune needed");
         out.add("");
         out.add("§7For this §e" + crop.name() + " §7contest:");
-        for (int i = 0; i < BRACKETS.length; i++) out.add(line(i, contest.brackets()[i], crop));
+        for (int i = 0; i < COLORS.length; i++) out.add(line(i, contest.brackets()[i], crop));
         out.add("");
 
         List<Contest> same = new ArrayList<>();
-        for (Contest c : contests.values()) if (c.crop() == crop) same.add(c);
+        for (Map.Entry<Long, JacobContestMenus.Contest> e : JacobContestMenus.contests().entrySet()) {
+            Contest c = contest(e.getKey(), e.getValue());
+            if (c != null && c.crop() == crop) same.add(c);
+        }
         same.sort((a, b) -> Long.compare(b.time(), a.time()));
         if (same.size() > 10) same = same.subList(0, 10);
         out.add("§7For the last §e" + same.size() + " " + crop.name() + " §7contests:");
-        for (int i = 0; i < BRACKETS.length; i++) {
+        for (int i = 0; i < COLORS.length; i++) {
             long sum = 0;
             int n = 0;
             for (Contest c : same) {
@@ -177,7 +147,7 @@ public final class JacobContestFF {
     }
 
     private static String line(int bracket, int counter, CropStats.Crop crop) {
-        String label = " " + COLORS[bracket] + "§l" + BRACKETS[bracket] + "§f: ";
+        String label = " " + COLORS[bracket] + "§l" + JacobContestMenus.Bracket.values()[bracket].name() + "§f: ";
         if (counter <= 0) return label + "§8Not found!";
         Double b = CropStats.latestBps(crop);
         double bps = b == null ? 20.0 : b < 15.0 ? 19.9 : b;

@@ -25,7 +25,7 @@ public final class VisitorOffer {
     private VisitorOffer() {}
 
     public static void register() {
-        feature = Feature.of("VisitorOffer").section("Garden")
+        feature = Feature.of("VisitorOfferColor").section("Garden")
                 .when(() -> TeslaMapsConfig.get().visitorOfferColor)
                 .tick(VisitorOffer::tick);
     }
