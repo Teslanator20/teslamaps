@@ -2145,6 +2145,33 @@ public class TeslaMapsConfig {
     public boolean terminalStopSelect = false;
     public int terminalSlotStyle = 0;                  // 0 rounded, 1 rect, 2 bordered, 3 button
 
+    // w02-03-puz
+    public boolean puzzleHud = false;
+    public boolean puzzleHudPlayers = true;
+    public boolean puzzleHudPreRunOnly = false;
+    public boolean puzzleHudCounts = false;
+    public boolean puzzleHudCountsOnly = false;
+    public int puzzleHudX = 10;
+    public int puzzleHudY = 160;
+    public float puzzleHudScale = 1.0f;
+    public boolean quizTimer = false;
+    public int quizTimerHudX = 10;
+    public int quizTimerHudY = 230;
+    public float quizTimerHudScale = 1.0f;
+    public boolean quizSplits = false;
+    public String quizSplitsFormat = "Real Time";
+    public int quizSplitsHudX = 10;
+    public int quizSplitsHudY = 245;
+    public float quizSplitsHudScale = 1.0f;
+    public boolean autoGFSDraftAnnounce = false;
+    public boolean waterBoardPreview = false;
+    public boolean waterBoardPreviewLevers = true;
+    public boolean blazeSpots = false;
+    public String blazeSpotOutline = "FF00FF00";
+    public String blazeSpotFill = "5000FF00";
+    public String blazeEtherOutline = "FFFFFF00";
+    public String blazeEtherFill = "50FFFF00";
+
     public static TeslaMapsConfig get() {
         return instance;
     }
