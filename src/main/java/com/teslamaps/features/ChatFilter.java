@@ -139,6 +139,9 @@ public class ChatFilter {
                 "Your radio is weak. Find another enjoyer to boost it.", "Your radio signal is strong!",
                 "Your radio lost signal. There's too many enjoyers on this channel.",
                 "You can't use the wardrobe in combat!"));
+        more("chatFilterBlazetekk", c -> c.chatFilterBlazetekk, oneOf(
+                "Your radio is weak. Find another enjoyer to boost it.", "Your radio signal is strong!",
+                "Your radio lost signal. There's too many enjoyers on this channel."));
         more("chatFilterUselessNotifications", c -> c.chatFilterUselessNotifications, any(
                 p("You tipped \\d+ players? in \\d+(?: different)? games?!"),
                 p("Your previous Plasmaflux Power Orb was removed!"),
@@ -222,6 +225,10 @@ public class ChatFilter {
         old("chatFilterAoeDamage", G_COMBAT, false, c -> c.chatFilterAoeDamage, t -> (t.contains("enemies for") || t.contains("enemy for")) && t.contains("damage"));
         old("chatFilterGuildXp", G_COMBAT, false, c -> c.chatFilterGuildXp, t -> t.contains("from playing SkyBlock!"));
         old("chatFilterKillCombo", G_COMBAT, false, c -> c.chatFilterKillCombo, t -> t.contains("Kill Combo"));
+        old("chatFilterAbilityCooldown", G_COMBAT, false, c -> c.chatFilterAbilityCooldown, t -> {
+            String s = t.trim();
+            return s.startsWith("This ability is on cooldown for ") && s.endsWith("s.");
+        });
 
         old("chatFilterStash", G_SPAM, false, c -> c.chatFilterStash, t -> t.contains("stashed away!")
                 || t.contains("materials stashed!") || t.contains("types of materials stashed")
@@ -350,8 +357,11 @@ public class ChatFilter {
         pendingOut = null;
         String t = StringUtil.strip(text);
         if (StashCompact.handle(t)) return true;
+        if (ChatCompactsMore.handle(message, t)) return true;
+        if (MelodyCompact.handle(t)) return true;
+        if (HoppityCompactChat.handle(message, text, t)) return true;
         if (TeslaMapsConfig.get().chatFilterEnabled) {
-            String sf = ChatCompactRules.shortForm(message, t);
+            String sf = ChatCompactRulesIslands.shortForm(message, t);
             if (sf != null && sf.isEmpty()) return true;
             if (sf != null && !hasClick(message, true)) {
                 lastReason = "compact";
@@ -366,7 +376,22 @@ public class ChatFilter {
             lastReason = "user";
             return apply(message, text, t, TeslaMapsConfig.get().chatUserFilterAction, null);
         }
+        String shortForm = ChatCompactRules.apply(message, t);
+        if (shortForm != null) {
+            lastReason = "compact";
+            if (shortForm.isEmpty()) return true;
+            if (shortForm == ChatCompactRules.GREY) queue(text, grey(message));
+            else if (!hasClick(message, true)) queue(text, compact(message, shortForm));
+            return false;
+        }
+        Component pet = RareDropNames.petRarity(message, t);
+        if (pet != null) queue(text, pet);
         return false;
+    }
+
+    /** Swap the line being added for {@code out}; used by the compact helpers. */
+    static void queueRewrite(String text, Component out) {
+        queue(text, out);
     }
 
     private static boolean apply(Component message, String text, String t, String action, Function<String, String> f) {

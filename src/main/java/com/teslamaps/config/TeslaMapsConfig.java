@@ -543,6 +543,11 @@ public class TeslaMapsConfig {
     public static class ChatUserFilter {
         public String mode = "contains";         // contains / equals / startswith / endswith / regex
         public String text = "";
+        public String title;                     // alert: title, {0}/{1}/{name} = regex groups
+        public String sound;                     // alert: SoundOptions key
+        public boolean flash;                    // alert: screen flash
+        public boolean keep;                     // alert: line stays visible
+        public boolean systemOnly;               // alert: never on player chat
         public ChatUserFilter() {}
         public ChatUserFilter(String mode, String text) { this.mode = mode; this.text = text; }
     }
@@ -2163,6 +2168,51 @@ public class TeslaMapsConfig {
     public boolean terminatorCooldownMuteChat = true;
     public boolean imageLinkPreview = false;
     public int imageLinkPreviewKey = -1;
+    // w10-03-chat
+    public boolean compactJacobClaim = false;
+    public boolean compactLevelUps = false;
+    public boolean compactLevelUpsHideBorder = false;
+    public boolean compactExperimentRewards = false;
+    public boolean shortenChatCoins = false;
+    public boolean darkAuctionItemName = false;
+    public boolean hideArachneMessages = false;
+    public boolean hideChatIndicator = false;
+    // w10-05-chat
+    public boolean rareDropPetRarity = false;
+    public boolean rareDropBookName = false;
+    public boolean chatCompactCombat = false;
+    public boolean chatCompactDamage = true;
+    public boolean chatCompactDeaths = true;
+    public boolean chatCompactDrops = false;
+    public boolean chatCompactNpcGrey = false;
+    public boolean chatCompactMining = false;
+    public boolean melodyCompact = false;
+    public boolean melodyCompactMute = false;
+    public boolean hoppityCompact = false;
+    public boolean hoppityCompactRarity = true;
+    public boolean hoppityCompactDupeNumber = true;
+    public boolean hoppityCompactTimeTower = false;
+    public boolean hoppityCompactHitman = true;
+    public int hoppityCompactHitmanThreshold = 5;
+    public boolean hotkeyPlaceholders = false;
+    // w10-04-chat
+    public boolean chatKeepScroll = false;
+    public boolean chatFilterBlazetekk = false;
+    public boolean chatSoundResponses = false;
+    public java.util.List<String> chatSoundResponsesOff = new java.util.ArrayList<>();
+    public boolean chatUserAlerts = false;
+    public boolean chatCompactChannels = false;
+    public boolean chatCompactParty = true;
+    public boolean chatCompactGuild = true;
+    public boolean chatCompactPublic = false;
+    public boolean chatCompactHideRank = true;
+    public boolean chatCompactHideGuildRank = true;
+    public boolean chatCompactHideLevel = false;
+    public boolean chatCompactHideEmblem = false;
+    public boolean chatStripDiscordWarning = false;
+    public String rareDropAnnounce = "Off";
+    public float rareDropAnnounceMin = 0f;
+    public boolean rareDropCopy = false;
     // w10-07-chat
     public boolean chatMarkdown = false;
     public boolean sackMessagePrices = false;
@@ -2174,6 +2224,28 @@ public class TeslaMapsConfig {
     @Global
     public java.util.List<String> chatMutedPlayers = new java.util.ArrayList<>();
     public boolean hideFarDeaths = false;
+    // w10-06-chat
+    public boolean chatHighlightOwnName = false;
+    public String chatOwnNameColor = "FFAA00";
+    public boolean chatProfileBadges = false;
+    public boolean piggyRepairLink = false;
+    public boolean compactJoinLeave = false;
+    public boolean explosiveShotPerEnemy = false;
+    public boolean logSearch = false;
+    public boolean bridgeFormat = false;
+    public String bridgeBotName = "";
+    public String bridgeNameColor = "55FFFF";
+    // w10-02-chat
+    public boolean chatFilterAbilityCooldown = false;
+    public boolean muteAbilityCooldownSound = false;
+    public boolean abiphoneDnd = false;
+    public boolean abiphoneDndCallerId = true;
+    public boolean confirmPromptHelper = false;
+    public boolean chatSearch = false;
+    public boolean chatEmotes = false;
+    public boolean compactPotionMessages = false;
+    public boolean compactPotionClickable = true;
+    public boolean compactBestiary = false;
     // w08-00-hud
     public boolean tabStatsHud = false;
     public String tabStatsHudStats = "Ferocity";
@@ -4229,6 +4301,8 @@ public class TeslaMapsConfig {
         if (c.mobIconColors == null) c.mobIconColors = new java.util.HashMap<>();
         if (c.imageShareLinks == null) c.imageShareLinks = new java.util.HashMap<>();
         if (c.tabStatsHudStats == null) c.tabStatsHudStats = "Ferocity";
+        if (c.chatSoundResponsesOff == null) c.chatSoundResponsesOff = new java.util.ArrayList<>();
+        if (c.rareDropAnnounce == null) c.rareDropAnnounce = "Off";
         if (c.trackerHidden == null) c.trackerHidden = new java.util.HashMap<>();
         if (c.hudLineOrder == null) c.hudLineOrder = new java.util.HashMap<>();
         c.hudLineOrder.values().removeIf(java.util.Objects::isNull);

@@ -18,12 +18,41 @@ import java.util.List;
 @Mixin(ChatScreen.class)
 public class ChatScreenMixin {
 
+    @Inject(method = "removed", at = @At("HEAD"))
+    private void teslamaps$saveScroll(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        com.teslamaps.features.ChatKeepScroll.onClose(Minecraft.getInstance().gui.getChat());
+    }
+
+    @Inject(method = "init", at = @At("TAIL"))
+    private void teslamaps$restoreScroll(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        com.teslamaps.features.ChatKeepScroll.onOpen(Minecraft.getInstance().gui.getChat());
+    }
+
+    @org.spongepowered.asm.mixin.Shadow protected net.minecraft.client.gui.components.EditBox input;
+
+    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$chatSearchKeys(net.minecraft.client.input.KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
+        boolean ctrl = (event.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0;
+        if (input != null && com.teslamaps.features.ChatSearch.onKey(event.key(), ctrl, input)) cir.setReturnValue(true);
+    }
+
+    @Inject(method = "removed", at = @At("HEAD"))
+    private void teslamaps$chatSearchEnd(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        com.teslamaps.features.ChatSearch.onClose();
+    }
+
+    @Inject(method = "mouseClicked", at = @At("RETURN"))
+    private void teslamaps$confirmPrompt(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && !cir.getReturnValue()) com.teslamaps.features.ConfirmPrompt.onEmptyChatClick();
+    }
+
     @Inject(method = "extractRenderState", at = @At("TAIL"))
     private void teslamaps$chatImagesOnTop(net.minecraft.client.gui.GuiGraphicsExtractor ctx,
                                            int mouseX, int mouseY, float delta,
                                            org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         com.teslamaps.features.SharedImageChatRenderer.render(ctx, true, mouseX, mouseY);
         com.teslamaps.features.ImageLinkPreview.render(ctx, mouseX, mouseY);
+        com.teslamaps.features.ChatSearch.render(ctx, input);
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)

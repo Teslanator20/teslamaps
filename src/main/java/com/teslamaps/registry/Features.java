@@ -426,14 +426,29 @@ final class Features {
         com.teslamaps.features.LookTargeting.register();
         // w10-09-chat
         com.teslamaps.features.DungeonChatFilter.register();
-        com.teslamaps.features.ChatCompactRules.register();
+        com.teslamaps.features.ChatCompactRulesIslands.register();
         com.teslamaps.features.ChatQueue.register();
         com.teslamaps.features.TerminatorCooldownMute.register();
         com.teslamaps.features.ImageLinkPreview.register();
+        // w10-03-chat
+        com.teslamaps.features.ChatCompacts.register();
+        // w10-05-chat
+        com.teslamaps.features.RareDropNames.register();
+        com.teslamaps.features.HoppityCompactChat.register();
+        // w10-04-chat
+        com.teslamaps.features.ChatAlerts.register();
+        com.teslamaps.features.ChatSoundResponse.register();
         // w10-07-chat
         com.teslamaps.features.SackMessages.register();
         com.teslamaps.features.SkyblockXpChat.register();
+        // w10-06-chat
         com.teslamaps.features.ChatExtras.register();
+        com.teslamaps.features.ChatRewrites.register();
+        // w10-02-chat
+        com.teslamaps.features.ConfirmPrompt.register();
+        com.teslamaps.features.ChatSearch.register();
+        com.teslamaps.features.ChatEmotes.register();
+        com.teslamaps.features.ChatCompactsMore.register();
         // w09-08-vis
         com.teslamaps.features.ParticleHider.register();
         // w09-02-vis

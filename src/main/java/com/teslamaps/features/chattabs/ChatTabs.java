@@ -45,18 +45,18 @@ public class ChatTabs {
 
     // ---- chat line classification (full-line matches on stripped text) ----
 
-    private static final Pattern PARTY_CHAT = Pattern.compile("^Party > (?<sender>.+?): (?<body>.*)$");
-    private static final Pattern GUILD_CHAT = Pattern.compile("^(?:Guild|Officer) > (?<sender>.+?): (?<body>.*)$");
+    private static final Pattern PARTY_CHAT = Pattern.compile("^(?:Party|P) > (?<sender>.+?): (?<body>.*)$");
+    private static final Pattern GUILD_CHAT = Pattern.compile("^(?:Guild|Officer|Bridge|G|O) > (?<sender>.+?): (?<body>.*)$");
     private static final Pattern PRIVATE_CHAT = Pattern.compile("^(?:From|To) (?<sender>.+?): (?<body>.*)$");
 
     private static final Pattern PARTY_SYSTEM = Pattern.compile(
             "^(?:Party invite from .+|.+ has invited you to join their party!|.+ invited .+ to the party!(?: They have 60 seconds to accept\\.)?|You have 60 seconds to accept\\. Click here to join!|You have joined .+'s party!|You'll be partying with: .+|.+ joined the party\\.|.+ has disconnected, they have \\d+ minutes to rejoin before (?:they are removed from the party|the party is disbanded)\\.|.+ has rejoined\\.|You left the party\\.|.+ has left the party\\.|You have been (?:removed|kicked) from the party.*|.+ has been removed from the party\\.|Kicked .+ because they were offline\\.|.+ was removed from your party because they disconnected\\.|.+ has disbanded the party!|The party was disbanded.*|The party was transferred to .+|.+ was (?:promoted to Party Moderator|demoted to Party Member).*|.+ has (?:promoted .+ to Party Moderator|demoted .+ to Party Member).*|Party chat is (?:now )?(?:muted|unmuted).*|All [Ii]nvite is now (?:enabled|disabled).*|You are not (?:currently )?in a party(?: right now)?\\.|Party Members \\(\\d+\\)|Party (?:Leader|Moderators|Members):.*)$");
 
     private static final Pattern GUILD_SYSTEM = Pattern.compile(
-            "^(?:Guild > .+ (?:joined|left)\\.|\\[Guild] .+|Guild invite from .+|.+ has invited you to join their guild!|You have been invited to join .+ guild!|You left the guild!|.+ (?:joined|left) the guild\\.|.+ (?:was|has been) kicked from the guild\\.|The guild was disbanded.*|Guild chat is (?:now )?(?:muted|unmuted).*|Guild (?:Name|Master|Members|Level|Created|MOTD):.*)$");
+            "^(?:Guild > .+ (?:joined|left)\\.|G (?:>>|<<) \\w{1,16}|\\[Guild] .+|Guild invite from .+|.+ has invited you to join their guild!|You have been invited to join .+ guild!|You left the guild!|.+ (?:joined|left) the guild\\.|.+ (?:was|has been) kicked from the guild\\.|The guild was disbanded.*|Guild chat is (?:now )?(?:muted|unmuted).*|Guild (?:Name|Master|Members|Level|Created|MOTD):.*)$");
 
     private static final Pattern DM_SYSTEM = Pattern.compile(
-            "^(?:Friend request from .+|You sent a friend request to .+!|The friend request to .+ has expired\\.|You are now friends with .+|.+ is now your friend!|You removed .+ from your friends list!|.+ removed you from their friends list!|.+ is (?:now|no longer) a best friend!|Friend > .+ (?:joined|left)\\.|You have no friends(?: online)?\\.|You don't have any friends.*|You cannot message (?:this player|yourself)[.!]|You don't have anyone to reply to!|This player has private messages disabled\\.|You must wait .+ before messaging this player again\\.|Friends(?: List)?(?: .*)?)$");
+            "^(?:Friend request from .+|You sent a friend request to .+!|The friend request to .+ has expired\\.|You are now friends with .+|.+ is now your friend!|You removed .+ from your friends list!|.+ removed you from their friends list!|.+ is (?:now|no longer) a best friend!|Friend > .+ (?:joined|left)\\.|F (?:>>|<<) \\w{1,16}|You have no friends(?: online)?\\.|You don't have any friends.*|You cannot message (?:this player|yourself)[.!]|You don't have anyone to reply to!|This player has private messages disabled\\.|You must wait .+ before messaging this player again\\.|Friends(?: List)?(?: .*)?)$");
 
     public static boolean enabled() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -91,15 +91,19 @@ public class ChatTabs {
         ChatComponent chat = mc.gui.getChat();
         if (nowEnabled) {
             Channel channel = selected;
-            chat.setVisibleMessageFilter(message -> isVisible(channel, message));
+            chat.setVisibleMessageFilter(message -> isVisible(channel, message) && com.teslamaps.features.ChatSearch.matches(message));
             chat.resetChatScroll();
         } else if (applied) {
             clearPendingResponses();
-            chat.setVisibleMessageFilter(message -> true);
+            chat.setVisibleMessageFilter(com.teslamaps.features.ChatSearch::matches);
             chat.resetChatScroll();
         }
         applied = nowEnabled;
         appliedChannel = selected;
+    }
+
+    public static void reapply() {
+        updateFilter(true);
     }
 
     public static void clearPendingResponses() {
@@ -107,7 +111,7 @@ public class ChatTabs {
         feedbackTracker.clear();
     }
 
-    static boolean isVisible(Channel channel, GuiMessage message) {
+    public static boolean isVisible(Channel channel, GuiMessage message) {
         String text = StringUtil.strip(message.content().getString()).trim();
         commandTracker.observe(message, text);
         if (channel == Channel.ALL) return true;
