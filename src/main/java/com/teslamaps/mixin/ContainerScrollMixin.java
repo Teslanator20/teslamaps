@@ -28,6 +28,10 @@ public class ContainerScrollMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.EcoOverlays.scroll(mouseX, mouseY, scrollY)) {
+            cir.setReturnValue(true);
+            return;
+        }
         AbstractContainerScreen<?> cs = (AbstractContainerScreen<?>) (Object) this;
         if (com.teslamaps.features.PageScroll.onScroll(cs, ((HandledScreenAccessor) (Object) this).getFocusedSlot(), scrollY)) {
             cir.setReturnValue(true);
