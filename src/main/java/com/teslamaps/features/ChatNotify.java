@@ -91,7 +91,7 @@ public final class ChatNotify {
         String needle = f.text;
         switch (f.mode == null ? "contains" : f.mode) {
             case "regex" -> {
-                Matcher m = ChatUserFilters.pattern(needle).matcher(text);
+                Matcher m = ChatUserFilters.regex(needle).matcher(text);
                 while (m.find()) if (m.end() > m.start()) out.add(new int[]{m.start(), m.end()});
             }
             case "equals", "startswith", "endswith" -> {

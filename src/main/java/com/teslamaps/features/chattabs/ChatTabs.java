@@ -45,8 +45,8 @@ public class ChatTabs {
 
     // ---- chat line classification (full-line matches on stripped text) ----
 
-    private static final Pattern PARTY_CHAT = Pattern.compile("^Party > (?<sender>.+?): (?<body>.*)$");
-    private static final Pattern GUILD_CHAT = Pattern.compile("^(?:Guild|Officer|Bridge) > (?<sender>.+?): (?<body>.*)$");
+    private static final Pattern PARTY_CHAT = Pattern.compile("^(?:Party|P) > (?<sender>.+?): (?<body>.*)$");
+    private static final Pattern GUILD_CHAT = Pattern.compile("^(?:Guild|Officer|Bridge|G|O) > (?<sender>.+?): (?<body>.*)$");
     private static final Pattern PRIVATE_CHAT = Pattern.compile("^(?:From|To) (?<sender>.+?): (?<body>.*)$");
 
     private static final Pattern PARTY_SYSTEM = Pattern.compile(

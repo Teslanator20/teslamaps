@@ -254,6 +254,12 @@ public class ChatMixin {
             return;
         }
 
+        if (com.teslamaps.features.ChatCompact.dropLine(text)) {
+            teslamaps$reason = "chatCompact";
+            ci.cancel();
+            return;
+        }
+
         if (fromServer) com.teslamaps.features.SackMessages.onChat(message, text);
         if (cfg.section("Chat") && com.teslamaps.features.ChatExtras.hide(text, fromServer, pm)) {
             teslamaps$reason = "chatExtras";
@@ -286,8 +292,15 @@ public class ChatMixin {
         if (split != message) com.teslamaps.features.ChatLog.noteRewrite("terminalSplits");
         Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.features.ChatCompacts.rewrite(split));
         out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out)));
+        out = com.teslamaps.features.ChatCompact.rewrite(com.teslamaps.features.ChatCompactsMore.rewrite(out));
         com.teslamaps.features.ChatLog.shown(out);
         return com.teslamaps.features.ChatTimestamps.decorate(out);
+    }
+
+    @Inject(method = "addMessageToDisplayQueue",
+            at = @At(value = "INVOKE", target = "Ljava/util/List;addFirst(Ljava/lang/Object;)V"))
+    private void teslamaps$countLine(net.minecraft.client.multiplayer.chat.GuiMessage message, CallbackInfo ci) {
+        com.teslamaps.features.ChatKeepScroll.onLine((ChatComponent) (Object) this);
     }
 
     @Redirect(method = "addMessageToQueue",
@@ -321,6 +334,7 @@ public class ChatMixin {
     // rows the shared pictures are drawn into
     @Inject(method = "refreshTrimmedMessages", at = @At("RETURN"))
     private void teslamaps$repadOnRefresh(CallbackInfo ci) {
+        com.teslamaps.features.ChatKeepScroll.reset();
         com.teslamaps.features.SharedImageChat.ensurePadding((ChatComponent) (Object) this);
     }
 

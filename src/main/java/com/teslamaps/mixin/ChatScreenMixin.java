@@ -18,6 +18,16 @@ import java.util.List;
 @Mixin(ChatScreen.class)
 public class ChatScreenMixin {
 
+    @Inject(method = "removed", at = @At("HEAD"))
+    private void teslamaps$saveScroll(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        com.teslamaps.features.ChatKeepScroll.onClose(Minecraft.getInstance().gui.getChat());
+    }
+
+    @Inject(method = "init", at = @At("TAIL"))
+    private void teslamaps$restoreScroll(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        com.teslamaps.features.ChatKeepScroll.onOpen(Minecraft.getInstance().gui.getChat());
+    }
+
     @org.spongepowered.asm.mixin.Shadow protected net.minecraft.client.gui.components.EditBox input;
 
     @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)

@@ -139,6 +139,9 @@ public class ChatFilter {
                 "Your radio is weak. Find another enjoyer to boost it.", "Your radio signal is strong!",
                 "Your radio lost signal. There's too many enjoyers on this channel.",
                 "You can't use the wardrobe in combat!"));
+        more("chatFilterBlazetekk", c -> c.chatFilterBlazetekk, oneOf(
+                "Your radio is weak. Find another enjoyer to boost it.", "Your radio signal is strong!",
+                "Your radio lost signal. There's too many enjoyers on this channel."));
         more("chatFilterUselessNotifications", c -> c.chatFilterUselessNotifications, any(
                 p("You tipped \\d+ players? in \\d+(?: different)? games?!"),
                 p("Your previous Plasmaflux Power Orb was removed!"),
@@ -353,14 +356,16 @@ public class ChatFilter {
         pendingText = null;
         pendingOut = null;
         String t = StringUtil.strip(text);
-        if (StashCompact.handle(t)) {
-            lastReason = "stashCompact";
-            return true;
-        }
-        if (autopet(t)) {
-            lastReason = "autopet";
-            return true;
-        }
+        lastReason = "stashCompact";
+        if (StashCompact.handle(t)) return true;
+        lastReason = "chatCompactsMore";
+        if (ChatCompactsMore.handle(message, t)) return true;
+        lastReason = "melodyCompact";
+        if (MelodyCompact.handle(t)) return true;
+        lastReason = "hoppityCompact";
+        if (HoppityCompactChat.handle(message, text, t)) return true;
+        lastReason = "autopet";
+        if (autopet(t)) return true;
         Rule r = matchStripped(t);
         if (r == SCREENSHOT) return true;
         if (r != null) return apply(message, text, t, actionOf(r), COMPACT.get(r.id));
@@ -368,12 +373,28 @@ public class ChatFilter {
             lastReason = "user";
             return apply(message, text, t, TeslaMapsConfig.get().chatUserFilterAction, null);
         }
-        Component notified = ChatNotify.decorate(message);
+        String shortForm = ChatCompactRules.apply(message, t);
+        if (shortForm != null) {
+            lastReason = "compact";
+            if (shortForm.isEmpty()) return true;
+            if (shortForm == ChatCompactRules.GREY) queue(text, grey(message));
+            else if (!hasClick(message, true)) queue(text, compact(message, shortForm));
+            return false;
+        }
+        lastReason = "petRarity";
+        Component pet = RareDropNames.petRarity(message, t);
+        if (pet != null) queue(text, pet);
+        Component notified = pendingOut == null ? ChatNotify.decorate(message) : null;
         if (notified != null) {
             lastReason = "notify";
             queue(text, notified);
         }
         return false;
+    }
+
+    /** Swap the line being added for {@code out}; used by the compact helpers. */
+    static void queueRewrite(String text, Component out) {
+        queue(text, out);
     }
 
     public static final String[] AUTOPET_MODES = {"Show", "Hide", "Action Bar", "Toast"};
