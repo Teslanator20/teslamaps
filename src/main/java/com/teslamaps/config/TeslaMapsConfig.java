@@ -682,6 +682,7 @@ public class TeslaMapsConfig {
         public String condValue = "";
         public String islands = "";       // comma list, empty = any island
         public String failMessage = "";   // sent instead when the condition fails
+        public int key2 = -1;             // hotkeyCombos: second key that must be held
         public Keybind() {}
         public Keybind(int key, String message) { this.key = key; this.message = message; }
     }
@@ -2135,6 +2136,18 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w07-04-qol
+    public boolean signCalculator = false;
+    public boolean signCalculatorEquals = false;
+    public boolean calcCommand = false;
+    public boolean hotkeyCombos = false;
+    public boolean imageShareHistory = false;
+    @Global
+    public java.util.Map<String, String> imageShareLinks = new java.util.HashMap<>();
+    public boolean muteRatPet = false;
+    public boolean muteRatPetSqueakOnly = false;
+    public boolean muteBackpackOpen = false;
+    public boolean signEnterShiftNewline = false;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
@@ -3311,6 +3324,7 @@ public class TeslaMapsConfig {
 
     static void normalize(TeslaMapsConfig c) {
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
+        if (c.imageShareLinks == null) c.imageShareLinks = new java.util.HashMap<>();
         if (c.invButtons == null || c.invButtons.isEmpty()) {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }

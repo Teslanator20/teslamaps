@@ -316,5 +316,8 @@ final class Features {
         com.teslamaps.features.QolTweaks.register();
         com.teslamaps.features.RenderHiders.register();
         com.teslamaps.features.ServerRestartWarning.register();
+        // w07-04-qol
+        com.teslamaps.features.ChatCalculator.register();
+        com.teslamaps.features.SoundMutes.register();
     }
 }

@@ -16,6 +16,7 @@ public class KeybindMessage {
     private static final Set<Integer> polled = new HashSet<>();
     private static final Set<Integer> heldWp = new HashSet<>();
     private static long screenOpenMs = 0L; // last time a screen (e.g. chat) was open
+    private static final java.util.Map<TeslaMapsConfig.Keybind, Long> lastFire = new java.util.IdentityHashMap<>();
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
@@ -38,9 +39,19 @@ public class KeybindMessage {
         }
         if (fire && !edges.isEmpty()) {
             int mods = heldModifiers(mc);
+            boolean combos = TeslaMapsConfig.get().hotkeyCombos;
+            long now = System.currentTimeMillis();
             for (TeslaMapsConfig.Keybind kb : binds) {
                 if (!kb.enabled || !edges.contains(kb.key) || kb.message == null || (kb.message.isBlank() && !HotkeyCondition.hasFail(kb))) continue;
+                if (combos) {
+                    if (kb.key2 != -1 ? !com.teslamaps.utils.KeyNames.isDown(kb.key2) : comboShadowed(binds, kb, mods)) continue;
+                }
                 if (!(kb.modifiers != 0 ? kb.modifiers == mods : !shadowed(binds, kb.key, mods))) continue;
+                if (combos) {
+                    Long last = lastFire.get(kb);
+                    if (last != null && now - last < 200) continue;
+                    lastFire.put(kb, now);
+                }
                 if (!TeslaMapsConfig.get().hotkeyConditions) { send(kb.message); continue; }
                 if (!HotkeyCondition.islandOk(kb)) continue;
                 if (HotkeyCondition.passes(kb)) { if (!kb.message.isBlank()) send(kb.message); }
@@ -71,6 +82,15 @@ public class KeybindMessage {
         if (mods == 0) return false;
         for (TeslaMapsConfig.Keybind kb : binds) {
             if (kb.enabled && kb.key == key && kb.modifiers == mods) return true;
+        }
+        return false;
+    }
+
+    // Skyblocker Shortcuts: a plain bind stays quiet while a combo on the same key is held
+    private static boolean comboShadowed(List<TeslaMapsConfig.Keybind> binds, TeslaMapsConfig.Keybind self, int mods) {
+        for (TeslaMapsConfig.Keybind kb : binds) {
+            if (kb == self || !kb.enabled || kb.key != self.key || kb.key2 == -1) continue;
+            if ((kb.modifiers == 0 || kb.modifiers == mods) && com.teslamaps.utils.KeyNames.isDown(kb.key2)) return true;
         }
         return false;
     }

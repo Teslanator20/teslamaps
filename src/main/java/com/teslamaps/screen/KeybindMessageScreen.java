@@ -21,6 +21,7 @@ public class KeybindMessageScreen extends Screen {
     private int scroll = 0;
     private int listening = -1; // index of the keybind currently waiting for a key press
     private long listenStart = 0; // the click that starts listening must not bind itself
+    private int listening2 = -1; // hotkeyCombos: row waiting for its held key
 
     /** Backgrounds for the borderless edit boxes, filled in while the rows are built. */
     private final List<int[]> fields = new ArrayList<>();
@@ -56,7 +57,8 @@ public class KeybindMessageScreen extends Screen {
 
         int modsW = 3 * (MOD_W + 2);
         boolean conds = TeslaMapsConfig.get().hotkeyConditions;
-        int boxW = listW - 24 - KEY_W - 4 - modsW - 4 - 28 - (conds ? 24 : 0);
+        boolean combos = TeslaMapsConfig.get().hotkeyCombos;
+        int boxW = listW - 24 - KEY_W - 4 - modsW - 4 - 28 - (conds ? 24 : 0) - (combos ? 24 : 0);
         for (int row = 0; row < VISIBLE; row++) {
             final int idx = scroll + row;
             if (idx >= b.size()) break;
@@ -64,13 +66,14 @@ public class KeybindMessageScreen extends Screen {
             int ry = listY + row * ROW_H;
             int keyX = listX + 24;
             int modX = keyX + KEY_W + 4;
-            int boxX = modX + modsW + 2;
+            int boxX = modX + modsW + 2 + (combos ? 24 : 0);
 
             addRenderableWidget(new TeslaButton(listX, ry, 22, 22, kb.enabled ? "§a✔" : "§c✖",
                     () -> { kb.enabled = !kb.enabled; rebuild(); }));
 
             String label = listening == idx ? "§epress..."
-                    : (kb.enabled ? "§f" : "§8") + KeybindMessage.modifierPrefix(kb.modifiers) + keyName(kb.key);
+                    : (kb.enabled ? (combos && duplicate(b, kb) ? "§c" : "§f") : "§8") + KeybindMessage.modifierPrefix(kb.modifiers)
+                    + (combos && kb.key2 != -1 ? keyName(kb.key2) + "+" : "") + keyName(kb.key);
             addRenderableWidget(new TeslaButton(keyX, ry, KEY_W, 22, label,
                     () -> { listening = idx; listenStart = System.currentTimeMillis(); rebuild(); }));
 
@@ -82,6 +85,10 @@ public class KeybindMessageScreen extends Screen {
                 addRenderableWidget(new TeslaButton(modX + m * (MOD_W + 2), ry, MOD_W, 22,
                         (on ? "§b" : "§8") + modNames[m], () -> { kb.modifiers ^= bit; rebuild(); }));
             }
+
+            if (combos) addRenderableWidget(new TeslaButton(modX + modsW + 2, ry, 22, 22,
+                    listening2 == idx ? "§e?" : kb.key2 != -1 ? "§b+" : "§8+",
+                    () -> { listening2 = idx; listening = -1; listenStart = System.currentTimeMillis(); rebuild(); }));
 
             EditBox box = new EditBox(this.font, boxX + 4, ry + 7, boxW - 8, 12, Component.literal("Message"));
             box.setMaxLength(256);
@@ -97,7 +104,7 @@ public class KeybindMessageScreen extends Screen {
                     () -> minecraft.setScreen(new HotkeyConditionScreen(this, kb))));
 
             addRenderableWidget(new TeslaButton(listX + listW - 22, ry, 22, 22, "§cx",
-                    () -> { b.remove(idx); listening = -1; rebuild(); }));
+                    () -> { b.remove(idx); listening = -1; listening2 = -1; rebuild(); }));
         }
 
         addRenderableWidget(new TeslaButton(panelX + 16, panelY + PANEL_H - 34, 130, 22, "§a+ Add Hotkey", () -> {
@@ -122,8 +129,22 @@ public class KeybindMessageScreen extends Screen {
         return com.teslamaps.utils.KeyNames.display(key);
     }
 
+    private static boolean duplicate(List<TeslaMapsConfig.Keybind> b, TeslaMapsConfig.Keybind kb) {
+        if (kb.key == -1) return false;
+        for (TeslaMapsConfig.Keybind o : b) {
+            if (o != kb && o.enabled && o.key == kb.key && o.key2 == kb.key2 && o.modifiers == kb.modifiers) return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean keyPressed(KeyEvent event) {
+        if (listening2 >= 0) {
+            if (listening2 < binds().size()) binds().get(listening2).key2 = event.key() == GLFW.GLFW_KEY_ESCAPE ? -1 : event.key();
+            listening2 = -1; // ESC clears the held key
+            rebuild();
+            return true;
+        }
         if (listening >= 0) {
             if (event.key() != GLFW.GLFW_KEY_ESCAPE && listening < binds().size()) {
                 TeslaMapsConfig.Keybind kb = binds().get(listening);
@@ -151,6 +172,7 @@ public class KeybindMessageScreen extends Screen {
             rebuild();
             return true;
         }
+        if (listening2 >= 0 && System.currentTimeMillis() - listenStart > 250) listening2 = -1;
         return super.mouseClicked(event, doubleClick);
     }
 

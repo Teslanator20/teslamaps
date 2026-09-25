@@ -35,7 +35,7 @@ public final class AutoCategory {
         b.slider("  Twilight Amount", 4f, 8f,
                 () -> (float) config.autoGFSTwilightAmount, v -> config.autoGFSTwilightAmount = Math.round(v), 0);
         b.keybind("Pearl Refill Key (next 16)", () -> config.autoGFSPearlKey, v -> config.autoGFSPearlKey = v);
-        b.info("Also /tmap ep, /tmap sb, /tmap jerry, /tmap leap");
+        b.info("Also /tmap ep, ij, sl, sb, dd, tap, twap [amount] (fills up to the amount)");
         b.label("Get From Sacks");
         b.toggle("Queued GFS", () -> config.gfsQueued, v -> config.gfsQueued = v);
         b.info("Spaces /gfs out so Hypixel stops dropping them");

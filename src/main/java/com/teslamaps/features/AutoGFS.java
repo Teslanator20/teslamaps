@@ -259,23 +259,23 @@ public class AutoGFS {
         refillItems();
     }
 
-    public static void gfsEnderPearls() {
-        gfsTopUp("ender_pearl", 16, s -> BuiltInRegistries.ITEM.getKey(s.getItem()).toString().contains("ender_pearl"));
-    }
+    public static void gfsEnderPearls() { fillFromSack("ENDER_PEARL", 16); }
+    public static void gfsSuperboom() { fillFromSack("SUPERBOOM_TNT", 64); }
+    public static void gfsJerry() { fillFromSack("INFLATABLE_JERRY", 64); }
+    public static void gfsLeaps() { fillFromSack("SPIRIT_LEAP", 16); }
 
-    public static void gfsSuperboom() {
-        gfsTopUp("superboom_tnt", 64, s -> {
-            String n = s.getHoverName().getString().toLowerCase();
-            return n.contains("superboom") || n.contains("super boom");
-        });
-    }
-
-    public static void gfsJerry() {
-        gfsTopUp("inflatable_jerry", 64, s -> s.getHoverName().getString().toLowerCase().contains("inflatable jerry"));
-    }
-
-    public static void gfsLeaps() {
-        gfsTopUp("spirit_leap", 16, s -> s.getHoverName().getString().toLowerCase().contains("spirit leap"));
+    // Odin fillItemFromSack: only the difference to the target
+    public static void fillFromSack(String skyblockId, int target) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        int count = 0;
+        for (int i = 0; i < mc.player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = mc.player.getInventory().getItem(i);
+            if (!stack.isEmpty() && skyblockId.equals(com.teslamaps.utils.ItemUtil.skyblockId(stack))) count += stack.getCount();
+        }
+        int needed = target - count;
+        if (needed > 0) sendCommand("gfs " + skyblockId.toLowerCase(java.util.Locale.ROOT) + " " + needed);
+        else mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§b[TeslaMaps] §cAlready at max stack size."));
     }
 
     // Shizo: pearls up to the next multiple of 16
@@ -289,17 +289,5 @@ public class AutoGFS {
         }
         int needed = count % 16 == 0 ? 16 : 16 - count % 16;
         sendCommand("gfs ender_pearl " + needed);
-    }
-
-    private static void gfsTopUp(String gfsId, int max, java.util.function.Predicate<ItemStack> match) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
-        int count = 0;
-        for (int i = 0; i < mc.player.getInventory().getContainerSize(); i++) {
-            ItemStack stack = mc.player.getInventory().getItem(i);
-            if (!stack.isEmpty() && match.test(stack)) count += stack.getCount();
-        }
-        int needed = max - count;
-        if (needed > 0) sendCommand("gfs " + gfsId + " " + needed);
     }
 }

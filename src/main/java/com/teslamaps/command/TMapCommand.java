@@ -876,22 +876,15 @@ public class TMapCommand {
                                             "§b[TeslaMaps] §fSwitched to profile §a" + com.teslamaps.config.ConfigProfiles.active()));
                                     return 1;
                                 })))
-                .then(ClientCommands.literal("ep").executes(context -> {
-                    com.teslamaps.features.AutoGFS.gfsEnderPearls();
-                    return 1;
-                }))
-                .then(ClientCommands.literal("sb").executes(context -> {
-                    com.teslamaps.features.AutoGFS.gfsSuperboom();
-                    return 1;
-                }))
-                .then(ClientCommands.literal("jerry").executes(context -> {
-                    com.teslamaps.features.AutoGFS.gfsJerry();
-                    return 1;
-                }))
-                .then(ClientCommands.literal("leap").executes(context -> {
-                    com.teslamaps.features.AutoGFS.gfsLeaps();
-                    return 1;
-                }))
+                .then(sackFill("ep", "ENDER_PEARL", 16))
+                .then(sackFill("ij", "INFLATABLE_JERRY", 64))
+                .then(sackFill("jerry", "INFLATABLE_JERRY", 64))
+                .then(sackFill("sl", "SPIRIT_LEAP", 16))
+                .then(sackFill("leap", "SPIRIT_LEAP", 16))
+                .then(sackFill("sb", "SUPERBOOM_TNT", 64))
+                .then(sackFill("dd", "DUNGEON_DECOY", 64))
+                .then(sackFill("tap", "TOXIC_ARROW_POISON", 64))
+                .then(sackFill("twap", "TWILIGHT_ARROW_POISON", 64))
                 .then(ClientCommands.literal("perf")
                         .executes(context -> perfReport(context.getSource()))
                         .then(ClientCommands.literal("on").executes(context -> {
@@ -2272,6 +2265,13 @@ public class TMapCommand {
     private static void sendServer(String command) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() != null) mc.getConnection().sendCommand(command);
+    }
+
+    private static com.mojang.brigadier.builder.LiteralArgumentBuilder<FabricClientCommandSource> sackFill(String name, String id, int def) {
+        return ClientCommands.literal(name)
+                .executes(c -> { com.teslamaps.features.AutoGFS.fillFromSack(id, def); return 1; })
+                .then(ClientCommands.argument("amount", IntegerArgumentType.integer(1, 2240))
+                        .executes(c -> { com.teslamaps.features.AutoGFS.fillFromSack(id, IntegerArgumentType.getInteger(c, "amount")); return 1; }));
     }
 
     private static int perfReport(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource source) {
