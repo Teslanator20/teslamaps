@@ -41,6 +41,12 @@ public class SoundPlayMixin {
     private void teslamaps$debugAndMute(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
         com.teslamaps.features.EventTracker.onSound(instance);
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.phantomleafSolver) {
+            try {
+                com.teslamaps.features.PhantomleafSolver.onSound(instance, instance.getIdentifier().toString(),
+                        instance.getPitch(), instance.getVolume());
+            } catch (Throwable ignored) {}
+        }
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
         boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);
         boolean extraMutes = com.teslamaps.features.SoundMutes.active(c);

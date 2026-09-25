@@ -600,5 +600,10 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w14-03-gar
+        com.teslamaps.features.GardenTrashBlocks.register();
+        com.teslamaps.features.PhantomleafSolver.register();
+        com.teslamaps.features.VisitorsOutsideGarden.register();
+        com.teslamaps.features.GardenMenuHelpers.register();
     }
 }

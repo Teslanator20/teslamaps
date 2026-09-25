@@ -29,6 +29,8 @@ public class ContainerTooltipStackMixin {
         ItemStack stack = original.call(slot);
         ItemStack old = com.teslamaps.features.OldSkyblockMenu.replacement(slot);
         if (old != null) return old;
+        ItemStack garden = com.teslamaps.features.GardenMenuHelpers.icon(slot, stack);
+        if (garden != stack) return garden;
         ItemStack shown = com.teslamaps.features.AnimatedDyeFix.displayStack(slot);
         return shown != slot.getItem() ? shown : stack;
     }

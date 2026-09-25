@@ -2148,6 +2148,19 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w14-03-gar
+    public boolean samScytheBlocks = false;
+    public String samScytheColor = "FFFF5555";
+    public boolean plotCleanupHelper = false;
+    public String plotCleanupColor = "80FFE14D";
+    public boolean zorroCapeProtection = false;
+    public boolean phantomleafSolver = false;
+    public boolean visitorsOutsideHighlight = false;
+    public String visitorsOutsideBlock = "Don't";
+    public boolean visitorLogbookStats = false;
+    public boolean visitorSupercraft = false;
+    public boolean visitorAcceptHotkey = false;
+    public int visitorAcceptKey = -1;
     // w12-08-eco
     public boolean anitaMedalProfit = false;
     public boolean anitaExtraFortune = false;
