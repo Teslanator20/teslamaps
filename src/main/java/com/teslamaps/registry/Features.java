@@ -177,5 +177,11 @@ final class Features {
         com.teslamaps.features.TooltipTweaks.register();
         com.teslamaps.features.EquipmentDisplay.register();
         com.teslamaps.features.ExperimentHelper.register();
+        // w04-06-inv
+        com.teslamaps.features.EnchantTooltipTweaks.register();
+        com.teslamaps.features.ForgeRecipeViewer.register();
+        com.teslamaps.features.EnchantTablePanel.register();
+        com.teslamaps.features.FancyCraftingTable.register();
+        com.teslamaps.features.HoppityCollectionStats.register();
     }
 }

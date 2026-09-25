@@ -2170,6 +2170,24 @@ public class TeslaMapsConfig {
     public boolean experimentChronomatron = true;
     public boolean experimentUltrasequencer = true;
     public boolean experimentSuperpairs = true;
+    // w04-06-inv
+    public String opheliaPotLock = "Off";              // Off / I..VII: only that Dungeon Potion is clickable at Ophelia
+    public boolean duplicateEnchantFix = false;
+    public boolean enchantRename = false;
+    public List<String> enchantRenames = new ArrayList<>();   // "Old=New"
+    public boolean forgeRecipeViewer = false;
+    public boolean enchantTablePanel = false;
+    public boolean enchantPanelSortName = false;
+    public boolean enchantPanelConflicts = true;
+    public boolean fancyCraftingTable = false;
+    public boolean hoppityCollectionStats = false;
+    public boolean hoppityHighlightRequirements = true;
+    @Global
+    public java.util.Map<String, Integer> hoppityRabbits = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, String> hoppityLocationRabbits = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, String> hoppityRabbitRarity = new java.util.HashMap<>();
     // w03-03-dun
     public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
     public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking
@@ -2747,6 +2765,11 @@ public class TeslaMapsConfig {
         if (c.waypointPacksActive == null) c.waypointPacksActive = new ArrayList<>(List.of("Default"));
         if (c.waypointEditPack == null) c.waypointEditPack = "Default";
         if (c.batKilledChannel == null) c.batKilledChannel = "Nobody";
+        if (c.opheliaPotLock == null) c.opheliaPotLock = "Off";
+        if (c.enchantRenames == null) c.enchantRenames = new ArrayList<>();
+        if (c.hoppityRabbits == null) c.hoppityRabbits = new java.util.HashMap<>();
+        if (c.hoppityLocationRabbits == null) c.hoppityLocationRabbits = new java.util.HashMap<>();
+        if (c.hoppityRabbitRarity == null) c.hoppityRabbitRarity = new java.util.HashMap<>();
         if (c.chatCommandsWhitelist == null) c.chatCommandsWhitelist = new ArrayList<>();
         if (c.dragonHitboxColor == null) c.dragonHitboxColor = "00FFFF";
         if (c.lividAnnounceText == null) c.lividAnnounceText = "Livid is [color]!";

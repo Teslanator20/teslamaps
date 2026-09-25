@@ -42,6 +42,13 @@ public class ContainerOverlays {
         }
 
         com.teslamaps.features.BingoCardTips.render(context);
+        if (com.teslamaps.features.EnchantTablePanel.shouldRender()) {
+            com.teslamaps.features.EnchantTablePanel.render(context);
+        }
+        if (com.teslamaps.features.HoppityCollectionStats.shouldRender()) {
+            com.teslamaps.features.HoppityCollectionStats.render(context);
+        }
+
         com.teslamaps.dungeon.PartyFinderMarks.render(context);
         com.teslamaps.features.BazaarOwnOrders.render(context);
         com.teslamaps.features.ProgressHighlight.render(context);
