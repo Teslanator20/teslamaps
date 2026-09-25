@@ -343,5 +343,11 @@ final class Features {
         com.teslamaps.features.AccurateAbsorption.register();
         com.teslamaps.features.AllSkillsDisplay.register();
         com.teslamaps.features.SkillGoals.register();
+        // w07-09-hud
+        com.teslamaps.features.SbItemCooldowns.register();
+        com.teslamaps.features.InventoryHud.register();
+        com.teslamaps.features.theend.EyesPlacedHud.register();
+        com.teslamaps.features.theend.EndStatsHud.register();
+        com.teslamaps.features.FatalTempo.register();
     }
 }

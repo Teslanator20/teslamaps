@@ -30,6 +30,12 @@ public class ClientPlayerInteractionManagerMixin {
         }
         com.teslamaps.features.CombatTimers.onUseItem(player.getItemInHand(hand));
         com.teslamaps.features.HotspotRadar.onUseItem(player.getItemInHand(hand));
+        if (hand == InteractionHand.MAIN_HAND) com.teslamaps.features.SbItemCooldowns.onUseItem(player, player.getItemInHand(hand));
+    }
+
+    @Inject(method = "attack", at = @At("HEAD"))
+    private void teslamaps$onAttack(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Entity target, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        com.teslamaps.features.FatalTempo.onHit();
     }
 
     @Inject(method = "interact", at = @At("HEAD"), cancellable = true)

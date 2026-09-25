@@ -35,6 +35,7 @@ public class InGameHudMixin {
         SecretTracker.onActionBarMessage(message);
         com.teslamaps.features.ArmorStackHud.onActionBar(message);
         com.teslamaps.features.AccurateAbsorption.onActionBar(message);
+        if (com.teslamaps.config.TeslaMapsConfig.get().endStatsHud) com.teslamaps.features.theend.EndStatsHud.onActionBar(message.getString());
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Skills")) {
             com.teslamaps.features.SkillTracker.onActionBar(message.getString());
         }

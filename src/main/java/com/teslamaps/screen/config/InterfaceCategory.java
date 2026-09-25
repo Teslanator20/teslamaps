@@ -86,6 +86,10 @@ public final class InterfaceCategory {
         b.toggle("  Show Ping", () -> config.perfHudPing, v -> config.perfHudPing = v);
         b.toggle("  Show CPS", () -> config.perfHudCps, v -> config.perfHudCps = v)
                 .desc("Left | right clicks per second");
+        b.toggle("  Lag Display (zzz)", () -> config.perfHudLag, v -> config.perfHudLag = v)
+                .desc("Adds \"zzz for 1.23s\" while the server has not sent a tick for longer than the threshold")
+                .tags("lag", "freeze", "zzz");
+        b.slider("    Lag Threshold (ms)", 50f, 1000f, () -> config.perfHudLagThreshold, v -> config.perfHudLagThreshold = v, 0);
         b.toggle("  Vertical", () -> config.perfHudVertical, v -> config.perfHudVertical = v);
         b.color("  Label Color", () -> config.perfHudLabelColor, v -> config.perfHudLabelColor = v);
         b.color("  Value Color", () -> config.perfHudValueColor, v -> config.perfHudValueColor = v);

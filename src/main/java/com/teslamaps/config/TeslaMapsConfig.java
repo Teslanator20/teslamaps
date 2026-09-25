@@ -2296,6 +2296,35 @@ public class TeslaMapsConfig {
     public boolean skillGoals = false;
     public boolean skillGoalAlert = true;
     public java.util.Map<String, Integer> skillGoalLevels = new java.util.HashMap<>();
+    // w07-09-hud
+    public boolean itemCooldowns = false;
+    public boolean itemCooldownsCrosshair = true;
+    public boolean inventoryHud = false;
+    public boolean inventoryHudArmor = false;
+    public int inventoryHudX = 5;
+    public int inventoryHudY = 120;
+    public float inventoryHudScale = 1.0f;
+    public boolean perfHudLag = false;
+    public float perfHudLagThreshold = 300f;
+    public boolean eyesPlacedHud = false;
+    public boolean eyesPlacedAnywhere = false;
+    public int eyesPlacedX = 5;
+    public int eyesPlacedY = 60;
+    public float eyesPlacedScale = 1.0f;
+    public boolean endStatsHud = false;
+    public boolean endStatsSoulflow = true;
+    public boolean endStatsFinalDestination = true;
+    public boolean endStatsOverflow = true;
+    public boolean endStatsOverflowWithMana = false;
+    public boolean endStatsLegion = true;
+    public int endStatsX = 5;
+    public int endStatsY = 80;
+    public float endStatsScale = 1.0f;
+    public boolean explosiveShotTimer = false;
+    public boolean fatalTempoHud = false;
+    public int fatalTempoX = 5;
+    public int fatalTempoY = 140;
+    public float fatalTempoScale = 1.0f;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;

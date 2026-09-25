@@ -30,6 +30,9 @@ public final class TimersCategory {
         b.toggle("  Tactical HUD", () -> config.tacticalHud, v -> config.tacticalHud = v);
         b.toggle("  Return Waypoint", () -> config.tacticalWaypoint, v -> config.tacticalWaypoint = v);
         b.espStyle("  Tactical Waypoint", () -> config.tacticalWaypointEsp);
+        b.toggle("Explosive Shot Timer", () -> config.explosiveShotTimer, v -> config.explosiveShotTimer = v)
+                .desc("Archer class ability: 6.70s cooldown countdown after \"Used Explosive Shot!\"")
+                .tags("archer", "class ability", "cooldown");
         b.toggle("Invincibility Timer", () -> config.invincibilityTimer, v -> config.invincibilityTimer = v)
                 .desc("Shows the cooldowns of Bonzo Mask, Spirit Mask and Phoenix Pet after they saved you.")
                 .tags("mask", "bonzo", "spirit", "phoenix");
