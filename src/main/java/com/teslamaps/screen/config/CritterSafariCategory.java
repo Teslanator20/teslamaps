@@ -24,6 +24,8 @@ public final class CritterSafariCategory {
         b.info("What the biome you stand in still needs: quota, tries, walls");
         b.toggle("  Count Critters In Sight", () -> config.safariMissingNear, v -> config.safariMissingNear = v);
         b.info("\"n near\" only counts critters with a free line of sight");
+        b.toggle("  Tries And Escapes Per Critter", () -> config.safariAttemptCounts, v -> config.safariAttemptCounts = v)
+                .desc("Uncaught critters show \"3 tried, 2 esc\" here, \"3t 2e\" in the run screen and the checklist.");
         b.label("Checklist");
         b.toggle("Show Checklist", () -> config.safariChecklist, v -> config.safariChecklist = v);
         b.dropdown("  Biome",
@@ -52,6 +54,8 @@ public final class CritterSafariCategory {
         b.info("Sparkles render at any distance and particle setting");
         b.toggle("Announce Biome Done", () -> config.safariAnnounceBiomeDone, v -> config.safariAnnounceBiomeDone = v);
         b.toggle("Announce Unique Done", () -> config.safariAnnounceUniqueDone, v -> config.safariAnnounceUniqueDone = v);
+        b.toggle("  Everything Except Macaw", () -> config.safariAnnounceAllButMacaw, v -> config.safariAnnounceAllButMacaw = v)
+                .desc("Extra milestone once every critter but the Macaw is caught. Skipped when the last catch completes the dex.");
         b.channel("Share Time", () -> config.safariShareTimeChannel, v -> config.safariShareTimeChannel = v);
         b.toggle("Warn If Not Full", () -> config.safariWarnNotFull, v -> config.safariWarnNotFull = v);
         b.info("Screen warning + sound when fewer than 4 players are in");

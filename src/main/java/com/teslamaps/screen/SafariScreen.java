@@ -191,7 +191,8 @@ public class SafariScreen extends Screen {
                 int q = SafariData.quota(c);
                 String note = q > 1 ? caught + "/" + q
                         : caught > 1 ? "x" + caught
-                        : caught == 0 && run.attempts(c) > 0 ? run.attempts(c) + "t" : "";
+                        : caught == 0 && run.attempts(c) > 0 ? run.attempts(c) + "t"
+                            + (com.teslamaps.config.TeslaMapsConfig.get().safariAttemptCounts && run.failures(c) > 0 ? " " + run.failures(c) + "e" : "") : "";
                 if (!note.isEmpty()) g.text(font, note, x + column - 8 - font.width(note), ry, DIM);
                 ry += LINE;
             }

@@ -370,5 +370,8 @@ final class Features {
         com.teslamaps.features.qol.QueueEstimate.register();
         com.teslamaps.features.qol.CalcXp.register();
         com.teslamaps.features.qol.ClockOffset.register();
+        // w08-06-hud
+        com.teslamaps.features.AbilityCooldowns.register();
+        com.teslamaps.features.TabWidgetHint.register();
     }
 }

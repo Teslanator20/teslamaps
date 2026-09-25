@@ -2150,6 +2150,23 @@ public class TeslaMapsConfig {
     public boolean hotkeyAdvanced = false;
     public String safariMissingChannel = "Party";
     public boolean oldSkyblockMenu = false;
+    // w08-06-hud
+    public boolean perfHudDay = false;
+    public boolean scoreboardPiggyToPurse = false;
+    public boolean scoreboardColorMonths = false;
+    public boolean abilityCooldownHud = false;
+    public boolean abilityCooldownNotify = false;
+    public boolean abilityCooldownShade = false;
+    public int abilityCooldownHudX = 10;
+    public int abilityCooldownHudY = 120;
+    public float abilityCooldownHudScale = 1.0f;
+    public boolean safariAnnounceAllButMacaw = false;
+    public boolean safariAttemptCounts = false;
+    public boolean tabWidgetHint = false;
+    public boolean hideHealthBar = false;
+    public boolean hideAirBar = false;
+    public boolean hideBossBar = false;
+    public boolean hideXpBar = false;
     // w07-04-qol
     public boolean signCalculator = false;
     public boolean signCalculatorEquals = false;
