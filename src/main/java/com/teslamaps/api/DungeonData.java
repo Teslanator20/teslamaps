@@ -108,6 +108,13 @@ public class DungeonData {
     // past level 50 every catacombs level costs a flat 200m, the table stops there
     private static final double OVERFLOW_XP = 200_000_000;
 
+    /** Total xp a catacombs level needs, flat 200m per level past 50. */
+    public static double xpForLevel(int level) {
+        int last = CATACOMBS_XP_TABLE.length - 1;
+        if (level <= last) return CATACOMBS_XP_TABLE[Math.max(0, level)];
+        return CATACOMBS_XP_TABLE[last] + (level - last) * OVERFLOW_XP;
+    }
+
     private void calculateCatacombsLevel() {
         double[] result = levelFor(catacombsXp);
         catacombsLevel = (int) result[0];
