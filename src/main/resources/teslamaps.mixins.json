@@ -13,7 +13,6 @@
     "CameraDistanceMixin",
     "OutlineWidthMixin",
     "BigItemsMixin",
-    "EnderManParticleMixin",
     "AvatarRendererSkinMixin",
     "ConeHatLayerMixin",
     "HubMapRendererMixin",
