@@ -424,5 +424,10 @@ final class Features {
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
         com.teslamaps.features.LookTargeting.register();
+        // w10-02-chat
+        com.teslamaps.features.ConfirmPrompt.register();
+        com.teslamaps.features.ChatSearch.register();
+        com.teslamaps.features.ChatEmotes.register();
+        com.teslamaps.features.ChatCompacts.register();
     }
 }

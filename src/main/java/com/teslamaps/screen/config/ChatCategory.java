@@ -139,6 +139,11 @@ public final class ChatCategory {
         b.toggle("Hide AOE Damage Messages", () -> config.chatFilterAoeDamage, v -> config.chatFilterAoeDamage = v);
         b.toggle("Hide Guild XP (GEXP)", () -> config.chatFilterGuildXp, v -> config.chatFilterGuildXp = v);
         b.toggle("Hide Kill Combo", () -> config.chatFilterKillCombo, v -> config.chatFilterKillCombo = v);
+        b.toggle("Hide Ability Cooldown Message", () -> config.chatFilterAbilityCooldown, v -> config.chatFilterAbilityCooldown = v)
+                .desc("\"This ability is on cooldown for Ns.\"").tags("cooldown", "hyperion", "ability");
+        b.toggle("Mute Ability Cooldown Sound", () -> config.muteAbilityCooldownSound, v -> config.muteAbilityCooldownSound = v)
+                .desc("Mutes Hypixel's loud cooldown sound in dungeons or while holding an item with an ability. Real endermen stay audible.")
+                .tags("cooldown", "sound", "mute");
         b.label("Spam / Info");
         groupAction(b, config, com.teslamaps.features.ChatFilter.G_SPAM, "  Spam Filter Action");
         b.toggle("Hide Stash Messages", () -> config.chatFilterStash, v -> config.chatFilterStash = v);

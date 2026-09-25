@@ -222,6 +222,10 @@ public class ChatFilter {
         old("chatFilterAoeDamage", G_COMBAT, false, c -> c.chatFilterAoeDamage, t -> (t.contains("enemies for") || t.contains("enemy for")) && t.contains("damage"));
         old("chatFilterGuildXp", G_COMBAT, false, c -> c.chatFilterGuildXp, t -> t.contains("from playing SkyBlock!"));
         old("chatFilterKillCombo", G_COMBAT, false, c -> c.chatFilterKillCombo, t -> t.contains("Kill Combo"));
+        old("chatFilterAbilityCooldown", G_COMBAT, false, c -> c.chatFilterAbilityCooldown, t -> {
+            String s = t.trim();
+            return s.startsWith("This ability is on cooldown for ") && s.endsWith("s.");
+        });
 
         old("chatFilterStash", G_SPAM, false, c -> c.chatFilterStash, t -> t.contains("stashed away!")
                 || t.contains("materials stashed!") || t.contains("types of materials stashed")
