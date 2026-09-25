@@ -80,15 +80,16 @@ public class ThreeWeirdos {
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (!TeslaMapsConfig.get().solveThreeWeirdos) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.solveThreeWeirdos) return;
 
         try {
+            int correct = TeslaMapsConfig.parseColor(c.colorWeirdosCorrect);
+            int wrong = TeslaMapsConfig.parseColor(c.colorWeirdosWrong);
             for (var e : npcBoxes.entrySet()) {
                 boolean isTarget = e.getKey().equals(targetNpcName);
-                int fill = targetNpcName == null ? 0xFFFFFFFF : (isTarget ? 0xFF00FF00 : 0xFFFF0000);
-                int outline = targetNpcName == null ? 0xFFFFFFFF : (isTarget ? 0xFF00FF00 : 0xFFFF0000);
-                ESPRenderer.drawFilledBox(matrices, e.getValue(), fill, cameraPos, true);
-                ESPRenderer.drawBoxOutline(matrices, e.getValue(), outline, 3.0f, cameraPos, true);
+                int color = targetNpcName == null ? 0x80FFFFFF : (isTarget ? correct : wrong);
+                PuzzleDraw.box(matrices, e.getValue(), color, c.weirdosStyle, 3.0f, cameraPos, true);
             }
 
             for (BlockPos pos : clickedChests) {
@@ -98,9 +99,8 @@ public class ThreeWeirdos {
             }
 
             if (correctChestBox != null && !disabled && !clickedChests.contains(correctChestPos)) {
-                ESPRenderer.drawFilledBox(matrices, correctChestBox, 0x8000FF00, cameraPos);
-                ESPRenderer.drawBoxOutline(matrices, correctChestBox, 0xFF00FF00, 5.0f, cameraPos);
-                ESPRenderer.drawTracerFromCamera(matrices, correctChestBox.getCenter(), 0xFF00FF00, cameraPos);
+                PuzzleDraw.box(matrices, correctChestBox, correct, c.weirdosStyle, 5.0f, cameraPos, true);
+                ESPRenderer.drawTracerFromCamera(matrices, correctChestBox.getCenter(), correct | 0xFF000000, cameraPos);
             }
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[ThreeWeirdos] Error rendering solution", e);
@@ -131,6 +131,9 @@ public class ThreeWeirdos {
 
         TeslaMaps.debug("[ThreeWeirdos] NPC='{}', message='{}'", npcName, stripped);
 
+        if (targetNpcName == null && TeslaMapsConfig.get().weirdosSolvedSound) {
+            mc.player.playSound(com.teslamaps.utils.SoundOptions.resolve(TeslaMapsConfig.get().weirdosSound), 2.0f, 1.0f);
+        }
         targetNpcName = npcName;
         TeslaMaps.debug("[ThreeWeirdos] Pattern matched! NPC '{}' has the correct chest", targetNpcName);
         findNpcAndChest(targetNpcName);
@@ -193,6 +196,28 @@ public class ThreeWeirdos {
         } else {
             TeslaMaps.LOGGER.warn("[ThreeWeirdos] No chest found near NPC '{}'", npcName);
         }
+    }
+
+    /** true = swallow the click: a chest next to a lying weirdo once the right one is known (sneak overrides). */
+    public static boolean blockClick(BlockPos pos) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.solveThreeWeirdos || !c.weirdosBlockWrongClicks || com.teslamaps.features.LegitMode.blocksCheats()) return false;
+        if (!c.section("Puzzles & Terminals")) return false;
+        if (correctChestPos == null || targetNpcName == null || disabled) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null || mc.player.isCrouching()) return false;
+        if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return false;
+        com.teslamaps.map.DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null || !"Three Weirdos".equals(room.getName())) return false;
+        if (pos.equals(correctChestPos)) return false;
+        if (mc.level.getBlockState(pos).getBlock() != Blocks.CHEST) return false;
+        for (var e : npcBoxes.entrySet()) {
+            if (e.getKey().equals(targetNpcName)) continue;
+            Vec3 center = e.getValue().getCenter();
+            double dx = pos.getX() + 0.5 - center.x, dz = pos.getZ() + 0.5 - center.z;
+            if (dx * dx + dz * dz <= 2.25 && Math.abs(pos.getY() - e.getValue().minY) <= 2) return true;
+        }
+        return false;
     }
 
     public static void onChestClick(BlockPos pos) {

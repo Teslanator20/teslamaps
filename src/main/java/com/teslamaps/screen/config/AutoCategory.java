@@ -40,6 +40,10 @@ public final class AutoCategory {
 
         b.label("Special");
         b.toggle("Auto Draft on Puzzle Fail", () -> config.autoGFSDraft, v -> config.autoGFSDraft = v);
+        b.dropdown("  Draft Mode", com.teslamaps.features.AutoGFS.DRAFT_MODES,
+                () -> config.draftMode, v -> config.draftMode = v)
+                .desc("Click in Chat: a clickable line instead of the automatic /gfs, also works in Legit Mode");
+        b.toggle("  Also on Party Fails", () -> config.draftPartyFails, v -> config.draftPartyFails = v);
         b.toggle("  Draft Alert Title", () -> config.autoGFSDraftAlert, v -> config.autoGFSDraftAlert = v);
         b.toggle("  Announce Draft Reset (/pc)", () -> config.autoGFSDraftAnnounce, v -> config.autoGFSDraftAnnounce = v);
         b.label("Auto Wish");

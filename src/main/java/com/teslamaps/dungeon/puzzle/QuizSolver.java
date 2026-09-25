@@ -239,12 +239,39 @@ public class QuizSolver {
                 pos.getX(), pos.getY(), pos.getZ(),
                 pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1
             );
-            ESPRenderer.drawESPBox(matrices, box, color, cameraPos);
+            PuzzleDraw.box(matrices, box, color, TeslaMapsConfig.get().quizStyle, 3.0f, cameraPos, !TeslaMapsConfig.get().quizDepthCheck);
 
             if (TeslaMapsConfig.get().quizBeacon) {
                 ESPRenderer.drawBeaconBeam(matrices, pos, color, cameraPos);
             }
         }
+    }
+
+    /** true = swallow the click: next to a wrong answer while exactly one answer is known right (sneak overrides). */
+    public static boolean blockClick(BlockPos pos) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.solveQuiz || !c.quizBlockWrongClicks || com.teslamaps.features.LegitMode.blocksCheats()) return false;
+        if (!c.section("Puzzles & Terminals")) return false;
+        if (currentAnswers == null) return false;
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.player == null || mc.player.isCrouching()) return false;
+        if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return false;
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null || !"Quiz".equals(room.getName())) return false;
+        int correct = -1;
+        for (int i = 0; i < 3; i++) {
+            if (triviaOptions[i].worldPos == null) return false;
+            if (triviaOptions[i].isCorrect) {
+                if (correct >= 0) return false;
+                correct = i;
+            }
+        }
+        if (correct < 0) return false;
+        if (triviaOptions[correct].worldPos.distManhattan(pos) <= 2) return false;
+        for (int i = 0; i < 3; i++) {
+            if (i != correct && triviaOptions[i].worldPos.distManhattan(pos) <= 1) return true;
+        }
+        return false;
     }
 
     public static boolean isActive() { return currentAnswers != null; }
@@ -279,7 +306,8 @@ public class QuizSolver {
         if (!TeslaMapsConfig.get().quizChatHighlight) return null;
         if (classifyLine(message.getString()) != QuizLine.CORRECT) return null;
         String stripped = message.getString().replaceAll("(?i)§[0-9A-FK-OR]", "");
-        return Component.literal("§c§l" + stripped); // red + bold
+        int rgb = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorQuizChat) & 0xFFFFFF;
+        return Component.literal(stripped).withStyle(s -> s.withColor(rgb).withBold(true));
     }
 
     public static void reset() {

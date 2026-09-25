@@ -48,14 +48,24 @@ public class NoSoundsMixin {
             return;
         }
 
+        if ((c.creeperBeamsMuteHurt || c.creeperBeamsMuteExplosion) && c.section("Puzzles & Terminals") && inCreeperBeams()) {
+            if (c.creeperBeamsMuteHurt && (sound == SoundEvents.CREEPER_HURT || sound == SoundEvents.CREEPER_PRIMED)) { ci.cancel(); return; }
+            if (c.creeperBeamsMuteExplosion && sound == SoundEvents.GENERIC_EXPLODE.value()) { ci.cancel(); return; }
+        }
+
         if (c.creeperBeamsDing && inCreeperBeams()) {
             boolean hit = (sound == SoundEvents.EXPERIENCE_ORB_PICKUP && approx(pitch, 0.7936508f))
                     || (sound == SoundEvents.ELDER_GUARDIAN_HURT && (approx(pitch, 1.3968254f) || approx(pitch, 2.0f)));
             if (hit) {
-                play(SoundEvents.NOTE_BLOCK_IRON_XYLOPHONE.value());
+                play(dingSound(c));
                 ci.cancel();
             }
         }
+    }
+
+    private static SoundEvent dingSound(TeslaMapsConfig c) {
+        if (c.creeperBeamsSound == null || "NOTE_IRON_XYLO".equals(c.creeperBeamsSound)) return SoundEvents.NOTE_BLOCK_IRON_XYLOPHONE.value();
+        return com.teslamaps.utils.SoundOptions.resolve(c.creeperBeamsSound);
     }
 
     private static boolean approx(float a, float b) { return Math.abs(a - b) < 0.01f; }

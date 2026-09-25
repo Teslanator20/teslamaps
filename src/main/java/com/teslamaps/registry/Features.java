@@ -94,5 +94,7 @@ final class Features {
         com.teslamaps.dungeon.MapExtras.register();
         com.teslamaps.dungeon.RoomAlerts.register();
         com.teslamaps.features.SecretHud.register();
+        // w02-04-puz
+        com.teslamaps.dungeon.puzzle.TicTacToe.register();
     }
 }

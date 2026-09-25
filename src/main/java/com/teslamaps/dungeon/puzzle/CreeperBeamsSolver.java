@@ -186,12 +186,14 @@ public class CreeperBeamsSolver {
         if (!TeslaMapsConfig.get().solveCreeperBeams) return;
         if (currentPairs.isEmpty()) return;
 
+        TeslaMapsConfig c = TeslaMapsConfig.get();
         for (LanternPair pair : currentPairs) {
             AABB box1 = new AABB(pair.pos1);
             AABB box2 = new AABB(pair.pos2);
 
-            ESPRenderer.drawESPBox(matrices, box1, pair.color, cameraPos);
-            ESPRenderer.drawESPBox(matrices, box2, pair.color, cameraPos);
+            int color = PuzzleDraw.alpha(pair.color, c.creeperBeamsAlpha);
+            PuzzleDraw.box(matrices, box1, color, c.creeperBeamsStyle, 3.0f, cameraPos, true);
+            PuzzleDraw.box(matrices, box2, color, c.creeperBeamsStyle, 3.0f, cameraPos, true);
 
             if (TeslaMapsConfig.get().creeperBeamsTracers) {
                 Vec3 center1 = Vec3.atCenterOf(pair.pos1);

@@ -2276,6 +2276,33 @@ public class TeslaMapsConfig {
     public int secretHudX = 10;
     public int secretHudY = 120;
     public float secretHudScale = 1.0f;
+    // w02-04-puz
+    public boolean tttShowAllBest = false;
+    public boolean tttGamble = false;
+    public boolean tttPrediction = false;
+    public boolean tttDoneMessage = false;
+    public String tttStyle = "Filled + Outline";
+    public String colorTttBest = "8000FF00";
+    public String colorTttGamble = "80FFAA00";
+    public String colorTttPrediction = "50FFA500";
+    public String creeperBeamsSound = "NOTE_IRON_XYLO";
+    public boolean creeperBeamsMuteHurt = false;
+    public boolean creeperBeamsMuteExplosion = false;
+    public String creeperBeamsStyle = "ESP Default";
+    public float creeperBeamsAlpha = 1.0f;
+    public String weirdosStyle = "Filled + Outline";
+    public String colorWeirdosCorrect = "8000FF00";
+    public String colorWeirdosWrong = "80FF0000";
+    public boolean weirdosSolvedSound = false;
+    public String weirdosSound = "NOTE_PLING";
+    public String quizStyle = "ESP Default";
+    public boolean quizDepthCheck = false;
+    public String colorQuizChat = "FF5555";
+    public String draftMode = "Auto";
+    public boolean draftPartyFails = false;
+    public boolean quizBlockWrongClicks = false;
+    public boolean tttBlockWrongClicks = false;
+    public boolean weirdosBlockWrongClicks = false;
 
     public static TeslaMapsConfig get() {
         return instance;
