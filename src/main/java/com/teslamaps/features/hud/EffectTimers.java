@@ -114,6 +114,12 @@ public final class EffectTimers {
 
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
+    /** Expiry timestamp of an effect by tab name, 0 if unknown. */
+    public static long expiresAt(String tab) {
+        for (Map.Entry<Effect, Long> e : expiry.entrySet()) if (e.getKey().tab().equals(tab)) return e.getValue();
+        return 0;
+    }
+
     public static void register() {
         hud = HudEditElement.of("effectTimers", "Effect Timers")
                 .enabled(() -> cfg().effectTimers)

@@ -3,35 +3,23 @@ package com.teslamaps.features.garden;
 // After SkyHanni's GardenCropMilestoneDisplay and CropMilestonesApi
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.FarmSpeed;
+import com.teslamaps.features.GardenMilestoneData;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.features.pets.PetTracker;
-import com.teslamaps.profileviewer.data.GardenRegistry;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.registry.HudEditElement;
-import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.LineOrder;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
-import com.teslamaps.utils.TabListUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** Milestone tier, progress and time to the next tier for the crop in hand, plus the Mooshroom Cow perk. */
 public final class CropMilestoneHud {
@@ -40,28 +28,16 @@ public final class CropMilestoneHud {
     private static final String[] KEYS = {"title", "tier", "progress", "percent", "time", "cps", "cpm", "cph", "bps"};
     private static final String[] LABELS = {"Title", "Milestone Tier", "Progress x/y", "Percentage", "Time To Next Tier",
             "Crops/Second", "Crops/Minute", "Crops/Hour", "Blocks/Second"};
-    private static final Pattern TAB = Pattern.compile("^([A-Za-z ]+) (\\d+): (?:([\\d.]+)%|MAX)$");
-    private static final Pattern HARVEST = Pattern.compile("^Harvest (.+?) on ");
-    private static final Pattern TOTAL = Pattern.compile("^Total: ([\\d,]+)");
-    private static final String[][] TOOLS = {
-            {"THEORETICAL_HOE_WHEAT", "WHEAT"}, {"THEORETICAL_HOE_CARROT", "CARROT_ITEM"},
-            {"THEORETICAL_HOE_POTATO", "POTATO_ITEM"}, {"THEORETICAL_HOE_WARTS", "NETHER_STALK"},
-            {"THEORETICAL_HOE_CANE", "SUGAR_CANE"}, {"THEORETICAL_HOE_WILD_ROSE", "WILD_ROSE"},
-            {"THEORETICAL_HOE_SUNFLOWER", "DOUBLE_PLANT"}, {"PUMPKIN_DICER", "PUMPKIN"}, {"MELON_DICER", "MELON"},
-            {"COCO_CHOPPER", "INK_SACK:3"}, {"CACTUS_KNIFE", "CACTUS"}, {"FUNGI_CUTTER", "MUSHROOM_COLLECTION"}};
     private static final List<String> SAMPLE = List.of("§6Crop Milestones", "§7Wheat §830➜§331", "§e412,334§8/§e800,000",
             "§7Percentage: §e51.5%", "§7In §b6m 28s", "§7Crops/Second§8: §e1,002");
     private static final List<String> SAMPLE_COW = List.of("§6Mooshroom Cow Perk", "§7Mushroom §825➜§326", "§7In §b1h 3m");
 
-    private record TabTier(int tier, double percent, boolean max) {}
-
-    private static final Map<String, TabTier> tabTiers = new HashMap<>();
     private static final ArrayDeque<long[]> samples = new ArrayDeque<>();
     private static HudEditElement hud, cowHud;
     private static List<String> lines = List.of(), cowLines = List.of();
     private static int width, cowWidth, ticks, warnedTier = -1;
-    private static String crop, lastToolUuid;
-    private static long lastCounter = -1, lastGain;
+    private static String crop;
+    private static long lastGain;
 
     private CropMilestoneHud() {}
 
@@ -106,51 +82,24 @@ public final class CropMilestoneHud {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs && ticks % 10 == 0) readMenu(cs);
         if (!SkyblockUtils.isInGarden() || mc.player == null) {
             lines = List.of();
             cowLines = List.of();
             ticks++;
             return;
         }
-        ItemStack held = mc.player.getMainHandItem();
-        String c = cropOf(ItemUtil.skyblockId(held));
-        if (c != null) {
-            crop = c;
-            counter(held, c);
-        }
+        String c = GardenMilestoneData.heldToolCrop();
+        if (c != null) crop = c;
         if (++ticks % 10 != 0) return;
-        readTab();
         build();
     }
 
-    private static String cropOf(String id) {
-        if (id == null || id.isEmpty()) return null;
-        for (String[] t : TOOLS) if (id.startsWith(t[0])) return t[1];
-        return null;
-    }
-
-    private static void counter(ItemStack held, String c) {
-        CustomData d = held.get(DataComponents.CUSTOM_DATA);
-        if (d == null) return;
-        var tag = d.copyTag();
-        long value = tag.getLongOr("farmed_cultivating", -1L);
-        if (value < 0) value = tag.getLongOr("mined_crops", -1L);
-        if (value < 0) return;
-        String uuid = ItemUtil.itemUuid(held);
-        if (!java.util.Objects.equals(uuid, lastToolUuid)) {
-            lastToolUuid = uuid;
-            lastCounter = value;
-            return;
-        }
-        long gain = value - lastCounter;
-        lastCounter = value;
+    /** From GardenMilestoneData, milestone crops gained by the tool in hand. */
+    public static void onGain(long gain) {
         if (gain <= 0 || gain > 100_000) return;
         long now = System.currentTimeMillis();
         samples.addLast(new long[]{now, gain});
         lastGain = now;
-        Long total = cfg().cropMilestoneTotals.get(c);
-        if (total != null) cfg().cropMilestoneTotals.put(c, total + gain);
     }
 
     private static double cropsPerSecond() {
@@ -163,84 +112,20 @@ public final class CropMilestoneHud {
         return sum / Math.max(1.0, span);
     }
 
-    private static void readMenu(AbstractContainerScreen<?> cs) {
-        if (!StringUtil.stripTrim(cs.getTitle().getString()).startsWith("Crop Milestones")) return;
-        boolean changed = false;
-        for (Slot s : cs.getMenu().slots) {
-            if (s.container instanceof Inventory || !s.hasItem()) continue;
-            String cropKey = null;
-            long total = -1;
-            for (String l : ItemUtil.loreLines(s.getItem())) {
-                String t = l.trim();
-                Matcher h = HARVEST.matcher(t);
-                if (h.find()) cropKey = keyForName(h.group(1));
-                Matcher m = TOTAL.matcher(t);
-                if (m.find()) total = Long.parseLong(m.group(1).replace(",", ""));
-            }
-            if (cropKey == null || total < 0) continue;
-            Long old = cfg().cropMilestoneTotals.put(cropKey, total);
-            if (old == null || old != total) changed = true;
-        }
-        if (changed) TeslaMapsConfig.save();
-    }
+    private record Info(int tier, int next, long have, long need, boolean maxed) {}
 
-    private static String keyForName(String name) {
-        String n = name.trim();
-        if (n.equals("Melon Slice")) n = "Melon";
-        if (n.equals("Red Mushroom") || n.equals("Brown Mushroom")) n = "Mushroom";
-        for (GardenRegistry.Crop c : GardenRegistry.CROPS) if (c.display().equalsIgnoreCase(n)) return c.key();
-        return null;
-    }
-
-    private static void readTab() {
-        for (String line : TabListUtils.getTabListLines()) {
-            String s = StringUtil.stripTrim(line);
-            if (s.indexOf(':') < 0) continue;
-            Matcher m = TAB.matcher(s);
-            if (!m.matches()) continue;
-            String key = keyForName(m.group(1));
-            if (key == null) continue;
-            tabTiers.put(key, new TabTier(Integer.parseInt(m.group(2)),
-                    m.group(3) == null ? 100 : Double.parseDouble(m.group(3)), m.group(3) == null));
-        }
-    }
-
-    private static String display(String key) {
-        for (GardenRegistry.Crop c : GardenRegistry.CROPS) if (c.key().equals(key)) return c.display();
-        return key;
-    }
-
-    private record Info(int tier, int next, long have, long need, boolean maxed, boolean exact) {}
-
-    private static Info info(String key) {
+    private static Info info(String name) {
         TeslaMapsConfig c = cfg();
-        Long total = c.cropMilestoneTotals.get(key);
-        if (total != null) {
-            GardenRegistry.Milestone ms = GardenRegistry.milestone(key, total);
-            int tier = ms.tier();
-            boolean maxed = tier >= 46 && !c.cropMilestoneHudOverflow;
-            int next = c.cropMilestoneGoal > tier ? c.cropMilestoneGoal : tier + 1;
-            long need = totalFor(key, next) - totalFor(key, tier);
-            long have = total - totalFor(key, tier);
-            if (c.cropMilestoneGoal > tier + 1) { have = total; need = totalFor(key, next); }
-            return new Info(tier, next, have, need, maxed, true);
-        }
-        TabTier t = tabTiers.get(key);
-        if (t == null) return null;
-        long need = totalFor(key, t.tier + 1) - totalFor(key, t.tier);
-        return new Info(t.tier, t.tier + 1, (long) (need * t.percent / 100), need,
-                t.max && !c.cropMilestoneHudOverflow, false);
-    }
-
-    /** Crops needed from zero to reach a tier, overflowing at the last bracket. */
-    private static long totalFor(String key, int tier) {
-        long lo = 0, hi = 1L << 40;
-        while (lo < hi) {
-            long mid = (lo + hi) >>> 1;
-            if (GardenRegistry.milestone(key, mid).tier() >= tier) hi = mid;
-            else lo = mid + 1;
-        }
-        return lo;
+        long total = GardenMilestoneData.counter(name);
+        if (total < 0) return null;
+        int tier = GardenMilestoneData.tierOf(name, total);
+        boolean maxed = tier >= GardenMilestoneData.maxTier(name) && !c.cropMilestoneHudOverflow;
+        int next = c.cropMilestoneGoal > tier ? c.cropMilestoneGoal : tier + 1;
+        long base = GardenMilestoneData.totalForTier(name, tier);
+        long need = GardenMilestoneData.totalForTier(name, next) - base;
+        long have = total - base;
+        if (c.cropMilestoneGoal > tier + 1) { have = total; need = GardenMilestoneData.totalForTier(name, next); }
+        return new Info(tier, next, have, need, maxed);
     }
 
     private static void build() {
@@ -253,9 +138,9 @@ public final class CropMilestoneHud {
             if (in == null) {
                 l.key("tier").add("§cOpen §e/cropmilestones §cto update!");
             } else {
-                l.key("tier").add(in.maxed ? "§7" + display(crop) + " §eMAXED" : "§7" + display(crop) + " §8" + in.tier + "➜§3" + in.next);
+                l.key("tier").add(in.maxed ? "§7" + crop + " §eMAXED" : "§7" + crop + " §8" + in.tier + "➜§3" + in.next);
                 if (!in.maxed) {
-                    l.key("progress").add("§e" + fmt(in.have) + "§8/§e" + fmt(in.need) + (in.exact ? "" : " §8~"));
+                    l.key("progress").add("§e" + fmt(in.have) + "§8/§e" + fmt(in.need));
                     double pct = in.need <= 0 ? 100 : in.have * 100.0 / in.need;
                     l.key("percent").add("§7Percentage: §e" + String.format(Locale.ROOT, "%.1f%%", pct));
                     if (cps > 0) {
@@ -278,9 +163,9 @@ public final class CropMilestoneHud {
             lines = List.of();
         }
         String pet = PetTracker.displayName();
-        if (c.mooshroomPerkHud && crop != null && !crop.equals("MUSHROOM_COLLECTION")
+        if (c.mooshroomPerkHud && crop != null && !crop.equals("Mushroom")
                 && pet != null && StringUtil.strip(pet).contains("Mooshroom Cow")) {
-            Info in = info("MUSHROOM_COLLECTION");
+            Info in = info("Mushroom");
             List<String> out = new ArrayList<>(4);
             out.add("§6Mooshroom Cow Perk");
             if (in == null) {
@@ -290,7 +175,7 @@ public final class CropMilestoneHud {
                 if (!in.maxed) {
                     out.add("§e" + fmt(in.have) + "§8/§e" + fmt(in.need));
                     double bps = FarmSpeed.blocksPerSecond()
-                            * (crop.equals("SUGAR_CANE") || crop.equals("CACTUS") ? 2 : 1);
+                            * (crop.equals("Sugar Cane") || crop.equals("Cactus") ? 2 : 1);
                     if (bps > 0) out.add("§7In §b" + Composter.format((long) ((in.need - in.have) / bps * 1000)));
                 }
             }
@@ -306,7 +191,7 @@ public final class CropMilestoneHud {
         warnedTier = in.tier;
         Minecraft mc = Minecraft.getInstance();
         mc.gui.setTimes(0, 60, 10);
-        mc.gui.setTitle(Component.literal("§b" + display(crop) + " " + in.next));
+        mc.gui.setTitle(Component.literal("§b" + crop + " " + in.next));
         mc.gui.setSubtitle(Component.literal("§7in " + secs + "s"));
     }
 

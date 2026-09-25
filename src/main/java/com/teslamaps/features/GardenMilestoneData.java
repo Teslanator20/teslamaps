@@ -6,7 +6,9 @@ import com.google.gson.GsonBuilder;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.profileviewer.data.GardenRegistry;
+import com.teslamaps.features.garden.CropMilestoneHud;
 import com.teslamaps.registry.Feature;
+import com.teslamaps.utils.ContainerState;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.ProfiledFile;
 import com.teslamaps.utils.SkyblockUtils;
@@ -80,8 +82,7 @@ public final class GardenMilestoneData {
     private static long gainedThisSecond;
     private static final List<Long> perSecond = new ArrayList<>();
     private static String speedCrop;
-    private static net.minecraft.client.gui.screens.Screen scannedScreen;
-    private static int scannedState = -1;
+    private static int scannedVersion = -1;
 
     private GardenMilestoneData() {}
 
@@ -96,7 +97,8 @@ public final class GardenMilestoneData {
     /** Some feature needs the numbers. */
     public static boolean wanted() {
         TeslaMapsConfig c = cfg();
-        return (c.section("Garden") && (c.bestCropTime || c.cropStartLocation || c.gardenLevelHud || c.cropFeverTracker))
+        return (c.section("Garden") && (c.bestCropTime || c.cropStartLocation || c.gardenLevelHud || c.cropFeverTracker
+                || c.cropMilestoneHud || c.mooshroomPerkHud || c.cropSpeedMeter || c.cropCalcCommands))
                 || (c.section("Skills") && c.skillOverflow && c.cropMilestoneOverflow);
     }
 
@@ -305,6 +307,7 @@ public final class GardenMilestoneData {
     }
 
     private static void addGained(String crop, long gained) {
+        if (cfg().cropMilestoneHud || cfg().mooshroomPerkHud) CropMilestoneHud.onGain(gained);
         if (!crop.equals(speedCrop)) {
             speedCrop = crop;
             perSecond.clear();
@@ -344,7 +347,7 @@ public final class GardenMilestoneData {
             String line = StringUtil.strip(raw);
             Matcher m = TAB.matcher(line);
             if (!m.matches()) continue;
-            String crop = m.group(1).trim();
+            String crop = cropName(m.group(1));
             if (!CROPS.containsKey(crop)) continue;
             int tier = Integer.parseInt(m.group(2));
             long base = totalForTier(crop, tier);
@@ -363,10 +366,9 @@ public final class GardenMilestoneData {
 
     private static void readMenu(AbstractContainerScreen<?> cs) {
         if (!StringUtil.stripTrim(cs.getTitle().getString()).equals("Crop Milestones")) return;
-        int state = cs.getMenu().getStateId();
-        if (cs == scannedScreen && state == scannedState) return;
-        scannedScreen = cs;
-        scannedState = state;
+        int v = ContainerState.version();
+        if (v == scannedVersion || !ContainerState.fullyOpened(cs.getMenu().containerId)) return;
+        scannedVersion = v;
         boolean any = false;
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof Inventory) continue;
@@ -377,7 +379,7 @@ public final class GardenMilestoneData {
             for (String l : ItemUtil.loreLines(stack)) {
                 String s = StringUtil.stripTrim(l);
                 Matcher h = HARVEST.matcher(s);
-                if (crop == null && h.matches()) crop = h.group(1).trim();
+                if (crop == null && h.matches()) crop = cropName(h.group(1));
                 Matcher t = TOTAL.matcher(s);
                 if (total < 0 && t.matches()) total = Long.parseLong(t.group(1).replace(",", ""));
             }
@@ -385,7 +387,19 @@ public final class GardenMilestoneData {
             setCounter(crop, total);
             any = true;
         }
-        if (any) save();
+        if (!any) return;
+        save();
+        if (cfg().cropSpeedMeter && cfg().section("Garden")) CropSpeedMeter.onMilestones();
+    }
+
+    /** Hypixel's alternative crop names mapped onto the milestone names. */
+    public static String cropName(String name) {
+        String n = name.trim();
+        return switch (n) {
+            case "Melon Slice" -> "Melon";
+            case "Red Mushroom", "Brown Mushroom" -> "Mushroom";
+            default -> n;
+        };
     }
 
     /** Milestone crop of a Crop Milestones item, null for anything else. */
@@ -393,7 +407,7 @@ public final class GardenMilestoneData {
         for (String l : ItemUtil.loreLines(stack)) {
             Matcher h = HARVEST.matcher(StringUtil.stripTrim(l));
             if (h.matches()) {
-                String crop = h.group(1).trim();
+                String crop = cropName(h.group(1));
                 return CROPS.containsKey(crop) ? crop : null;
             }
         }
@@ -405,7 +419,7 @@ public final class GardenMilestoneData {
         if (!line.contains("GARDEN MILESTONE")) return;
         Matcher m = LEVEL_UP.matcher(line);
         if (!m.matches()) return;
-        String crop = m.group(1).trim();
+        String crop = cropName(m.group(1));
         if (!CROPS.containsKey(crop)) return;
         int tier = parseTier(m.group(3));
         if (tier <= 0) return;
