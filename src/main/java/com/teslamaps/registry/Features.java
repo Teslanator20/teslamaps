@@ -257,5 +257,12 @@ final class Features {
         com.teslamaps.features.mining.HotmPerks.register();
         com.teslamaps.features.GemstoneBuffs.register();
         com.teslamaps.features.ItemCycle.register();
+        // w06-03-qol
+        com.teslamaps.features.qol.FairySouls.register();
+        com.teslamaps.features.qol.GameTweaks.register();
+        com.teslamaps.features.qol.EnchantedClock.register();
+        com.teslamaps.features.qol.UpgradeReminder.register();
+        com.teslamaps.features.qol.CityProject.register();
+        com.teslamaps.features.qol.CenturyCake.register();
     }
 }

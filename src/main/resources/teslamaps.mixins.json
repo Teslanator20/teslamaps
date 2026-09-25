@@ -3,6 +3,8 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "PauseScreenMixin",
+    "FocusLossMixin",
     "TooltipStyleMixin",
     "AbstractButtonMixin",
     "OldMasterStarMixin",
