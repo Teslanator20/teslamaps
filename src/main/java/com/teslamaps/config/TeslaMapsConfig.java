@@ -2149,6 +2149,20 @@ public class TeslaMapsConfig {
     public boolean achievementSound = true;
     public boolean crashOnDeath = false;
     public boolean crashOnTttFail = false;
+    // w06-09-qol
+    public boolean spiderRelics = false;
+    public boolean spiderRelicsShowFound = false;
+    public boolean spiderRelicsPath = true;
+    public boolean ravengardLootBagChecks = false;
+    public boolean teleportPadCompactName = false;
+    public boolean teleportPadNumbers = false;
+    public boolean skyblockTimeReminder = false;
+    public boolean skyblockTimeReminderSound = true;
+    public boolean seeThroughWindow = false;
+    public int seeThroughWindowKey = -1;
+    public int seeThroughWindowOpacity = 50;
+    public boolean soopyCommands = false;
+    public boolean spyMode = false;
     // w05-02-inv
     public boolean menuSlotText = false;
     public boolean mstLevels = true;

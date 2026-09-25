@@ -264,5 +264,13 @@ final class Features {
         // w06-02-qol
         com.teslamaps.features.MiscQol.register();
         com.teslamaps.features.Achievements.register();
+        // w06-09-qol
+        com.teslamaps.features.SpiderRelics.register();
+        com.teslamaps.features.RavengardLootBags.register();
+        com.teslamaps.features.TeleportPads.register();
+        com.teslamaps.features.SkyblockTimeReminder.register();
+        com.teslamaps.features.SeeThroughWindow.register();
+        com.teslamaps.features.SoopyCommand.register();
+        com.teslamaps.features.SpyMode.register();
     }
 }
