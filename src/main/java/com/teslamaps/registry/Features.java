@@ -257,5 +257,13 @@ final class Features {
         com.teslamaps.features.mining.HotmPerks.register();
         com.teslamaps.features.GemstoneBuffs.register();
         com.teslamaps.features.ItemCycle.register();
+        // w06-09-qol
+        com.teslamaps.features.SpiderRelics.register();
+        com.teslamaps.features.RavengardLootBags.register();
+        com.teslamaps.features.TeleportPads.register();
+        com.teslamaps.features.SkyblockTimeReminder.register();
+        com.teslamaps.features.SeeThroughWindow.register();
+        com.teslamaps.features.SoopyCommand.register();
+        com.teslamaps.features.SpyMode.register();
     }
 }

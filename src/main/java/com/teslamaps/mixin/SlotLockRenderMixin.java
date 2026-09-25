@@ -24,5 +24,6 @@ public abstract class SlotLockRenderMixin {
         com.teslamaps.features.AttributeOverlay.render(ctx);
         com.teslamaps.features.BrewingStandOverlay.render(ctx);
         com.teslamaps.features.MagicalPowerStack.render(ctx);
+        com.teslamaps.features.TeleportPads.render(ctx);
     }
 }
