@@ -30,7 +30,7 @@ public class ConfigHotkey {
         if (mc.screen != null && !ours) return false;
 
         if (action == GLFW.GLFW_PRESS) {
-            mc.setScreen(ours ? null : new MapConfigScreen());
+            mc.setScreen(ours ? null : MapConfigScreen.open());
         }
         // release and repeat go the same way, otherwise the other mod still sees half the press
         return c.configScreenKeyExclusive;
