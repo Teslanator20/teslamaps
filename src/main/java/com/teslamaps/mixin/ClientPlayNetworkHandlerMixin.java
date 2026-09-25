@@ -82,6 +82,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.SecretTrackerLocator.onParticle(packet);
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
         com.teslamaps.features.foraging.FloorDrops.onParticle(packet);
+        com.teslamaps.features.GlowingMushrooms.onParticle(packet);
         com.teslamaps.features.EventTracker.onParticle(packet);
         com.teslamaps.features.mobvisuals.MobVisuals.onParticle(packet);
         com.teslamaps.features.mining.TreasureChestHelper.onParticle(packet);
