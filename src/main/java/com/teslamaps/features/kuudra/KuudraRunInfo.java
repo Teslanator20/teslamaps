@@ -15,12 +15,6 @@ public final class KuudraRunInfo {
 
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
-    /** KuudraBuild.stateNeeded: these helpers read the phase. */
-    public static boolean needsState() {
-        TeslaMapsConfig c = cfg();
-        return c.kuudraPileWaypoints || c.kuudraShopHelper;
-    }
-
     public static void register() {
         FeatureRegistry.category("Kuudra", "Skyblock", true);
         KuudraPileWaypoints.register();
@@ -32,17 +26,16 @@ public final class KuudraRunInfo {
     }
 
     public static boolean inKuudra() {
-        return KuudraBuild.inKuudra();
+        return Kuudra.inKuudra();
     }
 
-    /** 0 = not started, 1 supplies, 2 build, 3 stun/dps, 4 kill. */
-    public static int phase() {
-        return inKuudra() ? KuudraBuild.phase : 0;
+    public static boolean supplies() {
+        return Kuudra.inKuudra() && Kuudra.phase() == Kuudra.Phase.SUPPLIES;
     }
 
     /** Wall time of Elle's start line, 0 = none this instance. */
     public static long startMs() {
-        return KuudraSupply.runStart;
+        return Kuudra.runStartMs();
     }
 
     public static String strip(String raw) {

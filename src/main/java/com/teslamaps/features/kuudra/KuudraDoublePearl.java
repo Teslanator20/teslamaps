@@ -11,7 +11,6 @@ import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -60,8 +59,8 @@ public final class KuudraDoublePearl {
         AABB pearl = new AABB(p.getX() - 0.3, eye.y, p.getZ() - 0.3, p.getX() + 0.3, eye.y, p.getZ() + 0.3);
         AABB body = p.getBoundingBox();
         double best = Double.MAX_VALUE;
-        for (Entity e : mc.level.entitiesForRendering()) {
-            if (!(e instanceof Giant g)) continue;
+        for (Giant g : Kuudra.giants()) {
+            if (g.isRemoved()) continue;
             AABB box = g.getBoundingBox();
             int l = blocksPearl(box, pearl) ? 2 : box.intersects(body) ? 1 : 0;
             if (l == 0) continue;

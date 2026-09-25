@@ -66,7 +66,7 @@ public final class KuudraShopHelper {
 
     private static void tick() {
         long start = KuudraRunInfo.startMs();
-        if (KuudraRunInfo.phase() != 1 || start == 0) {
+        if (!KuudraRunInfo.supplies() || start == 0) {
             if (!tracked.isEmpty() || !blacklist.isEmpty() || !safe.isEmpty()) reset();
             return;
         }

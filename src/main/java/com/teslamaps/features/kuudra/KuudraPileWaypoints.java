@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -107,25 +106,12 @@ public final class KuudraPileWaypoints {
         String s = KuudraRunInfo.strip(raw);
         Matcher m = NO_PRE.matcher(s);
         if (!m.matches()) return;
-        String n = pileFor(m.group(1).trim().toLowerCase(Locale.ROOT));
-        if (n != null) noPre = n;
-    }
-
-    private static String pileFor(String s) {
-        return switch (s) {
-            case "shop" -> "Shop";
-            case "tri", "triangle" -> "Triangle";
-            case "equals", "=" -> "Equals";
-            case "slash", "/" -> "Slash";
-            case "xc", "x cannon", "xcannon" -> "X Cannon";
-            case "x" -> "X";
-            case "square" -> "Square";
-            default -> null;
-        };
+        String n = KuudraNoPre.canonical(m.group(1));
+        if (n != null) noPre = n.equals("xCannon") ? "X Cannon" : n;
     }
 
     private static void tick() {
-        int phase = KuudraRunInfo.phase();
+        int phase = KuudraRunInfo.supplies() ? 1 : 0;
         if (phase != lastPhase) {
             lastPhase = phase;
             active.clear();

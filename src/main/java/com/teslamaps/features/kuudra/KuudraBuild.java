@@ -63,7 +63,7 @@ public final class KuudraBuild {
 
     private static boolean stateNeeded() {
         TeslaMapsConfig c = cfg();
-        return c.kuuBuildHelper || c.kuuFreshTools || c.kuuElleHighlight || c.kuuSupplyMessage || KuudraRunInfo.needsState();
+        return c.kuuBuildHelper || c.kuuFreshTools || c.kuuElleHighlight || c.kuuSupplyMessage;
     }
 
     public static void register() {
