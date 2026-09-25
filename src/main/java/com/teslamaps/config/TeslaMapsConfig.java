@@ -2147,6 +2147,26 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w11-03-par
+    public boolean repartyCommand = false;
+    public boolean repartyAutoAccept = false;
+    public boolean pfLevelReq = false;
+    public boolean pfMissingOverlay = false;
+    public boolean pfTooltipStats = false;
+    public boolean partyListFormat = false;
+    public boolean partyHud = false;
+    public boolean partyHudOnlyAreas = false;
+    public int partyHudMax = 8;
+    public int partyHudX = 5;
+    public int partyHudY = 120;
+    public float partyHudScale = 1.0f;
+    public boolean partyJoinSound = false;
+    public String partyJoinSoundType = "NOTE_PLING";
+    public boolean kickedLimboAlert = false;
+    public boolean safariPlayersOnEnd = false;
+    public boolean throttleNotifier = false;
+    public boolean throttleNotifierCooldown = true;
+    public String throttleNotifierText = "Menu throttled, give me a second!";
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();

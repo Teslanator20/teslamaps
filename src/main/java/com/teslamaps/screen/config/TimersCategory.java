@@ -87,5 +87,7 @@ public final class TimersCategory {
         b.toggle("  Center Warning", () -> config.kickedCenterWarning, v -> config.kickedCenterWarning = v);
         b.slider("  Wait Time (s)", 10f, 180f, () -> (float) config.kickedWaitSeconds, v -> config.kickedWaitSeconds = Math.round(v), 0);
         b.toggle("  Rejoin Title", () -> config.kickedTitle, v -> config.kickedTitle = v);
+        b.toggle("  Limbo Alert", () -> config.kickedLimboAlert, v -> config.kickedLimboAlert = v)
+                .desc("Title, sound and chat line when you land in Limbo.");
     }
 }

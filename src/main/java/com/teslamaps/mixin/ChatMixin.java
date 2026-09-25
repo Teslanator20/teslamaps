@@ -212,6 +212,12 @@ public class ChatMixin {
 
         com.teslamaps.registry.FeatureRegistry.chat(text, fromServer);
 
+        if (fromServer && (com.teslamaps.features.PartyListFormat.hide(message, text)
+                || com.teslamaps.features.ThrottleNotifier.hide(text))) {
+            ci.cancel();
+            return;
+        }
+
         if (fromServer && cfg.section("Score & Splits") && com.teslamaps.dungeon.ExtraStats.hide(text)) {
             ci.cancel();
             return;

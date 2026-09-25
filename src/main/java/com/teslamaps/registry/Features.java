@@ -497,5 +497,11 @@ final class Features {
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w11-03-par
+        com.teslamaps.features.Reparty.register();
+        com.teslamaps.features.PartyListFormat.register();
+        com.teslamaps.features.PartyMembersHud.register();
+        com.teslamaps.features.PartyJoinAlerts.register();
+        com.teslamaps.features.ThrottleNotifier.register();
     }
 }
