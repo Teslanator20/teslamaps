@@ -14,6 +14,8 @@ public class SecretTracker {
     private static int dungeonSecretsFound = 0;
     private static int lastKnownFound = -1;  // -1 means not initialized yet
     private static int tickCounter = 0;
+    public static int barFound = -1, barTotal = -1;
+    public static long barAt = 0, barNoneAt = 0;
 
     private static final Pattern ACTION_BAR_PATTERN = Pattern.compile("(\\d+)/(\\d+) Secrets");
 
@@ -56,10 +58,15 @@ public class SecretTracker {
         }
 
         Matcher matcher = ACTION_BAR_PATTERN.matcher(cleanText);
-        if (matcher.find()) {
+        if (!matcher.find()) {
+            barNoneAt = System.currentTimeMillis();
+        } else {
             try {
                 int roomFound = Integer.parseInt(matcher.group(1));
                 int roomTotal = Integer.parseInt(matcher.group(2));
+                barFound = roomFound;
+                barTotal = roomTotal;
+                barAt = System.currentTimeMillis();
 
                 DungeonRoom currentRoom = getCurrentPlayerRoom();
                 if (currentRoom != null) {

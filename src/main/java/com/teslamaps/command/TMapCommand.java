@@ -129,6 +129,7 @@ public class TMapCommand {
                                                 .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "total"))))
                                 .then(ClientCommands.literal("view")
                                         .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "view")))))
+                .then(com.teslamaps.features.SecretWaypoints.command())
                 .then(ClientCommands.literal("customize")
                         .executes(context -> openCustomize(context.getSource(), false))
                         .then(ClientCommands.literal("item")

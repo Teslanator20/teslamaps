@@ -422,6 +422,88 @@ public class SecretWaypoints {
         foundSecrets.add(pos);
     }
 
+    // Skyblocker markAsFound / markAsMissing: 1..n in the current room, EnumMap order
+    private static List<BlockPos> currentRoomList(List<String> types) {
+        Minecraft mc = Minecraft.getInstance();
+        DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
+        if (mc.level == null || room == null || room.getRoomData() == null) return null;
+        if (!loaded) load();
+        int roomId = room.getRoomData().getRoomID();
+        Map<WaypointType, List<int[]>> wps = cachedWaypoints.get(roomId);
+        if (wps == null) {
+            wps = addSecretsForRoom(room, mc.level);
+            if (wps == null) return null;
+            cachedWaypoints.put(roomId, wps);
+        }
+        List<BlockPos> out = new ArrayList<>();
+        for (Map.Entry<WaypointType, List<int[]>> e : wps.entrySet()) {
+            for (int[] p : e.getValue()) {
+                out.add(new BlockPos(p[0], p[1], p[2]));
+                if (types != null) types.add(e.getKey().key);
+            }
+        }
+        return out;
+    }
+
+    public static com.mojang.brigadier.builder.LiteralArgumentBuilder<net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource> command() {
+        var root = net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("secret");
+        root.executes(c -> listSecrets(c.getSource()));
+        root.then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("list").executes(c -> listSecrets(c.getSource())));
+        for (boolean found : new boolean[]{true, false}) {
+            String name = found ? "found" : "missing";
+            root.then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal(name)
+                    .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("all")
+                            .executes(c -> mark(c.getSource(), 0, found)))
+                    .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument("index",
+                                    com.mojang.brigadier.arguments.IntegerArgumentType.integer(1))
+                            .suggests((c, b) -> {
+                                List<BlockPos> list = currentRoomList(null);
+                                if (list != null) for (int i = 1; i <= list.size(); i++) b.suggest(i);
+                                return b.buildFuture();
+                            })
+                            .executes(c -> mark(c.getSource(),
+                                    com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "index"), found))));
+        }
+        return root;
+    }
+
+    private static int listSecrets(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource src) {
+        List<String> types = new ArrayList<>();
+        List<BlockPos> list = currentRoomList(types);
+        if (list == null || list.isEmpty()) {
+            src.sendFeedback(net.minecraft.network.chat.Component.literal("§c[TeslaMaps] No secret waypoints for this room"));
+            return 0;
+        }
+        src.sendFeedback(net.minecraft.network.chat.Component.literal("§7[TeslaMaps] Secrets in §f" + DungeonManager.getCurrentRoom().getName() + "§7:"));
+        for (int i = 0; i < list.size(); i++) {
+            BlockPos p = list.get(i);
+            boolean done = foundSecrets.contains(p);
+            src.sendFeedback(net.minecraft.network.chat.Component.literal("§e" + (i + 1) + ". §f" + types.get(i)
+                    + " §7(" + p.getX() + ", " + p.getY() + ", " + p.getZ() + ") " + (done ? "§afound" : "§cmissing")));
+        }
+        return 1;
+    }
+
+    private static int mark(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource src, int index, boolean found) {
+        List<BlockPos> list = currentRoomList(null);
+        if (list == null || list.isEmpty()) {
+            src.sendFeedback(net.minecraft.network.chat.Component.literal("§c[TeslaMaps] No secret waypoints for this room"));
+            return 0;
+        }
+        if (index > list.size()) {
+            src.sendFeedback(net.minecraft.network.chat.Component.literal("§c[TeslaMaps] This room has " + list.size() + " secrets"));
+            return 0;
+        }
+        List<BlockPos> targets = index == 0 ? list : List.of(list.get(index - 1));
+        for (BlockPos p : targets) {
+            if (found) foundSecrets.add(p);
+            else foundSecrets.remove(p);
+        }
+        src.sendFeedback(net.minecraft.network.chat.Component.literal("§7[TeslaMaps] Marked " + (index == 0 ? "all" : "#" + index)
+                + " as " + (found ? "§afound" : "§cmissing")));
+        return 1;
+    }
+
     public static void onChestOpened(BlockPos chestPos) {
         if (!TeslaMapsConfig.get().secretWaypoints) return;
         if (!TeslaMapsConfig.get().secretWaypointHideCollected) return;

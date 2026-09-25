@@ -2131,6 +2131,27 @@ public class TeslaMapsConfig {
 
     // feature gaps, waves 2+
 
+    // w02-00-map
+    public boolean mapColorOpenDoors = false;
+    public String colorDoorOpenWither = "71421B";
+    public boolean mapScanChatInfo = false;
+    public boolean mapBlazeDoneFromChat = false;
+    public boolean mapInterpolatePlayers = false;
+    public boolean mapBgImage = false;
+    public String mapBgImageName = "";
+    public float mapBgImageAlpha = 1.0f;
+    public float mapBgImageInset = 0.0f;
+    public boolean roomClearedAlert = false;
+    public boolean roomClearedOnlyBloodRush = false;
+    public boolean roomClearedNoBlood = false;
+    public boolean roomSecretsDoneAlert = false;
+    public float roomAlertTime = 1.0f;
+    public boolean secretHud = false;
+    public String secretHudPrefix = "Secrets:";
+    public int secretHudX = 10;
+    public int secretHudY = 120;
+    public float secretHudScale = 1.0f;
+
     public static TeslaMapsConfig get() {
         return instance;
     }
