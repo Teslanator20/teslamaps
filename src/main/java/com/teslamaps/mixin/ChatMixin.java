@@ -84,7 +84,7 @@ public class ChatMixin {
             if (cfg.section("ESP")) StarredMobESP.onBloodDoorOpened();
         } else if (text.equals("That chest is locked!")) {
             if (cfg.section("Secrets & Waypoints")) com.teslamaps.features.SecretClickHighlight.onChestLocked();
-            if (cfg.section("ESP")) {
+            if (!(fromServer && com.teslamaps.features.SecretSounds.onLocked()) && cfg.section("ESP")) {
                 net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
                 if (mc.player != null) {
                     mc.player.playSound(net.minecraft.sounds.SoundEvents.ANVIL_LAND, 1.0f, 1.0f);

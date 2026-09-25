@@ -44,6 +44,10 @@ public class MapRenderer {
     private static final List<PlayerMarker> playerMarkers = new ArrayList<>();
     public static List<PlayerMarker> getPlayerMarkers() { return playerMarkers; }
 
+    private static String highlightName = null;
+    /** Player whose map head is drawn twice as large (leap overlay hover), null for none. */
+    public static void setHighlight(String name) { highlightName = name; }
+
     private static final List<DungeonRoom> visibleRooms = new ArrayList<>();
 
     // Room names are static, so the word wrap is kept until the wrap width changes.
@@ -541,9 +545,10 @@ public class MapRenderer {
             context.fill(pixelX, pixelY, pixelX + pixelW, pixelY + pixelH, color);
 
             TeslaMapsConfig config = TeslaMapsConfig.get();
-            boolean hideSecrets = config.hideSecretsWhenDone && room.getCheckmarkState() == CheckmarkState.GREEN;
-            boolean hideOneSecret = config.hideOneSecretCount && room.getSecrets() == 1;
-            if (config.showSecretCount && room.getSecrets() > 0 && !hideSecrets && !hideOneSecret) {
+            boolean peek = com.teslamaps.features.MapPeek.active();
+            boolean hideSecrets = !peek && config.hideSecretsWhenDone && room.getCheckmarkState() == CheckmarkState.GREEN;
+            boolean hideOneSecret = !peek && config.hideOneSecretCount && room.getSecrets() == 1;
+            if ((config.showSecretCount || peek) && room.getSecrets() > 0 && !hideSecrets && !hideOneSecret) {
                 String secretText;
                 int foundSecrets = room.getFoundSecrets();
                 int maxSecrets = room.getSecrets();
@@ -603,9 +608,10 @@ public class MapRenderer {
             int pixelY = gridToPixelY(primary[1], baseY, scale);
 
             TeslaMapsConfig configIrregular = TeslaMapsConfig.get();
-            boolean hideSecretsIrregular = configIrregular.hideSecretsWhenDone && room.getCheckmarkState() == CheckmarkState.GREEN;
-            boolean hideOneSecretIrregular = configIrregular.hideOneSecretCount && room.getSecrets() == 1;
-            if (configIrregular.showSecretCount && room.getSecrets() > 0 && !hideSecretsIrregular && !hideOneSecretIrregular) {
+            boolean peekIrregular = com.teslamaps.features.MapPeek.active();
+            boolean hideSecretsIrregular = !peekIrregular && configIrregular.hideSecretsWhenDone && room.getCheckmarkState() == CheckmarkState.GREEN;
+            boolean hideOneSecretIrregular = !peekIrregular && configIrregular.hideOneSecretCount && room.getSecrets() == 1;
+            if ((configIrregular.showSecretCount || peekIrregular) && room.getSecrets() > 0 && !hideSecretsIrregular && !hideOneSecretIrregular) {
                 String secretText;
                 int foundSecrets = room.getFoundSecrets();
                 int maxSecrets = room.getSecrets();
@@ -707,9 +713,10 @@ public class MapRenderer {
 
     private static boolean nameVisible(DungeonRoom room) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        if (!config.showRoomNames || !room.isIdentified()) return false;
+        if (!room.isIdentified() || room.getName() == null) return false;
+        if (com.teslamaps.features.MapPeek.active()) return true;
+        if (!config.showRoomNames) return false;
         if (config.roomNamesOnlyWithLeap && !holdingLeap()) return false;
-        if (room.getName() == null) return false;
         if (config.showNamesOnlyForPuzzles && room.getType() != RoomType.PUZZLE) return false;
         if (config.hideEntranceBloodFairyNames) {
             var type = room.getType();
@@ -859,6 +866,10 @@ public class MapRenderer {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         if (room.getType() == RoomType.BLOOD) {
+            if (config.mapWhiteCheckBlood && effectiveState(room) != CheckmarkState.WHITE
+                    && room.getCheckmarkState() != CheckmarkState.GREEN) {
+                return TeslaMapsConfig.parseColor(config.colorTextUnexplored);
+            }
             return TeslaMapsConfig.parseColor(config.colorTextCleared);
         }
 
@@ -943,6 +954,10 @@ public class MapRenderer {
             }
             case FAIRY -> TeslaMapsConfig.parseColor(config.colorFairy);
             case YELLOW -> TeslaMapsConfig.parseColor(config.colorMiniboss);
+            case RARE -> {
+                if (!config.mapRareRoomColor) yield typeColor(room, RoomType.NORMAL, unexploredColors);
+                yield TeslaMapsConfig.parseColor(config.colorRare);
+            }
             default -> {
                 if (unexploredColors && room.getCheckmarkState() == CheckmarkState.UNEXPLORED) {
                     yield TeslaMapsConfig.parseColor(config.colorUnexplored);
@@ -976,9 +991,16 @@ public class MapRenderer {
         };
     }
 
+    private static CheckmarkState effectiveState(DungeonRoom room) {
+        CheckmarkState state = room.getCheckmarkState();
+        if (room.getType() == RoomType.BLOOD && (state == CheckmarkState.UNEXPLORED || state == CheckmarkState.NONE)
+                && com.teslamaps.features.BloodCheck.done()) return CheckmarkState.WHITE;
+        return state;
+    }
+
     private static void drawRoomCheckmark(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        CheckmarkState state = room.getCheckmarkState();
+        CheckmarkState state = effectiveState(room);
         if (state == CheckmarkState.UNEXPLORED && !config.mapCheckmarkUnopened) return;
         if (config.mapCheckmarkHideWithName && nameVisible(room)) return;
         double[] c = checkmarkCenter(room);
@@ -1126,6 +1148,7 @@ public class MapRenderer {
                                        String recordName, String clazz) {
         if (recordName != null) playerMarkers.add(new PlayerMarker(pixelX, pixelY, recordName, isLocal));
         TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (highlightName != null && highlightName.equals(recordName)) headSize *= 2;
         int half = headSize / 2;
         boolean knownClass = clazz != null && !"EMPTY".equals(clazz);
         int classColor = knownClass ? getDungeonClassColor(clazz) : 0xFFDDDDDD;

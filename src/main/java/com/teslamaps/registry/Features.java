@@ -67,5 +67,9 @@ final class Features {
         com.teslamaps.features.croesus.KuudraKeys.register();
         com.teslamaps.features.pets.PetStore.register();
         com.teslamaps.features.pets.PetOverlay.register();
+        // w02-01-map
+        com.teslamaps.features.BloodCheck.register();
+        com.teslamaps.dungeon.RushSplits.register();
+        com.teslamaps.features.MapPeek.register();
     }
 }

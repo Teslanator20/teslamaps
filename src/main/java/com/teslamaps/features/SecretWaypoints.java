@@ -259,9 +259,12 @@ public class SecretWaypoints {
                 if (foundSecrets.contains(worldPos)) continue;
 
                 AABB box = new AABB(worldPos);
+                if ((type == WaypointType.ESSENCE || type == WaypointType.REDSTONE) && TeslaMapsConfig.get().secretWaypointAdaptiveBox) {
+                    box = fitBox(mc.level, worldPos, box);
+                }
                 // redstone-key skulls are easy to miss: thicker outline through walls so they pop
                 float width = type == WaypointType.REDSTONE ? 3.0f : 2.0f;
-                ESPRenderer.drawBoxOutline(matrices, box, color, width, cameraPos, true);
+                drawStyled(matrices, box, worldPos, color, width, cameraPos);
 
                 if (TeslaMapsConfig.get().secretWaypointTracers) {
                     Vec3 target = new Vec3(worldPos.getX() + 0.5, worldPos.getY() + 0.5, worldPos.getZ() + 0.5);
@@ -269,6 +272,172 @@ public class SecretWaypoints {
                 }
             }
         }
+    }
+
+    public static final String[] STYLES = {"Outline", "Highlight", "Outline + Highlight", "Beacon"};
+    // Skyblocker SecretWaypoint.Category (route helpers; secrets themselves come from our own types)
+    public static final String[] ROUTE_CATEGORIES = {"entrance", "superboom", "stonk", "aotv", "pearl", "lever", "fairysoul", "prince", "default"};
+    private static final String[] ROUTE_NAMES = {"Entrance", "Superboom", "Stonk", "AOTV", "Pearl", "Lever", "Fairy Soul", "Prince", "Other"};
+    private static final String[] ROUTE_COLORS = {"00FF00", "FF0000", "9234EB", "FC6203", "39757D", "FAD902", "FF55FF", "85150D", "BEFFFC"};
+
+    public static String routeName(String id) {
+        for (int i = 0; i < ROUTE_CATEGORIES.length; i++) if (ROUTE_CATEGORIES[i].equals(id)) return ROUTE_NAMES[i];
+        return id;
+    }
+
+    public static String routeDefaultColor(String id) {
+        for (int i = 0; i < ROUTE_CATEGORIES.length; i++) if (ROUTE_CATEGORIES[i].equals(id)) return ROUTE_COLORS[i];
+        return "FFFFFF";
+    }
+
+    private static final Map<Integer, int[]> roomTransform = new HashMap<>();
+    private static Map<String, List<RouteRow>> routeData = null;
+    private static final Map<Integer, List<RoutePoint>> routeCache = new HashMap<>();
+
+    private record RouteRow(int index, String category, int x, int y, int z, String name) {}
+    private record RoutePoint(int index, String category, BlockPos pos, String name) {}
+    private record Label(Vec3 pos, String text, int color) {}
+    private record RouteBox(BlockPos pos, int color) {}
+
+    private static volatile List<Label> labels = List.of();
+    private static volatile List<RouteBox> routeBoxes = List.of();
+
+    private static void loadRoutes() {
+        routeData = new HashMap<>();
+        try (InputStream is = SecretWaypoints.class.getResourceAsStream("/assets/teslamaps/data/secret_routes.json")) {
+            if (is == null) return;
+            Type t = new TypeToken<Map<String, List<List<Object>>>>(){}.getType();
+            Map<String, List<List<Object>>> raw = GSON.fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), t);
+            for (var e : raw.entrySet()) {
+                List<RouteRow> rows = new ArrayList<>();
+                for (List<Object> r : e.getValue()) {
+                    rows.add(new RouteRow(((Number) r.get(0)).intValue(), (String) r.get(1), ((Number) r.get(2)).intValue(),
+                            ((Number) r.get(3)).intValue(), ((Number) r.get(4)).intValue(), (String) r.get(5)));
+                }
+                routeData.put(e.getKey().toLowerCase(Locale.ROOT), rows);
+            }
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.error("Failed to load secret routes", e);
+        }
+    }
+
+    private static List<RoutePoint> routePoints(DungeonRoom room, int roomId) {
+        List<RoutePoint> cached = routeCache.get(roomId);
+        if (cached != null) return cached;
+        int[] tr = roomTransform.get(roomId);
+        if (tr == null) return null;
+        if (routeData == null) loadRoutes();
+        List<RouteRow> rows = routeData.get(room.getRoomData().getName().toLowerCase(Locale.ROOT));
+        List<RoutePoint> out = new ArrayList<>();
+        if (rows != null) {
+            for (RouteRow r : rows) {
+                int[] xz = fromComp(r.x(), r.z(), tr[0], tr[1], tr[2]);
+                out.add(new RoutePoint(r.index(), r.category(), new BlockPos(xz[0], r.y(), xz[1]), r.name()));
+            }
+        }
+        routeCache.put(roomId, out);
+        return out;
+    }
+
+    private static boolean secretCategory(String c) {
+        return c.equals("chest") || c.equals("item") || c.equals("bat") || c.equals("wither") || c.equals("key");
+    }
+
+    private static String typeName(WaypointType t) {
+        return switch (t) {
+            case CHEST -> "Chest";
+            case ITEM -> "Item";
+            case BAT -> "Bat";
+            case ESSENCE -> "Wither Essence";
+            case REDSTONE -> "Redstone Key";
+        };
+    }
+
+    // labels + route boxes are built here so the render pass only draws
+    private static void tickRoutes() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        Minecraft mc = Minecraft.getInstance();
+        DungeonRoom room = DungeonManager.isInDungeon() && loaded ? DungeonManager.getCurrentRoom() : null;
+        if (room == null || room.getRoomData() == null || mc.player == null) {
+            labels = List.of();
+            routeBoxes = List.of();
+            return;
+        }
+        int roomId = room.getRoomData().getRoomID();
+        Map<WaypointType, List<int[]>> world = cachedWaypoints.get(roomId);
+        List<RoutePoint> points = world != null ? routePoints(room, roomId) : null;
+        if (world == null || points == null) {
+            labels = List.of();
+            routeBoxes = List.of();
+            return;
+        }
+        Set<Integer> done = new HashSet<>();
+        for (RoutePoint p : points) {
+            if (p.index() > 0 && secretCategory(p.category()) && foundSecrets.contains(p.pos())) done.add(p.index());
+        }
+        Vec3 eye = mc.player.position();
+        List<Label> ls = new ArrayList<>();
+        if (c.secretWaypointLabels) {
+            for (Map.Entry<WaypointType, List<int[]>> e : world.entrySet()) {
+                if (!isTypeEnabled(e.getKey())) continue;
+                int color = getColorForType(e.getKey());
+                for (int[] p : e.getValue()) {
+                    BlockPos bp = new BlockPos(p[0], p[1], p[2]);
+                    if (foundSecrets.contains(bp)) continue;
+                    String name = typeName(e.getKey());
+                    for (RoutePoint rp : points) {
+                        if (rp.pos().equals(bp) && secretCategory(rp.category()) && !rp.name().isEmpty()) { name = rp.name(); break; }
+                    }
+                    ls.add(label(bp, name, color, eye, c));
+                }
+            }
+        }
+        List<RouteBox> boxes = new ArrayList<>();
+        if (c.secretWaypointRoutes) {
+            for (RoutePoint rp : points) {
+                if (secretCategory(rp.category()) || !c.secretRouteCategories.contains(rp.category())) continue;
+                if (rp.index() > 0 && done.contains(rp.index())) continue;
+                if (rp.category().equals("prince") && com.teslamaps.dungeon.DungeonScore.isPrinceKilled()) continue;
+                int color = TeslaMapsConfig.parseColor(c.secretRouteColors.getOrDefault(rp.category(), routeDefaultColor(rp.category())));
+                boxes.add(new RouteBox(rp.pos(), color));
+                if (c.secretWaypointLabels) ls.add(label(rp.pos(), rp.name().isEmpty() ? routeName(rp.category()) : rp.name(), color, eye, c));
+            }
+        }
+        labels = ls;
+        routeBoxes = boxes;
+    }
+
+    private static Label label(BlockPos bp, String name, int color, Vec3 eye, TeslaMapsConfig c) {
+        Vec3 at = new Vec3(bp.getX() + 0.5, bp.getY() + 1.5, bp.getZ() + 0.5);
+        String text = c.secretWaypointDistance ? name + " §7(" + (int) Math.round(at.distanceTo(eye)) + "m)" : name;
+        return new Label(at, text, color | 0xFF000000);
+    }
+
+    private static void renderRoutes(PoseStack matrices, Vec3 cameraPos) {
+        for (RouteBox rb : routeBoxes) drawStyled(matrices, new AABB(rb.pos()), rb.pos(), rb.color(), 2.0f, cameraPos);
+        for (Label l : labels) ESPRenderer.drawText(matrices, l.text(), l.pos(), 1.0f, cameraPos, true, true, l.color());
+    }
+
+    private static void drawStyled(PoseStack matrices, AABB box, BlockPos pos, int color, float width, Vec3 cameraPos) {
+        switch (TeslaMapsConfig.get().secretWaypointStyle) {
+            case "Highlight" -> ESPRenderer.drawFilledBox(matrices, box, (color & 0x00FFFFFF) | 0x60000000, cameraPos, true);
+            case "Outline + Highlight" -> {
+                ESPRenderer.drawFilledBox(matrices, box, (color & 0x00FFFFFF) | 0x60000000, cameraPos, true);
+                ESPRenderer.drawBoxOutline(matrices, box, color, width, cameraPos, true);
+            }
+            case "Beacon" -> {
+                ESPRenderer.drawBoxOutline(matrices, box, color, width, cameraPos, true);
+                ESPRenderer.drawBeaconBeam(matrices, pos, color, cameraPos);
+            }
+            default -> ESPRenderer.drawBoxOutline(matrices, box, color, width, cameraPos, true);
+        }
+    }
+
+    // Skyblocker adaptiveBoxSize: skull shape instead of a full block
+    private static AABB fitBox(ClientLevel level, BlockPos pos, AABB fallback) {
+        var shape = level.getBlockState(pos).getShape(level, pos);
+        if (shape.isEmpty()) return fallback;
+        return shape.bounds().move(pos);
     }
 
     private static Map<WaypointType, List<int[]>> addSecretsForRoom(DungeonRoom room, ClientLevel world) {
@@ -284,6 +453,7 @@ public class SecretWaypoints {
         int rotation = rotationAndCorner[0];
         int cornerX = rotationAndCorner[1];
         int cornerZ = rotationAndCorner[2];
+        roomTransform.put(roomId, rotationAndCorner);
 
         Map<WaypointType, List<int[]>> result = new EnumMap<>(WaypointType.class);
         for (Map.Entry<WaypointType, List<int[]>> entry : waypointData.waypoints.entrySet()) {
@@ -456,6 +626,11 @@ public class SecretWaypoints {
         com.teslamaps.registry.Feature.of("SecretWaypointsChat").section("Secrets & Waypoints")
                 .when(() -> TeslaMapsConfig.get().secretWaypoints && TeslaMapsConfig.get().secretWaypointHideCollected)
                 .serverChat(SecretWaypoints::onChat);
+        com.teslamaps.registry.Feature.of("SecretWaypointsRoutes").section("Secrets & Waypoints")
+                .when(() -> TeslaMapsConfig.get().secretWaypoints
+                        && (TeslaMapsConfig.get().secretWaypointLabels || TeslaMapsConfig.get().secretWaypointRoutes))
+                .tick(SecretWaypoints::tickRoutes)
+                .world(SecretWaypoints::renderRoutes);
     }
 
     // Devonian DungeonWaypoints: a locked chest was not looted, bring its waypoint back
@@ -514,6 +689,10 @@ public class SecretWaypoints {
     public static void reset() {
         foundSecrets.clear();
         cachedWaypoints.clear();
+        roomTransform.clear();
+        routeCache.clear();
+        labels = List.of();
+        routeBoxes = List.of();
         visitedWaypoints.clear();
         lastChest = null;
         lastRoomId = -1;
@@ -521,9 +700,15 @@ public class SecretWaypoints {
     }
 
     public static void onSecretInteract(String type) {
+        onSecretInteract(type, null);
+    }
+
+    public static void onSecretInteract(String type, BlockPos pos) {
         if (!TeslaMapsConfig.get().secretWaypoints) return;
         if (!TeslaMapsConfig.get().secretSound) return;
         if (!DungeonManager.isInDungeon()) return;
+        if (!SecretSounds.counts(type, pos)) return;
+        if (SecretSounds.lever(type)) return;
 
         LoudSound.play(com.teslamaps.utils.SoundOptions.resolve(TeslaMapsConfig.get().secretSoundType),
                 TeslaMapsConfig.get().secretSoundVolume, TeslaMapsConfig.get().secretSoundPitch);

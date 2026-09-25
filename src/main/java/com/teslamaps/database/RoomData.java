@@ -18,6 +18,22 @@ public class RoomData {
     private Integer secretScore;
     private Integer roomScore;
 
+    public RoomData() {}
+
+    public RoomData(String name, String type, int secrets, List<Integer> cores, int roomID, String shape) {
+        this.name = name;
+        this.type = type;
+        this.secrets = secrets;
+        this.cores = cores;
+        this.roomID = roomID;
+        this.shape = shape;
+        this.clear = "mob";
+    }
+
+    public void setCores(List<Integer> cores) {
+        this.cores = cores;
+    }
+
     public String getName() {
         return name;
     }

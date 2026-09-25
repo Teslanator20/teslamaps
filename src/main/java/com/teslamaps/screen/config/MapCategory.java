@@ -44,11 +44,14 @@ public final class MapCategory {
         b.toggle("Assume Paul Mayor", () -> config.assumePaulMayor, v -> config.assumePaulMayor = v);
         b.toggle("  Auto-detect Paul (Election API)", () -> config.paulAutoDetect, v -> config.paulAutoDetect = v);
         b.toggle("Check Spirit Pet on First Death", () -> config.spiritPetCheck, v -> config.spiritPetCheck = v);
+        b.keybind("Peek Key (all names + secrets)", () -> config.mapPeekKey, v -> config.mapPeekKey = v);
+        b.toggle("  Peek Key Toggles (instead of hold)", () -> config.mapPeekToggle, v -> config.mapPeekToggle = v);
         b.label("Checkmarks");
         b.toggle("Show Checkmarks", () -> config.showCheckmarks, v -> config.showCheckmarks = v);
         b.toggle("  White Checks", () -> config.showWhiteCheckmarks, v -> config.showWhiteCheckmarks = v);
         b.toggle("  Green Checks", () -> config.showGreenCheckmarks, v -> config.showGreenCheckmarks = v);
         b.toggle("  Failed Checks", () -> config.showFailedCheckmarks, v -> config.showFailedCheckmarks = v);
+        b.toggle("  White Blood Check When Watcher Done", () -> config.mapWhiteCheckBlood, v -> config.mapWhiteCheckBlood = v);
         b.toggle("  Checkmark Icons", () -> config.mapCheckmarkIcons, v -> config.mapCheckmarkIcons = v);
         b.dropdown("    Icon Style", new String[]{"Symbol", "IllegalMap", "NEU", "Vanilla New", "Vanilla Old"},
                 () -> config.mapCheckmarkStyle, v -> config.mapCheckmarkStyle = v);
@@ -79,6 +82,8 @@ public final class MapCategory {
         b.color("Puzzle", () -> config.colorPuzzle, v -> config.colorPuzzle = v);
         b.color("Fairy", () -> config.colorFairy, v -> config.colorFairy = v);
         b.color("Miniboss", () -> config.colorMiniboss, v -> config.colorMiniboss = v);
+        b.toggle("Own Color For Rare Rooms", () -> config.mapRareRoomColor, v -> config.mapRareRoomColor = v);
+        b.color("  Rare Room", () -> config.colorRare, v -> config.colorRare = v);
         b.dropdown("Mimic Room", new String[]{"Bright Red", "Tint", "Custom"},
                 () -> config.mapMimicRoomStyle, v -> config.mapMimicRoomStyle = v);
         b.color("  Mimic Room Color", () -> config.colorMimicRoom, v -> config.colorMimicRoom = v);

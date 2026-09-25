@@ -2130,6 +2130,36 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w02-01-map
+    public boolean mapWhiteCheckBlood = false;
+    public boolean rushSplits = false;
+    public ClassFilter rushSplitsClasses = new ClassFilter(true, true, false, true, false);
+    public int rushSplitsX = 10, rushSplitsY = 120;
+    public float rushSplitsScale = 1.0f;
+    public boolean leapHoverLink = false;
+    public boolean leapCloseOnDeath = false;
+    public boolean mapRareRoomColor = false;
+    public String colorRare = "FFCB59";
+    public boolean secretWaypointLabels = false;
+    public boolean secretWaypointDistance = false;
+    public String secretWaypointStyle = "Outline";
+    public boolean secretWaypointAdaptiveBox = false;
+    public boolean secretWaypointRoutes = false;
+    public List<String> secretRouteCategories = new ArrayList<>(List.of("entrance", "superboom", "stonk", "aotv", "pearl", "lever"));
+    public java.util.Map<String, String> secretRouteColors = new java.util.HashMap<>();
+    public boolean secretSoundBatKill = false;
+    public boolean secretSoundRealOnly = false;
+    public boolean secretSoundLeverSeparate = false;
+    public String secretSoundLeverType = "NOTE_PLING";
+    public float secretSoundLeverVolume = 1.0f;
+    public float secretSoundLeverPitch = 1.5f;
+    public boolean secretSoundLockedCustom = false;
+    public String secretSoundLockedType = "ANVIL_LAND";
+    public float secretSoundLockedVolume = 1.0f;
+    public float secretSoundLockedPitch = 1.0f;
+    public boolean legitPeekToggle = false;
+    public int mapPeekKey = -1;
+    public boolean mapPeekToggle = false;
 
     public static TeslaMapsConfig get() {
         return instance;
@@ -2274,6 +2304,13 @@ public class TeslaMapsConfig {
         if (c.shardsSyphoned == null) c.shardsSyphoned = new java.util.HashMap<>();
         if (c.shardsInBox == null) c.shardsInBox = new java.util.HashMap<>();
         if (c.shardOrders == null) c.shardOrders = new java.util.HashMap<>();
+        if (c.rushSplitsClasses == null) c.rushSplitsClasses = new ClassFilter(true, true, false, true, false);
+        if (c.secretRouteCategories == null) c.secretRouteCategories = new ArrayList<>();
+        if (c.secretRouteColors == null) c.secretRouteColors = new java.util.HashMap<>();
+        if (c.secretWaypointStyle == null) c.secretWaypointStyle = "Outline";
+        if (c.secretSoundLeverType == null) c.secretSoundLeverType = "NOTE_PLING";
+        if (c.secretSoundLockedType == null) c.secretSoundLockedType = "ANVIL_LAND";
+        if (c.colorRare == null) c.colorRare = "FFCB59";
         if (c.auctionSearchHistory == null) c.auctionSearchHistory = new ArrayList<>();
         if (c.bazaarSearchHistory == null) c.bazaarSearchHistory = new ArrayList<>();
         if (c.capeSelected == null) c.capeSelected = "";
