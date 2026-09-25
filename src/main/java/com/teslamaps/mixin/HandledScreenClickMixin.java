@@ -48,7 +48,8 @@ public class HandledScreenClickMixin {
             return;
         }
         if (com.teslamaps.features.OpheliaPotLock.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
-                || com.teslamaps.features.SlotHighlighter.blockSalvageClick((AbstractContainerScreen<?>) (Object) this, slot)) {
+                || com.teslamaps.features.SlotHighlighter.blockSalvageClick((AbstractContainerScreen<?>) (Object) this, slot)
+                || com.teslamaps.features.CommandHelpers.blockCoopClick((AbstractContainerScreen<?>) (Object) this, slot)) {
             ci.cancel();
             return;
         }

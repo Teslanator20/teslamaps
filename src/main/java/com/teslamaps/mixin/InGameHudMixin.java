@@ -16,6 +16,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
 public class InGameHudMixin {
+    @org.spongepowered.asm.mixin.Shadow private int toolHighlightTimer;
+    @org.spongepowered.asm.mixin.Shadow private ItemStack lastToolHighlight;
+
+    @Inject(method = "extractSelectedItemName", at = @At("HEAD"))
+    private void teslamaps$alwaysShowItemName(GuiGraphicsExtractor graphics, CallbackInfo ci) {
+        if (!com.teslamaps.config.TeslaMapsConfig.get().alwaysShowItemName) return;
+        var player = net.minecraft.client.Minecraft.getInstance().player;
+        if (player == null) return;
+        ItemStack held = player.getMainHandItem();
+        if (held.isEmpty()) return;
+        lastToolHighlight = held;
+        toolHighlightTimer = 40;
+    }
+
     @ModifyVariable(method = "setOverlayMessage", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private Component onSetOverlayMessage(Component message) {
         SecretTracker.onActionBarMessage(message);
