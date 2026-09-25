@@ -55,6 +55,7 @@ public class SafariTracker {
     private static final Map<String, Integer> failures = new HashMap<>();
     private static final Map<String, Integer> ownCatches = new HashMap<>();
     private static final Map<String, Integer> shards = new HashMap<>();
+    private static Map<String, Integer> lastShards = Map.of();
     private static int moundsBroken = 0;
     private static int rockmites = 0;
     static final Pattern SHARD_AMOUNT = Pattern.compile("(\\d[\\d,]*)x\\s+\\S");
@@ -440,6 +441,11 @@ public class SafariTracker {
             panel.blank();
             panel.pair("Capsules", v.capsules() + " (" + v.escapes() + " esc)", LABEL, WHITE);
             if (v.floorDrops() > 0) panel.pair("Floor Drops", String.valueOf(v.floorDrops()), LABEL, WHITE);
+            if (SafariShardValue.on()) {
+                double[] sv = SafariShardValue.value(v.live() ? shards : lastShards);
+                panel.pair("Value", com.teslamaps.utils.StringUtil.strip(SafariShardValue.format(sv)
+                        + SafariShardValue.perHour(SafariShardValue.main(sv), v.elapsedMs())), LABEL, 0xFFFFAA00);
+            }
             if (c.safariShowPb) {
                 int pb = SafariHistory.bestDex();
                 if (pb > 0) panel.pair("PB", pb + "/" + total, LABEL, dex > pb ? HEADER : WHITE);
@@ -472,6 +478,10 @@ public class SafariTracker {
                         .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("safari")
                                 .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("players").executes(c -> {
                                     for (String l : playersLines(view())) c.getSource().sendFeedback(Component.literal(l));
+                                    return 1;
+                                }))
+                                .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("prices").executes(c -> {
+                                    for (String l : SafariShardValue.priceLines()) c.getSource().sendFeedback(Component.literal(l));
                                     return 1;
                                 })))));
         var missing = com.teslamaps.registry.HudEditElement.of("safariMissing", "Safari Missing")
@@ -583,6 +593,7 @@ public class SafariTracker {
     private static void finishRun() {
         if (runStart == 0) return;
         if (!caughtAny.isEmpty()) {
+            lastShards = new HashMap<>(shards);
             RunView v = currentView();
             lastRun = new RunView(v.elapsedMs(), false, v.caughtAny(), v.caughtSelf(), v.gotAway(), v.perBiome(),
                     v.partyCatches(), v.attempts(), v.catchers(), v.capsules(), v.escapes(), v.floorDrops(),
@@ -605,6 +616,7 @@ public class SafariTracker {
         run.failures = new HashMap<>(failures);
         run.ownCatches = new HashMap<>(ownCatches);
         run.shards = new HashMap<>(shards);
+        if (SafariShardValue.on()) run.shardValue = SafariShardValue.main(SafariShardValue.value(shards));
         run.moundsBroken = moundsBroken;
         run.rockmites = rockmites;
 
@@ -1090,8 +1102,8 @@ public class SafariTracker {
     }
 
     public static final com.teslamaps.utils.LineOrder.Def LINES = com.teslamaps.utils.LineOrder.define("safari",
-            new String[]{"title", "dex", "biomes", "stats", "pb", "hotspot", "headstart", "incense", "gems", "bells", "wumpa", "checklist"},
-            new String[]{"Title + Timer", "Dex", "Biomes", "Capsules / Escapes / Drops", "PB", "Hotspot", "Head Start",
+            new String[]{"title", "dex", "biomes", "stats", "value", "pb", "hotspot", "headstart", "incense", "gems", "bells", "wumpa", "checklist"},
+            new String[]{"Title + Timer", "Dex", "Biomes", "Capsules / Escapes / Drops", "Shard Value", "PB", "Hotspot", "Head Start",
                     "Incense", "Gems", "Bells", "Wumpa", "Biome Checklist"});
 
     private static List<String> buildLines() {
@@ -1114,6 +1126,11 @@ public class SafariTracker {
         out.key("biomes").add(biomes.toString());
 
         out.key("stats").add("§7Capsules: §f" + capsules + " §8| §7Escapes: §c" + escapes + " §8| §7Drops: §e" + floorDrops);
+        if (SafariShardValue.on()) {
+            double[] v = SafariShardValue.value(shards);
+            out.key("value").add("§7Value: " + SafariShardValue.format(v)
+                    + SafariShardValue.perHour(SafariShardValue.main(v), elapsed()));
+        }
 
         if (c.safariShowPb) {
             int pb = SafariHistory.bestDex();

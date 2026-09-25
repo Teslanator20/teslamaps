@@ -33,7 +33,8 @@ public class ContainerKeyMixin {
             return;
         }
 
-        if (com.teslamaps.features.FancyPartyFinder.keyPressed(cs, event.key())) {
+        if (com.teslamaps.features.FancyPartyFinder.keyPressed(cs, event.key())
+                || com.teslamaps.features.FancyAuctionHouse.keyPressed(cs, event.key())) {
             cir.setReturnValue(true);
             return;
         }
@@ -53,12 +54,21 @@ public class ContainerKeyMixin {
             return;
         }
 
+        if (com.teslamaps.features.SearchOverlay.onContainerKey(cs, event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.features.Searchbar.onKeyPressed(event.key(), event.scancode())) {
             cir.setReturnValue(true);
             return;
         }
 
         Slot hovered = ((HandledScreenAccessor) (Object) this).getFocusedSlot();
+        if (com.teslamaps.features.EcoOverlays.key(event.key(), hovered)) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (com.teslamaps.features.ItemHighlight.onKey(event.key(), hovered)) {
             cir.setReturnValue(true);
             return;
