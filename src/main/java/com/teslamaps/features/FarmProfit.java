@@ -145,6 +145,8 @@ public class FarmProfit {
         MIN_30("30 min", 30 * 60_000L),
         HOUR_1("1 hour", 60 * 60_000L),
         HOUR_3("3 hours", 3 * 60 * 60_000L),
+        TODAY("Today", -2),
+        MAYOR("This Mayor", -3),
         ALL_TIME("All time", -1);
 
         public final String label;
@@ -157,12 +159,18 @@ public class FarmProfit {
 
         public Window next() {
             Window[] all = values();
-            return all[(ordinal() + 1) % all.length];
+            Window w = all[(ordinal() + 1) % all.length];
+            return w.periodic() && !com.teslamaps.config.TeslaMapsConfig.get().farmProfitExtraWindows ? w.next() : w;
         }
 
         public Window previous() {
             Window[] all = values();
-            return all[(ordinal() - 1 + all.length) % all.length];
+            Window w = all[(ordinal() - 1 + all.length) % all.length];
+            return w.periodic() && !com.teslamaps.config.TeslaMapsConfig.get().farmProfitExtraWindows ? w.previous() : w;
+        }
+
+        public boolean periodic() {
+            return this == TODAY || this == MAYOR;
         }
     }
 
@@ -704,6 +712,11 @@ public class FarmProfit {
         long[] total = allTime.computeIfAbsent(item, k -> new long[2]);
         total[0] += amount;
         total[1] += (long) coins;
+        for (String key : periodKeys()) {
+            long[] p = periods.computeIfAbsent(key, k -> new HashMap<>()).computeIfAbsent(item, k -> new long[2]);
+            p[0] += amount;
+            p[1] += (long) coins;
+        }
         saveThrottled();
     }
 
@@ -746,12 +759,14 @@ public class FarmProfit {
         Map<String, long[]> counts = new HashMap<>();
         Map<String, Double> coins = new HashMap<>();
 
-        if (window == Window.ALL_TIME) {
+        if (window == Window.ALL_TIME || window.periodic()) {
             if (!loaded) load();
+            Map<String, long[]> source = window == Window.ALL_TIME ? allTime
+                    : periods.getOrDefault(periodKeys()[window == Window.TODAY ? 0 : 1], Map.of());
             List<Entry> out = new ArrayList<>();
-            for (Map.Entry<String, long[]> e : allTime.entrySet()) {
+            for (Map.Entry<String, long[]> e : source.entrySet()) {
                 if (excluded(e.getKey())) continue;
-                out.add(new Entry(e.getKey(), e.getValue()[0], e.getValue()[1]));
+                out.add(new Entry(e.getKey(), e.getValue()[0], coinsFor(e.getKey(), e.getValue()[0], e.getValue()[1])));
             }
             out.removeIf(entry -> entry.amount() <= 0);
             out.sort(Comparator.comparingDouble(Entry::coins).reversed());
@@ -770,7 +785,8 @@ public class FarmProfit {
 
         List<Entry> out = new ArrayList<>();
         for (Map.Entry<String, long[]> e : counts.entrySet()) {
-            out.add(new Entry(e.getKey(), e.getValue()[0], coins.getOrDefault(e.getKey(), 0.0)));
+            out.add(new Entry(e.getKey(), e.getValue()[0],
+                    coinsFor(e.getKey(), e.getValue()[0], coins.getOrDefault(e.getKey(), 0.0))));
         }
         out.removeIf(entry -> entry.amount() <= 0);
         out.sort(Comparator.comparingDouble(Entry::coins).reversed());
@@ -792,7 +808,7 @@ public class FarmProfit {
     }
 
     private static double computePestCoins() {
-        if (window == Window.ALL_TIME) return -1;   // source is not stored per item
+        if (window == Window.ALL_TIME || window.periodic()) return -1;   // source is not stored per item
         long cutoff = window == Window.SESSION
                 ? sessionStart
                 : System.currentTimeMillis() - window.millis;
@@ -809,7 +825,7 @@ public class FarmProfit {
         long span;
         if (window == Window.SESSION) {
             span = activeMillis();
-        } else if (window == Window.ALL_TIME) {
+        } else if (window == Window.ALL_TIME || window.periodic()) {
             if (!loaded) load();
             return 0;   // no timespan is stored for all time
         } else {
@@ -870,6 +886,69 @@ public class FarmProfit {
         return String.format("%.0f", coins);
     }
 
+    // Skysoft's ProfitTrackerItemCustomizations: price source per item, excluded items
+    public static final String[] ITEM_SOURCES = {"Default", "Instant Sell", "Sell Offer", "NPC"};
+
+    private static double coinsFor(String item, long amount, double stored) {
+        String source = com.teslamaps.config.TeslaMapsConfig.get().farmProfitItemSource.get(item);
+        if (source == null) return stored;
+        BazaarPrices.Mode mode = switch (source) {
+            case "Sell Offer" -> BazaarPrices.Mode.SELL_OFFER;
+            case "NPC" -> BazaarPrices.Mode.NPC;
+            default -> BazaarPrices.Mode.INSTANT_SELL;
+        };
+        return BazaarPrices.priceOf(item, mode) * amount;
+    }
+
+    public static String itemSource(String item) {
+        String s = com.teslamaps.config.TeslaMapsConfig.get().farmProfitItemSource.get(item);
+        return s == null ? "Default" : s;
+    }
+
+    /** Steps the item's own price source forward, returns the new one. */
+    public static String cycleItemSource(String item) {
+        Map<String, String> map = com.teslamaps.config.TeslaMapsConfig.get().farmProfitItemSource;
+        int i = java.util.Arrays.asList(ITEM_SOURCES).indexOf(itemSource(item));
+        String next = ITEM_SOURCES[(i + 1) % ITEM_SOURCES.length];
+        if (next.equals("Default")) map.remove(item);
+        else map.put(item, next);
+        rev++;
+        com.teslamaps.config.TeslaMapsConfig.save();
+        return next;
+    }
+
+    public static void clearItemOptions() {
+        com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
+        c.farmProfitExcluded.clear();
+        c.farmProfitItemSource.clear();
+        rebuildExcluded(c.farmProfitExcluded);
+        rev++;
+        com.teslamaps.config.TeslaMapsConfig.save();
+    }
+
+    private static final String[] periodKeys = new String[2];
+    private static long periodKeysAt = 0L;
+
+    /** "day:2026-09-25" and "mayor:412", same term rule as Tracker. */
+    private static String[] periodKeys() {
+        long now = System.currentTimeMillis();
+        if (periodKeys[0] != null && now - periodKeysAt < 60_000L) return periodKeys;
+        periodKeysAt = now;
+        periodKeys[0] = "day:" + java.time.LocalDate.now();
+        periodKeys[1] = "mayor:" + (Math.floorDiv(now - 1560275700000L - 105600000L, 446400000L) + 1);
+        return periodKeys;
+    }
+
+    private static Map<String, Map<String, long[]>> periods = new HashMap<>();
+    private static final Type PERIOD_TYPE = new TypeToken<Map<String, Map<String, long[]>>>() {}.getType();
+    private static final Path PERIOD_PATH = FabricLoader.getInstance().getConfigDir()
+            .resolve("teslamaps").resolve("farm_profit_periods.json");
+
+    private static void prunePeriods() {
+        String[] keys = periodKeys();
+        periods.keySet().removeIf(k -> !k.equals(keys[0]) && !k.equals(keys[1]));
+    }
+
     public static void resetSession() {
         gains.clear();
         ledger.clear();
@@ -896,6 +975,7 @@ public class FarmProfit {
 
     public static void resetAllTime() {
         allTime.clear();
+        periods.clear();
         rev++;
         save();
     }
@@ -917,6 +997,13 @@ public class FarmProfit {
                 Map<String, long[]> read = GSON.fromJson(Files.readString(PATH), TYPE);
                 if (read != null) allTime = read;
             }
+            if (Files.exists(PERIOD_PATH)) {
+                Map<String, Map<String, long[]>> read = GSON.fromJson(Files.readString(PERIOD_PATH), PERIOD_TYPE);
+                if (read != null) {
+                    read.values().removeIf(m -> m == null);
+                    periods = read;
+                }
+            }
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("Failed to load farm profit", e);
         }
@@ -926,6 +1013,8 @@ public class FarmProfit {
         try {
             Files.createDirectories(PATH.getParent());
             Files.writeString(PATH, GSON.toJson(allTime));
+            prunePeriods();
+            if (!periods.isEmpty() || Files.exists(PERIOD_PATH)) Files.writeString(PERIOD_PATH, GSON.toJson(periods));
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("Failed to save farm profit", e);
         }
