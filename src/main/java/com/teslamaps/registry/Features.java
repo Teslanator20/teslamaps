@@ -592,5 +592,15 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w13-09-gar
+        com.teslamaps.features.garden.GardenCropData.register();
+        com.teslamaps.features.garden.ContestStatsSummary.register();
+        com.teslamaps.features.garden.JacobContestMenus.register();
+        com.teslamaps.features.garden.JacobContestTimes.register();
+        com.teslamaps.features.garden.OptimalSpeed.register();
+        com.teslamaps.features.garden.HoeLevelDisplay.register();
+        com.teslamaps.features.garden.GreenhouseGrowthTimer.register();
+        com.teslamaps.features.garden.PestGuess.register();
+        com.teslamaps.features.garden.CropMoneyDisplay.register();
     }
 }

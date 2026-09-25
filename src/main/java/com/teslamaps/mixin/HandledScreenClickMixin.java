@@ -49,7 +49,8 @@ public class HandledScreenClickMixin {
             return;
         }
         if (com.teslamaps.features.croesus.CroesusProfit.blockReroll((AbstractContainerScreen<?>) (Object) this, slot)
-                || com.teslamaps.features.MenuHighlights.onSlotClick(slot, type)) {
+                || com.teslamaps.features.MenuHighlights.onSlotClick(slot, type)
+                || com.teslamaps.features.garden.JacobContestMenus.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot)) {
             ci.cancel();
             return;
         }
@@ -139,6 +140,11 @@ public class HandledScreenClickMixin {
         }
         if (com.teslamaps.features.SackValueHud.handleClick(mouseX, mouseY, button)) {
             teslamaps$ate("SackValueHud", button);
+            cir.setReturnValue(true);
+            return;
+        }
+        if (com.teslamaps.features.garden.JacobContestTimes.handleClick(mouseX, mouseY, button)) {
+            teslamaps$ate("JacobContestTimes", button);
             cir.setReturnValue(true);
             return;
         }

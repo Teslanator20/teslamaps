@@ -2148,6 +2148,67 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w13-09-gar
+    @Global
+    public java.util.Map<String, Double> gardenLatestFortune = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, Double> gardenLatestBps = new java.util.HashMap<>();
+    public boolean jacobContestTimes = false;
+    public String jacobContestBracket = "GOLD";
+    public boolean jacobContestCustomBps = false;
+    public float jacobContestBps = 19.9f;
+    public boolean jacobContestSummary = false;
+    public boolean jacobContestMenus = false;
+    public boolean jacobMedalIcon = true;
+    public boolean jacobMedalBackground = true;
+    public boolean jacobRewardStatus = true;
+    public boolean jacobRealTime = true;
+    public int jacobEliteKey = 341;
+    public boolean gardenOptimalSpeed = false;
+    public boolean gardenOptimalSpeedHud = true;
+    public boolean gardenOptimalSpeedWarn = true;
+    public boolean gardenOptimalSpeedRanchersOnly = false;
+    public boolean gardenOptimalSpeedSign = true;
+    public java.util.Map<String, Integer> gardenOptimalSpeeds = new java.util.HashMap<>();
+    public int gardenOptimalSpeedX = 10;
+    public int gardenOptimalSpeedY = 150;
+    public float gardenOptimalSpeedScale = 1.0f;
+    public boolean hoeLevelHud = false;
+    public boolean hoeLevelOverflow = true;
+    @Global
+    public java.util.Map<String, Integer> hoeOverflowLevels = new java.util.HashMap<>();
+    public int hoeLevelHudX = 10;
+    public int hoeLevelHudY = 170;
+    public float hoeLevelHudScale = 1.0f;
+    public boolean muteHoeLevelUp = false;
+    public boolean greenhouseGrowthTimer = false;
+    public boolean greenhouseGrowthOnlyOverdue = false;
+    public boolean greenhouseGrowthNotify = true;
+    @Global
+    public long greenhouseNextStage = 0L;
+    @Global
+    public boolean greenhouseGrowthNotified = true;
+    public int greenhouseGrowthTimerX = 10;
+    public int greenhouseGrowthTimerY = 220;
+    public float greenhouseGrowthTimerScale = 1.0f;
+    public boolean pestGuess = false;
+    public boolean pestGuessLine = true;
+    public boolean pestGuessPlotMiddle = true;
+    public boolean pestGuessHideParticles = false;
+    public int pestGuessSeconds = 20;
+    public boolean cropMoneyHud = false;
+    public int cropMoneyRows = 5;
+    public boolean cropMoneyShowCurrent = true;
+    public boolean cropMoneyAlwaysOn = false;
+    public boolean cropMoneyInstantSell = true;
+    public boolean cropMoneySellOffer = false;
+    public boolean cropMoneyNpc = false;
+    public boolean cropMoneyBountiful = true;
+    public boolean cropMoneyMooshroom = true;
+    public boolean cropMoneyMergeSeeds = true;
+    public int cropMoneyHudX = 10;
+    public int cropMoneyHudY = 240;
+    public float cropMoneyHudScale = 1.0f;
     // w12-01-gui
     public java.util.Map<String, String> hudPanelChroma = new java.util.HashMap<>(); // hud id -> Off / Plain Text / All Text
     public String hudChromaAll = "Off";
@@ -4668,6 +4729,15 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.gardenLatestFortune == null) c.gardenLatestFortune = new java.util.HashMap<>();
+        if (c.gardenLatestBps == null) c.gardenLatestBps = new java.util.HashMap<>();
+        if (c.gardenOptimalSpeeds == null) c.gardenOptimalSpeeds = new java.util.HashMap<>();
+        if (c.hoeOverflowLevels == null) c.hoeOverflowLevels = new java.util.HashMap<>();
+        c.gardenLatestFortune.values().removeIf(java.util.Objects::isNull);
+        c.gardenLatestBps.values().removeIf(java.util.Objects::isNull);
+        c.gardenOptimalSpeeds.values().removeIf(java.util.Objects::isNull);
+        c.hoeOverflowLevels.values().removeIf(java.util.Objects::isNull);
+        if (c.jacobContestBracket == null) c.jacobContestBracket = "GOLD";
         if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
         c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
         for (FeatureRule r : c.featureConditionRules.values()) {

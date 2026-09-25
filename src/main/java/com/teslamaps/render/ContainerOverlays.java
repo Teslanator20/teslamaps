@@ -100,6 +100,7 @@ public class ContainerOverlays {
         com.teslamaps.features.FarmProfitOverlay.drawTooltip(context,
                 net.minecraft.client.Minecraft.getInstance(), mouseX, mouseY);
         com.teslamaps.features.GardenPlots.scanConfigureScreen();
+        com.teslamaps.features.garden.JacobContestTimes.render(context, mouseX, mouseY);
         if (com.teslamaps.features.GardenPlotsOverlay.shouldRender()) {
             com.teslamaps.features.GardenPlotsOverlay.render(context, mouseX, mouseY);
         }
