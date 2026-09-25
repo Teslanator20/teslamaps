@@ -41,6 +41,7 @@ public class ContainerOverlays {
             com.teslamaps.features.SlotHighlighter.render(context);
         }
 
+        com.teslamaps.features.BingoCardTips.render(context);
         com.teslamaps.dungeon.PartyFinderMarks.render(context);
         com.teslamaps.features.BazaarOwnOrders.render(context);
         com.teslamaps.features.ProgressHighlight.render(context);

@@ -65,6 +65,7 @@
     "InventoryButtonRenderMixin",
     "InventoryScreenInvoker",
     "ItemStackUuidMixin",
+    "RevertAxesMixin",
     "JoinMultiplayerScreenMixin",
     "KeyboardHandlerMixin",
     "KeyMappingMixin",

@@ -21,6 +21,13 @@ public final class InventoryCategory {
         b.color("  Below 50% Color", () -> config.colorStatBoostLow, v -> config.colorStatBoostLow = v);
         b.color("  50% Color", () -> config.colorStatBoostMax, v -> config.colorStatBoostMax = v);
         b.toggle("Show Selected Pet", () -> config.showSelectedPet, v -> config.showSelectedPet = v);
+        b.toggle("Mark Disabled Potion Effects", () -> config.highlightDisabledPotions, v -> config.highlightDisabledPotions = v)
+                .desc("Toggle Potion Effects menu: disabled effects get a red background.");
+        b.toggle("Move Insert Into Sack Button", () -> config.moveInsertIntoSack, v -> config.moveInsertIntoSack = v)
+                .desc("Sack menus show the Insert Into Sack chest three slots further left. Clicks still hit the real slot.");
+        b.toggle("Bingo Card Tips", () -> config.bingoCardTips, v -> config.bingoCardTips = v)
+                .desc("Bingo Card goals tinted by difficulty, tooltip shows the difficulty, a guide and who found it.");
+        b.toggle("  Skip Finished Goals", () -> config.bingoHideDoneDifficulty, v -> config.bingoHideDoneDifficulty = v);
         b.toggle("Pet Menu Shift Right-Click", () -> config.petShiftTakeOut, v -> config.petShiftTakeOut = v);
         b.info("Pets menu: right-click only works with shift held");
         b.toggle("Page Keybinds (A/D, W/S)", () -> config.pageKeybinds, v -> config.pageKeybinds = v);
@@ -144,6 +151,8 @@ public final class InventoryCategory {
         b.button("Open Customize Screen",
                 () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.customize.CustomizeScreen(b.screen(), false)));
         b.info("Rename, dye, trim and reskin items - client side only (/tmap customize)");
+        b.toggle("Axes In 1.8 Look", () -> config.revertAxes, v -> config.revertAxes = v)
+                .desc("Ragnarock and Daedalus Axe render as a golden axe, Axe of the Shredded as a diamond axe. Visual only.");
         b.label("Rarity Backgrounds");
         b.toggle("Enable Rarity Backgrounds", () -> config.rarityBackgrounds, v -> config.rarityBackgrounds = v);
         b.slider("  Opacity", 0f, 1f,
