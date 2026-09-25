@@ -151,6 +151,7 @@ public class ProfileViewerScreen extends Screen {
         allPages.add(new CrimsonIslePage());
         allPages.add(new RiftPage());
         allPages.add(new ExtraPage());
+        allPages.add(new MobsPage());
         allPages.add(new BingoPage());
 
         pages.clear();
@@ -509,7 +510,17 @@ public class ProfileViewerScreen extends Screen {
         ctx.text(font, error, (NeuStyle.PANEL_WIDTH - font.width(error)) / 2, centerY, NeuStyle.TEXT_GRAY);
 
         String hint = "Click to retry";
+        if (errorCopy()) {
+            hint = System.currentTimeMillis() - errorCopiedAt < 1500 ? "Copied!" : "Click to retry, right-click to copy";
+        }
         ctx.text(font, hint, (NeuStyle.PANEL_WIDTH - font.width(hint)) / 2, centerY + 20, NeuStyle.TEXT_GRAY);
+    }
+
+    private long errorCopiedAt;
+
+    private static boolean errorCopy() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.pvExtras && c.pvErrorCopy;
     }
 
     /** Everything clickable lives here, the render pass only draws and hovers. */
@@ -574,6 +585,11 @@ public class ProfileViewerScreen extends Screen {
         }
         nameInput = null;
 
+        if (error != null && button == 1 && errorCopy()) {
+            Minecraft.getInstance().keyboardHandler.setClipboard(targetPlayer + ": " + error);
+            errorCopiedAt = System.currentTimeMillis();
+            return true;
+        }
         if (error != null) {
             loadProfile();
             return true;

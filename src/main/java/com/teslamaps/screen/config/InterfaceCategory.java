@@ -205,6 +205,28 @@ public final class InterfaceCategory {
                 .desc("Adds the sack contents with their bazaar value to the Inventories page");
         b.toggle("Hunting Page", () -> config.pvHunting, v -> config.pvHunting = v)
                 .desc("Attribute levels and the Hunting Box of the viewed player");
+        b.toggle("Profile Viewer Extras", () -> config.pvExtras, v -> config.pvExtras = v)
+                .desc("Master switch for the options below").tags("pv", "profile viewer");
+        b.toggle("  Island Panorama", () -> config.pvPanorama, v -> config.pvPanorama = v)
+                .desc("Panorama of the island the player is on behind the player model, day or night by SkyBlock time")
+                .tags("pv", "panorama", "background");
+        b.toggle("  Info Board", () -> config.pvInfoBoard, v -> config.pvInfoBoard = v)
+                .desc("Mode, Hypixel level, fairy souls, created date, cookie and crit record on the Basic page")
+                .tags("pv", "fairy souls", "network level", "ironman", "stranded");
+        b.toggle("  Mobs Tab", () -> config.pvMobsTab, v -> config.pvMobsTab = v)
+                .desc("Kills and deaths per mob in two scrolling columns").tags("pv", "kills", "deaths");
+        b.toggle("  Bingo Goal Names", () -> config.pvBingoGoals, v -> config.pvBingoGoals = v)
+                .desc("Bingo card with goal names, hover details, community goals and points").tags("pv", "bingo");
+        b.toggle("  Trophy Fisher Rank", () -> config.pvTrophyRank, v -> config.pvTrophyRank = v)
+                .desc("Novice to Master Fisher rank and what is missing for the next one").tags("pv", "trophy", "odger");
+        b.toggle("  Power Stats + Tuning", () -> config.pvPowerStats, v -> config.pvPowerStats = v)
+                .desc("Hover the Magical Power line on the Accessories page for the power stone stats and tuning")
+                .tags("pv", "magical power", "tuning", "mp");
+        b.toggle("  Copy Error On Right-Click", () -> config.pvErrorCopy, v -> config.pvErrorCopy = v)
+                .desc("Right-click a load error to copy the full message").tags("pv", "error", "clipboard");
+        b.toggle("  /peek + Lobby Leaderboards", () -> config.pvPeek, v -> config.pvPeek = v)
+                .desc("/peek <name> prints skills, cata, slayers and coins; /tmap lobbylb <purse|skills|cata> ranks the players in your lobby")
+                .tags("pv", "peek", "purselb", "skillslb", "leaderboard");
         b.label("Updates");
         b.toggle("Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v);
         b.toggle("  Show Changelog", () -> config.updateChangelog, v -> config.updateChangelog = v);

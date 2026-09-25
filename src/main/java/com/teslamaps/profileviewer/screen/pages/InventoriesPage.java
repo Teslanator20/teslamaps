@@ -55,6 +55,12 @@ public class InventoriesPage extends ProfileViewerPage {
         wardrobeCache = null;
         sackCache = null;
         if (com.teslamaps.config.TeslaMapsConfig.get().pvSacks) com.teslamaps.features.croesus.PriceManager.ensureFresh();
+        SkyblockProfile profile = getProfile();
+        JsonObject bag = profile == null ? null : accessoryBag(profile);
+        powerTooltip = profile == null ? List.of() : com.teslamaps.profileviewer.data.PowerStats.tooltip(bag);
+        int points = com.teslamaps.profileviewer.data.PowerStats.tuningPoints(bag);
+        tuningLabel = points > 0 ? "Tuning: " + points + " pts" : null;
+        powerText = profile == null ? "" : powerLine(profile);
     }
 
     private static List<Section> visibleSections() {
@@ -65,6 +71,10 @@ public class InventoriesPage extends ProfileViewerPage {
     private static final List<Section> SECTIONS_ALL = List.of(Section.values());
     private static final List<Section> SECTIONS_NO_SACKS = java.util.Arrays.stream(Section.values())
             .filter(s -> s != Section.SACKS).toList();
+
+    private List<net.minecraft.network.chat.Component> powerTooltip = List.of();
+    private String tuningLabel;
+    private String powerText = "";
 
     // the icon resolves async through the item repo; a stack grabbed at build time froze the
     // barrier placeholder in, so the slot is kept and resolved per draw (cached in ItemGrid)
@@ -195,7 +205,15 @@ public class InventoriesPage extends ProfileViewerPage {
                 pageCount = Math.max(1, (all.size() + 44) / 45);
                 page = Math.min(page, pageCount - 1);
                 slots = subList(all, page * 45, 45);
-                ctx.text(tr, powerLine(profile), areaX, top + 10, NeuStyle.TEXT_LIGHT_PURPLE);
+                ctx.text(tr, powerText, areaX, top + 10, NeuStyle.TEXT_LIGHT_PURPLE);
+                if (extra(com.teslamaps.config.TeslaMapsConfig.get().pvPowerStats)) {
+                    if (tuningLabel != null) {
+                        ctx.text(tr, tuningLabel, areaX + areaW - tr.width(tuningLabel), top + 10, NeuStyle.TEXT_GRAY);
+                    }
+                    boolean overPower = mouseY >= top + 8 && mouseY < top + 19 && mouseX >= areaX
+                            && mouseX < areaX + Math.max(tr.width(powerText), areaW);
+                    if (overPower && parent != null) parent.setHoveredLines(powerTooltip);
+                }
                 title = null;
             }
             case FISHING -> {

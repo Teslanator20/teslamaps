@@ -2211,6 +2211,16 @@ public class TeslaMapsConfig {
     public boolean farmProfitExtraWindows = false;
     public int mousematReleaseKey = -1;
     public boolean muteVacuum = false;
+    // w13-05-pv
+    public boolean pvExtras = false;
+    public boolean pvPanorama = true;
+    public boolean pvErrorCopy = true;
+    public boolean pvInfoBoard = true;
+    public boolean pvMobsTab = true;
+    public boolean pvBingoGoals = true;
+    public boolean pvTrophyRank = true;
+    public boolean pvPowerStats = true;
+    public boolean pvPeek = true;
     // w13-02-eco
     public boolean auctionCopyUnderbid = false;
     public boolean searchOverlayCommands = false;

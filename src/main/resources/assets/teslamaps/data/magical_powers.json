@@ -1,0 +1,329 @@
+{
+	"fortuitous": {
+		"stats": {
+			"critical_chance": 4.35,
+			"critical_damage": 4.8,
+			"defence": 1.2,
+			"health": 3.35,
+			"strength": 4.8
+		}
+	},
+	"pretty": {
+		"stats": {
+			"critical_chance": 0.475,
+			"critical_damage": 1.2,
+			"defence": 1.2,
+			"health": 1.65,
+			"intelligence": 10.8,
+			"strength": 4.8,
+			"walk_speed": 0.65
+		}
+	},
+	"protected": {
+		"stats": {
+			"critical_chance": 0.475,
+			"critical_damage": 1.2,
+			"defence": 10.8,
+			"health": 11.75,
+			"strength": 2.4
+		}
+	},
+	"simple": {
+		"stats": {
+			"health": 5.02,
+			"defence": 3.6,
+			"walk_speed": 1.2,
+			"strength": 3.6,
+			"intelligence": 5.4,
+			"critical_chance": 1.45,
+			"critical_damage": 3.6
+		}
+	},
+	"warrior": {
+		"stats": {
+			"health": 3.35,
+			"defence": 1.2,
+			"strength": 8.4,
+			"critical_chance": 2.4,
+			"critical_damage": 6
+		}
+	},
+	"commando": {
+		"stats": {
+			"health": 5.02,
+			"defence": 2.4,
+			"strength": 8.4,
+			"critical_chance": 0.475,
+			"critical_damage": 8.4
+		}
+	},
+	"disciplined": {
+		"stats": {
+			"health": 5.02,
+			"defence": 2.4,
+			"strength": 7.2,
+			"critical_chance": 1.45,
+			"critical_damage": 7.2
+		}
+	},
+	"inspired": {
+		"stats": {
+			"health": 1.65,
+			"defence": 1.2,
+			"strength": 4.8,
+			"intelligence": 16.2,
+			"critical_chance": 0.95,
+			"critical_damage": 3.6
+		}
+	},
+	"ominous": {
+		"stats": {
+			"health": 5.02,
+			"walk_speed": 0.95,
+			"strength": 3.6,
+			"intelligence": 6.1,
+			"critical_chance": 1.45,
+			"critical_damage": 3.6,
+			"attack_speed": 0.9
+		}
+	},
+	"prepared": {
+		"stats": {
+			"health": 12.4,
+			"defence": 11.3,
+			"strength": 1.95,
+			"critical_chance": 0.4,
+			"critical_damage": 0.95
+		}
+	},
+	"scorching": {
+		"stats": {
+			"strength": 8.4,
+			"critical_damage": 9.6,
+			"attack_speed": 1.8
+		},
+		"bonus": {
+			"ferocity": 7
+		}
+	},
+	"healthy": {
+		"stats": {
+			"health": 33.6
+		},
+		"bonus": {
+			"health": 200
+		}
+	},
+	"slender": {
+		"stats": {
+			"health": 8.4,
+			"defence": 6,
+			"walk_speed": 0.6,
+			"strength": 6,
+			"intelligence": 7.2,
+			"critical_damage": 6,
+			"attack_speed": 1.1
+		},
+		"bonus": {
+			"defence": 100,
+			"strength": 50
+		}
+	},
+	"strong": {
+		"stats": {
+			"strength": 12,
+			"critical_damage": 12
+		},
+		"bonus": {
+			"strength": 25,
+			"critical_damage": 25
+		}
+	},
+	"bizarre": {
+		"stats": {
+			"strength": -2.4,
+			"intelligence": 43.2,
+			"critical_damage": -2.4
+		},
+		"bonus": {
+			"ability_damage": 5
+		}
+	},
+	"bubba": {
+		"stats": {
+			"health": 5.1,
+			"defence": -9.6,
+			"strength": 6,
+			"critical_chance": 0.9,
+			"critical_damage": 10.8,
+			"attack_speed": 1.8,
+			"true_defence": 1.2
+		},
+		"bonus": {
+			"combat_wisdom": 2
+		}
+	},
+	"demonic": {
+		"stats": {
+			"strength": 5.5,
+			"intelligence": 27.725
+		},
+		"bonus": {
+			"critical_damage": 50
+		}
+	},
+	"hurtful": {
+		"stats": {
+			"strength": 4.8,
+			"critical_damage": 19.2
+		},
+		"bonus": {
+			"attack_speed": 15
+		}
+	},
+	"pleasant": {
+		"stats": {
+			"health": 13.45,
+			"defence": 14.4
+		}
+	},
+	"adept": {
+		"stats": {
+			"health": 16.8,
+			"defence": 9.6,
+			"intelligence": 3.6
+		},
+		"bonus": {
+			"health": 100,
+			"defence": 50
+		}
+	},
+	"bloody": {
+		"stats": {
+			"strength": 10.8,
+			"intelligence": 3.6,
+			"critical_damage": 10.8
+		},
+		"bonus": {
+			"attack_speed": 10
+		}
+	},
+	"crumbly": {
+		"stats": {
+			"health": 10.08,
+			"true_defence": 1.6319121136686976,
+			"critical_chance": 0.48,
+			"attack_speed": 0.72,
+			"intelligence": 5.4
+		},
+		"bonus": {
+			"walk_speed": 25
+		}
+	},
+	"forceful": {
+		"stats": {
+			"health": 1.7,
+			"strength": 18,
+			"critical_damage": 4.8
+		},
+		"bonus": {
+			"ferocity": 4
+		}
+	},
+	"itchy": {
+		"stats": {
+			"walk_speed": 0.6,
+			"strength": 7.2,
+			"critical_damage": 8.4,
+			"attack_speed": 2.15
+		},
+		"bonus": {
+			"strength": 15,
+			"critical_damage": 15
+		}
+	},
+	"mythical": {
+		"stats": {
+			"health": 5.7,
+			"defence": 4.05,
+			"walk_speed": 0.95,
+			"strength": 4.05,
+			"intelligence": 6.1,
+			"critical_chance": 1.65,
+			"critical_damage": 4.05
+		},
+		"bonus": {
+			"health": 150,
+			"strength": 40
+		}
+	},
+	"shaded": {
+		"stats": {
+			"walk_speed": 0.6,
+			"strength": 4.8,
+			"critical_damage": 18
+		},
+		"bonus": {
+			"attack_speed": 3,
+			"ferocity": 3
+		}
+	},
+	"sighted": {
+		"stats": {
+			"intelligence": 36
+		},
+		"bonus": {
+			"ability_damage": 3
+		}
+	},
+	"silky": {
+		"stats": {
+			"walk_speed": 0.6,
+			"critical_damage": 22.8
+		},
+		"bonus": {
+			"attack_speed": 5
+		}
+	},
+	"sweet": {
+		"stats": {
+			"health": 15.1,
+			"defence": 10.8,
+			"walk_speed": 1.2
+		},
+		"bonus": {
+			"walk_speed": 5
+		}
+	},
+	"sanguisuge": {
+		"stats": {
+			"health": 3.36,
+			"strength": 14.4,
+			"critical_chance": 0.96,
+			"critical_damage": 4.8
+		},
+		"bonus": {
+			"intelligence": 100
+		}
+	},
+	"frozen": {
+		"stats": {
+			"defence": 13.2,
+			"true_defence": 1.836
+		},
+		"bonus": {
+			"true_defence": 10,
+			"strength": 25,
+			"critical_damage": 25
+		}
+	},
+	"buttery": {
+		"stats": {
+			"attack_speed": 2.16,
+			"walk_speed": 2.40
+		},
+		"bonus": {
+			"attack_speed": 5
+		}
+	}
+}

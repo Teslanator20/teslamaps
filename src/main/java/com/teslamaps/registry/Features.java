@@ -619,6 +619,8 @@ final class Features {
         com.teslamaps.features.GardenPlots.register();
         com.teslamaps.features.SixthVisitor.register();
         com.teslamaps.features.PlotSprays.register();
+        // w13-05-pv
+        com.teslamaps.features.PlayerPeek.register();
         // w13-02-eco
         com.teslamaps.features.AuctionPriceInput.register();
         com.teslamaps.features.SearchOverlay.register();

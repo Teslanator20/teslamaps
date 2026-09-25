@@ -107,6 +107,7 @@ public class SkyblockProfiles {
                     boolean online = response.has("online") && response.get("online").getAsBoolean();
                     String location = response.has("mode") && !response.get("mode").isJsonNull()
                             ? response.get("mode").getAsString() : null;
+                    statusMode = online ? location : null;
                     status = online
                             ? (location != null ? "Online - " + prettyMode(location) : "Online")
                             : "Offline";
@@ -116,6 +117,48 @@ public class SkyblockProfiles {
     private static String prettyMode(String mode) {
         String out = mode.replace('_', ' ').toLowerCase();
         return out.isEmpty() ? out : Character.toUpperCase(out.charAt(0)) + out.substring(1);
+    }
+
+    private volatile String statusMode;
+    private volatile double networkExp = -1;
+
+    /** Raw /status mode (hub, mining_3, ...), null while offline or unknown. */
+    public String getStatusMode() {
+        return statusMode;
+    }
+
+    /** -1 when the player object never arrived. */
+    public double getNetworkExp() {
+        return networkExp;
+    }
+
+    public static String islandName(String mode) {
+        if (mode == null || mode.isBlank()) return null;
+        return switch (mode) {
+            case "dynamic" -> "Private Island";
+            case "hub" -> "Hub";
+            case "mining_1" -> "Gold Mine";
+            case "mining_2" -> "Deep Caverns";
+            case "mining_3" -> "Dwarven Mines";
+            case "crystal_hollows" -> "Crystal Hollows";
+            case "mineshaft" -> "Glacite Mineshaft";
+            case "combat_1" -> "Spider's Den";
+            case "combat_3" -> "The End";
+            case "farming_1" -> "The Barn";
+            case "farming_2" -> "Mushroom Desert";
+            case "foraging_1" -> "The Park";
+            case "foraging_2" -> "Galatea";
+            case "winter" -> "Jerry's Workshop";
+            case "dungeon_hub" -> "Dungeon Hub";
+            case "dungeon" -> "Dungeon";
+            case "garden" -> "The Garden";
+            case "rift" -> "The Rift";
+            case "crimson_isle" -> "Crimson Isle";
+            case "kuudra", "instanced" -> "Kuudra";
+            case "dark_auction" -> "Dark Auction";
+            case "fishing_1" -> "Backwater Bayou";
+            default -> prettyMode(mode);
+        };
     }
 
     private String status = "Status unknown";
@@ -139,6 +182,12 @@ public class SkyblockProfiles {
         }).thenAccept(player -> {
             if (player == null || player.keySet().isEmpty()) return;
             rankPrefix = buildRank(player);
+            if (player.has("networkExp") && player.get("networkExp").isJsonPrimitive()) {
+                try {
+                    networkExp = player.get("networkExp").getAsDouble();
+                } catch (NumberFormatException ignored) {
+                }
+            }
 
             // the treasure hunter achievement counts every secret the account ever found,
             // across all profiles and the deleted ones - the profile only knows its own
