@@ -208,5 +208,10 @@ final class Features {
         com.teslamaps.features.AnvilHelper.register();
         com.teslamaps.features.accessories.AccessoryHelper.register();
         com.teslamaps.features.CraftHelper.register();
+        // w05-00-inv
+        com.teslamaps.features.OldMasterStar.register();
+        com.teslamaps.features.ItemLoreExtras.register();
+        com.teslamaps.features.ReforgeStoneStats.register();
+        com.teslamaps.features.CrownValueOverlay.register();
     }
 }
