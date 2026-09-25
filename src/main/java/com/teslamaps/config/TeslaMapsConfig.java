@@ -2147,6 +2147,16 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w11-06-gui
+    public float hudCustomBlur = 0f;               // HUD Style "Custom": backdrop blur radius, 0 = off
+    public String hudCustomBlurKernel = "Gaussian"; // Gaussian / Box
+    public float hudGlobalScale = 1.0f;            // multiplies every movable HUD element
+    public boolean newOptionsNotify = false;
+    @Global
+    public java.util.List<String> knownToggles = new java.util.ArrayList<>(); // "Category/Label" seen so far
+    @Global
+    public int worldOverlayKey = -1;               // hides every world overlay while toggled
+    public boolean worldOverlayFade = true;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4328,6 +4338,8 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.knownToggles == null) c.knownToggles = new java.util.ArrayList<>();
+        if (c.hudCustomBlurKernel == null) c.hudCustomBlurKernel = "Gaussian";
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
         if (c.sackNotifyItems == null) c.sackNotifyItems = new java.util.ArrayList<>();
         if (c.chatMutedPlayers == null) c.chatMutedPlayers = new java.util.ArrayList<>();

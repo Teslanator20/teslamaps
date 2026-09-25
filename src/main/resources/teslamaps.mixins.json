@@ -163,6 +163,7 @@
     "MobGlowHeadOnlyMixin",
     "ModelManagerAccessor",
     "MotionBlurMixin",
+    "PanelBlurMixin",
     "MouseScrollMixin",
     "MultiPlayerGameModeAccessor",
     "NoArrowsMixin",
