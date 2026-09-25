@@ -2148,6 +2148,23 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w12-07-eco
+    public boolean contestShowDarkAuction = false;
+    public boolean bitsShopHelper = false;
+    public boolean bitsShopBits = true;
+    public boolean bitsShopCopper = true;
+    public boolean bitsShopHighlight = true;
+    public boolean priceLineCraftCheapest = false;
+    public boolean bazaarOnlyMyOrders = false;
+    public boolean bazaarFlipTracker = false;
+    public boolean bazaarFlipShowTotal = false;
+    public boolean bazaarFlipInstant = true;
+    public int bazaarFlipX = 5;
+    public int bazaarFlipY = 180;
+    public float bazaarFlipScale = 1.0f;
+    public boolean tradeValue = false;
+    public boolean tradeValueChanges = true;
+    public boolean bazaarChatSummary = false;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();

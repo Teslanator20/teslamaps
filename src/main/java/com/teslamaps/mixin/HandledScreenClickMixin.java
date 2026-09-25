@@ -65,6 +65,7 @@ public class HandledScreenClickMixin {
         if (com.teslamaps.features.OpheliaPotLock.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.SlotHighlighter.blockSalvageClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.CommandHelpers.blockCoopClick((AbstractContainerScreen<?>) (Object) this, slot)
+                || com.teslamaps.features.BazaarOwnOrders.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.QuickCraftConfirm.blockClick(slot)
                 || com.teslamaps.features.AbiphoneHelper.blockClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
             ci.cancel();
@@ -95,6 +96,8 @@ public class HandledScreenClickMixin {
     @Inject(method = "extractTooltip", at = @At("HEAD"), cancellable = true)
     private void teslamaps$hideFillerTooltip(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (com.teslamaps.features.FillerItems.hideTooltip((AbstractContainerScreen<?>) (Object) this,
+                ((HandledScreenAccessor) (Object) this).getFocusedSlot())
+                || com.teslamaps.features.BazaarOwnOrders.hideTooltip((AbstractContainerScreen<?>) (Object) this,
                 ((HandledScreenAccessor) (Object) this).getFocusedSlot())) ci.cancel();
     }
 

@@ -512,5 +512,10 @@ final class Features {
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w12-07-eco
+        com.teslamaps.features.BitsShopHelper.register();
+        com.teslamaps.features.TradeValue.register();
+        com.teslamaps.features.BazaarFlipTracker.register();
+        com.teslamaps.features.BazaarChatSummary.register();
     }
 }
