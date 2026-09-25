@@ -14,6 +14,6 @@ public class EntityEventHideMixin {
     @Inject(method = "handleEntityEvent", at = @At("HEAD"), cancellable = true)
     private void teslamaps$hideEventParticles(byte id, CallbackInfo ci) {
         if (id == 60 && TeslaMapsConfig.get().hideDeathParticles) ci.cancel();
-        else if (id == 46 && (Object) this instanceof EnderMan && com.teslamaps.features.EndermanTeleportHider.active()) ci.cancel();
+        else if (id == 46 && (Object) this instanceof net.minecraft.world.entity.monster.EnderMan && com.teslamaps.features.EndermanTeleportHider.active()) ci.cancel();
     }
 }
