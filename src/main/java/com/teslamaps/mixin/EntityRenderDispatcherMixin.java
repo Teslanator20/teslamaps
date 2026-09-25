@@ -59,7 +59,8 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.HideGlitchMobs.shouldHide(entity)
                 || com.teslamaps.features.HideFarEntities.shouldHide(entity)
                 || com.teslamaps.slayer.InfernoHelper.shouldHide(entity)
-                || com.teslamaps.features.KeeperWaypoints.shouldHide(entity)) {
+                || com.teslamaps.features.KeeperWaypoints.shouldHide(entity)
+                || com.teslamaps.features.kuudra.KuudraHider.shouldHide(entity)) {
             cir.setReturnValue(false);
         }
     }
