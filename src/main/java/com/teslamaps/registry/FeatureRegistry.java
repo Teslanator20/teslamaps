@@ -60,6 +60,7 @@ public final class FeatureRegistry {
         HudElementRegistry.attachElementBefore(VanillaHudElements.PLAYER_LIST,
                 Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, id), Perf.hud(id, (g, d) -> {
                     if (mode != InventoryMode.ALWAYS && HudForeground.active()) return;
+                    if (com.teslamaps.features.GlobalRender.off()) return;
                     if (f.active()) drawShifted(id, r, g, d);
                 }));
     }
@@ -101,6 +102,7 @@ public final class FeatureRegistry {
 
     public static void world(PoseStack pose, MultiBufferSource buffers, Vec3 cam,
                              net.minecraft.client.renderer.culling.Frustum frustum) {
+        if (com.teslamaps.features.GlobalRender.off()) return;
         WorldCtx ctx = new WorldCtx(pose, buffers, cam);
         com.teslamaps.render.ESPRenderer.beginFrame(frustum);
         try {
@@ -120,6 +122,7 @@ public final class FeatureRegistry {
 
     /** Panels drawn over the inventory screen; called by HudForeground. */
     public static void foreground(GuiGraphicsExtractor g, DeltaTracker d) {
+        if (com.teslamaps.features.GlobalRender.off()) return;
         for (int i = 0, n = FOREGROUND.size(); i < n; i++) {
             Hud h = FOREGROUND.get(i);
             if (h.f.active()) drawShifted(h.id, h.r, g, d);

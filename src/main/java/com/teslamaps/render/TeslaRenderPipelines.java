@@ -49,6 +49,21 @@ public class TeslaRenderPipelines {
                     .build()
     );
 
+    // instanced filled boxes: unit cube + per-box data in a uniform block (InstancedBoxes)
+    public static final RenderPipeline FILLED_ESP_INSTANCED = instanced("teslamaps_filled_esp_instanced", NO_DEPTH);
+    public static final RenderPipeline FILLED_DEPTH_INSTANCED = instanced("teslamaps_filled_depth_instanced", DEPTH);
+
+    private static RenderPipeline instanced(String name, DepthStencilState depth) {
+        return RenderPipelines.register(
+                RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+                        .withLocation("pipeline/" + name)
+                        .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_esp_box"))
+                        .withUniform("BoxData", UniformType.UNIFORM_BUFFER)
+                        .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS)
+                        .withDepthStencilState(depth)
+                        .build());
+    }
+
     // Fullscreen blit of the accumulation texture, alpha taken from ColorModulator so
     // the blend amount can change every frame. Same setup as vanilla's entity outline
     // blit, minus the alpha write — the frame's own alpha channel must stay intact.

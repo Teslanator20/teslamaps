@@ -160,6 +160,17 @@ public final class PartyTracker {
         if (members.isEmpty()) disband();
     }
 
+    /** From the Hypixel Mod API; names it could not resolve stay as the chat tracker had them. */
+    static void applyApi(boolean party, String leaderName, List<String> names) {
+        if (!party) {
+            disband();
+            return;
+        }
+        for (String n : names) add(n);
+        inParty = true;
+        if (leaderName != null) leader = leaderName;
+    }
+
     private static void disband() {
         members.clear();
         leader = null;

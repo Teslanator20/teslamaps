@@ -63,7 +63,7 @@ public final class ProfileInfo {
     private static HudElement wrap(HudElement original) {
         return (g, d) -> {
             LocalPlayer p = Minecraft.getInstance().player;
-            if (p == null || !xpBarActive()) {
+            if (p == null || !xpBarActive() || com.teslamaps.features.GlobalRender.off()) {
                 original.extractRenderState(g, d);
                 return;
             }

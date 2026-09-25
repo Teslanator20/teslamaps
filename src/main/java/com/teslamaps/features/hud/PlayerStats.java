@@ -83,7 +83,7 @@ public final class PlayerStats {
                     b.slider("  Bar Width", 40f, 200f, () -> (float) c.statBarWidth, v -> c.statBarWidth = Math.round(v), 0);
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, original ->
-                (ctx, delta) -> { if (!hideHearts()) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!hideHearts() || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
     }
 
     private static boolean hideHearts() {

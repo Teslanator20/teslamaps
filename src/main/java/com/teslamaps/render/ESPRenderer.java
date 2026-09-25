@@ -34,6 +34,7 @@ public class ESPRenderer {
             src.endBatch(TeslaRenderLayers.FILLED_DEPTH);
         }
         frameSources.clear();
+        InstancedBoxes.flush();
         for (MultiBufferSource.BufferSource src : textSources) src.endBatch();
         textSources.clear();
     }
@@ -385,6 +386,11 @@ public class ESPRenderer {
         if (a == 0) a = com.teslamaps.config.TeslaMapsConfig.get().espAlpha; // Use config transparency
         a *= fade(box, cameraPos);
         if (a < 2f / 255f) return;
+        if (frameBatch && com.teslamaps.config.TeslaMapsConfig.get().espInstancing && InstancedBoxes.usable()
+                && InstancedBoxes.acceptsPose(matrices.last().pose())) {
+            InstancedBoxes.add(depthTested, box, cameraPos, r, g, b, a);
+            return;
+        }
 
         float minX = (float) box.minX;
         float minY = (float) box.minY;

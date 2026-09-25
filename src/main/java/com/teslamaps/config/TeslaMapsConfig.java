@@ -2148,6 +2148,15 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w12-03-perf
+    public boolean suppressLogSpam = false;
+    public boolean hypixelModApi = false;
+    public boolean hideFarEntities = false;
+    public int hideFarEntitiesMinDistance = 10;
+    public int hideFarEntitiesMaxAmount = 30;
+    public boolean irisCompat = false;
+    public boolean espInstancing = false;
+    public boolean mapTextureCache = false;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();

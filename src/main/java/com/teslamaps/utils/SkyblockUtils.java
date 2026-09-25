@@ -11,6 +11,7 @@ public class SkyblockUtils {
     private static final Pattern STRIP_PATTERN = Pattern.compile("§.");
 
     public static boolean isOnHypixel() {
+        if (HypixelModApi.live()) return true;
         Minecraft mc = Minecraft.getInstance();
         ServerData serverInfo = mc.getCurrentServer();
         if (serverInfo == null) return false;
@@ -22,6 +23,8 @@ public class SkyblockUtils {
     public static boolean isInSkyblock() {
         if (areaOverride != null) return true;
         if (!isOnHypixel()) return false;
+        String type = HypixelModApi.serverType();
+        if (type != null) return type.equals("SKYBLOCK");
 
         List<String> scoreboard = ScoreboardUtils.getScoreboardLines();
         for (String line : scoreboard) {

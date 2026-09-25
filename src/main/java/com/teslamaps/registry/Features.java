@@ -512,5 +512,8 @@ final class Features {
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w12-03-perf
+        com.teslamaps.features.PerfOptions.register();
+        com.teslamaps.features.HideFarEntities.register();
     }
 }

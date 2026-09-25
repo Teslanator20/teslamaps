@@ -73,7 +73,7 @@ public final class MovableVanillaHud {
 
         HudElement wrap(HudElement original) {
             return (g, d) -> {
-                if (!active()) { original.extractRenderState(g, d); return; }
+                if (!active() || com.teslamaps.features.GlobalRender.off()) { original.extractRenderState(g, d); return; }
                 float s = (float) scale.getAsDouble();
                 int bx = x(), by = y(), dx = defX.getAsInt(), dy = defY.getAsInt();
                 if (bx == dx && by == dy && s == 1f) { original.extractRenderState(g, d); return; }

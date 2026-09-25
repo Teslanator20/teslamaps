@@ -3,6 +3,12 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "LogSpamPacketMixin",
+    "LogSpamScoreboardMixin",
+    "LogSpamEntityDataMixin",
+    "LogSpamSkinMixin",
+    "LogSpamKeyInfoMixin",
+    "LogSpamSessionMixin",
     "GlowSectionMixin",
     "CameraDistanceMixin",
     "OutlineWidthMixin",

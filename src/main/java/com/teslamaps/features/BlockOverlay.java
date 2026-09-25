@@ -21,7 +21,7 @@ public class BlockOverlay {
     public static void register() {
         LevelRenderEvents.BEFORE_BLOCK_OUTLINE.register((ctx, outline) -> {
             TeslaMapsConfig c = TeslaMapsConfig.get();
-            return !(c.blockOverlay && c.blockOverlayHideVanilla && c.section("Render"));
+            return !(c.blockOverlay && c.blockOverlayHideVanilla && c.section("Render")) || com.teslamaps.features.GlobalRender.off();
         });
     }
 
