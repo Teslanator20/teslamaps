@@ -2148,6 +2148,39 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w13-07-gar
+    public boolean bestCropTime = false;
+    public String bestCropTimeType = "SkyBlock Level";
+    public int bestCropTimeTop = 10;
+    public boolean bestCropTimeCurrent = true;
+    public boolean bestCropTimeCompact = false;
+    public int bestCropTimeX = 10;
+    public int bestCropTimeY = 220;
+    public float bestCropTimeScale = 1.0f;
+    public boolean dnaAnalyzerSolver = false;
+    public boolean dnaMiddleClick = false;
+    public boolean dnaBlockClose = false;
+    public boolean dnaHideTooltips = false;
+    public boolean cropStartLocation = false;
+    public String cropStartLocationMode = "Both";
+    public boolean gardenLevelHud = false;
+    public boolean gardenLevelOverflow = true;
+    public boolean gardenLevelChat = true;
+    public int gardenLevelHudX = 10;
+    public int gardenLevelHudY = 40;
+    public float gardenLevelHudScale = 1.0f;
+    public String burrowingSporesAlarm = "Off";
+    public boolean cropFeverTracker = false;
+    public boolean cropFeverOnlyTool = true;
+    public boolean cropFeverOnlyDuring = false;
+    public int cropFeverPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public int cropFeverTrackerX = 10;
+    public int cropFeverTrackerY = 250;
+    public float cropFeverTrackerScale = 1.0f;
+    public boolean cropMilestoneOverflow = false;
+    public boolean cropMilestoneAverage = false;
+    public boolean gardenUpgradeStackTier = false;
+    public boolean hideFarmingRngTitles = false;
     // w12-01-gui
     public java.util.Map<String, String> hudPanelChroma = new java.util.HashMap<>(); // hud id -> Off / Plain Text / All Text
     public String hudChromaAll = "Off";

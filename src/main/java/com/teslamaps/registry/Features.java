@@ -592,5 +592,14 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w13-07-gar
+        com.teslamaps.features.GardenMilestoneData.register();
+        com.teslamaps.features.BestCropTime.register();
+        com.teslamaps.features.DnaAnalyzerSolver.register();
+        com.teslamaps.features.CropStartLocation.register();
+        com.teslamaps.features.GardenLevelHud.register();
+        com.teslamaps.features.CropFeverTracker.register();
+        com.teslamaps.features.CropMilestoneMenu.register();
+        com.teslamaps.features.FarmingRngTitles.register();
     }
 }

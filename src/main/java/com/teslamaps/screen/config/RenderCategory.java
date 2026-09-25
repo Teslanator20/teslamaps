@@ -100,6 +100,10 @@ public final class RenderCategory {
         b.slider("    Only Over (Mio, 0 = all)", 0f, 100f,
                 () -> config.rareDropAnnounceMin, v -> config.rareDropAnnounceMin = v, 1);
         b.toggle("  Copy Drop Line To Clipboard", () -> config.rareDropCopy, v -> config.rareDropCopy = v);
+        b.dropdown("  Burrowing Spores Alarm", com.teslamaps.features.RareDropEffects.SPORES_ALARM,
+                () -> config.burrowingSporesAlarm, v -> config.burrowingSporesAlarm = v)
+                .desc("VERY RARE CROP! Burrowing Spores: title and/or the big item pop. Works on its own, Rare Drops can stay off")
+                .tags("garden", "rare crop", "spores");
         b.toggle("Dungeon Chest Rewards", () -> config.rareDungeonDropEffects, v -> config.rareDungeonDropEffects = v);
         b.toggle("Dye Drops", () -> config.rareDyeDropEffects, v -> config.rareDyeDropEffects = v);
         b.toggle("Dungeon Ground Drops", () -> config.rareGroundDrops, v -> config.rareGroundDrops = v)
