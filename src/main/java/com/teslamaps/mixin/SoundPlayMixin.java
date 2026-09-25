@@ -42,7 +42,8 @@ public class SoundPlayMixin {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
         boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);
-        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !foragingMutes && !c.arrowHitSound) return;
+        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !foragingMutes && !c.arrowHitSound
+                && !c.tiaRelayHelper) return;
 
         String id;
         float pitch, vol;
@@ -56,6 +57,10 @@ public class SoundPlayMixin {
             Minecraft mc = Minecraft.getInstance();
             mc.execute(() -> { if (mc.player != null) mc.player.sendSystemMessage(Component.literal(
                     "§7[Sound] §f" + id + " §8vol=" + String.format("%.2f", vol) + " pitch=" + String.format("%.3f", pitch))); });
+        }
+        if (c.tiaRelayHelper && com.teslamaps.features.qol.TiaRelayHelper.onSound(instance, id, pitch)) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
         }
         if (c.arrowHitSound && com.teslamaps.features.ArrowHitSound.replace(instance, id)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
