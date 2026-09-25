@@ -81,6 +81,12 @@ public class HandledScreenClickMixin {
             return;
         }
 
+        if (com.teslamaps.features.SackTable.handleClick(mouseX, mouseY, button)) {
+            teslamaps$ate("SackTable", button);
+            cir.setReturnValue(true);
+            return;
+        }
+
         com.teslamaps.features.AuctionPriceInput.onSlotClick(
                 (AbstractContainerScreen<?>) (Object) this, ((HandledScreenAccessor) (Object) this).getFocusedSlot());
 

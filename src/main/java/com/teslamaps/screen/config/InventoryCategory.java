@@ -300,6 +300,10 @@ public final class InventoryCategory {
         b.toggle("Stars As Stack Size", () -> config.starsStackSize, v -> config.starsStackSize = v)
                 .desc("Star count of dungeon/Kuudra items in the bottom right of the slot, containers and hotbar");
         b.toggle("  Gradient Colors", () -> config.starsStackSizeColors, v -> config.starsStackSizeColors = v);
+        b.toggle("  Old Master Star Style", () -> config.oldMasterStars, v -> {
+            config.oldMasterStars = v;
+            com.teslamaps.features.OldMasterStar.clear();
+        }).desc("§6✪✪✪✪✪§c➌ §7becomes §c✪✪✪§6✪✪§7 in item names, skin stars ✦ included.");
         b.toggle("Red Master Stars In Name", () -> config.redMasterStars, v -> config.redMasterStars = v)
                 .desc("Tooltip name shows master stars as red ✪ instead of ➊-➎");
         b.label("Bazaar & Progress");

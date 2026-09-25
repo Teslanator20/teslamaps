@@ -218,22 +218,32 @@ public final class TooltipMenuExtras {
         return Component.literal(m.group(1) + " §c" + stars + "✪");
     }
 
+    private static CustomData evoData;
+    private static Component evoHeld, evoLeft;
+
     private static void evolving(ItemStack stack, List<Component> lines) {
         CustomData d = stack.get(DataComponents.CUSTOM_DATA);
         if (d == null) return;
-        CompoundTag tag = d.copyTag();
-        String id = tag.getString("id").orElse("");
-        String key = switch (id) {
-            case "NEW_BOTTLE_OF_JYRRE" -> "bottle_of_jyrre_seconds";
-            case "DISCRITE" -> "rift_discrite_seconds";
-            default -> "seconds_held";
-        };
-        var held = tag.getInt(key);
-        if (held.isEmpty()) return;
-        long s = held.get();
+        if (d != evoData) {
+            evoData = d;
+            evoHeld = evoLeft = null;
+            CompoundTag tag = d.copyTag();
+            String key = switch (tag.getString("id").orElse("")) {
+                case "NEW_BOTTLE_OF_JYRRE" -> "bottle_of_jyrre_seconds";
+                case "DISCRITE" -> "rift_discrite_seconds";
+                default -> "seconds_held";
+            };
+            var held = tag.getInt(key);
+            if (held.isPresent()) {
+                long s = held.get();
+                evoHeld = Component.literal("§7Time Held: §b" + duration(s));
+                evoLeft = Component.literal("§7Time Left: §b" + duration(Math.max(0, EVOLVE_SECONDS - s)));
+            }
+        }
+        if (evoHeld == null) return;
         int at = Math.min(10, lines.size());
-        lines.add(at, Component.literal("§7Time Left: §b" + duration(Math.max(0, EVOLVE_SECONDS - s))));
-        lines.add(at, Component.literal("§7Time Held: §b" + duration(s)));
+        lines.add(at, evoLeft);
+        lines.add(at, evoHeld);
     }
 
     private static String duration(long s) {

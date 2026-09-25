@@ -79,7 +79,7 @@ public final class ItemTooltipExtras {
     public static void register() {
         Feature feature = Feature.of("ItemTooltipExtras")
                 .when(() -> cfg().dungeonQualityTooltip || cfg().armorHexTooltip || cfg().dyeHexColors
-                        || cfg().tooltipAnvilUses || cfg().tooltipSwordKills || cfg().tooltipRecomb || cfg().tooltipSkyblockId)
+                        || cfg().tooltipAnvilUses || cfg().tooltipSwordKills || cfg().tooltipRecomb)
                 .config("Tooltips & Value", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Item Details");
@@ -100,8 +100,6 @@ public final class ItemTooltipExtras {
                             .desc("Kill counter stored on the item (sword kills / Book of Stats).");
                     b.toggle("Recomb Line", () -> c.tooltipRecomb, v -> c.tooltipRecomb = v)
                             .desc("\"RARITY UPGRADED\" on recombobulated items.");
-                    b.toggle("SkyBlock ID (F3+H)", () -> c.tooltipSkyblockId, v -> c.tooltipSkyblockId = v)
-                            .desc("Grey \"skyblock:<ID>\" line while advanced tooltips (F3+H) are on.");
                     b.toggle("Total Stars In Name", () -> c.tooltipItemStars, v -> c.tooltipItemStars = v)
                             .desc("Item name ends in the total star count (\"15✪\"), Kuudra armor tiers included.");
                     b.toggle("Evolving Item Time", () -> c.tooltipEvolvingTime, v -> c.tooltipEvolvingTime = v)
@@ -117,21 +115,20 @@ public final class ItemTooltipExtras {
                 });
         RepoCache.onReload("ItemTooltipExtras", () -> { fetched = false; lastStack = null; });
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
-            if (!stack.isEmpty() && !lines.isEmpty() && feature.active()) onTooltip(stack, lines, flag.isAdvanced());
+            if (!stack.isEmpty() && !lines.isEmpty() && feature.active()) onTooltip(stack, lines);
         });
     }
 
-    private static void onTooltip(ItemStack stack, List<Component> lines, boolean advanced) {
+    private static void onTooltip(ItemStack stack, List<Component> lines) {
         TeslaMapsConfig c = cfg();
         int key = (c.dungeonQualityTooltip ? 1 : 0) | (c.dungeonTierTooltip ? 2 : 0) | (c.armorHexTooltip ? 4 : 0)
                 | (c.armorExoticTooltip ? 8 : 0) | (c.dungeonQualityStyle.hashCode() << 4) | (expected.size() << 20)
-                ^ ((c.tooltipAnvilUses ? 1 : 0) | (c.tooltipSwordKills ? 2 : 0) | (c.tooltipRecomb ? 4 : 0)
-                | (c.tooltipSkyblockId && advanced ? 8 : 0)) << 27;
+                ^ ((c.tooltipAnvilUses ? 1 : 0) | (c.tooltipSwordKills ? 2 : 0) | (c.tooltipRecomb ? 4 : 0)) << 27;
         if (stack != lastStack || key != lastKey) {
             lastStack = stack;
             lastKey = key;
             lastTop = build(stack, c);
-            lastBottom = buildBottom(stack, c, advanced);
+            lastBottom = buildBottom(stack, c);
         }
         if (c.dyeHexColors) recolorHex(stack, lines);
         if (!lastTop.isEmpty()) lines.addAll(1, lastTop);
@@ -140,8 +137,8 @@ public final class ItemTooltipExtras {
 
     private static List<Component> lastBottom = List.of();
 
-    private static List<Component> buildBottom(ItemStack stack, TeslaMapsConfig c, boolean advanced) {
-        if (!c.tooltipAnvilUses && !c.tooltipSwordKills && !c.tooltipRecomb && !(c.tooltipSkyblockId && advanced)) return List.of();
+    private static List<Component> buildBottom(ItemStack stack, TeslaMapsConfig c) {
+        if (!c.tooltipAnvilUses && !c.tooltipSwordKills && !c.tooltipRecomb) return List.of();
         CustomData d = stack.get(DataComponents.CUSTOM_DATA);
         if (d == null) return List.of();
         CompoundTag tag = d.copyTag();
@@ -163,10 +160,6 @@ public final class ItemTooltipExtras {
         }
         if (c.tooltipRecomb && tag.getInt("rarity_upgrades").orElse(0) > 0) {
             out.add(Component.literal("RARITY UPGRADED").withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
-        }
-        if (c.tooltipSkyblockId && advanced) {
-            String id = tag.getString("id").orElse("");
-            if (!id.isEmpty()) out.add(Component.literal("skyblock:" + id).withStyle(ChatFormatting.DARK_GRAY));
         }
         return out;
     }

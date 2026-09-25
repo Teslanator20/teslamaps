@@ -104,7 +104,7 @@ public final class ItemLoreExtras {
         String id = ItemUtil.skyblockId(stack);
         if (id.isEmpty()) return;
         if (c.sackStitchLore && id.endsWith("_SACK")) sackLore(stack, lines);
-        if (c.midasBidBreakdown) midas(stack, lines);
+        if (c.midasBidBreakdown && id.contains("MIDAS")) midas(stack, lines);
         if (c.petFullXp && id.equals("PET")) petXp(stack, lines);
         if (c.prehistoricEggBlocks && id.equals("PREHISTORIC_EGG")) egg(stack, lines);
         if (c.radioactiveBonus && id.equals("TARANTULA_HELMET")) radioactive(lines);

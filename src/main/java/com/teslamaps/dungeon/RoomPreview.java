@@ -159,6 +159,7 @@ public final class RoomPreview {
             src.sendFeedback(Component.literal("§c[TeslaMaps] A room is already loading."));
             return 0;
         }
+        if (!confirmed(src, room[1])) return 1;
         loading = true;
         src.sendFeedback(Component.literal("§b[TeslaMaps] Loading " + room[1] + "..."));
         CompletableFuture.supplyAsync(() -> {
@@ -186,6 +187,29 @@ public final class RoomPreview {
             open(room[1], (int[]) res[0], (JsonObject) res[1]);
         }));
         return 1;
+    }
+
+    private static String confirmRoom;
+    private static long confirmAt;
+
+    /** Leaving a server needs the command twice within 10 s, or a click on the chat line. */
+    private static boolean confirmed(FabricClientCommandSource src, String room) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getConnection() == null || mc.getSingleplayerServer() != null) return true;
+        long now = System.currentTimeMillis();
+        if (room.equals(confirmRoom) && now - confirmAt <= 10_000) {
+            confirmRoom = null;
+            return true;
+        }
+        confirmRoom = room;
+        confirmAt = now;
+        src.sendFeedback(Component.literal("§e[TeslaMaps] Room preview disconnects you from this server. ")
+                .append(Component.literal("§a§l[Confirm]").withStyle(st -> st
+                        .withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/tmap roompreview " + room))
+                        .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(
+                                Component.literal("§7Disconnect and open " + room)))))
+                .append(Component.literal(" §7or run the command again within 10s.")));
+        return false;
     }
 
     private static byte[] cached(String rel) throws Exception {

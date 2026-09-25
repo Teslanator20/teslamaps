@@ -38,6 +38,7 @@ public final class TooltipsValueCategory {
         b.info("Otherwise hold Ctrl for master stars, coins and other items");
         b.toggle("SkyBlock ID In Tooltip", () -> config.skyblockIdTooltip, v -> config.skyblockIdTooltip = v)
                 .desc("Dark grey skyblock:<ID> line, below the F3+H id when advanced tooltips are on");
+        b.toggle("  Only With F3+H", () -> config.skyblockIdTooltipAdvanced, v -> config.skyblockIdTooltipAdvanced = v);
         b.toggle("Restore Wizard Portal \"Earned by\"", () -> config.wizardPortalLore, v -> config.wizardPortalLore = v)
                 .desc("Adds the missing Earned by line to bought Piece of Wizard Portal mementos");
         b.toggle("Ravengard: Compare With Equipped", () -> config.ravengardCompare, v -> config.ravengardCompare = v)
@@ -103,6 +104,7 @@ public final class TooltipsValueCategory {
         b.info("Drag it in /tmap gui instead of pinning it to the container");
         b.toggle("  Sack Table", () -> config.sackTable, v -> config.sackTable = v)
                 .desc("Sack menus: every item with stored/capacity (red when full), unit price and value, left of the menu. Gemstone sacks split into Rough/Flawed/Fine.");
+        b.toggle("    Click Row: /bz, Right Click: /gfs 1", () -> config.sackTableClick, v -> config.sackTableClick = v);
         b.label("Enchant Colors");
         b.toggle("Book Abbreviations (Leg I)", () -> config.enchantAbbrev, v -> config.enchantAbbrev = v);
         b.info("Enchant + level written on enchanted book icons");
