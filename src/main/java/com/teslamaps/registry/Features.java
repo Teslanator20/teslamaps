@@ -520,5 +520,41 @@ final class Features {
         com.teslamaps.features.bazaar.BazaarQuickQuantities.register();
         com.teslamaps.features.bazaar.BazaarReorder.register();
         com.teslamaps.features.bazaar.BazaarPurchaseHelper.register();
+        // w11-04-par
+        com.teslamaps.features.PartyCheck.register();
+        com.teslamaps.features.MarkedPlayers.register();
+        com.teslamaps.features.SocialScreenFilter.register();
+        com.teslamaps.features.ScamCheck.register();
+        com.teslamaps.features.ModChat.register();
+        // w11-08-gui
+        com.teslamaps.config.ConfigBackups.register();
+        com.teslamaps.features.FeatureToggleKeys.register();
+        // w11-01-par
+        com.teslamaps.features.KuudraPartyFinder.register();
+        com.teslamaps.features.AcceptLastInvite.register();
+        com.teslamaps.features.ManaDrainAnnounce.register();
+        com.teslamaps.features.MutePartySpam.register();
+        com.teslamaps.safari.SafariHotspotPost.register();
+        com.teslamaps.safari.HunterTrades.register();
+        // w11-06-gui
+        com.teslamaps.features.WorldOverlayToggle.register();
+        com.teslamaps.features.NewOptions.register();
+        // w11-02-par
+        com.teslamaps.features.PartyInvites.register();
+        com.teslamaps.features.capes.TeslaUserLabels.register();
+        com.teslamaps.features.FancyPartyFinder.register();
+        // w11-03-par
+        com.teslamaps.features.Reparty.register();
+        com.teslamaps.features.PartyListFormat.register();
+        com.teslamaps.features.PartyMembersHud.register();
+        com.teslamaps.features.PartyJoinAlerts.register();
+        com.teslamaps.features.ThrottleNotifier.register();
+        // w11-05-par
+        com.teslamaps.features.PartyShortcuts.register();
+        com.teslamaps.features.HighlightTeammates.register();
+        com.teslamaps.features.DianaPartyFinder.register();
+        com.teslamaps.features.PositionalMessages.register();
+        // w11-00-chat
+        com.teslamaps.features.ChatEncryption.register();
     }
 }

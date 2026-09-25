@@ -34,7 +34,8 @@ public class HandledScreenClickMixin {
         }
         com.teslamaps.features.bazaar.BazaarOrderTracker.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot);
         com.teslamaps.features.bazaar.BazaarReorder.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot);
-        if (com.teslamaps.features.OldSkyblockMenu.onClick(slot)) {
+        if (com.teslamaps.features.PartyFinderHelper.rightClick(slot, button, type)
+                || com.teslamaps.features.OldSkyblockMenu.onClick(slot)) {
             ci.cancel();
             return;
         }
@@ -116,7 +117,8 @@ public class HandledScreenClickMixin {
         }
 
         if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)
-                || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)) {
+                || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)
+                || com.teslamaps.features.FancyPartyFinder.click((AbstractContainerScreen<?>) (Object) this, click)) {
             cir.setReturnValue(true);
             return;
         }
