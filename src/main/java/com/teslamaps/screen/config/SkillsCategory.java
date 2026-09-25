@@ -61,6 +61,8 @@ public final class SkillsCategory {
         b.toggle("Overflow Levels (menu + chat)", () -> config.skillOverflow, v -> config.skillOverflow = v);
         b.toggle("Overflow Skill Avg. (menu tooltip)", () -> config.skillAvgOverflow, v -> config.skillAvgOverflow = v);
         b.toggle("Level as Stack Size (skills menu)", () -> config.skillLevelStackSize, v -> config.skillLevelStackSize = v);
+        b.toggle("  Also Dungeon Menus (Cata/Class/SB Level)", () -> config.dungeonLevelSlotText, v -> config.dungeonLevelSlotText = v)
+                .desc("Dungeoneering, Dungeon Classes, Ready Up (party class levels) and the SkyBlock Menu profile head");
         b.info("Combat adds kills/bosses/cocoons, Fishing double hooks, Foraging gifts and whispers");
         String[] catchSources = {"Auto", "Sea Creatures", "Every Catch"};
         b.dropdown("Fishing Counts", catchSources,

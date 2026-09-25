@@ -15,6 +15,7 @@ public final class ServerTickTimer {
     private static final List<ServerTickTimer> PENDING = new ArrayList<>();
 
     private static final AtomicLong TICKS = new AtomicLong();
+    private static final AtomicLong PINGS = new AtomicLong();
     private static volatile long lastPingMs;
     private static volatile int lastPingId = Integer.MIN_VALUE;
 
@@ -27,6 +28,12 @@ public final class ServerTickTimer {
         lastPingId = id;
         lastPingMs = System.currentTimeMillis();
         TICKS.incrementAndGet();
+        PINGS.incrementAndGet();
+    }
+
+    /** Server tick pings only, no client-tick fallback. */
+    public static long pings() {
+        return PINGS.get();
     }
 
     /** Client tick: fallback clock and due callbacks. */

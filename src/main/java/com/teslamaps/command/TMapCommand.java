@@ -849,6 +849,14 @@ public class TMapCommand {
                     com.teslamaps.features.AutoGFS.gfsSuperboom();
                     return 1;
                 }))
+                .then(ClientCommands.literal("jerry").executes(context -> {
+                    com.teslamaps.features.AutoGFS.gfsJerry();
+                    return 1;
+                }))
+                .then(ClientCommands.literal("leap").executes(context -> {
+                    com.teslamaps.features.AutoGFS.gfsLeaps();
+                    return 1;
+                }))
                 .then(ClientCommands.literal("perf")
                         .executes(context -> perfReport(context.getSource()))
                         .then(ClientCommands.literal("on").executes(context -> {

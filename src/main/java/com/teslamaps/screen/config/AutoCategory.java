@@ -19,10 +19,23 @@ public final class AutoCategory {
         b.slider("  Timer Interval", 5f, 120f,
                 () -> (float) config.autoGFSInterval, v -> config.autoGFSInterval = v.intValue());
         b.toggle("Dungeon Only", () -> config.autoGFSDungeonOnly, v -> config.autoGFSDungeonOnly = v);
+        b.toggle("  Also in Kuudra", () -> config.autoGFSKuudra, v -> config.autoGFSKuudra = v);
+        b.toggle("Skip While Dead", () -> config.autoGFSSkipDead, v -> config.autoGFSSkipDead = v);
+        b.slider("Min Missing Before Refill", 1f, 16f,
+                () -> (float) config.autoGFSMinMissing, v -> config.autoGFSMinMissing = Math.round(v), 0)
+                .desc("Pearls, Jerry and Superboom only refill once at least this many are missing");
         b.label("Items to Refill");
         b.toggle("Ender Pearls", () -> config.autoGFSPearls, v -> config.autoGFSPearls = v);
         b.toggle("Inflatable Jerry", () -> config.autoGFSJerry, v -> config.autoGFSJerry = v);
         b.toggle("Superboom TNT", () -> config.autoGFSTNT, v -> config.autoGFSTNT = v);
+        b.toggle("Spirit Leaps", () -> config.autoGFSLeaps, v -> config.autoGFSLeaps = v)
+                .desc("Up to 16, only once 4 or more are missing");
+        b.toggle("Twilight Arrow Poison (M7)", () -> config.autoGFSTwilight, v -> config.autoGFSTwilight = v)
+                .desc("Archer after Storm's lightning, Archer/Berserk at the Core, others at Wither King P5");
+        b.slider("  Twilight Amount", 4f, 8f,
+                () -> (float) config.autoGFSTwilightAmount, v -> config.autoGFSTwilightAmount = Math.round(v), 0);
+        b.keybind("Pearl Refill Key (next 16)", () -> config.autoGFSPearlKey, v -> config.autoGFSPearlKey = v);
+        b.info("Also /tmap ep, /tmap sb, /tmap jerry, /tmap leap");
         b.label("Get From Sacks");
         b.toggle("Queued GFS", () -> config.gfsQueued, v -> config.gfsQueued = v);
         b.info("Spaces /gfs out so Hypixel stops dropping them");

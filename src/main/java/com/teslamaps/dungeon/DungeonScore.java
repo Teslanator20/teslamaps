@@ -50,7 +50,7 @@ public class DungeonScore {
     private static int tabDeaths = -1;
     private static int score = 0;
     private static int lastSkill = 0, lastExplore = 0, lastTime = 0, lastBonus = 0;
-    private static boolean firstDeathHasSpirit = true;
+    private static Boolean firstDeathHasSpirit = null;
 
     private static int tabCrypts = 0;
     private static int tabCompletedRooms = 0;
@@ -83,7 +83,7 @@ public class DungeonScore {
         tabDeaths = -1;
         score = 0;
         lastSkill = lastExplore = lastTime = lastBonus = 0;
-        firstDeathHasSpirit = true;
+        firstDeathHasSpirit = null;
         tabCrypts = 0;
         tabCompletedRooms = 0;
         tabPuzzlesDone = 0;
@@ -302,7 +302,8 @@ public class DungeonScore {
     private static int getDeathScorePenalty() {
         int deaths = tabDeaths >= 0 ? tabDeaths : deathCount;
         if (deaths == 0) return 0;
-        return deaths * 2 - (firstDeathHasSpirit ? 1 : 0);
+        boolean spirit = firstDeathHasSpirit != null ? firstDeathHasSpirit : !TeslaMapsConfig.get().scoreAssumeNoSpirit;
+        return deaths * 2 - (spirit ? 1 : 0);
     }
 
     private static int getPuzzlePenalty() {

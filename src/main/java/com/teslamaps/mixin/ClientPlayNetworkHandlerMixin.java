@@ -79,6 +79,7 @@ public class ClientPlayNetworkHandlerMixin {
         WitherDragons.onParticlePacket(packet);
         com.teslamaps.safari.SafariTracker.onParticlePacket(packet);
         com.teslamaps.features.HotspotRadar.onParticlePacket(packet);
+        com.teslamaps.features.SecretTrackerLocator.onParticle(packet);
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
         com.teslamaps.features.foraging.FloorDrops.onParticle(packet);
         com.teslamaps.features.EventTracker.onParticle(packet);
