@@ -223,5 +223,7 @@ final class Features {
         com.teslamaps.features.TooltipBorder.register();
         com.teslamaps.features.HotxPerkCurrency.register();
         com.teslamaps.features.ToolkitCropIcons.register();
+        // w05-09-inv
+        com.teslamaps.features.InstaLoadoutSwap.register();
     }
 }

@@ -2152,6 +2152,28 @@ public class TeslaMapsConfig {
     public boolean mhTabWidgets = false;
     public boolean mhStrandedNpcs = false;
     public boolean expHideTooltips = false;
+    // w05-09-inv
+    public boolean storageQuickButtons = false;
+    public boolean storageVanillaTextures = false;
+    public boolean trashHighlighter = false;
+    public String colorTrash = "80FF3333";
+    public String trashHighlightStyle = "Fill";
+    public java.util.List<TrashFilter> trashFilters = com.teslamaps.features.TrashHighlighter.defaults();
+    public static class TrashFilter {
+        public String target = "ID";      // ID / Name / Lore
+        public String mode = "Contains";  // Equals / Contains / Regex
+        public String value = "";
+        public TrashFilter() {}
+        public TrashFilter(String target, String mode, String value) { this.target = target; this.mode = mode; this.value = value; }
+    }
+    public boolean instaLoadoutSwap = false;
+    public int[] instaLoadoutKeys = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
+    public float instaLoadoutDelay = 0.2f;
+    public int instaLoadoutRandomMs = 150;
+    public boolean instaLoadoutAutoClose = true;
+    public boolean middleClickGui = false;
+    public int middleClickGuiBlacklistKey = -1;
+    public java.util.List<String> middleClickGuiBlacklist = new java.util.ArrayList<>();
     // w04-03-inv
     public boolean moveInsertIntoSack = false;
     public boolean arrowPoisonIndicator = false;
@@ -3043,6 +3065,17 @@ public class TeslaMapsConfig {
         // indexed straight through, so a short array out of an older config would throw
         c.wardrobeKeys = fitKeys(c.wardrobeKeys, 9);
         c.loadoutKeys = fitKeys(c.loadoutKeys, 12);
+        c.instaLoadoutKeys = fitKeys(c.instaLoadoutKeys, 9);
+        if (c.trashFilters == null) c.trashFilters = com.teslamaps.features.TrashHighlighter.defaults();
+        c.trashFilters.removeIf(f -> f == null || f.value == null);
+        for (TrashFilter f : c.trashFilters) {
+            if (f.target == null) f.target = "ID";
+            if (f.mode == null) f.mode = "Contains";
+        }
+        if (c.colorTrash == null) c.colorTrash = "80FF3333";
+        if (c.trashHighlightStyle == null) c.trashHighlightStyle = "Fill";
+        if (c.middleClickGuiBlacklist == null) c.middleClickGuiBlacklist = new java.util.ArrayList<>();
+        c.middleClickGuiBlacklist.removeIf(java.util.Objects::isNull);
         if (c.customArmorTrims == null) c.customArmorTrims = new java.util.HashMap<>();
         if (c.customDyeColors == null) c.customDyeColors = new java.util.HashMap<>();
         if (c.customAnimatedDyes == null) c.customAnimatedDyes = new java.util.HashMap<>();

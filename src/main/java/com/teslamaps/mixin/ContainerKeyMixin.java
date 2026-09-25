@@ -82,6 +82,10 @@ public class ContainerKeyMixin {
         }
 
 
+        if (com.teslamaps.features.MiddleClickGui.onKey(cs, event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (com.teslamaps.features.WardrobeKeys.handleKey(cs, event)) {
             cir.setReturnValue(true);
             return;

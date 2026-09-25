@@ -360,8 +360,16 @@ public class StorageOverlay {
         Lay L = lay(vis);
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         boolean showNames = cfg.storageShowNames;
+        boolean vanillaTex = cfg.storageVanillaTextures;
         ctx.text(mc.font, "§6§lStorage §7(" + vis.size() + ")", 8, 6, 0xFFFFFFFF);
         drawButton(ctx, mc, sw - 96, 6, 88, "Vanilla View", 0xFFFF453A, true);
+        if (cfg.storageQuickButtons) {
+            int qx = sw - 100;
+            for (int i = 0; i < QUICK_LABELS.length; i++) {
+                qx -= QUICK_W[i] + 4;
+                quickButton(ctx, mc, qx, 6, QUICK_W[i], QUICK_LABELS[i]);
+            }
+        }
 
         String live = liveKey();
         boolean searching = !search.isEmpty();
@@ -404,7 +412,12 @@ public class StorageOverlay {
             boolean isLive = b.key.equals(live);
 
             boolean hoverBox = vmx >= bx && vmx <= bx + BOX_W && vmy >= by && vmy <= by + bh;
-            ctx.fill(bx, by, bx + BOX_W, by + bh, hoverBox ? 0xFF2A2A2A : 0xF01E1E1E);
+            if (vanillaTex) {
+                chestPanel(ctx, bx, by, BOX_W, bh);
+                if (hoverBox) ctx.fill(bx, by, bx + BOX_W, by + bh, 0x20FFFFFF);
+            } else {
+                ctx.fill(bx, by, bx + BOX_W, by + bh, hoverBox ? 0xFF2A2A2A : 0xF01E1E1E);
+            }
             if (isLive) {
                 int c = b.ender ? 0xFF55FFFF : 0xFFFFAA00;
                 ctx.fill(bx - 1, by - 1, bx + BOX_W + 1, by + 1, c);
@@ -414,7 +427,8 @@ public class StorageOverlay {
             }
             if (showNames) {
                 String title = b.key.equals(rename) ? "§e" + renameText + "_" : pageName(b.key, b.label);
-                ctx.text(mc.font, title + (isLive ? " §a●" : ""), bx + 4, by + 2, 0xFFFFFFFF);
+                if (vanillaTex) ctx.text(mc.font, title + (isLive ? " §2●" : ""), bx + 4, by + 2, 0xFF404040, false);
+                else ctx.text(mc.font, title + (isLive ? " §a●" : ""), bx + 4, by + 2, 0xFFFFFFFF);
             }
 
             int size = StorageCache.size(b.key);
@@ -423,7 +437,12 @@ public class StorageOverlay {
             int emptyCol = searching ? 0xFF252525 : 0xFF555555;
             for (int s = 0; s < size; s++) {
                 int gx = gx0 + (s % GRID_COLS) * CELL, gy = gy0 + (s / GRID_COLS) * CELL;
-                ctx.fill(gx, gy, gx + 16, gy + 16, emptyCol);
+                if (vanillaTex) {
+                    ctx.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, CHEST_TEX, gx - 1, gy - 1, 7, 17, 18, 18, 256, 256);
+                    if (searching) ctx.fill(gx, gy, gx + 16, gy + 16, 0x80000000);
+                } else {
+                    ctx.fill(gx, gy, gx + 16, gy + 16, emptyCol);
+                }
             }
             if (isLive) for (Map.Entry<Integer, ItemStack> e : dragTop.entrySet()) {
                 if (items != null && items.containsKey(e.getKey())) continue;
@@ -642,6 +661,47 @@ public class StorageOverlay {
 
     static final int BUTTON_H = 16;
 
+    private static final net.minecraft.resources.Identifier CHEST_TEX =
+            net.minecraft.resources.Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
+    private static final String[] QUICK_LABELS = {"Hide", "Home", "Hunting Toolkit", "Farming Toolkit"};
+    private static final int[] QUICK_W = {36, 40, 86, 86};
+
+    /** generic_54 panel cut into corners so any box size keeps the pack's border. */
+    private static void chestPanel(GuiGraphicsExtractor ctx, int x, int y, int w, int h) {
+        var p = net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED;
+        int e = 4;
+        ctx.blit(p, CHEST_TEX, x, y, 0, 0, w - e, h - e, 256, 256);
+        ctx.blit(p, CHEST_TEX, x + w - e, y, 176 - e, 0, e, h - e, 256, 256);
+        ctx.blit(p, CHEST_TEX, x, y + h - e, 0, 222 - e, w - e, e, 256, 256);
+        ctx.blit(p, CHEST_TEX, x + w - e, y + h - e, 176 - e, 222 - e, e, e, 256, 256);
+    }
+
+    private static void quickButton(GuiGraphicsExtractor ctx, Minecraft mc, int x, int y, int w, String label) {
+        boolean hovered = buttonHovered(mc, x, y, w);
+        com.teslamaps.render.gui.TeslaGui.roundedRect(ctx, x, y, w, BUTTON_H, 4f, hovered ? 0xFF3A3A3C : 0xFF2C2C2E);
+        com.teslamaps.render.gui.TeslaGui.roundedOutline(ctx, x + 0.5f, y + 0.5f, w - 1, BUTTON_H - 1, 4f, 1f,
+                hovered ? 0xFF64D2FF : 0x8064D2FF);
+        ctx.centeredText(mc.font, label, x + w / 2, y + 4, 0xFF64D2FF);
+    }
+
+    private static boolean handleQuickClick(AbstractContainerScreen<?> cs, double mx, double my) {
+        if (!TeslaMapsConfig.get().storageQuickButtons || my < 6 || my > 6 + BUTTON_H) return false;
+        Minecraft mc = Minecraft.getInstance();
+        int qx = cs.width - 100;
+        for (int i = 0; i < QUICK_LABELS.length; i++) {
+            qx -= QUICK_W[i] + 4;
+            if (mx < qx || mx > qx + QUICK_W[i]) continue;
+            if (i == 0) {
+                vanillaScreen = new java.lang.ref.WeakReference<>(cs);
+                return true;
+            }
+            if (mc.player == null || !mc.player.containerMenu.getCarried().isEmpty() || mc.getConnection() == null) return true;
+            mc.getConnection().sendCommand(i == 1 ? "storage" : i == 2 ? "huntingtoolkit" : "farmingtoolkit");
+            return true;
+        }
+        return false;
+    }
+
     /** Rounded card in the mod's own style, with a drawn chevron/cross instead of a font glyph. */
     private static void drawButton(GuiGraphicsExtractor ctx, Minecraft mc, int x, int y, int w,
                                    String label, int accent, boolean cross) {
@@ -780,6 +840,7 @@ public class StorageOverlay {
                     dbg != null ? strip(dbg.getItem().getHoverName().getString()) : "-");
         }
 
+        if (handleQuickClick(cs, mx, my)) return true;
         int dbX = cs.width - 96;
         if (mx >= dbX && mx <= dbX + 88 && my >= 6 && my <= 6 + BUTTON_H) {
             TeslaMapsConfig.get().customStorageOverlay = false;

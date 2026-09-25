@@ -93,7 +93,7 @@ public class WardrobeKeys {
 
     private static long lastClick = 0;
 
-    private static int findTarget(AbstractContainerScreen<?> cs, String title, boolean loadouts, int want) {
+    static int findTarget(AbstractContainerScreen<?> cs, String title, boolean loadouts, int want) {
         int page = 1;
         Matcher m = PAGE.matcher(title);
         if (m.find()) page = Integer.parseInt(m.group(1));
