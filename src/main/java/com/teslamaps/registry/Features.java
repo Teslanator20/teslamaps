@@ -600,6 +600,14 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w14-07-min
+        com.teslamaps.features.mining.Commissions.register();
+        com.teslamaps.features.mining.CommissionWaypoints.register();
+        com.teslamaps.features.mining.CommissionMobHighlight.register();
+        com.teslamaps.features.mining.CommissionTips.register();
+        com.teslamaps.features.mining.NucleusTracker.register();
+        com.teslamaps.features.mining.HollowsMap.register();
+        com.teslamaps.features.mining.TreasureChestHelper.register();
         // w14-00-gar
         com.teslamaps.features.MantidKillDisplay.register();
         com.teslamaps.features.GlowingMushrooms.register();

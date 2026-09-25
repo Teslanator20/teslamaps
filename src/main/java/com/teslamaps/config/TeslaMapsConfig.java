@@ -2148,6 +2148,42 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w14-07-min
+    public boolean commissionHud = false;
+    public int commissionHudX = 10;
+    public int commissionHudY = 160;
+    public float commissionHudScale = 1.0f;
+    public boolean commissionHudBars = true;
+    public boolean commissionHudHideDone = false;
+    public boolean commissionAlert = true;
+    public String commissionAlertSound = "NOTE_PLING";
+    public boolean commissionWaypoints = false;
+    public boolean commissionWaypointsDwarven = true;
+    public boolean commissionWaypointsGlacite = true;
+    public boolean commissionWaypointsBaseCamp = false;
+    public boolean commissionWaypointsEmissary = true;
+    public boolean commissionWaypointsPigeon = true;
+    public String commissionTips = "Off";
+    public boolean nucleusTracker = false;
+    public int nucleusTrackerX = 10;
+    public int nucleusTrackerY = 60;
+    public float nucleusTrackerScale = 1.0f;
+    public String nucleusProfessor = "Robot Parts";
+    public boolean nucleusChat = true;
+    public int nucleusChatMinimum = 20000;
+    public int nucleusPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public boolean hollowsMap = false;
+    public int hollowsMapX = 10;
+    public int hollowsMapY = 10;
+    public float hollowsMapScale = 1.5f;
+    public boolean hollowsMapLocations = true;
+    public int hollowsMapLocationSize = 8;
+    public boolean treasureChestHelper = false;
+    public boolean treasureChestLockpick = true;
+    public String colorTreasureChest = "FFAA00";
+    public boolean commissionMobHighlight = false;
+    public com.teslamaps.render.EspStyle commissionMobEsp = new com.teslamaps.render.EspStyle("FFFFFF55");
+
     // w14-00-gar
     public boolean mantidKillDisplay = false;
     public String mantidShowWhen = "Mantid Armor";
