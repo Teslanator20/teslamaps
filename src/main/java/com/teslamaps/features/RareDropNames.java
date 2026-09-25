@@ -154,7 +154,7 @@ public final class RareDropNames {
         List<GuiMessage> all = acc.teslamaps$getAllMessages();
         for (int i = 0; i < Math.min(all.size(), 20); i++) {
             GuiMessage g = all.get(i);
-            String plain = StringUtil.strip(g.content().getString()).trim();
+            String plain = ChatTimestamps.cut(StringUtil.strip(g.content().getString())).trim();
             if (plain.contains(name) || !BOOK.matcher(plain).matches()) continue;
             String legacy = ChatText.formatted(g.content()).replace("Enchanted Book", name);
             all.set(i, new GuiMessage(g.addedTime(), keepEvents(g.content(), legacy), g.signature(), g.source(), g.tag()));
