@@ -2147,6 +2147,41 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w11-01-par
+    public boolean pbOnJoinButtons = false;
+    public boolean chatNamesOpenPv = false;
+    public boolean pbOnJoinKuudra = false;
+    public boolean kuudraPfKickLine = true;
+    public boolean kuudraPfSound = false;
+    public boolean kuudraPfAutoKick = false;
+    public boolean kuudraPfInform = false;
+    public boolean kuudraPfApiOffKick = true;
+    public int kuudraPfMinMp = 1000;
+    public int kuudraPfMinT5 = 50;
+    public boolean kuudraPfReqGdrag = false;
+    public boolean kuudraPfReqHeart = false;
+    public boolean kuudraPfReqTux = false;
+    public boolean kuudraPfKickCache = true;
+    public boolean kuudraRunsReply = false;
+    public boolean acceptLastInvite = false;
+    public boolean manaDrainAnnounce = false;
+    public boolean spellAnnounce = false;
+    public boolean spellAnnounceSpark = true;
+    public boolean spellAnnounceRush = true;
+    public boolean spellAnnounceWind = true;
+    public boolean spellAnnounceIchor = true;
+    public boolean mutePartySpam = false;
+    public java.util.List<String> mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
+    public boolean safariHotspotPost = false;
+    public String safariHotspotPostChannel = "Party";
+    public boolean hunterTrades = false;
+    public String hunterTradesChannel = "Party";
+    public boolean hunterTradesChat = true;
+    public boolean hunterTradesAcceptShared = true;
+    public boolean hunterTradesWaypoints = true;
+    public int hunterTradesX = 5;
+    public int hunterTradesY = 160;
+    public float hunterTradesScale = 1.0f;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4328,6 +4363,10 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.mutePartySpamPrefixes == null) c.mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
+        c.mutePartySpamPrefixes.removeIf(s -> s == null || s.isEmpty());
+        if (c.safariHotspotPostChannel == null) c.safariHotspotPostChannel = "Party";
+        if (c.hunterTradesChannel == null) c.hunterTradesChannel = "Party";
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
         if (c.sackNotifyItems == null) c.sackNotifyItems = new java.util.ArrayList<>();
         if (c.chatMutedPlayers == null) c.chatMutedPlayers = new java.util.ArrayList<>();

@@ -108,6 +108,8 @@ public final class ChatCategory {
         b.slider("  Redirect Toast Seconds", 1f, 15f, () -> config.chatRedirectSeconds, v -> config.chatRedirectSeconds = v, 1);
         b.info("Redirect moves the line out of chat into a movable toast list (/tmap gui)");
         b.toggle("Never Hide Clickable Lines", () -> config.chatFilterKeepClickable, v -> config.chatFilterKeepClickable = v);
+        b.toggle("  Mute Party Spam Pings", () -> config.mutePartySpam, v -> config.mutePartySpam = v)
+                .desc("Party messages starting with a listed prefix (Bonzo Procced, Leaped to, [Skyblocker], ...) don't play the party ping. /tmap partyspam add|remove|list|reset");
         b.toggle("Compact Combat Lines", () -> config.chatCompactCombat, v -> { config.chatCompactCombat = v; if (v) config.chatFilterEnabled = true; })
                 .desc("Cooldown, not enough mana, ability ready, too fast, in combat -> one short line, full text on hover");
         b.toggle("  Damage & Heal Lines", () -> config.chatCompactDamage, v -> config.chatCompactDamage = v)
