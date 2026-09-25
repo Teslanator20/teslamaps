@@ -2147,6 +2147,23 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w11-04-par
+    public boolean partyCheckCommands = false;
+    public java.util.Set<String> chatCommandsExtraEnabled = new java.util.LinkedHashSet<>();
+    public boolean chatCommandsInviteAutoConfirm = false;
+    public boolean chatCommandsDtReasons = false;
+    public boolean markedPlayers = false;
+    public java.util.Set<String> markedPlayerNames = new java.util.LinkedHashSet<>();
+    public boolean markedPlayersWorld = true;
+    public boolean markedPlayersChat = true;
+    public String markedPlayersChatColor = "FFFF55";
+    public boolean markedPlayersJoinLeave = false;
+    public com.teslamaps.render.EspStyle markedPlayersStyle = new com.teslamaps.render.EspStyle("FFFFFF55");
+    public boolean socialHideFakePlayers = false;
+    public boolean scamCheck = false;
+    public boolean scamCheckClose = true;
+    public boolean modChat = false;
+    public boolean modChatJoinMessage = false;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4395,6 +4412,9 @@ public class TeslaMapsConfig {
         if (c.dragonHitboxColor == null) c.dragonHitboxColor = "00FFFF";
         if (c.lividAnnounceText == null) c.lividAnnounceText = "Livid is [color]!";
         if (c.chatCommandsDisabled == null) c.chatCommandsDisabled = new ArrayList<>();
+        if (c.chatCommandsExtraEnabled == null) c.chatCommandsExtraEnabled = new java.util.LinkedHashSet<>();
+        if (c.markedPlayerNames == null) c.markedPlayerNames = new java.util.LinkedHashSet<>();
+        if (c.markedPlayersChatColor == null) c.markedPlayersChatColor = "FFFF55";
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
         if (c.blockEspBlocks == null) c.blockEspBlocks = new java.util.LinkedHashMap<>();

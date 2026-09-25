@@ -25,11 +25,32 @@ public final class PartyCategory {
                 if (!v) config.chatCommandsDisabled.add(k);
             });
         }
+        for (String k : com.teslamaps.features.ChatCommands.EXTRA_KEYS) {
+            b.toggle("  !" + k, () -> com.teslamaps.features.ChatCommands.extraEnabled(k), v -> {
+                config.chatCommandsExtraEnabled.remove(k);
+                if (v) config.chatCommandsExtraEnabled.add(k);
+            }).desc(switch (k) {
+                case "tps" -> "Answers with the server TPS";
+                case "location" -> "Answers with the island and the scoreboard location";
+                case "holding" -> "Answers with the held item's name";
+                case "boop" -> "!boop <name> runs /boop <name>";
+                case "runs" -> "Answers with the Kuudra runs of this session";
+                case "reinvite" -> "Invites the sender again after 5 s (leader only)";
+                case "kickoffline" -> "Runs /party kickoffline (leader only)";
+                default -> "\"From X: !invite\" in a private message gives a clickable \"invite X\" line with a ping";
+            });
+        }
+        b.toggle("    !invite: Auto Confirm", () -> config.chatCommandsInviteAutoConfirm, v -> config.chatCommandsInviteAutoConfirm = v)
+                .desc("Invites straight away instead of the clickable line (respects Whitelist Only)");
+        b.toggle("  Downtime Reasons", () -> config.chatCommandsDtReasons, v -> config.chatCommandsDtReasons = v)
+                .desc("!dt <reason> stores a reason; at the end of a dungeon or Kuudra run the party gets \"Downtime needed: name (reason)\" and you a title");
         b.toggle("Show PBs on Party Finder Join", () -> config.pbOnJoin, v -> config.pbOnJoin = v);
         b.toggle("  Full Stats Card (hover details)", () -> config.pbOnJoinCard, v -> config.pbOnJoinCard = v);
         b.toggle("  Class + Gear Hover (one-liner)", () -> config.pbOnJoinExtra, v -> config.pbOnJoinExtra = v)
                 .desc("Adds the joined class and level, plus a [Gear] hover with armor, weapons and active pet");
         b.info("/cata <name> shows the card for anyone");
+        b.toggle("  Party Check Commands", () -> config.partyCheckCommands, v -> config.partyCheckCommands = v)
+                .desc("/pcheck shows the PB line of every party member, /gxp [player] the weekly guild EXP list, /ginfo [player] the guild data. Also /tmap pcheck|gxp|ginfo; the short forms need a rejoin after switching on");
         b.info("Key: /tmap apikey <key> (developer.hypixel.net)");
         b.toggle("Party Duplicate Alert", () -> config.partyDuplicateAlert, v -> config.partyDuplicateAlert = v);
         b.toggle("  Dup: Play Sound", () -> config.partyDuplicateSound, v -> config.partyDuplicateSound = v);

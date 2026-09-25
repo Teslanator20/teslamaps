@@ -252,6 +252,7 @@ public class ChatMixin {
         out = com.teslamaps.features.ChatCompactsMore.rewrite(out);
         // before channel compaction, the parser needs "Party > "
         out = com.teslamaps.features.PlayerChatFormat.rewrite(com.teslamaps.features.ChatTranslator.rewrite(out));
+        out = com.teslamaps.features.MarkedPlayers.rewrite(out);
         return com.teslamaps.features.ChatCompact.rewrite(out);
     }
 
