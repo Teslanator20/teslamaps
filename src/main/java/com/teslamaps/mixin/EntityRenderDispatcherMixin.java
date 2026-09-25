@@ -46,14 +46,11 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.SecretPickupHud.shouldHide(entity)
                 || com.teslamaps.features.MinionFeatures.shouldHide(entity)
                 || com.teslamaps.features.RenderHiders.shouldHide(entity)
-<<<<<<< HEAD
-                || com.teslamaps.features.SkeletonHelmet.shouldHide(entity)) {
-=======
+                || com.teslamaps.features.SkeletonHelmet.shouldHide(entity)
                 || com.teslamaps.features.CommonSeaCreatureHider.shouldHide(entity)
                 || com.teslamaps.features.ChumBucketHider.shouldHide(entity)
                 || com.teslamaps.features.ArachneTagHider.shouldHide(entity)
                 || com.teslamaps.features.WitherCloakShields.shouldHide(entity)) {
->>>>>>> worktree-agent-ad383cbd9de52a889
             cir.setReturnValue(false);
         }
     }
