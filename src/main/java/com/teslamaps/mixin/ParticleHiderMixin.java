@@ -12,6 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ParticleHiderMixin {
     @Inject(method = "createParticle(Lnet/minecraft/core/particles/ParticleOptions;DDDDDD)Lnet/minecraft/client/particle/Particle;", at = @At("HEAD"), cancellable = true)
     private void teslamaps$particleHider(ParticleOptions options, double x, double y, double z, double vx, double vy, double vz, CallbackInfoReturnable<?> cir) {
-        if (ParticleHider.hide(options, x, y, z)) cir.setReturnValue(null);
+        if (ParticleHider.hide(options, x, y, z) || com.teslamaps.slayer.SlayerHiders.hideParticle(options, x, y, z)) cir.setReturnValue(null);
     }
 }
