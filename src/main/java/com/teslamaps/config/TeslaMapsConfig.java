@@ -2179,6 +2179,40 @@ public class TeslaMapsConfig {
     public int scrapGfsAmount = 64;
     public boolean scrapGfsOnlyIfNone = true;
     public boolean scrapGfsBazaar = true;
+    // w15-00-min
+    public boolean donExpressoReminder = false;
+    public boolean forgeSlotHud = false;
+    public int forgeSlotHudX = 10;
+    public int forgeSlotHudY = 230;
+    public float forgeSlotHudScale = 1.0f;
+    public boolean forgeSlotHudMiningOnly = false;
+    public boolean forgeSlotHudShowLocked = false;
+    public boolean forgeSlotReadyAlert = false;
+    public java.util.List<String> forgeSlotData = new java.util.ArrayList<>();
+    public boolean dwarvenOverlay = false;
+    public int dwarvenOverlayX = 10;
+    public int dwarvenOverlayY = 290;
+    public float dwarvenOverlayScale = 1.0f;
+    public boolean dwarvenOverlayCommissions = true;
+    public boolean dwarvenOverlayPowders = true;
+    public boolean dwarvenOverlayForge = true;
+    public boolean dwarvenOverlayPickaxe = true;
+    public boolean dwarvenOverlayStarCult = true;
+    public boolean dwarvenOverlaySkyMall = true;
+    public String skyMallPerk = "";
+    public long skyMallDay = -1;
+    public boolean metalDetectorSolver = false;
+    public boolean metalDetectorAllTools = true;
+    public boolean drillFuelDisplay = false;
+    public boolean drillFuelBars = true;
+    public boolean drillFuelHud = true;
+    public int drillFuelHudX = 200;
+    public int drillFuelHudY = 200;
+    public float drillFuelHudScale = 1.0f;
+    public boolean fossilSolver = false;
+    public boolean commissionWaypointsGlaciteAlways = false;
+    public boolean commissionWaypointsGlaciteNearest = false;
+    public boolean mineshaftExitWaypoint = false;
     // w15-09-sla
     public boolean remainingSlayerKills = false;
     public int remainingSlayerKillsX = 5;
@@ -5348,6 +5382,8 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.forgeSlotData == null) c.forgeSlotData = new java.util.ArrayList<>();
+        if (c.skyMallPerk == null) c.skyMallPerk = "";
         if (c.chCrystalStates == null) c.chCrystalStates = new java.util.HashMap<>();
         if (c.chPartsDelivered == null) c.chPartsDelivered = new java.util.ArrayList<>();
         if (c.miningChestSummary == null) c.miningChestSummary = "Off";

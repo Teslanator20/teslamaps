@@ -30,5 +30,6 @@ public class SlotBackgrounds {
         com.teslamaps.features.GardenPlots.drawDeskBackground(context, slot);
         com.teslamaps.features.StereoHarmony.drawHighlight(context, slot);
         com.teslamaps.features.GardenPlotMenu.drawHighlight(context, slot);
+        com.teslamaps.features.mining.FossilExcavatorSolver.drawHighlight(context, slot);
     }
 }
