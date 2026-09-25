@@ -2226,6 +2226,19 @@ public class TeslaMapsConfig {
     public boolean kuuSupplyMessage = false;
     public boolean kuuElleHighlight = false;
     public com.teslamaps.render.EspStyle kuuElleEsp = new com.teslamaps.render.EspStyle("6655FFFF", com.teslamaps.render.EspStyle.BOTH);
+    // w16-04-sla
+    public boolean bloodfiendSpringLines = false;
+    public boolean killerSpringSoundFix = false;
+    public boolean slayerAttunementDemons = false;
+    public boolean slayerBossTracer = false;
+    public boolean slayerMinibossCocoon = false;
+    public float slayerMinibossTracerWidth = 2.0f;
+    public int slayerMinibossTracerRange = 0;
+    public boolean slayerMinibossTracerSight = false;
+    public boolean arachneQol = false;
+    public boolean arachneHidePlayers = true;
+    public boolean arachneWebClick = false;
+    public boolean skillTrackerSlayerStats = false;
     // w16-00-sla
     public boolean slayerHideEndermanParticles = false;
     public boolean slayerHideMobNames = false;

@@ -817,6 +817,9 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraDanger.register();
         com.teslamaps.features.kuudra.KuudraIchor.register();
         com.teslamaps.features.kuudra.KuudraMisc.register();
+        // w16-04-sla
+        com.teslamaps.slayer.SlayerMarks.register();
+        com.teslamaps.features.ArachneQol.register();
         // w16-00-sla
         com.teslamaps.slayer.SlayerHiders.register();
         com.teslamaps.slayer.VengeanceTimer.register();

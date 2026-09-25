@@ -14,6 +14,8 @@ public final class SkillsCategory {
         b.label("Skill Tracker");
         b.toggle("Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v);
         b.toggle("  Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v);
+        b.toggle("  Slayer Stats (avg kill/spawn, slayer XP/h)", () -> config.skillTrackerSlayerStats, v -> config.skillTrackerSlayerStats = v)
+                .desc("Combat panel: average kill and spawn time and slayer XP/h (Aatrox buff included). Resets when the slayer type changes");
         String[] pinOptions = new String[com.teslamaps.features.SkillTracker.skills().length + 1];
         pinOptions[0] = "Auto";
         System.arraycopy(com.teslamaps.features.SkillTracker.skills(), 0, pinOptions, 1, pinOptions.length - 1);
