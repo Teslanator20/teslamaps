@@ -43,6 +43,7 @@ public class ChatMixin {
         com.teslamaps.utils.PlayerChat.State prev = com.teslamaps.utils.PlayerChat.begin(message);
         try {
             teslamaps$handle(message, ci);
+            if (com.teslamaps.features.ChatSimulator.silent() && !ci.isCancelled()) ci.cancel();
         } finally {
             com.teslamaps.utils.PlayerChat.end(prev);
         }

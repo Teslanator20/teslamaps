@@ -562,6 +562,11 @@ public class TMapCommand {
                                     Minecraft.getInstance().execute(() -> com.teslamaps.features.HotspotShare.share(id));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("achievements")
+                        .executes(context -> {
+                            com.teslamaps.features.Achievements.list();
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("safari")
                         .executes(context -> {
                             for (String line : com.teslamaps.safari.SafariHistory.summary(5)) {
@@ -585,6 +590,11 @@ public class TMapCommand {
                                 .then(ClientCommands.argument("radius", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 64))
                                         .executes(context -> safariDebug(context.getSource(),
                                                 com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius")))))
+                        .then(ClientCommands.literal("testalert")
+                                .executes(context -> {
+                                    com.teslamaps.safari.SafariBanners.testAll();
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("mounds")
                                 .executes(context -> {
                                     for (String line : com.teslamaps.safari.SafariESP.debugMounds()) {
@@ -939,6 +949,20 @@ public class TMapCommand {
                                                             + com.teslamaps.features.ImageShare.TAG + " " + token));
                                             return 1;
                                         })))
+                        .then(ClientCommands.literal("chat")
+                                .then(ClientCommands.literal("clipboard")
+                                        .executes(context -> com.teslamaps.features.ChatSimulator.send(
+                                                Minecraft.getInstance().keyboardHandler.getClipboard(), false))
+                                        .then(ClientCommands.literal("silent")
+                                                .executes(context -> com.teslamaps.features.ChatSimulator.send(
+                                                        Minecraft.getInstance().keyboardHandler.getClipboard(), true))))
+                                .then(ClientCommands.literal("silent")
+                                        .then(ClientCommands.argument("line", StringArgumentType.greedyString())
+                                                .executes(context -> com.teslamaps.features.ChatSimulator.send(
+                                                        StringArgumentType.getString(context, "line"), true))))
+                                .then(ClientCommands.argument("line", StringArgumentType.greedyString())
+                                        .executes(context -> com.teslamaps.features.ChatSimulator.send(
+                                                StringArgumentType.getString(context, "line"), false))))
                         .then(ClientCommands.literal("actionbar")
                                 .executes(context -> {
                                     boolean on = com.teslamaps.features.ActionBarFilter.toggleDebug();

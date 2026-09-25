@@ -53,6 +53,8 @@ public final class CritterSafariCategory {
         b.info("Screen warning + sound when fewer than 4 players are in");
         b.slider("Alert Volume", 0.0f, 3.0f,
                 () -> config.safariAlertVolume, v -> config.safariAlertVolume = v);
+        b.button("  Test Alerts (/tmap safari testalert)", com.teslamaps.safari.SafariBanners::testAll)
+                .desc("Plays every banner stage, milestone and the sparkling screen once");
         b.label("Quality of Life");
         b.toggle("Hide Cold Overlay (Icy)", () -> config.safariHideCold, v -> config.safariHideCold = v);
         b.toggle("Auto Accept Hideyho", () -> config.safariAutoHideyho, v -> config.safariAutoHideyho = v);

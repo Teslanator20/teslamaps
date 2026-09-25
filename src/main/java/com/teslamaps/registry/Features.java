@@ -261,5 +261,8 @@ final class Features {
         com.teslamaps.features.CommandHelpers.register();
         com.teslamaps.features.StopMovingOnDeath.register();
         com.teslamaps.features.AlwaysShowItemName.register();
+        // w06-02-qol
+        com.teslamaps.features.MiscQol.register();
+        com.teslamaps.features.Achievements.register();
     }
 }

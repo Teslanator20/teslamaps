@@ -35,6 +35,8 @@ public final class SafariBanners {
     private static int bannerColor;
     private static long bannerAt;
 
+    private static boolean testing;
+
     private static String headline, subject, where;
     private static int tint;
     private static long fullAt;
@@ -93,6 +95,46 @@ public final class SafariBanners {
         headline = null;
     }
 
+    /** /tmap safari testalert: every banner stage, milestone and the sparkling screen, 1.5s apart. */
+    public static void testAll() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null && (!c.safariTracker || !c.section("Critter Safari"))) {
+            mc.player.sendSystemMessage(Component.literal(
+                    "§b[TeslaMaps] §eCritter Safari > Track Run is off, banners and the full screen alert will not show"));
+        }
+        Runnable[] steps = {
+                () -> onChat("A rumbling sound can be heard, and the door at the back of the chamber opens..."),
+                () -> onChat("You hear the sound of massive footsteps echoing through the Icy Biome... What could it be?"),
+                () -> onChat("The Wumpa has awoken."),
+                () -> onChat("The cave opens up again..."),
+                () -> onChat("You used the Soothing Incense to light the candle."),
+                () -> onChat("Your ritual summoned a Doomspiral into this world. Stay still."),
+                () -> onChat("The Doomspiral retreats back underground..."),
+                () -> { for (int i = 0; i < 3; i++) onCatch("Gemzie"); },
+                () -> SafariTracker.testAlert("§6§lWUMPA §7ready - 8/8 Icy critters caught"),
+                () -> SafariTracker.testAlert("§6§lLEGENDARY §7caught (test)"),
+                () -> SafariTracker.testAlert("§a§lBIOME DONE §7(test)"),
+                () -> SafariTracker.testAlert("§6§lFULL DEX §7done (test)"),
+                () -> SafariTracker.testAlert("§d§lSPARKLING §fRockmite §7caught by Partymate"),
+                () -> {
+                    if (c.safariSparklingScreen) fullScreen("SPARKLING!", "Rockmite", "Cavern -96 40 42",
+                            TeslaMapsConfig.parseColor(c.colorSafariSparkling));
+                },
+        };
+        for (int i = 0; i < steps.length; i++) {
+            Runnable step = steps[i];
+            com.teslamaps.utils.TickScheduler.schedule(10 + i * 30, () -> {
+                testing = true;
+                try {
+                    step.run();
+                } finally {
+                    testing = false;
+                }
+            });
+        }
+    }
+
     public static void fullScreen(String call, String subject, String detail, int rgb) {
         headline = call;
         SafariBanners.subject = subject;
@@ -113,7 +155,7 @@ public final class SafariBanners {
 
     // fails open when the biome is unknown, silence would look broken
     private static boolean inItsBiome(String boss) {
-        if (!TeslaMapsConfig.get().safariBannerBiomeOnly) return true;
+        if (testing || !TeslaMapsConfig.get().safariBannerBiomeOnly) return true;
         SafariData.Critter critter = SafariData.byName(boss);
         SafariData.Biome here = SafariData.currentBiome();
         return critter == null || here == null || critter.biome() == here;
@@ -122,7 +164,7 @@ public final class SafariBanners {
     private static void fire(String boss, Stage stage, String detail, float pitch) {
         if (!on(boss) || !inItsBiome(boss)) return;
         // gemzie chambers repeat and ready/done can be seconds apart
-        if (!boss.equals("Gemzie")) {
+        if (!testing && !boss.equals("Gemzie")) {
             long now = System.currentTimeMillis();
             Long prev = lastFired.get(boss + ":" + stage);
             if (prev != null && now - prev < STAGE_COOLDOWN_MS) return;

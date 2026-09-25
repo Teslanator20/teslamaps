@@ -114,6 +114,12 @@ public class HandledScreenClickMixin {
             return;
         }
 
+        if (com.teslamaps.features.MiscQol.onClick(((HandledScreenAccessor) (Object) this).getFocusedSlot(), button)) {
+            teslamaps$ate("CopyPlaytime", button);
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.features.CopyItemName.onClick(
                 ((HandledScreenAccessor) (Object) this).getFocusedSlot(), button)) {
             teslamaps$ate("CopyItemName", button);
