@@ -91,15 +91,19 @@ public class ChatTabs {
         ChatComponent chat = mc.gui.getChat();
         if (nowEnabled) {
             Channel channel = selected;
-            chat.setVisibleMessageFilter(message -> isVisible(channel, message));
+            chat.setVisibleMessageFilter(message -> isVisible(channel, message) && com.teslamaps.features.ChatSearch.matches(message));
             chat.resetChatScroll();
         } else if (applied) {
             clearPendingResponses();
-            chat.setVisibleMessageFilter(message -> true);
+            chat.setVisibleMessageFilter(com.teslamaps.features.ChatSearch::matches);
             chat.resetChatScroll();
         }
         applied = nowEnabled;
         appliedChannel = selected;
+    }
+
+    public static void reapply() {
+        updateFilter(true);
     }
 
     public static void clearPendingResponses() {
@@ -107,7 +111,7 @@ public class ChatTabs {
         feedbackTracker.clear();
     }
 
-    static boolean isVisible(Channel channel, GuiMessage message) {
+    public static boolean isVisible(Channel channel, GuiMessage message) {
         String text = StringUtil.strip(message.content().getString()).trim();
         commandTracker.observe(message, text);
         if (channel == Channel.ALL) return true;

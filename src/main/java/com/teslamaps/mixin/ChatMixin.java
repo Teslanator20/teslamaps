@@ -227,6 +227,13 @@ public class ChatMixin {
             ci.cancel();
             return;
         }
+        if (fromServer && cfg.section("Chat")) {
+            com.teslamaps.features.ConfirmPrompt.onChatComponent(message);
+            if (com.teslamaps.features.ChatCompacts.process(message, text)) {
+                ci.cancel();
+                return;
+            }
+        }
 
         if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.process(message, text)) {
             ci.cancel();
@@ -239,7 +246,8 @@ public class ChatMixin {
     @ModifyVariable(method = ADD_MESSAGE, argsOnly = true, ordinal = 0,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getGuiTicks()I"))
     private Component teslamaps$filterRewrite(Component message) {
-        Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.dungeon.TerminalSplits.rewrite(message));
+        Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.features.ChatCompacts.rewrite(
+                com.teslamaps.dungeon.TerminalSplits.rewrite(message)));
         out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out)));
         return com.teslamaps.features.ChatCompact.rewrite(out);
     }

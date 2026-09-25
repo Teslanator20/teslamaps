@@ -2187,6 +2187,17 @@ public class TeslaMapsConfig {
     public boolean bridgeFormat = false;
     public String bridgeBotName = "";
     public String bridgeNameColor = "55FFFF";
+    // w10-02-chat
+    public boolean chatFilterAbilityCooldown = false;
+    public boolean muteAbilityCooldownSound = false;
+    public boolean abiphoneDnd = false;
+    public boolean abiphoneDndCallerId = true;
+    public boolean confirmPromptHelper = false;
+    public boolean chatSearch = false;
+    public boolean chatEmotes = false;
+    public boolean compactPotionMessages = false;
+    public boolean compactPotionClickable = true;
+    public boolean compactBestiary = false;
     // w08-00-hud
     public boolean tabStatsHud = false;
     public String tabStatsHudStats = "Ferocity";

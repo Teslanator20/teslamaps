@@ -433,6 +433,11 @@ final class Features {
         // w10-06-chat
         com.teslamaps.features.ChatExtras.register();
         com.teslamaps.features.ChatRewrites.register();
+        // w10-02-chat
+        com.teslamaps.features.ConfirmPrompt.register();
+        com.teslamaps.features.ChatSearch.register();
+        com.teslamaps.features.ChatEmotes.register();
+        com.teslamaps.features.ChatCompacts.register();
         // w09-08-vis
         com.teslamaps.features.ParticleHider.register();
         // w09-02-vis

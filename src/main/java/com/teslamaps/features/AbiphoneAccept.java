@@ -34,6 +34,10 @@ public final class AbiphoneAccept {
                     b.toggle("Accept Abiphone Call Key", () -> c.abiphoneAccept, v -> c.abiphoneAccept = v)
                             .desc("Picks up a ringing Abiphone call when you press the key (within 20s)");
                     b.keybind("  Accept Key", () -> c.abiphoneAcceptKey, v -> c.abiphoneAcceptKey = v);
+                    b.toggle("Abiphone Do Not Disturb", () -> c.abiphoneDnd, v -> c.abiphoneDnd = v)
+                            .desc("Hides incoming NPC calls and their ring lines and mutes the ringtone. Elle and Dean still get through.")
+                            .tags("abiphone", "call", "dnd", "ring");
+                    b.toggle("  Show Blocked Caller", () -> c.abiphoneDndCallerId, v -> c.abiphoneDndCallerId = v);
                 });
     }
 
