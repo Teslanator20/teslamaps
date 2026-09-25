@@ -63,11 +63,14 @@ public final class CraftHelper {
                     b.toggle("  Count Storage", () -> cfg().craftHelperStorage, v -> cfg().craftHelperStorage = v);
                     b.toggle("  Done Message", () -> cfg().craftHelperDoneMessage, v -> cfg().craftHelperDoneMessage = v);
                     b.button("  Clear Target", CraftHelper::clear);
+                    b.button("  Import SkyShards Tree (clipboard)", () -> importShards(null));
+                    b.info("SkyShards: Copy Tree > SkyOcean Format, then import (or /tmap craft skyshards)");
                     b.info("Sacks count once you opened them (item search index on); position in /tmap gui");
                 });
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("tmap")
                 .then(ClientCommands.literal("craft")
                         .executes(c -> status(c.getSource()))
+                        .then(ClientCommands.literal("skyshards").executes(c -> importShards(c.getSource())))
                         .then(ClientCommands.literal("clear").executes(c -> {
                             clear();
                             c.getSource().sendFeedback(Component.literal("§7Craft target cleared"));
@@ -88,7 +91,52 @@ public final class CraftHelper {
                                 .executes(c -> set(c.getSource(), StringArgumentType.getString(c, "item")))))));
     }
 
+    private static com.teslamaps.features.hunting.ShardFusionTree.Node shardTree;
+    private static String shardTreeSrc = "";
+
+    private static int importShards(FabricClientCommandSource src) {
+        Minecraft mc = Minecraft.getInstance();
+        String clip = mc.keyboardHandler.getClipboard();
+        var tree = com.teslamaps.features.hunting.ShardFusionTree.parse(clip);
+        String msg;
+        if (tree == null) {
+            msg = "§cClipboard holds no SkyShards tree. On SkyShards: Copy Tree > SkyOcean Format.";
+        } else {
+            cfg().craftHelperShardTree = clip.trim();
+            cfg().craftHelperTarget = "";
+            TeslaMapsConfig.save();
+            timer = 0;
+            msg = "§7Craft target: SkyShards tree for §f" + tree.quantity() + "x "
+                    + com.teslamaps.features.hunting.ShardFusionTree.name(tree.shard())
+                    + (cfg().craftHelper ? "" : " §c(Craft Helper is off in the settings)");
+        }
+        if (src != null) src.sendFeedback(Component.literal(msg));
+        else if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] " + msg));
+        return 1;
+    }
+
+    private static boolean tickShards() {
+        String src = cfg().craftHelperShardTree;
+        if (src == null || src.isEmpty()) return false;
+        if (!src.equals(shardTreeSrc)) {
+            shardTreeSrc = src;
+            shardTree = com.teslamaps.features.hunting.ShardFusionTree.parse(src);
+        }
+        if (shardTree == null) return false;
+        int[] missing = {0};
+        List<String> out = com.teslamaps.features.hunting.ShardFusionTree.lines(shardTree, missing);
+        if (out.size() > MAX_LINES) {
+            int more = out.size() - MAX_LINES;
+            out = new ArrayList<>(out.subList(0, MAX_LINES));
+            out.add("§8... " + more + " more");
+        }
+        linesWidth = width(out);
+        lines = out;
+        return true;
+    }
+
     private static void clear() {
+        cfg().craftHelperShardTree = "";
         cfg().craftHelperTarget = "";
         lines = List.of();
         TeslaMapsConfig.save();
@@ -96,6 +144,10 @@ public final class CraftHelper {
 
     private static int status(FabricClientCommandSource src) {
         String t = cfg().craftHelperTarget;
+        if (!cfg().craftHelperShardTree.isEmpty()) {
+            src.sendFeedback(Component.literal("§7Craft target: SkyShards tree (§f/tmap craft clear§7 to drop it)"));
+            return 1;
+        }
         src.sendFeedback(Component.literal(t.isEmpty() ? "§7No craft target. /tmap craft <item> [amount]"
                 : "§7Craft target: §f" + display(t) + " §7x" + cfg().craftHelperAmount));
         return 1;
@@ -114,6 +166,7 @@ public final class CraftHelper {
         String id = SkyblockItems.idForName(text);
         if (id == null) id = text.toUpperCase(Locale.ROOT).replace(' ', '_');
         cfg().craftHelperTarget = id;
+        cfg().craftHelperShardTree = "";
         cfg().craftHelperAmount = amount;
         TeslaMapsConfig.save();
         timer = 0;
@@ -130,12 +183,17 @@ public final class CraftHelper {
 
     private static void tick() {
         String target = cfg().craftHelperTarget;
-        if (target == null || target.isEmpty()) {
+        boolean shards = cfg().craftHelperShardTree != null && !cfg().craftHelperShardTree.isEmpty();
+        if ((target == null || target.isEmpty()) && !shards) {
             if (!lines.isEmpty()) lines = List.of();
             return;
         }
         if (timer-- > 0) return;
         timer = 20;
+        if (shards) {
+            if (!tickShards() && !lines.isEmpty()) lines = List.of();
+            return;
+        }
         Map<String, Long> have = available();
         Builder b = new Builder(have);
         int amount = Math.max(1, cfg().craftHelperAmount);

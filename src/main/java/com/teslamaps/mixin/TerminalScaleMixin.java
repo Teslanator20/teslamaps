@@ -19,12 +19,19 @@ public class TerminalScaleMixin {
         else TerminalUtils.onScreenClose();
     }
 
+    @Inject(method = "setScreen", at = @At("TAIL"))
+    private void teslamaps$afterSetScreen(Screen screen, CallbackInfo ci) {
+        com.teslamaps.features.StorageGuiScale.onScreenSet(screen);
+    }
+
     @ModifyExpressionValue(method = "resizeGui",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;"))
     private Object teslamaps$modifyGuiScale(Object original) {
         if (TerminalSolver.overridesGuiScale() && TerminalSolver.termSize() != (Integer) original) {
             return TerminalSolver.termSize();
         }
+        int storage = com.teslamaps.features.StorageGuiScale.override();
+        if (storage > 0 && storage != (Integer) original) return storage;
         return original;
     }
 }

@@ -261,6 +261,7 @@ public class StorageOverlay {
             clickPageArrow(next ? "Next Page" : "Previous Page");
         } else {
             Minecraft mc = Minecraft.getInstance();
+            com.teslamaps.features.StorageGuiScale.expectReopen();
             if (mc.getConnection() != null) mc.getConnection().sendCommand(commandForGlobal(tgi));
         }
     }
@@ -271,6 +272,7 @@ public class StorageOverlay {
         int tgi = gi + delta;
         if (tgi < 0 || tgi > 26) return;
         Minecraft mc = Minecraft.getInstance();
+        com.teslamaps.features.StorageGuiScale.expectReopen();
         if (mc.getConnection() != null) mc.getConnection().sendCommand(commandForGlobal(tgi));
     }
 
@@ -793,6 +795,7 @@ public class StorageOverlay {
             int[] p = selIconPos(i);
             if (selMx >= p[0] && selMx < p[0] + SEL_CELL - 2 && selMy >= p[1] && selMy < p[1] + SEL_CELL - 2) {
                 if (!mc.player.containerMenu.getCarried().isEmpty()) return true; // no page swap while holding an item
+                com.teslamaps.features.StorageGuiScale.expectReopen();
                 if (mc.getConnection() != null) mc.getConnection().sendCommand((i < 9 ? "ec " : "bp ") + (i < 9 ? i + 1 : i - 8));
                 return true;
             }
@@ -840,7 +843,10 @@ public class StorageOverlay {
                 int liveGi = globalIndex(liveKey()), clickedGi = globalIndex(b.key);
                 if (sameCategory(liveGi, clickedGi) && clickedGi == liveGi + 1) clickPageArrow("Next Page");
                 else if (sameCategory(liveGi, clickedGi) && clickedGi == liveGi - 1) clickPageArrow("Previous Page");
-                else if (mc.getConnection() != null) mc.getConnection().sendCommand((b.ender ? "ec " : "bp ") + b.num);
+                else if (mc.getConnection() != null) {
+                    com.teslamaps.features.StorageGuiScale.expectReopen();
+                    mc.getConnection().sendCommand((b.ender ? "ec " : "bp ") + b.num);
+                }
                 return true;
             }
         }
