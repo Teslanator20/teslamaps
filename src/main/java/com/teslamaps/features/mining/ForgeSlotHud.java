@@ -66,7 +66,7 @@ public final class ForgeSlotHud {
                         () -> (lines.isEmpty() ? SAMPLE.size() : lines.size()) * 10)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, lines.isEmpty() ? SAMPLE : lines,
                         lines.isEmpty() ? width(SAMPLE) : width));
-        Feature.of("ForgeSlotData").section("Mining").when(() -> cfg().forgeSlotHud || cfg().dwarvenOverlay)
+        Feature.of("ForgeSlotData").section("Mining").when(() -> cfg().forgeSlotHud || cfg().dwarvenOverlay || cfg().forgeReminder)
                 .tick(ForgeSlotHud::tick);
         Feature.of("ForgeSlotHud").section("Mining").when(() -> cfg().forgeSlotHud)
                 .hudHiddenInInventory("forgeslothud", ForgeSlotHud::render)
@@ -81,6 +81,15 @@ public final class ForgeSlotHud {
                     b.toggle("  Ready Alert", () -> c.forgeSlotReadyAlert, v -> c.forgeSlotReadyAlert = v)
                             .desc("Title and sound once a slot finishes");
                 });
+    }
+
+    /** Finished items by name with their count, for the Forge Reminder. */
+    public static java.util.Map<String, Integer> readyItems() {
+        if (!loaded) load();
+        java.util.Map<String, Integer> out = new java.util.LinkedHashMap<>();
+        long now = System.currentTimeMillis();
+        for (int i = 0; i < SLOTS; i++) if (state[i] == ITEM && end[i] <= now && name[i] != null) out.merge(name[i], 1, Integer::sum);
+        return out;
     }
 
     /** Lines for the Dwarven Overlay, without the header. */
