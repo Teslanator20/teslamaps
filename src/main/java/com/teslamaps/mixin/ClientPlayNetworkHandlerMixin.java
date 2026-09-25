@@ -231,6 +231,7 @@ public class ClientPlayNetworkHandlerMixin {
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
         if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) return;
         if (com.teslamaps.features.FarmingRngTitles.hideTitle(packet.text().getString())) { ci.cancel(); return; }
+        if (com.teslamaps.slayer.InfernoHelper.onTitle(packet.text().getString())) { ci.cancel(); return; }
         if (com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), false)) { ci.cancel(); return; }
         if (com.teslamaps.features.TimerTriggers.onTitle(packet.text().getString())) ci.cancel();
     }

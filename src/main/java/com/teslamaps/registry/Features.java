@@ -717,5 +717,9 @@ final class Features {
         com.teslamaps.features.BazaarOrderTooltip.register();
         com.teslamaps.features.EssenceShopCosts.register();
         com.teslamaps.features.EscrowFix.register();
+        // w15-08-sla
+        com.teslamaps.slayer.InfernoHelper.register();
+        com.teslamaps.slayer.BloodfiendHelper.register();
+        com.teslamaps.slayer.CarryTracker.register();
     }
 }

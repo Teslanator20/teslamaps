@@ -133,6 +133,8 @@ public class ChatFilter {
                     || s.equals("You received kill credit for assisting on a slayer miniboss!")
                     || s.startsWith("✆ RING... ");
         });
+        Pattern hellion = p("^(?:Your hit was reduced by Hellion Shield!|Strike using the \\w+ attunement on your dagger!)$");
+        more("chatFilterHellion", c -> c.chatFilterHellion, t -> hellion.matcher(t.trim()).matches());
         more("chatFilterUselessWarnings", c -> c.chatFilterUselessWarnings, oneOf(
                 "You are sending commands too fast! Please slow down.", "You can't use this while in combat!",
                 "You can not modify your equipped armor set!", "Please wait a few seconds between refreshing!",
