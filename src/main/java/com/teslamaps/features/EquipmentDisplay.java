@@ -61,7 +61,7 @@ public final class EquipmentDisplay {
                 .enabled(() -> cfg().equipmentHud)
                 .size(() -> cfg().equipmentHudVertical ? SLOT : SLOT * COUNT, () -> cfg().equipmentHudVertical ? SLOT * COUNT : SLOT)
                 .preview((g, mc, x, y, s) -> drawHud(g, x, y, s, stacks()));
-        feature = Feature.of("EquipmentDisplay").section("Inventory").when(() -> cfg().equipmentDisplay || cfg().equipmentHud)
+        feature = Feature.of("EquipmentDisplay").section("Inventory").when(() -> cfg().equipmentDisplay || cfg().equipmentHud || cfg().zorroCapeProtection)
                 .tick(EquipmentDisplay::tick)
                 .hud("equipmenthud", EquipmentDisplay::renderHud)
                 .config("Inventory", b -> {
@@ -165,6 +165,13 @@ public final class EquipmentDisplay {
         } catch (Exception e) {
             TeslaMaps.LOGGER.warn("equipment.json: {}", e.toString());
         }
+    }
+
+    /** Skyblock id of the captured cloak, "" when empty, null when /equipment was never opened. */
+    public static String cloakId() {
+        ItemStack[] st = stacks();
+        if (snbt.isEmpty()) return null;
+        return st[1].isEmpty() ? "" : com.teslamaps.utils.ItemUtil.skyblockId(st[1]);
     }
 
     private static ItemStack[] stacks() {

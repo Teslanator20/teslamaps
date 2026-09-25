@@ -617,6 +617,11 @@ final class Features {
         com.teslamaps.features.VisitorChat.register();
         com.teslamaps.features.npc.VisitorLogbook.register();
         com.teslamaps.features.VisitorStats.register();
+        // w14-03-gar
+        com.teslamaps.features.GardenTrashBlocks.register();
+        com.teslamaps.features.PhantomleafSolver.register();
+        com.teslamaps.features.VisitorsOutsideGarden.register();
+        com.teslamaps.features.GardenMenuHelpers.register();
         // w14-00-gar
         com.teslamaps.features.MantidKillDisplay.register();
         com.teslamaps.features.GlowingMushrooms.register();
