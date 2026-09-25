@@ -600,5 +600,14 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w14-00-gar
+        com.teslamaps.features.MantidKillDisplay.register();
+        com.teslamaps.features.GlowingMushrooms.register();
+        com.teslamaps.features.MousematAngles.register();
+        com.teslamaps.features.NoBreak.register();
+        com.teslamaps.features.PestSpawnSound.register();
+        com.teslamaps.features.PestBaitPanel.register();
+        com.teslamaps.features.NoCropRotation.register();
+        com.teslamaps.features.PbFortuneGain.register();
     }
 }

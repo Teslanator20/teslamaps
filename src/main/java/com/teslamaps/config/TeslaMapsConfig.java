@@ -2148,6 +2148,32 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w14-00-gar
+    public boolean mantidKillDisplay = false;
+    public String mantidShowWhen = "Mantid Armor";
+    public int mantidGroupSeconds = 5;
+    public int mantidKillDisplayX = 10;
+    public int mantidKillDisplayY = 160;
+    public float mantidKillDisplayScale = 1.0f;
+    public boolean glowingMushrooms = false;
+    public com.teslamaps.render.EspStyle glowingMushroomStyle = new com.teslamaps.render.EspStyle("FFFF55FF");
+    public boolean mousematAngles = false;
+    public boolean mousematCompact = false;
+    public java.util.Map<String, Float> mousematAngleValues = new java.util.HashMap<>();
+    public boolean noBreakRod = false;
+    public boolean noBreakSprayonator = false;
+    public String pestSpawnSoundMode = "Default";
+    public String pestSpawnSoundName = "NOTE_PLING";
+    public float pestSpawnSoundPitch = 1.0f;
+    public float pestSpawnSoundVolume = 1.0f;
+    public int pestSpawnSoundRepeat = 3;
+    public int pestSpawnSoundDelay = 150;
+    public boolean pestBaitPanel = false;
+    public boolean noCropRotation = false;
+    public boolean noCropRotationEverywhere = false;
+    public boolean pbFortuneGain = false;
+    public boolean pbFortuneOverflow = false;
+    public java.util.Map<String, Double> pbItemsPerFortune = new java.util.HashMap<>();
     // w12-08-eco
     public boolean anitaMedalProfit = false;
     public boolean anitaExtraFortune = false;
@@ -4692,6 +4718,10 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.mousematAngleValues == null) c.mousematAngleValues = new java.util.HashMap<>();
+        if (c.pbItemsPerFortune == null) c.pbItemsPerFortune = new java.util.HashMap<>();
+        if (c.mantidShowWhen == null) c.mantidShowWhen = "Mantid Armor";
+        if (c.pestSpawnSoundMode == null) c.pestSpawnSoundMode = "Default";
         if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
         c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
         for (FeatureRule r : c.featureConditionRules.values()) {
