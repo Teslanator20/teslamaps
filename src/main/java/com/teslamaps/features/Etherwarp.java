@@ -128,6 +128,55 @@ public class Etherwarp {
         return isEther ? tag : null;
     }
 
+    private static volatile long zeroPingAt;
+    private static final java.util.Set<Block> TILLABLE = java.util.Set.of(net.minecraft.world.level.block.Blocks.GRASS_BLOCK,
+            net.minecraft.world.level.block.Blocks.DIRT, net.minecraft.world.level.block.Blocks.COARSE_DIRT,
+            net.minecraft.world.level.block.Blocks.PODZOL, net.minecraft.world.level.block.Blocks.MYCELIUM,
+            net.minecraft.world.level.block.Blocks.MOSS_BLOCK, net.minecraft.world.level.block.Blocks.ROOTED_DIRT);
+    private static final java.util.Set<String> NO_TP_ROOMS = java.util.Set.of("New Trap", "Old Trap", "Teleport Maze", "Boulder");
+
+    /** From PacketSendMixin, main thread. hitBlock = null for a plain use packet. */
+    public static void onUseSent(BlockPos hitBlock, float yRot, float xRot) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.etherwarpCustomSound || !c.etherwarpZeroPing) return;
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        if (player == null || mc.level == null || !player.isShiftKeyDown() || player.isPassenger()) return;
+        if (hitBlock != null && !TILLABLE.contains(mc.level.getBlockState(hitBlock).getBlock())) return;
+        CompoundTag data = etherwarpData(player.getMainHandItem());
+        if (data == null) return;
+        long now = System.currentTimeMillis();
+        if (now - zeroPingAt < 150) return;
+        if (com.teslamaps.dungeon.DungeonManager.isInDungeon()) {
+            var floor = com.teslamaps.dungeon.DungeonManager.getCurrentFloor();
+            if (floor != null && floor.getLevel() == 7 && com.teslamaps.dungeon.DungeonManager.isInBossArea()) return;
+            var room = com.teslamaps.dungeon.DungeonManager.getCurrentRoom();
+            if (room != null && NO_TP_ROOMS.contains(room.getName())) return;
+        }
+        if (mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult) return;
+        if (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bh
+                && mc.hitResult.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK) {
+            BlockState s = mc.level.getBlockState(bh.getBlockPos());
+            if (s.getBlock() instanceof net.minecraft.world.level.block.ChestBlock
+                    || s.getBlock() instanceof net.minecraft.world.level.block.EnderChestBlock
+                    || s.getBlock() instanceof net.minecraft.world.level.block.HopperBlock
+                    || s.getBlock() instanceof net.minecraft.world.level.block.AbstractCauldronBlock
+                    || s.getBlock() instanceof LeverBlock || s.getBlock() instanceof ButtonBlock
+                    || s.getBlock() instanceof net.minecraft.world.level.block.TrapDoorBlock) return;
+        }
+        double distance = 57.0 + data.getInt("tuned_transmission").orElse(0);
+        EtherPos ether = getEtherPos(player.position(), Vec3.directionFromRotation(xRot, yRot), distance);
+        if (!ether.succeeded() || ether.pos() == null) return;
+        zeroPingAt = now;
+        playCustomSound();
+    }
+
+    /** Server etherwarp sound arrived; true = our zero-ping sound already covered it. */
+    public static boolean coveredByZeroPing() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.etherwarpZeroPing && System.currentTimeMillis() - zeroPingAt < 2000;
+    }
+
     public static void playCustomSound() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         LoudSound.play(com.teslamaps.utils.SoundOptions.resolve(c.etherwarpSound), c.etherwarpSoundVolume, c.etherwarpSoundPitch);

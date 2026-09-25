@@ -1,7 +1,6 @@
 package com.teslamaps.mixin;
 
 import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
-import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.world.phys.Vec3;
@@ -16,6 +15,6 @@ public class NoCloudsMixin {
     private void teslamaps$noClouds(FrameGraphBuilder builder, CloudStatus status, Vec3 pos,
                                      long ticks, float partialTick, int color, float height,
                                      int fogColor, CallbackInfo ci) {
-        if (TeslaMapsConfig.get().hideClouds) ci.cancel();
+        if (com.teslamaps.features.IslandClouds.hide()) ci.cancel();
     }
 }

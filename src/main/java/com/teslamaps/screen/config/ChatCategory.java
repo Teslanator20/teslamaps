@@ -155,6 +155,11 @@ public final class ChatCategory {
         b.toggle("Hide AOE Damage Messages", () -> config.chatFilterAoeDamage, v -> config.chatFilterAoeDamage = v);
         b.toggle("Hide Guild XP (GEXP)", () -> config.chatFilterGuildXp, v -> config.chatFilterGuildXp = v);
         b.toggle("Hide Kill Combo", () -> config.chatFilterKillCombo, v -> config.chatFilterKillCombo = v);
+        b.toggle("Hide Ability Cooldown Message", () -> config.chatFilterAbilityCooldown, v -> config.chatFilterAbilityCooldown = v)
+                .desc("\"This ability is on cooldown for Ns.\"").tags("cooldown", "hyperion", "ability");
+        b.toggle("Mute Ability Cooldown Sound", () -> config.muteAbilityCooldownSound, v -> config.muteAbilityCooldownSound = v)
+                .desc("Mutes Hypixel's loud cooldown sound in dungeons or while holding an item with an ability. Real endermen stay audible.")
+                .tags("cooldown", "sound", "mute");
         b.label("Spam / Info");
         groupAction(b, config, com.teslamaps.features.ChatFilter.G_SPAM, "  Spam Filter Action");
         b.toggle("Hide Stash Messages", () -> config.chatFilterStash, v -> config.chatFilterStash = v);
@@ -193,6 +198,9 @@ public final class ChatCategory {
                 () -> config.chatNotifySound, v -> config.chatNotifySound = v);
         b.slider("  Notify Volume", 0f, 4f, () -> config.chatNotifyVolume, v -> config.chatNotifyVolume = v, 2);
         b.toggle("  Notify: Ignore Own Messages", () -> config.chatNotifyIgnoreOwn, v -> config.chatNotifyIgnoreOwn = v);
+        b.toggle("Highlight Own Name", () -> config.chatHighlightOwnName, v -> config.chatHighlightOwnName = v)
+                .desc("Your name is drawn in its own colour in every chat line and channel");
+        b.color("  Own Name Colour", () -> config.chatOwnNameColor, v -> config.chatOwnNameColor = v);
         b.button("List Own Filters In Chat", () -> {
             var mc = Minecraft.getInstance();
             if (mc.player == null) return;
