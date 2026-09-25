@@ -2148,6 +2148,49 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w15-03-min
+    public boolean tunnelsMaps = false;
+    public int tunnelsMapsX = 10;
+    public int tunnelsMapsY = 120;
+    public float tunnelsMapsScale = 1.0f;
+    public boolean tunnelsMapsCommission = true;
+    public int tunnelsMapsCampfireKey = -1;
+    public boolean tunnelsMapsTravelScroll = false;
+    public int tunnelsMapsNextKey = -1;
+    public String tunnelsMapsColor = "55FFFF";
+    public boolean tunnelsMapsDynamicColor = true;
+    public int tunnelsMapsWidth = 4;
+    public boolean tunnelsMapsLandmarks = true;
+    public boolean tunnelsMapsDistanceFirst = false;
+    public boolean tunnelsMapsNoFairy = false;
+    public boolean dwarvenMinimap = false;
+    public int dwarvenMinimapX = 10;
+    public int dwarvenMinimapY = 10;
+    public float dwarvenMinimapScale = 1.0f;
+    public boolean dwarvenMinimapCommissions = true;
+    public boolean effectivePowderChat = false;
+    public int hotmPowderBuffLevel = 0;             // runtime: scanned off the HOTM menu
+    public long skyMallPowderUntil = 0;             // runtime: Sky Mall powder buff seen in chat
+    public boolean hollowsItemInfo = false;
+    public boolean hollowsItemChambers = true;
+    public boolean hollowsItemEggBlocks = true;
+    public boolean powderTracker = false;
+    public int powderTrackerX = 10;
+    public int powderTrackerY = 90;
+    public float powderTrackerScale = 1.0f;
+    public boolean powderTrackerOnlyGrinding = false;
+    public boolean powderTrackerNatural = false;
+    public int powderTrackerPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public boolean powderHud = false;
+    public int powderHudX = 10;
+    public int powderHudY = 200;
+    public float powderHudScale = 1.0f;
+    public boolean powderHudDiff = true;
+    public boolean npcSolvers = false;
+    public boolean npcSolverPuzzler = true;
+    public String npcSolverPuzzlerColor = "FF5555";
+    public boolean npcSolverFetchur = true;
+    public boolean npcSolverFossil = true;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;

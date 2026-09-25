@@ -86,13 +86,13 @@ public final class IslandNavigation {
 
     private static final Pattern COORDS = Pattern.compile("(-?\\d+(?:\\.\\d+)?)[,\\s:;/]+(-?\\d+(?:\\.\\d+)?)[,\\s:;/]+(-?\\d+(?:\\.\\d+)?)");
 
-    static final class Node {
-        final int id;
-        final Vec3 pos;
-        final String name, clean, label;
-        final Set<String> tags;
-        int[] nb = new int[0];
-        double[] w = new double[0];
+    public static final class Node {
+        public final int id;
+        public final Vec3 pos;
+        public final String name, clean, label;
+        public final Set<String> tags;
+        public int[] nb = new int[0];
+        public double[] w = new double[0];
 
         Node(int id, Vec3 pos, String name, Set<String> tags) {
             this.id = id;
@@ -219,6 +219,21 @@ public final class IslandNavigation {
     }
 
     private static final Map<String, Node[]> GRAPHS = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Set<String> REQUESTED = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /** Cached SkyHanni graph for an island key, null until the background load is done. */
+    public static Node[] graph(String key) {
+        Node[] g = GRAPHS.get(key);
+        if (g != null || !REQUESTED.add(key)) return g;
+        CompletableFuture.runAsync(() -> {
+            try {
+                GRAPHS.put(key, parse(RepoCache.fetch("sh-graph-" + key, String.format(URL, key), 15).getAsJsonObject()));
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.info("[Navigation] no island graph for {}: {}", key, e.toString());
+            }
+        });
+        return null;
+    }
 
     private static void load(String key) {
         Node[] cached = GRAPHS.get(key);
@@ -297,7 +312,7 @@ public final class IslandNavigation {
 
     // ---- graph ----
 
-    private static int closest(Node[] g, Vec3 p) {
+    public static int closest(Node[] g, Vec3 p) {
         int best = -1;
         double bd = Double.MAX_VALUE;
         for (int i = 0; i < g.length; i++) {
@@ -311,7 +326,7 @@ public final class IslandNavigation {
     }
 
     /** dist in [0], prev in [1] (as doubles). */
-    private static double[][] dijkstra(Node[] g, int start) {
+    public static double[][] dijkstra(Node[] g, int start) {
         double[] dist = new double[g.length];
         double[] prev = new double[g.length];
         Arrays.fill(dist, Double.POSITIVE_INFINITY);

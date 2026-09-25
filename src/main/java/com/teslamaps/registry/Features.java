@@ -717,5 +717,13 @@ final class Features {
         com.teslamaps.features.BazaarOrderTooltip.register();
         com.teslamaps.features.EssenceShopCosts.register();
         com.teslamaps.features.EscrowFix.register();
+        // w15-03-min
+        com.teslamaps.features.mining.TunnelsMaps.register();
+        com.teslamaps.features.mining.DwarvenMinimap.register();
+        com.teslamaps.features.mining.PowderHud.register();
+        com.teslamaps.features.mining.PowderGrindTracker.register();
+        com.teslamaps.features.mining.GemstonePowderChat.register();
+        com.teslamaps.features.mining.HollowsItemInfo.register();
+        com.teslamaps.features.mining.DwarvenPuzzles.register();
     }
 }
