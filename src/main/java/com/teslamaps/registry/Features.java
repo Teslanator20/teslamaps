@@ -96,5 +96,7 @@ final class Features {
         com.teslamaps.features.SecretHud.register();
         // w02-04-puz
         com.teslamaps.dungeon.puzzle.TicTacToe.register();
+        // w02-02-map
+        com.teslamaps.features.StarMobRadar.register();
     }
 }

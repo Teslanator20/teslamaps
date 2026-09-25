@@ -26,6 +26,14 @@ public final class MapCategory {
         b.button("  Open Image Folder", com.teslamaps.render.gui.MapImage::openFolder);
         b.toggle("Center Small Floors", () -> config.mapCenterSmallFloors, v -> config.mapCenterSmallFloors = v);
         b.toggle("Hypixel Map Fallback", () -> config.mapHypixelFallback, v -> config.mapHypixelFallback = v);
+        b.toggle("  Use Room Colors (Typed)", () -> config.mapFallbackTyped, v -> config.mapFallbackTyped = v);
+        b.toggle("Star Mob Radar", () -> config.starMobRadar, v -> config.starMobRadar = v);
+        b.slider("  Radar Size", 0.5f, 2.5f, () -> config.starMobRadarSize, v -> config.starMobRadarSize = v);
+        b.toggle("  Mob Heads", () -> config.starMobRadarHeads, v -> config.starMobRadarHeads = v);
+        b.toggle("  Radar Border", () -> config.starMobRadarBorder, v -> config.starMobRadarBorder = v);
+        b.toggle("  Miniboss Colors", () -> config.starMobRadarMinibossColors, v -> config.starMobRadarMinibossColors = v);
+        b.color("  Radar Dot Color", () -> config.colorStarMobRadar, v -> config.colorStarMobRadar = v);
+        b.color("  Radar Border Color", () -> config.colorStarMobRadarBorder, v -> config.colorStarMobRadarBorder = v);
         b.toggle("Show Mimic Status", () -> config.showMimicStatus, v -> config.showMimicStatus = v);
         b.toggle("Show Prince Icon", () -> config.showPrinceIcon, v -> config.showPrinceIcon = v);
         b.toggle("Show Prince Status", () -> config.showPrinceStatus, v -> config.showPrinceStatus = v);
@@ -36,6 +44,24 @@ public final class MapCategory {
                 .desc("A party member's \"Blaze Done\" marks the Blaze puzzle solved on map and score");
         b.toggle("Chat Info After Scan", () -> config.mapScanChatInfo, v -> config.mapScanChatInfo = v)
                 .desc("Puzzles, trap, wither doors, crypts, secrets and minimum secrets once the dungeon is scanned");
+        b.label("Style");
+        b.buttonRow(new String[]{"Doc Style", "Leg Style", "Default Style"},
+                new Runnable[]{com.teslamaps.map.MapStyle::applyDoc, com.teslamaps.map.MapStyle::applyLeg,
+                        com.teslamaps.map.MapStyle::applyDefault});
+        b.buttonRow(new String[]{"Export Style", "Import Style"},
+                new Runnable[]{com.teslamaps.map.MapStyle::exportToClipboard, com.teslamaps.map.MapStyle::importFromClipboard});
+        b.slider("Room Size", 12f, 27f, () -> config.mapRoomSize, v -> config.mapRoomSize = (float) Math.round(v), 0);
+        b.slider("Door Width", 2f, 20f, () -> config.mapDoorWidth, v -> config.mapDoorWidth = (float) Math.round(v), 0);
+        b.toggle("Normal Doors In Room Color", () -> config.mapDoorsRoomColor, v -> config.mapDoorsRoomColor = v);
+        b.dropdown("Text Shadow", new String[]{"Drop", "None", "Outline"},
+                () -> config.mapTextShadow, v -> config.mapTextShadow = v);
+        b.dropdown("Room Name Position", new String[]{"Center L", "Center", "Top Left", "Top Right", "Bottom Left", "Bottom Right"},
+                () -> config.mapNameAlign, v -> config.mapNameAlign = v);
+        b.dropdown("Map Border", new String[]{"Default", "Solid", "Chroma", "None"},
+                () -> config.mapBorderStyle, v -> config.mapBorderStyle = v);
+        b.color("  Border Color", () -> config.colorMapBorder, v -> config.colorMapBorder = v);
+        b.slider("  Border Width", 0.5f, 10f, () -> config.mapBorderWidth, v -> config.mapBorderWidth = v);
+        b.slider("  Chroma Speed", 0.1f, 5f, () -> config.mapBorderChromaSpeed, v -> config.mapBorderChromaSpeed = v);
         b.label("Rooms");
         b.toggle("Show Room Names", () -> config.showRoomNames, v -> config.showRoomNames = v);
         b.toggle("  Hide Entrance/Blood/Fairy Names", () -> config.hideEntranceBloodFairyNames, v -> config.hideEntranceBloodFairyNames = v);
@@ -67,6 +93,8 @@ public final class MapCategory {
         b.toggle("    Center In Room", () -> config.mapCheckmarkCenter, v -> config.mapCheckmarkCenter = v);
         b.toggle("    Question Mark On Unentered", () -> config.mapCheckmarkUnopened, v -> config.mapCheckmarkUnopened = v);
         b.toggle("    Hide When Name Shown", () -> config.mapCheckmarkHideWithName, v -> config.mapCheckmarkHideWithName = v);
+        b.dropdown("    Icon Position", new String[]{"Default", "Top Left", "Top Right", "Bottom Left", "Bottom Right"},
+                () -> config.mapCheckmarkAlign, v -> config.mapCheckmarkAlign = v);
         b.label("Players");
         b.toggle("Player Markers", () -> config.showPlayerMarker, v -> config.showPlayerMarker = v);
         b.toggle("Show Self", () -> config.showSelfMarker, v -> config.showSelfMarker = v);
@@ -74,7 +102,12 @@ public final class MapCategory {
         b.toggle("  Interpolate Far Players", () -> config.mapInterpolatePlayers, v -> config.mapInterpolatePlayers = v)
                 .desc("Markers of out-of-range players glide instead of jumping");
         b.toggle("Show Names", () -> config.showPlayerNames, v -> config.showPlayerNames = v);
+        b.slider("  Name Scale", 0.5f, 3.0f, () -> config.mapPlayerNameScale, v -> config.mapPlayerNameScale = v);
+        b.toggle("  Class Name Instead Of Player", () -> config.mapPlayerClassName, v -> config.mapPlayerClassName = v);
+        b.dropdown("  Name Color", new String[]{"Class", "White"},
+                () -> config.mapPlayerNameColor, v -> config.mapPlayerNameColor = v);
         b.toggle("Use Heads (vs Markers)", () -> config.useHeadsInsteadOfMarkers, v -> config.useHeadsInsteadOfMarkers = v);
+        b.toggle("  Self As Vanilla Arrow", () -> config.mapSelfVanillaArrow, v -> config.mapSelfVanillaArrow = v);
         b.toggle("Rotate Heads", () -> config.rotatePlayerHeads, v -> config.rotatePlayerHeads = v);
         b.toggle("Glow Arrow Marker", () -> config.mapGlowArrow, v -> config.mapGlowArrow = v);
         b.slider("Head Scale", 0.5f, 2.0f,
