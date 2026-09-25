@@ -37,6 +37,17 @@ public class TeslaGuiPipelines {
                     .build()
     );
 
+    // Frosted HUD panel: samples the world copy of PanelBlur.
+    public static final RenderPipeline PANEL_BLUR = RenderPipelines.register(
+            RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
+                    .withLocation("pipeline/teslamaps_panel_blur")
+                    .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_sdf"))
+                    .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_panel_blur"))
+                    .withSampler("Sampler0")
+                    .withVertexFormat(TeslaVertexFormats.SDF, VertexFormat.Mode.QUADS)
+                    .build()
+    );
+
     private static RenderPipeline register(String name, String fragmentShader) {
         return RenderPipelines.register(
                 RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)

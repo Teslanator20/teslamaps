@@ -39,6 +39,33 @@ public class ChatTabs {
     private static Channel selected = Channel.ALL;
     private static boolean applied = false;
     private static Channel appliedChannel = null;
+    private static boolean appliedHideSeparators = false;
+
+    public static final String ORDER_ID = "chatTabs";
+
+    static {
+        com.teslamaps.utils.LineOrder.define(ORDER_ID,
+                new String[]{"ALL", "GUILD", "DM", "PARTY"},
+                new String[]{"All", "Guild", "DM", "Party"});
+    }
+
+    private static boolean hideSeparators() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.chatFilterSeparators && c.chatFilterEnabled;
+    }
+
+    /** Shown tabs in the user's order; all four when every tab is switched off. */
+    public static List<Channel> channels() {
+        List<Channel> out = new ArrayList<>(4);
+        for (String k : com.teslamaps.utils.LineOrder.resolved(ORDER_ID)) {
+            if (k.startsWith("-")) continue;
+            try {
+                out.add(Channel.valueOf(k));
+            } catch (IllegalArgumentException ignored) {}
+        }
+        if (out.isEmpty()) out.addAll(List.of(Channel.values()));
+        return out;
+    }
 
     private static final ChatTabCommandResponseTracker commandTracker = new ChatTabCommandResponseTracker();
     private static final ChatTabFeedbackTracker feedbackTracker = new ChatTabFeedbackTracker();
@@ -85,7 +112,10 @@ public class ChatTabs {
 
     private static void updateFilter(boolean forced) {
         boolean nowEnabled = enabled();
-        if (!forced && nowEnabled == applied && (!nowEnabled || selected == appliedChannel)) return;
+        boolean hideSep = hideSeparators();
+        if (!forced && nowEnabled == applied
+                && (!nowEnabled || (selected == appliedChannel && hideSep == appliedHideSeparators))) return;
+        appliedHideSeparators = hideSep;
 
         Minecraft mc = Minecraft.getInstance();
         ChatComponent chat = mc.gui.getChat();
@@ -112,12 +142,14 @@ public class ChatTabs {
     }
 
     public static boolean isVisible(Channel channel, GuiMessage message) {
-        String text = StringUtil.strip(message.content().getString()).trim();
+        String text = com.teslamaps.features.ChatTimestamps.cut(StringUtil.strip(message.content().getString())).trim();
         commandTracker.observe(message, text);
-        if (channel == Channel.ALL) return true;
+        boolean hideSep = appliedHideSeparators && com.teslamaps.features.ChatFilter.isSeparator(text);
+        if (channel == Channel.ALL) return !hideSep;
         if (message.source() == GuiMessageSource.SYSTEM_CLIENT && text.startsWith("[TeslaMaps]")) return true;
-        if (feedbackTracker.isVisible(channel, message, text)) return true;
-        if (commandTracker.isVisible(channel, message)) return true;
+        if (feedbackTracker.isVisible(channel, message, text)) return !hideSep;
+        if (commandTracker.isVisible(channel, message)) return !hideSep;
+        if (hideSep) return false;
         return switch (channel) {
             case GUILD -> GUILD_CHAT.matcher(text).matches() || GUILD_SYSTEM.matcher(text).matches();
             case DM -> (PRIVATE_CHAT.matcher(text).matches() && !text.regionMatches(true, 0, "From stash:", 0, 11))
@@ -167,11 +199,12 @@ public class ChatTabs {
         int position = TeslaMapsConfig.get().chatTabPosition;
 
         List<TabBounds> out = new ArrayList<>();
-        Channel[] channels = Channel.values();
+        List<Channel> channels = channels();
+        if (!channels.contains(selected)) select(channels.get(0));
 
         if (position == 2) { // right of chat
             int x = CHAT_LEFT + chatWidth + TAB_GAP;
-            int total = channels.length * TAB_HEIGHT + (channels.length - 1) * TAB_GAP;
+            int total = channels.size() * TAB_HEIGHT + (channels.size() - 1) * TAB_GAP;
             int y = Math.max(chatBottom - Math.max(chatHeight, total), 0);
             for (Channel channel : channels) {
                 int w = Math.max(font.width(channel.label) + TAB_PADDING, MIN_TAB_WIDTH);

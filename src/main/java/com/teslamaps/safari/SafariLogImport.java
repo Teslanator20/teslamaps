@@ -98,9 +98,12 @@ public final class SafariLogImport {
         Building cur = null;
         for (Path f : files) {
             LocalDate date = dateOf(f);
+            List<String> ls = lines(f);
+            // latest.log is dated by its mtime = the last line; step back over midnights crossed
+            if (!LOG_DATE.matcher(f.getFileName().toString()).matches()) date = date.minusDays(rollovers(ls));
             long prev = 0;
             int dayShift = 0;
-            for (String raw : lines(f)) {
+            for (String raw : ls) {
                 Matcher c = CHAT_LINE.matcher(raw);
                 if (!c.matches()) continue;
                 long ts = millis(date.plusDays(dayShift), c.group(1), c.group(2), c.group(3));
@@ -184,6 +187,19 @@ public final class SafariLogImport {
         } catch (Exception ignored) {
         }
         return out;
+    }
+
+    private static int rollovers(List<String> ls) {
+        int n = 0;
+        long prev = -1;
+        for (String raw : ls) {
+            Matcher c = CHAT_LINE.matcher(raw);
+            if (!c.matches()) continue;
+            long sec = Integer.parseInt(c.group(1)) * 3600L + Integer.parseInt(c.group(2)) * 60L + Integer.parseInt(c.group(3));
+            if (prev >= 0 && sec < prev - 12 * 3600L) n++;
+            prev = sec;
+        }
+        return n;
     }
 
     private static LocalDate dateOf(Path f) {

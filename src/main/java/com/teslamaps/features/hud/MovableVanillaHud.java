@@ -202,6 +202,10 @@ public final class MovableVanillaHud {
             return;
         }
         g.pose().translate(-tabLeft, -9);
+        if (FancyTabHud.shown()) {
+            FancyTabHud.render(g);
+            return;
+        }
         mc.gui.getTabList().extractRenderState(g, sw(), sb, sb.getDisplayObjective(DisplaySlot.LIST));
     }
 
@@ -210,6 +214,12 @@ public final class MovableVanillaHud {
         if (++timer % 10 != 1) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() == null || mc.level == null) return;
+        if (FancyTabHud.shown()) {
+            tabLeft = FancyTabHud.left();
+            tabWidth = FancyTabHud.width();
+            tabHeight = FancyTabHud.height();
+            return;
+        }
         PlayerTabOverlay overlay = mc.gui.getTabList();
         Font font = mc.font;
         Scoreboard sb = mc.level.getScoreboard();

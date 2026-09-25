@@ -543,6 +543,7 @@ public class TeslaMapsConfig {
     public static class ChatUserFilter {
         public String mode = "contains";         // contains / equals / startswith / endswith / regex
         public String text = "";
+        public String action;                    // null = Own Filter Action, "Notify" = highlight + ping
         public String title;                     // alert: title, {0}/{1}/{name} = regex groups
         public String sound;                     // alert: SoundOptions key
         public boolean flash;                    // alert: screen flash
@@ -2166,6 +2167,116 @@ public class TeslaMapsConfig {
         public boolean invert = false;
         public java.util.List<java.util.List<String>> combos = new java.util.ArrayList<>();
     }
+    // w11-01-par
+    public boolean pbOnJoinButtons = false;
+    public boolean chatNamesOpenPv = false;
+    public boolean pbOnJoinKuudra = false;
+    public boolean kuudraPfKickLine = true;
+    public boolean kuudraPfSound = false;
+    public boolean kuudraPfAutoKick = false;
+    public boolean kuudraPfInform = false;
+    public boolean kuudraPfApiOffKick = true;
+    public int kuudraPfMinMp = 1000;
+    public int kuudraPfMinT5 = 50;
+    public boolean kuudraPfReqGdrag = false;
+    public boolean kuudraPfReqHeart = false;
+    public boolean kuudraPfReqTux = false;
+    public boolean kuudraPfKickCache = true;
+    public boolean kuudraRunsReply = false;
+    public boolean acceptLastInvite = false;
+    public boolean manaDrainAnnounce = false;
+    public boolean spellAnnounce = false;
+    public boolean spellAnnounceSpark = true;
+    public boolean spellAnnounceRush = true;
+    public boolean spellAnnounceWind = true;
+    public boolean spellAnnounceIchor = true;
+    public boolean mutePartySpam = false;
+    public java.util.List<String> mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
+    public boolean safariHotspotPost = false;
+    public String safariHotspotPostChannel = "Party";
+    public boolean hunterTrades = false;
+    public String hunterTradesChannel = "Party";
+    public boolean hunterTradesChat = true;
+    public boolean hunterTradesAcceptShared = true;
+    public boolean hunterTradesWaypoints = true;
+    public int hunterTradesX = 5;
+    public int hunterTradesY = 160;
+    public float hunterTradesScale = 1.0f;
+    // w11-06-gui
+    public float hudCustomBlur = 0f;               // HUD Style "Custom": backdrop blur radius, 0 = off
+    public String hudCustomBlurKernel = "Gaussian"; // Gaussian / Box
+    public float hudGlobalScale = 1.0f;            // multiplies every movable HUD element
+    public boolean newOptionsNotify = false;
+    @Global
+    public java.util.List<String> knownToggles = new java.util.ArrayList<>(); // "Category/Label" seen so far
+    @Global
+    public int worldOverlayKey = -1;               // hides every world overlay while toggled
+    public boolean worldOverlayFade = true;
+    // w11-02-par
+    public boolean multiPartyInviteFix = false;
+    public boolean teslaUserLabels = false;
+    public String teslaUserLabelColor = "55FFFF";
+    public String pfRightClickMode = "Off";
+    public boolean fancyPartyFinder = false;
+    public boolean nickHider = false;
+    public String nickHiderName = "";
+    public boolean partyOnBoop = false;
+    public boolean partyOnBoopBingoOnly = false;
+    public boolean replyBoop = false;
+    // w11-03-par
+    public boolean repartyCommand = false;
+    public boolean repartyAutoAccept = false;
+    public boolean pfLevelReq = false;
+    public boolean pfMissingOverlay = false;
+    public boolean pfTooltipStats = false;
+    public boolean partyListFormat = false;
+    public boolean partyHud = false;
+    public boolean partyHudOnlyAreas = false;
+    public int partyHudMax = 8;
+    public int partyHudX = 5;
+    public int partyHudY = 120;
+    public float partyHudScale = 1.0f;
+    public boolean partyJoinSound = false;
+    public String partyJoinSoundType = "NOTE_PLING";
+    public boolean kickedLimboAlert = false;
+    public boolean safariPlayersOnEnd = false;
+    public boolean throttleNotifier = false;
+    public boolean throttleNotifierCooldown = true;
+    public String throttleNotifierText = "Menu throttled, give me a second!";
+    // w11-05-par
+    public boolean partyShortcuts = false;
+    public boolean partyKickReason = false;
+    public boolean partyTabComplete = false;
+    public boolean reversePtClickable = false;
+    @Global
+    public String reversePtMessage = "";
+    public boolean highlightPartyOutside = false;
+    public String highlightPartyColor = "55FFFF";
+    public boolean dianaPartyFinder = false;
+    public float dianaPartyFinderMinRate = 0f;
+    public boolean posMessages = false;
+    public boolean posMessagesOnlyDungeons = true;
+    public boolean posMessagesOncePerWorld = false;
+    public boolean posMessagesShow = true;
+    public float posMessagesHeight = 0.2f;
+    public boolean posMessagesDepth = true;
+    public boolean posMessagesShowText = true;
+    public float posMessagesTextSize = 1.0f;
+    public static class PosMessage {
+        public double x, y, z;
+        public Double x2, y2, z2;
+        public int delay;
+        public Double distance;
+        public int color = 0xFFFFFFFF;
+        public String message = "";
+    }
+    @Global
+    public List<PosMessage> posMessageList = new ArrayList<>();
+    // w11-00-chat
+    public boolean fullChatChroma = false;
+    public boolean chatStackNormalizeNumbers = false;
+    public boolean chatFilterPerkBuffsCompact = false;
+    public boolean chatEncrypt = false;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -2201,6 +2312,43 @@ public class TeslaMapsConfig {
     public boolean terminatorCooldownMuteChat = true;
     public boolean imageLinkPreview = false;
     public int imageLinkPreviewKey = -1;
+    // w10-08-chat
+    public boolean chatFilterSeparators = false;
+    public boolean playerChatFormat = false;
+    public boolean playerChatHideRank = true;
+    public boolean playerChatKeepYoutube = true;
+    public boolean playerChatNoLevelBrackets = false;
+    public boolean playerChatLevelColorName = false;
+    public boolean playerChatWhiteText = false;
+    public boolean smoothChatMessages = false;
+    public int smoothChatMessageMs = 150;
+    public boolean smoothChatOpen = false;
+    public int smoothChatOpenMs = 200;
+    public boolean chatHideMessageIndicator = false;
+    public boolean reportAutoConfirm = false;
+    public boolean chatTranslator = false;
+    public String chatTranslatorLanguage = "en";
+    public boolean commandSuggestionsExtra = false;
+    @Global
+    public String ownHypixelRank = "";
+    // w10-01-chat
+    public String chatAutopetMode = "Show";          // Show / Hide / Action Bar / Toast
+    public float chatAutopetToastSeconds = 3f;
+    public boolean chatLog = false;                  // every chat line into logs/teslamaps-chat
+    public int chatLogDays = 7;
+    public boolean chatLogFilterStatus = false;      // status + reason, blocked/modified files, outgoing
+    public boolean chatTimestamps = false;
+    public String chatTimestampFormat = "24h";
+    public String chatTimestampColor = "555555";
+    public boolean currentChatDisplay = false;
+    public int currentChatDisplayX = 4;
+    public int currentChatDisplayY = 150;
+    public float currentChatDisplayScale = 1.0f;
+    public int chatPeekKey = -1;
+    public String chatNotifyColor = "FFFF55";
+    public String chatNotifySound = "NOTE_PLING";
+    public float chatNotifyVolume = 1.0f;
+    public boolean chatNotifyIgnoreOwn = true;
     // w10-03-chat
     public boolean compactJacobClaim = false;
     public boolean compactLevelUps = false;
@@ -3528,7 +3676,6 @@ public class TeslaMapsConfig {
     public boolean tooltipStonksPrice = false;
     public boolean tooltipFannCost = false;
     public boolean supercraftReminder = false;
-    public int bitsAvailable = -1;
     public String fameRank = "";
     // w05-05-inv
     public boolean progressHighlightTier = false;
@@ -4336,7 +4483,16 @@ public class TeslaMapsConfig {
             for (java.util.List<String> l : r.combos) l.removeIf(java.util.Objects::isNull);
         }
         if (c.customFontFile == null) c.customFontFile = "";
+        if (c.mutePartySpamPrefixes == null) c.mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
+        c.mutePartySpamPrefixes.removeIf(s -> s == null || s.isEmpty());
+        if (c.safariHotspotPostChannel == null) c.safariHotspotPostChannel = "Party";
+        if (c.hunterTradesChannel == null) c.hunterTradesChannel = "Party";
+        if (c.knownToggles == null) c.knownToggles = new java.util.ArrayList<>();
+        if (c.hudCustomBlurKernel == null) c.hudCustomBlurKernel = "Gaussian";
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
+        if (c.posMessageList == null) c.posMessageList = new java.util.ArrayList<>();
+        c.posMessageList.removeIf(java.util.Objects::isNull);
+        if (c.reversePtMessage == null) c.reversePtMessage = "";
         if (c.sackNotifyItems == null) c.sackNotifyItems = new java.util.ArrayList<>();
         if (c.chatMutedPlayers == null) c.chatMutedPlayers = new java.util.ArrayList<>();
         if (c.mobIconColors == null) c.mobIconColors = new java.util.HashMap<>();
@@ -4457,6 +4613,8 @@ public class TeslaMapsConfig {
         if (c.chatUserFilters == null) c.chatUserFilters = new java.util.ArrayList<>();
         c.chatUserFilters.removeIf(f -> f == null || f.text == null);
         if (c.chatUserFilterAction == null) c.chatUserFilterAction = "Hide";
+        if (c.chatAutopetMode == null) c.chatAutopetMode = "Show";
+        if (c.chatTimestampFormat == null) c.chatTimestampFormat = "24h";
         if (c.chatRedirectTarget == null) c.chatRedirectTarget = "Spam HUD";
         if (c.chatFilterAction == null || c.chatFilterAction.isBlank()) c.chatFilterAction = "Hide";
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();

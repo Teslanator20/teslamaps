@@ -60,6 +60,7 @@ public final class LimboTracker {
         if (t.equals("You were spawned in Limbo.") || t.equals("You are AFK. Move around to return from AFK.")) {
             boolean was = inLimbo();
             realLimbo = true;
+            lastLevel = Minecraft.getInstance().level;
             update(was);
         }
     }

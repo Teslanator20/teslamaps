@@ -204,7 +204,7 @@ public final class ChatCompacts {
         for (int i = 0; i < 2 && !all.isEmpty(); i++) {
             GuiMessage g = all.getFirst();
             if (now - g.addedTime() > 10) break;
-            String s = StringUtil.stripTrim(g.content().getString());
+            String s = ChatTimestamps.cut(StringUtil.stripTrim(g.content().getString()));
             if (!s.isEmpty() && !BORDER.matcher(s).matches()) break;
             all.removeFirst();
             removed = true;
