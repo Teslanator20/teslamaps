@@ -2136,6 +2136,44 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w08-05-hud
+    public boolean trackerHistory = false;
+    public int trackerHistoryKeep = 30;
+    public boolean moveVanillaHud = false;
+    public boolean moveVanillaHudEverywhere = false;
+    public boolean moveHotbar = false;
+    public int vHotbarX = -1;
+    public int vHotbarY = -1;
+    public float vHotbarScale = 1.0f;
+    public boolean moveXpBar = false;
+    public int vXpBarX = -1;
+    public int vXpBarY = -1;
+    public float vXpBarScale = 1.0f;
+    public boolean moveActionBar = false;
+    public int vActionBarX = -1;
+    public int vActionBarY = -1;
+    public float vActionBarScale = 1.0f;
+    public boolean moveHeldItemName = false;
+    public int vHeldItemX = -1;
+    public int vHeldItemY = -1;
+    public float vHeldItemScale = 1.0f;
+    public boolean moveTabList = false;
+    public int vTabListX = -1;
+    public int vTabListY = -1;
+    public float vTabListScale = 1.0f;
+    public boolean vanillaManaBar = false;
+    public boolean vanillaManaBarBlink = true;
+    public boolean vanillaManaBarHungerSprites = false;
+    public boolean vanillaHpHud = false;
+    public int vanillaHpX = 10;
+    public int vanillaHpY = 320;
+    public float vanillaHpScale = 1.0f;
+    public boolean inWaterDisplay = false;
+    public boolean inWaterStrandedOnly = true;
+    public int inWaterX = 10;
+    public int inWaterY = 340;
+    public float inWaterScale = 1.0f;
+    public boolean customScoreboardNumberDiff = false;
     // w07-04-qol
     public boolean signCalculator = false;
     public boolean signCalculatorEquals = false;

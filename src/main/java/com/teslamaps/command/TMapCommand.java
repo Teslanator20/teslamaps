@@ -149,7 +149,9 @@ public class TMapCommand {
                                         .then(ClientCommands.literal("total")
                                                 .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "total"))))
                                 .then(ClientCommands.literal("view")
-                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "view")))))
+                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "view")))
+                                .then(ClientCommands.literal("history")
+                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "history")))))
                 .then(com.teslamaps.features.SecretWaypoints.command())
                 .then(com.teslamaps.features.HideExCoopMembers.command())
                 .then(com.teslamaps.features.MinionFeatures.command())
@@ -2347,6 +2349,12 @@ public class TMapCommand {
         if (t == null) {
             source.sendFeedback(Component.literal("§b[TeslaMaps] §cNo tracker " + id));
             return 0;
+        }
+        if (action.equals("history")) {
+            var lines = t.historyLines();
+            source.sendFeedback(Component.literal("§b[TeslaMaps] §f" + id + " history" + (lines.isEmpty() ? ": §7none (Tracker History off?)" : ":")));
+            for (String l : lines) source.sendFeedback(Component.literal("  " + l));
+            return 1;
         }
         switch (action) {
             case "total" -> t.resetTotal();
