@@ -154,7 +154,7 @@ public final class CraftCost {
 
     private static final String[] SLOTS = {"A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"};
 
-    private static List<Recipe> parse(JsonObject item) {
+    public static List<Recipe> parse(JsonObject item) {
         List<Recipe> out = new ArrayList<>();
         if (item.has("recipe") && item.get("recipe").isJsonObject()) {
             Recipe r = grid(item.getAsJsonObject("recipe"));

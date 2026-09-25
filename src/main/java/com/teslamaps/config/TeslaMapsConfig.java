@@ -2148,6 +2148,30 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w12-08-eco
+    public boolean anitaMedalProfit = false;
+    public boolean anitaExtraFortune = false;
+    public boolean bazaarHelpers = false;
+    public boolean bazaarBestSell = true;
+    public boolean bazaarMaxPurse = true;
+    public boolean bazaarDailyLimit = true;
+    public boolean craftMaterials = false;
+    public boolean craftableList = false;
+    public boolean craftableListSacks = true;
+    public boolean craftableListNoVanilla = true;
+    public boolean instaSellHighlight = false;
+    public String colorInstaSell = "55FF55";
+    public boolean priceHistory = false;
+    public int priceHistoryKey = -1;
+    public boolean priceHistoryBrowser = false;
+    public boolean auctionSortWarning = false;
+    public boolean dragonProfitTracker = false;
+    public boolean dragonProfitLeeched = false;
+    public boolean dragonProfitChat = true;
+    public int dragonProfitPriceSource = 1;
+    public int dragonProfitTrackerX = 10;
+    public int dragonProfitTrackerY = 120;
+    public float dragonProfitTrackerScale = 1.0f;
     // w11-05-par
     public boolean partyShortcuts = false;
     public boolean partyKickReason = false;
