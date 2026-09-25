@@ -18,6 +18,6 @@ public class ToolkitIconMixin {
     private void teslamaps$toolkitIcon(GuiGraphicsExtractor ctx, ItemStack stack, int x, int y, int seed,
                                        Operation<Void> original, @Local(argsOnly = true) Slot slot) {
         ItemStack web = com.teslamaps.features.gardenqol.MutationsWebsite.replacement(slot);
-        original.call(ctx, web != null ? web : ToolkitCropIcons.icon(slot, stack), x, y, seed);
+        original.call(ctx, web != null ? web : com.teslamaps.features.StereoHarmony.icon(slot, ToolkitCropIcons.icon(slot, stack)), x, y, seed);
     }
 }

@@ -57,7 +57,7 @@ public final class PartyCategory {
         b.toggle("    Kuudra: Kick Line", () -> config.kuudraPfKickLine, v -> config.kuudraPfKickLine = v);
         b.toggle("    Kuudra: Join Sound", () -> config.kuudraPfSound, v -> config.kuudraPfSound = v);
         b.toggle("    Kuudra: Auto Kick", () -> config.kuudraPfAutoKick, v -> config.kuudraPfAutoKick = v)
-                .desc("Kicks joiners below the requirements below");
+                .desc("Kicks joiners below the requirements below").cheat();
         b.toggle("      Tell Party Why", () -> config.kuudraPfInform, v -> config.kuudraPfInform = v);
         b.toggle("      Kick If API Off", () -> config.kuudraPfApiOffKick, v -> config.kuudraPfApiOffKick = v);
         b.slider("      Min Magical Power", 0f, 2000f, () -> (float) config.kuudraPfMinMp, v -> config.kuudraPfMinMp = Math.round(v / 50f) * 50, 0);

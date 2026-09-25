@@ -123,7 +123,7 @@ public final class SackValueHud {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
         if (hud == null || header.isEmpty() || inSackMenu(mc)) return;
-        if (cfg().sackValueHudInSkyblockOnly && !com.teslamaps.utils.SkyblockUtils.isInSkyblock()) return;
+        if (cfg().sackValueHudInSkyblockOnly && !com.teslamaps.utils.SkyblockUtils.inSkyblockCached()) return;
         List<String> lines = expanded ? expandedLines : headerLines;
         int w = expanded ? Math.max(headerW, perSackW) : headerW;
         int x = hud.x(), y = hud.y();

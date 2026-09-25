@@ -379,6 +379,10 @@ public class ChatFilter {
         if (MelodyCompact.handle(t)) return true;
         lastReason = "hoppityCompact";
         if (HoppityCompactChat.handle(message, text, t)) return true;
+        lastReason = "visitorChat";
+        if (VisitorChat.handle(message, t)) return true;
+        lastReason = "rareCropTracker";
+        if (RareCropTracker.hide(t)) return true;
         lastReason = "autopet";
         if (autopet(t)) return true;
         if (TeslaMapsConfig.get().chatFilterEnabled) {

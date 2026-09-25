@@ -16,6 +16,10 @@ public final class GardenCategory {
                 () -> config.gardenPlotsOverlay, v -> config.gardenPlotsOverlay = v);
         b.toggle("  Close Inventory On Teleport",
                 () -> config.gardenPlotsCloseOnClick, v -> config.gardenPlotsCloseOnClick = v);
+        b.toggle("  Pest Count Per Plot",
+                () -> config.gardenPlotsPestCount, v -> config.gardenPlotsPestCount = v)
+                .desc("Gold pest count on each plot in the grid, and a red backdrop with the count in the Desk's Configure Plots menu")
+                .tags("pests", "desk", "configure plots");
         b.label("Visitors");
         b.toggle("Charmed Visitor List",
                 () -> config.charmedVisitorList, v -> config.charmedVisitorList = v);
@@ -43,6 +47,12 @@ public final class GardenCategory {
         b.toggle("  Show Item Of Rare Visitors",
                 () -> config.visitorRareArrivalItem, v -> config.visitorRareArrivalItem = v)
                 .desc("Jerry, Spaceman and Rhino: their rare item shows big on screen for 5 seconds.");
+        b.toggle("  Visitor HUD",
+                () -> config.visitorHud, v -> config.visitorHud = v)
+                .desc("\"3 visitors (Next in 3m 12s)\", keeps estimating once the queue is full. Move it in /tmap gui")
+                .tags("visitor", "timer", "hud", "next visitor");
+        b.toggle("    Visitor Names",
+                () -> config.visitorHudNames, v -> config.visitorHudNames = v);
         b.label("Harvest Feast");
         b.toggle("In-Season Display",
                 () -> config.feastSeasonDisplay, v -> config.feastSeasonDisplay = v);
@@ -62,11 +72,23 @@ public final class GardenCategory {
         b.info("Pest ESP moved to Mob Visuals - it tells the 15 species apart");
         b.button("Pest Visuals (Mob Visuals)",
                 () -> Minecraft.getInstance().setScreen(new MobVisualScreen(b.screen())));
+        b.toggle("Mute Vacuum Sound",
+                () -> config.muteVacuum, v -> config.muteVacuum = v)
+                .desc("Silences the vacuum's wither shoot sound, only in the Garden and Torrhus Canyon")
+                .tags("vacuum", "sound", "mute", "wither");
         b.label("Pest Tracker");
         b.toggle("Pest Overlay",
                 () -> config.pestOverlay, v -> config.pestOverlay = v);
         b.toggle("  Alive + Infested Plots",
                 () -> config.pestOverlayAlivePlots, v -> config.pestOverlayAlivePlots = v);
+        b.toggle("  Spray Per Plot",
+                () -> config.pestOverlaySprayList, v -> config.pestOverlaySprayList = v)
+                .desc("Lists every sprayed plot with its time left or Expired, and Not sprayed! for the plot you stand on")
+                .tags("spray", "sprayonator", "plot");
+        b.toggle("  Spray Expired Chat",
+                () -> config.sprayExpiryChat, v -> config.sprayExpiryChat = v)
+                .desc("Chat line when a plot's spray runs out, also \"While you were away\" when you come back to the Garden")
+                .tags("spray", "sprayonator", "expired");
         b.toggle("Cooldown Arms Routine",
                 () -> config.pestCooldownArmsRoutine, v -> config.pestCooldownArmsRoutine = v);
         b.slider("Profit Idle After (sec)", 30f, 600f,
@@ -76,6 +98,11 @@ public final class GardenCategory {
                 () -> config.pestGearReminder, v -> config.pestGearReminder = v);
         b.toggle("Remind: Teleport To Pests",
                 () -> config.pestTpReminder, v -> config.pestTpReminder = v);
+        b.slider("  Min Pests (0 = Fortune Debuff)", 0f, 8f,
+                () -> (float) config.pestTpReminderMin, v -> config.pestTpReminderMin = Math.round(v), 0)
+                .desc("0 warns from 8 pests on, where the farming fortune debuff starts");
+        b.slider("  Repeat Every (sec)", 1f, 60f,
+                () -> (float) config.pestTpReminderInterval, v -> config.pestTpReminderInterval = Math.round(v), 0);
         b.toggle("Custom Cooldown",
                 () -> config.pestCustomCooldown, v -> config.pestCustomCooldown = v);
         b.slider("  Custom Cooldown (sec)", 30f, 600f,
@@ -126,6 +153,18 @@ public final class GardenCategory {
         b.toggle("Pest Species In Breakdown",
                 () -> config.farmProfitPestTypes, v -> config.farmProfitPestTypes = v);
         b.info("/tmap profit exclude <item> leaves an item out, run again to count it");
+        b.toggle("  Item Options On Click",
+                () -> config.farmProfitItemOptions, v -> config.farmProfitItemOptions = v)
+                .desc("With the inventory open: left click an item in the panel to pick its own price source (blue value), right click twice to hide it")
+                .tags("exclude", "price source", "profit");
+        b.button("  Restore Hidden Items + Price Sources",
+                () -> com.teslamaps.features.FarmProfit.clearItemOptions());
+        b.toggle("  Confirm Reset",
+                () -> config.farmProfitResetConfirm, v -> config.farmProfitResetConfirm = v)
+                .desc("The panel's reset needs a second click within 3 seconds");
+        b.toggle("  Today + Mayor Windows",
+                () -> config.farmProfitExtraWindows, v -> config.farmProfitExtraWindows = v)
+                .desc("Adds Today and This Mayor to the time windows; counts from when this version was installed");
         b.button("Show Breakdown In Chat",
                 () -> com.teslamaps.features.FarmProfit.printBreakdown());
         b.button("Reset Session Profit",
@@ -144,6 +183,8 @@ public final class GardenCategory {
         b.info("/tmap mouselock locks turning by hand until used again");
         b.toggle("Lock Mouse On Mousemat Snap",
                 () -> config.farmingMouseLockOnMousemat, v -> config.farmingMouseLockOnMousemat = v);
+        b.keybind("  Release Key",
+                () -> config.mousematReleaseKey, v -> config.mousematReleaseKey = v);
         b.toggle("Unlock Mouse On Teleport",
                 () -> config.farmingMouseUnlockOnTeleport, v -> config.farmingMouseUnlockOnTeleport = v);
         b.toggle("Mouse Lock HUD",

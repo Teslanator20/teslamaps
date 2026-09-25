@@ -118,7 +118,15 @@ public class HypixelNodes {
             case "joinkuudra" -> word(name, "instance", () -> ExtraSuggestions.instances("Kuudra"));
             case "chapter", "chapters" -> greedy(name, () -> ExtraSuggestions.enabled() ? ExtraSuggestions.chapters() : List.of());
             case "viewstash" -> word(name, "stash", () -> ExtraSuggestions.VIEWSTASH);
-            case "setmaxspeed" -> word(name, "speed", () -> ExtraSuggestions.MAX_SPEED);
+            case "setmaxspeed" -> literal(name)
+                    .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument("speed", StringArgumentType.word())
+                            .suggests((context, builder) -> {
+                                List<String> out = new java.util.ArrayList<>(com.teslamaps.features.SpeedPresets.suggestions());
+                                if (ExtraSuggestions.enabled() && SkyblockUtils.isInSkyblock()) out.addAll(ExtraSuggestions.MAX_SPEED);
+                                return suggest(out, builder);
+                            })
+                            .executes(NOOP))
+                    .build();
             case "ahs", "ahsearch" -> items(name, com.teslamaps.features.SearchOverlay.Location.AUCTION);
             case "bz", "bazaar" -> items(name, com.teslamaps.features.SearchOverlay.Location.BAZAAR);
             case "rngmeter", "rng" -> literal(name)

@@ -25,5 +25,7 @@ public class SlotBackgrounds {
         com.teslamaps.features.PartyFinderHelper.drawHighlight(context, slot);
         com.teslamaps.features.DuplicateItems.drawHighlight(context, slot);
         com.teslamaps.features.SearchHighlight.drawSlot(context, slot);
+        com.teslamaps.features.GardenPlots.drawDeskBackground(context, slot);
+        com.teslamaps.features.StereoHarmony.drawHighlight(context, slot);
     }
 }
