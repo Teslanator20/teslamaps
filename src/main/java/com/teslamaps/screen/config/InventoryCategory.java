@@ -16,6 +16,9 @@ public final class InventoryCategory {
         b.toggle("Sellable Items Highlighter", () -> config.sellableHighlighter, v -> config.sellableHighlighter = v);
         b.toggle("  More Junk + Trades Menu", () -> config.sellableExtended, v -> config.sellableExtended = v);
         b.color("  Sellable Color", () -> config.colorSellable, v -> config.colorSellable = v);
+        b.dropdown("  Ophelia Potion Lock", com.teslamaps.features.OpheliaPotLock.LEVELS,
+                () -> config.opheliaPotLock, v -> config.opheliaPotLock = v);
+        b.info("  Ophelia: only this Dungeon Potion can be bought, other shop clicks are blocked");
         b.toggle("Stat Boost Quality Highlight", () -> config.salvageQuality, v -> config.salvageQuality = v);
         b.info("Dungeon gear in any menu: below 50% vs perfect 50% base stat boost");
         b.color("  Below 50% Color", () -> config.colorStatBoostLow, v -> config.colorStatBoostLow = v);

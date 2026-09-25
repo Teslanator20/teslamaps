@@ -165,5 +165,8 @@ final class Features {
         com.teslamaps.dungeon.RoomPreview.register();
         com.teslamaps.dungeon.TeamStats.register();
         com.teslamaps.features.ShadowAssassinAlert.register();
+        // w04-06-inv
+        com.teslamaps.features.EnchantTooltipTweaks.register();
+        com.teslamaps.features.ForgeRecipeViewer.register();
     }
 }
