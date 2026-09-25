@@ -2182,6 +2182,23 @@ public class TeslaMapsConfig {
     public boolean featureToggleKeys = false;
     public boolean featureToggleChat = true;
     public java.util.Map<String, Integer> featureToggleBinds = new java.util.LinkedHashMap<>(); // boolean field -> key
+    // w12-07-eco
+    public boolean contestShowDarkAuction = false;
+    public boolean bitsShopHelper = false;
+    public boolean bitsShopBits = true;
+    public boolean bitsShopCopper = true;
+    public boolean bitsShopHighlight = true;
+    public boolean priceLineCraftCheapest = false;
+    public boolean bazaarOnlyMyOrders = false;
+    public boolean bazaarFlipTracker = false;
+    public boolean bazaarFlipShowTotal = false;
+    public boolean bazaarFlipInstant = true;
+    public int bazaarFlipX = 5;
+    public int bazaarFlipY = 180;
+    public float bazaarFlipScale = 1.0f;
+    public boolean tradeValue = false;
+    public boolean tradeValueChanges = true;
+    public boolean bazaarChatSummary = false;
     // w11-01-par
     public boolean pbOnJoinButtons = false;
     public boolean chatNamesOpenPv = false;

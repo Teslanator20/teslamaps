@@ -18,6 +18,9 @@ public final class ContestTimersCategory {
                 () -> config.contestShowForaging, v -> config.contestShowForaging = v);
         b.toggle("  Farming Timer",
                 () -> config.contestShowFarming, v -> config.contestShowFarming = v);
+        b.toggle("  Dark Auction Timer",
+                () -> config.contestShowDarkAuction, v -> config.contestShowDarkAuction = v)
+                .desc("Time until the next Dark Auction (every hour at :55)");
         b.toggle("  SkyBlock Only",
                 () -> config.contestTimerSkyblockOnly, v -> config.contestTimerSkyblockOnly = v);
         b.toggle("  Button In Inventory",

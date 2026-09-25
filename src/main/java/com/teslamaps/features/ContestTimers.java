@@ -21,6 +21,7 @@ public final class ContestTimers {
     static final long FORAGING_PERIOD_MS = 20 * MINUTE_MS;
     static final long FARMING_PERIOD_MS = 60 * MINUTE_MS;
     static final long CONTEST_DURATION_MS = 20 * MINUTE_MS;
+    static final long DA_OFFSET_MS = 55 * MINUTE_MS;
 
     private static final long ALERT_5MIN_MS = 5 * MINUTE_MS;
     private static final long ALERT_90SEC_MS = 90_000L;
@@ -264,6 +265,10 @@ public final class ContestTimers {
             } else {
                 out.add("§aFarming§8: §7in §f" + formatMillis(FARMING_PERIOD_MS - elapsed));
             }
+        }
+        if (c.contestShowDarkAuction) {
+            long elapsed = Math.floorMod(now - DA_OFFSET_MS, FARMING_PERIOD_MS);
+            out.add("§5Dark Auction§8: §7in §f" + formatMillis(FARMING_PERIOD_MS - elapsed));
         }
         return out;
     }

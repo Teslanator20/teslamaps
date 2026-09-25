@@ -279,6 +279,7 @@ public class ChatMixin {
         }
         if (fromServer && cfg.section("Chat")) {
             com.teslamaps.features.ConfirmPrompt.onChatComponent(message);
+            com.teslamaps.features.BazaarChatSummary.process(text);
             if (com.teslamaps.features.ChatCompacts.process(message, text)) {
                 teslamaps$reason = "chatCompacts";
                 ci.cancel();
@@ -301,7 +302,7 @@ public class ChatMixin {
     private Component teslamaps$filterRewrite(Component message) {
         Component split = com.teslamaps.dungeon.TerminalSplits.rewrite(message);
         if (split != message) com.teslamaps.features.ChatLog.noteRewrite("terminalSplits");
-        Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.features.ChatCompacts.rewrite(split));
+        Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.features.BazaarChatSummary.rewrite(com.teslamaps.features.ChatCompacts.rewrite(split)));
         out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out)));
         out = com.teslamaps.features.ChatCompactsMore.rewrite(out);
         out = com.teslamaps.features.PartyFinderLinks.rewrite(out);

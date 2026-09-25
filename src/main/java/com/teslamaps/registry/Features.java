@@ -521,6 +521,11 @@ final class Features {
         // w11-08-gui
         com.teslamaps.config.ConfigBackups.register();
         com.teslamaps.features.FeatureToggleKeys.register();
+        // w12-07-eco
+        com.teslamaps.features.BitsShopHelper.register();
+        com.teslamaps.features.TradeValue.register();
+        com.teslamaps.features.BazaarFlipTracker.register();
+        com.teslamaps.features.BazaarChatSummary.register();
         // w11-01-par
         com.teslamaps.features.KuudraPartyFinder.register();
         com.teslamaps.features.AcceptLastInvite.register();
