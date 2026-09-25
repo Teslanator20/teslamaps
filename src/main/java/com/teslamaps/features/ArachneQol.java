@@ -26,7 +26,7 @@ public final class ArachneQol {
                             .desc("Spider's Den, only while Arachne is loaded").tags("spider", "arachne");
                     b.toggle("  Hide Other Players", () -> c.arachneHidePlayers, v -> c.arachneHidePlayers = v);
                     b.toggle("  Click Through Cobwebs", () -> c.arachneWebClick, v -> c.arachneWebClick = v)
-                            .desc("Cobwebs can't be targeted, so hits go through them onto Arachne");
+                            .cheat().desc("Cobwebs can't be targeted, so hits go through them onto Arachne");
                 });
     }
 
@@ -56,6 +56,6 @@ public final class ArachneQol {
 
     /** ClipContextMixin: cobwebs have no outline while this is true. */
     public static boolean webClickThrough() {
-        return present && cfg().arachneWebClick && on();
+        return present && cfg().arachneWebClick && on() && !com.teslamaps.features.LegitMode.blocksCheats();
     }
 }
