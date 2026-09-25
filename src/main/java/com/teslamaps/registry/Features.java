@@ -408,5 +408,11 @@ final class Features {
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
         com.teslamaps.features.LookTargeting.register();
+        // w09-05-vis
+        com.teslamaps.features.MobIcons.register();
+        com.teslamaps.features.PlayerCosmetics.register();
+        com.teslamaps.features.PlayerModels.register();
+        com.teslamaps.features.PetDragon.register();
+        com.teslamaps.features.TripwireRecolor.register();
     }
 }

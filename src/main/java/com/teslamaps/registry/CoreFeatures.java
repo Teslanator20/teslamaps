@@ -109,6 +109,8 @@ final class CoreFeatures {
                 (ctx, delta) -> { if (!cfg().hideHealthBar) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.AIR_BAR, original ->
                 (ctx, delta) -> { if (!cfg().hideAirBar) original.extractRenderState(ctx, delta); });
+        HudElementRegistry.replaceElement(VanillaHudElements.MOUNT_HEALTH, original ->
+                (ctx, delta) -> { if (!cfg().hideMountHealth) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.BOSS_BAR, original ->
                 (ctx, delta) -> { if (!cfg().hideBossBar) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.INFO_BAR, original ->

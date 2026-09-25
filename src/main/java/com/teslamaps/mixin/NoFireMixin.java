@@ -20,4 +20,10 @@ public class NoFireMixin {
 
         cir.setReturnValue(false);
     }
+
+    @Inject(method = "displayFireAnimation", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$hideEntityFire(CallbackInfoReturnable<Boolean> cir) {
+        if (!TeslaMapsConfig.get().hideEntityFire) return;
+        if ((Object) this != Minecraft.getInstance().player) cir.setReturnValue(false);
+    }
 }

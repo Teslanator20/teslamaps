@@ -3,6 +3,11 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "EntityEventHideMixin",
+    "MobIconsMixin",
+    "PlayerCosmeticsMixin",
+    "PlayerModelSubmitMixin",
+    "PetDragonMixin",
     "TitleStackMixin",
     "PauseScreenMixin",
     "PacketLogMixin",
