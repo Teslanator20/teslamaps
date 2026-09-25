@@ -127,6 +127,7 @@ public class HandledScreenClickMixin {
         if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyPartyFinder.click((AbstractContainerScreen<?>) (Object) this, click)
+                || com.teslamaps.features.FancyAuctionHouse.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.RadialMenus.click((AbstractContainerScreen<?>) (Object) this, click)) {
             cir.setReturnValue(true);
             return;
@@ -139,6 +140,11 @@ public class HandledScreenClickMixin {
         }
         if (com.teslamaps.features.SackValueHud.handleClick(mouseX, mouseY, button)) {
             teslamaps$ate("SackValueHud", button);
+            cir.setReturnValue(true);
+            return;
+        }
+        if (com.teslamaps.features.EcoOverlays.click(mouseX, mouseY, button)) {
+            teslamaps$ate("EcoOverlays", button);
             cir.setReturnValue(true);
             return;
         }

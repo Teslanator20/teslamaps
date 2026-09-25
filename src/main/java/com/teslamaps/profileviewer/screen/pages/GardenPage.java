@@ -43,6 +43,8 @@ public class GardenPage extends ProfileViewerPage {
     public void init(ProfileViewerScreen parent, SkyblockProfiles profiles) {
         super.init(parent, profiles);
         garden = null;
+        SkyblockProfile profile = getProfile();
+        jacobs = profile == null ? null : jacobs(profile.getMemberData());
         load();
     }
 
@@ -68,6 +70,10 @@ public class GardenPage extends ProfileViewerPage {
         if (loading) {
             ctx.text(net.minecraft.client.Minecraft.getInstance().font, "Loading garden...",
                     x, y + 6, NeuStyle.TEXT_GRAY);
+            return;
+        }
+        if ((garden == null || garden.has("error")) && jacobs != null) {
+            drawTree(ctx, cachedTree(jacobs, w -> jacobsSection(w, 2)), width, x, y, mouseX, mouseY);
             return;
         }
         if (garden == null || garden.has("error")) {
@@ -98,6 +104,7 @@ public class GardenPage extends ProfileViewerPage {
         if (com.teslamaps.profileviewer.PvExtras.greenhouse() && profile != null) {
             parts.add(Kit.section("Greenhouse", com.teslamaps.profileviewer.data.Greenhouse.build(profile.getMemberData(), width)));
         }
+        if (jacobs != null) parts.add(jacobsSection(width, columns));
         return Ui.col(10, parts);
     }
 
@@ -183,6 +190,84 @@ public class GardenPage extends ProfileViewerPage {
                         new Kit.TileData("Compost", Kit.compact(asLong(get(composter, "compost_units"))), NeuStyle.TEXT_AQUA),
                         new Kit.TileData("Items", Kit.compact(asLong(get(composter, "compost_items"))), NeuStyle.TEXT))),
                 Kit.grid(rows, columns, 12, 6));
+    }
+
+    // ---------------------------------------------------------------- jacob's contests
+
+    private record Jacobs(int diamond, int platinum, int gold, int silver, int bronze, int contests,
+                          int uniqueGold, int uniqueSilver, int uniqueBronze, int doubleDrops, int farmingCap,
+                          java.util.Map<String, Long> pbs) {}
+
+    private Jacobs jacobs;
+
+    /** Diamond and platinum never land in medals_inv, they are counted from each contest's claimed medal. */
+    private static Jacobs jacobs(JsonObject member) {
+        JsonObject jc = object(member, "jacobs_contest");
+        if (jc == null) return null;
+        JsonObject medals = object(jc, "medals_inv");
+        JsonObject unique = object(jc, "unique_brackets");
+        JsonObject perks = object(jc, "perks");
+        JsonObject contests = object(jc, "contests");
+
+        java.util.Map<String, Integer> earned = new java.util.HashMap<>();
+        java.util.Map<String, Long> pbs = new java.util.LinkedHashMap<>();
+        if (contests != null) {
+            for (var entry : contests.entrySet()) {
+                if (!entry.getValue().isJsonObject()) continue;
+                JsonObject contest = entry.getValue().getAsJsonObject();
+                int colon = entry.getKey().indexOf(':');
+                String crop = colon < 0 ? entry.getKey() : entry.getKey().substring(colon + 1);
+                pbs.merge(crop, asLong(contest.get("collected")), Math::max);
+                if (contest.has("claimed_medal") && contest.get("claimed_medal").isJsonPrimitive()) {
+                    earned.merge(contest.get("claimed_medal").getAsString(), 1, Integer::sum);
+                }
+            }
+        }
+        return new Jacobs(
+                earned.getOrDefault("diamond", asInt(get(medals, "diamond"))),
+                earned.getOrDefault("platinum", asInt(get(medals, "platinum"))),
+                asInt(get(medals, "gold")), asInt(get(medals, "silver")), asInt(get(medals, "bronze")),
+                contests == null ? 0 : contests.size(),
+                size(unique, "gold"), size(unique, "silver"), size(unique, "bronze"),
+                asInt(get(perks, "double_drops")), asInt(get(perks, "farming_level_cap")), pbs);
+    }
+
+    private static int size(JsonObject parent, String key) {
+        return parent != null && parent.has(key) && parent.get(key).isJsonArray() ? parent.getAsJsonArray(key).size() : 0;
+    }
+
+    private Ui jacobsSection(int width, int columns) {
+        Jacobs j = jacobs;
+        List<Ui> parts = new ArrayList<>();
+        parts.add(Kit.tileRow(width, List.of(
+                new Kit.TileData("Diamond", String.valueOf(j.diamond()), NeuStyle.TEXT_AQUA),
+                new Kit.TileData("Platinum", String.valueOf(j.platinum()), NeuStyle.TEXT_TURQUOISE),
+                new Kit.TileData("Gold", String.valueOf(j.gold()), NeuStyle.TEXT_GOLD),
+                new Kit.TileData("Silver", String.valueOf(j.silver()), NeuStyle.TEXT),
+                new Kit.TileData("Bronze", String.valueOf(j.bronze()), 0xFFCD7F32))));
+        parts.add(Kit.tileRow(width, List.of(
+                new Kit.TileData("Contests", String.valueOf(j.contests()), NeuStyle.TEXT),
+                new Kit.TileData("Unique Brackets", "§6" + j.uniqueGold() + " §f" + j.uniqueSilver() + " §c" + j.uniqueBronze(), NeuStyle.TEXT),
+                new Kit.TileData("Double Drops", j.doubleDrops() + "/15", j.doubleDrops() >= 15 ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_GREEN),
+                new Kit.TileData("Farming Cap", String.valueOf(50 + j.farmingCap()), j.farmingCap() >= 10 ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_GREEN))));
+
+        if (!j.pbs().isEmpty()) {
+            columns = Math.max(1, Math.min(columns + 1, width / 80));
+            int cellWidth = Kit.cellWidth(width, columns, 12);
+            List<Ui> rows = new ArrayList<>();
+            for (GardenRegistry.Crop crop : GardenRegistry.CROPS) {
+                Long pb = j.pbs().get(crop.key());
+                if (pb == null) continue;
+                rows.add(new Ui.Tip(Ui.row(6, Ui.V.CENTER,
+                        new Ui.Icon(Kit.icon(crop.icon()), 12, false, null),
+                        new Ui.SpaceBetween(cellWidth - 18,
+                                new Ui.Label(Kit.clip(crop.display(), cellWidth - 60), NeuStyle.TEXT_GRAY, Ui.SMALL),
+                                new Ui.Label(Kit.compact(pb), NeuStyle.TEXT))),
+                        List.of("§a" + crop.display(), "§7Contest PB §f" + Kit.dots(pb))));
+            }
+            if (!rows.isEmpty()) parts.add(Kit.grid(rows, columns, 12, 4));
+        }
+        return Kit.section("Jacob's Contests", Ui.col(6, parts));
     }
 
     private static JsonObject object(JsonObject parent, String key) {

@@ -115,6 +115,11 @@ public class GardenPlotsOverlay {
                 }
             }
 
+            String pests = editingSlot < 0 ? GardenPlots.pestCountText(i) : null;
+            if (pests != null) {
+                ctx.text(mc.font, pests, slotX + 17 - mc.font.width(pests), slotY + 9, 0xFFFFAA00, true);
+            }
+
             if (infested[Math.min(i, infested.length - 1)] && editingSlot < 0 && flash) {
                 TeslaGui.roundedOutline(ctx, slotX, slotY, SLOT_SIZE - 1, SLOT_SIZE - 1, 3, 1.0f, 0xFFFF5555);
             }
@@ -192,6 +197,8 @@ public class GardenPlotsOverlay {
                     ? stack.getHoverName()
                     : Component.literal("Plot ").append(stack.getHoverName()));
             if (infested[hoveredSlot]) lines.add(Component.literal("§c§lGROSS PESTS!"));
+            String pests = GardenPlots.pestCountText(hoveredSlot);
+            if (pests != null) lines.add(Component.literal("§6" + pests + (pests.equals("1") ? " pest" : " pests")));
             lines.add(Component.empty());
             lines.add(Component.literal("§e§lClick to teleport"));
             lines.add(Component.literal("§7Right click to change icon"));

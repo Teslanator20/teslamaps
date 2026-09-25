@@ -125,8 +125,12 @@ public class FarmProfitOverlay {
             String value = BazaarPrices.known(entry.item()) ? format(entry.coins()) : "?";
             String label = fit(mc, shortName(entry.item()),
                     PANEL_WIDTH - pad() * 2 - mc.font.width(value) - 6);
-            drawRow(context, mc, label, value,
-                    AppleColors.TEXT_SECONDARY, AppleColors.TEXT_PRIMARY, row);
+            boolean custom = TeslaMapsConfig.get().farmProfitItemOptions
+                    && !"Default".equals(FarmProfit.itemSource(entry.item()));
+            boolean armed = entry.item().equals(hideArmed) && System.currentTimeMillis() - hideArmedAt < CONFIRM_MS;
+            drawRow(context, mc, armed ? fit(mc, "hide? click again", PANEL_WIDTH - pad() * 2 - mc.font.width(value) - 6) : label,
+                    value, armed ? AppleColors.ACCENT_RED : AppleColors.TEXT_SECONDARY,
+                    custom ? AppleColors.ACCENT_BLUE : AppleColors.TEXT_PRIMARY, row);
             row += LINE;
         }
 
@@ -141,8 +145,9 @@ public class FarmProfitOverlay {
         context.text(mc.font, Component.literal(windowLabel), pad(), row,
                 AppleColors.ACCENT_BLUE, shadow);
 
-        int resetX = PANEL_WIDTH - pad() - mc.font.width(RESET);
-        context.text(mc.font, Component.literal(RESET), resetX, row,
+        String reset = resetArmed() ? RESET_SURE : RESET;
+        int resetX = PANEL_WIDTH - pad() - mc.font.width(reset);
+        context.text(mc.font, Component.literal(reset), resetX, row,
                 AppleColors.ACCENT_RED, shadow);
 
         // Sits between the two, and gives way rather than running into them.
@@ -273,6 +278,20 @@ public class FarmProfitOverlay {
     }
 
     private static final String RESET = "reset";
+    private static final String RESET_SURE = "sure?";
+    private static final long CONFIRM_MS = 3000L;
+    private static long resetArmedAt = 0L;
+    private static String hideArmed = null;
+    private static long hideArmedAt = 0L;
+
+    private static boolean resetArmed() {
+        return TeslaMapsConfig.get().farmProfitResetConfirm && System.currentTimeMillis() - resetArmedAt < CONFIRM_MS;
+    }
+
+    private static void say(String msg) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §f" + msg));
+    }
 
     /** Window label suffix: how long the session has really been farming. */
     private static String status() {
@@ -299,7 +318,33 @@ public class FarmProfitOverlay {
                 && localX >= PANEL_WIDTH - pad() - mc.font.width(RESET) - 3;
 
         if (onReset) {
+            if (config.farmProfitResetConfirm && !resetArmed()) {
+                resetArmedAt = System.currentTimeMillis();
+                return;
+            }
+            resetArmedAt = 0L;
             FarmProfit.resetSession();
+            return;
+        }
+
+        // Skysoft's item panel, as clicks: left = price source, right twice = hide
+        int itemsTop = pad() + LINE * 2 + dividerSpace();
+        int index = (int) Math.floor((localY - itemsTop) / LINE);
+        if (config.farmProfitItemOptions && localY >= itemsTop && index >= 0 && index < itemRows()) {
+            String item = FarmProfit.entries().get(index).item();
+            if (button == 1) {
+                long now = System.currentTimeMillis();
+                if (item.equals(hideArmed) && now - hideArmedAt < CONFIRM_MS) {
+                    hideArmed = null;
+                    FarmProfit.toggleExcluded(item);
+                    say("Hid §e" + item + "§f from the profit tracker · /tmap profit exclude " + item + " brings it back");
+                } else {
+                    hideArmed = item;
+                    hideArmedAt = now;
+                }
+            } else {
+                say("§e" + item + "§f priced by §b" + FarmProfit.cycleItemSource(item));
+            }
             return;
         }
         if (button == 1) {

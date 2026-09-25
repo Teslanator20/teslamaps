@@ -122,7 +122,7 @@ public final class InterfaceCategory {
         b.toggle("  Ctrl+Click Multi-Drag", () -> config.hudEditMultiDrag, v -> config.hudEditMultiDrag = v);
         b.toggle("  Resize Grip", () -> config.hudEditResize, v -> config.hudEditResize = v);
         b.toggle("HUD Editor Extras", () -> config.hudEditExtras, v -> config.hudEditExtras = v)
-                .desc("More controls in /tmap gui. Hover an element to see its position and the keys.")
+                .desc("More controls in /tmap gui: global scale (- / + / 1x, top left), hover an element to see its position and the keys.")
                 .tags("hud", "editor", "reset", "nudge", "tmap gui");
         b.toggle("  Reset (R Key + Reset All)", () -> config.hudEditReset, v -> config.hudEditReset = v)
                 .desc("R puts the hovered or last clicked element back to its default position and scale. Reset All asks for a second click.");
@@ -201,8 +201,32 @@ public final class InterfaceCategory {
         b.label("Profile Viewer");
         b.toggle("Scroll Long Pages", () -> config.pvScrollPages, v -> config.pvScrollPages = v);
         b.info("Full size text with a scrollbar instead of shrinking the page");
-        b.toggle("More Profile Data", () -> config.pvExtras, v -> config.pvExtras = v)
-                .desc("Extra sections in /pv, pick them below").tags("pv", "profile viewer");
+        b.toggle("Sacks Tab", () -> config.pvSacks, v -> config.pvSacks = v)
+                .desc("Adds the sack contents with their bazaar value to the Inventories page");
+        b.toggle("Hunting Page", () -> config.pvHunting, v -> config.pvHunting = v)
+                .desc("Attribute levels and the Hunting Box of the viewed player");
+        b.toggle("Profile Viewer Extras", () -> config.pvExtras, v -> config.pvExtras = v)
+                .desc("Master switch for the options below").tags("pv", "profile viewer");
+        b.toggle("  Island Panorama", () -> config.pvPanorama, v -> config.pvPanorama = v)
+                .desc("Panorama of the island the player is on behind the player model, day or night by SkyBlock time")
+                .tags("pv", "panorama", "background");
+        b.toggle("  Info Board", () -> config.pvInfoBoard, v -> config.pvInfoBoard = v)
+                .desc("Mode, Hypixel level, fairy souls, created date, cookie and crit record on the Basic page")
+                .tags("pv", "fairy souls", "network level", "ironman", "stranded");
+        b.toggle("  Mobs Tab", () -> config.pvMobsTab, v -> config.pvMobsTab = v)
+                .desc("Kills and deaths per mob in two scrolling columns").tags("pv", "kills", "deaths");
+        b.toggle("  Bingo Goal Names", () -> config.pvBingoGoals, v -> config.pvBingoGoals = v)
+                .desc("Bingo card with goal names, hover details, community goals and points").tags("pv", "bingo");
+        b.toggle("  Trophy Fisher Rank", () -> config.pvTrophyRank, v -> config.pvTrophyRank = v)
+                .desc("Novice to Master Fisher rank and what is missing for the next one").tags("pv", "trophy", "odger");
+        b.toggle("  Power Stats + Tuning", () -> config.pvPowerStats, v -> config.pvPowerStats = v)
+                .desc("Hover the Magical Power line on the Accessories page for the power stone stats and tuning")
+                .tags("pv", "magical power", "tuning", "mp");
+        b.toggle("  Copy Error On Right-Click", () -> config.pvErrorCopy, v -> config.pvErrorCopy = v)
+                .desc("Right-click a load error to copy the full message").tags("pv", "error", "clipboard");
+        b.toggle("  /peek + Lobby Leaderboards", () -> config.pvPeek, v -> config.pvPeek = v)
+                .desc("/peek <name> prints skills, cata, slayers and coins; /tmap lobbylb <purse|skills|cata> ranks the players in your lobby")
+                .tags("pv", "peek", "purselb", "skillslb", "leaderboard");
         b.toggle("  Leaderboard Ranks", () -> config.pvEliteRanks, v -> config.pvEliteRanks = v)
                 .desc("Elite leaderboard rank in skill, catacombs, class, slayer and collection tooltips (one request to eliteskyblock.com per profile)");
         b.toggle("  Mining/Foraging Gear", () -> config.pvGearScan, v -> config.pvGearScan = v)
