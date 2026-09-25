@@ -4873,6 +4873,10 @@ public class TeslaMapsConfig {
         if (c.hudPanelChroma == null) c.hudPanelChroma = new java.util.HashMap<>();
         if (c.outsideSbFeatures == null) c.outsideSbFeatures = new java.util.ArrayList<>();
         if (c.hideSillyButtonList == null) c.hideSillyButtonList = new java.util.ArrayList<>();
+        if (c.hudChromaAll == null) c.hudChromaAll = "Off";
+        if (c.chatPrefixStyle == null) c.chatPrefixStyle = "Long";
+        if (c.modifyIndicator == null) c.modifyIndicator = "Off";
+        if (c.safariShowWhere == null) c.safariShowWhere = "Auto";
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
         if (c.abiphoneFavoriteList == null) c.abiphoneFavoriteList = new ArrayList<>();
         if (!c.kuudraShortcutsAdded) {
