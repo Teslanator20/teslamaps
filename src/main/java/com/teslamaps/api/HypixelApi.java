@@ -118,6 +118,10 @@ public class HypixelApi {
         }
     }
 
+    public static void invalidateProfiles(String uuid) {
+        cache.remove("profiles:" + uuid);
+    }
+
     /** Profiles keyed by cute name, each with the member data of the given uuid. */
     public static CompletableFuture<JsonObject> getProfiles(String uuid) {
         return CompletableFuture.supplyAsync(() -> {

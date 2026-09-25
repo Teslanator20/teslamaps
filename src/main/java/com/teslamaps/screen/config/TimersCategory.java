@@ -67,6 +67,8 @@ public final class TimersCategory {
                 .desc("Bosses without a known max HP (and Kuudra) get \" - 25.0%\" on their bar.");
         b.toggle("  Sadan's Interest Countdown (F6/M6)", () -> config.sadanInterest, v -> config.sadanInterest = v)
                 .desc("Turns the interest bar into the real time left of the terracotta phase.");
+        b.toggle("  Hide Useless Bossbars", () -> config.bossbarHideUseless, v -> config.bossbarHideUseless = v)
+                .desc("Hides Hypixel's ad and event bossbars. In the dungeon clear only the Watcher bar stays; boss, Kuudra and End bars stay.");
         b.toggle("Scarf Spawn Timer (F2/M2)", () -> config.scarfSpawnTimer, v -> config.scarfSpawnTimer = v)
                 .desc("Timer line until Scarf's undeads (7.75s) and Scarf himself (10s) spawn.");
         b.dropdown("Timer Format",

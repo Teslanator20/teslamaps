@@ -101,6 +101,7 @@
     "PacketSendMixin",
     "PerfFrameMixin",
     "PlayerTabOverlayAccessor",
+    "PlayerTabOverlayNameMixin",
     "RecipeBookComponentAccessor",
     "RecipeBookHiderMixin",
     "RecipeBookOverlayMixin",

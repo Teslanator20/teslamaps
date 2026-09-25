@@ -374,6 +374,13 @@ public class CroesusProfit {
         return r;
     }
 
+    public record ChestValue(double value, double essence, double cost, boolean kismet, boolean incomplete) {}
+
+    public static ChestValue evaluate(ItemLore lore) {
+        Parsed p = parseLore(lore);
+        return new ChestValue(p.value, p.essence, p.cost, p.kismet, p.incomplete);
+    }
+
     private static boolean noKey(Parsed r) {
         return r.keyIndex >= 0 && !r.opened && TeslaMapsConfig.get().croesusKuudraNoKeyWarn && !KuudraKeys.hasKey(r.keyIndex);
     }

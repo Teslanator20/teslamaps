@@ -37,6 +37,9 @@ public class BossBarHealthMixin {
         java.util.Collection<?> all = original.call(map);
         if (com.teslamaps.dungeon.WatcherBar.hideNow())
             all = com.teslamaps.dungeon.WatcherBar.filter((java.util.Collection<LerpingBossEvent>) all);
+        if (com.teslamaps.features.BossBarHealth.hideUseless()) {
+            all = com.teslamaps.features.BossBarHealth.filterUseless((java.util.Collection<LerpingBossEvent>) all);
+        }
         if (!com.teslamaps.config.TeslaMapsConfig.get().dragonHideBossbars) return all;
         return com.teslamaps.features.DragonRecolor.filterBars((java.util.Collection<LerpingBossEvent>) all);
     }

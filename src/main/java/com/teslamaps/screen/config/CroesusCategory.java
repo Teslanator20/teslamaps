@@ -25,6 +25,8 @@ public final class CroesusCategory {
         b.toggle("  Kismet Feathers On Reroll Button", () -> config.croesusKismetCount, v -> config.croesusKismetCount = v)
                 .desc("Feathers in your inventory plus your Dungeon Sack (the sack count needs 'Index Opened Containers' and the sack opened once)");
         b.toggle("Highlight Unopened (green)", () -> config.croesusHighlightUnopened, v -> config.croesusHighlightUnopened = v);
+        b.toggle("Loot Logger", () -> config.lootLogger, v -> config.lootLogger = v)
+                .desc("Saves every bought dungeon chest with items, cost, key and kismet. /tmap loot [floor] [days] shows spent and profit.");
         b.label("Kuudra Chests");
         b.info("Paid chests subtract the key: coins + Mycelium/Red Sand + 2 Nether Stars");
         b.info("Open your faction's shop once to read your key prices and faction");
