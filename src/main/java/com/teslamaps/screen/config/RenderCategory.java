@@ -72,6 +72,8 @@ public final class RenderCategory {
         b.toggle("  Remove On Arrival (5 blocks)", () -> config.chatWaypointRemoveOnArrival, v -> config.chatWaypointRemoveOnArrival = v);
         b.color("  Chat Waypoint Color", () -> config.chatWaypointColor, v -> config.chatWaypointColor = v);
         b.toggle("  /tmap sendcoords Adds Area", () -> config.chatWaypointShareArea, v -> config.chatWaypointShareArea = v);
+        b.toggle("  /tmap wp Commands", () -> config.chatWaypointCommands, v -> config.chatWaypointCommands = v)
+                .desc("/tmap wp addtemp [name] [x y z] sets a 60s beam here or at the coords, /tmap wp share [x y z] posts coords in chat, /tmap wp clear removes all");
         b.label("NPC Finder");
         b.toggle("NPC Finder (/tmap npc)", () -> config.npcFinder, v -> config.npcFinder = v);
         b.toggle("  Use Nearest Unlocked Warp", () -> config.npcNearestWarp, v -> config.npcNearestWarp = v);

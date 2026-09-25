@@ -316,5 +316,10 @@ final class Features {
         com.teslamaps.features.QolTweaks.register();
         com.teslamaps.features.RenderHiders.register();
         com.teslamaps.features.ServerRestartWarning.register();
+        // w07-05-qol
+        com.teslamaps.features.ScoreboardLogger.register();
+        com.teslamaps.features.WikiLookup.register();
+        com.teslamaps.features.waypoints.RouteKeys.register();
+        com.teslamaps.features.AbilityMenuFix.register();
     }
 }
