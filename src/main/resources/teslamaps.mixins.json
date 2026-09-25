@@ -42,6 +42,7 @@
     "EntityMixin",
     "EntityRenderDispatcherAccessor",
     "DungeonGamblingMixin",
+    "CustomWardrobeMixin",
     "EasySuperboomMixin",
     "EnchantAbbrevMixin",
     "EnderDragonRendererMixin",

@@ -22,6 +22,10 @@ public final class TooltipsValueCategory {
         b.button("  Reset Tooltip Offset & Zoom", com.teslamaps.features.ScrollableTooltip::reset);
         b.toggle("Fit Tooltip To Screen", () -> config.tooltipFitScreen, v -> config.tooltipFitScreen = v);
         b.info("Long tooltips shrink instead of running off the top");
+        b.toggle("Countdown End Time", () -> config.countdownTooltip, v -> config.countdownTooltip = v);
+        b.info("Adds the local time to \"Ends in:\", \"Starts in:\", \"Duration:\" ... lines");
+        b.toggle("  24h Clock", () -> config.countdownTooltip24h, v -> config.countdownTooltip24h = v);
+        b.toggle("Broken Dragon Fragment Warning", () -> config.brokenFragmentTooltip, v -> config.brokenFragmentTooltip = v);
         b.toggle("Compactor/Deletor Preview", () -> config.compactorPreview, v -> config.compactorPreview = v);
         b.info("Tooltip shows on/off status and configured items");
         b.label("Item Value");

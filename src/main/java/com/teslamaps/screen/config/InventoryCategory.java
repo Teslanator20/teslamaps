@@ -20,6 +20,14 @@ public final class InventoryCategory {
         b.info("Dungeon gear in any menu: below 50% vs perfect 50% base stat boost");
         b.color("  Below 50% Color", () -> config.colorStatBoostLow, v -> config.colorStatBoostLow = v);
         b.color("  50% Color", () -> config.colorStatBoostMax, v -> config.colorStatBoostMax = v);
+        b.toggle("Attribute Overlay (legacy attributes)", () -> config.attributeOverlay, v -> config.attributeOverlay = v);
+        b.info("Two attribute short names + levels in the slot, yellow = good roll, green = partial");
+        b.toggle("  Highlight Good Rolls", () -> config.attributeOverlayGoodRolls, v -> config.attributeOverlayGoodRolls = v);
+        b.toggle("  Only Good Rolls", () -> config.attributeOverlayOnlyGood, v -> config.attributeOverlayOnlyGood = v);
+        b.slider("  Min Level", 0f, 10f,
+                () -> (float) config.attributeOverlayMinLevel, v -> config.attributeOverlayMinLevel = Math.round(v), 0);
+        b.toggle("Brewing Stand Overlay", () -> config.brewingStandOverlay, v -> config.brewingStandOverlay = v);
+        b.info("Ingredient, progress and output names next to the slots");
         b.toggle("Show Selected Pet", () -> config.showSelectedPet, v -> config.showSelectedPet = v);
         b.toggle("Pet Menu Shift Right-Click", () -> config.petShiftTakeOut, v -> config.petShiftTakeOut = v);
         b.info("Pets menu: right-click only works with shift held");
@@ -42,6 +50,14 @@ public final class InventoryCategory {
         b.toggle("  Only While Shift Held", () -> config.backpackPreviewShift, v -> config.backpackPreviewShift = v);
         b.keybind("  Freeze Preview Key", () -> config.backpackPreviewFreezeKey, v -> config.backpackPreviewFreezeKey = v);
         b.info("Freeze pins the preview, hover its items for their tooltip");
+        b.toggle("Backpack Slot Next To Hotbar", () -> config.backpackSlot, v -> config.backpackSlot = v);
+        b.info("Select it, arrow keys switch backpack, Enter opens it. Uses cached storage");
+        b.keybind("  Select Key", () -> config.backpackSlotKey, v -> config.backpackSlotKey = v);
+        b.toggle("  Select By Scrolling Past The Hotbar", () -> config.backpackSlotScroll, v -> config.backpackSlotScroll = v);
+        b.toggle("  Left Of Hotbar", () -> config.backpackSlotLeft, v -> config.backpackSlotLeft = v);
+        b.toggle("  Show Contents When Selected", () -> config.backpackSlotPreview, v -> config.backpackSlotPreview = v);
+        b.slider("  Background Opacity", 0.1f, 1f,
+                () -> config.backpackSlotOpacity, v -> config.backpackSlotOpacity = v, 2);
         b.label("Item Search");
         b.toggle("Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v);
         b.info("/tmap search finds items in museum, sacks, vault, chests, storage");
@@ -144,6 +160,8 @@ public final class InventoryCategory {
         b.button("Open Customize Screen",
                 () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.customize.CustomizeScreen(b.screen(), false)));
         b.info("Rename, dye, trim and reskin items - client side only (/tmap customize)");
+        b.toggle("  Migrate Renamed Item Models", () -> config.migrateItemModels, v -> config.migrateItemModels = v);
+        b.info("On launch: renamed Hypixel models are rewritten, removed ones dropped (NEU repo)");
         b.label("Rarity Backgrounds");
         b.toggle("Enable Rarity Backgrounds", () -> config.rarityBackgrounds, v -> config.rarityBackgrounds = v);
         b.slider("  Opacity", 0f, 1f,
@@ -190,6 +208,18 @@ public final class InventoryCategory {
                 () -> config.wardrobeNextPageKey, v -> config.wardrobeNextPageKey = v);
         b.keybind("  Previous Page",
                 () -> config.wardrobePrevPageKey, v -> config.wardrobePrevPageKey = v);
+        b.toggle("Custom Wardrobe", () -> config.customWardrobe, v -> config.customWardrobe = v);
+        b.info("Card grid with 3D preview. Click equips, right-click favorites, Vanilla button switches back");
+        b.toggle("  Hide Empty Slots", () -> config.customWardrobeHideEmpty, v -> config.customWardrobeHideEmpty = v);
+        b.toggle("  Only Favorites", () -> config.customWardrobeOnlyFavorites, v -> config.customWardrobeOnlyFavorites = v);
+        b.toggle("  Show Estimated Value", () -> config.customWardrobeValue, v -> config.customWardrobeValue = v);
+        b.toggle("  Head Follows Mouse", () -> config.customWardrobeFollowMouse, v -> config.customWardrobeFollowMouse = v);
+        b.slider("  Card Width", 40f, 120f,
+                () -> (float) config.customWardrobeCardWidth, v -> config.customWardrobeCardWidth = Math.round(v), 0);
+        b.slider("  Card Height", 60f, 200f,
+                () -> (float) config.customWardrobeCardHeight, v -> config.customWardrobeCardHeight = Math.round(v), 0);
+        b.color("  Equipped Color", () -> config.colorWardrobeEquipped, v -> config.colorWardrobeEquipped = v);
+        b.color("  Favorite Color", () -> config.colorWardrobeFavorite, v -> config.colorWardrobeFavorite = v);
         b.label("Wardrobe Slots (9 per page)");
         for (int i = 0; i < 9; i++) {
             final int idx = i;

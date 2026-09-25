@@ -165,5 +165,12 @@ final class Features {
         com.teslamaps.dungeon.RoomPreview.register();
         com.teslamaps.dungeon.TeamStats.register();
         com.teslamaps.features.ShadowAssassinAlert.register();
+        // w04-02-inv
+        com.teslamaps.features.CustomWardrobe.register();
+        com.teslamaps.features.TooltipExtras.register();
+        com.teslamaps.features.BackpackSlot.register();
+        com.teslamaps.features.AttributeOverlay.register();
+        com.teslamaps.features.customize.ItemModelMigration.register();
+        com.teslamaps.features.BrewingStandOverlay.register();
     }
 }
