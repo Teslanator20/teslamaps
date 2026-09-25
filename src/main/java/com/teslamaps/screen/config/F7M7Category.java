@@ -98,6 +98,9 @@ public final class F7M7Category {
         b.label("Spawn Timer & Alerts");
         b.toggle("Dragon Spawn Timer", () -> config.witherDragonTimer, v -> config.witherDragonTimer = v);
         b.toggle("Dragon Spawn Boxes", () -> config.witherDragonBoxes, v -> config.witherDragonBoxes = v);
+        b.slider("  Box Line Width", 1f, 20f,
+                () -> config.witherDragonBoxWidth, v -> config.witherDragonBoxWidth = v, 1);
+        b.toggle("  Last Breath Spots (beams)", () -> config.witherDragonLbSpots, v -> config.witherDragonLbSpots = v);
         b.toggle("Dragon Spawn Title", () -> config.witherDragonTitle, v -> config.witherDragonTitle = v);
         b.toggle("  Show HIGH in Spawn Title", () -> config.witherDragonShowHigh, v -> config.witherDragonShowHigh = v);
         b.slider("  Spawn Title Duration (ticks)", 5f, 100f,
@@ -109,6 +112,7 @@ public final class F7M7Category {
                 v -> config.witherDragonTimerStyle = switch (v) { case "Seconds" -> 1; case "Ticks" -> 2; default -> 0; });
         b.toggle("Timer Symbol", () -> config.witherDragonTimerSymbol, v -> config.witherDragonTimerSymbol = v);
         b.toggle("Dragon Timer HUD", () -> config.witherDragonHud, v -> config.witherDragonHud = v);
+        b.toggle("  Big Center Countdown", () -> config.witherDragonCenterTimer, v -> config.witherDragonCenterTimer = v);
         b.toggle("Dragon Spawn Messages", () -> config.witherDragonMsg, v -> config.witherDragonMsg = v);
         b.toggle("Dragon Health (spawn phase)", () -> config.witherDragonHealth, v -> config.witherDragonHealth = v);
         b.toggle("Send Dragon Confirmation", () -> config.witherDragonConfirm, v -> config.witherDragonConfirm = v);
@@ -127,9 +131,21 @@ public final class F7M7Category {
         b.toggle("  Custom Priority Strings", () -> config.witherDragonCustomPrio, v -> config.witherDragonCustomPrio = v);
         b.button("    Edit Priority Strings", () -> Minecraft.getInstance().setScreen(new DragonPrioScreen(Minecraft.getInstance().screen)));
         b.toggle("Priority Tracer", () -> config.witherDragonPriorityTracer, v -> config.witherDragonPriorityTracer = v);
+        b.slider("  Tracer Width", 1f, 5f,
+                () -> config.witherDragonTracerWidth, v -> config.witherDragonTracerWidth = v, 1);
         b.label("Live Dragons");
         b.toggle("Dragon Boxes (live)", () -> config.dragonBoxes, v -> config.dragonBoxes = v);
+        b.dropdown("  Box Mode", new String[]{"Full Box", "Part Hitboxes"},
+                () -> config.dragonBoxMode == 1 ? "Part Hitboxes" : "Full Box",
+                v -> config.dragonBoxMode = "Part Hitboxes".equals(v) ? 1 : 0);
+        b.slider("  Hitbox Line Width", 1f, 10f,
+                () -> config.dragonHitboxWidth, v -> config.dragonHitboxWidth = v, 1);
+        b.toggle("  Custom Hitbox Color", () -> config.dragonHitboxCustomColor, v -> config.dragonHitboxCustomColor = v);
+        b.color("    Hitbox Color", () -> config.dragonHitboxColor, v -> config.dragonHitboxColor = v);
+        b.toggle("Dragon Glow (own color)", () -> config.dragonGlow, v -> config.dragonGlow = v).legit();
         b.toggle("Dragon Health %", () -> config.dragonHealth, v -> config.dragonHealth = v);
+        b.toggle("  Color Name (colorblind)", () -> config.dragonHealthColorName, v -> config.dragonHealthColorName = v);
+        b.toggle("  \"R\" While In Statue", () -> config.dragonHealthStatue, v -> config.dragonHealthStatue = v);
         b.toggle("Hide Dying Dragons", () -> config.hideDyingDragons, v -> config.hideDyingDragons = v);
         b.toggle("Dragon Arrow Hit Counter (M7)", () -> config.dragonHitCounter, v -> config.dragonHitCounter = v)
                 .desc("Counts your arrow hits on the priority dragon and posts them in chat.");

@@ -61,6 +61,8 @@ public final class TimersCategory {
         b.toggle("  Anvil Sound on NOW", () -> config.fireFreezeSound, v -> config.fireFreezeSound = v);
         b.toggle("Guardian HP Labels (F3/M3)", () -> config.guardianHealth, v -> config.guardianHealth = v);
         b.toggle("Bossbar Health (❤)", () -> config.bossbarHealth, v -> config.bossbarHealth = v);
+        b.toggle("  Percent for All Other Bosses", () -> config.bossbarHealthPercent, v -> config.bossbarHealthPercent = v)
+                .desc("Bosses without a known max HP (and Kuudra) get \" - 25.0%\" on their bar.");
         b.toggle("  Sadan's Interest Countdown (F6/M6)", () -> config.sadanInterest, v -> config.sadanInterest = v)
                 .desc("Turns the interest bar into the real time left of the terracotta phase.");
         b.toggle("Scarf Spawn Timer (F2/M2)", () -> config.scarfSpawnTimer, v -> config.scarfSpawnTimer = v)

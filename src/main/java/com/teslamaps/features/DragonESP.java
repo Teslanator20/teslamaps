@@ -84,19 +84,29 @@ public class DragonESP {
 
         for (EnderDragon d : mc.level.getEntitiesOfClass(EnderDragon.class, mc.player.getBoundingBox().inflate(150))) {
             if (d.getHealth() <= 0) continue; // dying -> skip
-            int color = nearestColor(d.position());
+            WitherDragons.Dragon type = nearest(d.position());
+            int color = type == null ? 0xFFFFFFFF : (0xFF000000 | (type.colorArgb & 0xFFFFFF));
             AABB box = d.getBoundingBox();
-            if (c.dragonBoxes) ESPRenderer.drawBoxOutline(matrices, box, color, 4.0f, cameraPos);
+            if (c.dragonBoxes) {
+                if (c.dragonBoxMode == 1) drawParts(matrices, d, c.dragonHitboxCustomColor
+                        ? TeslaMapsConfig.parseColor(c.dragonHitboxColor) : color, c.dragonHitboxWidth, cameraPos);
+                else ESPRenderer.drawBoxOutline(matrices, box, color, 4.0f, cameraPos);
+            }
             if (c.dragonHealth) {
                 int pct = (int) (d.getMaxHealth() > 0 ? d.getHealth() / d.getMaxHealth() * 100 : 0);
                 String hpColor = pct > 50 ? "§a" : pct > 25 ? "§e" : "§c";
+                String label = hpColor + pct + "%";
+                if (type != null) {
+                    if (c.dragonHealthColorName) label = "§" + type.colorCode + type.dispName + " " + label;
+                    if (c.dragonHealthStatue && inStatue(mc, type, d)) label += " §" + type.colorCode + "§lR";
+                }
                 Vec3 top = new Vec3(d.getX(), box.maxY + 1.0, d.getZ());
-                ESPRenderer.drawText(matrices, hpColor + pct + "%", top, 1.4f, cameraPos);
+                ESPRenderer.drawText(matrices, label, top, 1.4f, cameraPos);
             }
         }
     }
 
-    private static int nearestColor(Vec3 pos) {
+    private static WitherDragons.Dragon nearest(Vec3 pos) {
         WitherDragons.Dragon best = null;
         double bestD = Double.MAX_VALUE;
         for (WitherDragons.Dragon dr : WitherDragons.Dragon.values()) {
@@ -104,6 +114,18 @@ public class DragonESP {
             double dist = dx * dx + dy * dy + dz * dz;
             if (dist < bestD) { bestD = dist; best = dr; }
         }
-        return best == null ? 0xFFFFFFFF : (0xFF000000 | (best.colorArgb & 0xFFFFFF));
+        return best;
+    }
+
+    // Skytils: "R" while in the statue box and the chin slab still stands
+    private static boolean inStatue(Minecraft mc, WitherDragons.Dragon type, EnderDragon d) {
+        return type.box.contains(d.position()) && !mc.level.getBlockState(type.chinPos).isAir();
+    }
+
+    // Odin DragonHitboxes: every part as its own interpolated box
+    private static void drawParts(PoseStack matrices, EnderDragon d, int color, float width, Vec3 cameraPos) {
+        for (net.minecraft.world.entity.boss.enderdragon.EnderDragonPart part : d.getSubEntities()) {
+            ESPRenderer.drawBoxOutline(matrices, ESPRenderer.lerpBox(part), color, width, cameraPos);
+        }
     }
 }

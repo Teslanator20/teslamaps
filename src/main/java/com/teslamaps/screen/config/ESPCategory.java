@@ -77,6 +77,12 @@ public final class ESPCategory {
         b.toggle("Livid Finder", () -> config.lividFinder, v -> config.lividFinder = v);
         b.toggle("  Livid Tracer", () -> config.lividTracer, v -> config.lividTracer = v);
         b.toggle("  Livid Dead Message (/pc)", () -> config.lividDeathMessage, v -> config.lividDeathMessage = v);
+        b.toggle("  Livid Color Title", () -> config.lividColorTitle, v -> config.lividColorTitle = v);
+        b.toggle("  Announce Livid Color (/pc)", () -> config.lividAnnounce, v -> config.lividAnnounce = v).cheat();
+        b.button("    Edit Announce Text", () -> net.minecraft.client.Minecraft.getInstance().setScreen(
+                new com.teslamaps.screen.LividMessageScreen(net.minecraft.client.Minecraft.getInstance().screen)));
+        b.toggle("  Livid HP Label (3D)", () -> config.lividHpLabel, v -> config.lividHpLabel = v);
+        b.toggle("  Livid HP HUD", () -> config.lividHpHud, v -> config.lividHpHud = v);
         b.toggle("  Keep Wrong Livids Visible", () -> config.lividShowWrong, v -> config.lividShowWrong = v).legit();
         b.toggle("  Hide Wrong Livid Nametags", () -> config.lividHideWrongNametags, v -> config.lividHideWrongNametags = v).legit();
         b.toggle("  Skin Detection (learns Livid skins)", () -> config.lividSkinDetection, v -> config.lividSkinDetection = v);

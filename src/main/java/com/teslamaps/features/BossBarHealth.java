@@ -4,6 +4,7 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonFloor;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.mixin.LerpingBossEventAccessor;
+import com.teslamaps.utils.SkyblockUtils;
 import java.util.Locale;
 import net.minecraft.client.gui.components.LerpingBossEvent;
 import net.minecraft.network.chat.Component;
@@ -11,19 +12,41 @@ import net.minecraft.network.chat.Component;
 public class BossBarHealth {
 
     public static Component onRender(LerpingBossEvent event, Component originalName) {
-        if (!TeslaMapsConfig.get().bossbarHealth) return originalName;
-        if (!DungeonManager.isInDungeon()) return originalName;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.bossbarHealth && !c.watcherBossbarKills) return originalName;
+        if (!DungeonManager.isInDungeon()) {
+            if (c.bossbarHealth && c.bossbarHealthPercent && SkyblockUtils.getArea().contains("Kuudra"))
+                return withPercent(event, originalName);
+            return originalName;
+        }
+        String name = originalName.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        if (c.watcherBossbarKills && name.equals("The Watcher") && !DungeonManager.isInBossArea()) {
+            float f = ((LerpingBossEventAccessor) event).teslamaps$getTargetPercent();
+            DungeonFloor fl = DungeonManager.getCurrentFloor();
+            int total = 12 + (fl != null ? fl.getLevel() : 0);
+            return originalName.copy().append(Component.literal(" §8- §d" + Math.round(f * total) + "/" + total));
+        }
+        if (!c.bossbarHealth) return originalName;
         Component interest = SadanFeatures.interestName(event);
         if (interest != null) return interest;
 
-        float maxHealth = getMaxHealth(originalName.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").trim());
-        if (maxHealth <= 0) return originalName;
+        float maxHealth = getMaxHealth(name);
+        if (maxHealth <= 0) {
+            if (c.bossbarHealthPercent && DungeonManager.isInBossArea()) return withPercent(event, originalName);
+            return originalName;
+        }
 
         float percent = ((LerpingBossEventAccessor) event).teslamaps$getTargetPercent();
         float currentHealth = Math.round(percent * maxHealth);
 
         return originalName.copy().append(Component.literal(
                 " §r§8- §a" + formatHealth(currentHealth) + "§7/§a" + formatHealth(maxHealth) + "§c❤"));
+    }
+
+    // Ported from Devonian's BossBarHealth.kt
+    private static Component withPercent(LerpingBossEvent event, Component originalName) {
+        int tenths = Math.round(event.getProgress() * 1000f);
+        return originalName.copy().append(Component.literal(" §8- §d" + tenths / 10 + "." + tenths % 10 + "%"));
     }
 
     private static float getMaxHealth(String name) {

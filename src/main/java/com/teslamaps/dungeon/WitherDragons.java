@@ -30,20 +30,20 @@ public class WitherDragons {
 
     public enum Dragon {
         RED("Red", 'c', 0xFFFF5555, new BlockPos(27, 14, 59), new BlockPos(32, 22, 59),
-                new AABB(14.5, 13, 45.5, 39.5, 28, 70.5), 24, 30, 56, 62),
+                new AABB(14.5, 13, 45.5, 39.5, 28, 70.5), 24, 30, 56, 62, new BlockPos(32, 18, 59), new BlockPos(27, 0, 56)),
         ORANGE("Orange", '6', 0xFFFFAA00, new BlockPos(85, 14, 56), new BlockPos(80, 23, 56),
-                new AABB(72, 8, 47, 102, 28, 77), 82, 88, 53, 59),
+                new AABB(72, 8, 47, 102, 28, 77), 82, 88, 53, 59, new BlockPos(80, 19, 56), new BlockPos(82, 0, 56)),
         GREEN("Green", 'a', 0xFF55FF55, new BlockPos(27, 14, 94), new BlockPos(32, 23, 94),
-                new AABB(7, 8, 80, 37, 28, 110), 23, 29, 91, 97),
+                new AABB(7, 8, 80, 37, 28, 110), 23, 29, 91, 97, new BlockPos(32, 19, 94), new BlockPos(27, 0, 92)),
         BLUE("Blue", 'b', 0xFF55FFFF, new BlockPos(84, 14, 94), new BlockPos(79, 23, 94),
-                new AABB(71.5, 13, 82.5, 96.5, 26, 107.5), 82, 88, 91, 97),
+                new AABB(71.5, 13, 82.5, 96.5, 26, 107.5), 82, 88, 91, 97, new BlockPos(79, 19, 94), new BlockPos(82, 0, 96)),
         PURPLE("Purple", '5', 0xFFAA00AA, new BlockPos(56, 14, 125), new BlockPos(56, 22, 120),
-                new AABB(45.5, 13, 113.5, 68.5, 23, 136.5), 53, 59, 122, 128);
+                new AABB(45.5, 13, 113.5, 68.5, 23, 136.5), 53, 59, 122, 128, new BlockPos(56, 18, 120), new BlockPos(56, 0, 124));
 
         public final String dispName;
         public final char colorCode;
         public final int colorArgb;
-        public final BlockPos spawnPos, statuePos;
+        public final BlockPos spawnPos, statuePos, chinPos, lbPos;
         public final AABB box;
         public final double xMin, xMax, zMin, zMax;
 
@@ -56,7 +56,8 @@ public class WitherDragons {
         public boolean high = false;
 
         Dragon(String dispName, char colorCode, int colorArgb, BlockPos spawnPos, BlockPos statuePos, AABB box,
-               double xMin, double xMax, double zMin, double zMax) {
+               double xMin, double xMax, double zMin, double zMax, BlockPos chinPos, BlockPos lbPos) {
+            this.chinPos = chinPos; this.lbPos = lbPos;
             this.dispName = dispName; this.colorCode = colorCode; this.colorArgb = colorArgb;
             this.spawnPos = spawnPos; this.statuePos = statuePos; this.box = box;
             this.xMin = xMin; this.xMax = xMax; this.zMin = zMin; this.zMax = zMax;
@@ -254,14 +255,17 @@ public class WitherDragons {
                         dragon.center(), 5f, cameraPos, false);
             }
 
-            if (config.witherDragonBoxes && dragon.state != State.DEAD)
-                ESPRenderer.drawBoxOutline(matrices, dragon.box, dragon.colorArgb, 3f, cameraPos, false);
+            if (config.witherDragonBoxes && dragon.state != State.DEAD) {
+                ESPRenderer.drawBoxOutline(matrices, dragon.box, dragon.colorArgb, config.witherDragonBoxWidth, cameraPos, false);
+                if (config.witherDragonLbSpots)
+                    ESPRenderer.drawBeaconBeam(matrices, dragon.lbPos, dragon.colorArgb, cameraPos);
+            }
         }
 
         if (config.witherDragonPriorityTracer && priorityDragon != null && priorityDragon.state == State.SPAWNING
-                && mc.player != null) {
+                && mc.player != null && mc.renderBuffers() != null) {
             ESPRenderer.drawTracerFromCamera(matrices, priorityDragon.center(), priorityDragon.colorArgb,
-                    cameraPos, false);
+                    cameraPos, mc.renderBuffers().bufferSource(), config.witherDragonTracerWidth);
         }
     }
 

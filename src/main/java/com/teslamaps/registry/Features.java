@@ -122,5 +122,9 @@ final class Features {
         com.teslamaps.features.TeammateHealth.register();
         com.teslamaps.features.WarpCooldownBlock.register();
         com.teslamaps.player.PlayerTracker.register();
+        // w03-00-boss
+        com.teslamaps.dungeon.WatcherBar.register();
+        com.teslamaps.dungeon.DragonExtras.register();
+        com.teslamaps.features.LividSolver.register();
     }
 }

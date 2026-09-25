@@ -33,6 +33,10 @@ public final class BloodCampCategory {
         b.slider("    Countdown Decimals", 0f, 3f,
                 () -> (float) config.bloodAssistDecimals, v -> config.bloodAssistDecimals = Math.round(v), 0);
         b.toggle("  Line to Spawn", () -> config.bloodAssistLine, v -> config.bloodAssistLine = v);
+        b.toggle("  Camp Mob Sound (cowbell)", () -> config.bloodCampSound, v -> config.bloodCampSound = v)
+                .desc("Plays once per mob when it should be hittable. Spawn prediction is still untuned.");
+        b.slider("    Sound Threshold (ticks)", 0f, 10f,
+                () -> config.bloodCampSoundTicks, v -> config.bloodCampSoundTicks = v, 1);
         b.slider("  Box Size", 0.1f, 1.0f,
                 () -> config.bloodAssistBoxSize, v -> config.bloodAssistBoxSize = v);
         b.color("  Spawn Box", () -> config.colorBloodSpawn, v -> config.colorBloodSpawn = v);
@@ -56,5 +60,13 @@ public final class BloodCampCategory {
         b.toggle("Watcher Stats HUD", () -> config.watcherHud, v -> config.watcherHud = v);
         b.slider("  Watcher HUD Scale", 0.5f, 2.0f,
                 () -> config.watcherHudScale, v -> config.watcherHudScale = v, 1);
+        b.toggle("  Show for All Classes (not only Mage)", () -> config.watcherHudAllClasses, v -> config.watcherHudAllClasses = v);
+        b.dropdown("  Time Format", new String[]{"Real Time", "Server Ticks", "Both"},
+                () -> switch (config.watcherTimeFormat) { case 1 -> "Server Ticks"; case 2 -> "Both"; default -> "Real Time"; },
+                v -> config.watcherTimeFormat = switch (v) { case "Server Ticks" -> 1; case "Both" -> 2; default -> 0; });
+        b.toggle("Watcher Splits in Chat (blood done)", () -> config.watcherChatSplits, v -> config.watcherChatSplits = v);
+        b.toggle("Watcher Bossbar Kill Counter", () -> config.watcherBossbarKills, v -> config.watcherBossbarKills = v)
+                .desc("Adds \"n/total\" blood mobs to the Watcher's boss bar.");
+        b.toggle("Hide Watcher Bossbar Outside Blood", () -> config.watcherBossbarHide, v -> config.watcherBossbarHide = v);
     }
 }
