@@ -2212,7 +2212,7 @@ public class TeslaMapsConfig {
     @Global
     public boolean discordRpcDungeon = true;
     @Global
-    public String discordRpcAppId = "934607927837356052";
+    public String discordRpcAppId = "";
     // w05-02-inv
     public boolean menuSlotText = false;
     public boolean mstLevels = true;
@@ -3142,7 +3142,7 @@ public class TeslaMapsConfig {
         if (c.containerTriggerList == null) c.containerTriggerList = new java.util.ArrayList<>();
         if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new int[]{49, 50, 51, 52, 53, 54, 55};
         if (c.damageAlertSoundType == null) c.damageAlertSoundType = "NOTE_PLING";
-        if (c.discordRpcAppId == null || c.discordRpcAppId.isBlank()) c.discordRpcAppId = "934607927837356052";
+        if (c.discordRpcAppId == null) c.discordRpcAppId = "";
         if (c.colorWardrobeEquipped == null) c.colorWardrobeEquipped = "55FF55";
         if (c.colorWardrobeFavorite == null) c.colorWardrobeFavorite = "FFAA00";
         if (c.waypointPacksActive == null) c.waypointPacksActive = new ArrayList<>(List.of("Default"));

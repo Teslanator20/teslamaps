@@ -97,6 +97,7 @@ public class DiscordRpc {
                     continue;
                 }
                 if (conn == null) {
+                    if (cfg().discordRpcAppId == null || cfg().discordRpcAppId.isBlank()) { Thread.sleep(5000); continue; }
                     conn = connect(cfg().discordRpcAppId);
                     if (conn == null) {
                         failures++;
