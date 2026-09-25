@@ -90,7 +90,8 @@ public class ClientPlayNetworkHandlerMixin {
                 && (com.teslamaps.features.SoulweaverHider.hideParticle(packet)
                     || com.teslamaps.features.Deployables.hideParticle(packet)
                     || com.teslamaps.features.SadanFeatures.hideParticle()
-                    || com.teslamaps.features.HideWitherKing.hideParticle(packet))) ci.cancel();
+                    || com.teslamaps.features.HideWitherKing.hideParticle(packet)
+                    || com.teslamaps.features.DungeonCleanEnd.hideParticle())) ci.cancel();
     }
 
     @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))

@@ -2130,6 +2130,31 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w03-03-dun
+    public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
+    public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking
+    public boolean deathTickShowClear = false;
+    public boolean breakerCharges = false;
+    public int breakerChargesX = 10;
+    public int breakerChargesY = 260;
+    public float breakerChargesScale = 1.0f;
+    public boolean copyFails = false;
+    public boolean icedMobs = false;
+    public String icedMobsOutline = "FFADD8E6";
+    public String icedMobsFill = "50ADBCE6";
+    public float icedMobsLineWidth = 3.0f;
+    public boolean partyFinderHelper = false;
+    public boolean pfFloorStack = true;
+    public boolean pfMemberCount = false;
+    public boolean pfMarkCarries = true;
+    public boolean pfMarkNonPugs = true;
+    public boolean pfMarkIneligible = true;
+    public int pfBelowClassLevel = 0;
+    public boolean pfMarkMissingClass = true;
+    public boolean pfColorLevels = true;
+    public boolean pfMissingClasses = true;
+    public boolean runLogger = false;
+
     // w02-06-term
     public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
     public int terminalDropKey = -1;                   // own key/mouse button that clicks the hovered terminal slot

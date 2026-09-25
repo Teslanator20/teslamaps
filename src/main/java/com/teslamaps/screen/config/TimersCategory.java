@@ -50,6 +50,8 @@ public final class TimersCategory {
         b.toggle("Spirit Pet Reminder (boss)", () -> config.spiritPetReminder, v -> config.spiritPetReminder = v);
         b.toggle("Secret Tick Timer", () -> config.secretTickTimer, v -> config.secretTickTimer = v);
         b.toggle("Death Tick Timer (run start)", () -> config.deathTickTimer, v -> config.deathTickTimer = v);
+        b.toggle("  Show During Clear", () -> config.deathTickShowClear, v -> config.deathTickShowClear = v)
+                .desc("Keep the 40-tick death cycle up for the whole clear, not only at the start.");
         b.toggle("Livid Invuln Timer (F5/M5)", () -> config.lividTimerHud, v -> config.lividTimerHud = v);
         b.toggle("  Ice Spray Alert", () -> config.lividIceSprayAlert, v -> config.lividIceSprayAlert = v);
         b.toggle("Fire Freeze Timer (F3/M3)", () -> config.fireFreezeTimer, v -> config.fireFreezeTimer = v);
