@@ -51,6 +51,7 @@ public class ChatScreenMixin {
                                            int mouseX, int mouseY, float delta,
                                            org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         com.teslamaps.features.SharedImageChatRenderer.render(ctx, true, mouseX, mouseY);
+        com.teslamaps.features.ImageLinkPreview.render(ctx, mouseX, mouseY);
         com.teslamaps.features.ChatSearch.render(ctx, input);
     }
 
@@ -85,7 +86,7 @@ public class ChatScreenMixin {
 
         GuiMessage msg = teslamaps$lineAt(mc, event.y());
         if (msg == null) return;
-        Component content = msg.content();
+        Component content = com.teslamaps.features.ChatTimestamps.body(msg.content());
         String raw = content.getString();
         if (raw.isEmpty()) return;
 

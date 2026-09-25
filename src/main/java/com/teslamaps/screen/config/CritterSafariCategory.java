@@ -25,6 +25,9 @@ public final class CritterSafariCategory {
                 .desc("Rebuilds past runs from latest.log and the .log.gz files, fills per-critter data into saved runs")
                 .tags("import", "history", "logs");
         b.info("Per-critter stats (own, tries, shards, never caught): /tmap safari species");
+        b.toggle("  Per-Player Breakdown At Run End", () -> config.safariPlayersOnEnd, v -> config.safariPlayersOnEnd = v)
+                .desc("Who caught what: unique critters per biome and the species per player, green = you have it too, aqua = only them. Also /tmap safari players.")
+                .tags("players", "split", "biome");
         b.label("Missing Panel");
         b.toggle("Missing Panel", () -> config.safariMissingPanel, v -> config.safariMissingPanel = v);
         b.info("What the biome you stand in still needs: quota, tries, walls");

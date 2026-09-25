@@ -28,6 +28,11 @@ public class ContainerKeyMixin {
             return;
         }
 
+        if (com.teslamaps.features.FancyPartyFinder.keyPressed(cs, event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.features.StorageOverlay.active()) {
             if (com.teslamaps.features.StorageOverlay.keyPressed(event.key(), event.scancode())) cir.setReturnValue(true);
             return;

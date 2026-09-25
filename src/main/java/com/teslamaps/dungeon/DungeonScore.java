@@ -205,7 +205,7 @@ public class DungeonScore {
 
         boolean announce = (milestone == 300 && config.announce300) || (milestone == 270 && config.announce270);
         if (announce && mc.getConnection() != null) {
-            mc.getConnection().sendCommand("pc " + com.teslamaps.utils.StringUtil.strip(text.replace('&', '§')));
+            com.teslamaps.features.ChatQueue.command("pc " + com.teslamaps.utils.StringUtil.strip(text.replace('&', '§')));
         }
     }
 
@@ -400,7 +400,7 @@ public class DungeonScore {
                 princeDeadMessageSent = true;
                 Minecraft mc = Minecraft.getInstance();
                 if (mc.player != null && mc.getConnection() != null) {
-                    mc.getConnection().sendCommand("pc Prince Dead!");
+                    com.teslamaps.features.ChatQueue.command("pc Prince Dead!");
                 }
             }
         }

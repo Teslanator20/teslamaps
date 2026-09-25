@@ -39,6 +39,7 @@ public class HypixelNodes {
 
     private static final Set<String> PARTY_SUBS = Set.of(
             "invite", "kick", "promote", "demote", "transfer", "kickoffline", "accept", "join");
+    private static final Set<String> PARTY_MEMBER_SUBS = Set.of("kick", "promote", "demote", "transfer");
     private static final Set<String> FRIEND_SUBS = Set.of("add", "remove");
     private static final Set<String> GUILD_SUBS = Set.of("invite", "kick", "promote", "demote");
 
@@ -62,6 +63,11 @@ public class HypixelNodes {
                             .suggests((context, builder) -> com.teslamaps.features.CommandHelpers.suggestItems(builder))
                             .executes(NOOP))
                     .build();
+        }
+
+        if (TeslaMapsConfig.get().commandSuggestionsExtra) {
+            CommandNode<SharedSuggestionProvider> extra = extra(name);
+            if (extra != null) return extra;
         }
 
         if (PLAYER_AND_TEXT.contains(name)) {
@@ -105,11 +111,68 @@ public class HypixelNodes {
         return original;
     }
 
+    private static CommandNode<SharedSuggestionProvider> extra(String name) {
+        return switch (name) {
+            case "joininstance" -> word(name, "instance", () -> ExtraSuggestions.instances(null));
+            case "joindungeon" -> word(name, "instance", () -> ExtraSuggestions.instances("Catacombs"));
+            case "joinkuudra" -> word(name, "instance", () -> ExtraSuggestions.instances("Kuudra"));
+            case "chapter", "chapters" -> greedy(name, () -> ExtraSuggestions.enabled() ? ExtraSuggestions.chapters() : List.of());
+            case "viewstash" -> word(name, "stash", () -> ExtraSuggestions.VIEWSTASH);
+            case "setmaxspeed" -> word(name, "speed", () -> ExtraSuggestions.MAX_SPEED);
+            case "ahs", "ahsearch" -> items(name, com.teslamaps.features.SearchOverlay.Location.AUCTION);
+            case "bz", "bazaar" -> items(name, com.teslamaps.features.SearchOverlay.Location.BAZAAR);
+            case "rngmeter", "rng" -> literal(name)
+                    .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument("type", StringArgumentType.string())
+                            .suggests((context, builder) -> ExtraSuggestions.enabled() && SkyblockUtils.isInSkyblock()
+                                    ? suggest(quoted(ExtraSuggestions.rngTypes()), builder) : builder.buildFuture())
+                            .executes(NOOP)
+                            .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument("subtype", StringArgumentType.string())
+                                    .suggests((context, builder) -> ExtraSuggestions.enabled() && SkyblockUtils.isInSkyblock()
+                                            ? suggest(quoted(ExtraSuggestions.rngSubtypes(StringArgumentType.getString(context, "type"))), builder)
+                                            : builder.buildFuture())
+                                    .executes(NOOP)))
+                    .build();
+            default -> null;
+        };
+    }
+
+    private static List<String> quoted(List<String> in) {
+        List<String> out = new java.util.ArrayList<>(in.size());
+        for (String s : in) out.add(s.indexOf(' ') >= 0 ? "\"" + s + "\"" : s);
+        return out;
+    }
+
+    private static CommandNode<SharedSuggestionProvider> word(
+            String name, String arg, java.util.function.Supplier<List<String>> options) {
+        return literal(name)
+                .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument(arg, StringArgumentType.word())
+                        .suggests((context, builder) -> ExtraSuggestions.enabled() && SkyblockUtils.isInSkyblock()
+                                ? suggest(options.get(), builder) : builder.buildFuture())
+                        .executes(NOOP))
+                .build();
+    }
+
+    private static CommandNode<SharedSuggestionProvider> items(String name, com.teslamaps.features.SearchOverlay.Location loc) {
+        return literal(name)
+                .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument("item", StringArgumentType.greedyString())
+                        .suggests((context, builder) -> {
+                            if (!ExtraSuggestions.enabled() || !SkyblockUtils.isInSkyblock()) return builder.buildFuture();
+                            String typed = builder.getRemaining();
+                            List<String> names = com.teslamaps.features.SearchOverlay.suggestions(typed, loc, 40);
+                            for (String n : names) if (n.equalsIgnoreCase(typed.trim())) return builder.buildFuture();
+                            for (String n : names) builder.suggest(n);
+                            return builder.buildFuture();
+                        })
+                        .executes(NOOP))
+                .build();
+    }
+
     /** Our sub-commands plus everything of Hypixel's that we did not rebuild. */
     private static CommandNode<SharedSuggestionProvider> subCommands(
             CommandNode<SharedSuggestionProvider> original, String name, Set<String> subs, boolean bareName) {
         LiteralArgumentBuilder<SharedSuggestionProvider> builder = literal(name);
-        for (String sub : subs) builder.then(literal(sub).then(player()));
+        for (String sub : subs) builder.then(literal(sub).then(
+                bareName && PARTY_MEMBER_SUBS.contains(sub) ? partyMember() : player()));
         if (bareName) builder.then(player());
 
         CommandNode<SharedSuggestionProvider> node = builder.build();
@@ -150,6 +213,25 @@ public class HypixelNodes {
         return RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument(
                         "player", StringArgumentType.word())
                 .suggests(players())
+                .executes(NOOP);
+    }
+
+    private static RequiredArgumentBuilder<SharedSuggestionProvider, String> partyMember() {
+        SuggestionProvider<SharedSuggestionProvider> fallback = players();
+        return RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument(
+                        "player", StringArgumentType.word())
+                .suggests((context, builder) -> {
+                    TeslaMapsConfig c = TeslaMapsConfig.get();
+                    if (!c.partyShortcuts || !c.partyTabComplete || !c.section("Chat")
+                            || !com.teslamaps.utils.PartyTracker.inParty()) {
+                        return fallback.getSuggestions(context, builder);
+                    }
+                    var p = net.minecraft.client.Minecraft.getInstance().player;
+                    String me = p == null ? "" : p.getGameProfile().name();
+                    List<String> names = new java.util.ArrayList<>();
+                    for (String m : com.teslamaps.utils.PartyTracker.members()) if (!m.equalsIgnoreCase(me)) names.add(m);
+                    return suggest(names, builder);
+                })
                 .executes(NOOP);
     }
 

@@ -131,7 +131,7 @@ public class TMapCommand {
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
                     Minecraft.getInstance().schedule(() -> {
-                        Minecraft.getInstance().setScreen(new MapConfigScreen());
+                        Minecraft.getInstance().setScreen(MapConfigScreen.open());
                     });
                     return 1;
                 })
@@ -292,6 +292,22 @@ public class TMapCommand {
                                             "§7[TeslaMaps] Reloading repo data, §f/tmap repo §7shows the result"));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("encrypt")
+                        .executes(context -> {
+                            context.getSource().sendFeedback(Component.literal("§7Encrypted chat: "
+                                    + (TeslaMapsConfig.get().chatEncrypt ? "§aon" : "§coff") + " §8(/tmap encrypt on|off)"));
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("on").executes(context -> {
+                            com.teslamaps.features.ChatEncryption.set(true);
+                            context.getSource().sendFeedback(Component.literal("§aEncrypted chat on §7- only TeslaMaps users can read what you type"));
+                            return 1;
+                        }))
+                        .then(ClientCommands.literal("off").executes(context -> {
+                            com.teslamaps.features.ChatEncryption.set(false);
+                            context.getSource().sendFeedback(Component.literal("§cEncrypted chat off"));
+                            return 1;
+                        })))
                 .then(ClientCommands.literal("search")
                         .executes(context -> openSearch(null))
                         .then(ClientCommands.literal("clear")
@@ -1960,6 +1976,7 @@ public class TMapCommand {
                                 .executes(context -> sendCoords(context.getSource(),
                                         StringArgumentType.getString(context, "message")))))
         );
+        ConfigCommands.register(dispatcher);
 
     }
 
@@ -1983,8 +2000,8 @@ public class TMapCommand {
             case "Coop" -> "cc ";
             default -> "pc ";
         };
-        if (prefix == null) mc.getConnection().sendChat(text);
-        else mc.getConnection().sendCommand(prefix + text);
+        if (prefix == null) com.teslamaps.features.ChatQueue.chat(text);
+        else com.teslamaps.features.ChatQueue.command(prefix + text);
         return 1;
     }
 

@@ -58,6 +58,6 @@ public final class Announce {
         String next = QUEUE.pollFirst();
         if (next == null) return;
         lastSent = now;
-        mc.getConnection().sendCommand(next);
+        com.teslamaps.features.ChatQueue.command(next);
     }
 }

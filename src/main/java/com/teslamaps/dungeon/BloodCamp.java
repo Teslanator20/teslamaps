@@ -168,7 +168,7 @@ public class BloodCamp {
             mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §7Move Prediction: §f" + secs + " Seconds§7."));
         }
         if (config.bloodCampPartyMessage && mc.getConnection() != null) {
-            mc.getConnection().sendCommand("pc Move Prediction: " + secs + " Seconds.");
+            com.teslamaps.features.ChatQueue.command("pc Move Prediction: " + secs + " Seconds.");
         }
 
         double delaySec = prediction - bloodMoveTime - 0.15;
