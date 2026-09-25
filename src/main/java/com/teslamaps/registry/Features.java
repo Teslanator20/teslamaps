@@ -135,5 +135,11 @@ final class Features {
         com.teslamaps.features.DungeonGambling.register();
         com.teslamaps.features.TotemAnimation.register();
         com.teslamaps.features.EasySuperboom.register();
+        // w03-07-dun
+        com.teslamaps.dungeon.ScoreHud.register();
+        com.teslamaps.dungeon.ExtraStats.register();
+        com.teslamaps.dungeon.DungeonInfoHud.register();
+        com.teslamaps.dungeon.PartyFinderMarks.register();
+        com.teslamaps.dungeon.DungeonSession.register();
     }
 }

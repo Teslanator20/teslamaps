@@ -97,6 +97,7 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))
     private void onTabList(ClientboundTabListPacket packet, CallbackInfo ci) {
         WitherDragons.onTabFooter(packet.footer().getString());
+        com.teslamaps.dungeon.DungeonInfoHud.onTabFooter(packet.footer().getString());
     }
 
     @Inject(method = "handleMoveEntity", at = @At("HEAD"))
@@ -154,6 +155,7 @@ public class ClientPlayNetworkHandlerMixin {
     private void onTakeItemEntityHead(ClientboundTakeItemEntityPacket packet, CallbackInfo ci) {
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()) {
             com.teslamaps.features.SecretItemPickup.onPacketItem(packet.getItemId(), false);
+            com.teslamaps.features.SecretChime.onTakeItem(packet.getItemId(), packet.getPlayerId());
         }
     }
 
@@ -161,7 +163,8 @@ public class ClientPlayNetworkHandlerMixin {
     private void onSoundEventSecrets(net.minecraft.network.protocol.game.ClientboundSoundPacket packet, CallbackInfo ci) {
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()) {
             com.teslamaps.features.SecretWaypoints.onSound(packet);
-            if (com.teslamaps.features.SecretSounds.onSoundPacket(packet)) ci.cancel();
+            if (com.teslamaps.features.SecretSounds.onSoundPacket(packet)
+                    | com.teslamaps.features.SecretChime.onSoundPacket(packet)) ci.cancel();
         }
     }
 

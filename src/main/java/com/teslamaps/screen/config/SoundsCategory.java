@@ -13,6 +13,8 @@ public final class SoundsCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Wither Key");
         b.toggle("Key Pickup/Spawn Title", () -> config.keyPickupTitle, v -> config.keyPickupTitle = v);
+        b.toggle("  Name Who Picked It Up", () -> config.keyPickupWho, v -> config.keyPickupWho = v)
+                .desc("\"You\" or the picker's class in class colour, then \"Picked Up Wither/Blood Key\"");
         b.toggle("Enable Pickup Sound", () -> config.keyPickupSoundEnabled, v -> config.keyPickupSoundEnabled = v);
         b.soundDropdown("  Pickup Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
@@ -54,6 +56,12 @@ public final class SoundsCategory {
                 () -> config.secretChimeSound, v -> config.secretChimeSound = v);
         b.slider("  Chime Volume", 0f, 4f,
                 () -> config.secretChimeVolume, v -> config.secretChimeVolume = v, 2);
+        b.toggle("  Chime on Secret Bat Kill", () -> config.secretChimeBat, v -> config.secretChimeBat = v);
+        b.toggle("  Chime on Secret Item Pickup", () -> config.secretChimeItem, v -> config.secretChimeItem = v);
+        b.toggle("  Mute Hypixel Chest Sound", () -> config.secretMuteChest, v -> config.secretMuteChest = v)
+                .desc("Drops Hypixel's own chest secret sound (exact volume/pitch match)");
+        b.toggle("  Mute Hypixel Lever Sound", () -> config.secretMuteLever, v -> config.secretMuteLever = v)
+                .desc("Drops Hypixel's own lever secret sound (exact volume/pitch match)");
         b.label("Bear Spawn Warning");
         b.toggle("Enable Alert", () -> config.bearSpawnWarning, v -> config.bearSpawnWarning = v);
         b.toggle("  Warden Sound", () -> config.bearSpawnWardenSound, v -> config.bearSpawnWardenSound = v);

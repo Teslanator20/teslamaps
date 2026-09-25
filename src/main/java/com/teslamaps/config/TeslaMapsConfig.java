@@ -2257,6 +2257,40 @@ public class TeslaMapsConfig {
     public boolean easySuperboom = false;           // pick-block uses superboom tnt from the hotbar
     public int easySuperboomDelay = 100;            // ms fixed
     public int easySuperboomRandom = 80;            // ms random extra
+    // w03-07-dun
+    public boolean scoreHud = false;                   // own score HUD with rank + breakdown
+    public String scoreHudMode = "Full";               // Full / Minimized / Score Only
+    public boolean scoreHudHideInBoss = false;
+    public boolean scoreHudMilestoneTitle = false;     // title + sound at 270 / 300
+    public int scoreHudX = 10;
+    public int scoreHudY = 120;
+    public float scoreHudScale = 1.0f;
+    public boolean extraStatsCompact = false;          // hide the end-of-run block, print a short summary
+    public String extraStatsTeam = "Both";             // Off / Personal / Team / Both
+    public boolean extraStatsTeammates = false;
+    public boolean dungeonInfoHud = false;             // teammates (ult, revives), blessings, downed
+    public boolean dungeonInfoPlayers = true;
+    public boolean dungeonInfoBlessings = true;
+    public boolean dungeonInfoDowned = true;
+    public boolean dungeonInfoHideInBoss = false;
+    public int dungeonInfoHudX = 10;
+    public int dungeonInfoHudY = 200;
+    public float dungeonInfoHudScale = 1.0f;
+    public boolean keyPickupWho = false;               // key title names who picked it up
+    public boolean secretChimeBat = false;             // chime on secret bat death
+    public boolean secretChimeItem = false;            // chime on secret item pickup
+    public boolean secretMuteChest = false;            // mute Hypixel's chest secret sound
+    public boolean secretMuteLever = false;            // mute Hypixel's lever secret sound
+    public boolean pbOnJoinExtra = false;              // class level + gear hover in the join line
+    public boolean partyFinderMarks = false;           // colour groups in the party finder
+    public int partyFinderMinClass = 0;                // members below this class level = under
+    public boolean partyFinderCount = true;            // member count on the group icon
+    public boolean dungeonSession = false;             // session runs / xp per hour HUD
+    public boolean dungeonSessionOverview = false;     // chat line after each run
+    public boolean dungeonSessionFrags = true;         // fragment counter line
+    public int dungeonSessionX = 10;
+    public int dungeonSessionY = 260;
+    public float dungeonSessionScale = 1.0f;
     // w02-06-term
     public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
     public int terminalDropKey = -1;                   // own key/mouse button that clicks the hovered terminal slot

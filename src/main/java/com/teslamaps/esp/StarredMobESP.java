@@ -124,7 +124,7 @@ public class StarredMobESP {
         };
     }
 
-    public static void onWitherKeyPickup() {
+    public static void onWitherKeyPickup(String msg) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
@@ -133,7 +133,8 @@ public class StarredMobESP {
             LoudSound.play(getPickupSound(), volume, 1.5f);
         }
 
-        if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
+        if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()
+                && !whoTitle(msg, "§8Wither Key")) {
             mc.gui.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
             mc.gui.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.GRAY));
             mc.gui.setTimes(5, 30, 10); // fade in, stay, fade out
@@ -144,7 +145,7 @@ public class StarredMobESP {
         witherKeyPickedUp = true;
     }
 
-    public static void onBloodKeyPickup() {
+    public static void onBloodKeyPickup(String msg) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
@@ -153,7 +154,8 @@ public class StarredMobESP {
             LoudSound.play(getPickupSound(), volume, 1.2f);
         }
 
-        if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
+        if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()
+                && !whoTitle(msg, "§cBlood Key")) {
             mc.gui.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
             mc.gui.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.RED));
             mc.gui.setTimes(5, 30, 10); // fade in, stay, fade out
@@ -162,6 +164,40 @@ public class StarredMobESP {
         bloodKeyOnGroundNotified = false;
         bloodKeyPickupTime = System.currentTimeMillis();
         bloodKeyPickedUp = true;
+    }
+
+    private static final java.util.regex.Pattern KEY_OBTAINED =
+            java.util.regex.Pattern.compile("^.*?(\\w+) has obtained (?:Wither|Blood) Key!$");
+
+    // Devonian KeyPickup: "You" or the picker's class in class colour
+    private static boolean whoTitle(String msg, String key) {
+        if (!TeslaMapsConfig.get().keyPickupWho || msg == null) return false;
+        java.util.regex.Matcher m = KEY_OBTAINED.matcher(com.teslamaps.utils.StringUtil.stripTrim(msg));
+        if (!m.matches()) return false;
+        Minecraft mc = Minecraft.getInstance();
+        String name = m.group(1);
+        String who;
+        if (mc.player != null && name.equals(mc.player.getGameProfile().name())) who = "§bYou";
+        else {
+            String cls = com.teslamaps.player.PlayerTracker.getPlayer(name)
+                    .map(com.teslamaps.player.PlayerTracker.DungeonPlayer::getDungeonClass).orElse(null);
+            who = cls == null || cls.equals("EMPTY") || cls.equals("DEAD") ? "§f" + name : classColor(cls) + cls;
+        }
+        mc.gui.setTitle(Component.literal(who + " §7Picked Up"));
+        mc.gui.setSubtitle(Component.literal(key));
+        mc.gui.setTimes(5, 30, 10);
+        return true;
+    }
+
+    private static String classColor(String cls) {
+        return switch (cls) {
+            case "Healer" -> "§d";
+            case "Mage" -> "§b";
+            case "Berserk" -> "§c";
+            case "Archer" -> "§6";
+            case "Tank" -> "§a";
+            default -> "§7";
+        };
     }
 
     private static void onWitherKeyOnGround() {
