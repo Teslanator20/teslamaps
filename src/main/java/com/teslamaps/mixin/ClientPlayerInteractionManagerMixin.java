@@ -100,4 +100,13 @@ public class ClientPlayerInteractionManagerMixin {
             com.teslamaps.features.SecretClickHighlight.onSecretClick(pos);
         }
     }
+
+    // after the block had its chance (chests, levers still work), before the held item is placed
+    @Inject(method = "performUseItemOn", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/item/ItemStack;useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;"),
+            cancellable = true)
+    private void teslamaps$preventPlacing(net.minecraft.client.player.LocalPlayer player, InteractionHand hand, BlockHitResult hit,
+                                          CallbackInfoReturnable<InteractionResult> cir) {
+        if (com.teslamaps.features.PreventPlacing.block(player.getItemInHand(hand))) cir.setReturnValue(InteractionResult.PASS);
+    }
 }

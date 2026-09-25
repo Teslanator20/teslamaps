@@ -28,7 +28,8 @@ public class MuseumRepo {
             "https://raw.githubusercontent.com/NotEnoughUpdates/NotEnoughUpdates-REPO/master/constants/museum.json";
 
     public record Data(Map<String, List<String>> items, Map<String, String> armorToId,
-                       Map<String, String> children, Map<String, String> mappedIds) {}
+                       Map<String, String> children, Map<String, String> mappedIds,
+                       Map<String, List<String>> setsToItems, List<String> special) {}
 
     private static volatile Data data;
     private static volatile boolean loading = false;
@@ -78,18 +79,32 @@ public class MuseumRepo {
 
     private static Data parse(JsonObject root) {
         Map<String, List<String>> items = new LinkedHashMap<>();
+        List<String> special = List.of();
         if (root.has("items") && root.get("items").isJsonObject()) {
             JsonObject json = root.getAsJsonObject("items");
             for (String category : json.keySet()) {
-                if (category.equals("special") || !json.get(category).isJsonArray()) continue;
+                if (!json.get(category).isJsonArray()) continue;
                 List<String> ids = new ArrayList<>();
                 for (JsonElement element : json.getAsJsonArray(category)) {
                     if (element.isJsonPrimitive()) ids.add(element.getAsString());
                 }
-                items.put(category, ids);
+                if (category.equals("special")) special = ids;
+                else items.put(category, ids);
             }
         }
-        return new Data(items, strings(root, "armor_to_id"), strings(root, "children"), strings(root, "mapped_ids"));
+        Map<String, List<String>> sets = new HashMap<>();
+        if (root.has("sets_to_items") && root.get("sets_to_items").isJsonObject()) {
+            JsonObject json = root.getAsJsonObject("sets_to_items");
+            for (String set : json.keySet()) {
+                if (!json.get(set).isJsonArray()) continue;
+                List<String> ids = new ArrayList<>();
+                for (JsonElement element : json.getAsJsonArray(set)) {
+                    if (element.isJsonPrimitive()) ids.add(element.getAsString());
+                }
+                sets.put(set, ids);
+            }
+        }
+        return new Data(items, strings(root, "armor_to_id"), strings(root, "children"), strings(root, "mapped_ids"), sets, special);
     }
 
     private static Map<String, String> strings(JsonObject root, String key) {

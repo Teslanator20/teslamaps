@@ -2209,6 +2209,26 @@ public class TeslaMapsConfig {
     public boolean hoppityWarpHideMaxed = false;
     public java.util.List<String> hiddenCoopMembers = new ArrayList<>();
     public java.util.Map<String, java.util.List<String>> hoppityUniqueEggs = new java.util.HashMap<>();
+    // w04-08-inv
+    public boolean limitDroppingItems = false;
+    public boolean compactLevelBars = false;
+    public boolean legacyAttributeBg = false;
+    public String colorLegacyAttributeBg = "80FF0000";
+    public boolean itemPickupAlert = false;
+    public List<String> itemPickupAlertNames = new ArrayList<>();
+    public boolean itemPickupAlertTitle = true;
+    public boolean itemPickupAlertSound = true;
+    public boolean museumTooltip = false;
+    public boolean museumSlotMarker = false;
+    public String colorMuseumMissing = "60FF55FF";
+    public boolean reforgeStop = false;
+    public List<String> reforgeStopList = new ArrayList<>();
+    public boolean reforgeStopStones = false;
+    public boolean preventPlacingWeapons = false;
+    public boolean preventPlacingHeads = false;
+    public boolean preventPlacingExceptGarden = true;
+    public int preventPlacingBlacklistKey = -1;
+    public java.util.Set<String> preventPlacingBlacklist = new java.util.HashSet<>();
     // w03-03-dun
     public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
     public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking
@@ -2806,6 +2826,9 @@ public class TeslaMapsConfig {
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();
         if (c.protectedItems == null) c.protectedItems = new java.util.HashSet<>();
+        if (c.preventPlacingBlacklist == null) c.preventPlacingBlacklist = new java.util.HashSet<>();
+        if (c.itemPickupAlertNames == null) c.itemPickupAlertNames = new ArrayList<>();
+        if (c.reforgeStopList == null) c.reforgeStopList = new ArrayList<>();
         if (c.customESPTracers == null) c.customESPTracers = new ArrayList<>();
         if (c.customESPColors == null) c.customESPColors = new java.util.HashMap<>();
         if (c.colorESPCustom == null || c.colorESPCustom.isBlank()) c.colorESPCustom = "00FFFF";

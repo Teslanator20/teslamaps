@@ -191,5 +191,11 @@ final class Features {
         com.teslamaps.features.DuplicateItems.register();
         com.teslamaps.features.HideExCoopMembers.register();
         com.teslamaps.features.HoppityWarpUniques.register();
+        // w04-08-inv
+        com.teslamaps.features.CompactLevelBars.register();
+        com.teslamaps.features.ItemPickupAlert.register();
+        com.teslamaps.features.MuseumDonations.register();
+        com.teslamaps.features.ReforgeStop.register();
+        com.teslamaps.features.PreventPlacing.register();
     }
 }

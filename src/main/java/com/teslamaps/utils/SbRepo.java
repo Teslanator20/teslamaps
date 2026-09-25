@@ -99,6 +99,12 @@ public class SbRepo {
         return modifier == null ? null : reforges.get(modifier.toLowerCase(Locale.ROOT));
     }
 
+    public static List<String> reforgeNames() {
+        List<String> out = new java.util.ArrayList<>();
+        for (Reforge r : reforges.values()) if (r.name() != null) out.add(r.name());
+        return out;
+    }
+
     public static Map<Integer, EssenceTier> essencePrices(String id) { return essence.get(id); }
 
     public static Set<String> essenceItems() { return essence.keySet(); }

@@ -134,6 +134,16 @@ public final class InventoryCategory {
         b.toggle("Protect Single Items", () -> config.itemProtectionUuid, v -> config.itemProtectionUuid = v);
         b.keybind("  Protect Key (over slot)", () -> config.itemProtectionKey, v -> config.itemProtectionKey = v);
         b.info("Or /tmap protect for the held item. Lock icon, blocks drop, salvage, trade, AH, shops");
+        b.toggle("Limit Dropping Items", () -> config.limitDroppingItems, v -> config.limitDroppingItems = v)
+                .desc("Max 7 drops per 3 server ticks, spammed Q during lag can't throw the whole stack later");
+        b.label("Prevent Placing");
+        b.toggle("Prevent Placing Weapons", () -> config.preventPlacingWeapons, v -> config.preventPlacingWeapons = v)
+                .desc("Flower of Truth, Bouquet, Grappleshot, Bat Wand, Tuba, Pumpkin Launcher, Fire Freeze, Gauntlet");
+        b.toggle("Prevent Placing Ability Heads", () -> config.preventPlacingHeads, v -> config.preventPlacingHeads = v)
+                .desc("Player heads with a right-click ability use it instead of being placed");
+        b.toggle("  Except Garden", () -> config.preventPlacingExceptGarden, v -> config.preventPlacingExceptGarden = v);
+        b.keybind("  Allow Held Head Key", () -> config.preventPlacingBlacklistKey, v -> config.preventPlacingBlacklistKey = v);
+        b.info("Toggles the held head between guarded and placeable");
         b.label("Slot Binds");
         b.toggle("Slot Binds", () -> config.slotBinds, v -> config.slotBinds = v);
         b.keybind("  Bind Set Key (over slot)", () -> config.slotBindsKey, v -> config.slotBindsKey = v);
@@ -164,6 +174,9 @@ public final class InventoryCategory {
                 com.teslamaps.features.RarityBackground.SHAPES, () -> config.rarityBgShape, v -> config.rarityBgShape = v);
         b.dropdown("  Style",
                 com.teslamaps.features.RarityBackground.STYLES, () -> config.rarityBgStyle, v -> config.rarityBgStyle = v);
+        b.toggle("Legacy Attribute Background", () -> config.legacyAttributeBg, v -> config.legacyAttributeBg = v)
+                .desc("Red slot behind items that still carry old Kuudra attributes");
+        b.color("  Legacy Attribute Color", () -> config.colorLegacyAttributeBg, v -> config.colorLegacyAttributeBg = v);
         b.label("Bazaar & Progress");
         b.toggle("Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v);
         b.toggle("Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v);
