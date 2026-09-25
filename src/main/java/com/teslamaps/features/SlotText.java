@@ -16,9 +16,9 @@ public class SlotText {
     public static final String ENCHANT = "Enchant Books", SKILL = "Skill Level", DUNGEON = "Dungeon Levels",
             HOTF_LEVEL = "HotF Perk Level", HOTF_TOKENS = "HotF Tokens", SHARD = "Shard Tier",
             EVOLVING = "Evolving Bonus", MENU = "Menu Tips", ACCESSORY = "Accessory Status",
-            PARTY_FINDER = "Party Finder";
+            PARTY_FINDER = "Party Finder", HOTM_LEVEL = "HotM Perk Level";
     public static final List<String> SOURCES = List.of(ENCHANT, SKILL, DUNGEON, HOTF_LEVEL, HOTF_TOKENS,
-            SHARD, EVOLVING, MENU, ACCESSORY, PARTY_FINDER);
+            SHARD, EVOLVING, MENU, ACCESSORY, PARTY_FINDER, HOTM_LEVEL);
 
     private static boolean held, toggled;
 

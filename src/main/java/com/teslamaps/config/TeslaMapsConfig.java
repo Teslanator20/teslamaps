@@ -2148,6 +2148,26 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w15-05-min
+    public boolean muteMetalDetector = false;
+    public boolean muteOrganDonor = false;
+    public boolean wishingCompassSolver = false;
+    public boolean pickobulusHelper = false;
+    public boolean pickobulusOutline = true;
+    public boolean pickobulusHud = true;
+    public boolean pickobulusHideOnCooldown = false;
+    public String colorPickobulus = "55FFFF";
+    public int pickobulusHudX = 5;
+    public int pickobulusHudY = 160;
+    public float pickobulusHudScale = 1.0f;
+    public boolean scathaAlerts = false;
+    public boolean scathaWormTitle = true;
+    public boolean scathaAliveSound = true;
+    public boolean scathaCooldownTitle = true;
+    public boolean scathaPetRewrite = true;
+    public boolean scathaPetTitle = true;
+    public boolean hotmLevelStack = false;
+    public boolean precisionMiningHighlight = false;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;
