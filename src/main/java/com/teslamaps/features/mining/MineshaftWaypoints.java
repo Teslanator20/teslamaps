@@ -28,13 +28,18 @@ public final class MineshaftWaypoints {
     private static BlockPos entrance, ladder;
     private static boolean keyDown;
     private static long lastShare;
+    private static Object joinLevel;
+    private static BlockPos joinPos;
+    private static long joinedAt;
+    private static int ticks;
+    private static String exitLabel = "§aExit";
 
     private MineshaftWaypoints() {}
 
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("MineshaftWaypoints").section("Mining").when(() -> cfg().mineshaftWaypoints)
+        Feature.of("MineshaftWaypoints").section("Mining").when(() -> cfg().mineshaftWaypoints || cfg().mineshaftExitWaypoint)
                 .tick(MineshaftWaypoints::tick)
                 .world(MineshaftWaypoints::render);
     }
@@ -42,7 +47,7 @@ public final class MineshaftWaypoints {
     /** handleMovePlayer HEAD: the first absolute teleport in a world is the mineshaft spawn. */
     public static void onPositionPacket(ClientboundPlayerPositionPacket packet) {
         Minecraft mc = Minecraft.getInstance();
-        if (!mc.isSameThread() || !cfg().mineshaftWaypoints || mc.level == null || spawnLevel == mc.level) return;
+        if (!mc.isSameThread() || !(cfg().mineshaftWaypoints || cfg().mineshaftExitWaypoint) || mc.level == null || spawnLevel == mc.level) return;
         if (!packet.relatives().isEmpty()) return;
         spawnLevel = mc.level;
         spawn = BlockPos.containing(packet.change().position()).below();
@@ -51,17 +56,32 @@ public final class MineshaftWaypoints {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
+        boolean slow = ++ticks % 10 == 0;
+        if (joinLevel != mc.level) {
+            joinLevel = mc.level;
+            joinPos = mc.player.blockPosition().below();
+            joinedAt = System.currentTimeMillis();
+        }
         if (builtFor != mc.level) {
             entrance = ladder = null;
-            if (spawnLevel == mc.level && spawn != null && inMineshaft()) {
-                builtFor = mc.level;
-                Direction d = Direction.fromYRot(spawnYaw);
-                int dx = d.getStepX(), dz = d.getStepZ();
-                entrance = spawn;
-                ladder = spawn.offset(dx * BLOCKS_FORWARD - dz * 2, BLOCKS_DOWN, dz * BLOCKS_FORWARD + dx * 2);
+            if (slow && inMineshaft()) {
+                if (spawnLevel == mc.level && spawn != null) {
+                    builtFor = mc.level;
+                    Direction d = Direction.fromYRot(spawnYaw);
+                    int dx = d.getStepX(), dz = d.getStepZ();
+                    entrance = spawn;
+                    ladder = spawn.offset(dx * BLOCKS_FORWARD - dz * 2, BLOCKS_DOWN, dz * BLOCKS_FORWARD + dx * 2);
+                } else if (System.currentTimeMillis() - joinedAt < 15_000) {
+                    builtFor = mc.level;
+                    entrance = joinPos;
+                }
             }
         }
+        if (entrance != null && cfg().mineshaftExitWaypoint && slow) {
+            exitLabel = "§aExit §7(" + Math.round(Math.sqrt(mc.player.distanceToSqr(Vec3.atCenterOf(entrance)))) + "m)";
+        }
 
+        if (!cfg().mineshaftWaypoints) return;
         boolean down = mc.screen == null && cfg().mineshaftShareKey != -1 && KeyNames.isDown(cfg().mineshaftShareKey);
         if (down && !keyDown) shareNearest();
         keyDown = down;
@@ -80,7 +100,7 @@ public final class MineshaftWaypoints {
         BlockPos me = mc.player.blockPosition();
         String line = null;
         double best = 25;
-        if (entrance != null && cfg().mineshaftWpEntrance && entrance.distSqr(me) <= best) {
+        if (entrance != null && showEntrance() && entrance.distSqr(me) <= best) {
             best = entrance.distSqr(me);
             line = chatLine(entrance, "Entrance");
         }
@@ -101,9 +121,16 @@ public final class MineshaftWaypoints {
         return "x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ() + " | (" + type + ")";
     }
 
+    private static boolean showEntrance() {
+        return cfg().mineshaftExitWaypoint || cfg().mineshaftWaypoints && cfg().mineshaftWpEntrance;
+    }
+
     private static void render(PoseStack pose, Vec3 cam) {
-        if (entrance != null && cfg().mineshaftWpEntrance) draw(pose, cam, entrance, "§eEntrance", 0x6655FF55);
-        if (ladder != null && cfg().mineshaftWpLadder) draw(pose, cam, ladder, "§eLadder", 0x66FFAA00);
+        if (entrance != null && showEntrance()) {
+            if (cfg().mineshaftExitWaypoint) draw(pose, cam, entrance, exitLabel, 0x7020CC00);
+            else draw(pose, cam, entrance, "§eEntrance", 0x6655FF55);
+        }
+        if (ladder != null && cfg().mineshaftWaypoints && cfg().mineshaftWpLadder) draw(pose, cam, ladder, "§eLadder", 0x66FFAA00);
     }
 
     private static void draw(PoseStack pose, Vec3 cam, BlockPos p, String label, int color) {

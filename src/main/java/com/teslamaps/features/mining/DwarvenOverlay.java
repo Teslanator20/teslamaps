@@ -20,8 +20,6 @@ public final class DwarvenOverlay {
     private static final long YEAR_0 = 1560275700000L;
     private static final long DAY_MS = 1_200_000L;
     private static final long CULT_MS = 300_000L;
-    private static final String NEW_DAY = "New day! Your Sky Mall buff changed!";
-    private static final String NEW_BUFF = "New buff: ";
 
     private static final List<String> SAMPLE = List.of("§3§lMining", "§fMithril Miner: §a52%",
             "§3Mithril: §a1,234,567", "§3Gemstone: §d812,004", "§3Glacite: §b64,210", "§6Pickobulus§8: §aAvailable",
@@ -30,7 +28,6 @@ public final class DwarvenOverlay {
     private static List<String> lines = List.of();
     private static int width;
     private static int ticks;
-    private static long buffAt;
     private static HudEditElement hud;
 
     private DwarvenOverlay() {}
@@ -44,8 +41,6 @@ public final class DwarvenOverlay {
                         () -> (lines.isEmpty() ? SAMPLE.size() : lines.size()) * 10)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, lines.isEmpty() ? SAMPLE : lines,
                         lines.isEmpty() ? width(SAMPLE) : width));
-        Feature.of("SkyMallTracker").section("Mining").when(() -> cfg().dwarvenOverlay && cfg().dwarvenOverlaySkyMall)
-                .serverChat(DwarvenOverlay::onChat);
         Feature.of("DwarvenOverlay").section("Mining").when(() -> cfg().dwarvenOverlay)
                 .tick(DwarvenOverlay::tick)
                 .hudHiddenInInventory("dwarvenoverlay", DwarvenOverlay::render)
@@ -61,25 +56,9 @@ public final class DwarvenOverlay {
                     b.toggle("  Pickaxe Ability", () -> c.dwarvenOverlayPickaxe, v -> c.dwarvenOverlayPickaxe = v);
                     b.toggle("  Star Cult", () -> c.dwarvenOverlayStarCult, v -> c.dwarvenOverlayStarCult = v);
                     b.toggle("  Sky Mall", () -> c.dwarvenOverlaySkyMall, v -> c.dwarvenOverlaySkyMall = v)
-                            .desc("Taken from the \"New buff\" chat line, so it shows after the next SkyBlock day change");
+                            .desc("Taken from the \"New buff\" chat line or the Sky Mall item in /hotm");
                     b.info("Needs the Commissions, Powders, Forges and Pickaxe Ability tab widgets: /tab");
                 });
-    }
-
-    private static void onChat(String text) {
-        String t = StringUtil.stripTrim(text);
-        if (t.equals(NEW_DAY)) {
-            buffAt = System.currentTimeMillis();
-            return;
-        }
-        if (!t.startsWith(NEW_BUFF) || System.currentTimeMillis() - buffAt > 3000) return;
-        String perk = t.substring(NEW_BUFF.length()).trim();
-        if (perk.startsWith("Gain ")) perk = perk.substring(5);
-        if (perk.endsWith(".")) perk = perk.substring(0, perk.length() - 1);
-        buffAt = 0;
-        cfg().skyMallPerk = perk;
-        cfg().skyMallDay = sbDay(System.currentTimeMillis());
-        TeslaMapsConfig.save();
     }
 
     private static long sbDay(long now) {
@@ -110,7 +89,8 @@ public final class DwarvenOverlay {
         if (c.dwarvenOverlaySkyMall) {
             long day = sbDay(now);
             String left = ForgeSlotHud.format(YEAR_0 + (day + 1) * DAY_MS - now);
-            if (c.skyMallDay == day && !c.skyMallPerk.isEmpty()) out.add("§3Sky Mall: §a" + c.skyMallPerk + " §7(" + left + ")");
+            String perk = HotmPerks.skyMallToday();
+            if (perk != null) out.add("§3Sky Mall: " + perk + " §7(" + left + ")");
             else out.add("§3Sky Mall: §7? §8(next in " + left + ")");
         }
         lines = out.size() > 1 ? out : List.of();
