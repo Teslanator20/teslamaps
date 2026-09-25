@@ -66,7 +66,8 @@ public class HandledScreenClickMixin {
             return;
         }
         if (com.teslamaps.features.MinionFeatures.blockClick((AbstractContainerScreen<?>) (Object) this, slot, type)
-                || com.teslamaps.features.ClickFixes.blockHuntrap((AbstractContainerScreen<?>) (Object) this, slot)) {
+                || com.teslamaps.features.ClickFixes.blockHuntrap((AbstractContainerScreen<?>) (Object) this, slot)
+                || com.teslamaps.slayer.SlayerHiders.blockClick((AbstractContainerScreen<?>) (Object) this, slot)) {
             ci.cancel();
             return;
         }
