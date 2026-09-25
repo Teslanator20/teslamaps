@@ -56,7 +56,7 @@ public class ContainerTriggers {
 
     private static void run(ContainerTrigger t, String title) {
         Minecraft mc = Minecraft.getInstance();
-        switch (t.action) {
+        switch (t.action == null ? "Sound" : t.action) {
             case "Title" -> {
                 mc.gui.setTimes(5, 40, 10);
                 mc.gui.setTitle(Component.literal("§e" + title));
@@ -65,7 +65,7 @@ public class ContainerTriggers {
                 if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[Trigger] §fOpened §e" + title));
             }
             case "Close" -> TickScheduler.schedule(1, () -> {
-                if (mc.player != null && mc.screen instanceof AbstractContainerScreen<?>) mc.player.closeContainer();
+                if (mc.player != null && !LegitMode.blocksCheats() && mc.screen instanceof AbstractContainerScreen<?>) mc.player.closeContainer();
             });
             default -> LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1.5f);
         }

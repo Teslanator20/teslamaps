@@ -28,6 +28,7 @@ public final class StreamerMode {
             "(?i)profile\\s*id:\\s*(?:§.)*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})");
 
     private static final Map<String, String> RANDOM = new HashMap<>();
+    private static final Map<String, String> CACHE = new java.util.concurrent.ConcurrentHashMap<>();
 
     public static volatile boolean on;
     private static volatile boolean servers, profiles;
@@ -40,6 +41,7 @@ public final class StreamerMode {
         Feature.of("StreamerMode")
                 .tickAlways(() -> {
                     TeslaMapsConfig c = cfg();
+                    if (servers != c.hideServerId || profiles != c.hideProfileId || CACHE.size() > 2048) CACHE.clear();
                     servers = c.hideServerId;
                     profiles = c.hideProfileId;
                     on = servers || profiles;
@@ -51,6 +53,7 @@ public final class StreamerMode {
                     b.dropdown("  Replace With", MODES, () -> cfg().hideServerIdMode, v -> {
                         cfg().hideServerIdMode = v;
                         synchronized (RANDOM) { RANDOM.clear(); }
+                        CACHE.clear();
                     });
                     b.toggle("Hide Profile ID", () -> cfg().hideProfileId, v -> cfg().hideProfileId = v)
                             .desc("Replaces the profile UUID (Profile ID: ...) in menus, tooltips and chat");
@@ -67,12 +70,17 @@ public final class StreamerMode {
 
     public static String replace(String text) {
         if (text == null || text.isEmpty() || !candidate(text)) return text;
+        String cached = CACHE.get(text);
+        if (cached != null) return cached;
         Edit e = new Edit(text, null);
         run(e);
-        return e.changed ? e.text : text;
+        String out = e.changed ? e.text : text;
+        CACHE.put(text, out);
+        return out;
     }
 
     public static FormattedCharSequence replace(FormattedCharSequence seq) {
+        if (seq.accept((index, style, cp) -> cp < '0' || cp > '9')) return seq;
         StringBuilder sb = new StringBuilder();
         List<Style> styles = new ArrayList<>();
         seq.accept((index, style, cp) -> {
@@ -82,7 +90,6 @@ public final class StreamerMode {
             return true;
         });
         String text = sb.toString();
-        if (!candidate(text)) return seq;
         Edit e = new Edit(text, styles);
         run(e);
         if (!e.changed) return seq;

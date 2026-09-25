@@ -18,7 +18,9 @@ public class MonoAudioEngineMixin {
 
     @Inject(method = "updateSource", at = @At("TAIL"))
     private void teslamaps$refreshMono(Camera camera, CallbackInfo ci) {
-        if (!MonoAudio.enabled()) return;
+        boolean on = MonoAudio.enabled();
+        if (!on && !MonoAudio.wasEnabled) return;
+        MonoAudio.wasEnabled = on;
         channelAccess.executeOnChannels(s -> s.forEach(ch -> ((MonoAudio.Channel) ch).teslamaps$refreshMono()));
     }
 }

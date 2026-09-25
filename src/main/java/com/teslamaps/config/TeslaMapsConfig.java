@@ -3317,6 +3317,8 @@ public class TeslaMapsConfig {
         if (c.wardrobeFavorites == null) c.wardrobeFavorites = new java.util.HashSet<>();
         if (c.reminderList == null) c.reminderList = new java.util.ArrayList<>();
         if (c.containerTriggerList == null) c.containerTriggerList = new java.util.ArrayList<>();
+        c.containerTriggerList.removeIf(java.util.Objects::isNull);
+        if (c.islandAlertMode == null) c.islandAlertMode = "Title + Sound";
         if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new int[]{49, 50, 51, 52, 53, 54, 55};
         if (c.damageAlertSoundType == null) c.damageAlertSoundType = "NOTE_PLING";
         if (c.discordRpcAppId == null) c.discordRpcAppId = "";

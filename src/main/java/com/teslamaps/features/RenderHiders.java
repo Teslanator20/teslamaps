@@ -53,7 +53,6 @@ public final class RenderHiders {
 
     public static void stripArmor(ArmorStandRenderState s) {
         if (!cfg().hideArmorStandArmor) return;
-        s.headEquipment = ItemStack.EMPTY;
         s.chestEquipment = ItemStack.EMPTY;
         s.legsEquipment = ItemStack.EMPTY;
         s.feetEquipment = ItemStack.EMPTY;

@@ -18,27 +18,35 @@ public class MonoAudioChannelMixin implements MonoAudio.Channel {
     @Shadow @Final private int source;
     @Unique private Vec3 teslamaps$monoPos = Vec3.ZERO;
     @Unique private boolean teslamaps$monoRelative;
+    @Unique private boolean teslamaps$monoApplied;
 
     @Inject(method = "setSelfPosition", at = @At("HEAD"), cancellable = true)
     private void teslamaps$monoPosition(Vec3 pos, CallbackInfo ci) {
-        if (!MonoAudio.enabled()) return;
         teslamaps$monoPos = pos;
+        if (!MonoAudio.enabled()) return;
         teslamaps$refreshMono();
         ci.cancel();
     }
 
     @Inject(method = "setRelative", at = @At("HEAD"), cancellable = true)
     private void teslamaps$monoRelative(boolean relative, CallbackInfo ci) {
-        if (!MonoAudio.enabled()) return;
         teslamaps$monoRelative = relative;
-        AL10.alSourcei(source, AL10.AL_SOURCE_RELATIVE, AL10.AL_TRUE);
+        if (!MonoAudio.enabled()) return;
         teslamaps$refreshMono();
         ci.cancel();
     }
 
     @Override
     public void teslamaps$refreshMono() {
-        if (!MonoAudio.enabled()) return;
+        if (!MonoAudio.enabled()) {
+            if (!teslamaps$monoApplied) return;
+            teslamaps$monoApplied = false;
+            AL10.alSourcei(source, AL10.AL_SOURCE_RELATIVE, teslamaps$monoRelative ? AL10.AL_TRUE : AL10.AL_FALSE);
+            AL10.alSource3f(source, AL10.AL_POSITION, (float) teslamaps$monoPos.x, (float) teslamaps$monoPos.y, (float) teslamaps$monoPos.z);
+            return;
+        }
+        teslamaps$monoApplied = true;
+        AL10.alSourcei(source, AL10.AL_SOURCE_RELATIVE, AL10.AL_TRUE);
         MonoAudio.center(source, teslamaps$monoRelative ? teslamaps$monoPos.length() : MonoAudio.distanceToListener(teslamaps$monoPos));
     }
 }

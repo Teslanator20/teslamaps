@@ -142,11 +142,12 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.DragonRecolor.onAddEntity(packet);
     }
 
-    @org.spongepowered.asm.mixin.injection.Redirect(method = "handleSetEntityData", at = @At(value = "INVOKE",
+    @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method = "handleSetEntityData", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/network/protocol/game/ClientboundSetEntityDataPacket;packedItems()Ljava/util/List;"))
     private java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> teslamaps$doubleSneakFix(
-            net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket packet) {
-        return com.teslamaps.features.CameraTweaks.filterEntityData(packet.packedItems(), packet);
+            java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> values,
+            @com.llamalad7.mixinextras.sugar.Local(argsOnly = true) net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket packet) {
+        return com.teslamaps.features.CameraTweaks.filterEntityData(values, packet);
     }
 
     @Inject(method = "handleSetEntityData", at = @At("HEAD"))

@@ -184,7 +184,7 @@ public final class SafariBanners {
         if (c.safariAlertVolume > 0) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), c.safariAlertVolume, pitch);
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §e" + text + " §7— " + detail));
-        Announce.send(c.safariBannerChannel, boss + " " + stage.name().toLowerCase());
+        if (!testing) Announce.send(c.safariBannerChannel, boss + " " + stage.name().toLowerCase());
     }
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
