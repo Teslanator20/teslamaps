@@ -169,7 +169,8 @@ public class LeapOverlay {
 
         boolean selfDead = selfDead();
         if (!menuOpen) openedDead = selfDead;
-        if (TeslaMapsConfig.get().leapCloseOnDeath && selfDead && !openedDead && mc.player != null) {
+        if (TeslaMapsConfig.get().leapCloseOnDeath && selfDead && !openedDead && mc.player != null
+                && !LegitMode.blocksCheats()) {
             mc.player.closeContainer();
             return;
         }

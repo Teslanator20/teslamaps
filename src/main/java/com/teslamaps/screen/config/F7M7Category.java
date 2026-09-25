@@ -64,6 +64,16 @@ public final class F7M7Category {
         b.toggle("  Compact (n/7)", () -> config.termInfoCompact, v -> config.termInfoCompact = v);
         b.toggle("Terminal Breakdown", () -> config.terminalBreakdown, v -> config.terminalBreakdown = v);
         b.info("Chat summary per player when the core opens");
+        b.toggle("Inactive Terminal Waypoints", () -> config.terminalWaypoints, v -> config.terminalWaypoints = v);
+        b.toggle("  Terminals", () -> config.terminalWaypointsTerms, v -> config.terminalWaypointsTerms = v);
+        b.toggle("  Devices", () -> config.terminalWaypointsDevices, v -> config.terminalWaypointsDevices = v);
+        b.toggle("  Levers", () -> config.terminalWaypointsLevers, v -> config.terminalWaypointsLevers = v);
+        b.toggle("  Box", () -> config.terminalWaypointsBox, v -> config.terminalWaypointsBox = v);
+        b.toggle("  Label", () -> config.terminalWaypointsText, v -> config.terminalWaypointsText = v);
+        b.toggle("  Beacon", () -> config.terminalWaypointsBeacon, v -> config.terminalWaypointsBeacon = v);
+        b.toggle("  Through Walls", () -> config.terminalWaypointsThroughWalls, v -> config.terminalWaypointsThroughWalls = v);
+        b.toggle("  Hide Hypixel Nametags", () -> config.terminalWaypointsHideNames, v -> config.terminalWaypointsHideNames = v);
+        b.color("  Color", () -> config.terminalWaypointsColor, v -> config.terminalWaypointsColor = v);
         b.label("P3 Devices");
         b.toggle("Arrows Device Solver", () -> config.arrowsDeviceSolver, v -> config.arrowsDeviceSolver = v)
                 .desc("Sharp shooter device: marks hit blocks and the current target.").tags("sharp shooter", "4th device");
@@ -82,17 +92,6 @@ public final class F7M7Category {
         b.toggle("F7 Titles (crystals, stuns, deaths)", () -> config.f7Titles, v -> config.f7Titles = v);
         b.toggle("  Compact Crystal Titles", () -> config.f7CrystalTitles, v -> config.f7CrystalTitles = v);
         b.toggle("  Boss Stun/Death/Enrage Titles", () -> config.f7BossTitles, v -> config.f7BossTitles = v);
-        b.label("P3 Terminals");
-        b.toggle("Inactive Terminal Waypoints", () -> config.terminalWaypoints, v -> config.terminalWaypoints = v);
-        b.toggle("  Terminals", () -> config.terminalWaypointsTerms, v -> config.terminalWaypointsTerms = v);
-        b.toggle("  Devices", () -> config.terminalWaypointsDevices, v -> config.terminalWaypointsDevices = v);
-        b.toggle("  Levers", () -> config.terminalWaypointsLevers, v -> config.terminalWaypointsLevers = v);
-        b.toggle("  Box", () -> config.terminalWaypointsBox, v -> config.terminalWaypointsBox = v);
-        b.toggle("  Label", () -> config.terminalWaypointsText, v -> config.terminalWaypointsText = v);
-        b.toggle("  Beacon", () -> config.terminalWaypointsBeacon, v -> config.terminalWaypointsBeacon = v);
-        b.toggle("  Through Walls", () -> config.terminalWaypointsThroughWalls, v -> config.terminalWaypointsThroughWalls = v);
-        b.toggle("  Hide Hypixel Nametags", () -> config.terminalWaypointsHideNames, v -> config.terminalWaypointsHideNames = v);
-        b.color("  Color", () -> config.terminalWaypointsColor, v -> config.terminalWaypointsColor = v);
         b.label("Wither Dragons");
         b.toggle("Wither Dragons", () -> config.witherDragons, v -> config.witherDragons = v);
         b.toggle("Dimensional Slash Alert", () -> config.dimensionalSlashAlert, v -> config.dimensionalSlashAlert = v);

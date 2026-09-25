@@ -143,7 +143,7 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("  TTT: Prediction", () -> config.tttPrediction, v -> config.tttPrediction = v)
                 .desc("Marks your likely next move after the AI answers (may be off)");
         b.toggle("  TTT: Done Message (/pc)", () -> config.tttDoneMessage, v -> config.tttDoneMessage = v)
-                .desc("Sends \"Tic Tac Toe done\" to party chat when you tie it");
+                .cheat().desc("Sends \"Tic Tac Toe done\" to party chat when you tie it");
         b.toggle("  TTT: Block Wrong Buttons", () -> config.tttBlockWrongClicks, v -> config.tttBlockWrongClicks = v)
                 .legit().desc("Right-clicks on board buttons that are not a best move do nothing. Sneak to click anyway. Nothing is sent to the server.");
         b.dropdown("  TTT Style", PuzzleDraw.STYLES, () -> config.tttStyle, v -> config.tttStyle = v);

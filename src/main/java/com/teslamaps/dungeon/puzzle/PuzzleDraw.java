@@ -17,8 +17,10 @@ public final class PuzzleDraw {
 
     public static void box(PoseStack pose, AABB box, int argb, String style, float lineWidth, Vec3 cam, boolean throughWalls) {
         if (style == null || ESP_DEFAULT.equals(style)) {
-            style = com.teslamaps.config.TeslaMapsConfig.get().filledESP ? EspStyle.FILLED : EspStyle.OUTLINE;
-            lineWidth = 3.0f;
+            // like drawESPBox
+            if (com.teslamaps.config.TeslaMapsConfig.get().filledESP) ESPRenderer.drawFilledBox(pose, box, argb, cam, throughWalls);
+            else ESPRenderer.drawBoxOutline(pose, box, argb, 3.0f, cam, throughWalls);
+            return;
         }
         boolean fill = EspStyle.FILLED.equals(style) || EspStyle.BOTH.equals(style);
         boolean outline = !EspStyle.FILLED.equals(style);
