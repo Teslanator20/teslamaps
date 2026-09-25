@@ -70,6 +70,9 @@ public class SlotLock {
                 .when(() -> TeslaMapsConfig.get().slotLock && TeslaMapsConfig.get().slotLockHotbarIcon
                         && !TeslaMapsConfig.get().lockedSlots.isEmpty())
                 .hud("slotlockhotbar", SlotLock::renderHotbar);
+        com.teslamaps.registry.Feature.of("SlotLock")
+                .when(() -> TeslaMapsConfig.get().slotLock && TeslaMapsConfig.get().slotLockDropDelay > 0)
+                .tick(SlotLock::tick);
     }
 
     private static void tickWorldKey() {
@@ -151,12 +154,6 @@ public class SlotLock {
     }
 
     // NEU's drop delay: remember when the held slot changed
-    public static void register() {
-        com.teslamaps.registry.Feature.of("SlotLock")
-                .when(() -> TeslaMapsConfig.get().slotLock && TeslaMapsConfig.get().slotLockDropDelay > 0)
-                .tick(SlotLock::tick);
-    }
-
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         int sel = mc.player.getInventory().getSelectedSlot();
