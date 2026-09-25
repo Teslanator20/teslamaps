@@ -51,9 +51,10 @@ public final class HypixelModApi {
     public static String map() { return live() ? map : null; }
 
     public static void register() {
-        bind();
+        if (TeslaMapsConfig.get().hypixelModApi) bind();
         Feature.of("HypixelModApi").when(() -> TeslaMapsConfig.get().hypixelModApi)
                 .tickAlways(() -> {
+                    bind();
                     if (Minecraft.getInstance().getConnection() == null) reset();
                     else if (!subscribed) subscribe();
                 });

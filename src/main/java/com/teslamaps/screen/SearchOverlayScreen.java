@@ -66,6 +66,7 @@ public class SearchOverlayScreen extends Screen {
         field.setHint(Component.literal(switch (location) {
             case BAZAAR -> "Bazaar item…";
             case RECIPE -> "Recipe…";
+            case MUSEUM -> "Museum item…";
             case OTHER -> "Search…";
             default -> "Auction item…";
         }));
@@ -82,9 +83,31 @@ public class SearchOverlayScreen extends Screen {
         int by = panelY + panelH - 24;
         addRenderableWidget(new TeslaButton(panelX + 12, by, 90, 18, "§fSearch", this::push));
         addRenderableWidget(new TeslaButton(panelX + PANEL_W - 74, by, 62, 18, "§fCancel", this::cancel));
+        if (location == SearchOverlay.Location.AUCTION && TeslaMapsConfig.get().searchOverlayFilters) {
+            com.teslamaps.profileviewer.data.PetRepo.load();
+            TeslaButton[] pet = new TeslaButton[1];
+            pet[0] = addRenderableWidget(new TeslaButton(panelX + 106, by, 60, 18, petLabel(), () -> {
+                SearchOverlay.maxPetLevel = !SearchOverlay.maxPetLevel;
+                pet[0].setMessage(Component.literal(petLabel()));
+            }));
+            TeslaButton[] star = new TeslaButton[1];
+            star[0] = addRenderableWidget(new TeslaButton(panelX + 170, by, 36, 18, starLabel(), () -> {
+                SearchOverlay.dungeonStars = (SearchOverlay.dungeonStars + 1) % 11;
+                star[0].setMessage(Component.literal(starLabel()));
+            }));
+        }
 
         rebuild(startText);
         ScreenFit.clamp(this);
+    }
+
+    private static String petLabel() {
+        return SearchOverlay.maxPetLevel ? "§aMax Lvl" : "§7Max Lvl";
+    }
+
+    private static String starLabel() {
+        int n = SearchOverlay.dungeonStars;
+        return n == 0 ? "§7✪ 0" : n <= 5 ? "§6✪ " + n : "§c✪ " + n;
     }
 
     private void rebuild(String query) {
@@ -189,6 +212,7 @@ public class SearchOverlayScreen extends Screen {
         String title = switch (location) {
             case BAZAAR -> "Bazaar Search";
             case RECIPE -> "Recipe Search";
+            case MUSEUM -> "Museum Search";
             case OTHER -> "Search";
             default -> "Auction Search";
         };

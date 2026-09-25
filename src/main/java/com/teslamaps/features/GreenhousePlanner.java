@@ -143,7 +143,9 @@ public class GreenhousePlanner {
 
     // resolved render lists, rebuilt on tick
     public static final int TODO = 0, OK = 1, WRONG = 2, UNKNOWN = 3, MUTATION = 4;
-    private record Ghost(AABB box, int color, String label, int state, boolean focus) {}
+    private record Ghost(AABB box, int color, String label, int state, boolean focus, boolean model) {}
+    public record ModelCell(int x, int y, int z, String plant) {}
+    public static final List<ModelCell> modelCells = new ArrayList<>();
     private record Todo(int wx, int wz, int gx, int gy, String item) {}
     private static final List<Todo> todoCells = new ArrayList<>();
     private static final List<Ghost> floorGhosts = new ArrayList<>();
@@ -1137,6 +1139,7 @@ public class GreenhousePlanner {
         mutGrown = 0;
         mutTotal = 0;
         todoCells.clear();
+        modelCells.clear();
         if (anchor == null) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
@@ -1168,7 +1171,7 @@ public class GreenhousePlanner {
                 } else {
                     String id = BuiltInRegistries.BLOCK.getKey(need).toString();
                     AABB box = new AABB(wx + 0.06, fy + 0.06, wz + 0.06, wx + 0.94, fy + 0.94, wz + 0.94);
-                    floorGhosts.add(new Ghost(box, color(id), prettyBlock(id), TODO, true));
+                    floorGhosts.add(new Ghost(box, color(id), prettyBlock(id), TODO, true, false));
                 }
             }
 
@@ -1209,7 +1212,9 @@ public class GreenhousePlanner {
                 }
             }
             AABB box = new AABB(wx + 0.06, py + 0.01, wz + 0.06, wx + 0.94, py + 0.95, wz + 0.94);
-            plantGhosts.add(new Ghost(box, col, label, state, focus));
+            boolean model = state == TODO && com.teslamaps.features.garden.GreenhouseModels.has(norm(c.item));
+            if (model) modelCells.add(new ModelCell(wx, py, wz, norm(c.item)));
+            plantGhosts.add(new Ghost(box, col, label, state, focus, model));
         }
     }
 
@@ -1320,6 +1325,12 @@ public class GreenhousePlanner {
         return floorOk < floorTotal ? PHASE_FLOOR : PHASE_PLANTS;
     }
 
+    public static boolean modelsVisible() {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        return cfg.greenhousePlanner && anchor != null && hasLayout() && effectivePhase() == PHASE_PLANTS
+                && com.teslamaps.utils.SkyblockUtils.isInGarden();
+    }
+
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.greenhousePlanner || anchor == null) return;
@@ -1344,6 +1355,7 @@ public class GreenhousePlanner {
         for (Ghost g : ghosts) {
             // dimming is for finished clutter - an unplanted cell is the job, never fade it out
             boolean faint = dim && !g.focus && g.state != TODO && g.state != WRONG;
+            if (g.model && cfg.greenhouseModels && phase == PHASE_PLANTS) continue;
             if (g.state == TODO || (g.state == MUTATION && clean)) {
                 int a = faint ? (alpha >>> 2) & 0xFF000000 : alpha;
                 ESPRenderer.batchBox(g.box, (g.color & 0x00FFFFFF) | Math.max(0x14000000, a), 0f);

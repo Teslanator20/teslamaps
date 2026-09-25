@@ -246,7 +246,7 @@ public final class BazaarOrderTracker {
 
     /** Called from the slot click hook in every container. */
     public static void onSlotClick(AbstractContainerScreen<?> cs, Slot slot) {
-        if (slot == null || slot.container instanceof Inventory || slot.getItem().isEmpty()) return;
+        if (!TeslaMapsConfig.get().bzTracker || slot == null || slot.container instanceof Inventory || slot.getItem().isEmpty()) return;
         if (!TITLE.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches()) return;
         Matcher h = HEADER.matcher(StringUtil.stripTrim(slot.getItem().getHoverName().getString()));
         if (!h.matches()) return;

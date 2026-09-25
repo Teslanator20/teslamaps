@@ -57,6 +57,12 @@ public final class CommandShortcuts {
                             .desc("/p kick, promote, demote and transfer suggest your party members first");
                     b.toggle("    Clickable Transfer Back", () -> c.reversePtClickable, v -> c.reversePtClickable = v)
                             .desc("After a transfer to you, a clickable line gives the party back. /rpt message <text> sets a party message");
+                    b.toggle("  Garden Aliases (/home /barn /tp)", () -> c.gardenWarpAliases, v -> c.gardenWarpAliases = v)
+                            .desc("On the Garden only: /home warps to the garden, /barn and /tp <plot> run /plottp")
+                            .tags("garden", "plottp", "warp");
+                    b.keybind("    Warp Garden Key", () -> c.gardenWarpKey, v -> c.gardenWarpKey = v);
+                    b.keybind("    Set Spawn Key", () -> c.gardenSetspawnKey, v -> c.gardenSetspawnKey = v);
+                    b.keybind("    Barn Key", () -> c.gardenBarnKey, v -> c.gardenBarnKey = v);
                     b.info("/tmap shortcut list shows every shortcut");
                 });
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("tmap")

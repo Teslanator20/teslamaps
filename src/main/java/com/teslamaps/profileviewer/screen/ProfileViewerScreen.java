@@ -129,6 +129,7 @@ public class ProfileViewerScreen extends Screen {
         // player (and through it the level) reachable for good
         ItemGrid.clear();
         PvPlayerRender.reset();
+        com.teslamaps.profileviewer.data.GearScan.clear();
         super.removed();
     }
 
@@ -138,9 +139,11 @@ public class ProfileViewerScreen extends Screen {
         allPages.add(new BasicPage());
         allPages.add(new DungeonPage());
         allPages.add(new InventoriesPage());
+        allPages.add(new NetworthPage());
         allPages.add(new PetsPage());
         allPages.add(new MiningPage());
         allPages.add(new ForagingPage());
+        allPages.add(new HuntingPage());
         allPages.add(new CollectionsPage());
         allPages.add(new BestiaryPage());
         allPages.add(new TrophyFishPage());
@@ -149,7 +152,9 @@ public class ProfileViewerScreen extends Screen {
         allPages.add(new CrimsonIslePage());
         allPages.add(new RiftPage());
         allPages.add(new ExtraPage());
+        allPages.add(new MobsPage());
         allPages.add(new BingoPage());
+        allPages.add(new LevelPage());
 
         pages.clear();
         pages.addAll(allPages);
@@ -298,18 +303,27 @@ public class ProfileViewerScreen extends Screen {
     }
 
     private int tabsX() {
-        return Math.max(0, (NeuStyle.PANEL_WIDTH - pages.size() * 28) / 2);
+        return Math.max(0, (NeuStyle.PANEL_WIDTH - pages.size() * tabStep()) / 2);
+    }
+
+    // more tabs than fit squeeze together instead of running off the window
+    private int tabStep() {
+        return Math.min(28, NeuStyle.PANEL_WIDTH / Math.max(1, pages.size()));
     }
 
     private void renderTabs(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         // NEU: 28 wide, centered on the window, sitting on top of it
         int offset = tabsX();
-        for (int i = 0; i < pages.size(); i++) {
+        int step = tabStep();
+        for (int n = 0; n <= pages.size(); n++) {
+            // the selected tab is drawn last so an overlapping neighbour never covers it
+            int i = n < pages.size() ? n : selectedPageIndex;
+            if (i < 0 || i >= pages.size() || (n < pages.size() && i == selectedPageIndex)) continue;
             ProfileViewerPage page = pages.get(i);
             boolean selected = i == selectedPageIndex;
-            int x = offset + i * 28;
+            int x = offset + i * step;
             int y = -28;
-            boolean hovered = mouseX >= x && mouseX < x + 28 && mouseY >= y && mouseY < y + 28;
+            boolean hovered = mouseX >= x && mouseX < x + step && mouseY >= y && mouseY < y + 28;
 
             NeuStyle.tab(ctx, x, y, selected);
             ctx.item(page.getTabIcon(), x + 6, y + 9);
@@ -451,6 +465,18 @@ public class ProfileViewerScreen extends Screen {
         }
     }
 
+    /** Switches to the first visible page of that type; false when it is hidden. */
+    public boolean openPage(Class<? extends ProfileViewerPage> type) {
+        for (int i = 0; i < pages.size(); i++) {
+            if (type.isInstance(pages.get(i))) {
+                selectedPageIndex = i;
+                pages.get(i).onSelected();
+                return true;
+            }
+        }
+        return false;
+    }
+
     private int[] profileSelector;
     private int[] skyRect;
     private int[] nameRect;
@@ -498,15 +524,25 @@ public class ProfileViewerScreen extends Screen {
         ctx.text(font, error, (NeuStyle.PANEL_WIDTH - font.width(error)) / 2, centerY, NeuStyle.TEXT_GRAY);
 
         String hint = "Click to retry";
+        if (errorCopy()) {
+            hint = System.currentTimeMillis() - errorCopiedAt < 1500 ? "Copied!" : "Click to retry, right-click to copy";
+        }
         ctx.text(font, hint, (NeuStyle.PANEL_WIDTH - font.width(hint)) / 2, centerY + 20, NeuStyle.TEXT_GRAY);
+    }
+
+    private long errorCopiedAt;
+
+    private static boolean errorCopy() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.pvExtras && c.pvErrorCopy;
     }
 
     /** Everything clickable lives here, the render pass only draws and hovers. */
     private boolean handleClick(int mx, int my, int button) {
         int offset = tabsX();
         for (int i = 0; i < pages.size(); i++) {
-            int x = offset + i * 28;
-            if (mx >= x && mx < x + 28 && my >= -28 && my < 0) {
+            int x = offset + i * tabStep();
+            if (mx >= x && mx < x + tabStep() && my >= -28 && my < 0) {
                 selectedPageIndex = i;
                 pages.get(i).onSelected();
                 return true;
@@ -563,6 +599,11 @@ public class ProfileViewerScreen extends Screen {
         }
         nameInput = null;
 
+        if (error != null && button == 1 && errorCopy()) {
+            Minecraft.getInstance().keyboardHandler.setClipboard(targetPlayer + ": " + error);
+            errorCopiedAt = System.currentTimeMillis();
+            return true;
+        }
         if (error != null) {
             loadProfile();
             return true;

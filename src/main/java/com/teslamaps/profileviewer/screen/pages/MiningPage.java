@@ -77,24 +77,31 @@ public class MiningPage extends ProfileViewerPage {
         // the factor comes from the taller of hotm/hotf, so both trees render at the same
         // node size and the page doesn't jump when swapping between the two hearts
         float factor = sharedTreeFactor(header(width, tree).height() + 6);
-        Ui page = compose(width, tree, core, glacite,
+        Ui page = compose(member, width, tree, core, glacite,
                 factor < 1f ? new Ui.Scaled(treeView, factor) : treeView);
         return page;
     }
 
     // everything next to the tree, in two columns when there is room for them
-    private Ui compose(int width, SkillTreeInfo tree, JsonObject core, JsonObject glacite, Ui treeView) {
+    private Ui compose(JsonObject member, int width, SkillTreeInfo tree, JsonObject core, JsonObject glacite, Ui treeView) {
         int sideWidth = Math.max(150, width - treeView.width() - 10);
         int half = Math.max(110, (sideWidth - 10) / 2);
 
+        Ui gear = com.teslamaps.profileviewer.PvExtras.gear()
+                ? Kit.section("Gear", com.teslamaps.profileviewer.data.GearScan.grid(
+                        com.teslamaps.profileviewer.data.GearScan.mining(member), 18))
+                : null;
+        Ui crystals = Kit.section("Crystals", crystals(core, sideWidth >= 230 ? half : sideWidth));
         Ui side = sideWidth >= 230
                 ? Ui.row(10, Ui.V.TOP,
                         Ui.col(6, Kit.section("Glacite Tunnels", glacite(glacite, half)),
                                 Kit.section("Powder", powder(half, tree, core))),
-                        Kit.section("Crystals", crystals(core, half)))
-                : Ui.col(6, Kit.section("Glacite Tunnels", glacite(glacite, sideWidth)),
-                        Kit.section("Crystals", crystals(core, sideWidth)),
-                        Kit.section("Powder", powder(sideWidth, tree, core)));
+                        gear == null ? crystals : Ui.col(6, crystals, gear))
+                : gear == null
+                        ? Ui.col(6, Kit.section("Glacite Tunnels", glacite(glacite, sideWidth)), crystals,
+                                Kit.section("Powder", powder(sideWidth, tree, core)))
+                        : Ui.col(6, Kit.section("Glacite Tunnels", glacite(glacite, sideWidth)), crystals,
+                                Kit.section("Powder", powder(sideWidth, tree, core)), gear);
 
         return Ui.col(6, header(width, tree), Ui.row(10, Ui.V.TOP, treeView, side));
     }

@@ -68,6 +68,11 @@ public class GardenRegistry {
         return milestones;
     }
 
+    /** Crops per milestone tier for a crop key, null if unknown. */
+    public static long[] brackets(String key) {
+        return milestones().get(key);
+    }
+
     /** Garden level with its cap; past the cap it overflows at the last bracket's cost. */
     public static Level level(long experience) {
         int max = GARDEN_EXP.length - 1;

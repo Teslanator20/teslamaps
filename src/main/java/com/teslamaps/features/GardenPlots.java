@@ -41,6 +41,11 @@ public class GardenPlots {
             23, 0, 4, 20, 24
     };
 
+    /** Grid slot (row * 5 + column, row = z) of a plot number, or -1. */
+    public static int slotOf(int plotNumber) {
+        return plotNumber >= 0 && plotNumber < PLOT_TO_SLOT.length ? PLOT_TO_SLOT[plotNumber] : -1;
+    }
+
     /**
      * Icon choices for the right-click picker. Skyblocker pulls these from the NEU
      * item repository; these are the closest vanilla stand-ins. DOUBLE_PLANT and
@@ -67,6 +72,7 @@ public class GardenPlots {
         public String name;
         public String icon;        // SNBT of the stack the server sent
         public int customIcon = -1; // index into CUSTOM_ICONS, -1 = use icon
+        public String customStack;  // SNBT of any item picked in the Configure Plots menu
     }
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -117,8 +123,37 @@ public class GardenPlots {
         Plot plot = get(slot);
         if (plot == null) return;
         plot.customIcon = iconIndex;
+        plot.customStack = null;
         decodedIcons.remove(slot);
+        customIcons.remove(slot);
         save();
+    }
+
+    /** Any item as icon; null clears it. */
+    public static void setCustomStack(int slot, ItemStack stack) {
+        if (!loaded) load();
+        Plot plot = plots.computeIfAbsent(slot, k -> new Plot());
+        plot.customStack = stack == null || stack.isEmpty() ? null : StorageCache.encode(stack.copyWithCount(1));
+        if (plot.customStack != null) plot.customIcon = -1;
+        decodedIcons.remove(slot);
+        customIcons.remove(slot);
+        save();
+    }
+
+    private static final Map<Integer, ItemStack> customIcons = new HashMap<>();
+
+    /** The picked icon alone (custom stack or fixed choice), or null when the plot keeps the server icon. */
+    public static ItemStack customIcon(int slot) {
+        if (slot == BARN_SLOT) return null;
+        ItemStack cached = customIcons.get(slot);
+        if (cached != null) return cached.isEmpty() ? null : cached;
+        Plot plot = get(slot);
+        ItemStack stack = ItemStack.EMPTY;
+        if (plot != null && plot.customStack != null) stack = StorageCache.decodeStack(plot.customStack);
+        else if (plot != null && plot.customIcon >= 0 && plot.customIcon < CUSTOM_ICONS.length)
+            stack = new ItemStack(CUSTOM_ICONS[plot.customIcon]);
+        customIcons.put(slot, stack);
+        return stack.isEmpty() ? null : stack;
     }
 
     /** Decoded icon for a plot, cached so the SNBT is not re-parsed every frame. */
@@ -136,7 +171,9 @@ public class GardenPlots {
         if (plot == null) return ItemStack.EMPTY;
 
         ItemStack stack;
-        if (plot.customIcon >= 0 && plot.customIcon < CUSTOM_ICONS.length) {
+        if (plot.customStack != null) {
+            stack = StorageCache.decodeStack(plot.customStack);
+        } else if (plot.customIcon >= 0 && plot.customIcon < CUSTOM_ICONS.length) {
             stack = new ItemStack(CUSTOM_ICONS[plot.customIcon]);
         } else {
             stack = StorageCache.decodeStack(plot.icon);
@@ -159,6 +196,7 @@ public class GardenPlots {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof ContainerScreen screen)) return;
         if (!screen.getTitle().getString().trim().equals("Configure Plots")) return;
+        scanDeskPests(screen);
         if (lastScanned == screen) return;
         lastScanned = screen;
 
@@ -189,6 +227,117 @@ public class GardenPlots {
         if (changed) save();
     }
 
+    // SkyOcean's DeskPestHighlight: "ൠ This plot has 3 ൠ Pests!" in the Configure Plots lore
+    private static final Pattern DESK_PESTS = Pattern.compile("This plot has (\\d+)\\D*Pests?!");
+    private static final Pattern SPAWN_AMOUNT = Pattern.compile("(\\d+) Pests? have spawned in (?:Plot - )?(?<plot>.*)!");
+    private static final int[] pestCounts = new int[PLOT_COUNT];
+    private static final int[] deskCounts = new int[54];
+    private static final String[] countText = new String[PLOT_COUNT];
+    private static Screen deskScreen = null;
+    private static long deskScanAt = 0L;
+    private static int pestTicks = 0;
+
+    private static boolean pestCountOn() {
+        com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
+        return c.gardenPlotsPestCount && c.section("Garden");
+    }
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("GardenPlotPests").section("Garden")
+                .when(() -> com.teslamaps.config.TeslaMapsConfig.get().gardenPlotsPestCount)
+                .tick(GardenPlots::pestTick);
+    }
+
+    private static void scanDeskPests(ContainerScreen screen) {
+        if (!pestCountOn()) return;
+        long now = System.currentTimeMillis();
+        if (deskScreen == screen && now - deskScanAt < 500) return;
+        deskScreen = screen;
+        deskScanAt = now;
+        java.util.Arrays.fill(deskCounts, 0);
+        for (int row = 0; row < 5; row++) {
+            for (int i = row * 9 + 2; i < row * 9 + 7; i++) {
+                if (i >= screen.getMenu().slots.size()) continue;
+                ItemStack stack = screen.getMenu().slots.get(i).getItem();
+                if (stack.isEmpty()) continue;
+                int amount = 0;
+                for (String line : com.teslamaps.utils.ItemUtil.loreLines(stack)) {
+                    Matcher m = DESK_PESTS.matcher(com.teslamaps.utils.StringUtil.strip(line));
+                    if (m.find()) {
+                        amount = Integer.parseInt(m.group(1));
+                        break;
+                    }
+                }
+                deskCounts[i] = amount;
+                setCount((i / 9) * 5 + (i % 9 - 2), amount);
+            }
+        }
+    }
+
+    private static void setCount(int slot, int amount) {
+        if (slot < 0 || slot >= PLOT_COUNT) return;
+        pestCounts[slot] = Math.max(0, amount);
+        countText[slot] = amount > 0 ? Integer.toString(amount) : null;
+    }
+
+    /** Grid slot for a plot name from chat or the scoreboard, -1 when unknown. */
+    private static int slotForName(String name) {
+        if (name == null) return -1;
+        if (name.equalsIgnoreCase("The Barn")) return BARN_SLOT;
+        if (!loaded) load();
+        for (Map.Entry<Integer, Plot> e : plots.entrySet()) {
+            if (e.getValue() != null && name.equalsIgnoreCase(e.getValue().name)) return e.getKey();
+        }
+        try {
+            int number = Integer.parseInt(name.trim());
+            if (number >= 0 && number < PLOT_TO_SLOT.length) return PLOT_TO_SLOT[number];
+        } catch (NumberFormatException ignored) {
+        }
+        return -1;
+    }
+
+    private static void pestTick() {
+        if (++pestTicks % 20 != 0) return;
+        if (!com.teslamaps.utils.SkyblockUtils.isInGarden()) return;
+        if (!PestData.hasPestSection()) return;
+        boolean[] infested = infestedSlots();
+        for (int i = 0; i < PLOT_COUNT; i++) {
+            if (!infested[i] && pestCounts[i] > 0) setCount(i, 0);
+        }
+        int here = slotForName(PestData.currentPlot());
+        if (here >= 0) setCount(here, infested[here] ? PestData.pestsOnCurrentPlot() : 0);
+    }
+
+    /** Pest count label for a grid slot, null when none are known. */
+    public static String pestCountText(int slot) {
+        if (!pestCountOn() || slot < 0 || slot >= PLOT_COUNT) return null;
+        return countText[slot];
+    }
+
+    /** Red backdrop for infested plots in the vanilla Configure Plots menu. */
+    public static void drawDeskBackground(net.minecraft.client.gui.GuiGraphicsExtractor ctx, Slot slot) {
+        if (deskScreen == null || slot.index >= deskCounts.length || deskCounts[slot.index] <= 0) return;
+        if (!onDesk(slot)) return;
+        ctx.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x99FF3333);
+    }
+
+    public static void drawDeskCount(net.minecraft.client.gui.GuiGraphicsExtractor ctx, Slot slot) {
+        if (deskScreen == null || slot.index >= deskCounts.length || deskCounts[slot.index] <= 0) return;
+        if (!onDesk(slot)) return;
+        var font = Minecraft.getInstance().font;
+        String text = Integer.toString(deskCounts[slot.index]);
+        ctx.text(font, text, slot.x + 17 - font.width(text), slot.y + 9, 0xFFFFAA00, true);
+    }
+
+    private static boolean onDesk(Slot slot) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen != deskScreen || !pestCountOn()) {
+            if (mc.screen != deskScreen) deskScreen = null;
+            return false;
+        }
+        return !(slot.container instanceof net.minecraft.world.entity.player.Inventory);
+    }
+
     // "YUCK! 5 Pests have spawned in Plot - 18!" — the name is whatever the plot
     // is called, so it goes straight into /plottp. A trailing "(2x)" from chat
     // stacking sits after the "!", so the capture stops there.
@@ -209,6 +358,11 @@ public class GardenPlots {
             if (!matcher.find()) continue;
             lastPestPlot = matcher.group("plot").trim();
             lastPestPlotTime = System.currentTimeMillis();
+            if (pestCountOn()) {
+                Matcher amount = SPAWN_AMOUNT.matcher(text);
+                int slot = slotForName(lastPestPlot);
+                if (slot >= 0) setCount(slot, pestCounts[slot] + (amount.find() ? Integer.parseInt(amount.group(1)) : 1));
+            }
             return;
         }
     }

@@ -36,7 +36,10 @@ public class FarmSpeed {
         BlockState state = mc.level.getBlockState(pos);
         if (!isCrop(state)) return;
         FarmProgress.onCropBreak(state);
+        com.teslamaps.features.garden.GardenCropData.onBreak(state);
+        MousematAngles.onCrop(state);
         FarmProfit.onCropBreak(state, mc.level.getOverworldClockTime());
+        CropStats.onCropBreak(state, mc.level.getOverworldClockTime());
 
         lastBreak = System.currentTimeMillis();
         times[head] = lastBreak;
@@ -47,6 +50,8 @@ public class FarmSpeed {
         // clock is concerned.
         FarmProfit.markActivity();
         SixthVisitor.onCropBreak();
+        GardenUptime.onCropBreak();
+        GardenMilestoneData.onCropBreak(state);
     }
 
     /**
@@ -54,7 +59,7 @@ public class FarmSpeed {
      * double plants — Sunflower and Wild Rose are the latter, not CropBlock, and
      * checking for crops alone missed those two entirely.
      */
-    private static boolean isCrop(BlockState state) {
+    static boolean isCrop(BlockState state) {
         var block = state.getBlock();
         return block instanceof net.minecraft.world.level.block.VegetationBlock
                 || block instanceof net.minecraft.world.level.block.CocoaBlock

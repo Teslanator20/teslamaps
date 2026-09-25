@@ -201,6 +201,48 @@ public final class InterfaceCategory {
         b.label("Profile Viewer");
         b.toggle("Scroll Long Pages", () -> config.pvScrollPages, v -> config.pvScrollPages = v);
         b.info("Full size text with a scrollbar instead of shrinking the page");
+        b.toggle("Sacks Tab", () -> config.pvSacks, v -> config.pvSacks = v)
+                .desc("Adds the sack contents with their bazaar value to the Inventories page");
+        b.toggle("Hunting Page", () -> config.pvHunting, v -> config.pvHunting = v)
+                .desc("Attribute levels and the Hunting Box of the viewed player");
+        b.toggle("Profile Viewer Extras", () -> config.pvExtras, v -> config.pvExtras = v)
+                .desc("Master switch for the options below").tags("pv", "profile viewer");
+        b.toggle("  Island Panorama", () -> config.pvPanorama, v -> config.pvPanorama = v)
+                .desc("Panorama of the island the player is on behind the player model, day or night by SkyBlock time")
+                .tags("pv", "panorama", "background");
+        b.toggle("  Info Board", () -> config.pvInfoBoard, v -> config.pvInfoBoard = v)
+                .desc("Mode, Hypixel level, fairy souls, created date, cookie and crit record on the Basic page")
+                .tags("pv", "fairy souls", "network level", "ironman", "stranded");
+        b.toggle("  Mobs Tab", () -> config.pvMobsTab, v -> config.pvMobsTab = v)
+                .desc("Kills and deaths per mob in two scrolling columns").tags("pv", "kills", "deaths");
+        b.toggle("  Bingo Goal Names", () -> config.pvBingoGoals, v -> config.pvBingoGoals = v)
+                .desc("Bingo card with goal names, hover details, community goals and points").tags("pv", "bingo");
+        b.toggle("  Trophy Fisher Rank", () -> config.pvTrophyRank, v -> config.pvTrophyRank = v)
+                .desc("Novice to Master Fisher rank and what is missing for the next one").tags("pv", "trophy", "odger");
+        b.toggle("  Power Stats + Tuning", () -> config.pvPowerStats, v -> config.pvPowerStats = v)
+                .desc("Hover the Magical Power line on the Accessories page for the power stone stats and tuning")
+                .tags("pv", "magical power", "tuning", "mp");
+        b.toggle("  Copy Error On Right-Click", () -> config.pvErrorCopy, v -> config.pvErrorCopy = v)
+                .desc("Right-click a load error to copy the full message").tags("pv", "error", "clipboard");
+        b.toggle("  /peek + Lobby Leaderboards", () -> config.pvPeek, v -> config.pvPeek = v)
+                .desc("/peek <name> prints skills, cata, slayers and coins; /tmap lobbylb <purse|skills|cata> ranks the players in your lobby")
+                .tags("pv", "peek", "purselb", "skillslb", "leaderboard");
+        b.toggle("  Leaderboard Ranks", () -> config.pvEliteRanks, v -> config.pvEliteRanks = v)
+                .desc("Elite leaderboard rank in skill, catacombs, class, slayer and collection tooltips (one request to eliteskyblock.com per profile)");
+        b.toggle("  Mining/Foraging Gear", () -> config.pvGearScan, v -> config.pvGearScan = v)
+                .desc("Best mining and foraging armor, equipment and tools found in all containers");
+        b.toggle("  Greenhouse", () -> config.pvGreenhouse, v -> config.pvGreenhouse = v)
+                .desc("Greenhouse mutations, copper and larva on the garden page");
+        b.toggle("  Fishing Stats", () -> config.pvFishingStats, v -> config.pvFishingStats = v)
+                .desc("Items fished, treasure, sea creatures and the dolphin milestone on the extra page");
+        b.toggle("  Minions", () -> config.pvMinions, v -> config.pvMinions = v)
+                .desc("Crafted minion tiers as an extra collections category");
+        b.toggle("  Misc Bags", () -> config.pvMiscBags, v -> config.pvMiscBags = v)
+                .desc("Candy and carnival mask bag; potion bag, quiver and fishing bag grouped into Misc");
+        b.toggle("  Overview Links", () -> config.pvDeepLinks, v -> config.pvDeepLinks = v)
+                .desc("Click a skill, catacombs or the SkyBlock level on the basic page to open its page");
+        b.toggle("  Level & Hoppity Page", () -> config.pvLevelHoppity, v -> config.pvLevelHoppity = v)
+                .desc("SkyBlock level breakdown per category and the chocolate factory");
         b.label("Updates");
         b.toggle("Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v);
         b.toggle("  Show Changelog", () -> config.updateChangelog, v -> config.updateChangelog = v);

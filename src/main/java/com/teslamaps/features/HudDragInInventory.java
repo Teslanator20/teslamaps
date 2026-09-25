@@ -169,6 +169,20 @@ public class HudDragInInventory {
                     value -> TeslaMapsConfig.get().contestTimerScale = value,
                     null),
 
+            new Panel("Pest Finder",
+                    PestFinder::visible,
+                    () -> panelBounds(TeslaMapsConfig.get().pestFinderX,
+                            TeslaMapsConfig.get().pestFinderY,
+                            PestFinder.width(TeslaMapsConfig.get().pestFinderScale),
+                            PestFinder.height(TeslaMapsConfig.get().pestFinderScale)),
+                    xy -> {
+                        TeslaMapsConfig.get().pestFinderX = xy[0];
+                        TeslaMapsConfig.get().pestFinderY = xy[1];
+                    },
+                    () -> TeslaMapsConfig.get().pestFinderScale,
+                    value -> TeslaMapsConfig.get().pestFinderScale = value,
+                    PestFinder::onClick),
+
             new Panel("Routine",
                     () -> TeslaMapsConfig.get().pestRoutineHud,
                     () -> panelBounds(TeslaMapsConfig.get().pestRoutineX,

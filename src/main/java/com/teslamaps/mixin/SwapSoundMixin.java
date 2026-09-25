@@ -11,5 +11,6 @@ public class SwapSoundMixin {
     @Inject(method = "startAttack", at = @At("HEAD"))
     private void teslamaps$swapSound(CallbackInfoReturnable<Boolean> cir) {
         com.teslamaps.features.SwapSound.onLeftClick();
+        com.teslamaps.features.garden.PestGuess.onLeftClick();
     }
 }

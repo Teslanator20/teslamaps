@@ -133,6 +133,7 @@ public class EstimatedValue {
         h = h * 31 + c.itemValueEnchantmentsCap;
         h = h * 31 + c.itemValueStarMaterialCap;
         h = h * 31 + (c.itemValuePriceSource == null ? 0 : c.itemValuePriceSource.hashCode());
+        h = h * 31 + (c.petValue ? PetValue.version() + 1 : 0);
         return h * 31 + PriceManager.version();
     }
 
@@ -204,6 +205,7 @@ public class EstimatedValue {
 
         List<String> lore = lore(stack);
         Recorder rec = new Recorder(list, parts);
+        if (id.equals("PET") && PetValue.enabled()) return addPet(ea, list, rec);
         double basePrice = addBaseItem(id, list);
         // enchanted books get their value from ::addEnchantments, counting the base too would double up
         double total = rec.add(id.equals("ENCHANTED_BOOK") ? 0.0 : basePrice);
@@ -250,6 +252,29 @@ public class EstimatedValue {
         total += rec.add(addEnchantments(ea, id, list));
 
         return new double[]{total, basePrice};
+    }
+
+    private static double[] addPet(CompoundTag ea, List<String> list, Recorder rec) {
+        PetValue.Pet pet = PetValue.parse(ea.getStringOr("petInfo", ""));
+        if (pet == null) return null;
+        Double base = PetValue.basePrice(pet);
+        if (base == null) return null;
+        if (list != null) list.add("§7Pet: §f[Lvl " + pet.level() + "] " + StringUtil.titleCase(pet.type().replace('_', ' '))
+                + (pet.candy() > 0 && pet.level() < 100 ? " §8(candied)" : "") + " " + formatCoinWithBrackets(base, false));
+        double total = rec.add(base);
+        if (pet.heldItem() != null) {
+            double p = priceOr0(pet.heldItem());
+            if (list != null) list.add("§7Held item: " + itemName(pet.heldItem()) + " " + formatCoinWithBrackets(p, false));
+            total += rec.add(p);
+        }
+        if (pet.skin() != null) {
+            String skin = PetValue.skinId(pet.skin());
+            double p = priceOr0(skin);
+            if (list != null) list.add("§7Skin: " + itemName(skin) + " " + formatCoinWithBrackets(p, false));
+            total += rec.add(p);
+        }
+        // -1: the level-scaled price is no plain base price, always show the total
+        return new double[]{total, -1};
     }
 
     /** One value component with its breakdown lines, for the item value screen. */

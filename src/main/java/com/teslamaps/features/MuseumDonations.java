@@ -172,6 +172,11 @@ public final class MuseumDonations {
         }
     }
 
+    /** Donated ids incl. set pieces, null while unknown. */
+    public static Set<String> donatedIds() {
+        return donated;
+    }
+
     /** Donatable, not donated yet, and the museum data is loaded. */
     public static boolean notDonated(ItemStack stack) {
         Set<String> d = donated;
