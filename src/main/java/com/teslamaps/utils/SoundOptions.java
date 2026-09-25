@@ -99,10 +99,16 @@ public class SoundOptions {
     public static String[] keys() {
         java.util.ArrayList<String> out = new java.util.ArrayList<>(CUSTOM.keySet());
         out.addAll(SOUNDS.keySet());
+        if (com.teslamaps.config.TeslaMapsConfig.get().userSoundFolder) out.addAll(UserSounds.keys());
         return out.toArray(new String[0]);
     }
 
     public static SoundEvent resolve(String key) {
+        if (key != null && key.startsWith(UserSounds.PREFIX)) return SoundEvent.createVariableRangeEvent(UserSounds.id(key));
+        if (key != null && key.startsWith(UserSounds.ID_PREFIX)) {
+            Identifier typed = Identifier.tryParse(key.substring(UserSounds.ID_PREFIX.length()).trim().toLowerCase(java.util.Locale.ROOT));
+            if (typed != null) return SoundEvent.createVariableRangeEvent(typed);
+        }
         String custom = CUSTOM.get(key);
         if (custom != null) {
             return SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath("teslamaps", custom));

@@ -9,7 +9,8 @@
     "environment": "client",
     "entrypoints": {
         "client": ["com.teslamaps.TeslaMaps"],
-        "preLaunch": ["com.teslamaps.AwtHeadless"]
+        "preLaunch": ["com.teslamaps.AwtHeadless"],
+        "modmenu": ["com.teslamaps.compat.ModMenuIntegration"]
     },
     "mixins": ["teslamaps.mixins.json"],
     "accessWidener": "teslamaps.accesswidener",
