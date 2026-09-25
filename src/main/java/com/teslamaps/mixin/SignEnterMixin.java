@@ -31,11 +31,12 @@ public abstract class SignEnterMixin {
 
     @Inject(method = "extractRenderState", at = @At("TAIL"))
     private void teslamaps$signCalc(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        SignCalculator.render(g, messages);
+        if (!com.teslamaps.features.SpeedPresets.renderSign(g, messages)) SignCalculator.render(g, messages);
     }
 
     @Inject(method = "onDone", at = @At("HEAD"))
     private void teslamaps$signCalcDone(CallbackInfo ci) {
+        com.teslamaps.features.SpeedPresets.onSignDone(messages);
         SignCalculator.onDone(messages);
     }
 }
