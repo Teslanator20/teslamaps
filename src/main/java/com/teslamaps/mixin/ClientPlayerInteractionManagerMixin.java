@@ -73,17 +73,17 @@ public class ClientPlayerInteractionManagerMixin {
 
         if (state.is(Blocks.LEVER)) {
             WaterBoardSolver.onLeverClick(pos);
-            SecretWaypoints.onSecretInteract("lever");
+            SecretWaypoints.onSecretInteract("lever", pos);
             com.teslamaps.features.SecretClickHighlight.onSecretClick(pos);
         }
 
         if (block instanceof ButtonBlock) {
-            SecretWaypoints.onSecretInteract("button");
+            SecretWaypoints.onSecretInteract("button", pos);
             com.teslamaps.features.SecretClickHighlight.onSecretClick(pos);
         }
 
         if (block instanceof SkullBlock || block instanceof WallSkullBlock) {
-            SecretWaypoints.onSecretInteract("skull");
+            SecretWaypoints.onSecretInteract("skull", pos);
             SecretWaypoints.onSkullClick(pos);
             com.teslamaps.features.SecretClickHighlight.onSecretClick(pos);
         }

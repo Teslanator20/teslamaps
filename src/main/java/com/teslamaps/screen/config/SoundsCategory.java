@@ -36,6 +36,18 @@ public final class SoundsCategory {
         b.slider("Secret Pitch", 0.5f, 2f,
                 () -> config.secretSoundPitch, v -> config.secretSoundPitch = v, 2);
         b.toggle("Secret Item Pickup Sound", () -> config.secretItemPickupSound, v -> config.secretItemPickupSound = v);
+        b.toggle("Secret Bat Kill Sound (replaces bat)", () -> config.secretSoundBatKill, v -> config.secretSoundBatKill = v);
+        b.toggle("Only Real Secrets (skull id, no buttons)", () -> config.secretSoundRealOnly, v -> config.secretSoundRealOnly = v);
+        b.toggle("Separate Lever Sound", () -> config.secretSoundLeverSeparate, v -> config.secretSoundLeverSeparate = v);
+        b.soundDropdown("  Lever Sound", com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.secretSoundLeverType, v -> config.secretSoundLeverType = v);
+        b.slider("  Lever Volume", 0f, 4f, () -> config.secretSoundLeverVolume, v -> config.secretSoundLeverVolume = v, 2);
+        b.slider("  Lever Pitch", 0.5f, 2f, () -> config.secretSoundLeverPitch, v -> config.secretSoundLeverPitch = v, 2);
+        b.toggle("Custom Locked Chest Sound", () -> config.secretSoundLockedCustom, v -> config.secretSoundLockedCustom = v);
+        b.soundDropdown("  Locked Sound", com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.secretSoundLockedType, v -> config.secretSoundLockedType = v);
+        b.slider("  Locked Volume", 0f, 4f, () -> config.secretSoundLockedVolume, v -> config.secretSoundLockedVolume = v, 2);
+        b.slider("  Locked Pitch", 0.5f, 2f, () -> config.secretSoundLockedPitch, v -> config.secretSoundLockedPitch = v, 2);
         b.toggle("Secret Chime (Rising Pitch)", () -> config.secretChime, v -> config.secretChime = v);
         b.soundDropdown("  Chime Sound",
                 com.teslamaps.utils.SoundOptions.keys(),

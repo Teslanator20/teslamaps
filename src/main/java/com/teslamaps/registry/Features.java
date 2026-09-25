@@ -106,5 +106,9 @@ final class Features {
         com.teslamaps.features.F7Titles.register();
         com.teslamaps.features.F7BossSounds.register();
         com.teslamaps.features.DragonRecolor.register();
+        // w02-01-map
+        com.teslamaps.features.BloodCheck.register();
+        com.teslamaps.dungeon.RushSplits.register();
+        com.teslamaps.features.MapPeek.register();
     }
 }

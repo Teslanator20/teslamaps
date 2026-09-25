@@ -156,10 +156,11 @@ public class ClientPlayNetworkHandlerMixin {
         }
     }
 
-    @Inject(method = "handleSoundEvent", at = @At("HEAD"))
+    @Inject(method = "handleSoundEvent", at = @At("HEAD"), cancellable = true)
     private void onSoundEventSecrets(net.minecraft.network.protocol.game.ClientboundSoundPacket packet, CallbackInfo ci) {
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()) {
             com.teslamaps.features.SecretWaypoints.onSound(packet);
+            if (com.teslamaps.features.SecretSounds.onSoundPacket(packet)) ci.cancel();
         }
     }
 

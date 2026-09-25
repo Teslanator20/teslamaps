@@ -16,6 +16,18 @@ public final class SecretsWaypointsCategory {
         b.toggle("  Hide When Collected", () -> config.secretWaypointHideCollected, v -> config.secretWaypointHideCollected = v);
         b.toggle("    Event-Based Detection", () -> config.secretWaypointEvents, v -> config.secretWaypointEvents = v);
         b.toggle("  Tracers to Waypoints", () -> config.secretWaypointTracers, v -> config.secretWaypointTracers = v);
+        b.dropdown("  Waypoint Style", com.teslamaps.features.SecretWaypoints.STYLES,
+                () -> config.secretWaypointStyle, v -> config.secretWaypointStyle = v);
+        b.toggle("  Fit Box To Essence / Key Skull", () -> config.secretWaypointAdaptiveBox, v -> config.secretWaypointAdaptiveBox = v);
+        b.toggle("  Show Waypoint Names", () -> config.secretWaypointLabels, v -> config.secretWaypointLabels = v);
+        b.toggle("    With Distance", () -> config.secretWaypointDistance, v -> config.secretWaypointDistance = v);
+        b.toggle("  Route Waypoints (Stonk, Superboom, ...)", () -> config.secretWaypointRoutes, v -> config.secretWaypointRoutes = v);
+        b.searchList("    Route Categories", () -> java.util.List.of(com.teslamaps.features.SecretWaypoints.ROUTE_CATEGORIES),
+                id -> config.secretRouteCategories.contains(id),
+                id -> { if (!config.secretRouteCategories.remove(id)) config.secretRouteCategories.add(id); })
+                .names(com.teslamaps.features.SecretWaypoints::routeName)
+                .colors(id -> config.secretRouteColors.getOrDefault(id, com.teslamaps.features.SecretWaypoints.routeDefaultColor(id)),
+                        (id, hex) -> config.secretRouteColors.put(id, hex));
         b.toggle("  Secret Click Highlight", () -> config.secretClickHighlight, v -> config.secretClickHighlight = v);
         b.toggle("    Highlight Bats", () -> config.secretClickBats, v -> config.secretClickBats = v);
         b.toggle("    Highlight Items", () -> config.secretClickItems, v -> config.secretClickItems = v);

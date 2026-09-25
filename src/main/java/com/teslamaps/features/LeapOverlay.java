@@ -167,6 +167,13 @@ public class LeapOverlay {
         ContainerScreen screen = (ContainerScreen) mc.screen;
         if (screen == null) return;
 
+        boolean selfDead = selfDead();
+        if (!menuOpen) openedDead = selfDead;
+        if (TeslaMapsConfig.get().leapCloseOnDeath && selfDead && !openedDead && mc.player != null) {
+            mc.player.closeContainer();
+            return;
+        }
+
         // scan every frame: chest contents arrive after the menu opens, and death states change mid-menu
         scanLeapPlayers(screen);
         menuOpen = true;
@@ -188,12 +195,30 @@ public class LeapOverlay {
 
         context.fill(0, 0, screenWidth, screenHeight, 0x90101010);
 
+        float cxs = screenWidth / 2f, cys = screenHeight / 2f;
+        boolean link = TeslaMapsConfig.get().leapHoverLink;
+        boolean mouseInMap = leapMapShown && leapMapW > 0 && mouseX >= leapMapX && mouseX <= leapMapX + leapMapW
+                && mouseY >= leapMapY && mouseY <= leapMapY + leapMapH;
+        String headHover = link && mouseInMap ? hoveredHead(mouseX, mouseY) : null;
+        int linkQuad = -1;
+        if (headHover != null) {
+            for (int i = 0; i < 4; i++) if (leapPlayers[i] != null && headHover.equals(leapPlayers[i].name)) linkQuad = i;
+        }
+
+        boolean wasShown = leapMapShown;
         leapMapShown = false;
         if (TeslaMapsConfig.get().leapShowMap && DungeonManager.isInDungeon() && !inBossRoom()) {
             float mapScale = TeslaMapsConfig.get().mapScale;
             int mw = MapRenderer.mapW();
             int mapBaseX = mw > 0 ? screenWidth / 2 - mw / 2 : screenWidth / 2 - 60;
+            String highlight = headHover;
+            if (link && !(wasShown && mouseInMap)) {
+                LeapPlayer q = leapPlayers[(mouseX >= cxs ? 1 : 0) + (mouseY >= cys ? 2 : 0)];
+                if (q != null && !q.isDead) highlight = q.name;
+            }
+            MapRenderer.setHighlight(highlight);
             MapRenderer.renderAt(context, mapBaseX, 6, mapScale, true);
+            MapRenderer.setHighlight(null);
             // snapshot now — the HUD map (if it renders this frame) overwrites MapRenderer's shared state
             leapMapX = MapRenderer.mapX(); leapMapY = MapRenderer.mapY();
             leapMapW = MapRenderer.mapW(); leapMapH = MapRenderer.mapH();
@@ -211,6 +236,7 @@ public class LeapOverlay {
         float dt = lastAnimTime == 0 ? 16f : Math.min(100f, now - lastAnimTime);
         lastAnimTime = now;
         int hoverQuad = (mouseX >= cx ? 1 : 0) + (mouseY >= cy ? 2 : 0);
+        if (link && mouseInMap) hoverQuad = linkQuad;
         for (int i = 0; i < 4; i++) {
             float target = (i == hoverQuad && leapPlayers[i] != null && !leapPlayers[i].isDead) ? 1f : 0f;
             float step = dt / 200f;
@@ -225,7 +251,40 @@ public class LeapOverlay {
             float by = (i / 2 == 0) ? cy - yOff - boxH : cy + yOff;
             float e = hoverAnim[i] * 6f * s;
             renderPlayerBox(context, textRenderer, player, bx - e, by - e, boxW + 2 * e, boxH + 2 * e, s);
+            if (i == linkQuad) {
+                int x0 = (int) (bx - e), y0 = (int) (by - e), x1 = (int) (bx + boxW + e), y1 = (int) (by + boxH + e);
+                int col = CLASS_COLORS.getOrDefault(player.dungeonClass, 0xFFFFFFFF);
+                context.fill(x0, y0, x1, y0 + 1, col);
+                context.fill(x0, y1 - 1, x1, y1, col);
+                context.fill(x0, y0, x0 + 1, y1, col);
+                context.fill(x1 - 1, y0, x1, y1, col);
+            }
         }
+    }
+
+    private static boolean openedDead = false;
+
+    private static boolean selfDead() {
+        if (mc.player == null) return false;
+        if (!mc.player.isAlive()) return true;
+        String self = mc.player.getName().getString();
+        for (DungeonPlayer dp : PlayerTracker.getPlayers()) {
+            if (self.equals(dp.getName())) return !dp.isAlive();
+        }
+        return false;
+    }
+
+    // Skyblocker DungeonMap.isPlayerHovered: nearest head under the cursor
+    private static String hoveredHead(int mouseX, int mouseY) {
+        float r = Math.max(4f, 5f * TeslaMapsConfig.get().mapScale * TeslaMapsConfig.get().playerHeadScale);
+        String best = null;
+        double bestD = r * r;
+        for (MapRenderer.PlayerMarker m : leapMarkers) {
+            if (m.self() || m.name() == null) continue;
+            double d = (m.x() - mouseX) * (m.x() - mouseX) + (m.y() - mouseY) * (double) (m.y() - mouseY);
+            if (d <= bestD) { bestD = d; best = m.name(); }
+        }
+        return best;
     }
 
     private static void renderPlayerBox(GuiGraphicsExtractor context, Font textRenderer,
