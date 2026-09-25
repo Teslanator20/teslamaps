@@ -4,6 +4,9 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "GlowSectionMixin",
+    "ClientPacketListenerChunkAccessor",
+    "KeepTerrainChunkCacheMixin",
+    "KeepTerrainPacketMixin",
     "CameraDistanceMixin",
     "OutlineWidthMixin",
     "BigItemsMixin",

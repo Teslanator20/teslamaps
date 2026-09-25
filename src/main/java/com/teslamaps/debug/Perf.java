@@ -79,12 +79,18 @@ public class Perf {
     public static HudElement hud(String name, HudElement element) {
         return (GuiGraphicsExtractor ctx, DeltaTracker delta) -> {
             if (!enabled) {
-                element.extractRenderState(ctx, delta);
+                try {
+                    element.extractRenderState(ctx, delta);
+                } catch (Throwable e) {
+                    com.teslamaps.features.ErrorManager.caught(name, e);
+                }
                 return;
             }
             begin(name);
             try {
                 element.extractRenderState(ctx, delta);
+            } catch (Throwable e) {
+                com.teslamaps.features.ErrorManager.caught(name, e);
             } finally {
                 end();
             }

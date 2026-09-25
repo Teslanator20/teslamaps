@@ -38,6 +38,7 @@ public final class DevTools {
                     b.toggle("    Hovered Item To Chat", () -> cfg().dumpGuiSingleItem, v -> cfg().dumpGuiSingleItem = v)
                             .desc("Over a slot the key prints that item's id, model and custom data to chat instead");
                     b.info("/tmap debug copy <scoreboard|bossbar|actionbar|tab|item|pos|entities>, /tmap debug item, /tmap debug giveitem");
+                    com.teslamaps.features.inspector.Inspector.config(b);
                 });
         ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (!cfg().devItemInfo || lines.isEmpty() || stack.isEmpty()) return;

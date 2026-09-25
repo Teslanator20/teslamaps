@@ -2148,6 +2148,16 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w12-05-perf
+    public boolean keepTerrainLoaded = false;
+    public boolean outlinedTextCompat = false;
+    public boolean catchFeatureErrors = false;
+    public boolean featureErrorsInChat = true;
+    public boolean muteJerrychine = false;
+    public boolean muteFlowerOfTruth = false;
+    public boolean devInspector = false;
+    public int entityInspectorKey = -1;
+    public int itemInspectorKey = -1;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
