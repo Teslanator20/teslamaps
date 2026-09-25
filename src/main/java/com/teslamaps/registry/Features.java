@@ -516,6 +516,12 @@ final class Features {
         com.teslamaps.features.PartyInvites.register();
         com.teslamaps.features.capes.TeslaUserLabels.register();
         com.teslamaps.features.FancyPartyFinder.register();
+        // w11-03-par
+        com.teslamaps.features.Reparty.register();
+        com.teslamaps.features.PartyListFormat.register();
+        com.teslamaps.features.PartyMembersHud.register();
+        com.teslamaps.features.PartyJoinAlerts.register();
+        com.teslamaps.features.ThrottleNotifier.register();
         // w11-05-par
         com.teslamaps.features.PartyShortcuts.register();
         com.teslamaps.features.HighlightTeammates.register();
