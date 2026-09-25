@@ -2174,6 +2174,9 @@ public class TeslaMapsConfig {
     public boolean pbFortuneGain = false;
     public boolean pbFortuneOverflow = false;
     public java.util.Map<String, Double> pbItemsPerFortune = new java.util.HashMap<>();
+    // w13-03-pv
+    public boolean pvSacks = false;
+    public boolean pvHunting = false;
     // w13-02-eco
     public boolean auctionCopyUnderbid = false;
     public boolean searchOverlayCommands = false;
