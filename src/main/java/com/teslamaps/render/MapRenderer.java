@@ -1403,6 +1403,15 @@ public class MapRenderer {
         var pose = context.pose();
         pose.pushMatrix();
         pose.translate(pixelX, pixelY);
+        int hpRing = isLocal ? 0 : com.teslamaps.features.TeammateHealth.mapColor(recordName);
+        if (hpRing != 0) {
+            int t = Math.max(1, Math.round(headSize / 8f));
+            int o = half + t * 3, i = half + t;
+            context.fill(-o, -o, o, -i, hpRing);
+            context.fill(-o, i, o, o, hpRing);
+            context.fill(-o, -i, -i, i, hpRing);
+            context.fill(i, -i, o, i, hpRing);
+        }
         float rad = config.rotatePlayerHeads ? (float) Math.toRadians(rotationDeg) : 0f;
         if (rad != 0f) pose.rotate(rad);
 

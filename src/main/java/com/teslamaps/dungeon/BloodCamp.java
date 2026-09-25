@@ -293,7 +293,7 @@ public class BloodCamp {
             if (c.bloodAssistTime) {
                 float timeDisplay = (time - c.bloodAssistOffset) / 1000f;
                 String col = timeDisplay > 1.5f ? "§a" : timeDisplay >= 0.5f ? "§6" : timeDisplay >= 0.0f ? "§c" : "§b";
-                ESPRenderer.drawText(matrices, col + String.format("%.2f", timeDisplay) + "s", endPoint.add(0, 2, 0), 2.0f, cameraPos);
+                ESPRenderer.drawText(matrices, col + decimals(timeDisplay, c.bloodAssistDecimals) + "s", endPoint.add(0, 2, 0), 2.0f, cameraPos);
             }
         }
     }
@@ -365,6 +365,13 @@ public class BloodCamp {
             return "§cThe Watcher: §f" + cur + "§7/§f" + max;
         }
         return null;
+    }
+
+    private static final String[] DECIMAL_FORMATS = {"%.0f", "%.1f", "%.2f", "%.3f"};
+
+    private static String decimals(float v, int places) {
+        if (places <= 0) return String.valueOf((int) Math.ceil(v));
+        return String.format(DECIMAL_FORMATS[Math.min(places, 3)], v);
     }
 
     private static void title(String text) {

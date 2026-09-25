@@ -30,6 +30,8 @@ public final class BloodCampCategory {
         b.label("Spawn Boxes (Assist)");
         b.toggle("Blood Camp Assist", () -> config.bloodCampAssist, v -> config.bloodCampAssist = v);
         b.toggle("  Spawn Countdown Text", () -> config.bloodAssistTime, v -> config.bloodAssistTime = v);
+        b.slider("    Countdown Decimals", 0f, 3f,
+                () -> (float) config.bloodAssistDecimals, v -> config.bloodAssistDecimals = Math.round(v), 0);
         b.toggle("  Line to Spawn", () -> config.bloodAssistLine, v -> config.bloodAssistLine = v);
         b.slider("  Box Size", 0.1f, 1.0f,
                 () -> config.bloodAssistBoxSize, v -> config.bloodAssistBoxSize = v);
@@ -49,6 +51,8 @@ public final class BloodCampCategory {
         b.toggle("Watcher Kill Alert (blood done)", () -> config.watcherKillAlert, v -> config.watcherKillAlert = v);
         b.toggle("Watcher Speed Grade", () -> config.watcherSpeedGrade, v -> config.watcherSpeedGrade = v);
         b.classFilter("  Watcher Grade: Only as Class", config.watcherGradeClasses);
+        b.toggle("  Send Grade to Party", () -> config.watcherSpeedAnnounce, v -> config.watcherSpeedAnnounce = v)
+                .desc("Posts Fast/Normal/Slow and the time in party chat.");
         b.toggle("Watcher Stats HUD", () -> config.watcherHud, v -> config.watcherHud = v);
         b.slider("  Watcher HUD Scale", 0.5f, 2.0f,
                 () -> config.watcherHudScale, v -> config.watcherHudScale = v, 1);

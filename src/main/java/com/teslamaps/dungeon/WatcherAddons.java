@@ -89,6 +89,11 @@ public class WatcherAddons {
         mc.gui.setTitle(Component.literal(title));
         mc.gui.setSubtitle(Component.literal(String.format("§bTook §d%.1fs§b!", s)));
         LoudSound.play(sound, TeslaMapsConfig.get().watcherGradeVolume, 1.0f);
+        if (TeslaMapsConfig.get().watcherSpeedAnnounce) {
+            String grade = s < 22.0 ? "Fast" : s < 25.0 ? "Normal" : "Slow";
+            com.teslamaps.features.Announce.send(com.teslamaps.features.Announce.PARTY,
+                    "Watcher: " + grade + " (" + fmt(ms) + ")");
+        }
     }
 
     private static void breakdown(long fullMs, long dlgMs, long mvMs) {

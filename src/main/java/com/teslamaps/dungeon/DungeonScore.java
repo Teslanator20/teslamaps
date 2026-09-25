@@ -142,6 +142,10 @@ public class DungeonScore {
 
         debugCounter++;
 
+        if (score < 200 && (sent270 || sent300)) {
+            sent270 = false;
+            sent300 = false;
+        }
         if (!sent270 && !sent300 && score >= 270 && score < 300) {
             sent270 = true;
             sendScoreMessage(270);
@@ -162,17 +166,31 @@ public class DungeonScore {
         int seconds = (int) (elapsed % 60);
         String timeStr = String.format("%02d:%02d", minutes, seconds);
 
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        String custom = milestone == 300 ? config.score300Text : config.score270Text;
+        String text = custom == null || custom.isBlank()
+                ? milestone + " Score reached @ " + timeStr
+                : custom.replace("{time}", timeStr).replace("{score}", String.valueOf(milestone));
+
         mc.player.sendSystemMessage(
             Component.literal("[")
                 .append(Component.literal("TeslaMaps").withStyle(style -> style.withColor(0x55FF55)))
                 .append(Component.literal("] "))
-                .append(Component.literal(milestone + " Score reached @ " + timeStr).withStyle(style -> style.withColor(0xFFFFFF)))
+                .append(Component.literal(text.replace('&', '§')).withStyle(style -> style.withColor(0xFFFFFF)))
         );
 
-        TeslaMapsConfig config = TeslaMapsConfig.get();
+        boolean title = milestone == 300 ? config.score300Title : config.score270Title;
+        if (title) {
+            String t = milestone == 300 ? config.score300TitleText : config.score270TitleText;
+            if (t == null || t.isBlank()) t = milestone + " Score!";
+            mc.gui.setTimes(0, 40, 10);
+            mc.gui.setTitle(Component.literal(t.replace("{time}", timeStr).replace('&', '§')));
+            mc.gui.setSubtitle(Component.empty());
+        }
+
         boolean announce = (milestone == 300 && config.announce300) || (milestone == 270 && config.announce270);
         if (announce && mc.getConnection() != null) {
-            mc.getConnection().sendCommand("pc " + milestone + " Score reached @ " + timeStr);
+            mc.getConnection().sendCommand("pc " + com.teslamaps.utils.StringUtil.strip(text.replace('&', '§')));
         }
     }
 

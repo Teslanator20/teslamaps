@@ -2154,6 +2154,35 @@ public class TeslaMapsConfig {
     public boolean pfColorLevels = true;
     public boolean pfMissingClasses = true;
     public boolean runLogger = false;
+    // w03-06-dun
+    public boolean score270Title = false;                  // big title at 270 score
+    public String score270TitleText = "&e270 Score!";
+    public String score270Text = "";                       // own chat/party text, empty = default
+    public boolean score300Title = false;
+    public String score300TitleText = "&c300 Score!";
+    public String score300Text = "";
+    public boolean chestProfitHud = false;                 // movable chest profit list after the run
+    public int chestProfitHudX = 10;
+    public int chestProfitHudY = 120;
+    public float chestProfitHudScale = 1.0f;
+    public boolean chestProfitHudEssence = true;
+    public boolean chestProfitHudCompact = true;
+    public boolean teammateHealth = false;                 // label + low/critical warning on teammates
+    public boolean teammateHealthLabels = true;
+    public boolean teammateHealthOutline = true;
+    public boolean teammateHealthMap = true;
+    public boolean teammateHealthOnlyHealer = false;
+    public boolean warpCooldownBlockJoin = false;          // block /joininstance while the cooldown runs
+    public boolean warpCooldownEndMessage = false;
+    public boolean watcherSpeedAnnounce = false;           // watcher grade to party chat
+    public int bloodAssistDecimals = 2;
+    public boolean customSplits = false;                   // own split messages per floor
+    public java.util.Map<String, java.util.List<CustomSplit>> customSplitDefs = new java.util.HashMap<>();
+
+    public static class CustomSplit {
+        public String name = "";
+        public String message = "";
+    }
 
     // w02-06-term
     public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
@@ -2494,6 +2523,7 @@ public class TeslaMapsConfig {
         if (c.guildNames == null) c.guildNames = new ArrayList<>();
         if (c.friendNames == null) c.friendNames = new ArrayList<>();
         if (c.splitPbs == null) c.splitPbs = new java.util.HashMap<>();
+        if (c.customSplitDefs == null) c.customSplitDefs = new java.util.HashMap<>();
         if (c.lockedSlots == null) c.lockedSlots = new java.util.ArrayList<>();
         if (c.slotBindsData == null) c.slotBindsData = new java.util.HashMap<>();
         if (c.slotBindsAreaProfiles == null) c.slotBindsAreaProfiles = new java.util.HashMap<>();

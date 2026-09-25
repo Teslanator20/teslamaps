@@ -85,6 +85,12 @@ public final class ESPCategory {
         b.toggle("  Mimic Chest Tracers", () -> config.mimicChestTracers, v -> config.mimicChestTracers = v);
         b.label("Other ESP");
         b.toggle("Highlight Teammates", () -> config.highlightTeammates, v -> config.highlightTeammates = v);
+        b.toggle("Teammate Health Warning", () -> config.teammateHealth, v -> config.teammateHealth = v).legit()
+                .desc("Reads the scoreboard hearts: yellow = LOW, red = CRITICAL, shown over the teammate through walls and on the map.");
+        b.toggle("  Name Labels ([M] Name)", () -> config.teammateHealthLabels, v -> config.teammateHealthLabels = v);
+        b.toggle("  Low/Critical Outline", () -> config.teammateHealthOutline, v -> config.teammateHealthOutline = v);
+        b.toggle("  Ring On Map Head", () -> config.teammateHealthMap, v -> config.teammateHealthMap = v);
+        b.toggle("  Only As Healer", () -> config.teammateHealthOnlyHealer, v -> config.teammateHealthOnlyHealer = v);
         b.toggle("Invisible Armor Stand ESP", () -> config.invisibleArmorStandESP, v -> config.invisibleArmorStandESP = v);
         b.toggle("Hoppity Egg ESP", () -> config.hoppityEggESP, v -> config.hoppityEggESP = v);
         b.toggle("  Hoppity Egg Tracers", () -> config.hoppityEggTracers, v -> config.hoppityEggTracers = v);

@@ -18,6 +18,9 @@ public final class TimersCategory {
         b.toggle("  Only Own Cooldown", () -> config.warpCooldownOwnOnly, v -> config.warpCooldownOwnOnly = v);
         b.toggle("  Sound When Ready", () -> config.warpCooldownSound, v -> config.warpCooldownSound = v);
         b.slider("    Warp Sound Volume", 0f, 5f, () -> config.warpCooldownVolume, v -> config.warpCooldownVolume = v);
+        b.toggle("  Block /joininstance", () -> config.warpCooldownBlockJoin, v -> config.warpCooldownBlockJoin = v)
+                .desc("Swallows /joininstance and /instancerequeue while your cooldown runs, also from shortcuts and auto requeue.");
+        b.toggle("  \"Cooldown Over\" Message", () -> config.warpCooldownEndMessage, v -> config.warpCooldownEndMessage = v);
         b.toggle("Wither Shield Timer (W-Impact)", () -> config.witherShieldTimer, v -> config.witherShieldTimer = v);
         b.toggle("  Shield HUD", () -> config.witherShieldHud, v -> config.witherShieldHud = v);
         b.toggle("    Hide When Ready", () -> config.witherShieldHideReady, v -> config.witherShieldHideReady = v);

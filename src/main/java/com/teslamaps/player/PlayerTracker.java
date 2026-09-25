@@ -24,7 +24,7 @@ public class PlayerTracker {
     public static final Pattern PLAYER_TAB_PATTERN = Pattern.compile(
             "\\[\\d+] (?:\\[[A-Za-z]+] )?(?<name>[A-Za-z0-9_]+) (?:.+ )?\\((?<class>\\S+) ?(?<level>[LXVI0]+)?\\)");
 
-    public static final Pattern PLAYER_GHOST_PATTERN = Pattern.compile(" ☠ (?<name>[A-Za-z0-9_]+) .+ became a ghost\\.");
+    public static final Pattern PLAYER_GHOST_PATTERN = Pattern.compile("☠ (?<name>[A-Za-z0-9_]+) .+ became a ghost\\.");
 
     private static final DungeonPlayer @Nullable [] players = new DungeonPlayer[5];
 
@@ -110,6 +110,14 @@ public class PlayerTracker {
             return null;
         }
         return str;
+    }
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("PlayerGhost").when(DungeonManager::isInDungeon)
+                .serverChat(line -> {
+                    String m = com.teslamaps.utils.StringUtil.strip(line);
+                    if (m.contains("became a ghost")) onGhostMessage(m);
+                });
     }
 
     public static void onGhostMessage(String message) {
@@ -200,15 +208,14 @@ public class PlayerTracker {
                 this.alive = false;
                 return;
             }
-            if ("EMPTY".equals(this.dungeonClass) && lastGhostTime + 2000 > System.currentTimeMillis()) {
-                return;
-            }
-            this.dungeonClass = dungeonClass;
+            // tab still shows the class for a moment after the ghost line
+            if (lastGhostTime + 2000 > System.currentTimeMillis()) return;
+            if (!"EMPTY".equals(dungeonClass)) this.dungeonClass = dungeonClass;
             this.alive = !"EMPTY".equals(dungeonClass);
         }
 
         public void ghost() {
-            update("EMPTY");
+            this.alive = false;
             lastGhostTime = System.currentTimeMillis();
         }
 
