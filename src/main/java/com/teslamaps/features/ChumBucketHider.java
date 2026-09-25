@@ -21,6 +21,7 @@ public final class ChumBucketHider {
 
     private static IntOpenHashSet ids = new IntOpenHashSet();
     private static int timer;
+    private static long tickAt;
 
     private ChumBucketHider() {}
 
@@ -39,10 +40,12 @@ public final class ChumBucketHider {
     }
 
     public static boolean shouldHide(Entity e) {
-        return e instanceof ArmorStand && !ids.isEmpty() && cfg().chumBucketHider && ids.contains(e.getId());
+        return e instanceof ArmorStand && !ids.isEmpty() && cfg().chumBucketHider && ids.contains(e.getId())
+                && System.currentTimeMillis() - tickAt < 1500;
     }
 
     private static void tick() {
+        tickAt = System.currentTimeMillis();
         if (++timer % 10 != 0) return;
         Minecraft mc = Minecraft.getInstance();
         IntOpenHashSet next = new IntOpenHashSet();

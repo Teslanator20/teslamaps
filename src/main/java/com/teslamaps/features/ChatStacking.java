@@ -174,7 +174,7 @@ public class ChatStacking {
         Component c = msg.content();
         String cached = colorCache.get(c);
         if (cached != null) return cached;
-        String k = com.teslamaps.utils.ChatText.formatted(c);
+        String k = com.teslamaps.utils.ChatText.formatted(ChatTimestamps.body(c));
         putCapped(colorCache, c, k);
         return k;
     }
@@ -188,7 +188,7 @@ public class ChatStacking {
         Component c = msg.content();
         String cached = plainCache.get(c);
         if (cached != null) return cached;
-        String plain = strip(c.getString());
+        String plain = ChatTimestamps.cut(strip(c.getString()));
         if (plainCache.size() > 512) plainCache.clear();
         plainCache.put(c, plain);
         return plain;

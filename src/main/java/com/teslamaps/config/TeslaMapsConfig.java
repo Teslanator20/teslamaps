@@ -543,6 +543,7 @@ public class TeslaMapsConfig {
     public static class ChatUserFilter {
         public String mode = "contains";         // contains / equals / startswith / endswith / regex
         public String text = "";
+        public String action;                    // null = Own Filter Action, "Notify" = highlight + ping
         public String title;                     // alert: title, {0}/{1}/{name} = regex groups
         public String sound;                     // alert: SoundOptions key
         public boolean flash;                    // alert: screen flash
@@ -2206,6 +2207,24 @@ public class TeslaMapsConfig {
     public boolean commandSuggestionsExtra = false;
     @Global
     public String ownHypixelRank = "";
+    // w10-01-chat
+    public String chatAutopetMode = "Show";          // Show / Hide / Action Bar / Toast
+    public float chatAutopetToastSeconds = 3f;
+    public boolean chatLog = false;                  // every chat line into logs/teslamaps-chat
+    public int chatLogDays = 7;
+    public boolean chatLogFilterStatus = false;      // status + reason, blocked/modified files, outgoing
+    public boolean chatTimestamps = false;
+    public String chatTimestampFormat = "24h";
+    public String chatTimestampColor = "555555";
+    public boolean currentChatDisplay = false;
+    public int currentChatDisplayX = 4;
+    public int currentChatDisplayY = 150;
+    public float currentChatDisplayScale = 1.0f;
+    public int chatPeekKey = -1;
+    public String chatNotifyColor = "FFFF55";
+    public String chatNotifySound = "NOTE_PLING";
+    public float chatNotifyVolume = 1.0f;
+    public boolean chatNotifyIgnoreOwn = true;
     // w10-03-chat
     public boolean compactJacobClaim = false;
     public boolean compactLevelUps = false;
@@ -3533,7 +3552,6 @@ public class TeslaMapsConfig {
     public boolean tooltipStonksPrice = false;
     public boolean tooltipFannCost = false;
     public boolean supercraftReminder = false;
-    public int bitsAvailable = -1;
     public String fameRank = "";
     // w05-05-inv
     public boolean progressHighlightTier = false;
@@ -4454,6 +4472,8 @@ public class TeslaMapsConfig {
         if (c.chatUserFilters == null) c.chatUserFilters = new java.util.ArrayList<>();
         c.chatUserFilters.removeIf(f -> f == null || f.text == null);
         if (c.chatUserFilterAction == null) c.chatUserFilterAction = "Hide";
+        if (c.chatAutopetMode == null) c.chatAutopetMode = "Show";
+        if (c.chatTimestampFormat == null) c.chatTimestampFormat = "24h";
         if (c.chatRedirectTarget == null) c.chatRedirectTarget = "Spam HUD";
         if (c.chatFilterAction == null || c.chatFilterAction.isBlank()) c.chatFilterAction = "Hide";
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();

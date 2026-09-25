@@ -371,10 +371,16 @@ public class ChatFilter {
         pendingText = null;
         pendingOut = null;
         String t = StringUtil.strip(text);
+        lastReason = "stashCompact";
         if (StashCompact.handle(t)) return true;
+        lastReason = "chatCompactsMore";
         if (ChatCompactsMore.handle(message, t)) return true;
+        lastReason = "melodyCompact";
         if (MelodyCompact.handle(t)) return true;
+        lastReason = "hoppityCompact";
         if (HoppityCompactChat.handle(message, text, t)) return true;
+        lastReason = "autopet";
+        if (autopet(t)) return true;
         if (TeslaMapsConfig.get().chatFilterEnabled) {
             String sf = ChatCompactRulesIslands.shortForm(message, t);
             if (sf != null && sf.isEmpty()) return true;
@@ -406,8 +412,14 @@ public class ChatFilter {
             else if (!hasClick(message, true)) queue(text, compact(message, shortForm));
             return false;
         }
+        lastReason = "petRarity";
         Component pet = RareDropNames.petRarity(message, t);
         if (pet != null) queue(text, pet);
+        Component notified = pendingOut == null ? ChatNotify.decorate(message) : null;
+        if (notified != null) {
+            lastReason = "notify";
+            queue(text, notified);
+        }
         return false;
     }
 
@@ -451,6 +463,28 @@ public class ChatFilter {
         queue(text, out);
     }
 
+    public static final String[] AUTOPET_MODES = {"Show", "Hide", "Action Bar", "Toast"};
+
+    // like Skyblocker's AutopetFilter: "Autopet equipped your [Lvl n] X! VIEW RULE"
+    private static boolean autopet(String t) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String mode = c.chatAutopetMode;
+        if (mode == null || mode.equals("Show")) return false;
+        String s = t.trim();
+        if (!s.startsWith("Autopet equipped your ") || !s.endsWith("VIEW RULE")) return false;
+        String pet = s.substring("Autopet equipped your ".length(), s.length() - "VIEW RULE".length()).trim();
+        if (pet.endsWith("!")) pet = pet.substring(0, pet.length() - 1);
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        switch (mode) {
+            case "Action Bar" -> mc.gui.setOverlayMessage(Component.literal("§cAutopet §eequipped §f" + pet), false);
+            case "Toast" -> mc.getToastManager().addToast(net.minecraft.client.gui.components.toasts.SystemToast.multiline(mc,
+                    new net.minecraft.client.gui.components.toasts.SystemToast.SystemToastId((long) (c.chatAutopetToastSeconds * 1000)),
+                    Component.literal("§cAutopet"), Component.literal(pet)));
+            default -> {}
+        }
+        return true;
+    }
+
     private static boolean apply(Component message, String text, String t, String action, Function<String, String> f) {
         switch (action == null ? "Hide" : action) {
             case "Grey" -> queue(text, grey(message));
@@ -480,6 +514,7 @@ public class ChatFilter {
     }
 
     private static void queue(String text, Component out) {
+        ChatLog.noteRewrite(lastReason == null ? "chatFilter" : lastReason);
         pendingText = text;
         pendingOut = out;
     }
