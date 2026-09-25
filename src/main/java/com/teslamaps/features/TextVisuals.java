@@ -63,8 +63,17 @@ public final class TextVisuals {
                     b.info("  /tmap visualwords add <word> | <replacement>");
                     b.info("  & color codes work in the replacement · list · remove <n> · toggle <n> · clear");
                     b.button("  List Visual Words In Chat", TextVisuals::list);
+                    b.toggle("Nick Hider", () -> c.nickHider, v -> c.nickHider = v)
+                            .desc("Replaces your own name in every text (chat, tab, scoreboard, name tags, tooltips). Set the nick with /tmap nick <name>, & color codes work. Other names: Visual Words.")
+                            .tags("streamer", "name changer", "nick");
+                    b.info("  /tmap nick <name> · /tmap nick reset");
                 });
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("tmap")
+                .then(ClientCommands.literal("nick")
+                        .executes(x -> { msg("§7Nick: §r" + (nick().isEmpty() ? "§8(none)" : legacy(nick())) + " §7- /tmap nick <name> | reset"); return 1; })
+                        .then(ClientCommands.literal("reset").executes(x -> { setNick(""); return 1; }))
+                        .then(ClientCommands.argument("name", StringArgumentType.greedyString())
+                                .executes(x -> { setNick(StringArgumentType.getString(x, "name").trim()); return 1; })))
                 .then(ClientCommands.literal("visualwords")
                         .executes(x -> { list(); return 1; })
                         .then(ClientCommands.literal("list").executes(x -> { list(); return 1; }))
@@ -80,6 +89,18 @@ public final class TextVisuals {
                                 .executes(x -> { remove(IntegerArgumentType.getInteger(x, "n")); return 1; })))
                         .then(ClientCommands.literal("toggle").then(ClientCommands.argument("n", IntegerArgumentType.integer(1))
                                 .executes(x -> { toggle(IntegerArgumentType.getInteger(x, "n")); return 1; }))))));
+    }
+
+    private static String nick() {
+        String n = cfg().nickHiderName;
+        return n == null ? "" : n;
+    }
+
+    private static void setNick(String n) {
+        cfg().nickHiderName = n;
+        TeslaMapsConfig.save();
+        msg(n.isEmpty() ? "§7Nick cleared." : "§7Nick set to §r" + legacy(n));
+        if (!n.isEmpty() && !cfg().nickHider) msg("§7Nick Hider is off, turn it on in Interface.");
     }
 
     private static void msg(String s) {
@@ -150,12 +171,16 @@ public final class TextVisuals {
     private static void refresh() {
         TeslaMapsConfig c = cfg();
         fullShadow = c.fullTextShadow;
+        String self = Minecraft.getInstance().getUser().getName();
+        boolean nickOn = c.nickHider && !nick().isEmpty() && self != null && !self.isEmpty();
         int h = c.visualWords ? 31 * c.visualWordList.size() + (c.visualWordsIgnoreCase ? 1 : 0) : 0;
         if (c.visualWords) for (VisualWord w : c.visualWordList) h = 31 * h + w.from.hashCode() * 7 + w.to.hashCode() + (w.enabled ? 1 : 0);
+        if (nickOn) h = 31 * h + self.hashCode() * 13 + nick().hashCode() + 1;
         if (h == hash && CACHE.size() < 4096) return;
         hash = h;
         CACHE.clear();
         List<Word> out = new ArrayList<>();
+        if (nickOn && !self.equals(nick())) out.add(compile(self, legacy(nick())));
         if (c.visualWords) {
             for (VisualWord w : c.visualWordList) {
                 if (!w.enabled || w.from.isEmpty()) continue;

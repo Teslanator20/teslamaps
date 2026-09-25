@@ -102,6 +102,7 @@ public class HudStyle {
     private static void custom(GuiGraphicsExtractor ctx, float x, float y, float width, float height) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         float r = Math.max(0, Math.min(c.hudCustomRadius, Math.min(width, height) / 2f));
+        if (c.hudCustomBlur >= 0.5f) PanelBlur.draw(ctx, x, y, width, height, r);
         TeslaGui.roundedRect(ctx, x, y, width, height, r, TeslaMapsConfig.parseColor(c.hudCustomBg));
         float bw = c.hudCustomBorderWidth;
         if (bw <= 0) return;

@@ -92,13 +92,21 @@ public final class FeatureRegistry {
 
     private static void drawShifted(String id, HudElement r, GuiGraphicsExtractor g, DeltaTracker d) {
         com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
-        HudEditElement e = c.hudClampToScreen || c.hudEdgeAnchors ? HudEditElement.forHud(id) : null;
+        float gs = HudEditElement.globalScale();
+        HudEditElement e = c.hudClampToScreen || c.hudEdgeAnchors || gs != 1f ? HudEditElement.forHud(id) : null;
         int dx = e == null ? 0 : e.shiftX(), dy = e == null ? 0 : e.shiftY();
+        if (e == null) gs = 1f;
         com.teslamaps.render.gui.HudStyle.beginPanel(id);
         try {
-            if (dx == 0 && dy == 0) { r.extractRenderState(g, d); return; }
+            if (dx == 0 && dy == 0 && gs == 1f) { r.extractRenderState(g, d); return; }
             g.pose().pushMatrix();
             g.pose().translate(dx, dy);
+            if (gs != 1f) {
+                int px = e.pivotX(), py = e.pivotY();
+                g.pose().translate(px, py);
+                g.pose().scale(gs, gs);
+                g.pose().translate(-px, -py);
+            }
             r.extractRenderState(g, d);
             g.pose().popMatrix();
         } finally {
@@ -128,6 +136,7 @@ public final class FeatureRegistry {
 
     public static void world(PoseStack pose, MultiBufferSource buffers, Vec3 cam,
                              net.minecraft.client.renderer.culling.Frustum frustum) {
+        if (!com.teslamaps.features.WorldOverlayToggle.beginWorld()) return;
         WorldCtx ctx = new WorldCtx(pose, buffers, cam);
         com.teslamaps.render.ESPRenderer.beginFrame(frustum);
         try {

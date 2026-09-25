@@ -55,6 +55,8 @@ public final class ChatCategory {
                 () -> (float) config.chatStackWindowMinutes, v -> config.chatStackWindowMinutes = Math.round(v));
         b.toggle("  Stack Divider Blocks (---/===/▬▬▬)", () -> config.chatStackBlocks, v -> config.chatStackBlocks = v);
         b.toggle("  Colours Must Match", () -> config.chatStackCompareColors, v -> config.chatStackCompareColors = v);
+        b.toggle("  Ignore Numbers (Smart Collapse)", () -> config.chatStackNormalizeNumbers, v -> config.chatStackNormalizeNumbers = v)
+                .desc("Lines that only differ in their numbers stack too; player chat only stacks with the line right above");
         b.toggle("Keep Scroll Position On Reopen", () -> config.chatKeepScroll, v -> config.chatKeepScroll = v)
                 .desc("Closing and reopening chat keeps where you scrolled to instead of jumping to the newest line");
         b.toggle("Compact Channel Lines", () -> config.chatCompactChannels, v -> config.chatCompactChannels = v)
@@ -105,6 +107,10 @@ public final class ChatCategory {
         b.toggle("  Hotkey Placeholders", () -> config.hotkeyPlaceholders, v -> config.hotkeyPlaceholders = v)
                 .desc("{x} {y} {z} {player} {island} {location} {server} {health} {maxHealth} {mana} {maxMana} in hotkey texts");
         b.toggle("Gradient [TeslaMaps] Prefix", () -> config.chromaPrefix, v -> config.chromaPrefix = v);
+        b.toggle("Full Chat Chroma", () -> config.fullChatChroma, v -> config.fullChatChroma = v)
+                .desc("All visible chat text cycles through chroma");
+        b.toggle("Encrypted Chat", () -> config.chatEncrypt, v -> config.chatEncrypt = v)
+                .desc("Your chat and /pc /gc /msg text is sent encrypted; only TeslaMaps users can read it. Same as /tmap encrypt on|off. Incoming encrypted lines are always decrypted.");
         b.color("Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v);
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);
         b.dropdown("  Prefix Text", com.teslamaps.features.ChromaPrefix.STYLES,
@@ -131,6 +137,8 @@ public final class ChatCategory {
         b.slider("  Redirect Toast Seconds", 1f, 15f, () -> config.chatRedirectSeconds, v -> config.chatRedirectSeconds = v, 1);
         b.info("Redirect moves the line out of chat into a movable toast list (/tmap gui)");
         b.toggle("Never Hide Clickable Lines", () -> config.chatFilterKeepClickable, v -> config.chatFilterKeepClickable = v);
+        b.toggle("  Mute Party Spam Pings", () -> config.mutePartySpam, v -> config.mutePartySpam = v)
+                .desc("Party messages starting with a listed prefix (Bonzo Procced, Leaped to, [Skyblocker], ...) don't play the party ping. /tmap partyspam add|remove|list|reset");
         b.toggle("Compact Combat Lines", () -> config.chatCompactCombat, v -> { config.chatCompactCombat = v; if (v) config.chatFilterEnabled = true; })
                 .desc("Cooldown, not enough mana, ability ready, too fast, in combat -> one short line, full text on hover");
         b.toggle("  Damage & Heal Lines", () -> config.chatCompactDamage, v -> config.chatCompactDamage = v)
@@ -235,6 +243,8 @@ public final class ChatCategory {
         b.toggle("Hide Profile Info", () -> config.chatFilterProfileInfo, v -> config.chatFilterProfileInfo = v);
         b.toggle("Hide HOTF/HOTM Perks", () -> config.chatFilterPerkBuffs, v -> config.chatFilterPerkBuffs = v);
         b.toggle("  Keep Sky Mall/Lottery On Its Island", () -> config.chatFilterPerkBuffsElsewhere, v -> config.chatFilterPerkBuffsElsewhere = v);
+        b.toggle("  One Line Instead (☀ Sky Mall · buff)", () -> config.chatFilterPerkBuffsCompact, v -> config.chatFilterPerkBuffsCompact = v)
+                .desc("Sky Mall, Lottery and Beekeeper: the buff of the day as one short line instead of hiding it");
         b.toggle("Hide Bone Plating", () -> config.chatFilterBonePlating, v -> config.chatFilterBonePlating = v);
         b.toggle("Hide Oruo Messages", () -> config.chatFilterOruo, v -> config.chatFilterOruo = v);
         b.toggle("Hide Wither King Heroes Line", () -> config.chatFilterWitherKingHeroes, v -> config.chatFilterWitherKingHeroes = v);

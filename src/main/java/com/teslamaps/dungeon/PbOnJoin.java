@@ -28,6 +28,10 @@ public class PbOnJoin {
         String clean = com.teslamaps.utils.StringUtil.strip(message).trim();
         Matcher m = JOIN.matcher(clean);
         if (!m.find()) return;
+        if (TeslaMapsConfig.get().pbOnJoinKuudra && !clean.contains("joined the dungeon group")) {
+            com.teslamaps.features.KuudraPartyFinder.onJoin(m.group(1));
+            return;
+        }
         if (TeslaMapsConfig.get().pbOnJoinCard) {
             var p = Minecraft.getInstance().player;
             if (p == null || !p.getGameProfile().name().equalsIgnoreCase(m.group(1))) CataCard.show(m.group(1), true, false);
@@ -39,6 +43,11 @@ public class PbOnJoin {
             if (c.find()) cls = DungeonInfoHud.classColor(c.group(1)) + c.group(1) + " " + c.group(2);
         }
         lookup(m.group(1), cls);
+    }
+
+    /** /pcheck: the same one-liner as on a join, for any name. */
+    public static void check(String name) {
+        lookup(name, null);
     }
 
     private static void lookup(String name, String cls) {

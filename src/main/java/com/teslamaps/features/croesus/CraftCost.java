@@ -66,6 +66,62 @@ public final class CraftCost {
         return cost;
     }
 
+    private static final int DEEP_DEPTH = 15;
+    private static final long DEEP_CACHE_MS = 60_000L;
+    private static final Map<String, Cached> deepCache = new ConcurrentHashMap<>();
+
+    /**
+     * Craft cost where every ingredient counts at the cheaper of its market price and its own
+     * craft cost, down to 15 levels. After Skyblocker's CraftPriceTooltip.
+     */
+    public static Double cheapestOrNull(String id, int source) {
+        if (id == null || id.isEmpty()) return null;
+        String key = source + "|" + id;
+        long now = System.currentTimeMillis();
+        Cached c = deepCache.get(key);
+        if (c != null && now - c.at() < DEEP_CACHE_MS) return c.cost();
+        Double cost = deep(id, source, 0, new HashSet<>(), new HashMap<>());
+        if (deepCache.size() > 4096) deepCache.clear();
+        // unknown while recipes still load, ask again soon
+        deepCache.put(key, new Cached(cost, cost == null ? now - DEEP_CACHE_MS + 2_000L : now));
+        return cost;
+    }
+
+    private static Double deep(String id, int source, int depth, Set<String> path, Map<String, Double> memo) {
+        if (memo.containsKey(id)) return memo.get(id);
+        List<Recipe> list = recipes.get(id);
+        if (list == null) {
+            fetch(id);
+            return null;
+        }
+        if (list.isEmpty() || !path.add(id)) return null;
+        Double best = null;
+        for (Recipe r : list) {
+            double sum = 0;
+            boolean ok = true;
+            for (Map.Entry<String, Integer> ing : r.ingredients().entrySet()) {
+                String neuId = ing.getKey();
+                String ingId = neuId.replace('-', ':');
+                Double market = PriceManager.marketPriceOrNull(ingId, source);
+                if (market == null && !ingId.equals(neuId)) market = PriceManager.marketPriceOrNull(neuId, source);
+                Double craft = depth + 1 < DEEP_DEPTH && source != PriceManager.SOURCE_NPC
+                        ? deep(neuId, source, depth + 1, path, memo) : null;
+                Double p = market == null ? craft : craft == null ? market : Math.min(market, craft);
+                if (p == null) {
+                    ok = false;
+                    break;
+                }
+                sum += p * ing.getValue();
+            }
+            if (!ok || sum <= 0) continue;
+            double per = sum / Math.max(1, r.count());
+            if (best == null || per < best) best = per;
+        }
+        path.remove(id);
+        memo.put(id, best);
+        return best;
+    }
+
     /** Crafting recipes of an item (NEU id), empty if none, null while the file is still loading. */
     public static List<Recipe> recipesOrNull(String id) {
         if (id == null || id.isEmpty()) return List.of();
@@ -142,6 +198,7 @@ public final class CraftCost {
                 } else {
                     recipes.put(id, parse(JsonParser.parseString(resp.body()).getAsJsonObject()));
                     cache.clear();
+                    deepCache.clear();
                 }
             } catch (Exception e) {
                 failed.put(id, System.currentTimeMillis());

@@ -2169,6 +2169,167 @@ public class TeslaMapsConfig {
     public boolean hudEditGuides = true;
     public boolean hudEditMultiDrag = true;
     public boolean hudEditResize = true;
+    // w11-04-par
+    public boolean partyCheckCommands = false;
+    public java.util.Set<String> chatCommandsExtraEnabled = new java.util.LinkedHashSet<>();
+    public boolean chatCommandsInviteAutoConfirm = false;
+    public boolean chatCommandsDtReasons = false;
+    public boolean markedPlayers = false;
+    public java.util.Set<String> markedPlayerNames = new java.util.LinkedHashSet<>();
+    public boolean markedPlayersWorld = true;
+    public boolean markedPlayersChat = true;
+    public String markedPlayersChatColor = "FFFF55";
+    public boolean markedPlayersJoinLeave = false;
+    public com.teslamaps.render.EspStyle markedPlayersStyle = new com.teslamaps.render.EspStyle("FFFFFF55");
+    public boolean socialHideFakePlayers = false;
+    public boolean scamCheck = false;
+    public boolean scamCheckClose = true;
+    public boolean modChat = false;
+    public boolean modChatJoinMessage = false;
+    // w11-08-gui
+    public boolean configColumnLayout = false;
+    public boolean configColumnFling = false;
+    public java.util.Map<String, float[]> configColumns = new java.util.LinkedHashMap<>(); // category -> x, y, scale, collapsed
+    public boolean hudEditExtras = false;
+    public boolean hudEditReset = true;
+    public boolean hudEditNudge = true;
+    public boolean hudEditShowDisabled = true;
+    public boolean hudEditRightClickToggle = true;
+    public boolean hudEditJump = true;
+    @Global
+    public boolean configBackups = false;
+    @Global
+    public int configBackupsMax = 20;
+    public boolean featureToggleKeys = false;
+    public boolean featureToggleChat = true;
+    public java.util.Map<String, Integer> featureToggleBinds = new java.util.LinkedHashMap<>(); // boolean field -> key
+    // w12-07-eco
+    public boolean contestShowDarkAuction = false;
+    public boolean bitsShopHelper = false;
+    public boolean bitsShopBits = true;
+    public boolean bitsShopCopper = true;
+    public boolean bitsShopHighlight = true;
+    public boolean priceLineCraftCheapest = false;
+    public boolean bazaarOnlyMyOrders = false;
+    public boolean bazaarFlipTracker = false;
+    public boolean bazaarFlipShowTotal = false;
+    public boolean bazaarFlipInstant = true;
+    public int bazaarFlipX = 5;
+    public int bazaarFlipY = 180;
+    public float bazaarFlipScale = 1.0f;
+    public boolean tradeValue = false;
+    public boolean tradeValueChanges = true;
+    public boolean bazaarChatSummary = false;
+    // w11-01-par
+    public boolean pbOnJoinButtons = false;
+    public boolean chatNamesOpenPv = false;
+    public boolean pbOnJoinKuudra = false;
+    public boolean kuudraPfKickLine = true;
+    public boolean kuudraPfSound = false;
+    public boolean kuudraPfAutoKick = false;
+    public boolean kuudraPfInform = false;
+    public boolean kuudraPfApiOffKick = true;
+    public int kuudraPfMinMp = 1000;
+    public int kuudraPfMinT5 = 50;
+    public boolean kuudraPfReqGdrag = false;
+    public boolean kuudraPfReqHeart = false;
+    public boolean kuudraPfReqTux = false;
+    public boolean kuudraPfKickCache = true;
+    public boolean kuudraRunsReply = false;
+    public boolean acceptLastInvite = false;
+    public boolean manaDrainAnnounce = false;
+    public boolean spellAnnounce = false;
+    public boolean spellAnnounceSpark = true;
+    public boolean spellAnnounceRush = true;
+    public boolean spellAnnounceWind = true;
+    public boolean spellAnnounceIchor = true;
+    public boolean mutePartySpam = false;
+    public java.util.List<String> mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
+    public boolean safariHotspotPost = false;
+    public String safariHotspotPostChannel = "Party";
+    public boolean hunterTrades = false;
+    public String hunterTradesChannel = "Party";
+    public boolean hunterTradesChat = true;
+    public boolean hunterTradesAcceptShared = true;
+    public boolean hunterTradesWaypoints = true;
+    public int hunterTradesX = 5;
+    public int hunterTradesY = 160;
+    public float hunterTradesScale = 1.0f;
+    // w11-06-gui
+    public float hudCustomBlur = 0f;               // HUD Style "Custom": backdrop blur radius, 0 = off
+    public String hudCustomBlurKernel = "Gaussian"; // Gaussian / Box
+    public float hudGlobalScale = 1.0f;            // multiplies every movable HUD element
+    public boolean newOptionsNotify = false;
+    @Global
+    public java.util.List<String> knownToggles = new java.util.ArrayList<>(); // "Category/Label" seen so far
+    @Global
+    public int worldOverlayKey = -1;               // hides every world overlay while toggled
+    public boolean worldOverlayFade = true;
+    // w11-02-par
+    public boolean multiPartyInviteFix = false;
+    public boolean teslaUserLabels = false;
+    public String teslaUserLabelColor = "55FFFF";
+    public String pfRightClickMode = "Off";
+    public boolean fancyPartyFinder = false;
+    public boolean nickHider = false;
+    public String nickHiderName = "";
+    public boolean partyOnBoop = false;
+    public boolean partyOnBoopBingoOnly = false;
+    public boolean replyBoop = false;
+    // w11-03-par
+    public boolean repartyCommand = false;
+    public boolean repartyAutoAccept = false;
+    public boolean pfLevelReq = false;
+    public boolean pfMissingOverlay = false;
+    public boolean pfTooltipStats = false;
+    public boolean partyListFormat = false;
+    public boolean partyHud = false;
+    public boolean partyHudOnlyAreas = false;
+    public int partyHudMax = 8;
+    public int partyHudX = 5;
+    public int partyHudY = 120;
+    public float partyHudScale = 1.0f;
+    public boolean partyJoinSound = false;
+    public String partyJoinSoundType = "NOTE_PLING";
+    public boolean kickedLimboAlert = false;
+    public boolean safariPlayersOnEnd = false;
+    public boolean throttleNotifier = false;
+    public boolean throttleNotifierCooldown = true;
+    public String throttleNotifierText = "Menu throttled, give me a second!";
+    // w11-05-par
+    public boolean partyShortcuts = false;
+    public boolean partyKickReason = false;
+    public boolean partyTabComplete = false;
+    public boolean reversePtClickable = false;
+    @Global
+    public String reversePtMessage = "";
+    public boolean highlightPartyOutside = false;
+    public String highlightPartyColor = "55FFFF";
+    public boolean dianaPartyFinder = false;
+    public float dianaPartyFinderMinRate = 0f;
+    public boolean posMessages = false;
+    public boolean posMessagesOnlyDungeons = true;
+    public boolean posMessagesOncePerWorld = false;
+    public boolean posMessagesShow = true;
+    public float posMessagesHeight = 0.2f;
+    public boolean posMessagesDepth = true;
+    public boolean posMessagesShowText = true;
+    public float posMessagesTextSize = 1.0f;
+    public static class PosMessage {
+        public double x, y, z;
+        public Double x2, y2, z2;
+        public int delay;
+        public Double distance;
+        public int color = 0xFFFFFFFF;
+        public String message = "";
+    }
+    @Global
+    public List<PosMessage> posMessageList = new ArrayList<>();
+    // w11-00-chat
+    public boolean fullChatChroma = false;
+    public boolean chatStackNormalizeNumbers = false;
+    public boolean chatFilterPerkBuffsCompact = false;
+    public boolean chatEncrypt = false;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4367,7 +4528,16 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.mutePartySpamPrefixes == null) c.mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
+        c.mutePartySpamPrefixes.removeIf(s -> s == null || s.isEmpty());
+        if (c.safariHotspotPostChannel == null) c.safariHotspotPostChannel = "Party";
+        if (c.hunterTradesChannel == null) c.hunterTradesChannel = "Party";
+        if (c.knownToggles == null) c.knownToggles = new java.util.ArrayList<>();
+        if (c.hudCustomBlurKernel == null) c.hudCustomBlurKernel = "Gaussian";
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
+        if (c.posMessageList == null) c.posMessageList = new java.util.ArrayList<>();
+        c.posMessageList.removeIf(java.util.Objects::isNull);
+        if (c.reversePtMessage == null) c.reversePtMessage = "";
         if (c.sackNotifyItems == null) c.sackNotifyItems = new java.util.ArrayList<>();
         if (c.chatMutedPlayers == null) c.chatMutedPlayers = new java.util.ArrayList<>();
         if (c.mobIconColors == null) c.mobIconColors = new java.util.HashMap<>();
@@ -4434,6 +4604,9 @@ public class TeslaMapsConfig {
         if (c.dragonHitboxColor == null) c.dragonHitboxColor = "00FFFF";
         if (c.lividAnnounceText == null) c.lividAnnounceText = "Livid is [color]!";
         if (c.chatCommandsDisabled == null) c.chatCommandsDisabled = new ArrayList<>();
+        if (c.chatCommandsExtraEnabled == null) c.chatCommandsExtraEnabled = new java.util.LinkedHashSet<>();
+        if (c.markedPlayerNames == null) c.markedPlayerNames = new java.util.LinkedHashSet<>();
+        if (c.markedPlayersChatColor == null) c.markedPlayersChatColor = "FFFF55";
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
         if (c.blockEspBlocks == null) c.blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4506,6 +4679,10 @@ public class TeslaMapsConfig {
         c.keybinds.removeIf(java.util.Objects::isNull);
         for (Keybind kb : c.keybinds) if (kb.actions == null) kb.actions = "";
         if (c.hudAnchorRefs == null) c.hudAnchorRefs = new java.util.HashMap<>();
+        if (c.configColumns == null) c.configColumns = new java.util.LinkedHashMap<>();
+        c.configColumns.values().removeIf(v -> v == null || v.length < 4);
+        if (c.featureToggleBinds == null) c.featureToggleBinds = new java.util.LinkedHashMap<>();
+        c.featureToggleBinds.values().removeIf(java.util.Objects::isNull);
         if (c.hudPanelStyles == null) c.hudPanelStyles = new java.util.HashMap<>();
         if (c.hudPanelChroma == null) c.hudPanelChroma = new java.util.HashMap<>();
         if (c.outsideSbFeatures == null) c.outsideSbFeatures = new java.util.ArrayList<>();
@@ -4657,6 +4834,7 @@ public class TeslaMapsConfig {
                     instance = new TeslaMapsConfig();
                 }
                 normalize(instance);
+                ConfigBackups.afterLoad(CONFIG_PATH);
                 if (migrated) save();
                 TeslaMaps.LOGGER.info("Config loaded from {}", CONFIG_PATH);
             } else {
@@ -4670,10 +4848,18 @@ public class TeslaMapsConfig {
         }
     }
 
+    public static Path path() { return CONFIG_PATH; }
+
+    public static void reloadFromDisk() {
+        load();
+        version++;
+    }
+
     public static void save() {
         version++;
         try {
             Files.createDirectories(CONFIG_PATH.getParent());
+            ConfigBackups.beforeSave(CONFIG_PATH);
             Files.writeString(CONFIG_PATH, GSON.toJson(instance));
         } catch (IOException e) {
             TeslaMaps.LOGGER.error("Failed to save config", e);

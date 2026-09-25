@@ -70,7 +70,17 @@ public final class InterfaceCategory {
         b.dropdown("  Text Chroma (All Panels)", com.teslamaps.render.gui.HudStyle.CHROMA_MODES,
                 () -> config.hudChromaAll, v -> config.hudChromaAll = v)
                 .desc("Rainbow text on every HUD panel. Plain Text leaves coloured parts alone.").tags("chroma", "rainbow");
+        b.slider("  Custom Blur", 0f, 20f, () -> config.hudCustomBlur, v -> config.hudCustomBlur = v, 0)
+                .desc("Blurs the world behind \"Custom\" panels. 0 = off.").tags("panel", "blur", "frosted");
+        b.dropdown("    Blur Kernel", new String[]{"Gaussian", "Box"},
+                () -> config.hudCustomBlurKernel, v -> config.hudCustomBlurKernel = v).tags("panel", "blur");
         panelStyles(b, config);
+        b.label("Layout");
+        b.toggle("Column Layout", () -> config.configColumnLayout, v -> config.configColumnLayout = v)
+                .desc("Opens settings as movable columns, one per category: drag a header, scroll while dragging to scale, right-click to fold. Takes effect the next time the settings open.")
+                .tags("clickgui", "columns", "odin", "layout");
+        b.toggle("  Fling Columns", () -> config.configColumnFling, v -> config.configColumnFling = v)
+                .desc("A column let go mid-drag keeps sliding and bounces off the screen edges.");
         b.label("HUD Positions");
         b.toggle("Keep HUDs On Screen", () -> config.hudClampToScreen, v -> config.hudClampToScreen = v)
                 .desc("A panel that would end up off screen (smaller GUI scale, terminal scale, window resize) is drawn at the edge. The saved position stays.")
@@ -89,6 +99,19 @@ public final class InterfaceCategory {
         b.toggle("  Centre Guides", () -> config.hudEditGuides, v -> config.hudEditGuides = v);
         b.toggle("  Ctrl+Click Multi-Drag", () -> config.hudEditMultiDrag, v -> config.hudEditMultiDrag = v);
         b.toggle("  Resize Grip", () -> config.hudEditResize, v -> config.hudEditResize = v);
+        b.toggle("HUD Editor Extras", () -> config.hudEditExtras, v -> config.hudEditExtras = v)
+                .desc("More controls in /tmap gui. Hover an element to see its position and the keys.")
+                .tags("hud", "editor", "reset", "nudge", "tmap gui");
+        b.toggle("  Reset (R Key + Reset All)", () -> config.hudEditReset, v -> config.hudEditReset = v)
+                .desc("R puts the hovered or last clicked element back to its default position and scale. Reset All asks for a second click.");
+        b.toggle("  Arrow Keys Move, +/- Scale", () -> config.hudEditNudge, v -> config.hudEditNudge = v)
+                .desc("1 px per press, 10 px with Shift. +/- (numpad too) change the scale by 0.1.");
+        b.toggle("  Show Disabled HUDs", () -> config.hudEditShowDisabled, v -> config.hudEditShowDisabled = v)
+                .desc("Switched-off elements are drawn as grey boxes, so you can place them anyway.");
+        b.toggle("    Right-Click Toggles HUD", () -> config.hudEditRightClickToggle, v -> config.hudEditRightClickToggle = v)
+                .desc("Right-click an element to switch its feature on or off.");
+        b.toggle("  Middle-Click Opens Settings", () -> config.hudEditJump, v -> config.hudEditJump = v)
+                .desc("Middle-click an element to jump to its settings.");
         b.label("Outside SkyBlock");
         b.toggle("Only Run Features In SkyBlock", () -> config.outsideSbGate, v -> config.outsideSbGate = v)
                 .desc("Off = unchanged. On = every feature stops outside Hypixel SkyBlock, except the ones picked below.")
@@ -110,6 +133,7 @@ public final class InterfaceCategory {
                 () -> config.configScreenKeyExclusive, v -> config.configScreenKeyExclusive = v);
         b.info("Right Shift by default, press again to close");
         b.info("Block Other Mods eats the key before anything else sees it");
+        com.teslamaps.features.FeatureToggleKeys.config(b, config);
         b.label("Performance HUD");
         b.toggle("Performance HUD", () -> config.perfHud, v -> config.perfHud = v);
         b.toggle("  Show FPS", () -> config.perfHudFps, v -> config.perfHudFps = v);
