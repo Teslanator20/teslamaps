@@ -317,6 +317,7 @@ public class ChatMixin {
         out = com.teslamaps.features.PartyFinderLinks.rewrite(out);
         out = com.teslamaps.features.garden.HoeLevelDisplay.rewrite(out);
         out = com.teslamaps.features.mining.GemstonePowderChat.rewrite(com.teslamaps.features.mining.DwarvenPuzzles.rewrite(out));
+        out = com.teslamaps.features.mining.ScathaAlerts.rewrite(out);
         // before channel compaction, the parser needs "Party > "
         out = com.teslamaps.features.PlayerChatFormat.rewrite(com.teslamaps.features.ChatTranslator.rewrite(out));
         out = com.teslamaps.features.MarkedPlayers.rewrite(out);

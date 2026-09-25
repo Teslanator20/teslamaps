@@ -155,7 +155,7 @@ public final class FancyAuctionHouse {
     }
 
     private static boolean active(AbstractContainerScreen<?> cs) {
-        return !vanilla && modeOf(cs) != Mode.NONE && FEATURE.active();
+        return FEATURE.active() && !vanilla && modeOf(cs) != Mode.NONE;
     }
 
     public static boolean blocking(AbstractContainerScreen<?> cs) {

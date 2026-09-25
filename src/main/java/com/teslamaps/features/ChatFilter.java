@@ -133,6 +133,8 @@ public class ChatFilter {
                     || s.equals("You received kill credit for assisting on a slayer miniboss!")
                     || s.startsWith("✆ RING... ");
         });
+        Pattern hellion = p("^(?:Your hit was reduced by Hellion Shield!|Strike using the \\w+ attunement on your dagger!)$");
+        more("chatFilterHellion", c -> c.chatFilterHellion, t -> hellion.matcher(t.trim()).matches());
         more("chatFilterUselessWarnings", c -> c.chatFilterUselessWarnings, oneOf(
                 "You are sending commands too fast! Please slow down.", "You can't use this while in combat!",
                 "You can not modify your equipped armor set!", "Please wait a few seconds between refreshing!",
@@ -373,6 +375,9 @@ public class ChatFilter {
         String t = StringUtil.strip(text);
         lastReason = "stashCompact";
         if (StashCompact.handle(t)) return true;
+        lastReason = "miningChestSummary";
+        if (com.teslamaps.features.mining.MiningChestSummary.handle(message, text, t)) return true;
+        if (pendingOut != null) return false;
         lastReason = "chatCompactsMore";
         if (ChatCompactsMore.handle(message, t)) return true;
         lastReason = "melodyCompact";
@@ -385,6 +390,16 @@ public class ChatFilter {
         if (RareCropTracker.hide(t)) return true;
         lastReason = "autopet";
         if (autopet(t)) return true;
+        lastReason = "miningChat";
+        Boolean mining = com.teslamaps.features.mining.MiningChatHooks.handle(message, text, t);
+        if (mining != null) return mining;
+        String nucleus = com.teslamaps.features.mining.NucleusChatFilter.handle(message, text, t);
+        if (nucleus != null) {
+            lastReason = "nucleusChatFilter";
+            if (nucleus.isEmpty()) return true;
+            queue(text, Component.literal(nucleus));
+            return false;
+        }
         if (TeslaMapsConfig.get().chatFilterEnabled) {
             String sf = ChatCompactRulesIslands.shortForm(message, t);
             if (sf != null) lastReason = "compact";
@@ -463,7 +478,7 @@ public class ChatFilter {
     }
 
     /** Swap the line being added for {@code out}; used by the compact helpers. */
-    static void queueRewrite(String text, Component out) {
+    public static void queueRewrite(String text, Component out) {
         queue(text, out);
     }
 
@@ -545,7 +560,7 @@ public class ChatFilter {
     }
 
     /** Short line; the full line moves into the hover, the first command click stays. */
-    static Component compact(Component original, String shortForm) {
+    public static Component compact(Component original, String shortForm) {
         HoverEvent[] hover = {null};
         ClickEvent[] click = {null};
         original.visit((style, text) -> {

@@ -69,6 +69,9 @@ public final class CommissionWaypoints {
                             .tags("commission", "emissary", "lava springs", "royal mines", "glacite", "waypoint");
                     b.toggle("  Dwarven Mines", () -> c.commissionWaypointsDwarven, v -> c.commissionWaypointsDwarven = v);
                     b.toggle("  Glacite Tunnels", () -> c.commissionWaypointsGlacite, v -> c.commissionWaypointsGlacite = v);
+                    b.toggle("    All Gemstones Always", () -> c.commissionWaypointsGlaciteAlways, v -> c.commissionWaypointsGlaciteAlways = v)
+                            .desc("Marks every Aquamarine/Onyx/Peridot/Citrine spot, not only the ones for your open commissions");
+                    b.toggle("    Nearest Spot Only", () -> c.commissionWaypointsGlaciteNearest, v -> c.commissionWaypointsGlaciteNearest = v);
                     b.toggle("  Base Camp", () -> c.commissionWaypointsBaseCamp, v -> c.commissionWaypointsBaseCamp = v);
                     b.toggle("  Emissaries When Done", () -> c.commissionWaypointsEmissary, v -> c.commissionWaypointsEmissary = v);
                     b.toggle("    Hide With Royal Pigeon", () -> c.commissionWaypointsPigeon, v -> c.commissionWaypointsPigeon = v);
@@ -89,7 +92,7 @@ public final class CommissionWaypoints {
             int state = (glacite ? 1 : 0) | (c.commissionWaypointsDwarven ? 2 : 0) | (c.commissionWaypointsGlacite ? 4 : 0)
                     | (c.commissionWaypointsBaseCamp ? 8 : 0) | (c.commissionWaypointsEmissary ? 16 : 0)
                     | (c.commissionWaypointsPigeon && hasPigeon(mc) ? 32 : 0);
-            if (state != lastState || Commissions.version() != lastVersion) {
+            if (state != lastState || Commissions.version() != lastVersion || glacite && c.commissionWaypointsGlaciteNearest) {
                 lastState = state;
                 lastVersion = Commissions.version();
                 rebuild(glacite, c, (state & 32) != 0);
@@ -111,12 +114,12 @@ public final class CommissionWaypoints {
         var list = Commissions.active();
         if (glacite) {
             if (c.commissionWaypointsGlacite) {
-                for (var com : list) {
-                    if (com.done()) continue;
-                    for (Spot s : GLACITE) {
-                        if (!com.name().contains(s.key())) continue;
-                        for (BlockPos p : s.pos()) SET.add(p, s.label(), s.color(), 0);
-                    }
+                for (Spot s : GLACITE) {
+                    boolean want = c.commissionWaypointsGlaciteAlways;
+                    for (var com : list) if (!com.done() && com.name().contains(s.key())) want = true;
+                    if (!want) continue;
+                    if (c.commissionWaypointsGlaciteNearest) SET.add(nearest(s.pos()), s.label(), s.color(), 0);
+                    else for (BlockPos p : s.pos()) SET.add(p, s.label(), s.color(), 0);
                 }
             }
             if (c.commissionWaypointsBaseCamp) SET.add(BASE_CAMP, "§cBase Camp", 0xFF5555, 0);
@@ -135,6 +138,18 @@ public final class CommissionWaypoints {
         if (c.commissionWaypointsEmissary && !pigeon && Commissions.anyDone()) {
             for (BlockPos p : EMISSARIES) SET.add(p, "§fEmissary", 0xFFFFFF, 0);
         }
+    }
+
+    private static BlockPos nearest(BlockPos[] ps) {
+        var player = Minecraft.getInstance().player;
+        if (player == null) return ps[0];
+        BlockPos best = ps[0];
+        double bd = Double.MAX_VALUE;
+        for (BlockPos p : ps) {
+            double d = player.distanceToSqr(Vec3.atCenterOf(p));
+            if (d < bd) { bd = d; best = p; }
+        }
+        return best;
     }
 
     private static void render(PoseStack pose, Vec3 cam) {

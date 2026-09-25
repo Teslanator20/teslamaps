@@ -247,7 +247,7 @@ public class SearchOverlay {
         }
         String lower = id.toLowerCase(Locale.ROOT);
         if (equipment) sb.append("Equipment");
-        else if (!lower.matches(".*(armor|outfit|suit|tuxedo).*")) sb.append("Armor");
+        else if (!lower.contains("armor") && !lower.contains("outfit") && !lower.contains("suit") && !lower.contains("tuxedo")) sb.append("Armor");
         return sb.toString().trim();
     }
 
