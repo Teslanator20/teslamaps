@@ -578,7 +578,7 @@ public class EndProtector {
 
         if (c.endProtectorWorldText) {
             Vec3 label = new Vec3(pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5);
-            ESPRenderer.drawText(matrices, worldLabel(), label, 1.0f, cameraPos);
+            com.teslamaps.features.waypoints.WaypointSet.drawLabel(matrices, cameraPos, worldLabel(), label, 1.0f);
         }
     }
 

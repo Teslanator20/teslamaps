@@ -388,5 +388,10 @@ final class Features {
         com.teslamaps.features.hud.TitleStack.register();
         com.teslamaps.features.hud.SpringBootsHeight.register();
         com.teslamaps.features.DailyTimers.register();
+        // w08-08-vis
+        com.teslamaps.features.ArrowVisuals.register();
+        com.teslamaps.features.CustomCrosshair.register();
+        com.teslamaps.features.OldItemTextures.register();
+        com.teslamaps.features.BetterContainers.register();
     }
 }

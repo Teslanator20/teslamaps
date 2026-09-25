@@ -50,6 +50,8 @@ public final class HideCategory {
         b.toggle("  Keep Thrown Skulls Visible", () -> config.showMovingSkulls, v -> config.showMovingSkulls = v);
         b.toggle("Highlight Thrown Skulls", () -> config.highlightMovingSkulls, v -> config.highlightMovingSkulls = v);
         b.toggle("Hide Thrown Bones", () -> config.hideThrownBones, v -> config.hideThrownBones = v);
+        b.toggle("  Also Archer Passive (Bone Meal)", () -> config.hideArcherPassive, v -> config.hideArcherPassive = v)
+                .desc("Hides the bone meal items circling an Archer.");
         b.toggle("Hide Superboom TNT", () -> config.hideSuperboomTnt, v -> config.hideSuperboomTnt = v);
         b.toggle("Hide Blessings", () -> config.hideBlessing, v -> config.hideBlessing = v);
         b.toggle("Hide Revive Stone", () -> config.hideReviveStone, v -> config.hideReviveStone = v);
