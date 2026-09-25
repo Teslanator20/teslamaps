@@ -354,6 +354,7 @@ public class ChatFilter {
         pendingOut = null;
         String t = StringUtil.strip(text);
         if (StashCompact.handle(t)) return true;
+        if (ChatCompactsMore.handle(message, t)) return true;
         Rule r = matchStripped(t);
         if (r == SCREENSHOT) return true;
         if (r != null) return apply(message, text, t, actionOf(r), COMPACT.get(r.id));

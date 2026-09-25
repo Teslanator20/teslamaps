@@ -424,6 +424,8 @@ final class Features {
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
         com.teslamaps.features.LookTargeting.register();
+        // w10-03-chat
+        com.teslamaps.features.ChatCompacts.register();
         // w10-07-chat
         com.teslamaps.features.SackMessages.register();
         com.teslamaps.features.SkyblockXpChat.register();
@@ -434,7 +436,7 @@ final class Features {
         com.teslamaps.features.ConfirmPrompt.register();
         com.teslamaps.features.ChatSearch.register();
         com.teslamaps.features.ChatEmotes.register();
-        com.teslamaps.features.ChatCompacts.register();
+        com.teslamaps.features.ChatCompactsMore.register();
         // w09-08-vis
         com.teslamaps.features.ParticleHider.register();
         // w09-02-vis

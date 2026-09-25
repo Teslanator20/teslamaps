@@ -243,7 +243,8 @@ public class ChatMixin {
     private Component teslamaps$filterRewrite(Component message) {
         Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.features.ChatCompacts.rewrite(
                 com.teslamaps.dungeon.TerminalSplits.rewrite(message)));
-        return com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out)));
+        out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out)));
+        return com.teslamaps.features.ChatCompactsMore.rewrite(out);
     }
 
     @Redirect(method = "addMessageToQueue",
