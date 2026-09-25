@@ -2271,6 +2271,7 @@ public class TeslaMapsConfig {
     public boolean dungeonInfoHud = false;             // teammates (ult, revives), blessings, downed
     public boolean dungeonInfoPlayers = true;
     public boolean dungeonInfoBlessings = true;
+    public boolean dungeonInfoBlessingDigits = false;
     public boolean dungeonInfoDowned = true;
     public boolean dungeonInfoHideInBoss = false;
     public int dungeonInfoHudX = 10;
@@ -2282,9 +2283,6 @@ public class TeslaMapsConfig {
     public boolean secretMuteChest = false;            // mute Hypixel's chest secret sound
     public boolean secretMuteLever = false;            // mute Hypixel's lever secret sound
     public boolean pbOnJoinExtra = false;              // class level + gear hover in the join line
-    public boolean partyFinderMarks = false;           // colour groups in the party finder
-    public int partyFinderMinClass = 0;                // members below this class level = under
-    public boolean partyFinderCount = true;            // member count on the group icon
     public boolean dungeonSession = false;             // session runs / xp per hour HUD
     public boolean dungeonSessionOverview = false;     // chat line after each run
     public boolean dungeonSessionFrags = true;         // fragment counter line
@@ -2339,16 +2337,6 @@ public class TeslaMapsConfig {
     public boolean waypointEditMode = false;           // right-click places/removes dungeon waypoints
     public boolean waypointEditTitles = false;         // sneak + right-click asks for a title
     public int waypointEditModeKey = -1;
-    public boolean blessingHud = false;
-    public boolean blessingHudPower = true;
-    public boolean blessingHudTime = true;
-    public boolean blessingHudStone = false;
-    public boolean blessingHudLife = false;
-    public boolean blessingHudWisdom = false;
-    public boolean blessingHudRoman = false;
-    public int blessingHudX = 10;
-    public int blessingHudY = 260;
-    public float blessingHudScale = 1.0f;
     public boolean croesusChestCounter = false;
     public boolean croesusChestWarn = true;
     public int croesusChestWarnAt = 55;

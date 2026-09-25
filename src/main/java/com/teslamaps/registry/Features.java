@@ -139,7 +139,6 @@ final class Features {
         com.teslamaps.dungeon.ScoreHud.register();
         com.teslamaps.dungeon.ExtraStats.register();
         com.teslamaps.dungeon.DungeonInfoHud.register();
-        com.teslamaps.dungeon.PartyFinderMarks.register();
         com.teslamaps.dungeon.DungeonSession.register();
         // w03-05-dun
         com.teslamaps.features.SecretTrackerLocator.register();
@@ -152,7 +151,6 @@ final class Features {
         com.teslamaps.features.FuckDiorite.register();
         com.teslamaps.features.DragonStackAimer.register();
         // w03-02-dun
-        com.teslamaps.features.BlessingHud.register();
         com.teslamaps.features.croesus.CroesusChestCounter.register();
         com.teslamaps.features.DungeonDeathCounter.register();
         com.teslamaps.dungeon.RoomVisits.register();

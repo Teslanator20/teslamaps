@@ -54,6 +54,10 @@ public final class DungeonInfoHud {
                     b.toggle("  Teammates", () -> cfg().dungeonInfoPlayers, v -> cfg().dungeonInfoPlayers = v);
                     b.toggle("  Downed", () -> cfg().dungeonInfoDowned, v -> cfg().dungeonInfoDowned = v);
                     b.toggle("  Blessings", () -> cfg().dungeonInfoBlessings, v -> cfg().dungeonInfoBlessings = v);
+                    b.toggle("    Levels as Numbers", () -> cfg().dungeonInfoBlessingDigits, v -> {
+                        cfg().dungeonInfoBlessingDigits = v;
+                        parsedFooter = "";
+                    });
                     b.toggle("  Hide in Boss", () -> cfg().dungeonInfoHideInBoss, v -> cfg().dungeonInfoHideInBoss = v);
                     b.info("Puzzles: Puzzle HUD in Puzzles & Terminals");
                 });
@@ -114,7 +118,10 @@ public final class DungeonInfoHud {
         StringBuilder sb = new StringBuilder();
         while (m.find()) {
             if (sb.length() > 0) sb.append(" §8| ");
-            sb.append(blessingColor(m.group(1))).append(m.group(1)).append(" §a").append(m.group(2));
+            String lvl = m.group(2);
+            if (cfg().dungeonInfoBlessingDigits && !Character.isDigit(lvl.charAt(0)))
+                lvl = String.valueOf(WitherDragons.romanToInt(lvl));
+            sb.append(blessingColor(m.group(1))).append(m.group(1)).append(" §a").append(lvl);
         }
         return sb.length() == 0 ? null : sb.toString();
     }
@@ -163,7 +170,7 @@ public final class DungeonInfoHud {
         return w;
     }
 
-    private static void draw(GuiGraphicsExtractor g, Minecraft mc, int x, int y, float scale, List<String> l, int w) {
+    public static void draw(GuiGraphicsExtractor g, Minecraft mc, int x, int y, float scale, List<String> l, int w) {
         var pose = g.pose();
         pose.pushMatrix();
         pose.translate(x, y);

@@ -30,11 +30,6 @@ public final class PartyCategory {
         b.toggle("  Class + Gear Hover (one-liner)", () -> config.pbOnJoinExtra, v -> config.pbOnJoinExtra = v)
                 .desc("Adds the joined class and level, plus a [Gear] hover with armor, weapons and active pet");
         b.info("/cata <name> shows the card for anyone");
-        b.toggle("Party Finder Group Marks", () -> config.partyFinderMarks, v -> config.partyFinderMarks = v)
-                .desc("Green = can join, orange = a member is under your class minimum, red = you cannot join");
-        b.slider("  Min Member Class Level", 0f, 50f,
-                () -> (float) config.partyFinderMinClass, v -> config.partyFinderMinClass = Math.round(v));
-        b.toggle("  Member Count on Icon", () -> config.partyFinderCount, v -> config.partyFinderCount = v);
         b.info("Key: /tmap apikey <key> (developer.hypixel.net)");
         b.toggle("Party Duplicate Alert", () -> config.partyDuplicateAlert, v -> config.partyDuplicateAlert = v);
         b.toggle("  Dup: Play Sound", () -> config.partyDuplicateSound, v -> config.partyDuplicateSound = v);

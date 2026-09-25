@@ -3,7 +3,7 @@ package com.teslamaps.features.croesus;
 // Ported from Devonian's CroesusChestCounter.kt (+ Odin's chestWarning threshold)
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
-import com.teslamaps.features.BlessingHud;
+import com.teslamaps.dungeon.DungeonInfoHud;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.SkyblockUtils;
@@ -45,7 +45,7 @@ public final class CroesusChestCounter {
         el = HudEditElement.of("croesusChestCounter", "Croesus Chests")
                 .enabled(() -> cfg().croesusChestCounter)
                 .size(() -> Minecraft.getInstance().font.width(SAMPLE.get(0)), () -> 10)
-                .preview((g, mc, x, y, s) -> BlessingHud.draw(g, mc, x, y, s, SAMPLE, mc.font.width(SAMPLE.get(0))));
+                .preview((g, mc, x, y, s) -> DungeonInfoHud.draw(g, mc, x, y, s, SAMPLE, mc.font.width(SAMPLE.get(0))));
         Feature.of("CroesusChestCounter").when(() -> cfg().croesusChestCounter)
                 .tick(CroesusChestCounter::tick)
                 .serverChat(CroesusChestCounter::onChat)
@@ -121,6 +121,6 @@ public final class CroesusChestCounter {
         if (!visible || el == null || line.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.hideGui) return;
-        BlessingHud.draw(g, mc, el.x(), el.y(), el.scale(), line, mc.font.width(line.get(0)));
+        DungeonInfoHud.draw(g, mc, el.x(), el.y(), el.scale(), line, mc.font.width(line.get(0)));
     }
 }
