@@ -592,5 +592,11 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w13-02-eco
+        com.teslamaps.features.AuctionPriceInput.register();
+        com.teslamaps.features.SearchOverlay.register();
+        com.teslamaps.features.BazaarOrderTooltip.register();
+        com.teslamaps.features.EssenceShopCosts.register();
+        com.teslamaps.features.EscrowFix.register();
     }
 }

@@ -2148,6 +2148,16 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w13-02-eco
+    public boolean auctionCopyUnderbid = false;
+    public boolean searchOverlayCommands = false;
+    public boolean searchOverlayCtrlF = true;
+    public int searchOverlayHistorySize = 12;
+    public boolean searchOverlayFilters = false;
+    public boolean bazaarOrderTooltip = false;
+    public boolean petValue = false;
+    public boolean essenceShopCosts = false;
+    public boolean escrowFix = false;
     // w12-01-gui
     public java.util.Map<String, String> hudPanelChroma = new java.util.HashMap<>(); // hud id -> Off / Plain Text / All Text
     public String hudChromaAll = "Off";

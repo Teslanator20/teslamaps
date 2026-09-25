@@ -36,6 +36,8 @@ public class AuctionPriceInput {
     private static final int UNDERCUT = 1;
 
     private static ItemStack item = null;
+    private static ItemStack underbidItem = ItemStack.EMPTY;
+    private static boolean underbidCopied = false;
     private static int mode = -1;
     private static String input = "";
 
@@ -62,6 +64,61 @@ public class AuctionPriceInput {
                 next.init(width, height);
             });
         });
+    }
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("AuctionUnderbidCopy").section("Inventory")
+                .when(() -> TeslaMapsConfig.get().auctionCopyUnderbid)
+                .tick(AuctionPriceInput::underbidTick);
+    }
+
+    // after Skyblocker's CopyUnderbidPrice
+    private static void underbidTick() {
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs.getMenu().slots.size() <= 13
+                || !strip(cs.getTitle().getString()).equals("Create BIN Auction")) {
+            underbidItem = ItemStack.EMPTY;
+            underbidCopied = false;
+            return;
+        }
+        ItemStack stack = cs.getMenu().getSlot(13).getItem();
+        String id = ItemUtil.skyblockId(stack);
+        if (stack.isEmpty() || id.isEmpty()) {
+            underbidItem = ItemStack.EMPTY;
+            underbidCopied = false;
+            return;
+        }
+        if (ItemStack.matches(stack, underbidItem)) return;
+        underbidItem = stack.copy();
+        underbidCopied = false;
+        Double bin = null;
+        if (id.equals("PET")) {
+            if (PetValue.enabled()) {
+                net.minecraft.world.item.component.CustomData data = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+                PetValue.Pet pet = data == null ? null : PetValue.parse(data.copyTag().getStringOr("petInfo", ""));
+                if (pet != null) bin = PetValue.basePrice(pet);
+            }
+        } else {
+            bin = com.teslamaps.features.croesus.PriceManager.lowestBinOrNull(id);
+        }
+        if (bin != null) {
+            copyUnderbid(bin);
+        } else if (!id.equals("PET")) {
+            ItemStack want = underbidItem;
+            ItemPrice.resolve(id, price -> {
+                if (want == underbidItem && !underbidCopied) copyUnderbid(price);
+            });
+        }
+    }
+
+    private static void copyUnderbid(double price) {
+        if (price <= 1) return;
+        underbidCopied = true;
+        long under = (long) price - 1;
+        Minecraft mc = Minecraft.getInstance();
+        mc.keyboardHandler.setClipboard(String.valueOf(under));
+        if (mc.player != null) mc.player.sendSystemMessage(Component.literal(
+                "§b[TeslaMaps] §7Copied §6" + String.format(Locale.US, "%,d", under) + " §7(Lowest BIN - 1)"));
     }
 
     /** Called from HandledScreenClickMixin - remembers the item being sold. */
