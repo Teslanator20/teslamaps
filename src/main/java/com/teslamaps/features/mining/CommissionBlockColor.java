@@ -46,8 +46,9 @@ public final class CommissionBlockColor {
     private static volatile int zone = NONE;
     private static volatile DyeColor color = DyeColor.RED;
     private static final Map<BlockState, BlockState> cache = new ConcurrentHashMap<>();
-    private static boolean dirty, oldSneak;
-    private static int ticks;
+    private static volatile long applied;
+    private static boolean oldSneak;
+    private static int ticks, cooldown;
 
     private CommissionBlockColor() {}
 
@@ -71,33 +72,42 @@ public final class CommissionBlockColor {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        boolean want = c.commissionBlocks && c.section("Mining") && mc.player != null;
+        boolean want = c.commissionBlocks && mc.player != null && c.section("Mining");
+        if (!want && !enabled && applied == 0) return;
         if (++ticks >= 20 || want != enabled) {
             ticks = 0;
             int z = want ? zoneNow() : NONE;
             boolean on = want && z != NONE;
-            if (on != enabled || z != zone) {
-                enabled = on;
-                zone = z;
-                if (on) active = true;
-                dirty = true;
+            if (on && !enabled) active = true;
+            enabled = on;
+            zone = z;
+            if (on) {
+                color = dye(c.commissionBlocksColor);
+                readTab();
             }
-            DyeColor col = dye(c.commissionBlocksColor);
-            if (col != color) { color = col; dirty = true; }
-            if (on) readTab();
         }
         if (enabled && c.commissionBlocksSneak && mc.player != null) {
             boolean sneaking = mc.player.isShiftKeyDown();
             if (sneaking != oldSneak) {
                 oldSneak = sneaking;
-                if (sneaking) { active = !active; dirty = true; }
+                if (sneaking) active = !active;
             }
         }
-        if (dirty) {
-            dirty = false;
+        if (cooldown > 0) cooldown--;
+        long sig = signature();
+        if (sig != applied && cooldown == 0) {
+            applied = sig;
+            cooldown = 20;
             cache.clear();
             if (mc.levelRenderer != null && mc.level != null) mc.levelRenderer.allChanged();
         }
+    }
+
+    private static long signature() {
+        if (!enabled || !active) return 0;
+        long sig = 1L | (long) zone << 1 | (long) color.ordinal() << 3;
+        for (Com com : Com.values()) if (com.highlight) sig |= 1L << (8 + com.ordinal());
+        return sig;
     }
 
     private static int zoneNow() {
@@ -128,7 +138,6 @@ public final class CommissionBlockColor {
             if (v == com.highlight) continue;
             if (v && now < com.ignoredUntil) continue;
             com.highlight = v;
-            dirty = true;
         }
     }
 
@@ -142,14 +151,13 @@ public final class CommissionBlockColor {
             if (com.tab.equalsIgnoreCase(name)) {
                 com.highlight = false;
                 com.ignoredUntil = System.currentTimeMillis() + 5000;
-                dirty = true;
             }
         }
     }
 
     /** Called from BlockStateModelSetMixin, on chunk-meshing threads too. */
     public static BlockState process(BlockState state) {
-        if (!enabled || !active || state == null) return state;
+        if (applied == 0 || state == null) return state;
         return cache.computeIfAbsent(state, CommissionBlockColor::replace);
     }
 
