@@ -809,6 +809,14 @@ final class Features {
         com.teslamaps.slayer.SlayerRngDisplay.register();
         com.teslamaps.slayer.VoidgloomLaser.register();
         com.teslamaps.slayer.SlayerNametag.register();
+        // w16-06-kuu
+        com.teslamaps.features.kuudra.KuudraBuild.register();
+        com.teslamaps.features.kuudra.KuudraFresh.register();
+        com.teslamaps.features.kuudra.KuudraSupply.register();
+        com.teslamaps.features.kuudra.KuudraElle.register();
+        com.teslamaps.features.kuudra.KuudraDanger.register();
+        com.teslamaps.features.kuudra.KuudraIchor.register();
+        com.teslamaps.features.kuudra.KuudraMisc.register();
         // w16-00-sla
         com.teslamaps.slayer.SlayerHiders.register();
         com.teslamaps.slayer.VengeanceTimer.register();
