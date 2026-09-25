@@ -19,4 +19,15 @@ public class Mining {
                 || area.contains("gold mine")
                 || area.contains("deep cavern");
     }
+
+    public static boolean inHollows() {
+        return SkyblockUtils.isInArea("Crystal Hollows");
+    }
+
+    public static boolean inNucleus() {
+        var p = net.minecraft.client.Minecraft.getInstance().player;
+        if (p == null || !inHollows()) return false;
+        double x = p.getX(), y = p.getY(), z = p.getZ();
+        return x >= 463 && x <= 561 && z >= 460 && z <= 564 && y > 64;
+    }
 }
