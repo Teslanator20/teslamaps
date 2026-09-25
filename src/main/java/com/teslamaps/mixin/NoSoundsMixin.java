@@ -33,6 +33,8 @@ public class NoSoundsMixin {
 
         com.teslamaps.features.CombatTimers.onSound(sound, vol, pitch);
 
+        if (com.teslamaps.features.TerminalSounds.cancelPling(sound, vol, pitch)) { ci.cancel(); return; }
+
         if (c.noExplosionSound && sound == SoundEvents.GENERIC_EXPLODE.value()) { ci.cancel(); return; }
         if (c.noCreeperHurtSound && sound == SoundEvents.CREEPER_HURT) { ci.cancel(); return; }
         if (c.muteBonzoStaff && c.muteBonzoStaffPrecise && sound == SoundEvents.GHAST_AMBIENT

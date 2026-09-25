@@ -31,6 +31,26 @@ public final class F7M7Category {
         b.toggle("Leap Counter", () -> config.leapCounter, v -> config.leapCounter = v);
         b.toggle("  Leap Spots (EE2/EE3/Core/P5)", () -> config.leapCounterSpots, v -> config.leapCounterSpots = v);
         b.toggle("  All Leaped Alert", () -> config.leapCounterAlert, v -> config.leapCounterAlert = v);
+        b.label("P3 Terminals");
+        b.toggle("Terminal Titles", () -> config.terminalTitles, v -> config.terminalTitles = v);
+        b.info("Replaces or hides the \"<name> activated a terminal! (n/7)\" titles");
+        b.dropdown("  Title Mode", com.teslamaps.features.TerminalTitles.MODES,
+                () -> com.teslamaps.features.TerminalTitles.MODES[Math.max(0, Math.min(2, config.terminalTitleMode))],
+                v -> config.terminalTitleMode = Math.max(0, java.util.Arrays.asList(com.teslamaps.features.TerminalTitles.MODES).indexOf(v)));
+        b.dropdown("  Title Format", com.teslamaps.features.TerminalTitles.FORMAT_NAMES,
+                () -> com.teslamaps.features.TerminalTitles.FORMAT_NAMES[Math.max(0, Math.min(2, config.terminalTitleFormat))],
+                v -> config.terminalTitleFormat = Math.max(0, java.util.Arrays.asList(com.teslamaps.features.TerminalTitles.FORMAT_NAMES).indexOf(v)));
+        b.toggle("  Show As Subtitle", () -> config.terminalTitleSubtitle, v -> config.terminalTitleSubtitle = v);
+        b.toggle("  Only Replace Own", () -> config.terminalTitleSelfOnly, v -> config.terminalTitleSelfOnly = v);
+        b.toggle("  Phase Done Title", () -> config.terminalTitlePhaseDone, v -> config.terminalTitlePhaseDone = v);
+        b.toggle("  For Terminals", () -> config.terminalTitleTerminal, v -> config.terminalTitleTerminal = v);
+        b.toggle("  For Levers", () -> config.terminalTitleLever, v -> config.terminalTitleLever = v);
+        b.toggle("  For Devices", () -> config.terminalTitleDevice, v -> config.terminalTitleDevice = v);
+        b.toggle("Term Info HUD", () -> config.termInfoHud, v -> config.termInfoHud = v);
+        b.info("Terms / Levers / Device / Gate of the current section (/tmap gui)");
+        b.toggle("  Compact (n/7)", () -> config.termInfoCompact, v -> config.termInfoCompact = v);
+        b.toggle("Terminal Breakdown", () -> config.terminalBreakdown, v -> config.terminalBreakdown = v);
+        b.info("Chat summary per player when the core opens");
         b.label("Wither Dragons");
         b.toggle("Wither Dragons", () -> config.witherDragons, v -> config.witherDragons = v);
         b.label("Spawn Timer & Alerts");

@@ -184,13 +184,16 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "setTitleText", at = @At("HEAD"), cancellable = true)
     private void onSetTitle(ClientboundSetTitleTextPacket packet, CallbackInfo ci) {
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
-        if (net.minecraft.client.Minecraft.getInstance().isSameThread()
-                && com.teslamaps.features.TimerTriggers.onTitle(packet.text().getString())) ci.cancel();
+        if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) return;
+        if (com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), false)) { ci.cancel(); return; }
+        if (com.teslamaps.features.TimerTriggers.onTitle(packet.text().getString())) ci.cancel();
     }
 
     @Inject(method = "setSubtitleText", at = @At("HEAD"), cancellable = true)
     private void onSetSubtitle(ClientboundSetSubtitleTextPacket packet, CallbackInfo ci) {
-        if (CustomTitles.shouldHideDefaultTitle()) ci.cancel();
+        if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()
+                && com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), true)) ci.cancel();
     }
 
     @Inject(method = "setTitlesAnimation", at = @At("HEAD"), cancellable = true)
