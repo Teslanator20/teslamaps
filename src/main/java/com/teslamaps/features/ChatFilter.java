@@ -373,6 +373,9 @@ public class ChatFilter {
         String t = StringUtil.strip(text);
         lastReason = "stashCompact";
         if (StashCompact.handle(t)) return true;
+        lastReason = "miningChestSummary";
+        if (com.teslamaps.features.mining.MiningChestSummary.handle(message, text, t)) return true;
+        if (pendingOut != null) return false;
         lastReason = "chatCompactsMore";
         if (ChatCompactsMore.handle(message, t)) return true;
         lastReason = "melodyCompact";
@@ -385,6 +388,13 @@ public class ChatFilter {
         if (RareCropTracker.hide(t)) return true;
         lastReason = "autopet";
         if (autopet(t)) return true;
+        String nucleus = com.teslamaps.features.mining.NucleusChatFilter.handle(message, text, t);
+        if (nucleus != null) {
+            lastReason = "nucleusChatFilter";
+            if (nucleus.isEmpty()) return true;
+            queue(text, Component.literal(nucleus));
+            return false;
+        }
         if (TeslaMapsConfig.get().chatFilterEnabled) {
             String sf = ChatCompactRulesIslands.shortForm(message, t);
             if (sf != null) lastReason = "compact";
@@ -463,7 +473,7 @@ public class ChatFilter {
     }
 
     /** Swap the line being added for {@code out}; used by the compact helpers. */
-    static void queueRewrite(String text, Component out) {
+    public static void queueRewrite(String text, Component out) {
         queue(text, out);
     }
 

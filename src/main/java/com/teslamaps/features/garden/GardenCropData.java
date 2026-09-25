@@ -3,12 +3,12 @@ package com.teslamaps.features.garden;
 // Crop in hand, latest fortune/BPS per crop and the running contest, after SkyHanni's GardenApi,
 // FarmingFortuneDisplay, GardenCropSpeed and FarmingContestApi
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.features.CropStats;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.ScoreboardUtils;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
-import com.teslamaps.utils.TabListUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -17,20 +17,12 @@ import java.util.regex.Pattern;
 
 public final class GardenCropData {
 
-    private static final Pattern FORTUNE = Pattern.compile("^(.+?) Fortune: \\D*([\\d,.]+)");
     private static final Pattern CONTEST_TIME = Pattern.compile("(?:\\d+m ?)?\\d+s|\\d+m");
-    private static final int RUN = 200;
-    private static final long RUN_GAP_MS = 5000;
 
     private static GardenCrop inHand;
     private static long toolSwitchAt;
     private static GardenCrop lastBroken;
     private static long lastBreakAt;
-
-    private static final long[] run = new long[RUN];
-    private static int runHead, runCount;
-    private static GardenCrop runCrop;
-    private static long lastSave;
 
     private static GardenCrop contestCrop;
     private static long contestStart;
@@ -41,7 +33,7 @@ public final class GardenCropData {
 
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
-    static boolean needed() {
+    public static boolean needed() {
         TeslaMapsConfig c = cfg();
         return c.jacobContestTimes || c.gardenOptimalSpeed || c.hoeLevelHud || c.jacobContestSummary || c.cropMoneyHud;
     }
@@ -59,19 +51,24 @@ public final class GardenCropData {
         return System.currentTimeMillis() - lastBreakAt < 3000;
     }
 
+    private static CropStats.Crop stats(GardenCrop crop) {
+        return crop == null ? null : CropStats.byName(crop.cropName);
+    }
+
     public static Double latestFortune(GardenCrop crop) {
-        return crop == null ? null : cfg().gardenLatestFortune.get(crop.key);
+        CropStats.Crop c = stats(crop);
+        return c == null ? null : CropStats.latestFortune(c);
     }
 
     public static Double latestBps(GardenCrop crop) {
-        return crop == null ? null : cfg().gardenLatestBps.get(crop.key);
+        CropStats.Crop c = stats(crop);
+        return c == null ? null : CropStats.latestBps(c);
     }
 
-    /** Crops per second from the latest fortune and BPS, null without data. */
+    /** Crops per second from CropStats' latest fortune and BPS, null without data. */
     public static Double cropsPerSecond(GardenCrop crop) {
-        Double ff = latestFortune(crop), bps = latestBps(crop);
-        if (ff == null || bps == null || bps <= 0) return null;
-        return ff * crop.baseDrops * bps / 100.0;
+        CropStats.Crop c = stats(crop);
+        return c == null ? null : CropStats.cropsPerSecond(c);
     }
 
     public static GardenCrop contestCrop() { return contestCrop; }
@@ -88,31 +85,7 @@ public final class GardenCropData {
             toolSwitchAt = System.currentTimeMillis();
         }
         if (++ticks % 20 != 0) return;
-        readFortune();
         readContest();
-    }
-
-    private static void readFortune() {
-        if (inHand == null) return;
-        double universal = -1, crop = -1;
-        GardenCrop cropOf = null;
-        for (String raw : TabListUtils.getTabListLines()) {
-            String line = StringUtil.stripTrim(raw);
-            if (!line.contains(" Fortune: ")) continue;
-            Matcher m = FORTUNE.matcher(line);
-            if (!m.find()) continue;
-            double v;
-            try { v = Double.parseDouble(m.group(2).replace(",", "")); } catch (NumberFormatException e) { continue; }
-            String what = m.group(1).trim();
-            if (what.equals("Farming")) universal = v;
-            else {
-                GardenCrop c = GardenCrop.byName(what);
-                if (c != null) { crop = v; cropOf = c; }
-            }
-        }
-        if (universal < 0 || cropOf != inHand) return;
-        Double old = cfg().gardenLatestFortune.put(inHand.key, universal + crop);
-        if (old == null || Math.abs(old - (universal + crop)) > 0.5) saveSoon();
     }
 
     private static void readContest() {
@@ -169,27 +142,5 @@ public final class GardenCropData {
         lastBroken = crop;
         lastBreakAt = now;
         if (crop == contestCrop) contestBlocks++;
-
-        if (crop != runCrop || runCount > 0 && now - run[(runHead - 1 + RUN) % RUN] > RUN_GAP_MS) {
-            runCrop = crop;
-            runHead = 0;
-            runCount = 0;
-        }
-        run[runHead] = now;
-        runHead = (runHead + 1) % RUN;
-        if (runCount < RUN) runCount++;
-        if (runCount < 30) return;
-        long oldest = run[(runHead - runCount + RUN) % RUN];
-        double span = (now - oldest) / 1000.0;
-        if (span < 10) return;
-        cfg().gardenLatestBps.put(crop.key, (runCount - 1) / span);
-        saveSoon();
-    }
-
-    private static void saveSoon() {
-        long now = System.currentTimeMillis();
-        if (now - lastSave < 60_000L) return;
-        lastSave = now;
-        TeslaMapsConfig.save();
     }
 }

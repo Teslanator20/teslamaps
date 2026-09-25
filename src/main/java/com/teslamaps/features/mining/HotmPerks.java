@@ -27,14 +27,42 @@ public class HotmPerks {
     private static final java.util.Map<ItemLore, Integer> stateCache = new java.util.IdentityHashMap<>();
 
     public static void register() {
-        feature = Feature.of("HotmPerks").section("Mining").when(() -> TeslaMapsConfig.get().hotmHighlight)
+        feature = Feature.of("HotmPerks").section("Mining").when(() -> TeslaMapsConfig.get().hotmHighlight || TeslaMapsConfig.get().hotmLevelStack)
                 .config("Mining", b -> {
                     TeslaMapsConfig c = b.config();
                     b.toggle("HotM Perk Highlight", () -> c.hotmHighlight, v -> c.hotmHighlight = v)
                             .desc("Tints enabled and disabled perks in the Heart of the Mountain menu.");
                     b.color("  Enabled Color", () -> c.colorHotmEnabled, v -> c.colorHotmEnabled = v);
                     b.color("  Disabled Color", () -> c.colorHotmDisabled, v -> c.colorHotmDisabled = v);
+                    b.toggle("HotM Perk Level", () -> c.hotmLevelStack, v -> c.hotmLevelStack = v)
+                            .desc("Perk level in the bottom right of each slot in the Heart of the Mountain menu, gold at max level.")
+                            .tags("hotm", "perk", "level", "slot text");
                 });
+    }
+
+    private static final Pattern LEVEL = Pattern.compile("Level (\\d+)(/\\d+)?");
+    private static final java.util.Map<ItemLore, String> levelCache = new java.util.IdentityHashMap<>();
+
+    /** From LoreSlotTextMixin. */
+    public static void drawLevel(GuiGraphicsExtractor ctx, Slot slot) {
+        if (feature == null || !TeslaMapsConfig.get().hotmLevelStack || !inMenu() || !feature.active()) return;
+        if (slot.container instanceof net.minecraft.world.entity.player.Inventory || slot.index > 44) return;
+        ItemStack item = slot.getItem();
+        if (item.isEmpty() || item.is(net.minecraft.world.item.Items.COAL)) return;
+        ItemLore raw = item.get(DataComponents.LORE);
+        if (raw == null) return;
+        String text = levelCache.get(raw);
+        if (text == null) {
+            text = "";
+            if (!raw.lines().isEmpty()) {
+                java.util.regex.Matcher m = LEVEL.matcher(StringUtil.stripTrim(raw.lines().get(0).getString()));
+                if (m.matches()) text = (m.group(2) == null ? "§6" : "§e") + m.group(1);
+            }
+            if (levelCache.size() > 256) levelCache.clear();
+            levelCache.put(raw, text);
+        }
+        if (text.isEmpty() || !com.teslamaps.features.SlotText.shown(com.teslamaps.features.SlotText.HOTM_LEVEL)) return;
+        com.teslamaps.features.SlotText.draw(ctx, Minecraft.getInstance().font, text, slot.x, slot.y, 3, 0xFFFFFFFF);
     }
 
     private static boolean inMenu() {
