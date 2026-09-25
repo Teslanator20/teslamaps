@@ -244,5 +244,9 @@ final class Features {
         com.teslamaps.features.ItemLoreExtras.register();
         com.teslamaps.features.ReforgeStoneStats.register();
         com.teslamaps.features.CrownValueOverlay.register();
+        // w05-03-inv
+        com.teslamaps.features.ItemList.register();
+        com.teslamaps.features.StorageGuiScale.register();
+        com.teslamaps.features.TooltipMenuExtras.register();
     }
 }

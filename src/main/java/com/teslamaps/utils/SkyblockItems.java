@@ -486,6 +486,12 @@ public class SkyblockItems {
         return nameToId.get(displayName.trim().toLowerCase(Locale.ROOT));
     }
 
+    /** Every item id in the Hypixel item table. */
+    public static Set<String> allIds() {
+        load();
+        return items.keySet();
+    }
+
     /** Every non-rift item Hypixel files under the ACCESSORY category. */
     public static Set<String> accessoryIds() {
         load();

@@ -156,6 +156,10 @@ public final class InventoryCategory {
         b.slider("  Overlay Scale", 0.5f, 1.5f,
                 () -> config.storageOverlayScale, v -> config.storageOverlayScale = v);
         b.toggle("  Vanilla Menu After Backpack Swap", () -> config.storageVanillaAfterSwap, v -> config.storageVanillaAfterSwap = v);
+        b.toggle("  GUI Scale Override", () -> config.storageGuiScaleOverride, v -> config.storageGuiScaleOverride = v)
+                .desc("Own GUI scale while ender chest / backpack / storage menus are open, restored on close.");
+        b.slider("    Storage GUI Scale", 1f, 5f,
+                () -> (float) config.storageGuiScale, v -> config.storageGuiScale = Math.round(v), 0);
         b.toggle("  Prefill Empty Storage From API", () -> config.storageApiFill, v -> config.storageApiFill = v);
         b.toggle("  Toolkit / Home / Hide Buttons", () -> config.storageQuickButtons, v -> config.storageQuickButtons = v)
                 .desc("Header buttons: Farming Toolkit, Hunting Toolkit, Home (back to /storage, also reloads) and Hide (vanilla menu until reopened).");
@@ -304,6 +308,12 @@ public final class InventoryCategory {
         b.info("Unbound slots fall back to your hotbar keys (1-9)");
         b.toggle("  Don't Unequip Worn Set", () -> config.wardrobeKeepEquipped, v -> config.wardrobeKeepEquipped = v);
         b.toggle("  Show Keys On Buttons", () -> config.wardrobeShowKeys, v -> config.wardrobeShowKeys = v);
+        b.toggle("  Close After Picking A Set", () -> config.wardrobeAutoClose, v -> config.wardrobeAutoClose = v)
+                .desc("Closes wardrobe/loadouts right after you pick a set, by key or click.");
+        b.slider("    Close Delay (ms)", 0f, 1000f,
+                () -> (float) config.wardrobeCloseDelay, v -> config.wardrobeCloseDelay = Math.round(v), 0);
+        b.toggle("    Only When Equipping", () -> config.wardrobeCloseOnlyEquip, v -> config.wardrobeCloseOnlyEquip = v);
+        b.toggle("    Confirm Sound", () -> config.wardrobeCloseSound, v -> config.wardrobeCloseSound = v);
         b.keybind("  Next Page",
                 () -> config.wardrobeNextPageKey, v -> config.wardrobeNextPageKey = v);
         b.keybind("  Previous Page",

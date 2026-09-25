@@ -25,6 +25,8 @@ public class HandledScreenClickMixin {
                                          net.minecraft.world.inventory.ContainerInput type, CallbackInfo ci) {
         com.teslamaps.features.ExperimentHelper.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, type);
         com.teslamaps.features.AnimatedDyeFix.observeWardrobe((AbstractContainerScreen<?>) (Object) this, slot, button, type);
+        com.teslamaps.features.WardrobeKeys.onSlotClicked((AbstractContainerScreen<?>) (Object) this, slot, button, type);
+        com.teslamaps.features.StorageGuiScale.onClick((AbstractContainerScreen<?>) (Object) this);
         if (com.teslamaps.features.PetShiftClick.handle(
                 (AbstractContainerScreen<?>) (Object) this, slot, slotId, button, type)) {
             ci.cancel();

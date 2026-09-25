@@ -38,6 +38,7 @@ public class ShardData {
     private static final Map<String, Shard> byInternal = new ConcurrentHashMap<>();
     private static final Map<String, Shard> byDisplay = new ConcurrentHashMap<>();
     private static final Map<String, Shard> byAbility = new ConcurrentHashMap<>();
+    private static final Map<String, Shard> byShardId = new ConcurrentHashMap<>();
     private static final java.util.Set<String> unconsumable = ConcurrentHashMap.newKeySet();
 
     private static volatile boolean loaded = false;
@@ -103,6 +104,7 @@ public class ShardData {
             byInternal.put(base(shard.internalName), shard);
             if (!shard.displayName.isEmpty()) byDisplay.put(shard.displayName.toLowerCase(Locale.ROOT), shard);
             if (!shard.abilityName.isEmpty()) byAbility.put(shard.abilityName.toLowerCase(Locale.ROOT), shard);
+            if (!shard.shardId.isEmpty()) byShardId.put(shard.shardId.toUpperCase(Locale.ROOT), shard);
         }
         synchronized (shards) {
             shards.clear();
@@ -154,6 +156,11 @@ public class ShardData {
 
     public static Shard byAbilityName(String name) {
         return name == null ? null : byAbility.get(name.trim().toLowerCase(Locale.ROOT));
+    }
+
+    /** SkyShards short code, e.g. C1. */
+    public static Shard byShardId(String id) {
+        return id == null ? null : byShardId.get(id.trim().toUpperCase(Locale.ROOT));
     }
 
     public static Shard byBazaarId(String id) {

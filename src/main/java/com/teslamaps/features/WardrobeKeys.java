@@ -85,13 +85,48 @@ public class WardrobeKeys {
 
         int target = findTarget(cs, title, loadouts, want);
         if (target < 0) return true;
-        if (c.wardrobeKeepEquipped && isEquipped(cs.getMenu().slots.get(target).getItem())) return true;
+        boolean equipped = isEquipped(cs.getMenu().slots.get(target).getItem());
+        if (c.wardrobeKeepEquipped && equipped) return true;
         lastClick = now;
         click(cs, target);
+        scheduleClose(equipped);
         return true;
     }
 
     private static long lastClick = 0;
+    private static long closeAt = 0;
+
+    /** A set picked with the mouse closes the same way as one picked by key. */
+    public static void onSlotClicked(AbstractContainerScreen<?> cs, Slot slot, int button, ContainerInput type) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.wardrobeKeybinds || !c.wardrobeAutoClose || slot == null || button != 0 || type != ContainerInput.PICKUP) return;
+        if (slot.container instanceof net.minecraft.world.entity.player.Inventory || slot.getItem().isEmpty()) return;
+        String title = StringUtil.strip(cs.getTitle().getString());
+        if (!isWardrobeScreen(title)) return;
+        String name = StringUtil.strip(slot.getItem().getHoverName().getString());
+        if (!SET_NAME.matcher(name).lookingAt()) return;
+        scheduleClose(isEquipped(slot.getItem()));
+    }
+
+    private static final Pattern SET_NAME = Pattern.compile("(?:Slot|Loadout) \\d+");
+
+    private static void scheduleClose(boolean wasEquipped) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.wardrobeAutoClose || (c.wardrobeCloseOnlyEquip && wasEquipped)) return;
+        closeAt = System.currentTimeMillis() + Math.max(0, c.wardrobeCloseDelay);
+    }
+
+    private static void tickClose() {
+        if (closeAt == 0 || System.currentTimeMillis() < closeAt) return;
+        closeAt = 0;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || !(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!isWardrobeScreen(StringUtil.strip(cs.getTitle().getString()))) return;
+        mc.player.closeContainer();
+        if (TeslaMapsConfig.get().wardrobeCloseSound) mc.getSoundManager().play(
+                net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                        net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.6f, 0.6f));
+    }
 
     static int findTarget(AbstractContainerScreen<?> cs, String title, boolean loadouts, int want) {
         int page = 1;
@@ -126,6 +161,7 @@ public class WardrobeKeys {
     private static int ticks = 0;
 
     public static void tick() {
+        tickClose();
         if (++ticks % 5 != 0) return;
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = TeslaMapsConfig.get();

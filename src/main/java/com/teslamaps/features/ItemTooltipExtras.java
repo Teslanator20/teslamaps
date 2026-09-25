@@ -78,7 +78,8 @@ public final class ItemTooltipExtras {
 
     public static void register() {
         Feature feature = Feature.of("ItemTooltipExtras")
-                .when(() -> cfg().dungeonQualityTooltip || cfg().armorHexTooltip || cfg().dyeHexColors)
+                .when(() -> cfg().dungeonQualityTooltip || cfg().armorHexTooltip || cfg().dyeHexColors
+                        || cfg().tooltipAnvilUses || cfg().tooltipSwordKills || cfg().tooltipRecomb || cfg().tooltipSkyblockId)
                 .config("Tooltips & Value", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Item Details");
@@ -93,24 +94,81 @@ public final class ItemTooltipExtras {
                             .desc("Compares the colour with the item's original one: Exotic, Crystal, Fairy, OG Fairy, Spook, Glitched.");
                     b.toggle("Colour Hex Codes In Dye Lore", () -> c.dyeHexColors, v -> c.dyeHexColors = v)
                             .desc("Every #RRGGBB in dye and armor lore is drawn in that colour.");
+                    b.toggle("Anvil Uses", () -> c.tooltipAnvilUses, v -> c.tooltipAnvilUses = v)
+                            .desc("\"Anvil Uses: n\" at the bottom, hot potato books not counted.");
+                    b.toggle("Sword Kills", () -> c.tooltipSwordKills, v -> c.tooltipSwordKills = v)
+                            .desc("Kill counter stored on the item (sword kills / Book of Stats).");
+                    b.toggle("Recomb Line", () -> c.tooltipRecomb, v -> c.tooltipRecomb = v)
+                            .desc("\"RARITY UPGRADED\" on recombobulated items.");
+                    b.toggle("SkyBlock ID (F3+H)", () -> c.tooltipSkyblockId, v -> c.tooltipSkyblockId = v)
+                            .desc("Grey \"skyblock:<ID>\" line while advanced tooltips (F3+H) are on.");
+                    b.toggle("Total Stars In Name", () -> c.tooltipItemStars, v -> c.tooltipItemStars = v)
+                            .desc("Item name ends in the total star count (\"15✪\"), Kuudra armor tiers included.");
+                    b.toggle("Evolving Item Time", () -> c.tooltipEvolvingTime, v -> c.tooltipEvolvingTime = v)
+                            .desc("Time held and time left (of 300h) on evolving items.");
+                    b.toggle("Booster Cookie Bits", () -> c.tooltipCookieBits, v -> c.tooltipCookieBits = v)
+                            .desc("Bits gained, available bits before/after and buff days. Open the SkyBlock menu once to read your bits.");
+                    b.toggle("Stonks Auction Coins Per Stonk", () -> c.tooltipStonksPrice, v -> c.tooltipStonksPrice = v)
+                            .desc("Coins per Stock of Stonks for every rank, the cheapest in green.");
+                    b.toggle("Fann Training Cost", () -> c.tooltipFannCost, v -> c.tooltipFannCost = v)
+                            .desc("Coins per XP and XP per bit in Fann's training menu.");
+                    b.toggle("Supercraft Shift Hint", () -> c.supercraftReminder, v -> c.supercraftReminder = v)
+                            .desc("\"Shift-Click to maximize the amount!\" on the Supercraft button for stackable results.");
                 });
         RepoCache.onReload("ItemTooltipExtras", () -> { fetched = false; lastStack = null; });
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
-            if (!stack.isEmpty() && !lines.isEmpty() && feature.active()) onTooltip(stack, lines);
+            if (!stack.isEmpty() && !lines.isEmpty() && feature.active()) onTooltip(stack, lines, flag.isAdvanced());
         });
     }
 
-    private static void onTooltip(ItemStack stack, List<Component> lines) {
+    private static void onTooltip(ItemStack stack, List<Component> lines, boolean advanced) {
         TeslaMapsConfig c = cfg();
         int key = (c.dungeonQualityTooltip ? 1 : 0) | (c.dungeonTierTooltip ? 2 : 0) | (c.armorHexTooltip ? 4 : 0)
-                | (c.armorExoticTooltip ? 8 : 0) | (c.dungeonQualityStyle.hashCode() << 4) | (expected.size() << 20);
+                | (c.armorExoticTooltip ? 8 : 0) | (c.dungeonQualityStyle.hashCode() << 4) | (expected.size() << 20)
+                ^ ((c.tooltipAnvilUses ? 1 : 0) | (c.tooltipSwordKills ? 2 : 0) | (c.tooltipRecomb ? 4 : 0)
+                | (c.tooltipSkyblockId && advanced ? 8 : 0)) << 27;
         if (stack != lastStack || key != lastKey) {
             lastStack = stack;
             lastKey = key;
             lastTop = build(stack, c);
+            lastBottom = buildBottom(stack, c, advanced);
         }
         if (c.dyeHexColors) recolorHex(stack, lines);
         if (!lastTop.isEmpty()) lines.addAll(1, lastTop);
+        if (!lastBottom.isEmpty()) lines.addAll(lastBottom);
+    }
+
+    private static List<Component> lastBottom = List.of();
+
+    private static List<Component> buildBottom(ItemStack stack, TeslaMapsConfig c, boolean advanced) {
+        if (!c.tooltipAnvilUses && !c.tooltipSwordKills && !c.tooltipRecomb && !(c.tooltipSkyblockId && advanced)) return List.of();
+        CustomData d = stack.get(DataComponents.CUSTOM_DATA);
+        if (d == null) return List.of();
+        CompoundTag tag = d.copyTag();
+        List<Component> out = new ArrayList<>();
+        if (c.tooltipAnvilUses) {
+            int uses = tag.getInt("anvil_uses").orElse(0) - tag.getInt("hot_potato_count").orElse(0);
+            if (uses > 0) out.add(Component.literal("Anvil Uses: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(String.valueOf(uses)).withStyle(ChatFormatting.RED)));
+        }
+        if (c.tooltipSwordKills) {
+            int kills = tag.getInt("sword_kills").orElse(0);
+            String label = "Sword Kills: ";
+            if (kills <= 0) {
+                kills = tag.getInt("stats_book").orElse(0);
+                label = "Kills: ";
+            }
+            if (kills > 0) out.add(Component.literal(label).withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(String.format(java.util.Locale.ROOT, "%,d", kills)).withStyle(ChatFormatting.RED)));
+        }
+        if (c.tooltipRecomb && tag.getInt("rarity_upgrades").orElse(0) > 0) {
+            out.add(Component.literal("RARITY UPGRADED").withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
+        }
+        if (c.tooltipSkyblockId && advanced) {
+            String id = tag.getString("id").orElse("");
+            if (!id.isEmpty()) out.add(Component.literal("skyblock:" + id).withStyle(ChatFormatting.DARK_GRAY));
+        }
+        return out;
     }
 
     private static List<Component> build(ItemStack stack, TeslaMapsConfig c) {

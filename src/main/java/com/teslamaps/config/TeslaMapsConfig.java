@@ -2231,6 +2231,28 @@ public class TeslaMapsConfig {
     public boolean prehistoricEggBlocks = false;
     public boolean radioactiveBonus = false;
     public boolean ravengardCrownValues = false;
+    // w05-03-inv
+    public boolean itemList = false;
+    public int itemListKey = -1;
+    public String craftHelperShardTree = "";           // SkyShards export, empty = normal target
+    public boolean wardrobeAutoClose = false;
+    public int wardrobeCloseDelay = 0;                 // ms
+    public boolean wardrobeCloseSound = false;
+    public boolean wardrobeCloseOnlyEquip = false;
+    public boolean storageGuiScaleOverride = false;
+    public int storageGuiScale = 2;
+    public boolean tooltipAnvilUses = false;
+    public boolean tooltipSwordKills = false;
+    public boolean tooltipRecomb = false;
+    public boolean tooltipSkyblockId = false;
+    public boolean tooltipItemStars = false;
+    public boolean tooltipEvolvingTime = false;
+    public boolean tooltipCookieBits = false;
+    public boolean tooltipStonksPrice = false;
+    public boolean tooltipFannCost = false;
+    public boolean supercraftReminder = false;
+    public int bitsAvailable = -1;
+    public String fameRank = "";
     // w04-03-inv
     public boolean moveInsertIntoSack = false;
     public boolean arrowPoisonIndicator = false;
@@ -2995,6 +3017,8 @@ public class TeslaMapsConfig {
         if (c.hoppityRabbitRarity == null) c.hoppityRabbitRarity = new java.util.HashMap<>();
         if (c.backpackPreviewStyle == null) c.backpackPreviewStyle = "Compact";
         if (c.craftHelperTarget == null) c.craftHelperTarget = "";
+        if (c.craftHelperShardTree == null) c.craftHelperShardTree = "";
+        if (c.fameRank == null) c.fameRank = "";
         if (c.chatCommandsWhitelist == null) c.chatCommandsWhitelist = new ArrayList<>();
         if (c.dragonHitboxColor == null) c.dragonHitboxColor = "00FFFF";
         if (c.lividAnnounceText == null) c.lividAnnounceText = "Livid is [color]!";
