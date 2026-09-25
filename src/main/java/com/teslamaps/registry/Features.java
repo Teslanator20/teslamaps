@@ -208,5 +208,9 @@ final class Features {
         com.teslamaps.features.AnvilHelper.register();
         com.teslamaps.features.accessories.AccessoryHelper.register();
         com.teslamaps.features.CraftHelper.register();
+        // w05-04-inv
+        com.teslamaps.features.TooltipBorder.register();
+        com.teslamaps.features.HotxPerkCurrency.register();
+        com.teslamaps.features.ToolkitCropIcons.register();
     }
 }

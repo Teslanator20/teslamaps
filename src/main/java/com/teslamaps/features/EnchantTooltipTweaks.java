@@ -43,6 +43,8 @@ public final class EnchantTooltipTweaks {
                     b.label("Enchant Tooltip Extras");
                     b.toggle("Remove Duplicate Enchant Lines", () -> cfg().duplicateEnchantFix, v -> cfg().duplicateEnchantFix = v)
                             .desc("Drops the vanilla enchantment line when the same line is already in the Hypixel lore.");
+                    b.toggle("Hide Vanilla Enchant Lines", () -> cfg().hideVanillaEnchants, v -> cfg().hideVanillaEnchants = v)
+                            .desc("On SkyBlock, drops every vanilla enchantment line - Hypixel lists them in the lore already.");
                     b.toggle("Rename Enchants", () -> cfg().enchantRename, v -> cfg().enchantRename = v)
                             .desc("Own names for enchants in tooltips, level and colour stay.");
                     b.button("  Edit Enchant Names", EnchantTooltipTweaks::openEditor);

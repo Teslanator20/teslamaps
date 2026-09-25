@@ -2130,6 +2130,18 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w05-04-inv
+    public boolean hideVanillaEnchants = false;
+    public boolean rarityTooltipBorder = false;
+    public float rarityTooltipBorderOpacity = 1.0f;
+    public boolean hotxCurrencyPerPerk = false;
+    public boolean hotxCurrencySpent = true;
+    public boolean hotxCurrencyFor10 = true;
+    public boolean hotxCurrencyCurrent = true;
+    public boolean toolkitCropIcons = false;
+    public boolean mhTabWidgets = false;
+    public boolean mhStrandedNpcs = false;
+    public boolean expHideTooltips = false;
     // w04-03-inv
     public boolean moveInsertIntoSack = false;
     public boolean arrowPoisonIndicator = false;
