@@ -2664,7 +2664,6 @@ public class TeslaMapsConfig {
     public boolean dwarvenOverlayPickaxe = true;
     public boolean dwarvenOverlayStarCult = true;
     public boolean dwarvenOverlaySkyMall = true;
-    public String skyMallPerk = "";
     public long skyMallDay = -1;
     public boolean metalDetectorSolver = false;
     public boolean metalDetectorAllTools = true;
@@ -5860,7 +5859,6 @@ public class TeslaMapsConfig {
         c.slayerCarries.removeIf(x -> x == null || x.customer == null || x.type == null);
         if (c.slayerCarryPrices == null) c.slayerCarryPrices = new java.util.HashMap<>();
         if (c.forgeSlotData == null) c.forgeSlotData = new java.util.ArrayList<>();
-        if (c.skyMallPerk == null) c.skyMallPerk = "";
         if (c.mineshaftSinceType == null) c.mineshaftSinceType = new java.util.HashMap<>();
         if (c.mineshaftLastType == null) c.mineshaftLastType = new java.util.HashMap<>();
         if (c.chCrystalStates == null) c.chCrystalStates = new java.util.HashMap<>();

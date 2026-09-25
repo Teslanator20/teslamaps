@@ -59,9 +59,6 @@ public final class MiningCategory {
                 .tags("esp", "lapis", "tungsten", "umber", "vanguard", "mineshaft");
         b.toggle("  Type Colors", () -> config.corpseESPTypeColors, v -> config.corpseESPTypeColors = v);
         b.color("  Corpse Color", () -> config.colorCorpseESP, v -> config.colorCorpseESP = v);
-        b.toggle("  Mineshaft Exit Waypoint", () -> config.mineshaftExitWaypoint, v -> config.mineshaftExitWaypoint = v)
-                .desc("Green Exit waypoint where you entered the Glacite Mineshaft. Works without Corpse ESP.")
-                .tags("mineshaft", "exit", "waypoint", "glacite");
         b.toggle("  Key Count On Spawn", () -> config.corpseKeyAnnounce, v -> config.corpseKeyAnnounce = v)
                 .desc("When the corpses spawn: one chat line per type with the corpse count and your keys (inventory, sacks, ender chest, backpacks)")
                 .tags("corpse", "key", "umber", "tungsten", "skeleton", "mineshaft");
@@ -71,6 +68,9 @@ public final class MiningCategory {
         b.toggle("  Read Coords From Chat", () -> config.corpseFinderParseChat, v -> config.corpseFinderParseChat = v);
         b.channel("  Share Channel", () -> config.corpseFinderChannel, v -> config.corpseFinderChannel = v);
         b.info("Click the Found line or /tmap corpse share to send it");
+        b.toggle("Mineshaft Exit Waypoint", () -> config.mineshaftExitWaypoint, v -> config.mineshaftExitWaypoint = v)
+                .desc("Green Exit waypoint where you entered the Glacite Mineshaft. Works on its own; replaces the Entrance marker when both are on.")
+                .tags("mineshaft", "exit", "waypoint", "glacite");
         b.toggle("Mineshaft Waypoints", () -> config.mineshaftWaypoints, v -> config.mineshaftWaypoints = v)
                 .desc("Entrance and ladder waypoints on entering a mineshaft, found corpses as labelled waypoints.")
                 .tags("mineshaft", "glacite", "ladder", "entrance", "corpse", "share", "waypoint");
