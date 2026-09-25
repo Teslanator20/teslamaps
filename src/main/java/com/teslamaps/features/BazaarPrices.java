@@ -165,13 +165,16 @@ public class BazaarPrices {
      * share of the crafted form when that is worth more.
      */
     public static double priceOf(String displayName) {
+        return priceOf(displayName, mode());
+    }
+
+    public static double priceOf(String displayName, Mode mode) {
         refreshIfStale();
         String key = displayName.toLowerCase(Locale.ROOT);
 
         // Pest kills pay coins directly, so the amount is already the value.
         if (key.contains("coins")) return 1;
 
-        Mode mode = mode();
         String id = idFor(displayName);
         double raw = sellValue(id, mode);
 

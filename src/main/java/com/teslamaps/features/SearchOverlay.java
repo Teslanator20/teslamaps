@@ -1,29 +1,107 @@
 package com.teslamaps.features;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.mixin.AbstractSignEditScreenAccessor;
 import com.teslamaps.screen.SearchOverlayScreen;
+import com.teslamaps.profileviewer.data.PetRepo;
+import com.teslamaps.utils.SbRepo;
 import com.teslamaps.utils.SkyblockItems;
 import com.teslamaps.utils.StringUtil;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
+import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.lwjgl.glfw.GLFW;
 
 /** Replaces the auction house / bazaar search sign with a textbox that suggests item names. */
 public class SearchOverlay {
 
     public enum Location { AUCTION, BAZAAR, RECIPE, MUSEUM, OTHER }
 
-    private static final int HISTORY_LENGTH = 12;
-
     private static String lastContainer = "";
+
+    public static boolean maxPetLevel = false;
+    public static int dungeonStars = 0;
+
+    public static void register() {
+        ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> {
+            d.register(command("ahs", Location.AUCTION));
+            d.register(command("ahsearch", Location.AUCTION));
+            d.register(command("bzs", Location.BAZAAR));
+        });
+    }
+
+    private static LiteralArgumentBuilder<FabricClientCommandSource> command(String name, Location location) {
+        return ClientCommands.literal(name)
+                .executes(c -> openCommand(name, location, ""))
+                .then(ClientCommands.argument("item", StringArgumentType.greedyString())
+                        .suggests((c, builder) -> {
+                            if (!TeslaMapsConfig.get().searchOverlayCommands) return builder.buildFuture();
+                            String typed = builder.getRemaining();
+                            for (String s : suggestions(typed, location, 20)) {
+                                if (!s.equalsIgnoreCase(typed)) builder.suggest(s);
+                            }
+                            return builder.buildFuture();
+                        })
+                        .executes(c -> openCommand(name, location, StringArgumentType.getString(c, "item"))));
+    }
+
+    private static int openCommand(String name, Location location, String text) {
+        Minecraft mc = Minecraft.getInstance();
+        if (!TeslaMapsConfig.get().searchOverlayCommands) {
+            String line = text.isEmpty() ? name : name + " " + text;
+            if (mc.getConnection() != null) mc.getConnection().send(new ServerboundChatCommandPacket(line));
+            return 1;
+        }
+        mc.schedule(() -> mc.setScreen(new SearchOverlayScreen(null, null, location, text)));
+        return 1;
+    }
+
+    /** Ctrl+F in the auction house / bazaar opens the search as a command. */
+    public static boolean onContainerKey(AbstractContainerScreen<?> screen, int key) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (key != GLFW.GLFW_KEY_F || !c.searchOverlayCommands || !c.searchOverlayCtrlF) return false;
+        Minecraft mc = Minecraft.getInstance();
+        long w = mc.getWindow().handle();
+        if (GLFW.glfwGetKey(w, GLFW.GLFW_KEY_LEFT_CONTROL) != GLFW.GLFW_PRESS
+                && GLFW.glfwGetKey(w, GLFW.GLFW_KEY_RIGHT_CONTROL) != GLFW.GLFW_PRESS) return false;
+        String title = StringUtil.strip(screen.getTitle().getString());
+        Location location = title.contains("Bazaar") ? Location.BAZAAR
+                : title.contains("Auction") ? Location.AUCTION : null;
+        if (location == null) return false;
+        mc.setScreen(new SearchOverlayScreen(null, null, location, ""));
+        return true;
+    }
+
+    /** "[Lvl 100] " / "] " for pets, stars for starable items. Auction searches only. */
+    private static String addExtras(String search) {
+        if (!TeslaMapsConfig.get().searchOverlayFilters || search.isEmpty()) return search;
+        PetRepo.load();
+        String type = search.toUpperCase(Locale.ROOT).replace(' ', '_');
+        if (PetRepo.isPetType(type)) {
+            search = maxPetLevel ? "[Lvl " + PetRepo.maxLevel(type) + "] " + search : "] " + search;
+        } else if (dungeonStars > 0) {
+            String id = SkyblockItems.idForName(search.toLowerCase(Locale.ROOT));
+            if (id != null && SbRepo.essenceItems().contains(id)) {
+                StringBuilder stars = new StringBuilder(" ").append("✪".repeat(Math.min(dungeonStars, 5)));
+                if (dungeonStars > 5) stars.append((char) ('➊' + Math.min(dungeonStars, 10) - 6));
+                search += stars;
+            }
+        }
+        return search;
+    }
 
     public static void init() {
         ScreenEvents.AFTER_INIT.register((mc, screen, width, height) -> {
@@ -200,7 +278,7 @@ public class SearchOverlay {
         List<String> list = list(config, location);
         list.remove(search);
         list.addFirst(search);
-        while (list.size() > HISTORY_LENGTH) list.removeLast();
+        while (list.size() > Math.max(1, config.searchOverlayHistorySize)) list.removeLast();
         TeslaMapsConfig.save();
     }
 
@@ -208,9 +286,10 @@ public class SearchOverlay {
     public static void push(SignBlockEntity sign, String[] originalText, Location location, String search) {
         String text = search.trim();
         addHistory(location, text);
+        if (location == Location.AUCTION) text = addExtras(text);
 
         // "null ovoid" and friends break the server side search unless quoted
-        if (text.toLowerCase(Locale.ROOT).startsWith("null")) text = "\"" + text + "\"";
+        if (sign != null && text.toLowerCase(Locale.ROOT).startsWith("null")) text = "\"" + text + "\"";
 
         String first = text;
         String second = "";
@@ -226,14 +305,19 @@ public class SearchOverlay {
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() == null) return;
-        // opened from the /craft button, no sign behind it
+        // opened from the /craft button or a command, no sign behind it
         if (sign == null) {
-            String query = search.trim();
+            String query = location == Location.AUCTION ? text : search.trim();
             mc.execute(() -> {
                 if (query.isEmpty()) {
                     if (mc.player != null) mc.player.closeContainer();
                 } else if (mc.getConnection() != null) {
-                    mc.getConnection().sendCommand("recipe " + query);
+                    String cmd = switch (location) {
+                        case AUCTION -> "auctionsearch ";
+                        case BAZAAR -> "bz ";
+                        default -> "recipe ";
+                    };
+                    mc.getConnection().send(new ServerboundChatCommandPacket(cmd + query));
                 }
             });
             return;

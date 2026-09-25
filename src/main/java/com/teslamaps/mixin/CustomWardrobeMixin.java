@@ -18,6 +18,7 @@ public class CustomWardrobeMixin {
         if (CustomWardrobe.render((AbstractContainerScreen<?>) (Object) this, g, mouseX, mouseY)
                 || com.teslamaps.features.FancyWarpMenu.render((AbstractContainerScreen<?>) (Object) this, g, mouseX, mouseY)
                 || com.teslamaps.features.FancyPartyFinder.render((AbstractContainerScreen<?>) (Object) this, g, mouseX, mouseY)
+                || com.teslamaps.features.FancyAuctionHouse.render((AbstractContainerScreen<?>) (Object) this, g, mouseX, mouseY)
                 || com.teslamaps.features.RadialMenus.render((AbstractContainerScreen<?>) (Object) this, g, mouseX, mouseY)) ci.cancel();
     }
 
@@ -26,6 +27,7 @@ public class CustomWardrobeMixin {
         if (CustomWardrobe.blocking((AbstractContainerScreen<?>) (Object) this)
                 || com.teslamaps.features.FancyWarpMenu.blocking((AbstractContainerScreen<?>) (Object) this)
                 || com.teslamaps.features.FancyPartyFinder.blocking((AbstractContainerScreen<?>) (Object) this)
+                || com.teslamaps.features.FancyAuctionHouse.blocking((AbstractContainerScreen<?>) (Object) this)
                 || com.teslamaps.features.RadialMenus.blocking((AbstractContainerScreen<?>) (Object) this)) cir.setReturnValue(true);
     }
 
@@ -34,6 +36,7 @@ public class CustomWardrobeMixin {
         if (CustomWardrobe.blocking((AbstractContainerScreen<?>) (Object) this)
                 || com.teslamaps.features.FancyWarpMenu.blocking((AbstractContainerScreen<?>) (Object) this)
                 || com.teslamaps.features.FancyPartyFinder.blocking((AbstractContainerScreen<?>) (Object) this)
+                || com.teslamaps.features.FancyAuctionHouse.blocking((AbstractContainerScreen<?>) (Object) this)
                 || com.teslamaps.features.RadialMenus.blocking((AbstractContainerScreen<?>) (Object) this)) cir.setReturnValue(true);
     }
 }

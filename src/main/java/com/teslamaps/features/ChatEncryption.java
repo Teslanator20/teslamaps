@@ -35,6 +35,7 @@ public class ChatEncryption {
     private static final Base64.Encoder B64 = Base64.getUrlEncoder().withoutPadding();
     private static final Base64.Decoder B64D = Base64.getUrlDecoder();
     private static SecretKeySpec key;
+    public static boolean typing;
 
     private ChatEncryption() {}
 
@@ -61,7 +62,7 @@ public class ChatEncryption {
 
     /** Only what the player typed in the chat box; automated sends stay readable. */
     private static boolean typed() {
-        return TeslaMapsConfig.get().chatEncrypt && Minecraft.getInstance().screen instanceof ChatScreen;
+        return typing && TeslaMapsConfig.get().chatEncrypt && Minecraft.getInstance().screen instanceof ChatScreen;
     }
 
     private static int bodyStart(String cmd) {

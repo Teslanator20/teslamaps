@@ -2169,6 +2169,103 @@ public class TeslaMapsConfig {
     public boolean bazaarOrderTooltipClean = false;
     public boolean bazaarHideOrderOwner = true;
     public boolean bazaarHideTradePartners = true;
+    // w14-00-gar
+    public boolean mantidKillDisplay = false;
+    public String mantidShowWhen = "Mantid Armor";
+    public int mantidGroupSeconds = 5;
+    public int mantidKillDisplayX = 10;
+    public int mantidKillDisplayY = 160;
+    public float mantidKillDisplayScale = 1.0f;
+    public boolean glowingMushrooms = false;
+    public com.teslamaps.render.EspStyle glowingMushroomStyle = new com.teslamaps.render.EspStyle("FFFF55FF");
+    public boolean mousematAngles = false;
+    public boolean mousematCompact = false;
+    public java.util.Map<String, Float> mousematAngleValues = new java.util.HashMap<>();
+    public boolean noBreakRod = false;
+    public boolean noBreakSprayonator = false;
+    public String pestSpawnSoundMode = "Default";
+    public String pestSpawnSoundName = "NOTE_PLING";
+    public float pestSpawnSoundPitch = 1.0f;
+    public float pestSpawnSoundVolume = 1.0f;
+    public int pestSpawnSoundRepeat = 3;
+    public int pestSpawnSoundDelay = 150;
+    public boolean pestBaitPanel = false;
+    public boolean noCropRotation = false;
+    public boolean noCropRotationEverywhere = false;
+    public boolean pbFortuneGain = false;
+    public boolean pbFortuneOverflow = false;
+    public java.util.Map<String, Double> pbItemsPerFortune = new java.util.HashMap<>();
+    // w13-03-pv
+    public boolean pvSacks = false;
+    public boolean pvHunting = false;
+    // w13-00-eco
+    public boolean fancyAuctionBrowser = false;
+    public boolean fancyAuctionView = false;
+    public boolean safariShardValue = false;
+    public String safariShardPrice = "Instant Sell"; // Instant Sell / Sell Offer / Both
+    public boolean safariShardTax = true;
+    public boolean npcDayLimit = false;
+    public boolean npcDayLimitShort = true;
+    public int npcDayLimitX = 10;
+    public int npcDayLimitY = 200;
+    public float npcDayLimitScale = 1.0f;
+    public boolean pricePaid = false;
+    public boolean fireSaleWidget = false;
+    public int fireSaleWidgetX = 10;
+    public int fireSaleWidgetY = 220;
+    public float fireSaleWidgetScale = 1.0f;
+    public boolean pesthunterProfit = false;
+    // w14-06-gar
+    public boolean gardenPlotsPestCount = false;
+    public boolean visitorHud = false;
+    public boolean visitorHudNames = true;
+    public int visitorHudX = 10;
+    public int visitorHudY = 200;
+    public float visitorHudScale = 1.0f;
+    public boolean pestOverlaySprayList = false;
+    public boolean sprayExpiryChat = false;
+    public int pestTpReminderMin = 2;               // 0 = fortune debuff (8)
+    public int pestTpReminderInterval = 5;          // seconds
+    public boolean farmProfitItemOptions = false;
+    public java.util.Map<String, String> farmProfitItemSource = new java.util.HashMap<>();
+    public boolean farmProfitResetConfirm = false;
+    public boolean farmProfitExtraWindows = false;
+    public int mousematReleaseKey = -1;
+    public boolean muteVacuum = false;
+    // w13-02-eco
+    public boolean auctionCopyUnderbid = false;
+    public boolean searchOverlayCommands = false;
+    public boolean searchOverlayCtrlF = true;
+    public int searchOverlayHistorySize = 12;
+    public boolean searchOverlayFilters = false;
+    public boolean bazaarOrderTooltip = false;
+    public boolean petValue = false;
+    public boolean essenceShopCosts = false;
+    public boolean escrowFix = false;
+    // w12-08-eco
+    public boolean anitaMedalProfit = false;
+    public boolean anitaExtraFortune = false;
+    public boolean bazaarHelpers = false;
+    public boolean bazaarBestSell = true;
+    public boolean bazaarMaxPurse = true;
+    public boolean bazaarDailyLimit = true;
+    public boolean craftMaterials = false;
+    public boolean craftableList = false;
+    public boolean craftableListSacks = true;
+    public boolean craftableListNoVanilla = true;
+    public boolean instaSellHighlight = false;
+    public String colorInstaSell = "55FF55";
+    public boolean priceHistory = false;
+    public int priceHistoryKey = -1;
+    public boolean priceHistoryBrowser = false;
+    public boolean auctionSortWarning = false;
+    public boolean dragonProfitTracker = false;
+    public boolean dragonProfitLeeched = false;
+    public boolean dragonProfitChat = true;
+    public int dragonProfitPriceSource = 1;
+    public int dragonProfitTrackerX = 10;
+    public int dragonProfitTrackerY = 120;
+    public float dragonProfitTrackerScale = 1.0f;
     // w12-01-gui
     public java.util.Map<String, String> hudPanelChroma = new java.util.HashMap<>(); // hud id -> Off / Plain Text / All Text
     public String hudChromaAll = "Off";
@@ -4689,6 +4786,10 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.mousematAngleValues == null) c.mousematAngleValues = new java.util.HashMap<>();
+        if (c.pbItemsPerFortune == null) c.pbItemsPerFortune = new java.util.HashMap<>();
+        if (c.mantidShowWhen == null) c.mantidShowWhen = "Mantid Armor";
+        if (c.pestSpawnSoundMode == null) c.pestSpawnSoundMode = "Default";
         if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
         c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
         for (FeatureRule r : c.featureConditionRules.values()) {
@@ -4885,6 +4986,7 @@ public class TeslaMapsConfig {
         if (c.charmedVisitorNames == null) c.charmedVisitorNames = new ArrayList<>();
         if (c.feastCrops == null) c.feastCrops = new ArrayList<>();
         if (c.farmProfitExcluded == null) c.farmProfitExcluded = new ArrayList<>();
+        if (c.farmProfitItemSource == null) c.farmProfitItemSource = new java.util.HashMap<>();
         if (c.farmKernelItem == null) c.farmKernelItem = "Feast I";
         if (c.feastShareChannel == null) c.feastShareChannel = "Nobody";
         if (c.corpseFinderChannel == null) c.corpseFinderChannel = "Nobody";

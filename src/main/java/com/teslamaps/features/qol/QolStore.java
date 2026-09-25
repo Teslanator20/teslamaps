@@ -36,6 +36,8 @@ public final class QolStore {
     public static class Account {
         public String accountUpgrade;
         public long accountUpgradeEnd;
+        public double bazaarLimitCoins;
+        public String bazaarLimitDay;
     }
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
