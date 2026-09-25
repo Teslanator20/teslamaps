@@ -2148,6 +2148,40 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w14-09-min
+    public boolean darkMonolith = false;
+    public boolean darkMonolithBox = true;
+    public boolean darkMonolithBeacon = true;
+    public boolean darkMonolithTitle = true;
+    public boolean darkMonolithTracker = false;
+    public int darkMonolithTrackerX = 10;
+    public int darkMonolithTrackerY = 160;
+    public float darkMonolithTrackerScale = 1f;
+    public boolean nucleusChatFilter = false;
+    public boolean nucleusFilterCrystalFound = true;
+    public boolean nucleusFilterCrystalPlaced = true;
+    public boolean nucleusFilterRunDone = true;
+    public boolean nucleusFilterScavenge = true;
+    public boolean nucleusFilterGuards = true;
+    public boolean nucleusFilterRobot = true;
+    public boolean nucleusFilterYolkar = true;
+    public boolean nucleusFilterKeepers = true;
+    public boolean hollowsPassHelper = false;
+    public boolean hollowsPassTimer = false;
+    public boolean hollowsPassAutoRenew = false;
+    public long hollowsPassExpires = 0L;
+    public int hollowsPassX = 10;
+    public int hollowsPassY = 140;
+    public float hollowsPassScale = 1f;
+    public boolean chDeathWaypoint = false;
+    public boolean commissionBlocks = false;
+    public boolean commissionBlocksSneak = true;
+    public String commissionBlocksColor = "Red";
+    public boolean deepCavernsGuide = false;
+    public int deepCavernsLookAhead = 3;
+    public boolean nucleusNames = false;
+    public boolean nucleusBarriers = false;
+    public boolean nucleusBarriersFilled = false;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;

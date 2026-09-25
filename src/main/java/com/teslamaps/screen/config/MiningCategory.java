@@ -23,6 +23,8 @@ public final class MiningCategory {
         b.label("Display");
         b.toggle("Tracers", () -> config.chScanTracers, v -> config.chScanTracers = v);
         b.toggle("Chat Alert", () -> config.chScanChat, v -> config.chScanChat = v);
+        b.toggle("Last Death Waypoint", () -> config.chDeathWaypoint, v -> config.chDeathWaypoint = v)
+                .desc("After a death in the Crystal Hollows, click the chat line for a waypoint where you died.");
         b.label("Glacite Corpses");
         b.toggle("Corpse ESP", () -> config.corpseESP, v -> config.corpseESP = v)
                 .desc("Highlights Glacite Mineshaft corpses through walls.")
