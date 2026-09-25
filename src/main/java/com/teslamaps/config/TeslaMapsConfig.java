@@ -2130,6 +2130,56 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w06-04-qol
+    public boolean reminders = false;
+    public boolean remindersTitle = true;
+    public boolean remindersAutoDelete = false;
+    public int remindersInterval = 5;
+    public boolean reminderHud = false;
+    public int reminderHudX = 10;
+    public int reminderHudY = 120;
+    public float reminderHudScale = 1.0f;
+    @Global
+    public java.util.List<Reminder> reminderList = new java.util.ArrayList<>();
+    public static class Reminder {
+        public String id = "";
+        public String text = "";
+        public long at;
+        public long last;
+        public Reminder() {}
+        public Reminder(String id, String text, long at) { this.id = id; this.text = text; this.at = at; }
+    }
+    public boolean damageAlert = false;
+    public int damageAlertMin = 0;
+    public boolean damageAlertSound = true;
+    public String damageAlertSoundType = "NOTE_PLING";
+    public boolean damageAlertFlash = false;
+    public boolean damageAlertTitle = false;
+    public boolean damageAlertChat = false;
+    public boolean containerTriggers = false;
+    public java.util.List<ContainerTrigger> containerTriggerList = new java.util.ArrayList<>();
+    public static class ContainerTrigger {
+        public String action = "Sound"; // Sound / Title / Chat / Close
+        public String title = "";
+        public ContainerTrigger() {}
+        public ContainerTrigger(String action, String title) { this.action = action; this.title = title; }
+    }
+    public boolean gfsPiggyBank = false;
+    public boolean mhDungeonHubSelector = false;
+    public boolean harpHelper = false;
+    public int[] harpKeys = {49, 50, 51, 52, 53, 54, 55};
+    public boolean harpKeyLabels = true;
+    public boolean harpGuiScale = false;
+    public boolean harpQuickRestart = false;
+    public boolean harpHideTooltips = false;
+    @Global
+    public boolean discordRpc = false;
+    @Global
+    public boolean discordRpcLocation = true;
+    @Global
+    public boolean discordRpcDungeon = true;
+    @Global
+    public String discordRpcAppId = "934607927837356052";
     // w05-02-inv
     public boolean menuSlotText = false;
     public boolean mstLevels = true;
@@ -3055,6 +3105,11 @@ public class TeslaMapsConfig {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }
         if (c.wardrobeFavorites == null) c.wardrobeFavorites = new java.util.HashSet<>();
+        if (c.reminderList == null) c.reminderList = new java.util.ArrayList<>();
+        if (c.containerTriggerList == null) c.containerTriggerList = new java.util.ArrayList<>();
+        if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new int[]{49, 50, 51, 52, 53, 54, 55};
+        if (c.damageAlertSoundType == null) c.damageAlertSoundType = "NOTE_PLING";
+        if (c.discordRpcAppId == null || c.discordRpcAppId.isBlank()) c.discordRpcAppId = "934607927837356052";
         if (c.colorWardrobeEquipped == null) c.colorWardrobeEquipped = "55FF55";
         if (c.colorWardrobeFavorite == null) c.colorWardrobeFavorite = "FFAA00";
         if (c.waypointPacksActive == null) c.waypointPacksActive = new ArrayList<>(List.of("Default"));

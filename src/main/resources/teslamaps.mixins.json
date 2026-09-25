@@ -4,6 +4,8 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "TooltipStyleMixin",
+    "QolContainerMixin",
+    "QolMinecraftMixin",
     "AbstractButtonMixin",
     "OldMasterStarMixin",
     "LoreSlotTextMixin",

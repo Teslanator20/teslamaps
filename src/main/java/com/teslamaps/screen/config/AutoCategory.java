@@ -50,6 +50,8 @@ public final class AutoCategory {
         b.toggle("Bazaar Fallback", () -> config.gfsBazaar, v -> config.gfsBazaar = v);
         b.info("Offers the missing rest from the bazaar");
         b.toggle("Supercraft Grab Link", () -> config.gfsSuperCraft, v -> config.gfsSuperCraft = v);
+        b.toggle("Piggy Bank Grab Link", () -> config.gfsPiggyBank, v -> config.gfsPiggyBank = v)
+                .desc("Clickable /gfs for 8 Enchanted Pork when your piggy bank cracks or breaks on death");
 
         b.label("Special");
         b.toggle("Auto Draft on Puzzle Fail", () -> config.autoGFSDraft, v -> config.autoGFSDraft = v);

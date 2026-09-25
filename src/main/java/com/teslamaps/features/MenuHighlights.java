@@ -75,6 +75,8 @@ public class MenuHighlights {
                     b.info("Colours slots in a few SkyBlock menus");
                     b.toggle("  Beacon: Active Stat Boost", () -> c.mhBeacon, v -> c.mhBeacon = v);
                     b.toggle("  Hub Selector: Player Count", () -> c.mhHubSelector, v -> c.mhHubSelector = v);
+                    b.toggle("    Dungeon Hub Selector Too", () -> c.mhDungeonHubSelector, v -> c.mhDungeonHubSelector = v)
+                            .desc("Colours the Dungeon Hub lobbies by player count as well.");
                     b.toggle("  RNG Meter: Floor, No Drop, Selected", () -> c.mhRngMeter, v -> c.mhRngMeter = v);
                     b.toggle("  Museum: Finished Categories", () -> c.mhMuseum, v -> c.mhMuseum = v);
                     b.toggle("  Loadouts: Equipped Loadout", () -> c.mhLoadout, v -> c.mhLoadout = v);
@@ -111,7 +113,8 @@ public class MenuHighlights {
         title = t;
 
         boolean beacon = c.mhBeacon && t.equals("Profile Stat Upgrades");
-        boolean hub = c.mhHubSelector && t.equalsIgnoreCase("SkyBlock Hub Selector");
+        boolean hub = c.mhHubSelector && (t.equalsIgnoreCase("SkyBlock Hub Selector")
+                || (c.mhDungeonHubSelector && t.equalsIgnoreCase("Dungeon Hub Selector")));
         boolean rng = c.mhRngMeter && t.endsWith(" RNG Meter");
         boolean museum = c.mhMuseum && t.equals("Your Museum");
         boolean loadout = c.mhLoadout && LOADOUTS.matcher(t).matches();

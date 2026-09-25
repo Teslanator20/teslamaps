@@ -257,5 +257,11 @@ final class Features {
         com.teslamaps.features.mining.HotmPerks.register();
         com.teslamaps.features.GemstoneBuffs.register();
         com.teslamaps.features.ItemCycle.register();
+        // w06-04-qol
+        com.teslamaps.features.Reminders.register();
+        com.teslamaps.features.DamageAlert.register();
+        com.teslamaps.features.ContainerTriggers.register();
+        com.teslamaps.features.HarpHelper.register();
+        com.teslamaps.features.DiscordRpc.register();
     }
 }
