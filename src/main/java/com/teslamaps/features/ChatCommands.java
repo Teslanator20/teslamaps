@@ -24,28 +24,52 @@ public class ChatCommands {
             "8ball", "cf", "dice", "coords", "ping", "fps", "time", "missing",
             "warp", "allinvite", "pt", "kick", "promote", "demote", "dt", "floors"
     };
+    /** Added later, opt-in (chatCommandsExtraEnabled) so old configs keep their behaviour. */
+    public static final String[] EXTRA_KEYS = {"tps", "location", "holding", "boop", "runs", "reinvite", "kickoffline", "invite"};
+    private static final java.util.Set<String> EXTRA_ANY = java.util.Set.of("tps", "location", "holding", "boop", "runs");
     // harmless ones, the only ones answered outside party chat
     private static final java.util.Set<String> ANY_CHANNEL =
             java.util.Set.of("8ball", "cf", "dice", "coords", "ping", "fps", "time");
-    private static final java.util.Set<String> TRUSTED = java.util.Set.of("allinvite", "pt", "kick", "promote", "demote");
+    private static final java.util.Set<String> TRUSTED = java.util.Set.of("allinvite", "pt", "kick", "promote", "demote", "reinvite", "kickoffline", "invite");
     private static final java.util.regex.Pattern NAME = java.util.regex.Pattern.compile("\\w{1,16}");
 
     private static final java.util.Set<String> downtimePlayers = new java.util.LinkedHashSet<>();
+    private static final java.util.Map<String, String> downtimeReasons = new java.util.LinkedHashMap<>();
+    private static final String KUUDRA_END = "[NPC] Elle: Good job everyone. A hard fought battle come to an end. Let's get out of here before we run into any more trouble!";
+    private static int kuudraRuns;
+    private static long lastKuudraEnd;
 
     public static void onChatMessage(String msg) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.chatCommands) return;
         msg = msg.replaceAll("(?i)§[0-9A-FK-OR]", ""); // Hypixel sends chat with legacy § codes
 
-        if (msg.contains("> EXTRA STATS <") && !downtimePlayers.isEmpty()
-                && com.teslamaps.utils.StringUtil.isServerMessage(msg)) {
-            if (!cfg.requeueDowntimeList) for (String p : downtimePlayers) pc("Downtime: " + p);
+        boolean kuudraEnd = false;
+        if (msg.startsWith("[NPC] Elle: Good job everyone.") || msg.trim().equals("KUUDRA DOWN!")) {
+            String t = msg.trim();
+            long now = System.currentTimeMillis();
+            if ((t.equals(KUUDRA_END) || t.equals("KUUDRA DOWN!")) && now - lastKuudraEnd > 20000
+                    && com.teslamaps.utils.StringUtil.isServerMessage(msg)) {
+                lastKuudraEnd = now;
+                kuudraRuns++;
+                kuudraEnd = true;
+            }
+        }
+        boolean runEnd = msg.contains("> EXTRA STATS <") && com.teslamaps.utils.StringUtil.isServerMessage(msg);
+        if ((runEnd || (kuudraEnd && cfg.chatCommandsDtReasons)) && !downtimePlayers.isEmpty()) {
+            if (cfg.chatCommandsDtReasons) announceReasons();
+            else if (!cfg.requeueDowntimeList) for (String p : downtimePlayers) pc("Downtime: " + p);
             downtimePlayers.clear();
+            downtimeReasons.clear();
             com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(false);
         }
 
         PlayerChat.Msg m = PlayerChat.current();
         if (m == null || !m.message().startsWith("!")) return;
+        if (m.channel() == PlayerChat.Channel.DM_FROM && extraEnabled("invite")) {
+            String inv = m.message().substring(1).trim().toLowerCase();
+            if (inv.equals("invite") || inv.equals("inv")) { dmInvite(m.author()); return; }
+        }
         String reply = switch (m.channel()) {
             case PARTY -> "pc ";
             case GUILD -> cfg.chatCommandsGuild ? "gc " : null;
@@ -76,12 +100,24 @@ public class ChatCommands {
             case "demote" -> "demote";
             case "dt", "downtime", "undt", "undowntime" -> "dt";
             case "help", "h" -> "help";
+            case "tps" -> "tps";
+            case "location", "loc" -> "location";
+            case "holding" -> "holding";
+            case "boop" -> "boop";
+            case "runs" -> "runs";
+            case "reinvite", "reinv" -> "reinvite";
+            case "kickoffline", "ko" -> "kickoffline";
             default -> floorInstance(c) != null ? "floors" : null;
         };
     }
 
     public static boolean enabled(String key) {
+        for (String e : EXTRA_KEYS) if (e.equals(key)) return extraEnabled(key);
         return !TeslaMapsConfig.get().chatCommandsDisabled.contains(key);
+    }
+
+    public static boolean extraEnabled(String key) {
+        return TeslaMapsConfig.get().chatCommandsExtraEnabled.contains(key);
     }
 
     private static String helpLine(boolean party) {
@@ -94,6 +130,10 @@ public class ChatCommands {
                 default -> k;
             });
         }
+        for (String k : EXTRA_KEYS) {
+            if (!extraEnabled(k) || k.equals("invite") || (!party && !EXTRA_ANY.contains(k))) continue;
+            sb.append(' ').append(k);
+        }
         return sb.toString();
     }
 
@@ -103,7 +143,7 @@ public class ChatCommands {
         String c = w[0].toLowerCase();
         String k = key(c);
         if (k == null || (!k.equals("help") && !enabled(k))) return;
-        if (!party && !k.equals("help") && !ANY_CHANNEL.contains(k)) return;
+        if (!party && !k.equals("help") && !ANY_CHANNEL.contains(k) && !EXTRA_ANY.contains(k)) return;
         Minecraft mc = Minecraft.getInstance();
         boolean self = sender.equalsIgnoreCase(mc.getUser().getName());
         if (TRUSTED.contains(k) && !trusted(sender, self)) return;
@@ -129,14 +169,33 @@ public class ChatCommands {
             case "kick", "k" -> { if (PartyTracker.mayLead()) run("party kick " + (arg != null ? arg : sender)); }
             case "promote" -> { if (PartyTracker.mayLead()) run("party promote " + (arg != null ? arg : sender)); }
             case "demote" -> { if (PartyTracker.mayLead()) run("party demote " + (arg != null ? arg : sender)); }
+            case "tps" -> say(String.format(java.util.Locale.ROOT, "TPS: %.1f", com.teslamaps.utils.ServerTicks.tps()));
+            case "location", "loc" -> say("Location: " + location());
+            case "holding" -> {
+                var held = mc.player == null ? null : mc.player.getMainHandItem();
+                say("Holding: " + (held == null || held.isEmpty() ? "Nothing :(" : com.teslamaps.utils.StringUtil.strip(held.getHoverName().getString())));
+            }
+            case "boop" -> { if (arg != null) run("boop " + arg); }
+            case "runs" -> say("Kuudra runs this session: " + kuudraRuns);
+            case "reinvite", "reinv" -> {
+                if (!PartyTracker.mayLead()) break;
+                sendDelay = 100;
+                run("party invite " + sender);
+            }
+            case "kickoffline", "ko" -> { if (PartyTracker.mayLead()) run("party kickoffline"); }
             case "dt", "downtime" -> {
                 if (downtimePlayers.contains(sender)) { say(sender + " already has a downtime reminder!"); break; }
                 downtimePlayers.add(sender);
+                if (TeslaMapsConfig.get().chatCommandsDtReasons) {
+                    String reason = w.length > 1 ? String.join(" ", java.util.Arrays.copyOfRange(w, 1, w.length)) : "No reason given";
+                    downtimeReasons.put(sender, reason.length() > 60 ? reason.substring(0, 60) : reason);
+                }
                 com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(true);
                 say("Reminder set for end of run (" + sender + ") - auto-requeue paused");
             }
             case "undt", "undowntime" -> {
                 if (!downtimePlayers.remove(sender)) { say(sender + " has no downtime reminder set!"); break; }
+                downtimeReasons.remove(sender);
                 if (downtimePlayers.isEmpty()) com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(false);
                 say("Downtime reminder removed (" + sender + ")");
             }
@@ -147,6 +206,54 @@ public class ChatCommands {
                 if (instance != null && PartyTracker.mayLead()) run("joininstance " + instance);
             }
         }
+    }
+
+    private static String location() {
+        String area = com.teslamaps.utils.SkyblockUtils.getArea();
+        String sub = null;
+        for (String l : com.teslamaps.utils.ScoreboardUtils.getScoreboardLines()) {
+            String t = com.teslamaps.utils.StringUtil.strip(l).trim();
+            if (t.startsWith("⏣") || t.startsWith("ф")) { sub = t.substring(1).trim(); break; }
+        }
+        if (area.isEmpty()) return sub != null ? sub : "Unknown";
+        return sub != null && !sub.equalsIgnoreCase(area) ? area + " (" + sub + ")" : area;
+    }
+
+    private static void dmInvite(String sender) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (!cfg.chatCommands || !NAME.matcher(sender).matches()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (sender.equalsIgnoreCase(mc.getUser().getName())) return;
+        if (cfg.chatCommandsInviteAutoConfirm && trusted(sender, false)) {
+            sendDelay = 0;
+            run("party invite " + sender);
+            return;
+        }
+        mc.execute(() -> {
+            if (mc.player == null) return;
+            mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§b[TeslaMaps] §aClick to invite §6" + sender + " §ato your party")
+                    .withStyle(st -> st.withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/party invite " + sender))
+                            .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(
+                                    net.minecraft.network.chat.Component.literal("§6/party invite " + sender)))));
+            mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
+        });
+    }
+
+    private static void announceReasons() {
+        StringBuilder line = new StringBuilder("Downtime needed: ");
+        boolean first = true;
+        for (String p : downtimePlayers) {
+            if (!first) line.append(", ");
+            first = false;
+            line.append(p).append(" (").append(downtimeReasons.getOrDefault(p, "No reason given")).append(")");
+        }
+        String out = line.toString();
+        com.teslamaps.utils.TickScheduler.schedule(30, () -> {
+            Minecraft mc = Minecraft.getInstance();
+            com.teslamaps.features.Announce.party(out);
+            if (mc.player != null) mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§b[TeslaMaps] §c" + out));
+            mc.gui.setTitle(net.minecraft.network.chat.Component.literal("§cPlayers need DT"));
+        });
     }
 
     private static boolean trusted(String sender, boolean self) {

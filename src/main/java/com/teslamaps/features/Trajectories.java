@@ -95,8 +95,27 @@ public final class Trajectories {
         }
     }
 
+    private static final List<Vec3> PTS = new java.util.ArrayList<>();
+    private static float[] widths = new float[0];
+
     private static void simulate(PoseStack pose, Vec3 cam, LocalPlayer p, float pt, float yawOffset, boolean pearl,
                                  double speed, TeslaMapsConfig c, int color) {
+        PTS.clear();
+        try {
+            step(pose, cam, p, pt, yawOffset, pearl, speed, c, color);
+        } finally {
+            int n = PTS.size();
+            if (c.trajLines && n >= 2) {
+                if (widths.length < n) widths = new float[n * 2];
+                java.util.Arrays.fill(widths, 0, n, c.trajLineWidth);
+                ESPRenderer.drawPolyline(pose, PTS, widths, color, cam, c.trajThroughWalls);
+            }
+            PTS.clear();
+        }
+    }
+
+    private static void step(PoseStack pose, Vec3 cam, LocalPlayer p, float pt, float yawOffset, boolean pearl,
+                             double speed, TeslaMapsConfig c, int color) {
         Minecraft mc = Minecraft.getInstance();
         double yawRad = Math.toRadians(p.getYRot());
         double x = p.xo + (p.getX() - p.xo) * pt - Math.cos(yawRad) * 0.16;
@@ -107,6 +126,7 @@ public final class Trajectories {
         boolean through = c.trajThroughWalls;
         float width = c.trajLineWidth;
         Vec3 pos = new Vec3(x, y, z);
+        PTS.add(pos);
         for (int i = 0; i < c.trajRange; i++) {
             Vec3 next = new Vec3(pos.x + vx, pos.y + vy, pos.z + vz);
             BlockHitResult bh = mc.level.clip(new ClipContext(pos, next, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, p));
@@ -123,7 +143,7 @@ public final class Trajectories {
                     if (d < best) { best = d; hitEntity = e; end = h.get(); }
                 }
             }
-            if (c.trajLines) ESPRenderer.drawLine(pose, pos, end, color, width, cam, through);
+            PTS.add(end);
             if (hitEntity != null) {
                 AABB box = hitEntity.getBoundingBox().move(
                         (hitEntity.xo - hitEntity.getX()) * (1 - pt), (hitEntity.yo - hitEntity.getY()) * (1 - pt),

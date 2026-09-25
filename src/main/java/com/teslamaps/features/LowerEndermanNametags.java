@@ -24,7 +24,7 @@ public final class LowerEndermanNametags {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("LowerEndermanNametags").when(() -> cfg().lowerEndermanNametags)
+        Feature.of("LowerEndermanNametags").section("Render").when(() -> cfg().lowerEndermanNametags)
                 .tick(LowerEndermanNametags::tick)
                 .config("Render", b -> {
                     TeslaMapsConfig c = cfg();
@@ -51,7 +51,8 @@ public final class LowerEndermanNametags {
 
     /** From EntityNametagMixin at the end of EntityRenderer.extractRenderState. */
     public static void adjust(Entity e, EntityRenderState state) {
-        if (ids.isEmpty() || state.nameTagAttachment == null || !cfg().lowerEndermanNametags || !ids.contains(e.getId())) return;
+        if (ids.isEmpty() || state.nameTagAttachment == null || !cfg().lowerEndermanNametags
+                || !ids.contains(e.getId()) || !cfg().section("Render")) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         double dx = state.x - mc.player.getX(), dz = state.z - mc.player.getZ();

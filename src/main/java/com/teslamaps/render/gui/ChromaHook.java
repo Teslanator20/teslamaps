@@ -31,7 +31,7 @@ public class ChromaHook {
 
     private static boolean enabled() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.enchantChromaMax || c.chromaPrefix || c.chromaFormatCode || AnimFades.previewActive;
+        return c.enchantChromaMax || c.chromaPrefix || c.chromaFormatCode || c.fullChatChroma || AnimFades.previewActive;
     }
 
     private static boolean everything() {

@@ -81,7 +81,7 @@ public class LookScreen extends Screen {
         addRenderableWidget(new TeslaMenuButton(contentX, rowY(4), contentW, ROW_H, Component.literal("All Settings"),
                 () -> {
                     config().lastConfigCategory = "Menu & Skybox";
-                    this.minecraft.setScreen(new MapConfigScreen());
+                    this.minecraft.setScreen(MapConfigScreen.open());
                 }));
 
         addRenderableWidget(new TeslaMenuButton(contentX, rowY(5), contentW, ROW_H, Component.literal("Done"), this::onClose));

@@ -31,6 +31,7 @@ public final class PartyTracker {
     private static final Pattern QUEUED = Pattern.compile("^Party Finder > Your party has been queued in the dungeon finder!$");
     private static final Pattern DUNGEON_JOIN = Pattern.compile("^Party Finder > " + N + " joined the dungeon group! \\(\\w+ Level \\d+\\)$");
     private static final Pattern KUUDRA_JOIN = Pattern.compile("^Party Finder > " + R + N + " joined the group! \\(Combat Level \\d+\\)$");
+    private static final Pattern LIST_START = Pattern.compile("^Party Members \\(\\d+\\)$");
     private static final Pattern LIST = Pattern.compile("^Party (Leader|Moderators|Members): (.+)$");
     private static final Pattern[] DISBAND = {
             Pattern.compile("^" + R + N + " has disbanded the party!$"),
@@ -43,6 +44,7 @@ public final class PartyTracker {
 
     private static final List<String> members = new ArrayList<>();
     private static String leader;
+    private static String prevLeader;
     private static boolean inParty;
 
     private PartyTracker() {}
@@ -51,12 +53,31 @@ public final class PartyTracker {
         Feature.of("PartyTracker")
                 .chat(PartyTracker::onChat)
                 .tickAlways(() -> { if (inParty && Minecraft.getInstance().getConnection() == null) disband(); });
+        net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(
+                net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("tmap")
+                        .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("party").executes(c -> {
+                            c.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(debugLine()));
+                            return 1;
+                        }))));
     }
 
     public static List<String> members() { return members; }
     public static String leader() { return leader; }
+    public static String prevLeader() { return prevLeader; }
     public static boolean inParty() { return inParty; }
     public static int size() { return members.size(); }
+
+    static String debugLine() {
+        if (!inParty) return "§b[TeslaMaps] §7Party: §fnot in a party (or not seen yet - try /p list)";
+        StringBuilder sb = new StringBuilder("§b[TeslaMaps] §7Party (").append(members.size()).append("): ");
+        for (int i = 0; i < members.size(); i++) {
+            String m = members.get(i);
+            if (i > 0) sb.append("§7, ");
+            sb.append(m.equalsIgnoreCase(leader) ? "§6" + m + " §8(leader)" : "§f" + m);
+        }
+        if (leader == null) sb.append(" §8(leader unknown)");
+        return sb.toString();
+    }
 
     public static boolean isLeader() {
         String me = me();
@@ -108,6 +129,7 @@ public final class PartyTracker {
             add(m.group(1));
             add(m.group(2));
             leader = m.group(1);
+            prevLeader = m.group(2);
             return;
         }
         if ((m = TRANSFER_LEAVE.matcher(s)).matches()) {
@@ -127,6 +149,11 @@ public final class PartyTracker {
                 add(me());
                 if (leader == null) leader = me();
             }
+            return;
+        }
+        if (LIST_START.matcher(s).matches()) {
+            members.clear();
+            leader = null;
             return;
         }
         for (Pattern p : DISBAND) if (p.matcher(s).matches()) { disband(); return; }
@@ -174,6 +201,7 @@ public final class PartyTracker {
     private static void disband() {
         members.clear();
         leader = null;
+        prevLeader = null;
         inParty = false;
     }
 

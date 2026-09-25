@@ -121,6 +121,9 @@ public final class ESPCategory {
         b.toggle("  Mimic Chest Tracers", () -> config.mimicChestTracers, v -> config.mimicChestTracers = v);
         b.label("Other ESP");
         b.toggle("Highlight Teammates", () -> config.highlightTeammates, v -> config.highlightTeammates = v);
+        b.toggle("  Also Outside Dungeons (Party Glow)", () -> config.highlightPartyOutside, v -> config.highlightPartyOutside = v)
+                .desc("Party members get an outline glow anywhere in SkyBlock");
+        b.color("    Party Glow Color", () -> config.highlightPartyColor, v -> config.highlightPartyColor = v);
         b.toggle("Teammate Health Warning", () -> config.teammateHealth, v -> config.teammateHealth = v).legit()
                 .desc("Reads the scoreboard hearts: yellow = LOW, red = CRITICAL, shown over the teammate through walls and on the map.");
         b.toggle("  Name Labels ([M] Name)", () -> config.teammateHealthLabels, v -> config.teammateHealthLabels = v);

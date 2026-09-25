@@ -19,18 +19,8 @@ import net.minecraft.world.phys.Vec3;
 
 public final class GyroWandRange {
 
-    private static final int SEGMENTS = 64;
     private static final double RADIUS = 10;
-    private static final double[] COS = new double[SEGMENTS + 1], SIN = new double[SEGMENTS + 1];
     private static long castAt, lastSeen;
-
-    static {
-        for (int i = 0; i <= SEGMENTS; i++) {
-            double a = Math.PI * 2 * i / SEGMENTS;
-            COS[i] = Math.cos(a) * RADIUS;
-            SIN[i] = Math.sin(a) * RADIUS;
-        }
-    }
 
     private GyroWandRange() {}
 
@@ -81,11 +71,7 @@ public final class GyroWandRange {
         int color = TeslaMapsConfig.parseColor(cd ? c.gyroWandCooldownColor : c.gyroWandColor);
         double cx = p.getX() + 0.5, cy = p.getY() + 1.0, cz = p.getZ() + 0.5;
         boolean through = c.gyroWandThroughWalls;
-        for (int i = 0; i < SEGMENTS; i++) {
-            Vec3 a = new Vec3(cx + COS[i], cy, cz + SIN[i]);
-            Vec3 b = new Vec3(cx + COS[i + 1], cy, cz + SIN[i + 1]);
-            ESPRenderer.drawLine(pose, a, b, color, 3f, cam, through);
-            ESPRenderer.drawLine(pose, a.add(0, 0.3, 0), b.add(0, 0.3, 0), color, 1.5f, cam, through);
-        }
+        ESPRenderer.drawCircle(pose, cx, cy, cz, RADIUS, color, 3f, cam, through);
+        ESPRenderer.drawCircle(pose, cx, cy + 0.3, cz, RADIUS, color, 1.5f, cam, through);
     }
 }

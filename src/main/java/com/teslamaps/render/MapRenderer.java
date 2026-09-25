@@ -1432,7 +1432,7 @@ public class MapRenderer {
         if (highlightName != null && highlightName.equals(recordName)) headSize *= 2;
         int half = headSize / 2;
         boolean knownClass = clazz != null && !"EMPTY".equals(clazz);
-        int classColor = knownClass ? getDungeonClassColor(clazz) : 0xFFDDDDDD;
+        int classColor = knownClass ? com.teslamaps.dungeon.ClassColors.or(clazz, getDungeonClassColor(clazz)) : 0xFFDDDDDD;
 
         var pose = context.pose();
         pose.pushMatrix();

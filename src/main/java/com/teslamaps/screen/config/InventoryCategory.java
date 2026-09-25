@@ -161,6 +161,8 @@ public final class InventoryCategory {
         b.info("Textbox with item name suggestions instead of the search sign");
         b.slider("  Suggestions", 0f, 12f,
                 () -> (float) config.searchOverlaySuggestions, v -> config.searchOverlaySuggestions = Math.round(v));
+        b.toggle("  Every \"Enter query\" Sign", () -> config.searchOverlayAllSigns, v -> config.searchOverlayAllSigns = v)
+                .desc("Also replaces search signs outside AH / Bazaar / recipes (museum, other menus). Their searches get their own history.");
         b.toggle("  Keep Previous Text", () -> config.searchOverlayKeepText, v -> config.searchOverlayKeepText = v);
         b.toggle("  Recent Searches", () -> config.searchOverlayHistory, v -> config.searchOverlayHistory = v);
         b.toggle("  Paste Copied Name", () -> config.searchPasteCopied, v -> config.searchPasteCopied = v);
@@ -326,6 +328,8 @@ public final class InventoryCategory {
                 .desc("Tooltip name shows master stars as red ✪ instead of ➊-➎");
         b.label("Bazaar & Progress");
         b.toggle("Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v);
+        b.toggle("  Only My Orders In Co-op Orders", () -> config.bazaarOnlyMyOrders, v -> config.bazaarOnlyMyOrders = v)
+                .desc("Co-op Bazaar Orders: orders of other co-op members are hidden and can't be clicked");
         b.toggle("Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v);
         b.toggle("Bazaar: Order Status Colors", () -> config.bazaarOrderStatus, v -> config.bazaarOrderStatus = v);
         b.info("Your Bazaar Orders: filled, outbid/undercut, still top, % partly filled, ⏰ expiry");
@@ -422,5 +426,8 @@ public final class InventoryCategory {
                 v -> config.invButtonClickType = "Mouse Up".equals(v) ? 1 : 0);
         b.slider("  Tooltip Delay (ms)", 0f, 1000f,
                 () -> (float) config.invButtonTooltipDelay, v -> config.invButtonTooltipDelay = Math.round(v));
+        b.dropdown("  Double Click To Run", com.teslamaps.features.invbuttons.InventoryButtons.CONFIRM_MODES,
+                () -> config.invButtonConfirm, v -> config.invButtonConfirm = v)
+                .desc("First click only arms the button (chime + tooltip), a second click within 1 s runs it.");
     }
 }

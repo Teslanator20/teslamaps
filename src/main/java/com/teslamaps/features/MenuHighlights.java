@@ -388,6 +388,7 @@ public class MenuHighlights {
         String stone = missingStones.get(index);
         if (stone != null && c.mhPowerStoneBazaar && type == ContainerInput.PICKUP) {
             String cmd = "bz " + stone;
+            com.teslamaps.features.bazaar.BazaarPurchaseHelper.expect(stone);
             mc.execute(() -> { if (mc.getConnection() != null) mc.getConnection().sendCommand(cmd); });
             return false;
         }
