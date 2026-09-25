@@ -2383,6 +2383,31 @@ public class TeslaMapsConfig {
     public float dvdSpeed = 1.5f;
     public float dvdScale = 1.5f;
     public boolean dvdCornerAlert = true;
+    // w09-00-vis
+    public boolean bigItems = false;
+    public float bigItemsScale = 1.25f;
+    public boolean bigItemsHeadsOnly = false;
+    public boolean bigItemsRarity = false;
+    public boolean customSkin = false;
+    public boolean customSkinSelf = true;
+    public boolean customSkinOthers = false;
+    public String customSkinFile = "";
+    public boolean coneHat = false;
+    public String coneHatFile = "";
+    public float coneHatHeight = 0.45f;
+    public float coneHatRadius = 0.25f;
+    public float coneHatYOffset = -0.5f;
+    public float coneHatSpin = 0f;
+    public boolean customHubMap = false;
+    public String customHubMapFile = "";
+    public boolean endermanTeleportHider = false;
+    public float espFadeDistance = 0f;
+    public boolean entityHighlight = false;
+    public float entityHighlightWidth = 2f;
+    public String entityHighlightPlayer = "55FFFF";
+    public String entityHighlightMob = "FF5555";
+    public String entityHighlightAnimal = "55FF55";
+    public String entityHighlightOther = "FFFFFF";
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;

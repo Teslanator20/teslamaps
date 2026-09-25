@@ -3,6 +3,11 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "BigItemsMixin",
+    "EnderManParticleMixin",
+    "AvatarRendererSkinMixin",
+    "ConeHatLayerMixin",
+    "HubMapRendererMixin",
     "TitleStackMixin",
     "ItemAnimationsMixin",
     "SwingDurationMixin",

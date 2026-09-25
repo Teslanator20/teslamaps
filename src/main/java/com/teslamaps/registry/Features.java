@@ -441,5 +441,12 @@ final class Features {
         com.teslamaps.features.EndChestTint.register();
         com.teslamaps.features.HurtTint.register();
         com.teslamaps.features.DvdLogo.register();
+        // w09-00-vis
+        com.teslamaps.features.BigItems.register();
+        com.teslamaps.features.cosmetic.CustomSkin.register();
+        com.teslamaps.features.cosmetic.ConeHat.register();
+        com.teslamaps.features.cosmetic.CustomHubMap.register();
+        com.teslamaps.features.EndermanTeleportHider.register();
+        com.teslamaps.features.EntityHighlight.register();
     }
 }
