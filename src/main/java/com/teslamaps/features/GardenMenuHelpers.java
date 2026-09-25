@@ -309,6 +309,8 @@ public final class GardenMenuHelpers {
         long now = System.currentTimeMillis();
         if (now - lastClick < 300) return true;
         lastClick = now;
+        if (cs.getMenu().slots.size() <= ACCEPT_SLOT
+                || com.teslamaps.features.visitors.VisitorRewardGuard.blockClick(cs.getMenu().slots.get(ACCEPT_SLOT))) return true;
         mc.gameMode.handleContainerInput(cs.getMenu().containerId, ACCEPT_SLOT, 0, ContainerInput.PICKUP, mc.player);
         return true;
     }
