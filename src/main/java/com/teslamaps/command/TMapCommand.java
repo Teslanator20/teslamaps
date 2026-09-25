@@ -1433,6 +1433,18 @@ public class TMapCommand {
                                     com.teslamaps.dungeon.DungeonWaypoints.debug();
                                     return 1;
                                 }))
+                        .then(ClientCommands.literal("packs")
+                                .executes(context -> {
+                                    Minecraft.getInstance().schedule(() ->
+                                            Minecraft.getInstance().setScreen(new com.teslamaps.screen.WaypointPackScreen(null)));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("edit")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            com.teslamaps.dungeon.DungeonWaypoints.toggleEditMode()));
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("add")
                                 .executes(context -> {
                                     TeslaMapsConfig cfg = TeslaMapsConfig.get();

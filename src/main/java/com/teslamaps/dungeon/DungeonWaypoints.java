@@ -42,39 +42,83 @@ public class DungeonWaypoints {
 
     public static final String[] TYPES = {"None", "Normal", "Secret", "Etherwarp"};
 
-    private static final Map<String, List<Waypoint>> byRoom = new HashMap<>();
+    public static final String DEFAULT_PACK = "Default";
+    // pack name -> room -> waypoints; byRoom = the edit pack, active = every shown pack
+    private static final Map<String, Map<String, List<Waypoint>>> packs = new java.util.LinkedHashMap<>();
+    private static Map<String, List<Waypoint>> byRoom = new HashMap<>();
+    private static final List<Map<String, List<Waypoint>>> active = new ArrayList<>();
     // secret / etherwarp waypoints already done this run
     private static final java.util.Set<Waypoint> clicked = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
 
 
     private static final Path FILE = FabricLoader.getInstance().getConfigDir()
             .resolve("teslamaps").resolve("dungeon_waypoints.json");
+    private static final Path PACK_DIR = FILE.resolveSibling("waypoint_packs");
 
     private static final com.google.gson.Gson GSON = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
 
     public static void load() {
-        byRoom.clear();
+        packs.clear();
         clicked.clear();
-        if (!Files.exists(FILE)) {
-            TeslaMaps.LOGGER.info("[Waypoints] No dungeon_waypoints.json found at {}", FILE);
-            return;
-        }
-        try (Reader r = Files.newBufferedReader(FILE)) {
-            JsonObject root = JsonParser.parseReader(r).getAsJsonObject();
-            int count = 0;
-            for (Map.Entry<String, JsonElement> e : root.entrySet()) {
-                JsonArray arr = e.getValue().getAsJsonArray();
-                List<Waypoint> list = new ArrayList<>();
-                for (JsonElement el : arr) {
-                    Waypoint wp = parse(el.getAsJsonObject());
-                    if (wp != null) { list.add(wp); count++; }
+        packs.put(DEFAULT_PACK, readPack(FILE));
+        if (Files.isDirectory(PACK_DIR)) {
+            try (var files = Files.list(PACK_DIR)) {
+                for (Path f : (Iterable<Path>) files.sorted()::iterator) {
+                    String n = f.getFileName().toString();
+                    if (!n.endsWith(".json")) continue;
+                    n = n.substring(0, n.length() - 5);
+                    if (!n.equalsIgnoreCase(DEFAULT_PACK)) packs.put(n, readPack(f));
                 }
-                if (!list.isEmpty()) byRoom.put(e.getKey(), list);
+            } catch (Exception ex) {
+                TeslaMaps.LOGGER.error("[Waypoints] Failed to list packs", ex);
             }
-            TeslaMaps.LOGGER.info("[Waypoints] Loaded {} waypoints across {} rooms", count, byRoom.size());
-        } catch (Exception ex) {
-            TeslaMaps.LOGGER.error("[Waypoints] Failed to load", ex);
         }
+        applyPackState();
+    }
+
+    private static Map<String, List<Waypoint>> readPack(Path file) {
+        Map<String, List<Waypoint>> map = new HashMap<>();
+        if (!Files.exists(file)) {
+            TeslaMaps.LOGGER.info("[Waypoints] No waypoint file at {}", file);
+            return map;
+        }
+        try (Reader r = Files.newBufferedReader(file)) {
+            int count = readInto(JsonParser.parseReader(r).getAsJsonObject(), map);
+            TeslaMaps.LOGGER.info("[Waypoints] Loaded {} waypoints across {} rooms from {}", count, map.size(), file.getFileName());
+        } catch (Exception ex) {
+            TeslaMaps.LOGGER.error("[Waypoints] Failed to load {}", file, ex);
+        }
+        return map;
+    }
+
+    private static int readInto(JsonObject root, Map<String, List<Waypoint>> map) {
+        int count = 0;
+        for (Map.Entry<String, JsonElement> e : root.entrySet()) {
+            if (!e.getValue().isJsonArray()) continue;
+            List<Waypoint> list = new ArrayList<>();
+            for (JsonElement el : e.getValue().getAsJsonArray()) {
+                if (!el.isJsonObject()) continue;
+                Waypoint wp = parse(el.getAsJsonObject());
+                if (wp != null) { list.add(wp); count++; }
+            }
+            if (!list.isEmpty()) map.put(e.getKey(), list);
+        }
+        return count;
+    }
+
+    // edit pack always shown; unknown names dropped
+    private static void applyPackState() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.waypointEditPack == null || !packs.containsKey(c.waypointEditPack)) c.waypointEditPack = DEFAULT_PACK;
+        List<String> sel = new ArrayList<>();
+        if (c.waypointPacksActive != null)
+            for (String n : c.waypointPacksActive) if (packs.containsKey(n) && !sel.contains(n)) sel.add(n);
+        if (!sel.contains(c.waypointEditPack)) sel.add(c.waypointEditPack);
+        c.waypointPacksActive = sel;
+        byRoom = packs.get(c.waypointEditPack);
+        active.clear();
+        for (String n : sel) active.add(packs.get(n));
+        clicked.clear();
     }
 
     private static Waypoint parse(JsonObject o) {
@@ -137,32 +181,34 @@ public class DungeonWaypoints {
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (!TeslaMapsConfig.get().dungeonWaypoints || byRoom.isEmpty()) return;
+        if (!TeslaMapsConfig.get().dungeonWaypoints) return;
+        if (TeslaMapsConfig.get().waypointEditMode) renderPreview(matrices, cameraPos);
 
         // Context-scoped waypoints (boss arena / per area) — absolute coords, shown only in that context.
         String ctx = currentContextKey();
-        if (ctx != null) {
-            List<Waypoint> ctxList = byRoom.get(ctx);
-            if (ctxList != null) {
-                for (Waypoint wp : ctxList) {
-                    if (!clicked.isEmpty() && clicked.contains(wp)) continue;
-                    drawWaypoint(matrices, cameraPos, wp, wp.rx(), wp.ry(), wp.rz());
-                }
+        for (int p = 0; p < active.size(); p++) {
+            List<Waypoint> ctxList = ctx == null ? null : active.get(p).get(ctx);
+            if (ctxList == null) continue;
+            for (Waypoint wp : ctxList) {
+                if (!clicked.isEmpty() && clicked.contains(wp)) continue;
+                drawWaypoint(matrices, cameraPos, wp, wp.rx(), wp.ry(), wp.rz());
             }
         }
 
         if (!DungeonManager.isInDungeon()) return;
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null) return;
-        List<Waypoint> list = byRoom.get(room.getName());
-        if (list == null || list.isEmpty()) return;
-        int[] clay = detectClay(room); // {clayX, clayZ, rotation}, or null if terracotta not found yet
-        if (clay == null) return;
-
-        for (Waypoint wp : list) {
-            if (!clicked.isEmpty() && clicked.contains(wp)) continue;
-            double[] rot = rotateAroundNorth(clay[2], wp.rx(), wp.rz());
-            drawWaypoint(matrices, cameraPos, wp, rot[0] + clay[0], wp.ry(), rot[1] + clay[1]);
+        int[] clay = null;
+        for (int p = 0; p < active.size(); p++) {
+            List<Waypoint> list = active.get(p).get(room.getName());
+            if (list == null || list.isEmpty()) continue;
+            if (clay == null) clay = detectClay(room); // {clayX, clayZ, rotation}, or null if terracotta not found yet
+            if (clay == null) return;
+            for (Waypoint wp : list) {
+                if (!clicked.isEmpty() && clicked.contains(wp)) continue;
+                double[] rot = rotateAroundNorth(clay[2], wp.rx(), wp.rz());
+                drawWaypoint(matrices, cameraPos, wp, rot[0] + clay[0], wp.ry(), rot[1] + clay[1]);
+            }
         }
     }
 
@@ -234,6 +280,7 @@ public class DungeonWaypoints {
         int rot = clay != null ? clay[2] : -1;
         String rotName = switch (rot) { case 0 -> "SOUTH"; case 1 -> "NORTH"; case 2 -> "WEST"; case 3 -> "EAST"; default -> "§cNO TERRACOTTA FOUND"; };
         List<Waypoint> list = byRoom.get(name);
+        msg.accept("Edit pack: §e" + TeslaMapsConfig.get().waypointEditPack + "§f | active: §e" + String.join(", ", TeslaMapsConfig.get().waypointPacksActive));
 
         msg.accept("Room: §e\"" + name + "\"§f | scanned clayPos: §e" + clayX + "," + clayZ + "§f | rot: §e" + rotName + "§f | (teslamaps corner: §7" + room.getCornerX() + "," + room.getCornerZ() + "§f)");
         msg.accept("Waypoints in file for this name: " + (list == null ? "§cNONE (name not a key in your file)" : "§a" + list.size()));
@@ -329,17 +376,20 @@ public class DungeonWaypoints {
         if (!TeslaMapsConfig.get().dungeonWaypoints || !DungeonManager.isInDungeon()) return;
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null || room.getName() == null) return;
-        List<Waypoint> list = byRoom.get(room.getName());
-        int[] clay = list == null ? null : detectClay(room);
+        int[] clay = detectClay(room);
         if (clay == null) return;
         int[] rel = worldToRelative(clay, pos.getX(), pos.getZ());
         Waypoint best = null;
         double bestD = Double.MAX_VALUE;
-        for (Waypoint wp : list) {
-            if (!"SECRET".equals(wp.type()) || clicked.contains(wp)) continue;
-            double dx = wp.rx() - rel[0], dy = wp.ry() - pos.getY(), dz = wp.rz() - rel[1];
-            double d = dx * dx + dy * dy + dz * dz;
-            if (d <= maxDistSq && d < bestD) { bestD = d; best = wp; }
+        for (Map<String, List<Waypoint>> pack : active) {
+            List<Waypoint> list = pack.get(room.getName());
+            if (list == null) continue;
+            for (Waypoint wp : list) {
+                if (!"SECRET".equals(wp.type()) || clicked.contains(wp)) continue;
+                double dx = wp.rx() - rel[0], dy = wp.ry() - pos.getY(), dz = wp.rz() - rel[1];
+                double d = dx * dx + dy * dy + dz * dz;
+                if (d <= maxDistSq && d < bestD) { bestD = d; best = wp; }
+            }
         }
         if (best != null) clicked.add(best);
     }
@@ -350,23 +400,24 @@ public class DungeonWaypoints {
         if (!TeslaMapsConfig.get().dungeonWaypoints || !DungeonManager.isInDungeon()) return;
         DungeonRoom room = DungeonManager.getCurrentRoom();
         if (room == null || room.getName() == null) return;
-        List<Waypoint> list = byRoom.get(room.getName());
-        int[] clay = list == null ? null : detectClay(room);
+        int[] clay = detectClay(room);
         if (clay == null) return;
-        for (Waypoint wp : list) {
-            if (!"ETHERWARP".equals(wp.type()) || clicked.contains(wp)) continue;
-            double[] rot = rotateAroundNorth(clay[2], wp.rx(), wp.rz());
-            double dx = rot[0] + clay[0] + 0.5 - pos.x, dy = wp.ry() + 1 - pos.y, dz = rot[1] + clay[1] + 0.5 - pos.z;
-            if (dx * dx + dy * dy + dz * dz <= 2.25) clicked.add(wp);
+        for (Map<String, List<Waypoint>> pack : active) {
+            List<Waypoint> list = pack.get(room.getName());
+            if (list == null) continue;
+            for (Waypoint wp : list) {
+                if (!"ETHERWARP".equals(wp.type()) || clicked.contains(wp)) continue;
+                double[] rot = rotateAroundNorth(clay[2], wp.rx(), wp.rz());
+                double dx = rot[0] + clay[0] + 0.5 - pos.x, dy = wp.ry() + 1 - pos.y, dz = rot[1] + clay[1] + 0.5 - pos.z;
+                if (dx * dx + dy * dy + dz * dz <= 2.25) clicked.add(wp);
+            }
         }
     }
 
     /** Waypoint list + stored coords of the looked-at block: {key, rx, ry, rz}, or null. */
     private static Object[] target() {
-        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        if (mc.player == null || !(mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bhr)
-                || bhr.getType() == net.minecraft.world.phys.HitResult.Type.MISS) return null;
-        net.minecraft.core.BlockPos t = bhr.getBlockPos();
+        net.minecraft.core.BlockPos t = reachPos();
+        if (t == null) return null;
         DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
         int[] clay = (room != null && room.getName() != null) ? detectClay(room) : null;
         if (clay != null) {
@@ -442,7 +493,8 @@ public class DungeonWaypoints {
             sb.append("§7, §3Size: ").append(String.format(java.util.Locale.ROOT, "%.2fx%.2fx%.2f",
                     wp.maxX() - wp.minX(), wp.maxY() - wp.minY(), wp.maxZ() - wp.minZ()));
         } else {
-            editorTitle = "§fEditing Waypoints §8|§f Placing (#1)";
+            editorTitle = (c.waypointEditMode ? "§aEdit Mode" : "§fEditing Waypoints") + " §8|§f Placing (#1)"
+                    + (packs.size() > 1 ? " §8|§7 " + c.waypointEditPack : "");
             editorColor = TeslaMapsConfig.parseColor(c.waypointAddColor) | 0xFF000000;
             sb.append("§fType: §5").append(c.waypointAddType == null ? "None" : c.waypointAddType);
             sb.append("§7, §r#").append(c.waypointAddColor).append("§7");
@@ -480,29 +532,264 @@ public class DungeonWaypoints {
 
         net.minecraft.core.BlockPos target = (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bhr)
                 ? bhr.getBlockPos() : mc.player.blockPosition().below();
+        return addAt(target, colorArgb, filled, depth, type, null);
+    }
 
+    /** Toggles a waypoint at {@code target} in the edit pack; a title replaces instead of removing. */
+    private static String addAt(net.minecraft.core.BlockPos target, int colorArgb, boolean filled, boolean depth, String type, String title) {
         DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
         int[] clay = (room != null && room.getName() != null) ? detectClay(room) : null;
 
         String coords = target.getX() + "," + target.getY() + "," + target.getZ();
-
-        if (room != null && room.getName() != null && clay != null) {
+        boolean inRoom = room != null && room.getName() != null && clay != null;
+        String key;
+        double rx, rz, ry = target.getY();
+        if (inRoom) {
             double[] rel = rotateToNorth(clay[2], target.getX() - clay[0], target.getZ() - clay[1]);
-            List<Waypoint> list = byRoom.computeIfAbsent(room.getName(), k -> new ArrayList<>());
-            if (removeAt(list, room.getName(), rel[0], target.getY(), rel[1]))
-                return "§eRemoved waypoint in §e\"" + room.getName() + "\"§e @ " + coords;
-            list.add(newWaypoint(rel[0], target.getY(), rel[1], colorArgb, filled, depth, type));
-            save();
-            return "§aAdded waypoint in §e\"" + room.getName() + "\"§a @ " + coords;
+            key = room.getName();
+            rx = rel[0];
+            rz = rel[1];
+        } else {
+            key = currentContextKey();
+            rx = target.getX();
+            rz = target.getZ();
         }
+        String where = inRoom ? "in §e\"" + key + "\"" : "§b" + key;
 
-        String ctx = currentContextKey();
-        List<Waypoint> list = byRoom.computeIfAbsent(ctx, k -> new ArrayList<>());
-        if (removeAt(list, ctx, target.getX(), target.getY(), target.getZ()))
-            return "§eRemoved §b" + ctx + "§e waypoint @ " + coords;
-        list.add(newWaypoint(target.getX(), target.getY(), target.getZ(), colorArgb, filled, depth, type));
+        List<Waypoint> list = byRoom.computeIfAbsent(key, k -> new ArrayList<>());
+        int existing = indexAt(list, rx, ry, rz);
+        if (existing < 0 && inOtherPack(key, rx, ry, rz)) {
+            if (list.isEmpty()) byRoom.remove(key);
+            return "§eThat waypoint belongs to another active pack. Switch the edit pack to change it.";
+        }
+        if (title == null && removeAt(list, key, rx, ry, rz))
+            return "§eRemoved waypoint " + where + "§e @ " + coords;
+        if (existing >= 0) list.remove(existing);
+        Waypoint wp = newWaypoint(rx, ry, rz, colorArgb, filled, depth, type);
+        if (title != null && !title.isBlank()) wp = wp.withTitle(title);
+        list.add(wp);
         save();
-        return "§aAdded §b" + ctx + "§a waypoint @ " + coords;
+        return "§aAdded waypoint " + where + "§a @ " + coords;
+    }
+
+    private static boolean inOtherPack(String key, double rx, double ry, double rz) {
+        for (Map<String, List<Waypoint>> pack : active) {
+            if (pack != byRoom && indexAt(pack.get(key), rx, ry, rz) >= 0) return true;
+        }
+        return false;
+    }
+
+    // --- right-click editor ---
+    private static long lastUseMs = 0;
+
+    /** Looked-at block, or the block 5 blocks ahead when looking at air. */
+    public static net.minecraft.core.BlockPos reachPos() {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.player == null) return null;
+        net.minecraft.world.phys.HitResult hit = mc.hitResult;
+        if (hit instanceof net.minecraft.world.phys.BlockHitResult bhr && hit.getType() != net.minecraft.world.phys.HitResult.Type.MISS)
+            return bhr.getBlockPos();
+        if (hit != null && hit.getType() != net.minecraft.world.phys.HitResult.Type.MISS) return null;
+        return net.minecraft.core.BlockPos.containing(mc.player.getEyePosition().add(mc.player.getLookAngle().scale(5)));
+    }
+
+    public static String toggleEditMode() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        c.waypointEditMode = !c.waypointEditMode;
+        TeslaMapsConfig.save();
+        return "Waypoint edit mode " + (c.waypointEditMode ? "§aon§r §7(right-click: add/remove"
+                + (c.waypointEditTitles ? ", sneak: title" : "") + ", pack §f" + c.waypointEditPack + "§7)" : "§coff");
+    }
+
+    /** Minecraft.startUseItem; true = handled, cancel the use. */
+    public static boolean onUseItem() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.waypointEditMode || !c.dungeonWaypoints || !c.section("Secrets & Waypoints")) return false;
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.screen != null || mc.player == null || !DungeonManager.isInDungeon()) return false;
+        long now = System.currentTimeMillis();
+        boolean repeat = now - lastUseMs < 260;
+        lastUseMs = now;
+        if (repeat) return true;
+        net.minecraft.core.BlockPos pos = reachPos();
+        if (pos == null) return false;
+        int color = TeslaMapsConfig.parseColor(c.waypointAddColor);
+        if (c.waypointEditTitles && mc.player.isShiftKeyDown()) {
+            mc.setScreen(new com.teslamaps.screen.TextPromptScreen("Waypoint Title", text -> {
+                String r = addAt(pos, color, c.waypointAddFilled, c.waypointAddThroughWalls, c.waypointAddType, text);
+                mc.gui.setOverlayMessage(net.minecraft.network.chat.Component.literal(r), false);
+            }));
+            return true;
+        }
+        String r = addAt(pos, color, c.waypointAddFilled, c.waypointAddThroughWalls, c.waypointAddType, null);
+        mc.gui.setOverlayMessage(net.minecraft.network.chat.Component.literal(r), false);
+        return true;
+    }
+
+    private static void renderPreview(PoseStack matrices, Vec3 cameraPos) {
+        if (!DungeonManager.isInDungeon()) return;
+        net.minecraft.core.BlockPos pos = reachPos();
+        if (pos == null) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        int color = (TeslaMapsConfig.parseColor(c.waypointAddColor) & 0xFFFFFF) | 0x4D000000;
+        Waypoint wp = newWaypoint(0, 0, 0, color, c.waypointAddFilled, c.waypointAddThroughWalls, null);
+        AABB box = fitToBlock(wp, pos.getX(), pos.getY(), pos.getZ());
+        if (c.waypointAddFilled) ESPRenderer.drawFilledBox(matrices, box.inflate(0.005), color, cameraPos, c.waypointAddThroughWalls);
+        else ESPRenderer.drawBoxOutline(matrices, box, color | 0xFF000000, 1.5f, cameraPos, c.waypointAddThroughWalls);
+    }
+
+    // --- packs ---
+    public static List<String> packNames() {
+        return new ArrayList<>(packs.keySet());
+    }
+
+    public static int packSize(String name) {
+        Map<String, List<Waypoint>> m = packs.get(name);
+        if (m == null) return 0;
+        int n = 0;
+        for (List<Waypoint> l : m.values()) n += l.size();
+        return n;
+    }
+
+    public static boolean isPackActive(String name) {
+        return TeslaMapsConfig.get().waypointPacksActive.contains(name);
+    }
+
+    public static boolean isEditPack(String name) {
+        return name.equals(TeslaMapsConfig.get().waypointEditPack);
+    }
+
+    public static String togglePack(String name) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!packs.containsKey(name)) return "§cNo pack " + name;
+        if (isEditPack(name)) return "§eThe edit pack is always shown.";
+        if (!c.waypointPacksActive.remove(name)) c.waypointPacksActive.add(name);
+        applyPackState();
+        TeslaMapsConfig.save();
+        return isPackActive(name) ? "§aShowing pack §f" + name : "§ePack §f" + name + "§e hidden";
+    }
+
+    public static String setEditPack(String name) {
+        if (!packs.containsKey(name)) return "§cNo pack " + name;
+        TeslaMapsConfig.get().waypointEditPack = name;
+        applyPackState();
+        TeslaMapsConfig.save();
+        return "§aEditing pack §f" + name;
+    }
+
+    private static String cleanName(String name) {
+        if (name == null) return "";
+        String s = name.trim().replaceAll("[^A-Za-z0-9 _-]", "");
+        return s.length() > 32 ? s.substring(0, 32).trim() : s;
+    }
+
+    public static String createPack(String raw) {
+        return createPack(raw, new HashMap<>());
+    }
+
+    private static String createPack(String raw, Map<String, List<Waypoint>> content) {
+        String name = cleanName(raw);
+        if (name.isEmpty()) {
+            int i = packs.size();
+            do name = "Pack " + i++; while (hasPack(name));
+        }
+        if (hasPack(name)) return "§cA pack named §f" + name + "§c already exists.";
+        packs.put(name, content);
+        if (!writePack(name, content)) { packs.remove(name); return "§cCould not write the pack file."; }
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        c.waypointEditPack = name;
+        c.waypointPacksActive.add(name);
+        applyPackState();
+        TeslaMapsConfig.save();
+        return "§aCreated pack §f" + name + "§a (" + packSize(name) + " waypoints) and set it as edit pack.";
+    }
+
+    private static boolean hasPack(String name) {
+        for (String n : packs.keySet()) if (n.equalsIgnoreCase(name)) return true;
+        return false;
+    }
+
+    public static String renamePack(String from, String raw) {
+        String to = cleanName(raw);
+        if (DEFAULT_PACK.equals(from)) return "§cThe Default pack (dungeon_waypoints.json) can't be renamed.";
+        if (!packs.containsKey(from) || to.isEmpty() || to.equals(from)) return null;
+        if (hasPack(to)) return "§cA pack named §f" + to + "§c already exists.";
+        try {
+            Files.move(packFile(from), packFile(to));
+        } catch (Exception ex) {
+            TeslaMaps.LOGGER.error("[Waypoints] Rename failed", ex);
+            return "§cRename failed.";
+        }
+        Map<String, Map<String, List<Waypoint>>> copy = new java.util.LinkedHashMap<>(packs);
+        packs.clear();
+        copy.forEach((k, v) -> packs.put(k.equals(from) ? to : k, v));
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        c.waypointPacksActive.replaceAll(n -> n.equals(from) ? to : n);
+        if (c.waypointEditPack.equals(from)) c.waypointEditPack = to;
+        applyPackState();
+        TeslaMapsConfig.save();
+        return "§aRenamed pack to §f" + to;
+    }
+
+    public static String deletePack(String name) {
+        if (DEFAULT_PACK.equals(name)) return "§cThe Default pack (dungeon_waypoints.json) can't be deleted.";
+        if (!packs.containsKey(name)) return "§cNo pack " + name;
+        try {
+            Path f = packFile(name);
+            if (Files.exists(f)) Files.move(f, f.resolveSibling(name + ".json.deleted"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception ex) {
+            TeslaMaps.LOGGER.error("[Waypoints] Delete failed", ex);
+            return "§cDelete failed.";
+        }
+        packs.remove(name);
+        TeslaMapsConfig.get().waypointPacksActive.remove(name);
+        applyPackState();
+        TeslaMapsConfig.save();
+        return "§ePack §f" + name + "§e deleted §7(file kept as " + name + ".json.deleted)";
+    }
+
+    /** Odin export: plain JSON or base64(gzip(JSON)). */
+    public static String importPack(String raw, String clipboard) {
+        if (clipboard == null || clipboard.isBlank()) return "§cClipboard is empty.";
+        String text = clipboard.trim();
+        try {
+            if (!text.startsWith("{")) {
+                byte[] bytes = java.util.Base64.getDecoder().decode(text.replaceAll("\\s", ""));
+                try (var in = new java.util.zip.GZIPInputStream(new java.io.ByteArrayInputStream(bytes))) {
+                    text = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                }
+            }
+            Map<String, List<Waypoint>> map = new HashMap<>();
+            if (readInto(JsonParser.parseString(text).getAsJsonObject(), map) == 0) return "§cNo waypoints found in the clipboard.";
+            return createPack(raw, map);
+        } catch (Exception ex) {
+            return "§cCould not read waypoints from the clipboard.";
+        }
+    }
+
+    public static String exportEditPack() {
+        try {
+            var out = new java.io.ByteArrayOutputStream();
+            try (var gz = new java.util.zip.GZIPOutputStream(out)) {
+                gz.write(new com.google.gson.Gson().toJson(toJson(byRoom)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+            net.minecraft.client.Minecraft.getInstance().keyboardHandler.setClipboard(java.util.Base64.getEncoder().encodeToString(out.toByteArray()));
+            return "§aCopied pack §f" + TeslaMapsConfig.get().waypointEditPack + "§a (" + packSize(TeslaMapsConfig.get().waypointEditPack) + " waypoints) to the clipboard.";
+        } catch (Exception ex) {
+            return "§cExport failed.";
+        }
+    }
+
+    private static boolean writePack(String name, Map<String, List<Waypoint>> map) {
+        try {
+            Path f = packFile(name);
+            Files.createDirectories(f.getParent());
+            Files.writeString(f, GSON.toJson(toJson(map)));
+            return true;
+        } catch (Exception ex) {
+            TeslaMaps.LOGGER.error("[Waypoints] Failed to write pack {}", name, ex);
+            return false;
+        }
     }
 
     // removes a waypoint at the exact (rx,ry,rz); returns true if one was found and removed
@@ -603,35 +890,43 @@ public class DungeonWaypoints {
 
     private static void save() {
         try {
-            Path bak = FILE.resolveSibling("dungeon_waypoints.json.bak");
-            if (Files.exists(FILE) && !Files.exists(bak)) Files.copy(FILE, bak);
-
-            JsonObject root = new JsonObject();
-            for (Map.Entry<String, List<Waypoint>> e : byRoom.entrySet()) {
-                JsonArray arr = new JsonArray();
-                for (Waypoint wp : e.getValue()) {
-                    JsonObject o = new JsonObject();
-                    o.addProperty("x", wp.rx());
-                    o.addProperty("y", wp.ry());
-                    o.addProperty("z", wp.rz());
-                    o.addProperty("color", toHex(wp.colorArgb()));
-                    o.addProperty("filled", wp.filled());
-                    o.addProperty("depth", wp.depth());
-                    if (wp.type() != null) o.addProperty("type", wp.type());
-                    if (wp.title() != null) o.addProperty("title", wp.title());
-                    JsonObject ab = new JsonObject();
-                    ab.addProperty("minX", wp.minX()); ab.addProperty("minY", wp.minY()); ab.addProperty("minZ", wp.minZ());
-                    ab.addProperty("maxX", wp.maxX()); ab.addProperty("maxY", wp.maxY()); ab.addProperty("maxZ", wp.maxZ());
-                    o.add("aabb", ab);
-                    arr.add(o);
-                }
-                root.add(e.getKey(), arr);
-            }
-            Files.createDirectories(FILE.getParent());
-            Files.writeString(FILE, GSON.toJson(root));
+            Path file = packFile(TeslaMapsConfig.get().waypointEditPack);
+            Path bak = file.resolveSibling(file.getFileName() + ".bak");
+            if (Files.exists(file) && !Files.exists(bak)) Files.copy(file, bak);
+            Files.createDirectories(file.getParent());
+            Files.writeString(file, GSON.toJson(toJson(byRoom)));
         } catch (Exception ex) {
             TeslaMaps.LOGGER.error("[Waypoints] Failed to save", ex);
         }
+    }
+
+    private static Path packFile(String pack) {
+        return DEFAULT_PACK.equals(pack) ? FILE : PACK_DIR.resolve(pack + ".json");
+    }
+
+    private static JsonObject toJson(Map<String, List<Waypoint>> map) {
+        JsonObject root = new JsonObject();
+        for (Map.Entry<String, List<Waypoint>> e : map.entrySet()) {
+            JsonArray arr = new JsonArray();
+            for (Waypoint wp : e.getValue()) {
+                JsonObject o = new JsonObject();
+                o.addProperty("x", wp.rx());
+                o.addProperty("y", wp.ry());
+                o.addProperty("z", wp.rz());
+                o.addProperty("color", toHex(wp.colorArgb()));
+                o.addProperty("filled", wp.filled());
+                o.addProperty("depth", wp.depth());
+                if (wp.type() != null) o.addProperty("type", wp.type());
+                if (wp.title() != null) o.addProperty("title", wp.title());
+                JsonObject ab = new JsonObject();
+                ab.addProperty("minX", wp.minX()); ab.addProperty("minY", wp.minY()); ab.addProperty("minZ", wp.minZ());
+                ab.addProperty("maxX", wp.maxX()); ab.addProperty("maxY", wp.maxY()); ab.addProperty("maxZ", wp.maxZ());
+                o.add("aabb", ab);
+                arr.add(o);
+            }
+            root.add(e.getKey(), arr);
+        }
+        return root;
     }
 
     private static String toHex(int argb) {

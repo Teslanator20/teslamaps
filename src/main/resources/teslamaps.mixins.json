@@ -117,6 +117,7 @@
     "TermSimPacketMixin",
     "TerminalMenuMixin",
     "TerminalScaleMixin",
+    "WaypointEditorMixin",
     "TerminalScreenMixin",
     "TitleScreenMixin",
     "VanillaButtonStyleMixin",

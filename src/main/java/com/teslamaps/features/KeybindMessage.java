@@ -53,6 +53,7 @@ public class KeybindMessage {
                 TeslaMapsConfig.parseColor(cfg.waypointAdd3Color), cfg.waypointAdd3Filled, cfg.waypointAdd3ThroughWalls, cfg.waypointAdd3Type)));
         pollWp(handle, cfg.waypointRemoveKey, fire, () -> wpResult(DungeonWaypoints.removeNearest()));
         pollWp(handle, cfg.waypointClearKey, fire, () -> wpResult(DungeonWaypoints.clearRoom()));
+        pollWp(handle, cfg.waypointEditModeKey, fire, () -> wpResult(DungeonWaypoints.toggleEditMode()));
     }
 
     public static int heldModifiers(Minecraft mc) {
