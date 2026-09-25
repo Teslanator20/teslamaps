@@ -80,6 +80,7 @@ public final class SbItemCooldowns {
 
     /** GuiGraphicsExtractor.itemCooldown, per drawn item. */
     public static float percent(ItemStack stack, float vanilla) {
+        vanilla = AbilityCooldowns.percent(stack, vanilla);
         if (COOLDOWNS.isEmpty() || stack.isEmpty() || !cfg().itemCooldowns) return vanilla;
         Entry e = COOLDOWNS.get(ItemUtil.skyblockId(stack));
         if (e == null) return vanilla;

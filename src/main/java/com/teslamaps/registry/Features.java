@@ -354,5 +354,8 @@ final class Features {
         com.teslamaps.features.CommandChains.register();
         com.teslamaps.features.AbiphoneHelper.register();
         com.teslamaps.features.waypoints.WaypointGroups.register();
+        // w08-06-hud
+        com.teslamaps.features.AbilityCooldowns.register();
+        com.teslamaps.features.TabWidgetHint.register();
     }
 }

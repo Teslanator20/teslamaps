@@ -24,6 +24,8 @@ public class SafariHistory {
         public int floorDrops;
         public String hotspot;
         public java.util.Map<String, Integer> catches; // party catches per critter, null on old runs
+        public java.util.Map<String, Integer> attempts;
+        public java.util.Map<String, Integer> failures;
     }
 
     public static long totalTime() {

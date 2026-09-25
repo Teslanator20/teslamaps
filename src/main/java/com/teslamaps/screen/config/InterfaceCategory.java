@@ -86,6 +86,8 @@ public final class InterfaceCategory {
         b.toggle("  Show Ping", () -> config.perfHudPing, v -> config.perfHudPing = v);
         b.toggle("  Show CPS", () -> config.perfHudCps, v -> config.perfHudCps = v)
                 .desc("Left | right clicks per second");
+        b.toggle("  Show Lobby Day", () -> config.perfHudDay, v -> config.perfHudDay = v)
+                .desc("Day: n = how long this lobby has been running (world time / 24000). Fresh lobbies lag less.");
         b.toggle("  Lag Display (zzz)", () -> config.perfHudLag, v -> config.perfHudLag = v)
                 .desc("Adds \"zzz for 1.23s\" while the server has not sent a tick for longer than the threshold")
                 .tags("lag", "freeze", "zzz");

@@ -84,6 +84,7 @@ public class PerformanceHud {
             l.add("CPS: ");
             v.add(cps(leftClicks, now) + " | " + cps(rightClicks, now));
         }
+        if (cfg.perfHudDay && mc.level != null) { l.add("Day: "); v.add(String.valueOf(mc.level.getGameTime() / 24000L)); }
         if (cfg.perfHudLag && !mc.isLocalServer() && com.teslamaps.utils.SkyblockUtils.isOnHypixel()) {
             long last = com.teslamaps.utils.ServerTickTimer.lastPingMs();
             long dt = last == 0 ? 0 : System.currentTimeMillis() - last;
@@ -131,13 +132,14 @@ public class PerformanceHud {
 
     public static int width(Minecraft mc) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.perfHudVertical) return mc.font.width(SAMPLE_TEXT) + (cfg.perfHudCps ? mc.font.width(" CPS: 8 | 12") : 0);
+        if (!cfg.perfHudVertical) return mc.font.width(SAMPLE_TEXT) + (cfg.perfHudCps ? mc.font.width(" CPS: 8 | 12") : 0)
+                + (cfg.perfHudDay ? mc.font.width(" Day: 12") : 0);
         return mc.font.width("Ping: 45ms");
     }
 
     public static int height(Minecraft mc) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.perfHudVertical) return mc.font.lineHeight;
-        return (mc.font.lineHeight + 1) * (cfg.perfHudCps ? 4 : 3);
+        return (mc.font.lineHeight + 1) * (3 + (cfg.perfHudCps ? 1 : 0) + (cfg.perfHudDay ? 1 : 0));
     }
 }
