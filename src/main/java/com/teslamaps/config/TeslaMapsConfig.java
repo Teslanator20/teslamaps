@@ -2236,6 +2236,36 @@ public class TeslaMapsConfig {
     public float centuryCakeTimerScale = 1.0f;
     public boolean centuryCakeGlow = false;
     public String colorCenturyCakeReady = "55FF55";
+    // w06-06-qol
+    public boolean minionOverlay = false;
+    public boolean minionOverlayName = true;
+    public boolean minionOverlayOnlyTier = false;
+    public boolean minionOverlayEmptied = true;
+    public float minionOverlayDistance = 16f;
+    public boolean minionLastOpened = true;
+    public String minionLastOpenedColor = "55FFFF";
+    public boolean minionCoinsPerDay = true;
+    public boolean minionHideMobNametags = false;
+    public boolean minionWarnings = false;
+    public boolean minionWarnFull = true;
+    public boolean minionWarnReach = true;
+    public String minionWarnSound = "NOTE_PLING";
+    public boolean minionHideLocationWarning = false;
+    public boolean minionOnlyEnchanted = false;
+    public boolean minionXpTooltip = false;
+    public boolean huntrapMisclick = false;
+    public boolean snakeGameKeys = false;
+    public boolean middleClickFix = false;
+    public boolean mobSpawnAlert = false;
+    public String mobSpawnAlertMode = "Title + Sound";
+    public String mobSpawnAlertSound = "NOTE_PLING";
+    public float mobSpawnAlertCooldown = 5f;
+    public boolean mobSpawnAlertChat = true;
+    public String mobSpawnAlertCoords = "Nobody";
+    public boolean islandAlerts = false;
+    public String islandAlertMode = "Title + Sound";
+    public String islandAlertSound = "NOTE_PLING";
+    public List<String> islandAlertRules = new ArrayList<>();
     // w05-02-inv
     public boolean menuSlotText = false;
     public boolean mstLevels = true;
@@ -3194,6 +3224,7 @@ public class TeslaMapsConfig {
         if (c.kuudraFaction == null) c.kuudraFaction = "";
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
+        if (c.islandAlertRules == null) c.islandAlertRules = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();
         if (c.protectedItems == null) c.protectedItems = new java.util.HashSet<>();
         if (c.preventPlacingBlacklist == null) c.preventPlacingBlacklist = new java.util.HashSet<>();

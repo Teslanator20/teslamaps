@@ -70,6 +70,7 @@ public class ClientPlayerInteractionManagerMixin {
         if (state.is(Blocks.CHEST) || state.is(Blocks.TRAPPED_CHEST) || state.is(Blocks.BARREL)) {
             com.teslamaps.features.ItemIndex.onChestClick(pos);
             com.teslamaps.features.SearchWaypoint.onChestClick(pos);
+            com.teslamaps.features.MinionFeatures.onChestClick(pos);
         }
 
         if (state.is(Blocks.CHEST) || state.is(Blocks.TRAPPED_CHEST)) {

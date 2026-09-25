@@ -285,5 +285,10 @@ final class Features {
         com.teslamaps.features.qol.UpgradeReminder.register();
         com.teslamaps.features.qol.CityProject.register();
         com.teslamaps.features.qol.CenturyCake.register();
+        // w06-06-qol
+        com.teslamaps.features.MinionFeatures.register();
+        com.teslamaps.features.ClickFixes.register();
+        com.teslamaps.features.MobSpawnAlert.register();
+        com.teslamaps.features.IslandAlerts.register();
     }
 }

@@ -68,6 +68,7 @@ public class MinionHelper {
                     b.info("HUD: materials missing for the next tier of minions in your inventory");
                     b.toggle("Cheapest Minion Upgrades", () -> c.minionUpgrades, v -> c.minionUpgrades = v);
                     b.info("Panel next to Crafted Minions: next tier of each minion by material cost");
+                    MinionFeatures.config(b);
                 });
     }
 

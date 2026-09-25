@@ -37,6 +37,11 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
+        if (com.teslamaps.features.MinionFeatures.blockClick((AbstractContainerScreen<?>) (Object) this, slot, type)
+                || com.teslamaps.features.ClickFixes.blockHuntrap((AbstractContainerScreen<?>) (Object) this, slot)) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.features.SlotLock.blockSlotClick(slot, button, type)) {
             ci.cancel();
             return;
@@ -63,6 +68,12 @@ public class HandledScreenClickMixin {
         if (type != net.minecraft.world.inventory.ContainerInput.THROW) return;
         if (com.teslamaps.features.ItemProtection.blockSlotDrop(slot)
                 || com.teslamaps.features.LimitDroppingItems.block()) ci.cancel();
+    }
+
+    @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method = "mouseClicked",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;hasInfiniteMaterials()Z"))
+    private boolean teslamaps$middleClickFix(boolean original) {
+        return original || com.teslamaps.features.ClickFixes.middleClickFix();
     }
 
     @Inject(method = "extractTooltip", at = @At("HEAD"), cancellable = true)
