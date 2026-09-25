@@ -16,6 +16,7 @@ public final class EcoOverlays {
             BazaarHelpers.render(g, mx, my);
             CraftMaterials.render(g, mx, my);
             AuctionSortWarning.render(g);
+            PestBaitPanel.render(g, mx, my);
         } finally {
             Perf.end();
         }
@@ -26,7 +27,7 @@ public final class EcoOverlays {
     }
 
     public static boolean click(double mx, double my, int button) {
-        return CraftMaterials.click(mx, my, button);
+        return CraftMaterials.click(mx, my, button) || PestBaitPanel.click(mx, my, button);
     }
 
     public static boolean scroll(double mx, double my, double dy) {

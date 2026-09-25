@@ -36,6 +36,7 @@ public class FarmSpeed {
         BlockState state = mc.level.getBlockState(pos);
         if (!isCrop(state)) return;
         FarmProgress.onCropBreak(state);
+        MousematAngles.onCrop(state);
         FarmProfit.onCropBreak(state, mc.level.getOverworldClockTime());
 
         lastBreak = System.currentTimeMillis();
@@ -55,7 +56,7 @@ public class FarmSpeed {
      * double plants — Sunflower and Wild Rose are the latter, not CropBlock, and
      * checking for crops alone missed those two entirely.
      */
-    private static boolean isCrop(BlockState state) {
+    static boolean isCrop(BlockState state) {
         var block = state.getBlock();
         return block instanceof net.minecraft.world.level.block.VegetationBlock
                 || block instanceof net.minecraft.world.level.block.CocoaBlock

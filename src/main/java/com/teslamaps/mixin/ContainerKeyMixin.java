@@ -33,7 +33,8 @@ public class ContainerKeyMixin {
             return;
         }
 
-        if (com.teslamaps.features.FancyPartyFinder.keyPressed(cs, event.key())) {
+        if (com.teslamaps.features.FancyPartyFinder.keyPressed(cs, event.key())
+                || com.teslamaps.features.FancyAuctionHouse.keyPressed(cs, event.key())) {
             cir.setReturnValue(true);
             return;
         }
@@ -49,6 +50,11 @@ public class ContainerKeyMixin {
         }
 
         if (com.teslamaps.features.hunting.ShardOverlay.onKeyPressed(event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
+
+        if (com.teslamaps.features.SearchOverlay.onContainerKey(cs, event.key())) {
             cir.setReturnValue(true);
             return;
         }

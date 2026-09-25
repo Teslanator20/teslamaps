@@ -607,5 +607,26 @@ final class Features {
         com.teslamaps.features.GardenUptime.register();
         com.teslamaps.features.FarmKeys.register();
         com.teslamaps.features.CarrolynHelper.register();
+        // w14-00-gar
+        com.teslamaps.features.MantidKillDisplay.register();
+        com.teslamaps.features.GlowingMushrooms.register();
+        com.teslamaps.features.MousematAngles.register();
+        com.teslamaps.features.NoBreak.register();
+        com.teslamaps.features.PestSpawnSound.register();
+        com.teslamaps.features.PestBaitPanel.register();
+        com.teslamaps.features.NoCropRotation.register();
+        com.teslamaps.features.PbFortuneGain.register();
+        // w13-00-eco
+        com.teslamaps.features.NpcDayLimit.register();
+        com.teslamaps.features.PricePaid.register();
+        com.teslamaps.features.hud.FireSaleWidget.register();
+        com.teslamaps.features.PesthunterProfit.register();
+        com.teslamaps.features.FancyAuctionHouse.register();
+        // w13-02-eco
+        com.teslamaps.features.AuctionPriceInput.register();
+        com.teslamaps.features.SearchOverlay.register();
+        com.teslamaps.features.BazaarOrderTooltip.register();
+        com.teslamaps.features.EssenceShopCosts.register();
+        com.teslamaps.features.EscrowFix.register();
     }
 }
