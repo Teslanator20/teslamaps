@@ -18,6 +18,7 @@ public final class SkyblockIdTooltip {
         Feature feature = Feature.of("SkyblockIdTooltip").when(() -> TeslaMapsConfig.get().skyblockIdTooltip);
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (!TeslaMapsConfig.get().skyblockIdTooltip || !feature.active()) return;
+            if (TeslaMapsConfig.get().skyblockIdTooltipAdvanced && !flag.isAdvanced()) return;
             String id = ItemUtil.skyblockId(stack);
             if (id.isEmpty()) return;
             Component line = Component.literal("skyblock:" + id).withStyle(ChatFormatting.DARK_GRAY);

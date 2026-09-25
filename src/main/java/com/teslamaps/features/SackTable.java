@@ -30,10 +30,12 @@ public final class SackTable {
     private static final Pattern GEM_COUNT = Pattern.compile("^(Rough|Flawed|Fine): ([\\d,.]+[kKmM]?)");
     private static final Pattern GEM_NAME = Pattern.compile("(?:(?:Rough|Flawed|Fine) )?(\\w+) Gemstones?");
 
-    private record Row(String text, double value, int slot) {}
+    private record Row(String text, double value, int slot, String bz, String gfs) {}
 
     private static List<String> lines = List.of();
     private static int[] rowSlots = new int[0];
+    private static String[] rowBz = new String[0], rowGfs = new String[0];
+    private static int drawX, drawY, drawRows;
     private static int width;
     private static Screen lastScreen;
     private static int ticks;
@@ -91,8 +93,9 @@ public final class SackTable {
                     double unit = p == null ? 0 : p;
                     double v = unit * amount;
                     total += v;
+                    String gemId = quality.toUpperCase(Locale.ROOT) + "_" + gemName.toUpperCase(Locale.ROOT) + "_GEM";
                     rows.add(new Row("§f" + quality + " " + gemName + " §e" + fmtAmount(amount)
-                            + " §7- §6" + EstimatedValue.fmt(v), v, slot.index));
+                            + " §7- §6" + EstimatedValue.fmt(v), v, slot.index, quality + " " + gemName + " Gemstone", gemId));
                     continue;
                 }
                 if (gem) continue;
@@ -109,8 +112,11 @@ public final class SackTable {
                 double v = unit * stored;
                 total += v;
                 String amountCol = cap > 0 && stored >= cap ? "§c" : "§e";
+                String gfsId = PriceManager.idForName(st.getHoverName().getString());
+                if (gfsId == null || gfsId.isEmpty()) gfsId = ItemUtil.skyblockId(st);
+                if (gfsId.isEmpty()) gfsId = name.replace(' ', '_');
                 rows.add(new Row("§f" + name + " " + amountCol + fmtAmount(stored) + "§7/" + fmtAmount(cap)
-                        + " §7- §6" + EstimatedValue.fmt(v), v, slot.index));
+                        + " §7- §6" + EstimatedValue.fmt(v), v, slot.index, name, gfsId));
                 break;
             }
         }
@@ -120,13 +126,18 @@ public final class SackTable {
         }
         rows.sort((a, b) -> Double.compare(b.value, a.value));
         List<String> out = new ArrayList<>(rows.size() + 2);
-        out.add("§6§lSack Value");
+        out.add(cfg().sackTableClick ? "§6§lSack Value §8click /bz, right click /gfs 1" : "§6§lSack Value");
         out.add("§7Total: §6" + EstimatedValue.fmt(total) + (PriceManager.isLoaded() ? "" : " §7(loading prices…)"));
         int[] slots = new int[rows.size()];
+        String[] bz = new String[rows.size()], gfs = new String[rows.size()];
         for (int i = 0; i < rows.size(); i++) {
             out.add(rows.get(i).text);
             slots[i] = rows.get(i).slot;
+            bz[i] = rows.get(i).bz;
+            gfs[i] = rows.get(i).gfs;
         }
+        rowBz = bz;
+        rowGfs = gfs;
         int w = 0;
         for (String s : out) w = Math.max(w, mc.font.width(s));
         width = w;
@@ -153,15 +164,37 @@ public final class SackTable {
         int n = Math.min(ls.size(), fit);
         HudStyle.panel(ctx, x - pad, y - pad, width + pad * 2, n * LINE + pad * 2);
         for (int i = 0; i < n; i++) ctx.text(mc.font, ls.get(i), x, y + i * LINE, 0xFFFFFFFF);
+        drawX = x;
+        drawY = y;
+        drawRows = n;
 
-        if (mouseX < x || mouseX > x + width || mouseY < y) return;
-        int row = (mouseY - y) / LINE - 2;
-        if (row < 0 || row >= n - 2 || row >= slots.length) return;
+        int row = rowAt(mouseX, mouseY);
+        if (row < 0 || row >= slots.length) return;
+        if (cfg().sackTableClick) ctx.fill(x - 1, y + (row + 2) * LINE - 1, x + width + 1, y + (row + 3) * LINE - 1, 0x30FFFFFF);
         int idx = slots[row];
         if (idx < 0 || idx >= cs.getMenu().slots.size()) return;
         Slot slot = cs.getMenu().slots.get(idx);
         int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
         ctx.fill(sx, sy, sx + 16, sy + 16, 0x80FFAA00);
+    }
+
+    private static int rowAt(double mx, double my) {
+        if (mx < drawX || mx > drawX + width || my < drawY) return -1;
+        int row = (int) ((my - drawY) / LINE) - 2;
+        return row < 0 || row >= drawRows - 2 ? -1 : row;
+    }
+
+    /** Explicit click on a row: left opens /bz, right pulls one from sacks. */
+    public static boolean handleClick(double mx, double my, int button) {
+        if (!cfg().sackTableClick || !shouldRender() || (button != 0 && button != 1)) return false;
+        int row = rowAt(mx, my);
+        String[] bz = rowBz, gfs = rowGfs;
+        if (row < 0 || row >= bz.length) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.getConnection() == null || !mc.player.containerMenu.getCarried().isEmpty()) return true;
+        if (button == 0) mc.getConnection().sendCommand("bz " + bz[row]);
+        else GetFromSacks.enqueue(gfs[row], 1);
+        return true;
     }
 
     private static String fmtAmount(long v) {

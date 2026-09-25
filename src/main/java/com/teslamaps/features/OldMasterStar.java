@@ -15,15 +15,13 @@ public final class OldMasterStar {
     private static final String MASTER = "➊➋➌➍➎";
     private static final Map<Component, Component> CACHE = new IdentityHashMap<>();
 
+    private static com.teslamaps.registry.Feature feature;
+
     private OldMasterStar() {}
 
     public static void register() {
-        com.teslamaps.registry.Feature.of("OldMasterStar")
-                .config("Tooltips & Value", b -> {
-                    TeslaMapsConfig c = b.config();
-                    b.toggle("Old Master Star Style", () -> c.oldMasterStars, v -> { c.oldMasterStars = v; clear(); })
-                            .desc("§6✪✪✪✪✪§c➌ §7becomes §c✪✪✪§6✪✪§7, skin stars ✦ included.");
-                });
+        feature = com.teslamaps.registry.Feature.of("OldMasterStar").section("Inventory")
+                .when(() -> TeslaMapsConfig.get().oldMasterStars);
     }
 
     public static void clear() {
@@ -32,11 +30,11 @@ public final class OldMasterStar {
 
     public static Component transform(Component name) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (name == null || c == null || !c.oldMasterStars) return name;
+        if (name == null || c == null || !c.oldMasterStars || feature == null || !feature.active()) return name;
         synchronized (CACHE) {
             Component hit = CACHE.get(name);
             if (hit != null) return hit;
-            if (CACHE.size() > 256) CACHE.clear();
+            if (CACHE.size() > 2048) CACHE.clear();
             Component out = build(name);
             CACHE.put(name, out);
             return out;

@@ -172,8 +172,6 @@ public final class GardenCategory {
         b.label("Pest Routine");
         b.keybind("Routine Key",
                 () -> config.pestRoutineKey, v -> config.pestRoutineKey = v);
-        b.keybind("Dump Open Menu Key",
-                () -> config.dumpGuiKey, v -> config.dumpGuiKey = v);
         b.dropdown("Pest Chance Loadout", MapConfigScreen.LOADOUT_NAMES,
                 () -> config.pestChanceLoadout, v -> config.pestChanceLoadout = v);
         b.dropdown("Rose Drag Loadout", MapConfigScreen.LOADOUT_NAMES,

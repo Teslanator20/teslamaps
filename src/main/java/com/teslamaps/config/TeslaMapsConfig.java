@@ -2398,6 +2398,7 @@ public class TeslaMapsConfig {
     public boolean rarityBgHideHotbar = false;
     public String rarityBgPalette = "Hypixel";
     public boolean sackTable = false;
+    public boolean sackTableClick = false;
     public boolean slotLockPerProfile = false;
     public boolean slotLockRiftSet = false;
     public boolean slotLockBinds = false;
@@ -2429,7 +2430,7 @@ public class TeslaMapsConfig {
     public boolean tooltipAnvilUses = false;
     public boolean tooltipSwordKills = false;
     public boolean tooltipRecomb = false;
-    public boolean tooltipSkyblockId = false;
+    public boolean skyblockIdTooltipAdvanced = false;
     public boolean tooltipItemStars = false;
     public boolean tooltipEvolvingTime = false;
     public boolean tooltipCookieBits = false;

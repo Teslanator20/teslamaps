@@ -209,6 +209,7 @@ public class StorageOverlay {
     }
 
     private static String lastPage = null;
+    private static boolean sendingHome = false;
 
     private static void trackLast() {
         String k = liveKey();
@@ -218,7 +219,7 @@ public class StorageOverlay {
     /** /storage straight into the last used page. */
     private static String rewriteStorage(String command) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (lastPage == null || !c.storageRememberLast || !c.section("Inventory")) return command;
+        if (sendingHome || lastPage == null || !c.storageRememberLast || !c.section("Inventory")) return command;
         if (command == null || !command.trim().equalsIgnoreCase("storage")) return command;
         if (!com.teslamaps.utils.SkyblockUtils.isInSkyblock()) return command;
         if (Boolean.FALSE.equals(StorageCache.unlocked(lastPage))) return command;
@@ -904,7 +905,12 @@ public class StorageOverlay {
                 return true;
             }
             if (mc.player == null || !mc.player.containerMenu.getCarried().isEmpty() || mc.getConnection() == null) return true;
-            mc.getConnection().sendCommand(i == 1 ? "storage" : i == 2 ? "huntingtoolkit" : "farmingtoolkit");
+            sendingHome = true;
+            try {
+                mc.getConnection().sendCommand(i == 1 ? "storage" : i == 2 ? "huntingtoolkit" : "farmingtoolkit");
+            } finally {
+                sendingHome = false;
+            }
             return true;
         }
         return false;
