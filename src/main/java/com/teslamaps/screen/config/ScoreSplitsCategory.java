@@ -58,5 +58,10 @@ public final class ScoreSplitsCategory {
         b.info("Title + chat when Trinity is scanned, once per run");
         b.toggle("Auto Extra Stats", () -> config.autoExtraStats, v -> config.autoExtraStats = v);
         b.info("Runs /showextrastats at the end of a run");
+        b.toggle("Compact End-of-Run Summary", () -> config.extraStatsCompact, v -> config.extraStatsCompact = v)
+                .desc("Hides Hypixel's end block and prints ~6 centered lines, details on hover. Best with Auto Extra Stats");
+        b.dropdown("  Team Stats", new String[]{"Off", "Personal", "Team", "Both"},
+                () -> config.extraStatsTeam, v -> config.extraStatsTeam = v);
+        b.toggle("  Show Teammates", () -> config.extraStatsTeammates, v -> config.extraStatsTeammates = v);
     }
 }

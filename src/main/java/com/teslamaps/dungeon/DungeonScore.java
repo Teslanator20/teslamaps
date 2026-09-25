@@ -49,6 +49,7 @@ public class DungeonScore {
     private static int deathCount = 0;
     private static int tabDeaths = -1;
     private static int score = 0;
+    private static int lastSkill = 0, lastExplore = 0, lastTime = 0, lastBonus = 0;
     private static boolean firstDeathHasSpirit = true;
 
     private static int tabCrypts = 0;
@@ -81,6 +82,7 @@ public class DungeonScore {
         deathCount = 0;
         tabDeaths = -1;
         score = 0;
+        lastSkill = lastExplore = lastTime = lastBonus = 0;
         firstDeathHasSpirit = true;
         tabCrypts = 0;
         tabCompletedRooms = 0;
@@ -130,6 +132,10 @@ public class DungeonScore {
         int exploreScore = calculateExploreScore();
         int skillScore = calculateSkillScore();
         int bonusScore = calculateBonusScore();
+        lastSkill = skillScore;
+        lastExplore = exploreScore;
+        lastTime = timeScore;
+        lastBonus = bonusScore;
 
         if (isCurrentFloorEntrance) {
             score = Math.round(timeScore * 0.7f) +
@@ -170,6 +176,12 @@ public class DungeonScore {
         );
 
         TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (config.scoreHud && config.scoreHudMilestoneTitle && config.section("Score & Splits")) {
+            mc.gui.setTimes(5, 40, 10);
+            mc.gui.setTitle(Component.literal((milestone == 300 ? "§6§l" : "§e§l") + milestone + " Score"));
+            mc.gui.setSubtitle(Component.literal("§7@ " + timeStr));
+            mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, milestone == 300 ? 2.0f : 1.5f);
+        }
         boolean announce = (milestone == 300 && config.announce300) || (milestone == 270 && config.announce270);
         if (announce && mc.getConnection() != null) {
             mc.getConnection().sendCommand("pc " + milestone + " Score reached @ " + timeStr);
@@ -468,6 +480,37 @@ public class DungeonScore {
 
     public static int getScore() {
         return score;
+    }
+
+    public static boolean isStarted() { return dungeonStarted; }
+    public static int getSkillScore() { return lastSkill; }
+    public static int getExploreScore() { return lastExplore; }
+    public static int getTimeScore() { return lastTime; }
+    public static int getBonusScore() { return lastBonus; }
+    public static int getCryptCount() { return tabCrypts; }
+    public static double getSecretsPercent() { return tabSecretsPct; }
+    public static int getDeathCount() { return tabDeaths >= 0 ? tabDeaths : deathCount; }
+    public static int getMissingPuzzles() { return Math.max(0, puzzleCount - tabPuzzlesDone); }
+    public static long getStartingTime() { return startingTime; }
+
+    public static String rank(int s) {
+        if (s >= 300) return "S+";
+        if (s >= 270) return "S";
+        if (s >= 230) return "A";
+        if (s >= 160) return "B";
+        if (s >= 100) return "C";
+        return "D";
+    }
+
+    public static String rankColor(String r) {
+        return switch (r) {
+            case "S+" -> "§6";
+            case "S" -> "§e";
+            case "A" -> "§5";
+            case "B" -> "§a";
+            case "C" -> "§9";
+            default -> "§c";
+        };
     }
 
     public static boolean floorHasMimics() {

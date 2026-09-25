@@ -75,9 +75,9 @@ public class ChatMixin {
         } else if (text.contains("SLAYER QUEST FAILED")) {
             if (cfg.section("Combat")) SlayerHUD.onSlayerFailed();
         } else if (text.contains("A Wither Key was picked up!") || text.contains("has obtained Wither Key")) {
-            if (cfg.section("ESP")) StarredMobESP.onWitherKeyPickup();
+            if (cfg.section("ESP")) StarredMobESP.onWitherKeyPickup(text);
         } else if (text.contains("A Blood Key was picked up!") || text.contains("has obtained Blood Key")) {
-            if (cfg.section("ESP")) StarredMobESP.onBloodKeyPickup();
+            if (cfg.section("ESP")) StarredMobESP.onBloodKeyPickup(text);
         } else if (text.contains("opened a WITHER door!") || text.contains("opened the WITHER door!")) {
             if (cfg.section("ESP")) StarredMobESP.onWitherDoorOpened();
         } else if (text.contains("opened a BLOOD door!") || text.contains("opened the BLOOD door!")) {
@@ -204,6 +204,11 @@ public class ChatMixin {
         }
 
         com.teslamaps.registry.FeatureRegistry.chat(text, fromServer);
+
+        if (fromServer && cfg.section("Score & Splits") && com.teslamaps.dungeon.ExtraStats.hide(text)) {
+            ci.cancel();
+            return;
+        }
 
         if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.process(message, text)) {
             ci.cancel();
