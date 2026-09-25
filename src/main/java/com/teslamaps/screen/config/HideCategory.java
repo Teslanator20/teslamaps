@@ -135,6 +135,10 @@ public final class HideCategory {
         b.info("Saves ticking them, not just drawing them");
         b.label("Combat Effects");
         b.toggle("Hide Explosions", () -> config.noExplosions, v -> config.noExplosions = v);
+        b.toggle("  Hide Wither Shield Hearts", () -> config.hideHypeHearts, v -> config.hideHypeHearts = v)
+                .desc("Heart particles from healing with Wither Shield (Hyperion etc.). Works without Hide Explosions.");
+        b.toggle("  Hide Enchant Rune Particles", () -> config.hideEnchantRunes, v -> config.hideEnchantRunes = v)
+                .desc("Enchanting-table glyph particles, e.g. from runes. Pest and burrow particles stay.");
         b.toggle("Hide Wither Blade Implosion", () -> config.hideImplosions, v -> config.hideImplosions = v);
         b.info("Only near players holding Hyperion/Astraea/Valkyrie/Scylla");
         b.info("Use with Hide Explosions off to keep other smoke");

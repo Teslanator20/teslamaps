@@ -408,5 +408,11 @@ final class Features {
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
         com.teslamaps.features.LookTargeting.register();
+        // w09-02-vis
+        com.teslamaps.features.ItemAnimations.register();
+        com.teslamaps.features.GyroWandRange.register();
+        com.teslamaps.features.ParticleHiders.register();
+        com.teslamaps.features.FollowingLine.register();
+        com.teslamaps.features.VisualFixes.register();
     }
 }

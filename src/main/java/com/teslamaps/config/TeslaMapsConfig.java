@@ -2142,6 +2142,40 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w09-02-vis
+    public boolean itemAnimations = false;
+    public float itemAnimX = 0f;
+    public float itemAnimY = 0f;
+    public float itemAnimZ = 0f;
+    public float itemAnimYaw = 0f;
+    public float itemAnimPitch = 0f;
+    public float itemAnimRoll = 0f;
+    public float itemAnimScale = 0f;
+    public float itemAnimSwingSpeed = 0f;
+    public boolean itemAnimIgnoreEffects = false;
+    public boolean itemAnimNoReequip = false;
+    public boolean itemAnimInPlaceSwing = false;
+    public boolean itemAnimNoSwing = false;
+    public boolean itemAnimNoSwingTerm = false;
+    public boolean itemAnimNoSway = false;
+    public boolean itemAnimEmptyHand = true;
+    public boolean gyroWandRange = false;
+    public String gyroWandColor = "805500AA";
+    public boolean gyroWandCooldown = true;
+    public String gyroWandCooldownColor = "80FF5555";
+    public int gyroWandCooldownSeconds = 30;
+    public boolean gyroWandThroughWalls = false;
+    public boolean hideHypeHearts = false;
+    public boolean hideEnchantRunes = false;
+    public boolean followingLine = false;
+    public String followingLineColor = "FFFFFF";
+    public float followingLineWidth = 4f;
+    public int followingLineSeconds = 15;
+    public boolean followingLineThroughWalls = false;
+    public boolean flamingFlayHider = false;
+    public int flamingFlayHideDistance = 10;
+    public boolean removeGlowEffect = false;
+    public boolean fixRidingCamera = false;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;

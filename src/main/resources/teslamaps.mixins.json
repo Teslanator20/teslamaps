@@ -4,6 +4,9 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "TitleStackMixin",
+    "ItemAnimationsMixin",
+    "SwingDurationMixin",
+    "RidingCameraMixin",
     "PauseScreenMixin",
     "PacketLogMixin",
     "AbilityMenuSlotMixin",
