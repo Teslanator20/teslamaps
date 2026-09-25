@@ -118,6 +118,19 @@ public class MapConfigScreen extends Screen {
         GuiSounds.open();
     }
 
+    protected static String jumpCategory, jumpQuery;
+
+    /** The next opened settings screen starts on this category, searching for the query when it has hits. */
+    public static void jumpTo(String category, String query) {
+        jumpCategory = category;
+        jumpQuery = query;
+    }
+
+    /** The settings screen in the layout the user picked (classic sidebar or columns). */
+    public static MapConfigScreen open() {
+        return TeslaMapsConfig.get().configColumnLayout ? new ColumnConfigScreen() : new MapConfigScreen();
+    }
+
     private MapConfigScreen(boolean silent) {
         super(Component.literal("TeslaMaps Settings"));
     }
@@ -326,6 +339,20 @@ public class MapConfigScreen extends Screen {
         });
         addRenderableWidget(searchField);
         if (!lastSearch.isEmpty()) searchField.setValue(lastSearch); // responder restores searchQuery
+        if (jumpCategory != null || jumpQuery != null) {
+            String cat = jumpCategory, q = jumpQuery;
+            jumpCategory = jumpQuery = null;
+            String g = groupOf(cat);
+            if (g != null) {
+                selectedCategory = g;
+                for (Map.Entry<String, List<String>> s : sections.entrySet()) {
+                    if (s.getValue().contains(g)) SECTION_COLLAPSED.remove(s.getKey());
+                }
+                scrollSidebarTo(g);
+            }
+            searchField.setValue(q == null ? "" : q);
+            if (!searchQuery.isEmpty() && getEntriesToShow().isEmpty()) searchField.setValue("");
+        }
     
 
         ScreenFit.clamp(this); // keep every widget reachable at any gui scale
@@ -500,7 +527,7 @@ public class MapConfigScreen extends Screen {
     }
 
     /** Drops sub-options whose parent toggle (the nearest less indented one above) is off. */
-    private static List<SettingsEntry> visibleChildren(List<SettingsEntry> in) {
+    protected static List<SettingsEntry> visibleChildren(List<SettingsEntry> in) {
         List<SettingsEntry> out = new ArrayList<>(in.size());
         int[] depth = new int[8];
         ToggleEntry[] parent = new ToggleEntry[8];

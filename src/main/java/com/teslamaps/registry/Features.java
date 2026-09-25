@@ -518,6 +518,9 @@ final class Features {
         com.teslamaps.features.SocialScreenFilter.register();
         com.teslamaps.features.ScamCheck.register();
         com.teslamaps.features.ModChat.register();
+        // w11-08-gui
+        com.teslamaps.config.ConfigBackups.register();
+        com.teslamaps.features.FeatureToggleKeys.register();
         // w11-01-par
         com.teslamaps.features.KuudraPartyFinder.register();
         com.teslamaps.features.AcceptLastInvite.register();

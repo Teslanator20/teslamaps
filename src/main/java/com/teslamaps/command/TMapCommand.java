@@ -131,7 +131,7 @@ public class TMapCommand {
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
                     Minecraft.getInstance().schedule(() -> {
-                        Minecraft.getInstance().setScreen(new MapConfigScreen());
+                        Minecraft.getInstance().setScreen(MapConfigScreen.open());
                     });
                     return 1;
                 })
