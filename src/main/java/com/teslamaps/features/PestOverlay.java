@@ -162,6 +162,7 @@ public class PestOverlay {
 
     private static void warn(TeslaMapsConfig config, String title, String subtitle) {
         lastNag = System.currentTimeMillis();
+        ScreenFlash.alert(config.screenFlashPests);
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.gui != null) {

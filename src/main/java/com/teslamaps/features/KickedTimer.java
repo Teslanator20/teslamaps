@@ -53,6 +53,7 @@ public class KickedTimer {
         if (System.currentTimeMillis() - kickedAtMs >= waitMs(cfg)) { // wait over -> ping and hide
             if (cfg.kickedTimer) {
                 LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.6f);
+                ScreenFlash.alert(cfg.screenFlashKicked);
                 if (cfg.kickedTitle) Minecraft.getInstance().gui.setTitle(
                         net.minecraft.network.chat.Component.literal("§eTry rejoining SkyBlock now!"));
             }

@@ -2136,6 +2136,58 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w08-02-hud
+    public boolean effectTimers = false;
+    public boolean effectTimersCookie = true;
+    public boolean effectTimersGodPot = true;
+    public boolean effectTimersMixins = false;
+    public boolean effectTimersWarn = false;
+    public boolean effectTimersWarnSound = true;
+    public int effectTimersWarnSeconds = 30;
+    public int effectTimersX = 10;
+    public int effectTimersY = 160;
+    public float effectTimersScale = 1.0f;
+    public boolean mayorOverlay = false;
+    public boolean mayorOverlayPerks = true;
+    public boolean mayorOverlayDesc = false;
+    public boolean mayorOverlayMinister = true;
+    public boolean mayorOverlayCandidates = true;
+    public boolean mayorOverlayNewMayor = true;
+    public int mayorOverlayX = 10;
+    public int mayorOverlayY = 200;
+    public float mayorOverlayScale = 1.0f;
+    public boolean notificationPopups = false;
+    public boolean notificationOverInventory = false;
+    public int notificationCloseKey = 88;
+    public boolean sackHud = false;
+    public java.util.List<String> sackHudItems = new java.util.ArrayList<>();
+    public int sackHudMax = 10;
+    public boolean sackHudOnlyMenus = false;
+    public boolean sackHudHideEmpty = true;
+    public boolean sackHudHighlight = true;
+    public boolean sackHudIcons = true;
+    public int sackHudX = 10;
+    public int sackHudY = 240;
+    public float sackHudScale = 1.0f;
+    public boolean minionWidget = false;
+    public boolean minionWidgetIcons = true;
+    public boolean minionWidgetOnlyProblems = false;
+    public int minionWidgetX = 10;
+    public int minionWidgetY = 280;
+    public float minionWidgetScale = 1.0f;
+    public boolean noBitsWarning = false;
+    public boolean noBitsWarningSound = true;
+    public boolean bitsGainMessage = false;
+    public int bitsGainThreshold = 400;
+    public java.util.Map<String, Long> bitsAvailableByProfile = new java.util.HashMap<>();
+    public boolean screenFlash = false;
+    public String screenFlashColor = "66FF4D4D";
+    public int screenFlashMs = 600;
+    public boolean screenFlashRareCatch = true;
+    public boolean screenFlashPests = true;
+    public boolean screenFlashKicked = true;
+    public boolean screenFlashEffects = true;
+    public boolean screenFlashBits = true;
     // w07-04-qol
     public boolean signCalculator = false;
     public boolean signCalculatorEquals = false;
@@ -3524,6 +3576,10 @@ public class TeslaMapsConfig {
         c.customTrackerDefs.removeIf(java.util.Objects::isNull);
         if (c.beaconPowerExpiry == null) c.beaconPowerExpiry = new java.util.HashMap<>();
         if (c.beaconPowerStats == null) c.beaconPowerStats = new java.util.HashMap<>();
+        if (c.sackHudItems == null) c.sackHudItems = new java.util.ArrayList<>();
+        c.sackHudItems.removeIf(java.util.Objects::isNull);
+        if (c.bitsAvailableByProfile == null) c.bitsAvailableByProfile = new java.util.HashMap<>();
+        if (c.screenFlashColor == null) c.screenFlashColor = "66FF4D4D";
         if (c.customTextBoxText == null) c.customTextBoxText = "";
         if (c.invButtons == null || c.invButtons.isEmpty()) {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
