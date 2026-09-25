@@ -9,7 +9,6 @@ import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +44,6 @@ public final class KuudraSupplySplits {
                     b.toggle("Supply Splits", () -> c.kuudraSupplySplits, v -> c.kuudraSupplySplits = v)
                             .desc("Lists who placed each supply and how long after the run start (Elle's 'fish up Kuudra' line). Move it in /tmap gui.")
                             .tags("supply", "splits", "recovered");
-                    b.toggle("  Time In Chat", () -> c.kuudraSupplySplitsChat, v -> c.kuudraSupplySplitsChat = v)
-                            .desc("Also prints 'Name recovered a supply in 0:21.4 (n/6)'");
                 });
     }
 
@@ -63,11 +60,6 @@ public final class KuudraSupplySplits {
         if (lines.isEmpty()) lines.add("§6§lSupplies");
         lines.add("§f" + m.group(2) + ". §b" + m.group(1) + " §7- §a" + time);
         linesW = width(lines);
-        if (cfg().kuudraSupplySplitsChat) {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6" + m.group(1) + " §a§lrecovered a supply in "
-                    + time + "! §8(" + m.group(2) + "/" + m.group(3) + ")"));
-        }
     }
 
     private static String format(long ms) {

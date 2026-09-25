@@ -49,7 +49,7 @@ public final class KuudraSupplyHelper {
                 .world(KuudraSupplyHelper::render)
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Supplies (Phase 1)");
+                    b.label("Supply Helper (Phase 1)");
                     b.toggle("Supply Helper", () -> c.kuudraSupplyHelper, v -> c.kuudraSupplyHelper = v).legit()
                             .desc("Phase 1 visual aid. Pick the parts below; everything shows only while supplies are out.")
                             .tags("supply", "supplies", "giant", "crate", "kuudra");

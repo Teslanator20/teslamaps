@@ -15,6 +15,8 @@ public class EndermanTintMixin {
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/monster/EnderMan;Lnet/minecraft/client/renderer/entity/state/EndermanRenderState;F)V",
             at = @At("TAIL"))
     private void teslamaps$zealotTint(EnderMan enderman, EndermanRenderState state, float pt, CallbackInfo ci) {
-        ((ModelTintHolder) state).teslamaps$setTint(ZealotColor.tint(enderman));
+        int stage = com.teslamaps.features.theend.EndermanQol.tint(enderman);
+        ((ModelTintHolder) state).teslamaps$setTint(stage != 0 ? stage : ZealotColor.tint(enderman));
+        if (com.teslamaps.features.theend.EndermanQol.hideHurtTint()) state.hasRedOverlay = false;
     }
 }

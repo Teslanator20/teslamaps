@@ -69,6 +69,12 @@ public final class ProfitTracker {
 
     public static void register() {
         loadPresets();
+        net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(
+                net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("tmap").then(
+                        net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("undolastslayer").executes(c -> {
+                            Minecraft.getInstance().execute(ProfitTracker::undoLastSlayer);
+                            return 1;
+                        }))));
         for (Preset p : PRESETS.values()) {
             Tracker t = Tracker.create("profit_" + p.key, "§e§l" + p.name + " Profit")
                     .priceSource(() -> cfg().profitTrackerPriceSource)
@@ -80,7 +86,10 @@ public final class ProfitTracker {
             if (BOSSES.equals(p.action)) {
                 t.extra(v -> {
                     long n = t.count(BOSSES, v);
-                    return n <= 0 ? List.of() : List.of("§eper Boss: §6" + ItemPrice.format(t.profit(v) / n));
+                    List<String> out = new ArrayList<>(3);
+                    if (n > 0) out.add("§eper Boss: §6" + ItemPrice.format(t.profit(v) / n));
+                    if (cfg().profitTrackerSlayerRng) rngLines(p.key, out);
+                    return out;
                 });
             }
             TRACKERS.put(p.name, t);
@@ -109,6 +118,9 @@ public final class ProfitTracker {
                     b.toggle("  Sacks", () -> c.profitTrackerSacks, v -> c.profitTrackerSacks = v);
                     b.toggle("  Coins", () -> c.profitTrackerCoins, v -> c.profitTrackerCoins = v);
                     b.toggle("  Subtract Slayer Quest Cost", () -> c.profitTrackerSlayerCost, v -> c.profitTrackerSlayerCost = v);
+                    b.toggle("  Slayer: Bosses Since RNG + Recent Kills", () -> c.profitTrackerSlayerRng, v -> c.profitTrackerSlayerRng = v)
+                            .desc("Bosses and time since the last RNG drop per slayer, plus the last kill times. /tmap undolastslayer takes back a miscounted boss.")
+                            .tags("rng", "slayer", "since", "undo");
                     b.priceSource("  Price Source", () -> c.profitTrackerPriceSource, v -> c.profitTrackerPriceSource = v);
                     b.slider("  Pause After (s)", 10f, 600f, () -> (float) c.profitTrackerIdle, v -> c.profitTrackerIdle = Math.round(v), 0);
                     for (Preset p : PRESETS.values()) {
@@ -117,6 +129,63 @@ public final class ProfitTracker {
                                 new Runnable[]{t::resetSession, t::toggleView});
                     }
                 });
+    }
+
+    private static final int RECENT = 5;
+    private static final java.util.ArrayDeque<Long> recent = new java.util.ArrayDeque<>();
+    private static long recentSeenAt;
+    private static String lastSlayerKey;
+    private static long lastRngAt;
+
+    private static void rngLines(String key, List<String> out) {
+        TeslaMapsConfig c = cfg();
+        Integer since = c.slayerBossesSinceRng.get(key);
+        Long at = c.slayerLastRngMs.get(key);
+        out.add("§eSince RNG: §f" + (since == null ? 0 : since) + " bosses"
+                + (at == null || at <= 0 ? "" : " §7(" + ago(System.currentTimeMillis() - at) + ")"));
+        if (recent.isEmpty() || !key.equals(lastSlayerKey)) return;
+        StringBuilder sb = new StringBuilder("§eRecent:");
+        for (long ms : recent) sb.append(" §f").append(String.format(java.util.Locale.ROOT, "%d:%02d", ms / 60000, ms / 1000 % 60));
+        out.add(sb.toString());
+    }
+
+    private static String ago(long ms) {
+        long m = ms / 60000;
+        if (m < 60) return m + "m";
+        long h = m / 60;
+        return h < 48 ? h + "h " + (m % 60) + "m" : (h / 24) + "d";
+    }
+
+    private static boolean rngDrop(String t) {
+        return t.startsWith("CRAZY RARE DROP!") || t.startsWith("INSANE DROP!") || t.startsWith("PRAY TO RNGESUS DROP!")
+                || t.startsWith("RNGESUS INCARNATE DROP!") || t.startsWith("RNG METER! ");
+    }
+
+    private static void slayerKill(String key) {
+        lastSlayerKey = key;
+        if (!cfg().profitTrackerSlayerRng) return;
+        // a drop right before the slain line belongs to this boss
+        if (System.currentTimeMillis() - lastRngAt < 5000) return;
+        cfg().slayerBossesSinceRng.merge(key, 1, Integer::sum);
+        TeslaMapsConfig.save();
+    }
+
+    private static void undoLastSlayer() {
+        Minecraft mc = Minecraft.getInstance();
+        Tracker t = null;
+        String key = lastSlayerKey;
+        if (key == null && active != null && BOSSES.equals(active.action)) key = active.key;
+        if (key != null) for (Preset p : PRESETS.values()) if (p.key.equals(key)) t = TRACKERS.get(p.name);
+        if (t == null || t.count(BOSSES, Tracker.View.SESSION) <= 0) {
+            if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §cNo slayer boss to undo this session."));
+            return;
+        }
+        t.edit(BOSSES, -1);
+        Integer since = cfg().slayerBossesSinceRng.get(key);
+        if (since != null && since > 0) cfg().slayerBossesSinceRng.put(key, since - 1);
+        if (!recent.isEmpty()) recent.pollLast();
+        TeslaMapsConfig.save();
+        if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §aRemoved the last slayer boss."));
     }
 
     private static void loadPresets() {
@@ -197,6 +266,12 @@ public final class ProfitTracker {
         }
         if (mc.player.fishing != null) fishingAt = now;
         for (Tracker t : TRACKERS.values()) t.tick();
+        long fightAt = com.teslamaps.slayer.SlayerHUD.lastFightAt();
+        if (fightAt != recentSeenAt) {
+            recentSeenAt = fightAt;
+            recent.addLast(com.teslamaps.slayer.SlayerHUD.lastFightMs());
+            while (recent.size() > RECENT) recent.pollFirst();
+        }
 
         ticks++;
         if (ticks % 20 == 0) {
@@ -312,7 +387,17 @@ public final class ProfitTracker {
         if (t.equals("SLAYER QUEST STARTED!")) {
             questStartAt = System.currentTimeMillis();
         } else if (t.equals("NICE! SLAYER BOSS SLAIN!")) {
-            if (active != null && BOSSES.equals(active.action)) TRACKERS.get(active.name).add(BOSSES, 1);
+            if (active != null && BOSSES.equals(active.action)) {
+                TRACKERS.get(active.name).add(BOSSES, 1);
+                slayerKill(active.key);
+            }
+        } else if (rngDrop(t)) {
+            if (cfg().profitTrackerSlayerRng && active != null && BOSSES.equals(active.action)) {
+                lastRngAt = System.currentTimeMillis();
+                cfg().slayerBossesSinceRng.put(active.key, 0);
+                cfg().slayerLastRngMs.put(active.key, lastRngAt);
+                TeslaMapsConfig.save();
+            }
         } else if (t.startsWith("You dug out a Griffin Burrow") || t.startsWith("You finished the Griffin burrow chain")) {
             burrowAt = System.currentTimeMillis();
             Tracker d = TRACKERS.get("Diana");

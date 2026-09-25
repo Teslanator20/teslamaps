@@ -380,6 +380,13 @@ public class ChatFilter {
         if (pendingOut != null) return false;
         lastReason = "chatCompactsMore";
         if (ChatCompactsMore.handle(message, t)) return true;
+        String slayer = com.teslamaps.slayer.SlayerChatCompact.handle(t);
+        if (slayer != null) {
+            lastReason = "slayerChatCompact";
+            if (slayer.isEmpty()) return true;
+            queue(text, Component.literal(slayer));
+            return false;
+        }
         lastReason = "melodyCompact";
         if (MelodyCompact.handle(t)) return true;
         lastReason = "hoppityCompact";
@@ -388,6 +395,8 @@ public class ChatFilter {
         if (VisitorChat.handle(message, t)) return true;
         lastReason = "rareCropTracker";
         if (RareCropTracker.hide(t)) return true;
+        lastReason = "slayerRngDisplay";
+        if (com.teslamaps.slayer.SlayerRngDisplay.hide(t)) return true;
         lastReason = "autopet";
         if (autopet(t)) return true;
         lastReason = "miningChat";
