@@ -196,6 +196,7 @@ public class GetFromSacks {
     }
 
     private static void bazaarLink(String item, int amount, boolean remaining) {
+        com.teslamaps.features.bazaar.BazaarPurchaseHelper.expect(item);
         MutableComponent line = Component.literal("§e§lCLICK §r§eto get the " + (remaining ? "remaining " : "")
                 + "§ax" + amount + " §9" + item + " §efrom bazaar")
                 .withStyle(style -> style

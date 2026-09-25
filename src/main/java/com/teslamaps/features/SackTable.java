@@ -192,7 +192,10 @@ public final class SackTable {
         if (row < 0 || row >= bz.length) return false;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.getConnection() == null || !mc.player.containerMenu.getCarried().isEmpty()) return true;
-        if (button == 0) mc.getConnection().sendCommand("bz " + bz[row]);
+        if (button == 0) {
+            com.teslamaps.features.bazaar.BazaarPurchaseHelper.expect(bz[row]);
+            mc.getConnection().sendCommand("bz " + bz[row]);
+        }
         else GetFromSacks.enqueue(gfs[row], 1);
         return true;
     }

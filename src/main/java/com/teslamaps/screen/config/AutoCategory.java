@@ -48,6 +48,8 @@ public final class AutoCategory {
                 () -> config.gfsKeybind, v -> config.gfsKeybind = v);
         b.toggle("Tab-Complete Sack Items", () -> config.gfsSuggestions, v -> config.gfsSuggestions = v);
         b.toggle("Bazaar Fallback", () -> config.gfsBazaar, v -> config.gfsBazaar = v);
+        b.toggle("  Mark Item On Bazaar Page", () -> config.bzPurchaseHelper, v -> config.bzPurchaseHelper = v)
+                .desc("Marks the searched item green on the /bz page until you buy or sell it");
         b.info("Offers the missing rest from the bazaar");
         b.toggle("Supercraft Grab Link", () -> config.gfsSuperCraft, v -> config.gfsSuperCraft = v);
         b.toggle("Piggy Bank Grab Link", () -> config.gfsPiggyBank, v -> config.gfsPiggyBank = v)

@@ -512,6 +512,14 @@ final class Features {
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w12-06-eco
+        com.teslamaps.features.bazaar.BazaarOrderTracker.register();
+        com.teslamaps.features.bazaar.PurchaseGuard.register();
+        com.teslamaps.features.bazaar.ManageAuctions.register();
+        com.teslamaps.features.bazaar.AuctionOutbid.register();
+        com.teslamaps.features.bazaar.BazaarQuickQuantities.register();
+        com.teslamaps.features.bazaar.BazaarReorder.register();
+        com.teslamaps.features.bazaar.BazaarPurchaseHelper.register();
         // w11-04-par
         com.teslamaps.features.PartyCheck.register();
         com.teslamaps.features.MarkedPlayers.register();
