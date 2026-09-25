@@ -20,7 +20,8 @@ public class ContainerScrollMixin {
             cir.setReturnValue(true);
             return;
         }
-        if (com.teslamaps.features.FancyPartyFinder.scrolled(scrollY)) {
+        if (com.teslamaps.features.FancyPartyFinder.scrolled(scrollY)
+                || com.teslamaps.features.FancyAuctionHouse.scrolled(scrollY)) {
             cir.setReturnValue(true);
             return;
         }

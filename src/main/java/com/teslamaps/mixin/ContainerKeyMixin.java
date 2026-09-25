@@ -33,7 +33,8 @@ public class ContainerKeyMixin {
             return;
         }
 
-        if (com.teslamaps.features.FancyPartyFinder.keyPressed(cs, event.key())) {
+        if (com.teslamaps.features.FancyPartyFinder.keyPressed(cs, event.key())
+                || com.teslamaps.features.FancyAuctionHouse.keyPressed(cs, event.key())) {
             cir.setReturnValue(true);
             return;
         }

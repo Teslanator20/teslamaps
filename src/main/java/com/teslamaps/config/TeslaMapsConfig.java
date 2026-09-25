@@ -2148,6 +2148,23 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w13-00-eco
+    public boolean fancyAuctionBrowser = false;
+    public boolean fancyAuctionView = false;
+    public boolean safariShardValue = false;
+    public String safariShardPrice = "Instant Sell"; // Instant Sell / Sell Offer / Both
+    public boolean safariShardTax = true;
+    public boolean npcDayLimit = false;
+    public boolean npcDayLimitShort = true;
+    public int npcDayLimitX = 10;
+    public int npcDayLimitY = 200;
+    public float npcDayLimitScale = 1.0f;
+    public boolean pricePaid = false;
+    public boolean fireSaleWidget = false;
+    public int fireSaleWidgetX = 10;
+    public int fireSaleWidgetY = 220;
+    public float fireSaleWidgetScale = 1.0f;
+    public boolean pesthunterProfit = false;
     // w12-01-gui
     public java.util.Map<String, String> hudPanelChroma = new java.util.HashMap<>(); // hud id -> Off / Plain Text / All Text
     public String hudChromaAll = "Off";
