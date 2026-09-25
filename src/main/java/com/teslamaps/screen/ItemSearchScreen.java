@@ -180,6 +180,9 @@ public class ItemSearchScreen extends Screen {
                 com.teslamaps.features.SearchWaypoint.add(w.pos(), row.name());
                 chest = true;
             }
+            if (chest && warpsToIsland(row) && minecraft.getConnection() != null) {
+                minecraft.getConnection().sendCommand("warp island");
+            }
             if (chest) {
                 onClose();
                 return true;
@@ -215,6 +218,12 @@ public class ItemSearchScreen extends Screen {
             return true;
         }
         return super.charTyped(event);
+    }
+
+    private static boolean warpsToIsland(Row row) {
+        if (!com.teslamaps.config.TeslaMapsConfig.get().itemSearchWarpIsland || ItemIndex.onIsland()) return false;
+        for (Where w : row.where()) if (ItemIndex.isIslandChest(w.pos())) return true;
+        return false;
     }
 
     /** Command (without slash) that opens the container this hit sits in, null if there is none. */
@@ -275,7 +284,13 @@ public class ItemSearchScreen extends Screen {
             boolean chest = row.where().stream().anyMatch(w -> w.pos() != null);
             String hint = "§8click to copy the name";
             if (chest) {
-                hint = "§8click for a waypoint on the chest";
+                hint = warpsToIsland(row) ? "§eclick to warp to island and highlight the chest"
+                        : "§8click for a waypoint on the chest";
+                for (Where w : row.where()) {
+                    if (w.pos() == null) continue;
+                    lines.add(Component.literal("§8chest at " + w.pos().getX() + ", " + w.pos().getY() + ", " + w.pos().getZ()));
+                    break;
+                }
             } else {
                 for (Where w : row.where()) {
                     if (commandFor(w) == null) continue;

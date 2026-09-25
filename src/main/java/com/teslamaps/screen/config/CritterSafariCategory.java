@@ -31,6 +31,10 @@ public final class CritterSafariCategory {
                 () -> config.safariChecklistBiome, v -> config.safariChecklistBiome = v);
         b.toggle("  Check/Cross Icons", () -> config.safariChecklistIcons, v -> config.safariChecklistIcons = v);
         b.info("Green = caught, red = escaped, grey = not seen");
+        b.button("  Copy Missing List", com.teslamaps.safari.SafariTracker::copyMissing);
+        b.button("  Share Missing List", com.teslamaps.safari.SafariTracker::shareMissing);
+        b.channel("  Share Missing To", () -> config.safariMissingChannel, v -> config.safariMissingChannel = v);
+        b.info("  One line per biome, also /tmap safari missing|copy|share");
         b.label("Alerts");
         b.toggle("Encounter Banners", () -> config.safariEncounterBanner, v -> config.safariEncounterBanner = v);
         b.info("Gemzie / Wumpa / Doomspiral: READY, STARTED, DONE on screen");

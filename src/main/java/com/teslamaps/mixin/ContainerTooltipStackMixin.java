@@ -27,6 +27,8 @@ public class ContainerTooltipStackMixin {
             target = "Lnet/minecraft/world/inventory/Slot;getItem()Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack teslamaps$tooltipStack(Slot slot, Operation<ItemStack> original) {
         ItemStack stack = original.call(slot);
+        ItemStack old = com.teslamaps.features.OldSkyblockMenu.replacement(slot);
+        if (old != null) return old;
         ItemStack shown = com.teslamaps.features.AnimatedDyeFix.displayStack(slot);
         return shown != slot.getItem() ? shown : stack;
     }

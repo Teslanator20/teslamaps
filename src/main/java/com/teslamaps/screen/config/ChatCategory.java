@@ -57,6 +57,8 @@ public final class ChatCategory {
                 () -> (float) config.hotkeyChatDelay, v -> config.hotkeyChatDelay = Math.round(v));
         b.toggle("  Hotkey Conditions", () -> config.hotkeyConditions, v -> config.hotkeyConditions = v)
                 .desc("Hotkeys screen gets a ? per hotkey: held item / inventory / sneaking / SkyBlock condition, island filter and a fail message");
+        b.toggle("    Advanced Hotkey Rules", () -> config.hotkeyAdvanced, v -> config.hotkeyAdvanced = v)
+                .desc("Per hotkey: NOT, a second key within a window (sequence), cooldown, delay and local actions (sound, title, note)");
         b.toggle("  Key Combos (hold 2 keys)", () -> config.hotkeyCombos, v -> config.hotkeyCombos = v)
                 .desc("Hotkeys screen gets a + per hotkey for a second key that must be held (e.g. hold G, press H). 200 ms cooldown, duplicates shown red.");
         b.toggle("Gradient [TeslaMaps] Prefix", () -> config.chromaPrefix, v -> config.chromaPrefix = v);

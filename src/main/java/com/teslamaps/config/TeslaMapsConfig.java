@@ -682,6 +682,12 @@ public class TeslaMapsConfig {
         public String condValue = "";
         public String islands = "";       // comma list, empty = any island
         public String failMessage = "";   // sent instead when the condition fails
+        public boolean negate = false;
+        public int seqKey = -1;           // hotkeyAdvanced: second key of a press sequence
+        public int seqWindow = 500;
+        public int cooldownMs = 0;
+        public int delayMs = 0;
+        public String actions = "";
         public int key2 = -1;             // hotkeyCombos: second key that must be held
         public Keybind() {}
         public Keybind(int key, String message) { this.key = key; this.message = message; }
@@ -2136,6 +2142,14 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w07-03-qol
+    public boolean updateChangelog = false;
+    public boolean itemSearchWarpIsland = false;
+    public boolean pageScrollWheel = false;
+    public boolean pageScrollInvert = false;
+    public boolean hotkeyAdvanced = false;
+    public String safariMissingChannel = "Party";
+    public boolean oldSkyblockMenu = false;
     // w07-04-qol
     public boolean signCalculator = false;
     public boolean signCalculatorEquals = false;
@@ -3675,6 +3689,8 @@ public class TeslaMapsConfig {
         if (c.imageShareBlocked == null) c.imageShareBlocked = new java.util.ArrayList<>();
         if (c.dragonPbs == null) c.dragonPbs = new java.util.HashMap<>();
         if (c.keybinds == null) c.keybinds = defaultKeybinds();
+        c.keybinds.removeIf(java.util.Objects::isNull);
+        for (Keybind kb : c.keybinds) if (kb.actions == null) kb.actions = "";
         if (c.hudAnchorRefs == null) c.hudAnchorRefs = new java.util.HashMap<>();
         if (c.hudPanelStyles == null) c.hudPanelStyles = new java.util.HashMap<>();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
@@ -3700,6 +3716,7 @@ public class TeslaMapsConfig {
         if (c.hotspotShareChannel == null) c.hotspotShareChannel = "Party";
         if (c.safariSparklingChannel == null) c.safariSparklingChannel = "Nobody";
         if (c.safariShareTimeChannel == null) c.safariShareTimeChannel = "Nobody";
+        if (c.safariMissingChannel == null) c.safariMissingChannel = "Party";
         if (c.pickaxeAbilityReadyText == null) c.pickaxeAbilityReadyText = "Right";
         if (c.farmLanes == null) c.farmLanes = new java.util.LinkedHashMap<>();
         if (c.feastNextSeason == null) c.feastNextSeason = new java.util.LinkedHashMap<>();
