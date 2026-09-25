@@ -3,6 +3,10 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "UserSoundEventMixin",
+    "UserSoundBufferMixin",
+    "CustomFontManagerMixin",
+    "FontSetProvidersAccessor",
     "GlowSectionMixin",
     "CameraDistanceMixin",
     "OutlineWidthMixin",

@@ -118,6 +118,14 @@ public class MapConfigScreen extends Screen {
         GuiSounds.open();
     }
 
+    private net.minecraft.client.gui.screens.Screen returnTo;
+
+    /** Closing goes back to {@code parent} instead of the game. */
+    public MapConfigScreen(net.minecraft.client.gui.screens.Screen parent) {
+        this();
+        this.returnTo = parent;
+    }
+
     /** The visible search bar is 22px tall, the EditBox inside it only 12 - same rect for both. */
     protected boolean teslamaps$overSearch(double mouseX, double mouseY) {
         int sfX = SIDEBAR_WIDTH + 14, sfY = 8, sfW = this.width - SIDEBAR_WIDTH - 28, sfH = 22;
@@ -876,6 +884,33 @@ public class MapConfigScreen extends Screen {
         String header = searchQuery.isEmpty() ? selectedCategory : "Search Results";
         context.fill(SIDEBAR_WIDTH, 30, this.width, contentTop, GuiStyle.background()); // Header background
         context.text(font, header, SIDEBAR_WIDTH + 20, 35, 0xFFFFFFFF);
+        if (TeslaMapsConfig.get().configResetOptions && searchQuery.isEmpty() && !ACTIVE.equals(selectedCategory)) {
+            boolean armed = selectedCategory.equals(resetArmedFor) && System.currentTimeMillis() - resetArmedAt < 3000;
+            String rl = armed ? "Click again to reset" : "Reset To Defaults";
+            int rw = font.width(rl) + 10, rx = this.width - 20 - rw, ry = 31;
+            boolean rh = mouseX >= rx && mouseX < rx + rw && mouseY >= ry && mouseY < ry + 16;
+            if (clicked && rh) {
+                GuiSounds.press();
+                if (armed) {
+                    List<SettingsEntry> all = new ArrayList<>();
+                    for (String cat : groups.getOrDefault(selectedCategory, List.of(selectedCategory))) {
+                        List<SettingsEntry> l = categories.get(cat);
+                        if (l != null) all.addAll(l);
+                    }
+                    int n = resetEntries(all);
+                    resetArmedFor = null;
+                    if (minecraft.player != null) minecraft.player.sendSystemMessage(Component.literal(
+                            "§b[TeslaMaps] §f" + selectedCategory + ": " + n + " option(s) reset"));
+                } else {
+                    resetArmedFor = selectedCategory;
+                    resetArmedAt = System.currentTimeMillis();
+                }
+                clicked = false;
+            }
+            GuiStyle.panel(context, rx, ry, rw, 16, rh);
+            drawBorder(context, rx, ry, rw, 16, armed ? 0xFFFF5555 : (rh ? GuiStyle.accent() : GuiStyle.border()));
+            context.text(font, rl, rx + 5, ry + 4, armed ? 0xFFFF5555 : GuiStyle.textDim());
+        }
 
         List<SettingsEntry> entries = getEntriesToShow();
         int totalHeight = 0;
@@ -905,6 +940,10 @@ public class MapConfigScreen extends Screen {
 
         if (clicked && !clickHandled) editingList = null;
         context.disableScissor();
+        if (rightClickedNow && hoverEntry != null && TeslaMapsConfig.get().configResetOptions
+                && hoverEntry.readValue() != null && resetEntries(List.of(hoverEntry)) > 0) {
+            GuiSounds.press();
+        }
 
         String desc = hoverEntry != null ? hoverEntry.description() : null;
         if (desc == null || hoverEntry != descHoverEntry) {
@@ -976,6 +1015,7 @@ public class MapConfigScreen extends Screen {
         TeslaMapsConfig.save();
         GuiSounds.close();
         GuiSounds.resetHover();
+        if (returnTo != null) { minecraft.setScreen(returnTo); return; }
         super.onClose();
     }
 
@@ -996,7 +1036,67 @@ public class MapConfigScreen extends Screen {
         default boolean isToggle() { return false; }
         default String description() { return null; }
         default boolean matchesMeta(String q) { return false; }
+        /** Current value for reset-to-default, null = not resettable. */
+        default Object readValue() { return null; }
+        default void writeValue(Object v) {}
     }
+
+    private static java.lang.reflect.Field[] cfgFields;
+
+    private static java.lang.reflect.Field[] cfgFields() {
+        if (cfgFields == null) {
+            List<java.lang.reflect.Field> out = new ArrayList<>();
+            for (java.lang.reflect.Field f : TeslaMapsConfig.class.getDeclaredFields()) {
+                int m = f.getModifiers();
+                if (java.lang.reflect.Modifier.isStatic(m) || java.lang.reflect.Modifier.isFinal(m)) continue;
+                try { f.setAccessible(true); out.add(f); } catch (RuntimeException ignored) {}
+            }
+            cfgFields = out.toArray(new java.lang.reflect.Field[0]);
+        }
+        return cfgFields;
+    }
+
+    /** Puts these rows back to their defaults: getters are read once against a fresh config swapped in. */
+    protected int resetEntries(List<SettingsEntry> entries) {
+        TeslaMapsConfig live = TeslaMapsConfig.get();
+        TeslaMapsConfig def = new TeslaMapsConfig();
+        java.lang.reflect.Field[] fs = cfgFields();
+        Object[] saved = new Object[fs.length];
+        List<Object> now = new ArrayList<>(entries.size());
+        for (SettingsEntry e : entries) now.add(e.readValue());
+        List<Object> defaults = new ArrayList<>(entries.size());
+        int swapped = 0;
+        try {
+            for (; swapped < fs.length; swapped++) {
+                saved[swapped] = fs[swapped].get(live);
+                fs[swapped].set(live, fs[swapped].get(def));
+            }
+            for (int i = 0; i < entries.size(); i++) {
+                Object v = null;
+                if (now.get(i) != null) {
+                    try { v = entries.get(i).readValue(); } catch (RuntimeException ignored) {}
+                }
+                defaults.add(v);
+            }
+        } catch (IllegalAccessException ex) {
+            com.teslamaps.TeslaMaps.LOGGER.warn("config reset failed", ex);
+        } finally {
+            for (int i = 0; i < swapped; i++) {
+                try { fs[i].set(live, saved[i]); } catch (IllegalAccessException ignored) {}
+            }
+        }
+        int changed = 0;
+        for (int i = 0; i < defaults.size(); i++) {
+            Object d = defaults.get(i);
+            if (d == null || d.equals(now.get(i))) continue;
+            try { entries.get(i).writeValue(d); changed++; } catch (RuntimeException ignored) {}
+        }
+        if (changed > 0) TeslaMapsConfig.save();
+        return changed;
+    }
+
+    private long resetArmedAt = 0;
+    private String resetArmedFor = null;
 
     static boolean searchHit(SettingsEntry e, String q) {
         return e.matchesSearch(q) || e.matchesMeta(q);
@@ -1147,6 +1247,8 @@ public class MapConfigScreen extends Screen {
         @Override public void reposition(int x, int w) { this.x = x; this.width = w; }
         boolean get() { return getter.get(); }
         void toggle() { setter.accept(!getter.get()); TeslaMapsConfig.save(); }
+        @Override public Object readValue() { return getter.get(); }
+        @Override public void writeValue(Object v) { setter.accept((Boolean) v); }
 
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
@@ -1438,6 +1540,9 @@ public class MapConfigScreen extends Screen {
             this.x = x; this.width = w; this.label = label; this.getter = getter; this.setter = setter;
         }
 
+        @Override public Object readValue() { return getter.getAsInt(); }
+        @Override public void writeValue(Object v) { setter.accept((Integer) v); }
+
         @Override public int getHeight() { return ROW_HEIGHT; }
         @Override public String getLabel() { return label; }
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
@@ -1482,6 +1587,9 @@ public class MapConfigScreen extends Screen {
         public ColorEntry(int x, int w, String label, Supplier<String> getter, Consumer<String> setter) {
             this.x = x; this.width = w; this.label = label; this.getter = getter; this.setter = setter;
         }
+
+        @Override public Object readValue() { return getter.get(); }
+        @Override public void writeValue(Object v) { setter.accept((String) v); }
 
         @Override public String getLabel() { return label; }
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
@@ -1705,6 +1813,11 @@ public class MapConfigScreen extends Screen {
             this.min = min; this.max = max; this.getter = getter; this.setter = setter; this.decimals = decimals;
         }
 
+        @Override public Object readValue() { return getter.get(); }
+        @Override public void writeValue(Object v) {
+            setter.accept((Float) v);
+        }
+
         private int sliderWidth() { return controlWidth(80, width); }
         private int sliderLeft() { return x + width - sliderWidth() - 48; }
 
@@ -1878,6 +1991,9 @@ public class MapConfigScreen extends Screen {
             this.options = options; this.getter = getter; this.setter = setter;
         }
 
+        @Override public Object readValue() { return getter.get(); }
+        @Override public void writeValue(Object v) { setter.accept((String) v); }
+
         @Override public int getHeight() { return expanded ? ROW_HEIGHT + (options.length * 18) : ROW_HEIGHT; }
         @Override public String getLabel() { return label; }
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
@@ -1950,6 +2066,9 @@ public class MapConfigScreen extends Screen {
             this.x = x; this.width = w; this.label = label;
             this.options = options; this.getter = getter; this.setter = setter;
         }
+
+        @Override public Object readValue() { return getter.get(); }
+        @Override public void writeValue(Object v) { setter.accept((String) v); }
 
         @Override public int getHeight() { return ROW_HEIGHT; }
         @Override public String getLabel() { return label; }

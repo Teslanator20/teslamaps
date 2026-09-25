@@ -503,5 +503,11 @@ final class Features {
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w11-07-gui
+        com.teslamaps.features.ConfigAccess.register();
+        com.teslamaps.utils.UserSounds.register();
+        FeatureConditions.register();
+        com.teslamaps.features.CustomFont.register();
+        com.teslamaps.features.hud.TabWidgetsMenuHelper.register();
     }
 }
