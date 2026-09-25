@@ -208,5 +208,12 @@ final class Features {
         com.teslamaps.features.AnvilHelper.register();
         com.teslamaps.features.accessories.AccessoryHelper.register();
         com.teslamaps.features.CraftHelper.register();
+        // w05-01-inv
+        com.teslamaps.features.RavengardTooltips.register();
+        com.teslamaps.features.WizardPortalLore.register();
+        com.teslamaps.features.StackingEnchantHud.register();
+        com.teslamaps.features.ConsumableProtection.register();
+        com.teslamaps.features.ItemStars.register();
+        com.teslamaps.features.SkyblockIdTooltip.register();
     }
 }

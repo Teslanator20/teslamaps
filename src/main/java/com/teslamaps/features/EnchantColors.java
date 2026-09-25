@@ -442,6 +442,26 @@ public class EnchantColors {
         return tag != null && tag.getCompound("enchantments").map(t -> !t.isEmpty()).orElse(false);
     }
 
+    public record StackProgress(String name, int tier, long progress, long next) {}
+
+    public static StackProgress stackingProgress(ItemStack stack) {
+        if (enchants == null) loadData();
+        CompoundTag tag = customData(stack);
+        if (tag == null) return null;
+        for (Enchant e : enchants.values()) {
+            if (!e.stacking() || e.nbtNum == null || e.stackLevels == null || !tag.contains(e.nbtNum)) continue;
+            long progress = tag.getLong(e.nbtNum).orElse(0L);
+            int tier = 0;
+            long next = -1;
+            for (int lvl : e.stackLevels) {
+                if (lvl <= progress) tier++;
+                else if (next < 0) next = lvl;
+            }
+            return new StackProgress(e.loreName, tier, progress, next);
+        }
+        return null;
+    }
+
     private static Component progressLine(Enchant e, CompoundTag tag) {
         if (e.nbtNum == null || e.stackLevels == null) return null;
         long progress = tag.getLong(e.nbtNum).orElse(0L);

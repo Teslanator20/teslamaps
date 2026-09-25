@@ -143,6 +143,8 @@ public final class InventoryCategory {
         b.info("Or /tmap protect for the held item. Lock icon, blocks drop, salvage, trade, AH, shops");
         b.toggle("Limit Dropping Items", () -> config.limitDroppingItems, v -> config.limitDroppingItems = v)
                 .desc("Max 7 drops per 3 server ticks, spammed Q during lag can't throw the whole stack later");
+        b.toggle("Protect Evolving Consumables", () -> config.protectEvolvingConsumables, v -> config.protectEvolvingConsumables = v)
+                .desc("Blocks right-click and placing for Bottle of Jyrre, Dark Cacao Truffle, Discrite, Moby Duck, Rosewater Flask");
         b.label("Prevent Placing");
         b.toggle("Prevent Placing Weapons", () -> config.preventPlacingWeapons, v -> config.preventPlacingWeapons = v)
                 .desc("Flower of Truth, Bouquet, Grappleshot, Bat Wand, Tuba, Pumpkin Launcher, Fire Freeze, Gauntlet");
@@ -184,6 +186,11 @@ public final class InventoryCategory {
         b.toggle("Legacy Attribute Background", () -> config.legacyAttributeBg, v -> config.legacyAttributeBg = v)
                 .desc("Red slot behind items that still carry old Kuudra attributes");
         b.color("  Legacy Attribute Color", () -> config.colorLegacyAttributeBg, v -> config.colorLegacyAttributeBg = v);
+        b.toggle("Stars As Stack Size", () -> config.starsStackSize, v -> config.starsStackSize = v)
+                .desc("Star count of dungeon/Kuudra items in the bottom right of the slot, containers and hotbar");
+        b.toggle("  Gradient Colors", () -> config.starsStackSizeColors, v -> config.starsStackSizeColors = v);
+        b.toggle("Red Master Stars In Name", () -> config.redMasterStars, v -> config.redMasterStars = v)
+                .desc("Tooltip name shows master stars as red ✪ instead of ➊-➎");
         b.label("Bazaar & Progress");
         b.toggle("Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v);
         b.toggle("Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v);

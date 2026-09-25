@@ -35,6 +35,7 @@ public class InGameHudMixin {
     private void teslamaps$arrowPoison(GuiGraphicsExtractor context, int x, int y, DeltaTracker delta,
                                        Player player, ItemStack stack, int seed, CallbackInfo ci) {
         com.teslamaps.features.ArrowPoison.drawHotbar(context, x, y, stack);
+        com.teslamaps.features.ItemStars.draw(context, stack, x, y);
     }
 
 }
