@@ -359,5 +359,13 @@ final class Features {
         com.teslamaps.features.WikiLookup.register();
         com.teslamaps.features.waypoints.RouteKeys.register();
         com.teslamaps.features.AbilityMenuFix.register();
+        // w07-00-qol
+        com.teslamaps.features.qol.MusicOverlay.register();
+        com.teslamaps.features.qol.Level7Guide.register();
+        com.teslamaps.features.WarpTransferWait.register();
+        com.teslamaps.features.qol.TiaRelayHelper.register();
+        com.teslamaps.features.qol.QueueEstimate.register();
+        com.teslamaps.features.qol.CalcXp.register();
+        com.teslamaps.features.qol.ClockOffset.register();
     }
 }

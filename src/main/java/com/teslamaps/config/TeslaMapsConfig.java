@@ -2364,6 +2364,33 @@ public class TeslaMapsConfig {
     public int routePrevKey = -1;
     public int routeStopKey = -1;
     public boolean abilityMenuFix = false;
+    // w07-00-qol
+    public boolean musicOverlay = false;
+    public boolean musicOverlayArt = true;
+    public boolean musicOverlayLyrics = false;
+    public int musicPlayPauseKey = -1;
+    public int musicNextKey = -1;
+    public int musicPrevKey = -1;
+    public int musicOverlayX = 5;
+    public int musicOverlayY = 200;
+    public float musicOverlayScale = 1.0f;
+    public boolean level7Guide = false;
+    public int level7GuideStep = 1;
+    public int level7GuideX = 5;
+    public int level7GuideY = 60;
+    public float level7GuideScale = 1.0f;
+    public boolean warpTransferWait = false;
+    public boolean warpTransferWaitMessage = false;
+    public boolean tiaRelayHelper = false;
+    public boolean tiaRelayMute = false;
+    public boolean tiaRelayNextWaypoint = true;
+    public boolean tiaRelayAllWaypoints = false;
+    public boolean queueEstimate = false;
+    public int queueEstimateX = -1;
+    public int queueEstimateY = -1;
+    public float queueEstimateScale = 1.0f;
+    public boolean calcXpCommand = false;
+    public boolean clockOffsetWarning = false;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
