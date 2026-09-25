@@ -796,5 +796,7 @@ final class Features {
         com.teslamaps.features.mining.CommissionBlockColor.register();
         com.teslamaps.features.mining.DeepCavernsGuide.register();
         com.teslamaps.features.mining.NucleusOverlay.register();
+        // w16-09-kuu
+        com.teslamaps.features.kuudra.KuudraRunInfo.register();
     }
 }

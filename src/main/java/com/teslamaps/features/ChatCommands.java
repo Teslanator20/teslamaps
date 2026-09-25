@@ -39,6 +39,18 @@ public class ChatCommands {
     private static int kuudraRuns;
     private static long lastKuudraEnd;
 
+    /** "name: reason, ..." for the requeue-cancelled title. */
+    public static String downtimeSummary() {
+        StringBuilder sb = new StringBuilder();
+        for (String p : downtimePlayers) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(p);
+            String r = downtimeReasons.get(p);
+            if (r != null) sb.append(": ").append(r);
+        }
+        return sb.toString();
+    }
+
     public static void onChatMessage(String msg) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.chatCommands) return;
