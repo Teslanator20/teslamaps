@@ -23,7 +23,7 @@ public class SlayerHUD {
 
     private static final Pattern PHASE_PATTERN = Pattern.compile("(SPIRIT|ASHEN|CRYSTAL|AURIC)\\s*♨(\\d+)");
 
-    private static final Pattern MINIBOSS_PATTERN = Pattern.compile("♨\\s*(Burningsoul|Kindleheart)\\s*Demon\\s*([\\d.]+)([kKmMbB]?)❤");
+    private static final Pattern MINIBOSS_PATTERN = Pattern.compile("(?:♨\\s*)?(Burningsoul|Kindleheart|Flare)\\s*Demon\\s*([\\d.]+)([kKmMbB]?)❤");
 
     private static final Pattern QUAZII_PATTERN = Pattern.compile("ⓆⓊⒶⓏⒾⒾ\\s*([\\d.]+)([kKmMbB]?)❤");
     private static final Pattern TYPHOEUS_PATTERN = Pattern.compile("ⓉⓎⓅⒽⓄⒺⓊⓈ\\s*([\\d.]+)([kKmMbB]?)❤");
@@ -442,7 +442,7 @@ public class SlayerHUD {
 
     /** Cheap pre-check so the ESP render path can skip its entity sweep entirely. */
     public static boolean hasGlowTargets() {
-        return bossEntity != null || !minibossEntities.isEmpty();
+        return bossEntity != null || !minibossEntities.isEmpty() || SlayerMarks.hasDemons();
     }
 
     public static boolean shouldGlow(Entity entity) {
@@ -453,10 +453,12 @@ public class SlayerHUD {
         if (minibossEntities.contains(entity) && TeslaMapsConfig.get().slayerMinibossESP) {
             return true;
         }
-        return false;
+        return SlayerMarks.isDemon(entity);
     }
 
     public static int getGlowColor(Entity entity) {
+        int mark = SlayerMarks.colorOf(entity);
+        if (mark != -1) return mark;
         if (bossEntity != null && entity == bossEntity) {
             return getPhaseColor(currentPhaseType) & 0x00FFFFFF;
         }
@@ -475,6 +477,8 @@ public class SlayerHUD {
                 return 0xFF5555; // Red
             } else if (name.contains("Kindleheart")) {
                 return 0xFFFFFF; // White
+            } else if (name.contains("Flare Demon")) {
+                return 0xFFAA00;
             } else if (containsAny(name, GENERIC_MINIBOSSES)) {
                 return 0xFFAA00; // Gold
             }
@@ -483,7 +487,7 @@ public class SlayerHUD {
     }
 
     public static boolean isSlayerMiniboss(String name) {
-        return name.contains("Burningsoul Demon") || name.contains("Kindleheart Demon")
+        return name.contains("Burningsoul Demon") || name.contains("Kindleheart Demon") || name.contains("Flare Demon")
                 || containsAny(name, GENERIC_MINIBOSSES);
     }
 
@@ -549,9 +553,9 @@ public class SlayerHUD {
 
         if (cfg.slayerMinibossTracer && !legit) {
             for (Entity e : minibossEntities) {
-                if (e == null || !e.isAlive()) continue;
+                if (e == null || !e.isAlive() || !SlayerMarks.tracerAllowed(e)) continue;
                 com.teslamaps.render.ESPRenderer.drawTracerFromCamera(matrices,
-                        com.teslamaps.render.ESPRenderer.lerpBox(e).getCenter(), 0xFFFF5555, cameraPos);
+                        com.teslamaps.render.ESPRenderer.lerpBox(e).getCenter(), 0xFFFF5555, cameraPos, true, cfg.slayerMinibossTracerWidth);
             }
         }
 
@@ -621,6 +625,26 @@ public class SlayerHUD {
     public static void onSlayerFailed() {
         resetQuest();
         SlayerQuest.onQuestEnd();
+    }
+
+    public static long avgKillMs() {
+        return killTimes.isEmpty() ? 0 : killTimes.stream().mapToLong(Long::longValue).sum() / killTimes.size();
+    }
+
+    public static long avgSpawnMs() {
+        return spawnTimes.isEmpty() ? 0 : spawnTimes.stream().mapToLong(Long::longValue).sum() / spawnTimes.size();
+    }
+
+    public static String fmtTime(long ms) {
+        return formatTime(ms);
+    }
+
+    /** Slayer type changed: averages start over, the running quest stays. */
+    public static void clearStats() {
+        killTimes.clear();
+        spawnTimes.clear();
+        totalKills = 0;
+        lastKillTime = 0;
     }
 
     public static void resetSession() {

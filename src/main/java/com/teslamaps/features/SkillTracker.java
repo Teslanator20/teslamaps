@@ -54,6 +54,7 @@ public class SkillTracker {
         double lastAbs = -1;
         String lastSegment = "";
         long kills, bossKills, cocoons;      // combat
+        double slayerXp;
         long catches, doubleHooks;           // fishing
         long gifts, whispers;                // foraging
         long lastGiftMs;
@@ -172,9 +173,31 @@ public class SkillTracker {
         TeslaMapsConfig.get().skillTotalXp.put(skill, xp);
     }
 
+    private static String lastSlayerType = null;
+
+    // slayer xp per tier, Aatrox's Slayer XP Buff adds 25%
+    private static final int[] SLAYER_XP = {0, 5, 25, 100, 500, 1500};
+    private static final int[] VAMPIRE_XP = {0, 10, 25, 60, 120, 150};
+
     public static void onBossKill() {
         if (paused) return;
         Session s = session("Combat");
+        String key = com.teslamaps.slayer.SlayerQuest.key();
+        if (key != null && TeslaMapsConfig.get().skillTrackerSlayerStats) {
+            String type = key.substring(0, key.indexOf('_'));
+            if (lastSlayerType != null && !lastSlayerType.equals(type)) {
+                s.bossKills = 0;
+                s.cocoons = 0;
+                s.slayerXp = 0;
+                com.teslamaps.slayer.SlayerHUD.clearStats();
+            }
+            lastSlayerType = type;
+            int t = com.teslamaps.slayer.SlayerQuest.tier();
+            int[] table = type.equals("VAMPIRE") ? VAMPIRE_XP : SLAYER_XP;
+            if (t > 0 && t < table.length) {
+                s.slayerXp += table[t] * (com.teslamaps.api.ElectionApi.hasPerk("Slayer XP Buff") ? 1.25 : 1.0);
+            }
+        }
         s.bossKills++;
         s.touch();
         show("Combat");
@@ -576,6 +599,15 @@ public class SkillTracker {
             case "Combat" -> {
                 if (s.kills > 0) out.add(metric("Kills", "§e", s.kills, h, warm));
                 if (s.bossKills > 1) out.add(metric("Bosses", "§e", s.bossKills, h, warm));
+                if (TeslaMapsConfig.get().skillTrackerSlayerStats && s.bossKills > 0) {
+                    long kill = com.teslamaps.slayer.SlayerHUD.avgKillMs();
+                    long spawn = com.teslamaps.slayer.SlayerHUD.avgSpawnMs();
+                    if (kill > 0) {
+                        out.add("§7Avg Kill: §e" + com.teslamaps.slayer.SlayerHUD.fmtTime(kill)
+                                + (spawn > 0 ? " §8| §7Spawn: §b" + com.teslamaps.slayer.SlayerHUD.fmtTime(spawn) : ""));
+                    }
+                    if (s.slayerXp > 0) out.add(metric("Slayer XP", "§d", s.slayerXp, h, warm));
+                }
                 if (s.cocoons > 1) {
                     out.add("§7Cocoon: §a" + s.cocoons + "§8/§e" + s.bossKills
                             + " §8(" + Math.round(100.0 * s.cocoons / Math.max(1, s.bossKills)) + "%)");

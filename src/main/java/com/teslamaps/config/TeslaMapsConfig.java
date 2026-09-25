@@ -2148,6 +2148,19 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w16-04-sla
+    public boolean bloodfiendSpringLines = false;
+    public boolean killerSpringSoundFix = false;
+    public boolean slayerAttunementDemons = false;
+    public boolean slayerBossTracer = false;
+    public boolean slayerMinibossCocoon = false;
+    public float slayerMinibossTracerWidth = 2.0f;
+    public int slayerMinibossTracerRange = 0;
+    public boolean slayerMinibossTracerSight = false;
+    public boolean arachneQol = false;
+    public boolean arachneHidePlayers = true;
+    public boolean arachneWebClick = false;
+    public boolean skillTrackerSlayerStats = false;
     // w15-01-min
     public boolean forgeReminder = false;
     public int forgeReminderDelay = 1;

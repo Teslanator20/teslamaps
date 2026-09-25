@@ -52,7 +52,7 @@ public class SoundPlayMixin {
         boolean extraMutes = com.teslamaps.features.SoundMutes.active(c);
         boolean partySpam = com.teslamaps.features.MutePartySpam.active(c);
         if (!c.soundDebug && !partySpam && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !c.arrowHitSound && !extraMutes
-                && !c.tiaRelayHelper && !com.teslamaps.features.ChatCompacts.soundActive(c)
+                && !c.tiaRelayHelper && !c.killerSpringSoundFix && !com.teslamaps.features.ChatCompacts.soundActive(c)
                 && !com.teslamaps.features.PestSpawnSound.enabled(c)
                 && !com.teslamaps.features.mining.MiningSoundMutes.active(c)) return;
 
@@ -68,6 +68,10 @@ public class SoundPlayMixin {
             Minecraft mc = Minecraft.getInstance();
             mc.execute(() -> { if (mc.player != null) mc.player.sendSystemMessage(Component.literal(
                     "§7[Sound] §f" + id + " §8vol=" + String.format("%.2f", vol) + " pitch=" + String.format("%.3f", pitch))); });
+        }
+        if (c.killerSpringSoundFix && c.section("Combat") && com.teslamaps.slayer.BloodfiendHelper.muteSpringSound(id)) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
         }
         if (c.tiaRelayHelper && com.teslamaps.features.qol.TiaRelayHelper.onSound(instance, id, pitch)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);

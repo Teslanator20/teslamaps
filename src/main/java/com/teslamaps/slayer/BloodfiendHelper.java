@@ -10,6 +10,7 @@ import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.EntityCache;
 import com.teslamaps.utils.LoudSound;
 import com.teslamaps.utils.NametagMobs;
+import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.TickScheduler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -56,6 +57,10 @@ public final class BloodfiendHelper {
                             .desc("Box + label on Blood Ichors and Killer Springs during your fight");
                     b.color("  Ichor Color", () -> cfg().bloodfiendIchorColor, v -> cfg().bloodfiendIchorColor = v);
                     b.color("  Spring Color", () -> cfg().bloodfiendSpringColor, v -> cfg().bloodfiendSpringColor = v);
+                    b.toggle("  Line Boss To Killer Spring", () -> cfg().bloodfiendSpringLines, v -> cfg().bloodfiendSpringLines = v)
+                            .desc("Line from your boss's head to each Killer Spring tower");
+                    b.toggle("Fix Killer Spring Sound Spam", () -> cfg().killerSpringSoundFix, v -> cfg().killerSpringSoundFix = v)
+                            .desc("The Rift: drops duplicate wither spawn sounds in the same tick, so the Killer Spring does not choke every other sound");
                 });
     }
 
@@ -114,6 +119,19 @@ public final class BloodfiendHelper {
         }
     }
 
+    private static long lastWitherSpawnTick = Long.MIN_VALUE;
+
+    /** SoundPlayMixin: true = drop this duplicate Killer Spring sound. */
+    public static boolean muteSpringSound(String id) {
+        if (!id.equals("minecraft:entity.wither.spawn") || !SkyblockUtils.isInArea("The Rift")) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return false;
+        long t = mc.level.getGameTime();
+        if (t == lastWitherSpawnTick) return true;
+        lastWitherSpawnTick = t;
+        return false;
+    }
+
     private static void title(Minecraft mc, String text, int stay) {
         mc.gui.setTimes(0, stay, 3);
         mc.gui.setTitle(Component.literal(text));
@@ -125,6 +143,13 @@ public final class BloodfiendHelper {
         int sc = TeslaMapsConfig.parseColor(cfg().bloodfiendSpringColor) | 0xFF000000;
         draw(pose, cam, ichors, ic, "§4Ichor");
         draw(pose, cam, springs, sc, "§6Spring");
+        if (!cfg().bloodfiendSpringLines || springs.isEmpty()) return;
+        net.minecraft.world.entity.Entity boss = SlayerHUD.getBossEntity();
+        if (boss == null || !boss.isAlive()) return;
+        Vec3 eye = boss.getEyePosition(1f);
+        for (ArmorStand s : springs) {
+            if (s.isAlive()) ESPRenderer.drawLine(pose, eye, s.getPosition(1f).add(0, 1.7, 0), sc, 3.0f, cam, true);
+        }
     }
 
     private static void draw(PoseStack pose, Vec3 cam, List<ArmorStand> list, int color, String label) {
