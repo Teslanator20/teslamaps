@@ -140,9 +140,9 @@ public final class TiaRelayHelper {
     public static boolean onSound(SoundInstance instance, String id, float pitch) {
         if (feature == null || !feature.active()) return false;
         if (cfg().tiaRelayMute && id.contains("wolf") && id.endsWith("whine")) return true;
-        if (!inMenu || lastClickSlot < 0 || System.currentTimeMillis() - lastClickTime > 60_000L) return false;
-        if (sounds.containsKey(lastClickSlot)) return false;
         Minecraft mc = Minecraft.getInstance();
+        if (!inMenu || lastClickSlot < 0 || System.currentTimeMillis() - lastClickTime > 60_000L || !mc.isSameThread()) return false;
+        if (sounds.containsKey(lastClickSlot)) return false;
         if (mc.player == null || mc.player.distanceToSqr(instance.getX(), instance.getY(), instance.getZ()) >= 4) return false;
         sounds.put(lastClickSlot, new Heard(id, pitch));
         lastClickSlot = -1;

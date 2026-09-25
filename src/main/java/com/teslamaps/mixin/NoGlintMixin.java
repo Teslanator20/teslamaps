@@ -14,7 +14,8 @@ public class NoGlintMixin {
     private void teslamaps$noGlint(CallbackInfoReturnable<Boolean> cir) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean colors = c.customGlintColors && !c.customGlintColor.isEmpty();
-        if (!c.noEnchantGlint && !colors) {
+        boolean hideAll = c.noEnchantGlint && !c.noEnchantGlintArmorOnly;
+        if (!hideAll && !colors) {
             if (c.forceEnchantGlint && com.teslamaps.features.RenderHiders.forceGlint((ItemStack) (Object) this)) cir.setReturnValue(true);
             return;
         }
@@ -29,6 +30,6 @@ public class NoGlintMixin {
                 if (c.customGlint.containsKey(uuid)) return;
             }
         }
-        if (c.noEnchantGlint) cir.setReturnValue(false);
+        if (hideAll) cir.setReturnValue(false);
     }
 }

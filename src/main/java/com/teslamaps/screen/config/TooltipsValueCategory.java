@@ -135,6 +135,10 @@ public final class TooltipsValueCategory {
                 () -> config.chromaSaturation, v -> config.chromaSaturation = v, 2);
         b.toggle("  Chroma Slant Forward", () -> config.chromaForward, v -> config.chromaForward = v);
         b.toggle("  Chroma Bold", () -> config.enchantChromaBold, v -> config.enchantChromaBold = v);
+        b.toggle("Chroma Format Code (§z)", () -> config.chromaFormatCode, v -> config.chromaFormatCode = v)
+                .desc("Text after §z is drawn in chroma everywhere: chat, tooltips, HUDs, scoreboard, other mods. Uses the chroma size/speed above.");
+        b.toggle("  Everything Chroma", () -> config.chromaEverything, v -> config.chromaEverything = v)
+                .desc("Draws ALL text in chroma.");
         b.toggle("Bold Max Level", () -> config.enchantBoldMax, v -> config.enchantBoldMax = v);
         b.color("Max Level Color", () -> config.enchantColorMax, v -> config.enchantColorMax = v);
         b.color("High Level Color", () -> config.enchantColorHigh, v -> config.enchantColorHigh = v);
