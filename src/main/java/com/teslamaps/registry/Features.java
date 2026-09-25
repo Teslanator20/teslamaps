@@ -323,5 +323,11 @@ final class Features {
         com.teslamaps.features.CommandShortcuts.register();
         com.teslamaps.features.AbiphoneAccept.register();
         com.teslamaps.features.DebugDump.register();
+        // w07-07-hud
+        com.teslamaps.features.tracker.CustomTrackers.register();
+        com.teslamaps.features.hud.BeaconPower.register();
+        com.teslamaps.features.hud.CustomTextBox.register();
+        com.teslamaps.features.hud.MovementSpeed.register();
+        com.teslamaps.features.hud.CrownOfAvarice.register();
     }
 }

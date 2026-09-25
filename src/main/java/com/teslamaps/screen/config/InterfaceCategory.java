@@ -84,6 +84,8 @@ public final class InterfaceCategory {
         b.toggle("  Show FPS", () -> config.perfHudFps, v -> config.perfHudFps = v);
         b.toggle("  Show TPS", () -> config.perfHudTps, v -> config.perfHudTps = v);
         b.toggle("  Show Ping", () -> config.perfHudPing, v -> config.perfHudPing = v);
+        b.toggle("  Show CPS", () -> config.perfHudCps, v -> config.perfHudCps = v)
+                .desc("Left | right clicks per second");
         b.toggle("  Vertical", () -> config.perfHudVertical, v -> config.perfHudVertical = v);
         b.color("  Label Color", () -> config.perfHudLabelColor, v -> config.perfHudLabelColor = v);
         b.color("  Value Color", () -> config.perfHudValueColor, v -> config.perfHudValueColor = v);
