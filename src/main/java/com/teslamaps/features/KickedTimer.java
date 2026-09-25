@@ -35,7 +35,7 @@ public class KickedTimer {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
         if (!joinProblem && cfg.kickedTimer && cfg.kickedPartyMessage && mc.getConnection() != null && now - lastSendMs > 15_000L) {
-            mc.getConnection().sendCommand("pc kicked");
+            com.teslamaps.features.ChatQueue.command("pc kicked");
             lastSendMs = now;
         }
     }

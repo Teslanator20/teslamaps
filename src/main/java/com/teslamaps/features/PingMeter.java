@@ -74,7 +74,7 @@ public class PingMeter {
         mc.execute(() -> {
             if (mc.getConnection() == null) return;
             if (m == 1) {
-                mc.getConnection().sendCommand("pc Ping: " + rtt + "ms");
+                com.teslamaps.features.ChatQueue.command("pc Ping: " + rtt + "ms");
             } else if (mc.player != null) {
                 mc.player.sendSystemMessage(Component.literal("§aPing: §f" + rtt + "ms"));
             }

@@ -163,7 +163,7 @@ public class PickaxeAbility {
 
         List<String> lines = lines();
         if (lines.isEmpty()) {
-            if (com.teslamaps.features.TabWidgetHint.on() && missingSince >= 0 && System.currentTimeMillis() - missingSince >= 3000) {
+            if (com.teslamaps.features.TabWidgetHint.on() && com.teslamaps.utils.SkyblockUtils.isInSkyblock() && missingSince >= 0 && System.currentTimeMillis() - missingSince >= 3000) {
                 draw(context, mc, c.pickaxeAbilityX, c.pickaxeAbilityY, c.pickaxeAbilityScale, List.of(MISSING));
             }
             return;
