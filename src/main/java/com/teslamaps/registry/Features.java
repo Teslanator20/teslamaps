@@ -408,5 +408,7 @@ final class Features {
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
         com.teslamaps.features.LookTargeting.register();
+        // w09-07-vis
+        com.teslamaps.features.ZeroHpNametags.register();
     }
 }

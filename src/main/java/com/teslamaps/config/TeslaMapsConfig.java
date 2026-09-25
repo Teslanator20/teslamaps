@@ -2142,6 +2142,20 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w09-07-vis
+    public boolean hideEntityFire = false;
+    public boolean fireOverlayAdjust = false;
+    public float fireOverlayHeight = 100f;
+    public float fireOverlayOpacity = 100f;
+    public boolean hideZeroHpNametags = false;
+    public boolean hidePlayersTransparent = false;
+    public float hidePlayersOpacity = 30f;
+    public boolean ghostPlayers = false;
+    public float ghostPlayersOpacity = 40f;
+    public boolean muteEndermanEnd = false;
+    public boolean noExplosionsChickenRace = false;
+    public boolean chromaFormatCode = false;
+    public boolean chromaEverything = false;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;

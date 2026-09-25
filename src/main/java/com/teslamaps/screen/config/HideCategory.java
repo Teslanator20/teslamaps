@@ -22,6 +22,12 @@ public final class HideCategory {
         b.toggle("  Hide After Leap", () -> config.hidePlayersAfterLeap, v -> config.hidePlayersAfterLeap = v);
         b.slider("    Hide After Leap (s)", 0.5f, 10f,
                 () -> config.hidePlayersAfterLeapSeconds, v -> config.hidePlayersAfterLeapSeconds = v);
+        b.toggle("  See-Through Instead Of Hidden", () -> config.hidePlayersTransparent, v -> config.hidePlayersTransparent = v)
+                .desc("Players that would be hidden are drawn see-through instead. 0% hides them fully.");
+        b.slider("    Opacity %", 0f, 100f, () -> config.hidePlayersOpacity, v -> config.hidePlayersOpacity = v, 0);
+        b.toggle("Ghost Players", () -> config.ghostPlayers, v -> config.ghostPlayers = v)
+                .desc("Every other real player is drawn see-through, armor and held items included.");
+        b.slider("  Ghost Opacity %", 0f, 100f, () -> config.ghostPlayersOpacity, v -> config.ghostPlayersOpacity = v, 0);
         b.label("Hide Dungeon Objects");
         b.button("Toggle All Dungeon Objects", () -> {
             int on = 0, total = 12;
@@ -135,6 +141,8 @@ public final class HideCategory {
         b.info("Saves ticking them, not just drawing them");
         b.label("Combat Effects");
         b.toggle("Hide Explosions", () -> config.noExplosions, v -> config.noExplosions = v);
+        b.toggle("  Not During Chicken Racing", () -> config.noExplosionsChickenRace, v -> config.noExplosionsChickenRace = v)
+                .desc("Explosions stay visible while CHICKEN RACING shows in the action bar (Jerry's Workshop).");
         b.toggle("Hide Wither Blade Implosion", () -> config.hideImplosions, v -> config.hideImplosions = v);
         b.info("Only near players holding Hyperion/Astraea/Valkyrie/Scylla");
         b.info("Use with Hide Explosions off to keep other smoke");
@@ -149,6 +157,12 @@ public final class HideCategory {
                 .desc("Armor worn by armor stands (displays, shops) is not drawn. Heads stay.");
         b.label("Screen Overlays");
         b.toggle("Hide Fire Overlay", () -> config.noFire, v -> config.noFire = v);
+        b.toggle("  Hide Fire On All Entities", () -> config.hideEntityFire, v -> config.hideEntityFire = v)
+                .desc("Burning mobs and players are drawn without flames. Render only, nothing else changes.");
+        b.toggle("  Shrink / Fade Instead Of Hide", () -> config.fireOverlayAdjust, v -> config.fireOverlayAdjust = v)
+                .desc("Keeps the fire overlay on screen, with the height and opacity below.");
+        b.slider("    Fire Height %", 0f, 100f, () -> config.fireOverlayHeight, v -> config.fireOverlayHeight = v, 0);
+        b.slider("    Fire Opacity %", 0f, 100f, () -> config.fireOverlayOpacity, v -> config.fireOverlayOpacity = v, 0);
         b.toggle("Hide Water Overlay", () -> config.noWaterOverlay, v -> config.noWaterOverlay = v);
         b.toggle("Hide Vignette", () -> config.noVignette, v -> config.noVignette = v);
         b.toggle("Hide Blindness", () -> config.noBlind, v -> config.noBlind = v);

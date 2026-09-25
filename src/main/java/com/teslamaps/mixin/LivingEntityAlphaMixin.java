@@ -2,7 +2,11 @@ package com.teslamaps.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.teslamaps.features.CommonSeaCreatureHider;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.render.EntityAlphaHolder;
+import com.teslamaps.render.GhostRender;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -26,7 +30,20 @@ public abstract class LivingEntityAlphaMixin {
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;F)V",
             at = @At("TAIL"))
     private void teslamaps$alpha(LivingEntity entity, LivingEntityRenderState state, float pt, CallbackInfo ci) {
-        ((EntityAlphaHolder) state).teslamaps$setAlpha(CommonSeaCreatureHider.alpha(entity));
+        ((EntityAlphaHolder) state).teslamaps$setAlpha(Math.min(CommonSeaCreatureHider.alpha(entity),
+                com.teslamaps.features.HidePlayers.alpha(entity)));
+    }
+
+    @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
+            at = @At("HEAD"))
+    private void teslamaps$submitHead(LivingEntityRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera, CallbackInfo ci) {
+        GhostRender.submitting = ((EntityAlphaHolder) state).teslamaps$alpha();
+    }
+
+    @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
+            at = @At("RETURN"))
+    private void teslamaps$submitReturn(LivingEntityRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera, CallbackInfo ci) {
+        GhostRender.submitting = 255;
     }
 
     @Inject(method = "getRenderType", at = @At("HEAD"), cancellable = true)
