@@ -111,6 +111,8 @@ public class SafariTracker {
 
     // Runs are bounded by leaving, never by chat: the reward summary of the old run usually lands
     // AFTER the entry message of the new one, so it must not touch a run that is already going.
+    private static int snoozleTicks = 0;
+
     public static void tick() {
         boolean in = SafariData.inSafari();
         if (wasInSafari && !in) {
@@ -123,6 +125,7 @@ public class SafariTracker {
             checkFull();
             RecatchSpots.tick();
             SafariWalls.tick(Minecraft.getInstance());
+            if (++snoozleTicks >= 20) { snoozleTicks = 0; checkSnoozle(); }
         }
         checkSparkling(in);
         wasInSafari = in;
@@ -556,6 +559,7 @@ public class SafariTracker {
         biomeDoneAt.clear();
         biomeAlmostAt.clear();
         dexDoneAt = 0L;
+        snoozleGone = false;
         hotspot = null;
         headStart = null;
         wumpaAwake = false;
@@ -674,36 +678,60 @@ public class SafariTracker {
             if (c.rarity() == SafariData.Rarity.LEGENDARY) {
                 alert("legendary-" + c.name(), "§6§l" + c.name().toUpperCase() + " §7caught");
             }
-            TeslaMapsConfig cfg = TeslaMapsConfig.get();
-            int have = perBiome.getOrDefault(c.biome(), 0);
-            int total = SafariData.countIn(c.biome());
-            if (have >= total && biomeDoneAt.putIfAbsent(c.biome(), elapsed()) == null
-                    && cfg.safariAnnounceBiomeDone) {
-                String at = SafariHistory.time(biomeDoneAt.get(c.biome()));
-                alert("biome-" + c.biome(), c.biome().color + "§l" + c.biome().label.toUpperCase()
-                        + " §7done after §f" + at);
-                share(c.biome().label + " done after " + at);
-            }
-            // these two only spawn some runs, so their biome usually ends one short
-            String except = RARE_EXCEPT.get(c.biome());
-            if (except != null && have == total - 1 && !caughtAny.contains(except)
-                    && biomeAlmostAt.putIfAbsent(c.biome(), elapsed()) == null
-                    && cfg.safariAnnounceBiomeDone) {
-                String at = SafariHistory.time(biomeAlmostAt.get(c.biome()));
-                alert("biome-almost-" + c.biome(), c.biome().color + "§l" + c.biome().label.toUpperCase()
-                        + " §7done except §f" + except + " §7after §f" + at);
-                share(c.biome().label + " done except " + except + " after " + at);
-            }
-            if (caughtAny.size() >= SafariData.ALL.size() && dexDoneAt == 0) {
-                dexDoneAt = elapsed();
-                String at = SafariHistory.time(dexDoneAt);
-                if (cfg.safariAnnounceUniqueDone) {
-                    alert("dex-complete", "§6§lFULL DEX §7done after §f" + at
-                            + " §7- all " + SafariData.ALL.size() + " uniques");
-                    share("Full dex done after " + at);
-                }
-            }
+            checkDone(c.biome());
             if (wumpaMissing() == 0) alert("wumpa-ready", "§6§lWUMPA §7ready - 8/8 Icy critters caught");
+        }
+    }
+
+    private static boolean snoozleGone = false;
+
+    // critterMod's SessionManager.updateUnavailable feeding the done checks
+    private static void checkSnoozle() {
+        if (snoozleGone || !TeslaMapsConfig.get().safariSnoozleNone || runStart == 0) return;
+        if (caughtAny.contains("Snoozle") || nearby.getOrDefault("Snoozle", 0) > 0) return;
+        int[] w = SafariWalls.state(Minecraft.getInstance(), "Snoozle");
+        if (w == null || w[0] != 0 || w[1] != 0) return;
+        snoozleGone = true;
+        checkDone(SafariData.Biome.CAVERN);
+    }
+
+    private static boolean snoozleNone() {
+        return snoozleGone && TeslaMapsConfig.get().safariSnoozleNone && !caughtAny.contains("Snoozle");
+    }
+
+    private static void checkDone(SafariData.Biome biome) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        boolean none = biome == SafariData.Biome.CAVERN && snoozleNone();
+        String noneNote = none ? " (no Snoozle this run)" : "";
+        int caught = perBiome.getOrDefault(biome, 0);
+        int have = caught + (none ? 1 : 0);
+        int total = SafariData.countIn(biome);
+        if (have >= total && biomeDoneAt.putIfAbsent(biome, elapsed()) == null
+                && cfg.safariAnnounceBiomeDone) {
+            String at = SafariHistory.time(biomeDoneAt.get(biome));
+            alert("biome-" + biome, biome.color + "§l" + biome.label.toUpperCase()
+                    + " §7done after §f" + at);
+            share(biome.label + " done after " + at + noneNote);
+        }
+        // these two only spawn some runs, so their biome usually ends one short
+        String except = RARE_EXCEPT.get(biome);
+        if (except != null && caught == total - 1 && !caughtAny.contains(except)
+                && biomeAlmostAt.putIfAbsent(biome, elapsed()) == null
+                && cfg.safariAnnounceBiomeDone) {
+            String at = SafariHistory.time(biomeAlmostAt.get(biome));
+            alert("biome-almost-" + biome, biome.color + "§l" + biome.label.toUpperCase()
+                    + " §7done except §f" + except + " §7after §f" + at);
+            share(biome.label + " done except " + except + " after " + at);
+        }
+        boolean dexNone = snoozleNone();
+        if (caughtAny.size() + (dexNone ? 1 : 0) >= SafariData.ALL.size() && dexDoneAt == 0) {
+            dexDoneAt = elapsed();
+            String at = SafariHistory.time(dexDoneAt);
+            if (cfg.safariAnnounceUniqueDone) {
+                alert("dex-complete", "§6§lFULL DEX §7done after §f" + at
+                        + " §7- all " + SafariData.ALL.size() + " uniques");
+                share("Full dex done after " + at + (dexNone ? " (no Snoozle this run)" : ""));
+            }
         }
     }
 
@@ -787,11 +815,14 @@ public class SafariTracker {
             for (SafariData.Critter c : SafariData.ALL) {
                 if (c.biome() == b && !caughtAny.contains(c.name())) names.add(c.name());
             }
-            if (names.isEmpty()) continue;
+            boolean none = b == SafariData.Biome.CAVERN && snoozleNone() && names.remove("Snoozle");
             total += names.size();
+            if (none) names.add("Snoozle (none)");
+            if (names.isEmpty()) continue;
             parts.add(b.label + ": " + String.join(", ", names));
         }
-        if (parts.isEmpty()) return "Full dex - nothing missing (" + SafariHistory.time(elapsed()) + ")";
+        if (total == 0) return "Full dex - nothing missing (" + SafariHistory.time(elapsed()) + ")"
+                + (snoozleNone() ? " - Snoozle: none this run" : "");
 
         String line = "Missing " + total + "/" + SafariData.ALL.size() + " - " + String.join(" | ", parts);
         return line.length() <= 240 ? line : line.substring(0, 237) + "...";

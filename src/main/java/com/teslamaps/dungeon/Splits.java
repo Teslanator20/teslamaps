@@ -38,6 +38,9 @@ public class Splits {
     private static int pendingSend = 0; // ticks until end-of-run messages are sent (avoids interrupting Hypixel's run summary)
     private static String bossEntryTick;
     private static String currentLine;
+    private static String doorsLine, score300Time, score300Tick;
+    private static int scoreCalcCooldown;
+    private static final String SCORE_300 = "§e300 Score";
     private static final String BOSS_ENTRY = "§eBoss Entry";
     private static final String CURRENT_SAMPLE = "§bBlood Clear§f: 412t §8(20.6s)";
     private static com.teslamaps.registry.HudEditElement currentHud;
@@ -199,8 +202,9 @@ public class Splits {
         if (pendingSend > 0 && --pendingSend == 0) sendEndOfRun();
         TeslaMapsConfig c = cfg();
         int n = active.size();
-        if (!c.splitsEnabled || n == 0) { currentLine = null; return; }
+        if (!c.splitsEnabled || n == 0) { currentLine = null; doorsLine = null; score300Time = null; return; }
         long now = com.teslamaps.utils.ServerTickTimer.now();
+        extraRows(c, now);
         if (c.splitsTickTime) {
             Split first = active.get(0), last = active.get(n - 1);
             for (int i = 0; i < n - 1; i++) {
@@ -223,6 +227,30 @@ public class Splits {
             long t = now - cur.tick;
             currentLine = cur.name + "§f: " + t + "t §8(" + (t / 20) + "." + (t % 20 / 2) + "s)";
         } else currentLine = null;
+    }
+
+    private static void extraRows(TeslaMapsConfig c, long now) {
+        doorsLine = c.splitsWitherDoors
+                ? "§8Wither Doors: §7" + com.teslamaps.scanner.DoorScanner.countType(com.teslamaps.map.DoorType.WITHER) : null;
+        if (!c.splits300Score) { score300Time = null; return; }
+        Split first = active.get(0);
+        long at = DungeonScore.reached300Ms();
+        if (at == 0L && !finished && --scoreCalcCooldown <= 0) {
+            scoreCalcCooldown = 10;
+            DungeonScore.calculateScore();
+            at = DungeonScore.reached300Ms();
+        }
+        if (first.time == 0L) { score300Time = "§8-"; score300Tick = null; return; }
+        if (at != 0L) {
+            score300Time = formatTime(Math.max(0, at - first.time));
+            score300Tick = tickText(DungeonScore.reached300Tick() - first.tick);
+        } else if (finished) {
+            score300Time = "§8-";
+            score300Tick = null;
+        } else {
+            score300Time = "§7" + formatTime(System.currentTimeMillis() - first.time);
+            score300Tick = tickText(now - first.tick);
+        }
     }
 
     private static String tickText(long ticks) {
@@ -313,6 +341,8 @@ public class Splits {
 
         int nameCol = 0;
         for (Split split : active) nameCol = Math.max(nameCol, mc.font.width(split.name));
+        String s300 = score300Time, doors = doorsLine;
+        if (s300 != null) nameCol = Math.max(nameCol, mc.font.width(SCORE_300));
         nameCol += 6;
 
         var pose = context.pose();
@@ -329,7 +359,7 @@ public class Splits {
         boolean showDelta = config.splitsShowDelta;
         boolean showTicks = config.splitsTickTime;
         boolean bossRow = config.splitsBossEntry && hasBossEntry();
-        int rows = bossRow ? n + 1 : n;
+        int rows = (bossRow ? n + 1 : n) + (s300 != null ? 1 : 0) + (doors != null ? 1 : 0);
 
         // Widest row decides the backdrop; the times are monospaced enough that
         // the longest name plus a full time and PB is a safe upper bound.
@@ -340,8 +370,19 @@ public class Splits {
         TeslaGui.backdrop(context, 0, 0, widest, rows * 9 - 1);
 
         int y = 0;
+        if (doors != null) {
+            context.text(mc.font, doors, 0, y, 0xFFFFFFFF);
+            y += 9;
+        }
         for (int i = 0; i < n; i++) {
             Split split = active.get(i);
+            if (s300 != null && i == Math.min(3, n - 1)) {
+                context.text(mc.font, SCORE_300, 0, y, 0xFFFFFFFF);
+                context.text(mc.font, s300, nameCol, y, 0xFFFFFFFF);
+                String t3 = score300Tick;
+                if (showTicks && t3 != null) context.text(mc.font, t3, nameCol + mc.font.width(s300) + 4, y, 0xFFFFFFFF);
+                y += 9;
+            }
             if (bossRow && i == n - 1) {
                 Split boss = active.get(3);
                 String bt;
@@ -418,7 +459,8 @@ public class Splits {
     }
 
     public static int hudHeight() {
-        int rows = active.size() + (TeslaMapsConfig.get().splitsBossEntry && hasBossEntry() ? 1 : 0);
+        int rows = active.size() + (TeslaMapsConfig.get().splitsBossEntry && hasBossEntry() ? 1 : 0)
+                + (score300Time != null ? 1 : 0) + (doorsLine != null ? 1 : 0);
         return Math.max(1, rows) * 9;
     }
 
@@ -433,6 +475,7 @@ public class Splits {
         pendingSend = 0;
         bossEntryTick = null;
         currentLine = null;
+        doorsLine = score300Time = score300Tick = null;
     }
 
     private static String formatTime(long ms) {

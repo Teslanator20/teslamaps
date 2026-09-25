@@ -89,6 +89,9 @@ public final class Tracker {
     public Tracker fixedValue(String key, double coins) { fixed.put(key, coins); return this; }
     /** Display name for a key that is not an item id. */
     public Tracker name(String key, String display) { names.put(key, display); return this; }
+    /** Extra line under the rows, built on rebuild. */
+    public Tracker extra(java.util.function.Supplier<String> line) { this.extra = line; return this; }
+    private java.util.function.Supplier<String> extra;
 
     public View view() { return view; }
     public void view(View v) { this.view = v; rebuild(); }
@@ -102,7 +105,10 @@ public final class Tracker {
         markDirty();
         markActivity();
         changed = true;
-        if (!COINS.equals(key)) PriceManager.ensureFresh();
+        if (!COINS.equals(key)) {
+            PriceManager.ensureFresh();
+            if (amount > 0 && fixed.get(key) == null) com.teslamaps.features.ValuableDropWarning.onGain(key, amount);
+        }
     }
 
     public void addCoins(long coins) {
@@ -203,6 +209,8 @@ public final class Tracker {
                     + (v > 0 ? " §7- §6" + ItemPrice.format(v) : ""));
         }
         if (rows.size() > maxRows) out.add("§7+" + (rows.size() - maxRows) + " more");
+        String ex = extra == null ? null : extra.get();
+        if (ex != null) out.add(ex);
         out.add("§eProfit: §6" + ItemPrice.format(profit(view)));
         if (view == View.SESSION) {
             out.add("§eper hour: §6" + ItemPrice.format(perHour()) + (idle() && sessionStart > 0 ? " §7(paused)" : ""));

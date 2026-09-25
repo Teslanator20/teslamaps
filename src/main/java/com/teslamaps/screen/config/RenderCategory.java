@@ -99,6 +99,13 @@ public final class RenderCategory {
         b.slider("Any Drop Worth Over (Mio)", 0f, 50f,
                 () -> config.rareDropMinValue, v -> config.rareDropMinValue = v, 1);
         b.info("0 = off. Plays the effect for any RARE DROP over this value");
+        b.toggle("Valuable Drop Warning (Trackers)", () -> config.valuableDropWarn, v -> config.valuableDropWarn = v)
+                .desc("Any tracker gain or [Sacks] gain over the value, no RARE DROP line needed")
+                .tags("expensive", "item warning", "tracker");
+        b.slider("  Chat Line Over (Mio)", 0.1f, 50f,
+                () -> config.valuableDropChatValue, v -> config.valuableDropChatValue = v, 1);
+        b.slider("  Title Over (Mio, 0 = off)", 0f, 200f,
+                () -> config.valuableDropTitleValue, v -> config.valuableDropTitleValue = v, 1);
         b.label("Etherwarp");
         b.toggle("Etherwarp Guess Box", () -> config.etherwarp, v -> config.etherwarp = v);
         b.toggle("  Show When Failed", () -> config.etherwarpShowFail, v -> config.etherwarpShowFail = v);

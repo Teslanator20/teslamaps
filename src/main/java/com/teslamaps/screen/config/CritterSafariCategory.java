@@ -48,6 +48,8 @@ public final class CritterSafariCategory {
         b.info("Sparkles render at any distance and particle setting");
         b.toggle("Announce Biome Done", () -> config.safariAnnounceBiomeDone, v -> config.safariAnnounceBiomeDone = v);
         b.toggle("Announce Unique Done", () -> config.safariAnnounceUniqueDone, v -> config.safariAnnounceUniqueDone = v);
+        b.toggle("  Snoozle 'None This Run'", () -> config.safariSnoozleNone, v -> config.safariSnoozleNone = v)
+                .desc("All 5 Snoozle walls seen broken and no Snoozle caught or near: it counts as done for biome and dex");
         b.channel("Share Time", () -> config.safariShareTimeChannel, v -> config.safariShareTimeChannel = v);
         b.toggle("Warn If Not Full", () -> config.safariWarnNotFull, v -> config.safariWarnNotFull = v);
         b.info("Screen warning + sound when fewer than 4 players are in");

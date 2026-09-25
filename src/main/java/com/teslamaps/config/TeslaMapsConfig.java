@@ -2136,6 +2136,31 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w08-07-hud
+    public boolean perfHudColorCoded = false;
+    public String perfHudTpsMode = "Average";
+    public String perfHudPingMode = "Instant";
+    public boolean ghostLootCounter = false;
+    public boolean dragonLootCounter = false;
+    public int lootCounterPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    @Global
+    public int dragonsSinceSuperior = 0;
+    public int ghostLootX = 10, ghostLootY = 120;
+    public float ghostLootScale = 1.0f;
+    public int dragonLootX = 10, dragonLootY = 120;
+    public float dragonLootScale = 1.0f;
+    public boolean splitsWitherDoors = false;
+    public boolean splits300Score = false;
+    public boolean skillTrackerPauseCustom = false;
+    public java.util.Map<String, Integer> skillTrackerPauseSec = new java.util.HashMap<>();
+    public boolean tabWidgetHud = false;
+    public java.util.List<String> tabWidgetHudWidgets = new java.util.ArrayList<>();
+    public int tabWidgetHudX = 10, tabWidgetHudY = 60;
+    public float tabWidgetHudScale = 1.0f;
+    public boolean safariSnoozleNone = false;
+    public boolean valuableDropWarn = false;
+    public float valuableDropChatValue = 1f;
+    public float valuableDropTitleValue = 10f;
     // w07-04-qol
     public boolean signCalculator = false;
     public boolean signCalculatorEquals = false;
@@ -3715,6 +3740,10 @@ public class TeslaMapsConfig {
         if (c.customGlint == null) c.customGlint = new java.util.HashMap<>();
         if (c.customGlintColor == null) c.customGlintColor = new java.util.HashMap<>();
         if (c.itemNumberTypes == null) c.itemNumberTypes = new java.util.ArrayList<>();
+        if (c.skillTrackerPauseSec == null) c.skillTrackerPauseSec = new java.util.HashMap<>();
+        if (c.tabWidgetHudWidgets == null) c.tabWidgetHudWidgets = new java.util.ArrayList<>();
+        if (c.perfHudTpsMode == null) c.perfHudTpsMode = "Average";
+        if (c.perfHudPingMode == null) c.perfHudPingMode = "Instant";
         if (c.itemCycleRules == null) c.itemCycleRules = new java.util.ArrayList<>();
         c.itemCycleRules.removeIf(java.util.Objects::isNull);
         if (c.customItemModel == null) c.customItemModel = new java.util.HashMap<>();

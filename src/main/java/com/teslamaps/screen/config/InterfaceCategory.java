@@ -91,6 +91,12 @@ public final class InterfaceCategory {
                 .tags("lag", "freeze", "zzz");
         b.slider("    Lag Threshold (ms)", 50f, 1000f, () -> config.perfHudLagThreshold, v -> config.perfHudLagThreshold = v, 0);
         b.toggle("  Vertical", () -> config.perfHudVertical, v -> config.perfHudVertical = v);
+        b.toggle("  Color By Value", () -> config.perfHudColorCoded, v -> config.perfHudColorCoded = v)
+                .desc("FPS relative to your FPS limit, TPS and ping green to red");
+        b.dropdown("  TPS Value", new String[]{"Average", "Current", "Min", "Max"},
+                () -> config.perfHudTpsMode, v -> config.perfHudTpsMode = v);
+        b.dropdown("  Ping Value", new String[]{"Instant", "Median", "Mean"},
+                () -> config.perfHudPingMode, v -> config.perfHudPingMode = v);
         b.color("  Label Color", () -> config.perfHudLabelColor, v -> config.perfHudLabelColor = v);
         b.color("  Value Color", () -> config.perfHudValueColor, v -> config.perfHudValueColor = v);
         b.info("Position/scale in /tmap gui, hidden while F3 is open");

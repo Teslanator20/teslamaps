@@ -13,6 +13,33 @@ public class PingMeter {
 
     public static float getLastPingMs() { return lastRtt; }
 
+    private static final long[] samples = new long[15];
+    private static int sampleIdx, sampleCount;
+
+    public static float medianPingMs() {
+        long[] a;
+        synchronized (samples) {
+            if (sampleCount == 0) return lastRtt;
+            a = java.util.Arrays.copyOf(samples, sampleCount);
+        }
+        java.util.Arrays.sort(a);
+        int n = a.length;
+        return n % 2 == 1 ? a[n / 2] : (a[n / 2 - 1] + a[n / 2]) / 2f;
+    }
+
+    public static float meanPingMs() {
+        synchronized (samples) {
+            if (sampleCount == 0) return lastRtt;
+            long sum = 0;
+            for (int i = 0; i < sampleCount; i++) sum += samples[i];
+            return (float) sum / sampleCount;
+        }
+    }
+
+    public static void clearSamples() {
+        synchronized (samples) { sampleCount = 0; sampleIdx = 0; }
+    }
+
     public static void request() { send(0); }
 
     public static void requestToParty() { send(1); }
@@ -37,6 +64,11 @@ public class PingMeter {
         int m = mode;
         long rtt = System.currentTimeMillis() - time;
         lastRtt = rtt;
+        synchronized (samples) {
+            samples[sampleIdx] = rtt;
+            sampleIdx = (sampleIdx + 1) % samples.length;
+            if (sampleCount < samples.length) sampleCount++;
+        }
         if (m == 2) return; // silent sample
         Minecraft mc = Minecraft.getInstance();
         mc.execute(() -> {
