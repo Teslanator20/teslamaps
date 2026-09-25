@@ -2212,6 +2212,25 @@ public class TeslaMapsConfig {
     public boolean watcherChatSplits = false;
     public boolean watcherBossbarKills = false;        // "n/total" blood kills on the watcher bar
     public boolean watcherBossbarHide = false;         // hide the watcher bar outside blood
+    // w03-08-dun
+    public boolean croesusKismetCount = false;         // kismet feathers owned on the Reroll Chest button
+    public String leapBoxStyle = "Default";            // Default / Class Color / Custom
+    public String leapBoxColor = "BF3B3B3B";           // Custom box background
+    public boolean leapKeyHint = false;                // key badge on each box
+    public boolean leapClassLevel = false;             // class level next to the class
+    public boolean leapOfflineStatus = false;          // OFFLINE from head lore + chat line on dead/offline click
+    public boolean leapDoorOpenerHighlight = false;    // tint the last door opener's box
+    public String leapDoorOpenerColor = "80AA5500";
+    public boolean leapOnRelease = false;              // leap on mouse/key release
+    public boolean leapStaticQuadrants = false;        // missing classes keep their quadrant empty
+    public String leapAnnounceText = "Leaped to {name}!";
+    public boolean leapMapAfterBlood = false;          // class boxes until blood opens, then map only
+    public boolean leapMapCustomScale = false;
+    public float leapMapScale = 1.5f;
+    public boolean hideNonStarredNametags = false;     // dungeon: hide nametags of mobs without ✯
+    public boolean scoreSecretsMaxBonus = false;       // needed secrets assume 5 crypts + mimic + prince
+    public boolean scoreSecretsShowNeeded = false;     // middle number = needed total instead of still missing
+    public boolean scoreSecretsTabTotal = false;       // total from tab found/% until the scan knows every room
     // w02-06-term
     public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
     public int terminalDropKey = -1;                   // own key/mouse button that clicks the hovered terminal slot

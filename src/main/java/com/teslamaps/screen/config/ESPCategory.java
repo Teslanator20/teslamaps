@@ -27,6 +27,8 @@ public final class ESPCategory {
         b.color("  Portal S", () -> config.colorPortalS, v -> config.colorPortalS = v);
         b.color("  Portal S+", () -> config.colorPortalSPlus, v -> config.colorPortalSPlus = v);
         b.toggle("Starred Mob ESP", () -> config.starredMobESP, v -> config.starredMobESP = v);
+        b.toggle("  Hide Non-Starred Nametags", () -> config.hideNonStarredNametags, v -> config.hideNonStarredNametags = v)
+                .desc("Dungeon only: hides the name tags of mobs without a ✯ (works without the ESP too)");
         b.toggle("  Tracer When Few Left", () -> config.starredTracerWhenFew, v -> config.starredTracerWhenFew = v);
         b.slider("    Tracer Threshold", 1f, 5f,
                 () -> (float) config.starredTracerThreshold, v -> config.starredTracerThreshold = Math.round(v));

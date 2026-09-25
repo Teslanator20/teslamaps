@@ -22,6 +22,8 @@ public final class CroesusCategory {
                 .desc("Movable list of all dungeon chests by profit, in the dungeon after opening them and near Croesus. Move it in /tmap gui.");
         b.toggle("  Include Essence", () -> config.chestProfitHudEssence, v -> config.chestProfitHudEssence = v);
         b.toggle("  Compact (profit only)", () -> config.chestProfitHudCompact, v -> config.chestProfitHudCompact = v);
+        b.toggle("  Kismet Feathers On Reroll Button", () -> config.croesusKismetCount, v -> config.croesusKismetCount = v)
+                .desc("Feathers in your inventory plus your Dungeon Sack (the sack count needs 'Index Opened Containers' and the sack opened once)");
         b.toggle("Highlight Unopened (green)", () -> config.croesusHighlightUnopened, v -> config.croesusHighlightUnopened = v);
         b.label("Kuudra Chests");
         b.info("Paid chests subtract the key: coins + Mycelium/Red Sand + 2 Nether Stars");

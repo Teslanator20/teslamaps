@@ -132,6 +132,8 @@ public class LeapOverlay {
         }
 
         String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        if (!bloodOpened && (clean.contains("opened a BLOOD door!") || clean.contains("The BLOOD DOOR has been opened!")
+                || clean.startsWith("[BOSS] The Watcher:"))) bloodOpened = true;
         if (clean.contains("[BOSS] Maxor:") && clean.contains("WELL! WELL! WELL!")) {
             bossPhase = BossPhase.ARCHER;
         } else if (clean.contains("[BOSS] Maxor:") && clean.contains("YOU TRICKED ME!")) {
@@ -148,12 +150,31 @@ public class LeapOverlay {
         }
 
         Matcher m = LEAPED_PATTERN.matcher(clean);
-        if (m.find()) {
+        if (clean.startsWith("You have teleported to") && m.find()) {
             com.teslamaps.features.HidePlayers.onLeap();
             if (TeslaMapsConfig.get().leapAnnounce && mc.getConnection() != null) {
-                mc.getConnection().sendCommand("pc Leaped to " + m.group(1) + "!");
+                mc.getConnection().sendCommand("pc " + announceText(m.group(1)));
             }
         }
+    }
+
+    private static String announceText(String name) {
+        String t = TeslaMapsConfig.get().leapAnnounceText;
+        if (t == null || t.isBlank()) t = "Leaped to {name}!";
+        return t.replace("{name}", name).replace("[name]", name).replace("§", "");
+    }
+
+    private static boolean bloodOpened = false;
+
+    // map-after-blood: once blood is open the menu is just the map
+    private static boolean mapOnly() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.leapShowMap && c.leapMapAfterBlood && bloodOpened && !inBossRoom();
+    }
+
+    private static boolean mapAllowed() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.leapShowMap && (!c.leapMapAfterBlood || bloodOpened) && !inBossRoom();
     }
 
     public static void render(GuiGraphicsExtractor context, int mouseX, int mouseY) {
@@ -176,6 +197,11 @@ public class LeapOverlay {
 
         // scan every frame: chest contents arrive after the menu opens, and death states change mid-menu
         scanLeapPlayers(screen);
+        if (!menuOpen) {
+            armedLeapKeys.clear();
+            mouseArmed = false;
+            primeKeys = true;
+        }
         menuOpen = true;
 
         pollKeybinds(screen);
@@ -207,17 +233,21 @@ public class LeapOverlay {
 
         boolean wasShown = leapMapShown;
         leapMapShown = false;
-        if (TeslaMapsConfig.get().leapShowMap && DungeonManager.isInDungeon() && !inBossRoom()) {
-            float mapScale = TeslaMapsConfig.get().mapScale;
+        boolean mapOnly = mapOnly();
+        if (DungeonManager.isInDungeon() && mapAllowed()) {
+            TeslaMapsConfig lc = TeslaMapsConfig.get();
+            float mapScale = lc.leapMapCustomScale ? lc.leapMapScale : lc.mapScale;
             int mw = MapRenderer.mapW();
+            int mh = MapRenderer.mapH();
             int mapBaseX = mw > 0 ? screenWidth / 2 - mw / 2 : screenWidth / 2 - 60;
+            int mapBaseY = mapOnly && mh > 0 ? Math.max(6, screenHeight / 2 - mh / 2) : 6;
             String highlight = headHover;
-            if (link && !(wasShown && mouseInMap)) {
+            if (link && !mapOnly && !(wasShown && mouseInMap)) {
                 LeapPlayer q = leapPlayers[(mouseX >= cxs ? 1 : 0) + (mouseY >= cys ? 2 : 0)];
                 if (q != null && !q.isDead) highlight = q.name;
             }
             MapRenderer.setHighlight(highlight);
-            MapRenderer.renderAt(context, mapBaseX, 6, mapScale, true);
+            MapRenderer.renderAt(context, mapBaseX, mapBaseY, mapScale, true);
             MapRenderer.setHighlight(null);
             // snapshot now — the HUD map (if it renders this frame) overwrites MapRenderer's shared state
             leapMapX = MapRenderer.mapX(); leapMapY = MapRenderer.mapY();
@@ -225,6 +255,7 @@ public class LeapOverlay {
             leapMarkers.clear(); leapMarkers.addAll(MapRenderer.getPlayerMarkers());
             leapMapShown = true;
         }
+        if (mapOnly && leapMapShown) return;
 
         float s = TeslaMapsConfig.get().leapScale;
         float boxW = 200f * s, boxH = 75f * s;
@@ -238,7 +269,7 @@ public class LeapOverlay {
         int hoverQuad = (mouseX >= cx ? 1 : 0) + (mouseY >= cy ? 2 : 0);
         if (link && mouseInMap) hoverQuad = linkQuad;
         for (int i = 0; i < 4; i++) {
-            float target = (i == hoverQuad && leapPlayers[i] != null && !leapPlayers[i].isDead) ? 1f : 0f;
+            float target = (i == hoverQuad && leapPlayers[i] != null && !leapPlayers[i].isDead && !leapPlayers[i].offline) ? 1f : 0f;
             float step = dt / 200f;
             hoverAnim[i] += Math.signum(target - hoverAnim[i]) * Math.min(step, Math.abs(target - hoverAnim[i]));
         }
@@ -250,7 +281,7 @@ public class LeapOverlay {
             float bx = (i % 2 == 0) ? cx - xOff - boxW : cx + xOff;
             float by = (i / 2 == 0) ? cy - yOff - boxH : cy + yOff;
             float e = hoverAnim[i] * 6f * s;
-            renderPlayerBox(context, textRenderer, player, bx - e, by - e, boxW + 2 * e, boxH + 2 * e, s);
+            renderPlayerBox(context, textRenderer, player, bx - e, by - e, boxW + 2 * e, boxH + 2 * e, s, i);
             if (i == linkQuad) {
                 int x0 = (int) (bx - e), y0 = (int) (by - e), x1 = (int) (bx + boxW + e), y1 = (int) (by + boxH + e);
                 int col = CLASS_COLORS.getOrDefault(player.dungeonClass, 0xFFFFFFFF);
@@ -288,16 +319,29 @@ public class LeapOverlay {
     }
 
     private static void renderPlayerBox(GuiGraphicsExtractor context, Font textRenderer,
-                                         LeapPlayer player, float fx, float fy, float fw, float fh, float s) {
+                                         LeapPlayer player, float fx, float fy, float fw, float fh, float s, int quad) {
         int x = (int) fx, y = (int) fy, w = (int) fw, h = (int) fh;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
         int classColor = CLASS_COLORS.getOrDefault(player.dungeonClass, 0xFFFFFFFF);
-        int bg = player.isDead ? 0xBF4A1414 : 0xBF3B3B3B;
+        boolean classStyle = "Class Color".equals(c.leapBoxStyle);
+        int bg;
+        if (player.isDead) bg = 0xBF4A1414;
+        else if (classStyle) bg = (0xBF << 24) | (classColor & 0xFFFFFF);
+        else if ("Custom".equals(c.leapBoxStyle)) bg = TeslaMapsConfig.parseColor(c.leapBoxColor);
+        else bg = 0xBF3B3B3B;
+        if (classStyle && !player.isDead) classColor = 0xFFFFFFFF;
 
         // chamfered corners, closest plain fills get to Odin's rounded rect
         int r = Math.max(2, (int) (5 * s));
         context.fill(x + r, y, x + w - r, y + h, bg);
         context.fill(x, y + r, x + r, y + h - r, bg);
         context.fill(x + w - r, y + r, x + w, y + h - r, bg);
+        if (c.leapDoorOpenerHighlight && !player.isDead && player.name.equals(lastDoorOpener)) {
+            int tint = TeslaMapsConfig.parseColor(c.leapDoorOpenerColor);
+            context.fill(x + r, y, x + w - r, y + h, tint);
+            context.fill(x, y + r, x + r, y + h - r, tint);
+            context.fill(x + w - r, y + r, x + w, y + h - r, tint);
+        }
 
         int headSize = (int) (fh * 0.75f);
         int headX = x + (int) (fh * 0.125f);
@@ -321,9 +365,45 @@ public class LeapOverlay {
         }
         drawScaledText(context, textRenderer, player.name, textX, y + fh * 0.2f, nameScale, classColor);
 
-        String sub = player.isDead ? "DEAD" : (player.dungeonClass != null ? player.dungeonClass : "Unknown");
-        int subColor = player.isDead ? 0xFFFF5555 : 0xFFFFFFFF;
+        String sub = player.isDead ? "DEAD" : player.offline ? "OFFLINE"
+                : (player.dungeonClass != null ? player.dungeonClass : "Unknown")
+                + (c.leapClassLevel && player.level != null ? " " + player.level : "");
+        int subColor = player.isDead ? 0xFFFF5555 : player.offline ? 0xFFAAAAAA : 0xFFFFFFFF;
         drawScaledText(context, textRenderer, sub, textX, y + fh * 0.2f + 12f * nameScale, fh / 68f, subColor);
+
+        if (player.offline && !player.isDead) {
+            context.fill(x + r, y, x + w - r, y + h, 0x80777777);
+            context.fill(x, y + r, x + r, y + h - r, 0x80777777);
+            context.fill(x + w - r, y + r, x + w, y + h - r, 0x80777777);
+        }
+
+        if (c.leapKeyHint) {
+            int key = keyFor(quad, player);
+            if (key != -1) {
+                String label = keyLabels.computeIfAbsent(key, com.teslamaps.utils.KeyNames::display);
+                float ks = Math.max(0.6f, fh / 75f);
+                int tw = (int) (textRenderer.width(label) * ks);
+                int bx1 = x + w - r - 2, bx0 = bx1 - tw - (int) (6 * ks);
+                int by0 = y + (int) (3 * ks), by1 = by0 + (int) (12 * ks);
+                context.fill(bx0, by0, bx1, by1, 0xC0000000);
+                drawScaledText(context, textRenderer, label, bx0 + 3 * ks, by0 + 2 * ks, ks, 0xFFFFFF55);
+            }
+        }
+    }
+
+    private static final Map<Integer, String> keyLabels = new HashMap<>();
+
+    private static int keyFor(int quad, LeapPlayer p) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if ("Class".equals(c.leapKeybindMode)) {
+            if (p.dungeonClass == null) return -1;
+            return switch (p.dungeonClass) {
+                case "Archer" -> c.leapKeyArcher; case "Berserk" -> c.leapKeyBerserk; case "Healer" -> c.leapKeyHealer;
+                case "Mage" -> c.leapKeyMage; case "Tank" -> c.leapKeyTank;
+                default -> -1;
+            };
+        }
+        return switch (quad) { case 0 -> c.leapKeyTL; case 1 -> c.leapKeyTR; case 2 -> c.leapKeyBL; default -> c.leapKeyBR; };
     }
 
     private static void drawScaledText(GuiGraphicsExtractor context, Font font, String text,
@@ -337,6 +417,8 @@ public class LeapOverlay {
     }
 
     private static final Set<Integer> heldLeapKeys = new HashSet<>();
+    private static boolean primeKeys = false;
+    private static final Set<Integer> armedLeapKeys = new HashSet<>(); // pressed while the menu was open
 
     private static void pollKeybinds(ContainerScreen screen) {
         if (mc.getWindow() == null) return;
@@ -356,6 +438,7 @@ public class LeapOverlay {
         }
         pollKey(handle, c.leapKeyLastDoor, () -> leapToLastDoorOpener(screen));
         pollKey(handle, c.fastLeapKey, () -> fastLeap(screen));
+        primeKeys = false;
     }
 
     private static boolean inBossArea() {
@@ -427,13 +510,18 @@ public class LeapOverlay {
         if (key == -1) return;
         boolean down = com.teslamaps.utils.KeyNames.isDown(key);
         boolean was = heldLeapKeys.contains(key);
-        if (down && !was) action.run();
+        if (TeslaMapsConfig.get().leapOnRelease) {
+            if (primeKeys) was = down; // held before the menu opened -> never fires
+            if (!down && was && armedLeapKeys.remove(key)) action.run();
+            if (down && !was) armedLeapKeys.add(key);
+        } else if (down && !was) action.run();
         if (down) heldLeapKeys.add(key); else heldLeapKeys.remove(key);
     }
 
     private static void leapToQuadrant(ContainerScreen screen, int q) {
         LeapPlayer p = leapPlayers[q];
-        if (p == null || p.isDead) return;
+        if (p == null) return;
+        if (p.isDead || p.offline) { cannotLeap(p); return; }
         leapToPlayer(screen, p.name);
     }
 
@@ -443,14 +531,40 @@ public class LeapOverlay {
         }
     }
 
+    private static boolean mouseArmed = false;
+
     public static boolean handleClick(double mouseX, double mouseY, int button) {
         if (!shouldRender()) return false;
         if (button != 0) return false; // Only left click
 
         ContainerScreen screen = (ContainerScreen) mc.screen;
         if (screen == null) return false;
+        if (TeslaMapsConfig.get().leapOnRelease) {
+            mouseArmed = true;
+            return true;
+        }
+        return trigger(screen, mouseX, mouseY);
+    }
 
-        if (TeslaMapsConfig.get().leapShowMap && leapMapShown) {
+    public static boolean handleRelease(double mouseX, double mouseY, int button) {
+        if (!TeslaMapsConfig.get().leapOnRelease || button != 0 || !shouldRender()) { mouseArmed = false; return false; }
+        if (!mouseArmed) return true;
+        mouseArmed = false;
+        ContainerScreen screen = (ContainerScreen) mc.screen;
+        if (screen == null) return false;
+        return trigger(screen, mouseX, mouseY);
+    }
+
+    private static void cannotLeap(LeapPlayer p) {
+        TeslaMaps.debug("[LeapOverlay] Cannot leap to {}", p.name);
+        if (!TeslaMapsConfig.get().leapOfflineStatus || mc.player == null) return;
+        mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "§c[TeslaMaps] Cannot leap - " + p.name + " is " + (p.isDead ? "dead" : "offline")));
+    }
+
+    private static boolean trigger(ContainerScreen screen, double mouseX, double mouseY) {
+
+        if (leapMapShown) {
             int mx = leapMapX, my = leapMapY, mw = leapMapW, mh = leapMapH;
             boolean inMap = mw > 0 && mouseX >= mx && mouseX <= mx + mw && mouseY >= my && mouseY <= my + mh;
             List<String> targets = leapTargetNames(screen);
@@ -477,6 +591,8 @@ public class LeapOverlay {
             }
         }
 
+        if (mapOnly() && leapMapShown) return true;
+
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
         int halfWidth = screenWidth / 2;
@@ -498,8 +614,8 @@ public class LeapOverlay {
             return true; // Still consume click even if no player in quadrant
         }
 
-        if (player.isDead) {
-            TeslaMaps.debug("[LeapOverlay] Cannot leap to dead player: {}", player.name);
+        if (player.isDead || player.offline) {
+            cannotLeap(player);
             return true;
         }
 
@@ -559,8 +675,13 @@ public class LeapOverlay {
         for (DungeonPlayer dp : PlayerTracker.getPlayers()) {
             if (dp.getName() == null || dp.getName().equals(self)) continue;
             String clazz = "EMPTY".equals(dp.getDungeonClass()) ? null : dp.getDungeonClass();
-            allPlayers.add(new LeapPlayer(dp.getName(), clazz, !dp.isAlive(), -1, dp.getUuid()));
+            LeapPlayer lp = new LeapPlayer(dp.getName(), clazz, !dp.isAlive(), -1, dp.getUuid());
+            lp.level = levelText(dp.classLevel);
+            lp.offline = offlineNames.contains(dp.getName());
+            allPlayers.add(lp);
         }
+        if (TeslaMapsConfig.get().leapOfflineStatus) scanOffline(screen);
+        else offlineNames.clear();
 
         // tracker empty (e.g. Teleport to Player outside a tracked run) -> fall back to the chest heads
         if (allPlayers.isEmpty()) {
@@ -574,7 +695,68 @@ public class LeapOverlay {
             }
         }
 
+        if (TeslaMapsConfig.get().leapStaticQuadrants) addPlaceholders(allPlayers);
         sortPlayers(allPlayers);
+        for (int i = 0; i < 4; i++) if (leapPlayers[i] != null && leapPlayers[i].placeholder) leapPlayers[i] = null;
+    }
+
+    private static final String[] CLASSES = {"Archer", "Berserk", "Healer", "Mage", "Tank"};
+
+    // Devonian "static": fill missing classes with empty slots so every class keeps its quadrant
+    private static void addPlaceholders(List<LeapPlayer> players) {
+        if (players.size() >= 4) return;
+        String own = PlayerTracker.getLocalClass();
+        if (own == null || "EMPTY".equals(own)) return;
+        Set<String> have = new HashSet<>();
+        for (LeapPlayer p : players) {
+            if (p.dungeonClass == null || !have.add(p.dungeonClass)) return;
+        }
+        for (String c : CLASSES) {
+            if (c.equals(own) || have.contains(c)) continue;
+            LeapPlayer ph = new LeapPlayer("~" + c, c, false, -1, null);
+            ph.placeholder = true;
+            players.add(ph);
+        }
+    }
+
+    private static final Set<String> offlineNames = new HashSet<>();
+    private static long offlineScanMs = 0;
+
+    private static void scanOffline(ContainerScreen screen) {
+        long now = System.currentTimeMillis();
+        if (now - offlineScanMs < 250) return;
+        offlineScanMs = now;
+        offlineNames.clear();
+        for (Slot slot : screen.getMenu().slots) {
+            if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+            ItemStack stack = slot.getItem();
+            if (stack.isEmpty() || stack.getItem() != Items.PLAYER_HEAD) continue;
+            var lore = stack.get(net.minecraft.core.component.DataComponents.LORE);
+            if (lore == null) continue;
+            for (var line : lore.lines()) {
+                if (line.getString().toLowerCase(Locale.ROOT).contains("offline")) {
+                    String n = headName(stack);
+                    if (n != null) offlineNames.add(n);
+                    break;
+                }
+            }
+        }
+    }
+
+    private static final Map<String, String> levelCache = new HashMap<>();
+
+    private static String levelText(String roman) {
+        if (roman == null || roman.isEmpty()) return null;
+        return levelCache.computeIfAbsent(roman, LeapOverlay::romanToText);
+    }
+
+    private static String romanToText(String r) {
+        int total = 0, prev = 0;
+        for (int i = r.length() - 1; i >= 0; i--) {
+            int v = switch (r.charAt(i)) { case 'I' -> 1; case 'V' -> 5; case 'X' -> 10; case 'L' -> 50; default -> 0; };
+            if (v < prev) total -= v; else { total += v; prev = v; }
+        }
+        return String.valueOf(total);
     }
 
     private static int classOrder(String c) {
@@ -641,6 +823,10 @@ public class LeapOverlay {
         crystalCount = 0;
         berserkScheduledMs = 0L;
         lastDoorOpener = null;
+        bloodOpened = false;
+        offlineNames.clear();
+        mouseArmed = false;
+        armedLeapKeys.clear();
     }
 
     private static class LeapPlayer {
@@ -649,6 +835,9 @@ public class LeapOverlay {
         final boolean isDead;
         final int slotId;
         final UUID uuid;
+        String level;
+        boolean offline;
+        boolean placeholder;
 
         LeapPlayer(String name, String dungeonClass, boolean isDead, int slotId, UUID uuid) {
             this.name = name;

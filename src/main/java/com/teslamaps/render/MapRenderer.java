@@ -190,19 +190,21 @@ public class MapRenderer {
         }
         double secretsPercent = infoSecretsPercent;
 
+        int total = DungeonScore.totalSecrets(totalSecrets, infoSecretsFound, secretsPercent);
         int foundSecretsOverall = infoSecretsFound;
         if (foundSecretsOverall < 0) {
-            foundSecretsOverall = (int) Math.round(totalSecrets * secretsPercent / 100.0);
+            foundSecretsOverall = (int) Math.round(total * secretsPercent / 100.0);
         }
 
         int cryptsFound = infoCryptsFound;
         int crypts = cryptsFound < 0 ? 0 : cryptsFound;
         double neededSecretsPercent = DungeonScore.getNeededSecretsPercentFor300(crypts);
-        int neededSecretsOverall = (int) Math.ceil(totalSecrets * neededSecretsPercent / 100.0);
+        int neededSecretsOverall = (int) Math.ceil(total * neededSecretsPercent / 100.0);
 
         int remainingSecrets = Math.max(0, neededSecretsOverall - foundSecretsOverall);
+        int shownNeeded = config.scoreSecretsShowNeeded ? neededSecretsOverall : remainingSecrets;
 
-        String secretsText = secretsText(secretsPercent >= 0, foundSecretsOverall, remainingSecrets, totalSecrets);
+        String secretsText = secretsText(secretsPercent >= 0, foundSecretsOverall, shownNeeded, total);
 
         int secretsColor = (remainingSecrets == 0) ? 0xFF55FF55 : 0xFFFFFFFF;
         context.text(textRenderer, secretsText, 4, 2, secretsColor);
@@ -792,7 +794,7 @@ public class MapRenderer {
         drawPrinceIcon(context, room, baseX, baseY, scale);
     }
 
-    private static boolean runHasPrinceRoom() {
+    public static boolean runHasPrinceRoom() {
         for (DungeonRoom room : DungeonManager.getGrid().getAllRooms()) {
             if (room.getRoomData() != null && room.getRoomData().getPrince()) return true;
         }

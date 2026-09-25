@@ -126,5 +126,7 @@ final class Features {
         com.teslamaps.dungeon.WatcherBar.register();
         com.teslamaps.dungeon.DragonExtras.register();
         com.teslamaps.features.LividSolver.register();
+        // w03-08-dun
+        com.teslamaps.features.NonStarredNametags.register();
     }
 }
