@@ -55,8 +55,8 @@ final class CoreFeatures {
     }
 
     private static void hud() {
-        HudElementRegistry.addFirst(Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, "darkmode_under"), Perf.hud("darkmode_under", (g, d) -> com.teslamaps.features.DarkMode.renderUnderHud(g)));
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, "darkmode_over"), Perf.hud("darkmode_over", (g, d) -> com.teslamaps.features.DarkMode.renderOverHud(g)));
+        HudElementRegistry.addFirst(Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, "darkmode_under"), Perf.hud("darkmode_under", (g, d) -> { if (!com.teslamaps.features.GlobalRender.off()) com.teslamaps.features.DarkMode.renderUnderHud(g); }));
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, "darkmode_over"), Perf.hud("darkmode_over", (g, d) -> { if (!com.teslamaps.features.GlobalRender.off()) com.teslamaps.features.DarkMode.renderOverHud(g); }));
 
         Feature.of("Map").section("Map").hudForeground("map", MapRenderer::render);
         Feature.of("SkillTracker").section("Skills").hudForeground("skilltracker", com.teslamaps.features.SkillTracker::render);
@@ -100,23 +100,23 @@ final class CoreFeatures {
         Feature.of("BloodCamp").section("Blood Camp").hud("bloodcamp", com.teslamaps.dungeon.BloodCamp::render);
 
         HudElementRegistry.replaceElement(VanillaHudElements.MOB_EFFECTS, original ->
-                (ctx, delta) -> { if (!cfg().noEffects) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!cfg().noEffects || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.ARMOR_BAR, original ->
-                (ctx, delta) -> { if (!cfg().hideArmorBar) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!cfg().hideArmorBar || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.FOOD_BAR, original ->
-                (ctx, delta) -> { if (!cfg().hideHungerBar) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!cfg().hideHungerBar || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, original ->
-                (ctx, delta) -> { if (!cfg().hideHealthBar) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!cfg().hideHealthBar || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.AIR_BAR, original ->
-                (ctx, delta) -> { if (!cfg().hideAirBar) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!cfg().hideAirBar || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.MOUNT_HEALTH, original ->
-                (ctx, delta) -> { if (!cfg().hideMountHealth) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!cfg().hideMountHealth || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.BOSS_BAR, original ->
-                (ctx, delta) -> { if (!cfg().hideBossBar) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!cfg().hideBossBar || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.INFO_BAR, original ->
-                (ctx, delta) -> { if (!cfg().hideXpBar) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!cfg().hideXpBar || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
         HudElementRegistry.replaceElement(VanillaHudElements.EXPERIENCE_LEVEL, original ->
-                (ctx, delta) -> { if (!cfg().hideXpBar) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!cfg().hideXpBar || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
     }
 
     private static void world() {

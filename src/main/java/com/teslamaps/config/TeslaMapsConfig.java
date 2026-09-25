@@ -2172,6 +2172,15 @@ public class TeslaMapsConfig {
     public boolean stHealthBarOver = true, stManaBarOver = true;
     public boolean stHealthBarReverse = false, stManaBarReverse = false;
     public String safariShowWhere = "Auto";
+    // w12-03-perf
+    public boolean suppressLogSpam = false;
+    public boolean hypixelModApi = false;
+    public boolean hideFarEntities = false;
+    public int hideFarEntitiesMinDistance = 10;
+    public int hideFarEntitiesMaxAmount = 30;
+    public boolean irisCompat = false;
+    public boolean espInstancing = false;
+    public boolean mapTextureCache = false;
     // w12-06-eco
     public boolean bzTracker = false;
     public int bzTrackerMaxOrders = 10;

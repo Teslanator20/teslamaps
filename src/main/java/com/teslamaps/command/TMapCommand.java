@@ -943,6 +943,10 @@ public class TMapCommand {
                 .then(sackFill("dd", "DUNGEON_DECOY", 64))
                 .then(sackFill("tap", "TOXIC_ARROW_POISON", 64))
                 .then(sackFill("twap", "TWILIGHT_ARROW_POISON", 64))
+                .then(ClientCommands.literal("rendertoggle").executes(context -> {
+                    com.teslamaps.features.GlobalRender.toggle();
+                    return 1;
+                }))
                 .then(ClientCommands.literal("perf")
                         .executes(context -> perfReport(context.getSource()))
                         .then(ClientCommands.literal("on").executes(context -> {

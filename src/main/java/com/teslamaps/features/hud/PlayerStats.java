@@ -95,7 +95,7 @@ public final class PlayerStats {
                             .desc("Drag bars to move, drag the right edge for width, right-click for color, text, direction, max/overflow and on/off.");
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, original ->
-                (ctx, delta) -> { if (!hideHearts()) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!hideHearts() || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
     }
 
     private static boolean hideHearts() {

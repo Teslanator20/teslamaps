@@ -62,7 +62,7 @@ public final class FancyTabHud {
                     b.keybind("  Hold For Vanilla Tab", () -> c.fancyTabVanillaKey, v -> c.fancyTabVanillaKey = v);
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.PLAYER_LIST, original ->
-                (ctx, delta) -> { if (!replacing()) original.extractRenderState(ctx, delta); else render(ctx); });
+                (ctx, delta) -> { if (!replacing() || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); else render(ctx); });
     }
 
     private static boolean replacing() {

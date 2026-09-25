@@ -83,7 +83,7 @@ public final class CustomScoreboard {
                             .tags("season", "date", "sidebar");
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.SCOREBOARD, original ->
-                (ctx, delta) -> { if (!on()) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!on() || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
     }
 
     private static void tick() {

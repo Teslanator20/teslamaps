@@ -64,7 +64,7 @@ public final class VanillaManaBar {
                     b.toggle("  Use Hunger Sprites", () -> c.vanillaManaBarHungerSprites, v -> c.vanillaManaBarHungerSprites = v);
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.FOOD_BAR, original ->
-                (g, d) -> { if (!active()) original.extractRenderState(g, d); });
+                (g, d) -> { if (!active() || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(g, d); });
     }
 
     /** Raw action bar text, main thread. "800/1,355✎ Mana     400ʬ" */

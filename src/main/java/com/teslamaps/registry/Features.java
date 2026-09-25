@@ -519,6 +519,9 @@ final class Features {
         // w12-00-gui
         com.teslamaps.features.customize.ModifyIndicator.register();
         com.teslamaps.features.QuickModSwitch.register();
+        // w12-03-perf
+        com.teslamaps.features.PerfOptions.register();
+        com.teslamaps.features.HideFarEntities.register();
         // w12-06-eco
         com.teslamaps.features.bazaar.BazaarOrderTracker.register();
         com.teslamaps.features.bazaar.PurchaseGuard.register();

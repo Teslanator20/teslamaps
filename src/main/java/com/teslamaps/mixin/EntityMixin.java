@@ -13,6 +13,7 @@ public class EntityMixin {
 
     @Inject(method = "isCurrentlyGlowing", at = @At("HEAD"), cancellable = true)
     private void injectIsGlowing(CallbackInfoReturnable<Boolean> cir) {
+        if (com.teslamaps.features.GlobalRender.off()) return;
         Entity self = (Entity) (Object) this;
 
         if (com.teslamaps.config.TeslaMapsConfig.get().showGlow && StarredMobESP.shouldGlow(self)) {
@@ -32,6 +33,7 @@ public class EntityMixin {
 
     @Inject(method = "getTeamColor", at = @At("HEAD"), cancellable = true)
     private void getCustomGlowColor(CallbackInfoReturnable<Integer> cir) {
+        if (com.teslamaps.features.GlobalRender.off()) return;
         Entity self = (Entity) (Object) this;
 
         int color = StarredMobESP.getGlowColor(self);
