@@ -67,5 +67,13 @@ final class Features {
         com.teslamaps.features.croesus.KuudraKeys.register();
         com.teslamaps.features.pets.PetStore.register();
         com.teslamaps.features.pets.PetOverlay.register();
+        // w02-07-boss
+        com.teslamaps.features.TerminalWaypoints.register();
+        com.teslamaps.features.FireFreezeTimer.register();
+        com.teslamaps.features.GuardianHealth.register();
+        com.teslamaps.features.DimensionalSlash.register();
+        com.teslamaps.features.F7Titles.register();
+        com.teslamaps.features.F7BossSounds.register();
+        com.teslamaps.features.DragonRecolor.register();
     }
 }

@@ -52,6 +52,9 @@ public final class TimersCategory {
         b.toggle("Death Tick Timer (run start)", () -> config.deathTickTimer, v -> config.deathTickTimer = v);
         b.toggle("Livid Invuln Timer (F5/M5)", () -> config.lividTimerHud, v -> config.lividTimerHud = v);
         b.toggle("  Ice Spray Alert", () -> config.lividIceSprayAlert, v -> config.lividIceSprayAlert = v);
+        b.toggle("Fire Freeze Timer (F3/M3)", () -> config.fireFreezeTimer, v -> config.fireFreezeTimer = v);
+        b.toggle("  Anvil Sound on NOW", () -> config.fireFreezeSound, v -> config.fireFreezeSound = v);
+        b.toggle("Guardian HP Labels (F3/M3)", () -> config.guardianHealth, v -> config.guardianHealth = v);
         b.toggle("Bossbar Health (❤)", () -> config.bossbarHealth, v -> config.bossbarHealth = v);
         b.dropdown("Timer Format",
                 new String[]{"Seconds", "Ticks", "Both"}, () -> config.tickTimerFormat, v -> config.tickTimerFormat = v);

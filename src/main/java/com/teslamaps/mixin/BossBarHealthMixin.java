@@ -16,4 +16,13 @@ public class BossBarHealthMixin {
     private Component teslamaps$appendHealth(LerpingBossEvent instance, Operation<Component> original) {
         return BossBarHealth.onRender(instance, original.call(instance));
     }
+
+    @SuppressWarnings("unchecked")
+    @WrapOperation(method = "extractRenderState",
+            at = @At(value = "INVOKE", target = "Ljava/util/Map;values()Ljava/util/Collection;"))
+    private java.util.Collection<?> teslamaps$hideBars(java.util.Map<?, ?> map, Operation<java.util.Collection<?>> original) {
+        java.util.Collection<?> all = original.call(map);
+        if (!com.teslamaps.config.TeslaMapsConfig.get().dragonHideBossbars) return all;
+        return com.teslamaps.features.DragonRecolor.filterBars((java.util.Collection<LerpingBossEvent>) all);
+    }
 }

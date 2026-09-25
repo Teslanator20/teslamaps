@@ -19,12 +19,16 @@ public class NoSoundsMixin {
 
     @Inject(method = "handleSoundEvent", at = @At("HEAD"), cancellable = true)
     private void teslamaps$muteSounds(ClientboundSoundPacket packet, CallbackInfo ci) {
+        if (com.teslamaps.features.F7BossSounds.onSound(packet.getSound(), packet.getSource(), packet.getVolume(), packet.getPitch(),
+                packet.getX(), packet.getY(), packet.getZ(), -1)) { ci.cancel(); return; }
         process(packet.getSound().value(), packet.getVolume(), packet.getPitch(), ci);
         com.teslamaps.features.SecretClickHighlight.onSound(packet.getSound().value(), packet.getVolume(), packet.getX(), packet.getY(), packet.getZ());
     }
 
     @Inject(method = "handleSoundEntityEvent", at = @At("HEAD"), cancellable = true)
     private void teslamaps$muteEntitySounds(ClientboundSoundEntityPacket packet, CallbackInfo ci) {
+        if (com.teslamaps.features.F7BossSounds.onSound(packet.getSound(), packet.getSource(), packet.getVolume(), packet.getPitch(),
+                0, 0, 0, packet.getId())) { ci.cancel(); return; }
         process(packet.getSound().value(), packet.getVolume(), packet.getPitch(), ci);
     }
 

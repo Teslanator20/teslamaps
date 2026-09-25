@@ -79,6 +79,7 @@ public final class ESPCategory {
         b.toggle("  Livid Dead Message (/pc)", () -> config.lividDeathMessage, v -> config.lividDeathMessage = v);
         b.toggle("  Keep Wrong Livids Visible", () -> config.lividShowWrong, v -> config.lividShowWrong = v).legit();
         b.toggle("  Hide Wrong Livid Nametags", () -> config.lividHideWrongNametags, v -> config.lividHideWrongNametags = v).legit();
+        b.toggle("  Skin Detection (learns Livid skins)", () -> config.lividSkinDetection, v -> config.lividSkinDetection = v);
         b.label("Mimic");
         b.toggle("Mimic Chest ESP", () -> config.mimicChestESP, v -> config.mimicChestESP = v);
         b.toggle("  Mimic Chest Tracers", () -> config.mimicChestTracers, v -> config.mimicChestTracers = v);
