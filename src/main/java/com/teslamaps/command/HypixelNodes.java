@@ -51,6 +51,14 @@ public class HypixelNodes {
         if (name.equals("gfs") || name.equals("getfromsacks")) return sacks(name);
         if (name.equals("warp")) return greedy(name, HypixelSuggestions::warps);
         if (name.equals("call")) return greedy(name, HypixelSuggestions::contacts);
+        if (name.equals("viewrecipe") && com.teslamaps.features.CommandHelpers.viewRecipeTabEnabled()) {
+            return literal(name)
+                    .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument(
+                                    "item", StringArgumentType.greedyString())
+                            .suggests((context, builder) -> com.teslamaps.features.CommandHelpers.suggestItems(builder))
+                            .executes(NOOP))
+                    .build();
+        }
 
         if (PLAYER_AND_TEXT.contains(name)) {
             return literal(name)

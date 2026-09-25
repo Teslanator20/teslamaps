@@ -2130,6 +2130,15 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w06-00-qol
+    public boolean commandHelpers = false;
+    public boolean cmdWarpIs = true;
+    public boolean cmdViewRecipe = true;
+    public boolean cmdViewRecipeTab = true;
+    public boolean coopAddConfirm = false;
+    public boolean coopRequestBlock = true;
+    public boolean stopMovingOnDeath = false;
+    public boolean alwaysShowItemName = false;
     // w05-02-inv
     public boolean menuSlotText = false;
     public boolean mstLevels = true;
