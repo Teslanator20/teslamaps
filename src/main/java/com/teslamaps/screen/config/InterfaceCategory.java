@@ -201,6 +201,10 @@ public final class InterfaceCategory {
         b.label("Profile Viewer");
         b.toggle("Scroll Long Pages", () -> config.pvScrollPages, v -> config.pvScrollPages = v);
         b.info("Full size text with a scrollbar instead of shrinking the page");
+        b.toggle("Sacks Tab", () -> config.pvSacks, v -> config.pvSacks = v)
+                .desc("Adds the sack contents with their bazaar value to the Inventories page");
+        b.toggle("Hunting Page", () -> config.pvHunting, v -> config.pvHunting = v)
+                .desc("Attribute levels and the Hunting Box of the viewed player");
         b.label("Updates");
         b.toggle("Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v);
         b.toggle("  Show Changelog", () -> config.updateChangelog, v -> config.updateChangelog = v);
