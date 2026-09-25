@@ -49,6 +49,7 @@ public class Customize {
                 || !config.customHelmetTextures.isEmpty()
                 || !config.customAnimatedHelmetTextures.isEmpty()
                 || !config.customGlint.isEmpty()
+                || !config.customGlintColor.isEmpty()
                 || !config.customItemModel.isEmpty()
                 || !config.customArmorModel.isEmpty();
         onSkyblock = anyCustomization && SkyblockUtils.isInSkyblock();
@@ -86,6 +87,7 @@ public class Customize {
         config.customHelmetTextures.remove(uuid);
         config.customAnimatedHelmetTextures.remove(uuid);
         config.customGlint.remove(uuid);
+        config.customGlintColor.remove(uuid);
         config.customItemModel.remove(uuid);
         config.customArmorModel.remove(uuid);
         refresh();
@@ -101,6 +103,7 @@ public class Customize {
         config.customHelmetTextures.clear();
         config.customAnimatedHelmetTextures.clear();
         config.customGlint.clear();
+        config.customGlintColor.clear();
         config.customItemModel.clear();
         config.customArmorModel.clear();
         refresh();

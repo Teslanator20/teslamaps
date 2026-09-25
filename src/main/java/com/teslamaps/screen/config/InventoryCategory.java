@@ -231,6 +231,8 @@ public final class InventoryCategory {
         b.toggle("  Block Drop Right After Slot Switch", () -> config.itemProtectionSwitchGuard, v -> config.itemProtectionSwitchGuard = v)
                 .desc("A Q within 200ms after scrolling onto a protected hotbar item is always blocked");
         b.toggle("  Also Block NPC Selling", () -> config.itemProtectionRaritySell, v -> config.itemProtectionRaritySell = v);
+        b.toggle("  Always Protect Starred Items", () -> config.itemProtectionStarred, v -> config.itemProtectionStarred = v)
+                .desc("Any item with stars counts as valuable, even without price data.");
         b.toggle("Protect Single Items", () -> config.itemProtectionUuid, v -> config.itemProtectionUuid = v);
         b.keybind("  Protect Key (over slot)", () -> config.itemProtectionKey, v -> config.itemProtectionKey = v);
         b.info("Or /tmap protect for the held item. Lock icon, blocks drop, salvage, trade, AH, shops");
@@ -274,6 +276,8 @@ public final class InventoryCategory {
                 })
                 .desc("Stackable items get their item id (+ timestamp) as key, so the change shows on every copy of that item");
         b.info("/tmap customize rename|dye|trim|glint|model|reset ... acts on the held item");
+        b.toggle("  Glint Colors", () -> config.customGlintColors, v -> config.customGlintColors = v)
+                .desc("Adds a glint color field to the Item tab of the customize screen.");
         b.toggle("Axes In 1.8 Look", () -> config.revertAxes, v -> config.revertAxes = v)
                 .desc("Ragnarock and Daedalus Axe render as a golden axe, Axe of the Shredded as a diamond axe. Visual only.");
         b.toggle("  Migrate Renamed Item Models", () -> config.migrateItemModels, v -> config.migrateItemModels = v);

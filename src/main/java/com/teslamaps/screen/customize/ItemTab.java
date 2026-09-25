@@ -33,6 +33,8 @@ public class ItemTab extends GridLayoutTab {
     private final CustomizeScreen parentScreen;
     private final CustomizeNameWidget nameWidget;
     private final Button glintButton;
+    private final net.minecraft.client.gui.components.EditBox glintColorField;
+    private boolean loadingColor;
     private final IdentifierTextField modelField;
 
     private ItemStack currentItem = ItemStack.EMPTY;
@@ -57,6 +59,21 @@ public class ItemTab extends GridLayoutTab {
             CustomizeScreen.updated();
         }).width(Button.SMALL_WIDTH).build();
 
+        glintColorField = new net.minecraft.client.gui.components.EditBox(Minecraft.getInstance().font, 120, 20, Component.empty());
+        glintColorField.setMaxLength(7);
+        glintColorField.setHint(Component.literal("Glint color (hex)").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY));
+        glintColorField.setResponder(text -> {
+            String uuid = Customize.uuid(currentItem);
+            if (uuid.isEmpty() || loadingColor) return;
+            String hex = text.startsWith("#") ? text.substring(1) : text;
+            if (hex.isEmpty()) {
+                if (TeslaMapsConfig.get().customGlintColor.remove(uuid) != null) CustomizeScreen.updated();
+            } else if (hex.matches("[0-9a-fA-F]{6}")) {
+                TeslaMapsConfig.get().customGlintColor.put(uuid, hex.toUpperCase(java.util.Locale.ROOT));
+                CustomizeScreen.updated();
+            }
+        });
+
         modelField = new IdentifierTextField(120, 20, identifier -> {
             String uuid = Customize.uuid(currentItem);
             if (uuid.isEmpty()) return;
@@ -73,6 +90,7 @@ public class ItemTab extends GridLayoutTab {
 
         LinearLayout column = layout.addChild(LinearLayout.vertical(), 0, 1, p -> p.alignHorizontallyRight().paddingRight(3).paddingVertical(3));
         column.addChild(glintButton);
+        if (TeslaMapsConfig.get().customGlintColors) column.addChild(glintColorField, p -> p.paddingTop(4));
         column.addChild(Button.builder(Component.translatable("teslamaps.customize.item.selectModel"), b -> {
             Minecraft minecraft = Minecraft.getInstance();
             minecraft.setScreen(new ModelSelectionPopup(parentScreen, model -> {
@@ -122,6 +140,10 @@ public class ItemTab extends GridLayoutTab {
         Boolean glint = TeslaMapsConfig.get().customGlint.get(uuid);
         glintState = glint == null ? TriState.DEFAULT : (glint ? TriState.TRUE : TriState.FALSE);
         glintButton.setMessage(getGlintText());
+        String color = TeslaMapsConfig.get().customGlintColor.get(uuid);
+        loadingColor = true;
+        glintColorField.setValue(color == null ? "" : color);
+        loadingColor = false;
     }
 
     /** The item the reset buttons act on, empty when nothing here can be edited. */

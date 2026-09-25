@@ -251,5 +251,11 @@ final class Features {
         // w05-05-inv
         com.teslamaps.features.DevTools.register();
         com.teslamaps.features.HideNotClickable.register();
+        // w05-06-inv
+        com.teslamaps.features.SackApi.register();
+        com.teslamaps.features.ItemNumbers.register();
+        com.teslamaps.features.mining.HotmPerks.register();
+        com.teslamaps.features.GemstoneBuffs.register();
+        com.teslamaps.features.ItemCycle.register();
     }
 }

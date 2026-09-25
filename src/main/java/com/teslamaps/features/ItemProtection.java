@@ -38,6 +38,7 @@ public class ItemProtection {
         if (stack == null || stack.isEmpty()) return false;
         if (uuidProtected(stack)) return true;
         if (!TeslaMapsConfig.get().itemProtection) return false;
+        if (TeslaMapsConfig.get().itemProtectionStarred && starred(stack)) return true;
         return EstimatedValue.compute(stack) * stack.getCount() >= threshold();
     }
 
@@ -127,6 +128,14 @@ public class ItemProtection {
     private static boolean hotbarSlot(net.minecraft.world.inventory.Slot slot) {
         return slot != null && slot.container instanceof net.minecraft.world.entity.player.Inventory
                 && slot.getContainerSlot() >= 0 && slot.getContainerSlot() < 9;
+    }
+
+    // Devonian's ProtectStarredItems
+    private static boolean starred(ItemStack stack) {
+        net.minecraft.world.item.component.CustomData d = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+        if (d == null) return false;
+        net.minecraft.nbt.CompoundTag t = d.copyTag();
+        return t.contains("upgrade_level") || t.contains("dungeon_item_level");
     }
 
     // ---------------------------------------------------------------- per-item (uuid)

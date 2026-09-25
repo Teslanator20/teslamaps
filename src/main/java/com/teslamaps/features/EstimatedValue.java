@@ -948,7 +948,7 @@ public class EstimatedValue {
             1_000_000_000_000_000_000L, "E"));
 
     /** SkyHanni's compact format, taken from the same StackOverflow answer (CC BY-SA 3.0). */
-    private static String shortFormat(double input) {
+    public static String shortFormat(double input) {
         if (Math.abs(input) < 1) return String.valueOf(Math.round(input * 10.0) / 10.0);
         long value = (long) input;
         if (value < 0) return "-" + shortFormat(-value);
