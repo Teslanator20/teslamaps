@@ -29,6 +29,12 @@ public class ContainerOverlays {
             com.teslamaps.debug.Perf.end();
         }
 
+        if (com.teslamaps.features.TradeValue.shouldRender()) {
+            com.teslamaps.debug.Perf.begin("TradeValue.render");
+            com.teslamaps.features.TradeValue.render(context);
+            com.teslamaps.debug.Perf.end();
+        }
+
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Shards")) {
             com.teslamaps.debug.Perf.begin("ShardOverlay.render");
             com.teslamaps.features.hunting.ShardOverlay.renderMenuExtras(context);

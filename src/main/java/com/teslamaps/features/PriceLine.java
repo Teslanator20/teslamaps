@@ -61,6 +61,17 @@ public class PriceLine {
             Double bin = PriceManager.lowestBinOrNull(id);
             if (bin != null && bin > 0) rows.add(new Row("Lowest BIN", bin));
         }
+        String avg = c.priceLineAvgBin;
+        if (!onBazaar && avg != null && !avg.equals("Off")) {
+            if (!avg.equals("3 Day")) {
+                Double a1 = PriceManager.avgBinOrNull(id, 1);
+                if (a1 != null && a1 > 0) rows.add(new Row("1 Day Avg. BIN", a1));
+            }
+            if (!avg.equals("1 Day")) {
+                Double a3 = PriceManager.avgBinOrNull(id, 3);
+                if (a3 != null && a3 > 0) rows.add(new Row("3 Day Avg. BIN", a3));
+            }
+        }
         if (c.priceLineOrders) {
             Double order = PriceManager.bazaarBuyOrderOrNull(id);
             Double offer = PriceManager.bazaarSellOfferOrNull(id);
@@ -75,14 +86,25 @@ public class PriceLine {
             Double craft = CraftCost.costOrNull(id, PriceManager.SOURCE_BAZAAR_BUY);
             if (craft != null && craft > 0) rows.add(new Row("Raw Craft Cost", craft));
         }
-        if (rows.isEmpty()) return List.of();
+        String volume = c.priceLineVolume && onBazaar ? volume(id) : null;
+        if (rows.isEmpty() && volume == null) return List.of();
 
-        if (c.priceLineEach) return columns(rows, stack.getCount());
-
-        int count = shift ? 1 : stack.getCount();
-        List<String> out = new ArrayList<>(rows.size());
-        for (Row r : rows) out.add(line(r.label(), r.unit(), count));
+        List<String> out;
+        if (c.priceLineEach) out = new ArrayList<>(columns(rows, stack.getCount()));
+        else {
+            int count = shift ? 1 : stack.getCount();
+            out = new ArrayList<>(rows.size() + 1);
+            for (Row r : rows) out.add(line(r.label(), r.unit(), count));
+        }
+        if (volume != null) out.add(volume);
         return out;
+    }
+
+    private static String volume(String id) {
+        Long buys = PriceManager.bazaarWeekBuysOrNull(id), sells = PriceManager.bazaarWeekSellsOrNull(id);
+        if (buys == null && sells == null) return null;
+        return "§7Weekly Volume: §a" + EstimatedValue.shortFormat(buys == null ? 0 : buys) + " §7insta-buys, §c"
+                + EstimatedValue.shortFormat(sells == null ? 0 : sells) + " §7insta-sells";
     }
 
     private static String line(String label, double unit, int count) {
