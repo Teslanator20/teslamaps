@@ -1,6 +1,6 @@
 package com.teslamaps.features.mining;
 
-// Ported from Skyblocker's MetalDetector; all-tools alert + mute after SkyHanni's MetalDetectorAllToolsAlert/MetalDetectorMute
+// Ported from Skyblocker's MetalDetector; all-tools alert after SkyHanni's MetalDetectorAllToolsAlert
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.waypoints.WaypointSet;
@@ -83,7 +83,6 @@ public final class MetalDetectorSolver {
                             .tags("metal detector", "divan", "treasure", "crystal hollows", "automaton");
                     b.toggle("  All Tools Alert", () -> c.metalDetectorAllTools, v -> c.metalDetectorAllTools = v)
                             .desc("ALL TOOLS title once all four Divan tools are in your inventory; the solver stops then");
-                    b.toggle("  Mute Detector Sound", () -> c.metalDetectorMute, v -> c.metalDetectorMute = v);
                 });
     }
 
@@ -201,14 +200,6 @@ public final class MetalDetectorSolver {
             alertedTools = true;
             LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 2f);
         }
-    }
-
-    /** From SoundMutes: the detector's harp beep while holding it in the Mines of Divan. */
-    public static boolean mute(String id) {
-        if (!cfg().metalDetectorMute || !inDivan || !id.equals("minecraft:block.note_block.harp")) return false;
-        if (feature == null || !feature.active()) return false;
-        Minecraft mc = Minecraft.getInstance();
-        return mc.player != null && DETECTOR.equals(ItemUtil.skyblockId(mc.player.getMainHandItem()));
     }
 
     private static void render(PoseStack pose, Vec3 cam) {

@@ -2172,7 +2172,6 @@ public class TeslaMapsConfig {
     public long skyMallDay = -1;
     public boolean metalDetectorSolver = false;
     public boolean metalDetectorAllTools = true;
-    public boolean metalDetectorMute = false;
     public boolean drillFuelDisplay = false;
     public boolean drillFuelBars = true;
     public boolean drillFuelHud = true;
