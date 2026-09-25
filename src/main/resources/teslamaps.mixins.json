@@ -3,6 +3,7 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "TitleStackMixin",
     "PauseScreenMixin",
     "FocusLossMixin",
     "WindowTitleMixin",

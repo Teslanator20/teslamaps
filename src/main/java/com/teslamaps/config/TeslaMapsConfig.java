@@ -2136,6 +2136,41 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w08-04-hud
+    public boolean profileInfoHud = false;
+    public boolean profileInfoType = true;
+    public boolean profileInfoName = false;
+    public boolean profileInfoLevel = true;
+    public int profileInfoX = 5;
+    public int profileInfoY = 160;
+    public float profileInfoScale = 1.0f;
+    public boolean sbLevelXpBar = false;
+    public boolean titleStack = false;
+    public boolean titleStackUp = false;
+    public boolean titleStackClearOnWorld = true;
+    public int titleStackX = 110;
+    public int titleStackY = 60;
+    public float titleStackScale = 1.0f;
+    public boolean springBootsHeight = false;
+    public boolean springBootsBox = true;
+    public int springBootsX = 5;
+    public int springBootsY = 200;
+    public float springBootsScale = 1.0f;
+    public boolean safariQuotas = false;
+    public boolean dailyTimers = false;
+    public String dailyTimersShow = "Always";
+    public boolean dailyTimersCookie = true;
+    public boolean dailyTimersGodPot = true;
+    public boolean dailyTimersCakes = true;
+    public boolean dailyTimersPuzzler = true;
+    public boolean dailyTimersFetchur = true;
+    public boolean dailyTimersPowder = true;
+    public boolean dailyTimersRift = true;
+    public boolean dailyTimersShopLimit = true;
+    public int dailyTimersX = 5;
+    public int dailyTimersY = 230;
+    public float dailyTimersScale = 1.0f;
+    public boolean sbClockYear = false;
     // w07-04-qol
     public boolean signCalculator = false;
     public boolean signCalculatorEquals = false;

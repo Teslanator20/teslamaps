@@ -45,6 +45,7 @@ public final class SkyblockClock {
                     b.toggle("  Lobby Code", () -> c.sbClockLobby, v -> c.sbClockLobby = v);
                     b.toggle("    With Real Date", () -> c.sbClockLobbyDate, v -> c.sbClockLobbyDate = v);
                     b.toggle("  SkyBlock Date", () -> c.sbClockDate, v -> c.sbClockDate = v);
+                    b.toggle("    With Year", () -> c.sbClockYear, v -> c.sbClockYear = v);
                     b.toggle("  SkyBlock Time", () -> c.sbClockTime, v -> c.sbClockTime = v);
                     b.toggle("    24h Format", () -> c.sbClock24h, v -> c.sbClock24h = v);
                     b.toggle("    Exact Minutes", () -> c.sbClockExactMinutes, v -> c.sbClockExactMinutes = v);
@@ -86,7 +87,8 @@ public final class SkyblockClock {
         if (c.sbClockLobby && codes != null && !codes.isEmpty()) {
             out.add(c.sbClockLobbyDate && date != null ? "§7" + date + " §8" + codes : "§8" + codes);
         }
-        if (c.sbClockDate) out.add("§f" + monthName(month) + " " + day + suffix(day));
+        if (c.sbClockDate) out.add("§f" + monthName(month) + " " + day + suffix(day)
+                + (c.sbClockYear ? "§7, Year " + (sec / 446400 + 1) : ""));
         if (c.sbClockTime) {
             if (!c.sbClockExactMinutes) minute = minute / 10 * 10;
             String mm = (minute < 10 ? "0" : "") + minute;

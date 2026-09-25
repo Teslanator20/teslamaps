@@ -109,6 +109,32 @@ public class SafariTracker {
         return caughtAny.contains(c.name());
     }
 
+    private static boolean quotas() {
+        return TeslaMapsConfig.get().safariQuotas;
+    }
+
+    /** Caught, and with quotas on every spawn of a quota critter taken. */
+    private static boolean done(SafariData.Critter c) {
+        if (!caughtAny.contains(c.name())) return false;
+        if (!quotas()) return true;
+        int q = SafariData.quota(c);
+        return q <= 1 || partyCatches.getOrDefault(c.name(), 0) >= q;
+    }
+
+    private static int doneIn(SafariData.Biome b) {
+        if (!quotas()) return perBiome.getOrDefault(b, 0);
+        int n = 0;
+        for (SafariData.Critter c : SafariData.ALL) if (c.biome() == b && done(c)) n++;
+        return n;
+    }
+
+    private static int doneIn(RunView v, SafariData.Biome b) {
+        if (!quotas()) return v.inBiome(b);
+        int n = 0;
+        for (SafariData.Critter c : SafariData.ALL) if (c.biome() == b && v.complete(c)) n++;
+        return n;
+    }
+
     // Runs are bounded by leaving, never by chat: the reward summary of the old run usually lands
     // AFTER the entry message of the new one, so it must not touch a run that is already going.
     public static void tick() {
@@ -356,7 +382,7 @@ public class SafariTracker {
         panel.blank();
         for (SafariData.Biome b : SafariData.Biome.values()) {
             int max = SafariData.countIn(b);
-            int have = waiting ? 0 : v.inBiome(b);
+            int have = waiting ? 0 : doneIn(v, b);
             boolean done = have >= max;
             panel.bar(done ? b.label + " *" : b.label, have, max, SafariData.argb(b), done ? DONE : SafariData.argb(b));
         }
@@ -669,21 +695,28 @@ public class SafariTracker {
         if (self) caughtSelf.add(c.name());
         RecatchSpots.onCaught(c);
         gotAway.remove(c.name());
-        if (caughtAny.add(c.name())) {
+        boolean first = caughtAny.add(c.name());
+        if (first) {
             perBiome.merge(c.biome(), 1, Integer::sum);
             if (c.rarity() == SafariData.Rarity.LEGENDARY) {
                 alert("legendary-" + c.name(), "§6§l" + c.name().toUpperCase() + " §7caught");
             }
+        }
+        if (first || (quotas() && SafariData.quota(c) > 1)) {
             TeslaMapsConfig cfg = TeslaMapsConfig.get();
-            int have = perBiome.getOrDefault(c.biome(), 0);
             int total = SafariData.countIn(c.biome());
-            if (have >= total && biomeDoneAt.putIfAbsent(c.biome(), elapsed()) == null
+            if (doneIn(c.biome()) >= total && biomeDoneAt.putIfAbsent(c.biome(), elapsed()) == null
                     && cfg.safariAnnounceBiomeDone) {
                 String at = SafariHistory.time(biomeDoneAt.get(c.biome()));
                 alert("biome-" + c.biome(), c.biome().color + "§l" + c.biome().label.toUpperCase()
                         + " §7done after §f" + at);
                 share(c.biome().label + " done after " + at);
             }
+        }
+        if (first) {
+            TeslaMapsConfig cfg = TeslaMapsConfig.get();
+            int have = perBiome.getOrDefault(c.biome(), 0);
+            int total = SafariData.countIn(c.biome());
             // these two only spawn some runs, so their biome usually ends one short
             String except = RARE_EXCEPT.get(c.biome());
             if (except != null && have == total - 1 && !caughtAny.contains(except)
@@ -785,7 +818,9 @@ public class SafariTracker {
         for (SafariData.Biome b : SafariData.Biome.values()) {
             List<String> names = new ArrayList<>();
             for (SafariData.Critter c : SafariData.ALL) {
-                if (c.biome() == b && !caughtAny.contains(c.name())) names.add(c.name());
+                if (c.biome() != b || done(c)) continue;
+                int q = SafariData.quota(c);
+                names.add(quotas() && q > 1 ? c.name() + " (" + partyCatches.getOrDefault(c.name(), 0) + "/" + q + ")" : c.name());
             }
             if (names.isEmpty()) continue;
             total += names.size();
@@ -876,7 +911,7 @@ public class SafariTracker {
 
         StringBuilder biomes = new StringBuilder();
         for (SafariData.Biome b : SafariData.Biome.values()) {
-            int have = perBiome.getOrDefault(b, 0);
+            int have = doneIn(b);
             int total = SafariData.countIn(b);
             if (biomes.length() > 0) biomes.append(" §8| ");
             biomes.append(b.color).append(b.label).append(" ")
@@ -944,15 +979,17 @@ public class SafariTracker {
     }
 
     private static String checklistLine(SafariData.Critter cr, boolean icons) {
-        boolean caught = caughtAny.contains(cr.name());
+        boolean caught = done(cr);
         boolean away = gotAway.contains(cr.name());
 
         String color = caught ? "§a" : away ? "§c" : "§7";
-        if (!icons) return "  " + color + cr.name();
+        int q = SafariData.quota(cr);
+        String name = quotas() && q > 1 ? cr.name() + " §8" + partyCatches.getOrDefault(cr.name(), 0) + "/" + q : cr.name();
+        if (!icons) return "  " + color + name;
 
         // marker is stripped in draw() and replaced by a drawn icon; the spaces reserve its slot
         char marker = caught ? MARK_CHECK : away ? MARK_CROSS : MARK_DOT;
-        return marker + "   " + color + cr.name();
+        return marker + "   " + color + name;
     }
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
