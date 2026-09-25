@@ -724,6 +724,21 @@ final class Features {
         com.teslamaps.features.BazaarOrderTooltip.register();
         com.teslamaps.features.EssenceShopCosts.register();
         com.teslamaps.features.EscrowFix.register();
+        // w15-02-min
+        com.teslamaps.features.mining.KingTalismanHelper.register();
+        com.teslamaps.features.mining.HotmPowderGoal.register();
+        com.teslamaps.features.mining.GoldenGoblinHighlight.register();
+        com.teslamaps.features.theend.EnderNodeTracker.register();
+        com.teslamaps.features.mining.MinesRecolor.register();
+        com.teslamaps.features.mining.FossilExcavatorHelper.register();
+        // w15-00-min
+        com.teslamaps.features.mining.DonExpressoReminder.register();
+        com.teslamaps.features.mining.ForgeSlotHud.register();
+        com.teslamaps.features.mining.DwarvenOverlay.register();
+        com.teslamaps.features.mining.MetalDetectorSolver.register();
+        com.teslamaps.features.mining.DrillFuelDisplay.register();
+        com.teslamaps.features.mining.FossilExcavatorSolver.register();
+        com.teslamaps.features.mining.MineshaftExitWaypoint.register();
         // w15-09-sla
         com.teslamaps.slayer.RemainingSlayerKills.register();
         com.teslamaps.slayer.SlayerTransparency.register();
@@ -734,6 +749,12 @@ final class Features {
         com.teslamaps.slayer.BlazeSlayerHelper.register();
         com.teslamaps.slayer.BloodfiendHelper.register();
         com.teslamaps.slayer.CarryTracker.register();
+        // w15-05-min
+        com.teslamaps.features.mining.MiningSoundMutes.register();
+        com.teslamaps.features.mining.WishingCompassSolver.register();
+        com.teslamaps.features.mining.PickobulusHelper.register();
+        com.teslamaps.features.mining.ScathaAlerts.register();
+        com.teslamaps.features.mining.PrecisionMiningHighlight.register();
         // w14-09-min
         com.teslamaps.features.mining.DarkMonolith.register();
         com.teslamaps.features.mining.NucleusChatFilter.register();

@@ -2184,6 +2184,71 @@ public class TeslaMapsConfig {
         public double paid;
     }
 
+    // w15-02-min
+    public boolean kingTalismanHelper = false;
+    public boolean kingTalismanOutsideMines = false;
+    @Global
+    public java.util.List<String> kingsTalkedTo = new java.util.ArrayList<>();
+    public int kingTalismanX = 10;
+    public int kingTalismanY = 140;
+    public float kingTalismanScale = 1.0f;
+    public boolean hotmPowderGoal = false;
+    public boolean hotmPowderGoalTitle = false;
+    public boolean hotmPowderGoalRepeat = false;
+    public int hotmPowderGoalInterval = 5;
+    @Global
+    public java.util.Map<String, String> hotmPowderGoals = new java.util.HashMap<>();
+    public boolean goldenGoblinHighlight = false;
+    public com.teslamaps.render.EspStyle goldenGoblinEsp = new com.teslamaps.render.EspStyle("FF55FF55");
+    public boolean enderNodeTracker = false;
+    public boolean enderNodeOnlyTool = false;
+    public int enderNodePriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public int enderNodeTrackerX = 10;
+    public int enderNodeTrackerY = 80;
+    public float enderNodeTrackerScale = 1.0f;
+    public boolean miningRedCarpets = false;
+    public boolean miningDarkMist = false;
+    public boolean muteHighHeat = false;
+    public boolean excavatorHideDirtTooltip = false;
+    public boolean excavatorHideAllTooltips = false;
+    public boolean scrapGfsButton = false;
+    public int scrapGfsAmount = 64;
+    public boolean scrapGfsOnlyIfNone = true;
+    public boolean scrapGfsBazaar = true;
+    // w15-00-min
+    public boolean donExpressoReminder = false;
+    public boolean forgeSlotHud = false;
+    public int forgeSlotHudX = 10;
+    public int forgeSlotHudY = 230;
+    public float forgeSlotHudScale = 1.0f;
+    public boolean forgeSlotHudMiningOnly = false;
+    public boolean forgeSlotHudShowLocked = false;
+    public boolean forgeSlotReadyAlert = false;
+    public java.util.List<String> forgeSlotData = new java.util.ArrayList<>();
+    public boolean dwarvenOverlay = false;
+    public int dwarvenOverlayX = 10;
+    public int dwarvenOverlayY = 290;
+    public float dwarvenOverlayScale = 1.0f;
+    public boolean dwarvenOverlayCommissions = true;
+    public boolean dwarvenOverlayPowders = true;
+    public boolean dwarvenOverlayForge = true;
+    public boolean dwarvenOverlayPickaxe = true;
+    public boolean dwarvenOverlayStarCult = true;
+    public boolean dwarvenOverlaySkyMall = true;
+    public String skyMallPerk = "";
+    public long skyMallDay = -1;
+    public boolean metalDetectorSolver = false;
+    public boolean metalDetectorAllTools = true;
+    public boolean drillFuelDisplay = false;
+    public boolean drillFuelBars = true;
+    public boolean drillFuelHud = true;
+    public int drillFuelHudX = 200;
+    public int drillFuelHudY = 200;
+    public float drillFuelHudScale = 1.0f;
+    public boolean fossilSolver = false;
+    public boolean commissionWaypointsGlaciteAlways = false;
+    public boolean commissionWaypointsGlaciteNearest = false;
+    public boolean mineshaftExitWaypoint = false;
     // w15-09-sla
     public boolean remainingSlayerKills = false;
     public int remainingSlayerKillsX = 5;
@@ -2210,6 +2275,26 @@ public class TeslaMapsConfig {
     public float gummyTimerScale = 1.0f;
     public boolean keeperWaypoints = false;
     public boolean keeperFocusMode = false;
+    // w15-05-min
+    public boolean muteMetalDetector = false;
+    public boolean muteOrganDonor = false;
+    public boolean wishingCompassSolver = false;
+    public boolean pickobulusHelper = false;
+    public boolean pickobulusOutline = true;
+    public boolean pickobulusHud = true;
+    public boolean pickobulusHideOnCooldown = false;
+    public String colorPickobulus = "55FFFF";
+    public int pickobulusHudX = 5;
+    public int pickobulusHudY = 160;
+    public float pickobulusHudScale = 1.0f;
+    public boolean scathaAlerts = false;
+    public boolean scathaWormTitle = true;
+    public boolean scathaAliveSound = true;
+    public boolean scathaCooldownTitle = true;
+    public boolean scathaPetRewrite = true;
+    public boolean scathaPetTitle = true;
+    public boolean hotmLevelStack = false;
+    public boolean precisionMiningHighlight = false;
     // w14-09-min
     public boolean darkMonolith = false;
     public boolean darkMonolithBox = true;
@@ -5336,10 +5421,15 @@ public class TeslaMapsConfig {
         if (c.slayerCarries == null) c.slayerCarries = new java.util.ArrayList<>();
         c.slayerCarries.removeIf(x -> x == null || x.customer == null || x.type == null);
         if (c.slayerCarryPrices == null) c.slayerCarryPrices = new java.util.HashMap<>();
+        if (c.forgeSlotData == null) c.forgeSlotData = new java.util.ArrayList<>();
+        if (c.skyMallPerk == null) c.skyMallPerk = "";
         if (c.chCrystalStates == null) c.chCrystalStates = new java.util.HashMap<>();
         if (c.chPartsDelivered == null) c.chPartsDelivered = new java.util.ArrayList<>();
         if (c.miningChestSummary == null) c.miningChestSummary = "Off";
         if (c.visitorIgnored == null) c.visitorIgnored = new java.util.ArrayList<>();
+        if (c.kingsTalkedTo == null) c.kingsTalkedTo = new java.util.ArrayList<>();
+        if (c.hotmPowderGoals == null) c.hotmPowderGoals = new java.util.HashMap<>();
+        c.hotmPowderGoals.values().removeIf(java.util.Objects::isNull);
         if (c.speedPresetValues == null) c.speedPresetValues = defaultSpeedPresets();
         c.speedPresetValues.values().removeIf(java.util.Objects::isNull);
         if (c.stereoActiveVinyl == null) c.stereoActiveVinyl = "";

@@ -96,8 +96,9 @@ public class PickaxeAbility {
         ticks = 0;
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.pickaxeAbilityDisplay) return;
-        if (c.pickaxeAbilityMiningOnly && !Mining.onMiningIsland()) return;
+        boolean overlay = c.dwarvenOverlay && c.dwarvenOverlayPickaxe;
+        if (!c.pickaxeAbilityDisplay && !overlay) return;
+        if ((c.pickaxeAbilityMiningOnly || !c.pickaxeAbilityDisplay) && !Mining.onMiningIsland()) return;
         read();
         if (c.pickaxeAbilityBar) updateStatus(ability.isEmpty() ? -2 : ready() ? -1 : Math.max(0, secondsLeft()));
         if (!ability.isEmpty()) missingSince = -1;
