@@ -24,6 +24,15 @@ public class TicTacToe {
     private static DungeonRoom currentRoom = null;
     private static String lastBoardKey = null;
     private static TicTacToeUtils.BoardIndex cachedBestMove = null;
+    private static List<TicTacToeUtils.BoardIndex> cachedAllBest = List.of();
+    private static boolean cachedGamble = false;
+    private static TicTacToeUtils.BoardIndex cachedPrediction = null;
+    private static List<AABB> bestBoxes = List.of();
+    private static AABB predictedBox = null;
+    private static Set<BlockPos> allowedButtons = Set.of();
+    private static Set<BlockPos> emptyButtons = Set.of();
+    private static long solvedAt = 0;
+    private static final java.util.regex.Pattern SOLVED = java.util.regex.Pattern.compile("^PUZZLE SOLVED! (\\w{1,16}) tied Tic Tac Toe!.*");
 
     public static void tick() {
         if (!DungeonManager.isInDungeon() || !TeslaMapsConfig.get().solveTicTacToe) {
@@ -49,7 +58,7 @@ public class TicTacToe {
             );
 
             if (itemFrames.isEmpty() || itemFrames.size() == 9 || (itemFrames.size() & 1) == 0) {
-                nextBestMoveBox = null;
+                clearSolution();
                 return;
             }
 
@@ -114,32 +123,42 @@ public class TicTacToe {
             String boardKey = new String(board[0]) + new String(board[1]) + new String(board[2]);
             if (cachedBestMove == null || !boardKey.equals(lastBoardKey)) {
                 cachedBestMove = TicTacToeUtils.getBestMove(board);
+                int[] val = new int[1];
+                cachedAllBest = TicTacToeUtils.bestMoves(board, true, val);
+                cachedGamble = val[0] < 0;
+                cachedPrediction = predict(board, cachedBestMove);
                 lastBoardKey = boardKey;
-            }
-            TicTacToeUtils.BoardIndex bestMove = cachedBestMove;
-
-            String key = bestMove.row() + "," + bestMove.column();
-            BlockPos existingPos = boardToWorld.get(key);
-
-            BlockPos worldPos;
-            if (existingPos != null) {
-                worldPos = existingPos;
-            } else {
-                int relY = 72 - bestMove.row();
-                int relZ = 17 - bestMove.column();
-                int relX = 8; // X is constant in relative space 
-
-                worldPos = relativeToWorld(cornerX, cornerZ, rotation, relX, relY, relZ);
             }
 
             Direction facing = itemFrames.get(0).getDirection();
-            double offsetX = -facing.getStepX() * 0.5;
-            double offsetZ = -facing.getStepZ() * 0.5;
-
-            nextBestMoveBox = new AABB(
-                worldPos.getX() + offsetX, worldPos.getY(), worldPos.getZ() + offsetZ,
-                worldPos.getX() + 1 + offsetX, worldPos.getY() + 1, worldPos.getZ() + 1 + offsetZ
-            );
+            TeslaMapsConfig c = TeslaMapsConfig.get();
+            List<AABB> boxes = new ArrayList<>();
+            if (c.tttShowAllBest && !cachedAllBest.isEmpty()) {
+                for (TicTacToeUtils.BoardIndex m : cachedAllBest) boxes.add(buttonBox(cellPos(m, boardToWorld, cornerX, cornerZ, rotation), facing));
+            } else {
+                boxes.add(buttonBox(cellPos(cachedBestMove, boardToWorld, cornerX, cornerZ, rotation), facing));
+            }
+            Set<BlockPos> allowed = new HashSet<>();
+            allowed.add(cellPos(cachedBestMove, boardToWorld, cornerX, cornerZ, rotation));
+            for (TicTacToeUtils.BoardIndex m : cachedAllBest) allowed.add(cellPos(m, boardToWorld, cornerX, cornerZ, rotation));
+            Set<BlockPos> empty = new HashSet<>();
+            int xs = 0, os = 0;
+            for (int r = 0; r < 3; r++) {
+                for (int col = 0; col < 3; col++) {
+                    if (board[r][col] == 'X') xs++;
+                    else if (board[r][col] == 'O') os++;
+                    else empty.add(cellPos(new TicTacToeUtils.BoardIndex(r, col), boardToWorld, cornerX, cornerZ, rotation));
+                }
+            }
+            // every frame read and mapped, AI one ahead: only then is blocking trusted
+            boolean valid = xs + os == itemFrames.size() && xs == os + 1;
+            bestBoxes = boxes;
+            nextBestMoveBox = boxes.get(0);
+            predictedBox = cachedPrediction == null ? null
+                    : buttonBox(cellPos(cachedPrediction, boardToWorld, cornerX, cornerZ, rotation), facing);
+            allowedButtons = valid ? allowed : Set.of();
+            emptyButtons = valid ? empty : Set.of();
+            solvedAt = System.currentTimeMillis();
 
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[TicTacToe] Error", e);
@@ -171,29 +190,94 @@ public class TicTacToe {
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
-        if (!TeslaMapsConfig.get().solveTicTacToe || nextBestMoveBox == null) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.solveTicTacToe || nextBestMoveBox == null) {
             return;
         }
 
         try {
-            double centerX = (nextBestMoveBox.minX + nextBestMoveBox.maxX) / 2;
-            double centerY = (nextBestMoveBox.minY + nextBestMoveBox.maxY) / 2;
-            double centerZ = (nextBestMoveBox.minZ + nextBestMoveBox.maxZ) / 2;
-
-            AABB buttonBox = new AABB(
-                centerX - 0.2, centerY - 0.15, centerZ - 0.1,
-                centerX + 0.2, centerY + 0.15, centerZ + 0.1
-            );
-
-            ESPRenderer.drawFilledBox(matrices, buttonBox, 0x8000FF00, cameraPos);
-            ESPRenderer.drawBoxOutline(matrices, buttonBox, 0xFF00FF00, 3.0f, cameraPos);
+            int best = TeslaMapsConfig.parseColor(c.tttGamble && cachedGamble ? c.colorTttGamble : c.colorTttBest);
+            for (AABB box : bestBoxes) PuzzleDraw.box(matrices, box, best, c.tttStyle, 3.0f, cameraPos, true);
+            if (c.tttPrediction && predictedBox != null) {
+                PuzzleDraw.box(matrices, predictedBox, TeslaMapsConfig.parseColor(c.colorTttPrediction), c.tttStyle, 3.0f, cameraPos, true);
+            }
         } catch (Exception e) {
             TeslaMaps.LOGGER.error("[TicTacToe] Error rendering", e);
         }
     }
 
-    public static void reset() {
+    private static TicTacToeUtils.BoardIndex predict(char[][] board, TicTacToeUtils.BoardIndex ours) {
+        char[][] b = new char[3][];
+        for (int i = 0; i < 3; i++) b[i] = board[i].clone();
+        if (b[ours.row()][ours.column()] != '\0') return null;
+        b[ours.row()][ours.column()] = 'O';
+        List<TicTacToeUtils.BoardIndex> ai = TicTacToeUtils.bestMoves(b, false, null);
+        if (ai.isEmpty()) return null;
+        TicTacToeUtils.BoardIndex x = ai.get(0);
+        b[x.row()][x.column()] = 'X';
+        List<TicTacToeUtils.BoardIndex> next = TicTacToeUtils.bestMoves(b, true, null);
+        return next.isEmpty() ? null : next.get(0);
+    }
+
+    private static BlockPos cellPos(TicTacToeUtils.BoardIndex m, Map<String, BlockPos> boardToWorld, int cornerX, int cornerZ, int rotation) {
+        BlockPos existing = boardToWorld.get(m.row() + "," + m.column());
+        if (existing != null) return existing;
+        return relativeToWorld(cornerX, cornerZ, rotation, 8, 72 - m.row(), 17 - m.column());
+    }
+
+    private static AABB buttonBox(BlockPos worldPos, Direction facing) {
+        double cx = worldPos.getX() + 0.5 - facing.getStepX() * 0.5;
+        double cy = worldPos.getY() + 0.5;
+        double cz = worldPos.getZ() + 0.5 - facing.getStepZ() * 0.5;
+        return new AABB(cx - 0.2, cy - 0.15, cz - 0.1, cx + 0.2, cy + 0.15, cz + 0.1);
+    }
+
+    /** true = swallow the click: a board button that is not a best move (sneak overrides). */
+    public static boolean blockClick(BlockPos pos) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.solveTicTacToe || !c.tttBlockWrongClicks || com.teslamaps.features.LegitMode.blocksCheats()) return false;
+        if (!c.section("Puzzles & Terminals")) return false;
+        if (nextBestMoveBox == null || allowedButtons.isEmpty()) return false;
+        if (System.currentTimeMillis() - solvedAt > 500) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null || mc.player.isCrouching()) return false;
+        if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return false;
+        DungeonRoom room = DungeonManager.getCurrentRoom();
+        if (room == null || !"Tic Tac Toe".equals(room.getName())) return false;
+        if (mc.level.getBlockState(pos).getBlock() != net.minecraft.world.level.block.Blocks.STONE_BUTTON) return false;
+        if (!emptyButtons.contains(pos)) return false;
+        return !allowedButtons.contains(pos);
+    }
+
+    public static void onChat(String raw) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.tttDoneMessage || !DungeonManager.isInDungeon()) return;
+        java.util.regex.Matcher m = SOLVED.matcher(com.teslamaps.utils.StringUtil.stripTrim(raw));
+        if (!m.matches()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || !m.group(1).equals(mc.getUser().getName())) return;
+        com.teslamaps.features.Announce.party("Tic Tac Toe done");
+    }
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("TicTacToeDone").section("Puzzles & Terminals")
+                .when(() -> TeslaMapsConfig.get().solveTicTacToe && TeslaMapsConfig.get().tttDoneMessage)
+                .serverChat(TicTacToe::onChat);
+    }
+
+    private static void clearSolution() {
         nextBestMoveBox = null;
+        bestBoxes = List.of();
+        predictedBox = null;
+        allowedButtons = Set.of();
+        emptyButtons = Set.of();
+    }
+
+    public static void reset() {
+        clearSolution();
+        cachedAllBest = List.of();
+        cachedGamble = false;
+        cachedPrediction = null;
         currentRoom = null;
         lastBoardKey = null;
         cachedBestMove = null;

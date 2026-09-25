@@ -1,6 +1,7 @@
 package com.teslamaps.screen.config;
 
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.dungeon.puzzle.PuzzleDraw;
 import com.teslamaps.render.gui.GuiSounds;
 import com.teslamaps.render.gui.GuiStyle;
 import com.teslamaps.screen.*;
@@ -81,10 +82,41 @@ public final class PuzzlesTerminalsCategory {
         b.slider("  Blaze Line Width", 0.5f, 5f,
                 () -> config.blazeLineWidth, v -> config.blazeLineWidth = v, 1);
         b.toggle("Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v);
+        b.dropdown("  Weirdos Style", PuzzleDraw.STYLES, () -> config.weirdosStyle, v -> config.weirdosStyle = v);
+        b.color("  Weirdos: Correct", () -> config.colorWeirdosCorrect, v -> config.colorWeirdosCorrect = v);
+        b.color("  Weirdos: Wrong", () -> config.colorWeirdosWrong, v -> config.colorWeirdosWrong = v);
+        b.toggle("  Weirdos Solved Sound", () -> config.weirdosSolvedSound, v -> config.weirdosSolvedSound = v);
+        b.soundDropdown("  Weirdos Sound", com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.weirdosSound, v -> config.weirdosSound = v);
+        b.toggle("  Weirdos: Block Wrong Chests", () -> config.weirdosBlockWrongClicks, v -> config.weirdosBlockWrongClicks = v)
+                .legit().desc("Right-clicks on a lying weirdo's chest do nothing once the answer is known. Sneak to click anyway. Nothing is sent to the server.");
         b.toggle("Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v);
+        b.toggle("  TTT: Show All Best Moves", () -> config.tttShowAllBest, v -> config.tttShowAllBest = v)
+                .desc("Marks every equally good move instead of one");
+        b.toggle("  TTT: Gamble Color", () -> config.tttGamble, v -> config.tttGamble = v)
+                .desc("Uses the gamble color when no move is safe any more");
+        b.toggle("  TTT: Prediction", () -> config.tttPrediction, v -> config.tttPrediction = v)
+                .desc("Marks your likely next move after the AI answers (may be off)");
+        b.toggle("  TTT: Done Message (/pc)", () -> config.tttDoneMessage, v -> config.tttDoneMessage = v)
+                .desc("Sends \"Tic Tac Toe done\" to party chat when you tie it");
+        b.toggle("  TTT: Block Wrong Buttons", () -> config.tttBlockWrongClicks, v -> config.tttBlockWrongClicks = v)
+                .legit().desc("Right-clicks on board buttons that are not a best move do nothing. Sneak to click anyway. Nothing is sent to the server.");
+        b.dropdown("  TTT Style", PuzzleDraw.STYLES, () -> config.tttStyle, v -> config.tttStyle = v);
+        b.color("  TTT: Best Move", () -> config.colorTttBest, v -> config.colorTttBest = v);
+        b.color("  TTT: Gamble", () -> config.colorTttGamble, v -> config.colorTttGamble = v);
+        b.color("  TTT: Prediction Color", () -> config.colorTttPrediction, v -> config.colorTttPrediction = v);
         b.toggle("Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v);
         b.toggle("  Creeper Beams Tracers", () -> config.creeperBeamsTracers, v -> config.creeperBeamsTracers = v);
+        b.dropdown("  Creeper Beams Style", PuzzleDraw.STYLES_WITH_DEFAULT, () -> config.creeperBeamsStyle, v -> config.creeperBeamsStyle = v);
+        b.slider("  Creeper Beams Alpha", 0.05f, 1f,
+                () -> config.creeperBeamsAlpha, v -> config.creeperBeamsAlpha = v, 2);
         b.toggle("Creeper Beams Ding", () -> config.creeperBeamsDing, v -> config.creeperBeamsDing = v);
+        b.soundDropdown("  Ding Sound", com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.creeperBeamsSound, v -> config.creeperBeamsSound = v);
+        b.toggle("  Mute Creeper Hurt (room only)", () -> config.creeperBeamsMuteHurt, v -> config.creeperBeamsMuteHurt = v)
+                .desc("Creeper hurt and primed sounds, only inside Creeper Beams");
+        b.toggle("  Mute Explosion (room only)", () -> config.creeperBeamsMuteExplosion, v -> config.creeperBeamsMuteExplosion = v)
+                .desc("The explosion when the puzzle is done, only inside Creeper Beams");
         b.toggle("Boulder Solver", () -> config.solveBoulder, v -> config.solveBoulder = v);
         b.toggle("  Show All Boulder Clicks", () -> config.showAllBoulderClicks, v -> config.showAllBoulderClicks = v);
         b.toggle("  Boulder: Highlight Button", () -> config.boulderClickBlock, v -> config.boulderClickBlock = v);
@@ -92,6 +124,12 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("  Quiz Beacon Beam", () -> config.quizBeacon, v -> config.quizBeacon = v);
         b.toggle("  Quiz Chat Highlight", () -> config.quizChatHighlight, v -> config.quizChatHighlight = v);
         b.toggle("  Quiz Hide Wrong Answers", () -> config.quizHideWrongAnswers, v -> config.quizHideWrongAnswers = v);
+        b.color("  Quiz Chat Color", () -> config.colorQuizChat, v -> config.colorQuizChat = v);
+        b.dropdown("  Quiz Style", PuzzleDraw.STYLES_WITH_DEFAULT, () -> config.quizStyle, v -> config.quizStyle = v);
+        b.toggle("  Quiz Depth Check", () -> config.quizDepthCheck, v -> config.quizDepthCheck = v)
+                .desc("Hide the answer box behind walls");
+        b.toggle("  Quiz: Block Wrong Answers", () -> config.quizBlockWrongClicks, v -> config.quizBlockWrongClicks = v)
+                .legit().desc("Right-clicks next to a wrong answer do nothing once the right one is known. Sneak to click anyway. Nothing is sent to the server.");
         b.toggle("Teleport Maze Solver", () -> config.solveTPMaze, v -> config.solveTPMaze = v);
         b.toggle("  TP Maze Next-Portal Tracer", () -> config.tpMazeTracer, v -> config.tpMazeTracer = v);
         b.toggle("  TP Maze Prioritize Diagonal", () -> config.tpMazePrioritizeDiagonal, v -> config.tpMazePrioritizeDiagonal = v);
@@ -112,6 +150,8 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("  Ice Path: Follow Silverfish", () -> config.icePathDynamic, v -> config.icePathDynamic = v);
         b.toggle("Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v);
         b.toggle("Puzzle Timers", () -> config.puzzleTimers, v -> config.puzzleTimers = v);
+        b.button("Reset Puzzle Solvers", () -> com.teslamaps.dungeon.puzzle.PuzzleReset.reset("all"))
+                .desc("Restarts every solver, like /tmap puzzle reset. Water Board: flip the levers back first.");
         b.toggle("Terracotta Spawn Timers (F6/M6)", () -> config.terracottaTimer, v -> config.terracottaTimer = v);
         b.label("Puzzle Colors");
         b.color("Boulder Click", () -> config.colorBoulder, v -> config.colorBoulder = v);

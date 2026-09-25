@@ -115,6 +115,7 @@ public class TMapCommand {
                     });
                     return 1;
                 })
+                .then(com.teslamaps.dungeon.puzzle.PuzzleReset.command())
                 .then(ClientCommands.literal("tracker")
                         .then(ClientCommands.argument("id", StringArgumentType.word())
                                 .suggests((c, b) -> {

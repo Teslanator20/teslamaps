@@ -30,6 +30,46 @@ public class TicTacToeUtils {
         return Collections.max(moves.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
     }
 
+    /** Minimax value for O (the player), X = AI. Win 10-depth, loss depth-10, tie 0. */
+    public static int value(char[][] board, boolean oTurn, int depth) {
+        int s = getScore(board);
+        if (s == 10) return 10 - depth;
+        if (s == -10) return depth - 10;
+        if (!hasMovesAvailable(board)) return 0;
+        int best = oTurn ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                if (board[r][c] != '\0') continue;
+                board[r][c] = oTurn ? 'O' : 'X';
+                int v = value(board, !oTurn, depth + 1);
+                board[r][c] = '\0';
+                best = oTurn ? Math.max(best, v) : Math.min(best, v);
+            }
+        }
+        return best;
+    }
+
+    /** Every move with the best value for the side to move; out[0] receives that value. */
+    public static java.util.List<BoardIndex> bestMoves(char[][] board, boolean oTurn, int[] out) {
+        java.util.List<BoardIndex> moves = new java.util.ArrayList<>();
+        int best = oTurn ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                if (board[r][c] != '\0') continue;
+                board[r][c] = oTurn ? 'O' : 'X';
+                int v = value(board, !oTurn, 1);
+                board[r][c] = '\0';
+                if (oTurn ? v > best : v < best) {
+                    best = v;
+                    moves.clear();
+                }
+                if (v == best) moves.add(new BoardIndex(r, c));
+            }
+        }
+        if (out != null && out.length > 0) out[0] = best;
+        return moves;
+    }
+
     private static boolean hasMovesAvailable(char[][] board) {
         for (char[] row : board) {
             for (char c : row) {

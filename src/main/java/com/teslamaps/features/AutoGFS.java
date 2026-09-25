@@ -47,11 +47,22 @@ public class AutoGFS {
     }
 
     public static void onChatMessage(String message) {
-        if (!TeslaMapsConfig.get().autoGFS || LegitMode.blocksCheats()) return;
-
+        TeslaMapsConfig c = TeslaMapsConfig.get();
         message = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        boolean clickMode = DRAFT_CLICK.equals(c.draftMode);
 
-        if (TeslaMapsConfig.get().autoGFSOnStart && !dungeonStartHandled) {
+        if (c.autoGFSDraft && clickMode && failedByUs(message.trim(), c.draftPartyFails)) {
+            draftAlert();
+            Minecraft.getInstance().gui.getChat().addClientSystemMessage(net.minecraft.network.chat.Component
+                    .literal("§b§l[TeslaMaps] §eClick here to get Architect's First Draft")
+                    .withStyle(s -> s.withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/gfs architect's first draft 1"))
+                            .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(
+                                    net.minecraft.network.chat.Component.literal("/gfs architect's first draft 1")))));
+        }
+
+        if (!c.autoGFS || LegitMode.blocksCheats()) return;
+
+        if (c.autoGFSOnStart && !dungeonStartHandled) {
             if (message.contains(DUNGEON_START_MSG1) || message.contains(DUNGEON_START_MSG2)) {
                 dungeonStartHandled = true;
                 TeslaMaps.debug("[AutoGFS] Dungeon started, refilling items...");
@@ -59,26 +70,36 @@ public class AutoGFS {
             }
         }
 
-        if (TeslaMapsConfig.get().autoGFSDraft) {
-            if (failedBySelf(message.trim())) {
-                TeslaMaps.debug("[AutoGFS] You failed the puzzle, getting draft...");
-                if (TeslaMapsConfig.get().autoGFSDraftAlert) {
-                    Minecraft.getInstance().gui.setTitle(net.minecraft.network.chat.Component.literal("\u00A7c\u00A7lDRAFT"));
-                }
+        if (c.autoGFSDraft && !clickMode) {
+            if (failedByUs(message.trim(), c.draftPartyFails)) {
+                TeslaMaps.debug("[AutoGFS] Puzzle failed, getting draft...");
+                draftAlert();
                 scheduleCommand(30, "gfs architect's first draft 1");
             }
         }
     }
 
-    // the fail message names the player who failed — only pull a draft when that's exactly us
-    private static boolean failedBySelf(String message) {
+    public static final String DRAFT_AUTO = "Auto";
+    public static final String DRAFT_CLICK = "Click in Chat";
+    public static final String[] DRAFT_MODES = {DRAFT_AUTO, DRAFT_CLICK};
+
+    private static void draftAlert() {
+        if (TeslaMapsConfig.get().autoGFSDraftAlert) {
+            Minecraft.getInstance().gui.setTitle(net.minecraft.network.chat.Component.literal("§c§lDRAFT"));
+        }
+    }
+
+    // the fail message names the player who failed; party = any name, but only inside a dungeon
+    private static boolean failedByUs(String message, boolean party) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
         String self = mc.getUser().getName();
         if (self == null) return false;
         java.util.regex.Matcher m = PUZZLE_FAIL.matcher(message);
         if (!m.matches()) m = QUIZ_FAIL.matcher(message);
-        return m.matches() && m.group(1).equals(self);
+        if (!m.matches()) return false;
+        if (m.group(1).equals(self)) return true;
+        return party && DungeonManager.isInDungeon();
     }
 
     private static void scheduleRefill(int delayTicks) {

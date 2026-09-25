@@ -43,7 +43,10 @@ public class ClientPlayerInteractionManagerMixin {
 
         BlockPos pos = hitResult.getBlockPos();
 
-        if (com.teslamaps.dungeon.puzzle.SimonSaysSolver.blockClick(pos)) {
+        if (com.teslamaps.dungeon.puzzle.SimonSaysSolver.blockClick(pos)
+                || com.teslamaps.dungeon.puzzle.TicTacToe.blockClick(pos)
+                || com.teslamaps.dungeon.puzzle.QuizSolver.blockClick(pos)
+                || ThreeWeirdos.blockClick(pos)) {
             cir.setReturnValue(InteractionResult.FAIL);
             return;
         }

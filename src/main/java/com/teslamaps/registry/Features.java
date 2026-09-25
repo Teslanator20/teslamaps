@@ -67,5 +67,7 @@ final class Features {
         com.teslamaps.features.croesus.KuudraKeys.register();
         com.teslamaps.features.pets.PetStore.register();
         com.teslamaps.features.pets.PetOverlay.register();
+        // w02-04-puz
+        com.teslamaps.dungeon.puzzle.TicTacToe.register();
     }
 }
