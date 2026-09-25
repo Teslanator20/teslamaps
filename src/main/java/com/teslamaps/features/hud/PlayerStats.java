@@ -153,6 +153,7 @@ public final class PlayerStats {
 
     /** Raw action bar text, from InGameHudMixin. */
     public static void onActionBar(String raw) {
+        com.teslamaps.utils.Placeholders.actionBar = raw;
         if (!cfg().playerStatHuds) return;
         String s = StringUtil.strip(raw);
         long now = System.currentTimeMillis();

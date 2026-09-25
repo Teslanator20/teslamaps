@@ -355,6 +355,8 @@ public class ChatFilter {
         String t = StringUtil.strip(text);
         if (StashCompact.handle(t)) return true;
         if (ChatCompactsMore.handle(message, t)) return true;
+        if (MelodyCompact.handle(t)) return true;
+        if (HoppityCompactChat.handle(message, text, t)) return true;
         Rule r = matchStripped(t);
         if (r == SCREENSHOT) return true;
         if (r != null) return apply(message, text, t, actionOf(r), COMPACT.get(r.id));
@@ -362,7 +364,22 @@ public class ChatFilter {
             lastReason = "user";
             return apply(message, text, t, TeslaMapsConfig.get().chatUserFilterAction, null);
         }
+        String shortForm = ChatCompactRules.apply(message, t);
+        if (shortForm != null) {
+            lastReason = "compact";
+            if (shortForm.isEmpty()) return true;
+            if (shortForm == ChatCompactRules.GREY) queue(text, grey(message));
+            else if (!hasClick(message, true)) queue(text, compact(message, shortForm));
+            return false;
+        }
+        Component pet = RareDropNames.petRarity(message, t);
+        if (pet != null) queue(text, pet);
         return false;
+    }
+
+    /** Swap the line being added for {@code out}; used by the compact helpers. */
+    static void queueRewrite(String text, Component out) {
+        queue(text, out);
     }
 
     private static boolean apply(Component message, String text, String t, String action, Function<String, String> f) {

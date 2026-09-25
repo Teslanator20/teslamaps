@@ -426,6 +426,9 @@ final class Features {
         com.teslamaps.features.LookTargeting.register();
         // w10-03-chat
         com.teslamaps.features.ChatCompacts.register();
+        // w10-05-chat
+        com.teslamaps.features.RareDropNames.register();
+        com.teslamaps.features.HoppityCompactChat.register();
         // w10-07-chat
         com.teslamaps.features.SackMessages.register();
         com.teslamaps.features.SkyblockXpChat.register();
