@@ -96,7 +96,7 @@ public final class ESPCategory {
         b.slider("  Livid Tracer Width", 1f, 8f, () -> config.lividTracerWidth, v -> config.lividTracerWidth = v, 1);
         b.toggle("  Livid Dead Message (/pc)", () -> config.lividDeathMessage, v -> config.lividDeathMessage = v);
         b.toggle("  Livid Color Title", () -> config.lividColorTitle, v -> config.lividColorTitle = v);
-        b.toggle("  Announce Livid Color (/pc)", () -> config.lividAnnounce, v -> config.lividAnnounce = v).cheat();
+        b.toggle("  Announce Livid Color (/pc)", () -> config.lividAnnounce, v -> config.lividAnnounce = v);
         b.button("    Edit Announce Text", () -> net.minecraft.client.Minecraft.getInstance().setScreen(
                 new com.teslamaps.screen.LividMessageScreen(net.minecraft.client.Minecraft.getInstance().screen)));
         b.toggle("  Livid HP Label (3D)", () -> config.lividHpLabel, v -> config.lividHpLabel = v);

@@ -2,6 +2,7 @@ package com.teslamaps.features;
 
 // Ported from SkyHanni's DungeonDeathCounter.kt
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.dungeon.DungeonInfoHud;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.registry.HudEditElement;
@@ -35,7 +36,7 @@ public final class DungeonDeathCounter {
         el = HudEditElement.of("deathCounter", "Death Counter").ctx(HudEditElement.HudCtx.DUNGEON).section(SECTION)
                 .enabled(() -> cfg().deathCounter)
                 .size(() -> Minecraft.getInstance().font.width(SAMPLE.get(0)), () -> 10)
-                .preview((g, mc, x, y, s) -> BlessingHud.draw(g, mc, x, y, s, SAMPLE, mc.font.width(SAMPLE.get(0))));
+                .preview((g, mc, x, y, s) -> DungeonInfoHud.draw(g, mc, x, y, s, SAMPLE, mc.font.width(SAMPLE.get(0))));
         Feature.of("DeathCounter").section(SECTION).when(() -> cfg().deathCounter)
                 .tick(DungeonDeathCounter::tick)
                 .serverChat(DungeonDeathCounter::onChat)
@@ -71,6 +72,6 @@ public final class DungeonDeathCounter {
         if (l.isEmpty() || el == null || !DungeonManager.isInDungeon()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.hideGui) return;
-        BlessingHud.draw(g, mc, el.x(), el.y(), el.scale(), l, mc.font.width(l.get(0)));
+        DungeonInfoHud.draw(g, mc, el.x(), el.y(), el.scale(), l, mc.font.width(l.get(0)));
     }
 }

@@ -438,7 +438,7 @@ public class TimerTriggers {
         if (c.deathTickTimer && mc.level != null && inDungeon && (c.deathTickShowClear
                 ? !com.teslamaps.dungeon.DungeonManager.isInBossArea()
                 : (runStartMs == 0 || now() - runStartMs < 6000))) {
-            long dgt = timeAnchor >= 0
+            long dgt = c.deathTickShowClear && timeAnchor >= 0
                     ? timeAnchor + (com.teslamaps.utils.ServerTickTimer.now() - tickAnchor)
                     : mc.level.getGameTime();
             int dk = 40 - (int) (dgt % 40);

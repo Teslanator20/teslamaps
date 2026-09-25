@@ -24,7 +24,7 @@ public final class KeyHud {
     public static void register() {
         hud = HudEditElement.of("keyHud", "Key HUD").ctx(HudEditElement.HudCtx.DUNGEON).section("ESP")
                 .enabled(() -> cfg().keyHud)
-                .size(() -> Minecraft.getInstance().font.width(WITHER), () -> 9)
+                .size(() -> Minecraft.getInstance().font.width(WITHER), () -> 19)
                 .scaleRange(0.5f, 5.0f)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, true, false));
         Feature.of("KeyHud").section("ESP").when(() -> cfg().keyHud)

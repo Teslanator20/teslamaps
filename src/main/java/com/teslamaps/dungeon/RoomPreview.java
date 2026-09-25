@@ -167,6 +167,7 @@ public final class RoomPreview {
                 byte[] json = cached(room[0] + ".json");
                 int[] blocks;
                 try (ObjectInputStream in = new ObjectInputStream(new InflaterInputStream(new ByteArrayInputStream(skel)))) {
+                    in.setObjectInputFilter(java.io.ObjectInputFilter.Config.createFilter("[I;maxdepth=1;!*"));
                     blocks = (int[]) in.readObject();
                 }
                 JsonObject data = JsonParser.parseString(new String(json, StandardCharsets.UTF_8)).getAsJsonObject();

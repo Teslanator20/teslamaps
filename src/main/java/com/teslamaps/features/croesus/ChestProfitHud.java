@@ -117,7 +117,8 @@ public final class ChestProfitHud {
             String opened = p.opened ? " §8(opened)" : "";
             out.add(color(e.getKey()) + e.getKey() + " Chest: " + (v >= 0 ? "§a+" : "§c") + CroesusProfit.fmt(v)
                     + (p.incomplete ? " §8?" : "") + opened);
-            if (!cfg().chestProfitHudCompact) out.addAll(p.breakdown);
+            if (!cfg().chestProfitHudCompact)
+                for (String l : p.breakdown) if (cfg().chestProfitHudEssence || !l.contains(" Essence")) out.add(l);
         }
         int w = 0;
         for (String l : out) w = Math.max(w, mc.font.width(l));

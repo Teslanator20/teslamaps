@@ -19,16 +19,14 @@ public class ServerLagTimer {
     private static long clientTicks = 0;
     private static long pingStart = 0;
     private static Object lastLevel = null;
+    private static long pendingLag = -1;
 
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
         Feature.of("ServerLagTimer").section("Score & Splits").when(() -> cfg().serverLagTimer)
                 .tick(ServerLagTimer::tick)
-                .serverChat(ServerLagTimer::onChat)
-                .config("Score & Splits", b -> b.toggle("  Server Lag Line", () -> cfg().serverLagTimer,
-                        v -> cfg().serverLagTimer = v)
-                        .desc("At the end of a run: how long the server lagged (client vs server ticks since Mort)"));
+                .serverChat(ServerLagTimer::onChat);
     }
 
     private static void tick() {
@@ -36,6 +34,7 @@ public class ServerLagTimer {
         if (mc.level != lastLevel) {
             lastLevel = mc.level;
             ticking = false;
+            pendingLag = -1;
         }
         if (ticking) clientTicks++;
     }
@@ -54,9 +53,24 @@ public class ServerLagTimer {
         long serverTicks = ServerTickTimer.pings() - pingStart;
         if (serverTicks <= 0) return;
         long lag = Math.max(0, clientTicks - serverTicks);
+        if (cfg().extraStatsCompact && DungeonManager.isInDungeon()) {
+            pendingLag = lag;
+            return;
+        }
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        mc.player.sendSystemMessage(Component.literal(String.format(Locale.ROOT,
-                "§b[TeslaMaps] §7Server lagged for §c%.1fs §8| §c%d ticks", lag / 20.0, lag)));
+        mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] " + text(lag)));
+    }
+
+    private static String text(long lag) {
+        return String.format(Locale.ROOT, "§7Server lagged for §c%.1fs §8| §c%d ticks", lag / 20.0, lag);
+    }
+
+    /** Line for the compact run summary, once. */
+    static String takeSummaryLine() {
+        long lag = pendingLag;
+        pendingLag = -1;
+        if (lag < 0 || !cfg().serverLagTimer || !cfg().section("Score & Splits")) return null;
+        return text(lag);
     }
 }

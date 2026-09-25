@@ -108,10 +108,6 @@ public class WitherDragons {
 
     private static final Pattern POWER_REGEX = Pattern.compile("Blessing of Power (X{0,3}(?:IX|IV|V?I{0,3}))");
     private static final Pattern TIME_REGEX = Pattern.compile("Blessing of Time (V)");
-    private static final Pattern ANY_BLESSING = Pattern.compile("Blessing of (Power|Time|Stone|Life|Wisdom) ([IVXL]+)");
-    public static final String[] BLESSING_NAMES = {"Power", "Time", "Stone", "Life", "Wisdom"};
-    /** Power, Time, Stone, Life, Wisdom — rebuilt from every footer. */
-    public static volatile int[] blessings = new int[5];
 
     private static ClientLevel lastLevel = null;
 
@@ -195,12 +191,6 @@ public class WitherDragons {
         if (power.find()) blessingPower = romanToInt(power.group(1));
         Matcher time = TIME_REGEX.matcher(footer);
         if (time.find()) blessingTime = romanToInt(time.group(1));
-        int[] all = new int[5];
-        Matcher any = ANY_BLESSING.matcher(footer);
-        while (any.find()) {
-            for (int i = 0; i < 5; i++) if (BLESSING_NAMES[i].equals(any.group(1))) all[i] = romanToInt(any.group(2));
-        }
-        blessings = all;
     }
 
     public static void tick() {
@@ -273,9 +263,9 @@ public class WitherDragons {
         }
 
         if (config.witherDragonPriorityTracer && priorityDragon != null && priorityDragon.state == State.SPAWNING
-                && mc.player != null && mc.renderBuffers() != null) {
+                && mc.player != null) {
             ESPRenderer.drawTracerFromCamera(matrices, priorityDragon.center(), priorityDragon.colorArgb,
-                    cameraPos, mc.renderBuffers().bufferSource(), config.witherDragonTracerWidth);
+                    cameraPos, false, config.witherDragonTracerWidth);
         }
     }
 
@@ -346,7 +336,7 @@ public class WitherDragons {
         });
     }
 
-    private static int romanToInt(String s) {
+    static int romanToInt(String s) {
         int total = 0, prev = 0;
         for (int i = s.length() - 1; i >= 0; i--) {
             int v = switch (s.charAt(i)) {

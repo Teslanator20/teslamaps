@@ -258,26 +258,34 @@ public class CroesusProfit {
     private static int kismetScreen;
     private static long kismetAt;
     private static String kismetLabel = "0";
+    private static Slot kismetSlot;
 
     // SkyHanni kismetDungeonChestSetup: owned feathers (sack + inventory) on "Reroll Chest" until it was used
     private static void drawKismetCount(GuiGraphicsExtractor ctx, AbstractContainerScreen<?> cs, HandledScreenAccessor acc, Minecraft mc) {
+        long now = System.currentTimeMillis();
+        if (System.identityHashCode(cs) != kismetScreen || now - kismetAt > 1000) {
+            kismetScreen = System.identityHashCode(cs);
+            kismetAt = now;
+            kismetSlot = findReroll(cs);
+            if (kismetSlot != null) kismetLabel = String.valueOf(kismetFeathers(mc));
+        }
+        Slot slot = kismetSlot;
+        if (slot == null) return;
+        int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
+        ctx.text(mc.font, kismetLabel, sx + 17 - mc.font.width(kismetLabel), sy + 9, 0xFF55FF55, true);
+    }
+
+    private static Slot findReroll(AbstractContainerScreen<?> cs) {
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
             ItemStack item = slot.getItem();
             if (item.isEmpty() || !strip(item.getHoverName().getString()).equals("Reroll Chest")) continue;
             ItemLore lore = item.get(DataComponents.LORE);
             if (lore != null && !lore.lines().isEmpty()
-                    && strip(lore.lines().get(lore.lines().size() - 1).getString()).equals("You already rerolled a chest!")) return;
-            long now = System.currentTimeMillis();
-            if (System.identityHashCode(cs) != kismetScreen || now - kismetAt > 1000) {
-                kismetScreen = System.identityHashCode(cs);
-                kismetAt = now;
-                kismetLabel = String.valueOf(kismetFeathers(mc));
-            }
-            int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
-            ctx.text(mc.font, kismetLabel, sx + 17 - mc.font.width(kismetLabel), sy + 9, 0xFF55FF55, true);
-            return;
+                    && strip(lore.lines().get(lore.lines().size() - 1).getString()).equals("You already rerolled a chest!")) return null;
+            return slot;
         }
+        return null;
     }
 
     private static int kismetFeathers(Minecraft mc) {

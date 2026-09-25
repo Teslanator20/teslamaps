@@ -328,7 +328,7 @@ public class LividSolver {
             mc.gui.setTitle(Component.literal(coloredName + " Livid"));
         }
         // Skyblocker LividColor: [color] placeholder
-        if (c.lividAnnounce && !LegitMode.blocksCheats() && c.lividAnnounceText != null)
+        if (c.lividAnnounce && c.lividAnnounceText != null)
             Announce.party(c.lividAnnounceText.replace("[color]", currentLivid.entityName));
     }
 
