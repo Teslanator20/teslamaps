@@ -102,9 +102,8 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.DungeonCleanEnd.hideParticle()
                     || com.teslamaps.features.MageBeam.onParticle(packet)
                     || com.teslamaps.features.ParticleHiders.hideParticle(packet)
-                    || com.teslamaps.features.AbilityRadius.hideParticle(packet))
-                    || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet)
-                    || com.teslamaps.features.MageBeam.onParticle(packet))) ci.cancel();
+                    || com.teslamaps.features.AbilityRadius.hideParticle(packet)
+                    || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet))) ci.cancel();
     }
 
     @Inject(method = "handleInitializeBorder", at = @At("HEAD"))
