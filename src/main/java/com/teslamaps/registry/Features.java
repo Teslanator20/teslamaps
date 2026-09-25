@@ -732,6 +732,19 @@ final class Features {
         com.teslamaps.features.mining.ExcavatorProfitTracker.register();
         com.teslamaps.features.mining.GemstoneMoneyPerHour.register();
         com.teslamaps.features.mining.GlaciteColdOverlay.register();
+        // w15-06-min
+        com.teslamaps.features.mining.CarpetHighlight.register();
+        com.teslamaps.features.mining.HotmPlanner.register();
+        com.teslamaps.features.mining.SuperprotectronHighlight.register();
+        com.teslamaps.features.mining.VanguardGambling.register();
+        com.teslamaps.features.mining.HollowsWaypoints.register();
+        com.teslamaps.features.BpsDisplay.register();
+        // w15-04-min
+        com.teslamaps.features.mining.MineshaftAnnounce.register();
+        com.teslamaps.features.mining.MiningNotifications.register();
+        com.teslamaps.features.mining.MiningEvents.register();
+        com.teslamaps.features.mining.CorpseTracker.register();
+        com.teslamaps.features.mining.PowderMiningFilter.register();
         // w15-02-min
         com.teslamaps.features.mining.KingTalismanHelper.register();
         com.teslamaps.features.mining.HotmPowderGoal.register();

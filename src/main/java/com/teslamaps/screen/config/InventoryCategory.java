@@ -376,6 +376,8 @@ public final class InventoryCategory {
         b.color("  Unfinished Color", () -> config.colorProgressUnfinished, v -> config.colorProgressUnfinished = v);
         b.toggle("Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v);
         b.color("  Commission Color", () -> config.colorCommissionDone, v -> config.colorCommissionDone = v);
+        b.toggle("  Status Icons (Open / Started / Claimable)", () -> config.commissionStatusIcons, v -> config.commissionStatusIcons = v)
+                .desc("Commissions menu: not started = written book, started = book and quill, ready to claim = knowledge book. No glint.");
         b.dropdown("  Commission Tips", com.teslamaps.features.mining.CommissionTips.MODES,
                 () -> config.commissionTips, v -> config.commissionTips = v)
                 .desc("Hint in the tooltip where each commission is done, e.g. \"Kill 50 Glacite Walkers (Great Ice Wall)\"");

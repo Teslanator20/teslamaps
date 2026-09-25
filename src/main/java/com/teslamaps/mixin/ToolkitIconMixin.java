@@ -21,6 +21,7 @@ public class ToolkitIconMixin {
         icon = com.teslamaps.features.StereoHarmony.icon(slot, icon);
         icon = com.teslamaps.features.GardenMenuHelpers.icon(slot, icon);
         icon = com.teslamaps.features.GardenPlotMenu.icon(slot, icon);
+        icon = com.teslamaps.features.CommissionHighlight.icon(slot, icon);
         ItemStack web = com.teslamaps.features.gardenqol.MutationsWebsite.replacement(slot);
         original.call(ctx, web != null ? web : icon, x, y, seed);
     }
