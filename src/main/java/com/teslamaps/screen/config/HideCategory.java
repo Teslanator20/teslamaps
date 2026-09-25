@@ -135,6 +135,8 @@ public final class HideCategory {
         b.toggle("Nether Fog (Crimson Isle)", () -> config.noNetherFog, v -> config.noNetherFog = v);
         b.info("Removes the crimson isle fog even while Hide Fog is off");
         b.toggle("Hide Lightning", () -> config.noLightning, v -> config.noLightning = v);
+        b.toggle("  Hide Sky Flash", () -> config.noLightningSkyFlash, v -> config.noLightningSkyFlash = v)
+                .desc("The sky no longer lights up when lightning strikes.");
         b.toggle("Hide Falling Blocks", () -> config.noFallingBlocks, v -> config.noFallingBlocks = v);
         b.toggle("Hide Block Breaking", () -> config.noBlockBreaking, v -> config.noBlockBreaking = v);
         b.toggle("  Only In Garden", () -> config.noBlockBreakingGardenOnly, v -> config.noBlockBreakingGardenOnly = v);
@@ -149,6 +151,8 @@ public final class HideCategory {
         b.toggle("  Enderman Particles", () -> config.particleHideEnderman, v -> config.particleHideEnderman = v);
         b.toggle("  Fire Block Particles", () -> config.particleHideFireBlock, v -> config.particleHideFireBlock = v);
         b.toggle("  All Smoke", () -> config.particleHideSmoke, v -> config.particleHideSmoke = v);
+        b.toggle("  Hide Block Hit Particles", () -> config.noBlockHitParticles, v -> config.noBlockHitParticles = v)
+                .desc("Also drops the crack particles on every hit while mining or farming.");
         b.toggle("Hide XP Orbs", () -> config.noXpOrbs, v -> config.noXpOrbs = v);
         b.toggle("Hide Jerry Rune Eggs", () -> config.hideJerryRune, v -> config.hideJerryRune = v)
                 .desc("SkyBlock: hides the villager spawn eggs the Jerry rune scatters on the ground.");
@@ -196,6 +200,8 @@ public final class HideCategory {
         b.toggle("Hide Water Overlay", () -> config.noWaterOverlay, v -> config.noWaterOverlay = v);
         b.toggle("Hide Vignette", () -> config.noVignette, v -> config.noVignette = v);
         b.toggle("Hide Blindness", () -> config.noBlind, v -> config.noBlind = v);
+        b.slider("  Blindness Fog Opacity %", 0f, 100f, () -> config.blindnessFogOpacity, v -> config.blindnessFogOpacity = v)
+                .desc("0 = blindness fully removed. Above 0 the effect stays and only the fog is faded to this opacity.");
         b.toggle("Hide Nausea", () -> config.noNausea, v -> config.noNausea = v);
         b.toggle("More Overlay Hiders", () -> config.moreOverlayHiders, v -> config.moreOverlayHiders = v);
         b.toggle("  Hide Portal Overlay", () -> config.hidePortalOverlay, v -> config.hidePortalOverlay = v);

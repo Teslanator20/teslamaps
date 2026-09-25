@@ -2422,6 +2422,20 @@ public class TeslaMapsConfig {
     public boolean noExplosionsChickenRace = false;
     public boolean chromaFormatCode = false;
     public boolean chromaEverything = false;
+    // w09-06-vis
+    public boolean transparentArmor = false;
+    public float transparentArmorSelf = 40f;
+    public float transparentArmorOthers = 40f;
+    public boolean zealotColor = false;
+    public String zealotColorValue = "55FF55";
+    public boolean zealotColorChroma = false;
+    public boolean visualWords = false;
+    public boolean visualWordsIgnoreCase = false;
+    public java.util.List<com.teslamaps.features.TextVisuals.VisualWord> visualWordList = new java.util.ArrayList<>();
+    public boolean fullTextShadow = false;
+    public boolean noLightningSkyFlash = false;
+    public boolean noBlockHitParticles = false;
+    public float blindnessFogOpacity = 0f;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;
@@ -4091,6 +4105,9 @@ public class TeslaMapsConfig {
         c.expDryStreakData.values().removeIf(v -> v == null || v.length != 2);
         if (c.maxwellData == null) c.maxwellData = new java.util.HashMap<>();
         c.maxwellData.values().removeIf(java.util.Objects::isNull);
+        if (c.visualWordList == null) c.visualWordList = new java.util.ArrayList<>();
+        c.visualWordList.removeIf(w -> w == null || w.from == null || w.from.isEmpty());
+        for (var w : c.visualWordList) if (w.to == null) w.to = "";
         if (c.customTrackerDefs == null) c.customTrackerDefs = new java.util.ArrayList<>();
         c.customTrackerDefs.removeIf(java.util.Objects::isNull);
         if (c.beaconPowerExpiry == null) c.beaconPowerExpiry = new java.util.HashMap<>();
