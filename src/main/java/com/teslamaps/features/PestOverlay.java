@@ -26,6 +26,7 @@ public class PestOverlay {
         rows += PlotSprays.rows().size();
         if (showPestChance()) rows++;
         if (TeslaMapsConfig.get().pestSpawnStats) rows += PestSpawnStats.averageText() == null ? 1 : 2;
+        if (com.teslamaps.features.garden.CropFever.shown()) rows++;
         return rows;
     }
 
@@ -381,6 +382,12 @@ public class PestOverlay {
                 row += LINE;
                 drawRow(context, mc, "Average", avg, AppleColors.TEXT_PRIMARY, row);
             }
+        }
+
+        int fever = com.teslamaps.features.garden.CropFever.secondsLeft();
+        if (fever >= 0 && TeslaMapsConfig.get().cropFeverTimer) {
+            row += LINE;
+            drawRow(context, mc, "Crop Fever", fever + "s", 0xFFFFAA00, row);
         }
 
         context.pose().popMatrix();

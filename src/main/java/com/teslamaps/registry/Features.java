@@ -608,6 +608,15 @@ final class Features {
         com.teslamaps.features.PestSpawnStats.register();
         com.teslamaps.features.GardenWarpCommands.register();
         com.teslamaps.features.mobvisuals.PestGlowColors.register();
+        // w13-06-gar
+        com.teslamaps.features.garden.GreenhouseModels.register();
+        com.teslamaps.features.garden.Composter.register();
+        com.teslamaps.features.garden.ComposterOverlay.register();
+        com.teslamaps.features.garden.ComposterMenu.register();
+        com.teslamaps.features.garden.CropMilestoneHud.register();
+        com.teslamaps.features.garden.FarmingFortuneHud.register();
+        com.teslamaps.features.garden.CropFever.register();
+        com.teslamaps.features.garden.VisitorOffer.register();
         // w14-07-min
         com.teslamaps.features.mining.Commissions.register();
         com.teslamaps.features.mining.CommissionWaypoints.register();

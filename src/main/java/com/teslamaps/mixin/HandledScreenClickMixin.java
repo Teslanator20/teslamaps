@@ -155,6 +155,11 @@ public class HandledScreenClickMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.garden.ComposterOverlay.handleClick(mouseX, mouseY, button)) {
+            teslamaps$ate("ComposterOverlay", button);
+            cir.setReturnValue(true);
+            return;
+        }
         if (com.teslamaps.features.SackValueHud.handleClick(mouseX, mouseY, button)) {
             teslamaps$ate("SackValueHud", button);
             cir.setReturnValue(true);

@@ -21,6 +21,7 @@ public abstract class SlotLockRenderMixin {
         com.teslamaps.features.CropMilestoneMenu.render(ctx);
         com.teslamaps.features.DungeonLevelSlotText.render(ctx);
         com.teslamaps.features.MenuSlotText.render(ctx);
+        com.teslamaps.features.garden.ComposterMenu.renderTips(ctx);
         com.teslamaps.features.MenuHighlights.renderTips(ctx);
         com.teslamaps.features.garden.JacobContestMenus.render(ctx);
         com.teslamaps.features.AttributeOverlay.render(ctx);
