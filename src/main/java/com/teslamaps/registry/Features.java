@@ -336,5 +336,12 @@ final class Features {
         com.teslamaps.features.theend.DraconicSacrificeTracker.register();
         com.teslamaps.features.ItemPickupLog.register();
         com.teslamaps.features.CustomTodos.register();
+        // w07-06-hud
+        com.teslamaps.features.CustomScoreboard.register();
+        com.teslamaps.features.ArmorHud.register();
+        com.teslamaps.features.ArmorStackHud.register();
+        com.teslamaps.features.AccurateAbsorption.register();
+        com.teslamaps.features.AllSkillsDisplay.register();
+        com.teslamaps.features.SkillGoals.register();
     }
 }
