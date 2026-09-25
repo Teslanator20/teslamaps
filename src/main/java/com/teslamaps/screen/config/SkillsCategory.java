@@ -115,6 +115,14 @@ public final class SkillsCategory {
         b.info("Flares have no nametag, the timer starts when you see them");
         b.toggle("  Other Deployables (flares, ...)",
                 () -> config.deployableOthers, v -> config.deployableOthers = v);
+        b.toggle("  Soulflow Display",
+                () -> config.soulflowDisplay, v -> config.soulflowDisplay = v)
+                .desc("Internalized soulflow from your Soulflow Pile / Battery / Supercell. Position in /tmap gui");
+        b.toggle("  Low Soulflow Warning",
+                () -> config.lowSoulflowWarning, v -> config.lowSoulflowWarning = v)
+                .desc("\"Low Soulflow\" title once it drops to the threshold");
+        b.slider("    Threshold", 0, 1000, () -> (float) config.lowSoulflowThreshold,
+                v -> config.lowSoulflowThreshold = Math.round(v), 0);
         b.info("Position and scale in /tmap gui");
         b.toggle("Hide Deployable Particles",
                 () -> config.deployableHideParticles, v -> config.deployableHideParticles = v);

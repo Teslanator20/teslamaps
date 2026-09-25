@@ -380,6 +380,13 @@ public class ChatFilter {
         if (pendingOut != null) return false;
         lastReason = "chatCompactsMore";
         if (ChatCompactsMore.handle(message, t)) return true;
+        String slayer = com.teslamaps.slayer.SlayerChatCompact.handle(t);
+        if (slayer != null) {
+            lastReason = "slayerChatCompact";
+            if (slayer.isEmpty()) return true;
+            queue(text, Component.literal(slayer));
+            return false;
+        }
         lastReason = "melodyCompact";
         if (MelodyCompact.handle(t)) return true;
         lastReason = "hoppityCompact";

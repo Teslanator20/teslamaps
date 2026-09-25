@@ -111,7 +111,8 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.AbilityRadius.hideParticle(packet)
                     || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet)
                     || com.teslamaps.features.garden.PestGuess.hideParticle(packet)
-                    || com.teslamaps.slayer.InfernoHelper.hideParticle())) ci.cancel();
+                    || com.teslamaps.slayer.InfernoHelper.hideParticle()
+                    || com.teslamaps.slayer.SlayerHiders.hideParticle(packet))) ci.cancel();
     }
 
     @Inject(method = "handleInitializeBorder", at = @At("HEAD"))
