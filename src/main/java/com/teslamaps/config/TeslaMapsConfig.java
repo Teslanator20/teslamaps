@@ -677,6 +677,11 @@ public class TeslaMapsConfig {
         public String message = "";
         public int modifiers = 0;     // GLFW mod bits: 1 shift, 2 ctrl, 4 alt; 0 = any
         public boolean enabled = true;
+        public String cond = "None";      // hotkeyConditions: None/Holding Item/Inventory Contains/Sneaking/On SkyBlock
+        public String condMode = "Name";  // Name/Lore/SkyBlock ID
+        public String condValue = "";
+        public String islands = "";       // comma list, empty = any island
+        public String failMessage = "";   // sent instead when the condition fails
         public Keybind() {}
         public Keybind(int key, String message) { this.key = key; this.message = message; }
     }
@@ -2130,6 +2135,35 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w06-01-qol
+    public boolean buildersWandPreview = false;
+    public boolean buildersRulerPreview = true;
+    public boolean blockZapperPreview = true;
+    public boolean blockZapperUndo = false;
+    public String buildersWandColor = "5055FFFF";
+    @Global
+    public boolean borderlessWindow = false;
+    @Global
+    public boolean customWindowTitle = false;
+    @Global
+    public String windowTitle = "";
+    @Global
+    public boolean customWindowIcon = false;
+    public boolean brewingStandColors = false;
+    public boolean bingoCardDisplay = false;
+    public boolean bingoHideCommunity = false;
+    public boolean bingoNextHint = true;
+    public boolean bingoCommunityChange = false;
+    public boolean bingoStepHelper = false;
+    public int bingoCardDisplayX = 5;
+    public int bingoCardDisplayY = 120;
+    public float bingoCardDisplayScale = 1f;
+    @Global
+    public boolean hotkeyConditions = false;
+    public boolean arrowHitSound = false;
+    public String arrowHitSoundType = "NOTE_HARP";
+    public float arrowHitSoundVolume = 1f;
+    public float arrowHitSoundPitch = 1f;
     // w05-02-inv
     public boolean menuSlotText = false;
     public boolean mstLevels = true;

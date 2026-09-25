@@ -44,6 +44,8 @@ public final class InventoryCategory {
                 () -> (float) config.attributeOverlayMinLevel, v -> config.attributeOverlayMinLevel = Math.round(v), 0);
         b.toggle("Brewing Stand Overlay", () -> config.brewingStandOverlay, v -> config.brewingStandOverlay = v);
         b.info("Ingredient, progress and output names next to the slots");
+        b.toggle("Color Brewing Stands", () -> config.brewingStandColors, v -> config.brewingStandColors = v)
+                .desc("Private Island: stands turn red while brewing, green when done. Open each stand once.");
         b.toggle("Magical Power As Stack Size", () -> config.magicalPowerStack, v -> config.magicalPowerStack = v)
                 .desc("Accessory Bag and auction house: MP of each accessory on its slot");
         b.toggle("  Rarity Color", () -> config.magicalPowerRarityColor, v -> config.magicalPowerRarityColor = v);
@@ -56,6 +58,13 @@ public final class InventoryCategory {
         b.toggle("Bingo Card Tips", () -> config.bingoCardTips, v -> config.bingoCardTips = v)
                 .desc("Bingo Card goals tinted by difficulty, tooltip shows the difficulty, a guide and who found it.");
         b.toggle("  Skip Finished Goals", () -> config.bingoHideDoneDifficulty, v -> config.bingoHideDoneDifficulty = v);
+        b.toggle("Bingo Card Display", () -> config.bingoCardDisplay, v -> config.bingoCardDisplay = v)
+                .desc("Bingo profile: HUD with the open personal and community goals from /bingo. Move it in /tmap gui.");
+        b.toggle("  Hide Community Goals", () -> config.bingoHideCommunity, v -> config.bingoHideCommunity = v);
+        b.toggle("  Next Hint Timer", () -> config.bingoNextHint, v -> config.bingoNextHint = v);
+        b.toggle("  Community % Change in Chat", () -> config.bingoCommunityChange, v -> config.bingoCommunityChange = v);
+        b.toggle("  Next Step Helper", () -> config.bingoStepHelper, v -> config.bingoStepHelper = v)
+                .desc("Breaks goals into steps (islands, skills, items) and shows what to do next");
         b.toggle("Pet Menu Shift Right-Click", () -> config.petShiftTakeOut, v -> config.petShiftTakeOut = v);
         b.info("Pets menu: right-click only works with shift held");
         b.toggle("Middle Click GUI", () -> config.middleClickGui, v -> config.middleClickGui = v)

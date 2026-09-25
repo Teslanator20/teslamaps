@@ -39,8 +39,12 @@ public class KeybindMessage {
         if (fire && !edges.isEmpty()) {
             int mods = heldModifiers(mc);
             for (TeslaMapsConfig.Keybind kb : binds) {
-                if (!kb.enabled || !edges.contains(kb.key) || kb.message == null || kb.message.isBlank()) continue;
-                if (kb.modifiers != 0 ? kb.modifiers == mods : !shadowed(binds, kb.key, mods)) send(kb.message);
+                if (!kb.enabled || !edges.contains(kb.key) || kb.message == null || (kb.message.isBlank() && !HotkeyCondition.hasFail(kb))) continue;
+                if (!(kb.modifiers != 0 ? kb.modifiers == mods : !shadowed(binds, kb.key, mods))) continue;
+                if (!TeslaMapsConfig.get().hotkeyConditions) { send(kb.message); continue; }
+                if (!HotkeyCondition.islandOk(kb)) continue;
+                if (HotkeyCondition.passes(kb)) { if (!kb.message.isBlank()) send(kb.message); }
+                else if (kb.failMessage != null && !kb.failMessage.isBlank()) send(kb.failMessage);
             }
         }
 

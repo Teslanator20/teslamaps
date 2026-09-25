@@ -48,7 +48,8 @@ public class LastBreathSound {
         int target = target(c, mc);
         float pitch = (float) (0.5 + Math.min(ticks, 20) / 20.0 * 1.5); // rescale 0..20 ticks -> 0.5..2.0
         var sound = (ticks >= target) ? SoundEvents.ARROW_HIT_PLAYER : SoundEvents.NOTE_BLOCK_PLING.value();
-        mc.player.playSound(sound, c.lastBreathVolume, pitch);
+        ArrowHitSound.bypass = true;
+        try { mc.player.playSound(sound, c.lastBreathVolume, pitch); } finally { ArrowHitSound.bypass = false; }
 
         if (c.lastBreathHud) {
             long charged = ServerTickTimer.now() - useStart;

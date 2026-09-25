@@ -67,6 +67,7 @@ public class ClientPlayerInteractionManagerMixin {
         com.teslamaps.features.KingRelics.onUseBlock(state, hand);
         com.teslamaps.dungeon.puzzle.BoulderSolver.onBlockInteract(pos);
 
+        if (state.is(Blocks.BREWING_STAND)) com.teslamaps.features.BrewingStandColors.onClick(pos);
         if (state.is(Blocks.CHEST) || state.is(Blocks.TRAPPED_CHEST) || state.is(Blocks.BARREL)) {
             com.teslamaps.features.ItemIndex.onChestClick(pos);
             com.teslamaps.features.SearchWaypoint.onChestClick(pos);
