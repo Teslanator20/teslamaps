@@ -18,6 +18,8 @@ public class AutoGFS {
     private static final java.util.regex.Pattern PUZZLE_FAIL = java.util.regex.Pattern.compile("^PUZZLE FAIL! (\\w{1,16}) .*$");
     private static final java.util.regex.Pattern QUIZ_FAIL = java.util.regex.Pattern.compile("^\\[STATUE] Oruo the Omniscient: (\\w{1,16}) chose the wrong answer!.*$");
 
+    private static final java.util.regex.Pattern DRAFT_RESET = java.util.regex.Pattern.compile("^You used the Architect's First Draft to reset (.+)!$");
+
     private record Pending(long dueTick, Runnable action) {}
     private static final java.util.List<Pending> pending = new java.util.ArrayList<>();
 
@@ -57,6 +59,11 @@ public class AutoGFS {
                 TeslaMaps.debug("[AutoGFS] Dungeon started, refilling items...");
                 scheduleRefill(20); // 1 second delay
             }
+        }
+
+        if (TeslaMapsConfig.get().autoGFSDraftAnnounce && DungeonManager.isInDungeon()) {
+            java.util.regex.Matcher dm = DRAFT_RESET.matcher(message.trim());
+            if (dm.matches()) Announce.party("Used Draft to Reset " + dm.group(1));
         }
 
         if (TeslaMapsConfig.get().autoGFSDraft) {

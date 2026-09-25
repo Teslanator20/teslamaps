@@ -41,6 +41,7 @@ public final class AutoCategory {
         b.label("Special");
         b.toggle("Auto Draft on Puzzle Fail", () -> config.autoGFSDraft, v -> config.autoGFSDraft = v);
         b.toggle("  Draft Alert Title", () -> config.autoGFSDraftAlert, v -> config.autoGFSDraftAlert = v);
+        b.toggle("  Announce Draft Reset (/pc)", () -> config.autoGFSDraftAnnounce, v -> config.autoGFSDraftAnnounce = v);
         b.label("Auto Wish");
         b.toggle("Auto Wish (Healer Ult)", () -> config.autoWish, v -> config.autoWish = v);
         b.toggle("Last Breath Pull Sound", () -> config.lastBreathSound, v -> config.lastBreathSound = v);

@@ -80,6 +80,11 @@ public final class PuzzlesTerminalsCategory {
                 () -> (float) config.blazeLineAmount, v -> config.blazeLineAmount = Math.round(v), 0);
         b.slider("  Blaze Line Width", 0.5f, 5f,
                 () -> config.blazeLineWidth, v -> config.blazeLineWidth = v, 1);
+        b.toggle("  Blaze Standing Spot + Etherwarp", () -> config.blazeSpots, v -> config.blazeSpots = v);
+        b.color("    Spot Outline", () -> config.blazeSpotOutline, v -> config.blazeSpotOutline = v);
+        b.color("    Spot Fill", () -> config.blazeSpotFill, v -> config.blazeSpotFill = v);
+        b.color("    Etherwarp Outline", () -> config.blazeEtherOutline, v -> config.blazeEtherOutline = v);
+        b.color("    Etherwarp Fill", () -> config.blazeEtherFill, v -> config.blazeEtherFill = v);
         b.toggle("Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v);
         b.toggle("Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v);
         b.toggle("Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v);
@@ -92,6 +97,10 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("  Quiz Beacon Beam", () -> config.quizBeacon, v -> config.quizBeacon = v);
         b.toggle("  Quiz Chat Highlight", () -> config.quizChatHighlight, v -> config.quizChatHighlight = v);
         b.toggle("  Quiz Hide Wrong Answers", () -> config.quizHideWrongAnswers, v -> config.quizHideWrongAnswers = v);
+        b.toggle("  Quiz Question Timer", () -> config.quizTimer, v -> config.quizTimer = v);
+        b.toggle("  Quiz Question Splits", () -> config.quizSplits, v -> config.quizSplits = v);
+        b.dropdown("    Splits Time Format", com.teslamaps.dungeon.puzzle.QuizExtras.FORMATS,
+                () -> config.quizSplitsFormat, v -> config.quizSplitsFormat = v);
         b.toggle("Teleport Maze Solver", () -> config.solveTPMaze, v -> config.solveTPMaze = v);
         b.toggle("  TP Maze Next-Portal Tracer", () -> config.tpMazeTracer, v -> config.tpMazeTracer = v);
         b.toggle("  TP Maze Prioritize Diagonal", () -> config.tpMazePrioritizeDiagonal, v -> config.tpMazePrioritizeDiagonal = v);
@@ -102,6 +111,8 @@ public final class PuzzlesTerminalsCategory {
         b.dropdown("  Water Board Solutions", waterSets,
                 () -> waterSets[Math.max(0, Math.min(2, config.waterBoardSolutionSet))],
                 v -> config.waterBoardSolutionSet = Math.max(0, java.util.Arrays.asList(waterSets).indexOf(v)));
+        b.toggle("  Water Flow Preview", () -> config.waterBoardPreview, v -> config.waterBoardPreview = v);
+        b.toggle("    Preview Lever You Look At", () -> config.waterBoardPreviewLevers, v -> config.waterBoardPreviewLevers = v);
         b.toggle("Ice Fill Solver", () -> config.solveIceFill, v -> config.solveIceFill = v);
         b.toggle("  Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v);
         b.toggle("  Ice Fill: Solve From Blocks", () -> config.iceFillDynamic, v -> config.iceFillDynamic = v);
@@ -112,6 +123,11 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("  Ice Path: Follow Silverfish", () -> config.icePathDynamic, v -> config.icePathDynamic = v);
         b.toggle("Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v);
         b.toggle("Puzzle Timers", () -> config.puzzleTimers, v -> config.puzzleTimers = v);
+        b.toggle("Puzzle HUD", () -> config.puzzleHud, v -> config.puzzleHud = v);
+        b.toggle("  Show Player Names", () -> config.puzzleHudPlayers, v -> config.puzzleHudPlayers = v);
+        b.toggle("  Only Before Run Start", () -> config.puzzleHudPreRunOnly, v -> config.puzzleHudPreRunOnly = v);
+        b.toggle("  Failed / Missing Count", () -> config.puzzleHudCounts, v -> config.puzzleHudCounts = v);
+        b.toggle("  Only Failed / Missing", () -> config.puzzleHudCountsOnly, v -> config.puzzleHudCountsOnly = v);
         b.toggle("Terracotta Spawn Timers (F6/M6)", () -> config.terracottaTimer, v -> config.terracottaTimer = v);
         b.label("Puzzle Colors");
         b.color("Boulder Click", () -> config.colorBoulder, v -> config.colorBoulder = v);

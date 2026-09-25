@@ -154,6 +154,20 @@ public class WaterBoardSolver {
         return new int[]{rotated[0] + cornerX, rotated[1] + cornerZ};
     }
 
+    public static boolean roomKnown() {
+        return inWaterBoard && rotation >= 0;
+    }
+
+    /** Room-relative x/z to world x/z, null while the rotation is unknown. */
+    public static int[] toWorld(int x, int z) {
+        return fromComp(x, z);
+    }
+
+    public static int[] toRelative(int worldX, int worldZ) {
+        if (rotation < 0) return null;
+        return rotatePos(worldX - cornerX, worldZ - cornerZ, rotation);
+    }
+
     private static void detectVariant(Minecraft mc) {
         if (rotation < 0) {
             TeslaMaps.LOGGER.warn("[WaterBoardSolver] No rotation detected yet");
