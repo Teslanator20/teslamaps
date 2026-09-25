@@ -26,7 +26,8 @@ public class ItemNumbers {
             "Master Star Tier", "Master Skull Tier", "Dungeon Head Floor", "Dungeon Item Quality",
             "Star Count", "New Year Cake Year", "Pet Level", "Minion Tier", "Kuudra Key Tier",
             "Collection Level", "Bestiary Tier", "SkyBlock Level", "Rancher's Boots Speed",
-            "Larva Hook Harvests", "Dungeon Potion Level", "Vacuum Pests", "Evolving Item Hours", "Edition");
+            "Larva Hook Harvests", "Dungeon Potion Level", "Vacuum Pests", "Evolving Item Hours", "Edition",
+            "Prehistoric Egg Blocks", "Toolkit Indicator");
 
     private static final Pattern MASTER_SKULL = Pattern.compile("MASTER_SKULL_TIER_(\\d)");
     private static final Pattern PET = Pattern.compile("^\\[Lvl (\\d+)].*");
@@ -221,12 +222,44 @@ public class ItemNumbers {
             };
             if (ea.contains(key)) return "§a" + (ea.getIntOr(key, 0) / 3600);
         }
+        if (sel("Prehistoric Egg Blocks") && id.equals("PREHISTORIC_EGG")) {
+            if (ea == null) ea = data.copyTag();
+            if (ea.contains("blocks_walked")) {
+                int w = ea.getIntOr("blocks_walked", 0);
+                if (w < 1000) return String.valueOf(w);
+                if (w < 10000) return (w / 100) / 10.0 + "k";
+                return w / 1000 + "k";
+            }
+        }
         if (sel("Edition")) {
             if (ea == null) ea = data.copyTag();
             int ed = ea.getIntOr("edition", -1);
             if (ed >= 0 && ed < 1000 && ea.contains("edition")) return "§6" + ed;
         }
         return null;
+    }
+
+    private record Toolkit(ItemLore lore, boolean part) {}
+
+    private static final Map<ItemStack, Toolkit> TOOLKIT = new WeakHashMap<>();
+
+    /** Red ❒ in the top-left corner of a hunting toolkit item. */
+    public static void drawToolkit(net.minecraft.client.gui.GuiGraphicsExtractor ctx, net.minecraft.world.inventory.Slot slot) {
+        if (!on || !sel("Toolkit Indicator")) return;
+        ItemStack stack = slot.getItem();
+        if (stack.isEmpty()) return;
+        ItemLore lore = stack.get(DataComponents.LORE);
+        if (lore == null) return;
+        Toolkit t = TOOLKIT.get(stack);
+        if (t == null || t.lore != lore) {
+            boolean part = false;
+            for (var l : lore.lines()) {
+                if (l.getString().contains("Part of a Toolkit!")) { part = true; break; }
+            }
+            t = new Toolkit(lore, part);
+            TOOLKIT.put(stack, t);
+        }
+        if (t.part) SlotText.draw(ctx, Minecraft.getInstance().font, "❒", slot.x, slot.y, 0, 0xFFFF5555);
     }
 
     private static boolean ownItem(ItemStack stack) {

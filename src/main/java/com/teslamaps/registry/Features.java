@@ -587,6 +587,14 @@ final class Features {
         com.teslamaps.features.PositionalMessages.register();
         // w11-00-chat
         com.teslamaps.features.ChatEncryption.register();
+        // w12-08-eco
+        com.teslamaps.features.AnitaShop.register();
+        com.teslamaps.features.BazaarHelpers.register();
+        com.teslamaps.features.CraftMaterials.register();
+        com.teslamaps.features.InstaSellHighlight.register();
+        com.teslamaps.features.PriceHistory.register();
+        com.teslamaps.features.AuctionSortWarning.register();
+        com.teslamaps.features.theend.DragonProfitTracker.register();
         // w12-09-eco
         com.teslamaps.features.BazaarFillEstimate.register();
         com.teslamaps.features.PriceLookup.register();
@@ -601,5 +609,54 @@ final class Features {
         com.teslamaps.features.garden.FarmingFortuneHud.register();
         com.teslamaps.features.garden.CropFever.register();
         com.teslamaps.features.garden.VisitorOffer.register();
+        // w14-07-min
+        com.teslamaps.features.mining.Commissions.register();
+        com.teslamaps.features.mining.CommissionWaypoints.register();
+        com.teslamaps.features.mining.CommissionMobHighlight.register();
+        com.teslamaps.features.mining.CommissionTips.register();
+        com.teslamaps.features.mining.NucleusTracker.register();
+        com.teslamaps.features.mining.HollowsMap.register();
+        com.teslamaps.features.mining.TreasureChestHelper.register();
+        // w14-02-gar
+        com.teslamaps.features.YawPitchHud.register();
+        com.teslamaps.features.SpeedPresets.register();
+        com.teslamaps.features.RareCropTracker.register();
+        com.teslamaps.features.StereoHarmony.register();
+        com.teslamaps.features.GardenPlotBorders.register();
+        com.teslamaps.features.VisitorChat.register();
+        com.teslamaps.features.npc.VisitorLogbook.register();
+        com.teslamaps.features.VisitorStats.register();
+        // w14-03-gar
+        com.teslamaps.features.GardenTrashBlocks.register();
+        com.teslamaps.features.PhantomleafSolver.register();
+        com.teslamaps.features.VisitorsOutsideGarden.register();
+        com.teslamaps.features.GardenMenuHelpers.register();
+        // w14-00-gar
+        com.teslamaps.features.MantidKillDisplay.register();
+        com.teslamaps.features.GlowingMushrooms.register();
+        com.teslamaps.features.MousematAngles.register();
+        com.teslamaps.features.NoBreak.register();
+        com.teslamaps.features.PestSpawnSound.register();
+        com.teslamaps.features.PestBaitPanel.register();
+        com.teslamaps.features.NoCropRotation.register();
+        com.teslamaps.features.PbFortuneGain.register();
+        // w13-00-eco
+        com.teslamaps.features.NpcDayLimit.register();
+        com.teslamaps.features.PricePaid.register();
+        com.teslamaps.features.hud.FireSaleWidget.register();
+        com.teslamaps.features.PesthunterProfit.register();
+        com.teslamaps.features.FancyAuctionHouse.register();
+        // w14-06-gar
+        com.teslamaps.features.GardenPlots.register();
+        com.teslamaps.features.SixthVisitor.register();
+        com.teslamaps.features.PlotSprays.register();
+        // w13-05-pv
+        com.teslamaps.features.PlayerPeek.register();
+        // w13-02-eco
+        com.teslamaps.features.AuctionPriceInput.register();
+        com.teslamaps.features.SearchOverlay.register();
+        com.teslamaps.features.BazaarOrderTooltip.register();
+        com.teslamaps.features.EssenceShopCosts.register();
+        com.teslamaps.features.EscrowFix.register();
     }
 }

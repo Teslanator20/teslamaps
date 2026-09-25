@@ -66,6 +66,7 @@ public class ContainerOverlays {
         com.teslamaps.features.BazaarOwnOrders.render(context);
         com.teslamaps.features.TradeValue.render(context);
         com.teslamaps.features.BitsShopHelper.render(context);
+        com.teslamaps.features.PesthunterProfit.render(context, mouseX, mouseY);
         com.teslamaps.features.bazaar.ManageAuctions.render(context);
         com.teslamaps.features.bazaar.BazaarPurchaseHelper.render(context);
         com.teslamaps.features.ProgressHighlight.render(context);
@@ -85,6 +86,8 @@ public class ContainerOverlays {
         com.teslamaps.features.Experimentation.render(context);
         com.teslamaps.features.ExperimentStats.render(context);
         com.teslamaps.features.qol.CityProject.render(context);
+        com.teslamaps.features.EcoOverlays.render(context, mouseX, mouseY);
+        com.teslamaps.features.GardenMenuHelpers.render(context, mouseX, mouseY);
         com.teslamaps.features.AbiphoneHelper.render(context);
 
         if (com.teslamaps.features.foraging.HotF.shouldRender()) {

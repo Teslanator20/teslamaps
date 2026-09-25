@@ -29,6 +29,13 @@ public final class CritterSafariCategory {
                 .desc("Rebuilds past runs from latest.log and the .log.gz files, fills per-critter data into saved runs")
                 .tags("import", "history", "logs");
         b.info("Per-critter stats (own, tries, shards, never caught): /tmap safari species");
+        b.toggle("  Shard Value", () -> config.safariShardValue, v -> config.safariShardValue = v)
+                .desc("Values the shards you got (captures + loot share) at the bazaar: Value line and coins/h in the HUD, coins per run, total and average in /tmap safari. Top species: /tmap safari prices")
+                .tags("shard", "value", "profit", "coins", "bazaar");
+        b.dropdown("    Price", com.teslamaps.safari.SafariShardValue.MODES,
+                () -> config.safariShardPrice, v -> config.safariShardPrice = v)
+                .desc("Instant Sell = best buy order, Sell Offer = cheapest sell offer, Both shows the two");
+        b.toggle("    Minus Bazaar Tax (1.25%)", () -> config.safariShardTax, v -> config.safariShardTax = v);
         b.toggle("  Per-Player Breakdown At Run End", () -> config.safariPlayersOnEnd, v -> config.safariPlayersOnEnd = v)
                 .desc("Who caught what: unique critters per biome and the species per player, green = you have it too, aqua = only them. Also /tmap safari players.")
                 .tags("players", "split", "biome");

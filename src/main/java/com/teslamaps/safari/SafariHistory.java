@@ -28,6 +28,7 @@ public class SafariHistory {
         public java.util.Map<String, Integer> failures;
         public java.util.Map<String, Integer> ownCatches;
         public java.util.Map<String, Integer> shards;
+        public double shardValue; // coins at run end, 0 = not tracked
         public int moundsBroken;
         public int rockmites;
         public boolean imported;
@@ -216,15 +217,38 @@ public class SafariHistory {
         long full = fastestFullDex();
         out.add("§6PB §7Full dex: " + (full == 0 ? "§8not yet" : "§f" + time(full)));
 
+        boolean value = SafariShardValue.on();
+        if (value) {
+            double sum = 0;
+            long valued = 0, valuedTime = 0;
+            for (Run r : all) {
+                double v = runValue(r);
+                if (v <= 0) continue;
+                sum += v;
+                valued++;
+                valuedTime += r.durationMs;
+            }
+            if (valued > 0) out.add("§7Shard value: §6" + com.teslamaps.features.EstimatedValue.fmt(sum)
+                    + " §8| §7avg §6" + com.teslamaps.features.EstimatedValue.fmt(sum / valued)
+                    + SafariShardValue.perHour(sum, valuedTime) + " §8(" + valued + " runs)");
+        }
+
         int from = Math.max(0, all.size() - lastN);
         out.add("§7Last " + (all.size() - from) + " runs:");
         for (int i = all.size() - 1; i >= from; i--) {
             Run r = all.get(i);
             out.add("§8 - §f" + time(r.durationMs) + " §7dex §f" + r.dex + "§7/" + SafariData.ALL.size()
                     + " §7own §f" + r.own + " §7caps §f" + r.capsules + " §7esc §c" + r.escapes
-                    + (r.hotspot == null ? "" : " §8[" + r.hotspot + "]"));
+                    + (r.hotspot == null ? "" : " §8[" + r.hotspot + "]")
+                    + (value && runValue(r) > 0 ? " §6" + com.teslamaps.features.EstimatedValue.fmt(runValue(r)) : ""));
         }
         return out;
+    }
+
+    /** Saved value, else the shards at today's prices. */
+    static double runValue(Run r) {
+        if (r.shardValue > 0) return r.shardValue;
+        return r.shards == null ? 0 : SafariShardValue.main(SafariShardValue.value(r.shards));
     }
 
     public static String time(long ms) {

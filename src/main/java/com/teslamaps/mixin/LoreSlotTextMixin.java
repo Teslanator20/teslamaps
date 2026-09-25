@@ -15,5 +15,7 @@ public class LoreSlotTextMixin {
     private void teslamaps$loreSlotText(GuiGraphicsExtractor ctx, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
         com.teslamaps.features.ItemLoreExtras.drawSlot(ctx, slot);
         com.teslamaps.features.CrownValueOverlay.drawSlot(ctx, slot);
+        com.teslamaps.features.GardenPlots.drawDeskCount(ctx, slot);
+        com.teslamaps.features.ItemNumbers.drawToolkit(ctx, slot);
     }
 }

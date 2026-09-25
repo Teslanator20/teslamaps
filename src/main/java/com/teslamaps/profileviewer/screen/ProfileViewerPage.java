@@ -72,6 +72,10 @@ public abstract class ProfileViewerPage {
         this.scroll = Math.max(0, Math.min(maxScroll, scroll));
     }
 
+    protected static boolean extra(boolean sub) {
+        return com.teslamaps.config.TeslaMapsConfig.get().pvExtras && sub;
+    }
+
     protected static boolean scrollMode() {
         return com.teslamaps.config.TeslaMapsConfig.get().pvScrollPages;
     }

@@ -20,6 +20,19 @@ public class SkyblockUtils {
         return HYPIXEL_PATTERN.matcher(address).matches() || address.contains("hypixel");
     }
 
+    private static boolean sbCached;
+    private static long sbCachedAt;
+
+    /** isInSkyblock, re-checked at most once a second; for per-frame / per-slot paths. */
+    public static boolean inSkyblockCached() {
+        long now = System.currentTimeMillis();
+        if (now - sbCachedAt > 1000) {
+            sbCachedAt = now;
+            sbCached = isInSkyblock();
+        }
+        return sbCached;
+    }
+
     public static boolean isInSkyblock() {
         if (areaOverride != null) return true;
         if (!isOnHypixel()) return false;
