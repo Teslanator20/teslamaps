@@ -2550,7 +2550,6 @@ public class TeslaMapsConfig {
     public boolean hideCloakCreepers = false;
     public boolean hideAbsorption = false;
     public boolean hideMountHealth = false;
-    public boolean hideEntityFire = false;
     public boolean hideDeathParticles = false;
     public boolean noNightVision = false;
     public boolean hideEndermanTeleport = false;
