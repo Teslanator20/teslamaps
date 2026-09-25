@@ -5,6 +5,7 @@
   "client": [
     "PauseScreenMixin",
     "FocusLossMixin",
+    "WindowTitleMixin",
     "TooltipStyleMixin",
     "QolContainerMixin",
     "QolMinecraftMixin",

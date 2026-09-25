@@ -296,5 +296,11 @@ final class Features {
         com.teslamaps.features.AutoShiftClick.register();
         com.teslamaps.features.StreamerMode.register();
         com.teslamaps.features.ScreenshotPreview.register();
+        // w06-01-qol
+        com.teslamaps.features.BuildersWandPreview.register();
+        com.teslamaps.features.WindowTweaks.register();
+        com.teslamaps.features.BrewingStandColors.register();
+        com.teslamaps.features.BingoCard.register();
+        com.teslamaps.features.ArrowHitSound.register();
     }
 }

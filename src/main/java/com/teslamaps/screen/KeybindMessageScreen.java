@@ -55,7 +55,8 @@ public class KeybindMessageScreen extends Screen {
         scroll = Math.max(0, Math.min(scroll, Math.max(0, b.size() - VISIBLE)));
 
         int modsW = 3 * (MOD_W + 2);
-        int boxW = listW - 24 - KEY_W - 4 - modsW - 4 - 28;
+        boolean conds = TeslaMapsConfig.get().hotkeyConditions;
+        int boxW = listW - 24 - KEY_W - 4 - modsW - 4 - 28 - (conds ? 24 : 0);
         for (int row = 0; row < VISIBLE; row++) {
             final int idx = scroll + row;
             if (idx >= b.size()) break;
@@ -90,6 +91,10 @@ public class KeybindMessageScreen extends Screen {
             box.setResponder(v -> kb.message = v);
             addRenderableWidget(box);
             fields.add(new int[] {boxX, ry, boxW, 22});
+
+            if (conds) addRenderableWidget(new TeslaButton(listX + listW - 46, ry, 22, 22,
+                    com.teslamaps.features.HotkeyCondition.summary(kb),
+                    () -> minecraft.setScreen(new HotkeyConditionScreen(this, kb))));
 
             addRenderableWidget(new TeslaButton(listX + listW - 22, ry, 22, 22, "§cx",
                     () -> { b.remove(idx); listening = -1; rebuild(); }));
