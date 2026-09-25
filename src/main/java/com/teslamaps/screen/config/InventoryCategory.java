@@ -100,7 +100,7 @@ public final class InventoryCategory {
                 () -> config.backpackSlotOpacity, v -> config.backpackSlotOpacity = v, 2);
         b.toggle("  Preview From Item Data", () -> config.itemDataPreview, v -> config.itemDataPreview = v)
                 .desc("Cake bags, Builder's Wand and backpack items show their contents, even never opened");
-        b.toggle("    New Year Cake Bag", () -> config.itemDataPreviewCakeBag, v -> config.itemDataPreviewCakeBag = v);
+        b.toggle("    Cake Bag From Item Data", () -> config.itemDataPreviewCakeBag, v -> config.itemDataPreviewCakeBag = v);
         b.toggle("    Also In Auction House", () -> config.itemDataPreviewInAh, v -> config.itemDataPreviewInAh = v);
         b.label("Item Search");
         b.toggle("Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v);

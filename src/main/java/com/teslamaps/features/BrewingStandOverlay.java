@@ -54,7 +54,7 @@ public class BrewingStandOverlay {
     }
 
     public static void render(GuiGraphicsExtractor ctx) {
-        if (labels.isEmpty() || !cfg().brewingStandOverlay) return;
+        if (labels.isEmpty() || !cfg().brewingStandOverlay || !cfg().section("Inventory")) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;

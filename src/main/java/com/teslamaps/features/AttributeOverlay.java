@@ -167,7 +167,7 @@ public class AttributeOverlay {
     }
 
     public static void render(GuiGraphicsExtractor ctx) {
-        if (labels.isEmpty() || !cfg().attributeOverlay) return;
+        if (labels.isEmpty() || !cfg().attributeOverlay || !cfg().section("Inventory")) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;

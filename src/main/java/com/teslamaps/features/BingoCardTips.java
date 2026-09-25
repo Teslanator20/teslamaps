@@ -48,7 +48,7 @@ public final class BingoCardTips {
     public static void register() {
         feature = Feature.of("BingoCardTips").section("Inventory").when(() -> TeslaMapsConfig.get().bingoCardTips)
                 .tick(BingoCardTips::tick);
-        RepoCache.onReload("BingoCardTips", () -> { fetched = false; fetch(); });
+        RepoCache.onReload("BingoCardTips", () -> fetched = false);
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (inCard && feature.active()) onTooltip(stack, lines);
         });

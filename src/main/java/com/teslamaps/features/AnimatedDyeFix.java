@@ -88,7 +88,7 @@ public final class AnimatedDyeFix {
     /** The stack to show for a slot of the open screen. */
     public static ItemStack displayStack(Slot slot) {
         ItemStack stack = slot.getItem();
-        if (stack.isEmpty() || !hidden(stack) || !on()) return stack;
+        if (!cfg().animatedDyeTooltipFix || stack.isEmpty() || !hidden(stack) || !on()) return stack;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || !(mc.screen instanceof AbstractContainerScreen<?> cs)) return stack;
         if (cs.getMenu() != mc.player.inventoryMenu) return stack;

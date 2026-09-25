@@ -3157,6 +3157,8 @@ public class TeslaMapsConfig {
         if (c.magicalPower == null) c.magicalPower = new java.util.HashMap<>();
         if (c.museumHelperSort == null) c.museumHelperSort = "Lowest Price";
         if (c.museumHelperCategory == null) c.museumHelperCategory = "All";
+        if (c.dungeonQualityStyle == null) c.dungeonQualityStyle = "42/50";
+        if (c.equipmentDisplayPos == null) c.equipmentDisplayPos = "Left";
         if (c.capeSelected == null) c.capeSelected = "";
         if (c.capeServerUrl == null || c.capeServerUrl.isBlank() || c.capeServerUrl.contains("wynnextras.com")) {
             c.capeServerUrl = CAPE_SERVER_URL;

@@ -92,7 +92,7 @@ public class InventoryDecoder {
     public static List<Slot> decodeBytes(byte[] raw) {
         if (raw == null || raw.length == 0) return List.of();
         try {
-            CompoundTag root = NbtIo.readCompressed(new ByteArrayInputStream(raw), NbtAccounter.unlimitedHeap());
+            CompoundTag root = NbtIo.readCompressed(new ByteArrayInputStream(raw), NbtAccounter.create(64L << 20));
             ListTag items = root.getList("i").orElse(null);
             if (items == null) return List.of();
 
