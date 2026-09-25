@@ -68,9 +68,11 @@ public final class VanillaManaBar {
     }
 
     /** Raw action bar text, main thread. "800/1,355✎ Mana     400ʬ" */
-    public static void onActionBar(String raw) {
-        if (raw == null) return;
+    public static void onActionBar(String text) {
+        if (text == null) return;
+        String raw = com.teslamaps.utils.StringUtil.strip(text);
         int i = raw.indexOf('✎');
+        if (i < 0) i = raw.indexOf('');
         if (i < 0) return;
         int slash = -1, start = i;
         while (start > 0) {
@@ -84,6 +86,7 @@ public final class VanillaManaBar {
         if (cur < 0 || max <= 0) return;
         int of = 0;
         int o = raw.indexOf('ʬ');
+        if (o < 0) o = raw.indexOf('');
         if (o > 0) {
             int s = o;
             while (s > 0 && (Character.isDigit(raw.charAt(s - 1)) || raw.charAt(s - 1) == ',')) s--;

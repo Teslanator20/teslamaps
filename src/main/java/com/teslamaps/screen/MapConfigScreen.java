@@ -1816,7 +1816,7 @@ public class MapConfigScreen extends Screen {
         }
 
         private List<String> order() {
-            if (order == null || dragging < 0) order = new ArrayList<>(com.teslamaps.utils.LineOrder.resolved(id));
+            if (order == null) order = new ArrayList<>(com.teslamaps.utils.LineOrder.resolved(id));
             return order;
         }
 

@@ -119,7 +119,7 @@ public final class StashCompact {
         boolean removed = false;
         for (int i = 0; i < 2 && !all.isEmpty(); i++) {
             GuiMessage first = all.get(0);
-            if (now - first.addedTime() > 10 || !StringUtil.strip(first.content().getString()).isBlank()) break;
+            if (now - first.addedTime() > 10 || !ChatTimestamps.cut(StringUtil.strip(first.content().getString())).isBlank()) break;
             all.remove(0);
             removed = true;
         }

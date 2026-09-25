@@ -23,7 +23,8 @@ public final class CommandShortcuts {
     private static final String[][] MORE_DEFAULTS = {
             {"pa", "p accept"}, {"m", "msg"}, {"v", "visit"}, {"vp", "visit portalhub"},
             {"ca", "chat all"}, {"cp", "chat party"}, {"cg", "chat guild"}, {"co", "chat officer"},
-            {"ga", "warp garden"}, {"dn", "warp dungeon_hub"}
+            {"ga", "warp garden"}, {"dn", "warp dungeon_hub"},
+            {"pko", "party kickoffline"}, {"pw", "party warp"}, {"pp", "party promote"}
     };
 
     private static final Command<Object> NOOP = ctx -> 0;
@@ -48,6 +49,14 @@ public final class CommandShortcuts {
                     b.toggle("  Lowercase Command Names", () -> c.commandLowercase, v -> c.commandLowercase = v)
                             .desc("/Warp hub is sent as /warp hub");
                     b.button("  Add More Default Shortcuts", CommandShortcuts::addDefaults);
+                    b.toggle("  Party Shortcuts (/pko /pw /pp /rpt)", () -> c.partyShortcuts, v -> c.partyShortcuts = v)
+                            .desc("/pko kicks offline members, /pw warps, /pp promotes, /rpt gives the party back to the previous leader");
+                    b.toggle("    Kick Reason (/pk name reason)", () -> c.partyKickReason, v -> c.partyKickReason = v)
+                            .desc("Writes 'Kicking name: reason' into party chat, then kicks");
+                    b.toggle("    Complete Party Members", () -> c.partyTabComplete, v -> c.partyTabComplete = v)
+                            .desc("/p kick, promote, demote and transfer suggest your party members first");
+                    b.toggle("    Clickable Transfer Back", () -> c.reversePtClickable, v -> c.reversePtClickable = v)
+                            .desc("After a transfer to you, a clickable line gives the party back. /rpt message <text> sets a party message");
                     b.info("/tmap shortcut list shows every shortcut");
                 });
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("tmap")
