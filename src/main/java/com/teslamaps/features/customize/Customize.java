@@ -40,6 +40,7 @@ public class Customize {
     /** Called after every write from the customize screen and once on config load. */
     public static void refresh() {
         TeslaMapsConfig config = TeslaMapsConfig.get();
+        noUuidKeys = config.customizeNoUuid;
         anyName = !config.customItemNames.isEmpty();
         anyCustomization = anyName
                 || !config.customArmorTrims.isEmpty()
@@ -62,8 +63,16 @@ public class Customize {
         return anyName && onSkyblock;
     }
 
+    public static final Identifier PLAYER_HEAD_MODEL = Identifier.withDefaultNamespace("player_head");
+    private static boolean noUuidKeys = false;
+
+    /** Items without a uuid get id(+timestamp) as their key; read on the hot path, so a cached flag. */
+    public static boolean noUuidKeys() {
+        return noUuidKeys;
+    }
+
     public static String uuid(ItemStack stack) {
-        return ((CustomizableStack) (Object) stack).teslamaps$uuid();
+        return ((CustomizableStack) (Object) stack).teslamaps$customKey();
     }
 
     /** Drops every customization of one item. */

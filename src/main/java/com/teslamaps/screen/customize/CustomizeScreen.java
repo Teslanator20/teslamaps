@@ -41,10 +41,26 @@ public class CustomizeScreen extends Screen {
     private ArmorTab armorTab;
     private ItemTab itemTab;
 
+    private final ItemStack initialItem;
+
     public CustomizeScreen(@Nullable Screen previousScreen, boolean item) {
+        this(previousScreen, item, ItemStack.EMPTY);
+    }
+
+    /** Opens the item tab on one specific stack (hover key). */
+    public CustomizeScreen(@Nullable Screen previousScreen, ItemStack stack) {
+        this(previousScreen, true, stack);
+    }
+
+    private CustomizeScreen(@Nullable Screen previousScreen, boolean item, ItemStack initialItem) {
         super(Component.translatable("teslamaps.customize.title").withStyle(ChatFormatting.GRAY));
         this.previousScreen = previousScreen;
         this.item = item;
+        this.initialItem = initialItem;
+    }
+
+    ItemStack initialItem() {
+        return initialItem;
     }
 
     /** Remembers what an item looked like before this screen touched it, so cancel can put it back. */

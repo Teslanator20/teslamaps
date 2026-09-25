@@ -17,7 +17,9 @@ import net.minecraft.world.item.component.ItemLore;
 // elsewhere (skill menus, SkyBlock Level menu) the same lore shape means something else
 public class ProgressHighlight {
 
-    private static final IdentityHashMap<ItemStack, Boolean> cache = new IdentityHashMap<>();
+    private static final IdentityHashMap<ItemStack, Integer> cache = new IdentityHashMap<>();
+    private static final IdentityHashMap<ItemStack, String> tierCache = new IdentityHashMap<>();
+    private static final String LOCKED = "You haven't unlocked this Family yet!";
 
     private static final String[] MENUS = {
             "Ways to Level Up",
@@ -46,15 +48,28 @@ public class ProgressHighlight {
         if (!isWhitelisted(cs)) return;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
-        int col = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorProgressDone) & 0x00FFFFFF;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        int done = TeslaMapsConfig.parseColor(c.colorProgressDone) & 0x00FFFFFF;
+        int red = TeslaMapsConfig.parseColor(c.colorProgressUnfinished) & 0x00FFFFFF;
 
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
             ItemStack item = slot.getItem();
             if (item.isEmpty()) continue;
-            if (!isComplete(item)) continue;
-
             int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
+            if (c.progressHighlightTier) {
+                String tier = tier(item);
+                if (!tier.isEmpty()) {
+                    net.minecraft.client.gui.Font font = mc.font;
+                    ctx.text(font, tier, sx + 17 - font.width(tier), sy + 9, 0xFFFFFFFF);
+                }
+            }
+            int state = state(item);
+            int col;
+            if (state == 1) col = done;
+            else if (state == 2 && c.progressHighlightRed) col = red;
+            else continue;
+
             ctx.fill(sx, sy, sx + 16, sy + 16, 0x66000000 | col);
             ctx.fill(sx, sy, sx + 16, sy + 1, 0xFF000000 | col);
             ctx.fill(sx, sy + 15, sx + 16, sy + 16, 0xFF000000 | col);
@@ -63,22 +78,67 @@ public class ProgressHighlight {
         }
     }
 
-    private static boolean isComplete(ItemStack item) {
-        Boolean cached = cache.get(item);
+    // 0 = no progress line, 1 = done, 2 = unfinished
+    private static int state(ItemStack item) {
+        Integer cached = cache.get(item);
         if (cached != null) return cached;
         if (cache.size() > 512) cache.clear();
 
-        boolean done = false;
+        int state = 0;
         ItemLore lore = item.get(DataComponents.LORE);
         if (lore != null) {
             for (Component cmp : lore.lines()) {
                 String l = StringUtil.strip(cmp.getString()).trim();
+                if (l.contains(LOCKED)) { state = 2; continue; }
                 if (!isProgressLine(l)) continue;
-                if (percent(l) >= 100) { done = true; break; }
+                double p = percent(l);
+                if (p >= 100) { state = 1; break; }
+                if (p >= 0) state = 2;
             }
         }
-        cache.put(item, done);
-        return done;
+        cache.put(item, state);
+        return state;
+    }
+
+    // bestiary family tier as a number, locked = 0; empty when the item is no family
+    private static String tier(ItemStack item) {
+        String cached = tierCache.get(item);
+        if (cached != null) return cached;
+        if (tierCache.size() > 512) tierCache.clear();
+
+        String out = "";
+        boolean family = false;
+        ItemLore lore = item.get(DataComponents.LORE);
+        if (lore != null) {
+            for (Component cmp : lore.lines()) {
+                String l = StringUtil.strip(cmp.getString());
+                if (l.contains(LOCKED)) { out = "0"; break; }
+                if (l.contains("Overall Progress:") && l.indexOf('%') > 0) family = true;
+            }
+        }
+        if (family) {
+            String name = StringUtil.stripTrim(item.getHoverName().getString());
+            int sp = name.lastIndexOf(' ');
+            int t = sp < 0 ? 0 : roman(name.substring(sp + 1));
+            if (t > 0) out = String.valueOf(t);
+        }
+        tierCache.put(item, out);
+        return out;
+    }
+
+    private static int roman(String s) {
+        if (s.isEmpty()) return 0;
+        int result = 0, prev = 0;
+        for (int i = s.length() - 1; i >= 0; i--) {
+            int v = switch (s.charAt(i)) {
+                case 'I' -> 1; case 'V' -> 5; case 'X' -> 10; case 'L' -> 50; case 'C' -> 100;
+                default -> -1;
+            };
+            if (v < 0) return 0;
+            result += v < prev ? -v : v;
+            prev = v;
+        }
+        return result;
     }
 
     private static Object lastScreen;

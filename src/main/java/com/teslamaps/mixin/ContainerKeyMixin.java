@@ -52,6 +52,11 @@ public class ContainerKeyMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.DevTools.onKey(event.key(), hovered)
+                || com.teslamaps.features.customize.CustomizeKey.onKey(event.key(), cs, hovered)) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (com.teslamaps.features.npc.NpcWarps.onContainerKey(event.key(), hovered)) {
             cir.setReturnValue(true);
             return;

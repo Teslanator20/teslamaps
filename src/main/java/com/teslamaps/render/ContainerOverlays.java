@@ -52,6 +52,8 @@ public class ContainerOverlays {
         com.teslamaps.dungeon.PartyFinderMarks.render(context);
         com.teslamaps.features.BazaarOwnOrders.render(context);
         com.teslamaps.features.ProgressHighlight.render(context);
+        com.teslamaps.features.DevTools.render(context);
+        com.teslamaps.features.HideNotClickable.render(context);
         com.teslamaps.features.GuideHighlight.render(context);
         com.teslamaps.features.CommissionHighlight.render(context);
         com.teslamaps.features.MenuHighlights.render(context);

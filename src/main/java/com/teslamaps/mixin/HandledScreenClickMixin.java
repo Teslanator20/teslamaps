@@ -40,7 +40,8 @@ public class HandledScreenClickMixin {
             return;
         }
         if (com.teslamaps.features.ItemProtection.blockMenuClick((AbstractContainerScreen<?>) (Object) this, slot)
-                || com.teslamaps.features.ReforgeStop.blockClick((AbstractContainerScreen<?>) (Object) this, slot)) {
+                || com.teslamaps.features.ReforgeStop.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
+                || com.teslamaps.features.HideNotClickable.blockClick(slot)) {
             ci.cancel();
             return;
         }

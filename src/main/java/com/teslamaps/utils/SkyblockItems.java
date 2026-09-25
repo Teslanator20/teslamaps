@@ -326,6 +326,7 @@ public class SkyblockItems {
                     String model = item.has("item_model") ? item.get("item_model").getAsString() : null;
                     int damage = item.has("durability") ? item.get("durability").getAsInt() : 0;
                     items.put(id, new ItemData(material, damage, skin, tier, model));
+                    if (item.has("category")) categories.put(id, item.get("category").getAsString());
                     if (item.has("category") && "ACCESSORY".equals(item.get("category").getAsString())
                             && !(item.has("origin") && "RIFT".equals(item.get("origin").getAsString()))) accessories.add(id);
 
@@ -490,6 +491,24 @@ public class SkyblockItems {
     public static Set<String> accessoryIds() {
         load();
         return accessories;
+    }
+
+    private static final Map<String, String> categories = new ConcurrentHashMap<>();
+
+    /** Hypixel's item category (SWORD, ACCESSORY, ...), empty when unknown. */
+    public static String category(String id) {
+        return id == null ? "" : categories.getOrDefault(id, "");
+    }
+
+    /** True when Hypixel's item table carries the id. */
+    public static boolean known(String id) {
+        return id != null && items.containsKey(id);
+    }
+
+    /** The base64 head skin of an item id, null when it is no head. */
+    public static String skin(String id) {
+        ItemData data = id == null ? null : items.get(id);
+        return data == null ? null : data.skin();
     }
 
     /** Skyblock rarity of an item id, empty when unknown. */

@@ -83,6 +83,11 @@ public class ItemTab extends GridLayoutTab {
 
         layout.addChild(nameWidget, 1, 0, 1, 2);
 
+        ItemStack initial = parentScreen.initialItem();
+        if (!initial.isEmpty() && !Customize.uuid(initial).isEmpty()) {
+            setCurrentItem(initial);
+            return;
+        }
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             ItemStack handStack = player.getMainHandItem();

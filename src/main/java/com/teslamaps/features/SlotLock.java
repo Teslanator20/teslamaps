@@ -19,11 +19,46 @@ public class SlotLock {
         return TeslaMapsConfig.get().lockedSlots.contains(containerSlot);
     }
 
+    private static boolean worldKeyDown;
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("SlotLockWorld")
+                .when(() -> TeslaMapsConfig.get().slotLock && TeslaMapsConfig.get().slotLockWorldKey != -1)
+                .tick(SlotLock::tickWorldKey);
+        com.teslamaps.registry.Feature.of("SlotLockHotbar")
+                .when(() -> TeslaMapsConfig.get().slotLock && TeslaMapsConfig.get().slotLockHotbarIcon
+                        && !TeslaMapsConfig.get().lockedSlots.isEmpty())
+                .hud("slotlockhotbar", SlotLock::renderHotbar);
+    }
+
+    private static void tickWorldKey() {
+        Minecraft mc = Minecraft.getInstance();
+        boolean down = mc.screen == null && com.teslamaps.utils.KeyNames.isDown(TeslaMapsConfig.get().slotLockWorldKey);
+        if (down && !worldKeyDown && mc.player != null) toggle(mc.player.getInventory().getSelectedSlot());
+        worldKeyDown = down;
+    }
+
+    private static void renderHotbar(GuiGraphicsExtractor ctx, net.minecraft.client.DeltaTracker delta) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.options.hideGui || mc.player.isSpectator()) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        int col = (TeslaMapsConfig.parseColor(c.colorSlotLock) & 0x00FFFFFF) | 0xE0000000;
+        int left = ctx.guiWidth() / 2 - 91, top = ctx.guiHeight() - 19;
+        for (int i = 0; i < 9; i++) {
+            if (isLocked(i)) com.teslamaps.render.gui.LockIcon.draw(ctx, left + 3 + i * 20 + 9, top, col);
+        }
+    }
+
     public static boolean onKey(int key, Slot hovered) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.slotLock || c.slotLockKey == -1 || key != c.slotLockKey) return false;
         if (!isPlayerInv(hovered)) return false;
-        int s = hovered.getContainerSlot();
+        toggle(hovered.getContainerSlot());
+        return true;
+    }
+
+    private static void toggle(int s) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean locked;
         if (c.lockedSlots.remove((Integer) s)) locked = false;
         else { c.lockedSlots.add(s); locked = true; }
@@ -34,7 +69,6 @@ public class SlotLock {
             mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
                     locked ? "§a[TeslaMaps] §fLocked slot §e" + s : "§7[TeslaMaps] Unlocked slot " + s));
         }
-        return true;
     }
 
     public static boolean blockSlot(Slot slot) {

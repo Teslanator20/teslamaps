@@ -35,7 +35,8 @@ public interface CustomComponentMixin {
             if (trimKey != null) {
                 return (T) CustomArmorTrims.get(trimKey, (ArmorTrim) original);
             }
-        } else if (type == DataComponents.PROFILE && stack.is(Items.PLAYER_HEAD)) {
+        } else if (type == DataComponents.PROFILE && (stack.is(Items.PLAYER_HEAD)
+                || Customize.PLAYER_HEAD_MODEL.equals(config.customItemModel.get(uuid)))) {
             String texture = config.customHelmetTextures.get(uuid);
             if (texture != null) {
                 return (T) com.teslamaps.features.customize.CustomHelmetTextures.getProfile(texture);
