@@ -2142,6 +2142,53 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w08-00-hud
+    public boolean tabStatsHud = false;
+    public String tabStatsHudStats = "Ferocity";
+    public int tabStatsHudX = 5;
+    public int tabStatsHudY = 120;
+    public float tabStatsHudScale = 1.0f;
+    public boolean trackerInteractive = false;
+    @Global
+    public java.util.Map<String, java.util.List<String>> trackerHidden = new java.util.HashMap<>();
+    public java.util.Map<String, java.util.List<String>> hudLineOrder = new java.util.HashMap<>();
+    public boolean expDryStreak = false;
+    public boolean expDryStreakAttempts = true;
+    public boolean expDryStreakXp = true;
+    public int expDryStreakX = 5;
+    public int expDryStreakY = 60;
+    public float expDryStreakScale = 1.0f;
+    public boolean expProfitTracker = false;
+    public boolean expProfitTrackBottles = true;
+    public int expProfitPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public int expProfitX = 5;
+    public int expProfitY = 90;
+    public float expProfitScale = 1.0f;
+    public boolean expGuardianReminder = false;
+    @Global
+    public java.util.Map<String, long[]> expDryStreakData = new java.util.HashMap<>();
+    public boolean perfHudCoords = false;
+    public boolean perfHudLookingAt = false;
+    public boolean lobbyPlayers = false;
+    public boolean lobbyPlayersMax = true;
+    public int lobbyPlayersX = 5;
+    public int lobbyPlayersY = 150;
+    public float lobbyPlayersScale = 1.0f;
+    public boolean maxwellHud = false;
+    public boolean maxwellHudMp = true;
+    public boolean maxwellHudTunings = true;
+    public boolean maxwellHudCompact = true;
+    public int maxwellHudX = 5;
+    public int maxwellHudY = 170;
+    public float maxwellHudScale = 1.0f;
+    @Global
+    public java.util.Map<String, MaxwellData> maxwellData = new java.util.HashMap<>();
+
+    public static class MaxwellData {
+        public String power;
+        public int magicalPower = -1;
+        public java.util.List<String> tunings;
+    }
     // w08-01-hud
     public boolean customScoreboardChunked = false;
     public int customScoreboardChunkSize = 3;
@@ -3888,6 +3935,15 @@ public class TeslaMapsConfig {
     static void normalize(TeslaMapsConfig c) {
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
         if (c.imageShareLinks == null) c.imageShareLinks = new java.util.HashMap<>();
+        if (c.tabStatsHudStats == null) c.tabStatsHudStats = "Ferocity";
+        if (c.trackerHidden == null) c.trackerHidden = new java.util.HashMap<>();
+        if (c.hudLineOrder == null) c.hudLineOrder = new java.util.HashMap<>();
+        c.hudLineOrder.values().removeIf(java.util.Objects::isNull);
+        c.trackerHidden.values().removeIf(java.util.Objects::isNull);
+        if (c.expDryStreakData == null) c.expDryStreakData = new java.util.HashMap<>();
+        c.expDryStreakData.values().removeIf(v -> v == null || v.length != 2);
+        if (c.maxwellData == null) c.maxwellData = new java.util.HashMap<>();
+        c.maxwellData.values().removeIf(java.util.Objects::isNull);
         if (c.customTrackerDefs == null) c.customTrackerDefs = new java.util.ArrayList<>();
         c.customTrackerDefs.removeIf(java.util.Objects::isNull);
         if (c.beaconPowerExpiry == null) c.beaconPowerExpiry = new java.util.HashMap<>();

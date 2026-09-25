@@ -8,6 +8,9 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 // Odin-style performance HUD: FPS / TPS / Ping. TPS from the time between
 // ClientboundSetTimePacket arrivals (server sends one every 20 ticks), ping via PingMeter.
 public class PerformanceHud {
+    public static final com.teslamaps.utils.LineOrder.Def LINES = com.teslamaps.utils.LineOrder.define("perfhud",
+            new String[]{"fps", "tps", "ping", "cps", "day", "lag", "coords", "looking", "time"},
+            new String[]{"FPS", "TPS", "Ping", "CPS", "Lobby Day", "Lag (zzz)", "Coordinates", "Looking At", "Time"});
     public static final String SAMPLE_TEXT = "FPS: 240 TPS: 20.0 Ping: 45ms";
     private static final String[] SAMPLE_LABELS = { "FPS: ", "TPS: ", "Ping: " };
     private static final String[] SAMPLE_VALUES = { "240", "20.0", "45ms" };
@@ -102,43 +105,56 @@ public class PerformanceHud {
             pingCooldown = 40; // every 2s
         }
 
-        java.util.List<String> l = new java.util.ArrayList<>(4);
-        java.util.List<String> v = new java.util.ArrayList<>(4);
+        com.teslamaps.utils.LineOrder.Lines out = com.teslamaps.utils.LineOrder.lines("perfhud");
         boolean colored = cfg.perfHudColorCoded;
         if (cfg.perfHudFps) {
             int fps = mc.getFps();
-            l.add("FPS: ");
-            v.add(colored ? fpsColor(fps, mc.options.framerateLimit().get()) + fps : String.valueOf(fps));
+            out.key("fps").add("FPS: \0" + (colored ? fpsColor(fps, mc.options.framerateLimit().get()) : "") + fps);
         }
         if (cfg.perfHudTps) {
             String mode = cfg.perfHudTpsMode == null ? "Average" : cfg.perfHudTpsMode;
             float tps = tpsStat(mode);
-            l.add("Average".equals(mode) ? "TPS: " : mode + " TPS: ");
-            v.add((colored ? tpsColor(tps) : "") + String.format("%.1f", tps));
+            out.key("tps").add(("Average".equals(mode) ? "TPS: " : mode + " TPS: ") + "\0" + (colored ? tpsColor(tps) : "") + String.format("%.1f", tps));
         }
         if (cfg.perfHudPing) {
             String mode = cfg.perfHudPingMode == null ? "Instant" : cfg.perfHudPingMode;
             float ping = "Median".equals(mode) ? PingMeter.medianPingMs()
                     : "Mean".equals(mode) ? PingMeter.meanPingMs() : PingMeter.getLastPingMs();
-            l.add("Ping: ");
-            v.add((colored ? pingColor(ping) : "") + (int) ping + "ms");
+            out.key("ping").add("Ping: \0" + (colored ? pingColor(ping) : "") + (int) ping + "ms");
         }
         if (cfg.perfHudCps) {
             long now = System.currentTimeMillis();
-            l.add("CPS: ");
-            v.add(cps(leftClicks, now) + " | " + cps(rightClicks, now));
+            out.key("cps").add("CPS: \0" + cps(leftClicks, now) + " | " + cps(rightClicks, now));
         }
-        if (cfg.perfHudDay && mc.level != null) { l.add("Day: "); v.add(String.valueOf(mc.level.getGameTime() / 24000L)); }
+        if (cfg.perfHudDay && mc.level != null) out.key("day").add("Day: \0" + mc.level.getGameTime() / 24000L);
         if (cfg.perfHudLag && !mc.isLocalServer() && com.teslamaps.utils.SkyblockUtils.isOnHypixel()) {
             long last = com.teslamaps.utils.ServerTickTimer.lastPingMs();
             long dt = last == 0 ? 0 : System.currentTimeMillis() - last;
             if (dt >= cfg.perfHudLagThreshold) {
                 String col = dt < 500 ? "§a" : dt < 1000 ? "§e" : dt < 2000 ? "§6" : "§c";
-                l.add("zzz for ");
-                v.add(col + String.format(java.util.Locale.ROOT, "%.2fs", dt / 1000.0));
+                out.key("lag").add("zzz for \0" + col + String.format(java.util.Locale.ROOT, "%.2fs", dt / 1000.0));
             }
         }
-        if (cfg.perfHudTime) { l.add(timeLabel(cfg)); v.add(clock(cfg)); }
+        // HUD-041
+        if (cfg.perfHudCoords && mc.player != null) {
+            var p = mc.player;
+            out.key("coords").add("XYZ: \0" + String.format(java.util.Locale.ROOT, "%.1f / %.1f / %.1f (%.1f / %.1f)",
+                    p.getX(), p.getY(), p.getZ(), net.minecraft.util.Mth.wrapDegrees(p.getYRot()), p.getXRot()));
+            if (cfg.perfHudLookingAt && mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bh
+                    && bh.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK) {
+                var b = bh.getBlockPos();
+                out.key("looking").add("Looking at: \0" + b.getX() + " / " + b.getY() + " / " + b.getZ());
+            }
+        }
+        if (cfg.perfHudTime) out.key("time").add(timeLabel(cfg) + "\0" + clock(cfg));
+        java.util.List<String> built = out.build();
+        java.util.List<String> l = new java.util.ArrayList<>(built.size());
+        java.util.List<String> v = new java.util.ArrayList<>(built.size());
+        for (String e : built) {
+            int i = e.indexOf('\0');
+            l.add(e.substring(0, i));
+            v.add(e.substring(i + 1));
+        }
         labels = l.toArray(new String[0]);
         values = v.toArray(new String[0]);
     }
@@ -169,14 +185,23 @@ public class PerformanceHud {
 
     /** HUD editor preview. */
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
+        String[][] lv = previewLines();
+        draw(context, mc, x, y, scale, lv[0], lv[1]);
+    }
+
+    private static String[][] previewLines() {
+        if (labels.length > 0) return new String[][]{labels, values};
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        boolean cps = cfg.perfHudCps;
-        String[] l = cps ? SAMPLE_LABELS_CPS : SAMPLE_LABELS, v = cps ? SAMPLE_VALUES_CPS : SAMPLE_VALUES;
+        String[] l = cfg.perfHudCps ? SAMPLE_LABELS_CPS : SAMPLE_LABELS, v = cfg.perfHudCps ? SAMPLE_VALUES_CPS : SAMPLE_VALUES;
+        if (cfg.perfHudDay) {
+            l = java.util.Arrays.copyOf(l, l.length + 1); l[l.length - 1] = "Day: ";
+            v = java.util.Arrays.copyOf(v, v.length + 1); v[v.length - 1] = "12";
+        }
         if (cfg.perfHudTime) {
             l = java.util.Arrays.copyOf(l, l.length + 1); l[l.length - 1] = timeLabel(cfg);
-            v = java.util.Arrays.copyOf(v, v.length + 1); v[v.length - 1] = clock(cfg);
+            v = java.util.Arrays.copyOf(v, v.length + 1); v[v.length - 1] = cfg.perfHudTimeSeconds ? "12:00:00 PM" : "12:00 PM";
         }
-        draw(context, mc, x, y, scale, l, v);
+        return new String[][]{l, v};
     }
 
     private static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale, String[] labels, String[] values) {
@@ -199,15 +224,18 @@ public class PerformanceHud {
 
     public static int width(Minecraft mc) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.perfHudVertical) return mc.font.width(SAMPLE_TEXT) + (cfg.perfHudCps ? mc.font.width(" CPS: 8 | 12") : 0)
-                + (cfg.perfHudDay ? mc.font.width(" Day: 12") : 0)
-                + (cfg.perfHudTime ? mc.font.width(" Time: 12:00:00 PM") : 0);
-        return cfg.perfHudTime ? mc.font.width("Time: 12:00:00 PM") : mc.font.width("Ping: 45ms");
+        String[][] lv = previewLines();
+        int w = 0, sum = 0;
+        for (int i = 0; i < lv[0].length; i++) {
+            int lw = mc.font.width(lv[0][i]) + mc.font.width(lv[1][i]);
+            w = Math.max(w, lw);
+            sum += lw + (i > 0 ? mc.font.width(" ") : 0);
+        }
+        return cfg.perfHudVertical ? w : sum;
     }
 
     public static int height(Minecraft mc) {
-        TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.perfHudVertical) return mc.font.lineHeight;
-        return (mc.font.lineHeight + 1) * (3 + (cfg.perfHudCps ? 1 : 0) + (cfg.perfHudDay ? 1 : 0) + (cfg.perfHudTime ? 1 : 0));
+        if (!TeslaMapsConfig.get().perfHudVertical) return mc.font.lineHeight;
+        return (mc.font.lineHeight + 1) * Math.max(1, previewLines()[0].length);
     }
 }

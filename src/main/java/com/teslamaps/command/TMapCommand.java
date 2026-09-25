@@ -137,7 +137,7 @@ public class TMapCommand {
                 })
                 .then(com.teslamaps.dungeon.puzzle.PuzzleReset.command())
                 .then(ClientCommands.literal("tracker")
-                        .then(ClientCommands.argument("id", StringArgumentType.word())
+                        .then(com.teslamaps.features.tracker.TrackerRows.attach(ClientCommands.argument("id", StringArgumentType.word()))
                                 .suggests((c, b) -> {
                                     for (var t : com.teslamaps.features.tracker.Tracker.all()) b.suggest(t.id);
                                     return b.buildFuture();
