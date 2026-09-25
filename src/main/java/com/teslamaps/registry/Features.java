@@ -435,5 +435,11 @@ final class Features {
         // w09-04-vis
         com.teslamaps.features.VisualTweaks.register();
         com.teslamaps.features.CompactTabList.register();
+        // w09-01-vis
+        com.teslamaps.features.AbilityRadius.register();
+        com.teslamaps.features.DroppedItemScaling.register();
+        com.teslamaps.features.EndChestTint.register();
+        com.teslamaps.features.HurtTint.register();
+        com.teslamaps.features.DvdLogo.register();
     }
 }

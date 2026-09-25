@@ -452,6 +452,69 @@ public class ESPRenderer {
         matrices.popPose();
     }
 
+    private static final int CIRCLE_SEGMENTS = 64;
+    private static final float[] CIRCLE_COS = new float[CIRCLE_SEGMENTS + 1];
+    private static final float[] CIRCLE_SIN = new float[CIRCLE_SEGMENTS + 1];
+    static {
+        for (int i = 0; i <= CIRCLE_SEGMENTS; i++) {
+            double a = Math.PI * 2 * i / CIRCLE_SEGMENTS;
+            CIRCLE_COS[i] = (float) Math.cos(a);
+            CIRCLE_SIN[i] = (float) Math.sin(a);
+        }
+    }
+
+    /** Horizontal ring around a point, depth tested. */
+    public static void drawCircle(PoseStack matrices, double cx, double cy, double cz, double radius, int color, float lineWidth, Vec3 cameraPos) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.renderBuffers() == null) return;
+        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
+        float a = ((color >>> 24) & 0xFF) / 255f;
+        if (a == 0) a = 1f;
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        PoseStack.Pose pose = matrices.last();
+        VertexConsumer buf = src.getBuffer(TeslaRenderLayers.LINES_DEPTH);
+        float y = (float) cy, rad = (float) radius;
+        for (int i = 0; i < CIRCLE_SEGMENTS; i++) {
+            float x0 = (float) cx + CIRCLE_COS[i] * rad, z0 = (float) cz + CIRCLE_SIN[i] * rad;
+            float x1 = (float) cx + CIRCLE_COS[i + 1] * rad, z1 = (float) cz + CIRCLE_SIN[i + 1] * rad;
+            float dx = x1 - x0, dz = z1 - z0;
+            buf.addVertex(pose, x0, y, z0).setColor(r, g, b, a).setNormal(pose, dx, 0, dz).setLineWidth(lineWidth);
+            buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a).setNormal(pose, dx, 0, dz).setLineWidth(lineWidth);
+        }
+        finish(src, TeslaRenderLayers.LINES_DEPTH);
+        matrices.popPose();
+    }
+
+    /** Filled horizontal disc, double sided, depth tested. */
+    public static void drawDisc(PoseStack matrices, double cx, double cy, double cz, double radius, int color, Vec3 cameraPos) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.renderBuffers() == null) return;
+        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
+        float a = ((color >>> 24) & 0xFF) / 255f;
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        PoseStack.Pose pose = matrices.last();
+        VertexConsumer buf = src.getBuffer(TeslaRenderLayers.FILLED_DEPTH);
+        float x = (float) cx, y = (float) cy, z = (float) cz, rad = (float) radius;
+        for (int i = 0; i < CIRCLE_SEGMENTS; i++) {
+            float x0 = x + CIRCLE_COS[i] * rad, z0 = z + CIRCLE_SIN[i] * rad;
+            float x1 = x + CIRCLE_COS[i + 1] * rad, z1 = z + CIRCLE_SIN[i + 1] * rad;
+            buf.addVertex(pose, x, y, z).setColor(r, g, b, a);
+            buf.addVertex(pose, x0, y, z0).setColor(r, g, b, a);
+            buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a);
+            buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a);
+            buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a);
+            buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a);
+            buf.addVertex(pose, x0, y, z0).setColor(r, g, b, a);
+            buf.addVertex(pose, x, y, z).setColor(r, g, b, a);
+        }
+        finish(src, TeslaRenderLayers.FILLED_DEPTH);
+        matrices.popPose();
+    }
+
     public static void drawFilledBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;

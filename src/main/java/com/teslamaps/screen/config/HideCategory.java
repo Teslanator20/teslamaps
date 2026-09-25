@@ -146,8 +146,11 @@ public final class HideCategory {
         b.toggle("Hide XP Orbs", () -> config.noXpOrbs, v -> config.noXpOrbs = v);
         b.toggle("Hide Jerry Rune Eggs", () -> config.hideJerryRune, v -> config.hideJerryRune = v)
                 .desc("SkyBlock: hides the villager spawn eggs the Jerry rune scatters on the ground.");
+        b.toggle("Hide Firework Rockets", () -> config.hideFireworks, v -> config.hideFireworks = v)
+                .desc("Bonzo Staff rockets and every other firework rocket. The spark trail only goes away with Block At Packet Level.");
+        b.toggle("Hide Horses", () -> config.hideHorses, v -> config.hideHorses = v);
         b.toggle("Block At Packet Level", () -> config.packetHiders, v -> config.packetHiders = v);
-        b.info("Lightning/Falling Blocks/XP Orbs are then never created");
+        b.info("Lightning/Falling Blocks/XP Orbs/Rockets/Horses are then never created");
         b.info("Saves ticking them, not just drawing them");
         b.label("Combat Effects");
         b.toggle("Hide Explosions", () -> config.noExplosions, v -> config.noExplosions = v);
