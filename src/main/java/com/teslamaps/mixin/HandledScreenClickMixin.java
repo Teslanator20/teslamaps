@@ -32,12 +32,14 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
-        if (com.teslamaps.features.ItemProtection.blockMenuClick((AbstractContainerScreen<?>) (Object) this, slot)) {
+        if (com.teslamaps.features.ItemProtection.blockMenuClick((AbstractContainerScreen<?>) (Object) this, slot)
+                || com.teslamaps.features.ReforgeStop.blockClick((AbstractContainerScreen<?>) (Object) this, slot)) {
             ci.cancel();
             return;
         }
         if (type != net.minecraft.world.inventory.ContainerInput.THROW) return;
-        if (com.teslamaps.features.ItemProtection.blockSlotDrop(slot)) ci.cancel();
+        if (com.teslamaps.features.ItemProtection.blockSlotDrop(slot)
+                || com.teslamaps.features.LimitDroppingItems.block()) ci.cancel();
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)

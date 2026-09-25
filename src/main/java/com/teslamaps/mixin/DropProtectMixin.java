@@ -14,7 +14,8 @@ public abstract class DropProtectMixin {
     @Inject(method = "drop(Z)Z", at = @At("HEAD"), cancellable = true)
     private void teslamaps$blockLockedDrop(boolean full, CallbackInfoReturnable<Boolean> cir) {
         if (SlotLock.blockSelectedDrop()
-                || com.teslamaps.features.ItemProtection.blockSelectedDrop()) {
+                || com.teslamaps.features.ItemProtection.blockSelectedDrop()
+                || com.teslamaps.features.LimitDroppingItems.block()) {
             cir.setReturnValue(false);
         }
     }
