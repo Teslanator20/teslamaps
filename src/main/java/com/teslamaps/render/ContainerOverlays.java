@@ -23,6 +23,11 @@ public class ContainerOverlays {
         if (com.teslamaps.features.ContainerValue.shouldRender()) {
             com.teslamaps.features.ContainerValue.render(context, mouseX, mouseY);
         }
+        if (com.teslamaps.features.SackTable.shouldRender()) {
+            com.teslamaps.debug.Perf.begin("SackTable.render");
+            com.teslamaps.features.SackTable.render(context, mouseX, mouseY);
+            com.teslamaps.debug.Perf.end();
+        }
 
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Shards")) {
             com.teslamaps.debug.Perf.begin("ShardOverlay.render");

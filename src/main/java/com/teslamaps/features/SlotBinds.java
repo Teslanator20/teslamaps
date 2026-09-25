@@ -126,6 +126,15 @@ public class SlotBinds {
         return index >= 36 && index <= 44;
     }
 
+    /** Player-inventory container slot (0-8 hotbar, 9-35 main) that is part of a bind. */
+    public static boolean isBound(int containerSlot) {
+        if (containerSlot < 0 || containerSlot > 35) return false;
+        Map<Integer, Integer> m = binds();
+        if (m.isEmpty()) return false;
+        Integer idx = containerSlot < 9 ? containerSlot + 36 : containerSlot;
+        return m.containsKey(idx) || m.containsValue(idx);
+    }
+
     private static void msg(String s) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] " + s));

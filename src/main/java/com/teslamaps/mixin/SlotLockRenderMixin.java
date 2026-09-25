@@ -14,6 +14,7 @@ public abstract class SlotLockRenderMixin {
     private void teslamaps$slotLockRender(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         SlotLock.render(ctx);
         com.teslamaps.features.ItemProtection.renderSlots(ctx);
+        com.teslamaps.features.CompactorPreview.renderStatus(ctx);
         com.teslamaps.features.WardrobeKeys.render(ctx);
         com.teslamaps.features.HoveredSlot.render(ctx, mouseX, mouseY);
         com.teslamaps.features.SkillLevelStack.render(ctx);

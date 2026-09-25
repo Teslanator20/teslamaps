@@ -46,7 +46,7 @@ public final class RarityContour {
         if (rgb == -1) return 0;
         int alpha = (int) (Math.max(0f, Math.min(1f, TeslaMapsConfig.get().rarityBgOpacity)) * 255);
         if (alpha <= 0) return 0;
-        return (alpha << 24) | (rgb & 0xFFFFFF);
+        return (alpha << 24) | RarityBackground.palette(rgb & 0xFFFFFF);
     }
 
     public static void attach(GuiItemRenderState item) {

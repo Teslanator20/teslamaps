@@ -12,7 +12,7 @@ import java.util.List;
 public class RarityBackground {
 
     public static final String[] SHAPES = {"Square", "Rounded", "Circle", "Diamond", "Corners", "Underline", RarityContour.SHAPE};
-    public static final String[] STYLES = {"Filled", "Outline", "Gradient"};
+    public static final String[] STYLES = {"Filled", "Outline", "Gradient", "Filled Outline"};
 
     private static final int S = 16;
 
@@ -24,16 +24,37 @@ public class RarityBackground {
 
         int alpha = (int) (Math.max(0f, Math.min(1f, c.rarityBgOpacity)) * 255);
         if (alpha <= 0) return;
-        rgb &= 0xFFFFFF;
+        rgb = palette(rgb & 0xFFFFFF);
 
         String shape = c.rarityBgShape;
         if (RarityContour.SHAPE.equals(shape)) {
             RarityContour.pending = RarityContour.colorFor(stack);
             return;
         }
-        boolean outline = "Outline".equals(c.rarityBgStyle);
-        boolean gradient = "Gradient".equals(c.rarityBgStyle);
+        if ("Filled Outline".equals(c.rarityBgStyle)) {
+            drawStyled(ctx, x, y, rgb, alpha * 2 / 5, shape, false, false);
+            drawStyled(ctx, x, y, rgb, alpha, shape, true, false);
+            return;
+        }
+        drawStyled(ctx, x, y, rgb, alpha, shape, "Outline".equals(c.rarityBgStyle), "Gradient".equals(c.rarityBgStyle));
+    }
 
+    public static final String[] PALETTES = {"Hypixel", "Modern"};
+
+    // Skyblocker's SkyBlockColors: softer blue/purple/gold/dark red
+    public static int palette(int rgb) {
+        if (!"Modern".equals(TeslaMapsConfig.get().rarityBgPalette)) return rgb;
+        return switch (rgb) {
+            case 0x5555FF -> 0x459BFF;
+            case 0xAA00AA -> 0xA335EE;
+            case 0xFFAA00 -> 0xFF9000;
+            case 0xAA0000 -> 0xD13228;
+            default -> rgb;
+        };
+    }
+
+    private static void drawStyled(GuiGraphicsExtractor ctx, int x, int y, int rgb, int alpha, String shape,
+                                   boolean outline, boolean gradient) {
         if ("Corners".equals(shape)) {
             drawCorners(ctx, x, y, (alpha << 24) | rgb);
             return;

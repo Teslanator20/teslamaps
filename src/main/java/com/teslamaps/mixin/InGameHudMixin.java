@@ -28,7 +28,7 @@ public class InGameHudMixin {
     @Inject(method = "extractSlot", at = @At("HEAD"))
     private void teslamaps$hotbarRarity(GuiGraphicsExtractor context, int x, int y, DeltaTracker delta,
                                         Player player, ItemStack stack, int seed, CallbackInfo ci) {
-        RarityBackground.draw(context, x, y, stack);
+        if (!com.teslamaps.config.TeslaMapsConfig.get().rarityBgHideHotbar) RarityBackground.draw(context, x, y, stack);
     }
 
     @Inject(method = "extractSlot", at = @At("TAIL"))

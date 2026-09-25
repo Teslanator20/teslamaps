@@ -208,5 +208,9 @@ final class Features {
         com.teslamaps.features.AnvilHelper.register();
         com.teslamaps.features.accessories.AccessoryHelper.register();
         com.teslamaps.features.CraftHelper.register();
+        // w05-07-inv
+        com.teslamaps.features.SlotLock.register();
+        com.teslamaps.features.SackTable.register();
+        com.teslamaps.features.RomanNumerals.register();
     }
 }

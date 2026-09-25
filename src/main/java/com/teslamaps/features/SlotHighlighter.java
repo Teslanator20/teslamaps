@@ -36,12 +36,12 @@ public class SlotHighlighter {
     public static boolean shouldRender() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean quality = c.salvageQuality && c.section("Inventory");
-        if (!c.salvageHelper && !c.sellableHighlighter && !c.showSelectedPet && !c.highlightDisabledPotions && !quality) return false;
+        if (!c.salvageHelper && !c.salvageMuseumGuard && !c.sellableHighlighter &&!c.showSelectedPet && !c.highlightDisabledPotions && !quality) return false;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
         if (quality) return true;
         String t = strip(cs.getTitle().getString());
-        return (c.salvageHelper && t.startsWith("Salvage Items"))
+        return ((c.salvageHelper || c.salvageMuseumGuard) && t.startsWith("Salvage Items"))
                 || (c.sellableHighlighter && isSellMenu(t, c))
                 || (c.showSelectedPet && isPetsMenu(t))
                 || (c.highlightDisabledPotions && t.startsWith("Toggle Potion Effects"));
@@ -65,10 +65,15 @@ public class SlotHighlighter {
 
         if (c.salvageQuality && c.section("Inventory")) renderQuality(ctx, acc, cs, c);
 
-        if (c.salvageHelper && t.startsWith("Salvage Items")) {
-            PriceManager.ensureFresh();
+        if ((c.salvageHelper || c.salvageMuseumGuard) && t.startsWith("Salvage Items")) {
+            if (c.salvageHelper) PriceManager.ensureFresh();
             for (Slot slot : cs.getMenu().slots) {
-                if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+                if (c.salvageMuseumGuard && MuseumDonations.notDonated(slot.getItem())) {
+                    int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
+                    ctx.fill(sx, sy, sx + 16, sy + 16, 0x80FF2020);
+                    continue;
+                }
+                if (!c.salvageHelper || slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
                 if (isSalvageable(slot.getItem())) fillSlot(ctx, acc, slot);
             }
         } else if (c.sellableHighlighter && isSellMenu(t, c)) {
@@ -133,6 +138,48 @@ public class SlotHighlighter {
         }
         kinds.put(st, v);
         return v;
+    }
+
+    private static long lastSalvageWarn;
+
+    /** Salvage menu: an inventory item that can't be salvaged, or an undonated museum item. Ctrl overrides. */
+    public static boolean blockSalvageClick(AbstractContainerScreen<?> screen, Slot slot) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        boolean others = c.salvageHelper && c.salvageBlockOthers;
+        boolean museum = c.salvageMuseumGuard && c.salvageMuseumBlock;
+        if (!others && !museum) return false;
+        if (slot == null || !(slot.container instanceof net.minecraft.world.entity.player.Inventory)) return false;
+        ItemStack st = slot.getItem();
+        if (st.isEmpty() || !strip(screen.getTitle().getString()).startsWith("Salvage Items")) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.hasControlDown()) return false;
+        String why = null;
+        if (museum && MuseumDonations.notDonated(st)) why = "is not donated to the museum yet";
+        else if (others && !canSalvage(st)) why = "can't be salvaged";
+        if (why == null) return false;
+        long now = System.currentTimeMillis();
+        if (now - lastSalvageWarn > 1500 && mc.player != null) {
+            lastSalvageWarn = now;
+            mc.player.playSound(net.minecraft.sounds.SoundEvents.ANVIL_LAND, 0.6f, 1.0f);
+            mc.player.sendSystemMessage(Component.literal("§c[TeslaMaps] §e" + strip(st.getHoverName().getString())
+                    + " §c" + why + ". §7Hold ctrl to override."));
+        }
+        return true;
+    }
+
+    // Skytils' stopClickingNonSalvageable: salvageable = has a base stat boost
+    private static boolean canSalvage(ItemStack st) {
+        CustomData d = st.get(DataComponents.CUSTOM_DATA);
+        if (d == null) return true;
+        var tag = d.copyTag();
+        if (tag.getString("id").isEmpty()) return true;
+        if (tag.contains("baseStatBoostPercentage") || tag.contains("attributes")) return true;
+        String name = strip(st.getHoverName().getString());
+        if (name.contains("Salvage") || name.contains("Essence")) return true;
+        for (String l : com.teslamaps.utils.ItemUtil.loreLines(st)) {
+            if (l.contains("DUNGEON") && !l.contains("DUNGEON ITEM")) return true;
+        }
+        return false;
     }
 
     private static boolean isSpawnedPet(ItemStack stack) {
