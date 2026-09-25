@@ -55,14 +55,32 @@ public class ScreenshotScreen extends Screen {
     private int cols = MAX_COLS, rows = MAX_ROWS, thumbW = BASE_THUMB_W, thumbH = BASE_THUMB_H;
     private int btnRows = 1;
 
+    private File preselect;
+
     public ScreenshotScreen(Screen parent) {
         super(Component.literal("Screenshots"));
         this.parent = parent;
     }
 
+    /** Opens with this screenshot selected. */
+    public ScreenshotScreen(Screen parent, File select) {
+        this(parent);
+        this.preselect = select;
+    }
+
+    private boolean editor() {
+        return com.teslamaps.config.TeslaMapsConfig.get().screenshotEditor;
+    }
+
     @Override
     protected void init() {
         files = ScreenshotManager.list();
+        if (preselect != null) {
+            int at = files.indexOf(preselect);
+            if (at < 0) for (int i = 0; i < files.size(); i++) if (files.get(i).getName().equals(preselect.getName())) at = i;
+            if (at >= 0) selected = at;
+            preselect = null;
+        }
         if (selected >= files.size()) selected = files.isEmpty() ? -1 : 0;
         if (selected < 0 && !files.isEmpty()) selected = 0;
 
@@ -71,7 +89,8 @@ public class ScreenshotScreen extends Screen {
         // Buttons are placed from the panel rectangle, which is now guaranteed to sit inside the
         // window, so they stay reachable at every gui scale. Two rows of two when it gets narrow.
         int inner = panelW - 32;
-        int perRow = btnRows == 1 ? 4 : 2;
+        int count = editor() ? 5 : 4;
+        int perRow = btnRows == 1 ? count : (count + 1) / 2;
         int bw = Math.max(BTN_MIN_W, (inner - (perRow - 1) * 12) / perRow);
         int firstRowY = panelY + panelH - 8 - btnRows * (BTN_H + 4) + 4;
 
@@ -99,7 +118,10 @@ public class ScreenshotScreen extends Screen {
             }
         });
         addButton(3, perRow, bw, firstRowY, "§eFolder", ScreenshotManager::openFolder);
-    
+        if (editor()) addButton(4, perRow, bw, firstRowY, "§aEdit", () -> {
+            File f = current();
+            if (f != null) minecraft.setScreen(new ScreenshotEditorScreen(this, f));
+        });
 
         ScreenFit.clamp(this); // keep every widget reachable at any gui scale
 
@@ -132,7 +154,8 @@ public class ScreenshotScreen extends Screen {
         }
 
         int tileH = thumbH + 30;
-        btnRows = availW < 4 * BTN_MIN_W + 68 ? 2 : 1;
+        int count = editor() ? 5 : 4;
+        btnRows = availW < count * BTN_MIN_W + (count - 1) * 12 + 32 ? 2 : 1;
         int chrome = HEADER_H + FOOTER_H + (btnRows - 1) * (BTN_H + 4);
         rows = Math.clamp((availH - chrome) / tileH, 1, MAX_ROWS);
         if (rows == 1 && tileH > availH - chrome) {
@@ -317,6 +340,12 @@ public class ScreenshotScreen extends Screen {
 
         super.extractRenderState(ctx, mouseX, mouseY, delta);
         wasMouseDown = down;
+    }
+
+    /** Drops a cached thumbnail, e.g. after the file was overwritten. */
+    public static void forget(String name) {
+        Thumb gone = TEXTURES.remove(name);
+        if (gone != null) Minecraft.getInstance().getTextureManager().release(gone.id());
     }
 
     private Thumb thumb(File file) {
