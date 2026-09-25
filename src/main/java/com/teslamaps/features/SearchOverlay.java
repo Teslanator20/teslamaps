@@ -28,7 +28,7 @@ import org.lwjgl.glfw.GLFW;
 /** Replaces the auction house / bazaar search sign with a textbox that suggests item names. */
 public class SearchOverlay {
 
-    public enum Location { AUCTION, BAZAAR, RECIPE, OTHER }
+    public enum Location { AUCTION, BAZAAR, RECIPE, MUSEUM, OTHER }
 
     private static String lastContainer = "";
 
@@ -156,6 +156,7 @@ public class SearchOverlay {
         if (title.contains("Auction") || title.contains("Cosmetics")) return Location.AUCTION;
         if (title.contains("Bazaar")) return Location.BAZAAR;
         if (title.contains("Recipe") && TeslaMapsConfig.get().searchOverlayRecipes) return Location.RECIPE;
+        if (title.contains("Museum") && TeslaMapsConfig.get().searchOverlayMuseum) return Location.MUSEUM;
         return TeslaMapsConfig.get().searchOverlayAllSigns ? Location.OTHER : null;
     }
 
@@ -171,6 +172,7 @@ public class SearchOverlay {
         if (max <= 0 || query.isBlank()) return out;
 
         String needle = query.toLowerCase(Locale.ROOT).trim();
+        if (location == Location.MUSEUM) return museumSuggestions(needle, max);
         List<String> starts = new ArrayList<>();
         List<String> contains = new ArrayList<>();
 
@@ -200,6 +202,55 @@ public class SearchOverlay {
         return out.size() > max ? out.subList(0, max) : out;
     }
 
+    // Skyblocker's museum suggestions: donated items plus armor set names
+    private static List<String> museumSuggestions(String needle, int max) {
+        java.util.Set<String> names = new java.util.TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        var data = com.teslamaps.profileviewer.data.MuseumRepo.get();
+        java.util.Set<String> donated = MuseumDonations.donatedIds();
+        if (data != null) {
+            for (List<String> ids : data.items().values()) {
+                for (String id : ids) {
+                    if (donated != null && !donated.contains(id)) continue;
+                    List<String> pieces = data.setsToItems().get(id);
+                    if (pieces != null) {
+                        names.add(armorName(id, pieces));
+                        continue;
+                    }
+                    String n = SkyblockItems.name(id);
+                    if (n != null && !n.isEmpty()) names.add(StringUtil.stripTrim(n));
+                }
+            }
+        }
+        List<String> starts = new ArrayList<>();
+        List<String> contains = new ArrayList<>();
+        for (String n : names) {
+            String lower = n.toLowerCase(Locale.ROOT);
+            if (lower.startsWith(needle)) starts.add(n);
+            else if (lower.contains(needle)) contains.add(n);
+        }
+        starts.addAll(contains);
+        return starts.size() > max ? new ArrayList<>(starts.subList(0, max)) : starts;
+    }
+
+    private static String armorName(String id, List<String> pieces) {
+        StringBuilder sb = new StringBuilder();
+        for (String w : id.toLowerCase(Locale.ROOT).split("_")) {
+            if (w.isEmpty()) continue;
+            sb.append(Character.toUpperCase(w.charAt(0))).append(w.substring(1)).append(' ');
+        }
+        boolean equipment = true;
+        for (String p : pieces) {
+            if (p.endsWith("_HELMET") || p.endsWith("_CHESTPLATE") || p.endsWith("_LEGGINGS") || p.endsWith("_BOOTS")) {
+                equipment = false;
+                break;
+            }
+        }
+        String lower = id.toLowerCase(Locale.ROOT);
+        if (equipment) sb.append("Equipment");
+        else if (!lower.matches(".*(armor|outfit|suit|tuxedo).*")) sb.append("Armor");
+        return sb.toString().trim();
+    }
+
     public static List<String> history(Location location) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.searchOverlayHistory) return List.of();
@@ -211,6 +262,7 @@ public class SearchOverlay {
             case AUCTION -> config.auctionSearchHistory;
             case BAZAAR -> config.bazaarSearchHistory;
             case RECIPE -> config.recipeSearchHistory;
+            case MUSEUM -> config.museumSearchHistory;
             case OTHER -> config.otherSearchHistory;
         };
     }

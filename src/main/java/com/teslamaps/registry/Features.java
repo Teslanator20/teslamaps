@@ -629,6 +629,12 @@ final class Features {
         com.teslamaps.features.GardenUptime.register();
         com.teslamaps.features.FarmKeys.register();
         com.teslamaps.features.CarrolynHelper.register();
+        // w13-01-eco
+        com.teslamaps.features.foraging.StarlynCouponProfit.register();
+        com.teslamaps.features.SupercraftHelper.register();
+        com.teslamaps.features.NpcTradeCosts.register();
+        com.teslamaps.features.RngMeterHelper.register();
+        com.teslamaps.features.TradeHistory.register();
         // w14-00-gar
         com.teslamaps.features.MantidKillDisplay.register();
         com.teslamaps.features.GlowingMushrooms.register();

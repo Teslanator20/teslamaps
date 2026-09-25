@@ -2294,6 +2294,27 @@ public class TeslaMapsConfig {
     public boolean farmKeysExcludeBarn = false;
     public boolean pestChanceAlways = false;
     public boolean carrolynHelper = false;
+    // w13-01-eco
+    public boolean starlynCouponProfit = false;
+    public boolean supercraftWasteBlock = false;
+    public float supercraftWasteThreshold = 10f;
+    public float supercraftWasteBulkThreshold = 5f;
+    public float supercraftWasteThresholdNoCookie = 20f;
+    public float supercraftWasteBulkThresholdNoCookie = 10f;
+    public boolean supercraftPresets = false;
+    public java.util.List<Integer> supercraftPresetAmounts = new java.util.ArrayList<>(java.util.List.of(4, 8, 16, 32, 64, 128, 256, 512));
+    public boolean npcTradeHelper = false;
+    public boolean npcTradeHighlight = true;
+    public boolean rngMeterHelper = false;
+    public boolean rngMeterFractions = true;
+    public boolean rngMeterRuns = true;
+    public boolean rngMeterCoinsPer = true;
+    public boolean searchOverlayMuseum = false;
+    public java.util.List<String> museumSearchHistory = new java.util.ArrayList<>();
+    public boolean tradeHistory = false;
+    public boolean bazaarOrderTooltipClean = false;
+    public boolean bazaarHideOrderOwner = true;
+    public boolean bazaarHideTradePartners = true;
     // w14-00-gar
     public boolean mantidKillDisplay = false;
     public String mantidShowWhen = "Mantid Armor";
@@ -5162,6 +5183,9 @@ public class TeslaMapsConfig {
         if (c.bazaarSearchHistory == null) c.bazaarSearchHistory = new ArrayList<>();
         if (c.recipeSearchHistory == null) c.recipeSearchHistory = new ArrayList<>();
         if (c.otherSearchHistory == null) c.otherSearchHistory = new ArrayList<>();
+        if (c.museumSearchHistory == null) c.museumSearchHistory = new ArrayList<>();
+        if (c.supercraftPresetAmounts == null) c.supercraftPresetAmounts = new ArrayList<>(java.util.List.of(4, 8, 16, 32, 64, 128, 256, 512));
+        c.supercraftPresetAmounts.removeIf(java.util.Objects::isNull);
         if (c.invButtonConfirm == null) c.invButtonConfirm = "Off";
         if (c.favoritePowers == null) c.favoritePowers = new ArrayList<>();
         if (c.magicalPower == null) c.magicalPower = new java.util.HashMap<>();

@@ -83,6 +83,7 @@ public class HandledScreenClickMixin {
                 || com.teslamaps.features.CommandHelpers.blockCoopClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.BazaarOwnOrders.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.QuickCraftConfirm.blockClick(slot)
+                || com.teslamaps.features.SupercraftHelper.blockClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)
                 || com.teslamaps.features.AbiphoneHelper.blockClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
             ci.cancel();
             return;
