@@ -2148,6 +2148,44 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w14-01-gar
+    public boolean mutationsWebsite = false;
+    public boolean gardenMuteComposter = false;
+    public boolean plotPresetWarning = false;
+    public boolean sprayonatorCooldownBar = false;
+    public boolean hungryHikerSolver = false;
+    public boolean treasureHunterSolver = false;
+    public boolean visitorShoppingList = false;
+    public boolean visitorShoppingPrices = true;
+    public boolean visitorShoppingSacks = true;
+    public boolean visitorShoppingBazaar = true;
+    public boolean visitorShoppingIslands = false;
+    public java.util.List<String> visitorIgnored = new java.util.ArrayList<>();
+    public int visitorShoppingListX = 10;
+    public int visitorShoppingListY = 160;
+    public float visitorShoppingListScale = 1.0f;
+    public boolean visitorOfferInfo = false;
+    public boolean visitorOfferCopperRate = true;
+    public boolean visitorOfferProfit = true;
+    public boolean visitorRareRewardChat = true;
+    public boolean visitorRewardGuard = false;
+    public boolean visitorGuardRare = true;
+    public boolean visitorGuardNew = true;
+    public boolean visitorGuardCheapCopper = false;
+    public boolean visitorGuardExpensiveCopper = false;
+    public int visitorGuardCopperPrice = 6000;
+    public boolean visitorGuardLowLoss = false;
+    public boolean visitorGuardHighLoss = false;
+    public int visitorGuardLossLimit = 300000;
+    public int visitorGuardBypassKey = 341;
+    public boolean visitorGuardOutline = true;
+    public boolean visitorArrivalTitle = false;
+    public boolean visitorArrivalWarp = false;
+    public boolean visitorQueueFullTitle = false;
+    public boolean visitorRareArrivalItem = false;
+    public boolean visitorStatusHighlight = false;
+    public boolean visitorStatusText = true;
+    public boolean visitorStatusRare = true;
     // w12-08-eco
     public boolean anitaMedalProfit = false;
     public boolean anitaExtraFortune = false;
@@ -4692,6 +4730,7 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.visitorIgnored == null) c.visitorIgnored = new java.util.ArrayList<>();
         if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
         c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
         for (FeatureRule r : c.featureConditionRules.values()) {

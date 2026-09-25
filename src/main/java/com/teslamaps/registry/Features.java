@@ -600,5 +600,15 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w14-01-gar
+        com.teslamaps.features.visitors.Visitors.register();
+        com.teslamaps.features.visitors.VisitorShoppingList.register();
+        com.teslamaps.features.visitors.VisitorOffer.register();
+        com.teslamaps.features.visitors.VisitorRewardGuard.register();
+        com.teslamaps.features.visitors.VisitorArrival.register();
+        com.teslamaps.features.visitors.VisitorStatusHighlight.register();
+        com.teslamaps.features.gardenqol.MutationsWebsite.register();
+        com.teslamaps.features.gardenqol.GardenSafety.register();
+        com.teslamaps.features.gardenqol.BarnSolvers.register();
     }
 }

@@ -17,6 +17,7 @@ public class ToolkitIconMixin {
             target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;item(Lnet/minecraft/world/item/ItemStack;III)V"))
     private void teslamaps$toolkitIcon(GuiGraphicsExtractor ctx, ItemStack stack, int x, int y, int seed,
                                        Operation<Void> original, @Local(argsOnly = true) Slot slot) {
-        original.call(ctx, ToolkitCropIcons.icon(slot, stack), x, y, seed);
+        ItemStack web = com.teslamaps.features.gardenqol.MutationsWebsite.replacement(slot);
+        original.call(ctx, web != null ? web : ToolkitCropIcons.icon(slot, stack), x, y, seed);
     }
 }

@@ -120,6 +120,10 @@ public class BazaarPrices {
         return "ENCHANTMENT_ULTIMATE_" + base + "_" + level;
     }
 
+    public static String idForName(String displayName) {
+        return displayName == null || displayName.isBlank() ? null : idFor(displayName.trim());
+    }
+
     private static String idFor(String displayName) {
         String key = displayName.toLowerCase(Locale.ROOT);
         String exception = EXCEPTIONS.get(key);

@@ -30,6 +30,19 @@ public final class GardenCategory {
                 () -> config.sixthVisitorSound, v -> config.sixthVisitorSound = v);
         b.slider("  Volume", 0f, 4f,
                 () -> config.sixthVisitorVolume, v -> config.sixthVisitorVolume = v, 2);
+        b.toggle("  Title On Visitor Arrival",
+                () -> config.visitorArrivalTitle, v -> config.visitorArrivalTitle = v)
+                .desc("Title with the visitor's name in its rarity colour when one arrives on your Garden.")
+                .tags("visitor", "arrival", "title", "notification");
+        b.toggle("  Warp Link When Away",
+                () -> config.visitorArrivalWarp, v -> config.visitorArrivalWarp = v)
+                .desc("Outside the Garden: clickable chat line that runs /warp garden when a visitor arrives.");
+        b.toggle("  Queue Full Title + Sound",
+                () -> config.visitorQueueFullTitle, v -> config.visitorQueueFullTitle = v)
+                .desc("Title and a low pling when the tab list says Next Visitor: Queue Full!");
+        b.toggle("  Show Item Of Rare Visitors",
+                () -> config.visitorRareArrivalItem, v -> config.visitorRareArrivalItem = v)
+                .desc("Jerry, Spaceman and Rhino: their rare item shows big on screen for 5 seconds.");
         b.label("Harvest Feast");
         b.toggle("In-Season Display",
                 () -> config.feastSeasonDisplay, v -> config.feastSeasonDisplay = v);

@@ -13,5 +13,6 @@ public class ItemBarMixin {
     @Inject(method = "itemBar", at = @At("HEAD"), cancellable = true)
     private void teslamaps$hideDurability(ItemStack stack, int x, int y, CallbackInfo ci) {
         if (RenderHiders.hideDurability()) ci.cancel();
+        else if (com.teslamaps.features.gardenqol.GardenSafety.drawBar((GuiGraphicsExtractor) (Object) this, stack, x, y)) ci.cancel();
     }
 }
