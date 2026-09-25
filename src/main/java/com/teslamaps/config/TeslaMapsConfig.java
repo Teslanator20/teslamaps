@@ -2199,6 +2199,25 @@ public class TeslaMapsConfig {
     public boolean tradeValue = false;
     public boolean tradeValueChanges = true;
     public boolean bazaarChatSummary = false;
+    // w11-07-gui
+    public boolean configResetOptions = false;
+    public boolean pauseMenuConfigButton = false;
+    public boolean skyblockMenuConfigButton = false;
+    public boolean userSoundFolder = false;
+    public boolean featureConditions = false;
+    public java.util.Map<String, FeatureRule> featureConditionRules = new java.util.LinkedHashMap<>();
+    public boolean customFont = false;
+    public String customFontFile = "";
+    public float customFontSize = 9f;
+    public float customFontOversample = 4f;
+    public float customFontShiftY = 0f;
+    public boolean widgetsHelper = false;
+    public boolean widgetsHelperList = true;
+
+    public static class FeatureRule {
+        public boolean invert = false;
+        public java.util.List<java.util.List<String>> combos = new java.util.ArrayList<>();
+    }
     // w11-01-par
     public boolean pbOnJoinButtons = false;
     public boolean chatNamesOpenPv = false;
@@ -4507,6 +4526,14 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
+        c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
+        for (FeatureRule r : c.featureConditionRules.values()) {
+            if (r.combos == null) r.combos = new java.util.ArrayList<>();
+            r.combos.removeIf(java.util.Objects::isNull);
+            for (java.util.List<String> l : r.combos) l.removeIf(java.util.Objects::isNull);
+        }
+        if (c.customFontFile == null) c.customFontFile = "";
         if (c.mutePartySpamPrefixes == null) c.mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
         c.mutePartySpamPrefixes.removeIf(s -> s == null || s.isEmpty());
         if (c.safariHotspotPostChannel == null) c.safariHotspotPostChannel = "Party";

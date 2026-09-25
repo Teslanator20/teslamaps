@@ -526,6 +526,12 @@ final class Features {
         com.teslamaps.features.TradeValue.register();
         com.teslamaps.features.BazaarFlipTracker.register();
         com.teslamaps.features.BazaarChatSummary.register();
+        // w11-07-gui
+        com.teslamaps.features.ConfigAccess.register();
+        com.teslamaps.utils.UserSounds.register();
+        FeatureConditions.register();
+        com.teslamaps.features.CustomFont.register();
+        com.teslamaps.features.hud.TabWidgetsMenuHelper.register();
         // w11-01-par
         com.teslamaps.features.KuudraPartyFinder.register();
         com.teslamaps.features.AcceptLastInvite.register();

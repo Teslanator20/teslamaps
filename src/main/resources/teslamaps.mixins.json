@@ -4,6 +4,10 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "SocialInteractionsPlayerListMixin",
+    "UserSoundEventMixin",
+    "UserSoundBufferMixin",
+    "CustomFontManagerMixin",
+    "FontSetProvidersAccessor",
     "FullChatChromaMixin",
     "GlowSectionMixin",
     "CameraDistanceMixin",

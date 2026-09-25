@@ -13,9 +13,15 @@ import net.minecraft.network.chat.Component;
 public class TeslaSettingsButton extends AbstractWidget {
 
     private float hover;
+    private final Runnable action;
 
     public TeslaSettingsButton(int x, int y, int size) {
+        this(x, y, size, null);
+    }
+
+    public TeslaSettingsButton(int x, int y, int size, Runnable action) {
         super(x, y, size, size, Component.literal("TeslaMaps Settings"));
+        this.action = action;
     }
 
     @Override
@@ -33,7 +39,8 @@ public class TeslaSettingsButton extends AbstractWidget {
     @Override
     public void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
         playDownSound(Minecraft.getInstance().getSoundManager());
-        Minecraft.getInstance().setScreen(MapConfigScreen.open());
+        if (action != null) action.run();
+        else Minecraft.getInstance().setScreen(MapConfigScreen.open());
     }
 
     @Override
