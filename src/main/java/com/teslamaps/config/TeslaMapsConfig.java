@@ -2165,6 +2165,51 @@ public class TeslaMapsConfig {
     public boolean featureToggleKeys = false;
     public boolean featureToggleChat = true;
     public java.util.Map<String, Integer> featureToggleBinds = new java.util.LinkedHashMap<>(); // boolean field -> key
+    // w11-01-par
+    public boolean pbOnJoinButtons = false;
+    public boolean chatNamesOpenPv = false;
+    public boolean pbOnJoinKuudra = false;
+    public boolean kuudraPfKickLine = true;
+    public boolean kuudraPfSound = false;
+    public boolean kuudraPfAutoKick = false;
+    public boolean kuudraPfInform = false;
+    public boolean kuudraPfApiOffKick = true;
+    public int kuudraPfMinMp = 1000;
+    public int kuudraPfMinT5 = 50;
+    public boolean kuudraPfReqGdrag = false;
+    public boolean kuudraPfReqHeart = false;
+    public boolean kuudraPfReqTux = false;
+    public boolean kuudraPfKickCache = true;
+    public boolean kuudraRunsReply = false;
+    public boolean acceptLastInvite = false;
+    public boolean manaDrainAnnounce = false;
+    public boolean spellAnnounce = false;
+    public boolean spellAnnounceSpark = true;
+    public boolean spellAnnounceRush = true;
+    public boolean spellAnnounceWind = true;
+    public boolean spellAnnounceIchor = true;
+    public boolean mutePartySpam = false;
+    public java.util.List<String> mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
+    public boolean safariHotspotPost = false;
+    public String safariHotspotPostChannel = "Party";
+    public boolean hunterTrades = false;
+    public String hunterTradesChannel = "Party";
+    public boolean hunterTradesChat = true;
+    public boolean hunterTradesAcceptShared = true;
+    public boolean hunterTradesWaypoints = true;
+    public int hunterTradesX = 5;
+    public int hunterTradesY = 160;
+    public float hunterTradesScale = 1.0f;
+    // w11-06-gui
+    public float hudCustomBlur = 0f;               // HUD Style "Custom": backdrop blur radius, 0 = off
+    public String hudCustomBlurKernel = "Gaussian"; // Gaussian / Box
+    public float hudGlobalScale = 1.0f;            // multiplies every movable HUD element
+    public boolean newOptionsNotify = false;
+    @Global
+    public java.util.List<String> knownToggles = new java.util.ArrayList<>(); // "Category/Label" seen so far
+    @Global
+    public int worldOverlayKey = -1;               // hides every world overlay while toggled
+    public boolean worldOverlayFade = true;
     // w11-02-par
     public boolean multiPartyInviteFix = false;
     public boolean teslaUserLabels = false;
@@ -2176,6 +2221,26 @@ public class TeslaMapsConfig {
     public boolean partyOnBoop = false;
     public boolean partyOnBoopBingoOnly = false;
     public boolean replyBoop = false;
+    // w11-03-par
+    public boolean repartyCommand = false;
+    public boolean repartyAutoAccept = false;
+    public boolean pfLevelReq = false;
+    public boolean pfMissingOverlay = false;
+    public boolean pfTooltipStats = false;
+    public boolean partyListFormat = false;
+    public boolean partyHud = false;
+    public boolean partyHudOnlyAreas = false;
+    public int partyHudMax = 8;
+    public int partyHudX = 5;
+    public int partyHudY = 120;
+    public float partyHudScale = 1.0f;
+    public boolean partyJoinSound = false;
+    public String partyJoinSoundType = "NOTE_PLING";
+    public boolean kickedLimboAlert = false;
+    public boolean safariPlayersOnEnd = false;
+    public boolean throttleNotifier = false;
+    public boolean throttleNotifierCooldown = true;
+    public String throttleNotifierText = "Menu throttled, give me a second!";
     // w11-05-par
     public boolean partyShortcuts = false;
     public boolean partyKickReason = false;
@@ -4408,6 +4473,12 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.mutePartySpamPrefixes == null) c.mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
+        c.mutePartySpamPrefixes.removeIf(s -> s == null || s.isEmpty());
+        if (c.safariHotspotPostChannel == null) c.safariHotspotPostChannel = "Party";
+        if (c.hunterTradesChannel == null) c.hunterTradesChannel = "Party";
+        if (c.knownToggles == null) c.knownToggles = new java.util.ArrayList<>();
+        if (c.hudCustomBlurKernel == null) c.hudCustomBlurKernel = "Gaussian";
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
         if (c.posMessageList == null) c.posMessageList = new java.util.ArrayList<>();
         c.posMessageList.removeIf(java.util.Objects::isNull);

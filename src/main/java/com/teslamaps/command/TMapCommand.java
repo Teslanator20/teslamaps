@@ -1976,6 +1976,7 @@ public class TMapCommand {
                                 .executes(context -> sendCoords(context.getSource(),
                                         StringArgumentType.getString(context, "message")))))
         );
+        ConfigCommands.register(dispatcher);
 
     }
 
