@@ -188,8 +188,6 @@ public final class HideCategory {
         b.toggle("Hide Death Animation", () -> config.noDeathAnimation, v -> config.noDeathAnimation = v);
         b.toggle("Hide Death Particles", () -> config.hideDeathParticles, v -> config.hideDeathParticles = v)
                 .desc("No smoke puff when a mob dies.");
-        b.toggle("Hide Fire On Entities", () -> config.hideEntityFire, v -> config.hideEntityFire = v)
-                .desc("Burning mobs and players are drawn without flames. Your own fire overlay is Hide Fire Overlay.");
         b.toggle("Hide Enderman Teleport", () -> config.hideEndermanTeleport, v -> config.hideEndermanTeleport = v)
                 .desc("No portal particle burst when an enderman teleports.");
         b.toggle("Hide Mage Beams", () -> config.hideMageBeams, v -> config.hideMageBeams = v)
