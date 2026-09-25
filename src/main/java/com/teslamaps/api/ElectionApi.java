@@ -38,6 +38,13 @@ public final class ElectionApi {
     private static volatile String minister = "";
     private static volatile Set<String> perks = Set.of();
     private static volatile boolean loaded = false;
+
+    public record Perk(String name, String description, boolean minister) {}
+    public record Person(String name, java.util.List<Perk> perks) {}
+
+    private static volatile Person mayorFull = null;
+    private static volatile Person ministerFull = null;
+    private static volatile java.util.List<Person> candidates = java.util.List.of();
     private static volatile boolean fetching = false;
     private static volatile long nextFetch = 0L;
     private static long clearAt = 0L;
@@ -50,7 +57,7 @@ public final class ElectionApi {
 
     private static boolean wanted() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.paulAutoDetect || c.witherDragonPaulAuto || (c.petOverlay && c.section("Skills")) || c.trackerHistory;
+        return c.paulAutoDetect || c.witherDragonPaulAuto || (c.petOverlay && c.section("Skills")) || c.trackerHistory || c.mayorOverlay;
     }
 
     private static void tick() {
@@ -60,6 +67,9 @@ public final class ElectionApi {
             mayor = "";
             minister = "";
             perks = Set.of();
+            mayorFull = null;
+            ministerFull = null;
+            candidates = java.util.List.of();
             loaded = false;
             clearAt = nextElectionEnd(now + 60_000L);
             nextFetch = now + RETRY_MS;
@@ -101,6 +111,17 @@ public final class ElectionApi {
                     JsonObject mp = mi.getAsJsonObject("perk");
                     if (mp != null) p.add(str(mp, "name").toLowerCase(Locale.ROOT));
                 }
+                mayorFull = new Person(str(m, "name"), perkList(m.getAsJsonArray("perks"), false));
+                ministerFull = mi == null ? null : new Person(min, mi.getAsJsonObject("perk") == null ? java.util.List.of()
+                        : java.util.List.of(perk(mi.getAsJsonObject("perk"), true)));
+                java.util.List<Person> cands = new java.util.ArrayList<>();
+                JsonObject cur = root.getAsJsonObject("current");
+                JsonArray ca = cur == null ? null : cur.getAsJsonArray("candidates");
+                if (ca != null) for (JsonElement e : ca) {
+                    if (e.isJsonObject()) cands.add(new Person(str(e.getAsJsonObject(), "name"),
+                            perkList(e.getAsJsonObject().getAsJsonArray("perks"), false)));
+                }
+                candidates = java.util.List.copyOf(cands);
                 mayor = str(m, "name");
                 minister = min;
                 perks = Set.copyOf(p);
@@ -113,6 +134,27 @@ public final class ElectionApi {
                 fetching = false;
             }
         });
+    }
+
+    private static Perk perk(JsonObject o, boolean minister) {
+        JsonElement mm = o.get("minister");
+        return new Perk(str(o, "name"), str(o, "description"), minister || (mm != null && !mm.isJsonNull() && mm.getAsBoolean()));
+    }
+
+    private static java.util.List<Perk> perkList(JsonArray arr, boolean minister) {
+        if (arr == null) return java.util.List.of();
+        java.util.List<Perk> out = new java.util.ArrayList<>();
+        for (JsonElement e : arr) if (e.isJsonObject()) out.add(perk(e.getAsJsonObject(), minister));
+        return java.util.List.copyOf(out);
+    }
+
+    public static Person mayorFull() { return mayorFull; }
+    public static Person ministerFull() { return ministerFull; }
+    public static java.util.List<Person> candidates() { return candidates; }
+
+    /** Real time of the next election end. */
+    public static long nextMayorAt() {
+        return nextElectionEnd(System.currentTimeMillis());
     }
 
     private static void addPerks(Set<String> out, JsonArray arr) {

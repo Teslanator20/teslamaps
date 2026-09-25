@@ -393,5 +393,13 @@ final class Features {
         com.teslamaps.features.CustomCrosshair.register();
         com.teslamaps.features.OldItemTextures.register();
         com.teslamaps.features.BetterContainers.register();
+        // w08-02-hud
+        com.teslamaps.features.ScreenFlash.register();
+        com.teslamaps.features.Notifications.register();
+        com.teslamaps.features.hud.EffectTimers.register();
+        com.teslamaps.features.hud.MayorOverlay.register();
+        com.teslamaps.features.hud.SackHud.register();
+        com.teslamaps.features.hud.MinionWidget.register();
+        com.teslamaps.features.BitsWarning.register();
     }
 }
