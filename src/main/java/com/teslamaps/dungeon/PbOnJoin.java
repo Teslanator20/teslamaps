@@ -45,6 +45,11 @@ public class PbOnJoin {
         lookup(m.group(1), cls);
     }
 
+    /** /pcheck: the same one-liner as on a join, for any name. */
+    public static void check(String name) {
+        lookup(name, null);
+    }
+
     private static void lookup(String name, String cls) {
         HypixelApi.nameToUuid(name)
                 .thenCompose(uuid -> uuid == null ? CompletableFuture.completedFuture(null) : HypixelApi.getProfiles(uuid))

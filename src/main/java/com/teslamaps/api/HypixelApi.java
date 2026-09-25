@@ -388,6 +388,65 @@ public class HypixelApi {
         }, executor);
     }
 
+    /** The whole guild object of a player (members, expHistory), or null. Own key first, pv backend otherwise. */
+    public static CompletableFuture<JsonObject> getGuild(String uuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            String cacheKey = "guildfull:" + uuid;
+            CacheEntry cached = cache.get(cacheKey);
+            if (cached != null && !cached.isExpired()) return cached.data;
+            JsonObject guild = null;
+            String apiKey = configuredKey();
+            if (apiKey != null) {
+                try {
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create(HYPIXEL_API + "/guild?player=" + uuid.replace("-", "")))
+                            .timeout(Duration.ofSeconds(15))
+                            .header("API-Key", apiKey)
+                            .GET()
+                            .build();
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    if (response.statusCode() == 200) {
+                        JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                        if (json.has("guild") && json.get("guild").isJsonObject()) guild = json.getAsJsonObject("guild");
+                        else guild = new JsonObject();
+                    }
+                } catch (Exception e) {
+                    TeslaMaps.LOGGER.warn("Guild lookup for {} failed: {}", uuid, e.toString());
+                }
+            }
+            if (guild == null) {
+                JsonObject viaPv = PvApi.get("/guild/" + PvApi.dashed(uuid), "guild").join();
+                if (viaPv != null && viaPv.has("guild") && viaPv.get("guild").isJsonObject()) guild = viaPv.getAsJsonObject("guild");
+                else if (viaPv != null) guild = new JsonObject();
+            }
+            if (guild == null) return null;
+            cache.put(cacheKey, new CacheEntry(guild, 300000));
+            return guild;
+        }, executor);
+    }
+
+    /** uuid -> current name via Mojang's session server, cached an hour. */
+    public static String uuidToName(String uuid) {
+        String cacheKey = "name:" + uuid;
+        CacheEntry cached = cache.get(cacheKey);
+        if (cached != null && !cached.isExpired()) return cached.data.get("name").getAsString();
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.replace("-", "")))
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) return null;
+            JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+            if (!json.has("name")) return null;
+            cache.put(cacheKey, new CacheEntry(json, 3600000));
+            return json.get("name").getAsString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     /** null = key works, otherwise the reason. Hypixel dropped /key, so this uses a real request. */
     public static CompletableFuture<String> validateKey(String uuid) {
         return CompletableFuture.supplyAsync(() -> {
