@@ -53,6 +53,12 @@ public class SharedImageChat {
         return LINE_TO_URL.get(StringUtil.strip(lineText).trim());
     }
 
+    /** Same picture for the line once a chat timestamp sits in front of it. */
+    public static void aliasStamped(String plain, String stamped) {
+        String url = LINE_TO_URL.get(plain);
+        if (url != null) LINE_TO_URL.put(stamped, url);
+    }
+
     /** @return the rewritten line, or null to leave the message alone. */
     public static Component decorate(Component message) {
         TeslaMapsConfig c = TeslaMapsConfig.get();

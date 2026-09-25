@@ -313,7 +313,10 @@ public class TMapCommand {
                 .then(com.teslamaps.features.croesus.PriceDebug.command())
                 .then(com.teslamaps.features.SackApi.command())
                 .then(com.teslamaps.features.Notifications.command())
+                .then(com.teslamaps.features.DvdLogo.command())
                 .then(com.teslamaps.features.ItemCycle.command())
+                .then(com.teslamaps.features.ChatRewrites.bridgeCommand())
+                .then(com.teslamaps.features.LogSearch.command())
                 .then(com.teslamaps.database.RoomLearn.newCoreCommand())
                 .then(com.teslamaps.database.RoomLearn.newRoomCommand())
                 .then(com.teslamaps.database.RoomLearn.roomDataCommand())
@@ -1980,8 +1983,8 @@ public class TMapCommand {
             case "Coop" -> "cc ";
             default -> "pc ";
         };
-        if (prefix == null) mc.getConnection().sendChat(text);
-        else mc.getConnection().sendCommand(prefix + text);
+        if (prefix == null) com.teslamaps.features.ChatQueue.chat(text);
+        else com.teslamaps.features.ChatQueue.command(prefix + text);
         return 1;
     }
 

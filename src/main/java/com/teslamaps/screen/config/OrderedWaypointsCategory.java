@@ -52,6 +52,8 @@ public final class OrderedWaypointsCategory {
         b.toggle("Auto-Skip Forward", () -> config.orderedAutoSkipForward, v -> config.orderedAutoSkipForward = v);
         b.toggle("Skip Air Waypoints", () -> config.orderedSkipAir, v -> config.orderedSkipAir = v);
         b.info("Waypoints on an air block are jumped over (19 -> 21 if 20 is air)");
+        b.toggle("Advance Only On Ground", () -> config.orderedOnGround, v -> config.orderedOnGround = v)
+                .desc("A waypoint only counts once you land near it, not while jumping past.");
         b.toggle("Unload On World Change", () -> config.orderedAutoUnload, v -> config.orderedAutoUnload = v);
         b.toggle("Auto-Load Route Named Like Area", () -> config.orderedAutoLoadByArea, v -> config.orderedAutoLoadByArea = v);
         b.info("Save a route as e.g. \"Crystal Hollows\" to load it there");

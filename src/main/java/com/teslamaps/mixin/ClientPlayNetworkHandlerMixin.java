@@ -83,6 +83,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
         com.teslamaps.features.foraging.FloorDrops.onParticle(packet);
         com.teslamaps.features.EventTracker.onParticle(packet);
+        com.teslamaps.features.mobvisuals.MobVisuals.onParticle(packet);
     }
 
     @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",
@@ -100,7 +101,10 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.SadanFeatures.hideParticle()
                     || com.teslamaps.features.HideWitherKing.hideParticle(packet)
                     || com.teslamaps.features.DungeonCleanEnd.hideParticle()
-                    || com.teslamaps.features.MageBeam.onParticle(packet))) ci.cancel();
+                    || com.teslamaps.features.MageBeam.onParticle(packet)
+                    || com.teslamaps.features.ParticleHiders.hideParticle(packet)
+                    || com.teslamaps.features.AbilityRadius.hideParticle(packet)
+                    || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet))) ci.cancel();
     }
 
     @Inject(method = "handleInitializeBorder", at = @At("HEAD"))
@@ -215,6 +219,13 @@ public class ClientPlayNetworkHandlerMixin {
         if (target != null && mc.isSameThread()) com.teslamaps.dungeon.MimicDetector.onEntityEvent(target, packet.getEventId());
         if (target != null && mc.isSameThread()) com.teslamaps.features.SadanFeatures.onEntityEvent(target, packet.getEventId());
         com.teslamaps.debug.DeathProbe.onEntityEvent(packet, packet.getEventId());
+    }
+
+    @Inject(method = "handleEntityEvent", at = @At("HEAD"), cancellable = true)
+    private void onEntityEventHide(net.minecraft.network.protocol.game.ClientboundEntityEventPacket packet, CallbackInfo ci) {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.level == null || !mc.isSameThread()) return;
+        if (com.teslamaps.features.EndermanTeleportHider.hideEvent(packet.getEntity(mc.level), packet.getEventId())) ci.cancel();
     }
 
     @Inject(method = "setTitleText", at = @At("HEAD"), cancellable = true)

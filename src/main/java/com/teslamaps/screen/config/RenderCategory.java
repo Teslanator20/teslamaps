@@ -13,6 +13,11 @@ public final class RenderCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("World");
         b.toggle("Fullbright", () -> config.fullbright, v -> config.fullbright = v);
+        b.toggle("Night Vision Control", () -> config.nightVisionControl, v -> config.nightVisionControl = v)
+                .desc("Dims Hypixel's permanent night vision. Only matters while Fullbright is off.");
+        b.slider("  Night Vision Strength", 0f, 100f,
+                () -> config.nightVisionStrength, v -> config.nightVisionStrength = v);
+        b.toggle("  No Night Vision Blinking", () -> config.nightVisionNoBlink, v -> config.nightVisionNoBlink = v);
         b.label("Zoom");
         b.toggle("Zoom (hold key)", () -> config.zoomEnabled, v -> config.zoomEnabled = v);
         b.keybind("  Zoom Key", () -> config.zoomKey, v -> config.zoomKey = v);
@@ -89,6 +94,12 @@ public final class RenderCategory {
         b.info("In the world: open the finder, Shift: warp to the target");
         b.label("Rare Drop Effects");
         b.toggle("Rare Drops", () -> config.rareDropEffects, v -> config.rareDropEffects = v);
+        b.dropdown("  Post Drops To", com.teslamaps.features.RareDropEffects.ANNOUNCE,
+                () -> config.rareDropAnnounce, v -> config.rareDropAnnounce = v)
+                .desc("Sends the RARE DROP line with a per-item counter to party and/or guild chat");
+        b.slider("    Only Over (Mio, 0 = all)", 0f, 100f,
+                () -> config.rareDropAnnounceMin, v -> config.rareDropAnnounceMin = v, 1);
+        b.toggle("  Copy Drop Line To Clipboard", () -> config.rareDropCopy, v -> config.rareDropCopy = v);
         b.toggle("Dungeon Chest Rewards", () -> config.rareDungeonDropEffects, v -> config.rareDungeonDropEffects = v);
         b.toggle("Dye Drops", () -> config.rareDyeDropEffects, v -> config.rareDyeDropEffects = v);
         b.toggle("Dungeon Ground Drops", () -> config.rareGroundDrops, v -> config.rareGroundDrops = v)

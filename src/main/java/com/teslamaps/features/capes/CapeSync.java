@@ -247,6 +247,7 @@ public class CapeSync {
 
                 long now = System.currentTimeMillis();
                 Map<String, Remote> found = new HashMap<>();
+                java.util.Set<String> answered = new java.util.HashSet<>();
                 for (JsonElement element : rows) {
                     if (!element.isJsonObject()) continue;
                     JsonObject row = element.getAsJsonObject();
@@ -254,6 +255,10 @@ public class CapeSync {
                     String capeId = string(row, "cape_id");
                     String hash = string(row, "hash");
                     String ext = string(row, "ext");
+                    if (uuid != null) {
+                        Cosmetics.readRow(uuid, row);
+                        answered.add(uuid.toLowerCase(java.util.Locale.ROOT));
+                    }
                     if (uuid == null || capeId == null || capeId.isEmpty()) continue;
                     if (hash != null && !hash.matches("[0-9a-f]{64}")) continue;
                     // the extension is part of the storage key, so anything unknown is dropped
@@ -266,6 +271,7 @@ public class CapeSync {
                 for (String uuid : uuids) {
                     asked.put(uuid, now);
                     if (!found.containsKey(uuid)) remote.remove(uuid);
+                    if (!answered.contains(uuid)) Cosmetics.forget(uuid);
                 }
                 remote.putAll(found);
                 prune();

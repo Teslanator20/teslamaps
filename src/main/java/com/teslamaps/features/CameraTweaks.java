@@ -40,8 +40,13 @@ public final class CameraTweaks {
                     b.toggle("Riding Input Fix", () -> cfg().ridingInputFix, v -> cfg().ridingInputFix = v)
                             .desc("Fixes the mouse delay while riding (MC-206540)");
                     b.toggle("Custom FOV", () -> cfg().customFov, v -> cfg().customFov = v)
-                            .desc("Replaces the vanilla FOV, up to 179");
-                    b.slider("  FOV", 30f, 179f, () -> (float) cfg().customFovValue, v -> cfg().customFovValue = v.intValue());
+                            .desc("Replaces the vanilla FOV, 1 to 179");
+                    b.slider("  FOV", 1f, 179f, () -> (float) cfg().customFovValue, v -> cfg().customFovValue = v.intValue());
+                    b.toggle("Camera Distance (F5)", () -> cfg().customCameraDistance, v -> cfg().customCameraDistance = v)
+                            .desc("Third person camera distance, vanilla is 4 blocks");
+                    b.slider("  Distance", 3f, 12f, () -> cfg().cameraDistance, v -> cfg().cameraDistance = v, 1);
+                    b.toggle("Camera Clip (F5)", () -> cfg().cameraClip, v -> cfg().cameraClip = v)
+                            .desc("The third person camera goes through blocks instead of moving closer");
                     b.toggle("1.8 Sneak Height", () -> cfg().oldCrouch, v -> cfg().oldCrouch = v)
                             .desc("Sneaking keeps the 1.8 height. Not on Galatea / The Park");
                     b.toggle("No Swim / Crawl Camera", () -> cfg().noSwimPose, v -> cfg().noSwimPose = v)
@@ -97,7 +102,16 @@ public final class CameraTweaks {
     public static float fov(float fov) {
         if (!cfg().customFov) return fov;
         int base = Minecraft.getInstance().options.fov().get();
-        return base <= 0 ? fov : fov * (Mth.clamp(cfg().customFovValue, 30, 179) / (float) base);
+        return base <= 0 ? fov : fov * (Mth.clamp(cfg().customFovValue, 1, 179) / (float) base);
+    }
+
+    public static float cameraDistance(float distance) {
+        if (!cfg().customCameraDistance) return distance;
+        return distance / 4f * Mth.clamp(cfg().cameraDistance, 3f, 12f);
+    }
+
+    public static boolean cameraClip() {
+        return cfg().cameraClip;
     }
 
     /** Own player's dimensions for a pose, null = vanilla. */

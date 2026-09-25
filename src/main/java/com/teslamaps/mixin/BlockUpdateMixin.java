@@ -19,6 +19,9 @@ public class BlockUpdateMixin {
             at = @At("HEAD"))
     private void onSetBlockState(BlockPos pos, BlockState newState, int flags, int maxUpdateDepth,
                                   CallbackInfoReturnable<Boolean> cir) {
+        if (com.teslamaps.features.BlockEsp.listening() && ((Level) (Object) this).isClientSide()) {
+            com.teslamaps.features.BlockEsp.onBlockUpdate(pos, newState);
+        }
         if (!DungeonManager.isInDungeon()) {
             if (com.teslamaps.features.mining.MineshaftPity.tracking()) {
                 Level level = (Level) (Object) this;

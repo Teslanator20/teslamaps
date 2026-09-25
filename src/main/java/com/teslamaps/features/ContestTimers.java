@@ -124,7 +124,7 @@ public final class ContestTimers {
     private static void party(String line) {
         Minecraft mc = Minecraft.getInstance();
         mc.execute(() -> {
-            if (mc.getConnection() != null) mc.getConnection().sendCommand("pc " + line);
+            com.teslamaps.features.ChatQueue.command("pc " + line);
         });
     }
 
