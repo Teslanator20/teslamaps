@@ -316,5 +316,11 @@ final class Features {
         com.teslamaps.features.QolTweaks.register();
         com.teslamaps.features.RenderHiders.register();
         com.teslamaps.features.ServerRestartWarning.register();
+        // w07-09-hud
+        com.teslamaps.features.SbItemCooldowns.register();
+        com.teslamaps.features.InventoryHud.register();
+        com.teslamaps.features.theend.EyesPlacedHud.register();
+        com.teslamaps.features.theend.EndStatsHud.register();
+        com.teslamaps.features.FatalTempo.register();
     }
 }

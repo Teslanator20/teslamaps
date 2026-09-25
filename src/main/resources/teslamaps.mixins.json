@@ -12,6 +12,8 @@
     "EditBoxUndoMixin",
     "CustomDataAccessor",
     "ItemBarMixin",
+    "ItemCooldownMixin",
+    "CrosshairCooldownMixin",
     "ArmorStandArmorMixin",
     "TooltipStyleMixin",
     "QolContainerMixin",

@@ -60,6 +60,15 @@ public class PerformanceHud {
         if (cfg.perfHudFps) { l.add("FPS: "); v.add(String.valueOf(mc.getFps())); }
         if (cfg.perfHudTps) { l.add("TPS: "); v.add(String.format("%.1f", averageTps())); }
         if (cfg.perfHudPing) { l.add("Ping: "); v.add((int) PingMeter.getLastPingMs() + "ms"); }
+        if (cfg.perfHudLag && !mc.isLocalServer() && com.teslamaps.utils.SkyblockUtils.isOnHypixel()) {
+            long last = com.teslamaps.utils.ServerTickTimer.lastPingMs();
+            long dt = last == 0 ? 0 : System.currentTimeMillis() - last;
+            if (dt >= cfg.perfHudLagThreshold) {
+                String col = dt < 500 ? "§a" : dt < 1000 ? "§e" : dt < 2000 ? "§6" : "§c";
+                l.add("zzz for ");
+                v.add(col + String.format(java.util.Locale.ROOT, "%.2fs", dt / 1000.0));
+            }
+        }
         labels = l.toArray(new String[0]);
         values = v.toArray(new String[0]);
     }

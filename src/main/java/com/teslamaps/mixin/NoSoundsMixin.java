@@ -37,6 +37,7 @@ public class NoSoundsMixin {
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
         com.teslamaps.features.CombatTimers.onSound(sound, vol, pitch);
+        com.teslamaps.features.FatalTempo.onSound(sound);
         com.teslamaps.features.SpringBootsHelper.onSound(sound);
         if (com.teslamaps.features.SadanFeatures.muteSound(sound, vol, pitch)) { ci.cancel(); return; }
         if (com.teslamaps.features.DungeonCleanEnd.muteSound(sound)) { ci.cancel(); return; }
