@@ -2177,6 +2177,23 @@ public class TeslaMapsConfig {
     // w13-03-pv
     public boolean pvSacks = false;
     public boolean pvHunting = false;
+    // w13-00-eco
+    public boolean fancyAuctionBrowser = false;
+    public boolean fancyAuctionView = false;
+    public boolean safariShardValue = false;
+    public String safariShardPrice = "Instant Sell"; // Instant Sell / Sell Offer / Both
+    public boolean safariShardTax = true;
+    public boolean npcDayLimit = false;
+    public boolean npcDayLimitShort = true;
+    public int npcDayLimitX = 10;
+    public int npcDayLimitY = 200;
+    public float npcDayLimitScale = 1.0f;
+    public boolean pricePaid = false;
+    public boolean fireSaleWidget = false;
+    public int fireSaleWidgetX = 10;
+    public int fireSaleWidgetY = 220;
+    public float fireSaleWidgetScale = 1.0f;
+    public boolean pesthunterProfit = false;
     // w13-02-eco
     public boolean auctionCopyUnderbid = false;
     public boolean searchOverlayCommands = false;

@@ -609,6 +609,12 @@ final class Features {
         com.teslamaps.features.PestBaitPanel.register();
         com.teslamaps.features.NoCropRotation.register();
         com.teslamaps.features.PbFortuneGain.register();
+        // w13-00-eco
+        com.teslamaps.features.NpcDayLimit.register();
+        com.teslamaps.features.PricePaid.register();
+        com.teslamaps.features.hud.FireSaleWidget.register();
+        com.teslamaps.features.PesthunterProfit.register();
+        com.teslamaps.features.FancyAuctionHouse.register();
         // w13-02-eco
         com.teslamaps.features.AuctionPriceInput.register();
         com.teslamaps.features.SearchOverlay.register();
