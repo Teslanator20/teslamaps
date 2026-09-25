@@ -208,5 +208,12 @@ final class Features {
         com.teslamaps.features.AnvilHelper.register();
         com.teslamaps.features.accessories.AccessoryHelper.register();
         com.teslamaps.features.CraftHelper.register();
+        // w04-02-inv
+        com.teslamaps.features.CustomWardrobe.register();
+        com.teslamaps.features.TooltipExtras.register();
+        com.teslamaps.features.BackpackSlot.register();
+        com.teslamaps.features.AttributeOverlay.register();
+        com.teslamaps.features.customize.ItemModelMigration.register();
+        com.teslamaps.features.BrewingStandOverlay.register();
     }
 }

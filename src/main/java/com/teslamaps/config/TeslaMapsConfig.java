@@ -2277,6 +2277,34 @@ public class TeslaMapsConfig {
     public int craftHelperX = 5;
     public int craftHelperY = 120;
     public float craftHelperScale = 1.0f;
+    // w04-02-inv
+    public boolean customWardrobe = false;
+    public boolean customWardrobeHideEmpty = false;
+    public boolean customWardrobeOnlyFavorites = false;
+    public boolean customWardrobeValue = true;
+    public boolean customWardrobeFollowMouse = true;
+    public int customWardrobeCardWidth = 64;
+    public int customWardrobeCardHeight = 110;
+    public String colorWardrobeEquipped = "55FF55";
+    public String colorWardrobeFavorite = "FFAA00";
+    @Global
+    public java.util.Set<Integer> wardrobeFavorites = new java.util.HashSet<>();
+    public boolean countdownTooltip = false;
+    public boolean countdownTooltip24h = true;
+    public boolean brokenFragmentTooltip = false;
+    public boolean backpackSlot = false;
+    public int backpackSlotKey = -1;
+    public boolean backpackSlotScroll = true;
+    public boolean backpackSlotPreview = true;
+    public float backpackSlotOpacity = 0.6f;
+    public boolean backpackSlotLeft = false;
+    public int backpackSlotIndex = 0;
+    public boolean attributeOverlay = false;
+    public boolean attributeOverlayGoodRolls = true;
+    public boolean attributeOverlayOnlyGood = false;
+    public int attributeOverlayMinLevel = 0;
+    public boolean migrateItemModels = false;
+    public boolean brewingStandOverlay = false;
     // w03-03-dun
     public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
     public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking
@@ -2851,6 +2879,9 @@ public class TeslaMapsConfig {
         if (c.invButtons == null || c.invButtons.isEmpty()) {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }
+        if (c.wardrobeFavorites == null) c.wardrobeFavorites = new java.util.HashSet<>();
+        if (c.colorWardrobeEquipped == null) c.colorWardrobeEquipped = "55FF55";
+        if (c.colorWardrobeFavorite == null) c.colorWardrobeFavorite = "FFAA00";
         if (c.waypointPacksActive == null) c.waypointPacksActive = new ArrayList<>(List.of("Default"));
         if (c.waypointEditPack == null) c.waypointEditPack = "Default";
         if (c.batKilledChannel == null) c.batKilledChannel = "Nobody";

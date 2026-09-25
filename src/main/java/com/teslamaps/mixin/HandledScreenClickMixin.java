@@ -59,6 +59,11 @@ public class HandledScreenClickMixin {
         double mouseY = click.y();
         int button = click.button();
 
+        if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)) {
+            cir.setReturnValue(true);
+            return;
+        }
+
         com.teslamaps.features.AuctionPriceInput.onSlotClick(
                 (AbstractContainerScreen<?>) (Object) this, ((HandledScreenAccessor) (Object) this).getFocusedSlot());
 

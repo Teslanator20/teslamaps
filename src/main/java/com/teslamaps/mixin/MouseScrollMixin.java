@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MouseScrollMixin {
     @Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
     private void teslamaps$zoomScroll(long window, double xOffset, double yOffset, CallbackInfo ci) {
-        if (Zoom.onScroll(yOffset)) ci.cancel();
+        if (Zoom.onScroll(yOffset) || com.teslamaps.features.BackpackSlot.onScroll(yOffset)) ci.cancel();
     }
 
     @WrapOperation(method = "turnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V"))

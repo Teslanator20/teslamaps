@@ -14,6 +14,7 @@ public class KeyboardHandlerMixin {
 
     @Inject(method = "keyPress(JILnet/minecraft/client/input/KeyEvent;)V", at = @At("HEAD"), cancellable = true)
     private void teslamaps$configKey(long window, int action, KeyEvent event, CallbackInfo ci) {
-        if (ConfigHotkey.handleKey(window, action, event.key())) ci.cancel();
+        if (ConfigHotkey.handleKey(window, action, event.key())
+                || com.teslamaps.features.BackpackSlot.handleKey(window, action, event.key())) ci.cancel();
     }
 }

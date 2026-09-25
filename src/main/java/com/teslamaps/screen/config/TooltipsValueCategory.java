@@ -24,6 +24,10 @@ public final class TooltipsValueCategory {
         b.info("Long tooltips shrink instead of running off the top");
         b.toggle("  Remove Gear Score", () -> config.removeGearScore, v -> config.removeGearScore = v)
                 .desc("Drops the \"Gear Score: ...\" line from dungeon item tooltips.");
+        b.toggle("Countdown End Time", () -> config.countdownTooltip, v -> config.countdownTooltip = v);
+        b.info("Adds the local time to \"Ends in:\", \"Starts in:\", \"Duration:\" ... lines");
+        b.toggle("  24h Clock", () -> config.countdownTooltip24h, v -> config.countdownTooltip24h = v);
+        b.toggle("Broken Dragon Fragment Warning", () -> config.brokenFragmentTooltip, v -> config.brokenFragmentTooltip = v);
         b.toggle("Compactor/Deletor Preview", () -> config.compactorPreview, v -> config.compactorPreview = v);
         b.info("Tooltip shows on/off status and configured items");
         b.label("Item Value");
