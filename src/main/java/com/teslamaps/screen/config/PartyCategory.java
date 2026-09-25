@@ -48,6 +48,27 @@ public final class PartyCategory {
         b.toggle("  Full Stats Card (hover details)", () -> config.pbOnJoinCard, v -> config.pbOnJoinCard = v);
         b.toggle("  Class + Gear Hover (one-liner)", () -> config.pbOnJoinExtra, v -> config.pbOnJoinExtra = v)
                 .desc("Adds the joined class and level, plus a [Gear] hover with armor, weapons and active pet");
+        b.toggle("  Clickable [Kick] [PV] Buttons", () -> config.pbOnJoinButtons, v -> config.pbOnJoinButtons = v)
+                .desc("Adds [✖] (/party kick) and [PV] (/pv) buttons to Hypixel's party finder join line");
+        b.toggle("  Chat Names Open /pv", () -> config.chatNamesOpenPv, v -> config.chatNamesOpenPv = v)
+                .desc("Clicking a player name in chat opens our profile viewer instead of Hypixel's social options");
+        b.toggle("  Kuudra Joins: Kuudra Stats", () -> config.pbOnJoinKuudra, v -> config.pbOnJoinKuudra = v)
+                .desc("Kuudra party finder joins show T5 runs, MP, gear, armor and pet instead of dungeon PBs. /kuudra <name> for anyone");
+        b.toggle("    Kuudra: Kick Line", () -> config.kuudraPfKickLine, v -> config.kuudraPfKickLine = v);
+        b.toggle("    Kuudra: Join Sound", () -> config.kuudraPfSound, v -> config.kuudraPfSound = v);
+        b.toggle("    Kuudra: Auto Kick", () -> config.kuudraPfAutoKick, v -> config.kuudraPfAutoKick = v)
+                .desc("Kicks joiners below the requirements below");
+        b.toggle("      Tell Party Why", () -> config.kuudraPfInform, v -> config.kuudraPfInform = v);
+        b.toggle("      Kick If API Off", () -> config.kuudraPfApiOffKick, v -> config.kuudraPfApiOffKick = v);
+        b.slider("      Min Magical Power", 0f, 2000f, () -> (float) config.kuudraPfMinMp, v -> config.kuudraPfMinMp = Math.round(v / 50f) * 50, 0);
+        b.slider("      Min T5 Runs", 0f, 5000f, () -> (float) config.kuudraPfMinT5, v -> config.kuudraPfMinT5 = Math.round(v / 10f) * 10, 0);
+        b.toggle("      Require Golden Dragon", () -> config.kuudraPfReqGdrag, v -> config.kuudraPfReqGdrag = v);
+        b.toggle("      Require Kuudra's Heart", () -> config.kuudraPfReqHeart, v -> config.kuudraPfReqHeart = v);
+        b.toggle("      Require Habanero V Tux", () -> config.kuudraPfReqTux, v -> config.kuudraPfReqTux = v);
+        b.toggle("      Kick Cache (rejoin = kick)", () -> config.kuudraPfKickCache, v -> config.kuudraPfKickCache = v);
+        b.button("      Clear Kick Cache", com.teslamaps.features.KuudraPartyFinder::clearKickCache);
+        b.toggle("  Auto .runs Reply", () -> config.kuudraRunsReply, v -> config.kuudraRunsReply = v)
+                .desc("Someone types .runs in party chat or DMs you: replies with their T5 Kuudra runs");
         b.info("/cata <name> shows the card for anyone");
         b.toggle("  Party Check Commands", () -> config.partyCheckCommands, v -> config.partyCheckCommands = v)
                 .desc("/pcheck shows the PB line of every party member, /gxp [player] the weekly guild EXP list, /ginfo [player] the guild data. Also /tmap pcheck|gxp|ginfo; the short forms need a rejoin after switching on");

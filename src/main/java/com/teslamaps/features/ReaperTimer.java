@@ -95,7 +95,8 @@ public final class ReaperTimer {
 
     /** ItemStack bar mixins: null = leave vanilla. */
     public static boolean barFor(ItemStack s) {
-        return barActive && s != null && isWorn(s) && cfg().reaperTimer && cfg().reaperTimerBar;
+        return barActive && s != null && isWorn(s) && cfg().reaperTimer && cfg().reaperTimerBar
+                && feature != null && feature.active();
     }
 
     public static int barWidth() {

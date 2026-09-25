@@ -171,11 +171,28 @@ public final class FancyTabHud {
         totalW = x + colW;
     }
 
-    private static void render(GuiGraphicsExtractor g) {
+    /** For MovableVanillaHud: the fancy panels replace the tab list, so its box follows them. */
+    static boolean shown() {
+        return cfg().fancyTabHud && inSkyblock && !widgets.isEmpty();
+    }
+
+    static int left() {
+        return (int) ((Minecraft.getInstance().getWindow().getGuiScaledWidth() - totalW * Math.max(0.25f, cfg().fancyTabScale)) / 2);
+    }
+
+    static int width() {
+        return (int) Math.ceil(totalW * Math.max(0.25f, cfg().fancyTabScale));
+    }
+
+    static int height() {
+        return (int) Math.ceil(totalH * Math.max(0.25f, cfg().fancyTabScale)) + 1;
+    }
+
+    static void render(GuiGraphicsExtractor g) {
         Minecraft mc = Minecraft.getInstance();
         List<Widget> ws = widgets;
         float scale = Math.max(0.25f, cfg().fancyTabScale);
-        int ox = (int) ((mc.getWindow().getGuiScaledWidth() - totalW * scale) / 2);
+        int ox = left();
         var pose = g.pose();
         pose.pushMatrix();
         pose.translate(ox, 10);

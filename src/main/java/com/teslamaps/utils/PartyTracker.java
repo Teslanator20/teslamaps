@@ -44,6 +44,7 @@ public final class PartyTracker {
 
     private static final List<String> members = new ArrayList<>();
     private static String leader;
+    private static String prevLeader;
     private static boolean inParty;
 
     private PartyTracker() {}
@@ -62,6 +63,7 @@ public final class PartyTracker {
 
     public static List<String> members() { return members; }
     public static String leader() { return leader; }
+    public static String prevLeader() { return prevLeader; }
     public static boolean inParty() { return inParty; }
     public static int size() { return members.size(); }
 
@@ -127,6 +129,7 @@ public final class PartyTracker {
             add(m.group(1));
             add(m.group(2));
             leader = m.group(1);
+            prevLeader = m.group(2);
             return;
         }
         if ((m = TRANSFER_LEAVE.matcher(s)).matches()) {
@@ -187,6 +190,7 @@ public final class PartyTracker {
     private static void disband() {
         members.clear();
         leader = null;
+        prevLeader = null;
         inParty = false;
     }
 
