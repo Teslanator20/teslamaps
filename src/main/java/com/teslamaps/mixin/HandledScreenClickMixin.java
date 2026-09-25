@@ -28,6 +28,12 @@ public class HandledScreenClickMixin {
         com.teslamaps.features.WardrobeKeys.onSlotClicked((AbstractContainerScreen<?>) (Object) this, slot, button, type);
         com.teslamaps.features.StorageGuiScale.onClick((AbstractContainerScreen<?>) (Object) this);
         com.teslamaps.features.qol.TiaRelayHelper.onSlotClick(slot, slotId, button, type);
+        if (com.teslamaps.features.bazaar.PurchaseGuard.blockClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
+            ci.cancel();
+            return;
+        }
+        com.teslamaps.features.bazaar.BazaarOrderTracker.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot);
+        com.teslamaps.features.bazaar.BazaarReorder.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot);
         if (com.teslamaps.features.PartyFinderHelper.rightClick(slot, button, type)
                 || com.teslamaps.features.OldSkyblockMenu.onClick(slot)) {
             ci.cancel();
@@ -108,9 +114,20 @@ public class HandledScreenClickMixin {
         double mouseY = click.y();
         int button = click.button();
 
+        if (com.teslamaps.features.bazaar.PurchaseGuard.onMouse(click)) {
+            cir.setReturnValue(true);
+            return;
+        }
+        if (com.teslamaps.features.ContainerPanelMover.click(mouseX, mouseY, button)) {
+            teslamaps$ate("ContainerPanelMover", button);
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)
-                || com.teslamaps.features.FancyPartyFinder.click((AbstractContainerScreen<?>) (Object) this, click)) {
+                || com.teslamaps.features.FancyPartyFinder.click((AbstractContainerScreen<?>) (Object) this, click)
+                || com.teslamaps.features.RadialMenus.click((AbstractContainerScreen<?>) (Object) this, click)) {
             cir.setReturnValue(true);
             return;
         }

@@ -16,7 +16,7 @@ public final class HeadDisplaySize {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        feature = Feature.of("HeadDisplaySize").when(() -> cfg().headDisplaySize)
+        feature = Feature.of("HeadDisplaySize").section("Inventory").when(() -> cfg().headDisplaySize)
                 .config("Inventory", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Head Icons");

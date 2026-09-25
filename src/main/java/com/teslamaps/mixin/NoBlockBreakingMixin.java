@@ -21,7 +21,8 @@ public class NoBlockBreakingMixin {
     @Inject(method = "addBreakingBlockEffect", at = @At("HEAD"), cancellable = true)
     private void teslamaps$noBlockHit(BlockPos pos, Direction side, CallbackInfo ci) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (c.noBlockBreaking && c.noBlockHitParticles) ci.cancel();
+        if (c.noBlockBreaking && c.noBlockHitParticles
+                && (!c.noBlockBreakingGardenOnly || com.teslamaps.utils.SkyblockUtils.isInGarden())) ci.cancel();
     }
 
     @Inject(method = "setSkyFlashTime", at = @At("HEAD"), cancellable = true)

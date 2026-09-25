@@ -2169,6 +2169,79 @@ public class TeslaMapsConfig {
     public boolean hudEditGuides = true;
     public boolean hudEditMultiDrag = true;
     public boolean hudEditResize = true;
+    // w12-05-perf
+    public boolean keepTerrainLoaded = false;
+    public boolean outlinedTextCompat = false;
+    public boolean catchFeatureErrors = false;
+    public boolean featureErrorsInChat = true;
+    public boolean muteJerrychine = false;
+    public boolean muteFlowerOfTruth = false;
+    public boolean devInspector = false;
+    public int entityInspectorKey = -1;
+    public int itemInspectorKey = -1;
+    // w12-06-eco
+    public boolean bzTracker = false;
+    public int bzTrackerMaxOrders = 10;
+    public boolean bzTrackerOnlyMenus = false;
+    public boolean bzTrackerHideEmpty = false;
+    public boolean bzTrackerSoundFilled = true;
+    public boolean bzTrackerSoundPartial = false;
+    public boolean bzTrackerSoundOutbid = true;
+    public int bzTrackerX = 5;
+    public int bzTrackerY = 60;
+    public float bzTrackerScale = 1.0f;
+    public java.util.Map<String, java.util.List<BzTrackedOrder>> bzTrackerOrders = new java.util.HashMap<>();
+    public static class BzTrackedOrder {
+        public boolean buy;
+        public String item;
+        public int amount;
+        public int filled;
+        public double price;
+        public long created;
+    }
+    public boolean purchaseWarning = false;
+    public float purchaseWarnBazaarM = 10f;
+    public float purchaseWarnHexM = 10f;
+    public boolean purchaseWarnBin = true;
+    public float purchaseWarnBinUnder = 30f;
+    public float purchaseWarnBinOver = 100f;
+    public boolean manageAuctionsHelper = false;
+    public boolean manageAuctionsPanel = true;
+    public boolean manageAuctionsOverpriced = true;
+    public String colorAuctionSold = "#55FF55";
+    public String colorAuctionExpired = "#FF5555";
+    public String colorAuctionOverpriced = "#FFAA00";
+    public boolean auctionOutbidWarning = false;
+    public boolean auctionOutbidSound = true;
+    public boolean bzQuickQuantities = false;
+    public int bzQuickQty1 = 64;
+    public int bzQuickQty2 = 160;
+    public int bzQuickQty3 = 1024;
+    public boolean bzQuickQtyClose = false;
+    public boolean bzReorderHelper = false;
+    public boolean bzReorderOnCancel = true;
+    public boolean bzPurchaseHelper = false;
+    // w12-02-gui
+    public boolean containerPanelDrag = false;
+    public int croesusPanelDX = 0;
+    public int croesusPanelDY = 0;
+    public int shardPanelDX = 0;
+    public int shardPanelDY = 0;
+    public String invButtonConfirm = "Off";
+    public boolean inventoryScaleOverride = false;
+    public int inventoryScale = 2;
+    public boolean customClassColors = false;
+    public String classColorArcher = "FFAA00";
+    public String classColorBerserk = "AA0000";
+    public String classColorHealer = "FF55FF";
+    public String classColorMage = "55FFFF";
+    public String classColorTank = "00AA00";
+    public boolean quickJoinButton = false;
+    @Global
+    public String quickJoinIp = "mc.hypixel.net";
+    public boolean searchOverlayAllSigns = false;
+    public java.util.List<String> otherSearchHistory = new java.util.ArrayList<>();
+    public boolean tabWidgetGuide = false;
     // w11-04-par
     public boolean partyCheckCommands = false;
     public java.util.Set<String> chatCommandsExtraEnabled = new java.util.LinkedHashSet<>();
@@ -2220,6 +2293,38 @@ public class TeslaMapsConfig {
     public boolean tradeValue = false;
     public boolean tradeValueChanges = true;
     public boolean bazaarChatSummary = false;
+    // w11-07-gui
+    public boolean configResetOptions = false;
+    public boolean pauseMenuConfigButton = false;
+    public boolean skyblockMenuConfigButton = false;
+    public boolean userSoundFolder = false;
+    public boolean featureConditions = false;
+    public java.util.Map<String, FeatureRule> featureConditionRules = new java.util.LinkedHashMap<>();
+    public boolean customFont = false;
+    public String customFontFile = "";
+    public float customFontSize = 9f;
+    public float customFontOversample = 4f;
+    public float customFontShiftY = 0f;
+    public boolean widgetsHelper = false;
+    public boolean widgetsHelperList = true;
+
+    public static class FeatureRule {
+        public boolean invert = false;
+        public java.util.List<java.util.List<String>> combos = new java.util.ArrayList<>();
+    }
+    // w11-09-gui
+    public boolean radialMenus = false;
+    public java.util.List<String> radialMenusOn = new java.util.ArrayList<>();
+    public boolean radialMenuTooltips = false;
+    public boolean hudLayoutsPerLocation = false;
+    public java.util.Map<String, java.util.Map<String, float[]>> hudLayouts = new java.util.HashMap<>();
+    public boolean keybindsInControls = false;
+    public String hudTextShadow = "Shadow";
+    public java.util.Map<String, String> hudPanelTextShadow = new java.util.HashMap<>();
+    public java.util.Map<String, String> hudPanelTextAlign = new java.util.HashMap<>();
+    public java.util.Map<String, String> hudPanelLineBackdrop = new java.util.HashMap<>();
+    public boolean joinTips = false;
+    public boolean clickablePrefix = false;
     // w11-01-par
     public boolean pbOnJoinButtons = false;
     public boolean chatNamesOpenPv = false;
@@ -2791,10 +2896,6 @@ public class TeslaMapsConfig {
     public boolean cosmetics = false;
     public boolean cosmeticHalo = true;
     public String cosmeticHaloColor = "FFFF55";
-    public boolean cosmeticSize = false;
-    public float cosmeticSizeX = 1f;
-    public float cosmeticSizeY = 1f;
-    public float cosmeticSizeZ = 1f;
     public boolean cosmeticShowOthers = true;
     // w09-09-vis
     public boolean hideCloudsIslands = false;
@@ -2870,7 +2971,6 @@ public class TeslaMapsConfig {
     public boolean hideMountHealth = false;
     public boolean hideDeathParticles = false;
     public boolean noNightVision = false;
-    public boolean hideEndermanTeleport = false;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;
@@ -4528,6 +4628,21 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
+        c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
+        for (FeatureRule r : c.featureConditionRules.values()) {
+            if (r.combos == null) r.combos = new java.util.ArrayList<>();
+            r.combos.removeIf(java.util.Objects::isNull);
+            for (java.util.List<String> l : r.combos) l.removeIf(java.util.Objects::isNull);
+        }
+        if (c.customFontFile == null) c.customFontFile = "";
+        if (c.radialMenusOn == null) c.radialMenusOn = new java.util.ArrayList<>();
+        if (c.hudLayouts == null) c.hudLayouts = new java.util.HashMap<>();
+        c.hudLayouts.values().removeIf(java.util.Objects::isNull);
+        if (c.hudTextShadow == null) c.hudTextShadow = "Shadow";
+        if (c.hudPanelTextShadow == null) c.hudPanelTextShadow = new java.util.HashMap<>();
+        if (c.hudPanelTextAlign == null) c.hudPanelTextAlign = new java.util.HashMap<>();
+        if (c.hudPanelLineBackdrop == null) c.hudPanelLineBackdrop = new java.util.HashMap<>();
         if (c.mutePartySpamPrefixes == null) c.mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
         c.mutePartySpamPrefixes.removeIf(s -> s == null || s.isEmpty());
         if (c.safariHotspotPostChannel == null) c.safariHotspotPostChannel = "Party";
@@ -4553,6 +4668,12 @@ public class TeslaMapsConfig {
         c.expDryStreakData.values().removeIf(v -> v == null || v.length != 2);
         if (c.maxwellData == null) c.maxwellData = new java.util.HashMap<>();
         c.maxwellData.values().removeIf(java.util.Objects::isNull);
+        if (c.bzTrackerOrders == null) c.bzTrackerOrders = new java.util.HashMap<>();
+        c.bzTrackerOrders.values().removeIf(java.util.Objects::isNull);
+        c.bzTrackerOrders.values().forEach(l -> l.removeIf(o -> o == null || o.item == null));
+        if (c.colorAuctionSold == null) c.colorAuctionSold = "#55FF55";
+        if (c.colorAuctionExpired == null) c.colorAuctionExpired = "#FF5555";
+        if (c.colorAuctionOverpriced == null) c.colorAuctionOverpriced = "#FFAA00";
         if (c.visualWordList == null) c.visualWordList = new java.util.ArrayList<>();
         c.visualWordList.removeIf(w -> w == null || w.from == null || w.from.isEmpty());
         for (var w : c.visualWordList) if (w.to == null) w.to = "";
@@ -4730,6 +4851,8 @@ public class TeslaMapsConfig {
         if (c.auctionSearchHistory == null) c.auctionSearchHistory = new ArrayList<>();
         if (c.bazaarSearchHistory == null) c.bazaarSearchHistory = new ArrayList<>();
         if (c.recipeSearchHistory == null) c.recipeSearchHistory = new ArrayList<>();
+        if (c.otherSearchHistory == null) c.otherSearchHistory = new ArrayList<>();
+        if (c.invButtonConfirm == null) c.invButtonConfirm = "Off";
         if (c.favoritePowers == null) c.favoritePowers = new ArrayList<>();
         if (c.magicalPower == null) c.magicalPower = new java.util.HashMap<>();
         if (c.museumHelperSort == null) c.museumHelperSort = "Lowest Price";

@@ -19,7 +19,7 @@ import java.util.Locale;
 /** Replaces the auction house / bazaar search sign with a textbox that suggests item names. */
 public class SearchOverlay {
 
-    public enum Location { AUCTION, BAZAAR, RECIPE }
+    public enum Location { AUCTION, BAZAAR, RECIPE, OTHER }
 
     private static final int HISTORY_LENGTH = 12;
 
@@ -78,7 +78,7 @@ public class SearchOverlay {
         if (title.contains("Auction") || title.contains("Cosmetics")) return Location.AUCTION;
         if (title.contains("Bazaar")) return Location.BAZAAR;
         if (title.contains("Recipe") && TeslaMapsConfig.get().searchOverlayRecipes) return Location.RECIPE;
-        return null;
+        return TeslaMapsConfig.get().searchOverlayAllSigns ? Location.OTHER : null;
     }
 
     private static String join(String first, String second) {
@@ -133,6 +133,7 @@ public class SearchOverlay {
             case AUCTION -> config.auctionSearchHistory;
             case BAZAAR -> config.bazaarSearchHistory;
             case RECIPE -> config.recipeSearchHistory;
+            case OTHER -> config.otherSearchHistory;
         };
     }
 

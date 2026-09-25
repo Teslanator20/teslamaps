@@ -57,7 +57,7 @@ public final class CompactTabList {
                     TeslaMapsConfig c = cfg();
                     b.label("Tab List");
                     b.toggle("Compact Tab List", () -> c.compactTabList, v -> c.compactTabList = v)
-                            .desc("SkyBlock only: sections in columns, empty lines removed, one width per column.")
+                            .desc("SkyBlock only: sections in columns, empty lines removed, one width per column. Fancy Tab HUD wins while it is on.")
                             .tags("tab", "tablist", "player list", "sba");
                     b.toggle("  Hide Adverts", () -> c.compactTabHideAds, v -> c.compactTabHideAds = v)
                             .desc("Drops the hypixel.net / store lines from header and footer.");

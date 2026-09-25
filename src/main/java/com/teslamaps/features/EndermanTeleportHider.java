@@ -7,13 +7,10 @@ import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.phys.AABB;
 
 public final class EndermanTeleportHider {
-
-    private static final byte TELEPORT_EVENT = 46;
 
     private EndermanTeleportHider() {}
 
@@ -29,11 +26,6 @@ public final class EndermanTeleportHider {
 
     public static boolean active() {
         return TeslaMapsConfig.get().endermanTeleportHider && SkyblockUtils.isInSkyblock();
-    }
-
-    /** Main thread, from ClientPlayNetworkHandlerMixin. */
-    public static boolean hideEvent(Entity e, byte id) {
-        return id == TELEPORT_EVENT && e instanceof EnderMan && active();
     }
 
     /** Main thread: server-sent portal particles right next to an enderman. */

@@ -56,7 +56,6 @@ public final class Cosmetics {
                 })
                 .config("Render", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Cosmetics");
                     b.toggle("Particle Cloak", () -> c.particleCloak, v -> c.particleCloak = v)
                             .desc("Particles trail behind your back like a cape. Only you see it.");
                     b.dropdown("  Particle", CLOAK_TYPES, () -> c.particleCloakType, v -> c.particleCloakType = v);

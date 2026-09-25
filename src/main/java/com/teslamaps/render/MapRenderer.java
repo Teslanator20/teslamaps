@@ -559,6 +559,7 @@ public class MapRenderer {
             context.text(font, s, x, y, color, false);
         } else if ("Outline".equals(mode)) {
             int black = color & 0xFF000000;
+            if (com.teslamaps.render.gui.OutlinedText.draw(context, font, s, x, y, color, black)) return;
             context.text(font, s, x + 1, y, black, false);
             context.text(font, s, x - 1, y, black, false);
             context.text(font, s, x, y + 1, black, false);
@@ -1404,7 +1405,7 @@ public class MapRenderer {
         if (highlightName != null && highlightName.equals(recordName)) headSize *= 2;
         int half = headSize / 2;
         boolean knownClass = clazz != null && !"EMPTY".equals(clazz);
-        int classColor = knownClass ? getDungeonClassColor(clazz) : 0xFFDDDDDD;
+        int classColor = knownClass ? com.teslamaps.dungeon.ClassColors.or(clazz, getDungeonClassColor(clazz)) : 0xFFDDDDDD;
 
         var pose = context.pose();
         pose.pushMatrix();

@@ -88,7 +88,7 @@ public final class PlayerModels {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static void extract(Avatar avatar, AvatarRenderState state, float partialTick) {
         FabricRenderState fs = (FabricRenderState) state;
-        fs.setData(KEY, null);
+        if (fs.getData(KEY) != null) fs.setData(KEY, null);
         TeslaMapsConfig c = cfg();
         if (!c.playerModel || !c.section("Render") || !PlayerCosmetics.matches(avatar.getId(), c.playerModelTarget)) return;
         Entity fake = fake(type(c.playerModelType));

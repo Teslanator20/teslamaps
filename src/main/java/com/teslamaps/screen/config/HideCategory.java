@@ -148,6 +148,8 @@ public final class HideCategory {
         b.toggle("Hide Falling Blocks", () -> config.noFallingBlocks, v -> config.noFallingBlocks = v);
         b.toggle("Hide Block Breaking", () -> config.noBlockBreaking, v -> config.noBlockBreaking = v);
         b.toggle("  Only In Garden", () -> config.noBlockBreakingGardenOnly, v -> config.noBlockBreakingGardenOnly = v);
+        b.toggle("  Hide Block Hit Particles", () -> config.noBlockHitParticles, v -> config.noBlockHitParticles = v)
+                .desc("Also drops the crack particles on every hit while mining or farming.");
         b.toggle("Particle Hider", () -> config.particleHider, v -> config.particleHider = v)
                 .desc("Hides particles by distance or type.");
         b.toggle("  Far Particles (40+ blocks)", () -> config.particleHideFar, v -> config.particleHideFar = v)
@@ -159,8 +161,6 @@ public final class HideCategory {
         b.toggle("  Enderman Particles", () -> config.particleHideEnderman, v -> config.particleHideEnderman = v);
         b.toggle("  Fire Block Particles", () -> config.particleHideFireBlock, v -> config.particleHideFireBlock = v);
         b.toggle("  All Smoke", () -> config.particleHideSmoke, v -> config.particleHideSmoke = v);
-        b.toggle("  Hide Block Hit Particles", () -> config.noBlockHitParticles, v -> config.noBlockHitParticles = v)
-                .desc("Also drops the crack particles on every hit while mining or farming.");
         b.toggle("Hide XP Orbs", () -> config.noXpOrbs, v -> config.noXpOrbs = v);
         b.toggle("Hide Jerry Rune Eggs", () -> config.hideJerryRune, v -> config.hideJerryRune = v)
                 .desc("SkyBlock: hides the villager spawn eggs the Jerry rune scatters on the ground.");
@@ -188,8 +188,6 @@ public final class HideCategory {
         b.toggle("Hide Death Animation", () -> config.noDeathAnimation, v -> config.noDeathAnimation = v);
         b.toggle("Hide Death Particles", () -> config.hideDeathParticles, v -> config.hideDeathParticles = v)
                 .desc("No smoke puff when a mob dies.");
-        b.toggle("Hide Enderman Teleport", () -> config.hideEndermanTeleport, v -> config.hideEndermanTeleport = v)
-                .desc("No portal particle burst when an enderman teleports.");
         b.toggle("Hide Mage Beams", () -> config.hideMageBeams, v -> config.hideMageBeams = v)
                 .desc("Drops the firework particles of mage beams in dungeons.");
         b.toggle("Hide Witherborn Withers", () -> config.hideWitherbornWithers, v -> config.hideWitherbornWithers = v)
