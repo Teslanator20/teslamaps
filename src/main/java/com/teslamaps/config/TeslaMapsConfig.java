@@ -2148,6 +2148,17 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w11-02-par
+    public boolean multiPartyInviteFix = false;
+    public boolean teslaUserLabels = false;
+    public String teslaUserLabelColor = "55FFFF";
+    public String pfRightClickMode = "Off";
+    public boolean fancyPartyFinder = false;
+    public boolean nickHider = false;
+    public String nickHiderName = "";
+    public boolean partyOnBoop = false;
+    public boolean partyOnBoopBingoOnly = false;
+    public boolean replyBoop = false;
     // w11-05-par
     public boolean partyShortcuts = false;
     public boolean partyKickReason = false;
