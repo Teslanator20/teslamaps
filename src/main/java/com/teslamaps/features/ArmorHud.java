@@ -44,6 +44,7 @@ public final class ArmorHud {
                     b.toggle("  Chestplate", () -> c.armorHudChest, v -> c.armorHudChest = v);
                     b.toggle("  Leggings", () -> c.armorHudLegs, v -> c.armorHudLegs = v);
                     b.toggle("  Boots", () -> c.armorHudBoots, v -> c.armorHudBoots = v);
+                    b.info("  Necklace, cloak, belt, gloves: Equipment HUD in Inventory");
                 });
     }
 

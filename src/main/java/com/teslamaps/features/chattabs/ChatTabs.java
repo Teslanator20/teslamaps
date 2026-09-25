@@ -142,7 +142,7 @@ public class ChatTabs {
     }
 
     public static boolean isVisible(Channel channel, GuiMessage message) {
-        String text = StringUtil.strip(message.content().getString()).trim();
+        String text = com.teslamaps.features.ChatTimestamps.cut(StringUtil.strip(message.content().getString())).trim();
         commandTracker.observe(message, text);
         boolean hideSep = appliedHideSeparators && com.teslamaps.features.ChatFilter.isSeparator(text);
         if (channel == Channel.ALL) return !hideSep;

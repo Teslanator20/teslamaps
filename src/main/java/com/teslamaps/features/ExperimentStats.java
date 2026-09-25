@@ -206,6 +206,7 @@ public final class ExperimentStats {
             return;
         }
         Matcher m = TYPE.matcher(title);
+        if (m.matches()) overHash = 0;
         if (m.matches() && !m.group(1).equals(type)) {
             type = m.group(1);
             rareFired = false;
@@ -350,6 +351,7 @@ public final class ExperimentStats {
             pendingType = null;
             pendingItems = new HashMap<>();
             pendingXp = 0;
+            overHash = 0;
             return;
         }
         if (c.expProfitTracker && s.contains("bonus charge")) {
