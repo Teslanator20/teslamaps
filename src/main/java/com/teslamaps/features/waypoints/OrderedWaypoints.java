@@ -66,6 +66,7 @@ public class OrderedWaypoints {
         }
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (cfg.orderedAutoLoadByArea) autoLoadForArea();
+        if (cfg.orderedAutoLoadShaft) autoLoadForShaft();
         if (!cfg.orderedWaypoints || route.isEmpty()) { renderIdx.clear(); return; }
         if (mc.player == null || paused) return;
         decide(mc.player.position());
@@ -125,7 +126,7 @@ public class OrderedWaypoints {
         if (cfg.orderedTraceLine && !cfg.orderedShowAll && !cfg.orderedSetupMode) {
             ESPRenderer.drawTracerFromCamera(matrices,
                     new Vec3(trace.x + 0.5, trace.y + 0.25, trace.z + 0.5),
-                    TeslaMapsConfig.parseColor(cfg.orderedColorTraceLine), cameraPos, true);
+                    TeslaMapsConfig.parseColor(cfg.orderedColorTraceLine), cameraPos, true, cfg.orderedTraceThickness);
         }
 
         if (cfg.orderedSetupMode && !cfg.orderedShowAll) {
@@ -148,6 +149,21 @@ public class OrderedWaypoints {
         if (area.isEmpty() || area.equals(loadedName)) return;
         if (RouteStorage.get(area) == null) return;
         String msg = load(area);
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) mc.player.sendSystemMessage(
+                net.minecraft.network.chat.Component.literal("§b[TeslaMaps] §r" + msg));
+    }
+
+    private static String shaftLoaded = "";
+
+    // a saved route named like the mineshaft type (TOPA_1, PERI_C) loads itself on entering it
+    private static void autoLoadForShaft() {
+        if (!shaftLoaded.isEmpty()) return;
+        String type = com.teslamaps.features.mining.ShaftType.current();
+        if (type == null) return;
+        shaftLoaded = type;
+        if (type.equals(loadedName) || RouteStorage.get(type) == null) return;
+        String msg = load(type);
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) mc.player.sendSystemMessage(
                 net.minecraft.network.chat.Component.literal("§b[TeslaMaps] §r" + msg));
@@ -253,6 +269,11 @@ public class OrderedWaypoints {
         current = 0;
         lastCloser = 0;
         renderIdx.clear();
+        if (!shaftLoaded.isEmpty() && TeslaMapsConfig.get().orderedAutoUnloadShaft && shaftLoaded.equals(loadedName)) {
+            route.clear();
+            loadedName = "";
+        }
+        shaftLoaded = "";
         if (TeslaMapsConfig.get().orderedAutoUnload) {
             route.clear();
             loadedName = "";

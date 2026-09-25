@@ -2148,6 +2148,35 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w15-07-min
+    public boolean hotmLevelStack = false;
+    public boolean hotmTokenStack = false;
+    public boolean hotmPowderTooltip = false;
+    public boolean hotmSkyMallDisplay = false;
+    public boolean hotmSkyMallMiningOnly = true;
+    public String hotmSkyMallPerk = "";
+    public int hotmSkyMallDisplayX = 5;
+    public int hotmSkyMallDisplayY = 175;
+    public float hotmSkyMallDisplayScale = 1.0f;
+    public boolean mineshaftWaypoints = false;
+    public boolean mineshaftWpEntrance = true;
+    public boolean mineshaftWpLadder = true;
+    public boolean mineshaftWpCorpses = true;
+    public boolean mineshaftAutoShareCorpses = false;
+    public int mineshaftShareKey = -1;
+    public boolean orderedAutoLoadShaft = false;
+    public boolean orderedAutoUnloadShaft = false;
+    public float orderedTraceThickness = 2.0f;
+    public java.util.Map<String, Boolean> chScanStructures = new java.util.HashMap<>();
+    public boolean chScanLandmarks = false;
+    public boolean chScanOffThread = false;
+    public boolean pigeonSwapper = false;
+    public int pigeonSwapperDelay = 150;
+    public int pigeonSwapperRandom = 150;
+    public boolean ghostVisuals = false;
+    public boolean ghostShow = true;
+    public boolean ghostNametag = true;
+    public boolean ghostHideCharged = true;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;
@@ -5227,6 +5256,9 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.chScanStructures == null) c.chScanStructures = new java.util.HashMap<>();
+        c.chScanStructures.values().removeIf(java.util.Objects::isNull);
+        if (c.hotmSkyMallPerk == null) c.hotmSkyMallPerk = "";
         if (c.visitorIgnored == null) c.visitorIgnored = new java.util.ArrayList<>();
         if (c.speedPresetValues == null) c.speedPresetValues = defaultSpeedPresets();
         c.speedPresetValues.values().removeIf(java.util.Objects::isNull);

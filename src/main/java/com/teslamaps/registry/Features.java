@@ -717,5 +717,9 @@ final class Features {
         com.teslamaps.features.BazaarOrderTooltip.register();
         com.teslamaps.features.EssenceShopCosts.register();
         com.teslamaps.features.EscrowFix.register();
+        // w15-07-min
+        com.teslamaps.features.mining.MineshaftWaypoints.register();
+        com.teslamaps.features.mining.PigeonSwapper.register();
+        com.teslamaps.features.mining.GhostVisuals.register();
     }
 }

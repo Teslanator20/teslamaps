@@ -135,6 +135,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.dungeon.puzzle.TPMazeSolver.onPositionPacket(
             packet.change().position(), packet.change().yRot(), packet.change().xRot());
         com.teslamaps.dungeon.DungeonWaypoints.onTeleport(packet.change().position());
+        com.teslamaps.features.mining.MineshaftWaypoints.onPositionPacket(packet);
     }
 
     @Inject(method = "handleSetEquipment", at = @At("HEAD"))
