@@ -54,6 +54,7 @@ public class DungeonScore {
     private static int tabCrypts = 0;
     private static int tabCompletedRooms = 0;
     private static int tabPuzzlesDone = 0;
+    private static boolean blazeDoneChat = false;
     private static double tabSecretsPct = 0;
 
     private static boolean floorDetectionPending = false;
@@ -84,6 +85,7 @@ public class DungeonScore {
         tabCrypts = 0;
         tabCompletedRooms = 0;
         tabPuzzlesDone = 0;
+        blazeDoneChat = false;
         tabSecretsPct = 0;
         floorDetectionPending = false;
         floorDetectionTime = 0L;
@@ -232,7 +234,8 @@ public class DungeonScore {
             else if ((m = SECRETS_PATTERN.matcher(line)).matches()) secrets = Double.parseDouble(m.group("secper"));
             else if ((m = COMPLETED_ROOMS_PATTERN.matcher(line)).matches()) rooms = Integer.parseInt(m.group("rooms"));
             else if ((m = PUZZLE_COUNT_PATTERN.matcher(line)).matches()) count = Integer.parseInt(m.group("count"));
-            else if ((m = PUZZLES_PATTERN.matcher(line)).matches() && m.group("state").equals("✔")) done++;
+            else if ((m = PUZZLES_PATTERN.matcher(line)).matches()
+                    && (m.group("state").equals("✔") || (blazeDoneChat && line.startsWith("Higher Or Lower")))) done++;
         }
         tabCrypts = crypts;
         tabCompletedRooms = rooms;
@@ -411,6 +414,23 @@ public class DungeonScore {
             princeDeadMessageSent = true;
             com.teslamaps.features.Announce.party("Prince Dead!");
         }
+    }
+
+    public static void markBlazeDone() {
+        blazeDoneChat = true;
+        lastScoreCalcTime = 0L;
+    }
+
+    /** Percent of secrets for S+ assuming 5 crypts, mimic on F6/F7 and Paul if on. */
+    public static double sPlusSecretPercent(DungeonFloor floor) {
+        FloorRequirement req;
+        try {
+            req = FloorRequirement.valueOf(floor.name());
+        } catch (IllegalArgumentException e) {
+            return 100.0;
+        }
+        int bonus = 5 + (floor.getLevel() >= 6 ? 2 : 0) + paulBonus();
+        return Math.min(100.0, Math.max(0, 40 - bonus) / 40.0 * req.percentage);
     }
 
     public static void onMimicKilled() {

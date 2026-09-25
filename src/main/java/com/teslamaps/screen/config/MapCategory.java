@@ -17,6 +17,13 @@ public final class MapCategory {
         b.toggle("Only In Boss", () -> config.mapOnlyInBoss, v -> config.mapOnlyInBoss = v);
         b.toggle("Hide In Boss", () -> config.mapHideInBoss, v -> config.mapHideInBoss = v);
         b.toggle("Show Background", () -> config.showMapBackground, v -> config.showMapBackground = v);
+        b.toggle("Background Image", () -> config.mapBgImage, v -> config.mapBgImage = v)
+                .desc("Your own picture behind the map, from config/teslamaps/map_backgrounds");
+        b.dropdown("  Image", com.teslamaps.render.gui.MapImage.names(),
+                () -> config.mapBgImageName, v -> config.mapBgImageName = v);
+        b.slider("  Image Opacity", 0.0f, 1.0f, () -> config.mapBgImageAlpha, v -> config.mapBgImageAlpha = v, 2);
+        b.slider("  Image Inset", 0.0f, 10.0f, () -> config.mapBgImageInset, v -> config.mapBgImageInset = v, 0);
+        b.button("  Open Image Folder", com.teslamaps.render.gui.MapImage::openFolder);
         b.toggle("Center Small Floors", () -> config.mapCenterSmallFloors, v -> config.mapCenterSmallFloors = v);
         b.toggle("Hypixel Map Fallback", () -> config.mapHypixelFallback, v -> config.mapHypixelFallback = v);
         b.toggle("Show Mimic Status", () -> config.showMimicStatus, v -> config.showMimicStatus = v);
@@ -25,6 +32,10 @@ public final class MapCategory {
         b.toggle("Prince ESP (structure)", () -> config.princeESP, v -> config.princeESP = v);
         b.color("  Prince ESP Color", () -> config.colorPrinceESP, v -> config.colorPrinceESP = v);
         b.toggle("Show Dungeon Score", () -> config.showDungeonScore, v -> config.showDungeonScore = v);
+        b.toggle("  Blaze Done From Party Chat", () -> config.mapBlazeDoneFromChat, v -> config.mapBlazeDoneFromChat = v)
+                .desc("A party member's \"Blaze Done\" marks the Blaze puzzle solved on map and score");
+        b.toggle("Chat Info After Scan", () -> config.mapScanChatInfo, v -> config.mapScanChatInfo = v)
+                .desc("Puzzles, trap, wither doors, crypts, secrets and minimum secrets once the dungeon is scanned");
         b.label("Rooms");
         b.toggle("Show Room Names", () -> config.showRoomNames, v -> config.showRoomNames = v);
         b.toggle("  Hide Entrance/Blood/Fairy Names", () -> config.hideEntranceBloodFairyNames, v -> config.hideEntranceBloodFairyNames = v);
@@ -60,6 +71,8 @@ public final class MapCategory {
         b.toggle("Player Markers", () -> config.showPlayerMarker, v -> config.showPlayerMarker = v);
         b.toggle("Show Self", () -> config.showSelfMarker, v -> config.showSelfMarker = v);
         b.toggle("Show Others", () -> config.showOtherPlayers, v -> config.showOtherPlayers = v);
+        b.toggle("  Interpolate Far Players", () -> config.mapInterpolatePlayers, v -> config.mapInterpolatePlayers = v)
+                .desc("Markers of out-of-range players glide instead of jumping");
         b.toggle("Show Names", () -> config.showPlayerNames, v -> config.showPlayerNames = v);
         b.toggle("Use Heads (vs Markers)", () -> config.useHeadsInsteadOfMarkers, v -> config.useHeadsInsteadOfMarkers = v);
         b.toggle("Rotate Heads", () -> config.rotatePlayerHeads, v -> config.rotatePlayerHeads = v);
@@ -87,6 +100,9 @@ public final class MapCategory {
         b.color("Wither Door", () -> config.colorDoorWither, v -> config.colorDoorWither = v);
         b.color("Blood Door", () -> config.colorDoorBlood, v -> config.colorDoorBlood = v);
         b.color("Entrance Door", () -> config.colorDoorEntrance, v -> config.colorDoorEntrance = v);
+        b.toggle("Recolor Opened Doors", () -> config.mapColorOpenDoors, v -> config.mapColorOpenDoors = v)
+                .desc("Wither and blood doors change color once opened");
+        b.color("  Opened Door", () -> config.colorDoorOpenWither, v -> config.colorDoorOpenWither = v);
         b.label("Text Colors");
         b.color("Unexplored Text", () -> config.colorTextUnexplored, v -> config.colorTextUnexplored = v);
         b.color("Cleared Text", () -> config.colorTextCleared, v -> config.colorTextCleared = v);

@@ -98,6 +98,11 @@ public class MapRenderer {
         if (config.showMapBackground || leapMode) {
             drawBackground(context, baseX, baseY, mapWidth, totalHeight);
         }
+        if (config.mapBgImage) {
+            int in = Math.round(config.mapBgImageInset * scale);
+            com.teslamaps.render.gui.MapImage.draw(context, config.mapBgImageName, baseX + in, baseY + in,
+                    mapWidth - 2 * in, totalHeight - 2 * in, config.mapBgImageAlpha);
+        }
         if (config.mapHypixelFallback) drawHypixelFallback(context, rooms, baseX, baseY, scale);
         drawRoomConnections(context, rooms, baseX, baseY, scale, legit);
 
@@ -360,7 +365,7 @@ public class MapRenderer {
                     DoorType doorType = DoorScanner.getDoorType(gx, gz, gx + 1, gz);
                     boolean bothScanned = room.getName() != null && rightRoom.getName() != null;
                     if (doorType != DoorType.NONE && bothScanned) {
-                        int color = connectionColor(doorType, room, rightRoom);
+                        int color = connectionColor(doorType, room, rightRoom, gx, gz, gx + 1, gz);
                         int x1 = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE * scale) - 1;
                         int yCenter = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE/2 * scale);
                         int y1 = yCenter - doorThickness / 2;
@@ -375,7 +380,7 @@ public class MapRenderer {
                     DoorType doorType = DoorScanner.getDoorType(gx, gz, gx, gz + 1);
                     boolean bothScanned = room.getName() != null && bottomRoom.getName() != null;
                     if (doorType != DoorType.NONE && bothScanned) {
-                        int color = connectionColor(doorType, room, bottomRoom);
+                        int color = connectionColor(doorType, room, bottomRoom, gx, gz, gx, gz + 1);
                         int xCenter = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE/2 * scale);
                         int x1 = xCenter - doorThickness / 2;
                         int y1 = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE * scale) - 1;
@@ -388,8 +393,9 @@ public class MapRenderer {
         }
     }
 
-    private static int connectionColor(DoorType type, DungeonRoom a, DungeonRoom b) {
-        int color = getDoorColor(type);
+    private static int connectionColor(DoorType type, DungeonRoom a, DungeonRoom b, int x1, int z1, int x2, int z2) {
+        int color = TeslaMapsConfig.get().mapColorOpenDoors && DoorScanner.isOpened(x1, z1, x2, z2)
+                ? TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorDoorOpenWither) : getDoorColor(type);
         if ((a.getCheckmarkState() == CheckmarkState.UNEXPLORED || b.getCheckmarkState() == CheckmarkState.UNEXPLORED)
                 && typedUndiscovered()) {
             color = undiscoveredColor(color);
@@ -1081,6 +1087,7 @@ public class MapRenderer {
         List<int[]> mapPositions = MapScanner.getMapPlayerPositions();
         PlayerTracker.DungeonPlayer[] players = PlayerTracker.getPlayersOrdered();
         int playerIdx = 1; // Start at 1, index 0 is self
+        int slot = 0;
 
         for (int[] pos : mapPositions) {
             int mapX = pos[0];
@@ -1089,6 +1096,7 @@ public class MapRenderer {
             int isLocal = pos[3];
 
             if (isLocal == 1) continue;
+            int mySlot = slot++;
 
             PlayerTracker.DungeonPlayer dungeonPlayer = null;
             while (playerIdx < players.length) {
@@ -1111,13 +1119,51 @@ public class MapRenderer {
                         uuid, clazz, name, false, recordName);
             } else {
                 double[] renderPos = MapScanner.mapToRenderPosition(mapX, mapZ, ROOM_SIZE, DOOR_SIZE);
-                int pixelX = baseX + (int)((MAP_PADDING + offX + renderPos[0]) * scale);
-                int pixelY = baseY + (int)((MAP_PADDING + offZ + renderPos[1]) * scale);
+                double rx = renderPos[0], rz = renderPos[1];
                 float yaw = rotation * 22.5f;
+                if (config.mapInterpolatePlayers && mySlot < LERP_SLOTS) {
+                    float[] l = lerp(mySlot, rx, rz, yaw);
+                    rx = l[0]; rz = l[1]; yaw = l[2];
+                }
+                int pixelX = baseX + (int)((MAP_PADDING + offX + rx) * scale);
+                int pixelY = baseY + (int)((MAP_PADDING + offZ + rz) * scale);
 
                 drawHeadMarker(context, pixelX, pixelY, headSize, yaw, uuid, name, false, recordName, clazz);
             }
         }
+    }
+
+    // NEU dmPlayerInterp: glide between two map decoration updates, snap on big jumps
+    private static final int LERP_SLOTS = 8;
+    private static final long LERP_MS = 500;
+    private static final float[][] lerpFrom = new float[LERP_SLOTS][3], lerpTo = new float[LERP_SLOTS][3];
+    private static final long[] lerpAt = new long[LERP_SLOTS];
+    private static final float[] lerpOut = new float[3];
+
+    private static float[] lerp(int i, double x, double z, float yaw) {
+        long now = System.currentTimeMillis();
+        float[] from = lerpFrom[i], to = lerpTo[i];
+        float t = Math.clamp((now - lerpAt[i]) / (float) LERP_MS, 0f, 1f);
+        float cx = from[0] + (to[0] - from[0]) * t;
+        float cz = from[1] + (to[1] - from[1]) * t;
+        float cyaw = from[2] + angleDelta(from[2], to[2]) * t;
+        if (lerpAt[i] == 0 || to[0] != (float) x || to[1] != (float) z || to[2] != yaw) {
+            float dx = (float) x - cx, dz = (float) z - cz;
+            boolean snap = lerpAt[i] == 0 || dx * dx + dz * dz > (ROOM_SIZE / 2f) * (ROOM_SIZE / 2f);
+            from[0] = snap ? (float) x : cx; from[1] = snap ? (float) z : cz; from[2] = snap ? yaw : cyaw;
+            to[0] = (float) x; to[1] = (float) z; to[2] = yaw;
+            lerpAt[i] = now;
+            cx = from[0]; cz = from[1]; cyaw = from[2];
+        }
+        lerpOut[0] = cx; lerpOut[1] = cz; lerpOut[2] = cyaw;
+        return lerpOut;
+    }
+
+    private static float angleDelta(float a, float b) {
+        float d = (b - a) % 360f;
+        if (d > 180f) d -= 360f;
+        if (d < -180f) d += 360f;
+        return d;
     }
 
     // head + class-colored border rotate together via the pose matrix, name stays upright below

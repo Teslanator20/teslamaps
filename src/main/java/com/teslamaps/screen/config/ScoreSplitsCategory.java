@@ -44,6 +44,14 @@ public final class ScoreSplitsCategory {
                 () -> config.roomSplitsScale, v -> config.roomSplitsScale = v, 1);
         b.label("Alerts & Stats");
         b.toggle("Insta-Clear Alert", () -> config.instaClearAlert, v -> config.instaClearAlert = v);
+        b.toggle("Room Cleared Alert", () -> config.roomClearedAlert, v -> config.roomClearedAlert = v)
+                .desc("Title + pling when the room you stand in gets its checkmark");
+        b.toggle("  Only Blood Rush Rooms", () -> config.roomClearedOnlyBloodRush, v -> config.roomClearedOnlyBloodRush = v)
+                .desc("Only rooms with a wither or blood door");
+        b.toggle("  No Blood Room Alert", () -> config.roomClearedNoBlood, v -> config.roomClearedNoBlood = v);
+        b.toggle("Secrets Done Alert", () -> config.roomSecretsDoneAlert, v -> config.roomSecretsDoneAlert = v)
+                .desc("Title when your room goes from white to green check");
+        b.slider("Room Alert Time", 0.5f, 3.0f, () -> config.roomAlertTime, v -> config.roomAlertTime = v, 1);
         b.toggle("Trinity Alert", () -> config.rareRoomAlert, v -> config.rareRoomAlert = v);
         b.slider("  Alert Volume", 0.0f, 5.0f,
                 () -> config.rareRoomVolume, v -> config.rareRoomVolume = v, 1);

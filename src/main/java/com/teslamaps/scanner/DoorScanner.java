@@ -19,6 +19,11 @@ public class DoorScanner {
     private static final int GRID = ComponentGrid.GRID_SIZE;
     private static final DoorType[] doors = new DoorType[GRID * GRID * GRID * GRID];
     private static int doorCount = 0;
+    // survives the mid-run reset(): an opened wither door rescans as a normal door
+    private static final boolean[] opened = new boolean[doors.length];
+    private static final int[] openX = new int[doors.length], openZ = new int[doors.length];
+    private static final boolean[] tracked = new boolean[doors.length];
+    private static Object openLevel;
 
     public static void reset() {
         java.util.Arrays.fill(doors, null);
@@ -46,6 +51,7 @@ public class DoorScanner {
         if (mc.level == null) return;
 
         TeslaMaps.LOGGER.debug("Scanning doors...");
+        checkLevel(mc.level);
 
         for (int gx = 0; gx <= 10; gx++) {
             for (int gz = 0; gz <= 10; gz++) {
@@ -105,6 +111,11 @@ public class DoorScanner {
         if (doorType != DoorType.NONE) {
             doors[key] = doorType;
             doorCount++;
+            if (doorType == DoorType.WITHER || doorType == DoorType.BLOOD) {
+                tracked[key] = true;
+                openX[key] = worldX;
+                openZ[key] = worldZ;
+            }
             TeslaMaps.LOGGER.debug("Found {} door between [{},{}] and [{},{}] at world [{},{}] roof={}",
                     doorType, room1X, room1Z, room2X, room2Z, worldX, worldZ, roofHeight);
         }
@@ -179,6 +190,42 @@ public class DoorScanner {
             return y;
         }
         return 0;
+    }
+
+    /** Marks wither/blood doors whose block at y=69 turned into air. */
+    public static void tickOpened() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
+        checkLevel(mc.level);
+        for (int i = 0; i < tracked.length; i++) {
+            if (!tracked[i] || opened[i]) continue;
+            if (!CoreHasher.isPositionLoaded(mc.level, openX[i], openZ[i])) continue;
+            if (isAir(mc.level, openX[i], 69, openZ[i])) opened[i] = true;
+        }
+    }
+
+    private static void checkLevel(Level level) {
+        if (level == openLevel) return;
+        openLevel = level;
+        java.util.Arrays.fill(opened, false);
+        java.util.Arrays.fill(tracked, false);
+    }
+
+    /** Was a wither or blood door when first scanned, opened or not. */
+    public static boolean isKeyDoor(int x1, int z1, int x2, int z2) {
+        int key = doorIndex(x1, z1, x2, z2);
+        return key >= 0 && tracked[key];
+    }
+
+    public static boolean isOpened(int x1, int z1, int x2, int z2) {
+        int key = doorIndex(x1, z1, x2, z2);
+        return key >= 0 && opened[key];
+    }
+
+    public static int countType(DoorType type) {
+        int n = 0;
+        for (DoorType d : doors) if (d == type) n++;
+        return n;
     }
 
     public static boolean hasDoorBetween(int x1, int z1, int x2, int z2) {

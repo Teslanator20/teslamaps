@@ -90,5 +90,9 @@ final class Features {
         com.teslamaps.features.ScarfSpawnTimer.register();
         com.teslamaps.features.KingRelics.register();
         com.teslamaps.features.LastBreathSound.register();
+        // w02-00-map
+        com.teslamaps.dungeon.MapExtras.register();
+        com.teslamaps.dungeon.RoomAlerts.register();
+        com.teslamaps.features.SecretHud.register();
     }
 }
