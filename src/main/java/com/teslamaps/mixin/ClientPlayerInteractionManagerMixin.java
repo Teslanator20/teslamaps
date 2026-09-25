@@ -82,6 +82,7 @@ public class ClientPlayerInteractionManagerMixin {
         }
 
         if (state.is(Blocks.CHEST) || state.is(Blocks.TRAPPED_CHEST)) {
+            com.teslamaps.features.ChestEsp.onChestClick(pos);
             ThreeWeirdos.onChestClick(pos);
             SecretWaypoints.onChestOpened(pos);
             SecretWaypoints.onSecretInteract("chest");

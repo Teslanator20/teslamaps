@@ -2147,6 +2147,20 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w10-00-vis
+    public boolean blockEsp = false;
+    public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
+    public com.teslamaps.render.EspStyle blockEspStyle = new com.teslamaps.render.EspStyle("FF55FFFF");
+    public int blockEspMaxShown = 2000;
+    public boolean chestEsp = false;
+    public String chestEspWhere = "Everywhere";
+    public boolean chestEspHideClicked = true;
+    public com.teslamaps.render.EspStyle chestEspStyle = new com.teslamaps.render.EspStyle("FFFFAA00");
+    public boolean customCameraDistance = false;
+    public float cameraDistance = 4.0f;
+    public boolean cameraClip = false;
+    public boolean glowUnbuiltSections = false;
+    public int glowOutlineWidth = 1;
     // w10-03-chat
     public boolean compactJacobClaim = false;
     public boolean compactLevelUps = false;
@@ -4343,6 +4357,8 @@ public class TeslaMapsConfig {
         if (c.chatCommandsDisabled == null) c.chatCommandsDisabled = new ArrayList<>();
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
+        if (c.blockEspBlocks == null) c.blockEspBlocks = new java.util.LinkedHashMap<>();
+        if (c.chestEspWhere == null) c.chestEspWhere = "Everywhere";
         if (c.seaCreatureAlert == null) c.seaCreatureAlert = new java.util.HashMap<>();
         if (c.seaCreatureAnnounce == null) c.seaCreatureAnnounce = new java.util.HashMap<>();
         if (c.npcLockedWarps == null) c.npcLockedWarps = new java.util.HashMap<>();

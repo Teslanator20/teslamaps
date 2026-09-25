@@ -13,6 +13,11 @@ public final class ESPCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("ESP Rendering");
         b.toggle("Show Glow", () -> config.showGlow, v -> config.showGlow = v);
+        b.slider("  Glow Outline Width", 1f, com.teslamaps.render.GlowOutlineWidth.MAX,
+                () -> (float) config.glowOutlineWidth, v -> config.glowOutlineWidth = Math.round(v), 0)
+                .desc("Every glow outline (ESP, Mob Visuals). 1 = vanilla");
+        b.toggle("  Glow In Unloaded Chunks", () -> config.glowUnbuiltSections, v -> config.glowUnbuiltSections = v)
+                .desc("Glowing mobs past your render distance still render, so glow and tracer match");
         b.toggle("Filled ESP (vs Outline)", () -> config.filledESP, v -> config.filledESP = v);
         b.toggle("Box ESP (Hitbox)", () -> config.boxESP, v -> config.boxESP = v);
         b.slider("ESP Transparency", 0.0f, 1.0f,

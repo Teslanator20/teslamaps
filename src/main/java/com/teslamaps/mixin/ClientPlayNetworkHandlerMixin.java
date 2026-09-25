@@ -83,6 +83,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
         com.teslamaps.features.foraging.FloorDrops.onParticle(packet);
         com.teslamaps.features.EventTracker.onParticle(packet);
+        com.teslamaps.features.mobvisuals.MobVisuals.onParticle(packet);
     }
 
     @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",
