@@ -118,6 +118,14 @@ public class MapConfigScreen extends Screen {
         GuiSounds.open();
     }
 
+    private net.minecraft.client.gui.screens.Screen parentScreen;
+
+    /** Returns to {@code parent} on close (Mod Menu). */
+    public MapConfigScreen(net.minecraft.client.gui.screens.Screen parent) {
+        this();
+        this.parentScreen = parent;
+    }
+
     /** The visible search bar is 22px tall, the EditBox inside it only 12 - same rect for both. */
     protected boolean teslamaps$overSearch(double mouseX, double mouseY) {
         int sfX = SIDEBAR_WIDTH + 14, sfY = 8, sfW = this.width - SIDEBAR_WIDTH - 28, sfH = 22;
@@ -976,7 +984,8 @@ public class MapConfigScreen extends Screen {
         TeslaMapsConfig.save();
         GuiSounds.close();
         GuiSounds.resetHover();
-        super.onClose();
+        if (parentScreen != null) minecraft.setScreen(parentScreen);
+        else super.onClose();
     }
 
     @Override

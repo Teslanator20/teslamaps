@@ -121,6 +121,9 @@ public final class HudEditElement {
     public float scale() { return getFloat(fscale); }
     public void setX(int v) { setInt(fx, v); }
     public void setY(int v) { setInt(fy, v); }
+    public int storedX() { return getInt(fx); }
+    public int storedY() { return getInt(fy); }
+    public void setScale(float v) { setFloat(fscale, v); }
     public int width() { return w.of(scale()); }
     public int height() { return h.of(scale()); }
     public int boxX() { return x() - (int) (boxOffset * scale()) + shiftX(); }

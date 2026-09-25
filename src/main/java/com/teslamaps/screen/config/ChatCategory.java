@@ -89,6 +89,8 @@ public final class ChatCategory {
         b.toggle("  Hotkey Placeholders", () -> config.hotkeyPlaceholders, v -> config.hotkeyPlaceholders = v)
                 .desc("{x} {y} {z} {player} {island} {location} {server} {health} {maxHealth} {mana} {maxMana} in hotkey texts");
         b.toggle("Gradient [TeslaMaps] Prefix", () -> config.chromaPrefix, v -> config.chromaPrefix = v);
+        b.toggle("  Clickable Prefix", () -> config.clickablePrefix, v -> config.clickablePrefix = v)
+                .desc("Clicking the [TeslaMaps] tag of a mod message opens this config screen").tags("prefix", "click");
         b.color("Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v);
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);
         b.label("Filter");

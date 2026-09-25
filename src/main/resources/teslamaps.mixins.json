@@ -58,6 +58,7 @@
     "EditBoxUndoMixin",
     "CustomDataAccessor",
     "ItemBarMixin",
+    "HudTextStyleMixin",
     "ItemCooldownMixin",
     "CrosshairCooldownMixin",
     "CustomCrosshairMixin",

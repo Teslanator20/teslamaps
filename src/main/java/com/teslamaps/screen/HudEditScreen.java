@@ -30,7 +30,27 @@ public class HudEditScreen extends Screen {
     @Override
     protected void init() {
         addRenderableWidget(new TeslaButton(this.width - 110, 6, 100, 22, "§fDone", this::onClose));
+        if (com.teslamaps.features.HudLayouts.enabled()) layoutButtons();
         ScreenFit.clamp(this); // keep every widget reachable at any gui scale
+    }
+
+    private int copyTarget = 0;
+
+    private void layoutButtons() {
+        String[] names = com.teslamaps.features.HudLayouts.NAMES;
+        int y = this.height - 28;
+        TeslaButton[] target = new TeslaButton[1];
+        target[0] = new TeslaButton(10, y, 120, 22, "§fCopy To: " + names[copyTarget], () -> {
+            copyTarget = (copyTarget + 1) % names.length;
+            target[0].setMessage(Component.literal("§fCopy To: " + names[copyTarget]));
+        });
+        addRenderableWidget(target[0]);
+        addRenderableWidget(new TeslaButton(134, y, 50, 22, "§aCopy", () -> {
+            com.teslamaps.features.HudLayouts.copyTo(names[copyTarget]);
+            if (minecraft.player != null) minecraft.player.sendSystemMessage(Component.literal(
+                    "§b[TeslaMaps] §fHUD layout copied to §e" + names[copyTarget]));
+        }));
+        addRenderableWidget(new TeslaButton(188, y, 90, 22, "§cUse Default", com.teslamaps.features.HudLayouts::resetCurrent));
     }
 
     @Override
@@ -107,6 +127,11 @@ public class HudEditScreen extends Screen {
         com.teslamaps.render.gui.HudStyle.screenPanel(context,
                 this.width / 2f - textWidth / 2f - 8, 8, textWidth + 16, 18, 9);
         context.centeredText(this.font, instructions, this.width / 2, 12, 0xFFE0E0E0);
+        if (com.teslamaps.features.HudLayouts.enabled()) {
+            String loc = com.teslamaps.features.HudLayouts.current();
+            context.text(this.font, "Layout: §e" + loc + (com.teslamaps.features.HudLayouts.hasOwn(loc) ? "" : " §7(using Default)"),
+                    10, this.height - 40, 0xFFFFFFFF);
+        }
 
         super.extractRenderState(context, mouseX, mouseY, delta);
     }
@@ -124,6 +149,7 @@ public class HudEditScreen extends Screen {
 
     @Override
     public void onClose() {
+        com.teslamaps.features.HudLayouts.editorClosed();
         TeslaMapsConfig.save();
         if (parent != null) {
             minecraft.setScreen(parent);

@@ -69,6 +69,7 @@ public final class FeatureRegistry {
         HudEditElement e = c.hudClampToScreen || c.hudEdgeAnchors ? HudEditElement.forHud(id) : null;
         int dx = e == null ? 0 : e.shiftX(), dy = e == null ? 0 : e.shiftY();
         com.teslamaps.render.gui.HudStyle.beginPanel(id);
+        com.teslamaps.render.gui.HudTextStyle.begin(id);
         try {
             if (dx == 0 && dy == 0) { r.extractRenderState(g, d); return; }
             g.pose().pushMatrix();
@@ -76,6 +77,7 @@ public final class FeatureRegistry {
             r.extractRenderState(g, d);
             g.pose().popMatrix();
         } finally {
+            com.teslamaps.render.gui.HudTextStyle.end(g);
             com.teslamaps.render.gui.HudStyle.endPanel();
         }
     }

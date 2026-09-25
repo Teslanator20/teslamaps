@@ -2147,6 +2147,19 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w11-09-gui
+    public boolean radialMenus = false;
+    public java.util.List<String> radialMenusOn = new java.util.ArrayList<>();
+    public boolean radialMenuTooltips = false;
+    public boolean hudLayoutsPerLocation = false;
+    public java.util.Map<String, java.util.Map<String, float[]>> hudLayouts = new java.util.HashMap<>();
+    public boolean keybindsInControls = false;
+    public String hudTextShadow = "Shadow";
+    public java.util.Map<String, String> hudPanelTextShadow = new java.util.HashMap<>();
+    public java.util.Map<String, String> hudPanelTextAlign = new java.util.HashMap<>();
+    public java.util.Map<String, String> hudPanelLineBackdrop = new java.util.HashMap<>();
+    public boolean joinTips = false;
+    public boolean clickablePrefix = false;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4328,6 +4341,13 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.radialMenusOn == null) c.radialMenusOn = new java.util.ArrayList<>();
+        if (c.hudLayouts == null) c.hudLayouts = new java.util.HashMap<>();
+        c.hudLayouts.values().removeIf(java.util.Objects::isNull);
+        if (c.hudTextShadow == null) c.hudTextShadow = "Shadow";
+        if (c.hudPanelTextShadow == null) c.hudPanelTextShadow = new java.util.HashMap<>();
+        if (c.hudPanelTextAlign == null) c.hudPanelTextAlign = new java.util.HashMap<>();
+        if (c.hudPanelLineBackdrop == null) c.hudPanelLineBackdrop = new java.util.HashMap<>();
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
         if (c.sackNotifyItems == null) c.sackNotifyItems = new java.util.ArrayList<>();
         if (c.chatMutedPlayers == null) c.chatMutedPlayers = new java.util.ArrayList<>();
