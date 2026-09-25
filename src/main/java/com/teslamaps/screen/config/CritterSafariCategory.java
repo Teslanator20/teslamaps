@@ -38,6 +38,8 @@ public final class CritterSafariCategory {
                 new String[] { "Auto", "Cavern", "Forest", "Haunted", "Icy" },
                 () -> config.safariChecklistBiome, v -> config.safariChecklistBiome = v);
         b.toggle("  Check/Cross Icons", () -> config.safariChecklistIcons, v -> config.safariChecklistIcons = v);
+        b.toggle("  Spawn Quotas", () -> config.safariQuotas, v -> config.safariQuotas = v)
+                .desc("Gemzie 3, Troodon 3, Gazer 4: only done once every spawn is caught. Checklist shows 1/3, biome bars, Biome Done alert and the missing line follow it.");
         b.info("Green = caught, red = escaped, grey = not seen");
         b.button("  Copy Missing List", com.teslamaps.safari.SafariTracker::copyMissing);
         b.button("  Share Missing List", com.teslamaps.safari.SafariTracker::shareMissing);

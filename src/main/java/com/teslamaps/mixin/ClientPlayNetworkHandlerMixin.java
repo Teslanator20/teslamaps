@@ -107,6 +107,7 @@ public class ClientPlayNetworkHandlerMixin {
     private void onTabList(ClientboundTabListPacket packet, CallbackInfo ci) {
         WitherDragons.onTabFooter(packet.footer().getString());
         com.teslamaps.dungeon.DungeonInfoHud.onTabFooter(packet.footer().getString());
+        com.teslamaps.features.DailyTimers.onTabFooter(packet.footer().getString());
     }
 
     @Inject(method = "handleMoveEntity", at = @At("HEAD"))

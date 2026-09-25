@@ -383,5 +383,10 @@ final class Features {
         com.teslamaps.features.hud.MovableVanillaHud.register();
         com.teslamaps.features.hud.VanillaManaBar.register();
         com.teslamaps.features.hud.SmallHuds.register();
+        // w08-04-hud
+        com.teslamaps.features.hud.ProfileInfo.register();
+        com.teslamaps.features.hud.TitleStack.register();
+        com.teslamaps.features.hud.SpringBootsHeight.register();
+        com.teslamaps.features.DailyTimers.register();
     }
 }
