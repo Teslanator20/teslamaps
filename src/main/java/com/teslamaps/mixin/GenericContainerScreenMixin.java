@@ -28,11 +28,14 @@ public abstract class GenericContainerScreenMixin extends AbstractContainerScree
         }
         if (LeapOverlay.shouldRender() || com.teslamaps.features.TerminalSolver.hideClutter()) {
             ci.cancel();
+            return;
         }
+        if (com.teslamaps.features.BetterContainers.replaceBackground(context, this)) ci.cancel();
     }
 
     @Inject(method = "extractBackground", at = @At("TAIL"))
     private void teslamaps$fancyCrafting(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         com.teslamaps.features.FancyCraftingTable.drawBackground(context, this);
+        com.teslamaps.features.BetterContainers.drawOverVanilla(context, this);
     }
 }

@@ -2136,6 +2136,34 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w08-08-vis
+    public boolean hideArcherPassive = false;
+    public boolean arrowTrail = false;
+    public boolean arrowTrailOnlyOwn = true;
+    public boolean arrowTrailOwnColor = false;
+    public String arrowTrailColor = "C855FF55";
+    public String arrowTrailOwnColorHex = "C855FFFF";
+    public float arrowTrailSeconds = 0.5f;
+    public float arrowTrailWidth = 4f;
+    public boolean arrowHitboxes = false;
+    public String arrowHitboxColor = "FFFFFFFF";
+    public String arrowHitboxFillColor = "00000000";
+    public float arrowHitboxWidth = 1f;
+    public boolean customCrosshair = false;
+    public String crosshairShape = "Vanilla";
+    public String crosshairColor = "FFFFFFFF";
+    public boolean crosshairChroma = false;
+    public int crosshairSize = 6;
+    public int crosshairThickness = 1;
+    public int crosshairGap = 0;
+    public boolean crosshairThirdPerson = false;
+    public boolean crosshairCentered = false;
+    public boolean oldItemTextures = false;
+    public boolean oldItemTexturesHeads = true;
+    public boolean oldItemTexturesKeepPack = true;
+    public boolean betterContainers = false;
+    public String betterContainersStyle = "Dark";
+    public boolean betterContainersToggles = true;
     // w07-04-qol
     public boolean signCalculator = false;
     public boolean signCalculatorEquals = false;

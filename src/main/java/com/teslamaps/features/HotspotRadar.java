@@ -173,8 +173,8 @@ public class HotspotRadar {
         if (c.hotspotBeam) {
             ESPRenderer.drawBeaconBeam(matrices, net.minecraft.core.BlockPos.containing(at), color, cameraPos);
         }
-        ESPRenderer.drawText(matrices, "§d§lHOTSPOT", at.add(0, 1.7, 0), 1.7f, cameraPos);
-        ESPRenderer.drawText(matrices, "§e" + (int) distance + "m", at.add(0, 1.2, 0), 1.0f, cameraPos);
+        com.teslamaps.features.waypoints.WaypointSet.drawLabel(matrices, cameraPos, "§d§lHOTSPOT", at.add(0, 1.7, 0), 1.7f);
+        com.teslamaps.features.waypoints.WaypointSet.drawLabel(matrices, cameraPos, "§e" + (int) distance + "m", at.add(0, 1.2, 0), 1.0f);
     }
 
     private static String fmt(Vec3 v) {
