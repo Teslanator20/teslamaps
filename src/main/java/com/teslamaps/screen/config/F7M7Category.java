@@ -93,7 +93,6 @@ public final class F7M7Category {
         b.toggle("  Through Walls", () -> config.terminalWaypointsThroughWalls, v -> config.terminalWaypointsThroughWalls = v);
         b.toggle("  Hide Hypixel Nametags", () -> config.terminalWaypointsHideNames, v -> config.terminalWaypointsHideNames = v);
         b.color("  Color", () -> config.terminalWaypointsColor, v -> config.terminalWaypointsColor = v);
-        b.toggle("Term Info HUD (/tmap gui)", () -> config.termInfoHud, v -> config.termInfoHud = v);
         b.label("Wither Dragons");
         b.toggle("Wither Dragons", () -> config.witherDragons, v -> config.witherDragons = v);
         b.toggle("Dimensional Slash Alert", () -> config.dimensionalSlashAlert, v -> config.dimensionalSlashAlert = v);

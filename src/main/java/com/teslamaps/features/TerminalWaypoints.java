@@ -29,11 +29,6 @@ public final class TerminalWaypoints {
     private static final String CORE = "The Core entrance is opening!";
     private static final String GATE = "The gate has been destroyed!";
 
-    private static final List<DungeonTimers.Row> SAMPLE = List.of(
-            new DungeonTimers.Row("§6Levers §c1§8/§a2", null),
-            new DungeonTimers.Row("§6Terms §c2§8/§a4", null),
-            new DungeonTimers.Row("§6Device §a✔", null),
-            new DungeonTimers.Row("§6Gate §c✘", null));
 
     private record Point(ArmorStand stand, int kind) {}
 
@@ -41,7 +36,6 @@ public final class TerminalWaypoints {
 
     private static final List<Point> points = new ArrayList<>();
     private static final List<ArmorStand> hidden = new ArrayList<>();
-    private static List<DungeonTimers.Row> rows;
     private static Object lastLevel;
     private static int scanTick;
 
@@ -53,18 +47,11 @@ public final class TerminalWaypoints {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("TerminalWaypoints").when(() -> cfg().terminalWaypoints || cfg().termInfoHud)
+        Feature.of("TerminalWaypoints").when(() -> cfg().terminalWaypoints)
                 .serverChat(TerminalWaypoints::onChat)
                 .tick(TerminalWaypoints::tick);
         Feature.of("TerminalWaypoints.render").when(() -> cfg().terminalWaypoints)
                 .world(TerminalWaypoints::render);
-        Feature.of("TermInfoHud").when(() -> cfg().termInfoHud)
-                .hud("terminfo", TerminalWaypoints::renderHud);
-        HudEditElement.of("termInfo", "Term Info").ctx(HudCtx.DUNGEON)
-                .enabled(() -> cfg().termInfoHud)
-                .size(() -> Minecraft.getInstance().font.width("§6Levers §c1§8/§a2"), () -> 36)
-                .scaleRange(0.5f, 5.0f)
-                .preview((g, m, x, y, s) -> DungeonTimers.drawRows(g, m, x, y, s, SAMPLE));
     }
 
     private static boolean floor7() {
@@ -146,21 +133,9 @@ public final class TerminalWaypoints {
         }
         if (!floor7()) {
             if (p3) reset();
-            rows = null;
             return;
         }
         TeslaMapsConfig c = cfg();
-
-        if (c.termInfoHud && p3) {
-            int need = section == 2 ? 5 : 4;
-            rows = List.of(
-                    new DungeonTimers.Row("§6Levers " + (levers == 2 ? "§a" : "§c") + levers + "§8/§a2", null),
-                    new DungeonTimers.Row("§6Terms " + (terminals == need ? "§a" : "§c") + terminals + "§8/§a" + need, null),
-                    new DungeonTimers.Row("§6Device " + (device ? "§a✔" : "§c✘"), null),
-                    new DungeonTimers.Row("§6Gate " + (gate ? "§a✔" : "§c✘"), null));
-        } else {
-            rows = null;
-        }
 
         if (!c.terminalWaypoints || !p3) {
             points.clear();
@@ -218,12 +193,4 @@ public final class TerminalWaypoints {
         }
     }
 
-    private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
-        List<DungeonTimers.Row> r = rows;
-        if (r == null) return;
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
-        TeslaMapsConfig c = cfg();
-        DungeonTimers.drawRows(g, mc, c.termInfoX, c.termInfoY, c.termInfoScale, r);
-    }
 }

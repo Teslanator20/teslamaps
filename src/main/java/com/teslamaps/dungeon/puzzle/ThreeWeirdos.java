@@ -88,7 +88,7 @@ public class ThreeWeirdos {
             int wrong = TeslaMapsConfig.parseColor(c.colorWeirdosWrong);
             for (var e : npcBoxes.entrySet()) {
                 boolean isTarget = e.getKey().equals(targetNpcName);
-                int color = targetNpcName == null ? 0x80FFFFFF : (isTarget ? correct : wrong);
+                int color = targetNpcName == null ? 0xFFFFFFFF : (isTarget ? correct : wrong) | 0xFF000000;
                 PuzzleDraw.box(matrices, e.getValue(), color, c.weirdosStyle, 3.0f, cameraPos, true);
             }
 

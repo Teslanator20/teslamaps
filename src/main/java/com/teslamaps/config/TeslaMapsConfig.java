@@ -2342,10 +2342,6 @@ public class TeslaMapsConfig {
     public boolean terminalWaypointsHideNames = false;
     public boolean terminalWaypointsThroughWalls = true;
     public String terminalWaypointsColor = "66FFFF55";
-    public boolean termInfoHud = false;
-    public int termInfoX = 10;
-    public int termInfoY = 200;
-    public float termInfoScale = 1.0f;
     public boolean fireFreezeTimer = false;
     public boolean fireFreezeSound = true;
     public int fireFreezeX = 10;
