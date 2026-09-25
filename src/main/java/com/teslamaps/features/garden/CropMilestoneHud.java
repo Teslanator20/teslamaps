@@ -96,7 +96,7 @@ public final class CropMilestoneHud {
                     b.lineOrder("  Lines", ID);
                     b.slider("  Goal Tier (0 = next)", 0f, 100f, () -> (float) c.cropMilestoneGoal,
                             v -> c.cropMilestoneGoal = Math.round(v), 0);
-                    b.toggle("  Overflow Past 46", () -> c.cropMilestoneOverflow, v -> c.cropMilestoneOverflow = v);
+                    b.toggle("  Overflow Past 46", () -> c.cropMilestoneHudOverflow, v -> c.cropMilestoneHudOverflow = v);
                     b.toggle("  Warn Before Tier Up", () -> c.cropMilestoneWarn, v -> c.cropMilestoneWarn = v)
                             .desc("Title when the next tier is less than 6 seconds of farming away.");
                     b.toggle("Mooshroom Cow Perk HUD", () -> c.mooshroomPerkHud, v -> c.mooshroomPerkHud = v)
@@ -218,7 +218,7 @@ public final class CropMilestoneHud {
         if (total != null) {
             GardenRegistry.Milestone ms = GardenRegistry.milestone(key, total);
             int tier = ms.tier();
-            boolean maxed = tier >= 46 && !c.cropMilestoneOverflow;
+            boolean maxed = tier >= 46 && !c.cropMilestoneHudOverflow;
             int next = c.cropMilestoneGoal > tier ? c.cropMilestoneGoal : tier + 1;
             long need = totalFor(key, next) - totalFor(key, tier);
             long have = total - totalFor(key, tier);
@@ -229,7 +229,7 @@ public final class CropMilestoneHud {
         if (t == null) return null;
         long need = totalFor(key, t.tier + 1) - totalFor(key, t.tier);
         return new Info(t.tier, t.tier + 1, (long) (need * t.percent / 100), need,
-                t.max && !c.cropMilestoneOverflow, false);
+                t.max && !c.cropMilestoneHudOverflow, false);
     }
 
     /** Crops needed from zero to reach a tier, overflowing at the last bracket. */

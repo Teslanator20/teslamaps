@@ -2450,7 +2450,7 @@ public class TeslaMapsConfig {
     public int cropFeverTrackerX = 10;
     public int cropFeverTrackerY = 250;
     public float cropFeverTrackerScale = 1.0f;
-    public boolean cropMilestoneOverflow = false;
+    public boolean cropMilestoneHudOverflow = false;
     public boolean cropMilestoneAverage = false;
     public boolean gardenUpgradeStackTier = false;
     public boolean hideFarmingRngTitles = false;
