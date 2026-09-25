@@ -45,7 +45,7 @@ public class SoundPlayMixin {
         boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);
         boolean extraMutes = com.teslamaps.features.SoundMutes.active(c);
         if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !c.arrowHitSound && !extraMutes
-                && !c.tiaRelayHelper) return;
+                && !c.tiaRelayHelper && !com.teslamaps.features.ChatCompacts.soundActive(c)) return;
 
         String id;
         float pitch, vol;
@@ -78,6 +78,10 @@ public class SoundPlayMixin {
             return;
         }
         if (c.muteErrorSound && vol >= 7.9f && pitch < 0.05f && id.equals("minecraft:entity.enderman.teleport")) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
+        }
+        if (com.teslamaps.features.ChatCompacts.soundActive(c) && com.teslamaps.features.ChatCompacts.shouldMuteSound(c, id, vol)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
             return;
         }

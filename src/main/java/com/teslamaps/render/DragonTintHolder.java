@@ -10,4 +10,8 @@ public interface DragonTintHolder {
     int teslamaps$overlay();
 
     void teslamaps$setOverlay(int overlay);
+
+    boolean teslamaps$isPet();
+
+    void teslamaps$setPet(boolean pet);
 }

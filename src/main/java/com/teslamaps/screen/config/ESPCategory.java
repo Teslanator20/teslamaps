@@ -22,6 +22,9 @@ public final class ESPCategory {
         b.toggle("Box ESP (Hitbox)", () -> config.boxESP, v -> config.boxESP = v);
         b.slider("ESP Transparency", 0.0f, 1.0f,
                 () -> config.espAlpha, v -> config.espAlpha = v);
+        b.slider("  Distance Fade", 0f, 256f,
+                () -> config.espFadeDistance, v -> config.espFadeDistance = v, 0)
+                .desc("Boxes fade out with distance, half visible at this many blocks. Far ones are skipped. 0 = off");
         b.button("Custom Entries (/tmap esp)",
                 () -> Minecraft.getInstance().setScreen(new EspListScreen()));
         b.customEspList("Custom ESP Mobs").desc("Tick mobs seen nearby to highlight them. Right-click a row for its colour.")
@@ -65,6 +68,9 @@ public final class ESPCategory {
         b.toggle("Dungeon Bat ESP", () -> config.dungeonBatESP, v -> config.dungeonBatESP = v);
         b.toggle("  Dungeon Bat Tracers", () -> config.dungeonBatTracers, v -> config.dungeonBatTracers = v);
         b.color("  Dungeon Bats", () -> config.colorESPBat, v -> config.colorESPBat = v);
+        b.toggle("  Bigger Bat Models", () -> config.biggerBatModels, v -> config.biggerBatModels = v)
+                .desc("Draws dungeon bats larger so they are easier to hit (visual only)");
+        b.slider("    Bat Scale", 1f, 5f, () -> config.biggerBatScale, v -> config.biggerBatScale = v, 1);
         b.toggle("Wither Key ESP", () -> config.witherKeyESP, v -> config.witherKeyESP = v);
         b.toggle("  Key Tracers", () -> config.keyTracers, v -> config.keyTracers = v);
         b.color("  Wither Key", () -> config.colorESPWitherKey, v -> config.colorESPWitherKey = v);

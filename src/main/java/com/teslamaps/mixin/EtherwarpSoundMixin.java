@@ -26,7 +26,7 @@ public class EtherwarpSoundMixin {
         }
 
         if (packet.getVolume() == 1.0f && Math.abs(packet.getPitch() - 0.53968257f) < 0.0005f) {
-            Minecraft.getInstance().execute(Etherwarp::playCustomSound);
+            if (!Etherwarp.coveredByZeroPing()) Minecraft.getInstance().execute(Etherwarp::playCustomSound);
             ci.cancel();
         }
     }
