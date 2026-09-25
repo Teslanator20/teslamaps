@@ -2333,6 +2333,43 @@ public class TeslaMapsConfig {
     public int dragonStackAimerX = 10;
     public int dragonStackAimerY = 160;
     public float dragonStackAimerScale = 1.5f;
+    // w03-02-dun
+    public List<String> waypointPacksActive = new ArrayList<>(List.of("Default"));
+    public String waypointEditPack = "Default";
+    public boolean waypointEditMode = false;           // right-click places/removes dungeon waypoints
+    public boolean waypointEditTitles = false;         // sneak + right-click asks for a title
+    public int waypointEditModeKey = -1;
+    public boolean blessingHud = false;
+    public boolean blessingHudPower = true;
+    public boolean blessingHudTime = true;
+    public boolean blessingHudStone = false;
+    public boolean blessingHudLife = false;
+    public boolean blessingHudWisdom = false;
+    public boolean blessingHudRoman = false;
+    public int blessingHudX = 10;
+    public int blessingHudY = 260;
+    public float blessingHudScale = 1.0f;
+    public boolean croesusChestCounter = false;
+    public boolean croesusChestWarn = true;
+    public int croesusChestWarnAt = 55;
+    public boolean croesusChestWarnSound = true;
+    @Global
+    public int croesusChestCount = -1;               // last seen, -1 = unknown
+    public int croesusChestCounterX = 10;
+    public int croesusChestCounterY = 280;
+    public float croesusChestCounterScale = 1.0f;
+    public boolean batBonusScore = false;
+    public String batKilledChannel = "Nobody";
+    public boolean deathCounter = false;
+    public boolean deathCounterChat = true;
+    public int deathCounterX = 10;
+    public int deathCounterY = 300;
+    public float deathCounterScale = 1.0f;
+    public boolean visitedTracking = false;
+    public boolean rareGroundDrops = false;
+    public boolean rareGroundDropsSmAllFloors = false;
+    public float rareGroundDropsTime = 3.0f;
+
     // w02-06-term
     public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
     public int terminalDropKey = -1;                   // own key/mouse button that clicks the hovered terminal slot
@@ -2652,6 +2689,9 @@ public class TeslaMapsConfig {
         if (c.invButtons == null || c.invButtons.isEmpty()) {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }
+        if (c.waypointPacksActive == null) c.waypointPacksActive = new ArrayList<>(List.of("Default"));
+        if (c.waypointEditPack == null) c.waypointEditPack = "Default";
+        if (c.batKilledChannel == null) c.batKilledChannel = "Nobody";
         if (c.chatCommandsWhitelist == null) c.chatCommandsWhitelist = new ArrayList<>();
         if (c.dragonHitboxColor == null) c.dragonHitboxColor = "00FFFF";
         if (c.lividAnnounceText == null) c.lividAnnounceText = "Livid is [color]!";

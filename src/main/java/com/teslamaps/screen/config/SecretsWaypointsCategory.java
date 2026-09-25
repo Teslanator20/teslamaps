@@ -58,12 +58,19 @@ public final class SecretsWaypointsCategory {
         b.toggle("Dungeon Waypoints", () -> config.dungeonWaypoints, v -> config.dungeonWaypoints = v);
         b.slider("  Title Scale", 0.1f, 4f, () -> config.waypointTitleScale, v -> config.waypointTitleScale = v, 1);
         b.toggle("  Editor HUD", () -> config.dungeonWaypointEditor, v -> config.dungeonWaypointEditor = v);
+        b.toggle("  Edit Mode (Right-Click)", () -> config.waypointEditMode, v -> config.waypointEditMode = v)
+                .desc("In dungeons right-click adds/removes a waypoint (Add Waypoint #1 style), also in mid-air");
+        b.toggle("    Sneak + Right-Click Sets Title", () -> config.waypointEditTitles, v -> config.waypointEditTitles = v);
+        b.keybind("    Edit Mode Key", () -> config.waypointEditModeKey, v -> config.waypointEditModeKey = v);
+        b.button("  Waypoint Packs...", () -> Minecraft.getInstance().setScreen(
+                new com.teslamaps.screen.WaypointPackScreen(Minecraft.getInstance().screen)));
         b.toggle("  New Waypoints Use Block Size", () -> config.waypointUseBlockSize, v -> config.waypointUseBlockSize = v);
         b.slider("  Size X", 0.1f, 5f, () -> config.waypointSizeX, v -> config.waypointSizeX = v, 2);
         b.slider("  Size Y", 0.1f, 5f, () -> config.waypointSizeY, v -> config.waypointSizeY = v, 2);
         b.slider("  Size Z", 0.1f, 5f, () -> config.waypointSizeZ, v -> config.waypointSizeZ = v, 2);
         b.info("Secret waypoints hide once collected, Etherwarp ones after warping there.");
         b.info("Title: /tmap waypoints title <text> | type: /tmap waypoints type <type>");
+        b.info("Packs: /tmap waypoints packs | edit mode: /tmap waypoints edit");
 
         b.label("Add Waypoint #1");
         b.keybind("Keybind #1 (look at block)", () -> config.waypointAddKey, v -> config.waypointAddKey = v);

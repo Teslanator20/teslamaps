@@ -48,6 +48,9 @@ public final class MapCategory {
                 .desc("Secrets line reads found/needed/total instead of found/still missing/total");
         b.toggle("  Total Secrets From Tab Until Scanned", () -> config.scoreSecretsTabTotal, v -> config.scoreSecretsTabTotal = v)
                 .desc("Estimates the total from found secrets and the tab % until every room is scanned");
+        b.toggle("  Count Bat Bonus (+1)", () -> config.batBonusScore, v -> config.batBonusScore = v)
+                .desc("\"A Bat has been slain\" or a party \"Bat killed\" adds +1 bonus score, shows Bat ✔ next to the score");
+        b.channel("    Bat Killed Announce", () -> config.batKilledChannel, v -> config.batKilledChannel = v);
         b.toggle("Chat Info After Scan", () -> config.mapScanChatInfo, v -> config.mapScanChatInfo = v)
                 .desc("Puzzles, trap, wither doors, crypts, secrets and minimum secrets once the dungeon is scanned");
         b.label("Style");

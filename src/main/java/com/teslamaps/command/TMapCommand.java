@@ -48,6 +48,26 @@ public class TMapCommand {
             return 1;
         }));
 
+        if (dispatcher.getRoot().getChild("visited") == null) {
+            dispatcher.register(ClientCommands.literal("visited")
+                    .executes(context -> {
+                        context.getSource().sendFeedback(Component.literal(com.teslamaps.dungeon.RoomVisits.query("")));
+                        return 1;
+                    })
+                    .then(ClientCommands.argument("room", StringArgumentType.greedyString())
+                            .suggests((c, sb) -> {
+                                String typed = sb.getRemaining().toLowerCase();
+                                for (String r : com.teslamaps.dungeon.RoomVisits.rooms())
+                                    if (r.toLowerCase().startsWith(typed) && !r.equalsIgnoreCase(typed)) sb.suggest(r);
+                                return sb.buildFuture();
+                            })
+                            .executes(context -> {
+                                context.getSource().sendFeedback(Component.literal(com.teslamaps.dungeon.RoomVisits.query(
+                                        StringArgumentType.getString(context, "room"))));
+                                return 1;
+                            })));
+        }
+
         // /pv as its own command, but another mod that already owns it keeps it
         if (dispatcher.getRoot().getChild("pv") == null) {
             dispatcher.register(profileViewer("pv"));
@@ -1440,6 +1460,18 @@ public class TMapCommand {
                         .then(ClientCommands.literal("debug")
                                 .executes(context -> {
                                     com.teslamaps.dungeon.DungeonWaypoints.debug();
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("packs")
+                                .executes(context -> {
+                                    Minecraft.getInstance().schedule(() ->
+                                            Minecraft.getInstance().setScreen(new com.teslamaps.screen.WaypointPackScreen(null)));
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("edit")
+                                .executes(context -> {
+                                    context.getSource().sendFeedback(Component.literal(
+                                            com.teslamaps.dungeon.DungeonWaypoints.toggleEditMode()));
                                     return 1;
                                 }))
                         .then(ClientCommands.literal("add")

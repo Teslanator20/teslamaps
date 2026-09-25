@@ -151,5 +151,11 @@ final class Features {
         // w03-01-boss
         com.teslamaps.features.FuckDiorite.register();
         com.teslamaps.features.DragonStackAimer.register();
+        // w03-02-dun
+        com.teslamaps.features.BlessingHud.register();
+        com.teslamaps.features.croesus.CroesusChestCounter.register();
+        com.teslamaps.features.DungeonDeathCounter.register();
+        com.teslamaps.dungeon.RoomVisits.register();
+        com.teslamaps.features.RareGroundDrops.register();
     }
 }

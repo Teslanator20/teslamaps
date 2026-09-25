@@ -26,6 +26,8 @@ public class DungeonScore {
     // matches other mods' party announces (Odin "Prince Killed!", Devonian "Prince dead!", ours "Prince Dead!")
     private static final Pattern PRINCE_PATTERN = Pattern.compile("(?i).*\\bprince (?:is )?(?:dead|died|killed)!\\s*$");
     private static final String PRINCE_KILL_MESSAGE = "A Prince falls."; // "+1 Bonus Score" tail varies, match the prefix
+    private static final Pattern BAT_PATTERN = Pattern.compile("(?i).*\\bbat (?:is )?(?:dead|died|killed|slain)[.!]?\\s*$");
+    private static final String BAT_KILL_MESSAGE = "A Bat has been slain.";
 
     private static final Pattern MIMIC_FLOORS_PATTERN = Pattern.compile("[FM][67]");
 
@@ -36,6 +38,7 @@ public class DungeonScore {
     private static boolean mimicKilled = false;
     private static boolean princeKilled = false;
     private static boolean princeDeadMessageSent = false;
+    private static boolean batKilled = false;
     private static boolean cryptReminderSent = false;
     private static long cryptReminderAt = 0L;
     public static final String CRYPT_TRIGGER_BLOOD = "Blood Door +30s";
@@ -71,6 +74,7 @@ public class DungeonScore {
         mimicKilled = false;
         princeKilled = false;
         princeDeadMessageSent = false;
+        batKilled = false;
         cryptReminderSent = false;
         cryptReminderAt = 0L;
         dungeonStarted = false;
@@ -237,7 +241,7 @@ public class DungeonScore {
         int mimicScore = mimicKilled ? 2 : 0;
         if (getSecretsPercentage() >= 100 && floorHasMimics) mimicScore = 2;
         int princeScore = princeKilled ? 1 : 0;
-        return paulScore + cryptsScore + mimicScore + princeScore;
+        return paulScore + cryptsScore + mimicScore + princeScore + batBonus();
     }
 
     private static int getTotalRooms() {
@@ -380,6 +384,13 @@ public class DungeonScore {
 
         if (floorHasMimics && MIMIC_PATTERN.matcher(clean).matches()) {
             mimicKilled = true;
+        }
+
+        if (!batKilled && (clean.startsWith(BAT_KILL_MESSAGE) || BAT_PATTERN.matcher(clean).matches())) {
+            batKilled = true;
+            lastScoreCalcTime = 0L;
+            if (clean.startsWith(BAT_KILL_MESSAGE) && cfg.batBonusScore)
+                com.teslamaps.features.Announce.send(cfg.batKilledChannel, "Bat Killed!");
         }
 
         if (PRINCE_PATTERN.matcher(clean).matches() || clean.startsWith(PRINCE_KILL_MESSAGE)) {
@@ -543,6 +554,14 @@ public class DungeonScore {
         return princeKilled;
     }
 
+    public static boolean isBatKilled() {
+        return batKilled;
+    }
+
+    private static int batBonus() {
+        return batKilled && TeslaMapsConfig.get().batBonusScore ? 1 : 0;
+    }
+
     public static double getNeededSecretsPercentFor300(int cryptsFound) {
         if (!dungeonStarted) return 100.0;
 
@@ -551,7 +570,7 @@ public class DungeonScore {
         int mimicBonus = mimicKilled || (max && floorHasMimics) ? 2 : 0;
         int princeBonus = princeKilled || (max && com.teslamaps.render.MapRenderer.runHasPrinceRoom()) ? 1 : 0;
         int paulBonus = paulBonus();
-        int totalBonus = cryptsBonus + mimicBonus + princeBonus + paulBonus;
+        int totalBonus = cryptsBonus + mimicBonus + princeBonus + paulBonus + batBonus();
 
         // A death costs skill points, and secrets are the only lever left to make them
         // back up, so the penalty has to be added on top of the secrets budget.
