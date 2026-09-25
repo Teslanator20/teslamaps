@@ -198,11 +198,16 @@ public class BackpackPreview {
         if (frozen != null) return lines;
 
         String key = hoveredKey();
-        if (key == null) return lines;
-        Map<Integer, ItemStack> items = StorageCache.items(key);
-        if (items == null || items.isEmpty()) return lines;
-
-        int size = StorageCache.size(key);
+        Map<Integer, ItemStack> items = key == null ? null : StorageCache.items(key);
+        int size;
+        if (items != null && !items.isEmpty()) {
+            size = StorageCache.size(key);
+        } else {
+            key = null;
+            items = dataItems();
+            if (items == null) return lines;
+            size = dataSize;
+        }
         if (size <= 0) for (int s : items.keySet()) size = Math.max(size, s + 1);
 
         List<Component> out = new ArrayList<>();
@@ -211,7 +216,7 @@ public class BackpackPreview {
             out.add(c);
         }
         while (!out.isEmpty() && strip(out.get(out.size() - 1).getString()).isEmpty()) out.remove(out.size() - 1);
-        String custom = TeslaMapsConfig.get().storagePageNames.get(key);
+        String custom = key == null ? null : TeslaMapsConfig.get().storagePageNames.get(key);
         if (custom != null && !custom.isEmpty() && !out.isEmpty()) out.add(1, Component.literal("§7» " + custom.replace('&', '§')));
 
         int at = -1;
@@ -223,6 +228,57 @@ public class BackpackPreview {
         pendingIndex = at;
         pendingGrid = new Grid(items, size, tintFor(key), "Chest".equals(TeslaMapsConfig.get().backpackPreviewStyle));
         return out;
+    }
+
+    // SkyblockAddons' ContainerPreviewManager / Skysoft's StoragePreviews: contents packed into the item
+    private static ItemStack dataStack = null;
+    private static List<com.teslamaps.profileviewer.data.InventoryDecoder.Slot> dataSlots = List.of();
+    private static int dataSize = 0;
+
+    private static Map<Integer, ItemStack> dataItems() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.itemDataPreview || !c.backpackPreview) return null;
+        Minecraft mc = Minecraft.getInstance();
+        if (c.backpackPreviewShift && !mc.hasShiftDown()) return null;
+        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return null;
+        if (!c.itemDataPreviewInAh && strip(cs.getTitle().getString()).contains("Auction")) return null;
+        Slot hovered = ((HandledScreenAccessor) cs).getFocusedSlot();
+        if (hovered == null || hovered.getItem().isEmpty()) return null;
+        ItemStack stack = hovered.getItem();
+        if (stack != dataStack) {
+            dataStack = stack;
+            dataSlots = decodeData(stack, c);
+            dataSize = dataSlots.isEmpty() ? 0 : ((dataSlots.size() + 8) / 9) * 9;
+        }
+        if (dataSlots.isEmpty()) return null;
+        Map<Integer, ItemStack> out = new LinkedHashMap<>();
+        for (int i = 0; i < dataSlots.size(); i++) {
+            com.teslamaps.profileviewer.data.InventoryDecoder.Slot s = dataSlots.get(i);
+            if (s.isEmpty()) continue;
+            ItemStack st = com.teslamaps.profileviewer.screen.ItemGrid.stackFor(s);
+            if (!st.isEmpty()) out.put(i, st);
+        }
+        return out.isEmpty() ? null : out;
+    }
+
+    private static List<com.teslamaps.profileviewer.data.InventoryDecoder.Slot> decodeData(ItemStack stack, TeslaMapsConfig c) {
+        net.minecraft.world.item.component.CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+        if (data == null) return List.of();
+        net.minecraft.nbt.CompoundTag tag = data.copyTag();
+        String key = null;
+        if (tag.contains("new_year_cake_bag_data")) {
+            if (c.itemDataPreviewCakeBag) key = "new_year_cake_bag_data";
+        } else if (tag.contains("builder's_wand_data")) {
+            key = "builder's_wand_data";
+        } else {
+            for (String k : tag.keySet()) if (k.endsWith("backpack_data")) { key = k; break; }
+        }
+        if (key == null) return List.of();
+        byte[] raw = tag.getByteArray(key).orElse(null);
+        if (raw == null || raw.length > 2_000_000) return List.of();
+        List<com.teslamaps.profileviewer.data.InventoryDecoder.Slot> slots =
+                com.teslamaps.profileviewer.data.InventoryDecoder.decodeBytes(raw);
+        return slots.size() > 54 ? slots.subList(0, 54) : slots;
     }
 
     public static void applyGrid(List<ClientTooltipComponent> components) {

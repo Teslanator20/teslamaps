@@ -30,6 +30,12 @@ public final class TooltipsValueCategory {
         b.toggle("Broken Dragon Fragment Warning", () -> config.brokenFragmentTooltip, v -> config.brokenFragmentTooltip = v);
         b.toggle("Compactor/Deletor Preview", () -> config.compactorPreview, v -> config.compactorPreview = v);
         b.info("Tooltip shows on/off status and configured items");
+        b.toggle("Fix Broken Tooltip Frames", () -> config.fixTooltipStyle, v -> config.fixTooltipStyle = v)
+                .desc("Without the Hypixel resource pack, custom tooltip frames fall back to vanilla instead of missing texture");
+        b.toggle("Next Star Cost", () -> config.starUpgradeCost, v -> config.starUpgradeCost = v)
+                .desc("\"Upgrade to ✪✪✪: 1,200 Wither Essence\", or the dungeonize cost");
+        b.toggle("  Always Show Required Items", () -> config.starUpgradeItems, v -> config.starUpgradeItems = v);
+        b.info("Otherwise hold Ctrl for master stars, coins and other items");
         b.label("Item Value");
         b.toggle("Estimated Item Value", () -> config.estimatedValue, v -> config.estimatedValue = v);
         b.toggle("  List Gemstones", () -> config.gemstoneList, v -> config.gemstoneList = v)

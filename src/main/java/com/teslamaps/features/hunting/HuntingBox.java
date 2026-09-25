@@ -66,7 +66,7 @@ public class HuntingBox {
         refreshScreen(mc);   // before any early return, the render side reads these every frame
 
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        if (!config.huntingBoxValue && !config.shardOverlay
+        if (!config.huntingBoxValue && !config.shardOverlay && !config.shardSyphonReady
                 && !config.shardTierStack && !config.shardHighlightDisabled && !config.shardHighlightProgress) {
             ShardOverlay.update();   // drops whatever is still cached
             return;
@@ -150,9 +150,26 @@ public class HuntingBox {
 
     public static List<BoxEntry> boxEntries() { return boxEntries; }
 
+    private static java.util.Map<Integer, Integer> syphonReady = java.util.Map.of();
+
+    /** Skyblocker's HuntingBoxHelper colors: green = can syphon, yellow = enough but still locked. */
+    public static void renderSyphonReady(net.minecraft.client.gui.GuiGraphicsExtractor ctx) {
+        if (!boxScreen || syphonReady.isEmpty() || !TeslaMapsConfig.get().shardSyphonReady) return;
+        if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> cs)) return;
+        com.teslamaps.mixin.HandledScreenAccessor acc = (com.teslamaps.mixin.HandledScreenAccessor) cs;
+        List<Slot> slots = cs.getMenu().slots;
+        for (java.util.Map.Entry<Integer, Integer> e : syphonReady.entrySet()) {
+            if (e.getKey() >= slots.size()) continue;
+            Slot slot = slots.get(e.getKey());
+            int x = acc.getX() + slot.x, y = acc.getY() + slot.y;
+            ctx.fill(x, y, x + 16, y + 16, (e.getValue() & 0x00FFFFFF) | 0x66000000);
+        }
+    }
+
     private static void readBox(AbstractContainerScreen<?> cs, String title) {
         List<Slot> slots = cs.getMenu().slots;
         List<BoxEntry> entries = new ArrayList<>();
+        java.util.Map<Integer, Integer> ready = new java.util.HashMap<>();
         Set<String> present = new HashSet<>();
         boolean searchActive = false;
 
@@ -180,6 +197,10 @@ public class HuntingBox {
                 if (n.matches()) tier = ShardData.romanToInt(n.group("tier"));
             }
 
+            if (toNext > 0 && owned >= toNext) {
+                List<String> lines = lore(stack);
+                ready.put(i, !lines.isEmpty() && lines.get(lines.size() - 1).startsWith("Requires") ? 0xFFFFFF55 : 0xFF55FF55);
+            }
             ShardData.setInBox(shard, owned);
             if (ShardData.isConsumable(shard)) {
                 ShardData.setSyphoned(shard, ShardData.totalSyphoned(shard, tier, toNext));
@@ -189,6 +210,7 @@ public class HuntingBox {
         }
 
         boxEntries = entries;
+        syphonReady = ready;
         syncPages(title, present, searchActive);
     }
 

@@ -213,5 +213,8 @@ final class Features {
         com.teslamaps.features.AttributeOverlay.register();
         com.teslamaps.features.customize.ItemModelMigration.register();
         com.teslamaps.features.BrewingStandOverlay.register();
+        // w04-07-inv
+        com.teslamaps.features.StarUpgradeCost.register();
+        com.teslamaps.features.MagicalPowerStack.register();
     }
 }

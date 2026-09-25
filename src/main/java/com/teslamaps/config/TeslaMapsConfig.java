@@ -2305,6 +2305,20 @@ public class TeslaMapsConfig {
     public int attributeOverlayMinLevel = 0;
     public boolean migrateItemModels = false;
     public boolean brewingStandOverlay = false;
+    // w04-07-inv
+    public boolean starUpgradeCost = false;            // next star / dungeonize cost in tooltip
+    public boolean starUpgradeItems = false;           // required items without ctrl
+    public boolean shardSyphonReady = false;           // hunting box: green = can syphon, yellow = locked
+    public boolean itemDataPreview = false;            // cake bag / builder's wand / backpack nbt preview
+    public boolean itemDataPreviewCakeBag = true;
+    public boolean itemDataPreviewInAh = false;
+    public boolean fixTooltipStyle = false;            // drop non-vanilla tooltip_style
+    public boolean hideFillerItems = false;            // no tooltip, no clicks on filler panes
+    public boolean magicalPowerStack = false;          // MP as stack size on accessories
+    public boolean magicalPowerRarityColor = true;
+    public int abiphoneContacts = 0;                   // read from the abiphone menu for abicase MP
+    public boolean itemSearchFromHover = false;        // search key over an item searches its name
+    public int itemHighlightKey = -1;                  // highlight hovered item in menus
     // w03-03-dun
     public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
     public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking

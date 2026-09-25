@@ -81,7 +81,17 @@ public class InventoryDecoder {
         if (base64 == null || base64.isBlank()) return List.of();
 
         try {
-            byte[] raw = Base64.getDecoder().decode(base64);
+            return decodeBytes(Base64.getDecoder().decode(base64));
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.warn("Failed to decode an inventory: {}", e.toString());
+            return List.of();
+        }
+    }
+
+    /** Gzipped NBT with an "i" item list, the way Hypixel packs bag/backpack contents into item data. */
+    public static List<Slot> decodeBytes(byte[] raw) {
+        if (raw == null || raw.length == 0) return List.of();
+        try {
             CompoundTag root = NbtIo.readCompressed(new ByteArrayInputStream(raw), NbtAccounter.unlimitedHeap());
             ListTag items = root.getList("i").orElse(null);
             if (items == null) return List.of();

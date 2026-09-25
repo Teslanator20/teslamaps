@@ -39,6 +39,7 @@ public class SbRepo {
 
     private static final Map<String, Reforge> reforges = new ConcurrentHashMap<>();
     private static final Map<String, Map<Integer, EssenceTier>> essence = new ConcurrentHashMap<>();
+    private static final Map<String, Integer> dungeonize = new ConcurrentHashMap<>();
     private static final Map<String, Map<String, List<String>>> gemstoneCosts = new ConcurrentHashMap<>();
     private static final Map<String, Integer> bookBundle = new ConcurrentHashMap<>();
     private static final Map<String, AlwaysActive> alwaysActive = new ConcurrentHashMap<>();
@@ -109,6 +110,9 @@ public class SbRepo {
 
     public static Set<String> essenceItems() { return essence.keySet(); }
 
+    /** Essence to dungeonize the item, 0 when the repo lists none. */
+    public static int dungeonizeCost(String id) { return dungeonize.getOrDefault(id, 0); }
+
     public static Map<String, List<String>> gemstoneCosts(String id) { return gemstoneCosts.get(id); }
 
     public static boolean knowsGemstoneCosts(String id) { return gemstoneCosts.containsKey(id); }
@@ -161,6 +165,9 @@ public class SbRepo {
         for (Map.Entry<String, JsonElement> entry : root.entrySet()) {
             JsonObject o = entry.getValue().getAsJsonObject();
             String type = str(o, "type");
+            if (o.has("dungeonize") && o.get("dungeonize").isJsonPrimitive()) {
+                dungeonize.put(entry.getKey(), o.get("dungeonize").getAsInt());
+            }
 
             Map<Integer, Map<String, Integer>> tierItems = new java.util.HashMap<>();
             Map<Integer, Long> tierCoins = new java.util.HashMap<>();

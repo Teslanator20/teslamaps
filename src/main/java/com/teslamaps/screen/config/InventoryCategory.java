@@ -31,6 +31,10 @@ public final class InventoryCategory {
                 () -> (float) config.attributeOverlayMinLevel, v -> config.attributeOverlayMinLevel = Math.round(v), 0);
         b.toggle("Brewing Stand Overlay", () -> config.brewingStandOverlay, v -> config.brewingStandOverlay = v);
         b.info("Ingredient, progress and output names next to the slots");
+        b.toggle("Magical Power As Stack Size", () -> config.magicalPowerStack, v -> config.magicalPowerStack = v)
+                .desc("Accessory Bag and auction house: MP of each accessory on its slot");
+        b.toggle("  Rarity Color", () -> config.magicalPowerRarityColor, v -> config.magicalPowerRarityColor = v);
+        b.info("Open your Abiphone once so Abicases count its contacts");
         b.toggle("Show Selected Pet", () -> config.showSelectedPet, v -> config.showSelectedPet = v);
         b.toggle("Mark Disabled Potion Effects", () -> config.highlightDisabledPotions, v -> config.highlightDisabledPotions = v)
                 .desc("Toggle Potion Effects menu: disabled effects get a red background.");
@@ -43,6 +47,8 @@ public final class InventoryCategory {
         b.info("Pets menu: right-click only works with shift held");
         b.toggle("Page Keybinds (A/D, W/S)", () -> config.pageKeybinds, v -> config.pageKeybinds = v);
         b.info("A/D = Previous/Next Page, W/S = Scroll Up/Down");
+        b.toggle("Ignore Filler Items", () -> config.hideFillerItems, v -> config.hideFillerItems = v)
+                .desc("No tooltip on blank glass panes, no clicks on fillers and locked backpack slots (off in dungeons and experiments)");
         b.toggle("Sign Enter Key", () -> config.signEnterKey, v -> config.signEnterKey = v);
         b.toggle("No Cursor Reset", () -> config.noCursorReset, v -> config.noCursorReset = v);
         b.slider("  Hold Time (s)", 0.5f, 30f,
@@ -74,12 +80,20 @@ public final class InventoryCategory {
         b.toggle("  Show Contents When Selected", () -> config.backpackSlotPreview, v -> config.backpackSlotPreview = v);
         b.slider("  Background Opacity", 0.1f, 1f,
                 () -> config.backpackSlotOpacity, v -> config.backpackSlotOpacity = v, 2);
+        b.toggle("  Preview From Item Data", () -> config.itemDataPreview, v -> config.itemDataPreview = v)
+                .desc("Cake bags, Builder's Wand and backpack items show their contents, even never opened");
+        b.toggle("    New Year Cake Bag", () -> config.itemDataPreviewCakeBag, v -> config.itemDataPreviewCakeBag = v);
+        b.toggle("    Also In Auction House", () -> config.itemDataPreviewInAh, v -> config.itemDataPreviewInAh = v);
         b.label("Item Search");
         b.toggle("Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v);
         b.info("/tmap search finds items in museum, sacks, vault, chests, storage");
         b.toggle("  Island Chest Tracker", () -> config.islandChestTracker, v -> config.islandChestTracker = v);
         b.info("Private Island: large chests per half, minion chests skipped, broken chests removed");
         b.keybind("Open Item Search", () -> config.itemSearchKey, v -> config.itemSearchKey = v);
+        b.toggle("  Search Hovered Item", () -> config.itemSearchFromHover, v -> config.itemSearchFromHover = v)
+                .desc("The search key over an item in a menu opens the search with its name");
+        b.keybind("  Highlight Hovered Item Key", () -> config.itemHighlightKey, v -> config.itemHighlightKey = v);
+        b.info("Marks that item in every menu for 30s, plus waypoints on chests holding it");
         b.toggle("Right-Click Sack Item: /gfs", () -> config.itemSearchGfsClick, v -> config.itemSearchGfsClick = v);
         b.button("Open Item Search",
                 () -> Minecraft.getInstance().setScreen(new ItemSearchScreen(null)));
