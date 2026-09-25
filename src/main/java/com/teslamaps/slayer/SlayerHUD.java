@@ -619,6 +619,7 @@ public class SlayerHUD {
     }
 
     public static void onSlayerFailed() {
+        CallMaddox.onFail();
         resetQuest();
         SlayerQuest.onQuestEnd();
     }
