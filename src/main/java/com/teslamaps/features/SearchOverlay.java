@@ -19,7 +19,7 @@ import java.util.Locale;
 /** Replaces the auction house / bazaar search sign with a textbox that suggests item names. */
 public class SearchOverlay {
 
-    public enum Location { AUCTION, BAZAAR }
+    public enum Location { AUCTION, BAZAAR, RECIPE }
 
     private static final int HISTORY_LENGTH = 12;
 
@@ -29,6 +29,15 @@ public class SearchOverlay {
         ScreenEvents.AFTER_INIT.register((mc, screen, width, height) -> {
             if (screen instanceof AbstractContainerScreen<?> cs) {
                 lastContainer = StringUtil.strip(cs.getTitle().getString());
+                if (lastContainer.trim().equals("Craft Item") && TeslaMapsConfig.get().searchOverlay
+                        && TeslaMapsConfig.get().searchOverlayRecipes) {
+                    var acc = (com.teslamaps.mixin.HandledScreenAccessor) cs;
+                    net.fabricmc.fabric.api.client.screen.v1.Screens.getWidgets(screen).add(new com.teslamaps.screen.TeslaButton(
+                            acc.getX() + acc.getImageWidth() - 80, acc.getY() - 20, 80, 16, "§fRecipe Search",
+                            () -> mc.setScreen(new SearchOverlayScreen(null, null, Location.RECIPE,
+                                    TeslaMapsConfig.get().searchOverlayKeepText && !history(Location.RECIPE).isEmpty()
+                                            ? history(Location.RECIPE).getFirst() : ""))));
+                }
                 return;
             }
             if (!TeslaMapsConfig.get().searchOverlay) return;
@@ -68,6 +77,7 @@ public class SearchOverlay {
     private static Location locationOf(String title) {
         if (title.contains("Auction") || title.contains("Cosmetics")) return Location.AUCTION;
         if (title.contains("Bazaar")) return Location.BAZAAR;
+        if (title.contains("Recipe") && TeslaMapsConfig.get().searchOverlayRecipes) return Location.RECIPE;
         return null;
     }
 
@@ -115,7 +125,15 @@ public class SearchOverlay {
     public static List<String> history(Location location) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.searchOverlayHistory) return List.of();
-        return location == Location.AUCTION ? config.auctionSearchHistory : config.bazaarSearchHistory;
+        return list(config, location);
+    }
+
+    private static List<String> list(TeslaMapsConfig config, Location location) {
+        return switch (location) {
+            case AUCTION -> config.auctionSearchHistory;
+            case BAZAAR -> config.bazaarSearchHistory;
+            case RECIPE -> config.recipeSearchHistory;
+        };
     }
 
     public static void removeHistory(Location location, String search) {
@@ -126,7 +144,7 @@ public class SearchOverlay {
     private static void addHistory(Location location, String search) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.searchOverlayHistory || search.isBlank()) return;
-        List<String> list = location == Location.AUCTION ? config.auctionSearchHistory : config.bazaarSearchHistory;
+        List<String> list = list(config, location);
         list.remove(search);
         list.addFirst(search);
         while (list.size() > HISTORY_LENGTH) list.removeLast();
@@ -155,6 +173,18 @@ public class SearchOverlay {
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() == null) return;
+        // opened from the /craft button, no sign behind it
+        if (sign == null) {
+            String query = search.trim();
+            mc.execute(() -> {
+                if (query.isEmpty()) {
+                    if (mc.player != null) mc.player.closeContainer();
+                } else if (mc.getConnection() != null) {
+                    mc.getConnection().sendCommand("recipe " + query);
+                }
+            });
+            return;
+        }
         mc.getConnection().send(new ServerboundSignUpdatePacket(
                 sign.getBlockPos(), true, first, second, originalText[2], originalText[3]));
     }

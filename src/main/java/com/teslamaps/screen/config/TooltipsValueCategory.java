@@ -55,6 +55,7 @@ public final class TooltipsValueCategory {
         b.info("\"1,200 coins (100 each)\" in two columns, no Shift needed");
         b.toggle("  Only While Key Held", () -> config.priceLineRequireKey, v -> config.priceLineRequireKey = v);
         b.keybind("    Price Key", () -> config.priceLineKey, v -> config.priceLineKey = v);
+        b.toggle("    Also Estimated Value", () -> config.priceLineKeyValue, v -> config.priceLineKeyValue = v);
         b.toggle("Show Exact Price", () -> config.itemValueExactPrice, v -> config.itemValueExactPrice = v);
         b.toggle("Ignore Helmet Skins", () -> config.itemValueIgnoreHelmetSkins, v -> config.itemValueIgnoreHelmetSkins = v);
         b.toggle("Ignore Armor Dyes", () -> config.itemValueIgnoreArmorDyes, v -> config.itemValueIgnoreArmorDyes = v);

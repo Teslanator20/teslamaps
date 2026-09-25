@@ -165,5 +165,11 @@ final class Features {
         com.teslamaps.dungeon.RoomPreview.register();
         com.teslamaps.dungeon.TeamStats.register();
         com.teslamaps.features.ShadowAssassinAlert.register();
+        // w04-09-inv
+        com.teslamaps.features.MenuHighlights.register();
+        com.teslamaps.features.MuseumHelper.register();
+        com.teslamaps.features.ObtainedDate.register();
+        com.teslamaps.features.MinionHelper.register();
+        com.teslamaps.features.PowerStoneStats.register();
     }
 }

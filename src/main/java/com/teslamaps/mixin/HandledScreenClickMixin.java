@@ -28,6 +28,10 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
+        if (com.teslamaps.features.MenuHighlights.onSlotClick(slot, type)) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.features.SlotLock.blockSlotClick(slot, button, type)) {
             ci.cancel();
             return;

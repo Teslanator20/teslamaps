@@ -28,7 +28,8 @@ public class MuseumRepo {
             "https://raw.githubusercontent.com/NotEnoughUpdates/NotEnoughUpdates-REPO/master/constants/museum.json";
 
     public record Data(Map<String, List<String>> items, Map<String, String> armorToId,
-                       Map<String, String> children, Map<String, String> mappedIds) {}
+                       Map<String, String> children, Map<String, String> mappedIds,
+                       Map<String, List<String>> setsToItems, Map<String, Integer> itemToXp) {}
 
     private static volatile Data data;
     private static volatile boolean loading = false;
@@ -89,7 +90,27 @@ public class MuseumRepo {
                 items.put(category, ids);
             }
         }
-        return new Data(items, strings(root, "armor_to_id"), strings(root, "children"), strings(root, "mapped_ids"));
+        Map<String, List<String>> sets = new HashMap<>();
+        if (root.has("sets_to_items") && root.get("sets_to_items").isJsonObject()) {
+            JsonObject json = root.getAsJsonObject("sets_to_items");
+            for (String k : json.keySet()) {
+                if (!json.get(k).isJsonArray()) continue;
+                List<String> ids = new ArrayList<>();
+                for (JsonElement element : json.getAsJsonArray(k)) {
+                    if (element.isJsonPrimitive()) ids.add(element.getAsString());
+                }
+                sets.put(k, ids);
+            }
+        }
+        Map<String, Integer> xp = new HashMap<>();
+        if (root.has("itemToXp") && root.get("itemToXp").isJsonObject()) {
+            JsonObject json = root.getAsJsonObject("itemToXp");
+            for (String k : json.keySet()) {
+                try { xp.put(k, json.get(k).getAsInt()); } catch (Exception ignored) {}
+            }
+        }
+        return new Data(items, strings(root, "armor_to_id"), strings(root, "children"), strings(root, "mapped_ids"),
+                sets, xp);
     }
 
     private static Map<String, String> strings(JsonObject root, String key) {

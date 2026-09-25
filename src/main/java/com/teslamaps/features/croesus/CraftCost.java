@@ -71,6 +71,17 @@ public final class CraftCost {
         return recipes.containsKey(id);
     }
 
+    /** Ingredients of the first crafting recipe; null while loading, empty when uncraftable. */
+    public static Map<String, Integer> ingredientsOrNull(String id) {
+        if (id == null || id.isEmpty()) return null;
+        List<Recipe> list = recipes.get(id);
+        if (list == null) {
+            fetch(id);
+            return null;
+        }
+        return list.isEmpty() ? Map.of() : list.getFirst().ingredients();
+    }
+
     private static Double compute(String id, int source, int depth, Set<String> path) {
         List<Recipe> list = recipes.get(id);
         if (list == null) {
