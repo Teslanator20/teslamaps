@@ -35,6 +35,24 @@ public final class InterfaceCategory {
                     if ("Default".equals(v)) config.hudPanelStyles.remove(id);
                     else config.hudPanelStyles.put(id, v);
                 }).tags("panel", "hud style");
+        perPanel(b, "  Text Of That Panel", com.teslamaps.render.gui.HudTextStyle.SHADOWS, config.hudPanelTextShadow, byLabel,
+                "Shadow, a 1 px black outline, or plain text. Default = HUD Text above.");
+        perPanel(b, "  Text Align Of That Panel", com.teslamaps.render.gui.HudTextStyle.ALIGNS, config.hudPanelTextAlign, byLabel,
+                "Lines of that panel left, centered or right aligned to its widest line.");
+        perPanel(b, "  Line Backdrop Of That Panel", com.teslamaps.render.gui.HudTextStyle.BACKDROPS, config.hudPanelLineBackdrop, byLabel,
+                "Dark bar behind every text line of that panel.");
+    }
+
+    private static void perPanel(ConfigBuilder b, String label, String[] names, java.util.Map<String, String> map,
+                                 java.util.Map<String, String> byLabel, String desc) {
+        String[] opts = new String[names.length + 1];
+        opts[0] = "Default";
+        System.arraycopy(names, 0, opts, 1, names.length);
+        b.dropdown(label, opts, () -> map.getOrDefault(byLabel.get(pickedPanel), "Default"), v -> {
+            String id = byLabel.get(pickedPanel);
+            if ("Default".equals(v)) map.remove(id);
+            else map.put(id, v);
+        }).desc(desc).tags("panel", "text", "outline", "align");
     }
 
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
@@ -55,6 +73,10 @@ public final class InterfaceCategory {
         b.slider("  Custom Corner Radius", 0f, 12f, () -> config.hudCustomRadius, v -> config.hudCustomRadius = v, 0).tags("panel");
         b.slider("  Custom Border Width", 0f, 4f, () -> config.hudCustomBorderWidth, v -> config.hudCustomBorderWidth = v, 1).tags("panel");
         b.slider("  Custom Padding", 0f, 12f, () -> config.hudCustomPadding, v -> config.hudCustomPadding = v, 0).tags("panel");
+        b.dropdown("  HUD Text", com.teslamaps.render.gui.HudTextStyle.SHADOWS,
+                () -> config.hudTextShadow, v -> config.hudTextShadow = v)
+                .desc("Text of every HUD panel: vanilla shadow, a 1 px black outline (readable on bright ground), or no shadow.")
+                .tags("outline", "text", "shadow");
         b.slider("  Custom Blur", 0f, 20f, () -> config.hudCustomBlur, v -> config.hudCustomBlur = v, 0)
                 .desc("Blurs the world behind \"Custom\" panels. 0 = off.").tags("panel", "blur", "frosted");
         b.dropdown("    Blur Kernel", new String[]{"Gaussian", "Box"},

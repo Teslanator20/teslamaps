@@ -2218,6 +2218,19 @@ public class TeslaMapsConfig {
         public boolean invert = false;
         public java.util.List<java.util.List<String>> combos = new java.util.ArrayList<>();
     }
+    // w11-09-gui
+    public boolean radialMenus = false;
+    public java.util.List<String> radialMenusOn = new java.util.ArrayList<>();
+    public boolean radialMenuTooltips = false;
+    public boolean hudLayoutsPerLocation = false;
+    public java.util.Map<String, java.util.Map<String, float[]>> hudLayouts = new java.util.HashMap<>();
+    public boolean keybindsInControls = false;
+    public String hudTextShadow = "Shadow";
+    public java.util.Map<String, String> hudPanelTextShadow = new java.util.HashMap<>();
+    public java.util.Map<String, String> hudPanelTextAlign = new java.util.HashMap<>();
+    public java.util.Map<String, String> hudPanelLineBackdrop = new java.util.HashMap<>();
+    public boolean joinTips = false;
+    public boolean clickablePrefix = false;
     // w11-01-par
     public boolean pbOnJoinButtons = false;
     public boolean chatNamesOpenPv = false;
@@ -4534,6 +4547,13 @@ public class TeslaMapsConfig {
             for (java.util.List<String> l : r.combos) l.removeIf(java.util.Objects::isNull);
         }
         if (c.customFontFile == null) c.customFontFile = "";
+        if (c.radialMenusOn == null) c.radialMenusOn = new java.util.ArrayList<>();
+        if (c.hudLayouts == null) c.hudLayouts = new java.util.HashMap<>();
+        c.hudLayouts.values().removeIf(java.util.Objects::isNull);
+        if (c.hudTextShadow == null) c.hudTextShadow = "Shadow";
+        if (c.hudPanelTextShadow == null) c.hudPanelTextShadow = new java.util.HashMap<>();
+        if (c.hudPanelTextAlign == null) c.hudPanelTextAlign = new java.util.HashMap<>();
+        if (c.hudPanelLineBackdrop == null) c.hudPanelLineBackdrop = new java.util.HashMap<>();
         if (c.mutePartySpamPrefixes == null) c.mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
         c.mutePartySpamPrefixes.removeIf(s -> s == null || s.isEmpty());
         if (c.safariHotspotPostChannel == null) c.safariHotspotPostChannel = "Party";

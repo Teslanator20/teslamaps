@@ -110,7 +110,8 @@ public class HandledScreenClickMixin {
 
         if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)
-                || com.teslamaps.features.FancyPartyFinder.click((AbstractContainerScreen<?>) (Object) this, click)) {
+                || com.teslamaps.features.FancyPartyFinder.click((AbstractContainerScreen<?>) (Object) this, click)
+                || com.teslamaps.features.RadialMenus.click((AbstractContainerScreen<?>) (Object) this, click)) {
             cir.setReturnValue(true);
             return;
         }

@@ -532,6 +532,11 @@ final class Features {
         FeatureConditions.register();
         com.teslamaps.features.CustomFont.register();
         com.teslamaps.features.hud.TabWidgetsMenuHelper.register();
+        // w11-09-gui
+        com.teslamaps.features.RadialMenus.register();
+        com.teslamaps.features.HudLayouts.register();
+        com.teslamaps.features.KeybindSync.register();
+        com.teslamaps.features.JoinTips.register();
         // w11-01-par
         com.teslamaps.features.KuudraPartyFinder.register();
         com.teslamaps.features.AcceptLastInvite.register();
