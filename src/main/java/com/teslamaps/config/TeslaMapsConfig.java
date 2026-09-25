@@ -2153,6 +2153,17 @@ public class TeslaMapsConfig {
     @Global
     public java.util.List<String> chatMutedPlayers = new java.util.ArrayList<>();
     public boolean hideFarDeaths = false;
+    // w10-06-chat
+    public boolean chatHighlightOwnName = false;
+    public String chatOwnNameColor = "FFAA00";
+    public boolean chatProfileBadges = false;
+    public boolean piggyRepairLink = false;
+    public boolean compactJoinLeave = false;
+    public boolean explosiveShotPerEnemy = false;
+    public boolean logSearch = false;
+    public boolean bridgeFormat = false;
+    public String bridgeBotName = "";
+    public String bridgeNameColor = "55FFFF";
     // w08-00-hud
     public boolean tabStatsHud = false;
     public String tabStatsHudStats = "Ferocity";

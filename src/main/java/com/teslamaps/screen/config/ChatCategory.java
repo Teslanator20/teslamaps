@@ -167,6 +167,9 @@ public final class ChatCategory {
         b.keybind("Filter Hovered Line Key", () -> config.chatFilterLineKey, v -> config.chatFilterLineKey = v);
         b.info("Press it over a line in open chat to hide that exact line");
         b.info("/tmap chatfilter <contains|equals|startswith|endswith|regex> <text>");
+        b.toggle("Highlight Own Name", () -> config.chatHighlightOwnName, v -> config.chatHighlightOwnName = v)
+                .desc("Your name is drawn in its own colour in every chat line and channel");
+        b.color("  Own Name Colour", () -> config.chatOwnNameColor, v -> config.chatOwnNameColor = v);
         b.button("List Own Filters In Chat", () -> {
             var mc = Minecraft.getInstance();
             if (mc.player == null) return;
