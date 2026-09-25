@@ -98,6 +98,12 @@ public final class InterfaceCategory {
         b.toggle("    Seconds", () -> config.perfHudTimeSeconds, v -> config.perfHudTimeSeconds = v);
         b.dropdown("    Time Label", new String[]{"Text", "Symbol", "None"}, () -> config.perfHudTimeLabel, v -> config.perfHudTimeLabel = v);
         b.toggle("  Vertical", () -> config.perfHudVertical, v -> config.perfHudVertical = v);
+        b.toggle("  Color By Value", () -> config.perfHudColorCoded, v -> config.perfHudColorCoded = v)
+                .desc("FPS relative to your FPS limit, TPS and ping green to red");
+        b.dropdown("  TPS Value", new String[]{"Average", "Current", "Min", "Max"},
+                () -> config.perfHudTpsMode, v -> config.perfHudTpsMode = v);
+        b.dropdown("  Ping Value", new String[]{"Instant", "Median", "Mean"},
+                () -> config.perfHudPingMode, v -> config.perfHudPingMode = v);
         b.color("  Label Color", () -> config.perfHudLabelColor, v -> config.perfHudLabelColor = v);
         b.color("  Value Color", () -> config.perfHudValueColor, v -> config.perfHudValueColor = v);
         b.info("Position/scale in /tmap gui, hidden while F3 is open");

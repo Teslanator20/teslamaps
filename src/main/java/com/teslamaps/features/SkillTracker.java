@@ -39,7 +39,16 @@ public class SkillTracker {
 
     private static final long IDLE_CAP_MS = 30_000;
 
+    public static long idleCapMs(String skill) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.skillTrackerPauseCustom || c.skillTrackerPauseSec == null) return IDLE_CAP_MS;
+        Integer sec = c.skillTrackerPauseSec.get(skill);
+        return sec == null ? IDLE_CAP_MS : Math.max(5, sec) * 1000L;
+    }
+
     private static final class Session {
+        final String skill;
+        Session(String skill) { this.skill = skill; }
         double xpGained;
         long activeMs, lastActivity;
         double lastAbs = -1;
@@ -50,13 +59,17 @@ public class SkillTracker {
         long lastGiftMs;
         void touch() {
             long now = System.currentTimeMillis();
-            if (lastActivity > 0) activeMs += Math.min(now - lastActivity, IDLE_CAP_MS);
+            if (lastActivity > 0) activeMs += Math.min(now - lastActivity, idleCapMs(skill));
             lastActivity = now;
         }
 
         long liveActiveMs() {
             if (lastActivity == 0) return activeMs;
-            return activeMs + Math.min(System.currentTimeMillis() - lastActivity, IDLE_CAP_MS);
+            return activeMs + Math.min(System.currentTimeMillis() - lastActivity, idleCapMs(skill));
+        }
+
+        boolean idle() {
+            return lastActivity > 0 && System.currentTimeMillis() - lastActivity > idleCapMs(skill);
         }
 
         /** Folds the running time in and stops the clock, so a pause costs no session time. */
@@ -104,7 +117,7 @@ public class SkillTracker {
     }
 
     private static Session session(String skill) {
-        return sessions.computeIfAbsent(skill, k -> new Session());
+        return sessions.computeIfAbsent(skill, Session::new);
     }
 
     /** "Farming 60" / "Farming" -> "Farming", null when it is not a skill item. */
@@ -547,7 +560,10 @@ public class SkillTracker {
             String over = lvl.overflowTotal() > 0 ? " §6✦" : "";
             out.add("§7Level: §e" + lvl.level() + over + " §8(" + String.format("%.1f", pct) + "%)");
             double xph = warm ? s.xpGained / h : 0;
-            if (xph > 0 && lvl.needed() > lvl.current()) {
+            if (TeslaMapsConfig.get().skillTrackerPauseCustom && lvl.overflowTotal() > 0 && caps.containsKey(skill)
+                    && cap(skill) < raisedCap(skill)) {
+                out.add("§7Next: §cIncrease level cap!");
+            } else if (xph > 0 && lvl.needed() > lvl.current()) {
                 out.add("§7Next: §a" + fmtEta((lvl.needed() - lvl.current()) / xph));
             }
             String goal = SkillGoals.line(skill, total, xph);
@@ -578,13 +594,21 @@ public class SkillTracker {
         }
 
         // uptime always, the controls only where they can be clicked
-        String uptime = "§7Session: §f" + fmtDuration(s.liveActiveMs()) + (paused ? " §6❚❚" : "");
+        String uptime = "§7Session: §f" + fmtDuration(s.liveActiveMs()) + (paused ? " §6❚❚" : "")
+                + (!paused && TeslaMapsConfig.get().skillTrackerPauseCustom && s.idle() ? " §c(PAUSED)" : "");
         if (inInventory()) {
             uptime += " " + (paused ? RESUME : PAUSE) + " " + RESET
                     + " " + (TeslaMapsConfig.get().skillTrackerHidden ? SHOW : HIDE);
         }
         out.add(uptime);
         return out.toArray(new String[0]);
+    }
+
+    private static int raisedCap(String skill) {
+        return switch (skill) {
+            case "Farming", "Taming" -> 60;
+            default -> 0;
+        };
     }
 
     private static String metric(String label, String color, double total, double hours, boolean warm) {

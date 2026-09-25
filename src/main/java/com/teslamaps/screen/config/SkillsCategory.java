@@ -21,6 +21,14 @@ public final class SkillsCategory {
                 () -> config.skillTrackerPin == null || config.skillTrackerPin.isEmpty() ? "Auto" : config.skillTrackerPin,
                 v -> config.skillTrackerPin = "Auto".equals(v) ? "" : v);
         b.info("Auto follows the XP, a skill keeps the panel on it");
+        b.toggle("  Pause Threshold per Skill", () -> config.skillTrackerPauseCustom, v -> config.skillTrackerPauseCustom = v)
+                .desc("Idle time before the session clock stops, per skill. Shows (PAUSED) while idle and a level-cap hint");
+        String[] pauseSkills = com.teslamaps.features.SkillTracker.skills();
+        String[] pauseSel = {pauseSkills[0]};
+        b.dropdown("    Threshold Skill", pauseSkills, () -> pauseSel[0], v -> pauseSel[0] = v);
+        b.slider("    Pause After (s)", 5f, 300f,
+                () -> (float) (com.teslamaps.features.SkillTracker.idleCapMs(pauseSel[0]) / 1000L),
+                v -> config.skillTrackerPauseSec.put(pauseSel[0], Math.round(v)), 0);
         b.label("Flare Mode");
         b.toggle("Flare Mode HUD", () -> config.flareMode, v -> config.flareMode = v);
         b.info("Hunting and Combat at once, plus the flare bestiary count");

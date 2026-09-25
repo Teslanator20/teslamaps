@@ -55,6 +55,10 @@ public final class ScoreSplitsCategory {
                 .desc("Server-tick time behind every split, lag independent");
         b.toggle("  Boss Entry Split", () -> config.splitsBossEntry, v -> config.splitsBossEntry = v)
                 .desc("Extra row: run start until the boss, with PB");
+        b.toggle("  Wither Door Count", () -> config.splitsWitherDoors, v -> config.splitsWitherDoors = v)
+                .desc("Top row: wither doors on this run's map");
+        b.toggle("  300 Score Split", () -> config.splits300Score, v -> config.splits300Score = v)
+                .desc("Extra row: run start until 300 score, counts live and freezes at 300");
         b.toggle("  Current Split HUD", () -> config.splitsCurrentHud, v -> config.splitsCurrentHud = v)
                 .desc("Only the running split in ticks, move it in /tmap gui");
         b.toggle("  Terminal Splits (P3 Sections)", () -> config.terminalSplits, v -> config.terminalSplits = v)
