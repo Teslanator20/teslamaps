@@ -43,6 +43,10 @@ public class PickaxeAbility {
     private static boolean animateEmpty, waitingForTab;
     private static long missingSince = -1;
 
+    public static boolean tabWidgetMissing() {
+        return missingSince >= 0 && System.currentTimeMillis() - missingSince >= 3000;
+    }
+
     public static void register() {
         com.teslamaps.registry.Feature.of("PickaxeAbilityUse").section("Mining")
                 .when(() -> TeslaMapsConfig.get().pickaxeAbilityDisplay && TeslaMapsConfig.get().pickaxeAbilityBar)

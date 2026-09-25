@@ -117,7 +117,24 @@ public final class GuiStyle {
     public static int borderHover() { return palette().borderHover(); }
 
     /** Selection, active headers, toggle-on track. */
-    public static int accent() { return palette().accent(); }
+    public static int accent() {
+        int own = customAccent();
+        return own != 0 ? own : palette().accent();
+    }
+
+    private static String accentHex;
+    private static int accentArgb;
+
+    /** User accent from the GUI Style option, 0 when off. */
+    private static int customAccent() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.guiCustomAccent || c.guiAccentColor == null) return 0;
+        if (!c.guiAccentColor.equals(accentHex)) {
+            accentHex = c.guiAccentColor;
+            accentArgb = 0xFF000000 | TeslaMapsConfig.parseColor(accentHex);
+        }
+        return accentArgb;
+    }
 
     public static int text() { return 0xFFFFFFFF; }
 
@@ -128,7 +145,10 @@ public final class GuiStyle {
 
     public static int rowHover() { return palette().rowHover(); }
 
-    public static int rowSelected() { return palette().rowSelected(); }
+    public static int rowSelected() {
+        int sel = palette().rowSelected(), own = customAccent();
+        return own != 0 ? (sel & 0xFF000000) | (own & 0xFFFFFF) : sel;
+    }
 
     public static int scrollTrack() { return palette().scrollTrack(); }
 

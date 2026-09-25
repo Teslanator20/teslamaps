@@ -221,13 +221,6 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.debug.DeathProbe.onEntityEvent(packet, packet.getEventId());
     }
 
-    @Inject(method = "handleEntityEvent", at = @At("HEAD"), cancellable = true)
-    private void onEntityEventHide(net.minecraft.network.protocol.game.ClientboundEntityEventPacket packet, CallbackInfo ci) {
-        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        if (mc.level == null || !mc.isSameThread()) return;
-        if (com.teslamaps.features.EndermanTeleportHider.hideEvent(packet.getEntity(mc.level), packet.getEventId())) ci.cancel();
-    }
-
     @Inject(method = "setTitleText", at = @At("HEAD"), cancellable = true)
     private void onSetTitle(ClientboundSetTitleTextPacket packet, CallbackInfo ci) {
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
@@ -246,7 +239,13 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "setTitlesAnimation", at = @At("HEAD"), cancellable = true)
     private void onSetTitlesAnimation(ClientboundSetTitlesAnimationPacket packet, CallbackInfo ci) {
-        if (CustomTitles.shouldHideDefaultTitle()) ci.cancel();
+        if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()) CustomTitles.serverTimes = true;
+    }
+
+    @Inject(method = "setTitlesAnimation", at = @At("RETURN"))
+    private void teslamaps$titlesAnimationDone(ClientboundSetTitlesAnimationPacket packet, CallbackInfo ci) {
+        CustomTitles.serverTimes = false;
     }
 
     @Inject(method = "handleBlockEvent", at = @At("TAIL"))

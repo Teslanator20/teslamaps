@@ -45,6 +45,8 @@ public final class ShardsCategory {
         b.toggle("Highlight Maxed / Unfinished", () -> config.shardHighlightProgress, v -> config.shardHighlightProgress = v);
         b.toggle("Highlight Disabled Attributes", () -> config.shardHighlightDisabled, v -> config.shardHighlightDisabled = v);
         b.info("Click a row to look the shard up on the bazaar");
+        b.toggle("  Mark Searched Item On Bazaar Page", () -> config.bzPurchaseHelper, v -> config.bzPurchaseHelper = v)
+                .desc("After our own /bz jump (shard list, Get From Sacks, sack table) the searched item is marked green until you buy or sell it");
         b.button("Reset Hunting Box Data",
                 com.teslamaps.features.hunting.ShardData::resetBox);
     }

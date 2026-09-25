@@ -25,6 +25,16 @@ public class CustomTitles {
 
     private static int spawnCountdown = -1;
 
+    /** Set while the server's own title-times packet is applied. */
+    public static boolean serverTimes = false;
+
+    /** Stay time for a title the mod sets itself, the global override when enabled. */
+    public static int stay(int stay) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.titleDurationOverride || serverTimes || stay <= 0) return stay;
+        return Math.max(1, c.titleDurationTicks);
+    }
+
     public static void tick() {
         if (!inThornBoss()) {
             spawnCountdown = -1;

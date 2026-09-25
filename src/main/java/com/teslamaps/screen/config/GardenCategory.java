@@ -82,6 +82,10 @@ public final class GardenCategory {
         b.label("Panels");
         b.toggle("Move Panels From Inventory",
                 () -> config.hudDragInInventory, v -> config.hudDragInInventory = v);
+        b.toggle("  Container Panels Too (Alt + Drag)",
+                () -> config.containerPanelDrag, v -> config.containerPanelDrag = v)
+                .desc("Croesus profit panel and shard overlay next to chest menus: hold Alt and drag to move, Alt + right click resets. Kept on screen.")
+                .tags("croesus", "shard", "move", "position");
         b.label("Spray");
         b.toggle("Queue Trip When Spray Runs Out",
                 () -> config.sprayRoutine, v -> config.sprayRoutine = v);

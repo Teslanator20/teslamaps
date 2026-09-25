@@ -498,20 +498,88 @@ final class Features {
         com.teslamaps.features.HeadDisplaySize.register();
         com.teslamaps.safari.HideonwallPerches.register();
         com.teslamaps.features.LowerEndermanNametags.register();
-        com.teslamaps.features.capes.Cosmetics.register();
         // w09-09-vis
         com.teslamaps.features.IslandClouds.register();
         com.teslamaps.features.IHateDoors.register();
         com.teslamaps.features.Trajectories.register();
         com.teslamaps.features.CustomEspRules.register();
         com.teslamaps.features.ParkourGuides.register();
-        com.teslamaps.features.Cosmetics.register();
         // w09-05-vis
         com.teslamaps.features.MobIcons.register();
+        com.teslamaps.features.capes.Cosmetics.register();
+        com.teslamaps.features.Cosmetics.register();
         com.teslamaps.features.PlayerCosmetics.register();
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w12-01-gui
+        com.teslamaps.features.HideSillyButtons.register();
+        // w12-05-perf
+        com.teslamaps.features.KeepTerrainLoaded.register();
+        com.teslamaps.features.ErrorManager.register();
+        com.teslamaps.features.inspector.Inspector.register();
+        // w12-00-gui
+        com.teslamaps.features.customize.ModifyIndicator.register();
+        com.teslamaps.features.QuickModSwitch.register();
+        // w12-03-perf
+        com.teslamaps.features.PerfOptions.register();
+        com.teslamaps.features.HideFarEntities.register();
+        // w12-06-eco
+        com.teslamaps.features.bazaar.BazaarOrderTracker.register();
+        com.teslamaps.features.bazaar.PurchaseGuard.register();
+        com.teslamaps.features.bazaar.ManageAuctions.register();
+        com.teslamaps.features.bazaar.AuctionOutbid.register();
+        com.teslamaps.features.bazaar.BazaarQuickQuantities.register();
+        com.teslamaps.features.bazaar.BazaarReorder.register();
+        com.teslamaps.features.bazaar.BazaarPurchaseHelper.register();
+        // w12-02-gui
+        com.teslamaps.dungeon.ClassColors.register();
+        com.teslamaps.features.TabWidgetGuide.register();
+        // w11-04-par
+        com.teslamaps.features.PartyCheck.register();
+        com.teslamaps.features.MarkedPlayers.register();
+        com.teslamaps.features.SocialScreenFilter.register();
+        com.teslamaps.features.ScamCheck.register();
+        com.teslamaps.features.ModChat.register();
+        // w11-08-gui
+        com.teslamaps.config.ConfigBackups.register();
+        com.teslamaps.features.FeatureToggleKeys.register();
+        // w12-07-eco
+        com.teslamaps.features.BitsShopHelper.register();
+        com.teslamaps.features.TradeValue.register();
+        com.teslamaps.features.BazaarFlipTracker.register();
+        com.teslamaps.features.BazaarChatSummary.register();
+        // w11-07-gui
+        com.teslamaps.features.ConfigAccess.register();
+        com.teslamaps.utils.UserSounds.register();
+        FeatureConditions.register();
+        com.teslamaps.features.CustomFont.register();
+        com.teslamaps.features.hud.TabWidgetsMenuHelper.register();
+        // w11-09-gui
+        com.teslamaps.features.RadialMenus.register();
+        com.teslamaps.features.HudLayouts.register();
+        com.teslamaps.features.KeybindSync.register();
+        com.teslamaps.features.JoinTips.register();
+        // w11-01-par
+        com.teslamaps.features.KuudraPartyFinder.register();
+        com.teslamaps.features.AcceptLastInvite.register();
+        com.teslamaps.features.ManaDrainAnnounce.register();
+        com.teslamaps.features.MutePartySpam.register();
+        com.teslamaps.safari.SafariHotspotPost.register();
+        com.teslamaps.safari.HunterTrades.register();
+        // w11-06-gui
+        com.teslamaps.features.WorldOverlayToggle.register();
+        com.teslamaps.features.NewOptions.register();
+        // w11-02-par
+        com.teslamaps.features.PartyInvites.register();
+        com.teslamaps.features.capes.TeslaUserLabels.register();
+        com.teslamaps.features.FancyPartyFinder.register();
+        // w11-03-par
+        com.teslamaps.features.Reparty.register();
+        com.teslamaps.features.PartyListFormat.register();
+        com.teslamaps.features.PartyMembersHud.register();
+        com.teslamaps.features.PartyJoinAlerts.register();
+        com.teslamaps.features.ThrottleNotifier.register();
         // w11-05-par
         com.teslamaps.features.PartyShortcuts.register();
         com.teslamaps.features.HighlightTeammates.register();
@@ -527,5 +595,10 @@ final class Features {
         com.teslamaps.features.PriceHistory.register();
         com.teslamaps.features.AuctionSortWarning.register();
         com.teslamaps.features.theend.DragonProfitTracker.register();
+        // w12-09-eco
+        com.teslamaps.features.BazaarFillEstimate.register();
+        com.teslamaps.features.PriceLookup.register();
+        com.teslamaps.features.SackValueHud.register();
+        com.teslamaps.features.WardrobeValue.register();
     }
 }

@@ -14,6 +14,6 @@ public class SlotBackgroundMixin {
 
     @Inject(method = "extractSlot", at = @At("HEAD"))
     private void teslamaps$slotBackgrounds(GuiGraphicsExtractor context, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
-        SlotBackgrounds.draw(context, slot);
+        if (!com.teslamaps.features.GlobalRender.off()) SlotBackgrounds.draw(context, slot);
     }
 }

@@ -19,13 +19,29 @@ public final class PriceDebug {
     public static LiteralArgumentBuilder<FabricClientCommandSource> command() {
         return ClientCommands.literal("price")
                 .executes(c -> debug(c.getSource(), null))
-                .then(ClientCommands.literal("reload").executes(c -> {
-                    PriceManager.forceRefresh();
-                    c.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §7Reloading bazaar + lowest BIN prices…"));
-                    return 1;
-                }))
+                .then(ClientCommands.literal("reload").executes(c -> reload(c.getSource())))
                 .then(ClientCommands.argument("item", StringArgumentType.greedyString())
                         .executes(c -> debug(c.getSource(), StringArgumentType.getString(c, "item"))));
+    }
+
+    /** /tmap refreshprices, same as /tmap price reload. */
+    public static LiteralArgumentBuilder<FabricClientCommandSource> refreshCommand() {
+        return ClientCommands.literal("refreshprices").executes(c -> reload(c.getSource()));
+    }
+
+    private static int reload(FabricClientCommandSource src) {
+        src.sendFeedback(Component.literal("§b[TeslaMaps] §7Reloading bazaar, lowest BIN and average prices…"));
+        long start = System.currentTimeMillis();
+        PriceManager.forceRefreshAll(() -> {
+            var p = Minecraft.getInstance().player;
+            if (p == null) return;
+            int bz = PriceManager.bazaarCount(), bin = PriceManager.lowestBinCount();
+            boolean ok = bz > 0 && bin > 0;
+            p.sendSystemMessage(Component.literal("§b[TeslaMaps] " + (ok ? "§aPrices reloaded" : "§cSome prices failed to load")
+                    + " §7in " + (System.currentTimeMillis() - start) / 100 / 10.0 + "s: §f" + bz + " §7bazaar, §f" + bin
+                    + " §7BIN, §f" + PriceManager.averageCount() + " §77-day avg, §f" + PriceManager.avgBinCount() + " §7avg BIN"));
+        });
+        return 1;
     }
 
     private static String resolve(String arg) {

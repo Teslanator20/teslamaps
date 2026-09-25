@@ -40,6 +40,32 @@ public final class FeatureRegistry {
     static final List<Chat> CHAT = new ArrayList<>();
     static final List<Config> CONFIG = new ArrayList<>();
     static final List<Category> CATEGORIES = new ArrayList<>();
+    static final List<Feature> ALL = new ArrayList<>();
+
+    private static boolean inSkyblock = true;
+    private static final java.util.Set<String> OUTSIDE_SB = new java.util.HashSet<>();
+    private static int sbTicks = 0;
+
+    /** Central "only in SkyBlock" gate; features picked in the list keep running outside. */
+    static boolean blockedOutsideSb(String name) {
+        return !inSkyblock && com.teslamaps.config.TeslaMapsConfig.get().outsideSbGate && !OUTSIDE_SB.contains(name);
+    }
+
+    private static void updateOutsideSb() {
+        com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
+        if (!c.outsideSbGate) { inSkyblock = true; return; }
+        if (sbTicks++ % 20 != 0) return;
+        inSkyblock = com.teslamaps.utils.SkyblockUtils.isInSkyblock();
+        OUTSIDE_SB.clear();
+        if (c.outsideSbFeatures != null) OUTSIDE_SB.addAll(c.outsideSbFeatures);
+    }
+
+    /** Names of the section-gated features, for the outside-SkyBlock list. */
+    public static List<String> featureNames() {
+        java.util.TreeSet<String> names = new java.util.TreeSet<>();
+        for (Feature f : ALL) if (f.section != null && !f.always) names.add(f.name);
+        return new ArrayList<>(names);
+    }
 
     private FeatureRegistry() {}
 
@@ -60,22 +86,36 @@ public final class FeatureRegistry {
         HudElementRegistry.attachElementBefore(VanillaHudElements.PLAYER_LIST,
                 Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, id), Perf.hud(id, (g, d) -> {
                     if (mode != InventoryMode.ALWAYS && HudForeground.active()) return;
+                    if (com.teslamaps.features.GlobalRender.off()) return;
                     if (f.active()) drawShifted(id, r, g, d);
                 }));
     }
 
     private static void drawShifted(String id, HudElement r, GuiGraphicsExtractor g, DeltaTracker d) {
         com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
-        HudEditElement e = c.hudClampToScreen || c.hudEdgeAnchors ? HudEditElement.forHud(id) : null;
+        float gs = HudEditElement.globalScale();
+        HudEditElement e = c.hudClampToScreen || c.hudEdgeAnchors || gs != 1f ? HudEditElement.forHud(id) : null;
         int dx = e == null ? 0 : e.shiftX(), dy = e == null ? 0 : e.shiftY();
+        if (e == null) gs = 1f;
         com.teslamaps.render.gui.HudStyle.beginPanel(id);
+        com.teslamaps.render.gui.HudTextStyle.begin(id);
         try {
-            if (dx == 0 && dy == 0) { r.extractRenderState(g, d); return; }
+            if (dx == 0 && dy == 0 && gs == 1f) { r.extractRenderState(g, d); return; }
             g.pose().pushMatrix();
-            g.pose().translate(dx, dy);
-            r.extractRenderState(g, d);
-            g.pose().popMatrix();
+            try {
+                g.pose().translate(dx, dy);
+                if (gs != 1f) {
+                    int px = e.pivotX(), py = e.pivotY();
+                    g.pose().translate(px, py);
+                    g.pose().scale(gs, gs);
+                    g.pose().translate(-px, -py);
+                }
+                r.extractRenderState(g, d);
+            } finally {
+                g.pose().popMatrix();
+            }
         } finally {
+            com.teslamaps.render.gui.HudTextStyle.end(g);
             com.teslamaps.render.gui.HudStyle.endPanel();
         }
     }
@@ -88,19 +128,26 @@ public final class FeatureRegistry {
     public static void tick(Minecraft client) {
         com.teslamaps.utils.ServerTickTimer.clientTick();
         com.teslamaps.features.Announce.tick();
+        updateOutsideSb();
         boolean world = client.player != null && client.level != null;
         for (int i = 0, n = TICKS.size(); i < n; i++) {
             Tick t = TICKS.get(i);
             if (!t.always && !world) continue;
             if (!t.f.active()) continue;
             Perf.begin(t.perf);
-            t.r.run();
+            try {
+                t.r.run();
+            } catch (Throwable e) {
+                com.teslamaps.features.ErrorManager.caught(t.perf, e);
+            }
             Perf.end();
         }
     }
 
     public static void world(PoseStack pose, MultiBufferSource buffers, Vec3 cam,
                              net.minecraft.client.renderer.culling.Frustum frustum) {
+        if (com.teslamaps.features.GlobalRender.off()) return;
+        if (!com.teslamaps.features.WorldOverlayToggle.beginWorld()) return;
         WorldCtx ctx = new WorldCtx(pose, buffers, cam);
         com.teslamaps.render.ESPRenderer.beginFrame(frustum);
         try {
@@ -108,7 +155,11 @@ public final class FeatureRegistry {
                 World w = WORLD.get(i);
                 if (!w.f.active()) continue;
                 Perf.begin(w.perf);
-                w.r.accept(ctx);
+                try {
+                    w.r.accept(ctx);
+                } catch (Throwable e) {
+                    com.teslamaps.features.ErrorManager.caught(w.perf, e);
+                }
                 Perf.end();
             }
         } finally {
@@ -120,9 +171,15 @@ public final class FeatureRegistry {
 
     /** Panels drawn over the inventory screen; called by HudForeground. */
     public static void foreground(GuiGraphicsExtractor g, DeltaTracker d) {
+        if (com.teslamaps.features.GlobalRender.off()) return;
         for (int i = 0, n = FOREGROUND.size(); i < n; i++) {
             Hud h = FOREGROUND.get(i);
-            if (h.f.active()) drawShifted(h.id, h.r, g, d);
+            if (!h.f.active()) continue;
+            try {
+                drawShifted(h.id, h.r, g, d);
+            } catch (Throwable e) {
+                com.teslamaps.features.ErrorManager.caught(h.id, e);
+            }
         }
     }
 
@@ -132,7 +189,11 @@ public final class FeatureRegistry {
             if (c.serverOnly && !fromServer) continue;
             if (!c.f.active()) continue;
             Perf.begin(c.perf);
-            c.r.accept(text);
+            try {
+                c.r.accept(text);
+            } catch (Throwable e) {
+                com.teslamaps.features.ErrorManager.caught(c.perf, e);
+            }
             Perf.end();
         }
     }

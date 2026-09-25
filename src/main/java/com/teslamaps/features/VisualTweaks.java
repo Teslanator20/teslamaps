@@ -50,7 +50,7 @@ public final class VisualTweaks {
                 });
 
         HudElementRegistry.replaceElement(VanillaHudElements.HELD_ITEM_TOOLTIP, original ->
-                (ctx, delta) -> { if (!hideHotbarName()) original.extractRenderState(ctx, delta); });
+                (ctx, delta) -> { if (!hideHotbarName() || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });
 
         Feature.of("LowHealthVignette").section("Render").when(() -> cfg().lowHealthVignette)
                 .hud("lowhealthvignette", VisualTweaks::renderVignette)

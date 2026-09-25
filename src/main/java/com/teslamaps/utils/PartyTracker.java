@@ -31,6 +31,7 @@ public final class PartyTracker {
     private static final Pattern QUEUED = Pattern.compile("^Party Finder > Your party has been queued in the dungeon finder!$");
     private static final Pattern DUNGEON_JOIN = Pattern.compile("^Party Finder > " + N + " joined the dungeon group! \\(\\w+ Level \\d+\\)$");
     private static final Pattern KUUDRA_JOIN = Pattern.compile("^Party Finder > " + R + N + " joined the group! \\(Combat Level \\d+\\)$");
+    private static final Pattern LIST_START = Pattern.compile("^Party Members \\(\\d+\\)$");
     private static final Pattern LIST = Pattern.compile("^Party (Leader|Moderators|Members): (.+)$");
     private static final Pattern[] DISBAND = {
             Pattern.compile("^" + R + N + " has disbanded the party!$"),
@@ -52,6 +53,12 @@ public final class PartyTracker {
         Feature.of("PartyTracker")
                 .chat(PartyTracker::onChat)
                 .tickAlways(() -> { if (inParty && Minecraft.getInstance().getConnection() == null) disband(); });
+        net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(
+                net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("tmap")
+                        .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("party").executes(c -> {
+                            c.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(debugLine()));
+                            return 1;
+                        }))));
     }
 
     public static List<String> members() { return members; }
@@ -59,6 +66,18 @@ public final class PartyTracker {
     public static String prevLeader() { return prevLeader; }
     public static boolean inParty() { return inParty; }
     public static int size() { return members.size(); }
+
+    static String debugLine() {
+        if (!inParty) return "§b[TeslaMaps] §7Party: §fnot in a party (or not seen yet - try /p list)";
+        StringBuilder sb = new StringBuilder("§b[TeslaMaps] §7Party (").append(members.size()).append("): ");
+        for (int i = 0; i < members.size(); i++) {
+            String m = members.get(i);
+            if (i > 0) sb.append("§7, ");
+            sb.append(m.equalsIgnoreCase(leader) ? "§6" + m + " §8(leader)" : "§f" + m);
+        }
+        if (leader == null) sb.append(" §8(leader unknown)");
+        return sb.toString();
+    }
 
     public static boolean isLeader() {
         String me = me();
@@ -132,6 +151,11 @@ public final class PartyTracker {
             }
             return;
         }
+        if (LIST_START.matcher(s).matches()) {
+            members.clear();
+            leader = null;
+            return;
+        }
         for (Pattern p : DISBAND) if (p.matcher(s).matches()) { disband(); return; }
         if ((m = LIST.matcher(s)).matches()) {
             boolean isLeader = m.group(1).equals("Leader");
@@ -161,6 +185,17 @@ public final class PartyTracker {
     private static void remove(String name) {
         members.removeIf(n -> n.equalsIgnoreCase(name));
         if (members.isEmpty()) disband();
+    }
+
+    /** From the Hypixel Mod API; names it could not resolve stay as the chat tracker had them. */
+    static void applyApi(boolean party, String leaderName, List<String> names) {
+        if (!party) {
+            disband();
+            return;
+        }
+        for (String n : names) add(n);
+        inParty = true;
+        if (leaderName != null) leader = leaderName;
     }
 
     private static void disband() {

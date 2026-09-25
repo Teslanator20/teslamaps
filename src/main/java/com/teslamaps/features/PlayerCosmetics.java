@@ -16,6 +16,8 @@ public final class PlayerCosmetics {
     private static final int MAX_TRAIL = 200;
 
     private static final Vec3[] trail = new Vec3[MAX_TRAIL];
+    private static final java.util.List<Vec3> PTS = new java.util.ArrayList<>(MAX_TRAIL);
+    private static final int[] COLORS = new int[MAX_TRAIL + 1];
     private static int head, count;
     private static Object lastLevel;
 
@@ -27,7 +29,6 @@ public final class PlayerCosmetics {
         Feature.of("PlayerSize").section("Render").when(() -> cfg().playerSize)
                 .config("Render", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Cosmetics");
                     b.toggle("Player Size", () -> c.playerSize, v -> c.playerSize = v)
                             .desc("Scales player models client-side. Negative height turns them upside down.");
                     b.dropdown("  Players", TARGETS, () -> c.playerSizeTarget, v -> c.playerSizeTarget = v)
@@ -51,10 +52,15 @@ public final class PlayerCosmetics {
 
     /** From PlayerSizeMixin, before the model is drawn. */
     public static void scale(int entityId, PoseStack pose) {
+        if (!scales(entityId)) return;
         TeslaMapsConfig c = cfg();
-        if (!c.playerSize || !c.section("Render") || !matches(entityId, c.playerSizeTarget)) return;
         if (c.playerSizeY < 0) pose.translate(0f, c.playerSizeY * 2, 0f);
         pose.scale(c.playerSizeX, c.playerSizeY, c.playerSizeZ);
+    }
+
+    public static boolean scales(int entityId) {
+        TeslaMapsConfig c = cfg();
+        return c.playerSize && c.section("Render") && matches(entityId, c.playerSizeTarget);
     }
 
     public static boolean matches(int entityId, String target) {
@@ -91,12 +97,13 @@ public final class PlayerCosmetics {
         int color = TeslaMapsConfig.parseColor(c.playerTrailColor);
         int alpha = (color >>> 24) == 0 ? 255 : color >>> 24;
         int rgb = color & 0xFFFFFF;
-        for (int i = 1; i < n; i++) {
+        PTS.clear();
+        for (int i = 1; i <= n; i++) {
             Vec3 a = trail[(head - i + MAX_TRAIL) % MAX_TRAIL];
-            Vec3 b = trail[(head - i - 1 + MAX_TRAIL) % MAX_TRAIL];
-            if (a == null || b == null) break;
-            int al = Math.max(1, alpha * (n - i) / n);
-            ESPRenderer.drawLine(pose, a, b, (al << 24) | rgb, c.playerTrailWidth, cam, false);
+            if (a == null) break;
+            COLORS[PTS.size()] = (Math.max(1, alpha * (n - i + 1) / n) << 24) | rgb;
+            PTS.add(a);
         }
+        ESPRenderer.drawPolyline(pose, PTS, COLORS, c.playerTrailWidth, cam, false);
     }
 }

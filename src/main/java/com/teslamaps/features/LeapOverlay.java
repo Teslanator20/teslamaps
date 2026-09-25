@@ -284,7 +284,7 @@ public class LeapOverlay {
             renderPlayerBox(context, textRenderer, player, bx - e, by - e, boxW + 2 * e, boxH + 2 * e, s, i);
             if (i == linkQuad) {
                 int x0 = (int) (bx - e), y0 = (int) (by - e), x1 = (int) (bx + boxW + e), y1 = (int) (by + boxH + e);
-                int col = CLASS_COLORS.getOrDefault(player.dungeonClass, 0xFFFFFFFF);
+                int col = com.teslamaps.dungeon.ClassColors.or(player.dungeonClass, CLASS_COLORS.getOrDefault(player.dungeonClass, 0xFFFFFFFF));
                 context.fill(x0, y0, x1, y0 + 1, col);
                 context.fill(x0, y1 - 1, x1, y1, col);
                 context.fill(x0, y0, x0 + 1, y1, col);
@@ -322,7 +322,7 @@ public class LeapOverlay {
                                          LeapPlayer player, float fx, float fy, float fw, float fh, float s, int quad) {
         int x = (int) fx, y = (int) fy, w = (int) fw, h = (int) fh;
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        int classColor = CLASS_COLORS.getOrDefault(player.dungeonClass, 0xFFFFFFFF);
+        int classColor = com.teslamaps.dungeon.ClassColors.or(player.dungeonClass, CLASS_COLORS.getOrDefault(player.dungeonClass, 0xFFFFFFFF));
         boolean classStyle = "Class Color".equals(c.leapBoxStyle);
         int bg;
         if (player.isDead) bg = 0xBF4A1414;

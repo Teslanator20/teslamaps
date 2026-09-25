@@ -39,7 +39,7 @@ public final class ChatCompactsMore {
     private static Component pendingOut;
 
     public static void register() {
-        Feature.of("ChatCompacts").when(() -> cfg().compactJacobClaim || cfg().compactExperimentRewards)
+        Feature.of("ChatCompactsMore").section("Chat").when(() -> cfg().compactJacobClaim || cfg().compactExperimentRewards)
                 .tick(ChatCompactsMore::tick)
                 .config("Chat", b -> {
                     TeslaMapsConfig c = cfg();
@@ -57,8 +57,6 @@ public final class ChatCompactsMore {
                             .desc("Appends the item to Sirius' highest bidder / no bids line");
                     b.toggle("Hide Arachne Messages", () -> c.hideArachneMessages, v -> c.hideArachneMessages = v)
                             .desc("Spider's Den: other players' Arachne callings, spawns and ARACHNE DOWN outside the Sanctuary, Venom Shot lines everywhere");
-                    b.toggle("Hide Message Indicator Bar", () -> c.hideChatIndicator, v -> c.hideChatIndicator = v)
-                            .desc("Removes the coloured bar left of system / modified / unsigned chat lines");
                 });
     }
 

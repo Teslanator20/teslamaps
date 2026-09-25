@@ -46,6 +46,7 @@ public class SackApi {
         public long amount;
         public int status;
         public long updated;
+        public String sack;
 
         Item() {}
         Item(long amount, int status) { this.amount = amount; this.status = status; this.updated = System.currentTimeMillis(); }
@@ -145,6 +146,7 @@ public class SackApi {
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         if (!SACK_TITLE.matcher(title).matches()) return;
         ensure();
+        currentSack = title.equals("Sack of Sacks") ? null : title;
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof Inventory) continue;
             ItemStack st = slot.getItem();
@@ -176,10 +178,32 @@ public class SackApi {
     private static void set(String name, long amount) {
         if (amount < 0) return;
         Item old = data.get(key(name));
-        if (old != null && old.amount == amount && old.status == CORRECT) return;
-        data.put(key(name), new Item(amount, CORRECT));
+        String sack = currentSack != null ? currentSack : old != null ? old.sack : null;
+        if (old != null && old.amount == amount && old.status == CORRECT && java.util.Objects.equals(old.sack, sack)) return;
+        Item it = new Item(amount, CORRECT);
+        it.sack = sack;
+        data.put(key(name), it);
         dirty = true;
+        changes++;
     }
+
+    private static String currentSack;
+
+    /** Sack each item was last seen in, keyed by lower-case plain name. Empty while off. */
+    public static Map<String, String> sackNames() {
+        if (!enabled()) return Map.of();
+        ensure();
+        Map<String, String> out = new HashMap<>();
+        for (Map.Entry<String, Item> e : data.entrySet()) {
+            if (e.getValue().sack != null) out.put(e.getKey(), e.getValue().sack);
+        }
+        return out;
+    }
+
+    /** Bumps whenever an amount changes. */
+    public static int changes() { return changes; }
+
+    private static int changes;
 
     private static long parse(String s) {
         try {
@@ -213,19 +237,26 @@ public class SackApi {
 
         ensure();
         Map<String, Long> changes = new LinkedHashMap<>();
+        Map<String, String> sacks = new HashMap<>();
         for (String line : text.split("\n")) {
             Matcher m = CHANGE.matcher(StringUtil.stripTrim(line));
             while (m.find()) {
                 try {
                     long d = Long.parseLong(m.group(1).replace(",", "").replace("+", ""));
                     changes.merge(key(m.group(2)), d, Long::sum);
+                    String s = m.group(3);
+                    int comma = s.indexOf(',');
+                    sacks.putIfAbsent(key(m.group(2)), (comma > 0 ? s.substring(0, comma) : s).trim());
                 } catch (NumberFormatException ignored) {}
             }
         }
+        SackApi.changes++;
         for (Map.Entry<String, Long> e : changes.entrySet()) {
             Item it = data.get(e.getKey());
             if (it == null) {
-                data.put(e.getKey(), new Item(Math.max(0, e.getValue()), OUTDATED));
+                Item fresh = new Item(Math.max(0, e.getValue()), OUTDATED);
+                fresh.sack = sacks.get(e.getKey());
+                data.put(e.getKey(), fresh);
             } else {
                 it.amount = Math.max(0, it.amount + e.getValue());
                 it.updated = now;

@@ -131,11 +131,12 @@ public class TMapCommand {
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
                     Minecraft.getInstance().schedule(() -> {
-                        Minecraft.getInstance().setScreen(new MapConfigScreen());
+                        Minecraft.getInstance().setScreen(MapConfigScreen.open());
                     });
                     return 1;
                 })
                 .then(com.teslamaps.dungeon.puzzle.PuzzleReset.command())
+                .then(com.teslamaps.features.JoinTips.command())
                 .then(ClientCommands.literal("tracker")
                         .then(com.teslamaps.features.tracker.TrackerRows.attach(ClientCommands.argument("id", StringArgumentType.word()))
                                 .suggests((c, b) -> {
@@ -327,6 +328,7 @@ public class TMapCommand {
                         .then(ClientCommands.argument("text", StringArgumentType.greedyString())
                                 .executes(context -> openFeedback(true, StringArgumentType.getString(context, "text")))))
                 .then(com.teslamaps.features.croesus.PriceDebug.command())
+                .then(com.teslamaps.features.croesus.PriceDebug.refreshCommand())
                 .then(com.teslamaps.features.SackApi.command())
                 .then(com.teslamaps.features.Notifications.command())
                 .then(com.teslamaps.features.DvdLogo.command())
@@ -942,6 +944,10 @@ public class TMapCommand {
                 .then(sackFill("dd", "DUNGEON_DECOY", 64))
                 .then(sackFill("tap", "TOXIC_ARROW_POISON", 64))
                 .then(sackFill("twap", "TWILIGHT_ARROW_POISON", 64))
+                .then(ClientCommands.literal("rendertoggle").executes(context -> {
+                    com.teslamaps.features.GlobalRender.toggle();
+                    return 1;
+                }))
                 .then(ClientCommands.literal("perf")
                         .executes(context -> perfReport(context.getSource()))
                         .then(ClientCommands.literal("on").executes(context -> {
@@ -1976,6 +1982,7 @@ public class TMapCommand {
                                 .executes(context -> sendCoords(context.getSource(),
                                         StringArgumentType.getString(context, "message")))))
         );
+        ConfigCommands.register(dispatcher);
 
     }
 

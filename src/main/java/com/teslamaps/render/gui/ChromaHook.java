@@ -31,7 +31,8 @@ public class ChromaHook {
 
     private static boolean enabled() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.enchantChromaMax || c.chromaPrefix || c.chromaFormatCode || c.fullChatChroma || AnimFades.previewActive;
+        return c.enchantChromaMax || c.chromaPrefix || c.chromaFormatCode || c.fullChatChroma || AnimFades.previewActive
+                || HudStyle.anyTextChroma();
     }
 
     private static boolean everything() {
@@ -67,7 +68,7 @@ public class ChromaHook {
         float chatScale = mc.options.chatScale().get().floatValue();
         float guiScale = mc.getWindow().getGuiScale();
         float fadeStartX = 4f * chatScale * guiScale;
-        float fadeWidth = mc.font.width("[TeslaMaps]") * chatScale * guiScale;
+        float fadeWidth = mc.font.width(com.teslamaps.features.ChromaPrefix.tag()) * chatScale * guiScale;
 
         slice = UNIFORM.writeWith(chromaSize, timeOffset, c.chromaSaturation, c.chromaForward ? 1 : 0,
                 fadeStartX, fadeWidth, fadeA, fadeB, ticks, chatScale * guiScale);

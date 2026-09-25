@@ -58,6 +58,8 @@ public class KeybindMessageScreen extends Screen {
         int modsW = 3 * (MOD_W + 2);
         boolean conds = TeslaMapsConfig.get().hotkeyConditions;
         boolean combos = TeslaMapsConfig.get().hotkeyCombos;
+        java.util.Map<Integer, List<String>> conflicts = TeslaMapsConfig.get().keyConflictWarning
+                ? com.teslamaps.utils.KeyConflicts.all(null) : null;
         int boxW = listW - 24 - KEY_W - 4 - modsW - 4 - 28 - (conds ? 24 : 0) - (combos ? 24 : 0);
         for (int row = 0; row < VISIBLE; row++) {
             final int idx = scroll + row;
@@ -74,8 +76,12 @@ public class KeybindMessageScreen extends Screen {
             String label = listening == idx ? "§epress..."
                     : (kb.enabled ? (combos && duplicate(b, kb) ? "§c" : "§f") : "§8") + KeybindMessage.modifierPrefix(kb.modifiers)
                     + (combos && kb.key2 != -1 ? keyName(kb.key2) + "+" : "") + keyName(kb.key);
-            addRenderableWidget(new TeslaButton(keyX, ry, KEY_W, 22, label,
+            List<String> clash = conflicts == null || listening == idx ? null : clashes(conflicts, kb);
+            if (clash != null) label = "§c" + com.teslamaps.utils.StringUtil.strip(label);
+            TeslaButton keyBtn = addRenderableWidget(new TeslaButton(keyX, ry, KEY_W, 22, label,
                     () -> { listening = idx; listenStart = System.currentTimeMillis(); rebuild(); }));
+            if (clash != null) keyBtn.setTooltip(net.minecraft.client.gui.components.Tooltip.create(
+                    Component.literal("§cAlso bound to:\n§7" + String.join("\n§7", clash))));
 
             String[] modNames = {"C", "A", "S"};
             int[] modBits = {GLFW.GLFW_MOD_CONTROL, GLFW.GLFW_MOD_ALT, GLFW.GLFW_MOD_SHIFT};
@@ -127,6 +133,16 @@ public class KeybindMessageScreen extends Screen {
 
     private String keyName(int key) {
         return com.teslamaps.utils.KeyNames.display(key);
+    }
+
+    /** GUI-040: other binds on a plain hotkey's key, null when none. */
+    private static List<String> clashes(java.util.Map<Integer, List<String>> all, TeslaMapsConfig.Keybind kb) {
+        if (kb.key == -1 || !kb.enabled || kb.modifiers != 0 || kb.key2 != -1) return null;
+        List<String> hits = all.get(kb.key);
+        if (hits == null || hits.size() < 2) return null;
+        List<String> other = new ArrayList<>(hits);
+        other.remove("Hotkey: " + (kb.message == null || kb.message.isBlank() ? "(empty)" : kb.message));
+        return other.isEmpty() ? null : other;
     }
 
     private static boolean duplicate(List<TeslaMapsConfig.Keybind> b, TeslaMapsConfig.Keybind kb) {

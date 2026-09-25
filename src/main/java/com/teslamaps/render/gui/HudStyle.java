@@ -22,8 +22,28 @@ public class HudStyle {
     /** HUD id being drawn right now, set by the registry, for per-panel styles. */
     private static String panelId = null;
 
-    public static void beginPanel(String id) { panelId = id; }
-    public static void endPanel() { panelId = null; }
+    public static final String[] CHROMA_MODES = {"Off", "Plain Text", "All Text"};
+
+    /** 0 off, 1 uncoloured text only, 2 every glyph; read by the text mixin while a panel draws. */
+    public static int textChroma = 0;
+
+    public static void beginPanel(String id) {
+        panelId = id;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String mode = c.hudPanelChroma == null || c.hudPanelChroma.isEmpty() ? null : c.hudPanelChroma.get(id);
+        if (mode == null) mode = c.hudChromaAll;
+        textChroma = "All Text".equals(mode) ? 2 : "Plain Text".equals(mode) ? 1 : 0;
+    }
+
+    public static void endPanel() {
+        panelId = null;
+        textChroma = 0;
+    }
+
+    public static boolean anyTextChroma() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return !"Off".equals(c.hudChromaAll) || (c.hudPanelChroma != null && !c.hudPanelChroma.isEmpty());
+    }
 
     public static String current() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -82,6 +102,7 @@ public class HudStyle {
     private static void custom(GuiGraphicsExtractor ctx, float x, float y, float width, float height) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         float r = Math.max(0, Math.min(c.hudCustomRadius, Math.min(width, height) / 2f));
+        if (c.hudCustomBlur >= 0.5f) PanelBlur.draw(ctx, x, y, width, height, r);
         TeslaGui.roundedRect(ctx, x, y, width, height, r, TeslaMapsConfig.parseColor(c.hudCustomBg));
         float bw = c.hudCustomBorderWidth;
         if (bw <= 0) return;

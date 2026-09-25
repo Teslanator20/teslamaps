@@ -161,11 +161,17 @@ public final class InventoryCategory {
         b.info("Textbox with item name suggestions instead of the search sign");
         b.slider("  Suggestions", 0f, 12f,
                 () -> (float) config.searchOverlaySuggestions, v -> config.searchOverlaySuggestions = Math.round(v));
+        b.toggle("  Every \"Enter query\" Sign", () -> config.searchOverlayAllSigns, v -> config.searchOverlayAllSigns = v)
+                .desc("Also replaces search signs outside AH / Bazaar / recipes (museum, other menus). Their searches get their own history.");
         b.toggle("  Keep Previous Text", () -> config.searchOverlayKeepText, v -> config.searchOverlayKeepText = v);
         b.toggle("  Recent Searches", () -> config.searchOverlayHistory, v -> config.searchOverlayHistory = v);
         b.toggle("  Paste Copied Name", () -> config.searchPasteCopied, v -> config.searchPasteCopied = v);
         b.toggle("  Also In /recipes", () -> config.searchOverlayRecipes, v -> config.searchOverlayRecipes = v);
         b.toggle("Middle Click Copies Item Name", () -> config.middleClickCopyName, v -> config.middleClickCopyName = v);
+        b.toggle("Price Lookup Key", () -> config.priceLookup, v -> config.priceLookup = v)
+                .desc("Press the key over an item in any menu: /bz for bazaar items, /ahs for auction items. Pets and enchanted books are looked up by their real name.");
+        b.keybind("  Lookup Key", () -> config.priceLookupKey, v -> config.priceLookupKey = v);
+        b.keybind("  Recipe Key (/viewrecipe)", () -> config.priceLookupRecipeKey, v -> config.priceLookupRecipeKey = v);
         b.label("Storage Overlay");
         b.toggle("Custom Storage Overlay", () -> config.customStorageOverlay, v -> config.customStorageOverlay = v);
         b.toggle("  Show Page Names", () -> config.storageShowNames, v -> config.storageShowNames = v);
@@ -296,6 +302,9 @@ public final class InventoryCategory {
         b.info("/tmap customize rename|dye|trim|glint|model|reset ... acts on the held item");
         b.toggle("  Glint Colors", () -> config.customGlintColors, v -> config.customGlintColors = v)
                 .desc("Adds a glint color field to the Item tab of the customize screen.");
+        b.dropdown("  Mark Modified Items", com.teslamaps.features.customize.ModifyIndicator.MODES,
+                () -> config.modifyIndicator, v -> config.modifyIndicator = v)
+                .desc("Customized items get a small ✎ before or after their name, or a \"Modified by TeslaMaps\" lore line.");
         b.toggle("Axes In 1.8 Look", () -> config.revertAxes, v -> config.revertAxes = v)
                 .desc("Ragnarock and Daedalus Axe render as a golden axe, Axe of the Shredded as a diamond axe. Visual only.");
         b.toggle("  Migrate Renamed Item Models", () -> config.migrateItemModels, v -> config.migrateItemModels = v);
@@ -326,12 +335,18 @@ public final class InventoryCategory {
                 .desc("Tooltip name shows master stars as red ✪ instead of ➊-➎");
         b.label("Bazaar & Progress");
         b.toggle("Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v);
+        b.toggle("  Only My Orders In Co-op Orders", () -> config.bazaarOnlyMyOrders, v -> config.bazaarOnlyMyOrders = v)
+                .desc("Co-op Bazaar Orders: orders of other co-op members are hidden and can't be clicked");
         b.toggle("Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v);
         b.toggle("Bazaar: Order Status Colors", () -> config.bazaarOrderStatus, v -> config.bazaarOrderStatus = v);
         b.info("Your Bazaar Orders: filled, outbid/undercut, still top, % partly filled, ⏰ expiry");
         b.color("  Filled Color", () -> config.colorBazaarOrderFilled, v -> config.colorBazaarOrderFilled = v);
         b.color("  Outbid Color", () -> config.colorBazaarOrderOutbid, v -> config.colorBazaarOrderOutbid = v);
         b.color("  Top Order Color", () -> config.colorBazaarOrderCompetitive, v -> config.colorBazaarOrderCompetitive = v);
+        b.toggle("Bazaar: Estimate Order Fills", () -> config.bazaarFillEstimate, v -> config.bazaarFillEstimate = v)
+                .desc("Guesses how far your orders are filled from the public order book, without opening the menu. HUD in /tmap gui. Rough: other players cancelling at your price looks like a fill.");
+        b.toggle("  Chat On New Fill", () -> config.bazaarFillEstimateAlert, v -> config.bazaarFillEstimateAlert = v);
+        b.toggle("  Sound On New Fill", () -> config.bazaarFillEstimateSound, v -> config.bazaarFillEstimateSound = v);
         b.toggle("Progress Highlight (Ways to Level Up / Bestiary)", () -> config.progressHighlight, v -> config.progressHighlight = v);
         b.color("  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v);
         b.toggle("  Bestiary Tier As Number", () -> config.progressHighlightTier, v -> config.progressHighlightTier = v)
@@ -422,5 +437,8 @@ public final class InventoryCategory {
                 v -> config.invButtonClickType = "Mouse Up".equals(v) ? 1 : 0);
         b.slider("  Tooltip Delay (ms)", 0f, 1000f,
                 () -> (float) config.invButtonTooltipDelay, v -> config.invButtonTooltipDelay = Math.round(v));
+        b.dropdown("  Double Click To Run", com.teslamaps.features.invbuttons.InventoryButtons.CONFIRM_MODES,
+                () -> config.invButtonConfirm, v -> config.invButtonConfirm = v)
+                .desc("First click only arms the button (chime + tooltip), a second click within 1 s runs it.");
     }
 }

@@ -22,9 +22,14 @@ public final class Feature {
     String section;
     boolean legit;
     BooleanSupplier when;
+    boolean always;
+    int condStamp = -1;
+    boolean condOk = true;
 
     private Feature(String name) {
         this.name = name;
+        FeatureRegistry.ALL.add(this);
+        FeatureConditions.NAMES.add(name);
     }
 
     public static Feature of(String name) {
@@ -52,7 +57,9 @@ public final class Feature {
     public boolean active() {
         if (section != null && !TeslaMapsConfig.get().section(section)) return false;
         if (legit && LegitMode.blocksCheats()) return false;
-        return when == null || when.getAsBoolean();
+        if (section != null && !always && FeatureRegistry.blockedOutsideSb(name)) return false;
+        if (when != null && !when.getAsBoolean()) return false;
+        return !FeatureConditions.on || FeatureConditions.allows(this);
     }
 
     /** End of client tick, only while a player and level exist. Perf name {@code <name>.tick}. */
@@ -63,6 +70,7 @@ public final class Feature {
 
     /** End of client tick, also on the title screen. */
     public Feature tickAlways(Runnable r) {
+        always = true;
         FeatureRegistry.TICKS.add(new FeatureRegistry.Tick(this, name + ".tick", r, true));
         return this;
     }

@@ -22,6 +22,7 @@ public class TerminalScaleMixin {
     @Inject(method = "setScreen", at = @At("TAIL"))
     private void teslamaps$afterSetScreen(Screen screen, CallbackInfo ci) {
         com.teslamaps.features.StorageGuiScale.onScreenSet(screen);
+        com.teslamaps.features.InventoryScale.onScreenSet(screen);
     }
 
     @ModifyExpressionValue(method = "resizeGui",
@@ -31,7 +32,9 @@ public class TerminalScaleMixin {
             return TerminalSolver.termSize();
         }
         int storage = com.teslamaps.features.StorageGuiScale.override();
-        if (storage > 0 && storage != (Integer) original) return storage;
+        if (storage > 0) return storage != (Integer) original ? storage : original;
+        int inventory = com.teslamaps.features.InventoryScale.override();
+        if (inventory >= 0 && inventory != (Integer) original) return inventory;
         return original;
     }
 }

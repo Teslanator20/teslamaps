@@ -61,6 +61,19 @@ public class PriceManager {
         EXEC.submit(PriceManager::refresh);
     }
 
+    /** Everything, averages included, then {@code done} on the main thread. */
+    public static void forceRefreshAll(Runnable done) {
+        lastFetch = System.currentTimeMillis();
+        avgFetch = lastFetch;
+        avgBinFetch = lastFetch;
+        EXEC.submit(() -> {
+            refresh();
+            fetchAverages();
+            fetchAvgBins();
+            net.minecraft.client.Minecraft.getInstance().execute(done);
+        });
+    }
+
     private static void refresh() {
         try { fetchItems(); } catch (Exception e) { TeslaMaps.LOGGER.warn("[Croesus] items fetch failed: {}", e.toString()); }
         try { fetchBazaar(); } catch (Exception e) { TeslaMaps.LOGGER.warn("[Croesus] bazaar fetch failed: {}", e.toString()); }
@@ -98,12 +111,109 @@ public class PriceManager {
             if (qs == null) continue;
             if (qs.has("buyPrice")) bazaar.put(e.getKey(), qs.get("buyPrice").getAsDouble());
             if (qs.has("sellPrice")) bazaarSell.put(e.getKey(), qs.get("sellPrice").getAsDouble());
+            if (qs.has("buyMovingWeek")) buyWeek.put(e.getKey(), qs.get("buyMovingWeek").getAsLong());
+            if (qs.has("sellMovingWeek")) sellWeek.put(e.getKey(), qs.get("sellMovingWeek").getAsLong());
+            if (depthWatch.contains(e.getKey())) {
+                depthBuyOrders.put(e.getKey(), rows(product.getAsJsonArray("sell_summary")));
+                depthSellOffers.put(e.getKey(), rows(product.getAsJsonArray("buy_summary")));
+            }
             // sell_summary = buy orders, buy_summary = sell offers
             putTop(buyOrder, e.getKey(), product.getAsJsonArray("sell_summary"));
             putTop(sellOffer, e.getKey(), product.getAsJsonArray("buy_summary"));
         }
         bazaarUpdated = json.has("lastUpdated") ? json.get("lastUpdated").getAsLong() : System.currentTimeMillis();
     }
+
+    private static double[][] rows(com.google.gson.JsonArray arr) {
+        if (arr == null) return new double[0][];
+        double[][] out = new double[arr.size()][];
+        for (int i = 0; i < arr.size(); i++) {
+            JsonObject r = arr.get(i).getAsJsonObject();
+            out[i] = new double[]{
+                    r.has("pricePerUnit") ? r.get("pricePerUnit").getAsDouble() : 0,
+                    r.has("amount") ? r.get("amount").getAsDouble() : 0,
+                    r.has("orders") ? r.get("orders").getAsDouble() : 0};
+        }
+        return out;
+    }
+
+    private static final Map<String, Long> buyWeek = new ConcurrentHashMap<>();
+    private static final Map<String, Long> sellWeek = new ConcurrentHashMap<>();
+    private static final java.util.Set<String> depthWatch = ConcurrentHashMap.newKeySet();
+    private static final Map<String, double[][]> depthBuyOrders = new ConcurrentHashMap<>();
+    private static final Map<String, double[][]> depthSellOffers = new ConcurrentHashMap<>();
+    private static volatile long depthFetch = 0L;
+    private static volatile int depthVersion = 0;
+
+    /** Insta-buys over the last 7 days, null when unknown. */
+    public static Long bazaarWeekBuysOrNull(String id) { return id == null ? null : buyWeek.get(id); }
+
+    /** Insta-sells over the last 7 days, null when unknown. */
+    public static Long bazaarWeekSellsOrNull(String id) { return id == null ? null : sellWeek.get(id); }
+
+    /** Products whose order book rows are kept; the rest only keep the top price. */
+    public static void watchDepth(java.util.Set<String> ids) {
+        depthWatch.retainAll(ids);
+        depthWatch.addAll(ids);
+        depthBuyOrders.keySet().retainAll(ids);
+        depthSellOffers.keySet().retainAll(ids);
+    }
+
+    /** Bazaar only, at most every {@code intervalMs}; used while order books are watched. */
+    public static void refreshDepth(long intervalMs) {
+        long now = System.currentTimeMillis();
+        if (depthWatch.isEmpty() || now - depthFetch < intervalMs) return;
+        depthFetch = now;
+        EXEC.submit(() -> {
+            try {
+                fetchBazaar();
+                depthVersion++;
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.warn("[Croesus] bazaar depth fetch failed: {}", e.toString());
+            }
+        });
+    }
+
+    public static int depthVersion() { return depthVersion; }
+
+    /** Rows {price, amount, orders}, best first. Buy orders for a buy order, sell offers otherwise. */
+    public static double[][] depthOrNull(String id, boolean buyOrders) {
+        return id == null ? null : (buyOrders ? depthBuyOrders : depthSellOffers).get(id);
+    }
+
+    private static final Map<String, Double> avgBin1 = new ConcurrentHashMap<>();
+    private static final Map<String, Double> avgBin3 = new ConcurrentHashMap<>();
+    private static volatile long avgBinFetch = 0L;
+
+    /** Skyblocker's 1 / 3 day average lowest BIN, fetched on first use and hourly after. */
+    public static Double avgBinOrNull(String id, int days) {
+        long now = System.currentTimeMillis();
+        if (now - avgBinFetch > (avgBin3.isEmpty() ? 60_000 : 3_600_000)) {
+            avgBinFetch = now;
+            EXEC.submit(PriceManager::fetchAvgBins);
+        }
+        if (id == null) return null;
+        return (days == 1 ? avgBin1 : avgBin3).get(id);
+    }
+
+    private static void fetchAvgBins() {
+        for (int days : new int[]{1, 3}) {
+            try {
+                JsonObject json = JsonParser.parseString(get("https://hysky.de/api/auctions/lowestbins/average?days=" + days)).getAsJsonObject();
+                Map<String, Double> into = days == 1 ? avgBin1 : avgBin3;
+                for (var e : json.entrySet()) {
+                    try { into.put(e.getKey(), e.getValue().getAsDouble()); } catch (Exception ignored) {}
+                }
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.warn("[Croesus] {}-day avg BIN fetch failed: {}", days, e.toString());
+            }
+        }
+        version++;
+    }
+
+    public static int avgBinCount() { return avgBin3.size(); }
+
+    public static int averageCount() { return avg7.size(); }
 
     private static void putTop(Map<String, Double> into, String id, com.google.gson.JsonArray rows) {
         if (rows == null || rows.isEmpty()) {

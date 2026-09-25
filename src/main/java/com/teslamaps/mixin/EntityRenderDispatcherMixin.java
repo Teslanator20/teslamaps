@@ -23,6 +23,7 @@ public class EntityRenderDispatcherMixin {
     }
 
     private void teslamaps$hideCheck(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        if (com.teslamaps.features.GlobalRender.off()) return;
         com.teslamaps.config.TeslaMapsConfig cfg = com.teslamaps.config.TeslaMapsConfig.get();
         boolean noLightning = cfg.noLightning && entity instanceof net.minecraft.world.entity.LightningBolt;
         boolean noFalling = cfg.noFallingBlocks && entity instanceof net.minecraft.world.entity.item.FallingBlockEntity;
@@ -55,7 +56,8 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.WitherCloakShields.shouldHide(entity)
                 || com.teslamaps.features.VisualTweaks.shouldHide(entity)
                 || com.teslamaps.features.ZeroHpNametags.shouldHide(entity)
-                || com.teslamaps.features.HideGlitchMobs.shouldHide(entity)) {
+                || com.teslamaps.features.HideGlitchMobs.shouldHide(entity)
+                || com.teslamaps.features.HideFarEntities.shouldHide(entity)) {
             cir.setReturnValue(false);
         }
     }

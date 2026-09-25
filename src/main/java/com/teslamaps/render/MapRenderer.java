@@ -109,15 +109,34 @@ public class MapRenderer {
             com.teslamaps.render.gui.MapImage.draw(context, config.mapBgImageName, baseX + in, baseY + in,
                     mapWidth - 2 * in, totalHeight - 2 * in, config.mapBgImageAlpha);
         }
-        if (config.mapHypixelFallback) {
+        boolean cached = config.mapTextureCache && !leapMode;
+        if (config.mapHypixelFallback && !(cached && config.mapFallbackTyped)) {
             if (config.mapFallbackTyped) drawTypedFallback(context, rooms, baseX, baseY, scale);
             else drawHypixelFallback(context, rooms, baseX, baseY, scale);
         }
-        drawRoomConnections(context, rooms, baseX, baseY, scale, legit);
+        if (cached) {
+            MapTexture.draw(context, baseX, baseY, mapWidth, mapHeight, scale, g -> {
+                rasterPass = true;
+                try {
+                    if (config.mapHypixelFallback && config.mapFallbackTyped) drawTypedFallback(g, rooms, baseX, baseY, scale);
+                    drawRoomConnections(g, rooms, baseX, baseY, scale, legit);
+                    for (DungeonRoom room : rooms) drawRoom(g, room, baseX, baseY, scale);
+                } finally {
+                    rasterPass = false;
+                }
+            });
+        } else {
+            drawRoomConnections(context, rooms, baseX, baseY, scale, legit);
+        }
 
         // getAllRooms() is already deduped, so no per-frame "already drawn" set.
-        for (DungeonRoom room : rooms) {
-            drawRoom(context, room, baseX, baseY, scale);
+        skipFills = cached;
+        try {
+            for (DungeonRoom room : rooms) {
+                drawRoom(context, room, baseX, baseY, scale);
+            }
+        } finally {
+            skipFills = false;
         }
         if (legit) {
             drawGuessRooms(context, baseX, baseY, scale);
@@ -559,6 +578,7 @@ public class MapRenderer {
             context.text(font, s, x, y, color, false);
         } else if ("Outline".equals(mode)) {
             int black = color & 0xFF000000;
+            if (com.teslamaps.render.gui.OutlinedText.draw(context, font, s, x, y, color, black)) return;
             context.text(font, s, x + 1, y, black, false);
             context.text(font, s, x - 1, y, black, false);
             context.text(font, s, x, y + 1, black, false);
@@ -686,6 +706,13 @@ public class MapRenderer {
         }
     }
 
+    // map texture cache: the raster pass only paints room fills, the live pass skips them
+    private static boolean rasterPass, skipFills;
+
+    private static void roomFill(GuiGraphicsExtractor context, int x0, int y0, int x1, int y1, int color) {
+        if (!skipFills) context.fill(x0, y0, x1, y1, color);
+    }
+
     private static void drawRoom(GuiGraphicsExtractor context, DungeonRoom room, int baseX, int baseY, float scale) {
         int color = getRoomColor(room);
 
@@ -709,8 +736,9 @@ public class MapRenderer {
             int pixelW = (int)((width * CELL_SIZE - doorGap) * scale);
             int pixelH = (int)((height * CELL_SIZE - doorGap) * scale);
 
-            context.fill(pixelX, pixelY, pixelX + pixelW, pixelY + pixelH, color);
+            roomFill(context, pixelX, pixelY, pixelX + pixelW, pixelY + pixelH, color);
 
+            if (rasterPass) return;
             TeslaMapsConfig config = TeslaMapsConfig.get();
             boolean peek = com.teslamaps.features.MapPeek.active();
             boolean hideSecrets = !peek && config.hideSecretsWhenDone && room.getCheckmarkState() == CheckmarkState.GREEN;
@@ -742,7 +770,7 @@ public class MapRenderer {
                 int pixelX = gridToPixelX(gridX, baseX, scale);
                 int pixelY = gridToPixelY(gridZ, baseY, scale);
 
-                context.fill(pixelX, pixelY, pixelX + roomSizeScaled, pixelY + roomSizeScaled, color);
+                roomFill(context, pixelX, pixelY, pixelX + roomSizeScaled, pixelY + roomSizeScaled, color);
 
                 boolean hasRight = hasComponent(room, gridX + 1, gridZ);
                 boolean hasBottom = hasComponent(room, gridX, gridZ + 1);
@@ -754,22 +782,23 @@ public class MapRenderer {
                 if (hasRight) {
                     int cx = pixelX + roomSizeScaled;
                     int cy = pixelY;
-                    context.fill(cx, cy, nextPixelX, cy + roomSizeScaled, color);
+                    roomFill(context, cx, cy, nextPixelX, cy + roomSizeScaled, color);
                 }
 
                 if (hasBottom) {
                     int cx = pixelX;
                     int cy = pixelY + roomSizeScaled;
-                    context.fill(cx, cy, cx + roomSizeScaled, nextPixelY, color);
+                    roomFill(context, cx, cy, cx + roomSizeScaled, nextPixelY, color);
                 }
 
                 if (hasRight && hasBottom && hasDiagonal) {
                     int cx = pixelX + roomSizeScaled;
                     int cy = pixelY + roomSizeScaled;
-                    context.fill(cx, cy, nextPixelX, nextPixelY, color);
+                    roomFill(context, cx, cy, nextPixelX, nextPixelY, color);
                 }
             }
 
+            if (rasterPass) return;
             int[] primary = room.getPrimaryComponent();
             int pixelX = gridToPixelX(primary[0], baseX, scale);
             int pixelY = gridToPixelY(primary[1], baseY, scale);
@@ -1404,7 +1433,7 @@ public class MapRenderer {
         if (highlightName != null && highlightName.equals(recordName)) headSize *= 2;
         int half = headSize / 2;
         boolean knownClass = clazz != null && !"EMPTY".equals(clazz);
-        int classColor = knownClass ? getDungeonClassColor(clazz) : 0xFFDDDDDD;
+        int classColor = knownClass ? com.teslamaps.dungeon.ClassColors.or(clazz, getDungeonClassColor(clazz)) : 0xFFDDDDDD;
 
         var pose = context.pose();
         pose.pushMatrix();
