@@ -85,6 +85,13 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.EventTracker.onParticle(packet);
     }
 
+    @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/multiplayer/ClientLevel;addParticle(Lnet/minecraft/core/particles/ParticleOptions;ZZDDDDDD)V"))
+    private net.minecraft.core.particles.ParticleOptions teslamaps$colorParticleFix(net.minecraft.core.particles.ParticleOptions opt,
+            @com.llamalad7.mixinextras.sugar.Local(argsOnly = true) ClientboundLevelParticlesPacket packet) {
+        return com.teslamaps.features.ColorParticleFix.fix(opt, packet);
+    }
+
     @Inject(method = "handleParticleEvent", at = @At("HEAD"), cancellable = true)
     private void onParticleHide(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()

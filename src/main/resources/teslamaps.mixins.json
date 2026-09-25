@@ -165,7 +165,13 @@
     "VanillaButtonStyleMixin",
     "WaterFogLavaMixin",
     "WorldRendererMixin",
-    "ZoomHandMixin"
+    "ZoomHandMixin",
+    "ContainerTintMixin",
+    "InventoryLabelsMixin",
+    "ContainerDimMixin",
+    "ContainerSlotTweaksMixin",
+    "LivingEntityAlphaStateMixin",
+    "LivingEntityAlphaMixin"
   ],
   "injectors": {
     "defaultRequire": 1

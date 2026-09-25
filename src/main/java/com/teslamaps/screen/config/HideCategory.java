@@ -172,6 +172,19 @@ public final class HideCategory {
         b.info("/tmap debug actionbar prints the raw action bar + segments");
         b.label("Inventory");
         b.toggle("Hide Recipe Book Button", () -> config.hideRecipeBook, v -> config.hideRecipeBook = v);
+        b.toggle("Container Tweaks", () -> config.containerTweaks, v -> config.containerTweaks = v)
+                .desc("Small cosmetic clean-ups for inventory and chest menus.");
+        b.toggle("  Remove Dark Background", () -> config.containerNoDim, v -> config.containerNoDim = v)
+                .desc("No dark overlay behind open containers.");
+        b.toggle("  Custom Container Color", () -> config.containerTint, v -> config.containerTint = v)
+                .desc("Tints the chest and inventory texture.");
+        b.color("  Container Color", () -> config.containerTintColor, v -> config.containerTintColor = v);
+        b.toggle("  Hide Crafting Text", () -> config.hideCraftingText, v -> config.hideCraftingText = v)
+                .desc("Hides the \"Crafting\" label in the inventory.");
+        b.toggle("  No Filler Pane Highlight", () -> config.noFillerPaneHighlight, v -> config.noFillerPaneHighlight = v)
+                .desc("No hover highlight on unnamed glass panes.");
+        b.toggle("  Hide Offhand Slot Icon", () -> config.hideOffhandSlotIcon, v -> config.hideOffhandSlotIcon = v)
+                .desc("Hides the shield placeholder in the empty offhand slot.");
         b.label("Camera");
         b.toggle("No Hurt Camera", () -> config.noHurtCam, v -> config.noHurtCam = v);
         b.toggle("No View Bobbing", () -> config.noViewBobbing, v -> config.noViewBobbing = v);

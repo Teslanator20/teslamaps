@@ -354,5 +354,12 @@ final class Features {
         com.teslamaps.features.CommandChains.register();
         com.teslamaps.features.AbiphoneHelper.register();
         com.teslamaps.features.waypoints.WaypointGroups.register();
+        // w08-09-vis
+        com.teslamaps.features.CommonSeaCreatureHider.register();
+        com.teslamaps.features.ChumBucketHider.register();
+        com.teslamaps.features.ArachneTagHider.register();
+        com.teslamaps.features.ColorParticleFix.register();
+        com.teslamaps.features.WitherCloakShields.register();
+        com.teslamaps.features.LookTargeting.register();
     }
 }
