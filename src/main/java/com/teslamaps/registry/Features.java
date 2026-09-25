@@ -165,5 +165,11 @@ final class Features {
         com.teslamaps.dungeon.RoomPreview.register();
         com.teslamaps.dungeon.TeamStats.register();
         com.teslamaps.features.ShadowAssassinAlert.register();
+        // w04-03-inv
+        com.teslamaps.features.MoveInsertIntoSack.register();
+        com.teslamaps.features.ArrowPoison.register();
+        com.teslamaps.features.RevertAxes.register();
+        com.teslamaps.features.BingoCardTips.register();
+        com.teslamaps.features.ItemTooltipExtras.register();
     }
 }

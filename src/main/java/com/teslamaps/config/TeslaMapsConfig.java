@@ -2130,6 +2130,19 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w04-03-inv
+    public boolean moveInsertIntoSack = false;
+    public boolean arrowPoisonIndicator = false;
+    public boolean revertAxes = false;
+    public boolean bingoCardTips = false;
+    public boolean bingoHideDoneDifficulty = false;
+    public boolean highlightDisabledPotions = false;
+    public boolean dungeonQualityTooltip = false;
+    public String dungeonQualityStyle = "42/50";
+    public boolean dungeonTierTooltip = false;
+    public boolean armorHexTooltip = false;
+    public boolean armorExoticTooltip = false;
+    public boolean dyeHexColors = false;
     // w03-03-dun
     public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
     public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking

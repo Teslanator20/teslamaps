@@ -44,3 +44,7 @@ accessible field net/minecraft/client/player/LocalPlayer yLast D
 accessible field net/minecraft/client/player/LocalPlayer zLast D
 accessible field net/minecraft/client/player/LocalPlayer yRotLast F
 accessible field net/minecraft/client/player/LocalPlayer xRotLast F
+
+# Sack menu: Insert Into Sack is shown on another slot by swapping the two slot positions.
+mutable field net/minecraft/world/inventory/Slot x I
+mutable field net/minecraft/world/inventory/Slot y I

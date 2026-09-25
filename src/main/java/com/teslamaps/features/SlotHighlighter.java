@@ -36,14 +36,15 @@ public class SlotHighlighter {
     public static boolean shouldRender() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean quality = c.salvageQuality && c.section("Inventory");
-        if (!c.salvageHelper && !c.sellableHighlighter && !c.showSelectedPet && !quality) return false;
+        if (!c.salvageHelper && !c.sellableHighlighter && !c.showSelectedPet && !c.highlightDisabledPotions && !quality) return false;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
         if (quality) return true;
         String t = strip(cs.getTitle().getString());
         return (c.salvageHelper && t.startsWith("Salvage Items"))
                 || (c.sellableHighlighter && isSellMenu(t, c))
-                || (c.showSelectedPet && isPetsMenu(t));
+                || (c.showSelectedPet && isPetsMenu(t))
+                || (c.highlightDisabledPotions && t.startsWith("Toggle Potion Effects"));
     }
 
     private static final java.util.regex.Pattern PETS_PAGE = java.util.regex.Pattern.compile("\\(\\d+/\\d+\\) Pets");
@@ -78,6 +79,18 @@ public class SlotHighlighter {
                 if (isSellable(st) || (c.sellableExtended && (kind(st) & JUNK) != 0)) {
                     int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
                     ctx.fill(sx, sy, sx + 16, sy + 16, col);
+                }
+            }
+        } else if (c.highlightDisabledPotions && t.startsWith("Toggle Potion Effects")) {
+            for (Slot slot : cs.getMenu().slots) {
+                if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+                if (slot.getItem().isEmpty()) continue;
+                for (String line : com.teslamaps.utils.ItemUtil.loreLines(slot.getItem())) {
+                    if (line.contains("Currently: DISABLED")) {
+                        int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
+                        ctx.fill(sx, sy, sx + 16, sy + 16, 0x80FF3333);
+                        break;
+                    }
                 }
             }
         } else if (c.showSelectedPet && isPetsMenu(t)) {
