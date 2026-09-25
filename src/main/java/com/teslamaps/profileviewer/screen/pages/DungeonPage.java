@@ -103,6 +103,7 @@ public class DungeonPage extends ProfileViewerPage {
         String highest = data.getHighestMaster() > 0 ? "M" + data.getHighestMaster()
                 : data.getHighestNormal() > 0 ? "F" + data.getHighestNormal() : "-";
         aligned(ctx, tr, "Highest Floor:", highest, cx, cy + 80, NeuStyle.TEXT);
+        drawExtras(ctx, tr, profile, data, cx, cy + 92, mouseX, mouseY);
 
         // completions and personal bests per floor
         int fx = left + 161;
@@ -221,6 +222,12 @@ public class DungeonPage extends ProfileViewerPage {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (hover((int) mouseX, (int) mouseY, calcX, calcY)) {
+            targetFocused = true;
+            targetText = "";
+            return true;
+        }
+        if (targetFocused) commitTarget();
         if (mouseY > lastTop + 1 && mouseY < lastTop + 17) {
             if (mouseX >= lastNormalX - 3 && mouseX <= lastNormalX + lastNormalW + 3) {
                 masterMode = false;
@@ -255,6 +262,166 @@ public class DungeonPage extends ProfileViewerPage {
         for (int i = 0; i < tooltip.length; i++) {
             ctx.text(tr, tooltip[i], tx, ty + 2 + i * 10, i == 0 ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
         }
+    }
+
+    // ---------------------------------------------------------------- croesus, daily runs, xp calculator
+
+    private static int targetLevel = -1;
+    private boolean targetFocused = false;
+    private String targetText = "";
+    private int calcX, calcY;
+
+    private Object treasuresFor;
+    private int croesusRuns, croesusUnclaimed, dailyRuns;
+
+    private void readTreasures(SkyblockProfile profile) {
+        if (treasuresFor == profile) return;
+        treasuresFor = profile;
+        croesusRuns = 0;
+        croesusUnclaimed = 0;
+        dailyRuns = 0;
+        com.google.gson.JsonObject dungeons = profile.getMemberData().has("dungeons")
+                && profile.getMemberData().get("dungeons").isJsonObject()
+                ? profile.getMemberData().getAsJsonObject("dungeons") : null;
+        if (dungeons == null) return;
+
+        if (dungeons.has("treasures") && dungeons.get("treasures").isJsonObject()) {
+            com.google.gson.JsonObject treasures = dungeons.getAsJsonObject("treasures");
+            java.util.Map<String, Boolean> claimed = new java.util.HashMap<>();
+            if (treasures.has("chests") && treasures.get("chests").isJsonArray()) {
+                for (com.google.gson.JsonElement element : treasures.getAsJsonArray("chests")) {
+                    if (!element.isJsonObject()) continue;
+                    com.google.gson.JsonObject chest = element.getAsJsonObject();
+                    if (!chest.has("run_id")) continue;
+                    String run = chest.get("run_id").getAsString();
+                    boolean opened = bool(chest, "paid") || bool(chest, "is_opened");
+                    claimed.merge(run, opened, Boolean::logicalOr);
+                }
+            }
+            croesusRuns = claimed.size();
+            for (boolean done : claimed.values()) if (!done) croesusUnclaimed++;
+        }
+
+        if (dungeons.has("daily_runs") && dungeons.get("daily_runs").isJsonObject()) {
+            com.google.gson.JsonObject daily = dungeons.getAsJsonObject("daily_runs");
+            long day = asLong(daily.get("current_day_stamp"));
+            long today = java.time.LocalDate.now(java.time.ZoneOffset.UTC).toEpochDay();
+            dailyRuns = day == today ? Math.min(5, asInt(daily.get("completed_runs_count"))) : 0;
+        }
+    }
+
+    private static boolean bool(com.google.gson.JsonObject o, String key) {
+        return o.has(key) && o.get(key).isJsonPrimitive() && o.get(key).getAsBoolean();
+    }
+
+    private static String resetsIn() {
+        java.time.Instant now = java.time.Instant.now();
+        java.time.Instant next = java.time.LocalDate.now(java.time.ZoneOffset.UTC).plusDays(1)
+                .atStartOfDay(java.time.ZoneOffset.UTC).toInstant();
+        long minutes = java.time.Duration.between(now, next).toMinutes();
+        return (minutes / 60) + "h " + (minutes % 60) + "m";
+    }
+
+    private void drawExtras(GuiGraphicsExtractor ctx, Font tr, SkyblockProfile profile, DungeonData data,
+                            int cx, int y, int mouseX, int mouseY) {
+        readTreasures(profile);
+
+        String croesus = croesusRuns + "/60" + (croesusUnclaimed > 0 ? " (" + croesusUnclaimed + ")" : "");
+        aligned(ctx, tr, "Croesus:", croesus, cx, y, croesusRuns >= 60 ? NeuStyle.TEXT_RED : NeuStyle.TEXT);
+        if (hover(mouseX, mouseY, cx, y)) {
+            setTooltip(mouseX, mouseY, "Croesus", "Runs stored: " + croesusRuns + "/60",
+                    "Unclaimed runs: " + croesusUnclaimed);
+        }
+
+        aligned(ctx, tr, "Daily Runs:", dailyRuns + "/5", cx, y + 12,
+                dailyRuns >= 5 ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_YELLOW);
+        if (hover(mouseX, mouseY, cx, y + 12)) {
+            setTooltip(mouseX, mouseY, "Daily Runs", "Completed today: " + dailyRuns + "/5", "Resets in " + resetsIn());
+        }
+
+        int current = data.getCatacombsLevel();
+        if (targetLevel <= current) targetLevel = current + 1;
+        int target = targetLevel;
+        double needed = Math.max(0, DungeonData.xpForLevel(target) - data.getCatacombsXp());
+        calcX = cx;
+        calcY = y + 24;
+        String label = "Until Cata " + (targetFocused ? targetText + "_" : String.valueOf(target)) + ":";
+        ctx.text(tr, label, cx, calcY, targetFocused ? NeuStyle.TEXT_YELLOW : NeuStyle.TEXT_GRAY);
+        String value = formatXp(needed);
+        ctx.text(tr, value, cx + SECTION - tr.width(value), calcY, NeuStyle.TEXT_GOLD);
+
+        if (hover(mouseX, mouseY, cx, calcY)) {
+            boolean ring = !Minecraft.getInstance().hasShiftDown();
+            java.util.List<String> lines = new java.util.ArrayList<>();
+            lines.add("Until Cata " + target + ": " + com.teslamaps.profileviewer.ui.Kit.dots((long) needed) + " XP");
+            lines.add(masterMode ? "Master Mode runs:" : "Floor runs:");
+            int[][] floors = masterMode ? MASTER_XP : FLOOR_XP;
+            java.util.Map<String, DungeonData.FloorData> done = masterMode ? data.getMasterFloors() : data.getNormalFloors();
+            for (int[] floor : floors) {
+                DungeonData.FloorData f = done.get(String.valueOf(floor[0]));
+                int completions = Math.min(f == null ? 0 : f.getCompletions(), floor[2]);
+                double xp = floor[1] * (completions / 100.0 + 1) * (ring ? 1.1 : 1.0);
+                long runs = (long) Math.ceil(needed / xp);
+                lines.add((masterMode ? "M" : "F") + floor[0] + " (" + formatXp(xp) + " xp): " + runs);
+            }
+            lines.add(ring ? "With Expert Ring, hold SHIFT without" : "Without Expert Ring");
+            lines.add("Click to type a level, scroll to change");
+            setTooltip(mouseX, mouseY, lines.toArray(new String[0]));
+        }
+    }
+
+    // floor, base xp, completion bonus cap
+    private static final int[][] FLOOR_XP = {{5, 2400, 150}, {6, 4880, 100}, {7, 28000, 50}};
+    private static final int[][] MASTER_XP = {{3, 35000, 50}, {4, 55000, 50}, {5, 70000, 50}, {6, 100000, 50}, {7, 300000, 50}};
+
+    private static boolean hover(int mouseX, int mouseY, int x, int y) {
+        return mouseX > x && mouseX < x + SECTION && mouseY > y - 2 && mouseY < y + 10;
+    }
+
+    private void setTooltip(int mouseX, int mouseY, String... lines) {
+        tooltip = lines;
+        tooltipX = mouseX;
+        tooltipY = mouseY;
+    }
+
+    private void commitTarget() {
+        if (!targetText.isEmpty()) {
+            try {
+                targetLevel = Math.max(1, Math.min(500, Integer.parseInt(targetText)));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        targetFocused = false;
+        targetText = "";
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        if (!hover((int) mouseX, (int) mouseY, calcX, calcY)) return false;
+        targetLevel = Math.max(1, Math.min(500, targetLevel + (amount > 0 ? 1 : -1)));
+        return true;
+    }
+
+    @Override
+    public boolean charTyped(char chr) {
+        if (!targetFocused) return false;
+        if (chr >= '0' && chr <= '9' && targetText.length() < 3) targetText += chr;
+        return true;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (!targetFocused) return false;
+        if (keyCode == 259) {
+            if (!targetText.isEmpty()) targetText = targetText.substring(0, targetText.length() - 1);
+            return true;
+        }
+        if (keyCode == 257 || keyCode == 335 || keyCode == 256) {
+            if (keyCode == 256) targetText = "";
+            commitTarget();
+            return true;
+        }
+        return false;
     }
 
     private static final String[] FLOOR_KEYS = {"0", "1", "2", "3", "4", "5", "6", "7"};

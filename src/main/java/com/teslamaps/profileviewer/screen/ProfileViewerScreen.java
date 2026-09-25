@@ -138,9 +138,11 @@ public class ProfileViewerScreen extends Screen {
         allPages.add(new BasicPage());
         allPages.add(new DungeonPage());
         allPages.add(new InventoriesPage());
+        allPages.add(new NetworthPage());
         allPages.add(new PetsPage());
         allPages.add(new MiningPage());
         allPages.add(new ForagingPage());
+        allPages.add(new HuntingPage());
         allPages.add(new CollectionsPage());
         allPages.add(new BestiaryPage());
         allPages.add(new TrophyFishPage());
@@ -298,18 +300,27 @@ public class ProfileViewerScreen extends Screen {
     }
 
     private int tabsX() {
-        return Math.max(0, (NeuStyle.PANEL_WIDTH - pages.size() * 28) / 2);
+        return Math.max(0, (NeuStyle.PANEL_WIDTH - pages.size() * tabStep()) / 2);
+    }
+
+    // more tabs than fit squeeze together instead of running off the window
+    private int tabStep() {
+        return Math.min(28, NeuStyle.PANEL_WIDTH / Math.max(1, pages.size()));
     }
 
     private void renderTabs(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         // NEU: 28 wide, centered on the window, sitting on top of it
         int offset = tabsX();
-        for (int i = 0; i < pages.size(); i++) {
+        int step = tabStep();
+        for (int n = 0; n <= pages.size(); n++) {
+            // the selected tab is drawn last so an overlapping neighbour never covers it
+            int i = n < pages.size() ? n : selectedPageIndex;
+            if (i < 0 || i >= pages.size() || (n < pages.size() && i == selectedPageIndex)) continue;
             ProfileViewerPage page = pages.get(i);
             boolean selected = i == selectedPageIndex;
-            int x = offset + i * 28;
+            int x = offset + i * step;
             int y = -28;
-            boolean hovered = mouseX >= x && mouseX < x + 28 && mouseY >= y && mouseY < y + 28;
+            boolean hovered = mouseX >= x && mouseX < x + step && mouseY >= y && mouseY < y + 28;
 
             NeuStyle.tab(ctx, x, y, selected);
             ctx.item(page.getTabIcon(), x + 6, y + 9);
@@ -505,8 +516,8 @@ public class ProfileViewerScreen extends Screen {
     private boolean handleClick(int mx, int my, int button) {
         int offset = tabsX();
         for (int i = 0; i < pages.size(); i++) {
-            int x = offset + i * 28;
-            if (mx >= x && mx < x + 28 && my >= -28 && my < 0) {
+            int x = offset + i * tabStep();
+            if (mx >= x && mx < x + tabStep() && my >= -28 && my < 0) {
                 selectedPageIndex = i;
                 pages.get(i).onSelected();
                 return true;
