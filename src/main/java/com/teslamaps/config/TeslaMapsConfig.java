@@ -2129,6 +2129,8 @@ public class TeslaMapsConfig {
     public String colorESPBloodDoor = "FF0000";      // Blood door (red)
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
+    // feature gaps, waves 2+
+
     public static TeslaMapsConfig get() {
         return instance;
     }
