@@ -355,6 +355,9 @@ public final class InventoryCategory {
         b.color("  Unfinished Color", () -> config.colorProgressUnfinished, v -> config.colorProgressUnfinished = v);
         b.toggle("Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v);
         b.color("  Commission Color", () -> config.colorCommissionDone, v -> config.colorCommissionDone = v);
+        b.dropdown("  Commission Tips", com.teslamaps.features.mining.CommissionTips.MODES,
+                () -> config.commissionTips, v -> config.commissionTips = v)
+                .desc("Hint in the tooltip where each commission is done, e.g. \"Kill 50 Glacite Walkers (Great Ice Wall)\"");
         b.label("Guide Highlight");
         b.info("Marks what is still MISSING in guide menus");
         b.toggle("Guide Highlight", () -> config.guideHighlight, v -> config.guideHighlight = v);
