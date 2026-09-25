@@ -29,7 +29,7 @@ public class MagicalPowerStack {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("MagicalPowerStack")
+        Feature.of("MagicalPowerStack").section("Inventory")
                 .when(() -> cfg().magicalPowerStack)
                 .tick(MagicalPowerStack::tick);
     }
@@ -104,7 +104,7 @@ public class MagicalPowerStack {
     }
 
     public static void render(GuiGraphicsExtractor ctx) {
-        if (labels.isEmpty() || !cfg().magicalPowerStack) return;
+        if (labels.isEmpty() || !cfg().magicalPowerStack || !cfg().section("Inventory")) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;

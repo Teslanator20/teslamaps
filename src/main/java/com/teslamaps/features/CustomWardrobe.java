@@ -64,6 +64,7 @@ public class CustomWardrobe {
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)
                 || !isArmorWardrobe(StringUtil.stripTrim(cs.getTitle().getString()))) {
             containerId = -1;
+            if (!(mc.screen instanceof AbstractContainerScreen<?>)) vanillaFor = -1;
             return;
         }
         if (playerLevel != mc.level) {

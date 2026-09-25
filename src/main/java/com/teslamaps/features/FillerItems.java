@@ -40,7 +40,7 @@ public class FillerItems {
     }
 
     public static boolean hideTooltip(AbstractContainerScreen<?> screen, Slot hovered) {
-        if (hovered == null || hovered.getItem().isEmpty()) return false;
+        if (!TeslaMapsConfig.get().hideFillerItems || hovered == null || hovered.getItem().isEmpty()) return false;
         if (!StringUtil.strip(hovered.getItem().getHoverName().getString()).isBlank()) return false;
         return isFiller(screen, hovered);
     }

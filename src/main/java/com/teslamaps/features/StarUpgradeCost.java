@@ -28,8 +28,24 @@ public class StarUpgradeCost {
         });
     }
 
+    private static ItemStack lastStack;
+    private static int lastKey;
+    private static List<Component> lastOut = List.of();
+
     private static void onTooltip(ItemStack stack, List<Component> lines) {
         if (stack.isEmpty()) return;
+        int key = (cfg().starUpgradeItems ? 1 : 0) | (Minecraft.getInstance().hasControlDown() ? 2 : 0) | (SbRepo.loaded() ? 4 : 0);
+        if (stack != lastStack || key != lastKey) {
+            lastStack = stack;
+            lastKey = key;
+            List<Component> out = new java.util.ArrayList<>();
+            build(stack, out);
+            lastOut = out;
+        }
+        lines.addAll(lastOut);
+    }
+
+    private static void build(ItemStack stack, List<Component> lines) {
         String id = ItemUtil.skyblockId(stack);
         if (id.isEmpty()) return;
         SbRepo.load();
