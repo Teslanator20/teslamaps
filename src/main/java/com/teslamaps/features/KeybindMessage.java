@@ -97,6 +97,7 @@ public class KeybindMessage {
     private static void send(String message) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() == null) return;
+        ExecutionLog.log("Hotkey: " + message);
         if (message.startsWith("/")) {
             mc.getConnection().sendCommand(message.substring(1));
         } else {

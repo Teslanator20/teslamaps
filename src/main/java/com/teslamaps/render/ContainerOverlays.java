@@ -68,6 +68,7 @@ public class ContainerOverlays {
         com.teslamaps.features.GuideHighlight.render(context);
         com.teslamaps.features.CommissionHighlight.render(context);
         com.teslamaps.features.MenuHighlights.render(context);
+        com.teslamaps.features.CakeTracker.renderSlots(context);
         com.teslamaps.features.MuseumHelper.render(context);
         com.teslamaps.features.MinionHelper.renderPanel(context);
         com.teslamaps.features.PartyFinderHelper.render(context);

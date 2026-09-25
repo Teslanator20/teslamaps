@@ -2135,6 +2135,60 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w07-08-hud
+    public boolean chickenHeadTimer = false;
+    public boolean chickenHeadHideChat = false;
+    public int chickenHeadX = 10;
+    public int chickenHeadY = 140;
+    public float chickenHeadScale = 1.0f;
+    public boolean cakeTracker = false;
+    public String cakeTrackerShow = "Missing";
+    public boolean cakeTrackerAhHighlight = true;
+    public int cakeTrackerX = 10;
+    public int cakeTrackerY = 40;
+    public float cakeTrackerScale = 1.0f;
+    public boolean draconicTracker = false;
+    public boolean draconicOnlyAltar = false;
+    public int draconicPriceSource = 1;
+    public int draconicTrackerX = 10;
+    public int draconicTrackerY = 60;
+    public float draconicTrackerScale = 1.0f;
+    public boolean executionLog = false;
+    public int executionLogX = 4;
+    public int executionLogY = 220;
+    public float executionLogScale = 1.0f;
+    public boolean itemPickupLog = false;
+    public boolean pickupLogSacks = true;
+    public boolean pickupLogCoins = false;
+    public boolean pickupLogCompact = true;
+    public boolean pickupLogIcons = true;
+    public int pickupLogExpire = 10;
+    public boolean pickupLogValue = false;
+    public int pickupLogPriceSource = 1;
+    public int pickupLogX = 10;
+    public int pickupLogY = 100;
+    public float pickupLogScale = 1.0f;
+    public boolean customTodos = false;
+    public boolean customTodoSound = true;
+    public boolean customTodoOnlyReady = false;
+    public java.util.List<CustomTodo> customTodoList = new java.util.ArrayList<>();
+    public int customTodoX = 10;
+    public int customTodoY = 180;
+    public float customTodoScale = 1.0f;
+    public static class CustomTodo {
+        public String label = "";
+        public String trigger = "";
+        public String matcher = "Contains"; // Contains / Starts With / Equals / Regex
+        public String time = "1h";
+        public boolean enabled = true;
+        public java.util.Map<String, Long> readyAt = new java.util.HashMap<>();
+        public CustomTodo() {}
+    }
+    public boolean equipmentHud = false;
+    public boolean equipmentHudVertical = false;
+    public int equipmentHudX = 10;
+    public int equipmentHudY = 200;
+    public float equipmentHudScale = 1.0f;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
@@ -3317,6 +3371,16 @@ public class TeslaMapsConfig {
         if (c.wardrobeFavorites == null) c.wardrobeFavorites = new java.util.HashSet<>();
         if (c.reminderList == null) c.reminderList = new java.util.ArrayList<>();
         if (c.containerTriggerList == null) c.containerTriggerList = new java.util.ArrayList<>();
+        if (c.customTodoList == null) c.customTodoList = new java.util.ArrayList<>();
+        c.customTodoList.removeIf(java.util.Objects::isNull);
+        for (CustomTodo t : c.customTodoList) {
+            if (t.readyAt == null) t.readyAt = new java.util.HashMap<>();
+            if (t.label == null) t.label = "";
+            if (t.trigger == null) t.trigger = "";
+            if (t.matcher == null) t.matcher = "Contains";
+            if (t.time == null) t.time = "1h";
+        }
+        if (c.cakeTrackerShow == null) c.cakeTrackerShow = "Missing";
         if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new int[]{49, 50, 51, 52, 53, 54, 55};
         if (c.damageAlertSoundType == null) c.damageAlertSoundType = "NOTE_PLING";
         if (c.discordRpcAppId == null) c.discordRpcAppId = "";

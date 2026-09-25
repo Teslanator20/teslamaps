@@ -246,6 +246,7 @@ public class ChatFilter {
         // belongs to the screenshot manager, which prints its own line with buttons,
         // so it is not tied to the chat filter master switch
         if (c.screenshotHideVanillaMessage && t.startsWith("Saved screenshot as ")) return SCREENSHOT;
+        if (c.chickenHeadHideChat && ChickenHeadTimer.hideLine(t)) return SCREENSHOT;
 
         if (!c.chatFilterEnabled) return null;
 
