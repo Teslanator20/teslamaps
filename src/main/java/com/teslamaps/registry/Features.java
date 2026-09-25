@@ -850,5 +850,7 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraRend.register();
         com.teslamaps.features.kuudra.KuudraQol.register();
         com.teslamaps.features.kuudra.KuudraRunTrackers.register();
+        // w16-09-kuu
+        com.teslamaps.features.kuudra.KuudraRunInfo.register();
     }
 }

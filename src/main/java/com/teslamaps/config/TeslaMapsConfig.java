@@ -2201,6 +2201,28 @@ public class TeslaMapsConfig {
     public float kuudraSupplyProgressScale = 1.0f;
     public boolean kuudraAlreadyPicking = false;
     public float kuudraAlreadyPickingSecs = 1.5f;
+    // w16-09-kuu
+    public boolean kuudraStunWaypoint = false;
+    public String kuudraStunMarker = "B";
+    public com.teslamaps.render.EspStyle kuudraStunStyle = new com.teslamaps.render.EspStyle("FF00FFFF", com.teslamaps.render.EspStyle.BOTH);
+    public boolean kuudraPvBlocker = false;
+    public boolean kuudraPvBlockerDungeon = false;
+    public boolean kuudraPileWaypoints = false;
+    public boolean kuudraPileNames = true;
+    public String kuudraPileColor = "FFFFFF55";
+    public String kuudraPileNoPreColor = "FFFF5555";
+    public boolean kuudraDoublePearl = false;
+    public boolean kuudraDoublePearlSound = true;
+    public boolean kuudraShopHelper = false;
+    public boolean kuudraShopTentacles = true;
+    public String kuudraShopTentacleColor = "55FF55";
+    public String kuudraShopSafeColor = "55FFFF";
+    public String kuudraShopTarget = "S1";
+    public boolean kuudraLagTracker = false;
+    public boolean kuudraLagTrackerParty = false;
+    public boolean requeueKuudra = false;
+    public int requeueKuudraFastStop = 0;
+    public boolean croesusVesuvius = false;
     // w16-03-sla
     public boolean slayerTierLock = false;
     public String slayerTierLockLast = "";
