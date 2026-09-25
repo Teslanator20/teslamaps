@@ -161,7 +161,7 @@ public class AuctionPriceInput {
     }
 
     private static String strip(String s) {
-        return s.replaceAll("(?i)§[0-9A-FK-OR]", "");
+        return com.teslamaps.utils.StringUtil.strip(s);
     }
 
     /** "10m" / "1.5b" / "250k" -> coins. Null when the text is not a number. */
