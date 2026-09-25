@@ -682,6 +682,12 @@ public class TeslaMapsConfig {
         public String condValue = "";
         public String islands = "";       // comma list, empty = any island
         public String failMessage = "";   // sent instead when the condition fails
+        public boolean negate = false;
+        public int key2 = -1;
+        public int seqWindow = 500;
+        public int cooldownMs = 0;
+        public int delayMs = 0;
+        public String actions = "";
         public Keybind() {}
         public Keybind(int key, String message) { this.key = key; this.message = message; }
     }
@@ -2135,6 +2141,14 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w07-03-qol
+    public boolean updateChangelog = false;
+    public boolean itemSearchWarpIsland = false;
+    public boolean pageScrollWheel = false;
+    public boolean pageScrollInvert = false;
+    public boolean hotkeyAdvanced = false;
+    public String safariMissingChannel = "Party";
+    public boolean oldSkyblockMenu = false;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
@@ -3424,6 +3438,7 @@ public class TeslaMapsConfig {
         if (c.hotspotShareChannel == null) c.hotspotShareChannel = "Party";
         if (c.safariSparklingChannel == null) c.safariSparklingChannel = "Nobody";
         if (c.safariShareTimeChannel == null) c.safariShareTimeChannel = "Nobody";
+        if (c.safariMissingChannel == null) c.safariMissingChannel = "Party";
         if (c.pickaxeAbilityReadyText == null) c.pickaxeAbilityReadyText = "Right";
         if (c.farmLanes == null) c.farmLanes = new java.util.LinkedHashMap<>();
         if (c.feastNextSeason == null) c.feastNextSeason = new java.util.LinkedHashMap<>();

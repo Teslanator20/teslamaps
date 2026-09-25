@@ -316,5 +316,8 @@ final class Features {
         com.teslamaps.features.QolTweaks.register();
         com.teslamaps.features.RenderHiders.register();
         com.teslamaps.features.ServerRestartWarning.register();
+        // w07-03-qol
+        com.teslamaps.debug.PacketLogger.register();
+        com.teslamaps.features.OldSkyblockMenu.register();
     }
 }

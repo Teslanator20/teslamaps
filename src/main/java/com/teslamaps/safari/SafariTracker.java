@@ -797,6 +797,40 @@ public class SafariTracker {
         return line.length() <= 240 ? line : line.substring(0, 237) + "...";
     }
 
+    // Ported from critterMod's MissingReport
+    /** One line per biome that still needs something, with quota counts and "(none)". */
+    public static List<String> missingLines(boolean color) {
+        if (runStart == 0) return List.of(color ? "§7No Safari run active" : "No Safari run active");
+        RunView v = currentView();
+        List<String> out = new ArrayList<>();
+        for (SafariData.Biome b : SafariData.Biome.values()) {
+            StringBuilder line = null;
+            for (SafariData.Critter c : SafariData.in(b)) {
+                boolean gone = unavailable(v, c);
+                if (!gone && v.complete(c)) continue;
+                if (line == null) line = new StringBuilder(color ? "§e" : "").append(b.label).append(" missing:");
+                else line.append(color ? "§7," : ",");
+                line.append(color ? " §f" : " ").append(c.name());
+                int q = SafariData.quota(c);
+                if (gone) line.append(color ? " §8(none)" : " (none)");
+                else if (q > 1) line.append(color ? " §7(" : " (").append(v.catches(c)).append('/').append(q).append(')');
+            }
+            if (line != null) out.add(line.toString());
+        }
+        if (out.isEmpty()) out.add((color ? "§a" : "") + "All " + SafariData.ALL.size() + " critters caught! ("
+                + SafariHistory.time(elapsed()) + ")");
+        return out;
+    }
+
+    public static void copyMissing() {
+        Minecraft.getInstance().keyboardHandler.setClipboard(String.join("\n", missingLines(false)));
+    }
+
+    public static void shareMissing() {
+        String ch = TeslaMapsConfig.get().safariMissingChannel;
+        for (String l : missingLines(false)) com.teslamaps.features.Announce.send(ch, l);
+    }
+
     public static long dexTime() { return dexDoneAt; }
 
     private static void share(String line) {

@@ -57,6 +57,8 @@ public final class ChatCategory {
                 () -> (float) config.hotkeyChatDelay, v -> config.hotkeyChatDelay = Math.round(v));
         b.toggle("  Hotkey Conditions", () -> config.hotkeyConditions, v -> config.hotkeyConditions = v)
                 .desc("Hotkeys screen gets a ? per hotkey: held item / inventory / sneaking / SkyBlock condition, island filter and a fail message");
+        b.toggle("    Advanced Hotkey Rules", () -> config.hotkeyAdvanced, v -> config.hotkeyAdvanced = v)
+                .desc("Per hotkey: NOT, a second key within a window (sequence), cooldown, delay and local actions (sound, title, note)");
         b.toggle("Gradient [TeslaMaps] Prefix", () -> config.chromaPrefix, v -> config.chromaPrefix = v);
         b.color("Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v);
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);

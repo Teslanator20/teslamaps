@@ -74,6 +74,9 @@ public final class InventoryCategory {
         b.button("  Clear Blacklist", () -> { config.middleClickGuiBlacklist.clear(); TeslaMapsConfig.save(); });
         b.toggle("Page Keybinds (A/D, W/S)", () -> config.pageKeybinds, v -> config.pageKeybinds = v);
         b.info("A/D = Previous/Next Page, W/S = Scroll Up/Down");
+        b.toggle("  Mouse Wheel Pages", () -> config.pageScrollWheel, v -> config.pageScrollWheel = v)
+                .desc("Wheel clicks Next/Previous Page and Scroll Up/Down. Off in plain chests, hold Shift over an item.");
+        b.toggle("    Invert Wheel", () -> config.pageScrollInvert, v -> config.pageScrollInvert = v);
         b.toggle("Ignore Filler Items", () -> config.hideFillerItems, v -> config.hideFillerItems = v)
                 .desc("No tooltip on blank glass panes, no clicks on fillers and locked backpack slots (off in dungeons and experiments)");
         b.toggle("Sign Enter Key", () -> config.signEnterKey, v -> config.signEnterKey = v);
@@ -116,6 +119,8 @@ public final class InventoryCategory {
         b.info("/tmap search finds items in museum, sacks, vault, chests, storage");
         b.toggle("  Island Chest Tracker", () -> config.islandChestTracker, v -> config.islandChestTracker = v);
         b.info("Private Island: large chests per half, minion chests skipped, broken chests removed");
+        b.toggle("    Warp To Island On Click", () -> config.itemSearchWarpIsland, v -> config.itemSearchWarpIsland = v)
+                .desc("Clicking an island chest hit away from your island sends /warp island");
         b.keybind("Open Item Search", () -> config.itemSearchKey, v -> config.itemSearchKey = v);
         b.toggle("  Search Hovered Item", () -> config.itemSearchFromHover, v -> config.itemSearchFromHover = v)
                 .desc("The search key over an item in a menu opens the search with its name");

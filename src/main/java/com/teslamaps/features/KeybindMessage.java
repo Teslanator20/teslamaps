@@ -20,6 +20,7 @@ public class KeybindMessage {
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.getConnection() == null || mc.getWindow() == null) return;
+        HotkeyRules.runPending();
         if (mc.screen != null) { screenOpenMs = System.currentTimeMillis(); heldKeys.clear(); heldWp.clear(); return; }
 
         // grace period after closing a screen: still track key state, but don't fire — stops a key you
@@ -30,21 +31,23 @@ public class KeybindMessage {
         List<TeslaMapsConfig.Keybind> binds = TeslaMapsConfig.get().keybinds;
         edges.clear();
         polled.clear();
+        boolean adv = HotkeyRules.enabled();
         for (TeslaMapsConfig.Keybind kb : binds) {
-            if (kb.key == -1 || !polled.add(kb.key)) continue;
-            boolean down = com.teslamaps.utils.KeyNames.isDown(kb.key);
-            if (down && !heldKeys.contains(kb.key)) edges.add(kb.key);   // edge: just pressed
-            if (down) heldKeys.add(kb.key); else heldKeys.remove(kb.key);
+            poll(kb.key);
+            if (adv) poll(kb.key2);
         }
         if (fire && !edges.isEmpty()) {
             int mods = heldModifiers(mc);
             for (TeslaMapsConfig.Keybind kb : binds) {
-                if (!kb.enabled || !edges.contains(kb.key) || kb.message == null || (kb.message.isBlank() && !HotkeyCondition.hasFail(kb))) continue;
+                if (!kb.enabled || kb.message == null) continue;
+                if (adv && kb.key2 != -1 && edges.contains(kb.key2) && HotkeyRules.sequenceDone(kb)) {
+                    fireBind(kb, true);
+                    continue;
+                }
+                if (!edges.contains(kb.key)) continue;
                 if (!(kb.modifiers != 0 ? kb.modifiers == mods : !shadowed(binds, kb.key, mods))) continue;
-                if (!TeslaMapsConfig.get().hotkeyConditions) { send(kb.message); continue; }
-                if (!HotkeyCondition.islandOk(kb)) continue;
-                if (HotkeyCondition.passes(kb)) { if (!kb.message.isBlank()) send(kb.message); }
-                else if (kb.failMessage != null && !kb.failMessage.isBlank()) send(kb.failMessage);
+                if (adv && kb.key2 != -1) { HotkeyRules.armSequence(kb); continue; }
+                fireBind(kb, adv);
             }
         }
 
@@ -58,6 +61,32 @@ public class KeybindMessage {
         pollWp(handle, cfg.waypointRemoveKey, fire, () -> wpResult(DungeonWaypoints.removeNearest()));
         pollWp(handle, cfg.waypointClearKey, fire, () -> wpResult(DungeonWaypoints.clearRoom()));
         pollWp(handle, cfg.waypointEditModeKey, fire, () -> wpResult(DungeonWaypoints.toggleEditMode()));
+    }
+
+    private static void poll(int key) {
+        if (key == -1 || !polled.add(key)) return;
+        boolean down = com.teslamaps.utils.KeyNames.isDown(key);
+        if (down && !heldKeys.contains(key)) edges.add(key);   // edge: just pressed
+        if (down) heldKeys.add(key); else heldKeys.remove(key);
+    }
+
+    private static void fireBind(TeslaMapsConfig.Keybind kb, boolean adv) {
+        boolean hasActions = adv && kb.actions != null && !kb.actions.isBlank();
+        if (kb.message.isBlank() && !HotkeyCondition.hasFail(kb) && !hasActions) return;
+        if (!TeslaMapsConfig.get().hotkeyConditions) { send(kb.message); return; }
+        if (!HotkeyCondition.islandOk(kb)) return;
+        String msg;
+        if (HotkeyCondition.passes(kb)) msg = kb.message;
+        else if (kb.failMessage != null && !kb.failMessage.isBlank()) { msg = kb.failMessage; hasActions = false; }
+        else return;
+        if (!adv) { if (!msg.isBlank()) send(msg); return; }
+        if (!HotkeyRules.cooldownOk(kb)) return;
+        final String out = msg;
+        final boolean act = hasActions;
+        HotkeyRules.schedule(kb.delayMs, () -> {
+            if (act) HotkeyRules.runActions(kb.actions);
+            if (!out.isBlank()) send(out);
+        });
     }
 
     public static int heldModifiers(Minecraft mc) {

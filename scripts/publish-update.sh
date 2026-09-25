@@ -15,8 +15,13 @@ SHA=$(sha256sum "$JAR" | cut -d' ' -f1)
 
 TMP=$(mktemp -d)
 cp "$JAR" "$TMP/$NAME"
-printf '{"version":"%s","jar":"%s","sha256":"%s","published":%s}' \
-    "$VERSION" "$NAME" "$SHA" "$(date +%s)" > "$TMP/manifest.json"
+# optional: CHANGELOG_FILE=path, one line per entry, shown in the in-game update popup
+CHANGELOG="[]"
+if [ -n "${CHANGELOG_FILE:-}" ] && [ -f "$CHANGELOG_FILE" ]; then
+    CHANGELOG="[$(sed -e 's/\r$//' -e 's/\t/ /g' -e '/^[[:space:]]*$/d' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/.*/"&"/' "$CHANGELOG_FILE" | paste -sd, -)]"
+fi
+printf '{"version":"%s","jar":"%s","sha256":"%s","published":%s,"changelog":%s}' \
+    "$VERSION" "$NAME" "$SHA" "$(date +%s)" "$CHANGELOG" > "$TMP/manifest.json"
 openssl pkeyutl -sign -inkey "$KEY" -rawin -in "$TMP/manifest.json" | base64 -w0 > "$TMP/manifest.sig"
 
 gh release delete "v$VERSION" --repo "$REPO" --yes 2>/dev/null || true

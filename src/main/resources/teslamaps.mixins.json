@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "PauseScreenMixin",
+    "PacketLogMixin",
     "FocusLossMixin",
     "WindowTitleMixin",
     "MonoAudioChannelMixin",

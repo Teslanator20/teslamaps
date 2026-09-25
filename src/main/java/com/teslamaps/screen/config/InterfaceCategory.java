@@ -93,6 +93,7 @@ public final class InterfaceCategory {
         b.info("Full size text with a scrollbar instead of shrinking the page");
         b.label("Updates");
         b.toggle("Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v);
+        b.toggle("  Show Changelog", () -> config.updateChangelog, v -> config.updateChangelog = v);
         b.info("Signed releases only, install via popup or /tmap update");
     }
 }
