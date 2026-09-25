@@ -26,7 +26,7 @@ public abstract class GenericContainerScreenMixin extends AbstractContainerScree
             ci.cancel();
             return;
         }
-        if (LeapOverlay.shouldRender()) {
+        if (LeapOverlay.shouldRender() || com.teslamaps.features.TerminalSolver.hideClutter()) {
             ci.cancel();
         }
     }

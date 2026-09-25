@@ -43,13 +43,11 @@ public class MelodyMessage {
         int row = slot / 9;
         if (row == lastClayRow) return;
         lastClayRow = row;
-        String pct = switch (row) {
-            case 2 -> "Melody 25%";
-            case 3 -> "Melody 50%";
-            case 4 -> "Melody 75%";
-            default -> null;
-        };
-        if (pct != null && Minecraft.getInstance().getConnection() != null) {
+        if (row < 2 || row > 4) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String prefix = c.melodyProgressText == null || c.melodyProgressText.isBlank() ? "Melody" : c.melodyProgressText.trim();
+        String pct = prefix + " " + (c.melodyProgressFormat == 1 ? (row - 1) + "/4" : ((row - 1) * 25) + "%");
+        if (Minecraft.getInstance().getConnection() != null) {
             Minecraft.getInstance().getConnection().sendCommand("pc " + pct);
         }
     }

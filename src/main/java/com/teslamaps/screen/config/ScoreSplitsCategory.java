@@ -36,6 +36,9 @@ public final class ScoreSplitsCategory {
         b.toggle("  Show PBs (per split)", () -> config.splitsShowPb, v -> config.splitsShowPb = v);
         b.toggle("  Show Delta To PB", () -> config.splitsShowDelta, v -> config.splitsShowDelta = v);
         b.toggle("  Send All Splits on End", () -> config.splitsSendAllOnEnd, v -> config.splitsSendAllOnEnd = v);
+        b.toggle("  Terminal Splits (P3 Sections)", () -> config.terminalSplits, v -> config.terminalSplits = v)
+                .desc("Adds section and P3 time to every terminal/device line, summary when the core opens.");
+        b.toggle("    Use Server Ticks", () -> config.terminalSplitsServerTicks, v -> config.terminalSplitsServerTicks = v);
         b.toggle("Live Room Splits HUD", () -> config.roomSplits, v -> config.roomSplits = v);
         b.slider("  Room Splits Scale", 0.5f, 2.0f,
                 () -> config.roomSplitsScale, v -> config.roomSplitsScale = v, 1);

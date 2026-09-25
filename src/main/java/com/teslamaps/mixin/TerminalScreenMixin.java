@@ -44,6 +44,27 @@ public class TerminalScreenMixin {
 
     @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
     private void teslamaps$onKeyPressed(KeyEvent input, CallbackInfoReturnable<Boolean> cir) {
-        if (TermGui.keyActive(input)) cir.setReturnValue(true);
+        if (TerminalSolver.onTerminalKey(input.key(), ((HandledScreenAccessor) this).getFocusedSlot())
+                || TermGui.keyActive(input)) cir.setReturnValue(true);
+    }
+
+    @Inject(method = "extractLabels", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$hideLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY, CallbackInfo ci) {
+        if (TerminalSolver.hideClutter()) ci.cancel();
+    }
+
+    @Inject(method = "extractCarriedItem", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$hideCarried(GuiGraphicsExtractor graphics, int mouseX, int mouseY, CallbackInfo ci) {
+        if (TerminalSolver.hideClutter()) ci.cancel();
+    }
+
+    @Inject(method = "extractSlotHighlightBack", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$hideHighlightBack(GuiGraphicsExtractor graphics, CallbackInfo ci) {
+        if (TerminalSolver.hideClutter()) ci.cancel();
+    }
+
+    @Inject(method = "extractSlotHighlightFront", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$hideHighlightFront(GuiGraphicsExtractor graphics, CallbackInfo ci) {
+        if (TerminalSolver.hideClutter()) ci.cancel();
     }
 }
