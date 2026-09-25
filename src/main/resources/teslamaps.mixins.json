@@ -7,6 +7,7 @@
     "BlockBreakPredictionMixin",
     "LogSpamPacketMixin",
     "GhostCreeperMixin",
+    "ArachneWebClipMixin",
     "RenderSectionRegionMixin",
     "LogSpamScoreboardMixin",
     "LogSpamEntityDataMixin",
@@ -36,6 +37,7 @@
     "TransparentEquipmentMixin",
     "EndermanTintStateMixin",
     "EndermanTintMixin",
+    "EndermanTeleportMixin",
     "ModelTintMixin",
     "VisualWordsFontMixin",
     "FullTextShadowMixin",
@@ -257,7 +259,8 @@
     "ContainerDimMixin",
     "ContainerSlotTweaksMixin",
     "LivingEntityAlphaStateMixin",
-    "LivingEntityAlphaMixin"
+    "LivingEntityAlphaMixin",
+    "GuardianBeamMixin"
   ],
   "injectors": {
     "defaultRequire": 1

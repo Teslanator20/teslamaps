@@ -40,6 +40,7 @@ public class BossBarHealthMixin {
         if (com.teslamaps.features.BossBarHealth.hideUseless()) {
             all = com.teslamaps.features.BossBarHealth.filterUseless((java.util.Collection<LerpingBossEvent>) all);
         }
+        if (com.teslamaps.features.kuudra.KuudraHider.hideBossBar()) return java.util.List.of();
         if (!com.teslamaps.config.TeslaMapsConfig.get().dragonHideBossbars) return all;
         return com.teslamaps.features.DragonRecolor.filterBars((java.util.Collection<LerpingBossEvent>) all);
     }

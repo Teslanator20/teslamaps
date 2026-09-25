@@ -15,5 +15,6 @@ public class MobScaleMixin {
     @Inject(method = "scale(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At("HEAD"))
     private void teslamaps$mobScale(LivingEntityRenderState state, PoseStack pose, CallbackInfo ci) {
         if (state instanceof BatRenderState) BiggerBats.scale(pose);
+        com.teslamaps.features.kuudra.KuudraHider.scale(state, pose);
     }
 }

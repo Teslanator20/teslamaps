@@ -374,6 +374,8 @@ public final class InventoryCategory {
                 .desc("Writes the family tier as a number in the slot corner, locked families show 0");
         b.toggle("  Mark Unfinished Red", () -> config.progressHighlightRed, v -> config.progressHighlightRed = v);
         b.color("  Unfinished Color", () -> config.colorProgressUnfinished, v -> config.colorProgressUnfinished = v);
+        b.toggle("  Slayer LVL Rewards: Unclaimed Green", () -> config.slayerRewardsHighlight, v -> config.slayerRewardsHighlight = v)
+                .desc("Slayer LVL Rewards menu: rewards you can still claim get a green background");
         b.toggle("Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v);
         b.color("  Commission Color", () -> config.colorCommissionDone, v -> config.colorCommissionDone = v);
         b.toggle("  Status Icons (Open / Started / Claimable)", () -> config.commissionStatusIcons, v -> config.commissionStatusIcons = v)

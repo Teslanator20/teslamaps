@@ -14,6 +14,8 @@ public final class SkillsCategory {
         b.label("Skill Tracker");
         b.toggle("Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v);
         b.toggle("  Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v);
+        b.toggle("  Slayer Stats (avg kill/spawn, slayer XP/h)", () -> config.skillTrackerSlayerStats, v -> config.skillTrackerSlayerStats = v)
+                .desc("Combat panel: average kill and spawn time and slayer XP/h (Aatrox buff included). Resets when the slayer type changes");
         String[] pinOptions = new String[com.teslamaps.features.SkillTracker.skills().length + 1];
         pinOptions[0] = "Auto";
         System.arraycopy(com.teslamaps.features.SkillTracker.skills(), 0, pinOptions, 1, pinOptions.length - 1);
@@ -115,6 +117,14 @@ public final class SkillsCategory {
         b.info("Flares have no nametag, the timer starts when you see them");
         b.toggle("  Other Deployables (flares, ...)",
                 () -> config.deployableOthers, v -> config.deployableOthers = v);
+        b.toggle("  Soulflow Display",
+                () -> config.soulflowDisplay, v -> config.soulflowDisplay = v)
+                .desc("Internalized soulflow from your Soulflow Pile / Battery / Supercell. Position in /tmap gui");
+        b.toggle("  Low Soulflow Warning",
+                () -> config.lowSoulflowWarning, v -> config.lowSoulflowWarning = v)
+                .desc("\"Low Soulflow\" title once it drops to the threshold");
+        b.slider("    Threshold", 0, 1000, () -> (float) config.lowSoulflowThreshold,
+                v -> config.lowSoulflowThreshold = Math.round(v), 0);
         b.info("Position and scale in /tmap gui");
         b.toggle("Hide Deployable Particles",
                 () -> config.deployableHideParticles, v -> config.deployableHideParticles = v);

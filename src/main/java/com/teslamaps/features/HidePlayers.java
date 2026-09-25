@@ -46,12 +46,14 @@ public class HidePlayers {
 
     private static boolean matches(Entity entity) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        if (!config.hidePlayers && !config.hidePlayersAfterLeap) return false;
+        boolean arachne = ArachneQol.hidePlayers();
+        if (!config.hidePlayers && !config.hidePlayersAfterLeap && !arachne) return false;
         if (!(entity instanceof Player)) return false;
         if (entity.getUUID().version() != 4) return false; // skip NPCs / fake players
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || entity == mc.player) return false;
+        if (arachne) return true;
         if (config.hidePlayersAfterLeap && System.currentTimeMillis() < hideAfterLeapUntilMs) return true;
         if (!config.hidePlayers) return false;
         if (config.hidePlayersOnlyDungeon && !DungeonManager.isInDungeon()) return false;

@@ -795,5 +795,50 @@ final class Features {
         com.teslamaps.features.mining.CommissionBlockColor.register();
         com.teslamaps.features.mining.DeepCavernsGuide.register();
         com.teslamaps.features.mining.NucleusOverlay.register();
+        // w16-03-sla
+        com.teslamaps.slayer.SlayerTierLock.register();
+        com.teslamaps.slayer.SlayerArmorProgress.register();
+        com.teslamaps.slayer.SeraphHelper.register();
+        com.teslamaps.features.theend.ZealotSpawns.register();
+        // w16-07-kuu
+        com.teslamaps.features.kuudra.Kuudra.register();
+        com.teslamaps.features.kuudra.KuudraAlerts.register();
+        com.teslamaps.features.kuudra.KuudraTickTimers.register();
+        com.teslamaps.features.kuudra.KuudraDistance.register();
+        com.teslamaps.features.kuudra.KuudraSplits.register();
+        com.teslamaps.features.kuudra.KuudraNoPre.register();
+        com.teslamaps.features.kuudra.KuudraHider.register();
+        // w16-02-sla
+        com.teslamaps.slayer.SlayerItemsOnGround.register();
+        com.teslamaps.slayer.TarantulaHelper.register();
+        com.teslamaps.slayer.SlayerSpawnHiders.register();
+        com.teslamaps.slayer.SlayerChatCompact.register();
+        com.teslamaps.features.SoulflowDisplay.register();
+        // w16-01-sla
+        com.teslamaps.slayer.SlayerBossSoon.register();
+        com.teslamaps.slayer.SlayerQuestWarning.register();
+        com.teslamaps.slayer.SlayerLevelHud.register();
+        com.teslamaps.slayer.SlayerRngDisplay.register();
+        com.teslamaps.slayer.VoidgloomLaser.register();
+        com.teslamaps.slayer.SlayerNametag.register();
+        // w16-06-kuu
+        com.teslamaps.features.kuudra.KuudraBuild.register();
+        com.teslamaps.features.kuudra.KuudraFresh.register();
+        com.teslamaps.features.kuudra.KuudraSupply.register();
+        com.teslamaps.features.kuudra.KuudraElle.register();
+        com.teslamaps.features.kuudra.KuudraDanger.register();
+        com.teslamaps.features.kuudra.KuudraIchor.register();
+        com.teslamaps.features.kuudra.KuudraMisc.register();
+        // w16-04-sla
+        com.teslamaps.slayer.SlayerMarks.register();
+        com.teslamaps.features.ArachneQol.register();
+        // w16-00-sla
+        com.teslamaps.slayer.SlayerHiders.register();
+        com.teslamaps.slayer.VengeanceTimer.register();
+        com.teslamaps.slayer.SlayerBossHud.register();
+        // w16-05-sla
+        com.teslamaps.slayer.CallMaddox.register();
+        com.teslamaps.slayer.VoidgloomBeacon.register();
+        com.teslamaps.features.theend.EndermanQol.register();
     }
 }
