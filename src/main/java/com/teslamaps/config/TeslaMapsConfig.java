@@ -2142,6 +2142,28 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w09-03-vis
+    public boolean changeCrouch = false;
+    public boolean instantCrouch = true;
+    public boolean legacyCrouchHeight = true;
+    public boolean hideGlitchMobs = false;
+    public boolean smoothTooltipLines = false;
+    public boolean headDisplaySize = false;
+    public float headDisplayPercent = 100f;
+    public boolean safariHideonwallPerches = false;
+    public String colorHideonwallPerch = "AA55FF";
+    public String colorHideonwallFound = "55FF55";
+    public boolean biggerBatModels = false;
+    public float biggerBatScale = 3f;
+    public boolean lowerEndermanNametags = false;
+    public boolean cosmetics = false;
+    public boolean cosmeticHalo = true;
+    public String cosmeticHaloColor = "FFFF55";
+    public boolean cosmeticSize = false;
+    public float cosmeticSizeX = 1f;
+    public float cosmeticSizeY = 1f;
+    public float cosmeticSizeZ = 1f;
+    public boolean cosmeticShowOthers = true;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;

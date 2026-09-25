@@ -3,6 +3,11 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "CameraCrouchMixin",
+    "HeadDisplaySizeMixin",
+    "MobScaleMixin",
+    "AvatarScaleMixin",
+    "EntityNametagMixin",
     "TitleStackMixin",
     "PauseScreenMixin",
     "PacketLogMixin",

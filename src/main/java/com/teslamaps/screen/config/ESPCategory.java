@@ -60,6 +60,9 @@ public final class ESPCategory {
         b.toggle("Dungeon Bat ESP", () -> config.dungeonBatESP, v -> config.dungeonBatESP = v);
         b.toggle("  Dungeon Bat Tracers", () -> config.dungeonBatTracers, v -> config.dungeonBatTracers = v);
         b.color("  Dungeon Bats", () -> config.colorESPBat, v -> config.colorESPBat = v);
+        b.toggle("  Bigger Bat Models", () -> config.biggerBatModels, v -> config.biggerBatModels = v)
+                .desc("Draws dungeon bats larger so they are easier to hit (visual only)");
+        b.slider("    Bat Scale", 1f, 5f, () -> config.biggerBatScale, v -> config.biggerBatScale = v, 1);
         b.toggle("Wither Key ESP", () -> config.witherKeyESP, v -> config.witherKeyESP = v);
         b.toggle("  Key Tracers", () -> config.keyTracers, v -> config.keyTracers = v);
         b.color("  Wither Key", () -> config.colorESPWitherKey, v -> config.colorESPWitherKey = v);
