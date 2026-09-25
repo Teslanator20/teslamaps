@@ -41,6 +41,39 @@ public class CommissionHighlight {
         }
     }
 
+    private static final IdentityHashMap<ItemStack, ItemStack> icons = new IdentityHashMap<>();
+    private static Object lastScreen;
+    private static boolean inMenu;
+
+    /** Written book at 0%, knowledge book when claimable, glint off. SkyOcean's CommissionHighlighter. */
+    public static ItemStack icon(Slot slot, ItemStack stack) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.commissionStatusIcons || !c.commissionHighlight || !stack.is(net.minecraft.world.item.Items.WRITABLE_BOOK)) return stack;
+        if (slot.container instanceof net.minecraft.world.entity.player.Inventory) return stack;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen != lastScreen) {
+            lastScreen = mc.screen;
+            inMenu = mc.screen instanceof AbstractContainerScreen<?> cs && cs.getTitle().getString().contains("Commissions")
+                    && c.section("Inventory");
+        }
+        if (!inMenu) return stack;
+        ItemStack cached = icons.get(stack);
+        if (cached != null) return cached;
+        if (icons.size() > 256) icons.clear();
+        String last = "";
+        ItemLore lore = stack.get(DataComponents.LORE);
+        if (lore != null && !lore.lines().isEmpty()) {
+            last = com.teslamaps.utils.StringUtil.stripTrim(lore.lines().get(lore.lines().size() - 1).getString());
+        }
+        net.minecraft.world.item.Item item = last.startsWith("Click to claim") ? net.minecraft.world.item.Items.KNOWLEDGE_BOOK
+                : last.equals("0%") || last.endsWith(" 0%") ? net.minecraft.world.item.Items.WRITTEN_BOOK
+                : net.minecraft.world.item.Items.WRITABLE_BOOK;
+        ItemStack out = stack.transmuteCopy(item);
+        out.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false);
+        icons.put(stack, out);
+        return out;
+    }
+
     private static boolean isDone(ItemStack item) {
         Boolean cached = cache.get(item);
         if (cached != null) return cached;

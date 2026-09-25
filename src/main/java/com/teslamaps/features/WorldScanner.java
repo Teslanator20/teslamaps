@@ -369,8 +369,13 @@ public class WorldScanner {
 
     public interface Visitor { void visit(String name, BlockPos pos, int color); }
 
-    /** Found structures, for the Hollows minimap. */
+    /** Found structures plus named waypoints, for the Hollows minimap. */
     public static void visit(Visitor v) {
+        visitScanned(v);
+        com.teslamaps.features.mining.HollowsWaypoints.visit(v);
+    }
+
+    public static void visitScanned(Visitor v) {
         if (!inHollows) return;
         for (Map.Entry<String, WaypointData> e : waypoints.entrySet()) {
             WaypointData w = e.getValue();
