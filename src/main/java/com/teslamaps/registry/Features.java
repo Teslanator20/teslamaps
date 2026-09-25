@@ -232,5 +232,8 @@ final class Features {
         com.teslamaps.features.ConsumableProtection.register();
         com.teslamaps.features.ItemStars.register();
         com.teslamaps.features.SkyblockIdTooltip.register();
+        // w05-08-inv
+        com.teslamaps.features.SlotText.register();
+        com.teslamaps.features.SearchHighlight.register();
     }
 }

@@ -115,7 +115,7 @@ public class DungeonLevelSlotText {
     public static void render(GuiGraphicsExtractor ctx) {
         if (labels.isEmpty()) return;
         TeslaMapsConfig c = cfg();
-        if (!c.skillLevelStackSize || !c.dungeonLevelSlotText) return;
+        if (!c.skillLevelStackSize || !c.dungeonLevelSlotText || !SlotText.shown(SlotText.DUNGEON)) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;

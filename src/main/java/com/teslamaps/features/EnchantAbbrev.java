@@ -14,12 +14,14 @@ import net.minecraft.world.item.component.CustomData;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /** Writes which enchant a book holds onto its icon ("Leg I", "Chim II"), like NEU/Skyblocker. */
 public class EnchantAbbrev {
 
     private static final Map<String, String> ULTIMATE = new HashMap<>();
     private static final Map<String, String> NORMAL = new HashMap<>();
+    private static final Map<String, String> ALIAS = new HashMap<>();
 
     static {
         ULTIMATE.put("ultimate_bank", "Bank");
@@ -110,6 +112,88 @@ public class EnchantAbbrev {
         NORMAL.put("great_spook", "Spook");
         NORMAL.put("scuba", "Scuba");
         NORMAL.put("toxophilite", "Toxo");
+        NORMAL.put("absorb", "Absb");
+        NORMAL.put("aqua_affinity", "AA");
+        NORMAL.put("arcane", "Wood");
+        NORMAL.put("aiming", "DT");
+        NORMAL.put("bane_of_arthropods", "BoA");
+        NORMAL.put("big_brain", "BB");
+        NORMAL.put("blast_protection", "BP");
+        NORMAL.put("blessing", "Bless");
+        NORMAL.put("bug_blender", "Bug");
+        NORMAL.put("counter_strike", "CS");
+        NORMAL.put("delicate", "Deli");
+        NORMAL.put("depth_strider", "DS");
+        NORMAL.put("dragon_hunter", "Grav");
+        NORMAL.put("ender_slayer", "ES");
+        NORMAL.put("feast", "Feast");
+        NORMAL.put("feather_falling", "FF");
+        NORMAL.put("ferocious_mana", "Viv");
+        NORMAL.put("fire_aspect", "FA");
+        NORMAL.put("fire_protection", "FP");
+        NORMAL.put("first_strike", "FS");
+        NORMAL.put("flame", "Flame");
+        NORMAL.put("forest_pledge", "FPl");
+        NORMAL.put("giant_killer", "GK");
+        NORMAL.put("green_thumb", "GT");
+        NORMAL.put("hardened_mana", "HV");
+        NORMAL.put("ice_cold", "Ice");
+        NORMAL.put("impaling", "Imp");
+        NORMAL.put("infinite_quiver", "IQ");
+        NORMAL.put("karma", "Karma");
+        NORMAL.put("knockback", "KB");
+        NORMAL.put("life_steal", "LS");
+        NORMAL.put("luck", "Luck");
+        NORMAL.put("luck_of_the_sea", "LotS");
+        NORMAL.put("magmarizer", "Pyro");
+        NORMAL.put("mana_steal", "MS");
+        NORMAL.put("mana_vampire", "VV");
+        NORMAL.put("petalfall", "Petal");
+        NORMAL.put("piercing", "Pierc");
+        NORMAL.put("projectile_protection", "PP");
+        NORMAL.put("prosperity", "Prosp");
+        NORMAL.put("punch", "Punch");
+        NORMAL.put("quick_bite", "QB");
+        NORMAL.put("rainbow", "Rainb");
+        NORMAL.put("respiration", "Respi");
+        NORMAL.put("silk_touch", "Silk");
+        NORMAL.put("small_brain", "SB");
+        NORMAL.put("smarty_pants", "SP");
+        NORMAL.put("smelting_touch", "Smelt");
+        NORMAL.put("strong_mana", "SV");
+        NORMAL.put("sugar_rush", "Sugar");
+        NORMAL.put("tidal", "Tidal");
+        NORMAL.put("titan_killer", "TK");
+        NORMAL.put("triple_strike", "TS");
+        NORMAL.put("true_protection", "TP");
+        NORMAL.put("turbo_cactus", "TCac");
+        NORMAL.put("turbo_cane", "TCan");
+        NORMAL.put("turbo_carrot", "TCar");
+        NORMAL.put("turbo_coco", "TCoc");
+        NORMAL.put("turbo_melon", "TMel");
+        NORMAL.put("turbo_moonflower", "TMoo");
+        NORMAL.put("turbo_mushrooms", "TMus");
+        NORMAL.put("turbo_potato", "TPot");
+        NORMAL.put("turbo_pumpkin", "TPum");
+        NORMAL.put("turbo_rose", "TRos");
+        NORMAL.put("turbo_sunflower", "TSun");
+        NORMAL.put("turbo_warts", "TWar");
+        NORMAL.put("turbo_wheat", "TWhe");
+
+        ALIAS.put("dragon_tracer", "aiming");
+        ALIAS.put("woodsplitter", "arcane");
+        ALIAS.put("gravity", "dragon_hunter");
+        ALIAS.put("vivacious_vitality", "ferocious_mana");
+        ALIAS.put("hardened_vitality", "hardened_mana");
+        ALIAS.put("pyroclasm", "magmarizer");
+        ALIAS.put("vampiric_vitality", "mana_vampire");
+        ALIAS.put("strong_vitality", "strong_mana");
+        ALIAS.put("prismatic", "pristine");
+        ALIAS.put("drain", "syphon");
+        ALIAS.put("duplex", "ultimate_reiterate");
+        ALIAS.put("turbo_cacti", "turbo_cactus");
+        ALIAS.put("turbo_mushroom", "turbo_mushrooms");
+        ALIAS.put("turbo_wart", "turbo_warts");
     }
 
     private record Text(Component name, String roman, String numbers, boolean ultimate) {}
@@ -118,13 +202,27 @@ public class EnchantAbbrev {
     // keyed by the CustomData object, which is stable per stack - never hash whole nbt per frame
     private static final Map<CustomData, Text> cache = new IdentityHashMap<>();
 
+    // bazaar books carry no enchant nbt, only "Sharpness VII" as the name
+    private static final Map<ItemStack, Text> byName = new WeakHashMap<>();
+
     private static Text get(ItemStack stack) {
         if (stack == null || !stack.is(Items.ENCHANTED_BOOK)) return null;
-        if (!TeslaMapsConfig.get().enchantAbbrev) return null;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.enchantAbbrev || !SlotText.shown(SlotText.ENCHANT)) return null;
         CustomData data = stack.get(DataComponents.CUSTOM_DATA);
-        if (data == null) return null;
-        if (cache.size() > 2048) cache.clear();
-        Text text = cache.computeIfAbsent(data, EnchantAbbrev::build);
+        Text text = NONE;
+        if (data != null) {
+            if (cache.size() > 2048) cache.clear();
+            text = cache.computeIfAbsent(data, EnchantAbbrev::build);
+        }
+        if (text.name == null && c.enchantAbbrevBazaar) {
+            text = byName.get(stack);
+            if (text == null) {
+                text = fromName(stack);
+                if (byName.size() > 1024) byName.clear();
+                byName.put(stack, text);
+            }
+        }
         return text.name == null ? null : text;
     }
 
@@ -132,16 +230,52 @@ public class EnchantAbbrev {
         CompoundTag enchants = data.copyTag().getCompoundOrEmpty("enchantments");
         if (enchants.size() != 1) return NONE;
         String id = enchants.keySet().iterator().next();
-        int level = enchants.getIntOr(id, 0);
-        if (level <= 0) return NONE;
+        return make(id, enchants.getIntOr(id, 0), true);
+    }
 
+    private static Text fromName(ItemStack stack) {
+        String name = com.teslamaps.utils.StringUtil.stripTrim(stack.getHoverName().getString());
+        int sp = name.lastIndexOf(' ');
+        if (sp <= 0) return NONE;
+        int level = romanValue(name.substring(sp + 1));
+        if (level <= 0) return NONE;
+        String id = name.substring(0, sp).toLowerCase(java.util.Locale.ROOT)
+                .replace("'", "").replace('-', '_').replace(' ', '_');
+        id = ALIAS.getOrDefault(id, id);
+        if (!ULTIMATE.containsKey(id) && !NORMAL.containsKey(id)) {
+            String ult = "ultimate_" + id;
+            if (!ULTIMATE.containsKey(ult)) return NONE;
+            id = ult;
+        }
+        return make(id, level, false);
+    }
+
+    private static Text make(String id, int level, boolean allowFallback) {
+        if (level <= 0) return NONE;
         String name = ULTIMATE.get(id);
         boolean ultimate = name != null;
         if (!ultimate) name = NORMAL.get(id);
-        if (name == null) name = fallback(id);
-
+        if (name == null) {
+            if (!allowFallback) return NONE;
+            name = fallback(id);
+        }
         return new Text(Component.literal(name).withStyle(s -> s.withBold(true)),
                 roman(level), String.valueOf(level), ultimate);
+    }
+
+    private static int romanValue(String s) {
+        if (s.isEmpty()) return -1;
+        int result = 0, prev = 0;
+        for (int i = s.length() - 1; i >= 0; i--) {
+            int v = switch (s.charAt(i)) {
+                case 'I' -> 1; case 'V' -> 5; case 'X' -> 10; case 'L' -> 50;
+                default -> -1;
+            };
+            if (v < 0) return -1;
+            result += v < prev ? -v : v;
+            prev = v;
+        }
+        return result;
     }
 
     /** Unknown enchant: initials for multi-word ids (bane_of_arthropods = BOA), else first 4 letters. */

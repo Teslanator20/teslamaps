@@ -176,7 +176,7 @@ public final class TooltipTweaks {
     /** Current bonus in the bottom-left corner of an evolving item. Slot-relative coordinates. */
     public static void drawSlot(GuiGraphicsExtractor ctx, Slot slot) {
         TeslaMapsConfig c = cfg();
-        if (!c.evolvingProgress || !c.evolvingSlotText) return;
+        if (!c.evolvingProgress || !c.evolvingSlotText || !SlotText.shown(SlotText.EVOLVING)) return;
         ItemStack stack = slot.getItem();
         if (stack.isEmpty()) return;
         String prefix = bonusPrefix(ItemUtil.skyblockId(stack));

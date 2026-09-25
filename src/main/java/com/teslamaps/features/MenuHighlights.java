@@ -347,7 +347,7 @@ public class MenuHighlights {
     }
 
     public static void renderTips(GuiGraphicsExtractor ctx) {
-        if ((tips.isEmpty() && extras.isEmpty()) || feature == null || !feature.active()) return;
+        if ((tips.isEmpty() && extras.isEmpty()) || feature == null || !feature.active() || !SlotText.shown(SlotText.MENU)) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;

@@ -173,6 +173,7 @@ public class ItemSearchScreen extends Screen {
                     return true;
                 }
             }
+            com.teslamaps.features.SearchHighlight.start(row.stack(), row.name());
             boolean chest = false;
             for (Where w : row.where()) {
                 if (w.pos() == null) continue;

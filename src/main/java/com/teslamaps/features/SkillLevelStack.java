@@ -80,7 +80,7 @@ public class SkillLevelStack {
     }
 
     public static void render(GuiGraphicsExtractor ctx) {
-        if (labels.isEmpty() || !TeslaMapsConfig.get().skillLevelStackSize) return;
+        if (labels.isEmpty() || !TeslaMapsConfig.get().skillLevelStackSize || !SlotText.shown(SlotText.SKILL)) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
 

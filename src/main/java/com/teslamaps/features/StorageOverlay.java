@@ -48,7 +48,8 @@ public class StorageOverlay {
     // grows absurdly large on wide screens, then nudged by the user scale but re-clamped to fit.
     private static void layout(int screenW, int screenH) {
         float boxGridW = cols() * BOX_W + (cols() - 1) * GAP;
-        float availBoxW = screenW - 2 * SIDE_MARGIN - SCROLLBAR_W;
+        float pct = Math.max(40, Math.min(100, TeslaMapsConfig.get().storageWidthPercent)) / 100f;
+        float availBoxW = screenW * pct - 2 * SIDE_MARGIN - SCROLLBAR_W;
         float maxBoxScl = availBoxW / boxGridW;
         float boxScl = Math.min(maxBoxScl, 1.15f) * userScale();
         // never exceed the fit width (would clip / hit the scrollbar); floor only as a last resort
@@ -202,6 +203,27 @@ public class StorageOverlay {
 
     public static void register() {
         com.teslamaps.registry.Feature.of("StorageChat").section("Inventory").serverChat(StorageOverlay::onChat);
+        com.teslamaps.registry.Feature.of("StorageLastPage").section("Inventory")
+                .when(() -> TeslaMapsConfig.get().storageRememberLast).tick(StorageOverlay::trackLast);
+        net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.MODIFY_COMMAND.register(StorageOverlay::rewriteStorage);
+    }
+
+    private static String lastPage = null;
+
+    private static void trackLast() {
+        String k = liveKey();
+        if (k != null) lastPage = k;
+    }
+
+    /** /storage straight into the last used page. */
+    private static String rewriteStorage(String command) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (lastPage == null || !c.storageRememberLast || !c.section("Inventory")) return command;
+        if (command == null || !command.trim().equalsIgnoreCase("storage")) return command;
+        if (!com.teslamaps.utils.SkyblockUtils.isInSkyblock()) return command;
+        if (Boolean.FALSE.equals(StorageCache.unlocked(lastPage))) return command;
+        String cmd = commandForGlobal(globalIndex(lastPage));
+        return cmd == null ? command : cmd;
     }
 
     private static final java.util.regex.Pattern REMOVED_BACKPACK =
@@ -230,11 +252,15 @@ public class StorageOverlay {
             vanillaScreen = new java.lang.ref.WeakReference<>(cs);
             return false;
         }
-        if (lastScreen.get() != cs) lastScreen = new java.lang.ref.WeakReference<>(cs);
+        if (lastScreen.get() != cs) {
+            lastScreen = new java.lang.ref.WeakReference<>(cs);
+            openedAt = System.currentTimeMillis();
+        }
         return true;
     }
 
     private static java.lang.ref.WeakReference<net.minecraft.client.gui.screens.Screen> lastScreen = new java.lang.ref.WeakReference<>(null);
+    private static long openedAt = 0;
 
     private static int globalIndex(String key) {
         if (key == null) return -1;
@@ -252,7 +278,51 @@ public class StorageOverlay {
         return gi < 9 ? "ec " + (gi + 1) : "bp " + (gi - 9 + 1);
     }
 
+    private static final long SETTLE_MS = 175;
+    private static int selectedGi = -1;
+    private static long lastNavMs = 0;
+    private static boolean settleSent = false, scrollToSel = false;
+
+    private static boolean settle() { return TeslaMapsConfig.get().storageSettleSwap; }
+
+    private static void select(int gi) {
+        if (gi < 0 || gi > 26) return;
+        selectedGi = gi;
+        lastNavMs = System.currentTimeMillis();
+        settleSent = false;
+        scrollToSel = true;
+    }
+
+    /** One page command once the local selection has stood still for SETTLE_MS. */
+    private static void tickSettle() {
+        if (selectedGi < 0) return;
+        int live = globalIndex(liveKey());
+        long now = System.currentTimeMillis();
+        if (live == selectedGi || (settleSent && now - lastNavMs > 3000)) { selectedGi = -1; return; }
+        if (settleSent || now - lastNavMs < SETTLE_MS) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || !mc.player.containerMenu.getCarried().isEmpty()) return;
+        settleSent = true;
+        lastNavMs = now;
+        openGlobal(live, selectedGi);
+    }
+
+    private static void openGlobal(int liveGi, int tgi) {
+        if (sameCategory(liveGi, tgi) && tgi == liveGi + 1) clickPageArrow("Next Page");
+        else if (sameCategory(liveGi, tgi) && tgi == liveGi - 1) clickPageArrow("Previous Page");
+        else {
+            Minecraft mc = Minecraft.getInstance();
+            String cmd = commandForGlobal(tgi);
+            if (cmd != null && mc.getConnection() != null) mc.getConnection().sendCommand(cmd);
+        }
+    }
+
     private static void navigateDir(boolean next) {
+        if (settle()) {
+            int base = selectedGi >= 0 ? selectedGi : globalIndex(liveKey());
+            if (base >= 0) select(base + (next ? 1 : -1));
+            return;
+        }
         int gi = globalIndex(liveKey());
         if (gi < 0) return;
         int tgi = next ? gi + 1 : gi - 1;
@@ -266,6 +336,11 @@ public class StorageOverlay {
     }
 
     private static void navigateRow(int delta) {
+        if (settle()) {
+            int base = selectedGi >= 0 ? selectedGi : globalIndex(liveKey());
+            if (base >= 0) select(base + delta);
+            return;
+        }
         int gi = globalIndex(liveKey());
         if (gi < 0) return;
         int tgi = gi + delta;
@@ -304,7 +379,13 @@ public class StorageOverlay {
 
     private static void addIfVisible(List<Box> out, String key, String label, boolean ender, int num, String live) {
         boolean isLive = key.equals(live);
-        if (StorageCache.size(key) <= 0 && !isLive) return;
+        boolean unopened = false;
+        if (TeslaMapsConfig.get().storageShowUnopened) {
+            Boolean u = StorageCache.unlocked(key);
+            if (Boolean.FALSE.equals(u) && !isLive) return;
+            unopened = Boolean.TRUE.equals(u) && StorageCache.size(key) <= 0;
+        }
+        if (StorageCache.size(key) <= 0 && !isLive && !unopened) return;
         Map<Integer, ItemStack> items = StorageCache.items(key);
         if (!search.isEmpty() && !isLive) {
             boolean match = false;
@@ -391,6 +472,21 @@ public class StorageOverlay {
             }
         }
         lastRenderMs = nowMs;
+        if (settle()) tickSettle();
+        String scrollKey = null;
+        if (scrollToSel && selectedGi >= 0) scrollKey = selKey(selectedGi);
+        else if (jumpKey != null) scrollKey = jumpKey;
+        scrollToSel = false;
+        jumpKey = null;
+        if (scrollKey != null) {
+            for (int i = 0; i < vis.size(); i++) {
+                if (!vis.get(i).key.equals(scrollKey)) continue;
+                float top = sy + L.y[i] - HEADER_PX / scl(), bottom = sy + L.y[i] + L.h[i] - wallBottom / scl();
+                if (scroll > top) scroll = top;
+                else if (scroll < bottom) scroll = Math.min(top, bottom);
+                break;
+            }
+        }
         scroll = Math.max(0, Math.min(scroll,
                 Math.max(0, L.contentH + startY() + 10 - wallBottom / scl())));
         Map<Integer, ItemStack> dragTop = DRAG_TOP, dragInv = DRAG_INV;
@@ -425,6 +521,13 @@ public class StorageOverlay {
                 ctx.fill(bx - 1, by - 1, bx + 1, by + bh + 1, c);
                 ctx.fill(bx + BOX_W - 1, by - 1, bx + BOX_W + 1, by + bh + 1, c);
             }
+            if (selectedGi >= 0 && !isLive && globalIndex(b.key) == selectedGi) {
+                int c = 0xFFFFFFFF;
+                ctx.fill(bx - 1, by - 1, bx + BOX_W + 1, by + 1, c);
+                ctx.fill(bx - 1, by + bh - 1, bx + BOX_W + 1, by + bh + 1, c);
+                ctx.fill(bx - 1, by - 1, bx + 1, by + bh + 1, c);
+                ctx.fill(bx + BOX_W - 1, by - 1, bx + BOX_W + 1, by + bh + 1, c);
+            }
             if (showNames) {
                 String title = b.key.equals(rename) ? "§e" + renameText + "_" : pageName(b.key, b.label);
                 if (vanillaTex) ctx.text(mc.font, title + (isLive ? " §2●" : ""), bx + 4, by + 2, 0xFF404040, false);
@@ -433,7 +536,12 @@ public class StorageOverlay {
 
             int size = StorageCache.size(b.key);
             Map<Integer, ItemStack> items = isLive ? liveContent() : StorageCache.items(b.key);
+            if (isLive && items.isEmpty() && cfg.storageCachedWhileLoading && nowMs - openedAt < 1000) {
+                Map<Integer, ItemStack> cached = StorageCache.items(b.key);
+                if (cached != null) items = cached;
+            }
             int gx0 = bx + 4, gy0 = by + topPad();
+            if (size <= 0 && !isLive) ctx.text(mc.font, "§8not opened yet", gx0 + 2, gy0 + 4, 0xFFFFFFFF);
             int emptyCol = searching ? 0xFF252525 : 0xFF555555;
             for (int s = 0; s < size; s++) {
                 int gx = gx0 + (s % GRID_COLS) * CELL, gy = gy0 + (s / GRID_COLS) * CELL;
@@ -460,12 +568,20 @@ public class StorageOverlay {
                 }
                 boolean match = !searching || matches(st, search);
                 if (searching && match) ctx.fill(gx, gy, gx + 16, gy + 16, 0xFF2E8B2E); // bright green bg = hit
+                SearchHighlight.drawAt(ctx, gx, gy, st);
                 com.teslamaps.features.RarityBackground.draw(ctx, gx, gy, st);
                 ctx.item(st, gx, gy);
                 ctx.itemDecorations(mc.font, st, gx, gy);
                 EnchantAbbrev.draw(ctx, st, gx, gy);
                 if (searching && !match) ctx.fill(gx, gy, gx + 16, gy + 16, 0xC0000000); // dim non-hit
                 if (!isLive && vmx >= gx && vmx < gx + 16 && vmy >= gy && vmy < gy + 16 && mouseY < wallBottom) hoverNonLive = st;
+            }
+            if (b.key.equals(markKey) && markSlot >= 0) {
+                int gx = gx0 + (markSlot % GRID_COLS) * CELL, gy = gy0 + (markSlot / GRID_COLS) * CELL, c = 0xFF30FF30;
+                ctx.fill(gx - 1, gy - 1, gx + 17, gy, c);
+                ctx.fill(gx - 1, gy + 16, gx + 17, gy + 17, c);
+                ctx.fill(gx - 1, gy - 1, gx, gy + 17, c);
+                ctx.fill(gx + 16, gy - 1, gx + 17, gy + 17, c);
             }
         }
         lastHover = hoverNonLive;
@@ -563,6 +679,94 @@ public class StorageOverlay {
         if (selHover != null) gridPopup(ctx, mc, selHover, mouseX, mouseY);
 
         drawValuePanel(ctx, mc);
+        ItemStack hitHover = drawResults(ctx, mc, mouseX, mouseY, wallBottom);
+        if (hitHover != null) {
+            List<Component> lines = new ArrayList<>(net.minecraft.client.gui.screens.Screen.getTooltipFromItem(mc, hitHover));
+            lines.add(Component.literal("§8in " + hitPage));
+            ctx.setComponentTooltipForNextFrame(mc.font, lines, mouseX, mouseY);
+        }
+    }
+
+    private record Hit(String key, int slot, ItemStack stack, String page) {}
+    private static List<Hit> hits = new ArrayList<>();
+    private static String hitsFor = null;
+    private static long hitsAt = 0;
+    private static int hitScroll = 0;
+    private static String markKey = null, jumpKey = null, hitPage = "";
+    private static int markSlot = -1;
+    private static final int RES_W = 150, RES_ROW = 18;
+
+    private static boolean resultsOn() { return TeslaMapsConfig.get().storageSearchResults && !search.isEmpty(); }
+
+    private static int[] resultsRect(int sw, int wallBottom) {
+        int x = sw - SCROLLBAR_W - 6 - RES_W, y = HEADER_PX + 4;
+        return new int[]{x, y, RES_W, Math.max(40, wallBottom - y - 4)};
+    }
+
+    private static void rebuildHits() {
+        long now = System.currentTimeMillis();
+        if (search.equals(hitsFor) && now - hitsAt < 1000) return;
+        if (!search.equals(hitsFor)) hitScroll = 0;
+        hitsFor = search;
+        hitsAt = now;
+        String live = liveKey();
+        List<Hit> out = new ArrayList<>();
+        for (int gi = 0; gi < 27 && out.size() < 500; gi++) {
+            String key = selKey(gi);
+            Map<Integer, ItemStack> m = key.equals(live) ? liveContent() : StorageCache.items(key);
+            if (m == null) continue;
+            String page = com.teslamaps.utils.StringUtil.strip(pageName(key, gi < 9 ? "Ender Page " + (gi + 1) : "Backpack " + (gi - 8)));
+            for (Map.Entry<Integer, ItemStack> e : m.entrySet())
+                if (!e.getValue().isEmpty() && matches(e.getValue(), search)) out.add(new Hit(key, e.getKey(), e.getValue(), page));
+        }
+        hits = out;
+    }
+
+    private static ItemStack drawResults(GuiGraphicsExtractor ctx, Minecraft mc, int mouseX, int mouseY, int wallBottom) {
+        if (!resultsOn()) return null;
+        rebuildHits();
+        int[] r = resultsRect(mc.screen.width, wallBottom);
+        int rows = Math.max(1, (r[3] - 16) / RES_ROW);
+        hitScroll = Math.max(0, Math.min(hitScroll, Math.max(0, hits.size() - rows)));
+        ctx.fill(r[0], r[1], r[0] + r[2], r[1] + r[3], 0xF0141118);
+        ctx.fill(r[0], r[1], r[0] + r[2], r[1] + 1, 0xFF30FF30);
+        ctx.text(mc.font, "§a" + hits.size() + " results", r[0] + 4, r[1] + 4, 0xFFFFFFFF);
+        ItemStack hover = null;
+        for (int i = 0; i < rows && hitScroll + i < hits.size(); i++) {
+            Hit h = hits.get(hitScroll + i);
+            int y = r[1] + 16 + i * RES_ROW;
+            boolean over = mouseX >= r[0] && mouseX < r[0] + r[2] && mouseY >= y && mouseY < y + RES_ROW;
+            if (over) { ctx.fill(r[0] + 1, y, r[0] + r[2] - 1, y + RES_ROW, 0x30FFFFFF); hover = h.stack; hitPage = h.page; }
+            ctx.item(h.stack, r[0] + 3, y + 1);
+            ctx.itemDecorations(mc.font, h.stack, r[0] + 3, y + 1);
+            ctx.text(mc.font, mc.font.plainSubstrByWidth(strip(h.stack.getHoverName().getString()), r[2] - 26), r[0] + 22, y + 5, 0xFFFFFFFF);
+        }
+        return hover;
+    }
+
+    private static boolean resultsClick(double mx, double my, int wallBottom) {
+        if (!resultsOn()) return false;
+        Minecraft mc = Minecraft.getInstance();
+        int[] r = resultsRect(mc.screen.width, wallBottom);
+        if (mx < r[0] || mx >= r[0] + r[2] || my < r[1] || my >= r[1] + r[3]) return false;
+        int i = (int) ((my - r[1] - 16) / RES_ROW);
+        if (my < r[1] + 16 || hitScroll + i >= hits.size()) return true;
+        Hit h = hits.get(hitScroll + i);
+        markKey = h.key;
+        markSlot = h.slot;
+        jumpKey = h.key;
+        String live = liveKey();
+        if (h.key.equals(live) || mc.player == null || !mc.player.containerMenu.getCarried().isEmpty()) return true;
+        if (settle()) select(globalIndex(h.key));
+        else openGlobal(globalIndex(live), globalIndex(h.key));
+        return true;
+    }
+
+    private static boolean overResults(double mx, double my) {
+        if (!resultsOn()) return false;
+        Minecraft mc = Minecraft.getInstance();
+        int[] r = resultsRect(mc.screen.width, (int) ((mainY() - 13) * iscl()) - 2);
+        return mx >= r[0] && mx < r[0] + r[2] && my >= r[1] && my < r[1] + r[3];
     }
 
     private static int dragRemainder = -1;
@@ -612,6 +816,8 @@ public class StorageOverlay {
             int border = isLive ? (i < 9 ? 0xFF55FFFF : 0xFFFFAA00) : hovered ? 0xFFFFFFFF : 0xFF373737;
             ctx.fill(p[0] - 1, p[1] - 1, p[0] + box + 1, p[1] + box + 1, border);
             ctx.fill(p[0], p[1], p[0] + box, p[1] + box, hovered ? 0xFF6E6E6E : 0xFF565656);
+            if (SearchHighlight.pageHit(key))
+                ctx.fill(p[0], p[1], p[0] + box, p[1] + box, TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorSearchHighlight));
             ItemStack icon = StorageCache.icon(key);
             if (icon == null || icon.isEmpty()) icon = new ItemStack(i < 9 ? Items.ENDER_CHEST : Items.PLAYER_HEAD);
             float off = (box - 16 * SEL_ICON) / 2f;
@@ -870,10 +1076,16 @@ public class StorageOverlay {
             if (button == 1) setSearch(""); else searchFocused = true;
             return true;
         }
+        if (resultsClick(mx, my, wallBottom)) { searchFocused = false; return true; }
         searchFocused = false;
         if (rename != null) finishRename(true);
 
-        if (slotAt(mx, my) != null) return false;
+        Slot hit = slotAt(mx, my);
+        if (hit != null) {
+            if (markKey != null && markKey.equals(liveKey()) && !(hit.container instanceof Inventory)
+                    && hit.getContainerSlot() - 9 == markSlot) { markKey = null; markSlot = -1; }
+            return false;
+        }
 
         // boxes are scissored to header..wall; clicks outside that band (inventory/selector
         // area, slot gutters) must never hit the virtual box rects hidden behind it
@@ -899,6 +1111,7 @@ public class StorageOverlay {
                 // fire page commands - that reloads the container mid-interaction
                 if (b.key.equals(liveKey()) || !mc.player.containerMenu.getCarried().isEmpty()) return true;
                 int liveGi = globalIndex(liveKey()), clickedGi = globalIndex(b.key);
+                if (settle()) { select(clickedGi); return true; }
                 if (sameCategory(liveGi, clickedGi) && clickedGi == liveGi + 1) clickPageArrow("Next Page");
                 else if (sameCategory(liveGi, clickedGi) && clickedGi == liveGi - 1) clickPageArrow("Previous Page");
                 else if (mc.getConnection() != null) mc.getConnection().sendCommand((b.ender ? "ec " : "bp ") + b.num);
@@ -935,8 +1148,38 @@ public class StorageOverlay {
             if (key == GLFW.GLFW_KEY_S) { navigateRow(cols()); return true; }
             return false;
         }
-        if (key == GLFW.GLFW_KEY_BACKSPACE) { if (!search.isEmpty()) setSearch(search.substring(0, search.length() - 1)); return true; }
+        if (TeslaMapsConfig.get().storageSearchResults && searchKeys(key)) return true;
+        if (key == GLFW.GLFW_KEY_BACKSPACE) {
+            if (allSelected) { allSelected = false; setSearch(""); return true; }
+            if (!search.isEmpty()) setSearch(search.substring(0, search.length() - 1));
+            return true;
+        }
         return true; // text itself arrives via charTyped
+    }
+
+    private static boolean allSelected = false;
+
+    /** Ctrl+A/C/V/X in the search box. */
+    private static boolean searchKeys(int key) {
+        Minecraft mc = Minecraft.getInstance();
+        long w = mc.getWindow().handle();
+        boolean ctrl = GLFW.glfwGetKey(w, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
+                || GLFW.glfwGetKey(w, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
+        if (!ctrl) return false;
+        switch (key) {
+            case GLFW.GLFW_KEY_A -> allSelected = !search.isEmpty();
+            case GLFW.GLFW_KEY_C -> mc.keyboardHandler.setClipboard(search);
+            case GLFW.GLFW_KEY_X -> { mc.keyboardHandler.setClipboard(search); allSelected = false; setSearch(""); }
+            case GLFW.GLFW_KEY_V -> {
+                StringBuilder sb = new StringBuilder(allSelected ? "" : search);
+                for (char ch : mc.keyboardHandler.getClipboard().toCharArray())
+                    if (ch >= 32 && ch != 127 && sb.length() < 64) sb.append(Character.toLowerCase(ch));
+                allSelected = false;
+                setSearch(sb.toString());
+            }
+            default -> { return false; }
+        }
+        return true;
     }
 
     public static boolean charTyped(int codepoint) {
@@ -946,7 +1189,9 @@ public class StorageOverlay {
         }
         if (!active() || !searchFocused) return false;
         if (codepoint < 32 || codepoint == 127) return false;
-        setSearch(search + Character.toString(Character.toLowerCase(codepoint)));
+        String base = allSelected ? "" : search;
+        allSelected = false;
+        setSearch(base + Character.toString(Character.toLowerCase(codepoint)));
         return true;
     }
 
@@ -967,6 +1212,12 @@ public class StorageOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
         layout(cs.width, cs.height);
+        double pmx = mc.mouseHandler.xpos() * mc.getWindow().getGuiScaledWidth() / mc.getWindow().getScreenWidth();
+        double pmy = mc.mouseHandler.ypos() * mc.getWindow().getGuiScaledHeight() / mc.getWindow().getScreenHeight();
+        if (overResults(pmx, pmy)) {
+            hitScroll = Math.max(0, hitScroll - (int) Math.signum(sy) * 2);
+            return true;
+        }
         int wallBottom = (int) ((mainY() - 13) * iscl()) - 2;
         float maxScroll = Math.max(0, lay(visible()).contentH + startY() + 10 - wallBottom / scl());
         boolean ctrl = GLFW.glfwGetKey(mc.getWindow().handle(), GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS

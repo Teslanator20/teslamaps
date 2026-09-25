@@ -2188,6 +2188,21 @@ public class TeslaMapsConfig {
     public boolean starsStackSizeColors = false;
     public boolean redMasterStars = false;
     public boolean skyblockIdTooltip = false;
+    // w05-08-inv
+    public boolean slotTextControl = false;
+    public String slotTextMode = "Hold To Hide";
+    public int slotTextKey = 342;
+    public List<String> slotTextDisabled = new ArrayList<>();
+    public boolean enchantAbbrevBazaar = false;
+    public boolean storageRememberLast = false;
+    public boolean storageSettleSwap = false;
+    public boolean storageCachedWhileLoading = false;
+    public int storageWidthPercent = 100;
+    public boolean storageShowUnopened = false;
+    public boolean storageSearchResults = false;
+    public boolean searchHighlight = false;
+    public int searchHighlightSeconds = 30;
+    public String colorSearchHighlight = "9055FF55";
     // w04-03-inv
     public boolean moveInsertIntoSack = false;
     public boolean arrowPoisonIndicator = false;
@@ -2984,6 +2999,9 @@ public class TeslaMapsConfig {
         if (c.slotBindsData == null) c.slotBindsData = new java.util.HashMap<>();
         if (c.slotBindsAreaProfiles == null) c.slotBindsAreaProfiles = new java.util.HashMap<>();
         if (c.storagePageNames == null) c.storagePageNames = new java.util.HashMap<>();
+        if (c.slotTextDisabled == null) c.slotTextDisabled = new ArrayList<>();
+        if (c.slotTextMode == null) c.slotTextMode = "Hold To Hide";
+        if (c.colorSearchHighlight == null) c.colorSearchHighlight = "9055FF55";
         if (c.puzzlePbs == null) c.puzzlePbs = new java.util.HashMap<>();
         if (c.termSimPbs == null) c.termSimPbs = new java.util.HashMap<>();
         if (c.terminalPbs == null) c.terminalPbs = new java.util.HashMap<>();

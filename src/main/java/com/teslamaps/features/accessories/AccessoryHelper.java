@@ -265,7 +265,8 @@ public final class AccessoryHelper {
 
     /** Status symbol in each accessory slot, from ContainerOverlays. */
     public static void renderSlots(GuiGraphicsExtractor ctx) {
-        if (!cfg().accessorySlotSymbol || !active() || !AccessoryData.hasData()) return;
+        if (!cfg().accessorySlotSymbol || !active() || !AccessoryData.hasData()
+                || !com.teslamaps.features.SlotText.shown(com.teslamaps.features.SlotText.ACCESSORY)) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;

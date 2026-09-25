@@ -121,7 +121,7 @@ public class HotF {
             if (name.equals(INVENTORY)) {
                 if (c.hotfTokenStack) {
                     int tokens = readTokens(lore);
-                    if (tokens > 0) stackTip(ctx, mc, sx, sy, "§b" + tokens);
+                    if (tokens > 0 && com.teslamaps.features.SlotText.shown(com.teslamaps.features.SlotText.HOTF_TOKENS)) stackTip(ctx, mc, sx, sy, "§b" + tokens);
                 }
                 continue;
             }
@@ -134,7 +134,8 @@ public class HotF {
 
             if (c.hotfLevelStack && enabled) {
                 int[] level = readLevel(lore);
-                if (level != null && level[0] != 0 && level[0] != level[1]) {
+                if (level != null && level[0] != 0 && level[0] != level[1]
+                        && com.teslamaps.features.SlotText.shown(com.teslamaps.features.SlotText.HOTF_LEVEL)) {
                     stackTip(ctx, mc, sx, sy, "§e" + level[0]);
                 }
             }

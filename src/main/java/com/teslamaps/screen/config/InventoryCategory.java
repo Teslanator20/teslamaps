@@ -162,6 +162,17 @@ public final class InventoryCategory {
         b.toggle("  Compact Vertically", () -> config.storageCompact, v -> config.storageCompact = v);
         b.toggle("  Center On Open Page", () -> config.storageCenterActive, v -> config.storageCenterActive = v);
         b.toggle("  Focus Search On Open", () -> config.storageSearchFocus, v -> config.storageSearchFocus = v);
+        b.toggle("  Remember Last Page", () -> config.storageRememberLast, v -> config.storageRememberLast = v)
+                .desc("/storage opens the page you used last (/ec n or /bp n)");
+        b.toggle("  Settle Page Swaps", () -> config.storageSettleSwap, v -> config.storageSettleSwap = v)
+                .desc("WASD and clicks move a local selection first, one command once you stop on a page");
+        b.toggle("  Show Cached Items While Loading", () -> config.storageCachedWhileLoading, v -> config.storageCachedWhileLoading = v);
+        b.slider("  Overlay Width (%)", 40f, 100f,
+                () -> (float) config.storageWidthPercent, v -> config.storageWidthPercent = Math.round(v), 0);
+        b.toggle("  Show Never Opened Pages", () -> config.storageShowUnopened, v -> config.storageShowUnopened = v)
+                .desc("Open /storage once: unlocked pages show up even without cached content, empty slots are hidden");
+        b.toggle("  Search Result List", () -> config.storageSearchResults, v -> config.storageSearchResults = v)
+                .desc("All hits with page name; click one to open its page and mark the slot. Ctrl+A/C/V/X in the search box");
         b.label("Hovered Slot");
         b.toggle("Hovered Slot Outline", () -> config.hoveredSlotOutline, v -> config.hoveredSlotOutline = v);
         b.color("  Outline Color", () -> config.colorHoveredSlot, v -> config.colorHoveredSlot = v);

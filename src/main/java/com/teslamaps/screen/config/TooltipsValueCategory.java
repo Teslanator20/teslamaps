@@ -97,6 +97,8 @@ public final class TooltipsValueCategory {
         b.color("  Abbreviation Color", () -> config.colorEnchantAbbrev, v -> config.colorEnchantAbbrev = v);
         b.color("  Ultimate Color", () -> config.colorEnchantAbbrevUltimate, v -> config.colorEnchantAbbrevUltimate = v);
         b.color("  Level Color", () -> config.colorEnchantAbbrevLevel, v -> config.colorEnchantAbbrevLevel = v);
+        b.toggle("  Bazaar Book Names", () -> config.enchantAbbrevBazaar, v -> config.enchantAbbrevBazaar = v)
+                .desc("Bazaar books named like Sharpness VII get the abbreviation too");
         b.toggle("Enchant Colors", () -> config.enchantColors, v -> config.enchantColors = v);
         b.toggle("Levels as Numbers", () -> config.enchantLevelsAsNumbers, v -> config.enchantLevelsAsNumbers = v);
         b.dropdown("Enchant Layout", com.teslamaps.features.EnchantColors.LAYOUTS,

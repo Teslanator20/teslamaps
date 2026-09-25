@@ -27,6 +27,7 @@ public class StorageCache {
         public int size;
         public LinkedHashMap<Integer, String> slots = new LinkedHashMap<>();
         public String icon;
+        public Boolean unlocked;
     }
 
     private static final Gson GSON = new GsonBuilder().create();
@@ -120,6 +121,26 @@ public class StorageCache {
         e.icon = iconSnbt;
         dirty = true;
         decodedIcon.remove(key);
+    }
+
+    /** From the storage hub icons; null = never scanned. */
+    public static void setUnlocked(String key, boolean unlocked) {
+        ensure();
+        Entry e = data.get(key);
+        if (e == null) {
+            if (!unlocked) return;
+            e = new Entry();
+            data.put(key, e);
+        }
+        if (e.unlocked != null && e.unlocked == unlocked) return;
+        e.unlocked = unlocked;
+        dirty = true;
+    }
+
+    public static Boolean unlocked(String key) {
+        ensure();
+        Entry e = data.get(key);
+        return e == null ? null : e.unlocked;
     }
 
     public static ItemStack icon(String key) {
