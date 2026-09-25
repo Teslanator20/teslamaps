@@ -14,15 +14,20 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemLore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,12 +35,16 @@ public class MenuHighlights {
 
     private record Mark(int slot, int color) {}
     private record Tip(int slot, String text) {}
+    private record Extra(int slot, Component text, boolean side) {}
 
     private static final int GREEN = 0x55FF55, RED = 0xFF5555, YELLOW = 0xFFFF55, GOLD = 0xFFAA00, AQUA = 0x55FFFF;
 
     private static final Pattern PLAYERS = Pattern.compile("Players: (\\d+)/(\\d+)");
     private static final Pattern FLOOR = Pattern.compile("Catacombs \\((.*)\\)");
     private static final Pattern POINTS = Pattern.compile("Stat has: (\\d+) points?");
+    private static final Pattern UNASSIGNED = Pattern.compile("Unassigned Points: (\\d+)!*");
+    private static final Pattern YOU_HAVE = Pattern.compile("You have: .+ \\+ ([^ ]+) (.)");
+    private static final Pattern YOUR_TUNING = Pattern.compile("\\+([^ ]+)(.) .+");
     private static final Pattern LOADOUTS = Pattern.compile("\\(\\d+/\\d+\\) Loadouts");
     private static final Pattern LOCKED = Pattern.compile("Loadout \\d+ Locked");
     private static final Pattern THAUMATURGY = Pattern.compile("(?:\\(\\d/\\d\\) )?Accessory Bag Thaumaturgy");
@@ -43,6 +52,8 @@ public class MenuHighlights {
 
     private static List<Mark> marks = List.of();
     private static List<Tip> tips = List.of();
+    private static List<Extra> extras = List.of();
+    private static List<Component> tuningParts = List.of();
     private static Map<Integer, String> missingStones = Map.of();
     private static String title = "";
     private static int ticks;
@@ -68,6 +79,8 @@ public class MenuHighlights {
                     b.toggle("    Click Opens Bazaar Search", () -> c.mhPowerStoneBazaar, v -> c.mhPowerStoneBazaar = v);
                     b.toggle("  Thaumaturgy: Shift-Click Favourites", () -> c.mhFavoritePowers, v -> c.mhFavoritePowers = v);
                     b.toggle("  Stats Tuning: Points, Template", () -> c.mhStatsTuning, v -> c.mhStatsTuning = v);
+                    b.toggle("    Template Stats, Free Points, Tuning", () -> c.mhStatsTuningMore, v -> c.mhStatsTuningMore = v)
+                            .desc("Load button lists the template's stats, the Stats Tuning item shows free points, and the Thaumaturgy menu shows your tuning on the Stats Tuning item.");
                 });
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (!missingStones.isEmpty() && feature.active()) onTooltip(stack, lines);
@@ -77,6 +90,7 @@ public class MenuHighlights {
     private static void clear() {
         if (!marks.isEmpty()) marks = List.of();
         if (!tips.isEmpty()) tips = List.of();
+        if (!extras.isEmpty()) extras = List.of();
         if (!missingStones.isEmpty()) missingStones = Map.of();
         title = "";
     }
@@ -97,10 +111,15 @@ public class MenuHighlights {
         boolean stones = c.mhPowerStones && t.equals("Power Stones Guide");
         boolean thaum = c.mhFavoritePowers && THAUMATURGY.matcher(t).matches();
         boolean tuning = c.mhStatsTuning && t.equals("Stats Tuning");
-        if (!(beacon || hub || rng || museum || loadout || stones || thaum || tuning)) { clear(); return; }
+        boolean tuneMore = tuning && c.mhStatsTuningMore;
+        boolean thaumTune = c.mhStatsTuning && c.mhStatsTuningMore && THAUMATURGY.matcher(t).matches();
+        if (!(beacon || hub || rng || museum || loadout || stones || thaum || tuning || thaumTune)) { clear(); return; }
 
         List<Mark> m = new ArrayList<>();
         List<Tip> tp = new ArrayList<>();
+        List<Extra> ex = new ArrayList<>();
+        List<Component> tuned = new ArrayList<>();
+        int thaumTuningSlot = -1;
         Map<Integer, String> missing = new HashMap<>();
         List<Slot> slots = cs.getMenu().slots;
         for (int i = 0; i < slots.size(); i++) {
@@ -149,10 +168,91 @@ public class MenuHighlights {
                     if (pm.matches()) { tp.add(new Tip(i, pm.group(1))); break; }
                 }
             }
+            if (tuneMore) {
+                if (name.equals("Load")) {
+                    String stats = templateStats(lore);
+                    if (stats != null) ex.add(new Extra(i, Component.literal(stats).withColor(0xFFFF55), true));
+                } else if (name.equals("Stats Tuning")) {
+                    for (String l : lore) {
+                        Matcher um = UNASSIGNED.matcher(StringUtil.stripTrim(l));
+                        if (um.matches()) { tp.add(new Tip(i, um.group(1))); break; }
+                    }
+                } else {
+                    Component part = tuningPart(stack);
+                    if (part != null) tuned.add(part);
+                }
+            }
+            if (thaumTune) {
+                if (name.equals("Stats Tuning")) thaumTuningSlot = i;
+                if (i == 51 && tuningParts.isEmpty()) tuningParts = yourTuning(stack);
+            }
+        }
+        if (tuneMore && !tuned.isEmpty()) tuningParts = tuned;
+        if (thaumTuningSlot >= 0 && !tuningParts.isEmpty()) {
+            MutableComponent line = Component.empty();
+            for (int k = 0; k < tuningParts.size(); k++) {
+                if (k > 0) line.append(" ");
+                line.append(tuningParts.get(k));
+            }
+            ex.add(new Extra(thaumTuningSlot, line, false));
         }
         marks = m;
         tips = tp;
+        extras = ex;
         missingStones = missing;
+    }
+
+    private static String templateStats(List<String> lore) {
+        boolean grab = false;
+        StringBuilder sb = new StringBuilder();
+        for (String raw : lore) {
+            String l = StringUtil.stripTrim(raw);
+            if (l.equals("You are loading:")) { grab = true; continue; }
+            if (!grab) continue;
+            if (l.isEmpty()) break;
+            int colon = l.indexOf(':');
+            if (sb.length() > 0) sb.append(" + ");
+            sb.append(colon < 0 ? l : l.substring(0, colon));
+        }
+        return sb.length() == 0 ? null : sb.toString();
+    }
+
+    private static Component tuningPart(ItemStack stack) {
+        ItemLore lore = ItemUtil.lore(stack);
+        if (lore == null) return null;
+        for (Component line : lore.lines()) {
+            Matcher mm = YOU_HAVE.matcher(StringUtil.stripTrim(line.getString()));
+            if (mm.matches()) return part(line, mm.group(1), mm.group(2));
+        }
+        return null;
+    }
+
+    private static List<Component> yourTuning(ItemStack stack) {
+        ItemLore lore = ItemUtil.lore(stack);
+        if (lore == null) return List.of();
+        List<Component> out = new ArrayList<>();
+        boolean active = false;
+        for (Component line : lore.lines()) {
+            String l = StringUtil.stripTrim(line.getString());
+            if (l.equals("Your tuning:")) { active = true; continue; }
+            if (!active) continue;
+            if (l.isEmpty()) break;
+            Matcher mm = YOUR_TUNING.matcher(l);
+            if (mm.matches()) out.add(part(line, mm.group(1), mm.group(2)));
+        }
+        return out;
+    }
+
+    private static Component part(Component line, String value, String icon) {
+        TextColor[] col = {null};
+        line.visit((style, text) -> {
+            if (text.contains(icon) && style.getColor() != null) {
+                col[0] = style.getColor();
+                return Optional.of(Boolean.TRUE);
+            }
+            return Optional.empty();
+        }, Style.EMPTY);
+        return Component.literal(value + icon).withColor(col[0] == null ? 0xFFFFFF : col[0].getValue());
     }
 
     private static boolean isLoadoutIcon(int slot) {
@@ -208,11 +308,24 @@ public class MenuHighlights {
     }
 
     public static void renderTips(GuiGraphicsExtractor ctx) {
-        if (tips.isEmpty() || feature == null || !feature.active()) return;
+        if ((tips.isEmpty() && extras.isEmpty()) || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;
+        for (Extra e : extras) {
+            if (e.slot >= slots.size()) continue;
+            Slot slot = slots.get(e.slot);
+            int w = mc.font.width(e.text);
+            float scale = e.side ? 0.6f : Math.min(1f, 48f / Math.max(1, w));
+            float x = e.side ? acc.getX() + slot.x + 18 : acc.getX() + slot.x + 17 - w * scale;
+            float y = e.side ? acc.getY() + slot.y + 5 : acc.getY() + slot.y + 17 - 8 * scale;
+            ctx.pose().pushMatrix();
+            ctx.pose().translate(x, y);
+            ctx.pose().scale(scale, scale);
+            ctx.text(mc.font, e.text, 0, 0, 0xFFFFFFFF);
+            ctx.pose().popMatrix();
+        }
         for (Tip tip : tips) {
             if (tip.slot >= slots.size()) continue;
             Slot slot = slots.get(tip.slot);

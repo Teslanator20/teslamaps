@@ -216,5 +216,8 @@ final class Features {
         // w04-07-inv
         com.teslamaps.features.StarUpgradeCost.register();
         com.teslamaps.features.MagicalPowerStack.register();
+        // w05-02-inv
+        com.teslamaps.features.MenuSlotText.register();
+        com.teslamaps.features.StatIcons.register();
     }
 }

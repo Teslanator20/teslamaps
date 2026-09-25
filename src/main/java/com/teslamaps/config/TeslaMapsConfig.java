@@ -2130,6 +2130,16 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w05-02-inv
+    public boolean menuSlotText = false;
+    public boolean mstLevels = true;
+    public boolean mstMinion = true;
+    public boolean mstPotion = true;
+    public boolean mstShopGuide = true;
+    public boolean mstEssence = true;
+    public boolean mhStatsTuningMore = false;
+    public boolean statIcons = false;
+    public boolean statIconsReplace = false;
     // w04-03-inv
     public boolean moveInsertIntoSack = false;
     public boolean arrowPoisonIndicator = false;
