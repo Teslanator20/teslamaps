@@ -2148,6 +2148,59 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w16-08-kuu
+    public boolean kuudraProfitTracker = false;
+    public boolean kuudraProfitEverywhere = false;
+    public int kuudraProfitResetKey = -1;
+    public int kuudraProfitViewKey = -1;
+    public int kuudraProfitTrackerX = 10;
+    public int kuudraProfitTrackerY = 120;
+    public float kuudraProfitTrackerScale = 1.0f;
+    public boolean kuudraArrowPoisonWarn = false;
+    public int kuudraArrowPoisonMin = 16;
+    public boolean kuudraBackboneTimer = false;
+    public int kuudraBackboneAdvance = 0;
+    public boolean kuudraBackboneSound = true;
+    public int kuudraBackboneX = 200;
+    public int kuudraBackboneY = 150;
+    public float kuudraBackboneScale = 1.0f;
+    public boolean kuudraFeroProc = false;
+    public boolean kuudraRendDamage = false;
+    public boolean kuudraKeyTracker = false;
+    public boolean kuudraRunTracker = false;
+    @Global
+    public int kuudraInfernalKeys = 0;
+    @Global
+    public int kuudraPendingRuns = 0;
+    public int kuudraRunTrackersX = 10;
+    public int kuudraRunTrackersY = 90;
+    public float kuudraRunTrackersScale = 1.0f;
+    public boolean kuudraSupplySplits = false;
+    public int kuudraSupplySplitsX = 10;
+    public int kuudraSupplySplitsY = 160;
+    public float kuudraSupplySplitsScale = 1.0f;
+    public boolean kuudraDpsHelper = false;
+    public boolean kuudraCannonBox = false;
+    public boolean kuudraMenuBlock = false;
+    public boolean kuudraSupplySound = false;
+    public boolean kuudraPerkColors = false;
+    public boolean kuudraSupplyHelper = false;
+    public boolean kuudraSupplyWaypoints = true;
+    public String kuudraSupplyColor = "FFFF55";
+    public boolean kuudraSupplyDropOffs = false;
+    public boolean kuudraSupplyGiants = false;
+    public boolean kuudraSupplyGiantsCompact = true;
+    public String kuudraSupplyGiantColor = "FF5555";
+    public boolean kuudraSupplyZombies = false;
+    public String kuudraSupplyZombieColor = "55FF55";
+    public boolean kuudraSupplyReach = false;
+    public boolean kuudraSupplyPreCircles = false;
+    public boolean kuudraSupplyProgress = false;
+    public int kuudraSupplyProgressX = 200;
+    public int kuudraSupplyProgressY = 180;
+    public float kuudraSupplyProgressScale = 1.0f;
+    public boolean kuudraAlreadyPicking = false;
+    public float kuudraAlreadyPickingSecs = 1.5f;
     // w16-03-sla
     public boolean slayerTierLock = false;
     public String slayerTierLockLast = "";

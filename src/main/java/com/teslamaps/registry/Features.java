@@ -840,5 +840,15 @@ final class Features {
         com.teslamaps.slayer.CallMaddox.register();
         com.teslamaps.slayer.VoidgloomBeacon.register();
         com.teslamaps.features.theend.EndermanQol.register();
+        // w16-08-kuu
+        com.teslamaps.features.kuudra.KuudraContext.register();
+        com.teslamaps.features.kuudra.KuudraProfitTracker.register();
+        com.teslamaps.features.kuudra.KuudraSupplyHelper.register();
+        com.teslamaps.features.kuudra.KuudraSupplyProgress.register();
+        com.teslamaps.features.kuudra.KuudraSupplySplits.register();
+        com.teslamaps.features.kuudra.KuudraArrowPoison.register();
+        com.teslamaps.features.kuudra.KuudraRend.register();
+        com.teslamaps.features.kuudra.KuudraQol.register();
+        com.teslamaps.features.kuudra.KuudraRunTrackers.register();
     }
 }

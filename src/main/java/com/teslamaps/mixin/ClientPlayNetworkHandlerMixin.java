@@ -237,6 +237,7 @@ public class ClientPlayNetworkHandlerMixin {
         if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) return;
         if (com.teslamaps.features.FarmingRngTitles.hideTitle(packet.text().getString())
                 || com.teslamaps.features.kuudra.KuudraMisc.hideTitle(packet.text().getString())) { ci.cancel(); return; }
+        if (com.teslamaps.features.kuudra.KuudraSupplyProgress.onText(packet.text().getString())) { ci.cancel(); return; }
         if (com.teslamaps.slayer.BlazeSlayerHelper.onTitle(packet.text().getString())) { ci.cancel(); return; }
         if (com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), false)) { ci.cancel(); return; }
         if (com.teslamaps.features.TimerTriggers.onTitle(packet.text().getString())) ci.cancel();
@@ -248,6 +249,7 @@ public class ClientPlayNetworkHandlerMixin {
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()
                 && (com.teslamaps.features.FarmingRngTitles.hideSubtitle(packet.text().getString())
                     || com.teslamaps.features.kuudra.KuudraMisc.hideTitle(packet.text().getString())
+                    || com.teslamaps.features.kuudra.KuudraSupplyProgress.onText(packet.text().getString())
                     || com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), true)
                     || com.teslamaps.features.F7Titles.onSubtitle(packet.text().getString()))) ci.cancel();
     }
