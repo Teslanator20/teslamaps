@@ -635,6 +635,15 @@ final class Features {
         com.teslamaps.features.NpcTradeCosts.register();
         com.teslamaps.features.RngMeterHelper.register();
         com.teslamaps.features.TradeHistory.register();
+        // w13-07-gar
+        com.teslamaps.features.GardenMilestoneData.register();
+        com.teslamaps.features.BestCropTime.register();
+        com.teslamaps.features.DnaAnalyzerSolver.register();
+        com.teslamaps.features.CropStartLocation.register();
+        com.teslamaps.features.GardenLevelHud.register();
+        com.teslamaps.features.CropFeverTracker.register();
+        com.teslamaps.features.CropMilestoneMenu.register();
+        com.teslamaps.features.FarmingRngTitles.register();
         // w14-00-gar
         com.teslamaps.features.MantidKillDisplay.register();
         com.teslamaps.features.GlowingMushrooms.register();

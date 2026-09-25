@@ -28,6 +28,10 @@ public class HandledScreenClickMixin {
         com.teslamaps.features.WardrobeKeys.onSlotClicked((AbstractContainerScreen<?>) (Object) this, slot, button, type);
         com.teslamaps.features.StorageGuiScale.onClick((AbstractContainerScreen<?>) (Object) this);
         com.teslamaps.features.qol.TiaRelayHelper.onSlotClick(slot, slotId, button, type);
+        if (com.teslamaps.features.DnaAnalyzerSolver.onSlotClick((AbstractContainerScreen<?>) (Object) this, slotId, type)) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.features.GardenMenuHelpers.blockClick((AbstractContainerScreen<?>) (Object) this, slot)) {
             ci.cancel();
             return;
@@ -115,6 +119,8 @@ public class HandledScreenClickMixin {
         if (com.teslamaps.features.FillerItems.hideTooltip((AbstractContainerScreen<?>) (Object) this,
                 ((HandledScreenAccessor) (Object) this).getFocusedSlot())
                 || com.teslamaps.features.BazaarOwnOrders.hideTooltip((AbstractContainerScreen<?>) (Object) this,
+                ((HandledScreenAccessor) (Object) this).getFocusedSlot())
+                || com.teslamaps.features.DnaAnalyzerSolver.hideTooltip((AbstractContainerScreen<?>) (Object) this,
                 ((HandledScreenAccessor) (Object) this).getFocusedSlot())) ci.cancel();
     }
 

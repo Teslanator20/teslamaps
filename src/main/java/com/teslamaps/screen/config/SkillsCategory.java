@@ -67,6 +67,13 @@ public final class SkillsCategory {
         b.info("Move it in /tmap gui");
         b.info("Keeps tracking either way — [Hide]/[Show] in the panel does the same");
         b.toggle("Overflow Levels (menu + chat)", () -> config.skillOverflow, v -> config.skillOverflow = v);
+        b.toggle("  Crop Milestones Too", () -> config.cropMilestoneOverflow, v -> config.cropMilestoneOverflow = v)
+                .desc("Crop Milestones menu: overflow tier past 46 with progress bar and tier as stack size, "
+                        + "plus a chat message on every overflow milestone. Open the menu once to load your crops.")
+                .tags("garden", "milestone", "farming");
+        b.toggle("    Average Crop Milestone", () -> config.cropMilestoneAverage, v -> config.cropMilestoneAverage = v);
+        b.toggle("  Tier On Crop / Composter Upgrades", () -> config.gardenUpgradeStackTier, v -> config.gardenUpgradeStackTier = v)
+                .tags("garden", "composter");
         b.toggle("Overflow Skill Avg. (menu tooltip)", () -> config.skillAvgOverflow, v -> config.skillAvgOverflow = v);
         b.toggle("Level as Stack Size (skills menu)", () -> config.skillLevelStackSize, v -> config.skillLevelStackSize = v);
         b.toggle("  Also Dungeon Menus (Cata/Class/SB Level)", () -> config.dungeonLevelSlotText, v -> config.dungeonLevelSlotText = v)
