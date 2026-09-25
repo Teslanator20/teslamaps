@@ -426,5 +426,8 @@ final class Features {
         com.teslamaps.features.LookTargeting.register();
         // w09-08-vis
         com.teslamaps.features.ParticleHider.register();
+        // w10-01-chat
+        com.teslamaps.features.ChatLog.register();
+        com.teslamaps.features.CurrentChatDisplay.register();
     }
 }

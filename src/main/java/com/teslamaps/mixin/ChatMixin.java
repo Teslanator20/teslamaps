@@ -29,24 +29,58 @@ public class ChatMixin {
 
     @ModifyVariable(method = ADD_MESSAGE, at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private Component teslamaps$rewriteLine(Component message) {
+        com.teslamaps.features.ChatLog.begin(message);
+        return com.teslamaps.features.ChatLog.rewritten(teslamaps$rewrite(message));
+    }
+
+    @Unique
+    private static Component teslamaps$rewrite(Component message) {
         Component shared = com.teslamaps.features.SharedImageChat.decorate(message);
-        if (shared != null) return shared;
+        if (shared != null) {
+            com.teslamaps.features.ChatLog.noteRewrite("sharedImage");
+            return shared;
+        }
         Component chroma = com.teslamaps.features.ChromaPrefix.rewrite(message);
-        if (chroma != null) message = chroma;
+        if (chroma != null) {
+            com.teslamaps.features.ChatLog.noteRewrite("chromaPrefix");
+            message = chroma;
+        }
         if (!TeslaMapsConfig.get().section("Puzzles & Terminals")) return message;
         Component recolored = QuizSolver.highlightLine(message);
+        if (recolored != null) com.teslamaps.features.ChatLog.noteRewrite("quiz");
         return recolored != null ? recolored : message;
+    }
+
+    @Unique
+    private static String teslamaps$reason;
+
+    @ModifyVariable(method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Font;IIILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;Z)V",
+            at = @At("HEAD"), argsOnly = true)
+    private ChatComponent.DisplayMode teslamaps$peekMode(ChatComponent.DisplayMode mode) {
+        return com.teslamaps.features.ChatPeek.mode(mode);
+    }
+
+    @Inject(method = "getHeight()I", at = @At("RETURN"), cancellable = true)
+    private void teslamaps$peekHeight(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Integer> cir) {
+        int h = cir.getReturnValueI();
+        int peek = com.teslamaps.features.ChatPeek.height(h);
+        if (peek != h) cir.setReturnValue(peek);
     }
 
     @Inject(method = ADD_MESSAGE, at = @At("HEAD"), cancellable = true)
     private void onChatMessage(Component message, net.minecraft.network.chat.MessageSignature signature, net.minecraft.client.multiplayer.chat.GuiMessageSource source, net.minecraft.client.multiplayer.chat.GuiMessageTag tag, CallbackInfo ci) {
         com.teslamaps.utils.PlayerChat.State prev = com.teslamaps.utils.PlayerChat.begin(message);
+        teslamaps$reason = null;
         try {
             teslamaps$handle(message, ci);
-            if (com.teslamaps.features.ChatSimulator.silent() && !ci.isCancelled()) ci.cancel();
+            if (com.teslamaps.features.ChatSimulator.silent() && !ci.isCancelled()) {
+                ci.cancel();
+                teslamaps$reason = "chatSimulator";
+            }
         } finally {
             com.teslamaps.utils.PlayerChat.end(prev);
         }
+        if (ci.isCancelled()) com.teslamaps.features.ChatLog.blocked(message, teslamaps$reason);
     }
 
     @Unique
@@ -66,6 +100,7 @@ public class ChatMixin {
         if (fromServer) com.teslamaps.command.PlayerNameCache.onChatMessage(message);
 
         if (cfg.section("Puzzles & Terminals") && QuizSolver.shouldHide(text)) {
+            teslamaps$reason = "quiz";
             ci.cancel();
             return;
         }
@@ -205,6 +240,7 @@ public class ChatMixin {
             com.teslamaps.features.foraging.HoneyhiveReminder.onChatMessage(text);
             com.teslamaps.features.foraging.LatherReminder.onChatMessage(text);
             if (com.teslamaps.features.foraging.ForagingChat.shouldHide(message)) {
+                teslamaps$reason = "foragingChat";
                 ci.cancel();
                 return;
             }
@@ -213,11 +249,14 @@ public class ChatMixin {
         com.teslamaps.registry.FeatureRegistry.chat(text, fromServer);
 
         if (fromServer && cfg.section("Score & Splits") && com.teslamaps.dungeon.ExtraStats.hide(text)) {
+            teslamaps$reason = "extraStats";
             ci.cancel();
             return;
         }
 
         if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.process(message, text)) {
+            String r = com.teslamaps.features.ChatFilter.lastReason;
+            teslamaps$reason = r == null ? "chatFilter" : r;
             ci.cancel();
         }
     }
@@ -226,7 +265,11 @@ public class ChatMixin {
     @ModifyVariable(method = ADD_MESSAGE, argsOnly = true, ordinal = 0,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getGuiTicks()I"))
     private Component teslamaps$filterRewrite(Component message) {
-        return com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.dungeon.TerminalSplits.rewrite(message));
+        Component split = com.teslamaps.dungeon.TerminalSplits.rewrite(message);
+        if (split != message) com.teslamaps.features.ChatLog.noteRewrite("terminalSplits");
+        Component out = com.teslamaps.features.ChatFilter.rewrite(split);
+        com.teslamaps.features.ChatLog.shown(out);
+        return com.teslamaps.features.ChatTimestamps.decorate(out);
     }
 
     @Redirect(method = "addMessageToQueue",

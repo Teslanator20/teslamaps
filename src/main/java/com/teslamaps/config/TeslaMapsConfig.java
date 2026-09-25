@@ -543,6 +543,7 @@ public class TeslaMapsConfig {
     public static class ChatUserFilter {
         public String mode = "contains";         // contains / equals / startswith / endswith / regex
         public String text = "";
+        public String action;                    // null = Own Filter Action, "Notify" = highlight + ping
         public ChatUserFilter() {}
         public ChatUserFilter(String mode, String text) { this.mode = mode; this.text = text; }
     }
@@ -2142,6 +2143,24 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w10-01-chat
+    public String chatAutopetMode = "Show";          // Show / Hide / Action Bar / Toast
+    public float chatAutopetToastSeconds = 3f;
+    public boolean chatLog = false;                  // every chat line into logs/teslamaps-chat
+    public int chatLogDays = 7;
+    public boolean chatLogFilterStatus = false;      // status + reason, blocked/modified files, outgoing
+    public boolean chatTimestamps = false;
+    public String chatTimestampFormat = "24h";
+    public String chatTimestampColor = "555555";
+    public boolean currentChatDisplay = false;
+    public int currentChatDisplayX = 4;
+    public int currentChatDisplayY = 150;
+    public float currentChatDisplayScale = 1.0f;
+    public int chatPeekKey = -1;
+    public String chatNotifyColor = "FFFF55";
+    public String chatNotifySound = "NOTE_PLING";
+    public float chatNotifyVolume = 1.0f;
+    public boolean chatNotifyIgnoreOwn = true;
     // w08-00-hud
     public boolean tabStatsHud = false;
     public String tabStatsHudStats = "Ferocity";
@@ -4067,6 +4086,8 @@ public class TeslaMapsConfig {
         if (c.chatUserFilters == null) c.chatUserFilters = new java.util.ArrayList<>();
         c.chatUserFilters.removeIf(f -> f == null || f.text == null);
         if (c.chatUserFilterAction == null) c.chatUserFilterAction = "Hide";
+        if (c.chatAutopetMode == null) c.chatAutopetMode = "Show";
+        if (c.chatTimestampFormat == null) c.chatTimestampFormat = "24h";
         if (c.chatRedirectTarget == null) c.chatRedirectTarget = "Spam HUD";
         if (c.chatFilterAction == null || c.chatFilterAction.isBlank()) c.chatFilterAction = "Hide";
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();

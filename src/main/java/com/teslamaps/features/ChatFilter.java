@@ -349,7 +349,14 @@ public class ChatFilter {
         pendingText = null;
         pendingOut = null;
         String t = StringUtil.strip(text);
-        if (StashCompact.handle(t)) return true;
+        if (StashCompact.handle(t)) {
+            lastReason = "stashCompact";
+            return true;
+        }
+        if (autopet(t)) {
+            lastReason = "autopet";
+            return true;
+        }
         Rule r = matchStripped(t);
         if (r == SCREENSHOT) return true;
         if (r != null) return apply(message, text, t, actionOf(r), COMPACT.get(r.id));
@@ -357,7 +364,34 @@ public class ChatFilter {
             lastReason = "user";
             return apply(message, text, t, TeslaMapsConfig.get().chatUserFilterAction, null);
         }
+        Component notified = ChatNotify.decorate(message);
+        if (notified != null) {
+            lastReason = "notify";
+            queue(text, notified);
+        }
         return false;
+    }
+
+    public static final String[] AUTOPET_MODES = {"Show", "Hide", "Action Bar", "Toast"};
+
+    // like Skyblocker's AutopetFilter: "Autopet equipped your [Lvl n] X! VIEW RULE"
+    private static boolean autopet(String t) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String mode = c.chatAutopetMode;
+        if (mode == null || mode.equals("Show")) return false;
+        String s = t.trim();
+        if (!s.startsWith("Autopet equipped your ") || !s.endsWith("VIEW RULE")) return false;
+        String pet = s.substring("Autopet equipped your ".length(), s.length() - "VIEW RULE".length()).trim();
+        if (pet.endsWith("!")) pet = pet.substring(0, pet.length() - 1);
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        switch (mode) {
+            case "Action Bar" -> mc.gui.setOverlayMessage(Component.literal("§cAutopet §eequipped §f" + pet), false);
+            case "Toast" -> mc.getToastManager().addToast(net.minecraft.client.gui.components.toasts.SystemToast.multiline(mc,
+                    new net.minecraft.client.gui.components.toasts.SystemToast.SystemToastId((long) (c.chatAutopetToastSeconds * 1000)),
+                    Component.literal("§cAutopet"), Component.literal(pet)));
+            default -> {}
+        }
+        return true;
     }
 
     private static boolean apply(Component message, String text, String t, String action, Function<String, String> f) {
@@ -389,6 +423,7 @@ public class ChatFilter {
     }
 
     private static void queue(String text, Component out) {
+        ChatLog.noteRewrite(lastReason == null ? "chatFilter" : lastReason);
         pendingText = text;
         pendingOut = out;
     }

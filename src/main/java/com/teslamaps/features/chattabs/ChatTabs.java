@@ -108,7 +108,7 @@ public class ChatTabs {
     }
 
     static boolean isVisible(Channel channel, GuiMessage message) {
-        String text = StringUtil.strip(message.content().getString()).trim();
+        String text = com.teslamaps.features.ChatTimestamps.cut(StringUtil.strip(message.content().getString())).trim();
         commandTracker.observe(message, text);
         if (channel == Channel.ALL) return true;
         if (message.source() == GuiMessageSource.SYSTEM_CLIENT && text.startsWith("[TeslaMaps]")) return true;

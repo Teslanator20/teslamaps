@@ -43,17 +43,21 @@ public final class ChatUserFilters {
         String t = plain.trim();
         for (int i = 0, n = filters.size(); i < n; i++) {
             ChatUserFilter f = filters.get(i);
-            if (f == null || f.text == null || f.text.isEmpty()) continue;
+            if (f == null || f.text == null || f.text.isEmpty() || ChatNotify.isNotify(f)) continue;
             boolean hit = switch (f.mode == null ? "contains" : f.mode) {
                 case "equals" -> t.equals(f.text);
                 case "startswith" -> t.startsWith(f.text);
                 case "endswith" -> t.endsWith(f.text);
-                case "regex" -> REGEX.computeIfAbsent(f.text, ChatUserFilters::compile).matcher(t).find();
+                case "regex" -> pattern(f.text).matcher(t).find();
                 default -> t.contains(f.text);
             };
             if (hit) return f;
         }
         return null;
+    }
+
+    static Pattern pattern(String regex) {
+        return REGEX.computeIfAbsent(regex, ChatUserFilters::compile);
     }
 
     private static Pattern compile(String regex) {
@@ -66,21 +70,44 @@ public final class ChatUserFilters {
 
     public static boolean add(String mode, String text) {
         if (text == null || text.isBlank()) return false;
-        for (ChatUserFilter f : list()) if (mode.equals(f.mode) && text.equals(f.text)) return false;
-        list().add(new ChatUserFilter(mode, text));
+        return add(mode, text, null);
+    }
+
+    public static boolean add(String mode, String text, String action) {
+        if (text == null || text.isBlank()) return false;
+        for (ChatUserFilter f : list()) {
+            if (mode.equals(f.mode) && text.equals(f.text) && java.util.Objects.equals(action, f.action)) return false;
+        }
+        ChatUserFilter nf = new ChatUserFilter(mode, text);
+        nf.action = action;
+        list().add(nf);
         TeslaMapsConfig.save();
         return true;
     }
 
     /** Hotkey over a chat line: that exact line becomes an "equals" filter. */
     public static void addLine(Component line) {
-        String text = StringUtil.stripTrim(line.getString());
+        String text = ChatTimestamps.cut(StringUtil.stripTrim(line.getString()));
         var player = Minecraft.getInstance().player;
         if (text.isEmpty() || player == null) return;
         boolean added = add("equals", text);
         player.sendSystemMessage(Component.literal(added
                 ? "§a[TeslaMaps] §7Now filtering: §f" + text
                 : "§e[TeslaMaps] §7Already filtered: §f" + text));
+    }
+
+    private static int notify(FabricClientCommandSource src, String mode, String text) {
+        if (mode.equals("regex")) {
+            try {
+                Pattern.compile(text);
+            } catch (PatternSyntaxException e) {
+                say(src, "§c[TeslaMaps] Bad regex: " + e.getDescription());
+                return 0;
+            }
+        }
+        say(src, add(mode, text, ChatNotify.ACTION) ? "§a[TeslaMaps] §7Highlighting + ping: §f" + text
+                : "§e[TeslaMaps] §7Already there");
+        return 1;
     }
 
     private static void say(FabricClientCommandSource src, String msg) {
@@ -94,9 +121,9 @@ public final class ChatUserFilters {
                     say(ctx.getSource(), "§b[TeslaMaps] §fChat filters: " + (l.isEmpty() ? "§7(none)" : ""));
                     for (int i = 0; i < l.size(); i++) {
                         ChatUserFilter f = l.get(i);
-                        say(ctx.getSource(), "§7" + (i + 1) + ". §e" + f.mode + " §f" + f.text);
+                        say(ctx.getSource(), "§7" + (i + 1) + ". §e" + f.mode + (ChatNotify.isNotify(f) ? " §6[notify]" : "") + " §f" + f.text);
                     }
-                    say(ctx.getSource(), "§7/tmap chatfilter <contains|equals|startswith|endswith|regex> <text> · remove <n> · clear · export · import");
+                    say(ctx.getSource(), "§7/tmap chatfilter <contains|equals|startswith|endswith|regex> <text> · notify [regex] <text> · remove <n> · clear · export · import");
                     return 1;
                 });
         for (String mode : MODES) {
@@ -117,6 +144,12 @@ public final class ChatUserFilters {
                                 return 1;
                             })));
         }
+        root.then(ClientCommands.literal("notify")
+                .then(ClientCommands.literal("regex")
+                        .then(ClientCommands.argument("text", StringArgumentType.greedyString())
+                                .executes(ctx -> notify(ctx.getSource(), "regex", StringArgumentType.getString(ctx, "text").trim()))))
+                .then(ClientCommands.argument("text", StringArgumentType.greedyString())
+                        .executes(ctx -> notify(ctx.getSource(), "contains", StringArgumentType.getString(ctx, "text").trim()))));
         root.then(ClientCommands.literal("remove")
                 .then(ClientCommands.argument("n", IntegerArgumentType.integer(1))
                         .executes(ctx -> {
@@ -149,7 +182,7 @@ public final class ChatUserFilters {
                 String json = new String(Base64.getDecoder().decode(raw), StandardCharsets.UTF_8);
                 List<ChatUserFilter> in = new Gson().fromJson(json, new TypeToken<List<ChatUserFilter>>() {}.getType());
                 int added = 0;
-                if (in != null) for (ChatUserFilter f : in) if (f != null && add(f.mode == null ? "contains" : f.mode, f.text)) added++;
+                if (in != null) for (ChatUserFilter f : in) if (f != null && add(f.mode == null ? "contains" : f.mode, f.text, f.action)) added++;
                 say(ctx.getSource(), "§a[TeslaMaps] §7Imported " + added + " filters");
                 return 1;
             } catch (RuntimeException e) {
