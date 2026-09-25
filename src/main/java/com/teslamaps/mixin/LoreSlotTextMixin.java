@@ -19,5 +19,6 @@ public class LoreSlotTextMixin {
         com.teslamaps.features.ItemNumbers.drawToolkit(ctx, slot);
         com.teslamaps.features.GardenPlotMenu.drawCount(ctx, slot);
         com.teslamaps.features.mining.ExcavatorProfitTracker.drawSlot(ctx, slot);
+        com.teslamaps.features.mining.HotmPerks.drawLevel(ctx, slot);
     }
 }
