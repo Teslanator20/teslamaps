@@ -29,6 +29,8 @@ public class ChatMixin {
 
     @ModifyVariable(method = ADD_MESSAGE, at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private Component teslamaps$rewriteLine(Component message) {
+        Component decrypted = com.teslamaps.features.ChatEncryption.decode(message);
+        if (decrypted != null) message = decrypted;
         Component shared = com.teslamaps.features.SharedImageChat.decorate(message);
         if (shared != null) return shared;
         Component chroma = com.teslamaps.features.ChromaPrefix.rewrite(message);

@@ -384,6 +384,13 @@ public class ChatFilter {
                 return false;
             }
         }
+        String buff = perkBuffLine(t);
+        if (buff != null) {
+            lastReason = "chatFilterPerkBuffsCompact";
+            if (buff.isEmpty()) return true;
+            queue(text, compact(message, buff));
+            return false;
+        }
         Rule r = matchStripped(t);
         if (r == SCREENSHOT) return true;
         if (r != null) return apply(message, text, t, actionOf(r), COMPACT.get(r.id));
@@ -402,6 +409,41 @@ public class ChatFilter {
         Component pet = RareDropNames.petRarity(message, t);
         if (pet != null) queue(text, pet);
         return false;
+    }
+
+    private static final Pattern BUFF_NEW_DAY = p("^New day! Your (Sky Mall|Lottery|Beekeeper) buff changed!$");
+    private static final Pattern BUFF_TOGGLE = p("^You can disable this messaging by toggling (?:Sky Mall|Lottery|Bee[Kk]eeper) in your /hot[mf]!$");
+    private static final Pattern BUFF_LINE = p("^New buff: (?:Gain )?(.+?)\\.?$");
+    private static final Pattern BUFF_SKY_MALL = p(".*(?:Mining Speed|Mining Fortune|Powder|Pickaxe Ability|Goblins|Titanium).*");
+    private static final Pattern BUFF_LOTTERY = p(".*(?:Fig Fortune|Mangrove Fortune|Helix Fortune|Sweep).*");
+    private static final Pattern BUFF_BEEKEEPER = p(".*(?:Honeyhive|Honeycomb|Critter|lathered).*");
+    private static String lastBuffSource = "Sky Mall";
+
+    /** Sky Mall / Lottery / Beekeeper as one line; null = not a buff line or option off, "" = hide. */
+    private static String perkBuffLine(String t) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.chatFilterEnabled || !c.chatFilterPerkBuffs || !c.chatFilterPerkBuffsCompact) return null;
+        if (!(t.contains("buff changed!") || t.startsWith("New buff:") || t.contains("disable this messaging by toggling"))) return null;
+        if (PlayerChat.current() != null) return null;
+        String s = t.trim();
+        Matcher m = BUFF_NEW_DAY.matcher(s);
+        if (m.matches()) {
+            lastBuffSource = m.group(1);
+            return "";
+        }
+        if (BUFF_TOGGLE.matcher(s).matches()) return "";
+        m = BUFF_LINE.matcher(s);
+        if (!m.matches()) return null;
+        String buff = m.group(1);
+        String src = BUFF_SKY_MALL.matcher(buff).matches() ? "Sky Mall"
+                : BUFF_LOTTERY.matcher(buff).matches() ? "Lottery"
+                : BUFF_BEEKEEPER.matcher(buff).matches() ? "Beekeeper" : lastBuffSource;
+        if (c.chatFilterPerkBuffsElsewhere) {
+            boolean here = src.equals("Sky Mall") ? com.teslamaps.features.mining.Mining.onMiningIsland()
+                    : com.teslamaps.features.foraging.Foraging.onForagingIsland();
+            if (!here) return "";
+        }
+        return (src.equals("Beekeeper") ? "§6" : "§2") + "☀ " + src + " §8· §a" + buff;
     }
 
     /** Swap the line being added for {@code out}; used by the compact helpers. */

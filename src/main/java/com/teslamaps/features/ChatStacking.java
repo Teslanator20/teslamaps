@@ -42,7 +42,10 @@ public class ChatStacking {
             return;
         }
         boolean colors = c.chatStackCompareColors;
-        String newKey = keyOf(newest, colors);
+        boolean normalize = c.chatStackNormalizeNumbers;
+        boolean player = normalize && com.teslamaps.utils.PlayerChat.parse(newest.content()) != null;
+        boolean numbers = normalize && !player;
+        String newKey = keyOf(newest, colors, numbers);
 
         int windowTicks = Math.max(1, c.chatStackWindowMinutes) * 60 * 20;
 
@@ -50,7 +53,8 @@ public class ChatStacking {
         for (int i = 1; i < all.size(); i++) {
             GuiMessage prev = all.get(i);
             if (newest.addedTime() - prev.addedTime() > windowTicks) break; // past the window -> stop
-            if (keyOf(prev, colors).equals(newKey)) { matchIdx = i; break; }
+            if (player && i > 1) break; // player chat only with the line right above
+            if (keyOf(prev, colors, numbers).equals(newKey)) { matchIdx = i; break; }
         }
         if (matchIdx < 0) {
             trackLine(newest);
@@ -68,7 +72,7 @@ public class ChatStacking {
         GuiMessage replacement = new GuiMessage(newest.addedTime(), stacked,
                 newest.signature(), newest.source(), newest.tag());
 
-        if (colors) putCapped(colorCache, stacked, newKey);
+        if (colors && !numbers) putCapped(colorCache, stacked, newKey);
         GuiMessage old = all.get(matchIdx);
         all.set(0, replacement);
         all.remove(matchIdx); // drop the older occurrence; the stack moves to the bottom
@@ -151,6 +155,18 @@ public class ChatStacking {
     private static final Map<Component, String> plainCache = new IdentityHashMap<>();
     private static final Map<Component, String> baseCache = new IdentityHashMap<>();
     private static final Map<Component, String> colorCache = new IdentityHashMap<>();
+    private static final Map<Component, String> numberCache = new IdentityHashMap<>();
+    private static final Pattern NUMBER = Pattern.compile("(?<!§)\\d[\\d,.]*");
+
+    private static String keyOf(GuiMessage msg, boolean colors, boolean numbers) {
+        if (!numbers) return keyOf(msg, colors);
+        Component c = msg.content();
+        String cached = numberCache.get(c);
+        if (cached != null && cached.charAt(0) == (colors ? 'c' : 'p')) return cached;
+        String k = (colors ? 'c' : 'p') + NUMBER.matcher(keyOf(msg, colors)).replaceAll("#");
+        putCapped(numberCache, c, k);
+        return k;
+    }
 
     /** Plain base, or with {@code colors} the whole formatted line (colours must match too). */
     private static String keyOf(GuiMessage msg, boolean colors) {
