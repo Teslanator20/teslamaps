@@ -2231,6 +2231,32 @@ public class TeslaMapsConfig {
     public boolean scoreSecretsMaxBonus = false;       // needed secrets assume 5 crypts + mimic + prince
     public boolean scoreSecretsShowNeeded = false;     // middle number = needed total instead of still missing
     public boolean scoreSecretsTabTotal = false;       // total from tab found/% until the scan knows every room
+    // w03-09-dun
+    public boolean splitsTickTime = false;          // server-tick time behind every split
+    public boolean splitsBossEntry = false;         // extra "Boss Entry" row = first 3 segments
+    public boolean splitsCurrentHud = false;        // small HUD with only the running split in ticks
+    public int currentSplitHudX = 10;
+    public int currentSplitHudY = 200;
+    public float currentSplitHudScale = 1.0f;
+    public boolean keyHud = false;                  // "Key Obtained" while the party holds a wither/blood key
+    public int keyHudX = 10;
+    public int keyHudY = 215;
+    public float keyHudScale = 1.0f;
+    public boolean secretPickupHud = false;         // ticks until nearby secret items are pickable
+    public boolean secretPickupHudSpawnTick = true; // 20-tick secret spawn cycle above
+    public boolean secretPickupBox = false;         // draw a colored box instead of the item
+    public float secretPickupBoxSize = 1.0f;
+    public int secretPickupHudX = 200;
+    public int secretPickupHudY = 130;
+    public float secretPickupHudScale = 1.0f;
+    public boolean spiritPetPartyCheck = false;     // warn before start when a party member shows a Spirit pet
+    public boolean dungeonGambling = false;         // CSGO case animation on obsidian/bedrock chests
+    public boolean dungeonGamblingCroesus = false;
+    public float dungeonGamblingTime = 5.0f;        // seconds
+    public boolean totemAnimation = false;          // totem particles/sound/item pop on mask/phoenix/remnant procs
+    public boolean easySuperboom = false;           // pick-block uses superboom tnt from the hotbar
+    public int easySuperboomDelay = 100;            // ms fixed
+    public int easySuperboomRandom = 80;            // ms random extra
     // w02-06-term
     public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
     public int terminalDropKey = -1;                   // own key/mouse button that clicks the hovered terminal slot

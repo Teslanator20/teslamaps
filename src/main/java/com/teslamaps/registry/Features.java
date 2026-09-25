@@ -128,5 +128,12 @@ final class Features {
         com.teslamaps.features.LividSolver.register();
         // w03-08-dun
         com.teslamaps.features.NonStarredNametags.register();
+        // w03-09-dun
+        com.teslamaps.dungeon.Splits.register();
+        com.teslamaps.features.KeyHud.register();
+        com.teslamaps.features.SecretPickupHud.register();
+        com.teslamaps.features.DungeonGambling.register();
+        com.teslamaps.features.TotemAnimation.register();
+        com.teslamaps.features.EasySuperboom.register();
     }
 }

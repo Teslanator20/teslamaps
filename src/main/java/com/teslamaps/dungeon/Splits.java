@@ -18,6 +18,8 @@ public class Splits {
         public final Pattern pattern;
         public final String name;   // may contain § color codes
         public long time = 0L;      // 0 = not reached yet
+        long tick;
+        String tickText;
         Long pbAtStart;
         String delta;               // "+1.23s" vs the PB from before this run
         Split(String regex, String name) {
@@ -34,6 +36,29 @@ public class Splits {
     private static long startTime = 0L;
     private static boolean finished = false;
     private static int pendingSend = 0; // ticks until end-of-run messages are sent (avoids interrupting Hypixel's run summary)
+    private static String bossEntryTick;
+    private static String currentLine;
+    private static final String BOSS_ENTRY = "§eBoss Entry";
+    private static final String CURRENT_SAMPLE = "§bBlood Clear§f: 412t §8(20.6s)";
+    private static com.teslamaps.registry.HudEditElement currentHud;
+
+    private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
+
+    public static void register() {
+        currentHud = com.teslamaps.registry.HudEditElement.of("currentSplitHud", "Current Split")
+                .ctx(com.teslamaps.registry.HudEditElement.HudCtx.DUNGEON).section("Score & Splits")
+                .enabled(() -> cfg().splitsEnabled && cfg().splitsCurrentHud)
+                .size(() -> Minecraft.getInstance().font.width(CURRENT_SAMPLE), () -> 9)
+                .scaleRange(0.5f, 5.0f)
+                .preview((g, mc, x, y, s) -> drawCurrent(g, mc, x, y, s, CURRENT_SAMPLE));
+        com.teslamaps.registry.Feature.of("CurrentSplitHud").section("Score & Splits")
+                .when(() -> cfg().splitsEnabled && cfg().splitsCurrentHud)
+                .hud("currentsplit", Splits::renderCurrent);
+    }
+
+    private static boolean hasBossEntry() {
+        return active.size() > 4;
+    }
 
     private static final String MORT = "\\[NPC] Mort: Here, I found this map when I first entered the dungeon\\.|\\[NPC] Mort: Right-click the Orb for spells, and Left-click \\(or Drop\\) to use your Ultimate!";
     private static final String BLOOD_OPEN = "^\\[BOSS] The Watcher: (Congratulations, you made it through the Entrance\\.|Ah, you've finally arrived\\.|Ah, we meet again\\.\\.\\.|So you made it this far\\.\\.\\. interesting\\.|You've managed to scratch and claw your way here, eh\\?|I'm starting to get tired of seeing you around here\\.\\.\\.|Oh\\.\\. hello\\?|Things feel a little more roomy now, eh\\?)$|^The BLOOD DOOR has been opened!$";
@@ -134,6 +159,7 @@ public class Splits {
 
         if (message.equals("Starting in 1 second.")) {
             buildSplits();
+            bossEntryTick = null;
             startTime = System.currentTimeMillis();
             finished = false;
             pendingSend = 0;
@@ -148,6 +174,9 @@ public class Splits {
             if (split.time != 0L) continue;
             if (split.pattern.matcher(message).matches()) {
                 split.time = System.currentTimeMillis();
+                split.tick = com.teslamaps.utils.ServerTickTimer.now();
+                if (i == 3 && hasBossEntry() && cfg().splitsBossEntry && active.get(0).time != 0L)
+                    sendSplit(BOSS_ENTRY, split.time - active.get(0).time);
 
                 if (i > 0) {
                     Split prev = active.get(i - 1);
@@ -168,6 +197,53 @@ public class Splits {
 
     public static void tick() {
         if (pendingSend > 0 && --pendingSend == 0) sendEndOfRun();
+        TeslaMapsConfig c = cfg();
+        int n = active.size();
+        if (!c.splitsEnabled || n == 0) { currentLine = null; return; }
+        long now = com.teslamaps.utils.ServerTickTimer.now();
+        if (c.splitsTickTime) {
+            Split first = active.get(0), last = active.get(n - 1);
+            for (int i = 0; i < n - 1; i++) {
+                Split s = active.get(i), next = active.get(i + 1);
+                if (s.time == 0L) s.tickText = null;
+                else s.tickText = tickText((next.time != 0L ? next.tick : now) - s.tick);
+            }
+            last.tickText = first.time == 0L ? null : tickText((last.time != 0L ? last.tick : now) - first.tick);
+            if (hasBossEntry() && first.time != 0L) {
+                Split boss = active.get(3);
+                bossEntryTick = tickText((boss.time != 0L ? boss.tick : now) - first.tick);
+            } else bossEntryTick = null;
+        }
+        if (c.splitsCurrentHud && !finished) {
+            Split cur = null;
+            for (int i = n - 2; i >= 0; i--) {
+                if (active.get(i).time != 0L) { cur = active.get(i); break; }
+            }
+            if (cur == null) { currentLine = null; return; }
+            long t = now - cur.tick;
+            currentLine = cur.name + "§f: " + t + "t §8(" + (t / 20) + "." + (t % 20 / 2) + "s)";
+        } else currentLine = null;
+    }
+
+    private static String tickText(long ticks) {
+        if (ticks < 0) ticks = 0;
+        return "§8(" + (ticks / 20) + "." + (ticks % 20 / 2) + ")";
+    }
+
+    private static void renderCurrent(GuiGraphicsExtractor g, DeltaTracker d) {
+        String l = currentLine;
+        if (l == null || currentHud == null) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.options.hideGui) return;
+        drawCurrent(g, mc, currentHud.x(), currentHud.y(), currentHud.scale(), l);
+    }
+
+    private static void drawCurrent(GuiGraphicsExtractor g, Minecraft mc, int x, int y, float scale, String text) {
+        g.pose().pushMatrix();
+        g.pose().translate(x, y);
+        g.pose().scale(scale, scale);
+        g.text(mc.font, text, 0, 0, 0xFFFFFFFF, true);
+        g.pose().popMatrix();
     }
 
     private static void sendEndOfRun() {
@@ -200,6 +276,8 @@ public class Splits {
                 sb.append("\n  ").append(prev.name).append(" §7- §f").append(formatTime(cur.time - prev.time)).append(pbSuffix(prev.name));
         }
         Split first = active.get(0), last = active.get(active.size() - 1);
+        if (hasBossEntry() && TeslaMapsConfig.get().splitsBossEntry && first.time != 0L && active.get(3).time != 0L)
+            sb.append("\n  ").append(BOSS_ENTRY).append(" §7- §f").append(formatTime(active.get(3).time - first.time)).append(pbSuffix(BOSS_ENTRY));
         if (first.time != 0L && last.time != 0L)
             sb.append("\n  §eTotal §7- §f").append(formatTime(last.time - first.time)).append(pbSuffix(last.name));
         mc.player.sendSystemMessage(Component.literal(sb.toString()));
@@ -249,17 +327,41 @@ public class Splits {
 
         boolean showPb = config.splitsShowPb;
         boolean showDelta = config.splitsShowDelta;
+        boolean showTicks = config.splitsTickTime;
+        boolean bossRow = config.splitsBossEntry && hasBossEntry();
+        int rows = bossRow ? n + 1 : n;
 
         // Widest row decides the backdrop; the times are monospaced enough that
         // the longest name plus a full time and PB is a safe upper bound.
         int widest = nameCol + mc.font.width("00:00.0");
         if (showPb) widest += mc.font.width(" (00:00.0)") + 4;
         if (showDelta) widest += mc.font.width("+00.00s") + 4;
-        TeslaGui.backdrop(context, 0, 0, widest, n * 9 - 1);
+        if (showTicks) widest += mc.font.width("(0000.0)") + 4;
+        TeslaGui.backdrop(context, 0, 0, widest, rows * 9 - 1);
 
         int y = 0;
         for (int i = 0; i < n; i++) {
             Split split = active.get(i);
+            if (bossRow && i == n - 1) {
+                Split boss = active.get(3);
+                String bt;
+                long bossMs = -1;
+                if (firstTime == 0L) bt = "§8-";
+                else if (boss.time != 0L) { bossMs = boss.time - firstTime; bt = formatTime(bossMs); }
+                else bt = "§7" + formatTime(now - firstTime);
+                Long bpb = showPb ? config.splitPbs.get(pbKey(BOSS_ENTRY)) : null;
+                int bc = bossMs >= 0 && bpb != null ? (bossMs <= bpb ? 0xFF55FF55 : 0xFFFF5555) : 0xFFFFFFFF;
+                context.text(mc.font, BOSS_ENTRY, 0, y, 0xFFFFFFFF);
+                context.text(mc.font, bt, nameCol, y, bc);
+                int bx = nameCol + mc.font.width(bt) + 4;
+                String btk = bossEntryTick;
+                if (showTicks && btk != null) {
+                    context.text(mc.font, btk, bx, y, 0xFFFFFFFF);
+                    bx += mc.font.width(btk) + 4;
+                }
+                if (bpb != null) context.text(mc.font, "§8(" + formatTime(bpb) + ")", bx, y, 0xFFFFFFFF);
+                y += 9;
+            }
             String timeStr;
             long frozenMs = -1; // a finalized phase duration (used for the PB comparison); -1 = live/not started
             if (i == n - 1) {
@@ -287,6 +389,11 @@ public class Splits {
             context.text(mc.font, split.name, 0, y, 0xFFFFFFFF);
             context.text(mc.font, timeStr, nameCol, y, timeColor);
             int px = nameCol + mc.font.width(timeStr) + 4;
+            String tk = split.tickText;
+            if (showTicks && tk != null) {
+                context.text(mc.font, tk, px, y, 0xFFFFFFFF);
+                px += mc.font.width(tk) + 4;
+            }
             if (showDelta && split.delta != null && frozenMs >= 0) {
                 context.text(mc.font, split.delta, px, y, 0xFFFFFFFF);
                 px += mc.font.width(split.delta) + 4;
@@ -306,11 +413,13 @@ public class Splits {
         int w = nameCol + 6 + mc.font.width("00:00.0");
         if (TeslaMapsConfig.get().splitsShowPb) w += 8 + mc.font.width("00:00.0");
         if (TeslaMapsConfig.get().splitsShowDelta) w += 4 + mc.font.width("+00.00s");
+        if (TeslaMapsConfig.get().splitsTickTime) w += 4 + mc.font.width("(0000.0)");
         return w;
     }
 
     public static int hudHeight() {
-        return Math.max(1, active.size()) * 9;
+        int rows = active.size() + (TeslaMapsConfig.get().splitsBossEntry && hasBossEntry() ? 1 : 0);
+        return Math.max(1, rows) * 9;
     }
 
     public static boolean hasSplits() {
@@ -322,6 +431,8 @@ public class Splits {
         startTime = 0L;
         finished = false;
         pendingSend = 0;
+        bossEntryTick = null;
+        currentLine = null;
     }
 
     private static String formatTime(long ms) {
