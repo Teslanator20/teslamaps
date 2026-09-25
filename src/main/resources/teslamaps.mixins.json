@@ -125,6 +125,7 @@
     "ContainerScrollMixin",
     "CroesusSlotMixin",
     "CropBreakMixin",
+    "CropOffsetMixin",
     "CustomArmorModelMixin",
     "CustomComponentMixin",
     "CustomDyeColorMixin",
