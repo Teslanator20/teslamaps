@@ -57,6 +57,34 @@ public class PerformanceHud {
         return n;
     }
 
+    private static float tpsStat(String mode) {
+        synchronized (tpsLog) {
+            if (tpsCount == 0) return 20f;
+            if ("Current".equals(mode)) return tpsLog[(tpsIndex - 1 + tpsLog.length) % tpsLog.length];
+            if ("Min".equals(mode) || "Max".equals(mode)) {
+                boolean min = "Min".equals(mode);
+                float r = tpsLog[0];
+                for (int i = 1; i < tpsCount; i++) r = min ? Math.min(r, tpsLog[i]) : Math.max(r, tpsLog[i]);
+                return r;
+            }
+        }
+        return averageTps();
+    }
+
+    private static String tpsColor(float tps) {
+        return tps >= 19.5f ? "§a" : tps >= 17f ? "§2" : tps >= 14f ? "§e" : tps >= 10f ? "§6" : "§c";
+    }
+
+    private static String pingColor(float ms) {
+        return ms < 50 ? "§a" : ms < 100 ? "§2" : ms < 150 ? "§e" : ms < 200 ? "§6" : "§c";
+    }
+
+    private static String fpsColor(int fps, int limit) {
+        if (limit <= 0 || limit >= 260) limit = 240;
+        float f = fps / (float) limit;
+        return f >= 0.75f ? "§a" : f >= 0.5f ? "§e" : f >= 0.25f ? "§6" : "§c";
+    }
+
     private static float averageTps() {
         synchronized (tpsLog) {
             if (tpsCount == 0) return 20f;
@@ -70,7 +98,7 @@ public class PerformanceHud {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.perfHud) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.getConnection() == null) { lastTimePacket = 0L; tpsCount = 0; return; }
+        if (mc.getConnection() == null) { lastTimePacket = 0L; tpsCount = 0; PingMeter.clearSamples(); return; }
 
         if (cfg.perfHudPing && --pingCooldown <= 0) {
             PingMeter.requestSilent();
@@ -78,9 +106,22 @@ public class PerformanceHud {
         }
 
         com.teslamaps.utils.LineOrder.Lines out = com.teslamaps.utils.LineOrder.lines("perfhud");
-        if (cfg.perfHudFps) out.key("fps").add("FPS: \0" + mc.getFps());
-        if (cfg.perfHudTps) out.key("tps").add("TPS: \0" + String.format("%.1f", averageTps()));
-        if (cfg.perfHudPing) out.key("ping").add("Ping: \0" + (int) PingMeter.getLastPingMs() + "ms");
+        boolean colored = cfg.perfHudColorCoded;
+        if (cfg.perfHudFps) {
+            int fps = mc.getFps();
+            out.key("fps").add("FPS: \0" + (colored ? fpsColor(fps, mc.options.framerateLimit().get()) : "") + fps);
+        }
+        if (cfg.perfHudTps) {
+            String mode = cfg.perfHudTpsMode == null ? "Average" : cfg.perfHudTpsMode;
+            float tps = tpsStat(mode);
+            out.key("tps").add(("Average".equals(mode) ? "TPS: " : mode + " TPS: ") + "\0" + (colored ? tpsColor(tps) : "") + String.format("%.1f", tps));
+        }
+        if (cfg.perfHudPing) {
+            String mode = cfg.perfHudPingMode == null ? "Instant" : cfg.perfHudPingMode;
+            float ping = "Median".equals(mode) ? PingMeter.medianPingMs()
+                    : "Mean".equals(mode) ? PingMeter.meanPingMs() : PingMeter.getLastPingMs();
+            out.key("ping").add("Ping: \0" + (colored ? pingColor(ping) : "") + (int) ping + "ms");
+        }
         if (cfg.perfHudCps) {
             long now = System.currentTimeMillis();
             out.key("cps").add("CPS: \0" + cps(leftClicks, now) + " | " + cps(rightClicks, now));

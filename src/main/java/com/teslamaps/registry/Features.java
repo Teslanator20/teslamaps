@@ -363,6 +363,16 @@ final class Features {
         com.teslamaps.features.ExperimentStats.register();
         com.teslamaps.features.hud.LobbyPlayers.register();
         com.teslamaps.features.hud.MaxwellHud.register();
+        // w08-01-hud
+        com.teslamaps.features.hud.FancyTabHud.register();
+        com.teslamaps.features.HoppityEventStats.register();
+        com.teslamaps.features.hud.LimboTracker.register();
+        com.teslamaps.features.tracker.ProfitTracker.register();
+        com.teslamaps.features.hud.PlayerStats.register();
+        com.teslamaps.features.hud.QuiverHud.register();
+        // w08-07-hud
+        com.teslamaps.features.LootCounters.register();
+        com.teslamaps.features.hud.TabWidgetHud.register();
         // w07-05-qol
         com.teslamaps.features.ScoreboardLogger.register();
         com.teslamaps.features.WikiLookup.register();

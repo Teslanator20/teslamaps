@@ -63,6 +63,9 @@ public final class Tracker {
     private boolean pruneLater;
     private final Map<String, Double> fixed = new LinkedHashMap<>();
     private final Map<String, String> names = new LinkedHashMap<>();
+    private final java.util.Set<String> coinKeys = new java.util.HashSet<>();
+    private java.util.function.Function<View, List<String>> extra;
+    private java.util.function.Supplier<String> extraLine;
     private IntSupplier priceSource = () -> PriceManager.SOURCE_BAZAAR_SELL;
     private IntSupplier idleSeconds = () -> 60;
     private int maxRows = 12;
@@ -125,6 +128,12 @@ public final class Tracker {
     public Tracker fixedValue(String key, double coins) { fixed.put(key, coins); return this; }
     /** Display name for a key that is not an item id. */
     public Tracker name(String key, String display) { names.put(key, display); return this; }
+    /** Shown like coins ("name: value") instead of "Nx name". */
+    public Tracker coinKey(String key) { coinKeys.add(key); return this; }
+    /** Lines added after the profit line. */
+    public Tracker extra(java.util.function.Function<View, List<String>> lines) { this.extra = lines; return this; }
+    /** Extra line under the rows, built on rebuild. */
+    public Tracker extra(java.util.function.Supplier<String> line) { this.extraLine = line; return this; }
 
     public View view() { return view; }
     public void view(View v) { this.view = v; rebuild(); }
@@ -152,7 +161,10 @@ public final class Tracker {
         markActivity();
         changed = true;
         lastAdded.put(key, System.currentTimeMillis());
-        if (!COINS.equals(key)) PriceManager.ensureFresh();
+        if (!COINS.equals(key)) {
+            PriceManager.ensureFresh();
+            if (amount > 0 && fixed.get(key) == null) com.teslamaps.features.ValuableDropWarning.onGain(key, amount);
+        }
     }
 
     // HUD-038: hide / remove / edit single rows
@@ -380,7 +392,7 @@ public final class Tracker {
             double v = value(e.getKey(), e.getValue());
             keys.add(e.getKey());
             if (interactive && hidden(e.getKey())) {
-                String amount = COINS.equals(e.getKey()) ? "" : String.format(java.util.Locale.ROOT, "%,dx ", e.getValue());
+                String amount = COINS.equals(e.getKey()) || coinKeys.contains(e.getKey()) ? "" : String.format(java.util.Locale.ROOT, "%,dx ", e.getValue());
                 out.add("§8§m" + com.teslamaps.utils.StringUtil.strip(amount + display(e.getKey())));
                 continue;
             }
@@ -390,6 +402,10 @@ public final class Tracker {
                 out.add(display(COINS) + "§7: " + (fresh ? "§a§l" : "§6") + ItemPrice.format(v));
                 continue;
             }
+            if (coinKeys.contains(e.getKey())) {
+                out.add(display(e.getKey()) + "§7: " + (v < 0 ? "§c-" : fresh ? "§a§l" : "§6") + ItemPrice.format(Math.abs(v)));
+                continue;
+            }
             out.add((fresh ? "§a§l" : "§f") + String.format(java.util.Locale.ROOT, "%,d", e.getValue()) + "x§r " + display(e.getKey())
                     + (v > 0 ? " §7- §6" + ItemPrice.format(v) : ""));
         }
@@ -397,8 +413,14 @@ public final class Tracker {
             out.add("§7+" + (rows.size() - maxRows) + " more");
             keys.add(null);
         }
+        String ex = extraLine == null ? null : extraLine.get();
+        if (ex != null) {
+            out.add(ex);
+            keys.add(null);
+        }
         out.add("§eProfit: §6" + ItemPrice.format(profit(view)));
         keys.add(PROFIT_ROW);
+        if (extra != null) out.addAll(extra.apply(view));
         if (view == View.SESSION) {
             out.add("§eper hour: §6" + ItemPrice.format(perHour()) + (idle() && sessionStart > 0 ? " §7(paused)" : ""));
             out.add("§eTime: §f" + formatTime(activeMillis()));
