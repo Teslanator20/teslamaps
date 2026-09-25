@@ -76,6 +76,9 @@ public final class GardenCategory {
                 () -> config.sprayExpiryChat, v -> config.sprayExpiryChat = v)
                 .desc("Chat line when a plot's spray runs out, also \"While you were away\" when you come back to the Garden")
                 .tags("spray", "sprayonator", "expired");
+        b.toggle("  Always Show Pest Chance",
+                () -> config.pestChanceAlways, v -> config.pestChanceAlways = v)
+                .desc("Bonus Pest Chance line even without the pest chance loadout. Struck through with OFF while Hypixel marks it disabled.");
         b.toggle("Cooldown Arms Routine",
                 () -> config.pestCooldownArmsRoutine, v -> config.pestCooldownArmsRoutine = v);
         b.slider("Profit Idle After (sec)", 30f, 600f,
