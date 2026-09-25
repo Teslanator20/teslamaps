@@ -2213,6 +2213,29 @@ public class TeslaMapsConfig {
     public boolean discordRpcDungeon = true;
     @Global
     public String discordRpcAppId = "";
+    // w06-03-qol
+    public boolean fairySouls = false;
+    public boolean fairySoulsShowFound = false;
+    public boolean fairySoulsNearby = false;
+    public String colorFairySoulMissing = "FF55FF55";
+    public String colorFairySoulFound = "FFFF5555";
+    public boolean focusLossPrevention = false;
+    public boolean confirmDisconnect = false;
+    public float confirmDisconnectMs = 150f;
+    public boolean enchantedClockReminder = false;
+    public java.util.List<String> enchantedClockDisabled = new java.util.ArrayList<>();
+    public float enchantedClockRepeatMin = 0f;
+    public boolean upgradeReminder = false;
+    public boolean cityProjectReminder = false;
+    public boolean cityProjectMaterials = false;
+    public boolean cityProjectHighlight = false;
+    public boolean centuryCakeTimer = false;
+    public boolean centuryCakeOnlyExpired = false;
+    public int centuryCakeTimerX = 10;
+    public int centuryCakeTimerY = 200;
+    public float centuryCakeTimerScale = 1.0f;
+    public boolean centuryCakeGlow = false;
+    public String colorCenturyCakeReady = "55FF55";
     // w05-02-inv
     public boolean menuSlotText = false;
     public boolean mstLevels = true;
@@ -3134,6 +3157,7 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
         if (c.invButtons == null || c.invButtons.isEmpty()) {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }

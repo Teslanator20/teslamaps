@@ -278,5 +278,12 @@ final class Features {
         com.teslamaps.features.ContainerTriggers.register();
         com.teslamaps.features.HarpHelper.register();
         com.teslamaps.features.DiscordRpc.register();
+        // w06-03-qol
+        com.teslamaps.features.qol.FairySouls.register();
+        com.teslamaps.features.qol.GameTweaks.register();
+        com.teslamaps.features.qol.EnchantedClock.register();
+        com.teslamaps.features.qol.UpgradeReminder.register();
+        com.teslamaps.features.qol.CityProject.register();
+        com.teslamaps.features.qol.CenturyCake.register();
     }
 }
