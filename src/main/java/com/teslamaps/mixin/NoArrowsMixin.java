@@ -15,7 +15,8 @@ public class NoArrowsMixin {
     private void onIsInvisible(CallbackInfoReturnable<Boolean> cir) {
         Entity self = (Entity) (Object) this;
 
-        if (TeslaMapsConfig.get().noArrows && self instanceof AbstractArrow) {
+        if (TeslaMapsConfig.get().noArrows && self instanceof AbstractArrow
+                && (!TeslaMapsConfig.get().noArrowsGroundedOnly || ((AbstractArrowInvoker) self).teslamaps$isInGround())) {
             cir.setReturnValue(true);
             return;
         }

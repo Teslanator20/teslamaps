@@ -13,7 +13,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class NoHurtCamMixin {
     @Inject(method = "bobHurt", at = @At("HEAD"), cancellable = true)
     private void teslamaps$noHurtCam(CameraRenderState state, PoseStack pose, CallbackInfo ci) {
-        if (TeslaMapsConfig.get().noHurtCam) ci.cancel();
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.noHurtCam && c.hurtCamStrength <= 0f) ci.cancel();
+    }
+
+    @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method = "bobHurt", at = @At(value = "FIELD",
+            target = "Lnet/minecraft/client/renderer/state/OptionsRenderState;damageTiltStrength:D"))
+    private double teslamaps$hurtCamStrength(double v) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.noHurtCam ? v * c.hurtCamStrength : v;
     }
 
     @Inject(method = "bobView", at = @At("HEAD"), cancellable = true)

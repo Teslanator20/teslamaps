@@ -2142,6 +2142,29 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w09-08-vis
+    public boolean hideHealerOrbParticles = false;
+    public float hurtCamStrength = 0f;
+    public boolean moreOverlayHiders = false;
+    public boolean hidePortalOverlay = false;
+    public boolean hidePumpkinOverlay = false;
+    public boolean hideInBlockOverlay = false;
+    public boolean noWaterFov = false;
+    public boolean hideWitherImpactParticles = false;
+    public boolean nightVisionControl = false;
+    public float nightVisionStrength = 100f;
+    public boolean nightVisionNoBlink = false;
+    public boolean particleHider = false;
+    public boolean particleHideFar = false;
+    public boolean particleHideCloseRedstone = false;
+    public boolean particleHideFireball = false;
+    public boolean particleHideBlaze = false;
+    public boolean particleHideEnderman = false;
+    public boolean particleHideFireBlock = false;
+    public boolean particleHideSmoke = false;
+    public boolean noBlockBreakingGardenOnly = false;
+    public boolean noArrowsGroundedOnly = false;
+    public boolean noEnchantGlintArmorOnly = false;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;
