@@ -79,8 +79,24 @@ public final class F7M7Category {
         b.espStyle("  Gate", () -> config.p3GateEsp);
         b.toggle("Spring Boots Ready Alert", () -> config.springBootsReady, v -> config.springBootsReady = v)
                 .desc("Boss only: title + beep after 5 charge sounds while sneaking in Spring Boots.");
+        b.toggle("F7 Titles (crystals, stuns, deaths)", () -> config.f7Titles, v -> config.f7Titles = v);
+        b.toggle("  Compact Crystal Titles", () -> config.f7CrystalTitles, v -> config.f7CrystalTitles = v);
+        b.toggle("  Boss Stun/Death/Enrage Titles", () -> config.f7BossTitles, v -> config.f7BossTitles = v);
+        b.label("P3 Terminals");
+        b.toggle("Inactive Terminal Waypoints", () -> config.terminalWaypoints, v -> config.terminalWaypoints = v);
+        b.toggle("  Terminals", () -> config.terminalWaypointsTerms, v -> config.terminalWaypointsTerms = v);
+        b.toggle("  Devices", () -> config.terminalWaypointsDevices, v -> config.terminalWaypointsDevices = v);
+        b.toggle("  Levers", () -> config.terminalWaypointsLevers, v -> config.terminalWaypointsLevers = v);
+        b.toggle("  Box", () -> config.terminalWaypointsBox, v -> config.terminalWaypointsBox = v);
+        b.toggle("  Label", () -> config.terminalWaypointsText, v -> config.terminalWaypointsText = v);
+        b.toggle("  Beacon", () -> config.terminalWaypointsBeacon, v -> config.terminalWaypointsBeacon = v);
+        b.toggle("  Through Walls", () -> config.terminalWaypointsThroughWalls, v -> config.terminalWaypointsThroughWalls = v);
+        b.toggle("  Hide Hypixel Nametags", () -> config.terminalWaypointsHideNames, v -> config.terminalWaypointsHideNames = v);
+        b.color("  Color", () -> config.terminalWaypointsColor, v -> config.terminalWaypointsColor = v);
+        b.toggle("Term Info HUD (/tmap gui)", () -> config.termInfoHud, v -> config.termInfoHud = v);
         b.label("Wither Dragons");
         b.toggle("Wither Dragons", () -> config.witherDragons, v -> config.witherDragons = v);
+        b.toggle("Dimensional Slash Alert", () -> config.dimensionalSlashAlert, v -> config.dimensionalSlashAlert = v);
         b.label("Spawn Timer & Alerts");
         b.toggle("Dragon Spawn Timer", () -> config.witherDragonTimer, v -> config.witherDragonTimer = v);
         b.toggle("Dragon Spawn Boxes", () -> config.witherDragonBoxes, v -> config.witherDragonBoxes = v);
@@ -119,6 +135,10 @@ public final class F7M7Category {
         b.toggle("Hide Dying Dragons", () -> config.hideDyingDragons, v -> config.hideDyingDragons = v);
         b.toggle("Dragon Arrow Hit Counter (M7)", () -> config.dragonHitCounter, v -> config.dragonHitCounter = v)
                 .desc("Counts your arrow hits on the priority dragon and posts them in chat.");
+        b.toggle("Recolor Dragons (model tint)", () -> config.dragonRecolor, v -> config.dragonRecolor = v);
+        b.toggle("Hide Dragon Hurt Flash", () -> config.dragonHideHurt, v -> config.dragonHideHurt = v);
+        b.toggle("Dragon Perch Warning", () -> config.dragonPerchWarning, v -> config.dragonPerchWarning = v);
+        b.toggle("Hide Other Dragons' Boss Bars (needs priority)", () -> config.dragonHideBossbars, v -> config.dragonHideBossbars = v);
         b.label("Wither Highlight");
         b.toggle("Wither Highlight", () -> config.witherHighlight, v -> config.witherHighlight = v);
         b.toggle("  Wither Highlight Box", () -> config.witherHighlightBox, v -> config.witherHighlightBox = v);

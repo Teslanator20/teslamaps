@@ -98,5 +98,13 @@ final class Features {
         com.teslamaps.dungeon.puzzle.TicTacToe.register();
         // w02-02-map
         com.teslamaps.features.StarMobRadar.register();
+        // w02-07-boss
+        com.teslamaps.features.TerminalWaypoints.register();
+        com.teslamaps.features.FireFreezeTimer.register();
+        com.teslamaps.features.GuardianHealth.register();
+        com.teslamaps.features.DimensionalSlash.register();
+        com.teslamaps.features.F7Titles.register();
+        com.teslamaps.features.F7BossSounds.register();
+        com.teslamaps.features.DragonRecolor.register();
     }
 }

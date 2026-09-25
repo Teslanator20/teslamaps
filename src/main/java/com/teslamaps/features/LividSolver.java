@@ -161,6 +161,7 @@ public class LividSolver {
         }
 
         boolean tags = TeslaMapsConfig.get().lividHideWrongNametags;
+        boolean skins = TeslaMapsConfig.get().lividSkinDetection;
         List<Entity> livids = new ArrayList<>();
         List<ArmorStand> stands = new ArrayList<>();
         for (Entity entity : com.teslamaps.utils.EntityCache.all()) {
@@ -177,6 +178,9 @@ public class LividSolver {
             String name = entity.getName().getString();
             if (name.endsWith(" Livid") || name.equals("Livid")) {
                 livids.add(entity);
+                if (skins) learnSkin(entity, name);
+            } else if (skins && skinType(entity) != null) {
+                livids.add(entity);
             }
         }
 
@@ -192,7 +196,7 @@ public class LividSolver {
             correctLividEntity = locked;
         } else {
             for (Entity livid : livids) {
-                if (Livid.fromName(livid.getName().getString()) == currentLivid) correctLividEntity = livid;
+                if (typeOf(livid, skins) == currentLivid) correctLividEntity = livid;
             }
         }
 
@@ -208,7 +212,7 @@ public class LividSolver {
         }
 
         if (tags && !stands.isEmpty()) {
-            Livid type = Livid.fromName(correctLividEntity.getName().getString());
+            Livid type = typeOf(correctLividEntity, skins);
             char code = (type != null ? type : currentLivid).colorCode;
             for (ArmorStand stand : stands) {
                 if (stand.getName().getString().charAt(1) != code) wrongNametags.add(stand);
@@ -218,6 +222,59 @@ public class LividSolver {
         if (!hasAnnounced) {
             scheduleAnnouncement(mc);
         }
+    }
+
+    // SkyHanni's skin detection: texture -> Livid, learned from the named entities, kept across runs
+    private static final java.util.Map<Entity, String> SKIN_URLS = new WeakHashMap<>();
+
+    private static Livid typeOf(Entity e, boolean skins) {
+        if (skins) {
+            Livid t = skinType(e);
+            if (t != null) return t;
+        }
+        return Livid.fromName(e.getName().getString());
+    }
+
+    private static Livid skinType(Entity e) {
+        String url = skinUrl(e);
+        if (url == null) return null;
+        String n = TeslaMapsConfig.get().lividSkins.get(url);
+        if (n == null) return null;
+        for (Livid l : Livid.values()) if (l.name().equals(n)) return l;
+        return null;
+    }
+
+    private static void learnSkin(Entity e, String name) {
+        Livid t = Livid.fromName(name);
+        String url = t == null ? null : skinUrl(e);
+        if (url == null) return;
+        java.util.Map<String, String> map = TeslaMapsConfig.get().lividSkins;
+        if (t.name().equals(map.get(url))) return;
+        map.put(url, t.name());
+        TeslaMapsConfig.save();
+        TeslaMaps.debug("[LividSolver] learned skin for {}: {}", t.entityName, url);
+    }
+
+    private static String skinUrl(Entity e) {
+        if (!(e instanceof net.minecraft.world.entity.player.Player p)) return null;
+        String cached = SKIN_URLS.get(e);
+        if (cached != null) return cached.isEmpty() ? null : cached;
+        String url = "";
+        try {
+            var props = p.getGameProfile().properties().get("textures");
+            if (!props.isEmpty()) {
+                String json = new String(java.util.Base64.getDecoder().decode(props.iterator().next().value()),
+                        java.nio.charset.StandardCharsets.UTF_8);
+                int i = json.indexOf("\"url\"");
+                if (i >= 0) {
+                    int a = json.indexOf('"', json.indexOf(':', i) + 1);
+                    int b = a < 0 ? -1 : json.indexOf('"', a + 1);
+                    if (b > a) url = json.substring(a + 1, b);
+                }
+            }
+        } catch (Exception ignored) {}
+        SKIN_URLS.put(e, url);
+        return url.isEmpty() ? null : url;
     }
 
     private static void scheduleAnnouncement(Minecraft mc) {

@@ -128,6 +128,7 @@ public class ClientPlayNetworkHandlerMixin {
             return;
         }
         if (com.teslamaps.config.TeslaMapsConfig.get().witherDragons) com.teslamaps.dungeon.WitherDragons.onAddEntity(packet);
+        com.teslamaps.features.DragonRecolor.onAddEntity(packet);
     }
 
     @Inject(method = "handleSetEntityData", at = @At("HEAD"))
@@ -198,7 +199,8 @@ public class ClientPlayNetworkHandlerMixin {
     private void onSetSubtitle(ClientboundSetSubtitleTextPacket packet, CallbackInfo ci) {
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()
-                && com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), true)) ci.cancel();
+                && (com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), true)
+                    || com.teslamaps.features.F7Titles.onSubtitle(packet.text().getString()))) ci.cancel();
     }
 
     @Inject(method = "setTitlesAnimation", at = @At("HEAD"), cancellable = true)

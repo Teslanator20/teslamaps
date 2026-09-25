@@ -40,5 +40,6 @@ public class BlockUpdateMixin {
         com.teslamaps.dungeon.WitherDragons.onBlockUpdate(pos, oldState, newState);
         com.teslamaps.features.ColorPortal.onBlockUpdate(pos, oldState, newState);
         com.teslamaps.dungeon.F7Devices.onBlockUpdate(pos, oldState, newState);
+        com.teslamaps.features.DimensionalSlash.onBlockUpdate(pos, oldState, newState);
     }
 }

@@ -2328,6 +2328,42 @@ public class TeslaMapsConfig {
     public String colorStarMobRadarBorder = "000000";
     public boolean starMobRadarMinibossColors = true;
 
+    // w02-07-boss
+    public boolean lividSkinDetection = false;
+    @Global
+    public java.util.Map<String, String> lividSkins = new java.util.HashMap<>(); // skin url -> Livid enum name
+    public boolean terminalWaypoints = false;
+    public boolean terminalWaypointsTerms = true;
+    public boolean terminalWaypointsDevices = true;
+    public boolean terminalWaypointsLevers = true;
+    public boolean terminalWaypointsText = true;
+    public boolean terminalWaypointsBeacon = true;
+    public boolean terminalWaypointsBox = true;
+    public boolean terminalWaypointsHideNames = false;
+    public boolean terminalWaypointsThroughWalls = true;
+    public String terminalWaypointsColor = "66FFFF55";
+    public boolean termInfoHud = false;
+    public int termInfoX = 10;
+    public int termInfoY = 200;
+    public float termInfoScale = 1.0f;
+    public boolean fireFreezeTimer = false;
+    public boolean fireFreezeSound = true;
+    public int fireFreezeX = 10;
+    public int fireFreezeY = 140;
+    public float fireFreezeScale = 1.0f;
+    public boolean guardianHealth = false;
+    public boolean dimensionalSlashAlert = false;
+    public boolean f7Titles = false;
+    public boolean f7CrystalTitles = true;
+    public boolean f7BossTitles = true;
+    public boolean f7BossSounds = false;
+    public boolean f7BossSoundsAboveCap = false;
+    public boolean f7BossSoundsCap = false;
+    public boolean dragonRecolor = false;
+    public boolean dragonHideHurt = false;
+    public boolean dragonPerchWarning = false;
+    public boolean dragonHideBossbars = false;
+
     public static TeslaMapsConfig get() {
         return instance;
     }
@@ -2422,6 +2458,7 @@ public class TeslaMapsConfig {
         if (Boolean.FALSE.equals(oldDragons)) c.witherDragons = false;
         if (c.farmPriceMode == null || c.farmPriceMode.isBlank()) c.farmPriceMode = "Instant Sell";
         if (c.mutedSounds == null) c.mutedSounds = new java.util.ArrayList<>();
+        if (c.lividSkins == null) c.lividSkins = new java.util.HashMap<>();
         if (c.soundVolumes == null) c.soundVolumes = new java.util.HashMap<>();
         if (c.actionBarHidden == null) c.actionBarHidden = new java.util.ArrayList<>();
         if (c.chatFilterGroupActions == null) c.chatFilterGroupActions = new java.util.HashMap<>();

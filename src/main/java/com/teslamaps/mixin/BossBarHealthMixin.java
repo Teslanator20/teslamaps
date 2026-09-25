@@ -29,4 +29,13 @@ public class BossBarHealthMixin {
     private float teslamaps$sadanProgress(net.minecraft.world.BossEvent instance, Operation<Float> original) {
         return com.teslamaps.features.SadanFeatures.interestProgress(instance, original.call(instance));
     }
+
+    @SuppressWarnings("unchecked")
+    @WrapOperation(method = "extractRenderState",
+            at = @At(value = "INVOKE", target = "Ljava/util/Map;values()Ljava/util/Collection;"))
+    private java.util.Collection<?> teslamaps$hideBars(java.util.Map<?, ?> map, Operation<java.util.Collection<?>> original) {
+        java.util.Collection<?> all = original.call(map);
+        if (!com.teslamaps.config.TeslaMapsConfig.get().dragonHideBossbars) return all;
+        return com.teslamaps.features.DragonRecolor.filterBars((java.util.Collection<LerpingBossEvent>) all);
+    }
 }
