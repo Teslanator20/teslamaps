@@ -2142,6 +2142,33 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w09-01-vis
+    public boolean effectiveAreaOverlay = false;
+    public float effectiveAreaRadius = 7f;
+    public String effectiveAreaColor = "4055FFFF";
+    public boolean fireVeilCircle = false;
+    public String fireVeilMode = "Circle";
+    public String fireVeilColor = "FFFF5555";
+    public boolean hideFireworks = false;
+    public boolean hideHorses = false;
+    public boolean droppedItemScaling = false;
+    public float droppedScaleCommon = 100f;
+    public float droppedScaleUncommon = 100f;
+    public float droppedScaleRare = 100f;
+    public float droppedScaleEpic = 100f;
+    public float droppedScaleLegendary = 100f;
+    public float droppedScaleMythic = 100f;
+    public float droppedScaleDivine = 100f;
+    public float droppedScaleSpecial = 100f;
+    public boolean endChestTint = false;
+    public String endChestColor = "FFAA55FF";
+    public boolean customHurtTint = false;
+    public String customHurtTintColor = "4D5555FF";
+    public boolean dvdLogo = false;
+    public String dvdText = "TeslaMaps";
+    public float dvdSpeed = 1.5f;
+    public float dvdScale = 1.5f;
+    public boolean dvdCornerAlert = true;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;

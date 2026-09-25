@@ -4,6 +4,10 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "TitleStackMixin",
+    "ItemEntityRenderStateMixin",
+    "ItemEntityScaleMixin",
+    "EnderChestTintMixin",
+    "OverlayTextureAccessor",
     "PauseScreenMixin",
     "PacketLogMixin",
     "AbilityMenuSlotMixin",

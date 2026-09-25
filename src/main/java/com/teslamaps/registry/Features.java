@@ -408,5 +408,11 @@ final class Features {
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
         com.teslamaps.features.LookTargeting.register();
+        // w09-01-vis
+        com.teslamaps.features.AbilityRadius.register();
+        com.teslamaps.features.DroppedItemScaling.register();
+        com.teslamaps.features.EndChestTint.register();
+        com.teslamaps.features.HurtTint.register();
+        com.teslamaps.features.DvdLogo.register();
     }
 }
