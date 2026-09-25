@@ -62,6 +62,17 @@ public class ESPRenderer {
         return frustum != null && !frustum.isVisible(box);
     }
 
+    // logistic falloff over distance, 0.5 at espFadeDistance
+    private static float fade(AABB box, Vec3 cam) {
+        float d = com.teslamaps.config.TeslaMapsConfig.get().espFadeDistance;
+        if (d <= 0f || cam == null) return 1f;
+        double dx = (box.minX + box.maxX) * 0.5 - cam.x;
+        double dy = (box.minY + box.maxY) * 0.5 - cam.y;
+        double dz = (box.minZ + box.maxZ) * 0.5 - cam.z;
+        double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        return (float) (1.0 / (1.0 + Math.exp(6.0 * (dist - d) / d)));
+    }
+
     public static void drawBoxOutline(PoseStack matrices, AABB box, int color, float lineWidth, Vec3 cameraPos,
                                        MultiBufferSource.BufferSource bufferSource) {
         if (culled(box)) return;
@@ -70,6 +81,8 @@ public class ESPRenderer {
         float b = (color & 0xFF) / 255f;
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = 1.0f;
+        a *= fade(box, cameraPos);
+        if (a < 2f / 255f) return;
 
         float minX = (float) box.minX;
         float minY = (float) box.minY;
@@ -339,6 +352,8 @@ public class ESPRenderer {
         float b = (color & 0xFF) / 255f;
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = com.teslamaps.config.TeslaMapsConfig.get().espAlpha; // Use config transparency
+        a *= fade(box, cameraPos);
+        if (a < 2f / 255f) return;
 
         float minX = (float) box.minX;
         float minY = (float) box.minY;
@@ -503,12 +518,14 @@ public class ESPRenderer {
     private static MultiBufferSource.BufferSource batchSource;
     private static net.minecraft.client.renderer.rendertype.RenderType batchLayer;
     private static boolean batchFilled;
+    private static Vec3 batchCam;
 
     public static void beginBoxBatch(PoseStack matrices, Vec3 cameraPos, boolean filled, boolean throughWalls) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;
         endBoxBatch();
         batchFilled = filled;
+        batchCam = cameraPos;
         batchSource = mc.renderBuffers().bufferSource();
         batchMatrices = matrices;
         matrices.pushPose();
@@ -529,6 +546,8 @@ public class ESPRenderer {
         float b = (color & 0xFF) / 255f;
         float a = ((color >> 24) & 0xFF) / 255f;
         if (a == 0) a = 1.0f;
+        a *= fade(box, batchCam);
+        if (a < 2f / 255f) return;
         if (batchFilled) {
             renderFilledBox(batchPose, batchBuffer, (float) box.minX, (float) box.minY, (float) box.minZ,
                     (float) box.maxX, (float) box.maxY, (float) box.maxZ, r, g, b, a);

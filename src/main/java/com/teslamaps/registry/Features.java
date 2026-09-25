@@ -408,5 +408,12 @@ final class Features {
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
         com.teslamaps.features.LookTargeting.register();
+        // w09-00-vis
+        com.teslamaps.features.BigItems.register();
+        com.teslamaps.features.cosmetic.CustomSkin.register();
+        com.teslamaps.features.cosmetic.ConeHat.register();
+        com.teslamaps.features.cosmetic.CustomHubMap.register();
+        com.teslamaps.features.EndermanTeleportHider.register();
+        com.teslamaps.features.EntityHighlight.register();
     }
 }
