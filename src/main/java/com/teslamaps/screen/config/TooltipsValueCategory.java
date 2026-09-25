@@ -22,10 +22,14 @@ public final class TooltipsValueCategory {
         b.button("  Reset Tooltip Offset & Zoom", com.teslamaps.features.ScrollableTooltip::reset);
         b.toggle("Fit Tooltip To Screen", () -> config.tooltipFitScreen, v -> config.tooltipFitScreen = v);
         b.info("Long tooltips shrink instead of running off the top");
+        b.toggle("  Remove Gear Score", () -> config.removeGearScore, v -> config.removeGearScore = v)
+                .desc("Drops the \"Gear Score: ...\" line from dungeon item tooltips.");
         b.toggle("Compactor/Deletor Preview", () -> config.compactorPreview, v -> config.compactorPreview = v);
         b.info("Tooltip shows on/off status and configured items");
         b.label("Item Value");
         b.toggle("Estimated Item Value", () -> config.estimatedValue, v -> config.estimatedValue = v);
+        b.toggle("  List Gemstones", () -> config.gemstoneList, v -> config.gemstoneList = v)
+                .desc("Every applied gemstone with its quality, e.g. Perfect Ruby.");
         b.toggle("Value Breakdown Panel (hover)", () -> config.itemValueGui, v -> config.itemValueGui = v);
         b.slider("  Panel Scale", 0.5f, 2.0f,
                 () -> config.itemValueScale, v -> config.itemValueScale = v, 2);

@@ -16,5 +16,7 @@ public class EnchantAbbrevMixin {
     private void teslamaps$enchantAbbrev(GuiGraphicsExtractor context, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
         EnchantAbbrev.draw(context, slot.getItem(), slot.x, slot.y);
         com.teslamaps.features.TimerTriggers.drawSlot(context, slot);
+        com.teslamaps.features.TooltipTweaks.drawSlot(context, slot);
+        com.teslamaps.features.ExperimentHelper.drawSlot(context, slot);
     }
 }

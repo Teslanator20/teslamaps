@@ -20,5 +20,6 @@ public class TerminalMenuMixin {
     @Inject(method = "setItem", at = @At("TAIL"))
     private void teslamaps$postSetSlot(int slot, int stateId, ItemStack itemStack, CallbackInfo ci) {
         TerminalUtils.onSetSlot(slot, itemStack, slots, (AbstractContainerMenu) (Object) this);
+        com.teslamaps.features.ExperimentHelper.onMenuSlotChanged((AbstractContainerMenu) (Object) this, slot, itemStack);
     }
 }
