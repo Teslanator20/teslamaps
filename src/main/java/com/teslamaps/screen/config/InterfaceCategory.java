@@ -90,6 +90,11 @@ public final class InterfaceCategory {
                 .desc("Adds \"zzz for 1.23s\" while the server has not sent a tick for longer than the threshold")
                 .tags("lag", "freeze", "zzz");
         b.slider("    Lag Threshold (ms)", 50f, 1000f, () -> config.perfHudLagThreshold, v -> config.perfHudLagThreshold = v, 0);
+        b.toggle("  Show Time", () -> config.perfHudTime, v -> config.perfHudTime = v)
+                .desc("Real-world clock (system time)").tags("clock", "time", "uhr");
+        b.dropdown("    Time Format", new String[]{"24h", "12h"}, () -> config.perfHudTimeFormat, v -> config.perfHudTimeFormat = v);
+        b.toggle("    Seconds", () -> config.perfHudTimeSeconds, v -> config.perfHudTimeSeconds = v);
+        b.dropdown("    Time Label", new String[]{"Text", "Symbol", "None"}, () -> config.perfHudTimeLabel, v -> config.perfHudTimeLabel = v);
         b.toggle("  Vertical", () -> config.perfHudVertical, v -> config.perfHudVertical = v);
         b.color("  Label Color", () -> config.perfHudLabelColor, v -> config.perfHudLabelColor = v);
         b.color("  Value Color", () -> config.perfHudValueColor, v -> config.perfHudValueColor = v);

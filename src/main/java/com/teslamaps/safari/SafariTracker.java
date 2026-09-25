@@ -28,20 +28,20 @@ import net.minecraft.world.phys.Vec3;
 // the milestone progress are shared), but not as a personal catch.
 public class SafariTracker {
 
-    private static final Pattern COLORS = Pattern.compile("(?i)§[0-9A-FK-OR]");
+    static final Pattern COLORS = Pattern.compile("(?i)§[0-9A-FK-OR]");
 
-    private static final Pattern CAUGHT = Pattern.compile(
+    static final Pattern CAUGHT = Pattern.compile(
             "^CAPTURE! You caught (?:a|an|the) (?:SPARKLING )?(.+?) and (?:gained|received) .+$");
-    private static final Pattern FOUND = Pattern.compile(
+    static final Pattern FOUND = Pattern.compile(
             "^CAPTURE! You found the (.+?), and as a reward it gave you .+$");
-    private static final Pattern LOOT_SHARE = Pattern.compile(
+    static final Pattern LOOT_SHARE = Pattern.compile(
             "^LOOT SHARE! You received .+ from (\\S+) (?:catching (?:a|an)|finding the) (?:SPARKLING )?(.+)!$");
     private static final Pattern SPARKLING = Pattern.compile("^SPARKLING! (\\S+) caught a SPARKLING (.+)!$");
-    private static final Pattern THREW = Pattern.compile("^You threw a Critter Capsule at the (.+)!$");
-    private static final Pattern ESCAPED = Pattern.compile("^The (.+) escaped your Critter Capsule!$");
-    private static final Pattern DODGED = Pattern.compile("^The (.+) dodged your critter capsule and started running away!$");
-    private static final Pattern HOTSPOT = Pattern.compile("^HOTSPOT! Your Hunting Hotspot is the (\\w+) Biome!$");
-    private static final Pattern FLOOR_DROP = Pattern.compile("^FLOOR DROP! You found (.+) on the ground!$");
+    static final Pattern THREW = Pattern.compile("^You threw a Critter Capsule at the (.+)!$");
+    static final Pattern ESCAPED = Pattern.compile("^The (.+) escaped your Critter Capsule!$");
+    static final Pattern DODGED = Pattern.compile("^The (.+) dodged your critter capsule and started running away!$");
+    static final Pattern HOTSPOT = Pattern.compile("^HOTSPOT! Your Hunting Hotspot is the (\\w+) Biome!$");
+    static final Pattern FLOOR_DROP = Pattern.compile("^FLOOR DROP! You found (.+) on the ground!$");
     private static final Pattern HEAD_START = Pattern.compile("^HEAD START! You started with (?:a|an) (.+)!$");
     private static final Pattern GEM_PLACED = Pattern.compile("^You placed the (\\w+) Gem on its podium!$");
     private static final Pattern CAPTURED = Pattern.compile("Captured Mobs:?\\s*(\\d+)");
@@ -52,6 +52,11 @@ public class SafariTracker {
     private static final Map<SafariData.Biome, Integer> perBiome = new EnumMap<>(SafariData.Biome.class);
     private static final Map<String, Integer> partyCatches = new HashMap<>();
     private static final Map<String, Integer> attempts = new HashMap<>();
+    private static final Map<String, Integer> ownCatches = new HashMap<>();
+    private static final Map<String, Integer> shards = new HashMap<>();
+    private static int moundsBroken = 0;
+    private static int rockmites = 0;
+    static final Pattern SHARD_AMOUNT = Pattern.compile("(\\d[\\d,]*)x\\s+\\S");
     private static final Map<String, Set<String>> catchers = new HashMap<>();
     private static Map<String, Integer> nearby = Map.of();
     private static int moundsInSight = 0;
@@ -322,6 +327,10 @@ public class SafariTracker {
             panel.blank();
             panel.pair("Mounds to break", String.valueOf(moundsInSight), WALL, DIM);
         }
+        if (biome == SafariData.Biome.CAVERN && moundsBroken > 0 && TeslaMapsConfig.get().safariMoundCounter) {
+            if (moundsInSight <= 0) panel.blank();
+            panel.pair("Mounds broken", moundsBroken + " → " + rockmites + " Rockmite", WALL, DIM);
+        }
         return panel;
     }
 
@@ -518,6 +527,11 @@ public class SafariTracker {
         run.floorDrops = floorDrops;
         run.hotspot = hotspot == null ? null : hotspot.label;
         run.catches = new HashMap<>(partyCatches);
+        run.ownCatches = new HashMap<>(ownCatches);
+        run.attempts = new HashMap<>(attempts);
+        run.shards = new HashMap<>(shards);
+        run.moundsBroken = moundsBroken;
+        run.rockmites = rockmites;
 
         int oldBest = SafariHistory.bestDex();
         SafariHistory.add(run);
@@ -541,6 +555,10 @@ public class SafariTracker {
         perBiome.clear();
         partyCatches.clear();
         attempts.clear();
+        ownCatches.clear();
+        shards.clear();
+        moundsBroken = 0;
+        rockmites = 0;
         catchers.clear();
         nearby = Map.of();
         moundsInSight = 0;
@@ -576,10 +594,28 @@ public class SafariTracker {
         Matcher m;
         if ((m = CAUGHT.matcher(msg)).matches() || (m = FOUND.matcher(msg)).matches()) {
             record(m.group(1), true, selfName(), true);
+            SafariData.Critter c = SafariData.byName(m.group(1));
+            if (c != null) {
+                ownCatches.merge(c.name(), 1, Integer::sum);
+                shards.merge(c.name(), shardAmount(msg), Integer::sum);
+            }
             return;
         }
         if ((m = LOOT_SHARE.matcher(msg)).matches()) {
             record(m.group(2), false, m.group(1), true);
+            SafariData.Critter c = SafariData.byName(m.group(2));
+            if (c != null) shards.merge(c.name(), shardAmount(msg), Integer::sum);
+            return;
+        }
+        if (msg.startsWith("The mound falls apart, but nothing is inside")) {
+            ensureRun();
+            moundsBroken++;
+            return;
+        }
+        if (msg.startsWith("The mound fell apart, revealing")) {
+            ensureRun();
+            moundsBroken++;
+            rockmites++;
             return;
         }
         if ((m = SPARKLING.matcher(msg)).matches()) {
@@ -653,6 +689,12 @@ public class SafariTracker {
             wumpaAwake = true;
             if (!SafariBanners.handles("Wumpa")) alert("wumpa-awake", "§6§lWUMPA §cawake");
         }
+    }
+
+    static int shardAmount(String line) {
+        Matcher m = SHARD_AMOUNT.matcher(line);
+        if (!m.find()) return 1;
+        try { return Integer.parseInt(m.group(1).replace(",", "")); } catch (NumberFormatException e) { return 1; }
     }
 
     private static void record(String name, boolean self, String catcher, boolean count) {

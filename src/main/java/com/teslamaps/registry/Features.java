@@ -354,5 +354,10 @@ final class Features {
         com.teslamaps.features.CommandChains.register();
         com.teslamaps.features.AbiphoneHelper.register();
         com.teslamaps.features.waypoints.WaypointGroups.register();
+        // w08-03-hud
+        com.teslamaps.features.hud.PlayersInRange.register();
+        com.teslamaps.features.ReaperTimer.register();
+        com.teslamaps.features.SkeletonHelmet.register();
+        com.teslamaps.features.JyrreTimer.register();
     }
 }

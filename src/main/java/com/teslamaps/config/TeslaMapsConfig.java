@@ -2136,6 +2136,32 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w08-03-hud
+    public boolean perfHudTime = false;
+    public String perfHudTimeFormat = "24h";
+    public boolean perfHudTimeSeconds = false;
+    public String perfHudTimeLabel = "Text";
+    public boolean safariMoundCounter = false;
+    public boolean playersInRange = false;
+    public int playersInRangeX = 10;
+    public int playersInRangeY = 120;
+    public float playersInRangeScale = 1.0f;
+    public boolean reaperTimer = false;
+    public boolean reaperTimerBar = false;
+    public int reaperTimerX = 10;
+    public int reaperTimerY = 140;
+    public float reaperTimerScale = 1.0f;
+    public boolean skeletonHelmetHideBones = false;
+    public boolean skeletonHelmetBar = false;
+    public int skeletonBarX = 10;
+    public int skeletonBarY = 160;
+    public float skeletonBarScale = 1.0f;
+    public boolean jyrreTimer = false;
+    public boolean jyrreShowInactive = false;
+    public long jyrreRemainingMs = 0;
+    public int jyrreTimerX = 10;
+    public int jyrreTimerY = 180;
+    public float jyrreTimerScale = 1.0f;
     // w07-04-qol
     public boolean signCalculator = false;
     public boolean signCalculatorEquals = false;

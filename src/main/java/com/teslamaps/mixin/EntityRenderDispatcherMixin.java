@@ -45,7 +45,8 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.DungeonCleanEnd.shouldHide(entity)
                 || com.teslamaps.features.SecretPickupHud.shouldHide(entity)
                 || com.teslamaps.features.MinionFeatures.shouldHide(entity)
-                || com.teslamaps.features.RenderHiders.shouldHide(entity)) {
+                || com.teslamaps.features.RenderHiders.shouldHide(entity)
+                || com.teslamaps.features.SkeletonHelmet.shouldHide(entity)) {
             cir.setReturnValue(false);
         }
     }

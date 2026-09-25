@@ -592,6 +592,18 @@ public class TMapCommand {
                                 .then(ClientCommands.argument("radius", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 64))
                                         .executes(context -> safariDebug(context.getSource(),
                                                 com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(context, "radius")))))
+                        .then(ClientCommands.literal("species")
+                                .executes(context -> {
+                                    for (String line : com.teslamaps.safari.SafariHistory.speciesSummary()) {
+                                        context.getSource().sendFeedback(Component.literal(line));
+                                    }
+                                    return 1;
+                                }))
+                        .then(ClientCommands.literal("import")
+                                .executes(context -> {
+                                    com.teslamaps.safari.SafariLogImport.start();
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("testalert")
                                 .executes(context -> {
                                     com.teslamaps.safari.SafariBanners.testAll();
