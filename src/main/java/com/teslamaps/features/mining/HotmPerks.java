@@ -34,6 +34,7 @@ public class HotmPerks {
                             .desc("Tints enabled and disabled perks in the Heart of the Mountain menu.");
                     b.color("  Enabled Color", () -> c.colorHotmEnabled, v -> c.colorHotmEnabled = v);
                     b.color("  Disabled Color", () -> c.colorHotmDisabled, v -> c.colorHotmDisabled = v);
+                    HotmPowderGoal.config(b);
                     b.toggle("HotM Perk Level", () -> c.hotmLevelStack, v -> c.hotmLevelStack = v)
                             .desc("Perk level in the bottom right of each slot in the Heart of the Mountain menu, gold at max level.")
                             .tags("hotm", "perk", "level", "slot text");
