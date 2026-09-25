@@ -42,7 +42,8 @@ public class SoundPlayMixin {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
         boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);
-        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !foragingMutes && !c.arrowHitSound) return;
+        boolean extraMutes = com.teslamaps.features.SoundMutes.active(c);
+        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !foragingMutes && !c.arrowHitSound && !extraMutes) return;
 
         String id;
         float pitch, vol;
@@ -66,6 +67,10 @@ public class SoundPlayMixin {
             return;
         }
         if (c.muteLightning && LIGHTNING.contains(id)) { cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED); return; }
+        if (extraMutes && com.teslamaps.features.SoundMutes.shouldMute(c, instance, id)) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
+        }
         if (foragingMutes && com.teslamaps.features.foraging.ForagingMutes.shouldMute(c, id, vol)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
             return;

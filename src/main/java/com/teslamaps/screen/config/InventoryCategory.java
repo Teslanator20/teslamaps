@@ -77,6 +77,7 @@ public final class InventoryCategory {
         b.toggle("Ignore Filler Items", () -> config.hideFillerItems, v -> config.hideFillerItems = v)
                 .desc("No tooltip on blank glass panes, no clicks on fillers and locked backpack slots (off in dungeons and experiments)");
         b.toggle("Sign Enter Key", () -> config.signEnterKey, v -> config.signEnterKey = v);
+        b.toggle("  Shift+Enter = New Line", () -> config.signEnterShiftNewline, v -> config.signEnterShiftNewline = v);
         b.toggle("No Cursor Reset", () -> config.noCursorReset, v -> config.noCursorReset = v);
         b.slider("  Hold Time (s)", 0.5f, 30f,
                 () -> config.noCursorResetHold, v -> config.noCursorResetHold = v);
@@ -89,6 +90,9 @@ public final class InventoryCategory {
         b.dropdown("  Highlight", com.teslamaps.features.Searchbar.MODES, () -> config.searchbarMode, v -> config.searchbarMode = v);
         b.color("  Match Color", () -> config.colorSearchbarMatch, v -> config.colorSearchbarMatch = v);
         b.toggle("  Name Only (skip lore)", () -> config.searchbarNameOnly, v -> config.searchbarNameOnly = v);
+        b.toggle("  Calculator In Signs", () -> config.signCalculator, v -> config.signCalculator = v)
+                .desc("Bazaar/AH/craft amount signs: shows 1.5k*3 = 4,500 live and puts the result in on confirm. k/m/b/t, s=64, e=160, x, purse");
+        b.toggle("    Only With = Prefix", () -> config.signCalculatorEquals, v -> config.signCalculatorEquals = v);
         b.toggle("Backpack/Ender Preview", () -> config.backpackPreview, v -> config.backpackPreview = v);
         b.toggle("  Only While Shift Held", () -> config.backpackPreviewShift, v -> config.backpackPreviewShift = v);
         b.keybind("  Freeze Preview Key", () -> config.backpackPreviewFreezeKey, v -> config.backpackPreviewFreezeKey = v);

@@ -41,6 +41,10 @@ public class SkillData {
     private final double overflowXpToNext;
     private final double overflowProgress;
 
+    public static double xpForLevel(int level) {
+        return SKILL_XP_TABLE[Math.max(0, Math.min(SKILL_XP_TABLE.length - 1, level))];
+    }
+
     public SkillData(String displayName, double totalXp, String apiKey) {
         this(displayName, totalXp, apiKey, 60);
     }
