@@ -519,6 +519,9 @@ final class Features {
         com.teslamaps.features.MutePartySpam.register();
         com.teslamaps.safari.SafariHotspotPost.register();
         com.teslamaps.safari.HunterTrades.register();
+        // w11-06-gui
+        com.teslamaps.features.WorldOverlayToggle.register();
+        com.teslamaps.features.NewOptions.register();
         // w11-02-par
         com.teslamaps.features.PartyInvites.register();
         com.teslamaps.features.capes.TeslaUserLabels.register();

@@ -118,6 +118,68 @@ public class MapConfigScreen extends Screen {
         GuiSounds.open();
     }
 
+    private MapConfigScreen(boolean silent) {
+        super(Component.literal("TeslaMaps Settings"));
+    }
+
+    // GUI-013
+    public static void openWithSearch(String query) {
+        lastSearch = query == null ? "" : query;
+        Minecraft.getInstance().setScreen(new MapConfigScreen());
+    }
+
+    // GUI-014: toggles listed by /tmap newfeatures, null = normal screen
+    protected static final String NEW = "New Options";
+    private static java.util.Set<String> newKeys = null;
+    private List<SettingsEntry> newCache;
+    private int newCacheBuild = -1;
+
+    public static void openNew(java.util.Set<String> keys) {
+        newKeys = keys;
+        lastSearch = "";
+        Minecraft.getInstance().setScreen(new MapConfigScreen());
+    }
+
+    private static String toggleKey(String category, ToggleEntry te) {
+        return category + "/" + te.getLabel().trim();
+    }
+
+    /** "Category/Label" of every toggle, section masters left out. Builds a throwaway screen. */
+    public static java.util.Set<String> toggleKeys() {
+        java.util.Set<String> out = new java.util.LinkedHashSet<>();
+        MapConfigScreen s = new MapConfigScreen(true);
+        s.buildCategories();
+        for (Map.Entry<String, List<SettingsEntry>> c : s.categories.entrySet()) {
+            for (SettingsEntry e : c.getValue()) {
+                if (e instanceof ToggleEntry te && !te.getLabel().startsWith("Enable ")) out.add(toggleKey(c.getKey(), te));
+            }
+        }
+        return out;
+    }
+
+    private List<SettingsEntry> newEntries() {
+        if (newCache != null && newCacheBuild == buildCount) return newCache;
+        List<SettingsEntry> result = new ArrayList<>();
+        int contentX = SIDEBAR_WIDTH + 25, contentWidth = Math.max(150, this.width - SIDEBAR_WIDTH - 50);
+        for (Map.Entry<String, List<SettingsEntry>> cat : categories.entrySet()) {
+            List<ToggleEntry> hits = new ArrayList<>();
+            for (SettingsEntry e : cat.getValue()) {
+                if (e instanceof ToggleEntry te && newKeys.contains(toggleKey(cat.getKey(), te))) hits.add(te);
+            }
+            if (hits.isEmpty()) continue;
+            LabelEntry header = categoryHeaders.get(cat.getKey());
+            if (header != null) { header.collapseKey = null; result.add(header); }
+            result.add(new ButtonRowEntry(contentX, contentWidth, new String[]{"Turn All On", "Turn All Off"},
+                    new Runnable[]{
+                            () -> { for (ToggleEntry te : hits) if (!te.isCheat()) te.set(true); TeslaMapsConfig.save(); },
+                            () -> { for (ToggleEntry te : hits) te.set(false); TeslaMapsConfig.save(); }}));
+            result.addAll(hits);
+        }
+        newCache = result;
+        newCacheBuild = buildCount;
+        return result;
+    }
+
     /** The visible search bar is 22px tall, the EditBox inside it only 12 - same rect for both. */
     protected boolean teslamaps$overSearch(double mouseX, double mouseY) {
         int sfX = SIDEBAR_WIDTH + 14, sfY = 8, sfW = this.width - SIDEBAR_WIDTH - 28, sfH = 22;
@@ -236,6 +298,7 @@ public class MapConfigScreen extends Screen {
         for (Map.Entry<String, List<String>> s : sections.entrySet()) {
             if (s.getValue().contains(selectedCategory)) SECTION_COLLAPSED.remove(s.getKey());
         }
+        if (newKeys != null) selectedCategory = NEW;
         scrollSidebarTo(selectedCategory);
 
         // Start with every group folded (once per session); user toggles persist after.
@@ -374,6 +437,10 @@ public class MapConfigScreen extends Screen {
         sections.put("Skyblock", new ArrayList<>(List.of("Skills & Combat", "Garden", "Mining", "Fishing",
                 "Foraging & Hunting", "Crimson & End", "Ordered Waypoints")));
         com.teslamaps.registry.FeatureRegistry.addSidebar(sections);
+        if (newKeys != null) {
+            groups.put(NEW, List.of());
+            sections.get("General").add(0, NEW);
+        }
         // anything listed in a section without an explicit group is a group of one
         for (List<String> items : sections.values()) {
             for (String item : items) if (!groups.containsKey(item)) groups.put(item, List.of(item));
@@ -653,6 +720,8 @@ public class MapConfigScreen extends Screen {
             searchCache = result;
             searchCacheQuery = searchQuery;
             searchCacheBuild = buildCount;
+        } else if (NEW.equals(selectedCategory) && newKeys != null) {
+            result.addAll(newEntries());
         } else if (ACTIVE.equals(selectedCategory)) {
             for (Map.Entry<String, List<SettingsEntry>> cat : categories.entrySet()) {
                 List<SettingsEntry> on = activeEntries(cat.getValue());
@@ -973,6 +1042,10 @@ public class MapConfigScreen extends Screen {
 
     @Override
     public void onClose() {
+        if (newKeys != null) {
+            newKeys = null;
+            com.teslamaps.features.NewOptions.markSeen();
+        }
         TeslaMapsConfig.save();
         GuiSounds.close();
         GuiSounds.resetHover();
@@ -1147,6 +1220,7 @@ public class MapConfigScreen extends Screen {
         @Override public void reposition(int x, int w) { this.x = x; this.width = w; }
         boolean get() { return getter.get(); }
         void toggle() { setter.accept(!getter.get()); TeslaMapsConfig.save(); }
+        void set(boolean v) { if (getter.get() != v) setter.accept(v); }
 
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {

@@ -2183,6 +2183,16 @@ public class TeslaMapsConfig {
     public int hunterTradesX = 5;
     public int hunterTradesY = 160;
     public float hunterTradesScale = 1.0f;
+    // w11-06-gui
+    public float hudCustomBlur = 0f;               // HUD Style "Custom": backdrop blur radius, 0 = off
+    public String hudCustomBlurKernel = "Gaussian"; // Gaussian / Box
+    public float hudGlobalScale = 1.0f;            // multiplies every movable HUD element
+    public boolean newOptionsNotify = false;
+    @Global
+    public java.util.List<String> knownToggles = new java.util.ArrayList<>(); // "Category/Label" seen so far
+    @Global
+    public int worldOverlayKey = -1;               // hides every world overlay while toggled
+    public boolean worldOverlayFade = true;
     // w11-02-par
     public boolean multiPartyInviteFix = false;
     public boolean teslaUserLabels = false;
@@ -4450,6 +4460,8 @@ public class TeslaMapsConfig {
         c.mutePartySpamPrefixes.removeIf(s -> s == null || s.isEmpty());
         if (c.safariHotspotPostChannel == null) c.safariHotspotPostChannel = "Party";
         if (c.hunterTradesChannel == null) c.hunterTradesChannel = "Party";
+        if (c.knownToggles == null) c.knownToggles = new java.util.ArrayList<>();
+        if (c.hudCustomBlurKernel == null) c.hudCustomBlurKernel = "Gaussian";
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
         if (c.posMessageList == null) c.posMessageList = new java.util.ArrayList<>();
         c.posMessageList.removeIf(java.util.Objects::isNull);

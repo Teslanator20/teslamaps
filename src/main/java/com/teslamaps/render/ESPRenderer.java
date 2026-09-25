@@ -11,6 +11,9 @@ public class ESPRenderer {
 
     private static boolean depthTested = false;
 
+    /** Alpha multiplier for everything drawn here, world overlay toggle fade. */
+    public static float fade = 1f;
+
     // Frame batching: inside the world pass the per-box endBatch is skipped, consecutive boxes of a
     // layer share one draw, and FeatureRegistry.world flushes at the end. Boxes outside the view
     // frustum are dropped. Submission order is unchanged, so the picture is the same.
@@ -79,7 +82,7 @@ public class ESPRenderer {
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
-        float a = ((color >> 24) & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f * fade;
         if (a == 0) a = 1.0f;
         a *= fade(box, cameraPos);
         if (a < 2f / 255f) return;
@@ -161,7 +164,7 @@ public class ESPRenderer {
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
-        float a = ((color >> 24) & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f * fade;
         if (a == 0) a = 1.0f;
 
         matrices.pushPose();
@@ -323,7 +326,7 @@ public class ESPRenderer {
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
-        float a = ((color >> 24) & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f * fade;
         if (a == 0) a = 1.0f;
         var layer = throughWalls ? TeslaRenderLayers.LINES_ESP : TeslaRenderLayers.LINES_DEPTH;
         matrices.pushPose();
@@ -346,7 +349,7 @@ public class ESPRenderer {
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
-        float a = ((color >> 24) & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f * fade;
         if (a == 0) a = 1.0f;
         var layer = throughWalls ? TeslaRenderLayers.LINES_ESP : TeslaRenderLayers.LINES_DEPTH;
         matrices.pushPose();
@@ -381,7 +384,7 @@ public class ESPRenderer {
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
-        float a = ((color >> 24) & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f * fade;
         if (a == 0) a = com.teslamaps.config.TeslaMapsConfig.get().espAlpha; // Use config transparency
         a *= fade(box, cameraPos);
         if (a < 2f / 255f) return;
@@ -456,7 +459,7 @@ public class ESPRenderer {
         if (mc.renderBuffers() == null) return;
         MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
         float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
-        float a = ((color >>> 24) & 0xFF) / 255f;
+        float a = ((color >>> 24) & 0xFF) / 255f * fade;
         matrices.pushPose();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         PoseStack.Pose pose = matrices.last();
@@ -484,7 +487,7 @@ public class ESPRenderer {
         if (mc.renderBuffers() == null) return;
         MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
         float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
-        float a = ((color >>> 24) & 0xFF) / 255f;
+        float a = ((color >>> 24) & 0xFF) / 255f * fade;
         if (a == 0) a = 1f;
         matrices.pushPose();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
@@ -508,7 +511,7 @@ public class ESPRenderer {
         if (mc.renderBuffers() == null) return;
         MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
         float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
-        float a = ((color >>> 24) & 0xFF) / 255f;
+        float a = ((color >>> 24) & 0xFF) / 255f * fade;
         matrices.pushPose();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         PoseStack.Pose pose = matrices.last();
@@ -638,7 +641,7 @@ public class ESPRenderer {
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
-        float a = ((color >> 24) & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f * fade;
         if (a == 0) a = 1.0f;
         a *= fade(box, batchCam);
         if (a < 2f / 255f) return;
@@ -669,7 +672,7 @@ public class ESPRenderer {
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
-        float a = ((color >> 24) & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f * fade;
         if (a == 0) a = 0.5f;
 
         if (com.teslamaps.config.TeslaMapsConfig.get().realBeaconBeam && mc.gameRenderer != null) {
