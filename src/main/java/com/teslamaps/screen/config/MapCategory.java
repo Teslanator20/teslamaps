@@ -64,6 +64,9 @@ public final class MapCategory {
         b.toggle("Normal Doors In Room Color", () -> config.mapDoorsRoomColor, v -> config.mapDoorsRoomColor = v);
         b.dropdown("Text Shadow", new String[]{"Drop", "None", "Outline"},
                 () -> config.mapTextShadow, v -> config.mapTextShadow = v);
+        b.toggle("  Caxton / ModernUI Outline Fix", () -> config.outlinedTextCompat, v -> config.outlinedTextCompat = v)
+                .desc("Draws Outline text through Caxton's outline renderer, or offset for ModernUI's text engine. Only does anything with one of those mods installed.")
+                .tags("caxton", "modernui", "font", "outline");
         b.dropdown("Room Name Position", new String[]{"Center L", "Center", "Top Left", "Top Right", "Bottom Left", "Bottom Right"},
                 () -> config.mapNameAlign, v -> config.mapNameAlign = v);
         b.dropdown("Map Border", new String[]{"Default", "Solid", "Chroma", "None"},

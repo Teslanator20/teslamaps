@@ -75,15 +75,18 @@ public final class FeatureRegistry {
         try {
             if (dx == 0 && dy == 0 && gs == 1f) { r.extractRenderState(g, d); return; }
             g.pose().pushMatrix();
-            g.pose().translate(dx, dy);
-            if (gs != 1f) {
-                int px = e.pivotX(), py = e.pivotY();
-                g.pose().translate(px, py);
-                g.pose().scale(gs, gs);
-                g.pose().translate(-px, -py);
+            try {
+                g.pose().translate(dx, dy);
+                if (gs != 1f) {
+                    int px = e.pivotX(), py = e.pivotY();
+                    g.pose().translate(px, py);
+                    g.pose().scale(gs, gs);
+                    g.pose().translate(-px, -py);
+                }
+                r.extractRenderState(g, d);
+            } finally {
+                g.pose().popMatrix();
             }
-            r.extractRenderState(g, d);
-            g.pose().popMatrix();
         } finally {
             com.teslamaps.render.gui.HudTextStyle.end(g);
             com.teslamaps.render.gui.HudStyle.endPanel();
@@ -104,7 +107,11 @@ public final class FeatureRegistry {
             if (!t.always && !world) continue;
             if (!t.f.active()) continue;
             Perf.begin(t.perf);
-            t.r.run();
+            try {
+                t.r.run();
+            } catch (Throwable e) {
+                com.teslamaps.features.ErrorManager.caught(t.perf, e);
+            }
             Perf.end();
         }
     }
@@ -119,7 +126,11 @@ public final class FeatureRegistry {
                 World w = WORLD.get(i);
                 if (!w.f.active()) continue;
                 Perf.begin(w.perf);
-                w.r.accept(ctx);
+                try {
+                    w.r.accept(ctx);
+                } catch (Throwable e) {
+                    com.teslamaps.features.ErrorManager.caught(w.perf, e);
+                }
                 Perf.end();
             }
         } finally {
@@ -133,7 +144,12 @@ public final class FeatureRegistry {
     public static void foreground(GuiGraphicsExtractor g, DeltaTracker d) {
         for (int i = 0, n = FOREGROUND.size(); i < n; i++) {
             Hud h = FOREGROUND.get(i);
-            if (h.f.active()) drawShifted(h.id, h.r, g, d);
+            if (!h.f.active()) continue;
+            try {
+                drawShifted(h.id, h.r, g, d);
+            } catch (Throwable e) {
+                com.teslamaps.features.ErrorManager.caught(h.id, e);
+            }
         }
     }
 
@@ -143,7 +159,11 @@ public final class FeatureRegistry {
             if (c.serverOnly && !fromServer) continue;
             if (!c.f.active()) continue;
             Perf.begin(c.perf);
-            c.r.accept(text);
+            try {
+                c.r.accept(text);
+            } catch (Throwable e) {
+                com.teslamaps.features.ErrorManager.caught(c.perf, e);
+            }
             Perf.end();
         }
     }

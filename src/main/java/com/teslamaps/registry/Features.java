@@ -512,6 +512,10 @@ final class Features {
         com.teslamaps.features.PlayerModels.register();
         com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
+        // w12-05-perf
+        com.teslamaps.features.KeepTerrainLoaded.register();
+        com.teslamaps.features.ErrorManager.register();
+        com.teslamaps.features.inspector.Inspector.register();
         // w12-06-eco
         com.teslamaps.features.bazaar.BazaarOrderTracker.register();
         com.teslamaps.features.bazaar.PurchaseGuard.register();
