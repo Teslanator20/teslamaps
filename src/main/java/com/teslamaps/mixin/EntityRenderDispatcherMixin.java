@@ -54,7 +54,8 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.ArachneTagHider.shouldHide(entity)
                 || com.teslamaps.features.WitherCloakShields.shouldHide(entity)
                 || com.teslamaps.features.VisualTweaks.shouldHide(entity)
-                || com.teslamaps.features.ZeroHpNametags.shouldHide(entity)) {
+                || com.teslamaps.features.ZeroHpNametags.shouldHide(entity)
+                || com.teslamaps.features.HideGlitchMobs.shouldHide(entity)) {
             cir.setReturnValue(false);
         }
     }

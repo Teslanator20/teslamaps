@@ -454,5 +454,13 @@ final class Features {
         com.teslamaps.features.TransparentArmor.register();
         com.teslamaps.features.ZealotColor.register();
         com.teslamaps.features.TextVisuals.register();
+        // w09-03-vis
+        com.teslamaps.features.ChangeCrouch.register();
+        com.teslamaps.features.HideGlitchMobs.register();
+        com.teslamaps.features.TooltipLineSmoother.register();
+        com.teslamaps.features.HeadDisplaySize.register();
+        com.teslamaps.safari.HideonwallPerches.register();
+        com.teslamaps.features.LowerEndermanNametags.register();
+        com.teslamaps.features.capes.Cosmetics.register();
     }
 }
