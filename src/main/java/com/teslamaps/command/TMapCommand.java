@@ -310,6 +310,12 @@ public class TMapCommand {
                                     : "§7No election data yet, fetching..."));
                             return 1;
                         }))
+                .then(ClientCommands.literal("radar")
+                        .executes(context -> {
+                            boolean on = com.teslamaps.features.StarMobRadar.toggle();
+                            context.getSource().sendFeedback(Component.literal("§7Star mob radar " + (on ? "§aon" : "§coff")));
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("gui")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() -> {

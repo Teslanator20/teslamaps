@@ -67,5 +67,7 @@ final class Features {
         com.teslamaps.features.croesus.KuudraKeys.register();
         com.teslamaps.features.pets.PetStore.register();
         com.teslamaps.features.pets.PetOverlay.register();
+        // w02-02-map
+        com.teslamaps.features.StarMobRadar.register();
     }
 }

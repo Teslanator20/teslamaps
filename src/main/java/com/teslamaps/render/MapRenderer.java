@@ -24,10 +24,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class MapRenderer {
-    private static final int ROOM_SIZE = 24;
-    private static final int DOOR_SIZE = 4;
     private static final int MAP_PADDING = 8;
-    private static final int CELL_SIZE = ROOM_SIZE + DOOR_SIZE;
+    private static final int CELL_SIZE = 28;
+    private static int roomSize = 24;
+    private static int doorGap = 4;
 
     private static int minGridX = 0, maxGridX = 5;
     private static int minGridZ = 0, maxGridZ = 5;
@@ -74,6 +74,8 @@ public class MapRenderer {
         if (mc.player == null || mc.level == null) return;
         TeslaMapsConfig config = TeslaMapsConfig.get();
         playerMarkers.clear();
+        roomSize = Math.max(12, Math.min(CELL_SIZE - 1, Math.round(config.mapRoomSize)));
+        doorGap = CELL_SIZE - roomSize;
 
         boolean legit = com.teslamaps.features.LegitMode.isFiltering();
         // Reused instead of a fresh stream/list every frame.
@@ -98,7 +100,10 @@ public class MapRenderer {
         if (config.showMapBackground || leapMode) {
             drawBackground(context, baseX, baseY, mapWidth, totalHeight);
         }
-        if (config.mapHypixelFallback) drawHypixelFallback(context, rooms, baseX, baseY, scale);
+        if (config.mapHypixelFallback) {
+            if (config.mapFallbackTyped) drawTypedFallback(context, rooms, baseX, baseY, scale);
+            else drawHypixelFallback(context, rooms, baseX, baseY, scale);
+        }
         drawRoomConnections(context, rooms, baseX, baseY, scale, legit);
 
         // getAllRooms() is already deduped, so no per-frame "already drawn" set.
@@ -115,6 +120,9 @@ public class MapRenderer {
             if (room.isIdentified()) drawRoomName(context, room, baseX, baseY, scale);
         }
 
+        if (config.starMobRadar && !leapMode && !com.teslamaps.features.LegitMode.blocksCheats()) {
+            drawStarMobs(context, baseX, baseY, scale);
+        }
         if (config.showPlayerMarker || leapMode) {
             drawPlayerMarker(context, mc, baseX, baseY, scale);
         }
@@ -331,9 +339,26 @@ public class MapRenderer {
                 width - 2, Math.min(height * 0.5f, 14), MAP_RADIUS - 1,
                 com.teslamaps.render.gui.TeslaGui.withAlpha(0xFFFFFF, 16),
                 com.teslamaps.render.gui.TeslaGui.withAlpha(0xFFFFFF, 0));
-        com.teslamaps.render.gui.TeslaGui.roundedOutline(context, baseX + 0.5f, baseY + 0.5f,
-                width - 1, height - 1, MAP_RADIUS, 1.0f,
-                com.teslamaps.render.gui.TeslaGui.withAlpha(0xFFFFFF, 40));
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String style = c.mapBorderStyle == null ? "Default" : c.mapBorderStyle;
+        float t = Math.max(0.5f, c.mapBorderWidth);
+        switch (style) {
+            case "None" -> {}
+            case "Solid" -> com.teslamaps.render.gui.TeslaGui.roundedOutline(context, baseX + t / 2, baseY + t / 2,
+                    width - t, height - t, MAP_RADIUS, t, TeslaMapsConfig.parseColor(c.colorMapBorder));
+            case "Chroma" -> {
+                // IllegalMap/Floppa chroma border
+                int alpha = TeslaMapsConfig.parseColor(c.colorMapBorder) & 0xFF000000;
+                float hue = (System.currentTimeMillis() % 1_000_000L) * c.mapBorderChromaSpeed / 4000f;
+                int top = alpha | (java.awt.Color.HSBtoRGB(hue % 1f, 1f, 1f) & 0xFFFFFF);
+                int bottom = alpha | (java.awt.Color.HSBtoRGB((hue + 0.35f) % 1f, 1f, 1f) & 0xFFFFFF);
+                com.teslamaps.render.gui.TeslaGui.roundedOutlineGradient(context, baseX + t / 2, baseY + t / 2,
+                        width - t, height - t, MAP_RADIUS, t, top, bottom);
+            }
+            default -> com.teslamaps.render.gui.TeslaGui.roundedOutline(context, baseX + 0.5f, baseY + 0.5f,
+                    width - 1, height - 1, MAP_RADIUS, 1.0f,
+                    com.teslamaps.render.gui.TeslaGui.withAlpha(0xFFFFFF, 40));
+        }
     }
 
     private static int gridToPixelX(int gridX, int baseX, float scale) {
@@ -345,8 +370,7 @@ public class MapRenderer {
     }
 
     private static void drawRoomConnections(GuiGraphicsExtractor context, Collection<DungeonRoom> rooms, int baseX, int baseY, float scale, boolean legit) {
-        int doorThickness = (int)(DOOR_SIZE * scale * 2);
-        if (doorThickness < 5) doorThickness = 5;
+        int doorThickness = doorThickness(scale);
 
         // Every cell belongs to exactly one room and each edge is only tested from its
         // left/top cell, so no dedup set is needed.
@@ -357,12 +381,12 @@ public class MapRenderer {
 
                 DungeonRoom rightRoom = DungeonManager.getGrid().getRoom(gx + 1, gz);
                 if (rightRoom != null && rightRoom != room && (!legit || rightRoom.isExplored())) {
-                    DoorType doorType = DoorScanner.getDoorType(gx, gz, gx + 1, gz);
+                    DoorType doorType = mapFixDoor(DoorScanner.getDoorType(gx, gz, gx + 1, gz), gx, gz, true);
                     boolean bothScanned = room.getName() != null && rightRoom.getName() != null;
                     if (doorType != DoorType.NONE && bothScanned) {
                         int color = connectionColor(doorType, room, rightRoom);
-                        int x1 = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE * scale) - 1;
-                        int yCenter = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE/2 * scale);
+                        int x1 = gridToPixelX(gx, baseX, scale) + (int)(roomSize * scale) - 1;
+                        int yCenter = gridToPixelY(gz, baseY, scale) + (int)(roomSize/2 * scale);
                         int y1 = yCenter - doorThickness / 2;
                         int x2 = gridToPixelX(gx + 1, baseX, scale) + 1;
                         int y2 = yCenter + doorThickness / 2;
@@ -372,13 +396,13 @@ public class MapRenderer {
 
                 DungeonRoom bottomRoom = DungeonManager.getGrid().getRoom(gx, gz + 1);
                 if (bottomRoom != null && bottomRoom != room && (!legit || bottomRoom.isExplored())) {
-                    DoorType doorType = DoorScanner.getDoorType(gx, gz, gx, gz + 1);
+                    DoorType doorType = mapFixDoor(DoorScanner.getDoorType(gx, gz, gx, gz + 1), gx, gz, false);
                     boolean bothScanned = room.getName() != null && bottomRoom.getName() != null;
                     if (doorType != DoorType.NONE && bothScanned) {
                         int color = connectionColor(doorType, room, bottomRoom);
-                        int xCenter = gridToPixelX(gx, baseX, scale) + (int)(ROOM_SIZE/2 * scale);
+                        int xCenter = gridToPixelX(gx, baseX, scale) + (int)(roomSize/2 * scale);
                         int x1 = xCenter - doorThickness / 2;
-                        int y1 = gridToPixelY(gz, baseY, scale) + (int)(ROOM_SIZE * scale) - 1;
+                        int y1 = gridToPixelY(gz, baseY, scale) + (int)(roomSize * scale) - 1;
                         int x2 = xCenter + doorThickness / 2;
                         int y2 = gridToPixelY(gz + 1, baseY, scale) + 1;
                         context.fill(x1, y1, x2, y2, color);
@@ -389,12 +413,144 @@ public class MapRenderer {
     }
 
     private static int connectionColor(DoorType type, DungeonRoom a, DungeonRoom b) {
+        if (type == DoorType.NORMAL && TeslaMapsConfig.get().mapDoorsRoomColor) {
+            return getRoomColor(b.getCheckmarkState() == CheckmarkState.UNEXPLORED || a.getCheckmarkState() != CheckmarkState.UNEXPLORED ? b : a);
+        }
         int color = getDoorColor(type);
         if ((a.getCheckmarkState() == CheckmarkState.UNEXPLORED || b.getCheckmarkState() == CheckmarkState.UNEXPLORED)
                 && typedUndiscovered()) {
             color = undiscoveredColor(color);
         }
         return color;
+    }
+
+    private static int doorThickness(float scale) {
+        float w = TeslaMapsConfig.get().mapDoorWidth;
+        return Math.max((int) (w * scale), Math.max(1, Math.round(w * 5f / 8f)));
+    }
+
+    // Hypixel's map shows a wither door where our scan saw a normal one
+    private static DoorType mapFixDoor(DoorType type, int gx, int gz, boolean right) {
+        if (type != DoorType.NORMAL) return type;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.mapHypixelFallback || !c.mapFallbackTyped) return type;
+        DoorType m = right ? com.teslamaps.map.MapTileTypes.doorRight(gx, gz) : com.teslamaps.map.MapTileTypes.doorDown(gx, gz);
+        return m == DoorType.WITHER ? DoorType.WITHER : type;
+    }
+
+    private static int typedCellColor(int gx, int gz) {
+        RoomType t = com.teslamaps.map.MapTileTypes.type(gx, gz);
+        if (t == null) return 0;
+        if (t == RoomType.UNKNOWN) return TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorUnexplored);
+        return typeColor(null, t, false);
+    }
+
+    // FunnyMapExtras MapUpdate.updateRooms: cells our scan has not filled, typed by their map colour
+    private static void drawTypedFallback(GuiGraphicsExtractor context, Collection<DungeonRoom> rooms, int baseX, int baseY, float scale) {
+        if (!com.teslamaps.map.MapTileTypes.ready()) return;
+        int n = ComponentGrid.GRID_SIZE;
+        java.util.Arrays.fill(covered, false);
+        for (DungeonRoom room : rooms) {
+            for (int[] c : room.getComponents()) {
+                if (c[0] >= 0 && c[0] < n && c[1] >= 0 && c[1] < n) covered[c[0] + c[1] * n] = true;
+            }
+        }
+        int rs = (int) (roomSize * scale);
+        for (int gz = 0; gz < n; gz++) {
+            for (int gx = 0; gx < n; gx++) {
+                boolean cov = covered[gx + gz * n];
+                int color = cov ? 0 : typedCellColor(gx, gz);
+                int x0 = gridToPixelX(gx, baseX, scale), y0 = gridToPixelY(gz, baseY, scale);
+                if (color != 0) {
+                    context.fill(x0, y0, x0 + rs, y0 + rs, color);
+                    if (gx + 1 < n && !covered[gx + 1 + gz * n] && com.teslamaps.map.MapTileTypes.joinRight(gx, gz)) {
+                        context.fill(x0 + rs, y0, gridToPixelX(gx + 1, baseX, scale), y0 + rs, color);
+                    }
+                    if (gz + 1 < n && !covered[gx + (gz + 1) * n] && com.teslamaps.map.MapTileTypes.joinDown(gx, gz)) {
+                        context.fill(x0, y0 + rs, x0 + rs, gridToPixelY(gz + 1, baseY, scale), color);
+                    }
+                    if (gx + 1 < n && gz + 1 < n && com.teslamaps.map.MapTileTypes.joinRight(gx, gz)
+                            && com.teslamaps.map.MapTileTypes.joinDown(gx, gz)
+                            && com.teslamaps.map.MapTileTypes.joinRight(gx, gz + 1)
+                            && !covered[gx + 1 + (gz + 1) * n]) {
+                        context.fill(x0 + rs, y0 + rs, gridToPixelX(gx + 1, baseX, scale), gridToPixelY(gz + 1, baseY, scale), color);
+                    }
+                }
+                if (gx + 1 < n && (!cov || !covered[gx + 1 + gz * n])) {
+                    DoorType d = com.teslamaps.map.MapTileTypes.doorRight(gx, gz);
+                    if (d != null && com.teslamaps.map.MapTileTypes.type(gx + 1, gz) != null) {
+                        drawDoorBetween(context, gx, gz, gx + 1, gz, getDoorColor(d), baseX, baseY, scale);
+                    }
+                }
+                if (gz + 1 < n && (!cov || !covered[gx + (gz + 1) * n])) {
+                    DoorType d = com.teslamaps.map.MapTileTypes.doorDown(gx, gz);
+                    if (d != null && com.teslamaps.map.MapTileTypes.type(gx, gz + 1) != null) {
+                        drawDoorBetween(context, gx, gz, gx, gz + 1, getDoorColor(d), baseX, baseY, scale);
+                    }
+                }
+            }
+        }
+    }
+
+    private static final int[] mobPx = new int[2];
+
+    private static boolean worldToPixel(double worldX, double worldZ, int baseX, int baseY, float scale, int[] out) {
+        int[] gridPos = ComponentGrid.worldToGrid(worldX, worldZ);
+        if (gridPos == null) return false;
+        int[] worldCenter = ComponentGrid.gridToWorld(gridPos[0], gridPos[1]);
+        double ox = (worldX - worldCenter[0] + ComponentGrid.HALF_ROOM_SIZE) / ComponentGrid.ROOM_SIZE;
+        double oz = (worldZ - worldCenter[1] + ComponentGrid.HALF_ROOM_SIZE) / ComponentGrid.ROOM_SIZE;
+        out[0] = gridToPixelX(gridPos[0], baseX, scale) + (int) (ox * roomSize * scale);
+        out[1] = gridToPixelY(gridPos[1], baseY, scale) + (int) (oz * roomSize * scale);
+        return true;
+    }
+
+    // IllegalMap renderRadar
+    private static void drawStarMobs(GuiGraphicsExtractor context, int baseX, int baseY, float scale) {
+        List<com.teslamaps.features.StarMobRadar.Mob> mobs = com.teslamaps.features.StarMobRadar.mobs();
+        if (mobs.isEmpty()) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        int size = Math.max(4, (int) (10 * scale * c.starMobRadarSize));
+        int half = size / 2;
+        int dotColor = TeslaMapsConfig.parseColor(c.colorStarMobRadar);
+        int border = TeslaMapsConfig.parseColor(c.colorStarMobRadarBorder);
+        var pose = context.pose();
+        for (var m : mobs) {
+            if (!worldToPixel(m.x(), m.z(), baseX, baseY, scale, mobPx)) continue;
+            int color = c.starMobRadarMinibossColors && m.color() != 0 ? m.color() : dotColor;
+            pose.pushMatrix();
+            pose.translate(mobPx[0], mobPx[1]);
+            if (c.starMobRadarHeads && m.icon() != com.teslamaps.features.StarMobRadar.ICON_NONE) {
+                pose.rotate((float) Math.toRadians(m.yaw() + 180));
+                if (c.starMobRadarBorder) {
+                    int b = half + Math.max(1, size / 12);
+                    context.fill(-b, -b, b, b, border);
+                }
+                pose.scale(size / 16f, size / 16f);
+                context.item(com.teslamaps.features.StarMobRadar.icon(m.icon()), -8, -8);
+            } else {
+                int r = Math.max(2, size / 4);
+                if (c.starMobRadarBorder) context.fill(-r - 1, -r - 1, r + 1, r + 1, border);
+                context.fill(-r, -r, r, r, color);
+            }
+            pose.popMatrix();
+        }
+    }
+
+    private static void mapText(GuiGraphicsExtractor context, net.minecraft.client.gui.Font font, String s, int x, int y, int color) {
+        String mode = TeslaMapsConfig.get().mapTextShadow;
+        if ("None".equals(mode)) {
+            context.text(font, s, x, y, color, false);
+        } else if ("Outline".equals(mode)) {
+            int black = color & 0xFF000000;
+            context.text(font, s, x + 1, y, black, false);
+            context.text(font, s, x - 1, y, black, false);
+            context.text(font, s, x, y + 1, black, false);
+            context.text(font, s, x, y - 1, black, false);
+            context.text(font, s, x, y, color, false);
+        } else {
+            context.text(font, s, x, y, color);
+        }
     }
 
     private static final boolean[] covered = new boolean[ComponentGrid.GRID_SIZE * ComponentGrid.GRID_SIZE];
@@ -417,18 +573,18 @@ public class MapRenderer {
                 int u = MapScanner.mapCornerX + gx * (rs + gap);
                 int v = MapScanner.mapCornerY + gz * (rs + gap);
                 int x0 = gridToPixelX(gx, baseX, scale), y0 = gridToPixelY(gz, baseY, scale);
-                int xr = x0 + (int) (ROOM_SIZE * scale), yb = y0 + (int) (ROOM_SIZE * scale);
+                int xr = x0 + (int) (roomSize * scale), yb = y0 + (int) (roomSize * scale);
                 int x1 = gridToPixelX(gx + 1, baseX, scale), y1 = gridToPixelY(gz + 1, baseY, scale);
                 blitMap(context, tex, x0, y0, xr, yb, u, v, rs, rs);
                 blitMap(context, tex, xr, y0, x1, yb, u + rs, v, gap, rs);
                 blitMap(context, tex, x0, yb, xr, y1, u, v + rs, rs, gap);
                 blitMap(context, tex, xr, yb, x1, y1, u + rs, v + rs, gap, gap);
                 if (gx > 0 && covered[gx - 1 + gz * n]) {
-                    int xl = gridToPixelX(gx - 1, baseX, scale) + (int) (ROOM_SIZE * scale);
+                    int xl = gridToPixelX(gx - 1, baseX, scale) + (int) (roomSize * scale);
                     blitMap(context, tex, xl, y0, x0, yb, u - gap, v, gap, rs);
                 }
                 if (gz > 0 && covered[gx + (gz - 1) * n]) {
-                    int yt = gridToPixelY(gz - 1, baseY, scale) + (int) (ROOM_SIZE * scale);
+                    int yt = gridToPixelY(gz - 1, baseY, scale) + (int) (roomSize * scale);
                     blitMap(context, tex, x0, yt, xr, y0, u, v - gap, rs, gap);
                 }
             }
@@ -461,7 +617,7 @@ public class MapRenderer {
         if (guessDoors.isEmpty()) return;
 
         int gray = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorUnexplored);
-        int roomSize = (int) (ROOM_SIZE * scale);
+        int rs = (int) (roomSize * scale);
 
         Set<Long> drawn = guessDrawn;
         drawn.clear();
@@ -472,20 +628,20 @@ public class MapRenderer {
             int py = gridToPixelY(d.nz(), baseY, scale);
             int[] guess = com.teslamaps.map.LegitGuess.colorsAt(d.nx(), d.nz());
             if (guess == null) {
-                context.fill(px, py, px + roomSize, py + roomSize, gray);
+                context.fill(px, py, px + rs, py + rs, gray);
             } else if (guess.length == 1) {
-                context.fill(px, py, px + roomSize, py + roomSize, guess[0]);
+                context.fill(px, py, px + rs, py + rs, guess[0]);
             } else {
                 // Odin renderPathHints: split tile, each part darker(0.5)
                 for (int i = 0; i < guess.length; i++) {
-                    int x0 = px + roomSize * i / guess.length, x1 = px + roomSize * (i + 1) / guess.length;
-                    context.fill(x0, py, x1, py + roomSize, darkenColor(guess[i], 0.5f));
+                    int x0 = px + rs * i / guess.length, x1 = px + rs * (i + 1) / guess.length;
+                    context.fill(x0, py, x1, py + rs, darkenColor(guess[i], 0.5f));
                 }
             }
             TeslaMapsConfig c = TeslaMapsConfig.get();
             if (c.mapCheckmarkIcons && c.showCheckmarks && c.mapCheckmarkUnopened) {
-                drawCheckmark(context, px + roomSize / 2, py + roomSize / 2,
-                        Math.max(4, Math.round(ROOM_SIZE * scale * c.mapCheckmarkSize)), CheckmarkState.UNEXPLORED);
+                drawCheckmark(context, px + rs / 2, py + rs / 2,
+                        Math.max(4, Math.round(roomSize * scale * c.mapCheckmarkSize)), CheckmarkState.UNEXPLORED);
             }
         }
 
@@ -495,21 +651,20 @@ public class MapRenderer {
     }
 
     private static void drawDoorBetween(GuiGraphicsExtractor context, int gx, int gz, int nx, int nz, int color, int baseX, int baseY, float scale) {
-        int doorThickness = (int) (DOOR_SIZE * scale * 2);
-        if (doorThickness < 5) doorThickness = 5;
+        int doorThickness = doorThickness(scale);
 
         int ax, az, bx, bz;
         if (gx != nx) { ax = Math.min(gx, nx); bx = Math.max(gx, nx); az = gz; bz = gz; }
         else { az = Math.min(gz, nz); bz = Math.max(gz, nz); ax = gx; bx = gx; }
 
         if (bx == ax + 1) { // horizontal door
-            int x1 = gridToPixelX(ax, baseX, scale) + (int) (ROOM_SIZE * scale) - 1;
-            int yCenter = gridToPixelY(az, baseY, scale) + (int) (ROOM_SIZE / 2 * scale);
+            int x1 = gridToPixelX(ax, baseX, scale) + (int) (roomSize * scale) - 1;
+            int yCenter = gridToPixelY(az, baseY, scale) + (int) (roomSize / 2 * scale);
             int x2 = gridToPixelX(bx, baseX, scale) + 1;
             context.fill(x1, yCenter - doorThickness / 2, x2, yCenter + doorThickness / 2, color);
         } else { // vertical door
-            int xCenter = gridToPixelX(ax, baseX, scale) + (int) (ROOM_SIZE / 2 * scale);
-            int y1 = gridToPixelY(az, baseY, scale) + (int) (ROOM_SIZE * scale) - 1;
+            int xCenter = gridToPixelX(ax, baseX, scale) + (int) (roomSize / 2 * scale);
+            int y1 = gridToPixelY(az, baseY, scale) + (int) (roomSize * scale) - 1;
             int y2 = gridToPixelY(bz, baseY, scale) + 1;
             context.fill(xCenter - doorThickness / 2, y1, xCenter + doorThickness / 2, y2, color);
         }
@@ -535,8 +690,8 @@ public class MapRenderer {
         if (componentCount == width * height) {
             int pixelX = gridToPixelX(roomMinGX, baseX, scale);
             int pixelY = gridToPixelY(roomMinGZ, baseY, scale);
-            int pixelW = (int)((width * CELL_SIZE - DOOR_SIZE) * scale);
-            int pixelH = (int)((height * CELL_SIZE - DOOR_SIZE) * scale);
+            int pixelW = (int)((width * CELL_SIZE - doorGap) * scale);
+            int pixelH = (int)((height * CELL_SIZE - doorGap) * scale);
 
             context.fill(pixelX, pixelY, pixelX + pixelW, pixelY + pixelH, color);
 
@@ -553,14 +708,14 @@ public class MapRenderer {
                 } else {
                     secretText = String.valueOf(maxSecrets);
                 }
-                context.text(Minecraft.getInstance().font,
+                mapText(context, Minecraft.getInstance().font,
                         secretText, pixelX + 2, pixelY + 2,
                         TeslaMapsConfig.parseColor(config.colorSecretCount));
             }
 
         } else {
             int cellScaled = (int)(CELL_SIZE * scale);
-            int roomSizeScaled = (int)(ROOM_SIZE * scale);
+            int roomSizeScaled = (int)(roomSize * scale);
             if (roomSizeScaled < 1) roomSizeScaled = 1;
 
             for (int[] component : room.getComponents()) {
@@ -615,7 +770,7 @@ public class MapRenderer {
                 } else {
                     secretText = String.valueOf(maxSecrets);
                 }
-                context.text(Minecraft.getInstance().font,
+                mapText(context, Minecraft.getInstance().font,
                         secretText, pixelX + 2, pixelY + 2,
                         TeslaMapsConfig.parseColor(configIrregular.colorSecretCount));
             }
@@ -648,7 +803,7 @@ public class MapRenderer {
         int[] primary = room.getPrimaryComponent();
         int cellX = gridToPixelX(primary[0], baseX, scale);
         int cellY = gridToPixelY(primary[1], baseY, scale);
-        int cellSize = (int)(ROOM_SIZE * scale);
+        int cellSize = (int)(roomSize * scale);
 
         int variant = TeslaMapsConfig.get().princeCrownVariant;
         if (variant >= 1 && variant <= CROWN_TEX.length) {
@@ -763,20 +918,35 @@ public class MapRenderer {
             }
 
             int minPixelX = gridToPixelX(partMinGX, baseX, scale);
-            int maxPixelX = gridToPixelX(partMaxGX, baseX, scale) + (int)(ROOM_SIZE * scale);
+            int maxPixelX = gridToPixelX(partMaxGX, baseX, scale) + (int)(roomSize * scale);
             int minPixelY = gridToPixelY(partMinGZ, baseY, scale);
-            int maxPixelY = gridToPixelY(partMaxGZ, baseY, scale) + (int)(ROOM_SIZE * scale);
+            int maxPixelY = gridToPixelY(partMaxGZ, baseY, scale) + (int)(roomSize * scale);
 
             centerX = (minPixelX + maxPixelX) / 2;
             centerY = (minPixelY + maxPixelY) / 2;
         } else {
             int minPixelX = gridToPixelX(roomMinGX, baseX, scale);
-            int maxPixelX = gridToPixelX(roomMaxGX, baseX, scale) + (int)(ROOM_SIZE * scale);
+            int maxPixelX = gridToPixelX(roomMaxGX, baseX, scale) + (int)(roomSize * scale);
             int minPixelY = gridToPixelY(roomMinGZ, baseY, scale);
-            int maxPixelY = gridToPixelY(roomMaxGZ, baseY, scale) + (int)(ROOM_SIZE * scale);
+            int maxPixelY = gridToPixelY(roomMaxGZ, baseY, scale) + (int)(roomSize * scale);
 
             centerX = (minPixelX + maxPixelX) / 2;
             centerY = (minPixelY + maxPixelY) / 2;
+        }
+
+        String align = TeslaMapsConfig.get().mapNameAlign;
+        if (align != null && !"Center L".equals(align)) {
+            if ("Center".equals(align)) {
+                double sx = 0, sz = 0;
+                for (int[] comp : room.getComponents()) { sx += comp[0]; sz += comp[1]; }
+                centerX = cellCenterX(sx / componentCount, baseX, scale);
+                centerY = cellCenterY(sz / componentCount, baseY, scale);
+            } else {
+                int[] cell = cornerCell(room, align);
+                centerX = cellCenterX(cell[0], baseX, scale);
+                centerY = cellCenterY(cell[1], baseY, scale);
+                width = 1;
+            }
         }
 
         String displayName = getDisplayName(room);
@@ -830,10 +1000,34 @@ public class MapRenderer {
             matrices.translate(centerX, startY + i * lineHeight);
             matrices.scale(textScale, textScale);
 
-            context.text(textRenderer, line, -textWidth / 2, 0, textColor);
+            mapText(context, textRenderer, line, -textWidth / 2, 0, textColor);
 
             matrices.popMatrix();
         }
+    }
+
+    private static int cellCenterX(double gx, int baseX, float scale) {
+        return baseX + (int) ((MAP_PADDING + offX + (gx - minGridX) * CELL_SIZE + roomSize / 2.0) * scale);
+    }
+
+    private static int cellCenterY(double gz, int baseY, float scale) {
+        return baseY + (int) ((MAP_PADDING + offZ + (gz - minGridZ) * CELL_SIZE + roomSize / 2.0) * scale);
+    }
+
+    // Devonian DungeonMapRoomInfoAlignment: which cell of the room
+    private static int[] cornerCell(DungeonRoom room, String align) {
+        int[] best = room.getComponents().get(0);
+        int bestScore = Integer.MIN_VALUE;
+        for (int[] p : room.getComponents()) {
+            int s = switch (align) {
+                case "Top Right" -> p[0] * 8 - p[1];
+                case "Bottom Left" -> p[1] * 8 - p[0];
+                case "Bottom Right" -> p[0] + p[1] * 8;
+                default -> -(p[0] + p[1] * 8);
+            };
+            if (s > bestScore) { bestScore = s; best = p; }
+        }
+        return best;
     }
 
     private static String getDisplayName(DungeonRoom room) {
@@ -981,10 +1175,17 @@ public class MapRenderer {
         CheckmarkState state = room.getCheckmarkState();
         if (state == CheckmarkState.UNEXPLORED && !config.mapCheckmarkUnopened) return;
         if (config.mapCheckmarkHideWithName && nameVisible(room)) return;
-        double[] c = checkmarkCenter(room);
-        int cx = baseX + (int) ((MAP_PADDING + offX + (c[0] - minGridX) * CELL_SIZE + ROOM_SIZE / 2.0) * scale);
-        int cy = baseY + (int) ((MAP_PADDING + offZ + (c[1] - minGridZ) * CELL_SIZE + ROOM_SIZE / 2.0) * scale);
-        drawCheckmark(context, cx, cy, Math.max(4, Math.round(ROOM_SIZE * scale * config.mapCheckmarkSize)), state);
+        int cx, cy;
+        if (config.mapCheckmarkAlign != null && !"Default".equals(config.mapCheckmarkAlign)) {
+            int[] cell = cornerCell(room, config.mapCheckmarkAlign);
+            cx = cellCenterX(cell[0], baseX, scale);
+            cy = cellCenterY(cell[1], baseY, scale);
+        } else {
+            double[] c = checkmarkCenter(room);
+            cx = cellCenterX(c[0], baseX, scale);
+            cy = cellCenterY(c[1], baseY, scale);
+        }
+        drawCheckmark(context, cx, cy, Math.max(4, Math.round(roomSize * scale * config.mapCheckmarkSize)), state);
     }
 
     // Devonian getCenterOf: L rooms use the corner cell, others the mean of their cells
@@ -1110,7 +1311,7 @@ public class MapRenderer {
                         playerEntity.getX(), playerEntity.getZ(), playerEntity.getYRot(),
                         uuid, clazz, name, false, recordName);
             } else {
-                double[] renderPos = MapScanner.mapToRenderPosition(mapX, mapZ, ROOM_SIZE, DOOR_SIZE);
+                double[] renderPos = MapScanner.mapToRenderPosition(mapX, mapZ, roomSize, doorGap);
                 int pixelX = baseX + (int)((MAP_PADDING + offX + renderPos[0]) * scale);
                 int pixelY = baseY + (int)((MAP_PADDING + offZ + renderPos[1]) * scale);
                 float yaw = rotation * 22.5f;
@@ -1136,7 +1337,11 @@ public class MapRenderer {
         float rad = config.rotatePlayerHeads ? (float) Math.toRadians(rotationDeg) : 0f;
         if (rad != 0f) pose.rotate(rad);
 
-        if (config.mapGlowArrow && (isLocal || !config.useHeadsInsteadOfMarkers || uuid == null)) {
+        if (isLocal && config.mapSelfVanillaArrow) {
+            int s = Math.max(8, headSize);
+            context.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, VANILLA_ARROW,
+                    -s / 2, -s / 2, 0f, 0f, s, s, 8, 8, 8, 8);
+        } else if (config.mapGlowArrow && (isLocal || !config.useHeadsInsteadOfMarkers || uuid == null)) {
             drawGlowArrow(context, Math.max(10, headSize) / 20f, knownClass ? classColor : 0xFF00FF00);
         } else if (config.useHeadsInsteadOfMarkers && uuid != null) {
             if (config.mapHeadBorder) {
@@ -1163,8 +1368,11 @@ public class MapRenderer {
                 && (!config.playerNamesOnlyWithLeap || holdingLeap())) {
             var font = Minecraft.getInstance().font;
             pose.translate(0, half + 3);
-            pose.scale(0.5f, 0.5f);
-            context.text(font, name, -font.width(name) / 2, 0, knownClass ? classColor : 0xFFFFFFFF, true);
+            float ns = 0.5f * config.mapPlayerNameScale;
+            pose.scale(ns, ns);
+            String shown = config.mapPlayerClassName && knownClass ? className(clazz) : name;
+            int nameColor = knownClass && !"White".equals(config.mapPlayerNameColor) ? classColor : 0xFFFFFFFF;
+            context.text(font, shown, -font.width(shown) / 2, 0, nameColor, true);
         }
         pose.popMatrix();
     }
@@ -1180,10 +1388,20 @@ public class MapRenderer {
         double roomOffsetX = (worldX - worldCenter[0] + ComponentGrid.HALF_ROOM_SIZE) / ComponentGrid.ROOM_SIZE;
         double roomOffsetZ = (worldZ - worldCenter[1] + ComponentGrid.HALF_ROOM_SIZE) / ComponentGrid.ROOM_SIZE;
 
-        int pixelX = gridToPixelX(gridPos[0], baseX, scale) + (int)(roomOffsetX * ROOM_SIZE * scale);
-        int pixelY = gridToPixelY(gridPos[1], baseY, scale) + (int)(roomOffsetZ * ROOM_SIZE * scale);
+        int pixelX = gridToPixelX(gridPos[0], baseX, scale) + (int)(roomOffsetX * roomSize * scale);
+        int pixelY = gridToPixelY(gridPos[1], baseY, scale) + (int)(roomOffsetZ * roomSize * scale);
 
         drawHeadMarker(context, pixelX, pixelY, headSize, yaw + 180, uuid, name, isLocal, recordName, clazz);
+    }
+
+    private static final net.minecraft.resources.Identifier VANILLA_ARROW =
+            net.minecraft.resources.Identifier.withDefaultNamespace("textures/map/decorations/player.png");
+
+    private static final String[] CLASS_NAMES = {"Healer", "Mage", "Berserk", "Archer", "Tank"};
+
+    private static String className(String clazz) {
+        for (String c : CLASS_NAMES) if (c.equalsIgnoreCase(clazz)) return c;
+        return clazz;
     }
 
     // Odin's class palette (DungeonEnums.kt)

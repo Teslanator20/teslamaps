@@ -2131,6 +2131,30 @@ public class TeslaMapsConfig {
 
     // feature gaps, waves 2+
 
+    // w02-02-map
+    public float mapRoomSize = 24f;                  // px of a 28px cell
+    public float mapDoorWidth = 8f;
+    public boolean mapDoorsRoomColor = false;
+    public String mapTextShadow = "Drop";            // Drop / None / Outline
+    public String mapNameAlign = "Center L";
+    public String mapCheckmarkAlign = "Default";
+    public String mapBorderStyle = "Default";        // Default / Solid / Chroma / None
+    public String colorMapBorder = "FFFFFFFF";
+    public float mapBorderWidth = 1.0f;
+    public float mapBorderChromaSpeed = 1.0f;
+    public boolean mapSelfVanillaArrow = false;
+    public float mapPlayerNameScale = 1.0f;
+    public boolean mapPlayerClassName = false;
+    public String mapPlayerNameColor = "Class";      // Class / White
+    public boolean mapFallbackTyped = false;
+    public boolean starMobRadar = false;
+    public float starMobRadarSize = 1.0f;
+    public boolean starMobRadarHeads = true;
+    public boolean starMobRadarBorder = true;
+    public String colorStarMobRadar = "F57738";
+    public String colorStarMobRadarBorder = "000000";
+    public boolean starMobRadarMinibossColors = true;
+
     public static TeslaMapsConfig get() {
         return instance;
     }
