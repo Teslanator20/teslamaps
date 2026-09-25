@@ -49,6 +49,7 @@ public class FarmSpeed {
         FarmProfit.markActivity();
         SixthVisitor.onCropBreak();
         GardenUptime.onCropBreak();
+        GardenMilestoneData.onCropBreak(state);
     }
 
     /**

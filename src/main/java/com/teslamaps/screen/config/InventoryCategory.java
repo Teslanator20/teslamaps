@@ -171,6 +171,8 @@ public final class InventoryCategory {
         b.toggle("  Recent Searches", () -> config.searchOverlayHistory, v -> config.searchOverlayHistory = v);
         b.toggle("  Paste Copied Name", () -> config.searchPasteCopied, v -> config.searchPasteCopied = v);
         b.toggle("  Also In /recipes", () -> config.searchOverlayRecipes, v -> config.searchOverlayRecipes = v);
+        b.toggle("  Also In The Museum", () -> config.searchOverlayMuseum, v -> config.searchOverlayMuseum = v)
+                .desc("Museum search sign: suggestions from your donations (armor sets by name), own history. Without Museum Donation Tooltip on it suggests every museum item.");
         b.slider("  History Size", 1f, 30f,
                 () -> (float) config.searchOverlayHistorySize, v -> config.searchOverlayHistorySize = Math.round(v));
         b.toggle("  /ahs, /bzs Commands", () -> config.searchOverlayCommands, v -> config.searchOverlayCommands = v)
@@ -356,6 +358,12 @@ public final class InventoryCategory {
         b.color("  Filled Color", () -> config.colorBazaarOrderFilled, v -> config.colorBazaarOrderFilled = v);
         b.color("  Outbid Color", () -> config.colorBazaarOrderOutbid, v -> config.colorBazaarOrderOutbid = v);
         b.color("  Top Order Color", () -> config.colorBazaarOrderCompetitive, v -> config.colorBazaarOrderCompetitive = v);
+        b.toggle("Bazaar: Shorter Order Tooltips", () -> config.bazaarOrderTooltipClean, v -> config.bazaarOrderTooltipClean = v)
+                .desc("Bazaar order menu: removes lines you don't need from the order tooltips");
+        b.toggle("  Hide \"By:\" Line (Only Own Orders)", () -> config.bazaarHideOrderOwner, v -> config.bazaarHideOrderOwner = v)
+                .desc("Only while every order in the menu is yours; Hypixel shows it in co-ops");
+        b.toggle("  Hide Trade Partners", () -> config.bazaarHideTradePartners, v -> config.bazaarHideTradePartners = v)
+                .desc("The Vendors / Customers list of players that filled your order");
         b.toggle("Bazaar: Estimate Order Fills", () -> config.bazaarFillEstimate, v -> config.bazaarFillEstimate = v)
                 .desc("Guesses how far your orders are filled from the public order book, without opening the menu. HUD in /tmap gui. Rough: other players cancelling at your price looks like a fill.");
         b.toggle("  Chat On New Fill", () -> config.bazaarFillEstimateAlert, v -> config.bazaarFillEstimateAlert = v);

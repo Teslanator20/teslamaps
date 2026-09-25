@@ -122,8 +122,8 @@ public class MenuSlotText {
         if (c.mstLevels) {
             if (T_COLLECTIONS.matcher(t).matches()) return 0;
             if (T_BESTIARY.matcher(t).matches()) return 1;
-            if (t.startsWith("Crop Milestones")) return 2;
-            if (T_GARDEN.matcher(t).matches()) return 3;
+            if (t.startsWith("Crop Milestones")) return CropMilestoneMenu.handlesMilestones() ? -1 : 2;
+            if (T_GARDEN.matcher(t).matches()) return t.startsWith("Crop Upgrades") && CropMilestoneMenu.handlesUpgrades() ? -1 : 3;
             if (t.equals("Manage Chips")) return 4;
         }
         if (c.mstShopGuide) {

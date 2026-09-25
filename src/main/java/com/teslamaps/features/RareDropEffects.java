@@ -90,6 +90,7 @@ public class RareDropEffects {
         if (!SkyblockUtils.isInSkyblock()) return;
 
         TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (!"Off".equals(config.burrowingSporesAlarm) && raw.contains("Burrowing Spores")) burrowingSpores(raw, config.burrowingSporesAlarm);
         if (!config.rareDropEffects && !config.rareDungeonDropEffects && !config.rareDyeDropEffects) return;
 
         String text = raw.replaceAll("(?i)§[0-9A-FK-OR]", "");
@@ -146,6 +147,19 @@ public class RareDropEffects {
         } catch (Exception e) {
             com.teslamaps.TeslaMaps.LOGGER.warn("Rare drop effect failed: {}", e.toString());
         }
+    }
+
+    public static final String[] SPORES_ALARM = {"Off", "Title", "Item", "Both"};
+    private static final Pattern SPORES = Pattern.compile("^\s*VERY RARE CROP!\s+Burrowing Spores.*");
+
+    // Ported from SkyHanni's GardenBurrowingSporesNotifier
+    private static void burrowingSpores(String raw, String mode) {
+        if (!SPORES.matcher(com.teslamaps.utils.StringUtil.strip(raw)).matches()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (!mode.equals("Item")) {
+            mc.gui.setTitle(net.minecraft.network.chat.Component.literal("§9Burrowing Spores!"));
+        }
+        if (!mode.equals("Title")) play("BURROWING_SPORES", "VERY RARE CROP!", "Burrowing Spores", ParticleTypes.SCRAPE);
     }
 
     public static final String[] ANNOUNCE = {"Off", "Party", "Guild", "Party + Guild"};
