@@ -2148,6 +2148,23 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w14-08-min
+    public String miningChestSummary = "Off";
+    public boolean corleoneSpawnTitle = false;
+    public boolean corpseKeyAnnounce = false;
+    public boolean crystalHollowsOverlay = false;
+    public boolean crystalHollowsOverlayOnlyHollows = true;
+    public int crystalHollowsOverlayX = 10;
+    public int crystalHollowsOverlayY = 220;
+    public float crystalHollowsOverlayScale = 1.0f;
+    public java.util.Map<String, Integer> chCrystalStates = new java.util.HashMap<>();
+    public java.util.List<String> chPartsDelivered = new java.util.ArrayList<>();
+    public boolean blockStrengthGuide = false;
+    public boolean blockBreakPrediction = false;
+    public boolean blockBreakPredictionSound = false;
+    public boolean chAreaWalls = false;
+    public boolean chAreaWallsNucleus = true;
+    public boolean chAreaWallsHeat = true;
     // w12-08-eco
     public boolean anitaMedalProfit = false;
     public boolean anitaExtraFortune = false;
@@ -4692,6 +4709,9 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.chCrystalStates == null) c.chCrystalStates = new java.util.HashMap<>();
+        if (c.chPartsDelivered == null) c.chPartsDelivered = new java.util.ArrayList<>();
+        if (c.miningChestSummary == null) c.miningChestSummary = "Off";
         if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
         c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
         for (FeatureRule r : c.featureConditionRules.values()) {

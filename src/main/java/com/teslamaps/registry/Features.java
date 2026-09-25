@@ -600,5 +600,12 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w14-08-min
+        com.teslamaps.features.mining.CorleoneTitle.register();
+        com.teslamaps.features.mining.CorpseKeyAnnounce.register();
+        com.teslamaps.features.mining.CrystalHollowsOverlay.register();
+        com.teslamaps.features.mining.BlockStrengthGuide.register();
+        com.teslamaps.features.mining.BlockBreakPrediction.register();
+        com.teslamaps.features.mining.HollowsAreaWalls.register();
     }
 }

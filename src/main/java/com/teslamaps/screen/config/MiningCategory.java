@@ -29,6 +29,9 @@ public final class MiningCategory {
                 .tags("esp", "lapis", "tungsten", "umber", "vanguard", "mineshaft");
         b.toggle("  Type Colors", () -> config.corpseESPTypeColors, v -> config.corpseESPTypeColors = v);
         b.color("  Corpse Color", () -> config.colorCorpseESP, v -> config.colorCorpseESP = v);
+        b.toggle("  Key Count On Spawn", () -> config.corpseKeyAnnounce, v -> config.corpseKeyAnnounce = v)
+                .desc("When the corpses spawn: one chat line per type with the corpse count and your keys (inventory, sacks, ender chest, backpacks)")
+                .tags("corpse", "key", "umber", "tungsten", "skeleton", "mineshaft");
         b.toggle("Corpse Finder (Legit)", () -> config.corpseFinder, v -> config.corpseFinder = v)
                 .desc("Marks a corpse once you had line of sight to it. Never through walls.")
                 .tags("lapis", "tungsten", "umber", "vanguard", "mineshaft", "share");
