@@ -22,6 +22,12 @@ public class HudEditScreen extends Screen {
     private int dragOffsetX = 0;
     private int dragOffsetY = 0;
 
+    // GUI-043, after FrankyAddons' ModMenuScreen fling: last 8 drag samples, bounce off the edges
+    private final java.util.ArrayDeque<double[]> samples = new java.util.ArrayDeque<>();
+    private final java.util.Map<HudEditElement, double[]> flying = new java.util.HashMap<>();
+    private long lastFrame = 0;
+    private int lastDragX, lastDragY;
+
     public HudEditScreen(Screen parent) {
         super(Component.literal("Edit HUD Positions"));
         this.parent = parent;
@@ -66,11 +72,19 @@ public class HudEditScreen extends Screen {
             if (hit != null) {
                 hit.bakeShift();
                 dragging = hit;
+                flying.remove(hit);
+                samples.clear();
+                lastDragX = hit.x();
+                lastDragY = hit.y();
                 dragOffsetX = mouseX - hit.x();
                 dragOffsetY = mouseY - hit.y();
             }
         }
+        long now = net.minecraft.util.Util.getMillis();
+        double dt = lastFrame == 0 ? 0 : Math.min(100, now - lastFrame) / 1000.0;
+        lastFrame = now;
         if (!isMouseDown && wasMouseDown && dragging != null) {
+            if (TeslaMapsConfig.get().hudEditFling) fling(dragging);
             dragging.recordAnchor();
             dragging = null;
             TeslaMapsConfig.save();
@@ -81,7 +95,14 @@ public class HudEditScreen extends Screen {
             int w = dragging.width(), h = dragging.height();
             dragging.setX(Math.max(0, Math.min(this.width - w, mouseX - dragOffsetX)));
             dragging.setY(Math.max(0, Math.min(this.height - h, mouseY - dragOffsetY)));
+            if (dt > 0) {
+                samples.addLast(new double[]{dragging.x() - lastDragX, dragging.y() - lastDragY, dt});
+                while (samples.size() > 8) samples.removeFirst();
+            }
+            lastDragX = dragging.x();
+            lastDragY = dragging.y();
         }
+        if (!flying.isEmpty()) stepFling(dt);
 
         context.fill(0, 0, this.width, this.height, 0xC0000000);
 
@@ -109,6 +130,41 @@ public class HudEditScreen extends Screen {
         context.centeredText(this.font, instructions, this.width / 2, 12, 0xFFE0E0E0);
 
         super.extractRenderState(context, mouseX, mouseY, delta);
+    }
+
+    private void fling(HudEditElement e) {
+        double dx = 0, dy = 0, t = 0;
+        for (double[] s : samples) { dx += s[0]; dy += s[1]; t += s[2]; }
+        samples.clear();
+        if (t <= 0) return;
+        double vx = Math.max(-2500, Math.min(2500, dx / t * 0.8));
+        double vy = Math.max(-2500, Math.min(2500, dy / t * 0.8));
+        if (Math.abs(vx) + Math.abs(vy) < 60) return;
+        flying.put(e, new double[]{e.x(), e.y(), vx, vy});
+    }
+
+    private void stepFling(double dt) {
+        if (dt <= 0) return;
+        double damp = Math.pow(0.35, dt);
+        var it = flying.entrySet().iterator();
+        while (it.hasNext()) {
+            var en = it.next();
+            HudEditElement e = en.getKey();
+            double[] f = en.getValue();
+            double nx = f[0] + f[2] * dt, ny = f[1] + f[3] * dt;
+            int maxX = Math.max(0, this.width - e.width()), maxY = Math.max(0, this.height - e.height());
+            if (nx <= 0) { nx = 0; f[2] = -f[2]; } else if (nx >= maxX) { nx = maxX; f[2] = -f[2]; }
+            if (ny <= 0) { ny = 0; f[3] = -f[3]; } else if (ny >= maxY) { ny = maxY; f[3] = -f[3]; }
+            f[0] = nx; f[1] = ny;
+            f[2] *= damp; f[3] *= damp;
+            e.setX((int) Math.round(nx));
+            e.setY((int) Math.round(ny));
+            if (Math.abs(f[2]) + Math.abs(f[3]) < 8) {
+                e.recordAnchor();
+                it.remove();
+                TeslaMapsConfig.save();
+            }
+        }
     }
 
     @Override

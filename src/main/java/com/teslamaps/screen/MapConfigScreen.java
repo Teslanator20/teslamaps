@@ -301,6 +301,7 @@ public class MapConfigScreen extends Screen {
     protected void buildCategories() {
         buildCount++;
         categories.clear();
+        keyConflicts = null;
         toggleDefaults.clear();
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
@@ -703,6 +704,7 @@ public class MapConfigScreen extends Screen {
         boolean isRightDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
         boolean rightClicked = isRightDown && !wasRightDown;
         wasRightDown = isRightDown; // early, the block below has several return paths
+        if (clicked && com.teslamaps.features.QuickModSwitch.covers(this, mouseX, mouseY)) clicked = false;
 
         // scrollbar drag — thumbs are 4/2 px wide but get a wider grab zone, otherwise unhittable.
         // mouseDragged does not reach us reliably, so a held thumb is followed per frame instead.
@@ -888,6 +890,7 @@ public class MapConfigScreen extends Screen {
         // One click belongs to one row. Picking a dropdown option collapses it mid-pass, which
         // pulls the rows below up under the cursor — without this they would take the click too.
         clickHandled = false;
+        conflictTip = null;
         rightClickedNow = rightClicked;
         int y = contentTop - scrollOffset;
         SettingsEntry hoverEntry = null;
@@ -917,6 +920,7 @@ public class MapConfigScreen extends Screen {
             }
             context.setTooltipForNextFrame(font, descLines, mouseX, mouseY);
         }
+        if (conflictTip != null) context.setTooltipForNextFrame(font, conflictTip, mouseX, mouseY);
 
         if (maxScroll > 0) {
             int scrollbarX = this.width - 8;
@@ -1443,7 +1447,7 @@ public class MapConfigScreen extends Screen {
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
         @Override public void reposition(int x, int w) { this.x = x; this.width = w; }
 
-        void setKey(int key) { setter.accept(key); TeslaMapsConfig.save(); }
+        void setKey(int key) { setter.accept(key); TeslaMapsConfig.save(); keyConflicts = null; }
 
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
@@ -1466,11 +1470,52 @@ public class MapConfigScreen extends Screen {
             }
 
             boolean listening = screen.listeningKeybindEntry == this;
+            List<String> conflicts = listening ? null : screen.conflictsOf(this);
             String txt = listening ? "press a key..." : keyName(getter.getAsInt());
             GuiStyle.panel(ctx, btnX, btnY, btnW, btnH, btnHover || listening);
-            drawBorder(ctx, btnX, btnY, btnW, btnH, listening ? GuiStyle.accent() : GuiStyle.border());
-            ctx.centeredText(screen.font, txt, btnX + btnW / 2, btnY + 6, 0xFFE0E0E0);
+            drawBorder(ctx, btnX, btnY, btnW, btnH, listening ? GuiStyle.accent() : conflicts != null ? 0xFFFF5555 : GuiStyle.border());
+            ctx.centeredText(screen.font, txt, btnX + btnW / 2, btnY + 6, conflicts != null ? 0xFFFF5555 : 0xFFE0E0E0);
+            if (conflicts != null && btnHover) {
+                List<net.minecraft.util.FormattedCharSequence> tip = new ArrayList<>();
+                tip.add(Component.literal("§cAlso bound to:").getVisualOrderText());
+                for (String s : conflicts) tip.add(Component.literal("§7" + s).getVisualOrderText());
+                screen.conflictTip = tip;
+            }
         }
+    }
+
+    private Map<KeybindEntry, List<String>> keyConflicts;
+    private long keyConflictsAt;
+    List<net.minecraft.util.FormattedCharSequence> conflictTip;
+
+    /** GUI-040: other binds on the same key, null when none or the warning is off. */
+    List<String> conflictsOf(KeybindEntry e) {
+        if (!TeslaMapsConfig.get().keyConflictWarning) return null;
+        long now = System.currentTimeMillis();
+        if (keyConflicts == null || now - keyConflictsAt > 2000) {
+            keyConflictsAt = now;
+            Map<Integer, List<String>> names = new java.util.HashMap<>();
+            Map<KeybindEntry, Integer> keys = new java.util.HashMap<>();
+            for (List<SettingsEntry> list : categories.values()) {
+                for (SettingsEntry s : list) {
+                    if (!(s instanceof KeybindEntry k)) continue;
+                    int key = k.getter.getAsInt();
+                    if (key == -1) continue;
+                    keys.put(k, key);
+                    com.teslamaps.utils.KeyConflicts.add(names, key, k.label.trim());
+                }
+            }
+            com.teslamaps.utils.KeyConflicts.addHotkeys(names, null);
+            com.teslamaps.utils.KeyConflicts.addMappings(names);
+            Map<KeybindEntry, List<String>> out = new java.util.HashMap<>();
+            for (Map.Entry<KeybindEntry, Integer> k : keys.entrySet()) {
+                List<String> other = new ArrayList<>(names.get(k.getValue()));
+                other.remove(k.getKey().label.trim());
+                if (!other.isEmpty()) out.put(k.getKey(), other);
+            }
+            keyConflicts = out;
+        }
+        return keyConflicts.get(e);
     }
 
     public class ColorEntry extends DescribedEntry<ColorEntry> {

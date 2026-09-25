@@ -2148,6 +2148,21 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w12-00-gui
+    public String modifyIndicator = "Off";
+    public boolean quickModSwitch = false;
+    public boolean quickModSwitchPause = false;
+    public int quickModSwitchX = 132, quickModSwitchY = 34; public float quickModSwitchScale = 1.0f;
+    public boolean keyConflictWarning = false;
+    public boolean noTextShadow = false;
+    public boolean hudEditFling = false;
+    public int stHealthBarW = -1, stManaBarW = -1;
+    public String stHealthBarColor = "E53935", stManaBarColor = "1E88E5";
+    public String stHealthBarText = "Off", stManaBarText = "Off";
+    public boolean stHealthBarMax = true, stManaBarMax = true;
+    public boolean stHealthBarOver = true, stManaBarOver = true;
+    public boolean stHealthBarReverse = false, stManaBarReverse = false;
+    public String safariShowWhere = "Auto";
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();

@@ -66,6 +66,9 @@ public final class InterfaceCategory {
                 })
                 .desc("Panels in the right or bottom half keep their distance to that edge when the screen size or GUI scale changes.")
                 .tags("anchor", "hud", "position", "gui scale");
+        b.toggle("Throw HUDs (Fun)", () -> config.hudEditFling, v -> config.hudEditFling = v)
+                .desc("In /tmap gui a panel you let go of while moving keeps its swing and bounces off the screen edges until it stops.")
+                .tags("fun", "fling", "physics", "bounce");
         b.label("Sounds");
         b.dropdown("GUI Sounds", GuiSounds.THEMES,
                 () -> config.guiSoundTheme, v -> config.guiSoundTheme = v);
@@ -79,6 +82,13 @@ public final class InterfaceCategory {
                 () -> config.configScreenKeyExclusive, v -> config.configScreenKeyExclusive = v);
         b.info("Right Shift by default, press again to close");
         b.info("Block Other Mods eats the key before anything else sees it");
+        b.toggle("  Key Conflict Warning", () -> config.keyConflictWarning, v -> config.keyConflictWarning = v)
+                .desc("Key buttons turn red when the same key is also bound elsewhere in TeslaMaps, in a hotkey or in the vanilla/other mods' controls. Hover the button to see which.")
+                .tags("keybind", "conflict", "duplicate");
+        b.toggle("  Quick Mod Menu Switch", () -> config.quickModSwitch, v -> config.quickModSwitch = v)
+                .desc("Inside the config screens of known mods (TeslaMaps, Skyblocker, SkyHanni, Devonian, Odin, SkyOcean, Firmament) a list of the other installed ones; a click opens their menu. Position in /tmap gui.")
+                .tags("mod menu", "switch");
+        b.toggle("    Also In Pause Menu", () -> config.quickModSwitchPause, v -> config.quickModSwitchPause = v);
         b.label("Performance HUD");
         b.toggle("Performance HUD", () -> config.perfHud, v -> config.perfHud = v);
         b.toggle("  Show FPS", () -> config.perfHudFps, v -> config.perfHudFps = v);

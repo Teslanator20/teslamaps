@@ -40,6 +40,8 @@ public final class PlayerStats {
     private static String tHealth = "", tMana = "", tOverflow = "", tDefense = "", tVitality = "", tEhp = "", tSpeed = "";
     private static float hpFill, hpOver, manaFill, overFill;
     private static float shownHp = -1, shownMana = -1;
+    private static String tBarHp = "", tBarMana = "";
+    public static HudEditElement healthBar, manaBar;
 
     private PlayerStats() {}
 
@@ -55,8 +57,15 @@ public final class PlayerStats {
         text("stVitality", "Vitality", () -> cfg().statVitality, () -> tVitality, "§4100/100♨");
         text("stEhp", "Effective Health", () -> cfg().statEhp, () -> tEhp, "§240,000 EHP");
         text("stSpeed", "Speed", () -> cfg().statSpeed, () -> tSpeed, "§f400✦");
-        bar("stHealthBar", "Health Bar", () -> cfg().statHealthBar, true);
-        bar("stManaBar", "Mana Bar", () -> cfg().statManaBar, false);
+        healthBar = bar("stHealthBar", "Health Bar", () -> cfg().statHealthBar, true);
+        manaBar = bar("stManaBar", "Mana Bar", () -> cfg().statManaBar, false);
+        net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(
+                net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("tmap")
+                        .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("bars").executes(x -> {
+                            Minecraft mc = Minecraft.getInstance();
+                            mc.schedule(() -> mc.setScreen(new com.teslamaps.screen.StatusBarsScreen(null)));
+                            return 1;
+                        }))));
 
         Feature.of("PlayerStats").when(PlayerStats::on)
                 .tick(PlayerStats::tick)
@@ -81,6 +90,9 @@ public final class PlayerStats {
                     b.toggle("  Mana Bar", () -> c.statManaBar, v -> c.statManaBar = v)
                             .desc("Blue bar, cyan part = overflow mana");
                     b.slider("  Bar Width", 40f, 200f, () -> (float) c.statBarWidth, v -> c.statBarWidth = Math.round(v), 0);
+                    b.button("  Status Bars Editor (/tmap bars)",
+                            () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.StatusBarsScreen(Minecraft.getInstance().screen)))
+                            .desc("Drag bars to move, drag the right edge for width, right-click for color, text, direction, max/overflow and on/off.");
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, original ->
                 (ctx, delta) -> { if (!hideHearts()) original.extractRenderState(ctx, delta); });
@@ -105,10 +117,10 @@ public final class PlayerStats {
                 });
     }
 
-    private static void bar(String prefix, String label, BooleanSupplier enabled, boolean health) {
+    private static HudEditElement bar(String prefix, String label, BooleanSupplier enabled, boolean health) {
         HudEditElement e = HudEditElement.of(prefix, label)
                 .enabled(() -> on() && enabled.getAsBoolean())
-                .size(() -> cfg().statBarWidth, () -> 5)
+                .size(() -> barWidth(health), () -> 5)
                 .preview((g, mc, x, y, s) -> drawBar(g, x, y, s, health ? 0.75f : 0.6f, health ? 0.15f : 0.2f, health));
         Feature.of("PlayerStats." + label).when(() -> on() && enabled.getAsBoolean())
                 .hudHiddenInInventory(prefix.toLowerCase(Locale.ROOT), (g, d) -> {
@@ -124,6 +136,18 @@ public final class PlayerStats {
                         drawBar(g, e.x(), e.y(), e.scale(), shownMana, overFill, false);
                     }
                 });
+        return e;
+    }
+
+    public static int barWidth(boolean health) {
+        TeslaMapsConfig c = cfg();
+        int w = health ? c.stHealthBarW : c.stManaBarW;
+        return w > 0 ? w : c.statBarWidth;
+    }
+
+    /** Editor preview, same look as the live bar. */
+    public static void drawPreview(GuiGraphicsExtractor g, boolean health, int x, int y, float scale) {
+        drawBar(g, x, y, scale, health ? 0.75f : 0.6f, health ? 0.15f : 0.2f, health);
     }
 
     private static void drawText(GuiGraphicsExtractor g, Minecraft mc, int x, int y, float scale, String s) {
@@ -136,17 +160,38 @@ public final class PlayerStats {
     }
 
     private static void drawBar(GuiGraphicsExtractor g, int x, int y, float scale, float fill, float over, boolean health) {
-        int w = cfg().statBarWidth, h = 5;
+        TeslaMapsConfig c = cfg();
+        int w = barWidth(health), h = 5;
+        boolean reverse = health ? c.stHealthBarReverse : c.stManaBarReverse;
+        boolean showOver = health ? c.stHealthBarOver : c.stManaBarOver;
+        int color = TeslaMapsConfig.parseColor(health ? c.stHealthBarColor : c.stManaBarColor) | 0xFF000000;
         var pose = g.pose();
         pose.pushMatrix();
         pose.translate(x, y);
         pose.scale(scale, scale);
         HudStyle.panel(g, -1, -1, w + 2, h + 2);
         int fw = Math.round(Math.max(0, Math.min(1, fill)) * w);
-        g.fill(0, 0, fw, h, health ? 0xFFE53935 : 0xFF1E88E5);
-        if (over > 0) {
+        if (reverse) g.fill(w - fw, 0, w, h, color);
+        else g.fill(0, 0, fw, h, color);
+        if (over > 0 && showOver) {
             int ow = Math.round(Math.min(1, over) * w);
-            g.fill(0, 0, ow, 2, health ? 0xFFFFD54F : 0xFF4DD0E1);
+            int oc = health ? 0xFFFFD54F : 0xFF4DD0E1;
+            if (reverse) g.fill(w - ow, 0, w, 2, oc);
+            else g.fill(0, 0, ow, 2, oc);
+        }
+        String mode = health ? c.stHealthBarText : c.stManaBarText;
+        if (mode != null && !"Off".equals(mode)) {
+            String t = health ? tBarHp : tBarMana;
+            if (t.isEmpty()) t = health ? "§c3,000/4,000" : "§b2,000/2,500";
+            var font = Minecraft.getInstance().font;
+            int tw = font.width(t);
+            int tx = switch (mode) {
+                case "Left" -> -tw - 4;
+                case "Right" -> w + 4;
+                default -> (w - tw) / 2;
+            };
+            int ty = "Above".equals(mode) ? -11 : (h - 8) / 2;
+            g.text(font, t, tx, ty, 0xFFFFFFFF, true);
         }
         pose.popMatrix();
     }
@@ -206,6 +251,10 @@ public final class PlayerStats {
         hpFill = maxHp > 0 ? Math.min(1f, curHp / (float) maxHp) : 0;
         hpOver = maxHp > 0 && curHp > maxHp ? (curHp - maxHp) / (float) maxHp : 0;
         manaFill = maxMana > 0 ? Math.min(1f, mana / (float) maxMana) : 0;
+        tBarHp = maxHp > 0 && !"Off".equals(c.stHealthBarText)
+                ? (curHp > maxHp ? "§e" : "§c") + num(curHp) + (c.stHealthBarMax ? "/" + num(maxHp) : "") : "";
+        tBarMana = maxMana > 0 && !"Off".equals(c.stManaBarText)
+                ? "§b" + num(mana) + (c.stManaBarMax ? "/" + num(maxMana) : "") : "";
         overFill = maxMana > 0 ? overflow / (float) maxMana : 0;
     }
 
