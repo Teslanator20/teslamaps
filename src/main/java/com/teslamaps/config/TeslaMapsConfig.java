@@ -2168,6 +2168,57 @@ public class TeslaMapsConfig {
     public boolean scathaPetTitle = true;
     public boolean hotmLevelStack = false;
     public boolean precisionMiningHighlight = false;
+    // w14-09-min
+    public boolean darkMonolith = false;
+    public boolean darkMonolithBox = true;
+    public boolean darkMonolithBeacon = true;
+    public boolean darkMonolithTitle = true;
+    public boolean darkMonolithTracker = false;
+    public int darkMonolithTrackerX = 10;
+    public int darkMonolithTrackerY = 160;
+    public float darkMonolithTrackerScale = 1f;
+    public boolean nucleusChatFilter = false;
+    public boolean nucleusFilterCrystalFound = true;
+    public boolean nucleusFilterCrystalPlaced = true;
+    public boolean nucleusFilterRunDone = true;
+    public boolean nucleusFilterScavenge = true;
+    public boolean nucleusFilterGuards = true;
+    public boolean nucleusFilterRobot = true;
+    public boolean nucleusFilterYolkar = true;
+    public boolean nucleusFilterKeepers = true;
+    public boolean hollowsPassHelper = false;
+    public boolean hollowsPassTimer = false;
+    public boolean hollowsPassAutoRenew = false;
+    public long hollowsPassExpires = 0L;
+    public int hollowsPassX = 10;
+    public int hollowsPassY = 140;
+    public float hollowsPassScale = 1f;
+    public boolean chDeathWaypoint = false;
+    public boolean commissionBlocks = false;
+    public boolean commissionBlocksSneak = true;
+    public String commissionBlocksColor = "Red";
+    public boolean deepCavernsGuide = false;
+    public int deepCavernsLookAhead = 3;
+    public boolean nucleusNames = false;
+    public boolean nucleusBarriers = false;
+    public boolean nucleusBarriersFilled = false;
+    // w14-08-min
+    public String miningChestSummary = "Off";
+    public boolean corleoneSpawnTitle = false;
+    public boolean corpseKeyAnnounce = false;
+    public boolean crystalHollowsOverlay = false;
+    public boolean crystalHollowsOverlayOnlyHollows = true;
+    public int crystalHollowsOverlayX = 10;
+    public int crystalHollowsOverlayY = 220;
+    public float crystalHollowsOverlayScale = 1.0f;
+    public java.util.Map<String, Integer> chCrystalStates = new java.util.HashMap<>();
+    public java.util.List<String> chPartsDelivered = new java.util.ArrayList<>();
+    public boolean blockStrengthGuide = false;
+    public boolean blockBreakPrediction = false;
+    public boolean blockBreakPredictionSound = false;
+    public boolean chAreaWalls = false;
+    public boolean chAreaWallsNucleus = true;
+    public boolean chAreaWallsHeat = true;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;
@@ -5247,6 +5298,9 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.chCrystalStates == null) c.chCrystalStates = new java.util.HashMap<>();
+        if (c.chPartsDelivered == null) c.chPartsDelivered = new java.util.ArrayList<>();
+        if (c.miningChestSummary == null) c.miningChestSummary = "Off";
         if (c.visitorIgnored == null) c.visitorIgnored = new java.util.ArrayList<>();
         if (c.speedPresetValues == null) c.speedPresetValues = defaultSpeedPresets();
         c.speedPresetValues.values().removeIf(java.util.Objects::isNull);
