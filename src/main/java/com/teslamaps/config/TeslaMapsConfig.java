@@ -2148,6 +2148,27 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w16-02-sla
+    public boolean slayerItemsOnGround = false;
+    public int slayerItemsMinPrice = 0;
+    public boolean slayerRewardsHighlight = false;
+    public boolean tarantulaHighlights = false;
+    public boolean tarantulaEggSacs = true;
+    public String colorTarantulaEggSac = "FF55FF";
+    public boolean tarantulaInvincible = true;
+    public String colorTarantulaInvincible = "FF5555";
+    public boolean soulflowDisplay = false;
+    public int soulflowDisplayX = 5;
+    public int soulflowDisplayY = 200;
+    public float soulflowDisplayScale = 1.0f;
+    public boolean lowSoulflowWarning = false;
+    public int lowSoulflowThreshold = 100;
+    public boolean hideSlayerSpawnParticles = false;
+    public boolean hideSlayerParticlesEnchant = true;
+    public boolean hideSlayerParticlesWitch = true;
+    public boolean hideSlayerParticlesEffect = true;
+    public boolean hideSvenPupNametags = false;
+    public boolean compactSlayerChat = false;
     // w16-00-sla
     public boolean slayerHideEndermanParticles = false;
     public boolean slayerHideMobNames = false;

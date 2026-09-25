@@ -45,6 +45,7 @@ public class ProgressHighlight {
         if (!TeslaMapsConfig.get().progressHighlight) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { closed(); return; }
+        if (TeslaMapsConfig.get().slayerRewardsHighlight && slayerRewards(cs)) { drawRewards(ctx, cs); return; }
         if (!isWhitelisted(cs)) return;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
@@ -76,6 +77,38 @@ public class ProgressHighlight {
             ctx.fill(sx, sy, sx + 1, sy + 16, 0xFF000000 | col);
             ctx.fill(sx + 15, sy, sx + 16, sy + 16, 0xFF000000 | col);
         }
+    }
+
+    private static Object rewardsScreen;
+    private static boolean rewardsMenu;
+    private static final IdentityHashMap<ItemStack, Boolean> claimable = new IdentityHashMap<>();
+
+    // Skyblocker's RewardsHighlighter: "... Slayer LVL Rewards"
+    private static boolean slayerRewards(AbstractContainerScreen<?> cs) {
+        if (cs != rewardsScreen) {
+            rewardsScreen = cs;
+            rewardsMenu = StringUtil.strip(cs.getTitle().getString()).trim().endsWith("Slayer LVL Rewards");
+            claimable.clear();
+        }
+        return rewardsMenu;
+    }
+
+    private static void drawRewards(GuiGraphicsExtractor ctx, AbstractContainerScreen<?> cs) {
+        HandledScreenAccessor acc = (HandledScreenAccessor) cs;
+        if (claimable.size() > 256) claimable.clear();
+        for (Slot slot : cs.getMenu().slots) {
+            if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+            ItemStack item = slot.getItem();
+            if (item.isEmpty() || !claimable.computeIfAbsent(item, ProgressHighlight::canClaim)) continue;
+            int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
+            ctx.fill(sx, sy, sx + 16, sy + 16, 0x6655FF55);
+        }
+    }
+
+    private static boolean canClaim(ItemStack item) {
+        ItemLore lore = item.get(DataComponents.LORE);
+        if (lore == null || lore.lines().isEmpty()) return false;
+        return StringUtil.strip(lore.lines().getLast().getString()).trim().equals("Click to claim rewards!");
     }
 
     // 0 = no progress line, 1 = done, 2 = unfinished
