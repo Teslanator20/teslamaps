@@ -29,6 +29,7 @@ public class PetRepo {
     private static final Map<String, Integer> offsets = new HashMap<>();
     private static final Map<String, List<Long>> customLevels = new HashMap<>();
     private static final Map<String, Integer> customMax = new HashMap<>();
+    private static final java.util.Set<String> types = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     private static boolean loading = false;
     private static boolean loaded = false;
@@ -70,6 +71,8 @@ public class PetRepo {
             for (String key : offsetJson.keySet()) offsets.put(key, offsetJson.get(key).getAsInt());
         }
 
+        if (root.has("pet_types")) types.addAll(root.getAsJsonObject("pet_types").keySet());
+
         customLevels.clear();
         if (root.has("custom_pet_leveling")) {
             JsonObject custom = root.getAsJsonObject("custom_pet_leveling");
@@ -84,6 +87,10 @@ public class PetRepo {
                 if (entry.has("max_level")) customMax.put(key, entry.get("max_level").getAsInt());
             }
         }
+    }
+
+    public static boolean isPetType(String type) {
+        return types.contains(type);
     }
 
     public static int offset(String tier) {
