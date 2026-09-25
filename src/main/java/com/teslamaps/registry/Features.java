@@ -430,7 +430,9 @@ final class Features {
         // w10-07-chat
         com.teslamaps.features.SackMessages.register();
         com.teslamaps.features.SkyblockXpChat.register();
+        // w10-06-chat
         com.teslamaps.features.ChatExtras.register();
+        com.teslamaps.features.ChatRewrites.register();
         // w09-08-vis
         com.teslamaps.features.ParticleHider.register();
         // w09-02-vis

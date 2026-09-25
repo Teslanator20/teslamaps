@@ -240,7 +240,7 @@ public class ChatMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getGuiTicks()I"))
     private Component teslamaps$filterRewrite(Component message) {
         Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.dungeon.TerminalSplits.rewrite(message));
-        out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatExtras.rewrite(out));
+        out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out)));
         return com.teslamaps.features.ChatCompact.rewrite(out);
     }
 
