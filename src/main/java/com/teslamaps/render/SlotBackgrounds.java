@@ -21,8 +21,10 @@ public class SlotBackgrounds {
         HotF.drawHighlight(context, slot);
         com.teslamaps.features.mining.HotmPerks.drawHighlight(context, slot);
         com.teslamaps.features.AuctionPriceCompare.drawHighlight(context, slot);
+        com.teslamaps.features.EcoOverlays.slot(context, slot);
         com.teslamaps.features.PartyFinderHelper.drawHighlight(context, slot);
         com.teslamaps.features.DuplicateItems.drawHighlight(context, slot);
         com.teslamaps.features.SearchHighlight.drawSlot(context, slot);
+        com.teslamaps.features.GardenPlots.drawDeskBackground(context, slot);
     }
 }

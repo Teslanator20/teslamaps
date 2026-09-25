@@ -52,6 +52,11 @@ public class InventoryDecoder {
         }
 
         public static final Slot EMPTY = new Slot(null, null, List.of(), 0, null);
+
+        /** A made up slot for things the api ships as plain json (sacks, shards). */
+        public static Slot of(String skyblockId, String name, List<String> lore, int count) {
+            return new Slot(skyblockId, name, lore, count, null);
+        }
     }
 
     /** Reads inventory.<key>.data, returns an empty list when the player hid their api. */

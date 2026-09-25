@@ -18,6 +18,16 @@ import java.util.List;
 @Mixin(ChatScreen.class)
 public class ChatScreenMixin {
 
+    @Inject(method = "handleChatInput", at = @At("HEAD"))
+    private void teslamaps$typedStart(String msg, boolean history, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        com.teslamaps.features.ChatEncryption.typing = true;
+    }
+
+    @Inject(method = "handleChatInput", at = @At("RETURN"))
+    private void teslamaps$typedEnd(String msg, boolean history, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        com.teslamaps.features.ChatEncryption.typing = false;
+    }
+
     @Inject(method = "removed", at = @At("HEAD"))
     private void teslamaps$saveScroll(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         com.teslamaps.features.ChatKeepScroll.onClose(Minecraft.getInstance().gui.getChat());

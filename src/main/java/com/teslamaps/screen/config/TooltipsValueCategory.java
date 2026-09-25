@@ -52,6 +52,8 @@ public final class TooltipsValueCategory {
         b.keybind("  Preview Key", () -> config.compactorPreviewKey, v -> config.compactorPreviewKey = v);
         b.label("Item Value");
         b.toggle("Estimated Item Value", () -> config.estimatedValue, v -> config.estimatedValue = v);
+        b.toggle("  Value Pets", () -> config.petValue, v -> config.petValue = v)
+                .desc("Pets get a value from level (lowest BIN of Lvl 1/100/200 scaled by xp), held item and skin. Also counts in container value and item protection.");
         b.toggle("  List Gemstones", () -> config.gemstoneList, v -> config.gemstoneList = v)
                 .desc("Every applied gemstone with its quality, e.g. Perfect Ruby.");
         b.toggle("Wardrobe Set Value", () -> config.wardrobeValue, v -> config.wardrobeValue = v)
