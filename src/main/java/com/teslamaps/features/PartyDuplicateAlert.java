@@ -113,7 +113,7 @@ public class PartyDuplicateAlert {
         mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §c§lDUPLICATE CLASSES! §7" + String.join(" §8| §7", dupes)));
         if (c.partyDuplicateSound) mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.5f);
         if (c.partyDuplicateMessage && mc.getConnection() != null) {
-            mc.getConnection().sendCommand("pc Duplicate classes: " + String.join(" | ", dupes));
+            com.teslamaps.features.ChatQueue.command("pc Duplicate classes: " + String.join(" | ", dupes));
         }
     }
 

@@ -427,6 +427,12 @@ final class Features {
         // w10-00-vis
         com.teslamaps.features.BlockEsp.register();
         com.teslamaps.features.ChestEsp.register();
+        // w10-09-chat
+        com.teslamaps.features.DungeonChatFilter.register();
+        com.teslamaps.features.ChatCompactRulesIslands.register();
+        com.teslamaps.features.ChatQueue.register();
+        com.teslamaps.features.TerminatorCooldownMute.register();
+        com.teslamaps.features.ImageLinkPreview.register();
         // w10-03-chat
         com.teslamaps.features.ChatCompacts.register();
         // w10-05-chat

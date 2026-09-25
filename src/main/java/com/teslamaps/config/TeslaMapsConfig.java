@@ -2161,6 +2161,27 @@ public class TeslaMapsConfig {
     public boolean cameraClip = false;
     public boolean glowUnbuiltSections = false;
     public int glowOutlineWidth = 1;
+    // w10-09-chat
+    public boolean dungeonFilterFull = false;
+    public boolean dungeonFilterBoss = true;
+    public boolean dungeonFilterPrepare = true;
+    public boolean dungeonFilterAmbience = true;
+    public boolean dungeonFilterReminder = true;
+    public boolean dungeonFilterBuff = true;
+    public boolean dungeonFilterNotPossible = true;
+    public boolean dungeonFilterDamage = true;
+    public boolean dungeonFilterAbility = true;
+    public boolean dungeonFilterPuzzle = true;
+    public boolean dungeonFilterEnd = true;
+    public boolean chatCompactDungeon = false;
+    public boolean chatCompactLobby = false;
+    public boolean chatCompactForaging = false;
+    public boolean chatSendQueue = false;
+    public int chatSendQueueGap = 200;
+    public boolean terminatorCooldownMute = false;
+    public boolean terminatorCooldownMuteChat = true;
+    public boolean imageLinkPreview = false;
+    public int imageLinkPreviewKey = -1;
     // w10-03-chat
     public boolean compactJacobClaim = false;
     public boolean compactLevelUps = false;

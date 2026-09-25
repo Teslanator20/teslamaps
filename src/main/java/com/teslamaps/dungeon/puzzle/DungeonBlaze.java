@@ -188,7 +188,7 @@ public class DungeonBlaze {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        mc.player.connection.sendCommand("pc Blaze Done!");
+        com.teslamaps.features.ChatQueue.command("pc Blaze Done!");
         TeslaMaps.debug("[DungeonBlaze] Sent Blaze Done message to party");
     }
 

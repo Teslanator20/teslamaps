@@ -94,7 +94,7 @@ public final class RareSeaCreature {
         Minecraft mc = Minecraft.getInstance();
         String line = (doubleHook ? "DOUBLE HOOK: " : "") + "I caught " + article(name) + " " + name + "!";
         mc.execute(() -> {
-            if (mc.getConnection() != null) mc.getConnection().sendCommand("pc " + line);
+            com.teslamaps.features.ChatQueue.command("pc " + line);
         });
     }
 

@@ -336,7 +336,7 @@ public class LividSolver {
         if (mc.player == null) return;
         if (!TeslaMapsConfig.get().lividDeathMessage) return;
 
-        mc.player.connection.sendCommand("pc Livid Dead!");
+        com.teslamaps.features.ChatQueue.command("pc Livid Dead!");
         TeslaMaps.debug("[LividSolver] Announced Livid death to party");
     }
 

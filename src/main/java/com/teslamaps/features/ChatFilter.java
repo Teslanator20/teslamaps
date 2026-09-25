@@ -360,6 +360,15 @@ public class ChatFilter {
         if (ChatCompactsMore.handle(message, t)) return true;
         if (MelodyCompact.handle(t)) return true;
         if (HoppityCompactChat.handle(message, text, t)) return true;
+        if (TeslaMapsConfig.get().chatFilterEnabled) {
+            String sf = ChatCompactRulesIslands.shortForm(message, t);
+            if (sf != null && sf.isEmpty()) return true;
+            if (sf != null && !hasClick(message, true)) {
+                lastReason = "compact";
+                queue(text, compact(message, sf));
+                return false;
+            }
+        }
         Rule r = matchStripped(t);
         if (r == SCREENSHOT) return true;
         if (r != null) return apply(message, text, t, actionOf(r), COMPACT.get(r.id));

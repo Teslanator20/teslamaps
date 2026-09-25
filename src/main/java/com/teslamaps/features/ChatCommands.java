@@ -206,7 +206,7 @@ public class ChatCommands {
         int delay = sendDelay;
         Runnable send = () -> {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.getConnection() != null) mc.getConnection().sendCommand(command);
+            com.teslamaps.features.ChatQueue.command(command);
         };
         if (delay > 0) com.teslamaps.utils.TickScheduler.schedule(delay, send);
         else Minecraft.getInstance().execute(send);
