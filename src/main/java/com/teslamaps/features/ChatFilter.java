@@ -390,6 +390,9 @@ public class ChatFilter {
         if (RareCropTracker.hide(t)) return true;
         lastReason = "autopet";
         if (autopet(t)) return true;
+        lastReason = "miningChat";
+        Boolean mining = com.teslamaps.features.mining.MiningChatHooks.handle(message, text, t);
+        if (mining != null) return mining;
         String nucleus = com.teslamaps.features.mining.NucleusChatFilter.handle(message, text, t);
         if (nucleus != null) {
             lastReason = "nucleusChatFilter";
@@ -557,7 +560,7 @@ public class ChatFilter {
     }
 
     /** Short line; the full line moves into the hover, the first command click stays. */
-    static Component compact(Component original, String shortForm) {
+    public static Component compact(Component original, String shortForm) {
         HoverEvent[] hover = {null};
         ClickEvent[] click = {null};
         original.visit((style, text) -> {

@@ -33,7 +33,7 @@ public final class SoundMutes {
     }
 
     public static boolean active(TeslaMapsConfig c) {
-        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth || c.muteVacuum || c.muteHoeLevelUp || c.gardenMuteComposter || c.muteHighHeat;
+        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth || c.muteVacuum || c.muteHoeLevelUp || c.gardenMuteComposter || c.muteTreasureChest || c.muteHighHeat;
     }
 
     public static boolean shouldMute(TeslaMapsConfig c, SoundInstance s, String id) {
@@ -53,6 +53,12 @@ public final class SoundMutes {
                 && c.section("Garden") && com.teslamaps.utils.SkyblockUtils.isInGarden()) return true;
         // SkyHanni's muteVacuum
         if (c.muteVacuum && id.equals("minecraft:entity.wither.shoot") && (com.teslamaps.utils.SkyblockUtils.isInGarden() || com.teslamaps.features.foraging.Foraging.inTorrhus())) return true;
+        // SkyHanni's PowderChestTimer muteChestDiscover / muteChestOpen
+        if (c.muteTreasureChest && (id.equals("minecraft:entity.player.levelup") || id.equals("minecraft:block.chest.open"))
+                && approx(s.getPitch(), 1f) && approx(s.getVolume(), 1f) && c.section("Mining")
+                && com.teslamaps.utils.SkyblockUtils.isInArea("Crystal Hollows")) {
+            if (id.equals("minecraft:entity.player.levelup") ? c.muteTreasureChestDiscover : c.muteTreasureChestOpen) return true;
+        }
         // SkyHanni's HighHeatSound
         if (c.muteHighHeat && id.equals("minecraft:entity.wolf.pant") && s.getPitch() < 0.55f && mc.player.getY() <= 65
                 && c.section("Mining") && com.teslamaps.utils.SkyblockUtils.isInArea("Crystal Hollows")) return true;
