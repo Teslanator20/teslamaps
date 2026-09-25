@@ -803,5 +803,13 @@ final class Features {
         com.teslamaps.slayer.SlayerRngDisplay.register();
         com.teslamaps.slayer.VoidgloomLaser.register();
         com.teslamaps.slayer.SlayerNametag.register();
+        // w16-00-sla
+        com.teslamaps.slayer.SlayerHiders.register();
+        com.teslamaps.slayer.VengeanceTimer.register();
+        com.teslamaps.slayer.SlayerBossHud.register();
+        // w16-05-sla
+        com.teslamaps.slayer.CallMaddox.register();
+        com.teslamaps.slayer.VoidgloomBeacon.register();
+        com.teslamaps.features.theend.EndermanQol.register();
     }
 }

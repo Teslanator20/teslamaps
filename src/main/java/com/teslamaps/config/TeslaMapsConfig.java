@@ -2175,6 +2175,34 @@ public class TeslaMapsConfig {
     public boolean slayerNametagCompact = false;
     public boolean slayerNametagHideOriginal = false;
     public boolean slayerNametagKillTimer = false;
+    // w16-00-sla
+    public boolean slayerHideEndermanParticles = false;
+    public boolean slayerHideMobNames = false;
+    public boolean slayerHidePacifiedBlazes = false;
+    public boolean slayerHideOthersRadiation = false;
+    public boolean vengeanceTimer = false;
+    public int vengeanceTimerX = 5;
+    public int vengeanceTimerY = 215;
+    public float vengeanceTimerScale = 1.0f;
+    public float vengeanceProcSeconds = 6.0f;
+    public boolean vengeanceDamageChat = false;
+    public boolean slayerBlockNotSpawnable = false;
+    public boolean slayerBossHud = false;
+    public int slayerBossHudX = 5;
+    public int slayerBossHudY = 240;
+    public float slayerBossHudScale = 1.0f;
+    public boolean slayerBossHudBar = true;
+    // w16-05-sla
+    public boolean muteBlazeSounds = false;
+    public boolean muteWolfSounds = false;
+    public boolean muteSpiderSounds = false;
+    public boolean callMaddoxOnFail = false;
+    public boolean voidgloomYangGlyphAlert = false;
+    public boolean voidgloomBeaconHighlight = false;
+    public boolean voidgloomBeaconPing = false;
+    public boolean endermanNoHurtTint = false;
+    public boolean endermanStageColors = false;
+    public boolean endermanStopTeleport = false;
     // w15-01-min
     public boolean forgeReminder = false;
     public int forgeReminderDelay = 1;
