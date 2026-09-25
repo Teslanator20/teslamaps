@@ -130,6 +130,8 @@ public final class HideCategory {
         b.toggle("Hide Falling Blocks", () -> config.noFallingBlocks, v -> config.noFallingBlocks = v);
         b.toggle("Hide Block Breaking", () -> config.noBlockBreaking, v -> config.noBlockBreaking = v);
         b.toggle("Hide XP Orbs", () -> config.noXpOrbs, v -> config.noXpOrbs = v);
+        b.toggle("Hide Jerry Rune Eggs", () -> config.hideJerryRune, v -> config.hideJerryRune = v)
+                .desc("SkyBlock: hides the villager spawn eggs the Jerry rune scatters on the ground.");
         b.toggle("Block At Packet Level", () -> config.packetHiders, v -> config.packetHiders = v);
         b.info("Lightning/Falling Blocks/XP Orbs are then never created");
         b.info("Saves ticking them, not just drawing them");
@@ -147,6 +149,11 @@ public final class HideCategory {
                 .desc("Hides the withers spawned by the Wither armor set bonus. Dungeon boss withers stay.");
         b.toggle("Hide Armor On Armor Stands", () -> config.hideArmorStandArmor, v -> config.hideArmorStandArmor = v)
                 .desc("Armor worn by armor stands (displays, shops) is not drawn. Heads stay.");
+        b.toggle("Hide Player Armor", () -> config.hidePlayerArmor, v -> config.hidePlayerArmor = v)
+                .desc("Armor and helmet heads of players are not drawn.");
+        b.dropdown("  Players", new String[]{"Others", "Self", "All"},
+                () -> config.hidePlayerArmorMode, v -> config.hidePlayerArmorMode = v);
+        b.toggle("  Only Helmet", () -> config.hidePlayerArmorHelmetOnly, v -> config.hidePlayerArmorHelmetOnly = v);
         b.label("Screen Overlays");
         b.toggle("Hide Fire Overlay", () -> config.noFire, v -> config.noFire = v);
         b.toggle("Hide Water Overlay", () -> config.noWaterOverlay, v -> config.noWaterOverlay = v);
@@ -162,6 +169,10 @@ public final class HideCategory {
         b.toggle("Hide Item Durability", () -> config.hideItemDurability, v -> config.hideItemDurability = v);
         b.toggle("Hide Armor Bar", () -> config.hideArmorBar, v -> config.hideArmorBar = v);
         b.toggle("Hide Hunger Bar", () -> config.hideHungerBar, v -> config.hideHungerBar = v);
+        b.toggle("Hide Item Cooldown Overlay", () -> config.hideItemCooldownOverlay, v -> config.hideItemCooldownOverlay = v)
+                .desc("SkyBlock: no white cooldown shading on items (pearls, abilities). TeslaMaps' own Item/Ability Cooldowns still show.");
+        b.toggle("Hide Hotbar Item Name", () -> config.hideHotbarItemName, v -> config.hideHotbarItemName = v)
+                .desc("SkyBlock: no item name above the hotbar when switching slots.");
         b.toggle("Hide Health Hearts", () -> config.hideHealthBar, v -> config.hideHealthBar = v);
         b.toggle("Hide Air Bubbles", () -> config.hideAirBar, v -> config.hideAirBar = v);
         b.toggle("Hide Boss Bar", () -> config.hideBossBar, v -> config.hideBossBar = v)

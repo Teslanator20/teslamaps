@@ -2142,6 +2142,30 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w09-04-vis
+    public boolean noReequipAnimation = false;
+    public boolean hideItemCooldownOverlay = false;
+    public boolean hideHotbarItemName = false;
+    public boolean compactTabList = false;
+    public boolean compactTabHideAds = true;
+    public boolean compactTabHideFireSales = false;
+    public boolean compactTabBackground = true;
+    public boolean compactTabToggle = false;
+    public String compactTabSort = "Rank";
+    public boolean compactTabSortReverse = false;
+    public boolean compactTabHideHeads = false;
+    public boolean compactTabHideLevel = false;
+    public boolean compactTabHideEmblems = false;
+    public boolean compactTabHideRankColor = false;
+    public boolean compactTabPartyIcon = false;
+    public boolean lowHealthVignette = false;
+    public float lowHealthVignetteThreshold = 0.5f;
+    public String lowHealthVignetteColor = "CCFF0000";
+    public boolean lowerNametags = false;
+    public boolean hidePlayerArmor = false;
+    public String hidePlayerArmorMode = "Others";
+    public boolean hidePlayerArmorHelmetOnly = false;
+    public boolean hideJerryRune = false;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;

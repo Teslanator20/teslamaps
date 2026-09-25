@@ -4,6 +4,10 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "TitleStackMixin",
+    "ReequipAnimationMixin",
+    "PlayerArmorHideMixin",
+    "CompactTabListMixin",
+    "TabToggleMixin",
     "PauseScreenMixin",
     "PacketLogMixin",
     "AbilityMenuSlotMixin",
