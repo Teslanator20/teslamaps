@@ -2266,6 +2266,21 @@ public class TeslaMapsConfig {
     public String islandAlertMode = "Title + Sound";
     public String islandAlertSound = "NOTE_PLING";
     public List<String> islandAlertRules = new ArrayList<>();
+    // w06-08-qol
+    public boolean previousLobby = false;
+    public int previousLobbyMinutes = 10;
+    public boolean quickCraftConfirm = false;
+    public boolean autoShiftClick = false;
+    public boolean autoShiftNpcSell = true;
+    public boolean autoShiftBrewing = true;
+    public boolean autoShiftEquipment = true;
+    public boolean hideServerId = false;
+    public String hideServerIdMode = "Hidden";
+    public boolean hideProfileId = false;
+    public boolean screenshotPreview = false;
+    public boolean screenshotPreviewAnimation = true;
+    public boolean screenshotPreviewSound = true;
+    public boolean screenshotEditor = false;
     // w05-02-inv
     public boolean menuSlotText = false;
     public boolean mstLevels = true;

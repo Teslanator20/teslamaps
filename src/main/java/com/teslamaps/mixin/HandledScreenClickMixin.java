@@ -54,7 +54,12 @@ public class HandledScreenClickMixin {
         }
         if (com.teslamaps.features.OpheliaPotLock.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.SlotHighlighter.blockSalvageClick((AbstractContainerScreen<?>) (Object) this, slot)
-                || com.teslamaps.features.CommandHelpers.blockCoopClick((AbstractContainerScreen<?>) (Object) this, slot)) {
+                || com.teslamaps.features.CommandHelpers.blockCoopClick((AbstractContainerScreen<?>) (Object) this, slot)
+                || com.teslamaps.features.QuickCraftConfirm.blockClick(slot)) {
+            ci.cancel();
+            return;
+        }
+        if (com.teslamaps.features.AutoShiftClick.handle((AbstractContainerScreen<?>) (Object) this, slot, slotId, button, type)) {
             ci.cancel();
             return;
         }

@@ -36,6 +36,7 @@ public class ScreenshotManager {
         lastScreenshot = file;
 
         if (c.autoCopyScreenshot) copy(image);
+        ScreenshotPreview.present(file);
         if (c.screenshotChatActions) {
             Minecraft mc = Minecraft.getInstance();
             mc.execute(() -> {

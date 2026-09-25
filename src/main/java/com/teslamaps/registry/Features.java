@@ -290,5 +290,11 @@ final class Features {
         com.teslamaps.features.ClickFixes.register();
         com.teslamaps.features.MobSpawnAlert.register();
         com.teslamaps.features.IslandAlerts.register();
+        // w06-08-qol
+        com.teslamaps.features.PreviousLobby.register();
+        com.teslamaps.features.QuickCraftConfirm.register();
+        com.teslamaps.features.AutoShiftClick.register();
+        com.teslamaps.features.StreamerMode.register();
+        com.teslamaps.features.ScreenshotPreview.register();
     }
 }

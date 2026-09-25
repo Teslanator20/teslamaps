@@ -129,6 +129,7 @@
     "RecipeBookOverlayMixin",
     "RenderSystemChromaMixin",
     "ScreenshotCopyMixin",
+    "StreamerFontMixin",
     "ScrollableTooltipMixin",
     "ServerListStyleMixin",
     "ServerTickPingMixin",
