@@ -99,6 +99,7 @@ public class RareDropEffects {
                 Matcher drop = RARE_DROP.matcher(text);
                 if (drop.matches()) {
                     String item = cleanItem(drop.group("item"));
+                    share(text.trim(), item, countOf(drop.group("item")));
                     String id = lookup(RARE_DROPS, item);
                     if (id == null && net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()) {
                         com.teslamaps.TeslaMaps.LOGGER.info("rare drop not in table: '{}'", item);
@@ -145,6 +146,36 @@ public class RareDropEffects {
         } catch (Exception e) {
             com.teslamaps.TeslaMaps.LOGGER.warn("Rare drop effect failed: {}", e.toString());
         }
+    }
+
+    public static final String[] ANNOUNCE = {"Off", "Party", "Guild", "Party + Guild"};
+    private static final java.util.Map<String, Integer> DROP_COUNTS = new java.util.HashMap<>();
+
+    /** Skysoft / SkyblockExtras: post the drop to party/guild and/or copy the line. */
+    private static void share(String line, String item, int amount) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        boolean post = c.rareDropAnnounce != null && !c.rareDropAnnounce.equals("Off");
+        if (!post && !c.rareDropCopy) return;
+        if (c.rareDropCopy) Minecraft.getInstance().keyboardHandler.setClipboard(line);
+        if (!post || item.isEmpty()) return;
+        int n = DROP_COUNTS.merge(item.toLowerCase(Locale.ROOT), 1, Integer::sum);
+        int count = Math.max(1, amount);
+        String base = line + " #" + n;
+        double min = c.rareDropAnnounceMin * 1_000_000.0;
+        if (min <= 0) {
+            post(c.rareDropAnnounce, base);
+            return;
+        }
+        ItemPrice.resolve(genericId(item), coins -> {
+            double total = coins * count;
+            if (total >= min) post(TeslaMapsConfig.get().rareDropAnnounce, base + " (+" + ItemPrice.format(total) + " coins)");
+        });
+    }
+
+    private static void post(String mode, String msg) {
+        if (mode == null) return;
+        if (mode.startsWith("Party")) Announce.party(msg);
+        if (mode.endsWith("Guild")) Announce.command("gc " + msg);
     }
 
     /**

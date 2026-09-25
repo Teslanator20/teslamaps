@@ -139,6 +139,9 @@ public class ChatFilter {
                 "Your radio is weak. Find another enjoyer to boost it.", "Your radio signal is strong!",
                 "Your radio lost signal. There's too many enjoyers on this channel.",
                 "You can't use the wardrobe in combat!"));
+        more("chatFilterBlazetekk", c -> c.chatFilterBlazetekk, oneOf(
+                "Your radio is weak. Find another enjoyer to boost it.", "Your radio signal is strong!",
+                "Your radio lost signal. There's too many enjoyers on this channel."));
         more("chatFilterUselessNotifications", c -> c.chatFilterUselessNotifications, any(
                 p("You tipped \\d+ players? in \\d+(?: different)? games?!"),
                 p("Your previous Plasmaflux Power Orb was removed!"),

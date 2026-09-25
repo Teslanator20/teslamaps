@@ -17,7 +17,7 @@ public final class ScreenFlash {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("ScreenFlash").when(() -> cfg().screenFlash)
+        Feature.of("ScreenFlash").when(() -> cfg().screenFlash || end > System.currentTimeMillis())
                 .hud("screenflash", ScreenFlash::render)
                 .config("Interface", b -> {
                     TeslaMapsConfig c = cfg();

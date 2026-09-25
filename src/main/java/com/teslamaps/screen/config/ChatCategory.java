@@ -10,7 +10,7 @@ public final class ChatCategory {
 
     private ChatCategory() {}
 
-    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterWelcome", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterUselessWarnings", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterEventLevel", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterLegacyItems", "chatFilterParkour", "chatFilterTeleportPads", "chatFilterChefTed", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
+    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterWelcome", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterUselessWarnings", "chatFilterBlazetekk", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterEventLevel", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterLegacyItems", "chatFilterParkour", "chatFilterTeleportPads", "chatFilterChefTed", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
 
     private static void groupAction(ConfigBuilder b, TeslaMapsConfig config, String group, String label) {
         b.dropdown(label, com.teslamaps.features.ChatFilter.GROUP_ACTIONS,
@@ -52,6 +52,24 @@ public final class ChatCategory {
                 () -> (float) config.chatStackWindowMinutes, v -> config.chatStackWindowMinutes = Math.round(v));
         b.toggle("  Stack Divider Blocks (---/===/▬▬▬)", () -> config.chatStackBlocks, v -> config.chatStackBlocks = v);
         b.toggle("  Colours Must Match", () -> config.chatStackCompareColors, v -> config.chatStackCompareColors = v);
+        b.toggle("Keep Scroll Position On Reopen", () -> config.chatKeepScroll, v -> config.chatKeepScroll = v)
+                .desc("Closing and reopening chat keeps where you scrolled to instead of jumping to the newest line");
+        b.toggle("Compact Channel Lines", () -> config.chatCompactChannels, v -> config.chatCompactChannels = v)
+                .desc("Guild > [MVP+] Name [Member]: hi  ->  G > Name: hi. Lines with item links stay as they are");
+        b.toggle("  Party (P >)", () -> config.chatCompactParty, v -> config.chatCompactParty = v);
+        b.toggle("  Guild / Officer (G > / O >)", () -> config.chatCompactGuild, v -> config.chatCompactGuild = v);
+        b.toggle("  Public Chat", () -> config.chatCompactPublic, v -> config.chatCompactPublic = v);
+        b.toggle("  Hide Hypixel Rank", () -> config.chatCompactHideRank, v -> config.chatCompactHideRank = v);
+        b.toggle("  Hide Guild Rank", () -> config.chatCompactHideGuildRank, v -> config.chatCompactHideGuildRank = v);
+        b.toggle("  Public: Hide SkyBlock Level", () -> config.chatCompactHideLevel, v -> config.chatCompactHideLevel = v);
+        b.toggle("  Public: Hide Emblem", () -> config.chatCompactHideEmblem, v -> config.chatCompactHideEmblem = v);
+        b.toggle("Remove Discord Link Warning", () -> config.chatStripDiscordWarning, v -> config.chatStripDiscordWarning = v)
+                .desc("Cuts Hypixel's \"Please be mindful of Discord links\" sentence off messages, drops it when it is the whole line");
+        b.toggle("Animal Sound Responses", () -> config.chatSoundResponses, v -> config.chatSoundResponses = v)
+                .desc("Plays the animal sound when someone writes meow, woof, moo, oink, ... in chat");
+        b.searchList("  Sounds", com.teslamaps.features.ChatSoundResponse::names,
+                n -> !config.chatSoundResponsesOff.contains(n),
+                n -> { if (!config.chatSoundResponsesOff.remove(n)) config.chatSoundResponsesOff.add(n); });
         b.toggle("Right-Click Copy Chat", () -> config.chatCopyEnabled, v -> config.chatCopyEnabled = v);
         b.slider("Hotkey Delay After Chat (ms)", 0f, 1000f,
                 () -> (float) config.hotkeyChatDelay, v -> config.hotkeyChatDelay = Math.round(v));
@@ -167,13 +185,16 @@ public final class ChatCategory {
         b.keybind("Filter Hovered Line Key", () -> config.chatFilterLineKey, v -> config.chatFilterLineKey = v);
         b.info("Press it over a line in open chat to hide that exact line");
         b.info("/tmap chatfilter <contains|equals|startswith|endswith|regex> <text>");
+        b.toggle("Own Filter Alerts", () -> config.chatUserAlerts, v -> config.chatUserAlerts = v)
+                .desc("Own filters with a title, sound or flash fire it when they match. Regex groups go into the title as {1} or {name}");
+        b.info("/tmap chatfilter title|sound|flash|show|system <n> ...");
         b.button("List Own Filters In Chat", () -> {
             var mc = Minecraft.getInstance();
             if (mc.player == null) return;
             mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§b[TeslaMaps] §f" + config.chatUserFilters.size() + " own chat filters"));
             for (int i = 0; i < config.chatUserFilters.size(); i++) {
                 var f = config.chatUserFilters.get(i);
-                mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7" + (i + 1) + ". §e" + f.mode + " §f" + f.text));
+                mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7" + (i + 1) + ". §e" + f.mode + " §f" + f.text + com.teslamaps.features.ChatAlerts.describe(f)));
             }
         });
         b.label("More Filters");
@@ -187,6 +208,8 @@ public final class ChatCategory {
         b.toggle("Hide Bazaar/AH Progress Lines", () -> config.chatFilterBzAhMinis, v -> config.chatFilterBzAhMinis = v);
         b.toggle("Hide Slayer Quest Spam", () -> config.chatFilterSlayerSpam, v -> config.chatFilterSlayerSpam = v);
         b.toggle("Hide Useless Warnings", () -> config.chatFilterUselessWarnings, v -> config.chatFilterUselessWarnings = v);
+        b.toggle("Hide Blazetekk Radio Messages", () -> config.chatFilterBlazetekk, v -> config.chatFilterBlazetekk = v)
+                .desc("The three \"Your radio ...\" lines (also part of Useless Warnings)");
         b.toggle("Hide Useless Notifications", () -> config.chatFilterUselessNotifications, v -> config.chatFilterUselessNotifications = v);
         b.toggle("Hide Fire Sales", () -> config.chatFilterFireSale, v -> config.chatFilterFireSale = v);
         b.toggle("Hide Event Level-Ups", () -> config.chatFilterEventLevel, v -> config.chatFilterEventLevel = v);
