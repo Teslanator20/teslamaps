@@ -41,6 +41,11 @@ public class GardenPlots {
             23, 0, 4, 20, 24
     };
 
+    /** Grid slot (row * 5 + column, row = z) of a plot number, or -1. */
+    public static int slotOf(int plotNumber) {
+        return plotNumber >= 0 && plotNumber < PLOT_TO_SLOT.length ? PLOT_TO_SLOT[plotNumber] : -1;
+    }
+
     /**
      * Icon choices for the right-click picker. Skyblocker pulls these from the NEU
      * item repository; these are the closest vanilla stand-ins. DOUBLE_PLANT and

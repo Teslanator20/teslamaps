@@ -2148,6 +2148,57 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w14-05-gar
+    public boolean contestCrops = false;
+    public boolean contestCropsPlacement = true;
+    public boolean contestCropsFetch = true;
+    public boolean contestCropWarn = false;
+    public int contestCropWarnSeconds = 120;
+    public java.util.List<String> contestCropWarnFor = new java.util.ArrayList<>();
+    public boolean contestCropWarnFlash = true;
+    public boolean pestFinder = false;
+    public boolean pestFinderBorders = false;
+    public boolean pestFinderLabels = true;
+    public boolean pestFinderHeldOnly = false;
+    public boolean pestFinderNoPestTitle = false;
+    public int pestFinderKey = -1;
+    public int pestFinderX = 5;
+    public int pestFinderY = 200;
+    public float pestFinderScale = 1.0f;
+    public boolean pestKillTracker = false;
+    public boolean pestKillTrackerSprays = true;
+    public boolean pestKillTrackerRates = true;
+    public boolean pestKillTrackerCoins = true;
+    public boolean pestKillTrackerHideDropChat = false;
+    public int pestKillTrackerPriceSource = 1;
+    public int pestKillTrackerX = 5;
+    public int pestKillTrackerY = 260;
+    public float pestKillTrackerScale = 1.0f;
+    public boolean pestTrapWarn = false;
+    public boolean pestTrapWarnFull = true;
+    public boolean pestTrapWarnNoBait = true;
+    public boolean pestTrapWarnUnplaced = true;
+    public boolean pestTrapWarnChat = true;
+    public boolean pestTrapWarnTitle = true;
+    public int pestTrapWarnInterval = 60;
+    public String pestTrapWarnSound = "NOTE_PLING";
+    public float pestTrapWarnVolume = 1.0f;
+    public boolean pestTrapRelease = false;
+    public int pestTrapReleaseKey = -1;
+    public boolean pestSpawnTitle = false;
+    public boolean pestSpawnCompact = false;
+    public boolean pestSpawnStats = false;
+    public boolean pestSpawnChat = false;
+    public boolean pestCountdownWardrobePause = false;
+    public boolean pestFinneganCooldown = false;
+    public int pestFinneganCooldownSeconds = 75;
+    public boolean gardenWarpAliases = false;
+    public int gardenWarpKey = -1;
+    public int gardenSetspawnKey = -1;
+    public int gardenBarnKey = -1;
+    public boolean pestGlowContest = false;
+    public boolean pestGlowVinyl = false;
+    public String pestGlowVinylId = "";
     // w12-08-eco
     public boolean anitaMedalProfit = false;
     public boolean anitaExtraFortune = false;
@@ -4692,6 +4743,8 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.contestCropWarnFor == null) c.contestCropWarnFor = new java.util.ArrayList<>();
+        if (c.pestGlowVinylId == null) c.pestGlowVinylId = "";
         if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
         c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
         for (FeatureRule r : c.featureConditionRules.values()) {

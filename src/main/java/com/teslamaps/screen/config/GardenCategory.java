@@ -54,6 +54,54 @@ public final class GardenCategory {
                 () -> config.pestOverlay, v -> config.pestOverlay = v);
         b.toggle("  Alive + Infested Plots",
                 () -> config.pestOverlayAlivePlots, v -> config.pestOverlayAlivePlots = v);
+        b.toggle("  Last Spawn + Average Spawn Time",
+                () -> config.pestSpawnStats, v -> config.pestSpawnStats = v)
+                .desc("Time since the last pest spawn, and the average over cycles you farmed through without a 30s break")
+                .tags("pest", "spawn", "timer", "average");
+        b.toggle("  Chat: Pests Spawned In <time>",
+                () -> config.pestSpawnChat, v -> config.pestSpawnChat = v);
+        b.toggle("  Spawn Title",
+                () -> config.pestSpawnTitle, v -> config.pestSpawnTitle = v)
+                .desc("'N Pests Spawned in Plot X!' as a title on every spawn, offline spawns included");
+        b.toggle("  Compact Clickable Spawn Message",
+                () -> config.pestSpawnCompact, v -> config.pestSpawnCompact = v)
+                .desc("Replaces Hypixel's spawn message and its CLICK HERE line with one line, click = /plottp");
+        b.toggle("  Pest Finder Panel",
+                () -> config.pestFinder, v -> config.pestFinder = v)
+                .desc("Total pests and every infested plot with its pest count. With 'Move Panels From Inventory' on, a click on a plot teleports there. Position in /tmap gui")
+                .tags("pest", "finder", "infested", "plot");
+        b.toggle("  Infested Plot Walls",
+                () -> config.pestFinderBorders, v -> config.pestFinderBorders = v)
+                .desc("Borders of infested plots in the world, your own plot red, others gold");
+        b.toggle("    Plot Labels",
+                () -> config.pestFinderLabels, v -> config.pestFinderLabels = v);
+        b.toggle("    Only With Vacuum / Lasso",
+                () -> config.pestFinderHeldOnly, v -> config.pestFinderHeldOnly = v);
+        b.keybind("  Teleport To Nearest Infested Plot",
+                () -> config.pestFinderKey, v -> config.pestFinderKey = v)
+                .desc("Nearest plot instead of the first one · /tmap tpinfested does the same");
+        b.toggle("  'No Pests!' Title",
+                () -> config.pestFinderNoPestTitle, v -> config.pestFinderNoPestTitle = v);
+        b.toggle("  Pest Trap Warnings",
+                () -> config.pestTrapWarn, v -> config.pestTrapWarn = v)
+                .desc("Warns in an interval about full traps, traps without bait and traps not placed")
+                .tags("pest", "trap", "bait");
+        b.toggle("    Full Traps", () -> config.pestTrapWarnFull, v -> config.pestTrapWarnFull = v);
+        b.toggle("    No Bait", () -> config.pestTrapWarnNoBait, v -> config.pestTrapWarnNoBait = v);
+        b.toggle("    Unplaced Traps", () -> config.pestTrapWarnUnplaced, v -> config.pestTrapWarnUnplaced = v);
+        b.toggle("    Chat", () -> config.pestTrapWarnChat, v -> config.pestTrapWarnChat = v);
+        b.toggle("    Title", () -> config.pestTrapWarnTitle, v -> config.pestTrapWarnTitle = v);
+        b.slider("    Interval (sec)", 10f, 600f,
+                () -> (float) config.pestTrapWarnInterval, v -> config.pestTrapWarnInterval = Math.round(v), 0);
+        b.soundDropdown("    Sound", com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.pestTrapWarnSound, v -> config.pestTrapWarnSound = v);
+        b.slider("    Volume", 0f, 4f,
+                () -> config.pestTrapWarnVolume, v -> config.pestTrapWarnVolume = v, 2);
+        b.toggle("  Trap Release Key",
+                () -> config.pestTrapRelease, v -> config.pestTrapRelease = v).cheat()
+                .desc("In a Pest / Mouse / Vermin Trap menu the key clicks the release slot");
+        b.keybind("    Release Key",
+                () -> config.pestTrapReleaseKey, v -> config.pestTrapReleaseKey = v);
         b.toggle("Cooldown Arms Routine",
                 () -> config.pestCooldownArmsRoutine, v -> config.pestCooldownArmsRoutine = v);
         b.slider("Profit Idle After (sec)", 30f, 600f,
@@ -68,12 +116,20 @@ public final class GardenCategory {
         b.slider("  Custom Cooldown (sec)", 30f, 600f,
                 () -> (float) config.pestCustomCooldownSeconds,
                 v -> config.pestCustomCooldownSeconds = (int) (float) v, 0);
+        b.toggle("  Own Length With Pest Eradicator",
+                () -> config.pestFinneganCooldown, v -> config.pestFinneganCooldown = v)
+                .desc("While Finnegan's Pest Eradicator perk is active the custom cooldown uses the length below");
+        b.slider("    Pest Eradicator Cooldown (sec)", 30f, 600f,
+                () -> (float) config.pestFinneganCooldownSeconds,
+                v -> config.pestFinneganCooldownSeconds = (int) (float) v, 0);
         b.slider("Warn Seconds Before Ready", 0f, 30f,
                 () -> (float) config.pestCooldownWarnAt, v -> config.pestCooldownWarnAt = (int) (float) v, 0);
         b.toggle("Cooldown Title",
                 () -> config.pestCooldownTitle, v -> config.pestCooldownTitle = v);
         b.toggle("Cooldown Sound",
                 () -> config.pestCooldownSound, v -> config.pestCooldownSound = v);
+        b.toggle("Pause Countdown In Wardrobe",
+                () -> config.pestCountdownWardrobePause, v -> config.pestCountdownWardrobePause = v);
         b.soundDropdown("Cooldown Sound Type",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.pestCooldownSoundName, v -> config.pestCooldownSoundName = v);
@@ -112,6 +168,28 @@ public final class GardenCategory {
                 () -> config.farmKernelDiscount, v -> config.farmKernelDiscount = v);
         b.toggle("Pest Species In Breakdown",
                 () -> config.farmProfitPestTypes, v -> config.farmProfitPestTypes = v);
+        b.toggle("  Pest Tracker Panel",
+                () -> config.pestKillTracker, v -> config.pestKillTracker = v)
+                .desc("Kills per pest species, their drops, kill coins and spray costs, session and total. Position in /tmap gui")
+                .tags("pest", "kills", "spray", "profit", "tracker");
+        b.toggle("    Subtract Spray Cost",
+                () -> config.pestKillTrackerSprays, v -> config.pestKillTrackerSprays = v);
+        b.toggle("    Rare Drop Rates",
+                () -> config.pestKillTrackerRates, v -> config.pestKillTrackerRates = v);
+        b.toggle("    Count Kill Coins (Purse)",
+                () -> config.pestKillTrackerCoins, v -> config.pestKillTrackerCoins = v);
+        b.toggle("    Hide Pest Drop Chat",
+                () -> config.pestKillTrackerHideDropChat, v -> config.pestKillTrackerHideDropChat = v);
+        b.priceSource("    Price Source",
+                () -> config.pestKillTrackerPriceSource, v -> config.pestKillTrackerPriceSource = v);
+        b.button("    Reset Pest Tracker Session", () -> {
+            com.teslamaps.features.PestKillTracker.tracker().resetSession();
+            com.teslamaps.features.PestKillTracker.resetRates();
+        });
+        b.button("    Reset Pest Tracker Total",
+                () -> com.teslamaps.features.PestKillTracker.tracker().resetTotal());
+        b.button("    Session / Total",
+                () -> com.teslamaps.features.PestKillTracker.tracker().toggleView());
         b.info("/tmap profit exclude <item> leaves an item out, run again to count it");
         b.button("Show Breakdown In Chat",
                 () -> com.teslamaps.features.FarmProfit.printBreakdown());

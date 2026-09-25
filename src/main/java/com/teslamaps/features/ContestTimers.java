@@ -265,6 +265,7 @@ public final class ContestTimers {
             } else {
                 out.add("§aFarming§8: §7in §f" + formatMillis(FARMING_PERIOD_MS - elapsed));
             }
+            JacobContests.appendLines(out, now);
         }
         if (c.contestShowDarkAuction) {
             long elapsed = Math.floorMod(now - DA_OFFSET_MS, FARMING_PERIOD_MS);

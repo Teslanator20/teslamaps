@@ -64,7 +64,9 @@ public class PestData {
         if (!config.pestCustomCooldown || lastSpawnMillis == 0L) return cooldownSeconds();
 
         long elapsed = (System.currentTimeMillis() - lastSpawnMillis) / 1000L;
-        return (int) Math.max(0, config.pestCustomCooldownSeconds - elapsed);
+        int length = config.pestFinneganCooldown && com.teslamaps.api.ElectionApi.hasPerk("Pest Eradicator")
+                ? config.pestFinneganCooldownSeconds : config.pestCustomCooldownSeconds;
+        return (int) Math.max(0, length - elapsed);
     }
 
     /** True when spawns should be possible, by whichever clock is in use. */

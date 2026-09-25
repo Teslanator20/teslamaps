@@ -253,6 +253,13 @@ public class ChatMixin {
 
         com.teslamaps.registry.FeatureRegistry.chat(text, fromServer);
 
+        if (fromServer && cfg.section("Garden") && (com.teslamaps.features.PestSpawnAlerts.onChat(text)
+                || com.teslamaps.features.PestKillTracker.hideDrop(text))) {
+            teslamaps$reason = "pestChat";
+            ci.cancel();
+            return;
+        }
+
         if (fromServer && (com.teslamaps.features.PartyListFormat.hide(message, text)
                 || com.teslamaps.features.ThrottleNotifier.hide(text))) {
             teslamaps$reason = "partyList/throttle";
