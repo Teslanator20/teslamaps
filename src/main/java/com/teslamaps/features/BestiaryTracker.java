@@ -354,6 +354,10 @@ public class BestiaryTracker {
     }
 
     private static boolean widgetMissing;
+
+    public static boolean tabWidgetMissing() {
+        return TeslaMapsConfig.get().bestiaryTracker && widgetMissing && !tracked().isEmpty();
+    }
     private static final String[] MISSING = com.teslamaps.features.TabWidgetHint.lines("Bestiary");
 
     private static void readTabList() {

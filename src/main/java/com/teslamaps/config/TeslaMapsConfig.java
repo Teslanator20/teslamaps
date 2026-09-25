@@ -2165,8 +2165,253 @@ public class TeslaMapsConfig {
     public int sackValueHudX = 10;
     public int sackValueHudY = 160;
     public float sackValueHudScale = 1.0f;
-    public boolean tradeValue = false;
     public boolean wardrobeValue = false;
+    // w12-05-perf
+    public boolean keepTerrainLoaded = false;
+    public boolean outlinedTextCompat = false;
+    public boolean catchFeatureErrors = false;
+    public boolean featureErrorsInChat = true;
+    public boolean muteJerrychine = false;
+    public boolean muteFlowerOfTruth = false;
+    public boolean devInspector = false;
+    public int entityInspectorKey = -1;
+    public int itemInspectorKey = -1;
+    // w12-00-gui
+    public String modifyIndicator = "Off";
+    public boolean quickModSwitch = false;
+    public boolean quickModSwitchPause = false;
+    public int quickModSwitchX = 132, quickModSwitchY = 34; public float quickModSwitchScale = 1.0f;
+    public boolean keyConflictWarning = false;
+    public boolean noTextShadow = false;
+    public int stHealthBarW = -1, stManaBarW = -1;
+    public String stHealthBarColor = "E53935", stManaBarColor = "1E88E5";
+    public String stHealthBarText = "Off", stManaBarText = "Off";
+    public boolean stHealthBarMax = true, stManaBarMax = true;
+    public boolean stHealthBarOver = true, stManaBarOver = true;
+    public boolean stHealthBarReverse = false, stManaBarReverse = false;
+    public String safariShowWhere = "Auto";
+    // w12-06-eco
+    public boolean bzTracker = false;
+    public int bzTrackerMaxOrders = 10;
+    public boolean bzTrackerOnlyMenus = false;
+    public boolean bzTrackerHideEmpty = false;
+    public boolean bzTrackerSoundFilled = true;
+    public boolean bzTrackerSoundPartial = false;
+    public boolean bzTrackerSoundOutbid = true;
+    public int bzTrackerX = 5;
+    public int bzTrackerY = 60;
+    public float bzTrackerScale = 1.0f;
+    public java.util.Map<String, java.util.List<BzTrackedOrder>> bzTrackerOrders = new java.util.HashMap<>();
+    public static class BzTrackedOrder {
+        public boolean buy;
+        public String item;
+        public int amount;
+        public int filled;
+        public double price;
+        public long created;
+    }
+    public boolean purchaseWarning = false;
+    public float purchaseWarnBazaarM = 10f;
+    public float purchaseWarnHexM = 10f;
+    public boolean purchaseWarnBin = true;
+    public float purchaseWarnBinUnder = 30f;
+    public float purchaseWarnBinOver = 100f;
+    public boolean manageAuctionsHelper = false;
+    public boolean manageAuctionsPanel = true;
+    public boolean manageAuctionsOverpriced = true;
+    public String colorAuctionSold = "#55FF55";
+    public String colorAuctionExpired = "#FF5555";
+    public String colorAuctionOverpriced = "#FFAA00";
+    public boolean auctionOutbidWarning = false;
+    public boolean auctionOutbidSound = true;
+    public boolean bzQuickQuantities = false;
+    public int bzQuickQty1 = 64;
+    public int bzQuickQty2 = 160;
+    public int bzQuickQty3 = 1024;
+    public boolean bzQuickQtyClose = false;
+    public boolean bzReorderHelper = false;
+    public boolean bzReorderOnCancel = true;
+    public boolean bzPurchaseHelper = false;
+    // w12-02-gui
+    public boolean containerPanelDrag = false;
+    public int croesusPanelDX = 0;
+    public int croesusPanelDY = 0;
+    public int shardPanelDX = 0;
+    public int shardPanelDY = 0;
+    public String invButtonConfirm = "Off";
+    public boolean inventoryScaleOverride = false;
+    public int inventoryScale = 2;
+    public boolean customClassColors = false;
+    public String classColorArcher = "FFAA00";
+    public String classColorBerserk = "AA0000";
+    public String classColorHealer = "FF55FF";
+    public String classColorMage = "55FFFF";
+    public String classColorTank = "00AA00";
+    public boolean quickJoinButton = false;
+    @Global
+    public String quickJoinIp = "mc.hypixel.net";
+    public boolean searchOverlayAllSigns = false;
+    public java.util.List<String> otherSearchHistory = new java.util.ArrayList<>();
+    public boolean tabWidgetGuide = false;
+    // w11-04-par
+    public boolean partyCheckCommands = false;
+    public java.util.Set<String> chatCommandsExtraEnabled = new java.util.LinkedHashSet<>();
+    public boolean chatCommandsInviteAutoConfirm = false;
+    public boolean chatCommandsDtReasons = false;
+    public boolean markedPlayers = false;
+    public java.util.Set<String> markedPlayerNames = new java.util.LinkedHashSet<>();
+    public boolean markedPlayersWorld = true;
+    public boolean markedPlayersChat = true;
+    public String markedPlayersChatColor = "FFFF55";
+    public boolean markedPlayersJoinLeave = false;
+    public com.teslamaps.render.EspStyle markedPlayersStyle = new com.teslamaps.render.EspStyle("FFFFFF55");
+    public boolean socialHideFakePlayers = false;
+    public boolean scamCheck = false;
+    public boolean scamCheckClose = true;
+    public boolean modChat = false;
+    public boolean modChatJoinMessage = false;
+    // w11-08-gui
+    public boolean configColumnLayout = false;
+    public boolean configColumnFling = false;
+    public java.util.Map<String, float[]> configColumns = new java.util.LinkedHashMap<>(); // category -> x, y, scale, collapsed
+    public boolean hudEditExtras = false;
+    public boolean hudEditReset = true;
+    public boolean hudEditNudge = true;
+    public boolean hudEditShowDisabled = true;
+    public boolean hudEditRightClickToggle = true;
+    public boolean hudEditJump = true;
+    @Global
+    public boolean configBackups = false;
+    @Global
+    public int configBackupsMax = 20;
+    public boolean featureToggleKeys = false;
+    public boolean featureToggleChat = true;
+    public java.util.Map<String, Integer> featureToggleBinds = new java.util.LinkedHashMap<>(); // boolean field -> key
+    // w12-07-eco
+    public boolean contestShowDarkAuction = false;
+    public boolean bitsShopHelper = false;
+    public boolean bitsShopBits = true;
+    public boolean bitsShopCopper = true;
+    public boolean bitsShopHighlight = true;
+    public boolean priceLineCraftCheapest = false;
+    public boolean bazaarOnlyMyOrders = false;
+    public boolean bazaarFlipTracker = false;
+    public boolean bazaarFlipShowTotal = false;
+    public boolean bazaarFlipInstant = true;
+    public int bazaarFlipX = 5;
+    public int bazaarFlipY = 180;
+    public float bazaarFlipScale = 1.0f;
+    public boolean tradeValue = false;
+    public boolean tradeValueChanges = true;
+    public boolean bazaarChatSummary = false;
+    // w11-07-gui
+    public boolean configResetOptions = false;
+    public boolean pauseMenuConfigButton = false;
+    public boolean skyblockMenuConfigButton = false;
+    public boolean userSoundFolder = false;
+    public boolean featureConditions = false;
+    public java.util.Map<String, FeatureRule> featureConditionRules = new java.util.LinkedHashMap<>();
+    public boolean customFont = false;
+    public String customFontFile = "";
+    public float customFontSize = 9f;
+    public float customFontOversample = 4f;
+    public float customFontShiftY = 0f;
+    public boolean widgetsHelper = false;
+    public boolean widgetsHelperList = true;
+
+    public static class FeatureRule {
+        public boolean invert = false;
+        public java.util.List<java.util.List<String>> combos = new java.util.ArrayList<>();
+    }
+    // w11-09-gui
+    public boolean radialMenus = false;
+    public java.util.List<String> radialMenusOn = new java.util.ArrayList<>();
+    public boolean radialMenuTooltips = false;
+    public boolean hudLayoutsPerLocation = false;
+    public java.util.Map<String, java.util.Map<String, float[]>> hudLayouts = new java.util.HashMap<>();
+    public boolean keybindsInControls = false;
+    public String hudTextShadow = "Shadow";
+    public java.util.Map<String, String> hudPanelTextShadow = new java.util.HashMap<>();
+    public java.util.Map<String, String> hudPanelTextAlign = new java.util.HashMap<>();
+    public java.util.Map<String, String> hudPanelLineBackdrop = new java.util.HashMap<>();
+    public boolean joinTips = false;
+    public boolean clickablePrefix = false;
+    // w11-01-par
+    public boolean pbOnJoinButtons = false;
+    public boolean chatNamesOpenPv = false;
+    public boolean pbOnJoinKuudra = false;
+    public boolean kuudraPfKickLine = true;
+    public boolean kuudraPfSound = false;
+    public boolean kuudraPfAutoKick = false;
+    public boolean kuudraPfInform = false;
+    public boolean kuudraPfApiOffKick = true;
+    public int kuudraPfMinMp = 1000;
+    public int kuudraPfMinT5 = 50;
+    public boolean kuudraPfReqGdrag = false;
+    public boolean kuudraPfReqHeart = false;
+    public boolean kuudraPfReqTux = false;
+    public boolean kuudraPfKickCache = true;
+    public boolean kuudraRunsReply = false;
+    public boolean acceptLastInvite = false;
+    public boolean manaDrainAnnounce = false;
+    public boolean spellAnnounce = false;
+    public boolean spellAnnounceSpark = true;
+    public boolean spellAnnounceRush = true;
+    public boolean spellAnnounceWind = true;
+    public boolean spellAnnounceIchor = true;
+    public boolean mutePartySpam = false;
+    public java.util.List<String> mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
+    public boolean safariHotspotPost = false;
+    public String safariHotspotPostChannel = "Party";
+    public boolean hunterTrades = false;
+    public String hunterTradesChannel = "Party";
+    public boolean hunterTradesChat = true;
+    public boolean hunterTradesAcceptShared = true;
+    public boolean hunterTradesWaypoints = true;
+    public int hunterTradesX = 5;
+    public int hunterTradesY = 160;
+    public float hunterTradesScale = 1.0f;
+    // w11-06-gui
+    public float hudCustomBlur = 0f;               // HUD Style "Custom": backdrop blur radius, 0 = off
+    public String hudCustomBlurKernel = "Gaussian"; // Gaussian / Box
+    public float hudGlobalScale = 1.0f;            // multiplies every movable HUD element
+    public boolean newOptionsNotify = false;
+    @Global
+    public java.util.List<String> knownToggles = new java.util.ArrayList<>(); // "Category/Label" seen so far
+    @Global
+    public int worldOverlayKey = -1;               // hides every world overlay while toggled
+    public boolean worldOverlayFade = true;
+    // w11-02-par
+    public boolean multiPartyInviteFix = false;
+    public boolean teslaUserLabels = false;
+    public String teslaUserLabelColor = "55FFFF";
+    public String pfRightClickMode = "Off";
+    public boolean fancyPartyFinder = false;
+    public boolean nickHider = false;
+    public String nickHiderName = "";
+    public boolean partyOnBoop = false;
+    public boolean partyOnBoopBingoOnly = false;
+    public boolean replyBoop = false;
+    // w11-03-par
+    public boolean repartyCommand = false;
+    public boolean repartyAutoAccept = false;
+    public boolean pfLevelReq = false;
+    public boolean pfMissingOverlay = false;
+    public boolean pfTooltipStats = false;
+    public boolean partyListFormat = false;
+    public boolean partyHud = false;
+    public boolean partyHudOnlyAreas = false;
+    public int partyHudMax = 8;
+    public int partyHudX = 5;
+    public int partyHudY = 120;
+    public float partyHudScale = 1.0f;
+    public boolean partyJoinSound = false;
+    public String partyJoinSoundType = "NOTE_PLING";
+    public boolean kickedLimboAlert = false;
+    public boolean safariPlayersOnEnd = false;
+    public boolean throttleNotifier = false;
+    public boolean throttleNotifierCooldown = true;
+    public String throttleNotifierText = "Menu throttled, give me a second!";
     // w11-05-par
     public boolean partyShortcuts = false;
     public boolean partyKickReason = false;
@@ -2662,10 +2907,6 @@ public class TeslaMapsConfig {
     public boolean cosmetics = false;
     public boolean cosmeticHalo = true;
     public String cosmeticHaloColor = "FFFF55";
-    public boolean cosmeticSize = false;
-    public float cosmeticSizeX = 1f;
-    public float cosmeticSizeY = 1f;
-    public float cosmeticSizeZ = 1f;
     public boolean cosmeticShowOthers = true;
     // w09-09-vis
     public boolean hideCloudsIslands = false;
@@ -2741,7 +2982,6 @@ public class TeslaMapsConfig {
     public boolean hideMountHealth = false;
     public boolean hideDeathParticles = false;
     public boolean noNightVision = false;
-    public boolean hideEndermanTeleport = false;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;
@@ -4399,6 +4639,27 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
+        c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
+        for (FeatureRule r : c.featureConditionRules.values()) {
+            if (r.combos == null) r.combos = new java.util.ArrayList<>();
+            r.combos.removeIf(java.util.Objects::isNull);
+            for (java.util.List<String> l : r.combos) l.removeIf(java.util.Objects::isNull);
+        }
+        if (c.customFontFile == null) c.customFontFile = "";
+        if (c.radialMenusOn == null) c.radialMenusOn = new java.util.ArrayList<>();
+        if (c.hudLayouts == null) c.hudLayouts = new java.util.HashMap<>();
+        c.hudLayouts.values().removeIf(java.util.Objects::isNull);
+        if (c.hudTextShadow == null) c.hudTextShadow = "Shadow";
+        if (c.hudPanelTextShadow == null) c.hudPanelTextShadow = new java.util.HashMap<>();
+        if (c.hudPanelTextAlign == null) c.hudPanelTextAlign = new java.util.HashMap<>();
+        if (c.hudPanelLineBackdrop == null) c.hudPanelLineBackdrop = new java.util.HashMap<>();
+        if (c.mutePartySpamPrefixes == null) c.mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
+        c.mutePartySpamPrefixes.removeIf(s -> s == null || s.isEmpty());
+        if (c.safariHotspotPostChannel == null) c.safariHotspotPostChannel = "Party";
+        if (c.hunterTradesChannel == null) c.hunterTradesChannel = "Party";
+        if (c.knownToggles == null) c.knownToggles = new java.util.ArrayList<>();
+        if (c.hudCustomBlurKernel == null) c.hudCustomBlurKernel = "Gaussian";
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
         if (c.posMessageList == null) c.posMessageList = new java.util.ArrayList<>();
         c.posMessageList.removeIf(java.util.Objects::isNull);
@@ -4418,6 +4679,12 @@ public class TeslaMapsConfig {
         c.expDryStreakData.values().removeIf(v -> v == null || v.length != 2);
         if (c.maxwellData == null) c.maxwellData = new java.util.HashMap<>();
         c.maxwellData.values().removeIf(java.util.Objects::isNull);
+        if (c.bzTrackerOrders == null) c.bzTrackerOrders = new java.util.HashMap<>();
+        c.bzTrackerOrders.values().removeIf(java.util.Objects::isNull);
+        c.bzTrackerOrders.values().forEach(l -> l.removeIf(o -> o == null || o.item == null));
+        if (c.colorAuctionSold == null) c.colorAuctionSold = "#55FF55";
+        if (c.colorAuctionExpired == null) c.colorAuctionExpired = "#FF5555";
+        if (c.colorAuctionOverpriced == null) c.colorAuctionOverpriced = "#FFAA00";
         if (c.visualWordList == null) c.visualWordList = new java.util.ArrayList<>();
         c.visualWordList.removeIf(w -> w == null || w.from == null || w.from.isEmpty());
         for (var w : c.visualWordList) if (w.to == null) w.to = "";
@@ -4470,6 +4737,9 @@ public class TeslaMapsConfig {
         if (c.dragonHitboxColor == null) c.dragonHitboxColor = "00FFFF";
         if (c.lividAnnounceText == null) c.lividAnnounceText = "Livid is [color]!";
         if (c.chatCommandsDisabled == null) c.chatCommandsDisabled = new ArrayList<>();
+        if (c.chatCommandsExtraEnabled == null) c.chatCommandsExtraEnabled = new java.util.LinkedHashSet<>();
+        if (c.markedPlayerNames == null) c.markedPlayerNames = new java.util.LinkedHashSet<>();
+        if (c.markedPlayersChatColor == null) c.markedPlayersChatColor = "FFFF55";
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
         if (c.blockEspBlocks == null) c.blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4542,6 +4812,10 @@ public class TeslaMapsConfig {
         c.keybinds.removeIf(java.util.Objects::isNull);
         for (Keybind kb : c.keybinds) if (kb.actions == null) kb.actions = "";
         if (c.hudAnchorRefs == null) c.hudAnchorRefs = new java.util.HashMap<>();
+        if (c.configColumns == null) c.configColumns = new java.util.LinkedHashMap<>();
+        c.configColumns.values().removeIf(v -> v == null || v.length < 4);
+        if (c.featureToggleBinds == null) c.featureToggleBinds = new java.util.LinkedHashMap<>();
+        c.featureToggleBinds.values().removeIf(java.util.Objects::isNull);
         if (c.hudPanelStyles == null) c.hudPanelStyles = new java.util.HashMap<>();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
         if (c.abiphoneFavoriteList == null) c.abiphoneFavoriteList = new ArrayList<>();
@@ -4586,6 +4860,8 @@ public class TeslaMapsConfig {
         if (c.auctionSearchHistory == null) c.auctionSearchHistory = new ArrayList<>();
         if (c.bazaarSearchHistory == null) c.bazaarSearchHistory = new ArrayList<>();
         if (c.recipeSearchHistory == null) c.recipeSearchHistory = new ArrayList<>();
+        if (c.otherSearchHistory == null) c.otherSearchHistory = new ArrayList<>();
+        if (c.invButtonConfirm == null) c.invButtonConfirm = "Off";
         if (c.favoritePowers == null) c.favoritePowers = new ArrayList<>();
         if (c.magicalPower == null) c.magicalPower = new java.util.HashMap<>();
         if (c.museumHelperSort == null) c.museumHelperSort = "Lowest Price";
@@ -4690,6 +4966,7 @@ public class TeslaMapsConfig {
                     instance = new TeslaMapsConfig();
                 }
                 normalize(instance);
+                ConfigBackups.afterLoad(CONFIG_PATH);
                 if (migrated) save();
                 TeslaMaps.LOGGER.info("Config loaded from {}", CONFIG_PATH);
             } else {
@@ -4703,10 +4980,18 @@ public class TeslaMapsConfig {
         }
     }
 
+    public static Path path() { return CONFIG_PATH; }
+
+    public static void reloadFromDisk() {
+        load();
+        version++;
+    }
+
     public static void save() {
         version++;
         try {
             Files.createDirectories(CONFIG_PATH.getParent());
+            ConfigBackups.beforeSave(CONFIG_PATH);
             Files.writeString(CONFIG_PATH, GSON.toJson(instance));
         } catch (IOException e) {
             TeslaMaps.LOGGER.error("Failed to save config", e);

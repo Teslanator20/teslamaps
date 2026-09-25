@@ -18,7 +18,7 @@ public final class ChangeCrouch {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        feature = Feature.of("ChangeCrouch").when(() -> cfg().changeCrouch)
+        feature = Feature.of("ChangeCrouch").section("Render").when(() -> cfg().changeCrouch)
                 .config("Render", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Crouch");
@@ -27,7 +27,7 @@ public final class ChangeCrouch {
                     b.toggle("  Instant Crouch", () -> c.instantCrouch, v -> c.instantCrouch = v)
                             .desc("No camera animation when you start or stop sneaking");
                     b.toggle("  1.8.9 Crouch Height", () -> c.legacyCrouchHeight, v -> c.legacyCrouchHeight = v)
-                            .desc("Sneak eye height 1.54, except in the Hub, Park and Galatea (Hypixel uses 1.27 there)");
+                            .desc("Camera only: sneak eye height 1.54, except in the Hub, Park and Galatea. Hide > 1.8 Sneak Height also keeps the hitbox.");
                 });
     }
 

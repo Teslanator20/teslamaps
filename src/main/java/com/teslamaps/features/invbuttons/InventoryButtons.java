@@ -40,6 +40,9 @@ public final class InventoryButtons {
             "What starts with",
             "Select all the");
 
+    private static final Component CONFIRM_TEXT =
+            Component.literal("Click again to confirm").withStyle(ChatFormatting.YELLOW);
+
     private static InventoryButton hoveredButton = null;
     private static long hoveredSince = 0;
 
@@ -91,6 +94,11 @@ public final class InventoryButtons {
             hoveredButton = hovered;
             hoveredSince = now;
         }
+        if (awaitingConfirm(hovered)) {
+            graphics.setTooltipForNextFrame(client.font, List.of(CONFIRM_TEXT.getVisualOrderText()),
+                    DefaultTooltipPositioner.INSTANCE, mouseX, mouseY, true);
+            return;
+        }
         if (now - hoveredSince <= TeslaMapsConfig.get().invButtonTooltipDelay) return;
 
         // buttons may sit over a slot, so push the slot's own tooltip aside
@@ -130,8 +138,39 @@ public final class InventoryButtons {
         // only one of down/up runs it; the other passes through so slot dragging still works
         if (TeslaMapsConfig.get().invButtonClickType != when) return true;
 
+        if (needsConfirm(placement.button())) {
+            long now = System.currentTimeMillis();
+            if (confirmButton != placement.button() || now - confirmAt >= CONFIRM_MS) {
+                confirmButton = placement.button();
+                confirmAt = now;
+                client.getSoundManager().play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                        net.minecraft.sounds.SoundEvents.NOTE_BLOCK_CHIME, 1.0f));
+                return false;
+            }
+            confirmButton = null;
+        }
+
         runCommand(placement.button());
         return false;
+    }
+
+    private static final long CONFIRM_MS = 1000;
+    private static InventoryButton confirmButton = null;
+    private static long confirmAt = 0;
+
+    public static final String[] CONFIRM_MODES = {"Off", "Warp Commands", "All Buttons"};
+
+    private static boolean needsConfirm(InventoryButton button) {
+        String mode = TeslaMapsConfig.get().invButtonConfirm;
+        if ("All Buttons".equals(mode)) return true;
+        if (!"Warp Commands".equals(mode)) return false;
+        String cmd = button.commandOrEmpty().trim().toLowerCase(java.util.Locale.ROOT);
+        if (cmd.startsWith("/")) cmd = cmd.substring(1);
+        return cmd.startsWith("warp") || cmd.equals("hub") || cmd.equals("is") || cmd.startsWith("play ");
+    }
+
+    private static boolean awaitingConfirm(InventoryButton button) {
+        return confirmButton == button && System.currentTimeMillis() - confirmAt < CONFIRM_MS;
     }
 
     private static void runCommand(InventoryButton button) {

@@ -83,8 +83,13 @@ public class PriceLine {
             if (npc > 0) rows.add(new Row("NPC Sell Price", npc));
         }
         if (c.priceLineCraft) {
-            Double craft = CraftCost.costOrNull(id, PriceManager.SOURCE_BAZAAR_BUY);
-            if (craft != null && craft > 0) rows.add(new Row("Raw Craft Cost", craft));
+            if (c.priceLineCraftCheapest) {
+                Double craft = CraftCost.cheapestOrNull(id, PriceManager.SOURCE_BAZAAR_BUY);
+                if (craft != null && craft > 0) rows.add(new Row("Crafting Price", craft));
+            } else {
+                Double craft = CraftCost.costOrNull(id, PriceManager.SOURCE_BAZAAR_BUY);
+                if (craft != null && craft > 0) rows.add(new Row("Raw Craft Cost", craft));
+            }
         }
         String volume = c.priceLineVolume && onBazaar ? volume(id) : null;
         if (rows.isEmpty() && volume == null) return List.of();

@@ -131,11 +131,12 @@ public class TMapCommand {
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
                     Minecraft.getInstance().schedule(() -> {
-                        Minecraft.getInstance().setScreen(new MapConfigScreen());
+                        Minecraft.getInstance().setScreen(MapConfigScreen.open());
                     });
                     return 1;
                 })
                 .then(com.teslamaps.dungeon.puzzle.PuzzleReset.command())
+                .then(com.teslamaps.features.JoinTips.command())
                 .then(ClientCommands.literal("tracker")
                         .then(com.teslamaps.features.tracker.TrackerRows.attach(ClientCommands.argument("id", StringArgumentType.word()))
                                 .suggests((c, b) -> {
@@ -1977,6 +1978,7 @@ public class TMapCommand {
                                 .executes(context -> sendCoords(context.getSource(),
                                         StringArgumentType.getString(context, "message")))))
         );
+        ConfigCommands.register(dispatcher);
 
     }
 

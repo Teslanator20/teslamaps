@@ -15,6 +15,10 @@ public final class CritterSafariCategory {
         b.toggle("Track Run", () -> config.safariTracker, v -> config.safariTracker = v);
         b.toggle("Show HUD", () -> config.safariHud, v -> config.safariHud = v);
         b.toggle("  Panel Style", () -> config.safariHudPanel, v -> config.safariHudPanel = v);
+        b.dropdown("  Show Where", com.teslamaps.safari.SafariTracker.SHOW_WHERE,
+                () -> config.safariShowWhere, v -> config.safariShowWhere = v)
+                .desc("Auto: panel in the Safari and at its entrance, line HUD only during a run. Otherwise the HUD also shows \"ready\" / \"last run\" where chosen.")
+                .tags("scope", "entrance", "last run");
         b.lineOrder("  HUD Lines (drag to reorder)", com.teslamaps.safari.SafariTracker.LINES.id())
                 .desc("Drag lines to change their order, click the box to hide one. Reset restores the default.");
         b.info("Bars per biome, players, stays up as \"ready\" / \"last run\" at the entrance");
@@ -25,6 +29,9 @@ public final class CritterSafariCategory {
                 .desc("Rebuilds past runs from latest.log and the .log.gz files, fills per-critter data into saved runs")
                 .tags("import", "history", "logs");
         b.info("Per-critter stats (own, tries, shards, never caught): /tmap safari species");
+        b.toggle("  Per-Player Breakdown At Run End", () -> config.safariPlayersOnEnd, v -> config.safariPlayersOnEnd = v)
+                .desc("Who caught what: unique critters per biome and the species per player, green = you have it too, aqua = only them. Also /tmap safari players.")
+                .tags("players", "split", "biome");
         b.label("Missing Panel");
         b.toggle("Missing Panel", () -> config.safariMissingPanel, v -> config.safariMissingPanel = v);
         b.info("What the biome you stand in still needs: quota, tries, walls");

@@ -35,6 +35,24 @@ public final class InterfaceCategory {
                     if ("Default".equals(v)) config.hudPanelStyles.remove(id);
                     else config.hudPanelStyles.put(id, v);
                 }).tags("panel", "hud style");
+        perPanel(b, "  Text Of That Panel", com.teslamaps.render.gui.HudTextStyle.SHADOWS, config.hudPanelTextShadow, byLabel,
+                "Shadow, a 1 px black outline, or plain text. Default = HUD Text above.");
+        perPanel(b, "  Text Align Of That Panel", com.teslamaps.render.gui.HudTextStyle.ALIGNS, config.hudPanelTextAlign, byLabel,
+                "Lines of that panel left, centered or right aligned to its widest line.");
+        perPanel(b, "  Line Backdrop Of That Panel", com.teslamaps.render.gui.HudTextStyle.BACKDROPS, config.hudPanelLineBackdrop, byLabel,
+                "Dark bar behind every text line of that panel.");
+    }
+
+    private static void perPanel(ConfigBuilder b, String label, String[] names, java.util.Map<String, String> map,
+                                 java.util.Map<String, String> byLabel, String desc) {
+        String[] opts = new String[names.length + 1];
+        opts[0] = "Default";
+        System.arraycopy(names, 0, opts, 1, names.length);
+        b.dropdown(label, opts, () -> map.getOrDefault(byLabel.get(pickedPanel), "Default"), v -> {
+            String id = byLabel.get(pickedPanel);
+            if ("Default".equals(v)) map.remove(id);
+            else map.put(id, v);
+        }).desc(desc).tags("panel", "text", "outline", "align");
     }
 
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
@@ -55,7 +73,21 @@ public final class InterfaceCategory {
         b.slider("  Custom Corner Radius", 0f, 12f, () -> config.hudCustomRadius, v -> config.hudCustomRadius = v, 0).tags("panel");
         b.slider("  Custom Border Width", 0f, 4f, () -> config.hudCustomBorderWidth, v -> config.hudCustomBorderWidth = v, 1).tags("panel");
         b.slider("  Custom Padding", 0f, 12f, () -> config.hudCustomPadding, v -> config.hudCustomPadding = v, 0).tags("panel");
+        b.dropdown("  HUD Text", com.teslamaps.render.gui.HudTextStyle.SHADOWS,
+                () -> config.hudTextShadow, v -> config.hudTextShadow = v)
+                .desc("Text of every HUD panel: vanilla shadow, a 1 px black outline (readable on bright ground), or no shadow.")
+                .tags("outline", "text", "shadow");
+        b.slider("  Custom Blur", 0f, 20f, () -> config.hudCustomBlur, v -> config.hudCustomBlur = v, 0)
+                .desc("Blurs the world behind \"Custom\" panels. 0 = off.").tags("panel", "blur", "frosted");
+        b.dropdown("    Blur Kernel", new String[]{"Gaussian", "Box"},
+                () -> config.hudCustomBlurKernel, v -> config.hudCustomBlurKernel = v).tags("panel", "blur");
         panelStyles(b, config);
+        b.label("Layout");
+        b.toggle("Column Layout", () -> config.configColumnLayout, v -> config.configColumnLayout = v)
+                .desc("Opens settings as movable columns, one per category: drag a header, scroll while dragging to scale, right-click to fold. Takes effect the next time the settings open.")
+                .tags("clickgui", "columns", "odin", "layout");
+        b.toggle("  Fling Columns", () -> config.configColumnFling, v -> config.configColumnFling = v)
+                .desc("A column let go mid-drag keeps sliding and bounces off the screen edges.");
         b.label("HUD Positions");
         b.toggle("Keep HUDs On Screen", () -> config.hudClampToScreen, v -> config.hudClampToScreen = v)
                 .desc("A panel that would end up off screen (smaller GUI scale, terminal scale, window resize) is drawn at the edge. The saved position stays.")
@@ -66,6 +98,19 @@ public final class InterfaceCategory {
                 })
                 .desc("Panels in the right or bottom half keep their distance to that edge when the screen size or GUI scale changes.")
                 .tags("anchor", "hud", "position", "gui scale");
+        b.toggle("HUD Editor Extras", () -> config.hudEditExtras, v -> config.hudEditExtras = v)
+                .desc("More controls in /tmap gui. Hover an element to see its position and the keys.")
+                .tags("hud", "editor", "reset", "nudge", "tmap gui");
+        b.toggle("  Reset (R Key + Reset All)", () -> config.hudEditReset, v -> config.hudEditReset = v)
+                .desc("R puts the hovered or last clicked element back to its default position and scale. Reset All asks for a second click.");
+        b.toggle("  Arrow Keys Move, +/- Scale", () -> config.hudEditNudge, v -> config.hudEditNudge = v)
+                .desc("1 px per press, 10 px with Shift. +/- (numpad too) change the scale by 0.1.");
+        b.toggle("  Show Disabled HUDs", () -> config.hudEditShowDisabled, v -> config.hudEditShowDisabled = v)
+                .desc("Switched-off elements are drawn as grey boxes, so you can place them anyway.");
+        b.toggle("    Right-Click Toggles HUD", () -> config.hudEditRightClickToggle, v -> config.hudEditRightClickToggle = v)
+                .desc("Right-click an element to switch its feature on or off.");
+        b.toggle("  Middle-Click Opens Settings", () -> config.hudEditJump, v -> config.hudEditJump = v)
+                .desc("Middle-click an element to jump to its settings.");
         b.label("Sounds");
         b.dropdown("GUI Sounds", GuiSounds.THEMES,
                 () -> config.guiSoundTheme, v -> config.guiSoundTheme = v);
@@ -79,6 +124,14 @@ public final class InterfaceCategory {
                 () -> config.configScreenKeyExclusive, v -> config.configScreenKeyExclusive = v);
         b.info("Right Shift by default, press again to close");
         b.info("Block Other Mods eats the key before anything else sees it");
+        b.toggle("  Key Conflict Warning", () -> config.keyConflictWarning, v -> config.keyConflictWarning = v)
+                .desc("Key buttons turn red when the same key is also bound elsewhere in TeslaMaps, in a hotkey or in the vanilla/other mods' controls. Hover the button to see which.")
+                .tags("keybind", "conflict", "duplicate");
+        b.toggle("  Quick Mod Menu Switch", () -> config.quickModSwitch, v -> config.quickModSwitch = v)
+                .desc("Inside the config screens of known mods (TeslaMaps, Skyblocker, SkyHanni, Devonian, Odin, SkyOcean, Firmament) a list of the other installed ones; a click opens their menu. Position in /tmap gui.")
+                .tags("mod menu", "switch");
+        b.toggle("    Also In Pause Menu", () -> config.quickModSwitchPause, v -> config.quickModSwitchPause = v);
+        com.teslamaps.features.FeatureToggleKeys.config(b, config);
         b.label("Performance HUD");
         b.toggle("Performance HUD", () -> config.perfHud, v -> config.perfHud = v);
         b.toggle("  Show FPS", () -> config.perfHudFps, v -> config.perfHudFps = v);

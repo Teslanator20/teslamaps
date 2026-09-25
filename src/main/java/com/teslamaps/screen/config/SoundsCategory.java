@@ -111,7 +111,12 @@ public final class SoundsCategory {
         b.toggle("Mute Backpack Opening Sound", () -> config.muteBackpackOpen, v -> config.muteBackpackOpen = v);
         b.toggle("Mute Endermen In The End", () -> config.muteEndermanEnd, v -> config.muteEndermanEnd = v)
                 .desc("Enderman ambient, hurt, death, scream and stare sounds, only on The End island.");
-        b.toggle("Mute Error Sound (wrong click / no mana)", () -> config.muteErrorSound, v -> config.muteErrorSound = v);
+        b.toggle("Mute Error Sound (wrong click / no mana)", () -> config.muteErrorSound, v -> config.muteErrorSound = v)
+                .desc("Also the ability cooldown sound (enderman teleport, pitch 0, volume 8)").tags("cooldown");
+        b.toggle("Mute Jerry-chine Gun", () -> config.muteJerrychine, v -> config.muteJerrychine = v)
+                .desc("Villager sounds of the Jerry-chine projectiles, matched by their exact volume").tags("jerrygun", "villager");
+        b.toggle("Mute Flower Of Truth", () -> config.muteFlowerOfTruth, v -> config.muteFlowerOfTruth = v)
+                .desc("Eating sound of the Flower of Truth projectile, matched by its exact pitch").tags("truth", "eat");
         b.toggle("Quiet F7 Boss Sounds", () -> config.f7BossSounds, v -> config.f7BossSounds = v);
         b.toggle("  Cancel All Above 1.0", () -> config.f7BossSoundsAboveCap, v -> config.f7BossSoundsAboveCap = v);
         b.toggle("  Cap at 1.0 Instead of Cancel", () -> config.f7BossSoundsCap, v -> config.f7BossSoundsCap = v);

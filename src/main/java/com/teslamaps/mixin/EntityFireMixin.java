@@ -4,11 +4,15 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 // Ported from SkyOcean's HideFireMixin
@@ -20,7 +24,15 @@ public class EntityFireMixin {
     private void teslamaps$hideEntityFire(SubmitNodeCollector collector, PoseStack pose, EntityRenderState state, Quaternionf rot,
                                           Operation<Void> original) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (c.noFire && c.hideEntityFire) return;
+        if (c.noFire && (c.hideEntityFire || teslamaps$isSelf(state))) return;
         original.call(collector, pose, state, rot);
+    }
+
+    // own flames in F5 stay hidden like the old isOnFire hook did
+    @Unique
+    private static boolean teslamaps$isSelf(EntityRenderState state) {
+        if (!(state instanceof AvatarRenderState a)) return false;
+        LocalPlayer p = Minecraft.getInstance().player;
+        return p != null && a.id == p.getId();
     }
 }

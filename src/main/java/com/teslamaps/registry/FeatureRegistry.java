@@ -66,16 +66,29 @@ public final class FeatureRegistry {
 
     private static void drawShifted(String id, HudElement r, GuiGraphicsExtractor g, DeltaTracker d) {
         com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
-        HudEditElement e = c.hudClampToScreen || c.hudEdgeAnchors ? HudEditElement.forHud(id) : null;
+        float gs = HudEditElement.globalScale();
+        HudEditElement e = c.hudClampToScreen || c.hudEdgeAnchors || gs != 1f ? HudEditElement.forHud(id) : null;
         int dx = e == null ? 0 : e.shiftX(), dy = e == null ? 0 : e.shiftY();
+        if (e == null) gs = 1f;
         com.teslamaps.render.gui.HudStyle.beginPanel(id);
+        com.teslamaps.render.gui.HudTextStyle.begin(id);
         try {
-            if (dx == 0 && dy == 0) { r.extractRenderState(g, d); return; }
+            if (dx == 0 && dy == 0 && gs == 1f) { r.extractRenderState(g, d); return; }
             g.pose().pushMatrix();
-            g.pose().translate(dx, dy);
-            r.extractRenderState(g, d);
-            g.pose().popMatrix();
+            try {
+                g.pose().translate(dx, dy);
+                if (gs != 1f) {
+                    int px = e.pivotX(), py = e.pivotY();
+                    g.pose().translate(px, py);
+                    g.pose().scale(gs, gs);
+                    g.pose().translate(-px, -py);
+                }
+                r.extractRenderState(g, d);
+            } finally {
+                g.pose().popMatrix();
+            }
         } finally {
+            com.teslamaps.render.gui.HudTextStyle.end(g);
             com.teslamaps.render.gui.HudStyle.endPanel();
         }
     }
@@ -94,13 +107,18 @@ public final class FeatureRegistry {
             if (!t.always && !world) continue;
             if (!t.f.active()) continue;
             Perf.begin(t.perf);
-            t.r.run();
+            try {
+                t.r.run();
+            } catch (Throwable e) {
+                com.teslamaps.features.ErrorManager.caught(t.perf, e);
+            }
             Perf.end();
         }
     }
 
     public static void world(PoseStack pose, MultiBufferSource buffers, Vec3 cam,
                              net.minecraft.client.renderer.culling.Frustum frustum) {
+        if (!com.teslamaps.features.WorldOverlayToggle.beginWorld()) return;
         WorldCtx ctx = new WorldCtx(pose, buffers, cam);
         com.teslamaps.render.ESPRenderer.beginFrame(frustum);
         try {
@@ -108,7 +126,11 @@ public final class FeatureRegistry {
                 World w = WORLD.get(i);
                 if (!w.f.active()) continue;
                 Perf.begin(w.perf);
-                w.r.accept(ctx);
+                try {
+                    w.r.accept(ctx);
+                } catch (Throwable e) {
+                    com.teslamaps.features.ErrorManager.caught(w.perf, e);
+                }
                 Perf.end();
             }
         } finally {
@@ -122,7 +144,12 @@ public final class FeatureRegistry {
     public static void foreground(GuiGraphicsExtractor g, DeltaTracker d) {
         for (int i = 0, n = FOREGROUND.size(); i < n; i++) {
             Hud h = FOREGROUND.get(i);
-            if (h.f.active()) drawShifted(h.id, h.r, g, d);
+            if (!h.f.active()) continue;
+            try {
+                drawShifted(h.id, h.r, g, d);
+            } catch (Throwable e) {
+                com.teslamaps.features.ErrorManager.caught(h.id, e);
+            }
         }
     }
 
@@ -132,7 +159,11 @@ public final class FeatureRegistry {
             if (c.serverOnly && !fromServer) continue;
             if (!c.f.active()) continue;
             Perf.begin(c.perf);
-            c.r.accept(text);
+            try {
+                c.r.accept(text);
+            } catch (Throwable e) {
+                com.teslamaps.features.ErrorManager.caught(c.perf, e);
+            }
             Perf.end();
         }
     }

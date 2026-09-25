@@ -230,10 +230,45 @@ public class SafariTracker {
         }
         if (++panelTicks < 10) return;
         panelTicks = 0;
-        cachedLines = c.safariHud && isActive() && !c.safariHudPanel ? buildLines() : List.of();
-        progressPanel = c.safariHud && c.safariHudPanel && nearSafari() ? progressPanel(view()) : null;
+        cachedLines = !c.safariHud || c.safariHudPanel ? List.of()
+                : isActive() ? buildLines() : showsHere(c, false) ? viewLines(view()) : List.of();
+        progressPanel = c.safariHud && c.safariHudPanel && showsHere(c, true) ? progressPanel(view()) : null;
         SafariData.Biome here = in ? SafariData.currentBiome() : null;
         missingPanel = c.safariMissingPanel && here != null ? missingPanel(here, runStart != 0 ? currentView() : null) : null;
+    }
+
+    public static final String[] SHOW_WHERE = {"Auto", "Only In Safari", "Safari + Entrance", "Everywhere"};
+
+    // critterMod's CritterConfig.Scope; Auto = panel at Safari + entrance, line HUD only during a run
+    private static boolean showsHere(TeslaMapsConfig c, boolean panel) {
+        return switch (c.safariShowWhere == null ? "Auto" : c.safariShowWhere) {
+            case "Only In Safari" -> SafariData.inSafari();
+            case "Safari + Entrance" -> nearSafari();
+            case "Everywhere" -> true;
+            default -> panel ? nearSafari() : isActive();
+        };
+    }
+
+    /** Line HUD outside a run: "ready" before the first one, else the last run. */
+    private static List<String> viewLines(RunView v) {
+        List<String> out = new ArrayList<>();
+        int total = SafariData.ALL.size();
+        if (v == null) {
+            out.add("§bCritter Safari §7(ready)");
+            out.add("§7Dex: §a0§7/§f" + total);
+            return out;
+        }
+        out.add("§bCritter Safari §7(last run) §f" + SafariHistory.time(v.elapsedMs()));
+        out.add("§7Dex: §a" + v.dex() + "§7/§f" + total + " §8(§7own §f" + v.own() + "§8)");
+        StringBuilder biomes = new StringBuilder();
+        for (SafariData.Biome b : SafariData.Biome.values()) {
+            int have = doneIn(v, b);
+            int max = SafariData.countIn(b);
+            if (biomes.length() > 0) biomes.append(" §8| ");
+            biomes.append(b.color).append(b.label).append(" ").append(have >= max ? "§a" : "§f").append(have).append("§7/").append(max);
+        }
+        out.add(biomes.toString());
+        return out;
     }
 
     /** The Safari or its entrance, where the "ready" / "last run" view is worth showing. */
@@ -432,6 +467,13 @@ public class SafariTracker {
     }
 
     public static void register() {
+        net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(
+                net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("tmap")
+                        .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("safari")
+                                .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("players").executes(c -> {
+                                    for (String l : playersLines(view())) c.getSource().sendFeedback(Component.literal(l));
+                                    return 1;
+                                })))));
         var missing = com.teslamaps.registry.HudEditElement.of("safariMissing", "Safari Missing")
                 .ctx(com.teslamaps.registry.HudEditElement.HudCtx.SAFARI).section("Critter Safari")
                 .enabled(() -> TeslaMapsConfig.get().safariTracker && TeslaMapsConfig.get().safariMissingPanel)
@@ -575,7 +617,38 @@ public class SafariTracker {
                     + " §7dex §f" + run.dex + "§7/" + SafariData.ALL.size() + " §7own §f" + run.own;
             if (run.dex > oldBest) line += " §6§lNEW PB!";
             mc.player.sendSystemMessage(Component.literal(line));
+            if (TeslaMapsConfig.get().safariPlayersOnEnd && lastRun != null && lastRun.perPlayer().size() > 1) {
+                for (String l : playersLines(lastRun)) mc.player.sendSystemMessage(Component.literal(l));
+            }
         }
+    }
+
+    // Ported from critterMod's CritterCommand.players
+    /** Per player: unique critters per biome, then the species, green = you have it too, aqua = only them. */
+    public static List<String> playersLines(RunView v) {
+        if (v == null) return List.of("§7No Safari run yet");
+        Map<String, Map<SafariData.Biome, Integer>> per = v.perPlayer();
+        if (per.isEmpty()) return List.of("§7Nobody has caught anything yet");
+        Map<String, List<String>> species = new java.util.TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        for (Map.Entry<String, Set<String>> e : v.catchers().entrySet()) {
+            for (String who : e.getValue()) species.computeIfAbsent(who, k -> new ArrayList<>()).add(e.getKey());
+        }
+        List<String> out = new ArrayList<>();
+        out.add("§6§lSafari per player");
+        for (Map.Entry<String, Map<SafariData.Biome, Integer>> e : per.entrySet()) {
+            boolean self = e.getKey().equals(v.self());
+            out.add((self ? "§a" : "§f") + e.getKey() + " §7" + describe(e.getValue()));
+            List<String> list = species.getOrDefault(e.getKey(), List.of());
+            if (list.isEmpty()) continue;
+            StringBuilder sb = new StringBuilder("  ");
+            for (int i = 0; i < list.size(); i++) {
+                String c = list.get(i);
+                if (i > 0) sb.append("§7, ");
+                sb.append(v.caughtSelf().contains(c) ? "§a" : "§b").append(c);
+            }
+            out.add(sb.toString());
+        }
+        return out;
     }
 
     private static void clearRun() {
@@ -1135,7 +1208,10 @@ public class SafariTracker {
             if (p != null) p.draw(context, mc.font, c.safariHudX, c.safariHudY, c.safariHudScale);
             return;
         }
-        if (!isActive()) return;
+        if (!isActive()) {
+            if (!cachedLines.isEmpty()) draw(context, mc, c.safariHudX, c.safariHudY, c.safariHudScale, cachedLines);
+            return;
+        }
         draw(context, mc, c.safariHudX, c.safariHudY, c.safariHudScale, lines());
     }
 

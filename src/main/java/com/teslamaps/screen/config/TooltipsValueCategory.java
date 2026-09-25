@@ -91,6 +91,8 @@ public final class TooltipsValueCategory {
                 .desc("1 / 3 day average lowest BIN for auction items, harder to fake than the current lowest BIN.");
         b.toggle("  Bazaar Weekly Volume", () -> config.priceLineVolume, v -> config.priceLineVolume = v)
                 .desc("Insta-buys and insta-sells of the last 7 days, shows how liquid a bazaar item is.");
+        b.toggle("    Cheaper Of Buy / Craft", () -> config.priceLineCraftCheapest, v -> config.priceLineCraftCheapest = v)
+                .desc("\"Crafting Price\": each ingredient counts at the cheaper of buying and crafting it, up to 15 levels deep");
         b.toggle("  Total + Each, Aligned", () -> config.priceLineEach, v -> config.priceLineEach = v);
         b.info("\"1,200 coins (100 each)\" in two columns, no Shift needed");
         b.toggle("  Only While Key Held", () -> config.priceLineRequireKey, v -> config.priceLineRequireKey = v);
@@ -112,8 +114,6 @@ public final class TooltipsValueCategory {
         b.toggle("  Sack Table", () -> config.sackTable, v -> config.sackTable = v)
                 .desc("Sack menus: every item with stored/capacity (red when full), unit price and value, left of the menu. Gemstone sacks split into Rough/Flawed/Fine.");
         b.toggle("    Click Row: /bz, Right Click: /gfs 1", () -> config.sackTableClick, v -> config.sackTableClick = v);
-        b.toggle("Trade Value", () -> config.tradeValue, v -> config.tradeValue = v)
-                .desc("Player trade menu: estimated value of your side (left) and theirs (right), per item and in total, coins included.");
         b.toggle("Sack Value HUD", () -> config.sackValueHud, v -> config.sackValueHud = v)
                 .desc("Total value of all sack contents everywhere, insta-sell to insta-buy. In the inventory: hover for the value per sack, left click for the full list, right click opens /sacks. Needs Live Sack Contents (Inventory). Move it in /tmap gui.");
         b.toggle("  Only In SkyBlock", () -> config.sackValueHudInSkyblockOnly, v -> config.sackValueHudInSkyblockOnly = v);

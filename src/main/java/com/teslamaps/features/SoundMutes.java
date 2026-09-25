@@ -27,7 +27,7 @@ public final class SoundMutes {
     }
 
     public static boolean active(TeslaMapsConfig c) {
-        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd;
+        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth;
     }
 
     public static boolean shouldMute(TeslaMapsConfig c, SoundInstance s, String id) {
@@ -35,6 +35,13 @@ public final class SoundMutes {
         if (mc.player == null || mc.level == null || !mc.isSameThread()) return false;
         if (c.muteBackpackOpen && id.equals("minecraft:block.chest.open")
                 && System.currentTimeMillis() - backpackOpenMs < 500 && near(mc, s, 1.5)) return true;
+        // Skytils' disableJerrygunSounds / disableTruthFlowerSounds signatures
+        if (c.muteJerrychine) {
+            if (id.equals("minecraft:entity.villager.yes") && approx(s.getVolume(), 0.35f)) return true;
+            if (id.equals("minecraft:entity.villager.trade") && approx(s.getVolume(), 0.5f)) return true;
+        }
+        if (c.muteFlowerOfTruth && id.equals("minecraft:entity.generic.eat")
+                && approx(s.getPitch(), 0.6984127f) && approx(s.getVolume(), 1.0f)) return true;
         if (c.muteEndermanEnd && ENDERMAN.contains(id) && com.teslamaps.features.theend.EndProtector.inArea()) return true;
         if (c.muteRatPet) {
             // rat = bat squeak + chicken steps next to the player, with no real bat/chicken there
@@ -44,6 +51,8 @@ public final class SoundMutes {
         }
         return false;
     }
+
+    private static boolean approx(float a, float b) { return Math.abs(a - b) < 0.01f; }
 
     private static boolean near(Minecraft mc, SoundInstance s, double r) {
         if (s.isRelative()) return true;

@@ -23,7 +23,17 @@ public class ContainerKeyMixin {
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
+        if (com.teslamaps.features.RadialMenus.key(cs, event) || com.teslamaps.features.bazaar.PurchaseGuard.onKey(event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.features.ClickFixes.onSnakeKey(cs, event)) {
+            cir.setReturnValue(true);
+            return;
+        }
+
+        if (com.teslamaps.features.FancyPartyFinder.keyPressed(cs, event.key())) {
             cir.setReturnValue(true);
             return;
         }
@@ -62,6 +72,7 @@ public class ContainerKeyMixin {
             return;
         }
         if (com.teslamaps.features.DevTools.onKey(event.key(), hovered)
+                || com.teslamaps.features.inspector.Inspector.onContainerKey(event.key(), hovered)
                 || com.teslamaps.features.customize.CustomizeKey.onKey(event.key(), cs, hovered)) {
             cir.setReturnValue(true);
             return;
