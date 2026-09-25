@@ -2204,6 +2204,30 @@ public class TeslaMapsConfig {
     public int melodyDisplayX = 200;
     public int melodyDisplayY = 90;
     public float melodyDisplayScale = 1.0f;
+    // w02-08-boss
+    public boolean guardianRespawnTimer = false;    // F3 dead-guardian respawn timers in the timer HUD
+    public boolean giantHpDisplay = false;          // F6 giant nametags as HUD list
+    public boolean giantHpFeetLabel = false;        // same, as label 10 blocks down at the feet
+    public int giantHpX = 10;
+    public int giantHpY = 120;
+    public float giantHpScale = 1.0f;
+    public boolean arrowsDeviceSolver = false;      // F7 P3 sharp shooter: hit/target blocks
+    public String arrowsDeviceHitColor = "8055FFFF";
+    public String arrowsDeviceTargetColor = "80FF55FF";
+    public boolean arrowsDeviceAim = false;         // up to 3 aim points covering open blocks
+    public boolean arrowsDeviceAlert = false;       // title + chat on device done
+    public boolean lightsDeviceHighlight = false;   // F7 P3 lights device: unpowered levers
+    public String lightsDeviceColor = "BFFF5555";
+    public boolean p3GateHighlight = false;         // F7 P3 box around the current section's gate
+    public com.teslamaps.render.EspStyle p3GateEsp = new com.teslamaps.render.EspStyle("40FFAA00", com.teslamaps.render.EspStyle.BOTH);
+    public boolean maxorCrystals = false;           // F7 P1 energy crystal helpers (master)
+    public boolean maxorCrystalSpawnTimer = true;   // crystal respawn countdown (34t) in the timer HUD
+    public boolean maxorCrystalPlaceTimer = true;   // chat: pickup -> place time with PB
+    public boolean maxorCrystalAlert = true;        // "⚠ Crystal ⚠" while holding an unplaced crystal in P1
+    public double maxorCrystalPb = 0;
+    public boolean dragonHitCounter = false;        // M7 P5 arrow hits on the priority dragon
+    public boolean simonSaysTime = false;           // SS completion time in chat
+    public double simonSaysPb = 0;
 
     public static TeslaMapsConfig get() {
         return instance;

@@ -79,5 +79,10 @@ final class Features {
         com.teslamaps.features.TerminalTitles.register();
         com.teslamaps.features.TerminalSounds.register();
         com.teslamaps.features.MelodyDisplay.register();
+        // w02-08-boss
+        com.teslamaps.features.BossHpDisplays.register();
+        com.teslamaps.dungeon.F7Devices.register();
+        com.teslamaps.dungeon.MaxorCrystals.register();
+        com.teslamaps.dungeon.DragonHitCount.register();
     }
 }

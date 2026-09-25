@@ -55,6 +55,7 @@ public class SimonSaysSolver {
     private static int breakTicks = 0;
     private static boolean canBreak = false;
     private static boolean wasBroken = false;
+    private static long ssStartTick = 0;
 
     public static void tick() {
         if (!DungeonManager.isInDungeon()) {
@@ -178,12 +179,14 @@ public class SimonSaysSolver {
             breakTicks = 0;
             canBreak = false;
             wasBroken = false;
+            ssStartTick = com.teslamaps.utils.ServerTickTimer.now();
             return;
         }
-        if (!monitoring) return;
 
         java.util.regex.Matcher m = DEVICE_PATTERN.matcher(message);
         if (!m.matches()) return;
+        if (ssStartTick > 0 && m.group(3).equals("device")) checkSsTime(m.group(1));
+        if (!monitoring) return;
         String type = m.group(3);
         int completed;
         try { completed = Integer.parseInt(m.group(4)); } catch (NumberFormatException e) { return; }
@@ -192,6 +195,31 @@ public class SimonSaysSolver {
         } else if (type.equals("device") && thingsDone + 1 >= completed) {
             monitoring = false; // SS completed -> stop watching for breaks
         }
+    }
+
+    // Ported from NoammAddons' SimonSays.kt: device done by a player at the SS device
+    private static void checkSsTime(String name) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        Minecraft mc = Minecraft.getInstance();
+        if (!c.simonSaysTime || mc.level == null || mc.player == null) return;
+        net.minecraft.world.entity.player.Player p = null;
+        for (net.minecraft.world.entity.player.Player pl : mc.level.players()) {
+            if (pl.getName().getString().equals(name)) { p = pl; break; }
+        }
+        if (p == null || p.distanceToSqr(110.5, 121.5, 93.5) > 25) return;
+        double secs = (com.teslamaps.utils.ServerTickTimer.now() - ssStartTick) / 20.0;
+        ssStartTick = 0;
+        double pb = c.simonSaysPb;
+        String suffix;
+        if (pb <= 0 || secs < pb) {
+            suffix = pb <= 0 ? " §d§l(PB)" : String.format(java.util.Locale.ROOT, " §d§l(PB) §7old: %.2fs", pb);
+            c.simonSaysPb = secs;
+            TeslaMapsConfig.save();
+        } else {
+            suffix = String.format(java.util.Locale.ROOT, " §7(PB: %.2fs)", pb);
+        }
+        mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                String.format(java.util.Locale.ROOT, "§b[TeslaMaps] §bSimon Says took §e%.2fs", secs) + suffix));
     }
 
     // watches the device state: obsidians appearing = running, all buttons gone = broke
@@ -294,5 +322,6 @@ public class SimonSaysSolver {
         breakTicks = 0;
         canBreak = false;
         wasBroken = false;
+        ssStartTick = 0;
     }
 }
