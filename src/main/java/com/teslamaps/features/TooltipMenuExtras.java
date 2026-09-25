@@ -99,7 +99,7 @@ public final class TooltipMenuExtras {
                 Matcher m = BITS_AVAILABLE.matcher(l);
                 if (m.matches()) {
                     int v = parseInt(m.group(1));
-                    if (v >= 0) c.bitsAvailable = v;
+                    if (v >= 0) BitsWarning.setAvailable(v);
                     continue;
                 }
                 m = FAME_RANK.matcher(l);
@@ -278,8 +278,9 @@ public final class TooltipMenuExtras {
         lines.add(index++, Component.literal("§8‣ §7Cookie Buff for §b" + (4 * amount) + " §7days"));
         lines.add(index++, Component.literal("§8‣ §7Gain §b" + commas(gain) + " Bits"
                 + (c.fameRank.isEmpty() ? " §8(open SkyBlock menu for fame rank)" : "")));
-        if (c.bitsAvailable >= 0) lines.add(index, Component.literal("§8‣ §7Available Bits: §3" + commas(c.bitsAvailable)
-                + " §6→ §3" + commas(c.bitsAvailable + gain)));
+        long avail = BitsWarning.available();
+        if (avail >= 0) lines.add(index, Component.literal("§8‣ §7Available Bits: §3" + commas(avail)
+                + " §6→ §3" + commas(avail + gain)));
     }
 
     private static void stonks(ItemStack stack, List<Component> lines) {

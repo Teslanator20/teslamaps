@@ -37,6 +37,9 @@ public final class PartyFinderHelper {
     private static final Pattern SELECTED = Pattern.compile("Currently Selected: (?<cls>\\w+)");
     private static final String[] CLASSES = {"Archer", "Berserk", "Healer", "Mage", "Tank"};
 
+    public static final String[] RIGHT_CLICK_MODES = {"Off", "Copy Leader", "Leave Party"};
+    private static final Pattern LEADER = Pattern.compile("^(\\w{1,16})'s Party$");
+
     private static final int RED = 0x80FF5555, PURPLE = 0x80FF55FF, DARK_RED = 0x80AA0000, YELLOW = 0x80FFFF55, GREEN = 0x8055FF55;
 
     private static Feature feature;
@@ -70,6 +73,8 @@ public final class PartyFinderHelper {
                     b.toggle("  Mark Own Class Missing (green)", () -> cfg().pfMarkMissingClass, v -> cfg().pfMarkMissingClass = v);
                     b.toggle("  Coloured Class Levels", () -> cfg().pfColorLevels, v -> cfg().pfColorLevels = v);
                     b.toggle("  Show Missing Classes", () -> cfg().pfMissingClasses, v -> cfg().pfMissingClasses = v);
+                    b.dropdown("  Right-Click Party", RIGHT_CLICK_MODES, () -> cfg().pfRightClickMode, v -> cfg().pfRightClickMode = v)
+                            .desc("Right click on a party: copy the leader's name, or leave your current party (/p leave)");
                     b.info("Your class is read when you open the Catacombs Gate (Mort)");
                 });
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
@@ -184,6 +189,30 @@ public final class PartyFinderHelper {
             prev = Math.max(prev, v);
         }
         return total;
+    }
+
+    /** Right click on a party head, from HandledScreenClickMixin.slotClicked. */
+    public static boolean rightClick(Slot slot, int button, net.minecraft.world.inventory.ContainerInput type) {
+        if (button != 1 || type != net.minecraft.world.inventory.ContainerInput.PICKUP || kind != 1 || slot == null) return false;
+        if (feature == null || !feature.active() || "Off".equals(cfg().pfRightClickMode)) return false;
+        if (slot.container instanceof Inventory || slot.index >= 45) return false;
+        return rightClickAction(slot.getItem());
+    }
+
+    /** Copy leader / leave party for one party head; false when off or not a party. */
+    public static boolean rightClickAction(ItemStack stack) {
+        if (feature == null || !feature.active() || "Off".equals(cfg().pfRightClickMode)) return false;
+        if (!stack.is(net.minecraft.world.item.Items.PLAYER_HEAD)) return false;
+        Matcher m = LEADER.matcher(StringUtil.stripTrim(stack.getHoverName().getString()));
+        if (!m.matches()) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if ("Leave Party".equals(cfg().pfRightClickMode)) {
+            ChatQueue.command("p leave");
+        } else {
+            mc.keyboardHandler.setClipboard(m.group(1));
+            if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §7Copied leader name §a" + m.group(1)));
+        }
+        return true;
     }
 
     /** Behind the item icon, from SlotBackgrounds. */

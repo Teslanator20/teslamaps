@@ -114,7 +114,7 @@ public class PerformanceHud {
         if (cfg.perfHudTps) {
             String mode = cfg.perfHudTpsMode == null ? "Average" : cfg.perfHudTpsMode;
             float tps = tpsStat(mode);
-            out.key("tps").add(("Average".equals(mode) ? "TPS: " : mode + " TPS: ") + "\0" + (colored ? tpsColor(tps) : "") + String.format("%.1f", tps));
+            out.key("tps").add(("Average".equals(mode) ? "TPS: " : mode + " TPS: ") + "\0" + (colored ? tpsColor(tps) : "") + String.format(java.util.Locale.ROOT, "%.1f", tps));
         }
         if (cfg.perfHudPing) {
             String mode = cfg.perfHudPingMode == null ? "Instant" : cfg.perfHudPingMode;
