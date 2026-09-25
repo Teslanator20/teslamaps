@@ -802,6 +802,13 @@ final class Features {
         com.teslamaps.slayer.SlayerSpawnHiders.register();
         com.teslamaps.slayer.SlayerChatCompact.register();
         com.teslamaps.features.SoulflowDisplay.register();
+        // w16-01-sla
+        com.teslamaps.slayer.SlayerBossSoon.register();
+        com.teslamaps.slayer.SlayerQuestWarning.register();
+        com.teslamaps.slayer.SlayerLevelHud.register();
+        com.teslamaps.slayer.SlayerRngDisplay.register();
+        com.teslamaps.slayer.VoidgloomLaser.register();
+        com.teslamaps.slayer.SlayerNametag.register();
         // w16-00-sla
         com.teslamaps.slayer.SlayerHiders.register();
         com.teslamaps.slayer.VengeanceTimer.register();

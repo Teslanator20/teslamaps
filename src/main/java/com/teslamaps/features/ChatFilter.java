@@ -395,6 +395,8 @@ public class ChatFilter {
         if (VisitorChat.handle(message, t)) return true;
         lastReason = "rareCropTracker";
         if (RareCropTracker.hide(t)) return true;
+        lastReason = "slayerRngDisplay";
+        if (com.teslamaps.slayer.SlayerRngDisplay.hide(t)) return true;
         lastReason = "autopet";
         if (autopet(t)) return true;
         lastReason = "miningChat";
