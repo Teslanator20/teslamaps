@@ -131,6 +131,12 @@ public final class HideCategory {
         b.toggle("Hide Arrows", () -> config.noArrows, v -> config.noArrows = v);
         b.toggle("Hide Stuck Arrows", () -> config.noStuckArrows, v -> config.noStuckArrows = v);
         b.toggle("Hide Death Animation", () -> config.noDeathAnimation, v -> config.noDeathAnimation = v);
+        b.toggle("Hide Mage Beams", () -> config.hideMageBeams, v -> config.hideMageBeams = v)
+                .desc("Drops the firework particles of mage beams in dungeons.");
+        b.toggle("Hide Witherborn Withers", () -> config.hideWitherbornWithers, v -> config.hideWitherbornWithers = v)
+                .desc("Hides the withers spawned by the Wither armor set bonus. Dungeon boss withers stay.");
+        b.toggle("Hide Armor On Armor Stands", () -> config.hideArmorStandArmor, v -> config.hideArmorStandArmor = v)
+                .desc("Armor worn by armor stands (displays, shops) is not drawn. Heads stay.");
         b.label("Screen Overlays");
         b.toggle("Hide Fire Overlay", () -> config.noFire, v -> config.noFire = v);
         b.toggle("Hide Water Overlay", () -> config.noWaterOverlay, v -> config.noWaterOverlay = v);
@@ -141,8 +147,13 @@ public final class HideCategory {
         b.toggle("Hide Inventory Effects", () -> config.hideInventoryEffects, v -> config.hideInventoryEffects = v);
         b.toggle("Hide Effects (HUD)", () -> config.noEffects, v -> config.noEffects = v);
         b.toggle("Hide Enchant Glint", () -> config.noEnchantGlint, v -> config.noEnchantGlint = v);
+        b.toggle("Force Enchant Glint", () -> config.forceEnchantGlint, v -> config.forceEnchantGlint = v)
+                .desc("Every enchanted item glints, SkyBlock items included. Hide Enchant Glint wins over this.");
+        b.toggle("Hide Item Durability", () -> config.hideItemDurability, v -> config.hideItemDurability = v);
         b.toggle("Hide Armor Bar", () -> config.hideArmorBar, v -> config.hideArmorBar = v);
         b.toggle("Hide Hunger Bar", () -> config.hideHungerBar, v -> config.hideHungerBar = v);
+        b.toggle("Stop Hearts Bouncing", () -> config.stopHeartsBouncing, v -> config.stopHeartsBouncing = v)
+                .desc("No regeneration wave over the health hearts.");
         b.label("Action Bar");
         b.toggle("Filter Action Bar", () -> config.actionBarFilter, v -> config.actionBarFilter = v);
         b.toggle("  Hide Health", () -> config.abHideHealth, v -> config.abHideHealth = v);

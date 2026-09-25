@@ -43,7 +43,8 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.foraging.ClearTreeLogs.shouldHide(entity)
                 || com.teslamaps.features.FishingHookDisplay.shouldHide(entity)
                 || com.teslamaps.features.DungeonCleanEnd.shouldHide(entity)
-                || com.teslamaps.features.SecretPickupHud.shouldHide(entity)) {
+                || com.teslamaps.features.SecretPickupHud.shouldHide(entity)
+                || com.teslamaps.features.RenderHiders.shouldHide(entity)) {
             cir.setReturnValue(false);
         }
     }

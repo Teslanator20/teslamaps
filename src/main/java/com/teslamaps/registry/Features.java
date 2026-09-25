@@ -257,5 +257,13 @@ final class Features {
         com.teslamaps.features.mining.HotmPerks.register();
         com.teslamaps.features.GemstoneBuffs.register();
         com.teslamaps.features.ItemCycle.register();
+        // w06-07-qol
+        com.teslamaps.features.CallLinks.register();
+        com.teslamaps.features.SkyblockClock.register();
+        com.teslamaps.features.navigation.IslandNavigation.register();
+        com.teslamaps.features.MonoAudio.register();
+        com.teslamaps.features.QolTweaks.register();
+        com.teslamaps.features.RenderHiders.register();
+        com.teslamaps.features.ServerRestartWarning.register();
     }
 }

@@ -3,6 +3,13 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "MonoAudioChannelMixin",
+    "MonoAudioEngineMixin",
+    "HeartsBounceMixin",
+    "EditBoxUndoMixin",
+    "CustomDataAccessor",
+    "ItemBarMixin",
+    "ArmorStandArmorMixin",
     "TooltipStyleMixin",
     "AbstractButtonMixin",
     "OldMasterStarMixin",

@@ -14,7 +14,10 @@ public class NoGlintMixin {
     private void teslamaps$noGlint(CallbackInfoReturnable<Boolean> cir) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean colors = c.customGlintColors && !c.customGlintColor.isEmpty();
-        if (!c.noEnchantGlint && !colors) return;
+        if (!c.noEnchantGlint && !colors) {
+            if (c.forceEnchantGlint && com.teslamaps.features.RenderHiders.forceGlint((ItemStack) (Object) this)) cir.setReturnValue(true);
+            return;
+        }
         // a glint picked in /tmap customize wins over the blanket hide
         if (Customize.active()) {
             String uuid = Customize.uuid((ItemStack) (Object) this);
