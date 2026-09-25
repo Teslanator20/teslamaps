@@ -19,6 +19,10 @@ public final class CritterSafariCategory {
         b.info("Position and scale in /tmap gui");
         b.button("Run Screen (/tmap safari gui)",
                 () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.SafariScreen(Minecraft.getInstance().screen)));
+        b.button("  Import Old Runs From Logs", com.teslamaps.safari.SafariLogImport::start)
+                .desc("Rebuilds past runs from latest.log and the .log.gz files, fills per-critter data into saved runs")
+                .tags("import", "history", "logs");
+        b.info("Per-critter stats (own, tries, shards, never caught): /tmap safari species");
         b.label("Missing Panel");
         b.toggle("Missing Panel", () -> config.safariMissingPanel, v -> config.safariMissingPanel = v);
         b.info("What the biome you stand in still needs: quota, tries, walls");
@@ -26,6 +30,8 @@ public final class CritterSafariCategory {
         b.info("\"n near\" only counts critters with a free line of sight");
         b.toggle("  Tries And Escapes Per Critter", () -> config.safariAttemptCounts, v -> config.safariAttemptCounts = v)
                 .desc("Uncaught critters show \"3 tried, 2 esc\" here, \"3t 2e\" in the run screen and the checklist.");
+        b.toggle("  Mounds Broken Counter", () -> config.safariMoundCounter, v -> config.safariMoundCounter = v)
+                .desc("Cavern: \"Mounds broken 7 → 1 Rockmite\" for this run").tags("mound", "rockmite");
         b.label("Checklist");
         b.toggle("Show Checklist", () -> config.safariChecklist, v -> config.safariChecklist = v);
         b.dropdown("  Biome",

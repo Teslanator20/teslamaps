@@ -373,5 +373,10 @@ final class Features {
         // w08-06-hud
         com.teslamaps.features.AbilityCooldowns.register();
         com.teslamaps.features.TabWidgetHint.register();
+        // w08-03-hud
+        com.teslamaps.features.hud.PlayersInRange.register();
+        com.teslamaps.features.ReaperTimer.register();
+        com.teslamaps.features.SkeletonHelmet.register();
+        com.teslamaps.features.JyrreTimer.register();
     }
 }

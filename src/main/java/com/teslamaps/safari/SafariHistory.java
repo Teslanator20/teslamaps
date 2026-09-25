@@ -26,6 +26,12 @@ public class SafariHistory {
         public java.util.Map<String, Integer> catches; // party catches per critter, null on old runs
         public java.util.Map<String, Integer> attempts;
         public java.util.Map<String, Integer> failures;
+        public java.util.Map<String, Integer> ownCatches;
+        public java.util.Map<String, Integer> attempts;
+        public java.util.Map<String, Integer> shards;
+        public int moundsBroken;
+        public int rockmites;
+        public boolean imported;
     }
 
     public static long totalTime() {
@@ -62,7 +68,7 @@ public class SafariHistory {
     private static final Type TYPE = new TypeToken<List<Run>>() {}.getType();
     private static final Path PATH = FabricLoader.getInstance().getConfigDir()
             .resolve("teslamaps").resolve("safari_runs.json");
-    private static final int KEEP = 200;
+    private static final int KEEP = 500;
 
     private static List<Run> runs = new ArrayList<>();
     private static boolean loaded = false;
@@ -98,6 +104,85 @@ public class SafariHistory {
         for (Run r : runs()) {
             if (r.dex < SafariData.ALL.size() || r.durationMs <= 0) continue;
             if (best == 0 || r.durationMs < best) best = r.durationMs;
+        }
+        return best;
+    }
+
+    private static int get(java.util.Map<String, Integer> m, String k) {
+        return m == null ? 0 : m.getOrDefault(k, 0);
+    }
+
+    /** Per-critter totals over every run: party, own, tries, shards, runs caught in. */
+    public static List<String> speciesSummary() {
+        List<String> out = new ArrayList<>();
+        List<Run> all = runs();
+        if (all.isEmpty()) {
+            out.add("§7No Safari runs recorded yet. §8/tmap safari import");
+            return out;
+        }
+        int perfect = 0, mounds = 0, mites = 0;
+        for (Run r : all) {
+            if (r.dex >= SafariData.ALL.size()) perfect++;
+            mounds += r.moundsBroken;
+            mites += r.rockmites;
+        }
+        out.add("§b§lSafari species §7- §f" + all.size() + " runs §8| §6" + perfect + " §7perfect");
+        out.add("§8name: party §7/ own §8/ tries §8/ shards §8/ runs");
+        List<String> never = new ArrayList<>();
+        for (SafariData.Critter c : SafariData.ALL) {
+            int party = 0, own = 0, tries = 0, sh = 0, seen = 0;
+            for (Run r : all) {
+                int p = get(r.catches, c.name());
+                party += p;
+                own += get(r.ownCatches, c.name());
+                tries += get(r.attempts, c.name());
+                sh += get(r.shards, c.name());
+                if (p > 0) seen++;
+            }
+            if (party == 0) { never.add(c.name()); continue; }
+            out.add("§f" + c.name() + "§8: §f" + party + " §8/ §a" + own + " §8/ §7" + tries
+                    + " §8/ §d" + sh + " §8/ §7" + seen);
+        }
+        if (!never.isEmpty()) out.add("§cNever caught: §7" + String.join(", ", never));
+        if (mounds > 0) out.add("§7Mounds broken: §f" + mounds + " §8-> §f" + mites + " Rockmite");
+        return out;
+    }
+
+    /** Adds imported runs, fills per-critter data into matching ones. {added, filled}. */
+    public static int[] importRuns(List<Run> imported) {
+        if (!loaded) load();
+        int added = 0, filled = 0;
+        for (Run r : imported) {
+            Run same = sameRun(r);
+            if (same != null) {
+                boolean f = false;
+                if (same.catches == null && r.catches != null) { same.catches = r.catches; f = true; }
+                if (same.ownCatches == null && r.ownCatches != null) { same.ownCatches = r.ownCatches; f = true; }
+                if (same.attempts == null && r.attempts != null) { same.attempts = r.attempts; f = true; }
+                if (same.shards == null && r.shards != null) { same.shards = r.shards; f = true; }
+                if (same.moundsBroken == 0 && r.moundsBroken > 0) { same.moundsBroken = r.moundsBroken; same.rockmites = r.rockmites; f = true; }
+                if (f) filled++;
+                continue;
+            }
+            runs.add(r);
+            added++;
+        }
+        runs.sort((a, b) -> Long.compare(a.startedAt, b.startedAt));
+        while (runs.size() > KEEP) runs.remove(0);
+        if (added > 0 || filled > 0) save();
+        return new int[] {added, filled};
+    }
+
+    // same run = half of the shorter one overlaps, runs come back to back
+    private static Run sameRun(Run r) {
+        Run best = null;
+        long bestOverlap = 0;
+        for (Run e : runs) {
+            long shared = Math.min(e.startedAt + e.durationMs, r.startedAt + r.durationMs) - Math.max(e.startedAt, r.startedAt);
+            if (shared <= 0 || shared <= bestOverlap) continue;
+            if (shared * 2 < Math.min(e.durationMs, r.durationMs)) continue;
+            best = e;
+            bestOverlap = shared;
         }
         return best;
     }

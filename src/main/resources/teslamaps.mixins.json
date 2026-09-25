@@ -6,6 +6,7 @@
     "PauseScreenMixin",
     "PacketLogMixin",
     "AbilityMenuSlotMixin",
+    "ReaperBarMixin",
     "FocusLossMixin",
     "WindowTitleMixin",
     "MonoAudioChannelMixin",
