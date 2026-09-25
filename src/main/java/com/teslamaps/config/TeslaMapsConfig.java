@@ -2155,7 +2155,6 @@ public class TeslaMapsConfig {
     public int quickModSwitchX = 132, quickModSwitchY = 34; public float quickModSwitchScale = 1.0f;
     public boolean keyConflictWarning = false;
     public boolean noTextShadow = false;
-    public boolean hudEditFling = false;
     public int stHealthBarW = -1, stManaBarW = -1;
     public String stHealthBarColor = "E53935", stManaBarColor = "1E88E5";
     public String stHealthBarText = "Off", stManaBarText = "Off";

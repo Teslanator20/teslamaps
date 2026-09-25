@@ -98,9 +98,6 @@ public final class InterfaceCategory {
                 })
                 .desc("Panels in the right or bottom half keep their distance to that edge when the screen size or GUI scale changes.")
                 .tags("anchor", "hud", "position", "gui scale");
-        b.toggle("Throw HUDs (Fun)", () -> config.hudEditFling, v -> config.hudEditFling = v)
-                .desc("In /tmap gui a panel you let go of while moving keeps its swing and bounces off the screen edges until it stops.")
-                .tags("fun", "fling", "physics", "bounce");
         b.toggle("HUD Editor Extras", () -> config.hudEditExtras, v -> config.hudEditExtras = v)
                 .desc("More controls in /tmap gui. Hover an element to see its position and the keys.")
                 .tags("hud", "editor", "reset", "nudge", "tmap gui");
