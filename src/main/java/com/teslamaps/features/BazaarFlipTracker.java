@@ -67,7 +67,7 @@ public final class BazaarFlipTracker {
                 .serverChat(BazaarFlipTracker::onChat)
                 .hud("bazaarflip", (g, d) -> {
                     Minecraft mc = Minecraft.getInstance();
-                    if (mc.options.hideGui || lines.isEmpty() || !SkyblockUtils.isInSkyblock()) return;
+                    if (mc.options.hideGui || lines.isEmpty() || !SkyblockUtils.inSkyblockCached()) return;
                     draw(g, mc, hud.x(), hud.y(), hud.scale(), lines);
                 })
                 .config("Inventory", b -> {
