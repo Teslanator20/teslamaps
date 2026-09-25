@@ -63,7 +63,7 @@ public final class KuudraBuild {
 
     private static boolean stateNeeded() {
         TeslaMapsConfig c = cfg();
-        return c.kuuBuildHelper || c.kuuFreshTools || c.kuuElleHighlight || c.kuuSupplyMessage;
+        return c.kuuBuildHelper || c.kuuFreshTools || c.kuuElleHighlight || c.kuuSupplyMessage || KuudraRunInfo.needsState();
     }
 
     public static void register() {
@@ -94,6 +94,7 @@ public final class KuudraBuild {
                     b.toggle("  Text on Ballista", () -> c.kuuBuildBallistaText, v -> c.kuuBuildBallistaText = v);
                     b.slider("  Stun Alert %", 0, 100, () -> c.kuuBuildStunPercent, v -> c.kuuBuildStunPercent = v, 0)
                             .desc("\"Go to stun\" title at this build % from T3 up, 0 = off");
+                    KuudraStunWaypoint.config(b);
                 });
     }
 

@@ -29,6 +29,7 @@ public final class KuudraSupply {
                     b.label("Supplies");
                     b.toggle("Compact Supply Message", () -> c.kuuSupplyMessage, v -> c.kuuSupplyMessage = v)
                             .desc("Replaces the supply recovered line with name, run time and count, hides \"You retrieved some of Elle's supplies\"");
+                    KuudraRunInfo.supplyConfig(b);
                 });
     }
 

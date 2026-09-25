@@ -24,10 +24,19 @@ public final class KuudraStunWaypoint {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("KuudraStunWaypoint").section("Kuudra").when(() -> cfg().kuudraStunWaypoint)
+        Feature.of("KuudraStunWaypoint").section("Kuudra").when(() -> cfg().kuuBuildHelper && cfg().kuudraStunWaypoint)
                 .serverChat(KuudraStunWaypoint::onChat)
                 .tick(KuudraStunWaypoint::tick)
                 .world(KuudraStunWaypoint::render);
+    }
+
+    /** Rows under the Build Helper. */
+    public static void config(com.teslamaps.screen.config.ConfigBuilder b) {
+        TeslaMapsConfig c = cfg();
+        b.toggle("  Stun Waypoint", () -> c.kuudraStunWaypoint, v -> c.kuudraStunWaypoint = v)
+                .desc("After buying the Human Cannonball: box on the belly block to break, offset to you before the launch, fixed inside Kuudra");
+        b.dropdown("    Stun Marker", MARKERS, () -> c.kuudraStunMarker, v -> c.kuudraStunMarker = v);
+        b.espStyle("  Stun Waypoint", () -> c.kuudraStunStyle);
     }
 
     private static void onChat(String raw) {
