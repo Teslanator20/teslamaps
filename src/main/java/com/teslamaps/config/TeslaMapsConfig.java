@@ -2184,6 +2184,70 @@ public class TeslaMapsConfig {
     public boolean commissionMobHighlight = false;
     public com.teslamaps.render.EspStyle commissionMobEsp = new com.teslamaps.render.EspStyle("FFFFFF55");
 
+    // w14-02-gar
+    public boolean yawPitchHud = false;
+    public boolean yawPitchShowPitch = true;
+    public boolean yawPitchEverywhere = false;
+    public int yawPitchYawDecimals = 4;
+    public int yawPitchPitchDecimals = 4;
+    public int yawPitchTimeout = 5;
+    public int yawPitchHudX = 10;
+    public int yawPitchHudY = 200;
+    public float yawPitchHudScale = 1.0f;
+    public boolean speedPresets = false;
+    public java.util.Map<String, Integer> speedPresetValues = defaultSpeedPresets();
+    public boolean rareCropTracker = false;
+    public boolean rareCropOnlyWithTool = true;
+    public boolean rareCropHideChat = false;
+    public int rareCropPriceSource = 1;
+    public int rareCropTrackerX = 10;
+    public int rareCropTrackerY = 140;
+    public float rareCropTrackerScale = 1.0f;
+    public boolean stereoHarmonyHud = false;
+    public boolean stereoHideWhenNone = false;
+    public boolean stereoMenuIcons = false;
+    public boolean stereoContestHighlight = false;
+    public String stereoActiveVinyl = "";
+    public int stereoHarmonyHudX = 10;
+    public int stereoHarmonyHudY = 240;
+    public float stereoHarmonyHudScale = 1.0f;
+    public boolean plotBorders = false;
+    public int plotBorderKey = -1;
+    public boolean plotBordersSprayonator = true;
+    public boolean visitorChat = false;
+    public boolean visitorCompactRewards = true;
+    public boolean visitorHideNpcChat = true;
+    public boolean visitorHideArrival = false;
+    public boolean visitorLogbookNav = false;
+    public int visitorLogbookKey = 70;
+    public boolean visitorStats = false;
+    public boolean visitorStatsOnlyBarn = false;
+    public long visitorStatAccepted = 0;
+    public long visitorStatDenied = 0;
+    public long visitorStatCopper = 0;
+    public long visitorStatFarmingXp = 0;
+    public long visitorStatGardenXp = 0;
+    public long visitorStatCoinsSpent = 0;
+    public long visitorStatBits = 0;
+    public long visitorStatMithril = 0;
+    public long visitorStatGemstone = 0;
+    public java.util.Map<String, Long> visitorStatRarities = new java.util.HashMap<>();
+    public java.util.Map<String, Long> visitorStatRewards = new java.util.HashMap<>();
+    public int visitorStatsX = 10;
+    public int visitorStatsY = 280;
+    public float visitorStatsScale = 1.0f;
+
+    public static java.util.Map<String, Integer> defaultSpeedPresets() {
+        java.util.Map<String, Integer> m = new java.util.LinkedHashMap<>();
+        m.put("default", 100);
+        m.put("crops", 93);
+        m.put("cocoa", 155);
+        m.put("mushroom", 233);
+        m.put("cane", 327);
+        m.put("squash", 327);
+        m.put("cactus", 464);
+        return m;
+    }
     // w14-00-gar
     public boolean mantidKillDisplay = false;
     public String mantidShowWhen = "Mantid Armor";
@@ -4811,6 +4875,13 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.speedPresetValues == null) c.speedPresetValues = defaultSpeedPresets();
+        c.speedPresetValues.values().removeIf(java.util.Objects::isNull);
+        if (c.stereoActiveVinyl == null) c.stereoActiveVinyl = "";
+        if (c.visitorStatRarities == null) c.visitorStatRarities = new java.util.HashMap<>();
+        if (c.visitorStatRewards == null) c.visitorStatRewards = new java.util.HashMap<>();
+        c.visitorStatRarities.values().removeIf(java.util.Objects::isNull);
+        c.visitorStatRewards.values().removeIf(java.util.Objects::isNull);
         if (c.mousematAngleValues == null) c.mousematAngleValues = new java.util.HashMap<>();
         if (c.pbItemsPerFortune == null) c.pbItemsPerFortune = new java.util.HashMap<>();
         if (c.mantidShowWhen == null) c.mantidShowWhen = "Mantid Armor";

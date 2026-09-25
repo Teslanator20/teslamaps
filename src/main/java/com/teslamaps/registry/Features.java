@@ -608,6 +608,15 @@ final class Features {
         com.teslamaps.features.mining.NucleusTracker.register();
         com.teslamaps.features.mining.HollowsMap.register();
         com.teslamaps.features.mining.TreasureChestHelper.register();
+        // w14-02-gar
+        com.teslamaps.features.YawPitchHud.register();
+        com.teslamaps.features.SpeedPresets.register();
+        com.teslamaps.features.RareCropTracker.register();
+        com.teslamaps.features.StereoHarmony.register();
+        com.teslamaps.features.GardenPlotBorders.register();
+        com.teslamaps.features.VisitorChat.register();
+        com.teslamaps.features.npc.VisitorLogbook.register();
+        com.teslamaps.features.VisitorStats.register();
         // w14-00-gar
         com.teslamaps.features.MantidKillDisplay.register();
         com.teslamaps.features.GlowingMushrooms.register();

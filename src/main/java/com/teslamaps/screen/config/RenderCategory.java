@@ -92,6 +92,10 @@ public final class RenderCategory {
         b.keybind("  NPC Waypoint Key", () -> config.npcWaypointKey, v -> config.npcWaypointKey = v);
         b.info("Over an NPC item (Abiphone): track, Shift: also warp");
         b.info("In the world: open the finder, Shift: warp to the target");
+        b.toggle("  Visitor's Logbook Navigation", () -> config.visitorLogbookNav, v -> config.visitorLogbookNav = v)
+                .desc("In the Visitor's Logbook a key over a visitor tracks it, or warps to its island first")
+                .tags("visitor", "logbook", "garden", "navigate");
+        b.keybind("    Logbook Key", () -> config.visitorLogbookKey, v -> config.visitorLogbookKey = v);
         b.label("Rare Drop Effects");
         b.toggle("Rare Drops", () -> config.rareDropEffects, v -> config.rareDropEffects = v);
         b.dropdown("  Post Drops To", com.teslamaps.features.RareDropEffects.ANNOUNCE,
