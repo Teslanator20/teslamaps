@@ -22,7 +22,8 @@ public class ScrollableTooltipMixin {
     // wrap the positioner so the offset lands after vanilla's on-screen clamp
     @ModifyVariable(method = "tooltip", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private ClientTooltipPositioner teslamaps$scrollTooltip(ClientTooltipPositioner positioner) {
-        return TooltipFit.wrap(ScrollableTooltip.wrap(positioner));
+        if (com.teslamaps.features.RavengardTooltips.nested()) return positioner;
+        return com.teslamaps.features.RavengardTooltips.wrap(TooltipFit.wrap(ScrollableTooltip.wrap(positioner)));
     }
 
     // shrink tooltips taller than the screen - vanilla only clamps their bottom edge
@@ -38,6 +39,7 @@ public class ScrollableTooltipMixin {
     private void teslamaps$fitPop(Font font, List<ClientTooltipComponent> lines, int x, int y,
                                   ClientTooltipPositioner positioner, Identifier background, CallbackInfo ci) {
         if (TooltipFit.scale() != 1f) ((GuiGraphicsExtractor) (Object) this).pose().popMatrix();
+        com.teslamaps.features.RavengardTooltips.renderSide((GuiGraphicsExtractor) (Object) this, font);
     }
 
     @ModifyVariable(

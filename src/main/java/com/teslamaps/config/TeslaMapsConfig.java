@@ -2174,6 +2174,20 @@ public class TeslaMapsConfig {
     public boolean middleClickGui = false;
     public int middleClickGuiBlacklistKey = -1;
     public java.util.List<String> middleClickGuiBlacklist = new java.util.ArrayList<>();
+    // w05-01-inv
+    public boolean ravengardCompare = false;
+    public boolean ravengardDps = false;
+    public boolean wizardPortalLore = false;
+    public boolean stackingEnchantHud = false;
+    public boolean stackingEnchantHudCompact = true;
+    public int stackingEnchantHudX = 10;
+    public int stackingEnchantHudY = 200;
+    public float stackingEnchantHudScale = 1.0f;
+    public boolean protectEvolvingConsumables = false;
+    public boolean starsStackSize = false;
+    public boolean starsStackSizeColors = false;
+    public boolean redMasterStars = false;
+    public boolean skyblockIdTooltip = false;
     // w04-03-inv
     public boolean moveInsertIntoSack = false;
     public boolean arrowPoisonIndicator = false;

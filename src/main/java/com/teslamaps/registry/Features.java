@@ -225,5 +225,12 @@ final class Features {
         com.teslamaps.features.ToolkitCropIcons.register();
         // w05-09-inv
         com.teslamaps.features.InstaLoadoutSwap.register();
+        // w05-01-inv
+        com.teslamaps.features.RavengardTooltips.register();
+        com.teslamaps.features.WizardPortalLore.register();
+        com.teslamaps.features.StackingEnchantHud.register();
+        com.teslamaps.features.ConsumableProtection.register();
+        com.teslamaps.features.ItemStars.register();
+        com.teslamaps.features.SkyblockIdTooltip.register();
     }
 }

@@ -36,6 +36,14 @@ public final class TooltipsValueCategory {
                 .desc("\"Upgrade to ✪✪✪: 1,200 Wither Essence\", or the dungeonize cost");
         b.toggle("  Always Show Required Items", () -> config.starUpgradeItems, v -> config.starUpgradeItems = v);
         b.info("Otherwise hold Ctrl for master stars, coins and other items");
+        b.toggle("SkyBlock ID In Tooltip", () -> config.skyblockIdTooltip, v -> config.skyblockIdTooltip = v)
+                .desc("Dark grey skyblock:<ID> line, below the F3+H id when advanced tooltips are on");
+        b.toggle("Restore Wizard Portal \"Earned by\"", () -> config.wizardPortalLore, v -> config.wizardPortalLore = v)
+                .desc("Adds the missing Earned by line to bought Piece of Wizard Portal mementos");
+        b.toggle("Ravengard: Compare With Equipped", () -> config.ravengardCompare, v -> config.ravengardCompare = v)
+                .desc("Green/red stat deltas and the equipped piece as a second tooltip");
+        b.toggle("Ravengard: Weapon DPS", () -> config.ravengardDps, v -> config.ravengardDps = v)
+                .desc("Damage x Attack Speed line under Attack Speed");
         b.label("Item Value");
         b.toggle("Estimated Item Value", () -> config.estimatedValue, v -> config.estimatedValue = v);
         b.toggle("  List Gemstones", () -> config.gemstoneList, v -> config.gemstoneList = v)
@@ -97,6 +105,9 @@ public final class TooltipsValueCategory {
         b.toggle("Hide Enchant Descriptions", () -> config.enchantHideDescriptions, v -> config.enchantHideDescriptions = v);
         b.toggle("Stacking Enchant Progress", () -> config.enchantStackingProgress, v -> config.enchantStackingProgress = v);
         b.info("Expertise, Compact, Cultivating ... progress to the next level");
+        b.toggle("Stacking Enchant HUD (held item)", () -> config.stackingEnchantHud, v -> config.stackingEnchantHud = v)
+                .desc("Expertise IX (14.9k / 15k) for the held item, move it in /tmap gui");
+        b.toggle("  Compact Numbers", () -> config.stackingEnchantHudCompact, v -> config.stackingEnchantHudCompact = v);
         b.toggle("Chroma Max Enchants (rainbow)", () -> config.enchantChromaMax, v -> config.enchantChromaMax = v);
         b.slider("  Chroma Size", 5f, 120f,
                 () -> config.chromaSize, v -> config.chromaSize = v, 0);
