@@ -37,11 +37,14 @@ public class InGameHudMixin {
         com.teslamaps.features.AccurateAbsorption.onActionBar(message);
         com.teslamaps.features.hud.PlayerStats.onActionBar(message.getString());
         com.teslamaps.features.AbilityCooldowns.onActionBar(message);
+        com.teslamaps.features.GyroWandRange.onActionBar(message);
+        com.teslamaps.features.ChickenRace.onActionBar(message);
         if (com.teslamaps.config.TeslaMapsConfig.get().endStatsHud) com.teslamaps.features.theend.EndStatsHud.onActionBar(message.getString());
         if (com.teslamaps.config.TeslaMapsConfig.get().vanillaManaBar) com.teslamaps.features.hud.VanillaManaBar.onActionBar(message.getString());
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Skills")) {
             com.teslamaps.features.SkillTracker.onActionBar(message.getString());
         }
+        com.teslamaps.features.SkyblockXpChat.onActionBar(message);
         return com.teslamaps.features.ActionBarFilter.filter(message);
     }
 
@@ -54,6 +57,7 @@ public class InGameHudMixin {
     @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method = "extractPlayerHealth",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getAbsorptionAmount()F"))
     private float teslamaps$accurateAbsorption(float original) {
+        if (com.teslamaps.config.TeslaMapsConfig.get().hideAbsorption) return 0f;
         return com.teslamaps.features.AccurateAbsorption.absorption(original);
     }
 

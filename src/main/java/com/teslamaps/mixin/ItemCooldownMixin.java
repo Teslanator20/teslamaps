@@ -13,6 +13,6 @@ public class ItemCooldownMixin {
     @ModifyExpressionValue(method = "itemCooldown", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/item/ItemCooldowns;getCooldownPercent(Lnet/minecraft/world/item/ItemStack;F)F"))
     private float teslamaps$sbCooldown(float original, @Local(argsOnly = true) ItemStack stack) {
-        return SbItemCooldowns.percent(stack, original);
+        return SbItemCooldowns.percent(stack, com.teslamaps.features.VisualTweaks.vanillaCooldown(original));
     }
 }
