@@ -543,6 +543,11 @@ public class TeslaMapsConfig {
     public static class ChatUserFilter {
         public String mode = "contains";         // contains / equals / startswith / endswith / regex
         public String text = "";
+        public String title;                     // alert: title, {0}/{1}/{name} = regex groups
+        public String sound;                     // alert: SoundOptions key
+        public boolean flash;                    // alert: screen flash
+        public boolean keep;                     // alert: line stays visible
+        public boolean systemOnly;               // alert: never on player chat
         public ChatUserFilter() {}
         public ChatUserFilter(String mode, String text) { this.mode = mode; this.text = text; }
     }
@@ -2169,6 +2174,24 @@ public class TeslaMapsConfig {
     public boolean hoppityCompactHitman = true;
     public int hoppityCompactHitmanThreshold = 5;
     public boolean hotkeyPlaceholders = false;
+    // w10-04-chat
+    public boolean chatKeepScroll = false;
+    public boolean chatFilterBlazetekk = false;
+    public boolean chatSoundResponses = false;
+    public java.util.List<String> chatSoundResponsesOff = new java.util.ArrayList<>();
+    public boolean chatUserAlerts = false;
+    public boolean chatCompactChannels = false;
+    public boolean chatCompactParty = true;
+    public boolean chatCompactGuild = true;
+    public boolean chatCompactPublic = false;
+    public boolean chatCompactHideRank = true;
+    public boolean chatCompactHideGuildRank = true;
+    public boolean chatCompactHideLevel = false;
+    public boolean chatCompactHideEmblem = false;
+    public boolean chatStripDiscordWarning = false;
+    public String rareDropAnnounce = "Off";
+    public float rareDropAnnounceMin = 0f;
+    public boolean rareDropCopy = false;
     // w10-07-chat
     public boolean chatMarkdown = false;
     public boolean sackMessagePrices = false;
@@ -4257,6 +4280,8 @@ public class TeslaMapsConfig {
         if (c.mobIconColors == null) c.mobIconColors = new java.util.HashMap<>();
         if (c.imageShareLinks == null) c.imageShareLinks = new java.util.HashMap<>();
         if (c.tabStatsHudStats == null) c.tabStatsHudStats = "Ferocity";
+        if (c.chatSoundResponsesOff == null) c.chatSoundResponsesOff = new java.util.ArrayList<>();
+        if (c.rareDropAnnounce == null) c.rareDropAnnounce = "Off";
         if (c.trackerHidden == null) c.trackerHidden = new java.util.HashMap<>();
         if (c.hudLineOrder == null) c.hudLineOrder = new java.util.HashMap<>();
         c.hudLineOrder.values().removeIf(java.util.Objects::isNull);
