@@ -285,9 +285,10 @@ public class BasicPage extends ProfileViewerPage {
                 sbX + 9, sbY - 12, sbLevelColor((int) sbLevel));
         boolean levelLink = com.teslamaps.profileviewer.PvExtras.levelPage();
         link(ctx, sbX - 36, sbY - 27, 90, 26, mouseX, mouseY, levelLink ? LevelPage.class : null);
-        String sbRank = com.teslamaps.profileviewer.PvExtras.rankLine("skyblockxp");
+        boolean sbHover = mouseX >= sbX - 36 && mouseX < sbX + 54 && mouseY >= sbY - 27 && mouseY < sbY - 1;
+        String sbRank = sbHover ? com.teslamaps.profileviewer.PvExtras.rankLine("skyblockxp") : null;
         boolean sbClick = levelLink && com.teslamaps.profileviewer.PvExtras.deepLinks();
-        if ((sbRank != null || sbClick) && mouseX >= sbX - 36 && mouseX < sbX + 54 && mouseY >= sbY - 27 && mouseY < sbY - 1) {
+        if (sbHover && (sbRank != null || sbClick)) {
             tooltip = withExtra(new String[]{"SkyBlock Level"}, sbRank, sbClick ? "§eClick to open the level page" : null);
             tooltipX = mouseX;
             tooltipY = mouseY;

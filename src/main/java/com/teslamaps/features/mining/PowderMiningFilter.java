@@ -39,7 +39,7 @@ public final class PowderMiningFilter {
                 .config("Mining", b -> {
                     TeslaMapsConfig c = b.config();
                     b.toggle("Powder Mining Chat Filter", () -> c.powderChatFilter, v -> c.powderChatFilter = v)
-                            .desc("Crystal Hollows treasure chests: hides the chest notices and cheap rewards, what is left becomes one short \"+ amount reward\" line.")
+                            .desc("Crystal Hollows treasure chests: hides the chest notices and cheap rewards, what is left becomes one short \"+ amount reward\" line. Off while Chat > Hollows Chest Rewards is set.")
                             .tags("powder", "treasure chest", "chat filter", "gemstone", "goblin egg", "essence", "crystal hollows");
                     b.slider("  Hide Powder Below", 0, 60000, () -> (float) c.powderChatFilterPowder,
                             v -> c.powderChatFilterPowder = Math.round(v / 500f) * 500, 0).desc("60000 hides all powder");
@@ -57,7 +57,7 @@ public final class PowderMiningFilter {
     /** TRUE = hide, FALSE = rewritten, null = not ours. */
     static Boolean handle(Component message, String text, String stripped) {
         TeslaMapsConfig c = cfg();
-        if (!c.powderChatFilter || !SkyblockUtils.isInArea("Crystal Hollows")) { inRewards = false; return null; }
+        if (!c.powderChatFilter || !"Off".equals(c.miningChestSummary) || !SkyblockUtils.isInArea("Crystal Hollows")) { inRewards = false; return null; }
         String t = stripped.trim();
         if (NOTICES.contains(t)) return true;
         if (c.powderChatFilterTool && t.startsWith("You need a tool with a Breaking Power of")) return true;

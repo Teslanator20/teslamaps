@@ -373,6 +373,9 @@ public class ChatFilter {
         String t = StringUtil.strip(text);
         lastReason = "stashCompact";
         if (StashCompact.handle(t)) return true;
+        lastReason = "miningChestSummary";
+        if (com.teslamaps.features.mining.MiningChestSummary.handle(message, text, t)) return true;
+        if (pendingOut != null) return false;
         lastReason = "chatCompactsMore";
         if (ChatCompactsMore.handle(message, t)) return true;
         lastReason = "melodyCompact";
@@ -388,6 +391,13 @@ public class ChatFilter {
         lastReason = "miningChat";
         Boolean mining = com.teslamaps.features.mining.MiningChatHooks.handle(message, text, t);
         if (mining != null) return mining;
+        String nucleus = com.teslamaps.features.mining.NucleusChatFilter.handle(message, text, t);
+        if (nucleus != null) {
+            lastReason = "nucleusChatFilter";
+            if (nucleus.isEmpty()) return true;
+            queue(text, Component.literal(nucleus));
+            return false;
+        }
         if (TeslaMapsConfig.get().chatFilterEnabled) {
             String sf = ChatCompactRulesIslands.shortForm(message, t);
             if (sf != null) lastReason = "compact";

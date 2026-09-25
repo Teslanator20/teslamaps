@@ -2203,6 +2203,134 @@ public class TeslaMapsConfig {
     public boolean muteTreasureChest = false;
     public boolean muteTreasureChestDiscover = true;
     public boolean muteTreasureChestOpen = true;
+    // w15-02-min
+    public boolean kingTalismanHelper = false;
+    public boolean kingTalismanOutsideMines = false;
+    @Global
+    public java.util.List<String> kingsTalkedTo = new java.util.ArrayList<>();
+    public int kingTalismanX = 10;
+    public int kingTalismanY = 140;
+    public float kingTalismanScale = 1.0f;
+    public boolean hotmPowderGoal = false;
+    public boolean hotmPowderGoalTitle = false;
+    public boolean hotmPowderGoalRepeat = false;
+    public int hotmPowderGoalInterval = 5;
+    @Global
+    public java.util.Map<String, String> hotmPowderGoals = new java.util.HashMap<>();
+    public boolean goldenGoblinHighlight = false;
+    public com.teslamaps.render.EspStyle goldenGoblinEsp = new com.teslamaps.render.EspStyle("FF55FF55");
+    public boolean enderNodeTracker = false;
+    public boolean enderNodeOnlyTool = false;
+    public int enderNodePriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public int enderNodeTrackerX = 10;
+    public int enderNodeTrackerY = 80;
+    public float enderNodeTrackerScale = 1.0f;
+    public boolean miningRedCarpets = false;
+    public boolean miningDarkMist = false;
+    public boolean muteHighHeat = false;
+    public boolean excavatorHideDirtTooltip = false;
+    public boolean excavatorHideAllTooltips = false;
+    public boolean scrapGfsButton = false;
+    public int scrapGfsAmount = 64;
+    public boolean scrapGfsOnlyIfNone = true;
+    public boolean scrapGfsBazaar = true;
+    // w15-09-sla
+    public boolean remainingSlayerKills = false;
+    public int remainingSlayerKillsX = 5;
+    public int remainingSlayerKillsY = 150;
+    public float remainingSlayerKillsScale = 1.0f;
+    public boolean slayerBossTransparency = false;
+    public int slayerBossTransparencyLevel = 40;
+    public boolean slayerBossTransparencyPlayers = false;
+    public boolean slayerMagmaCubeTransparency = false;
+    public int slayerMagmaCubeLevel = 40;
+    public boolean blazeClearView = false;
+    public boolean infernoTotemDisplay = false;
+    public int infernoTotemPing = 0;
+    public int infernoTotemX = 5;
+    public int infernoTotemY = 190;
+    public float infernoTotemScale = 1.0f;
+    public boolean rev5TntPing = false;
+    public boolean gummyWarning = false;
+    public boolean gummyTimer = false;
+    public boolean gummyTimerExpired = true;
+    public long gummyTimerEnd = 0;
+    public int gummyTimerX = 5;
+    public int gummyTimerY = 205;
+    public float gummyTimerScale = 1.0f;
+    public boolean keeperWaypoints = false;
+    public boolean keeperFocusMode = false;
+    // w15-05-min
+    public boolean muteMetalDetector = false;
+    public boolean muteOrganDonor = false;
+    public boolean wishingCompassSolver = false;
+    public boolean pickobulusHelper = false;
+    public boolean pickobulusOutline = true;
+    public boolean pickobulusHud = true;
+    public boolean pickobulusHideOnCooldown = false;
+    public String colorPickobulus = "55FFFF";
+    public int pickobulusHudX = 5;
+    public int pickobulusHudY = 160;
+    public float pickobulusHudScale = 1.0f;
+    public boolean scathaAlerts = false;
+    public boolean scathaWormTitle = true;
+    public boolean scathaAliveSound = true;
+    public boolean scathaCooldownTitle = true;
+    public boolean scathaPetRewrite = true;
+    public boolean scathaPetTitle = true;
+    public boolean hotmLevelStack = false;
+    public boolean precisionMiningHighlight = false;
+    // w14-09-min
+    public boolean darkMonolith = false;
+    public boolean darkMonolithBox = true;
+    public boolean darkMonolithBeacon = true;
+    public boolean darkMonolithTitle = true;
+    public boolean darkMonolithTracker = false;
+    public int darkMonolithTrackerX = 10;
+    public int darkMonolithTrackerY = 160;
+    public float darkMonolithTrackerScale = 1f;
+    public boolean nucleusChatFilter = false;
+    public boolean nucleusFilterCrystalFound = true;
+    public boolean nucleusFilterCrystalPlaced = true;
+    public boolean nucleusFilterRunDone = true;
+    public boolean nucleusFilterScavenge = true;
+    public boolean nucleusFilterGuards = true;
+    public boolean nucleusFilterRobot = true;
+    public boolean nucleusFilterYolkar = true;
+    public boolean nucleusFilterKeepers = true;
+    public boolean hollowsPassHelper = false;
+    public boolean hollowsPassTimer = false;
+    public boolean hollowsPassAutoRenew = false;
+    public long hollowsPassExpires = 0L;
+    public int hollowsPassX = 10;
+    public int hollowsPassY = 140;
+    public float hollowsPassScale = 1f;
+    public boolean chDeathWaypoint = false;
+    public boolean commissionBlocks = false;
+    public boolean commissionBlocksSneak = true;
+    public String commissionBlocksColor = "Red";
+    public boolean deepCavernsGuide = false;
+    public int deepCavernsLookAhead = 3;
+    public boolean nucleusNames = false;
+    public boolean nucleusBarriers = false;
+    public boolean nucleusBarriersFilled = false;
+    // w14-08-min
+    public String miningChestSummary = "Off";
+    public boolean corleoneSpawnTitle = false;
+    public boolean corpseKeyAnnounce = false;
+    public boolean crystalHollowsOverlay = false;
+    public boolean crystalHollowsOverlayOnlyHollows = true;
+    public int crystalHollowsOverlayX = 10;
+    public int crystalHollowsOverlayY = 220;
+    public float crystalHollowsOverlayScale = 1.0f;
+    public java.util.Map<String, Integer> chCrystalStates = new java.util.HashMap<>();
+    public java.util.List<String> chPartsDelivered = new java.util.ArrayList<>();
+    public boolean blockStrengthGuide = false;
+    public boolean blockBreakPrediction = false;
+    public boolean blockBreakPredictionSound = false;
+    public boolean chAreaWalls = false;
+    public boolean chAreaWallsNucleus = true;
+    public boolean chAreaWallsHeat = true;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;
@@ -2292,13 +2420,12 @@ public class TeslaMapsConfig {
     public int cropMilestoneHudY = 120;
     public float cropMilestoneHudScale = 1.0f;
     public int cropMilestoneGoal = 0;
-    public boolean cropMilestoneOverflow = true;
+    public boolean cropMilestoneOverflow = false;
     public boolean cropMilestoneWarn = false;
     public boolean mooshroomPerkHud = false;
     public int mooshroomPerkHudX = 10;
     public int mooshroomPerkHudY = 180;
     public float mooshroomPerkHudScale = 1.0f;
-    public java.util.Map<String, Long> cropMilestoneTotals = new java.util.HashMap<>();
     public boolean farmingFortuneHud = false;
     public int farmingFortuneHudX = 10;
     public int farmingFortuneHudY = 100;
@@ -2587,18 +2714,12 @@ public class TeslaMapsConfig {
     public int jacobContestFFY = 40;
     public float jacobContestFFScale = 1.0f;
     @Global
-    public java.util.Map<String, Long> cropMilestoneCounters = new java.util.HashMap<>();
-    @Global
     public java.util.Map<String, Double> cropLatestBps = new java.util.HashMap<>();
     @Global
     public java.util.Map<String, Double> cropLatestFortune = new java.util.HashMap<>();
     @Global
     public java.util.Map<String, Double> cropMeasuredPerBlock = new java.util.HashMap<>();
     // w13-09-gar
-    @Global
-    public java.util.Map<String, Double> gardenLatestFortune = new java.util.HashMap<>();
-    @Global
-    public java.util.Map<String, Double> gardenLatestBps = new java.util.HashMap<>();
     public boolean jacobContestTimes = false;
     public String jacobContestBracket = "GOLD";
     public boolean jacobContestCustomBps = false;
@@ -5284,7 +5405,13 @@ public class TeslaMapsConfig {
     static void normalize(TeslaMapsConfig c) {
         if (c.mineshaftSinceType == null) c.mineshaftSinceType = new java.util.HashMap<>();
         if (c.mineshaftLastType == null) c.mineshaftLastType = new java.util.HashMap<>();
+        if (c.chCrystalStates == null) c.chCrystalStates = new java.util.HashMap<>();
+        if (c.chPartsDelivered == null) c.chPartsDelivered = new java.util.ArrayList<>();
+        if (c.miningChestSummary == null) c.miningChestSummary = "Off";
         if (c.visitorIgnored == null) c.visitorIgnored = new java.util.ArrayList<>();
+        if (c.kingsTalkedTo == null) c.kingsTalkedTo = new java.util.ArrayList<>();
+        if (c.hotmPowderGoals == null) c.hotmPowderGoals = new java.util.HashMap<>();
+        c.hotmPowderGoals.values().removeIf(java.util.Objects::isNull);
         if (c.speedPresetValues == null) c.speedPresetValues = defaultSpeedPresets();
         c.speedPresetValues.values().removeIf(java.util.Objects::isNull);
         if (c.stereoActiveVinyl == null) c.stereoActiveVinyl = "";
@@ -5292,20 +5419,18 @@ public class TeslaMapsConfig {
         if (c.visitorStatRewards == null) c.visitorStatRewards = new java.util.HashMap<>();
         c.visitorStatRarities.values().removeIf(java.util.Objects::isNull);
         c.visitorStatRewards.values().removeIf(java.util.Objects::isNull);
-        if (c.cropMilestoneCounters == null) c.cropMilestoneCounters = new java.util.HashMap<>();
         if (c.cropLatestBps == null) c.cropLatestBps = new java.util.HashMap<>();
         if (c.cropLatestFortune == null) c.cropLatestFortune = new java.util.HashMap<>();
         if (c.cropMeasuredPerBlock == null) c.cropMeasuredPerBlock = new java.util.HashMap<>();
+        c.cropLatestBps.values().removeIf(java.util.Objects::isNull);
+        c.cropLatestFortune.values().removeIf(java.util.Objects::isNull);
+        c.cropMeasuredPerBlock.values().removeIf(java.util.Objects::isNull);
         if (c.eliteLbGamemode == null) c.eliteLbGamemode = "All";
         if (c.farmToolColor == null) c.farmToolColor = "66B22222";
         if (c.contestCropWarnFor == null) c.contestCropWarnFor = new java.util.ArrayList<>();
         if (c.pestGlowVinylId == null) c.pestGlowVinylId = "";
-        if (c.gardenLatestFortune == null) c.gardenLatestFortune = new java.util.HashMap<>();
-        if (c.gardenLatestBps == null) c.gardenLatestBps = new java.util.HashMap<>();
         if (c.gardenOptimalSpeeds == null) c.gardenOptimalSpeeds = new java.util.HashMap<>();
         if (c.hoeOverflowLevels == null) c.hoeOverflowLevels = new java.util.HashMap<>();
-        c.gardenLatestFortune.values().removeIf(java.util.Objects::isNull);
-        c.gardenLatestBps.values().removeIf(java.util.Objects::isNull);
         c.gardenOptimalSpeeds.values().removeIf(java.util.Objects::isNull);
         c.hoeOverflowLevels.values().removeIf(java.util.Objects::isNull);
         if (c.jacobContestBracket == null) c.jacobContestBracket = "GOLD";
@@ -5561,7 +5686,6 @@ public class TeslaMapsConfig {
         if (c.greenhouseCode == null) c.greenhouseCode = "";
         if (c.greenhousePresets == null) c.greenhousePresets = new java.util.LinkedHashMap<>();
         if (c.composterUpgrades == null) c.composterUpgrades = new java.util.HashMap<>();
-        if (c.cropMilestoneTotals == null) c.cropMilestoneTotals = new java.util.HashMap<>();
         if (c.composterTimeUnit == null) c.composterTimeUnit = "Hour";
         if (c.composterMatterItem == null) c.composterMatterItem = "";
         if (c.composterFuelItem == null) c.composterFuelItem = "";

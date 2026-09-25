@@ -600,6 +600,13 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w14-08-min
+        com.teslamaps.features.mining.CorleoneTitle.register();
+        com.teslamaps.features.mining.CorpseKeyAnnounce.register();
+        com.teslamaps.features.mining.CrystalHollowsOverlay.register();
+        com.teslamaps.features.mining.BlockStrengthGuide.register();
+        com.teslamaps.features.mining.BlockBreakPrediction.register();
+        com.teslamaps.features.mining.HollowsAreaWalls.register();
         // w14-05-gar
         com.teslamaps.features.JacobContests.register();
         com.teslamaps.features.PestFinder.register();
@@ -723,5 +730,32 @@ final class Features {
         com.teslamaps.features.mining.MiningEvents.register();
         com.teslamaps.features.mining.CorpseTracker.register();
         com.teslamaps.features.mining.PowderMiningFilter.register();
+        // w15-02-min
+        com.teslamaps.features.mining.KingTalismanHelper.register();
+        com.teslamaps.features.mining.HotmPowderGoal.register();
+        com.teslamaps.features.mining.GoldenGoblinHighlight.register();
+        com.teslamaps.features.theend.EnderNodeTracker.register();
+        com.teslamaps.features.mining.MinesRecolor.register();
+        com.teslamaps.features.mining.FossilExcavatorHelper.register();
+        // w15-09-sla
+        com.teslamaps.slayer.RemainingSlayerKills.register();
+        com.teslamaps.slayer.SlayerTransparency.register();
+        com.teslamaps.slayer.Rev5TntPing.register();
+        com.teslamaps.slayer.InfernoHelper.register();
+        com.teslamaps.features.KeeperWaypoints.register();
+        // w15-05-min
+        com.teslamaps.features.mining.MiningSoundMutes.register();
+        com.teslamaps.features.mining.WishingCompassSolver.register();
+        com.teslamaps.features.mining.PickobulusHelper.register();
+        com.teslamaps.features.mining.ScathaAlerts.register();
+        com.teslamaps.features.mining.PrecisionMiningHighlight.register();
+        // w14-09-min
+        com.teslamaps.features.mining.DarkMonolith.register();
+        com.teslamaps.features.mining.NucleusChatFilter.register();
+        com.teslamaps.features.mining.HollowsPass.register();
+        com.teslamaps.features.mining.HollowsDeathWaypoint.register();
+        com.teslamaps.features.mining.CommissionBlockColor.register();
+        com.teslamaps.features.mining.DeepCavernsGuide.register();
+        com.teslamaps.features.mining.NucleusOverlay.register();
     }
 }

@@ -3,7 +3,10 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "BlockStateModelSetMixin",
+    "BlockBreakPredictionMixin",
     "LogSpamPacketMixin",
+    "RenderSectionRegionMixin",
     "LogSpamScoreboardMixin",
     "LogSpamEntityDataMixin",
     "LogSpamSkinMixin",

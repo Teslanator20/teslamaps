@@ -24,6 +24,13 @@ public abstract class ProfileViewerPage {
         return new ItemStack(Items.PAPER);
     }
 
+    private ItemStack tabIcon;
+
+    public final ItemStack tabIcon() {
+        if (tabIcon == null) tabIcon = getTabIcon();
+        return tabIcon;
+    }
+
     public void onSelected() {}
 
     /** A tab that makes no sense for the selected profile hides itself. */

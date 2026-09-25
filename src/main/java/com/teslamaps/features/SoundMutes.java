@@ -20,6 +20,12 @@ public final class SoundMutes {
     private SoundMutes() {}
 
     public static void register() {
+        com.teslamaps.registry.Feature.of("HighHeatMute").section("Mining").config("Mining", b -> {
+            TeslaMapsConfig c = b.config();
+            b.toggle("Mute High Heat Sound", () -> c.muteHighHeat, v -> c.muteHighHeat = v)
+                    .desc("Drops the Crystal Hollows heat warning (low wolf panting) below y 66.")
+                    .tags("heat", "crystal hollows", "wolf", "pant", "mute", "sound");
+        });
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> {
             if (!TeslaMapsConfig.get().muteBackpackOpen || !(screen instanceof AbstractContainerScreen<?>)) return;
             if (StringUtil.strip(screen.getTitle().getString()).contains("Backpack")) backpackOpenMs = System.currentTimeMillis();
@@ -27,7 +33,7 @@ public final class SoundMutes {
     }
 
     public static boolean active(TeslaMapsConfig c) {
-        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth || c.muteVacuum || c.muteHoeLevelUp || c.gardenMuteComposter || c.muteTreasureChest;
+        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth || c.muteVacuum || c.muteHoeLevelUp || c.gardenMuteComposter || c.muteTreasureChest || c.muteHighHeat;
     }
 
     public static boolean shouldMute(TeslaMapsConfig c, SoundInstance s, String id) {
@@ -53,6 +59,9 @@ public final class SoundMutes {
                 && com.teslamaps.utils.SkyblockUtils.isInArea("Crystal Hollows")) {
             if (id.equals("minecraft:entity.player.levelup") ? c.muteTreasureChestDiscover : c.muteTreasureChestOpen) return true;
         }
+        // SkyHanni's HighHeatSound
+        if (c.muteHighHeat && id.equals("minecraft:entity.wolf.pant") && s.getPitch() < 0.55f && mc.player.getY() <= 65
+                && c.section("Mining") && com.teslamaps.utils.SkyblockUtils.isInArea("Crystal Hollows")) return true;
         if (c.muteEndermanEnd && ENDERMAN.contains(id) && com.teslamaps.features.theend.EndProtector.inArea()) return true;
         if (c.muteRatPet) {
             // rat = bat squeak + chicken steps next to the player, with no real bat/chicken there
