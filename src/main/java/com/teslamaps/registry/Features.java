@@ -257,5 +257,11 @@ final class Features {
         com.teslamaps.features.mining.HotmPerks.register();
         com.teslamaps.features.GemstoneBuffs.register();
         com.teslamaps.features.ItemCycle.register();
+        // w06-05-qol
+        com.teslamaps.features.FancyWarpMenu.register();
+        com.teslamaps.features.DevWorldTools.register();
+        com.teslamaps.features.DeathSound.register();
+        com.teslamaps.features.CameraTweaks.register();
+        com.teslamaps.features.InfernoMinion.register();
     }
 }

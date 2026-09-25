@@ -13,6 +13,9 @@ public class CameraZoomMixin {
     // getFov(), so the hook has to sit on calculateFov's return.
     @Inject(method = "calculateFov", at = @At("RETURN"), cancellable = true)
     private void teslamaps$zoomFov(CallbackInfoReturnable<Float> cir) {
-        if (Zoom.transitioning()) cir.setReturnValue(Zoom.apply(cir.getReturnValueF()));
+        float base = cir.getReturnValueF();
+        float fov = com.teslamaps.features.CameraTweaks.fov(base);
+        if (Zoom.transitioning()) fov = Zoom.apply(fov);
+        if (fov != base) cir.setReturnValue(fov);
     }
 }
