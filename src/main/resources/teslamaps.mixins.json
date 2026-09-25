@@ -49,6 +49,7 @@
     "DungeonGamblingMixin",
     "EasySuperboomMixin",
     "EnchantAbbrevMixin",
+    "ItemNumbersMixin",
     "EnderDragonRendererMixin",
     "EnderDragonRenderStateMixin",
     "EntityRenderDispatcherMixin",

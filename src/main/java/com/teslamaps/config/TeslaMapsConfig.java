@@ -2130,6 +2130,30 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w05-06-inv
+    public boolean itemValueRequireKey = false;
+    public int itemValueKey = org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
+    public boolean itemValueSkipMenus = false;
+    public boolean customGlintColors = false;
+    public java.util.Map<String, String> customGlintColor = new java.util.HashMap<>();
+    public boolean sackApi = false;
+    public boolean itemNumbers = false;
+    public java.util.List<String> itemNumberTypes = new java.util.ArrayList<>();
+    public boolean hotmHighlight = false;
+    public String colorHotmEnabled = "55FF55";
+    public String colorHotmDisabled = "FF5555";
+    public boolean gemstoneBuffs = false;
+    public boolean powerScrollBuff = false;
+    public boolean itemCycle = false;
+    public java.util.List<ItemCycleRule> itemCycleRules = new java.util.ArrayList<>();
+    public boolean itemProtectionStarred = false;
+
+    public static class ItemCycleRule {
+        public String target = "";
+        public String island = "";
+        public int button = -1;
+        public String clicked = "";
+    }
     // w04-03-inv
     public boolean moveInsertIntoSack = false;
     public boolean arrowPoisonIndicator = false;
@@ -2995,6 +3019,10 @@ public class TeslaMapsConfig {
         if (c.customAnimatedHelmetTextures == null) c.customAnimatedHelmetTextures = new java.util.HashMap<>();
         if (c.customItemNames == null) c.customItemNames = new java.util.HashMap<>();
         if (c.customGlint == null) c.customGlint = new java.util.HashMap<>();
+        if (c.customGlintColor == null) c.customGlintColor = new java.util.HashMap<>();
+        if (c.itemNumberTypes == null) c.itemNumberTypes = new java.util.ArrayList<>();
+        if (c.itemCycleRules == null) c.itemCycleRules = new java.util.ArrayList<>();
+        c.itemCycleRules.removeIf(java.util.Objects::isNull);
         if (c.customItemModel == null) c.customItemModel = new java.util.HashMap<>();
         if (c.customArmorModel == null) c.customArmorModel = new java.util.HashMap<>();
         // a component or identifier that failed to decode lands as null and would NPE on use

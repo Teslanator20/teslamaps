@@ -70,13 +70,17 @@ public class ItemValueOverlay {
         }
 
         ItemStack item = slot.getItem();
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        boolean keyHeld = cfg.itemValueRequireKey && com.teslamaps.utils.KeyNames.isDown(cfg.itemValueKey);
+        if (cfg.itemValueRequireKey && !keyHeld) return;
+        if (cfg.itemValueSkipMenus && skipMenuItem(cs, slot)) return;
         if (slot.index != hoveredSlot) {
             hoveredSlot = slot.index;
             hoverStart = now;
         }
 
         int delay = TeslaMapsConfig.get().itemValueHoverDelay;
-        if (!delayOver) {
+        if (!delayOver && !keyHeld) {
             if (delay > 0 && now - hoverStart < delay) return;
             delayOver = true;
         }
@@ -97,6 +101,16 @@ public class ItemValueOverlay {
             return;
         }
         draw(ctx, mc, lines, acc.getX(), acc.getY(), acc.getImageWidth(), c.itemValueScale);
+    }
+
+    // SkyHanni's extra ignores: museum armor sets, island delivery rewards, wardrobe slot picker
+    private static boolean skipMenuItem(AbstractContainerScreen<?> cs, Slot slot) {
+        if (slot.container instanceof net.minecraft.world.entity.player.Inventory) return false;
+        String title = com.teslamaps.utils.StringUtil.stripTrim(cs.getTitle().getString());
+        if (title.equals("Choose a wardrobe slot")) return true;
+        if (title.startsWith("Museum ")) return com.teslamaps.utils.ItemUtil.loreContains(slot.getItem(), "Armor Set");
+        if (title.equals("Island Deliveries")) return com.teslamaps.utils.ItemUtil.loreContains(slot.getItem(), "Click to collect!");
+        return false;
     }
 
     // left of the inventory GUI, flipped to the right when there is no room

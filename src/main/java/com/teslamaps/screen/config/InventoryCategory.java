@@ -138,6 +138,8 @@ public final class InventoryCategory {
         b.info("Hold ctrl to override. Uses the estimated item value");
         b.toggle("  Also Guard Trade, AH & Shops", () -> config.itemProtectionMenus, v -> config.itemProtectionMenus = v);
         b.info("Trade menu, auction house, dungeon chests, any NPC shop");
+        b.toggle("  Always Protect Starred Items", () -> config.itemProtectionStarred, v -> config.itemProtectionStarred = v)
+                .desc("Any item with stars counts as valuable, even without price data.");
         b.toggle("Protect Single Items", () -> config.itemProtectionUuid, v -> config.itemProtectionUuid = v);
         b.keybind("  Protect Key (over slot)", () -> config.itemProtectionKey, v -> config.itemProtectionKey = v);
         b.info("Or /tmap protect for the held item. Lock icon, blocks drop, salvage, trade, AH, shops");

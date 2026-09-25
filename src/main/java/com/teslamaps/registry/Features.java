@@ -208,5 +208,11 @@ final class Features {
         com.teslamaps.features.AnvilHelper.register();
         com.teslamaps.features.accessories.AccessoryHelper.register();
         com.teslamaps.features.CraftHelper.register();
+        // w05-06-inv
+        com.teslamaps.features.SackApi.register();
+        com.teslamaps.features.ItemNumbers.register();
+        com.teslamaps.features.mining.HotmPerks.register();
+        com.teslamaps.features.GemstoneBuffs.register();
+        com.teslamaps.features.ItemCycle.register();
     }
 }

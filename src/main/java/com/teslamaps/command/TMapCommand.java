@@ -306,6 +306,8 @@ public class TMapCommand {
                         .then(ClientCommands.argument("text", StringArgumentType.greedyString())
                                 .executes(context -> openFeedback(true, StringArgumentType.getString(context, "text")))))
                 .then(com.teslamaps.features.croesus.PriceDebug.command())
+                .then(com.teslamaps.features.SackApi.command())
+                .then(com.teslamaps.features.ItemCycle.command())
                 .then(com.teslamaps.database.RoomLearn.newCoreCommand())
                 .then(com.teslamaps.database.RoomLearn.newRoomCommand())
                 .then(com.teslamaps.database.RoomLearn.roomDataCommand())

@@ -35,6 +35,11 @@ public final class TooltipsValueCategory {
                 () -> config.itemValueScale, v -> config.itemValueScale = v, 2);
         b.toggle("  Free Position", () -> config.itemValueFixedPos, v -> config.itemValueFixedPos = v);
         b.info("Drag it in /tmap gui instead of pinning it to the container");
+        b.toggle("  Only While Key Held", () -> config.itemValueRequireKey, v -> config.itemValueRequireKey = v)
+                .desc("The panel only shows while the key is held, and skips the hover delay.");
+        b.keybind("    Panel Key", () -> config.itemValueKey, v -> config.itemValueKey = v);
+        b.toggle("  Skip Menu Items", () -> config.itemValueSkipMenus, v -> config.itemValueSkipMenus = v)
+                .desc("No panel on museum armor sets, island delivery rewards and the wardrobe slot picker.");
         b.keybind("Value Screen Key (over slot)", () -> config.itemValueScreenKey, v -> config.itemValueScreenKey = v);
         b.info("Pinned breakdown, sorted by price with % share, scroll to read");
         b.slider("Hover Delay (ms)", 0f, 2000f,

@@ -472,6 +472,12 @@ public class ItemIndex {
                 if (amount > 0) out.merge(e.getValue(), amount, Math::max);
             }
         }
+        if (SackApi.enabled()) {
+            for (Map.Entry<String, Integer> e : out.entrySet()) {
+                long live = SackApi.amount(e.getKey());
+                if (live >= 0) e.setValue((int) Math.min(Integer.MAX_VALUE, live));
+            }
+        }
         return out;
     }
 
@@ -526,6 +532,10 @@ public class ItemIndex {
 
             int count = st.getCount();
             if (src.amounts != null) count = src.amounts.getOrDefault(slot, count);
+            if (SACKS.equals(src.type) && name != null) {
+                long live = SackApi.amount(name);
+                if (live >= 0) count = (int) Math.min(Integer.MAX_VALUE, live);
+            }
             out.add(new Hit(st, count, src.name == null ? key : src.name, src.type, pos));
         }
     }

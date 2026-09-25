@@ -19,6 +19,7 @@ public class SlotBackgrounds {
         com.teslamaps.features.MuseumDonations.drawSlot(context, slot.x, slot.y, slot.getItem());
         com.teslamaps.features.AnvilHelper.drawHighlight(context, slot);
         HotF.drawHighlight(context, slot);
+        com.teslamaps.features.mining.HotmPerks.drawHighlight(context, slot);
         com.teslamaps.features.AuctionPriceCompare.drawHighlight(context, slot);
         com.teslamaps.features.PartyFinderHelper.drawHighlight(context, slot);
         com.teslamaps.features.DuplicateItems.drawHighlight(context, slot);
