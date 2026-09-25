@@ -38,6 +38,7 @@ public final class PreviousLobby {
 
     // keeps the current server fresh, so the time is measured from when you left it
     private static void tick() {
+        if (current != null && !com.teslamaps.utils.SkyblockUtils.isOnHypixel()) current = null;
         if (current == null || timer-- > 0) return;
         timer = 20;
         SEEN.put(current, System.currentTimeMillis());

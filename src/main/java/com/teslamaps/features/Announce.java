@@ -26,7 +26,7 @@ public final class Announce {
 
     /** Any thread. Nobody (or an unknown channel) sends nothing. */
     public static void send(String channel, String message) {
-        if (message == null || message.isBlank()) return;
+        if (message == null || message.isBlank() || ChatSimulator.running()) return;
         String prefix = PARTY.equals(channel) ? "pc " : ALL.equals(channel) ? "ac " : null;
         if (prefix != null) command(prefix + message);
     }

@@ -9,8 +9,8 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 // ClientboundSetTimePacket arrivals (server sends one every 20 ticks), ping via PingMeter.
 public class PerformanceHud {
     public static final com.teslamaps.utils.LineOrder.Def LINES = com.teslamaps.utils.LineOrder.define("perfhud",
-            new String[]{"fps", "tps", "ping", "cps", "lag", "coords", "looking"},
-            new String[]{"FPS", "TPS", "Ping", "CPS", "Lag (zzz)", "Coordinates", "Looking At"});
+            new String[]{"fps", "tps", "ping", "cps", "day", "lag", "coords", "looking", "time"},
+            new String[]{"FPS", "TPS", "Ping", "CPS", "Lobby Day", "Lag (zzz)", "Coordinates", "Looking At", "Time"});
     public static final String SAMPLE_TEXT = "FPS: 240 TPS: 20.0 Ping: 45ms";
     private static final String[] SAMPLE_LABELS = { "FPS: ", "TPS: ", "Ping: " };
     private static final String[] SAMPLE_VALUES = { "240", "20.0", "45ms" };
@@ -85,6 +85,7 @@ public class PerformanceHud {
             long now = System.currentTimeMillis();
             out.key("cps").add("CPS: \0" + cps(leftClicks, now) + " | " + cps(rightClicks, now));
         }
+        if (cfg.perfHudDay && mc.level != null) out.key("day").add("Day: \0" + mc.level.getGameTime() / 24000L);
         if (cfg.perfHudLag && !mc.isLocalServer() && com.teslamaps.utils.SkyblockUtils.isOnHypixel()) {
             long last = com.teslamaps.utils.ServerTickTimer.lastPingMs();
             long dt = last == 0 ? 0 : System.currentTimeMillis() - last;
@@ -104,6 +105,7 @@ public class PerformanceHud {
                 out.key("looking").add("Looking at: \0" + b.getX() + " / " + b.getY() + " / " + b.getZ());
             }
         }
+        if (cfg.perfHudTime) out.key("time").add(timeLabel(cfg) + "\0" + clock(cfg));
         java.util.List<String> built = out.build();
         java.util.List<String> l = new java.util.ArrayList<>(built.size());
         java.util.List<String> v = new java.util.ArrayList<>(built.size());
@@ -116,6 +118,22 @@ public class PerformanceHud {
         values = v.toArray(new String[0]);
     }
 
+    private static final java.time.format.DateTimeFormatter H24 = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+    private static final java.time.format.DateTimeFormatter H24S = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
+    private static final java.time.format.DateTimeFormatter H12 = java.time.format.DateTimeFormatter.ofPattern("h:mm a", java.util.Locale.ENGLISH);
+    private static final java.time.format.DateTimeFormatter H12S = java.time.format.DateTimeFormatter.ofPattern("h:mm:ss a", java.util.Locale.ENGLISH);
+
+    private static String timeLabel(TeslaMapsConfig cfg) {
+        if ("Symbol".equals(cfg.perfHudTimeLabel)) return "⌚ ";
+        return "None".equals(cfg.perfHudTimeLabel) ? "" : "Time: ";
+    }
+
+    private static String clock(TeslaMapsConfig cfg) {
+        boolean h12 = "12h".equals(cfg.perfHudTimeFormat);
+        var f = h12 ? (cfg.perfHudTimeSeconds ? H12S : H12) : (cfg.perfHudTimeSeconds ? H24S : H24);
+        return java.time.LocalTime.now().format(f);
+    }
+
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.perfHud || labels.length == 0) return;
@@ -126,8 +144,23 @@ public class PerformanceHud {
 
     /** HUD editor preview. */
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
-        boolean cps = TeslaMapsConfig.get().perfHudCps;
-        draw(context, mc, x, y, scale, cps ? SAMPLE_LABELS_CPS : SAMPLE_LABELS, cps ? SAMPLE_VALUES_CPS : SAMPLE_VALUES);
+        String[][] lv = previewLines();
+        draw(context, mc, x, y, scale, lv[0], lv[1]);
+    }
+
+    private static String[][] previewLines() {
+        if (labels.length > 0) return new String[][]{labels, values};
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        String[] l = cfg.perfHudCps ? SAMPLE_LABELS_CPS : SAMPLE_LABELS, v = cfg.perfHudCps ? SAMPLE_VALUES_CPS : SAMPLE_VALUES;
+        if (cfg.perfHudDay) {
+            l = java.util.Arrays.copyOf(l, l.length + 1); l[l.length - 1] = "Day: ";
+            v = java.util.Arrays.copyOf(v, v.length + 1); v[v.length - 1] = "12";
+        }
+        if (cfg.perfHudTime) {
+            l = java.util.Arrays.copyOf(l, l.length + 1); l[l.length - 1] = timeLabel(cfg);
+            v = java.util.Arrays.copyOf(v, v.length + 1); v[v.length - 1] = cfg.perfHudTimeSeconds ? "12:00:00 PM" : "12:00 PM";
+        }
+        return new String[][]{l, v};
     }
 
     private static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale, String[] labels, String[] values) {
@@ -150,23 +183,18 @@ public class PerformanceHud {
 
     public static int width(Minecraft mc) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (cfg.perfHudCoords && labels.length > 0) {
-            int w = 0, sum = 0;
-            for (int i = 0; i < labels.length; i++) {
-                int lw = mc.font.width(labels[i]) + mc.font.width(values[i]);
-                w = Math.max(w, lw);
-                sum += lw + (i > 0 ? mc.font.width(" ") : 0);
-            }
-            return cfg.perfHudVertical ? w : sum;
+        String[][] lv = previewLines();
+        int w = 0, sum = 0;
+        for (int i = 0; i < lv[0].length; i++) {
+            int lw = mc.font.width(lv[0][i]) + mc.font.width(lv[1][i]);
+            w = Math.max(w, lw);
+            sum += lw + (i > 0 ? mc.font.width(" ") : 0);
         }
-        if (!cfg.perfHudVertical) return mc.font.width(SAMPLE_TEXT) + (cfg.perfHudCps ? mc.font.width(" CPS: 8 | 12") : 0);
-        return mc.font.width("Ping: 45ms");
+        return cfg.perfHudVertical ? w : sum;
     }
 
     public static int height(Minecraft mc) {
-        TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (cfg.perfHudCoords && cfg.perfHudVertical && labels.length > 0) return (mc.font.lineHeight + 1) * labels.length;
-        if (!cfg.perfHudVertical) return mc.font.lineHeight;
-        return (mc.font.lineHeight + 1) * (cfg.perfHudCps ? 4 : 3);
+        if (!TeslaMapsConfig.get().perfHudVertical) return mc.font.lineHeight;
+        return (mc.font.lineHeight + 1) * Math.max(1, previewLines()[0].length);
     }
 }

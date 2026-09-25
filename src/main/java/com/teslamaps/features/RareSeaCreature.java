@@ -84,6 +84,7 @@ public final class RareSeaCreature {
         mc.gui.setTimes(0, 35, 5);
         mc.gui.setTitle(Component.literal(title));
         mc.gui.setSubtitle(Component.literal(doubleHook ? "§eDouble Hook!" : ""));
+        ScreenFlash.alert(c.screenFlashRareCatch);
         if (c.rareCatchVolume > 0f) {
             LoudSound.play(SoundOptions.resolve(c.rareCatchSound), c.rareCatchVolume, 1.4f);
         }

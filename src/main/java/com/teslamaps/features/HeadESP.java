@@ -111,8 +111,8 @@ public class HeadESP {
         Vec3 center = box.getCenter();
         if (cfg.headESPName) {
             int dist = (int) cameraPos.distanceTo(center);
-            ESPRenderer.drawText(matrices, "§f" + name + " §7" + dist + "m",
-                    new Vec3(center.x, box.maxY + 0.5, center.z), 1.5f, cameraPos);
+            com.teslamaps.features.waypoints.WaypointSet.drawLabel(matrices, cameraPos, "§f" + name + " §7" + dist + "m",
+                    new Vec3(center.x, box.maxY + 0.5, center.z), 1.5f);
         }
         if (cfg.headESPTracers) ESPRenderer.drawTracerFromCamera(matrices, center, color, cameraPos);
         if (cfg.headESPBeam) ESPRenderer.drawBeaconBeam(matrices, beamPos, color, cameraPos);

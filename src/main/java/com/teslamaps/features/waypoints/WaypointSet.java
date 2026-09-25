@@ -111,13 +111,27 @@ public final class WaypointSet {
     public void render(PoseStack pose, Vec3 cam) {
         for (int i = 0, n = list.size(); i < n; i++) {
             Waypoint w = list.get(i);
-            if (beam) ESPRenderer.drawBeaconBeam(pose, w.pos, w.color, cam);
-            if (box) ESPRenderer.drawBoxOutline(pose, new AABB(w.pos), w.color | 0xFF000000, 2f, cam, throughWalls);
-            if (label && w.text != null && !w.text.isEmpty()) {
-                ESPRenderer.drawText(pose, w.text, new Vec3(w.pos.getX() + 0.5, w.pos.getY() + 1.5, w.pos.getZ() + 0.5),
-                        1.0f, cam, true, throughWalls, 0xFFFFFFFF,
-                        com.teslamaps.config.TeslaMapsConfig.get().waypointLabelBackground ? 0x66000000 : 0);
-            }
+            draw(pose, cam, w.pos, w.color, label ? w.text : null, beam, box, throughWalls);
         }
+    }
+
+    /** One waypoint: beam, box outline and label, the look every waypoint feature shares. */
+    public static void draw(PoseStack pose, Vec3 cam, BlockPos pos, int color, String text,
+                            boolean beam, boolean box, boolean throughWalls) {
+        if (beam) ESPRenderer.drawBeaconBeam(pose, pos, color, cam);
+        if (box) ESPRenderer.drawBoxOutline(pose, new AABB(pos), color | 0xFF000000, 2f, cam, throughWalls);
+        if (text != null && !text.isEmpty()) {
+            drawLabel(pose, cam, text, new Vec3(pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5), 1.0f, throughWalls);
+        }
+    }
+
+    /** Waypoint label; gets the shared background box when "Waypoint Label Background" is on. */
+    public static void drawLabel(PoseStack pose, Vec3 cam, String text, Vec3 at, float scale, boolean throughWalls) {
+        ESPRenderer.drawText(pose, text, at, scale, cam, true, throughWalls, 0xFFFFFFFF,
+                com.teslamaps.config.TeslaMapsConfig.get().waypointLabelBackground ? 0x66000000 : 0);
+    }
+
+    public static void drawLabel(PoseStack pose, Vec3 cam, String text, Vec3 at, float scale) {
+        drawLabel(pose, cam, text, at, scale, true);
     }
 }

@@ -50,6 +50,8 @@ public final class HideCategory {
         b.toggle("  Keep Thrown Skulls Visible", () -> config.showMovingSkulls, v -> config.showMovingSkulls = v);
         b.toggle("Highlight Thrown Skulls", () -> config.highlightMovingSkulls, v -> config.highlightMovingSkulls = v);
         b.toggle("Hide Thrown Bones", () -> config.hideThrownBones, v -> config.hideThrownBones = v);
+        b.toggle("  Also Archer Passive (Bone Meal)", () -> config.hideArcherPassive, v -> config.hideArcherPassive = v)
+                .desc("Hides the bone meal items circling an Archer.");
         b.toggle("Hide Superboom TNT", () -> config.hideSuperboomTnt, v -> config.hideSuperboomTnt = v);
         b.toggle("Hide Blessings", () -> config.hideBlessing, v -> config.hideBlessing = v);
         b.toggle("Hide Revive Stone", () -> config.hideReviveStone, v -> config.hideReviveStone = v);
@@ -62,7 +64,7 @@ public final class HideCategory {
         b.toggle("Hide Cheap Coins", () -> config.hideCheapCoins, v -> config.hideCheapCoins = v);
         b.label("Screen & World Hiders");
         b.button("Toggle All Screen & World Hiders", () -> {
-            int enabled = 0, total = 22;
+            int enabled = 0, total = 26;
             if (config.noFire) enabled++;
             if (config.noWaterOverlay) enabled++;
             if (config.noVignette) enabled++;
@@ -85,6 +87,10 @@ public final class HideCategory {
             if (config.noViewBobbing) enabled++;
             if (config.hideArmorBar) enabled++;
             if (config.hideHungerBar) enabled++;
+            if (config.hideHealthBar) enabled++;
+            if (config.hideAirBar) enabled++;
+            if (config.hideBossBar) enabled++;
+            if (config.hideXpBar) enabled++;
             boolean newValue = enabled <= total / 2;
             config.noFire = newValue;
             config.noWaterOverlay = newValue;
@@ -108,6 +114,10 @@ public final class HideCategory {
             config.noViewBobbing = newValue;
             config.hideArmorBar = newValue;
             config.hideHungerBar = newValue;
+            config.hideHealthBar = newValue;
+            config.hideAirBar = newValue;
+            config.hideBossBar = newValue;
+            config.hideXpBar = newValue;
             TeslaMapsConfig.save();
         });
         b.label("World & Weather");
@@ -152,6 +162,12 @@ public final class HideCategory {
         b.toggle("Hide Item Durability", () -> config.hideItemDurability, v -> config.hideItemDurability = v);
         b.toggle("Hide Armor Bar", () -> config.hideArmorBar, v -> config.hideArmorBar = v);
         b.toggle("Hide Hunger Bar", () -> config.hideHungerBar, v -> config.hideHungerBar = v);
+        b.toggle("Hide Health Hearts", () -> config.hideHealthBar, v -> config.hideHealthBar = v);
+        b.toggle("Hide Air Bubbles", () -> config.hideAirBar, v -> config.hideAirBar = v);
+        b.toggle("Hide Boss Bar", () -> config.hideBossBar, v -> config.hideBossBar = v)
+                .desc("Hides every boss bar at the top of the screen, dungeon bosses included.");
+        b.toggle("Hide XP Bar", () -> config.hideXpBar, v -> config.hideXpBar = v)
+                .desc("XP bar and level number. Also hides the horse jump bar and locator bar in that slot.");
         b.toggle("Stop Hearts Bouncing", () -> config.stopHeartsBouncing, v -> config.stopHeartsBouncing = v)
                 .desc("No regeneration wave over the health hearts.");
         b.label("Action Bar");
@@ -172,6 +188,19 @@ public final class HideCategory {
         b.info("/tmap debug actionbar prints the raw action bar + segments");
         b.label("Inventory");
         b.toggle("Hide Recipe Book Button", () -> config.hideRecipeBook, v -> config.hideRecipeBook = v);
+        b.toggle("Container Tweaks", () -> config.containerTweaks, v -> config.containerTweaks = v)
+                .desc("Small cosmetic clean-ups for inventory and chest menus.");
+        b.toggle("  Remove Dark Background", () -> config.containerNoDim, v -> config.containerNoDim = v)
+                .desc("No dark overlay behind open containers.");
+        b.toggle("  Custom Container Color", () -> config.containerTint, v -> config.containerTint = v)
+                .desc("Tints the chest and inventory texture.");
+        b.color("  Container Color", () -> config.containerTintColor, v -> config.containerTintColor = v);
+        b.toggle("  Hide Crafting Text", () -> config.hideCraftingText, v -> config.hideCraftingText = v)
+                .desc("Hides the \"Crafting\" label in the inventory.");
+        b.toggle("  No Filler Pane Highlight", () -> config.noFillerPaneHighlight, v -> config.noFillerPaneHighlight = v)
+                .desc("No hover highlight on unnamed glass panes.");
+        b.toggle("  Hide Offhand Slot Icon", () -> config.hideOffhandSlotIcon, v -> config.hideOffhandSlotIcon = v)
+                .desc("Hides the shield placeholder in the empty offhand slot.");
         b.label("Camera");
         b.toggle("No Hurt Camera", () -> config.noHurtCam, v -> config.noHurtCam = v);
         b.toggle("No View Bobbing", () -> config.noViewBobbing, v -> config.noViewBobbing = v);

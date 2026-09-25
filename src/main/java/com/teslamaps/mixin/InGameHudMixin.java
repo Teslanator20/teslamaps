@@ -35,11 +35,19 @@ public class InGameHudMixin {
         SecretTracker.onActionBarMessage(message);
         com.teslamaps.features.ArmorStackHud.onActionBar(message);
         com.teslamaps.features.AccurateAbsorption.onActionBar(message);
+        com.teslamaps.features.AbilityCooldowns.onActionBar(message);
         if (com.teslamaps.config.TeslaMapsConfig.get().endStatsHud) com.teslamaps.features.theend.EndStatsHud.onActionBar(message.getString());
+        if (com.teslamaps.config.TeslaMapsConfig.get().vanillaManaBar) com.teslamaps.features.hud.VanillaManaBar.onActionBar(message.getString());
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Skills")) {
             com.teslamaps.features.SkillTracker.onActionBar(message.getString());
         }
         return com.teslamaps.features.ActionBarFilter.filter(message);
+    }
+
+    @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method = "lambda$displayScoreboardSidebar$1",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/PlayerTeam;formatNameForTeam(Lnet/minecraft/world/scores/Team;Lnet/minecraft/network/chat/Component;)Lnet/minecraft/network/chat/MutableComponent;"), require = 0)
+    private net.minecraft.network.chat.MutableComponent teslamaps$scoreboardText(net.minecraft.network.chat.MutableComponent original) {
+        return com.teslamaps.features.ScoreboardText.apply(original);
     }
 
     @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method = "extractPlayerHealth",

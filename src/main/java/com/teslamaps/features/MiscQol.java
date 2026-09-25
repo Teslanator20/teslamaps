@@ -135,7 +135,7 @@ public final class MiscQol {
     private static void onChat(String raw) {
         String line = StringUtil.strip(raw).trim();
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
+        if (mc.player == null || mc.getSingleplayerServer() != null || !SkyblockUtils.isOnHypixel()) return;
         String me = mc.player.getGameProfile().name();
         if (cfg().crashOnDeath && line.startsWith("☠ ") && SkyblockUtils.isInSkyblock()) {
             String rest = line.substring(2);

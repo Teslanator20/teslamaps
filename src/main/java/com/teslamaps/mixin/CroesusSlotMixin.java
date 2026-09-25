@@ -16,5 +16,6 @@ public class CroesusSlotMixin {
         if (CroesusProfit.styleCroesusSlot(ctx, slot)) ci.cancel();
         else if (com.teslamaps.features.FancyCraftingTable.hideSlot(this, slot)) ci.cancel();
         else if (com.teslamaps.features.AbiphoneHelper.hideSlot(slot)) ci.cancel();
+        else if (com.teslamaps.features.BetterContainers.hideSlot(this, slot)) ci.cancel();
     }
 }

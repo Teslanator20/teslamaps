@@ -159,6 +159,10 @@ public class PetTracker {
         sampleXp();
     }
 
+    private static boolean widgetMissing;
+
+    public static boolean widgetMissing() { return widgetMissing; }
+
     private static void readTabWidget() {
         List<String> lines = TabListUtils.getOrderedLines();
         int petIndex = -1;
@@ -168,6 +172,7 @@ public class PetTracker {
                 break;
             }
         }
+        widgetMissing = petIndex < 0 && !lines.isEmpty();
         if (petIndex < 0 || petIndex + 1 >= lines.size()) return;
 
         String petLine = StringUtil.strip(lines.get(petIndex + 1));

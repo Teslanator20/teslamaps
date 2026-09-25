@@ -31,6 +31,21 @@ public class RouteEditScreen extends Screen {
     private int addX, coleX, skytilsX, skyblockerX, doneX, footerY;
     private int scroll = 0;
 
+    private static final int HISTORY = 64, CROSS_W = 110, HANDLE_W = 36;
+    private final boolean extras = com.teslamaps.config.TeslaMapsConfig.get().routeEditorExtras;
+    private final java.util.ArrayDeque<List<OrderedWaypoints.Wp>> undo = new java.util.ArrayDeque<>();
+    private final java.util.ArrayDeque<List<OrderedWaypoints.Wp>> redo = new java.util.ArrayDeque<>();
+    private int selected = -1, dragFrom = -1, dragTo = -1, crossX, crossY;
+    private long lastAutoScroll;
+
+    public RouteEditScreen(Screen parent, String name, int selected) {
+        this(parent, name);
+        if (selected >= 0 && selected < waypoints.size()) {
+            this.selected = selected;
+            scroll = Math.max(0, Math.min(selected - VISIBLE / 2, waypoints.size() - VISIBLE));
+        }
+    }
+
     public RouteEditScreen(Screen parent, String name) {
         super(Component.literal("Route"));
         this.parent = parent;
@@ -62,6 +77,8 @@ public class RouteEditScreen extends Screen {
         skytilsX = coleX + COPY_W + 6;
         skyblockerX = skytilsX + COPY_W + 6;
         doneX = panelX + PANEL_W - 16 - DONE_W;
+        crossX = panelX + PANEL_W - 16 - CROSS_W;
+        crossY = panelY + 14;
 
         GuiSounds.resetHover();
         ScreenFit.clamp(this);
@@ -69,6 +86,91 @@ public class RouteEditScreen extends Screen {
 
     private void renumber() {
         for (int i = 0; i < waypoints.size(); i++) waypoints.get(i).number = i + 1;
+    }
+
+    private static List<OrderedWaypoints.Wp> copyOf(List<OrderedWaypoints.Wp> list) {
+        List<OrderedWaypoints.Wp> out = new ArrayList<>(list.size());
+        for (OrderedWaypoints.Wp wp : list) out.add(wp.copy());
+        return out;
+    }
+
+    private void snapshot() {
+        undo.push(copyOf(waypoints));
+        while (undo.size() > HISTORY) undo.removeLast();
+        redo.clear();
+    }
+
+    private void restore(java.util.ArrayDeque<List<OrderedWaypoints.Wp>> from, java.util.ArrayDeque<List<OrderedWaypoints.Wp>> to) {
+        if (from.isEmpty()) return;
+        to.push(copyOf(waypoints));
+        waypoints.clear();
+        waypoints.addAll(from.pop());
+        renumber();
+        selected = -1;
+        scroll = Math.max(0, Math.min(scroll, Math.max(0, waypoints.size() - VISIBLE)));
+        GuiSounds.press();
+    }
+
+    @Override
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        if (extras && event.hasControlDown()) {
+            if (event.key() == org.lwjgl.glfw.GLFW.GLFW_KEY_Z) {
+                if (event.hasShiftDown()) restore(redo, undo);
+                else restore(undo, redo);
+                return true;
+            }
+            if (event.key() == org.lwjgl.glfw.GLFW.GLFW_KEY_Y) {
+                restore(redo, undo);
+                return true;
+            }
+        }
+        return super.keyPressed(event);
+    }
+
+    private int rowAt(double my) {
+        int row = (int) Math.floor((my - listY) / ROW_H);
+        return Math.clamp(scroll + Math.clamp(row, 0, VISIBLE - 1), 0, Math.max(0, waypoints.size() - 1));
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (dragFrom >= 0) {
+            dragTo = rowAt(event.y());
+            return true;
+        }
+        return super.mouseDragged(event, dx, dy);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (dragFrom >= 0) {
+            if (dragTo >= 0 && dragTo != dragFrom && dragFrom < waypoints.size()) {
+                snapshot();
+                waypoints.add(dragTo, waypoints.remove(dragFrom));
+                renumber();
+                selected = dragTo;
+                GuiSounds.press();
+            }
+            dragFrom = dragTo = -1;
+            return true;
+        }
+        return super.mouseReleased(event);
+    }
+
+    private void addAtCrosshair() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        net.minecraft.world.phys.HitResult hit = mc.player.pick(128, 1f, false);
+        if (!(hit instanceof net.minecraft.world.phys.BlockHitResult bh)
+                || hit.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK) {
+            WaypointRoutesScreen.feedback("§cNo block under the crosshair.");
+            return;
+        }
+        snapshot();
+        var pos = bh.getBlockPos();
+        waypoints.add(new OrderedWaypoints.Wp(pos.getX(), pos.getY(), pos.getZ(), waypoints.size() + 1));
+        selected = waypoints.size() - 1;
+        scroll = Math.max(0, waypoints.size() - VISIBLE);
     }
 
     @Override
@@ -86,7 +188,13 @@ public class RouteEditScreen extends Screen {
 
         if (in(mx, my, addX, footerY, ADD_W, FOOTER_H)) {
             GuiSounds.press();
+            if (extras) snapshot();
             addAtPlayer();
+            return true;
+        }
+        if (extras && in(mx, my, crossX, crossY, CROSS_W, FOOTER_H)) {
+            GuiSounds.press();
+            addAtCrosshair();
             return true;
         }
         if (in(mx, my, coleX, footerY, COPY_W, FOOTER_H)) { copy("coleweight"); return true; }
@@ -104,20 +212,29 @@ public class RouteEditScreen extends Screen {
             int ry = listY + row * ROW_H;
             if (my < ry || my >= ry + ROW_H) continue;
 
+            if (extras && mx >= listX && mx < listX + HANDLE_W) {
+                dragFrom = dragTo = idx;
+                selected = idx;
+                return true;
+            }
             if (in(mx, my, upX, ry, UP_W, 20) && idx > 0) {
                 GuiSounds.press();
+                if (extras) snapshot();
                 waypoints.add(idx - 1, waypoints.remove(idx));
                 renumber();
                 return true;
             }
             if (in(mx, my, downX, ry, DOWN_W, 20) && idx < waypoints.size() - 1) {
                 GuiSounds.press();
+                if (extras) snapshot();
                 waypoints.add(idx + 1, waypoints.remove(idx));
                 renumber();
                 return true;
             }
             if (in(mx, my, removeX, ry, REMOVE_W, 20)) {
                 GuiSounds.press();
+                if (extras) snapshot();
+                selected = -1;
                 waypoints.remove(idx);
                 renumber();
                 scroll = Math.max(0, Math.min(scroll, Math.max(0, waypoints.size() - VISIBLE)));
@@ -151,8 +268,25 @@ public class RouteEditScreen extends Screen {
         HudStyle.screenPanel(ctx, panelX, panelY, PANEL_W, PANEL_H, 8);
 
         ctx.text(this.font, "§f§l" + name, panelX + 16, panelY + 16, GuiStyle.text());
-        ctx.text(this.font, "§8" + waypoints.size() + " waypoints · changes are saved when you close",
+        ctx.text(this.font, extras ? "§8" + waypoints.size() + " waypoints · drag # · Ctrl+Z / Ctrl+Y"
+                        : "§8" + waypoints.size() + " waypoints · changes are saved when you close",
                 panelX + 16, panelY + 30, GuiStyle.text());
+        if (extras) {
+            if (dragFrom >= 0 && System.currentTimeMillis() - lastAutoScroll > 120) {
+                if (mouseY < listY + 8 && scroll > 0) {
+                    scroll--;
+                    lastAutoScroll = System.currentTimeMillis();
+                } else if (mouseY > listY + VISIBLE * ROW_H - 8 && scroll < waypoints.size() - VISIBLE) {
+                    scroll++;
+                    lastAutoScroll = System.currentTimeMillis();
+                }
+                dragTo = rowAt(mouseY);
+            }
+            boolean hov = in(mouseX, mouseY, crossX, crossY, CROSS_W, FOOTER_H);
+            GuiStyle.panel(ctx, crossX, crossY, CROSS_W, FOOTER_H, hov);
+            WaypointRoutesScreen.drawBorder(ctx, crossX, crossY, CROSS_W, FOOTER_H, hov ? GuiStyle.accent() : GuiStyle.border());
+            ctx.centeredText(this.font, "Add At Crosshair", crossX + CROSS_W / 2, crossY + 7, GuiStyle.text());
+        }
 
         if (waypoints.isEmpty()) {
             ctx.text(this.font, "§7Empty — stand somewhere and click \"Add At Player\".",
@@ -181,6 +315,11 @@ public class RouteEditScreen extends Screen {
         if (rowHovered) {
             GuiSounds.hover("wp:" + idx);
             ctx.fill(listX, ry, listX + contentW, ry + ROW_H, GuiStyle.rowHover());
+        }
+        if (idx == selected) ctx.fill(listX, ry, listX + 2, ry + ROW_H, GuiStyle.accent());
+        if (dragFrom >= 0 && idx == dragTo && dragTo != dragFrom) {
+            int ly = dragTo > dragFrom ? ry + ROW_H - 1 : ry;
+            ctx.fill(listX, ly, listX + contentW, ly + 1, GuiStyle.accent());
         }
 
         ctx.text(this.font, "§7#" + wp.number, listX + 6, ry + 7, GuiStyle.textDim());

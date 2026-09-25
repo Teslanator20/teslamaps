@@ -12,13 +12,19 @@ public class UpdateScreen extends Screen {
     private static final int LINE = 12;
 
     private final Screen parent;
+    private final boolean changelogOnly;
     private int panelX, panelY, panelH;
     private Updater.State builtFor;
     private java.util.List<net.minecraft.util.FormattedCharSequence> body = java.util.List.of();
 
     public UpdateScreen(Screen parent) {
+        this(parent, false);
+    }
+
+    public UpdateScreen(Screen parent, boolean changelogOnly) {
         super(Component.literal("TeslaMaps Update"));
         this.parent = parent;
+        this.changelogOnly = changelogOnly;
     }
 
     @Override
@@ -34,7 +40,7 @@ public class UpdateScreen extends Screen {
         panelX = (width - PANEL_W) / 2;
         panelY = (height - panelH) / 2;
         int y = panelY + panelH - 34;
-        if (Updater.state == Updater.State.AVAILABLE) {
+        if (!changelogOnly && Updater.state == Updater.State.AVAILABLE) {
             addRenderableWidget(new TeslaButton(panelX + 16, y, 120, 22, "§aDownload", () -> {
                 Updater.install();
                 rebuild();
@@ -47,6 +53,14 @@ public class UpdateScreen extends Screen {
 
     /** Wraps the body to the panel width, so a long line cannot run past the border. */
     private void buildBody() {
+        if (changelogOnly) {
+            java.util.List<net.minecraft.util.FormattedCharSequence> out = new java.util.ArrayList<>(
+                    this.font.split(Component.literal("§7What's new in §a" + Updater.changelogVersion), TEXT_W));
+            addChangelog(out);
+            body = out;
+            panelH = 40 + body.size() * LINE + 50;
+            return;
+        }
         String line = switch (Updater.state) {
             case AVAILABLE -> "§e" + Updater.currentVersion() + " §7-> §a" + Updater.latestVersion;
             case DOWNLOADING -> "§7Downloading §e" + Updater.latestVersion + "§7...";
@@ -59,9 +73,26 @@ public class UpdateScreen extends Screen {
         if (Updater.state == Updater.State.AVAILABLE) {
             out.addAll(this.font.split(
                     Component.literal("§8Downloads the new jar into mods/, swap happens on restart."), TEXT_W));
+            if (com.teslamaps.config.TeslaMapsConfig.get().updateChangelog) addChangelog(out);
         }
         body = out;
         panelH = 40 + body.size() * LINE + 50;
+    }
+
+    private void addChangelog(java.util.List<net.minecraft.util.FormattedCharSequence> out) {
+        if (Updater.changelog.isEmpty()) return;
+        out.add(net.minecraft.util.FormattedCharSequence.EMPTY);
+        int max = Math.max(3, (height - 130) / LINE - out.size());
+        int n = 0;
+        for (String l : Updater.changelog) {
+            for (var part : this.font.split(Component.literal(l.startsWith("§") ? l : "§f" + l), TEXT_W)) {
+                if (n++ >= max) {
+                    out.add(Component.literal("§8…").getVisualOrderText());
+                    return;
+                }
+                out.add(part);
+            }
+        }
     }
 
     @Override

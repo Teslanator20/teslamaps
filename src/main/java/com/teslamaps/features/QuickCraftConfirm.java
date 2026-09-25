@@ -84,7 +84,7 @@ public final class QuickCraftConfirm {
     }
 
     private static boolean isGreyed(Slot slot) {
-        return slot.index >= 0 && slot.index < greyed.length && greyed[slot.index];
+        return !(slot.container instanceof Inventory) && slot.index >= 0 && slot.index < greyed.length && greyed[slot.index];
     }
 
     private static Slot hovered() {

@@ -95,11 +95,9 @@ public class PickaxeAbility {
         if (!c.pickaxeAbilityDisplay) return;
         if (c.pickaxeAbilityMiningOnly && !Mining.onMiningIsland()) return;
         read();
-        if (c.pickaxeAbilityBar) {
-            updateStatus(ability.isEmpty() ? -2 : ready() ? -1 : Math.max(0, secondsLeft()));
-            if (!ability.isEmpty()) missingSince = -1;
-            else if (missingSince < 0) missingSince = System.currentTimeMillis();
-        }
+        if (c.pickaxeAbilityBar) updateStatus(ability.isEmpty() ? -2 : ready() ? -1 : Math.max(0, secondsLeft()));
+        if (!ability.isEmpty()) missingSince = -1;
+        else if (missingSince < 0) missingSince = System.currentTimeMillis();
     }
 
     private static void read() {
@@ -164,7 +162,12 @@ public class PickaxeAbility {
         }
 
         List<String> lines = lines();
-        if (lines.isEmpty()) return;
+        if (lines.isEmpty()) {
+            if (com.teslamaps.features.TabWidgetHint.on() && missingSince >= 0 && System.currentTimeMillis() - missingSince >= 3000) {
+                draw(context, mc, c.pickaxeAbilityX, c.pickaxeAbilityY, c.pickaxeAbilityScale, List.of(MISSING));
+            }
+            return;
+        }
         draw(context, mc, c.pickaxeAbilityX, c.pickaxeAbilityY, c.pickaxeAbilityScale, lines);
     }
 
