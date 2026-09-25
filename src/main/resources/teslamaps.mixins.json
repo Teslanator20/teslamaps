@@ -36,6 +36,7 @@
     "TransparentEquipmentMixin",
     "EndermanTintStateMixin",
     "EndermanTintMixin",
+    "EndermanTeleportMixin",
     "ModelTintMixin",
     "VisualWordsFontMixin",
     "FullTextShadowMixin",

@@ -49,9 +49,10 @@ public class SoundPlayMixin {
         }
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
         boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);
+        boolean slayerMutes = com.teslamaps.slayer.SlayerMutes.enabled(c);
         boolean extraMutes = com.teslamaps.features.SoundMutes.active(c);
         boolean partySpam = com.teslamaps.features.MutePartySpam.active(c);
-        if (!c.soundDebug && !partySpam && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !c.arrowHitSound && !extraMutes
+        if (!c.soundDebug && !partySpam && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !slayerMutes && !c.arrowHitSound && !extraMutes
                 && !c.tiaRelayHelper && !com.teslamaps.features.ChatCompacts.soundActive(c)
                 && !com.teslamaps.features.PestSpawnSound.enabled(c)
                 && !com.teslamaps.features.mining.MiningSoundMutes.active(c)) return;
@@ -107,6 +108,10 @@ public class SoundPlayMixin {
             return;
         }
         if (foragingMutes && com.teslamaps.features.foraging.ForagingMutes.shouldMute(c, id, vol)) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
+        }
+        if (slayerMutes && com.teslamaps.slayer.SlayerMutes.shouldMute(c, id)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
             return;
         }
