@@ -110,5 +110,11 @@ final class Features {
         com.teslamaps.features.BloodCheck.register();
         com.teslamaps.dungeon.RushSplits.register();
         com.teslamaps.features.MapPeek.register();
+        // w03-02-dun
+        com.teslamaps.features.BlessingHud.register();
+        com.teslamaps.features.croesus.CroesusChestCounter.register();
+        com.teslamaps.features.DungeonDeathCounter.register();
+        com.teslamaps.dungeon.RoomVisits.register();
+        com.teslamaps.features.RareGroundDrops.register();
     }
 }

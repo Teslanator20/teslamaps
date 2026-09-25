@@ -58,5 +58,19 @@ public final class ScoreSplitsCategory {
         b.info("Title + chat when Trinity is scanned, once per run");
         b.toggle("Auto Extra Stats", () -> config.autoExtraStats, v -> config.autoExtraStats = v);
         b.info("Runs /showextrastats at the end of a run");
+        b.label("Dungeon Info");
+        b.toggle("Blessings HUD", () -> config.blessingHud, v -> config.blessingHud = v)
+                .desc("Active blessings from the tab footer, move it in /tmap gui");
+        b.toggle("  Power", () -> config.blessingHudPower, v -> config.blessingHudPower = v);
+        b.toggle("  Time", () -> config.blessingHudTime, v -> config.blessingHudTime = v);
+        b.toggle("  Stone", () -> config.blessingHudStone, v -> config.blessingHudStone = v);
+        b.toggle("  Life", () -> config.blessingHudLife, v -> config.blessingHudLife = v);
+        b.toggle("  Wisdom", () -> config.blessingHudWisdom, v -> config.blessingHudWisdom = v);
+        b.toggle("  Roman Numerals", () -> config.blessingHudRoman, v -> config.blessingHudRoman = v);
+        b.toggle("Death Counter", () -> config.deathCounter, v -> config.deathCounter = v)
+                .desc("Deaths this run as a HUD (yellow, red, dark red)");
+        b.toggle("  \"N. DEATH!\" Chat Line", () -> config.deathCounterChat, v -> config.deathCounterChat = v);
+        b.toggle("Track Room Time Per Player", () -> config.visitedTracking, v -> config.visitedTracking = v)
+                .desc("/visited <room> lists how long each player stood in that room this run");
     }
 }

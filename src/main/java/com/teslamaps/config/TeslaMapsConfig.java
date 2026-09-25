@@ -2150,7 +2150,8 @@ public class TeslaMapsConfig {
     public boolean croesusChestWarn = true;
     public int croesusChestWarnAt = 55;
     public boolean croesusChestWarnSound = true;
-    public int croesusChestCount = -1;                 // last seen, -1 = unknown
+    @Global
+    public int croesusChestCount = -1;               // last seen, -1 = unknown
     public int croesusChestCounterX = 10;
     public int croesusChestCounterY = 280;
     public float croesusChestCounterScale = 1.0f;

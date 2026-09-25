@@ -292,6 +292,10 @@ public class MapRenderer {
 
             int scoreWidth = textRenderer.width(scoreText);
             context.text(textRenderer, scoreText, lw - scoreWidth - 4, line2Y, scoreColor);
+            if (config.batBonusScore && DungeonScore.isBatKilled()) {
+                int batWidth = textRenderer.width("Bat ✔");
+                context.text(textRenderer, "Bat ✔", lw - scoreWidth - batWidth - 10, line2Y, 0xFF55FF55);
+            }
         }
 
         matrices.popMatrix();

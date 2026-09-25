@@ -42,6 +42,9 @@ public final class MapCategory {
         b.toggle("Show Dungeon Score", () -> config.showDungeonScore, v -> config.showDungeonScore = v);
         b.toggle("  Blaze Done From Party Chat", () -> config.mapBlazeDoneFromChat, v -> config.mapBlazeDoneFromChat = v)
                 .desc("A party member's \"Blaze Done\" marks the Blaze puzzle solved on map and score");
+        b.toggle("  Count Bat Bonus (+1)", () -> config.batBonusScore, v -> config.batBonusScore = v)
+                .desc("\"A Bat has been slain\" or a party \"Bat killed\" adds +1 bonus score, shows Bat ✔ next to the score");
+        b.channel("    Bat Killed Announce", () -> config.batKilledChannel, v -> config.batKilledChannel = v);
         b.toggle("Chat Info After Scan", () -> config.mapScanChatInfo, v -> config.mapScanChatInfo = v)
                 .desc("Puzzles, trap, wither doors, crypts, secrets and minimum secrets once the dungeon is scanned");
         b.label("Style");

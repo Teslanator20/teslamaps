@@ -84,6 +84,11 @@ public final class RenderCategory {
         b.toggle("Rare Drops", () -> config.rareDropEffects, v -> config.rareDropEffects = v);
         b.toggle("Dungeon Chest Rewards", () -> config.rareDungeonDropEffects, v -> config.rareDungeonDropEffects = v);
         b.toggle("Dye Drops", () -> config.rareDyeDropEffects, v -> config.rareDyeDropEffects = v);
+        b.toggle("Dungeon Ground Drops", () -> config.rareGroundDrops, v -> config.rareGroundDrops = v)
+                .desc("Title + sound when an Ice Spray Wand or Skeleton Master Chestplate drops on the ground");
+        b.toggle("  SM Chestplate On All Floors", () -> config.rareGroundDropsSmAllFloors, v -> config.rareGroundDropsSmAllFloors = v)
+                .desc("Off = only in M7");
+        b.slider("  Title Time (s)", 0.5f, 5f, () -> config.rareGroundDropsTime, v -> config.rareGroundDropsTime = v, 1);
         b.toggle("Show Item Name", () -> config.rareDropText, v -> config.rareDropText = v);
         b.toggle("Show Item Value", () -> config.rareDropPrice, v -> config.rareDropPrice = v);
         b.slider("Any Drop Worth Over (Mio)", 0f, 50f,
