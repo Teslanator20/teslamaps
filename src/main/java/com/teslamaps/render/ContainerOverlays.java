@@ -47,6 +47,7 @@ public class ContainerOverlays {
         com.teslamaps.features.GuideHighlight.render(context);
         com.teslamaps.features.CommissionHighlight.render(context);
         com.teslamaps.features.PartyFinderHelper.render(context);
+        com.teslamaps.features.Experimentation.render(context);
 
         if (com.teslamaps.features.foraging.HotF.shouldRender()) {
             com.teslamaps.features.foraging.HotF.render(context);

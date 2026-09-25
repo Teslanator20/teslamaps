@@ -165,5 +165,13 @@ final class Features {
         com.teslamaps.dungeon.RoomPreview.register();
         com.teslamaps.dungeon.TeamStats.register();
         com.teslamaps.features.ShadowAssassinAlert.register();
+        // w04-05-inv
+        com.teslamaps.features.Experimentation.register();
+        com.teslamaps.features.FullInventoryWarning.register();
+        com.teslamaps.features.FocusMode.register();
+        com.teslamaps.features.XpInTooltips.register();
+        com.teslamaps.features.DuplicateItems.register();
+        com.teslamaps.features.HideExCoopMembers.register();
+        com.teslamaps.features.HoppityWarpUniques.register();
     }
 }

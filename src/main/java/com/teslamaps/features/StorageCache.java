@@ -88,6 +88,12 @@ public class StorageCache {
         }
     }
 
+    /** Every stored slot as (page key, snbt). */
+    public static void forEachStored(java.util.function.BiConsumer<String, String> out) {
+        ensure();
+        for (Map.Entry<String, Entry> e : data.entrySet()) for (String snbt : e.getValue().slots.values()) out.accept(e.getKey(), snbt);
+    }
+
     public static void put(String key, int size, LinkedHashMap<Integer, String> slots) {
         ensure();
         Entry e = data.computeIfAbsent(key, k -> new Entry());

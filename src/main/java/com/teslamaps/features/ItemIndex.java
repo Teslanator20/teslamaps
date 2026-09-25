@@ -168,6 +168,15 @@ public class ItemIndex {
         save();
     }
 
+    /** Every stored slot as (source key, snbt). */
+    public static void forEachStored(java.util.function.BiConsumer<String, String> out) {
+        ensure();
+        for (Map.Entry<String, Src> e : data.entrySet()) for (String snbt : e.getValue().slots.values()) out.accept(e.getKey(), snbt);
+    }
+
+    /** Key of the container being captured right now, null if none. */
+    public static String openKey() { return lastKey; }
+
     public static int sourceCount() {
         ensure();
         return data.size();
