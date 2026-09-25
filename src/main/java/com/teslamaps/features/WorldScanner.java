@@ -367,6 +367,17 @@ public class WorldScanner {
         }
     }
 
+    public interface Visitor { void visit(String name, BlockPos pos, int color); }
+
+    /** Found structures, for the Hollows minimap. */
+    public static void visit(Visitor v) {
+        if (!inHollows) return;
+        for (Map.Entry<String, WaypointData> e : waypoints.entrySet()) {
+            WaypointData w = e.getValue();
+            if (categoryEnabled(w.category())) v.visit(e.getKey(), w.pos(), w.color());
+        }
+    }
+
     private static boolean categoryEnabled(int category) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         return switch (category) {

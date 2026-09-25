@@ -22,7 +22,8 @@ public class PestOverlay {
     private static int rows() {
         int rows = 3;   // Spawn, Blocks/s, Philip
         if (TeslaMapsConfig.get().pestOverlayAlivePlots) rows += plotsText == null ? 1 : 2;
-        if (PestData.spray() != null) rows++;
+        if (PestData.spray() != null || PlotSprays.notSprayedHere()) rows++;
+        rows += PlotSprays.rows().size();
         if (PestData.bonusPestChance() > 0 && PestRoutine.pestChanceGearOn()) rows++;
         if (TeslaMapsConfig.get().pestSpawnStats) rows += PestSpawnStats.averageText() == null ? 1 : 2;
         return rows;
@@ -152,9 +153,9 @@ public class PestOverlay {
         if (config.pestGearReminder && ready && alive == 0 && !PestRoutine.pestChanceGearOn()) {
             title = "§cPest Chance Loadout";
             subtitle = "§7spawn cooldown is up";
-        } else if (config.pestTpReminder && alive >= 2 && PestData.pestsOnCurrentPlot() == 0) {
+        } else if (config.pestTpReminder && alive >= tpReminderMin(config) && PestData.pestsOnCurrentPlot() == 0) {
             title = "§c" + alive + " Pests waiting";
-            subtitle = "§7not on their plot";
+            subtitle = config.pestTpReminderMin <= 0 ? "§7farming fortune is lowered" : "§7not on their plot";
         }
 
         if (title == null) {
@@ -162,8 +163,14 @@ public class PestOverlay {
             return;
         }
 
-        if (System.currentTimeMillis() - lastNag < NAG_INTERVAL) return;
+        long interval = Math.clamp(config.pestTpReminderInterval, 1, 60) * 1000L;
+        if (System.currentTimeMillis() - lastNag < (title.startsWith("§cPest Chance") ? NAG_INTERVAL : interval)) return;
         warn(config, title, subtitle);
+    }
+
+    // SkyOcean's PestWarning: auto = the count where the fortune debuff starts
+    private static int tpReminderMin(TeslaMapsConfig config) {
+        return config.pestTpReminderMin <= 0 ? 8 : config.pestTpReminderMin;
     }
 
     private static void warn(TeslaMapsConfig config, String title, String subtitle) {
@@ -335,6 +342,13 @@ public class PestOverlay {
             String sprayText = sprayLeft >= 60 ? (sprayLeft / 60) + "m" : sprayLeft + "s";
             drawRow(context, mc, "Spray", sprayText,
                     sprayLeft <= 60 ? AppleColors.ACCENT_RED : AppleColors.TEXT_PRIMARY, row);
+        } else if (PlotSprays.notSprayedHere()) {
+            row += LINE;
+            drawRow(context, mc, "Spray", "Not sprayed!", AppleColors.ACCENT_RED, row);
+        }
+        for (PlotSprays.Row r : PlotSprays.rows()) {
+            row += LINE;
+            drawRow(context, mc, r.label(), r.value(), r.color(), row);
         }
 
         int bpc = PestData.bonusPestChance();

@@ -25,6 +25,7 @@ public class FarmingSensitivity {
     private static boolean autoActive = false;
     private static boolean manualLocked = false;
     private static boolean pendingChecked = false;
+    private static boolean releaseWasDown = false;
     private static HudEditElement el;
 
     public static void register() {
@@ -77,6 +78,11 @@ public class FarmingSensitivity {
             return;
         }
 
+        int key = config.mousematReleaseKey;
+        boolean down = key != -1 && mc.screen == null && com.teslamaps.utils.KeyNames.isDown(key);
+        if (down && !releaseWasDown && manualLocked) setLocked(false, "Mouse unlocked");
+        releaseWasDown = down;
+
         autoActive = config.farmingSensitivity
                 && holdingFarmingItem(mc.player.getMainHandItem())
                 && !(config.farmingSensitivityGroundOnly && !mc.player.onGround())
@@ -110,7 +116,9 @@ public class FarmingSensitivity {
         if (!SkyblockUtils.isInGarden()) return;
         String text = StringUtil.strip(raw).trim();
         if (c.farmingMouseLockOnMousemat && !manualLocked && text.equals("Snapped to squeaky mousemat!")) {
-            setLocked(true, "Mouse locked (mousemat) · /tmap mouselock to unlock");
+            int key = c.mousematReleaseKey;
+            setLocked(true, key == -1 ? "Mouse locked (mousemat) · /tmap mouselock to unlock"
+                    : "Mouse locked (mousemat) · press §e" + com.teslamaps.utils.KeyNames.display(key) + "§f to unlock");
         } else if (c.farmingMouseUnlockOnTeleport && manualLocked
                 && (text.equals("Warping...") || (text.startsWith("Teleported you to ") && text.endsWith("!")))) {
             setLocked(false, "Mouse unlocked (teleport)");

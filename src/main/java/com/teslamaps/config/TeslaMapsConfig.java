@@ -2199,6 +2199,125 @@ public class TeslaMapsConfig {
     public boolean pestGlowContest = false;
     public boolean pestGlowVinyl = false;
     public String pestGlowVinylId = "";
+    // w14-07-min
+    public boolean commissionHud = false;
+    public int commissionHudX = 10;
+    public int commissionHudY = 160;
+    public float commissionHudScale = 1.0f;
+    public boolean commissionHudBars = true;
+    public boolean commissionHudHideDone = false;
+    public boolean commissionAlert = true;
+    public String commissionAlertSound = "NOTE_PLING";
+    public boolean commissionWaypoints = false;
+    public boolean commissionWaypointsDwarven = true;
+    public boolean commissionWaypointsGlacite = true;
+    public boolean commissionWaypointsBaseCamp = false;
+    public boolean commissionWaypointsEmissary = true;
+    public boolean commissionWaypointsPigeon = true;
+    public String commissionTips = "Off";
+    public boolean nucleusTracker = false;
+    public int nucleusTrackerX = 10;
+    public int nucleusTrackerY = 60;
+    public float nucleusTrackerScale = 1.0f;
+    public String nucleusProfessor = "Robot Parts";
+    public boolean nucleusChat = true;
+    public int nucleusChatMinimum = 20000;
+    public int nucleusPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public boolean hollowsMap = false;
+    public int hollowsMapX = 10;
+    public int hollowsMapY = 10;
+    public float hollowsMapScale = 1.5f;
+    public boolean hollowsMapLocations = true;
+    public int hollowsMapLocationSize = 8;
+    public boolean treasureChestHelper = false;
+    public boolean treasureChestLockpick = true;
+    public String colorTreasureChest = "FFAA00";
+    public boolean commissionMobHighlight = false;
+    public com.teslamaps.render.EspStyle commissionMobEsp = new com.teslamaps.render.EspStyle("FFFFFF55");
+
+    // w14-00-gar
+    public boolean mantidKillDisplay = false;
+    public String mantidShowWhen = "Mantid Armor";
+    public int mantidGroupSeconds = 5;
+    public int mantidKillDisplayX = 10;
+    public int mantidKillDisplayY = 160;
+    public float mantidKillDisplayScale = 1.0f;
+    public boolean glowingMushrooms = false;
+    public com.teslamaps.render.EspStyle glowingMushroomStyle = new com.teslamaps.render.EspStyle("FFFF55FF");
+    public boolean mousematAngles = false;
+    public boolean mousematCompact = false;
+    public java.util.Map<String, Float> mousematAngleValues = new java.util.HashMap<>();
+    public boolean noBreakRod = false;
+    public boolean noBreakSprayonator = false;
+    public String pestSpawnSoundMode = "Default";
+    public String pestSpawnSoundName = "NOTE_PLING";
+    public float pestSpawnSoundPitch = 1.0f;
+    public float pestSpawnSoundVolume = 1.0f;
+    public int pestSpawnSoundRepeat = 3;
+    public int pestSpawnSoundDelay = 150;
+    public boolean pestBaitPanel = false;
+    public boolean noCropRotation = false;
+    public boolean noCropRotationEverywhere = false;
+    public boolean pbFortuneGain = false;
+    public boolean pbFortuneOverflow = false;
+    public java.util.Map<String, Double> pbItemsPerFortune = new java.util.HashMap<>();
+    // w13-03-pv
+    public boolean pvSacks = false;
+    public boolean pvHunting = false;
+    // w13-00-eco
+    public boolean fancyAuctionBrowser = false;
+    public boolean fancyAuctionView = false;
+    public boolean safariShardValue = false;
+    public String safariShardPrice = "Instant Sell"; // Instant Sell / Sell Offer / Both
+    public boolean safariShardTax = true;
+    public boolean npcDayLimit = false;
+    public boolean npcDayLimitShort = true;
+    public int npcDayLimitX = 10;
+    public int npcDayLimitY = 200;
+    public float npcDayLimitScale = 1.0f;
+    public boolean pricePaid = false;
+    public boolean fireSaleWidget = false;
+    public int fireSaleWidgetX = 10;
+    public int fireSaleWidgetY = 220;
+    public float fireSaleWidgetScale = 1.0f;
+    public boolean pesthunterProfit = false;
+    // w14-06-gar
+    public boolean gardenPlotsPestCount = false;
+    public boolean visitorHud = false;
+    public boolean visitorHudNames = true;
+    public int visitorHudX = 10;
+    public int visitorHudY = 200;
+    public float visitorHudScale = 1.0f;
+    public boolean pestOverlaySprayList = false;
+    public boolean sprayExpiryChat = false;
+    public int pestTpReminderMin = 2;               // 0 = fortune debuff (8)
+    public int pestTpReminderInterval = 5;          // seconds
+    public boolean farmProfitItemOptions = false;
+    public java.util.Map<String, String> farmProfitItemSource = new java.util.HashMap<>();
+    public boolean farmProfitResetConfirm = false;
+    public boolean farmProfitExtraWindows = false;
+    public int mousematReleaseKey = -1;
+    public boolean muteVacuum = false;
+    // w13-05-pv
+    public boolean pvExtras = false;
+    public boolean pvPanorama = true;
+    public boolean pvErrorCopy = true;
+    public boolean pvInfoBoard = true;
+    public boolean pvMobsTab = true;
+    public boolean pvBingoGoals = true;
+    public boolean pvTrophyRank = true;
+    public boolean pvPowerStats = true;
+    public boolean pvPeek = true;
+    // w13-02-eco
+    public boolean auctionCopyUnderbid = false;
+    public boolean searchOverlayCommands = false;
+    public boolean searchOverlayCtrlF = true;
+    public int searchOverlayHistorySize = 12;
+    public boolean searchOverlayFilters = false;
+    public boolean bazaarOrderTooltip = false;
+    public boolean petValue = false;
+    public boolean essenceShopCosts = false;
+    public boolean escrowFix = false;
     // w12-08-eco
     public boolean anitaMedalProfit = false;
     public boolean anitaExtraFortune = false;
@@ -4745,6 +4864,10 @@ public class TeslaMapsConfig {
     static void normalize(TeslaMapsConfig c) {
         if (c.contestCropWarnFor == null) c.contestCropWarnFor = new java.util.ArrayList<>();
         if (c.pestGlowVinylId == null) c.pestGlowVinylId = "";
+        if (c.mousematAngleValues == null) c.mousematAngleValues = new java.util.HashMap<>();
+        if (c.pbItemsPerFortune == null) c.pbItemsPerFortune = new java.util.HashMap<>();
+        if (c.mantidShowWhen == null) c.mantidShowWhen = "Mantid Armor";
+        if (c.pestSpawnSoundMode == null) c.pestSpawnSoundMode = "Default";
         if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
         c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
         for (FeatureRule r : c.featureConditionRules.values()) {
@@ -4941,6 +5064,7 @@ public class TeslaMapsConfig {
         if (c.charmedVisitorNames == null) c.charmedVisitorNames = new ArrayList<>();
         if (c.feastCrops == null) c.feastCrops = new ArrayList<>();
         if (c.farmProfitExcluded == null) c.farmProfitExcluded = new ArrayList<>();
+        if (c.farmProfitItemSource == null) c.farmProfitItemSource = new java.util.HashMap<>();
         if (c.farmKernelItem == null) c.farmKernelItem = "Feast I";
         if (c.feastShareChannel == null) c.feastShareChannel = "Nobody";
         if (c.corpseFinderChannel == null) c.corpseFinderChannel = "Nobody";
