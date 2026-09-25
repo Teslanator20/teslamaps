@@ -53,12 +53,21 @@ public class ContainerKeyMixin {
             return;
         }
 
+        if (com.teslamaps.features.SearchOverlay.onContainerKey(cs, event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.features.Searchbar.onKeyPressed(event.key(), event.scancode())) {
             cir.setReturnValue(true);
             return;
         }
 
         Slot hovered = ((HandledScreenAccessor) (Object) this).getFocusedSlot();
+        if (com.teslamaps.features.EcoOverlays.key(event.key(), hovered)) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (com.teslamaps.features.ItemHighlight.onKey(event.key(), hovered)) {
             cir.setReturnValue(true);
             return;

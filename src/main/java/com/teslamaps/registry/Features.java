@@ -587,6 +587,14 @@ final class Features {
         com.teslamaps.features.PositionalMessages.register();
         // w11-00-chat
         com.teslamaps.features.ChatEncryption.register();
+        // w12-08-eco
+        com.teslamaps.features.AnitaShop.register();
+        com.teslamaps.features.BazaarHelpers.register();
+        com.teslamaps.features.CraftMaterials.register();
+        com.teslamaps.features.InstaSellHighlight.register();
+        com.teslamaps.features.PriceHistory.register();
+        com.teslamaps.features.AuctionSortWarning.register();
+        com.teslamaps.features.theend.DragonProfitTracker.register();
         // w12-09-eco
         com.teslamaps.features.BazaarFillEstimate.register();
         com.teslamaps.features.PriceLookup.register();
@@ -594,5 +602,11 @@ final class Features {
         com.teslamaps.features.WardrobeValue.register();
         // w13-05-pv
         com.teslamaps.features.PlayerPeek.register();
+        // w13-02-eco
+        com.teslamaps.features.AuctionPriceInput.register();
+        com.teslamaps.features.SearchOverlay.register();
+        com.teslamaps.features.BazaarOrderTooltip.register();
+        com.teslamaps.features.EssenceShopCosts.register();
+        com.teslamaps.features.EscrowFix.register();
     }
 }

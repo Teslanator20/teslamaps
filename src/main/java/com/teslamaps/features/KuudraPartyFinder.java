@@ -77,8 +77,8 @@ public final class KuudraPartyFinder {
         TeslaMapsConfig c = cfg();
         if (c.kuudraPfSound) Minecraft.getInstance().execute(() -> Minecraft.getInstance().getSoundManager()
                 .play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1f)));
-        if (c.kuudraPfAutoKick && c.kuudraPfKickCache && KICKED.contains(name.toLowerCase(Locale.ROOT))) {
-            Announce.command("party kick " + name);
+        if (autoKickOn() && c.kuudraPfKickCache && KICKED.contains(name.toLowerCase(Locale.ROOT))) {
+            kick(name);
             msg(Component.literal("§a[TeslaMaps] §7Kicked §6" + name + " §7(kicked before)"));
             return;
         }
@@ -88,7 +88,7 @@ public final class KuudraPartyFinder {
                 return;
             }
             msg(card(name, member, cfg().kuudraPfKickLine));
-            if (cfg().kuudraPfAutoKick) autoKick(name, member);
+            if (autoKickOn()) autoKick(name, member);
         });
     }
 
@@ -114,9 +114,19 @@ public final class KuudraPartyFinder {
         if (reasons.isEmpty()) return;
         String why = String.join(", ", reasons);
         if (c.kuudraPfInform) Announce.party("Kicked " + name + " for: " + why);
-        Announce.command("party kick " + name);
+        kick(name);
         if (c.kuudraPfKickCache) KICKED.add(name.toLowerCase(Locale.ROOT));
         msg(Component.literal("§a[TeslaMaps] §cKicking §6" + name + "§c: §7" + why));
+    }
+
+    private static boolean autoKickOn() {
+        return cfg().kuudraPfAutoKick && !com.teslamaps.features.LegitMode.blocksCheats()
+                && com.teslamaps.utils.PartyTracker.mayLead();
+    }
+
+    private static void kick(String name) {
+        com.teslamaps.utils.TickScheduler.schedule(20 + java.util.concurrent.ThreadLocalRandom.current().nextInt(20),
+                () -> Announce.command("party kick " + name));
     }
 
     public static void clearKickCache() {

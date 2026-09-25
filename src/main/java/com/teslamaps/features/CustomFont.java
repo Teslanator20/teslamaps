@@ -72,8 +72,7 @@ public final class CustomFont {
 
     private static String[] files() {
         List<String> out = new ArrayList<>();
-        try {
-            Files.createDirectories(DIR);
+        if (Files.isDirectory(DIR)) try {
             try (var s = Files.list(DIR)) {
                 s.filter(Files::isRegularFile).map(p -> p.getFileName().toString())
                         .filter(n -> { String l = n.toLowerCase(Locale.ROOT); return l.endsWith(".ttf") || l.endsWith(".otf"); })

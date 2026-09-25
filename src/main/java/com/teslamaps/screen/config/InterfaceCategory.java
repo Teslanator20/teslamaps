@@ -122,7 +122,7 @@ public final class InterfaceCategory {
         b.toggle("  Ctrl+Click Multi-Drag", () -> config.hudEditMultiDrag, v -> config.hudEditMultiDrag = v);
         b.toggle("  Resize Grip", () -> config.hudEditResize, v -> config.hudEditResize = v);
         b.toggle("HUD Editor Extras", () -> config.hudEditExtras, v -> config.hudEditExtras = v)
-                .desc("More controls in /tmap gui. Hover an element to see its position and the keys.")
+                .desc("More controls in /tmap gui: global scale (- / + / 1x, top left), hover an element to see its position and the keys.")
                 .tags("hud", "editor", "reset", "nudge", "tmap gui");
         b.toggle("  Reset (R Key + Reset All)", () -> config.hudEditReset, v -> config.hudEditReset = v)
                 .desc("R puts the hovered or last clicked element back to its default position and scale. Reset All asks for a second click.");

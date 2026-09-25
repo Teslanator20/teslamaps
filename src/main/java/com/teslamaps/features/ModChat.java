@@ -42,6 +42,7 @@ public final class ModChat {
     private static volatile long lastId = -1;
     private static volatile boolean polling;
     private static volatile boolean warned;
+    private static volatile int fails;
     private static long lastPoll;
 
     private ModChat() {}
@@ -105,7 +106,7 @@ public final class ModChat {
     private static void tick() {
         if (!CapeSync.enabled()) return;
         long now = System.currentTimeMillis();
-        if (polling || now - lastPoll < POLL_MS) return;
+        if (polling || now - lastPoll < POLL_MS << Math.min(fails, 6)) return;
         lastPoll = now;
         polling = true;
         boolean first = lastId < 0;
@@ -132,6 +133,7 @@ public final class ModChat {
                     .header("Authorization", "Bearer " + key)
                     .GET().build(), HttpResponse.BodyHandlers.ofString());
             if (resp.statusCode() != 200) {
+                fails++;
                 if (!warned) {
                     warned = true;
                     TeslaMaps.LOGGER.warn("Mod chat poll returned {}", resp.statusCode());
@@ -139,6 +141,7 @@ public final class ModChat {
                 return;
             }
             JsonArray rows = JsonParser.parseString(resp.body()).getAsJsonArray();
+            fails = 0;
             if (first) {
                 lastId = rows.isEmpty() ? 0 : rows.get(0).getAsJsonObject().get("id").getAsLong();
                 if (cfg().modChatJoinMessage) show("§7Connected - /tmc <message> to talk to other TeslaMaps users");
@@ -155,6 +158,7 @@ public final class ModChat {
             }
             for (String l : lines) show(l);
         } catch (Exception e) {
+            fails++;
             if (!warned) {
                 warned = true;
                 TeslaMaps.LOGGER.warn("Mod chat poll failed: {}", e.toString());
