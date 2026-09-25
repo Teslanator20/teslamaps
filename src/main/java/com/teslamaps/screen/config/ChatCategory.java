@@ -152,6 +152,10 @@ public final class ChatCategory {
         b.toggle("  Grey NPC Dialog", () -> config.chatCompactNpcGrey, v -> config.chatCompactNpcGrey = v);
         b.toggle("Compact Mining Lines", () -> config.chatCompactMining, v -> { config.chatCompactMining = v; if (v) config.chatFilterEnabled = true; })
                 .desc("Breaking Power, crystals, Metal Detector, Keepers, Automaton parts; treasure chest notices hidden");
+        b.dropdown("  Hollows Chest Rewards", com.teslamaps.features.mining.MiningChestSummary.MODES,
+                () -> config.miningChestSummary, v -> config.miningChestSummary = v)
+                .desc("CHEST LOCKPICKED / LOOT CHEST COLLECTED block as one line (Compact), dimmed (Grey) or gone (Hide). Full block on hover")
+                .tags("crystal hollows", "treasure", "chest", "loot");
         b.toggle("Compact Melody Party Messages", () -> config.melodyCompact, v -> { config.melodyCompact = v; if (v) config.chatFilterEnabled = true; })
                 .desc("In dungeons only the newest melody progress line per player stays");
         b.toggle("  Mute All Melody Messages", () -> config.melodyCompactMute, v -> config.melodyCompactMute = v);

@@ -326,7 +326,7 @@ public class ProfileViewerScreen extends Screen {
             boolean hovered = mouseX >= x && mouseX < x + step && mouseY >= y && mouseY < y + 28;
 
             NeuStyle.tab(ctx, x, y, selected);
-            ctx.item(page.getTabIcon(), x + 6, y + 9);
+            ctx.item(page.tabIcon(), x + 6, y + 9);
 
             if (hovered) hoveredTab = page.getTabName();
         }

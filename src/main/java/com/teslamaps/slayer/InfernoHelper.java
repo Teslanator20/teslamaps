@@ -1,313 +1,244 @@
 package com.teslamaps.slayer;
 
-// Fire pillar from Skyblocker's FirePillarAnnouncer + SkyHanni's FirePillarDisplay,
-// daggers from SkyHanni's BlazeSlayerDaggerHelper, fire pits from SkyHanni's BlazeSlayerFirePitsWarning
+// Clear view from SkyHanni's BlazeSlayerClearView.kt, totem from Skytils' SlayerFeatures totemPing,
+// pillar countdown title from Skyblocker's FirePillarAnnouncer, gummy warning from SkyHanni's GummyWarning.kt, gummy timer from WpcMod's GummyBearTimer.kt
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.registry.HudEditElement;
-import com.teslamaps.utils.EntityCache;
+import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.LoudSound;
+import com.teslamaps.utils.ScoreboardUtils;
 import com.teslamaps.utils.StringUtil;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import com.teslamaps.utils.TickScheduler;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.phys.AABB;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class InfernoHelper {
 
-    private static final Pattern PILLAR = Pattern.compile("^(\\d+)s \\d+ hits$");
-    private static final Pattern SHIELD_TAG = Pattern.compile("(SPIRIT|ASHEN|CRYSTAL|AURIC)\\s*♨");
+    private static final Pattern TOTEM = Pattern.compile("^(\\d+)s (\\d+) hits?$");
+    private static final String GUMMY_MSG = "You ate a Re-heated Gummy Polar Bear!";
+    private static final long GUMMY_MS = 3_600_000L;
+    private static final EquipmentSlot[] ARMOR = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
+    private static final String TOTEM_SAMPLE = "§6Totem: §e12s §7| §c5 hits";
+    private static final String GUMMY_SAMPLE = "§fGummy Bear: §a00:42:10";
 
-    private static final String[][] DAGGER_NAMES = {
-            {"Twilight Dagger", "Mawdredge Dagger", "Deathripper Dagger"},
-            {"Firedust Dagger", "Kindlebane Dagger", "Pyrochaos Dagger"}};
-    private static final String[][] SHIELDS = {{"SPIRIT", "CRYSTAL"}, {"ASHEN", "AURIC"}};
-
-    private static final String PILLAR_SAMPLE = "§cFire Pillar: §b5s";
-    private static final String DAGGER_SAMPLE_TOP = "§7[§fSpirit§7] §8Ashen";
-    private static final String DAGGER_SAMPLE_BOTTOM = "§bCrystal §eAuric";
-
-    private static String pillarLine = null;
-    private static int lastPillarSeconds = -1;
-
-    private static final int[] active = {0, 0};
-    private static final boolean[] updated = {false, false};
-    private static boolean clientClicked = false;
-    private static String nearestShield = null;
-    private static String daggerTop = null;
-    private static String daggerBottom = null;
-    private static long lastDaggerCheck = 0;
-    private static int ticks = 0;
-
-    private static ArmorStand pitBoss = null;
-    private static double pitMaxHp = 0;
-    private static double pitLastHp = 0;
-    private static long pitWarnAt = 0;
-    private static int pitTicks = 0;
-
-    private static Object lastLevel = null;
-    private static HudEditElement pillarHud;
-    private static HudEditElement daggerHud;
+    private static boolean nearBlaze;
+    private static String totemLine;
+    private static List<String> totemLines = List.of(), gummyLines = List.of();
+    private static int totemW, gummyW;
+    private static int lastTotemSec = -1;
+    private static String gummyLine;
+    private static long lastWarn;
+    private static int ticks;
+    private static HudEditElement totemHud, gummyHud;
 
     private InfernoHelper() {}
 
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        pillarHud = HudEditElement.of("firePillarHud", "Fire Pillar").section("Combat")
-                .enabled(() -> cfg().firePillarHud)
-                .size(() -> Minecraft.getInstance().font.width(PILLAR_SAMPLE), () -> 9)
-                .scaleRange(0.5f, 5.0f)
-                .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, PILLAR_SAMPLE, null));
-        daggerHud = HudEditElement.of("blazeDaggerHud", "Blaze Daggers").section("Combat")
-                .enabled(() -> cfg().blazeDaggerHud)
-                .size(() -> Minecraft.getInstance().font.width(DAGGER_SAMPLE_TOP), () -> 19)
-                .scaleRange(0.5f, 5.0f)
-                .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, DAGGER_SAMPLE_TOP, DAGGER_SAMPLE_BOTTOM));
-
-        Feature.of("FirePillar").section("Combat").when(() -> cfg().firePillarTitle || cfg().firePillarHud)
-                .tick(InfernoHelper::tickPillar)
-                .hud("firepillarhud", InfernoHelper::renderPillar);
-        Feature.of("BlazeDaggerHud").section("Combat").when(() -> cfg().blazeDaggerHud)
-                .tick(InfernoHelper::tickDagger)
-                .hud("blazedaggerhud", InfernoHelper::renderDagger);
-        Feature.of("InfernoFirePits").section("Combat").when(() -> cfg().infernoFirePitWarning)
-                .tick(InfernoHelper::tickFirePits)
-                .config("Combat", b -> {
-                    b.label("Inferno Demonlord");
-                    b.toggle("Fire Pillar Countdown Title", () -> cfg().firePillarTitle, v -> cfg().firePillarTitle = v)
-                            .desc("Big purple title for the last 5 seconds of your boss's fire pillar (within 22 blocks of the boss)");
-                    b.toggle("  Title Sound", () -> cfg().firePillarSound, v -> cfg().firePillarSound = v);
-                    b.toggle("  Fire Pillar HUD", () -> cfg().firePillarHud, v -> cfg().firePillarHud = v)
-                            .desc("\"Fire Pillar: Ns\" while a pillar is up. Move it in /tmap gui.");
-                    b.toggle("Blaze Dagger HUD", () -> cfg().blazeDaggerHud, v -> cfg().blazeDaggerHud = v)
-                            .desc("While holding a Twilight or Firedust dagger: top line = active attunement of both daggers, "
-                                    + "bottom line = the other one. Move it in /tmap gui.");
-                    b.toggle("  Mark Right Attunement", () -> cfg().blazeDaggerMarkShield, v -> cfg().blazeDaggerMarkShield = v)
-                            .desc("Green = your dagger matches the nearest shield, red = wrong one, gold = switch to that one");
-                    b.toggle("  Hide Attunement Title", () -> cfg().blazeDaggerHideTitle, v -> cfg().blazeDaggerHideTitle = v)
-                            .desc("Hides Hypixel's ASHEN/SPIRIT/... title after switching (the HUD shows it)");
-                    b.toggle("Fire Pits Warning", () -> cfg().infernoFirePitWarning, v -> cfg().infernoFirePitWarning = v)
-                            .desc("Title + sound when your T3/T4 Inferno Demonlord drops below 33% HP");
-                    b.info("Hellion Shield chat lines: Chat > More Filters");
-                });
-
-        UseItemCallback.EVENT.register((player, level, hand) -> {
-            if (!level.isClientSide() || !cfg().blazeDaggerHud || clientClicked) return InteractionResult.PASS;
-            int d = daggerOf(player.getItemInHand(hand));
-            if (d >= 0) {
-                active[d] = 1 - active[d];
-                clientClicked = true;
-            }
+        totemHud = HudEditElement.of("infernoTotem", "Inferno Totem").section("Combat")
+                .enabled(() -> cfg().infernoTotemDisplay)
+                .size(() -> TextHud.width(List.of(TOTEM_SAMPLE)), () -> TextHud.height(1))
+                .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, List.of(TOTEM_SAMPLE), TextHud.width(List.of(TOTEM_SAMPLE))));
+        gummyHud = HudEditElement.of("gummyTimer", "Gummy Bear Timer").section("Combat")
+                .enabled(() -> cfg().gummyTimer)
+                .size(() -> TextHud.width(List.of(GUMMY_SAMPLE)), () -> TextHud.height(1))
+                .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, List.of(GUMMY_SAMPLE), TextHud.width(List.of(GUMMY_SAMPLE))));
+        AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if (level.isClientSide()) onAttack();
             return InteractionResult.PASS;
+        });
+        Feature.of("InfernoHelper").section("Combat")
+                .when(() -> cfg().blazeClearView || cfg().infernoTotemDisplay || cfg().firePillarTitle || cfg().gummyWarning || cfg().gummyTimer)
+                .tick(InfernoHelper::tick)
+                .serverChat(InfernoHelper::onChat)
+                .hudHiddenInInventory("infernototem", InfernoHelper::renderTotem)
+                .hudHiddenInInventory("gummytimer", InfernoHelper::renderGummy)
+                .config("Combat", b -> {
+                    TeslaMapsConfig c = b.config();
+                    b.label("Inferno Demonlord");
+                    b.toggle("Blaze Slayer Clear View", () -> c.blazeClearView, v -> c.blazeClearView = v)
+                            .desc("Hides all particles and fireballs while an Inferno Demonlord, Quazii or Typhoeus is within 10 blocks.")
+                            .tags("blaze", "inferno", "particles", "fireball");
+                    b.toggle("Totem Display", () -> c.infernoTotemDisplay, v -> c.infernoTotemDisplay = v)
+                            .desc("Timer and hits of the Demonlord totem during your boss fight. Position in /tmap gui")
+                            .tags("totem", "inferno", "demonlord");
+                    b.slider("  Totem Ping At (s, 0 = off)", 0, 30, () -> (float) c.infernoTotemPing,
+                            v -> c.infernoTotemPing = Math.round(v), 0);
+                    b.toggle("Fire Pillar Countdown Title", () -> c.firePillarTitle, v -> c.firePillarTitle = v)
+                            .desc("Big purple title for the last 5 seconds of your boss's fire pillar (totem) within 22 blocks. Works without the Totem Display.")
+                            .tags("pillar", "totem", "inferno");
+                    b.toggle("  Title Sound", () -> c.firePillarSound, v -> c.firePillarSound = v);
+                    b.toggle("Gummy Polar Bear Warning", () -> c.gummyWarning, v -> c.gummyWarning = v)
+                            .desc("Blaze quest: anvil sound, title and a Bazaar button in chat when you hit with a blaze dagger or Habanero armor and no Re-heated Gummy Polar Bear is active.")
+                            .tags("gummy", "polar", "bear", "smoldering");
+                    b.toggle("Gummy Polar Bear Timer", () -> c.gummyTimer, v -> c.gummyTimer = v)
+                            .desc("60 min HUD timer, started or extended by eating a Re-heated Gummy Polar Bear. Position in /tmap gui");
+                    b.toggle("  Show Depleted", () -> c.gummyTimerExpired, v -> c.gummyTimerExpired = v);
+                });
+    }
+
+    public static boolean hideParticle() {
+        return nearBlaze && cfg().blazeClearView && cfg().section("Combat");
+    }
+
+    public static boolean shouldHide(Entity e) {
+        return nearBlaze && e instanceof AbstractHurtingProjectile && cfg().blazeClearView && cfg().section("Combat");
+    }
+
+    public static boolean gummyActive() {
+        return cfg().gummyTimerEnd > System.currentTimeMillis()
+                || com.teslamaps.features.hud.EffectTimers.expiresAt("Smoldering Polarization I") > System.currentTimeMillis();
+    }
+
+    private static void onChat(String raw) {
+        if (!StringUtil.stripTrim(raw).equals(GUMMY_MSG)) return;
+        TeslaMapsConfig c = cfg();
+        long now = System.currentTimeMillis();
+        c.gummyTimerEnd = (c.gummyTimerEnd > now ? c.gummyTimerEnd : now) + GUMMY_MS;
+        TeslaMapsConfig.save();
+    }
+
+    private static void onAttack() {
+        TeslaMapsConfig c = cfg();
+        if (!c.gummyWarning || !c.section("Combat") || !"Inferno Demonlord".equals(SlayerQuest.boss())) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        boolean dagger = isBlazeDagger(ItemUtil.skyblockId(mc.player.getMainHandItem()));
+        if (!dagger && !habanero(mc)) return;
+        if (gummyActive()) return;
+        long now = System.currentTimeMillis();
+        if (now - lastWarn < 10_000) return;
+        lastWarn = now;
+        TickScheduler.schedule(10, () -> {
+            LoudSound.play(SoundEvents.ANVIL_LAND, 0.5f, 1.0f);
+            mc.gui.setTimes(0, 40, 10);
+            mc.gui.setTitle(Component.literal("§4§lNo Polar Bear Active!"));
+            if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §cYou do not have an active Re-heated Gummy Polar Bear! ")
+                    .append(Component.literal("§a[Bazaar]").withStyle(s -> s.withClickEvent(
+                            new ClickEvent.RunCommand("/bz Re-heated Gummy Polar Bear")))));
         });
     }
 
-    private static boolean fightingInferno() {
-        return SlayerQuest.bossActive() && "Inferno Demonlord".equals(SlayerQuest.boss());
+    private static boolean isBlazeDagger(String id) {
+        return id.endsWith("DUST_DAGGER") || id.endsWith("FIRE_DAGGER") || id.endsWith("MAW_DAGGER");
     }
 
-    private static void resetOnWorldChange() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == lastLevel) return;
-        lastLevel = mc.level;
-        pillarLine = null;
-        lastPillarSeconds = -1;
-        pitBoss = null;
-        updated[0] = updated[1] = false;
-    }
-
-    private static void tickPillar() {
-        resetOnWorldChange();
-        Minecraft mc = Minecraft.getInstance();
-        String line = null;
-        int secs = -1;
-        if (fightingInferno() && mc.player != null) {
-            Entity ref = SlayerHUD.bossTag();
-            if (ref == null) ref = mc.player;
-            for (ArmorStand s : EntityCache.namedArmorStands()) {
-                String raw = s.getName().getString();
-                if (!raw.contains(" hits")) continue;
-                if (s.distanceToSqr(ref) > 22 * 22) continue;
-                Matcher m = PILLAR.matcher(StringUtil.stripTrim(raw));
-                if (!m.matches()) continue;
-                secs = Integer.parseInt(m.group(1));
-                line = StringUtil.stripTrim(raw);
-                break;
-            }
-        }
-        pillarLine = secs >= 0 ? "§cFire Pillar: §b" + secs + "s" : null;
-        if (secs >= 0 && secs <= 5 && secs != lastPillarSeconds && cfg().firePillarTitle) {
-            mc.gui.setTimes(0, 15, 3);
-            mc.gui.setTitle(Component.literal("§5§l" + line));
-            if (cfg().firePillarSound) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.0f);
-        }
-        lastPillarSeconds = secs;
-    }
-
-    private static void renderPillar(GuiGraphicsExtractor g, DeltaTracker d) {
-        String line = pillarLine;
-        if (line == null || !cfg().firePillarHud || pillarHud == null) return;
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
-        draw(g, mc, pillarHud.x(), pillarHud.y(), pillarHud.scale(), line, null);
-    }
-
-    private static int daggerOf(ItemStack stack) {
-        if (stack == null || stack.isEmpty()) return -1;
-        String name = stack.getHoverName().getString();
-        for (int d = 0; d < 2; d++) for (String n : DAGGER_NAMES[d]) if (name.contains(n)) return d;
-        return -1;
-    }
-
-    private static void tickDagger() {
-        resetOnWorldChange();
-        Minecraft mc = Minecraft.getInstance();
-        int holding = mc.player == null ? -1 : daggerOf(mc.player.getMainHandItem());
-        if (holding < 0) {
-            daggerTop = daggerBottom = null;
-            return;
-        }
-        long now = System.currentTimeMillis();
-        if (now - lastDaggerCheck > 1000) {
-            lastDaggerCheck = now;
-            readFromInventory(mc);
-        }
-        if (++ticks % 2 == 0) nearestShield = cfg().blazeDaggerMarkShield ? findNearest(mc) : null;
-        daggerTop = format(holding, true, 0) + " " + format(holding, true, 1);
-        daggerBottom = format(holding, false, 0) + " " + format(holding, false, 1);
-    }
-
-    private static void readFromInventory(Minecraft mc) {
-        for (int d = 0; d < 2; d++) {
-            if (updated[d]) continue;
-            for (ItemStack stack : mc.player.getInventory().getNonEquipmentItems()) {
-                if (daggerOf(stack) != d) continue;
-                for (String line : com.teslamaps.utils.ItemUtil.loreLines(stack)) {
-                    if (!line.contains("Attuned: ")) continue;
-                    String up = line.toUpperCase();
-                    for (int i = 0; i < 2; i++) {
-                        if (up.contains(SHIELDS[d][i])) {
-                            active[d] = i;
-                            updated[d] = true;
-                        }
-                    }
-                }
-                if (updated[d]) break;
-            }
-        }
-    }
-
-    private static String findNearest(Minecraft mc) {
-        String best = null;
-        double bestD = 10 * 10;
-        for (ArmorStand s : EntityCache.namedArmorStands()) {
-            String raw = s.getName().getString();
-            if (raw.indexOf('♨') < 0) continue;
-            double dist = s.distanceToSqr(mc.player);
-            if (dist >= bestD) continue;
-            Matcher m = SHIELD_TAG.matcher(StringUtil.strip(raw));
-            if (!m.find()) continue;
-            best = m.group(1);
-            bestD = dist;
-        }
-        return best;
-    }
-
-    private static String format(int holding, boolean activeRow, int dagger) {
-        boolean inHand = holding == dagger;
-        String shield = SHIELDS[dagger][activeRow ? active[dagger] : 1 - active[dagger]];
-        String c = color(shield);
-        String name = shield.charAt(0) + shield.substring(1).toLowerCase();
-        if (inHand && activeRow) {
-            if (nearestShield == null) return "§7[" + c + name + "§7]";
-            if (shield.equals(nearestShield)) return "§a[" + c + shield + "§a]";
-            return "§c[§m" + c + name + "§c]";
-        }
-        if (shield.equals(nearestShield)) return "§6[" + c + name + "§6]";
-        return c + name;
-    }
-
-    private static String color(String shield) {
-        return switch (shield) {
-            case "AURIC" -> "§e";
-            case "ASHEN" -> "§8";
-            case "CRYSTAL" -> "§b";
-            default -> "§f";
-        };
-    }
-
-    /** Hypixel's attunement title after a dagger switch. Main thread. True = hide it. */
-    public static boolean onTitle(String raw) {
-        TeslaMapsConfig c = cfg();
-        if (!c.blazeDaggerHud || !c.section("Combat")) return false;
-        String t = StringUtil.stripTrim(raw);
-        for (int d = 0; d < 2; d++) {
-            for (int i = 0; i < 2; i++) {
-                if (!t.equals(SHIELDS[d][i])) continue;
-                active[d] = i;
-                updated[d] = true;
-                clientClicked = false;
-                return c.blazeDaggerHideTitle;
-            }
+    private static boolean habanero(Minecraft mc) {
+        for (EquipmentSlot slot : ARMOR) {
+            ItemStack st = mc.player.getItemBySlot(slot);
+            if (st.isEmpty()) continue;
+            CustomData d = st.get(DataComponents.CUSTOM_DATA);
+            if (d != null && d.copyTag().getCompoundOrEmpty("enchantments").contains("ultimate_habanero_tactics")) return true;
         }
         return false;
     }
 
-    private static void renderDagger(GuiGraphicsExtractor g, DeltaTracker d) {
-        String top = daggerTop, bottom = daggerBottom;
-        if (top == null || daggerHud == null) return;
+    private static void tick() {
+        TeslaMapsConfig c = cfg();
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || mc.screen != null) return;
-        draw(g, mc, daggerHud.x(), daggerHud.y(), daggerHud.scale(), top, bottom);
+        ticks++;
+        if (c.blazeClearView && ticks % 10 == 0) nearBlaze = scanBlaze(mc);
+        if (!c.blazeClearView) nearBlaze = false;
+        if ((c.infernoTotemDisplay || c.firePillarTitle) && ticks % 2 == 0) scanTotem(mc, c);
+        if (!c.infernoTotemDisplay && !c.firePillarTitle) totemLine = null;
+        if (totemLine == null) totemLines = List.of();
+        else if (totemLines.isEmpty() || !totemLines.get(0).equals(totemLine)) {
+            totemLines = List.of(totemLine);
+            totemW = TextHud.width(totemLines);
+        }
+        if (c.gummyTimer && ticks % 10 == 0) {
+            long left = (c.gummyTimerEnd - System.currentTimeMillis()) / 1000;
+            if (left < 0) gummyLine = c.gummyTimerExpired && c.gummyTimerEnd > 0 ? "§fGummy Bear: §cDepleted" : null;
+            else gummyLine = "§fGummy Bear: §a" + String.format("%02d:%02d:%02d", left / 3600, (left % 3600) / 60, left % 60);
+            gummyLines = gummyLine == null ? List.of() : List.of(gummyLine);
+            gummyW = TextHud.width(gummyLines);
+        }
     }
 
-    private static void tickFirePits() {
-        resetOnWorldChange();
-        long now = System.currentTimeMillis();
-        if (now - pitWarnAt < 2000 && ++pitTicks % 10 == 0) {
-            LoudSound.play(SoundEvents.EXPERIENCE_ORB_PICKUP, 0.8f, 1.0f);
+    private static boolean scanBlaze(Minecraft mc) {
+        if (!"Inferno Demonlord".equals(SlayerQuest.boss()) && !SlayerHUD.isActive()) return false;
+        AABB box = mc.player.getBoundingBox().inflate(10);
+        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, box, ArmorStand::hasCustomName)) {
+            String n = as.getName().getString();
+            if ((n.contains("Inferno Demonlord") || n.contains("ⓆⓊⒶⓏⒾⒾ") || n.contains("ⓉⓎⓅⒽⓄⒺⓊⓈ"))
+                    && as.distanceToSqr(mc.player) < 100) return true;
         }
-        ArmorStand tag = SlayerHUD.bossTag();
-        int tier = SlayerHUD.bossTier();
-        if (tag == null || !SlayerHUD.ownBoss() || (tier != 3 && tier != 4) || SlayerHUD.bossName() == null
-                || !SlayerHUD.bossName().startsWith("Inferno")) {
-            if (tag == null) pitBoss = null;
-            return;
-        }
-        double hp = SlayerHUD.currentHP();
-        if (tag != pitBoss) {
-            pitBoss = tag;
-            pitMaxHp = hp;
-            pitLastHp = hp;
-            return;
-        }
-        if (hp > pitMaxHp) pitMaxHp = hp;
-        double limit = pitMaxHp * 0.33;
-        if (hp > 0 && hp < limit && pitLastHp >= limit) {
-            Minecraft mc = Minecraft.getInstance();
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal("§cFire Pits!"));
-            pitWarnAt = now;
-        }
-        pitLastHp = hp;
+        return false;
     }
 
-    private static void draw(GuiGraphicsExtractor g, Minecraft mc, int x, int y, float scale, String line1, String line2) {
-        g.pose().pushMatrix();
-        g.pose().translate(x, y);
-        g.pose().scale(scale, scale);
-        g.text(mc.font, line1, 0, 0, 0xFFFFFFFF, true);
-        if (line2 != null) g.text(mc.font, line2, 0, 10, 0xFFFFFFFF, true);
-        g.pose().popMatrix();
+    private static void scanTotem(Minecraft mc, TeslaMapsConfig c) {
+        if (!SlayerQuest.bossActive() || !"Inferno Demonlord".equals(SlayerQuest.boss())) {
+            totemLine = null;
+            lastTotemSec = -1;
+            return;
+        }
+        Entity center = SlayerHUD.getBossEntity() != null ? SlayerHUD.getBossEntity() : mc.player;
+        AABB box = center.getBoundingBox().inflate(25, 15, 25);
+        ArmorStand best = null;
+        Matcher bestM = null;
+        double bestD = Double.MAX_VALUE;
+        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, box, ArmorStand::hasCustomName)) {
+            String n = StringUtil.stripTrim(as.getName().getString());
+            if (!n.endsWith("hits") && !n.endsWith("hit")) continue;
+            Matcher m = TOTEM.matcher(n);
+            if (!m.matches()) continue;
+            double d = as.distanceToSqr(center);
+            if (d < bestD) {
+                bestD = d;
+                best = as;
+                bestM = m;
+            }
+        }
+        if (best == null) {
+            totemLine = null;
+            lastTotemSec = -1;
+            return;
+        }
+        int sec = Integer.parseInt(bestM.group(1));
+        totemLine = "§6Totem: §e" + sec + "s §7| §c" + bestM.group(2) + " hits";
+        if (c.infernoTotemPing > 0 && sec == c.infernoTotemPing && sec != lastTotemSec) {
+            mc.gui.setTimes(0, 20, 5);
+            mc.gui.setTitle(Component.literal("§6§lTotem!"));
+            LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.5f);
+        }
+        if (c.firePillarTitle && sec <= 5 && sec != lastTotemSec && bestD <= 22 * 22) {
+            mc.gui.setTimes(0, 15, 3);
+            mc.gui.setTitle(Component.literal("§5§l" + sec + "s " + bestM.group(2) + " hits"));
+            if (c.firePillarSound) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.0f);
+        }
+        lastTotemSec = sec;
+    }
+
+    private static void renderTotem(GuiGraphicsExtractor g, DeltaTracker d) {
+        List<String> ls = totemLines;
+        if (totemHud == null || ls.isEmpty() || !cfg().infernoTotemDisplay || Minecraft.getInstance().options.hideGui) return;
+        TextHud.draw(g, Minecraft.getInstance(), totemHud.x(), totemHud.y(), totemHud.scale(), ls, totemW);
+    }
+
+    private static void renderGummy(GuiGraphicsExtractor g, DeltaTracker d) {
+        List<String> ls = gummyLines;
+        if (gummyHud == null || ls.isEmpty() || !cfg().gummyTimer || Minecraft.getInstance().options.hideGui) return;
+        TextHud.draw(g, Minecraft.getInstance(), gummyHud.x(), gummyHud.y(), gummyHud.scale(), ls, gummyW);
     }
 }

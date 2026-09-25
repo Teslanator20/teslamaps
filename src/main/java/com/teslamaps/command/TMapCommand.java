@@ -157,6 +157,7 @@ public class TMapCommand {
                 .then(com.teslamaps.features.HideExCoopMembers.command())
                 .then(com.teslamaps.features.MinionFeatures.command())
                 .then(com.teslamaps.features.IslandAlerts.command())
+                .then(com.teslamaps.features.mining.BlockStrengthGuide.command())
                 .then(com.teslamaps.features.HoppityEventStats.command())
                 .then(com.teslamaps.dungeon.RunLogger.command())
                 .then(com.teslamaps.features.customize.CustomizeKey.attach(ClientCommands.literal("customize")
