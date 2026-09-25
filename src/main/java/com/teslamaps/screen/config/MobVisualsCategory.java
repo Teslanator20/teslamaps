@@ -17,6 +17,12 @@ public final class MobVisualsCategory {
         b.button("Pick Mobs (/tmap mobs)",
                 () -> Minecraft.getInstance().setScreen(new MobVisualScreen(b.screen())));
         b.toggle("  Glow", () -> config.mobVisualGlow, v -> config.mobVisualGlow = v);
+        b.toggle("    Pests Green For Contest Crop", () -> config.pestGlowContest, v -> config.pestGlowContest = v)
+                .desc("During a Jacob's contest, picked pests of the crop you are scoring glow green")
+                .tags("pest", "jacob", "contest", "glow");
+        b.toggle("    Pests Teal For Playing Vinyl", () -> config.pestGlowVinyl, v -> config.pestGlowVinyl = v)
+                .desc("Outside contests, picked pests the running Stereo Harmony vinyl targets glow dark aqua. Open Stereo Harmony once to read it")
+                .tags("pest", "vinyl", "stereo", "glow");
         b.toggle("  Tracers", () -> config.mobVisualTracer, v -> config.mobVisualTracer = v);
         b.toggle("    Tracer to Every Mob", () -> config.mobVisualTracerAll, v -> config.mobVisualTracerAll = v);
         b.info("Off draws one line per species, to the nearest one");

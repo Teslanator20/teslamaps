@@ -600,6 +600,14 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w14-05-gar
+        com.teslamaps.features.JacobContests.register();
+        com.teslamaps.features.PestFinder.register();
+        com.teslamaps.features.PestKillTracker.register();
+        com.teslamaps.features.PestTraps.register();
+        com.teslamaps.features.PestSpawnStats.register();
+        com.teslamaps.features.GardenWarpCommands.register();
+        com.teslamaps.features.mobvisuals.PestGlowColors.register();
         // w14-07-min
         com.teslamaps.features.mining.Commissions.register();
         com.teslamaps.features.mining.CommissionWaypoints.register();

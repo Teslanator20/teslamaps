@@ -210,7 +210,7 @@ public final class MobVisuals {
     static void register(Minecraft mc, Entity entity, Mob mob) {
         if (mob.glow()) {
             glowing.add(entity);
-            glowColors.put(entity, mob.glowColorRGB());
+            glowColors.put(entity, PestGlowColors.color(mob, mob.glowColorRGB()));
             // a non-marker stand would outline arms, body and legs as well as the head
             if (entity instanceof ArmorStand stand && !stand.isMarker()) headOnlyGlow.add(entity);
         }

@@ -25,6 +25,7 @@ public class PestOverlay {
         if (PestData.spray() != null || PlotSprays.notSprayedHere()) rows++;
         rows += PlotSprays.rows().size();
         if (showPestChance()) rows++;
+        if (TeslaMapsConfig.get().pestSpawnStats) rows += PestSpawnStats.averageText() == null ? 1 : 2;
         return rows;
     }
 
@@ -78,7 +79,7 @@ public class PestOverlay {
      * seeing the number fall tells you whether to start walking back.
      */
     private static void countdown(TeslaMapsConfig config, boolean ready, int seconds) {
-        if (ready || seconds < 0 || seconds > config.pestCooldownWarnAt) {
+        if (ready || seconds < 0 || seconds > config.pestCooldownWarnAt || (config.pestCountdownWardrobePause && inWardrobe())) {
             lastCountdown = -1;
             return;
         }
@@ -103,6 +104,11 @@ public class PestOverlay {
             float pitch = 1.0f + (span - seconds) / (float) span * 0.6f;
             LoudSound.play(sound, config.pestCooldownVolume, pitch);
         }
+    }
+
+    private static boolean inWardrobe() {
+        var screen = Minecraft.getInstance().screen;
+        return screen != null && screen.getTitle().getString().contains("Wardrobe");
     }
 
     private static long lastNag = 0L;
@@ -364,6 +370,16 @@ public class PestOverlay {
                 context.text(mc.font, value, PANEL_WIDTH - PADDING - mc.font.width(value), row, 0xFFFFFFFF, true);
             } else {
                 drawRow(context, mc, "Pest Chance", bpc + "%", AppleColors.ACCENT_GREEN, row);
+            }
+        }
+
+        if (TeslaMapsConfig.get().pestSpawnStats) {
+            row += LINE;
+            drawRow(context, mc, "Last Spawn", PestSpawnStats.lastText(), AppleColors.TEXT_PRIMARY, row);
+            String avg = PestSpawnStats.averageText();
+            if (avg != null) {
+                row += LINE;
+                drawRow(context, mc, "Average", avg, AppleColors.TEXT_PRIMARY, row);
             }
         }
 
