@@ -57,6 +57,7 @@ public class InGameHudMixin {
     @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method = "extractPlayerHealth",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getAbsorptionAmount()F"))
     private float teslamaps$accurateAbsorption(float original) {
+        if (com.teslamaps.config.TeslaMapsConfig.get().hideAbsorption) return 0f;
         return com.teslamaps.features.AccurateAbsorption.absorption(original);
     }
 

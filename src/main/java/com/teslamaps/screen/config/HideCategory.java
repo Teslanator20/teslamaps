@@ -70,6 +70,8 @@ public final class HideCategory {
         b.toggle("Hide Hidden Item Particles", () -> config.hideDungeonItemParticles, v -> config.hideDungeonItemParticles = v);
         b.info("Firework/dust at hidden Superboom, Revive Stone, Premium Flesh and orbs");
         b.toggle("Hide Cheap Coins", () -> config.hideCheapCoins, v -> config.hideCheapCoins = v);
+        b.toggle("Hide Wither Cloak Creepers", () -> config.hideCloakCreepers, v -> config.hideCloakCreepers = v)
+                .desc("Invisible powered creepers from Wither Cloak are not drawn. They still block clicks.");
         b.label("Screen & World Hiders");
         b.button("Toggle All Screen & World Hiders", () -> {
             int enabled = 0, total = 26;
@@ -184,6 +186,12 @@ public final class HideCategory {
                 .desc("Flying arrows stay visible.");
         b.toggle("Hide Stuck Arrows", () -> config.noStuckArrows, v -> config.noStuckArrows = v);
         b.toggle("Hide Death Animation", () -> config.noDeathAnimation, v -> config.noDeathAnimation = v);
+        b.toggle("Hide Death Particles", () -> config.hideDeathParticles, v -> config.hideDeathParticles = v)
+                .desc("No smoke puff when a mob dies.");
+        b.toggle("Hide Fire On Entities", () -> config.hideEntityFire, v -> config.hideEntityFire = v)
+                .desc("Burning mobs and players are drawn without flames. Your own fire overlay is Hide Fire Overlay.");
+        b.toggle("Hide Enderman Teleport", () -> config.hideEndermanTeleport, v -> config.hideEndermanTeleport = v)
+                .desc("No portal particle burst when an enderman teleports.");
         b.toggle("Hide Mage Beams", () -> config.hideMageBeams, v -> config.hideMageBeams = v)
                 .desc("Drops the firework particles of mage beams in dungeons.");
         b.toggle("Hide Witherborn Withers", () -> config.hideWitherbornWithers, v -> config.hideWitherbornWithers = v)
@@ -217,6 +225,8 @@ public final class HideCategory {
         b.toggle("  No Underwater FOV Change", () -> config.noWaterFov, v -> config.noWaterFov = v);
         b.toggle("  Hide Wither Impact Particles", () -> config.hideWitherImpactParticles, v -> config.hideWitherImpactParticles = v)
                 .desc("Drops witch and heart particles (Hyperion spam).");
+        b.toggle("Hide Night Vision", () -> config.noNightVision, v -> config.noNightVision = v)
+                .desc("The night vision effect no longer brightens the world.");
         b.label("Interface");
         b.toggle("Hide Inventory Effects", () -> config.hideInventoryEffects, v -> config.hideInventoryEffects = v);
         b.toggle("Hide Effects (HUD)", () -> config.noEffects, v -> config.noEffects = v);
@@ -234,6 +244,10 @@ public final class HideCategory {
                 .desc("SkyBlock: no item name above the hotbar when switching slots.");
         b.toggle("Hide Health Hearts", () -> config.hideHealthBar, v -> config.hideHealthBar = v);
         b.toggle("Hide Air Bubbles", () -> config.hideAirBar, v -> config.hideAirBar = v);
+        b.toggle("Hide Absorption Hearts", () -> config.hideAbsorption, v -> config.hideAbsorption = v)
+                .desc("No yellow hearts above the health bar.");
+        b.toggle("Hide Mount Health", () -> config.hideMountHealth, v -> config.hideMountHealth = v)
+                .desc("Hearts of the horse or other mount you ride.");
         b.toggle("Hide Boss Bar", () -> config.hideBossBar, v -> config.hideBossBar = v)
                 .desc("Hides every boss bar at the top of the screen, dungeon bosses included.");
         b.toggle("Hide XP Bar", () -> config.hideXpBar, v -> config.hideXpBar = v)

@@ -2513,6 +2513,38 @@ public class TeslaMapsConfig {
     public String coloredNameSelf = "FF55FF";
     public boolean coloredNameUsers = true;
     public String coloredNameUserColor = "55FFFF";
+    // w09-05-vis
+    public boolean mobIcons = false;
+    public String mobIconsStyle = "Short";
+    public java.util.Map<String, String> mobIconColors = new java.util.HashMap<>();
+    public boolean playerSize = false;
+    public String playerSizeTarget = "Self";
+    public float playerSizeX = 1f;
+    public float playerSizeY = 1f;
+    public float playerSizeZ = 1f;
+    public boolean playerTrail = false;
+    public String playerTrailColor = "FF55FFFF";
+    public float playerTrailLength = 40f;
+    public float playerTrailWidth = 2f;
+    public boolean playerModel = false;
+    public String playerModelTarget = "Self";
+    public String playerModelType = "Cat";
+    public boolean playerModelBaby = false;
+    public boolean petDragon = false;
+    public float petDragonSize = 0.15f;
+    public float petDragonHeight = 2.5f;
+    public float petDragonDistance = 2.5f;
+    public float petDragonAngle = 0f;
+    public float petDragonSpeed = 1f;
+    public String petDragonColor = "None";
+    public boolean petDragonThirdPersonOnly = false;
+    public boolean hideCloakCreepers = false;
+    public boolean hideAbsorption = false;
+    public boolean hideMountHealth = false;
+    public boolean hideEntityFire = false;
+    public boolean hideDeathParticles = false;
+    public boolean noNightVision = false;
+    public boolean hideEndermanTeleport = false;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;
@@ -4174,6 +4206,7 @@ public class TeslaMapsConfig {
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
         if (c.sackNotifyItems == null) c.sackNotifyItems = new java.util.ArrayList<>();
         if (c.chatMutedPlayers == null) c.chatMutedPlayers = new java.util.ArrayList<>();
+        if (c.mobIconColors == null) c.mobIconColors = new java.util.HashMap<>();
         if (c.imageShareLinks == null) c.imageShareLinks = new java.util.HashMap<>();
         if (c.tabStatsHudStats == null) c.tabStatsHudStats = "Ferocity";
         if (c.trackerHidden == null) c.trackerHidden = new java.util.HashMap<>();
