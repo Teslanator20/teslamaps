@@ -2160,6 +2160,7 @@ public class TeslaMapsConfig {
     public String score270Text = "";                       // own chat/party text, empty = default
     public boolean score300Title = false;
     public String score300TitleText = "&c300 Score!";
+    public boolean scoreTitleSound = false;
     public String score300Text = "";
     public boolean chestProfitHud = false;                 // movable chest profit list after the run
     public int chestProfitHudX = 10;
@@ -2261,7 +2262,6 @@ public class TeslaMapsConfig {
     public boolean scoreHud = false;                   // own score HUD with rank + breakdown
     public String scoreHudMode = "Full";               // Full / Minimized / Score Only
     public boolean scoreHudHideInBoss = false;
-    public boolean scoreHudMilestoneTitle = false;     // title + sound at 270 / 300
     public int scoreHudX = 10;
     public int scoreHudY = 120;
     public float scoreHudScale = 1.0f;

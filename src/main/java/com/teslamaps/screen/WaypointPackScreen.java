@@ -58,7 +58,6 @@ public class WaypointPackScreen extends Screen {
         }
         GuiSounds.resetHover();
         rebuild();
-        ScreenFit.clamp(this);
     }
 
     private void rebuild() {
@@ -86,6 +85,7 @@ public class WaypointPackScreen extends Screen {
             nameBoxes.add(box);
             nameBoxOriginals.add(name);
         }
+        ScreenFit.clamp(this);
     }
 
     private boolean commitRenames() {
@@ -114,6 +114,7 @@ public class WaypointPackScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() != 0) return super.mouseClicked(event, doubleClick);
         double mx = event.x(), my = event.y();
         if (commitRenames()) rebuild();
 

@@ -55,6 +55,8 @@ public final class RunLogger {
         public int secrets = -1;
         public Map<String, String> party = new LinkedHashMap<>();
         public List<String> rooms = new ArrayList<>();
+        public List<String> loot = new ArrayList<>();
+        public double lootProfit;
     }
 
     private static List<Run> runs;
@@ -139,6 +141,19 @@ public final class RunLogger {
         save();
     }
 
+    /** In-run reward chest bought; attached to the newest run of that floor. */
+    public static void attachLoot(String floor, String chest, double profit, List<String> items) {
+        if (!cfg().runLogger || !cfg().section("Score & Splits")) return;
+        List<Run> list = load();
+        if (list.isEmpty()) return;
+        Run r = list.get(list.size() - 1);
+        if (!floor.equals(r.floor) || System.currentTimeMillis() - r.at > 10 * 60_000L) return;
+        if (r.loot == null) r.loot = new ArrayList<>();
+        r.loot.add(chest + ": " + String.join(", ", items));
+        r.lootProfit += profit;
+        save();
+    }
+
     private static int parseTime(String s) {
         int total = 0;
         Matcher m = TIME_PART.matcher(s);
@@ -215,8 +230,11 @@ public final class RunLogger {
             return 1;
         }
         int sPlus = 0, s = 0, other = 0, secrets = 0, secretRuns = 0, deaths = 0, fastest = Integer.MAX_VALUE, timed = 0;
+        int lootRuns = 0;
+        double lootProfit = 0;
         long totalTime = 0;
         for (Run r : list) {
+            if (r.loot != null && !r.loot.isEmpty()) { lootRuns++; lootProfit += r.lootProfit; }
             if ("S+".equals(r.rank)) sPlus++;
             else if ("S".equals(r.rank)) s++;
             else other++;
@@ -236,6 +254,8 @@ public final class RunLogger {
                 if (span > 0) say(src, " §7Runs/h §a" + String.format(Locale.ROOT, "%.1f", n * 3600000.0 / span));
             }
         }
+        if (lootRuns > 0) say(src, " §7Chest profit/run §6" + String.format(Locale.ROOT, "%,.0f", lootProfit / lootRuns)
+                + " §8(" + lootRuns + " runs with logged chests)");
         return 1;
     }
 

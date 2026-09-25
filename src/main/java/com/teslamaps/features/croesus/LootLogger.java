@@ -65,6 +65,7 @@ public final class LootLogger {
     private static long pendingAt;
     private static String croesusFloor;
     private static Object lastScreen;
+    private static int snapTicks;
 
     private LootLogger() {}
 
@@ -109,7 +110,9 @@ public final class LootLogger {
         if (cs != lastScreen) {
             lastScreen = cs;
             pending = null;
+            snapTicks = 0;
         }
+        if (snapTicks++ % 5 != 0) return;
         Entry e = snapshot(cs, chest);
         if (e != null) {
             pending = e;
@@ -195,6 +198,8 @@ public final class LootLogger {
         e.t = System.currentTimeMillis();
         load().add(e);
         save();
+        if (DungeonManager.isInDungeon())
+            com.teslamaps.dungeon.RunLogger.attachLoot(floor, e.chest, e.value - e.cost, e.items);
     }
 
     private static List<Entry> load() {

@@ -112,6 +112,8 @@ public class ArrowAlignSolver {
                 if (server == currentRotations[index]) recentClicks.remove(index);
                 else if (now - clickedAt < PREDICTION_MS) server = currentRotations[index];
                 else recentClicks.remove(index);
+            } else if (clickedAt != null && server == -1 && now - clickedAt < PREDICTION_MS && currentRotations != null) {
+                server = currentRotations[index];
             }
             rotations[index] = server;
         }

@@ -152,10 +152,6 @@ public class DungeonScore {
 
         debugCounter++;
 
-        if (score < 200 && (sent270 || sent300)) {
-            sent270 = false;
-            sent300 = false;
-        }
         if (!sent270 && !sent300 && score >= 270 && score < 300) {
             sent270 = true;
             sendScoreMessage(270);
@@ -196,11 +192,8 @@ public class DungeonScore {
             mc.gui.setTimes(0, 40, 10);
             mc.gui.setTitle(Component.literal(t.replace("{time}", timeStr).replace('&', '§')));
             mc.gui.setSubtitle(Component.empty());
-        } else if (config.scoreHud && config.scoreHudMilestoneTitle && config.section("Score & Splits")) {
-            mc.gui.setTimes(5, 40, 10);
-            mc.gui.setTitle(Component.literal((milestone == 300 ? "§6§l" : "§e§l") + milestone + " Score"));
-            mc.gui.setSubtitle(Component.literal("§7@ " + timeStr));
-            mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, milestone == 300 ? 2.0f : 1.5f);
+            if (config.scoreTitleSound)
+                mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, milestone == 300 ? 2.0f : 1.5f);
         }
 
         boolean announce = (milestone == 300 && config.announce300) || (milestone == 270 && config.announce270);

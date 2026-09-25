@@ -59,7 +59,7 @@ public class BossBarHealth {
                 return withPercent(event, originalName);
             return originalName;
         }
-        String name = originalName.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        String name = com.teslamaps.utils.StringUtil.stripTrim(originalName.getString());
         if (c.watcherBossbarKills && name.equals("The Watcher") && !DungeonManager.isInBossArea()) {
             float f = ((LerpingBossEventAccessor) event).teslamaps$getTargetPercent();
             DungeonFloor fl = DungeonManager.getCurrentFloor();

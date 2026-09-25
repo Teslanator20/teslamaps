@@ -32,6 +32,8 @@ public final class DragonExtras {
         return mc.player != null && f != null && f.getLevel() == 7 && DungeonManager.isInDungeon() && mc.player.getY() <= 45;
     }
 
+    private static final Entity[] glowCache = new Entity[WitherDragons.Dragon.values().length];
+
     private static void tickGlow() {
         if (LegitMode.blocksCheats() || !p5()) return;
         Minecraft mc = Minecraft.getInstance();
@@ -41,8 +43,13 @@ public final class DragonExtras {
             DragonCheck.HealthEntry entry = DragonCheck.dragonHealthMap.get(dragon.entityUUID);
             Entity e = entry != null ? entry.dragon() : null;
             if (e == null) {
-                for (EnderDragon d : mc.level.getEntitiesOfClass(EnderDragon.class, mc.player.getBoundingBox().inflate(200))) {
-                    if (dragon.entityUUID.equals(d.getUUID())) { e = d; break; }
+                Entity cached = glowCache[dragon.ordinal()];
+                if (cached != null && cached.isAlive() && dragon.entityUUID.equals(cached.getUUID())) e = cached;
+                else if (mc.level.getGameTime() % 10 == 0) {
+                    for (EnderDragon d : mc.level.getEntitiesOfClass(EnderDragon.class, mc.player.getBoundingBox().inflate(200))) {
+                        if (dragon.entityUUID.equals(d.getUUID())) { e = d; break; }
+                    }
+                    glowCache[dragon.ordinal()] = e;
                 }
             }
             if (e != null && e.isAlive()) EntityGlow.mark(e, dragon.colorArgb & 0xFFFFFF);

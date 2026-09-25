@@ -148,7 +148,7 @@ public final class PartyFinderHelper {
                     String f = floorName(floor, dungeon);
                     if (f != null) tips.put(slot.index, f);
                 }
-                counts.put(slot.index, String.valueOf(classes.size()));
+                counts.put(slot.index, "§e" + classes.size());
                 Integer col = null;
                 if (c.pfMarkIneligible && ineligible) col = DARK_RED;
                 else if (c.pfMarkCarries && PRICE.matcher(note).matches() && CARRY.matcher(note).matches()) col = RED;
@@ -211,7 +211,7 @@ public final class PartyFinderHelper {
             }
             if (c.pfMemberCount && kind == 1) {
                 String t = countTip.get(slot.index);
-                if (t != null) ctx.text(mc.font, "§e" + t, sx, sy, 0xFFFFFFFF, true);
+                if (t != null) ctx.text(mc.font, t, sx, sy, 0xFFFFFFFF, true);
             }
         }
     }

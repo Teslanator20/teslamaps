@@ -26,10 +26,7 @@ public class ServerLagTimer {
     public static void register() {
         Feature.of("ServerLagTimer").section("Score & Splits").when(() -> cfg().serverLagTimer)
                 .tick(ServerLagTimer::tick)
-                .serverChat(ServerLagTimer::onChat)
-                .config("Score & Splits", b -> b.toggle("  Server Lag Line", () -> cfg().serverLagTimer,
-                        v -> cfg().serverLagTimer = v)
-                        .desc("At the end of a run: how long the server lagged (client vs server ticks since Mort), inside the compact summary when that is on"));
+                .serverChat(ServerLagTimer::onChat);
     }
 
     private static void tick() {

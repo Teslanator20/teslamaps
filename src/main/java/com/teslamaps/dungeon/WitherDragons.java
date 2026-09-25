@@ -263,9 +263,9 @@ public class WitherDragons {
         }
 
         if (config.witherDragonPriorityTracer && priorityDragon != null && priorityDragon.state == State.SPAWNING
-                && mc.player != null && mc.renderBuffers() != null) {
+                && mc.player != null) {
             ESPRenderer.drawTracerFromCamera(matrices, priorityDragon.center(), priorityDragon.colorArgb,
-                    cameraPos, mc.renderBuffers().bufferSource(), config.witherDragonTracerWidth);
+                    cameraPos, false, config.witherDragonTracerWidth);
         }
     }
 

@@ -282,6 +282,13 @@ public class ESPRenderer {
         finally { depthTested = false; }
     }
 
+    public static void drawTracerFromCamera(PoseStack matrices, Vec3 target, int color, Vec3 cameraPos,
+                                            boolean throughWalls, float lineWidth) {
+        depthTested = !throughWalls;
+        try { drawTracerFromCamera(matrices, target, color, cameraPos, lineWidth); }
+        finally { depthTested = false; }
+    }
+
     public static void drawTracerFromCamera(PoseStack matrices, Vec3 target, int color, Vec3 cameraPos, float lineWidth) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;

@@ -183,6 +183,9 @@ public class DungeonWaypoints {
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (!TeslaMapsConfig.get().dungeonWaypoints) return;
         if (TeslaMapsConfig.get().waypointEditMode) renderPreview(matrices, cameraPos);
+        boolean any = false;
+        for (int p = 0; p < active.size() && !any; p++) any = !active.get(p).isEmpty();
+        if (!any) return;
 
         // Context-scoped waypoints (boss arena / per area) — absolute coords, shown only in that context.
         String ctx = currentContextKey();
