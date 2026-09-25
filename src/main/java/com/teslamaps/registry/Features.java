@@ -516,6 +516,9 @@ final class Features {
         com.teslamaps.features.KeepTerrainLoaded.register();
         com.teslamaps.features.ErrorManager.register();
         com.teslamaps.features.inspector.Inspector.register();
+        // w12-00-gui
+        com.teslamaps.features.customize.ModifyIndicator.register();
+        com.teslamaps.features.QuickModSwitch.register();
         // w12-06-eco
         com.teslamaps.features.bazaar.BazaarOrderTracker.register();
         com.teslamaps.features.bazaar.PurchaseGuard.register();

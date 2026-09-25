@@ -230,10 +230,45 @@ public class SafariTracker {
         }
         if (++panelTicks < 10) return;
         panelTicks = 0;
-        cachedLines = c.safariHud && isActive() && !c.safariHudPanel ? buildLines() : List.of();
-        progressPanel = c.safariHud && c.safariHudPanel && nearSafari() ? progressPanel(view()) : null;
+        cachedLines = !c.safariHud || c.safariHudPanel ? List.of()
+                : isActive() ? buildLines() : showsHere(c, false) ? viewLines(view()) : List.of();
+        progressPanel = c.safariHud && c.safariHudPanel && showsHere(c, true) ? progressPanel(view()) : null;
         SafariData.Biome here = in ? SafariData.currentBiome() : null;
         missingPanel = c.safariMissingPanel && here != null ? missingPanel(here, runStart != 0 ? currentView() : null) : null;
+    }
+
+    public static final String[] SHOW_WHERE = {"Auto", "Only In Safari", "Safari + Entrance", "Everywhere"};
+
+    // critterMod's CritterConfig.Scope; Auto = panel at Safari + entrance, line HUD only during a run
+    private static boolean showsHere(TeslaMapsConfig c, boolean panel) {
+        return switch (c.safariShowWhere == null ? "Auto" : c.safariShowWhere) {
+            case "Only In Safari" -> SafariData.inSafari();
+            case "Safari + Entrance" -> nearSafari();
+            case "Everywhere" -> true;
+            default -> panel ? nearSafari() : isActive();
+        };
+    }
+
+    /** Line HUD outside a run: "ready" before the first one, else the last run. */
+    private static List<String> viewLines(RunView v) {
+        List<String> out = new ArrayList<>();
+        int total = SafariData.ALL.size();
+        if (v == null) {
+            out.add("§bCritter Safari §7(ready)");
+            out.add("§7Dex: §a0§7/§f" + total);
+            return out;
+        }
+        out.add("§bCritter Safari §7(last run) §f" + SafariHistory.time(v.elapsedMs()));
+        out.add("§7Dex: §a" + v.dex() + "§7/§f" + total + " §8(§7own §f" + v.own() + "§8)");
+        StringBuilder biomes = new StringBuilder();
+        for (SafariData.Biome b : SafariData.Biome.values()) {
+            int have = doneIn(v, b);
+            int max = SafariData.countIn(b);
+            if (biomes.length() > 0) biomes.append(" §8| ");
+            biomes.append(b.color).append(b.label).append(" ").append(have >= max ? "§a" : "§f").append(have).append("§7/").append(max);
+        }
+        out.add(biomes.toString());
+        return out;
     }
 
     /** The Safari or its entrance, where the "ready" / "last run" view is worth showing. */
@@ -1173,7 +1208,10 @@ public class SafariTracker {
             if (p != null) p.draw(context, mc.font, c.safariHudX, c.safariHudY, c.safariHudScale);
             return;
         }
-        if (!isActive()) return;
+        if (!isActive()) {
+            if (!cachedLines.isEmpty()) draw(context, mc, c.safariHudX, c.safariHudY, c.safariHudScale, cachedLines);
+            return;
+        }
         draw(context, mc, c.safariHudX, c.safariHudY, c.safariHudScale, lines());
     }
 

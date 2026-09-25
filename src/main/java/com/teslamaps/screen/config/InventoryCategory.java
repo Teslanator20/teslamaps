@@ -298,6 +298,9 @@ public final class InventoryCategory {
         b.info("/tmap customize rename|dye|trim|glint|model|reset ... acts on the held item");
         b.toggle("  Glint Colors", () -> config.customGlintColors, v -> config.customGlintColors = v)
                 .desc("Adds a glint color field to the Item tab of the customize screen.");
+        b.dropdown("  Mark Modified Items", com.teslamaps.features.customize.ModifyIndicator.MODES,
+                () -> config.modifyIndicator, v -> config.modifyIndicator = v)
+                .desc("Customized items get a small ✎ before or after their name, or a \"Modified by TeslaMaps\" lore line.");
         b.toggle("Axes In 1.8 Look", () -> config.revertAxes, v -> config.revertAxes = v)
                 .desc("Ragnarock and Daedalus Axe render as a golden axe, Axe of the Shredded as a diamond axe. Visual only.");
         b.toggle("  Migrate Renamed Item Models", () -> config.migrateItemModels, v -> config.migrateItemModels = v);

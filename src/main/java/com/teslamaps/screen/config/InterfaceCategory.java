@@ -124,6 +124,13 @@ public final class InterfaceCategory {
                 () -> config.configScreenKeyExclusive, v -> config.configScreenKeyExclusive = v);
         b.info("Right Shift by default, press again to close");
         b.info("Block Other Mods eats the key before anything else sees it");
+        b.toggle("  Key Conflict Warning", () -> config.keyConflictWarning, v -> config.keyConflictWarning = v)
+                .desc("Key buttons turn red when the same key is also bound elsewhere in TeslaMaps, in a hotkey or in the vanilla/other mods' controls. Hover the button to see which.")
+                .tags("keybind", "conflict", "duplicate");
+        b.toggle("  Quick Mod Menu Switch", () -> config.quickModSwitch, v -> config.quickModSwitch = v)
+                .desc("Inside the config screens of known mods (TeslaMaps, Skyblocker, SkyHanni, Devonian, Odin, SkyOcean, Firmament) a list of the other installed ones; a click opens their menu. Position in /tmap gui.")
+                .tags("mod menu", "switch");
+        b.toggle("    Also In Pause Menu", () -> config.quickModSwitchPause, v -> config.quickModSwitchPause = v);
         com.teslamaps.features.FeatureToggleKeys.config(b, config);
         b.label("Performance HUD");
         b.toggle("Performance HUD", () -> config.perfHud, v -> config.perfHud = v);

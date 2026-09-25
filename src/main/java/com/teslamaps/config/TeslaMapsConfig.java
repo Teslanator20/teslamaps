@@ -2158,6 +2158,20 @@ public class TeslaMapsConfig {
     public boolean devInspector = false;
     public int entityInspectorKey = -1;
     public int itemInspectorKey = -1;
+    // w12-00-gui
+    public String modifyIndicator = "Off";
+    public boolean quickModSwitch = false;
+    public boolean quickModSwitchPause = false;
+    public int quickModSwitchX = 132, quickModSwitchY = 34; public float quickModSwitchScale = 1.0f;
+    public boolean keyConflictWarning = false;
+    public boolean noTextShadow = false;
+    public int stHealthBarW = -1, stManaBarW = -1;
+    public String stHealthBarColor = "E53935", stManaBarColor = "1E88E5";
+    public String stHealthBarText = "Off", stManaBarText = "Off";
+    public boolean stHealthBarMax = true, stManaBarMax = true;
+    public boolean stHealthBarOver = true, stManaBarOver = true;
+    public boolean stHealthBarReverse = false, stManaBarReverse = false;
+    public String safariShowWhere = "Auto";
     // w12-06-eco
     public boolean bzTracker = false;
     public int bzTrackerMaxOrders = 10;

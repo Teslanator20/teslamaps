@@ -22,6 +22,19 @@ public class VisualWordsFontMixin {
         return TextVisuals.on ? TextVisuals.replace(text) : text;
     }
 
+    // Ported from FloydAddons' FontMixin (Disable Text Shadow)
+    @ModifyVariable(method = "prepareText(Ljava/lang/String;FFIZI)Lnet/minecraft/client/gui/Font$PreparedText;",
+            at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    private boolean teslamaps$noShadowString(boolean shadow) {
+        return shadow && !TextVisuals.noShadow;
+    }
+
+    @ModifyVariable(method = "prepareText(Lnet/minecraft/util/FormattedCharSequence;FFIZZI)Lnet/minecraft/client/gui/Font$PreparedText;",
+            at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    private boolean teslamaps$noShadowSequence(boolean shadow) {
+        return shadow && !TextVisuals.noShadow;
+    }
+
     @ModifyVariable(method = "width(Ljava/lang/String;)I", at = @At("HEAD"), argsOnly = true)
     private String teslamaps$wordsWidthString(String text) {
         return TextVisuals.on ? TextVisuals.replace(text) : text;

@@ -146,6 +146,7 @@ public class ColumnConfigScreen extends MapConfigScreen {
         boolean down = GLFW.glfwGetMouseButton(win, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
         boolean rightDown = GLFW.glfwGetMouseButton(win, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
         boolean clicked = down && !wasMouseDown;
+        if (clicked && com.teslamaps.features.QuickModSwitch.covers(this, mouseX, mouseY)) clicked = false;
         boolean rightClicked = rightDown && !wasRightDown;
         wasRightDown = rightDown;
         boolean onWidget = overWidget(mouseX, mouseY);
