@@ -13,6 +13,8 @@ public class BossBarHealth {
     public static Component onRender(LerpingBossEvent event, Component originalName) {
         if (!TeslaMapsConfig.get().bossbarHealth) return originalName;
         if (!DungeonManager.isInDungeon()) return originalName;
+        Component interest = SadanFeatures.interestName(event);
+        if (interest != null) return interest;
 
         float maxHealth = getMaxHealth(originalName.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").trim());
         if (maxHealth <= 0) return originalName;

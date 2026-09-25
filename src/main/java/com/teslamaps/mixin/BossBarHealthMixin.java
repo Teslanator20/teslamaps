@@ -16,4 +16,10 @@ public class BossBarHealthMixin {
     private Component teslamaps$appendHealth(LerpingBossEvent instance, Operation<Component> original) {
         return BossBarHealth.onRender(instance, original.call(instance));
     }
+
+    @WrapOperation(method = "extractBar(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IILnet/minecraft/world/BossEvent;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/BossEvent;getProgress()F"))
+    private float teslamaps$sadanProgress(net.minecraft.world.BossEvent instance, Operation<Float> original) {
+        return com.teslamaps.features.SadanFeatures.interestProgress(instance, original.call(instance));
+    }
 }

@@ -52,6 +52,14 @@ public class M4Highlight {
         if (c.m4HlWolf) draw(matrices, M4Mobs.wolves, col(c.m4ColorWolf), style, cameraPos);
         if (c.m4HlRabbit) draw(matrices, M4Mobs.rabbits, col(c.m4ColorRabbit), style, cameraPos);
 
+        if (c.m4HlSpiritBow && !M4Mobs.bows.isEmpty()) {
+            int color = col(c.m4ColorSpiritBow);
+            for (Entity e : M4Mobs.bows) {
+                AABB b = new AABB(e.getX() - 0.375, e.getY(), e.getZ() - 0.375, e.getX() + 0.375, e.getY() + 1.975, e.getZ() + 0.375);
+                drawStyled(matrices, b, color, style, cameraPos);
+            }
+        }
+
         if (c.m4HlThorn && M4Mobs.thorn != null) {
             int color = (c.m4ThornDmgFlash && damaged > 0) ? col(c.m4ColorThornDmg) : col(c.m4ColorThorn);
             drawStyled(matrices, M4Mobs.thorn.getBoundingBox(), color, style, cameraPos);

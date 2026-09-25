@@ -114,7 +114,7 @@ public class TimerTriggers {
         }
         if (m.contains("[BOSS] Storm: ENERGY HEED MY CALL!")
                 || m.contains("[BOSS] Storm: THUNDER LET ME BE YOUR CATALYST!")) purplePadTicks = 96;
-        if (m.contains("[BOSS] Necron: All this, for nothing...")) relicTicks = 45;
+        if (m.contains("[BOSS] Necron: All this, for nothing...")) relicTicks = TeslaMapsConfig.get().relicSpawnTicks;
         // Odin tick timers (F7/M7 boss)
         if (m.contains("[BOSS] Necron: I'm afraid, your journey ends now.")) necronDropTicks = 60;
         if (m.contains("[BOSS] Goldor: Who dares trespass into my domain?")) goldorTicks = 60;

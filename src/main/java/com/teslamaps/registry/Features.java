@@ -67,5 +67,11 @@ final class Features {
         com.teslamaps.features.croesus.KuudraKeys.register();
         com.teslamaps.features.pets.PetStore.register();
         com.teslamaps.features.pets.PetOverlay.register();
+        // w02-09-boss
+        com.teslamaps.features.SadanFeatures.register();
+        com.teslamaps.features.HideWitherKing.register();
+        com.teslamaps.features.ScarfSpawnTimer.register();
+        com.teslamaps.features.KingRelics.register();
+        com.teslamaps.features.LastBreathSound.register();
     }
 }

@@ -44,6 +44,14 @@ public final class AutoCategory {
         b.label("Auto Wish");
         b.toggle("Auto Wish (Healer Ult)", () -> config.autoWish, v -> config.autoWish = v);
         b.toggle("Last Breath Pull Sound", () -> config.lastBreathSound, v -> config.lastBreathSound = v);
+        b.toggle("  Charge HUD (LB: ticks)", () -> config.lastBreathHud, v -> config.lastBreathHud = v);
+        b.toggle("  Target Per Dragon (M7 P5)", () -> config.lastBreathPerDragon, v -> config.lastBreathPerDragon = v)
+                .desc("Target ticks follow the dragon spawn box you look at; elsewhere the global threshold applies.");
+        b.slider("    Red", 0f, 21f, () -> (float) config.lastBreathRed, v -> config.lastBreathRed = Math.round(v), 0);
+        b.slider("    Orange", 0f, 21f, () -> (float) config.lastBreathOrange, v -> config.lastBreathOrange = Math.round(v), 0);
+        b.slider("    Green", 0f, 21f, () -> (float) config.lastBreathGreen, v -> config.lastBreathGreen = Math.round(v), 0);
+        b.slider("    Blue", 0f, 21f, () -> (float) config.lastBreathBlue, v -> config.lastBreathBlue = Math.round(v), 0);
+        b.slider("    Purple", 0f, 21f, () -> (float) config.lastBreathPurple, v -> config.lastBreathPurple = Math.round(v), 0);
         b.label("Chests");
         b.toggle("Auto Close Chests", () -> config.autoCloseChests, v -> config.autoCloseChests = v);
         b.slider("  Auto Close Delay (ticks)", 0, 20, () -> (float) config.autoCloseDelay, v -> config.autoCloseDelay = v.intValue());

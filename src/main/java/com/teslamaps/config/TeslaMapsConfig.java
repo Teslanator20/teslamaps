@@ -2130,6 +2130,33 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w02-09-boss
+    public boolean sadanTerracottaHide = false;
+    public boolean sadanTerracottaSounds = true;
+    public boolean sadanTerracottaSplashes = false;
+    public boolean sadanInterest = false;
+    public boolean m4HlSpiritBow = false;
+    public String m4ColorSpiritBow = "FF00FF";
+    public boolean scarfSpawnTimer = false;
+    public boolean springBootsReady = false;
+    public boolean hideWitherKing = false;
+    public boolean kingRelics = false;
+    public boolean kingRelicBeacon = true;
+    public boolean kingRelicPlaceTime = true;
+    public boolean kingRelicSpawnMsg = true;
+    public int relicSpawnTicks = 45;
+    @Global
+    public java.util.Map<String, Float> kingRelicPbs = new java.util.HashMap<>();
+    public boolean lastBreathHud = false;
+    public int lastBreathHudX = 200;
+    public int lastBreathHudY = 150;
+    public float lastBreathHudScale = 1.0f;
+    public boolean lastBreathPerDragon = false;
+    public int lastBreathRed = 10;
+    public int lastBreathOrange = 10;
+    public int lastBreathGreen = 10;
+    public int lastBreathBlue = 10;
+    public int lastBreathPurple = 10;
 
     public static TeslaMapsConfig get() {
         return instance;
@@ -2217,6 +2244,7 @@ public class TeslaMapsConfig {
         if (c.puzzlePbs == null) c.puzzlePbs = new java.util.HashMap<>();
         if (c.termSimPbs == null) c.termSimPbs = new java.util.HashMap<>();
         if (c.terminalPbs == null) c.terminalPbs = new java.util.HashMap<>();
+        if (c.kingRelicPbs == null) c.kingRelicPbs = new java.util.HashMap<>();
         if (c.sectionEnabled == null) c.sectionEnabled = new java.util.HashMap<>();
         Boolean oldGeneral = c.sectionEnabled.remove("General"); // category renamed to Skills
         if (oldGeneral != null) c.sectionEnabled.putIfAbsent("Skills", oldGeneral);
