@@ -30,8 +30,8 @@ public abstract class LivingEntityAlphaMixin {
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;F)V",
             at = @At("TAIL"))
     private void teslamaps$alpha(LivingEntity entity, LivingEntityRenderState state, float pt, CallbackInfo ci) {
-        ((EntityAlphaHolder) state).teslamaps$setAlpha(Math.min(CommonSeaCreatureHider.alpha(entity),
-                com.teslamaps.features.HidePlayers.alpha(entity)));
+        ((EntityAlphaHolder) state).teslamaps$setAlpha(Math.min(Math.min(CommonSeaCreatureHider.alpha(entity),
+                com.teslamaps.features.HidePlayers.alpha(entity)), com.teslamaps.slayer.SlayerTransparency.alpha(entity)));
     }
 
     @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
