@@ -219,5 +219,9 @@ final class Features {
         // w05-02-inv
         com.teslamaps.features.MenuSlotText.register();
         com.teslamaps.features.StatIcons.register();
+        // w05-04-inv
+        com.teslamaps.features.TooltipBorder.register();
+        com.teslamaps.features.HotxPerkCurrency.register();
+        com.teslamaps.features.ToolkitCropIcons.register();
     }
 }

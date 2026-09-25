@@ -48,6 +48,9 @@ public class MenuHighlights {
     private static final Pattern LOADOUTS = Pattern.compile("\\(\\d+/\\d+\\) Loadouts");
     private static final Pattern LOCKED = Pattern.compile("Loadout \\d+ Locked");
     private static final Pattern THAUMATURGY = Pattern.compile("(?:\\(\\d/\\d\\) )?Accessory Bag Thaumaturgy");
+    private static final Pattern WIDGETS_MAIN = Pattern.compile("(?:\\(\\d+/\\d+\\) )?Widgets (?:in|on) .*");
+    private static final Pattern WIDGETS_SUB = Pattern.compile("Shown .* Setting.*|.*Widget Settings");
+    private static final Pattern NPC_LOCATION = Pattern.compile("Location: \\[\\d+, \\d+, \\d+]");
     private static final int[] LOADOUT_ICONS = {14, 15, 16, 23, 24, 25, 32, 33, 34, 41, 42, 43};
 
     private static List<Mark> marks = List.of();
@@ -81,6 +84,10 @@ public class MenuHighlights {
                     b.toggle("  Stats Tuning: Points, Template", () -> c.mhStatsTuning, v -> c.mhStatsTuning = v);
                     b.toggle("    Template Stats, Free Points, Tuning", () -> c.mhStatsTuningMore, v -> c.mhStatsTuningMore = v)
                             .desc("Load button lists the template's stats, the Stats Tuning item shows free points, and the Thaumaturgy menu shows your tuning on the Stats Tuning item.");
+                    b.toggle("  Tab Widgets: Enabled / Disabled", () -> c.mhTabWidgets, v -> c.mhTabWidgets = v)
+                            .desc("/tab widget menus: enabled widgets green, disabled red.");
+                    b.toggle("  Stranded: Placeable NPCs", () -> c.mhStrandedNpcs, v -> c.mhStrandedNpcs = v)
+                            .desc("Island NPCs menu: NPCs you can place but have not placed yet go green.");
                 });
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (!missingStones.isEmpty() && feature.active()) onTooltip(stack, lines);
@@ -113,7 +120,13 @@ public class MenuHighlights {
         boolean tuning = c.mhStatsTuning && t.equals("Stats Tuning");
         boolean tuneMore = tuning && c.mhStatsTuningMore;
         boolean thaumTune = c.mhStatsTuning && c.mhStatsTuningMore && THAUMATURGY.matcher(t).matches();
-        if (!(beacon || hub || rng || museum || loadout || stones || thaum || tuning || thaumTune)) { clear(); return; }
+        boolean widgetMain = c.mhTabWidgets && WIDGETS_MAIN.matcher(t).matches();
+        boolean widgetSub = c.mhTabWidgets && WIDGETS_SUB.matcher(t).matches();
+        boolean npcs = c.mhStrandedNpcs && t.equals("Island NPCs");
+        if (!(beacon || hub || rng || museum || loadout || stones || thaum || tuning || thaumTune || widgetMain || widgetSub || npcs)) {
+            clear();
+            return;
+        }
 
         List<Mark> m = new ArrayList<>();
         List<Tip> tp = new ArrayList<>();
@@ -154,6 +167,13 @@ public class MenuHighlights {
                 if (has(lore, "SELECTED")) m.add(new Mark(i, YELLOW));
             }
             if (museum && has(lore, "Items Donated: 100%")) m.add(new Mark(i, GREEN));
+            if (widgetMain && startsWith(lore, "Currently:")) {
+                m.add(new Mark(i, endsWith(lore, "ENABLED") ? GREEN : RED));
+            }
+            if (widgetSub && !lore.isEmpty() && StringUtil.stripTrim(lore.get(lore.size() - 1)).startsWith("Click to ")) {
+                m.add(new Mark(i, endsWith(lore, "disable!") ? GREEN : RED));
+            }
+            if (npcs && isPlaceableNpc(lore)) m.add(new Mark(i, GREEN));
             if (loadout && isLoadoutIcon(i) && isEquippedLoadout(stack, name, lore)) m.add(new Mark(i, GREEN));
             if (stones && has(lore, "Learned: Not Yet ✖")) {
                 m.add(new Mark(i, RED));
@@ -271,6 +291,25 @@ public class MenuHighlights {
     private static boolean has(List<String> lore, String line) {
         for (String l : lore) if (StringUtil.stripTrim(l).equals(line)) return true;
         return false;
+    }
+
+    private static boolean startsWith(List<String> lore, String prefix) {
+        for (String l : lore) if (StringUtil.stripTrim(l).startsWith(prefix)) return true;
+        return false;
+    }
+
+    private static boolean endsWith(List<String> lore, String suffix) {
+        for (String l : lore) if (StringUtil.stripTrim(l).endsWith(suffix)) return true;
+        return false;
+    }
+
+    // SkyHanni's HighlightPlaceableNpcs: placeable = "click to set/spawn" last line, no location yet
+    private static boolean isPlaceableNpc(List<String> lore) {
+        if (lore.isEmpty()) return false;
+        String last = StringUtil.stripTrim(lore.get(lore.size() - 1));
+        if (!last.equals("Click to set the location of this NPC!") && !last.equals("location!")) return false;
+        for (String l : lore) if (NPC_LOCATION.matcher(StringUtil.stripTrim(l)).matches()) return false;
+        return true;
     }
 
     private static boolean contains(List<String> lore, String part) {

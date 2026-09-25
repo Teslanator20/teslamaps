@@ -55,7 +55,24 @@ public final class Experimentation {
                     b.toggle("  Max Superpairs Clicks Alert", () -> cfg().expMaxRoundsAlert, v -> cfg().expMaxRoundsAlert = v);
                     b.toggle("  Ultra-Rare Alert", () -> cfg().expUltraRareAlert, v -> cfg().expUltraRareAlert = v);
                     b.toggle("  Superpairs XP On Dyes", () -> cfg().expSuperpairsXp, v -> cfg().expSuperpairsXp = v);
+                    b.toggle("Hide Tooltips In Chronomatron/Ultrasequencer", () -> cfg().expHideTooltips, v -> cfg().expHideTooltips = v)
+                            .desc("No item tooltips in those two games, so they never cover the flashing slots.");
                 });
+    }
+
+    private static Screen tipScreen;
+    private static boolean tipHide;
+
+    // SkyblockAddons' SHOW_EXPERIMENTATION_TABLE_TOOLTIPS
+    public static boolean hideTooltip(Screen s) {
+        TeslaMapsConfig c = cfg();
+        if (!c.expHideTooltips || !c.section("Inventory")) return false;
+        if (s != tipScreen) {
+            tipScreen = s;
+            String t = StringUtil.stripTrim(s.getTitle().getString());
+            tipHide = t.startsWith("Chronomatron") || t.startsWith("Ultrasequencer");
+        }
+        return tipHide;
     }
 
     private static void tick() {
