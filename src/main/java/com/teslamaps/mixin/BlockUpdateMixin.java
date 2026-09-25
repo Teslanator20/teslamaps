@@ -23,6 +23,9 @@ public class BlockUpdateMixin {
             com.teslamaps.features.BlockEsp.onBlockUpdate(pos, newState);
         }
         if (!DungeonManager.isInDungeon()) {
+            if (com.teslamaps.features.mining.TreasureChestHelper.listening() && ((Level) (Object) this).isClientSide()) {
+                com.teslamaps.features.mining.TreasureChestHelper.onBlockUpdate(pos, newState);
+            }
             if (com.teslamaps.features.mining.MineshaftPity.tracking()) {
                 Level level = (Level) (Object) this;
                 if (level.isClientSide()) com.teslamaps.features.mining.MineshaftPity.onBlockUpdate(pos, level.getBlockState(pos), newState);

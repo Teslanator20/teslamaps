@@ -81,28 +81,43 @@ public class CollectionsPage extends ProfileViewerPage {
 
         List<CollectionRepo.Category> categories = CollectionRepo.categories();
         if (categories.isEmpty()) return;
-        category = Math.min(category, categories.size() - 1);
+        boolean minions = com.teslamaps.profileviewer.PvExtras.minions();
+        int railCount = categories.size() + (minions ? 1 : 0);
+        category = Math.min(category, railCount - 1);
 
-        for (int i = 0; i < categories.size(); i++) {
+        for (int i = 0; i < railCount; i++) {
             int bx = left + 6;
             int by = top + 10 + i * 20;
             boolean selected = i == category;
             boolean hovered = mouseX >= bx && mouseX < bx + RAIL - 6 && mouseY >= by && mouseY < by + 18;
 
             if (selected) NeuStyle.slimBox(ctx, bx, by, RAIL - 6, 18);
-            ctx.text(tr, categories.get(i).name(), bx + 6, by + 5,
+            ctx.text(tr, i < categories.size() ? categories.get(i).name() : "Minions", bx + 6, by + 5,
                     selected ? NeuStyle.TEXT_YELLOW : hovered ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
         }
 
         NeuStyle.divider(ctx, left + RAIL + 1, top + 8, NeuStyle.PANEL_HEIGHT - 16);
 
-        CollectionRepo.Category current = categories.get(category);
-        List<CollectionRepo.Entry> items = current.items();
-
         int contentX = left + RAIL + 8;
         int contentWidth = left + width + 8 - contentX;
         int contentTop = top + 24;
         int available = top + height + 8 - contentTop - 14;
+
+        if (category >= categories.size()) {
+            pageCount = 1;
+            pagerW = 0;
+            if (minionTree == null || minionProfile != profile || minionWidth != contentWidth) {
+                minionProfile = profile;
+                minionWidth = contentWidth;
+                minionTree = minionTree(profile, contentWidth);
+            }
+            ctx.text(tr, minionHeader, contentX, top + 10, NeuStyle.TEXT_YELLOW);
+            drawTree(ctx, minionTree, contentX, contentTop, contentWidth, mouseX, mouseY);
+            return;
+        }
+
+        CollectionRepo.Category current = categories.get(category);
+        List<CollectionRepo.Entry> items = current.items();
 
         // rows per page from the real cell height, not a guess - a guessed 30 pushed rows that
         // still fit onto the next page
@@ -142,15 +157,77 @@ public class CollectionsPage extends ProfileViewerPage {
         }
     }
 
+    private Ui minionTree;
+    private Object minionProfile;
+    private int minionWidth;
+    private String minionHeader = "";
+
+    private static final String[] ROMAN = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"};
+
+    /** Minion grid per category like /craftedgenerators: highest unbroken tier, tiers in the tooltip. */
+    private Ui minionTree(SkyblockProfile profile, int width) {
+        Map<String, java.util.Set<Integer>> crafted = com.teslamaps.profileviewer.data.MinionData.crafted(profile);
+        int slot = 18;
+        int perRow = Math.max(1, (width + 1) / (slot + 1));
+        int unique = 0;
+        int maxedTotal = 0;
+        for (java.util.Set<Integer> tiers : crafted.values()) unique += tiers.size();
+
+        List<Ui> sections = new ArrayList<>();
+        for (Map.Entry<String, List<String>> category : com.teslamaps.profileviewer.data.MinionData.categories().entrySet()) {
+            List<Ui> icons = new ArrayList<>();
+            int unlocked = 0;
+            int maxed = 0;
+            for (String minion : category.getValue()) {
+                int max = com.teslamaps.profileviewer.data.MinionData.maxTier(minion);
+                java.util.Set<Integer> tiers = crafted.getOrDefault(minion, java.util.Set.of());
+                int shown = 0;
+                while (shown < max && tiers.contains(shown + 1)) shown++;
+                int count = 0;
+                for (int t = 1; t <= max; t++) if (tiers.contains(t)) count++;
+                boolean isMax = count >= max;
+                if (count > 0) unlocked++;
+                if (isMax) maxed++;
+
+                String name = Kit.prettify(minion) + " Minion";
+                List<String> tooltip = new ArrayList<>();
+                tooltip.add((isMax ? "§a" : count == 0 ? "§c" : "§e") + name);
+                for (int t = 1; t <= max; t++) {
+                    boolean have = tiers.contains(t);
+                    tooltip.add((have ? "§a✔" : "§c✖") + " Tier " + ROMAN[Math.min(t, ROMAN.length) - 1]);
+                }
+                icons.add(new Ui.Tip(com.teslamaps.profileviewer.ui.SlotIcon.ofId(
+                                minion + "_GENERATOR_" + Math.max(1, shown), Kit.icon("player_head"), slot, true)
+                        .corner(shown > 0 ? String.valueOf(shown) : "-",
+                                isMax ? NeuStyle.TEXT_GOLD : shown > 0 ? 0xFFFFFFFF : NeuStyle.TEXT_RED),
+                        tooltip));
+            }
+            maxedTotal += maxed;
+            List<Ui> rows = new ArrayList<>();
+            for (int i = 0; i < icons.size(); i += perRow) {
+                rows.add(Ui.row(1, Ui.V.TOP, new ArrayList<>(icons.subList(i, Math.min(i + perRow, icons.size())))));
+            }
+            sections.add(Ui.col(2,
+                    new Ui.Label(Kit.prettify(category.getKey()) + " " + unlocked + "/" + category.getValue().size()
+                            + (maxed > 0 ? " - " + maxed + " maxed" : ""), NeuStyle.TEXT_GREEN, Ui.SMALL),
+                    Ui.col(1, rows)));
+        }
+        minionHeader = "Minions - " + unique + " unique crafts, " + maxedTotal + " maxed";
+        return Ui.col(5, sections);
+    }
+
     private final Map<CollectionRepo.Entry, Ui> cellCache = new java.util.IdentityHashMap<>();
     private Object cellProfile;
     private List<CollectionRepo.Category> cellRepo;
     private int cellCacheWidth = -1;
+    private int cellRankVersion = -1;
 
     private Ui cell(CollectionRepo.Entry entry, long amount, int cellWidth) {
         SkyblockProfile profile = getProfile();
         List<CollectionRepo.Category> repo = CollectionRepo.categories();
-        if (profile != cellProfile || repo != cellRepo || cellWidth != cellCacheWidth) {
+        int rankVersion = com.teslamaps.profileviewer.PvExtras.ranks() ? com.teslamaps.profileviewer.data.EliteRanks.version() : -1;
+        if (profile != cellProfile || repo != cellRepo || cellWidth != cellCacheWidth || rankVersion != cellRankVersion) {
+            cellRankVersion = rankVersion;
             cellCache.clear();
             cellProfile = profile;
             cellRepo = repo;
@@ -189,6 +266,11 @@ public class CollectionsPage extends ProfileViewerPage {
         } else {
             tooltip.add("§7Next: §f" + Kit.compact(amount) + "§7/§f" + Kit.compact(next));
             tooltip.add("§7To max: §e" + Kit.dots(CollectionRepo.toMax(entry, amount)));
+        }
+        if (com.teslamaps.profileviewer.PvExtras.ranks()) {
+            String rank = com.teslamaps.profileviewer.data.EliteRanks.line(
+                    com.teslamaps.profileviewer.data.EliteRanks.collectionRank(entry.id()));
+            if (rank != null) tooltip.add(rank);
         }
 
         return new Ui.Tip(Ui.row(5, Ui.V.CENTER, new Ui.Icon(icon(entry.id()), 16, false, null), body), tooltip);
@@ -272,7 +354,8 @@ public class CollectionsPage extends ProfileViewerPage {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         List<CollectionRepo.Category> categories = CollectionRepo.categories();
-        for (int i = 0; i < categories.size(); i++) {
+        int railCount = categories.size() + (com.teslamaps.profileviewer.PvExtras.minions() ? 1 : 0);
+        for (int i = 0; i < railCount; i++) {
             int bx = lastLeft + 6;
             int by = lastTop + 10 + i * 20;
             if (mouseX >= bx && mouseX < bx + RAIL - 6 && mouseY >= by && mouseY < by + 18) {

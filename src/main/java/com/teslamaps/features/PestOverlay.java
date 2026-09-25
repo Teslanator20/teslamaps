@@ -22,10 +22,20 @@ public class PestOverlay {
     private static int rows() {
         int rows = 3;   // Spawn, Blocks/s, Philip
         if (TeslaMapsConfig.get().pestOverlayAlivePlots) rows += plotsText == null ? 1 : 2;
-        if (PestData.spray() != null) rows++;
-        if (PestData.bonusPestChance() > 0 && PestRoutine.pestChanceGearOn()) rows++;
+        if (PestData.spray() != null || PlotSprays.notSprayedHere()) rows++;
+        rows += PlotSprays.rows().size();
+        if (showPestChance()) rows++;
+        if (TeslaMapsConfig.get().pestSpawnStats) rows += PestSpawnStats.averageText() == null ? 1 : 2;
+        if (com.teslamaps.features.garden.CropFever.shown()) rows++;
         return rows;
     }
+
+    private static boolean showPestChance() {
+        if (PestData.bonusPestChance() <= 0) return false;
+        return TeslaMapsConfig.get().pestChanceAlways || PestRoutine.pestChanceGearOn();
+    }
+
+    private static final Component BPC_OFF_TAIL = Component.literal(" OFF").withStyle(net.minecraft.ChatFormatting.RED);
 
     private static String aliveText = "0";
     private static int aliveColor = 0xFFAAAAAA;
@@ -70,7 +80,7 @@ public class PestOverlay {
      * seeing the number fall tells you whether to start walking back.
      */
     private static void countdown(TeslaMapsConfig config, boolean ready, int seconds) {
-        if (ready || seconds < 0 || seconds > config.pestCooldownWarnAt) {
+        if (ready || seconds < 0 || seconds > config.pestCooldownWarnAt || (config.pestCountdownWardrobePause && inWardrobe())) {
             lastCountdown = -1;
             return;
         }
@@ -95,6 +105,11 @@ public class PestOverlay {
             float pitch = 1.0f + (span - seconds) / (float) span * 0.6f;
             LoudSound.play(sound, config.pestCooldownVolume, pitch);
         }
+    }
+
+    private static boolean inWardrobe() {
+        var screen = Minecraft.getInstance().screen;
+        return screen != null && screen.getTitle().getString().contains("Wardrobe");
     }
 
     private static long lastNag = 0L;
@@ -146,9 +161,9 @@ public class PestOverlay {
         if (config.pestGearReminder && ready && alive == 0 && !PestRoutine.pestChanceGearOn()) {
             title = "§cPest Chance Loadout";
             subtitle = "§7spawn cooldown is up";
-        } else if (config.pestTpReminder && alive >= 2 && PestData.pestsOnCurrentPlot() == 0) {
+        } else if (config.pestTpReminder && alive >= tpReminderMin(config) && PestData.pestsOnCurrentPlot() == 0) {
             title = "§c" + alive + " Pests waiting";
-            subtitle = "§7not on their plot";
+            subtitle = config.pestTpReminderMin <= 0 ? "§7farming fortune is lowered" : "§7not on their plot";
         }
 
         if (title == null) {
@@ -156,8 +171,14 @@ public class PestOverlay {
             return;
         }
 
-        if (System.currentTimeMillis() - lastNag < NAG_INTERVAL) return;
+        long interval = Math.clamp(config.pestTpReminderInterval, 1, 60) * 1000L;
+        if (System.currentTimeMillis() - lastNag < (title.startsWith("§cPest Chance") ? NAG_INTERVAL : interval)) return;
         warn(config, title, subtitle);
+    }
+
+    // SkyOcean's PestWarning: auto = the count where the fortune debuff starts
+    private static int tpReminderMin(TeslaMapsConfig config) {
+        return config.pestTpReminderMin <= 0 ? 8 : config.pestTpReminderMin;
     }
 
     private static void warn(TeslaMapsConfig config, String title, String subtitle) {
@@ -329,12 +350,44 @@ public class PestOverlay {
             String sprayText = sprayLeft >= 60 ? (sprayLeft / 60) + "m" : sprayLeft + "s";
             drawRow(context, mc, "Spray", sprayText,
                     sprayLeft <= 60 ? AppleColors.ACCENT_RED : AppleColors.TEXT_PRIMARY, row);
+        } else if (PlotSprays.notSprayedHere()) {
+            row += LINE;
+            drawRow(context, mc, "Spray", "Not sprayed!", AppleColors.ACCENT_RED, row);
+        }
+        for (PlotSprays.Row r : PlotSprays.rows()) {
+            row += LINE;
+            drawRow(context, mc, r.label(), r.value(), r.color(), row);
         }
 
         int bpc = PestData.bonusPestChance();
-        if (bpc > 0 && PestRoutine.pestChanceGearOn()) {
+        if (showPestChance()) {
             row += LINE;
-            drawRow(context, mc, "Pest Chance", bpc + "%", AppleColors.ACCENT_GREEN, row);
+            if (TeslaMapsConfig.get().pestChanceAlways && PestData.bonusPestChanceDisabled()) {
+                context.text(mc.font, Component.literal("Pest Chance"), PADDING, row,
+                        com.teslamaps.render.gui.HudStyle.label(), true);
+                Component value = Component.literal(bpc + "%")
+                        .withStyle(net.minecraft.ChatFormatting.RED, net.minecraft.ChatFormatting.STRIKETHROUGH)
+                        .append(BPC_OFF_TAIL);
+                context.text(mc.font, value, PANEL_WIDTH - PADDING - mc.font.width(value), row, 0xFFFFFFFF, true);
+            } else {
+                drawRow(context, mc, "Pest Chance", bpc + "%", AppleColors.ACCENT_GREEN, row);
+            }
+        }
+
+        if (TeslaMapsConfig.get().pestSpawnStats) {
+            row += LINE;
+            drawRow(context, mc, "Last Spawn", PestSpawnStats.lastText(), AppleColors.TEXT_PRIMARY, row);
+            String avg = PestSpawnStats.averageText();
+            if (avg != null) {
+                row += LINE;
+                drawRow(context, mc, "Average", avg, AppleColors.TEXT_PRIMARY, row);
+            }
+        }
+
+        int fever = com.teslamaps.features.garden.CropFever.secondsLeft();
+        if (fever >= 0 && TeslaMapsConfig.get().cropFeverTimer) {
+            row += LINE;
+            drawRow(context, mc, "Crop Fever", fever + "s", 0xFFFFAA00, row);
         }
 
         context.pose().popMatrix();

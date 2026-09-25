@@ -82,8 +82,11 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.SecretTrackerLocator.onParticle(packet);
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
         com.teslamaps.features.foraging.FloorDrops.onParticle(packet);
+        com.teslamaps.features.GlowingMushrooms.onParticle(packet);
         com.teslamaps.features.EventTracker.onParticle(packet);
         com.teslamaps.features.mobvisuals.MobVisuals.onParticle(packet);
+        com.teslamaps.features.mining.TreasureChestHelper.onParticle(packet);
+        com.teslamaps.features.garden.PestGuess.onParticle(packet);
     }
 
     @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",
@@ -104,7 +107,8 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.MageBeam.onParticle(packet)
                     || com.teslamaps.features.ParticleHiders.hideParticle(packet)
                     || com.teslamaps.features.AbilityRadius.hideParticle(packet)
-                    || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet))) ci.cancel();
+                    || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet)
+                    || com.teslamaps.features.garden.PestGuess.hideParticle(packet))) ci.cancel();
     }
 
     @Inject(method = "handleInitializeBorder", at = @At("HEAD"))
@@ -192,6 +196,7 @@ public class ClientPlayNetworkHandlerMixin {
     private void onSoundEventSecrets(net.minecraft.network.protocol.game.ClientboundSoundPacket packet, CallbackInfo ci) {
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()) {
             com.teslamaps.features.SecretWaypoints.onSound(packet);
+            com.teslamaps.features.mining.TreasureChestHelper.onSound(packet);
             if (com.teslamaps.features.SecretSounds.onSoundPacket(packet)
                     | com.teslamaps.features.SecretChime.onSoundPacket(packet)) ci.cancel();
         }
@@ -225,6 +230,7 @@ public class ClientPlayNetworkHandlerMixin {
     private void onSetTitle(ClientboundSetTitleTextPacket packet, CallbackInfo ci) {
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
         if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) return;
+        if (com.teslamaps.features.FarmingRngTitles.hideTitle(packet.text().getString())) { ci.cancel(); return; }
         if (com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), false)) { ci.cancel(); return; }
         if (com.teslamaps.features.TimerTriggers.onTitle(packet.text().getString())) ci.cancel();
     }
@@ -233,7 +239,8 @@ public class ClientPlayNetworkHandlerMixin {
     private void onSetSubtitle(ClientboundSetSubtitleTextPacket packet, CallbackInfo ci) {
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()
-                && (com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), true)
+                && (com.teslamaps.features.FarmingRngTitles.hideSubtitle(packet.text().getString())
+                    || com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), true)
                     || com.teslamaps.features.F7Titles.onSubtitle(packet.text().getString()))) ci.cancel();
     }
 

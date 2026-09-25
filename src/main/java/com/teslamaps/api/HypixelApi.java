@@ -248,6 +248,30 @@ public class HypixelApi {
         return getExtra("bingo", "/skyblock/bingo?uuid=" + uuid, null, uuid);
     }
 
+    /** Current bingo card, keyless resources endpoint. */
+    public static CompletableFuture<JsonObject> getBingoGoals() {
+        return CompletableFuture.supplyAsync(() -> {
+            CacheEntry cached = cache.get("bingo_goals");
+            if (cached != null && !cached.isExpired()) return cached.data;
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(HYPIXEL_API + "/resources/skyblock/bingo"))
+                        .timeout(Duration.ofSeconds(15))
+                        .GET()
+                        .build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() != 200) return new JsonObject();
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                if (!json.has("success") || !json.get("success").getAsBoolean()) return new JsonObject();
+                cache.put("bingo_goals", new CacheEntry(json, 600000));
+                return json;
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.warn("Failed to fetch bingo goals: {}", e.toString());
+                return new JsonObject();
+            }
+        }, executor);
+    }
+
     private static CompletableFuture<JsonObject> getExtra(String kind, String path, String pvPath, String id) {
         return CompletableFuture.supplyAsync(() -> {
             String cacheKey = kind + ":" + id;

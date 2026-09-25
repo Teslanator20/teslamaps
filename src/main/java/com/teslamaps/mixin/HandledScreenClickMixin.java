@@ -28,6 +28,16 @@ public class HandledScreenClickMixin {
         com.teslamaps.features.WardrobeKeys.onSlotClicked((AbstractContainerScreen<?>) (Object) this, slot, button, type);
         com.teslamaps.features.StorageGuiScale.onClick((AbstractContainerScreen<?>) (Object) this);
         com.teslamaps.features.qol.TiaRelayHelper.onSlotClick(slot, slotId, button, type);
+        if (com.teslamaps.features.DnaAnalyzerSolver.onSlotClick((AbstractContainerScreen<?>) (Object) this, slotId, type)) {
+            ci.cancel();
+            return;
+        }
+        if (com.teslamaps.features.gardenqol.GardenHooks.blockSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)
+                || com.teslamaps.features.GardenMenuHelpers.blockClick((AbstractContainerScreen<?>) (Object) this, slot)) {
+            ci.cancel();
+            return;
+        }
+        com.teslamaps.features.VisitorStats.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot);
         if (com.teslamaps.features.bazaar.PurchaseGuard.blockClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
             ci.cancel();
             return;
@@ -49,12 +59,17 @@ public class HandledScreenClickMixin {
             return;
         }
         if (com.teslamaps.features.croesus.CroesusProfit.blockReroll((AbstractContainerScreen<?>) (Object) this, slot)
-                || com.teslamaps.features.MenuHighlights.onSlotClick(slot, type)) {
+                || com.teslamaps.features.MenuHighlights.onSlotClick(slot, type)
+                || com.teslamaps.features.garden.JacobContestMenus.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot)) {
             ci.cancel();
             return;
         }
         if (com.teslamaps.features.MinionFeatures.blockClick((AbstractContainerScreen<?>) (Object) this, slot, type)
                 || com.teslamaps.features.ClickFixes.blockHuntrap((AbstractContainerScreen<?>) (Object) this, slot)) {
+            ci.cancel();
+            return;
+        }
+        if (com.teslamaps.features.GardenPlotMenu.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
             ci.cancel();
             return;
         }
@@ -74,6 +89,7 @@ public class HandledScreenClickMixin {
                 || com.teslamaps.features.CommandHelpers.blockCoopClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.BazaarOwnOrders.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.QuickCraftConfirm.blockClick(slot)
+                || com.teslamaps.features.SupercraftHelper.blockClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)
                 || com.teslamaps.features.AbiphoneHelper.blockClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
             ci.cancel();
             return;
@@ -105,6 +121,8 @@ public class HandledScreenClickMixin {
         if (com.teslamaps.features.FillerItems.hideTooltip((AbstractContainerScreen<?>) (Object) this,
                 ((HandledScreenAccessor) (Object) this).getFocusedSlot())
                 || com.teslamaps.features.BazaarOwnOrders.hideTooltip((AbstractContainerScreen<?>) (Object) this,
+                ((HandledScreenAccessor) (Object) this).getFocusedSlot())
+                || com.teslamaps.features.DnaAnalyzerSolver.hideTooltip((AbstractContainerScreen<?>) (Object) this,
                 ((HandledScreenAccessor) (Object) this).getFocusedSlot())) ci.cancel();
     }
 
@@ -127,6 +145,7 @@ public class HandledScreenClickMixin {
         if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyPartyFinder.click((AbstractContainerScreen<?>) (Object) this, click)
+                || com.teslamaps.features.FancyAuctionHouse.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.RadialMenus.click((AbstractContainerScreen<?>) (Object) this, click)) {
             cir.setReturnValue(true);
             return;
@@ -137,8 +156,23 @@ public class HandledScreenClickMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.garden.ComposterOverlay.handleClick(mouseX, mouseY, button)) {
+            teslamaps$ate("ComposterOverlay", button);
+            cir.setReturnValue(true);
+            return;
+        }
         if (com.teslamaps.features.SackValueHud.handleClick(mouseX, mouseY, button)) {
             teslamaps$ate("SackValueHud", button);
+            cir.setReturnValue(true);
+            return;
+        }
+        if (com.teslamaps.features.garden.JacobContestTimes.handleClick(mouseX, mouseY, button)) {
+            teslamaps$ate("JacobContestTimes", button);
+            cir.setReturnValue(true);
+            return;
+        }
+        if (com.teslamaps.features.gardenqol.GardenHooks.click(mouseX, mouseY, button)) {
+            teslamaps$ate("GardenHooks", button);
             cir.setReturnValue(true);
             return;
         }

@@ -120,6 +120,10 @@ public class BazaarPrices {
         return "ENCHANTMENT_ULTIMATE_" + base + "_" + level;
     }
 
+    public static String idForName(String displayName) {
+        return displayName == null || displayName.isBlank() ? null : idFor(displayName.trim());
+    }
+
     private static String idFor(String displayName) {
         String key = displayName.toLowerCase(Locale.ROOT);
         String exception = EXCEPTIONS.get(key);
@@ -165,13 +169,16 @@ public class BazaarPrices {
      * share of the crafted form when that is worth more.
      */
     public static double priceOf(String displayName) {
+        return priceOf(displayName, mode());
+    }
+
+    public static double priceOf(String displayName, Mode mode) {
         refreshIfStale();
         String key = displayName.toLowerCase(Locale.ROOT);
 
         // Pest kills pay coins directly, so the amount is already the value.
         if (key.contains("coins")) return 1;
 
-        Mode mode = mode();
         String id = idFor(displayName);
         double raw = sellValue(id, mode);
 

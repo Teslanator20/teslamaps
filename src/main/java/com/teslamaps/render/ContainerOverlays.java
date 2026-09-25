@@ -66,6 +66,10 @@ public class ContainerOverlays {
         com.teslamaps.features.BazaarOwnOrders.render(context);
         com.teslamaps.features.TradeValue.render(context);
         com.teslamaps.features.BitsShopHelper.render(context);
+        com.teslamaps.features.foraging.StarlynCouponProfit.render(context, mouseX, mouseY);
+        com.teslamaps.features.NpcTradeCosts.render(context);
+        com.teslamaps.features.SupercraftHelper.render(context);
+        com.teslamaps.features.PesthunterProfit.render(context, mouseX, mouseY);
         com.teslamaps.features.bazaar.ManageAuctions.render(context);
         com.teslamaps.features.bazaar.BazaarPurchaseHelper.render(context);
         com.teslamaps.features.ProgressHighlight.render(context);
@@ -75,6 +79,9 @@ public class ContainerOverlays {
         com.teslamaps.features.GuideHighlight.render(context);
         com.teslamaps.features.CommissionHighlight.render(context);
         com.teslamaps.features.MenuHighlights.render(context);
+        com.teslamaps.features.garden.ComposterMenu.render(context);
+        com.teslamaps.features.garden.VisitorOffer.render(context);
+        com.teslamaps.features.garden.ComposterOverlay.render(context, mouseX, mouseY);
         com.teslamaps.features.CakeTracker.renderSlots(context);
         com.teslamaps.features.MuseumHelper.render(context);
         com.teslamaps.features.MinionHelper.renderPanel(context);
@@ -83,6 +90,8 @@ public class ContainerOverlays {
         com.teslamaps.features.ExperimentStats.render(context);
         com.teslamaps.features.qol.CityProject.render(context);
         com.teslamaps.features.EcoOverlays.render(context, mouseX, mouseY);
+        com.teslamaps.features.gardenqol.GardenHooks.render(context);
+        com.teslamaps.features.GardenMenuHelpers.render(context, mouseX, mouseY);
         com.teslamaps.features.AbiphoneHelper.render(context);
 
         if (com.teslamaps.features.foraging.HotF.shouldRender()) {
@@ -101,6 +110,7 @@ public class ContainerOverlays {
         com.teslamaps.features.FarmProfitOverlay.drawTooltip(context,
                 net.minecraft.client.Minecraft.getInstance(), mouseX, mouseY);
         com.teslamaps.features.GardenPlots.scanConfigureScreen();
+        com.teslamaps.features.garden.JacobContestTimes.render(context, mouseX, mouseY);
         if (com.teslamaps.features.GardenPlotsOverlay.shouldRender()) {
             com.teslamaps.features.GardenPlotsOverlay.render(context, mouseX, mouseY);
         }

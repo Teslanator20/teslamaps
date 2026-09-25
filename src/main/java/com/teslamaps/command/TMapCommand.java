@@ -825,6 +825,12 @@ public class TMapCommand {
                         .then(ClientCommands.literal("paste")
                                 .executes(context -> greenhouseLoad(context.getSource(),
                                         Minecraft.getInstance().keyboardHandler.getClipboard())))
+                        .then(ClientCommands.literal("presets")
+                                .executes(context -> {
+                                    Minecraft.getInstance().schedule(() -> Minecraft.getInstance()
+                                            .setScreen(new com.teslamaps.screen.GreenhousePresetsScreen(null)));
+                                    return 1;
+                                }))
                         .then(ClientCommands.literal("preset")
                                 .executes(context -> {
                                     var names = com.teslamaps.features.GreenhousePlanner.presetNames();

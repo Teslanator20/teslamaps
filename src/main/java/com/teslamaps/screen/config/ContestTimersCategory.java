@@ -18,6 +18,15 @@ public final class ContestTimersCategory {
                 () -> config.contestShowForaging, v -> config.contestShowForaging = v);
         b.toggle("  Farming Timer",
                 () -> config.contestShowFarming, v -> config.contestShowFarming = v);
+        b.toggle("    Contest Crops",
+                () -> config.contestCrops, v -> config.contestCrops = v)
+                .desc("The three crops of the running or next Jacob's contest under the farming line, boosted crop in gold. Read from the tab widget, /calendar or EliteSkyblock")
+                .tags("jacob", "crops", "contest", "boosted");
+        b.toggle("      Placement (Top x%)",
+                () -> config.contestCropsPlacement, v -> config.contestCropsPlacement = v);
+        b.toggle("      Fetch From EliteSkyblock",
+                () -> config.contestCropsFetch, v -> config.contestCropsFetch = v)
+                .desc("Loads this year's contests from api.eliteskyblock.com when none is known");
         b.toggle("  Dark Auction Timer",
                 () -> config.contestShowDarkAuction, v -> config.contestShowDarkAuction = v)
                 .desc("Time until the next Dark Auction (every hour at :55)");
@@ -29,6 +38,18 @@ public final class ContestTimersCategory {
         b.label("Alerts");
         b.toggle("Contest Started Alert",
                 () -> config.contestAlertStart, v -> config.contestAlertStart = v);
+        b.toggle("Contest Crop Warning",
+                () -> config.contestCropWarn, v -> config.contestCropWarn = v)
+                .desc("Chat, title and sound before a Jacob's contest with one of the chosen crops starts")
+                .tags("jacob", "crops", "contest", "warn");
+        b.slider("  Seconds Before", 10f, 600f,
+                () -> (float) config.contestCropWarnSeconds, v -> config.contestCropWarnSeconds = Math.round(v), 0);
+        b.searchList("  Only For Crops (none = all)",
+                () -> java.util.List.of(com.teslamaps.features.JacobContests.CROPS),
+                crop -> config.contestCropWarnFor.contains(crop),
+                crop -> { if (!config.contestCropWarnFor.remove(crop)) config.contestCropWarnFor.add(crop); });
+        b.toggle("  Flash Taskbar When Unfocused",
+                () -> config.contestCropWarnFlash, v -> config.contestCropWarnFlash = v);
         b.toggle("Alert if < 5 Minutes left",
                 () -> config.contestAlert5Min, v -> config.contestAlert5Min = v);
         b.toggle("Alert if < 1,5 Minutes left",

@@ -49,7 +49,7 @@ public final class InstaSellHighlight {
     }
 
     private static Double value(ItemStack st) {
-        if (st.isEmpty() || !SkyblockUtils.isInSkyblock()) return null;
+        if (st.isEmpty() || !SkyblockUtils.inSkyblockCached()) return null;
         long market = PriceManager.bazaarUpdatedAt();
         if (market != cacheMarket || cache.size() > 512) {
             cache.clear();

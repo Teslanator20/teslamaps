@@ -600,6 +600,117 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w14-05-gar
+        com.teslamaps.features.JacobContests.register();
+        com.teslamaps.features.PestFinder.register();
+        com.teslamaps.features.PestKillTracker.register();
+        com.teslamaps.features.PestTraps.register();
+        com.teslamaps.features.PestSpawnStats.register();
+        com.teslamaps.features.GardenWarpCommands.register();
+        com.teslamaps.features.mobvisuals.PestGlowColors.register();
+        // w13-06-gar
+        com.teslamaps.features.garden.GreenhouseModels.register();
+        com.teslamaps.features.garden.Composter.register();
+        com.teslamaps.features.garden.ComposterOverlay.register();
+        com.teslamaps.features.garden.ComposterMenu.register();
+        com.teslamaps.features.garden.CropMilestoneHud.register();
+        com.teslamaps.features.garden.FarmingFortuneHud.register();
+        com.teslamaps.features.garden.CropFever.register();
+        com.teslamaps.features.garden.VisitorOffer.register();
+        // w14-01-gar
+        com.teslamaps.features.visitors.Visitors.register();
+        com.teslamaps.features.visitors.VisitorShoppingList.register();
+        com.teslamaps.features.visitors.VisitorOffer.register();
+        com.teslamaps.features.visitors.VisitorRewardGuard.register();
+        com.teslamaps.features.visitors.VisitorArrival.register();
+        com.teslamaps.features.visitors.VisitorStatusHighlight.register();
+        com.teslamaps.features.gardenqol.MutationsWebsite.register();
+        com.teslamaps.features.gardenqol.GardenSafety.register();
+        com.teslamaps.features.gardenqol.BarnSolvers.register();
+        // w14-07-min
+        com.teslamaps.features.mining.Commissions.register();
+        com.teslamaps.features.mining.CommissionWaypoints.register();
+        com.teslamaps.features.mining.CommissionMobHighlight.register();
+        com.teslamaps.features.mining.CommissionTips.register();
+        com.teslamaps.features.mining.NucleusTracker.register();
+        com.teslamaps.features.mining.HollowsMap.register();
+        com.teslamaps.features.mining.TreasureChestHelper.register();
+        // w14-02-gar
+        com.teslamaps.features.YawPitchHud.register();
+        com.teslamaps.features.SpeedPresets.register();
+        com.teslamaps.features.RareCropTracker.register();
+        com.teslamaps.features.StereoHarmony.register();
+        com.teslamaps.features.GardenPlotBorders.register();
+        com.teslamaps.features.VisitorChat.register();
+        com.teslamaps.features.npc.VisitorLogbook.register();
+        com.teslamaps.features.VisitorStats.register();
+        // w14-03-gar
+        com.teslamaps.features.GardenTrashBlocks.register();
+        com.teslamaps.features.PhantomleafSolver.register();
+        com.teslamaps.features.VisitorsOutsideGarden.register();
+        com.teslamaps.features.GardenMenuHelpers.register();
+        // w14-04-gar
+        com.teslamaps.features.FarmingToolTooltips.register();
+        com.teslamaps.features.GardenPlotMenu.register();
+        com.teslamaps.features.FarmingStatsHud.register();
+        com.teslamaps.features.GardenUptime.register();
+        com.teslamaps.features.FarmKeys.register();
+        com.teslamaps.features.CarrolynHelper.register();
+        // w13-01-eco
+        com.teslamaps.features.foraging.StarlynCouponProfit.register();
+        com.teslamaps.features.SupercraftHelper.register();
+        com.teslamaps.features.NpcTradeCosts.register();
+        com.teslamaps.features.RngMeterHelper.register();
+        com.teslamaps.features.TradeHistory.register();
+        // w13-07-gar
+        com.teslamaps.features.GardenMilestoneData.register();
+        com.teslamaps.features.BestCropTime.register();
+        com.teslamaps.features.DnaAnalyzerSolver.register();
+        com.teslamaps.features.CropStartLocation.register();
+        com.teslamaps.features.GardenLevelHud.register();
+        com.teslamaps.features.CropFeverTracker.register();
+        com.teslamaps.features.CropMilestoneMenu.register();
+        com.teslamaps.features.FarmingRngTitles.register();
+        // w13-08-gar
+        com.teslamaps.features.CropStats.register();
+        com.teslamaps.features.AtmosphericFilter.register();
+        com.teslamaps.features.EliteLeaderboards.register();
+        com.teslamaps.features.CropSpeedMeter.register();
+        com.teslamaps.features.CropCalcCommands.register();
+        com.teslamaps.features.FortuneGuide.register();
+        com.teslamaps.features.FarmToolOverlays.register();
+        com.teslamaps.features.JacobContestFF.register();
+        // w13-09-gar
+        com.teslamaps.features.garden.GardenCropData.register();
+        com.teslamaps.features.garden.ContestStatsSummary.register();
+        com.teslamaps.features.garden.JacobContestMenus.register();
+        com.teslamaps.features.garden.JacobContestTimes.register();
+        com.teslamaps.features.garden.OptimalSpeed.register();
+        com.teslamaps.features.garden.HoeLevelDisplay.register();
+        com.teslamaps.features.garden.GreenhouseGrowthTimer.register();
+        com.teslamaps.features.garden.PestGuess.register();
+        com.teslamaps.features.garden.CropMoneyDisplay.register();
+        // w14-00-gar
+        com.teslamaps.features.MantidKillDisplay.register();
+        com.teslamaps.features.GlowingMushrooms.register();
+        com.teslamaps.features.MousematAngles.register();
+        com.teslamaps.features.NoBreak.register();
+        com.teslamaps.features.PestSpawnSound.register();
+        com.teslamaps.features.PestBaitPanel.register();
+        com.teslamaps.features.NoCropRotation.register();
+        com.teslamaps.features.PbFortuneGain.register();
+        // w13-00-eco
+        com.teslamaps.features.NpcDayLimit.register();
+        com.teslamaps.features.PricePaid.register();
+        com.teslamaps.features.hud.FireSaleWidget.register();
+        com.teslamaps.features.PesthunterProfit.register();
+        com.teslamaps.features.FancyAuctionHouse.register();
+        // w14-06-gar
+        com.teslamaps.features.GardenPlots.register();
+        com.teslamaps.features.SixthVisitor.register();
+        com.teslamaps.features.PlotSprays.register();
+        // w13-05-pv
+        com.teslamaps.features.PlayerPeek.register();
         // w13-02-eco
         com.teslamaps.features.AuctionPriceInput.register();
         com.teslamaps.features.SearchOverlay.register();
