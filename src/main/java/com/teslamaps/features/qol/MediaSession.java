@@ -56,7 +56,8 @@ public final class MediaSession {
         if (script == null) return;
         try {
             Process p = new ProcessBuilder("powershell.exe", "-NoLogo", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden",
-                    "-ExecutionPolicy", "Bypass", "-File", script.toString()).redirectErrorStream(false).start();
+                    "-ExecutionPolicy", "Bypass", "-File", script.toString(), "-ParentPid", Long.toString(ProcessHandle.current().pid()))
+                    .redirectErrorStream(false).start();
             process = p;
             if (!hooked) {
                 hooked = true;

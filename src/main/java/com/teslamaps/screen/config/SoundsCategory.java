@@ -70,6 +70,8 @@ public final class SoundsCategory {
                 () -> config.bearSpawnVolume, v -> config.bearSpawnVolume = v, 1);
         b.label("Etherwarp");
         b.toggle("Custom Etherwarp Sound", () -> config.etherwarpCustomSound, v -> config.etherwarpCustomSound = v);
+        b.toggle("  Zero-Ping Etherwarp Sound", () -> config.etherwarpZeroPing, v -> config.etherwarpZeroPing = v)
+                .desc("Plays the sound as you click when the warp will land, instead of waiting for the server.");
         b.soundDropdown("  Etherwarp Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.etherwarpSound, v -> config.etherwarpSound = v);
@@ -107,6 +109,8 @@ public final class SoundsCategory {
                 .desc("Bat squeak and chicken steps near you, only when no real bat/chicken is there");
         b.toggle("  Squeak Only", () -> config.muteRatPetSqueakOnly, v -> config.muteRatPetSqueakOnly = v);
         b.toggle("Mute Backpack Opening Sound", () -> config.muteBackpackOpen, v -> config.muteBackpackOpen = v);
+        b.toggle("Mute Endermen In The End", () -> config.muteEndermanEnd, v -> config.muteEndermanEnd = v)
+                .desc("Enderman ambient, hurt, death, scream and stare sounds, only on The End island.");
         b.toggle("Mute Error Sound (wrong click / no mana)", () -> config.muteErrorSound, v -> config.muteErrorSound = v);
         b.toggle("Quiet F7 Boss Sounds", () -> config.f7BossSounds, v -> config.f7BossSounds = v);
         b.toggle("  Cancel All Above 1.0", () -> config.f7BossSoundsAboveCap, v -> config.f7BossSoundsAboveCap = v);

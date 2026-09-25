@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.Unique;
 public class EnderDragonRenderStateMixin implements DragonTintHolder {
     @Unique
     private int teslamaps$overlay = -1;
+    @Unique
+    private boolean teslamaps$pet;
 
     @Override
     public int teslamaps$overlay() {
@@ -18,5 +20,15 @@ public class EnderDragonRenderStateMixin implements DragonTintHolder {
     @Override
     public void teslamaps$setOverlay(int overlay) {
         teslamaps$overlay = overlay;
+    }
+
+    @Override
+    public boolean teslamaps$isPet() {
+        return teslamaps$pet;
+    }
+
+    @Override
+    public void teslamaps$setPet(boolean pet) {
+        teslamaps$pet = pet;
     }
 }

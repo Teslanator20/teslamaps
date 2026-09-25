@@ -20,9 +20,13 @@ public class BlindnessMixin {
         if (mc.player == null || self != mc.player) return;
 
         if (TeslaMapsConfig.get().noBlind) {
-            if (effect == MobEffects.BLINDNESS || effect == MobEffects.DARKNESS) {
+            if ((effect == MobEffects.BLINDNESS && TeslaMapsConfig.get().blindnessFogOpacity <= 0f) || effect == MobEffects.DARKNESS) {
                 cir.setReturnValue(false);
             }
+        }
+
+        if (TeslaMapsConfig.get().noNightVision && effect == MobEffects.NIGHT_VISION) {
+            cir.setReturnValue(false);
         }
 
         if (TeslaMapsConfig.get().noNausea) {

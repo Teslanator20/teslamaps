@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
@@ -58,8 +59,9 @@ public final class RenderHiders {
         s.feetEquipment = ItemStack.EMPTY;
     }
 
-    /** Witherborn minions; dungeon boss withers stay. */
+    /** Witherborn minions (dungeon boss withers stay) and Wither Cloak creepers. */
     public static boolean shouldHide(Entity e) {
+        if (e instanceof Creeper c && cfg().hideCloakCreepers && c.isInvisible() && c.isPowered() && c.getHealth() == 20f) return true;
         return e instanceof WitherBoss && cfg().hideWitherbornWithers && SkyblockUtils.isInSkyblock()
                 && !(DungeonManager.isInDungeon() && DungeonManager.isInBossArea());
     }

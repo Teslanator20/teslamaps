@@ -15,5 +15,6 @@ public class ArmorStandArmorMixin {
             at = @At("TAIL"))
     private void teslamaps$hideArmor(ArmorStand stand, ArmorStandRenderState state, float partial, CallbackInfo ci) {
         RenderHiders.stripArmor(state);
+        com.teslamaps.features.VisualTweaks.lowerNametag(stand, state);
     }
 }

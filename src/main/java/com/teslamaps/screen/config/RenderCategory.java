@@ -13,6 +13,11 @@ public final class RenderCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("World");
         b.toggle("Fullbright", () -> config.fullbright, v -> config.fullbright = v);
+        b.toggle("Night Vision Control", () -> config.nightVisionControl, v -> config.nightVisionControl = v)
+                .desc("Dims Hypixel's permanent night vision. Only matters while Fullbright is off.");
+        b.slider("  Night Vision Strength", 0f, 100f,
+                () -> config.nightVisionStrength, v -> config.nightVisionStrength = v);
+        b.toggle("  No Night Vision Blinking", () -> config.nightVisionNoBlink, v -> config.nightVisionNoBlink = v);
         b.label("Zoom");
         b.toggle("Zoom (hold key)", () -> config.zoomEnabled, v -> config.zoomEnabled = v);
         b.keybind("  Zoom Key", () -> config.zoomKey, v -> config.zoomKey = v);

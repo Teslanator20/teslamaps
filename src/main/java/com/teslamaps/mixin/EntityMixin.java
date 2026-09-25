@@ -25,7 +25,9 @@ public class EntityMixin {
         }
         if (!com.teslamaps.render.EntityGlow.COLORS.isEmpty() && com.teslamaps.render.EntityGlow.COLORS.containsKey(self)) {
             cir.setReturnValue(true);
+            return;
         }
+        if (com.teslamaps.config.TeslaMapsConfig.get().removeGlowEffect) cir.setReturnValue(false);
     }
 
     @Inject(method = "getTeamColor", at = @At("HEAD"), cancellable = true)
