@@ -670,10 +670,17 @@ public class EstimatedValue {
     }
 
     private static double addGemstones(CompoundTag ea, List<String> list) {
-        CompoundTag gems = ea.getCompoundOrEmpty("gems");
-        if (gems.isEmpty()) return 0.0;
-
         Map<String, Double> items = new LinkedHashMap<>();
+        for (String[] gem : appliedGems(ea, false)) items.merge(gem[0] + "_" + gem[1] + "_GEM", 1.0, Double::sum);
+        if (items.isEmpty()) return 0.0;
+        return grouped(items, "Gemstones Applied", list);
+    }
+
+    /** Applied gemstones as {QUALITY, TYPE}, e.g. {"PERFECT", "RUBY"}. */
+    public static List<String[]> appliedGems(CompoundTag ea, boolean resolveSlotType) {
+        CompoundTag gems = ea.getCompoundOrEmpty("gems");
+        if (gems.isEmpty()) return List.of();
+        List<String[]> out = new ArrayList<>();
         for (String key : gems.keySet()) {
             if (key.endsWith("_gem") || key.equals("unlocked_slots")) continue;
 
@@ -687,10 +694,17 @@ public class EstimatedValue {
             if (!GEM_SLOT_COLOR.containsKey(type)) {
                 type = gems.getStringOr(key + "_gem", "").toUpperCase(Locale.ROOT);
                 if (!GEM_SLOT_COLOR.containsKey(type)) continue;
+            } else if (resolveSlotType && (type.equals("COMBAT") || type.equals("DEFENSIVE") || type.equals("MINING") || type.equals("UNIVERSAL"))) {
+                String real = gems.getStringOr(key + "_gem", "").toUpperCase(Locale.ROOT);
+                if (!real.isEmpty()) type = real;
             }
-            items.merge(quality.toUpperCase(Locale.ROOT) + "_" + type + "_GEM", 1.0, Double::sum);
+            out.add(new String[]{quality.toUpperCase(Locale.ROOT), type});
         }
-        return grouped(items, "Gemstones Applied", list);
+        return out;
+    }
+
+    public static char gemColor(String type) {
+        return GEM_SLOT_COLOR.getOrDefault(type, 'f');
     }
 
     private static double addGemstoneSlotUnlockCost(CompoundTag ea, String id, List<String> list) {

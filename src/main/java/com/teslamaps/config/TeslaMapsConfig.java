@@ -2157,6 +2157,19 @@ public class TeslaMapsConfig {
     public String colorESPStarredChunky = "FF0080";
     public String colorESPStarredSkeletonMaster = "FF8000";
     public String colorESPStarredMini = "EB01A5";
+    // w04-04-inv
+    public boolean equipmentDisplay = false;
+    public String equipmentDisplayPos = "Left";
+    public boolean missingEnchants = false;
+    public boolean removeGearScore = false;
+    public boolean drillLoreCompact = false;
+    public boolean evolvingProgress = false;
+    public boolean evolvingSlotText = false;
+    public boolean gemstoneList = false;
+    public boolean experimentHelper = false;
+    public boolean experimentChronomatron = true;
+    public boolean experimentUltrasequencer = true;
+    public boolean experimentSuperpairs = true;
     // w03-03-dun
     public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
     public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking

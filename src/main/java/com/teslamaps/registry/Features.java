@@ -173,5 +173,9 @@ final class Features {
         com.teslamaps.features.ItemTooltipExtras.register();
         // w04-00-dun
         com.teslamaps.features.DiamanteAlert.register();
+        // w04-04-inv
+        com.teslamaps.features.TooltipTweaks.register();
+        com.teslamaps.features.EquipmentDisplay.register();
+        com.teslamaps.features.ExperimentHelper.register();
     }
 }

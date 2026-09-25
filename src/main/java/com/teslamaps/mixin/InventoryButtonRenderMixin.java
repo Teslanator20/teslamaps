@@ -23,5 +23,6 @@ public class InventoryButtonRenderMixin {
     private void teslamaps$renderInventoryButtons(GuiGraphicsExtractor graphics, int mouseX, int mouseY,
                                                   float partialTick, CallbackInfo ci) {
         InventoryButtons.render((AbstractContainerScreen<?>) (Object) this, graphics, mouseX, mouseY);
+        com.teslamaps.features.EquipmentDisplay.render((AbstractContainerScreen<?>) (Object) this, graphics, mouseX, mouseY);
     }
 }

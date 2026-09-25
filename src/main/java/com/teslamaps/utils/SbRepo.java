@@ -50,6 +50,8 @@ public class SbRepo {
     private static final Set<String> ultimateEnchants = ConcurrentHashMap.newKeySet();
     private static final Map<String, Map<String, Integer>> crimsonPrestige = new ConcurrentHashMap<>();
     private static final Set<String> legacyGemstoneSlots = ConcurrentHashMap.newKeySet();
+    private static final Map<String, List<String>> itemEnchants = new ConcurrentHashMap<>();
+    private static volatile List<Set<String>> enchantPools = List.of();
 
     private static final ExecutorService EXEC = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "teslamaps-repo");
@@ -74,6 +76,7 @@ public class SbRepo {
                 loadGemstoneCosts();
                 loadItems();
                 loadEnchants();
+                loadItemEnchants();
                 loaded = true;
                 TeslaMaps.LOGGER.info("[Repo] {} reforges, {} essence items, {} gemstone items, {} enchants",
                         reforges.size(), essence.size(), gemstoneCosts.size(), enchantNames.size());
@@ -260,6 +263,42 @@ public class SbRepo {
             for (Map.Entry<String, JsonElement> e : root.getAsJsonObject("STACKING").entrySet()) {
                 stacking.add(str(e.getValue().getAsJsonObject(), "nbtName"));
             }
+        }
+    }
+
+    /** Enchants NEU lists for an item type ("SWORD", "FISHING ROD"), null when unknown. */
+    public static List<String> enchantsForType(String type) { return itemEnchants.get(type); }
+
+    /** Groups of mutually exclusive enchants. */
+    public static List<Set<String>> enchantPools() { return enchantPools; }
+
+    /** "Ultimate Wise" for ultimate_wise, no colour or level. */
+    public static String enchantDisplayName(String nbtName) {
+        String lore = enchantNames.get(nbtName);
+        return lore != null ? lore : StringUtil.titleCase(nbtName.replace('_', ' '));
+    }
+
+    private static void loadItemEnchants() {
+        try {
+            JsonObject root = fetch(String.format(NEU, "enchants"));
+            if (root.has("enchants")) {
+                for (Map.Entry<String, JsonElement> e : root.getAsJsonObject("enchants").entrySet()) {
+                    List<String> ids = new ArrayList<>();
+                    for (JsonElement id : e.getValue().getAsJsonArray()) ids.add(id.getAsString());
+                    itemEnchants.put(e.getKey(), ids);
+                }
+            }
+            if (root.has("enchant_pools")) {
+                List<Set<String>> pools = new ArrayList<>();
+                for (JsonElement pool : root.getAsJsonArray("enchant_pools")) {
+                    Set<String> set = new HashSet<>();
+                    for (JsonElement id : pool.getAsJsonArray()) set.add(id.getAsString());
+                    pools.add(set);
+                }
+                enchantPools = pools;
+            }
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.warn("[Repo] enchants.json failed: {}", e.toString());
         }
     }
 
