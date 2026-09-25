@@ -52,6 +52,8 @@ public final class MageBeam {
     /** Main thread only. True = drop the particle. */
     public static boolean onParticle(ClientboundLevelParticlesPacket p) {
         TeslaMapsConfig c = cfg();
+        if (c.hideMageBeams && !c.mageBeam && p.getParticle().getType() == ParticleTypes.FIREWORK
+                && DungeonManager.isInDungeon()) return true;
         if (!c.mageBeam || p.getParticle().getType() != ParticleTypes.FIREWORK || !c.section("Render")
                 || !DungeonManager.isInDungeon()) return false;
         Vec3 pt = new Vec3(p.getX(), p.getY(), p.getZ());

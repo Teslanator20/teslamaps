@@ -27,6 +27,10 @@ public class HandledScreenClickMixin {
         com.teslamaps.features.AnimatedDyeFix.observeWardrobe((AbstractContainerScreen<?>) (Object) this, slot, button, type);
         com.teslamaps.features.WardrobeKeys.onSlotClicked((AbstractContainerScreen<?>) (Object) this, slot, button, type);
         com.teslamaps.features.StorageGuiScale.onClick((AbstractContainerScreen<?>) (Object) this);
+        if (com.teslamaps.features.RenderHiders.middleClickMenu(slot, button, type)) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.features.PetShiftClick.handle(
                 (AbstractContainerScreen<?>) (Object) this, slot, slotId, button, type)) {
             ci.cancel();

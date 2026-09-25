@@ -308,5 +308,13 @@ final class Features {
         com.teslamaps.features.DeathSound.register();
         com.teslamaps.features.CameraTweaks.register();
         com.teslamaps.features.InfernoMinion.register();
+        // w06-07-qol
+        com.teslamaps.features.CallLinks.register();
+        com.teslamaps.features.SkyblockClock.register();
+        com.teslamaps.features.navigation.IslandNavigation.register();
+        com.teslamaps.features.MonoAudio.register();
+        com.teslamaps.features.QolTweaks.register();
+        com.teslamaps.features.RenderHiders.register();
+        com.teslamaps.features.ServerRestartWarning.register();
     }
 }
