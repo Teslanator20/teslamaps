@@ -35,6 +35,14 @@ public final class InterfaceCategory {
                     if ("Default".equals(v)) config.hudPanelStyles.remove(id);
                     else config.hudPanelStyles.put(id, v);
                 }).tags("panel", "hud style");
+        b.dropdown("  Text Chroma Of That Panel", new String[]{"Default", "Off", "Plain Text", "All Text"},
+                () -> config.hudPanelChroma.getOrDefault(byLabel.get(pickedPanel), "Default"),
+                v -> {
+                    String id = byLabel.get(pickedPanel);
+                    if ("Default".equals(v)) config.hudPanelChroma.remove(id);
+                    else config.hudPanelChroma.put(id, v);
+                }).desc("Rainbow text for this panel. Plain Text leaves coloured parts alone. Speed/size: Tooltips & Value chroma settings.")
+                .tags("chroma", "rainbow", "panel");
     }
 
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
@@ -44,6 +52,10 @@ public final class InterfaceCategory {
         b.dropdown("HUD Style",
                 com.teslamaps.render.gui.HudStyle.NAMES,
                 () -> com.teslamaps.render.gui.HudStyle.current(), v -> config.hudStyle = v);
+        b.toggle("  Custom Accent Color", () -> config.guiCustomAccent, v -> config.guiCustomAccent = v)
+                .desc("Replaces the style's accent (selection, active headers, toggles) with your own colour.")
+                .tags("theme", "accent", "color");
+        b.color("    Accent", () -> config.guiAccentColor, v -> config.guiAccentColor = v).tags("theme", "accent");
         b.info("GUI Style skins these screens, HUD Style the in-game panels");
         b.color("  Custom Background", () -> config.hudCustomBg, v -> config.hudCustomBg = v)
                 .desc("Fill of HUD Style \"Custom\", alpha included.").tags("panel", "hud style");
@@ -55,6 +67,9 @@ public final class InterfaceCategory {
         b.slider("  Custom Corner Radius", 0f, 12f, () -> config.hudCustomRadius, v -> config.hudCustomRadius = v, 0).tags("panel");
         b.slider("  Custom Border Width", 0f, 4f, () -> config.hudCustomBorderWidth, v -> config.hudCustomBorderWidth = v, 1).tags("panel");
         b.slider("  Custom Padding", 0f, 12f, () -> config.hudCustomPadding, v -> config.hudCustomPadding = v, 0).tags("panel");
+        b.dropdown("  Text Chroma (All Panels)", com.teslamaps.render.gui.HudStyle.CHROMA_MODES,
+                () -> config.hudChromaAll, v -> config.hudChromaAll = v)
+                .desc("Rainbow text on every HUD panel. Plain Text leaves coloured parts alone.").tags("chroma", "rainbow");
         panelStyles(b, config);
         b.label("HUD Positions");
         b.toggle("Keep HUDs On Screen", () -> config.hudClampToScreen, v -> config.hudClampToScreen = v)
@@ -66,6 +81,22 @@ public final class InterfaceCategory {
                 })
                 .desc("Panels in the right or bottom half keep their distance to that edge when the screen size or GUI scale changes.")
                 .tags("anchor", "hud", "position", "gui scale");
+        b.toggle("HUD Editor Helpers", () -> config.hudEditHelpers, v -> config.hudEditHelpers = v)
+                .desc("/tmap gui: grid, edge snap, centre guides with coordinates, Ctrl+click multi-drag, corner resize grip. Hold Alt to drag freely.")
+                .tags("hud", "grid", "snap", "resize", "editor");
+        b.slider("  Grid Size (0 = off)", 0f, 50f, () -> (float) config.hudEditGrid, v -> config.hudEditGrid = Math.round(v), 0);
+        b.toggle("  Snap To Other Panels", () -> config.hudEditSnapEdges, v -> config.hudEditSnapEdges = v);
+        b.toggle("  Centre Guides", () -> config.hudEditGuides, v -> config.hudEditGuides = v);
+        b.toggle("  Ctrl+Click Multi-Drag", () -> config.hudEditMultiDrag, v -> config.hudEditMultiDrag = v);
+        b.toggle("  Resize Grip", () -> config.hudEditResize, v -> config.hudEditResize = v);
+        b.label("Outside SkyBlock");
+        b.toggle("Only Run Features In SkyBlock", () -> config.outsideSbGate, v -> config.outsideSbGate = v)
+                .desc("Off = unchanged. On = every feature stops outside Hypixel SkyBlock, except the ones picked below.")
+                .tags("skyblock", "outside", "lobby");
+        b.searchList("  Also Outside SkyBlock", com.teslamaps.registry.FeatureRegistry::featureNames,
+                id -> config.outsideSbFeatures.contains(id),
+                id -> { if (!config.outsideSbFeatures.remove(id)) config.outsideSbFeatures.add(id); })
+                .tags("skyblock", "outside");
         b.label("Sounds");
         b.dropdown("GUI Sounds", GuiSounds.THEMES,
                 () -> config.guiSoundTheme, v -> config.guiSoundTheme = v);

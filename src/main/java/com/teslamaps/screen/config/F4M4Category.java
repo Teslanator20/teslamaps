@@ -55,5 +55,10 @@ public final class F4M4Category {
         b.toggle("Bow Pickup Title", () -> config.titleBowPickup, v -> config.titleBowPickup = v);
         b.toggle("Bear Event Titles", () -> config.titleBearEvents, v -> config.titleBearEvents = v);
         b.toggle("Hide Default Titles (boss)", () -> config.hideDefaultTitles, v -> config.hideDefaultTitles = v);
+        b.toggle("Global Title Duration", () -> config.titleDurationOverride, v -> config.titleDurationOverride = v)
+                .desc("Every title alert TeslaMaps shows (not only these) stays this long. Server titles are left alone.")
+                .tags("title", "alert", "duration", "warning");
+        b.slider("  Duration (ticks)", 5f, 200f, () -> (float) config.titleDurationTicks,
+                v -> config.titleDurationTicks = Math.round(v), 0).desc("20 ticks = 1 second");
     }
 }

@@ -124,6 +124,7 @@
     "EasySuperboomMixin",
     "EnchantAbbrevMixin",
     "ItemNumbersMixin",
+    "HudTextChromaMixin",
     "GlintResolverMixin",
     "GlintLayerMixin",
     "GlintCollectionMixin",

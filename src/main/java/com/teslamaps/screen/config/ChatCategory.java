@@ -107,6 +107,13 @@ public final class ChatCategory {
         b.toggle("Gradient [TeslaMaps] Prefix", () -> config.chromaPrefix, v -> config.chromaPrefix = v);
         b.color("Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v);
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);
+        b.dropdown("  Prefix Text", com.teslamaps.features.ChromaPrefix.STYLES,
+                () -> config.chatPrefixStyle, v -> config.chatPrefixStyle = v)
+                .desc("Long = [TeslaMaps], Short = [TM], Custom = your own text below").tags("prefix", "tag", "short");
+        b.button("  Edit Custom Prefix", () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.TextFieldsScreen(
+                Minecraft.getInstance().screen, "Chat Prefix", "& or § for colors, e.g. &b[TM]",
+                java.util.List.of(new com.teslamaps.screen.TextFieldsScreen.Field("Prefix",
+                        () -> config.chatPrefixCustom, v -> config.chatPrefixCustom = v)))));
         b.label("Filter");
         b.toggle("Enable Chat Filter", () -> config.chatFilterEnabled, v -> config.chatFilterEnabled = v);
         b.dropdown("Filter Action", com.teslamaps.features.ChatFilter.ACTIONS,

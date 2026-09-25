@@ -246,7 +246,13 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "setTitlesAnimation", at = @At("HEAD"), cancellable = true)
     private void onSetTitlesAnimation(ClientboundSetTitlesAnimationPacket packet, CallbackInfo ci) {
-        if (CustomTitles.shouldHideDefaultTitle()) ci.cancel();
+        if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()) CustomTitles.serverTimes = true;
+    }
+
+    @Inject(method = "setTitlesAnimation", at = @At("RETURN"))
+    private void teslamaps$titlesAnimationDone(ClientboundSetTitlesAnimationPacket packet, CallbackInfo ci) {
+        CustomTitles.serverTimes = false;
     }
 
     @Inject(method = "handleBlockEvent", at = @At("TAIL"))

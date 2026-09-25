@@ -139,6 +139,10 @@ public final class HudEditElement {
         setFloat(fscale, s);
     }
 
+    public void setScale(float s) {
+        setFloat(fscale, Math.max(min, Math.min(max, Math.round(s / step) * step)));
+    }
+
     public void drawPreview(GuiGraphicsExtractor g, Minecraft mc) {
         if (preview != null) preview.draw(g, mc, x() + shiftX(), y() + shiftY(), scale());
     }

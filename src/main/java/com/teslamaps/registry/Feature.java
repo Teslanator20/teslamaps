@@ -22,9 +22,11 @@ public final class Feature {
     String section;
     boolean legit;
     BooleanSupplier when;
+    boolean always;
 
     private Feature(String name) {
         this.name = name;
+        FeatureRegistry.ALL.add(this);
     }
 
     public static Feature of(String name) {
@@ -52,6 +54,7 @@ public final class Feature {
     public boolean active() {
         if (section != null && !TeslaMapsConfig.get().section(section)) return false;
         if (legit && LegitMode.blocksCheats()) return false;
+        if (section != null && !always && FeatureRegistry.blockedOutsideSb(name)) return false;
         return when == null || when.getAsBoolean();
     }
 
@@ -63,6 +66,7 @@ public final class Feature {
 
     /** End of client tick, also on the title screen. */
     public Feature tickAlways(Runnable r) {
+        always = true;
         FeatureRegistry.TICKS.add(new FeatureRegistry.Tick(this, name + ".tick", r, true));
         return this;
     }

@@ -2148,6 +2148,27 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w12-01-gui
+    public java.util.Map<String, String> hudPanelChroma = new java.util.HashMap<>(); // hud id -> Off / Plain Text / All Text
+    public String hudChromaAll = "Off";
+    public boolean guiCustomAccent = false;
+    public String guiAccentColor = "FF5B8CFF";
+    public boolean titleDurationOverride = false;
+    public int titleDurationTicks = 40;
+    public String chatPrefixStyle = "Long";
+    public String chatPrefixCustom = "&b[TM]";
+    public boolean outsideSbGate = false;
+    public java.util.List<String> outsideSbFeatures = new java.util.ArrayList<>();
+    public boolean hideSillyButtons = false;
+    public java.util.List<String> hideSillyButtonList = new java.util.ArrayList<>(java.util.List.of(
+            "menu.online", "options.accessibility", "options.language", "gui.friends.open", "menu.playerReporting",
+            "menu.sendFeedback", "menu.reportBugs", "menu.server_links", "gui.advancements", "gui.stats"));
+    public boolean hudEditHelpers = false;
+    public int hudEditGrid = 0;
+    public boolean hudEditSnapEdges = true;
+    public boolean hudEditGuides = true;
+    public boolean hudEditMultiDrag = true;
+    public boolean hudEditResize = true;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4486,6 +4507,9 @@ public class TeslaMapsConfig {
         for (Keybind kb : c.keybinds) if (kb.actions == null) kb.actions = "";
         if (c.hudAnchorRefs == null) c.hudAnchorRefs = new java.util.HashMap<>();
         if (c.hudPanelStyles == null) c.hudPanelStyles = new java.util.HashMap<>();
+        if (c.hudPanelChroma == null) c.hudPanelChroma = new java.util.HashMap<>();
+        if (c.outsideSbFeatures == null) c.outsideSbFeatures = new java.util.ArrayList<>();
+        if (c.hideSillyButtonList == null) c.hideSillyButtonList = new java.util.ArrayList<>();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
         if (c.abiphoneFavoriteList == null) c.abiphoneFavoriteList = new ArrayList<>();
         if (!c.kuudraShortcutsAdded) {
