@@ -2148,6 +2148,48 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w12-06-eco
+    public boolean bzTracker = false;
+    public int bzTrackerMaxOrders = 10;
+    public boolean bzTrackerOnlyMenus = false;
+    public boolean bzTrackerHideEmpty = false;
+    public boolean bzTrackerSoundFilled = true;
+    public boolean bzTrackerSoundPartial = false;
+    public boolean bzTrackerSoundOutbid = true;
+    public int bzTrackerX = 5;
+    public int bzTrackerY = 60;
+    public float bzTrackerScale = 1.0f;
+    public java.util.Map<String, java.util.List<BzTrackedOrder>> bzTrackerOrders = new java.util.HashMap<>();
+    public static class BzTrackedOrder {
+        public boolean buy;
+        public String item;
+        public int amount;
+        public int filled;
+        public double price;
+        public long created;
+    }
+    public boolean purchaseWarning = false;
+    public float purchaseWarnBazaarM = 10f;
+    public float purchaseWarnHexM = 10f;
+    public boolean purchaseWarnBin = true;
+    public float purchaseWarnBinUnder = 30f;
+    public float purchaseWarnBinOver = 100f;
+    public boolean manageAuctionsHelper = false;
+    public boolean manageAuctionsPanel = true;
+    public boolean manageAuctionsOverpriced = true;
+    public String colorAuctionSold = "#55FF55";
+    public String colorAuctionExpired = "#FF5555";
+    public String colorAuctionOverpriced = "#FFAA00";
+    public boolean auctionOutbidWarning = false;
+    public boolean auctionOutbidSound = true;
+    public boolean bzQuickQuantities = false;
+    public int bzQuickQty1 = 64;
+    public int bzQuickQty2 = 160;
+    public int bzQuickQty3 = 1024;
+    public boolean bzQuickQtyClose = false;
+    public boolean bzReorderHelper = false;
+    public boolean bzReorderOnCancel = true;
+    public boolean bzPurchaseHelper = false;
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4362,6 +4404,12 @@ public class TeslaMapsConfig {
         c.expDryStreakData.values().removeIf(v -> v == null || v.length != 2);
         if (c.maxwellData == null) c.maxwellData = new java.util.HashMap<>();
         c.maxwellData.values().removeIf(java.util.Objects::isNull);
+        if (c.bzTrackerOrders == null) c.bzTrackerOrders = new java.util.HashMap<>();
+        c.bzTrackerOrders.values().removeIf(java.util.Objects::isNull);
+        c.bzTrackerOrders.values().forEach(l -> l.removeIf(o -> o == null || o.item == null));
+        if (c.colorAuctionSold == null) c.colorAuctionSold = "#55FF55";
+        if (c.colorAuctionExpired == null) c.colorAuctionExpired = "#FF5555";
+        if (c.colorAuctionOverpriced == null) c.colorAuctionOverpriced = "#FFAA00";
         if (c.visualWordList == null) c.visualWordList = new java.util.ArrayList<>();
         c.visualWordList.removeIf(w -> w == null || w.from == null || w.from.isEmpty());
         for (var w : c.visualWordList) if (w.to == null) w.to = "";

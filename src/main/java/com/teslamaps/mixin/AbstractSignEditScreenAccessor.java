@@ -9,4 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface AbstractSignEditScreenAccessor {
     @Accessor("sign")
     SignBlockEntity getSign();
+
+    @Accessor("messages")
+    String[] getMessages();
 }

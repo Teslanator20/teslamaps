@@ -23,6 +23,11 @@ public class ContainerKeyMixin {
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
+        if (com.teslamaps.features.bazaar.PurchaseGuard.onKey(event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.features.ClickFixes.onSnakeKey(cs, event)) {
             cir.setReturnValue(true);
             return;
