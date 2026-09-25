@@ -74,5 +74,10 @@ final class Features {
         com.teslamaps.dungeon.puzzle.QuizExtras.register();
         com.teslamaps.dungeon.puzzle.WaterboardPreviewer.register();
         com.teslamaps.dungeon.puzzle.BlazeSpots.register();
+        // w02-05-term
+        com.teslamaps.features.TerminalProgress.register();
+        com.teslamaps.features.TerminalTitles.register();
+        com.teslamaps.features.TerminalSounds.register();
+        com.teslamaps.features.MelodyDisplay.register();
     }
 }

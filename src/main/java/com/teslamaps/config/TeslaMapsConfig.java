@@ -2172,6 +2172,39 @@ public class TeslaMapsConfig {
     public String blazeEtherOutline = "FFFFFF00";
     public String blazeEtherFill = "50FFFF00";
 
+    // w02-05-term
+    public boolean terminalTitles = false;
+    public int terminalTitleMode = 0;               // 0 replace, 1 hide others, 2 hide all
+    public int terminalTitleFormat = 0;             // index into TerminalTitles.FORMATS
+    public boolean terminalTitleSubtitle = true;
+    public boolean terminalTitleSelfOnly = false;
+    public boolean terminalTitlePhaseDone = false;
+    public boolean terminalTitleTerminal = true;
+    public boolean terminalTitleLever = true;
+    public boolean terminalTitleDevice = true;
+    public boolean termInfoHud = false;
+    public boolean termInfoCompact = false;
+    public int termInfoHudX = 10;
+    public int termInfoHudY = 120;
+    public float termInfoHudScale = 1.0f;
+    public boolean terminalBreakdown = false;
+    public boolean terminalSounds = false;
+    public String terminalClickSound = "TM_CLICK";
+    public float terminalClickVolume = 1.0f;
+    public float terminalClickPitch = 1.0f;
+    public boolean terminalCompleteSound = false;
+    public String terminalCompleteSoundId = "EXPERIENCE_ORB";
+    public float terminalCompleteVolume = 1.0f;
+    public float terminalCompletePitch = 1.0f;
+    public boolean terminalCancelLastClick = false;
+    public boolean terminalGateSound = false;
+    public boolean melodyDisplay = false;
+    public float melodyDisplayDuration = 2.5f;
+    public boolean melodyDisplaySound = false;
+    public int melodyDisplayX = 200;
+    public int melodyDisplayY = 90;
+    public float melodyDisplayScale = 1.0f;
+
     public static TeslaMapsConfig get() {
         return instance;
     }

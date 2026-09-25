@@ -20,6 +20,11 @@ public final class PuzzlesTerminalsCategory {
                 v -> config.melodyProgressFormat = v.equals(progressFormats[1]) ? 1 : 0);
         b.button("  Edit Melody Messages",
                 () -> Minecraft.getInstance().setScreen(new MelodyMessageScreen(Minecraft.getInstance().screen)));
+        b.toggle("Melody Display (party progress)", () -> config.melodyDisplay, v -> config.melodyDisplay = v);
+        b.info("Shows \"<name> has 2/4 melody\" from party chat in P3 (/tmap gui)");
+        b.slider("  Display Duration (s)", 0.5f, 5f,
+                () -> config.melodyDisplayDuration, v -> config.melodyDisplayDuration = v, 1);
+        b.toggle("  Display Sound", () -> config.melodyDisplaySound, v -> config.melodyDisplaySound = v);
         b.toggle("Terminal Solver", () -> config.terminalSolver, v -> config.terminalSolver = v);
         String[] renderTypes = {"Odin", "Normal", "Custom GUI"};
         b.dropdown("Render Type", renderTypes,
@@ -69,6 +74,20 @@ public final class PuzzlesTerminalsCategory {
         b.slider("  Lag Protection Ticks", 7f, 16f,
                 () -> (float) config.terminalLagProtectionTicks, v -> config.terminalLagProtectionTicks = Math.round(v), 0);
         b.toggle("Announce Solve Times", () -> config.terminalTimes, v -> config.terminalTimes = v);
+        b.button("  Reset Terminal PBs", com.teslamaps.features.TerminalSolver::resetPbs);
+        b.toggle("Terminal Sounds", () -> config.terminalSounds, v -> config.terminalSounds = v);
+        b.info("Replaces Hypixel's terminal pling with your own click sound");
+        b.soundDropdown("  Click Sound", com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.terminalClickSound, v -> config.terminalClickSound = v);
+        b.slider("  Click Volume", 0f, 4f, () -> config.terminalClickVolume, v -> config.terminalClickVolume = v, 2);
+        b.slider("  Click Pitch", 0.5f, 2f, () -> config.terminalClickPitch, v -> config.terminalClickPitch = v, 2);
+        b.toggle("  Completion Sound", () -> config.terminalCompleteSound, v -> config.terminalCompleteSound = v);
+        b.soundDropdown("    Completion Sound Type", com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.terminalCompleteSoundId, v -> config.terminalCompleteSoundId = v);
+        b.slider("    Completion Volume", 0f, 4f, () -> config.terminalCompleteVolume, v -> config.terminalCompleteVolume = v, 2);
+        b.slider("    Completion Pitch", 0.5f, 2f, () -> config.terminalCompletePitch, v -> config.terminalCompletePitch = v, 2);
+        b.toggle("    Skip Click Sound On Last Click", () -> config.terminalCancelLastClick, v -> config.terminalCancelLastClick = v);
+        b.toggle("  Pling On Gate / Core Open", () -> config.terminalGateSound, v -> config.terminalGateSound = v);
         b.toggle("Solver Debug Overlay", () -> config.terminalSolverDebug, v -> config.terminalSolverDebug = v);
         b.label("Terminal Simulator");
         b.slider("Simulated Ping (ms)", 0f, 500f,

@@ -149,6 +149,7 @@ public class TerminalSolver {
 
     /** Slot clicked in a container screen. Returns true when the click was consumed. */
     public static boolean onSlotClick(int slotIndex, int button) {
+        TerminalSounds.onClick(slotIndex, button);
         if (!enabled()) return false;
         TerminalHandler term = TerminalUtils.getCurrentTerm();
         if (term == null) return false;
@@ -222,6 +223,12 @@ public class TerminalSolver {
             TerminalUtils.modMessage("§a" + handler.type.termName + (isSim ? " §7(termsim)" : "")
                     + " §7solved in §6" + String.format("%.2f", time) + "s§7! " + suffix);
         }
+    }
+
+    public static void resetPbs() {
+        TeslaMapsConfig.get().terminalPbs.clear();
+        TeslaMapsConfig.save();
+        TerminalUtils.modMessage("§6Terminal PBs §fhave been reset.");
     }
 
     // ---- debug ---------------------------------------------------------------
