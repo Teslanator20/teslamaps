@@ -56,6 +56,7 @@ public class BackpackPreview {
                 String k = keyForStack(slot.getItem());
                 if (k != null) StorageCache.putIcon(k, StorageCache.encode(slot.getItem()));
             }
+            if (cfg.storageShowUnopened) scanUnlocked(cs);
             lastKey = "Storage";
             return;
         }
@@ -77,6 +78,25 @@ public class BackpackPreview {
         if (size > 0) StorageCache.put(key, size, slots);
         lastKey = key;
         if (cfg.backpackPreviewColors && key.startsWith("backpack_")) openTint = dyeColor(StorageCache.icon(key));
+    }
+
+    /** Waits for all 27 hub icons, then records which pages exist (not "Empty Backpack Slot", not locked). */
+    private static void scanUnlocked(AbstractContainerScreen<?> cs) {
+        ItemStack[] ec = new ItemStack[9], bp = new ItemStack[18];
+        for (Slot slot : cs.getMenu().slots) {
+            if (slot.container instanceof Inventory) continue;
+            int i = slot.getContainerSlot();
+            if (i >= 9 && i <= 17) ec[i - 9] = slot.getItem();
+            else if (i >= 27 && i <= 44) bp[i - 27] = slot.getItem();
+        }
+        for (ItemStack st : ec) if (st == null || st.isEmpty()) return;
+        for (ItemStack st : bp) if (st == null || st.isEmpty()) return;
+        for (int i = 0; i < 9; i++)
+            StorageCache.setUnlocked("epage_" + (i + 1), strip(ec[i].getHoverName().getString()).startsWith("Ender Chest Page"));
+        for (int i = 0; i < 18; i++) {
+            String n = strip(bp[i].getHoverName().getString());
+            StorageCache.setUnlocked("backpack_" + (i + 1), n.startsWith("Backpack Slot"));
+        }
     }
 
     private static void captureCakeBag(AbstractContainerScreen<?> cs) {
@@ -148,6 +168,8 @@ public class BackpackPreview {
         }
         return null;
     }
+
+    public static String keyForIcon(ItemStack stack) { return keyForStack(stack); }
 
     private static String keyForStack(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return null;

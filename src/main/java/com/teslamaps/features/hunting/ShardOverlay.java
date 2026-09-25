@@ -462,6 +462,7 @@ public class ShardOverlay {
                 ctx.fill(x, y, x + 16, y + 16, 0x66FF5555);
             }
             if (config.shardTierStack && (tier > 0 || config.shardTierColors)
+                    && com.teslamaps.features.SlotText.shown(com.teslamaps.features.SlotText.SHARD)
                     && !(tier >= 10 && config.shardHideMaxedTier)) {
                 String text = TIER_TEXT[Math.min(tier, 10)];
                 int color = !config.shardTierColors ? (tier >= 10 ? 0xFF55FF55 : 0xFFFFFFFF)

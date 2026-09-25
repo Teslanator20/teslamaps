@@ -22,5 +22,6 @@ public class SlotBackgrounds {
         com.teslamaps.features.AuctionPriceCompare.drawHighlight(context, slot);
         com.teslamaps.features.PartyFinderHelper.drawHighlight(context, slot);
         com.teslamaps.features.DuplicateItems.drawHighlight(context, slot);
+        com.teslamaps.features.SearchHighlight.drawSlot(context, slot);
     }
 }

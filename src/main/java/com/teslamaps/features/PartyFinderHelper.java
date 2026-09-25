@@ -198,7 +198,7 @@ public final class PartyFinderHelper {
     public static void render(GuiGraphicsExtractor ctx) {
         if (kind == 0 || feature == null || !feature.active()) return;
         TeslaMapsConfig c = cfg();
-        if (!c.pfFloorStack && !c.pfMemberCount) return;
+        if (!c.pfFloorStack && !c.pfMemberCount || !SlotText.shown(SlotText.PARTY_FINDER)) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
