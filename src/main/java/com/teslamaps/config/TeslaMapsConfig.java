@@ -2165,6 +2165,40 @@ public class TeslaMapsConfig {
     public int fireSaleWidgetY = 220;
     public float fireSaleWidgetScale = 1.0f;
     public boolean pesthunterProfit = false;
+    // w13-02-eco
+    public boolean auctionCopyUnderbid = false;
+    public boolean searchOverlayCommands = false;
+    public boolean searchOverlayCtrlF = true;
+    public int searchOverlayHistorySize = 12;
+    public boolean searchOverlayFilters = false;
+    public boolean bazaarOrderTooltip = false;
+    public boolean petValue = false;
+    public boolean essenceShopCosts = false;
+    public boolean escrowFix = false;
+    // w12-08-eco
+    public boolean anitaMedalProfit = false;
+    public boolean anitaExtraFortune = false;
+    public boolean bazaarHelpers = false;
+    public boolean bazaarBestSell = true;
+    public boolean bazaarMaxPurse = true;
+    public boolean bazaarDailyLimit = true;
+    public boolean craftMaterials = false;
+    public boolean craftableList = false;
+    public boolean craftableListSacks = true;
+    public boolean craftableListNoVanilla = true;
+    public boolean instaSellHighlight = false;
+    public String colorInstaSell = "55FF55";
+    public boolean priceHistory = false;
+    public int priceHistoryKey = -1;
+    public boolean priceHistoryBrowser = false;
+    public boolean auctionSortWarning = false;
+    public boolean dragonProfitTracker = false;
+    public boolean dragonProfitLeeched = false;
+    public boolean dragonProfitChat = true;
+    public int dragonProfitPriceSource = 1;
+    public int dragonProfitTrackerX = 10;
+    public int dragonProfitTrackerY = 120;
+    public float dragonProfitTrackerScale = 1.0f;
     // w12-01-gui
     public java.util.Map<String, String> hudPanelChroma = new java.util.HashMap<>(); // hud id -> Off / Plain Text / All Text
     public String hudChromaAll = "Off";

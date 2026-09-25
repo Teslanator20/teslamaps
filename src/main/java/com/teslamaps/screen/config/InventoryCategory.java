@@ -141,6 +141,10 @@ public final class InventoryCategory {
         b.toggle("Auction Price Input", () -> config.auctionPriceInput, v -> config.auctionPriceInput = v);
         b.dropdown("  Mode",
                 new String[]{"Normal", "Undercut"}, () -> config.auctionDefaultMode, v -> config.auctionDefaultMode = v);
+        b.toggle("  Copy Lowest BIN - 1", () -> config.auctionCopyUnderbid, v -> config.auctionCopyUnderbid = v)
+                .desc("Putting an item into Create BIN Auction copies its lowest BIN minus one coin to the clipboard. Works without the price input too.");
+        b.toggle("Escrow Fix (Reopen AH/BZ)", () -> config.escrowFix, v -> config.escrowFix = v).cheat()
+                .desc("After an escrow message closed the menu (expired auction, invalid bid, BIN claim, bazaar refund) /ah or /bz is sent once. 5s cooldown, never while another menu is open.");
         b.label("Auction Price Comparison");
         b.toggle("Highlight Value Deals", () -> config.auctionPriceCompare, v -> config.auctionPriceCompare = v);
         b.info("Green when it sells below the estimated item value, red above");
@@ -167,6 +171,13 @@ public final class InventoryCategory {
         b.toggle("  Recent Searches", () -> config.searchOverlayHistory, v -> config.searchOverlayHistory = v);
         b.toggle("  Paste Copied Name", () -> config.searchPasteCopied, v -> config.searchPasteCopied = v);
         b.toggle("  Also In /recipes", () -> config.searchOverlayRecipes, v -> config.searchOverlayRecipes = v);
+        b.slider("  History Size", 1f, 30f,
+                () -> (float) config.searchOverlayHistorySize, v -> config.searchOverlayHistorySize = Math.round(v));
+        b.toggle("  /ahs, /bzs Commands", () -> config.searchOverlayCommands, v -> config.searchOverlayCommands = v)
+                .desc("/ahs, /ahsearch and /bzs open the search from anywhere, with item suggestions. Off: the command goes to the server unchanged.");
+        b.toggle("    Ctrl+F In AH / Bazaar", () -> config.searchOverlayCtrlF, v -> config.searchOverlayCtrlF = v);
+        b.toggle("  Pet Level / Star Filters", () -> config.searchOverlayFilters, v -> config.searchOverlayFilters = v)
+                .desc("Auction search buttons: Max Lvl puts [Lvl 100/200] before pet names (off: \"] \" so only pets show), the star button adds ✪ / master stars to starrable items.");
         b.toggle("Middle Click Copies Item Name", () -> config.middleClickCopyName, v -> config.middleClickCopyName = v);
         b.toggle("Price Lookup Key", () -> config.priceLookup, v -> config.priceLookup = v)
                 .desc("Press the key over an item in any menu: /bz for bazaar items, /ahs for auction items. Pets and enchanted books are looked up by their real name.");
@@ -337,6 +348,8 @@ public final class InventoryCategory {
         b.toggle("Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v);
         b.toggle("  Only My Orders In Co-op Orders", () -> config.bazaarOnlyMyOrders, v -> config.bazaarOnlyMyOrders = v)
                 .desc("Co-op Bazaar Orders: orders of other co-op members are hidden and can't be clicked");
+        b.toggle("Bazaar: Own Orders In Create-Order Tooltip", () -> config.bazaarOrderTooltip, v -> config.bazaarOrderTooltip = v)
+                .desc("Create Buy Order / Sell Offer: \"N of them are yours\" under each price level. Open Your Bazaar Orders once so it knows them.");
         b.toggle("Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v);
         b.toggle("Bazaar: Order Status Colors", () -> config.bazaarOrderStatus, v -> config.bazaarOrderStatus = v);
         b.info("Your Bazaar Orders: filled, outbid/undercut, still top, % partly filled, ⏰ expiry");
@@ -366,6 +379,8 @@ public final class InventoryCategory {
         b.toggle("  Abiphone Contacts", () -> config.guideAbiphone, v -> config.guideAbiphone = v);
         b.toggle("  Jacob's Contest Guide", () -> config.guideJacob, v -> config.guideJacob = v);
         b.toggle("  Essence Shops", () -> config.guideEssence, v -> config.guideEssence = v);
+        b.toggle("  Essence Shop: Cost To Max + Coin Value", () -> config.essenceShopCosts, v -> config.essenceShopCosts = v)
+                .desc("In the essence shops: coin value of each upgrade, essence left to max, and a summary on the top item (owned, missing, bazaar price).");
         b.toggle("  Uncrafted Minions", () -> config.guideMinion, v -> config.guideMinion = v);
         b.toggle("  Consumable Items", () -> config.guideConsumable, v -> config.guideConsumable = v);
         b.toggle("  Tasks Menu", () -> config.guideMenu, v -> config.guideMenu = v);

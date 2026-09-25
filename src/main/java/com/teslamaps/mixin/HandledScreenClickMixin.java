@@ -143,6 +143,11 @@ public class HandledScreenClickMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.EcoOverlays.click(mouseX, mouseY, button)) {
+            teslamaps$ate("EcoOverlays", button);
+            cir.setReturnValue(true);
+            return;
+        }
 
         com.teslamaps.features.AuctionPriceInput.onSlotClick(
                 (AbstractContainerScreen<?>) (Object) this, ((HandledScreenAccessor) (Object) this).getFocusedSlot());
