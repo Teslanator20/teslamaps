@@ -58,6 +58,8 @@ public final class HideCategory {
         b.toggle("Hide Premium Flesh", () -> config.hidePremiumFlesh, v -> config.hidePremiumFlesh = v);
         b.toggle("Hide Journal Entry", () -> config.hideJournalEntry, v -> config.hideJournalEntry = v);
         b.toggle("Hide Healer Orbs", () -> config.hideHealerOrbs, v -> config.hideHealerOrbs = v);
+        b.toggle("  Also Hide Orb Particles", () -> config.hideHealerOrbParticles, v -> config.hideHealerOrbParticles = v)
+                .desc("Drops the dust trail within 8 blocks of a hidden orb.");
         b.toggle("Hide Healer Fairy", () -> config.hideHealerFairy, v -> config.hideHealerFairy = v);
         b.toggle("Hide Hidden Item Particles", () -> config.hideDungeonItemParticles, v -> config.hideDungeonItemParticles = v);
         b.info("Firework/dust at hidden Superboom, Revive Stone, Premium Flesh and orbs");
@@ -129,6 +131,18 @@ public final class HideCategory {
         b.toggle("Hide Lightning", () -> config.noLightning, v -> config.noLightning = v);
         b.toggle("Hide Falling Blocks", () -> config.noFallingBlocks, v -> config.noFallingBlocks = v);
         b.toggle("Hide Block Breaking", () -> config.noBlockBreaking, v -> config.noBlockBreaking = v);
+        b.toggle("  Only In Garden", () -> config.noBlockBreakingGardenOnly, v -> config.noBlockBreakingGardenOnly = v);
+        b.toggle("Particle Hider", () -> config.particleHider, v -> config.particleHider = v)
+                .desc("Hides particles by distance or type.");
+        b.toggle("  Far Particles (40+ blocks)", () -> config.particleHideFar, v -> config.particleHideFar = v)
+                .desc("Not in the M7 boss.");
+        b.toggle("  Close Redstone Dust", () -> config.particleHideCloseRedstone, v -> config.particleHideCloseRedstone = v)
+                .desc("Redstone dust within 2 blocks of you.");
+        b.toggle("  Fireball Smoke", () -> config.particleHideFireball, v -> config.particleHideFireball = v);
+        b.toggle("  Blaze Particles", () -> config.particleHideBlaze, v -> config.particleHideBlaze = v);
+        b.toggle("  Enderman Particles", () -> config.particleHideEnderman, v -> config.particleHideEnderman = v);
+        b.toggle("  Fire Block Particles", () -> config.particleHideFireBlock, v -> config.particleHideFireBlock = v);
+        b.toggle("  All Smoke", () -> config.particleHideSmoke, v -> config.particleHideSmoke = v);
         b.toggle("Hide XP Orbs", () -> config.noXpOrbs, v -> config.noXpOrbs = v);
         b.toggle("Block At Packet Level", () -> config.packetHiders, v -> config.packetHiders = v);
         b.info("Lightning/Falling Blocks/XP Orbs are then never created");
@@ -139,6 +153,8 @@ public final class HideCategory {
         b.info("Only near players holding Hyperion/Astraea/Valkyrie/Scylla");
         b.info("Use with Hide Explosions off to keep other smoke");
         b.toggle("Hide Arrows", () -> config.noArrows, v -> config.noArrows = v);
+        b.toggle("  Only Arrows In The Ground", () -> config.noArrowsGroundedOnly, v -> config.noArrowsGroundedOnly = v)
+                .desc("Flying arrows stay visible.");
         b.toggle("Hide Stuck Arrows", () -> config.noStuckArrows, v -> config.noStuckArrows = v);
         b.toggle("Hide Death Animation", () -> config.noDeathAnimation, v -> config.noDeathAnimation = v);
         b.toggle("Hide Mage Beams", () -> config.hideMageBeams, v -> config.hideMageBeams = v)
@@ -153,10 +169,20 @@ public final class HideCategory {
         b.toggle("Hide Vignette", () -> config.noVignette, v -> config.noVignette = v);
         b.toggle("Hide Blindness", () -> config.noBlind, v -> config.noBlind = v);
         b.toggle("Hide Nausea", () -> config.noNausea, v -> config.noNausea = v);
+        b.toggle("More Overlay Hiders", () -> config.moreOverlayHiders, v -> config.moreOverlayHiders = v);
+        b.toggle("  Hide Portal Overlay", () -> config.hidePortalOverlay, v -> config.hidePortalOverlay = v);
+        b.toggle("  Hide Pumpkin Overlay", () -> config.hidePumpkinOverlay, v -> config.hidePumpkinOverlay = v);
+        b.toggle("  Hide In-Block Overlay", () -> config.hideInBlockOverlay, v -> config.hideInBlockOverlay = v)
+                .desc("No block texture when your camera is inside a wall.");
+        b.toggle("  No Underwater FOV Change", () -> config.noWaterFov, v -> config.noWaterFov = v);
+        b.toggle("  Hide Wither Impact Particles", () -> config.hideWitherImpactParticles, v -> config.hideWitherImpactParticles = v)
+                .desc("Drops witch and heart particles (Hyperion spam).");
         b.label("Interface");
         b.toggle("Hide Inventory Effects", () -> config.hideInventoryEffects, v -> config.hideInventoryEffects = v);
         b.toggle("Hide Effects (HUD)", () -> config.noEffects, v -> config.noEffects = v);
         b.toggle("Hide Enchant Glint", () -> config.noEnchantGlint, v -> config.noEnchantGlint = v);
+        b.toggle("  Only On Worn Armor", () -> config.noEnchantGlintArmorOnly, v -> config.noEnchantGlintArmorOnly = v)
+                .desc("Items in inventory and hand keep their glint.");
         b.toggle("Force Enchant Glint", () -> config.forceEnchantGlint, v -> config.forceEnchantGlint = v)
                 .desc("Every enchanted item glints, SkyBlock items included. Hide Enchant Glint wins over this.");
         b.toggle("Hide Item Durability", () -> config.hideItemDurability, v -> config.hideItemDurability = v);
@@ -203,6 +229,9 @@ public final class HideCategory {
                 .desc("Hides the shield placeholder in the empty offhand slot.");
         b.label("Camera");
         b.toggle("No Hurt Camera", () -> config.noHurtCam, v -> config.noHurtCam = v);
+        b.slider("  Hurt Tilt Strength", 0f, 2f,
+                () -> config.hurtCamStrength, v -> config.hurtCamStrength = v, 2)
+                .desc("0 = no tilt, 1 = vanilla, 2 = double.");
         b.toggle("No View Bobbing", () -> config.noViewBobbing, v -> config.noViewBobbing = v);
     }
 }

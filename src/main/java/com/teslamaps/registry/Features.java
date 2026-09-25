@@ -424,5 +424,7 @@ final class Features {
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
         com.teslamaps.features.LookTargeting.register();
+        // w09-08-vis
+        com.teslamaps.features.ParticleHider.register();
     }
 }

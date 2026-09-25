@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class NoBlockBreakingMixin {
     @Inject(method = "addDestroyBlockEffect", at = @At("HEAD"), cancellable = true)
     private void teslamaps$noBlockBreaking(BlockPos pos, BlockState state, CallbackInfo ci) {
-        if (TeslaMapsConfig.get().noBlockBreaking) ci.cancel();
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.noBlockBreaking && (!c.noBlockBreakingGardenOnly || com.teslamaps.utils.SkyblockUtils.isInGarden())) ci.cancel();
     }
 }

@@ -48,6 +48,7 @@ public class SoulweaverHider {
 
     private static final java.util.Map<ArmorStand, Long> SKULL_MOVED = new java.util.WeakHashMap<>();
     private static final java.util.Map<ArmorStand, Long> PARTICLE_SOURCES = new java.util.WeakHashMap<>();
+    private static final java.util.Map<ArmorStand, Long> ORB_SOURCES = new java.util.WeakHashMap<>();
 
     public static void register() {
         com.teslamaps.registry.Feature.of("MovingSkulls")
@@ -73,6 +74,7 @@ public class SoulweaverHider {
 
     /** Main thread. Firework/dust particles right at a hidden Superboom/Revive Stone/orb. */
     public static boolean hideParticle(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket p) {
+        if (!ORB_SOURCES.isEmpty() && hideOrbParticle(p)) return true;
         if (PARTICLE_SOURCES.isEmpty() || !TeslaMapsConfig.get().hideDungeonItemParticles) return false;
         var type = p.getParticle().getType();
         if (type != net.minecraft.core.particles.ParticleTypes.FIREWORK && type != net.minecraft.core.particles.ParticleTypes.DUST) return false;
@@ -84,6 +86,28 @@ public class SoulweaverHider {
             if (e.getKey().distanceToSqr(p.getX(), p.getY(), p.getZ()) < 4) return true;
         }
         return false;
+    }
+
+    // Devonian HideHealerOrbs: orb trail dust within 8 blocks of an orb
+    private static boolean hideOrbParticle(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket p) {
+        if (!TeslaMapsConfig.get().hideHealerOrbParticles) { ORB_SOURCES.clear(); return false; }
+        if (p.getParticle().getType() != net.minecraft.core.particles.ParticleTypes.DUST
+                || p.getCount() != 0 || !p.isOverrideLimiter() || !p.alwaysShow()) return false;
+        long now = System.currentTimeMillis();
+        var it = ORB_SOURCES.entrySet().iterator();
+        while (it.hasNext()) {
+            var e = it.next();
+            ArmorStand s = e.getKey();
+            if (s.isRemoved() || now - e.getValue() > 2000) { it.remove(); continue; }
+            if (Math.abs(p.getX() - s.getX()) < 8 && Math.abs(p.getY() - (s.getY() + 2)) < 8
+                    && Math.abs(p.getZ() - s.getZ()) < 8) return true;
+        }
+        return false;
+    }
+
+    private static boolean orb(ArmorStand stand) {
+        if (TeslaMapsConfig.get().hideHealerOrbParticles) ORB_SOURCES.put(stand, System.currentTimeMillis());
+        return true;
     }
 
     private static boolean particleSource(ArmorStand stand) {
@@ -123,7 +147,7 @@ public class SoulweaverHider {
                 if (cfg.hideReviveStone && standName.equals("Revive Stone")) return true;
                 if (cfg.hidePremiumFlesh && standName.equals("Premium Flesh")) return particleSource(stand);
                 if (cfg.hideHealerOrbs && (standName.startsWith("DAMAGE ")
-                        || standName.startsWith("ABILITY DAMAGE ") || standName.startsWith("DEFENSE "))) return true;
+                        || standName.startsWith("ABILITY DAMAGE ") || standName.startsWith("DEFENSE "))) return orb(stand);
             }
         }
 
@@ -158,8 +182,10 @@ public class SoulweaverHider {
         if (cfg.hideReviveStone && url.equals(REVIVE_STONE_URL)) return particleSource(stand);
         if (cfg.hidePremiumFlesh && url.equals(PREMIUM_FLESH_URL)) return true;
         if (cfg.hideHealerFairy && url.equals(HEALER_FAIRY_URL)) return true;
-        if (cfg.hideHealerOrbs && (url.equals(ABILITY_ORB_URL) || url.equals(SUPPORT_ORB_URL) || url.equals(DAMAGE_ORB_URL)))
+        if (cfg.hideHealerOrbs && (url.equals(ABILITY_ORB_URL) || url.equals(SUPPORT_ORB_URL) || url.equals(DAMAGE_ORB_URL))) {
+            orb(stand);
             return particleSource(stand);
+        }
 
         return false;
     }
