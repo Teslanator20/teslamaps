@@ -23,7 +23,7 @@ public class ContainerKeyMixin {
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
-        if (com.teslamaps.features.RadialMenus.key(cs, event)) {
+        if (com.teslamaps.features.RadialMenus.key(cs, event) || com.teslamaps.features.bazaar.PurchaseGuard.onKey(event.key())) {
             cir.setReturnValue(true);
             return;
         }

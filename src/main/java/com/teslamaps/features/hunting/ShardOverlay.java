@@ -507,6 +507,7 @@ public class ShardOverlay {
 
         // the bazaar asks for the amount in a sign, so have it ready to paste
         if (lastClickAmount > 0) mc.keyboardHandler.setClipboard(String.valueOf(lastClickAmount));
+        com.teslamaps.features.bazaar.BazaarPurchaseHelper.expect(lastClickQuery + " Shard");
         mc.getConnection().sendCommand("bz " + lastClickQuery + " Shard");
         return true;
     }

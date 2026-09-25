@@ -515,6 +515,14 @@ final class Features {
         // w12-00-gui
         com.teslamaps.features.customize.ModifyIndicator.register();
         com.teslamaps.features.QuickModSwitch.register();
+        // w12-06-eco
+        com.teslamaps.features.bazaar.BazaarOrderTracker.register();
+        com.teslamaps.features.bazaar.PurchaseGuard.register();
+        com.teslamaps.features.bazaar.ManageAuctions.register();
+        com.teslamaps.features.bazaar.AuctionOutbid.register();
+        com.teslamaps.features.bazaar.BazaarQuickQuantities.register();
+        com.teslamaps.features.bazaar.BazaarReorder.register();
+        com.teslamaps.features.bazaar.BazaarPurchaseHelper.register();
         // w11-04-par
         com.teslamaps.features.PartyCheck.register();
         com.teslamaps.features.MarkedPlayers.register();
