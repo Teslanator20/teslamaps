@@ -381,6 +381,13 @@ public class ChatFilter {
         if (HoppityCompactChat.handle(message, text, t)) return true;
         lastReason = "autopet";
         if (autopet(t)) return true;
+        String nucleus = com.teslamaps.features.mining.NucleusChatFilter.handle(message, text, t);
+        if (nucleus != null) {
+            lastReason = "nucleusChatFilter";
+            if (nucleus.isEmpty()) return true;
+            queue(text, Component.literal(nucleus));
+            return false;
+        }
         if (TeslaMapsConfig.get().chatFilterEnabled) {
             String sf = ChatCompactRulesIslands.shortForm(message, t);
             if (sf != null) lastReason = "compact";
