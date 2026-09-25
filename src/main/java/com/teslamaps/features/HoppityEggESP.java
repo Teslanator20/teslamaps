@@ -74,6 +74,21 @@ public class HoppityEggESP {
         }
     }
 
+    /** Nearest egg stand within range, null if none. Independent of the ESP toggle. */
+    public static Vec3 nearestEgg(double range) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return null;
+        Vec3 p = mc.player.position();
+        Vec3 best = null;
+        double bestD = range * range;
+        for (ArmorStand stand : mc.level.getEntitiesOfClass(ArmorStand.class, mc.player.getBoundingBox().inflate(range))) {
+            if (matchEgg(stand.getItemBySlot(EquipmentSlot.HEAD)) == null) continue;
+            double d = stand.position().distanceToSqr(p);
+            if (d < bestD) { bestD = d; best = stand.position(); }
+        }
+        return best;
+    }
+
     private static EggType matchEgg(ItemStack head) {
         if (head == null || head.isEmpty()) return null;
         ResolvableProfile rp = head.get(DataComponents.PROFILE);

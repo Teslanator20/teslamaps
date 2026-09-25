@@ -2188,6 +2188,27 @@ public class TeslaMapsConfig {
     public java.util.Map<String, String> hoppityLocationRabbits = new java.util.HashMap<>();
     @Global
     public java.util.Map<String, String> hoppityRabbitRarity = new java.util.HashMap<>();
+    // w04-05-inv
+    public boolean experimentationAlerts = false;
+    public boolean expMaxRoundsAlert = true;
+    public boolean expUltraRareAlert = true;
+    public boolean expSuperpairsXp = true;
+    public boolean fullInventoryWarning = false;
+    public int fullInventorySlots = 0;
+    public boolean fullInventorySound = true;
+    public boolean focusMode = false;
+    public boolean focusModeAlways = false;
+    public int focusModeKey = -1;
+    public boolean focusModeSkipMenus = true;
+    public boolean xpInTooltips = false;
+    public boolean duplicateItems = false;
+    public boolean duplicateItemsEverywhere = false;
+    public String colorDuplicateItem = "80FF0000";
+    public boolean hideExCoopMembers = false;
+    public boolean hoppityWarpUniques = false;
+    public boolean hoppityWarpHideMaxed = false;
+    public java.util.List<String> hiddenCoopMembers = new ArrayList<>();
+    public java.util.Map<String, java.util.List<String>> hoppityUniqueEggs = new java.util.HashMap<>();
     // w03-03-dun
     public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
     public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking
@@ -2789,6 +2810,8 @@ public class TeslaMapsConfig {
         if (c.customESPColors == null) c.customESPColors = new java.util.HashMap<>();
         if (c.colorESPCustom == null || c.colorESPCustom.isBlank()) c.colorESPCustom = "00FFFF";
         if (c.recentPlayers == null) c.recentPlayers = new ArrayList<>();
+        if (c.hiddenCoopMembers == null) c.hiddenCoopMembers = new ArrayList<>();
+        if (c.hoppityUniqueEggs == null) c.hoppityUniqueEggs = new java.util.HashMap<>();
         if (c.guildNames == null) c.guildNames = new ArrayList<>();
         if (c.friendNames == null) c.friendNames = new ArrayList<>();
         if (c.splitPbs == null) c.splitPbs = new java.util.HashMap<>();
