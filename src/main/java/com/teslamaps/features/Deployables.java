@@ -63,6 +63,7 @@ public class Deployables {
         long valueSince;
         boolean active;
         net.minecraft.world.item.ItemStack icon = net.minecraft.world.item.ItemStack.EMPTY;
+        java.lang.ref.WeakReference<ArmorStand> iconEntity;
         long iconTry;
         double x, y, z;
     }
@@ -158,7 +159,11 @@ public class Deployables {
                 t.x = stand.getX(); t.y = stand.getY(); t.z = stand.getZ();
                 if (c.deployableIconMode && t.icon.isEmpty() && now - t.iconTry > 1000) {
                     t.iconTry = now;
-                    t.icon = headBelow(mc, stand);
+                    ArmorStand head = headBelow(mc, stand);
+                    if (head != null) {
+                        t.icon = head.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).copy();
+                        t.iconEntity = new java.lang.ref.WeakReference<>(head);
+                    }
                 }
             }
         }
@@ -170,18 +175,18 @@ public class Deployables {
     }
 
     // the timer tag floats above the stand that wears the orb/lantern head
-    private static net.minecraft.world.item.ItemStack headBelow(Minecraft mc, ArmorStand tag) {
+    private static ArmorStand headBelow(Minecraft mc, ArmorStand tag) {
         var box = tag.getBoundingBox().expandTowards(0, -3, 0).inflate(0.6, 0, 0.6);
         for (ArmorStand s : mc.level.getEntitiesOfClass(ArmorStand.class, box)) {
-            var head = s.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD);
-            if (!head.isEmpty()) return head.copy();
+            if (!s.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).isEmpty()) return s;
         }
-        return net.minecraft.world.item.ItemStack.EMPTY;
+        return null;
     }
 
     private static String iconName = null;
     private static String iconTime = "";
     private static net.minecraft.world.item.ItemStack iconStack = net.minecraft.world.item.ItemStack.EMPTY;
+    private static java.lang.ref.WeakReference<ArmorStand> iconEntity;
 
     // one deployable, the strongest in range, like Devonian/Odin
     private static void buildIcon(TeslaMapsConfig c) {
@@ -201,6 +206,7 @@ public class Deployables {
         iconName = known != null ? known.displayName : "§b" + bestKey;
         iconTime = "§e" + format(Math.max(0, secondsLeft(bestKey)));
         iconStack = tracks.get(bestKey).icon;
+        iconEntity = tracks.get(bestKey).iconEntity;
     }
 
     private static int rank(Deployable d) {
@@ -268,7 +274,10 @@ public class Deployables {
         t.end = now + left;
         t.active = true;
         t.x = stand.getX(); t.y = stand.getY() + 1; t.z = stand.getZ();
-        if (t.icon.isEmpty()) t.icon = stand.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).copy();
+        if (t.icon.isEmpty()) {
+            t.icon = stand.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).copy();
+            t.iconEntity = new java.lang.ref.WeakReference<>(stand);
+        }
     }
 
     private static String flareOf(ArmorStand stand) {
@@ -442,7 +451,14 @@ public class Deployables {
         pose.scale(scale, scale);
         int w = 36 + Math.max(mc.font.width(name), mc.font.width(time));
         com.teslamaps.render.gui.HudStyle.panel(g, -2, -2, w + 4, 36);
-        if (!stack.isEmpty()) {
+        ArmorStand orb = TeslaMapsConfig.get().deployableOrb3d && iconEntity != null && name == iconName ? iconEntity.get() : null;
+        if (orb != null && !orb.isRemoved()) {
+            pose.popMatrix();
+            drawOrb(g, orb, x, y, scale);
+            pose.pushMatrix();
+            pose.translate(x, y);
+            pose.scale(scale, scale);
+        } else if (!stack.isEmpty()) {
             pose.pushMatrix();
             pose.scale(2f, 2f);
             g.item(stack, 0, 0);
@@ -451,6 +467,32 @@ public class Deployables {
         g.text(mc.font, name, 36, 6, 0xFFFFFFFF, true);
         g.text(mc.font, time, 36, 18, 0xFFFFFFFF, true);
         pose.popMatrix();
+    }
+
+    // spinning head render, the way Devonian draws it
+    private static void drawOrb(GuiGraphicsExtractor g, ArmorStand ent, int x, int y, float scale) {
+        float yaw = (float) ((System.currentTimeMillis() % 1750L) / 1750.0 * 2.0 * Math.PI);
+        org.joml.Quaternionf camRot = new org.joml.Quaternionf().rotateX(-0.38397244f).rotateY(yaw);
+        org.joml.Quaternionf entRot = new org.joml.Quaternionf().rotateZ((float) Math.PI).mul(camRot);
+        float bodyRot = ent.yBodyRot, yRot = ent.getYRot(), xRot = ent.getXRot(), headO = ent.yHeadRotO, head = ent.yHeadRot;
+        ent.yBodyRot = 0f;
+        ent.setYRot(0f);
+        ent.setXRot(0f);
+        ent.yHeadRotO = 0f;
+        ent.yHeadRot = 0f;
+        try {
+            float size = 32f * scale;
+            float entScale = ent.getScale();
+            var state = net.minecraft.client.gui.screens.inventory.InventoryScreen.extractRenderState(ent);
+            g.entity(state, 0.8f * size / entScale, new org.joml.Vector3f(0f, 1.6f * entScale, 0f), entRot, camRot,
+                    x, y, (int) Math.ceil(x + size), (int) Math.ceil(y + size));
+        } finally {
+            ent.yBodyRot = bodyRot;
+            ent.setYRot(yRot);
+            ent.setXRot(xRot);
+            ent.yHeadRotO = headO;
+            ent.yHeadRot = head;
+        }
     }
 
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {

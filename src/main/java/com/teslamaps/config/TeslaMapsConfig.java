@@ -2135,6 +2135,45 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w07-06-hud
+    public boolean deployableOrb3d = false;
+    public boolean customScoreboard = false;
+    public boolean customScoreboardTitle = true;
+    public boolean customScoreboardHideServer = true;
+    public boolean customScoreboardHideFooter = true;
+    public boolean customScoreboardHideBlank = false;
+    public boolean customScoreboardBackground = true;
+    public int customScoreboardX = 500;
+    public int customScoreboardY = 60;
+    public float customScoreboardScale = 1.0f;
+    public boolean armorHud = false;
+    public boolean armorHudVertical = false;
+    public boolean armorHudBackground = true;
+    public boolean armorHudSlotBg = false;
+    public boolean armorHudEmpty = false;
+    public boolean armorHudHelmet = true;
+    public boolean armorHudChest = true;
+    public boolean armorHudLegs = true;
+    public boolean armorHudBoots = true;
+    public int armorHudX = 5;
+    public int armorHudY = 120;
+    public float armorHudScale = 1.0f;
+    public boolean armorStackHud = false;
+    public int armorStackHudX = 5;
+    public int armorStackHudY = 150;
+    public float armorStackHudScale = 1.0f;
+    public boolean accurateAbsorption = false;
+    public float accurateAbsorptionMax = 40f;
+    public boolean allSkillsDisplay = false;
+    public boolean allSkillsXp = true;
+    public boolean allSkillsOverflow = true;
+    public java.util.List<String> allSkillsHidden = new java.util.ArrayList<>();
+    public int allSkillsX = 5;
+    public int allSkillsY = 170;
+    public float allSkillsScale = 1.0f;
+    public boolean skillGoals = false;
+    public boolean skillGoalAlert = true;
+    public java.util.Map<String, Integer> skillGoalLevels = new java.util.HashMap<>();
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
@@ -3392,6 +3431,8 @@ public class TeslaMapsConfig {
         if (c.chatRedirectTarget == null) c.chatRedirectTarget = "Spam HUD";
         if (c.chatFilterAction == null || c.chatFilterAction.isBlank()) c.chatFilterAction = "Hide";
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
+        if (c.allSkillsHidden == null) c.allSkillsHidden = new java.util.ArrayList<>();
+        if (c.skillGoalLevels == null) c.skillGoalLevels = new java.util.HashMap<>();
         if (c.skillTrackerPin == null) c.skillTrackerPin = "";
         if (c.flareMob == null || c.flareMob.isBlank()) c.flareMob = "Flare";
         if (c.bestiaryTracked == null) c.bestiaryTracked = new java.util.ArrayList<>();

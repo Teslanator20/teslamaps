@@ -84,6 +84,9 @@ public final class SkillsCategory {
                 () -> config.deployableHighestTierOnly, v -> config.deployableHighestTierOnly = v);
         b.toggle("  Big Icon (strongest only)",
                 () -> config.deployableIconMode, v -> config.deployableIconMode = v);
+        b.toggle("    Spinning 3D Orb",
+                () -> config.deployableOrb3d, v -> config.deployableOrb3d = v)
+                .desc("Renders the orb/lantern itself, rotating, instead of the flat head icon.");
         b.toggle("  Power Orbs",
                 () -> config.deployableFlux, v -> config.deployableFlux = v);
         b.toggle("  Lanterns",

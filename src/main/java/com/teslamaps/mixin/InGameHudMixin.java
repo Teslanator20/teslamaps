@@ -33,10 +33,18 @@ public class InGameHudMixin {
     @ModifyVariable(method = "setOverlayMessage", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private Component onSetOverlayMessage(Component message) {
         SecretTracker.onActionBarMessage(message);
+        com.teslamaps.features.ArmorStackHud.onActionBar(message);
+        com.teslamaps.features.AccurateAbsorption.onActionBar(message);
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Skills")) {
             com.teslamaps.features.SkillTracker.onActionBar(message.getString());
         }
         return com.teslamaps.features.ActionBarFilter.filter(message);
+    }
+
+    @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method = "extractPlayerHealth",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getAbsorptionAmount()F"))
+    private float teslamaps$accurateAbsorption(float original) {
+        return com.teslamaps.features.AccurateAbsorption.absorption(original);
     }
 
     @Inject(method = "extractSlot", at = @At("HEAD"))
