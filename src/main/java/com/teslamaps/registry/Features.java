@@ -771,13 +771,12 @@ final class Features {
         com.teslamaps.features.mining.MetalDetectorSolver.register();
         com.teslamaps.features.mining.DrillFuelDisplay.register();
         com.teslamaps.features.mining.FossilExcavatorSolver.register();
-        com.teslamaps.features.mining.MineshaftExitWaypoint.register();
         // w15-09-sla
         com.teslamaps.slayer.RemainingSlayerKills.register();
         com.teslamaps.slayer.SlayerTransparency.register();
         com.teslamaps.slayer.Rev5TntPing.register();
-        com.teslamaps.slayer.InfernoHelper.register();
         com.teslamaps.features.KeeperWaypoints.register();
+        com.teslamaps.slayer.InfernoHelper.register();
         // w15-08-sla
         com.teslamaps.slayer.BlazeSlayerHelper.register();
         com.teslamaps.slayer.BloodfiendHelper.register();

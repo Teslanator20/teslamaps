@@ -273,13 +273,16 @@ public class WorldScanner {
         }
     }
 
+    private static volatile Thread scanThread;
     private static final java.util.concurrent.ExecutorService SCAN_THREAD =
             java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
                 Thread t = new Thread(r, "TeslaMaps-StructureScanner");
                 t.setDaemon(true);
+                scanThread = t;
                 return t;
             });
     private static volatile int generation;
+    private static volatile int taskGen = -1;
 
     private static final Map<String, WaypointData> waypoints = new ConcurrentHashMap<>();
     private static final Map<Structure, List<Cluster>> clusters = new ConcurrentHashMap<>();
@@ -303,17 +306,44 @@ public class WorldScanner {
     // off-thread like legitcatmod's StructureFinder-Scanner, so chunk streaming never stalls the frame
     private static void submit(LevelChunk chunk) {
         if (!TeslaMapsConfig.get().chScanOffThread) {
-            scanChunk(chunk);
+            scanChunk(Snap.live(chunk));
             return;
         }
         int gen = generation;
+        Snap snap = Snap.copy(chunk);
         SCAN_THREAD.execute(() -> {
             if (gen != generation) return;
+            taskGen = gen;
             try {
-                scanChunk(chunk);
+                scanChunk(snap);
             } catch (RuntimeException ignored) {
+            } finally {
+                taskGen = -1;
             }
         });
+    }
+
+    // results of a task queued before clear() belong to the old lobby
+    private static boolean stale() {
+        return Thread.currentThread() == scanThread && taskGen != generation;
+    }
+
+    /** Chunk sections; a copy for the scan thread so it never reads a live chunk. */
+    private record Snap(int x, int z, int minSection, LevelChunkSection[] sections) {
+        static Snap live(LevelChunk c) {
+            return new Snap(c.getPos().x(), c.getPos().z(), c.getMinSectionY(), c.getSections());
+        }
+
+        static Snap copy(LevelChunk c) {
+            LevelChunkSection[] src = c.getSections(), out = new LevelChunkSection[src.length];
+            for (int i = 0; i < src.length; i++) {
+                LevelChunkSection sec = src[i];
+                if (sec != null && !sec.hasOnlyAir()) out[i] = sec.copy();
+            }
+            return new Snap(c.getPos().x(), c.getPos().z(), c.getMinSectionY(), out);
+        }
+
+        int index(int y) { return (y >> 4) - minSection; }
     }
 
     private static boolean chunkReady(LevelChunk chunk) {
@@ -448,7 +478,7 @@ public class WorldScanner {
             BlockPos a = w.anchor();
             LevelChunk chunk = mc.level.getChunkSource().getChunk(a.getX() >> 4, a.getZ() >> 4, ChunkStatus.FULL, false);
             if (chunk == null) continue;
-            if (!checkSeq(chunk, a.getX() & 15, a.getY(), a.getZ() & 15, w.structure().blocks)) {
+            if (!checkSeq(Snap.live(chunk), a.getX() & 15, a.getY(), a.getZ() & 15, w.structure().blocks)) {
                 waypoints.remove(e.getKey());
                 clusters.remove(w.structure());
             }
@@ -526,11 +556,11 @@ public class WorldScanner {
         return out;
     }
 
-    private static void scanChunk(LevelChunk chunk) {
+    private static void scanChunk(Snap chunk) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        int chunkX = chunk.getPos().x(), chunkZ = chunk.getPos().z();
+        int chunkX = chunk.x(), chunkZ = chunk.z();
         // palette pre-filter: a section without any first block cannot anchor a match
-        LevelChunkSection[] sections = chunk.getSections();
+        LevelChunkSection[] sections = chunk.sections();
         boolean[] relevant = new boolean[sections.length];
         boolean any = false;
         for (int i = 0; i < sections.length; i++) {
@@ -548,7 +578,7 @@ public class WorldScanner {
                 if (worldX < 202 || worldX > 823 || worldZ < 202 || worldZ > 823) continue;
 
                 for (int y = 31; y <= 188; y++) {
-                    int si = chunk.getSectionIndex(y);
+                    int si = chunk.index(y);
                     if (si < 0 || si >= relevant.length || !relevant[si]) continue;
                     BlockState state = blockAt(chunk, lx, y, lz);
                     if (state.isAir()) continue;
@@ -606,7 +636,7 @@ public class WorldScanner {
         }
     }
 
-    private static void tryAdd(boolean toggle, Structure s, LevelChunk chunk, int lx, int y, int lz, int worldX, int worldZ) {
+    private static void tryAdd(boolean toggle, Structure s, Snap chunk, int lx, int y, int lz, int worldX, int worldZ) {
         if (!toggle || !structureOn(s.displayName)) return;
         WaypointData existing = waypoints.get(s.displayName);
         if (existing != null && existing.verified()) return;
@@ -636,9 +666,9 @@ public class WorldScanner {
     }
 
     // direct section access, avoids BlockPos allocation on the hot path
-    private static BlockState blockAt(LevelChunk chunk, int lx, int absY, int lz) {
-        int sectionIdx = chunk.getSectionIndex(absY);
-        LevelChunkSection[] sections = chunk.getSections();
+    private static BlockState blockAt(Snap chunk, int lx, int absY, int lz) {
+        int sectionIdx = chunk.index(absY);
+        LevelChunkSection[] sections = chunk.sections();
         if (sectionIdx < 0 || sectionIdx >= sections.length) return Blocks.AIR.defaultBlockState();
         LevelChunkSection section = sections[sectionIdx];
         if (section == null || section.hasOnlyAir()) return Blocks.AIR.defaultBlockState();
@@ -646,7 +676,7 @@ public class WorldScanner {
     }
 
     // AIR in a pattern means "empty", and the hollows are full of cave_air
-    private static boolean checkSeq(LevelChunk chunk, int lx, int startY, int lz, Block[] seq) {
+    private static boolean checkSeq(Snap chunk, int lx, int startY, int lz, Block[] seq) {
         for (int i = 0; i < seq.length; i++) {
             if (seq[i] == null) continue;
             int y = startY + i;
@@ -662,6 +692,7 @@ public class WorldScanner {
     }
 
     private static void addWaypoint(String name, BlockPos pos, int color, int category, Structure s, BlockPos anchor) {
+        if (stale()) return;
         if (waypoints.putIfAbsent(name, new WaypointData(pos.immutable(), color, category,
                 s, anchor == null ? null : anchor.immutable(), false)) != null) return;
         announce(name, pos);
@@ -670,10 +701,15 @@ public class WorldScanner {
     // the centroid shifts while more chunks of the same structure load, so an existing
     // unverified waypoint gets moved instead of staying on the first column that matched
     private static void putWaypoint(String name, BlockPos pos, int color, int category, Structure s, BlockPos anchor) {
-        WaypointData old = waypoints.get(name);
-        if (old != null && old.verified()) return;
-        waypoints.put(name, new WaypointData(pos.immutable(), color, category, s, anchor.immutable(), false));
-        if (old == null) announce(name, pos);
+        if (stale()) return;
+        boolean[] added = {false};
+        WaypointData next = new WaypointData(pos.immutable(), color, category, s, anchor.immutable(), false);
+        waypoints.compute(name, (k, old) -> {
+            if (old != null && old.verified()) return old;
+            added[0] = old == null;
+            return next;
+        });
+        if (added[0]) announce(name, pos);
     }
 
     private static void announce(String name, BlockPos pos) {
@@ -708,13 +744,14 @@ public class WorldScanner {
         BlockPos p = mc.player.blockPosition();
         LevelChunk chunk = mc.level.getChunkSource().getChunk(p.getX() >> 4, p.getZ() >> 4, ChunkStatus.FULL, false);
         if (chunk == null) { out.add("§7chunk not loaded"); return out; }
+        Snap snap = Snap.live(chunk);
         out.add("§6column at §f" + p.getX() + " " + p.getY() + " " + p.getZ());
         String run = null;
         int runStart = 0, runLen = 0;
         for (int dy = -6; dy <= 32; dy++) {
             int y = p.getY() + dy;
             if (y < 0 || y > 255) continue;
-            BlockState st = blockAt(chunk, p.getX() & 15, y, p.getZ() & 15);
+            BlockState st = blockAt(snap, p.getX() & 15, y, p.getZ() & 15);
             String name = st.isAir() ? "AIR" : net.minecraft.core.registries.BuiltInRegistries.BLOCK
                     .getKey(st.getBlock()).getPath().toUpperCase();
             if (name.equals(run)) { runLen++; continue; }

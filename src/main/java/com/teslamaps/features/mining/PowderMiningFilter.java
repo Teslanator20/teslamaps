@@ -100,6 +100,8 @@ public final class PowderMiningFilter {
             }
         }
         if (!c.powderChatFilterCompact) return null;
+        // Effective Powder Chat rewrites this line itself
+        if (name.equals("Gemstone Powder") && c.effectivePowderChat) return null;
         String reward = RAW_AMOUNT.matcher(LEAD.matcher(text).replaceFirst("")).replaceAll("");
         String shortForm = "§8+ " + (amountStr != null ? "§7" + amountStr + " " : "") + reward;
         ChatFilter.queueRewrite(text, ChatFilter.compact(message, shortForm));

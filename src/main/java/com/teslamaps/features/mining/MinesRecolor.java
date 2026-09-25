@@ -13,7 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 /** Dwarven Mines: grey/blue carpets drawn red so Titanium stands out, The Mist drawn dark. */
 public final class MinesRecolor {
 
-    private static volatile boolean carpets, mist;
+    private static volatile boolean any;
+    private static boolean carpets, mist;
     private static int ticks;
 
     private MinesRecolor() {}
@@ -40,13 +41,14 @@ public final class MinesRecolor {
             if (wantCarpets == carpets && wantMist == mist) return;
             carpets = wantCarpets;
             mist = wantMist;
+            any = wantCarpets || wantMist;
             if (mc.levelRenderer != null && mc.level != null) mc.levelRenderer.allChanged();
         });
     }
 
     /** Section-compile worker threads, from RenderSectionRegionMixin. */
     public static BlockState swap(BlockPos pos, BlockState state) {
-        if (!carpets && !mist) return state;
+        if (!any) return state;
         Block b = state.getBlock();
         if (carpets && (b == Blocks.GRAY_CARPET || b == Blocks.LIGHT_GRAY_CARPET || b == Blocks.LIGHT_BLUE_CARPET)) {
             return Blocks.RED_CARPET.defaultBlockState();
