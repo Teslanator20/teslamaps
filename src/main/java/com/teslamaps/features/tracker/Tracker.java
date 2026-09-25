@@ -186,6 +186,7 @@ public final class Tracker {
         load();
         session.remove(key);
         total.remove(key);
+        for (var b : history.values()) b.remove(key);
         lastAdded.remove(key);
         markDirty();
         rebuild();
@@ -211,7 +212,7 @@ public final class Tracker {
     }
 
     public String profitText() {
-        return com.teslamaps.utils.StringUtil.strip(title) + " (" + (view == View.SESSION ? "Session" : "Total") + "): "
+        return com.teslamaps.utils.StringUtil.strip(title) + " (" + view.label + "): "
                 + ItemPrice.format(profit(view)) + " coins"
                 + (view == View.SESSION ? ", " + ItemPrice.format(perHour()) + "/h, " + formatTime(activeMillis()) : "");
     }
