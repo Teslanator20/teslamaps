@@ -2148,6 +2148,37 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w15-02-min
+    public boolean kingTalismanHelper = false;
+    public boolean kingTalismanOutsideMines = false;
+    @Global
+    public java.util.List<String> kingsTalkedTo = new java.util.ArrayList<>();
+    public int kingTalismanX = 10;
+    public int kingTalismanY = 140;
+    public float kingTalismanScale = 1.0f;
+    public boolean hotmPowderGoal = false;
+    public boolean hotmPowderGoalTitle = false;
+    public boolean hotmPowderGoalRepeat = false;
+    public int hotmPowderGoalInterval = 5;
+    @Global
+    public java.util.Map<String, String> hotmPowderGoals = new java.util.HashMap<>();
+    public boolean goldenGoblinHighlight = false;
+    public com.teslamaps.render.EspStyle goldenGoblinEsp = new com.teslamaps.render.EspStyle("FF55FF55");
+    public boolean enderNodeTracker = false;
+    public boolean enderNodeOnlyTool = false;
+    public int enderNodePriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public int enderNodeTrackerX = 10;
+    public int enderNodeTrackerY = 80;
+    public float enderNodeTrackerScale = 1.0f;
+    public boolean miningRedCarpets = false;
+    public boolean miningDarkMist = false;
+    public boolean muteHighHeat = false;
+    public boolean excavatorHideDirtTooltip = false;
+    public boolean excavatorHideAllTooltips = false;
+    public boolean scrapGfsButton = false;
+    public int scrapGfsAmount = 64;
+    public boolean scrapGfsOnlyIfNone = true;
+    public boolean scrapGfsBazaar = true;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;
@@ -5228,6 +5259,9 @@ public class TeslaMapsConfig {
 
     static void normalize(TeslaMapsConfig c) {
         if (c.visitorIgnored == null) c.visitorIgnored = new java.util.ArrayList<>();
+        if (c.kingsTalkedTo == null) c.kingsTalkedTo = new java.util.ArrayList<>();
+        if (c.hotmPowderGoals == null) c.hotmPowderGoals = new java.util.HashMap<>();
+        c.hotmPowderGoals.values().removeIf(java.util.Objects::isNull);
         if (c.speedPresetValues == null) c.speedPresetValues = defaultSpeedPresets();
         c.speedPresetValues.values().removeIf(java.util.Objects::isNull);
         if (c.stereoActiveVinyl == null) c.stereoActiveVinyl = "";

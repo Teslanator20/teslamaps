@@ -717,5 +717,12 @@ final class Features {
         com.teslamaps.features.BazaarOrderTooltip.register();
         com.teslamaps.features.EssenceShopCosts.register();
         com.teslamaps.features.EscrowFix.register();
+        // w15-02-min
+        com.teslamaps.features.mining.KingTalismanHelper.register();
+        com.teslamaps.features.mining.HotmPowderGoal.register();
+        com.teslamaps.features.mining.GoldenGoblinHighlight.register();
+        com.teslamaps.features.theend.EnderNodeTracker.register();
+        com.teslamaps.features.mining.MinesRecolor.register();
+        com.teslamaps.features.mining.FossilExcavatorHelper.register();
     }
 }

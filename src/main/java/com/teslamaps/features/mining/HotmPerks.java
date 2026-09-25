@@ -34,6 +34,7 @@ public class HotmPerks {
                             .desc("Tints enabled and disabled perks in the Heart of the Mountain menu.");
                     b.color("  Enabled Color", () -> c.colorHotmEnabled, v -> c.colorHotmEnabled = v);
                     b.color("  Disabled Color", () -> c.colorHotmDisabled, v -> c.colorHotmDisabled = v);
+                    HotmPowderGoal.config(b);
                 });
     }
 
