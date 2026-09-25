@@ -65,7 +65,7 @@ import org.joml.Vector3fc;
 /**
  * Finds the mobs picked in the config and hands glow / tracer / nameplate their targets.
  * Runs once per tick - the render side only draws what this leaves behind.
- * Ported from GanKura's EntityHighlightManager (the area-boss special cases are not in yet).
+ * Ported from GanKura's EntityHighlightManager.
  */
 public final class MobVisuals {
 
@@ -152,8 +152,17 @@ public final class MobVisuals {
         boolean scanAnimals = isMarsh || isCanyon || isAtoll;
         boolean scanShulkers = isMarsh || isCanyon || isSafari;
 
-        if (!scanSkins && !scanAnimals && !scanShulkers) return;
+        if (scanSkins || scanAnimals || scanShulkers) scanCatalog(mc, scanSkins, scanAnimals, scanShulkers,
+                isSafari, isMarsh, isAtoll);
+        MobVisualBosses.scan(mc);
+    }
 
+    public static void onParticle(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket packet) {
+        if (Minecraft.getInstance().isSameThread() && active()) MobVisualBosses.onParticle(packet);
+    }
+
+    private static void scanCatalog(Minecraft mc, boolean scanSkins, boolean scanAnimals, boolean scanShulkers,
+                                    boolean isSafari, boolean isMarsh, boolean isAtoll) {
         if (scanShulkers) claimShulkerHitboxes(mc);
 
         for (Entity entity : com.teslamaps.utils.EntityCache.all()) {
@@ -192,7 +201,13 @@ public final class MobVisuals {
         shulkerClaimed.clear();
     }
 
-    private static void register(Minecraft mc, Entity entity, Mob mob) {
+    /** Tracer and nameplate only - for a nametag whose body is not loaded. */
+    static void registerNoGlow(Minecraft mc, Entity entity, Mob mob) {
+        if (mob.tracer()) addTracer(mc, entity, mob);
+        if (mob.nameplate()) nameplates.put(entity, label(mc, nameplateLabel(mc, entity, mob)));
+    }
+
+    static void register(Minecraft mc, Entity entity, Mob mob) {
         if (mob.glow()) {
             glowing.add(entity);
             glowColors.put(entity, mob.glowColorRGB());
@@ -376,7 +391,7 @@ public final class MobVisuals {
         return null;
     }
 
-    private static boolean inSafariBiome(Entity entity, MobArea area) {
+    static boolean inSafariBiome(Entity entity, MobArea area) {
         return switch (area) {
             case SAFARI_CAVERN -> inSafariCavern(entity);
             case SAFARI_FOREST -> inSafariForest(entity);
