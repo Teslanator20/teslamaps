@@ -116,13 +116,86 @@ public final class HudEditElement {
         return enabled.getAsBoolean() && (section == null || c.section(section)) && (showAll || ctx.now());
     }
 
+    public String section() { return section; }
+
+    /** Toggle and section both on - what {@link #shown} checks besides the situation. */
+    public boolean enabledNow() {
+        return enabled.getAsBoolean() && (section == null || TeslaMapsConfig.get().section(section));
+    }
+
+    public boolean shownDisabled(boolean showAll) {
+        return !enabledNow() && (showAll || ctx.now());
+    }
+
+    private Field toggleField;
+    private boolean toggleLooked;
+
+    /** The boolean config field that switches this element's feature, found by name, or null. */
+    public Field toggleField() {
+        if (toggleLooked) return toggleField;
+        toggleLooked = true;
+        String cap = Character.toUpperCase(prefix.charAt(0)) + prefix.substring(1);
+        for (String n : new String[]{prefix, prefix + "Enabled", "show" + cap, prefix + "Hud", prefix + "Display",
+                prefix + "Tracker", prefix + "Timer", prefix + "Overlay"}) {
+            try {
+                Field f = TeslaMapsConfig.class.getField(n);
+                if (f.getType() == boolean.class) { toggleField = f; break; }
+            } catch (NoSuchFieldException ignored) {}
+        }
+        return toggleField;
+    }
+
+    /** @return the new value, or null when there is no toggle field. */
+    public Boolean toggle() {
+        Field f = toggleField();
+        if (f == null) return null;
+        try {
+            boolean v = !f.getBoolean(TeslaMapsConfig.get());
+            f.setBoolean(TeslaMapsConfig.get(), v);
+            return v;
+        } catch (IllegalAccessException e) {
+            throw fail(e);
+        }
+    }
+
+    public void resetToDefault(TeslaMapsConfig defaults) {
+        try {
+            fx.setInt(TeslaMapsConfig.get(), fx.getInt(defaults));
+            fy.setInt(TeslaMapsConfig.get(), fy.getInt(defaults));
+            fscale.setFloat(TeslaMapsConfig.get(), fscale.getFloat(defaults));
+        } catch (IllegalAccessException e) {
+            throw fail(e);
+        }
+        TeslaMapsConfig.get().hudAnchorRefs.remove(prefix);
+        cachedAt = 0;
+    }
+
+    public void nudgeScale(float d) {
+        float s = Math.round((scale() + d) * 100f) / 100f;
+        setFloat(fscale, Math.max(min, Math.min(max, s)));
+        cachedAt = 0;
+    }
+
     public int x() { return xOverride != null ? xOverride.getAsInt() : getInt(fx); }
     public int y() { return yOverride != null ? yOverride.getAsInt() : getInt(fy); }
     public float scale() { return getFloat(fscale); }
     public void setX(int v) { setInt(fx, v); }
     public void setY(int v) { setInt(fy, v); }
-    public int width() { return w.of(scale()); }
-    public int height() { return h.of(scale()); }
+    public int storedX() { return getInt(fx); }
+    public int storedY() { return getInt(fy); }
+    public void setScale(float v) { setFloat(fscale, v); }
+    public int width() { float g = globalScale(); return g == 1f ? w.of(scale()) : (int) (w.of(scale()) * g); }
+    public int height() { float g = globalScale(); return g == 1f ? h.of(scale()) : (int) (h.of(scale()) * g); }
+
+    /** GUI-015: multiplier on top of every element's own scale. */
+    public static float globalScale() {
+        float g = TeslaMapsConfig.get().hudGlobalScale;
+        return g > 0.09f && g < 10.01f ? g : 1f;
+    }
+
+    /** Pivot of the global scale: the unshifted top-left of the drawn box. */
+    public int pivotX() { return x() - (int) (boxOffset * scale()); }
+    public int pivotY() { return y() - (int) (boxOffset * scale()); }
     public int boxX() { return x() - (int) (boxOffset * scale()) + shiftX(); }
     public int boxY() { return y() - (int) (boxOffset * scale()) + shiftY(); }
     public int dragColor() { return dragColor; }
@@ -140,7 +213,16 @@ public final class HudEditElement {
     }
 
     public void drawPreview(GuiGraphicsExtractor g, Minecraft mc) {
-        if (preview != null) preview.draw(g, mc, x() + shiftX(), y() + shiftY(), scale());
+        if (preview == null) return;
+        float gs = globalScale();
+        if (gs == 1f) { preview.draw(g, mc, x() + shiftX(), y() + shiftY(), scale()); return; }
+        int px = boxX(), py = boxY();
+        g.pose().pushMatrix();
+        g.pose().translate(px, py);
+        g.pose().scale(gs, gs);
+        g.pose().translate(-px, -py);
+        preview.draw(g, mc, x() + shiftX(), y() + shiftY(), scale());
+        g.pose().popMatrix();
     }
 
     public String title() {

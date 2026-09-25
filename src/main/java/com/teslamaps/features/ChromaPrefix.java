@@ -2,7 +2,9 @@ package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.render.gui.ChromaColors;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 
 import java.util.List;
@@ -18,7 +20,9 @@ public class ChromaPrefix {
     /** Rewritten line, or null when the message is not one of ours. */
     public static Component rewrite(Component message) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        if (!config.chromaPrefix || !config.section("Chat")) return null;
+        if (!config.section("Chat")) return null;
+        boolean chroma = config.chromaPrefix, click = config.clickablePrefix;
+        if (!chroma && !click) return null;
 
         List<Component> parts = message.toFlatList();
         if (parts.isEmpty()) return null;
@@ -30,9 +34,16 @@ public class ChromaPrefix {
         if (idx < 0 || idx > 2) return null;
 
         MutableComponent out = Component.empty();
-        out.append(Component.literal(TAG).withStyle(style -> style.withColor(ChromaColors.FADE)));
+        String lead = text.substring(0, idx);
+        MutableComponent tag = chroma
+                ? Component.literal(TAG).withStyle(style -> style.withColor(ChromaColors.FADE))
+                : Component.literal(lead + TAG).setStyle(first.getStyle());
+        if (click) tag = tag.withStyle(style -> style
+                .withClickEvent(new ClickEvent.RunCommand("/tmap"))
+                .withHoverEvent(new HoverEvent.ShowText(Component.literal("§7Click to open the TeslaMaps config"))));
+        out.append(tag);
         // keep the old colour code so the text after the tag stays coloured
-        String rest = text.substring(0, idx) + text.substring(idx + TAG.length());
+        String rest = lead + text.substring(idx + TAG.length());
         if (!rest.isEmpty()) out.append(Component.literal(rest).setStyle(first.getStyle()));
         for (int i = 1; i < parts.size(); i++) out.append(parts.get(i));
         return out;

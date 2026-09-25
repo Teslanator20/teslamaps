@@ -44,7 +44,8 @@ public class SoundPlayMixin {
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
         boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);
         boolean extraMutes = com.teslamaps.features.SoundMutes.active(c);
-        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !c.arrowHitSound && !extraMutes
+        boolean partySpam = com.teslamaps.features.MutePartySpam.active(c);
+        if (!c.soundDebug && !partySpam && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !c.arrowHitSound && !extraMutes
                 && !c.tiaRelayHelper && !com.teslamaps.features.ChatCompacts.soundActive(c)) return;
 
         String id;
@@ -69,6 +70,10 @@ public class SoundPlayMixin {
             return;
         }
         if (c.muteBonzoStaff && (c.muteBonzoStaffPrecise ? isBonzoPrecise(id, pitch) : BONZO_STAFF.contains(id))) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
+        }
+        if (partySpam && com.teslamaps.features.MutePartySpam.shouldMute(instance, id, vol, pitch)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
             return;
         }

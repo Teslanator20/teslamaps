@@ -467,6 +467,13 @@ public class SafariTracker {
     }
 
     public static void register() {
+        net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(
+                net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("tmap")
+                        .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("safari")
+                                .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("players").executes(c -> {
+                                    for (String l : playersLines(view())) c.getSource().sendFeedback(Component.literal(l));
+                                    return 1;
+                                })))));
         var missing = com.teslamaps.registry.HudEditElement.of("safariMissing", "Safari Missing")
                 .ctx(com.teslamaps.registry.HudEditElement.HudCtx.SAFARI).section("Critter Safari")
                 .enabled(() -> TeslaMapsConfig.get().safariTracker && TeslaMapsConfig.get().safariMissingPanel)
@@ -610,7 +617,38 @@ public class SafariTracker {
                     + " §7dex §f" + run.dex + "§7/" + SafariData.ALL.size() + " §7own §f" + run.own;
             if (run.dex > oldBest) line += " §6§lNEW PB!";
             mc.player.sendSystemMessage(Component.literal(line));
+            if (TeslaMapsConfig.get().safariPlayersOnEnd && lastRun != null && lastRun.perPlayer().size() > 1) {
+                for (String l : playersLines(lastRun)) mc.player.sendSystemMessage(Component.literal(l));
+            }
         }
+    }
+
+    // Ported from critterMod's CritterCommand.players
+    /** Per player: unique critters per biome, then the species, green = you have it too, aqua = only them. */
+    public static List<String> playersLines(RunView v) {
+        if (v == null) return List.of("§7No Safari run yet");
+        Map<String, Map<SafariData.Biome, Integer>> per = v.perPlayer();
+        if (per.isEmpty()) return List.of("§7Nobody has caught anything yet");
+        Map<String, List<String>> species = new java.util.TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        for (Map.Entry<String, Set<String>> e : v.catchers().entrySet()) {
+            for (String who : e.getValue()) species.computeIfAbsent(who, k -> new ArrayList<>()).add(e.getKey());
+        }
+        List<String> out = new ArrayList<>();
+        out.add("§6§lSafari per player");
+        for (Map.Entry<String, Map<SafariData.Biome, Integer>> e : per.entrySet()) {
+            boolean self = e.getKey().equals(v.self());
+            out.add((self ? "§a" : "§f") + e.getKey() + " §7" + describe(e.getValue()));
+            List<String> list = species.getOrDefault(e.getKey(), List.of());
+            if (list.isEmpty()) continue;
+            StringBuilder sb = new StringBuilder("  ");
+            for (int i = 0; i < list.size(); i++) {
+                String c = list.get(i);
+                if (i > 0) sb.append("§7, ");
+                sb.append(v.caughtSelf().contains(c) ? "§a" : "§b").append(c);
+            }
+            out.add(sb.toString());
+        }
+        return out;
     }
 
     private static void clearRun() {
