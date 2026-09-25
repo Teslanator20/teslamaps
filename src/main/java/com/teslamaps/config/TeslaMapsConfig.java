@@ -2147,6 +2147,35 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w11-05-par
+    public boolean partyShortcuts = false;
+    public boolean partyKickReason = false;
+    public boolean partyTabComplete = false;
+    public boolean reversePtClickable = false;
+    @Global
+    public String reversePtMessage = "";
+    public boolean highlightPartyOutside = false;
+    public String highlightPartyColor = "55FFFF";
+    public boolean dianaPartyFinder = false;
+    public float dianaPartyFinderMinRate = 0f;
+    public boolean posMessages = false;
+    public boolean posMessagesOnlyDungeons = true;
+    public boolean posMessagesOncePerWorld = false;
+    public boolean posMessagesShow = true;
+    public float posMessagesHeight = 0.2f;
+    public boolean posMessagesDepth = true;
+    public boolean posMessagesShowText = true;
+    public float posMessagesTextSize = 1.0f;
+    public static class PosMessage {
+        public double x, y, z;
+        public Double x2, y2, z2;
+        public int delay;
+        public Double distance;
+        public int color = 0xFFFFFFFF;
+        public String message = "";
+    }
+    @Global
+    public List<PosMessage> posMessageList = new ArrayList<>();
     // w10-00-vis
     public boolean blockEsp = false;
     public java.util.Map<String, String> blockEspBlocks = new java.util.LinkedHashMap<>();
@@ -4289,6 +4318,9 @@ public class TeslaMapsConfig {
 
     static void normalize(TeslaMapsConfig c) {
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
+        if (c.posMessageList == null) c.posMessageList = new java.util.ArrayList<>();
+        c.posMessageList.removeIf(java.util.Objects::isNull);
+        if (c.reversePtMessage == null) c.reversePtMessage = "";
         if (c.sackNotifyItems == null) c.sackNotifyItems = new java.util.ArrayList<>();
         if (c.chatMutedPlayers == null) c.chatMutedPlayers = new java.util.ArrayList<>();
         if (c.mobIconColors == null) c.mobIconColors = new java.util.HashMap<>();

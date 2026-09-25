@@ -39,6 +39,7 @@ public class HypixelNodes {
 
     private static final Set<String> PARTY_SUBS = Set.of(
             "invite", "kick", "promote", "demote", "transfer", "kickoffline", "accept", "join");
+    private static final Set<String> PARTY_MEMBER_SUBS = Set.of("kick", "promote", "demote", "transfer");
     private static final Set<String> FRIEND_SUBS = Set.of("add", "remove");
     private static final Set<String> GUILD_SUBS = Set.of("invite", "kick", "promote", "demote");
 
@@ -109,7 +110,8 @@ public class HypixelNodes {
     private static CommandNode<SharedSuggestionProvider> subCommands(
             CommandNode<SharedSuggestionProvider> original, String name, Set<String> subs, boolean bareName) {
         LiteralArgumentBuilder<SharedSuggestionProvider> builder = literal(name);
-        for (String sub : subs) builder.then(literal(sub).then(player()));
+        for (String sub : subs) builder.then(literal(sub).then(
+                bareName && PARTY_MEMBER_SUBS.contains(sub) ? partyMember() : player()));
         if (bareName) builder.then(player());
 
         CommandNode<SharedSuggestionProvider> node = builder.build();
@@ -150,6 +152,25 @@ public class HypixelNodes {
         return RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument(
                         "player", StringArgumentType.word())
                 .suggests(players())
+                .executes(NOOP);
+    }
+
+    private static RequiredArgumentBuilder<SharedSuggestionProvider, String> partyMember() {
+        SuggestionProvider<SharedSuggestionProvider> fallback = players();
+        return RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument(
+                        "player", StringArgumentType.word())
+                .suggests((context, builder) -> {
+                    TeslaMapsConfig c = TeslaMapsConfig.get();
+                    if (!c.partyShortcuts || !c.partyTabComplete || !c.section("Chat")
+                            || !com.teslamaps.utils.PartyTracker.inParty()) {
+                        return fallback.getSuggestions(context, builder);
+                    }
+                    var p = net.minecraft.client.Minecraft.getInstance().player;
+                    String me = p == null ? "" : p.getGameProfile().name();
+                    List<String> names = new java.util.ArrayList<>();
+                    for (String m : com.teslamaps.utils.PartyTracker.members()) if (!m.equalsIgnoreCase(me)) names.add(m);
+                    return suggest(names, builder);
+                })
                 .executes(NOOP);
     }
 
