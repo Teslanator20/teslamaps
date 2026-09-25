@@ -35,6 +35,11 @@ public class ChatMixin {
 
     @Unique
     private static Component teslamaps$rewrite(Component message) {
+        Component decrypted = com.teslamaps.features.ChatEncryption.decode(message);
+        if (decrypted != null) {
+            com.teslamaps.features.ChatLog.noteRewrite("encryptedChat");
+            message = decrypted;
+        }
         Component shared = com.teslamaps.features.SharedImageChat.decorate(message);
         if (shared != null) {
             com.teslamaps.features.ChatLog.noteRewrite("sharedImage");
@@ -248,6 +253,12 @@ public class ChatMixin {
 
         com.teslamaps.registry.FeatureRegistry.chat(text, fromServer);
 
+        if (fromServer && (com.teslamaps.features.PartyListFormat.hide(message, text)
+                || com.teslamaps.features.ThrottleNotifier.hide(text))) {
+            ci.cancel();
+            return;
+        }
+
         if (fromServer && cfg.section("Score & Splits") && com.teslamaps.dungeon.ExtraStats.hide(text)) {
             teslamaps$reason = "extraStats";
             ci.cancel();
@@ -294,6 +305,7 @@ public class ChatMixin {
         Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.features.BazaarChatSummary.rewrite(com.teslamaps.features.ChatCompacts.rewrite(split)));
         out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out)));
         out = com.teslamaps.features.ChatCompactsMore.rewrite(out);
+        out = com.teslamaps.features.PartyFinderLinks.rewrite(out);
         // before channel compaction, the parser needs "Party > "
         out = com.teslamaps.features.PlayerChatFormat.rewrite(com.teslamaps.features.ChatTranslator.rewrite(out));
         out = com.teslamaps.features.ChatCompact.rewrite(out);

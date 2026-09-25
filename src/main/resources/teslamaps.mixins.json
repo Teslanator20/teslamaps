@@ -3,6 +3,7 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "FullChatChromaMixin",
     "GlowSectionMixin",
     "CameraDistanceMixin",
     "OutlineWidthMixin",
@@ -163,6 +164,7 @@
     "MobGlowHeadOnlyMixin",
     "ModelManagerAccessor",
     "MotionBlurMixin",
+    "PanelBlurMixin",
     "MouseScrollMixin",
     "MultiPlayerGameModeAccessor",
     "NoArrowsMixin",

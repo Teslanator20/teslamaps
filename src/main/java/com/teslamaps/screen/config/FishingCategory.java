@@ -78,6 +78,11 @@ public final class FishingCategory {
         b.toggle("  x: y: z: Format",
                 () -> config.hotspotShareXyz, v -> config.hotspotShareXyz = v);
         b.info("x: 1, y: 2, z: 3 | <perk>, other mods read it too");
+        b.toggle("  Share Safari Hunting Hotspot",
+                () -> config.safariHotspotPost, v -> config.safariHotspotPost = v)
+                .desc("Critter Safari: posts \"My hotspot: <biome>\" when Hypixel tells you your Hunting Hotspot");
+        b.channel("    Safari Channel",
+                () -> config.safariHotspotPostChannel, v -> config.safariHotspotPostChannel = v);
         b.toggle("All Fishing Islands",
                 () -> config.hotspotShareAllIslands, v -> config.hotspotShareAllIslands = v);
         b.info("Sharing, found alert and waypoints outside the two islands");
