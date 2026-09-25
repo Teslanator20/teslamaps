@@ -368,6 +368,30 @@ public class ESPRenderer {
         matrices.popPose();
     }
 
+    /** Connected segments pts[i-1] -> pts[i], segment i drawn in colors[i] (ARGB). */
+    public static void drawPolyline(PoseStack matrices, java.util.List<Vec3> pts, int[] colors, float width, Vec3 cameraPos,
+                                    boolean throughWalls) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.renderBuffers() == null || pts.size() < 2) return;
+        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        var layer = throughWalls ? TeslaRenderLayers.LINES_ESP : TeslaRenderLayers.LINES_DEPTH;
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        PoseStack.Pose pose = matrices.last();
+        VertexConsumer buffer = src.getBuffer(layer);
+        Vec3 from = pts.get(0);
+        for (int i = 1, n = pts.size(); i < n; i++) {
+            Vec3 to = pts.get(i);
+            int col = colors[i];
+            float dx = (float) (to.x - from.x), dy = (float) (to.y - from.y), dz = (float) (to.z - from.z);
+            buffer.addVertex(pose, (float) from.x, (float) from.y, (float) from.z).setColor(col).setNormal(pose, dx, dy, dz).setLineWidth(width);
+            buffer.addVertex(pose, (float) to.x, (float) to.y, (float) to.z).setColor(col).setNormal(pose, dx, dy, dz).setLineWidth(width);
+            from = to;
+        }
+        finish(src, layer);
+        matrices.popPose();
+    }
+
     public static void drawLine(PoseStack matrices, Vec3 start, Vec3 end, int color, float lineWidth, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;
@@ -480,6 +504,11 @@ public class ESPRenderer {
 
     /** Horizontal ring around a point, depth tested. */
     public static void drawCircle(PoseStack matrices, double cx, double cy, double cz, double radius, int color, float lineWidth, Vec3 cameraPos) {
+        drawCircle(matrices, cx, cy, cz, radius, color, lineWidth, cameraPos, false);
+    }
+
+    public static void drawCircle(PoseStack matrices, double cx, double cy, double cz, double radius, int color, float lineWidth, Vec3 cameraPos,
+                                  boolean throughWalls) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;
         MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
@@ -489,7 +518,8 @@ public class ESPRenderer {
         matrices.pushPose();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         PoseStack.Pose pose = matrices.last();
-        VertexConsumer buf = src.getBuffer(TeslaRenderLayers.LINES_DEPTH);
+        var layer = throughWalls ? TeslaRenderLayers.LINES_ESP : TeslaRenderLayers.LINES_DEPTH;
+        VertexConsumer buf = src.getBuffer(layer);
         float y = (float) cy, rad = (float) radius;
         for (int i = 0; i < CIRCLE_SEGMENTS; i++) {
             float x0 = (float) cx + CIRCLE_COS[i] * rad, z0 = (float) cz + CIRCLE_SIN[i] * rad;
@@ -498,7 +528,7 @@ public class ESPRenderer {
             buf.addVertex(pose, x0, y, z0).setColor(r, g, b, a).setNormal(pose, dx, 0, dz).setLineWidth(lineWidth);
             buf.addVertex(pose, x1, y, z1).setColor(r, g, b, a).setNormal(pose, dx, 0, dz).setLineWidth(lineWidth);
         }
-        finish(src, TeslaRenderLayers.LINES_DEPTH);
+        finish(src, layer);
         matrices.popPose();
     }
 

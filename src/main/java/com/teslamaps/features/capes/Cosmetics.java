@@ -49,14 +49,9 @@ public final class Cosmetics {
                     TeslaMapsConfig c = cfg();
                     b.label("Cosmetics");
                     b.toggle("Cosmetics", () -> c.cosmetics, v -> c.cosmetics = v)
-                            .desc("Halo and body size. Yours is only visible to you until the cape server syncs it.");
+                            .desc("Halo, plus the body size of other TeslaMaps users. Your own size is Player Size below.");
                     b.toggle("  Halo", () -> c.cosmeticHalo, v -> c.cosmeticHalo = v);
                     b.color("    Halo Color", () -> c.cosmeticHaloColor, v -> c.cosmeticHaloColor = v);
-                    b.toggle("  Custom Size", () -> c.cosmeticSize, v -> c.cosmeticSize = v);
-                    b.slider("    Size X", 0.2f, 2f, () -> c.cosmeticSizeX, v -> c.cosmeticSizeX = v, 2);
-                    b.slider("    Size Y", -2f, 2f, () -> c.cosmeticSizeY, v -> c.cosmeticSizeY = v, 2)
-                            .desc("Negative = upside down");
-                    b.slider("    Size Z", 0.2f, 2f, () -> c.cosmeticSizeZ, v -> c.cosmeticSizeZ = v, 2);
                     b.toggle("  Show Other Users' Cosmetics", () -> c.cosmeticShowOthers, v -> c.cosmeticShowOthers = v);
                 });
         LivingEntityRenderLayerRegistrationCallback.EVENT.register((type, renderer, helper, ctx) -> {
@@ -85,9 +80,8 @@ public final class Cosmetics {
 
     private static Look own(TeslaMapsConfig c) {
         int halo = c.cosmeticHalo ? TeslaMapsConfig.parseColor(c.cosmeticHaloColor) & 0xFFFFFF : -1;
-        float sy = c.cosmeticSizeY;
-        if (Math.abs(sy) < 0.1f) sy = sy < 0 ? -0.1f : 0.1f;
-        Look l = c.cosmeticSize ? new Look(halo, c.cosmeticSizeX, sy, c.cosmeticSizeZ) : new Look(halo, 1f, 1f, 1f);
+        boolean sized = c.playerSize && c.section("Render");
+        Look l = sized ? new Look(halo, c.playerSizeX, c.playerSizeY, c.playerSizeZ) : new Look(halo, 1f, 1f, 1f);
         return l.hasHalo() || l.sized() ? l : null;
     }
 
@@ -136,7 +130,7 @@ public final class Cosmetics {
     /** From AvatarScaleMixin at the head of AvatarRenderer.scale. */
     public static void scale(AvatarRenderState state, PoseStack pose) {
         Look l = forId(state.id);
-        if (l == null || !l.sized()) return;
+        if (l == null || !l.sized() || com.teslamaps.features.PlayerCosmetics.scales(state.id)) return;
         if (l.sy() < 0) pose.translate(0f, l.sy() * 2f, 0f);
         pose.scale(l.sx(), l.sy(), l.sz());
     }
