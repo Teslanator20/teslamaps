@@ -260,7 +260,7 @@ public class TicTacToe {
     }
 
     public static void register() {
-        com.teslamaps.registry.Feature.of("TicTacToeDone").section("Puzzles & Terminals").legit()
+        com.teslamaps.registry.Feature.of("TicTacToeDone").section("Puzzles & Terminals")
                 .when(() -> TeslaMapsConfig.get().solveTicTacToe && TeslaMapsConfig.get().tttDoneMessage)
                 .serverChat(TicTacToe::onChat);
     }

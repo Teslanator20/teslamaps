@@ -15,7 +15,7 @@ public final class LeapCategory {
         b.toggle("Show Player Heads", () -> config.leapShowHeads, v -> config.leapShowHeads = v);
         b.toggle("Show Map (click to leap)", () -> config.leapShowMap, v -> config.leapShowMap = v);
         b.toggle("  Link Button And Map Head On Hover", () -> config.leapHoverLink, v -> config.leapHoverLink = v);
-        b.toggle("Close Overlay When You Die", () -> config.leapCloseOnDeath, v -> config.leapCloseOnDeath = v).cheat();
+        b.toggle("Close Overlay When You Die", () -> config.leapCloseOnDeath, v -> config.leapCloseOnDeath = v);
         b.slider("Overlay Scale", 0.5f, 2.0f,
                 () -> config.leapScale, v -> config.leapScale = v);
         b.toggle("Leap Announce (/pc)", () -> config.leapAnnounce, v -> config.leapAnnounce = v);
