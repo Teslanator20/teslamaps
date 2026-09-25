@@ -208,5 +208,8 @@ final class Features {
         com.teslamaps.features.AnvilHelper.register();
         com.teslamaps.features.accessories.AccessoryHelper.register();
         com.teslamaps.features.CraftHelper.register();
+        // w05-02-inv
+        com.teslamaps.features.MenuSlotText.register();
+        com.teslamaps.features.StatIcons.register();
     }
 }
