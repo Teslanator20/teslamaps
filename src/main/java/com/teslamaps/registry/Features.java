@@ -745,6 +745,10 @@ final class Features {
         com.teslamaps.slayer.Rev5TntPing.register();
         com.teslamaps.slayer.InfernoHelper.register();
         com.teslamaps.features.KeeperWaypoints.register();
+        // w15-08-sla
+        com.teslamaps.slayer.BlazeSlayerHelper.register();
+        com.teslamaps.slayer.BloodfiendHelper.register();
+        com.teslamaps.slayer.CarryTracker.register();
         // w15-05-min
         com.teslamaps.features.mining.MiningSoundMutes.register();
         com.teslamaps.features.mining.WishingCompassSolver.register();

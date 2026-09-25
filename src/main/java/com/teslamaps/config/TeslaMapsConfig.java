@@ -2148,6 +2148,42 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w15-08-sla
+    public boolean slayerCarryMode = false;
+    public int slayerCarryTier = 4;
+    public boolean firePillarTitle = false;
+    public boolean firePillarSound = false;
+    public boolean blazeDaggerHud = false;
+    public int blazeDaggerHudX = 5;
+    public int blazeDaggerHudY = 190;
+    public float blazeDaggerHudScale = 1.0f;
+    public boolean blazeDaggerMarkShield = true;
+    public boolean blazeDaggerHideTitle = false;
+    public boolean infernoFirePitWarning = false;
+    public boolean bloodfiendSteakTitle = false;
+    public boolean bloodfiendTwinclawsTitle = false;
+    public int bloodfiendTwinclawsDelay = 0;
+    public boolean bloodfiendIchorHighlight = false;
+    public String bloodfiendIchorColor = "AA0000";
+    public String bloodfiendSpringColor = "FFAA00";
+    public boolean slayerCarryTracker = false;
+    public int slayerCarryTrackerX = 5;
+    public int slayerCarryTrackerY = 60;
+    public float slayerCarryTrackerScale = 1.0f;
+    @Global
+    public java.util.List<SlayerCarry> slayerCarries = new java.util.ArrayList<>();
+    @Global
+    public java.util.Map<String, Double> slayerCarryPrices = new java.util.HashMap<>();
+    public boolean chatFilterHellion = false;
+
+    public static class SlayerCarry {
+        public String customer;
+        public String type;
+        public int requested;
+        public int done;
+        public double paid;
+    }
+
     // w15-02-min
     public boolean kingTalismanHelper = false;
     public boolean kingTalismanOutsideMines = false;
@@ -5382,6 +5418,9 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.slayerCarries == null) c.slayerCarries = new java.util.ArrayList<>();
+        c.slayerCarries.removeIf(x -> x == null || x.customer == null || x.type == null);
+        if (c.slayerCarryPrices == null) c.slayerCarryPrices = new java.util.HashMap<>();
         if (c.forgeSlotData == null) c.forgeSlotData = new java.util.ArrayList<>();
         if (c.skyMallPerk == null) c.skyMallPerk = "";
         if (c.chCrystalStates == null) c.chCrystalStates = new java.util.HashMap<>();

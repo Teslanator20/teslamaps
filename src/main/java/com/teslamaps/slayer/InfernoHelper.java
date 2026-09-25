@@ -1,7 +1,7 @@
 package com.teslamaps.slayer;
 
 // Clear view from SkyHanni's BlazeSlayerClearView.kt, totem from Skytils' SlayerFeatures totemPing,
-// gummy warning from SkyHanni's GummyWarning.kt, gummy timer from WpcMod's GummyBearTimer.kt
+// pillar countdown title from Skyblocker's FirePillarAnnouncer, gummy warning from SkyHanni's GummyWarning.kt, gummy timer from WpcMod's GummyBearTimer.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.registry.Feature;
@@ -69,7 +69,7 @@ public final class InfernoHelper {
             return InteractionResult.PASS;
         });
         Feature.of("InfernoHelper").section("Combat")
-                .when(() -> cfg().blazeClearView || cfg().infernoTotemDisplay || cfg().gummyWarning || cfg().gummyTimer)
+                .when(() -> cfg().blazeClearView || cfg().infernoTotemDisplay || cfg().firePillarTitle || cfg().gummyWarning || cfg().gummyTimer)
                 .tick(InfernoHelper::tick)
                 .serverChat(InfernoHelper::onChat)
                 .hudHiddenInInventory("infernototem", InfernoHelper::renderTotem)
@@ -85,6 +85,10 @@ public final class InfernoHelper {
                             .tags("totem", "inferno", "demonlord");
                     b.slider("  Totem Ping At (s, 0 = off)", 0, 30, () -> (float) c.infernoTotemPing,
                             v -> c.infernoTotemPing = Math.round(v), 0);
+                    b.toggle("Fire Pillar Countdown Title", () -> c.firePillarTitle, v -> c.firePillarTitle = v)
+                            .desc("Big purple title for the last 5 seconds of your boss's fire pillar (totem) within 22 blocks. Works without the Totem Display.")
+                            .tags("pillar", "totem", "inferno");
+                    b.toggle("  Title Sound", () -> c.firePillarSound, v -> c.firePillarSound = v);
                     b.toggle("Gummy Polar Bear Warning", () -> c.gummyWarning, v -> c.gummyWarning = v)
                             .desc("Blaze quest: anvil sound, title and a Bazaar button in chat when you hit with a blaze dagger or Habanero armor and no Re-heated Gummy Polar Bear is active.")
                             .tags("gummy", "polar", "bear", "smoldering");
@@ -156,8 +160,8 @@ public final class InfernoHelper {
         ticks++;
         if (c.blazeClearView && ticks % 10 == 0) nearBlaze = scanBlaze(mc);
         if (!c.blazeClearView) nearBlaze = false;
-        if (c.infernoTotemDisplay && ticks % 2 == 0) scanTotem(mc, c);
-        if (!c.infernoTotemDisplay) totemLine = null;
+        if ((c.infernoTotemDisplay || c.firePillarTitle) && ticks % 2 == 0) scanTotem(mc, c);
+        if (!c.infernoTotemDisplay && !c.firePillarTitle) totemLine = null;
         if (totemLine == null) totemLines = List.of();
         else if (totemLines.isEmpty() || !totemLines.get(0).equals(totemLine)) {
             totemLines = List.of(totemLine);
@@ -218,12 +222,17 @@ public final class InfernoHelper {
             mc.gui.setTitle(Component.literal("§6§lTotem!"));
             LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.5f);
         }
+        if (c.firePillarTitle && sec <= 5 && sec != lastTotemSec && bestD <= 22 * 22) {
+            mc.gui.setTimes(0, 15, 3);
+            mc.gui.setTitle(Component.literal("§5§l" + sec + "s " + bestM.group(2) + " hits"));
+            if (c.firePillarSound) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.0f);
+        }
         lastTotemSec = sec;
     }
 
     private static void renderTotem(GuiGraphicsExtractor g, DeltaTracker d) {
         List<String> ls = totemLines;
-        if (totemHud == null || ls.isEmpty() || Minecraft.getInstance().options.hideGui) return;
+        if (totemHud == null || ls.isEmpty() || !cfg().infernoTotemDisplay || Minecraft.getInstance().options.hideGui) return;
         TextHud.draw(g, Minecraft.getInstance(), totemHud.x(), totemHud.y(), totemHud.scale(), ls, totemW);
     }
 
