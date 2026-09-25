@@ -2169,6 +2169,24 @@ public class TeslaMapsConfig {
     public boolean hudEditGuides = true;
     public boolean hudEditMultiDrag = true;
     public boolean hudEditResize = true;
+    // w12-09-eco
+    public boolean bazaarFillEstimate = false;
+    public boolean bazaarFillEstimateAlert = true;
+    public boolean bazaarFillEstimateSound = true;
+    public int bazaarFillX = 10;
+    public int bazaarFillY = 120;
+    public float bazaarFillScale = 1.0f;
+    public String priceLineAvgBin = "Off";
+    public boolean priceLineVolume = false;
+    public boolean priceLookup = false;
+    public int priceLookupKey = 295;
+    public int priceLookupRecipeKey = -1;
+    public boolean sackValueHud = false;
+    public boolean sackValueHudInSkyblockOnly = true;
+    public int sackValueHudX = 10;
+    public int sackValueHudY = 160;
+    public float sackValueHudScale = 1.0f;
+    public boolean wardrobeValue = false;
     // w12-05-perf
     public boolean keepTerrainLoaded = false;
     public boolean outlinedTextCompat = false;
@@ -4724,6 +4742,7 @@ public class TeslaMapsConfig {
             if (t.time == null) t.time = "1h";
         }
         if (c.cakeTrackerShow == null) c.cakeTrackerShow = "Missing";
+        if (c.priceLineAvgBin == null) c.priceLineAvgBin = "Off";
         c.containerTriggerList.removeIf(java.util.Objects::isNull);
         if (c.islandAlertMode == null) c.islandAlertMode = "Title + Sound";
         if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new int[]{49, 50, 51, 52, 53, 54, 55};

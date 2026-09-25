@@ -137,6 +137,11 @@ public class HandledScreenClickMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.SackValueHud.handleClick(mouseX, mouseY, button)) {
+            teslamaps$ate("SackValueHud", button);
+            cir.setReturnValue(true);
+            return;
+        }
 
         com.teslamaps.features.AuctionPriceInput.onSlotClick(
                 (AbstractContainerScreen<?>) (Object) this, ((HandledScreenAccessor) (Object) this).getFocusedSlot());

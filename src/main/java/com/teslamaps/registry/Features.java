@@ -587,5 +587,10 @@ final class Features {
         com.teslamaps.features.PositionalMessages.register();
         // w11-00-chat
         com.teslamaps.features.ChatEncryption.register();
+        // w12-09-eco
+        com.teslamaps.features.BazaarFillEstimate.register();
+        com.teslamaps.features.PriceLookup.register();
+        com.teslamaps.features.SackValueHud.register();
+        com.teslamaps.features.WardrobeValue.register();
     }
 }

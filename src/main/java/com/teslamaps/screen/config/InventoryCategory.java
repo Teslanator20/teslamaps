@@ -168,6 +168,10 @@ public final class InventoryCategory {
         b.toggle("  Paste Copied Name", () -> config.searchPasteCopied, v -> config.searchPasteCopied = v);
         b.toggle("  Also In /recipes", () -> config.searchOverlayRecipes, v -> config.searchOverlayRecipes = v);
         b.toggle("Middle Click Copies Item Name", () -> config.middleClickCopyName, v -> config.middleClickCopyName = v);
+        b.toggle("Price Lookup Key", () -> config.priceLookup, v -> config.priceLookup = v)
+                .desc("Press the key over an item in any menu: /bz for bazaar items, /ahs for auction items. Pets and enchanted books are looked up by their real name.");
+        b.keybind("  Lookup Key", () -> config.priceLookupKey, v -> config.priceLookupKey = v);
+        b.keybind("  Recipe Key (/viewrecipe)", () -> config.priceLookupRecipeKey, v -> config.priceLookupRecipeKey = v);
         b.label("Storage Overlay");
         b.toggle("Custom Storage Overlay", () -> config.customStorageOverlay, v -> config.customStorageOverlay = v);
         b.toggle("  Show Page Names", () -> config.storageShowNames, v -> config.storageShowNames = v);
@@ -339,6 +343,10 @@ public final class InventoryCategory {
         b.color("  Filled Color", () -> config.colorBazaarOrderFilled, v -> config.colorBazaarOrderFilled = v);
         b.color("  Outbid Color", () -> config.colorBazaarOrderOutbid, v -> config.colorBazaarOrderOutbid = v);
         b.color("  Top Order Color", () -> config.colorBazaarOrderCompetitive, v -> config.colorBazaarOrderCompetitive = v);
+        b.toggle("Bazaar: Estimate Order Fills", () -> config.bazaarFillEstimate, v -> config.bazaarFillEstimate = v)
+                .desc("Guesses how far your orders are filled from the public order book, without opening the menu. HUD in /tmap gui. Rough: other players cancelling at your price looks like a fill.");
+        b.toggle("  Chat On New Fill", () -> config.bazaarFillEstimateAlert, v -> config.bazaarFillEstimateAlert = v);
+        b.toggle("  Sound On New Fill", () -> config.bazaarFillEstimateSound, v -> config.bazaarFillEstimateSound = v);
         b.toggle("Progress Highlight (Ways to Level Up / Bestiary)", () -> config.progressHighlight, v -> config.progressHighlight = v);
         b.color("  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v);
         b.toggle("  Bestiary Tier As Number", () -> config.progressHighlightTier, v -> config.progressHighlightTier = v)

@@ -328,6 +328,7 @@ public class TMapCommand {
                         .then(ClientCommands.argument("text", StringArgumentType.greedyString())
                                 .executes(context -> openFeedback(true, StringArgumentType.getString(context, "text")))))
                 .then(com.teslamaps.features.croesus.PriceDebug.command())
+                .then(com.teslamaps.features.croesus.PriceDebug.refreshCommand())
                 .then(com.teslamaps.features.SackApi.command())
                 .then(com.teslamaps.features.Notifications.command())
                 .then(com.teslamaps.features.DvdLogo.command())
