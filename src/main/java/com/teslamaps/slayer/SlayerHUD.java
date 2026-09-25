@@ -87,6 +87,17 @@ public class SlayerHUD {
 
     /** True while a slayer quest is running. */
     public static boolean isActive() { return questActive; }
+    private static long lastFightMs, lastFightAt;
+    /** Duration of the last own kill, 0 before one. */
+    public static long lastFightMs() { return lastFightMs; }
+    /** When that kill happened. */
+    public static long lastFightAt() { return lastFightAt; }
+    public static long avgFightMs() {
+        if (killTimes.isEmpty()) return 0;
+        long sum = 0;
+        for (long t : killTimes) sum += t;
+        return sum / killTimes.size();
+    }
     private static final List<Long> killTimes = new ArrayList<>();    // Fight durations
     private static final List<Long> spawnTimes = new ArrayList<>();   // Time between kills
     private static int totalKills = 0;            // Total kills this session
@@ -599,6 +610,8 @@ public class SlayerHUD {
                 : lastKillTime > 0 ? start - lastKillTime : -1;
         if (spawn > 0) spawnTimes.add(spawn);
         killTimes.add(fightDuration);
+        lastFightMs = fightDuration;
+        lastFightAt = killTime;
         lastKillTime = killTime;
         totalKills++;
 
@@ -619,6 +632,7 @@ public class SlayerHUD {
     }
 
     public static void onSlayerFailed() {
+        CallMaddox.onFail();
         resetQuest();
         SlayerQuest.onQuestEnd();
     }

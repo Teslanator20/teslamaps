@@ -29,7 +29,7 @@ public final class VisitorLogbook {
     public static void register() {
         feature = Feature.of("VisitorLogbook").section("Render").when(() -> cfg().npcFinder && cfg().visitorLogbookNav);
         ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
-            if (lines.isEmpty() || !inLogbook() || !active()) return;
+            if (lines.isEmpty() || !active() || !inLogbook()) return;
             if (find(StringUtil.stripTrim(stack.getHoverName().getString())) == null) return;
             lines.add(Component.empty());
             lines.add(Component.literal("§bPress " + KeyNames.display(cfg().visitorLogbookKey) + " to navigate"));
@@ -56,7 +56,7 @@ public final class VisitorLogbook {
     /** From ContainerKeyMixin. True = key used. */
     public static boolean onKey(int key, Slot hovered) {
         if (key == -1 || key != cfg().visitorLogbookKey || hovered == null || !hovered.hasItem()) return false;
-        if (hovered.container instanceof Inventory || !inLogbook() || !active()) return false;
+        if (hovered.container instanceof Inventory || !active() || !inLogbook()) return false;
         NpcData npc = find(StringUtil.stripTrim(hovered.getItem().getHoverName().getString()));
         if (npc == null) return false;
         Minecraft mc = Minecraft.getInstance();

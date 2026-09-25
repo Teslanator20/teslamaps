@@ -262,7 +262,8 @@ public class ChatMixin {
         }
 
         if (fromServer && (com.teslamaps.features.PartyListFormat.hide(message, text)
-                || com.teslamaps.features.ThrottleNotifier.hide(text))) {
+                || com.teslamaps.features.ThrottleNotifier.hide(text)
+                || com.teslamaps.features.kuudra.KuudraSupply.hide(text))) {
             teslamaps$reason = "partyList/throttle";
             ci.cancel();
             return;
@@ -315,7 +316,7 @@ public class ChatMixin {
         Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.features.BazaarChatSummary.rewrite(com.teslamaps.features.ChatCompacts.rewrite(split)));
         out = com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatCompactsMore.rewrite(out));
         out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out));
-        out = com.teslamaps.features.PartyFinderLinks.rewrite(out);
+        out = com.teslamaps.features.PartyFinderLinks.rewrite(com.teslamaps.features.kuudra.KuudraSupply.rewrite(out));
         out = com.teslamaps.features.garden.HoeLevelDisplay.rewrite(out);
         out = com.teslamaps.features.mining.GemstonePowderChat.rewrite(com.teslamaps.features.mining.DwarvenPuzzles.rewrite(out));
         out = com.teslamaps.features.mining.ScathaAlerts.rewrite(out);

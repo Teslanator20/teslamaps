@@ -65,7 +65,7 @@ public final class Kuudra {
 
     public static void register() {
         FeatureRegistry.category("Kuudra", "Skyblock", true);
-        Feature.of("KuudraState").tick(Kuudra::tick).serverChat(Kuudra::onChat);
+        Feature.of("KuudraRun").tick(Kuudra::tick).serverChat(Kuudra::onChat);
     }
 
     public static boolean inKuudra() { return inKuudra; }
