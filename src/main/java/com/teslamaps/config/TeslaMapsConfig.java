@@ -2148,6 +2148,61 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w15-04-min
+    public boolean mineshaftAnnounce = false;
+    public boolean mineshaftAnnounceTitle = true;
+    public boolean mineshaftAnnounceKeys = true;
+    public boolean mineshaftAnnounceStats = true;
+    public String mineshaftAnnounceChannel = "Nobody";
+    public java.util.Map<String, Integer> mineshaftSinceType = new java.util.HashMap<>();
+    public java.util.Map<String, Long> mineshaftLastType = new java.util.HashMap<>();
+    public boolean miningNotify = false;
+    public boolean miningNotifyMineshaft = true;
+    public boolean miningNotifyScrap = true;
+    public boolean miningNotifyGoblin = true;
+    public boolean miningNotifyGhast = true;
+    public boolean miningNotifyTitanium = false;
+    public boolean miningNotifyTitaniumVisible = true;
+    public boolean miningNotifyCold = true;
+    public int miningNotifyColdAt = 50;
+    public boolean miningNotifyRope = false;
+    public int miningNotifyRopeAt = 90;
+    public boolean miningNotifySkyMall = true;
+    public boolean miningNotifySkyMallReset = false;
+    public boolean miningNotifySound = true;
+    public boolean miningEvents = false;
+    public int miningEventsX = 10;
+    public int miningEventsY = 140;
+    public float miningEventsScale = 1.0f;
+    public boolean miningEventsStarCult = true;
+    public boolean miningEventsWarn = true;
+    public int miningEventsWarnSeconds = 15;
+    public boolean miningEventsRaffleBox = true;
+    public boolean miningEventsMuteWind = false;
+    public boolean corpseTracker = false;
+    public int corpseTrackerX = 10;
+    public int corpseTrackerY = 90;
+    public float corpseTrackerScale = 1.0f;
+    public String corpseTrackerShow = "All";
+    public boolean corpseTrackerChat = true;
+    public int corpseTrackerPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public boolean treasureChestTimer = false;
+    public boolean treasureChestTimerColor = true;
+    public int treasureChestTimerLines = 1;
+    public int treasureChestTimerX = 10;
+    public int treasureChestTimerY = 110;
+    public float treasureChestTimerScale = 1.0f;
+    public boolean powderChatFilter = false;
+    public int powderChatFilterPowder = 1000;
+    public int powderChatFilterEssence = 5;
+    public boolean powderChatFilterCommon = true;
+    public String powderChatFilterEggs = "Show All";
+    public String powderChatFilterGems = "Flawed Up";
+    public boolean powderChatFilterTool = true;
+    public boolean powderChatFilterCompact = true;
+    public boolean muteTreasureChest = false;
+    public boolean muteTreasureChestDiscover = true;
+    public boolean muteTreasureChestOpen = true;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;
@@ -5227,6 +5282,8 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.mineshaftSinceType == null) c.mineshaftSinceType = new java.util.HashMap<>();
+        if (c.mineshaftLastType == null) c.mineshaftLastType = new java.util.HashMap<>();
         if (c.visitorIgnored == null) c.visitorIgnored = new java.util.ArrayList<>();
         if (c.speedPresetValues == null) c.speedPresetValues = defaultSpeedPresets();
         c.speedPresetValues.values().removeIf(java.util.Objects::isNull);

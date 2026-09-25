@@ -385,6 +385,9 @@ public class ChatFilter {
         if (RareCropTracker.hide(t)) return true;
         lastReason = "autopet";
         if (autopet(t)) return true;
+        lastReason = "miningChat";
+        Boolean mining = com.teslamaps.features.mining.MiningChatHooks.handle(message, text, t);
+        if (mining != null) return mining;
         if (TeslaMapsConfig.get().chatFilterEnabled) {
             String sf = ChatCompactRulesIslands.shortForm(message, t);
             if (sf != null) lastReason = "compact";
@@ -463,7 +466,7 @@ public class ChatFilter {
     }
 
     /** Swap the line being added for {@code out}; used by the compact helpers. */
-    static void queueRewrite(String text, Component out) {
+    public static void queueRewrite(String text, Component out) {
         queue(text, out);
     }
 
@@ -545,7 +548,7 @@ public class ChatFilter {
     }
 
     /** Short line; the full line moves into the hover, the first command click stays. */
-    static Component compact(Component original, String shortForm) {
+    public static Component compact(Component original, String shortForm) {
         HoverEvent[] hover = {null};
         ClickEvent[] click = {null};
         original.visit((style, text) -> {

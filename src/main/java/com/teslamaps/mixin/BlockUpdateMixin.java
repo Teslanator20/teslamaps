@@ -30,6 +30,9 @@ public class BlockUpdateMixin {
                 Level level = (Level) (Object) this;
                 if (level.isClientSide()) com.teslamaps.features.mining.MineshaftPity.onBlockUpdate(pos, level.getBlockState(pos), newState);
             }
+            if (com.teslamaps.features.mining.MiningNotifications.listening() && ((Level) (Object) this).isClientSide()) {
+                com.teslamaps.features.mining.MiningNotifications.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
+            }
             return;
         }
 
