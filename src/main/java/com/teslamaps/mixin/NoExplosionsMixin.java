@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class NoExplosionsMixin {
     @Inject(method = "createParticle(Lnet/minecraft/core/particles/ParticleOptions;DDDDDD)Lnet/minecraft/client/particle/Particle;", at = @At("HEAD"), cancellable = true)
     private void onAddParticle(ParticleOptions parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ, CallbackInfoReturnable<?> cir) {
-        if (!TeslaMapsConfig.get().noExplosions) {
+        if (!TeslaMapsConfig.get().noExplosions || com.teslamaps.features.ChickenRace.active()) {
             if (parameters.getType() == ParticleTypes.EXPLOSION
                     && com.teslamaps.features.ImplosionHider.shouldHide(x, y, z, velocityX)) cir.setReturnValue(null);
             return;

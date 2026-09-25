@@ -18,6 +18,34 @@ public class HidePlayers {
 
     public static boolean shouldHide(Entity entity) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (config.ghostPlayers && config.ghostPlayersOpacity <= 0f && isGhost(entity)) return true;
+        if (!matches(entity)) return false;
+        return !config.hidePlayersTransparent || config.hidePlayersOpacity <= 0f;
+    }
+
+    /** 255 = drawn normally. From LivingEntityAlphaMixin, every rendered living entity. */
+    public static int alpha(Entity entity) {
+        if (!(entity instanceof Player)) return 255;
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        if (config.hidePlayersTransparent && matches(entity)) return pct(config.hidePlayersOpacity);
+        if (config.ghostPlayers && isGhost(entity)) return pct(config.ghostPlayersOpacity);
+        return 255;
+    }
+
+    private static int pct(float p) {
+        return Math.round(Math.max(0f, Math.min(100f, p)) * 2.55f);
+    }
+
+    // Bax GhostPlayerMixin: real players only (uuid v4 + tab entry), never yourself
+    private static boolean isGhost(Entity entity) {
+        if (!(entity instanceof Player) || entity.getUUID().version() != 4) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (entity == mc.player || mc.getConnection() == null) return false;
+        return mc.getConnection().getPlayerInfo(entity.getUUID()) != null;
+    }
+
+    private static boolean matches(Entity entity) {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.hidePlayers && !config.hidePlayersAfterLeap) return false;
         if (!(entity instanceof Player)) return false;
         if (entity.getUUID().version() != 4) return false; // skip NPCs / fake players

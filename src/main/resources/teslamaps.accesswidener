@@ -51,3 +51,6 @@ mutable field net/minecraft/world/inventory/Slot y I
 
 # w07-06-hud: spinning deployable head
 accessible method net/minecraft/client/gui/screens/inventory/InventoryScreen extractRenderState (Lnet/minecraft/world/entity/LivingEntity;)Lnet/minecraft/client/renderer/entity/state/EntityRenderState;
+
+# full text shadow reads the glyph instance
+accessible class net/minecraft/client/gui/font/glyphs/BakedSheetGlyph$GlyphInstance
