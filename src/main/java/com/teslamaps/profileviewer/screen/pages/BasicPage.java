@@ -6,6 +6,7 @@ import com.teslamaps.api.PvApi;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
 import com.teslamaps.profileviewer.screen.NeuStyle;
 import com.teslamaps.profileviewer.screen.PlayerHeads;
+import com.teslamaps.profileviewer.screen.PvPanorama;
 import com.teslamaps.profileviewer.screen.PvPlayerRender;
 import com.teslamaps.profileviewer.screen.ProfileViewerPage;
 import com.mojang.authlib.GameProfile;
@@ -51,6 +52,70 @@ public class BasicPage extends ProfileViewerPage {
         // decoded once - doing it per frame rebuilt four slot objects a frame and flooded the item cache
         SkyblockProfile profile = getProfile();
         armor = profile == null ? java.util.List.of() : armorSlots(profile);
+        board = profile == null ? java.util.List.of() : buildBoard(profile);
+        hypixelExp = Double.NaN;
+    }
+
+    private record BoardRow(String key, String value, int color) {}
+
+    private static final int FAIRY_SOUL_MAX = 248;
+    private java.util.List<BoardRow> board = java.util.List.of();
+    private double hypixelExp = Double.NaN;
+    private String hypixelLevel = "?";
+    private String islandMode;
+    private String islandStatus;
+
+    // Ported from skyblock-pv's GeneralPage infoPanel
+    private static java.util.List<BoardRow> buildBoard(SkyblockProfile profile) {
+        com.google.gson.JsonObject full = profile.getFullProfileJson();
+        com.google.gson.JsonObject member = profile.getMemberData();
+        String mode = full != null && full.has("game_mode") && full.get("game_mode").isJsonPrimitive()
+                ? full.get("game_mode").getAsString() : "";
+        String modeName = switch (mode.toLowerCase(java.util.Locale.ROOT)) {
+            case "ironman" -> "Ironman";
+            case "island" -> "Stranded";
+            case "bingo" -> "Bingo";
+            case "" -> "Classic";
+            default -> com.teslamaps.profileviewer.ui.Kit.prettify(mode);
+        };
+        com.google.gson.JsonObject info = member.has("profile") && member.get("profile").isJsonObject()
+                ? member.getAsJsonObject("profile") : null;
+        long first = info == null ? 0 : asLong(info.get("first_join"));
+        boolean cookie = info != null && info.has("cookie_buff_active") && info.get("cookie_buff_active").isJsonPrimitive()
+                && info.get("cookie_buff_active").getAsBoolean();
+        com.google.gson.JsonObject stats = member.has("player_stats") && member.get("player_stats").isJsonObject()
+                ? member.getAsJsonObject("player_stats") : null;
+        long crit = stats == null ? 0 : (long) asDouble(stats.get("highest_critical_damage"));
+        int souls = profile.getFairySouls();
+
+        java.util.List<BoardRow> rows = new java.util.ArrayList<>();
+        rows.add(new BoardRow("Mode", modeName, NeuStyle.TEXT));
+        rows.add(new BoardRow("Hypixel", null, NeuStyle.TEXT_AQUA));
+        rows.add(new BoardRow("Fairy Souls", souls > FAIRY_SOUL_MAX ? String.valueOf(souls) : souls + "/" + FAIRY_SOUL_MAX,
+                souls >= FAIRY_SOUL_MAX ? NeuStyle.TEXT_GOLD : NeuStyle.TEXT_LIGHT_PURPLE));
+        rows.add(new BoardRow("Created", first > 0
+                ? new java.text.SimpleDateFormat("MMM yyyy", java.util.Locale.ENGLISH).format(new java.util.Date(first)) : "-",
+                NeuStyle.TEXT_GRAY));
+        rows.add(new BoardRow("Cookie", cookie ? "Active" : "Inactive", cookie ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_DARK));
+        rows.add(new BoardRow("Crit Record", crit > 0 ? com.teslamaps.profileviewer.ui.Kit.compact(crit) : "-", NeuStyle.TEXT_RED));
+        return rows;
+    }
+
+    private static double asDouble(com.google.gson.JsonElement element) {
+        if (element == null || !element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) return 0;
+        return element.getAsDouble();
+    }
+
+    private void drawBoard(GuiGraphicsExtractor ctx, Font tr, int x, int y, int w) {
+        double exp = profiles != null ? profiles.getNetworkExp() : -1;
+        if (Double.compare(exp, hypixelExp) != 0) {
+            hypixelExp = exp;
+            hypixelLevel = exp < 0 ? "?" : String.valueOf((int) (-3.5 + Math.sqrt(12.25 + 0.0008 * exp)));
+        }
+        for (int i = 0; i < board.size(); i++) {
+            BoardRow row = board.get(i);
+            drawAligned(ctx, tr, row.key(), row.value() == null ? hypixelLevel : row.value(), x, y + i * 9, w, row.color());
+        }
     }
 
     @Override
@@ -89,6 +154,9 @@ public class BasicPage extends ProfileViewerPage {
                 (profiles != null ? profiles.getRankPrefix() : "") + name);
 
         NeuStyle.slimBox(ctx, left + 23, top + 8, 81, 112);
+        if (extra(com.teslamaps.config.TeslaMapsConfig.get().pvPanorama) && profiles != null) {
+            PvPanorama.draw(ctx, PvPanorama.fileFor(profiles.getStatusMode()), left + 24, top + 9, 79, 110, mouseX);
+        }
 
         // vanilla style nametag floating over the head: translucent plate, name centered
         int tagWidth = tr.width(titled);
@@ -114,6 +182,15 @@ public class BasicPage extends ProfileViewerPage {
         }
 
         String status = profiles != null ? profiles.getOnlineStatus() : "";
+        boolean boardOn = extra(com.teslamaps.config.TeslaMapsConfig.get().pvInfoBoard);
+        if (boardOn && profiles != null && profiles.getStatusMode() != null) {
+            String mode = profiles.getStatusMode();
+            if (!mode.equals(islandMode)) {
+                islandMode = mode;
+                islandStatus = "Online - " + SkyblockProfiles.islandName(mode);
+            }
+            status = islandStatus;
+        }
         drawCentered(ctx, tr, status, left + 63, top + 126,
                 status.startsWith("Online") ? NeuStyle.TEXT_GREEN : NeuStyle.TEXT_RED);
 
@@ -169,6 +246,8 @@ public class BasicPage extends ProfileViewerPage {
             ctx.text(tr, String.format("(%.2f)", overflowAvg), left + 134 + tr.width(avg), sbY + 58, NeuStyle.TEXT_GOLD);
         }
 
+
+        if (boardOn) drawBoard(ctx, tr, left + 128, top + 144, 100);
 
         // six and six, with catacombs as the twelfth entry so both columns are even
         Map<String, SkillData> skills = profile.getSkills();

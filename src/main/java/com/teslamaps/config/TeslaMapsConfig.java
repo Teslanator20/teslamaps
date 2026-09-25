@@ -2148,6 +2148,16 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w13-05-pv
+    public boolean pvExtras = false;
+    public boolean pvPanorama = true;
+    public boolean pvErrorCopy = true;
+    public boolean pvInfoBoard = true;
+    public boolean pvMobsTab = true;
+    public boolean pvBingoGoals = true;
+    public boolean pvTrophyRank = true;
+    public boolean pvPowerStats = true;
+    public boolean pvPeek = true;
     // w12-01-gui
     public java.util.Map<String, String> hudPanelChroma = new java.util.HashMap<>(); // hud id -> Off / Plain Text / All Text
     public String hudChromaAll = "Off";

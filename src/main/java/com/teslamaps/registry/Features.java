@@ -592,5 +592,7 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w13-05-pv
+        com.teslamaps.features.PlayerPeek.register();
     }
 }

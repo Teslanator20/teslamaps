@@ -69,6 +69,52 @@ public class TrophyFishPage extends ProfileViewerPage {
                      com.teslamaps.profileviewer.data.SkyblockProfiles profiles) {
         super.init(parent, profiles);
         caught = buildCaught();
+        rankLines = buildRank();
+    }
+
+    // Ported from NEU's trophy/TrophyFishPage.java armorHelmets + getTrophiesPerTier
+    private static final String[] RANK_NAMES = {"§aNovice Fisher", "§9Adept Fisher", "§5Expert Fisher", "§6Master Fisher"};
+    private static final int[] RANK_NEEDED = {15, 18, 18, 18};
+    private List<net.minecraft.network.chat.Component> rankLines = List.of();
+
+    private List<net.minecraft.network.chat.Component> buildRank() {
+        SkyblockProfile profile = getProfile();
+        JsonObject trophyFish = profile != null && profile.getMemberData().has("trophy_fish")
+                && profile.getMemberData().get("trophy_fish").isJsonObject()
+                ? profile.getMemberData().getAsJsonObject("trophy_fish") : null;
+        if (trophyFish == null) return List.of();
+
+        int[] perTier = new int[4];
+        for (Fish fish : FISH) {
+            int highest = 0;
+            for (int t = 0; t < 4; t++) if (asInt(trophyFish.get(fish.key() + TIER_SUFFIXES[t])) > 0) highest = t + 1;
+            for (int t = 0; t < highest; t++) perTier[t]++;
+        }
+        com.google.gson.JsonArray rewards = trophyFish.has("rewards") && trophyFish.get("rewards").isJsonArray()
+                ? trophyFish.getAsJsonArray("rewards") : new com.google.gson.JsonArray();
+
+        int rank = 0;
+        boolean[] done = new boolean[4];
+        for (int t = 0; t < 4; t++) {
+            boolean claimed = t < rewards.size() && !rewards.get(t).isJsonNull();
+            done[t] = claimed || perTier[t] >= RANK_NEEDED[t];
+            if (done[t]) rank = t + 1;
+        }
+
+        StringBuilder tiers = new StringBuilder();
+        for (int t = 0; t < 4; t++) {
+            if (t > 0) tiers.append("  §8|  ");
+            tiers.append(RANK_NAMES[t], 0, 2).append(RANK_NAMES[t].substring(2).split(" ")[0]).append(' ')
+                    .append(done[t] ? "§a✔" : "§c" + perTier[t] + "/" + RANK_NEEDED[t]);
+        }
+        String head = "§7Trophy Fisher: " + (rank == 0 ? "§8None" : RANK_NAMES[rank - 1]);
+        if (rank < 4) {
+            int missing = Math.max(0, RANK_NEEDED[rank] - perTier[rank]);
+            head += "  §7Next: " + RANK_NAMES[rank] + " §7- §f" + missing + " §7more "
+                    + TIER_NAMES[rank].toLowerCase(java.util.Locale.ROOT) + " fish";
+        }
+        return List.of(com.teslamaps.profileviewer.data.LegacyText.parse(head),
+                com.teslamaps.profileviewer.data.LegacyText.parse(tiers.toString()));
     }
 
     /** Known fish plus any new key the api carries, most caught first. */
@@ -196,6 +242,11 @@ public class TrophyFishPage extends ProfileViewerPage {
                             "§7Total: §f" + com.teslamaps.profileviewer.ui.Kit.dots(fish.total()));
                 }
             }
+        }
+
+        if (extra(com.teslamaps.config.TeslaMapsConfig.get().pvTrophyRank)) {
+            int rankY = gridTop + 4 * stride + 6;
+            for (int i = 0; i < rankLines.size(); i++) ctx.text(tr, rankLines.get(i), left + 10, rankY + i * 11, -1);
         }
 
         if (hoverLines != null && parent != null) {
