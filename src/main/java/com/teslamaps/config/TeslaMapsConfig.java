@@ -2142,6 +2142,17 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w10-07-chat
+    public boolean chatMarkdown = false;
+    public boolean sackMessagePrices = false;
+    public boolean sackNotify = false;
+    public java.util.List<String> sackNotifyItems = new java.util.ArrayList<>(java.util.List.of("Glossy Gemstone"));
+    public boolean skyblockXpChat = false;
+    public boolean chatScamWarning = false;
+    public boolean chatMute = false;
+    @Global
+    public java.util.List<String> chatMutedPlayers = new java.util.ArrayList<>();
+    public boolean hideFarDeaths = false;
     // w08-00-hud
     public boolean tabStatsHud = false;
     public String tabStatsHudStats = "Ferocity";
@@ -3934,6 +3945,8 @@ public class TeslaMapsConfig {
 
     static void normalize(TeslaMapsConfig c) {
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
+        if (c.sackNotifyItems == null) c.sackNotifyItems = new java.util.ArrayList<>();
+        if (c.chatMutedPlayers == null) c.chatMutedPlayers = new java.util.ArrayList<>();
         if (c.imageShareLinks == null) c.imageShareLinks = new java.util.HashMap<>();
         if (c.tabStatsHudStats == null) c.tabStatsHudStats = "Ferocity";
         if (c.trackerHidden == null) c.trackerHidden = new java.util.HashMap<>();
