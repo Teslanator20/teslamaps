@@ -36,8 +36,19 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
+        if (type != net.minecraft.world.inventory.ContainerInput.THROW
+                && com.teslamaps.features.FillerItems.blockClick((AbstractContainerScreen<?>) (Object) this, slot)) {
+            ci.cancel();
+            return;
+        }
         if (type != net.minecraft.world.inventory.ContainerInput.THROW) return;
         if (com.teslamaps.features.ItemProtection.blockSlotDrop(slot)) ci.cancel();
+    }
+
+    @Inject(method = "extractTooltip", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$hideFillerTooltip(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int mouseX, int mouseY, CallbackInfo ci) {
+        if (com.teslamaps.features.FillerItems.hideTooltip((AbstractContainerScreen<?>) (Object) this,
+                ((HandledScreenAccessor) (Object) this).getFocusedSlot())) ci.cancel();
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)

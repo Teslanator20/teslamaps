@@ -20,11 +20,17 @@ public final class InventoryCategory {
         b.info("Dungeon gear in any menu: below 50% vs perfect 50% base stat boost");
         b.color("  Below 50% Color", () -> config.colorStatBoostLow, v -> config.colorStatBoostLow = v);
         b.color("  50% Color", () -> config.colorStatBoostMax, v -> config.colorStatBoostMax = v);
+        b.toggle("Magical Power As Stack Size", () -> config.magicalPowerStack, v -> config.magicalPowerStack = v)
+                .desc("Accessory Bag and auction house: MP of each accessory on its slot");
+        b.toggle("  Rarity Color", () -> config.magicalPowerRarityColor, v -> config.magicalPowerRarityColor = v);
+        b.info("Open your Abiphone once so Abicases count its contacts");
         b.toggle("Show Selected Pet", () -> config.showSelectedPet, v -> config.showSelectedPet = v);
         b.toggle("Pet Menu Shift Right-Click", () -> config.petShiftTakeOut, v -> config.petShiftTakeOut = v);
         b.info("Pets menu: right-click only works with shift held");
         b.toggle("Page Keybinds (A/D, W/S)", () -> config.pageKeybinds, v -> config.pageKeybinds = v);
         b.info("A/D = Previous/Next Page, W/S = Scroll Up/Down");
+        b.toggle("Ignore Filler Items", () -> config.hideFillerItems, v -> config.hideFillerItems = v)
+                .desc("No tooltip on blank glass panes, no clicks on fillers and locked backpack slots (off in dungeons and experiments)");
         b.toggle("Sign Enter Key", () -> config.signEnterKey, v -> config.signEnterKey = v);
         b.toggle("No Cursor Reset", () -> config.noCursorReset, v -> config.noCursorReset = v);
         b.slider("  Hold Time (s)", 0.5f, 30f,
@@ -42,12 +48,20 @@ public final class InventoryCategory {
         b.toggle("  Only While Shift Held", () -> config.backpackPreviewShift, v -> config.backpackPreviewShift = v);
         b.keybind("  Freeze Preview Key", () -> config.backpackPreviewFreezeKey, v -> config.backpackPreviewFreezeKey = v);
         b.info("Freeze pins the preview, hover its items for their tooltip");
+        b.toggle("  Preview From Item Data", () -> config.itemDataPreview, v -> config.itemDataPreview = v)
+                .desc("Cake bags, Builder's Wand and backpack items show their contents, even never opened");
+        b.toggle("    New Year Cake Bag", () -> config.itemDataPreviewCakeBag, v -> config.itemDataPreviewCakeBag = v);
+        b.toggle("    Also In Auction House", () -> config.itemDataPreviewInAh, v -> config.itemDataPreviewInAh = v);
         b.label("Item Search");
         b.toggle("Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v);
         b.info("/tmap search finds items in museum, sacks, vault, chests, storage");
         b.toggle("  Island Chest Tracker", () -> config.islandChestTracker, v -> config.islandChestTracker = v);
         b.info("Private Island: large chests per half, minion chests skipped, broken chests removed");
         b.keybind("Open Item Search", () -> config.itemSearchKey, v -> config.itemSearchKey = v);
+        b.toggle("  Search Hovered Item", () -> config.itemSearchFromHover, v -> config.itemSearchFromHover = v)
+                .desc("The search key over an item in a menu opens the search with its name");
+        b.keybind("  Highlight Hovered Item Key", () -> config.itemHighlightKey, v -> config.itemHighlightKey = v);
+        b.info("Marks that item in every menu for 30s, plus waypoints on chests holding it");
         b.toggle("Right-Click Sack Item: /gfs", () -> config.itemSearchGfsClick, v -> config.itemSearchGfsClick = v);
         b.button("Open Item Search",
                 () -> Minecraft.getInstance().setScreen(new ItemSearchScreen(null)));

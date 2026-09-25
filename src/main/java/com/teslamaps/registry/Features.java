@@ -165,5 +165,8 @@ final class Features {
         com.teslamaps.dungeon.RoomPreview.register();
         com.teslamaps.dungeon.TeamStats.register();
         com.teslamaps.features.ShadowAssassinAlert.register();
+        // w04-07-inv
+        com.teslamaps.features.StarUpgradeCost.register();
+        com.teslamaps.features.MagicalPowerStack.register();
     }
 }

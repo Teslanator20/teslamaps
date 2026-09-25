@@ -39,6 +39,10 @@ public class ContainerKeyMixin {
         }
 
         Slot hovered = ((HandledScreenAccessor) (Object) this).getFocusedSlot();
+        if (com.teslamaps.features.ItemHighlight.onKey(event.key(), hovered)) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (com.teslamaps.features.SlotLock.onKey(event.key(), hovered)) {
             cir.setReturnValue(true);
             return;

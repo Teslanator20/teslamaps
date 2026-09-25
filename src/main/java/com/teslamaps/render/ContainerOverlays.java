@@ -27,6 +27,7 @@ public class ContainerOverlays {
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Shards")) {
             com.teslamaps.debug.Perf.begin("ShardOverlay.render");
             com.teslamaps.features.hunting.ShardOverlay.renderMenuExtras(context);
+            com.teslamaps.features.hunting.HuntingBox.renderSyphonReady(context);
             if (com.teslamaps.features.hunting.ShardOverlay.shouldRender()) {
                 com.teslamaps.features.hunting.ShardOverlay.render(context, mouseX, mouseY);
             }
@@ -56,6 +57,7 @@ public class ContainerOverlays {
             com.teslamaps.features.Searchbar.render(context);
         }
 
+        com.teslamaps.features.ItemHighlight.render(context);
         com.teslamaps.features.BackpackPreview.renderOpenPageBorder(context);
         com.teslamaps.features.BackpackPreview.renderFrozen(context, mouseX, mouseY);
         com.teslamaps.features.FarmProfitOverlay.drawTooltip(context,
