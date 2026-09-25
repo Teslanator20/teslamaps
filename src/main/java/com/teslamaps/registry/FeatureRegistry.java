@@ -203,6 +203,7 @@ public final class FeatureRegistry {
      * {@code section(...)} name. Existing categories need no declaration.
      */
     public static void category(String name, String sidebarSection, boolean gated) {
+        for (Category c : CATEGORIES) if (c.name.equals(name)) return;
         CATEGORIES.add(new Category(name, sidebarSection, gated));
     }
 

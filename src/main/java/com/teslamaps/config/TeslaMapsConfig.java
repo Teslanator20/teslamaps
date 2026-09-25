@@ -2148,6 +2148,36 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w16-06-kuu
+    public boolean kuuBuildHelper = false;
+    public boolean kuuBuildHud = true;
+    public int kuuBuildHudX = 10;
+    public int kuuBuildHudY = 120;
+    public float kuuBuildHudScale = 1.0f;
+    public boolean kuuBuildCountdown = true;
+    public boolean kuuBuildBeams = true;
+    public boolean kuuBuildHideTags = false;
+    public boolean kuuBuildBallistaText = false;
+    public float kuuBuildStunPercent = 93f;
+    public boolean kuuFreshTools = false;
+    public boolean kuuFreshAnnounce = true;
+    public boolean kuuFreshAnnouncePercent = false;
+    public boolean kuuFreshHud = true;
+    public int kuuFreshHudX = 10;
+    public int kuuFreshHudY = 160;
+    public float kuuFreshHudScale = 1.0f;
+    public boolean kuuFreshOverhead = true;
+    public boolean kuuFreshGlow = false;
+    public String kuuFreshGlowColor = "55FF55";
+    public boolean kuuDangerWarning = false;
+    public boolean kuuDangerSound = true;
+    public boolean kuuHideDamageTitle = false;
+    public boolean kuuBlockPerks = false;
+    public boolean kuuIchorPool = false;
+    public String kuuIchorColor = "D260EEFF";
+    public boolean kuuSupplyMessage = false;
+    public boolean kuuElleHighlight = false;
+    public com.teslamaps.render.EspStyle kuuElleEsp = new com.teslamaps.render.EspStyle("6655FFFF", com.teslamaps.render.EspStyle.BOTH);
     // w15-01-min
     public boolean forgeReminder = false;
     public int forgeReminderDelay = 1;
