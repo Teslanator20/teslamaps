@@ -188,8 +188,6 @@ public final class HideCategory {
         b.toggle("Hide Death Animation", () -> config.noDeathAnimation, v -> config.noDeathAnimation = v);
         b.toggle("Hide Death Particles", () -> config.hideDeathParticles, v -> config.hideDeathParticles = v)
                 .desc("No smoke puff when a mob dies.");
-        b.toggle("Hide Enderman Teleport", () -> config.hideEndermanTeleport, v -> config.hideEndermanTeleport = v)
-                .desc("No portal particle burst when an enderman teleports.");
         b.toggle("Hide Mage Beams", () -> config.hideMageBeams, v -> config.hideMageBeams = v)
                 .desc("Drops the firework particles of mage beams in dungeons.");
         b.toggle("Hide Witherborn Withers", () -> config.hideWitherbornWithers, v -> config.hideWitherbornWithers = v)

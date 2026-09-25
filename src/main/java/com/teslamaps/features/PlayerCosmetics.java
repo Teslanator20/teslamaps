@@ -27,7 +27,7 @@ public final class PlayerCosmetics {
         Feature.of("PlayerSize").section("Render").when(() -> cfg().playerSize)
                 .config("Render", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Cosmetics");
+                    b.label("Player Size & Model");
                     b.toggle("Player Size", () -> c.playerSize, v -> c.playerSize = v)
                             .desc("Scales player models client-side. Negative height turns them upside down.");
                     b.dropdown("  Players", TARGETS, () -> c.playerSizeTarget, v -> c.playerSizeTarget = v)

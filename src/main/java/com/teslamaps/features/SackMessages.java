@@ -94,8 +94,11 @@ public final class SackMessages {
             first = false;
             sb.append("§a").append(e.getKey()).append(" §fx").append(e.getValue());
         }
-        var player = Minecraft.getInstance().player;
-        if (player != null) player.sendSystemMessage(Component.literal(sb.toString()));
+        Component line = Component.literal(sb.toString());
+        com.teslamaps.utils.TickScheduler.schedule(1, () -> {
+            var player = Minecraft.getInstance().player;
+            if (player != null) player.sendSystemMessage(line);
+        });
     }
 
     private static void collectAdded(Component c, StringBuilder out) {

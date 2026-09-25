@@ -20,6 +20,7 @@ public final class ChatQueue {
     private ChatQueue() {}
 
     public static void register() {
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((h, mc) -> QUEUE.clear());
         Feature.of("ChatQueue")
                 .tickAlways(ChatQueue::tick)
                 .config("Chat", b -> {
@@ -43,7 +44,8 @@ public final class ChatQueue {
 
     private static void send(String text, boolean command) {
         if (text == null || text.isEmpty()) return;
-        if (!TeslaMapsConfig.get().chatSendQueue) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.chatSendQueue || !c.section("Chat")) {
             direct(text, command);
             return;
         }

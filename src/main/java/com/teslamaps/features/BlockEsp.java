@@ -329,7 +329,7 @@ public final class BlockEsp {
 
     public static boolean listening() {
         TeslaMapsConfig c = cfg();
-        return c.blockEsp && !targets.isEmpty();
+        return c.blockEsp && !targets.isEmpty() && !LegitMode.blocksCheats();
     }
 
     private static void rebuildShown(Minecraft mc) {

@@ -383,9 +383,9 @@ public class ChatFilter {
         if (autopet(t)) return true;
         if (TeslaMapsConfig.get().chatFilterEnabled) {
             String sf = ChatCompactRulesIslands.shortForm(message, t);
+            if (sf != null) lastReason = "compact";
             if (sf != null && sf.isEmpty()) return true;
             if (sf != null && !hasClick(message, true)) {
-                lastReason = "compact";
                 queue(text, compact(message, sf));
                 return false;
             }

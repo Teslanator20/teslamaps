@@ -37,7 +37,7 @@ public final class ConfirmPrompt {
                 .tick(ConfirmPrompt::tick)
                 .config("Chat", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Chat Extras");
+                    b.label("Confirm Prompts");
                     b.toggle("Click Chat To Confirm Prompts", () -> c.confirmPromptHelper, v -> c.confirmPromptHelper = v)
                             .desc("After a [YES] / NPC confirm prompt, a left click anywhere in open chat (not on another button) answers it. Valid for 60s.")
                             .tags("confirm", "yes", "prompt", "carnival");

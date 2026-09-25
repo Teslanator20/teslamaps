@@ -2228,7 +2228,6 @@ public class TeslaMapsConfig {
     public boolean shortenChatCoins = false;
     public boolean darkAuctionItemName = false;
     public boolean hideArachneMessages = false;
-    public boolean hideChatIndicator = false;
     // w10-05-chat
     public boolean rareDropPetRarity = false;
     public boolean rareDropBookName = false;
@@ -2688,7 +2687,6 @@ public class TeslaMapsConfig {
     public boolean hideMountHealth = false;
     public boolean hideDeathParticles = false;
     public boolean noNightVision = false;
-    public boolean hideEndermanTeleport = false;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;
