@@ -201,6 +201,24 @@ public final class InterfaceCategory {
         b.label("Profile Viewer");
         b.toggle("Scroll Long Pages", () -> config.pvScrollPages, v -> config.pvScrollPages = v);
         b.info("Full size text with a scrollbar instead of shrinking the page");
+        b.toggle("More Profile Data", () -> config.pvExtras, v -> config.pvExtras = v)
+                .desc("Extra sections in /pv, pick them below").tags("pv", "profile viewer");
+        b.toggle("  Leaderboard Ranks", () -> config.pvEliteRanks, v -> config.pvEliteRanks = v)
+                .desc("Elite leaderboard rank in skill, catacombs, class, slayer and collection tooltips (one request to eliteskyblock.com per profile)");
+        b.toggle("  Mining/Foraging Gear", () -> config.pvGearScan, v -> config.pvGearScan = v)
+                .desc("Best mining and foraging armor, equipment and tools found in all containers");
+        b.toggle("  Greenhouse", () -> config.pvGreenhouse, v -> config.pvGreenhouse = v)
+                .desc("Greenhouse mutations, copper and larva on the garden page");
+        b.toggle("  Fishing Stats", () -> config.pvFishingStats, v -> config.pvFishingStats = v)
+                .desc("Items fished, treasure, sea creatures and the dolphin milestone on the extra page");
+        b.toggle("  Minions", () -> config.pvMinions, v -> config.pvMinions = v)
+                .desc("Crafted minion tiers as an extra collections category");
+        b.toggle("  Misc Bags", () -> config.pvMiscBags, v -> config.pvMiscBags = v)
+                .desc("Candy and carnival mask bag; potion bag, quiver and fishing bag grouped into Misc");
+        b.toggle("  Overview Links", () -> config.pvDeepLinks, v -> config.pvDeepLinks = v)
+                .desc("Click a skill, catacombs or the SkyBlock level on the basic page to open its page");
+        b.toggle("  Level & Hoppity Page", () -> config.pvLevelHoppity, v -> config.pvLevelHoppity = v)
+                .desc("SkyBlock level breakdown per category and the chocolate factory");
         b.label("Updates");
         b.toggle("Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v);
         b.toggle("  Show Changelog", () -> config.updateChangelog, v -> config.updateChangelog = v);

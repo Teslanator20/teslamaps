@@ -43,7 +43,8 @@ public class ForagingPage extends ProfileViewerPage {
                        int mouseX, int mouseY, float delta) {
         SkyblockProfile profile = getProfile();
         if (profile == null) return;
-        drawTree(ctx, w -> build(profile.getMemberData(), w), width, x, y, mouseX, mouseY);
+        JsonObject member = profile.getMemberData();
+        drawTree(ctx, cachedTree(member, w -> build(member, w)), width, x, y, mouseX, mouseY);
     }
 
     private Ui build(JsonObject member, int width) {
@@ -56,7 +57,7 @@ public class ForagingPage extends ProfileViewerPage {
 
         // same shared factor as the mining page, so hotm and hotf render pixel-identical
         float factor = sharedTreeFactor(header(width, tree).height() + 6);
-        Ui page = compose(width, tree, core, foraging,
+        Ui page = compose(member, width, tree, core, foraging,
                 factor < 1f ? new Ui.Scaled(treeView, factor) : treeView);
         return page;
     }
@@ -65,21 +66,33 @@ public class ForagingPage extends ProfileViewerPage {
      * Next to the tree, in two columns. Stacked under each other the side content was taller than
      * the window and dragged the whole page - tree included - through the shrink.
      */
-    private Ui compose(int width, SkillTreeInfo tree, JsonObject core, JsonObject foraging, Ui treeView) {
+    private Ui compose(JsonObject member, int width, SkillTreeInfo tree, JsonObject core, JsonObject foraging, Ui treeView) {
         int sideWidth = Math.max(150, width - treeView.width() - 10);
         int half = Math.max(110, (sideWidth - 10) / 2);
 
+        Ui gear = com.teslamaps.profileviewer.PvExtras.gear()
+                ? Kit.section("Gear", com.teslamaps.profileviewer.data.GearScan.grid(
+                        com.teslamaps.profileviewer.data.GearScan.foraging(member), 18))
+                : null;
         // mirror of the mining page: whispers where the powder sits, gifts below, bests right
         Ui side = sideWidth >= 230
                 ? Ui.row(10, Ui.V.TOP,
                         Ui.col(6, Kit.section("Whispers", whispers(half, tree, core)),
                                 Kit.section("Tree Gifts", gifts(foraging, half))),
-                        Ui.col(6, Kit.section("Personal Bests", personalBests(foraging, half)),
-                                Kit.section("Today", today(core, foraging, half))))
-                : Ui.col(6, Kit.section("Whispers", whispers(sideWidth, tree, core)),
-                        Kit.section("Tree Gifts", gifts(foraging, sideWidth)),
-                        Kit.section("Personal Bests", personalBests(foraging, sideWidth)),
-                        Kit.section("Today", today(core, foraging, sideWidth)));
+                        gear == null
+                                ? Ui.col(6, Kit.section("Personal Bests", personalBests(foraging, half)),
+                                        Kit.section("Today", today(core, foraging, half)))
+                                : Ui.col(6, Kit.section("Personal Bests", personalBests(foraging, half)),
+                                        Kit.section("Today", today(core, foraging, half)), gear))
+                : gear == null
+                        ? Ui.col(6, Kit.section("Whispers", whispers(sideWidth, tree, core)),
+                                Kit.section("Tree Gifts", gifts(foraging, sideWidth)),
+                                Kit.section("Personal Bests", personalBests(foraging, sideWidth)),
+                                Kit.section("Today", today(core, foraging, sideWidth)))
+                        : Ui.col(6, Kit.section("Whispers", whispers(sideWidth, tree, core)),
+                                Kit.section("Tree Gifts", gifts(foraging, sideWidth)),
+                                Kit.section("Personal Bests", personalBests(foraging, sideWidth)),
+                                Kit.section("Today", today(core, foraging, sideWidth)), gear);
 
         return Ui.col(6, header(width, tree), Ui.row(10, Ui.V.TOP, treeView, side));
     }

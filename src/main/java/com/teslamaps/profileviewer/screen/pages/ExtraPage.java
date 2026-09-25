@@ -65,6 +65,8 @@ public class ExtraPage extends ProfileViewerPage {
 
         parts.add(Kit.section("Account", account(member, width)));
 
+        if (com.teslamaps.profileviewer.PvExtras.fishing()) parts.add(Kit.section("Fishing", fishing(member, width)));
+
         Ui essence = essence(member, width);
         if (essence != null) parts.add(Kit.section("Essence", essence));
 
@@ -90,12 +92,37 @@ public class ExtraPage extends ProfileViewerPage {
         tiles.add(new Kit.TileData("Kills", Kit.compact(kills), NeuStyle.TEXT));
         tiles.add(new Kit.TileData("Deaths", Kit.compact(deaths), NeuStyle.TEXT));
         tiles.add(new Kit.TileData("K/D", String.format(java.util.Locale.ROOT, "%.2f", kd), NeuStyle.TEXT_AQUA));
-        tiles.add(new Kit.TileData("Items Fished", Kit.compact(fished), NeuStyle.TEXT_AQUA));
+        if (!com.teslamaps.profileviewer.PvExtras.fishing()) {
+            tiles.add(new Kit.TileData("Items Fished", Kit.compact(fished), NeuStyle.TEXT_AQUA));
+        }
         tiles.add(new Kit.TileData("Auctions Sold", Kit.compact(sold), NeuStyle.TEXT));
         tiles.add(new Kit.TileData("Coins Earned", Kit.compact(earned), NeuStyle.TEXT_GOLD));
         tiles.add(new Kit.TileData("First Join", firstJoin(member), NeuStyle.TEXT_GRAY));
 
         return Kit.tileRow(width, tiles);
+    }
+
+    private Ui fishing(JsonObject member, int width) {
+        JsonObject stats = object(member, "player_stats");
+        JsonObject fished = object(stats, "items_fished");
+        long seaCreatures = asLong(get(stats, "sea_creature_kills"));
+        return Kit.tileRow(width, List.of(
+                new Kit.TileData("Items Fished", Kit.compact(asLong(get(fished, "total"))), NeuStyle.TEXT_AQUA),
+                new Kit.TileData("Treasure", Kit.compact(asLong(get(fished, "treasure"))), NeuStyle.TEXT_GOLD),
+                new Kit.TileData("Large Treasure", Kit.compact(asLong(get(fished, "large_treasure"))), NeuStyle.TEXT_GOLD),
+                new Kit.TileData("Sea Creatures", Kit.compact(seaCreatures), NeuStyle.TEXT_GREEN),
+                new Kit.TileData("Dolphin Milestone", dolphinTier(seaCreatures), NeuStyle.TEXT_AQUA),
+                new Kit.TileData("Trophy Caught", Kit.compact(asLong(get(object(member, "trophy_fish"), "total_caught"))), NeuStyle.TEXT)));
+    }
+
+    /** Dolphin pet rarity milestone from total sea creature kills. */
+    private static String dolphinTier(long kills) {
+        if (kills >= 100_000) return "Legendary";
+        if (kills >= 25_000) return "Epic";
+        if (kills >= 5_000) return "Rare";
+        if (kills >= 1_000) return "Uncommon";
+        if (kills >= 250) return "Common";
+        return "-";
     }
 
     private Ui essence(JsonObject member, int width) {
@@ -164,6 +191,8 @@ public class ExtraPage extends ProfileViewerPage {
                         + (attempts > kills ? " §8(" + com.teslamaps.profileviewer.ui.Kit.dots(attempts) + " started)" : ""));
             }
             tooltip.add("§7Bosses killed: §f" + com.teslamaps.profileviewer.ui.Kit.dots(total));
+            String rank = com.teslamaps.profileviewer.PvExtras.rankLine(SLAYER_KEYS.get(i) + "-slayer");
+            if (rank != null) tooltip.add(rank);
 
             int color = xp > 0 ? SLAYER_COLORS.get(i) : NeuStyle.TEXT_DARK;
             rows.add(new Ui.Tip(Ui.col(2,

@@ -25,7 +25,10 @@ public class InventoriesPage extends ProfileViewerPage {
         VAULT("Personal Vault", Items.IRON_DOOR),
         FISHING("Fishing Bag", Items.FISHING_ROD),
         POTIONS("Potion Bag", Items.POTION),
-        QUIVER("Quiver", Items.ARROW);
+        QUIVER("Quiver", Items.ARROW),
+        CANDY("Candy Bag", Items.SUGAR),
+        CARNIVAL("Carnival Mask Bag", Items.CARVED_PUMPKIN),
+        MISC("Misc", Items.BUNDLE);
 
         final String label;
         final net.minecraft.world.item.Item icon;
@@ -37,6 +40,22 @@ public class InventoriesPage extends ProfileViewerPage {
     }
 
     private Section section = Section.INVENTORY;
+    private Section miscSub = Section.POTIONS;
+
+    private static final List<Section> RAIL = List.of(Section.INVENTORY, Section.ENDER_CHEST, Section.BACKPACKS,
+            Section.ACCESSORIES, Section.VAULT, Section.FISHING, Section.POTIONS, Section.QUIVER);
+    private static final List<Section> RAIL_MISC = List.of(Section.INVENTORY, Section.ENDER_CHEST, Section.BACKPACKS,
+            Section.ACCESSORIES, Section.VAULT, Section.MISC);
+    private static final List<Section> MISC_SUBS = List.of(Section.POTIONS, Section.QUIVER, Section.FISHING,
+            Section.CANDY, Section.CARNIVAL);
+    private static final String[] MISC_LABELS = {"Potion Bag", "Quiver", "Fishing Bag", "Candy Bag", "Mask Bag"};
+
+    private static List<Section> rail() {
+        return com.teslamaps.profileviewer.PvExtras.miscBags() ? RAIL_MISC : RAIL;
+    }
+
+    private final List<int[]> miscRects = new ArrayList<>();
+    private List<String> quiverSummary;
     private int page = 0;
 
     // decoding rebuilt every Slot every frame, so the item cache behind them never hit and the
@@ -49,6 +68,43 @@ public class InventoriesPage extends ProfileViewerPage {
         super.init(parent, profiles);
         decodeCache.clear();
         backpackCache = null;
+        quiverSummary = null;
+    }
+
+    /** shared_inventory lives next to inventory, not inside it. */
+    private List<InventoryDecoder.Slot> decodedShared(SkyblockProfile profile, String key) {
+        JsonObject member = profile.getMemberData();
+        JsonObject shared = member.has("shared_inventory") && member.get("shared_inventory").isJsonObject()
+                ? member.getAsJsonObject("shared_inventory") : null;
+        if (shared == null) return List.of();
+        return decodeCache.computeIfAbsent("shared:" + key, k -> InventoryDecoder.decode(shared, key));
+    }
+
+    /** Arrow types with their totals, the way NEU's quiver info lists them. */
+    private List<String> quiverSummary(List<InventoryDecoder.Slot> quiver) {
+        if (quiverSummary != null) return quiverSummary;
+        java.util.Map<String, Integer> counts = new java.util.LinkedHashMap<>();
+        for (InventoryDecoder.Slot slot : quiver) {
+            if (slot.isEmpty()) continue;
+            String name = slot.name != null ? slot.name : slot.skyblockId;
+            counts.merge(name, slot.count, Integer::sum);
+        }
+        List<String> lines = new ArrayList<>();
+        lines.add("§eQuiver");
+        int total = 0;
+        for (var entry : counts.entrySet()) {
+            lines.add(entry.getKey() + " §7x§f" + com.teslamaps.profileviewer.ui.Kit.dots(entry.getValue()));
+            total += entry.getValue();
+        }
+        lines.add("§7Total: §f" + com.teslamaps.profileviewer.ui.Kit.dots(total));
+        quiverSummary = lines;
+        return lines;
+    }
+
+    private static int itemCount(List<InventoryDecoder.Slot> slots) {
+        int total = 0;
+        for (InventoryDecoder.Slot slot : slots) if (!slot.isEmpty()) total += slot.count;
+        return total;
     }
 
     // the icon resolves async through the item repo; a stack grabbed at build time froze the
@@ -107,8 +163,10 @@ public class InventoriesPage extends ProfileViewerPage {
                 ? profile.getMemberData().getAsJsonObject("inventory") : null;
 
         // left rail with one button per container
-        for (int i = 0; i < Section.values().length; i++) {
-            Section s = Section.values()[i];
+        List<Section> rail = rail();
+        if (!rail.contains(section)) section = MISC_SUBS.contains(section) && rail.contains(Section.MISC) ? Section.MISC : Section.INVENTORY;
+        for (int i = 0; i < rail.size(); i++) {
+            Section s = rail.get(i);
             int bx = left + 6;
             int by = top + 6 + i * 19;
             boolean selected = s == section;
@@ -132,8 +190,10 @@ public class InventoriesPage extends ProfileViewerPage {
         List<InventoryDecoder.Slot> slots;
         String title = section.label;
         pageCount = 1;
+        miscRects.clear();
+        Section shownSection = section == Section.MISC ? miscSub : section;
 
-        switch (section) {
+        switch (shownSection) {
             case INVENTORY -> {
                 slots = reorderPlayerInventory(decoded(inventory,"inv_contents"));
                 sideArmor = decoded(inventory,"inv_armor");
@@ -180,10 +240,43 @@ public class InventoriesPage extends ProfileViewerPage {
                 slots = decoded(inventory,"personal_vault_contents");
                 title = "Personal Vault";
             }
+            case CANDY -> {
+                slots = pageOf(decodedShared(profile, "candy_inventory_contents"), 45);
+                title = "Candy Bag";
+            }
+            case CARNIVAL -> {
+                slots = pageOf(decodedShared(profile, "carnival_mask_inventory_contents"), 45);
+                title = "Carnival Mask Bag";
+            }
             default -> slots = List.of();
         }
 
-        if (title != null) {
+        if (section == Section.MISC) {
+            int cx = areaX;
+            for (int i = 0; i < MISC_SUBS.size(); i++) {
+                String label = MISC_LABELS[i];
+                int w = tr.width(label);
+                boolean active = MISC_SUBS.get(i) == miscSub;
+                boolean over = mouseX >= cx - 2 && mouseX < cx + w + 2 && mouseY >= top + 7 && mouseY < top + 19;
+                ctx.text(tr, label, cx, top + 10,
+                        active ? NeuStyle.TEXT_YELLOW : over ? NeuStyle.TEXT : NeuStyle.TEXT_GRAY);
+                miscRects.add(new int[]{cx - 2, top + 7, w + 4, 12, i});
+                if (over && parent != null) {
+                    List<String> lines = switch (MISC_SUBS.get(i)) {
+                        case QUIVER -> quiverSummary(decoded(inventory, "bag_contents.quiver"));
+                        case CANDY -> List.of("§eCandy Bag", "§7Candy: §f"
+                                + com.teslamaps.profileviewer.ui.Kit.dots(itemCount(decodedShared(profile, "candy_inventory_contents"))));
+                        default -> null;
+                    };
+                    if (lines != null) {
+                        List<net.minecraft.network.chat.Component> parsed = new ArrayList<>(lines.size());
+                        for (String line : lines) parsed.add(com.teslamaps.profileviewer.data.LegacyText.parse(line));
+                        parent.setHoveredLines(parsed);
+                    }
+                }
+                cx += w + 10;
+            }
+        } else if (title != null) {
             ctx.text(tr, title, areaX, top + 10, NeuStyle.TEXT_YELLOW);
         }
 
@@ -339,11 +432,20 @@ public class InventoriesPage extends ProfileViewerPage {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        for (int i = 0; i < Section.values().length; i++) {
+        List<Section> rail = rail();
+        for (int i = 0; i < rail.size(); i++) {
             int bx = lastLeft + 6;
             int by = lastTop + 6 + i * 19;
             if (mouseX >= bx && mouseX < bx + 100 && mouseY >= by && mouseY < by + 18) {
-                section = Section.values()[i];
+                section = rail.get(i);
+                page = 0;
+                return true;
+            }
+        }
+
+        for (int[] rect : miscRects) {
+            if (mouseX >= rect[0] && mouseX < rect[0] + rect[2] && mouseY >= rect[1] && mouseY < rect[1] + rect[3]) {
+                miscSub = MISC_SUBS.get(rect[4]);
                 page = 0;
                 return true;
             }

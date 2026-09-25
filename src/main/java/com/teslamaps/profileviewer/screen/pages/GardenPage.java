@@ -76,7 +76,8 @@ public class GardenPage extends ProfileViewerPage {
             return;
         }
 
-        drawTree(ctx, w -> fitted(w, NeuStyle.PANEL_HEIGHT - y - 6), width, x, y, mouseX, mouseY);
+        int available = NeuStyle.PANEL_HEIGHT - y - 6;
+        drawTree(ctx, cachedTree(garden, w -> fitted(w, available)), width, x, y, mouseX, mouseY);
     }
 
     /** More columns instead of a taller page - the window is wide, not tall. */
@@ -93,6 +94,10 @@ public class GardenPage extends ProfileViewerPage {
         parts.add(header(width));
         parts.add(Kit.section("Crop Milestones", crops(width, columns)));
         parts.add(Kit.section("Composter", composter(width, columns)));
+        SkyblockProfile profile = getProfile();
+        if (com.teslamaps.profileviewer.PvExtras.greenhouse() && profile != null) {
+            parts.add(Kit.section("Greenhouse", com.teslamaps.profileviewer.data.Greenhouse.build(profile.getMemberData(), width)));
+        }
         return Ui.col(10, parts);
     }
 
