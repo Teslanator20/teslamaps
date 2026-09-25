@@ -173,6 +173,8 @@ public final class InventoryCategory {
         b.button("Open Customize Screen",
                 () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.customize.CustomizeScreen(b.screen(), false)));
         b.info("Rename, dye, trim and reskin items - client side only (/tmap customize)");
+        b.toggle("  Glint Colors", () -> config.customGlintColors, v -> config.customGlintColors = v)
+                .desc("Adds a glint color field to the Item tab of the customize screen.");
         b.toggle("Axes In 1.8 Look", () -> config.revertAxes, v -> config.revertAxes = v)
                 .desc("Ragnarock and Daedalus Axe render as a golden axe, Axe of the Shredded as a diamond axe. Visual only.");
         b.label("Rarity Backgrounds");

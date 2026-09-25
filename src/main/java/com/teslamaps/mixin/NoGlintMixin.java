@@ -12,12 +12,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class NoGlintMixin {
     @Inject(method = "hasFoil", at = @At("HEAD"), cancellable = true)
     private void teslamaps$noGlint(CallbackInfoReturnable<Boolean> cir) {
-        if (!TeslaMapsConfig.get().noEnchantGlint) return;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        boolean colors = c.customGlintColors && !c.customGlintColor.isEmpty();
+        if (!c.noEnchantGlint && !colors) return;
         // a glint picked in /tmap customize wins over the blanket hide
         if (Customize.active()) {
             String uuid = Customize.uuid((ItemStack) (Object) this);
-            if (!uuid.isEmpty() && TeslaMapsConfig.get().customGlint.containsKey(uuid)) return;
+            if (!uuid.isEmpty()) {
+                if (colors && c.customGlintColor.containsKey(uuid) && !Boolean.FALSE.equals(c.customGlint.get(uuid))) {
+                    cir.setReturnValue(true);
+                    return;
+                }
+                if (c.customGlint.containsKey(uuid)) return;
+            }
         }
-        cir.setReturnValue(false);
+        if (c.noEnchantGlint) cir.setReturnValue(false);
     }
 }
