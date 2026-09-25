@@ -99,7 +99,8 @@ public final class PriceLookup {
     }
 
     private static void send(Minecraft mc, String cmd) {
-        mc.getConnection().sendCommand(StringUtil.strip(cmd).replace("§", ""));
+        // packet, not sendCommand: the client /ahs would catch it
+        mc.getConnection().send(new net.minecraft.network.protocol.game.ServerboundChatCommandPacket(StringUtil.strip(cmd).replace("§", "")));
     }
 
     private static void fail(Minecraft mc, String msg) {
