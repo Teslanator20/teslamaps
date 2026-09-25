@@ -452,6 +452,20 @@ public class ItemIndex {
         return sb.toString().toLowerCase(Locale.ROOT);
     }
 
+    /** Plain item name -> stored amount over every indexed sack page. */
+    public static Map<String, Integer> sackAmounts() {
+        ensure();
+        Map<String, Integer> out = new java.util.HashMap<>();
+        for (Src src : data.values()) {
+            if (!SACKS.equals(src.type) || src.names == null) continue;
+            for (Map.Entry<Integer, String> e : src.names.entrySet()) {
+                int amount = src.amounts == null ? 0 : src.amounts.getOrDefault(e.getKey(), 0);
+                if (amount > 0) out.merge(e.getValue(), amount, Math::max);
+            }
+        }
+        return out;
+    }
+
     /** @param typeFilter null or "" = every source type. */
     public static List<Hit> search(String query, String typeFilter) {
         return search(query, typeFilter, false);

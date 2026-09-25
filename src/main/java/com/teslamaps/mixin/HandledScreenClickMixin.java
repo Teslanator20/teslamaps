@@ -23,6 +23,7 @@ public class HandledScreenClickMixin {
     @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
     private void teslamaps$blockSlotDrop(net.minecraft.world.inventory.Slot slot, int slotId, int button,
                                          net.minecraft.world.inventory.ContainerInput type, CallbackInfo ci) {
+        com.teslamaps.features.AnimatedDyeFix.observeWardrobe((AbstractContainerScreen<?>) (Object) this, slot, button, type);
         if (com.teslamaps.features.PetShiftClick.handle(
                 (AbstractContainerScreen<?>) (Object) this, slot, slotId, button, type)) {
             ci.cancel();
@@ -113,6 +114,12 @@ public class HandledScreenClickMixin {
 
         if (com.teslamaps.features.BackpackPreview.handleClick(mouseX, mouseY, button)) {
             teslamaps$ate("BackpackPreview.frozen", button);
+            cir.setReturnValue(true);
+            return;
+        }
+
+        if (com.teslamaps.features.accessories.AccessoryHelper.handleClick(mouseX, mouseY, button)) {
+            teslamaps$ate("AccessoryHelper", button);
             cir.setReturnValue(true);
             return;
         }

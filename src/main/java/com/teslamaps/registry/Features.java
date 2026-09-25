@@ -165,5 +165,10 @@ final class Features {
         com.teslamaps.dungeon.RoomPreview.register();
         com.teslamaps.dungeon.TeamStats.register();
         com.teslamaps.features.ShadowAssassinAlert.register();
+        // w04-01-inv
+        com.teslamaps.features.AnimatedDyeFix.register();
+        com.teslamaps.features.AnvilHelper.register();
+        com.teslamaps.features.accessories.AccessoryHelper.register();
+        com.teslamaps.features.CraftHelper.register();
     }
 }

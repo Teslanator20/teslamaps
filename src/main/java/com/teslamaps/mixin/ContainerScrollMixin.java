@@ -20,6 +20,10 @@ public class ContainerScrollMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.accessories.AccessoryHelper.mouseScrolled(mouseX, mouseY, scrollY)) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (ScrollableTooltip.onScroll(scrollY)) cir.setReturnValue(true);
     }
 }

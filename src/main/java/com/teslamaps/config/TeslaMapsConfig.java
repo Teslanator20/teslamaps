@@ -2130,6 +2130,27 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w04-01-inv
+    public boolean backpackPreviewColors = false;      // tint previews + opened backpacks in their dye colour
+    public boolean backpackPreviewCakeBag = false;     // preview the New Year Cake Bag too
+    public String backpackPreviewStyle = "Compact";    // Compact / Chest
+    public boolean anvilHelper = false;
+    public boolean anvilHelperMatches = true;          // green: inventory items that fit the one in the anvil
+    public boolean anvilHelperMismatch = true;         // red result slot when two books differ
+    public boolean animatedDyeTooltipFix = false;
+    public boolean accessoryHelper = false;            // panel next to the Accessory Bag
+    public boolean accessoryHelperHighestOnly = false;
+    public boolean accessoryTooltip = false;           // "Accessory: ✔ Collected" line
+    public boolean accessorySlotSymbol = false;        // status symbol in the slot
+    public boolean craftHelper = false;
+    public boolean craftHelperSacks = true;
+    public boolean craftHelperStorage = true;
+    public boolean craftHelperDoneMessage = true;
+    public String craftHelperTarget = "";              // item id
+    public int craftHelperAmount = 1;
+    public int craftHelperX = 5;
+    public int craftHelperY = 120;
+    public float craftHelperScale = 1.0f;
     // w03-03-dun
     public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
     public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking
@@ -2707,6 +2728,8 @@ public class TeslaMapsConfig {
         if (c.waypointPacksActive == null) c.waypointPacksActive = new ArrayList<>(List.of("Default"));
         if (c.waypointEditPack == null) c.waypointEditPack = "Default";
         if (c.batKilledChannel == null) c.batKilledChannel = "Nobody";
+        if (c.backpackPreviewStyle == null) c.backpackPreviewStyle = "Compact";
+        if (c.craftHelperTarget == null) c.craftHelperTarget = "";
         if (c.chatCommandsWhitelist == null) c.chatCommandsWhitelist = new ArrayList<>();
         if (c.dragonHitboxColor == null) c.dragonHitboxColor = "00FFFF";
         if (c.lividAnnounceText == null) c.lividAnnounceText = "Livid is [color]!";

@@ -4,6 +4,11 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "AbstractButtonMixin",
+    "AnimatedDyeInventoryMixin",
+    "ContainerTooltipStackMixin",
+    "RarityContourItemMixin",
+    "RarityContourMixin",
+    "RarityContourRendererMixin",
     "AbstractSignEditScreenAccessor",
     "BlindnessMixin",
     "BlockUpdateMixin",

@@ -56,6 +56,8 @@ public class ContainerOverlays {
             com.teslamaps.features.Searchbar.render(context);
         }
 
+        com.teslamaps.features.accessories.AccessoryHelper.renderSlots(context);
+        com.teslamaps.features.accessories.AccessoryHelper.render(context, mouseX, mouseY);
         com.teslamaps.features.BackpackPreview.renderOpenPageBorder(context);
         com.teslamaps.features.BackpackPreview.renderFrozen(context, mouseX, mouseY);
         com.teslamaps.features.FarmProfitOverlay.drawTooltip(context,

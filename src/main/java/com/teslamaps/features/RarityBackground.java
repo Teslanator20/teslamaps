@@ -11,7 +11,7 @@ import java.util.List;
 
 public class RarityBackground {
 
-    public static final String[] SHAPES = {"Square", "Rounded", "Circle", "Diamond", "Corners", "Underline"};
+    public static final String[] SHAPES = {"Square", "Rounded", "Circle", "Diamond", "Corners", "Underline", RarityContour.SHAPE};
     public static final String[] STYLES = {"Filled", "Outline", "Gradient"};
 
     private static final int S = 16;
@@ -27,6 +27,10 @@ public class RarityBackground {
         rgb &= 0xFFFFFF;
 
         String shape = c.rarityBgShape;
+        if (RarityContour.SHAPE.equals(shape)) {
+            RarityContour.pending = RarityContour.colorFor(stack);
+            return;
+        }
         boolean outline = "Outline".equals(c.rarityBgStyle);
         boolean gradient = "Gradient".equals(c.rarityBgStyle);
 
