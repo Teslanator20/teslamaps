@@ -448,5 +448,7 @@ final class Features {
         com.teslamaps.features.cosmetic.CustomHubMap.register();
         com.teslamaps.features.EndermanTeleportHider.register();
         com.teslamaps.features.EntityHighlight.register();
+        // w09-07-vis
+        com.teslamaps.features.ZeroHpNametags.register();
     }
 }
