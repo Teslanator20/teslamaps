@@ -2143,6 +2143,20 @@ public class TeslaMapsConfig {
     public boolean armorHexTooltip = false;
     public boolean armorExoticTooltip = false;
     public boolean dyeHexColors = false;
+    // w04-00-dun
+    public boolean croesusKeyCost = false;             // subtract the Dungeon Chest Key when a chest needs one
+    public boolean croesusNoEssence = false;           // leave essence out of the profit
+    public boolean croesusAvgPrices = false;           // 7-day average prices, current price as fallback
+    public boolean croesusHighlightSecond = false;     // second best chest in yellow
+    public boolean croesusDerpyWarn = false;
+    public boolean croesusRerollProtect = false;
+    public float croesusRerollProtectMin = 4.0f;       // million coins
+    public boolean diamanteAlert = false;
+    public boolean starMobIdLink = false;              // link ✯ label to mob by entity id
+    public boolean starMobTypeColors = false;
+    public String colorESPStarredChunky = "FF0080";
+    public String colorESPStarredSkeletonMaster = "FF8000";
+    public String colorESPStarredMini = "EB01A5";
     // w03-03-dun
     public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
     public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking

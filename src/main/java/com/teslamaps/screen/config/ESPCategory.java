@@ -38,6 +38,13 @@ public final class ESPCategory {
         b.toggle("  Starred Fel / Withermancer Colors", () -> config.espStarSpecialColors, v -> config.espStarSpecialColors = v);
         b.color("    Starred Fel", () -> config.colorESPStarredFel, v -> config.colorESPStarredFel = v);
         b.color("    Starred Withermancer", () -> config.colorESPStarredWithermancer, v -> config.colorESPStarredWithermancer = v);
+        b.toggle("  Link Label to Mob by Entity ID", () -> config.starMobIdLink, v -> config.starMobIdLink = v)
+                .desc("Pairs each ✯ nametag with its mob through the entity id (nearest free mob as fallback). Cheaper and right in crowded rooms. A label with no mob gets its own box.");
+        b.toggle("  Starred Type Colors", () -> config.starMobTypeColors, v -> config.starMobTypeColors = v)
+                .desc("Own colors for chunky mobs (Withermancer, Lords, Commander, Super Archer), Fels, Skeleton Master, minibosses and Shadow Assassins");
+        b.color("    Chunky Mobs", () -> config.colorESPStarredChunky, v -> config.colorESPStarredChunky = v);
+        b.color("    Skeleton Master", () -> config.colorESPStarredSkeletonMaster, v -> config.colorESPStarredSkeletonMaster = v);
+        b.color("    Minibosses", () -> config.colorESPStarredMini, v -> config.colorESPStarredMini = v);
         b.slider("  Line Width Mobs", 1f, 8f, () -> config.espLineWidthNormal, v -> config.espLineWidthNormal = v, 1);
         b.slider("  Line Width Fel / Withermancer", 1f, 8f, () -> config.espLineWidthSpecial, v -> config.espLineWidthSpecial = v, 1);
         b.slider("  Line Width Minibosses", 1f, 8f, () -> config.espLineWidthMiniboss, v -> config.espLineWidthMiniboss = v, 1);

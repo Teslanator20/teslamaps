@@ -171,5 +171,7 @@ final class Features {
         com.teslamaps.features.RevertAxes.register();
         com.teslamaps.features.BingoCardTips.register();
         com.teslamaps.features.ItemTooltipExtras.register();
+        // w04-00-dun
+        com.teslamaps.features.DiamanteAlert.register();
     }
 }

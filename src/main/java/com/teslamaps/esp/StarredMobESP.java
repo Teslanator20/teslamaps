@@ -232,6 +232,7 @@ public class StarredMobESP {
     }
 
     public static void tick() {
+        starLinkActive = false;
         tagText.clear();
         sniperTag.clear();
         itemLabels.clear();
@@ -334,6 +335,7 @@ public class StarredMobESP {
         }
 
         collectCustomNameStands(mc);
+        linkStarLabels(mc, inDungeon);
 
         int checkedCount = 0;
         for (Entity entity : com.teslamaps.utils.EntityCache.all()) {
@@ -870,7 +872,68 @@ public class StarredMobESP {
 
 
     public static boolean isStarred(Entity entity) {
+        if (starLinkActive) return linkedStar.containsKey(entity);
         return tagText(entity).contains("✯");
+    }
+
+    // ✯ label -> mob by entity id (label id - 1, Withermancer - 3), nearest unclaimed mob as fallback
+    private static final java.util.IdentityHashMap<Entity, String> linkedStar = new java.util.IdentityHashMap<>();
+    private static final List<AABB> orphanStarBoxes = new ArrayList<>();
+    private static boolean starLinkActive;
+
+    private static void linkStarLabels(Minecraft mc, boolean inDungeon) {
+        linkedStar.clear();
+        orphanStarBoxes.clear();
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!inDungeon || !c.starredMobESP || !c.starMobIdLink || mc.level == null) return;
+        starLinkActive = true;
+        for (Entity e : com.teslamaps.utils.EntityCache.armorStands()) {
+            if (!(e instanceof ArmorStand as)) continue;
+            String n = as.getName().getString();
+            if (n.indexOf('✯') < 0) continue;
+            Entity mob = mc.level.getEntity(as.getId() - (n.contains("Withermancer") ? 3 : 1));
+            if (!validStarMob(mc, mob, as)) mob = nearestStarMob(mc, as);
+            if (mob != null) linkedStar.put(mob, n);
+            else orphanStarBoxes.add(new AABB(as.getX() - 0.4, as.getY() - 2.0, as.getZ() - 0.4,
+                    as.getX() + 0.4, as.getY(), as.getZ() + 0.4));
+        }
+    }
+
+    private static boolean validStarMob(Minecraft mc, Entity mob, ArmorStand as) {
+        if (!(mob instanceof net.minecraft.world.entity.LivingEntity) || mob instanceof ArmorStand
+                || mob == mc.player || !mob.isAlive() || linkedStar.containsKey(mob)) return false;
+        double dy = as.getY() - mob.getY();
+        return Math.abs(as.getX() - mob.getX()) <= 1.5 && Math.abs(as.getZ() - mob.getZ()) <= 1.5 && dy >= -1 && dy <= 5;
+    }
+
+    private static Entity nearestStarMob(Minecraft mc, ArmorStand as) {
+        Entity best = null;
+        double bestD = Double.MAX_VALUE;
+        for (net.minecraft.world.entity.LivingEntity le : mc.level.getEntitiesOfClass(
+                net.minecraft.world.entity.LivingEntity.class, as.getBoundingBox().inflate(1.5, 5, 1.5), le -> true)) {
+            if (!validStarMob(mc, le, as)) continue;
+            double dx = le.getX() - as.getX(), dz = le.getZ() - as.getZ();
+            double d = dx * dx + dz * dz;
+            if (d < bestD) { bestD = d; best = le; }
+        }
+        return best;
+    }
+
+    private static String starLabel(Entity entity) {
+        if (starLinkActive) return linkedStar.get(entity);
+        String t = tagText(entity);
+        return t.contains("✯") ? t : null;
+    }
+
+    private static int starTypeColor(TeslaMapsConfig c, String label) {
+        if (label.contains("Shadow Assassin")) return TeslaMapsConfig.parseColor(c.colorESPShadowAssassin);
+        if (label.contains("Fels")) return TeslaMapsConfig.parseColor(c.colorESPStarredFel);
+        if (label.contains("Skeleton Master")) return TeslaMapsConfig.parseColor(c.colorESPStarredSkeletonMaster);
+        if (label.contains("Withermancer") || label.contains("Lord") || label.contains("Zombie Commander")
+                || label.contains("Super Archer")) return TeslaMapsConfig.parseColor(c.colorESPStarredChunky);
+        if (label.contains("Adventurer") || label.contains("Angry Archaeologist") || label.contains("King Midas"))
+            return TeslaMapsConfig.parseColor(c.colorESPStarredMini);
+        return TeslaMapsConfig.parseColor(c.colorESPStarred);
     }
 
     // stand names in the nametag box, once per entity per tick
@@ -905,6 +968,8 @@ public class StarredMobESP {
     }
 
     private static boolean nametagContains(Entity entity, String text) {
+        String linked = starLinkActive ? linkedStar.get(entity) : null;
+        if (linked != null) return linked.contains(text);
         return tagText(entity).contains(text);
     }
 
@@ -950,6 +1015,10 @@ public class StarredMobESP {
             if (name.equals("Lost Adventurer")) return TeslaMapsConfig.parseColor(config.colorESPLostAdventurer);
             if (name.equals("Shadow Assassin")) return TeslaMapsConfig.parseColor(config.colorESPShadowAssassin);
             if (name.equals("Diamond Guy")) return TeslaMapsConfig.parseColor(config.colorESPDiamondGuy);
+        }
+        if (config.starMobTypeColors) {
+            String label = starLabel(entity);
+            if (label != null) return starTypeColor(config, label);
         }
         if (config.espStarSpecialColors && nametagContains(entity, "Withermancer")) {
             return TeslaMapsConfig.parseColor(config.colorESPStarredWithermancer);
@@ -1072,6 +1141,11 @@ public class StarredMobESP {
         }
 
         if (!inDungeon) return;
+
+        if (starLinkActive && !orphanStarBoxes.isEmpty()) {
+            int oc = TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorESPStarred) | 0xFF000000;
+            for (AABB box : orphanStarBoxes) ESPRenderer.drawBoxOutline(matrices, box, oc, 2.0f, cameraPos, true);
+        }
 
         if (TeslaMapsConfig.get().starredTracerWhenFew) {
             List<EntityHighlight> starred = new ArrayList<>();
