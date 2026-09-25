@@ -27,7 +27,7 @@ public final class SoundMutes {
     }
 
     public static boolean active(TeslaMapsConfig c) {
-        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth;
+        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth || c.muteVacuum;
     }
 
     public static boolean shouldMute(TeslaMapsConfig c, SoundInstance s, String id) {
@@ -42,6 +42,8 @@ public final class SoundMutes {
         }
         if (c.muteFlowerOfTruth && id.equals("minecraft:entity.generic.eat")
                 && approx(s.getPitch(), 0.6984127f) && approx(s.getVolume(), 1.0f)) return true;
+        // SkyHanni's muteVacuum
+        if (c.muteVacuum && id.equals("minecraft:entity.wither.shoot") && (com.teslamaps.utils.SkyblockUtils.isInGarden() || com.teslamaps.features.foraging.Foraging.inTorrhus())) return true;
         if (c.muteEndermanEnd && ENDERMAN.contains(id) && com.teslamaps.features.theend.EndProtector.inArea()) return true;
         if (c.muteRatPet) {
             // rat = bat squeak + chicken steps next to the player, with no real bat/chicken there

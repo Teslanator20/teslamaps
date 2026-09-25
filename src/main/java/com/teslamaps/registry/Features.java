@@ -615,6 +615,10 @@ final class Features {
         com.teslamaps.features.hud.FireSaleWidget.register();
         com.teslamaps.features.PesthunterProfit.register();
         com.teslamaps.features.FancyAuctionHouse.register();
+        // w14-06-gar
+        com.teslamaps.features.GardenPlots.register();
+        com.teslamaps.features.SixthVisitor.register();
+        com.teslamaps.features.PlotSprays.register();
         // w13-02-eco
         com.teslamaps.features.AuctionPriceInput.register();
         com.teslamaps.features.SearchOverlay.register();

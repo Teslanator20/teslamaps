@@ -2194,6 +2194,23 @@ public class TeslaMapsConfig {
     public int fireSaleWidgetY = 220;
     public float fireSaleWidgetScale = 1.0f;
     public boolean pesthunterProfit = false;
+    // w14-06-gar
+    public boolean gardenPlotsPestCount = false;
+    public boolean visitorHud = false;
+    public boolean visitorHudNames = true;
+    public int visitorHudX = 10;
+    public int visitorHudY = 200;
+    public float visitorHudScale = 1.0f;
+    public boolean pestOverlaySprayList = false;
+    public boolean sprayExpiryChat = false;
+    public int pestTpReminderMin = 2;               // 0 = fortune debuff (8)
+    public int pestTpReminderInterval = 5;          // seconds
+    public boolean farmProfitItemOptions = false;
+    public java.util.Map<String, String> farmProfitItemSource = new java.util.HashMap<>();
+    public boolean farmProfitResetConfirm = false;
+    public boolean farmProfitExtraWindows = false;
+    public int mousematReleaseKey = -1;
+    public boolean muteVacuum = false;
     // w13-02-eco
     public boolean auctionCopyUnderbid = false;
     public boolean searchOverlayCommands = false;
@@ -4948,6 +4965,7 @@ public class TeslaMapsConfig {
         if (c.charmedVisitorNames == null) c.charmedVisitorNames = new ArrayList<>();
         if (c.feastCrops == null) c.feastCrops = new ArrayList<>();
         if (c.farmProfitExcluded == null) c.farmProfitExcluded = new ArrayList<>();
+        if (c.farmProfitItemSource == null) c.farmProfitItemSource = new java.util.HashMap<>();
         if (c.farmKernelItem == null) c.farmKernelItem = "Feast I";
         if (c.feastShareChannel == null) c.feastShareChannel = "Nobody";
         if (c.corpseFinderChannel == null) c.corpseFinderChannel = "Nobody";
