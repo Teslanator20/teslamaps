@@ -44,6 +44,14 @@ public final class F7M7Category {
         b.toggle("Leap Counter", () -> config.leapCounter, v -> config.leapCounter = v);
         b.toggle("  Leap Spots (EE2/EE3/Core/P5)", () -> config.leapCounterSpots, v -> config.leapCounterSpots = v);
         b.toggle("  All Leaped Alert", () -> config.leapCounterAlert, v -> config.leapCounterAlert = v);
+        b.toggle("Storm Pillars as Glass (P2)", () -> config.fuckDiorite, v -> config.fuckDiorite = v)
+                .desc("Client-side: the diorite of the 4 Storm pillars becomes glass.").tags("fuck diorite", "diorite");
+        b.dropdown("  Glass Color Mode", com.teslamaps.features.FuckDiorite.MODES,
+                () -> com.teslamaps.features.FuckDiorite.MODES[Math.max(0, Math.min(2, config.fuckDioriteMode))],
+                v -> config.fuckDioriteMode = Math.max(0, java.util.Arrays.asList(com.teslamaps.features.FuckDiorite.MODES).indexOf(v)));
+        b.dropdown("  Fixed Color", com.teslamaps.features.FuckDiorite.COLORS,
+                () -> com.teslamaps.features.FuckDiorite.COLORS[Math.max(0, Math.min(16, config.fuckDioriteColor))],
+                v -> config.fuckDioriteColor = Math.max(0, java.util.Arrays.asList(com.teslamaps.features.FuckDiorite.COLORS).indexOf(v)));
         b.label("P3 Terminals");
         b.toggle("Terminal Titles", () -> config.terminalTitles, v -> config.terminalTitles = v);
         b.info("Replaces or hides the \"<name> activated a terminal! (n/7)\" titles");
@@ -133,6 +141,13 @@ public final class F7M7Category {
         b.toggle("Priority Tracer", () -> config.witherDragonPriorityTracer, v -> config.witherDragonPriorityTracer = v);
         b.slider("  Tracer Width", 1f, 5f,
                 () -> config.witherDragonTracerWidth, v -> config.witherDragonTracerWidth = v, 1);
+        b.toggle("Dragon Stack Aimer (M7)", () -> config.dragonStackAimer, v -> config.dragonStackAimer = v)
+                .desc("Aim point + tracer for the arrow stack on your priority dragon, and ms until release (/tmap gui).");
+        b.toggle("  Account for Ping", () -> config.dragonStackAimerPing, v -> config.dragonStackAimerPing = v);
+        b.toggle("  Release Timer HUD", () -> config.dragonStackAimerHud, v -> config.dragonStackAimerHud = v);
+        b.toggle("  Any Class (off = Archer/Berserk)", () -> config.dragonStackAimerAnyClass, v -> config.dragonStackAimerAnyClass = v);
+        b.color("  Aim Color", () -> config.dragonStackAimerColor, v -> config.dragonStackAimerColor = v);
+        b.color("  Tracer Color", () -> config.dragonStackAimerTracerColor, v -> config.dragonStackAimerTracerColor = v);
         b.label("Live Dragons");
         b.toggle("Dragon Boxes (live)", () -> config.dragonBoxes, v -> config.dragonBoxes = v);
         b.dropdown("  Box Mode", new String[]{"Full Box", "Part Hitboxes"},

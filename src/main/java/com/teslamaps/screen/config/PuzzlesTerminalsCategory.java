@@ -200,6 +200,10 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("Ice Path Solver", () -> config.icePathSolver, v -> config.icePathSolver = v);
         b.toggle("  Ice Path: Follow Silverfish", () -> config.icePathDynamic, v -> config.icePathDynamic = v);
         b.toggle("Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v);
+        b.toggle("  Block Wrong Clicks", () -> config.arrowAlignBlockWrong, v -> config.arrowAlignBlockWrong = v)
+                .desc("Swallows clicks on frames that already point the right way. Sneak (or the override key) clicks anyway.");
+        b.keybind("    Override Key (unbound = sneak)", () -> config.arrowAlignOverrideKey, v -> config.arrowAlignOverrideKey = v);
+        b.toggle("    Invert (block only while held)", () -> config.arrowAlignInvertOverride, v -> config.arrowAlignInvertOverride = v);
         b.toggle("Puzzle Timers", () -> config.puzzleTimers, v -> config.puzzleTimers = v);
         b.toggle("Puzzle HUD", () -> config.puzzleHud, v -> config.puzzleHud = v);
         b.toggle("  Show Player Names", () -> config.puzzleHudPlayers, v -> config.puzzleHudPlayers = v);

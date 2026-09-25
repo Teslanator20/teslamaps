@@ -15,6 +15,8 @@ public final class HideCategory {
         b.toggle("Hide Players", () -> config.hidePlayers, v -> config.hidePlayers = v);
         b.toggle("  Only In Dungeon", () -> config.hidePlayersOnlyDungeon, v -> config.hidePlayersOnlyDungeon = v);
         b.toggle("  Hide All (any distance)", () -> config.hidePlayersAll, v -> config.hidePlayersAll = v);
+        b.toggle("  Only At SS / 4th Device (P3)", () -> config.hidePlayersOnlyDevs, v -> config.hidePlayersOnlyDevs = v)
+                .desc("Players are only hidden while you stand at the Simon Says or 4th device stand in F7/M7 P3.");
         b.slider("  Hide Distance", 0f, 32f,
                 () -> config.hidePlayersDistance, v -> config.hidePlayersDistance = v);
         b.toggle("  Hide After Leap", () -> config.hidePlayersAfterLeap, v -> config.hidePlayersAfterLeap = v);

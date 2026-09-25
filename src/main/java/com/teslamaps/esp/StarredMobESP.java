@@ -37,7 +37,6 @@ public class StarredMobESP {
     private static final int SHADOW_ASSASSIN_COLOR = 0xFF5B2CB2; // Purple for shadow assassins
     private static final int DROPPED_ITEM_COLOR = 0xFFFFFF00; // Yellow for dropped items
     private static final int DUNGEON_BAT_COLOR = 0xFFFF8800; // Orange for dungeon bats
-    private static final int LIVID_COLOR = 0xFF00FF00; // Green for the correct Livid
 
     private static int witherKeyColor() { return TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorESPWitherKey); }
     private static int bloodKeyColor() { return TeslaMapsConfig.parseColor(TeslaMapsConfig.get().colorESPBloodKey); }
@@ -320,8 +319,8 @@ public class StarredMobESP {
 
         if (inDungeon && TeslaMapsConfig.get().lividFinder) {
             Entity correctLividEntity = LividSolver.getCorrectLivid();
-            if (correctLividEntity != null && !LividSolver.hasBlindness()) {
-                glowingEntities.put(correctLividEntity, LIVID_COLOR & 0x00FFFFFF);
+            if (correctLividEntity != null && !LividSolver.hasBlindness() && TeslaMapsConfig.get().lividGlow) {
+                glowingEntities.put(correctLividEntity, LividSolver.highlightColor() & 0x00FFFFFF);
             }
         }
 

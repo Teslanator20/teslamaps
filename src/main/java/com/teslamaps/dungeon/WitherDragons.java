@@ -127,7 +127,7 @@ public class WitherDragons {
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
         if (!active()) return;
         // Devonian M7Events: flames at y 27 = the dragon spawns high
-        boolean high = packet.getY() == 27.0 && TeslaMapsConfig.get().witherDragonShowHigh;
+        boolean high = packet.getY() == 27.0 && (TeslaMapsConfig.get().witherDragonShowHigh || TeslaMapsConfig.get().dragonStackAimer);
         if (packet.getCount() != 20 || (packet.getY() != 19.0 && !high) || packet.getParticle().getType() != ParticleTypes.FLAME
                 || packet.getXDist() != 2f || packet.getYDist() != 3f || packet.getZDist() != 2f
                 || packet.getMaxSpeed() != 0f || packet.getX() % 1 != 0.0 || packet.getZ() % 1 != 0.0) return;

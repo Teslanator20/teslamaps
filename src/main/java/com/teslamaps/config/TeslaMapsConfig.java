@@ -2309,6 +2309,30 @@ public class TeslaMapsConfig {
     public boolean autoGFSTwilight = false;            // M7 twilight arrow poison per class
     public int autoGFSTwilightAmount = 8;
     public int autoGFSPearlKey = -1;                   // pearls up to the next multiple of 16
+    // w03-01-boss
+    public boolean fuckDiorite = false;                // storm pillars as glass in F7 P2
+    public int fuckDioriteMode = 0;                    // 0 pillar color, 1 fixed color, 2 random
+    public int fuckDioriteColor = 0;                   // 0 clear glass, 1..16 stained colors
+    public boolean arrowAlignBlockWrong = false;       // swallow clicks on frames that are already right
+    public int arrowAlignOverrideKey = -1;             // extra override key besides sneak
+    public boolean arrowAlignInvertOverride = false;   // block only while override is held
+    public boolean hidePlayersOnlyDevs = false;        // hide only at SS / 4th device in P3
+    public boolean lividGlow = true;
+    public boolean lividBox = true;
+    public boolean lividUseLividColor = false;
+    public String lividColor = "00FF00";
+    public float lividLineWidth = 3.0f;
+    public float lividTracerWidth = 2.0f;
+    public boolean lividLabel = false;
+    public boolean dragonStackAimer = false;           // M7 P5 arrow stack aim point
+    public boolean dragonStackAimerPing = true;
+    public boolean dragonStackAimerHud = true;
+    public boolean dragonStackAimerAnyClass = false;
+    public String dragonStackAimerColor = "00FFFF";
+    public String dragonStackAimerTracerColor = "00FFFF";
+    public int dragonStackAimerX = 10;
+    public int dragonStackAimerY = 160;
+    public float dragonStackAimerScale = 1.5f;
     // w02-06-term
     public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
     public int terminalDropKey = -1;                   // own key/mouse button that clicks the hovered terminal slot

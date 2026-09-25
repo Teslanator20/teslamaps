@@ -34,6 +34,7 @@ public class ArrowAlignSolver {
     private static final Map<Integer, Integer> clicksNeeded = new HashMap<>();
     private static final Map<Integer, Long> recentClicks = new HashMap<>();
     private static long lastScanTime = 0;
+    private static final long PREDICTION_MS = 2500;
 
     public static void tick() {
         if (!TeslaMapsConfig.get().solveArrowAlign) {
@@ -97,19 +98,22 @@ public class ArrowAlignSolver {
         for (int index = 0; index < 25; index++) {
             BlockPos framePos = getFramePosition(index);
 
-            if (recentClicks.containsKey(index) && now - recentClicks.get(index) < 1000) {
-                if (currentRotations != null && currentRotations[index] != -1) {
-                    rotations[index] = currentRotations[index];
-                    continue;
-                }
-            }
-
+            int server = -1;
             for (ItemFrame frame : frames) {
                 if (frame.blockPosition().equals(framePos)) {
-                    rotations[index] = frame.getRotation();
+                    server = frame.getRotation();
                     break;
                 }
             }
+
+            // keep the predicted rotation until the server confirms it or it goes stale
+            Long clickedAt = recentClicks.get(index);
+            if (clickedAt != null && server != -1 && currentRotations != null && currentRotations[index] != -1) {
+                if (server == currentRotations[index]) recentClicks.remove(index);
+                else if (now - clickedAt < PREDICTION_MS) server = currentRotations[index];
+                else recentClicks.remove(index);
+            }
+            rotations[index] = server;
         }
 
         currentRotations = rotations;
@@ -149,12 +153,37 @@ public class ArrowAlignSolver {
         return FRAME_GRID_CORNER.offset(0, index % 5, index / 5);
     }
 
+    private static int indexOf(BlockPos pos) {
+        int dy = pos.getY() - FRAME_GRID_CORNER.getY();
+        int dz = pos.getZ() - FRAME_GRID_CORNER.getZ();
+        if (pos.getX() != FRAME_GRID_CORNER.getX() || dy < 0 || dy > 4 || dz < 0 || dz > 4) return -1;
+        return dy + dz * 5;
+    }
+
+    /** true = swallow the click: that frame already points the right way. */
+    public static boolean blockClick(Entity entity) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.solveArrowAlign || !c.arrowAlignBlockWrong || !c.section("Puzzles & Terminals")) return false;
+        if (!(entity instanceof ItemFrame frame) || frame.getItem().getItem() != Items.ARROW) return false;
+        int index = indexOf(frame.blockPosition());
+        int[] rot = currentRotations;
+        int[] target = targetSolution;
+        if (index < 0 || rot == null || target == null || rot[index] == -1 || target[index] == -1) return false;
+        if (System.currentTimeMillis() - lastScanTime > 1000) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return false;
+        boolean override = c.arrowAlignOverrideKey == -1
+                ? mc.player.isShiftKeyDown()
+                : com.teslamaps.utils.KeyNames.isDown(c.arrowAlignOverrideKey);
+        if (override != c.arrowAlignInvertOverride) return false;
+        return calculateClicks(rot[index], target[index]) == 0;
+    }
+
     /** Clicks land before the server echoes the new rotation, so predict it. */
     public static void onFrameClick(BlockPos pos) {
         if (currentRotations == null) return;
-        for (int i = 0; i < 25; i++) {
-            if (getFramePosition(i).equals(pos)) { onFrameClick(i); return; }
-        }
+        int i = indexOf(pos);
+        if (i >= 0) onFrameClick(i);
     }
 
     public static void onFrameClick(int index) {

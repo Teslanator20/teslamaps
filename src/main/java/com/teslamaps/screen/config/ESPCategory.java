@@ -77,7 +77,16 @@ public final class ESPCategory {
         b.toggle("Fairy Door ESP", () -> config.fairyDoorESP, v -> config.fairyDoorESP = v);
         b.label("Livid");
         b.toggle("Livid Finder", () -> config.lividFinder, v -> config.lividFinder = v);
+        b.toggle("  Livid Glow", () -> config.lividGlow, v -> config.lividGlow = v);
+        b.toggle("  Livid Box", () -> config.lividBox, v -> config.lividBox = v);
         b.toggle("  Livid Tracer", () -> config.lividTracer, v -> config.lividTracer = v);
+        b.toggle("  Livid Label", () -> config.lividLabel, v -> config.lividLabel = v)
+                .desc("\"Livid\" above the correct Livid, in the highlight color.");
+        b.toggle("  Use Livid's Own Color", () -> config.lividUseLividColor, v -> config.lividUseLividColor = v)
+                .desc("Hockey red, Arcade yellow, Smile green, ... instead of the picked color.");
+        b.color("  Livid Color", () -> config.lividColor, v -> config.lividColor = v);
+        b.slider("  Livid Box Line Width", 1f, 8f, () -> config.lividLineWidth, v -> config.lividLineWidth = v, 1);
+        b.slider("  Livid Tracer Width", 1f, 8f, () -> config.lividTracerWidth, v -> config.lividTracerWidth = v, 1);
         b.toggle("  Livid Dead Message (/pc)", () -> config.lividDeathMessage, v -> config.lividDeathMessage = v);
         b.toggle("  Livid Color Title", () -> config.lividColorTitle, v -> config.lividColorTitle = v);
         b.toggle("  Announce Livid Color (/pc)", () -> config.lividAnnounce, v -> config.lividAnnounce = v).cheat();

@@ -148,5 +148,8 @@ final class Features {
         com.teslamaps.features.SwapSound.register();
         com.teslamaps.features.TreasureTalismanAlert.register();
         com.teslamaps.features.AutoGFS.register();
+        // w03-01-boss
+        com.teslamaps.features.FuckDiorite.register();
+        com.teslamaps.features.DragonStackAimer.register();
     }
 }
