@@ -316,5 +316,9 @@ final class Features {
         com.teslamaps.features.QolTweaks.register();
         com.teslamaps.features.RenderHiders.register();
         com.teslamaps.features.ServerRestartWarning.register();
+        // w07-01-qol
+        com.teslamaps.features.CommandShortcuts.register();
+        com.teslamaps.features.AbiphoneAccept.register();
+        com.teslamaps.features.DebugDump.register();
     }
 }

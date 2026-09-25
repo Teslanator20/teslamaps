@@ -1896,20 +1896,37 @@ public class TMapCommand {
                             return 1;
                         }))
                 .then(ClientCommands.literal("sendcoords")
-                        .executes(context -> {
-                            Minecraft mc = Minecraft.getInstance();
-                            if (mc.player == null || mc.getConnection() == null) {
-                                context.getSource().sendFeedback(Component.literal("Not in world"));
-                                return 0;
-                            }
-                            var p = mc.player.blockPosition();
-                            String area = TeslaMapsConfig.get().chatWaypointShareArea ? com.teslamaps.utils.SkyblockUtils.getArea() : "";
-                            mc.getConnection().sendCommand("pc x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ()
-                                    + (area.isEmpty() ? "" : " | " + area));
-                            return 1;
-                        }))
+                        .executes(context -> sendCoords(context.getSource(), ""))
+                        .then(ClientCommands.argument("message", StringArgumentType.greedyString())
+                                .executes(context -> sendCoords(context.getSource(),
+                                        StringArgumentType.getString(context, "message")))))
         );
 
+    }
+
+    private static int sendCoords(FabricClientCommandSource source, String message) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.getConnection() == null) {
+            source.sendFeedback(Component.literal("Not in world"));
+            return 0;
+        }
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        var p = mc.player.blockPosition();
+        String area = c.chatWaypointShareArea ? com.teslamaps.utils.SkyblockUtils.getArea() : "";
+        String msg = message == null ? "" : message.trim();
+        String text = "x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ()
+                + (area.isEmpty() ? "" : " | " + area + (msg.isEmpty() ? "" : " |"))
+                + (msg.isEmpty() ? "" : " " + msg);
+        String prefix = switch (c.sendCoordsChannel == null ? "Party" : c.sendCoordsChannel) {
+            case "Current" -> null;
+            case "All" -> "ac ";
+            case "Guild" -> "gc ";
+            case "Coop" -> "cc ";
+            default -> "pc ";
+        };
+        if (prefix == null) mc.getConnection().sendChat(text);
+        else mc.getConnection().sendCommand(prefix + text);
+        return 1;
     }
 
     private static final java.util.Set<String> RESERVED_ALIASES = java.util.Set.of("tmap", "ping");
@@ -1919,7 +1936,8 @@ public class TMapCommand {
         int sp = command.indexOf(' ');
         String alias = (sp < 0 ? command : command.substring(0, sp)).trim();
         String args = sp < 0 ? "" : command.substring(sp + 1);
-        if (alias.isEmpty() || RESERVED_ALIASES.contains(alias.toLowerCase())) return command;
+        if (alias.isEmpty()) return command;
+        if (RESERVED_ALIASES.contains(alias.toLowerCase())) return lowercased(command, alias, args);
 
         for (TeslaMapsConfig.Shortcut sc : TeslaMapsConfig.get().shortcuts) {
             if (sc.alias == null || sc.command == null) continue;
@@ -1928,7 +1946,14 @@ public class TMapCommand {
             if (expanded.isEmpty()) continue;
             return args.isEmpty() ? expanded : expanded + " " + args;
         }
-        return command;
+        return lowercased(command, alias, args);
+    }
+
+    private static String lowercased(String command, String alias, String args) {
+        if (!TeslaMapsConfig.get().commandLowercase || !TeslaMapsConfig.get().section("Chat")) return command;
+        String low = alias.toLowerCase(java.util.Locale.ROOT);
+        if (low.equals(alias)) return command;
+        return args.isEmpty() ? low : low + " " + args;
     }
 
     /** The same tree for /pv and /tmap pv. */

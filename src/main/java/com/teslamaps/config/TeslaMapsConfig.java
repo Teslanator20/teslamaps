@@ -2135,6 +2135,12 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w07-01-qol
+    public boolean commandLowercase = false;
+    public boolean shortcutTabComplete = false;
+    public String sendCoordsChannel = "Party";
+    public boolean abiphoneAccept = false;
+    public int abiphoneAcceptKey = -1;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
