@@ -2142,6 +2142,17 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w10-06-chat
+    public boolean chatHighlightOwnName = false;
+    public String chatOwnNameColor = "FFAA00";
+    public boolean chatProfileBadges = false;
+    public boolean piggyRepairLink = false;
+    public boolean compactJoinLeave = false;
+    public boolean explosiveShotPerEnemy = false;
+    public boolean logSearch = false;
+    public boolean bridgeFormat = false;
+    public String bridgeBotName = "";
+    public String bridgeNameColor = "55FFFF";
     // w08-00-hud
     public boolean tabStatsHud = false;
     public String tabStatsHudStats = "Ferocity";

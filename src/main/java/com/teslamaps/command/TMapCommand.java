@@ -314,6 +314,8 @@ public class TMapCommand {
                 .then(com.teslamaps.features.SackApi.command())
                 .then(com.teslamaps.features.Notifications.command())
                 .then(com.teslamaps.features.ItemCycle.command())
+                .then(com.teslamaps.features.ChatExtras.bridgeCommand())
+                .then(com.teslamaps.features.LogSearch.command())
                 .then(com.teslamaps.database.RoomLearn.newCoreCommand())
                 .then(com.teslamaps.database.RoomLearn.newRoomCommand())
                 .then(com.teslamaps.database.RoomLearn.roomDataCommand())
