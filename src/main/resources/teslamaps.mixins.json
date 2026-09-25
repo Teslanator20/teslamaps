@@ -185,6 +185,7 @@
     "FireParticleHiderMixin",
     "OverlayTextureMixin",
     "OwnNameTagMixin",
+    "EntityRendererNameMixin",
     "PacketSendMixin",
     "PerfFrameMixin",
     "PlayerTabOverlayAccessor",

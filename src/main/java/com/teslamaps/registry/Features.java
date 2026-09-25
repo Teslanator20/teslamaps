@@ -462,5 +462,12 @@ final class Features {
         com.teslamaps.safari.HideonwallPerches.register();
         com.teslamaps.features.LowerEndermanNametags.register();
         com.teslamaps.features.capes.Cosmetics.register();
+        // w09-09-vis
+        com.teslamaps.features.IslandClouds.register();
+        com.teslamaps.features.IHateDoors.register();
+        com.teslamaps.features.Trajectories.register();
+        com.teslamaps.features.CustomEspRules.register();
+        com.teslamaps.features.ParkourGuides.register();
+        com.teslamaps.features.Cosmetics.register();
     }
 }

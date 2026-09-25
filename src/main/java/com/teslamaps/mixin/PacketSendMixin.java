@@ -18,6 +18,10 @@ public class PacketSendMixin {
         else if (packet instanceof net.minecraft.network.protocol.game.ServerboundUseItemPacket use) {
             com.teslamaps.features.HypeSound.onUseItem(use.getHand());
             com.teslamaps.features.AbilityRadius.onUseItem(use.getHand());
+            com.teslamaps.features.Etherwarp.onUseSent(null, use.getYRot(), use.getXRot());
+        } else if (packet instanceof ServerboundUseItemOnPacket on) {
+            net.minecraft.client.player.LocalPlayer p = net.minecraft.client.Minecraft.getInstance().player;
+            if (p != null) com.teslamaps.features.Etherwarp.onUseSent(on.getHitResult().getBlockPos(), p.getYRot(), p.getXRot());
         }
     }
 }

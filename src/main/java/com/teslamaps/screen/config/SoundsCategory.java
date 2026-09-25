@@ -70,6 +70,8 @@ public final class SoundsCategory {
                 () -> config.bearSpawnVolume, v -> config.bearSpawnVolume = v, 1);
         b.label("Etherwarp");
         b.toggle("Custom Etherwarp Sound", () -> config.etherwarpCustomSound, v -> config.etherwarpCustomSound = v);
+        b.toggle("  Zero-Ping Etherwarp Sound", () -> config.etherwarpZeroPing, v -> config.etherwarpZeroPing = v)
+                .desc("Plays the sound as you click when the warp will land, instead of waiting for the server.");
         b.soundDropdown("  Etherwarp Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.etherwarpSound, v -> config.etherwarpSound = v);
