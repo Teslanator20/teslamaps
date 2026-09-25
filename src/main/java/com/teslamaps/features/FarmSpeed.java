@@ -38,6 +38,7 @@ public class FarmSpeed {
         FarmProgress.onCropBreak(state);
         MousematAngles.onCrop(state);
         FarmProfit.onCropBreak(state, mc.level.getOverworldClockTime());
+        CropStats.onCropBreak(state, mc.level.getOverworldClockTime());
 
         lastBreak = System.currentTimeMillis();
         times[head] = lastBreak;

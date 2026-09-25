@@ -90,6 +90,8 @@ public class MenuHighlights {
                             .desc("/tab widget menus: enabled widgets green, disabled red.");
                     b.toggle("  Stranded: Placeable NPCs", () -> c.mhStrandedNpcs, v -> c.mhStrandedNpcs = v)
                             .desc("Island NPCs menu: NPCs you can place but have not placed yet go green.");
+                    b.toggle("  Crop Diagnostics: Harvestable / Water", () -> c.mhCropDiagnostics, v -> c.mhCropDiagnostics = v)
+                            .desc("Greenhouse Crop Diagnostics: status green when harvestable, yellow with drops/rewards, else red; water green when enough.");
                 });
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (!missingStones.isEmpty() && feature.active()) onTooltip(stack, lines);
@@ -126,7 +128,8 @@ public class MenuHighlights {
         boolean widgetMain = c.mhTabWidgets && WIDGETS_MAIN.matcher(t).matches();
         boolean widgetSub = c.mhTabWidgets && WIDGETS_SUB.matcher(t).matches();
         boolean npcs = c.mhStrandedNpcs && t.equals("Island NPCs");
-        if (!(beacon || hub || rng || museum || loadout || stones || thaum || tuning || thaumTune || widgetMain || widgetSub || npcs)) {
+        boolean diag = c.mhCropDiagnostics && t.equals("Crop Diagnostics");
+        if (!(beacon || hub || rng || museum || loadout || stones || thaum || tuning || thaumTune || widgetMain || widgetSub || npcs || diag)) {
             clear();
             return;
         }
@@ -177,6 +180,17 @@ public class MenuHighlights {
                 m.add(new Mark(i, endsWith(lore, "disable!") ? GREEN : RED));
             }
             if (npcs && isPlaceableNpc(lore)) m.add(new Mark(i, GREEN));
+            if (diag && i == 24 && stack.is(net.minecraft.world.item.Items.BEACON)) {
+                int col = RED;
+                for (String l : lore) {
+                    String sl = StringUtil.stripTrim(l);
+                    if (sl.equals("Status: Harvestable")) col = GREEN;
+                    else if (sl.startsWith("Drops: ") || sl.startsWith("Rewards: ")) col = YELLOW;
+                }
+                m.add(new Mark(i, col));
+            }
+            if (diag && i == 21 && stack.is(net.minecraft.world.item.Items.WATER_BUCKET)
+                    && (has(lore, "This crop has enough water to") || has(lore, "This crop doesn't need water!"))) m.add(new Mark(i, GREEN));
             if (loadout && isLoadoutIcon(i) && isEquippedLoadout(stack, name, lore)) m.add(new Mark(i, GREEN));
             if (stones && has(lore, "Learned: Not Yet ✖")) {
                 m.add(new Mark(i, RED));
