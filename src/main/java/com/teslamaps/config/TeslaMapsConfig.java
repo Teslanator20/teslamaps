@@ -543,6 +543,11 @@ public class TeslaMapsConfig {
     public static class ChatUserFilter {
         public String mode = "contains";         // contains / equals / startswith / endswith / regex
         public String text = "";
+        public String title;                     // alert: title, {0}/{1}/{name} = regex groups
+        public String sound;                     // alert: SoundOptions key
+        public boolean flash;                    // alert: screen flash
+        public boolean keep;                     // alert: line stays visible
+        public boolean systemOnly;               // alert: never on player chat
         public ChatUserFilter() {}
         public ChatUserFilter(String mode, String text) { this.mode = mode; this.text = text; }
     }
@@ -2161,6 +2166,84 @@ public class TeslaMapsConfig {
     public boolean commandSuggestionsExtra = false;
     @Global
     public String ownHypixelRank = "";
+    // w10-03-chat
+    public boolean compactJacobClaim = false;
+    public boolean compactLevelUps = false;
+    public boolean compactLevelUpsHideBorder = false;
+    public boolean compactExperimentRewards = false;
+    public boolean shortenChatCoins = false;
+    public boolean darkAuctionItemName = false;
+    public boolean hideArachneMessages = false;
+    public boolean hideChatIndicator = false;
+    // w10-05-chat
+    public boolean rareDropPetRarity = false;
+    public boolean rareDropBookName = false;
+    public boolean chatCompactCombat = false;
+    public boolean chatCompactDamage = true;
+    public boolean chatCompactDeaths = true;
+    public boolean chatCompactDrops = false;
+    public boolean chatCompactNpcGrey = false;
+    public boolean chatCompactMining = false;
+    public boolean melodyCompact = false;
+    public boolean melodyCompactMute = false;
+    public boolean hoppityCompact = false;
+    public boolean hoppityCompactRarity = true;
+    public boolean hoppityCompactDupeNumber = true;
+    public boolean hoppityCompactTimeTower = false;
+    public boolean hoppityCompactHitman = true;
+    public int hoppityCompactHitmanThreshold = 5;
+    public boolean hotkeyPlaceholders = false;
+    // w10-04-chat
+    public boolean chatKeepScroll = false;
+    public boolean chatFilterBlazetekk = false;
+    public boolean chatSoundResponses = false;
+    public java.util.List<String> chatSoundResponsesOff = new java.util.ArrayList<>();
+    public boolean chatUserAlerts = false;
+    public boolean chatCompactChannels = false;
+    public boolean chatCompactParty = true;
+    public boolean chatCompactGuild = true;
+    public boolean chatCompactPublic = false;
+    public boolean chatCompactHideRank = true;
+    public boolean chatCompactHideGuildRank = true;
+    public boolean chatCompactHideLevel = false;
+    public boolean chatCompactHideEmblem = false;
+    public boolean chatStripDiscordWarning = false;
+    public String rareDropAnnounce = "Off";
+    public float rareDropAnnounceMin = 0f;
+    public boolean rareDropCopy = false;
+    // w10-07-chat
+    public boolean chatMarkdown = false;
+    public boolean sackMessagePrices = false;
+    public boolean sackNotify = false;
+    public java.util.List<String> sackNotifyItems = new java.util.ArrayList<>(java.util.List.of("Glossy Gemstone"));
+    public boolean skyblockXpChat = false;
+    public boolean chatScamWarning = false;
+    public boolean chatMute = false;
+    @Global
+    public java.util.List<String> chatMutedPlayers = new java.util.ArrayList<>();
+    public boolean hideFarDeaths = false;
+    // w10-06-chat
+    public boolean chatHighlightOwnName = false;
+    public String chatOwnNameColor = "FFAA00";
+    public boolean chatProfileBadges = false;
+    public boolean piggyRepairLink = false;
+    public boolean compactJoinLeave = false;
+    public boolean explosiveShotPerEnemy = false;
+    public boolean logSearch = false;
+    public boolean bridgeFormat = false;
+    public String bridgeBotName = "";
+    public String bridgeNameColor = "55FFFF";
+    // w10-02-chat
+    public boolean chatFilterAbilityCooldown = false;
+    public boolean muteAbilityCooldownSound = false;
+    public boolean abiphoneDnd = false;
+    public boolean abiphoneDndCallerId = true;
+    public boolean confirmPromptHelper = false;
+    public boolean chatSearch = false;
+    public boolean chatEmotes = false;
+    public boolean compactPotionMessages = false;
+    public boolean compactPotionClickable = true;
+    public boolean compactBestiary = false;
     // w08-00-hud
     public boolean tabStatsHud = false;
     public String tabStatsHudStats = "Ferocity";
@@ -2351,6 +2434,207 @@ public class TeslaMapsConfig {
     public int flamingFlayHideDistance = 10;
     public boolean removeGlowEffect = false;
     public boolean fixRidingCamera = false;
+    // w09-04-vis
+    public boolean noReequipAnimation = false;
+    public boolean hideItemCooldownOverlay = false;
+    public boolean hideHotbarItemName = false;
+    public boolean compactTabList = false;
+    public boolean compactTabHideAds = true;
+    public boolean compactTabHideFireSales = false;
+    public boolean compactTabBackground = true;
+    public boolean compactTabToggle = false;
+    public String compactTabSort = "Rank";
+    public boolean compactTabSortReverse = false;
+    public boolean compactTabHideHeads = false;
+    public boolean compactTabHideLevel = false;
+    public boolean compactTabHideEmblems = false;
+    public boolean compactTabHideRankColor = false;
+    public boolean compactTabPartyIcon = false;
+    public boolean lowHealthVignette = false;
+    public float lowHealthVignetteThreshold = 0.5f;
+    public String lowHealthVignetteColor = "CCFF0000";
+    public boolean lowerNametags = false;
+    public boolean hidePlayerArmor = false;
+    public String hidePlayerArmorMode = "Others";
+    public boolean hidePlayerArmorHelmetOnly = false;
+    public boolean hideJerryRune = false;
+    // w09-01-vis
+    public boolean effectiveAreaOverlay = false;
+    public float effectiveAreaRadius = 7f;
+    public String effectiveAreaColor = "4055FFFF";
+    public boolean fireVeilCircle = false;
+    public String fireVeilMode = "Circle";
+    public String fireVeilColor = "FFFF5555";
+    public boolean hideFireworks = false;
+    public boolean hideHorses = false;
+    public boolean droppedItemScaling = false;
+    public float droppedScaleCommon = 100f;
+    public float droppedScaleUncommon = 100f;
+    public float droppedScaleRare = 100f;
+    public float droppedScaleEpic = 100f;
+    public float droppedScaleLegendary = 100f;
+    public float droppedScaleMythic = 100f;
+    public float droppedScaleDivine = 100f;
+    public float droppedScaleSpecial = 100f;
+    public boolean endChestTint = false;
+    public String endChestColor = "FFAA55FF";
+    public boolean customHurtTint = false;
+    public String customHurtTintColor = "4D5555FF";
+    public boolean dvdLogo = false;
+    public String dvdText = "TeslaMaps";
+    public float dvdSpeed = 1.5f;
+    public float dvdScale = 1.5f;
+    public boolean dvdCornerAlert = true;
+    // w09-00-vis
+    public boolean bigItems = false;
+    public float bigItemsScale = 1.25f;
+    public boolean bigItemsHeadsOnly = false;
+    public boolean bigItemsRarity = false;
+    public boolean customSkin = false;
+    public boolean customSkinSelf = true;
+    public boolean customSkinOthers = false;
+    public String customSkinFile = "";
+    public boolean coneHat = false;
+    public String coneHatFile = "";
+    public float coneHatHeight = 0.45f;
+    public float coneHatRadius = 0.25f;
+    public float coneHatYOffset = -0.5f;
+    public float coneHatSpin = 0f;
+    public boolean customHubMap = false;
+    public String customHubMapFile = "";
+    public boolean endermanTeleportHider = false;
+    public float espFadeDistance = 0f;
+    public boolean entityHighlight = false;
+    public float entityHighlightWidth = 2f;
+    public String entityHighlightPlayer = "55FFFF";
+    public String entityHighlightMob = "FF5555";
+    public String entityHighlightAnimal = "55FF55";
+    public String entityHighlightOther = "FFFFFF";
+    // w09-07-vis
+    public boolean hideEntityFire = false;
+    public boolean fireOverlayAdjust = false;
+    public float fireOverlayHeight = 100f;
+    public float fireOverlayOpacity = 100f;
+    public boolean hideZeroHpNametags = false;
+    public boolean hidePlayersTransparent = false;
+    public float hidePlayersOpacity = 30f;
+    public boolean ghostPlayers = false;
+    public float ghostPlayersOpacity = 40f;
+    public boolean muteEndermanEnd = false;
+    public boolean noExplosionsChickenRace = false;
+    public boolean chromaFormatCode = false;
+    public boolean chromaEverything = false;
+    // w09-06-vis
+    public boolean transparentArmor = false;
+    public float transparentArmorSelf = 40f;
+    public float transparentArmorOthers = 40f;
+    public boolean zealotColor = false;
+    public String zealotColorValue = "55FF55";
+    public boolean zealotColorChroma = false;
+    public boolean visualWords = false;
+    public boolean visualWordsIgnoreCase = false;
+    public java.util.List<com.teslamaps.features.TextVisuals.VisualWord> visualWordList = new java.util.ArrayList<>();
+    public boolean fullTextShadow = false;
+    public boolean noLightningSkyFlash = false;
+    public boolean noBlockHitParticles = false;
+    public float blindnessFogOpacity = 0f;
+    // w09-03-vis
+    public boolean changeCrouch = false;
+    public boolean instantCrouch = true;
+    public boolean legacyCrouchHeight = true;
+    public boolean hideGlitchMobs = false;
+    public boolean smoothTooltipLines = false;
+    public boolean headDisplaySize = false;
+    public float headDisplayPercent = 100f;
+    public boolean safariHideonwallPerches = false;
+    public String colorHideonwallPerch = "AA55FF";
+    public String colorHideonwallFound = "55FF55";
+    public boolean biggerBatModels = false;
+    public float biggerBatScale = 3f;
+    public boolean lowerEndermanNametags = false;
+    public boolean cosmetics = false;
+    public boolean cosmeticHalo = true;
+    public String cosmeticHaloColor = "FFFF55";
+    public boolean cosmeticSize = false;
+    public float cosmeticSizeX = 1f;
+    public float cosmeticSizeY = 1f;
+    public float cosmeticSizeZ = 1f;
+    public boolean cosmeticShowOthers = true;
+    // w09-09-vis
+    public boolean hideCloudsIslands = false;
+    public java.util.List<String> cloudHiderIslands = new java.util.ArrayList<>(com.teslamaps.features.IslandClouds.DEFAULTS);
+    public boolean etherwarpZeroPing = false;
+    public boolean iHateDoors = false;
+    public boolean iHateDoorsEntrance = false;
+    public String iHateDoorsEntranceColor = "White";
+    public boolean iHateDoorsWither = true;
+    public String iHateDoorsWitherColor = "Black";
+    public boolean iHateDoorsBlood = true;
+    public String iHateDoorsBloodColor = "Red";
+    public boolean trajectories = false;
+    public boolean trajBows = true;
+    public boolean trajTerminator = true;
+    public boolean trajPearls = true;
+    public boolean trajLines = true;
+    public boolean trajBoxes = true;
+    public boolean trajPlane = false;
+    public boolean trajEntities = true;
+    public boolean trajThroughWalls = false;
+    public int trajRange = 60;
+    public float trajLineWidth = 2.0f;
+    public String trajColor = "00AAAA";
+    public boolean customEspRules = false;
+    public java.util.List<com.teslamaps.features.CustomEspRules.EspRule> customEspRuleList = new java.util.ArrayList<>();
+    public boolean customEspRuleLabels = true;
+    public float customEspRuleLineWidth = 2.0f;
+    public String customEspRuleSound = "NOTE_PLING";
+    public boolean orderedOnGround = false;
+    public boolean parkourGuides = false;
+    public int parkourLookAhead = 3;
+    public boolean parkourRainbow = true;
+    public String parkourColor = "FFFFFF";
+    public boolean parkourShortcuts = true;
+    public boolean particleCloak = false;
+    public String particleCloakType = "Dust";
+    public String particleCloakColor = "AA00FF";
+    public int particleCloakDensity = 3;
+    public float particleCloakMotion = 0.5f;
+    public boolean particleCloakFirstPerson = false;
+    public boolean coloredNames = false;
+    public String coloredNameSelf = "FF55FF";
+    public boolean coloredNameUsers = true;
+    public String coloredNameUserColor = "55FFFF";
+    // w09-05-vis
+    public boolean mobIcons = false;
+    public String mobIconsStyle = "Short";
+    public java.util.Map<String, String> mobIconColors = new java.util.HashMap<>();
+    public boolean playerSize = false;
+    public String playerSizeTarget = "Self";
+    public float playerSizeX = 1f;
+    public float playerSizeY = 1f;
+    public float playerSizeZ = 1f;
+    public boolean playerTrail = false;
+    public String playerTrailColor = "FF55FFFF";
+    public float playerTrailLength = 40f;
+    public float playerTrailWidth = 2f;
+    public boolean playerModel = false;
+    public String playerModelTarget = "Self";
+    public String playerModelType = "Cat";
+    public boolean playerModelBaby = false;
+    public boolean petDragon = false;
+    public float petDragonSize = 0.15f;
+    public float petDragonHeight = 2.5f;
+    public float petDragonDistance = 2.5f;
+    public float petDragonAngle = 0f;
+    public float petDragonSpeed = 1f;
+    public String petDragonColor = "None";
+    public boolean petDragonThirdPersonOnly = false;
+    public boolean hideCloakCreepers = false;
+    public boolean hideAbsorption = false;
+    public boolean hideMountHealth = false;
+    public boolean hideDeathParticles = false;
+    public boolean noNightVision = false;
+    public boolean hideEndermanTeleport = false;
     // w07-03-qol
     public boolean updateChangelog = false;
     public boolean itemSearchWarpIsland = false;
@@ -4010,8 +4294,13 @@ public class TeslaMapsConfig {
 
     static void normalize(TeslaMapsConfig c) {
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
+        if (c.sackNotifyItems == null) c.sackNotifyItems = new java.util.ArrayList<>();
+        if (c.chatMutedPlayers == null) c.chatMutedPlayers = new java.util.ArrayList<>();
+        if (c.mobIconColors == null) c.mobIconColors = new java.util.HashMap<>();
         if (c.imageShareLinks == null) c.imageShareLinks = new java.util.HashMap<>();
         if (c.tabStatsHudStats == null) c.tabStatsHudStats = "Ferocity";
+        if (c.chatSoundResponsesOff == null) c.chatSoundResponsesOff = new java.util.ArrayList<>();
+        if (c.rareDropAnnounce == null) c.rareDropAnnounce = "Off";
         if (c.trackerHidden == null) c.trackerHidden = new java.util.HashMap<>();
         if (c.hudLineOrder == null) c.hudLineOrder = new java.util.HashMap<>();
         c.hudLineOrder.values().removeIf(java.util.Objects::isNull);
@@ -4020,6 +4309,9 @@ public class TeslaMapsConfig {
         c.expDryStreakData.values().removeIf(v -> v == null || v.length != 2);
         if (c.maxwellData == null) c.maxwellData = new java.util.HashMap<>();
         c.maxwellData.values().removeIf(java.util.Objects::isNull);
+        if (c.visualWordList == null) c.visualWordList = new java.util.ArrayList<>();
+        c.visualWordList.removeIf(w -> w == null || w.from == null || w.from.isEmpty());
+        for (var w : c.visualWordList) if (w.to == null) w.to = "";
         if (c.customTrackerDefs == null) c.customTrackerDefs = new java.util.ArrayList<>();
         c.customTrackerDefs.removeIf(java.util.Objects::isNull);
         if (c.beaconPowerExpiry == null) c.beaconPowerExpiry = new java.util.HashMap<>();
@@ -4229,6 +4521,8 @@ public class TeslaMapsConfig {
         if (c.tabWidgetHudWidgets == null) c.tabWidgetHudWidgets = new java.util.ArrayList<>();
         if (c.perfHudTpsMode == null) c.perfHudTpsMode = "Average";
         if (c.perfHudPingMode == null) c.perfHudPingMode = "Instant";
+        if (c.cloudHiderIslands == null) c.cloudHiderIslands = new java.util.ArrayList<>(com.teslamaps.features.IslandClouds.DEFAULTS);
+        if (c.customEspRuleList == null) c.customEspRuleList = new java.util.ArrayList<>();
         if (c.itemCycleRules == null) c.itemCycleRules = new java.util.ArrayList<>();
         c.itemCycleRules.removeIf(java.util.Objects::isNull);
         if (c.customItemModel == null) c.customItemModel = new java.util.HashMap<>();

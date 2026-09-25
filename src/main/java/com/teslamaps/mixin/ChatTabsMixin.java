@@ -28,7 +28,7 @@ public class ChatTabsMixin {
                                             @Share("tmTabVisible") LocalBooleanRef visible) {
         boolean v = original.call(predicate, message);
         visible.set(v);
-        return v || ChatTabs.isFilterApplied();
+        return v || ChatTabs.isFilterApplied() || com.teslamaps.features.ChatSearch.active();
     }
 
     @WrapOperation(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V",

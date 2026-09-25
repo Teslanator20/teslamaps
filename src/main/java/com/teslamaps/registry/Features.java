@@ -424,6 +424,25 @@ final class Features {
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
         com.teslamaps.features.LookTargeting.register();
+        // w10-03-chat
+        com.teslamaps.features.ChatCompacts.register();
+        // w10-05-chat
+        com.teslamaps.features.RareDropNames.register();
+        com.teslamaps.features.HoppityCompactChat.register();
+        // w10-04-chat
+        com.teslamaps.features.ChatAlerts.register();
+        com.teslamaps.features.ChatSoundResponse.register();
+        // w10-07-chat
+        com.teslamaps.features.SackMessages.register();
+        com.teslamaps.features.SkyblockXpChat.register();
+        // w10-06-chat
+        com.teslamaps.features.ChatExtras.register();
+        com.teslamaps.features.ChatRewrites.register();
+        // w10-02-chat
+        com.teslamaps.features.ConfirmPrompt.register();
+        com.teslamaps.features.ChatSearch.register();
+        com.teslamaps.features.ChatEmotes.register();
+        com.teslamaps.features.ChatCompactsMore.register();
         // w09-08-vis
         com.teslamaps.features.ParticleHider.register();
         // w09-02-vis
@@ -438,5 +457,48 @@ final class Features {
         com.teslamaps.features.SmoothChat.register();
         com.teslamaps.features.ReportAutoConfirm.register();
         com.teslamaps.command.ExtraSuggestions.register();
+        // w09-04-vis
+        com.teslamaps.features.VisualTweaks.register();
+        com.teslamaps.features.CompactTabList.register();
+        // w09-01-vis
+        com.teslamaps.features.AbilityRadius.register();
+        com.teslamaps.features.DroppedItemScaling.register();
+        com.teslamaps.features.EndChestTint.register();
+        com.teslamaps.features.HurtTint.register();
+        com.teslamaps.features.DvdLogo.register();
+        // w09-00-vis
+        com.teslamaps.features.BigItems.register();
+        com.teslamaps.features.cosmetic.CustomSkin.register();
+        com.teslamaps.features.cosmetic.ConeHat.register();
+        com.teslamaps.features.cosmetic.CustomHubMap.register();
+        com.teslamaps.features.EndermanTeleportHider.register();
+        com.teslamaps.features.EntityHighlight.register();
+        // w09-07-vis
+        com.teslamaps.features.ZeroHpNametags.register();
+        // w09-06-vis
+        com.teslamaps.features.TransparentArmor.register();
+        com.teslamaps.features.ZealotColor.register();
+        com.teslamaps.features.TextVisuals.register();
+        // w09-03-vis
+        com.teslamaps.features.ChangeCrouch.register();
+        com.teslamaps.features.HideGlitchMobs.register();
+        com.teslamaps.features.TooltipLineSmoother.register();
+        com.teslamaps.features.HeadDisplaySize.register();
+        com.teslamaps.safari.HideonwallPerches.register();
+        com.teslamaps.features.LowerEndermanNametags.register();
+        com.teslamaps.features.capes.Cosmetics.register();
+        // w09-09-vis
+        com.teslamaps.features.IslandClouds.register();
+        com.teslamaps.features.IHateDoors.register();
+        com.teslamaps.features.Trajectories.register();
+        com.teslamaps.features.CustomEspRules.register();
+        com.teslamaps.features.ParkourGuides.register();
+        com.teslamaps.features.Cosmetics.register();
+        // w09-05-vis
+        com.teslamaps.features.MobIcons.register();
+        com.teslamaps.features.PlayerCosmetics.register();
+        com.teslamaps.features.PlayerModels.register();
+        com.teslamaps.features.PetDragon.register();
+        com.teslamaps.features.TripwireRecolor.register();
     }
 }

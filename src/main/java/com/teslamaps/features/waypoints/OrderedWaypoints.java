@@ -160,13 +160,15 @@ public class OrderedWaypoints {
 
         double range = cfg.orderedWaypointRange;
         double rangeSq = range * range;
+        net.minecraft.client.player.LocalPlayer lp = Minecraft.getInstance().player;
+        boolean landed = !cfg.orderedOnGround || lp == null || lp.onGround();
 
         boolean skipAir = cfg.orderedSkipAir;
         if (skipAir) {
             for (int guard = route.size(); guard > 0 && isAir(route.get(current)); guard--) increment(1);
         }
 
-        if (cfg.orderedAutoSkipForward) {
+        if (cfg.orderedAutoSkipForward && landed) {
             Wp closest = null;
             double best = rangeSq;
             for (Wp wp : route) {
@@ -204,12 +206,12 @@ public class OrderedWaypoints {
             if (!renderIdx.contains(idx)) renderIdx.add(idx);
         }
 
-        if (lastCloser == current && distCur > distNext && distNext < range) {
+        if (landed && lastCloser == current && distCur > distNext && distNext < range) {
             increment(1);
             return;
         }
         if (distCur < range) lastCloser = current;
-        if (distNext < range) increment(1);
+        if (landed && distNext < range) increment(1);
 
         if (cfg.orderedShowAll) {
             for (Wp wp : route) if (!renderIdx.contains(wp.number - 1)) renderIdx.add(wp.number - 1);
