@@ -87,6 +87,8 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.mobvisuals.MobVisuals.onParticle(packet);
         com.teslamaps.features.mining.TreasureChestHelper.onParticle(packet);
         com.teslamaps.features.garden.PestGuess.onParticle(packet);
+        com.teslamaps.features.mining.WishingCompassSolver.onParticle(packet);
+        com.teslamaps.features.mining.PrecisionMiningHighlight.onParticle(packet);
     }
 
     @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",

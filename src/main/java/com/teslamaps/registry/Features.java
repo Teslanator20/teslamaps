@@ -730,6 +730,12 @@ final class Features {
         com.teslamaps.slayer.Rev5TntPing.register();
         com.teslamaps.slayer.InfernoHelper.register();
         com.teslamaps.features.KeeperWaypoints.register();
+        // w15-05-min
+        com.teslamaps.features.mining.MiningSoundMutes.register();
+        com.teslamaps.features.mining.WishingCompassSolver.register();
+        com.teslamaps.features.mining.PickobulusHelper.register();
+        com.teslamaps.features.mining.ScathaAlerts.register();
+        com.teslamaps.features.mining.PrecisionMiningHighlight.register();
         // w14-09-min
         com.teslamaps.features.mining.DarkMonolith.register();
         com.teslamaps.features.mining.NucleusChatFilter.register();

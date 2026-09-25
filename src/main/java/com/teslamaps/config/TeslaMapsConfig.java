@@ -2174,6 +2174,26 @@ public class TeslaMapsConfig {
     public float gummyTimerScale = 1.0f;
     public boolean keeperWaypoints = false;
     public boolean keeperFocusMode = false;
+    // w15-05-min
+    public boolean muteMetalDetector = false;
+    public boolean muteOrganDonor = false;
+    public boolean wishingCompassSolver = false;
+    public boolean pickobulusHelper = false;
+    public boolean pickobulusOutline = true;
+    public boolean pickobulusHud = true;
+    public boolean pickobulusHideOnCooldown = false;
+    public String colorPickobulus = "55FFFF";
+    public int pickobulusHudX = 5;
+    public int pickobulusHudY = 160;
+    public float pickobulusHudScale = 1.0f;
+    public boolean scathaAlerts = false;
+    public boolean scathaWormTitle = true;
+    public boolean scathaAliveSound = true;
+    public boolean scathaCooldownTitle = true;
+    public boolean scathaPetRewrite = true;
+    public boolean scathaPetTitle = true;
+    public boolean hotmLevelStack = false;
+    public boolean precisionMiningHighlight = false;
     // w14-09-min
     public boolean darkMonolith = false;
     public boolean darkMonolithBox = true;
