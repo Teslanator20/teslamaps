@@ -28,9 +28,13 @@ public class ClientPlayerInteractionManagerMixin {
         com.teslamaps.features.HotspotRadar.onUseItem(player.getItemInHand(hand));
     }
 
-    @Inject(method = "interact", at = @At("HEAD"))
+    @Inject(method = "interact", at = @At("HEAD"), cancellable = true)
     private void teslamaps$onInteractEntity(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Entity entity, net.minecraft.world.phys.EntityHitResult hitResult, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         if (entity instanceof net.minecraft.world.entity.decoration.ItemFrame frame) {
+            if (com.teslamaps.dungeon.puzzle.ArrowAlignSolver.blockClick(frame)) {
+                cir.setReturnValue(InteractionResult.FAIL);
+                return;
+            }
             com.teslamaps.dungeon.puzzle.ArrowAlignSolver.onFrameClick(frame.blockPosition());
         }
     }

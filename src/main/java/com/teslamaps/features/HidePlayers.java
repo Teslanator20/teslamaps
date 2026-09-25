@@ -27,9 +27,17 @@ public class HidePlayers {
         if (config.hidePlayersAfterLeap && System.currentTimeMillis() < hideAfterLeapUntilMs) return true;
         if (!config.hidePlayers) return false;
         if (config.hidePlayersOnlyDungeon && !DungeonManager.isInDungeon()) return false;
+        if (config.hidePlayersOnlyDevs && !atDevs(mc.player)) return false;
         if (config.hidePlayersAll) return true;
 
         double d = config.hidePlayersDistance;
         return entity.distanceToSqr(mc.player) <= d * d; // hide players within range
+    }
+
+    // Odin: SS and 4th device stands, radius 1.8, P3 only
+    private static boolean atDevs(Player self) {
+        boolean near = self.distanceToSqr(108.63, 120.0, 94.0) <= 1.8 * 1.8
+                || self.distanceToSqr(63.5, 127.0, 35.5) <= 1.8 * 1.8;
+        return near && com.teslamaps.dungeon.F7Devices.phase() == 3;
     }
 }

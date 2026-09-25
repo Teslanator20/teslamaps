@@ -50,8 +50,6 @@ public class LividSolver {
     private static boolean pendingAnnouncement = false;
     private static int announcementDelay = 0;
 
-    private static final int LIVID_COLOR = 0xFF00FF00; // Green for correct Livid
-    private static final int TRACER_LIVID = 0xFF00FF00;
 
     public enum Livid {
         VENDETTA("Vendetta", 'f', 0xFFFFFFFF, Blocks.WHITE_WOOL),
@@ -144,6 +142,7 @@ public class LividSolver {
         }
 
         findCorrectLivid(mc);
+        highlight = computeColor();
     }
 
     private static void findCorrectLivid(Minecraft mc) {
@@ -422,17 +421,47 @@ public class LividSolver {
         if (hasBlindness()) return;
 
         if (correctLividEntity != null && correctLividEntity.isAlive()) {
+            TeslaMapsConfig c = TeslaMapsConfig.get();
+            int color = highlightColor();
             AABB lividBox = correctLividEntity.getBoundingBox();
-            ESPRenderer.drawESPBox(matrices, lividBox, LIVID_COLOR, cameraPos);
-            if (TeslaMapsConfig.get().lividTracer) {
-                Vec3 lividCenter = lividBox.getCenter();
-                ESPRenderer.drawTracerFromCamera(matrices, lividCenter, TRACER_LIVID, cameraPos);
+            if (c.lividBox) {
+                if (c.filledESP) ESPRenderer.drawESPBox(matrices, lividBox, color, cameraPos);
+                else ESPRenderer.drawBoxOutline(matrices, lividBox, color, c.lividLineWidth, cameraPos);
+            }
+            if (c.lividTracer) {
+                ESPRenderer.drawTracerFromCamera(matrices, lividBox.getCenter(), color, cameraPos, c.lividTracerWidth);
+            }
+            if (c.lividLabel) {
+                ESPRenderer.drawText(matrices, "Livid", new Vec3(lividBox.getCenter().x, lividBox.maxY + 0.5, lividBox.getCenter().z),
+                        1f, cameraPos, true, true, color | 0xFF000000);
             }
         }
     }
 
+    private static int highlight = 0xFF00FF00;
+
+    /** ARGB of the correct Livid's highlight, refreshed each tick. */
+    public static int highlightColor() {
+        return highlight;
+    }
+
+    private static int computeColor() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.lividUseLividColor) {
+            Livid type = currentLivid;
+            if (correctLividEntity != null) {
+                Livid t = Livid.fromName(correctLividEntity.getName().getString());
+                if (t != null) type = t;
+            }
+            ChatFormatting f = ChatFormatting.getByCode(type.colorCode);
+            if (f != null && f.getColor() != null) return 0xFF000000 | f.getColor();
+        }
+        int col = TeslaMapsConfig.parseColor(c.lividColor);
+        return (col >>> 24) == 0 ? col | 0xFF000000 : col;
+    }
+
     public static boolean shouldGlow(Entity entity) {
-        if (!TeslaMapsConfig.get().lividFinder) return false;
+        if (!TeslaMapsConfig.get().lividFinder || !TeslaMapsConfig.get().lividGlow) return false;
         if (!isFloor5()) return false;
         if (hasBlindness()) return false;
 
@@ -441,7 +470,7 @@ public class LividSolver {
 
     public static int getGlowColor(Entity entity) {
         if (entity == correctLividEntity) {
-            return LIVID_COLOR & 0x00FFFFFF;
+            return highlightColor() & 0x00FFFFFF;
         }
         return 0;
     }

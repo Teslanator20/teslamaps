@@ -110,5 +110,8 @@ final class Features {
         com.teslamaps.features.BloodCheck.register();
         com.teslamaps.dungeon.RushSplits.register();
         com.teslamaps.features.MapPeek.register();
+        // w03-01-boss
+        com.teslamaps.features.FuckDiorite.register();
+        com.teslamaps.features.DragonStackAimer.register();
     }
 }

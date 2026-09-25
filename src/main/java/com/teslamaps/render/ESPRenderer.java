@@ -156,8 +156,8 @@ public class ESPRenderer {
         float dy = (float)(to.y - from.y);
         float dz = (float)(to.z - from.z);
 
-        buffer.addVertex(pose, (float)from.x, (float)from.y, (float)from.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(2.0f);
-        buffer.addVertex(pose, (float)to.x, (float)to.y, (float)to.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(2.0f);
+        buffer.addVertex(pose, (float)from.x, (float)from.y, (float)from.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(tracerWidth);
+        buffer.addVertex(pose, (float)to.x, (float)to.y, (float)to.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(tracerWidth);
 
         finish(bufferSource, TeslaRenderLayers.LINES_ESP);
 
@@ -270,6 +270,14 @@ public class ESPRenderer {
         depthTested = !throughWalls;
         try { drawTracerFromCamera(matrices, target, color, cameraPos); }
         finally { depthTested = false; }
+    }
+
+    private static float tracerWidth = 2.0f;
+
+    public static void drawTracerFromCamera(PoseStack matrices, Vec3 target, int color, Vec3 cameraPos, float lineWidth) {
+        tracerWidth = lineWidth;
+        try { drawTracerFromCamera(matrices, target, color, cameraPos); }
+        finally { tracerWidth = 2.0f; }
     }
 
     public static void drawTracerFromCamera(PoseStack matrices, Vec3 target, int color, Vec3 cameraPos) {
