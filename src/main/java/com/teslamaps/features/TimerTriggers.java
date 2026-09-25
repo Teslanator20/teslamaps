@@ -427,8 +427,13 @@ public class TimerTriggers {
         } else hide("lightning");
         lightningTicks = countDown(lightningTicks, dt);
 
-        if (c.deathTickTimer && mc.level != null && inDungeon && (runStartMs == 0 || now() - runStartMs < 6000)) {
-            int dk = 40 - (int) (mc.level.getGameTime() % 40);
+        if (c.deathTickTimer && mc.level != null && inDungeon && (c.deathTickShowClear
+                ? !com.teslamaps.dungeon.DungeonManager.isInBossArea()
+                : (runStartMs == 0 || now() - runStartMs < 6000))) {
+            long dgt = timeAnchor >= 0
+                    ? timeAnchor + (com.teslamaps.utils.ServerTickTimer.now() - tickAnchor)
+                    : mc.level.getGameTime();
+            int dk = 40 - (int) (dgt % 40);
             show("deathtick", "§cDeath§f: ", tickColor(dk, 40) + fmtTicks(dk));
         } else hide("deathtick");
 
