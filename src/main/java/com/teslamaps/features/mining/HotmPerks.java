@@ -22,11 +22,11 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 
-/** Heart of the Mountain: perk tint, level/token stack sizes, powder costs and the Sky Mall readout. */
+/** Heart of the Mountain: perk tint, perk level, tokens, powder costs and the Sky Mall readout. */
 public class HotmPerks {
 
     private static final Pattern NOT_UNLOCKED = Pattern.compile("Requires.*|.*Mountain!|Click to unlock!");
-    private static final Pattern LEVEL = Pattern.compile("Level (\\d+)(?:/(\\d+))?.*");
+    private static final Pattern LEVEL_LINE = Pattern.compile("Level (\\d+)(?:/(\\d+))?.*");
     private static final Pattern TOKENS = Pattern.compile("Tokens? of the Mountain: (\\d+)");
     private static final Pattern BUFF = Pattern.compile(" ?(?:New buff: |■ )?(.*)");
     private static final int NONE = 0, ENABLED = 1, DISABLED = 2;
@@ -91,8 +91,6 @@ public class HotmPerks {
                             .desc("Tints enabled and disabled perks in the Heart of the Mountain menu.");
                     b.color("  Enabled Color", () -> c.colorHotmEnabled, v -> c.colorHotmEnabled = v);
                     b.color("  Disabled Color", () -> c.colorHotmDisabled, v -> c.colorHotmDisabled = v);
-                    b.toggle("  Level As Stack Size", () -> c.hotmLevelStack, v -> c.hotmLevelStack = v)
-                            .desc("Perk level on the perk item, maxed perks stay blank.");
                     b.toggle("  Tokens On Heart Item", () -> c.hotmTokenStack, v -> c.hotmTokenStack = v)
                             .desc("Unused Tokens of the Mountain on the heart item.");
                     b.toggle("  Powder Costs In Tooltip", () -> c.hotmPowderTooltip, v -> c.hotmPowderTooltip = v)
@@ -102,6 +100,10 @@ public class HotmPerks {
                             .desc("HUD line with today's Sky Mall buff, read from chat and the HotM menu.")
                             .tags("sky mall", "skymall", "hotm");
                     b.toggle("    Only On Mining Islands", () -> c.hotmSkyMallMiningOnly, v -> c.hotmSkyMallMiningOnly = v);
+                    HotmPowderGoal.config(b);
+                    b.toggle("HotM Perk Level", () -> c.hotmLevelStack, v -> c.hotmLevelStack = v)
+                            .desc("Perk level in the bottom right of each slot in the Heart of the Mountain menu, gold at max level.")
+                            .tags("hotm", "perk", "level", "slot text");
                 });
         skyMall = Feature.of("HotmSkyMall").section("Mining").when(() -> cfg().hotmSkyMallDisplay)
                 .hud("hotmskymalldisplay", HotmPerks::renderSkyMall)
@@ -114,6 +116,31 @@ public class HotmPerks {
             if (!cfg().hotmPowderTooltip || feature == null || !inMenu() || !feature.active()) return;
             addCostLines(stack, lines);
         });
+    }
+
+    private static final Pattern LEVEL = Pattern.compile("Level (\\d+)(/\\d+)?");
+    private static final java.util.Map<ItemLore, String> levelCache = new java.util.IdentityHashMap<>();
+
+    /** From LoreSlotTextMixin. */
+    public static void drawLevel(GuiGraphicsExtractor ctx, Slot slot) {
+        if (feature == null || !TeslaMapsConfig.get().hotmLevelStack || !inMenu() || !feature.active()) return;
+        if (slot.container instanceof net.minecraft.world.entity.player.Inventory || slot.index > 44) return;
+        ItemStack item = slot.getItem();
+        if (item.isEmpty() || item.is(net.minecraft.world.item.Items.COAL)) return;
+        ItemLore raw = item.get(DataComponents.LORE);
+        if (raw == null) return;
+        String text = levelCache.get(raw);
+        if (text == null) {
+            text = "";
+            if (!raw.lines().isEmpty()) {
+                java.util.regex.Matcher m = LEVEL.matcher(StringUtil.stripTrim(raw.lines().get(0).getString()));
+                if (m.matches()) text = (m.group(2) == null ? "§6" : "§e") + m.group(1);
+            }
+            if (levelCache.size() > 256) levelCache.clear();
+            levelCache.put(raw, text);
+        }
+        if (text.isEmpty() || !com.teslamaps.features.SlotText.shown(com.teslamaps.features.SlotText.HOTM_LEVEL)) return;
+        com.teslamaps.features.SlotText.draw(ctx, Minecraft.getInstance().font, text, slot.x, slot.y, 3, 0xFFFFFFFF);
     }
 
     private static boolean inMenu() {
@@ -129,7 +156,7 @@ public class HotmPerks {
 
     public static boolean shouldRender() {
         TeslaMapsConfig c = cfg();
-        return feature != null && (c.hotmLevelStack || c.hotmTokenStack || c.hotmSkyMallDisplay)
+        return feature != null && (c.hotmTokenStack || c.hotmSkyMallDisplay)
                 && inMenu() && c.section("Mining");
     }
 
@@ -198,17 +225,7 @@ public class HotmPerks {
         }
         int state = enabled ? ENABLED : disabled ? DISABLED : NONE;
 
-        String tip = null;
-        if (c.hotmLevelStack && state != NONE) {
-            Matcher m = LEVEL.matcher(lore.get(0).trim());
-            if (m.matches()) {
-                int level = Integer.parseInt(m.group(1));
-                Perk perk = PERKS.get(name);
-                int max = m.group(2) != null ? Integer.parseInt(m.group(2)) : perk != null ? perk.max() : -1;
-                if (level != 0 && level != max) tip = "§e" + level;
-            }
-        }
-        return state == NONE && tip == null ? EMPTY : new Info(state, tip);
+        return state == NONE ? EMPTY : new Info(state, null);
     }
 
     // the Sky Mall item lists today's buff under "Your Current Effect"
@@ -260,7 +277,7 @@ public class HotmPerks {
         if (lore.isEmpty()) return;
         boolean locked = NOT_UNLOCKED.matcher(lore.get(lore.size() - 1).trim()).matches();
         int level = 0;
-        Matcher m = LEVEL.matcher(lore.get(0).trim());
+        Matcher m = LEVEL_LINE.matcher(lore.get(0).trim());
         if (m.matches()) level = Integer.parseInt(m.group(1));
         if (locked) level = 0;
         level = Math.min(level, perk.max());

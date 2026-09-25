@@ -10,7 +10,7 @@ public final class ChatCategory {
 
     private ChatCategory() {}
 
-    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterWelcome", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterUselessWarnings", "chatFilterBlazetekk", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterEventLevel", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterLegacyItems", "chatFilterParkour", "chatFilterTeleportPads", "chatFilterChefTed", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
+    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterWelcome", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterHellion", "chatFilterUselessWarnings", "chatFilterBlazetekk", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterEventLevel", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterLegacyItems", "chatFilterParkour", "chatFilterTeleportPads", "chatFilterChefTed", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
 
     private static void groupAction(ConfigBuilder b, TeslaMapsConfig config, String group, String label) {
         b.dropdown(label, com.teslamaps.features.ChatFilter.GROUP_ACTIONS,
@@ -152,6 +152,10 @@ public final class ChatCategory {
         b.toggle("  Grey NPC Dialog", () -> config.chatCompactNpcGrey, v -> config.chatCompactNpcGrey = v);
         b.toggle("Compact Mining Lines", () -> config.chatCompactMining, v -> { config.chatCompactMining = v; if (v) config.chatFilterEnabled = true; })
                 .desc("Breaking Power, crystals, Metal Detector, Keepers, Automaton parts; treasure chest notices hidden");
+        b.dropdown("  Hollows Chest Rewards", com.teslamaps.features.mining.MiningChestSummary.MODES,
+                () -> config.miningChestSummary, v -> config.miningChestSummary = v)
+                .desc("CHEST LOCKPICKED / LOOT CHEST COLLECTED block as one line (Compact), dimmed (Grey) or gone (Hide). Full block on hover")
+                .tags("crystal hollows", "treasure", "chest", "loot");
         b.toggle("Compact Melody Party Messages", () -> config.melodyCompact, v -> { config.melodyCompact = v; if (v) config.chatFilterEnabled = true; })
                 .desc("In dungeons only the newest melody progress line per player stays");
         b.toggle("  Mute All Melody Messages", () -> config.melodyCompactMute, v -> config.melodyCompactMute = v);
@@ -297,6 +301,8 @@ public final class ChatCategory {
         b.toggle("Hide More Warp/Visit Messages", () -> config.chatFilterWarpMore, v -> config.chatFilterWarpMore = v);
         b.toggle("Hide Bazaar/AH Progress Lines", () -> config.chatFilterBzAhMinis, v -> config.chatFilterBzAhMinis = v);
         b.toggle("Hide Slayer Quest Spam", () -> config.chatFilterSlayerSpam, v -> config.chatFilterSlayerSpam = v);
+        b.toggle("Hide Hellion Shield Lines", () -> config.chatFilterHellion, v -> config.chatFilterHellion = v)
+                .desc("\"Your hit was reduced by Hellion Shield!\" and \"Strike using the X attunement on your dagger!\" (Inferno Demonlord)");
         b.toggle("Hide Useless Warnings", () -> config.chatFilterUselessWarnings, v -> config.chatFilterUselessWarnings = v);
         b.toggle("Hide Blazetekk Radio Messages", () -> config.chatFilterBlazetekk, v -> config.chatFilterBlazetekk = v)
                 .desc("The three \"Your radio ...\" lines (also part of Useless Warnings)");

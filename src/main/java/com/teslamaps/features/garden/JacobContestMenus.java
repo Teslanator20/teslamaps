@@ -74,7 +74,7 @@ public final class JacobContestMenus {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        feature = Feature.of("JacobContestMenus").section("Garden").when(() -> cfg().jacobContestMenus || cfg().jacobContestTimes)
+        feature = Feature.of("JacobContestMenus").section("Garden").when(() -> cfg().jacobContestMenus || cfg().jacobContestTimes || cfg().jacobContestFF)
                 .tick(JacobContestMenus::tick)
                 .config("Garden", b -> {
                     TeslaMapsConfig c = cfg();
@@ -177,7 +177,7 @@ public final class JacobContestMenus {
     }
 
     /** Real start time of a "Spring 31st, Year 494" contest, -1 when it is no date. */
-    static long sbTime(String name) {
+    public static long sbTime(String name) {
         Matcher m = DATE.matcher(name);
         if (!m.matches()) return -1;
         int month = month(m.group(1));

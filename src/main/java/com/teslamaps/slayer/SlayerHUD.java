@@ -94,6 +94,9 @@ public class SlayerHUD {
     private static String bossOwner = null;       // Who spawned this boss
     private static boolean isOwnBoss = false;     // Is this our boss?
     private static ArmorStand lockedTag = null;   // foreign boss the player hit last
+    private static ArmorStand carryTag = null;    // boss picked with middle click in carry mode
+    private static ArmorStand chosenTag = null;
+    private static boolean middleDown = false;
     private static long lastCompleteMs = 0;
 
     private static String lastWorldName = null;
@@ -141,7 +144,9 @@ public class SlayerHUD {
         List<ArmorStand> stands = mc.level.getEntitiesOfClass(ArmorStand.class, searchBox, as -> true);
         String[] names = new String[stands.size()];
         for (int i = 0; i < names.length; i++) names[i] = stands.get(i).getName().getString();
+        tickCarryClick(mc);
         ArmorStand chosen = pickBoss(mc, stands, names);
+        chosenTag = chosen;
 
         for (int si = 0; si < names.length; si++) {
             ArmorStand armorStand = stands.get(si);
@@ -277,13 +282,57 @@ public class SlayerHUD {
         });
     }
 
-    private static boolean isBossTag(String name) {
+    private static final Pattern TIER_PATTERN = Pattern.compile("(?:Horror|Broodfather|Packmaster|Seraph|Demonlord|Bloodfiend) (V|IV|III|II|I)\\b");
+
+    /** Slayer tier from a boss tag, 5 for Atoned Horror / Conjoined Brood, 0 if unknown. */
+    public static int tagTier(String name) {
+        Matcher m = TIER_PATTERN.matcher(name);
+        if (m.find()) return parseTier(m.group(1));
+        return name.contains("Atoned Horror") || name.contains("Conjoined Brood") ? 5 : 0;
+    }
+
+    // Skytils slayerCarryMode: middle click a boss to follow it
+    private static void tickCarryClick(Minecraft mc) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        boolean down = c.slayerCarryMode && mc.screen == null && org.lwjgl.glfw.GLFW.glfwGetMouseButton(
+                mc.getWindow().handle(), org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+        if (!c.slayerCarryMode) carryTag = null;
+        if (down && !middleDown) {
+            Entity target = mc.crosshairPickEntity;
+            if (target != null && !(target instanceof ArmorStand)) {
+                for (ArmorStand stand : NametagMobs.namedStands(target, 1.5)) {
+                    if (isBossTag(stand.getName().getString())) {
+                        carryTag = stand;
+                        if (mc.player != null) mc.player.sendSystemMessage(Component.literal(
+                                "§6[TeslaMaps] §aFollowing §f" + com.teslamaps.utils.StringUtil.stripTrim(stand.getName().getString())));
+                        break;
+                    }
+                }
+            }
+        }
+        middleDown = down;
+        if (carryTag != null && !carryTag.isAlive()) carryTag = null;
+    }
+
+    public static boolean isBossTag(String name) {
         return INFERNO_PATTERN.matcher(name).find() || (name.contains("❤") && containsAny(name, GENERIC_BOSSES));
     }
 
     /** Ported from Skyblocker's SlayerManager.findBoss: own boss first, then the one last hit. */
     private static ArmorStand pickBoss(Minecraft mc, List<ArmorStand> stands, String[] names) {
         String me = mc.getUser().getName();
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        boolean carry = cfg.slayerCarryMode;
+        if (carry && carryTag != null && carryTag.isAlive()) {
+            for (ArmorStand as : stands) {
+                if (as != carryTag) continue;
+                bossOwner = ownerOf(as);
+                isOwnBoss = bossOwner != null && bossOwner.equalsIgnoreCase(me);
+                return as;
+            }
+        }
+        ArmorStand carried = null;
+        String carriedOwner = null;
         ArmorStand foreign = null;
         String foreignOwner = null;
         ArmorStand locked = null;
@@ -302,6 +351,9 @@ public class SlayerHUD {
             if (as == lockedTag) {
                 locked = as;
                 lockedOwner = owner;
+            } else if (carry && carried == null && tagTier(name) == cfg.slayerCarryTier) {
+                carried = as;
+                carriedOwner = owner;
             } else if (foreign == null) {
                 foreign = as;
                 foreignOwner = owner;
@@ -309,13 +361,14 @@ public class SlayerHUD {
         }
         if (lockedTag != null && !lockedTag.isAlive()) lockedTag = null;
         ArmorStand pick = locked != null ? locked
-                : TeslaMapsConfig.get().slayerOnlyOwnBoss ? null : foreign;
-        bossOwner = pick == null ? null : pick == locked ? lockedOwner : foreignOwner;
+                : carried != null ? carried
+                : cfg.slayerOnlyOwnBoss ? null : foreign;
+        bossOwner = pick == null ? null : pick == locked ? lockedOwner : pick == carried ? carriedOwner : foreignOwner;
         isOwnBoss = false;
         return pick;
     }
 
-    private static String ownerOf(ArmorStand bossTag) {
+    public static String ownerOf(ArmorStand bossTag) {
         String cached = ownerCache.get(bossTag.getId());
         if (cached != null) return cached;
         for (ArmorStand s : NametagMobs.namedStands(bossTag, 1.5)) {
@@ -469,6 +522,14 @@ public class SlayerHUD {
             default -> 0xFFFFFFFF;
         };
     }
+
+    /** Boss tag armor stand currently tracked, null without one. */
+    public static ArmorStand bossTag() { return chosenTag != null && chosenTag.isAlive() ? chosenTag : null; }
+    public static double currentHP() { return currentHP; }
+    public static int bossTier() { return bossTier; }
+    public static String bossName() { return currentBossName; }
+    public static boolean ownBoss() { return isOwnBoss; }
+    public static String bossOwner() { return bossOwner; }
 
     public static String getCurrentPhaseType() {
         return currentPhaseType;

@@ -87,6 +87,8 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.mobvisuals.MobVisuals.onParticle(packet);
         com.teslamaps.features.mining.TreasureChestHelper.onParticle(packet);
         com.teslamaps.features.garden.PestGuess.onParticle(packet);
+        com.teslamaps.features.mining.WishingCompassSolver.onParticle(packet);
+        com.teslamaps.features.mining.PrecisionMiningHighlight.onParticle(packet);
     }
 
     @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",
@@ -108,7 +110,8 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.ParticleHiders.hideParticle(packet)
                     || com.teslamaps.features.AbilityRadius.hideParticle(packet)
                     || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet)
-                    || com.teslamaps.features.garden.PestGuess.hideParticle(packet))) ci.cancel();
+                    || com.teslamaps.features.garden.PestGuess.hideParticle(packet)
+                    || com.teslamaps.slayer.InfernoHelper.hideParticle())) ci.cancel();
     }
 
     @Inject(method = "handleInitializeBorder", at = @At("HEAD"))
@@ -232,6 +235,7 @@ public class ClientPlayNetworkHandlerMixin {
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
         if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) return;
         if (com.teslamaps.features.FarmingRngTitles.hideTitle(packet.text().getString())) { ci.cancel(); return; }
+        if (com.teslamaps.slayer.BlazeSlayerHelper.onTitle(packet.text().getString())) { ci.cancel(); return; }
         if (com.teslamaps.features.TerminalTitles.onTitle(packet.text().getString(), false)) { ci.cancel(); return; }
         if (com.teslamaps.features.TimerTriggers.onTitle(packet.text().getString())) ci.cancel();
     }
