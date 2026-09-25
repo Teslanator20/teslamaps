@@ -118,6 +118,11 @@ public class HandledScreenClickMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.ContainerPanelMover.click(mouseX, mouseY, button)) {
+            teslamaps$ate("ContainerPanelMover", button);
+            cir.setReturnValue(true);
+            return;
+        }
 
         if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)

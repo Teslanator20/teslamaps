@@ -530,6 +530,10 @@ public class CroesusProfit {
         int w = 0;
         for (String l : lines) w = Math.max(w, mc.font.width(l));
         int pad = 4;
+        int ow = w + pad * 2, oh = lines.size() * 10 + pad * 2;
+        panelX = com.teslamaps.features.ContainerPanelMover.x(com.teslamaps.features.ContainerPanelMover.CROESUS, panelX - pad, ow) + pad;
+        panelY = com.teslamaps.features.ContainerPanelMover.y(com.teslamaps.features.ContainerPanelMover.CROESUS, panelY - pad, oh) + pad;
+        com.teslamaps.features.ContainerPanelMover.record(com.teslamaps.features.ContainerPanelMover.CROESUS, panelX - pad, panelY - pad, ow, oh);
         ctx.fill(panelX - pad, panelY - pad, panelX + w + pad, panelY + lines.size() * 10 + pad, 0xCC101012);
         int y = panelY;
         for (String l : lines) { ctx.text(mc.font, l, panelX, y, 0xFFFFFFFF); y += 10; }

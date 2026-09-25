@@ -14,6 +14,16 @@ public final class MenuSkyboxCategory {
         b.label("Main Menu");
         b.toggle("Custom Title Screen",
                 () -> config.customTitleScreen, v -> config.customTitleScreen = v);
+        b.toggle("Quick Join Button (vanilla menu)",
+                () -> config.quickJoinButton, v -> config.quickJoinButton = v)
+                .desc("Halves the vanilla Multiplayer button and puts a Join button for the IP below next to it. Resource pack is accepted without the prompt.");
+        b.button("  Server IP: " + (config.quickJoinIp == null || config.quickJoinIp.isBlank() ? "mc.hypixel.net" : config.quickJoinIp),
+                () -> Minecraft.getInstance().setScreen(new TextPromptScreen("Quick Join IP", ip -> {
+                    config.quickJoinIp = ip;
+                    TeslaMapsConfig.save();
+                    Minecraft.getInstance().setScreen(new MapConfigScreen());
+                })))
+                .desc("Also used by the Hypixel button of the custom title screen. Empty = mc.hypixel.net.");
         b.toggle("Custom Loading Screen",
                 () -> config.customLoadingScreen, v -> config.customLoadingScreen = v);
         b.info("Same background while connecting and loading terrain");

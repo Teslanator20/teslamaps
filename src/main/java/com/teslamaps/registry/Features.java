@@ -520,6 +520,9 @@ final class Features {
         com.teslamaps.features.bazaar.BazaarQuickQuantities.register();
         com.teslamaps.features.bazaar.BazaarReorder.register();
         com.teslamaps.features.bazaar.BazaarPurchaseHelper.register();
+        // w12-02-gui
+        com.teslamaps.dungeon.ClassColors.register();
+        com.teslamaps.features.TabWidgetGuide.register();
         // w11-04-par
         com.teslamaps.features.PartyCheck.register();
         com.teslamaps.features.MarkedPlayers.register();
