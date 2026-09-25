@@ -30,8 +30,18 @@ public class HudEditScreen extends Screen {
     @Override
     protected void init() {
         addRenderableWidget(new TeslaButton(this.width - 110, 6, 100, 22, "§fDone", this::onClose));
+        addRenderableWidget(new TeslaButton(10, 6, 20, 22, "§f-", () -> globalScale(-0.05f)));
+        addRenderableWidget(new TeslaButton(34, 6, 20, 22, "§f+", () -> globalScale(0.05f)));
+        addRenderableWidget(new TeslaButton(58, 6, 26, 22, "§f1x", () -> globalScale(0f)));
         if (com.teslamaps.features.HudLayouts.enabled()) layoutButtons();
         ScreenFit.clamp(this); // keep every widget reachable at any gui scale
+    }
+
+    private void globalScale(float step) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        float v = step == 0f ? 1f : Math.round((HudEditElement.globalScale() + step) * 100f) / 100f;
+        c.hudGlobalScale = Math.max(0.25f, Math.min(4f, v));
+        TeslaMapsConfig.save();
     }
 
     private int copyTarget = 0;
@@ -132,6 +142,8 @@ public class HudEditScreen extends Screen {
             context.text(this.font, "Layout: §e" + loc + (com.teslamaps.features.HudLayouts.hasOwn(loc) ? "" : " §7(using Default)"),
                     10, this.height - 40, 0xFFFFFFFF);
         }
+
+        context.text(this.font, String.format("Global %.2fx", HudEditElement.globalScale()), 90, 13, 0xFFE0E0E0);
 
         super.extractRenderState(context, mouseX, mouseY, delta);
     }

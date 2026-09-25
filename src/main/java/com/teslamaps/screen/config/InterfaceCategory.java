@@ -77,6 +77,10 @@ public final class InterfaceCategory {
                 () -> config.hudTextShadow, v -> config.hudTextShadow = v)
                 .desc("Text of every HUD panel: vanilla shadow, a 1 px black outline (readable on bright ground), or no shadow.")
                 .tags("outline", "text", "shadow");
+        b.slider("  Custom Blur", 0f, 20f, () -> config.hudCustomBlur, v -> config.hudCustomBlur = v, 0)
+                .desc("Blurs the world behind \"Custom\" panels. 0 = off.").tags("panel", "blur", "frosted");
+        b.dropdown("    Blur Kernel", new String[]{"Gaussian", "Box"},
+                () -> config.hudCustomBlurKernel, v -> config.hudCustomBlurKernel = v).tags("panel", "blur");
         panelStyles(b, config);
         b.label("HUD Positions");
         b.toggle("Keep HUDs On Screen", () -> config.hudClampToScreen, v -> config.hudClampToScreen = v)

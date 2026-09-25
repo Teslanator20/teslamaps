@@ -124,8 +124,18 @@ public final class HudEditElement {
     public int storedX() { return getInt(fx); }
     public int storedY() { return getInt(fy); }
     public void setScale(float v) { setFloat(fscale, v); }
-    public int width() { return w.of(scale()); }
-    public int height() { return h.of(scale()); }
+    public int width() { float g = globalScale(); return g == 1f ? w.of(scale()) : (int) (w.of(scale()) * g); }
+    public int height() { float g = globalScale(); return g == 1f ? h.of(scale()) : (int) (h.of(scale()) * g); }
+
+    /** GUI-015: multiplier on top of every element's own scale. */
+    public static float globalScale() {
+        float g = TeslaMapsConfig.get().hudGlobalScale;
+        return g > 0.09f && g < 10.01f ? g : 1f;
+    }
+
+    /** Pivot of the global scale: the unshifted top-left of the drawn box. */
+    public int pivotX() { return x() - (int) (boxOffset * scale()); }
+    public int pivotY() { return y() - (int) (boxOffset * scale()); }
     public int boxX() { return x() - (int) (boxOffset * scale()) + shiftX(); }
     public int boxY() { return y() - (int) (boxOffset * scale()) + shiftY(); }
     public int dragColor() { return dragColor; }
@@ -143,7 +153,16 @@ public final class HudEditElement {
     }
 
     public void drawPreview(GuiGraphicsExtractor g, Minecraft mc) {
-        if (preview != null) preview.draw(g, mc, x() + shiftX(), y() + shiftY(), scale());
+        if (preview == null) return;
+        float gs = globalScale();
+        if (gs == 1f) { preview.draw(g, mc, x() + shiftX(), y() + shiftY(), scale()); return; }
+        int px = boxX(), py = boxY();
+        g.pose().pushMatrix();
+        g.pose().translate(px, py);
+        g.pose().scale(gs, gs);
+        g.pose().translate(-px, -py);
+        preview.draw(g, mc, x() + shiftX(), y() + shiftY(), scale());
+        g.pose().popMatrix();
     }
 
     public String title() {

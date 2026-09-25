@@ -97,37 +97,35 @@ public final class DailyTimers {
                 if (r.equals("Cookie Buff") && i + 1 < rows.length) {
                     String next = StringUtil.stripTrim(rows[i + 1]);
                     long ms = next.startsWith("Not active") ? 0 : QolStore.parseDuration(next.toLowerCase(Locale.ROOT));
-                    if (ms > 0 || next.startsWith("Not active")) {
-                        m.put("cookieEnd", now + ms);
-                        changed = true;
-                    }
+                    if (ms > 0 || next.startsWith("Not active")) changed |= set(m, "cookieEnd", now + ms);
                 } else if (r.equals("Active Effects")) {
                     effects = true;
                 } else if (r.startsWith("You have a God Potion active!")) {
                     long ms = QolStore.parseDuration(r.substring(29).toLowerCase(Locale.ROOT));
                     if (ms > 0) {
-                        m.put("godPotEnd", now + ms);
+                        changed |= set(m, "godPotEnd", now + ms);
                         god = true;
-                        changed = true;
                     }
                 }
             }
-            if (effects && !god && !com.teslamaps.dungeon.DungeonManager.isInDungeon()) {
-                m.put("godPotEnd", 0L);
-                changed = true;
-            }
+            if (effects && !god && !com.teslamaps.dungeon.DungeonManager.isInDungeon()) changed |= set(m, "godPotEnd", 0L);
         }
         for (String raw : TabListUtils.getTabListLines()) {
             String l = StringUtil.stripTrim(raw);
             if (!l.startsWith("God Potion:")) continue;
             long ms = QolStore.parseDuration(l.substring(11).toLowerCase(Locale.ROOT));
-            if (ms > 0) {
-                m.put("godPotEnd", now + ms);
-                changed = true;
-            }
+            if (ms > 0) changed |= set(m, "godPotEnd", now + ms);
             break;
         }
         if (changed) QolStore.save();
+    }
+
+    // durations tick down every second; only a real jump is worth a file write
+    private static boolean set(Map<String, Long> m, String key, long end) {
+        Long old = m.get(key);
+        if (old != null && (end == 0 ? old == 0 : old != 0 && Math.abs(old - end) < 90_000)) return false;
+        m.put(key, end);
+        return true;
     }
 
     private static void tick() {
