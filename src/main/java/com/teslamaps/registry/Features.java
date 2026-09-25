@@ -110,5 +110,12 @@ final class Features {
         com.teslamaps.features.BloodCheck.register();
         com.teslamaps.dungeon.RushSplits.register();
         com.teslamaps.features.MapPeek.register();
+        // w03-05-dun
+        com.teslamaps.features.SecretTrackerLocator.register();
+        com.teslamaps.dungeon.ServerLagTimer.register();
+        com.teslamaps.features.DungeonLevelSlotText.register();
+        com.teslamaps.features.SwapSound.register();
+        com.teslamaps.features.TreasureTalismanAlert.register();
+        com.teslamaps.features.AutoGFS.register();
     }
 }

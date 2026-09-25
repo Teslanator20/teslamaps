@@ -2130,6 +2130,24 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w03-05-dun
+    public boolean secretTrackerLocator = false;       // SECRET_TRACKER particles -> SECRET label
+    public boolean serverLagTimer = false;             // lag line at run end
+    public boolean dungeonLevelSlotText = false;       // cata/class/sb level as slot text
+    public boolean swapSound = false;                  // sound on pickaxe swap-stonk click
+    public boolean swapSoundOnlyBlock = true;
+    public String swapSoundType = "NOTE_PLING";
+    public float swapSoundVolume = 1.0f;
+    public float swapSoundPitch = 1.0f;
+    public boolean treasureTalismanAlert = false;      // title + chat + sound on a dropped treasure talisman
+    public boolean scoreAssumeNoSpirit = false;        // first death -2 unless the spirit check says otherwise
+    public boolean autoGFSLeaps = false;               // spirit leaps to 16, only when 4+ missing
+    public int autoGFSMinMissing = 1;                  // other items: refill only when this many are missing
+    public boolean autoGFSSkipDead = false;            // no refill while dead
+    public boolean autoGFSKuudra = false;              // Dungeon Only also allows Kuudra
+    public boolean autoGFSTwilight = false;            // M7 twilight arrow poison per class
+    public int autoGFSTwilightAmount = 8;
+    public int autoGFSPearlKey = -1;                   // pearls up to the next multiple of 16
     // w02-06-term
     public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
     public int terminalDropKey = -1;                   // own key/mouse button that clicks the hovered terminal slot

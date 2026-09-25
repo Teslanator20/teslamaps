@@ -22,8 +22,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MultiPlayerGameMode.class)
 public class ClientPlayerInteractionManagerMixin {
-    @Inject(method = "useItem", at = @At("HEAD"))
+    @Inject(method = "useItem", at = @At("HEAD"), cancellable = true)
     private void teslamaps$onUseItem(net.minecraft.world.entity.player.Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        if (com.teslamaps.features.SecretTrackerLocator.onUseItem(player.getItemInHand(hand))) {
+            cir.setReturnValue(InteractionResult.FAIL);
+            return;
+        }
         com.teslamaps.features.CombatTimers.onUseItem(player.getItemInHand(hand));
         com.teslamaps.features.HotspotRadar.onUseItem(player.getItemInHand(hand));
     }
@@ -37,6 +41,10 @@ public class ClientPlayerInteractionManagerMixin {
 
     @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
     private void onInteractBlock(net.minecraft.client.player.LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
+        if (com.teslamaps.features.SecretTrackerLocator.onUseItem(player.getItemInHand(hand))) {
+            cir.setReturnValue(InteractionResult.FAIL);
+            return;
+        }
         com.teslamaps.features.HotspotRadar.onUseItem(player.getItemInHand(hand));
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;

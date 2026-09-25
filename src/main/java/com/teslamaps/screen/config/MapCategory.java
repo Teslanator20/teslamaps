@@ -80,6 +80,8 @@ public final class MapCategory {
         b.toggle("  Show Total Crypts", () -> config.showTotalCrypts, v -> config.showTotalCrypts = v);
         b.toggle("Assume Paul Mayor", () -> config.assumePaulMayor, v -> config.assumePaulMayor = v);
         b.toggle("  Auto-detect Paul (Election API)", () -> config.paulAutoDetect, v -> config.paulAutoDetect = v);
+        b.toggle("Assume No Spirit Pet", () -> config.scoreAssumeNoSpirit, v -> config.scoreAssumeNoSpirit = v)
+                .desc("Score: first death costs 2 instead of 1 (the spirit pet check below still wins when it finds out)");
         b.toggle("Check Spirit Pet on First Death", () -> config.spiritPetCheck, v -> config.spiritPetCheck = v);
         b.keybind("Peek Key (all names + secrets)", () -> config.mapPeekKey, v -> config.mapPeekKey = v);
         b.toggle("  Peek Key Toggles (instead of hold)", () -> config.mapPeekToggle, v -> config.mapPeekToggle = v);

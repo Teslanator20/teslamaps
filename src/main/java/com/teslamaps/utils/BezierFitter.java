@@ -72,6 +72,14 @@ public class BezierFitter {
         return at(t);
     }
 
+    /** Point on the fitted curve at parameter t (point index scale), null while too few points. */
+    public Vec3 pointAt(double t) {
+        if (points.size() <= degree) return null;
+        if (coefficients == null) coefficients = fit();
+        if (coefficients == null) return null;
+        return at(t);
+    }
+
     private Vec3 at(double t) {
         double[] out = new double[3];
         for (int axis = 0; axis < 3; axis++) {

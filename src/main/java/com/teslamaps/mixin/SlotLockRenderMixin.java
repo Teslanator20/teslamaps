@@ -17,5 +17,6 @@ public abstract class SlotLockRenderMixin {
         com.teslamaps.features.WardrobeKeys.render(ctx);
         com.teslamaps.features.HoveredSlot.render(ctx, mouseX, mouseY);
         com.teslamaps.features.SkillLevelStack.render(ctx);
+        com.teslamaps.features.DungeonLevelSlotText.render(ctx);
     }
 }

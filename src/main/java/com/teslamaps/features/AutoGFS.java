@@ -20,6 +20,26 @@ public class AutoGFS {
 
     private static final java.util.regex.Pattern DRAFT_RESET = java.util.regex.Pattern.compile("^You used the Architect's First Draft to reset (.+)!$");
 
+    private static final java.util.regex.Pattern STORM_LIGHTNING = java.util.regex.Pattern.compile("^\\[BOSS] Storm: (ENERGY HEED MY CALL|THUNDER LET ME BE YOUR CATALYST)!$");
+    private static final String WK_P5 = "[BOSS] Wither King: I no longer wish to fight, but I know that will not stop you.";
+    private static final String CORE_OPEN = "The Core entrance is opening!";
+    private static boolean stormTwilightDone = false;
+    private static Object lastLevel = null;
+    private static boolean pearlKeyDown = false;
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("AutoGFSPearlKey").section("Auto")
+                .when(() -> TeslaMapsConfig.get().autoGFSPearlKey != -1)
+                .tick(AutoGFS::pearlKeyTick);
+    }
+
+    private static void pearlKeyTick() {
+        Minecraft mc = Minecraft.getInstance();
+        boolean down = mc.screen == null && com.teslamaps.utils.KeyNames.isDown(TeslaMapsConfig.get().autoGFSPearlKey);
+        if (down && !pearlKeyDown) gfsPearlsToStack();
+        pearlKeyDown = down;
+    }
+
     private record Pending(long dueTick, Runnable action) {}
     private static final java.util.List<Pending> pending = new java.util.ArrayList<>();
 
@@ -31,6 +51,12 @@ public class AutoGFS {
         if (!TeslaMapsConfig.get().autoGFS) return;
 
         tickCounter++;
+
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level != lastLevel) {
+            lastLevel = mc.level;
+            stormTwilightDone = false;
+        }
 
         for (int i = pending.size() - 1; i >= 0; i--) {
             if (pending.get(i).dueTick() <= tickCounter) pending.remove(i).action().run();
@@ -72,6 +98,8 @@ public class AutoGFS {
             }
         }
 
+        if (c.autoGFSTwilight) twilight(message.trim());
+
         if (c.autoGFSDraftAnnounce && DungeonManager.isInDungeon()) {
             java.util.regex.Matcher dm = DRAFT_RESET.matcher(message.trim());
             if (dm.matches()) Announce.party("Used Draft to Reset " + dm.group(1));
@@ -84,6 +112,35 @@ public class AutoGFS {
                 scheduleCommand(30, "gfs architect's first draft 1");
             }
         }
+    }
+
+    // NoammAddons: M7 twilight arrow poison at fixed boss lines, per class
+    private static void twilight(String msg) {
+        if (!DungeonManager.isInDungeon() || !DungeonManager.isInBossArea()) return;
+        if (DungeonManager.getCurrentFloor() != com.teslamaps.dungeon.DungeonFloor.M7) return;
+        String clazz = com.teslamaps.player.PlayerTracker.getLocalClass();
+        if (clazz == null || "EMPTY".equals(clazz)) return;
+        boolean dps = clazz.equals("Archer") || clazz.equals("Berserk");
+        int amount = TeslaMapsConfig.get().autoGFSTwilightAmount;
+        if (dps && msg.equals(CORE_OPEN)) {
+            scheduleCommand(10, "gfs twilight_arrow_poison " + amount);
+        } else if (!dps && msg.equals(WK_P5)) {
+            scheduleCommand(10, "gfs twilight_arrow_poison " + amount);
+        } else if (!stormTwilightDone && clazz.equals("Archer") && STORM_LIGHTNING.matcher(msg).matches()) {
+            stormTwilightDone = true;
+            scheduleCommand(10, "gfs twilight_arrow_poison " + amount);
+        }
+    }
+
+    private static boolean localDead() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || !DungeonManager.isInDungeon()) return false;
+        return com.teslamaps.player.PlayerTracker.getPlayer(mc.player.getName().getString())
+                .map(p -> !p.isAlive()).orElse(false);
+    }
+
+    private static boolean inKuudra() {
+        return com.teslamaps.utils.SkyblockUtils.getArea().toLowerCase(java.util.Locale.ROOT).contains("kuudra");
     }
 
     public static final String DRAFT_AUTO = "Auto";
@@ -121,9 +178,11 @@ public class AutoGFS {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.screen != null) return;
 
-        if (TeslaMapsConfig.get().autoGFSDungeonOnly && !DungeonManager.isInDungeon()) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (c.autoGFSDungeonOnly && !DungeonManager.isInDungeon() && !(c.autoGFSKuudra && inKuudra())) {
             return;
         }
+        if (c.autoGFSSkipDead && localDead()) return;
 
         long now = System.currentTimeMillis();
         if (now - lastRefillTime < 2000) return;
@@ -137,6 +196,7 @@ public class AutoGFS {
         int pearlCount = 0;
         int jerryCount = 0;
         int tntCount = 0;
+        int leapCount = 0;
 
         for (int i = 0; i < mc.player.getInventory().getContainerSize(); i++) {
             ItemStack stack = mc.player.getInventory().getItem(i);
@@ -155,25 +215,32 @@ public class AutoGFS {
                 jerryCount += stack.getCount();
             }
 
+            if (name.contains("spirit leap")) leapCount += stack.getCount();
+
             if (name.contains("superboom") || name.contains("super boom")) {
                 hasTNT = true;
                 tntCount += stack.getCount();
             }
         }
 
-        if (TeslaMapsConfig.get().autoGFSPearls && hasPearls && pearlCount < 16) {
+        int min = Math.max(1, c.autoGFSMinMissing);
+        if (c.autoGFSPearls && hasPearls && 16 - pearlCount >= min) {
             int needed = 16 - pearlCount;
             sendCommand("gfs ender_pearl " + needed);
         }
 
-        if (TeslaMapsConfig.get().autoGFSJerry && hasJerry && jerryCount < 64) {
+        if (c.autoGFSJerry && hasJerry && 64 - jerryCount >= min) {
             int needed = 64 - jerryCount;
             sendCommand("gfs inflatable_jerry " + needed);
         }
 
-        if (TeslaMapsConfig.get().autoGFSTNT && hasTNT && tntCount < 64) {
+        if (c.autoGFSTNT && hasTNT && 64 - tntCount >= min) {
             int needed = 64 - tntCount;
             sendCommand("gfs superboom_tnt " + needed);
+        }
+
+        if (c.autoGFSLeaps && leapCount > 0 && 16 - leapCount >= 4) {
+            sendCommand("gfs spirit_leap " + (16 - leapCount));
         }
     }
 
@@ -201,6 +268,27 @@ public class AutoGFS {
             String n = s.getHoverName().getString().toLowerCase();
             return n.contains("superboom") || n.contains("super boom");
         });
+    }
+
+    public static void gfsJerry() {
+        gfsTopUp("inflatable_jerry", 64, s -> s.getHoverName().getString().toLowerCase().contains("inflatable jerry"));
+    }
+
+    public static void gfsLeaps() {
+        gfsTopUp("spirit_leap", 16, s -> s.getHoverName().getString().toLowerCase().contains("spirit leap"));
+    }
+
+    // Shizo: pearls up to the next multiple of 16
+    public static void gfsPearlsToStack() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        int count = 0;
+        for (int i = 0; i < mc.player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = mc.player.getInventory().getItem(i);
+            if (!stack.isEmpty() && BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().contains("ender_pearl")) count += stack.getCount();
+        }
+        int needed = count % 16 == 0 ? 16 : 16 - count % 16;
+        sendCommand("gfs ender_pearl " + needed);
     }
 
     private static void gfsTopUp(String gfsId, int max, java.util.function.Predicate<ItemStack> match) {
