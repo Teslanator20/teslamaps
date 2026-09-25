@@ -239,6 +239,14 @@ public class TimerTriggers {
         playerWarpEnds.put(mt.group(1), end);
     }
 
+    /** End of your own instance-creation cooldown (epoch ms), -1 if none. */
+    public static long ownWarpEnd() {
+        Minecraft mc = Minecraft.getInstance();
+        Long own = mc.player != null ? playerWarpEnds.get(mc.player.getName().getString()) : null;
+        if (own != null) return own;
+        return warpEnd;
+    }
+
     private static void warpDoneSound() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.warpCooldownSound) com.teslamaps.utils.LoudSound.play(

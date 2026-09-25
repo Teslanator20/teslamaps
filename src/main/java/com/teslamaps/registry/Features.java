@@ -110,5 +110,10 @@ final class Features {
         com.teslamaps.features.BloodCheck.register();
         com.teslamaps.dungeon.RushSplits.register();
         com.teslamaps.features.MapPeek.register();
+        // w03-06-dun
+        com.teslamaps.features.croesus.ChestProfitHud.register();
+        com.teslamaps.features.TeammateHealth.register();
+        com.teslamaps.features.WarpCooldownBlock.register();
+        com.teslamaps.player.PlayerTracker.register();
     }
 }

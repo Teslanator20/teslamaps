@@ -18,6 +18,10 @@ public final class CroesusCategory {
         b.toggle("  Compact Mode (profit only)", () -> config.croesusCompact, v -> config.croesusCompact = v);
         b.priceSource("  Price Source", () -> config.croesusPriceSource, v -> config.croesusPriceSource = v);
         b.toggle("  Subtract Kismet Feather", () -> config.croesusKismetCost, v -> config.croesusKismetCost = v);
+        b.toggle("Chest Profit HUD", () -> config.chestProfitHud, v -> config.chestProfitHud = v)
+                .desc("Movable list of all dungeon chests by profit, in the dungeon after opening them and near Croesus. Move it in /tmap gui.");
+        b.toggle("  Include Essence", () -> config.chestProfitHudEssence, v -> config.chestProfitHudEssence = v);
+        b.toggle("  Compact (profit only)", () -> config.chestProfitHudCompact, v -> config.chestProfitHudCompact = v);
         b.toggle("Highlight Unopened (green)", () -> config.croesusHighlightUnopened, v -> config.croesusHighlightUnopened = v);
         b.label("Kuudra Chests");
         b.info("Paid chests subtract the key: coins + Mycelium/Red Sand + 2 Nether Stars");

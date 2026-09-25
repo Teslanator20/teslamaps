@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class CroesusProfit {
 
-    private static final Set<String> CHEST_NAMES =
+    static final Set<String> CHEST_NAMES =
             Set.of("Wood", "Gold", "Diamond", "Emerald", "Obsidian", "Bedrock", "Free", "Paid");
 
     private static final Pattern ESSENCE = Pattern.compile("^(\\w+) Essence(?: x([0-9,]+))?$");
@@ -41,12 +41,12 @@ public class CroesusProfit {
 
     private static int lastDumpId = 0;
 
-    private static final class Parsed {
+    static final class Parsed {
         boolean opened;
         boolean kismet;   // a Kismet Feather was used (a struck-through line in the lore)
         boolean incomplete;
         int keyIndex = -1;
-        double value, cost;
+        double value, cost, essence;
         final List<String> breakdown = new ArrayList<>();
         double profit() { return value - cost; }
     }
@@ -69,8 +69,8 @@ public class CroesusProfit {
     }
 
     private static boolean isCroesusMenu(String t) { return t.contains("Croesus"); }
-    private static boolean isRunView(String t) { return t.contains("Catacombs - Flo") || t.startsWith("Kuudra - "); }
-    private static boolean isChestGui(String t) { return CHEST_NAMES.contains(t.replace(" Chest", "").trim()); }
+    static boolean isRunView(String t) { return t.contains("Catacombs - Flo") || t.startsWith("Kuudra - "); }
+    static boolean isChestGui(String t) { return CHEST_NAMES.contains(t.replace(" Chest", "").trim()); }
 
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         PriceManager.ensureFresh();
@@ -241,7 +241,7 @@ public class CroesusProfit {
     private static final java.util.IdentityHashMap<ItemLore, Parsed> parsedCache = new java.util.IdentityHashMap<>();
     private static int parsedStamp;
 
-    private static Parsed parseLore(ItemLore lore) {
+    static Parsed parseLore(ItemLore lore) {
         if (lore == null) return new Parsed();
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         int stamp = java.util.Objects.hash(System.identityHashCode(cfg), TeslaMapsConfig.version(), PriceManager.version(),
@@ -288,6 +288,7 @@ public class CroesusProfit {
                 double mult = ess.group(1).equalsIgnoreCase("Crimson") ? essenceBonus() : 1;
                 double p = cnt * mult * price("ESSENCE_" + ess.group(1).toUpperCase());
                 r.value += p;
+                r.essence += p;
                 r.breakdown.add(" §7" + l + ": §6" + fmt(p));
                 continue;
             }
@@ -419,7 +420,7 @@ public class CroesusProfit {
         try { return Double.parseDouble(s.replace(",", "")); } catch (Exception e) { return 0; }
     }
 
-    private static String fmt(double v) {
+    static String fmt(double v) {
         double a = Math.abs(v);
         if (a >= 1_000_000) return String.format("%.2fM", v / 1_000_000);
         if (a >= 1_000) return String.format("%.1fk", v / 1_000);

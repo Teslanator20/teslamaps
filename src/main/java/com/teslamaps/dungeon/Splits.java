@@ -24,6 +24,10 @@ public class Splits {
             this.pattern = Pattern.compile(regex);
             this.name = name;
         }
+        Split(Pattern pattern, String name) {
+            this.pattern = pattern;
+            this.name = name;
+        }
     }
 
     private static final List<Split> active = new ArrayList<>();
@@ -45,37 +49,9 @@ public class Splits {
         active.add(new Split(BLOOD_OPEN, "§bBlood Clear"));
         active.add(new Split(PORTAL_ENTRY, "§dPortal Entry"));
 
-        switch (floor.getLevel()) {
-            case 1 -> {
-                active.add(new Split("\\[BOSS] Bonzo: Gratz for making it this far, but I'm basically unbeatable\\.", "§cBonzo's Sike"));
-                active.add(new Split("\\[BOSS] Bonzo: Oh I'm dead!", "§4Cleared"));
-            }
-            case 2 -> {
-                active.add(new Split("\\[BOSS] Scarf: This is where the journey ends for you, Adventurers\\.", "§cScarf's minions"));
-                active.add(new Split("\\[BOSS] Scarf: Did you forget\\? I was taught by the best! Let's dance\\.", "§4Cleared"));
-            }
-            case 3 -> {
-                active.add(new Split("\\[BOSS] The Professor: I was burdened with terrible news recently\\.\\.\\.", "§cThe Guardians"));
-                active.add(new Split("\\[BOSS] The Professor: Oh\\? You found my Guardians' one weakness\\?", "§aThe Professor"));
-                active.add(new Split("\\[BOSS] The Professor: What\\?! My Guardian power is unbeatable!", "§4Cleared"));
-            }
-            case 4 -> active.add(new Split("\\[BOSS] Thorn: Welcome Adventurers! I am Thorn, the Spirit! And host of the Vegan Trials!", "§4Cleared"));
-            case 5 -> active.add(new Split("\\[BOSS] Livid: Welcome, you've arrived right on time\\. I am Livid, the Master of Shadows\\.", "§4Cleared"));
-            case 6 -> {
-                active.add(new Split("\\[BOSS] Sadan: So you made it all the way here\\.\\.\\. Now you wish to defy me\\? Sadan\\?!", "§cTerracottas"));
-                active.add(new Split("\\[BOSS] Sadan: ENOUGH!", "§aGiants"));
-                active.add(new Split("\\[BOSS] Sadan: You did it\\. I understand now, you have earned my respect\\.", "§4Cleared"));
-            }
-            case 7 -> {
-                active.add(new Split("\\[BOSS] Maxor: WELL! WELL! WELL! LOOK WHO'S HERE!", "§5Maxor"));
-                active.add(new Split("\\[BOSS] Storm: Pathetic Maxor, just like expected\\.", "§3Storm"));
-                active.add(new Split("\\[BOSS] Goldor: Who dares trespass into my domain\\?", "§6Terminals"));
-                active.add(new Split("The Core entrance is opening!", "§7Goldor"));
-                active.add(new Split("\\[BOSS] Necron: You went further than any human before, congratulations\\.", "§cNecron"));
-                active.add(new Split("\\[BOSS] Necron: All this, for nothing\\.\\.\\.", floor.isMaster() ? "§4Wither King" : "§4Cleared"));
-            }
-            default -> { }
-        }
+        List<Split> custom = customSplits(floor);
+        if (custom != null) active.addAll(custom);
+        else for (String[] d : defaultBossSplits(floor)) active.add(new Split(d[0], d[1]));
 
         active.add(new Split(TOTAL, "§1Total"));
         // M7 last phase used to be keyed "Cleared"
@@ -83,6 +59,66 @@ public class Splits {
         String oldKey = pbKey("Cleared"), newKey = pbKey("Wither King");
         if (floor.isMaster() && floor.getLevel() == 7 && pbs.containsKey(oldKey) && !pbs.containsKey(newKey)) pbs.put(newKey, pbs.get(oldKey));
         for (Split s : active) s.pbAtStart = TeslaMapsConfig.get().splitPbs.get(pbKey(s.name));
+    }
+
+    /** The floor's built-in boss splits as {regex, name}. */
+    public static List<String[]> defaultBossSplits(DungeonFloor floor) {
+        List<String[]> d = new ArrayList<>();
+        switch (floor.getLevel()) {
+            case 1 -> {
+                d.add(new String[]{"\\[BOSS] Bonzo: Gratz for making it this far, but I'm basically unbeatable\\.", "§cBonzo's Sike"});
+                d.add(new String[]{"\\[BOSS] Bonzo: Oh I'm dead!", "§4Cleared"});
+            }
+            case 2 -> {
+                d.add(new String[]{"\\[BOSS] Scarf: This is where the journey ends for you, Adventurers\\.", "§cScarf's minions"});
+                d.add(new String[]{"\\[BOSS] Scarf: Did you forget\\? I was taught by the best! Let's dance\\.", "§4Cleared"});
+            }
+            case 3 -> {
+                d.add(new String[]{"\\[BOSS] The Professor: I was burdened with terrible news recently\\.\\.\\.", "§cThe Guardians"});
+                d.add(new String[]{"\\[BOSS] The Professor: Oh\\? You found my Guardians' one weakness\\?", "§aThe Professor"});
+                d.add(new String[]{"\\[BOSS] The Professor: What\\?! My Guardian power is unbeatable!", "§4Cleared"});
+            }
+            case 4 -> d.add(new String[]{"\\[BOSS] Thorn: Welcome Adventurers! I am Thorn, the Spirit! And host of the Vegan Trials!", "§4Cleared"});
+            case 5 -> d.add(new String[]{"\\[BOSS] Livid: Welcome, you've arrived right on time\\. I am Livid, the Master of Shadows\\.", "§4Cleared"});
+            case 6 -> {
+                d.add(new String[]{"\\[BOSS] Sadan: So you made it all the way here\\.\\.\\. Now you wish to defy me\\? Sadan\\?!", "§cTerracottas"});
+                d.add(new String[]{"\\[BOSS] Sadan: ENOUGH!", "§aGiants"});
+                d.add(new String[]{"\\[BOSS] Sadan: You did it\\. I understand now, you have earned my respect\\.", "§4Cleared"});
+            }
+            case 7 -> {
+                d.add(new String[]{"\\[BOSS] Maxor: WELL! WELL! WELL! LOOK WHO'S HERE!", "§5Maxor"});
+                d.add(new String[]{"\\[BOSS] Storm: Pathetic Maxor, just like expected\\.", "§3Storm"});
+                d.add(new String[]{"\\[BOSS] Goldor: Who dares trespass into my domain\\?", "§6Terminals"});
+                d.add(new String[]{"The Core entrance is opening!", "§7Goldor"});
+                d.add(new String[]{"\\[BOSS] Necron: You went further than any human before, congratulations\\.", "§cNecron"});
+                d.add(new String[]{"\\[BOSS] Necron: All this, for nothing\\.\\.\\.", floor.isMaster() ? "§4Wither King" : "§4Cleared"});
+            }
+            default -> { }
+        }
+        return d;
+    }
+
+    private static List<Split> customSplits(DungeonFloor floor) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.customSplits) return null;
+        List<TeslaMapsConfig.CustomSplit> defs = c.customSplitDefs.get(floor.name());
+        if (defs == null) return null;
+        List<Split> out = new ArrayList<>();
+        for (TeslaMapsConfig.CustomSplit cs : defs) {
+            if (cs == null || cs.message == null || cs.message.isBlank()) continue;
+            String name = cs.name == null || cs.name.isBlank() ? "Split " + (out.size() + 1) : cs.name.replace('&', '§');
+            out.add(new Split(customPattern(cs.message.trim()), name));
+        }
+        return out.isEmpty() ? null : out;
+    }
+
+    private static Pattern customPattern(String msg) {
+        if (msg.length() > 2 && msg.startsWith("/") && msg.endsWith("/")) {
+            try {
+                return Pattern.compile(msg.substring(1, msg.length() - 1));
+            } catch (java.util.regex.PatternSyntaxException ignored) { }
+        }
+        return Pattern.compile(".*" + Pattern.quote(msg) + ".*");
     }
 
     private static void setDelta(Split s, long durationMs) {

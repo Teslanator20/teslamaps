@@ -14,6 +14,16 @@ public final class ScoreSplitsCategory {
         b.label("Score Announce");
         b.toggle("Announce 300 (/pc)", () -> config.announce300, v -> config.announce300 = v);
         b.toggle("Announce 270 (/pc)", () -> config.announce270, v -> config.announce270 = v);
+        b.toggle("  270 Score Title", () -> config.score270Title, v -> config.score270Title = v);
+        b.toggle("  300 Score Title", () -> config.score300Title, v -> config.score300Title = v);
+        b.button("  Edit Score Texts", () -> Minecraft.getInstance().setScreen(new TextFieldsScreen(
+                Minecraft.getInstance().screen, "Score Texts", "& = color, {time} = run time, empty message = default",
+                java.util.List.of(
+                        new TextFieldsScreen.Field("270 Title", () -> config.score270TitleText, v -> config.score270TitleText = v),
+                        new TextFieldsScreen.Field("270 Message", () -> config.score270Text, v -> config.score270Text = v),
+                        new TextFieldsScreen.Field("300 Title", () -> config.score300TitleText, v -> config.score300TitleText = v),
+                        new TextFieldsScreen.Field("300 Message", () -> config.score300Text, v -> config.score300Text = v)))))
+                .desc("Title text and the chat/party message for 270 and 300 score.");
         b.toggle("Mimic Dead Message", () -> config.mimicDeadMessage, v -> config.mimicDeadMessage = v);
         b.toggle("Prince Dead Message", () -> config.princeDeadMessage, v -> config.princeDeadMessage = v);
         b.buttonRow(new String[]{"Mimic Killed", "Prince Killed"}, new Runnable[]{
@@ -36,6 +46,10 @@ public final class ScoreSplitsCategory {
         b.toggle("  Show PBs (per split)", () -> config.splitsShowPb, v -> config.splitsShowPb = v);
         b.toggle("  Show Delta To PB", () -> config.splitsShowDelta, v -> config.splitsShowDelta = v);
         b.toggle("  Send All Splits on End", () -> config.splitsSendAllOnEnd, v -> config.splitsSendAllOnEnd = v);
+        b.toggle("  Custom Splits (per floor)", () -> config.customSplits, v -> config.customSplits = v)
+                .desc("Own split points per floor, triggered by a chat message. They replace that floor's boss splits.");
+        b.button("    Edit Custom Splits", () -> Minecraft.getInstance().setScreen(
+                new CustomSplitsScreen(Minecraft.getInstance().screen)));
         b.toggle("  Terminal Splits (P3 Sections)", () -> config.terminalSplits, v -> config.terminalSplits = v)
                 .desc("Adds section and P3 time to every terminal/device line, summary when the core opens.");
         b.toggle("    Use Server Ticks", () -> config.terminalSplitsServerTicks, v -> config.terminalSplitsServerTicks = v);
