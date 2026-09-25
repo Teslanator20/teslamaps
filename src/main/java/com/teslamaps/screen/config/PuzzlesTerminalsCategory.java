@@ -14,6 +14,12 @@ public final class PuzzlesTerminalsCategory {
         b.label("Terminals");
         b.toggle("Melody Message (/pc on open)", () -> config.melodyMessage, v -> config.melodyMessage = v);
         b.toggle("Melody Progress (/pc 25/50/75%)", () -> config.melodyProgress, v -> config.melodyProgress = v);
+        String[] progressFormats = {"25%", "1/4"};
+        b.dropdown("  Progress Format", progressFormats,
+                () -> progressFormats[config.melodyProgressFormat == 1 ? 1 : 0],
+                v -> config.melodyProgressFormat = v.equals(progressFormats[1]) ? 1 : 0);
+        b.button("  Edit Melody Messages",
+                () -> Minecraft.getInstance().setScreen(new MelodyMessageScreen(Minecraft.getInstance().screen)));
         b.toggle("Terminal Solver", () -> config.terminalSolver, v -> config.terminalSolver = v);
         String[] renderTypes = {"Odin", "Normal", "Custom GUI"};
         b.dropdown("Render Type", renderTypes,
@@ -31,7 +37,22 @@ public final class PuzzlesTerminalsCategory {
                 () -> config.terminalRoundness, v -> config.terminalRoundness = v, 0);
         b.slider("Custom GUI Slot Gap", 0f, 8f,
                 () -> (float) config.terminalSlotGap, v -> config.terminalSlotGap = Math.round(v), 0);
+        String[] slotStyles = {"Rounded", "Rect", "Bordered Rect", "Button"};
+        b.dropdown("Custom GUI Slot Style", slotStyles,
+                () -> slotStyles[Math.max(0, Math.min(3, config.terminalSlotStyle))],
+                v -> config.terminalSlotStyle = Math.max(0, java.util.Arrays.asList(slotStyles).indexOf(v)));
+        b.keybind("  Terminal Click Key", () -> config.terminalDropKey, v -> config.terminalDropKey = v)
+                .desc("Clicks the hovered terminal slot, any render type. Mouse buttons work too.");
         b.toggle("Stop Melody Solver", () -> config.terminalCancelMelodySolver, v -> config.terminalCancelMelodySolver = v);
+        b.toggle("  Stop Panes Solver", () -> config.terminalStopPanes, v -> config.terminalStopPanes = v);
+        b.toggle("  Stop Rubix Solver", () -> config.terminalStopRubix, v -> config.terminalStopRubix = v);
+        b.toggle("  Stop Click in Order Solver", () -> config.terminalStopNumbers, v -> config.terminalStopNumbers = v);
+        b.toggle("  Stop Starts With Solver", () -> config.terminalStopStartsWith, v -> config.terminalStopStartsWith = v);
+        b.toggle("  Stop Select All Solver", () -> config.terminalStopSelect, v -> config.terminalStopSelect = v);
+        b.toggle("  Melody Keys (1-4)", () -> config.terminalMelodyKeys, v -> config.terminalMelodyKeys = v)
+                .desc("Keys 1-4 click the button of that melody row.");
+        b.toggle("  Hide Chat & Boss Bar in Terminals", () -> config.terminalHideClutter, v -> config.terminalHideClutter = v)
+                .desc("Also hides the container background, titles, carried item and slot highlights.");
         b.slider("Melody GUI Size", 1f, 3f,
                 () -> config.terminalMelodySize, v -> config.terminalMelodySize = v, 1);
         b.toggle("Show Numbers (Click in Order)", () -> config.terminalShowNumbers, v -> config.terminalShowNumbers = v);

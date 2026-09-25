@@ -22,6 +22,14 @@ public class ChatGeometryMixin {
 
     @Inject(
         method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Font;IIILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;Z)V",
+        at = @At("HEAD"), cancellable = true)
+    private void teslamaps$hideInTerminal(GuiGraphicsExtractor ctx, Font font, int tickCount, int mouseX, int mouseY,
+                                          ChatComponent.DisplayMode mode, boolean focused, CallbackInfo ci) {
+        if (com.teslamaps.features.TerminalSolver.hideClutter()) ci.cancel();
+    }
+
+    @Inject(
+        method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Font;IIILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;Z)V",
         at = @At(value = "INVOKE",
                  target = "Lnet/minecraft/client/gui/components/ChatComponent;extractRenderState(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V"))
     private void teslamaps$captureChatPose(GuiGraphicsExtractor ctx, Font font, int tickCount, int mouseX, int mouseY,

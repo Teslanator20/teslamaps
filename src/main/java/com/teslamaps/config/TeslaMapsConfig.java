@@ -2130,6 +2130,20 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w02-06-term
+    public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
+    public int terminalDropKey = -1;                   // own key/mouse button that clicks the hovered terminal slot
+    public boolean terminalSplits = false;             // section + P3 time on terminal lines, summary at core
+    public boolean terminalSplitsServerTicks = false;  // server ticks instead of real time
+    public int melodyProgressFormat = 0;               // 0 = 25%, 1 = 1/4
+    public String melodyProgressText = "Melody";       // prefix of the progress message
+    public boolean terminalHideClutter = false;        // hide chat, boss bar, labels, carried item while a terminal is open
+    public boolean terminalStopPanes = false;
+    public boolean terminalStopRubix = false;
+    public boolean terminalStopNumbers = false;
+    public boolean terminalStopStartsWith = false;
+    public boolean terminalStopSelect = false;
+    public int terminalSlotStyle = 0;                  // 0 rounded, 1 rect, 2 bordered, 3 button
 
     public static TeslaMapsConfig get() {
         return instance;

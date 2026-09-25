@@ -93,6 +93,12 @@ public abstract class TermGui {
         return true;
     }
 
+    /** Slot under the mouse in the active custom GUI, or null. */
+    public static Integer hoveredActive() {
+        TermGui gui = active();
+        return gui == null ? null : gui.hoveredSlotIndex;
+    }
+
     public static boolean keyActive(KeyEvent input) {
         TermGui gui = active();
         if (gui == null || !isTerminalOverrideKey(input)) return false;
@@ -155,13 +161,40 @@ public abstract class TermGui {
             TerminalHandler.SlotRender render = slot.visual.resolve().get();
             if (render == null) continue;
             if (slot.containsBase(baseMX, baseMY)) hoveredSlotIndex = slot.slotIndex;
-            TeslaGui.roundedRect(ctx, slot.bx, slot.by, slot.size, slot.size, radius, render.color());
+            drawSlot(ctx, slot.bx, slot.by, slot.size, radius, render.color());
             if (slot.visual.onRenderContent() != null) {
                 slot.visual.onRenderContent().render(ctx, slot.bx, slot.by, slot.size, slot.size);
             }
         }
 
         ctx.pose().popMatrix();
+    }
+
+    private static void drawSlot(GuiGraphicsExtractor ctx, int x, int y, int size, float radius, int color) {
+        switch (TerminalSolver.slotStyle()) {
+            case 1 -> ctx.fill(x, y, x + size, y + size, color);
+            case 2 -> {
+                ctx.fill(x, y, x + size, y + size, TeslaGui.withAlpha(color, 40));
+                ctx.fill(x, y, x + size, y + 1, color);
+                ctx.fill(x, y + size - 1, x + size, y + size, color);
+                ctx.fill(x, y + 1, x + 1, y + size - 1, color);
+                ctx.fill(x + size - 1, y + 1, x + size, y + size - 1, color);
+            }
+            case 3 -> {
+                int a = color & 0xFF000000;
+                ctx.fill(x, y, x + size, y + size, a | shade(color, 0.55f));
+                ctx.fill(x, y, x + size - 1, y + size - 1, a | shade(color, 1.35f));
+                ctx.fill(x + 1, y + 1, x + size - 1, y + size - 1, color);
+            }
+            default -> TeslaGui.roundedRect(ctx, x, y, size, size, radius, color);
+        }
+    }
+
+    private static int shade(int color, float f) {
+        int r = Math.min(255, (int) (((color >> 16) & 0xFF) * f));
+        int g = Math.min(255, (int) (((color >> 8) & 0xFF) * f));
+        int b = Math.min(255, (int) ((color & 0xFF) * f));
+        return (r << 16) | (g << 8) | b;
     }
 
     protected static void renderSlotText(GuiGraphicsExtractor ctx, String text,

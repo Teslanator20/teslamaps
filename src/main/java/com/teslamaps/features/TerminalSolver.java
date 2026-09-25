@@ -29,7 +29,65 @@ public class TerminalSolver {
 
     // ---- settings ------------------------------------------------------------
 
-    public static boolean enabled() { return TeslaMapsConfig.get().terminalSolver; }
+    public static boolean enabled() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.terminalSolver) return false;
+        TerminalHandler term = TerminalUtils.getCurrentTerm();
+        if (term == null) return true;
+        return switch (term.type) {
+            case PANES -> !c.terminalStopPanes;
+            case RUBIX -> !c.terminalStopRubix;
+            case NUMBERS -> !c.terminalStopNumbers;
+            case STARTS_WITH -> !c.terminalStopStartsWith;
+            case SELECT -> !c.terminalStopSelect;
+            case MELODY -> true;
+        };
+    }
+
+    public static int slotStyle() { return TeslaMapsConfig.get().terminalSlotStyle; }
+
+    /** Chat, boss bar, labels, carried item and highlights stay hidden while a terminal is open. */
+    public static boolean hideClutter() {
+        return TeslaMapsConfig.get().terminalHideClutter && TerminalUtils.getCurrentTerm() != null
+                && TeslaMapsConfig.get().section("Puzzles & Terminals");
+    }
+
+    // ---- keys ----------------------------------------------------------------
+
+    /** Keyboard key or mouse bind (KeyNames encoding) pressed inside a terminal. True = consumed. */
+    public static boolean onTerminalKey(int key, Slot focused) {
+        TerminalHandler term = TerminalUtils.getCurrentTerm();
+        if (term == null || key == -1) return false;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.section("Puzzles & Terminals")) return false;
+        if (c.terminalMelodyKeys && term.type == TerminalTypes.MELODY
+                && key >= org.lwjgl.glfw.GLFW.GLFW_KEY_1 && key <= org.lwjgl.glfw.GLFW.GLFW_KEY_4) {
+            keyClick(term, (key - org.lwjgl.glfw.GLFW.GLFW_KEY_1) * 9 + 16);
+            return true;
+        }
+        if (c.terminalDropKey != -1 && key == c.terminalDropKey) {
+            Integer slot = com.teslamaps.dungeon.termgui.TermGui.hoveredActive();
+            if (slot == null && focused != null && focused.index < term.type.windowSize) slot = focused.index;
+            if (slot != null) keyClick(term, slot);
+            return true;
+        }
+        return false;
+    }
+
+    private static void keyClick(TerminalHandler term, int slot) {
+        if (enabled()) {
+            term.click(slot, 0, hideClicked());
+            return;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen instanceof TermSimGUI sim) {
+            sim.clickIndex(slot, org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_3);
+            return;
+        }
+        if (mc.player == null || mc.gameMode == null) return;
+        mc.gameMode.handleContainerInput(mc.player.containerMenu.containerId, slot,
+                org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_3, net.minecraft.world.inventory.ContainerInput.CLONE, mc.player);
+    }
     public static int renderType() { return TeslaMapsConfig.get().terminalRenderType; }
     public static float customTermSize() { return TeslaMapsConfig.get().terminalCustomSize; }
     public static float roundness() { return TeslaMapsConfig.get().terminalRoundness; }
