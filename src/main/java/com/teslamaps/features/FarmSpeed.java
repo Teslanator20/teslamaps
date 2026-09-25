@@ -37,6 +37,7 @@ public class FarmSpeed {
         if (!isCrop(state)) return;
         FarmProgress.onCropBreak(state);
         FarmProfit.onCropBreak(state, mc.level.getOverworldClockTime());
+        CropStats.onCropBreak(state, mc.level.getOverworldClockTime());
 
         lastBreak = System.currentTimeMillis();
         times[head] = lastBreak;

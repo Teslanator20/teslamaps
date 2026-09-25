@@ -592,5 +592,14 @@ final class Features {
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
+        // w13-08-gar
+        com.teslamaps.features.CropStats.register();
+        com.teslamaps.features.AtmosphericFilter.register();
+        com.teslamaps.features.EliteLeaderboards.register();
+        com.teslamaps.features.CropSpeedMeter.register();
+        com.teslamaps.features.CropCalcCommands.register();
+        com.teslamaps.features.FortuneGuide.register();
+        com.teslamaps.features.FarmToolOverlays.register();
+        com.teslamaps.features.JacobContestFF.register();
     }
 }

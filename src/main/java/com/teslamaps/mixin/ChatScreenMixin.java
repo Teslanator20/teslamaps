@@ -56,6 +56,13 @@ public class ChatScreenMixin {
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$eliteLbClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && com.teslamaps.features.EliteLeaderboards.onChatClick(event.x(), event.y())) {
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void teslamaps$openSharedImage(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) return;
         var hit = com.teslamaps.features.SharedImageChatRenderer.hitAt(event.x(), event.y());

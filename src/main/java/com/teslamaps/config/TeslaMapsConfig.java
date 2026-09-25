@@ -2148,6 +2148,53 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w13-08-gar
+    public boolean atmosphericFilterHud = false;
+    public boolean atmosphericFilterOnlyBuff = false;
+    public boolean atmosphericFilterShortSeason = false;
+    public boolean atmosphericFilterShortPerk = false;
+    public boolean atmosphericFilterEverywhere = false;
+    public int atmosphericFilterX = 10;
+    public int atmosphericFilterY = 230;
+    public float atmosphericFilterScale = 1.0f;
+    public boolean mhCropDiagnostics = false;
+    public boolean eliteLeaderboards = false;
+    public boolean eliteLbWeight = true;
+    public boolean eliteLbCrop = false;
+    public boolean eliteLbPest = false;
+    public boolean eliteLbMonthly = false;
+    public String eliteLbGamemode = "All";
+    public boolean eliteLbOvertake = true;
+    public boolean eliteLbEverywhere = false;
+    public int eliteLbX = 10;
+    public int eliteLbY = 150;
+    public float eliteLbScale = 1.0f;
+    public boolean cropSpeedMeter = false;
+    public int cropSpeedMeterX = 10;
+    public int cropSpeedMeterY = 90;
+    public float cropSpeedMeterScale = 1.0f;
+    public boolean cropCalcCommands = false;
+    public boolean fortuneGuide = false;
+    public boolean farmToolOverlays = false;
+    public boolean farmToolHoe = true;
+    public boolean farmToolScythe = true;
+    public boolean farmToolDirtWand = true;
+    public boolean farmToolPrismapump = true;
+    public boolean minionCrystalRadius = true;
+    public boolean minionCrystalAlways = false;
+    public String farmToolColor = "66B22222";
+    public boolean jacobContestFF = false;
+    public int jacobContestFFX = 10;
+    public int jacobContestFFY = 40;
+    public float jacobContestFFScale = 1.0f;
+    @Global
+    public java.util.Map<String, Long> cropMilestoneCounters = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, Double> cropLatestBps = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, Double> cropLatestFortune = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, Double> cropMeasuredPerBlock = new java.util.HashMap<>();
     // w12-01-gui
     public java.util.Map<String, String> hudPanelChroma = new java.util.HashMap<>(); // hud id -> Off / Plain Text / All Text
     public String hudChromaAll = "Off";
@@ -4668,6 +4715,12 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.cropMilestoneCounters == null) c.cropMilestoneCounters = new java.util.HashMap<>();
+        if (c.cropLatestBps == null) c.cropLatestBps = new java.util.HashMap<>();
+        if (c.cropLatestFortune == null) c.cropLatestFortune = new java.util.HashMap<>();
+        if (c.cropMeasuredPerBlock == null) c.cropMeasuredPerBlock = new java.util.HashMap<>();
+        if (c.eliteLbGamemode == null) c.eliteLbGamemode = "All";
+        if (c.farmToolColor == null) c.farmToolColor = "66B22222";
         if (c.featureConditionRules == null) c.featureConditionRules = new java.util.LinkedHashMap<>();
         c.featureConditionRules.values().removeIf(java.util.Objects::isNull);
         for (FeatureRule r : c.featureConditionRules.values()) {
