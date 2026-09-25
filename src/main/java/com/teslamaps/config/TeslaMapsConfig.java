@@ -2148,6 +2148,33 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w16-01-sla
+    public boolean profitTrackerSlayerRng = false;
+    public java.util.Map<String, Integer> slayerBossesSinceRng = new java.util.HashMap<>();
+    public java.util.Map<String, Long> slayerLastRngMs = new java.util.HashMap<>();
+    public boolean slayerBossSoon = false;
+    public int slayerBossSoonPercent = 85;
+    public boolean slayerBossSoonRepeat = false;
+    public boolean slayerQuestWarning = false;
+    public boolean slayerQuestWarningTitle = true;
+    public boolean slayerLevelHud = false;
+    public boolean slayerLevelHudKillTimes = false;
+    public int slayerLevelHudX = 5;
+    public int slayerLevelHudY = 200;
+    public float slayerLevelHudScale = 1.0f;
+    public boolean slayerRngDisplay = false;
+    public boolean slayerRngDisplayWarnEmpty = false;
+    public boolean slayerRngDisplayHideChat = false;
+    public int slayerRngDisplayX = 5;
+    public int slayerRngDisplayY = 240;
+    public float slayerRngDisplayScale = 1.0f;
+    public boolean voidgloomLaserTimer = false;
+    public boolean slayerNametag = false;
+    public String slayerNametagMode = "Own + Carries";
+    public boolean slayerNametagShortName = true;
+    public boolean slayerNametagCompact = false;
+    public boolean slayerNametagHideOriginal = false;
+    public boolean slayerNametagKillTimer = false;
     // w15-01-min
     public boolean forgeReminder = false;
     public int forgeReminderDelay = 1;
@@ -5607,6 +5634,9 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.slayerBossesSinceRng == null) c.slayerBossesSinceRng = new java.util.HashMap<>();
+        if (c.slayerLastRngMs == null) c.slayerLastRngMs = new java.util.HashMap<>();
+        if (c.slayerNametagMode == null) c.slayerNametagMode = "Own + Carries";
         if (c.chScanStructures == null) c.chScanStructures = new java.util.HashMap<>();
         c.chScanStructures.values().removeIf(java.util.Objects::isNull);
         if (c.hotmSkyMallPerk == null) c.hotmSkyMallPerk = "";
