@@ -324,6 +324,37 @@ public class ESPRenderer {
         matrices.popPose();
     }
 
+    /** Connected segments pts[i-1] -> pts[i], segment i drawn with widths[i]; widths[i] <= 0 skips it. */
+    public static void drawPolyline(PoseStack matrices, java.util.List<Vec3> pts, float[] widths, int color, Vec3 cameraPos,
+                                    boolean throughWalls) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.renderBuffers() == null || pts.size() < 2) return;
+        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        float r = ((color >> 16) & 0xFF) / 255f;
+        float g = ((color >> 8) & 0xFF) / 255f;
+        float b = (color & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f;
+        if (a == 0) a = 1.0f;
+        var layer = throughWalls ? TeslaRenderLayers.LINES_ESP : TeslaRenderLayers.LINES_DEPTH;
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        PoseStack.Pose pose = matrices.last();
+        VertexConsumer buffer = src.getBuffer(layer);
+        Vec3 from = pts.get(0);
+        for (int i = 1, n = pts.size(); i < n; i++) {
+            Vec3 to = pts.get(i);
+            float w = widths[i];
+            if (w > 0) {
+                float dx = (float) (to.x - from.x), dy = (float) (to.y - from.y), dz = (float) (to.z - from.z);
+                buffer.addVertex(pose, (float) from.x, (float) from.y, (float) from.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(w);
+                buffer.addVertex(pose, (float) to.x, (float) to.y, (float) to.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(w);
+            }
+            from = to;
+        }
+        finish(src, layer);
+        matrices.popPose();
+    }
+
     public static void drawLine(PoseStack matrices, Vec3 start, Vec3 end, int color, float lineWidth, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;
