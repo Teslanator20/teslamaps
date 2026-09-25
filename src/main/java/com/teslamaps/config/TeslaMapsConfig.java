@@ -2229,6 +2229,33 @@ public class TeslaMapsConfig {
     public boolean preventPlacingExceptGarden = true;
     public int preventPlacingBlacklistKey = -1;
     public java.util.Set<String> preventPlacingBlacklist = new java.util.HashSet<>();
+    // w04-09-inv
+    public boolean menuHighlights = false;
+    public boolean mhBeacon = true;
+    public boolean mhHubSelector = true;
+    public boolean mhRngMeter = true;
+    public boolean mhMuseum = true;
+    public boolean mhLoadout = true;
+    public boolean mhPowerStones = true;
+    public boolean mhPowerStoneBazaar = false;
+    public boolean mhFavoritePowers = true;
+    public boolean mhStatsTuning = true;
+    public java.util.List<String> favoritePowers = new java.util.ArrayList<>();
+    public boolean museumHelper = false;
+    public int museumHelperRows = 15;
+    public String museumHelperSort = "Lowest Price";
+    public String museumHelperCategory = "All";
+    public boolean priceLineKeyValue = false;
+    public boolean obtainedDate = false;
+    public boolean searchOverlayRecipes = false;
+    public java.util.List<String> recipeSearchHistory = new java.util.ArrayList<>();
+    public boolean minionCraftHelper = false;
+    public int minionCraftHelperX = 10;
+    public int minionCraftHelperY = 120;
+    public float minionCraftHelperScale = 1.0f;
+    public boolean minionUpgrades = false;
+    public boolean powerStoneStats = false;
+    public java.util.Map<String, Integer> magicalPower = new java.util.HashMap<>();
     // w03-03-dun
     public boolean dungeonCleanEnd = false;            // hide entities/particles after the boss is done
     public boolean dungeonCleanEndGuardians = false;   // F3/M3: guardians stay visible while sneaking
@@ -2914,6 +2941,11 @@ public class TeslaMapsConfig {
         if (c.colorRare == null) c.colorRare = "FFCB59";
         if (c.auctionSearchHistory == null) c.auctionSearchHistory = new ArrayList<>();
         if (c.bazaarSearchHistory == null) c.bazaarSearchHistory = new ArrayList<>();
+        if (c.recipeSearchHistory == null) c.recipeSearchHistory = new ArrayList<>();
+        if (c.favoritePowers == null) c.favoritePowers = new ArrayList<>();
+        if (c.magicalPower == null) c.magicalPower = new java.util.HashMap<>();
+        if (c.museumHelperSort == null) c.museumHelperSort = "Lowest Price";
+        if (c.museumHelperCategory == null) c.museumHelperCategory = "All";
         if (c.capeSelected == null) c.capeSelected = "";
         if (c.capeServerUrl == null || c.capeServerUrl.isBlank() || c.capeServerUrl.contains("wynnextras.com")) {
             c.capeServerUrl = CAPE_SERVER_URL;

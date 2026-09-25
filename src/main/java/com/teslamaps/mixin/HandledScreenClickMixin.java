@@ -29,7 +29,8 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
-        if (com.teslamaps.features.croesus.CroesusProfit.blockReroll((AbstractContainerScreen<?>) (Object) this, slot)) {
+        if (com.teslamaps.features.croesus.CroesusProfit.blockReroll((AbstractContainerScreen<?>) (Object) this, slot)
+                || com.teslamaps.features.MenuHighlights.onSlotClick(slot, type)) {
             ci.cancel();
             return;
         }

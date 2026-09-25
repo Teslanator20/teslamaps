@@ -23,7 +23,8 @@ public abstract class EstimatedValueMixin {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         ItemStack stack = (ItemStack) (Object) this;
         try {
-            if (c.estimatedValue) {
+            if (c.estimatedValue && !(c.priceLineRequireKey && c.priceLineKeyValue
+                    && !com.teslamaps.utils.KeyNames.isDown(c.priceLineKey))) {
                 PriceManager.ensureFresh();
                 Double value = EstimatedValue.totalPrice(stack, true);
                 if (value != null) {

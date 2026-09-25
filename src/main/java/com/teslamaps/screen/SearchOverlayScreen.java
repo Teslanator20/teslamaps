@@ -63,7 +63,11 @@ public class SearchOverlayScreen extends Screen {
 
         field = new EditBox(font, panelX + 12, panelY + 28, PANEL_W - 24, 16, Component.literal("Search"));
         field.setMaxLength(64);
-        field.setHint(Component.literal(location == SearchOverlay.Location.BAZAAR ? "Bazaar item…" : "Auction item…"));
+        field.setHint(Component.literal(switch (location) {
+            case BAZAAR -> "Bazaar item…";
+            case RECIPE -> "Recipe…";
+            default -> "Auction item…";
+        }));
         field.setResponder(text -> {
             selected = -1;
             rebuild(text);
@@ -181,7 +185,11 @@ public class SearchOverlayScreen extends Screen {
         ctx.fill(0, 0, width, height, 0xB0000000);
         HudStyle.screenPanel(ctx, panelX, panelY, PANEL_W, panelH, 8);
 
-        String title = location == SearchOverlay.Location.BAZAAR ? "Bazaar Search" : "Auction Search";
+        String title = switch (location) {
+            case BAZAAR -> "Bazaar Search";
+            case RECIPE -> "Recipe Search";
+            default -> "Auction Search";
+        };
         ctx.text(font, "§f§l" + title, panelX + 12, panelY + 12, 0xFFFFFFFF);
 
         int hovered = rowAt(mouseX, mouseY, listY, suggestions.size());

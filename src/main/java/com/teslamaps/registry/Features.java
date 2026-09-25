@@ -197,5 +197,11 @@ final class Features {
         com.teslamaps.features.MuseumDonations.register();
         com.teslamaps.features.ReforgeStop.register();
         com.teslamaps.features.PreventPlacing.register();
+        // w04-09-inv
+        com.teslamaps.features.MenuHighlights.register();
+        com.teslamaps.features.MuseumHelper.register();
+        com.teslamaps.features.ObtainedDate.register();
+        com.teslamaps.features.MinionHelper.register();
+        com.teslamaps.features.PowerStoneStats.register();
     }
 }
