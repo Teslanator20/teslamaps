@@ -53,6 +53,10 @@ public final class ChatCategory {
         b.toggle("  Stack Divider Blocks (---/===/▬▬▬)", () -> config.chatStackBlocks, v -> config.chatStackBlocks = v);
         b.toggle("  Colours Must Match", () -> config.chatStackCompareColors, v -> config.chatStackCompareColors = v);
         b.toggle("Right-Click Copy Chat", () -> config.chatCopyEnabled, v -> config.chatCopyEnabled = v);
+        b.toggle("Pet Rarity In Drop Lines", () -> config.rareDropPetRarity, v -> config.rareDropPetRarity = v)
+                .desc("PET DROP / GREAT CATCH / has obtained lines get the rarity in front of the pet name");
+        b.toggle("Real Name For Enchanted Book Drops", () -> config.rareDropBookName, v -> config.rareDropBookName = v)
+                .desc("RARE DROP! Enchanted Book becomes the enchant of the book that landed in your inventory");
         b.slider("Hotkey Delay After Chat (ms)", 0f, 1000f,
                 () -> (float) config.hotkeyChatDelay, v -> config.hotkeyChatDelay = Math.round(v));
         b.toggle("  Hotkey Conditions", () -> config.hotkeyConditions, v -> config.hotkeyConditions = v)
@@ -61,6 +65,8 @@ public final class ChatCategory {
                 .desc("Per hotkey: NOT, a second key within a window (sequence), cooldown, delay and local actions (sound, title, note)");
         b.toggle("  Key Combos (hold 2 keys)", () -> config.hotkeyCombos, v -> config.hotkeyCombos = v)
                 .desc("Hotkeys screen gets a + per hotkey for a second key that must be held (e.g. hold G, press H). 200 ms cooldown, duplicates shown red.");
+        b.toggle("  Hotkey Placeholders", () -> config.hotkeyPlaceholders, v -> config.hotkeyPlaceholders = v)
+                .desc("{x} {y} {z} {player} {island} {location} {server} {health} {maxHealth} {mana} {maxMana} in hotkey texts");
         b.toggle("Gradient [TeslaMaps] Prefix", () -> config.chromaPrefix, v -> config.chromaPrefix = v);
         b.color("Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v);
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);
@@ -81,6 +87,30 @@ public final class ChatCategory {
         b.slider("  Redirect Toast Seconds", 1f, 15f, () -> config.chatRedirectSeconds, v -> config.chatRedirectSeconds = v, 1);
         b.info("Redirect moves the line out of chat into a movable toast list (/tmap gui)");
         b.toggle("Never Hide Clickable Lines", () -> config.chatFilterKeepClickable, v -> config.chatFilterKeepClickable = v);
+        b.toggle("Compact Combat Lines", () -> config.chatCompactCombat, v -> { config.chatCompactCombat = v; if (v) config.chatFilterEnabled = true; })
+                .desc("Cooldown, not enough mana, ability ready, too fast, in combat -> one short line, full text on hover");
+        b.toggle("  Damage & Heal Lines", () -> config.chatCompactDamage, v -> config.chatCompactDamage = v)
+                .desc("Damage taken becomes -1.2k (source), healing +500❤");
+        b.toggle("  Grey Other Players' Deaths", () -> config.chatCompactDeaths, v -> config.chatCompactDeaths = v)
+                .desc("Your own death stays as it is");
+        b.toggle("Compact Drop & Economy Lines", () -> config.chatCompactDrops, v -> { config.chatCompactDrops = v; if (v) config.chatFilterEnabled = true; })
+                .desc("SkyBlock XP, loot share, rare reward, pet summon, autopet, [Sacks], Abiphone ring, fire sales, inventory full");
+        b.toggle("  Grey NPC Dialog", () -> config.chatCompactNpcGrey, v -> config.chatCompactNpcGrey = v);
+        b.toggle("Compact Mining Lines", () -> config.chatCompactMining, v -> { config.chatCompactMining = v; if (v) config.chatFilterEnabled = true; })
+                .desc("Breaking Power, crystals, Metal Detector, Keepers, Automaton parts; treasure chest notices hidden");
+        b.toggle("Compact Melody Party Messages", () -> config.melodyCompact, v -> { config.melodyCompact = v; if (v) config.chatFilterEnabled = true; })
+                .desc("In dungeons only the newest melody progress line per player stays");
+        b.toggle("  Mute All Melody Messages", () -> config.melodyCompactMute, v -> config.melodyCompactMute = v);
+        b.toggle("Compact Hoppity Finds", () -> config.hoppityCompact, v -> { config.hoppityCompact = v; if (v) config.chatFilterEnabled = true; })
+                .desc("Egg, rabbit and NEW/DUPLICATE lines as one line, originals on hover");
+        b.toggle("  Show Rarity", () -> config.hoppityCompactRarity, v -> config.hoppityCompactRarity = v);
+        b.toggle("  Show Duplicate Number", () -> config.hoppityCompactDupeNumber, v -> config.hoppityCompactDupeNumber = v)
+                .desc("Needs Hoppity's Collection opened once");
+        b.toggle("  Pink Chocolate During Time Tower", () -> config.hoppityCompactTimeTower, v -> config.hoppityCompactTimeTower = v);
+        b.toggle("  Hitman Summary", () -> config.hoppityCompactHitman, v -> config.hoppityCompactHitman = v)
+                .desc("Claim All at the Rabbit Hitman: one summary line above the threshold");
+        b.slider("    Summary Above (finds)", 1f, 30f, () -> (float) config.hoppityCompactHitmanThreshold,
+                v -> config.hoppityCompactHitmanThreshold = Math.round(v));
         b.button("Toggle All Filters", () -> {
             int enabled = 0, total = 26;
             if (config.chatFilterEmpty) enabled++;

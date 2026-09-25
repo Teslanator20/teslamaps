@@ -2142,6 +2142,24 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w10-05-chat
+    public boolean rareDropPetRarity = false;
+    public boolean rareDropBookName = false;
+    public boolean chatCompactCombat = false;
+    public boolean chatCompactDamage = true;
+    public boolean chatCompactDeaths = true;
+    public boolean chatCompactDrops = false;
+    public boolean chatCompactNpcGrey = false;
+    public boolean chatCompactMining = false;
+    public boolean melodyCompact = false;
+    public boolean melodyCompactMute = false;
+    public boolean hoppityCompact = false;
+    public boolean hoppityCompactRarity = true;
+    public boolean hoppityCompactDupeNumber = true;
+    public boolean hoppityCompactTimeTower = false;
+    public boolean hoppityCompactHitman = true;
+    public int hoppityCompactHitmanThreshold = 5;
+    public boolean hotkeyPlaceholders = false;
     // w08-00-hud
     public boolean tabStatsHud = false;
     public String tabStatsHudStats = "Ferocity";
