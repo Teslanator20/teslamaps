@@ -101,7 +101,7 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.HideWitherKing.hideParticle(packet)
                     || com.teslamaps.features.DungeonCleanEnd.hideParticle()
                     || com.teslamaps.features.MageBeam.onParticle(packet)
-                    || com.teslamaps.features.ParticleHiders.hideParticle(packet))
+                    || com.teslamaps.features.ParticleHiders.hideParticle(packet)
                     || com.teslamaps.features.AbilityRadius.hideParticle(packet))) ci.cancel();
     }
 
