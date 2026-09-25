@@ -104,6 +104,7 @@ public class ChatMixin {
         if (fromServer) com.teslamaps.features.AbiphoneAccept.onChatComponent(message);
         if (fromServer && cfg.customTrackers) com.teslamaps.features.tracker.CustomTrackers.onChatComponent(message);
         if (fromServer) com.teslamaps.features.ItemPickupLog.onChatComponent(message);
+        if (fromServer && cfg.profitTracker) com.teslamaps.features.tracker.ProfitTracker.onChatComponent(message);
         if (fromServer && cfg.valuableDropWarn) com.teslamaps.features.ValuableDropWarning.onChatComponent(message);
         if (fromServer && cfg.section("Garden")) com.teslamaps.features.GardenPlots.onChatMessage(text);
         if (fromServer && cfg.section("Garden")) com.teslamaps.features.PestRoutine.onChatMessage(text);

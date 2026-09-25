@@ -357,6 +357,13 @@ final class Features {
         com.teslamaps.features.CommandChains.register();
         com.teslamaps.features.AbiphoneHelper.register();
         com.teslamaps.features.waypoints.WaypointGroups.register();
+        // w08-01-hud
+        com.teslamaps.features.hud.FancyTabHud.register();
+        com.teslamaps.features.HoppityEventStats.register();
+        com.teslamaps.features.hud.LimboTracker.register();
+        com.teslamaps.features.tracker.ProfitTracker.register();
+        com.teslamaps.features.hud.PlayerStats.register();
+        com.teslamaps.features.hud.QuiverHud.register();
         // w08-07-hud
         com.teslamaps.features.LootCounters.register();
         com.teslamaps.features.hud.TabWidgetHud.register();
