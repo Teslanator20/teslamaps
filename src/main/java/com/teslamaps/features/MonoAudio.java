@@ -13,6 +13,8 @@ public final class MonoAudio {
         void teslamaps$refreshMono();
     }
 
+    public static volatile boolean wasEnabled;
+
     private MonoAudio() {}
 
     /** Sound thread: only reads config. */

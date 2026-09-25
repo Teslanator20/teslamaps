@@ -79,6 +79,7 @@ public final class ServerRestartWarning {
         seconds = found;
         if (found < 0) {
             line = null;
+            lastTitle = -1;
             return;
         }
         String mmss = found / 60 + ":" + (found % 60 < 10 ? "0" : "") + found % 60;

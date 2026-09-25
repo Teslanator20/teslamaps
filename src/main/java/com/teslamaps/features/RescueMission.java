@@ -240,8 +240,8 @@ public class RescueMission {
             ESPRenderer.drawBeaconBeam(matrices, net.minecraft.core.BlockPos.containing(
                     route.get(0).x, route.get(0).y, route.get(0).z), 0xFF55FF55, cameraPos);
             ESPRenderer.drawTracerFromCamera(matrices, start, 0xC055FF55, cameraPos);
-            ESPRenderer.drawText(matrices, "§aRescue Parkour Start §7(" + distance + "m)",
-                    start.add(0, 1.5, 0), 2f, cameraPos);
+            com.teslamaps.features.waypoints.WaypointSet.drawLabel(matrices, cameraPos, "§aRescue Parkour Start §7(" + distance + "m)",
+                    start.add(0, 1.5, 0), 2f);
         }
         if (!visible) return;
 

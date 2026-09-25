@@ -31,6 +31,7 @@ public class ClientPlayerInteractionManagerMixin {
         com.teslamaps.features.CombatTimers.onUseItem(player.getItemInHand(hand));
         com.teslamaps.features.HotspotRadar.onUseItem(player.getItemInHand(hand));
         if (hand == InteractionHand.MAIN_HAND) com.teslamaps.features.SbItemCooldowns.onUseItem(player, player.getItemInHand(hand));
+        if (hand == InteractionHand.MAIN_HAND) com.teslamaps.features.AbilityCooldowns.onUseItem(player.getItemInHand(hand));
     }
 
     @Inject(method = "attack", at = @At("HEAD"))

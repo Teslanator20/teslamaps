@@ -234,7 +234,8 @@ public final class FancyWarpMenu {
         Minecraft mc = Minecraft.getInstance();
         int w = mc.getWindow().getGuiScaledWidth(), h = mc.getWindow().getGuiScaledHeight();
         double mx = e.x(), my = e.y();
-        int button = e.button() == 1 ? 1 : 0;
+        if (e.button() > 1) return true;
+        int button = e.button();
         int[] m = map(w, h);
         int by = m[1] + m[3] + 10;
         if (my >= by && my < by + BAR_H) {

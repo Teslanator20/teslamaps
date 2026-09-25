@@ -132,7 +132,7 @@ public class KeybindMessageScreen extends Screen {
     private static boolean duplicate(List<TeslaMapsConfig.Keybind> b, TeslaMapsConfig.Keybind kb) {
         if (kb.key == -1) return false;
         for (TeslaMapsConfig.Keybind o : b) {
-            if (o != kb && o.enabled && o.key == kb.key && o.key2 == kb.key2 && o.modifiers == kb.modifiers) return true;
+            if (o != kb && o.enabled && o.key == kb.key && o.key2 == kb.key2 && o.seqKey == kb.seqKey && o.modifiers == kb.modifiers) return true;
         }
         return false;
     }

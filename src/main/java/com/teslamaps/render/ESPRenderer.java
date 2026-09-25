@@ -404,6 +404,23 @@ public class ESPRenderer {
         }
     }
 
+    /** Double-sided quad, corners in world coordinates, depth tested. */
+    public static void drawQuad(PoseStack matrices, float[] c, int color, Vec3 cameraPos) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.renderBuffers() == null) return;
+        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
+        float a = ((color >>> 24) & 0xFF) / 255f;
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        PoseStack.Pose pose = matrices.last();
+        VertexConsumer buf = src.getBuffer(TeslaRenderLayers.FILLED_DEPTH);
+        for (int i = 0; i < 4; i++) buf.addVertex(pose, c[i * 3], c[i * 3 + 1], c[i * 3 + 2]).setColor(r, g, b, a);
+        for (int i = 3; i >= 0; i--) buf.addVertex(pose, c[i * 3], c[i * 3 + 1], c[i * 3 + 2]).setColor(r, g, b, a);
+        finish(src, TeslaRenderLayers.FILLED_DEPTH);
+        matrices.popPose();
+    }
+
     public static void drawFilledBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;

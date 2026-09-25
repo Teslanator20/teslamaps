@@ -128,6 +128,7 @@ public class PerformanceHud {
             l.add("CPS: ");
             v.add(cps(leftClicks, now) + " | " + cps(rightClicks, now));
         }
+        if (cfg.perfHudDay && mc.level != null) { l.add("Day: "); v.add(String.valueOf(mc.level.getGameTime() / 24000L)); }
         if (cfg.perfHudLag && !mc.isLocalServer() && com.teslamaps.utils.SkyblockUtils.isOnHypixel()) {
             long last = com.teslamaps.utils.ServerTickTimer.lastPingMs();
             long dt = last == 0 ? 0 : System.currentTimeMillis() - last;
@@ -137,8 +138,25 @@ public class PerformanceHud {
                 v.add(col + String.format(java.util.Locale.ROOT, "%.2fs", dt / 1000.0));
             }
         }
+        if (cfg.perfHudTime) { l.add(timeLabel(cfg)); v.add(clock(cfg)); }
         labels = l.toArray(new String[0]);
         values = v.toArray(new String[0]);
+    }
+
+    private static final java.time.format.DateTimeFormatter H24 = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+    private static final java.time.format.DateTimeFormatter H24S = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
+    private static final java.time.format.DateTimeFormatter H12 = java.time.format.DateTimeFormatter.ofPattern("h:mm a", java.util.Locale.ENGLISH);
+    private static final java.time.format.DateTimeFormatter H12S = java.time.format.DateTimeFormatter.ofPattern("h:mm:ss a", java.util.Locale.ENGLISH);
+
+    private static String timeLabel(TeslaMapsConfig cfg) {
+        if ("Symbol".equals(cfg.perfHudTimeLabel)) return "⌚ ";
+        return "None".equals(cfg.perfHudTimeLabel) ? "" : "Time: ";
+    }
+
+    private static String clock(TeslaMapsConfig cfg) {
+        boolean h12 = "12h".equals(cfg.perfHudTimeFormat);
+        var f = h12 ? (cfg.perfHudTimeSeconds ? H12S : H12) : (cfg.perfHudTimeSeconds ? H24S : H24);
+        return java.time.LocalTime.now().format(f);
     }
 
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
@@ -151,8 +169,14 @@ public class PerformanceHud {
 
     /** HUD editor preview. */
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
-        boolean cps = TeslaMapsConfig.get().perfHudCps;
-        draw(context, mc, x, y, scale, cps ? SAMPLE_LABELS_CPS : SAMPLE_LABELS, cps ? SAMPLE_VALUES_CPS : SAMPLE_VALUES);
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        boolean cps = cfg.perfHudCps;
+        String[] l = cps ? SAMPLE_LABELS_CPS : SAMPLE_LABELS, v = cps ? SAMPLE_VALUES_CPS : SAMPLE_VALUES;
+        if (cfg.perfHudTime) {
+            l = java.util.Arrays.copyOf(l, l.length + 1); l[l.length - 1] = timeLabel(cfg);
+            v = java.util.Arrays.copyOf(v, v.length + 1); v[v.length - 1] = clock(cfg);
+        }
+        draw(context, mc, x, y, scale, l, v);
     }
 
     private static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale, String[] labels, String[] values) {
@@ -175,13 +199,15 @@ public class PerformanceHud {
 
     public static int width(Minecraft mc) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.perfHudVertical) return mc.font.width(SAMPLE_TEXT) + (cfg.perfHudCps ? mc.font.width(" CPS: 8 | 12") : 0);
-        return mc.font.width("Ping: 45ms");
+        if (!cfg.perfHudVertical) return mc.font.width(SAMPLE_TEXT) + (cfg.perfHudCps ? mc.font.width(" CPS: 8 | 12") : 0)
+                + (cfg.perfHudDay ? mc.font.width(" Day: 12") : 0)
+                + (cfg.perfHudTime ? mc.font.width(" Time: 12:00:00 PM") : 0);
+        return cfg.perfHudTime ? mc.font.width("Time: 12:00:00 PM") : mc.font.width("Ping: 45ms");
     }
 
     public static int height(Minecraft mc) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.perfHudVertical) return mc.font.lineHeight;
-        return (mc.font.lineHeight + 1) * (cfg.perfHudCps ? 4 : 3);
+        return (mc.font.lineHeight + 1) * (3 + (cfg.perfHudCps ? 1 : 0) + (cfg.perfHudDay ? 1 : 0) + (cfg.perfHudTime ? 1 : 0));
     }
 }

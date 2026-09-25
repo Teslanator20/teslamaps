@@ -57,9 +57,17 @@ public class PetOverlay {
         cachedProgress = progress();
     }
 
+    private static final String[] MISSING = com.teslamaps.features.TabWidgetHint.lines("Pet");
+
     public static void render(GuiGraphicsExtractor ctx, DeltaTracker delta) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.petOverlay || !PetTracker.hasPet()) return;
+        if (!c.petOverlay) return;
+        if (!PetTracker.hasPet()) {
+            if (com.teslamaps.features.TabWidgetHint.on() && PetTracker.widgetMissing()) {
+                com.teslamaps.features.TabWidgetHint.draw(ctx, Minecraft.getInstance(), c.petOverlayX, c.petOverlayY, c.petOverlayScale, MISSING);
+            }
+            return;
+        }
         if (!SkyblockUtils.isInSkyblock()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
@@ -126,6 +134,7 @@ public class PetOverlay {
         if (held != null && !held.isEmpty()) out.add("§ePet Item§7: §9" + held);
         String last = PetTracker.lastPetLine();
         if (c.petOverlayLastPet && last != null) out.add("§8Last: " + last);
+        if (com.teslamaps.features.TabWidgetHint.on() && PetTracker.widgetMissing()) out.add("§cPet tab widget missing §7(/tab)");
         return out.toArray(new String[0]);
     }
 

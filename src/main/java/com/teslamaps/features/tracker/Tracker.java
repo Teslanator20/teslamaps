@@ -34,19 +34,33 @@ import java.util.function.IntSupplier;
  */
 public final class Tracker {
 
-    public enum View { SESSION, TOTAL }
+    public enum View {
+        SESSION("Session"), TOTAL("Total"), TODAY("Today"), WEEK("This Week"), MONTH("This Month"),
+        YEAR("This Year"), MAYOR("This Mayor");
+
+        final String label;
+        View(String label) { this.label = label; }
+    }
+
+    private static final View[] TIMED = {View.TODAY, View.WEEK, View.MONTH, View.YEAR, View.MAYOR};
 
     public static final String COINS = "SKYBLOCK_COIN";
 
     private static final Map<String, Tracker> ALL = new LinkedHashMap<>();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Type TYPE = new TypeToken<Map<String, Long>>() {}.getType();
+    private static final Type HISTORY_TYPE = new TypeToken<LinkedHashMap<String, LinkedHashMap<String, Long>>>() {}.getType();
     private static final long SAVE_DELAY = 30_000L;
 
     public final String id;
     private String title;
     private final Map<String, Long> session = new LinkedHashMap<>();
     private final Map<String, Long> total = new LinkedHashMap<>();
+    // "day:2026-09-25" / "week:2026-W39" / "month:2026-09" / "year:2026" / "mayor:Y412 Diana" -> counts, oldest first
+    private final LinkedHashMap<String, LinkedHashMap<String, Long>> history = new LinkedHashMap<>();
+    private final String[] bucketKeys = new String[TIMED.length];
+    private long bucketKeysAt;
+    private boolean pruneLater;
     private final Map<String, Double> fixed = new LinkedHashMap<>();
     private final Map<String, String> names = new LinkedHashMap<>();
     private IntSupplier priceSource = () -> PriceManager.SOURCE_BAZAAR_SELL;
@@ -64,6 +78,20 @@ public final class Tracker {
     private Tracker(String id, String title) {
         this.id = id;
         this.title = title;
+    }
+
+    /** Config rows for the timed history shared by every tracker. */
+    public static void register() {
+        com.teslamaps.registry.Feature.of("TrackerHistory").config("Interface", b -> {
+            var c = com.teslamaps.config.TeslaMapsConfig.get();
+            b.label("Tracker History");
+            b.toggle("Tracker History", () -> c.trackerHistory, v -> c.trackerHistory = v)
+                    .desc("Trackers also count per day, week, month, year and mayor term. The Session / Total button "
+                            + "then cycles through Today, This Week, ... ; /tmap tracker <id> history lists older ones.")
+                    .tags("today", "week", "month", "mayor", "profit");
+            b.slider("  Entries Kept Per Level", 1, 120, () -> (float) c.trackerHistoryKeep,
+                    v -> c.trackerHistoryKeep = Math.round(v), 0);
+        });
     }
 
     /** One tracker per id; calling again returns the same one. */
@@ -95,13 +123,26 @@ public final class Tracker {
 
     public View view() { return view; }
     public void view(View v) { this.view = v; rebuild(); }
-    public void toggleView() { view(view == View.SESSION ? View.TOTAL : View.SESSION); }
+    public void toggleView() {
+        if (!historyOn()) { view(view == View.SESSION ? View.TOTAL : View.SESSION); return; }
+        View[] all = View.values();
+        view(all[(view.ordinal() + 1) % all.length]);
+    }
+
+    private static boolean historyOn() {
+        return com.teslamaps.config.TeslaMapsConfig.get().trackerHistory;
+    }
 
     public void add(String key, long amount) {
         if (key == null || amount == 0) return;
         load();
         session.merge(key, amount, Long::sum);
         total.merge(key, amount, Long::sum);
+        if (historyOn()) {
+            for (String b : bucketKeys()) history.computeIfAbsent(b, k -> { pruneLater = true; return new LinkedHashMap<>(); })
+                    .merge(key, amount, Long::sum);
+            if (pruneLater) prune();
+        }
         markDirty();
         markActivity();
         changed = true;
@@ -113,6 +154,72 @@ public final class Tracker {
 
     public void addCoins(long coins) {
         add(COINS, coins);
+    }
+
+    private String[] bucketKeys() {
+        long now = System.currentTimeMillis();
+        if (now - bucketKeysAt < 60_000 && bucketKeys[0] != null) return bucketKeys;
+        bucketKeysAt = now;
+        java.time.LocalDate d = java.time.LocalDate.now();
+        bucketKeys[0] = "day:" + d;
+        bucketKeys[1] = "week:" + d.get(java.time.temporal.IsoFields.WEEK_BASED_YEAR) + "-W"
+                + String.format(java.util.Locale.ROOT, "%02d", d.get(java.time.temporal.IsoFields.WEEK_OF_WEEK_BASED_YEAR));
+        bucketKeys[2] = "month:" + d.getYear() + "-" + String.format(java.util.Locale.ROOT, "%02d", d.getMonthValue());
+        bucketKeys[3] = "year:" + d.getYear();
+        String mayor = com.teslamaps.api.ElectionApi.mayor();
+        bucketKeys[4] = "mayor:Y" + mayorTerm(now) + (mayor == null || mayor.isEmpty() ? "" : " " + mayor);
+        return bucketKeys;
+    }
+
+    // SkyBlock year of the current term; a term starts when the election ends (Late Spring 27th)
+    private static long mayorTerm(long now) {
+        return Math.floorDiv(now - 1560275700000L - 105600000L, 446400000L) + 1;
+    }
+
+    private void prune() {
+        pruneLater = false;
+        int keep = Math.max(1, com.teslamaps.config.TeslaMapsConfig.get().trackerHistoryKeep);
+        for (String prefix : new String[]{"day:", "week:", "month:", "year:", "mayor:"}) {
+            int n = 0;
+            for (String k : history.keySet()) if (k.startsWith(prefix)) n++;
+            var it = history.keySet().iterator();
+            while (n > keep && it.hasNext()) {
+                if (it.next().startsWith(prefix)) { it.remove(); n--; }
+            }
+        }
+    }
+
+    private Map<String, Long> bucket(View v) {
+        String[] keys = bucketKeys();
+        for (int i = 0; i < TIMED.length; i++) {
+            if (TIMED[i] != v) continue;
+            if (v == View.MAYOR) {
+                // the key gains the mayor name once the election api answers
+                String k = keys[i];
+                int sp = k.indexOf(' ');
+                String term = sp > 0 ? k.substring(0, sp) : k;
+                for (var e : history.entrySet()) {
+                    String hk = e.getKey();
+                    if (hk.equals(term) || hk.startsWith(term + " ")) return e.getValue();
+                }
+                return Map.of();
+            }
+            Map<String, Long> m = history.get(keys[i]);
+            return m == null ? Map.of() : m;
+        }
+        return Map.of();
+    }
+
+    /** Every stored day/week/month/year/mayor bucket with its profit, oldest first. */
+    public List<String> historyLines() {
+        load();
+        List<String> out = new ArrayList<>();
+        for (var e : history.entrySet()) {
+            double sum = 0;
+            for (var c : e.getValue().entrySet()) sum += value(c.getKey(), c.getValue());
+            out.add("§7" + e.getKey().replace(":", " ") + "§8: §6" + ItemPrice.format(sum));
+        }
+        return out;
     }
 
     public long count(String key, View v) {
@@ -148,6 +255,7 @@ public final class Tracker {
     public void resetTotal() {
         load();
         total.clear();
+        history.clear();
         markDirty();
         save();
         rebuild();
@@ -196,7 +304,7 @@ public final class Tracker {
         rows.sort((a, b) -> Double.compare(value(b.getKey(), b.getValue()), value(a.getKey(), a.getValue())));
 
         List<String> out = new ArrayList<>();
-        out.add(title + " §7(" + (view == View.SESSION ? "Session" : "Total") + ")");
+        out.add(title + " §7(" + view.label + ")");
         int shown = 0;
         for (var e : rows) {
             if (shown++ >= maxRows) break;
@@ -254,7 +362,15 @@ public final class Tracker {
     }
 
     private Map<String, Long> map(View v) {
-        return v == View.SESSION ? session : total;
+        return switch (v) {
+            case SESSION -> session;
+            case TOTAL -> total;
+            default -> bucket(v);
+        };
+    }
+
+    private Path historyPath() {
+        return path().resolveSibling(id + ".history.json");
     }
 
     private long idleMillis() {
@@ -281,6 +397,14 @@ public final class Tracker {
         } catch (Exception e) {
             TeslaMaps.LOGGER.warn("[Tracker] {} load failed: {}", id, e.toString());
         }
+        Path h = historyPath();
+        if (!Files.exists(h)) return;
+        try (Reader r = Files.newBufferedReader(h)) {
+            LinkedHashMap<String, LinkedHashMap<String, Long>> m = GSON.fromJson(r, HISTORY_TYPE);
+            if (m != null) history.putAll(m);
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.warn("[Tracker] {} history load failed: {}", id, e.toString());
+        }
     }
 
     public void save() {
@@ -291,6 +415,14 @@ public final class Tracker {
             Files.createDirectories(p.getParent());
             try (Writer w = Files.newBufferedWriter(p)) {
                 GSON.toJson(total, TYPE, w);
+            }
+            Path h = historyPath();
+            if (!history.isEmpty()) {
+                try (Writer w = Files.newBufferedWriter(h)) {
+                    GSON.toJson(history, HISTORY_TYPE, w);
+                }
+            } else {
+                Files.deleteIfExists(h);
             }
         } catch (Exception e) {
             TeslaMaps.LOGGER.warn("[Tracker] {} save failed: {}", id, e.toString());

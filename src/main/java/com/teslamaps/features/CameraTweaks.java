@@ -85,7 +85,7 @@ public final class CameraTweaks {
 
     // Debugify's MC-206540 fix
     public static void onPassengerTurned(Entity vehicle, Entity passenger) {
-        if (!cfg().ridingInputFix || !passenger.isAlwaysTicking()) return;
+        if (!cfg().ridingInputFix || passenger != Minecraft.getInstance().player) return;
         passenger.setYBodyRot(vehicle.getYRot());
         float f = Mth.wrapDegrees(passenger.getYRot() - vehicle.getYRot());
         float g = Mth.clamp(f, -180.0F, 180.0F);

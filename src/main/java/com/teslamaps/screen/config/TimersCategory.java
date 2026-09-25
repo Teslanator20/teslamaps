@@ -21,6 +21,9 @@ public final class TimersCategory {
         b.toggle("  Block /joininstance", () -> config.warpCooldownBlockJoin, v -> config.warpCooldownBlockJoin = v)
                 .desc("Swallows /joininstance and /instancerequeue while your cooldown runs, also from shortcuts and auto requeue.");
         b.toggle("  \"Cooldown Over\" Message", () -> config.warpCooldownEndMessage, v -> config.warpCooldownEndMessage = v);
+        b.toggle("  Wait Out Transfer Cooldown", () -> config.warpTransferWait, v -> config.warpTransferWait = v)
+                .desc("A /warp, /is, /hub or /warpforge typed during the 3s transfer cooldown after a world change is held back and sent once it ends.");
+        b.toggle("    \"Transfer Cooldown Ended\" Message", () -> config.warpTransferWaitMessage, v -> config.warpTransferWaitMessage = v);
         b.toggle("Wither Shield Timer (W-Impact)", () -> config.witherShieldTimer, v -> config.witherShieldTimer = v);
         b.toggle("  Shield HUD", () -> config.witherShieldHud, v -> config.witherShieldHud = v);
         b.toggle("    Hide When Ready", () -> config.witherShieldHideReady, v -> config.witherShieldHideReady = v);

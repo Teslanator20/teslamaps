@@ -228,6 +228,17 @@ public class ItemIndex {
         return "chest:" + p.getX() + "," + p.getY() + "," + p.getZ();
     }
 
+    public static boolean isIslandChest(BlockPos p) {
+        if (p == null) return false;
+        ensure();
+        Src src = data.get(chestKey(p));
+        return src != null && Boolean.TRUE.equals(src.island);
+    }
+
+    public static boolean onIsland() {
+        return onPrivateIsland();
+    }
+
     private static void removeChest(BlockPos p) {
         if (p == null) return;
         String k = chestKey(p);
