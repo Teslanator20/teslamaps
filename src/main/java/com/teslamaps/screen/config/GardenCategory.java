@@ -22,6 +22,10 @@ public final class GardenCategory {
         b.info("Visitors charmed with the Gift Vinyl Set, click a name to drop it");
         b.button("Clear Charmed List",
                 () -> com.teslamaps.features.CharmedVisitors.clear());
+        b.toggle("Accept Offer Green / Red",
+                () -> config.visitorOfferColor, v -> config.visitorOfferColor = v)
+                .desc("Green when the visitor can be served right now, red when Hypixel lists missing items. "
+                        + "Hypixel's own check, so items in sacks count.");
         b.toggle("6th Visitor Warning",
                 () -> config.sixthVisitorWarning, v -> config.sixthVisitorWarning = v);
         b.info("Hypixel hides the timer at 5 visitors, so this estimates it");
@@ -54,6 +58,15 @@ public final class GardenCategory {
                 () -> config.pestOverlay, v -> config.pestOverlay = v);
         b.toggle("  Alive + Infested Plots",
                 () -> config.pestOverlayAlivePlots, v -> config.pestOverlayAlivePlots = v);
+        b.toggle("  Crop Fever Timer",
+                () -> config.cropFeverTimer, v -> config.cropFeverTimer = v)
+                .desc("60 second countdown row while Crop Fever is active.");
+        b.toggle("    Crop Fever Alert",
+                () -> config.cropFeverAlert, v -> config.cropFeverAlert = v)
+                .desc("Title and sound the moment Crop Fever starts.");
+        b.soundDropdown("    Crop Fever Sound",
+                com.teslamaps.utils.SoundOptions.keys(),
+                () -> config.cropFeverSound, v -> config.cropFeverSound = v);
         b.toggle("Cooldown Arms Routine",
                 () -> config.pestCooldownArmsRoutine, v -> config.pestCooldownArmsRoutine = v);
         b.slider("Profit Idle After (sec)", 30f, 600f,
@@ -221,6 +234,12 @@ public final class GardenCategory {
                 () -> (float) config.greenhouseRotation, v -> config.greenhouseRotation = Math.round(v), 0);
         b.toggle("  Mirror",
                 () -> config.greenhouseMirror, v -> config.greenhouseMirror = v);
+        b.toggle("  Real Plant Models",
+                () -> config.greenhouseModels, v -> config.greenhouseModels = v)
+                .desc("Missing plants show as see-through tinted heads of the plant itself instead of a coloured box. "
+                        + "Block crops (wheat, carrot, potato, wart, cane) stay boxes.");
+        b.button("Manage Presets",
+                () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.GreenhousePresetsScreen(b.screen())));
         b.button("Paste Code From Clipboard", () -> {
             String err = com.teslamaps.features.GreenhousePlanner.load(
                     net.minecraft.client.Minecraft.getInstance().keyboardHandler.getClipboard());
