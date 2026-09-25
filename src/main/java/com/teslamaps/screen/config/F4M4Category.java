@@ -26,6 +26,7 @@ public final class F4M4Category {
         b.toggle("Bats", () -> config.m4HlBat, v -> config.m4HlBat = v);
         b.toggle("Wolves", () -> config.m4HlWolf, v -> config.m4HlWolf = v);
         b.toggle("Rabbits", () -> config.m4HlRabbit, v -> config.m4HlRabbit = v);
+        b.toggle("Spirit Bow", () -> config.m4HlSpiritBow, v -> config.m4HlSpiritBow = v);
         b.label("Highlight Colors");
         b.color("Thorn", () -> config.m4ColorThorn, v -> config.m4ColorThorn = v);
         b.color("Thorn Damaged", () -> config.m4ColorThornDmg, v -> config.m4ColorThornDmg = v);
@@ -36,6 +37,7 @@ public final class F4M4Category {
         b.color("Bat", () -> config.m4ColorBat, v -> config.m4ColorBat = v);
         b.color("Wolf", () -> config.m4ColorWolf, v -> config.m4ColorWolf = v);
         b.color("Rabbit", () -> config.m4ColorRabbit, v -> config.m4ColorRabbit = v);
+        b.color("Spirit Bow", () -> config.m4ColorSpiritBow, v -> config.m4ColorSpiritBow = v);
         b.label("Decoy & Trajectories");
         b.toggle("Best Decoy Spot", () -> config.m4Decoy, v -> config.m4Decoy = v);
         b.toggle("Trajectories", () -> config.m4Trajectories, v -> config.m4Trajectories = v);

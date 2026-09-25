@@ -84,5 +84,11 @@ final class Features {
         com.teslamaps.dungeon.F7Devices.register();
         com.teslamaps.dungeon.MaxorCrystals.register();
         com.teslamaps.dungeon.DragonHitCount.register();
+        // w02-09-boss
+        com.teslamaps.features.SadanFeatures.register();
+        com.teslamaps.features.HideWitherKing.register();
+        com.teslamaps.features.ScarfSpawnTimer.register();
+        com.teslamaps.features.KingRelics.register();
+        com.teslamaps.features.LastBreathSound.register();
     }
 }

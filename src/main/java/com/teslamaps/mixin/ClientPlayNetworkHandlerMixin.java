@@ -88,7 +88,9 @@ public class ClientPlayNetworkHandlerMixin {
     private void onParticleHide(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()
                 && (com.teslamaps.features.SoulweaverHider.hideParticle(packet)
-                    || com.teslamaps.features.Deployables.hideParticle(packet))) ci.cancel();
+                    || com.teslamaps.features.Deployables.hideParticle(packet)
+                    || com.teslamaps.features.SadanFeatures.hideParticle()
+                    || com.teslamaps.features.HideWitherKing.hideParticle(packet))) ci.cancel();
     }
 
     @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))
@@ -113,13 +115,15 @@ public class ClientPlayNetworkHandlerMixin {
         BloodCamp.onSetEquipmentPacket(packet);
         com.teslamaps.features.DeadMobHider.onSetEquipment(packet);
         com.teslamaps.debug.DeathProbe.onSetEquipment(packet);
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()) com.teslamaps.features.KingRelics.onSetEquipment(packet);
         if (com.teslamaps.config.TeslaMapsConfig.get().witherDragons) com.teslamaps.dungeon.WitherDragons.onSetEquipment(packet);
     }
 
     @Inject(method = "handleAddEntity", at = @At("HEAD"), cancellable = true)
     private void onAddEntity(net.minecraft.network.protocol.game.ClientboundAddEntityPacket packet, CallbackInfo ci) {
         // dropping the spawn outright, so the entity is never created or ticked
-        if (com.teslamaps.features.PacketHiders.shouldCancelSpawn(packet.getType())) {
+        if (com.teslamaps.features.PacketHiders.shouldCancelSpawn(packet.getType())
+                || com.teslamaps.features.HideWitherKing.shouldCancelSpawn(packet)) {
             ci.cancel();
             return;
         }
@@ -178,6 +182,7 @@ public class ClientPlayNetworkHandlerMixin {
         net.minecraft.world.entity.Entity target = packet.getEntity(mc.level);
         if (target != null) com.teslamaps.features.DeadMobHider.onEntityEvent(target.getId(), packet.getEventId());
         if (target != null && mc.isSameThread()) com.teslamaps.dungeon.MimicDetector.onEntityEvent(target, packet.getEventId());
+        if (target != null && mc.isSameThread()) com.teslamaps.features.SadanFeatures.onEntityEvent(target, packet.getEventId());
         com.teslamaps.debug.DeathProbe.onEntityEvent(packet, packet.getEventId());
     }
 

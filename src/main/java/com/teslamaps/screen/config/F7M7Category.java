@@ -27,6 +27,12 @@ public final class F7M7Category {
         b.toggle("Storm Lightning Timer", () -> config.lightningTimer, v -> config.lightningTimer = v);
         b.toggle("  Lightning Title Countdown (synced)", () -> config.lightningTimerTitle, v -> config.lightningTimerTitle = v);
         b.toggle("Relic Timer (M7)", () -> config.relicTimer, v -> config.relicTimer = v);
+        b.slider("  Relic Spawn Ticks", 20f, 80f, () -> (float) config.relicSpawnTicks, v -> config.relicSpawnTicks = Math.round(v), 0);
+        b.toggle("King Relics (M7 P5)", () -> config.kingRelics, v -> config.kingRelics = v)
+                .desc("Beacon at your relic's cauldron, place time per color with PB, relic spawn time.");
+        b.toggle("  Cauldron Beacon", () -> config.kingRelicBeacon, v -> config.kingRelicBeacon = v);
+        b.toggle("  Place Time + PB", () -> config.kingRelicPlaceTime, v -> config.kingRelicPlaceTime = v);
+        b.toggle("  Relic Spawn Time", () -> config.kingRelicSpawnMsg, v -> config.kingRelicSpawnMsg = v);
         b.toggle("Maxor/Storm Start Timers", () -> config.bossStartTimers, v -> config.bossStartTimers = v);
         b.toggle("Maxor Energy Crystals", () -> config.maxorCrystals, v -> config.maxorCrystals = v)
                 .desc("P1 energy crystal helpers.").tags("crystal");
@@ -71,6 +77,8 @@ public final class F7M7Category {
         b.toggle("Gate Highlight", () -> config.p3GateHighlight, v -> config.p3GateHighlight = v)
                 .desc("Box around your section's gate while it still stands.");
         b.espStyle("  Gate", () -> config.p3GateEsp);
+        b.toggle("Spring Boots Ready Alert", () -> config.springBootsReady, v -> config.springBootsReady = v)
+                .desc("Boss only: title + beep after 5 charge sounds while sneaking in Spring Boots.");
         b.label("Wither Dragons");
         b.toggle("Wither Dragons", () -> config.witherDragons, v -> config.witherDragons = v);
         b.label("Spawn Timer & Alerts");

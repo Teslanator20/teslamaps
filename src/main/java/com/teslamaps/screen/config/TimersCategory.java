@@ -53,6 +53,10 @@ public final class TimersCategory {
         b.toggle("Livid Invuln Timer (F5/M5)", () -> config.lividTimerHud, v -> config.lividTimerHud = v);
         b.toggle("  Ice Spray Alert", () -> config.lividIceSprayAlert, v -> config.lividIceSprayAlert = v);
         b.toggle("Bossbar Health (❤)", () -> config.bossbarHealth, v -> config.bossbarHealth = v);
+        b.toggle("  Sadan's Interest Countdown (F6/M6)", () -> config.sadanInterest, v -> config.sadanInterest = v)
+                .desc("Turns the interest bar into the real time left of the terracotta phase.");
+        b.toggle("Scarf Spawn Timer (F2/M2)", () -> config.scarfSpawnTimer, v -> config.scarfSpawnTimer = v)
+                .desc("Timer line until Scarf's undeads (7.75s) and Scarf himself (10s) spawn.");
         b.dropdown("Timer Format",
                 new String[]{"Seconds", "Ticks", "Both"}, () -> config.tickTimerFormat, v -> config.tickTimerFormat = v);
         b.toggle("  Hide Timer Prefix", () -> config.tickTimerNoPrefix, v -> config.tickTimerNoPrefix = v);

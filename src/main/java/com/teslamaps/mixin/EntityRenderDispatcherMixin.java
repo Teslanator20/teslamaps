@@ -36,6 +36,7 @@ public class EntityRenderDispatcherMixin {
                 || HidePlayers.shouldHide(entity)
                 || com.teslamaps.features.SoulweaverHider.shouldHide(entity)
                 || com.teslamaps.features.M4Highlight.shouldHideEntity(entity)
+                || com.teslamaps.features.SadanFeatures.shouldHide(entity)
                 || com.teslamaps.features.LividSolver.shouldHideNametag(entity)
                 || com.teslamaps.dungeon.puzzle.DungeonBlaze.shouldHideBlaze(entity)
                 || com.teslamaps.features.foraging.ClearTreeLogs.shouldHide(entity)

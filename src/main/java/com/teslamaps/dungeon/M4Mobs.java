@@ -27,6 +27,7 @@ public class M4Mobs {
     public static final Set<Entity> rabbits = new HashSet<>();
     public static final Set<Entity> wolves = new HashSet<>();
     public static final Set<Entity> bats = new HashSet<>();
+    public static final Set<Entity> bows = new HashSet<>();
     public static Entity thorn = null;
     public static Entity bear = null;
 
@@ -42,7 +43,7 @@ public class M4Mobs {
     private static long lastDbg = 0;
 
     public static void tick() {
-        cows.clear(); sheep.clear(); chickens.clear(); rabbits.clear(); wolves.clear(); bats.clear();
+        cows.clear(); sheep.clear(); chickens.clear(); rabbits.clear(); wolves.clear(); bats.clear(); bows.clear();
         thorn = null; bear = null;
 
         if (!inM4Boss()) { dbg(false, 0); return; }
@@ -59,6 +60,8 @@ public class M4Mobs {
             else if (e instanceof Wolf) wolves.add(e);
             else if (e instanceof Bat b) { if (!b.isInvisible()) bats.add(e); }
             else if (e instanceof Player p && "Spirit Bear".equals(p.getGameProfile().name())) bear = e;
+            else if (e instanceof net.minecraft.world.entity.decoration.ArmorStand a
+                    && a.getMainHandItem().is(net.minecraft.world.item.Items.BOW)) bows.add(e);
         }
         dbg(true, mc.level.getEntities((Entity) null, SEARCH).size());
     }
@@ -81,7 +84,7 @@ public class M4Mobs {
     }
 
     public static void reset() {
-        cows.clear(); sheep.clear(); chickens.clear(); rabbits.clear(); wolves.clear(); bats.clear();
+        cows.clear(); sheep.clear(); chickens.clear(); rabbits.clear(); wolves.clear(); bats.clear(); bows.clear();
         thorn = null; bear = null;
     }
 }
