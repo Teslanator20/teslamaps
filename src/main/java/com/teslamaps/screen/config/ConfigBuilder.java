@@ -125,6 +125,11 @@ public final class ConfigBuilder {
                 });
     }
 
+    /** Drag-to-reorder list of a HUD's lines ({@link com.teslamaps.utils.LineOrder}). */
+    public MapConfigScreen.LineOrderEntry lineOrder(String label, String id) {
+        return add(s.new LineOrderEntry(x, w, label, id));
+    }
+
     public MapConfigScreen.ClassFilterEntry classFilter(String label, TeslaMapsConfig.ClassFilter filter) {
         return add(s.new ClassFilterEntry(x, w, label, filter));
     }

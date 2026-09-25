@@ -58,6 +58,14 @@ public final class Tracker {
     private boolean loaded, dirty;
     private long dirtySince;
     private List<String> lines = List.of();
+    private List<String> rowKeys = List.of();
+    private final Map<String, Long> lastAdded = new java.util.HashMap<>();
+    private boolean editMode;
+    private int drawnX, drawnY;
+    private float drawnScale = 1f;
+    private long drawnAt;
+    private static final String PROFIT_ROW = "\u0001profit";
+    private static final long FRESH_MS = 10_000L;
     private int ticks;
     private boolean changed = true;
 
@@ -102,7 +110,57 @@ public final class Tracker {
         markDirty();
         markActivity();
         changed = true;
+        lastAdded.put(key, System.currentTimeMillis());
         if (!COINS.equals(key)) PriceManager.ensureFresh();
+    }
+
+    // HUD-038: hide / remove / edit single rows
+    public boolean hidden(String key) {
+        List<String> h = com.teslamaps.config.TeslaMapsConfig.get().trackerHidden.get(id);
+        return h != null && h.contains(key);
+    }
+
+    public void toggleHidden(String key) {
+        var all = com.teslamaps.config.TeslaMapsConfig.get().trackerHidden;
+        List<String> h = all.computeIfAbsent(id, k -> new ArrayList<>());
+        if (!h.remove(key)) h.add(key);
+        if (h.isEmpty()) all.remove(id);
+        com.teslamaps.config.TeslaMapsConfig.save();
+        rebuild();
+    }
+
+    public void remove(String key) {
+        load();
+        session.remove(key);
+        total.remove(key);
+        lastAdded.remove(key);
+        markDirty();
+        rebuild();
+    }
+
+    /** Adds {@code delta} (may be negative) to session and total; a count at or below 0 drops the row. */
+    public void edit(String key, long delta) {
+        load();
+        for (Map<String, Long> m : List.of(session, total)) {
+            long v = m.getOrDefault(key, 0L) + delta;
+            if (v <= 0) m.remove(key);
+            else m.put(key, v);
+        }
+        markDirty();
+        rebuild();
+    }
+
+    public java.util.Set<String> keys() {
+        load();
+        java.util.Set<String> k = new java.util.LinkedHashSet<>(session.keySet());
+        k.addAll(total.keySet());
+        return k;
+    }
+
+    public String profitText() {
+        return com.teslamaps.utils.StringUtil.strip(title) + " (" + (view == View.SESSION ? "Session" : "Total") + "): "
+                + ItemPrice.format(profit(view)) + " coins"
+                + (view == View.SESSION ? ", " + ItemPrice.format(perHour()) + "/h, " + formatTime(activeMillis()) : "");
     }
 
     public void addCoins(long coins) {
@@ -158,7 +216,11 @@ public final class Tracker {
     public double profit(View v) {
         load();
         double sum = 0;
-        for (var e : map(v).entrySet()) sum += value(e.getKey(), e.getValue());
+        boolean skipHidden = com.teslamaps.config.TeslaMapsConfig.get().trackerInteractive;
+        for (var e : map(v).entrySet()) {
+            if (skipHidden && hidden(e.getKey())) continue;
+            sum += value(e.getKey(), e.getValue());
+        }
         return sum;
     }
 
@@ -172,6 +234,14 @@ public final class Tracker {
     public void tick() {
         load();
         if (dirty && System.currentTimeMillis() - dirtySince > SAVE_DELAY) save();
+        boolean interactive = com.teslamaps.config.TeslaMapsConfig.get().trackerInteractive;
+        boolean edit = interactive
+                && Minecraft.getInstance().screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>;
+        if (edit != editMode) { editMode = edit; changed = true; }
+        if (interactive && !lastAdded.isEmpty()) {
+            long now = System.currentTimeMillis();
+            if (lastAdded.values().removeIf(t -> now - t > FRESH_MS)) changed = true;
+        }
         // the clock and prices move on their own, a second is fine for those
         if (changed || ++ticks >= 20) {
             ticks = 0;
@@ -189,25 +259,44 @@ public final class Tracker {
         List<Map.Entry<String, Long>> rows = new ArrayList<>(m.entrySet());
         rows.sort((a, b) -> Double.compare(value(b.getKey(), b.getValue()), value(a.getKey(), a.getValue())));
 
+        boolean interactive = com.teslamaps.config.TeslaMapsConfig.get().trackerInteractive;
+        if (interactive && !editMode) rows.removeIf(e -> hidden(e.getKey()));
         List<String> out = new ArrayList<>();
+        List<String> keys = new ArrayList<>();
         out.add(title + " §7(" + (view == View.SESSION ? "Session" : "Total") + ")");
+        keys.add(null);
         int shown = 0;
+        long now = System.currentTimeMillis();
         for (var e : rows) {
             if (shown++ >= maxRows) break;
             double v = value(e.getKey(), e.getValue());
-            if (COINS.equals(e.getKey())) {
-                out.add(display(COINS) + "§7: §6" + ItemPrice.format(v));
+            keys.add(e.getKey());
+            if (interactive && hidden(e.getKey())) {
+                String amount = COINS.equals(e.getKey()) ? "" : String.format(java.util.Locale.ROOT, "%,dx ", e.getValue());
+                out.add("§8§m" + com.teslamaps.utils.StringUtil.strip(amount + display(e.getKey())));
                 continue;
             }
-            out.add("§f" + String.format(java.util.Locale.ROOT, "%,d", e.getValue()) + "x " + display(e.getKey())
+            Long added = lastAdded.get(e.getKey());
+            boolean fresh = interactive && added != null && now - added < FRESH_MS;
+            if (COINS.equals(e.getKey())) {
+                out.add(display(COINS) + "§7: " + (fresh ? "§a§l" : "§6") + ItemPrice.format(v));
+                continue;
+            }
+            out.add((fresh ? "§a§l" : "§f") + String.format(java.util.Locale.ROOT, "%,d", e.getValue()) + "x§r " + display(e.getKey())
                     + (v > 0 ? " §7- §6" + ItemPrice.format(v) : ""));
         }
-        if (rows.size() > maxRows) out.add("§7+" + (rows.size() - maxRows) + " more");
+        if (rows.size() > maxRows) {
+            out.add("§7+" + (rows.size() - maxRows) + " more");
+            keys.add(null);
+        }
         out.add("§eProfit: §6" + ItemPrice.format(profit(view)));
+        keys.add(PROFIT_ROW);
         if (view == View.SESSION) {
             out.add("§eper hour: §6" + ItemPrice.format(perHour()) + (idle() && sessionStart > 0 ? " §7(paused)" : ""));
             out.add("§eTime: §f" + formatTime(activeMillis()));
         }
+        if (editMode) out.add("§8Click: hide · Ctrl+Click: remove · Profit: copy");
+        rowKeys = keys;
         lines = out;
     }
 
@@ -229,6 +318,10 @@ public final class Tracker {
         if (l.isEmpty()) return;
         int[] size = size(mc.font);
         int pad = HudStyle.padding();
+        drawnX = x;
+        drawnY = y;
+        drawnScale = scale;
+        drawnAt = System.currentTimeMillis();
         var pose = g.pose();
         pose.pushMatrix();
         pose.translate(x, y);
@@ -236,6 +329,33 @@ public final class Tracker {
         HudStyle.panel(g, -pad, -pad, size[0] + pad * 2, size[1] + pad * 2);
         for (int i = 0; i < l.size(); i++) g.text(mc.font, l.get(i), 0, i * (mc.font.lineHeight + 1), 0xFFFFFFFF);
         pose.popMatrix();
+    }
+
+    /** A click on a drawn tracker while a container is open; true when it hit one. */
+    public static boolean click(double mx, double my, boolean ctrl) {
+        if (!com.teslamaps.config.TeslaMapsConfig.get().trackerInteractive) return false;
+        Minecraft mc = Minecraft.getInstance();
+        long now = System.currentTimeMillis();
+        for (Tracker t : ALL.values()) {
+            if (now - t.drawnAt > 250 || t.lines.isEmpty()) continue;
+            int[] size = t.size(mc.font);
+            double lx = (mx - t.drawnX) / t.drawnScale, ly = (my - t.drawnY) / t.drawnScale;
+            if (lx < 0 || ly < 0 || lx > size[0] || ly > size[1]) continue;
+            int row = (int) (ly / (mc.font.lineHeight + 1));
+            String key = row < t.rowKeys.size() ? t.rowKeys.get(row) : null;
+            if (key == null) return true;
+            if (key.equals(PROFIT_ROW)) {
+                mc.keyboardHandler.setClipboard(t.profitText());
+                if (mc.player != null) mc.player.sendSystemMessage(
+                        net.minecraft.network.chat.Component.literal("§a[TeslaMaps] §7Copied profit to clipboard."));
+            } else if (ctrl) {
+                t.remove(key);
+            } else {
+                t.toggleHidden(key);
+            }
+            return true;
+        }
+        return false;
     }
 
     /** Unscaled content size, for HudEditElement. */

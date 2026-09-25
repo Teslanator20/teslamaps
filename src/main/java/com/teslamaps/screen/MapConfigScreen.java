@@ -1776,6 +1776,95 @@ public class MapConfigScreen extends Screen {
         }
     }
 
+    /** HUD-039: drag rows to reorder a HUD's lines, click the box to hide one. */
+    public class LineOrderEntry extends DescribedEntry<LineOrderEntry> {
+        private static final int HEAD = 20, LINE = 14;
+        private int x, width;
+        private final String label, id;
+        private List<String> order;
+        private int dragging = -1;
+
+        public LineOrderEntry(int x, int w, String label, String id) {
+            this.x = x; this.width = w; this.label = label; this.id = id;
+        }
+
+        private List<String> order() {
+            if (order == null || dragging < 0) order = new ArrayList<>(com.teslamaps.utils.LineOrder.resolved(id));
+            return order;
+        }
+
+        @Override public int getHeight() { return HEAD + order().size() * LINE + 4; }
+        @Override public String getLabel() { return label; }
+        @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
+        @Override public void reposition(int x, int w) { this.x = x; this.width = w; }
+
+        @Override
+        public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
+            var def = com.teslamaps.utils.LineOrder.def(id);
+            List<String> o = order();
+            ctx.text(screen.font, screen.fitLabel(label, x + 8, x + width - 50), x + 8, y + 6, GuiStyle.text());
+            String reset = "Reset";
+            int rw = screen.font.width(reset);
+            int rx = x + width - rw - 10;
+            boolean rHover = mouseX >= rx - 3 && mouseX <= rx + rw + 3 && mouseY >= y + 2 && mouseY < y + 16;
+            boolean custom = com.teslamaps.utils.LineOrder.customized(id);
+            ctx.text(screen.font, reset, rx, y + 6, !custom ? 0xFF555555 : rHover ? GuiStyle.text() : GuiStyle.textDim());
+            if (clicked && rHover && custom) {
+                screen.clickHandled = true;
+                GuiSounds.press();
+                com.teslamaps.utils.LineOrder.reset(id);
+                TeslaMapsConfig.save();
+                order = null;
+                return;
+            }
+
+            int top = y + HEAD;
+            int left = x + 16, right = x + width - 10;
+            if (dragging >= 0) {
+                if (!mouseDown) {
+                    dragging = -1;
+                    com.teslamaps.utils.LineOrder.save(id, o);
+                    TeslaMapsConfig.save();
+                } else {
+                    int target = Math.max(0, Math.min(o.size() - 1, (mouseY - top) / LINE));
+                    if (target != dragging) {
+                        o.add(target, o.remove(dragging));
+                        dragging = target;
+                        GuiSounds.step(target / (float) Math.max(1, o.size() - 1));
+                    }
+                }
+            }
+            for (int i = 0; i < o.size(); i++) {
+                String k = o.get(i);
+                boolean hidden = k.startsWith("-");
+                String key = hidden ? k.substring(1) : k;
+                int ry = top + i * LINE;
+                boolean hover = mouseX >= left && mouseX < right && mouseY >= ry && mouseY < ry + LINE;
+                if (i == dragging) ctx.fill(left, ry, right, ry + LINE, GuiStyle.rowSelected());
+                else if (hover) ctx.fill(left, ry, right, ry + LINE, GuiStyle.rowHover());
+                int bx = right - 12;
+                boolean boxHover = hover && mouseX >= bx - 2;
+                ctx.fill(bx, ry + 3, bx + 8, ry + 11, hidden ? GuiStyle.toggleOff() : GuiStyle.accent());
+                drawBorder(ctx, bx, ry + 3, 8, 8, boxHover ? GuiStyle.borderHover() : GuiStyle.border());
+                String name = def != null ? com.teslamaps.utils.LineOrder.label(def, key) : key;
+                ctx.text(screen.font, "≡", left + 3, ry + 3, GuiStyle.textFaint());
+                ctx.text(screen.font, screen.fitLabel(name, left + 14, bx - 4), left + 14, ry + 3,
+                        hidden ? 0xFF666666 : GuiStyle.text());
+                if (clicked && hover && dragging < 0) {
+                    screen.clickHandled = true;
+                    if (boxHover) {
+                        o.set(i, hidden ? key : "-" + key);
+                        com.teslamaps.utils.LineOrder.save(id, o);
+                        TeslaMapsConfig.save();
+                        GuiSounds.toggle(hidden);
+                    } else {
+                        dragging = i;
+                    }
+                }
+            }
+        }
+    }
+
     public class DropdownEntry extends DescribedEntry<DropdownEntry> {
         private int x, width;
         private final String label;

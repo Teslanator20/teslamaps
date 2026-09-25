@@ -90,7 +90,14 @@ public final class InterfaceCategory {
                 .desc("Adds \"zzz for 1.23s\" while the server has not sent a tick for longer than the threshold")
                 .tags("lag", "freeze", "zzz");
         b.slider("    Lag Threshold (ms)", 50f, 1000f, () -> config.perfHudLagThreshold, v -> config.perfHudLagThreshold = v, 0);
+        b.toggle("  Show Coordinates", () -> config.perfHudCoords, v -> config.perfHudCoords = v)
+                .desc("x / y / z (yaw / pitch) of your position")
+                .tags("coords", "xyz", "position");
+        b.toggle("    Looking At", () -> config.perfHudLookingAt, v -> config.perfHudLookingAt = v)
+                .desc("Adds \"Looking at: x / y / z\" for the block in your crosshair");
         b.toggle("  Vertical", () -> config.perfHudVertical, v -> config.perfHudVertical = v);
+        b.lineOrder("  Order", com.teslamaps.features.PerformanceHud.LINES.id())
+                .desc("Drag entries to change their order, click the box to hide one.");
         b.color("  Label Color", () -> config.perfHudLabelColor, v -> config.perfHudLabelColor = v);
         b.color("  Value Color", () -> config.perfHudValueColor, v -> config.perfHudValueColor = v);
         b.info("Position/scale in /tmap gui, hidden while F3 is open");

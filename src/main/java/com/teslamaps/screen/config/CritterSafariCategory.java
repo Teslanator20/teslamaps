@@ -15,6 +15,8 @@ public final class CritterSafariCategory {
         b.toggle("Track Run", () -> config.safariTracker, v -> config.safariTracker = v);
         b.toggle("Show HUD", () -> config.safariHud, v -> config.safariHud = v);
         b.toggle("  Panel Style", () -> config.safariHudPanel, v -> config.safariHudPanel = v);
+        b.lineOrder("  HUD Lines (drag to reorder)", com.teslamaps.safari.SafariTracker.LINES.id())
+                .desc("Drag lines to change their order, click the box to hide one. Reset restores the default.");
         b.info("Bars per biome, players, stays up as \"ready\" / \"last run\" at the entrance");
         b.info("Position and scale in /tmap gui");
         b.button("Run Screen (/tmap safari gui)",

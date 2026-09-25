@@ -865,13 +865,18 @@ public class SafariTracker {
         return cachedLines.isEmpty() ? buildLines() : cachedLines;
     }
 
+    public static final com.teslamaps.utils.LineOrder.Def LINES = com.teslamaps.utils.LineOrder.define("safari",
+            new String[]{"title", "dex", "biomes", "stats", "pb", "hotspot", "headstart", "incense", "gems", "bells", "wumpa", "checklist"},
+            new String[]{"Title + Timer", "Dex", "Biomes", "Capsules / Escapes / Drops", "PB", "Hotspot", "Head Start",
+                    "Incense", "Gems", "Bells", "Wumpa", "Biome Checklist"});
+
     private static List<String> buildLines() {
-        List<String> out = new ArrayList<>();
+        com.teslamaps.utils.LineOrder.Lines out = com.teslamaps.utils.LineOrder.lines("safari");
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
         long secs = runStart == 0 ? 0 : (System.currentTimeMillis() - runStart) / 1000;
-        out.add(String.format("§bCritter Safari §8| §f%d:%02d", secs / 60, secs % 60));
-        out.add("§7Dex: §a" + caughtAny.size() + "§7/§f" + SafariData.ALL.size()
+        out.key("title").add(String.format("§bCritter Safari §8| §f%d:%02d", secs / 60, secs % 60));
+        out.key("dex").add("§7Dex: §a" + caughtAny.size() + "§7/§f" + SafariData.ALL.size()
                 + " §8(§7own §f" + caughtSelf.size() + "§8)");
 
         StringBuilder biomes = new StringBuilder();
@@ -882,39 +887,39 @@ public class SafariTracker {
             biomes.append(b.color).append(b.label).append(" ")
                   .append(have >= total ? "§a" : "§f").append(have).append("§7/").append(total);
         }
-        out.add(biomes.toString());
+        out.key("biomes").add(biomes.toString());
 
-        out.add("§7Capsules: §f" + capsules + " §8| §7Escapes: §c" + escapes + " §8| §7Drops: §e" + floorDrops);
+        out.key("stats").add("§7Capsules: §f" + capsules + " §8| §7Escapes: §c" + escapes + " §8| §7Drops: §e" + floorDrops);
 
         if (c.safariShowPb) {
             int pb = SafariHistory.bestDex();
             if (pb > 0) {
                 String ahead = caughtAny.size() > pb ? " §6§lPB!" : "";
-                out.add("§7PB: §f" + pb + "§7/" + SafariData.ALL.size() + ahead);
+                out.key("pb").add("§7PB: §f" + pb + "§7/" + SafariData.ALL.size() + ahead);
             }
         }
 
-        if (c.safariShowHotspot && hotspot != null) out.add("§7Hotspot: " + hotspot.color + hotspot.label);
-        if (c.safariShowHeadStart && headStart != null) out.add("§7Head Start: §f" + headStart);
-        if (incense > 0 && incense < 4) out.add("§7Incense: §f" + incense + "§7/4");
-        if (!gemsDone && !gems.isEmpty()) out.add("§7Gems: §f" + gems.size() + "§7/3");
-        if (bells > 0) out.add("§7Bells: §f" + bells + "§7/7");
+        if (c.safariShowHotspot && hotspot != null) out.key("hotspot").add("§7Hotspot: " + hotspot.color + hotspot.label);
+        if (c.safariShowHeadStart && headStart != null) out.key("headstart").add("§7Head Start: §f" + headStart);
+        if (incense > 0 && incense < 4) out.key("incense").add("§7Incense: §f" + incense + "§7/4");
+        if (!gemsDone && !gems.isEmpty()) out.key("gems").add("§7Gems: §f" + gems.size() + "§7/3");
+        if (bells > 0) out.key("bells").add("§7Bells: §f" + bells + "§7/7");
 
         int wumpa = 8 - wumpaMissing();
-        if (wumpa < 8) out.add("§7Wumpa: §f" + wumpa + "§7/8");
-        else if (!caughtAny.contains("Wumpa")) out.add("§6Wumpa: §aready" + (wumpaAwake ? " §c(awake)" : ""));
+        if (wumpa < 8) out.key("wumpa").add("§7Wumpa: §f" + wumpa + "§7/8");
+        else if (!caughtAny.contains("Wumpa")) out.key("wumpa").add("§6Wumpa: §aready" + (wumpaAwake ? " §c(awake)" : ""));
 
         if (c.safariChecklist) {
             SafariData.Biome shown = checklistBiome();
             if (shown != null) {
-                out.add(shown.color + "§l" + shown.label + " Biome");
+                out.key("checklist").add(shown.color + "§l" + shown.label + " Biome");
                 for (SafariData.Critter cr : SafariData.ALL) {
                     if (cr.biome() != shown) continue;
                     out.add(checklistLine(cr, c.safariChecklistIcons));
                 }
             }
         }
-        return out;
+        return out.build();
     }
 
     /** "Auto" follows the biome you are standing in, otherwise the picked one. */
