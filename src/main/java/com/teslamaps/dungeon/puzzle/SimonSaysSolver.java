@@ -237,7 +237,7 @@ public class SimonSaysSolver {
             canBreak = true;
             if (wasBroken) {
                 wasBroken = false;
-                if (c.simonSaysAlertChat && mc.getConnection() != null) mc.getConnection().sendCommand("pc SS Started Again!");
+                if (c.simonSaysAlertChat && mc.getConnection() != null) com.teslamaps.features.ChatQueue.command("pc SS Started Again!");
                 title(mc, "§a§l§nSS Started!");
             }
             return;
@@ -250,7 +250,7 @@ public class SimonSaysSolver {
 
         canBreak = false;
         wasBroken = true;
-        if (c.simonSaysAlertChat && mc.getConnection() != null) mc.getConnection().sendCommand("pc SS Broke!");
+        if (c.simonSaysAlertChat && mc.getConnection() != null) com.teslamaps.features.ChatQueue.command("pc SS Broke!");
         if (mc.player != null) mc.player.playSound(net.minecraft.sounds.SoundEvents.ANVIL_LAND, 1.0f, 0f);
         title(mc, "§c§l§nSS BROKE!");
         clickSequence.clear();

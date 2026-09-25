@@ -1980,8 +1980,8 @@ public class TMapCommand {
             case "Coop" -> "cc ";
             default -> "pc ";
         };
-        if (prefix == null) mc.getConnection().sendChat(text);
-        else mc.getConnection().sendCommand(prefix + text);
+        if (prefix == null) com.teslamaps.features.ChatQueue.chat(text);
+        else com.teslamaps.features.ChatQueue.command(prefix + text);
         return 1;
     }
 

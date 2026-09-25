@@ -350,6 +350,15 @@ public class ChatFilter {
         pendingOut = null;
         String t = StringUtil.strip(text);
         if (StashCompact.handle(t)) return true;
+        if (TeslaMapsConfig.get().chatFilterEnabled) {
+            String sf = ChatCompactRules.shortForm(message, t);
+            if (sf != null && sf.isEmpty()) return true;
+            if (sf != null && !hasClick(message, true)) {
+                lastReason = "compact";
+                queue(text, compact(message, sf));
+                return false;
+            }
+        }
         Rule r = matchStripped(t);
         if (r == SCREENSHOT) return true;
         if (r != null) return apply(message, text, t, actionOf(r), COMPACT.get(r.id));

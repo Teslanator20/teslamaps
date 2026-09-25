@@ -116,7 +116,7 @@ public class ChatWaypoint {
             y = Integer.parseInt(parts[1]);
             z = Integer.parseInt(parts[2]);
         }
-        mc.getConnection().sendChat("x: " + x + ", y: " + y + ", z: " + z);
+        com.teslamaps.features.ChatQueue.chat("x: " + x + ", y: " + y + ", z: " + z);
         return null;
     }
 

@@ -29,7 +29,7 @@ public class MelodyMessage {
             TeslaMapsConfig c = TeslaMapsConfig.get();
             if (c.melodyMessage && Minecraft.getInstance().getConnection() != null) {
                 String text = (c.melodyMessageText == null || c.melodyMessageText.isBlank()) ? "Melody Terminal start!" : c.melodyMessageText;
-                Minecraft.getInstance().getConnection().sendCommand("pc " + text);
+                com.teslamaps.features.ChatQueue.command("pc " + text);
             }
         }
     }
@@ -48,7 +48,7 @@ public class MelodyMessage {
         String prefix = c.melodyProgressText == null || c.melodyProgressText.isBlank() ? "Melody" : c.melodyProgressText.trim();
         String pct = prefix + " " + (c.melodyProgressFormat == 1 ? (row - 1) + "/4" : ((row - 1) * 25) + "%");
         if (Minecraft.getInstance().getConnection() != null) {
-            Minecraft.getInstance().getConnection().sendCommand("pc " + pct);
+            com.teslamaps.features.ChatQueue.command("pc " + pct);
         }
     }
 

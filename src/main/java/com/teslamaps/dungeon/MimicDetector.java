@@ -257,7 +257,7 @@ public class MimicDetector {
         if (mc.player == null) return;
         if (!com.teslamaps.config.TeslaMapsConfig.get().mimicDeadMessage) return;
 
-        mc.player.connection.sendCommand("pc Mimic Dead!");
+        com.teslamaps.features.ChatQueue.command("pc Mimic Dead!");
         TeslaMaps.debug("[MimicDetector] Announced Mimic death to party");
     }
 
