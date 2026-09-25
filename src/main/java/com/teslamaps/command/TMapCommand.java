@@ -152,6 +152,8 @@ public class TMapCommand {
                                         .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "view")))))
                 .then(com.teslamaps.features.SecretWaypoints.command())
                 .then(com.teslamaps.features.HideExCoopMembers.command())
+                .then(com.teslamaps.features.MinionFeatures.command())
+                .then(com.teslamaps.features.IslandAlerts.command())
                 .then(com.teslamaps.dungeon.RunLogger.command())
                 .then(com.teslamaps.features.customize.CustomizeKey.attach(ClientCommands.literal("customize")
                         .executes(context -> openCustomize(context.getSource(), false))

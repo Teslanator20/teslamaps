@@ -257,5 +257,10 @@ final class Features {
         com.teslamaps.features.mining.HotmPerks.register();
         com.teslamaps.features.GemstoneBuffs.register();
         com.teslamaps.features.ItemCycle.register();
+        // w06-06-qol
+        com.teslamaps.features.MinionFeatures.register();
+        com.teslamaps.features.ClickFixes.register();
+        com.teslamaps.features.MobSpawnAlert.register();
+        com.teslamaps.features.IslandAlerts.register();
     }
 }
