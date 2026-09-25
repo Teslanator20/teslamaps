@@ -57,7 +57,8 @@ public final class ElectionApi {
 
     private static boolean wanted() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.paulAutoDetect || c.witherDragonPaulAuto || (c.petOverlay && c.section("Skills")) || c.trackerHistory || c.mayorOverlay;
+        return c.paulAutoDetect || c.witherDragonPaulAuto || (c.petOverlay && c.section("Skills")) || c.trackerHistory || c.mayorOverlay
+                || (c.skillTracker && c.skillTrackerSlayerStats);
     }
 
     private static void tick() {
