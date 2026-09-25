@@ -2136,6 +2136,67 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w08-01-hud
+    public boolean customScoreboardChunked = false;
+    public int customScoreboardChunkSize = 3;
+    public boolean customScoreboardChunkHideEmpty = true;
+    public boolean customScoreboardChunkTab = true;
+    public boolean fancyTabHud = false;
+    public float fancyTabScale = 1.0f;
+    public boolean fancyTabPlayers = true;
+    public boolean fancyTabBars = true;
+    public int fancyTabVanillaKey = -1;
+    public boolean hoppityLiveStats = false;
+    public boolean hoppityLiveAlways = false;
+    public boolean hoppityEventSummary = false;
+    public int hoppityLiveX = 10;
+    public int hoppityLiveY = 160;
+    public float hoppityLiveScale = 1.0f;
+    public boolean limboTracker = false;
+    public int limboTrackerX = 10;
+    public int limboTrackerY = 60;
+    public float limboTrackerScale = 1.0f;
+    @Global public long limboPersonalBest = 0;
+    @Global public long limboTotalSeconds = 0;
+    public boolean profitTracker = false;
+    public String profitTrackerPreset = "Auto";
+    public boolean profitTrackerPresetOnly = false;
+    public boolean profitTrackerSacks = true;
+    public boolean profitTrackerCoins = true;
+    public boolean profitTrackerSlayerCost = true;
+    public int profitTrackerPriceSource = 1;
+    public int profitTrackerIdle = 90;
+    public int profitTrackerX = 10;
+    public int profitTrackerY = 200;
+    public float profitTrackerScale = 1.0f;
+    public boolean playerStatHuds = false;
+    public boolean statHudIcons = true;
+    public boolean statHealth = true;
+    public boolean statMana = true;
+    public boolean statOverflow = true;
+    public boolean statDefense = true;
+    public boolean statVitality = false;
+    public boolean statEhp = false;
+    public boolean statSpeed = false;
+    public boolean statHealthBar = false;
+    public boolean statManaBar = false;
+    public boolean statHideHearts = true;
+    public int statBarWidth = 80;
+    public int stHealthX = 10, stHealthY = 240; public float stHealthScale = 1.0f;
+    public int stManaX = 10, stManaY = 250; public float stManaScale = 1.0f;
+    public int stOverflowX = 10, stOverflowY = 260; public float stOverflowScale = 1.0f;
+    public int stDefenseX = 10, stDefenseY = 270; public float stDefenseScale = 1.0f;
+    public int stVitalityX = 10, stVitalityY = 280; public float stVitalityScale = 1.0f;
+    public int stEhpX = 10, stEhpY = 290; public float stEhpScale = 1.0f;
+    public int stSpeedX = 10, stSpeedY = 300; public float stSpeedScale = 1.0f;
+    public int stHealthBarX = 100, stHealthBarY = 240; public float stHealthBarScale = 1.0f;
+    public int stManaBarX = 100, stManaBarY = 250; public float stManaBarScale = 1.0f;
+    public boolean quiverHud = false;
+    public boolean quiverOnlyBow = false;
+    public boolean quiverLowWarning = false;
+    public int quiverHudX = 10;
+    public int quiverHudY = 320;
+    public float quiverHudScale = 1.0f;
     // w07-04-qol
     public boolean signCalculator = false;
     public boolean signCalculatorEquals = false;

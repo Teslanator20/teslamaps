@@ -67,6 +67,11 @@ public final class CustomScoreboard {
                     b.toggle("  Hide www.hypixel.net", () -> c.customScoreboardHideFooter, v -> c.customScoreboardHideFooter = v);
                     b.toggle("  Hide Blank Lines", () -> c.customScoreboardHideBlank, v -> c.customScoreboardHideBlank = v);
                     b.toggle("  Panel Background", () -> c.customScoreboardBackground, v -> c.customScoreboardBackground = v);
+                    b.toggle("  Chunked Currency Lines", () -> c.customScoreboardChunked, v -> c.customScoreboardChunked = v)
+                            .desc("Purse, Bits, Copper, Motes, North Stars, ... packed into a few lines split by |");
+                    b.slider("    Values Per Line", 1f, 6f, () -> (float) c.customScoreboardChunkSize, v -> c.customScoreboardChunkSize = Math.round(v), 0);
+                    b.toggle("    Hide Empty Values", () -> c.customScoreboardChunkHideEmpty, v -> c.customScoreboardChunkHideEmpty = v);
+                    b.toggle("    Add Bank + Gems From Tab", () -> c.customScoreboardChunkTab, v -> c.customScoreboardChunkTab = v);
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.SCOREBOARD, original ->
                 (ctx, delta) -> { if (!on()) original.extractRenderState(ctx, delta); });
@@ -90,6 +95,8 @@ public final class CustomScoreboard {
         if (entries.size() > 15) entries = entries.subList(0, 15);
 
         List<FormattedCharSequence> out = new ArrayList<>(entries.size());
+        List<String> chunk = c.customScoreboardChunked ? new ArrayList<>() : null;
+        int chunkAt = -1;
         int lastText = -1;
         int w = 0;
         boolean lastBlank = true;
@@ -100,6 +107,14 @@ public final class CustomScoreboard {
             if (blank && (c.customScoreboardHideBlank || lastBlank)) continue;
             if (c.customScoreboardHideServer && isServerLine(plain)) continue;
             if (c.customScoreboardHideFooter && plain.endsWith("hypixel.net")) continue;
+            if (chunk != null && !blank) {
+                String v = currency(plain, c);
+                if (v != null) {
+                    if (chunkAt < 0) chunkAt = out.size();
+                    if (!v.isEmpty()) chunk.add(v);
+                    continue;
+                }
+            }
             lastBlank = blank;
             FormattedCharSequence seq = line.getVisualOrderText();
             out.add(seq);
@@ -107,6 +122,22 @@ public final class CustomScoreboard {
             w = Math.max(w, font.width(seq));
         }
         if (lastText + 1 < out.size()) out = out.subList(0, lastText + 1);
+        if (chunk != null) {
+            if (c.customScoreboardChunkTab) tabCurrencies(chunk, c);
+            if (!chunk.isEmpty()) {
+                if (chunkAt < 0 || chunkAt > out.size()) chunkAt = out.size();
+                int per = Math.max(1, c.customScoreboardChunkSize);
+                List<FormattedCharSequence> merged = new ArrayList<>(out.subList(0, chunkAt));
+                for (int i = 0; i < chunk.size(); i += per) {
+                    FormattedCharSequence seq = Component.literal(String.join(" §7| ", chunk.subList(i, Math.min(chunk.size(), i + per))))
+                            .getVisualOrderText();
+                    merged.add(seq);
+                    w = Math.max(w, font.width(seq));
+                }
+                merged.addAll(out.subList(chunkAt, out.size()));
+                out = merged;
+            }
+        }
 
         if (c.customScoreboardTitle) {
             title = obj.getDisplayName().getVisualOrderText();
@@ -116,6 +147,38 @@ public final class CustomScoreboard {
         }
         rows = out;
         width = w + 8;
+    }
+
+    private static final String[][] CURRENCIES = {
+            {"Purse: ", "§6"}, {"Piggy: ", "§6"}, {"Bank: ", "§6"}, {"Bits: ", "§b"}, {"Copper: ", "§c"},
+            {"Motes: ", "§d"}, {"Sowdust: ", "§2"}, {"Gems: ", "§a"}, {"Heat: ", "§c"}, {"Cold: ", "§b"},
+            {"North Stars: ", "§d"}};
+
+    /** Colored value of a currency line, "" when it is empty and hidden, null for other lines. */
+    private static String currency(String plain, TeslaMapsConfig c) {
+        for (String[] cur : CURRENCIES) {
+            if (!plain.startsWith(cur[0])) continue;
+            String v = plain.substring(cur[0].length()).trim();
+            if (c.customScoreboardChunkHideEmpty && (v.isEmpty() || v.equals("0") || v.startsWith("0 ") || v.equals("♨ 0"))) return "";
+            return cur[1] + v;
+        }
+        return null;
+    }
+
+    private static void tabCurrencies(List<String> chunk, TeslaMapsConfig c) {
+        boolean bank = false, gems = false;
+        for (String raw : com.teslamaps.utils.TabListUtils.getTabListLines()) {
+            String t = StringUtil.strip(raw).trim();
+            if (!bank && t.startsWith("Bank: ")) {
+                bank = true;
+                String v = currency(t, c);
+                if (v != null && !v.isEmpty()) chunk.add(v);
+            } else if (!gems && t.startsWith("Gems: ")) {
+                gems = true;
+                String v = currency(t, c);
+                if (v != null && !v.isEmpty()) chunk.add(v);
+            }
+        }
     }
 
     // "09/25/26 m77CK" - date plus server id

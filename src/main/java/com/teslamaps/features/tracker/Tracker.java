@@ -49,6 +49,8 @@ public final class Tracker {
     private final Map<String, Long> total = new LinkedHashMap<>();
     private final Map<String, Double> fixed = new LinkedHashMap<>();
     private final Map<String, String> names = new LinkedHashMap<>();
+    private final java.util.Set<String> coinKeys = new java.util.HashSet<>();
+    private java.util.function.Function<View, List<String>> extra;
     private IntSupplier priceSource = () -> PriceManager.SOURCE_BAZAAR_SELL;
     private IntSupplier idleSeconds = () -> 60;
     private int maxRows = 12;
@@ -89,6 +91,10 @@ public final class Tracker {
     public Tracker fixedValue(String key, double coins) { fixed.put(key, coins); return this; }
     /** Display name for a key that is not an item id. */
     public Tracker name(String key, String display) { names.put(key, display); return this; }
+    /** Shown like coins ("name: value") instead of "Nx name". */
+    public Tracker coinKey(String key) { coinKeys.add(key); return this; }
+    /** Lines added after the profit line. */
+    public Tracker extra(java.util.function.Function<View, List<String>> lines) { this.extra = lines; return this; }
 
     public View view() { return view; }
     public void view(View v) { this.view = v; rebuild(); }
@@ -199,11 +205,16 @@ public final class Tracker {
                 out.add(display(COINS) + "§7: §6" + ItemPrice.format(v));
                 continue;
             }
+            if (coinKeys.contains(e.getKey())) {
+                out.add(display(e.getKey()) + "§7: " + (v < 0 ? "§c-" : "§6") + ItemPrice.format(Math.abs(v)));
+                continue;
+            }
             out.add("§f" + String.format(java.util.Locale.ROOT, "%,d", e.getValue()) + "x " + display(e.getKey())
                     + (v > 0 ? " §7- §6" + ItemPrice.format(v) : ""));
         }
         if (rows.size() > maxRows) out.add("§7+" + (rows.size() - maxRows) + " more");
         out.add("§eProfit: §6" + ItemPrice.format(profit(view)));
+        if (extra != null) out.addAll(extra.apply(view));
         if (view == View.SESSION) {
             out.add("§eper hour: §6" + ItemPrice.format(perHour()) + (idle() && sessionStart > 0 ? " §7(paused)" : ""));
             out.add("§eTime: §f" + formatTime(activeMillis()));
