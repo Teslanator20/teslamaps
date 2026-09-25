@@ -9,14 +9,55 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SlotLock {
+
+    private static int lastSelected = -1;
+    private static long switchedAt;
+    private static List<Integer> cached;
+    private static String cachedKey, cachedSb;
+    private static boolean cachedRift;
 
     private static boolean isPlayerInv(Slot slot) {
         return slot != null && slot.container instanceof Inventory;
     }
 
+    // per profile / rift sets after Skysoft's SlotLockManager and Devonian's SlotLocking
+    private static List<Integer> locks() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.slotLockPerProfile && !c.slotLockRiftSet) return c.lockedSlots;
+        boolean rift = c.slotLockRiftSet && com.teslamaps.utils.SkyblockUtils.isInArea("The Rift");
+        String sb = c.slotLockPerProfile ? com.teslamaps.utils.SbProfile.key() : null;
+        if (!rift && sb == null) return c.lockedSlots;
+        if (cached != null && rift == cachedRift && sb == cachedSb && c.slotLockData.get(cachedKey) == cached) return cached;
+        String key = (rift ? "rift" : "") + (sb != null ? ":sb:" + sb : "");
+        List<Integer> l = c.slotLockData.get(key);
+        if (l == null) {
+            l = key.startsWith("rift") ? new ArrayList<>() : new ArrayList<>(c.lockedSlots);
+            c.slotLockData.put(key, l);
+        }
+        cached = l;
+        cachedKey = key;
+        cachedRift = rift;
+        cachedSb = sb;
+        return l;
+    }
+
     public static boolean isLocked(int containerSlot) {
-        return TeslaMapsConfig.get().lockedSlots.contains(containerSlot);
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (locks().contains(containerSlot)) return true;
+        return c.slotLockBinds && c.slotBinds && SlotBinds.isBound(containerSlot) && !Minecraft.getInstance().hasShiftDown();
+    }
+
+    public static void resetAll() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        c.lockedSlots.clear();
+        c.slotLockData.clear();
+        TeslaMapsConfig.save();
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7[TeslaMaps] All slot locks cleared"));
     }
 
     public static boolean onKey(int key, Slot hovered) {
@@ -24,9 +65,10 @@ public class SlotLock {
         if (!c.slotLock || c.slotLockKey == -1 || key != c.slotLockKey) return false;
         if (!isPlayerInv(hovered)) return false;
         int s = hovered.getContainerSlot();
+        List<Integer> set = locks();
         boolean locked;
-        if (c.lockedSlots.remove((Integer) s)) locked = false;
-        else { c.lockedSlots.add(s); locked = true; }
+        if (set.remove((Integer) s)) locked = false;
+        else { set.add(s); locked = true; }
         TeslaMapsConfig.save();
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) {
@@ -57,17 +99,52 @@ public class SlotLock {
         return mc.player != null && isLocked(mc.player.getInventory().getSelectedSlot());
     }
 
+    /** Q drop: locked slot, or the held slot changed less than the drop delay ago. */
+    public static boolean blockDrop() {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.slotLock) return false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return false;
+        int sel = mc.player.getInventory().getSelectedSlot();
+        if (c.slotLockDropDelay > 0) {
+            long now = System.currentTimeMillis();
+            if (sel != lastSelected) {
+                lastSelected = sel;
+                switchedAt = now;
+            }
+            if (now - switchedAt < c.slotLockDropDelay) return true;
+        }
+        return isLocked(sel);
+    }
+
+    // NEU's drop delay: remember when the held slot changed
+    public static void register() {
+        com.teslamaps.registry.Feature.of("SlotLock")
+                .when(() -> TeslaMapsConfig.get().slotLock && TeslaMapsConfig.get().slotLockDropDelay > 0)
+                .tick(SlotLock::tick);
+    }
+
+    private static void tick() {
+        Minecraft mc = Minecraft.getInstance();
+        int sel = mc.player.getInventory().getSelectedSlot();
+        if (sel != lastSelected) {
+            lastSelected = sel;
+            switchedAt = System.currentTimeMillis();
+        }
+    }
+
     public static void render(GuiGraphicsExtractor ctx) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.slotLock || c.lockedSlots.isEmpty()) return;
+        if (!c.slotLock) return;
+        if (locks().isEmpty() && !(c.slotLockBinds && c.slotBinds)) return;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();
+        int col = TeslaMapsConfig.parseColor(c.colorSlotLock);
         for (Slot slot : cs.getMenu().slots) {
             if (!isPlayerInv(slot) || !isLocked(slot.getContainerSlot())) continue;
             int sx = left + slot.x, sy = top + slot.y;
-            int col = TeslaMapsConfig.parseColor(c.colorSlotLock);
             if ("Icon".equals(c.slotLockStyle)) {
                 com.teslamaps.render.gui.LockIcon.draw(ctx, sx, sy, (col & 0x00FFFFFF) | 0xC0000000);
                 continue;

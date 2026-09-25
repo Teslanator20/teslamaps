@@ -44,6 +44,11 @@ public final class TooltipsValueCategory {
                 .desc("Green/red stat deltas and the equipped piece as a second tooltip");
         b.toggle("Ravengard: Weapon DPS", () -> config.ravengardDps, v -> config.ravengardDps = v)
                 .desc("Damage x Attack Speed line under Attack Speed");
+        b.toggle("  Status Icon On Item", () -> config.compactorStatusIcon, v -> config.compactorStatusIcon = v)
+                .desc("Green ✔ or red ✖ on compactor/deletor items in menus, no hover needed.");
+        b.dropdown("  Show Preview", com.teslamaps.features.CompactorPreview.MODES,
+                () -> config.compactorPreviewMode, v -> config.compactorPreviewMode = v);
+        b.keybind("  Preview Key", () -> config.compactorPreviewKey, v -> config.compactorPreviewKey = v);
         b.label("Item Value");
         b.toggle("Estimated Item Value", () -> config.estimatedValue, v -> config.estimatedValue = v);
         b.toggle("  List Gemstones", () -> config.gemstoneList, v -> config.gemstoneList = v)
@@ -91,6 +96,8 @@ public final class TooltipsValueCategory {
                 () -> (float) config.containerValueHideBelow, v -> config.containerValueHideBelow = Math.round(v / 10f) * 10);
         b.toggle("  Free Position", () -> config.containerValueFreePos, v -> config.containerValueFreePos = v);
         b.info("Drag it in /tmap gui instead of pinning it to the container");
+        b.toggle("  Sack Table", () -> config.sackTable, v -> config.sackTable = v)
+                .desc("Sack menus: every item with stored/capacity (red when full), unit price and value, left of the menu. Gemstone sacks split into Rough/Flawed/Fine.");
         b.label("Enchant Colors");
         b.toggle("Book Abbreviations (Leg I)", () -> config.enchantAbbrev, v -> config.enchantAbbrev = v);
         b.info("Enchant + level written on enchanted book icons");
@@ -101,6 +108,8 @@ public final class TooltipsValueCategory {
                 .desc("Bazaar books named like Sharpness VII get the abbreviation too");
         b.toggle("Enchant Colors", () -> config.enchantColors, v -> config.enchantColors = v);
         b.toggle("Levels as Numbers", () -> config.enchantLevelsAsNumbers, v -> config.enchantLevelsAsNumbers = v);
+        b.toggle("Roman Numerals As Numbers", () -> config.romanNumerals, v -> config.romanNumerals = v)
+                .desc("Every tooltip: Level/Tier/Skill/Floor/Collection/Milestone/Heart of the ... numerals become digits.");
         b.dropdown("Enchant Layout", com.teslamaps.features.EnchantColors.LAYOUTS,
                 () -> config.enchantLayout, v -> config.enchantLayout = v);
         b.info("Compressed = 3 per line, Stacked = 1 per line, both sorted");

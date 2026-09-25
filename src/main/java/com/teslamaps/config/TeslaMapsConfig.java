@@ -2203,6 +2203,22 @@ public class TeslaMapsConfig {
     public boolean searchHighlight = false;
     public int searchHighlightSeconds = 30;
     public String colorSearchHighlight = "9055FF55";
+    // w05-07-inv
+    public boolean salvageBlockOthers = false;
+    public boolean salvageMuseumGuard = false;
+    public boolean salvageMuseumBlock = false;
+    public boolean compactorStatusIcon = false;
+    public String compactorPreviewMode = "Always";
+    public int compactorPreviewKey = 340;
+    public boolean rarityBgHideHotbar = false;
+    public String rarityBgPalette = "Hypixel";
+    public boolean sackTable = false;
+    public boolean slotLockPerProfile = false;
+    public boolean slotLockRiftSet = false;
+    public boolean slotLockBinds = false;
+    public int slotLockDropDelay = 0;
+    public java.util.Map<String, java.util.List<Integer>> slotLockData = new java.util.HashMap<>();
+    public boolean romanNumerals = false;
     // w04-03-inv
     public boolean moveInsertIntoSack = false;
     public boolean arrowPoisonIndicator = false;
@@ -2996,6 +3012,7 @@ public class TeslaMapsConfig {
         if (c.splitPbs == null) c.splitPbs = new java.util.HashMap<>();
         if (c.customSplitDefs == null) c.customSplitDefs = new java.util.HashMap<>();
         if (c.lockedSlots == null) c.lockedSlots = new java.util.ArrayList<>();
+        if (c.slotLockData == null) c.slotLockData = new java.util.HashMap<>();
         if (c.slotBindsData == null) c.slotBindsData = new java.util.HashMap<>();
         if (c.slotBindsAreaProfiles == null) c.slotBindsAreaProfiles = new java.util.HashMap<>();
         if (c.storagePageNames == null) c.storagePageNames = new java.util.HashMap<>();

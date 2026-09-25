@@ -47,7 +47,7 @@ public final class MuseumDonations {
 
     public static void register() {
         feature = Feature.of("MuseumDonations")
-                .when(() -> cfg().museumTooltip || cfg().museumSlotMarker)
+                .when(() -> cfg().museumTooltip || cfg().museumSlotMarker || cfg().salvageMuseumGuard)
                 .tick(MuseumDonations::tick)
                 .config("Tooltips & Value", b -> {
                     b.label("Museum");
@@ -170,6 +170,17 @@ public final class MuseumDonations {
         } else {
             lines.add(Component.literal("§dMuseum (" + cat + "): §c§l✖§c Not Donated"));
         }
+    }
+
+    /** Donatable, not donated yet, and the museum data is loaded. */
+    public static boolean notDonated(ItemStack stack) {
+        Set<String> d = donated;
+        if (d == null || stack == null || stack.isEmpty()) return false;
+        String id = ItemUtil.skyblockId(stack);
+        if (id.isEmpty()) return false;
+        ensureTables();
+        String key = museumKey(id);
+        return key != null && !d.contains(id) && !d.contains(key);
     }
 
     public static void drawSlot(GuiGraphicsExtractor ctx, int x, int y, ItemStack stack) {

@@ -235,5 +235,9 @@ final class Features {
         // w05-08-inv
         com.teslamaps.features.SlotText.register();
         com.teslamaps.features.SearchHighlight.register();
+        // w05-07-inv
+        com.teslamaps.features.SlotLock.register();
+        com.teslamaps.features.SackTable.register();
+        com.teslamaps.features.RomanNumerals.register();
     }
 }

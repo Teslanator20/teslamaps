@@ -13,6 +13,12 @@ public final class InventoryCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Container Helpers");
         b.toggle("Salvage Helper", () -> config.salvageHelper, v -> config.salvageHelper = v);
+        b.toggle("  Block Unsalvageable Items", () -> config.salvageBlockOthers, v -> config.salvageBlockOthers = v)
+                .desc("Salvage menu: clicks on inventory items without a base stat boost do nothing. Hold ctrl to override.");
+        b.toggle("Salvage: Mark Undonated Museum Items", () -> config.salvageMuseumGuard, v -> config.salvageMuseumGuard = v)
+                .desc("Salvage menu: items the museum still wants get a red background (museum API data).");
+        b.toggle("  Block Salvaging Them", () -> config.salvageMuseumBlock, v -> config.salvageMuseumBlock = v)
+                .desc("Clicking such an item plays an anvil sound instead. Hold ctrl to override.");
         b.toggle("Sellable Items Highlighter", () -> config.sellableHighlighter, v -> config.sellableHighlighter = v);
         b.toggle("  More Junk + Trades Menu", () -> config.sellableExtended, v -> config.sellableExtended = v);
         b.color("  Sellable Color", () -> config.colorSellable, v -> config.colorSellable = v);
@@ -186,6 +192,16 @@ public final class InventoryCategory {
         b.dropdown("  Lock Style", com.teslamaps.features.SlotLock.STYLES,
                 () -> config.slotLockStyle, v -> config.slotLockStyle = v);
         b.color("  Locked Slot Color", () -> config.colorSlotLock, v -> config.colorSlotLock = v);
+        b.toggle("  Per SkyBlock Profile", () -> config.slotLockPerProfile, v -> config.slotLockPerProfile = v)
+                .desc("Each SkyBlock profile keeps its own locks. A new profile starts from the shared set.");
+        b.toggle("  Separate Rift Locks", () -> config.slotLockRiftSet, v -> config.slotLockRiftSet = v)
+                .desc("The Rift inventory gets its own lock set.");
+        b.toggle("  Bound Slots Count As Locked", () -> config.slotLockBinds, v -> config.slotLockBinds = v)
+                .desc("Slots in a Slot Bind are locked too. Shift still swaps them.");
+        b.slider("  Drop Delay After Slot Change (ms)", 0f, 500f,
+                () -> (float) config.slotLockDropDelay, v -> config.slotLockDropDelay = Math.round(v / 10f) * 10, 0)
+                .desc("Q does nothing for this long after scrolling to another hotbar slot. 0 = off.");
+        b.button("  Reset All Locks", com.teslamaps.features.SlotLock::resetAll);
         b.label("Item Protection");
         b.toggle("Protect Valuable Items", () -> config.itemProtection, v -> config.itemProtection = v);
         b.slider("  Min Value (million)", 1f, 500f,
@@ -242,6 +258,10 @@ public final class InventoryCategory {
                 com.teslamaps.features.RarityBackground.SHAPES, () -> config.rarityBgShape, v -> config.rarityBgShape = v);
         b.dropdown("  Style",
                 com.teslamaps.features.RarityBackground.STYLES, () -> config.rarityBgStyle, v -> config.rarityBgStyle = v);
+        b.dropdown("  Colors",
+                com.teslamaps.features.RarityBackground.PALETTES, () -> config.rarityBgPalette, v -> config.rarityBgPalette = v)
+                .desc("Hypixel = chat colors, Modern = softer blue, purple, gold and red");
+        b.toggle("  Hide On Hotbar", () -> config.rarityBgHideHotbar, v -> config.rarityBgHideHotbar = v);
         b.toggle("Legacy Attribute Background", () -> config.legacyAttributeBg, v -> config.legacyAttributeBg = v)
                 .desc("Red slot behind items that still carry old Kuudra attributes");
         b.color("  Legacy Attribute Color", () -> config.colorLegacyAttributeBg, v -> config.colorLegacyAttributeBg = v);
