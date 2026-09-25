@@ -2130,6 +2130,21 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w03-04-dun
+    public boolean lootLogger = false;                 // log bought dungeon chests, /tmap loot
+    public boolean bossbarHideUseless = false;         // hide ad/event bossbars, watcher stays in clear
+    public boolean dungeonTabClassColor = false;       // tab: colored class level in dungeons
+    public boolean mageBeam = false;                   // mage beam as one line
+    public String mageBeamColor = "AA0000";
+    public int mageBeamDuration = 40;
+    public float mageBeamWidth = 8f;
+    public boolean mageBeamDepth = true;
+    public boolean mageBeamHideParticles = true;
+    public int mageBeamMinPoints = 3;
+    public boolean teamStats = false;                  // per-player stats at run end
+    public boolean teamStatsSecrets = true;
+    public boolean teamStatsRooms = true;
+    public boolean shadowAssassinAlert = false;        // title on SA teleport
     // w02-06-term
     public boolean terminalMelodyKeys = false;         // keys 1-4 click the melody row buttons
     public int terminalDropKey = -1;                   // own key/mouse button that clicks the hovered terminal slot

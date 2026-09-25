@@ -279,6 +279,28 @@ public class ESPRenderer {
         drawTracerFromCamera(matrices, target, color, cameraPos, bufferSource);
     }
 
+    public static void drawLine(PoseStack matrices, Vec3 from, Vec3 to, int color, float lineWidth, Vec3 cameraPos,
+                                boolean throughWalls) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.renderBuffers() == null) return;
+        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        float r = ((color >> 16) & 0xFF) / 255f;
+        float g = ((color >> 8) & 0xFF) / 255f;
+        float b = (color & 0xFF) / 255f;
+        float a = ((color >> 24) & 0xFF) / 255f;
+        if (a == 0) a = 1.0f;
+        var layer = throughWalls ? TeslaRenderLayers.LINES_ESP : TeslaRenderLayers.LINES_DEPTH;
+        matrices.pushPose();
+        matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        PoseStack.Pose pose = matrices.last();
+        VertexConsumer buffer = src.getBuffer(layer);
+        float dx = (float) (to.x - from.x), dy = (float) (to.y - from.y), dz = (float) (to.z - from.z);
+        buffer.addVertex(pose, (float) from.x, (float) from.y, (float) from.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(lineWidth);
+        buffer.addVertex(pose, (float) to.x, (float) to.y, (float) to.z).setColor(r, g, b, a).setNormal(pose, dx, dy, dz).setLineWidth(lineWidth);
+        finish(src, layer);
+        matrices.popPose();
+    }
+
     public static void drawLine(PoseStack matrices, Vec3 start, Vec3 end, int color, float lineWidth, Vec3 cameraPos) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.renderBuffers() == null) return;

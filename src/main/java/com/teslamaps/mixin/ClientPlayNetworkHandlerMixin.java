@@ -90,7 +90,15 @@ public class ClientPlayNetworkHandlerMixin {
                 && (com.teslamaps.features.SoulweaverHider.hideParticle(packet)
                     || com.teslamaps.features.Deployables.hideParticle(packet)
                     || com.teslamaps.features.SadanFeatures.hideParticle()
-                    || com.teslamaps.features.HideWitherKing.hideParticle(packet))) ci.cancel();
+                    || com.teslamaps.features.HideWitherKing.hideParticle(packet)
+                    || com.teslamaps.features.MageBeam.onParticle(packet))) ci.cancel();
+    }
+
+    @Inject(method = "handleInitializeBorder", at = @At("HEAD"))
+    private void teslamaps$onInitBorder(net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket packet, CallbackInfo ci) {
+        if (net.minecraft.client.Minecraft.getInstance().isSameThread()) {
+            com.teslamaps.features.ShadowAssassinAlert.onBorder(packet.getWarningTime());
+        }
     }
 
     @Inject(method = "handleTabListCustomisation", at = @At("TAIL"))

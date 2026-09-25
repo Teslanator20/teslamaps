@@ -110,5 +110,13 @@ final class Features {
         com.teslamaps.features.BloodCheck.register();
         com.teslamaps.dungeon.RushSplits.register();
         com.teslamaps.features.MapPeek.register();
+        // w03-04-dun
+        com.teslamaps.features.croesus.LootLogger.register();
+        com.teslamaps.features.BossBarHealth.register();
+        com.teslamaps.features.DungeonTabColors.register();
+        com.teslamaps.features.MageBeam.register();
+        com.teslamaps.dungeon.RoomPreview.register();
+        com.teslamaps.dungeon.TeamStats.register();
+        com.teslamaps.features.ShadowAssassinAlert.register();
     }
 }

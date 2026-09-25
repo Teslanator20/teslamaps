@@ -19,6 +19,8 @@ public final class CroesusCategory {
         b.priceSource("  Price Source", () -> config.croesusPriceSource, v -> config.croesusPriceSource = v);
         b.toggle("  Subtract Kismet Feather", () -> config.croesusKismetCost, v -> config.croesusKismetCost = v);
         b.toggle("Highlight Unopened (green)", () -> config.croesusHighlightUnopened, v -> config.croesusHighlightUnopened = v);
+        b.toggle("Loot Logger", () -> config.lootLogger, v -> config.lootLogger = v)
+                .desc("Saves every bought dungeon chest with items, cost, key and kismet. /tmap loot [floor] [days] shows spent and profit.");
         b.label("Kuudra Chests");
         b.info("Paid chests subtract the key: coins + Mycelium/Red Sand + 2 Nether Stars");
         b.info("Open your faction's shop once to read your key prices and faction");

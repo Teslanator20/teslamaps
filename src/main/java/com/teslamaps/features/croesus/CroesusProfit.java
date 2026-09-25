@@ -46,7 +46,7 @@ public class CroesusProfit {
         boolean kismet;   // a Kismet Feather was used (a struck-through line in the lore)
         boolean incomplete;
         int keyIndex = -1;
-        double value, cost;
+        double value, cost, essence;
         final List<String> breakdown = new ArrayList<>();
         double profit() { return value - cost; }
     }
@@ -288,6 +288,7 @@ public class CroesusProfit {
                 double mult = ess.group(1).equalsIgnoreCase("Crimson") ? essenceBonus() : 1;
                 double p = cnt * mult * price("ESSENCE_" + ess.group(1).toUpperCase());
                 r.value += p;
+                r.essence += p;
                 r.breakdown.add(" §7" + l + ": §6" + fmt(p));
                 continue;
             }
@@ -329,6 +330,13 @@ public class CroesusProfit {
             else r.incomplete = true;
         }
         return r;
+    }
+
+    public record ChestValue(double value, double essence, double cost, boolean kismet, boolean incomplete) {}
+
+    public static ChestValue evaluate(ItemLore lore) {
+        Parsed p = parseLore(lore);
+        return new ChestValue(p.value, p.essence, p.cost, p.kismet, p.incomplete);
     }
 
     private static boolean noKey(Parsed r) {

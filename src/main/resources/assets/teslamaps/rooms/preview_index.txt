@@ -1,0 +1,138 @@
+1x1/admin-0|Admin
+1x1/andesite-2|Andesite
+1x1/arrow-trap-1|Arrow Trap
+1x1/banners-1|Banners
+1x1/basement-1|Basement
+1x1/beams-2|Beams
+1x1/big-red-flag-2|Big Red Flag
+1x1/black-flag-3|Black Flag
+1x1/blue-skulls-1|Blue Skulls
+1x1/cage-1|Cage
+1x1/cages-2|Cages
+1x1/carpets-1|Carpets
+1x1/cell-1|Cell
+1x1/chains-2|Chains
+1x1/cobble-wall-pillar-2|Cobble Wall Pillar
+1x1/crypts-1|Crypts
+1x1/dip-2|Dip
+1x1/dome-2|Dome
+1x1/double-diamond-3|Double Diamond
+1x1/double-stair-3|Double Stair
+1x1/drop-2|Drop
+1x1/dueces-3|Dueces
+1x1/duncan-1|Duncan
+1x1/end-2|End
+1x1/four-banner-1|Four Banner
+1x1/golden-oasis-1|Golden Oasis
+1x1/granite-2|Granite
+1x1/hall-0|Hall
+1x1/hanging-vines-1|Hanging Vines
+1x1/jumping-skulls-1|Jumping Skulls
+1x1/knight-3|Knight
+1x1/lava-pool-3|Lava Pool
+1x1/lava-skull-3|Lava Skull
+1x1/lava-skulls-3|Lava Tomb
+1x1/leaves-1|Leaves
+1x1/locked-away-1|Locked Away
+1x1/logs-4|Logs
+1x1/long-hall-3|Long Hall
+1x1/lots-of-floors-3|Lots of Floors
+1x1/mini-rail-track-3|Mini Rail Track
+1x1/mirror-1|Mirror
+1x1/multicolored-1|Multicolored
+1x1/mural-1|Mural
+1x1/mushroom-1|Mushroom
+1x1/overgrown-3|Overgrown
+1x1/overgrown-chains-2|Overgrown Chains
+1x1/painting-2|Painting
+1x1/perch-2|Perch
+1x1/pillars-1|Pillars
+1x1/prison-cell-1|Prison Cell
+1x1/quad-lava-2|Quad Lava
+1x1/raccoon-4|Raccoon
+1x1/red-green-3|Red Green
+1x1/redstone-key-3|Redstone Key
+1x1/redstone-skull-3|Redstone Skull
+1x1/sanctuary-1|Sanctuary
+1x1/sand-dragon-1|Sand Dragon
+1x1/sarcophagus-3|Sarcophagus
+1x1/scaffolding-2|Scaffolding
+1x1/silvers-sword-1|Silvers Sword
+1x1/slabs-2|Slabs
+1x1/sloth-1|Sloth
+1x1/small-stairs-2|Small Stairs
+1x1/spikes-3|Spikes
+1x1/steps-1|Steps
+1x1/stone-window-2|Stone Window
+1x1/temple-3|Temple
+1x1/tombstone-2|Tombstone
+1x1/tomioka-0|Tomioka
+1x1/trinity-4|Trinity
+1x1/water-2|Water
+1x1/waterfall-2|Mini Waterfall
+1x1/zodd-1|Zodd
+1x2/archway-3|Archway
+1x2/balcony-4|Balcony
+1x2/bridges-6|Bridges
+1x2/crypt-5|Crypt
+1x2/doors-5|Doors
+1x2/gold-1|Gold
+1x2/grand-library-4|Grand Library
+1x2/grass-ruin-3|Grass Ruin
+1x2/mage-4|Mage
+1x2/pedestal-5|Pedestal
+1x2/pressure-plates-6|Pressure Plates
+1x2/purple-flags-5|Purple Flags
+1x2/redstone-warrior-3|Redstone Warrior
+1x2/skull-2|Skull
+1x3/catwalk-6|Catwalk
+1x3/deathmite-6|Deathmite
+1x3/diagonal-4|Diagonal
+1x3/gravel-6|Gravel
+1x3/red-blue-4|Red Blue
+1x3/slime-5|Slime
+1x3/wizard-4|Wizard
+1x4/hallway-3|Hallway
+1x4/mossy-4|Mossy
+1x4/pit-5|Pit
+1x4/quartz-knight-7|Quartz Knight
+1x4/sewer-7|Sewer
+1x4/waterfall-8|Waterfall
+2x2/atlas-6|Atlas
+2x2/buttons-5|Buttons
+2x2/cathedral-8|Cathedral
+2x2/flags-7|Flags
+2x2/mithril-cave-10|Mines
+2x2/museum-5|Museum
+2x2/rail-track-9|Rail Track
+2x2/stairs-4|Stairs
+2x2/super-tall-6|Super Tall
+l-shape/altar-6|Altar
+l-shape/chambers-5|Chambers
+l-shape/dino-dig-site-4|Dino Dig Site
+l-shape/draw-bridge-6|Draw Bridge
+l-shape/lava-ravine-6|Lava Ravine
+l-shape/layers-8|Layers
+l-shape/market-5|Market
+l-shape/melon-7|Melon
+l-shape/spider-9|Spider
+l-shape/well-7|Well
+l-shape/withermancers-4|Withermancers
+miniboss/arches-0|Arches
+miniboss/corridor-0|Corridor
+miniboss/dragon-skull-0|Dragon Skull
+miniboss/midas-0|Midas
+miniboss/ritual-0|Ritual
+puzzle/blaze-room-1-high|*Higher* or Lower
+puzzle/blaze-room-1-low|Higher or *Lower*
+puzzle/boxes-room|Boulder
+puzzle/creeper-room|Creeper Beams
+puzzle/ice-path|Ice Fill
+puzzle/ice-silverfish-room|Ice Path
+puzzle/teleport-pad-room|Teleport Maze
+puzzle/three-chests|Three Weirdos
+puzzle/tic-tac-toe-1|Tic Tac Toe
+puzzle/trivia-room|Quiz
+puzzle/water-puzzle|Water Board
+trap/trap-hard-4|Old Trap
+trap/trap-very-hard-3|New Trap
