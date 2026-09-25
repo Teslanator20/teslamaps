@@ -73,6 +73,9 @@ public final class CustomScoreboard {
                     b.toggle("Color Month Names", () -> c.scoreboardColorMonths, v -> { c.scoreboardColorMonths = v; ScoreboardText.clear(); })
                             .desc("SkyBlock date line colored by season: spring pink, summer gold, autumn yellow, winter blue.")
                             .tags("season", "date", "sidebar");
+                    b.toggle("  Show Number Changes", () -> c.customScoreboardNumberDiff, v -> c.customScoreboardNumberDiff = v)
+                            .desc("Purse, Bits, Copper and Motes show the change for 5s, e.g. Purse: 52,763,737 (+1.2M)")
+                            .tags("purse", "bits", "difference");
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.SCOREBOARD, original ->
                 (ctx, delta) -> { if (!on()) original.extractRenderState(ctx, delta); });
@@ -107,6 +110,7 @@ public final class CustomScoreboard {
             if (c.customScoreboardHideServer && isServerLine(plain)) continue;
             if (c.customScoreboardHideFooter && plain.endsWith("hypixel.net")) continue;
             lastBlank = blank;
+            if (c.customScoreboardNumberDiff) line = withDiff(line, plain);
             FormattedCharSequence seq = line.getVisualOrderText();
             out.add(seq);
             if (!blank) lastText = out.size() - 1;
@@ -122,6 +126,42 @@ public final class CustomScoreboard {
         }
         rows = out;
         width = w + 8;
+    }
+
+    // SkyHanni CustomScoreboardNumberTrackingElement.checkDifference
+    private static final String[] DIFF_LABELS = {"Purse: ", "Piggy: ", "Bits: ", "Copper: ", "Motes: "};
+    private static final String[] DIFF_COLORS = {"§6", "§6", "§b", "§c", "§d"};
+    private static final long[] diffLast = {-1, -1, -1, -1, -1};
+    private static final long[] diffValue = new long[5];
+    private static final long[] diffAt = new long[5];
+
+    private static Component withDiff(Component line, String plain) {
+        for (int i = 0; i < DIFF_LABELS.length; i++) {
+            if (!plain.startsWith(DIFF_LABELS[i])) continue;
+            long v = 0;
+            boolean any = false;
+            for (int k = DIFF_LABELS[i].length(); k < plain.length(); k++) {
+                char ch = plain.charAt(k);
+                if (ch == ',') continue;
+                if (!Character.isDigit(ch)) break;
+                v = v * 10 + (ch - '0');
+                any = true;
+            }
+            if (!any) return line;
+            long now = System.currentTimeMillis();
+            // Purse and Piggy share one slot, the label flips with the piggy bank
+            int slot = i == 1 ? 0 : i;
+            if (diffLast[slot] >= 0 && v != diffLast[slot]) {
+                diffValue[slot] = v - diffLast[slot];
+                diffAt[slot] = now;
+            }
+            diffLast[slot] = v;
+            if (diffAt[slot] == 0 || now - diffAt[slot] > 5000) return line;
+            long d = diffValue[slot];
+            String txt = " " + DIFF_COLORS[i] + "(" + (d > 0 ? "+" : "-") + com.teslamaps.utils.ItemPrice.format(Math.abs(d)) + ")";
+            return Component.empty().append(line).append(Component.literal(txt));
+        }
+        return line;
     }
 
     // "09/25/26 m77CK" - date plus server id

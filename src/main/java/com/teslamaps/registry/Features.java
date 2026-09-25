@@ -378,5 +378,10 @@ final class Features {
         com.teslamaps.features.ReaperTimer.register();
         com.teslamaps.features.SkeletonHelmet.register();
         com.teslamaps.features.JyrreTimer.register();
+        // w08-05-hud
+        com.teslamaps.features.tracker.Tracker.register();
+        com.teslamaps.features.hud.MovableVanillaHud.register();
+        com.teslamaps.features.hud.VanillaManaBar.register();
+        com.teslamaps.features.hud.SmallHuds.register();
     }
 }

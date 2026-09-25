@@ -37,6 +37,7 @@ public class InGameHudMixin {
         com.teslamaps.features.AccurateAbsorption.onActionBar(message);
         com.teslamaps.features.AbilityCooldowns.onActionBar(message);
         if (com.teslamaps.config.TeslaMapsConfig.get().endStatsHud) com.teslamaps.features.theend.EndStatsHud.onActionBar(message.getString());
+        if (com.teslamaps.config.TeslaMapsConfig.get().vanillaManaBar) com.teslamaps.features.hud.VanillaManaBar.onActionBar(message.getString());
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Skills")) {
             com.teslamaps.features.SkillTracker.onActionBar(message.getString());
         }
