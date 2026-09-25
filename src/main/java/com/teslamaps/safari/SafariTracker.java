@@ -805,6 +805,11 @@ public class SafariTracker {
 
     private static void alert(String key, String text) {
         if (!alerted.add(key)) return;
+        testAlert(text);
+    }
+
+    /** Same chat line + sound as a real alert, no dedupe. */
+    public static void testAlert(String text) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] " + text));

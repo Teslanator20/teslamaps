@@ -2130,6 +2130,16 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w06-02-qol
+    public boolean copyPlaytime = false;
+    public boolean autoJoinSkyblock = false;
+    public boolean autoJumpOutsideSkyblock = false;
+    @Global
+    public Boolean autoJumpOriginal = null;
+    public boolean achievements = false;
+    public boolean achievementSound = true;
+    public boolean crashOnDeath = false;
+    public boolean crashOnTttFail = false;
     // w05-02-inv
     public boolean menuSlotText = false;
     public boolean mstLevels = true;

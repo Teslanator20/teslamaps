@@ -257,5 +257,8 @@ final class Features {
         com.teslamaps.features.mining.HotmPerks.register();
         com.teslamaps.features.GemstoneBuffs.register();
         com.teslamaps.features.ItemCycle.register();
+        // w06-02-qol
+        com.teslamaps.features.MiscQol.register();
+        com.teslamaps.features.Achievements.register();
     }
 }
