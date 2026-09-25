@@ -27,13 +27,14 @@ public final class SoundMutes {
     }
 
     public static boolean active(TeslaMapsConfig c) {
-        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth || c.muteVacuum || c.muteHoeLevelUp || c.gardenMuteComposter;
+        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth || c.muteVacuum || c.muteHoeLevelUp || c.gardenMuteComposter || c.metalDetectorMute;
     }
 
     public static boolean shouldMute(TeslaMapsConfig c, SoundInstance s, String id) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || !mc.isSameThread()) return false;
         if (com.teslamaps.features.gardenqol.GardenSafety.muteComposter(id)) return true;
+        if (com.teslamaps.features.mining.MetalDetectorSolver.mute(id)) return true;
         if (c.muteBackpackOpen && id.equals("minecraft:block.chest.open")
                 && System.currentTimeMillis() - backpackOpenMs < 500 && near(mc, s, 1.5)) return true;
         // Skytils' disableJerrygunSounds / disableTruthFlowerSounds signatures

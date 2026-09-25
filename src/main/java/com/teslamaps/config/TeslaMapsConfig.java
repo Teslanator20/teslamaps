@@ -2148,6 +2148,41 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w15-00-min
+    public boolean donExpressoReminder = false;
+    public boolean forgeSlotHud = false;
+    public int forgeSlotHudX = 10;
+    public int forgeSlotHudY = 230;
+    public float forgeSlotHudScale = 1.0f;
+    public boolean forgeSlotHudMiningOnly = false;
+    public boolean forgeSlotHudShowLocked = false;
+    public boolean forgeSlotReadyAlert = false;
+    public java.util.List<String> forgeSlotData = new java.util.ArrayList<>();
+    public boolean dwarvenOverlay = false;
+    public int dwarvenOverlayX = 10;
+    public int dwarvenOverlayY = 290;
+    public float dwarvenOverlayScale = 1.0f;
+    public boolean dwarvenOverlayCommissions = true;
+    public boolean dwarvenOverlayPowders = true;
+    public boolean dwarvenOverlayForge = true;
+    public boolean dwarvenOverlayPickaxe = true;
+    public boolean dwarvenOverlayStarCult = true;
+    public boolean dwarvenOverlaySkyMall = true;
+    public String skyMallPerk = "";
+    public long skyMallDay = -1;
+    public boolean metalDetectorSolver = false;
+    public boolean metalDetectorAllTools = true;
+    public boolean metalDetectorMute = false;
+    public boolean drillFuelDisplay = false;
+    public boolean drillFuelBars = true;
+    public boolean drillFuelHud = true;
+    public int drillFuelHudX = 200;
+    public int drillFuelHudY = 200;
+    public float drillFuelHudScale = 1.0f;
+    public boolean fossilSolver = false;
+    public boolean commissionWaypointsGlaciteAlways = false;
+    public boolean commissionWaypointsGlaciteNearest = false;
+    public boolean mineshaftExitWaypoint = false;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;
@@ -5227,6 +5262,8 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.forgeSlotData == null) c.forgeSlotData = new java.util.ArrayList<>();
+        if (c.skyMallPerk == null) c.skyMallPerk = "";
         if (c.visitorIgnored == null) c.visitorIgnored = new java.util.ArrayList<>();
         if (c.speedPresetValues == null) c.speedPresetValues = defaultSpeedPresets();
         c.speedPresetValues.values().removeIf(java.util.Objects::isNull);

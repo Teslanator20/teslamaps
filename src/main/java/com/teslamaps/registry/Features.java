@@ -717,5 +717,13 @@ final class Features {
         com.teslamaps.features.BazaarOrderTooltip.register();
         com.teslamaps.features.EssenceShopCosts.register();
         com.teslamaps.features.EscrowFix.register();
+        // w15-00-min
+        com.teslamaps.features.mining.DonExpressoReminder.register();
+        com.teslamaps.features.mining.ForgeSlotHud.register();
+        com.teslamaps.features.mining.DwarvenOverlay.register();
+        com.teslamaps.features.mining.MetalDetectorSolver.register();
+        com.teslamaps.features.mining.DrillFuelDisplay.register();
+        com.teslamaps.features.mining.FossilExcavatorSolver.register();
+        com.teslamaps.features.mining.MineshaftExitWaypoint.register();
     }
 }
