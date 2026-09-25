@@ -23,6 +23,15 @@ public final class MiningCategory {
         b.label("Display");
         b.toggle("Tracers", () -> config.chScanTracers, v -> config.chScanTracers = v);
         b.toggle("Chat Alert", () -> config.chScanChat, v -> config.chScanChat = v);
+        b.label("Named Waypoints");
+        b.toggle("Named Waypoints (Chat / Manual / Shared)", () -> config.chWaypoints, v -> config.chWaypoints = v)
+                .desc("Waypoints from coords in chat, /tmap chwp add <name>, /tmap chwp share <name> to the party. Kept per lobby for 24h. Needs the scanner on.")
+                .tags("crystal hollows", "waypoint", "coords", "share", "divan", "temple", "queen", "city", "khazad");
+        b.toggle("  Read Coords From Chat", () -> config.chWaypointsFromChat, v -> config.chWaypointsFromChat = v)
+                .desc("Coords with a place name become a waypoint; without a name you get a clickable list. Also reads SBE's $SBECHWP.");
+        b.toggle("  Waypoint From Scoreboard Area", () -> config.chWaypointsSubzone, v -> config.chWaypointsSubzone = v)
+                .desc("Entering Mines of Divan, Jungle Temple, Dragon's Lair, ... sets a waypoint there");
+        b.toggle("  Keep Across Lobby Rejoins", () -> config.chWaypointsPersist, v -> config.chWaypointsPersist = v);
         b.label("Glacite Corpses");
         b.toggle("Corpse ESP", () -> config.corpseESP, v -> config.corpseESP = v)
                 .desc("Highlights Glacite Mineshaft corpses through walls.")

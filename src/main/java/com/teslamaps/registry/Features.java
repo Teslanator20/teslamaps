@@ -717,5 +717,12 @@ final class Features {
         com.teslamaps.features.BazaarOrderTooltip.register();
         com.teslamaps.features.EssenceShopCosts.register();
         com.teslamaps.features.EscrowFix.register();
+        // w15-06-min
+        com.teslamaps.features.mining.CarpetHighlight.register();
+        com.teslamaps.features.mining.HotmPlanner.register();
+        com.teslamaps.features.mining.SuperprotectronHighlight.register();
+        com.teslamaps.features.mining.VanguardGambling.register();
+        com.teslamaps.features.mining.HollowsWaypoints.register();
+        com.teslamaps.features.BpsDisplay.register();
     }
 }

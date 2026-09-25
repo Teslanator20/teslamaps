@@ -2148,6 +2148,29 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w15-06-min
+    public boolean carpetHighlight = false;
+    public String carpetHighlightColor = "66FF5555";
+    public boolean hotmPlanner = false;
+    public java.util.Map<String, Integer> hotmPlanBase = new java.util.HashMap<>();
+    public java.util.Map<String, Integer> hotfPlanBase = new java.util.HashMap<>();
+    public java.util.Map<String, Integer> hotmPlanTarget = new java.util.HashMap<>();
+    public java.util.Map<String, Integer> hotfPlanTarget = new java.util.HashMap<>();
+    public boolean superprotectronHighlight = false;
+    public com.teslamaps.render.EspStyle superprotectronEsp = new com.teslamaps.render.EspStyle("FFFF55FF", com.teslamaps.render.EspStyle.GLOW);
+    public boolean vanguardGambling = false;
+    public String vanguardGamblingMode = "Most Expensive";
+    public boolean vanguardGamblingHideChat = true;
+    public float vanguardGamblingTime = 3f;
+    public boolean chWaypoints = false;
+    public boolean chWaypointsFromChat = true;
+    public boolean chWaypointsSubzone = true;
+    public boolean chWaypointsPersist = true;
+    public boolean bpsDisplay = false;
+    public int bpsDisplayX = 10;
+    public int bpsDisplayY = 120;
+    public float bpsDisplayScale = 1.0f;
+    public boolean commissionStatusIcons = false;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;
@@ -5359,6 +5382,11 @@ public class TeslaMapsConfig {
         if (c.markedPlayersChatColor == null) c.markedPlayersChatColor = "FFFF55";
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
+        if (c.hotmPlanBase == null) c.hotmPlanBase = new java.util.HashMap<>();
+        if (c.hotfPlanBase == null) c.hotfPlanBase = new java.util.HashMap<>();
+        if (c.hotmPlanTarget == null) c.hotmPlanTarget = new java.util.HashMap<>();
+        if (c.hotfPlanTarget == null) c.hotfPlanTarget = new java.util.HashMap<>();
+        if (c.superprotectronEsp == null) c.superprotectronEsp = new com.teslamaps.render.EspStyle("FFFF55FF", com.teslamaps.render.EspStyle.GLOW);
         if (c.blockEspBlocks == null) c.blockEspBlocks = new java.util.LinkedHashMap<>();
         if (c.chestEspWhere == null) c.chestEspWhere = "Everywhere";
         if (c.seaCreatureAlert == null) c.seaCreatureAlert = new java.util.HashMap<>();
