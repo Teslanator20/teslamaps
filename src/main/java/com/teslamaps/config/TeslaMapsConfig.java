@@ -2148,6 +2148,46 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w15-01-min
+    public boolean forgeReminder = false;
+    public int forgeReminderDelay = 1;
+    public String forgeReminderAction = "Warp";
+    public boolean forgeReminderBusy = false;
+    public boolean caveInTimer = false;
+    public boolean caveInTimerShowTime = false;
+    public boolean caveInTimerEstimate = false;
+    public int caveInTimerX = 10;
+    public int caveInTimerY = 150;
+    public float caveInTimerScale = 1.0f;
+    public boolean commissionScreen = false;
+    public boolean commissionScreenHideBloat = true;
+    public boolean flowstateHelper = false;
+    public boolean flowstateCompact = false;
+    public boolean flowstateColorTimer = true;
+    public boolean flowstatePbMessage = true;
+    public int flowstateAutoHide = -1;
+    public int flowstateBest = 0;
+    public int flowstateHelperX = 10;
+    public int flowstateHelperY = 190;
+    public float flowstateHelperScale = 1.0f;
+    public boolean excavatorTracker = false;
+    public boolean excavatorChat = false;
+    public boolean excavatorFossilDust = true;
+    public boolean excavatorPowder = true;
+    public boolean excavatorPowderStack = false;
+    public int excavatorPriceSource = 1;
+    public int excavatorTrackerX = 10;
+    public int excavatorTrackerY = 60;
+    public float excavatorTrackerScale = 1.0f;
+    public boolean gemstoneMoney = false;
+    public String gemstoneMoneyTier = "Fine";
+    public boolean gemstoneMoneyNpc = false;
+    public boolean gemstoneMoneyPause = true;
+    public int gemstoneMoneyTimeout = 30;
+    public int gemstoneMoneyX = 10;
+    public int gemstoneMoneyY = 230;
+    public float gemstoneMoneyScale = 1.0f;
+    public boolean glaciteColdOverlay = false;
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;
