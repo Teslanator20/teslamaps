@@ -257,7 +257,8 @@
     "ContainerDimMixin",
     "ContainerSlotTweaksMixin",
     "LivingEntityAlphaStateMixin",
-    "LivingEntityAlphaMixin"
+    "LivingEntityAlphaMixin",
+    "GuardianBeamMixin"
   ],
   "injectors": {
     "defaultRequire": 1

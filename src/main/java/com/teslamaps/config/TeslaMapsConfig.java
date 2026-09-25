@@ -2148,6 +2148,26 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w16-03-sla
+    public boolean slayerTierLock = false;
+    public String slayerTierLockLast = "";
+    public boolean slayerArmorProgress = false;
+    public int slayerArmorProgressX = 10;
+    public int slayerArmorProgressY = 160;
+    public float slayerArmorProgressScale = 1.0f;
+    public boolean voidgloomHud = false;
+    public boolean voidgloomHudOnlyOwn = true;
+    public int voidgloomHudX = 10;
+    public int voidgloomHudY = 100;
+    public float voidgloomHudScale = 1.0f;
+    public boolean voidgloomNukekubiGlow = false;
+    public com.teslamaps.render.EspStyle voidgloomNukekubiStyle = new com.teslamaps.render.EspStyle("FF00FF00", com.teslamaps.render.EspStyle.GLOW);
+    public boolean voidgloomHideLaser = false;
+    public String voidgloomHideLaserFor = "All bosses";
+    public boolean voidgloomHideSummons = false;
+    public boolean zealotSpawnPoints = false;
+    public boolean zealotSpawnBoxes = false;
+    public String zealotSpawnColor = "7F00FFFF";
     // w15-01-min
     public boolean forgeReminder = false;
     public int forgeReminderDelay = 1;
@@ -5611,6 +5631,9 @@ public class TeslaMapsConfig {
         c.chScanStructures.values().removeIf(java.util.Objects::isNull);
         if (c.hotmSkyMallPerk == null) c.hotmSkyMallPerk = "";
         if (c.slayerCarries == null) c.slayerCarries = new java.util.ArrayList<>();
+        if (c.slayerTierLockLast == null) c.slayerTierLockLast = "";
+        if (c.voidgloomHideLaserFor == null) c.voidgloomHideLaserFor = "All bosses";
+        if (c.zealotSpawnColor == null) c.zealotSpawnColor = "7F00FFFF";
         c.slayerCarries.removeIf(x -> x == null || x.customer == null || x.type == null);
         if (c.slayerCarryPrices == null) c.slayerCarryPrices = new java.util.HashMap<>();
         if (c.forgeSlotData == null) c.forgeSlotData = new java.util.ArrayList<>();
