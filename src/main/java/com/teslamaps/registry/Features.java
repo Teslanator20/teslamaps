@@ -424,6 +424,10 @@ final class Features {
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
         com.teslamaps.features.LookTargeting.register();
+        // w10-07-chat
+        com.teslamaps.features.SackMessages.register();
+        com.teslamaps.features.SkyblockXpChat.register();
+        com.teslamaps.features.ChatExtras.register();
         // w09-08-vis
         com.teslamaps.features.ParticleHider.register();
         // w09-02-vis

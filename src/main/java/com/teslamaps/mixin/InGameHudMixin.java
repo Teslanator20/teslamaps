@@ -44,6 +44,7 @@ public class InGameHudMixin {
         if (com.teslamaps.config.TeslaMapsConfig.get().section("Skills")) {
             com.teslamaps.features.SkillTracker.onActionBar(message.getString());
         }
+        com.teslamaps.features.SkyblockXpChat.onActionBar(message);
         return com.teslamaps.features.ActionBarFilter.filter(message);
     }
 

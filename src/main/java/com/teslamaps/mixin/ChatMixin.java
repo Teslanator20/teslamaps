@@ -217,16 +217,25 @@ public class ChatMixin {
             return;
         }
 
+        if (fromServer) com.teslamaps.features.SackMessages.onChat(message, text);
+        if (cfg.section("Chat") && com.teslamaps.features.ChatExtras.hide(text, fromServer, pm)) {
+            ci.cancel();
+            return;
+        }
+
         if (cfg.section("Chat") && com.teslamaps.features.ChatFilter.process(message, text)) {
             ci.cancel();
+            return;
         }
+        if (cfg.section("Chat")) com.teslamaps.features.ChatExtras.prepare(text, fromServer, pm);
     }
 
     // past every HEAD handler, right before the GuiMessage is built
     @ModifyVariable(method = ADD_MESSAGE, argsOnly = true, ordinal = 0,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getGuiTicks()I"))
     private Component teslamaps$filterRewrite(Component message) {
-        return com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.dungeon.TerminalSplits.rewrite(message));
+        Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.dungeon.TerminalSplits.rewrite(message));
+        return com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatExtras.rewrite(out));
     }
 
     @Redirect(method = "addMessageToQueue",
