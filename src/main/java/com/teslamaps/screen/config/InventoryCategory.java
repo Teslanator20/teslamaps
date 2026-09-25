@@ -206,6 +206,11 @@ public final class InventoryCategory {
                 () -> (float) config.slotLockDropDelay, v -> config.slotLockDropDelay = Math.round(v / 10f) * 10, 0)
                 .desc("Q does nothing for this long after scrolling to another hotbar slot. 0 = off.");
         b.button("  Reset All Locks", com.teslamaps.features.SlotLock::resetAll);
+        b.toggle("  Lock Icon In Hotbar", () -> config.slotLockHotbarIcon, v -> config.slotLockHotbarIcon = v);
+        b.keybind("  Lock Selected Hotbar Slot Key", () -> config.slotLockWorldKey, v -> config.slotLockWorldKey = v)
+                .desc("Locks or unlocks the selected hotbar slot without opening the inventory");
+        b.toggle("  Block Item Frames", () -> config.slotLockItemFrames, v -> config.slotLockItemFrames = v)
+                .desc("Items from locked slots can't go into empty item frames on your island or garden");
         b.label("Item Protection");
         b.toggle("Protect Valuable Items", () -> config.itemProtection, v -> config.itemProtection = v);
         b.slider("  Min Value (million)", 1f, 500f,
@@ -215,6 +220,17 @@ public final class InventoryCategory {
         b.info("Hold ctrl to override. Uses the estimated item value");
         b.toggle("  Also Guard Trade, AH & Shops", () -> config.itemProtectionMenus, v -> config.itemProtectionMenus = v);
         b.info("Trade menu, auction house, dungeon chests, any NPC shop");
+        b.toggle("Protect By Rarity", () -> config.itemProtectionRarity, v -> config.itemProtectionRarity = v)
+                .desc("Protects items from a minimum rarity on, also untradables without a price. Hold ctrl to override");
+        b.dropdown("  Hotbar Min Rarity", com.teslamaps.features.ItemProtection.RARITY_OPTIONS,
+                () -> config.itemProtectionHotbarRarity, v -> config.itemProtectionHotbarRarity = v);
+        b.dropdown("  Inventory Min Rarity", com.teslamaps.features.ItemProtection.RARITY_OPTIONS,
+                () -> config.itemProtectionInvRarity, v -> config.itemProtectionInvRarity = v);
+        b.toggle("  Inventory: Drop After 3 Tries", () -> config.itemProtectionConfirm, v -> config.itemProtectionConfirm = v)
+                .desc("From the inventory the drop goes through on the 3rd try within 3s instead of a hard block");
+        b.toggle("  Block Drop Right After Slot Switch", () -> config.itemProtectionSwitchGuard, v -> config.itemProtectionSwitchGuard = v)
+                .desc("A Q within 200ms after scrolling onto a protected hotbar item is always blocked");
+        b.toggle("  Also Block NPC Selling", () -> config.itemProtectionRaritySell, v -> config.itemProtectionRaritySell = v);
         b.toggle("Protect Single Items", () -> config.itemProtectionUuid, v -> config.itemProtectionUuid = v);
         b.keybind("  Protect Key (over slot)", () -> config.itemProtectionKey, v -> config.itemProtectionKey = v);
         b.info("Or /tmap protect for the held item. Lock icon, blocks drop, salvage, trade, AH, shops");
@@ -250,6 +266,14 @@ public final class InventoryCategory {
         b.button("Open Customize Screen",
                 () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.customize.CustomizeScreen(b.screen(), false)));
         b.info("Rename, dye, trim and reskin items - client side only (/tmap customize)");
+        b.keybind("  Customize Hovered Item Key", () -> config.customizeKey, v -> config.customizeKey = v)
+                .desc("Over any slot, opens the customize screen for exactly that item");
+        b.toggle("  Items Without UUID", () -> config.customizeNoUuid, v -> {
+                    config.customizeNoUuid = v;
+                    com.teslamaps.features.customize.Customize.refresh();
+                })
+                .desc("Stackable items get their item id (+ timestamp) as key, so the change shows on every copy of that item");
+        b.info("/tmap customize rename|dye|trim|glint|model|reset ... acts on the held item");
         b.toggle("Axes In 1.8 Look", () -> config.revertAxes, v -> config.revertAxes = v)
                 .desc("Ragnarock and Daedalus Axe render as a golden axe, Axe of the Shredded as a diamond axe. Visual only.");
         b.toggle("  Migrate Renamed Item Models", () -> config.migrateItemModels, v -> config.migrateItemModels = v);
@@ -284,6 +308,10 @@ public final class InventoryCategory {
         b.color("  Top Order Color", () -> config.colorBazaarOrderCompetitive, v -> config.colorBazaarOrderCompetitive = v);
         b.toggle("Progress Highlight (Ways to Level Up / Bestiary)", () -> config.progressHighlight, v -> config.progressHighlight = v);
         b.color("  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v);
+        b.toggle("  Bestiary Tier As Number", () -> config.progressHighlightTier, v -> config.progressHighlightTier = v)
+                .desc("Writes the family tier as a number in the slot corner, locked families show 0");
+        b.toggle("  Mark Unfinished Red", () -> config.progressHighlightRed, v -> config.progressHighlightRed = v);
+        b.color("  Unfinished Color", () -> config.colorProgressUnfinished, v -> config.colorProgressUnfinished = v);
         b.toggle("Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v);
         b.color("  Commission Color", () -> config.colorCommissionDone, v -> config.colorCommissionDone = v);
         b.label("Guide Highlight");

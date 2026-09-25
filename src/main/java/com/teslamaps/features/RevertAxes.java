@@ -29,7 +29,7 @@ public final class RevertAxes {
             default -> null;
         };
         if (axe == null) return original;
-        if (Customize.active() && TeslaMapsConfig.get().customItemModel.containsKey(cs.teslamaps$uuid())) return original;
+        if (Customize.active() && TeslaMapsConfig.get().customItemModel.containsKey(cs.teslamaps$customKey())) return original;
         return axe;
     }
 }

@@ -36,6 +36,26 @@ public abstract class ItemStackUuidMixin implements DataComponentHolder, Customi
         return teslamaps$cachedUuid = data == null ? "" : data.copyTag().getString("uuid").orElse("");
     }
 
+    @Unique
+    private @Nullable com.teslamaps.injected.StackCache<String> teslamaps$keyCache;
+
+    @Override
+    @Unique
+    public String teslamaps$customKey() {
+        String uuid = teslamaps$uuid();
+        if (!uuid.isEmpty() || !Customize.noUuidKeys()) return uuid;
+        CustomData data = getComponents().get(DataComponents.CUSTOM_DATA);
+        if (data == null) return "";
+        com.teslamaps.injected.StackCache<String> c = teslamaps$keyCache;
+        if (c != null && c.src() == data) return c.value();
+        net.minecraft.nbt.CompoundTag tag = data.copyTag();
+        String id = tag.getString("id").orElse("");
+        net.minecraft.nbt.Tag ts = tag.get("timestamp");
+        String key = id.isEmpty() ? "" : ts == null ? id : id + "@" + ts;
+        teslamaps$keyCache = new com.teslamaps.injected.StackCache<>(data, key);
+        return key;
+    }
+
     // keyed on the component instance: components are immutable, any change swaps the object
     @Unique
     private @Nullable com.teslamaps.injected.StackCache<String> teslamaps$idCache;
@@ -77,7 +97,7 @@ public abstract class ItemStackUuidMixin implements DataComponentHolder, Customi
     @ModifyReturnValue(method = "getHoverName", at = @At("RETURN"))
     private Component teslamaps$customItemName(Component original) {
         if (!Customize.hasAnyName()) return original;
-        String uuid = teslamaps$uuid();
+        String uuid = teslamaps$customKey();
         if (uuid.isEmpty()) return original;
         return TeslaMapsConfig.get().customItemNames.getOrDefault(uuid, original);
     }

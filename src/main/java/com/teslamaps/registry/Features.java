@@ -248,5 +248,9 @@ final class Features {
         com.teslamaps.features.ItemList.register();
         com.teslamaps.features.StorageGuiScale.register();
         com.teslamaps.features.TooltipMenuExtras.register();
+        // w05-05-inv
+        com.teslamaps.features.SlotLock.register();
+        com.teslamaps.features.DevTools.register();
+        com.teslamaps.features.HideNotClickable.register();
     }
 }

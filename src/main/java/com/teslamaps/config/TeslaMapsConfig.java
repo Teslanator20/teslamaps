@@ -2253,6 +2253,32 @@ public class TeslaMapsConfig {
     public boolean supercraftReminder = false;
     public int bitsAvailable = -1;
     public String fameRank = "";
+    // w05-05-inv
+    public boolean progressHighlightTier = false;
+    public boolean progressHighlightRed = false;
+    public String colorProgressUnfinished = "FF5555";
+    public boolean devItemInfo = false;
+    public int devCopyIdKey = -1;
+    public int devCopyNbtKey = -1;
+    public int devSlotNumbersKey = -1;
+    public boolean devMissingRepoItems = false;
+    public boolean hideNotClickable = false;
+    public boolean hideNotClickableBlock = false;
+    public boolean hideNotClickableGreen = false;
+    public float hideNotClickableOpacity = 0.8f;
+    public boolean itemProtectionRarity = false;
+    public String itemProtectionHotbarRarity = "Legendary";
+    public String itemProtectionInvRarity = "Epic";
+    public boolean itemProtectionConfirm = true;
+    public boolean itemProtectionSwitchGuard = true;
+    public boolean itemProtectionRaritySell = true;
+    public boolean slotLockHotbarIcon = false;
+    public int slotLockWorldKey = -1;
+    public boolean slotLockItemFrames = false;
+    @Global
+    public int customizeKey = -1;
+    @Global
+    public boolean customizeNoUuid = false;
     // w04-03-inv
     public boolean moveInsertIntoSack = false;
     public boolean arrowPoisonIndicator = false;
