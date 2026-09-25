@@ -203,5 +203,10 @@ final class Features {
         com.teslamaps.features.ObtainedDate.register();
         com.teslamaps.features.MinionHelper.register();
         com.teslamaps.features.PowerStoneStats.register();
+        // w04-01-inv
+        com.teslamaps.features.AnimatedDyeFix.register();
+        com.teslamaps.features.AnvilHelper.register();
+        com.teslamaps.features.accessories.AccessoryHelper.register();
+        com.teslamaps.features.CraftHelper.register();
     }
 }

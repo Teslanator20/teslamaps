@@ -36,7 +36,7 @@ public final class CraftCost {
     private static final long RETRY_MS = 5 * 60_000L;
     private static final long CACHE_MS = 10_000L;
 
-    private record Recipe(Map<String, Integer> ingredients, int count) {}
+    public record Recipe(Map<String, Integer> ingredients, int count) {}
     private record Cached(Double cost, long at) {}
 
     private static final HttpClient CLIENT = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
@@ -64,6 +64,14 @@ public final class CraftCost {
         if (cache.size() > 4096) cache.clear();
         cache.put(key, new Cached(cost, now));
         return cost;
+    }
+
+    /** Crafting recipes of an item (NEU id), empty if none, null while the file is still loading. */
+    public static List<Recipe> recipesOrNull(String id) {
+        if (id == null || id.isEmpty()) return List.of();
+        List<Recipe> list = recipes.get(id);
+        if (list == null) fetch(id);
+        return list;
     }
 
     /** True once the recipe file for the item has been loaded (with or without a recipe). */
@@ -166,7 +174,7 @@ public final class CraftCost {
     }
 
     private static Recipe grid(JsonObject o) {
-        Map<String, Integer> ing = new HashMap<>();
+        Map<String, Integer> ing = new java.util.LinkedHashMap<>();
         for (String slot : SLOTS) {
             if (!o.has(slot)) continue;
             String v = o.get(slot).getAsString();

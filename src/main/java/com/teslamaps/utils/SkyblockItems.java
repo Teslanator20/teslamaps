@@ -56,6 +56,8 @@ public class SkyblockItems {
 
     private record ItemData(String material, int damage, String skin, String tier, String model) {}
 
+    private static final Set<String> accessories = ConcurrentHashMap.newKeySet();
+
     private static final Map<String, ItemData> items = new ConcurrentHashMap<>();
     private static final Map<String, String> nameToId = new ConcurrentHashMap<>();
     private static final Map<String, Double> npcPrices = new ConcurrentHashMap<>();
@@ -324,6 +326,8 @@ public class SkyblockItems {
                     String model = item.has("item_model") ? item.get("item_model").getAsString() : null;
                     int damage = item.has("durability") ? item.get("durability").getAsInt() : 0;
                     items.put(id, new ItemData(material, damage, skin, tier, model));
+                    if (item.has("category") && "ACCESSORY".equals(item.get("category").getAsString())
+                            && !(item.has("origin") && "RIFT".equals(item.get("origin").getAsString()))) accessories.add(id);
 
                     if (item.has("name")) {
                         String display = item.get("name").getAsString();
@@ -480,6 +484,12 @@ public class SkyblockItems {
     public static String idForName(String displayName) {
         load();
         return nameToId.get(displayName.trim().toLowerCase(Locale.ROOT));
+    }
+
+    /** Every non-rift item Hypixel files under the ACCESSORY category. */
+    public static Set<String> accessoryIds() {
+        load();
+        return accessories;
     }
 
     /** Skyblock rarity of an item id, empty when unknown. */

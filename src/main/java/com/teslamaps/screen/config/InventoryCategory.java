@@ -52,6 +52,12 @@ public final class InventoryCategory {
         b.toggle("  Only While Shift Held", () -> config.backpackPreviewShift, v -> config.backpackPreviewShift = v);
         b.keybind("  Freeze Preview Key", () -> config.backpackPreviewFreezeKey, v -> config.backpackPreviewFreezeKey = v);
         b.info("Freeze pins the preview, hover its items for their tooltip");
+        b.dropdown("  Preview Style", com.teslamaps.features.BackpackPreview.STYLES,
+                () -> config.backpackPreviewStyle, v -> config.backpackPreviewStyle = v);
+        b.toggle("  Backpack Dye Colors", () -> config.backpackPreviewColors, v -> config.backpackPreviewColors = v)
+                .desc("Tints previews and opened backpacks in the backpack's dye colour.");
+        b.toggle("  New Year Cake Bag", () -> config.backpackPreviewCakeBag, v -> config.backpackPreviewCakeBag = v)
+                .desc("Open the cake bag once, then hover it to see its cakes.");
         b.label("Item Search");
         b.toggle("Index Opened Containers", () -> config.itemSearchIndex, v -> config.itemSearchIndex = v);
         b.info("/tmap search finds items in museum, sacks, vault, chests, storage");

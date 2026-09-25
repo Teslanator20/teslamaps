@@ -13,9 +13,11 @@ import net.minecraft.world.inventory.Slot;
 public class SlotBackgrounds {
 
     public static void draw(GuiGraphicsExtractor context, Slot slot) {
-        RarityBackground.draw(context, slot.x, slot.y, slot.getItem());
+        com.teslamaps.features.BackpackPreview.drawSlotTint(context, slot);
+        RarityBackground.draw(context, slot.x, slot.y, com.teslamaps.features.AnimatedDyeFix.displayStack(slot));
         com.teslamaps.features.LegacyAttributeBackground.draw(context, slot.x, slot.y, slot.getItem());
         com.teslamaps.features.MuseumDonations.drawSlot(context, slot.x, slot.y, slot.getItem());
+        com.teslamaps.features.AnvilHelper.drawHighlight(context, slot);
         HotF.drawHighlight(context, slot);
         com.teslamaps.features.AuctionPriceCompare.drawHighlight(context, slot);
         com.teslamaps.features.PartyFinderHelper.drawHighlight(context, slot);

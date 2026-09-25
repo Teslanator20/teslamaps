@@ -26,6 +26,17 @@ public class TeslaGuiPipelines {
     public static final RenderPipeline BG_LIQUIDMETAL = register("bg_liquidmetal", "core/teslamaps_bg_liquidmetal");
     public static final RenderPipeline BG_WAVES = register("bg_waves", "core/teslamaps_bg_waves");
 
+    // Rarity silhouette: samples the gui item atlas, bounds of the atlas cell ride in SdfParams.
+    public static final RenderPipeline RARITY_CONTOUR = RenderPipelines.register(
+            RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
+                    .withLocation("pipeline/teslamaps_rarity_contour")
+                    .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_sdf"))
+                    .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_rarity_contour"))
+                    .withSampler("Sampler0")
+                    .withVertexFormat(TeslaVertexFormats.SDF, VertexFormat.Mode.QUADS)
+                    .build()
+    );
+
     private static RenderPipeline register(String name, String fragmentShader) {
         return RenderPipelines.register(
                 RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)

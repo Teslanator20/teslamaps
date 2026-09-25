@@ -34,6 +34,10 @@ public class BackpackPreview {
 
     private static String lastKey = null;
 
+    public static final String[] STYLES = {"Compact", "Chest"};
+    private static final String CAKE = "cakebag";
+    private static int openTint = 0;
+
     public static void tick() {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.backpackPreview && !cfg.customStorageOverlay) { flush(); return; }
@@ -41,6 +45,11 @@ public class BackpackPreview {
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { flush(); return; }
 
         String title = strip(cs.getTitle().getString());
+        openTint = 0;
+        if (title.equals("New Year Cake Bag")) {
+            if (cfg.backpackPreview && cfg.backpackPreviewCakeBag) captureCakeBag(cs);
+            return;
+        }
         if (title.equals("Storage")) {
             for (Slot slot : cs.getMenu().slots) {
                 if (slot.container instanceof Inventory || slot.getItem().isEmpty()) continue;
@@ -67,9 +76,61 @@ public class BackpackPreview {
         int size = Math.max(0, topSlots - 9);
         if (size > 0) StorageCache.put(key, size, slots);
         lastKey = key;
+        if (cfg.backpackPreviewColors && key.startsWith("backpack_")) openTint = dyeColor(StorageCache.icon(key));
+    }
+
+    private static void captureCakeBag(AbstractContainerScreen<?> cs) {
+        LinkedHashMap<Integer, String> slots = new LinkedHashMap<>();
+        int n = 0;
+        for (Slot slot : cs.getMenu().slots) {
+            if (slot.container instanceof Inventory) continue;
+            ItemStack st = slot.getItem();
+            if (st.isEmpty() || !"NEW_YEAR_CAKE".equals(com.teslamaps.utils.ItemUtil.skyblockId(st))) continue;
+            String snbt = StorageCache.encode(st);
+            if (snbt != null) slots.put(n++, snbt);
+        }
+        if (n == 0) return;
+        StorageCache.put(CAKE, Math.max(9, (n + 8) / 9 * 9), slots);
+        lastKey = CAKE;
+    }
+
+    private static final java.util.Map<ItemStack, Integer> dyeCache = new java.util.WeakHashMap<>();
+
+    /** Hypixel's backpack_color as RGB, 0 when undyed. */
+    public static int dyeColor(ItemStack st) {
+        if (st == null || st.isEmpty()) return 0;
+        Integer c = dyeCache.get(st);
+        if (c != null) return c;
+        int rgb = 0;
+        net.minecraft.world.item.component.CustomData d = st.get(DataComponents.CUSTOM_DATA);
+        String name = d == null ? "" : d.copyTag().getString("backpack_color").orElse("");
+        if (!name.isEmpty()) {
+            String lower = name.toLowerCase(java.util.Locale.ROOT);
+            net.minecraft.world.item.DyeColor dye = net.minecraft.world.item.DyeColor.byName(lower, null);
+            if (dye != null) rgb = dye.getTextureDiffuseColor() & 0xFFFFFF;
+            else {
+                net.minecraft.ChatFormatting f = net.minecraft.ChatFormatting.getByName(lower);
+                if (f != null && f.getColor() != null) rgb = f.getColor();
+            }
+        }
+        dyeCache.put(st, rgb);
+        return rgb;
+    }
+
+    private static int tintFor(String key) {
+        if (!TeslaMapsConfig.get().backpackPreviewColors || key == null || !key.startsWith("backpack_")) return 0;
+        return dyeColor(StorageCache.icon(key));
+    }
+
+    /** Behind each slot of an opened, dyed backpack. */
+    public static void drawSlotTint(GuiGraphicsExtractor ctx, Slot slot) {
+        if (openTint == 0 || slot.container instanceof Inventory || slot.getContainerSlot() < 9) return;
+        if (!TeslaMapsConfig.get().backpackPreviewColors) return;
+        ctx.fill(slot.x - 1, slot.y - 1, slot.x + 17, slot.y + 17, 0x60000000 | openTint);
     }
 
     private static void flush() {
+        openTint = 0;
         if (lastKey != null) { StorageCache.save(); lastKey = null; }
     }
 
@@ -90,6 +151,8 @@ public class BackpackPreview {
 
     private static String keyForStack(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return null;
+        if ("NEW_YEAR_CAKE_BAG".equals(com.teslamaps.utils.ItemUtil.skyblockId(stack)))
+            return TeslaMapsConfig.get().backpackPreviewCakeBag ? CAKE : null;
         StringBuilder sb = new StringBuilder(strip(stack.getHoverName().getString()));
         ItemLore lore = stack.get(DataComponents.LORE);
         if (lore != null) for (Component line : lore.lines()) sb.append('\n').append(strip(line.getString()));
@@ -158,7 +221,7 @@ public class BackpackPreview {
         if (at < 0) { out.add(Component.empty()); at = out.size() - 1; }
 
         pendingIndex = at;
-        pendingGrid = new Grid(items, size);
+        pendingGrid = new Grid(items, size, tintFor(key), "Chest".equals(TeslaMapsConfig.get().backpackPreviewStyle));
         return out;
     }
 
@@ -229,6 +292,8 @@ public class BackpackPreview {
         int[] r = frozenRect(mc.screen.width, mc.screen.height);
         int x = r[0], y = r[1];
         ctx.fill(x, y, x + r[2], y + r[3], 0xF0100010);
+        int tint = tintFor(frozen);
+        if (tint != 0) ctx.fill(x, y, x + r[2], y + r[3], 0x50000000 | tint);
         ctx.fill(x, y, x + r[2], y + 1, 0xFF7755FF);
         ctx.fill(x, y + r[3] - 1, x + r[2], y + r[3], 0xFF7755FF);
         ctx.text(mc.font, "§d" + StorageOverlay.pageName(frozen, label(frozen)) + " §8(frozen)", x + F_PAD, y + F_PAD, 0xFFFFFFFF);
@@ -270,19 +335,22 @@ public class BackpackPreview {
     private static String label(String key) {
         if (key.startsWith("epage_")) return "Ender Chest " + key.substring(6);
         if (key.startsWith("backpack_")) return "Backpack " + key.substring(9);
+        if (key.equals(CAKE)) return "New Year Cake Bag";
         return key;
     }
 
-    private record Grid(Map<Integer, ItemStack> items, int size) implements ClientTooltipComponent {
-        private static final int CELL = 18, GAP = 2, PAD = 3, COLS = 9;
+    private record Grid(Map<Integer, ItemStack> items, int size, int tint, boolean chest) implements ClientTooltipComponent {
+        private static final int CELL = 18, PAD = 3, COLS = 9;
         private static final int MARGIN_TOP = 4, MARGIN_BOTTOM = 8;
+
+        private int gap() { return chest ? 0 : 2; }
 
         private int rows() { return Math.max(1, (size + COLS - 1) / COLS); }
 
-        private int boxHeight() { return PAD * 2 + rows() * CELL + (rows() - 1) * GAP; }
+        private int boxHeight() { return PAD * 2 + rows() * CELL + (rows() - 1) * gap(); }
 
         @Override
-        public int getWidth(Font font) { return PAD * 2 + COLS * CELL + (COLS - 1) * GAP; }
+        public int getWidth(Font font) { return PAD * 2 + COLS * CELL + (COLS - 1) * gap(); }
 
         @Override
         public int getHeight(Font font) { return MARGIN_TOP + boxHeight() + MARGIN_BOTTOM; }
@@ -291,19 +359,35 @@ public class BackpackPreview {
         public void extractImage(Font font, int x, int y, int tw, int th, GuiGraphicsExtractor ctx) {
             int rows = rows();
             int top = y + MARGIN_TOP;
-            ctx.fill(x, top, x + getWidth(font), top + boxHeight(), 0xFF777777);
+            int w = getWidth(font), h = boxHeight(), gap = gap();
+            if (chest) {
+                ctx.fill(x, top, x + w, top + h, 0xFFC6C6C6);
+                ctx.fill(x, top, x + w, top + 1, 0xFFFFFFFF);
+                ctx.fill(x, top, x + 1, top + h, 0xFFFFFFFF);
+                ctx.fill(x, top + h - 1, x + w, top + h, 0xFF555555);
+                ctx.fill(x + w - 1, top, x + w, top + h, 0xFF555555);
+            } else {
+                ctx.fill(x, top, x + w, top + h, 0xFF777777);
+            }
+            if (tint != 0) ctx.fill(x, top, x + w, top + h, 0x70000000 | tint);
             for (int r = 0; r < rows; r++) {
                 for (int c = 0; c < COLS; c++) {
-                    int cx = x + PAD + c * (CELL + GAP);
-                    int cy = top + PAD + r * (CELL + GAP);
-                    ctx.fill(cx, cy, cx + CELL, cy + CELL, 0xFFA0A0A0);
+                    int cx = x + PAD + c * (CELL + gap);
+                    int cy = top + PAD + r * (CELL + gap);
+                    if (chest) {
+                        ctx.fill(cx, cy, cx + CELL, cy + CELL, 0xFFFFFFFF);
+                        ctx.fill(cx, cy, cx + CELL - 1, cy + CELL - 1, 0xFF373737);
+                        ctx.fill(cx + 1, cy + 1, cx + CELL - 1, cy + CELL - 1, 0xFF8B8B8B);
+                    } else {
+                        ctx.fill(cx, cy, cx + CELL, cy + CELL, 0xFFA0A0A0);
+                    }
                 }
             }
             for (Map.Entry<Integer, ItemStack> e : items.entrySet()) {
                 int s = e.getKey();
                 if (s < 0 || s >= rows * COLS) continue;
-                int cx = x + PAD + (s % COLS) * (CELL + GAP) + 1;
-                int cy = top + PAD + (s / COLS) * (CELL + GAP) + 1;
+                int cx = x + PAD + (s % COLS) * (CELL + gap) + 1;
+                int cy = top + PAD + (s / COLS) * (CELL + gap) + 1;
                 ctx.item(e.getValue(), cx, cy);
                 ctx.itemDecorations(font, e.getValue(), cx, cy);
                 EnchantAbbrev.draw(ctx, e.getValue(), cx, cy);
