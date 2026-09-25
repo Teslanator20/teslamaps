@@ -2219,6 +2219,18 @@ public class TeslaMapsConfig {
     public int slotLockDropDelay = 0;
     public java.util.Map<String, java.util.List<Integer>> slotLockData = new java.util.HashMap<>();
     public boolean romanNumerals = false;
+    // w05-00-inv
+    public boolean oldMasterStars = false;
+    public boolean sackStitchOverlay = false;
+    public boolean sackStitchLore = false;
+    public boolean midasBidBreakdown = false;
+    public boolean petFullXp = false;
+    public boolean reforgeStoneStats = false;
+    public boolean reforgeStoneHideDefault = false;
+    public boolean gemstoneStats = false;
+    public boolean prehistoricEggBlocks = false;
+    public boolean radioactiveBonus = false;
+    public boolean ravengardCrownValues = false;
     // w04-03-inv
     public boolean moveInsertIntoSack = false;
     public boolean arrowPoisonIndicator = false;

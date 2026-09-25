@@ -5,6 +5,8 @@
   "client": [
     "TooltipStyleMixin",
     "AbstractButtonMixin",
+    "OldMasterStarMixin",
+    "LoreSlotTextMixin",
     "AnimatedDyeInventoryMixin",
     "ContainerTooltipStackMixin",
     "HideVanillaEnchantsMixin",

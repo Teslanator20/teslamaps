@@ -239,5 +239,10 @@ final class Features {
         com.teslamaps.features.SlotLock.register();
         com.teslamaps.features.SackTable.register();
         com.teslamaps.features.RomanNumerals.register();
+        // w05-00-inv
+        com.teslamaps.features.OldMasterStar.register();
+        com.teslamaps.features.ItemLoreExtras.register();
+        com.teslamaps.features.ReforgeStoneStats.register();
+        com.teslamaps.features.CrownValueOverlay.register();
     }
 }
