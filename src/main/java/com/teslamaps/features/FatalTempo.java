@@ -52,7 +52,7 @@ public final class FatalTempo {
 
     /** Melee attack or arrow hit, main thread. */
     public static void onHit() {
-        if (level <= 0 || !cfg().fatalTempoHud) return;
+        if (level <= 0 || !cfg().fatalTempoHud || !cfg().section("Combat")) return;
         HITS.addLast(System.currentTimeMillis());
     }
 
