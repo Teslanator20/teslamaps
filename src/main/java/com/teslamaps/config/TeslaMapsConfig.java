@@ -2346,6 +2346,30 @@ public class TeslaMapsConfig {
     public boolean screenFlashKicked = true;
     public boolean screenFlashEffects = true;
     public boolean screenFlashBits = true;
+    // w08-09-vis
+    public boolean containerTweaks = false;
+    public boolean containerNoDim = false;
+    public boolean containerTint = false;
+    public String containerTintColor = "FFFFFFFF";
+    public boolean hideCraftingText = false;
+    public boolean noFillerPaneHighlight = false;
+    public boolean hideOffhandSlotIcon = false;
+    public boolean commonSeaCreatureHider = false;
+    public float commonSeaCreatureAlpha = 30f;
+    public boolean commonSeaCreatureRodOnly = false;
+    public boolean chumBucketHider = false;
+    public boolean chumBucketHideBucket = false;
+    public boolean chumBucketHideOwn = false;
+    public boolean hideArachneLootTags = false;
+    public boolean colorParticleFix = false;
+    public boolean customWitherCloak = false;
+    public float witherCloakCount = 8f;
+    public float witherCloakSpeed = 45f;
+    public float witherCloakDistance = 1.2f;
+    public String witherCloakColor = "6655FFFF";
+    public boolean lookTargeting = false;
+    public boolean lookTargetingLine = true;
+    public float lookTargetingRange = 32f;
     // w07-04-qol
     public boolean signCalculator = false;
     public boolean signCalculatorEquals = false;

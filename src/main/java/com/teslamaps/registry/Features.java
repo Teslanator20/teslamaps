@@ -401,5 +401,12 @@ final class Features {
         com.teslamaps.features.hud.SackHud.register();
         com.teslamaps.features.hud.MinionWidget.register();
         com.teslamaps.features.BitsWarning.register();
+        // w08-09-vis
+        com.teslamaps.features.CommonSeaCreatureHider.register();
+        com.teslamaps.features.ChumBucketHider.register();
+        com.teslamaps.features.ArachneTagHider.register();
+        com.teslamaps.features.ColorParticleFix.register();
+        com.teslamaps.features.WitherCloakShields.register();
+        com.teslamaps.features.LookTargeting.register();
     }
 }
