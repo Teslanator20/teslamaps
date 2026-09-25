@@ -644,6 +644,15 @@ final class Features {
         com.teslamaps.features.CropFeverTracker.register();
         com.teslamaps.features.CropMilestoneMenu.register();
         com.teslamaps.features.FarmingRngTitles.register();
+        // w13-08-gar
+        com.teslamaps.features.CropStats.register();
+        com.teslamaps.features.AtmosphericFilter.register();
+        com.teslamaps.features.EliteLeaderboards.register();
+        com.teslamaps.features.CropSpeedMeter.register();
+        com.teslamaps.features.CropCalcCommands.register();
+        com.teslamaps.features.FortuneGuide.register();
+        com.teslamaps.features.FarmToolOverlays.register();
+        com.teslamaps.features.JacobContestFF.register();
         // w14-00-gar
         com.teslamaps.features.MantidKillDisplay.register();
         com.teslamaps.features.GlowingMushrooms.register();
