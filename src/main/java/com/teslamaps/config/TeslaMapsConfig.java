@@ -2148,6 +2148,32 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w15-09-sla
+    public boolean remainingSlayerKills = false;
+    public int remainingSlayerKillsX = 5;
+    public int remainingSlayerKillsY = 150;
+    public float remainingSlayerKillsScale = 1.0f;
+    public boolean slayerBossTransparency = false;
+    public int slayerBossTransparencyLevel = 40;
+    public boolean slayerBossTransparencyPlayers = false;
+    public boolean slayerMagmaCubeTransparency = false;
+    public int slayerMagmaCubeLevel = 40;
+    public boolean blazeClearView = false;
+    public boolean infernoTotemDisplay = false;
+    public int infernoTotemPing = 0;
+    public int infernoTotemX = 5;
+    public int infernoTotemY = 190;
+    public float infernoTotemScale = 1.0f;
+    public boolean rev5TntPing = false;
+    public boolean gummyWarning = false;
+    public boolean gummyTimer = false;
+    public boolean gummyTimerExpired = true;
+    public long gummyTimerEnd = 0;
+    public int gummyTimerX = 5;
+    public int gummyTimerY = 205;
+    public float gummyTimerScale = 1.0f;
+    public boolean keeperWaypoints = false;
+    public boolean keeperFocusMode = false;
     // w14-09-min
     public boolean darkMonolith = false;
     public boolean darkMonolithBox = true;
