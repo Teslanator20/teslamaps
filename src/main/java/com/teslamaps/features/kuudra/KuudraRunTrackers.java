@@ -91,10 +91,7 @@ public final class KuudraRunTrackers {
     }
 
     private static boolean inInfernal() {
-        for (String l : com.teslamaps.utils.ScoreboardUtils.getScoreboardLines()) {
-            if (StringUtil.strip(l).contains("(T5)")) return true;
-        }
-        return false;
+        return Kuudra.tier() == 5;
     }
 
     private static void tick() {

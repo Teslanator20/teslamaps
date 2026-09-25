@@ -83,7 +83,8 @@ public class HandledScreenClickMixin {
                 || com.teslamaps.features.ReforgeStop.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
                 || com.teslamaps.features.HideNotClickable.blockClick(slot)
                 || com.teslamaps.features.InfernoMinion.blockClick((AbstractContainerScreen<?>) (Object) this, slot)
-                || com.teslamaps.features.kuudra.KuudraMisc.blockPerkClick((AbstractContainerScreen<?>) (Object) this, slot)) {
+                || com.teslamaps.features.kuudra.KuudraMisc.blockPerkClick((AbstractContainerScreen<?>) (Object) this, slot)
+                || com.teslamaps.slayer.SlayerTierLock.blockClick((AbstractContainerScreen<?>) (Object) this, slot)) {
             ci.cancel();
             return;
         }

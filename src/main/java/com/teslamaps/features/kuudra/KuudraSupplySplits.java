@@ -37,14 +37,15 @@ public final class KuudraSupplySplits {
         Feature.of("KuudraSupplySplits").section("Kuudra")
                 .when(() -> cfg().kuudraSupplySplits)
                 .serverChat(KuudraSupplySplits::onChat)
-                .hud("kuudrasupplysplits", KuudraSupplySplits::render)
-                .config("Kuudra", b -> {
-                    TeslaMapsConfig c = cfg();
-                    b.label("Splits");
-                    b.toggle("Supply Splits", () -> c.kuudraSupplySplits, v -> c.kuudraSupplySplits = v)
-                            .desc("Lists who placed each supply and how long after the run start (Elle's 'fish up Kuudra' line). Move it in /tmap gui.")
-                            .tags("supply", "splits", "recovered");
-                });
+                .hud("kuudrasupplysplits", KuudraSupplySplits::render);
+    }
+
+    /** Rows under Kuudra Splits. */
+    static void configRows(com.teslamaps.screen.config.ConfigBuilder b) {
+        TeslaMapsConfig c = cfg();
+        b.toggle("  Supply Splits", () -> c.kuudraSupplySplits, v -> c.kuudraSupplySplits = v)
+                .desc("Lists who placed each supply and how long after the run start. Own HUD, move it in /tmap gui.")
+                .tags("supply", "splits", "recovered");
     }
 
     static void reset() {
