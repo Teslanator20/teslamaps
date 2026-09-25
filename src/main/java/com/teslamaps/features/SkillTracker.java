@@ -258,6 +258,19 @@ public class SkillTracker {
         }
     }
 
+    /** Skill that got xp last, null before any. */
+    public static String activeSkill() {
+        return activeSkill;
+    }
+
+    /** Session xp/h once the rate has settled, 0 before. */
+    public static double xpPerHour(String skill) {
+        Session s = sessions.get(skill);
+        if (s == null) return 0;
+        double h = s.hours();
+        return s.liveActiveMs() >= 30_000 && h > 0 ? s.xpGained / h : 0;
+    }
+
     private static void show(String skill) {
         activeSkill = skill;
         lastGain = System.currentTimeMillis();
@@ -265,7 +278,8 @@ public class SkillTracker {
 
     public static void onActionBar(String raw) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.skillTracker && !cfg.skillOverflow && !cfg.petOverlay && !cfg.flareMode) return;
+        if (!cfg.skillTracker && !cfg.skillOverflow && !cfg.petOverlay && !cfg.flareMode
+                && !cfg.allSkillsDisplay && !cfg.skillGoals) return;
         Matcher m = GAIN.matcher(strip(raw));
         if (!m.find()) return;
         String skill = m.group(2);
@@ -305,6 +319,10 @@ public class SkillTracker {
             if (before > 0) {
                 setTotalXp(skill, before + (long) delta);
                 SkillOverflow.checkLevelUp(skill, before, before + (long) delta);
+                SkillGoals.check(skill, before, before + (long) delta);
+            } else if ((cfg.allSkillsDisplay || cfg.skillGoals) && s.lastAbs >= 0 && levels.containsKey(skill)) {
+                // tab level + "(1,234/5,000)" is enough for the total without opening /skills
+                setTotalXp(skill, SkillXp.xpRequiredForLevel(levels.get(skill)) + (long) s.lastAbs);
             }
         }
     }
@@ -532,6 +550,8 @@ public class SkillTracker {
             if (xph > 0 && lvl.needed() > lvl.current()) {
                 out.add("§7Next: §a" + fmtEta((lvl.needed() - lvl.current()) / xph));
             }
+            String goal = SkillGoals.line(skill, total, xph);
+            if (goal != null) out.add(goal);
         } else if (levels.containsKey(skill)) {
             out.add("§7Level: §e" + levels.get(skill) + " §8(open /skills)");
         }

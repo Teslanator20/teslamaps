@@ -16,6 +16,7 @@ public class KeybindMessage {
     private static final Set<Integer> polled = new HashSet<>();
     private static final Set<Integer> heldWp = new HashSet<>();
     private static long screenOpenMs = 0L; // last time a screen (e.g. chat) was open
+    private static final java.util.Map<TeslaMapsConfig.Keybind, Long> lastFire = new java.util.IdentityHashMap<>();
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
@@ -34,19 +35,29 @@ public class KeybindMessage {
         boolean adv = HotkeyRules.enabled();
         for (TeslaMapsConfig.Keybind kb : binds) {
             poll(kb.key);
-            if (adv) poll(kb.key2);
+            if (adv) poll(kb.seqKey);
         }
         if (fire && !edges.isEmpty()) {
             int mods = heldModifiers(mc);
+            boolean combos = TeslaMapsConfig.get().hotkeyCombos;
+            long now = System.currentTimeMillis();
             for (TeslaMapsConfig.Keybind kb : binds) {
                 if (!kb.enabled || kb.message == null) continue;
-                if (adv && kb.key2 != -1 && edges.contains(kb.key2) && HotkeyRules.sequenceDone(kb)) {
+                if (adv && kb.seqKey != -1 && edges.contains(kb.seqKey) && HotkeyRules.sequenceDone(kb)) {
                     fireBind(kb, true);
                     continue;
                 }
                 if (!edges.contains(kb.key)) continue;
+                if (combos) {
+                    if (kb.key2 != -1 ? !com.teslamaps.utils.KeyNames.isDown(kb.key2) : comboShadowed(binds, kb, mods)) continue;
+                }
                 if (!(kb.modifiers != 0 ? kb.modifiers == mods : !shadowed(binds, kb.key, mods))) continue;
-                if (adv && kb.key2 != -1) { HotkeyRules.armSequence(kb); continue; }
+                if (adv && kb.seqKey != -1) { HotkeyRules.armSequence(kb); continue; }
+                if (combos) {
+                    Long last = lastFire.get(kb);
+                    if (last != null && now - last < 200) continue;
+                    lastFire.put(kb, now);
+                }
                 fireBind(kb, adv);
             }
         }
@@ -104,6 +115,15 @@ public class KeybindMessage {
         return false;
     }
 
+    // Skyblocker Shortcuts: a plain bind stays quiet while a combo on the same key is held
+    private static boolean comboShadowed(List<TeslaMapsConfig.Keybind> binds, TeslaMapsConfig.Keybind self, int mods) {
+        for (TeslaMapsConfig.Keybind kb : binds) {
+            if (kb == self || !kb.enabled || kb.key != self.key || kb.key2 == -1) continue;
+            if ((kb.modifiers == 0 || kb.modifiers == mods) && com.teslamaps.utils.KeyNames.isDown(kb.key2)) return true;
+        }
+        return false;
+    }
+
     public static String modifierPrefix(int mods) {
         return ((mods & GLFW.GLFW_MOD_CONTROL) != 0 ? "Ctrl+" : "")
                 + ((mods & GLFW.GLFW_MOD_ALT) != 0 ? "Alt+" : "")
@@ -126,6 +146,7 @@ public class KeybindMessage {
     private static void send(String message) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() == null) return;
+        ExecutionLog.log("Hotkey: " + message);
         if (message.startsWith("/")) {
             mc.getConnection().sendCommand(message.substring(1));
         } else {

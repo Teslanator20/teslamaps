@@ -898,22 +898,15 @@ public class TMapCommand {
                                             "§b[TeslaMaps] §fSwitched to profile §a" + com.teslamaps.config.ConfigProfiles.active()));
                                     return 1;
                                 })))
-                .then(ClientCommands.literal("ep").executes(context -> {
-                    com.teslamaps.features.AutoGFS.gfsEnderPearls();
-                    return 1;
-                }))
-                .then(ClientCommands.literal("sb").executes(context -> {
-                    com.teslamaps.features.AutoGFS.gfsSuperboom();
-                    return 1;
-                }))
-                .then(ClientCommands.literal("jerry").executes(context -> {
-                    com.teslamaps.features.AutoGFS.gfsJerry();
-                    return 1;
-                }))
-                .then(ClientCommands.literal("leap").executes(context -> {
-                    com.teslamaps.features.AutoGFS.gfsLeaps();
-                    return 1;
-                }))
+                .then(sackFill("ep", "ENDER_PEARL", 16))
+                .then(sackFill("ij", "INFLATABLE_JERRY", 64))
+                .then(sackFill("jerry", "INFLATABLE_JERRY", 64))
+                .then(sackFill("sl", "SPIRIT_LEAP", 16))
+                .then(sackFill("leap", "SPIRIT_LEAP", 16))
+                .then(sackFill("sb", "SUPERBOOM_TNT", 64))
+                .then(sackFill("dd", "DUNGEON_DECOY", 64))
+                .then(sackFill("tap", "TOXIC_ARROW_POISON", 64))
+                .then(sackFill("twap", "TWILIGHT_ARROW_POISON", 64))
                 .then(ClientCommands.literal("perf")
                         .executes(context -> perfReport(context.getSource()))
                         .then(ClientCommands.literal("on").executes(context -> {
@@ -1943,20 +1936,37 @@ public class TMapCommand {
                             return 1;
                         }))
                 .then(ClientCommands.literal("sendcoords")
-                        .executes(context -> {
-                            Minecraft mc = Minecraft.getInstance();
-                            if (mc.player == null || mc.getConnection() == null) {
-                                context.getSource().sendFeedback(Component.literal("Not in world"));
-                                return 0;
-                            }
-                            var p = mc.player.blockPosition();
-                            String area = TeslaMapsConfig.get().chatWaypointShareArea ? com.teslamaps.utils.SkyblockUtils.getArea() : "";
-                            mc.getConnection().sendCommand("pc x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ()
-                                    + (area.isEmpty() ? "" : " | " + area));
-                            return 1;
-                        }))
+                        .executes(context -> sendCoords(context.getSource(), ""))
+                        .then(ClientCommands.argument("message", StringArgumentType.greedyString())
+                                .executes(context -> sendCoords(context.getSource(),
+                                        StringArgumentType.getString(context, "message")))))
         );
 
+    }
+
+    private static int sendCoords(FabricClientCommandSource source, String message) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.getConnection() == null) {
+            source.sendFeedback(Component.literal("Not in world"));
+            return 0;
+        }
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        var p = mc.player.blockPosition();
+        String area = c.chatWaypointShareArea ? com.teslamaps.utils.SkyblockUtils.getArea() : "";
+        String msg = message == null ? "" : message.trim();
+        String text = "x: " + p.getX() + ", y: " + p.getY() + ", z: " + p.getZ()
+                + (area.isEmpty() ? "" : " | " + area + (msg.isEmpty() ? "" : " |"))
+                + (msg.isEmpty() ? "" : " " + msg);
+        String prefix = switch (c.sendCoordsChannel == null ? "Party" : c.sendCoordsChannel) {
+            case "Current" -> null;
+            case "All" -> "ac ";
+            case "Guild" -> "gc ";
+            case "Coop" -> "cc ";
+            default -> "pc ";
+        };
+        if (prefix == null) mc.getConnection().sendChat(text);
+        else mc.getConnection().sendCommand(prefix + text);
+        return 1;
     }
 
     private static final java.util.Set<String> RESERVED_ALIASES = java.util.Set.of("tmap", "ping");
@@ -1966,16 +1976,37 @@ public class TMapCommand {
         int sp = command.indexOf(' ');
         String alias = (sp < 0 ? command : command.substring(0, sp)).trim();
         String args = sp < 0 ? "" : command.substring(sp + 1);
-        if (alias.isEmpty() || RESERVED_ALIASES.contains(alias.toLowerCase())) return command;
+        if (alias.isEmpty()) return command;
+        if (RESERVED_ALIASES.contains(alias.toLowerCase())) return lowercased(command, alias, args);
 
         for (TeslaMapsConfig.Shortcut sc : TeslaMapsConfig.get().shortcuts) {
             if (sc.alias == null || sc.command == null) continue;
             if (!sc.alias.trim().equalsIgnoreCase(alias)) continue;
             String expanded = sc.command.trim();
+            if (expanded.indexOf(';') >= 0 && com.teslamaps.features.CommandChains.active())
+                expanded = expanded.substring(0, expanded.indexOf(';')).trim();
             if (expanded.isEmpty()) continue;
             return args.isEmpty() ? expanded : expanded + " " + args;
         }
-        return command;
+        return warpShortcut(lowercased(command, alias, args));
+    }
+
+    private static String lowercased(String command, String alias, String args) {
+        if (!TeslaMapsConfig.get().commandLowercase || !TeslaMapsConfig.get().section("Chat")) return command;
+        String low = alias.toLowerCase(java.util.Locale.ROOT);
+        if (low.equals(alias)) return command;
+        return args.isEmpty() ? low : low + " " + args;
+    }
+
+    // SkyHanni ShortenWarpCommand: /crimson -> /warp crimson
+    private static String warpShortcut(String command) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.warpShortcuts || !c.section("Chat") || !com.teslamaps.utils.SkyblockUtils.isInSkyblock()) return command;
+        String name = command.trim().toLowerCase(java.util.Locale.ROOT);
+        if (name.isEmpty() || name.indexOf(' ') >= 0) return command;
+        if (name.equals("jerry") && com.teslamaps.utils.SkyblockUtils.isInArea("Private Island")) return command;
+        if (name.equals("barn") && com.teslamaps.utils.SkyblockUtils.isInGarden()) return command;
+        return HypixelSuggestions.warps().contains(name) ? "warp " + name : command;
     }
 
     /** The same tree for /pv and /tmap pv. */
@@ -2319,6 +2350,13 @@ public class TMapCommand {
     private static void sendServer(String command) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() != null) mc.getConnection().sendCommand(command);
+    }
+
+    private static com.mojang.brigadier.builder.LiteralArgumentBuilder<FabricClientCommandSource> sackFill(String name, String id, int def) {
+        return ClientCommands.literal(name)
+                .executes(c -> { com.teslamaps.features.AutoGFS.fillFromSack(id, def); return 1; })
+                .then(ClientCommands.argument("amount", IntegerArgumentType.integer(1, 2240))
+                        .executes(c -> { com.teslamaps.features.AutoGFS.fillFromSack(id, IntegerArgumentType.getInteger(c, "amount")); return 1; }));
     }
 
     private static int perfReport(net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource source) {

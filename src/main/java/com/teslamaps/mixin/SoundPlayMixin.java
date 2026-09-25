@@ -42,7 +42,9 @@ public class SoundPlayMixin {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean hasMutes = c.mutedSounds != null && !c.mutedSounds.isEmpty();
         boolean foragingMutes = com.teslamaps.features.foraging.ForagingMutes.enabled(c);
-        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !foragingMutes && !c.arrowHitSound) return;
+        boolean extraMutes = com.teslamaps.features.SoundMutes.active(c);
+        if (!c.soundDebug && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !c.arrowHitSound && !extraMutes
+                && !c.tiaRelayHelper) return;
 
         String id;
         float pitch, vol;
@@ -57,6 +59,10 @@ public class SoundPlayMixin {
             mc.execute(() -> { if (mc.player != null) mc.player.sendSystemMessage(Component.literal(
                     "§7[Sound] §f" + id + " §8vol=" + String.format("%.2f", vol) + " pitch=" + String.format("%.3f", pitch))); });
         }
+        if (c.tiaRelayHelper && com.teslamaps.features.qol.TiaRelayHelper.onSound(instance, id, pitch)) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
+        }
         if (c.arrowHitSound && com.teslamaps.features.ArrowHitSound.replace(instance, id)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
             return;
@@ -66,6 +72,14 @@ public class SoundPlayMixin {
             return;
         }
         if (c.muteLightning && LIGHTNING.contains(id)) { cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED); return; }
+        if (extraMutes && com.teslamaps.features.SoundMutes.shouldMute(c, instance, id)) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
+        }
+        if (c.muteErrorSound && vol >= 7.9f && pitch < 0.05f && id.equals("minecraft:entity.enderman.teleport")) {
+            cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+            return;
+        }
         if (foragingMutes && com.teslamaps.features.foraging.ForagingMutes.shouldMute(c, id, vol)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
             return;

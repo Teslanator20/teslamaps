@@ -7,6 +7,7 @@ import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.mixin.HandledScreenAccessor;
 import com.teslamaps.registry.Feature;
+import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.ProfiledFile;
 import com.teslamaps.utils.SbProfile;
 import com.teslamaps.utils.SkyblockUtils;
@@ -40,7 +41,10 @@ public final class EquipmentDisplay {
     private static final Gson GSON = new Gson();
     private static final ProfiledFile FILE = new ProfiledFile("equipment.json", null);
 
+    private static final int SLOT = 18;
+
     private static Feature feature;
+    private static HudEditElement hud;
     private static List<String> snbt = new ArrayList<>();
     private static ItemStack[] stacks;
     private static boolean loaded;
@@ -53,13 +57,21 @@ public final class EquipmentDisplay {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        feature = Feature.of("EquipmentDisplay").section("Inventory").when(() -> cfg().equipmentDisplay)
+        hud = HudEditElement.of("equipmentHud", "Equipment HUD").section("Inventory")
+                .enabled(() -> cfg().equipmentHud)
+                .size(() -> cfg().equipmentHudVertical ? SLOT : SLOT * COUNT, () -> cfg().equipmentHudVertical ? SLOT * COUNT : SLOT)
+                .preview((g, mc, x, y, s) -> drawHud(g, x, y, s, stacks()));
+        feature = Feature.of("EquipmentDisplay").section("Inventory").when(() -> cfg().equipmentDisplay || cfg().equipmentHud)
                 .tick(EquipmentDisplay::tick)
+                .hud("equipmenthud", EquipmentDisplay::renderHud)
                 .config("Inventory", b -> {
                     b.toggle("Equipment In Inventory", () -> cfg().equipmentDisplay, v -> cfg().equipmentDisplay = v)
                             .desc("Necklace, cloak, belt and gloves next to the inventory. Open /equipment once to fill it; click a slot to open it.");
                     b.dropdown("  Side", new String[]{"Left", "Right"},
                             () -> cfg().equipmentDisplayPos, v -> cfg().equipmentDisplayPos = v);
+                    b.toggle("Equipment HUD", () -> cfg().equipmentHud, v -> cfg().equipmentHud = v)
+                            .desc("The same four slots as a movable HUD (/tmap gui). Open /equipment once to fill it.");
+                    b.toggle("  Vertical", () -> cfg().equipmentHudVertical, v -> cfg().equipmentHudVertical = v);
                 });
         SbProfile.onChange(() -> loaded = false);
         ScreenEvents.AFTER_INIT.register((client, screen, w, h) -> {
@@ -170,7 +182,7 @@ public final class EquipmentDisplay {
     // ---------------------------------------------------------------- render
 
     private static boolean visible(AbstractContainerScreen<?> screen) {
-        return feature != null && feature.active() && screen instanceof InventoryScreen && SkyblockUtils.isInSkyblock();
+        return feature != null && feature.active() && cfg().equipmentDisplay && screen instanceof InventoryScreen && SkyblockUtils.isInSkyblock();
     }
 
     private static int panelX(AbstractContainerScreen<?> screen) {
@@ -190,6 +202,27 @@ public final class EquipmentDisplay {
             if (my >= sy && my < sy + 16) return i;
         }
         return -1;
+    }
+
+    private static void renderHud(GuiGraphicsExtractor g, net.minecraft.client.DeltaTracker d) {
+        if (!cfg().equipmentHud || hud == null || !SkyblockUtils.isInSkyblock()) return;
+        if (Minecraft.getInstance().options.hideGui) return;
+        drawHud(g, hud.x(), hud.y(), hud.scale(), stacks());
+    }
+
+    private static void drawHud(GuiGraphicsExtractor g, int x, int y, float scale, ItemStack[] st) {
+        boolean vertical = cfg().equipmentHudVertical;
+        var pose = g.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(scale, scale);
+        com.teslamaps.render.gui.HudStyle.panel(g, 0, 0, vertical ? SLOT : SLOT * COUNT, vertical ? SLOT * COUNT : SLOT);
+        for (int i = 0; i < COUNT; i++) {
+            int sx = vertical ? 1 : i * SLOT + 1, sy = vertical ? i * SLOT + 1 : 1;
+            g.fill(sx, sy, sx + 16, sy + 16, 0x40000000);
+            if (!st[i].isEmpty()) g.item(st[i], sx, sy);
+        }
+        pose.popMatrix();
     }
 
     public static void render(AbstractContainerScreen<?> screen, GuiGraphicsExtractor g, int mouseX, int mouseY) {

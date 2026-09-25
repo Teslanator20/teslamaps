@@ -319,5 +319,56 @@ final class Features {
         // w07-03-qol
         com.teslamaps.debug.PacketLogger.register();
         com.teslamaps.features.OldSkyblockMenu.register();
+        // w07-04-qol
+        com.teslamaps.features.ChatCalculator.register();
+        com.teslamaps.features.SoundMutes.register();
+        // w07-01-qol
+        com.teslamaps.features.CommandShortcuts.register();
+        com.teslamaps.features.AbiphoneAccept.register();
+        com.teslamaps.features.DebugDump.register();
+        // w07-07-hud
+        com.teslamaps.features.tracker.CustomTrackers.register();
+        com.teslamaps.features.hud.BeaconPower.register();
+        com.teslamaps.features.hud.CustomTextBox.register();
+        com.teslamaps.features.hud.MovementSpeed.register();
+        com.teslamaps.features.hud.CrownOfAvarice.register();
+        // w07-08-hud
+        com.teslamaps.features.ExecutionLog.register();
+        com.teslamaps.features.ChickenHeadTimer.register();
+        com.teslamaps.features.CakeTracker.register();
+        com.teslamaps.features.theend.DraconicSacrificeTracker.register();
+        com.teslamaps.features.ItemPickupLog.register();
+        com.teslamaps.features.CustomTodos.register();
+        // w07-06-hud
+        com.teslamaps.features.CustomScoreboard.register();
+        com.teslamaps.features.ArmorHud.register();
+        com.teslamaps.features.ArmorStackHud.register();
+        com.teslamaps.features.AccurateAbsorption.register();
+        com.teslamaps.features.AllSkillsDisplay.register();
+        com.teslamaps.features.SkillGoals.register();
+        // w07-09-hud
+        com.teslamaps.features.SbItemCooldowns.register();
+        com.teslamaps.features.InventoryHud.register();
+        com.teslamaps.features.theend.EyesPlacedHud.register();
+        com.teslamaps.features.theend.EndStatsHud.register();
+        com.teslamaps.features.FatalTempo.register();
+        // w07-02-qol
+        com.teslamaps.features.DebugCopy.register();
+        com.teslamaps.features.CommandChains.register();
+        com.teslamaps.features.AbiphoneHelper.register();
+        com.teslamaps.features.waypoints.WaypointGroups.register();
+        // w07-05-qol
+        com.teslamaps.features.ScoreboardLogger.register();
+        com.teslamaps.features.WikiLookup.register();
+        com.teslamaps.features.waypoints.RouteKeys.register();
+        com.teslamaps.features.AbilityMenuFix.register();
+        // w07-00-qol
+        com.teslamaps.features.qol.MusicOverlay.register();
+        com.teslamaps.features.qol.Level7Guide.register();
+        com.teslamaps.features.WarpTransferWait.register();
+        com.teslamaps.features.qol.TiaRelayHelper.register();
+        com.teslamaps.features.qol.QueueEstimate.register();
+        com.teslamaps.features.qol.CalcXp.register();
+        com.teslamaps.features.qol.ClockOffset.register();
     }
 }

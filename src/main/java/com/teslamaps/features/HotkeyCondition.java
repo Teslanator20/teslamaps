@@ -104,7 +104,7 @@ public final class HotkeyCondition {
     public static String summary(TeslaMapsConfig.Keybind kb) {
         String type = kb.cond == null ? "None" : kb.cond;
         boolean islands = kb.islands != null && !kb.islands.isBlank();
-        boolean rules = HotkeyRules.enabled() && (kb.key2 != -1 || kb.cooldownMs > 0 || kb.delayMs > 0
+        boolean rules = HotkeyRules.enabled() && (kb.seqKey != -1 || kb.cooldownMs > 0 || kb.delayMs > 0
                 || (kb.actions != null && !kb.actions.isBlank()));
         if ("None".equals(type) && !islands && !rules) return "§8?";
         return "§e?";

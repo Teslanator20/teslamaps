@@ -3,7 +3,7 @@ package com.teslamaps.utils;
 /**
  * Small expression evaluator for the container search bar. Recursive descent, so precedence and
  * brackets come out of the grammar instead of a table: + - are the loosest, then * / %, then ^,
- * then unary minus. k/m/b suffixes are in because most numbers typed in SkyBlock are coin amounts.
+ * then unary minus. k/m/b/t suffixes for coins, s=64 and e=160 for stacks, x as times, purse as variable.
  */
 public class Calculator {
 
@@ -65,7 +65,8 @@ public class Calculator {
     private double term() {
         double value = unary();
         while (true) {
-            if (take('*')) value *= unary();
+            if (take('*') || take('x') || take('X')) value *= unary();
+            else if (implicit()) value *= unary();
             else if (take('/')) {
                 double d = unary();
                 if (d == 0) throw new ArithmeticException("divide by zero");
@@ -76,6 +77,14 @@ public class Calculator {
                 value %= d;
             } else return value;
         }
+    }
+
+    // 2(3) and 2purse
+    private boolean implicit() {
+        skipSpace();
+        if (at >= text.length()) return false;
+        char c = text.charAt(at);
+        return c == '(' || c == 'p' || c == 'P';
     }
 
     private double unary() {
@@ -98,6 +107,10 @@ public class Calculator {
             if (!take(')')) throw new IllegalStateException("missing )");
             return value;
         }
+        if (text.regionMatches(true, at, "purse", 0, 5)) {
+            at += 5;
+            return purse();
+        }
         int start = at;
         while (at < text.length() && (Character.isDigit(text.charAt(at)) || text.charAt(at) == '.')) at++;
         if (at == start) throw new IllegalStateException("expected a number");
@@ -107,7 +120,23 @@ public class Calculator {
             if (suffix == 'k') { value *= 1_000d; at++; }
             else if (suffix == 'm') { value *= 1_000_000d; at++; }
             else if (suffix == 'b') { value *= 1_000_000_000d; at++; }
+            else if (suffix == 't') { value *= 1_000_000_000_000d; at++; }
+            else if (suffix == 's') { value *= 64d; at++; }
+            else if (suffix == 'e') { value *= 160d; at++; }
         }
         return value;
+    }
+
+    private static double purse() {
+        for (String raw : ScoreboardUtils.getScoreboardLines()) {
+            String line = ScoreboardUtils.cleanLine(raw);
+            if (!line.startsWith("Purse:") && !line.startsWith("Piggy:")) continue;
+            String num = line.substring(6).trim();
+            int end = 0;
+            while (end < num.length() && (Character.isDigit(num.charAt(end)) || num.charAt(end) == ',' || num.charAt(end) == '.')) end++;
+            if (end == 0) break;
+            return Double.parseDouble(num.substring(0, end).replace(",", ""));
+        }
+        throw new IllegalStateException("no purse");
     }
 }

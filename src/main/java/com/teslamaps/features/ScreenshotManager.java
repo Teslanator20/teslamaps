@@ -98,18 +98,67 @@ public class ScreenshotManager {
             ImageShare.feedback("§c[TeslaMaps] Screenshot is gone.");
             return;
         }
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String known = c.imageShareHistory ? storedLink(file) : null;
+        if (known != null) {
+            copyToken(known);
+            return;
+        }
         ImageShare.feedback("§7[TeslaMaps] Uploading " + file.getName() + "...");
         ImageShare.upload(file,
                 url -> {
-                    String token = ImageShare.toToken(url);
-                    if (token == null) {
-                        ImageShare.feedback("§c[TeslaMaps] Could not build a token.");
-                        return;
+                    if (c.imageShareHistory) {
+                        c.imageShareLinks.put(file.getName(), url + "|" + file.length() + "|" + file.lastModified()
+                                + "|" + System.currentTimeMillis() + "|" + (url.contains("//litter.") ? c.imageShareExpiry : "permanent"));
+                        TeslaMapsConfig.save();
                     }
-                    Minecraft.getInstance().keyboardHandler.setClipboard(ImageShare.TAG + " " + token);
-                    ImageShare.feedback("§a[TeslaMaps] §7Copied - paste it into any chat.");
+                    copyToken(url);
                 },
-                error -> ImageShare.feedback("§c[TeslaMaps] Upload failed: " + error));
+                error -> ImageShare.feedback("§c[TeslaMaps] Upload failed: " + error
+                        + (c.imageShareHistory ? " §7(click Copy Ingame again to retry)" : "")));
+    }
+
+    private static void copyToken(String url) {
+        String token = ImageShare.toToken(url);
+        if (token == null) {
+            ImageShare.feedback("§c[TeslaMaps] Could not build a token.");
+            return;
+        }
+        Minecraft.getInstance().keyboardHandler.setClipboard(ImageShare.TAG + " " + token);
+        if (!TeslaMapsConfig.get().imageShareHistory) {
+            ImageShare.feedback("§a[TeslaMaps] §7Copied - paste it into any chat.");
+            return;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §7Token copied - paste it into any chat. ")
+                .append(Component.literal("§b[Open Link]").withStyle(st -> st
+                        .withClickEvent(new ClickEvent.OpenUrl(java.net.URI.create(url)))
+                        .withHoverEvent(new HoverEvent.ShowText(Component.literal("§7" + url)))))
+                .append(Component.literal(" "))
+                .append(Component.literal("§e[Copy Link]").withStyle(st -> st
+                        .withClickEvent(new ClickEvent.CopyToClipboard(url))
+                        .withHoverEvent(new HoverEvent.ShowText(Component.literal("§7Public link for Discord etc."))))));
+    }
+
+    // Skysoft ScreenshotUploadMetadataStore: link per file, dropped once the file changed or expired
+    private static String storedLink(File file) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        String entry = c.imageShareLinks.get(file.getName());
+        if (entry == null) return null;
+        String[] p = entry.split("\\|");
+        try {
+            if (p.length == 5 && Long.parseLong(p[1]) == file.length() && Long.parseLong(p[2]) == file.lastModified()) {
+                long hours = switch (p[4]) {
+                    case "1h" -> 1; case "12h" -> 12; case "24h" -> 24; case "72h" -> 72; default -> -1;
+                };
+                // a few minutes of slack, litterbox deletes on the hour
+                if (hours < 0 || System.currentTimeMillis() - Long.parseLong(p[3]) < hours * 3_600_000L - 600_000L) return p[0];
+            }
+        } catch (NumberFormatException ignored) {
+        }
+        c.imageShareLinks.remove(file.getName());
+        return null;
     }
 
     public static void openFolder() {

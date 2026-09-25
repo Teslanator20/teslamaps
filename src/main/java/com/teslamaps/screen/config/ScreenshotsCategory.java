@@ -34,5 +34,7 @@ public final class ScreenshotsCategory {
         b.dropdown("Upload Lifetime",
                 new String[]{"1h", "12h", "24h", "72h", "permanent"},
                 () -> config.imageShareExpiry, v -> config.imageShareExpiry = v);
+        b.toggle("  Remember Uploads", () -> config.imageShareHistory, v -> config.imageShareHistory = v)
+                .desc("Copy Ingame reuses the last upload of the same, unchanged screenshot until it expires, and posts a clickable public link.");
     }
 }

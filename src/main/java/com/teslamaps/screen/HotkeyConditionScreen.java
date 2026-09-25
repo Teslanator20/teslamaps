@@ -76,7 +76,7 @@ public class HotkeyConditionScreen extends Screen {
         }));
         box(cx, rowY(3), cw, kb.failMessage, v -> kb.failMessage = v, "sent when the condition fails");
         if (adv) {
-            String k2 = listening ? "§epress... (Esc = none)" : kb.key2 == -1 ? "§8none" : "§f" + com.teslamaps.utils.KeyNames.display(kb.key2);
+            String k2 = listening ? "§epress... (Esc = none)" : kb.seqKey == -1 ? "§8none" : "§f" + com.teslamaps.utils.KeyNames.display(kb.seqKey);
             addRenderableWidget(new TeslaButton(cx, rowY(4), cw - 74, 22, k2, () -> { listening = true; init(); }));
             box(cx + cw - 70, rowY(4), 70, String.valueOf(kb.seqWindow), v -> kb.seqWindow = num(v, 500), "ms");
             box(cx, rowY(5), cw / 2 - 2, String.valueOf(kb.cooldownMs), v -> kb.cooldownMs = num(v, 0), "cooldown ms");
@@ -110,7 +110,7 @@ public class HotkeyConditionScreen extends Screen {
     @Override
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         if (listening) {
-            kb.key2 = event.key() == org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE ? -1 : event.key();
+            kb.seqKey = event.key() == org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE ? -1 : event.key();
             listening = false;
             init();
             return true;

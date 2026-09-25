@@ -63,6 +63,9 @@ public final class CommandHelpers {
                             .tags("coop", "scam", "guild");
                     b.toggle("  Block Co-op Request Button", () -> cfg().coopRequestBlock, v -> cfg().coopRequestBlock = v)
                             .desc("Swallows clicks on the Co-op Request diamond in a player's profile menu.");
+                    b.toggle("Warp Names As Shortcuts", () -> cfg().warpShortcuts, v -> cfg().warpShortcuts = v)
+                            .desc("Every warp name works as a command: /crimson is sent as /warp crimson. Your own shortcuts win. /jerry on your island and /barn in the Garden stay untouched.")
+                            .tags("warp", "alias", "shortcut");
                     b.info("/tmap colors lists all & codes, /tmap clearchat empties the chat");
                 });
     }

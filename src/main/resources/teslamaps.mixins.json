@@ -5,6 +5,7 @@
   "client": [
     "PauseScreenMixin",
     "PacketLogMixin",
+    "AbilityMenuSlotMixin",
     "FocusLossMixin",
     "WindowTitleMixin",
     "MonoAudioChannelMixin",
@@ -13,6 +14,8 @@
     "EditBoxUndoMixin",
     "CustomDataAccessor",
     "ItemBarMixin",
+    "ItemCooldownMixin",
+    "CrosshairCooldownMixin",
     "ArmorStandArmorMixin",
     "TooltipStyleMixin",
     "QolContainerMixin",

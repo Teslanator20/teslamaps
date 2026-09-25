@@ -683,11 +683,12 @@ public class TeslaMapsConfig {
         public String islands = "";       // comma list, empty = any island
         public String failMessage = "";   // sent instead when the condition fails
         public boolean negate = false;
-        public int key2 = -1;
+        public int seqKey = -1;           // hotkeyAdvanced: second key of a press sequence
         public int seqWindow = 500;
         public int cooldownMs = 0;
         public int delayMs = 0;
         public String actions = "";
+        public int key2 = -1;             // hotkeyCombos: second key that must be held
         public Keybind() {}
         public Keybind(int key, String message) { this.key = key; this.message = message; }
     }
@@ -2149,6 +2150,261 @@ public class TeslaMapsConfig {
     public boolean hotkeyAdvanced = false;
     public String safariMissingChannel = "Party";
     public boolean oldSkyblockMenu = false;
+    // w07-04-qol
+    public boolean signCalculator = false;
+    public boolean signCalculatorEquals = false;
+    public boolean calcCommand = false;
+    public boolean hotkeyCombos = false;
+    public boolean imageShareHistory = false;
+    @Global
+    public java.util.Map<String, String> imageShareLinks = new java.util.HashMap<>();
+    public boolean muteRatPet = false;
+    public boolean muteRatPetSqueakOnly = false;
+    public boolean muteBackpackOpen = false;
+    public boolean signEnterShiftNewline = false;
+    // w07-01-qol
+    public boolean commandLowercase = false;
+    public boolean shortcutTabComplete = false;
+    public String sendCoordsChannel = "Party";
+    public boolean abiphoneAccept = false;
+    public int abiphoneAcceptKey = -1;
+    // w07-07-hud
+    public boolean customTrackers = false;
+    public java.util.List<CustomTrackerDef> customTrackerDefs = new java.util.ArrayList<>();
+    public int customTrackerX = 10;
+    public int customTrackerY = 120;
+    public float customTrackerScale = 1.0f;
+    public boolean beaconPower = false;
+    public boolean beaconPowerStat = true;
+    public boolean beaconPowerCompress = false;
+    @Global
+    public java.util.Map<String, Long> beaconPowerExpiry = new java.util.HashMap<>();
+    @Global
+    public java.util.Map<String, String> beaconPowerStats = new java.util.HashMap<>();
+    public int beaconPowerX = 10;
+    public int beaconPowerY = 200;
+    public float beaconPowerScale = 1.0f;
+    public boolean arrowPoisonHud = false;
+    public int arrowPoisonHudX = 10;
+    public int arrowPoisonHudY = 230;
+    public float arrowPoisonHudScale = 1.0f;
+    public boolean customTextBox = false;
+    public String customTextBoxText = "&aHello &fWorld\\n&7second line";
+    public boolean customTextBoxOnlyInGui = false;
+    public int customTextBoxX = 10;
+    public int customTextBoxY = 260;
+    public float customTextBoxScale = 1.0f;
+    public boolean perfHudCps = false;
+    public boolean movementSpeed = false;
+    public int movementSpeedX = 10;
+    public int movementSpeedY = 290;
+    public float movementSpeedScale = 1.0f;
+    public boolean crownOfAvarice = false;
+    public boolean crownOfAvariceShort = true;
+    public boolean crownOfAvariceResetOnWorld = false;
+    public int crownOfAvariceAfk = 120;
+    public int crownOfAvariceX = 10;
+    public int crownOfAvariceY = 310;
+    public float crownOfAvariceScale = 1.0f;
+
+    public static class CustomTrackerDef {
+        public boolean enabled = true;
+        public String name = "Custom Tracker";
+        public String areas = "";
+        public String items = "";
+        public boolean coins = false;
+        public int priceSource = 1;
+        public int pauseSeconds = 60;
+    }
+
+    // w07-08-hud
+    public boolean chickenHeadTimer = false;
+    public boolean chickenHeadHideChat = false;
+    public int chickenHeadX = 10;
+    public int chickenHeadY = 140;
+    public float chickenHeadScale = 1.0f;
+    public boolean cakeTracker = false;
+    public String cakeTrackerShow = "Missing";
+    public boolean cakeTrackerAhHighlight = true;
+    public int cakeTrackerX = 10;
+    public int cakeTrackerY = 40;
+    public float cakeTrackerScale = 1.0f;
+    public boolean draconicTracker = false;
+    public boolean draconicOnlyAltar = false;
+    public int draconicPriceSource = 1;
+    public int draconicTrackerX = 10;
+    public int draconicTrackerY = 60;
+    public float draconicTrackerScale = 1.0f;
+    public boolean executionLog = false;
+    public int executionLogX = 4;
+    public int executionLogY = 220;
+    public float executionLogScale = 1.0f;
+    public boolean itemPickupLog = false;
+    public boolean pickupLogSacks = true;
+    public boolean pickupLogCoins = false;
+    public boolean pickupLogCompact = true;
+    public boolean pickupLogIcons = true;
+    public int pickupLogExpire = 10;
+    public boolean pickupLogValue = false;
+    public int pickupLogPriceSource = 1;
+    public int pickupLogX = 10;
+    public int pickupLogY = 100;
+    public float pickupLogScale = 1.0f;
+    public boolean customTodos = false;
+    public boolean customTodoSound = true;
+    public boolean customTodoOnlyReady = false;
+    public java.util.List<CustomTodo> customTodoList = new java.util.ArrayList<>();
+    public int customTodoX = 10;
+    public int customTodoY = 180;
+    public float customTodoScale = 1.0f;
+    public static class CustomTodo {
+        public String label = "";
+        public String trigger = "";
+        public String matcher = "Contains"; // Contains / Starts With / Equals / Regex
+        public String time = "1h";
+        public boolean enabled = true;
+        public java.util.Map<String, Long> readyAt = new java.util.HashMap<>();
+        public CustomTodo() {}
+    }
+    public boolean equipmentHud = false;
+    public boolean equipmentHudVertical = false;
+    public int equipmentHudX = 10;
+    public int equipmentHudY = 200;
+    public float equipmentHudScale = 1.0f;
+    // w07-06-hud
+    public boolean deployableOrb3d = false;
+    public boolean customScoreboard = false;
+    public boolean customScoreboardTitle = true;
+    public boolean customScoreboardHideServer = true;
+    public boolean customScoreboardHideFooter = true;
+    public boolean customScoreboardHideBlank = false;
+    public boolean customScoreboardBackground = true;
+    public int customScoreboardX = 500;
+    public int customScoreboardY = 60;
+    public float customScoreboardScale = 1.0f;
+    public boolean armorHud = false;
+    public boolean armorHudVertical = false;
+    public boolean armorHudBackground = true;
+    public boolean armorHudSlotBg = false;
+    public boolean armorHudEmpty = false;
+    public boolean armorHudHelmet = true;
+    public boolean armorHudChest = true;
+    public boolean armorHudLegs = true;
+    public boolean armorHudBoots = true;
+    public int armorHudX = 5;
+    public int armorHudY = 120;
+    public float armorHudScale = 1.0f;
+    public boolean armorStackHud = false;
+    public int armorStackHudX = 5;
+    public int armorStackHudY = 150;
+    public float armorStackHudScale = 1.0f;
+    public boolean accurateAbsorption = false;
+    public float accurateAbsorptionMax = 40f;
+    public boolean allSkillsDisplay = false;
+    public boolean allSkillsXp = true;
+    public boolean allSkillsOverflow = true;
+    public java.util.List<String> allSkillsHidden = new java.util.ArrayList<>();
+    public int allSkillsX = 5;
+    public int allSkillsY = 170;
+    public float allSkillsScale = 1.0f;
+    public boolean skillGoals = false;
+    public boolean skillGoalAlert = true;
+    public java.util.Map<String, Integer> skillGoalLevels = new java.util.HashMap<>();
+    // w07-09-hud
+    public boolean itemCooldowns = false;
+    public boolean itemCooldownsCrosshair = true;
+    public boolean inventoryHud = false;
+    public boolean inventoryHudArmor = false;
+    public int inventoryHudX = 5;
+    public int inventoryHudY = 120;
+    public float inventoryHudScale = 1.0f;
+    public boolean perfHudLag = false;
+    public float perfHudLagThreshold = 300f;
+    public boolean eyesPlacedHud = false;
+    public boolean eyesPlacedAnywhere = false;
+    public int eyesPlacedX = 5;
+    public int eyesPlacedY = 60;
+    public float eyesPlacedScale = 1.0f;
+    public boolean endStatsHud = false;
+    public boolean endStatsSoulflow = true;
+    public boolean endStatsFinalDestination = true;
+    public boolean endStatsOverflow = true;
+    public boolean endStatsOverflowWithMana = false;
+    public boolean endStatsLegion = true;
+    public int endStatsX = 5;
+    public int endStatsY = 80;
+    public float endStatsScale = 1.0f;
+    public boolean explosiveShotTimer = false;
+    public boolean fatalTempoHud = false;
+    public int fatalTempoX = 5;
+    public int fatalTempoY = 140;
+    public float fatalTempoScale = 1.0f;
+    // w07-02-qol
+    public boolean muteErrorSound = false;
+    public boolean dumpGuiSingleItem = false;
+    public boolean shortcutChains = false;
+    public int shortcutChainDelay = 500;
+    public boolean seamlessServerSwitch = false;
+    public boolean abiphoneHelper = false;
+    public boolean abiphoneFavorites = true;
+    public String abiphoneFavoriteColor = "FFAA00";
+    public boolean abiphoneRequirements = true;
+    public boolean abiphoneRemoveConfirm = true;
+    @Global
+    public boolean abiphoneFavOnly = false;
+    @Global
+    public java.util.List<String> abiphoneFavoriteList = new java.util.ArrayList<>();
+    public boolean waypointGroups = false;
+    public boolean waypointGroupsBeam = true;
+    public boolean waypointGroupsDistance = true;
+    // w07-05-qol
+    public boolean tabCompleteShowSlots = false;
+    public boolean tabCompleteBestFriends = false;
+    public boolean tabCompleteTradeIsland = false;
+    public List<String> bestFriendNames = new ArrayList<>();
+    public boolean scoreboardLogger = false;
+    public boolean scoreboardLoggerFull = false;
+    public boolean scoreboardLoggerColors = false;
+    public boolean scoreboardLoggerDungeonsOnly = false;
+    public boolean warpShortcuts = false;
+    public boolean wikiLookup = false;
+    public int wikiLookupKey = 290;
+    public boolean chatWaypointCommands = false;
+    public boolean routeEditorExtras = false;
+    public int routeEditKey = -1;
+    public int routePlaceKey = -1;
+    public int routePauseKey = -1;
+    public int routeNextKey = -1;
+    public int routePrevKey = -1;
+    public int routeStopKey = -1;
+    public boolean abilityMenuFix = false;
+    // w07-00-qol
+    public boolean musicOverlay = false;
+    public boolean musicOverlayArt = true;
+    public boolean musicOverlayLyrics = false;
+    public int musicPlayPauseKey = -1;
+    public int musicNextKey = -1;
+    public int musicPrevKey = -1;
+    public int musicOverlayX = 5;
+    public int musicOverlayY = 200;
+    public float musicOverlayScale = 1.0f;
+    public boolean level7Guide = false;
+    public int level7GuideStep = 1;
+    public int level7GuideX = 5;
+    public int level7GuideY = 60;
+    public float level7GuideScale = 1.0f;
+    public boolean warpTransferWait = false;
+    public boolean warpTransferWaitMessage = false;
+    public boolean tiaRelayHelper = false;
+    public boolean tiaRelayMute = false;
+    public boolean tiaRelayNextWaypoint = true;
+    public boolean tiaRelayAllWaypoints = false;
+    public boolean queueEstimate = false;
+    public int queueEstimateX = -1;
+    public int queueEstimateY = -1;
+    public float queueEstimateScale = 1.0f;
+    public boolean calcXpCommand = false;
+    public boolean clockOffsetWarning = false;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
@@ -3325,12 +3581,28 @@ public class TeslaMapsConfig {
 
     static void normalize(TeslaMapsConfig c) {
         if (c.enchantedClockDisabled == null) c.enchantedClockDisabled = new java.util.ArrayList<>();
+        if (c.imageShareLinks == null) c.imageShareLinks = new java.util.HashMap<>();
+        if (c.customTrackerDefs == null) c.customTrackerDefs = new java.util.ArrayList<>();
+        c.customTrackerDefs.removeIf(java.util.Objects::isNull);
+        if (c.beaconPowerExpiry == null) c.beaconPowerExpiry = new java.util.HashMap<>();
+        if (c.beaconPowerStats == null) c.beaconPowerStats = new java.util.HashMap<>();
+        if (c.customTextBoxText == null) c.customTextBoxText = "";
         if (c.invButtons == null || c.invButtons.isEmpty()) {
             c.invButtons = com.teslamaps.features.invbuttons.ButtonPresets.defaults();
         }
         if (c.wardrobeFavorites == null) c.wardrobeFavorites = new java.util.HashSet<>();
         if (c.reminderList == null) c.reminderList = new java.util.ArrayList<>();
         if (c.containerTriggerList == null) c.containerTriggerList = new java.util.ArrayList<>();
+        if (c.customTodoList == null) c.customTodoList = new java.util.ArrayList<>();
+        c.customTodoList.removeIf(java.util.Objects::isNull);
+        for (CustomTodo t : c.customTodoList) {
+            if (t.readyAt == null) t.readyAt = new java.util.HashMap<>();
+            if (t.label == null) t.label = "";
+            if (t.trigger == null) t.trigger = "";
+            if (t.matcher == null) t.matcher = "Contains";
+            if (t.time == null) t.time = "1h";
+        }
+        if (c.cakeTrackerShow == null) c.cakeTrackerShow = "Missing";
         if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new int[]{49, 50, 51, 52, 53, 54, 55};
         if (c.damageAlertSoundType == null) c.damageAlertSoundType = "NOTE_PLING";
         if (c.discordRpcAppId == null) c.discordRpcAppId = "";
@@ -3375,6 +3647,7 @@ public class TeslaMapsConfig {
         if (c.hoppityUniqueEggs == null) c.hoppityUniqueEggs = new java.util.HashMap<>();
         if (c.guildNames == null) c.guildNames = new ArrayList<>();
         if (c.friendNames == null) c.friendNames = new ArrayList<>();
+        if (c.bestFriendNames == null) c.bestFriendNames = new ArrayList<>();
         if (c.splitPbs == null) c.splitPbs = new java.util.HashMap<>();
         if (c.customSplitDefs == null) c.customSplitDefs = new java.util.HashMap<>();
         if (c.lockedSlots == null) c.lockedSlots = new java.util.ArrayList<>();
@@ -3406,6 +3679,8 @@ public class TeslaMapsConfig {
         if (c.chatRedirectTarget == null) c.chatRedirectTarget = "Spam HUD";
         if (c.chatFilterAction == null || c.chatFilterAction.isBlank()) c.chatFilterAction = "Hide";
         if (c.skillTotalXp == null) c.skillTotalXp = new java.util.HashMap<>();
+        if (c.allSkillsHidden == null) c.allSkillsHidden = new java.util.ArrayList<>();
+        if (c.skillGoalLevels == null) c.skillGoalLevels = new java.util.HashMap<>();
         if (c.skillTrackerPin == null) c.skillTrackerPin = "";
         if (c.flareMob == null || c.flareMob.isBlank()) c.flareMob = "Flare";
         if (c.bestiaryTracked == null) c.bestiaryTracked = new java.util.ArrayList<>();
@@ -3414,9 +3689,12 @@ public class TeslaMapsConfig {
         if (c.imageShareBlocked == null) c.imageShareBlocked = new java.util.ArrayList<>();
         if (c.dragonPbs == null) c.dragonPbs = new java.util.HashMap<>();
         if (c.keybinds == null) c.keybinds = defaultKeybinds();
+        c.keybinds.removeIf(java.util.Objects::isNull);
+        for (Keybind kb : c.keybinds) if (kb.actions == null) kb.actions = "";
         if (c.hudAnchorRefs == null) c.hudAnchorRefs = new java.util.HashMap<>();
         if (c.hudPanelStyles == null) c.hudPanelStyles = new java.util.HashMap<>();
         if (c.shortcuts == null) c.shortcuts = new ArrayList<>();
+        if (c.abiphoneFavoriteList == null) c.abiphoneFavoriteList = new ArrayList<>();
         if (!c.kuudraShortcutsAdded) {
             c.kuudraShortcutsAdded = true;
             String[][] kuudra = {{"t1", "joinkuudra basic"}, {"t2", "joinkuudra hot"}, {"t3", "joinkuudra burning"},

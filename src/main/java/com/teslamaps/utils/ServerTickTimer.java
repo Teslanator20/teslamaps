@@ -56,6 +56,11 @@ public final class ServerTickTimer {
         return TICKS.get();
     }
 
+    /** Wall time of the last server tick ping, 0 = none seen yet. */
+    public static long lastPingMs() {
+        return lastPingMs;
+    }
+
     /** True while the server actually sends tick pings. */
     public static boolean serverDriven() {
         return System.currentTimeMillis() - lastPingMs <= NO_PING_MS;

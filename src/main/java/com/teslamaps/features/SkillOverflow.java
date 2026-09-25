@@ -24,7 +24,10 @@ public class SkillOverflow {
         // so this one runs before the screen-title gate below.
         if (cfg.skillAvgOverflow) addOverflowAverage(stack, lines);
 
-        if (!cfg.skillOverflow) return;
+        if (!cfg.skillOverflow) {
+            if ((cfg.allSkillsDisplay || cfg.skillGoals) && "Your Skills".equals(screenTitle())) seedOnly(stack, lines);
+            return;
+        }
         if (!"Your Skills".equals(screenTitle())) return;
 
         String name = strip(stack.getHoverName().getString()).trim();
@@ -48,6 +51,7 @@ public class SkillOverflow {
 
         if (maxIndex < 0 || progressIndex < 0) {
             seedNotMaxed(skill, level, lines);
+            SkillGoals.onTooltip(skill, lines);
             return;
         }
 
@@ -66,6 +70,34 @@ public class SkillOverflow {
                 + " §e" + sep(lvl.current()) + "§6/§e" + sep(lvl.needed())));
         lines.add(progressIndex + 1, Component.literal("§b§lOVERFLOW XP:"));
         lines.add(progressIndex + 2, Component.literal("§7▸ " + sep(lvl.overflowTotal())));
+        SkillGoals.onTooltip(skill, lines);
+    }
+
+    // same seeding as above, without touching the tooltip, for the all-skills display and goals
+    private static void seedOnly(ItemStack stack, List<Component> lines) {
+        String name = strip(stack.getHoverName().getString()).trim();
+        String[] parts = name.split(" ");
+        if (parts.length < 2 || SkillTracker.skillOf(name) == null) return;
+        String skill = parts[0];
+        int level;
+        try {
+            level = Integer.parseInt(parts[parts.length - 1]);
+        } catch (NumberFormatException e) {
+            return;
+        }
+        int maxIndex = -1;
+        for (int i = 0; i < lines.size(); i++) {
+            String line = strip(lines.get(i).getString());
+            if (line.contains("Max Skill level reached!")) maxIndex = i;
+            else if (maxIndex >= 0 && line.startsWith(PROGRESS_INDENT)) {
+                long totalXp = parseAmount(line.substring(line.lastIndexOf(' ') + 1));
+                if (totalXp > 0) SkillTracker.setTotalXp(skill, totalXp);
+                SkillGoals.onTooltip(skill, lines);
+                return;
+            }
+        }
+        seedNotMaxed(skill, level, lines);
+        SkillGoals.onTooltip(skill, lines);
     }
 
     /**

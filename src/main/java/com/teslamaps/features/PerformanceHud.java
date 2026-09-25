@@ -11,6 +11,10 @@ public class PerformanceHud {
     public static final String SAMPLE_TEXT = "FPS: 240 TPS: 20.0 Ping: 45ms";
     private static final String[] SAMPLE_LABELS = { "FPS: ", "TPS: ", "Ping: " };
     private static final String[] SAMPLE_VALUES = { "240", "20.0", "45ms" };
+    private static final String[] SAMPLE_LABELS_CPS = { "FPS: ", "TPS: ", "Ping: ", "CPS: " };
+    private static final String[] SAMPLE_VALUES_CPS = { "240", "20.0", "45ms", "8 | 12" };
+    private static final long[] leftClicks = new long[64], rightClicks = new long[64];
+    private static int leftIdx, rightIdx;
 
     private static volatile long lastTimePacket = 0L;
     private static final float[] tpsLog = new float[10];
@@ -35,6 +39,21 @@ public class PerformanceHud {
         lastTimePacket = now;
     }
 
+    // HUD-020, from MouseHandler.onButton
+    public static void onClick(int button) {
+        if (!TeslaMapsConfig.get().perfHud || !TeslaMapsConfig.get().perfHudCps) return;
+        if (Minecraft.getInstance().screen != null) return;
+        long now = System.currentTimeMillis();
+        if (button == 0) leftClicks[leftIdx++ & 63] = now;
+        else if (button == 1) rightClicks[rightIdx++ & 63] = now;
+    }
+
+    private static int cps(long[] clicks, long now) {
+        int n = 0;
+        for (long t : clicks) if (now - t <= 1000) n++;
+        return n;
+    }
+
     private static float averageTps() {
         synchronized (tpsLog) {
             if (tpsCount == 0) return 20f;
@@ -55,11 +74,25 @@ public class PerformanceHud {
             pingCooldown = 40; // every 2s
         }
 
-        java.util.List<String> l = new java.util.ArrayList<>(3);
-        java.util.List<String> v = new java.util.ArrayList<>(3);
+        java.util.List<String> l = new java.util.ArrayList<>(4);
+        java.util.List<String> v = new java.util.ArrayList<>(4);
         if (cfg.perfHudFps) { l.add("FPS: "); v.add(String.valueOf(mc.getFps())); }
         if (cfg.perfHudTps) { l.add("TPS: "); v.add(String.format("%.1f", averageTps())); }
         if (cfg.perfHudPing) { l.add("Ping: "); v.add((int) PingMeter.getLastPingMs() + "ms"); }
+        if (cfg.perfHudCps) {
+            long now = System.currentTimeMillis();
+            l.add("CPS: ");
+            v.add(cps(leftClicks, now) + " | " + cps(rightClicks, now));
+        }
+        if (cfg.perfHudLag && !mc.isLocalServer() && com.teslamaps.utils.SkyblockUtils.isOnHypixel()) {
+            long last = com.teslamaps.utils.ServerTickTimer.lastPingMs();
+            long dt = last == 0 ? 0 : System.currentTimeMillis() - last;
+            if (dt >= cfg.perfHudLagThreshold) {
+                String col = dt < 500 ? "§a" : dt < 1000 ? "§e" : dt < 2000 ? "§6" : "§c";
+                l.add("zzz for ");
+                v.add(col + String.format(java.util.Locale.ROOT, "%.2fs", dt / 1000.0));
+            }
+        }
         labels = l.toArray(new String[0]);
         values = v.toArray(new String[0]);
     }
@@ -74,7 +107,8 @@ public class PerformanceHud {
 
     /** HUD editor preview. */
     public static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale) {
-        draw(context, mc, x, y, scale, SAMPLE_LABELS, SAMPLE_VALUES);
+        boolean cps = TeslaMapsConfig.get().perfHudCps;
+        draw(context, mc, x, y, scale, cps ? SAMPLE_LABELS_CPS : SAMPLE_LABELS, cps ? SAMPLE_VALUES_CPS : SAMPLE_VALUES);
     }
 
     private static void draw(GuiGraphicsExtractor context, Minecraft mc, int x, int y, float scale, String[] labels, String[] values) {
@@ -97,13 +131,13 @@ public class PerformanceHud {
 
     public static int width(Minecraft mc) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.perfHudVertical) return mc.font.width(SAMPLE_TEXT);
+        if (!cfg.perfHudVertical) return mc.font.width(SAMPLE_TEXT) + (cfg.perfHudCps ? mc.font.width(" CPS: 8 | 12") : 0);
         return mc.font.width("Ping: 45ms");
     }
 
     public static int height(Minecraft mc) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.perfHudVertical) return mc.font.lineHeight;
-        return (mc.font.lineHeight + 1) * 3;
+        return (mc.font.lineHeight + 1) * (cfg.perfHudCps ? 4 : 3);
     }
 }

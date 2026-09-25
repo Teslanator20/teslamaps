@@ -59,6 +59,8 @@ public final class ChatCategory {
                 .desc("Hotkeys screen gets a ? per hotkey: held item / inventory / sneaking / SkyBlock condition, island filter and a fail message");
         b.toggle("    Advanced Hotkey Rules", () -> config.hotkeyAdvanced, v -> config.hotkeyAdvanced = v)
                 .desc("Per hotkey: NOT, a second key within a window (sequence), cooldown, delay and local actions (sound, title, note)");
+        b.toggle("  Key Combos (hold 2 keys)", () -> config.hotkeyCombos, v -> config.hotkeyCombos = v)
+                .desc("Hotkeys screen gets a + per hotkey for a second key that must be held (e.g. hold G, press H). 200 ms cooldown, duplicates shown red.");
         b.toggle("Gradient [TeslaMaps] Prefix", () -> config.chromaPrefix, v -> config.chromaPrefix = v);
         b.color("Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v);
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);
@@ -205,6 +207,11 @@ public final class ChatCategory {
         b.label("Command Suggestions");
         b.toggle("Suggest /warp and /call targets", () -> config.commandSuggestions, v -> config.commandSuggestions = v);
         b.toggle("  Suggest Players (/msg, /visit, ...)", () -> config.commandSuggestionsPlayers, v -> config.commandSuggestionsPlayers = v);
+        b.toggle("    Only Best Friends", () -> config.tabCompleteBestFriends, v -> config.tabCompleteBestFriends = v)
+                .desc("Of your friends, only best friends are suggested. Run /f list once to learn them.");
+        b.toggle("    /trade: Only Island Players", () -> config.tabCompleteTradeIsland, v -> config.tabCompleteTradeIsland = v);
+        b.toggle("  Suggest /show Slots", () -> config.tabCompleteShowSlots, v -> config.tabCompleteShowSlots = v)
+                .desc("/show, /showitem, /showoff suggest item, helmet, ..., pet.");
         b.info("Run /g list and /f list once to fill the name list");
         b.info("Player suggestions need a rejoin, and can clash with Hypixel's own commands");
         b.info("Hypixel sends no suggestions for these two");

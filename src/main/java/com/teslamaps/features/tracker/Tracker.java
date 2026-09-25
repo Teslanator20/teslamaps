@@ -44,7 +44,7 @@ public final class Tracker {
     private static final long SAVE_DELAY = 30_000L;
 
     public final String id;
-    private final String title;
+    private String title;
     private final Map<String, Long> session = new LinkedHashMap<>();
     private final Map<String, Long> total = new LinkedHashMap<>();
     private final Map<String, Double> fixed = new LinkedHashMap<>();
@@ -84,6 +84,7 @@ public final class Tracker {
     /** A break longer than this does not count towards the hourly rate. */
     public Tracker idleSeconds(IntSupplier seconds) { this.idleSeconds = seconds; return this; }
     public Tracker maxRows(int rows) { this.maxRows = rows; return this; }
+    public Tracker title(String t) { if (!t.equals(title)) { title = t; changed = true; } return this; }
     /** Value of one unit of a key no price source knows (a label, a mob kill, ...). */
     public Tracker fixedValue(String key, double coins) { fixed.put(key, coins); return this; }
     /** Display name for a key that is not an item id. */

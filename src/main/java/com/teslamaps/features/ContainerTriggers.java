@@ -56,6 +56,7 @@ public class ContainerTriggers {
 
     private static void run(ContainerTrigger t, String title) {
         Minecraft mc = Minecraft.getInstance();
+        ExecutionLog.log("Container Trigger: " + t.action + " (" + title + ")");
         switch (t.action) {
             case "Title" -> {
                 mc.gui.setTimes(5, 40, 10);
