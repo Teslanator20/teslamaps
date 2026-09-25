@@ -739,6 +739,10 @@ final class Features {
         com.teslamaps.features.mining.GemstonePowderChat.register();
         com.teslamaps.features.mining.HollowsItemInfo.register();
         com.teslamaps.features.mining.DwarvenPuzzles.register();
+        // w15-07-min
+        com.teslamaps.features.mining.MineshaftWaypoints.register();
+        com.teslamaps.features.mining.PigeonSwapper.register();
+        com.teslamaps.features.mining.GhostVisuals.register();
         // w15-04-min
         com.teslamaps.features.mining.MineshaftAnnounce.register();
         com.teslamaps.features.mining.MiningNotifications.register();

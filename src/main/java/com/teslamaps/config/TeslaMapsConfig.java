@@ -2214,6 +2214,34 @@ public class TeslaMapsConfig {
     public String npcSolverPuzzlerColor = "FF5555";
     public boolean npcSolverFetchur = true;
     public boolean npcSolverFossil = true;
+    // w15-07-min
+    public boolean hotmTokenStack = false;
+    public boolean hotmPowderTooltip = false;
+    public boolean hotmSkyMallDisplay = false;
+    public boolean hotmSkyMallMiningOnly = true;
+    public String hotmSkyMallPerk = "";
+    public int hotmSkyMallDisplayX = 5;
+    public int hotmSkyMallDisplayY = 175;
+    public float hotmSkyMallDisplayScale = 1.0f;
+    public boolean mineshaftWaypoints = false;
+    public boolean mineshaftWpEntrance = true;
+    public boolean mineshaftWpLadder = true;
+    public boolean mineshaftWpCorpses = true;
+    public boolean mineshaftAutoShareCorpses = false;
+    public int mineshaftShareKey = -1;
+    public boolean orderedAutoLoadShaft = false;
+    public boolean orderedAutoUnloadShaft = false;
+    public float orderedTraceThickness = 2.0f;
+    public java.util.Map<String, Boolean> chScanStructures = new java.util.HashMap<>();
+    public boolean chScanLandmarks = false;
+    public boolean chScanOffThread = false;
+    public boolean pigeonSwapper = false;
+    public int pigeonSwapperDelay = 150;
+    public int pigeonSwapperRandom = 150;
+    public boolean ghostVisuals = false;
+    public boolean ghostShow = true;
+    public boolean ghostNametag = true;
+    public boolean ghostHideCharged = true;
     // w15-08-sla
     public boolean slayerCarryMode = false;
     public int slayerCarryTier = 4;
@@ -5539,6 +5567,9 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.chScanStructures == null) c.chScanStructures = new java.util.HashMap<>();
+        c.chScanStructures.values().removeIf(java.util.Objects::isNull);
+        if (c.hotmSkyMallPerk == null) c.hotmSkyMallPerk = "";
         if (c.slayerCarries == null) c.slayerCarries = new java.util.ArrayList<>();
         c.slayerCarries.removeIf(x -> x == null || x.customer == null || x.type == null);
         if (c.slayerCarryPrices == null) c.slayerCarryPrices = new java.util.HashMap<>();

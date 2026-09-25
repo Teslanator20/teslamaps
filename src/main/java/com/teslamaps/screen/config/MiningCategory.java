@@ -20,6 +20,9 @@ public final class MiningCategory {
         b.toggle("Mob Spots (Corleone/Keys/Xalx/Pete/Odawa)", () -> config.chScanMobSpots, v -> config.chScanMobSpots = v);
         b.toggle("Fairy Grottos", () -> config.chScanGrottos, v -> config.chScanGrottos = v);
         b.toggle("Worm Fishing Spots", () -> config.chScanWorm, v -> config.chScanWorm = v);
+        b.toggle("Landmarks (Goblin Hall, Ruined Forge, Mansion, ...)", () -> config.chScanLandmarks, v -> config.chScanLandmarks = v)
+                .desc("26 smaller Crystal Hollows spots: jungle caverns, forges, railways, trees, pillars.")
+                .tags("structure", "landmark", "goblin hall", "ruined forge", "jade pedestal", "crystal train", "mansion");
         b.label("Display");
         b.toggle("Tracers", () -> config.chScanTracers, v -> config.chScanTracers = v);
         b.toggle("Chat Alert", () -> config.chScanChat, v -> config.chScanChat = v);
@@ -32,6 +35,22 @@ public final class MiningCategory {
         b.toggle("  Waypoint From Scoreboard Area", () -> config.chWaypointsSubzone, v -> config.chWaypointsSubzone = v)
                 .desc("Entering Mines of Divan, Jungle Temple, Dragon's Lair, ... sets a waypoint there");
         b.toggle("  Keep Across Lobby Rejoins", () -> config.chWaypointsPersist, v -> config.chWaypointsPersist = v);
+        b.toggle("Scan Off-Thread", () -> config.chScanOffThread, v -> config.chScanOffThread = v)
+                .desc("Scans loaded chunks on a background thread instead of the main thread.");
+        b.label("Individual Structures");
+        String[] groups = {"Crystals", "Mob Spots", "Fairy Grottos", "Golden Dragon", "Worm Fishing", "Landmarks"};
+        java.util.Map<String, Integer> names = com.teslamaps.features.WorldScanner.structureNames();
+        for (int g = 0; g < groups.length; g++) {
+            b.info(groups[g]);
+            for (java.util.Map.Entry<String, Integer> e : names.entrySet()) {
+                if (e.getValue() != g) continue;
+                String name = e.getKey();
+                b.toggle("  " + name, () -> com.teslamaps.features.WorldScanner.structureOn(name), v -> {
+                    if (v) config.chScanStructures.remove(name);
+                    else config.chScanStructures.put(name, false);
+                }).tags("structure", "crystal hollows");
+            }
+        }
         b.toggle("Last Death Waypoint", () -> config.chDeathWaypoint, v -> config.chDeathWaypoint = v)
                 .desc("After a death in the Crystal Hollows, click the chat line for a waypoint where you died.");
         b.label("Glacite Corpses");
@@ -52,6 +71,16 @@ public final class MiningCategory {
         b.toggle("  Read Coords From Chat", () -> config.corpseFinderParseChat, v -> config.corpseFinderParseChat = v);
         b.channel("  Share Channel", () -> config.corpseFinderChannel, v -> config.corpseFinderChannel = v);
         b.info("Click the Found line or /tmap corpse share to send it");
+        b.toggle("Mineshaft Waypoints", () -> config.mineshaftWaypoints, v -> config.mineshaftWaypoints = v)
+                .desc("Entrance and ladder waypoints on entering a mineshaft, found corpses as labelled waypoints.")
+                .tags("mineshaft", "glacite", "ladder", "entrance", "corpse", "share", "waypoint");
+        b.toggle("  Entrance", () -> config.mineshaftWpEntrance, v -> config.mineshaftWpEntrance = v);
+        b.toggle("  Ladder", () -> config.mineshaftWpLadder, v -> config.mineshaftWpLadder = v);
+        b.toggle("  Corpse Waypoints", () -> config.mineshaftWpCorpses, v -> config.mineshaftWpCorpses = v)
+                .desc("Seen corpses get a yellow label, green once looted. Party coords become waypoints too.");
+        b.toggle("  Auto-Share Corpses In Party", () -> config.mineshaftAutoShareCorpses, v -> config.mineshaftAutoShareCorpses = v)
+                .desc("Sends the corpse you stand at to party chat once, unless someone already sent it.");
+        b.keybind("  Share Nearest Waypoint Key", () -> config.mineshaftShareKey, v -> config.mineshaftShareKey = v);
         b.label("Drill / Pickaxe Ability");
         b.toggle("Ability Cooldown Display",
                 () -> config.pickaxeAbilityDisplay, v -> config.pickaxeAbilityDisplay = v);

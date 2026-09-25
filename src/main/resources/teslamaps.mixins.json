@@ -6,6 +6,7 @@
     "BlockStateModelSetMixin",
     "BlockBreakPredictionMixin",
     "LogSpamPacketMixin",
+    "GhostCreeperMixin",
     "RenderSectionRegionMixin",
     "LogSpamScoreboardMixin",
     "LogSpamEntityDataMixin",
