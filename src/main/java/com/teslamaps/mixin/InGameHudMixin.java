@@ -47,7 +47,7 @@ public class InGameHudMixin {
             com.teslamaps.features.SkillTracker.onActionBar(message.getString());
         }
         com.teslamaps.features.SkyblockXpChat.onActionBar(message);
-        return com.teslamaps.features.ActionBarFilter.filter(message);
+        return com.teslamaps.features.ActionBarFilter.filter(com.teslamaps.features.kuudra.KuudraSupplyProgress.onActionBar(message));
     }
 
     @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method = "lambda$displayScoreboardSidebar$1",

@@ -60,6 +60,7 @@ public final class KuudraSplits {
                     b.toggle("  Lag Loss", () -> c.kuudraSplitsLag, v -> c.kuudraSplitsLag = v)
                             .desc("Real time minus server ticks: time lost to server lag");
                     b.toggle("  New PB Title", () -> c.kuudraSplitsPbTitle, v -> c.kuudraSplitsPbTitle = v);
+                    KuudraSupplySplits.configRows(b);
                     b.button("Reset Kuudra PBs", () -> {
                         c.kuudraSplitPbs.clear();
                         TeslaMapsConfig.save();
