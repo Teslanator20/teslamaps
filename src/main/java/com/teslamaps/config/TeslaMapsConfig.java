@@ -2148,6 +2148,30 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w17-02-for
+    public boolean frogMask = false;
+    public boolean frogMaskDisplay = true;
+    public boolean frogMaskDisplayParkOnly = true;
+    public boolean frogMaskWarning = true;
+    public boolean frogMaskWarnForagingOnly = true;
+    public int frogMaskWarnCooldown = 60;
+    public int frogMaskX = 10;
+    public int frogMaskY = 120;
+    public float frogMaskScale = 1.0f;
+    public boolean desertTemplePuzzle = false;
+    public boolean forestTemplePuzzle = false;
+    public boolean fusionDisplay = false;
+    public int fusionDisplayX = 10;
+    public int fusionDisplayY = 60;
+    public float fusionDisplayScale = 1.0f;
+    public boolean fusionKeybinds = false;
+    public int fusionRepeatKey = -1;
+    public int fusionConfirmKey = -1;
+    public boolean beeheemothTitle = false;
+    public boolean macawTitle = false;
+    public boolean enderNodeFinder = false;
+    public String enderNodeFinderColor = "00FFFF";
+    public boolean foragingTutorialGuide = false;
     // w16-03-sla
     public boolean slayerTierLock = false;
     public String slayerTierLockLast = "";
