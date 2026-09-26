@@ -70,7 +70,9 @@ public class CroesusProfit {
         return isCroesusMenu(t) || isRunView(t) || isChestGui(t);
     }
 
-    private static boolean isCroesusMenu(String t) { return t.contains("Croesus"); }
+    private static boolean isCroesusMenu(String t) {
+        return t.contains("Croesus") || (t.contains("Vesuvius") && TeslaMapsConfig.get().croesusVesuvius);
+    }
     static boolean isRunView(String t) { return t.contains("Catacombs - Flo") || t.startsWith("Kuudra - "); }
     static boolean isChestGui(String t) { return CHEST_NAMES.contains(t.replace(" Chest", "").trim()); }
 
@@ -118,6 +120,8 @@ public class CroesusProfit {
             if (l.contains("No more chests to open!")) done = true;
             if (l.contains("No chests opened yet!")) fresh = true;
         }
+        if (!isRun && TeslaMapsConfig.get().croesusVesuvius && (done || fresh)
+                && strip(item.getHoverName().getString()).contains("Kuudra")) isRun = true;
         if (!isRun) return 0;
         if (fresh) return 1;
         if (done) return 2;

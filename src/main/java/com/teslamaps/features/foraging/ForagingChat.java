@@ -23,6 +23,7 @@ public class ForagingChat {
         ForagingTracker.onChat(message, clean);
         if (StarlynCompact.handle(clean)) return true;
 
+        spawnTitles(c, clean.trim());
         if (TreeGiftCompact.handle(message)) return true;
 
         if (c.foragingCompactSweep && Foraging.whereTreesGrow() && CompactSweep.handle(message, clean)) return true;
@@ -35,6 +36,30 @@ public class ForagingChat {
         }
 
         return handleRotatingPerk(c, clean);
+    }
+
+    private static final Pattern BEEHEEMOTH = Pattern.compile("A Beeheemoth has spawned at (.+?)!");
+
+    private static void spawnTitles(TeslaMapsConfig c, String clean) {
+        String title, sub;
+        if (c.beeheemothTitle && clean.contains("A Beeheemoth has spawned at")) {
+            Matcher m = BEEHEEMOTH.matcher(clean);
+            if (!m.find()) return;
+            title = "§6§lBEEHEEMOTH!";
+            sub = "§e" + m.group(1).trim();
+        } else if (c.macawTitle && clean.contains("Two Macaws were attracted to the Birdfeeder!")) {
+            title = "§c§lMACAWS ATTRACTED!";
+            sub = "§eForest Biome";
+        } else {
+            return;
+        }
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        mc.execute(() -> {
+            if (mc.player == null) return;
+            mc.gui.setTimes(5, 70, 20);
+            mc.gui.setSubtitle(Component.literal(sub));
+            mc.gui.setTitle(Component.literal(title));
+        });
     }
 
     /**

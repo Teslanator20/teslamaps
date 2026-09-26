@@ -517,6 +517,16 @@ public final class IslandNavigation {
         targetLabel = null;
     }
 
+    /** Path to a point on the current island; false when navigation is off or the graph is not loaded. */
+    public static boolean navigate(Vec3 pos, String label) {
+        Node[] g = graph;
+        if (!enabled() || g == null || g.length == 0) return false;
+        int n = closest(g, pos);
+        if (n < 0) return false;
+        start(List.of(new Stop(n, pos, label)), label);
+        return true;
+    }
+
     private static void stop(boolean manual) {
         if (manual && !route.isEmpty()) msg("§eNavigation stopped.");
         route = List.of();

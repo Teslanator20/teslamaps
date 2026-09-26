@@ -39,6 +39,8 @@ public final class CroesusCategory {
         b.toggle("  Kismet Feathers On Reroll Button", () -> config.croesusKismetCount, v -> config.croesusKismetCount = v)
                 .desc("Feathers in your inventory plus your Dungeon Sack (the sack count needs 'Index Opened Containers' and the sack opened once)");
         b.toggle("Highlight Unopened (green)", () -> config.croesusHighlightUnopened, v -> config.croesusHighlightUnopened = v);
+        b.toggle("  Also in Vesuvius (Kuudra)", () -> config.croesusVesuvius, v -> config.croesusVesuvius = v)
+                .desc("The run highlights (green unopened, red partly opened) also work in Vesuvius' Kuudra chest menu");
         b.toggle("Loot Logger", () -> config.lootLogger, v -> config.lootLogger = v)
                 .desc("Saves every bought dungeon chest with items, cost, key and kismet. /tmap loot [floor] [days] shows spent and profit.");
         b.label("Kuudra Chests");

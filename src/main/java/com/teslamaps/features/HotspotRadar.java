@@ -28,6 +28,7 @@ public class HotspotRadar {
     private static final double MAX_GUESS_DISTANCE = 800;
     private static final long REUSE_GUARD_MS = 200;
     private static final double SNAP_DISTANCE_SQ = 15 * 15;
+    private static final double UNKNOWN_DISTANCE = 40;
     private static final java.util.Set<String> NO_HOTSPOT_AREAS = java.util.Set.of(
             "the catacombs", "catacombs", "kuudra", "the rift", "garden", "private island", "dungeon hub");
 
@@ -76,6 +77,10 @@ public class HotspotRadar {
         if (guess == null) {
             snapped = null;
             snappedFor = null;
+            return;
+        }
+        if (mc.level != null && !mc.level.getWorldBorder().isWithinBounds(guess.x, guess.z)) {
+            reset();
             return;
         }
         if (snapped != null && guess == snappedFor) return;
@@ -166,14 +171,15 @@ public class HotspotRadar {
             return;
         }
 
-        int color = TeslaMapsConfig.parseColor(c.colorHotspot) | 0xFF000000;
+        boolean unknown = c.hotspotRadarUnknown && snapped == null && distance < UNKNOWN_DISTANCE;
+        int color = unknown ? 0xFFFF5555 : TeslaMapsConfig.parseColor(c.colorHotspot) | 0xFF000000;
         if (c.hotspotLine) {
             ESPRenderer.drawTracerFromCamera(matrices, at, color, cameraPos, true);
         }
         if (c.hotspotBeam) {
             ESPRenderer.drawBeaconBeam(matrices, net.minecraft.core.BlockPos.containing(at), color, cameraPos);
         }
-        com.teslamaps.features.waypoints.WaypointSet.drawLabel(matrices, cameraPos, "§d§lHOTSPOT", at.add(0, 1.7, 0), 1.7f);
+        com.teslamaps.features.waypoints.WaypointSet.drawLabel(matrices, cameraPos, unknown ? "§c§lUNKNOWN HOTSPOT" : "§d§lHOTSPOT", at.add(0, 1.7, 0), 1.7f);
         com.teslamaps.features.waypoints.WaypointSet.drawLabel(matrices, cameraPos, "§e" + (int) distance + "m", at.add(0, 1.2, 0), 1.0f);
     }
 

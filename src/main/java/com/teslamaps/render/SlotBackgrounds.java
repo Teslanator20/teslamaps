@@ -32,5 +32,6 @@ public class SlotBackgrounds {
         com.teslamaps.features.GardenPlotMenu.drawHighlight(context, slot);
         com.teslamaps.features.mining.FossilExcavatorSolver.drawHighlight(context, slot);
         com.teslamaps.features.foraging.ForagingBeacon.drawHighlight(context, slot);
+        com.teslamaps.features.kuudra.KuudraQol.drawSlot(context, slot);
     }
 }

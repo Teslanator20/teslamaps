@@ -45,6 +45,7 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.dungeon.puzzle.DungeonBlaze.shouldHideBlaze(entity)
                 || com.teslamaps.features.foraging.ClearTreeLogs.shouldHide(entity)
                 || com.teslamaps.features.FishingHookDisplay.shouldHide(entity)
+                || com.teslamaps.features.fishing.FishingTweaks.shouldHide(entity)
                 || com.teslamaps.features.DungeonCleanEnd.shouldHide(entity)
                 || com.teslamaps.features.SecretPickupHud.shouldHide(entity)
                 || com.teslamaps.features.MinionFeatures.shouldHide(entity)
@@ -64,7 +65,8 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.slayer.SlayerSpawnHiders.shouldHide(entity)
                 || com.teslamaps.slayer.SeraphHelper.shouldHide(entity)
                 || com.teslamaps.features.KeeperWaypoints.shouldHide(entity)
-                || com.teslamaps.features.kuudra.KuudraHider.shouldHide(entity)) {
+                || com.teslamaps.features.kuudra.KuudraHider.shouldHide(entity)
+                || com.teslamaps.features.kuudra.KuudraQol.shouldHide(entity)) {
             cir.setReturnValue(false);
         }
     }
