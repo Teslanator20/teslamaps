@@ -65,7 +65,7 @@ public final class FancyTabHud {
                 (ctx, delta) -> { if (!replacing() || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); else render(ctx); });
     }
 
-    private static boolean replacing() {
+    static boolean replacing() {
         TeslaMapsConfig c = cfg();
         if (!c.fancyTabHud || !inSkyblock || widgets.isEmpty()) return false;
         Minecraft mc = Minecraft.getInstance();
