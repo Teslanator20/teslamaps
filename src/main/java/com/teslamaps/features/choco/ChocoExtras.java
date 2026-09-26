@@ -1,6 +1,6 @@
 package com.teslamaps.features.choco;
 
-// After SkyHanni's CFTimeTowerManager, CFBarnManager, CFShopPrice, hitman/HitmanSlots, CFBlockOpen, CFKeybinds, CFTooltipCompact
+// After SkyHanni's CFTimeTowerManager, Skyblocker's TimeTowerReminder, CFBarnManager, CFShopPrice, hitman/HitmanSlots, CFBlockOpen, CFKeybinds, CFTooltipCompact
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.croesus.PriceManager;
 import com.teslamaps.features.hud.EffectTimers;
@@ -38,6 +38,8 @@ public final class ChocoExtras {
 
     static final long TT_CHARGE_MS = 8 * 3_600_000L;
 
+    private static final Pattern TOWER = Pattern.compile("^TIME TOWER! Your Chocolate Factory production has increased by \\+[\\d.]+x for (\\d+)h!$");
+    private static final Pattern CHOC_NAME = Pattern.compile("^[\\d,]+ Chocolate$");
     private static final Pattern DUPE = Pattern.compile("^DUPLICATE RABBIT! \\+([\\d,]+) Chocolate");
     private static final Pattern CRUSHED = Pattern.compile("^BARN FULL! .+ got crushed! \\+([\\d,]+) Chocolate");
     private static final Pattern COST = Pattern.compile("Cost ([\\d,]+) Chocolate");
@@ -52,8 +54,8 @@ public final class ChocoExtras {
     private static int shopWidth, ticks;
     private static boolean inShop, inHitman;
     private static String hitmanLine = "";
-    private static boolean ttWasActive, ttNewCharge, barnWarned;
-    private static long lastTtFullWarn, lastKey, lastChocClick, lastCmdBlock;
+    private static boolean ttNewCharge, barnWarned;
+    private static long lastTtFullWarn, lastKey, lastChocClick, lastCmdBlock, lastMixinHint;
 
     private ChocoExtras() {}
 
@@ -77,11 +79,10 @@ public final class ChocoExtras {
                 .hudForeground("cfshopprice", ChocoExtras::renderHud)
                 .config(ChocoData.CATEGORY, b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Chocolate Factory Extras");
                     b.toggle("Time Tower Warnings", () -> c.cfTimeTowerWarning, v -> c.cfTimeTowerWarning = v)
                             .desc("Chat line and beep when the Time Tower gets a new charge, and every 5 minutes while it is full.");
-                    b.toggle("  Time Tower Expired Reminder", () -> c.cfTimeTowerExpired, v -> c.cfTimeTowerExpired = v)
-                            .desc("Chat line when an active Time Tower runs out and charges are left.");
+                    b.toggle("Time Tower Expired Reminder", () -> c.cfTimeTowerExpired, v -> c.cfTimeTowerExpired = v)
+                            .desc("Title, chat line and beep when your Time Tower runs out, so you can use the next charge. Survives restarts.");
                     b.toggle("Barn Full Warning", () -> c.cfBarnWarning, v -> c.cfBarnWarning = v)
                             .desc("Warns when the barn is (almost) full so new rabbits don't get crushed. Barn slot red in the factory.");
                     b.slider("  Warn At Free Slots", 0, 20, () -> (float) c.cfBarnThreshold, v -> c.cfBarnThreshold = Math.round(v));
@@ -96,7 +97,7 @@ public final class ChocoExtras {
                     b.toggle("  Without Mythic Rabbit Pet", () -> c.cfBlockNoRabbit, v -> c.cfBlockNoRabbit = v);
                     b.toggle("  Without Booster Cookie", () -> c.cfBlockNoCookie, v -> c.cfBlockNoCookie = v);
                     b.toggle("  Without Hot Chocolate Mixin", () -> c.cfBlockNoMixin, v -> c.cfBlockNoMixin = v)
-                            .desc("Needs Effect Timers; open /effects once so the mixin time is known.");
+                            .desc("Needs Effect Timers; open /effects once so the mixin time is known. Unknown = only a chat hint, no block.");
                     b.toggle("Rabbit Keybinds", () -> c.cfKeybinds, v -> c.cfKeybinds = v)
                             .desc("Keys that click the 7 rabbit employees in the factory.");
                     b.keybind("  Rabbit 1", () -> c.cfKey1, v -> c.cfKey1 = v);
@@ -136,11 +137,18 @@ public final class ChocoExtras {
         long now = System.currentTimeMillis();
         TeslaMapsConfig c = cfg();
         boolean active = s.ttActiveUntil > now;
-        if (ttWasActive && !active && c.cfTimeTowerExpired && s.ttCharges > 0) {
-            ChocoData.chatOpen("§cYour Time Tower just expired and has " + s.ttCharges + " charge" + (s.ttCharges == 1 ? "" : "s") + " left. §eClick to open the factory.");
-            ChocoData.beep();
+        if (s.ttActiveUntil > 0 && !active) {
+            s.ttActiveUntil = 0;
+            ChocoData.changed();
+            if (c.cfTimeTowerExpired) {
+                Minecraft mc = Minecraft.getInstance();
+                mc.gui.setTimes(0, 50, 10);
+                mc.gui.setTitle(Component.literal("§dTime Tower ran out"));
+                String left = s.ttCharges >= 0 ? " §7(" + s.ttCharges + " charge" + (s.ttCharges == 1 ? "" : "s") + " left)" : "";
+                ChocoData.chatOpen("§dYour Time Tower has run out!" + left + " §eClick to open the factory.");
+                ChocoData.beep();
+            }
         }
-        ttWasActive = active;
         if (s.ttMax <= 0 || ChocoData.inFactory()) return;
         while (s.ttNextCharge > 0 && now >= s.ttNextCharge && s.ttCharges < s.ttMax) {
             s.ttCharges++;
@@ -182,6 +190,14 @@ public final class ChocoExtras {
         String t = StringUtil.stripTrim(raw);
         TeslaMapsConfig c = cfg();
         ChocoData.State s = ChocoData.state();
+        if (t.startsWith("TIME TOWER!")) {
+            Matcher tm = TOWER.matcher(t);
+            if (tm.matches()) {
+                s.ttActiveUntil = System.currentTimeMillis() + Long.parseLong(tm.group(1)) * 3_600_000L;
+                ChocoData.changed();
+            }
+            return;
+        }
         if (t.startsWith("NEW RABBIT!")) {
             if (s.barnCur >= 0) { s.barnCur++; ChocoData.changed(); }
             if (c.cfBarnWarning) { barnWarned = false; checkBarn(); }
@@ -303,7 +319,14 @@ public final class ChocoExtras {
             if (pet == null || !StringUtil.strip(pet).contains("Rabbit") || !"MYTHIC".equals(PetTracker.rarity())) return "§7without a §dMythic Rabbit Pet";
         }
         if (c.cfBlockNoCookie && !cookieActive()) return "§7without a §dBooster Cookie";
-        if (c.cfBlockNoMixin && EffectTimers.expiresAt("Hot Chocolate Mixin I") < System.currentTimeMillis()) return "§7without a §6Hot Chocolate Mixin";
+        if (c.cfBlockNoMixin) {
+            long exp = EffectTimers.expiresAt("Hot Chocolate Mixin I"), now = System.currentTimeMillis();
+            if (c.effectTimers && exp > 0 && exp < now) return "§7without a §6Hot Chocolate Mixin";
+            if ((!c.effectTimers || exp <= 0) && now - lastMixinHint > 5 * 60_000L) {
+                lastMixinHint = now;
+                ChocoData.chat("§eHot Chocolate Mixin unknown §7(turn on Effect Timers, open /effects once)§e, not blocking.");
+            }
+        }
         return null;
     }
 
@@ -317,12 +340,13 @@ public final class ChocoExtras {
     /** From HandledScreenClickMixin.slotClicked; true cancels. */
     public static boolean onSlotClick(AbstractContainerScreen<?> cs, Slot slot, int button, ContainerInput type) {
         if (slot == null || slot.container instanceof Inventory || !cfg().section(ChocoData.CATEGORY)) return false;
+        if (!cfg().cfBlockOpen && !ChocoData.anyEnabled()) return false;
         if (ChocoStrays.blockClick(slot)) return true;
         ChocoReminder.onSlotClick(slot, button);
         ItemStack st = slot.getItem();
         if (st.isEmpty()) return false;
         String name = StringUtil.stripTrim(st.getHoverName().getString());
-        if (ChocoData.inFactory() && name.endsWith(" Chocolate") && name.matches("^[\\d,]+ Chocolate$")) lastChocClick = System.currentTimeMillis();
+        if (ChocoData.inFactory() && name.endsWith(" Chocolate") && CHOC_NAME.matcher(name).matches()) lastChocClick = System.currentTimeMillis();
         if (cfg().cfBlockOpen && SkyblockUtils.isInSkyblock() && (name.equals("Chocolate Factory") || name.equals("Open Chocolate Factory"))
                 && !StringUtil.stripTrim(cs.getTitle().getString()).contains("Enchanted Clock")) {
             String why = missing();

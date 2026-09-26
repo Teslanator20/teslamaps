@@ -6,7 +6,6 @@ import com.google.gson.GsonBuilder;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.NumberUtil;
 import com.teslamaps.utils.ProfiledFile;
@@ -116,7 +115,6 @@ public final class ChocoData {
     }
 
     public static void register() {
-        FeatureRegistry.category(CATEGORY, "Skyblock", true);
         Feature.of("ChocoData").section(CATEGORY).when(ChocoData::anyEnabled).tickAlways(ChocoData::tick);
     }
 
