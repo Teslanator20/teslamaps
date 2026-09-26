@@ -35,11 +35,6 @@ public class ChatMixin {
 
     @Unique
     private static Component teslamaps$rewrite(Component message) {
-        Component decrypted = com.teslamaps.features.ChatEncryption.decode(message);
-        if (decrypted != null) {
-            com.teslamaps.features.ChatLog.noteRewrite("encryptedChat");
-            message = decrypted;
-        }
         Component shared = com.teslamaps.features.SharedImageChat.decorate(message);
         if (shared != null) {
             com.teslamaps.features.ChatLog.noteRewrite("sharedImage");

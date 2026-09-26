@@ -583,7 +583,6 @@ final class Features {
         com.teslamaps.features.DianaPartyFinder.register();
         com.teslamaps.features.PositionalMessages.register();
         // w11-00-chat
-        com.teslamaps.features.ChatEncryption.register();
         // w12-08-eco
         com.teslamaps.features.AnitaShop.register();
         com.teslamaps.features.BazaarHelpers.register();

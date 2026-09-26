@@ -111,8 +111,6 @@ public final class ChatCategory {
                 .desc("Clicking the [TeslaMaps] tag of a mod message opens this config screen").tags("prefix", "click");
         b.toggle("Full Chat Chroma", () -> config.fullChatChroma, v -> config.fullChatChroma = v)
                 .desc("All visible chat text cycles through chroma");
-        b.toggle("Encrypted Chat", () -> config.chatEncrypt, v -> config.chatEncrypt = v)
-                .desc("Your chat and /pc /gc /msg text is sent encrypted; only TeslaMaps users can read it. Same as /tmap encrypt on|off. Incoming encrypted lines are always decrypted.");
         b.color("Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v);
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);
         b.dropdown("  Prefix Text", com.teslamaps.features.ChromaPrefix.STYLES,
