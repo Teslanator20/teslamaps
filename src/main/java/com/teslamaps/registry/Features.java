@@ -840,5 +840,12 @@ final class Features {
         com.teslamaps.slayer.CallMaddox.register();
         com.teslamaps.slayer.VoidgloomBeacon.register();
         com.teslamaps.features.theend.EndermanQol.register();
+        // w17-04-for
+        com.teslamaps.safari.SafariCenterNames.register();
+        com.teslamaps.features.foraging.ParkRainTimer.register();
+        com.teslamaps.features.TalbotTheodolite.register();
+        com.teslamaps.features.mobvisuals.MobVisualExtras.register();
+        com.teslamaps.features.foraging.HotfWhisperGoal.register();
+        com.teslamaps.features.hunting.HuntingBoxSlots.register();
     }
 }

@@ -163,6 +163,11 @@ public class ChatMixin {
         if (fromServer && cfg.section("Critter Safari")) {
             com.teslamaps.safari.SafariTracker.onChatMessage(text);
             com.teslamaps.safari.SafariTracker.onChatComponent(message);
+            if (com.teslamaps.safari.SafariSummary.hide(text)) {
+                teslamaps$reason = "safariSummary";
+                ci.cancel();
+                return;
+            }
         }
 
         if (fromServer && cfg.section("ESP")) com.teslamaps.features.HoppityEggESP.onChatMessage(text);

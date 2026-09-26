@@ -2148,6 +2148,27 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w17-04-for
+    public boolean safariSummaryLine = false;
+    public boolean safariCenterNames = false;
+    public boolean parkRainTimer = false;
+    public int parkRainTimerX = 10;
+    public int parkRainTimerY = 200;
+    public float parkRainTimerScale = 1.0f;
+    public boolean theodoliteCircles = false;
+    public boolean mobVisualInvisibugBox = false;
+    public String colorInvisibugBox = "80FF55FF";
+    public boolean mobVisualHideCaught = false;
+    public java.util.Set<String> mobVisualKeepShown = new java.util.HashSet<>();
+    public boolean mobVisualCapsuleCount = false;
+    public boolean hotxCurrencyToMax = false;
+    public boolean hotfWhisperGoal = false;
+    public boolean hotfWhisperGoalTitle = true;
+    public boolean hotfWhisperGoalRepeat = false;
+    public int hotfWhisperGoalInterval = 5;
+    public java.util.Map<String, String> hotfWhisperGoals = new java.util.HashMap<>();
+    public boolean huntingBoxSlotCount = false;
+    public boolean huntingBoxPriceTooltip = false;
     // w16-03-sla
     public boolean slayerTierLock = false;
     public String slayerTierLockLast = "";
@@ -5944,6 +5965,9 @@ public class TeslaMapsConfig {
         if (c.markedPlayersChatColor == null) c.markedPlayersChatColor = "FFFF55";
         if (c.savedButtonPresets == null) c.savedButtonPresets = new java.util.LinkedHashMap<>();
         if (c.mobVisualTargets == null) c.mobVisualTargets = new java.util.HashSet<>();
+        if (c.mobVisualKeepShown == null) c.mobVisualKeepShown = new java.util.HashSet<>();
+        if (c.hotfWhisperGoals == null) c.hotfWhisperGoals = new java.util.HashMap<>();
+        if (c.colorInvisibugBox == null) c.colorInvisibugBox = "80FF55FF";
         if (c.hotmPlanBase == null) c.hotmPlanBase = new java.util.HashMap<>();
         if (c.hotfPlanBase == null) c.hotfPlanBase = new java.util.HashMap<>();
         if (c.hotmPlanTarget == null) c.hotmPlanTarget = new java.util.HashMap<>();
