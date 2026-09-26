@@ -78,6 +78,7 @@ public class ClientPlayNetworkHandlerMixin {
     private void onParticle(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
         WitherDragons.onParticlePacket(packet);
         com.teslamaps.safari.SafariTracker.onParticlePacket(packet);
+        com.teslamaps.safari.SparklingFocus.onParticlePacket(packet);
         com.teslamaps.features.HotspotRadar.onParticlePacket(packet);
         com.teslamaps.features.SecretTrackerLocator.onParticle(packet);
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
@@ -89,6 +90,8 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.garden.PestGuess.onParticle(packet);
         com.teslamaps.features.mining.WishingCompassSolver.onParticle(packet);
         com.teslamaps.features.mining.PrecisionMiningHighlight.onParticle(packet);
+        com.teslamaps.features.theend.EnderNodeFinder.onParticle(packet);
+        com.teslamaps.features.GeyserBox.onParticle(packet);
     }
 
     @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",
@@ -112,7 +115,8 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet)
                     || com.teslamaps.features.garden.PestGuess.hideParticle(packet)
                     || com.teslamaps.slayer.InfernoHelper.hideParticle()
-                    || com.teslamaps.slayer.SlayerSpawnHiders.hideParticle(packet))) ci.cancel();
+                    || com.teslamaps.slayer.SlayerSpawnHiders.hideParticle(packet)
+                    || com.teslamaps.features.GeyserBox.hideParticle(packet))) ci.cancel();
     }
 
     @Inject(method = "handleInitializeBorder", at = @At("HEAD"))

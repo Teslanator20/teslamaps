@@ -2148,6 +2148,73 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w17-02-for
+    public boolean frogMask = false;
+    public boolean frogMaskDisplay = true;
+    public boolean frogMaskDisplayParkOnly = true;
+    public boolean frogMaskWarning = true;
+    public boolean frogMaskWarnForagingOnly = true;
+    public int frogMaskWarnCooldown = 60;
+    public int frogMaskX = 10;
+    public int frogMaskY = 120;
+    public float frogMaskScale = 1.0f;
+    public boolean desertTemplePuzzle = false;
+    public boolean forestTemplePuzzle = false;
+    public boolean fusionDisplay = false;
+    public int fusionDisplayX = 10;
+    public int fusionDisplayY = 60;
+    public float fusionDisplayScale = 1.0f;
+    public boolean fusionKeybinds = false;
+    public int fusionRepeatKey = -1;
+    public int fusionConfirmKey = -1;
+    public boolean beeheemothTitle = false;
+    public boolean macawTitle = false;
+    public boolean enderNodeFinder = false;
+    public String enderNodeFinderColor = "00FFFF";
+    public boolean foragingTutorialGuide = false;
+    // w17-08-fis
+    public boolean fishingChat = false;
+    public boolean fishingChatShort = true;
+    public boolean fishingChatMergeDh = true;
+    public String fishingChatDhPosition = "Left";
+    public boolean fishingChatHide = false;
+    public boolean fishingChatDhSound = false;
+    public String fishingChatDhSoundId = "NOTE_PLING";
+    public float fishingChatDhVolume = 1.0f;
+    public boolean fishedItemNames = false;
+    public boolean fishedItemNamesBait = false;
+    public boolean legionBobbin = false;
+    public boolean legionBobbinOnlyEnchanted = false;
+    public int legionBobbinX = 10;
+    public int legionBobbinY = 200;
+    public float legionBobbinScale = 1.0f;
+    public boolean chargeBottleNotice = false;
+    public boolean geyserBox = false;
+    public String colorGeyserBox = "#80FF5555";
+    public boolean geyserBoxLavaRod = true;
+    public boolean geyserBoxHideParticles = false;
+    public boolean lootshareSphere = false;
+    public String lootshareSphereRarity = "Rare Flag";
+    public boolean lotusPity = false;
+    public int lotusPityX = 10;
+    public int lotusPityY = 220;
+    public float lotusPityScale = 1.0f;
+    @Global
+    public java.util.Map<String, int[]> lotusPityData = new java.util.HashMap<>();
+    @Global
+    public String lotusPityLast = "";
+    // w17-06-for
+    public boolean foragingGiftTotals = false;
+    public boolean foragingMutePhantomsSafari = false;
+    public boolean safariScrappyFish = false;
+    public boolean safariScrappyFishStopCaught = true;
+    public com.teslamaps.render.EspStyle safariScrappyFishStyle = new com.teslamaps.render.EspStyle("55FFFF", com.teslamaps.render.EspStyle.GLOW);
+    public boolean safariSparklingHud = false;
+    public int safariSparklingHudX = 200;
+    public int safariSparklingHudY = 60;
+    public float safariSparklingHudScale = 1.5f;
+    public boolean safariSparklingFocus = false;
+    public boolean safariSparklingOutside = false;
     // w16-08-kuu
     public boolean kuudraProfitTracker = false;
     public boolean kuudraProfitEverywhere = false;
@@ -5867,6 +5934,8 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.lotusPityData == null) c.lotusPityData = new java.util.HashMap<>();
+        c.lotusPityData.values().removeIf(v -> v == null || v.length < 4);
         if (c.slayerBossesSinceRng == null) c.slayerBossesSinceRng = new java.util.HashMap<>();
         if (c.slayerLastRngMs == null) c.slayerLastRngMs = new java.util.HashMap<>();
         if (c.slayerNametagMode == null) c.slayerNametagMode = "Own + Carries";
