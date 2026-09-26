@@ -78,6 +78,7 @@ public class ContainerOverlays {
         com.teslamaps.features.bazaar.ManageAuctions.render(context);
         com.teslamaps.features.bazaar.BazaarPurchaseHelper.render(context);
         com.teslamaps.features.ProgressHighlight.render(context);
+        com.teslamaps.features.BestiaryMenuData.render(context, mouseX, mouseY);
         com.teslamaps.features.DevTools.render(context);
         com.teslamaps.features.HideNotClickable.render(context);
         com.teslamaps.features.QuickCraftConfirm.render(context);
