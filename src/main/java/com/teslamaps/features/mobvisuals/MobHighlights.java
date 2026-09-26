@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Special/Chest Zealots, Zealots and Bruisers, Runic and Corrupted mobs, Arachne's Keeper glow. */
+/** Chest Zealots, Zealots and Bruisers, Runic and Corrupted mobs, Arachne's Keeper glow. */
 public final class MobHighlights {
 
-    private static final int SPECIAL = 0xAA0000, CHEST = 0x55FF55, ZEALOT = 0x00AAAA,
+    private static final int CHEST = 0x55FF55, ZEALOT = 0x00AAAA,
             RUNIC = 0xFF55FF, CORRUPTED = 0xAA00AA, KEEPER = 0x0000AA;
     private static final TextColor PURPLE = TextColor.fromLegacyFormat(ChatFormatting.DARK_PURPLE);
 
@@ -46,15 +46,14 @@ public final class MobHighlights {
                 .tick(MobHighlights::tick)
                 .config("Mob Visuals", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.toggle("  Mob Highlights", () -> c.mobHighlights, v -> c.mobHighlights = v)
-                            .desc("Glow for special mobs, each one switchable")
+                    b.toggle("Mob Highlights", () -> c.mobHighlights, v -> c.mobHighlights = v).legit()
+                            .desc("Glow for special mobs, each one switchable. Special Zealots: The End > Special Zealot Highlight")
                             .tags("zealot", "special zealot", "chest zealot", "bruiser", "runic", "corrupted", "arachne", "keeper");
-                    b.toggle("    Special Zealot (portal frame)", () -> c.mobHighlightSpecialZealot, v -> c.mobHighlightSpecialZealot = v);
-                    b.toggle("    Chest Zealot", () -> c.mobHighlightChestZealot, v -> c.mobHighlightChestZealot = v);
-                    b.toggle("    Zealots & Bruisers", () -> c.mobHighlightZealot, v -> c.mobHighlightZealot = v);
-                    b.toggle("    Runic Mobs", () -> c.mobHighlightRunic, v -> c.mobHighlightRunic = v);
-                    b.toggle("    Corrupted Mobs", () -> c.mobHighlightCorrupted, v -> c.mobHighlightCorrupted = v);
-                    b.toggle("    Arachne's Keeper", () -> c.mobHighlightArachneKeeper, v -> c.mobHighlightArachneKeeper = v);
+                    b.toggle("  Chest Zealot", () -> c.mobHighlightChestZealot, v -> c.mobHighlightChestZealot = v);
+                    b.toggle("  Zealots & Bruisers", () -> c.mobHighlightZealot, v -> c.mobHighlightZealot = v);
+                    b.toggle("  Runic Mobs", () -> c.mobHighlightRunic, v -> c.mobHighlightRunic = v);
+                    b.toggle("  Corrupted Mobs", () -> c.mobHighlightCorrupted, v -> c.mobHighlightCorrupted = v);
+                    b.toggle("  Arachne's Keeper", () -> c.mobHighlightArachneKeeper, v -> c.mobHighlightArachneKeeper = v);
                 });
     }
 
@@ -73,13 +72,12 @@ public final class MobHighlights {
         TeslaMapsConfig c = cfg();
         List<Mark> out = new ArrayList<>();
 
-        if (EndProtector.inArea() && (c.mobHighlightSpecialZealot || c.mobHighlightChestZealot || c.mobHighlightZealot)) {
+        if (EndProtector.inArea() && (c.mobHighlightChestZealot || c.mobHighlightZealot)) {
             for (EnderMan e : EntityCache.byType(EnderMan.class)) {
                 if (e.isRemoved() || e.isDeadOrDying()) continue;
                 BlockState held = e.getCarriedBlock();
-                if (held != null && held.is(Blocks.END_PORTAL_FRAME)) {
-                    if (c.mobHighlightSpecialZealot) out.add(new Mark(e, SPECIAL));
-                } else if (held != null && held.is(Blocks.ENDER_CHEST)) {
+                if (held != null && held.is(Blocks.END_PORTAL_FRAME)) continue;
+                if (held != null && held.is(Blocks.ENDER_CHEST)) {
                     if (c.mobHighlightChestZealot) out.add(new Mark(e, CHEST));
                 } else if (c.mobHighlightZealot && zealotOrBruiser(e)) {
                     out.add(new Mark(e, ZEALOT));

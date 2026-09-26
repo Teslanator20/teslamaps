@@ -1090,5 +1090,7 @@ final class Features {
         // w20-06-cheat
         com.teslamaps.features.hunting.AutoReelLasso.register();
         com.teslamaps.features.AutoSprint.register();
+        // review-w20
+        com.teslamaps.features.DeadMobHider.register();
     }
 }

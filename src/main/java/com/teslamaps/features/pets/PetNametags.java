@@ -5,14 +5,13 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.ChatText;
 import com.teslamaps.utils.StringUtil;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +21,7 @@ public final class PetNametags {
 
     private record Parsed(Component src, boolean pet, String name, Component rewritten) {}
 
-    private static final Map<Integer, Parsed> CACHE = new HashMap<>();
+    private static final Int2ObjectOpenHashMap<Parsed> CACHE = new Int2ObjectOpenHashMap<>();
 
     private static Feature feature;
     private static Object lastLevel;
