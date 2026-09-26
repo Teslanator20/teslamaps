@@ -18,6 +18,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,6 +27,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,6 +68,11 @@ public final class TrevorTrapper {
     private static int ticks;
     private static Object lastLevel;
     private static HudEditElement hud;
+    private static boolean callPending;
+    private static long callAt;
+    private static volatile String acceptCmd;
+    private static volatile long acceptAt;
+    private static volatile long lastTrevorLine;
 
     private TrevorTrapper() {}
 
@@ -81,7 +88,7 @@ public final class TrevorTrapper {
                 .size(() -> Minecraft.getInstance().font.width(SAMPLE), () -> 9)
                 .scaleRange(0.5f, 4f)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, SAMPLE));
-        Feature.of("TrevorTrapper").section("Garden").when(() -> cfg().trevorHelper)
+        Feature.of("TrevorTrapper").section("Garden").when(() -> cfg().trevorHelper || autoOn())
                 .tick(TrevorTrapper::tick)
                 .serverChat(TrevorTrapper::onChat)
                 .world(TrevorTrapper::render)
@@ -105,7 +112,62 @@ public final class TrevorTrapper {
                             .desc("Position in /tmap gui");
                     b.keybind("  Warp To Trapper Key", () -> c.trevorWarpKey, v -> c.trevorWarpKey = v)
                             .desc("Sends /warp trapper when pressed");
+                    b.toggle("Trevor Auto Call & Accept", () -> c.trevorAuto, v -> c.trevorAuto = v).cheat()
+                            .desc("Calls Trevor once his cooldown is over after a finished hunt, and clicks [YES] on his quest prompt")
+                            .tags("trevor", "trapper", "call", "accept", "auto");
+                    b.toggle("  Auto Call", () -> c.trevorAutoCall, v -> c.trevorAutoCall = v);
+                    b.toggle("  Auto Accept Quest", () -> c.trevorAutoAccept, v -> c.trevorAutoAccept = v);
+                    b.slider("  Delay (ms)", 250f, 3000f, () -> (float) c.trevorAutoDelay, v -> c.trevorAutoDelay = Math.round(v), 0);
+                    b.slider("  Random Extra (ms)", 0f, 3000f, () -> (float) c.trevorAutoRandom, v -> c.trevorAutoRandom = Math.round(v), 0);
                 });
+    }
+
+    private static boolean autoOn() {
+        return cfg().trevorAuto && !LegitMode.blocksCheats();
+    }
+
+    private static long autoDelay() {
+        TeslaMapsConfig c = cfg();
+        int extra = c.trevorAutoRandom > 0 ? ThreadLocalRandom.current().nextInt(c.trevorAutoRandom + 1) : 0;
+        return Math.max(250, c.trevorAutoDelay) + extra;
+    }
+
+    private static void tickAuto(Minecraft mc, long now) {
+        TeslaMapsConfig c = cfg();
+        if (!autoOn() || mc.getConnection() == null) {
+            callPending = false;
+            callAt = 0;
+            acceptCmd = null;
+            return;
+        }
+        if (acceptCmd != null && now >= acceptAt) {
+            if (c.trevorAutoAccept && now - acceptAt < 10_000 && !questActive) mc.getConnection().sendCommand(acceptCmd);
+            acceptCmd = null;
+        }
+        if (!callPending || !c.trevorAutoCall || questActive || now < nextReady) {
+            callAt = 0;
+            return;
+        }
+        if (callAt == 0) callAt = now + autoDelay();
+        if (now < callAt) return;
+        callPending = false;
+        callAt = 0;
+        mc.getConnection().sendCommand("call Trevor");
+    }
+
+    public static void onChatComponent(Component message) {
+        if (!autoOn() || !cfg().trevorAutoAccept || !onIsland()) return;
+        String t = StringUtil.stripTrim(message.getString());
+        if (!t.contains("[YES]") || !t.contains("Click an option")) return;
+        if (System.currentTimeMillis() - lastTrevorLine > 5000) return;
+        for (Component part : message.toFlatList()) {
+            if (!(part.getStyle().getClickEvent() instanceof ClickEvent.RunCommand run)) continue;
+            String cmd = run.command();
+            if (!cmd.contains("YES")) continue;
+            acceptCmd = cmd.startsWith("/") ? cmd.substring(1) : cmd;
+            acceptAt = System.currentTimeMillis() + autoDelay();
+            return;
+        }
     }
 
     private static void tick() {
@@ -117,10 +179,14 @@ public final class TrevorTrapper {
         if (!onIsland()) {
             keyDown = false;
             cooldownLine = null;
+            callPending = false;
+            acceptCmd = null;
             return;
         }
         TeslaMapsConfig c = cfg();
         long now = System.currentTimeMillis();
+        tickAuto(mc, now);
+        if (!c.trevorHelper) return;
 
         boolean down = mc.screen == null && KeyNames.isDown(c.trevorWarpKey);
         if (down && !keyDown && now - lastWarp > 3000 && mc.getConnection() != null) {
@@ -189,11 +255,13 @@ public final class TrevorTrapper {
         if (!onIsland()) return;
         String s = StringUtil.stripTrim(text);
         TeslaMapsConfig c = cfg();
+        if (s.startsWith("[NPC] Trevor: ")) lastTrevorLine = System.currentTimeMillis();
         if (s.equals("Return to the Trapper soon to get a new animal to hunt!")) {
             resetSolver();
             questActive = false;
             area = null;
-            if (c.trevorMobDiedTitle) title("§2Mob Died");
+            if (autoOn() && c.trevorAutoCall) callPending = true;
+            if (c.trevorHelper && c.trevorMobDiedTitle) title("§2Mob Died");
             return;
         }
         if (s.equals("You ran out of time and the animal disappeared!")) {
@@ -209,6 +277,8 @@ public final class TrevorTrapper {
         }
         Matcher m = QUEST.matcher(s);
         if (m.matches()) {
+            callPending = false;
+            acceptCmd = null;
             nextReady = System.currentTimeMillis() + 20_000;
             readyPending = true;
             questActive = true;
@@ -244,7 +314,7 @@ public final class TrevorTrapper {
 
     private static void render(PoseStack pose, Vec3 cam) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || !onIsland()) return;
+        if (mc.player == null || !onIsland() || !cfg().trevorHelper) return;
         TeslaMapsConfig c = cfg();
         float pt = mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
         LivingEntity t = target;
@@ -274,7 +344,7 @@ public final class TrevorTrapper {
     private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
         String l = cooldownLine;
         Minecraft mc = Minecraft.getInstance();
-        if (l == null || hud == null || !cfg().trevorCooldownHud || mc.options.hideGui) return;
+        if (l == null || hud == null || !cfg().trevorHelper || !cfg().trevorCooldownHud || mc.options.hideGui) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 
@@ -301,6 +371,9 @@ public final class TrevorTrapper {
 
     private static void reset() {
         resetSolver();
+        callPending = false;
+        callAt = 0;
+        acceptCmd = null;
         questActive = false;
         area = null;
         trevor = null;

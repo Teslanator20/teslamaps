@@ -154,7 +154,7 @@ public class LassoDisplay {
         if (mc.player != null) mc.player.sendSystemMessage(Component.literal(msg));
     }
 
-    private static boolean holdingLasso(ItemStack stack) {
+    public static boolean holdingLasso(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return false;
         if (ItemUtil.skyblockId(stack).toUpperCase(Locale.ROOT).contains("LASSO")) return true;
         return StringUtil.stripTrim(stack.getHoverName().getString()).toLowerCase(Locale.ROOT).contains("lasso");

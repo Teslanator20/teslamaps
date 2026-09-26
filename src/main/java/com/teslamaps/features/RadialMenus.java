@@ -40,7 +40,8 @@ public final class RadialMenus {
         STORAGE("storage", "Storage", "storage", BASIC_NAV),
         COLLECTIONS("collections", "Collections", ".*collections", BASIC_NAV),
         HUNTING("huntingToolkit", "Hunting Toolkit", "hunting toolkit", BASIC_NAV),
-        FARMING("farmingToolkit", "Farming Toolkit", "farming toolkit", BASIC_NAV);
+        FARMING("farmingToolkit", "Farming Toolkit", "farming toolkit", BASIC_NAV),
+        PETS("pets", "Pets", "(\\(\\d+/\\d+\\) )?pets", new String[]{"Go Back", "Close", "Next Page", "Previous Page"});
 
         final String id, label;
         final Pattern title;
@@ -69,6 +70,9 @@ public final class RadialMenus {
                         && slot != 4 && slot != 22;
                 case COLLECTIONS -> slot != 4 && !black;
                 case HUNTING, FARMING -> slot != 41 && !black && !path.equals("gray_dye");
+                case PETS -> !black && (slot >= 45 ? s.is(Items.ARROW) || s.is(Items.BARRIER)
+                        : slot % 9 != 0 && slot % 9 != 8 && slot > 9
+                        && (!TeslaMapsConfig.get().petWheelFavoritesOnly || com.teslamaps.features.pets.PetMenus.isFavorite(s)));
                 default -> !black;
             };
         }

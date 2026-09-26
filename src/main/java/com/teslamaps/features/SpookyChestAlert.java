@@ -3,7 +3,6 @@ package com.teslamaps.features;
 // After SkyHanni's event/spook/SpookyChestAlert.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -16,7 +15,6 @@ public final class SpookyChestAlert {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         Feature.of("SpookyChestAlert").section("Events").when(() -> cfg().spookyChestAlert)
                 .serverChat(SpookyChestAlert::onChat)
                 .config("Events", b -> {

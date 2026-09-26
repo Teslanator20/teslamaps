@@ -220,6 +220,12 @@ public class HandledScreenClickMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.pets.PetKeybinds.handleMouse((AbstractContainerScreen<?>) (Object) this, click)
+                || com.teslamaps.features.pets.PetMenus.click((AbstractContainerScreen<?>) (Object) this, mouseX, mouseY, button)) {
+            teslamaps$ate("PetKeybinds", button);
+            cir.setReturnValue(true);
+            return;
+        }
 
         // Binds live in one int for both devices, so a mouse-bound slot bind or slot lock has to
         // reach the same handlers ContainerKeyMixin calls for keyboard binds.

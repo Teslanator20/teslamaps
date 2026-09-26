@@ -22,5 +22,6 @@ public class LoreSlotTextMixin {
         com.teslamaps.features.mining.HotmPerks.drawLevel(ctx, slot);
         com.teslamaps.features.foraging.ForagingBeacon.drawSlot(ctx, slot);
         com.teslamaps.features.hunting.HuntingBoxSlots.drawSlot(ctx, slot);
+        com.teslamaps.features.pets.PetMenus.drawSlot(ctx, slot);
     }
 }
