@@ -840,5 +840,13 @@ final class Features {
         com.teslamaps.slayer.CallMaddox.register();
         com.teslamaps.slayer.VoidgloomBeacon.register();
         com.teslamaps.features.theend.EndermanQol.register();
+        // w17-08-fis
+        com.teslamaps.features.FishingChat.register();
+        com.teslamaps.features.FishedItemNames.register();
+        com.teslamaps.features.LegionBobbinOverlay.register();
+        com.teslamaps.features.ChargeBottleNotice.register();
+        com.teslamaps.features.GeyserBox.register();
+        com.teslamaps.features.LootshareSphere.register();
+        com.teslamaps.features.LotusPity.register();
     }
 }
