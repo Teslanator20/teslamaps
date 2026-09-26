@@ -47,6 +47,11 @@ public class SoundPlayMixin {
                 com.teslamaps.features.foraging.ForagingBeacon.onSound(instance.getIdentifier().toString(), instance.getPitch());
             } catch (Throwable ignored) {}
         }
+        if (com.teslamaps.features.fishing.Wormholes.listening()) {
+            try {
+                com.teslamaps.features.fishing.Wormholes.onSound(instance.getIdentifier().toString(), instance.getPitch());
+            } catch (Throwable ignored) {}
+        }
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.phantomleafSolver) {
             try {

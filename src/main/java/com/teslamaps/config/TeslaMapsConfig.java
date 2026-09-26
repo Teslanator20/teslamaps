@@ -2175,6 +2175,98 @@ public class TeslaMapsConfig {
     public boolean lobbyHalloweenBaskets = true;
     public boolean lobbyPresents = true;
     public boolean lobbyWaypointsOnlyClosest = false;
+    // w18-09-evt
+    public boolean hoppityUnclaimedEggs = false;
+    public boolean hoppityUnclaimedWarn = true;
+    public boolean hoppityUnclaimedWhileBusy = false;
+    public String hoppityUnclaimedWarp = "nest";
+    public int hoppityUnclaimedX = 10;
+    public int hoppityUnclaimedY = 140;
+    public float hoppityUnclaimedScale = 1.0f;
+    @Global
+    public java.util.Map<String, Long> hoppityMealClaimed = new java.util.HashMap<>();
+    public boolean timeTowerReminder = false;
+    @Global
+    public long timeTowerEndsAt = 0L;
+    public boolean uniqueGiftHighlight = false;
+    public boolean uniqueGiftHoldingOnly = false;
+    public boolean uniqueGiftNametag = true;
+    public String uniqueGiftColor = "00AA00";
+    public boolean uniqueGiftCounter = false;
+    public int uniqueGiftCounterX = 10;
+    public int uniqueGiftCounterY = 180;
+    public float uniqueGiftCounterScale = 1.0f;
+    @Global
+    public int uniqueGiftAmount = 0;
+    @Global
+    public java.util.List<String> uniqueGiftedPlayers = new java.util.ArrayList<>();
+    public boolean sphinxHelper = false;
+    public boolean spookyChestAlert = false;
+    public boolean spookyChestCompact = false;
+    public boolean spookyChestSound = true;
+    public boolean spookyCandyDisplay = false;
+    public int spookyCandyX = 10;
+    public int spookyCandyY = 220;
+    public float spookyCandyScale = 1.0f;
+    public boolean sharkCounter = false;
+    public int sharkCounterX = 10;
+    public int sharkCounterY = 240;
+    public float sharkCounterScale = 1.0f;
+    // w18-07-evt
+    public boolean mayorOverlayJerry = false;
+    @Global
+    public String jerryMayorName = "";
+    @Global
+    public long jerryMayorUntil = 0L;
+    public boolean gaiaConstructHits = false;
+    public boolean hoppityRabbitFish = false;
+    public boolean hoppityShopHighlight = false;
+    public boolean hoppityShopReminder = false;
+    public int hoppityShopYear = -1;
+    public boolean hoppityPetWarning = false;
+    public String hoppityEggSounds = "Normal";
+    public boolean hoppityEggShare = false;
+    public String hoppityEggShareChannel = "All";
+    public boolean hoppityPlayerTransparency = false;
+    public float hoppityPlayerOpacity = 30f;
+    // w18-00-fis
+    public boolean thunderSparkHighlight = false;
+    public String colorThunderSpark = "#80FFFF55";
+    public boolean seaCreatureCocoonWarn = false;
+    public String seaCreatureCocoonRarity = "Any";
+    public String seaCreatureCocoonChannel = "Nobody";
+    public boolean seaCreatureKillTime = false;
+    public String seaCreatureKillTimeRarity = "Any";
+    public boolean wormholeHelper = false;
+    public boolean wormholeFill = true;
+    public boolean wormholeRim = true;
+    public boolean wormholeHideParticles = false;
+    public String colorWormhole = "#80AA00AA";
+    public boolean wormholeDespawnWarn = true;
+    public boolean wormholeFroggles = true;
+    public boolean wormholeClosedAlert = true;
+    public boolean sulphurSkitterBox = false;
+    public String sulphurSkitterBoxType = "Filled";
+    public String colorSulphurSkitterBox = "#40FFFF55";
+    public boolean sulphurSkitterBoxLavaRod = false;
+    public boolean odgerHelper = false;
+    public boolean odgerTotal = true;
+    public boolean odgerWaypoint = true;
+    public boolean trophyFilletTooltip = true;
+    public boolean trophyFilletPanel = true;
+    public boolean trophyDiamondEffect = false;
+    // w18-01-fis
+    public boolean translucentLavaCrimsonOnly = false;
+    public float hookWorldLabelScale = 1.0f;
+    public boolean rareCatchAlertOthers = false;
+    public boolean seaCreatureHealthHud = false;
+    public boolean seaCreatureHealthRareOnly = true;
+    public int seaCreatureHealthLimit = 5;
+    public int seaCreatureHealthHudX = 10;
+    public int seaCreatureHealthHudY = 250;
+    public float seaCreatureHealthHudScale = 1.0f;
+    public boolean muteBanshee = false;
+    public boolean muteCastSound = false;
     // w17-09-fis
     public boolean coralFishHelper = false;
     public boolean fishingProgressHud = false;
@@ -6170,6 +6262,11 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.hoppityMealClaimed == null) c.hoppityMealClaimed = new java.util.HashMap<>();
+        c.hoppityMealClaimed.values().removeIf(java.util.Objects::isNull);
+        if (c.hoppityUnclaimedWarp == null) c.hoppityUnclaimedWarp = "nest";
+        if (c.uniqueGiftedPlayers == null) c.uniqueGiftedPlayers = new java.util.ArrayList<>();
+        if (c.uniqueGiftColor == null) c.uniqueGiftColor = "00AA00";
         if (c.lotusPityData == null) c.lotusPityData = new java.util.HashMap<>();
         c.lotusPityData.values().removeIf(v -> v == null || v.length < 4);
         if (c.slayerBossesSinceRng == null) c.slayerBossesSinceRng = new java.util.HashMap<>();
@@ -6352,6 +6449,9 @@ public class TeslaMapsConfig {
         if (c.recentPlayers == null) c.recentPlayers = new ArrayList<>();
         if (c.hiddenCoopMembers == null) c.hiddenCoopMembers = new ArrayList<>();
         if (c.hoppityUniqueEggs == null) c.hoppityUniqueEggs = new java.util.HashMap<>();
+        if (c.jerryMayorName == null) c.jerryMayorName = "";
+        if (c.hoppityEggSounds == null) c.hoppityEggSounds = "Normal";
+        if (c.hoppityEggShareChannel == null) c.hoppityEggShareChannel = "All";
         if (c.guildNames == null) c.guildNames = new ArrayList<>();
         if (c.friendNames == null) c.friendNames = new ArrayList<>();
         if (c.bestFriendNames == null) c.bestFriendNames = new ArrayList<>();

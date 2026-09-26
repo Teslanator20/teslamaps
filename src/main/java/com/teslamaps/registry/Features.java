@@ -923,5 +923,25 @@ final class Features {
         com.teslamaps.features.FruitBowlHelper.register();
         com.teslamaps.features.CarnivalDojoGlow.register();
         com.teslamaps.features.LobbyEventWaypoints.register();
+        // w18-09-evt
+        com.teslamaps.features.HoppityUnclaimedEggs.register();
+        com.teslamaps.features.TimeTowerReminder.register();
+        com.teslamaps.features.UniqueGifting.register();
+        com.teslamaps.features.SphinxHelper.register();
+        com.teslamaps.features.SpookyChestAlert.register();
+        com.teslamaps.features.SpookyCandyDisplay.register();
+        com.teslamaps.features.fishing.SharkCounter.register();
+        // w18-07-evt
+        com.teslamaps.features.GaiaConstructHits.register();
+        com.teslamaps.features.HoppityHelpers.register();
+        // w18-00-fis
+        com.teslamaps.features.fishing.ThunderSparks.register();
+        com.teslamaps.features.fishing.SeaCreatureCocoon.register();
+        com.teslamaps.features.fishing.Wormholes.register();
+        com.teslamaps.features.fishing.OdgerHelper.register();
+        com.teslamaps.features.fishing.SulphurSkitterBox.register();
+        com.teslamaps.features.fishing.TrophyDiamondEffect.register();
+        // w18-01-fis
+        com.teslamaps.features.fishing.NearbySeaCreatures.register();
     }
 }

@@ -26,6 +26,8 @@ public class HidePlayers {
     /** 255 = drawn normally. From LivingEntityAlphaMixin, every rendered living entity. */
     public static int alpha(Entity entity) {
         if (!(entity instanceof Player)) return 255;
+        int hoppity = HoppityHelpers.playerAlpha(entity);
+        if (hoppity < 255) return hoppity;
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (config.hidePlayersTransparent && matches(entity)) return pct(config.hidePlayersOpacity);
         if (config.ghostPlayers && isGhost(entity)) return pct(config.ghostPlayersOpacity);
