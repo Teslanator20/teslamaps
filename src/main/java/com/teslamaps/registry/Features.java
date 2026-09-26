@@ -1049,6 +1049,14 @@ final class Features {
         com.teslamaps.features.pets.PetTitles.register();
         com.teslamaps.features.pets.PetMenus.register();
         com.teslamaps.features.pets.PetKeybinds.register();
+        // w20-01-com
+        com.teslamaps.features.BrokenHypeWarning.register();
+        com.teslamaps.features.AreaMinibosses.register();
+        com.teslamaps.features.GhostTracker.register();
+        com.teslamaps.features.CocoonOverlay.register();
+        com.teslamaps.features.BetterShurikens.register();
+        com.teslamaps.features.FireFreezeVisual.register();
+        com.teslamaps.features.ImplosionDisplay.register();
         // w20-06-cheat
         com.teslamaps.features.hunting.AutoReelLasso.register();
         com.teslamaps.features.AutoSprint.register();

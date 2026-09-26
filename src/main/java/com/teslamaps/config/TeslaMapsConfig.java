@@ -2180,6 +2180,50 @@ public class TeslaMapsConfig {
     public int petPrevPageKey = -1;
     public boolean petKeysNoUnequip = false;
     public boolean petKeysCloseIfEquipped = false;
+    // w20-01-com
+    public boolean brokenHypeWarning = false;
+    public boolean brokenHypeSound = true;
+    public boolean areaMinibossHighlight = false;
+    public boolean areaMinibossTimer = false;
+    public boolean ghostTracker = false;
+    public int ghostTrackerPriceSource = 0;
+    public boolean ghostTrackerWidgetWarn = true;
+    public int ghostTrackerX = 10;
+    public int ghostTrackerY = 200;
+    public float ghostTrackerScale = 1.0f;
+    @Global
+    public long ghostBestiaryKills = 0;
+    @Global
+    public long ghostsSinceSorrow = 0;
+    @Global
+    public long ghostMaxCombo = 0;
+    @Global
+    public long ghostCombatXp = 0;
+    @Global
+    public long ghostMfTotal = 0;
+    @Global
+    public long ghostMfDrops = 0;
+    public boolean cocoonOverlay = false;
+    public boolean cocoonOverlayName = true;
+    public boolean cocoonOverlayTimer = true;
+    public boolean cocoonOverlayBeltOnly = false;
+    public boolean betterShurikens = false;
+    public boolean betterShurikensHideMarker = true;
+    public java.util.List<String> betterShurikensReminder = new java.util.ArrayList<>();
+    public boolean fireFreezeVisual = false;
+    public boolean fireFreezeCircle = true;
+    public boolean fireFreezeCountdown = true;
+    public boolean fireFreezeMobBox = true;
+    public boolean fireFreezeMobTimer = true;
+    public String fireFreezeCircleColor = "55FFFF";
+    public boolean implosionDisplay = false;
+    public boolean implosionDisplayHideChat = true;
+    public int implosionDisplayX = 10;
+    public int implosionDisplayY = 240;
+    public float implosionDisplayScale = 1.0f;
+    public boolean bestiaryAlarms = false;
+    public String bestiaryAlarmColor = "Red";
+    public float bestiaryAlarmVolume = 1.0f;
     // w20-06-cheat
     public boolean trevorAuto = false;
     public boolean trevorAutoCall = true;
@@ -6972,6 +7016,7 @@ public class TeslaMapsConfig {
         if (c.kuudraFaction == null) c.kuudraFaction = "";
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
+        if (c.betterShurikensReminder == null) c.betterShurikensReminder = new ArrayList<>();
         if (c.islandAlertRules == null) c.islandAlertRules = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();
         if (c.protectedItems == null) c.protectedItems = new java.util.HashSet<>();

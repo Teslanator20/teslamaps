@@ -134,6 +134,7 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.rift.MotesOrbHighlight.onParticle(packet)
                     || com.teslamaps.features.rift.LivingCaveDefenseBlocks.onParticle(packet)
                     || com.teslamaps.features.rift.LivingMetalHelper.hideParticle(packet)
+                    || com.teslamaps.features.FireFreezeVisual.hideParticle(packet)
                     || com.teslamaps.features.crimson.AshfangHider.hideParticle())) ci.cancel();
     }
 
@@ -226,6 +227,7 @@ public class ClientPlayNetworkHandlerMixin {
             com.teslamaps.features.SecretWaypoints.onSound(packet);
             com.teslamaps.features.mining.TreasureChestHelper.onSound(packet);
             com.teslamaps.features.GaiaConstructHits.onSound(packet);
+            com.teslamaps.features.FireFreezeVisual.onSound(packet);
             if (com.teslamaps.features.HoppityHelpers.onSoundPacket(packet)) { ci.cancel(); return; }
             if (com.teslamaps.features.SecretSounds.onSoundPacket(packet)
                     | com.teslamaps.features.SecretChime.onSoundPacket(packet)) ci.cancel();
