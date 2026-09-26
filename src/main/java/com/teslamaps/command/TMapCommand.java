@@ -275,6 +275,8 @@ public class TMapCommand {
                                     context.getSource().sendFeedback(Component.literal("§cNo cape called " + wanted));
                                     return 1;
                                 })))
+                .then(com.teslamaps.features.pets.PetItemGuard.command())
+                .then(com.teslamaps.features.pets.PetSlotIcons.command())
                 .then(ClientCommands.literal("protect")
                         .executes(context -> {
                             if (!TeslaMapsConfig.get().itemProtectionUuid) {

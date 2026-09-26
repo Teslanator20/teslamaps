@@ -1024,5 +1024,13 @@ final class Features {
         com.teslamaps.features.rift.RiftShyCrux.register();
         com.teslamaps.features.rift.RiftSplatterHearts.register();
         com.teslamaps.features.rift.RiftGuntherRace.register();
+        // w20-05-pet
+        com.teslamaps.features.pets.PetItemGuard.register();
+        com.teslamaps.features.pets.PetSlotIcons.register();
+        com.teslamaps.features.pets.GeorgeHelper.register();
+        com.teslamaps.features.pets.ExpShareSlots.register();
+        com.teslamaps.features.pets.PetNametags.register();
+        com.teslamaps.features.pets.VisiblePetPosition.register();
+        com.teslamaps.features.pets.RockMilestone.register();
     }
 }

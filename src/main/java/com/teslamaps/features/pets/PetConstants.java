@@ -140,6 +140,11 @@ public class PetConstants {
         return out;
     }
 
+    public static java.util.Collection<String> itemIds() {
+        load();
+        return ITEM_NAME_TO_ID.values();
+    }
+
     /** Pet item id from the widget's colored display name; falls back to a stripped-name match. */
     public static String itemId(String coloredName) {
         load();

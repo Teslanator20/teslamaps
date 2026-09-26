@@ -2148,6 +2148,31 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w20-05-pet
+    public boolean petItemConfirm = false;
+    public boolean petCandyOnIcon = false;
+    public boolean petCandyHideMaxed = false;
+    public boolean petCandyLore = false;
+    public boolean petItemSymbol = false;
+    public float petItemSymbolScale = 0.7f;
+    public java.util.Map<String, String> petItemSymbols = new java.util.HashMap<>();
+    public boolean georgePetPrice = false;
+    public boolean georgeTamingHelper = false;
+    public boolean georgeOtherTiers = false;
+    public boolean expShareDisabledSlots = false;
+    public boolean expSharePetHighlight = false;
+    public String expSharePetColor = "5555FF";
+    public java.util.List<String> expSharePetUuids = new java.util.ArrayList<>();
+    public boolean petNametagHideLevel = false;
+    public boolean petNametagHideMaxLevel = false;
+    public boolean petNametagHideOthers = false;
+    public boolean visiblePetPosition = false;
+    public boolean visiblePetStopBouncing = true;
+    public float visiblePetHeightOffset = 0f;
+    public boolean rockMilestoneHud = false;
+    public int rockMilestoneHudX = 10;
+    public int rockMilestoneHudY = 170;
+    public float rockMilestoneHudScale = 1.0f;
     // w19-07-rif
     public boolean riftWoodenButtons = false;
     public String riftWoodenButtonsColor = "FF55FF";
@@ -6649,6 +6674,9 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.petItemSymbols == null) c.petItemSymbols = new java.util.HashMap<>();
+        c.petItemSymbols.values().removeIf(java.util.Objects::isNull);
+        if (c.expSharePetUuids == null) c.expSharePetUuids = new java.util.ArrayList<>();
         if (c.ubikReadyAt == null) c.ubikReadyAt = new java.util.HashMap<>();
         c.ubikReadyAt.values().removeIf(java.util.Objects::isNull);
         if (c.carnivalShopProgress == null) c.carnivalShopProgress = new java.util.HashMap<>();
