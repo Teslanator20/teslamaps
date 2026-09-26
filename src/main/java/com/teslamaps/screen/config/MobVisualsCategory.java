@@ -31,6 +31,17 @@ public final class MobVisualsCategory {
         b.toggle("    Draw As HUD (constant size)", () -> config.mobVisualNameplateHud, v -> config.mobVisualNameplateHud = v);
         b.slider("    Nameplate Size", 0.5f, 3.0f,
                 () -> config.mobVisualNameplateScale, v -> config.mobVisualNameplateScale = v);
+        b.toggle("  Health List HUD", () -> config.mobHealthHud, v -> config.mobHealthHud = v)
+                .desc("Up to 5 nearby tracked mobs with their health as a HUD list, read from the \"cur/max❤\" nametag. Works for any mob name, no pick needed. Position in /tmap gui")
+                .tags("health", "hp", "inquisitor", "jawbus", "thunder", "elusive");
+        b.searchList("    Tracked Mobs", () -> {
+                    java.util.List<String> base = new java.util.ArrayList<>(com.teslamaps.features.mobvisuals.MobHealthHud.DEFAULTS);
+                    for (String s : config.mobHealthHudMobs) if (!base.contains(s)) base.add(s);
+                    for (String s : NearbyMobs.options(config.mobHealthHudMobs)) if (!base.contains(s)) base.add(s);
+                    return base;
+                }, id -> config.mobHealthHudMobs.contains(id),
+                id -> { if (!config.mobHealthHudMobs.remove(id)) config.mobHealthHudMobs.add(id); })
+                .pick(NearbyMobs::looked);
         b.toggle("  Lotum: Confirm By Nametag", () -> config.mobVisualLotumConfirm, v -> config.mobVisualLotumConfirm = v)
                 .desc("Only frogs with a Lotum nametag right above them count as Lotum");
         b.toggle("  Lotum: Line To Clicked", () -> config.mobVisualLotumLine, v -> config.mobVisualLotumLine = v)

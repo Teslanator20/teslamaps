@@ -1018,5 +1018,13 @@ final class Features {
         com.teslamaps.features.rift.RiftShyCrux.register();
         com.teslamaps.features.rift.RiftSplatterHearts.register();
         com.teslamaps.features.rift.RiftGuntherRace.register();
+        // w20-00-com
+        com.teslamaps.features.DamageIndicator.register();
+        com.teslamaps.features.theend.DragonFight.register();
+        com.teslamaps.features.DamageSplash.register();
+        com.teslamaps.features.ArachneTimers.register();
+        com.teslamaps.features.BroodmotherTracker.register();
+        com.teslamaps.features.mobvisuals.MobHealthHud.register();
+        com.teslamaps.features.DeployableReminder.register();
     }
 }

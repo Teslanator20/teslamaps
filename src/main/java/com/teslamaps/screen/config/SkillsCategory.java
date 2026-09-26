@@ -117,6 +117,18 @@ public final class SkillsCategory {
         b.info("Flares have no nametag, the timer starts when you see them");
         b.toggle("  Other Deployables (flares, ...)",
                 () -> config.deployableOthers, v -> config.deployableOthers = v);
+        b.toggle("  Reminder: Nothing Placed",
+                () -> config.deployableReminder, v -> config.deployableReminder = v)
+                .desc("Big title + error sound when no matching deployable is up: power orb in a slayer boss fight, lantern in a Glacite Mineshaft, Umberella while trophy fishing")
+                .tags("power orb", "lantern", "umberella", "reminder", "forgot");
+        b.toggle("    Power Orb in Slayer Boss",
+                () -> config.deployableReminderSlayer, v -> config.deployableReminderSlayer = v);
+        b.toggle("    Lantern in Mineshaft",
+                () -> config.deployableReminderMineshaft, v -> config.deployableReminderMineshaft = v);
+        b.toggle("    Umberella on Trophy Fish",
+                () -> config.deployableReminderTrophy, v -> config.deployableReminderTrophy = v);
+        b.slider("    Delay (s)", 0f, 30f,
+                () -> config.deployableReminderDelay, v -> config.deployableReminderDelay = v, 0);
         b.toggle("  Totem of Corruption",
                 () -> config.deployableTotem, v -> config.deployableTotem = v)
                 .desc("Time left and owner of your own or the nearest Totem of Corruption, plus its 16 block range")

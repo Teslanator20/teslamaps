@@ -365,6 +365,14 @@ public class Deployables {
         return secondsLeft(deployable.matchName);
     }
 
+    public static boolean anyActive(Type type) {
+        for (Map.Entry<String, Track> e : tracks.entrySet()) {
+            Deployable d = byName(e.getKey());
+            if (d != null && d.type == type && e.getValue().active) return true;
+        }
+        return false;
+    }
+
     public static void reset() {
         tracks.clear();
         flareCache.clear();

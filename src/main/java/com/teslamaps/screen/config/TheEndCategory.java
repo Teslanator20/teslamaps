@@ -19,6 +19,7 @@ public final class TheEndCategory {
         b.toggle("  Loot Tracker HUD", () -> config.endProtectorLootHud, v -> config.endProtectorLootHud = v);
         b.toggle("  Spawn Beacon", () -> config.endProtectorBeacon, v -> config.endProtectorBeacon = v);
         b.toggle("  Spawn World Label", () -> config.endProtectorWorldText, v -> config.endProtectorWorldText = v);
+        com.teslamaps.features.theend.DragonFight.config(b);
         b.label("Stage Alerts");
         b.toggle("Stage 4 Title", () -> config.endProtectorStage4Title, v -> config.endProtectorStage4Title = v);
         b.toggle("Stage 4 Sound", () -> config.endProtectorStage4Sound, v -> config.endProtectorStage4Sound = v);
