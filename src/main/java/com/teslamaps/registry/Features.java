@@ -927,6 +927,13 @@ final class Features {
         com.teslamaps.features.diana.DianaBurrows.register();
         com.teslamaps.features.diana.DianaWarp.register();
         com.teslamaps.features.diana.DianaRareMobs.register();
+        // w18-08-evt
+        com.teslamaps.features.CalendarExtras.register();
+        com.teslamaps.features.WinterReminders.register();
+        com.teslamaps.features.GiftNametagCleaner.register();
+        com.teslamaps.features.FruitBowlHelper.register();
+        com.teslamaps.features.CarnivalDojoGlow.register();
+        com.teslamaps.features.LobbyEventWaypoints.register();
         // w18-09-evt
         com.teslamaps.features.HoppityUnclaimedEggs.register();
         com.teslamaps.features.TimeTowerReminder.register();
