@@ -268,7 +268,8 @@ public class ChatMixin {
 
         if (fromServer && (com.teslamaps.features.PartyListFormat.hide(message, text)
                 || com.teslamaps.features.ThrottleNotifier.hide(text)
-                || com.teslamaps.features.kuudra.KuudraSupply.hide(text))) {
+                || com.teslamaps.features.kuudra.KuudraSupply.hide(text)
+                || com.teslamaps.features.choco.ChocoReminder.hideChat(text))) {
             teslamaps$reason = "partyList/throttle";
             ci.cancel();
             return;

@@ -47,6 +47,10 @@ public class HandledScreenClickMixin {
             return;
         }
         com.teslamaps.features.VisitorStats.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot);
+        if (com.teslamaps.features.choco.ChocoExtras.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.features.bazaar.PurchaseGuard.blockClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
             ci.cancel();
             return;

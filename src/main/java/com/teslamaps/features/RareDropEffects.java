@@ -91,6 +91,7 @@ public class RareDropEffects {
 
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!"Off".equals(config.burrowingSporesAlarm) && raw.contains("Burrowing Spores")) burrowingSpores(raw, config.burrowingSporesAlarm);
+        if (config.rareDropEffects && config.snowMinionGiftAlert && raw.contains("Snow Minion")) snowMinion(raw);
         if (!config.rareDropEffects && !config.rareDungeonDropEffects && !config.rareDyeDropEffects) return;
 
         String text = raw.replaceAll("(?i)§[0-9A-FK-OR]", "");
@@ -160,6 +161,16 @@ public class RareDropEffects {
             mc.gui.setTitle(net.minecraft.network.chat.Component.literal("§9Burrowing Spores!"));
         }
         if (!mode.equals("Title")) play("BURROWING_SPORES", "VERY RARE CROP!", "Burrowing Spores", ParticleTypes.SCRAPE);
+    }
+
+    // Ported from Oringo's AutoGift onChat
+    private static void snowMinion(String raw) {
+        String t = com.teslamaps.utils.StringUtil.stripTrim(raw);
+        if (!t.startsWith("SWEET! ") || !t.contains(" gift with ")) return;
+        Minecraft mc = Minecraft.getInstance();
+        mc.gui.setTimes(0, 50, 10);
+        mc.gui.setTitle(net.minecraft.network.chat.Component.literal("§bSnow Minion!"));
+        if (mc.player != null) mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.0f);
     }
 
     public static final String[] ANNOUNCE = {"Off", "Party", "Guild", "Party + Guild"};

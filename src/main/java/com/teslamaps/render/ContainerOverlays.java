@@ -67,6 +67,8 @@ public class ContainerOverlays {
         com.teslamaps.features.TradeValue.render(context);
         com.teslamaps.features.BitsShopHelper.render(context);
         com.teslamaps.features.foraging.StarlynCouponProfit.render(context, mouseX, mouseY);
+        com.teslamaps.features.events.FishyTreatProfit.render(context, mouseX, mouseY);
+        com.teslamaps.features.events.StewHelper.render(context);
         com.teslamaps.features.NpcTradeCosts.render(context);
         com.teslamaps.features.SupercraftHelper.render(context);
         com.teslamaps.features.PesthunterProfit.render(context, mouseX, mouseY);
