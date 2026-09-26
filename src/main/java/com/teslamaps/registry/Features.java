@@ -923,6 +923,10 @@ final class Features {
         com.teslamaps.features.events.FrozenTreasureTracker.register();
         com.teslamaps.features.events.GiftProfitTracker.register();
         com.teslamaps.features.events.JerryHighlight.register();
+        // w18-02-evt
+        com.teslamaps.features.diana.DianaBurrows.register();
+        com.teslamaps.features.diana.DianaWarp.register();
+        com.teslamaps.features.diana.DianaRareMobs.register();
         // w18-09-evt
         com.teslamaps.features.HoppityUnclaimedEggs.register();
         com.teslamaps.features.TimeTowerReminder.register();

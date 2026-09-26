@@ -2184,6 +2184,37 @@ public class TeslaMapsConfig {
     public float giftProfitTrackerScale = 1.0f;
     public boolean highlightJerries = false;
     public boolean jerryLines = false;
+    // w18-02-evt
+    public boolean dianaBurrowGuess = false;
+    public String dianaGuessColor = "5555FF";
+    public boolean dianaGuessLine = false;
+    public boolean dianaOldGuesses = true;
+    public String dianaOldGuessColor = "AA00AA";
+    public boolean dianaUseSpadeTitle = false;
+    public boolean dianaParticleHelp = false;
+    public boolean dianaMuteSpadeMusic = false;
+    public boolean dianaBurrowDetect = false;
+    public String dianaStartColor = "55FF55";
+    public String dianaMobColor = "FF5555";
+    public String dianaTreasureColor = "FFAA00";
+    public boolean dianaArrowGuess = false;
+    public boolean dianaNearestWarp = false;
+    public int dianaWarpKey = -1;
+    public float dianaWarpMinSave = 20f;
+    public java.util.List<String> dianaWarpIgnored = new java.util.ArrayList<>(java.util.List.of("Crypt", "Wizard Tower", "Taylor"));
+    public int dianaWarpX = 200;
+    public int dianaWarpY = 60;
+    public float dianaWarpScale = 1.5f;
+    public boolean dianaRareShare = false;
+    public boolean dianaRareShareInstant = false;
+    public int dianaRareShareKey = -1;
+    public boolean dianaRareShareDeath = true;
+    public java.util.List<String> dianaRareNoShare = new java.util.ArrayList<>();
+    public java.util.List<String> dianaRareNoShow = new java.util.ArrayList<>();
+    public boolean dianaLootshare = false;
+    public boolean dianaLootshareMessage = false;
+    public boolean dianaLootshareChecks = false;
+    public boolean dianaLootshareCircle = false;
     // w18-09-evt
     public boolean hoppityUnclaimedEggs = false;
     public boolean hoppityUnclaimedWarn = true;
@@ -6271,6 +6302,9 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.dianaWarpIgnored == null) c.dianaWarpIgnored = new java.util.ArrayList<>();
+        if (c.dianaRareNoShare == null) c.dianaRareNoShare = new java.util.ArrayList<>();
+        if (c.dianaRareNoShow == null) c.dianaRareNoShow = new java.util.ArrayList<>();
         if (c.hoppityMealClaimed == null) c.hoppityMealClaimed = new java.util.HashMap<>();
         c.hoppityMealClaimed.values().removeIf(java.util.Objects::isNull);
         if (c.hoppityUnclaimedWarp == null) c.hoppityUnclaimedWarp = "nest";
