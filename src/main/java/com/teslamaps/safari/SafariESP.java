@@ -383,6 +383,7 @@ public class SafariESP {
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
+        if (SparklingFocus.focusActive()) return;
         AABB pin = RecatchSpots.pinned();
         if (critters.isEmpty() && nests.isEmpty() && spots.isEmpty() && walls.isEmpty() && pin == null) return;
 

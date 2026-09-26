@@ -32,6 +32,8 @@ public class SoundPlayMixin {
     private void teslamaps$recordSound(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
         com.teslamaps.features.SoundVolumes.record(instance);
         com.teslamaps.features.ReaperTimer.onSound(instance);
+        com.teslamaps.features.tracker.ProfitTracker.onSound(instance);
+        com.teslamaps.features.kuudra.KuudraRend.onSound(instance);
     }
 
     // injected after the SoundInstance is resolved (this.sound non-null), where getPitch/getVolume are safe

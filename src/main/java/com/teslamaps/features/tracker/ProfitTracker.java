@@ -43,6 +43,7 @@ public final class ProfitTracker {
     public static final String[] CHOICES = {"Auto", "Zombie Slayer", "Spider Slayer", "Wolf Slayer", "Enderman Slayer",
             "Blaze Slayer", "Vampire Slayer", "Fishing", "Foraging", "Mining", "Diana"};
     private static final String BOSSES = "PROFIT_BOSSES", BURROWS = "PROFIT_BURROWS", QUEST_COST = "PROFIT_QUEST_COST";
+    private static final String CATCHES = "PROFIT_CATCHES";
     private static final Pattern SACK_CHANGE = Pattern.compile("([+-][\\d,]+) (.+?) \\((.+?)\\)");
     private static final Pattern PURSE = Pattern.compile("^(?:Purse|Piggy): ([\\d,]+(?:\\.\\d+)?)");
     private static final long GRACE_MS = 1500, DROP_SUPPRESS_MS = 10_000, SACK_SUPPRESS_MS = 60_000;
@@ -82,7 +83,14 @@ public final class ProfitTracker {
                     .name(Tracker.COINS, p.key.contains("slayer") ? "§6Mob Kill Coins" : "§6Coins")
                     .name(QUEST_COST, "§cQuest Cost").coinKey(QUEST_COST).fixedValue(QUEST_COST, -1)
                     .name(BOSSES, "§bBosses Killed").fixedValue(BOSSES, 0)
-                    .name(BURROWS, "§bBurrows Dug").fixedValue(BURROWS, 0);
+                    .name(BURROWS, "§bBurrows Dug").fixedValue(BURROWS, 0)
+                    .name(CATCHES, "§bTimes Fished").fixedValue(CATCHES, 0);
+            if ("fishing".equals(p.key)) {
+                t.extra(v -> {
+                    long n = t.count(CATCHES, v);
+                    return n > 0 ? List.of("§eper Catch: §6" + ItemPrice.format(t.profit(v) / n)) : List.of();
+                });
+            }
             if (BOSSES.equals(p.action)) {
                 t.extra(v -> {
                     long n = t.count(BOSSES, v);
@@ -121,6 +129,9 @@ public final class ProfitTracker {
                     b.toggle("  Slayer: Bosses Since RNG + Recent Kills", () -> c.profitTrackerSlayerRng, v -> c.profitTrackerSlayerRng = v)
                             .desc("Bosses and time since the last RNG drop per slayer, plus the last kill times. /tmap undolastslayer takes back a miscounted boss.")
                             .tags("rng", "slayer", "since", "undo");
+                    b.toggle("  Fishing: Times Fished + Profit/Catch", () -> c.profitTrackerFishingCatches, v -> c.profitTrackerFishingCatches = v)
+                            .desc("Counts your catches (reel right after the catch sound) and shows profit per catch on the Fishing tracker")
+                            .tags("fishing", "catch", "times fished");
                     b.priceSource("  Price Source", () -> c.profitTrackerPriceSource, v -> c.profitTrackerPriceSource = v);
                     b.slider("  Pause After (s)", 10f, 600f, () -> (float) c.profitTrackerIdle, v -> c.profitTrackerIdle = Math.round(v), 0);
                     for (Preset p : PRESETS.values()) {
@@ -265,6 +276,7 @@ public final class ProfitTracker {
             if (!open) graceUntil = now + GRACE_MS;
         }
         if (mc.player.fishing != null) fishingAt = now;
+        trackCatch(mc, now);
         for (Tracker t : TRACKERS.values()) t.tick();
         long fightAt = com.teslamaps.slayer.SlayerHUD.lastFightAt();
         if (fightAt != recentSeenAt) {
@@ -334,6 +346,29 @@ public final class ProfitTracker {
         }
 
         if (suppress.size() > 64) suppress.values().removeIf(s -> s[1] < now);
+    }
+
+    private static Object ownHook;
+    private static long reelAt, catchSoundAt;
+
+    /** SoundPlayMixin HEAD, main thread. */
+    public static void onSound(net.minecraft.client.resources.sounds.SoundInstance s) {
+        TeslaMapsConfig c = cfg();
+        if (!c.profitTracker || !c.profitTrackerFishingCatches || ownHook == null && System.currentTimeMillis() - reelAt > 600) return;
+        var id = s.getIdentifier();
+        if (id != null && "entity.experience_orb.pickup".equals(id.getPath())) catchSoundAt = System.currentTimeMillis();
+    }
+
+    private static void trackCatch(Minecraft mc, long now) {
+        if (!cfg().profitTrackerFishingCatches) return;
+        Object hook = mc.player.fishing;
+        if (ownHook != null && hook != ownHook) reelAt = now;
+        ownHook = hook;
+        if (reelAt == 0 || catchSoundAt == 0 || Math.abs(reelAt - catchSoundAt) > 600) return;
+        reelAt = 0;
+        catchSoundAt = 0;
+        Tracker t = TRACKERS.get("Fishing");
+        if (t != null) t.add(CATCHES, 1);
     }
 
     private static void gain(Tracker t, String id, long amount, long now) {

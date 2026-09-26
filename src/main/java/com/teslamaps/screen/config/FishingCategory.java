@@ -65,6 +65,9 @@ public final class FishingCategory {
                 () -> config.hotspotBeam, v -> config.hotspotBeam = v);
         b.color("  Color",
                 () -> config.colorHotspot, v -> config.colorHotspot = v);
+        b.toggle("  Mark Unknown Hotspot",
+                () -> config.hotspotRadarUnknown, v -> config.hotspotRadarUnknown = v)
+                .desc("Red label when you get close and no HOTSPOT stand is at the guess");
 
         b.label("Hotspot Sharing");
         b.toggle("Share Hotspots To Party",
@@ -110,6 +113,19 @@ public final class FishingCategory {
                 () -> config.hotspotShareTracer, v -> config.hotspotShareTracer = v);
         b.toggle("Hotspot Closed Title",
                 () -> config.hotspotClosedTitle, v -> config.hotspotClosedTitle = v);
+        b.toggle("Hotspot Circle",
+                () -> config.hotspotCircle, v -> config.hotspotCircle = v)
+                .desc("Exact hotspot radius as a circle on the water/lava, colored by perk")
+                .tags("radius", "area", "perk");
+        b.toggle("  Filled",
+                () -> config.hotspotCircleFill, v -> config.hotspotCircleFill = v);
+        b.slider("  Fill Opacity", 0f, 1f,
+                () -> config.hotspotCircleAlpha, v -> config.hotspotCircleAlpha = v, 2);
+        b.toggle("  Rim",
+                () -> config.hotspotCircleRim, v -> config.hotspotCircleRim = v);
+        b.toggle("  Hide Hotspot Particles",
+                () -> config.hotspotCircleHideParticles, v -> config.hotspotCircleHideParticles = v)
+                .desc("Drops Hypixel's hotspot edge particles once the circle replaces them");
         b.label("Hotspot Gone");
         b.toggle("Warn When Hotspot Ends",
                 () -> config.hotspotGoneWarning, v -> config.hotspotGoneWarning = v);
