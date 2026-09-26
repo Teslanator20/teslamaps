@@ -32,18 +32,20 @@ public final class SlayerSpawnHiders {
 
     public static void register() {
         Feature.of("SlayerSpawnHiders").section("Combat").when(() -> cfg().hideSlayerSpawnParticles || cfg().hideSvenPupNametags)
-                .tick(SlayerSpawnHiders::tick)
-                .config("Combat", b -> {
-                    TeslaMapsConfig c = b.config();
-                    b.toggle("Hide Slayer Spawn Particles", () -> c.hideSlayerSpawnParticles, v -> c.hideSlayerSpawnParticles = v)
-                            .desc("With a slayer quest in its area: drops spawn particles within 5 blocks of mobs that just died")
-                            .tags("slayer", "particles", "spawn", "lag");
-                    b.toggle("  White (Enchant)", () -> c.hideSlayerParticlesEnchant, v -> c.hideSlayerParticlesEnchant = v);
-                    b.toggle("  Purple (Witch)", () -> c.hideSlayerParticlesWitch, v -> c.hideSlayerParticlesWitch = v);
-                    b.toggle("  Slayer Specific (Effect)", () -> c.hideSlayerParticlesEffect, v -> c.hideSlayerParticlesEffect = v);
-                    b.toggle("Hide Sven Pup Nametags", () -> c.hideSvenPupNametags, v -> c.hideSvenPupNametags = v)
-                            .tags("sven", "pup", "nametag", "wolf", "slayer");
-                });
+                .tick(SlayerSpawnHiders::tick);
+    }
+
+    /** Rows under SlayerHiders' "Slayer Clutter" label. */
+    static void config(com.teslamaps.screen.config.ConfigBuilder b) {
+        TeslaMapsConfig c = b.config();
+        b.toggle("Hide Slayer Spawn Particles", () -> c.hideSlayerSpawnParticles, v -> c.hideSlayerSpawnParticles = v)
+                .desc("With a slayer quest in its area: drops spawn particles within 5 blocks of mobs that just died")
+                .tags("slayer", "particles", "spawn", "lag");
+        b.toggle("  White (Enchant)", () -> c.hideSlayerParticlesEnchant, v -> c.hideSlayerParticlesEnchant = v);
+        b.toggle("  Purple (Witch)", () -> c.hideSlayerParticlesWitch, v -> c.hideSlayerParticlesWitch = v);
+        b.toggle("  Slayer Specific (Effect)", () -> c.hideSlayerParticlesEffect, v -> c.hideSlayerParticlesEffect = v);
+        b.toggle("Hide Sven Pup Nametags", () -> c.hideSvenPupNametags, v -> c.hideSvenPupNametags = v)
+                .tags("sven", "pup", "nametag", "wolf", "slayer");
     }
 
     private static void tick() {

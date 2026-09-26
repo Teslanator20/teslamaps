@@ -132,7 +132,16 @@ public class SlotLock {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.slotLock) return false;
         Minecraft mc = Minecraft.getInstance();
-        return mc.player != null && isLocked(mc.player.getInventory().getSelectedSlot());
+        return mc.player != null && isLocked(mc.player.getInventory().getSelectedSlot()) && !shiningCoin(mc);
+    }
+
+    // Skyblocker's ignoreSlotLockingForShiningCoins
+    private static boolean shiningCoin(Minecraft mc) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.slotLockShiningCoins && mc.player != null
+                && com.teslamaps.utils.ItemUtil.skyblockId(mc.player.getMainHandItem()).equals("SHINING_COIN")
+                && com.teslamaps.safari.SafariData.inSafari()
+                && com.teslamaps.safari.SafariData.currentBiome() == com.teslamaps.safari.SafariData.Biome.HAUNTED;
     }
 
     /** Q drop: locked slot, or the held slot changed less than the drop delay ago. */
@@ -150,7 +159,7 @@ public class SlotLock {
             }
             if (now - switchedAt < c.slotLockDropDelay) return true;
         }
-        return isLocked(sel);
+        return isLocked(sel) && !shiningCoin(mc);
     }
 
     // NEU's drop delay: remember when the held slot changed

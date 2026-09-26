@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "BlockStateModelSetMixin",
+    "FishingHookFixMixin",
     "BlockBreakPredictionMixin",
     "LogSpamPacketMixin",
     "GhostCreeperMixin",
@@ -137,6 +138,8 @@
     "CustomDyeColorMixin",
     "DisableLoadingScreenMixin",
     "DropProtectMixin",
+    "MoongladeBeaconMixin",
+    "TreecapBreakMixin",
     "EntityInterpolationMixin",
     "EntityMixin",
     "EntityRenderDispatcherAccessor",

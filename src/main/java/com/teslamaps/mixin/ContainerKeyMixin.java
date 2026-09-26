@@ -122,6 +122,10 @@ public class ContainerKeyMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.hunting.FusionHelper.onKey(cs, event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
         if (com.teslamaps.features.WardrobeKeys.handleKey(cs, event)) {
             cir.setReturnValue(true);
             return;

@@ -248,6 +248,8 @@ public final class InventoryCategory {
                 .desc("Locks or unlocks the selected hotbar slot without opening the inventory");
         b.toggle("  Block Item Frames", () -> config.slotLockItemFrames, v -> config.slotLockItemFrames = v)
                 .desc("Items from locked slots can't go into empty item frames on your island or garden");
+        b.toggle("  Drop Shining Coins In Haunted Biome", () -> config.slotLockShiningCoins, v -> config.slotLockShiningCoins = v)
+                .desc("Critter Safari, Haunted biome only: Q still throws a Shining Coin from a locked slot");
         b.label("Item Protection");
         b.toggle("Protect Valuable Items", () -> config.itemProtection, v -> config.itemProtection = v);
         b.slider("  Min Value (million)", 1f, 500f,

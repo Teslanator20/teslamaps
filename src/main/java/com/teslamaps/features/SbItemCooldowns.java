@@ -39,6 +39,13 @@ public final class SbItemCooldowns {
                             .tags("cooldown", "spirit leap", "shadow fury", "giants sword");
                     b.toggle("  Crosshair Indicator", () -> c.itemCooldownsCrosshair, v -> c.itemCooldownsCrosshair = v)
                             .desc("Also fills the vanilla attack indicator while the held item cools down");
+                    b.toggle("  Treecapitator Break Cooldown", () -> c.treecapCooldown, v -> c.treecapCooldown = v)
+                            .desc("Jungle Axe / Treecapitator: 2s cooldown after breaking a log")
+                            .tags("treecapitator", "jungle axe");
+                    b.toggle("    Monkey Pet Reduction", () -> c.treecapMonkey, v -> c.treecapMonkey = v)
+                            .desc("Legendary Monkey: up to x0.6 at level 100");
+                    b.toggle("    Predict And Shorten", () -> c.treecapPredict, v -> c.treecapPredict = v)
+                            .desc("Subtracts the time spent breaking the log, at least 400ms left");
                 });
     }
 
@@ -61,6 +68,36 @@ public final class SbItemCooldowns {
             case "GREAT_SPOOK_STAFF" -> start(id, 60000);
             default -> {}
         }
+    }
+
+    // SkyblockAddons' treecapitator cooldown (onBlockBreak + PlayerControllerMPHook)
+    private static net.minecraft.core.BlockPos breakPos;
+    private static long breakStart;
+
+    public static void onStartBreak(net.minecraft.core.BlockPos pos) {
+        if (!cfg().treecapCooldown) return;
+        if (!pos.equals(breakPos)) {
+            breakPos = pos.immutable();
+            breakStart = System.currentTimeMillis();
+        }
+    }
+
+    public static void onBreak(net.minecraft.core.BlockPos pos) {
+        TeslaMapsConfig c = cfg();
+        if (!c.treecapCooldown || !c.itemCooldowns || !c.section("Inventory")) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null || !mc.level.getBlockState(pos).is(net.minecraft.tags.BlockTags.LOGS)) return;
+        String id = ItemUtil.skyblockId(mc.player.getMainHandItem());
+        if (!id.equals("JUNGLE_AXE") && !id.equals("TREECAPITATOR_AXE")) return;
+        long took = pos.equals(breakPos) ? System.currentTimeMillis() - breakStart : 0;
+        breakPos = null;
+        double ms = 2000;
+        if (c.treecapMonkey && "MONKEY".equalsIgnoreCase(com.teslamaps.features.pets.PetTracker.internalName())
+                && "LEGENDARY".equalsIgnoreCase(com.teslamaps.features.pets.PetTracker.rarity())) {
+            ms *= 1 - 0.004 * Math.min(100, Math.max(0, com.teslamaps.features.pets.PetTracker.level()));
+        }
+        if (c.treecapPredict) ms = Math.max(400, ms - took);
+        start(id, (int) ms);
     }
 
     private static void start(String id, int ms) {

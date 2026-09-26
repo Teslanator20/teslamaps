@@ -137,6 +137,7 @@ public class TMapCommand {
                 })
                 .then(com.teslamaps.dungeon.puzzle.PuzzleReset.command())
                 .then(com.teslamaps.features.JoinTips.command())
+                .then(com.teslamaps.features.ChargeBottleNotice.command())
                 .then(ClientCommands.literal("tracker")
                         .then(com.teslamaps.features.tracker.TrackerRows.attach(ClientCommands.argument("id", StringArgumentType.word()))
                                 .suggests((c, b) -> {
@@ -332,6 +333,7 @@ public class TMapCommand {
                 .then(com.teslamaps.features.croesus.PriceDebug.refreshCommand())
                 .then(com.teslamaps.features.SackApi.command())
                 .then(com.teslamaps.features.Notifications.command())
+                .then(com.teslamaps.features.foraging.TreeGiftCompact.command())
                 .then(com.teslamaps.features.DvdLogo.command())
                 .then(com.teslamaps.features.ItemCycle.command())
                 .then(com.teslamaps.features.ChatRewrites.bridgeCommand())
