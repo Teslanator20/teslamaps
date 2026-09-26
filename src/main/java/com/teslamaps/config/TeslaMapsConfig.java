@@ -5895,14 +5895,6 @@ public class TeslaMapsConfig {
     public boolean harpGuiScale = false;
     public boolean harpQuickRestart = false;
     public boolean harpHideTooltips = false;
-    @Global
-    public boolean discordRpc = false;
-    @Global
-    public boolean discordRpcLocation = true;
-    @Global
-    public boolean discordRpcDungeon = true;
-    @Global
-    public String discordRpcAppId = "";
     // w06-03-qol
     public boolean fairySouls = false;
     public boolean fairySoulsShowFound = false;
@@ -7156,7 +7148,6 @@ public class TeslaMapsConfig {
         if (c.islandAlertMode == null) c.islandAlertMode = "Title + Sound";
         if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new int[]{49, 50, 51, 52, 53, 54, 55};
         if (c.damageAlertSoundType == null) c.damageAlertSoundType = "NOTE_PLING";
-        if (c.discordRpcAppId == null) c.discordRpcAppId = "";
         if (c.colorWardrobeEquipped == null) c.colorWardrobeEquipped = "55FF55";
         if (c.colorWardrobeFavorite == null) c.colorWardrobeFavorite = "FFAA00";
         if (c.waypointPacksActive == null) c.waypointPacksActive = new ArrayList<>(List.of("Default"));

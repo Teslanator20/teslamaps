@@ -276,7 +276,6 @@ final class Features {
         com.teslamaps.features.DamageAlert.register();
         com.teslamaps.features.ContainerTriggers.register();
         com.teslamaps.features.HarpHelper.register();
-        com.teslamaps.features.DiscordRpc.register();
         // w06-03-qol
         com.teslamaps.features.qol.FairySouls.register();
         com.teslamaps.features.qol.GameTweaks.register();
