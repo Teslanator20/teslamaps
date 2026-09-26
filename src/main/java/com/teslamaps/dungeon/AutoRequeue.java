@@ -21,6 +21,9 @@ public class AutoRequeue {
     private static final Set<String> needsDowntime = new LinkedHashSet<>();
     private static boolean runEnded = false;
     private static int startSize = 0;
+    private static long kuudraStart = 0L, lastKuudraEnd = 0L;
+    private static String dotDt = null; // IQ-style ".dt [reason]" from the party
+    private static Object kuudraLevel = null; // left the instance before the requeue -> drop it
 
     public static void setDowntimeHold(boolean hold) { downtimeHold = hold; if (hold) requeueAt = 0L; }
 
@@ -51,6 +54,25 @@ public class AutoRequeue {
             }
         }
 
+        if (c.autoRequeue && c.requeueKuudra && StringUtil.isServerMessage(msg)) {
+            String t = msg.trim();
+            if (t.equals(com.teslamaps.features.kuudra.KuudraRunInfo.START)) {
+                kuudraStart = System.currentTimeMillis();
+                blockNextRequeue = false;
+                runEnded = false;
+                needsDowntime.clear();
+                startSize = PartyTracker.size();
+                return;
+            }
+            if (t.equals("KUUDRA DOWN!") || t.startsWith("[NPC] Elle: Good job everyone. A hard fought battle come to an end.")) {
+                long now = System.currentTimeMillis();
+                if (now - lastKuudraEnd < 20_000L) return;
+                lastKuudraEnd = now;
+                onKuudraEnd(c, now);
+                return;
+            }
+        }
+
         if (c.autoRequeue && msg.contains("> EXTRA STATS <")) {
             if (!EXTRA_STATS.matcher(msg).matches() || !StringUtil.isServerMessage(msg)) return;
             runEnded = true;
@@ -62,6 +84,7 @@ public class AutoRequeue {
                 }
             } else if (downtimeHold) {
                 feedback("someone asked for downtime");
+                if (dotDt != null) { dotDt = null; downtimeHold = false; }
                 return; // ChatCommands announces the reminders + clears the hold
             }
             requeueAt = System.currentTimeMillis() + Math.max(0, c.requeueDelaySeconds) * 1000L;
@@ -71,6 +94,14 @@ public class AutoRequeue {
         PlayerChat.Msg pm = PlayerChat.current();
         if (pm == null || pm.channel() != PlayerChat.Channel.PARTY) return;
         String content = pm.message().trim().toLowerCase();
+
+        if (c.requeueKuudra && !c.requeueDowntimeList && (content.equals(".dt") || content.startsWith(".dt "))) {
+            String reason = pm.message().trim().length() > 4 ? pm.message().trim().substring(4).trim() : "";
+            dotDt = pm.author() + (reason.isEmpty() ? "" : ": " + (reason.length() > 60 ? reason.substring(0, 60) : reason));
+            setDowntimeHold(true);
+            local("§b" + pm.author() + " §7asked for downtime - auto-requeue paused");
+            return;
+        }
 
         if (c.requeueDowntimeList) {
             if (content.equals("dt") || content.startsWith("!dt") || content.equals("!downtime")) {
@@ -105,7 +136,48 @@ public class AutoRequeue {
         }
     }
 
+    private static void onKuudraEnd(TeslaMapsConfig c, long now) {
+        runEnded = true;
+        long runMs = kuudraStart > 0 ? now - kuudraStart : 0;
+        kuudraStart = 0L;
+        if (blockNextRequeue) { blockNextRequeue = false; feedback("a member left this run"); return; }
+        if (c.requeueDowntimeList && !needsDowntime.isEmpty()) {
+            cancelTitle(String.join(", ", needsDowntime));
+            com.teslamaps.features.Announce.party(String.join(", ", needsDowntime) + " needs downtime");
+            return;
+        }
+        if (!c.requeueDowntimeList && downtimeHold) {
+            String who = com.teslamaps.features.ChatCommands.downtimeSummary();
+            cancelTitle(who.isEmpty() ? dotDt : who);
+            if (dotDt != null) { dotDt = null; downtimeHold = false; }
+            feedback("someone asked for downtime");
+            return;
+        }
+        if (c.requeueKuudraFastStop > 0 && runMs > 0 && runMs <= c.requeueKuudraFastStop * 1000L) {
+            Minecraft mc = Minecraft.getInstance();
+            mc.gui.setTimes(5, 40, 10);
+            mc.gui.setTitle(Component.literal("§e§lAUTO REQUEUE PAUSED"));
+            mc.gui.setSubtitle(Component.literal("§fRun: " + String.format(java.util.Locale.ROOT, "%.2fs", runMs / 1000.0)));
+            feedback("fast run (" + String.format(java.util.Locale.ROOT, "%.2fs", runMs / 1000.0) + ")");
+            return;
+        }
+        requeueAt = now + Math.max(1000L, Math.max(0, c.requeueDelaySeconds) * 1000L);
+        kuudraLevel = Minecraft.getInstance().level;
+    }
+
+    private static void cancelTitle(String who) {
+        Minecraft mc = Minecraft.getInstance();
+        mc.gui.setTimes(5, 45, 10);
+        mc.gui.setTitle(Component.literal("§c§lREQUEUE CANCELLED"));
+        mc.gui.setSubtitle(Component.literal("§e" + (who == null || who.isEmpty() ? "DT requested" : who)));
+    }
+
     public static void tick() {
+        if (kuudraLevel != null && (requeueAt == 0L || Minecraft.getInstance().level != kuudraLevel)) {
+            if (requeueAt != 0L) feedback("left the instance");
+            requeueAt = 0L;
+            kuudraLevel = null;
+        }
         if (requeueAt == 0L || System.currentTimeMillis() < requeueAt) return;
         requeueAt = 0L;
         TeslaMapsConfig c = TeslaMapsConfig.get();

@@ -2,12 +2,19 @@ package com.teslamaps.features.foraging;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.TickScheduler;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
@@ -36,6 +43,23 @@ public class TreeGiftCompact {
     private static String rewardCount = "0";
     private static Style hover = null;
     private static final List<String> rareDrops = new ArrayList<>();
+
+    // Ported from HypixelSimpleChat's TreeGiftTotals.kt
+    private static final Pattern GAIN = Pattern.compile("(.+?) x([\\d,]+)(?:-([\\d,]+))?");
+    private static final Pattern LEAD_CODES = Pattern.compile("^((?:§.)*)");
+
+    private static final class Total {
+        final String label;
+        long min, max;
+        Total(String label, long min, long max) { this.label = label; this.min = min; this.max = max; }
+    }
+
+    private static final class Tree {
+        int gifts;
+        final Map<String, Total> gains = new LinkedHashMap<>();
+    }
+
+    private static final Map<String, Tree> trees = new LinkedHashMap<>();
 
     /** @return true when the line belongs to a gift block and must not reach chat. */
     public static boolean handle(Component message) {
@@ -146,7 +170,7 @@ public class TreeGiftCompact {
         String text = "§9" + treeType + " Tree Gift. §7You helped cut " + percent
                 + " §7and gained §e" + rewardCount + " rewards§a!";
         MutableComponent line = Component.literal(text);
-        if (hover != null) line.setStyle(line.getStyle().withHoverEvent(hover.getHoverEvent()));
+        if (hover != null) line.setStyle(line.getStyle().withHoverEvent(withTotals(hover.getHoverEvent())));
         List<String> drops = List.copyOf(rareDrops);
 
         TickScheduler.schedule(1, () -> {
@@ -155,6 +179,86 @@ public class TreeGiftCompact {
             mc.player.sendSystemMessage(line);
             for (String drop : drops) mc.player.sendSystemMessage(Component.literal("§f - " + drop));
         });
+    }
+
+    private static HoverEvent withTotals(HoverEvent event) {
+        if (!TeslaMapsConfig.get().foragingGiftTotals || !(event instanceof HoverEvent.ShowText show)) return event;
+        String summary = record(treeType, show.value().getString());
+        if (summary == null) return event;
+        return new HoverEvent.ShowText(show.value().copy().append(Component.literal(summary)));
+    }
+
+    private static String record(String tree, String hoverText) {
+        Map<String, Total> gains = new LinkedHashMap<>();
+        for (String raw : hoverText.split("\n")) {
+            Matcher g = GAIN.matcher(Foraging.strip(raw).trim());
+            if (!g.matches()) continue;
+            Long min = num(g.group(2));
+            if (min == null) continue;
+            Long max = g.group(3) == null ? min : num(g.group(3));
+            if (max == null) max = min;
+            Matcher lead = LEAD_CODES.matcher(raw.trim());
+            String codes = lead.find() && !lead.group(1).isEmpty() ? lead.group(1) : "§7";
+            String what = g.group(1).trim();
+            gains.put(what, new Total(codes + what, min, max));
+        }
+        if (gains.isEmpty()) return null;
+        Tree t = trees.computeIfAbsent(tree, k -> new Tree());
+        t.gifts++;
+        for (Map.Entry<String, Total> e : gains.entrySet()) {
+            Total total = t.gains.get(e.getKey());
+            if (total == null) {
+                t.gains.put(e.getKey(), e.getValue());
+                continue;
+            }
+            total.min += e.getValue().min;
+            total.max += e.getValue().max;
+        }
+        StringBuilder sb = new StringBuilder("\n\n").append(header(tree, t));
+        for (Total total : t.gains.values()) sb.append("\n").append(line(total));
+        return sb.toString();
+    }
+
+    private static String header(String name, Tree t) {
+        return "§2" + name + " §8· §7" + t.gifts + " gift" + (t.gifts == 1 ? "" : "s") + " this session";
+    }
+
+    private static String line(Total t) {
+        String amount = t.min == t.max ? group(t.min) : group(t.min) + "-" + group(t.max);
+        return t.label + " §7x" + amount;
+    }
+
+    private static String group(long n) {
+        return String.format(Locale.ROOT, "%,d", n);
+    }
+
+    private static Long num(String s) {
+        try {
+            return Long.parseLong(s.replace(",", ""));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    public static LiteralArgumentBuilder<FabricClientCommandSource> command() {
+        return ClientCommands.literal("treegift")
+                .executes(ctx -> {
+                    if (trees.isEmpty()) {
+                        ctx.getSource().sendFeedback(Component.literal("§7No Tree Gift counted this session."));
+                        return 1;
+                    }
+                    for (Map.Entry<String, Tree> e : trees.entrySet()) {
+                        ctx.getSource().sendFeedback(Component.literal(header(e.getKey(), e.getValue())));
+                        for (Total t : e.getValue().gains.values())
+                            ctx.getSource().sendFeedback(Component.literal(" §8· " + line(t)));
+                    }
+                    return 1;
+                })
+                .then(ClientCommands.literal("reset").executes(ctx -> {
+                    trees.clear();
+                    ctx.getSource().sendFeedback(Component.literal("§7Tree Gift totals reset"));
+                    return 1;
+                }));
     }
 
     private static Style findHover(Component component) {
