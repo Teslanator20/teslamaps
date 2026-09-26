@@ -2193,6 +2193,24 @@ public class TeslaMapsConfig {
     public boolean rescueSingleColor = false;
     public String rescueColor = "FFFF55";
     public boolean crimsonFogColorFix = false;
+    // w19-01-evt
+    public boolean hoppityEggMealTimer = false;
+    public boolean hoppityEggClickMark = false;
+    public boolean hoppityEggGuess = false;
+    public boolean hoppityEggGuessLine = true;
+    public boolean hoppityEggGuessDupes = true;
+    public boolean hoppityEggSpots = false;
+    public boolean hoppityEggSpotsHideFound = false;
+    public boolean upcomingEvents = false;
+    public int upcomingEventsCount = 6;
+    public boolean upcomingEventsReminder = false;
+    public int upcomingEventsLeadMin = 5;
+    public boolean upcomingEventsInventory = false;
+    public int upcomingEventsX = 10;
+    public int upcomingEventsY = 120;
+    public float upcomingEventsScale = 1.0f;
+    public boolean contestTabEvent = false;
+    public boolean noGrassRaycast = false;
     // w19-00-evt
     public boolean snowMinionGiftAlert = false;
     public boolean raffleHighlight = false;

@@ -83,6 +83,7 @@ public class ContainerOverlays {
         com.teslamaps.features.QuickCraftConfirm.render(context);
         com.teslamaps.features.GuideHighlight.render(context);
         com.teslamaps.features.HoppityHelpers.render(context);
+        com.teslamaps.features.events.UpcomingEvents.renderInventory(context);
         com.teslamaps.features.CommissionHighlight.render(context);
         com.teslamaps.features.MenuHighlights.render(context);
         com.teslamaps.features.garden.ComposterMenu.render(context);

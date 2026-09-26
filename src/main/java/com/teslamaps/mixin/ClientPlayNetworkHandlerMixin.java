@@ -93,6 +93,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.theend.EnderNodeFinder.onParticle(packet);
         com.teslamaps.features.GeyserBox.onParticle(packet);
         com.teslamaps.features.diana.DianaBurrows.onParticle(packet);
+        com.teslamaps.features.HoppityEggLocator.onParticle(packet);
         com.teslamaps.features.rift.RiftSplatterHearts.onParticle(packet);
         com.teslamaps.features.rift.WiltedBerberisHelper.onParticle(packet);
     }

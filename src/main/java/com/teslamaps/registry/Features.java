@@ -988,6 +988,11 @@ final class Features {
         com.teslamaps.features.crimson.MagmaBossStage.register();
         com.teslamaps.features.crimson.AtomHitboxes.register();
         com.teslamaps.features.crimson.DojoRankDisplay.register();
+        // w19-01-evt
+        com.teslamaps.features.HoppityEggESP.registerHooks();
+        com.teslamaps.features.HoppityEggLocator.register();
+        com.teslamaps.features.events.UpcomingEvents.register();
+        com.teslamaps.features.diana.NoGrassRaycast.register();
         // w19-00-evt
         com.teslamaps.features.events.BeachBall.register();
         com.teslamaps.features.events.FishyTreatProfit.register();
