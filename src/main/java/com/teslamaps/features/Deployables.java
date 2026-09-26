@@ -230,6 +230,7 @@ public class Deployables {
     /** Main thread. The orbs' own HAPPY_VILLAGER / DUST / FLAME effects, matched like Devonian does. */
     public static boolean hideParticle(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket p) {
         if (com.teslamaps.features.fishing.TotemOfCorruption.hideParticle(p)) return true;
+        if (FlareExtras.hideParticle(p)) return true;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.deployableHideParticles || !cfg.section("Skills")) return false;
         if (!p.alwaysShow() || !p.isOverrideLimiter()) return false;
@@ -354,6 +355,22 @@ public class Deployables {
                 + " tracks=" + tracks.size()));
     }
 
+    public record FlarePos(Deployable type, double x, double y, double z, long secondsLeft) {}
+
+    /** Active flares with their position, for FlareExtras. */
+    public static List<FlarePos> flares() {
+        List<FlarePos> out = new ArrayList<>();
+        for (Map.Entry<String, Track> e : tracks.entrySet()) {
+            Deployable d = byName(e.getKey());
+            if (d == null || d.type != Type.FLARE) continue;
+            long left = secondsLeft(e.getKey());
+            if (left < 0) continue;
+            Track t = e.getValue();
+            out.add(new FlarePos(d, t.x, t.y, t.z, left));
+        }
+        return out;
+    }
+
     /** @return seconds left, or -1 when that deployable is not up. */
     public static long secondsLeft(String name) {
         Track t = tracks.get(name);
@@ -402,7 +419,8 @@ public class Deployables {
 
             Deployable known = byName(e.getKey());
             if (!visible(c, known)) continue;
-            out.add((known == null ? "§b" + e.getKey() : known.displayName) + " §e" + format(left));
+            String buff = known != null && known.type == Type.FLARE ? FlareExtras.manaBuff(known) : "";
+            out.add((known == null ? "§b" + e.getKey() : known.displayName) + " §e" + format(left) + buff);
         }
         String totem = com.teslamaps.features.fishing.TotemOfCorruption.line();
         if (totem != null) out.add(totem);

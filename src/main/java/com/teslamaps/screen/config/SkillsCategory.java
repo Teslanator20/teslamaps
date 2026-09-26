@@ -144,6 +144,21 @@ public final class SkillsCategory {
                 () -> config.deployableBlackHole, v -> config.deployableBlackHole = v);
         b.toggle("  Flares",
                 () -> config.deployableFlare, v -> config.deployableFlare = v);
+        b.toggle("    Flare Extras", () -> config.deployableFlareExtras, v -> config.deployableFlareExtras = v)
+                .desc("40 block flare range, timer text at the flare, expiry warning, flame hide")
+                .tags("flare", "sos", "alert", "warning", "range", "mana");
+        b.dropdown("      Range Display", com.teslamaps.features.FlareExtras.RANGE_MODES,
+                () -> config.deployableFlareRange, v -> config.deployableFlareRange = v);
+        b.color("      Warning Flare Color", () -> config.colorFlareWarning, v -> config.colorFlareWarning = v);
+        b.color("      Alert Flare Color", () -> config.colorFlareAlert, v -> config.colorFlareAlert = v);
+        b.color("      SOS Flare Color", () -> config.colorFlareSos, v -> config.colorFlareSos = v);
+        b.toggle("      Timer At Flare", () -> config.deployableFlareWorldText, v -> config.deployableFlareWorldText = v);
+        b.toggle("      Mana Regen Buff In Overlay", () -> config.deployableFlareManaBuff, v -> config.deployableFlareManaBuff = v);
+        b.slider("      Expiry Warning (s, 0 = off)", 0, 60,
+                () -> (float) config.deployableFlareWarn, v -> config.deployableFlareWarn = Math.round(v), 0);
+        b.toggle("      Screen Flash While Expiring", () -> config.deployableFlareFlash, v -> config.deployableFlareFlash = v);
+        b.color("        Flash Color", () -> config.deployableFlareFlashColor, v -> config.deployableFlareFlashColor = v);
+        b.toggle("      Hide Flame Particles", () -> config.deployableFlareHideParticles, v -> config.deployableFlareHideParticles = v);
         b.info("Flares have no nametag, the timer starts when you see them");
         b.toggle("  Other Deployables (flares, ...)",
                 () -> config.deployableOthers, v -> config.deployableOthers = v);

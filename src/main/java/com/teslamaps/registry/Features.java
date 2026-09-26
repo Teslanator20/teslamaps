@@ -1045,6 +1045,12 @@ final class Features {
         com.teslamaps.features.rift.RiftShyCrux.register();
         com.teslamaps.features.rift.RiftSplatterHearts.register();
         com.teslamaps.features.rift.RiftGuntherRace.register();
+        // w20-03-com
+        com.teslamaps.features.BestiaryMenuData.register();
+        com.teslamaps.features.mobvisuals.MobHighlights.register();
+        com.teslamaps.features.FlareExtras.register();
+        com.teslamaps.features.MobHealthBars.register();
+        com.teslamaps.features.HiddenMobReveal.register();
         // w20-04-pet
         com.teslamaps.features.pets.PetTitles.register();
         com.teslamaps.features.pets.PetMenus.register();

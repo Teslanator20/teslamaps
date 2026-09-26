@@ -51,6 +51,9 @@ public final class HideCategory {
             TeslaMapsConfig.save();
         });
         b.toggle("Hide Dead Mobs", () -> config.hideDeadMobs, v -> config.hideDeadMobs = v);
+        b.toggle("  Dead Mobs Not Clickable", () -> config.deadMobsUnpickable, v -> config.deadMobsUnpickable = v).cheat()
+                .desc("Corpses stop catching your clicks and hits, the attack goes to the mob behind")
+                .tags("no mob leftover", "corpse", "pickable", "dead");
         b.toggle("Hide Soulweaver Skull", () -> config.hideSoulweaverSkull, v -> config.hideSoulweaverSkull = v);
         b.toggle("Hide Skeleton Skulls", () -> config.hideSkeletonSkull, v -> config.hideSkeletonSkull = v);
         b.toggle("  Keep Thrown Skulls Visible", () -> config.showMovingSkulls, v -> config.showMovingSkulls = v);

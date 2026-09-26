@@ -2148,6 +2148,49 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w20-03-com
+    public boolean bestiaryMenuData = false;
+    public String bestiaryMenuSort = "Kills To Next (low)";
+    public boolean bestiaryMenuPercent = true;
+    public boolean bestiaryMenuPercentMax = false;
+    public boolean bestiaryMenuHideMaxed = false;
+    public boolean bestiaryMenuArabic = false;
+    public boolean bestiaryMenuShortNumbers = true;
+    public boolean mobHighlights = false;
+    public boolean mobHighlightSpecialZealot = true;
+    public boolean mobHighlightChestZealot = true;
+    public boolean mobHighlightZealot = false;
+    public boolean mobHighlightRunic = true;
+    public boolean mobHighlightCorrupted = false;
+    public boolean mobHighlightArachneKeeper = false;
+    public boolean deployableFlareExtras = false;
+    public String deployableFlareRange = "Ring At Feet";
+    public boolean deployableFlareWorldText = true;
+    public int deployableFlareWarn = 10;
+    public boolean deployableFlareFlash = false;
+    public String deployableFlareFlashColor = "FF5555";
+    public boolean deployableFlareHideParticles = false;
+    public boolean deployableFlareManaBuff = false;
+    public String colorFlareWarning = "55FF55";
+    public String colorFlareAlert = "5555FF";
+    public String colorFlareSos = "AA00AA";
+    public boolean mobHealthBars = false;
+    public boolean mobHealthBarsHideFull = false;
+    public boolean mobHealthBarsHealthOnly = false;
+    public float mobHealthBarsScale = 1.0f;
+    public String colorHealthBarFull = "55FF55";
+    public String colorHealthBarHalf = "FFFF55";
+    public String colorHealthBarEmpty = "FF5555";
+    public boolean endProtectorDay30Warning = false;
+    public boolean endProtectorTracer = false;
+    public boolean endProtectorIgnoreTbc = false;
+    public boolean endProtectorIgnoreLegPet = false;
+    public boolean endProtectorIgnoreEpicPet = false;
+    public boolean deadMobsUnpickable = false;
+    public boolean revealHiddenMobs = false;
+    public boolean revealHiddenFels = true;
+    public boolean revealHiddenShadowAssassins = true;
+    public boolean revealHiddenStealthy = true;
     // w20-04-pet
     public boolean petOverlayExpShare = false;   // exp share pets next to the icon + line
     public boolean petOverlayAnimate = false;    // xp ring eases towards the new value

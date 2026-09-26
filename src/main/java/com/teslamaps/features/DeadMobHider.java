@@ -188,6 +188,14 @@ public class DeadMobHider {
         return false;
     }
 
+    /** No Mob Leftover: corpses stop catching clicks and hits. */
+    public static boolean unpickable(LivingEntity le) {
+        if (!le.level().isClientSide() || !TeslaMapsConfig.get().hideDeadMobs) return false;
+        if (com.teslamaps.features.LegitMode.blocksCheats()) return false;
+        if (le == net.minecraft.client.Minecraft.getInstance().player || isRealPlayer(le)) return false;
+        return le.isDeadOrDying() || le.deathTime > 0 || isStripped(le.getId());
+    }
+
     private static boolean isDead(Entity entity) {
         if (!(entity instanceof LivingEntity le)) return false;
         if (le.isDeadOrDying() || le.deathTime > 0) return true;
