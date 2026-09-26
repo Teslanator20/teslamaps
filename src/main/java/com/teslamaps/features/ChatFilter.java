@@ -379,6 +379,14 @@ public class ChatFilter {
         lastReason = "miningChestSummary";
         if (com.teslamaps.features.mining.MiningChestSummary.handle(message, text, t)) return true;
         if (pendingOut != null) return false;
+        lastReason = "summoningMobs";
+        if (SummoningMobs.hideChat(t)) return true;
+        String zealot = com.teslamaps.features.theend.ZealotHelper.appendCount(t);
+        if (zealot != null) {
+            lastReason = "zealotCounter";
+            queue(text, Component.literal(text + zealot));
+            return false;
+        }
         lastReason = "chatCompactsMore";
         if (ChatCompactsMore.handle(message, t)) return true;
         String slayer = com.teslamaps.slayer.SlayerChatCompact.handle(t);

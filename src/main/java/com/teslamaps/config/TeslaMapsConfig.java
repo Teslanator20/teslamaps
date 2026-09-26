@@ -2281,6 +2281,47 @@ public class TeslaMapsConfig {
     public boolean deployableReminderMineshaft = true;
     public boolean deployableReminderTrophy = true;
     public float deployableReminderDelay = 5f;
+    // w20-02-com
+    public boolean damageTracker = false;
+    public boolean damageTrackerChat = false;
+    public boolean healingPoolMarker = false;
+    public boolean healingPoolText = true;
+    public String healingPoolColor = "55FF55";
+    public boolean ragnarockAlerts = false;
+    public boolean ragnarockCastTitle = true;
+    public boolean ragnarockCancelTitle = true;
+    public boolean ragnarockStrengthMessage = true;
+    public String ragnarockStrengthChannel = "Nobody";
+    public boolean specialZealotHighlight = false;
+    public com.teslamaps.render.EspStyle specialZealotEsp = new com.teslamaps.render.EspStyle("FFFF5555", com.teslamaps.render.EspStyle.GLOW);
+    public boolean zealotCounter = false;
+    public boolean zealotCounterOnlyInArea = true;
+    public boolean zealotAlerts = true;
+    public boolean zealotAlertAppendCount = true;
+    public int zealotCounterX = 10;
+    public int zealotCounterY = 220;
+    public float zealotCounterScale = 1.0f;
+    public int zealotKillsTotal = 0;
+    public int zealotKillsSinceEye = 0;
+    public int zealotEyes = 0;
+    public int zealotKillsForEyes = 0;
+    public boolean summoningMobs = false;
+    public boolean summoningMobsHud = true;
+    public boolean summoningMobsHighlight = true;
+    public boolean summoningMobsHideTags = false;
+    public boolean summoningMobsChat = true;
+    public boolean summoningSoulNames = false;
+    public int summoningMobsX = 10;
+    public int summoningMobsY = 240;
+    public float summoningMobsScale = 1.0f;
+    public boolean spiderRainTimer = false;
+    public int spiderRainTimerX = 10;
+    public int spiderRainTimerY = 260;
+    public float spiderRainTimerScale = 1.0f;
+    public boolean scorpionFoilTicker = false;
+    public int scorpionFoilTickerX = 10;
+    public int scorpionFoilTickerY = 280;
+    public float scorpionFoilTickerScale = 1.0f;
     // w20-04-pet
     public boolean petOverlayExpShare = false;   // exp share pets next to the icon + line
     public boolean petOverlayAnimate = false;    // xp ring eases towards the new value
@@ -7147,6 +7188,8 @@ public class TeslaMapsConfig {
         if (c.hotfPlanTarget == null) c.hotfPlanTarget = new java.util.HashMap<>();
         if (c.superprotectronEsp == null) c.superprotectronEsp = new com.teslamaps.render.EspStyle("FFFF55FF", com.teslamaps.render.EspStyle.GLOW);
         if (c.blockEspBlocks == null) c.blockEspBlocks = new java.util.LinkedHashMap<>();
+        if (c.healingPoolColor == null) c.healingPoolColor = "55FF55";
+        if (c.ragnarockStrengthChannel == null) c.ragnarockStrengthChannel = "Nobody";
         if (c.chestEspWhere == null) c.chestEspWhere = "Everywhere";
         if (c.seaCreatureAlert == null) c.seaCreatureAlert = new java.util.HashMap<>();
         if (c.seaCreatureAnnounce == null) c.seaCreatureAnnounce = new java.util.HashMap<>();

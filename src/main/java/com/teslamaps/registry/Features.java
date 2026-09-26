@@ -1067,6 +1067,14 @@ final class Features {
         com.teslamaps.features.BroodmotherTracker.register();
         com.teslamaps.features.mobvisuals.MobHealthHud.register();
         com.teslamaps.features.DeployableReminder.register();
+        // w20-02-com
+        com.teslamaps.features.DamageTracker.register();
+        com.teslamaps.features.HealingPoolMarker.register();
+        com.teslamaps.features.RagnarockAlerts.register();
+        com.teslamaps.features.theend.ZealotHelper.register();
+        com.teslamaps.features.SummoningMobs.register();
+        com.teslamaps.features.SpiderRainTimer.register();
+        com.teslamaps.features.ScorpionFoilTicker.register();
         // w20-04-pet
         com.teslamaps.features.pets.PetTitles.register();
         com.teslamaps.features.pets.PetMenus.register();
