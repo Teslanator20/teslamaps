@@ -960,5 +960,13 @@ final class Features {
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
+        // w19-06-rif
+        com.teslamaps.features.rift.CraftRoomHolograms.register();
+        com.teslamaps.features.rift.EnigmaRoseDrop.register();
+        com.teslamaps.features.rift.RiftMotesSession.register();
+        com.teslamaps.features.rift.HorsezookaHider.register();
+        com.teslamaps.features.rift.CoherentRodRadius.register();
+        com.teslamaps.features.rift.UbikCubeReminder.register();
+        com.teslamaps.features.rift.VoltCrux.register();
     }
 }

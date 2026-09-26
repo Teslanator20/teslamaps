@@ -2148,6 +2148,28 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w19-06-rif
+    public boolean craftRoomHolograms = false;
+    public boolean craftRoomHoloName = true;
+    public boolean craftRoomHoloHealth = true;
+    public boolean craftRoomHidePlayers = false;
+    public boolean enigmaRoseDrop = false;
+    public boolean motesSession = false;
+    public boolean horsezookaHider = false;
+    public boolean coherentRodRadius = false;
+    public String coherentRodColor = "4000FF00";
+    public boolean ubikReminder = false;
+    public boolean ubikHud = true;
+    public boolean ubikHudOnlyReady = false;
+    public int ubikHudX = 10;
+    public int ubikHudY = 200;
+    public float ubikHudScale = 1f;
+    @Global
+    public java.util.Map<String, Long> ubikReadyAt = new java.util.HashMap<>();
+    public boolean voltCrux = false;
+    public boolean voltMoodMeter = true;
+    public boolean voltRange = true;
+    public String voltRangeColor = "6000AAFF";
     // w18-05-evt
     public boolean frozenTreasureHighlight = false;
     public com.teslamaps.render.EspStyle frozenTreasureStyle = new com.teslamaps.render.EspStyle("6655FFFF", com.teslamaps.render.EspStyle.BOTH);
@@ -6371,6 +6393,8 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.ubikReadyAt == null) c.ubikReadyAt = new java.util.HashMap<>();
+        c.ubikReadyAt.values().removeIf(java.util.Objects::isNull);
         if (c.dianaWarpIgnored == null) c.dianaWarpIgnored = new java.util.ArrayList<>();
         if (c.dianaRareNoShare == null) c.dianaRareNoShare = new java.util.ArrayList<>();
         if (c.dianaRareNoShow == null) c.dianaRareNoShow = new java.util.ArrayList<>();
