@@ -916,5 +916,9 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraRunTrackers.register();
         // w16-09-kuu
         com.teslamaps.features.kuudra.KuudraRunInfo.register();
+        // w18-02-evt
+        com.teslamaps.features.diana.DianaBurrows.register();
+        com.teslamaps.features.diana.DianaWarp.register();
+        com.teslamaps.features.diana.DianaRareMobs.register();
     }
 }
