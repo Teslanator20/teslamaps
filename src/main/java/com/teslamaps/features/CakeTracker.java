@@ -85,6 +85,8 @@ public final class CakeTracker {
                     b.dropdown("  Show", SHOW, () -> cfg().cakeTrackerShow, v -> { cfg().cakeTrackerShow = v; dirty = true; });
                     b.toggle("  Mark Cakes In AH", () -> cfg().cakeTrackerAhHighlight, v -> cfg().cakeTrackerAhHighlight = v)
                             .desc("Green = owned, red = missing");
+                    b.toggle("    Red = Owned", () -> cfg().cakeTrackerAhInvert, v -> cfg().cakeTrackerAhInvert = v)
+                            .desc("Flips the AH colors: red = you already own that year, green = missing");
                     b.button("  Reset Owned Cakes", () -> { ensure(); owned.clear(); save(); dirty = true; });
                 });
         SbProfile.onChange(() -> { loaded = false; dirty = true; });
@@ -170,7 +172,7 @@ public final class CakeTracker {
                 Slot s = slots.get(i);
                 if (s.container instanceof Inventory) continue;
                 int y = year(s.getItem());
-                if (y > 0) hl.put(i, owned.contains(y) ? 0x55FF55 : 0xFF5555);
+                if (y > 0) hl.put(i, owned.contains(y) != cfg().cakeTrackerAhInvert ? 0x55FF55 : 0xFF5555);
             }
             highlights = hl;
         }

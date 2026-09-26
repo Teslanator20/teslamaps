@@ -30,7 +30,7 @@ public final class ForagingCategory {
                 .desc("Tree the Fish, pet item");
         b.toggle("  Hide Mobs", () -> config.foragingGiftHideMobs, v -> config.foragingGiftHideMobs = v)
                 .desc("Phantoms and other mobs falling from the tree");
-        b.toggle("  Title For Mobs From The Tree", () -> config.foragingTreeMobTitle, v -> config.foragingTreeMobTitle = v)
+        b.toggle("Title For Mobs From The Tree", () -> config.foragingTreeMobTitle, v -> config.foragingTreeMobTitle = v)
                 .desc("A <mob> fell from the Tree! as a red title, works with or without the compact line");
         b.toggle("Hide Sweep Details",
                 () -> config.foragingHideSweepDetails, v -> config.foragingHideSweepDetails = v);

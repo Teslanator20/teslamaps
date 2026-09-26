@@ -98,13 +98,15 @@ public final class KuudraEtherwarp {
     static void load() {
         List<Waypoint> out = new ArrayList<>();
         List<String> cats = new ArrayList<>();
-        try {
-            if (!Files.exists(FILE)) {
+        if (!Files.exists(FILE)) {
+            try (InputStream in = KuudraEtherwarp.class.getResourceAsStream(BUNDLED)) {
                 Files.createDirectories(FILE.getParent());
-                try (InputStream in = KuudraEtherwarp.class.getResourceAsStream(BUNDLED)) {
-                    if (in != null) Files.copy(in, FILE);
-                }
+                if (in != null) Files.copy(in, FILE);
+            } catch (Exception ex) {
+                TeslaMaps.LOGGER.warn("could not copy kuudra_etherwarp.json to config", ex);
             }
+        }
+        try {
             JsonObject root;
             if (Files.exists(FILE)) {
                 root = JsonParser.parseString(Files.readString(FILE, StandardCharsets.UTF_8)).getAsJsonObject();

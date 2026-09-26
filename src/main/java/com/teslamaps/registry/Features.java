@@ -858,7 +858,6 @@ final class Features {
         // w17-04-for
         com.teslamaps.safari.SafariCenterNames.register();
         com.teslamaps.features.foraging.ParkRainTimer.register();
-        com.teslamaps.features.TalbotTheodolite.register();
         com.teslamaps.features.mobvisuals.MobVisualExtras.register();
         com.teslamaps.features.foraging.HotfWhisperGoal.register();
         com.teslamaps.features.hunting.HuntingBoxSlots.register();
@@ -885,7 +884,7 @@ final class Features {
         com.teslamaps.features.mobvisuals.LotumHelper.register();
         com.teslamaps.safari.HideyhoFinder.register();
         com.teslamaps.registry.Feature.of("WumpaReenter").section("Critter Safari")
-                .when(() -> com.teslamaps.config.TeslaMapsConfig.get().safariTracker && com.teslamaps.config.TeslaMapsConfig.get().safariWumpaReenter)
+                .when(() -> com.teslamaps.config.TeslaMapsConfig.get().safariTracker && com.teslamaps.config.TeslaMapsConfig.get().safariWumpaTitle && com.teslamaps.config.TeslaMapsConfig.get().safariWumpaReenter)
                 .world(com.teslamaps.safari.SafariTracker::renderReenter);
         // w17-02-for
         com.teslamaps.features.foraging.FrogMask.register();
@@ -924,5 +923,43 @@ final class Features {
         com.teslamaps.features.events.FruitDigging.register();
         com.teslamaps.features.events.CenturyHighlights.register();
         com.teslamaps.features.events.JerryPresentHider.register();
+        // w18-06-evt
+        com.teslamaps.features.events.GriffinPetWarning.register();
+        com.teslamaps.features.events.HoppityCallWarning.register();
+        com.teslamaps.features.events.GreatSpook.register();
+        com.teslamaps.features.events.FrozenTreasureTracker.register();
+        com.teslamaps.features.events.GiftProfitTracker.register();
+        com.teslamaps.features.events.JerryHighlight.register();
+        // w18-02-evt
+        com.teslamaps.features.diana.DianaBurrows.register();
+        com.teslamaps.features.diana.DianaWarp.register();
+        com.teslamaps.features.diana.DianaRareMobs.register();
+        // w18-08-evt
+        com.teslamaps.features.CalendarExtras.register();
+        com.teslamaps.features.WinterReminders.register();
+        com.teslamaps.features.GiftNametagCleaner.register();
+        com.teslamaps.features.FruitBowlHelper.register();
+        com.teslamaps.features.CarnivalDojoGlow.register();
+        com.teslamaps.features.LobbyEventWaypoints.register();
+        // w18-09-evt
+        com.teslamaps.features.HoppityUnclaimedEggs.register();
+        com.teslamaps.features.TimeTowerReminder.register();
+        com.teslamaps.features.UniqueGifting.register();
+        com.teslamaps.features.SphinxHelper.register();
+        com.teslamaps.features.SpookyChestAlert.register();
+        com.teslamaps.features.SpookyCandyDisplay.register();
+        com.teslamaps.features.fishing.SharkCounter.register();
+        // w18-07-evt
+        com.teslamaps.features.GaiaConstructHits.register();
+        com.teslamaps.features.HoppityHelpers.register();
+        // w18-00-fis
+        com.teslamaps.features.fishing.ThunderSparks.register();
+        com.teslamaps.features.fishing.SeaCreatureCocoon.register();
+        com.teslamaps.features.fishing.Wormholes.register();
+        com.teslamaps.features.fishing.OdgerHelper.register();
+        com.teslamaps.features.fishing.SulphurSkitterBox.register();
+        com.teslamaps.features.fishing.TrophyDiamondEffect.register();
+        // w18-01-fis
+        com.teslamaps.features.fishing.NearbySeaCreatures.register();
     }
 }

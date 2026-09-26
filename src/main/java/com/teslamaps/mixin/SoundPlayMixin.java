@@ -42,9 +42,15 @@ public class SoundPlayMixin {
             cancellable = true)
     private void teslamaps$debugAndMute(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
         com.teslamaps.features.EventTracker.onSound(instance);
+        if (com.teslamaps.features.diana.DianaBurrows.muteMusic(instance)) { cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED); return; }
         if (com.teslamaps.features.foraging.ForagingBeacon.listening()) {
             try {
                 com.teslamaps.features.foraging.ForagingBeacon.onSound(instance.getIdentifier().toString(), instance.getPitch());
+            } catch (Throwable ignored) {}
+        }
+        if (com.teslamaps.features.fishing.Wormholes.listening()) {
+            try {
+                com.teslamaps.features.fishing.Wormholes.onSound(instance.getIdentifier().toString(), instance.getPitch());
             } catch (Throwable ignored) {}
         }
         TeslaMapsConfig c = TeslaMapsConfig.get();
