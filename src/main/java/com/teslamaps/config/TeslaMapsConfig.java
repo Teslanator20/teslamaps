@@ -2148,6 +2148,43 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w18-09-evt
+    public boolean hoppityUnclaimedEggs = false;
+    public boolean hoppityUnclaimedWarn = true;
+    public boolean hoppityUnclaimedWhileBusy = false;
+    public String hoppityUnclaimedWarp = "nest";
+    public int hoppityUnclaimedX = 10;
+    public int hoppityUnclaimedY = 140;
+    public float hoppityUnclaimedScale = 1.0f;
+    @Global
+    public java.util.Map<String, Long> hoppityMealClaimed = new java.util.HashMap<>();
+    public boolean timeTowerReminder = false;
+    @Global
+    public long timeTowerEndsAt = 0L;
+    public boolean uniqueGiftHighlight = false;
+    public boolean uniqueGiftHoldingOnly = false;
+    public boolean uniqueGiftNametag = true;
+    public String uniqueGiftColor = "00AA00";
+    public boolean uniqueGiftCounter = false;
+    public int uniqueGiftCounterX = 10;
+    public int uniqueGiftCounterY = 180;
+    public float uniqueGiftCounterScale = 1.0f;
+    @Global
+    public int uniqueGiftAmount = 0;
+    @Global
+    public java.util.List<String> uniqueGiftedPlayers = new java.util.ArrayList<>();
+    public boolean sphinxHelper = false;
+    public boolean spookyChestAlert = false;
+    public boolean spookyChestCompact = false;
+    public boolean spookyChestSound = true;
+    public boolean spookyCandyDisplay = false;
+    public int spookyCandyX = 10;
+    public int spookyCandyY = 220;
+    public float spookyCandyScale = 1.0f;
+    public boolean sharkCounter = false;
+    public int sharkCounterX = 10;
+    public int sharkCounterY = 240;
+    public float sharkCounterScale = 1.0f;
     // w17-09-fis
     public boolean coralFishHelper = false;
     public boolean fishingProgressHud = false;
@@ -6143,6 +6180,11 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.hoppityMealClaimed == null) c.hoppityMealClaimed = new java.util.HashMap<>();
+        c.hoppityMealClaimed.values().removeIf(java.util.Objects::isNull);
+        if (c.hoppityUnclaimedWarp == null) c.hoppityUnclaimedWarp = "nest";
+        if (c.uniqueGiftedPlayers == null) c.uniqueGiftedPlayers = new java.util.ArrayList<>();
+        if (c.uniqueGiftColor == null) c.uniqueGiftColor = "00AA00";
         if (c.lotusPityData == null) c.lotusPityData = new java.util.HashMap<>();
         c.lotusPityData.values().removeIf(v -> v == null || v.length < 4);
         if (c.slayerBossesSinceRng == null) c.slayerBossesSinceRng = new java.util.HashMap<>();
