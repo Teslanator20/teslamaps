@@ -915,6 +915,13 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraRunTrackers.register();
         // w16-09-kuu
         com.teslamaps.features.kuudra.KuudraRunInfo.register();
+        // w18-05-evt
+        com.teslamaps.features.events.FrozenTreasureHighlighter.register();
+        com.teslamaps.features.events.CalendarEventDates.register();
+        com.teslamaps.features.events.CakeCounterStats.register();
+        com.teslamaps.features.events.MythologicalTracker.register();
+        com.teslamaps.features.events.RareDianaMobs.register();
+        com.teslamaps.features.events.HiddenJerry.register();
         // w18-06-evt
         com.teslamaps.features.events.GriffinPetWarning.register();
         com.teslamaps.features.events.HoppityCallWarning.register();
