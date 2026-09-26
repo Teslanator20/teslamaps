@@ -67,7 +67,7 @@ public final class PetSlotIcons {
                             .desc("Hypixel hides \"(n/10) Pet Candy Used\" once a pet is max level, this puts it back")
                             .tags("candy", "pet", "lore");
                     b.toggle("Pet Item Symbol On Icon", () -> c.petItemSymbol, v -> c.petItemSymbol = v)
-                            .desc("A symbol for the held pet item on the pet's icon, in every inventory. "
+                            .desc("A symbol for the held pet item bottom right on the pet's icon, in every inventory. "
                                     + "/tmap petsymbol <ITEM_ID> <symbol|off|reset> sets your own, § colours work")
                             .tags("pet item", "held item", "symbol", "tier boost");
                     b.slider("  Symbol Scale", 0.3f, 1.5f, () -> c.petItemSymbolScale, v -> c.petItemSymbolScale = v, 2);
@@ -166,7 +166,7 @@ public final class PetSlotIcons {
             float s = c.petItemSymbolScale;
             int w = (int) (font.width(sym) * s);
             ctx.pose().pushMatrix();
-            ctx.pose().translate(slot.x + 22 - w, slot.y - 1);
+            ctx.pose().translate(slot.x + 17 - w, slot.y + 17 - 8 * s);
             ctx.pose().scale(s, s);
             ctx.text(font, sym, 0, 0, 0xFFFFFFFF);
             ctx.pose().popMatrix();

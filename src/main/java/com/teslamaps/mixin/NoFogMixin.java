@@ -6,6 +6,9 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.FogRenderer;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,5 +30,14 @@ public class NoFogMixin {
         data.environmentalEnd = 1.0E9f;
         data.renderDistanceStart = 1.0E8f;
         data.renderDistanceEnd = 1.0E9f;
+    }
+
+    // Devonian's FixCrimsonIsleFog: fog keeps its colour under night vision
+    @WrapOperation(method = "computeFogColor", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/GameRenderer;getNightVisionScale(Lnet/minecraft/world/entity/LivingEntity;F)F"))
+    private float teslamaps$crimsonFogColor(LivingEntity entity, float delta, Operation<Float> original) {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (cfg.crimsonFogColorFix && com.teslamaps.utils.SkyblockUtils.isInArea("Crimson Isle")) return 0f;
+        return original.call(entity, delta);
     }
 }

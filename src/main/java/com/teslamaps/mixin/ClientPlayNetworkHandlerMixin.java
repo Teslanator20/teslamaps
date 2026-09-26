@@ -93,6 +93,8 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.theend.EnderNodeFinder.onParticle(packet);
         com.teslamaps.features.GeyserBox.onParticle(packet);
         com.teslamaps.features.diana.DianaBurrows.onParticle(packet);
+        com.teslamaps.features.crimson.DojoHelper.onParticle(packet);
+        com.teslamaps.features.HoppityEggLocator.onParticle(packet);
         com.teslamaps.features.rift.RiftSplatterHearts.onParticle(packet);
         com.teslamaps.features.rift.WiltedBerberisHelper.onParticle(packet);
     }
@@ -131,7 +133,8 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.GeyserBox.hideParticle(packet)
                     || com.teslamaps.features.rift.MotesOrbHighlight.onParticle(packet)
                     || com.teslamaps.features.rift.LivingCaveDefenseBlocks.onParticle(packet)
-                    || com.teslamaps.features.rift.LivingMetalHelper.hideParticle(packet))) ci.cancel();
+                    || com.teslamaps.features.rift.LivingMetalHelper.hideParticle(packet)
+                    || com.teslamaps.features.crimson.AshfangHider.hideParticle())) ci.cancel();
     }
 
     @Inject(method = "handleInitializeBorder", at = @At("HEAD"))

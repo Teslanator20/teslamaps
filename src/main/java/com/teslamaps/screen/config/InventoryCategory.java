@@ -428,6 +428,19 @@ public final class InventoryCategory {
                 () -> config.wardrobeNextPageKey, v -> config.wardrobeNextPageKey = v);
         b.keybind("  Previous Page",
                 () -> config.wardrobePrevPageKey, v -> config.wardrobePrevPageKey = v);
+        b.toggle("Pet Keybinds", () -> config.petKeybinds, v -> config.petKeybinds = v)
+                .desc("Pets menu: keys pick pet 1-9 of the page. Shift + key over a pet binds that pet on any page. Unbound keys use the hotbar keys");
+        b.toggle("  Don't Unequip Active Pet", () -> config.petKeysNoUnequip, v -> config.petKeysNoUnequip = v);
+        b.toggle("  Close If Already Equipped", () -> config.petKeysCloseIfEquipped, v -> config.petKeysCloseIfEquipped = v);
+        b.keybind("  Unequip Pet", () -> config.petUnequipKey, v -> config.petUnequipKey = v);
+        b.keybind("  Pets Next Page", () -> config.petNextPageKey, v -> config.petNextPageKey = v);
+        b.keybind("  Pets Previous Page", () -> config.petPrevPageKey, v -> config.petPrevPageKey = v);
+        for (int i = 0; i < 9; i++) {
+            final int idx = i;
+            b.keybind("  Pet " + (i + 1), () -> config.petKeys[idx], v -> config.petKeys[idx] = v);
+        }
+        b.button("  Clear Pet Binds", com.teslamaps.features.pets.PetKeybinds::clearBinds);
+        b.info("  Radial Menus can show the Pets menu as a wheel too");
         b.toggle("Custom Wardrobe", () -> config.customWardrobe, v -> config.customWardrobe = v);
         b.info("Card grid with 3D preview. Click equips, right-click favorites, Vanilla button switches back");
         b.toggle("  Hide Empty Slots", () -> config.customWardrobeHideEmpty, v -> config.customWardrobeHideEmpty = v);

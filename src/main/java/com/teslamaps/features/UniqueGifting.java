@@ -4,7 +4,6 @@ package com.teslamaps.features;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.EntityGlow;
 import com.teslamaps.utils.EntityCache;
@@ -49,7 +48,6 @@ public final class UniqueGifting {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         hud = HudEditElement.of("uniqueGiftCounter", "Unique Gift Counter").section("Events")
                 .enabled(() -> cfg().uniqueGiftCounter)
                 .size(() -> lines.isEmpty() ? TextHud.width(SAMPLE) : width, () -> TextHud.height(1))

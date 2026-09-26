@@ -30,6 +30,10 @@ public final class ContestTimersCategory {
         b.toggle("  Dark Auction Timer",
                 () -> config.contestShowDarkAuction, v -> config.contestShowDarkAuction = v)
                 .desc("Time until the next Dark Auction (every hour at :55)");
+        b.toggle("  Tab Event Countdown",
+                () -> config.contestTabEvent, v -> config.contestTabEvent = v)
+                .desc("The event from the tab list Event widget with its \"Ends in\" or \"Starts in\" time (Mining Fiesta, Hoppity, Zoo, Fishing Festival ...). Needs the Event widget in /tab")
+                .tags("event", "tab", "countdown", "fiesta", "starts in");
         b.toggle("  SkyBlock Only",
                 () -> config.contestTimerSkyblockOnly, v -> config.contestTimerSkyblockOnly = v);
         b.toggle("  Button In Inventory",

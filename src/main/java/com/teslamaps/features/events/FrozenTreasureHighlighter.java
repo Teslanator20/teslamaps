@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.FishingHelpers;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.EspStyle;
 import com.teslamaps.utils.EntityCache;
 import com.teslamaps.utils.SkyblockUtils;
@@ -37,7 +36,6 @@ public final class FrozenTreasureHighlighter {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         Feature.of("FrozenTreasureHighlighter").section("Events").when(() -> cfg().frozenTreasureHighlight)
                 .tick(FrozenTreasureHighlighter::tick)
                 .world(FrozenTreasureHighlighter::render)

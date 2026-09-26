@@ -599,6 +599,7 @@ public class TMapCommand {
                                     Minecraft.getInstance().execute(() -> com.teslamaps.features.HotspotShare.share(id));
                                     return 1;
                                 })))
+                .then(com.teslamaps.features.crimson.CrimsonCommands.command())
                 .then(ClientCommands.literal("achievements")
                         .executes(context -> {
                             com.teslamaps.features.Achievements.list();

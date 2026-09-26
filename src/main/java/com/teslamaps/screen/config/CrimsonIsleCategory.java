@@ -25,5 +25,11 @@ public final class CrimsonIsleCategory {
                 new String[]{"1", "2"},
                 () -> String.valueOf(config.rescueVariant), v -> config.rescueVariant = Integer.parseInt(v));
         b.info("Two S-rank layouts exist - switch if the path looks wrong");
+        b.toggle("  Path To Agent / Quest Board", () -> config.rescueAgentPath, v -> config.rescueAgentPath = v)
+                .desc("Island Navigation path from the Rescue Recruiter to your faction's Undercover Agent, and back to the Quest Board when the tier is unknown or the mission failed. Needs Island Navigation (Ordered Waypoints)")
+                .tags("rescue", "agent", "quest board", "navigation");
+        b.toggle("  Single Color Path", () -> config.rescueSingleColor, v -> config.rescueSingleColor = v)
+                .desc("One colour for the parkour platforms instead of the rainbow");
+        b.color("    Path Color", () -> config.rescueColor, v -> config.rescueColor = v);
     }
 }

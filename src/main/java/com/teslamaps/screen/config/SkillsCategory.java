@@ -52,6 +52,36 @@ public final class SkillsCategory {
         b.toggle("  XP/h Line", () -> config.petOverlayXpRate, v -> config.petOverlayXpRate = v);
         b.toggle("  Time to Next / Max Level", () -> config.petOverlayEta, v -> config.petOverlayEta = v);
         b.toggle("  Show Last Pet", () -> config.petOverlayLastPet, v -> config.petOverlayLastPet = v);
+        b.toggle("  Exp Share Pets", () -> config.petOverlayExpShare, v -> config.petOverlayExpShare = v)
+                .desc("Small icons and lines for your Exp Share pets, dimmed when the slot is off. Open the Exp Sharing menu once");
+        b.toggle("  Animate XP Ring", () -> config.petOverlayAnimate, v -> config.petOverlayAnimate = v);
+        b.lineOrder("  Lines (drag to sort, click to hide)", com.teslamaps.features.pets.PetOverlay.LINES_ID);
+        b.info("Pet XP estimate counts Diana, Beastmaster Crest, Battle Experience and Exp Share");
+        b.toggle("  Pet Panel In Inventory", () -> config.petInventoryPanel, v -> config.petInventoryPanel = v)
+                .desc("Active pet above your inventory. Click it to open /pets");
+        b.toggle("  Kat: Level After Upgrade", () -> config.petKatLevel, v -> config.petKatLevel = v)
+                .desc("Kat's menu: the pet's level at the next rarity, next to the menu");
+        b.toggle("  Pet Swap Title", () -> config.petSwapTitle, v -> config.petSwapTitle = v)
+                .desc("Big title with the new pet when Autopet swaps it. Move it in /tmap gui")
+                .tags("autopet", "title");
+        b.toggle("    Also On Summon", () -> config.petSwapTitleSummon, v -> config.petSwapTitleSummon = v);
+        b.toggle("    Only In Dungeons", () -> config.petSwapTitleDungeonOnly, v -> config.petSwapTitleDungeonOnly = v);
+        b.toggle("    Sound", () -> config.petSwapTitleSound, v -> config.petSwapTitleSound = v);
+        b.slider("    Duration (s)", 0.5f, 5f, () -> config.petSwapTitleSeconds, v -> config.petSwapTitleSeconds = v, 1);
+        b.toggle("  Pet Maxed Title", () -> config.petMaxedTitle, v -> config.petMaxedTitle = v)
+                .desc("\"Pet is Maxed!\" title and a sound when a pet reaches level 100 (200 for dragons)");
+        b.toggle("Pet Level On Slots", () -> config.petSlotLevel, v -> config.petSlotLevel = v)
+                .desc("Level in the corner of every pet item, also in Autopet's Choose Pet menu");
+        b.toggle("  Hide At Max Level", () -> config.petSlotLevelHideMax, v -> config.petSlotLevelHideMax = v);
+        b.toggle("  Level Progress %", () -> config.petSlotLevelPercent, v -> config.petSlotLevelPercent = v);
+        b.toggle("Pet XP Tooltip", () -> config.petExpTooltip, v -> config.petExpTooltip = v)
+                .desc("Pet tooltips: progress to max level with a bar and the total pet XP. Hold Shift");
+        b.toggle("  Without Shift", () -> config.petExpTooltipAlways, v -> config.petExpTooltipAlways = v);
+        b.toggle("Favorite Pets", () -> config.petFavorites, v -> config.petFavorites = v)
+                .desc("Pets menu: press the key over a pet to mark it, marked pets get a colored background");
+        b.keybind("  Favorite Key", () -> config.petFavoriteKey, v -> config.petFavoriteKey = v);
+        b.color("  Favorite Color", () -> config.petFavoriteColor, v -> config.petFavoriteColor = v);
+        b.toggle("  Pets Radial Menu: Favorites Only", () -> config.petWheelFavoritesOnly, v -> config.petWheelFavoritesOnly = v);
         b.label("Skill XP Display");
         b.toggle("Skill XP Display", () -> config.skillExpDisplay, v -> config.skillExpDisplay = v);
         b.info("Cuts the +XP out of the action bar into its own HUD element");

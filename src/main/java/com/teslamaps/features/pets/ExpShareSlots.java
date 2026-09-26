@@ -14,9 +14,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /** Exp Sharing menu: disabled slots marked; Pets menu: exp-shared pets tinted. */
 public final class ExpShareSlots {
 
@@ -25,7 +22,6 @@ public final class ExpShareSlots {
     private static Feature feature;
     private static AbstractContainerScreen<?> lastScreen;
     private static boolean inExpShare, inPets;
-    private static int ticks;
     private static int tint;
 
     private ExpShareSlots() {}
@@ -69,25 +65,11 @@ public final class ExpShareSlots {
             String t = StringUtil.stripTrim(cs.getTitle().getString());
             inExpShare = t.equals("Exp Sharing");
             inPets = t.startsWith("Pets") || t.contains(") Pets");
-            ticks = 0;
         }
         try {
             tint = 0x60000000 | (Integer.parseUnsignedInt(cfg().expSharePetColor, 16) & 0xFFFFFF);
         } catch (NumberFormatException e) {
             tint = 0x605555FF;
-        }
-        if (!inExpShare || ticks++ % 10 != 5) return;
-        List<String> read = new ArrayList<>(3);
-        for (int s : SLOTS) {
-            if (s >= cs.getMenu().slots.size()) return;
-            ItemStack st = cs.getMenu().getSlot(s).getItem();
-            if (st.isEmpty()) return;
-            String uuid = PetSlotIcons.info(st).uuid();
-            read.add(uuid == null ? "" : uuid);
-        }
-        if (!read.equals(cfg().expSharePetUuids)) {
-            cfg().expSharePetUuids = read;
-            TeslaMapsConfig.save();
         }
     }
 
@@ -115,14 +97,13 @@ public final class ExpShareSlots {
             if (c.expShareDisabledSlots && disabled(slot)) ctx.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x70FF3333);
             return;
         }
-        if (!c.expSharePetHighlight || c.expSharePetUuids.isEmpty() || slot.container instanceof Inventory) return;
+        if (!c.expSharePetHighlight || slot.container instanceof Inventory) return;
         ItemStack st = slot.getItem();
         if (st.isEmpty()) return;
         String uuid = PetSlotIcons.info(st).uuid();
         if (uuid == null) return;
-        List<String> list = c.expSharePetUuids;
-        for (int i = 0; i < list.size(); i++) {
-            if (!uuid.equals(list.get(i))) continue;
+        for (int i = 0; i < 3; i++) {
+            if (!uuid.equals(PetStore.shareUuid(i))) continue;
             boolean off = i > 0 && perkKnownOff();
             ctx.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, off ? 0x40888888 : tint);
             return;

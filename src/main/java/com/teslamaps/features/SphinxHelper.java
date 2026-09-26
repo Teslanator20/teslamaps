@@ -3,7 +3,6 @@ package com.teslamaps.features;
 // After Skysoft's DianaSphinxAnswerHighlighter.kt (answer table also in WpcMod's AutoAnswerSphinx.kt)
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.ChatFormatting;
@@ -45,11 +44,9 @@ public final class SphinxHelper {
     private SphinxHelper() {}
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         feature = Feature.of("SphinxHelper").section("Events").when(() -> TeslaMapsConfig.get().sphinxHelper)
                 .config("Events", b -> {
                     TeslaMapsConfig c = TeslaMapsConfig.get();
-                    b.label("Mythological Ritual");
                     b.toggle("Sphinx Answer Helper", () -> c.sphinxHelper, v -> c.sphinxHelper = v)
                             .desc("Highlights the correct answer line of the Sphinx question in chat (Hub, Diana). You still click it yourself.");
                 });
