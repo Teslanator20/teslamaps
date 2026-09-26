@@ -5795,7 +5795,6 @@ public class TeslaMapsConfig {
     // w07-00-qol
     public boolean musicOverlay = false;
     public boolean musicOverlayArt = true;
-    public boolean musicOverlayLyrics = false;
     public int musicPlayPauseKey = -1;
     public int musicNextKey = -1;
     public int musicPrevKey = -1;
