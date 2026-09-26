@@ -20,6 +20,9 @@ public class ForagingChat {
         String raw = message.getString();
         String clean = Foraging.strip(raw);
 
+        if (c.foragingTreeMobTitle) treeMobTitle(clean);
+        if (c.sweepDetailsHud && Foraging.whereTreesGrow() && SweepDetailsHud.handle(clean)) return true;
+
         if (TreeGiftCompact.handle(message)) return true;
 
         if (c.foragingCompactSweep && Foraging.whereTreesGrow() && CompactSweep.handle(message, clean)) return true;
@@ -32,6 +35,18 @@ public class ForagingChat {
         }
 
         return handleRotatingPerk(c, clean);
+    }
+
+    private static final Pattern TREE_MOB = Pattern.compile("A (.+?) fell from the Tree!");
+
+    private static void treeMobTitle(String clean) {
+        if (!clean.contains("fell from the Tree")) return;
+        Matcher m = TREE_MOB.matcher(clean);
+        if (!m.find()) return;
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        mc.gui.setTimes(5, 40, 10);
+        mc.gui.setSubtitle(Component.literal("§eFell from the Tree!"));
+        mc.gui.setTitle(Component.literal("§c§l" + m.group(1).trim()));
     }
 
     /**

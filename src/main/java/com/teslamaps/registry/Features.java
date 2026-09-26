@@ -840,5 +840,12 @@ final class Features {
         com.teslamaps.slayer.CallMaddox.register();
         com.teslamaps.slayer.VoidgloomBeacon.register();
         com.teslamaps.features.theend.EndermanQol.register();
+        // w17-05-for
+        com.teslamaps.features.foraging.SweepDetailsHud.register();
+        com.teslamaps.features.mobvisuals.LotumHelper.register();
+        com.teslamaps.safari.HideyhoFinder.register();
+        com.teslamaps.registry.Feature.of("WumpaReenter").section("Critter Safari")
+                .when(() -> com.teslamaps.config.TeslaMapsConfig.get().safariTracker && com.teslamaps.config.TeslaMapsConfig.get().safariWumpaReenter)
+                .world(com.teslamaps.safari.SafariTracker::renderReenter);
     }
 }

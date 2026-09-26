@@ -37,10 +37,12 @@ public class ClientPlayerInteractionManagerMixin {
     @Inject(method = "attack", at = @At("HEAD"))
     private void teslamaps$onAttack(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Entity target, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         com.teslamaps.features.FatalTempo.onHit();
+        com.teslamaps.features.mobvisuals.LotumHelper.onClick(target);
     }
 
     @Inject(method = "interact", at = @At("HEAD"), cancellable = true)
     private void teslamaps$onInteractEntity(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Entity entity, net.minecraft.world.phys.EntityHitResult hitResult, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        if (hand == InteractionHand.MAIN_HAND) com.teslamaps.features.mobvisuals.LotumHelper.onClick(entity);
         if (entity instanceof net.minecraft.world.entity.decoration.ItemFrame frame) {
             if (com.teslamaps.dungeon.puzzle.ArrowAlignSolver.blockClick(frame)) {
                 cir.setReturnValue(InteractionResult.FAIL);

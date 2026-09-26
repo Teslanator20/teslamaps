@@ -31,5 +31,9 @@ public final class MobVisualsCategory {
         b.toggle("    Draw As HUD (constant size)", () -> config.mobVisualNameplateHud, v -> config.mobVisualNameplateHud = v);
         b.slider("    Nameplate Size", 0.5f, 3.0f,
                 () -> config.mobVisualNameplateScale, v -> config.mobVisualNameplateScale = v);
+        b.toggle("  Lotum: Confirm By Nametag", () -> config.mobVisualLotumConfirm, v -> config.mobVisualLotumConfirm = v)
+                .desc("Only frogs with a Lotum nametag right above them count as Lotum");
+        b.toggle("  Lotum: Line To Clicked", () -> config.mobVisualLotumLine, v -> config.mobVisualLotumLine = v)
+                .desc("Green line to the nearest visible Lotum you clicked");
     }
 }

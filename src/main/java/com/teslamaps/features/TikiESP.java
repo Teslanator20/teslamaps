@@ -67,8 +67,25 @@ public class TikiESP {
         tikis.addAll(found);
     }
 
+    private static final int[][] SPAWNS = {
+            {-596, 128, 284}, {-735, 128, 268}, {-729, 143, 179}, {-731, 134, 153}, {-600, 137, 153},
+            {-614, 124, 281}, {-667, 133, 263}, {-674, 143, 146}, {-591, 139, 175}, {-661, 125, 245},
+            {-687, 131, 219}, {-573, 136, 184}, {-587, 152, 239}, {-625, 133, 283}, {-700, 132, 288},
+            {-714, 135, 290}, {-742, 136, 231}, {-637, 142, 161}, {-731, 130, 172}, {-759, 125, 245},
+            {-560, 144, 191}, {-544, 139, 208}, {-545, 131, 213}, {-603, 172, 231},
+    };
+
+    private static void renderSpawns(PoseStack matrices, Vec3 cameraPos) {
+        for (int[] p : SPAWNS) {
+            AABB box = new AABB(p[0], p[1], p[2], p[0] + 1, p[1] + 1, p[2] + 1);
+            ESPRenderer.drawFilledBox(matrices, box, 0x80FFAA00, cameraPos, true);
+            ESPRenderer.drawText(matrices, "§6Tiki", new Vec3(p[0] + 0.5, p[1] + 1.5, p[2] + 0.5), 1.5f, cameraPos);
+        }
+    }
+
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        if (enabled() && cfg.tikiSpawnPoints) renderSpawns(matrices, cameraPos);
         if (!enabled() || tikis.isEmpty()) return;
         int color = TeslaMapsConfig.parseColor(cfg.tikiESPColor);
         for (BlockPos p : tikis) {

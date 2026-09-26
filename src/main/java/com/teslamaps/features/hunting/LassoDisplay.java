@@ -35,6 +35,8 @@ public class LassoDisplay {
     private static boolean reeling = false;
     private static int handTicks = 0;
     private static int standTicks = 0;
+    private static ArmorStand barStand = null;
+    private static ArmorStand reelStand = null;
 
     public static void tick() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -61,15 +63,24 @@ public class LassoDisplay {
 
         boolean reel = false;
         Component bar = null;
+        ArmorStand barFound = null, reelFound = null;
         for (ArmorStand stand : mc.level.getEntitiesOfClass(ArmorStand.class, area)) {
             Component name = stand.getCustomName();
             if (name == null) continue;
             if (StringUtil.stripTrim(name.getString()).equals("REEL")) {
                 reel = true;
-                break;
+                reelFound = stand;
+                if (barFound != null) break;
+                continue;
             }
-            if (bar == null && isBar(name)) bar = name;
+            if (bar == null && isBar(name)) {
+                bar = name;
+                barFound = stand;
+                if (reel) break;
+            }
         }
+        barStand = barFound;
+        reelStand = reelFound;
 
         debugStands(mc, area);
 
@@ -99,7 +110,17 @@ public class LassoDisplay {
                 Style.EMPTY).isPresent();
     }
 
+    /** Hides the floating bar / REEL over the animal while the HUD shows it. */
+    public static boolean hideNameTag(Entity entity) {
+        if (!(entity instanceof ArmorStand) || (barStand == null && reelStand == null)) return false;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.lassoHideNametag || !c.lassoDisplay || !c.section("Foraging")) return false;
+        return entity == barStand || entity == reelStand;
+    }
+
     private static void reset() {
+        barStand = null;
+        reelStand = null;
         reelText = null;
         barText = null;
         reeling = false;
@@ -152,6 +173,10 @@ public class LassoDisplay {
         pose.pushMatrix();
         pose.translate(x, y);
         pose.scale(scale, scale);
+        if (TeslaMapsConfig.get().lassoBackground) {
+            int w = reelText != null ? mc.font.width(reelText) : barText != null ? mc.font.width(barText) : mc.font.width(SAMPLE_TEXT);
+            com.teslamaps.render.gui.HudStyle.panel(context, -3, -3, w + 6, mc.font.lineHeight + 5);
+        }
         if (reelText != null) {
             context.text(mc.font, reelText, 0, 0, 0xFFFFFFFF);
         } else if (barText != null) {

@@ -28,12 +28,16 @@ public final class ForagingCategory {
                 .desc("Tree the Fish, pet item");
         b.toggle("  Hide Mobs", () -> config.foragingGiftHideMobs, v -> config.foragingGiftHideMobs = v)
                 .desc("Phantoms and other mobs falling from the tree");
+        b.toggle("  Title For Mobs From The Tree", () -> config.foragingTreeMobTitle, v -> config.foragingTreeMobTitle = v)
+                .desc("A <mob> fell from the Tree! as a red title, works with or without the compact line");
         b.toggle("Hide Sweep Details",
                 () -> config.foragingHideSweepDetails, v -> config.foragingHideSweepDetails = v);
         b.info("Toughness / Logs / penalty lines");
         b.toggle("Compact Sweep Details",
                 () -> config.foragingCompactSweep, v -> config.foragingCompactSweep = v)
                 .desc("One line: sweep, logs, penalties. Hover for the breakdown and pro tip, click for /treegifts.");
+        b.toggle("Sweep Details HUD", () -> config.sweepDetailsHud, v -> config.sweepDetailsHud = v)
+                .desc("Tree, toughness, sweep, logs and throw / wrong style penalty on the HUD for 5s instead of chat. Position in /tmap gui");
         b.toggle("Hide Lottery Buffs",
                 () -> config.foragingHideLottery, v -> config.foragingHideLottery = v);
         b.info("Lottery and Beekeeper messages off the foraging islands");
@@ -117,6 +121,9 @@ public final class ForagingCategory {
         b.toggle("Lasso Display",
                 () -> config.lassoDisplay, v -> config.lassoDisplay = v);
         b.info("Progress bar and REEL on the HUD, position in /tmap gui");
+        b.toggle("  Hide Bar Over The Animal", () -> config.lassoHideNametag, v -> config.lassoHideNametag = v)
+                .desc("Removes the floating bar and REEL from the mob while the HUD shows them");
+        b.toggle("  Background", () -> config.lassoBackground, v -> config.lassoBackground = v);
         b.soundDropdown("  Reel Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.lassoReelSound, v -> config.lassoReelSound = v);
