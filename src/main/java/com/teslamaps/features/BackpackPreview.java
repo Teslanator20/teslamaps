@@ -46,8 +46,8 @@ public class BackpackPreview {
 
         String title = strip(cs.getTitle().getString());
         openTint = 0;
-        if (title.equals("New Year Cake Bag")) {
-            if (cfg.backpackPreview && cfg.backpackPreviewCakeBag) captureCakeBag(cs);
+        if (title.equals("New Year Cake Bag") && cfg.backpackPreview && cfg.backpackPreviewCakeBag) {
+            captureCakeBag(cs);
             return;
         }
         if (title.equals("Storage")) {

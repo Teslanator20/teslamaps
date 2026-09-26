@@ -10,7 +10,7 @@ public final class ChatCategory {
 
     private ChatCategory() {}
 
-    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterWelcome", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterHellion", "chatFilterUselessWarnings", "chatFilterBlazetekk", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterEventLevel", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterLegacyItems", "chatFilterParkour", "chatFilterTeleportPads", "chatFilterChefTed", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
+    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterWelcome", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterUselessWarnings", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterEventLevel", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterLegacyItems", "chatFilterParkour", "chatFilterTeleportPads", "chatFilterChefTed", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
 
     private static void groupAction(ConfigBuilder b, TeslaMapsConfig config, String group, String label) {
         b.dropdown(label, com.teslamaps.features.ChatFilter.GROUP_ACTIONS,
@@ -285,8 +285,7 @@ public final class ChatCategory {
             mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§b[TeslaMaps] §f" + config.chatUserFilters.size() + " own chat filters"));
             for (int i = 0; i < config.chatUserFilters.size(); i++) {
                 var f = config.chatUserFilters.get(i);
-                mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7" + (i + 1) + ". §e" + f.mode + (com.teslamaps.features.ChatNotify.isNotify(f) ? " §6[notify]" : "") + " §f" + f.text));
-                mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7" + (i + 1) + ". §e" + f.mode + " §f" + f.text + com.teslamaps.features.ChatAlerts.describe(f)));
+                mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7" + (i + 1) + ". §e" + f.mode + (com.teslamaps.features.ChatNotify.isNotify(f) ? " §6[notify]" : "") + " §f" + f.text + com.teslamaps.features.ChatAlerts.describe(f)));
             }
         });
         b.label("More Filters");

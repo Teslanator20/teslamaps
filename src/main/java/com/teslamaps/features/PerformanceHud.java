@@ -114,7 +114,7 @@ public class PerformanceHud {
         if (cfg.perfHudTps) {
             String mode = cfg.perfHudTpsMode == null ? "Average" : cfg.perfHudTpsMode;
             float tps = tpsStat(mode);
-            out.key("tps").add(("Average".equals(mode) ? "TPS: " : mode + " TPS: ") + "\0" + (colored ? tpsColor(tps) : "") + String.format(java.util.Locale.ROOT, "%.1f", tps));
+            out.key("tps").add(("Average".equals(mode) ? "TPS: " : mode + " TPS: ") + "\0" + (colored ? tpsColor(tps) : "") + String.format("%.1f", tps));
         }
         if (cfg.perfHudPing) {
             String mode = cfg.perfHudPingMode == null ? "Instant" : cfg.perfHudPingMode;
@@ -190,8 +190,10 @@ public class PerformanceHud {
     }
 
     private static String[][] previewLines() {
-        if (labels.length > 0) return new String[][]{labels, values};
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        boolean extras = cfg.perfHudCps || cfg.perfHudDay || cfg.perfHudTime || cfg.perfHudLag || cfg.perfHudCoords
+                || !"Average".equals(cfg.perfHudTpsMode) || cfg.perfHudColorCoded;
+        if (extras && labels.length > 0) return new String[][]{labels, values};
         String[] l = cfg.perfHudCps ? SAMPLE_LABELS_CPS : SAMPLE_LABELS, v = cfg.perfHudCps ? SAMPLE_VALUES_CPS : SAMPLE_VALUES;
         if (cfg.perfHudDay) {
             l = java.util.Arrays.copyOf(l, l.length + 1); l[l.length - 1] = "Day: ";

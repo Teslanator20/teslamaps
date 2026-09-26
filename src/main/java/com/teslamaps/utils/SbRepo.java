@@ -77,7 +77,6 @@ public class SbRepo {
                 loadGemstoneCosts();
                 loadItems();
                 loadEnchants();
-                loadItemEnchants();
                 loaded = true;
                 TeslaMaps.LOGGER.info("[Repo] {} reforges, {} essence items, {} gemstone items, {} enchants",
                         reforges.size(), essence.size(), gemstoneCosts.size(), enchantNames.size());
@@ -93,6 +92,7 @@ public class SbRepo {
     public static void reload() {
         if (loading) return;
         loaded = false;
+        itemEnchantsRequested = false;
         load();
     }
 
@@ -289,6 +289,21 @@ public class SbRepo {
     public static String enchantDisplayName(String nbtName) {
         String lore = enchantNames.get(nbtName);
         return lore != null ? lore : StringUtil.titleCase(nbtName.replace('_', ' '));
+    }
+
+    private static volatile boolean itemEnchantsRequested = false;
+    private static volatile boolean itemEnchantsLoaded = false;
+
+    /** Fetches NEU enchants.json on first use only. */
+    public static boolean itemEnchantsReady() {
+        if (!itemEnchantsRequested) {
+            itemEnchantsRequested = true;
+            EXEC.submit(() -> {
+                loadItemEnchants();
+                itemEnchantsLoaded = true;
+            });
+        }
+        return itemEnchantsLoaded;
     }
 
     private static void loadItemEnchants() {

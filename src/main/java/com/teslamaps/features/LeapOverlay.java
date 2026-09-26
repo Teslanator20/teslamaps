@@ -150,7 +150,7 @@ public class LeapOverlay {
         }
 
         Matcher m = LEAPED_PATTERN.matcher(clean);
-        if (clean.startsWith("You have teleported to") && m.find()) {
+        if (m.find()) {
             com.teslamaps.features.HidePlayers.onLeap();
             if (TeslaMapsConfig.get().leapAnnounce && mc.getConnection() != null) {
                 com.teslamaps.features.ChatQueue.command("pc " + announceText(m.group(1)));

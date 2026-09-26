@@ -8,17 +8,28 @@ package com.teslamaps.utils;
 public class Calculator {
 
     private final String text;
+    private final boolean basic;
     private int at;
 
-    private Calculator(String text) {
+    private Calculator(String text, boolean basic) {
         this.text = text;
+        this.basic = basic;
     }
 
     /** @return the value, or null if the input is not a complete expression. */
     public static Double eval(String expression) {
+        return eval(expression, false);
+    }
+
+    /** 2.1.77 grammar: k/m/b only, no x, implicit multiply or purse. */
+    public static Double evalBasic(String expression) {
+        return eval(expression, true);
+    }
+
+    private static Double eval(String expression, boolean basic) {
         if (expression == null || expression.isBlank()) return null;
         try {
-            Calculator c = new Calculator(expression);
+            Calculator c = new Calculator(expression, basic);
             double value = c.expression();
             c.skipSpace();
             if (c.at < c.text.length()) return null; // trailing junk, do not guess
@@ -65,8 +76,8 @@ public class Calculator {
     private double term() {
         double value = unary();
         while (true) {
-            if (take('*') || take('x') || take('X')) value *= unary();
-            else if (implicit()) value *= unary();
+            if (take('*') || (!basic && (take('x') || take('X')))) value *= unary();
+            else if (!basic && implicit()) value *= unary();
             else if (take('/')) {
                 double d = unary();
                 if (d == 0) throw new ArithmeticException("divide by zero");
@@ -107,7 +118,7 @@ public class Calculator {
             if (!take(')')) throw new IllegalStateException("missing )");
             return value;
         }
-        if (text.regionMatches(true, at, "purse", 0, 5)) {
+        if (!basic && text.regionMatches(true, at, "purse", 0, 5)) {
             at += 5;
             return purse();
         }
@@ -120,6 +131,7 @@ public class Calculator {
             if (suffix == 'k') { value *= 1_000d; at++; }
             else if (suffix == 'm') { value *= 1_000_000d; at++; }
             else if (suffix == 'b') { value *= 1_000_000_000d; at++; }
+            else if (basic) { }
             else if (suffix == 't') { value *= 1_000_000_000_000d; at++; }
             else if (suffix == 's') { value *= 64d; at++; }
             else if (suffix == 'e') { value *= 160d; at++; }

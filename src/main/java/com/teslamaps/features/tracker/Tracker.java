@@ -407,7 +407,7 @@ public final class Tracker {
                 out.add(display(e.getKey()) + "§7: " + (v < 0 ? "§c-" : fresh ? "§a§l" : "§6") + ItemPrice.format(Math.abs(v)));
                 continue;
             }
-            out.add((fresh ? "§a§l" : "§f") + String.format(java.util.Locale.ROOT, "%,d", e.getValue()) + "x§r " + display(e.getKey())
+            out.add((fresh ? "§a§l" : "§f") + String.format(java.util.Locale.ROOT, "%,d", e.getValue()) + (fresh ? "x§r " : "x ") + display(e.getKey())
                     + (v > 0 ? " §7- §6" + ItemPrice.format(v) : ""));
         }
         if (rows.size() > maxRows) {

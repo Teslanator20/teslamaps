@@ -84,7 +84,7 @@ public class KeybindMessage {
     private static void fireBind(TeslaMapsConfig.Keybind kb, boolean adv) {
         boolean hasActions = adv && kb.actions != null && !kb.actions.isBlank();
         if (kb.message.isBlank() && !HotkeyCondition.hasFail(kb) && !hasActions) return;
-        if (!TeslaMapsConfig.get().hotkeyConditions) { send(kb.message); return; }
+        if (!TeslaMapsConfig.get().hotkeyConditions) { if (!kb.message.isBlank()) send(kb.message); return; }
         if (!HotkeyCondition.islandOk(kb)) return;
         String msg;
         if (HotkeyCondition.passes(kb)) msg = kb.message;

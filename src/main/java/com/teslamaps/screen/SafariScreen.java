@@ -120,12 +120,12 @@ public class SafariScreen extends Screen {
     }
 
     private void copyMissing() {
-        SafariTracker.copyMissing();
+        Minecraft.getInstance().keyboardHandler.setClipboard(SafariTracker.missingLine());
         feedback = "Copied the missing list";
     }
 
     private void share() {
-        SafariTracker.shareMissing();
+        com.teslamaps.features.Announce.party(SafariTracker.missingLine());
         onClose();
     }
 

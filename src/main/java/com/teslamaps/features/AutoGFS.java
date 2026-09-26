@@ -259,8 +259,28 @@ public class AutoGFS {
         refillItems();
     }
 
-    public static void gfsEnderPearls() { fillFromSack("ENDER_PEARL", 16); }
-    public static void gfsSuperboom() { fillFromSack("SUPERBOOM_TNT", 64); }
+    public static void gfsEnderPearls() {
+        gfsTopUp("ender_pearl", 16, s -> BuiltInRegistries.ITEM.getKey(s.getItem()).toString().contains("ender_pearl"));
+    }
+
+    public static void gfsSuperboom() {
+        gfsTopUp("superboom_tnt", 64, s -> {
+            String n = s.getHoverName().getString().toLowerCase();
+            return n.contains("superboom") || n.contains("super boom");
+        });
+    }
+
+    private static void gfsTopUp(String gfsId, int max, java.util.function.Predicate<ItemStack> match) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        int count = 0;
+        for (int i = 0; i < mc.player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = mc.player.getInventory().getItem(i);
+            if (!stack.isEmpty() && match.test(stack)) count += stack.getCount();
+        }
+        int needed = max - count;
+        if (needed > 0) sendCommand("gfs " + gfsId + " " + needed);
+    }
     public static void gfsJerry() { fillFromSack("INFLATABLE_JERRY", 64); }
     public static void gfsLeaps() { fillFromSack("SPIRIT_LEAP", 16); }
 

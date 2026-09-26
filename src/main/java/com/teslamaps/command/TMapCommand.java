@@ -48,7 +48,7 @@ public class TMapCommand {
             return 1;
         }));
 
-        if (dispatcher.getRoot().getChild("visited") == null) {
+        if (TeslaMapsConfig.get().visitedTracking && dispatcher.getRoot().getChild("visited") == null) {
             dispatcher.register(ClientCommands.literal("visited")
                     .executes(context -> {
                         context.getSource().sendFeedback(Component.literal(com.teslamaps.dungeon.RoomVisits.query("")));
@@ -931,12 +931,18 @@ public class TMapCommand {
                                             "§b[TeslaMaps] §fSwitched to profile §a" + com.teslamaps.config.ConfigProfiles.active()));
                                     return 1;
                                 })))
-                .then(sackFill("ep", "ENDER_PEARL", 16))
+                .then(sackFill("ep", "ENDER_PEARL", 16).executes(context -> {
+                    com.teslamaps.features.AutoGFS.gfsEnderPearls();
+                    return 1;
+                }))
                 .then(sackFill("ij", "INFLATABLE_JERRY", 64))
                 .then(sackFill("jerry", "INFLATABLE_JERRY", 64))
                 .then(sackFill("sl", "SPIRIT_LEAP", 16))
                 .then(sackFill("leap", "SPIRIT_LEAP", 16))
-                .then(sackFill("sb", "SUPERBOOM_TNT", 64))
+                .then(sackFill("sb", "SUPERBOOM_TNT", 64).executes(context -> {
+                    com.teslamaps.features.AutoGFS.gfsSuperboom();
+                    return 1;
+                }))
                 .then(sackFill("dd", "DUNGEON_DECOY", 64))
                 .then(sackFill("tap", "TOXIC_ARROW_POISON", 64))
                 .then(sackFill("twap", "TWILIGHT_ARROW_POISON", 64))

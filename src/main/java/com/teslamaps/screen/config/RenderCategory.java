@@ -75,7 +75,7 @@ public final class RenderCategory {
         b.toggle("  More Formats (x y z, Inquisitor)", () -> config.chatWaypointMoreFormats, v -> config.chatWaypointMoreFormats = v);
         b.toggle("  Ignore All-Chat", () -> config.chatWaypointIgnoreAllChat, v -> config.chatWaypointIgnoreAllChat = v);
         b.toggle("  Ignore Own Messages", () -> config.chatWaypointIgnoreOwn, v -> config.chatWaypointIgnoreOwn = v);
-        b.toggle("  Show Sender, Area, Note & Distance", () -> config.chatWaypointDetails, v -> config.chatWaypointDetails = v);
+        b.toggle("  Show Sender, Area & Distance", () -> config.chatWaypointDetails, v -> config.chatWaypointDetails = v);
         b.toggle("  Remove On Arrival (5 blocks)", () -> config.chatWaypointRemoveOnArrival, v -> config.chatWaypointRemoveOnArrival = v);
         b.color("  Chat Waypoint Color", () -> config.chatWaypointColor, v -> config.chatWaypointColor = v);
         b.toggle("  /tmap sendcoords Adds Area", () -> config.chatWaypointShareArea, v -> config.chatWaypointShareArea = v);

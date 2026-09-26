@@ -712,7 +712,7 @@ public class FarmProfit {
         long[] total = allTime.computeIfAbsent(item, k -> new long[2]);
         total[0] += amount;
         total[1] += (long) coins;
-        for (String key : periodKeys()) {
+        if (com.teslamaps.config.TeslaMapsConfig.get().farmProfitExtraWindows) for (String key : periodKeys()) {
             long[] p = periods.computeIfAbsent(key, k -> new HashMap<>()).computeIfAbsent(item, k -> new long[2]);
             p[0] += amount;
             p[1] += (long) coins;

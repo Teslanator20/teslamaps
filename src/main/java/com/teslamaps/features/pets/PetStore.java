@@ -231,7 +231,7 @@ public final class PetStore {
             return;
         }
         if (title.equals("Exp Sharing")) {
-            readShare(cs);
+            if (TeslaMapsConfig.get().petOverlayExpShare || TeslaMapsConfig.get().expSharePetHighlight) readShare(cs);
             return;
         }
         if (!MENU.matcher(title).matches()) return;

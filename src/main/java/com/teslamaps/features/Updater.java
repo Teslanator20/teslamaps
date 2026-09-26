@@ -235,7 +235,7 @@ public class Updater {
     }
 
     private static void saveChangelog() {
-        if (changelog.isEmpty()) return;
+        if (changelog.isEmpty() || !TeslaMapsConfig.get().updateChangelog) return;
         try {
             JsonObject o = new JsonObject();
             o.addProperty("version", changelogVersion);
@@ -288,10 +288,10 @@ public class Updater {
     }
 
     public static void tick() {
-        if (whatsNewPending && Minecraft.getInstance().player != null) {
+        if (whatsNewPending && Minecraft.getInstance().player != null && TeslaMapsConfig.get().updateChangelog) {
             whatsNewPending = false;
             markChangelogShown();
-            if (TeslaMapsConfig.get().updateChangelog) {
+            {
                 Minecraft.getInstance().player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fUpdated to §e"
                         + changelogVersion + "§f — ").append(Component.literal("§b§n[What's new]")
                         .withStyle(st -> st.withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/tmap update changelog"))

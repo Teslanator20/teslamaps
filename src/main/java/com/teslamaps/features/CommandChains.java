@@ -31,7 +31,7 @@ public final class CommandChains {
     public static void register() {
         ClientSendMessageEvents.ALLOW_COMMAND.register(CommandChains::allow);
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> {
-            d.register(ClientCommands.literal("cmdstop").executes(c -> stop()));
+            if (cfg().shortcutChains) d.register(ClientCommands.literal("cmdstop").executes(c -> stop()));
             d.register(ClientCommands.literal("tmap").then(ClientCommands.literal("cmdstop").executes(c -> stop())));
         });
         Feature.of("CommandChains").tickAlways(CommandChains::tick)

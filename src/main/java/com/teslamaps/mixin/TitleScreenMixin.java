@@ -183,7 +183,7 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Unique
     private void teslamaps$connectToHypixel() {
-        ServerData data = new ServerData("Hypixel", teslamaps$ip(), ServerData.Type.OTHER);
+        ServerData data = new ServerData("Hypixel", TeslaMapsConfig.get().quickJoinButton ? teslamaps$ip() : HYPIXEL_IP, ServerData.Type.OTHER);
         data.setResourcePackStatus(ServerData.ServerPackStatus.ENABLED);
         ConnectScreen.startConnecting(this, this.minecraft,
                 ServerAddress.parseString(data.ip), data, false, null);

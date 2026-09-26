@@ -64,7 +64,7 @@ public class SixthVisitor {
             Matcher count = COUNT.matcher(clean);
             if (count.find()) {
                 visitors = Integer.parseInt(count.group(1));
-                namesLeft = visitors;
+                namesLeft = c.visitorHud ? visitors : 0;
                 continue;
             }
             // SkyHanni's visitorsInTabList: the next <count> lines are the names

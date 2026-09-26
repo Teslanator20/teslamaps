@@ -157,9 +157,18 @@ public class ProfileViewerScreen extends Screen {
         allPages.add(new LevelPage());
 
         pages.clear();
-        pages.addAll(allPages);
+        for (ProfileViewerPage page : allPages) if (!gatedOff(page)) pages.add(page);
 
         loadProfile();
+    }
+
+    private static boolean gatedOff(ProfileViewerPage page) {
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (page instanceof NetworthPage) return !c.pvExtras;
+        if (page instanceof HuntingPage) return !c.pvHunting;
+        if (page instanceof MobsPage) return !(c.pvExtras && c.pvMobsTab);
+        if (page instanceof LevelPage) return !com.teslamaps.profileviewer.PvExtras.levelPage();
+        return false;
     }
 
     /** Tabs that do not apply to the selected profile drop out, bingo being the only one so far. */
@@ -169,7 +178,7 @@ public class ProfileViewerScreen extends Screen {
 
         pages.clear();
         for (ProfileViewerPage page : allPages) {
-            if (page.isAvailable(profiles)) pages.add(page);
+            if (page.isAvailable(profiles) && !gatedOff(page)) pages.add(page);
         }
 
         int index = current == null ? -1 : pages.indexOf(current);
@@ -308,6 +317,7 @@ public class ProfileViewerScreen extends Screen {
 
     // more tabs than fit squeeze together instead of running off the window
     private int tabStep() {
+        if (pages.size() <= 17) return 28;
         return Math.min(28, NeuStyle.PANEL_WIDTH / Math.max(1, pages.size()));
     }
 

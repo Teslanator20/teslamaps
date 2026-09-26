@@ -77,7 +77,7 @@ public final class HideCategory {
                 .desc("Invisible powered creepers from Wither Cloak are not drawn. They still block clicks.");
         b.label("Screen & World Hiders");
         b.button("Toggle All Screen & World Hiders", () -> {
-            int enabled = 0, total = 26;
+            int enabled = 0, total = 22;
             if (config.noFire) enabled++;
             if (config.noWaterOverlay) enabled++;
             if (config.noVignette) enabled++;
@@ -100,10 +100,6 @@ public final class HideCategory {
             if (config.noViewBobbing) enabled++;
             if (config.hideArmorBar) enabled++;
             if (config.hideHungerBar) enabled++;
-            if (config.hideHealthBar) enabled++;
-            if (config.hideAirBar) enabled++;
-            if (config.hideBossBar) enabled++;
-            if (config.hideXpBar) enabled++;
             boolean newValue = enabled <= total / 2;
             config.noFire = newValue;
             config.noWaterOverlay = newValue;
@@ -127,10 +123,6 @@ public final class HideCategory {
             config.noViewBobbing = newValue;
             config.hideArmorBar = newValue;
             config.hideHungerBar = newValue;
-            config.hideHealthBar = newValue;
-            config.hideAirBar = newValue;
-            config.hideBossBar = newValue;
-            config.hideXpBar = newValue;
             TeslaMapsConfig.save();
         });
         b.label("World & Weather");
@@ -174,7 +166,7 @@ public final class HideCategory {
                 .desc("Bonzo Staff rockets and every other firework rocket. The spark trail only goes away with Block At Packet Level.");
         b.toggle("Hide Horses", () -> config.hideHorses, v -> config.hideHorses = v).fresh();
         b.toggle("Block At Packet Level", () -> config.packetHiders, v -> config.packetHiders = v);
-        b.info("Lightning/Falling Blocks/XP Orbs/Rockets/Horses are then never created").fresh();
+        b.info("Lightning/Falling Blocks/XP Orbs are then never created");
         b.info("Saves ticking them, not just drawing them");
         b.label("Combat Effects");
         b.toggle("Hide Explosions", () -> config.noExplosions, v -> config.noExplosions = v);

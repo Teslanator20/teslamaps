@@ -52,7 +52,7 @@ public final class ForgeRecipeViewer {
                     b.toggle("Forge Recipe Viewer", () -> cfg().forgeRecipeViewer, v -> cfg().forgeRecipeViewer = v)
                             .desc("/viewforgerecipe <item> shows the forge inputs and time from the NEU repo.");
                 });
-        ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("viewforgerecipe")
+        ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> { if (cfg().forgeRecipeViewer) d.register(ClientCommands.literal("viewforgerecipe")
                 .then(ClientCommands.argument("item", StringArgumentType.greedyString())
                         .suggests((c, b) -> {
                             String rem = b.getRemaining().toLowerCase(Locale.ROOT);
@@ -70,7 +70,7 @@ public final class ForgeRecipeViewer {
                         .executes(c -> {
                             open(StringArgumentType.getString(c, "item"));
                             return 1;
-                        }))));
+                        }))); });
     }
 
     private static void msg(String s) {

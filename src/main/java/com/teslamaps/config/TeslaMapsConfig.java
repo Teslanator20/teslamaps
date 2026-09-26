@@ -2148,6 +2148,9 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // parity
+    public boolean dungeonGhostDetection = false;
+    public boolean slayerFlareDemon = false;
     // w20-03-com
     public boolean bestiaryMenuData = false;
     public String bestiaryMenuSort = "Kills To Next (low)";

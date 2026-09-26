@@ -286,7 +286,7 @@ public class ItemSearchScreen extends Screen {
             if (chest) {
                 hint = warpsToIsland(row) ? "§eclick to warp to island and highlight the chest"
                         : "§8click for a waypoint on the chest";
-                for (Where w : row.where()) {
+                if (com.teslamaps.config.TeslaMapsConfig.get().itemSearchWarpIsland) for (Where w : row.where()) {
                     if (w.pos() == null) continue;
                     lines.add(Component.literal("§8chest at " + w.pos().getX() + ", " + w.pos().getY() + ", " + w.pos().getZ()));
                     break;

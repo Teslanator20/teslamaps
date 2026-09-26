@@ -90,7 +90,7 @@ public class HypixelNodes {
                     })
                     .executes(NOOP)).build();
         }
-        if (SHOW.contains(name)) {
+        if (SHOW.contains(name) && TeslaMapsConfig.get().tabCompleteShowSlots) {
             return literal(name).then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument(
                             "slot", StringArgumentType.word())
                     .suggests((context, builder) -> HypixelSuggestions.enabled()

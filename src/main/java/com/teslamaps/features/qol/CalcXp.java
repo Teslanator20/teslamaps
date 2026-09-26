@@ -39,7 +39,7 @@ public final class CalcXp {
     public static void register() {
         Feature.of("CalcXp").config("Skills", b -> b.toggle("/calcxp Command", () -> cfg().calcXpCommand, v -> cfg().calcXpCommand = v)
                 .desc("/calcxp <skill|dungeons|<slayer>_slayer> <start> <end> prints the xp between two levels. Decimals work."));
-        ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("calcxp")
+        ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> { if (cfg().calcXpCommand) d.register(ClientCommands.literal("calcxp")
                 .then(ClientCommands.argument("type", StringArgumentType.word())
                         .suggests((c, sb) -> {
                             String typed = sb.getRemaining().toLowerCase(Locale.ROOT);
@@ -49,7 +49,7 @@ public final class CalcXp {
                         .then(ClientCommands.argument("start", DoubleArgumentType.doubleArg(0))
                                 .then(ClientCommands.argument("end", DoubleArgumentType.doubleArg(0))
                                         .executes(c -> run(c.getSource(), StringArgumentType.getString(c, "type"),
-                                                DoubleArgumentType.getDouble(c, "start"), DoubleArgumentType.getDouble(c, "end"))))))));
+                                                DoubleArgumentType.getDouble(c, "start"), DoubleArgumentType.getDouble(c, "end"))))))); });
     }
 
     private static int run(FabricClientCommandSource src, String type, double start, double end) {

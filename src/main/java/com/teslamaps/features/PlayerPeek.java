@@ -45,7 +45,7 @@ public final class PlayerPeek {
 
     public static void register() {
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> {
-            d.register(ClientCommands.literal("peek")
+            if (on()) d.register(ClientCommands.literal("peek")
                     .executes(c -> peek(Minecraft.getInstance().getUser().getName()))
                     .then(ClientCommands.argument("name", StringArgumentType.word())
                             .suggests((c, b) -> {

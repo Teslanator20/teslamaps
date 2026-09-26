@@ -132,7 +132,7 @@ public class Searchbar {
 
         // a leading = turns the box into a calculator, so nothing gets searched or dimmed
         if (query.startsWith("=")) {
-            Double value = Calculator.eval(query.substring(1));
+            Double value = Calculator.evalBasic(query.substring(1));
             String result = query.length() == 1 ? "§8= 4*(2+3)"
                     : value == null ? "§c= ?" : "§a= " + Calculator.format(value);
             int w = mc.font.width(result) + 6;

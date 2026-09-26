@@ -378,7 +378,7 @@ public class DungeonWaypoints {
     public static void onSecret(net.minecraft.core.BlockPos pos, int maxDistSq) {
         if (!TeslaMapsConfig.get().dungeonWaypoints || !DungeonManager.isInDungeon()) return;
         DungeonRoom room = DungeonManager.getCurrentRoom();
-        if (room == null || room.getName() == null) return;
+        if (room == null || room.getName() == null || !hasRoomList(room.getName())) return;
         int[] clay = detectClay(room);
         if (clay == null) return;
         int[] rel = worldToRelative(clay, pos.getX(), pos.getZ());
@@ -397,12 +397,17 @@ public class DungeonWaypoints {
         if (best != null) clicked.add(best);
     }
 
+    private static boolean hasRoomList(String name) {
+        for (Map<String, List<Waypoint>> pack : active) if (pack.get(name) != null) return true;
+        return false;
+    }
+
     /** Server teleport (etherwarp landing): hide the ETHERWARP waypoint the player now stands on. */
     public static void onTeleport(Vec3 pos) {
         if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) return;
         if (!TeslaMapsConfig.get().dungeonWaypoints || !DungeonManager.isInDungeon()) return;
         DungeonRoom room = DungeonManager.getCurrentRoom();
-        if (room == null || room.getName() == null) return;
+        if (room == null || room.getName() == null || !hasRoomList(room.getName())) return;
         int[] clay = detectClay(room);
         if (clay == null) return;
         for (Map<String, List<Waypoint>> pack : active) {
@@ -419,8 +424,10 @@ public class DungeonWaypoints {
 
     /** Waypoint list + stored coords of the looked-at block: {key, rx, ry, rz}, or null. */
     private static Object[] target() {
-        net.minecraft.core.BlockPos t = reachPos();
-        if (t == null) return null;
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.player == null || !(mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult bhr)
+                || bhr.getType() == net.minecraft.world.phys.HitResult.Type.MISS) return null;
+        net.minecraft.core.BlockPos t = bhr.getBlockPos();
         DungeonRoom room = DungeonManager.isInDungeon() ? DungeonManager.getCurrentRoom() : null;
         int[] clay = (room != null && room.getName() != null) ? detectClay(room) : null;
         if (clay != null) {
