@@ -977,6 +977,15 @@ final class Features {
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
+        // w19-08-cri
+        com.teslamaps.features.crimson.ReputationHelper.register();
+        com.teslamaps.features.crimson.MinibossTimer.register();
+        com.teslamaps.features.crimson.VanquisherAlert.register();
+        com.teslamaps.features.crimson.AshfangHelper.register();
+        com.teslamaps.features.crimson.CrimsonDrops.register();
+        com.teslamaps.features.crimson.DojoHelper.register();
+        com.teslamaps.features.crimson.MatriarchHelper.register();
+        com.teslamaps.features.crimson.VolcanoHud.register();
         // w19-07-rif
         com.teslamaps.features.rift.WoodenButtonsHelper.register();
         com.teslamaps.features.rift.VerminTracker.register();
