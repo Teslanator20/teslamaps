@@ -338,7 +338,7 @@ public class PetTracker {
 
     private static boolean enabled() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.petOverlay && c.section("Skills");
+        return (c.petOverlay || c.griffinPetWarning) && c.section("Skills");
     }
 
     private static String rarityFromCode(String code) {

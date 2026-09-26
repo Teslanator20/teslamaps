@@ -67,7 +67,7 @@ public final class LiveSeaCreatures {
                 .size(() -> TextHud.width(lines.isEmpty() ? SAMPLE : lines), () -> TextHud.height((lines.isEmpty() ? SAMPLE : lines).size()))
                 .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, SAMPLE, TextHud.width(SAMPLE)));
         feature = Feature.of("LiveSeaCreatures").section("Fishing")
-                .when(() -> cfg().liveSeaCreatures || cfg().fishingProgressHud && cfg().fishingProgressDolphin)
+                .when(() -> cfg().liveSeaCreatures || cfg().seaCreatureKillTime || cfg().fishingProgressHud && cfg().fishingProgressDolphin)
                 .tick(LiveSeaCreatures::tick)
                 .serverChat(LiveSeaCreatures::onChat)
                 .hudHiddenInInventory("liveseacreatures", LiveSeaCreatures::render)
@@ -85,6 +85,11 @@ public final class LiveSeaCreatures {
                     b.dropdown("  Alert From Rarity", new String[] {"Off", "Rare", "Epic", "Legendary", "Mythic"},
                             () -> c.liveSeaCreaturesRarity, v -> c.liveSeaCreaturesRarity = v);
                     b.toggle("  Hub: Only In The Barn", () -> c.liveSeaCreaturesBarnOnly, v -> c.liveSeaCreaturesBarnOnly = v);
+                    b.toggle("Sea Creature Kill Time", () -> c.seaCreatureKillTime, v -> c.seaCreatureKillTime = v)
+                            .desc("Chat line \"<name> took 12.34s to die.\" when one of your own sea creatures dies near you")
+                            .tags("kill time", "sea creature", "thunder", "jawbus", "fishing");
+                    b.dropdown("  From Rarity", SeaCreatureCocoon.RARITIES,
+                            () -> c.seaCreatureKillTimeRarity, v -> c.seaCreatureKillTimeRarity = v);
                 });
     }
 
@@ -137,7 +142,10 @@ public final class LiveSeaCreatures {
             Live l = e.getValue();
             var ent = mc.level.getEntity(e.getKey());
             if (ent == null || ent.isRemoved()) {
-                if (now - l.spawnedAt < timer && mc.player.distanceToSqr(l.x, l.y, l.z) < 576) killsSinceLoad++;
+                if (now - l.spawnedAt < timer && mc.player.distanceToSqr(l.x, l.y, l.z) < 576) {
+                    killsSinceLoad++;
+                    killTime(mc, l, now);
+                }
                 it.remove();
             } else {
                 l.x = ent.getX(); l.y = ent.getY(); l.z = ent.getZ();
@@ -182,6 +190,15 @@ public final class LiveSeaCreatures {
         }
         int min = rank(c.liveSeaCreaturesRarity.toUpperCase(java.util.Locale.ROOT));
         if (min > 0 && l.info != null && rank(l.info.rarity()) >= min) alert(mc, l.info.color() + l.name);
+    }
+
+    private static void killTime(Minecraft mc, Live l, long now) {
+        TeslaMapsConfig c = cfg();
+        if (!c.seaCreatureKillTime || !SeaCreatureCocoon.rarityOk(l.name, c.seaCreatureKillTimeRarity)) return;
+        String color = l.info == null ? "§b" : l.info.color();
+        long ms = now - l.spawnedAt;
+        mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] " + color + l.name + " §7took §6"
+                + (ms / 1000) + "." + String.format("%02d", (ms % 1000) / 10) + "s §7to die."));
     }
 
     private static int rank(String rarity) {

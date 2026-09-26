@@ -47,6 +47,7 @@
     "MobScaleMixin",
     "AvatarScaleMixin",
     "EntityNametagMixin",
+    "NameTagScaleMixin",
     "EntityEventHideMixin",
     "MobIconsMixin",
     "PlayerCosmeticsMixin",

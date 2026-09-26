@@ -923,5 +923,43 @@ final class Features {
         com.teslamaps.features.events.MythologicalTracker.register();
         com.teslamaps.features.events.RareDianaMobs.register();
         com.teslamaps.features.events.HiddenJerry.register();
+        // w18-06-evt
+        com.teslamaps.features.events.GriffinPetWarning.register();
+        com.teslamaps.features.events.HoppityCallWarning.register();
+        com.teslamaps.features.events.GreatSpook.register();
+        com.teslamaps.features.events.FrozenTreasureTracker.register();
+        com.teslamaps.features.events.GiftProfitTracker.register();
+        com.teslamaps.features.events.JerryHighlight.register();
+        // w18-02-evt
+        com.teslamaps.features.diana.DianaBurrows.register();
+        com.teslamaps.features.diana.DianaWarp.register();
+        com.teslamaps.features.diana.DianaRareMobs.register();
+        // w18-08-evt
+        com.teslamaps.features.CalendarExtras.register();
+        com.teslamaps.features.WinterReminders.register();
+        com.teslamaps.features.GiftNametagCleaner.register();
+        com.teslamaps.features.FruitBowlHelper.register();
+        com.teslamaps.features.CarnivalDojoGlow.register();
+        com.teslamaps.features.LobbyEventWaypoints.register();
+        // w18-09-evt
+        com.teslamaps.features.HoppityUnclaimedEggs.register();
+        com.teslamaps.features.TimeTowerReminder.register();
+        com.teslamaps.features.UniqueGifting.register();
+        com.teslamaps.features.SphinxHelper.register();
+        com.teslamaps.features.SpookyChestAlert.register();
+        com.teslamaps.features.SpookyCandyDisplay.register();
+        com.teslamaps.features.fishing.SharkCounter.register();
+        // w18-07-evt
+        com.teslamaps.features.GaiaConstructHits.register();
+        com.teslamaps.features.HoppityHelpers.register();
+        // w18-00-fis
+        com.teslamaps.features.fishing.ThunderSparks.register();
+        com.teslamaps.features.fishing.SeaCreatureCocoon.register();
+        com.teslamaps.features.fishing.Wormholes.register();
+        com.teslamaps.features.fishing.OdgerHelper.register();
+        com.teslamaps.features.fishing.SulphurSkitterBox.register();
+        com.teslamaps.features.fishing.TrophyDiamondEffect.register();
+        // w18-01-fis
+        com.teslamaps.features.fishing.NearbySeaCreatures.register();
     }
 }
