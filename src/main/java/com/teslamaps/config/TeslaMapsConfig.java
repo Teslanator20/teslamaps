@@ -2185,6 +2185,23 @@ public class TeslaMapsConfig {
     public int sharkCounterX = 10;
     public int sharkCounterY = 240;
     public float sharkCounterScale = 1.0f;
+    // w18-07-evt
+    public boolean mayorOverlayJerry = false;
+    @Global
+    public String jerryMayorName = "";
+    @Global
+    public long jerryMayorUntil = 0L;
+    public boolean gaiaConstructHits = false;
+    public boolean hoppityRabbitFish = false;
+    public boolean hoppityShopHighlight = false;
+    public boolean hoppityShopReminder = false;
+    public int hoppityShopYear = -1;
+    public boolean hoppityPetWarning = false;
+    public String hoppityEggSounds = "Normal";
+    public boolean hoppityEggShare = false;
+    public String hoppityEggShareChannel = "All";
+    public boolean hoppityPlayerTransparency = false;
+    public float hoppityPlayerOpacity = 30f;
     // w18-01-fis
     public boolean translucentLavaCrimsonOnly = false;
     public float hookWorldLabelScale = 1.0f;
@@ -6379,6 +6396,9 @@ public class TeslaMapsConfig {
         if (c.recentPlayers == null) c.recentPlayers = new ArrayList<>();
         if (c.hiddenCoopMembers == null) c.hiddenCoopMembers = new ArrayList<>();
         if (c.hoppityUniqueEggs == null) c.hoppityUniqueEggs = new java.util.HashMap<>();
+        if (c.jerryMayorName == null) c.jerryMayorName = "";
+        if (c.hoppityEggSounds == null) c.hoppityEggSounds = "Normal";
+        if (c.hoppityEggShareChannel == null) c.hoppityEggShareChannel = "All";
         if (c.guildNames == null) c.guildNames = new ArrayList<>();
         if (c.friendNames == null) c.friendNames = new ArrayList<>();
         if (c.bestFriendNames == null) c.bestFriendNames = new ArrayList<>();
