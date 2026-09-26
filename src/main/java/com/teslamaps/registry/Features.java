@@ -976,5 +976,12 @@ final class Features {
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
+        // w19-05-rif
+        com.teslamaps.features.rift.RiftAgaricusCap.register();
+        com.teslamaps.features.rift.RiftCreatureHighlight.register();
+        com.teslamaps.features.rift.RiftLarvaSilk.register();
+        com.teslamaps.features.rift.RiftShyCrux.register();
+        com.teslamaps.features.rift.RiftSplatterHearts.register();
+        com.teslamaps.features.rift.RiftGuntherRace.register();
     }
 }
