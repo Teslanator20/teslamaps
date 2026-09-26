@@ -915,6 +915,14 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraRunTrackers.register();
         // w16-09-kuu
         com.teslamaps.features.kuudra.KuudraRunInfo.register();
+        // w18-03-evt
+        com.teslamaps.features.choco.ChocoData.register();
+        com.teslamaps.features.choco.ChocoFactory.register();
+        com.teslamaps.features.choco.ChocoStrays.register();
+        com.teslamaps.features.choco.ChocoExtras.register();
+        com.teslamaps.features.choco.ChocoReminder.register();
+        com.teslamaps.features.choco.HoppityNextEgg.register();
+        com.teslamaps.features.DianaLobbyAlert.register();
         // w18-05-evt
         com.teslamaps.features.events.FrozenTreasureHighlighter.register();
         com.teslamaps.features.events.CalendarEventDates.register();
@@ -922,6 +930,14 @@ final class Features {
         com.teslamaps.features.events.MythologicalTracker.register();
         com.teslamaps.features.events.RareDianaMobs.register();
         com.teslamaps.features.events.HiddenJerry.register();
+        // w18-04-evt
+        com.teslamaps.features.events.Carnival.register();
+        com.teslamaps.features.events.CarnivalShootout.register();
+        com.teslamaps.features.events.CarnivalShopHelper.register();
+        com.teslamaps.features.events.CarnivalGoals.register();
+        com.teslamaps.features.events.FruitDigging.register();
+        com.teslamaps.features.events.CenturyHighlights.register();
+        com.teslamaps.features.events.JerryPresentHider.register();
         // w18-06-evt
         com.teslamaps.features.events.GriffinPetWarning.register();
         com.teslamaps.features.events.HoppityCallWarning.register();
