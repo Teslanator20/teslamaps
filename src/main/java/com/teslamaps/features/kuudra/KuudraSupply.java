@@ -18,8 +18,6 @@ public final class KuudraSupply {
             "^(?:\\[[^\\]]*\\] ?)?(\\w{1,16}) recovered one of Elle's supplies! \\((\\d)/(\\d)\\)$");
     private static final String RETRIEVED = "You retrieved some of Elle's supplies from the Lava!";
 
-    static long runStart = 0;
-
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
@@ -49,6 +47,7 @@ public final class KuudraSupply {
         if (!s.contains("recovered one of Elle's supplies") || !on()) return message;
         Matcher m = RECOVERED.matcher(StringUtil.stripTrim(s));
         if (!m.matches()) return message;
+        long runStart = Kuudra.runStartMs();
         String time = runStart > 0
                 ? "§e" + String.format(Locale.ROOT, "%.2fs", (System.currentTimeMillis() - runStart) / 1000.0) : "§e?";
         return Component.literal("§6" + m.group(1) + " §arecovered a supply in " + time + " §8(" + m.group(2) + "/" + m.group(3) + ")");

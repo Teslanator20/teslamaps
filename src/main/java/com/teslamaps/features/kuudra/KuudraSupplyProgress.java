@@ -82,7 +82,7 @@ public final class KuudraSupplyProgress {
 
     /** Action bar variant: empty component when the progress was taken over. */
     public static Component onActionBar(Component msg) {
-        return onText(msg.getString()) ? Component.empty() : msg;
+        return active() && onText(msg.getString()) ? Component.empty() : msg;
     }
 
     private static void onChat(String raw) {

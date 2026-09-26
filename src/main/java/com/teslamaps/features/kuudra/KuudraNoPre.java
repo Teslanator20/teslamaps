@@ -38,22 +38,23 @@ public final class KuudraNoPre {
                 checkIn = -1;
             }
         });
-        Feature.of("KuudraNoPre").section("Kuudra").when(() -> cfg().kuudraNoPre && Kuudra.inKuudra())
+        Feature.of("KuudraNoPre").section("Kuudra").when(() -> cfg().kuudraSupplyHelper && cfg().kuudraNoPre && Kuudra.inKuudra())
                 .serverChat(KuudraNoPre::onServerChat)
                 .chat(KuudraNoPre::onChat)
-                .tick(KuudraNoPre::tick)
-                .config("Kuudra", b -> {
-                    TeslaMapsConfig c = cfg();
-                    b.label("Supplies");
-                    b.toggle("No Pre Callouts", () -> c.kuudraNoPre, v -> c.kuudraNoPre = v)
-                            .desc("Registers your pre spot when Elle says \"Head over to the main platform\"");
-                    b.toggle("  Announce Missing Pre", () -> c.kuudraNoPreAnnounce, v -> c.kuudraNoPreAnnounce = v)
-                            .desc("Sends \"No Triangle!\" / \"No Shop!\" etc. to party chat when your pre or second spot has no supply");
-                    b.toggle("  Crate Priority", () -> c.kuudraCratePriority, v -> c.kuudraCratePriority = v)
-                            .desc("Reads the party's \"No <Spot>!\" calls and shows where you should go");
-                    b.toggle("    Advanced Priority", () -> c.kuudraCratePriorityAdvanced, v -> c.kuudraCratePriorityAdvanced = v)
-                            .desc("Harder routes in some cases (pull Square and X Cannon, go Shop)");
-                });
+                .tick(KuudraNoPre::tick);
+    }
+
+    /** Rows under the Supply Helper. */
+    static void config(com.teslamaps.screen.config.ConfigBuilder b) {
+        TeslaMapsConfig c = cfg();
+        b.toggle("  No Pre Callouts", () -> c.kuudraNoPre, v -> c.kuudraNoPre = v)
+                .desc("Registers your pre spot when Elle says \"Head over to the main platform\"");
+        b.toggle("    Announce Missing Pre", () -> c.kuudraNoPreAnnounce, v -> c.kuudraNoPreAnnounce = v)
+                .desc("Sends \"No Triangle!\" / \"No Shop!\" etc. to party chat when your pre or second spot has no supply");
+        b.toggle("    Crate Priority", () -> c.kuudraCratePriority, v -> c.kuudraCratePriority = v)
+                .desc("Reads the party's \"No <Spot>!\" calls and shows where you should go");
+        b.toggle("      Advanced Priority", () -> c.kuudraCratePriorityAdvanced, v -> c.kuudraCratePriorityAdvanced = v)
+                .desc("Harder routes in some cases (pull Square and X Cannon, go Shop)");
     }
 
     /** Party call spot name -> Supply name, null = unknown. */

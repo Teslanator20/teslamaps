@@ -2481,7 +2481,6 @@ public class TeslaMapsConfig {
     public boolean slayerHideEndermanParticles = false;
     public boolean slayerHideMobNames = false;
     public boolean slayerHidePacifiedBlazes = false;
-    public boolean slayerHideOthersRadiation = false;
     public boolean vengeanceTimer = false;
     public int vengeanceTimerX = 5;
     public int vengeanceTimerY = 215;

@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
 /** Beam boxes on the supply piles during P1; the pile of a called-out missing pre gets its own color. */
 public final class KuudraPileWaypoints {
 
-    private record Pile(String name, Vec3 pos, BlockPos block, String label, String missingLabel) {
-        Pile(String name, Vec3 pos) { this(name, pos, BlockPos.containing(pos), "§e" + name, "§c§l" + name + " §c(No Pre)"); }
+    private record Pile(String name, Vec3 pos, BlockPos block, AABB box, String label, String missingLabel) {
+        Pile(String name, Vec3 pos) { this(name, pos, BlockPos.containing(pos), new AABB(BlockPos.containing(pos)), "§e" + name, "§c§l" + name + " §c(No Pre)"); }
     }
 
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("teslamaps").resolve("kuudra_piles.json");
@@ -53,10 +53,21 @@ public final class KuudraPileWaypoints {
 
     public static void register() {
         load();
-        Feature.of("KuudraPileWaypoints").section("Kuudra").when(() -> cfg().kuudraPileWaypoints)
+        Feature.of("KuudraPileWaypoints").section("Kuudra").when(() -> cfg().kuudraSupplyHelper && cfg().kuudraPileWaypoints)
                 .chat(KuudraPileWaypoints::onChat)
                 .tick(KuudraPileWaypoints::tick)
                 .world(KuudraPileWaypoints::render);
+    }
+
+    /** Rows under the Supply Helper. */
+    static void config(com.teslamaps.screen.config.ConfigBuilder b) {
+        TeslaMapsConfig c = cfg();
+        b.toggle("  Pile Waypoints", () -> c.kuudraPileWaypoints, v -> c.kuudraPileWaypoints = v)
+                .desc("Beam boxes on the crate piles during supplies; the pile of a \"No <pre>!\" party callout gets the No-Pre color. Positions in config/teslamaps/kuudra_piles.json");
+        b.toggle("    Pile Names", () -> c.kuudraPileNames, v -> c.kuudraPileNames = v);
+        b.color("    Pile Color", () -> c.kuudraPileColor, v -> c.kuudraPileColor = v);
+        b.color("    No-Pre Pile Color", () -> c.kuudraPileNoPreColor, v -> c.kuudraPileNoPreColor = v);
+        b.button("    Reload Pile File", KuudraPileWaypoints::load);
     }
 
     public static void load() {
@@ -142,7 +153,7 @@ public final class KuudraPileWaypoints {
             boolean miss = p.name.equals(np);
             int col = miss ? missing : normal;
             ESPRenderer.drawBeaconBeam(pose, p.block, col, cam);
-            ESPRenderer.drawBoxOutline(pose, new AABB(p.block), col | 0xFF000000, 2f, cam, true);
+            ESPRenderer.drawBoxOutline(pose, p.box, col | 0xFF000000, 2f, cam, true);
             if (c.kuudraPileNames) WaypointSet.drawLabel(pose, cam, miss ? p.missingLabel : p.label, p.pos.add(0, 2.5, 0), 1f, true);
         }
     }
