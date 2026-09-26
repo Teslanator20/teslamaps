@@ -2148,6 +2148,27 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w19-09-cri
+    public boolean crimsonNpcHelper = false;
+    public boolean ashfangHider = false;
+    public boolean ashfangHideParticles = true;
+    public boolean ashfangHideSplashes = true;
+    public boolean ashfangHideFullHpNames = false;
+    public boolean magmaBossStage = false;
+    public boolean magmaBossTitle = true;
+    public boolean magmaBossHud = false;
+    public int magmaBossHudX = 10;
+    public int magmaBossHudY = 200;
+    public float magmaBossHudScale = 1.0f;
+    public boolean atomHitboxes = false;
+    public boolean atomExe = true;
+    public boolean atomWai = true;
+    public boolean atomZee = true;
+    public boolean dojoRankDisplay = false;
+    public boolean rescueAgentPath = false;
+    public boolean rescueSingleColor = false;
+    public String rescueColor = "FFFF55";
+    public boolean crimsonFogColorFix = false;
     // w18-06-evt
     public boolean griffinPetWarning = false;
     public boolean hoppityCallWarning = false;

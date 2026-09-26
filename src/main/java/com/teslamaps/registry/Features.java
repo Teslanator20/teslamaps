@@ -953,5 +953,11 @@ final class Features {
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
+        // w19-09-cri
+        com.teslamaps.features.crimson.CrimsonNpcHelper.register();
+        com.teslamaps.features.crimson.AshfangHider.register();
+        com.teslamaps.features.crimson.MagmaBossStage.register();
+        com.teslamaps.features.crimson.AtomHitboxes.register();
+        com.teslamaps.features.crimson.DojoRankDisplay.register();
     }
 }
