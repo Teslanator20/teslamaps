@@ -846,6 +846,14 @@ final class Features {
         com.teslamaps.features.hunting.FusionHelper.register();
         com.teslamaps.features.theend.EnderNodeFinder.register();
         com.teslamaps.features.foraging.ForagingTutorial.register();
+        // w17-08-fis
+        com.teslamaps.features.FishingChat.register();
+        com.teslamaps.features.FishedItemNames.register();
+        com.teslamaps.features.LegionBobbinOverlay.register();
+        com.teslamaps.features.ChargeBottleNotice.register();
+        com.teslamaps.features.GeyserBox.register();
+        com.teslamaps.features.LootshareSphere.register();
+        com.teslamaps.features.LotusPity.register();
         // w17-06-for
         com.teslamaps.safari.ScrappyFish.register();
         com.teslamaps.safari.SparklingFocus.register();

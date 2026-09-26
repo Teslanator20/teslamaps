@@ -2172,6 +2172,37 @@ public class TeslaMapsConfig {
     public boolean enderNodeFinder = false;
     public String enderNodeFinderColor = "00FFFF";
     public boolean foragingTutorialGuide = false;
+    // w17-08-fis
+    public boolean fishingChat = false;
+    public boolean fishingChatShort = true;
+    public boolean fishingChatMergeDh = true;
+    public String fishingChatDhPosition = "Left";
+    public boolean fishingChatHide = false;
+    public boolean fishingChatDhSound = false;
+    public String fishingChatDhSoundId = "NOTE_PLING";
+    public float fishingChatDhVolume = 1.0f;
+    public boolean fishedItemNames = false;
+    public boolean fishedItemNamesBait = false;
+    public boolean legionBobbin = false;
+    public boolean legionBobbinOnlyEnchanted = false;
+    public int legionBobbinX = 10;
+    public int legionBobbinY = 200;
+    public float legionBobbinScale = 1.0f;
+    public boolean chargeBottleNotice = false;
+    public boolean geyserBox = false;
+    public String colorGeyserBox = "#80FF5555";
+    public boolean geyserBoxLavaRod = true;
+    public boolean geyserBoxHideParticles = false;
+    public boolean lootshareSphere = false;
+    public String lootshareSphereRarity = "Rare Flag";
+    public boolean lotusPity = false;
+    public int lotusPityX = 10;
+    public int lotusPityY = 220;
+    public float lotusPityScale = 1.0f;
+    @Global
+    public java.util.Map<String, int[]> lotusPityData = new java.util.HashMap<>();
+    @Global
+    public String lotusPityLast = "";
     // w17-06-for
     public boolean foragingGiftTotals = false;
     public boolean foragingMutePhantomsSafari = false;
@@ -5904,6 +5935,8 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.lotusPityData == null) c.lotusPityData = new java.util.HashMap<>();
+        c.lotusPityData.values().removeIf(v -> v == null || v.length < 4);
         if (c.slayerBossesSinceRng == null) c.slayerBossesSinceRng = new java.util.HashMap<>();
         if (c.slayerLastRngMs == null) c.slayerLastRngMs = new java.util.HashMap<>();
         if (c.slayerNametagMode == null) c.slayerNametagMode = "Own + Carries";

@@ -137,6 +137,7 @@ public class TMapCommand {
                 })
                 .then(com.teslamaps.dungeon.puzzle.PuzzleReset.command())
                 .then(com.teslamaps.features.JoinTips.command())
+                .then(com.teslamaps.features.ChargeBottleNotice.command())
                 .then(ClientCommands.literal("tracker")
                         .then(com.teslamaps.features.tracker.TrackerRows.attach(ClientCommands.argument("id", StringArgumentType.word()))
                                 .suggests((c, b) -> {
