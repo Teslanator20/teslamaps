@@ -70,16 +70,31 @@ public final class FeatureRegistry {
                 || seenVersion != com.teslamaps.config.TeslaMapsConfig.version()) refresh(world);
     }
 
+    private static final List<String> SECTION_NAMES = new ArrayList<>();
+    private static boolean[] secOn = new boolean[0];
+
+    static int sectionIndex(String name) {
+        int i = SECTION_NAMES.indexOf(name);
+        if (i >= 0) return i;
+        SECTION_NAMES.add(name);
+        return SECTION_NAMES.size() - 1;
+    }
+
     private static void refresh(boolean world) {
         dirty = false;
         seenWorld = world;
-        seenCfg = com.teslamaps.config.TeslaMapsConfig.get();
+        com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
+        seenCfg = c;
         seenVersion = com.teslamaps.config.TeslaMapsConfig.version();
+        if (secOn.length != SECTION_NAMES.size()) secOn = new boolean[SECTION_NAMES.size()];
+        for (int i = 0; i < secOn.length; i++) secOn[i] = c.section(SECTION_NAMES.get(i));
+        boolean legitBlocks = com.teslamaps.features.LegitMode.blocksCheats();
+        boolean outside = !inSkyblock && c.outsideSbGate;
         boolean changed = false;
         for (int i = 0, n = ALL.size(); i < n; i++) {
             Feature f = ALL.get(i);
             if (!f.gated) continue;
-            boolean v = (world || f.always) && gate(f);
+            boolean v = (world || f.always) && gate(f, legitBlocks, outside);
             if (v != f.on) {
                 f.on = v;
                 changed = true;
@@ -88,9 +103,9 @@ public final class FeatureRegistry {
         if (changed) rebuild();
     }
 
-    private static boolean gate(Feature f) {
+    private static boolean gate(Feature f, boolean legitBlocks, boolean outside) {
         try {
-            return f.active();
+            return f.activeCached(secOn, legitBlocks, outside);
         } catch (Throwable e) {
             com.teslamaps.features.ErrorManager.caught(f.name, e);
             return false;

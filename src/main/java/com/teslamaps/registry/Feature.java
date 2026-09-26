@@ -29,6 +29,7 @@ public final class Feature {
     boolean gated;
     /** Gate as of the last refresh (FeatureRegistry.refresh); pre-filter only, callbacks re-check live. */
     boolean on;
+    int sec = -1;
 
     private Feature(String name) {
         this.name = name;
@@ -43,6 +44,7 @@ public final class Feature {
     /** Section master gate, one of {@link TeslaMapsConfig#SECTIONS}. */
     public Feature section(String section) {
         this.section = section;
+        this.sec = section == null ? -1 : FeatureRegistry.sectionIndex(section);
         return this;
     }
 
@@ -62,6 +64,15 @@ public final class Feature {
         if (section != null && !TeslaMapsConfig.get().section(section)) return false;
         if (legit && LegitMode.blocksCheats()) return false;
         if (section != null && !always && FeatureRegistry.blockedOutsideSb(name)) return false;
+        if (when != null && !when.getAsBoolean()) return false;
+        return !FeatureConditions.on || FeatureConditions.allows(this);
+    }
+
+    /** Same as active(), with section / legit / outside-SkyBlock resolved once per refresh. */
+    boolean activeCached(boolean[] secOn, boolean legitBlocks, boolean outsideSb) {
+        if (section != null && !secOn[sec]) return false;
+        if (legit && legitBlocks) return false;
+        if (outsideSb && section != null && !always && FeatureRegistry.blockedOutsideSb(name)) return false;
         if (when != null && !when.getAsBoolean()) return false;
         return !FeatureConditions.on || FeatureConditions.allows(this);
     }
