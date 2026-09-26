@@ -25,7 +25,7 @@ public final class FeatureRegistry {
 
     record Tick(Feature f, String perf, Runnable r, boolean always) {}
     record World(Feature f, String perf, Consumer<WorldCtx> r) {}
-    record Hud(Feature f, String id, HudElement r, InventoryMode mode) {}
+    record Hud(Feature f, String id, HudElement r, InventoryMode mode, HudElement draw) {}
     record Chat(Feature f, String perf, Consumer<String> r, boolean serverOnly) {}
     record Config(String category, Consumer<ConfigBuilder> build, boolean fresh) {}
     record Category(String name, String sidebarSection, boolean gated) {}
@@ -36,11 +36,81 @@ public final class FeatureRegistry {
 
     static final List<Tick> TICKS = new ArrayList<>();
     static final List<World> WORLD = new ArrayList<>();
+    static final List<Hud> HUDS = new ArrayList<>();
     static final List<Hud> FOREGROUND = new ArrayList<>();
     static final List<Chat> CHAT = new ArrayList<>();
     static final List<Config> CONFIG = new ArrayList<>();
     static final List<Category> CATEGORIES = new ArrayList<>();
     static final List<Feature> ALL = new ArrayList<>();
+
+    // gate cache: refreshed every tick end and on config/world change; only features whose gate
+    // was on sit in these lists, and each callback still re-checks active() live before running
+    private static List<Tick> ticksOn = List.of();
+    private static List<World> worldOn = List.of();
+    private static List<Hud> hudOn = List.of();
+    private static List<Hud> foregroundOn = List.of();
+    private static boolean dirty = true;
+    private static boolean seenWorld;
+    private static int seenVersion;
+    private static com.teslamaps.config.TeslaMapsConfig seenCfg;
+    private static boolean hudLayer;
+
+    /** Re-evaluates every gate before the next callback; for state that turns a feature on between ticks. */
+    public static void markDirty() {
+        dirty = true;
+    }
+
+    private static boolean hasWorld() {
+        Minecraft mc = Minecraft.getInstance();
+        return mc.player != null && mc.level != null;
+    }
+
+    private static void ensureFresh(boolean world) {
+        if (dirty || world != seenWorld || seenCfg != com.teslamaps.config.TeslaMapsConfig.get()
+                || seenVersion != com.teslamaps.config.TeslaMapsConfig.version()) refresh(world);
+    }
+
+    private static void refresh(boolean world) {
+        dirty = false;
+        seenWorld = world;
+        seenCfg = com.teslamaps.config.TeslaMapsConfig.get();
+        seenVersion = com.teslamaps.config.TeslaMapsConfig.version();
+        boolean changed = false;
+        for (int i = 0, n = ALL.size(); i < n; i++) {
+            Feature f = ALL.get(i);
+            if (!f.gated) continue;
+            boolean v = (world || f.always) && gate(f);
+            if (v != f.on) {
+                f.on = v;
+                changed = true;
+            }
+        }
+        if (changed) rebuild();
+    }
+
+    private static boolean gate(Feature f) {
+        try {
+            return f.active();
+        } catch (Throwable e) {
+            com.teslamaps.features.ErrorManager.caught(f.name, e);
+            return false;
+        }
+    }
+
+    private static void rebuild() {
+        List<Tick> t = new ArrayList<>();
+        for (Tick x : TICKS) if (x.f.on) t.add(x);
+        List<World> w = new ArrayList<>();
+        for (World x : WORLD) if (x.f.on) w.add(x);
+        List<Hud> h = new ArrayList<>();
+        for (Hud x : HUDS) if (x.f.on) h.add(x);
+        List<Hud> fg = new ArrayList<>();
+        for (Hud x : FOREGROUND) if (x.f.on) fg.add(x);
+        ticksOn = t;
+        worldOn = w;
+        hudOn = h;
+        foregroundOn = fg;
+    }
 
     private static boolean inSkyblock = true;
     private static final java.util.Set<String> OUTSIDE_SB = new java.util.HashSet<>();
@@ -83,19 +153,36 @@ public final class FeatureRegistry {
         CoreFeatures.register();
         CoreHudElements.register();
         Features.register();
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.JOIN.register((h, s, c) -> markDirty());
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> markDirty());
     }
 
     static void addHud(Feature f, String id, HudElement r, InventoryMode mode) {
-        Hud h = new Hud(f, id, r, mode);
+        f.gated = true;
+        Hud h = new Hud(f, id, r, mode, Perf.hud(id, (g, d) -> {
+            if (f.active()) drawShifted(id, r, g, d);
+        }));
         HUD_IDS.add(id);
+        HUDS.add(h);
         if (mode == InventoryMode.FOREGROUND) FOREGROUND.add(h);
-        // in front of PLAYER_LIST = drawn under the tab list
+        if (hudLayer) return;
+        hudLayer = true;
+        // one layer for every feature HUD, in front of PLAYER_LIST = drawn under the tab list
         HudElementRegistry.attachElementBefore(VanillaHudElements.PLAYER_LIST,
-                Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, id), Perf.hud(id, (g, d) -> {
-                    if (mode != InventoryMode.ALWAYS && HudForeground.active()) return;
-                    if (com.teslamaps.features.GlobalRender.off()) return;
-                    if (f.active()) drawShifted(id, r, g, d);
-                }));
+                Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, "features"), FeatureRegistry::hud);
+    }
+
+    private static void hud(GuiGraphicsExtractor g, DeltaTracker d) {
+        if (com.teslamaps.features.GlobalRender.off()) return;
+        ensureFresh(hasWorld());
+        List<Hud> list = hudOn;
+        if (list.isEmpty()) return;
+        boolean fg = HudForeground.active();
+        for (int i = 0, n = list.size(); i < n; i++) {
+            Hud h = list.get(i);
+            if (h.mode != InventoryMode.ALWAYS && fg) continue;
+            h.draw.extractRenderState(g, d);
+        }
     }
 
     private static void drawShifted(String id, HudElement r, GuiGraphicsExtractor g, DeltaTracker d) {
@@ -137,8 +224,10 @@ public final class FeatureRegistry {
         com.teslamaps.features.Announce.tick();
         updateOutsideSb();
         boolean world = client.player != null && client.level != null;
-        for (int i = 0, n = TICKS.size(); i < n; i++) {
-            Tick t = TICKS.get(i);
+        ensureFresh(world);
+        List<Tick> list = ticksOn;
+        for (int i = 0, n = list.size(); i < n; i++) {
+            Tick t = list.get(i);
             if (!t.always && !world) continue;
             if (!t.f.active()) continue;
             Perf.begin(t.perf);
@@ -149,17 +238,20 @@ public final class FeatureRegistry {
             }
             Perf.end();
         }
+        refresh(world);
     }
 
     public static void world(PoseStack pose, MultiBufferSource buffers, Vec3 cam,
                              net.minecraft.client.renderer.culling.Frustum frustum) {
         if (com.teslamaps.features.GlobalRender.off()) return;
         if (!com.teslamaps.features.WorldOverlayToggle.beginWorld()) return;
+        ensureFresh(hasWorld());
+        List<World> list = worldOn;
         WorldCtx ctx = new WorldCtx(pose, buffers, cam);
         com.teslamaps.render.ESPRenderer.beginFrame(frustum);
         try {
-            for (int i = 0, n = WORLD.size(); i < n; i++) {
-                World w = WORLD.get(i);
+            for (int i = 0, n = list.size(); i < n; i++) {
+                World w = list.get(i);
                 if (!w.f.active()) continue;
                 Perf.begin(w.perf);
                 try {
@@ -179,8 +271,10 @@ public final class FeatureRegistry {
     /** Panels drawn over the inventory screen; called by HudForeground. */
     public static void foreground(GuiGraphicsExtractor g, DeltaTracker d) {
         if (com.teslamaps.features.GlobalRender.off()) return;
-        for (int i = 0, n = FOREGROUND.size(); i < n; i++) {
-            Hud h = FOREGROUND.get(i);
+        ensureFresh(hasWorld());
+        List<Hud> list = foregroundOn;
+        for (int i = 0, n = list.size(); i < n; i++) {
+            Hud h = list.get(i);
             if (!h.f.active()) continue;
             try {
                 drawShifted(h.id, h.r, g, d);

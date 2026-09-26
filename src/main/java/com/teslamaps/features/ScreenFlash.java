@@ -47,6 +47,7 @@ public final class ScreenFlash {
         color = argb;
         start = now;
         end = Math.max(end, now + Math.max(50, ms));
+        com.teslamaps.registry.FeatureRegistry.markDirty();
     }
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {

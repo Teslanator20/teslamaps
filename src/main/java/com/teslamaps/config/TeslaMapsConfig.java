@@ -727,14 +727,16 @@ public class TeslaMapsConfig {
             "Ordered Waypoints", "Party", "Puzzles & Terminals", "Render", "Score & Splits",
             "Secrets & Waypoints", "Shards", "Skills", "Sounds", "The End", "Timers", "Torrhus Canyon");
 
-    private static final java.util.Set<String> WARNED_SECTIONS = new java.util.HashSet<>();
+    private static final boolean DEV = net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment();
+    private static final java.util.Set<String> CHECKED_SECTIONS = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     public boolean section(String name) {
-        if (!SECTIONS.contains(name) && !com.teslamaps.registry.FeatureRegistry.isGatedCategory(name) && net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()
-                && WARNED_SECTIONS.add(name)) {
+        if (DEV && CHECKED_SECTIONS.add(name) && !SECTIONS.contains(name)
+                && !com.teslamaps.registry.FeatureRegistry.isGatedCategory(name)) {
             TeslaMaps.LOGGER.warn("section(\"{}\") is not a known category - the gate never matches", name);
         }
-        return sectionEnabled.getOrDefault(name, Boolean.TRUE);
+        Boolean on = sectionEnabled.get(name);
+        return on == null || on;
     }
 
     // --- /tmap customize --- keyed by the Hypixel per-item uuid, so they follow the item, not the slot
