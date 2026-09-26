@@ -916,5 +916,12 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraRunTrackers.register();
         // w16-09-kuu
         com.teslamaps.features.kuudra.KuudraRunInfo.register();
+        // w18-06-evt
+        com.teslamaps.features.events.GriffinPetWarning.register();
+        com.teslamaps.features.events.HoppityCallWarning.register();
+        com.teslamaps.features.events.GreatSpook.register();
+        com.teslamaps.features.events.FrozenTreasureTracker.register();
+        com.teslamaps.features.events.GiftProfitTracker.register();
+        com.teslamaps.features.events.JerryHighlight.register();
     }
 }

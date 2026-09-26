@@ -2148,6 +2148,42 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w18-06-evt
+    public boolean griffinPetWarning = false;
+    public boolean hoppityCallWarning = false;
+    public boolean hoppityCallFlash = true;
+    public String hoppityCallFlashColor = "7F00EEFF";
+    public boolean hoppityCallSound = true;
+    public boolean hoppityCallBlockPickup = false;
+    public int hoppityCallCoinThreshold = 5_000_000;
+    public boolean primalFearMathSolver = false;
+    public boolean primalFearSpeakingSolver = false;
+    public boolean primalFearTimer = false;
+    public boolean primalFearShowFear = true;
+    public boolean primalFearPling = false;
+    public int primalFearTimerX = 10;
+    public int primalFearTimerY = 150;
+    public float primalFearTimerScale = 1.0f;
+    public boolean greatSpookTimeLeft = false;
+    public int greatSpookTimeLeftX = 10;
+    public int greatSpookTimeLeftY = 175;
+    public float greatSpookTimeLeftScale = 1.0f;
+    public boolean frozenTreasureTracker = false;
+    public boolean frozenTreasureOnlyCave = true;
+    public boolean frozenTreasureAsDrops = false;
+    public boolean frozenTreasureHideChat = false;
+    public int frozenTreasureTrackerX = 10;
+    public int frozenTreasureTrackerY = 120;
+    public float frozenTreasureTrackerScale = 1.0f;
+    public boolean giftProfitTracker = false;
+    public boolean giftProfitOnlyHolding = false;
+    public boolean giftSpamFilter = false;
+    public int giftProfitPriceSource = 1;
+    public int giftProfitTrackerX = 10;
+    public int giftProfitTrackerY = 120;
+    public float giftProfitTrackerScale = 1.0f;
+    public boolean highlightJerries = false;
+    public boolean jerryLines = false;
     // w17-09-fis
     public boolean coralFishHelper = false;
     public boolean fishingProgressHud = false;
