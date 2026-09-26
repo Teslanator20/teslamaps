@@ -2148,6 +2148,41 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w17-03-for
+    public boolean trevorHelper = false;
+    public com.teslamaps.render.EspStyle trevorMobEsp = new com.teslamaps.render.EspStyle("FF55FF55", com.teslamaps.render.EspStyle.GLOW);
+    public boolean trevorAreaWaypoint = true;
+    public boolean trevorTalbotCircles = true;
+    public boolean trevorMobDiedTitle = true;
+    public boolean trevorReadyTitle = true;
+    public boolean trevorCooldownLabel = true;
+    public boolean trevorCooldownHud = false;
+    public int trevorCooldownHudX = 10;
+    public int trevorCooldownHudY = 120;
+    public float trevorCooldownHudScale = 1.0f;
+    public int trevorWarpKey = -1;
+    public boolean treeFelledNotification = false;
+    public int treeFelledX = 220;
+    public int treeFelledY = 80;
+    public float treeFelledScale = 3.0f;
+    public boolean treeProgressHud = false;
+    public boolean treeProgressCompact = false;
+    public boolean treeProgressAxeOnly = true;
+    public boolean treeProgressOwnOnly = false;
+    public int treeProgressHudX = 10;
+    public int treeProgressHudY = 140;
+    public float treeProgressHudScale = 1.0f;
+    public boolean sweepOverlay = false;
+    public String sweepOverlayColor = "6055FF55";
+    public boolean sweepOverlayThrown = false;
+    public boolean shulkerFinder = false;
+    public int shulkerFinderKey = -1;
+    public String shulkerFinderColor = "FF55FF55";
+    public boolean slotLockShiningCoins = false;
+    public boolean moongladeBeaconColor = false;
+    public boolean treecapCooldown = false;
+    public boolean treecapMonkey = true;
+    public boolean treecapPredict = false;
     // w16-03-sla
     public boolean slayerTierLock = false;
     public String slayerTierLockLast = "";

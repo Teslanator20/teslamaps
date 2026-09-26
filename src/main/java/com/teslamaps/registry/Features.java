@@ -840,5 +840,12 @@ final class Features {
         com.teslamaps.slayer.CallMaddox.register();
         com.teslamaps.slayer.VoidgloomBeacon.register();
         com.teslamaps.features.theend.EndermanQol.register();
+        // w17-03-for
+        com.teslamaps.features.TrevorTrapper.register();
+        com.teslamaps.features.foraging.TreeFelledNotification.register();
+        com.teslamaps.features.foraging.TreeProgressHud.register();
+        com.teslamaps.features.foraging.SweepOverlay.register();
+        com.teslamaps.features.foraging.ShulkerFinder.register();
+        com.teslamaps.features.foraging.MoongladeBeacon.register();
     }
 }
