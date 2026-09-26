@@ -21,7 +21,7 @@ public final class OldMasterStar {
 
     public static void register() {
         feature = com.teslamaps.registry.Feature.of("OldMasterStar").section("Inventory")
-                .when(() -> TeslaMapsConfig.get().oldMasterStars);
+                .when(() -> TeslaMapsConfig.get().oldMasterStars && TeslaMapsConfig.get().starsStackSize);
     }
 
     public static void clear() {
@@ -30,7 +30,7 @@ public final class OldMasterStar {
 
     public static Component transform(Component name) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (name == null || c == null || !c.oldMasterStars || feature == null || !feature.active()) return name;
+        if (name == null || c == null || !c.oldMasterStars || !c.starsStackSize || feature == null || !feature.active()) return name;
         synchronized (CACHE) {
             Component hit = CACHE.get(name);
             if (hit != null) return hit;
