@@ -39,6 +39,10 @@ public final class ForagingCategory {
         b.toggle("Hide Lottery Buffs",
                 () -> config.foragingHideLottery, v -> config.foragingHideLottery = v);
         b.info("Lottery and Beekeeper messages off the foraging islands");
+        b.toggle("Beeheemoth Spawn Title", () -> config.beeheemothTitle, v -> config.beeheemothTitle = v)
+                .desc("BEEHEEMOTH! title with the sub-area it spawned in");
+        b.toggle("Macaw Birdfeeder Title", () -> config.macawTitle, v -> config.macawTitle = v)
+                .desc("MACAWS ATTRACTED! title when two Macaws come to the Birdfeeder");
         b.label("Sounds");
         b.toggle("Mute Phantoms",
                 () -> config.foragingMutePhantoms, v -> config.foragingMutePhantoms = v);
