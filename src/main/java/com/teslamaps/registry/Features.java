@@ -919,5 +919,7 @@ final class Features {
         // w18-07-evt
         com.teslamaps.features.GaiaConstructHits.register();
         com.teslamaps.features.HoppityHelpers.register();
+        // w18-01-fis
+        com.teslamaps.features.fishing.NearbySeaCreatures.register();
     }
 }

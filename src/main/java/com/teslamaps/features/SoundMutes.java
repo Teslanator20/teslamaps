@@ -17,6 +17,11 @@ public final class SoundMutes {
             "minecraft:entity.enderman.ambient", "minecraft:entity.enderman.death", "minecraft:entity.enderman.hurt",
             "minecraft:entity.enderman.scream", "minecraft:entity.enderman.stare");
 
+    // SkyHanni's MuteBanshee
+    private static final float[] BANSHEE_PITCHES = {0.1904762f, 0.20634921f, 0.22222222f, 0.23809524f, 0.25396827f,
+            0.26984128f, 0.2857143f, 0.3015873f, 0.31746033f, 0.33333334f, 0.34920636f, 0.36507937f, 0.3809524f,
+            0.3968254f, 0.41269842f, 0.42857143f, 0.44444445f, 0.46031746f, 0.47619048f, 0.4920635f};
+
     private SoundMutes() {}
 
     public static void register() {
@@ -26,6 +31,16 @@ public final class SoundMutes {
                     .desc("Drops the Crystal Hollows heat warning (low wolf panting) below y 66.")
                     .tags("heat", "crystal hollows", "wolf", "pant", "mute", "sound");
         });
+        com.teslamaps.registry.Feature.of("FishingMutes").section("Fishing").config("Fishing", b -> {
+            TeslaMapsConfig c = b.config();
+            b.label("Fishing Sounds");
+            b.toggle("Mute Banshee", () -> c.muteBanshee, v -> c.muteBanshee = v)
+                    .desc("Drops the Banshee's ghast wail in Backwater Bayou")
+                    .tags("banshee", "ghast", "bayou", "mute", "sound");
+            b.toggle("Mute Cast Sound", () -> c.muteCastSound, v -> c.muteCastSound = v)
+                    .desc("Silences the bobber throw sound when casting a rod")
+                    .tags("cast", "bobber", "throw", "rod", "mute", "sound");
+        });
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> {
             if (!TeslaMapsConfig.get().muteBackpackOpen || !(screen instanceof AbstractContainerScreen<?>)) return;
             if (StringUtil.strip(screen.getTitle().getString()).contains("Backpack")) backpackOpenMs = System.currentTimeMillis();
@@ -33,7 +48,8 @@ public final class SoundMutes {
     }
 
     public static boolean active(TeslaMapsConfig c) {
-        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth || c.muteVacuum || c.muteHoeLevelUp || c.gardenMuteComposter || c.muteTreasureChest || c.muteHighHeat;
+        return c.muteRatPet || c.muteBackpackOpen || c.muteEndermanEnd || c.muteJerrychine || c.muteFlowerOfTruth || c.muteVacuum || c.muteHoeLevelUp || c.gardenMuteComposter || c.muteTreasureChest || c.muteHighHeat
+                || c.muteBanshee || c.muteCastSound;
     }
 
     public static boolean shouldMute(TeslaMapsConfig c, SoundInstance s, String id) {
@@ -62,6 +78,9 @@ public final class SoundMutes {
         // SkyHanni's HighHeatSound
         if (c.muteHighHeat && id.equals("minecraft:entity.wolf.pant") && s.getPitch() < 0.55f && mc.player.getY() <= 65
                 && c.section("Mining") && com.teslamaps.utils.SkyblockUtils.isInArea("Crystal Hollows")) return true;
+        if (c.muteCastSound && id.equals("minecraft:entity.fishing_bobber.throw") && c.section("Fishing")) return true;
+        if (c.muteBanshee && id.equals("minecraft:entity.ghast.ambient") && banshee(s.getPitch()) && c.section("Fishing")
+                && com.teslamaps.utils.SkyblockUtils.isInArea("Backwater Bayou")) return true;
         if (c.muteEndermanEnd && ENDERMAN.contains(id) && com.teslamaps.features.theend.EndProtector.inArea()) return true;
         if (c.muteRatPet) {
             // rat = bat squeak + chicken steps next to the player, with no real bat/chicken there
@@ -69,6 +88,11 @@ public final class SoundMutes {
             if (!c.muteRatPetSqueakOnly && id.equals("minecraft:entity.chicken.step"))
                 return near(mc, s, 6) && none(mc, s, EntityType.CHICKEN);
         }
+        return false;
+    }
+
+    private static boolean banshee(float pitch) {
+        for (float p : BANSHEE_PITCHES) if (Math.abs(pitch - p) < 0.001f) return true;
         return false;
     }
 
