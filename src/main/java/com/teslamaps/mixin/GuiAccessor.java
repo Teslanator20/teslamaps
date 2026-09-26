@@ -13,6 +13,9 @@ public interface GuiAccessor {
     @Accessor("subtitle")
     Component teslamaps$subtitle();
 
+    @Accessor("title")
+    Component teslamaps$title();
+
     @Accessor("titleTime")
     int teslamaps$titleTime();
 }

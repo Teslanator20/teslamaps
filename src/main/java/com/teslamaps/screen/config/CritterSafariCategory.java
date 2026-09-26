@@ -80,6 +80,12 @@ public final class CritterSafariCategory {
         b.toggle("  Full Screen Alert", () -> config.safariSparklingScreen, v -> config.safariSparklingScreen = v);
         b.info("Screen wash with SPARKLING!, the critter, biome and coords, 7s");
         b.toggle("  Only When Visible", () -> config.safariSparklingVisible, v -> config.safariSparklingVisible = v);
+        b.toggle("  Sparkling HUD", () -> config.safariSparklingHud, v -> config.safariSparklingHud = v)
+                .desc("Label stays on screen while a sparkling is within 64 blocks. Position in /tmap gui");
+        b.toggle("  Focus Sparkling", () -> config.safariSparklingFocus, v -> config.safariSparklingFocus = v)
+                .desc("Box + tracer on the sparkling (or its sparkles), other Safari ESP hidden meanwhile");
+        b.toggle("  Also Outside Safari", () -> config.safariSparklingOutside, v -> config.safariSparklingOutside = v)
+                .desc("HUD and focus only");
         b.toggle("Force Sparkle Particles", () -> config.safariSparkleForce, v -> config.safariSparkleForce = v);
         b.info("Sparkles render at any distance and particle setting");
         b.toggle("Announce Biome Done", () -> config.safariAnnounceBiomeDone, v -> config.safariAnnounceBiomeDone = v);
@@ -122,6 +128,10 @@ public final class CritterSafariCategory {
         b.toggle("Legit Mode (Depth Check)", () -> config.safariLegitMode, v -> config.safariLegitMode = v);
         b.info("Nothing drawn through walls");
         b.toggle("Bee Nest ESP", () -> config.safariNestESP, v -> config.safariNestESP = v);
+        b.toggle("Scrappy Fish Highlight", () -> config.safariScrappyFish, v -> config.safariScrappyFish = v)
+                .desc("The fish you feed to Scrappy (Cavern)").tags("scrappy", "fish");
+        b.toggle("  Stop When Scrappy Caught", () -> config.safariScrappyFishStopCaught, v -> config.safariScrappyFishStopCaught = v);
+        b.espStyle("Fish", () -> config.safariScrappyFishStyle);
         b.toggle("Floor Spot ESP", () -> config.critterSpotESP, v -> config.critterSpotESP = v);
         b.toggle("Recatch Spot", () -> config.safariRecatchSpot, v -> config.safariRecatchSpot = v);
         b.info("Marks where an escaped critter comes back");

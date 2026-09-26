@@ -20,6 +20,7 @@ public class ForagingChat {
         String raw = message.getString();
         String clean = Foraging.strip(raw);
 
+        spawnTitles(c, clean.trim());
         if (c.foragingTreeMobTitle) treeMobTitle(clean);
         if (c.sweepDetailsHud && Foraging.whereTreesGrow() && SweepDetailsHud.handle(clean)) return true;
 
@@ -47,6 +48,30 @@ public class ForagingChat {
         mc.gui.setTimes(5, 40, 10);
         mc.gui.setSubtitle(Component.literal("§eFell from the Tree!"));
         mc.gui.setTitle(Component.literal("§c§l" + m.group(1).trim()));
+    }
+
+    private static final Pattern BEEHEEMOTH = Pattern.compile("A Beeheemoth has spawned at (.+?)!");
+
+    private static void spawnTitles(TeslaMapsConfig c, String clean) {
+        String title, sub;
+        if (c.beeheemothTitle && clean.contains("A Beeheemoth has spawned at")) {
+            Matcher m = BEEHEEMOTH.matcher(clean);
+            if (!m.find()) return;
+            title = "§6§lBEEHEEMOTH!";
+            sub = "§e" + m.group(1).trim();
+        } else if (c.macawTitle && clean.contains("Two Macaws were attracted to the Birdfeeder!")) {
+            title = "§c§lMACAWS ATTRACTED!";
+            sub = "§eForest Biome";
+        } else {
+            return;
+        }
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        mc.execute(() -> {
+            if (mc.player == null) return;
+            mc.gui.setTimes(5, 70, 20);
+            mc.gui.setSubtitle(Component.literal(sub));
+            mc.gui.setTitle(Component.literal(title));
+        });
     }
 
     /**

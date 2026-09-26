@@ -42,6 +42,7 @@ public class ClientPlayerInteractionManagerMixin {
 
     @Inject(method = "interact", at = @At("HEAD"), cancellable = true)
     private void teslamaps$onInteractEntity(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Entity entity, net.minecraft.world.phys.EntityHitResult hitResult, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        if (com.teslamaps.features.kuudra.KuudraPvBlocker.block(entity)) { cir.setReturnValue(InteractionResult.PASS); return; }
         if (hand == InteractionHand.MAIN_HAND) com.teslamaps.features.mobvisuals.LotumHelper.onClick(entity);
         if (entity instanceof net.minecraft.world.entity.decoration.ItemFrame frame) {
             if (com.teslamaps.dungeon.puzzle.ArrowAlignSolver.blockClick(frame)) {
