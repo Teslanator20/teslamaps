@@ -916,5 +916,12 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraRunTrackers.register();
         // w16-09-kuu
         com.teslamaps.features.kuudra.KuudraRunInfo.register();
+        // w18-00-fis
+        com.teslamaps.features.fishing.ThunderSparks.register();
+        com.teslamaps.features.fishing.SeaCreatureCocoon.register();
+        com.teslamaps.features.fishing.Wormholes.register();
+        com.teslamaps.features.fishing.OdgerHelper.register();
+        com.teslamaps.features.fishing.SulphurSkitterBox.register();
+        com.teslamaps.features.fishing.TrophyDiamondEffect.register();
     }
 }

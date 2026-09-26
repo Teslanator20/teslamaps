@@ -2148,6 +2148,32 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w18-00-fis
+    public boolean thunderSparkHighlight = false;
+    public String colorThunderSpark = "#80FFFF55";
+    public boolean seaCreatureCocoonWarn = false;
+    public String seaCreatureCocoonRarity = "Any";
+    public String seaCreatureCocoonChannel = "Nobody";
+    public boolean seaCreatureKillTime = false;
+    public String seaCreatureKillTimeRarity = "Any";
+    public boolean wormholeHelper = false;
+    public boolean wormholeFill = true;
+    public boolean wormholeRim = true;
+    public boolean wormholeHideParticles = false;
+    public String colorWormhole = "#80AA00AA";
+    public boolean wormholeDespawnWarn = true;
+    public boolean wormholeFroggles = true;
+    public boolean wormholeClosedAlert = true;
+    public boolean sulphurSkitterBox = false;
+    public String sulphurSkitterBoxType = "Filled";
+    public String colorSulphurSkitterBox = "#40FFFF55";
+    public boolean sulphurSkitterBoxLavaRod = false;
+    public boolean odgerHelper = false;
+    public boolean odgerTotal = true;
+    public boolean odgerWaypoint = true;
+    public boolean trophyFilletTooltip = true;
+    public boolean trophyFilletPanel = true;
+    public boolean trophyDiamondEffect = false;
     // w17-09-fis
     public boolean coralFishHelper = false;
     public boolean fishingProgressHud = false;

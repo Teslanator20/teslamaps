@@ -320,6 +320,10 @@ public class RareDropEffects {
         return null;
     }
 
+    public static void playPortal(String id, String headline, String itemName) {
+        play(id, headline, itemName, ParticleTypes.PORTAL);
+    }
+
     private static void play(String id, String headline, String itemName, ParticleOptions particle) {
         if (id == null) return;
         SkyblockItems.resolve(id, stack -> show(stack, headline, itemName, id, particle));
