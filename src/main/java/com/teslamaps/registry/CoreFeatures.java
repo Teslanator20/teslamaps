@@ -185,7 +185,6 @@ final class CoreFeatures {
         Feature.of("SlayerHUD").section("Combat").world(SlayerHUD::renderWorld);
 
         Feature.of("WorldScanner").section("Mining").world(com.teslamaps.features.WorldScanner::render);
-        Feature.of("TikiESP").section("Mining").world(com.teslamaps.features.TikiESP::render);
 
         Feature.of("MimicChestESP").section("ESP").legit()
                 .when(() -> DungeonManager.isInDungeon() && !MimicDetector.isMimicKilled()
