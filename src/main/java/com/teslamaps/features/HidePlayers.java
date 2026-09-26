@@ -48,7 +48,7 @@ public class HidePlayers {
 
     private static boolean matches(Entity entity) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        boolean arachne = ArachneQol.hidePlayers();
+        boolean arachne = ArachneQol.hidePlayers() || com.teslamaps.features.rift.RiftGuntherRace.hidePlayers();
         if (!config.hidePlayers && !config.hidePlayersAfterLeap && !arachne) return false;
         if (!(entity instanceof Player)) return false;
         if (entity.getUUID().version() != 4) return false; // skip NPCs / fake players
