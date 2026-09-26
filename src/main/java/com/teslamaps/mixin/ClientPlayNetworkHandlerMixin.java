@@ -93,6 +93,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.theend.EnderNodeFinder.onParticle(packet);
         com.teslamaps.features.GeyserBox.onParticle(packet);
         com.teslamaps.features.diana.DianaBurrows.onParticle(packet);
+        com.teslamaps.features.rift.RiftSplatterHearts.onParticle(packet);
     }
 
     @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",

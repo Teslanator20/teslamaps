@@ -2148,6 +2148,22 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w19-05-rif
+    public boolean riftAgaricusCap = false;
+    public boolean riftLarvaHighlight = false;
+    public String riftLarvaColor = "FF55FF";
+    public boolean riftOdonataHighlight = false;
+    public String riftOdonataColor = "55FFFF";
+    public boolean riftLarvaSilkLines = false;
+    public String riftLarvaSilkColor = "FFFF55";
+    public boolean riftShyCruxWarning = false;
+    public boolean riftSplatterHearts = false;
+    public String riftSplatterHeartsColor = "64FF5555";
+    public boolean riftGuntherRace = false;
+    public int riftGuntherRaceLookAhead = 2;
+    public boolean riftGuntherRaceRainbow = true;
+    public String riftGuntherRaceColor = "FFFFFF";
+    public boolean riftGuntherRaceHidePlayers = false;
     // w18-05-evt
     public boolean frozenTreasureHighlight = false;
     public com.teslamaps.render.EspStyle frozenTreasureStyle = new com.teslamaps.render.EspStyle("6655FFFF", com.teslamaps.render.EspStyle.BOTH);
