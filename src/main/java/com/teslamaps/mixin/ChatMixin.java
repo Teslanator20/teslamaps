@@ -274,6 +274,13 @@ public class ChatMixin {
             return;
         }
 
+        if (fromServer && (com.teslamaps.features.events.FrozenTreasureTracker.hide(text)
+                || com.teslamaps.features.events.GiftProfitTracker.hide(text))) {
+            teslamaps$reason = "eventChat";
+            ci.cancel();
+            return;
+        }
+
         if (fromServer && cfg.section("Score & Splits") && com.teslamaps.dungeon.ExtraStats.hide(text)) {
             teslamaps$reason = "extraStats";
             ci.cancel();
