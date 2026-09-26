@@ -916,5 +916,8 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraRunTrackers.register();
         // w16-09-kuu
         com.teslamaps.features.kuudra.KuudraRunInfo.register();
+        // w18-07-evt
+        com.teslamaps.features.GaiaConstructHits.register();
+        com.teslamaps.features.HoppityHelpers.register();
     }
 }
