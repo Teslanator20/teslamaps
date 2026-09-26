@@ -840,6 +840,9 @@ final class Features {
         com.teslamaps.slayer.CallMaddox.register();
         com.teslamaps.slayer.VoidgloomBeacon.register();
         com.teslamaps.features.theend.EndermanQol.register();
+        // w17-06-for
+        com.teslamaps.safari.ScrappyFish.register();
+        com.teslamaps.safari.SparklingFocus.register();
         // w16-08-kuu
         com.teslamaps.features.kuudra.KuudraContext.register();
         com.teslamaps.features.kuudra.KuudraProfitTracker.register();

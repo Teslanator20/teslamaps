@@ -2148,6 +2148,18 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w17-06-for
+    public boolean foragingGiftTotals = false;
+    public boolean foragingMutePhantomsSafari = false;
+    public boolean safariScrappyFish = false;
+    public boolean safariScrappyFishStopCaught = true;
+    public com.teslamaps.render.EspStyle safariScrappyFishStyle = new com.teslamaps.render.EspStyle("55FFFF", com.teslamaps.render.EspStyle.GLOW);
+    public boolean safariSparklingHud = false;
+    public int safariSparklingHudX = 200;
+    public int safariSparklingHudY = 60;
+    public float safariSparklingHudScale = 1.5f;
+    public boolean safariSparklingFocus = false;
+    public boolean safariSparklingOutside = false;
     // w16-08-kuu
     public boolean kuudraProfitTracker = false;
     public boolean kuudraProfitEverywhere = false;
