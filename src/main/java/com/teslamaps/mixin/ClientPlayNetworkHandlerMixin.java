@@ -122,7 +122,10 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.fishing.FishingTweaks.hideParticle(packet)
                     || com.teslamaps.features.fishing.Wormholes.onParticle(packet)
                     || com.teslamaps.features.fishing.HotspotCircles.onParticle(packet)
-                    || com.teslamaps.features.GeyserBox.hideParticle(packet))) ci.cancel();
+                    || com.teslamaps.features.GeyserBox.hideParticle(packet)
+                    || com.teslamaps.features.rift.MotesOrbHighlight.onParticle(packet)
+                    || com.teslamaps.features.rift.LivingCaveDefenseBlocks.onParticle(packet)
+                    || com.teslamaps.features.rift.LivingMetalHelper.hideParticle(packet))) ci.cancel();
     }
 
     @Inject(method = "handleInitializeBorder", at = @At("HEAD"))
