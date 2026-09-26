@@ -840,5 +840,11 @@ final class Features {
         com.teslamaps.slayer.CallMaddox.register();
         com.teslamaps.slayer.VoidgloomBeacon.register();
         com.teslamaps.features.theend.EndermanQol.register();
+        // w17-00-kuu
+        com.teslamaps.features.kuudra.KuudraEtherwarp.register();
+        com.teslamaps.features.kuudra.KuudraSounds.register();
+        com.teslamaps.features.kuudra.KuudraPerkMenu.register();
+        com.teslamaps.features.kuudra.KuudraBoss.register();
+        com.teslamaps.features.kuudra.KuudraPearls.register();
     }
 }

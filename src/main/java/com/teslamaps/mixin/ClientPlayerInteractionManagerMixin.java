@@ -52,6 +52,10 @@ public class ClientPlayerInteractionManagerMixin {
 
     @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
     private void onInteractBlock(net.minecraft.client.player.LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
+        if (com.teslamaps.features.kuudra.KuudraPearls.passBlock(player, hand)) {
+            cir.setReturnValue(InteractionResult.PASS);
+            return;
+        }
         if (com.teslamaps.features.SecretTrackerLocator.onUseItem(player.getItemInHand(hand))) {
             cir.setReturnValue(InteractionResult.FAIL);
             return;

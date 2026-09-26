@@ -98,7 +98,8 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
-        if (com.teslamaps.features.AutoShiftClick.handle((AbstractContainerScreen<?>) (Object) this, slot, slotId, button, type)) {
+        if (com.teslamaps.features.AutoShiftClick.handle((AbstractContainerScreen<?>) (Object) this, slot, slotId, button, type)
+                || com.teslamaps.features.kuudra.KuudraPerkMenu.middleClick((AbstractContainerScreen<?>) (Object) this, slot, slotId, button, type)) {
             ci.cancel();
             return;
         }
