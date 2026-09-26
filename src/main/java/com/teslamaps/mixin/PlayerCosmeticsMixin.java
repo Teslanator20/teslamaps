@@ -24,5 +24,6 @@ public class PlayerCosmeticsMixin {
             at = @At("TAIL"))
     private void teslamaps$playerModel(Avatar avatar, AvatarRenderState state, float partialTick, CallbackInfo ci) {
         PlayerModels.extract(avatar, state, partialTick);
+        com.teslamaps.features.rift.RiftTimer.nametag(state);
     }
 }

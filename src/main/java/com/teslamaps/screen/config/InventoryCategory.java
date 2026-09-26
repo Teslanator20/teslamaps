@@ -63,6 +63,8 @@ public final class InventoryCategory {
         b.toggle("  Hide Community Goals", () -> config.bingoHideCommunity, v -> config.bingoHideCommunity = v);
         b.toggle("  Next Hint Timer", () -> config.bingoNextHint, v -> config.bingoNextHint = v);
         b.toggle("  Community % Change in Chat", () -> config.bingoCommunityChange, v -> config.bingoCommunityChange = v);
+        b.toggle("  Sneak Quick Toggle", () -> config.bingoQuickToggle, v -> config.bingoQuickToggle = v)
+                .desc("Sneak with the SkyBlock Menu item in hand: full card, step helper only, hidden.");
         b.toggle("  Next Step Helper", () -> config.bingoStepHelper, v -> config.bingoStepHelper = v)
                 .desc("Breaks goals into steps (islands, skills, items) and shows what to do next");
         b.toggle("Pet Menu Shift Right-Click", () -> config.petShiftTakeOut, v -> config.petShiftTakeOut = v);
@@ -403,6 +405,9 @@ public final class InventoryCategory {
         b.toggle("  Tasks Menu", () -> config.guideMenu, v -> config.guideMenu = v);
         b.toggle("  Collections", () -> config.guideCollection, v -> config.guideCollection = v);
         b.toggle("  Century Raffle Tasks", () -> config.guideCentury, v -> config.guideCentury = v);
+        b.toggle("  Century Raffle Colors", () -> config.raffleHighlight, v -> config.raffleHighlight = v)
+                .desc("Raffle Tasks: COMPLETE green, INCOMPLETE red. Previous Raffles: claimed prizes green, unrevealed red")
+                .tags("century", "raffle", "prize");
         b.toggle("  Click Marked Item For Wiki", () -> config.guideWikiClick, v -> config.guideWikiClick = v);
         b.label("Wardrobe & Loadout Keybinds");
         b.toggle("Wardrobe Keybinds", () -> config.wardrobeKeybinds, v -> config.wardrobeKeybinds = v);

@@ -92,6 +92,8 @@ public final class BingoCard {
     private static long lastSave;
     private static int width = 0;
     private static HudEditElement el;
+    private static int mode;
+    private static boolean lastSneak;
 
     private BingoCard() {}
 
@@ -125,11 +127,25 @@ public final class BingoCard {
                 && StringUtil.stripTrim(cs.getTitle().getString()).equals("Bingo Card")) {
             read(cs);
         }
+        quickToggle(mc);
         if (ticks % 20 != 0) return;
         bingo = detectBingo();
         if (!bingo) { lines = List.of(); return; }
         if (cfg().bingoStepHelper) steps(mc);
         build(mc);
+    }
+
+    private static void quickToggle(Minecraft mc) {
+        if (!cfg().bingoQuickToggle || mc.player == null) { mode = 0; return; }
+        boolean sneak = mc.player.isShiftKeyDown();
+        if (sneak != lastSneak) {
+            lastSneak = sneak;
+            if (sneak && bingo && ItemUtil.skyblockId(mc.player.getMainHandItem()).equals("SKYBLOCK_MENU")) {
+                mode = (mode + 1) % 3;
+                if (mode == 1 && !cfg().bingoStepHelper) mode = 2;
+                ticks = 20;
+            }
+        }
     }
 
     private static boolean detectBingo() {
@@ -252,7 +268,13 @@ public final class BingoCard {
         TeslaMapsConfig c = cfg();
         List<String> out = new ArrayList<>();
         List<Goal> goals = data.goals;
-        if (goals.isEmpty()) {
+        if (mode == 2) {
+            lines = List.of();
+            return;
+        }
+        if (mode == 1) {
+            // step helper only
+        } else if (goals.isEmpty()) {
             out.add("§6Bingo Goals:");
             out.add("§cOpen the §e/bingo §ccard.");
         } else {
@@ -292,7 +314,7 @@ public final class BingoCard {
             }
         }
         if (c.bingoStepHelper) {
-            out.add(" ");
+            if (mode == 0) out.add(" ");
             out.add("§6Bingo Step Helper:");
             if (current.isEmpty()) out.add(goals.isEmpty() ? "§cOpen the §e/bingo §ccard." : "  §7Nothing to do right now.");
             for (Step s : current) out.add("  §7" + s.name + progress(s));
