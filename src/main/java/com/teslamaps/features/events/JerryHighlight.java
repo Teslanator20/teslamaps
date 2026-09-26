@@ -30,7 +30,7 @@ public final class JerryHighlight {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("JerryHighlight").section("Events").when(() -> cfg().highlightJerries)
+        Feature.of("JerryHighlight").section("Events").legit().when(() -> cfg().highlightJerries)
                 .tick(JerryHighlight::tick)
                 .world(JerryHighlight::render)
                 .config("Events", b -> {

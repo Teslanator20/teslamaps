@@ -37,7 +37,7 @@ public final class RareDianaMobs {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("RareDianaMobs").section("Events").when(() -> cfg().rareDianaMobHighlight)
+        Feature.of("RareDianaMobs").section("Events").legit().when(() -> cfg().rareDianaMobHighlight)
                 .tick(RareDianaMobs::tick)
                 .world(RareDianaMobs::render)
                 .config("Events", b -> {
