@@ -271,7 +271,34 @@ public final class ContestTimers {
             long elapsed = Math.floorMod(now - DA_OFFSET_MS, FARMING_PERIOD_MS);
             out.add("§5Dark Auction§8: §7in §f" + formatMillis(FARMING_PERIOD_MS - elapsed));
         }
+        if (c.contestTabEvent) appendTabEvent(out);
         return out;
+    }
+
+    // tab widget "Event: <name>" with " Ends In: …" / " Starts In: …" below
+    private static void appendTabEvent(List<String> out) {
+        List<String> lines = com.teslamaps.utils.TabListUtils.getOrderedLines();
+        for (int i = 0; i < lines.size(); i++) {
+            String line = com.teslamaps.utils.StringUtil.stripTrim(lines.get(i));
+            if (!line.startsWith("Event:")) continue;
+            String name = line.substring(6).trim();
+            if (name.isEmpty()) return;
+            for (int j = i + 1; j < lines.size() && j <= i + 4; j++) {
+                String l = com.teslamaps.utils.StringUtil.stripTrim(lines.get(j));
+                if (l.isEmpty() || l.endsWith(":")) break;
+                String low = l.toLowerCase(java.util.Locale.ROOT);
+                if (low.startsWith("ends in:")) {
+                    out.add("§d" + name + "§8: §aends in §f" + l.substring(8).trim());
+                    return;
+                }
+                if (low.startsWith("starts in:")) {
+                    out.add("§d" + name + "§8: §7starts in §f" + l.substring(10).trim());
+                    return;
+                }
+            }
+            out.add("§d" + name);
+            return;
+        }
     }
 
     static long remaining(long now, long offset, long period) {

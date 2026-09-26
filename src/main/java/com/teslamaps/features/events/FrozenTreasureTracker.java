@@ -6,7 +6,6 @@ import com.teslamaps.features.FishingHelpers;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.features.tracker.Tracker;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.LineOrder;
 import com.teslamaps.utils.SkyblockUtils;
@@ -56,7 +55,6 @@ public final class FrozenTreasureTracker {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         LineOrder.define(ID, KEYS, LABELS);
         stats = Tracker.create("frozen_treasure", "Frozen Treasure").fixedValue("mined", 0).fixedValue("compact", 0);
         for (Treasure t : TREASURES) stats.fixedValue(t.key, 0);
@@ -71,7 +69,6 @@ public final class FrozenTreasureTracker {
                 .hudHiddenInInventory("frozentreasuretracker", FrozenTreasureTracker::render)
                 .config("Events", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Jerry's Workshop");
                     b.toggle("Frozen Treasure Tracker", () -> c.frozenTreasureTracker, v -> c.frozenTreasureTracker = v)
                             .desc("Counts Frozen Treasure finds (gifts, ice, baits, Glacial Fragments ...) with total ice, ice/hr "
                                     + "and Compact procs. Move it in /tmap gui.")

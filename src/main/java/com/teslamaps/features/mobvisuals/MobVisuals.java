@@ -540,7 +540,8 @@ public final class MobVisuals {
         String name = MobVisualExtras.withCapsules(mob, mob.label());
         if (!TeslaMapsConfig.get().mobVisualNameplateHealth) return name;
 
-        String health = nearbyHealth(mc, entity);
+        String health = mob == Mob.MAGMA_BOSS ? com.teslamaps.features.crimson.MagmaBossStage.health() : null;
+        if (health == null) health = nearbyHealth(mc, entity);
         return health.isEmpty() ? name : name + "\n" + health;
     }
 

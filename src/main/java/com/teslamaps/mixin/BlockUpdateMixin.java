@@ -43,11 +43,21 @@ public class BlockUpdateMixin {
             if (com.teslamaps.slayer.VoidgloomBeacon.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.slayer.VoidgloomBeacon.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
             }
+            if (com.teslamaps.features.events.Carnival.listening() && ((Level) (Object) this).isClientSide()) {
+                com.teslamaps.features.events.Carnival.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
+            }
             if (com.teslamaps.features.mining.MiningNotifications.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.mining.MiningNotifications.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
             }
             if (com.teslamaps.features.crimson.DojoHelper.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.crimson.DojoHelper.onBlockUpdate(pos, newState);
+            }
+            if ((com.teslamaps.features.rift.LivingMetalHelper.listening() || com.teslamaps.features.rift.LivingCaveDefenseBlocks.listening()
+                    || com.teslamaps.features.rift.LivingCaveSnakes.listening()) && ((Level) (Object) this).isClientSide()) {
+                BlockState old = ((Level) (Object) this).getBlockState(pos);
+                com.teslamaps.features.rift.LivingMetalHelper.onBlockUpdate(pos, old, newState);
+                com.teslamaps.features.rift.LivingCaveDefenseBlocks.onBlockUpdate(pos, old, newState);
+                com.teslamaps.features.rift.LivingCaveSnakes.onBlockUpdate(pos, old, newState);
             }
             return;
         }

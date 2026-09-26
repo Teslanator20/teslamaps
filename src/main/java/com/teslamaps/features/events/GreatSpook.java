@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.Calculator;
 import com.teslamaps.utils.LoudSound;
@@ -56,7 +55,6 @@ public final class GreatSpook {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         timerHud = HudEditElement.of("primalFearTimer", "Primal Fear Timer").section("Events")
                 .enabled(() -> cfg().primalFearTimer)
                 .size(() -> timerLines.isEmpty() ? TextHud.width(SAMPLE_TIMER) : timerW,

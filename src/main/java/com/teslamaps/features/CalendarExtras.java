@@ -41,10 +41,9 @@ public final class CalendarExtras {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        feature = Feature.of("CalendarExtras").section("Inventory").when(() -> cfg().calendarExtras)
-                .config("Inventory", b -> {
+        feature = Feature.of("CalendarExtras").section("Events").when(() -> cfg().calendarExtras)
+                .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Calendar");
                     b.toggle("Calendar Extras", () -> c.calendarExtras, v -> c.calendarExtras = v)
                             .desc("Extra info in the Calendar and Events menu.");
                     b.toggle("  Minister In Calendar", () -> c.calendarMinister, v -> c.calendarMinister = v)
@@ -115,9 +114,13 @@ public final class CalendarExtras {
 
     private static void addZoo(List<Component> lines, int year, int month) {
         if (month < 0) return;
-        int idx = year * 2 + (month < 6 ? 0 : 1);
         lines.add(Component.empty());
-        lines.add(Component.literal("§7Pet available: §6" + ZOO_PETS[Math.floorMod(idx, ZOO_PETS.length)]));
+        lines.add(Component.literal("§7Pet available: §6" + zooPet(year, month)));
+    }
+
+    /** Legendary pet of the Traveling Zoo in that year (1-based) and month (0-based). */
+    public static String zooPet(int year, int month) {
+        return ZOO_PETS[Math.floorMod(year * 2 + (month < 6 ? 0 : 1), ZOO_PETS.length)];
     }
 
     private static List<Component> minister() {

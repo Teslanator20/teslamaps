@@ -5,7 +5,6 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.croesus.PriceManager;
 import com.teslamaps.features.tracker.Tracker;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.ItemPrice;
 import com.teslamaps.utils.ItemUtil;
@@ -62,7 +61,6 @@ public final class GiftProfitTracker {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         stats = Tracker.create("gift_profit_stats", "Gift Stats").fixedValue("north_stars", 0);
         for (String r : RARITIES) stats.fixedValue("rarity_" + r, 0);
         tracker = Tracker.create("gift_profit", "§e§lGift Profit Tracker")
@@ -80,7 +78,6 @@ public final class GiftProfitTracker {
                 .hudHiddenInInventory("giftprofittracker", GiftProfitTracker::render)
                 .config("Events", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Gifts");
                     b.toggle("Gift Profit Tracker", () -> c.giftProfitTracker, v -> c.giftProfitTracker = v)
                             .desc("Tracks what opened gifts give you: items, coins, North Stars, skill XP and reward rarities. "
                                     + "Add used gifts with /tmap gift add <white|green|red|party> [amount], their cost is "

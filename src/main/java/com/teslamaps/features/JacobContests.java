@@ -269,6 +269,13 @@ public final class JacobContests {
         return sb.toString();
     }
 
+    /** Coloured crop list of the contest starting at that time, null when unknown. */
+    public static String cropsFor(long start) {
+        if (!loaded) load();
+        String[] crops = contests.get(start);
+        return crops == null ? null : cropList(start, crops);
+    }
+
     /** Extra lines for the Contest Timers HUD, built once a second there. */
     public static void appendLines(List<String> out, long now) {
         TeslaMapsConfig c = cfg();

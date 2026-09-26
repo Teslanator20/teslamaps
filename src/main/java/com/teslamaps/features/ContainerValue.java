@@ -81,6 +81,7 @@ public class ContainerValue {
             if (TeslaMapsConfig.get().section("Shards")
                     && com.teslamaps.features.hunting.ShardOverlay.shouldRender()) return false;
             if (CroesusProfit.shouldRender()) return false;
+            if (com.teslamaps.features.rift.RiftInventoryValue.shouldRender()) return false;
         }
         return !lines.isEmpty();
     }

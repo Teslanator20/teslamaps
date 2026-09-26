@@ -91,13 +91,12 @@ public final class HoppityHelpers {
     }
 
     public static void register() {
-        feature = Feature.of("HoppityHelpers").section("Inventory").when(HoppityHelpers::any)
+        feature = Feature.of("HoppityHelpers").section("Events").when(HoppityHelpers::any)
                 .tick(HoppityHelpers::tick)
                 .world(HoppityHelpers::render)
                 .chat(HoppityHelpers::onChat)
-                .config("Inventory", b -> {
+                .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Hoppity Event");
                     b.toggle("Rabbit the Fish Protection", () -> c.hoppityRabbitFish, v -> c.hoppityRabbitFish = v)
                             .desc("Meal egg menu: Rabbit the Fish is marked red and the menu can't be closed until you click it. Hold Shift to close anyway");
                     b.toggle("Hoppity Shop Highlight", () -> c.hoppityShopHighlight, v -> c.hoppityShopHighlight = v)
@@ -372,7 +371,7 @@ public final class HoppityHelpers {
     /** HidePlayers.alpha, every rendered player. 255 = untouched. */
     public static int playerAlpha(Entity entity) {
         List<Vec3> a = anchors;
-        if (a.isEmpty() || !(entity instanceof Player) || !cfg().hoppityPlayerTransparency) return 255;
+        if (a.isEmpty() || !(entity instanceof Player) || !cfg().hoppityPlayerTransparency || !feature.active()) return 255;
         Minecraft mc = Minecraft.getInstance();
         if (entity == mc.player || entity.getUUID().version() != 4 || mc.getConnection() == null) return 255;
         Vec3 p = entity.position();
