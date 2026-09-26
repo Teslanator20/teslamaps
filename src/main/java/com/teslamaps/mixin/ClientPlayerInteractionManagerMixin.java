@@ -39,6 +39,8 @@ public class ClientPlayerInteractionManagerMixin {
         com.teslamaps.features.FatalTempo.onHit();
         com.teslamaps.features.mobvisuals.LotumHelper.onClick(target);
         com.teslamaps.features.rift.PunchcardHighlight.onAttack(target);
+        com.teslamaps.features.DamageTracker.onAttack(target);
+        com.teslamaps.features.theend.ZealotHelper.onAttack(target);
     }
 
     @Inject(method = "interact", at = @At("HEAD"), cancellable = true)

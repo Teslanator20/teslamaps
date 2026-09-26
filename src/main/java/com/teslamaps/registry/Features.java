@@ -1018,5 +1018,13 @@ final class Features {
         com.teslamaps.features.rift.RiftShyCrux.register();
         com.teslamaps.features.rift.RiftSplatterHearts.register();
         com.teslamaps.features.rift.RiftGuntherRace.register();
+        // w20-02-com
+        com.teslamaps.features.DamageTracker.register();
+        com.teslamaps.features.HealingPoolMarker.register();
+        com.teslamaps.features.RagnarockAlerts.register();
+        com.teslamaps.features.theend.ZealotHelper.register();
+        com.teslamaps.features.SummoningMobs.register();
+        com.teslamaps.features.SpiderRainTimer.register();
+        com.teslamaps.features.ScorpionFoilTicker.register();
     }
 }

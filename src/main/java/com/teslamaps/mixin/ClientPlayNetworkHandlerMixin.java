@@ -95,6 +95,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.diana.DianaBurrows.onParticle(packet);
         com.teslamaps.features.rift.RiftSplatterHearts.onParticle(packet);
         com.teslamaps.features.rift.WiltedBerberisHelper.onParticle(packet);
+        com.teslamaps.features.HealingPoolMarker.onParticle(packet);
     }
 
     @Inject(method = "handleDamageEvent", at = @At("TAIL"))
