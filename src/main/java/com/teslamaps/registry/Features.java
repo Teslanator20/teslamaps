@@ -924,5 +924,7 @@ final class Features {
         com.teslamaps.features.SpookyChestAlert.register();
         com.teslamaps.features.SpookyCandyDisplay.register();
         com.teslamaps.features.fishing.SharkCounter.register();
+        // w18-01-fis
+        com.teslamaps.features.fishing.NearbySeaCreatures.register();
     }
 }
