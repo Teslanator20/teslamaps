@@ -227,6 +227,7 @@ public final class DojoHelper {
         }
         trackEntities(mc);
         long now = System.currentTimeMillis();
+        boolean glow = !com.teslamaps.features.LegitMode.blocksCheats();
         switch (test) {
             case FORCE -> {
                 Map<Entity, String> labels = new HashMap<>();
@@ -238,7 +239,7 @@ public final class DojoHelper {
                 for (Zombie z : zombies.keySet()) {
                     ArmorStand tag = NametagMobs.tagForMob(z);
                     String name = tag == null ? null : NametagMobs.tagName(tag);
-                    if (name != null && name.contains("-")) EntityGlow.mark(z, 0xFF0000);
+                    if (glow && name != null && name.contains("-")) EntityGlow.mark(z, 0xFF0000);
                 }
             }
             case DISCIPLINE -> {
@@ -250,7 +251,7 @@ public final class DojoHelper {
                     if (!(e instanceof Zombie z) || z.isRemoved()) continue;
                     ArmorStand tag = NametagMobs.tagForMob(z);
                     String name = tag == null ? null : NametagMobs.tagName(tag);
-                    if (name != null && name.endsWith(" " + want)) EntityGlow.mark(z, color);
+                    if (glow && name != null && name.endsWith(" " + want)) EntityGlow.mark(z, color);
                 }
             }
             case MASTERY -> {

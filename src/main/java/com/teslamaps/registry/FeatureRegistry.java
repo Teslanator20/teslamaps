@@ -207,6 +207,11 @@ public final class FeatureRegistry {
         CATEGORIES.add(new Category(name, sidebarSection, gated));
     }
 
+    /** A plain heading row between feature rows of a category. */
+    public static void label(String category, String text) {
+        CONFIG.add(new Config(category, b -> b.label(text)));
+    }
+
     public static boolean isGatedCategory(String name) {
         for (Category c : CATEGORIES) if (c.gated && c.name.equals(name)) return true;
         return false;

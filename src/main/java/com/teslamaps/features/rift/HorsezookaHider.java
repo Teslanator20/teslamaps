@@ -3,7 +3,6 @@ package com.teslamaps.features.rift;
 // Ported from SkyHanni's RiftHorsezookaHider.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.ItemUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
@@ -20,12 +19,10 @@ public final class HorsezookaHider {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("HorsezookaHider").section("Rift").when(() -> cfg().horsezookaHider)
                 .tick(HorsezookaHider::tick)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Items");
                     b.toggle("Horsezooka Hider", () -> c.horsezookaHider, v -> c.horsezookaHider = v)
                             .desc("Hides all horses in the Rift while you hold the Horsezooka.");
                 });

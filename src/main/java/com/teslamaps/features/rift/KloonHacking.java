@@ -4,10 +4,8 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.ItemUtil;
-import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -42,14 +40,12 @@ public final class KloonHacking {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         feature = Feature.of("KloonHacking").section("Rift").when(() -> cfg().kloonHackingSolver)
                 .tick(KloonHacking::tick)
                 .world(KloonHacking::render)
                 .serverChat(KloonHacking::onChat)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Kloon (West Village)");
                     b.toggle("Kloon Hacking Solver", () -> c.kloonHackingSolver, v -> c.kloonHackingSolver = v)
                             .desc("In the Hacking menu the right button in each row turns green (wrong: red), the matching buttons yellow.")
                             .tags("kloon", "hacking", "terminal", "rift", "west village");
@@ -67,7 +63,7 @@ public final class KloonHacking {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (++ticks % 20 == 0) {
-            inRift = SkyblockUtils.getArea().contains("Rift");
+            inRift = RiftSpot.inRift();
             helmet = inRift && "RETRO_ENCABULATING_VISOR".equals(ItemUtil.skyblockId(mc.player.getItemBySlot(EquipmentSlot.HEAD)));
         }
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {

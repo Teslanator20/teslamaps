@@ -8,7 +8,6 @@ import com.teslamaps.features.JacobContests;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.mixin.HandledScreenAccessor;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.LoudSound;
 import com.teslamaps.utils.SkyblockUtils;
@@ -45,7 +44,6 @@ public final class UpcomingEvents {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         hud = HudEditElement.of("upcomingEvents", "Upcoming Events").section("Events")
                 .enabled(() -> cfg().upcomingEvents)
                 .size(() -> lines.isEmpty() ? TextHud.width(SAMPLE) : width, () -> TextHud.height(lines.isEmpty() ? SAMPLE.size() : lines.size()))
@@ -57,7 +55,6 @@ public final class UpcomingEvents {
                 .hudHiddenInInventory("upcomingevents", UpcomingEvents::render)
                 .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Event Calendar");
                     b.toggle("Upcoming Events HUD", () -> c.upcomingEvents, v -> c.upcomingEvents = v)
                             .desc("The next SkyBlock events with a countdown: Dark Auction, Jacob's Contest with crops, Cult of the Fallen Star, Hoppity's Hunt, Traveling Zoo with its pet, Spooky Festival, Season of Jerry, New Year, election, Fishing Festival (Marina). Move it in /tmap gui")
                             .tags("calendar", "event", "countdown", "upcoming", "zoo", "spooky", "jerry");

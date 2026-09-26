@@ -3,11 +3,8 @@ package com.teslamaps.features.rift;
 // Ported from SkyHanni's LivingCaveLivingMetalHelper.kt
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.FishingHelpers;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
-import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
@@ -29,13 +26,11 @@ public final class LivingMetalHelper {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         feature = Feature.of("LivingMetalHelper").section("Rift").when(() -> cfg().livingMetalHelper)
                 .tick(LivingMetalHelper::tick)
                 .world(LivingMetalHelper::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Living Cave");
                     b.toggle("Living Metal Helper", () -> c.livingMetalHelper, v -> c.livingMetalHelper = v)
                             .desc("Living Cave: after you hit the Living Metal (lapis ore) a box follows it to the block it jumps to.")
                             .tags("living", "metal", "cave", "rift", "lapis");
@@ -45,8 +40,8 @@ public final class LivingMetalHelper {
     }
 
     static boolean livingCave() {
-        if (!SkyblockUtils.getArea().contains("Rift")) return false;
-        String sub = FishingHelpers.subArea();
+        if (!RiftSpot.inRift()) return false;
+        String sub = RiftSpot.sub();
         return sub.contains("Living Cave") || sub.contains("Living Stillness");
     }
 

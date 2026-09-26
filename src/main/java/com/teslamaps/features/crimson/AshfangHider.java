@@ -49,7 +49,7 @@ public final class AshfangHider {
                 })
                 .config("Mob Visuals", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.toggle("  Ashfang: Hide Full-HP Blaze Names", () -> c.ashfangHideFullHpNames, v -> c.ashfangHideFullHpNames = v)
+                    b.toggle("Ashfang: Hide Full-HP Blaze Names", () -> c.ashfangHideFullHpNames, v -> c.ashfangHideFullHpNames = v)
                             .desc("While Ashfang is up, nametags of Followers, Underlings and Acolytes at full health are hidden. Their colours come from Pick Mobs > Crimson Isle")
                             .tags("ashfang", "follower", "underling", "acolyte", "blaze", "nametag");
                 });

@@ -4,9 +4,7 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
-import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
@@ -42,14 +40,12 @@ public final class MotesOrbHighlight {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         feature = Feature.of("MotesOrbHighlight").section("Rift").when(() -> cfg().motesOrbHighlight)
                 .tick(MotesOrbHighlight::tick)
                 .world(MotesOrbHighlight::render)
                 .serverChat(MotesOrbHighlight::onChat)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Motes Orbs");
                     b.toggle("Motes Orb Highlight", () -> c.motesOrbHighlight, v -> c.motesOrbHighlight = v)
                             .desc("Rift: finds Motes Orbs from their particles and marks them with a purple box, grey once picked up.")
                             .tags("motes", "orb", "rift");
@@ -59,7 +55,7 @@ public final class MotesOrbHighlight {
     }
 
     private static void tick() {
-        if (++ticks % 20 == 0) inRift = SkyblockUtils.getArea().contains("Rift");
+        if (++ticks % 20 == 0) inRift = RiftSpot.inRift();
         long now = System.currentTimeMillis();
         orbs.removeIf(o -> now > o.last + 2000);
         for (Orb o : orbs) {

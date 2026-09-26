@@ -4,10 +4,8 @@ package com.teslamaps.features.rift;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.ItemUtil;
-import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -35,7 +33,6 @@ public final class CruxTalismanDisplay {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         hud = HudEditElement.of("cruxTalisman", "Crux Talisman").section("Rift")
                 .enabled(() -> cfg().cruxTalismanDisplay)
                 .size(() -> lines.isEmpty() ? TextHud.width(SAMPLE) : width,
@@ -46,7 +43,6 @@ public final class CruxTalismanDisplay {
                 .hudHiddenInInventory("cruxtalisman", CruxTalismanDisplay::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Crux Talisman");
                     b.toggle("Crux Talisman Progress", () -> c.cruxTalismanDisplay, v -> c.cruxTalismanDisplay = v)
                             .desc("HUD with the Crux Talisman progress in the Rift: total percent plus kills per crux. "
                                     + "Read from the talisman in your inventory. Move it in /tmap gui.")
@@ -59,7 +55,7 @@ public final class CruxTalismanDisplay {
     private static void tick() {
         if (++ticks % 40 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!SkyblockUtils.getArea().contains("Rift")) {
+        if (!RiftSpot.inRift()) {
             lines = List.of();
             return;
         }

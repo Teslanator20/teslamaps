@@ -4,11 +4,9 @@ package com.teslamaps.features.rift;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.EntityGlow;
 import com.teslamaps.utils.ScoreboardUtils;
-import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -44,22 +42,20 @@ public final class PunchcardHighlight {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         hud = HudEditElement.of("punchcardOverlay", "Punchcard Artifact").section("Rift")
                 .enabled(() -> cfg().punchcardHighlight && cfg().punchcardOverlay)
                 .size(() -> lines.isEmpty() ? TextHud.width(SAMPLE) : width, () -> TextHud.height(1))
                 .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, SAMPLE, TextHud.width(SAMPLE)));
-        feature = Feature.of("PunchcardHighlight").section("Rift").when(() -> cfg().punchcardHighlight)
+        feature = Feature.of("PunchcardHighlight").section("Rift").legit().when(() -> cfg().punchcardHighlight)
                 .tick(PunchcardHighlight::tick)
                 .serverChat(PunchcardHighlight::onChat)
                 .hudHiddenInInventory("punchcard", PunchcardHighlight::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Punchcard Artifact");
                     b.toggle("Punchcard Highlight", () -> c.punchcardHighlight, v -> c.punchcardHighlight = v)
                             .desc("Rift: players you have not punched yet with the Punchcard Artifact glow. "
                                     + "Stops at 20 punches. The list resets when you join another Rift server.")
-                            .tags("punchcard", "artifact", "rift", "punch", "players");
+                            .tags("punchcard", "artifact", "rift", "punch", "players").legit();
                     b.toggle("  Reverse (Only Punched)", () -> c.punchcardReverse, v -> c.punchcardReverse = v);
                     b.color("  Color", () -> c.punchcardColor, v -> c.punchcardColor = v);
                     b.toggle("  Overlay", () -> c.punchcardOverlay, v -> c.punchcardOverlay = v)
@@ -106,7 +102,7 @@ public final class PunchcardHighlight {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (++ticks % 40 == 0) {
-            inRift = SkyblockUtils.getArea().contains("Rift");
+            inRift = RiftSpot.inRift();
             if (inRift) {
                 String server = "";
                 for (String line : ScoreboardUtils.getScoreboardLines()) {

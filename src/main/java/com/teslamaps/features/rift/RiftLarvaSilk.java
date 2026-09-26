@@ -4,10 +4,8 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.ItemUtil;
-import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -33,7 +31,6 @@ public final class RiftLarvaSilk {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         feature = Feature.of("RiftLarvaSilk").section("Rift").when(() -> cfg().riftLarvaSilkLines)
                 .tick(RiftLarvaSilk::tick)
                 .world(RiftLarvaSilk::render)
@@ -59,7 +56,7 @@ public final class RiftLarvaSilk {
         if (feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || !"LARVA_SILK".equals(ItemUtil.skyblockId(mc.player.getMainHandItem()))) return;
-        if (!SkyblockUtils.getArea().contains("Rift")) return;
+        if (!RiftSpot.inRift()) return;
         if (clickTick == tickCount) return;
         clickTick = tickCount;
         if (start != null) {

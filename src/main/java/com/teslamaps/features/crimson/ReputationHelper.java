@@ -88,7 +88,6 @@ public final class ReputationHelper {
 
     private static Data data = new Data();
     private static boolean loaded, dirty = true, tabMissing;
-    private static String faction;
     private static HudEditElement hud;
     private static List<String> lines = List.of();
     private static int width, ticks;
@@ -214,11 +213,6 @@ public final class ReputationHelper {
         List<Quest> seen = new ArrayList<>();
         for (String raw : tab) {
             String s = StringUtil.strip(raw);
-            if (faction == null) {
-                String t = s.trim();
-                if (t.startsWith("Barbarian Reputation:")) faction = "barb";
-                else if (t.startsWith("Mage Reputation:")) faction = "mage";
-            }
             if (s.trim().equals("Faction Quests:")) {
                 in = true;
                 continue;
@@ -455,7 +449,8 @@ public final class ReputationHelper {
             waypoints.add(MINI_POS[i], "§5" + MINIBOSSES[i], 0xFFFFFFFF, 0);
         }
         if (data.kuudra.size() < 5) waypoints.add(KUUDRA_POS, "§cKuudra", 0xFFFFFFFF, 0);
-        if (board && faction != null) waypoints.add(faction.equals("mage") ? BOARD_MAGE : BOARD_BARB, "§eTown Board", 0xFFFFFFFF, 0);
+        String faction = board ? com.teslamaps.features.RescueMission.faction() : null;
+        if (faction != null) waypoints.add(faction.equals("mage") ? BOARD_MAGE : BOARD_BARB, "§eTown Board", 0xFFFFFFFF, 0);
     }
 
     private static boolean miniQuestOpen(String mb) {

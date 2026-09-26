@@ -3,7 +3,7 @@ package com.teslamaps.features;
 // Ported from SkyHanni's features/combat/cocoon/CocoonOverlay.kt + CocoonAPI.kt
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.rift.RiftZone;
+import com.teslamaps.features.rift.RiftSpot;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.EntityCache;
@@ -88,7 +88,7 @@ public final class CocoonOverlay {
         if (ticks % 20 == 1) canCocoon = EquipmentDisplay.beltCanCocoon();
         long now = System.currentTimeMillis();
         cocoons.removeIf(k -> !k.stand.isAlive() || k.stand.isRemoved() || now - k.spawn > 8000);
-        if (ticks % 2 == 0 && !RiftZone.inRift()) scan(mc);
+        if (ticks % 2 == 0 && !RiftSpot.inRift()) scan(mc);
         build(mc, now);
     }
 

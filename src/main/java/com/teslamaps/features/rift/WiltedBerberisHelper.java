@@ -4,7 +4,6 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -33,13 +32,11 @@ public final class WiltedBerberisHelper {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("WiltedBerberisHelper").section("Rift").when(() -> cfg().riftBerberisHelper)
                 .tick(WiltedBerberisHelper::tick)
                 .world(WiltedBerberisHelper::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Dreadfarm");
                     b.toggle("Wilted Berberis Helper", () -> c.riftBerberisHelper, v -> c.riftBerberisHelper = v)
                             .desc("Dreadfarm: boxes the dead bush the Wilted Berberis sparks sit on (within 20 blocks)")
                             .tags("rift", "berberis", "dreadfarm", "farming");

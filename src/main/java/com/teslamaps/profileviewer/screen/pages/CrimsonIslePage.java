@@ -238,11 +238,10 @@ public class CrimsonIslePage extends ProfileViewerPage {
     private static String belt(int points) {
         if (points >= 7000) return "Black";
         if (points >= 6000) return "Brown";
-        if (points >= 5000) return "Blue";
-        if (points >= 4000) return "Green";
-        if (points >= 3000) return "Yellow";
-        if (points >= 2000) return "White";
-        return "None";
+        if (points >= 4000) return "Blue";
+        if (points >= 2000) return "Green";
+        if (points >= 1000) return "Yellow";
+        return "White";
     }
 
     private static JsonObject object(JsonObject parent, String key) {
