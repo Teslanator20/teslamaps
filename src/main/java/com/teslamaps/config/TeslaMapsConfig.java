@@ -2148,6 +2148,32 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w19-04-rif
+    public boolean riftLivingMetalHud = false;
+    public boolean riftLivingMetalCompact = true;
+    public int riftLivingMetalHudX = 10;
+    public int riftLivingMetalHudY = 120;
+    public float riftLivingMetalHudScale = 1f;
+    public boolean riftTimiteHelper = false;
+    public boolean riftTimiteEvolution = true;
+    public boolean riftTimiteExpiry = true;
+    public int riftTimiteTimerX = 200;
+    public int riftTimiteTimerY = 150;
+    public float riftTimiteTimerScale = 1.5f;
+    public boolean riftSunGecko = false;
+    public boolean riftSunGeckoModifiers = true;
+    public boolean riftSunGeckoRealGlow = true;
+    public boolean riftSunGeckoFakeGlow = true;
+    public int riftSunGeckoX = 10;
+    public int riftSunGeckoY = 160;
+    public float riftSunGeckoScale = 1f;
+    public boolean riftBacteTentacles = false;
+    public boolean riftKillZoneWarning = false;
+    public boolean riftKillZoneSound = true;
+    public boolean riftBlobbercystGlow = false;
+    public String riftBlobbercystColor = "#FF5555";
+    public boolean riftBerberisHelper = false;
+    public String riftBerberisColor = "#B0FFFF55";
     // w18-05-evt
     public boolean frozenTreasureHighlight = false;
     public com.teslamaps.render.EspStyle frozenTreasureStyle = new com.teslamaps.render.EspStyle("6655FFFF", com.teslamaps.render.EspStyle.BOTH);

@@ -960,5 +960,11 @@ final class Features {
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
+        // w19-04-rif
+        com.teslamaps.features.rift.LivingMetalSuitProgress.register();
+        com.teslamaps.features.rift.TimiteHelper.register();
+        com.teslamaps.features.rift.SunGeckoHelper.register();
+        com.teslamaps.features.rift.BacteHelper.register();
+        com.teslamaps.features.rift.WiltedBerberisHelper.register();
     }
 }

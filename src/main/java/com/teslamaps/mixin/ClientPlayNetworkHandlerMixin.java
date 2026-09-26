@@ -93,6 +93,12 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.theend.EnderNodeFinder.onParticle(packet);
         com.teslamaps.features.GeyserBox.onParticle(packet);
         com.teslamaps.features.diana.DianaBurrows.onParticle(packet);
+        com.teslamaps.features.rift.WiltedBerberisHelper.onParticle(packet);
+    }
+
+    @Inject(method = "handleDamageEvent", at = @At("TAIL"))
+    private void teslamaps$onDamageEvent(net.minecraft.network.protocol.game.ClientboundDamageEventPacket packet, CallbackInfo ci) {
+        com.teslamaps.features.rift.BacteHelper.onDamage(packet);
     }
 
     @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",
