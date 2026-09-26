@@ -27,7 +27,7 @@ public final class FeatureRegistry {
     record World(Feature f, String perf, Consumer<WorldCtx> r) {}
     record Hud(Feature f, String id, HudElement r, InventoryMode mode) {}
     record Chat(Feature f, String perf, Consumer<String> r, boolean serverOnly) {}
-    record Config(String category, Consumer<ConfigBuilder> build) {}
+    record Config(String category, Consumer<ConfigBuilder> build, boolean fresh) {}
     record Category(String name, String sidebarSection, boolean gated) {}
 
     public record WorldCtx(PoseStack pose, MultiBufferSource buffers, Vec3 cam) {}
@@ -68,6 +68,13 @@ public final class FeatureRegistry {
     }
 
     private FeatureRegistry() {}
+
+    static boolean freshRows = false;
+
+    /** Config rows registered after this call go to /tmap all (features newer than 2.1.77). */
+    static void newFeaturesFromHere() {
+        freshRows = true;
+    }
 
     /** Once, from onInitializeClient. */
     public static void init() {
@@ -209,7 +216,7 @@ public final class FeatureRegistry {
 
     /** A plain heading row between feature rows of a category. */
     public static void label(String category, String text) {
-        CONFIG.add(new Config(category, b -> b.label(text)));
+        CONFIG.add(new Config(category, b -> b.label(text), freshRows));
     }
 
     public static boolean isGatedCategory(String name) {
@@ -226,9 +233,14 @@ public final class FeatureRegistry {
     /** Appends every feature's rows; called by MapConfigScreen after its own categories. */
     public static void addConfig(ConfigBuilder b, Map<String, List<MapConfigScreen.SettingsEntry>> categories) {
         for (Category c : CATEGORIES) categories.computeIfAbsent(c.name, k -> new ArrayList<>());
-        for (Config c : CONFIG) {
-            b.into(categories.computeIfAbsent(c.category, k -> new ArrayList<>()));
-            c.build.accept(b);
+        try {
+            for (Config c : CONFIG) {
+                b.into(categories.computeIfAbsent(c.category, k -> new ArrayList<>()));
+                b.freshMode(c.fresh);
+                c.build.accept(b);
+            }
+        } finally {
+            b.freshMode(false);
         }
     }
 

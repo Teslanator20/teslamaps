@@ -22,51 +22,51 @@ public final class TooltipsValueCategory {
         b.button("  Reset Tooltip Offset & Zoom", com.teslamaps.features.ScrollableTooltip::reset);
         b.toggle("Fit Tooltip To Screen", () -> config.tooltipFitScreen, v -> config.tooltipFitScreen = v);
         b.info("Long tooltips shrink instead of running off the top");
-        b.toggle("  Remove Gear Score", () -> config.removeGearScore, v -> config.removeGearScore = v)
+        b.toggle("  Remove Gear Score", () -> config.removeGearScore, v -> config.removeGearScore = v).fresh()
                 .desc("Drops the \"Gear Score: ...\" line from dungeon item tooltips.");
-        b.toggle("Countdown End Time", () -> config.countdownTooltip, v -> config.countdownTooltip = v);
-        b.info("Adds the local time to \"Ends in:\", \"Starts in:\", \"Duration:\" ... lines");
-        b.toggle("  24h Clock", () -> config.countdownTooltip24h, v -> config.countdownTooltip24h = v);
-        b.toggle("Broken Dragon Fragment Warning", () -> config.brokenFragmentTooltip, v -> config.brokenFragmentTooltip = v);
+        b.toggle("Countdown End Time", () -> config.countdownTooltip, v -> config.countdownTooltip = v).fresh();
+        b.info("Adds the local time to \"Ends in:\", \"Starts in:\", \"Duration:\" ... lines").fresh();
+        b.toggle("  24h Clock", () -> config.countdownTooltip24h, v -> config.countdownTooltip24h = v).fresh();
+        b.toggle("Broken Dragon Fragment Warning", () -> config.brokenFragmentTooltip, v -> config.brokenFragmentTooltip = v).fresh();
         b.toggle("Compactor/Deletor Preview", () -> config.compactorPreview, v -> config.compactorPreview = v);
         b.info("Tooltip shows on/off status and configured items");
-        b.toggle("Fix Broken Tooltip Frames", () -> config.fixTooltipStyle, v -> config.fixTooltipStyle = v)
+        b.toggle("Fix Broken Tooltip Frames", () -> config.fixTooltipStyle, v -> config.fixTooltipStyle = v).fresh()
                 .desc("Without the Hypixel resource pack, custom tooltip frames fall back to vanilla instead of missing texture");
-        b.toggle("Next Star Cost", () -> config.starUpgradeCost, v -> config.starUpgradeCost = v)
+        b.toggle("Next Star Cost", () -> config.starUpgradeCost, v -> config.starUpgradeCost = v).fresh()
                 .desc("\"Upgrade to ✪✪✪: 1,200 Wither Essence\", or the dungeonize cost");
-        b.toggle("  Always Show Required Items", () -> config.starUpgradeItems, v -> config.starUpgradeItems = v);
-        b.info("Otherwise hold Ctrl for master stars, coins and other items");
-        b.toggle("SkyBlock ID In Tooltip", () -> config.skyblockIdTooltip, v -> config.skyblockIdTooltip = v)
+        b.toggle("  Always Show Required Items", () -> config.starUpgradeItems, v -> config.starUpgradeItems = v).fresh();
+        b.info("Otherwise hold Ctrl for master stars, coins and other items").fresh();
+        b.toggle("SkyBlock ID In Tooltip", () -> config.skyblockIdTooltip, v -> config.skyblockIdTooltip = v).fresh()
                 .desc("Dark grey skyblock:<ID> line, below the F3+H id when advanced tooltips are on");
-        b.toggle("  Only With F3+H", () -> config.skyblockIdTooltipAdvanced, v -> config.skyblockIdTooltipAdvanced = v);
-        b.toggle("Restore Wizard Portal \"Earned by\"", () -> config.wizardPortalLore, v -> config.wizardPortalLore = v)
+        b.toggle("  Only With F3+H", () -> config.skyblockIdTooltipAdvanced, v -> config.skyblockIdTooltipAdvanced = v).fresh();
+        b.toggle("Restore Wizard Portal \"Earned by\"", () -> config.wizardPortalLore, v -> config.wizardPortalLore = v).fresh()
                 .desc("Adds the missing Earned by line to bought Piece of Wizard Portal mementos");
-        b.toggle("Ravengard: Compare With Equipped", () -> config.ravengardCompare, v -> config.ravengardCompare = v)
+        b.toggle("Ravengard: Compare With Equipped", () -> config.ravengardCompare, v -> config.ravengardCompare = v).fresh()
                 .desc("Green/red stat deltas and the equipped piece as a second tooltip");
-        b.toggle("Ravengard: Weapon DPS", () -> config.ravengardDps, v -> config.ravengardDps = v)
+        b.toggle("Ravengard: Weapon DPS", () -> config.ravengardDps, v -> config.ravengardDps = v).fresh()
                 .desc("Damage x Attack Speed line under Attack Speed");
-        b.toggle("  Status Icon On Item", () -> config.compactorStatusIcon, v -> config.compactorStatusIcon = v)
+        b.toggle("  Status Icon On Item", () -> config.compactorStatusIcon, v -> config.compactorStatusIcon = v).fresh()
                 .desc("Green ✔ or red ✖ on compactor/deletor items in menus, no hover needed.");
         b.dropdown("  Show Preview", com.teslamaps.features.CompactorPreview.MODES,
-                () -> config.compactorPreviewMode, v -> config.compactorPreviewMode = v);
-        b.keybind("  Preview Key", () -> config.compactorPreviewKey, v -> config.compactorPreviewKey = v);
+                () -> config.compactorPreviewMode, v -> config.compactorPreviewMode = v).fresh();
+        b.keybind("  Preview Key", () -> config.compactorPreviewKey, v -> config.compactorPreviewKey = v).fresh();
         b.label("Item Value");
         b.toggle("Estimated Item Value", () -> config.estimatedValue, v -> config.estimatedValue = v);
-        b.toggle("  Value Pets", () -> config.petValue, v -> config.petValue = v)
+        b.toggle("  Value Pets", () -> config.petValue, v -> config.petValue = v).fresh()
                 .desc("Pets get a value from their lowest BIN (type and rarity), held item and skin. Also counts in container value and item protection.");
-        b.toggle("  List Gemstones", () -> config.gemstoneList, v -> config.gemstoneList = v)
+        b.toggle("  List Gemstones", () -> config.gemstoneList, v -> config.gemstoneList = v).fresh()
                 .desc("Every applied gemstone with its quality, e.g. Perfect Ruby.");
-        b.toggle("Wardrobe Set Value", () -> config.wardrobeValue, v -> config.wardrobeValue = v)
+        b.toggle("Wardrobe Set Value", () -> config.wardrobeValue, v -> config.wardrobeValue = v).fresh()
                 .desc("Armor and equipment wardrobe: the slot button's tooltip lists the value of every piece in that set and the total.");
         b.toggle("Value Breakdown Panel (hover)", () -> config.itemValueGui, v -> config.itemValueGui = v);
         b.slider("  Panel Scale", 0.5f, 2.0f,
                 () -> config.itemValueScale, v -> config.itemValueScale = v, 2);
         b.toggle("  Free Position", () -> config.itemValueFixedPos, v -> config.itemValueFixedPos = v);
         b.info("Drag it in /tmap gui instead of pinning it to the container");
-        b.toggle("  Only While Key Held", () -> config.itemValueRequireKey, v -> config.itemValueRequireKey = v)
+        b.toggle("  Only While Key Held", () -> config.itemValueRequireKey, v -> config.itemValueRequireKey = v).fresh()
                 .desc("The panel only shows while the key is held, and skips the hover delay.");
-        b.keybind("    Panel Key", () -> config.itemValueKey, v -> config.itemValueKey = v);
-        b.toggle("  Skip Menu Items", () -> config.itemValueSkipMenus, v -> config.itemValueSkipMenus = v)
+        b.keybind("    Panel Key", () -> config.itemValueKey, v -> config.itemValueKey = v).fresh();
+        b.toggle("  Skip Menu Items", () -> config.itemValueSkipMenus, v -> config.itemValueSkipMenus = v).fresh()
                 .desc("No panel on museum armor sets, island delivery rewards and the wardrobe slot picker.");
         b.keybind("Value Screen Key (over slot)", () -> config.itemValueScreenKey, v -> config.itemValueScreenKey = v);
         b.info("Pinned breakdown, sorted by price with % share, scroll to read");
@@ -88,15 +88,15 @@ public final class TooltipsValueCategory {
         b.toggle("  Buy Order / Sell Offer", () -> config.priceLineOrders, v -> config.priceLineOrders = v);
         b.toggle("  NPC Sell Price", () -> config.priceLineNpc, v -> config.priceLineNpc = v);
         b.toggle("  Raw Craft Cost", () -> config.priceLineCraft, v -> config.priceLineCraft = v);
-        b.toggle("  Bazaar Weekly Volume", () -> config.priceLineVolume, v -> config.priceLineVolume = v)
+        b.toggle("  Bazaar Weekly Volume", () -> config.priceLineVolume, v -> config.priceLineVolume = v).fresh()
                 .desc("Insta-buys and insta-sells of the last 7 days, shows how liquid a bazaar item is.");
-        b.toggle("    Cheaper Of Buy / Craft", () -> config.priceLineCraftCheapest, v -> config.priceLineCraftCheapest = v)
+        b.toggle("    Cheaper Of Buy / Craft", () -> config.priceLineCraftCheapest, v -> config.priceLineCraftCheapest = v).fresh()
                 .desc("\"Crafting Price\": each ingredient counts at the cheaper of buying and crafting it, up to 15 levels deep");
         b.toggle("  Total + Each, Aligned", () -> config.priceLineEach, v -> config.priceLineEach = v);
         b.info("\"1,200 coins (100 each)\" in two columns, no Shift needed");
         b.toggle("  Only While Key Held", () -> config.priceLineRequireKey, v -> config.priceLineRequireKey = v);
         b.keybind("    Price Key", () -> config.priceLineKey, v -> config.priceLineKey = v);
-        b.toggle("    Also Estimated Value", () -> config.priceLineKeyValue, v -> config.priceLineKeyValue = v);
+        b.toggle("    Also Estimated Value", () -> config.priceLineKeyValue, v -> config.priceLineKeyValue = v).fresh();
         b.toggle("Show Exact Price", () -> config.itemValueExactPrice, v -> config.itemValueExactPrice = v);
         b.toggle("Ignore Helmet Skins", () -> config.itemValueIgnoreHelmetSkins, v -> config.itemValueIgnoreHelmetSkins = v);
         b.toggle("Ignore Armor Dyes", () -> config.itemValueIgnoreArmorDyes, v -> config.itemValueIgnoreArmorDyes = v);
@@ -110,23 +110,23 @@ public final class TooltipsValueCategory {
                 () -> (float) config.containerValueHideBelow, v -> config.containerValueHideBelow = Math.round(v / 10f) * 10);
         b.toggle("  Free Position", () -> config.containerValueFreePos, v -> config.containerValueFreePos = v);
         b.info("Drag it in /tmap gui instead of pinning it to the container");
-        b.toggle("  Sack Table", () -> config.sackTable, v -> config.sackTable = v)
+        b.toggle("  Sack Table", () -> config.sackTable, v -> config.sackTable = v).fresh()
                 .desc("Sack menus: every item with stored/capacity (red when full), unit price and value, left of the menu. Gemstone sacks split into Rough/Flawed/Fine.");
-        b.toggle("    Click Row: /bz, Right Click: /gfs 1", () -> config.sackTableClick, v -> config.sackTableClick = v);
-        b.toggle("Sack Value HUD", () -> config.sackValueHud, v -> config.sackValueHud = v)
+        b.toggle("    Click Row: /bz, Right Click: /gfs 1", () -> config.sackTableClick, v -> config.sackTableClick = v).fresh();
+        b.toggle("Sack Value HUD", () -> config.sackValueHud, v -> config.sackValueHud = v).fresh()
                 .desc("Total value of all sack contents everywhere, insta-sell to insta-buy. In the inventory: hover for the value per sack, left click for the full list, right click opens /sacks. Needs Live Sack Contents (Inventory). Move it in /tmap gui.");
-        b.toggle("  Only In SkyBlock", () -> config.sackValueHudInSkyblockOnly, v -> config.sackValueHudInSkyblockOnly = v);
+        b.toggle("  Only In SkyBlock", () -> config.sackValueHudInSkyblockOnly, v -> config.sackValueHudInSkyblockOnly = v).fresh();
         b.label("Enchant Colors");
         b.toggle("Book Abbreviations (Leg I)", () -> config.enchantAbbrev, v -> config.enchantAbbrev = v);
         b.info("Enchant + level written on enchanted book icons");
         b.color("  Abbreviation Color", () -> config.colorEnchantAbbrev, v -> config.colorEnchantAbbrev = v);
         b.color("  Ultimate Color", () -> config.colorEnchantAbbrevUltimate, v -> config.colorEnchantAbbrevUltimate = v);
         b.color("  Level Color", () -> config.colorEnchantAbbrevLevel, v -> config.colorEnchantAbbrevLevel = v);
-        b.toggle("  Bazaar Book Names", () -> config.enchantAbbrevBazaar, v -> config.enchantAbbrevBazaar = v)
+        b.toggle("  Bazaar Book Names", () -> config.enchantAbbrevBazaar, v -> config.enchantAbbrevBazaar = v).fresh()
                 .desc("Bazaar books named like Sharpness VII get the abbreviation too");
         b.toggle("Enchant Colors", () -> config.enchantColors, v -> config.enchantColors = v);
         b.toggle("Levels as Numbers", () -> config.enchantLevelsAsNumbers, v -> config.enchantLevelsAsNumbers = v);
-        b.toggle("Roman Numerals As Numbers", () -> config.romanNumerals, v -> config.romanNumerals = v)
+        b.toggle("Roman Numerals As Numbers", () -> config.romanNumerals, v -> config.romanNumerals = v).fresh()
                 .desc("Every tooltip: Level/Tier/Skill/Floor/Collection/Milestone/Heart of the ... numerals become digits.");
         b.dropdown("Enchant Layout", com.teslamaps.features.EnchantColors.LAYOUTS,
                 () -> config.enchantLayout, v -> config.enchantLayout = v);
@@ -134,9 +134,9 @@ public final class TooltipsValueCategory {
         b.toggle("Hide Enchant Descriptions", () -> config.enchantHideDescriptions, v -> config.enchantHideDescriptions = v);
         b.toggle("Stacking Enchant Progress", () -> config.enchantStackingProgress, v -> config.enchantStackingProgress = v);
         b.info("Expertise, Compact, Cultivating ... progress to the next level");
-        b.toggle("Stacking Enchant HUD (held item)", () -> config.stackingEnchantHud, v -> config.stackingEnchantHud = v)
+        b.toggle("Stacking Enchant HUD (held item)", () -> config.stackingEnchantHud, v -> config.stackingEnchantHud = v).fresh()
                 .desc("Expertise IX (14.9k / 15k) for the held item, move it in /tmap gui");
-        b.toggle("  Compact Numbers", () -> config.stackingEnchantHudCompact, v -> config.stackingEnchantHudCompact = v);
+        b.toggle("  Compact Numbers", () -> config.stackingEnchantHudCompact, v -> config.stackingEnchantHudCompact = v).fresh();
         b.toggle("Chroma Max Enchants (rainbow)", () -> config.enchantChromaMax, v -> config.enchantChromaMax = v);
         b.slider("  Chroma Size", 5f, 120f,
                 () -> config.chromaSize, v -> config.chromaSize = v, 0);
@@ -146,9 +146,9 @@ public final class TooltipsValueCategory {
                 () -> config.chromaSaturation, v -> config.chromaSaturation = v, 2);
         b.toggle("  Chroma Slant Forward", () -> config.chromaForward, v -> config.chromaForward = v);
         b.toggle("  Chroma Bold", () -> config.enchantChromaBold, v -> config.enchantChromaBold = v);
-        b.toggle("Chroma Format Code (§z)", () -> config.chromaFormatCode, v -> config.chromaFormatCode = v)
+        b.toggle("Chroma Format Code (§z)", () -> config.chromaFormatCode, v -> config.chromaFormatCode = v).fresh()
                 .desc("Text after §z is drawn in chroma everywhere: chat, tooltips, HUDs, scoreboard, other mods. Uses the chroma size/speed above.");
-        b.toggle("  Everything Chroma", () -> config.chromaEverything, v -> config.chromaEverything = v)
+        b.toggle("  Everything Chroma", () -> config.chromaEverything, v -> config.chromaEverything = v).fresh()
                 .desc("Draws ALL text in chroma.");
         b.toggle("Bold Max Level", () -> config.enchantBoldMax, v -> config.enchantBoldMax = v);
         b.color("Max Level Color", () -> config.enchantColorMax, v -> config.enchantColorMax = v);

@@ -17,14 +17,14 @@ public final class SecretsWaypointsCategory {
         b.toggle("    Event-Based Detection", () -> config.secretWaypointEvents, v -> config.secretWaypointEvents = v);
         b.toggle("  Tracers to Waypoints", () -> config.secretWaypointTracers, v -> config.secretWaypointTracers = v);
         b.dropdown("  Waypoint Style", com.teslamaps.features.SecretWaypoints.STYLES,
-                () -> config.secretWaypointStyle, v -> config.secretWaypointStyle = v);
-        b.toggle("  Fit Box To Essence / Key Skull", () -> config.secretWaypointAdaptiveBox, v -> config.secretWaypointAdaptiveBox = v);
-        b.toggle("  Show Waypoint Names", () -> config.secretWaypointLabels, v -> config.secretWaypointLabels = v);
-        b.toggle("    With Distance", () -> config.secretWaypointDistance, v -> config.secretWaypointDistance = v);
-        b.toggle("  Route Waypoints (Stonk, Superboom, ...)", () -> config.secretWaypointRoutes, v -> config.secretWaypointRoutes = v);
+                () -> config.secretWaypointStyle, v -> config.secretWaypointStyle = v).fresh();
+        b.toggle("  Fit Box To Essence / Key Skull", () -> config.secretWaypointAdaptiveBox, v -> config.secretWaypointAdaptiveBox = v).fresh();
+        b.toggle("  Show Waypoint Names", () -> config.secretWaypointLabels, v -> config.secretWaypointLabels = v).fresh();
+        b.toggle("    With Distance", () -> config.secretWaypointDistance, v -> config.secretWaypointDistance = v).fresh();
+        b.toggle("  Route Waypoints (Stonk, Superboom, ...)", () -> config.secretWaypointRoutes, v -> config.secretWaypointRoutes = v).fresh();
         b.searchList("    Route Categories", () -> java.util.List.of(com.teslamaps.features.SecretWaypoints.ROUTE_CATEGORIES),
                 id -> config.secretRouteCategories.contains(id),
-                id -> { if (!config.secretRouteCategories.remove(id)) config.secretRouteCategories.add(id); })
+                id -> { if (!config.secretRouteCategories.remove(id)) config.secretRouteCategories.add(id); }).fresh()
                 .names(com.teslamaps.features.SecretWaypoints::routeName)
                 .colors(id -> config.secretRouteColors.getOrDefault(id, com.teslamaps.features.SecretWaypoints.routeDefaultColor(id)),
                         (id, hex) -> config.secretRouteColors.put(id, hex));
@@ -58,19 +58,19 @@ public final class SecretsWaypointsCategory {
         b.toggle("Dungeon Waypoints", () -> config.dungeonWaypoints, v -> config.dungeonWaypoints = v);
         b.slider("  Title Scale", 0.1f, 4f, () -> config.waypointTitleScale, v -> config.waypointTitleScale = v, 1);
         b.toggle("  Editor HUD", () -> config.dungeonWaypointEditor, v -> config.dungeonWaypointEditor = v);
-        b.toggle("  Edit Mode (Right-Click)", () -> config.waypointEditMode, v -> config.waypointEditMode = v)
+        b.toggle("  Edit Mode (Right-Click)", () -> config.waypointEditMode, v -> config.waypointEditMode = v).fresh()
                 .desc("In dungeons right-click adds/removes a waypoint (Add Waypoint #1 style), also in mid-air");
-        b.toggle("    Sneak + Right-Click Sets Title", () -> config.waypointEditTitles, v -> config.waypointEditTitles = v);
-        b.keybind("    Edit Mode Key", () -> config.waypointEditModeKey, v -> config.waypointEditModeKey = v);
+        b.toggle("    Sneak + Right-Click Sets Title", () -> config.waypointEditTitles, v -> config.waypointEditTitles = v).fresh();
+        b.keybind("    Edit Mode Key", () -> config.waypointEditModeKey, v -> config.waypointEditModeKey = v).fresh();
         b.button("  Waypoint Packs...", () -> Minecraft.getInstance().setScreen(
-                new com.teslamaps.screen.WaypointPackScreen(Minecraft.getInstance().screen)));
+                new com.teslamaps.screen.WaypointPackScreen(Minecraft.getInstance().screen))).fresh();
         b.toggle("  New Waypoints Use Block Size", () -> config.waypointUseBlockSize, v -> config.waypointUseBlockSize = v);
         b.slider("  Size X", 0.1f, 5f, () -> config.waypointSizeX, v -> config.waypointSizeX = v, 2);
         b.slider("  Size Y", 0.1f, 5f, () -> config.waypointSizeY, v -> config.waypointSizeY = v, 2);
         b.slider("  Size Z", 0.1f, 5f, () -> config.waypointSizeZ, v -> config.waypointSizeZ = v, 2);
         b.info("Secret waypoints hide once collected, Etherwarp ones after warping there.");
         b.info("Title: /tmap waypoints title <text> | type: /tmap waypoints type <type>");
-        b.info("Packs: /tmap waypoints packs | edit mode: /tmap waypoints edit");
+        b.info("Packs: /tmap waypoints packs | edit mode: /tmap waypoints edit").fresh();
 
         b.label("Add Waypoint #1");
         b.keybind("Keybind #1 (look at block)", () -> config.waypointAddKey, v -> config.waypointAddKey = v);

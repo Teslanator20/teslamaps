@@ -41,7 +41,7 @@ public class MapConfigScreen extends Screen {
 
     // Collapsed group headers, keyed category#labelOrdinal.
     protected static final java.util.Set<String> GROUP_COLLAPSED = new java.util.HashSet<>();
-    private static boolean collapseSeeded = false;
+    private static final java.util.Set<View> collapseSeeded = java.util.EnumSet.noneOf(View.class);
     // Folded sidebar sections, by section name.
     protected static final java.util.Set<String> SECTION_COLLAPSED = new java.util.HashSet<>();
 
@@ -56,6 +56,41 @@ public class MapConfigScreen extends Screen {
     protected String searchQuery = "";
     /** Survives a close/reopen of the screen, the widget itself is rebuilt in init(). */
     protected static String lastSearch = "";
+    protected static String lastSearchNew = "";
+    private static String lastCategoryNew = null;
+
+    /** OLD = /tmap (what existed up to 2.1.77), NEW = /tmap all (the feature-gap build-out), ALL = both. */
+    public enum View { OLD, NEW, ALL }
+    protected View view = View.OLD;
+    private final java.util.Set<SettingsEntry> freshEntries = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+    // every row of both views, for checks that must see all of them
+    protected final Map<String, List<SettingsEntry>> allCategories = new LinkedHashMap<>();
+
+    public View view() { return view; }
+
+    /** Row added by the feature-gap build-out; shown in /tmap all instead of /tmap. */
+    public void markFresh(SettingsEntry e) { freshEntries.add(e); }
+
+    public boolean isFresh(SettingsEntry e) { return freshEntries.contains(e); }
+
+    protected String lastSearch() { return view == View.NEW ? lastSearchNew : lastSearch; }
+
+    protected void lastSearch(String q) {
+        if (view == View.NEW) lastSearchNew = q;
+        else lastSearch = q;
+    }
+
+    protected String collapsePrefix() { return view == View.NEW ? "new:" : ""; }
+
+    private String rememberedCategory() {
+        return view == View.NEW ? lastCategoryNew : TeslaMapsConfig.get().lastConfigCategory;
+    }
+
+    private void rememberCategory(String c) {
+        if (view == View.NEW) { lastCategoryNew = c; return; }
+        TeslaMapsConfig.get().lastConfigCategory = c;
+        TeslaMapsConfig.save();
+    }
 
     protected int sidebarScroll = 0;
     protected int sidebarMaxScroll = 0;
@@ -128,7 +163,63 @@ public class MapConfigScreen extends Screen {
 
     /** The settings screen in the layout the user picked (classic sidebar or columns). */
     public static MapConfigScreen open() {
-        return TeslaMapsConfig.get().configColumnLayout ? new ColumnConfigScreen() : new MapConfigScreen();
+        return open(View.OLD);
+    }
+
+    /** /tmap all: only the rows of the feature-gap build-out. */
+    public static MapConfigScreen openAll() {
+        return open(View.NEW);
+    }
+
+    public static MapConfigScreen open(View view) {
+        MapConfigScreen s = TeslaMapsConfig.get().configColumnLayout ? new ColumnConfigScreen() : new MapConfigScreen();
+        s.view = view;
+        return s;
+    }
+
+    /** /tmap all dump: every row with its view, for checking the old/new split. */
+    public static String dumpRows() throws java.io.IOException {
+        MapConfigScreen s = new MapConfigScreen(true);
+        s.view = View.ALL;
+        s.buildCategories();
+        StringBuilder out = new StringBuilder();
+        int olds = 0, news = 0;
+        for (Map.Entry<String, List<SettingsEntry>> c : s.categories.entrySet()) {
+            int o = 0, n = 0;
+            for (SettingsEntry e : c.getValue()) {
+                boolean f = s.isFresh(e);
+                if (!e.isLabel()) { if (f) n++; else o++; }
+                out.append(f ? "NEW" : "OLD").append('\t').append(c.getKey()).append('\t')
+                        .append(e.getClass().getSimpleName()).append('\t').append(e.getLabel()).append('\n');
+            }
+            out.append("#\t").append(c.getKey()).append("\told ").append(o).append("\tnew ").append(n).append('\n');
+            olds += o;
+            news += n;
+        }
+        java.nio.file.Path p = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir()
+                .resolve("teslamaps").resolve("config_rows.txt");
+        java.nio.file.Files.createDirectories(p.getParent());
+        java.nio.file.Files.writeString(p, out);
+        return olds + " old / " + news + " new rows -> " + p;
+    }
+
+    /** The view whose rows hold this category / search hit, /tmap preferred. */
+    public static View viewFor(String category, String query) {
+        for (View v : new View[]{View.OLD, View.NEW}) {
+            try {
+                MapConfigScreen s = new MapConfigScreen(true);
+                s.view = v;
+                s.buildCategories();
+                if (category != null && s.groupOf(category) == null) continue;
+                if (query == null || query.isEmpty()) return v;
+                String q = query.toLowerCase();
+                for (List<SettingsEntry> l : s.categories.values()) {
+                    for (SettingsEntry e : l) if (searchHit(e, q)) return v;
+                }
+            } catch (RuntimeException ignored) {
+            }
+        }
+        return View.OLD;
     }
 
     private net.minecraft.client.gui.screens.Screen returnTo;
@@ -145,8 +236,10 @@ public class MapConfigScreen extends Screen {
 
     // GUI-013
     public static void openWithSearch(String query) {
-        lastSearch = query == null ? "" : query;
-        Minecraft.getInstance().setScreen(new MapConfigScreen());
+        MapConfigScreen s = new MapConfigScreen();
+        s.view = viewFor(null, query);
+        s.lastSearch(query == null ? "" : query);
+        Minecraft.getInstance().setScreen(s);
     }
 
     // GUI-014: toggles listed by /tmap newfeatures, null = normal screen
@@ -158,7 +251,9 @@ public class MapConfigScreen extends Screen {
     public static void openNew(java.util.Set<String> keys) {
         newKeys = keys;
         lastSearch = "";
-        Minecraft.getInstance().setScreen(new MapConfigScreen());
+        MapConfigScreen s = new MapConfigScreen();
+        s.view = View.ALL;
+        Minecraft.getInstance().setScreen(s);
     }
 
     private static String toggleKey(String category, ToggleEntry te) {
@@ -169,6 +264,7 @@ public class MapConfigScreen extends Screen {
     public static java.util.Set<String> toggleKeys() {
         java.util.Set<String> out = new java.util.LinkedHashSet<>();
         MapConfigScreen s = new MapConfigScreen(true);
+        s.view = View.ALL;
         s.buildCategories();
         for (Map.Entry<String, List<SettingsEntry>> c : s.categories.entrySet()) {
             for (SettingsEntry e : c.getValue()) {
@@ -312,10 +408,10 @@ public class MapConfigScreen extends Screen {
         buildCategories();
         GuiSounds.resetHover();
 
-        String remembered = TeslaMapsConfig.get().lastConfigCategory;
+        String remembered = rememberedCategory();
         String group = groupOf(remembered);
         if (group != null) selectedCategory = group;
-        else if (!groups.containsKey(selectedCategory)) selectedCategory = "Profiles & Interface";
+        else if (!groups.containsKey(selectedCategory)) selectedCategory = firstCategory();
         for (Map.Entry<String, List<String>> s : sections.entrySet()) {
             if (s.getValue().contains(selectedCategory)) SECTION_COLLAPSED.remove(s.getKey());
         }
@@ -323,12 +419,11 @@ public class MapConfigScreen extends Screen {
         scrollSidebarTo(selectedCategory);
 
         // Start with every group folded (once per session); user toggles persist after.
-        if (!collapseSeeded) {
-            collapseSeeded = true;
+        if (collapseSeeded.add(view)) {
             for (Map.Entry<String, List<SettingsEntry>> c : categories.entrySet()) {
                 int ord = 0;
                 for (SettingsEntry e : c.getValue()) {
-                    if (e.isLabel()) GROUP_COLLAPSED.add(c.getKey() + "#" + (ord++));
+                    if (e.isLabel()) GROUP_COLLAPSED.add(collapsePrefix() + c.getKey() + "#" + (ord++));
                 }
             }
         }
@@ -337,16 +432,16 @@ public class MapConfigScreen extends Screen {
         int sfW = this.width - SIDEBAR_WIDTH - 28;
         // unbordered EditBox draws its text at getY(), so place it on the bar's text baseline (bar = y 8, h 22)
         searchField = new EditBox(font, sfX + 18, 8 + (22 - 8) / 2, sfW - 26, 8, Component.literal("Search"));
-        searchField.setHint(Component.literal("Search settings..."));
+        searchField.setHint(Component.literal(view == View.NEW ? "Search new features..." : "Search settings..."));
         searchField.setBordered(false);
         searchField.setResponder(query -> {
             searchQuery = query.toLowerCase();
-            lastSearch = query;
+            lastSearch(query);
             scrollOffset = 0;
             expandedColorEntry = null;
         });
         addRenderableWidget(searchField);
-        if (!lastSearch.isEmpty()) searchField.setValue(lastSearch); // responder restores searchQuery
+        if (!lastSearch().isEmpty()) searchField.setValue(lastSearch()); // responder restores searchQuery
         if (jumpCategory != null || jumpQuery != null) {
             String cat = jumpCategory, q = jumpQuery;
             jumpCategory = jumpQuery = null;
@@ -399,6 +494,7 @@ public class MapConfigScreen extends Screen {
     protected void buildCategories() {
         buildCount++;
         categories.clear();
+        freshEntries.clear();
         keyConflicts = null;
         toggleDefaults.clear();
         TeslaMapsConfig config = TeslaMapsConfig.get();
@@ -515,6 +611,77 @@ public class MapConfigScreen extends Screen {
                 if (!seenCheat.contains(l)) com.teslamaps.TeslaMaps.LOGGER.error("cheatLabels: no toggle named \"{}\" - renamed?", l);
             }
         }
+        applyView();
+    }
+
+    private String firstCategory() {
+        if (groups.containsKey("Profiles & Interface")) return "Profiles & Interface";
+        for (List<String> items : sections.values()) {
+            for (String i : items) if (!ACTIVE.equals(i) && !NEW.equals(i)) return i;
+        }
+        return ACTIVE;
+    }
+
+    /** Drops the rows of the other view, then empty categories, sidebar groups and sections. Once per build. */
+    private void applyView() {
+        allCategories.clear();
+        allCategories.putAll(categories);
+        if (view == View.ALL) return;
+        boolean wantFresh = view == View.NEW;
+        for (java.util.Iterator<Map.Entry<String, List<SettingsEntry>>> it = categories.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, List<SettingsEntry>> c = it.next();
+            List<SettingsEntry> kept = rowsOfView(c.getKey(), c.getValue(), wantFresh);
+            if (kept.isEmpty()) it.remove();
+            else c.setValue(kept);
+        }
+        for (Map.Entry<String, List<String>> g : groups.entrySet()) {
+            if (ACTIVE.equals(g.getKey()) || NEW.equals(g.getKey())) continue;
+            List<String> m = new ArrayList<>();
+            for (String cat : g.getValue()) if (categories.containsKey(cat)) m.add(cat);
+            g.setValue(m);
+        }
+        groups.entrySet().removeIf(g -> g.getValue().isEmpty() && !ACTIVE.equals(g.getKey()) && !NEW.equals(g.getKey()));
+        for (Map.Entry<String, List<String>> sec : sections.entrySet()) sec.getValue().removeIf(i -> !groups.containsKey(i));
+        sections.entrySet().removeIf(sec -> sec.getValue().isEmpty());
+    }
+
+    /**
+     * Rows of one view. In /tmap all an old toggle a new sub-option hangs under comes along, so the
+     * sub-option can be used. Section master and group labels stay only while rows follow them.
+     */
+    private List<SettingsEntry> rowsOfView(String cat, List<SettingsEntry> rows, boolean wantFresh) {
+        int n = rows.size();
+        boolean[] keep = new boolean[n];
+        int start = !rows.isEmpty() && rows.get(0) instanceof ToggleEntry m && m.getLabel().equals("Enable " + cat) ? 1 : 0;
+        int[] depth = new int[8];
+        int[] parent = new int[8];
+        int sp = 0;
+        for (int i = start; i < n; i++) {
+            SettingsEntry e = rows.get(i);
+            if (e.isLabel()) { sp = 0; continue; }
+            int d = indent(e.getLabel());
+            while (sp > 0 && depth[sp - 1] >= d) sp--;
+            if (freshEntries.contains(e) == wantFresh) {
+                keep[i] = true;
+                if (wantFresh) for (int k = 0; k < sp; k++) keep[parent[k]] = true;
+            }
+            if (e instanceof ToggleEntry && sp < 8) { depth[sp] = d; parent[sp] = i; sp++; }
+        }
+        List<SettingsEntry> out = new ArrayList<>();
+        boolean any = false;
+        for (int i = n - 1; i >= start; i--) {
+            SettingsEntry e = rows.get(i);
+            if (e.isLabel()) {
+                if (any) out.add(e);
+                any = false;
+            } else if (keep[i]) {
+                out.add(e);
+                any = true;
+            }
+        }
+        java.util.Collections.reverse(out);
+        if (start == 1 && !out.isEmpty()) out.add(0, rows.get(0));
+        return out;
     }
 
     private void group(String name, String... cats) {
@@ -786,7 +953,7 @@ public class MapConfigScreen extends Screen {
                 }
                 for (SettingsEntry e : visibleChildren(categoryEntries)) {
                     if (e instanceof LabelEntry le) {
-                        le.collapseKey = catName + "#" + (ord++);
+                        le.collapseKey = collapsePrefix() + catName + "#" + (ord++);
                         le.childCount = 0;
                         group = le;
                         hidden = GROUP_COLLAPSED.contains(le.collapseKey);
@@ -840,8 +1007,7 @@ public class MapConfigScreen extends Screen {
             } else if (hit != null) {
                 if (!hit.equals(selectedCategory)) GuiSounds.select();
                 selectedCategory = hit;
-                TeslaMapsConfig.get().lastConfigCategory = hit;
-                TeslaMapsConfig.save();
+                rememberCategory(hit);
                 searchQuery = "";
                 searchField.setValue(""); // responder clears lastSearch too
                 scrollOffset = 0;
@@ -904,7 +1070,8 @@ public class MapConfigScreen extends Screen {
 
         GuiStyle.sidebarPanel(context, 0, 0, SIDEBAR_WIDTH, this.height);
         context.text(font, "TeslaMaps", 10, 8, 0xFFFFFFFF);
-        context.text(font, "Categories", 10, 22, GuiStyle.accent());
+        if (view == View.NEW) context.text(font, "New Features", 10, 22, 0xFFFFAA00);
+        else context.text(font, "Categories", 10, 22, GuiStyle.accent());
 
         int sbTop = SIDEBAR_TOP, sbBottom = sidebarBottom();
         context.enableScissor(0, sbTop, SIDEBAR_WIDTH, sbBottom);
@@ -1220,6 +1387,18 @@ public class MapConfigScreen extends Screen {
             return (T) this;
         }
 
+        /** Added by the feature-gap build-out: shown in /tmap all, not in /tmap. */
+        public T fresh() {
+            markFresh(this);
+            return (T) this;
+        }
+
+        /** An old row that moved into a new feature's rows: stays in /tmap. */
+        public T old() {
+            freshEntries.remove(this);
+            return (T) this;
+        }
+
         public T tags(String... t) {
             tags = new String[t.length];
             for (int i = 0; i < t.length; i++) tags[i] = t[i].toLowerCase();
@@ -1241,6 +1420,8 @@ public class MapConfigScreen extends Screen {
         private final String text;
 
         public InfoEntry(int x, String text) { this.x = x; this.text = text; }
+
+        public InfoEntry fresh() { markFresh(this); return this; }
 
         @Override public int getHeight() { return 14; }
         @Override public String getLabel() { return text; }
@@ -1703,7 +1884,7 @@ public class MapConfigScreen extends Screen {
             keyConflictsAt = now;
             Map<Integer, List<String>> names = new java.util.HashMap<>();
             Map<KeybindEntry, Integer> keys = new java.util.HashMap<>();
-            for (List<SettingsEntry> list : categories.values()) {
+            for (List<SettingsEntry> list : allCategories.values()) {
                 for (SettingsEntry s : list) {
                     if (!(s instanceof KeybindEntry k)) continue;
                     int key = k.getter.getAsInt();

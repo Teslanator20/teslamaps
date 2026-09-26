@@ -16,7 +16,7 @@ public final class LegitModeCategory {
         b.toggle("Map Legit Mode Only", () -> config.legitMapOnly, v -> config.legitMapOnly = v);
         b.toggle("Guess Room Types", () -> config.legitRoomGuess, v -> config.legitRoomGuess = v);
         b.keybind("Peek Key (hold to reveal map)", () -> config.legitPeekKey, v -> config.legitPeekKey = v);
-        b.toggle("  Peek Key Toggles (instead of hold)", () -> config.legitPeekToggle, v -> config.legitPeekToggle = v);
+        b.toggle("  Peek Key Toggles (instead of hold)", () -> config.legitPeekToggle, v -> config.legitPeekToggle = v).fresh();
         b.info("Map: only explored rooms + doors (+ 1x1 guess).");
         b.info("Full mode also blocks all ESP, Auto Wish/GFS.");
         b.info("Map Only: just the map, cheats stay on.");

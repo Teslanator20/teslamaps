@@ -20,7 +20,7 @@ public final class TorrhusCanyonCategory {
         b.toggle("Tiki ESP", () -> config.tikiESP, v -> config.tikiESP = v);
         b.toggle("  Show Name", () -> config.tikiESPName, v -> config.tikiESPName = v);
         b.color("  Tiki Box Color", () -> config.tikiESPColor, v -> config.tikiESPColor = v);
-        b.toggle("  Spawn Points", () -> config.tikiSpawnPoints, v -> config.tikiSpawnPoints = v)
+        b.toggle("  Spawn Points", () -> config.tikiSpawnPoints, v -> config.tikiSpawnPoints = v).fresh()
                 .desc("Orange box on all 24 fixed Sneaky / Shrieky / Cheeky Tiki spots, built or not");
         b.label("Queen Ant");
         b.toggle("Queen Ant Warning", () -> config.queenAntWarning, v -> config.queenAntWarning = v);

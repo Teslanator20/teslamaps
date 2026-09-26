@@ -61,7 +61,7 @@ public class ColumnConfigScreen extends MapConfigScreen {
         btn(new TeslaButton(width - 176, by, 100, 20, "Classic Layout", () -> {
             TeslaMapsConfig.get().configColumnLayout = false;
             TeslaMapsConfig.save();
-            minecraft.setScreen(new MapConfigScreen());
+            minecraft.setScreen(MapConfigScreen.open(view));
         }));
         btn(new TeslaButton(width - 262, by, 80, 20, "Reset Layout", () -> {
             TeslaMapsConfig.get().configColumns.clear();
@@ -93,7 +93,7 @@ public class ColumnConfigScreen extends MapConfigScreen {
         for (SettingsEntry e : visibleChildren(all)) {
             if (e instanceof LabelEntry le) {
                 le.reposition(12, COL_W - 16);
-                le.collapseKey = cat + "#" + (ord++);
+                le.collapseKey = collapsePrefix() + cat + "#" + (ord++);
                 le.childCount = 0;
                 group = le;
                 hidden = GROUP_COLLAPSED.contains(le.collapseKey);
@@ -205,6 +205,9 @@ public class ColumnConfigScreen extends MapConfigScreen {
         wasMouseDown = down;
 
         String hint = "Drag headers | Scroll while dragging to scale | Right-click header to fold";
+        if (view == View.NEW) {
+            g.text(font, "TeslaMaps — New Features", 10, height - 32, 0xFFFFAA00);
+        }
         g.text(font, hint, 10, height - 20, GuiStyle.textFaint());
         tooltip(g, hover, mouseX, mouseY, down);
         GuiSounds.endFrame();

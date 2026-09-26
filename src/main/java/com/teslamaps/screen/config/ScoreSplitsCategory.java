@@ -14,16 +14,16 @@ public final class ScoreSplitsCategory {
         b.label("Score Announce");
         b.toggle("Announce 300 (/pc)", () -> config.announce300, v -> config.announce300 = v);
         b.toggle("Announce 270 (/pc)", () -> config.announce270, v -> config.announce270 = v);
-        b.toggle("  270 Score Title", () -> config.score270Title, v -> config.score270Title = v);
-        b.toggle("  300 Score Title", () -> config.score300Title, v -> config.score300Title = v);
-        b.toggle("    Title Sound", () -> config.scoreTitleSound, v -> config.scoreTitleSound = v);
+        b.toggle("  270 Score Title", () -> config.score270Title, v -> config.score270Title = v).fresh();
+        b.toggle("  300 Score Title", () -> config.score300Title, v -> config.score300Title = v).fresh();
+        b.toggle("    Title Sound", () -> config.scoreTitleSound, v -> config.scoreTitleSound = v).fresh();
         b.button("  Edit Score Texts", () -> Minecraft.getInstance().setScreen(new TextFieldsScreen(
                 Minecraft.getInstance().screen, "Score Texts", "& = color, {time} = run time, empty message = default",
                 java.util.List.of(
                         new TextFieldsScreen.Field("270 Title", () -> config.score270TitleText, v -> config.score270TitleText = v),
                         new TextFieldsScreen.Field("270 Message", () -> config.score270Text, v -> config.score270Text = v),
                         new TextFieldsScreen.Field("300 Title", () -> config.score300TitleText, v -> config.score300TitleText = v),
-                        new TextFieldsScreen.Field("300 Message", () -> config.score300Text, v -> config.score300Text = v)))))
+                        new TextFieldsScreen.Field("300 Message", () -> config.score300Text, v -> config.score300Text = v))))).fresh()
                 .desc("Title text and the chat/party message for 270 and 300 score.");
         b.toggle("Mimic Dead Message", () -> config.mimicDeadMessage, v -> config.mimicDeadMessage = v);
         b.toggle("Prince Dead Message", () -> config.princeDeadMessage, v -> config.princeDeadMessage = v);
@@ -47,54 +47,54 @@ public final class ScoreSplitsCategory {
         b.toggle("  Show PBs (per split)", () -> config.splitsShowPb, v -> config.splitsShowPb = v);
         b.toggle("  Show Delta To PB", () -> config.splitsShowDelta, v -> config.splitsShowDelta = v);
         b.toggle("  Send All Splits on End", () -> config.splitsSendAllOnEnd, v -> config.splitsSendAllOnEnd = v);
-        b.toggle("  Custom Splits (per floor)", () -> config.customSplits, v -> config.customSplits = v)
+        b.toggle("  Custom Splits (per floor)", () -> config.customSplits, v -> config.customSplits = v).fresh()
                 .desc("Own split points per floor, triggered by a chat message. They replace that floor's boss splits.");
         b.button("    Edit Custom Splits", () -> Minecraft.getInstance().setScreen(
-                new CustomSplitsScreen(Minecraft.getInstance().screen)));
-        b.toggle("  Show Tick Time", () -> config.splitsTickTime, v -> config.splitsTickTime = v)
+                new CustomSplitsScreen(Minecraft.getInstance().screen))).fresh();
+        b.toggle("  Show Tick Time", () -> config.splitsTickTime, v -> config.splitsTickTime = v).fresh()
                 .desc("Server-tick time behind every split, lag independent");
-        b.toggle("  Boss Entry Split", () -> config.splitsBossEntry, v -> config.splitsBossEntry = v)
+        b.toggle("  Boss Entry Split", () -> config.splitsBossEntry, v -> config.splitsBossEntry = v).fresh()
                 .desc("Extra row: run start until the boss, with PB");
-        b.toggle("  Wither Door Count", () -> config.splitsWitherDoors, v -> config.splitsWitherDoors = v)
+        b.toggle("  Wither Door Count", () -> config.splitsWitherDoors, v -> config.splitsWitherDoors = v).fresh()
                 .desc("Top row: wither doors on this run's map");
-        b.toggle("  300 Score Split", () -> config.splits300Score, v -> config.splits300Score = v)
+        b.toggle("  300 Score Split", () -> config.splits300Score, v -> config.splits300Score = v).fresh()
                 .desc("Extra row: run start until 300 score, counts live and freezes at 300");
-        b.toggle("  Current Split HUD", () -> config.splitsCurrentHud, v -> config.splitsCurrentHud = v)
+        b.toggle("  Current Split HUD", () -> config.splitsCurrentHud, v -> config.splitsCurrentHud = v).fresh()
                 .desc("Only the running split in ticks, move it in /tmap gui");
-        b.toggle("  Terminal Splits (P3 Sections)", () -> config.terminalSplits, v -> config.terminalSplits = v)
+        b.toggle("  Terminal Splits (P3 Sections)", () -> config.terminalSplits, v -> config.terminalSplits = v).fresh()
                 .desc("Adds section and P3 time to every terminal/device line, summary when the core opens.");
-        b.toggle("    Use Server Ticks", () -> config.terminalSplitsServerTicks, v -> config.terminalSplitsServerTicks = v);
+        b.toggle("    Use Server Ticks", () -> config.terminalSplitsServerTicks, v -> config.terminalSplitsServerTicks = v).fresh();
         b.toggle("Live Room Splits HUD", () -> config.roomSplits, v -> config.roomSplits = v);
         b.slider("  Room Splits Scale", 0.5f, 2.0f,
                 () -> config.roomSplitsScale, v -> config.roomSplitsScale = v, 1);
         b.label("Alerts & Stats");
         b.toggle("Insta-Clear Alert", () -> config.instaClearAlert, v -> config.instaClearAlert = v);
-        b.toggle("Room Cleared Alert", () -> config.roomClearedAlert, v -> config.roomClearedAlert = v)
+        b.toggle("Room Cleared Alert", () -> config.roomClearedAlert, v -> config.roomClearedAlert = v).fresh()
                 .desc("Title + pling when the room you stand in gets its checkmark");
-        b.toggle("  Only Blood Rush Rooms", () -> config.roomClearedOnlyBloodRush, v -> config.roomClearedOnlyBloodRush = v)
+        b.toggle("  Only Blood Rush Rooms", () -> config.roomClearedOnlyBloodRush, v -> config.roomClearedOnlyBloodRush = v).fresh()
                 .desc("Only rooms with a wither or blood door");
-        b.toggle("  No Blood Room Alert", () -> config.roomClearedNoBlood, v -> config.roomClearedNoBlood = v);
-        b.toggle("Secrets Done Alert", () -> config.roomSecretsDoneAlert, v -> config.roomSecretsDoneAlert = v)
+        b.toggle("  No Blood Room Alert", () -> config.roomClearedNoBlood, v -> config.roomClearedNoBlood = v).fresh();
+        b.toggle("Secrets Done Alert", () -> config.roomSecretsDoneAlert, v -> config.roomSecretsDoneAlert = v).fresh()
                 .desc("Title when your room goes from white to green check");
-        b.slider("Room Alert Time", 0.5f, 3.0f, () -> config.roomAlertTime, v -> config.roomAlertTime = v, 1);
+        b.slider("Room Alert Time", 0.5f, 3.0f, () -> config.roomAlertTime, v -> config.roomAlertTime = v, 1).fresh();
         b.toggle("Trinity Alert", () -> config.rareRoomAlert, v -> config.rareRoomAlert = v);
         b.slider("  Alert Volume", 0.0f, 5.0f,
                 () -> config.rareRoomVolume, v -> config.rareRoomVolume = v, 1);
         b.info("Title + chat when Trinity is scanned, once per run");
         b.toggle("Auto Extra Stats", () -> config.autoExtraStats, v -> config.autoExtraStats = v);
         b.info("Runs /showextrastats at the end of a run");
-        b.toggle("Compact End-of-Run Summary", () -> config.extraStatsCompact, v -> config.extraStatsCompact = v)
+        b.toggle("Compact End-of-Run Summary", () -> config.extraStatsCompact, v -> config.extraStatsCompact = v).fresh()
                 .desc("Hides Hypixel's end block and prints ~6 centered lines, details on hover. Best with Auto Extra Stats");
         b.dropdown("  Team Stats", new String[]{"Off", "Personal", "Team", "Both"},
-                () -> config.extraStatsTeam, v -> config.extraStatsTeam = v);
-        b.toggle("  Show Teammates", () -> config.extraStatsTeammates, v -> config.extraStatsTeammates = v);
-        b.toggle("Server Lag Line", () -> config.serverLagTimer, v -> config.serverLagTimer = v)
+                () -> config.extraStatsTeam, v -> config.extraStatsTeam = v).fresh();
+        b.toggle("  Show Teammates", () -> config.extraStatsTeammates, v -> config.extraStatsTeammates = v).fresh();
+        b.toggle("Server Lag Line", () -> config.serverLagTimer, v -> config.serverLagTimer = v).fresh()
                 .desc("At the end of a run: how long the server lagged (client vs server ticks since Mort). Goes into the compact summary when that is on");
-        b.label("Dungeon Info");
-        b.toggle("Death Counter", () -> config.deathCounter, v -> config.deathCounter = v)
+        b.label("Dungeon Info").fresh();
+        b.toggle("Death Counter", () -> config.deathCounter, v -> config.deathCounter = v).fresh()
                 .desc("Deaths this run as a HUD (yellow, red, dark red)");
-        b.toggle("  \"N. DEATH!\" Chat Line", () -> config.deathCounterChat, v -> config.deathCounterChat = v);
-        b.toggle("Track Room Time Per Player", () -> config.visitedTracking, v -> config.visitedTracking = v)
+        b.toggle("  \"N. DEATH!\" Chat Line", () -> config.deathCounterChat, v -> config.deathCounterChat = v).fresh();
+        b.toggle("Track Room Time Per Player", () -> config.visitedTracking, v -> config.visitedTracking = v).fresh()
                 .desc("/visited <room> lists how long each player stood in that room this run");
     }
 }

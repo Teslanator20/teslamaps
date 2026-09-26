@@ -46,7 +46,7 @@ public final class OrderedWaypointsCategory {
         b.toggle("Trace Line", () -> config.orderedTraceLine, v -> config.orderedTraceLine = v);
         b.color("  Trace Line Color", () -> config.orderedColorTraceLine, v -> config.orderedColorTraceLine = v);
         b.slider("  Trace Line Thickness", 1f, 10f,
-                () -> config.orderedTraceThickness, v -> config.orderedTraceThickness = v, 1);
+                () -> config.orderedTraceThickness, v -> config.orderedTraceThickness = v, 1).fresh();
 
         b.label("Progression");
         b.slider("Waypoint Range", 1f, 10f,
@@ -54,15 +54,15 @@ public final class OrderedWaypointsCategory {
         b.toggle("Auto-Skip Forward", () -> config.orderedAutoSkipForward, v -> config.orderedAutoSkipForward = v);
         b.toggle("Skip Air Waypoints", () -> config.orderedSkipAir, v -> config.orderedSkipAir = v);
         b.info("Waypoints on an air block are jumped over (19 -> 21 if 20 is air)");
-        b.toggle("Advance Only On Ground", () -> config.orderedOnGround, v -> config.orderedOnGround = v)
+        b.toggle("Advance Only On Ground", () -> config.orderedOnGround, v -> config.orderedOnGround = v).fresh()
                 .desc("A waypoint only counts once you land near it, not while jumping past.");
         b.toggle("Unload On World Change", () -> config.orderedAutoUnload, v -> config.orderedAutoUnload = v);
         b.toggle("Auto-Load Route Named Like Area", () -> config.orderedAutoLoadByArea, v -> config.orderedAutoLoadByArea = v);
         b.info("Save a route as e.g. \"Crystal Hollows\" to load it there");
-        b.toggle("Auto-Load Route Named Like Mineshaft", () -> config.orderedAutoLoadShaft, v -> config.orderedAutoLoadShaft = v)
+        b.toggle("Auto-Load Route Named Like Mineshaft", () -> config.orderedAutoLoadShaft, v -> config.orderedAutoLoadShaft = v).fresh()
                 .desc("Loads the saved route named like the mineshaft type from the scoreboard, e.g. TOPA_1 or PERI_C.")
                 .tags("mineshaft", "glacite", "shaft");
-        b.toggle("  Unload On Leaving Mineshaft", () -> config.orderedAutoUnloadShaft, v -> config.orderedAutoUnloadShaft = v);
+        b.toggle("  Unload On Leaving Mineshaft", () -> config.orderedAutoUnloadShaft, v -> config.orderedAutoUnloadShaft = v).fresh();
 
         b.label("Setup Mode");
         b.toggle("Setup Mode", () -> config.orderedSetupMode, v -> config.orderedSetupMode = v);

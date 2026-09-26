@@ -119,7 +119,7 @@ public final class Feature {
 
     /** Rows in a config-screen category, appended after the built-in ones. */
     public Feature config(String category, Consumer<com.teslamaps.screen.config.ConfigBuilder> build) {
-        FeatureRegistry.CONFIG.add(new FeatureRegistry.Config(category, build));
+        FeatureRegistry.CONFIG.add(new FeatureRegistry.Config(category, build, FeatureRegistry.freshRows));
         return this;
     }
 }

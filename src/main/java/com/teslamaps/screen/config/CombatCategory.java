@@ -16,17 +16,17 @@ public final class CombatCategory {
         b.toggle("Only Own Boss", () -> config.slayerOnlyOwnBoss, v -> config.slayerOnlyOwnBoss = v);
         b.info("Your boss always wins; a boss you hit is tracked too");
         b.toggle("Boss ESP", () -> config.slayerBossESP, v -> config.slayerBossESP = v);
-        b.toggle("  Tracer To Boss", () -> config.slayerBossTracer, v -> config.slayerBossTracer = v)
+        b.toggle("  Tracer To Boss", () -> config.slayerBossTracer, v -> config.slayerBossTracer = v).fresh()
                 .desc("Line from the crosshair to the tracked slayer boss");
-        b.toggle("  Demon Attunement + IMMUNE", () -> config.slayerAttunementDemons, v -> config.slayerAttunementDemons = v)
+        b.toggle("  Demon Attunement + IMMUNE", () -> config.slayerAttunementDemons, v -> config.slayerAttunementDemons = v).fresh()
                 .desc("Inferno: Quazii/Typhoeus and other attuned demons get their Hellion Shield colour, IMMUNE is red");
         b.toggle("Miniboss ESP", () -> config.slayerMinibossESP, v -> config.slayerMinibossESP = v);
         b.toggle("Miniboss Tracers", () -> config.slayerMinibossTracer, v -> config.slayerMinibossTracer = v);
-        b.slider("  Tracer Width", 1f, 5f, () -> config.slayerMinibossTracerWidth, v -> config.slayerMinibossTracerWidth = v, 1);
+        b.slider("  Tracer Width", 1f, 5f, () -> config.slayerMinibossTracerWidth, v -> config.slayerMinibossTracerWidth = v, 1).fresh();
         b.slider("  Tracer Range (0 = any)", 0f, 64f, () -> (float) config.slayerMinibossTracerRange,
-                v -> config.slayerMinibossTracerRange = Math.round(v), 0);
-        b.toggle("  Only With Line Of Sight", () -> config.slayerMinibossTracerSight, v -> config.slayerMinibossTracerSight = v);
-        b.toggle("  Mark Cocooned Minibosses", () -> config.slayerMinibossCocoon, v -> config.slayerMinibossCocoon = v).cheat()
+                v -> config.slayerMinibossTracerRange = Math.round(v), 0).fresh();
+        b.toggle("  Only With Line Of Sight", () -> config.slayerMinibossTracerSight, v -> config.slayerMinibossTracerSight = v).fresh();
+        b.toggle("  Mark Cocooned Minibosses", () -> config.slayerMinibossCocoon, v -> config.slayerMinibossCocoon = v).fresh().cheat()
                 .desc("Box on a miniboss cocoon, plus a tracer while Miniboss Tracers is on");
         b.toggle("Alerts (Miniboss/Cocoon/Boss)", () -> config.slayerAlerts, v -> config.slayerAlerts = v);
         b.toggle("  Boss Spawn Title", () -> config.slayerAlertSpawnTitle, v -> config.slayerAlertSpawnTitle = v);

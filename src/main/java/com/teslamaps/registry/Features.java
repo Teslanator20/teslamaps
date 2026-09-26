@@ -67,6 +67,8 @@ final class Features {
         com.teslamaps.features.croesus.KuudraKeys.register();
         com.teslamaps.features.pets.PetStore.register();
         com.teslamaps.features.pets.PetOverlay.register();
+        // everything below: /tmap all
+        FeatureRegistry.newFeaturesFromHere();
         // w02-06-term
         com.teslamaps.dungeon.TerminalSplits.register();
         // w02-03-puz

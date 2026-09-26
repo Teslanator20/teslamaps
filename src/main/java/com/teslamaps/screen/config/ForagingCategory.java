@@ -16,7 +16,7 @@ public final class ForagingCategory {
         b.toggle("Compact Tree Gifts",
                 () -> config.foragingCompactGifts, v -> config.foragingCompactGifts = v);
         b.info("One line instead of the whole gift block, hover kept");
-        b.toggle("  Session Totals in Hover", () -> config.foragingGiftTotals, v -> config.foragingGiftTotals = v)
+        b.toggle("  Session Totals in Hover", () -> config.foragingGiftTotals, v -> config.foragingGiftTotals = v).fresh()
                 .desc("Adds the rewards of every gift this session, per tree, to the hover. /tmap treegift [reset]");
         b.toggle("  Hide Uncommon Drops", () -> config.foragingGiftHideUncommon, v -> config.foragingGiftHideUncommon = v)
                 .desc("Stretching Sticks, Deep Root");
@@ -30,7 +30,7 @@ public final class ForagingCategory {
                 .desc("Tree the Fish, pet item");
         b.toggle("  Hide Mobs", () -> config.foragingGiftHideMobs, v -> config.foragingGiftHideMobs = v)
                 .desc("Phantoms and other mobs falling from the tree");
-        b.toggle("Title For Mobs From The Tree", () -> config.foragingTreeMobTitle, v -> config.foragingTreeMobTitle = v)
+        b.toggle("Title For Mobs From The Tree", () -> config.foragingTreeMobTitle, v -> config.foragingTreeMobTitle = v).fresh()
                 .desc("A <mob> fell from the Tree! as a red title, works with or without the compact line");
         b.toggle("Hide Sweep Details",
                 () -> config.foragingHideSweepDetails, v -> config.foragingHideSweepDetails = v);
@@ -38,20 +38,20 @@ public final class ForagingCategory {
         b.toggle("Compact Sweep Details",
                 () -> config.foragingCompactSweep, v -> config.foragingCompactSweep = v)
                 .desc("One line: sweep, logs, penalties. Hover for the breakdown and pro tip, click for /treegifts.");
-        b.toggle("Sweep Details HUD", () -> config.sweepDetailsHud, v -> config.sweepDetailsHud = v)
+        b.toggle("Sweep Details HUD", () -> config.sweepDetailsHud, v -> config.sweepDetailsHud = v).fresh()
                 .desc("Tree, toughness, sweep, logs and throw / wrong style penalty on the HUD for 5s instead of chat. Position in /tmap gui");
         b.toggle("Hide Lottery Buffs",
                 () -> config.foragingHideLottery, v -> config.foragingHideLottery = v);
         b.info("Lottery and Beekeeper messages off the foraging islands");
-        b.toggle("Beeheemoth Spawn Title", () -> config.beeheemothTitle, v -> config.beeheemothTitle = v)
+        b.toggle("Beeheemoth Spawn Title", () -> config.beeheemothTitle, v -> config.beeheemothTitle = v).fresh()
                 .desc("BEEHEEMOTH! title with the sub-area it spawned in");
-        b.toggle("Macaw Birdfeeder Title", () -> config.macawTitle, v -> config.macawTitle = v)
+        b.toggle("Macaw Birdfeeder Title", () -> config.macawTitle, v -> config.macawTitle = v).fresh()
                 .desc("MACAWS ATTRACTED! title when two Macaws come to the Birdfeeder");
         b.label("Sounds");
         b.toggle("Mute Phantoms",
                 () -> config.foragingMutePhantoms, v -> config.foragingMutePhantoms = v);
         b.toggle("  Also in Critter Safari",
-                () -> config.foragingMutePhantomsSafari, v -> config.foragingMutePhantomsSafari = v)
+                () -> config.foragingMutePhantomsSafari, v -> config.foragingMutePhantomsSafari = v).fresh()
                 .desc("Haunted biome phantoms");
         b.toggle("Mute Fusion Machine",
                 () -> config.foragingMuteFusion, v -> config.foragingMuteFusion = v);
@@ -66,7 +66,7 @@ public final class ForagingCategory {
         b.toggle("Hide Rune Effects",
                 () -> config.foragingHideRuneEffects, v -> config.foragingHideRuneEffects = v);
         b.toggle("Hide Throwing Axe Particles",
-                () -> config.hideThrowingAxeParticles, v -> config.hideThrowingAxeParticles = v)
+                () -> config.hideThrowingAxeParticles, v -> config.hideThrowingAxeParticles = v).fresh()
                 .desc("The wax trail of a flying Throwing Axe. Safari sparkles stay.");
         b.label("Honeycomb");
         b.toggle("Lather Reminder",
@@ -110,7 +110,7 @@ public final class ForagingCategory {
         b.slider("    Max Lines", 1f, 30f, () -> config.honeyhiveMaxLines, v -> config.honeyhiveMaxLines = v, 0);
         b.toggle("  Ready Waypoints", () -> config.honeyhiveReadyWaypoints, v -> config.honeyhiveReadyWaypoints = v);
         b.toggle("  Ready Sound", () -> config.honeyhiveReadySound, v -> config.honeyhiveReadySound = v);
-        b.toggle("  Offer Navigation", () -> config.honeyhiveNavOffer, v -> config.honeyhiveNavOffer = v)
+        b.toggle("  Offer Navigation", () -> config.honeyhiveNavOffer, v -> config.honeyhiveNavOffer = v).fresh()
                 .desc("After looting a hive (and on the refill reminder) a chat line paths you to every other ready hive. "
                         + "Needs Island Navigation. Outside the canyon the reminder warps you there on click.");
         b.label("Heart of the Forest");
@@ -136,9 +136,9 @@ public final class ForagingCategory {
         b.toggle("Lasso Display",
                 () -> config.lassoDisplay, v -> config.lassoDisplay = v);
         b.info("Progress bar and REEL on the HUD, position in /tmap gui");
-        b.toggle("  Hide Bar Over The Animal", () -> config.lassoHideNametag, v -> config.lassoHideNametag = v)
+        b.toggle("  Hide Bar Over The Animal", () -> config.lassoHideNametag, v -> config.lassoHideNametag = v).fresh()
                 .desc("Removes the floating bar and REEL from the mob while the HUD shows them");
-        b.toggle("  Background", () -> config.lassoBackground, v -> config.lassoBackground = v);
+        b.toggle("  Background", () -> config.lassoBackground, v -> config.lassoBackground = v).fresh();
         b.soundDropdown("  Reel Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.lassoReelSound, v -> config.lassoReelSound = v);

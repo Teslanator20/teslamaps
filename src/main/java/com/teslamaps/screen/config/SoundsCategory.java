@@ -13,7 +13,7 @@ public final class SoundsCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Wither Key");
         b.toggle("Key Pickup/Spawn Title", () -> config.keyPickupTitle, v -> config.keyPickupTitle = v);
-        b.toggle("  Name Who Picked It Up", () -> config.keyPickupWho, v -> config.keyPickupWho = v)
+        b.toggle("  Name Who Picked It Up", () -> config.keyPickupWho, v -> config.keyPickupWho = v).fresh()
                 .desc("\"You\" or the picker's class in class colour, then \"Picked Up Wither/Blood Key\"");
         b.toggle("Enable Pickup Sound", () -> config.keyPickupSoundEnabled, v -> config.keyPickupSoundEnabled = v);
         b.soundDropdown("  Pickup Sound",
@@ -38,29 +38,29 @@ public final class SoundsCategory {
         b.slider("Secret Pitch", 0.5f, 2f,
                 () -> config.secretSoundPitch, v -> config.secretSoundPitch = v, 2);
         b.toggle("Secret Item Pickup Sound", () -> config.secretItemPickupSound, v -> config.secretItemPickupSound = v);
-        b.toggle("Secret Bat Kill Sound (replaces bat)", () -> config.secretSoundBatKill, v -> config.secretSoundBatKill = v);
-        b.toggle("Only Real Secrets (skull id, no buttons)", () -> config.secretSoundRealOnly, v -> config.secretSoundRealOnly = v);
-        b.toggle("Separate Lever Sound", () -> config.secretSoundLeverSeparate, v -> config.secretSoundLeverSeparate = v);
+        b.toggle("Secret Bat Kill Sound (replaces bat)", () -> config.secretSoundBatKill, v -> config.secretSoundBatKill = v).fresh();
+        b.toggle("Only Real Secrets (skull id, no buttons)", () -> config.secretSoundRealOnly, v -> config.secretSoundRealOnly = v).fresh();
+        b.toggle("Separate Lever Sound", () -> config.secretSoundLeverSeparate, v -> config.secretSoundLeverSeparate = v).fresh();
         b.soundDropdown("  Lever Sound", com.teslamaps.utils.SoundOptions.keys(),
-                () -> config.secretSoundLeverType, v -> config.secretSoundLeverType = v);
-        b.slider("  Lever Volume", 0f, 4f, () -> config.secretSoundLeverVolume, v -> config.secretSoundLeverVolume = v, 2);
-        b.slider("  Lever Pitch", 0.5f, 2f, () -> config.secretSoundLeverPitch, v -> config.secretSoundLeverPitch = v, 2);
-        b.toggle("Custom Locked Chest Sound", () -> config.secretSoundLockedCustom, v -> config.secretSoundLockedCustom = v);
+                () -> config.secretSoundLeverType, v -> config.secretSoundLeverType = v).fresh();
+        b.slider("  Lever Volume", 0f, 4f, () -> config.secretSoundLeverVolume, v -> config.secretSoundLeverVolume = v, 2).fresh();
+        b.slider("  Lever Pitch", 0.5f, 2f, () -> config.secretSoundLeverPitch, v -> config.secretSoundLeverPitch = v, 2).fresh();
+        b.toggle("Custom Locked Chest Sound", () -> config.secretSoundLockedCustom, v -> config.secretSoundLockedCustom = v).fresh();
         b.soundDropdown("  Locked Sound", com.teslamaps.utils.SoundOptions.keys(),
-                () -> config.secretSoundLockedType, v -> config.secretSoundLockedType = v);
-        b.slider("  Locked Volume", 0f, 4f, () -> config.secretSoundLockedVolume, v -> config.secretSoundLockedVolume = v, 2);
-        b.slider("  Locked Pitch", 0.5f, 2f, () -> config.secretSoundLockedPitch, v -> config.secretSoundLockedPitch = v, 2);
+                () -> config.secretSoundLockedType, v -> config.secretSoundLockedType = v).fresh();
+        b.slider("  Locked Volume", 0f, 4f, () -> config.secretSoundLockedVolume, v -> config.secretSoundLockedVolume = v, 2).fresh();
+        b.slider("  Locked Pitch", 0.5f, 2f, () -> config.secretSoundLockedPitch, v -> config.secretSoundLockedPitch = v, 2).fresh();
         b.toggle("Secret Chime (Rising Pitch)", () -> config.secretChime, v -> config.secretChime = v);
         b.soundDropdown("  Chime Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.secretChimeSound, v -> config.secretChimeSound = v);
         b.slider("  Chime Volume", 0f, 4f,
                 () -> config.secretChimeVolume, v -> config.secretChimeVolume = v, 2);
-        b.toggle("  Chime on Secret Bat Kill", () -> config.secretChimeBat, v -> config.secretChimeBat = v);
-        b.toggle("  Chime on Secret Item Pickup", () -> config.secretChimeItem, v -> config.secretChimeItem = v);
-        b.toggle("  Mute Hypixel Chest Sound", () -> config.secretMuteChest, v -> config.secretMuteChest = v)
+        b.toggle("  Chime on Secret Bat Kill", () -> config.secretChimeBat, v -> config.secretChimeBat = v).fresh();
+        b.toggle("  Chime on Secret Item Pickup", () -> config.secretChimeItem, v -> config.secretChimeItem = v).fresh();
+        b.toggle("  Mute Hypixel Chest Sound", () -> config.secretMuteChest, v -> config.secretMuteChest = v).fresh()
                 .desc("Drops Hypixel's own chest secret sound (exact volume/pitch match)");
-        b.toggle("  Mute Hypixel Lever Sound", () -> config.secretMuteLever, v -> config.secretMuteLever = v)
+        b.toggle("  Mute Hypixel Lever Sound", () -> config.secretMuteLever, v -> config.secretMuteLever = v).fresh()
                 .desc("Drops Hypixel's own lever secret sound (exact volume/pitch match)");
         b.label("Bear Spawn Warning");
         b.toggle("Enable Alert", () -> config.bearSpawnWarning, v -> config.bearSpawnWarning = v);
@@ -70,7 +70,7 @@ public final class SoundsCategory {
                 () -> config.bearSpawnVolume, v -> config.bearSpawnVolume = v, 1);
         b.label("Etherwarp");
         b.toggle("Custom Etherwarp Sound", () -> config.etherwarpCustomSound, v -> config.etherwarpCustomSound = v);
-        b.toggle("  Zero-Ping Etherwarp Sound", () -> config.etherwarpZeroPing, v -> config.etherwarpZeroPing = v)
+        b.toggle("  Zero-Ping Etherwarp Sound", () -> config.etherwarpZeroPing, v -> config.etherwarpZeroPing = v).fresh()
                 .desc("Plays the sound as you click when the warp will land, instead of waiting for the server.");
         b.soundDropdown("  Etherwarp Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
@@ -105,31 +105,31 @@ public final class SoundsCategory {
         b.toggle("Mute Bonzo Staff", () -> config.muteBonzoStaff, v -> config.muteBonzoStaff = v);
         b.toggle("  Bonzo: Precise (keep real fireworks)", () -> config.muteBonzoStaffPrecise, v -> config.muteBonzoStaffPrecise = v);
         b.toggle("Mute Lightning", () -> config.muteLightning, v -> config.muteLightning = v);
-        b.toggle("Mute Rat Pet", () -> config.muteRatPet, v -> config.muteRatPet = v)
+        b.toggle("Mute Rat Pet", () -> config.muteRatPet, v -> config.muteRatPet = v).fresh()
                 .desc("Bat squeak and chicken steps near you, only when no real bat/chicken is there");
-        b.toggle("  Squeak Only", () -> config.muteRatPetSqueakOnly, v -> config.muteRatPetSqueakOnly = v);
-        b.toggle("Mute Backpack Opening Sound", () -> config.muteBackpackOpen, v -> config.muteBackpackOpen = v);
-        b.toggle("Mute Endermen In The End", () -> config.muteEndermanEnd, v -> config.muteEndermanEnd = v)
+        b.toggle("  Squeak Only", () -> config.muteRatPetSqueakOnly, v -> config.muteRatPetSqueakOnly = v).fresh();
+        b.toggle("Mute Backpack Opening Sound", () -> config.muteBackpackOpen, v -> config.muteBackpackOpen = v).fresh();
+        b.toggle("Mute Endermen In The End", () -> config.muteEndermanEnd, v -> config.muteEndermanEnd = v).fresh()
                 .desc("Enderman ambient, hurt, death, scream and stare sounds, only on The End island.");
-        b.toggle("Mute Blaze Slayer Sounds", () -> config.muteBlazeSounds, v -> config.muteBlazeSounds = v)
+        b.toggle("Mute Blaze Slayer Sounds", () -> config.muteBlazeSounds, v -> config.muteBlazeSounds = v).fresh()
                 .desc("Blaze, ghast shot, fire, lava pop and lightning, only on the Crimson Isle.")
                 .tags("slayer", "demonlord", "inferno", "blaze", "crimson");
-        b.toggle("Mute Wolf Slayer Sounds", () -> config.muteWolfSounds, v -> config.muteWolfSounds = v)
+        b.toggle("Mute Wolf Slayer Sounds", () -> config.muteWolfSounds, v -> config.muteWolfSounds = v).fresh()
                 .desc("Every wolf sound, only in the Park and the Hub.")
                 .tags("slayer", "sven", "wolf");
-        b.toggle("Mute Spider Slayer Sounds", () -> config.muteSpiderSounds, v -> config.muteSpiderSounds = v)
+        b.toggle("Mute Spider Slayer Sounds", () -> config.muteSpiderSounds, v -> config.muteSpiderSounds = v).fresh()
                 .desc("Spider, bat, silverfish and skeleton sounds in the Spider's Den and on the Crimson Isle, "
                         + "except while your Inferno Demonlord is up.")
                 .tags("slayer", "tarantula", "spider", "skeleton");
-        b.toggle("Mute Error Sound (wrong click / no mana)", () -> config.muteErrorSound, v -> config.muteErrorSound = v)
+        b.toggle("Mute Error Sound (wrong click / no mana)", () -> config.muteErrorSound, v -> config.muteErrorSound = v).fresh()
                 .desc("Also the ability cooldown sound (enderman teleport, pitch 0, volume 8)").tags("cooldown");
-        b.toggle("Mute Jerry-chine Gun", () -> config.muteJerrychine, v -> config.muteJerrychine = v)
+        b.toggle("Mute Jerry-chine Gun", () -> config.muteJerrychine, v -> config.muteJerrychine = v).fresh()
                 .desc("Villager sounds of the Jerry-chine projectiles, matched by their exact volume").tags("jerrygun", "villager");
-        b.toggle("Mute Flower Of Truth", () -> config.muteFlowerOfTruth, v -> config.muteFlowerOfTruth = v)
+        b.toggle("Mute Flower Of Truth", () -> config.muteFlowerOfTruth, v -> config.muteFlowerOfTruth = v).fresh()
                 .desc("Eating sound of the Flower of Truth projectile, matched by its exact pitch").tags("truth", "eat");
-        b.toggle("Quiet F7 Boss Sounds", () -> config.f7BossSounds, v -> config.f7BossSounds = v);
-        b.toggle("  Cancel All Above 1.0", () -> config.f7BossSoundsAboveCap, v -> config.f7BossSoundsAboveCap = v);
-        b.toggle("  Cap at 1.0 Instead of Cancel", () -> config.f7BossSoundsCap, v -> config.f7BossSoundsCap = v);
+        b.toggle("Quiet F7 Boss Sounds", () -> config.f7BossSounds, v -> config.f7BossSounds = v).fresh();
+        b.toggle("  Cancel All Above 1.0", () -> config.f7BossSoundsAboveCap, v -> config.f7BossSoundsAboveCap = v).fresh();
+        b.toggle("  Cap at 1.0 Instead of Cancel", () -> config.f7BossSoundsCap, v -> config.f7BossSoundsCap = v).fresh();
         b.toggle("Custom Hype Sound (wither blades)", () -> config.customHypeSound, v -> config.customHypeSound = v);
         b.soundDropdown("  Hype Sound",
                 com.teslamaps.utils.SoundOptions.keys(),

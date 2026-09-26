@@ -17,63 +17,63 @@ public final class MapCategory {
         b.toggle("Only In Boss", () -> config.mapOnlyInBoss, v -> config.mapOnlyInBoss = v);
         b.toggle("Hide In Boss", () -> config.mapHideInBoss, v -> config.mapHideInBoss = v);
         b.toggle("Show Background", () -> config.showMapBackground, v -> config.showMapBackground = v);
-        b.toggle("Background Image", () -> config.mapBgImage, v -> config.mapBgImage = v)
+        b.toggle("Background Image", () -> config.mapBgImage, v -> config.mapBgImage = v).fresh()
                 .desc("Your own picture behind the map, from config/teslamaps/map_backgrounds");
         b.dropdown("  Image", com.teslamaps.render.gui.MapImage.names(),
-                () -> config.mapBgImageName, v -> config.mapBgImageName = v);
-        b.slider("  Image Opacity", 0.0f, 1.0f, () -> config.mapBgImageAlpha, v -> config.mapBgImageAlpha = v, 2);
-        b.slider("  Image Inset", 0.0f, 10.0f, () -> config.mapBgImageInset, v -> config.mapBgImageInset = v, 0);
-        b.button("  Open Image Folder", com.teslamaps.render.gui.MapImage::openFolder);
+                () -> config.mapBgImageName, v -> config.mapBgImageName = v).fresh();
+        b.slider("  Image Opacity", 0.0f, 1.0f, () -> config.mapBgImageAlpha, v -> config.mapBgImageAlpha = v, 2).fresh();
+        b.slider("  Image Inset", 0.0f, 10.0f, () -> config.mapBgImageInset, v -> config.mapBgImageInset = v, 0).fresh();
+        b.button("  Open Image Folder", com.teslamaps.render.gui.MapImage::openFolder).fresh();
         b.toggle("Center Small Floors", () -> config.mapCenterSmallFloors, v -> config.mapCenterSmallFloors = v);
         b.toggle("Hypixel Map Fallback", () -> config.mapHypixelFallback, v -> config.mapHypixelFallback = v);
-        b.toggle("  Use Room Colors (Typed)", () -> config.mapFallbackTyped, v -> config.mapFallbackTyped = v);
-        b.toggle("Star Mob Radar", () -> config.starMobRadar, v -> config.starMobRadar = v).legit();
-        b.slider("  Radar Size", 0.5f, 2.5f, () -> config.starMobRadarSize, v -> config.starMobRadarSize = v);
-        b.toggle("  Mob Heads", () -> config.starMobRadarHeads, v -> config.starMobRadarHeads = v);
-        b.toggle("  Radar Border", () -> config.starMobRadarBorder, v -> config.starMobRadarBorder = v);
-        b.toggle("  Miniboss Colors", () -> config.starMobRadarMinibossColors, v -> config.starMobRadarMinibossColors = v);
-        b.color("  Radar Dot Color", () -> config.colorStarMobRadar, v -> config.colorStarMobRadar = v);
-        b.color("  Radar Border Color", () -> config.colorStarMobRadarBorder, v -> config.colorStarMobRadarBorder = v);
+        b.toggle("  Use Room Colors (Typed)", () -> config.mapFallbackTyped, v -> config.mapFallbackTyped = v).fresh();
+        b.toggle("Star Mob Radar", () -> config.starMobRadar, v -> config.starMobRadar = v).fresh().legit();
+        b.slider("  Radar Size", 0.5f, 2.5f, () -> config.starMobRadarSize, v -> config.starMobRadarSize = v).fresh();
+        b.toggle("  Mob Heads", () -> config.starMobRadarHeads, v -> config.starMobRadarHeads = v).fresh();
+        b.toggle("  Radar Border", () -> config.starMobRadarBorder, v -> config.starMobRadarBorder = v).fresh();
+        b.toggle("  Miniboss Colors", () -> config.starMobRadarMinibossColors, v -> config.starMobRadarMinibossColors = v).fresh();
+        b.color("  Radar Dot Color", () -> config.colorStarMobRadar, v -> config.colorStarMobRadar = v).fresh();
+        b.color("  Radar Border Color", () -> config.colorStarMobRadarBorder, v -> config.colorStarMobRadarBorder = v).fresh();
         b.toggle("Show Mimic Status", () -> config.showMimicStatus, v -> config.showMimicStatus = v);
         b.toggle("Show Prince Icon", () -> config.showPrinceIcon, v -> config.showPrinceIcon = v);
         b.toggle("Show Prince Status", () -> config.showPrinceStatus, v -> config.showPrinceStatus = v);
         b.toggle("Prince ESP (structure)", () -> config.princeESP, v -> config.princeESP = v);
         b.color("  Prince ESP Color", () -> config.colorPrinceESP, v -> config.colorPrinceESP = v);
         b.toggle("Show Dungeon Score", () -> config.showDungeonScore, v -> config.showDungeonScore = v);
-        b.toggle("  Blaze Done From Party Chat", () -> config.mapBlazeDoneFromChat, v -> config.mapBlazeDoneFromChat = v)
+        b.toggle("  Blaze Done From Party Chat", () -> config.mapBlazeDoneFromChat, v -> config.mapBlazeDoneFromChat = v).fresh()
                 .desc("A party member's \"Blaze Done\" marks the Blaze puzzle solved on map and score");
-        b.toggle("  Needed Secrets: Assume Max Bonus", () -> config.scoreSecretsMaxBonus, v -> config.scoreSecretsMaxBonus = v)
+        b.toggle("  Needed Secrets: Assume Max Bonus", () -> config.scoreSecretsMaxBonus, v -> config.scoreSecretsMaxBonus = v).fresh()
                 .desc("Needed secrets count 5 crypts, the Mimic (F6/F7) and the Prince as if already done");
-        b.toggle("  Needed Secrets: Show Total Instead Of Missing", () -> config.scoreSecretsShowNeeded, v -> config.scoreSecretsShowNeeded = v)
+        b.toggle("  Needed Secrets: Show Total Instead Of Missing", () -> config.scoreSecretsShowNeeded, v -> config.scoreSecretsShowNeeded = v).fresh()
                 .desc("Secrets line reads found/needed/total instead of found/still missing/total");
-        b.toggle("  Total Secrets From Tab Until Scanned", () -> config.scoreSecretsTabTotal, v -> config.scoreSecretsTabTotal = v)
+        b.toggle("  Total Secrets From Tab Until Scanned", () -> config.scoreSecretsTabTotal, v -> config.scoreSecretsTabTotal = v).fresh()
                 .desc("Estimates the total from found secrets and the tab % until every room is scanned");
-        b.toggle("  Count Bat Bonus (+1)", () -> config.batBonusScore, v -> config.batBonusScore = v)
+        b.toggle("  Count Bat Bonus (+1)", () -> config.batBonusScore, v -> config.batBonusScore = v).fresh()
                 .desc("\"A Bat has been slain\" or a party \"Bat killed\" adds +1 bonus score, shows Bat ✔ next to the score");
-        b.channel("    Bat Killed Announce", () -> config.batKilledChannel, v -> config.batKilledChannel = v);
-        b.toggle("Chat Info After Scan", () -> config.mapScanChatInfo, v -> config.mapScanChatInfo = v)
+        b.channel("    Bat Killed Announce", () -> config.batKilledChannel, v -> config.batKilledChannel = v).fresh();
+        b.toggle("Chat Info After Scan", () -> config.mapScanChatInfo, v -> config.mapScanChatInfo = v).fresh()
                 .desc("Puzzles, trap, wither doors, crypts, secrets and minimum secrets once the dungeon is scanned");
-        b.label("Style");
+        b.label("Style").fresh();
         b.buttonRow(new String[]{"Doc Style", "Leg Style", "Default Style"},
                 new Runnable[]{com.teslamaps.map.MapStyle::applyDoc, com.teslamaps.map.MapStyle::applyLeg,
-                        com.teslamaps.map.MapStyle::applyDefault});
+                        com.teslamaps.map.MapStyle::applyDefault}).fresh();
         b.buttonRow(new String[]{"Export Style", "Import Style"},
-                new Runnable[]{com.teslamaps.map.MapStyle::exportToClipboard, com.teslamaps.map.MapStyle::importFromClipboard});
-        b.slider("Room Size", 12f, 27f, () -> config.mapRoomSize, v -> config.mapRoomSize = (float) Math.round(v), 0);
-        b.slider("Door Width", 2f, 20f, () -> config.mapDoorWidth, v -> config.mapDoorWidth = (float) Math.round(v), 0);
-        b.toggle("Normal Doors In Room Color", () -> config.mapDoorsRoomColor, v -> config.mapDoorsRoomColor = v);
+                new Runnable[]{com.teslamaps.map.MapStyle::exportToClipboard, com.teslamaps.map.MapStyle::importFromClipboard}).fresh();
+        b.slider("Room Size", 12f, 27f, () -> config.mapRoomSize, v -> config.mapRoomSize = (float) Math.round(v), 0).fresh();
+        b.slider("Door Width", 2f, 20f, () -> config.mapDoorWidth, v -> config.mapDoorWidth = (float) Math.round(v), 0).fresh();
+        b.toggle("Normal Doors In Room Color", () -> config.mapDoorsRoomColor, v -> config.mapDoorsRoomColor = v).fresh();
         b.dropdown("Text Shadow", new String[]{"Drop", "None", "Outline"},
-                () -> config.mapTextShadow, v -> config.mapTextShadow = v);
-        b.toggle("  Caxton / ModernUI Outline Fix", () -> config.outlinedTextCompat, v -> config.outlinedTextCompat = v)
+                () -> config.mapTextShadow, v -> config.mapTextShadow = v).fresh();
+        b.toggle("  Caxton / ModernUI Outline Fix", () -> config.outlinedTextCompat, v -> config.outlinedTextCompat = v).fresh()
                 .desc("Draws Outline text through Caxton's outline renderer, or offset for ModernUI's text engine. Only does anything with one of those mods installed.")
                 .tags("caxton", "modernui", "font", "outline");
         b.dropdown("Room Name Position", new String[]{"Center L", "Center", "Top Left", "Top Right", "Bottom Left", "Bottom Right"},
-                () -> config.mapNameAlign, v -> config.mapNameAlign = v);
+                () -> config.mapNameAlign, v -> config.mapNameAlign = v).fresh();
         b.dropdown("Map Border", new String[]{"Default", "Solid", "Chroma", "None"},
-                () -> config.mapBorderStyle, v -> config.mapBorderStyle = v);
-        b.color("  Border Color", () -> config.colorMapBorder, v -> config.colorMapBorder = v);
-        b.slider("  Border Width", 0.5f, 10f, () -> config.mapBorderWidth, v -> config.mapBorderWidth = v);
-        b.slider("  Chroma Speed", 0.1f, 5f, () -> config.mapBorderChromaSpeed, v -> config.mapBorderChromaSpeed = v);
+                () -> config.mapBorderStyle, v -> config.mapBorderStyle = v).fresh();
+        b.color("  Border Color", () -> config.colorMapBorder, v -> config.colorMapBorder = v).fresh();
+        b.slider("  Border Width", 0.5f, 10f, () -> config.mapBorderWidth, v -> config.mapBorderWidth = v).fresh();
+        b.slider("  Chroma Speed", 0.1f, 5f, () -> config.mapBorderChromaSpeed, v -> config.mapBorderChromaSpeed = v).fresh();
         b.label("Rooms");
         b.toggle("Show Room Names", () -> config.showRoomNames, v -> config.showRoomNames = v);
         b.toggle("  Hide Entrance/Blood/Fairy Names", () -> config.hideEntranceBloodFairyNames, v -> config.hideEntranceBloodFairyNames = v);
@@ -92,17 +92,17 @@ public final class MapCategory {
         b.toggle("  Show Total Crypts", () -> config.showTotalCrypts, v -> config.showTotalCrypts = v);
         b.toggle("Assume Paul Mayor", () -> config.assumePaulMayor, v -> config.assumePaulMayor = v);
         b.toggle("  Auto-detect Paul (Election API)", () -> config.paulAutoDetect, v -> config.paulAutoDetect = v);
-        b.toggle("Assume No Spirit Pet", () -> config.scoreAssumeNoSpirit, v -> config.scoreAssumeNoSpirit = v)
+        b.toggle("Assume No Spirit Pet", () -> config.scoreAssumeNoSpirit, v -> config.scoreAssumeNoSpirit = v).fresh()
                 .desc("Score: first death costs 2 instead of 1 (the spirit pet check below still wins when it finds out)");
         b.toggle("Check Spirit Pet on First Death", () -> config.spiritPetCheck, v -> config.spiritPetCheck = v);
-        b.keybind("Peek Key (all names + secrets)", () -> config.mapPeekKey, v -> config.mapPeekKey = v);
-        b.toggle("  Peek Key Toggles (instead of hold)", () -> config.mapPeekToggle, v -> config.mapPeekToggle = v);
+        b.keybind("Peek Key (all names + secrets)", () -> config.mapPeekKey, v -> config.mapPeekKey = v).fresh();
+        b.toggle("  Peek Key Toggles (instead of hold)", () -> config.mapPeekToggle, v -> config.mapPeekToggle = v).fresh();
         b.label("Checkmarks");
         b.toggle("Show Checkmarks", () -> config.showCheckmarks, v -> config.showCheckmarks = v);
         b.toggle("  White Checks", () -> config.showWhiteCheckmarks, v -> config.showWhiteCheckmarks = v);
         b.toggle("  Green Checks", () -> config.showGreenCheckmarks, v -> config.showGreenCheckmarks = v);
         b.toggle("  Failed Checks", () -> config.showFailedCheckmarks, v -> config.showFailedCheckmarks = v);
-        b.toggle("  White Blood Check When Watcher Done", () -> config.mapWhiteCheckBlood, v -> config.mapWhiteCheckBlood = v);
+        b.toggle("  White Blood Check When Watcher Done", () -> config.mapWhiteCheckBlood, v -> config.mapWhiteCheckBlood = v).fresh();
         b.toggle("  Checkmark Icons", () -> config.mapCheckmarkIcons, v -> config.mapCheckmarkIcons = v);
         b.dropdown("    Icon Style", new String[]{"Symbol", "IllegalMap", "NEU", "Vanilla New", "Vanilla Old"},
                 () -> config.mapCheckmarkStyle, v -> config.mapCheckmarkStyle = v);
@@ -111,20 +111,20 @@ public final class MapCategory {
         b.toggle("    Question Mark On Unentered", () -> config.mapCheckmarkUnopened, v -> config.mapCheckmarkUnopened = v);
         b.toggle("    Hide When Name Shown", () -> config.mapCheckmarkHideWithName, v -> config.mapCheckmarkHideWithName = v);
         b.dropdown("    Icon Position", new String[]{"Default", "Top Left", "Top Right", "Bottom Left", "Bottom Right"},
-                () -> config.mapCheckmarkAlign, v -> config.mapCheckmarkAlign = v);
+                () -> config.mapCheckmarkAlign, v -> config.mapCheckmarkAlign = v).fresh();
         b.label("Players");
         b.toggle("Player Markers", () -> config.showPlayerMarker, v -> config.showPlayerMarker = v);
         b.toggle("Show Self", () -> config.showSelfMarker, v -> config.showSelfMarker = v);
         b.toggle("Show Others", () -> config.showOtherPlayers, v -> config.showOtherPlayers = v);
-        b.toggle("  Interpolate Far Players", () -> config.mapInterpolatePlayers, v -> config.mapInterpolatePlayers = v)
+        b.toggle("  Interpolate Far Players", () -> config.mapInterpolatePlayers, v -> config.mapInterpolatePlayers = v).fresh()
                 .desc("Markers of out-of-range players glide instead of jumping");
         b.toggle("Show Names", () -> config.showPlayerNames, v -> config.showPlayerNames = v);
-        b.slider("  Name Scale", 0.5f, 3.0f, () -> config.mapPlayerNameScale, v -> config.mapPlayerNameScale = v);
-        b.toggle("  Class Name Instead Of Player", () -> config.mapPlayerClassName, v -> config.mapPlayerClassName = v);
+        b.slider("  Name Scale", 0.5f, 3.0f, () -> config.mapPlayerNameScale, v -> config.mapPlayerNameScale = v).fresh();
+        b.toggle("  Class Name Instead Of Player", () -> config.mapPlayerClassName, v -> config.mapPlayerClassName = v).fresh();
         b.dropdown("  Name Color", new String[]{"Class", "White"},
-                () -> config.mapPlayerNameColor, v -> config.mapPlayerNameColor = v);
+                () -> config.mapPlayerNameColor, v -> config.mapPlayerNameColor = v).fresh();
         b.toggle("Use Heads (vs Markers)", () -> config.useHeadsInsteadOfMarkers, v -> config.useHeadsInsteadOfMarkers = v);
-        b.toggle("  Self As Vanilla Arrow", () -> config.mapSelfVanillaArrow, v -> config.mapSelfVanillaArrow = v);
+        b.toggle("  Self As Vanilla Arrow", () -> config.mapSelfVanillaArrow, v -> config.mapSelfVanillaArrow = v).fresh();
         b.toggle("Rotate Heads", () -> config.rotatePlayerHeads, v -> config.rotatePlayerHeads = v);
         b.toggle("Glow Arrow Marker", () -> config.mapGlowArrow, v -> config.mapGlowArrow = v);
         b.slider("Head Scale", 0.5f, 2.0f,
@@ -142,8 +142,8 @@ public final class MapCategory {
         b.color("Puzzle", () -> config.colorPuzzle, v -> config.colorPuzzle = v);
         b.color("Fairy", () -> config.colorFairy, v -> config.colorFairy = v);
         b.color("Miniboss", () -> config.colorMiniboss, v -> config.colorMiniboss = v);
-        b.toggle("Own Color For Rare Rooms", () -> config.mapRareRoomColor, v -> config.mapRareRoomColor = v);
-        b.color("  Rare Room", () -> config.colorRare, v -> config.colorRare = v);
+        b.toggle("Own Color For Rare Rooms", () -> config.mapRareRoomColor, v -> config.mapRareRoomColor = v).fresh();
+        b.color("  Rare Room", () -> config.colorRare, v -> config.colorRare = v).fresh();
         b.dropdown("Mimic Room", new String[]{"Bright Red", "Tint", "Custom"},
                 () -> config.mapMimicRoomStyle, v -> config.mapMimicRoomStyle = v);
         b.color("  Mimic Room Color", () -> config.colorMimicRoom, v -> config.colorMimicRoom = v);
@@ -152,9 +152,9 @@ public final class MapCategory {
         b.color("Wither Door", () -> config.colorDoorWither, v -> config.colorDoorWither = v);
         b.color("Blood Door", () -> config.colorDoorBlood, v -> config.colorDoorBlood = v);
         b.color("Entrance Door", () -> config.colorDoorEntrance, v -> config.colorDoorEntrance = v);
-        b.toggle("Recolor Opened Doors", () -> config.mapColorOpenDoors, v -> config.mapColorOpenDoors = v)
+        b.toggle("Recolor Opened Doors", () -> config.mapColorOpenDoors, v -> config.mapColorOpenDoors = v).fresh()
                 .desc("Wither and blood doors change color once opened");
-        b.color("  Opened Door", () -> config.colorDoorOpenWither, v -> config.colorDoorOpenWither = v);
+        b.color("  Opened Door", () -> config.colorDoorOpenWither, v -> config.colorDoorOpenWither = v).fresh();
         b.label("Text Colors");
         b.color("Unexplored Text", () -> config.colorTextUnexplored, v -> config.colorTextUnexplored = v);
         b.color("Cleared Text", () -> config.colorTextCleared, v -> config.colorTextCleared = v);
