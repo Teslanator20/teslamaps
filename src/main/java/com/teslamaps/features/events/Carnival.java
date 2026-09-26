@@ -4,7 +4,6 @@ import com.teslamaps.api.ElectionApi;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.FishingHelpers;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.core.BlockPos;
@@ -24,7 +23,6 @@ public final class Carnival {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category(CATEGORY, "Skyblock", true);
         Feature.of("Carnival").section(CATEGORY)
                 .when(Carnival::anyOn)
                 .tick(Carnival::tick)

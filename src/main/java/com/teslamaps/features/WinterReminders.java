@@ -28,12 +28,12 @@ public final class WinterReminders {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("NewYearCakeReminder").section("Timers").when(() -> cfg().newYearCakeReminder)
+        Feature.of("NewYearCakeReminder").section("Events").when(() -> cfg().newYearCakeReminder)
                 .tick(WinterReminders::tick)
                 .serverChat(WinterReminders::onCakeChat)
-                .config("Timers", b -> {
+                .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("New Year Event");
+                    b.label("New Year Celebration");
                     b.toggle("New Year Cake Reminder", () -> c.newYearCakeReminder, v -> c.newYearCakeReminder = v)
                             .desc("During the New Year event: chat reminder every 30s until you claimed the free cake. Click it to open the baker.");
                 });

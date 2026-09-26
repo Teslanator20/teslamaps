@@ -35,7 +35,6 @@ public final class JerryPresentHider {
                 .tick(JerryPresentHider::tick)
                 .config(Carnival.CATEGORY, b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Season of Jerry");
                     b.toggle("Hide Other Players' Presents", () -> c.hideOtherJerryPresents, v -> c.hideOtherJerryPresents = v)
                             .desc("In Jerry's Workshop, gift presents that are not for you and not from you are hidden, name tags included.")
                             .tags("jerry", "present", "gift", "workshop", "winter");

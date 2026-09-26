@@ -3,7 +3,6 @@ package com.teslamaps.features;
 // Ported from Skysoft's DianaLobbyCompromisedWatcher
 import com.teslamaps.api.ElectionApi;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.choco.ChocoData;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.PartyTracker;
 import com.teslamaps.utils.SkyblockUtils;
@@ -39,12 +38,11 @@ public final class DianaLobbyAlert {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("DianaLobbyAlert").section(ChocoData.CATEGORY).when(() -> cfg().dianaLobbyAlert || cfg().dianaBlackHoleTitle)
+        Feature.of("DianaLobbyAlert").section("Events").when(() -> cfg().dianaLobbyAlert || cfg().dianaBlackHoleTitle)
                 .tick(DianaLobbyAlert::tick)
                 .serverChat(DianaLobbyAlert::onChat)
-                .config(ChocoData.CATEGORY, b -> {
+                .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Diana");
                     b.toggle("Diana Lobby Compromised Alert", () -> c.dianaLobbyAlert, v -> c.dianaLobbyAlert = v)
                             .desc("While Diana's Mythological Ritual runs: alerts when the Hub lobby holds this many players outside your party (tab list count).");
                     b.slider("  Stranger Limit", 1, 30, () -> (float) c.dianaLobbyStrangers, v -> c.dianaLobbyStrangers = Math.round(v));

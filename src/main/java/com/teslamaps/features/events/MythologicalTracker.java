@@ -6,7 +6,6 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.Announce;
 import com.teslamaps.features.tracker.Tracker;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.ItemPrice;
 import com.teslamaps.utils.ItemUtil;
@@ -92,7 +91,6 @@ public final class MythologicalTracker {
     }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         tracker = Tracker.create("mythological", "§6§lMythological Tracker")
                 .priceSource(() -> cfg().mythoTrackerPriceSource).maxRows(40)
                 .fixedValue(BURROWS, 0).name(BURROWS, "§7Burrows Dug")
@@ -111,7 +109,6 @@ public final class MythologicalTracker {
                 .hud("mythotracker", MythologicalTracker::render)
                 .config("Events", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Diana");
                     b.toggle("Mythological Tracker", () -> c.mythoTracker, v -> c.mythoTracker = v)
                             .desc("Burrows dug, every mythological creature, drops, coins and profit per hour. "
                                     + "Shown with a spade in hand or while digging in the Hub. Move it in /tmap gui.")

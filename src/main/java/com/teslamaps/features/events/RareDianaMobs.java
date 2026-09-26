@@ -4,7 +4,6 @@ package com.teslamaps.features.events;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.EspStyle;
 import com.teslamaps.utils.EntityCache;
 import com.teslamaps.utils.LoudSound;
@@ -38,8 +37,7 @@ public final class RareDianaMobs {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
-        Feature.of("RareDianaMobs").section("Events").when(() -> cfg().rareDianaMobHighlight)
+        Feature.of("RareDianaMobs").section("Events").legit().when(() -> cfg().rareDianaMobHighlight)
                 .tick(RareDianaMobs::tick)
                 .world(RareDianaMobs::render)
                 .config("Events", b -> {
