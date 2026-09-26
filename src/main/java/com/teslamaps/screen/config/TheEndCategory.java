@@ -24,6 +24,7 @@ public final class TheEndCategory {
         b.toggle("  Day 30 Restart Warning", () -> config.endProtectorDay30Warning, v -> config.endProtectorDay30Warning = v)
                 .desc("Chat warning when stage 4 starts on a lobby at day 30 or later - it might reboot before the golem spawns")
                 .tags("day", "restart", "reboot", "lobby");
+        com.teslamaps.features.theend.DragonFight.config(b);
         b.label("Stage Alerts");
         b.toggle("Stage 4 Title", () -> config.endProtectorStage4Title, v -> config.endProtectorStage4Title = v);
         b.toggle("Stage 4 Sound", () -> config.endProtectorStage4Sound, v -> config.endProtectorStage4Sound = v);

@@ -27,6 +27,7 @@ public final class ArachneQol {
                     b.toggle("  Hide Other Players", () -> c.arachneHidePlayers, v -> c.arachneHidePlayers = v);
                     b.toggle("  Click Through Cobwebs", () -> c.arachneWebClick, v -> c.arachneWebClick = v)
                             .cheat().desc("Cobwebs can't be targeted, so hits go through them onto Arachne");
+                    ArachneTimers.config(b);
                 });
     }
 

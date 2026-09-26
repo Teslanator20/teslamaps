@@ -16,6 +16,7 @@ public class EntityRendererNameMixin {
     private void teslamaps$coloredName(Entity entity, CallbackInfoReturnable<Component> cir) {
         Component tag = cir.getReturnValue();
         Component out = Cosmetics.recolor(entity, tag);
+        out = com.teslamaps.features.DamageSplash.compact(entity, out);
         if (out != tag) cir.setReturnValue(out);
     }
 }

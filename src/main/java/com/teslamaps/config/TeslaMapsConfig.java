@@ -2215,6 +2215,72 @@ public class TeslaMapsConfig {
     public int rockMilestoneHudX = 10;
     public int rockMilestoneHudY = 170;
     public float rockMilestoneHudScale = 1.0f;
+    // w20-00-com
+    public boolean damageIndicator = false;
+    public boolean damageIndicatorDps = true;
+    public boolean damageIndicatorHideTag = false;
+    public float damageIndicatorScale = 1.5f;
+    public boolean dragonTracker = false;
+    public boolean dragonStatusHud = true;
+    public boolean dragonWeightLine = true;
+    public boolean dragonSpawnTitle = true;
+    public java.util.List<String> dragonAlertTypes = new java.util.ArrayList<>(java.util.List.of(
+            "Protector", "Old", "Unstable", "Young", "Strong", "Wise", "Superior"));
+    public boolean dragonSuperiorSound = true;
+    public boolean dragonDpsChat = true;
+    public boolean dragonLootQualityChat = true;
+    public boolean dragonDropTracker = false;
+    public boolean dragonDropAlert = true;
+    public int dragonTrackSinceSuperior = 0;
+    public int dragonTrackSinceAotd = 0;
+    public int dragonTrackSincePet = 0;
+    public int dragonTrackEyes = 0;
+    public int dragonLegendaryPets = 0;
+    public int dragonEpicPets = 0;
+    public int dragonAotds = 0;
+    public java.util.List<String> dragonTrackLast = new java.util.ArrayList<>();
+    public int dragonStatusX = 10;
+    public int dragonStatusY = 120;
+    public float dragonStatusScale = 1.0f;
+    public int dragonDropsX = 10;
+    public int dragonDropsY = 190;
+    public float dragonDropsScale = 1.0f;
+    public boolean damageSplash = false;
+    public boolean damageSplashCompact = true;
+    public int damageSplashPrecision = 4;
+    public String damageSplashNormalColor = "FFFFFF";
+    public String damageSplashCritStart = "FFFF55";
+    public String damageSplashCritEnd = "FF5555";
+    public String damageSplashHide = "Off";
+    public boolean damageSplashHideNonCrit = false;
+    public boolean arachneTimers = false;
+    public boolean arachneStatusHud = true;
+    public boolean arachneAltarText = true;
+    public boolean arachneKillTimer = true;
+    public boolean arachneHideBroodTags = false;
+    public int arachneStatusX = 10;
+    public int arachneStatusY = 120;
+    public float arachneStatusScale = 1.0f;
+    public boolean broodmotherTracker = false;
+    public boolean broodmotherHud = true;
+    public boolean broodmotherChat = true;
+    public boolean broodmotherImminent = true;
+    public boolean broodmotherSpawnAlert = true;
+    public boolean balAlert = false;
+    public int broodmotherX = 10;
+    public int broodmotherY = 100;
+    public float broodmotherScale = 1.0f;
+    public boolean mobHealthHud = false;
+    public java.util.List<String> mobHealthHudMobs = new java.util.ArrayList<>(java.util.List.of(
+            "Inquisitor", "Jawbus", "Plhlegblast", "Ragnarok", "Thunder", "Titanoboa", "Wiki Tiki", "King Minos", "Sphinx", "Manticore"));
+    public int mobHealthHudX = 10;
+    public int mobHealthHudY = 150;
+    public float mobHealthHudScale = 1.0f;
+    public boolean deployableReminder = false;
+    public boolean deployableReminderSlayer = true;
+    public boolean deployableReminderMineshaft = true;
+    public boolean deployableReminderTrophy = true;
+    public float deployableReminderDelay = 5f;
     // w20-04-pet
     public boolean petOverlayExpShare = false;   // exp share pets next to the icon + line
     public boolean petOverlayAnimate = false;    // xp ring eases towards the new value
@@ -6895,6 +6961,10 @@ public class TeslaMapsConfig {
     static void normalize(TeslaMapsConfig c) {
         if (c.petItemSymbols == null) c.petItemSymbols = new java.util.HashMap<>();
         c.petItemSymbols.values().removeIf(java.util.Objects::isNull);
+        if (c.dragonAlertTypes == null) c.dragonAlertTypes = new java.util.ArrayList<>();
+        if (c.dragonTrackLast == null) c.dragonTrackLast = new java.util.ArrayList<>();
+        if (c.mobHealthHudMobs == null) c.mobHealthHudMobs = new java.util.ArrayList<>();
+        if (c.damageSplashHide == null) c.damageSplashHide = "Off";
         if (c.petFavoriteIds == null) c.petFavoriteIds = new java.util.HashSet<>();
         c.petFavoriteIds.remove(null);
         if (c.petKeyUuids == null || c.petKeyUuids.length != 9) c.petKeyUuids = java.util.Arrays.copyOf(c.petKeyUuids == null ? new String[0] : c.petKeyUuids, 9);

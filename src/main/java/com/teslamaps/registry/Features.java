@@ -1059,6 +1059,14 @@ final class Features {
         com.teslamaps.features.pets.PetNametags.register();
         com.teslamaps.features.pets.VisiblePetPosition.register();
         com.teslamaps.features.pets.RockMilestone.register();
+        // w20-00-com
+        com.teslamaps.features.DamageIndicator.register();
+        com.teslamaps.features.theend.DragonFight.register();
+        com.teslamaps.features.DamageSplash.register();
+        com.teslamaps.features.ArachneTimers.register();
+        com.teslamaps.features.BroodmotherTracker.register();
+        com.teslamaps.features.mobvisuals.MobHealthHud.register();
+        com.teslamaps.features.DeployableReminder.register();
         // w20-04-pet
         com.teslamaps.features.pets.PetTitles.register();
         com.teslamaps.features.pets.PetMenus.register();
