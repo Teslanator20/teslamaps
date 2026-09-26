@@ -48,7 +48,7 @@ public class TMapCommand {
             return 1;
         }));
 
-        if (dispatcher.getRoot().getChild("visited") == null) {
+        if (TeslaMapsConfig.get().visitedTracking && dispatcher.getRoot().getChild("visited") == null) {
             dispatcher.register(ClientCommands.literal("visited")
                     .executes(context -> {
                         context.getSource().sendFeedback(Component.literal(com.teslamaps.dungeon.RoomVisits.query("")));

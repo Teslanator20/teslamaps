@@ -107,6 +107,7 @@ public final class PetDragon {
             for (int i = 1; i < COLORS.length; i++) if (COLORS[i].equals(c.petDragonColor)) color = i;
             DragonTintHolder h = (DragonTintHolder) ds;
             h.teslamaps$setPet(true);
+            if (color != 0) com.teslamaps.render.DragonTintTexture.ensure();
             h.teslamaps$setOverlay(color == 0 ? -1 : OverlayTexture.pack(DragonTintHolder.TINT_U + color - 1, DragonTintHolder.TINT_V));
         }
         s.shadowPieces.clear();

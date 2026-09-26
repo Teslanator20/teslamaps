@@ -238,7 +238,7 @@ public final class TooltipTweaks {
 
     private static void missing(ItemStack stack, Extra extra) {
         SbRepo.load();
-        if (!SbRepo.loaded()) return;
+        if (!SbRepo.loaded() || !SbRepo.itemEnchantsReady()) return;
         extra.missingDone = true;
         CompoundTag enchants = data(stack).getCompoundOrEmpty("enchantments");
         if (enchants.isEmpty()) return;

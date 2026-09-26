@@ -23,7 +23,8 @@ public class SlayerHUD {
 
     private static final Pattern PHASE_PATTERN = Pattern.compile("(SPIRIT|ASHEN|CRYSTAL|AURIC)\\s*♨(\\d+)");
 
-    private static final Pattern MINIBOSS_PATTERN = Pattern.compile("(?:♨\\s*)?(Burningsoul|Kindleheart|Flare)\\s*Demon\\s*([\\d.]+)([kKmMbB]?)❤");
+    private static final Pattern MINIBOSS_PATTERN_FLARE = Pattern.compile("(?:♨\\s*)?(Burningsoul|Kindleheart|Flare)\\s*Demon\\s*([\\d.]+)([kKmMbB]?)❤");
+    private static final Pattern MINIBOSS_PATTERN = Pattern.compile("♨\\s*(Burningsoul|Kindleheart)\\s*Demon\\s*([\\d.]+)([kKmMbB]?)❤");
 
     private static final Pattern QUAZII_PATTERN = Pattern.compile("ⓆⓊⒶⓏⒾⒾ\\s*([\\d.]+)([kKmMbB]?)❤");
     private static final Pattern TYPHOEUS_PATTERN = Pattern.compile("ⓉⓎⓅⒽⓄⒺⓊⓈ\\s*([\\d.]+)([kKmMbB]?)❤");
@@ -210,7 +211,7 @@ public class SlayerHUD {
                 continue;
             }
 
-            Matcher minibossMatcher = MINIBOSS_PATTERN.matcher(name);
+            Matcher minibossMatcher = (TeslaMapsConfig.get().slayerFlareDemon ? MINIBOSS_PATTERN_FLARE : MINIBOSS_PATTERN).matcher(name);
             if (minibossMatcher.find()) {
                 String type = minibossMatcher.group(1);
                 if (miniboss1Type == null) {
@@ -498,7 +499,8 @@ public class SlayerHUD {
     }
 
     public static boolean isSlayerMiniboss(String name) {
-        return name.contains("Burningsoul Demon") || name.contains("Kindleheart Demon") || name.contains("Flare Demon")
+        return name.contains("Burningsoul Demon") || name.contains("Kindleheart Demon")
+                || (TeslaMapsConfig.get().slayerFlareDemon && name.contains("Flare Demon"))
                 || containsAny(name, GENERIC_MINIBOSSES);
     }
 

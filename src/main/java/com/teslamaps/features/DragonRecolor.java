@@ -73,7 +73,10 @@ public final class DragonRecolor {
         TeslaMapsConfig c = cfg();
         if (c.dragonRecolor) {
             Integer t = types.get(dragon.getId());
-            if (t != null && t < TINTS.length) return OverlayTexture.pack(TINT_U + t, TINT_V);
+            if (t != null && t < TINTS.length) {
+                com.teslamaps.render.DragonTintTexture.ensure();
+                return OverlayTexture.pack(TINT_U + t, TINT_V);
+            }
         }
         if (c.dragonHideHurt) return OverlayTexture.NO_OVERLAY;
         return -1;

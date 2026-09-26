@@ -207,7 +207,7 @@ public class ConfigProfiles {
             "showPlayerMarker", "showSelfMarker", "showOtherPlayers", "showPlayerNames",
             "useHeadsInsteadOfMarkers", "rotatePlayerHeads",
             // dungeon esp
-            "starredMobESP", "witherKeyESP", "mimicChestESP", "mimicDeadMessage", "princeDeadMessage",
+            "starredMobESP", "lividGlow", "witherKeyESP", "mimicChestESP", "mimicDeadMessage", "princeDeadMessage",
             // hiders (no player hiding)
             "hideDeadMobs", "hideSoulweaverSkull", "hideSkeletonSkull", "hideThrownBones",
             "hideSuperboomTnt", "hideBlessing", "hideReviveStone", "hidePremiumFlesh",

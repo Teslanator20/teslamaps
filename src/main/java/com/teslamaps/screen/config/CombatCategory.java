@@ -21,6 +21,8 @@ public final class CombatCategory {
         b.toggle("  Demon Attunement + IMMUNE", () -> config.slayerAttunementDemons, v -> config.slayerAttunementDemons = v).fresh()
                 .desc("Inferno: Quazii/Typhoeus and other attuned demons get their Hellion Shield colour, IMMUNE is red");
         b.toggle("Miniboss ESP", () -> config.slayerMinibossESP, v -> config.slayerMinibossESP = v);
+        b.toggle("  Include Flare Demon", () -> config.slayerFlareDemon, v -> config.slayerFlareDemon = v).fresh()
+                .desc("Inferno: Flare Demons count as slayer minibosses too");
         b.toggle("Miniboss Tracers", () -> config.slayerMinibossTracer, v -> config.slayerMinibossTracer = v);
         b.slider("  Tracer Width", 1f, 5f, () -> config.slayerMinibossTracerWidth, v -> config.slayerMinibossTracerWidth = v, 1).fresh();
         b.slider("  Tracer Range (0 = any)", 0f, 64f, () -> (float) config.slayerMinibossTracerRange,
