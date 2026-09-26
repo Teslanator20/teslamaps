@@ -116,6 +116,8 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.garden.PestGuess.hideParticle(packet)
                     || com.teslamaps.slayer.InfernoHelper.hideParticle()
                     || com.teslamaps.slayer.SlayerSpawnHiders.hideParticle(packet)
+                    || com.teslamaps.features.fishing.FishingTweaks.hideParticle(packet)
+                    || com.teslamaps.features.fishing.HotspotCircles.onParticle(packet)
                     || com.teslamaps.features.GeyserBox.hideParticle(packet))) ci.cancel();
     }
 
