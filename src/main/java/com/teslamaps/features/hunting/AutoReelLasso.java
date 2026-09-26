@@ -32,7 +32,7 @@ public final class AutoReelLasso {
                     b.toggle("Auto Reel Lasso", () -> c.autoReelLasso, v -> c.autoReelLasso = v).cheat()
                             .desc("Uses the lasso when REEL shows over your leashed animal, after the delay below")
                             .tags("lasso", "reel", "hunting", "auto");
-                    b.slider("  Delay (ms)", 80f, 500f, () -> (float) c.autoReelLassoDelay, v -> c.autoReelLassoDelay = Math.round(v), 0);
+                    b.slider("  Delay (ms)", 150f, 500f, () -> (float) c.autoReelLassoDelay, v -> c.autoReelLassoDelay = Math.round(v), 0);
                     b.slider("  Random Extra (ms)", 0f, 400f, () -> (float) c.autoReelLassoRandom, v -> c.autoReelLassoRandom = Math.round(v), 0);
                 });
     }
@@ -57,7 +57,7 @@ public final class AutoReelLasso {
         if (animal == null || !canReel(mc, animal)) return;
         TeslaMapsConfig c = cfg();
         int extra = c.autoReelLassoRandom > 0 ? ThreadLocalRandom.current().nextInt(c.autoReelLassoRandom + 1) : 0;
-        reelAt = now + Math.max(80, c.autoReelLassoDelay) + extra;
+        reelAt = now + Math.max(150, c.autoReelLassoDelay) + extra;
     }
 
     private static Entity leashed(Minecraft mc) {
