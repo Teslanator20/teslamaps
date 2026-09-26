@@ -47,11 +47,12 @@ public final class PartyInvites {
                             .desc("When someone boops you, a clickable line offers to invite them to your party");
                     b.toggle("  Only On Bingo Profiles", () -> c.partyOnBoopBingoOnly, v -> c.partyOnBoopBingoOnly = v);
                     b.toggle("/rboop Command", () -> c.replyBoop, v -> c.replyBoop = v)
-                            .desc("/rboop boops the last player who messaged you (last 5 minutes)");
+                            .desc("/rboop boops the last player who messaged you (last 5 minutes). Switching needs a rejoin.");
                 });
         ClientSendMessageEvents.ALLOW_COMMAND.register(PartyInvites::allowCommand);
-        ClientCommandRegistrationCallback.EVENT.register((d, ctx) ->
-                d.register(ClientCommands.literal("rboop").executes(x -> { replyBoop(); return 1; })));
+        ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> {
+            if (cfg().replyBoop) d.register(ClientCommands.literal("rboop").executes(x -> { replyBoop(); return 1; }));
+        });
     }
 
     private static boolean allowCommand(String command) {
