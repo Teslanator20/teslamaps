@@ -16,6 +16,8 @@ public final class ForagingCategory {
         b.toggle("Compact Tree Gifts",
                 () -> config.foragingCompactGifts, v -> config.foragingCompactGifts = v);
         b.info("One line instead of the whole gift block, hover kept");
+        b.toggle("  Session Totals in Hover", () -> config.foragingGiftTotals, v -> config.foragingGiftTotals = v)
+                .desc("Adds the rewards of every gift this session, per tree, to the hover. /tmap treegift [reset]");
         b.toggle("  Hide Uncommon Drops", () -> config.foragingGiftHideUncommon, v -> config.foragingGiftHideUncommon = v)
                 .desc("Stretching Sticks, Deep Root");
         b.toggle("  Hide Enchanted Books", () -> config.foragingGiftHideBooks, v -> config.foragingGiftHideBooks = v)
@@ -44,6 +46,9 @@ public final class ForagingCategory {
         b.label("Sounds");
         b.toggle("Mute Phantoms",
                 () -> config.foragingMutePhantoms, v -> config.foragingMutePhantoms = v);
+        b.toggle("  Also in Critter Safari",
+                () -> config.foragingMutePhantomsSafari, v -> config.foragingMutePhantomsSafari = v)
+                .desc("Haunted biome phantoms");
         b.toggle("Mute Fusion Machine",
                 () -> config.foragingMuteFusion, v -> config.foragingMuteFusion = v);
         b.toggle("Mute Tree Breaking",

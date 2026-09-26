@@ -846,5 +846,20 @@ final class Features {
         com.teslamaps.features.hunting.FusionHelper.register();
         com.teslamaps.features.theend.EnderNodeFinder.register();
         com.teslamaps.features.foraging.ForagingTutorial.register();
+        // w17-06-for
+        com.teslamaps.safari.ScrappyFish.register();
+        com.teslamaps.safari.SparklingFocus.register();
+        // w16-08-kuu
+        com.teslamaps.features.kuudra.KuudraContext.register();
+        com.teslamaps.features.kuudra.KuudraProfitTracker.register();
+        com.teslamaps.features.kuudra.KuudraSupplyHelper.register();
+        com.teslamaps.features.kuudra.KuudraSupplyProgress.register();
+        com.teslamaps.features.kuudra.KuudraSupplySplits.register();
+        com.teslamaps.features.kuudra.KuudraArrowPoison.register();
+        com.teslamaps.features.kuudra.KuudraRend.register();
+        com.teslamaps.features.kuudra.KuudraQol.register();
+        com.teslamaps.features.kuudra.KuudraRunTrackers.register();
+        // w16-09-kuu
+        com.teslamaps.features.kuudra.KuudraRunInfo.register();
     }
 }
