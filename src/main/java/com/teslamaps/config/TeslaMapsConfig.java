@@ -2183,6 +2183,45 @@ public class TeslaMapsConfig {
     public com.teslamaps.render.EspStyle riftVerminEsp = new com.teslamaps.render.EspStyle("80FF55FF", com.teslamaps.render.EspStyle.FILLED);
     public boolean riftUbikQuickClose = false;
     public boolean guideRiftGuide = false;
+    // w19-09-cri
+    public boolean crimsonNpcHelper = false;
+    public boolean ashfangHider = false;
+    public boolean ashfangHideParticles = true;
+    public boolean ashfangHideSplashes = true;
+    public boolean ashfangHideFullHpNames = false;
+    public boolean magmaBossStage = false;
+    public boolean magmaBossTitle = true;
+    public boolean magmaBossHud = false;
+    public int magmaBossHudX = 10;
+    public int magmaBossHudY = 200;
+    public float magmaBossHudScale = 1.0f;
+    public boolean atomHitboxes = false;
+    public boolean atomExe = true;
+    public boolean atomWai = true;
+    public boolean atomZee = true;
+    public boolean dojoRankDisplay = false;
+    public boolean rescueAgentPath = false;
+    public boolean rescueSingleColor = false;
+    public String rescueColor = "FFFF55";
+    public boolean crimsonFogColorFix = false;
+    // w19-01-evt
+    public boolean hoppityEggMealTimer = false;
+    public boolean hoppityEggClickMark = false;
+    public boolean hoppityEggGuess = false;
+    public boolean hoppityEggGuessLine = true;
+    public boolean hoppityEggGuessDupes = true;
+    public boolean hoppityEggSpots = false;
+    public boolean hoppityEggSpotsHideFound = false;
+    public boolean upcomingEvents = false;
+    public int upcomingEventsCount = 6;
+    public boolean upcomingEventsReminder = false;
+    public int upcomingEventsLeadMin = 5;
+    public boolean upcomingEventsInventory = false;
+    public int upcomingEventsX = 10;
+    public int upcomingEventsY = 120;
+    public float upcomingEventsScale = 1.0f;
+    public boolean contestTabEvent = false;
+    public boolean noGrassRaycast = false;
     // w19-00-evt
     public boolean snowMinionGiftAlert = false;
     public boolean raffleHighlight = false;
@@ -2579,9 +2618,6 @@ public class TeslaMapsConfig {
     public float hoppityUnclaimedScale = 1.0f;
     @Global
     public java.util.Map<String, Long> hoppityMealClaimed = new java.util.HashMap<>();
-    public boolean timeTowerReminder = false;
-    @Global
-    public long timeTowerEndsAt = 0L;
     public boolean uniqueGiftHighlight = false;
     public boolean uniqueGiftHoldingOnly = false;
     public boolean uniqueGiftNametag = true;
