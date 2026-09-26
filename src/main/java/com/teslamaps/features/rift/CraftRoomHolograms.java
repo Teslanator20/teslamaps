@@ -4,11 +4,9 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.render.EntityAlphaHolder;
 import com.teslamaps.utils.HypixelModApi;
-import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -41,13 +39,11 @@ public final class CraftRoomHolograms {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("CraftRoomHolograms").section("Rift").when(() -> cfg().craftRoomHolograms)
                 .tick(CraftRoomHolograms::tick)
                 .world(CraftRoomHolograms::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Mirrorverse");
                     b.toggle("Crafting Room Holograms", () -> c.craftRoomHolograms, v -> c.craftRoomHolograms = v)
                             .desc("In the Mirrorverse crafting room: mirrors the mobs from behind the wall onto your side as holograms.");
                     b.toggle("  Show Name", () -> c.craftRoomHoloName, v -> c.craftRoomHoloName = v);
@@ -60,7 +56,7 @@ public final class CraftRoomHolograms {
     static boolean inRift() {
         String mode = HypixelModApi.mode();
         if (mode != null) return mode.equalsIgnoreCase("rift");
-        return SkyblockUtils.getArea().contains("Rift");
+        return RiftSpot.inRift();
     }
 
     private static void tick() {

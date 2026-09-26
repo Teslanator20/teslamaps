@@ -3,11 +3,8 @@ package com.teslamaps.features.rift;
 // After SkyHanni's rift/area/stillgorechateau/SplatterHearts.kt
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.FishingHelpers;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
-import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
@@ -31,7 +28,6 @@ public final class RiftSplatterHearts {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("RiftSplatterHearts").section("Rift").when(() -> cfg().riftSplatterHearts)
                 .tickAlways(RiftSplatterHearts::tick)
                 .world(RiftSplatterHearts::render)
@@ -47,8 +43,8 @@ public final class RiftSplatterHearts {
     private static void tick() {
         if (ticks++ % 20 != 0) return;
         boolean on = false;
-        if (Minecraft.getInstance().player != null && SkyblockUtils.getArea().contains("Rift")) {
-            String sub = FishingHelpers.subArea();
+        if (Minecraft.getInstance().player != null && RiftSpot.inRift()) {
+            String sub = RiftSpot.sub();
             on = sub.startsWith("Stillgore") || sub.equals("Oubliette");
         }
         active = on;

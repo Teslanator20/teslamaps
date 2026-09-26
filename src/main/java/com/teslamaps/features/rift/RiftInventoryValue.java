@@ -5,7 +5,6 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.EstimatedValue;
 import com.teslamaps.mixin.HandledScreenAccessor;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.StringUtil;
@@ -46,7 +45,6 @@ public final class RiftInventoryValue {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         feature = Feature.of("RiftInventoryValue").section("Rift").when(() -> cfg().riftInvValue)
                 .tick(RiftInventoryValue::tick)
                 .config("Rift", b -> {
@@ -64,7 +62,7 @@ public final class RiftInventoryValue {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!RiftZone.inRift() || !(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!RiftSpot.inRift() || !(mc.screen instanceof AbstractContainerScreen<?> cs)) {
             if (!lines.isEmpty()) {
                 lines = List.of();
                 shown = List.of();

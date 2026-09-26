@@ -4,12 +4,9 @@ package com.teslamaps.features.rift;
 import com.mojang.authlib.properties.Property;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.FishingHelpers;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.EspStyle;
 import com.teslamaps.utils.ItemUtil;
-import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
@@ -40,15 +37,14 @@ public final class VerminHighlighter {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
-        Feature.of("VerminHighlighter").section("Rift").when(() -> cfg().riftVerminHighlight)
+        Feature.of("VerminHighlighter").section("Rift").legit().when(() -> cfg().riftVerminHighlight)
                 .tick(VerminHighlighter::tick)
                 .world(VerminHighlighter::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
                     b.toggle("Vermin Highlighter", () -> c.riftVerminHighlight, v -> c.riftVerminHighlight = v)
                             .desc("Highlights Flies, Spiders and Silverfish in West Village and the Infested House while the Turbomax Vacuum is in hand")
-                            .tags("vermin", "vacuum", "turbomax", "west village", "silverfish", "fly", "spider", "esp");
+                            .tags("vermin", "vacuum", "turbomax", "west village", "silverfish", "fly", "spider", "esp").legit();
                     b.espStyle("Vermin", () -> c.riftVerminEsp);
                 });
     }
@@ -65,9 +61,9 @@ public final class VerminHighlighter {
     }
 
     private static List<LivingEntity> scan(Minecraft mc) {
-        if (!SkyblockUtils.isInArea("The Rift")) return List.of();
+        if (!RiftSpot.inRift()) return List.of();
         if (!"TURBOMAX_VACUUM".equals(ItemUtil.skyblockId(mc.player.getMainHandItem()))) return List.of();
-        String a = FishingHelpers.subArea();
+        String a = RiftSpot.sub();
         if (!a.equals("West Village") && !a.equals("Infested House")) return List.of();
         List<LivingEntity> out = new ArrayList<>();
         for (Entity e : mc.level.entitiesForRendering()) {

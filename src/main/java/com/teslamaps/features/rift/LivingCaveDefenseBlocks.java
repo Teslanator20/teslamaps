@@ -4,7 +4,6 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.render.EntityGlow;
 import net.minecraft.client.Minecraft;
@@ -53,8 +52,7 @@ public final class LivingCaveDefenseBlocks {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
-        feature = Feature.of("LivingCaveDefenseBlocks").section("Rift").when(() -> cfg().defenseBlocksHighlight)
+        feature = Feature.of("LivingCaveDefenseBlocks").section("Rift").legit().when(() -> cfg().defenseBlocksHighlight)
                 .tick(LivingCaveDefenseBlocks::tick)
                 .world(LivingCaveDefenseBlocks::render)
                 .config("Rift", b -> {
@@ -62,7 +60,7 @@ public final class LivingCaveDefenseBlocks {
                     b.toggle("Defense Blocks", () -> c.defenseBlocksHighlight, v -> c.defenseBlocksHighlight = v)
                             .desc("Living Cave: marks the defense blocks of the Auto mobs with \"Break!\", a line to the mob they protect, "
                                     + "and colors that mob. Flying blocks get a line to your crosshair.")
-                            .tags("defense", "block", "living", "cave", "rift", "autonull", "autocap");
+                            .tags("defense", "block", "living", "cave", "rift", "autonull", "autocap").legit();
                     b.color("  Color", () -> c.defenseBlocksColor, v -> c.defenseBlocksColor = v);
                     b.toggle("  Hide Particles", () -> c.defenseBlocksHideParticles, v -> c.defenseBlocksHideParticles = v);
                 });

@@ -3,7 +3,6 @@ package com.teslamaps.features.rift;
 // After SkyHanni's ShowMotesNpcSellPrice.kt / Skyblocker's MotesTooltip.java, stack detection from Skyblocker's McGrubberUpdater.java
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.SkyblockItems;
 import com.teslamaps.utils.StringUtil;
@@ -40,7 +39,6 @@ public final class MotesPrice {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         feature = Feature.of("MotesPrice").section("Rift").when(() -> cfg().riftMotesPrice)
                 .tick(MotesPrice::tick)
                 .serverChat(MotesPrice::onChat)
@@ -53,7 +51,7 @@ public final class MotesPrice {
                             .desc("Reads the stacks from the Motes Grubber menu, the Consumable Items menu (/sblevels) and orb pickups.");
                 });
         ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
-            if (feature == null || !RiftZone.inRift() || !feature.active()) return;
+            if (feature == null || !RiftSpot.inRift() || !feature.active()) return;
             String line = cache.get(stack);
             if (line == null) {
                 line = build(stack);
@@ -106,7 +104,7 @@ public final class MotesPrice {
         if (!cfg().riftMcGrubberAuto || !(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         if (++screenTicks != 10 && screenTicks != 30) return;
         String title = StringUtil.stripTrim(cs.getTitle().getString());
-        if (RiftZone.inRift() && title.equals("Motes Grubber")) fromGrubber(cs);
+        if (RiftSpot.inRift() && title.equals("Motes Grubber")) fromGrubber(cs);
         else if (title.endsWith("Consumable Items")) fromConsumables(cs);
     }
 
@@ -148,7 +146,7 @@ public final class MotesPrice {
             set(Integer.parseInt(m.group(1)));
             return;
         }
-        if (!cfg().riftMcGrubberAuto || !RiftZone.inRift()) return;
+        if (!cfg().riftMcGrubberAuto || !RiftSpot.inRift()) return;
         m = ORB_PICKUP.matcher(s);
         if (m.matches()) set((Integer.parseInt(m.group(1)) - 5) / 60);
     }

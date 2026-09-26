@@ -9,7 +9,6 @@ import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.qol.QolStore;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.StringUtil;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -41,7 +40,6 @@ public final class EnigmaSouls {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("EnigmaSouls").section("Rift").when(() -> cfg().riftEnigmaSouls)
                 .tick(EnigmaSouls::tick)
                 .world(EnigmaSouls::render)
@@ -80,13 +78,20 @@ public final class EnigmaSouls {
         return souls = List.copyOf(out);
     }
 
+    private static final String BUTTONS_SOUL = "-74,65,-119";
+
+    /** Buttons soul already found per the soul tracking; false while tracking is off. */
+    public static boolean buttonsSoulFound() {
+        return cfg().riftEnigmaSouls && found().contains(BUTTONS_SOUL);
+    }
+
     private static Set<String> found() {
         return QolStore.get().enigmaFound;
     }
 
     private static void tick() {
         if (++ticks % 10 != 0) return;
-        if (!RiftZone.inRift()) {
+        if (!RiftSpot.inRift()) {
             visible = List.of();
             return;
         }
@@ -121,7 +126,7 @@ public final class EnigmaSouls {
     }
 
     private static void onChat(String raw) {
-        if (raw.indexOf("Enigma Soul") < 0 || !RiftZone.inRift()) return;
+        if (raw.indexOf("Enigma Soul") < 0 || !RiftSpot.inRift()) return;
         String t = StringUtil.stripTrim(raw);
         if (t.equals("SOUL! You unlocked an Enigma Soul!") || t.equals("You have already found that Enigma Soul!")) mark(true);
     }

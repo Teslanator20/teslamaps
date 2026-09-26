@@ -3,7 +3,6 @@ package com.teslamaps.features.rift;
 // After SkyHanni's LivingMetalSuitProgress.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.ItemUtil;
 import net.minecraft.client.DeltaTracker;
@@ -34,7 +33,6 @@ public final class LivingMetalSuitProgress {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         HudEditElement.of("riftLivingMetalHud", "Living Metal Suit").section("Rift")
                 .enabled(() -> cfg().riftLivingMetalHud)
                 .size(() -> lines.length > 0 ? w : Minecraft.getInstance().font.width(SAMPLE[1]),
@@ -48,7 +46,6 @@ public final class LivingMetalSuitProgress {
                 .hud("riftlivingmetal", LivingMetalSuitProgress::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Living Cave");
                     b.toggle("Living Metal Suit Progress", () -> c.riftLivingMetalHud, v -> c.riftLivingMetalHud = v)
                             .desc("HUD with the evolution progress of every worn Living Metal piece. Move it in /tmap gui.")
                             .tags("rift", "living metal", "armor", "evolution");

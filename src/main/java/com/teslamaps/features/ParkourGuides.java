@@ -50,11 +50,11 @@ public final class ParkourGuides {
     public static boolean hidePlayers() {
         TeslaMapsConfig c = cfg();
         return c.parkourGuides && c.parkourHidePlayers && c.section("Ordered Waypoints")
-                && com.teslamaps.features.rift.RiftZone.inMirrorverse();
+                && com.teslamaps.features.rift.RiftSpot.inMirrorverse();
     }
 
     private static void tick() {
-        inRift = SkyblockUtils.getArea().toLowerCase().contains("rift");
+        inRift = com.teslamaps.features.rift.RiftSpot.inRift();
         if (!inRift) return;
         if (!loading) load();
         TeslaMapsConfig c = cfg();

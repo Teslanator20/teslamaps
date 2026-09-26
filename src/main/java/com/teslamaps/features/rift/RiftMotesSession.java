@@ -3,7 +3,6 @@ package com.teslamaps.features.rift;
 // Ported from SkyHanni's MotesSession.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import com.teslamaps.utils.TabListUtils;
@@ -23,12 +22,10 @@ public final class RiftMotesSession {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("RiftMotesSession").section("Rift").when(() -> cfg().motesSession)
                 .tick(RiftMotesSession::tick)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Motes");
                     b.toggle("Motes Per Session", () -> c.motesSession, v -> c.motesSession = v)
                             .desc("When you leave the Rift: chat line with the motes gained this visit and motes/h (hover for details). Needs the Rift Info tab widget.");
                 });

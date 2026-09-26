@@ -4,12 +4,9 @@ package com.teslamaps.features.rift;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.tracker.Tracker;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.ItemPrice;
 import com.teslamaps.utils.ItemUtil;
-import com.teslamaps.utils.SkyblockUtils;
-import com.teslamaps.features.FishingHelpers;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -31,9 +28,6 @@ public final class TimiteTracker {
     private static final int HIGHLITE_MOTES = 25_000;
     private static final Set<String> TOOLS = Set.of("ANTI_SENTIENT_PICKAXE", "EON_PICKAXE", "CHRONO_PICKAXE", "TIME_GUN");
 
-    private static final Set<String> MOUNTAINTOP = Set.of("Continuum", "The Mountaintop", "Trial Grounds", "Time-Torn Isles",
-            "Wizardman Bureau", "Wizard Brawl", "Walk of Fame", "Time Chamber");
-
     private static Tracker tracker;
     private static final int[] last = new int[3];
     private static boolean primed, show;
@@ -46,7 +40,6 @@ public final class TimiteTracker {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         tracker = Tracker.create("timite", "§9§lTimite Tracker");
         for (int i = 0; i < ORES.length; i++) tracker.fixedValue(ORES[i], MOTES[i]);
         tracker.extra(v -> {
@@ -69,7 +62,6 @@ public final class TimiteTracker {
                 .hud("rifttimitetracker", TimiteTracker::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Mountaintop");
                     b.toggle("Timite Tracker", () -> c.riftTimiteTracker, v -> c.riftTimiteTracker = v)
                             .desc("Youngite, Timite and Obsolite mined on the Mountaintop with their motes value, craftable Highlite "
                                     + "and the rift time gained. Move it in /tmap gui, reset with /tmap tracker timite reset.")
@@ -88,10 +80,10 @@ public final class TimiteTracker {
             lastLevel = mc.level;
             primed = false;
         }
-        boolean rift = SkyblockUtils.isInArea("The Rift");
+        boolean rift = RiftSpot.inRift();
         if (++areaTicks >= 20) {
             areaTicks = 0;
-            onMountaintop = rift && MOUNTAINTOP.contains(FishingHelpers.subArea());
+            onMountaintop = RiftSpot.inMountaintop();
         }
         show = onMountaintop && (!cfg().riftTimiteTrackerToolOnly || TOOLS.contains(ItemUtil.skyblockId(mc.player.getMainHandItem())));
         if (!rift) {

@@ -4,7 +4,6 @@ package com.teslamaps.features.rift;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.Placeholders;
 import com.teslamaps.utils.StringUtil;
@@ -38,7 +37,6 @@ public final class RiftTimer {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         hud = HudEditElement.of("riftTimer", "Rift Timer").section("Rift")
                 .enabled(() -> cfg().riftTimer)
                 .size(() -> lines.isEmpty() ? TextHud.width(SAMPLE) : width, () -> TextHud.height(lines.isEmpty() ? SAMPLE.size() : lines.size()))
@@ -69,7 +67,7 @@ public final class RiftTimer {
             lines = List.of();
             tagCache.clear();
         }
-        boolean rift = RiftZone.inRift();
+        boolean rift = RiftSpot.inRift();
         nametags = rift && cfg().riftTimerNametag;
         if (!rift) {
             lines = List.of();
@@ -154,7 +152,7 @@ public final class RiftTimer {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null || RiftZone.inMirrorverse()) return;
+        if (mc.options.hideGui || lines.isEmpty() || hud == null || RiftSpot.inMirrorverse()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 

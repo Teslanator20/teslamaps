@@ -127,7 +127,7 @@ public final class MatriarchHelper {
         int color = TeslaMapsConfig.parseColor(cfg().colorMatriarchPearl);
         for (Slime s : pearls) {
             if (s.isRemoved()) continue;
-            ESPRenderer.drawFilledBox(pose, s.getBoundingBox().inflate(0.3), color, cam, true);
+            ESPRenderer.drawFilledBox(pose, s.getBoundingBox().inflate(0.3), color, cam, !com.teslamaps.features.LegitMode.blocksCheats());
         }
         if (!cfg().matriarchLine || route.isEmpty()) return;
         int line = color | 0xFF000000;
