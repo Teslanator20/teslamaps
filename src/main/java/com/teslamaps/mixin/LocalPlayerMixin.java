@@ -13,7 +13,7 @@ public abstract class LocalPlayerMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Input;sprint()Z"))
     private boolean teslamaps$autoSprint(boolean original) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.section("Auto") || !cfg.autoSprint) return original;
+        if (!cfg.section("Auto") || !cfg.autoSprint || !com.teslamaps.features.AutoSprint.allowed()) return original;
         return true;
     }
 }

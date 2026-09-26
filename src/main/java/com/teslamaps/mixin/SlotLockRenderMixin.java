@@ -30,5 +30,6 @@ public abstract class SlotLockRenderMixin {
         com.teslamaps.features.TeleportPads.render(ctx);
         com.teslamaps.features.qol.TiaRelayHelper.render(ctx);
         com.teslamaps.features.choco.ChocoFactory.renderSlots(ctx);
+        com.teslamaps.features.pets.PetMenus.render(ctx);
     }
 }

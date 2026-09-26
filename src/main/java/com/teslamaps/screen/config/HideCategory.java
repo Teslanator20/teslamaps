@@ -142,6 +142,9 @@ public final class HideCategory {
         b.toggle("Hide Fog", () -> config.noFog, v -> config.noFog = v);
         b.toggle("Nether Fog (Crimson Isle)", () -> config.noNetherFog, v -> config.noNetherFog = v);
         b.info("Removes the crimson isle fog even while Hide Fog is off");
+        b.toggle("  Normal Fog Color Under Night Vision", () -> config.crimsonFogColorFix, v -> config.crimsonFogColorFix = v)
+                .desc("Crimson Isle: night vision no longer tints the fog bright. For when you keep the fog (Nether Fog off)")
+                .tags("fog", "crimson", "night vision", "nether");
         b.toggle("Hide Lightning", () -> config.noLightning, v -> config.noLightning = v);
         b.toggle("  Hide Sky Flash", () -> config.noLightningSkyFlash, v -> config.noLightningSkyFlash = v)
                 .desc("The sky no longer lights up when lightning strikes.");

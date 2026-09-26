@@ -113,6 +113,18 @@ public final class RenderCategory {
                 .tags("gift", "jerry", "winter", "snow minion");
         b.toggle("Dungeon Chest Rewards", () -> config.rareDungeonDropEffects, v -> config.rareDungeonDropEffects = v);
         b.toggle("Dye Drops", () -> config.rareDyeDropEffects, v -> config.rareDyeDropEffects = v);
+        b.toggle("Crimson Boss Drops", () -> config.crimsonDropAlert, v -> config.crimsonDropAlert = v)
+                .desc("After a Crimson Isle miniboss DOWN!: scans the ground for Kuudra Keys, Magma Urchins, Ragnarock, "
+                        + "Fire Veil/Freeze/Fury, Wand of Strength, Flaming Fist and Magma Cube pets. Title, chat line and sound")
+                .tags("crimson", "miniboss", "ashfang", "bladesoul", "magma boss", "drop", "loot")
+                .gatedBy("Crimson Isle");
+        b.toggle("  Crimson Boss Loot Tracker", () -> config.crimsonLootTracker, v -> config.crimsonLootTracker = v)
+                .desc("Counts those drops, shown on the Crimson Isle (/tmap gui)")
+                .gatedBy("Crimson Isle");
+        b.buttonRow(new String[]{"Reset Session", "Reset Total", "Session / Total"},
+                new Runnable[]{() -> com.teslamaps.features.crimson.CrimsonDrops.resetTracker(false),
+                        () -> com.teslamaps.features.crimson.CrimsonDrops.resetTracker(true),
+                        com.teslamaps.features.crimson.CrimsonDrops::toggleView});
         b.toggle("Dungeon Ground Drops", () -> config.rareGroundDrops, v -> config.rareGroundDrops = v)
                 .desc("Title + sound when an Ice Spray Wand or Skeleton Master Chestplate drops on the ground");
         b.toggle("  SM Chestplate On All Floors", () -> config.rareGroundDropsSmAllFloors, v -> config.rareGroundDropsSmAllFloors = v)

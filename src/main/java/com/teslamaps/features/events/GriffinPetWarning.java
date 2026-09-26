@@ -4,7 +4,6 @@ package com.teslamaps.features.events;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.pets.PetTracker;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.Minecraft;
@@ -22,12 +21,10 @@ public final class GriffinPetWarning {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         Feature.of("GriffinPetWarning").section("Events").when(() -> cfg().griffinPetWarning)
                 .tick(GriffinPetWarning::tick)
                 .config("Events", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Diana");
                     b.toggle("Griffin Pet Warning", () -> c.griffinPetWarning, v -> c.griffinPetWarning = v)
                             .desc("Title \"Griffin Pet!\" when you hold a Diana spade in the Hub without a Griffin pet out. "
                                     + "Reads the pet from the tab list Pet widget (needs the Skills section on).")

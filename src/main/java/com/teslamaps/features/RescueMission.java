@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// Ported from SkyHanni's RescueMissionWaypoints/ParkourHelper. No island graph navigation here -
-// only the hostage parkour path. Waypoint data is SkyHanni's RescueMissionWaypoints.json, bundled.
+// Ported from SkyHanni's RescueMissionWaypoints/ParkourHelper. Agent/board paths go through
+// IslandNavigation; the parkour start keeps its beacon. Waypoint data is SkyHanni's RescueMissionWaypoints.json, bundled.
 public class RescueMission {
 
     private static final Pattern TIER_PATTERN = Pattern.compile("^(?<tier>[ⓈⒶⒷⒸⒹ]) Rescue Mission$");
@@ -108,13 +108,14 @@ public class RescueMission {
             if (tierWasUnknown) {
                 tierWasUnknown = false;
                 say("§aTier known (" + tier + ") - talk to the Undercover Agent to see the path.");
+                navigateAgent();
             }
             return;
         }
     }
 
     // tab list carries "Barbarian Reputation:" / "Mage Reputation:"; config can override
-    private static String faction() {
+    public static String faction() {
         String forced = TeslaMapsConfig.get().rescueFaction;
         if ("Barbarian".equals(forced)) return "barb";
         if ("Mage".equals(forced)) return "mage";
@@ -162,16 +163,21 @@ public class RescueMission {
         if (text.equals("The guards captured you and threw you out.")) {
             current = -1;
             visible = false;
-        } else if (text.equals("You took too long and the agents found someone else.")
-                || text.equals("[NPC] Undercover Agent: It's too dangerous for you?")
-                || text.equals("You left the area and failed your rescue mission.")) {
+        } else if (text.equals("You took too long and the agents found someone else.")) {
             stop();
+            navigateBoard("ran out of time");
+        } else if (text.equals("[NPC] Undercover Agent: It's too dangerous for you?")
+                || text.equals("You left the area and failed your rescue mission.")) {
+            boolean running = route != null;
+            stop();
+            if (running) retryLink();
         } else if (text.startsWith("[NPC] Undercover Agent:")) {
             // the dialogue varies with the quest state ("Here's what you need to do.",
             // "Good luck out there!", ...), so any remaining agent line starts the path
             if (tier == null) {
                 tierWasUnknown = true;
                 say("§cRescue mission tier not known - open the Rescue quest on the Quest Board once.");
+                navigateBoard("tier unknown");
                 return;
             }
             if (route == null) start();
@@ -179,6 +185,8 @@ public class RescueMission {
             if (tier == null) {
                 tierWasUnknown = true;
                 say("§cRescue mission tier not known - open the Rescue quest on the Quest Board first!");
+            } else {
+                navigateAgent();
             }
         }
     }
@@ -212,6 +220,44 @@ public class RescueMission {
         visible = true;
         say("§aRescue path loaded - tier " + tier + ", " + (side.equals("mage") ? "Mage" : "Barbarian")
                 + ", " + found.size() + " platforms.");
+    }
+
+    private static final Vec3 AGENT_BARB = new Vec3(-16.5, 94, -843.5);
+    private static final Vec3 AGENT_MAGE = new Vec3(-625.5, 120, -959.5);
+    private static final Vec3 BOARD_BARB = new Vec3(-581.5, 101, -687.5);
+    private static final Vec3 BOARD_MAGE = new Vec3(-121.5, 93, -754.5);
+
+    private static void navigateAgent() {
+        if (!TeslaMapsConfig.get().rescueAgentPath) return;
+        String side = faction();
+        if (side == null) return;
+        boolean mage = side.equals("mage");
+        navigate(mage ? AGENT_MAGE : AGENT_BARB, "§5" + (mage ? "Mage" : "Barbarian") + " Undercover Agent");
+    }
+
+    private static void navigateBoard(String reason) {
+        if (!TeslaMapsConfig.get().rescueAgentPath) return;
+        String side = faction();
+        if (side == null) return;
+        navigate(side.equals("mage") ? BOARD_MAGE : BOARD_BARB, "§fQuest Board §7(" + reason + ")");
+    }
+
+    private static void navigate(Vec3 pos, String label) {
+        if (com.teslamaps.features.navigation.IslandNavigation.navigate(pos, label)) return;
+        say("§cTurn on Island Navigation (Ordered Waypoints) for the path to the " + StringUtil.strip(label) + ".");
+    }
+
+    private static void retryLink() {
+        if (!TeslaMapsConfig.get().rescueAgentPath) return;
+        String side = faction();
+        if (side == null) return;
+        String cmd = "/tmap navigate Quest Board (" + (side.equals("mage") ? "Mage" : "Barbarian") + ")";
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§a[TeslaMaps] §eWanna retry the rescue mission? §a§lClick here!")
+                .withStyle(st -> st.withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand(cmd))
+                        .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(
+                                net.minecraft.network.chat.Component.literal("§7Path back to the Quest Board")))));
     }
 
     private static void stop() {
@@ -263,6 +309,9 @@ public class RescueMission {
 
     // SkyHanni's default rainbow: hue steps per platform
     private static int colorForIndex(int index) {
+        if (TeslaMapsConfig.get().rescueSingleColor) {
+            return 0xB0000000 | (TeslaMapsConfig.parseColor(TeslaMapsConfig.get().rescueColor) & 0xFFFFFF);
+        }
         float hue = ((-index / 12f) % 1f + 1f) % 1f;
         return 0xB0000000 | (java.awt.Color.HSBtoRGB(hue, 1f, 0.7f) & 0xFFFFFF);
     }

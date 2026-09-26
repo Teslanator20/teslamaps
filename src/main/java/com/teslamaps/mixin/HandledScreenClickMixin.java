@@ -33,6 +33,10 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
+        if (com.teslamaps.features.rift.UbikQuickClose.onSlotClick((AbstractContainerScreen<?>) (Object) this, type)) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.features.DnaAnalyzerSolver.onSlotClick((AbstractContainerScreen<?>) (Object) this, slotId, type)) {
             ci.cancel();
             return;
@@ -213,6 +217,12 @@ public class HandledScreenClickMixin {
         // picker never saw it from ContainerKeyMixin. Same logic, mouse entry point.
         if (com.teslamaps.features.WardrobeKeys.handleMouse((AbstractContainerScreen<?>) (Object) this, click)) {
             teslamaps$ate("WardrobeKeys", button);
+            cir.setReturnValue(true);
+            return;
+        }
+        if (com.teslamaps.features.pets.PetKeybinds.handleMouse((AbstractContainerScreen<?>) (Object) this, click)
+                || com.teslamaps.features.pets.PetMenus.click((AbstractContainerScreen<?>) (Object) this, mouseX, mouseY, button)) {
+            teslamaps$ate("PetKeybinds", button);
             cir.setReturnValue(true);
             return;
         }

@@ -58,6 +58,10 @@ public final class PetStore {
 
     private static Map<String, Pet> pets = new LinkedHashMap<>();
     private static String activeUuid;
+    private static final int[] SHARE_SLOTS = {30, 31, 32};
+    private static String[] shareUuids = new String[3];
+    private static boolean dirty;
+    private static long dirtySince;
     private static double bagBeastmaster = 1.0;
     private static double invBeastmaster = 0;
     private static boolean loaded;
@@ -92,6 +96,37 @@ public final class PetStore {
 
     private PetStore() {}
 
+    public static boolean isPetsMenu(String strippedTitle) {
+        return MENU.matcher(strippedTitle).matches();
+    }
+
+    /** Exp share pets from the last Exp Sharing menu read; one slot unless Sharing is Caring is active. */
+    static java.util.List<Pet> expSharePets() {
+        ensure();
+        int n = com.teslamaps.api.ElectionApi.hasPerk("Sharing is Caring") ? 3 : 1;
+        java.util.List<Pet> out = new java.util.ArrayList<>(3);
+        for (int i = 0; i < n; i++) {
+            Pet p = shareUuids[i] == null ? null : pets.get(shareUuids[i]);
+            if (p != null) out.add(p);
+        }
+        return out;
+    }
+
+    /** All exp share slots, null for empty; index >= active count = disabled. */
+    static Pet[] expShareSlots() {
+        ensure();
+        Pet[] out = new Pet[3];
+        for (int i = 0; i < 3; i++) out[i] = shareUuids[i] == null ? null : pets.get(shareUuids[i]);
+        return out;
+    }
+
+    static void addExp(Pet p, double xp) {
+        p.exp += xp;
+        p.level = PetConstants.xpToLevel(p.type, p.rarity, p.exp);
+        if (!dirty) dirtySince = System.currentTimeMillis();
+        dirty = true;
+    }
+
     public static void register() {
         Feature.of("PetStore").section("Skills").when(() -> TeslaMapsConfig.get().petOverlay).tick(PetStore::tick);
     }
@@ -101,12 +136,19 @@ public final class PetStore {
         loaded = true;
         pets = new LinkedHashMap<>();
         activeUuid = null;
+        shareUuids = new String[3];
         Path p = FILE.path();
         try {
             if (Files.exists(p)) {
                 JsonObject root = JsonParser.parseString(Files.readString(p)).getAsJsonObject();
                 if (root.has("active") && !root.get("active").isJsonNull()) activeUuid = root.get("active").getAsString();
                 bagBeastmaster = root.has("beastmaster") ? root.get("beastmaster").getAsDouble() : 1.0;
+                if (root.has("share") && root.get("share").isJsonArray()) {
+                    var arr = root.getAsJsonArray("share");
+                    for (int i = 0; i < 3 && i < arr.size(); i++) {
+                        shareUuids[i] = arr.get(i).isJsonNull() ? null : arr.get(i).getAsString();
+                    }
+                }
                 if (root.has("pets")) {
                     Map<String, Pet> read = GSON.fromJson(root.get("pets"), TYPE);
                     if (read != null) pets = read;
@@ -118,10 +160,14 @@ public final class PetStore {
     }
 
     private static void save() {
+        dirty = false;
         try {
             JsonObject root = new JsonObject();
             root.addProperty("active", activeUuid);
             root.addProperty("beastmaster", bagBeastmaster);
+            com.google.gson.JsonArray share = new com.google.gson.JsonArray();
+            for (String u : shareUuids) share.add(u);
+            root.add("share", share);
             root.add("pets", GSON.toJsonTree(pets, TYPE));
             Path p = FILE.path();
             Files.createDirectories(p.getParent());
@@ -169,11 +215,16 @@ public final class PetStore {
         }
         if (++ticks < 10) return;
         ticks = 0;
+        if (dirty && System.currentTimeMillis() - dirtySince > 60_000) save();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         ensure();
         if (title.startsWith("Accessory Bag")) {
             readBag(cs);
+            return;
+        }
+        if (title.equals("Exp Sharing")) {
+            readShare(cs);
             return;
         }
         if (!MENU.matcher(title).matches()) return;
@@ -188,14 +239,7 @@ public final class PetStore {
             JsonObject info = petInfo(item);
             if (info == null || !info.has("type")) continue;
 
-            Pet p = new Pet();
-            p.type = info.get("type").getAsString();
-            p.rarity = tier(info);
-            p.exp = info.has("exp") ? info.get("exp").getAsDouble() : 0;
-            p.heldItem = str(info, "heldItem");
-            p.skin = str(info, "skin");
-            Matcher lvl = NAME.matcher(StringUtil.strip(item.getHoverName().getString()));
-            p.level = lvl.find() ? Integer.parseInt(lvl.group(1)) : PetConstants.xpToLevel(p.type, p.rarity, p.exp);
+            Pet p = fromInfo(info, item);
 
             String uuid = str(info, "uuid");
             if (uuid == null) uuid = p.type + ";" + p.rarity + ";" + (p.skin == null ? "" : p.skin);
@@ -219,6 +263,44 @@ public final class PetStore {
         if (changed) save();
     }
 
+    /** Ported from Skysoft's PetStorageExpSharing.readExpSharePets. */
+    private static void readShare(AbstractContainerScreen<?> cs) {
+        var slots = cs.getMenu().slots;
+        if (slots.size() <= 32) return;
+        String[] read = new String[3];
+        boolean changed = false;
+        for (int i = 0; i < 3; i++) {
+            ItemStack item = slots.get(SHARE_SLOTS[i]).getItem();
+            if (item.isEmpty() || StringUtil.stripTrim(item.getHoverName().getString()).equals("No pet in slot")) continue;
+            JsonObject info = petInfo(item);
+            if (info == null || !info.has("type")) continue;
+            String uuid = str(info, "uuid");
+            if (uuid == null) continue;
+            read[i] = uuid;
+            if (!pets.containsKey(uuid)) {
+                Pet p = fromInfo(info, item);
+                pets.put(uuid, p);
+                changed = true;
+            }
+        }
+        if (changed || !java.util.Arrays.equals(read, shareUuids)) {
+            shareUuids = read;
+            save();
+        }
+    }
+
+    private static Pet fromInfo(JsonObject info, ItemStack item) {
+        Pet p = new Pet();
+        p.type = info.get("type").getAsString();
+        p.rarity = tier(info);
+        p.exp = info.has("exp") ? info.get("exp").getAsDouble() : 0;
+        p.heldItem = str(info, "heldItem");
+        p.skin = str(info, "skin");
+        Matcher lvl = NAME.matcher(StringUtil.strip(item.getHoverName().getString()));
+        p.level = lvl.find() ? Integer.parseInt(lvl.group(1)) : PetConstants.xpToLevel(p.type, p.rarity, p.exp);
+        return p;
+    }
+
     /** Only pages that show a crest update the stored value; the bag has many pages. */
     private static void readBag(AbstractContainerScreen<?> cs) {
         double best = 0;
@@ -232,7 +314,7 @@ public final class PetStore {
         }
     }
 
-    private static JsonObject petInfo(ItemStack item) {
+    static JsonObject petInfo(ItemStack item) {
         CustomData d = item.get(DataComponents.CUSTOM_DATA);
         if (d == null) return null;
         String raw = d.copyTag().getString("petInfo").orElse(null);
@@ -245,7 +327,7 @@ public final class PetStore {
     }
 
     /** petInfo keeps the base tier, a Tier Boost raises it one step. */
-    private static String tier(JsonObject info) {
+    static String tier(JsonObject info) {
         String t = str(info, "tier");
         if (t == null) return null;
         t = t.toUpperCase(Locale.ROOT);
@@ -255,7 +337,7 @@ public final class PetStore {
         return t;
     }
 
-    private static String str(JsonObject o, String key) {
+    static String str(JsonObject o, String key) {
         return o.has(key) && !o.get(key).isJsonNull() ? o.get(key).getAsString() : null;
     }
 }

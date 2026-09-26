@@ -136,6 +136,10 @@ public class ContainerKeyMixin {
             cir.setReturnValue(true);
             return;
         }
+        if (com.teslamaps.features.pets.PetKeybinds.handleKey(cs, event)) {
+            cir.setReturnValue(true);
+            return;
+        }
 
         if (c.pageKeybinds) {
             String want = switch (event.key()) {
