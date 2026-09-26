@@ -69,6 +69,8 @@ public final class KuudraSupplyHelper {
                             .desc("Only the part of the crate hitbox within 3 blocks of your server eye height (sneak 1.54 / stand 1.62)");
                     b.toggle("  Pre-Spawn Circles", () -> c.kuudraSupplyPreCircles, v -> c.kuudraSupplyPreCircles = v)
                             .desc("Circle around each SUPPLIES marker, turns green when your fishing hook lands inside");
+                    KuudraNoPre.config(b);
+                    KuudraPileWaypoints.config(b);
                 });
     }
 

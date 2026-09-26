@@ -37,11 +37,12 @@ public final class KuudraElle {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (KuudraBuild.phase != 2 || mc.level == null || !KuudraBuild.inKuudra()) {
+        if (!KuudraBuild.building() || mc.level == null) {
             elle = null;
             return;
         }
-        if (elle == null || elle.isRemoved() || ++ticks % 20 == 0) elle = find(mc);
+        ticks++;
+        if (elle == null ? ticks % 5 == 0 : elle.isRemoved() || ticks % 20 == 0) elle = find(mc);
         if (elle != null) EspStyle.of(cfg().kuuElleEsp).tickEntity(elle);
     }
 

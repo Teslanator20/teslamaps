@@ -2,11 +2,10 @@ package com.teslamaps.features.kuudra;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.screen.config.ConfigBuilder;
 import com.teslamaps.utils.StringUtil;
 
-/** Shared bits of the w16-09 Kuudra helpers; phase and run start come from KuudraBuild's state tracker. */
+/** Shared bits of the w16-09 Kuudra helpers; phase and run start come from {@link Kuudra}. */
 public final class KuudraRunInfo {
 
     public static final String START = "[NPC] Elle: Okay adventurers, I will go and fish up Kuudra!";
@@ -16,7 +15,6 @@ public final class KuudraRunInfo {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Kuudra", "Skyblock", true);
         KuudraPileWaypoints.register();
         KuudraDoublePearl.register();
         KuudraShopHelper.register();
@@ -45,12 +43,6 @@ public final class KuudraRunInfo {
     /** Rows under KuudraSupply's "Supplies" label. */
     public static void supplyConfig(ConfigBuilder b) {
         TeslaMapsConfig c = cfg();
-        b.toggle("Pile Waypoints", () -> c.kuudraPileWaypoints, v -> c.kuudraPileWaypoints = v)
-                .desc("Beam boxes on the crate piles during supplies; the pile of a \"No <pre>!\" party callout gets the No-Pre color. Positions in config/teslamaps/kuudra_piles.json");
-        b.toggle("  Pile Names", () -> c.kuudraPileNames, v -> c.kuudraPileNames = v);
-        b.color("  Pile Color", () -> c.kuudraPileColor, v -> c.kuudraPileColor = v);
-        b.color("  No-Pre Pile Color", () -> c.kuudraPileNoPreColor, v -> c.kuudraPileNoPreColor = v);
-        b.button("  Reload Pile File", KuudraPileWaypoints::load);
         b.toggle("Double Pearl Warning", () -> c.kuudraDoublePearl, v -> c.kuudraDoublePearl = v)
                 .desc("While picking up a supply: DOUBLE PEARL title and a red box when your pearl would spawn inside a supply giant");
         b.toggle("  Double Pearl Sound", () -> c.kuudraDoublePearlSound, v -> c.kuudraDoublePearlSound = v);

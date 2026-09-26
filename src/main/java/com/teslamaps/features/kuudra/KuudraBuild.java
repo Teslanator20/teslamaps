@@ -4,13 +4,10 @@ package com.teslamaps.features.kuudra;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.utils.LoudSound;
-import com.teslamaps.utils.ScoreboardUtils;
-import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -33,13 +30,10 @@ public final class KuudraBuild {
 
     private static final Pattern BUILD = Pattern.compile("Building Progress:? ?(\\d+)% \\((\\d+) Players? Helping\\)");
     private static final Pattern PILE = Pattern.compile("PROGRESS: (\\d+)%");
-    private static final Pattern TIER = Pattern.compile("Kuudra's Hollow \\(T(\\d)\\)");
     private static final Vec3 BALLISTA = new Vec3(-101.5, 82.0, -105.5);
     private static final String[] SAMPLE = {"§bBuild: §e56%", "§bBuilders: §a3", "§bFreshers: §e1"};
     private static final long COUNTDOWN_MS = 6200;
 
-    public static int phase = 0;
-    public static int tier = 0;
     public static int buildPercent = 0;
     public static int builders = 0;
 
@@ -49,32 +43,28 @@ public final class KuudraBuild {
     private static final List<ArmorStand> hidden = new ArrayList<>();
     private static String[] hudLines = null;
     private static String ballistaBuild, ballistaBuilders;
-    private static long phase2At = 0;
     private static boolean stunAlerted = false;
-    private static Object lastLevel;
     private static int ticks;
     private static HudEditElement hud;
 
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static boolean inKuudra() {
-        return SkyblockUtils.getArea().contains("Kuudra");
+        return Kuudra.inKuudra();
     }
 
-    private static boolean stateNeeded() {
-        TeslaMapsConfig c = cfg();
-        return c.kuuBuildHelper || c.kuuFreshTools || c.kuuElleHighlight || c.kuuSupplyMessage;
+    static boolean building() {
+        return Kuudra.inKuudra() && Kuudra.phase() == Kuudra.Phase.BUILD;
     }
 
     public static void register() {
-        FeatureRegistry.category("Kuudra", "Skyblock", true);
+        Kuudra.LISTENERS.add((prev, now) -> {
+            if (now == Kuudra.Phase.SUPPLIES || now == Kuudra.Phase.NONE) reset();
+        });
         hud = HudEditElement.of("kuuBuildHud", "Kuudra Build").section("Kuudra")
                 .enabled(() -> cfg().kuuBuildHelper && cfg().kuuBuildHud)
                 .size(() -> width(SAMPLE), () -> SAMPLE.length * 10 + 4)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, SAMPLE));
-        Feature.of("KuudraState").section("Kuudra").when(KuudraBuild::stateNeeded)
-                .serverChat(KuudraBuild::onChat)
-                .tick(KuudraBuild::tickState);
         Feature.of("KuudraBuild").section("Kuudra").when(() -> cfg().kuuBuildHelper)
                 .tick(KuudraBuild::tick)
                 .world(KuudraBuild::render)
@@ -98,52 +88,19 @@ public final class KuudraBuild {
                 });
     }
 
-    private static void onChat(String raw) {
-        if (!inKuudra()) return;
-        String t = StringUtil.stripTrim(raw);
-        if (!t.startsWith("[NPC] Elle: ")) return;
-        switch (t) {
-            case "[NPC] Elle: Okay adventurers, I will go and fish up Kuudra!" -> {
-                phase = 1;
-                KuudraSupply.runStart = System.currentTimeMillis();
-            }
-            case "[NPC] Elle: OMG! Great work collecting my supplies!" -> {
-                phase = 2;
-                phase2At = System.currentTimeMillis();
-            }
-            case "[NPC] Elle: Phew! The Ballista is finally ready! It should be strong enough to tank Kuudra's blows now!" -> phase = 3;
-            case "[NPC] Elle: POW! SURELY THAT'S IT! I don't think he has any more in him!" -> phase = 4;
-            default -> {}
-        }
-    }
-
-    private static void tickState() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level != lastLevel) {
-            lastLevel = mc.level;
-            reset();
-        }
-        if (++ticks % 20 != 0 || !inKuudra()) return;
-        for (String line : ScoreboardUtils.getScoreboardLines()) {
-            if (!line.contains("Kuudra's Hollow")) continue;
-            Matcher m = TIER.matcher(ScoreboardUtils.cleanLine(line));
-            if (m.find()) tier = m.group(1).charAt(0) - '0';
-        }
-    }
-
     private static void reset() {
-        phase = 0; tier = 0; buildPercent = 0; builders = 0;
-        piles = List.of(); hidden.clear();
+        buildPercent = 0; builders = 0;
+        piles = List.of(); restoreTags();
         hudLines = null; ballistaBuild = null; ballistaBuilders = null;
-        phase2At = 0; stunAlerted = false;
-        KuudraSupply.runStart = 0;
+        stunAlerted = false;
         KuudraFresh.reset();
     }
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        if (phase != 2 || !inKuudra()) {
+        ticks++;
+        if (!building()) {
             hudLines = null;
             if (!piles.isEmpty()) piles = List.of();
             restoreTags();
@@ -152,7 +109,7 @@ public final class KuudraBuild {
         if (ticks % 10 == 0) scan(mc, c);
         if (!c.kuuBuildHideTags) restoreTags();
 
-        long since = System.currentTimeMillis() - phase2At;
+        long since = System.currentTimeMillis() - Kuudra.startMs(Kuudra.Phase.BUILD);
         List<String> lines = new ArrayList<>(4);
         if (c.kuuBuildCountdown && since < COUNTDOWN_MS) {
             long rem = COUNTDOWN_MS - since;
@@ -167,7 +124,7 @@ public final class KuudraBuild {
         ballistaBuild = "§bBuild " + colorBuild(buildPercent) + "%";
         ballistaBuilders = "§bBuilders " + colorCount(builders);
 
-        if (!stunAlerted && c.kuuBuildStunPercent > 0 && tier >= 3 && buildPercent >= c.kuuBuildStunPercent) {
+        if (!stunAlerted && c.kuuBuildStunPercent > 0 && Kuudra.tier() >= 3 && buildPercent >= c.kuuBuildStunPercent) {
             stunAlerted = true;
             mc.gui.setTitle(Component.literal("§3§lGo to stun"));
             LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 2.0f);
@@ -214,7 +171,7 @@ public final class KuudraBuild {
     }
 
     private static void render(PoseStack pose, Vec3 cam) {
-        if (phase != 2) return;
+        if (!building()) return;
         TeslaMapsConfig c = cfg();
         if (c.kuuBuildBeams) {
             for (Pile p : piles) {

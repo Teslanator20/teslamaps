@@ -63,20 +63,7 @@ public final class VoidgloomBeacon {
                 .when(() -> cfg().voidgloomYangGlyphAlert || cfg().voidgloomBeaconHighlight)
                 .tick(VoidgloomBeacon::tick)
                 .world(VoidgloomBeacon::render)
-                .serverChat(VoidgloomBeacon::onChat)
-                .config("Combat", b -> {
-                    TeslaMapsConfig c = b.config();
-                    b.label("Voidgloom");
-                    b.toggle("Yang Glyph Alert", () -> c.voidgloomYangGlyphAlert, v -> c.voidgloomYangGlyphAlert = v)
-                            .desc("Title \"Yang Glyph!\" with a pling the moment your Voidgloom throws its beacon.")
-                            .tags("voidgloom", "enderman", "beacon", "yang", "glyph", "slayer");
-                    b.toggle("Beacon Highlight", () -> c.voidgloomBeaconHighlight, v -> c.voidgloomBeaconHighlight = v)
-                            .desc("Red line along the flying beacon, the landed beacon filled red through walls "
-                                    + "with a countdown to the explosion.")
-                            .tags("voidgloom", "enderman", "beacon", "yang", "glyph", "slayer");
-                    b.toggle("  Ping on Land", () -> c.voidgloomBeaconPing, v -> c.voidgloomBeaconPing = v)
-                            .desc("Plays a sound when the beacon lands.");
-                });
+                .serverChat(VoidgloomBeacon::onChat);
     }
 
     private static boolean fighting() {
@@ -89,6 +76,20 @@ public final class VoidgloomBeacon {
         paths.clear();
         seenStands.clear();
         beacons.clear();
+    }
+
+    /** Rows under SeraphHelper's "Voidgloom Seraph" label. */
+    static void config(com.teslamaps.screen.config.ConfigBuilder b) {
+        TeslaMapsConfig c = b.config();
+        b.toggle("Yang Glyph Alert", () -> c.voidgloomYangGlyphAlert, v -> c.voidgloomYangGlyphAlert = v)
+                .desc("Title \"Yang Glyph!\" with a pling the moment your Voidgloom throws its beacon.")
+                .tags("voidgloom", "enderman", "beacon", "yang", "glyph", "slayer");
+        b.toggle("Beacon Highlight", () -> c.voidgloomBeaconHighlight, v -> c.voidgloomBeaconHighlight = v)
+                .desc("Red line along the flying beacon, the landed beacon filled red through walls "
+                        + "with a countdown to the explosion.")
+                .tags("voidgloom", "enderman", "beacon", "yang", "glyph", "slayer");
+        b.toggle("  Ping on Land", () -> c.voidgloomBeaconPing, v -> c.voidgloomBeaconPing = v)
+                .desc("Plays a sound when the beacon lands.");
     }
 
     private static void tick() {
