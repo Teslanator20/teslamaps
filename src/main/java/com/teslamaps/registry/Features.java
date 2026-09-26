@@ -981,6 +981,12 @@ final class Features {
         com.teslamaps.features.events.FishyTreatProfit.register();
         com.teslamaps.features.events.StewHelper.register();
         com.teslamaps.features.events.ShinyOrbs.register();
+        // w19-04-rif
+        com.teslamaps.features.rift.LivingMetalSuitProgress.register();
+        com.teslamaps.features.rift.TimiteHelper.register();
+        com.teslamaps.features.rift.SunGeckoHelper.register();
+        com.teslamaps.features.rift.BacteHelper.register();
+        com.teslamaps.features.rift.WiltedBerberisHelper.register();
         // w19-03-rif
         com.teslamaps.features.rift.KloonHacking.register();
         com.teslamaps.features.rift.CruxTalismanDisplay.register();
