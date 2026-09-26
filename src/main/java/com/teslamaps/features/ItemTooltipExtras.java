@@ -2,8 +2,7 @@ package com.teslamaps.features;
 
 // Ported from Devonian's DungeonItemStats.kt/ArmorHexColor.kt, SkyOcean's DungeonQualityLoreModifier.kt,
 // Skyblocker's ColorTooltip.java and SkyHanni's ColorHexInLore.kt
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.teslamaps.utils.SkyblockItems;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.RepoCache;
@@ -19,7 +18,6 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.DyedItemColor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +29,6 @@ import java.util.regex.Pattern;
 public final class ItemTooltipExtras {
 
     public static final String[] QUALITY_STYLES = {"42/50", "42%", "84%"};
-    private static final String COLOR_URL = "https://hysky.de/api/color";
     private static final Pattern HEX = Pattern.compile("#[0-9a-fA-F]{6}");
     private static final long WITHER_GLITCHED_AFTER = 1605830400000L;
 
@@ -65,8 +62,6 @@ public final class ItemTooltipExtras {
     private static final Set<String> ADAPTIVE_CHEST = Set.of("3ABE78", "82E3D8", "BFBCB2", "D579FF", "FF4242", "FFC234");
     private static final Set<String> ADAPTIVE = Set.of("169F57", "2AB5A5", "6E00A0", "BB0000", "BFBCB2", "FFF7E6");
 
-    private static volatile Map<String, String> expected = Map.of();
-    private static volatile boolean fetched;
 
     private static ItemStack lastStack;
     private static int lastKey;
@@ -113,7 +108,7 @@ public final class ItemTooltipExtras {
                     b.toggle("Supercraft Shift Hint", () -> c.supercraftReminder, v -> c.supercraftReminder = v)
                             .desc("\"Shift-Click to maximize the amount!\" on the Supercraft button for stackable results.");
                 });
-        RepoCache.onReload("ItemTooltipExtras", () -> { fetched = false; lastStack = null; });
+        RepoCache.onReload("ItemTooltipExtras", () -> lastStack = null);
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (!stack.isEmpty() && !lines.isEmpty() && feature.active()) onTooltip(stack, lines);
         });
@@ -122,7 +117,7 @@ public final class ItemTooltipExtras {
     private static void onTooltip(ItemStack stack, List<Component> lines) {
         TeslaMapsConfig c = cfg();
         int key = (c.dungeonQualityTooltip ? 1 : 0) | (c.dungeonTierTooltip ? 2 : 0) | (c.armorHexTooltip ? 4 : 0)
-                | (c.armorExoticTooltip ? 8 : 0) | (c.dungeonQualityStyle.hashCode() << 4) | (expected.size() << 20)
+                | (c.armorExoticTooltip ? 8 : 0) | (c.dungeonQualityStyle.hashCode() << 4) | (SkyblockItems.loaded() ? 1 << 20 : 0)
                 ^ ((c.tooltipAnvilUses ? 1 : 0) | (c.tooltipSwordKills ? 2 : 0) | (c.tooltipRecomb ? 4 : 0)) << 27;
         if (stack != lastStack || key != lastKey) {
             lastStack = stack;
@@ -201,7 +196,6 @@ public final class ItemTooltipExtras {
                 MutableComponent line = Component.literal("Color: ").withStyle(ChatFormatting.GRAY)
                         .append(Component.literal("#" + hex).withStyle(Style.EMPTY.withColor(rgb)));
                 if (c.armorExoticTooltip) {
-                    fetch();
                     String id = tag.getString("id").orElse("");
                     String type = exoticType(id, hex, tag);
                     if (type != null) line.append(Component.literal(" (").withStyle(ChatFormatting.DARK_GRAY))
@@ -220,8 +214,8 @@ public final class ItemTooltipExtras {
     }
 
     private static String exoticType(String id, String hex, CompoundTag tag) {
-        String exp = expected.get(id);
-        if (id.isEmpty() || exp == null || exp.equalsIgnoreCase(hex) || tag.contains("dye_item") || isException(id, hex)) return null;
+        int orig = SkyblockItems.dyeColor(id);
+        if (id.isEmpty() || orig < 0 || hex6(orig).equals(hex) || tag.contains("dye_item") || isException(id, hex)) return null;
         if (CRYSTAL.contains(hex)) return "Crystal";
         if (FAIRY.contains(hex)) return "Fairy";
         if (OG_FAIRY.contains(hex)) return "OG Fairy";
@@ -263,28 +257,6 @@ public final class ItemTooltipExtras {
         }
         String misc = MISC_GLITCHED.get(hex);
         return misc != null && id.startsWith(misc);
-    }
-
-    private static void fetch() {
-        if (fetched) return;
-        fetched = true;
-        Thread t = new Thread(() -> {
-            try {
-                JsonElement json = RepoCache.fetch("hysky-color", COLOR_URL, 10);
-                if (!(json instanceof JsonObject o)) return;
-                Map<String, String> out = new HashMap<>();
-                for (Map.Entry<String, JsonElement> e : o.entrySet()) {
-                    String[] rgb = e.getValue().getAsString().split(",");
-                    if (rgb.length != 3) continue;
-                    int v = (Integer.parseInt(rgb[0].trim()) << 16) | (Integer.parseInt(rgb[1].trim()) << 8) | Integer.parseInt(rgb[2].trim());
-                    out.put(e.getKey(), hex6(v));
-                }
-                expected = out;
-            } catch (Exception ignored) {
-            }
-        }, "teslamaps-dyecolors");
-        t.setDaemon(true);
-        t.start();
     }
 
     private static void recolorHex(ItemStack stack, List<Component> lines) {

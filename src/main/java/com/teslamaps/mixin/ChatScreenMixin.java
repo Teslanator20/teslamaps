@@ -18,16 +18,6 @@ import java.util.List;
 @Mixin(ChatScreen.class)
 public class ChatScreenMixin {
 
-    @Inject(method = "handleChatInput", at = @At("HEAD"))
-    private void teslamaps$typedStart(String msg, boolean history, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
-        com.teslamaps.features.ChatEncryption.typing = true;
-    }
-
-    @Inject(method = "handleChatInput", at = @At("RETURN"))
-    private void teslamaps$typedEnd(String msg, boolean history, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
-        com.teslamaps.features.ChatEncryption.typing = false;
-    }
-
     @Inject(method = "removed", at = @At("HEAD"))
     private void teslamaps$saveScroll(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         com.teslamaps.features.ChatKeepScroll.onClose(Minecraft.getInstance().gui.getChat());
@@ -61,15 +51,7 @@ public class ChatScreenMixin {
                                            int mouseX, int mouseY, float delta,
                                            org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         com.teslamaps.features.SharedImageChatRenderer.render(ctx, true, mouseX, mouseY);
-        com.teslamaps.features.ImageLinkPreview.render(ctx, mouseX, mouseY);
         com.teslamaps.features.ChatSearch.render(ctx, input);
-    }
-
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void teslamaps$eliteLbClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && com.teslamaps.features.EliteLeaderboards.onChatClick(event.x(), event.y())) {
-            cir.setReturnValue(true);
-        }
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)

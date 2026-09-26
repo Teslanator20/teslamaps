@@ -52,7 +52,7 @@ public final class CropStats {
 
     static boolean wanted() {
         TeslaMapsConfig c = cfg();
-        return c.cropSpeedMeter || c.cropCalcCommands || c.jacobContestFF || c.eliteLeaderboards || c.fortuneGuide
+        return c.cropSpeedMeter || c.cropCalcCommands || c.jacobContestFF || c.fortuneGuide
                 || GardenCropData.needed();
     }
 

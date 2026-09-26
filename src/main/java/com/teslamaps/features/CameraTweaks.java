@@ -48,7 +48,8 @@ public final class CameraTweaks {
                     b.toggle("Camera Clip (F5)", () -> cfg().cameraClip, v -> cfg().cameraClip = v)
                             .desc("The third person camera goes through blocks instead of moving closer");
                     b.toggle("1.8 Sneak Height", () -> cfg().oldCrouch, v -> cfg().oldCrouch = v)
-                            .desc("Sneaking keeps the 1.8 height. Not on Galatea / The Park");
+                            .desc("Sneaking keeps the 1.8 height. Not on Galatea / The Park")
+                            .cheat();
                     b.toggle("No Swim / Crawl Camera", () -> cfg().noSwimPose, v -> cfg().noSwimPose = v)
                             .desc("Keeps the standing eye height while swimming or crawling");
                 });
@@ -117,7 +118,7 @@ public final class CameraTweaks {
     /** Own player's dimensions for a pose, null = vanilla. */
     public static EntityDimensions poseDimensions(Pose pose, EntityDimensions original, EntityDimensions standing) {
         TeslaMapsConfig c = cfg();
-        if (pose == Pose.CROUCHING ? !c.oldCrouch : pose != Pose.SWIMMING || !c.noSwimPose) return null;
+        if (pose == Pose.CROUCHING ? !c.oldCrouch || LegitMode.blocksCheats() : pose != Pose.SWIMMING || !c.noSwimPose) return null;
         String area = SkyblockUtils.getArea();
         if (area.equalsIgnoreCase("Galatea") || area.equalsIgnoreCase("The Park")) return null;
         return pose == Pose.CROUCHING ? standing.withEyeHeight(1.54f) : original.withEyeHeight(standing.eyeHeight());

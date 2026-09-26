@@ -50,16 +50,11 @@ public final class JacobContests {
     private static final Pattern TOP = Pattern.compile("Top ([\\d.]+%)");
     private static final Pattern SCORE_CROP = Pattern.compile("^\\s*[○\\uE051☘] (.+) \\S+$");
 
-    private static final String URL = "https://api.eliteskyblock.com/contests/at/now";
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("teslamaps").resolve("jacob_contests.json");
-    private static final java.net.http.HttpClient HTTP = java.net.http.HttpClient.newBuilder()
-            .connectTimeout(java.time.Duration.ofSeconds(10)).build();
 
     private static final TreeMap<Long, String[]> contests = new TreeMap<>();
     private static final Map<Long, String> boosted = new java.util.HashMap<>();
     private static boolean loaded;
-    private static volatile boolean fetching;
-    private static long lastFetch;
     private static int ticks;
     private static long warnedStart = Long.MIN_VALUE;
     private static Screen scannedScreen;
@@ -92,7 +87,6 @@ public final class JacobContests {
         long now = System.currentTimeMillis();
         readScoreboard();
         readTab(now);
-        if (cfg().contestCropsFetch && next(now) == null && !fetching && now - lastFetch > 10 * 60_000L) fetch();
         warn(now);
     }
 
@@ -206,49 +200,6 @@ public final class JacobContests {
         if (text.equals("Red Mushroom") || text.equals("Brown Mushroom")) return "Mushroom";
         for (String c : CROPS) if (c.equalsIgnoreCase(text)) return c;
         return null;
-    }
-
-    private static void fetch() {
-        fetching = true;
-        lastFetch = System.currentTimeMillis();
-        java.net.http.HttpRequest req;
-        try {
-            req = java.net.http.HttpRequest.newBuilder(java.net.URI.create(URL))
-                    .timeout(java.time.Duration.ofSeconds(15)).header("User-Agent", "TeslaMaps").GET().build();
-        } catch (Exception e) {
-            fetching = false;
-            return;
-        }
-        HTTP.sendAsync(req, java.net.http.HttpResponse.BodyHandlers.ofString()).whenComplete((resp, err) -> {
-            TreeMap<Long, String[]> got = new TreeMap<>();
-            try {
-                if (err != null) throw err;
-                if (resp.statusCode() != 200) throw new IllegalStateException("HTTP " + resp.statusCode());
-                JsonObject root = JsonParser.parseString(resp.body()).getAsJsonObject();
-                if (root.has("data") && root.get("data").isJsonObject()) root = root.getAsJsonObject("data");
-                JsonObject list = root.getAsJsonObject("contests");
-                if (list != null) {
-                    for (Map.Entry<String, JsonElement> e : list.entrySet()) {
-                        long start = Long.parseLong(e.getKey()) * 1000L;
-                        List<String> crops = new ArrayList<>(3);
-                        for (JsonElement c : e.getValue().getAsJsonArray()) {
-                            String name = cropName(c.getAsString());
-                            if (name != null) crops.add(name);
-                        }
-                        if (crops.size() == 3) got.put(start, crops.toArray(new String[0]));
-                    }
-                }
-            } catch (Throwable e) {
-                TeslaMaps.LOGGER.warn("[Jacob] fetch failed: {}", e.toString());
-            } finally {
-                fetching = false;
-            }
-            if (got.isEmpty()) return;
-            Minecraft.getInstance().execute(() -> {
-                for (Map.Entry<Long, String[]> e : got.entrySet()) contests.putIfAbsent(e.getKey(), e.getValue());
-                save();
-            });
-        });
     }
 
     // --- output ---

@@ -1,27 +1,20 @@
 package com.teslamaps.features;
 
-// After SkyHanni's /ff (GardenApi.kt): its guide moved to EliteSkyblock, this prints our own breakdown plus that link
+// After SkyHanni's /ff (GardenApi.kt), prints our own breakdown
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.ItemUtil;
-import com.teslamaps.utils.SbProfile;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import com.teslamaps.utils.TabListUtils;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 public final class FortuneGuide {
 
@@ -37,8 +30,7 @@ public final class FortuneGuide {
                     TeslaMapsConfig c = b.config();
                     b.label("Farming Fortune Guide");
                     b.toggle("/ff Fortune Guide", () -> c.fortuneGuide, v -> c.fortuneGuide = v)
-                            .desc("/ff or /tmap ff: your fortune from the tab list, held tool and armor, the latest fortune per crop, "
-                                    + "and a link to your EliteSkyblock fortune page with the cheapest upgrades.");
+                            .desc("/ff or /tmap ff: your fortune from the tab list, held tool and armor and the latest fortune per crop.");
                 });
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> {
             d.register(ClientCommands.literal("ff").executes(c -> run(true)));
@@ -92,14 +84,6 @@ public final class FortuneGuide {
         if (!anyCrop) b.append("\n §7None yet - farm a crop for a few seconds");
         msg(b.toString());
 
-        String name = mc.player.getGameProfile().name();
-        String profile = SbProfile.name();
-        String url = "https://eliteskyblock.com/@" + name + "/"
-                + (profile == null || profile.isEmpty() ? "" : URLEncoder.encode(profile, StandardCharsets.UTF_8) + "/") + "fortune#fortune";
-        MutableComponent link = Component.literal("§b[TeslaMaps] §6Click §bhere §6for your fortune progress and cheapest upgrades on EliteSkyblock")
-                .withStyle(s -> s.withClickEvent(new ClickEvent.OpenUrl(URI.create(url)))
-                        .withHoverEvent(new HoverEvent.ShowText(Component.literal("§7" + url))));
-        mc.player.sendSystemMessage(link);
         return 1;
     }
 

@@ -1,10 +1,10 @@
 package com.teslamaps.features;
 
 // Ported from SkyHanni's ZorroCapeContestProtection.kt, LogBookStats.kt, GardenVisitorSupercraft.kt, VisitorListener.kt
+import com.teslamaps.features.croesus.CraftCost;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.ItemUtil;
-import com.teslamaps.utils.NeuRecipeIndex;
 import com.teslamaps.utils.SkyblockItems;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
@@ -22,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -216,14 +215,14 @@ public final class GardenMenuHelpers {
             shopping.merge(id, amount, Integer::sum);
         }
         if (shopping.isEmpty()) return null;
-        Map<String, NeuRecipeIndex.Entry> recipes = NeuRecipeIndex.recipesOrNull();
-        if (recipes == null) return null;
         Map<String, Long> sacks = sackAmounts();
         for (Map.Entry<String, Integer> e : shopping.entrySet()) {
             long have = sacks.getOrDefault(e.getKey(), 0L);
             if (have >= e.getValue()) continue;
-            NeuRecipeIndex.Entry r = recipes.get(e.getKey());
-            if (r == null || r.ingredients() == null || r.ingredients().isEmpty()) continue;
+            List<CraftCost.Recipe> list = CraftCost.recipesOrNull(e.getKey());
+            if (list == null || list.isEmpty()) continue;
+            CraftCost.Recipe r = list.getFirst();
+            if (r.ingredients() == null || r.ingredients().isEmpty()) continue;
             long crafts = (e.getValue() - have + Math.max(1, r.count()) - 1) / Math.max(1, r.count());
             boolean ok = true;
             for (Map.Entry<String, Integer> in : r.ingredients().entrySet()) {

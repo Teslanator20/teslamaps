@@ -31,14 +31,10 @@ public final class EcoOverlays {
     }
 
     public static boolean scroll(double mx, double my, double dy) {
-        return CraftMaterials.scroll(mx, my, dy) || AnitaShop.scroll(mx, my, dy);
+        return AnitaShop.scroll(mx, my, dy);
     }
 
     public static boolean key(int key, Slot hovered) {
-        return PriceHistory.onKey(key, hovered) || CraftMaterials.keyPressed(key);
-    }
-
-    public static boolean charTyped(int cp) {
-        return CraftMaterials.charTyped(cp);
+        return PriceHistory.onKey(key, hovered);
     }
 }

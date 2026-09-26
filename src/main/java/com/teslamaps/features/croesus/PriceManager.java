@@ -64,12 +64,8 @@ public class PriceManager {
     /** Everything, averages included, then {@code done} on the main thread. */
     public static void forceRefreshAll(Runnable done) {
         lastFetch = System.currentTimeMillis();
-        avgFetch = lastFetch;
-        avgBinFetch = lastFetch;
         EXEC.submit(() -> {
             refresh();
-            fetchAverages();
-            fetchAvgBins();
             net.minecraft.client.Minecraft.getInstance().execute(done);
         });
     }
@@ -181,40 +177,6 @@ public class PriceManager {
         return id == null ? null : (buyOrders ? depthBuyOrders : depthSellOffers).get(id);
     }
 
-    private static final Map<String, Double> avgBin1 = new ConcurrentHashMap<>();
-    private static final Map<String, Double> avgBin3 = new ConcurrentHashMap<>();
-    private static volatile long avgBinFetch = 0L;
-
-    /** Skyblocker's 1 / 3 day average lowest BIN, fetched on first use and hourly after. */
-    public static Double avgBinOrNull(String id, int days) {
-        long now = System.currentTimeMillis();
-        if (now - avgBinFetch > (avgBin3.isEmpty() ? 60_000 : 3_600_000)) {
-            avgBinFetch = now;
-            EXEC.submit(PriceManager::fetchAvgBins);
-        }
-        if (id == null) return null;
-        return (days == 1 ? avgBin1 : avgBin3).get(id);
-    }
-
-    private static void fetchAvgBins() {
-        for (int days : new int[]{1, 3}) {
-            try {
-                JsonObject json = JsonParser.parseString(get("https://hysky.de/api/auctions/lowestbins/average?days=" + days)).getAsJsonObject();
-                Map<String, Double> into = days == 1 ? avgBin1 : avgBin3;
-                for (var e : json.entrySet()) {
-                    try { into.put(e.getKey(), e.getValue().getAsDouble()); } catch (Exception ignored) {}
-                }
-            } catch (Exception e) {
-                TeslaMaps.LOGGER.warn("[Croesus] {}-day avg BIN fetch failed: {}", days, e.toString());
-            }
-        }
-        version++;
-    }
-
-    public static int avgBinCount() { return avgBin3.size(); }
-
-    public static int averageCount() { return avg7.size(); }
-
     private static void putTop(Map<String, Double> into, String id, com.google.gson.JsonArray rows) {
         if (rows == null || rows.isEmpty()) {
             into.remove(id);
@@ -260,37 +222,6 @@ public class PriceManager {
     }
 
     public static boolean hasBazaar(String id) { return id != null && bazaar.containsKey(id); }
-
-    private static final Map<String, Double> avg7 = new ConcurrentHashMap<>();
-    private static volatile long avgFetch = 0L;
-
-    /** Odin's 7-day average, fetched on first use and hourly after. */
-    public static Double averageOrNull(String id) {
-        long now = System.currentTimeMillis();
-        if (now - avgFetch > (avg7.isEmpty() ? 60_000 : 3_600_000)) {
-            avgFetch = now;
-            EXEC.submit(PriceManager::fetchAverages);
-        }
-        return id == null ? null : avg7.get(id);
-    }
-
-    private static void fetchAverages() {
-        try {
-            JsonObject json = JsonParser.parseString(get("https://lb.odtheking.com/averages/7day")).getAsJsonObject();
-            for (var e : json.entrySet()) {
-                String k = e.getKey();
-                if (k.startsWith("ENCHANTED_BOOK-")) {
-                    int dash = k.lastIndexOf('-');
-                    if (dash > 15) k = "ENCHANTMENT_" + k.substring(15, dash) + "_" + k.substring(dash + 1);
-                }
-                try { avg7.put(k, e.getValue().getAsDouble()); } catch (Exception ignored) {}
-            }
-            version++;
-            TeslaMaps.LOGGER.info("[Croesus] 7-day averages: {}", avg7.size());
-        } catch (Exception e) {
-            TeslaMaps.LOGGER.warn("[Croesus] averages fetch failed: {}", e.toString());
-        }
-    }
 
     /** BZ instant buy. */
     public static final int SOURCE_BAZAAR_BUY = 0;

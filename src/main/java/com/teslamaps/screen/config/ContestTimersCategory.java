@@ -20,13 +20,10 @@ public final class ContestTimersCategory {
                 () -> config.contestShowFarming, v -> config.contestShowFarming = v);
         b.toggle("    Contest Crops",
                 () -> config.contestCrops, v -> config.contestCrops = v)
-                .desc("The three crops of the running or next Jacob's contest under the farming line, boosted crop in gold. Read from the tab widget, /calendar or EliteSkyblock")
+                .desc("The three crops of the running or next Jacob's contest under the farming line, boosted crop in gold. Read from the tab widget or /calendar")
                 .tags("jacob", "crops", "contest", "boosted");
         b.toggle("      Placement (Top x%)",
                 () -> config.contestCropsPlacement, v -> config.contestCropsPlacement = v);
-        b.toggle("      Fetch From EliteSkyblock",
-                () -> config.contestCropsFetch, v -> config.contestCropsFetch = v)
-                .desc("Loads this year's contests from api.eliteskyblock.com when none is known");
         b.toggle("  Dark Auction Timer",
                 () -> config.contestShowDarkAuction, v -> config.contestShowDarkAuction = v)
                 .desc("Time until the next Dark Auction (every hour at :55)");

@@ -11,7 +11,6 @@ public final class PvExtras {
         return c.pvExtras && sub;
     }
 
-    public static boolean ranks() { return on(TeslaMapsConfig.get().pvEliteRanks); }
     public static boolean gear() { return on(TeslaMapsConfig.get().pvGearScan); }
     public static boolean greenhouse() { return on(TeslaMapsConfig.get().pvGreenhouse); }
     public static boolean fishing() { return on(TeslaMapsConfig.get().pvFishingStats); }
@@ -19,11 +18,4 @@ public final class PvExtras {
     public static boolean miscBags() { return on(TeslaMapsConfig.get().pvMiscBags); }
     public static boolean deepLinks() { return on(TeslaMapsConfig.get().pvDeepLinks); }
     public static boolean levelPage() { return on(TeslaMapsConfig.get().pvLevelHoppity); }
-
-    /** Leaderboard line for a tooltip, or null while ranks are off or unknown. */
-    public static String rankLine(String board) {
-        if (!ranks()) return null;
-        return com.teslamaps.profileviewer.data.EliteRanks.line(
-                com.teslamaps.profileviewer.data.EliteRanks.rank(board));
-    }
 }

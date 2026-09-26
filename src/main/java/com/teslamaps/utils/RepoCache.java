@@ -36,7 +36,7 @@ public final class RepoCache {
 
     /** Downloads and parses {@code url}; falls back to the disk copy. Blocking, call off the main thread. */
     public static JsonElement fetch(String name, String url, int timeoutSeconds) throws Exception {
-        Path file = DIR.resolve(name + ".json");
+        Path file = DIR.resolve(safe(name) + ".json");
         try {
             HttpRequest request = HttpRequest.newBuilder(URI.create(url))
                     .timeout(Duration.ofSeconds(timeoutSeconds)).header("User-Agent", "TeslaMaps").GET().build();
@@ -65,6 +65,11 @@ public final class RepoCache {
             put(new Status(name, "failed", System.currentTimeMillis(), e.toString()));
             throw e;
         }
+    }
+
+    private static String safe(String name) {
+        String s = name.replaceAll("[^A-Za-z0-9_.-]", "_").replace("..", "_");
+        return s.isEmpty() || s.startsWith(".") ? "_" + s : s;
     }
 
     private static synchronized void put(Status s) {

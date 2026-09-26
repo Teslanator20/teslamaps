@@ -111,8 +111,6 @@ public final class ChatCategory {
                 .desc("Clicking the [TeslaMaps] tag of a mod message opens this config screen").tags("prefix", "click");
         b.toggle("Full Chat Chroma", () -> config.fullChatChroma, v -> config.fullChatChroma = v)
                 .desc("All visible chat text cycles through chroma");
-        b.toggle("Encrypted Chat", () -> config.chatEncrypt, v -> config.chatEncrypt = v)
-                .desc("Your chat and /pc /gc /msg text is sent encrypted; only TeslaMaps users can read it. Same as /tmap encrypt on|off. Incoming encrypted lines are always decrypted.");
         b.color("Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v);
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);
         b.dropdown("  Prefix Text", com.teslamaps.features.ChromaPrefix.STYLES,
@@ -331,11 +329,8 @@ public final class ChatCategory {
         b.toggle("    /trade: Only Island Players", () -> config.tabCompleteTradeIsland, v -> config.tabCompleteTradeIsland = v);
         b.toggle("  Suggest /show Slots", () -> config.tabCompleteShowSlots, v -> config.tabCompleteShowSlots = v)
                 .desc("/show, /showitem, /showoff suggest item, helmet, ..., pet.");
-        b.toggle("  More Command Suggestions", () -> config.commandSuggestionsExtra, v -> {
-                    config.commandSuggestionsExtra = v;
-                    if (v) com.teslamaps.command.ExtraSuggestions.load();
-                })
-                .desc("/joininstance, /joindungeon, /joinkuudra, /rngmeter, /chapter, /viewstash, /ahs, /bz, /setmaxspeed. /warp then uses an online list (Skyblocker's) that hides MVP+ warps for lower ranks.")
+        b.toggle("  More Command Suggestions", () -> config.commandSuggestionsExtra, v -> config.commandSuggestionsExtra = v)
+                .desc("/joininstance, /joindungeon, /joinkuudra, /viewstash, /ahs, /bz, /setmaxspeed.")
                 .tags("tab", "autocomplete", "joininstance", "bazaar", "warp");
         b.info("Run /g list and /f list once to fill the name list");
         b.info("Player suggestions need a rejoin, and can clash with Hypixel's own commands");

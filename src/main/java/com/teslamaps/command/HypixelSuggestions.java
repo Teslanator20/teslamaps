@@ -41,10 +41,6 @@ public class HypixelSuggestions {
     }
 
     public static List<String> warps() {
-        if (ExtraSuggestions.enabled()) {
-            List<String> online = ExtraSuggestions.warps();
-            if (online != null) return online;
-        }
         return WARPS;
     }
 

@@ -62,6 +62,7 @@ public class SkyblockItems {
     private static final Map<String, String> nameToId = new ConcurrentHashMap<>();
     private static final Map<String, Double> npcPrices = new ConcurrentHashMap<>();
     private static final Map<String, Double> motesPrices = new ConcurrentHashMap<>();
+    private static final Map<String, Integer> dyeColors = new ConcurrentHashMap<>();
     private static final Map<String, ItemStack> stacks = new ConcurrentHashMap<>();
     private static final Set<String> neuTried = ConcurrentHashMap.newKeySet();
 
@@ -343,6 +344,15 @@ public class SkyblockItems {
                     if (item.has("motes_sell_price")) {
                         motesPrices.put(id, item.get("motes_sell_price").getAsDouble());
                     }
+                    if (item.has("color")) {
+                        String[] rgb = item.get("color").getAsString().split(",");
+                        if (rgb.length == 3) {
+                            try {
+                                dyeColors.put(id, (Integer.parseInt(rgb[0].trim()) << 16)
+                                        | (Integer.parseInt(rgb[1].trim()) << 8) | Integer.parseInt(rgb[2].trim()));
+                            } catch (NumberFormatException ignored) {}
+                        }
+                    }
                 }
                 loaded = true;
                 TeslaMaps.LOGGER.info("Loaded {} skyblock items", items.size());
@@ -532,6 +542,12 @@ public class SkyblockItems {
     }
 
     /** Base Rift motes sell price, 0 if the item has none. */
+    /** Original leather colour from the item table, -1 = none. */
+    public static int dyeColor(String id) {
+        Integer c = dyeColors.get(id);
+        return c == null ? -1 : c;
+    }
+
     public static double motesPrice(String id) {
         return motesPrices.getOrDefault(id, 0.0);
     }

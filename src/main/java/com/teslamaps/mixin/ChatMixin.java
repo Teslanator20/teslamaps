@@ -35,11 +35,6 @@ public class ChatMixin {
 
     @Unique
     private static Component teslamaps$rewrite(Component message) {
-        Component decrypted = com.teslamaps.features.ChatEncryption.decode(message);
-        if (decrypted != null) {
-            com.teslamaps.features.ChatLog.noteRewrite("encryptedChat");
-            message = decrypted;
-        }
         Component shared = com.teslamaps.features.SharedImageChat.decorate(message);
         if (shared != null) {
             com.teslamaps.features.ChatLog.noteRewrite("sharedImage");
@@ -339,7 +334,7 @@ public class ChatMixin {
         out = com.teslamaps.features.mining.ScathaAlerts.rewrite(out);
         out = com.teslamaps.features.fishing.TrophyFishMessages.rewrite(out);
         // before channel compaction, the parser needs "Party > "
-        out = com.teslamaps.features.PlayerChatFormat.rewrite(com.teslamaps.features.ChatTranslator.rewrite(out));
+        out = com.teslamaps.features.PlayerChatFormat.rewrite(out);
         out = com.teslamaps.features.MarkedPlayers.rewrite(out);
         out = com.teslamaps.features.ChatCompact.rewrite(out);
         com.teslamaps.features.ChatLog.shown(out);
