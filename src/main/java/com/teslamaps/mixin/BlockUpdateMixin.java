@@ -26,6 +26,9 @@ public class BlockUpdateMixin {
             if (com.teslamaps.features.mining.TreasureChestHelper.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.mining.TreasureChestHelper.onBlockUpdate(pos, newState);
             }
+            if (com.teslamaps.features.foraging.ForagingHighlighter.listening() && ((Level) (Object) this).isClientSide()) {
+                com.teslamaps.features.foraging.ForagingHighlighter.onBlockUpdate((Level) (Object) this, pos, newState);
+            }
             if (com.teslamaps.features.BpsDisplay.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.BpsDisplay.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
             }

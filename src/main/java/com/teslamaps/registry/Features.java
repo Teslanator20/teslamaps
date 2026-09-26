@@ -849,6 +849,12 @@ final class Features {
         com.teslamaps.features.fishing.TrophyFishHud.register();
         com.teslamaps.features.fishing.TrophyFishMessages.register();
         com.teslamaps.features.fishing.TotemOfCorruption.register();
+        // w17-01-for
+        com.teslamaps.features.foraging.ForagingTracker.register();
+        com.teslamaps.features.hunting.HuntingProfitTracker.register();
+        com.teslamaps.features.foraging.ForagingBeacon.register();
+        com.teslamaps.features.foraging.ForagingHighlighter.register();
+        com.teslamaps.features.foraging.StarlynCompact.register();
         // w17-07-fis
         com.teslamaps.features.fishing.FishingTweaks.register();
         com.teslamaps.features.fishing.HotspotCircles.register();

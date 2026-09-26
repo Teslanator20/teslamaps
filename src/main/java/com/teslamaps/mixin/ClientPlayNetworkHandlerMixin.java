@@ -112,6 +112,7 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.features.MageBeam.onParticle(packet)
                     || com.teslamaps.features.ParticleHiders.hideParticle(packet)
                     || com.teslamaps.features.AbilityRadius.hideParticle(packet)
+                    || com.teslamaps.features.foraging.ThrowingAxeParticles.hideParticle(packet)
                     || com.teslamaps.features.EndermanTeleportHider.hideParticle(packet)
                     || com.teslamaps.features.garden.PestGuess.hideParticle(packet)
                     || com.teslamaps.slayer.InfernoHelper.hideParticle()

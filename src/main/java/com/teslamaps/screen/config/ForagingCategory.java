@@ -65,6 +65,9 @@ public final class ForagingCategory {
                 () -> config.foragingCleanTreeView, v -> config.foragingCleanTreeView = v);
         b.toggle("Hide Rune Effects",
                 () -> config.foragingHideRuneEffects, v -> config.foragingHideRuneEffects = v);
+        b.toggle("Hide Throwing Axe Particles",
+                () -> config.hideThrowingAxeParticles, v -> config.hideThrowingAxeParticles = v)
+                .desc("The wax trail of a flying Throwing Axe. Safari sparkles stay.");
         b.label("Honeycomb");
         b.toggle("Lather Reminder",
                 () -> config.latherReminder, v -> config.latherReminder = v);
@@ -107,6 +110,9 @@ public final class ForagingCategory {
         b.slider("    Max Lines", 1f, 30f, () -> config.honeyhiveMaxLines, v -> config.honeyhiveMaxLines = v, 0);
         b.toggle("  Ready Waypoints", () -> config.honeyhiveReadyWaypoints, v -> config.honeyhiveReadyWaypoints = v);
         b.toggle("  Ready Sound", () -> config.honeyhiveReadySound, v -> config.honeyhiveReadySound = v);
+        b.toggle("  Offer Navigation", () -> config.honeyhiveNavOffer, v -> config.honeyhiveNavOffer = v)
+                .desc("After looting a hive (and on the refill reminder) a chat line paths you to every other ready hive. "
+                        + "Needs Island Navigation. Outside the canyon the reminder warps you there on click.");
         b.label("Heart of the Forest");
         b.toggle("Highlight Perks",
                 () -> config.hotfHighlight, v -> config.hotfHighlight = v);

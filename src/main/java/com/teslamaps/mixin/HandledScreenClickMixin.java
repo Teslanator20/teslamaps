@@ -71,6 +71,10 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
+        if (com.teslamaps.features.foraging.ForagingBeacon.blockClick(slot)) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.features.GardenPlotMenu.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
             ci.cancel();
             return;

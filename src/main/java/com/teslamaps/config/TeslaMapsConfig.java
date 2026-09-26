@@ -2199,6 +2199,37 @@ public class TeslaMapsConfig {
     public String colorTotemRange = "#AA00AA";
     public int deployableTotemWarn = 10;
     public boolean deployableTotemHideParticles = false;
+    // w17-01-for
+    public boolean honeyhiveNavOffer = false;
+    public boolean foragingTracker = false;
+    public boolean foragingTrackerAxeOnly = true;
+    public String foragingTrackerShow = "All";
+    public int foragingTrackerPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public int foragingTrackerX = 10;
+    public int foragingTrackerY = 120;
+    public float foragingTrackerScale = 1.0f;
+    public boolean huntingProfitTracker = false;
+    public boolean huntingProfitAlways = false;
+    public int huntingProfitPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public int huntingProfitTrackerX = 10;
+    public int huntingProfitTrackerY = 140;
+    public float huntingProfitTrackerScale = 1.0f;
+    public boolean beaconSolver = false;
+    public boolean beaconSolverOverClick = true;
+    public int beaconSolverX = 10;
+    public int beaconSolverY = 60;
+    public float beaconSolverScale = 1.0f;
+    public boolean beaconReadyAlert = false;
+    public boolean hideThrowingAxeParticles = false;
+    public boolean foragingHighlighter = false;
+    public boolean foragingHighlightLushlilac = true;
+    public boolean foragingHighlightSeaLumies = true;
+    public float foragingSeaLumiesMin = 3f;
+    public boolean foragingHighlightVeilshroom = true;
+    public boolean foragingHighlightHoneyhives = true;
+    public boolean starlynCompact = false;
+    public boolean starlynCompactResults = true;
+    public boolean starlynCompactPb = true;
     // w17-07-fis
     public boolean hotspotRadarUnknown = false;
     public boolean hideOtherBobbers = false;

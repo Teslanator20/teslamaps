@@ -710,6 +710,27 @@ public final class IslandNavigation {
         return 1;
     }
 
+    /** Visits the graph nodes closest to the given points, shortest order first. */
+    public static boolean navigatePoints(List<Vec3> points, String name) {
+        if (!enabled()) {
+            msg("§cTurn on Island Navigation (Ordered Waypoints) first.");
+            return false;
+        }
+        Node[] g = graph;
+        if (g == null || g.length == 0) {
+            msg("§cNo navigation graph for this island.");
+            return false;
+        }
+        List<Stop> stops = new ArrayList<>();
+        for (Vec3 p : points) {
+            int n = closest(g, p);
+            if (n >= 0) stops.add(new Stop(n, g[n].pos.add(0.5, 0, 0.5), name));
+        }
+        if (stops.isEmpty()) return false;
+        startOptimized(g, stops, name);
+        return true;
+    }
+
     private static int skip(FabricClientCommandSource src) {
         if (route.isEmpty()) {
             src.sendFeedback(Component.literal("§cNo navigation to skip."));

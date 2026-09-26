@@ -48,6 +48,12 @@ public class HoneyhiveReminder {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         lastReminder = now;
+        if (c.honeyhiveNavOffer && c.honeyhiveHelper) {
+            if (inCanyon) HoneyhiveHelper.offer("§eHoneyhives are ready to be collected. §aClick to navigate.");
+            else mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §eHoneyhives are ready to be collected on the Torrhus Canyon. §aClick to warp.")
+                    .withStyle(s -> s.withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/warp torrhus"))));
+            return;
+        }
         mc.player.sendSystemMessage(Component.literal(inCanyon
                 ? "§a[TeslaMaps] §eHoneyhives are ready to be collected."
                 : "§a[TeslaMaps] §eHoneyhives are ready to be collected on the Torrhus Canyon."));
