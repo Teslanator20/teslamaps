@@ -923,5 +923,18 @@ final class Features {
         com.teslamaps.features.events.FrozenTreasureTracker.register();
         com.teslamaps.features.events.GiftProfitTracker.register();
         com.teslamaps.features.events.JerryHighlight.register();
+        // w18-09-evt
+        com.teslamaps.features.HoppityUnclaimedEggs.register();
+        com.teslamaps.features.TimeTowerReminder.register();
+        com.teslamaps.features.UniqueGifting.register();
+        com.teslamaps.features.SphinxHelper.register();
+        com.teslamaps.features.SpookyChestAlert.register();
+        com.teslamaps.features.SpookyCandyDisplay.register();
+        com.teslamaps.features.fishing.SharkCounter.register();
+        // w18-07-evt
+        com.teslamaps.features.GaiaConstructHits.register();
+        com.teslamaps.features.HoppityHelpers.register();
+        // w18-01-fis
+        com.teslamaps.features.fishing.NearbySeaCreatures.register();
     }
 }

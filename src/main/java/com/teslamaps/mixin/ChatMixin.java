@@ -324,6 +324,7 @@ public class ChatMixin {
     private Component teslamaps$filterRewrite(Component message) {
         Component split = com.teslamaps.dungeon.TerminalSplits.rewrite(message);
         if (split != message) com.teslamaps.features.ChatLog.noteRewrite("terminalSplits");
+        split = com.teslamaps.features.SphinxHelper.rewrite(split);
         // pending rewrites first, they match on the unchanged text
         Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.features.BazaarChatSummary.rewrite(com.teslamaps.features.ChatCompacts.rewrite(split)));
         out = com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatCompactsMore.rewrite(out));
