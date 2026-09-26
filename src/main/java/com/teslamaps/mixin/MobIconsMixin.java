@@ -14,6 +14,7 @@ public class MobIconsMixin {
 
     @Inject(method = "extractRenderState", at = @At("TAIL"))
     private void teslamaps$mobIcons(Entity entity, EntityRenderState state, float partialTick, CallbackInfo ci) {
+        if (state.nameTag != null && com.teslamaps.features.hunting.LassoDisplay.hideNameTag(entity)) state.nameTag = null;
         if (state.nameTag != null) state.nameTag = MobIcons.apply(entity, state.nameTag);
     }
 }

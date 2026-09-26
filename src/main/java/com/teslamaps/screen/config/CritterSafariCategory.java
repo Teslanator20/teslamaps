@@ -51,7 +51,7 @@ public final class CritterSafariCategory {
         b.label("Checklist");
         b.toggle("Show Checklist", () -> config.safariChecklist, v -> config.safariChecklist = v);
         b.dropdown("  Biome",
-                new String[] { "Auto", "Cavern", "Forest", "Haunted", "Icy" },
+                new String[] { "Auto", "Cavern", "Forest", "Haunted", "Icy", "All" },
                 () -> config.safariChecklistBiome, v -> config.safariChecklistBiome = v);
         b.toggle("  Check/Cross Icons", () -> config.safariChecklistIcons, v -> config.safariChecklistIcons = v);
         b.toggle("  Spawn Quotas", () -> config.safariQuotas, v -> config.safariQuotas = v)
@@ -69,6 +69,12 @@ public final class CritterSafariCategory {
         b.toggle("  Doomspiral", () -> config.safariBannerDoomspiral, v -> config.safariBannerDoomspiral = v);
         b.toggle("  Only In Its Biome", () -> config.safariBannerBiomeOnly, v -> config.safariBannerBiomeOnly = v);
         b.channel("  Post Stages To", () -> config.safariBannerChannel, v -> config.safariBannerChannel = v);
+        b.toggle("Wumpa Spawn Title", () -> config.safariWumpaTitle, v -> config.safariWumpaTitle = v)
+                .desc("WUMPA SPAWNED! / Icy Biome as a title when the footsteps message comes");
+        b.toggle("  Re-enter Waypoint", () -> config.safariWumpaReenter, v -> config.safariWumpaReenter = v)
+                .desc("Marks the hole back into the Wumpa arena while Wumpa is up");
+        b.toggle("  Capsules Used On Catch", () -> config.safariLegendCapsules, v -> config.safariLegendCapsules = v)
+                .desc("Wumpa / Doomspiral caught: chat line with how many capsules you threw at it");
         b.toggle("Sparkling Alert", () -> config.safariSparklingAlert, v -> config.safariSparklingAlert = v);
         b.channel("  Sparkling Announce", () -> config.safariSparklingChannel, v -> config.safariSparklingChannel = v);
         b.toggle("  Full Screen Alert", () -> config.safariSparklingScreen, v -> config.safariSparklingScreen = v);
@@ -102,6 +108,8 @@ public final class CritterSafariCategory {
                 () -> (float) config.safariAutoHideyhoMinMs, v -> config.safariAutoHideyhoMinMs = (int) (float) v, 0);
         b.slider("  Extra Random (ms)", 0f, 2000f,
                 () -> (float) config.safariAutoHideyhoJitterMs, v -> config.safariAutoHideyhoJitterMs = (int) (float) v, 0);
+        b.toggle("Hideyho Finder", () -> config.safariHideyhoFinder, v -> config.safariHideyhoFinder = v)
+                .desc("After \"No peeking!\" a waypoint walks you through the 20 known hiding spots until Hideyho is in sight");
         b.toggle("Show PB in HUD", () -> config.safariShowPb, v -> config.safariShowPb = v);
         b.toggle("Show Hotspot in HUD", () -> config.safariShowHotspot, v -> config.safariShowHotspot = v);
         b.toggle("Show Head Start in HUD", () -> config.safariShowHeadStart, v -> config.safariShowHeadStart = v);

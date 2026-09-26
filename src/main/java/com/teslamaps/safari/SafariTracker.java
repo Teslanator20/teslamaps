@@ -79,6 +79,16 @@ public class SafariTracker {
     private static SafariData.Biome hotspot = null;
     private static String headStart = null;
     private static boolean wumpaAwake = false;
+    private static boolean wumpaSpawned = false;
+    private static final net.minecraft.core.BlockPos WUMPA_REENTER = new net.minecraft.core.BlockPos(-95, 84, -65);
+
+    /** Filled box on the hole back into the Wumpa arena while it is up. */
+    public static void renderReenter(com.mojang.blaze3d.vertex.PoseStack pose, Vec3 cam) {
+        if (!wumpaSpawned || !SafariData.inSafari()) return;
+        com.teslamaps.render.ESPRenderer.drawFilledBox(pose, new AABB(WUMPA_REENTER), 0x8055FFFF, cam, true);
+        com.teslamaps.features.waypoints.WaypointSet.drawLabel(pose, cam, "§fRe-enter",
+                new Vec3(WUMPA_REENTER.getX() + 0.5, WUMPA_REENTER.getY() + 1.5, WUMPA_REENTER.getZ() + 0.5), 1.0f);
+    }
     private static boolean gemsDone = false;
 
     // one alert per run per subject
@@ -231,6 +241,7 @@ public class SafariTracker {
         }
         if (++panelTicks < 10) return;
         panelTicks = 0;
+        checklistGrid = null;
         cachedLines = !c.safariHud || c.safariHudPanel ? List.of()
                 : isActive() ? buildLines() : showsHere(c, false) ? viewLines(view()) : List.of();
         progressPanel = c.safariHud && c.safariHudPanel && showsHere(c, true) ? progressPanel(view()) : null;
@@ -697,6 +708,7 @@ public class SafariTracker {
         hotspot = null;
         headStart = null;
         wumpaAwake = false;
+        wumpaSpawned = false;
         gemsDone = false;
         boardZeroTicks = 0;
         fullCheckTicks = 0;
@@ -804,6 +816,18 @@ public class SafariTracker {
         if (msg.equals("You rang the bell!")) { bells++; return; }
         if (msg.startsWith("You hear the sound of massive footsteps")) {
             if (!SafariBanners.handles("Wumpa")) alert("wumpa-spawn", "§6§lWUMPA §7has spawned in the Icy Biome");
+            wumpaSpawned = true;
+            TeslaMapsConfig cfg = TeslaMapsConfig.get();
+            if (cfg.safariWumpaTitle) {
+                Minecraft mc = Minecraft.getInstance();
+                mc.gui.setTimes(5, 50, 10);
+                mc.gui.setSubtitle(Component.literal("§eIcy Biome"));
+                mc.gui.setTitle(Component.literal("§b§lWUMPA SPAWNED!"));
+            }
+            return;
+        }
+        if (msg.startsWith("The cave opens up again")) {
+            wumpaSpawned = false;
             return;
         }
         if (msg.equals("The Wumpa has awoken.")) {
@@ -839,6 +863,15 @@ public class SafariTracker {
                 alert("legendary-" + c.name(), "§6§l" + c.name().toUpperCase() + " §7caught");
             }
         }
+        if (count && TeslaMapsConfig.get().safariLegendCapsules
+                && (c.name().equals("Wumpa") || c.name().equals("Doomspiral")) && alerted.add("capsules-" + c.name())) {
+            int n = attempts.getOrDefault(c.name(), 0);
+            String color = c.name().equals("Wumpa") ? "§b§l" : "§5§l";
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player != null) mc.player.sendSystemMessage(Component.literal(color + c.name()
+                    + " §fcaptured! Used §e" + n + " §f" + (n == 1 ? "Critter Capsule" : "Critter Capsules") + "."));
+        }
+        if (c.name().equals("Wumpa")) wumpaSpawned = false;
         if (first || (quotas() && SafariData.quota(c) > 1)) checkDone(c.biome());
         if (first) {
             if (wumpaMissing() == 0) alert("wumpa-ready", "§6§lWUMPA §7ready - 8/8 Icy critters caught");
@@ -1150,7 +1183,14 @@ public class SafariTracker {
         if (wumpa < 8) out.key("wumpa").add("§7Wumpa: §f" + wumpa + "§7/8");
         else if (!caughtAny.contains("Wumpa")) out.key("wumpa").add("§6Wumpa: §aready" + (wumpaAwake ? " §c(awake)" : ""));
 
-        if (c.safariChecklist) {
+        checklistGrid = null;
+        if (c.safariChecklist && "All".equalsIgnoreCase(c.safariChecklistBiome)) {
+            int have = 0;
+            for (SafariData.Biome b : SafariData.Biome.values()) have += doneIn(b);
+            int total = SafariData.ALL.size();
+            out.key("checklist").add("§7Captured Critters: " + (have >= total ? "§a" : "§f") + have + "§7/" + total);
+            checklistGrid = buildGrid(c.safariChecklistIcons);
+        } else if (c.safariChecklist) {
             SafariData.Biome shown = checklistBiome();
             if (shown != null) {
                 out.key("checklist").add(shown.color + "§l" + shown.label + " Biome");
@@ -1161,6 +1201,34 @@ public class SafariTracker {
             }
         }
         return out.build();
+    }
+
+    private record Grid(String[][] cols, int[] xs, int width, int rows) {}
+
+    private static Grid checklistGrid = null;
+
+    /** "All": one column per biome under the other lines. */
+    private static Grid buildGrid(boolean icons) {
+        net.minecraft.client.gui.Font font = Minecraft.getInstance().font;
+        SafariData.Biome[] biomes = SafariData.Biome.values();
+        String[][] cols = new String[biomes.length][];
+        int[] xs = new int[biomes.length];
+        int x = 0, rows = 0;
+        for (int i = 0; i < biomes.length; i++) {
+            SafariData.Biome b = biomes[i];
+            List<String> col = new ArrayList<>();
+            col.add(b.color + "§l" + b.label);
+            for (SafariData.Critter cr : SafariData.ALL) {
+                if (cr.biome() == b) col.add(checklistLine(cr, icons).stripLeading());
+            }
+            cols[i] = col.toArray(new String[0]);
+            rows = Math.max(rows, cols[i].length);
+            xs[i] = x;
+            int w = 0;
+            for (String line : cols[i]) w = Math.max(w, font.width(plain(line)));
+            x += w + 8;
+        }
+        return new Grid(cols, xs, Math.max(0, x - 8), rows);
     }
 
     /** "Auto" follows the biome you are standing in, otherwise the picked one. */
@@ -1267,22 +1335,36 @@ public class SafariTracker {
         pose.scale(scale, scale);
         int ly = 0;
         for (String line : lines) {
-            if (!line.isEmpty() && isMarker(line.charAt(0))) {
-                char marker = line.charAt(0);
-                if (marker == MARK_CHECK) {
-                    com.teslamaps.render.gui.TeslaGui.checkIcon(context, 1, ly, 8, 0xFF55DD55);
-                } else if (marker == MARK_CROSS) {
-                    com.teslamaps.render.gui.TeslaGui.crossIcon(context, 1, ly, 7, 0xFFDD5555);
-                } else {
-                    context.fill(3, ly + 3, 6, ly + 6, 0xFF6A6A6A);
-                }
-                context.text(mc.font, line.substring(1), 0, ly, 0xFFFFFFFF);
-            } else {
-                context.text(mc.font, line, 0, ly, 0xFFFFFFFF);
-            }
+            drawLine(context, mc, line, 0, ly);
             ly += mc.font.lineHeight + 1;
         }
+        Grid grid = checklistGrid;
+        if (grid != null) {
+            for (int i = 0; i < grid.cols().length; i++) {
+                int gy = ly;
+                for (String line : grid.cols()[i]) {
+                    drawLine(context, mc, line, grid.xs()[i], gy);
+                    gy += mc.font.lineHeight + 1;
+                }
+            }
+        }
         pose.popMatrix();
+    }
+
+    private static void drawLine(GuiGraphicsExtractor context, Minecraft mc, String line, int x, int ly) {
+        if (!line.isEmpty() && isMarker(line.charAt(0))) {
+            char marker = line.charAt(0);
+            if (marker == MARK_CHECK) {
+                com.teslamaps.render.gui.TeslaGui.checkIcon(context, x + 1, ly, 8, 0xFF55DD55);
+            } else if (marker == MARK_CROSS) {
+                com.teslamaps.render.gui.TeslaGui.crossIcon(context, x + 1, ly, 7, 0xFFDD5555);
+            } else {
+                context.fill(x + 3, ly + 3, x + 6, ly + 6, 0xFF6A6A6A);
+            }
+            context.text(mc.font, line.substring(1), x, ly, 0xFFFFFFFF);
+        } else {
+            context.text(mc.font, line, x, ly, 0xFFFFFFFF);
+        }
     }
 
     public static int[] previewSize(net.minecraft.client.gui.Font font) {
@@ -1296,6 +1378,12 @@ public class SafariTracker {
             if (!line.isEmpty() && isMarker(line.charAt(0))) line = line.substring(1);
             w = Math.max(w, font.width(line));
         }
-        return new int[] { w, lines.size() * (font.lineHeight + 1) };
+        int h = lines.size() * (font.lineHeight + 1);
+        Grid grid = checklistGrid;
+        if (grid != null) {
+            w = Math.max(w, grid.width());
+            h += grid.rows() * (font.lineHeight + 1);
+        }
+        return new int[] { w, h };
     }
 }

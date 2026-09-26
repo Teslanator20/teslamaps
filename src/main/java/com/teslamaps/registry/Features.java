@@ -852,6 +852,13 @@ final class Features {
         com.teslamaps.features.foraging.SweepOverlay.register();
         com.teslamaps.features.foraging.ShulkerFinder.register();
         com.teslamaps.features.foraging.MoongladeBeacon.register();
+        // w17-05-for
+        com.teslamaps.features.foraging.SweepDetailsHud.register();
+        com.teslamaps.features.mobvisuals.LotumHelper.register();
+        com.teslamaps.safari.HideyhoFinder.register();
+        com.teslamaps.registry.Feature.of("WumpaReenter").section("Critter Safari")
+                .when(() -> com.teslamaps.config.TeslaMapsConfig.get().safariTracker && com.teslamaps.config.TeslaMapsConfig.get().safariWumpaReenter)
+                .world(com.teslamaps.safari.SafariTracker::renderReenter);
         // w17-02-for
         com.teslamaps.features.foraging.FrogMask.register();
         com.teslamaps.features.foraging.TemplePuzzles.register();

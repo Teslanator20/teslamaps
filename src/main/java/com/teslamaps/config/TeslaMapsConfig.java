@@ -2211,6 +2211,21 @@ public class TeslaMapsConfig {
     public boolean treecapCooldown = false;
     public boolean treecapMonkey = true;
     public boolean treecapPredict = false;
+    // w17-05-for
+    public boolean lassoHideNametag = false;
+    public boolean lassoBackground = false;
+    public boolean mobVisualLotumConfirm = false;
+    public boolean mobVisualLotumLine = false;
+    public boolean safariHideyhoFinder = false;
+    public boolean foragingTreeMobTitle = false;
+    public boolean sweepDetailsHud = false;
+    public int sweepDetailsHudX = 10;
+    public int sweepDetailsHudY = 120;
+    public float sweepDetailsHudScale = 1.0f;
+    public boolean safariWumpaTitle = false;
+    public boolean safariWumpaReenter = false;
+    public boolean safariLegendCapsules = false;
+    public boolean tikiSpawnPoints = false;
     // w17-02-for
     public boolean frogMask = false;
     public boolean frogMaskDisplay = true;

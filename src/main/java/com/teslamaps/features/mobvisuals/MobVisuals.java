@@ -491,8 +491,9 @@ public final class MobVisuals {
             // the big frogs are the Puddle Jumper / Frog Prince sea creatures
             if (frog.getBbWidth() > LOTUM_MAX_WIDTH) return null;
             // of the small ones, Lotum is orange and the Atoll Croaker is green
-            return frog.getVariant().is(FrogVariants.COLD)
-                    ? null : Mob.LOTUM;
+            if (frog.getVariant().is(FrogVariants.COLD)) return null;
+            if (TeslaMapsConfig.get().mobVisualLotumConfirm && !LotumHelper.confirmed(frog)) return null;
+            return Mob.LOTUM;
         }
         return null;
     }
