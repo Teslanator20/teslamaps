@@ -46,6 +46,9 @@ public class BlockUpdateMixin {
             if (com.teslamaps.features.mining.MiningNotifications.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.mining.MiningNotifications.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
             }
+            if (com.teslamaps.features.crimson.DojoHelper.listening() && ((Level) (Object) this).isClientSide()) {
+                com.teslamaps.features.crimson.DojoHelper.onBlockUpdate(pos, newState);
+            }
             return;
         }
 
