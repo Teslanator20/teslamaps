@@ -1,0 +1,70 @@
+package com.teslamaps.features.kuudra;
+
+import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.registry.Feature;
+import com.teslamaps.screen.config.ConfigBuilder;
+import com.teslamaps.utils.StringUtil;
+
+/** Shared bits of the w16-09 Kuudra helpers; phase and run start come from {@link Kuudra}. */
+public final class KuudraRunInfo {
+
+    public static final String START = "[NPC] Elle: Okay adventurers, I will go and fish up Kuudra!";
+
+    private KuudraRunInfo() {}
+
+    private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
+
+    public static void register() {
+        KuudraPileWaypoints.register();
+        KuudraDoublePearl.register();
+        KuudraShopHelper.register();
+        KuudraStunWaypoint.register();
+        KuudraLagTracker.register();
+        Feature.of("KuudraGeneralConfig").config("Kuudra", KuudraRunInfo::config);
+    }
+
+    public static boolean inKuudra() {
+        return Kuudra.inKuudra();
+    }
+
+    public static boolean supplies() {
+        return Kuudra.inKuudra() && Kuudra.phase() == Kuudra.Phase.SUPPLIES;
+    }
+
+    /** Wall time of Elle's start line, 0 = none this instance. */
+    public static long startMs() {
+        return Kuudra.runStartMs();
+    }
+
+    public static String strip(String raw) {
+        return StringUtil.strip(raw).trim();
+    }
+
+    /** Rows under KuudraSupply's "Supplies" label. */
+    public static void supplyConfig(ConfigBuilder b) {
+        TeslaMapsConfig c = cfg();
+        b.toggle("Double Pearl Warning", () -> c.kuudraDoublePearl, v -> c.kuudraDoublePearl = v)
+                .desc("While picking up a supply: DOUBLE PEARL title and a red box when your pearl would spawn inside a supply giant");
+        b.toggle("  Double Pearl Sound", () -> c.kuudraDoublePearlSound, v -> c.kuudraDoublePearlSound = v);
+        b.toggle("Shop Helper", () -> c.kuudraShopHelper, v -> c.kuudraShopHelper = v)
+                .desc("Shop / X Cannon: tentacles spawning 9-15s into supplies get matched to S1-S5 / XC1-XC3, boxed, called out in chat, and the saved safe spot for that combo is shown");
+        b.toggle("  Draw Tentacles", () -> c.kuudraShopTentacles, v -> c.kuudraShopTentacles = v);
+        b.color("  Tentacle Color", () -> c.kuudraShopTentacleColor, v -> c.kuudraShopTentacleColor = v);
+        b.color("  Safe Spot Color", () -> c.kuudraShopSafeColor, v -> c.kuudraShopSafeColor = v);
+        b.dropdown("  Spawn Point to Set", KuudraShopHelper.TARGETS, () -> c.kuudraShopTarget, v -> c.kuudraShopTarget = v);
+        b.button("  Set Spawn Point Here", KuudraShopHelper::setTarget);
+        b.button("  Save Safe Spot (Current Combo)", KuudraShopHelper::saveComboSpot);
+        b.button("  Clear Safe Spots (Current Combo)", KuudraShopHelper::clearCombo);
+    }
+
+    private static void config(ConfigBuilder b) {
+        TeslaMapsConfig c = cfg();
+        b.label("General");
+        b.toggle("Block Profile Viewer", () -> c.kuudraPvBlocker, v -> c.kuudraPvBlocker = v)
+                .desc("Right-clicking a real player in Kuudra no longer opens the profile viewer (item abilities still work)");
+        b.toggle("  Also in Dungeons", () -> c.kuudraPvBlockerDungeon, v -> c.kuudraPvBlockerDungeon = v);
+        b.toggle("Lag Tracker", () -> c.kuudraLagTracker, v -> c.kuudraLagTracker = v)
+                .desc("At KUUDRA DOWN / DEFEAT: seconds lost to server lag (server ticks vs real time since Elle's start line)");
+        b.toggle("  Send to Party", () -> c.kuudraLagTrackerParty, v -> c.kuudraLagTrackerParty = v);
+    }
+}

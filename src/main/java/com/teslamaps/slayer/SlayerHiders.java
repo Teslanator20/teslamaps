@@ -1,7 +1,7 @@
 package com.teslamaps.slayer;
 
 // Ported from SkyHanni's EndermanSlayerHideParticles.kt, HideMobNames.kt and BlockNotSpawnable.kt;
-// pacified blazes + broken heart radiation after Skytils' SlayerFeatures
+// pacified blazes after Skytils' SlayerFeatures
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.EntityCache;
@@ -16,11 +16,9 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.monster.EnderMan;
-import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.inventory.Slot;
 
 import java.util.HashMap;
@@ -43,7 +41,6 @@ public final class SlayerHiders {
     private static int endermanCount;
     private static boolean inEnd;
     private static boolean pacified;
-    private static boolean radiation;
     private static int ticks;
 
     private SlayerHiders() {}
@@ -53,7 +50,7 @@ public final class SlayerHiders {
     public static void register() {
         Feature.of("SlayerHiders").section("Combat")
                 .when(() -> cfg().slayerHideEndermanParticles || cfg().slayerHideMobNames
-                        || cfg().slayerHidePacifiedBlazes || cfg().slayerHideOthersRadiation)
+                        || cfg().slayerHidePacifiedBlazes)
                 .tick(SlayerHiders::tick)
                 .config("Combat", b -> {
                     TeslaMapsConfig c = b.config();
@@ -67,12 +64,10 @@ public final class SlayerHiders {
                     b.toggle("Hide Pacified Blazes", () -> c.slayerHidePacifiedBlazes, v -> c.slayerHidePacifiedBlazes = v)
                             .desc("With Smoldering Polarization during your Inferno Demonlord fight, blazes more than 3 blocks away (not the boss) are not rendered.")
                             .tags("slayer", "inferno", "blaze", "hide");
-                    b.toggle("Hide Others' Broken Heart Radiation", () -> c.slayerHideOthersRadiation, v -> c.slayerHideOthersRadiation = v)
-                            .desc("While your Voidgloom Seraph is alive, the guardian lasers of other Seraphs are not rendered.")
-                            .tags("slayer", "voidgloom", "laser", "guardian");
                     b.toggle("Block Not Spawnable Slayers", () -> c.slayerBlockNotSpawnable, v -> c.slayerBlockNotSpawnable = v)
                             .desc("In the Slayer menu, clicks on bosses marked \"Only inside The Rift!\" or \"Doesn't exist here!\" are blocked.")
                             .tags("slayer", "menu", "click");
+                    SlayerSpawnHiders.config(b);
                 });
     }
 
@@ -96,8 +91,6 @@ public final class SlayerHiders {
 
         boolean fight = SlayerQuest.bossActive();
         pacified = c.slayerHidePacifiedBlazes && fight && "Inferno Demonlord".equals(SlayerQuest.boss()) && InfernoHelper.gummyActive();
-        radiation = c.slayerHideOthersRadiation && fight && "Voidgloom Seraph".equals(SlayerQuest.boss())
-                && SlayerHUD.ownBoss() && SlayerHUD.getBossEntity() != null && SlayerHUD.getBossEntity().isAlive();
 
         if (c.slayerHideMobNames && ticks % 3 == 0) {
             if (mc.level != null && mc.player != null && SkyblockUtils.isInSkyblock()) {
@@ -143,13 +136,6 @@ public final class SlayerHiders {
         if (pacified && e instanceof Blaze && cfg().slayerHidePacifiedBlazes) {
             Minecraft mc = Minecraft.getInstance();
             return e != SlayerHUD.getBossEntity() && mc.player != null && e.distanceToSqr(mc.player) > 9;
-        }
-        if (radiation && e instanceof Guardian g && g.isInvisible() && cfg().slayerHideOthersRadiation) {
-            Entity boss = SlayerHUD.getBossEntity();
-            if (boss == null) return false;
-            LivingEntity target = g.getActiveAttackTarget();
-            if (target != null) return target != boss;
-            return g.distanceToSqr(boss) > 25;
         }
         return false;
     }

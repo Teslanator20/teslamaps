@@ -387,6 +387,13 @@ public class ChatFilter {
             queue(text, Component.literal(slayer));
             return false;
         }
+        String fishing = FishingChat.handle(t);
+        if (fishing != null) {
+            lastReason = "fishingChat";
+            if (fishing.isEmpty()) return true;
+            queue(text, Component.literal(fishing));
+            return false;
+        }
         lastReason = "melodyCompact";
         if (MelodyCompact.handle(t)) return true;
         lastReason = "hoppityCompact";
