@@ -99,7 +99,15 @@ public final class HoneyhiveHelper {
         Feature.of("HoneyhiveHelper").section("Foraging").when(() -> cfg().honeyhiveHelper)
                 .tick(HoneyhiveHelper::tick)
                 .world(HoneyhiveHelper::render)
-                .hudForeground("honeyhives", HoneyhiveHelper::renderHud);
+                .hudForeground("honeyhives", HoneyhiveHelper::renderHud)
+                .serverChat(HoneyhiveHelper::onChat);
+        net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(
+                net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("tmap")
+                        .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("honeyhive")
+                                .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("navigate").executes(c -> {
+                                    navigateReady();
+                                    return 1;
+                                })))));
         HudEditElement.of("honeyhive", "Honeyhives").ctx(HudEditElement.HudCtx.FORAGING).section("Foraging")
                 .enabled(() -> cfg().honeyhiveHelper && cfg().honeyhiveDisplay)
                 .size(() -> hudW, () -> hudH)
@@ -303,6 +311,56 @@ public final class HoneyhiveHelper {
     private static void dismiss(Hive h, long now) {
         selected.remove(h.key());
         if (h.ready(now)) dismissedReady.add(h.key());
+    }
+
+    // --- navigation ---
+
+    private static void onChat(String text) {
+        if (!cfg().honeyhiveNavOffer || !Foraging.inTorrhus()) return;
+        if (!StringUtil.stripTrim(text).equals("You stick your hand into the honeyhive and feel around...")) return;
+        com.teslamaps.utils.TickScheduler.schedule(10, () -> {
+            int n = readyAway().size();
+            if (n > 0) offer("§eLooted a honeyhive. §aClick to navigate to the " + n + " other ready hive" + (n == 1 ? "" : "s") + ".");
+        });
+    }
+
+    /** Clickable chat line that starts the route, used by the refill reminder too. */
+    static void offer(String text) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§a[TeslaMaps] " + text)
+                .withStyle(s -> s.withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/tmap honeyhive navigate"))
+                        .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(
+                                net.minecraft.network.chat.Component.literal("§7Path to every ready or unchecked hive")))));
+    }
+
+    private static List<Vec3> readyAway() {
+        ensure();
+        List<Vec3> out = new ArrayList<>();
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return out;
+        long now = System.currentTimeMillis();
+        for (Hive h : hives) {
+            if (h.known() && !h.ready(now)) continue;
+            Vec3 p = new Vec3(h.x + 0.5, h.y + 0.5, h.z + 0.5);
+            if (mc.player.position().distanceToSqr(p) > 8 * 8) out.add(p);
+        }
+        return out;
+    }
+
+    private static void navigateReady() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+        if (!Foraging.inTorrhus()) {
+            mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§a[TeslaMaps] §cNot in the Torrhus Canyon."));
+            return;
+        }
+        List<Vec3> pts = readyAway();
+        if (pts.isEmpty()) {
+            mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§a[TeslaMaps] §eNo other hive is ready."));
+            return;
+        }
+        com.teslamaps.features.navigation.IslandNavigation.navigatePoints(pts, "Honeyhive");
     }
 
     // --- world ---

@@ -20,6 +20,9 @@ public class ForagingChat {
         String raw = message.getString();
         String clean = Foraging.strip(raw);
 
+        ForagingTracker.onChat(message, clean);
+        if (StarlynCompact.handle(clean)) return true;
+
         if (TreeGiftCompact.handle(message)) return true;
 
         if (c.foragingCompactSweep && Foraging.whereTreesGrow() && CompactSweep.handle(message, clean)) return true;

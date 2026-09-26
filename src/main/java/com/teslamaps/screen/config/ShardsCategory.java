@@ -14,6 +14,7 @@ public final class ShardsCategory {
         b.label("Hunting Box");
         b.toggle("Hunting Box Value", () -> config.huntingBoxValue, v -> config.huntingBoxValue = v);
         b.info("Bazaar value of every shard in the box, most valuable first");
+        com.teslamaps.features.hunting.HuntingProfitTracker.config(b, config);
         b.toggle("Mark Syphon-Ready Shards", () -> config.shardSyphonReady, v -> config.shardSyphonReady = v)
                 .desc("Green: enough owned to level up. Yellow: enough, but the attribute is still locked");
         b.label("Shard Overlay");

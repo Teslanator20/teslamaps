@@ -840,5 +840,11 @@ final class Features {
         com.teslamaps.slayer.CallMaddox.register();
         com.teslamaps.slayer.VoidgloomBeacon.register();
         com.teslamaps.features.theend.EndermanQol.register();
+        // w17-01-for
+        com.teslamaps.features.foraging.ForagingTracker.register();
+        com.teslamaps.features.hunting.HuntingProfitTracker.register();
+        com.teslamaps.features.foraging.ForagingBeacon.register();
+        com.teslamaps.features.foraging.ForagingHighlighter.register();
+        com.teslamaps.features.foraging.StarlynCompact.register();
     }
 }
