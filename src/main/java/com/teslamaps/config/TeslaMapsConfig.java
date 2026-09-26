@@ -2199,6 +2199,28 @@ public class TeslaMapsConfig {
     public String riftBlobbercystColor = "#FF5555";
     public boolean riftBerberisHelper = false;
     public String riftBerberisColor = "#B0FFFF55";
+    // w19-06-rif
+    public boolean craftRoomHolograms = false;
+    public boolean craftRoomHoloName = true;
+    public boolean craftRoomHoloHealth = true;
+    public boolean craftRoomHidePlayers = false;
+    public boolean enigmaRoseDrop = false;
+    public boolean motesSession = false;
+    public boolean horsezookaHider = false;
+    public boolean coherentRodRadius = false;
+    public String coherentRodColor = "4000FF00";
+    public boolean ubikReminder = false;
+    public boolean ubikHud = true;
+    public boolean ubikHudOnlyReady = false;
+    public int ubikHudX = 10;
+    public int ubikHudY = 200;
+    public float ubikHudScale = 1f;
+    @Global
+    public java.util.Map<String, Long> ubikReadyAt = new java.util.HashMap<>();
+    public boolean voltCrux = false;
+    public boolean voltMoodMeter = true;
+    public boolean voltRange = true;
+    public String voltRangeColor = "6000AAFF";
     // w19-03-rif
     public boolean kloonHackingSolver = false;
     public boolean kloonColorHelper = true;
@@ -6573,6 +6595,8 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.ubikReadyAt == null) c.ubikReadyAt = new java.util.HashMap<>();
+        c.ubikReadyAt.values().removeIf(java.util.Objects::isNull);
         if (c.carnivalShopProgress == null) c.carnivalShopProgress = new java.util.HashMap<>();
         c.carnivalShopProgress.values().removeIf(java.util.Objects::isNull);
         if (c.carnivalGoalsDone == null) c.carnivalGoalsDone = new java.util.HashMap<>();

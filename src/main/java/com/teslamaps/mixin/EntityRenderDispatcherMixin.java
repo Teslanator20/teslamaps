@@ -67,6 +67,8 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.slayer.SeraphHelper.shouldHide(entity)
                 || com.teslamaps.features.KeeperWaypoints.shouldHide(entity)
                 || com.teslamaps.features.kuudra.KuudraHider.shouldHide(entity)
+                || com.teslamaps.features.rift.HorsezookaHider.shouldHide(entity)
+                || com.teslamaps.features.rift.CraftRoomHolograms.shouldHide(entity)
                 || com.teslamaps.features.kuudra.KuudraQol.shouldHide(entity)
                 || com.teslamaps.features.events.JerryPresentHider.shouldHide(entity)) {
             cir.setReturnValue(false);

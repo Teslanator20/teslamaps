@@ -17,5 +17,6 @@ public class PetDragonMixin {
     @Inject(method = "extractVisibleEntities", at = @At("TAIL"))
     private void teslamaps$petDragon(Camera camera, Frustum frustum, DeltaTracker delta, LevelRenderState state, CallbackInfo ci) {
         PetDragon.extract(state, delta.getGameTimeDeltaPartialTick(true));
+        com.teslamaps.features.rift.CraftRoomHolograms.extract(state, delta.getGameTimeDeltaPartialTick(true));
     }
 }

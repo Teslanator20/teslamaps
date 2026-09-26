@@ -987,6 +987,14 @@ final class Features {
         com.teslamaps.features.rift.SunGeckoHelper.register();
         com.teslamaps.features.rift.BacteHelper.register();
         com.teslamaps.features.rift.WiltedBerberisHelper.register();
+        // w19-06-rif
+        com.teslamaps.features.rift.CraftRoomHolograms.register();
+        com.teslamaps.features.rift.EnigmaRoseDrop.register();
+        com.teslamaps.features.rift.RiftMotesSession.register();
+        com.teslamaps.features.rift.HorsezookaHider.register();
+        com.teslamaps.features.rift.CoherentRodRadius.register();
+        com.teslamaps.features.rift.UbikCubeReminder.register();
+        com.teslamaps.features.rift.VoltCrux.register();
         // w19-03-rif
         com.teslamaps.features.rift.KloonHacking.register();
         com.teslamaps.features.rift.CruxTalismanDisplay.register();
