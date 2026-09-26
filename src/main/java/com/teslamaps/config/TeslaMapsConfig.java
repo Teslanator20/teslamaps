@@ -2148,6 +2148,44 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w18-05-evt
+    public boolean frozenTreasureHighlight = false;
+    public com.teslamaps.render.EspStyle frozenTreasureStyle = new com.teslamaps.render.EspStyle("6655FFFF", com.teslamaps.render.EspStyle.BOTH);
+    public boolean calendarEventDates = false;
+    public boolean bingoQuickToggle = false;
+    public boolean cakeCounterStats = false;
+    public boolean cakeCounterSoulAlert = true;
+    @Global
+    public long cakeCounterCakes = -1;
+    @Global
+    public long cakeCounterSouls = -1;
+    public boolean mythoTracker = false;
+    public boolean mythoTrackerAlways = false;
+    public int mythoTrackerPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public boolean mythoTrackerSince = true;
+    public boolean mythoHideChat = false;
+    public boolean mythoPartyCommands = false;
+    public int mythoTrackerX = 10;
+    public int mythoTrackerY = 160;
+    public float mythoTrackerScale = 1f;
+    @Global
+    public java.util.Map<String, Long> mythoSince = new java.util.HashMap<>();
+    public boolean rareDianaMobHighlight = false;
+    public com.teslamaps.render.EspStyle rareDianaMobStyle = visibleOnly(new com.teslamaps.render.EspStyle("FFFF55FF", com.teslamaps.render.EspStyle.OUTLINE));
+    public boolean rareDianaMobSound = true;
+    public String rareDianaMobSoundType = "NOTE_PLING";
+    public float rareDianaMobSoundPitch = 1f;
+    public boolean hiddenJerryAlert = false;
+    public boolean hiddenJerryTitle = true;
+    public boolean hiddenJerrySound = true;
+    public boolean hiddenJerryTimer = true;
+    public boolean hiddenJerryTracker = false;
+    public int hiddenJerryTimerX = 10;
+    public int hiddenJerryTimerY = 60;
+    public float hiddenJerryTimerScale = 1f;
+    public int jerryTrackerX = 10;
+    public int jerryTrackerY = 80;
+    public float jerryTrackerScale = 1f;
     // w17-09-fis
     public boolean coralFishHelper = false;
     public boolean fishingProgressHud = false;
@@ -6142,6 +6180,11 @@ public class TeslaMapsConfig {
         c.pestTracers = false;
     }
 
+    private static com.teslamaps.render.EspStyle visibleOnly(com.teslamaps.render.EspStyle s) {
+        s.throughWalls = false;
+        return s;
+    }
+
     static void normalize(TeslaMapsConfig c) {
         if (c.lotusPityData == null) c.lotusPityData = new java.util.HashMap<>();
         c.lotusPityData.values().removeIf(v -> v == null || v.length < 4);
@@ -6155,6 +6198,8 @@ public class TeslaMapsConfig {
         if (c.slayerTierLockLast == null) c.slayerTierLockLast = "";
         if (c.voidgloomHideLaserFor == null) c.voidgloomHideLaserFor = "All bosses";
         if (c.zealotSpawnColor == null) c.zealotSpawnColor = "7F00FFFF";
+        if (c.mythoSince == null) c.mythoSince = new java.util.HashMap<>();
+        if (c.rareDianaMobSoundType == null) c.rareDianaMobSoundType = "NOTE_PLING";
         c.slayerCarries.removeIf(x -> x == null || x.customer == null || x.type == null);
         if (c.slayerCarryPrices == null) c.slayerCarryPrices = new java.util.HashMap<>();
         if (c.forgeSlotData == null) c.forgeSlotData = new java.util.ArrayList<>();
