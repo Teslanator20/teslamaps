@@ -122,12 +122,13 @@ public final class MobVisuals {
         return SkyblockUtils.isInSkyblock();
     }
 
-    /**
-     * GanKura drops a Safari critter off the list once it was captured, read off its own
-     * tab-list scan. Nothing here tracks that yet, so every picked mob stays shown.
-     */
+    /** GanKura's hideCapturedCritters: a Safari critter already caught this run drops off the list. */
     static boolean hiddenAsCaptured(Mob mob) {
-        return false;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (!c.mobVisualHideCaught || !mob.area().isSafari()) return false;
+        if (c.mobVisualKeepShown.contains(mob.name())) return false;
+        com.teslamaps.safari.SafariData.Critter critter = com.teslamaps.safari.SafariData.byName(mob.plainLabel());
+        return critter != null && com.teslamaps.safari.SafariTracker.hasCaught(critter);
     }
 
     // --- tick ---
@@ -536,7 +537,7 @@ public final class MobVisuals {
     // --- nameplate text ---
 
     private static String nameplateLabel(Minecraft mc, Entity entity, Mob mob) {
-        String name = mob.label();
+        String name = MobVisualExtras.withCapsules(mob, mob.label());
         if (!TeslaMapsConfig.get().mobVisualNameplateHealth) return name;
 
         String health = nearbyHealth(mc, entity);

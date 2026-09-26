@@ -855,6 +855,13 @@ final class Features {
         com.teslamaps.features.foraging.ForagingBeacon.register();
         com.teslamaps.features.foraging.ForagingHighlighter.register();
         com.teslamaps.features.foraging.StarlynCompact.register();
+        // w17-04-for
+        com.teslamaps.safari.SafariCenterNames.register();
+        com.teslamaps.features.foraging.ParkRainTimer.register();
+        com.teslamaps.features.TalbotTheodolite.register();
+        com.teslamaps.features.mobvisuals.MobVisualExtras.register();
+        com.teslamaps.features.foraging.HotfWhisperGoal.register();
+        com.teslamaps.features.hunting.HuntingBoxSlots.register();
         // w17-07-fis
         com.teslamaps.features.fishing.FishingTweaks.register();
         com.teslamaps.features.fishing.HotspotCircles.register();

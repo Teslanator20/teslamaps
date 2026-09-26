@@ -39,6 +39,9 @@ public final class CritterSafariCategory {
         b.toggle("  Per-Player Breakdown At Run End", () -> config.safariPlayersOnEnd, v -> config.safariPlayersOnEnd = v)
                 .desc("Who caught what: unique critters per biome and the species per player, green = you have it too, aqua = only them. Also /tmap safari players.")
                 .tags("players", "split", "biome");
+        b.toggle("  Compact Reward Summary", () -> config.safariSummaryLine, v -> config.safariSummaryLine = v)
+                .desc("Hides the SAFARI REWARD SUMMARY block and posts one line instead: SAFARI +14 Shards · +80 Essence · +24.4k Hunting Exp")
+                .tags("chat", "compact", "summary", "reward");
         b.label("Missing Panel");
         b.toggle("Missing Panel", () -> config.safariMissingPanel, v -> config.safariMissingPanel = v);
         b.info("What the biome you stand in still needs: quota, tries, walls");

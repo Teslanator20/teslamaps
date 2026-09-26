@@ -85,7 +85,7 @@ public final class HotxPerkCurrency {
     private static final class Built {
         Perk perk;
         int level;
-        Component spent, for10, have;
+        Component spent, for10, toMax, have;
         long haveAmount = -1;
     }
 
@@ -110,6 +110,8 @@ public final class HotxPerkCurrency {
                     b.toggle("  Spent So Far", () -> c.hotxCurrencySpent, v -> c.hotxCurrencySpent = v);
                     b.toggle("  Next 10 Levels (Shift)", () -> c.hotxCurrencyFor10, v -> c.hotxCurrencyFor10 = v);
                     b.toggle("  Current Amount", () -> c.hotxCurrencyCurrent, v -> c.hotxCurrencyCurrent = v);
+                    b.toggle("  Rest Until Max", () -> c.hotxCurrencyToMax, v -> c.hotxCurrencyToMax = v)
+                            .desc("Powder or whispers still needed to max the perk, shown when it is more than the next 10 levels");
                 });
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (tree == 0 || feature == null || !feature.active() || lines.size() < 2) return;
@@ -182,6 +184,7 @@ public final class HotxPerkCurrency {
             if (StringUtil.stripTrim(lines.get(i).getString()).equals("Cost")) { costIdx = i; break; }
         }
         if (costIdx < 0) return;
+        if (c.hotxCurrencyToMax && b.toMax != null) lines.add(Math.min(costIdx + 2, lines.size()), b.toMax);
         if (c.hotxCurrencyFor10 && mc.hasShiftDown()) lines.add(Math.min(costIdx + 2, lines.size()), b.for10);
         long have = current[p.currency];
         if (c.hotxCurrencyCurrent && have >= 0) {
@@ -224,6 +227,9 @@ public final class HotxPerkCurrency {
         int n = target - level;
         b.for10 = Component.literal("§7" + label + " for " + n + (n == 1 ? " level " : " levels ")
                 + "§e" + fmt(p.spent(target) - spent));
+        if (p.max - level > 10) {
+            b.toMax = Component.literal("§7" + label + " until max (" + (p.max - level) + " levels) §e" + fmt(maxSpent - spent));
+        }
         return b;
     }
 

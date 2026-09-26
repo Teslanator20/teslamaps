@@ -97,7 +97,7 @@ final class MobVisualBosses {
     static void onParticle(ClientboundLevelParticlesPacket packet) {
         if (!Minecraft.getInstance().isSameThread()) return;
         if (packet.getParticle().getType() != ParticleTypes.CRIT) return;
-        if (!MobArea.MOONGLADE_MARSH.isHere() || !Mob.INVISIBUG.anyEnabled()) return;
+        if (!MobArea.MOONGLADE_MARSH.isHere() || !invisibugWanted()) return;
         if (pendingCrits.size() >= MAX_PENDING_CRITS) return;
         pendingCrits.add(new Vec3(packet.getX(), packet.getY(), packet.getZ()));
     }
@@ -129,7 +129,7 @@ final class MobVisualBosses {
                 || anySeaPattern();
         if (nametags) scanNametags(mc, den, crimson, marsh);
 
-        if (marsh && Mob.INVISIBUG.anyEnabled()) scanInvisibugs(mc);
+        if (marsh && invisibugWanted()) scanInvisibugs(mc);
         else {
             invisibugs.clear();
             pendingCrits.clear();
@@ -434,6 +434,12 @@ final class MobVisualBosses {
             if (best != null && isBareStand(best)) invisibugs.add(best);
         }
         for (Entity e : invisibugs) MobVisuals.register(mc, e, Mob.INVISIBUG);
+    }
+
+    static java.util.Set<Entity> invisibugs() { return invisibugs; }
+
+    private static boolean invisibugWanted() {
+        return Mob.INVISIBUG.anyEnabled() || com.teslamaps.config.TeslaMapsConfig.get().mobVisualInvisibugBox;
     }
 
     private static boolean isBareStand(ArmorStand stand) {

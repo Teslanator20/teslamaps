@@ -29,6 +29,10 @@ public class HandledScreenClickMixin {
         com.teslamaps.features.StorageGuiScale.onClick((AbstractContainerScreen<?>) (Object) this);
         com.teslamaps.features.qol.TiaRelayHelper.onSlotClick(slot, slotId, button, type);
         com.teslamaps.features.mining.HotmPowderGoal.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, type);
+        if (com.teslamaps.features.foraging.HotfWhisperGoal.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.features.DnaAnalyzerSolver.onSlotClick((AbstractContainerScreen<?>) (Object) this, slotId, type)) {
             ci.cancel();
             return;
