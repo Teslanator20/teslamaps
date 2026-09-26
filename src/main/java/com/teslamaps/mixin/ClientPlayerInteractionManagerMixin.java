@@ -38,6 +38,7 @@ public class ClientPlayerInteractionManagerMixin {
     private void teslamaps$onAttack(net.minecraft.world.entity.player.Player player, net.minecraft.world.entity.Entity target, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         com.teslamaps.features.FatalTempo.onHit();
         com.teslamaps.features.mobvisuals.LotumHelper.onClick(target);
+        com.teslamaps.features.rift.PunchcardHighlight.onAttack(target);
     }
 
     @Inject(method = "interact", at = @At("HEAD"), cancellable = true)
@@ -68,6 +69,7 @@ public class ClientPlayerInteractionManagerMixin {
         if (mc.level == null) return;
 
         BlockPos pos = hitResult.getBlockPos();
+        com.teslamaps.features.rift.LivingCaveSnakes.onClick(pos);
 
         if (com.teslamaps.dungeon.puzzle.SimonSaysSolver.blockClick(pos)
                 || com.teslamaps.dungeon.puzzle.TicTacToe.blockClick(pos)
