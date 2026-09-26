@@ -28,7 +28,7 @@ public final class MinesRecolor {
                     b.toggle("Red Carpets (Dwarven Mines)", () -> c.miningRedCarpets, v -> c.miningRedCarpets = v)
                             .desc("Draws the grey, light grey and light blue carpets of the Dwarven Mines red, so Titanium is easier to spot.")
                             .tags("carpet", "titanium", "dwarven", "recolor");
-                    b.toggle("  Dark Mist", () -> c.miningDarkMist, v -> c.miningDarkMist = v)
+                    b.toggle("Dark Mist (Dwarven Mines)", () -> c.miningDarkMist, v -> c.miningDarkMist = v)
                             .desc("White glass and white carpet in The Mist (below y 77) turn grey.")
                             .tags("mist", "dark", "dwarven", "recolor");
                 });

@@ -87,19 +87,20 @@ public class HotmPerks {
                 .when(() -> cfg().hotmHighlight || cfg().hotmLevelStack || cfg().hotmTokenStack || cfg().hotmPowderTooltip)
                 .config("Mining", b -> {
                     TeslaMapsConfig c = b.config();
+                    b.label("HotM Menu");
                     b.toggle("HotM Perk Highlight", () -> c.hotmHighlight, v -> c.hotmHighlight = v)
                             .desc("Tints enabled and disabled perks in the Heart of the Mountain menu.");
                     b.color("  Enabled Color", () -> c.colorHotmEnabled, v -> c.colorHotmEnabled = v);
                     b.color("  Disabled Color", () -> c.colorHotmDisabled, v -> c.colorHotmDisabled = v);
-                    b.toggle("  Tokens On Heart Item", () -> c.hotmTokenStack, v -> c.hotmTokenStack = v)
+                    b.toggle("Tokens On Heart Item", () -> c.hotmTokenStack, v -> c.hotmTokenStack = v)
                             .desc("Unused Tokens of the Mountain on the heart item.");
-                    b.toggle("  Powder Costs In Tooltip", () -> c.hotmPowderTooltip, v -> c.hotmPowderTooltip = v)
+                    b.toggle("HotM Powder Costs In Tooltip", () -> c.hotmPowderTooltip, v -> c.hotmPowderTooltip = v)
                             .desc("Powder spent/total, cost of the next 10 levels (shift click) and cost to max.")
                             .tags("powder", "mithril", "gemstone", "glacite", "hotm");
-                    b.toggle("  Sky Mall Display", () -> c.hotmSkyMallDisplay, v -> c.hotmSkyMallDisplay = v)
+                    b.toggle("Sky Mall Display", () -> c.hotmSkyMallDisplay, v -> c.hotmSkyMallDisplay = v)
                             .desc("HUD line with today's Sky Mall buff, read from chat and the HotM menu.")
                             .tags("sky mall", "skymall", "hotm");
-                    b.toggle("    Only On Mining Islands", () -> c.hotmSkyMallMiningOnly, v -> c.hotmSkyMallMiningOnly = v);
+                    b.toggle("  Only On Mining Islands", () -> c.hotmSkyMallMiningOnly, v -> c.hotmSkyMallMiningOnly = v);
                     HotmPowderGoal.config(b);
                     b.toggle("HotM Perk Level", () -> c.hotmLevelStack, v -> c.hotmLevelStack = v)
                             .desc("Perk level in the bottom right of each slot in the Heart of the Mountain menu, gold at max level.")
