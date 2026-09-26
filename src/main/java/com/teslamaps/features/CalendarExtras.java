@@ -41,10 +41,9 @@ public final class CalendarExtras {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        feature = Feature.of("CalendarExtras").section("Inventory").when(() -> cfg().calendarExtras)
-                .config("Inventory", b -> {
+        feature = Feature.of("CalendarExtras").section("Events").when(() -> cfg().calendarExtras)
+                .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Calendar");
                     b.toggle("Calendar Extras", () -> c.calendarExtras, v -> c.calendarExtras = v)
                             .desc("Extra info in the Calendar and Events menu.");
                     b.toggle("  Minister In Calendar", () -> c.calendarMinister, v -> c.calendarMinister = v)

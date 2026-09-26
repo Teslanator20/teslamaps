@@ -30,12 +30,11 @@ public final class JerryHighlight {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("JerryHighlight").section("Mob Visuals").when(() -> cfg().highlightJerries || cfg().jerryLines)
+        Feature.of("JerryHighlight").section("Events").when(() -> cfg().highlightJerries)
                 .tick(JerryHighlight::tick)
                 .world(JerryHighlight::render)
-                .config("Mob Visuals", b -> {
+                .config("Events", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Jerrypocalypse");
                     b.toggle("Highlight Jerries", () -> c.highlightJerries, v -> c.highlightJerries = v)
                             .desc("Jerrys from the Jerrypocalypse perk glow in their color: Green, Blue, Purple or Golden.")
                             .tags("jerry", "jerrypocalypse", "golden", "mayor");

@@ -5,7 +5,6 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
@@ -48,7 +47,6 @@ public final class HoppityUnclaimedEggs {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         hud = HudEditElement.of("hoppityUnclaimed", "Hoppity Unclaimed Eggs").section("Events")
                 .enabled(() -> cfg().hoppityUnclaimedEggs)
                 .size(() -> lines.isEmpty() ? TextHud.width(SAMPLE) : width, () -> TextHud.height(lines.isEmpty() ? SAMPLE.size() : lines.size()))

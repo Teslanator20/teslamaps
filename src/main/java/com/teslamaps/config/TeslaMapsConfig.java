@@ -2607,9 +2607,6 @@ public class TeslaMapsConfig {
     public float hoppityUnclaimedScale = 1.0f;
     @Global
     public java.util.Map<String, Long> hoppityMealClaimed = new java.util.HashMap<>();
-    public boolean timeTowerReminder = false;
-    @Global
-    public long timeTowerEndsAt = 0L;
     public boolean uniqueGiftHighlight = false;
     public boolean uniqueGiftHoldingOnly = false;
     public boolean uniqueGiftNametag = true;

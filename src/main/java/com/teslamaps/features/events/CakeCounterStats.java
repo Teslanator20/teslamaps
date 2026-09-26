@@ -3,7 +3,6 @@ package com.teslamaps.features.events;
 // After SkyHanni's CakeCounterFeatures.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.EntityCache;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
@@ -32,13 +31,11 @@ public final class CakeCounterStats {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         Feature.of("CakeCounterStats").section("Events").when(() -> cfg().cakeCounterStats)
                 .tick(CakeCounterStats::tick)
                 .serverChat(CakeCounterStats::onChat)
                 .config("Events", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Cake Counter");
                     b.toggle("Cake Counter Stats", () -> c.cakeCounterStats, v -> c.cakeCounterStats = v)
                             .desc("Private Island: on join, how many Century Cakes were eaten and Cake Souls found since you were last there.")
                             .tags("cake", "soul", "century", "private island");

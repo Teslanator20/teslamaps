@@ -4,7 +4,6 @@ package com.teslamaps.features.events;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.tracker.Tracker;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.LoudSound;
 import com.teslamaps.utils.SkyblockItems;
@@ -41,7 +40,6 @@ public final class HiddenJerry {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         tracker = Tracker.create("mayor_jerry", "§a§lJerry Tracker").maxRows(20);
         for (int i = 0; i < COLORS.length; i++) {
             String k = "JERRY_" + COLORS[i].toUpperCase();

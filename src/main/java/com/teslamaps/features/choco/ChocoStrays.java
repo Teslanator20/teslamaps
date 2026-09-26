@@ -83,6 +83,8 @@ public final class ChocoStrays {
 
     private static HudEditElement timerHud, trackerHud;
     private static List<String> trackerLines = List.of();
+    private static List<String> timerLines = List.of();
+    private static int timerWidth;
     private static int trackerWidth;
     private static final List<String> TIMER_SAMPLE = List.of("§eStray Timer", "§b12.34s");
     private static final List<String> TRACKER_SAMPLE = List.of("§6§lStray Tracker", "§fCommon §e3 §aUncommon §e2", "§9Rare §e1 §6§lGolden §e1",
@@ -331,6 +333,8 @@ public final class ChocoStrays {
             timerPending = false;
             return;
         }
+        timerLines = List.of("§eStray Timer", "§b" + String.format(java.util.Locale.ROOT, "%.2f", timerLeft / 1000.0) + "s");
+        timerWidth = TextHud.width(timerLines);
         if (timerLeft < cfg().cfStrayTimerDing * 1000L && now - lastDing > 1000) {
             lastDing = now;
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_PLING.value(), 2f, 1f));
@@ -396,9 +400,8 @@ public final class ChocoStrays {
         if (!ChocoData.inFactory()) return;
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        if (c.cfStrayTimer && timerPending && timerHud != null) {
-            List<String> l = List.of("§eStray Timer", "§b" + String.format(java.util.Locale.ROOT, "%.2f", timerLeft / 1000.0) + "s");
-            TextHud.draw(g, mc, timerHud.x(), timerHud.y(), timerHud.scale(), l, TextHud.width(l));
+        if (c.cfStrayTimer && timerPending && timerHud != null && !timerLines.isEmpty()) {
+            TextHud.draw(g, mc, timerHud.x(), timerHud.y(), timerHud.scale(), timerLines, timerWidth);
         }
         if (c.cfStrayTracker && !trackerLines.isEmpty() && trackerHud != null) {
             TextHud.draw(g, mc, trackerHud.x(), trackerHud.y(), trackerHud.scale(), trackerLines, trackerWidth);

@@ -48,18 +48,17 @@ public final class FruitBowlHelper {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        hud = HudEditElement.of("fruitBowlHud", "Fruit Bowl Stats").ctx(HudEditElement.HudCtx.ANY).section("Render")
+        hud = HudEditElement.of("fruitBowlHud", "Fruit Bowl Stats").ctx(HudEditElement.HudCtx.ANY).section("Events")
                 .enabled(() -> cfg().fruitBowlHelper && cfg().fruitBowlHud)
                 .size(() -> TextHud.width(lines.isEmpty() ? SAMPLE : lines), () -> TextHud.height(lines.isEmpty() ? SAMPLE.size() : lines.size()))
                 .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, lines.isEmpty() ? SAMPLE : lines,
                         TextHud.width(lines.isEmpty() ? SAMPLE : lines)));
-        Feature.of("FruitBowlHelper").section("Render").when(() -> cfg().fruitBowlHelper)
+        Feature.of("FruitBowlHelper").section("Events").when(() -> cfg().fruitBowlHelper)
                 .tick(FruitBowlHelper::tick)
                 .serverChat(FruitBowlHelper::onChat)
                 .hud("fruitbowlhud", FruitBowlHelper::render)
-                .config("Render", b -> {
+                .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Fruit Bowl");
                     b.toggle("Fruit Bowl Helper", () -> c.fruitBowlHelper, v -> c.fruitBowlHelper = v)
                             .desc("With the Fruit Bowl in hand: marks players you have not clicked yet and lists the missing profile names.");
                     b.toggle("  Highlight Players", () -> c.fruitBowlHighlight, v -> c.fruitBowlHighlight = v);
