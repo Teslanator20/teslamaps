@@ -845,5 +845,34 @@ final class Features {
         com.teslamaps.features.fishing.HotspotCircles.register();
         com.teslamaps.features.fishing.FishingBait.register();
         com.teslamaps.features.fishing.GoldenFishTimer.register();
+        // w17-02-for
+        com.teslamaps.features.foraging.FrogMask.register();
+        com.teslamaps.features.foraging.TemplePuzzles.register();
+        com.teslamaps.features.hunting.FusionHelper.register();
+        com.teslamaps.features.theend.EnderNodeFinder.register();
+        com.teslamaps.features.foraging.ForagingTutorial.register();
+        // w17-08-fis
+        com.teslamaps.features.FishingChat.register();
+        com.teslamaps.features.FishedItemNames.register();
+        com.teslamaps.features.LegionBobbinOverlay.register();
+        com.teslamaps.features.ChargeBottleNotice.register();
+        com.teslamaps.features.GeyserBox.register();
+        com.teslamaps.features.LootshareSphere.register();
+        com.teslamaps.features.LotusPity.register();
+        // w17-06-for
+        com.teslamaps.safari.ScrappyFish.register();
+        com.teslamaps.safari.SparklingFocus.register();
+        // w16-08-kuu
+        com.teslamaps.features.kuudra.KuudraContext.register();
+        com.teslamaps.features.kuudra.KuudraProfitTracker.register();
+        com.teslamaps.features.kuudra.KuudraSupplyHelper.register();
+        com.teslamaps.features.kuudra.KuudraSupplyProgress.register();
+        com.teslamaps.features.kuudra.KuudraSupplySplits.register();
+        com.teslamaps.features.kuudra.KuudraArrowPoison.register();
+        com.teslamaps.features.kuudra.KuudraRend.register();
+        com.teslamaps.features.kuudra.KuudraQol.register();
+        com.teslamaps.features.kuudra.KuudraRunTrackers.register();
+        // w16-09-kuu
+        com.teslamaps.features.kuudra.KuudraRunInfo.register();
     }
 }
