@@ -4444,9 +4444,6 @@ public class TeslaMapsConfig {
     public boolean bazaarMaxPurse = true;
     public boolean bazaarDailyLimit = true;
     public boolean craftMaterials = false;
-    public boolean craftableList = false;
-    public boolean craftableListSacks = true;
-    public boolean craftableListNoVanilla = true;
     public boolean instaSellHighlight = false;
     public String colorInstaSell = "55FF55";
     public boolean priceHistory = false;

@@ -160,7 +160,6 @@ final class Features {
         com.teslamaps.features.BossBarHealth.register();
         com.teslamaps.features.DungeonTabColors.register();
         com.teslamaps.features.MageBeam.register();
-        com.teslamaps.dungeon.RoomPreview.register();
         com.teslamaps.dungeon.TeamStats.register();
         com.teslamaps.features.ShadowAssassinAlert.register();
         // w04-03-inv
