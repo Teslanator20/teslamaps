@@ -4,7 +4,6 @@ package com.teslamaps.features.events;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.LoreCosts;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.LoudSound;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
@@ -32,7 +31,6 @@ public final class HoppityCallWarning {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         feature = Feature.of("HoppityCallWarning").section("Events")
                 .when(() -> cfg().hoppityCallWarning || cfg().hoppityCallBlockPickup)
                 .tick(HoppityCallWarning::tick)
@@ -40,7 +38,6 @@ public final class HoppityCallWarning {
                 .hud("hoppitycallflash", HoppityCallWarning::render)
                 .config("Events", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Hoppity");
                     b.toggle("Hoppity Call Warning", () -> c.hoppityCallWarning, v -> c.hoppityCallWarning = v)
                             .desc("When Hoppity calls you over the Abiphone the screen flashes and a sound plays until you pick up (7s max).")
                             .tags("hoppity", "abiphone", "call", "chocolate", "rabbit");

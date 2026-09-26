@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.waypoints.WaypointSet;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.BezierFitter;
 import com.teslamaps.utils.ItemUtil;
@@ -100,7 +99,6 @@ public final class DianaBurrows {
     static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         feature = Feature.of("DianaBurrows").section("Events")
                 .when(() -> cfg().dianaBurrowGuess || cfg().dianaBurrowDetect || cfg().dianaArrowGuess)
                 .tick(DianaBurrows::tick)

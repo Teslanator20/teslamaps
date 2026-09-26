@@ -3,7 +3,6 @@ package com.teslamaps.features.events;
 // After Skyblocker's DateCalculatorTooltip.java
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -42,7 +41,6 @@ public final class CalendarEventDates {
     private CalendarEventDates() {}
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         Feature feature = Feature.of("CalendarEventDates").section("Events").when(() -> TeslaMapsConfig.get().calendarEventDates)
                 .config("Events", b -> {
                     TeslaMapsConfig c = b.config();

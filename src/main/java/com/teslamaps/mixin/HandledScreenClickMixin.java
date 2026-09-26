@@ -33,6 +33,10 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
+        if (com.teslamaps.features.rift.UbikQuickClose.onSlotClick((AbstractContainerScreen<?>) (Object) this, type)) {
+            ci.cancel();
+            return;
+        }
         if (com.teslamaps.features.DnaAnalyzerSolver.onSlotClick((AbstractContainerScreen<?>) (Object) this, slotId, type)) {
             ci.cancel();
             return;
