@@ -3,7 +3,6 @@ package com.teslamaps.features.rift;
 // Ported from SkyHanni's UbikReminder.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.utils.SbProfile;
@@ -37,7 +36,6 @@ public final class UbikCubeReminder {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         hud = HudEditElement.of("ubikHud", "Ubik's Cube").section("Rift")
                 .enabled(() -> cfg().ubikReminder && cfg().ubikHud)
                 .size(() -> width(text.isEmpty() ? SAMPLE : text), () -> 20)
@@ -48,7 +46,6 @@ public final class UbikCubeReminder {
                 .hudHiddenInInventory("ubikhud", UbikCubeReminder::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Reminders");
                     b.toggle("Ubik's Cube Reminder", () -> c.ubikReminder, v -> c.ubikReminder = v)
                             .desc("Remembers the 2h Split or Steal cooldown per profile and tells you in chat when Ubik's Cube is ready again.");
                     b.toggle("  Show HUD", () -> c.ubikHud, v -> c.ubikHud = v)

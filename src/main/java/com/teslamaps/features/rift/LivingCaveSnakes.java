@@ -4,7 +4,6 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.ItemUtil;
 import net.minecraft.client.Minecraft;
@@ -68,7 +67,6 @@ public final class LivingCaveSnakes {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         feature = Feature.of("LivingCaveSnakes").section("Rift").when(() -> cfg().caveSnakeHighlight)
                 .tick(LivingCaveSnakes::tick)
                 .world(LivingCaveSnakes::render)

@@ -5,9 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.navigation.IslandNavigation;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
-import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -57,17 +55,15 @@ public final class WoodenButtonsHelper {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("WoodenButtonsHelper").section("Rift").when(() -> cfg().riftWoodenButtons)
                 .tick(WoodenButtonsHelper::tick)
                 .world(WoodenButtonsHelper::render)
                 .serverChat(WoodenButtonsHelper::onChat)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Wooden Buttons");
                     b.toggle("Wooden Buttons Helper", () -> c.riftWoodenButtons, v -> c.riftWoodenButtons = v)
                             .desc("Buttons Enigma Soul: shows the nearest \"Hit Buttons Here!\" spot and its wooden buttons. "
-                                    + "Hit buttons (click or Berberis Blowgun) disappear.")
+                                    + "Hit buttons (click or Berberis Blowgun) disappear. With Enigma Soul Waypoints on, hides once the Buttons soul is found.")
                             .tags("enigma soul", "buttons", "dreadfarm", "blowgun", "waypoint");
                     b.color("  Button Color", () -> c.riftWoodenButtonsColor, v -> c.riftWoodenButtonsColor = v);
                     b.toggle("  Path To Next Spot", () -> c.riftWoodenButtonsPath, v -> c.riftWoodenButtonsPath = v)
@@ -97,7 +93,7 @@ public final class WoodenButtonsHelper {
             spot = navigatedSpot = -1;
         }
         show = false;
-        if (allHit || !SkyblockUtils.isInArea("The Rift")) return;
+        if (allHit || !RiftSpot.inRift() || EnigmaSouls.buttonsSoulFound()) return;
         BlockPos[][] all = buttons();
         Vec3 p = mc.player.position();
         long now = System.currentTimeMillis();
@@ -132,7 +128,7 @@ public final class WoodenButtonsHelper {
     }
 
     private static void onChat(String raw) {
-        if (!SkyblockUtils.isInArea("The Rift")) return;
+        if (!RiftSpot.inRift()) return;
         String t = StringUtil.stripTrim(raw);
         if (t.equals(ALL)) {
             allHit = true;

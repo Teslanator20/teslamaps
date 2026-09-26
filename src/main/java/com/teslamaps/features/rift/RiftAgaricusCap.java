@@ -3,12 +3,9 @@ package com.teslamaps.features.rift;
 // After SkyHanni's rift/area/dreadfarm/RiftAgaricusCap.kt
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.FishingHelpers;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.ItemUtil;
-import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
@@ -35,7 +32,6 @@ public final class RiftAgaricusCap {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("RiftAgaricusCap").section("Rift").when(() -> cfg().riftAgaricusCap)
                 .tick(RiftAgaricusCap::tick)
                 .world(RiftAgaricusCap::render)
@@ -55,7 +51,7 @@ public final class RiftAgaricusCap {
             start = 0;
         }
         if (ticks++ % 20 == 0) {
-            String sub = SkyblockUtils.getArea().contains("Rift") ? FishingHelpers.subArea() : "";
+            String sub = RiftSpot.inRift() ? RiftSpot.sub() : "";
             inArea = sub.equals("Dreadfarm") || sub.equals("West Village");
         }
         location = inArea ? update(mc) : null;

@@ -6,7 +6,6 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.croesus.PriceManager;
 import com.teslamaps.features.tracker.Tracker;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.EntityCache;
@@ -56,7 +55,6 @@ public final class ShinyOrbs {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         stats = Tracker.create("shiny_orb_stats", "Shiny Orb Stats").fixedValue("completed", 0);
         tracker = Tracker.create("shiny_orb", "§6§lShiny Orb Profit Tracker")
                 .fixedValue("orbs_used", -ORB_PRICE).name("orbs_used", "§6Shiny Orbs Used").coinKey("orbs_used")

@@ -4,7 +4,6 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.ItemUtil;
@@ -48,7 +47,6 @@ public final class TimiteHelper {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         hud = HudEditElement.of("riftTimiteTimer", "Timite Evolution Timer").section("Rift")
                 .enabled(() -> cfg().riftTimiteHelper && cfg().riftTimiteEvolution)
                 .size(() -> Minecraft.getInstance().font.width(SAMPLE), () -> 9)
@@ -60,7 +58,6 @@ public final class TimiteHelper {
                 .hud("rifttimite", TimiteHelper::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Mountaintop");
                     b.toggle("Timite Helper", () -> c.riftTimiteHelper, v -> c.riftTimiteHelper = v)
                             .desc("Mountaintop: helps timing Timite with the Time Gun.")
                             .tags("rift", "timite", "time gun", "mountaintop");

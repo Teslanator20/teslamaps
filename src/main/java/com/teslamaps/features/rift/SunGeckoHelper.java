@@ -4,7 +4,6 @@ package com.teslamaps.features.rift;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.LegitMode;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.EntityGlow;
 import com.teslamaps.utils.ChatText;
@@ -54,7 +53,6 @@ public final class SunGeckoHelper {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         HudEditElement.of("riftSunGecko", "Sun Gecko Helper").section("Rift")
                 .enabled(() -> cfg().riftSunGecko)
                 .size(() -> lines.length > 0 ? w : Minecraft.getInstance().font.width(SAMPLE[2]),

@@ -4,7 +4,6 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -26,13 +25,11 @@ public final class EnigmaRoseDrop {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("EnigmaRoseDrop").section("Rift").when(() -> cfg().enigmaRoseDrop)
                 .tick(EnigmaRoseDrop::tick)
                 .world(EnigmaRoseDrop::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Mountaintop");
                     b.toggle("Enigma Rose Flowerpot Drop", () -> c.enigmaRoseDrop, v -> c.enigmaRoseDrop = v)
                             .desc("In the Rose's End parkour: a white beacon marks the spot to drop down from to reach the flowerpot.");
                 });

@@ -4,7 +4,6 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.render.EntityGlow;
 import com.teslamaps.utils.EntityCache;
@@ -53,14 +52,12 @@ public final class BacteHelper {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("BacteTentacles").section("Rift").when(() -> cfg().riftBacteTentacles)
                 .tick(BacteHelper::tickTentacles)
                 .world(BacteHelper::render)
                 .serverChat(BacteHelper::onPhaseChat)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Colosseum");
                     b.toggle("Bacte Tentacle Waypoints", () -> c.riftBacteTentacles, v -> c.riftBacteTentacles = v)
                             .desc("Red beacon on every ground tentacle with its HP left (x/4, x/3 in phase 4), hit count in phase 5")
                             .tags("rift", "bacte", "colosseum", "tentacle");
