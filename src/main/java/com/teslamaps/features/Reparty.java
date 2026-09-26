@@ -34,6 +34,7 @@ public final class Reparty {
 
     public static void register() {
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> {
+            if (!cfg().repartyCommand) return;
             d.register(ClientCommands.literal("rp").executes(c -> run("rp")));
             d.register(ClientCommands.literal("reparty").executes(c -> run("reparty")));
         });
@@ -45,7 +46,7 @@ public final class Reparty {
                 .config("Party", b -> {
                     b.label("Reparty");
                     b.toggle("Reparty Command (/rp)", () -> cfg().repartyCommand, v -> cfg().repartyCommand = v)
-                            .desc("/rp or /reparty: disbands your party and invites everyone again. Leader only.");
+                            .desc("/rp or /reparty: disbands your party and invites everyone again. Leader only. Off: the command goes to the server; switching needs a rejoin.");
                     b.toggle("Auto-Accept Reparty Invites", () -> cfg().repartyAutoAccept, v -> cfg().repartyAutoAccept = v)
                             .desc("After someone disbands, their invite within 60s is accepted for you.")
                             .cheat();

@@ -178,7 +178,7 @@ public final class InventoryCategory {
         b.slider("  History Size", 1f, 30f,
                 () -> (float) config.searchOverlayHistorySize, v -> config.searchOverlayHistorySize = Math.round(v));
         b.toggle("  /ahs, /bzs Commands", () -> config.searchOverlayCommands, v -> config.searchOverlayCommands = v)
-                .desc("/ahs, /ahsearch and /bzs open the search from anywhere, with item suggestions. Off: the command goes to the server unchanged.");
+                .desc("/ahs, /ahsearch and /bzs open the search from anywhere, with item suggestions. Off: the command goes to the server unchanged. Switching needs a rejoin.");
         b.toggle("    Ctrl+F In AH / Bazaar", () -> config.searchOverlayCtrlF, v -> config.searchOverlayCtrlF = v);
         b.toggle("  Pet Level / Star Filters", () -> config.searchOverlayFilters, v -> config.searchOverlayFilters = v)
                 .desc("Auction search buttons: Max Lvl puts [Lvl 100/200] before pet names (off: \"] \" so only pets show), the star button adds ✪ / master stars to starrable items.");

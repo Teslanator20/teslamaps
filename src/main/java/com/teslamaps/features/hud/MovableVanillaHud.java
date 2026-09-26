@@ -117,6 +117,9 @@ public final class MovableVanillaHud {
                 int v = cfgY.getAsInt();
                 return v >= 0 ? v : 9;
             }
+            @Override boolean active() {
+                return super.active() && !FancyTabHud.replacing();
+            }
         };
 
         HudElementRegistry.replaceElement(VanillaHudElements.HOTBAR, hotbar::wrap);

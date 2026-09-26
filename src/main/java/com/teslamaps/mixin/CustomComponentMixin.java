@@ -25,6 +25,8 @@ public interface CustomComponentMixin {
     @ModifyReturnValue(method = "get", at = @At("RETURN"))
     private <T> T teslamaps$customComponents(T original, DataComponentType<? extends T> type) {
         if (!Customize.active() || !((Object) this instanceof ItemStack stack)) return original;
+        if (type != DataComponents.TRIM && type != DataComponents.PROFILE
+                && type != DataComponents.ENCHANTMENT_GLINT_OVERRIDE && type != DataComponents.ITEM_MODEL) return original;
 
         String uuid = Customize.uuid(stack);
         if (uuid.isEmpty()) return original;

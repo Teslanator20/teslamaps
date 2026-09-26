@@ -37,6 +37,7 @@ public class SearchOverlay {
 
     public static void register() {
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> {
+            if (!TeslaMapsConfig.get().searchOverlayCommands) return;
             d.register(command("ahs", Location.AUCTION));
             d.register(command("ahsearch", Location.AUCTION));
             d.register(command("bzs", Location.BAZAAR));

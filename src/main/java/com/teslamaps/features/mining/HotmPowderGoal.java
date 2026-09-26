@@ -43,18 +43,18 @@ public final class HotmPowderGoal {
                 .tick(HotmPowderGoal::tick);
     }
 
-    /** Rows under HotM Perk Highlight, called from HotmPerks' config block. */
+    /** Rows in the HotM Menu block, called from HotmPerks' config block. */
     public static void config(com.teslamaps.screen.config.ConfigBuilder b) {
         TeslaMapsConfig c = b.config();
-        b.toggle("  Powder Reminder", () -> c.hotmPowderGoal, v -> c.hotmPowderGoal = v)
+        b.toggle("HotM Powder Reminder", () -> c.hotmPowderGoal, v -> c.hotmPowderGoal = v)
                 .desc("Left-click a perk you can't afford in the HotM menu to set a goal for its powder type (click again to clear). A clickable chat line (opens /hotm) appears once the tab list shows enough powder.")
                 .tags("hotm", "powder", "reminder", "goal", "perk");
-        b.toggle("    Also Show Title", () -> c.hotmPowderGoalTitle, v -> c.hotmPowderGoalTitle = v);
-        b.toggle("    Repeat Until Bought", () -> c.hotmPowderGoalRepeat, v -> c.hotmPowderGoalRepeat = v)
+        b.toggle("  Also Show Title", () -> c.hotmPowderGoalTitle, v -> c.hotmPowderGoalTitle = v);
+        b.toggle("  Repeat Until Bought", () -> c.hotmPowderGoalRepeat, v -> c.hotmPowderGoalRepeat = v)
                 .desc("Off: remind once and forget the goal. On: repeat at the interval below until the goal is cleared.");
-        b.slider("    Repeat Interval (min)", 1f, 60f, () -> (float) c.hotmPowderGoalInterval,
+        b.slider("  Repeat Interval (min)", 1f, 60f, () -> (float) c.hotmPowderGoalInterval,
                 v -> c.hotmPowderGoalInterval = Math.round(v), 0);
-        b.button("    Clear Powder Goals", () -> { c.hotmPowderGoals.clear(); TeslaMapsConfig.save(); });
+        b.button("  Clear Powder Goals", () -> { c.hotmPowderGoals.clear(); TeslaMapsConfig.save(); });
     }
 
     /** From HandledScreenClickMixin.slotClicked, never cancels. */

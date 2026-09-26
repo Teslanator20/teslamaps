@@ -180,7 +180,6 @@ final class Features {
         com.teslamaps.features.ForgeRecipeViewer.register();
         com.teslamaps.features.EnchantTablePanel.register();
         com.teslamaps.features.FancyCraftingTable.register();
-        com.teslamaps.features.HoppityCollectionStats.register();
         // w04-05-inv
         com.teslamaps.features.Experimentation.register();
         com.teslamaps.features.FullInventoryWarning.register();
@@ -365,7 +364,6 @@ final class Features {
         com.teslamaps.features.hud.MaxwellHud.register();
         // w08-01-hud
         com.teslamaps.features.hud.FancyTabHud.register();
-        com.teslamaps.features.HoppityEventStats.register();
         com.teslamaps.features.hud.LimboTracker.register();
         com.teslamaps.features.tracker.ProfitTracker.register();
         com.teslamaps.features.hud.PlayerStats.register();
@@ -937,6 +935,8 @@ final class Features {
         com.teslamaps.features.choco.ChocoExtras.register();
         com.teslamaps.features.choco.ChocoReminder.register();
         com.teslamaps.features.choco.ChocoStrays.register();
+        com.teslamaps.features.HoppityCollectionStats.register();
+        com.teslamaps.features.HoppityEventStats.register();
         com.teslamaps.features.HoppityUnclaimedEggs.register();
         com.teslamaps.features.choco.HoppityNextEgg.register();
         com.teslamaps.features.HoppityHelpers.register();

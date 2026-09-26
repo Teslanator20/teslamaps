@@ -83,16 +83,16 @@ public final class HoppityEventStats {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        hud = HudEditElement.of("hoppityLive", "Hoppity Live Stats").section("Inventory")
+        hud = HudEditElement.of("hoppityLive", "Hoppity Live Stats").section("Events")
                 .enabled(() -> cfg().hoppityLiveStats)
                 .size(() -> lines.isEmpty() ? TextHud.width(SAMPLE) : width, () -> TextHud.height(lines.isEmpty() ? SAMPLE.size() : lines.size()))
                 .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, lines.isEmpty() ? SAMPLE : lines,
                         lines.isEmpty() ? TextHud.width(SAMPLE) : width));
-        Feature.of("HoppityEventStats").section("Inventory").when(() -> cfg().hoppityLiveStats || cfg().hoppityEventSummary)
+        Feature.of("HoppityEventStats").section("Events").when(() -> cfg().hoppityLiveStats || cfg().hoppityEventSummary)
                 .tick(HoppityEventStats::tick)
                 .serverChat(HoppityEventStats::onChat)
                 .hudHiddenInInventory("hoppitylive", HoppityEventStats::render)
-                .config("Inventory", b -> {
+                .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Hoppity's Hunt");
                     b.toggle("Hoppity Live Stats", () -> c.hoppityLiveStats, v -> c.hoppityLiveStats = v)

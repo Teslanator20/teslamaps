@@ -2,14 +2,16 @@ package com.teslamaps.features.foraging;
 
 // Ported from Skysoft's ThrowingAxeParticleHider.kt
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.utils.EntityCache;
 import com.teslamaps.utils.ItemUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.AABB;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /** Drops the wax trail a flying Throwing Axe leaves. */
@@ -30,13 +32,23 @@ public final class ThrowingAxeParticles {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return false;
         if (isAxe(mc.player.getMainHandItem())) return true;
-        AABB box = new AABB(p.getX() - 4, p.getY() - 4, p.getZ() - 4, p.getX() + 4, p.getY() + 4, p.getZ() + 4);
-        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, box)) {
-            if (as.isInvisible() && isAxe(as.getMainHandItem())
-                    && as.position().distanceToSqr(p.getX(), p.getY(), p.getZ()) <= 16) return true;
+        long time = mc.level.getGameTime();
+        if (time != axesAt) {
+            axesAt = time;
+            List<ArmorStand> found = new ArrayList<>();
+            for (ArmorStand as : EntityCache.armorStands()) {
+                if (as.isInvisible() && isAxe(as.getMainHandItem())) found.add(as);
+            }
+            axes = found;
+        }
+        for (ArmorStand as : axes) {
+            if (as.position().distanceToSqr(p.getX(), p.getY(), p.getZ()) <= 16) return true;
         }
         return false;
     }
+
+    private static List<ArmorStand> axes = List.of();
+    private static long axesAt = -1;
 
     private static boolean isAxe(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return false;
