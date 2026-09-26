@@ -117,6 +117,20 @@ public final class SkillsCategory {
         b.info("Flares have no nametag, the timer starts when you see them");
         b.toggle("  Other Deployables (flares, ...)",
                 () -> config.deployableOthers, v -> config.deployableOthers = v);
+        b.toggle("  Totem of Corruption",
+                () -> config.deployableTotem, v -> config.deployableTotem = v)
+                .desc("Time left and owner of your own or the nearest Totem of Corruption, plus its 16 block range")
+                .tags("totem", "corruption", "fishing");
+        b.toggle("    Only Own Totem",
+                () -> config.deployableTotemOwnOnly, v -> config.deployableTotemOwnOnly = v);
+        b.dropdown("    Range Display", new String[] {"Off", "Wireframe", "Ring At Feet"},
+                () -> config.deployableTotemRange, v -> config.deployableTotemRange = v);
+        b.color("    Range Color",
+                () -> config.colorTotemRange, v -> config.colorTotemRange = v);
+        b.slider("    Expiry Warning (s, 0 = off)", 0, 60,
+                () -> (float) config.deployableTotemWarn, v -> config.deployableTotemWarn = Math.round(v), 0);
+        b.toggle("    Hide Witch Particles",
+                () -> config.deployableTotemHideParticles, v -> config.deployableTotemHideParticles = v);
         b.toggle("  Soulflow Display",
                 () -> config.soulflowDisplay, v -> config.soulflowDisplay = v)
                 .desc("Internalized soulflow from your Soulflow Pile / Battery / Supercell. Position in /tmap gui");

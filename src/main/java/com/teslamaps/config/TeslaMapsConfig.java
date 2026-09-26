@@ -2148,6 +2148,57 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w17-09-fis
+    public boolean coralFishHelper = false;
+    public boolean fishingProgressHud = false;
+    public boolean fishingProgressDolphin = true;
+    public boolean fishingProgressExpertise = true;
+    public int fishingProgressHudX = 10;
+    public int fishingProgressHudY = 200;
+    public float fishingProgressHudScale = 1.0f;
+    public boolean seaCreatureTracker = false;
+    public boolean seaCreatureTrackerTotal = false;
+    public boolean seaCreatureTrackerPercent = false;
+    public boolean seaCreatureTrackerDouble = true;
+    public boolean seaCreatureTrackerArea = false;
+    public boolean seaCreatureTrackerSince = true;
+    public boolean seaCreatureTrackerOnlyFishing = true;
+    public int seaCreatureTrackerX = 10;
+    public int seaCreatureTrackerY = 60;
+    public float seaCreatureTrackerScale = 1.0f;
+    public boolean liveSeaCreatures = false;
+    public int liveSeaCreaturesCap = 10;
+    public int liveSeaCreaturesTimer = 300;
+    public boolean liveSeaCreaturesCapAlert = true;
+    public boolean liveSeaCreaturesTimerAlert = true;
+    public String liveSeaCreaturesRarity = "Off";
+    public boolean liveSeaCreaturesBarnOnly = false;
+    public int liveSeaCreaturesX = 10;
+    public int liveSeaCreaturesY = 150;
+    public float liveSeaCreaturesScale = 1.0f;
+    public boolean trophyFishHud = false;
+    public String trophyFishHudMissing = "None";
+    public String trophyFishHudSort = "Total";
+    public String trophyFishHudWhen = "Always";
+    public boolean trophyFishHudHighlight = true;
+    public boolean trophyFishHudCheck = false;
+    public int trophyFishHudX = 300;
+    public int trophyFishHudY = 20;
+    public float trophyFishHudScale = 1.0f;
+    public boolean trophyFishMessages = false;
+    public boolean trophyFishMsgTotal = true;
+    public boolean trophyFishMsgHover = true;
+    public boolean trophyFishHideBronze = false;
+    public boolean trophyFishHideSilver = false;
+    public boolean trophyFishGoldAlert = false;
+    public boolean trophyFishDiamondAlert = false;
+    public boolean trophyFishAlertSound = true;
+    public boolean deployableTotem = false;
+    public boolean deployableTotemOwnOnly = false;
+    public String deployableTotemRange = "Off";
+    public String colorTotemRange = "#AA00AA";
+    public int deployableTotemWarn = 10;
+    public boolean deployableTotemHideParticles = false;
     // w17-07-fis
     public boolean hotspotRadarUnknown = false;
     public boolean hideOtherBobbers = false;

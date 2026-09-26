@@ -840,6 +840,15 @@ final class Features {
         com.teslamaps.slayer.CallMaddox.register();
         com.teslamaps.slayer.VoidgloomBeacon.register();
         com.teslamaps.features.theend.EndermanQol.register();
+        // w17-09-fis
+        com.teslamaps.features.fishing.CoralFishHelper.register();
+        com.teslamaps.features.fishing.SeaCreatureTracker.register();
+        com.teslamaps.features.fishing.LiveSeaCreatures.register();
+        com.teslamaps.features.fishing.FishingProgressHud.register();
+        com.teslamaps.features.fishing.TrophyFishData.register();
+        com.teslamaps.features.fishing.TrophyFishHud.register();
+        com.teslamaps.features.fishing.TrophyFishMessages.register();
+        com.teslamaps.features.fishing.TotemOfCorruption.register();
         // w17-07-fis
         com.teslamaps.features.fishing.FishingTweaks.register();
         com.teslamaps.features.fishing.HotspotCircles.register();

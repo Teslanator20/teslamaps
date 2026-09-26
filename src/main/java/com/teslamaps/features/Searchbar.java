@@ -31,6 +31,10 @@ public class Searchbar {
     private static String cachedQuery = "";
     private static boolean cachedLore = true;
 
+    public static String query() {
+        return TeslaMapsConfig.get().searchbar ? query : "";
+    }
+
     private static boolean enabled() {
         if (!TeslaMapsConfig.get().searchbar) return false;
         Minecraft mc = Minecraft.getInstance();

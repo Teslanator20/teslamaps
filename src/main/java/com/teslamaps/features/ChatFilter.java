@@ -404,6 +404,8 @@ public class ChatFilter {
         if (RareCropTracker.hide(t)) return true;
         lastReason = "slayerRngDisplay";
         if (com.teslamaps.slayer.SlayerRngDisplay.hide(t)) return true;
+        lastReason = "trophyFishMessages";
+        if (com.teslamaps.features.fishing.TrophyFishMessages.hide(t)) return true;
         lastReason = "autopet";
         if (autopet(t)) return true;
         lastReason = "miningChat";
