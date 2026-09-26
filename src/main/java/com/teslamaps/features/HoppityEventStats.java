@@ -46,7 +46,14 @@ public final class HoppityEventStats {
         public int uniques, duplicates, strays;
         public long chocolate;
         public boolean summarized;
+        public int lbFirst, lbLast;
+        public double lbFirstPct, lbLastPct;
     }
+
+    private static final Pattern LB_POS = Pattern.compile("You are #([\\d,]+)(?: in all-time)?(?: Chocolate\\.)?");
+    private static final Pattern LB_PCT = Pattern.compile("You are in the top ([\\d.]+)% of players!");
+    private static long lastLbUpdate, lastReminder;
+    private static Object lbLevel, lbScreen;
 
     private static final Pattern EGG = Pattern.compile("^HOPPITY'S HUNT You found a (?:Chocolate )?(.+?) Egg\\b.*!$");
     private static final Pattern RABBIT = Pattern.compile("^HOPPITY'S HUNT You found (.+) \\((COMMON|UNCOMMON|RARE|EPIC|LEGENDARY|MYTHIC|DIVINE)\\)!$");
@@ -93,6 +100,14 @@ public final class HoppityEventStats {
                     b.toggle("  Show Outside The Event", () -> c.hoppityLiveAlways, v -> c.hoppityLiveAlways = v);
                     b.toggle("Hoppity Event Summary", () -> c.hoppityEventSummary, v -> c.hoppityEventSummary = v)
                             .desc("Chat summary when the event ends. Past years: /tmap hoppity <year>");
+                    b.toggle("  Server Switch Reminder", () -> c.hoppityCfReminder, v -> c.hoppityCfReminder = v)
+                            .desc("During the hunt, reminds you to switch lobbies and open /cf: Hypixel only updates your "
+                                    + "Chocolate Factory leaderboard position on a server change. The summary shows the rank change")
+                            .tags("hoppity", "leaderboard", "chocolate factory", "lobby");
+                    b.slider("    Interval (min)", 1f, 120f, () -> (float) c.hoppityCfReminderInterval,
+                            v -> c.hoppityCfReminderInterval = Math.round(v), 0);
+                    b.slider("    Last X Hours Only (30 = whole event)", 1f, 30f, () -> (float) c.hoppityCfReminderLastHours,
+                            v -> c.hoppityCfReminderLastHours = Math.round(v), 0);
                 });
     }
 
@@ -162,6 +177,7 @@ public final class HoppityEventStats {
         if (dirty && System.currentTimeMillis() - dirtySince > 10_000) save();
 
         boolean active = eventActive();
+        if (active) lbReminder(mc);
         if (!active && cfg().hoppityEventSummary) {
             for (var e : years().entrySet()) {
                 if (e.getValue().summarized || e.getKey() > sbYear()) continue;
@@ -188,6 +204,7 @@ public final class HoppityEventStats {
         if (lastScreen != mc.screen) { lastScreen = mc.screen; straySlots.clear(); }
         if (!eventActive() || !StringUtil.stripTrim(cs.getTitle().getString()).equals("Chocolate Factory")) return;
         var slots = cs.getMenu().slots;
+        if (lbScreen != cs && mc.level != lbLevel) scanLeaderboard(cs, mc);
         for (int i = 0; i < Math.min(27, slots.size()); i++) {
             ItemStack st = slots.get(i).getItem();
             if (st.isEmpty()) { straySlots.remove(i); continue; }
@@ -201,6 +218,49 @@ public final class HoppityEventStats {
             if (m.find()) y.chocolate += num(m.group(1));
             changed();
         }
+    }
+
+    // After SkyHanni's HoppityEventSummary.updateCfPosition + checkLbUpdateWarning
+    private static void scanLeaderboard(AbstractContainerScreen<?> cs, Minecraft mc) {
+        var slots = cs.getMenu().slots;
+        for (int i = 0; i < Math.min(54, slots.size()); i++) {
+            ItemStack st = slots.get(i).getItem();
+            if (st.isEmpty()) continue;
+            int pos = 0;
+            double pct = 0;
+            for (String line : ItemUtil.loreLines(st)) {
+                String l = StringUtil.stripTrim(line);
+                Matcher m = LB_POS.matcher(l);
+                if (m.matches()) pos = (int) num(m.group(1));
+                m = LB_PCT.matcher(l);
+                if (m.matches()) {
+                    try { pct = Double.parseDouble(m.group(1)); } catch (NumberFormatException ignored) {}
+                }
+            }
+            if (pos <= 0) continue;
+            lbScreen = cs;
+            lbLevel = mc.level;
+            lastLbUpdate = System.currentTimeMillis();
+            Year y = current();
+            if (y.lbFirst <= 0) { y.lbFirst = pos; y.lbFirstPct = pct; }
+            y.lbLast = pos;
+            y.lbLastPct = pct;
+            changed();
+            return;
+        }
+    }
+
+    private static void lbReminder(Minecraft mc) {
+        TeslaMapsConfig c = cfg();
+        if (!c.hoppityEventSummary || !c.hoppityCfReminder || mc.player == null) return;
+        long now = System.currentTimeMillis();
+        long end = EPOCH + (sbYear() - 1) * YEAR_MS + 3 * MONTH_MS;
+        if (c.hoppityCfReminderLastHours < 30 && end - now >= c.hoppityCfReminderLastHours * 3_600_000L) return;
+        long interval = Math.max(1, c.hoppityCfReminderInterval) * 60_000L;
+        if (now - lastReminder < interval || now - lastLbUpdate < interval) return;
+        lastReminder = now;
+        mc.player.sendSystemMessage(Component.literal(
+                "§6§lReminder! §eSwitch to a new server and run §6/cf §eto update your leaderboard position in Hoppity Event stats."));
     }
 
     private static List<String> build(int year, Year y) {
@@ -230,6 +290,12 @@ public final class HoppityEventStats {
         }
         if (!rar.isEmpty()) out.add(" " + rar);
         out.add("§6Chocolate: §f" + com.teslamaps.utils.ItemPrice.format(y.chocolate));
+        if (y.lbLast > 0) {
+            String line = "§7Leaderboard: §b#" + String.format(Locale.ROOT, "%,d", y.lbFirst);
+            if (y.lbFirst != y.lbLast) line += " §7→ §b#" + String.format(Locale.ROOT, "%,d", y.lbLast);
+            if (y.lbLastPct > 0) line += " §7(Top §a" + y.lbLastPct + "%§7)";
+            out.add(line);
+        }
         return out;
     }
 

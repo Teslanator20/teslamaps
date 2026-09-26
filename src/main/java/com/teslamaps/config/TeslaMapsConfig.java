@@ -2148,6 +2148,31 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w19-00-evt
+    public boolean snowMinionGiftAlert = false;
+    public boolean raffleHighlight = false;
+    public boolean beachBallTracker = false;
+    public int beachBallHideMinutes = 2;
+    public int beachBallTrackerX = 10;
+    public int beachBallTrackerY = 160;
+    public float beachBallTrackerScale = 1.0f;
+    public boolean beachBallLine = false;
+    public String beachBallLineColor = "00C4F5";
+    public boolean beachBallLanding = true;
+    public boolean fishyTreatProfit = false;
+    public boolean stewHelper = false;
+    public boolean stewHighlight = true;
+    public boolean shinyOrbTracker = false;
+    public boolean shinyOrbHoldingOnly = true;
+    public int shinyOrbTrackerX = 10;
+    public int shinyOrbTrackerY = 200;
+    public float shinyOrbTrackerScale = 1.0f;
+    public boolean shinyOrbLines = false;
+    public boolean shinyOrbLineToPig = true;
+    public boolean shinyOrbLineToOrb = true;
+    public boolean hoppityCfReminder = false;
+    public int hoppityCfReminderInterval = 30;
+    public int hoppityCfReminderLastHours = 2;
     // w18-06-evt
     public boolean griffinPetWarning = false;
     public boolean hoppityCallWarning = false;
