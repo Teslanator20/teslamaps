@@ -403,6 +403,8 @@ public final class InventoryCategory {
         b.toggle("  Tasks Menu", () -> config.guideMenu, v -> config.guideMenu = v);
         b.toggle("  Collections", () -> config.guideCollection, v -> config.guideCollection = v);
         b.toggle("  Century Raffle Tasks", () -> config.guideCentury, v -> config.guideCentury = v);
+        b.toggle("  Rift Guide", () -> config.guideRiftGuide, v -> config.guideRiftGuide = v)
+                .desc("Rift Guide pages: entries marked \"Not completed yet\"");
         b.toggle("  Click Marked Item For Wiki", () -> config.guideWikiClick, v -> config.guideWikiClick = v);
         b.label("Wardrobe & Loadout Keybinds");
         b.toggle("Wardrobe Keybinds", () -> config.wardrobeKeybinds, v -> config.wardrobeKeybinds = v);

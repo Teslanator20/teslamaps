@@ -2148,6 +2148,30 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w19-07-rif
+    public boolean riftWoodenButtons = false;
+    public String riftWoodenButtonsColor = "FF55FF";
+    public boolean riftWoodenButtonsPath = false;
+    public boolean riftTimiteTracker = false;
+    public boolean riftTimiteTrackerToolOnly = false;
+    public int riftTimiteTrackerX = 10;
+    public int riftTimiteTrackerY = 140;
+    public float riftTimiteTrackerScale = 1.0f;
+    public boolean riftVerminTracker = false;
+    public boolean riftVerminOutsideVillage = false;
+    public boolean riftVerminWithoutVacuum = false;
+    public boolean riftVerminHideChat = false;
+    public boolean riftVerminShowTotal = false;
+    public int riftVerminTotalFly = 0;
+    public int riftVerminTotalSpider = 0;
+    public int riftVerminTotalSilverfish = 0;
+    public int riftVerminTrackerX = 10;
+    public int riftVerminTrackerY = 200;
+    public float riftVerminTrackerScale = 1.0f;
+    public boolean riftVerminHighlight = false;
+    public com.teslamaps.render.EspStyle riftVerminEsp = new com.teslamaps.render.EspStyle("80FF55FF", com.teslamaps.render.EspStyle.FILLED);
+    public boolean riftUbikQuickClose = false;
+    public boolean guideRiftGuide = false;
     // w18-06-evt
     public boolean griffinPetWarning = false;
     public boolean hoppityCallWarning = false;
