@@ -976,6 +976,11 @@ final class Features {
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
+        // w19-00-evt
+        com.teslamaps.features.events.BeachBall.register();
+        com.teslamaps.features.events.FishyTreatProfit.register();
+        com.teslamaps.features.events.StewHelper.register();
+        com.teslamaps.features.events.ShinyOrbs.register();
         // w19-03-rif
         com.teslamaps.features.rift.KloonHacking.register();
         com.teslamaps.features.rift.CruxTalismanDisplay.register();
