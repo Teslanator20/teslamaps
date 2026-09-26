@@ -21,7 +21,8 @@ public class ForagingMutes {
             // trees only break on the foraging islands, elsewhere this is a real creaking mob
             if (!Foraging.onForagingIsland() || c.foragingMuteTreeBreakGalatea) return true;
         }
-        if (c.foragingMutePhantoms && id.startsWith("minecraft:entity.phantom.") && Foraging.inMoonglade()) return true;
+        if (c.foragingMutePhantoms && id.startsWith("minecraft:entity.phantom.")
+                && (Foraging.inMoonglade() || c.foragingMutePhantomsSafari && com.teslamaps.safari.SafariData.inSafari())) return true;
         if (c.foragingMuteFusion && FUSION.contains(id) && volume >= 19.9f && Foraging.inMoonglade()) return true;
         return false;
     }

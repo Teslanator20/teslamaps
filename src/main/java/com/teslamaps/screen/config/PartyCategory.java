@@ -79,6 +79,10 @@ public final class PartyCategory {
         b.toggle("  Dup: Check Before Start + Title", () -> config.partyDuplicatePreStart, v -> config.partyDuplicatePreStart = v);
         b.label("Auto Requeue");
         b.toggle("Auto Requeue (dungeon end)", () -> config.autoRequeue, v -> config.autoRequeue = v);
+        b.toggle("  Also after Kuudra", () -> config.requeueKuudra, v -> config.requeueKuudra = v)
+                .desc("Requeues on KUUDRA DOWN / Elle's end line too. !dt or .dt [reason] cancels it with a REQUEUE CANCELLED title; leaving the instance first drops it");
+        b.slider("  Kuudra: Pause if Run Under (s, 0 = off)", 0f, 180f,
+                () -> (float) config.requeueKuudraFastStop, v -> config.requeueKuudraFastStop = Math.round(v));
         b.toggle("Requeue on Party \"r\"", () -> config.requeueOnPartyR, v -> config.requeueOnPartyR = v);
         b.slider("Requeue Delay (s)", 0f, 30f,
                 () -> (float) config.requeueDelaySeconds, v -> config.requeueDelaySeconds = Math.round(v));
