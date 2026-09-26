@@ -2148,6 +2148,33 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w18-08-evt
+    public boolean calendarExtras = false;
+    public boolean calendarMinister = true;
+    public boolean calendarZooPet = true;
+    public boolean cakeTrackerAhInvert = false;
+    public boolean newYearCakeReminder = false;
+    @Global
+    public int newYearCakeClaimedYear = 0;
+    public boolean reindrakeWarpHelper = false;
+    public boolean giftCleanNametags = false;
+    public boolean fruitBowlHelper = false;
+    public boolean fruitBowlHighlight = true;
+    public String fruitBowlCanColor = "55FF55";
+    public String fruitBowlDoneColor = "FF5555";
+    public boolean fruitBowlHud = true;
+    public int fruitBowlHudX = 10;
+    public int fruitBowlHudY = 120;
+    public float fruitBowlHudScale = 1.0f;
+    public boolean carnivalDojoGlow = false;
+    public boolean carnivalShootoutGlow = true;
+    public boolean carnivalFishGlow = true;
+    public boolean dojoGlow = true;
+    public boolean lobbyEventWaypoints = false;
+    public boolean lobbyEasterEggs = true;
+    public boolean lobbyHalloweenBaskets = true;
+    public boolean lobbyPresents = true;
+    public boolean lobbyWaypointsOnlyClosest = false;
     // w17-09-fis
     public boolean coralFishHelper = false;
     public boolean fishingProgressHud = false;
