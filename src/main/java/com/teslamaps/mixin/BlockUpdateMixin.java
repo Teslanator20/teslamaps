@@ -46,6 +46,13 @@ public class BlockUpdateMixin {
             if (com.teslamaps.features.mining.MiningNotifications.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.mining.MiningNotifications.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
             }
+            if ((com.teslamaps.features.rift.LivingMetalHelper.listening() || com.teslamaps.features.rift.LivingCaveDefenseBlocks.listening()
+                    || com.teslamaps.features.rift.LivingCaveSnakes.listening()) && ((Level) (Object) this).isClientSide()) {
+                BlockState old = ((Level) (Object) this).getBlockState(pos);
+                com.teslamaps.features.rift.LivingMetalHelper.onBlockUpdate(pos, old, newState);
+                com.teslamaps.features.rift.LivingCaveDefenseBlocks.onBlockUpdate(pos, old, newState);
+                com.teslamaps.features.rift.LivingCaveSnakes.onBlockUpdate(pos, old, newState);
+            }
             return;
         }
 

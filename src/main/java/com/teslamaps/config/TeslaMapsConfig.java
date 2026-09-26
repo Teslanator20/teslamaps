@@ -2148,6 +2148,37 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w19-03-rif
+    public boolean kloonHackingSolver = false;
+    public boolean kloonColorHelper = true;
+    public boolean kloonTerminalWaypoints = true;
+    public java.util.List<String> kloonDoneTerminals = new java.util.ArrayList<>();
+    public boolean cruxTalismanDisplay = false;
+    public boolean cruxCompactWhenMaxed = true;
+    public boolean cruxShowBonuses = false;
+    public int cruxTalismanX = 10;
+    public int cruxTalismanY = 200;
+    public float cruxTalismanScale = 1.0f;
+    public boolean punchcardHighlight = false;
+    public boolean punchcardReverse = false;
+    public String punchcardColor = "#FFFF55FF";
+    public boolean punchcardOverlay = true;
+    public boolean punchcardCompact = false;
+    public boolean punchcardCountdown = false;
+    public int punchcardOverlayX = 10;
+    public int punchcardOverlayY = 230;
+    public float punchcardOverlayScale = 1.0f;
+    public boolean motesOrbHighlight = false;
+    public float motesOrbSize = 5f;
+    public boolean motesOrbHideParticles = false;
+    public boolean livingMetalHelper = false;
+    public String livingMetalColor = "#A055FFFF";
+    public boolean livingMetalHideParticles = false;
+    public boolean defenseBlocksHighlight = false;
+    public String defenseBlocksColor = "#FF55FFFF";
+    public boolean defenseBlocksHideParticles = false;
+    public boolean caveSnakeHighlight = false;
+    public boolean caveSnakeSolo = true;
     // w18-06-evt
     public boolean griffinPetWarning = false;
     public boolean hoppityCallWarning = false;
@@ -6542,6 +6573,7 @@ public class TeslaMapsConfig {
         if (c.terminalPbs == null) c.terminalPbs = new java.util.HashMap<>();
         if (c.kingRelicPbs == null) c.kingRelicPbs = new java.util.HashMap<>();
         if (c.sectionEnabled == null) c.sectionEnabled = new java.util.HashMap<>();
+        if (c.kloonDoneTerminals == null) c.kloonDoneTerminals = new java.util.ArrayList<>();
         Boolean oldGeneral = c.sectionEnabled.remove("General"); // category renamed to Skills
         if (oldGeneral != null) c.sectionEnabled.putIfAbsent("Skills", oldGeneral);
         Boolean oldDragons = c.sectionEnabled.remove("Dragons"); // category merged into F7 / M7

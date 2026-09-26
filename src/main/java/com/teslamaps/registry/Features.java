@@ -953,5 +953,13 @@ final class Features {
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
+        // w19-03-rif
+        com.teslamaps.features.rift.KloonHacking.register();
+        com.teslamaps.features.rift.CruxTalismanDisplay.register();
+        com.teslamaps.features.rift.PunchcardHighlight.register();
+        com.teslamaps.features.rift.MotesOrbHighlight.register();
+        com.teslamaps.features.rift.LivingMetalHelper.register();
+        com.teslamaps.features.rift.LivingCaveDefenseBlocks.register();
+        com.teslamaps.features.rift.LivingCaveSnakes.register();
     }
 }
