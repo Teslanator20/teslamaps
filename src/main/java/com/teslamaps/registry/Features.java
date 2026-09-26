@@ -982,6 +982,12 @@ final class Features {
         com.teslamaps.features.rift.VerminHighlighter.register();
         com.teslamaps.features.rift.TimiteTracker.register();
         com.teslamaps.features.rift.UbikQuickClose.register();
+        // w19-09-cri
+        com.teslamaps.features.crimson.CrimsonNpcHelper.register();
+        com.teslamaps.features.crimson.AshfangHider.register();
+        com.teslamaps.features.crimson.MagmaBossStage.register();
+        com.teslamaps.features.crimson.AtomHitboxes.register();
+        com.teslamaps.features.crimson.DojoRankDisplay.register();
         // w19-00-evt
         com.teslamaps.features.events.BeachBall.register();
         com.teslamaps.features.events.FishyTreatProfit.register();

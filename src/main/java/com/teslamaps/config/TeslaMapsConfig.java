@@ -2172,6 +2172,27 @@ public class TeslaMapsConfig {
     public com.teslamaps.render.EspStyle riftVerminEsp = new com.teslamaps.render.EspStyle("80FF55FF", com.teslamaps.render.EspStyle.FILLED);
     public boolean riftUbikQuickClose = false;
     public boolean guideRiftGuide = false;
+    // w19-09-cri
+    public boolean crimsonNpcHelper = false;
+    public boolean ashfangHider = false;
+    public boolean ashfangHideParticles = true;
+    public boolean ashfangHideSplashes = true;
+    public boolean ashfangHideFullHpNames = false;
+    public boolean magmaBossStage = false;
+    public boolean magmaBossTitle = true;
+    public boolean magmaBossHud = false;
+    public int magmaBossHudX = 10;
+    public int magmaBossHudY = 200;
+    public float magmaBossHudScale = 1.0f;
+    public boolean atomHitboxes = false;
+    public boolean atomExe = true;
+    public boolean atomWai = true;
+    public boolean atomZee = true;
+    public boolean dojoRankDisplay = false;
+    public boolean rescueAgentPath = false;
+    public boolean rescueSingleColor = false;
+    public String rescueColor = "FFFF55";
+    public boolean crimsonFogColorFix = false;
     // w19-00-evt
     public boolean snowMinionGiftAlert = false;
     public boolean raffleHighlight = false;
