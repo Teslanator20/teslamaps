@@ -858,7 +858,6 @@ final class Features {
         // w17-04-for
         com.teslamaps.safari.SafariCenterNames.register();
         com.teslamaps.features.foraging.ParkRainTimer.register();
-        com.teslamaps.features.TalbotTheodolite.register();
         com.teslamaps.features.mobvisuals.MobVisualExtras.register();
         com.teslamaps.features.foraging.HotfWhisperGoal.register();
         com.teslamaps.features.hunting.HuntingBoxSlots.register();
@@ -885,7 +884,7 @@ final class Features {
         com.teslamaps.features.mobvisuals.LotumHelper.register();
         com.teslamaps.safari.HideyhoFinder.register();
         com.teslamaps.registry.Feature.of("WumpaReenter").section("Critter Safari")
-                .when(() -> com.teslamaps.config.TeslaMapsConfig.get().safariTracker && com.teslamaps.config.TeslaMapsConfig.get().safariWumpaReenter)
+                .when(() -> com.teslamaps.config.TeslaMapsConfig.get().safariTracker && com.teslamaps.config.TeslaMapsConfig.get().safariWumpaTitle && com.teslamaps.config.TeslaMapsConfig.get().safariWumpaReenter)
                 .world(com.teslamaps.safari.SafariTracker::renderReenter);
         // w17-02-for
         com.teslamaps.features.foraging.FrogMask.register();

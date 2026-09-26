@@ -112,10 +112,11 @@ public final class KuudraPearls {
     }
 
     /** Title/subtitle packets, any thread: only stamps times. */
-    public static void onTitle(String text) {
-        if (text.indexOf('[') < 0 || !text.contains("|")) return;
+    public static void onTitle(net.minecraft.network.chat.Component title) {
         TeslaMapsConfig c = cfg();
         if (!c.kuuPearlSpots || !c.kuuPearlDynamic || !c.kuuPearlTimer) return;
+        String text = title.getString();
+        if (text.indexOf('[') < 0 || !text.contains("|")) return;
         Matcher m = PICKUP.matcher(StringUtil.strip(text));
         if (!m.find()) return;
         long now = System.currentTimeMillis();
