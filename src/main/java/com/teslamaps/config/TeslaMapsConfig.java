@@ -2148,6 +2148,34 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w17-07-fis
+    public boolean hotspotRadarUnknown = false;
+    public boolean hideOtherBobbers = false;
+    public boolean hideOtherBobberParticles = false;
+    public boolean fishingBobberFix = false;
+    public boolean fishingBaitDisplay = false;
+    public int fishingBaitDisplayX = 10;
+    public int fishingBaitDisplayY = 200;
+    public float fishingBaitDisplayScale = 1.0f;
+    public boolean fishingBaitChanged = false;
+    public boolean fishingNoBaitWarning = false;
+    public boolean fishingBaitLow = false;
+    public int fishingBaitLowThreshold = 10;
+    public boolean goldenFishTimer = false;
+    public int goldenFishTimerX = 10;
+    public int goldenFishTimerY = 110;
+    public float goldenFishTimerScale = 1.0f;
+    public boolean goldenFishTitles = true;
+    public boolean goldenFishRodWarning = true;
+    public int goldenFishRodWarnSeconds = 30;
+    public int goldfinShardLevel = 0;
+    public boolean goldfinShardRead = false;
+    public boolean hotspotCircle = false;
+    public boolean hotspotCircleFill = true;
+    public float hotspotCircleAlpha = 0.25f;
+    public boolean hotspotCircleRim = true;
+    public boolean hotspotCircleHideParticles = false;
+    public boolean profitTrackerFishingCatches = false;
     // w16-03-sla
     public boolean slayerTierLock = false;
     public String slayerTierLockLast = "";
